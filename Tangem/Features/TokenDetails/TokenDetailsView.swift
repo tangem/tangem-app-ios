@@ -190,7 +190,6 @@ private extension TokenDetailsView {
 
     let bannerNotificationManager = BannerNotificationManager(
         userWalletInfo: userWalletModel.userWalletInfo,
-        walletModelsManager: userWalletModel.walletModelsManager,
         placement: .tokenDetails(walletModel.tokenItem),
     )
 

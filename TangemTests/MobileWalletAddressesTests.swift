@@ -34,9 +34,8 @@ class MobileWalletAddressesTests {
             partialResult[cardWallet.curve] = cardWallet.publicKey
         }
 
-        let config = MobileUserWalletConfig(mobileWalletInfo: walletInfo)
-        try config.supportedBlockchains.forEach { blockchain in
-
+        let blockchains = SupportedBlockchains(version: .v2).blockchains().union(SupportedBlockchains.testableBlockchains(version: .v2))
+        for blockchain in blockchains {
             let keyInfo = try #require(walletInfo.keys.filter { $0.curve == blockchain.curve }.first)
 
             let curve = try #require(seedKeys[blockchain.curve])
@@ -58,9 +57,12 @@ class MobileWalletAddressesTests {
                 )
             case .chia:
                 derivationType = nil
+            case .hedera:
+                // Hedera is not supported for mobile wallet
+                continue
             default:
                 let derivationPath = try #require(blockchain.derivationPath(for: .v3))
-                let publicKey = try #require(keyInfo.derivedKeys[derivationPath])
+                let publicKey = try #require(keyInfo.derivedKeys[derivationPath], "\(blockchain.displayName)")
 
                 derivationType = .plain(.init(path: derivationPath, extendedPublicKey: publicKey))
             }
@@ -88,7 +90,7 @@ class MobileWalletAddressesTests {
             // Did you add new blockchain and got failure here?
             // generate address for seedphrase "tiny escape drive pupil flavor endless love walk gadget match filter luxury"
             // and put it to test_addresses.json file
-            #expect(json[blockchain.networkId] == address.value)
+            #expect(json[blockchain.networkId] == address.value, "\(blockchain.displayName)")
         }
     }
 
