@@ -128,8 +128,8 @@ final class AppSettings {
     @AppStorageCompat(StorageType.settingsVersion)
     var settingsVersion: Int = 0
 
-    @AppStorageCompat(StorageType.tangemPayCardIssuingOrderIdForCustomerWalletAddress)
-    var tangemPayCardIssuingOrderIdForCustomerWalletAddress: [String: String] = [:]
+    @AppStorageCompat(StorageType.tangemPayCardIssuingOrderIdForCustomerWalletId)
+    var tangemPayCardIssuingOrderIdForCustomerWalletId: [String: String] = [:]
 
     @AppStorageCompat(StorageType.tangemPayShowAddToApplePayGuide)
     var tangemPayShowAddToApplePayGuide: Bool = true
