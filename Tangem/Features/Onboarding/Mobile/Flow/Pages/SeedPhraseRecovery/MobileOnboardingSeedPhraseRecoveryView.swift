@@ -63,9 +63,7 @@ private extension MobileOnboardingSeedPhraseRecoveryView {
         .padding(.horizontal, 16)
         .padding(.bottom, 6)
         .alert(item: $viewModel.alert) { $0.alert }
-        .onAppear {
-            viewModel.onAppear()
-        }
+        .onAppear(perform: viewModel.onAppear)
     }
 
     func infoView(item: ViewModel.InfoItem) -> some View {
