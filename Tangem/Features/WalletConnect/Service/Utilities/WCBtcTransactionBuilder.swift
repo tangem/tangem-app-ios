@@ -15,3 +15,52 @@ protocol WCBtcTransactionBuilder {
         for walletModel: any WalletModel
     ) async throws -> Transaction
 }
+
+struct CommonWCBtcTransactionBuilder {}
+
+extension CommonWCBtcTransactionBuilder: WCBtcTransactionBuilder {
+    func buildTx(
+        from wcTransaction: WalletConnectBtcTransaction,
+        for walletModel: any WalletModel
+    ) async throws -> Transaction {
+        let blockchain = walletModel.tokenItem.blockchain
+
+        guard let amountDecimal = Decimal(string: wcTransaction.amount) else {
+            let error = WalletConnectTransactionRequestProcessingError.invalidPayload("Invalid BTC amount: \(wcTransaction.amount)")
+            WCLogger.error(error: error)
+            throw error
+        }
+
+        let btcDecimals = amountDecimal / blockchain.decimalValue
+        let amount = Amount(with: blockchain, type: .coin, value: btcDecimals)
+
+        async let walletUpdate = walletModel.update(silent: false).async()
+        async let feesResult = walletModel.getFee(amount: amount, destination: wcTransaction.recipientAddress).async()
+
+        let fees = try await feesResult
+        let _ = try await walletUpdate
+
+        let selectedFee: Fee = selectDefaultFee(from: fees) ?? Fee(Amount(with: blockchain, value: 0))
+
+        let transaction = try await walletModel.transactionCreator.createTransaction(
+            amount: amount,
+            fee: selectedFee,
+            sourceAddress: wcTransaction.account,
+            destinationAddress: wcTransaction.recipientAddress,
+            changeAddress: wcTransaction.changeAddress,
+            contractAddress: nil,
+            params: nil
+        )
+
+        return transaction
+    }
+
+    private func selectDefaultFee(from fees: [Fee]) -> Fee? {
+        // Prefer 'market' (middle) if available; else first available
+        if fees.count >= 3 {
+            return fees[1]
+        } else {
+            return fees.first
+        }
+    }
+}
