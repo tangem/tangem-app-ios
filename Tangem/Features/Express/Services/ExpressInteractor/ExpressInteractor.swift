@@ -465,7 +465,12 @@ private extension ExpressInteractor {
             )
         }
 
-        let previewCEXState = PreviewCEXState(subtractFee: previewCEX.subtractFee, fees: fees, notification: notification)
+        let previewCEXState = PreviewCEXState(
+            subtractFee: previewCEX.subtractFee,
+            fees: fees,
+            isExemptFee: sender.isExemptFee,
+            notification: notification
+        )
         let correctState: State = .previewCEX(previewCEXState, quote: quote)
 
         return await validate(amount: amount, fee: fee, correctState: correctState)
@@ -862,6 +867,7 @@ extension ExpressInteractor {
     struct PreviewCEXState {
         let subtractFee: Decimal
         let fees: Fees
+        let isExemptFee: Bool
         let notification: WithdrawalNotification?
     }
 
