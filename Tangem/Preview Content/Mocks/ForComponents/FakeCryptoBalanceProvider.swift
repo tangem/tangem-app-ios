@@ -77,3 +77,9 @@ extension FakeTokenBalanceProvider: YieldModuleStatusProvider {
         Empty(completeImmediately: true).eraseToAnyPublisher()
     }
 }
+
+extension FakeTokenBalanceProvider: RefreshStatusProvider {
+    var isRefreshing: AnyPublisher<Bool, Never> {
+        .just(output: false)
+    }
+}

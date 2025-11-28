@@ -3564,6 +3564,7 @@
 		EA84AA2C2E8E5B5E002EF6CE /* YieldModuleChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA84AA2B2E8E5B5E002EF6CE /* YieldModuleChart.swift */; };
 		EA84AA392E8E89CC002EF6CE /* YieldModuleRateInfoChartContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA84AA382E8E89CC002EF6CE /* YieldModuleRateInfoChartContainer.swift */; };
 		EA93432E2E24F9BF0082FA71 /* XRPAssetIdParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA93432D2E24F9BF0082FA71 /* XRPAssetIdParser.swift */; };
+		EA95AB4B2ED9821C003C7F1C /* RefreshStatusProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA95AB4A2ED9821C003C7F1C /* RefreshStatusProvider.swift */; };
 		EA96F3E02E5734460046786E /* PromocodeActivationError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA96F3DF2E5734460046786E /* PromocodeActivationError.swift */; };
 		EA9B039F2E94308600F4B40D /* YieldAvailableNotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9B039E2E94308600F4B40D /* YieldAvailableNotificationView.swift */; };
 		EA9B03A32E9430BC00F4B40D /* YieldAvailableNotificationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9B03A22E9430BC00F4B40D /* YieldAvailableNotificationViewModel.swift */; };
@@ -8120,6 +8121,7 @@
 		EA84AA2B2E8E5B5E002EF6CE /* YieldModuleChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleChart.swift; sourceTree = "<group>"; };
 		EA84AA382E8E89CC002EF6CE /* YieldModuleRateInfoChartContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleRateInfoChartContainer.swift; sourceTree = "<group>"; };
 		EA93432D2E24F9BF0082FA71 /* XRPAssetIdParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XRPAssetIdParser.swift; sourceTree = "<group>"; };
+		EA95AB4A2ED9821C003C7F1C /* RefreshStatusProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshStatusProvider.swift; sourceTree = "<group>"; };
 		EA96F3DF2E5734460046786E /* PromocodeActivationError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromocodeActivationError.swift; sourceTree = "<group>"; };
 		EA9B039E2E94308600F4B40D /* YieldAvailableNotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldAvailableNotificationView.swift; sourceTree = "<group>"; };
 		EA9B03A22E9430BC00F4B40D /* YieldAvailableNotificationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldAvailableNotificationViewModel.swift; sourceTree = "<group>"; };
@@ -13209,6 +13211,7 @@
 				B0A4C4A12A271CD20060E039 /* BalanceWithButtonsViewModel.swift */,
 				EF6548E52D1D82E300F770CB /* BalanceWithButtonsViewModelBalanceProvider.swift */,
 				0A71BE072EBF2E9C005111DB /* BalancesView.swift */,
+				EA95AB4A2ED9821C003C7F1C /* RefreshStatusProvider.swift */,
 			);
 			path = BalanceWithButtonsView;
 			sourceTree = "<group>";
@@ -26671,6 +26674,7 @@
 				B0606E122684A946004004ED /* BlinkingModifier.swift in Sources */,
 				B6C6CAD92EA6757000DA38F9 /* HardwareLimitationsUtil.swift in Sources */,
 				DCBC945D299404510050BC35 /* CommonAnalyticsSessionContext.swift in Sources */,
+				EA95AB4B2ED9821C003C7F1C /* RefreshStatusProvider.swift in Sources */,
 				B00371BE2A8A5E5900D77A4B /* FakeUserTokensManager.swift in Sources */,
 				EF170E772EA0FCFF005AE9A0 /* NewActionButtonsSwapViewModel.swift in Sources */,
 				DC261CA9292CF56600875E64 /* AuthCoordinatorView.swift in Sources */,
