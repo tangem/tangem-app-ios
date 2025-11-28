@@ -60,6 +60,10 @@ final class UserWalletSettingsViewModel: ObservableObject {
         set { nftAvailabilityProvider.setNFTEnabled(newValue, for: userWalletModel) }
     }
 
+    private var analyticsContextParams: Analytics.ContextParams {
+        .custom(userWalletModel.analyticsContextData)
+    }
+
     private var currentWalletModelsManager: WalletModelsManager?
     private var currentUserTokensManager: UserTokensManager?
 
@@ -87,9 +91,11 @@ final class UserWalletSettingsViewModel: ObservableObject {
         bind()
     }
 
-    func onAppear() {
-        Analytics.log(.walletSettingsScreenOpened)
+    func onFirstAppear() {
+        logScreenOpenedAnalytics()
+    }
 
+    func onAppear() {
         setupView()
         if FeatureProvider.isAvailable(.accounts) {
             loadWalletImage()
@@ -293,6 +299,7 @@ private extension UserWalletSettingsViewModel {
 
         runTask(in: self) { viewModel in
             if isBackupNeeded {
+                viewModel.logMobileBackupNeededAnalytics(action: .upgrade)
                 await viewModel.openMobileBackupToUpgradeNeeded()
             } else {
                 await viewModel.upgradeMobileWallet()
@@ -326,7 +333,7 @@ private extension UserWalletSettingsViewModel {
 
     func mobileAccessCodeAction() {
         let hasAccessCode = userWalletModel.config.userWalletAccessCodeStatus.hasAccessCode
-        Analytics.log(.walletSettingsButtonAccessCode, params: [.action: hasAccessCode ? .changing : .set])
+        logMobileAccessCodeTapAnalytics(hasAccessCode: hasAccessCode)
 
         runTask(in: self) { viewModel in
             let state = await viewModel.mobileSettingsUtil.calculateAccessCodeState()
@@ -334,6 +341,7 @@ private extension UserWalletSettingsViewModel {
             await runOnMain {
                 switch state {
                 case .needsBackup:
+                    viewModel.logMobileBackupNeededAnalytics(action: .accessCode)
                     viewModel.openMobileBackupNeeded()
                 case .onboarding(let context):
                     viewModel.openMobileAccessCodeOnboarding(context: context)
@@ -345,14 +353,14 @@ private extension UserWalletSettingsViewModel {
     }
 
     func prepareBackup() {
-        Analytics.log(.buttonCreateBackup)
+        logBackupTapAnalytics()
         if let backupInput = userWalletModel.backupInput {
             openOnboarding(with: .input(backupInput))
         }
     }
 
     func didTapForgetWallet() {
-        Analytics.log(.buttonDeleteWalletTapped)
+        Analytics.log(.buttonDeleteWalletTapped, contextParams: analyticsContextParams)
 
         let deleteButton = ConfirmationDialogViewModel.Button(
             title: Localization.commonForget,
@@ -372,6 +380,7 @@ private extension UserWalletSettingsViewModel {
     }
 
     func didTapRemoveMobileWallet() {
+        logMobileBackupNeededAnalytics(action: .remove)
         coordinator?.openMobileRemoveWalletNotification(userWalletModel: userWalletModel)
     }
 
@@ -417,7 +426,7 @@ private extension UserWalletSettingsViewModel {
     }
 
     func openManageTokens() {
-        Analytics.log(.settingsButtonManageTokens)
+        Analytics.log(.settingsButtonManageTokens, contextParams: analyticsContextParams)
 
         guard
             let currentWalletModelsManager,
@@ -434,7 +443,7 @@ private extension UserWalletSettingsViewModel {
     }
 
     func openCardSettings() {
-        Analytics.log(.buttonCardSettings)
+        Analytics.log(.buttonCardSettings, contextParams: analyticsContextParams)
 
         let scanParameters = CardScannerParameters(
             shouldAskForAccessCodes: true,
@@ -479,19 +488,23 @@ private extension UserWalletSettingsViewModel {
     func openMobileBackupNeeded() {
         coordinator?.openMobileBackupNeeded(
             userWalletModel: userWalletModel,
+            source: .walletSettings(action: .accessCode),
             onBackupFinished: weakify(self, forFunction: UserWalletSettingsViewModel.mobileAccessCodeAction)
         )
     }
 
     func openMobileAccessCodeOnboarding(context: MobileWalletContext) {
-        let flow = MobileOnboardingFlow.accessCode(userWalletModel: userWalletModel, context: context)
+        let flow = MobileOnboardingFlow.accessCode(
+            userWalletModel: userWalletModel,
+            source: .walletSettings(action: .none),
+            context: context
+        )
         let input = MobileOnboardingInput(flow: flow)
         openOnboarding(with: .mobileInput(input))
     }
 
     func openMobileBackupTypes() {
-        Analytics.log(.walletSettingsButtonBackup)
-
+        logMobileBackupTapAnalytics()
         coordinator?.openMobileBackupTypes(userWalletModel: userWalletModel)
     }
 
@@ -502,6 +515,7 @@ private extension UserWalletSettingsViewModel {
 
     @MainActor
     func openMobileBackupToUpgradeNeeded() {
+        logMobileBackupNeededAnalytics(action: .upgrade)
         coordinator?.openMobileBackupToUpgradeNeeded(
             onBackupRequested: weakify(self, forFunction: UserWalletSettingsViewModel.openBackupMobileWallet)
         )
@@ -511,6 +525,7 @@ private extension UserWalletSettingsViewModel {
     func openBackupMobileWallet() {
         let input = MobileOnboardingInput(flow: .seedPhraseBackupToUpgrade(
             userWalletModel: userWalletModel,
+            source: .walletSettings(action: .upgrade),
             onContinue: weakify(self, forFunction: UserWalletSettingsViewModel.onMobileBackupToUpgradeComplete)
         ))
         coordinator?.openOnboardingModal(with: .mobileInput(input))
@@ -620,5 +635,40 @@ private extension UserWalletSettingsViewModel {
             owner?.currentWalletModelsManager = walletModelsManager
             owner?.currentUserTokensManager = userTokensManager
         }
+    }
+}
+
+// MARK: - Analytics
+
+private extension UserWalletSettingsViewModel {
+    func logScreenOpenedAnalytics() {
+        Analytics.log(.walletSettingsScreenOpened, contextParams: analyticsContextParams)
+    }
+
+    func logMobileBackupNeededAnalytics(action: Analytics.ParameterValue) {
+        Analytics.log(
+            .walletSettingsNoticeBackupFirst,
+            params: [
+                .source: .walletSettings,
+                .action: action,
+            ],
+            contextParams: analyticsContextParams
+        )
+    }
+
+    func logMobileAccessCodeTapAnalytics(hasAccessCode: Bool) {
+        Analytics.log(
+            .walletSettingsButtonAccessCode,
+            params: [.action: hasAccessCode ? .changing : .set],
+            contextParams: analyticsContextParams
+        )
+    }
+
+    func logMobileBackupTapAnalytics() {
+        Analytics.log(.walletSettingsButtonBackup, contextParams: analyticsContextParams)
+    }
+
+    func logBackupTapAnalytics() {
+        Analytics.log(.buttonCreateBackup, contextParams: analyticsContextParams)
     }
 }
