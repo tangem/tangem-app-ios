@@ -12,8 +12,6 @@ import TangemFoundation
 import TangemAssets
 
 enum TangemPayNotificationEvent: Equatable, Hashable {
-    case createAccountAndIssueCard
-    case viewKYCStatus
     case syncNeeded
     case unavailable
 }
@@ -21,10 +19,6 @@ enum TangemPayNotificationEvent: Equatable, Hashable {
 extension TangemPayNotificationEvent: NotificationEvent {
     var title: NotificationView.Title? {
         switch self {
-        case .createAccountAndIssueCard:
-            return .string(Localization.tangempayIssueCardNotificationTitle)
-        case .viewKYCStatus:
-            return .string(Localization.tangempayKycInProgressNotificationTitle)
         case .syncNeeded:
             return .string(Localization.tangempayPaymentAccountSyncNeeded)
         case .unavailable:
@@ -32,13 +26,8 @@ extension TangemPayNotificationEvent: NotificationEvent {
         }
     }
 
-    // [REDACTED_TODO_COMMENT]
     var description: String? {
         switch self {
-        case .createAccountAndIssueCard:
-            return "Write description here. In one, two or three lines will be awesome"
-        case .viewKYCStatus:
-            return "Write description here. In one, two or three lines will be awesome"
         case .syncNeeded:
             return Localization.tangempayUseTangemDeviceToRestorePaymentAccount
         case .unavailable:
@@ -48,9 +37,7 @@ extension TangemPayNotificationEvent: NotificationEvent {
 
     var colorScheme: NotificationView.ColorScheme {
         switch self {
-        case .createAccountAndIssueCard,
-             .viewKYCStatus,
-             .syncNeeded:
+        case .syncNeeded:
             return .primary
         case .unavailable:
             return .secondary
@@ -59,10 +46,6 @@ extension TangemPayNotificationEvent: NotificationEvent {
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .createAccountAndIssueCard:
-            return .init(iconType: .image(Assets.Visa.promo.image), size: Constants.defaultIconSize)
-        case .viewKYCStatus:
-            return .init(iconType: .image(Assets.Visa.kyc.image), size: Constants.defaultIconSize)
         case .syncNeeded, .unavailable:
             return .init(iconType: .image(Assets.warningIcon.image))
         }
@@ -78,20 +61,6 @@ extension TangemPayNotificationEvent: NotificationEvent {
 
     var buttonAction: NotificationButtonAction? {
         switch self {
-        case .createAccountAndIssueCard:
-            NotificationButtonAction(
-                .tangemPayCreateAccountAndIssueCard,
-                withLoader: true,
-                isDisabled: false
-            )
-
-        case .viewKYCStatus:
-            NotificationButtonAction(
-                .tangemPayViewKYCStatus,
-                withLoader: false,
-                isDisabled: false
-            )
-
         case .syncNeeded:
             NotificationButtonAction(
                 .tangemPaySync,
