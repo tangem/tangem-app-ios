@@ -12,6 +12,7 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 
+// [REDACTED_TODO_COMMENT]
 struct CurrencySelectView: View {
     @ObservedObject var viewModel: CurrencySelectViewModel
     @State private var searchText: String = ""
@@ -19,18 +20,18 @@ struct CurrencySelectView: View {
     var body: some View {
         ZStack {
             Colors.Background.secondary.ignoresSafeArea()
-
             content
-                .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
         }
-        .navigationBarTitle(Localization.detailsRowTitleCurrency, displayMode: .inline)
+        .searchable(text: $searchText, placement: searchFieldPlacement)
+        .navigationTitle(Localization.detailsRowTitleCurrency)
+        .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             viewModel.onAppear()
         }
     }
 
     @ViewBuilder
-    var content: some View {
+    private var content: some View {
         switch viewModel.state {
         case .loading:
             ProgressView()
@@ -89,6 +90,14 @@ struct CurrencySelectView: View {
                 $0.description.localizedStandardContains(text)
             }
             .sorted(by: sortindPredicate)
+    }
+
+    private var searchFieldPlacement: SearchFieldPlacement {
+        if #available(iOS 26.0, *) {
+            return SearchFieldPlacement.automatic
+        } else {
+            return SearchFieldPlacement.navigationBarDrawer(displayMode: .always)
+        }
     }
 }
 

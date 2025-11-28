@@ -62,7 +62,7 @@ final class OverlayContentContainerViewController: UIViewController {
         return isExpandedState || isCollapsedState
     }
 
-    private var minBackgroundShadowViewAlpha: CGFloat { .zero }
+    private let minBackgroundShadowViewAlpha = CGFloat.zero
 
     private var maxBackgroundShadowViewAlpha: CGFloat {
         traitCollection.isDarkMode
@@ -122,16 +122,6 @@ final class OverlayContentContainerViewController: UIViewController {
         setupTapGestureRecognizerHostingView()
         setupOverlayIfAvailable()
         setupAppLifecycleHelper()
-    }
-
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-
-        if let grabberView {
-            grabberView.superview?.bringSubviewToFront(grabberView)
-        }
-
-        backgroundShadowView.superview?.bringSubviewToFront(backgroundShadowView)
     }
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -261,26 +251,17 @@ final class OverlayContentContainerViewController: UIViewController {
         backgroundShadowView.alpha = minBackgroundShadowViewAlpha
         backgroundShadowView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         backgroundShadowView.isUserInteractionEnabled = false
-        contentViewController.view.addSubview(backgroundShadowView)
+        view.addSubview(backgroundShadowView)
         updateBackgroundShadowViewBackgroundColor()
     }
 
     private func setupContent() {
         addChild(contentViewController)
-
-        let containerView = view!
-        let contentView = contentViewController.view!
-        containerView.translatesAutoresizingMaskIntoConstraints = false
-        contentView.translatesAutoresizingMaskIntoConstraints = false
-        containerView.addSubview(contentView)
-
-        NSLayoutConstraint.activate([
-            contentView.heightAnchor.constraint(equalToConstant: screenBounds.height),
-            contentView.widthAnchor.constraint(equalToConstant: screenBounds.width),
-        ])
+        contentViewController.view.frame = screenBounds
+        view.addSubview(contentViewController.view)
 
         // Actual value for the `cornerRadius` CALayer property will be assigned later in `updateCornerRadius`
-        contentView.layer.cornerRadius(.zero, corners: .topEdge)
+        contentViewController.view.layer.cornerRadius(.zero, corners: .topEdge)
         contentViewController.didMove(toParent: self)
     }
 
@@ -293,32 +274,29 @@ final class OverlayContentContainerViewController: UIViewController {
     private func setupOverlay(_ overlayViewController: UIViewController) {
         addChild(overlayViewController)
 
-        let containerView = view!
-        let overlayView = overlayViewController.view!
-        containerView.translatesAutoresizingMaskIntoConstraints = false
-        overlayView.translatesAutoresizingMaskIntoConstraints = false
+        overlayViewController.view.translatesAutoresizingMaskIntoConstraints = false
         // `overlayView` always must be placed under `tapGestureRecognizerHostingView`
-        containerView.insertSubview(overlayView, belowSubview: tapGestureRecognizerHostingView)
+        view.insertSubview(overlayViewController.view, belowSubview: tapGestureRecognizerHostingView)
 
-        let overlayViewTopAnchorConstraint = overlayView
+        let overlayViewTopAnchorConstraint = overlayViewController.view
             .topAnchor
-            .constraint(equalTo: containerView.topAnchor, constant: overlayCollapsedVerticalOffset)
+            .constraint(equalTo: view.topAnchor, constant: overlayCollapsedVerticalOffset)
         self.overlayViewTopAnchorConstraint = overlayViewTopAnchorConstraint
 
         NSLayoutConstraint.activate([
             overlayViewTopAnchorConstraint,
-            overlayView.heightAnchor.constraint(equalToConstant: screenBounds.height),
-            overlayView.widthAnchor.constraint(equalToConstant: screenBounds.width),
+            overlayViewController.view.heightAnchor.constraint(equalToConstant: screenBounds.height),
+            overlayViewController.view.widthAnchor.constraint(equalToConstant: screenBounds.width),
         ])
 
         let grabberViewFactory = GrabberViewFactory()
         let grabberView = grabberViewFactory.makeUIKitView()
         self.grabberView = grabberView
 
-        overlayView.addSubview(grabberView)
-        grabberView.centerXAnchor.constraint(equalTo: overlayView.centerXAnchor).isActive = true
+        overlayViewController.view.addSubview(grabberView)
+        grabberView.centerXAnchor.constraint(equalTo: overlayViewController.view.centerXAnchor).isActive = true
 
-        overlayView.layer.cornerRadius(overlayCornerRadius, corners: .topEdge)
+        overlayViewController.view.layer.cornerRadius(overlayCornerRadius, corners: .topEdge)
         overlayViewController.additionalSafeAreaInsets.bottom = contentExpandedVerticalOffset // Over-scroll compensation
         overlayViewController.didMove(toParent: self)
     }
