@@ -35,7 +35,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     // [REDACTED_TODO_COMMENT]
     // [REDACTED_INFO]
     @Published var tangemPayNotificationInputs: [NotificationViewInput] = []
-    @Published var tangemPayCardIssuingInProgress: Bool = false
     @Published var tangemPaySyncInProgress: Bool = false
 
     // [REDACTED_TODO_COMMENT]
@@ -298,11 +297,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .flatMapLatest(\.tangemPayNotificationManager.notificationPublisher)
             .receiveOnMain()
             .assign(to: &$tangemPayNotificationInputs)
-
-        userWalletModel.tangemPayAccountPublisher
-            .flatMapLatest(\.tangemPayCardIssuingInProgressPublisher)
-            .receiveOnMain()
-            .assign(to: &$tangemPayCardIssuingInProgress)
 
         userWalletModel.tangemPayAccountPublisher
             .flatMapLatest(\.tangemPaySyncInProgressPublisher)
@@ -627,6 +621,14 @@ extension MultiWalletMainContentViewModel {
 // MARK: - TangemPayAccountRoutable
 
 extension MultiWalletMainContentViewModel: TangemPayAccountRoutable {
+    func openTangemPayIssuingYourCardPopup() {
+        coordinator?.openTangemPayIssuingYourCardPopup()
+    }
+
+    func openTangemPayFailedToIssueCardPopup() {
+        coordinator?.openTangemPayFailedToIssueCardPopup(userWalletModel: userWalletModel)
+    }
+
     func openTangemPayMainView(tangemPayAccount: TangemPayAccount) {
         coordinator?.openTangemPayMainView(
             userWalletInfo: userWalletModel.userWalletInfo,
