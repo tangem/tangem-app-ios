@@ -52,16 +52,6 @@ struct TopMarketWidgetView: View {
     }
 }
 
-// MARK: - Constants
-
-private extension TopMarketWidgetView {
-    enum Constants {
-        static let defaultHorizontalInset = 16.0
-        static let listOverlayTopInset = 10.0
-        static let listOverlayBottomInset = 12.0
-    }
-}
-
 // MARK: - Auxiliary types
 
 extension TopMarketWidgetView {

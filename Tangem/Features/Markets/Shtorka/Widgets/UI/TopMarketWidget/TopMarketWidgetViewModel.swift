@@ -142,7 +142,7 @@ private extension TopMarketWidgetViewModel {
             }
             .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
-            .sink { (viewModel: PulseMarketWidgetViewModel, items: [MarketTokenItemViewModel]) in
+            .sink { (viewModel: TopMarketWidgetViewModel, items: [MarketTokenItemViewModel]) in
                 viewModel.tokenViewModels.append(contentsOf: items)
                 viewModel.tokenListLoadingState = .loaded
             }
