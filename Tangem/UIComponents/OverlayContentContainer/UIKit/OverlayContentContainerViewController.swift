@@ -6,7 +6,6 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import UIKit
 import TangemUIUtils
 import TangemUI
@@ -73,7 +72,6 @@ final class OverlayContentContainerViewController: UIViewController {
     // MARK: - IBOutlets/UI
 
     private var overlayViewTopAnchorConstraint: NSLayoutConstraint?
-    private var grabberView: UIView?
     private lazy var backgroundShadowView = UIView(frame: screenBounds)
     private lazy var tapGestureRecognizerHostingView = TouchPassthroughView()
 
@@ -161,8 +159,6 @@ final class OverlayContentContainerViewController: UIViewController {
 
         overlayViewTopAnchorConstraint?.isActive = false
         overlayViewTopAnchorConstraint = nil
-
-        grabberView = nil
 
         let overlayView = overlayViewController.view!
         overlayView.removeFromSuperview()
@@ -288,13 +284,6 @@ final class OverlayContentContainerViewController: UIViewController {
             overlayViewController.view.heightAnchor.constraint(equalToConstant: screenBounds.height),
             overlayViewController.view.widthAnchor.constraint(equalToConstant: screenBounds.width),
         ])
-
-        let grabberViewFactory = GrabberViewFactory()
-        let grabberView = grabberViewFactory.makeUIKitView()
-        self.grabberView = grabberView
-
-        overlayViewController.view.addSubview(grabberView)
-        grabberView.centerXAnchor.constraint(equalTo: overlayViewController.view.centerXAnchor).isActive = true
 
         overlayViewController.view.layer.cornerRadius(overlayCornerRadius, corners: .topEdge)
         overlayViewController.additionalSafeAreaInsets.bottom = contentExpandedVerticalOffset // Over-scroll compensation
