@@ -134,11 +134,14 @@ extension UserWalletSettingsCoordinator:
         }
     }
 
-    func openMobileBackupNeeded(userWalletModel: UserWalletModel, onBackupFinished: @escaping () -> Void) {
-        Analytics.log(.walletSettingsNoticeBackupFirst)
-
+    func openMobileBackupNeeded(
+        userWalletModel: UserWalletModel,
+        source: MobileOnboardingFlowSource,
+        onBackupFinished: @escaping () -> Void
+    ) {
         let viewModel = MobileBackupNeededViewModel(
             userWalletModel: userWalletModel,
+            source: source,
             onBackupFinished: onBackupFinished,
             coordinator: self
         )

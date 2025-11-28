@@ -9,10 +9,10 @@
 import TangemMobileWalletSdk
 
 enum MobileOnboardingFlow {
-    case walletImport
-    case walletActivate(userWalletModel: UserWalletModel)
-    case accessCode(userWalletModel: UserWalletModel, context: MobileWalletContext)
-    case seedPhraseBackup(userWalletModel: UserWalletModel)
-    case seedPhraseBackupToUpgrade(userWalletModel: UserWalletModel, onContinue: () -> Void)
+    case walletImport(source: MobileOnboardingFlowSource)
+    case walletActivate(userWalletModel: UserWalletModel, source: MobileOnboardingFlowSource)
+    case accessCode(userWalletModel: UserWalletModel, source: MobileOnboardingFlowSource, context: MobileWalletContext)
+    case seedPhraseBackup(userWalletModel: UserWalletModel, source: MobileOnboardingFlowSource)
+    case seedPhraseBackupToUpgrade(userWalletModel: UserWalletModel, source: MobileOnboardingFlowSource, onContinue: () -> Void)
     case seedPhraseReveal(context: MobileWalletContext)
 }
