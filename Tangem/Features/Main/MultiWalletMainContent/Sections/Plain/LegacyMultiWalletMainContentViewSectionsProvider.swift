@@ -112,7 +112,7 @@ extension LegacyMultiWalletMainContentViewSectionsProvider: MultiWalletMainConte
         let sourcePublisherFactory = TokenSectionsSourcePublisherFactory()
 
         let tokenSectionsSourcePublisher = sourcePublisherFactory
-            .makeSourcePublisherForMainScreen(for: userWalletModel)
+            .makeSourcePublisher(for: userWalletModel)
 
         let organizedTokensSectionsPublisher = tokenSectionsAdapter
             .organizedSections(from: tokenSectionsSourcePublisher, on: mappingQueue)
@@ -138,13 +138,5 @@ extension LegacyMultiWalletMainContentViewSectionsProvider: MultiWalletMainConte
 
     func configure(with itemViewModelFactory: MultiWalletMainContentItemViewModelFactory) {
         self.itemViewModelFactory = itemViewModelFactory
-    }
-}
-
-// MARK: - Convenience extensions
-
-private extension TokenSectionsAdapter.Section {
-    var walletModels: [any WalletModel] {
-        return items.compactMap(\.walletModel)
     }
 }
