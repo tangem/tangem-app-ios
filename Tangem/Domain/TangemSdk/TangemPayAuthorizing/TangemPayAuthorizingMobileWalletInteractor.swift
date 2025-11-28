@@ -58,14 +58,17 @@ extension TangemPayAuthorizingMobileWalletInteractor: TangemPayAuthorizing {
             )
         )
 
+        let customerWalletAddress = try TangemPayUtilities.makeAddress(using: walletPublicKey)
         let tokens = try await handleCustomerWalletAuthorization(
             context: context,
             walletPublicKey: walletPublicKey,
             customerWalletId: customerWalletId,
+            customerWalletAddress: customerWalletAddress,
             authorizationService: authorizationService
         )
 
         return TangemPayAuthorizingResponse(
+            customerWalletAddress: customerWalletAddress,
             tokens: tokens,
             derivationResult: derivationResult
         )
@@ -75,12 +78,13 @@ extension TangemPayAuthorizingMobileWalletInteractor: TangemPayAuthorizing {
         context: MobileWalletContext,
         walletPublicKey: Wallet.PublicKey,
         customerWalletId: String,
+        customerWalletAddress: String,
         authorizationService: TangemPayAuthorizationService
     ) async throws -> TangemPayAuthorizationTokens {
         VisaLogger.info("Requesting challenge for wallet authorization")
 
         let challengeResponse = try await authorizationService.getChallenge(
-            customerWalletAddress: TangemPayUtilities.makeAddress(using: walletPublicKey),
+            customerWalletAddress: customerWalletAddress,
             customerWalletId: customerWalletId
         )
 
