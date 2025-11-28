@@ -60,6 +60,7 @@ final class AccountRowButtonViewModel: Identifiable, ObservableObject {
     private func bind() {
         accountModel
             .didChangePublisher
+            .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, _ in
                 viewModel.onAccountModelDidChange()

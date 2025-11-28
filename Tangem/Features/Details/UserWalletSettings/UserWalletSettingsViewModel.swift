@@ -149,7 +149,7 @@ private extension UserWalletSettingsViewModel {
                 coordinator: coordinator
             )
 
-            // We should not display mangeTokens row if we have visible accounts
+            // We should not display manageTokens row if we have visible accounts
             // because if they are visible, token management is performed from
             // their respective details screens
             accountsViewModel.$accountRowViewModels

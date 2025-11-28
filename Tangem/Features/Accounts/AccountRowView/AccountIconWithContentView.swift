@@ -30,23 +30,30 @@ struct AccountIconWithContentView<Subtitle: View, Trailing: View>: View {
     }
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 0) {
             AccountIconView(data: iconData)
+                .padding(.trailing, 12)
 
-            VStack(alignment: .leading, spacing: 0) {
-                Text(name)
-                    .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+            contentStack
+                .fixedSize(horizontal: true, vertical: false)
 
-                subtitle
-                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-            }
-            .frame(alignment: .leading)
-
-            Spacer()
+            Spacer(minLength: 8)
 
             trailing
         }
         .contentShape(Rectangle())
+    }
+
+    private var contentStack: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text(name)
+                .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                .lineLimit(1)
+
+            subtitle
+                .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                .lineLimit(1)
+        }
     }
 }
 

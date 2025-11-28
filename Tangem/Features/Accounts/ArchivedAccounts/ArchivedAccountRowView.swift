@@ -24,6 +24,7 @@ struct ArchivedAccountRowView: View {
                 CircleButton(title: Localization.accountArchivedRecover, action: viewData.onRecover)
                     .loading(viewData.isRecovering)
                     .disabled(viewData.isRecoverDisabled)
+                    .lineLimit(1)
             }
         )
     }
