@@ -142,6 +142,12 @@ struct MainCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: YieldNoticeViewModel.self) {
                 YieldNoticeView(viewModel: $0)
             }
+            .floatingSheetContent(for: TangemPayYourCardIsIssuingSheetViewModel.self) {
+                TangemPayYourCardIsIssuingSheetView(viewModel: $0)
+            }
+            .floatingSheetContent(for: TangemPayFailedToIssueCardSheetViewModel.self) {
+                TangemPayFailedToIssueCardSheetView(viewModel: $0)
+            }
 
         NavHolder()
             .bottomSheet(
