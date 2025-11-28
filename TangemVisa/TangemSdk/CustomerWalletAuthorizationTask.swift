@@ -51,8 +51,17 @@ public final class CustomerWalletAuthorizationTask: CardSessionRunnable {
                     )
                 )
 
-                let tokens = try await handler.handleCustomerWalletAuthorization(session: session, walletPublicKey: walletPublicKey)
-                completion(.success(Response(tokens: tokens, derivationResult: derivationResult)))
+                let customerWalletAddress = try TangemPayUtilities.makeAddress(using: walletPublicKey)
+                let tokens = try await handler.handleCustomerWalletAuthorization(
+                    session: session,
+                    walletPublicKey: walletPublicKey,
+                    customerWalletAddress: customerWalletAddress
+                )
+                completion(.success(Response(
+                    customerWalletAddress: customerWalletAddress,
+                    tokens: tokens,
+                    derivationResult: derivationResult
+                )))
             } catch let error as TangemSdkError {
                 VisaLogger.info("Error during authorization process. Tangem Sdk Error: \(error)")
                 completion(.failure(error))
@@ -65,12 +74,13 @@ public final class CustomerWalletAuthorizationTask: CardSessionRunnable {
 
     private func handleCustomerWalletAuthorization(
         session: CardSession,
-        walletPublicKey: Wallet.PublicKey
+        walletPublicKey: Wallet.PublicKey,
+        customerWalletAddress: String
     ) async throws -> TangemPayAuthorizationTokens {
         VisaLogger.info("Requesting challenge for wallet authorization")
 
         let challengeResponse = try await authorizationService.getChallenge(
-            customerWalletAddress: TangemPayUtilities.makeAddress(using: walletPublicKey),
+            customerWalletAddress: customerWalletAddress,
             customerWalletId: customerWalletId
         )
 
@@ -106,6 +116,7 @@ public final class CustomerWalletAuthorizationTask: CardSessionRunnable {
 
 public extension CustomerWalletAuthorizationTask {
     struct Response {
+        public let customerWalletAddress: String
         public let tokens: TangemPayAuthorizationTokens
         public let derivationResult: [Data: DerivedKeys]
     }
