@@ -411,7 +411,7 @@ struct CustomerInfoManagementServiceMock: CustomerInfoManagementService {
         )
     }
 
-    func placeOrder(walletAddress: String) async throws -> TangemPayOrderResponse {
+    func placeOrder(customerWalletAddress: String) async throws -> TangemPayOrderResponse {
         TangemPayOrderResponse(
             id: "",
             customerId: "",
