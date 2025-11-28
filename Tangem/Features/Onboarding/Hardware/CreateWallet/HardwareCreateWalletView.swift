@@ -19,6 +19,7 @@ struct HardwareCreateWalletView: View {
         content
             .padding(.horizontal, 16)
             .allowsHitTesting(!viewModel.isScanning)
+            .onFirstAppear(perform: viewModel.onFirstAppear)
             .confirmationDialog(viewModel: $viewModel.confirmationDialog)
             .alert(item: $viewModel.alert, content: { $0.alert })
     }
