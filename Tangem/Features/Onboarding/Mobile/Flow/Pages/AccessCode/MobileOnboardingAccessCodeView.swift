@@ -38,6 +38,7 @@ private extension MobileOnboardingAccessCodeView {
 
             OnboardingPinStackView(
                 maxDigits: viewModel.codeLength,
+                handleKeyboard: false,
                 isDisabled: false,
                 pinText: viewModel.code
             )
