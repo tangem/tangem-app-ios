@@ -29,6 +29,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         balanceProvider: self,
         balanceTypeSelectorProvider: self,
         yieldModuleStatusProvider: self,
+        refreshStatusProvider: self,
         showYieldBalanceInfoAction: { [weak self] in
             self?.openYieldBalanceInfo()
         },
@@ -538,5 +539,11 @@ extension TokenDetailsViewModel: YieldModuleStatusProvider {
             .removeDuplicates()
             .eraseToAnyPublisher()
             ?? Just(YieldModuleManagerStateInfo(marketInfo: nil, state: .disabled)).eraseToAnyPublisher()
+    }
+}
+
+extension TokenDetailsViewModel: RefreshStatusProvider {
+    var isRefreshing: AnyPublisher<Bool, Never> {
+        isRefreshingSubject.eraseToAnyPublisher()
     }
 }
