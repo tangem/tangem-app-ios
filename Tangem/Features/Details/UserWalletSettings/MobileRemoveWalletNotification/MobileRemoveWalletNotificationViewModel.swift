@@ -132,7 +132,10 @@ private extension MobileRemoveWalletNotificationViewModel {
     }
 
     func openSeedPhraseBackup() {
-        let input = MobileOnboardingInput(flow: .seedPhraseBackup(userWalletModel: userWalletModel))
+        let input = MobileOnboardingInput(flow: .seedPhraseBackup(
+            userWalletModel: userWalletModel,
+            source: .walletSettings(action: .remove)
+        ))
         coordinator?.openMobileOnboardingFromRemoveWalletNotification(input: input)
     }
 
