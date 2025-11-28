@@ -13,6 +13,7 @@ import TangemSdk
 
 final class TangemPayOfferViewModel: ObservableObject {
     @Published private(set) var isLoading = false
+    @Published var termsFeesAndLimitsViewModel: WebViewContainerViewModel?
 
     private let userWalletModel: any UserWalletModel
     private let closeOfferScreen: @MainActor () -> Void
@@ -51,6 +52,14 @@ final class TangemPayOfferViewModel: ObservableObject {
                 await viewModel.closeOfferScreen()
             }
         }
+    }
+
+    func termsFeesAndLimits() {
+        termsFeesAndLimitsViewModel = .init(
+            url: AppConstants.tangemPayTermsAndLimitsURL,
+            title: "",
+            withCloseButton: true
+        )
     }
 
     private func makeTangemPayAccount() async throws -> TangemPayAccount {
