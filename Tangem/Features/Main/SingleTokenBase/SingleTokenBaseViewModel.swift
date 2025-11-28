@@ -32,9 +32,8 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 
     private(set) lazy var refreshScrollViewStateObject: RefreshScrollViewStateObject = .init(
         settings: .init(stopRefreshingDelay: 0.2),
-        refreshable: { [weak self] in
-            await self?.onPullToRefresh()
-        }
+        reachedRefreshOffsetAction: { [weak self] in self?.isRefreshingSubject.send(true) },
+        refreshable: { [weak self] in await self?.onPullToRefresh() }
     )
 
     let userWalletInfo: UserWalletInfo
@@ -54,6 +53,8 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     private var transactionHistoryBag: AnyCancellable?
     private var updateTask: Task<Void, Never>?
     private var bag = Set<AnyCancellable>()
+
+    var isRefreshingSubject = PassthroughSubject<Bool, Never>()
 
     var blockchainNetwork: BlockchainNetwork { walletModel.tokenItem.blockchainNetwork }
 
@@ -159,6 +160,12 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         await updateTask?.value
 
         AppLogger.info(self, "♻️ loading state changed")
+
+        Task {
+            try? await Task.sleep(seconds: 0.7)
+            isRefreshingSubject.send(false)
+        }
+
         isReloadingTransactionHistory = false
 
         updateTask = nil
