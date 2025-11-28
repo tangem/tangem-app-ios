@@ -65,6 +65,7 @@ class FakeBalanceWithButtonsInfoProvider {
             balanceProvider: provider,
             balanceTypeSelectorProvider: provider,
             yieldModuleStatusProvider: provider,
+            refreshStatusProvider: provider,
             showYieldBalanceInfoAction: {},
             reloadBalance: {}
         )
