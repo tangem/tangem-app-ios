@@ -7,9 +7,9 @@
 //
 
 struct TangemPayPlaceOrderRequest: Encodable {
-    let walletAddress: String
+    let customerWalletAddress: String
 
     enum CodingKeys: String, CodingKey {
-        case walletAddress = "wallet_address"
+        case customerWalletAddress = "wallet_address"
     }
 }
