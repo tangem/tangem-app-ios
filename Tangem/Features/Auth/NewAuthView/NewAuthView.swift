@@ -22,7 +22,7 @@ struct NewAuthView: View {
             .allowsHitTesting(!viewModel.isUnlocking)
             .alert(item: $viewModel.alert, content: { $0.alert })
             .confirmationDialog(viewModel: $viewModel.confirmationDialog)
-            .background(Colors.Background.primary.ignoresSafeArea())
+            .background(Colors.Background.secondary.ignoresSafeArea())
             .onFirstAppear(perform: viewModel.onFirstAppear)
             .onAppear(perform: viewModel.onAppear)
             .onDisappear(perform: viewModel.onDisappear)
