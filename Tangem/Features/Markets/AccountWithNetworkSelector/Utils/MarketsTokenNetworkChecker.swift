@@ -9,7 +9,7 @@
 import Foundation
 import BlockchainSdk
 
-// Methods will be reused when adapting "Hot Tokens" to account-selection.
+/// Methods will be reused when adapting "Hot Tokens" to account-selection.
 enum MarketsTokenNetworkChecker {
     /// Checks if token is added on networks for this account
     static func isTokenAddedOnNetworks(

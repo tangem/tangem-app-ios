@@ -29,7 +29,6 @@ enum AccountBlockchainManageabilityChecker {
             blockchainSupportsAccounts(networkId: networkId, in: supportedBlockchains)
         }
     }
-
 }
 
 // MARK: - Private
