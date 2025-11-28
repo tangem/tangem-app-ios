@@ -20,11 +20,9 @@ class BannerNotificationManager {
     private weak var delegate: NotificationTapDelegate?
 
     private let userWalletInfo: UserWalletInfo
-    private let walletModelsManager: any WalletModelsManager
     private let placement: BannerPromotionPlacement
 
     private let analyticsService: NotificationsAnalyticsService
-    private let predefinedOnrampParametersBuilder: PredefinedOnrampParametersBuilder
 
     private let activePromotions: CurrentValueSubject<[ActivePromotionInfo], Never> = .init([])
     private var promotionUpdateTasks: [PromotionProgramName: Task<Void, Error>] = [:]
@@ -33,14 +31,11 @@ class BannerNotificationManager {
 
     init(
         userWalletInfo: UserWalletInfo,
-        walletModelsManager: any WalletModelsManager,
         placement: BannerPromotionPlacement
     ) {
         self.userWalletInfo = userWalletInfo
-        self.walletModelsManager = walletModelsManager
         self.placement = placement
 
-        predefinedOnrampParametersBuilder = .init(userWalletId: userWalletInfo.id)
         analyticsService = NotificationsAnalyticsService(userWalletId: userWalletInfo.id)
 
         bind()
@@ -50,7 +45,7 @@ class BannerNotificationManager {
     private func load() {
         switch placement {
         case .main:
-            loadActivePromotions(programNames: [.sepa, .visaWaitlist])
+            loadActivePromotions(programNames: [.visaWaitlist, .blackFriday])
         case .tokenDetails:
             break
         }
@@ -137,12 +132,12 @@ class BannerNotificationManager {
             self?.delegate?.didTapNotification(with: id, action: action)
 
             switch event.programName {
-            case .sepa:
+            case .visaWaitlist:
+                Analytics.log(event: .promotionButtonJoinNow, params: event.analytics.analyticsParams)
+            case .blackFriday:
                 var params = event.analytics.analyticsParams
                 params[.action] = Analytics.ParameterValue.clicked.rawValue
                 Analytics.log(event: .promotionBannerClicked, params: params)
-            case .visaWaitlist:
-                Analytics.log(event: .promotionButtonJoinNow, params: event.analytics.analyticsParams)
             }
         }
 
@@ -151,12 +146,12 @@ class BannerNotificationManager {
             self?.dismissNotification(with: id)
 
             switch event.programName {
-            case .sepa:
+            case .visaWaitlist:
+                Analytics.log(event: .promotionButtonClose, params: event.analytics.analyticsParams)
+            case .blackFriday:
                 var params = event.analytics.analyticsParams
                 params[.action] = Analytics.ParameterValue.closed.rawValue
                 Analytics.log(event: .promotionBannerClicked, params: params)
-            case .visaWaitlist:
-                Analytics.log(event: .promotionButtonClose, params: event.analytics.analyticsParams)
             }
         }
 
@@ -170,41 +165,11 @@ class BannerNotificationManager {
         let analytics = BannerNotificationEventAnalyticsParamsBuilder(programName: promotion.bannerPromotion, placement: placement)
 
         switch promotion.bannerPromotion {
-        case .sepa:
-            return sepaEvent(promotion: promotion, analytics: analytics)
         case .visaWaitlist:
             return visaWaitlistEvent(promotion: promotion, analytics: analytics)
+        case .blackFriday:
+            return blackFridayEvent(promotion: promotion, analytics: analytics)
         }
-    }
-
-    private func sepaEvent(promotion: ActivePromotionInfo, analytics: BannerNotificationEventAnalyticsParamsBuilder) -> AnyPublisher<BannerNotificationEvent?, Never> {
-        let preferencePublisher = onrampRepository.preferencePublisher.removeDuplicates()
-        let bitcoinWalletModel = walletModelsManager.walletModelsPublisher
-            // If user add / delete bitcoin
-            .map { walletModels in
-                walletModels.first {
-                    $0.isMainToken && $0.tokenItem.blockchain == .bitcoin(testnet: false)
-                }
-            }
-
-        return Publishers
-            .CombineLatest(bitcoinWalletModel, preferencePublisher)
-            .asyncMap { [weak self] bitcoinWalletModel, preference in
-                guard let self, let bitcoinWalletModel else {
-                    return nil
-                }
-
-                guard let parameters = await predefinedOnrampParametersBuilder.prepare(bitcoinWalletModel: bitcoinWalletModel) else {
-                    return nil
-                }
-
-                return BannerNotificationEvent(
-                    programName: promotion.bannerPromotion,
-                    analytics: analytics,
-                    buttonAction: .init(.openBuyCrypto(walletModel: bitcoinWalletModel, parameters: parameters))
-                )
-            }
-            .eraseToAnyPublisher()
     }
 
     private func visaWaitlistEvent(promotion: ActivePromotionInfo, analytics: BannerNotificationEventAnalyticsParamsBuilder) -> AnyPublisher<BannerNotificationEvent?, Never> {
@@ -212,6 +177,27 @@ class BannerNotificationManager {
 
         if let link = promotion.link {
             buttonAction = .init(.openLink(promotionLink: link, buttonTitle: Localization.notificationReferralPromoButton))
+        } else {
+            buttonAction = nil
+        }
+
+        let event = BannerNotificationEvent(
+            programName: promotion.bannerPromotion,
+            analytics: analytics,
+            buttonAction: buttonAction
+        )
+
+        return .just(output: event)
+    }
+
+    private func blackFridayEvent(
+        promotion: ActivePromotionInfo,
+        analytics: BannerNotificationEventAnalyticsParamsBuilder
+    ) -> AnyPublisher<BannerNotificationEvent?, Never> {
+        let buttonAction: NotificationButtonAction?
+
+        if let link = promotion.link {
+            buttonAction = .init(.openLink(promotionLink: link, buttonTitle: Localization.commonClaim))
         } else {
             buttonAction = nil
         }
