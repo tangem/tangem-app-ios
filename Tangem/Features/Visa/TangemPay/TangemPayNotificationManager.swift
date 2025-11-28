@@ -14,20 +14,14 @@ final class TangemPayNotificationManager {
 
     private var cancellable: Cancellable?
 
-    init(
-        tangemPayStatusPublisher: AnyPublisher<TangemPayStatus, Never>,
-        tangemPayAccountStatePublisher: AnyPublisher<TangemPayAuthorizer.State, Never>
-    ) {
-        cancellable = Publishers.CombineLatest(
-            tangemPayAccountStatePublisher.map(\.notificationEvent).prepend(nil),
-            tangemPayStatusPublisher.map(\.notificationEvent).prepend(nil)
-        )
-        .map { [$0, $1].compactMap(\.self) }
-        .withWeakCaptureOf(self)
-        .map { manager, events in
-            events.map(manager.makeNotificationViewInput)
-        }
-        .sink(receiveValue: notificationInputsSubject.send)
+    init(tangemPayAccountStatePublisher: AnyPublisher<TangemPayAuthorizer.State, Never>) {
+        cancellable = tangemPayAccountStatePublisher
+            .compactMap(\.notificationEvent)
+            .withWeakCaptureOf(self)
+            .map { manager, event in
+                [manager.makeNotificationViewInput(event: event)]
+            }
+            .sink(receiveValue: notificationInputsSubject.send)
     }
 
     private func makeNotificationViewInput(event: TangemPayNotificationEvent) -> NotificationViewInput {
@@ -60,23 +54,6 @@ extension TangemPayNotificationManager: NotificationManager {
 
     func dismissNotification(with id: NotificationViewId) {
         // Notifications are not dismissable
-    }
-}
-
-// MARK: - TangemPayStatus+notificationEvent
-
-private extension TangemPayStatus {
-    var notificationEvent: TangemPayNotificationEvent? {
-        switch self {
-        case .kycRequired:
-            .viewKYCStatus
-
-        case .readyToIssueOrIssuing:
-            .createAccountAndIssueCard
-
-        case .active, .blocked:
-            nil
-        }
     }
 }
 
