@@ -21,15 +21,26 @@ final class MobileOnboardingSeedPhraseRecoveryViewModel: ObservableObject {
     let continueButtonTitle = Localization.commonContinue
     let responsibilityDescription = Localization.backupSeedResponsibility
 
-    private let mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
+    private var analyticsContextParams: Analytics.ContextParams {
+        .custom(userWalletModel.analyticsContextData)
+    }
 
-    private let userWalletId: UserWalletId
+    private let mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
+    private var isFirstAppeared: Bool = true
+
+    private let userWalletModel: UserWalletModel
+    private let source: MobileOnboardingFlowSource
     private weak var delegate: MobileOnboardingSeedPhraseRecoveryDelegate?
 
     var bag: Set<AnyCancellable> = []
 
-    init(userWalletId: UserWalletId, delegate: MobileOnboardingSeedPhraseRecoveryDelegate) {
-        self.userWalletId = userWalletId
+    init(
+        userWalletModel: UserWalletModel,
+        source: MobileOnboardingFlowSource,
+        delegate: MobileOnboardingSeedPhraseRecoveryDelegate
+    ) {
+        self.userWalletModel = userWalletModel
+        self.source = source
         self.delegate = delegate
         bind()
         setup()
@@ -38,7 +49,9 @@ final class MobileOnboardingSeedPhraseRecoveryViewModel: ObservableObject {
 
 extension MobileOnboardingSeedPhraseRecoveryViewModel {
     func onAppear() {
-        Analytics.log(.backupSeedPhraseInfo, contextParams: .custom(.mobileWallet))
+        guard isFirstAppeared else { return }
+        isFirstAppeared = false
+        logScreenOpenedAnalytics()
     }
 
     func onContinueTap() {
@@ -54,7 +67,7 @@ private extension MobileOnboardingSeedPhraseRecoveryViewModel {
             .withWeakCaptureOf(self)
             .sink { viewModel, _ in
                 viewModel.alert = AlertBuilder.makeOkGotItAlert(message: Localization.onboardingSeedScreenshotAlert)
-                Analytics.log(.onboardingSeedScreenCapture, contextParams: .custom(.mobileWallet))
+                viewModel.logScreenCaptureAnalytics()
             }
             .store(in: &bag)
     }
@@ -62,7 +75,7 @@ private extension MobileOnboardingSeedPhraseRecoveryViewModel {
     func setup() {
         runTask(in: self) { viewModel in
             do {
-                let context = try viewModel.mobileWalletSdk.validate(auth: .none, for: viewModel.userWalletId)
+                let context = try viewModel.mobileWalletSdk.validate(auth: .none, for: viewModel.userWalletModel.userWalletId)
                 let mnemonic = try viewModel.mobileWalletSdk.exportMnemonic(context: context)
                 await viewModel.setupState(mnemonic: mnemonic)
             } catch {
@@ -94,6 +107,22 @@ private extension MobileOnboardingSeedPhraseRecoveryViewModel {
             firstRange: 0 ..< wordsHalfCount,
             secondRange: wordsHalfCount ..< mnemonic.count
         )
+    }
+}
+
+// MARK: - Analytics
+
+private extension MobileOnboardingSeedPhraseRecoveryViewModel {
+    func logScreenOpenedAnalytics() {
+        Analytics.log(
+            .walletSettingsRecoveryPhraseScreen,
+            params: source.analyticsParams,
+            contextParams: analyticsContextParams
+        )
+    }
+
+    func logScreenCaptureAnalytics() {
+        Analytics.log(.onboardingSeedScreenCapture, contextParams: analyticsContextParams)
     }
 }
 

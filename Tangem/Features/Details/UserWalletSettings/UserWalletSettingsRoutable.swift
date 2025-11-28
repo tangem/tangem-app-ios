@@ -21,7 +21,7 @@ protocol UserWalletSettingsRoutable: AnyObject, TransactionNotificationsRowToggl
         userWalletConfig: UserWalletConfig
     )
 
-    func openMobileBackupNeeded(userWalletModel: UserWalletModel, onBackupFinished: @escaping () -> Void)
+    func openMobileBackupNeeded(userWalletModel: UserWalletModel, source: MobileOnboardingFlowSource, onBackupFinished: @escaping () -> Void)
     func openMobileBackupTypes(userWalletModel: UserWalletModel)
     func openMobileRemoveWalletNotification(userWalletModel: UserWalletModel)
 
