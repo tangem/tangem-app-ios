@@ -40,7 +40,7 @@ class WalletConnectSendTransferHandler {
         }
 
         self.transactionBuilder = transactionBuilder
-        transactionDispatcher = SendTransferDispatcher(walletModel: walletModel, transactionSigner: signer)
+        transactionDispatcher = SendTransactionDispatcher(walletModel: walletModel, transactionSigner: signer)
         request = requestParams
     }
 }
@@ -76,46 +76,5 @@ extension WalletConnectSendTransferHandler: WalletConnectMessageHandler {
         // [REDACTED_TODO_COMMENT]
 
         return .response(AnyCodable(result.hash.lowercased()))
-    }
-}
-
-class SendTransferDispatcher {
-    private let walletModel: any WalletModel
-    private let transactionSigner: TangemSigner
-
-    init(
-        walletModel: any WalletModel,
-        transactionSigner: TangemSigner
-    ) {
-        self.walletModel = walletModel
-        self.transactionSigner = transactionSigner
-    }
-}
-
-extension SendTransferDispatcher: TransactionDispatcher {
-    func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult {
-        guard case .transfer(let transferTransaction) = transaction else {
-            throw TransactionDispatcherResult.Error.transactionNotFound
-        }
-
-        let mapper = TransactionDispatcherResultMapper()
-
-        do {
-            let hash = try await walletModel.transactionSender.send(transferTransaction, signer: transactionSigner).async()
-            walletModel.updateAfterSendingTransaction()
-
-            if walletModel.yieldModuleManager?.state?.state.isEffectivelyActive == true {
-                walletModel.yieldModuleManager?.sendTransactionSendEvent(transactionHash: hash.hash)
-            }
-
-            return mapper.mapResult(
-                hash,
-                blockchain: walletModel.tokenItem.blockchain,
-                signer: transactionSigner.latestSignerType
-            )
-        } catch {
-            AppLogger.error(error: error)
-            throw mapper.mapError(error.toUniversalError(), transaction: transaction)
-        }
     }
 }
