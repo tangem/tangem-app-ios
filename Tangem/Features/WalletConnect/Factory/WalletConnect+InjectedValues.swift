@@ -21,6 +21,7 @@ private final class WalletConnectEnvironment {
 
     private lazy var handlersFactory = WalletConnectHandlersFactory(
         ethTransactionBuilder: CommonWCEthTransactionBuilder(),
+        btcTransactionBuilder: CommonWCBtcTransactionBuilder(),
         walletNetworkServiceFactoryProvider: walletNetworkServiceFactoryProvider
     )
 

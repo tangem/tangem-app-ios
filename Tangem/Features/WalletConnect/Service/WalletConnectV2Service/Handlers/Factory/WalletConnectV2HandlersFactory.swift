@@ -24,13 +24,16 @@ protocol WalletConnectHandlersCreator: AnyObject {
 
 final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
     private let ethTransactionBuilder: WCEthTransactionBuilder
+    private let btcTransactionBuilder: WCBtcTransactionBuilder
     private let walletNetworkServiceFactoryProvider: WalletNetworkServiceFactoryProvider
 
     init(
         ethTransactionBuilder: WCEthTransactionBuilder,
+        btcTransactionBuilder: WCBtcTransactionBuilder,
         walletNetworkServiceFactoryProvider: WalletNetworkServiceFactoryProvider
     ) {
         self.ethTransactionBuilder = ethTransactionBuilder
+        self.btcTransactionBuilder = btcTransactionBuilder
         self.walletNetworkServiceFactoryProvider = walletNetworkServiceFactoryProvider
     }
 
@@ -217,7 +220,13 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
 
         // [REDACTED_TODO_COMMENT]
         case .sendTransfer:
-            return try 
+            return try WalletConnectSendTransferHandler(
+                requestParams: params,
+                blockchainId: blockchainNetworkID,
+                transactionBuilder: btcTransactionBuilder,
+                signer: signer,
+                walletModelProvider: walletModelProvider
+            )
 
         case .getAccountAddresses:
             throw WalletConnectTransactionRequestProcessingError.unsupportedMethod(action.rawValue)
