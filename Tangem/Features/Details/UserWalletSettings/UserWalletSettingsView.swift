@@ -46,6 +46,7 @@ struct UserWalletSettingsView: View {
         .alert(item: $viewModel.alert) { $0.alert }
         .confirmationDialog(viewModel: $viewModel.confirmationDialog)
         .scrollDismissesKeyboardCompat(.interactively)
+        .onFirstAppear(perform: viewModel.onFirstAppear)
         .onAppear(perform: viewModel.onAppear)
     }
 
