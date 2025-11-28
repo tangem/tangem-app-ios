@@ -28,7 +28,7 @@ struct HardwareBackupTypesView: View {
             .padding(16)
             .readGeometry(\.frame.maxY, inCoordinateSpace: .global, bindTo: $screenMaxY)
             .background(Colors.Background.secondary)
-            .onFirstAppear(perform: viewModel.onAppear)
+            .onFirstAppear(perform: viewModel.onFirstAppear)
             .alert(item: $viewModel.alert) { $0.alert }
     }
 }

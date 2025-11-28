@@ -183,7 +183,20 @@ extension Analytics {
         case walletSettingsButtonAccessCode = "[Settings / Wallet Settings] Button - Access Code"
         case walletSettingsBackupScreenOpened = "[Settings / Wallet Settings] Backup Screen Opened"
         case walletSettingsButtonManualBackup = "[Settings / Wallet Settings] Button - Manual Backup"
+        case walletSettingsButtonRecoveryPhrase = "[Settings / Wallet Settings] Button - Recovery phrase"
+        case walletSettingsButtonHardwareUpdate = "[Settings / Wallet Settings] Button - Hardware Update"
+        case walletSettingsButtonCreateNewWallet = "[Settings / Wallet Settings] Button - Create New Wallet"
+        case walletSettingsButtonUpgradeCurrent = "[Settings / Wallet Settings] Button - Upgrade Current"
+        case walletSettingsButtonStartUpgrade = "[Settings / Wallet Settings] Button - Start Upgrade"
         case walletSettingsNoticeBackupFirst = "[Settings / Wallet Settings] Notice - Backup First"
+        case walletSettingsHardwareBackupScreenOpened = "[Settings / Wallet Settings] Hardware Backup Screen Opened"
+        case walletSettingsCreateWalletScreenOpened = "[Settings / Wallet Settings] Create Wallet Screen Opened"
+        case walletSettingsRecoveryPhraseScreenInfo = "[Settings / Wallet Settings] Recovery Phrase Screen Info"
+        case walletSettingsRecoveryPhraseScreen = "[Settings / Wallet Settings] Recovery Phrase Screen"
+        case walletSettingsRecoveryPhraseCheck = "[Settings / Wallet Settings] Recovery Phrase Check"
+        case walletSettingsBackupCompleteScreen = "[Settings / Wallet Settings] Backup Complete Screen"
+        case walletSettingsCreateAccessCode = "[Settings / Wallet Settings] Access Code Screen Opened"
+        case walletSettingsConfirmAccessCode = "[Settings / Wallet Settings] Re-enter Access Code Screen"
 
         // MARK: - Wallet Connect
 
