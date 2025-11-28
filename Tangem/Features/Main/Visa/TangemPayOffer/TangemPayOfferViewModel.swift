@@ -26,7 +26,6 @@ final class TangemPayOfferViewModel: ObservableObject {
     }
 
     func getCard() {
-        #if ALPHA || BETA || DEBUG
         isLoading = true
         runTask(in: self) { viewModel in
             do {
@@ -52,7 +51,6 @@ final class TangemPayOfferViewModel: ObservableObject {
                 await viewModel.closeOfferScreen()
             }
         }
-        #endif // ALPHA || BETA || DEBUG
     }
 
     private func makeTangemPayAccount() async throws -> TangemPayAccount {
@@ -68,11 +66,13 @@ final class TangemPayOfferViewModel: ObservableObject {
         }
 
         let walletAddress = try TangemPayUtilities.makeAddress(using: walletPublicKey)
+        let tokenBalancesRepository = CommonTokenBalancesRepository(userWalletId: userWalletModel.userWalletId)
 
         return TangemPayAccount(
             authorizer: tangemPayAuthorizer,
             walletAddress: walletAddress,
-            tokens: tokens
+            tokens: tokens,
+            tokenBalancesRepository: tokenBalancesRepository
         )
     }
 }
