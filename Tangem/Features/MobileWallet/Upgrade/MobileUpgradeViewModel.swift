@@ -32,6 +32,10 @@ final class MobileUpgradeViewModel: ObservableObject {
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
 
+    private var analyticsContextParams: Analytics.ContextParams {
+        .custom(userWalletModel.analyticsContextData)
+    }
+
     private let userWalletModel: UserWalletModel
     private let context: MobileWalletContext
     private weak var coordinator: MobileUpgradeRoutable?
@@ -55,6 +59,7 @@ final class MobileUpgradeViewModel: ObservableObject {
 extension MobileUpgradeViewModel {
     func onUpgradeTap() {
         scanCard()
+        logUpgradeTapAnalytics()
     }
 
     func onBuyTap() {
@@ -158,8 +163,7 @@ private extension MobileUpgradeViewModel {
                 }
 
             case .error(let error):
-                Analytics.logScanError(error, source: .introduction)
-                Analytics.logVisaCardScanErrorIfNeeded(error, source: .introduction)
+                viewModel.logScanCardAnalytics(error: error)
                 viewModel.incomingActionManager.discardIncomingAction()
 
                 await runOnMain {
@@ -180,7 +184,7 @@ private extension MobileUpgradeViewModel {
                 }
 
             case .scanTroubleshooting:
-                Analytics.log(.cantScanTheCard, params: [.source: .introduction])
+                viewModel.logScanCardTroubleshootingAnalytics()
                 viewModel.incomingActionManager.discardIncomingAction()
 
                 await runOnMain {
@@ -291,7 +295,7 @@ private extension MobileUpgradeViewModel {
         }
 
         let requestSupportButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonRequestSupport) { [weak self] in
-            self?.requestSupport()
+            self?.scanCardRequestSupport()
         }
 
         confirmationDialog = ConfirmationDialogViewModel(
@@ -327,14 +331,39 @@ private extension MobileUpgradeViewModel {
 
 private extension MobileUpgradeViewModel {
     func scanCardTryAgain() {
-        Analytics.log(.cantScanTheCardTryAgainButton, params: [.source: .introduction])
+        logScanCardTryAgainAnalytics()
         scanCard()
     }
 
-    func requestSupport() {
-        Analytics.log(.requestSupport, params: [.source: .introduction])
+    func scanCardRequestSupport() {
+        logScanCardRequestSupportAnalytics()
         failedCardScanTracker.resetCounter()
         openMail()
+    }
+}
+
+// MARK: - Analytics
+
+private extension MobileUpgradeViewModel {
+    func logUpgradeTapAnalytics() {
+        Analytics.log(.walletSettingsButtonStartUpgrade, contextParams: analyticsContextParams)
+    }
+
+    func logScanCardTryAgainAnalytics() {
+        Analytics.log(.cantScanTheCardTryAgainButton, params: [.source: .introduction], contextParams: analyticsContextParams)
+    }
+
+    func logScanCardRequestSupportAnalytics() {
+        Analytics.log(.requestSupport, params: [.source: .introduction], contextParams: analyticsContextParams)
+    }
+
+    func logScanCardTroubleshootingAnalytics() {
+        Analytics.log(.cantScanTheCard, params: [.source: .introduction], contextParams: analyticsContextParams)
+    }
+
+    func logScanCardAnalytics(error: Error) {
+        Analytics.logScanError(error, source: .introduction, contextParams: analyticsContextParams)
+        Analytics.logVisaCardScanErrorIfNeeded(error, source: .introduction)
     }
 }
 

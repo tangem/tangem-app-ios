@@ -10,37 +10,48 @@ import Foundation
 import TangemLocalization
 
 class MobileOnboardingBackupSeedPhraseFlowBuilder: MobileOnboardingFlowBuilder {
+    private var analyticsContextParams: Analytics.ContextParams {
+        .custom(userWalletModel.analyticsContextData)
+    }
+
     private let userWalletModel: UserWalletModel
+    private let source: MobileOnboardingFlowSource
     private(set) weak var coordinator: MobileOnboardingFlowRoutable?
 
-    init(userWalletModel: UserWalletModel, coordinator: MobileOnboardingFlowRoutable) {
+    init(
+        userWalletModel: UserWalletModel,
+        source: MobileOnboardingFlowSource,
+        coordinator: MobileOnboardingFlowRoutable
+    ) {
         self.userWalletModel = userWalletModel
+        self.source = source
         self.coordinator = coordinator
         super.init()
     }
 
     override func setupFlow() {
-        let seedPhraseIntroStep = MobileOnboardingSeedPhraseIntroStep(delegate: self)
+        let seedPhraseIntroStep = MobileOnboardingSeedPhraseIntroStep(userWalletModel: userWalletModel, source: source, delegate: self)
             .configureNavBar(
                 title: Localization.commonBackup,
                 leadingAction: .close(handler: { [weak self] in
-                    Analytics.log(.backupNoticeCanceled)
-
+                    self?.logSeedPhraseIntroCloseAnalytics()
                     self?.closeOnboarding()
                 })
             )
         append(step: seedPhraseIntroStep)
 
-        let userWalletId = userWalletModel.userWalletId
-
-        let seedPhraseRecoveryStep = MobileOnboardingSeedPhraseRecoveryStep(userWalletId: userWalletId, delegate: self)
+        let seedPhraseRecoveryStep = MobileOnboardingSeedPhraseRecoveryStep(userWalletModel: userWalletModel, source: source, delegate: self)
         seedPhraseRecoveryStep.configureNavBar(
             title: Localization.commonBackup,
             leadingAction: navBarBackAction
         )
         append(step: seedPhraseRecoveryStep)
 
-        let seedPhraseValidationStep = MobileOnboardingSeedPhraseValidationStep(userWalletId: userWalletId, delegate: self)
+        let seedPhraseValidationStep = MobileOnboardingSeedPhraseValidationStep(
+            userWalletModel: userWalletModel,
+            source: source,
+            delegate: self
+        )
         seedPhraseValidationStep.configureNavBar(
             title: Localization.commonBackup,
             leadingAction: navBarBackAction
@@ -61,7 +72,10 @@ private extension MobileOnboardingBackupSeedPhraseFlowBuilder {
     func makeDoneStep() -> Step {
         let step = MobileOnboardingSuccessStep(
             type: .seedPhaseBackupFinish,
-            onAppear: weakify(self, forFunction: MobileOnboardingBackupSeedPhraseFlowBuilder.openConfetti),
+            onAppear: { [weak self] in
+                self?.logBackupCompletedScreenOpenedAnalytics()
+                self?.openConfetti()
+            },
             onComplete: weakify(self, forFunction: MobileOnboardingBackupSeedPhraseFlowBuilder.completeOnboarding)
         )
         step.configureNavBar(title: Localization.commonBackup)
@@ -109,8 +123,32 @@ extension MobileOnboardingBackupSeedPhraseFlowBuilder: MobileOnboardingSeedPhras
 
 extension MobileOnboardingBackupSeedPhraseFlowBuilder: MobileOnboardingSeedPhraseValidationDelegate {
     func didValidateSeedPhrase() {
-        Analytics.log(event: .backupFinished, params: [.cardsCount: String(0)])
+        logSeedPhraseValidatedAnalytics()
         userWalletModel.update(type: .mnemonicBackupCompleted)
         openNext()
+    }
+}
+
+// MARK: - Analytics
+
+extension MobileOnboardingBackupSeedPhraseFlowBuilder {
+    func logSeedPhraseIntroCloseAnalytics() {
+        Analytics.log(.backupNoticeCanceled, contextParams: analyticsContextParams)
+    }
+
+    func logSeedPhraseValidatedAnalytics() {
+        Analytics.log(
+            event: .backupFinished,
+            params: [.cardsCount: String(0)],
+            contextParams: analyticsContextParams
+        )
+    }
+
+    func logBackupCompletedScreenOpenedAnalytics() {
+        Analytics.log(
+            .walletSettingsBackupCompleteScreen,
+            params: source.analyticsParams,
+            contextParams: analyticsContextParams
+        )
     }
 }
