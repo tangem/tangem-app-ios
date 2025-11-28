@@ -22,6 +22,15 @@ public protocol CustomerInfoManagementService {
 
     func getTransactionHistory(limit: Int, cursor: String?) async throws -> TangemPayTransactionHistoryResponse
 
+    func getWithdrawPreSignatureInfo(
+        request: TangemPayWithdrawRequest
+    ) async throws -> TangemPayWithdrawPreSignature
+
+    func sendWithdrawTransaction(
+        request: TangemPayWithdrawRequest,
+        signature: TangemPayWithdrawSignature
+    ) async throws -> TangemPayWithdrawTransactionResult
+
     func placeOrder(customerWalletAddress: String) async throws -> TangemPayOrderResponse
     func getOrder(orderId: String) async throws -> TangemPayOrderResponse
 }
@@ -32,6 +41,11 @@ final class CommonCustomerInfoManagementService {
     private let apiService: CIMAPIService
 
     private let apiType: VisaAPIType
+    private let encoder: JSONEncoder = {
+        let encoder = JSONEncoder()
+        encoder.keyEncodingStrategy = .convertToSnakeCase
+        return encoder
+    }()
 
     init(
         apiType: VisaAPIType,
@@ -48,7 +62,8 @@ final class CommonCustomerInfoManagementService {
 
         return .init(
             target: target,
-            apiType: apiType
+            apiType: apiType,
+            encoder: encoder
         )
     }
 }
@@ -100,6 +115,38 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
         try await apiService.request(
             makeRequest(for: .getTransactionHistory(limit: limit, cursor: cursor))
         )
+    }
+
+    func getWithdrawPreSignatureInfo(request: TangemPayWithdrawRequest) async throws -> TangemPayWithdrawPreSignature {
+        let request = TangemPayWithdraw.SignableData.Request(
+            amountInCents: request.amountInCents,
+            recipientAddress: request.destination
+        )
+
+        let response: TangemPayWithdraw.SignableData.Response = try await apiService.request(
+            makeRequest(for: .getWithdrawSignableData(request))
+        )
+
+        return TangemPayWithdrawPreSignature(
+            sender: response.senderAddress,
+            hash: Data(hex: response.hash),
+            salt: Data(hex: response.salt)
+        )
+    }
+
+    func sendWithdrawTransaction(request: TangemPayWithdrawRequest, signature: TangemPayWithdrawSignature) async throws -> TangemPayWithdrawTransactionResult {
+        let requestTransaction = TangemPayWithdraw.Transaction.Request(
+            amountInCents: request.amountInCents,
+            senderAddress: signature.sender,
+            recipientAddress: request.destination,
+            adminSignature: signature.signature.hexString,
+            adminSalt: signature.salt.hexString
+        )
+
+        let request = try await makeRequest(for: .sendWithdrawTransaction(requestTransaction))
+        let response: TangemPayWithdraw.Transaction.Response = try await apiService.request(request)
+
+        return TangemPayWithdrawTransactionResult(orderID: response.orderId, host: request.baseURL.absoluteString)
     }
 
     func placeOrder(customerWalletAddress: String) async throws -> TangemPayOrderResponse {

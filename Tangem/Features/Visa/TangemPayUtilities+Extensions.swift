@@ -31,6 +31,15 @@ extension TangemPayUtilities {
         )
     }
 
+    /// Hardcoded constant USD fiat item for Tangem Pay
+    static var fiatItem: FiatItem {
+        FiatItem(
+            iconURL: IconURLBuilder().fiatIconURL(currencyCode: "USD"),
+            currencyCode: "USD",
+            fractionDigits: 2
+        )
+    }
+
     static func getKey(from repository: KeysRepository) -> Wallet.PublicKey? {
         return repository.keys
             .first(where: { $0.curve == TangemPayUtilities.mandatoryCurve })
