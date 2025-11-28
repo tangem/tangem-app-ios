@@ -40,7 +40,6 @@ class CommonExpressModulesFactory {
     private lazy var providerSelectorViewModel: ExpressProvidersSelectorViewModel = .init(
         priceChangeFormatter: priceChangeFormatter,
         expressProviderFormatter: expressProviderFormatter,
-        expressRepository: expressDependenciesFactory.expressRepository,
         expressInteractor: expressDependenciesFactory.expressInteractor
     )
 
