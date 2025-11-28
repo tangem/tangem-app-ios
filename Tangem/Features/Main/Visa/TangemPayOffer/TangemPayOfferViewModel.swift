@@ -54,25 +54,23 @@ final class TangemPayOfferViewModel: ObservableObject {
     }
 
     private func makeTangemPayAccount() async throws -> TangemPayAccount {
+        let customerWalletId = userWalletModel.userWalletId.stringValue
         let tangemPayAuthorizer = TangemPayAuthorizer(
-            customerWalletId: userWalletModel.userWalletId.stringValue,
+            customerWalletId: customerWalletId,
             interactor: userWalletModel.tangemPayAuthorizingInteractor,
-            keysRepository: userWalletModel.keysRepository
+            keysRepository: userWalletModel.keysRepository,
+            state: .unavailable
         )
-        let tokens = try await tangemPayAuthorizer.authorizeWithCustomerWallet()
 
-        guard let walletPublicKey = TangemPayUtilities.getKey(from: userWalletModel.keysRepository) else {
-            throw TangemPayOfferError.unableToCreateWalletPublicKey
+        try await tangemPayAuthorizer.authorizeWithCustomerWallet()
+
+        await MainActor.run {
+            AppSettings.shared.tangemPayIsPaeraCustomer[customerWalletId] = true
         }
-
-        let walletAddress = try TangemPayUtilities.makeAddress(using: walletPublicKey)
-        let tokenBalancesRepository = CommonTokenBalancesRepository(userWalletId: userWalletModel.userWalletId)
 
         return TangemPayAccount(
             authorizer: tangemPayAuthorizer,
-            walletAddress: walletAddress,
-            tokens: tokens,
-            tokenBalancesRepository: tokenBalancesRepository
+            tokenBalancesRepository: CommonTokenBalancesRepository(userWalletId: userWalletModel.userWalletId)
         )
     }
 }

@@ -24,7 +24,7 @@ struct TangemPayAvailabilityAPITarget: TargetType {
             return "customer/eligibility"
         case .validateDeeplink:
             return "deeplink/validate"
-        case .isPaeraCustomer(let customerWalletId):
+        case .isPaeraCustomer(let customerWalletId, _):
             return "customer/wallets/\(customerWalletId)"
         }
     }
@@ -49,7 +49,12 @@ struct TangemPayAvailabilityAPITarget: TargetType {
     }
 
     var headers: [String: String]? {
-        [:]
+        switch target {
+        case .isPaeraCustomer(_, let bffStaticToken):
+            [Constants.apiKeyHeaderName: bffStaticToken]
+        case .getEligibility, .validateDeeplink:
+            nil
+        }
     }
 }
 
@@ -58,7 +63,11 @@ extension TangemPayAvailabilityAPITarget {
         /// Checks Tangem Pay offer availability for user
         case getEligibility
         case validateDeeplink(deeplinkString: String)
-        case isPaeraCustomer(customerWalletId: String)
+        case isPaeraCustomer(customerWalletId: String, bffStaticToken: String)
+    }
+
+    enum Constants {
+        static let apiKeyHeaderName = "X-API-KEY"
     }
 }
 
@@ -68,6 +77,6 @@ extension TangemPayAvailabilityAPITarget: TargetTypeLogConvertible {
     }
 
     var shouldLogResponseBody: Bool {
-        return false
+        false
     }
 }
