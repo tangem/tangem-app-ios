@@ -31,6 +31,10 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
         return formatter.string(from: data.date)
     }
 
+    var exploreURL: URL? {
+        data.result.url
+    }
+
     var shouldShowShareExploreButtons: Bool {
         !data.source.tokenItem.blockchain.isTransactionAsync
     }
@@ -76,11 +80,7 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
         )
     }
 
-    func openExplore() {
-        guard let exploreURL = data.source.exploreTransactionURL(for: data.result.hash) else {
-            return
-        }
-
+    func openExplore(exploreURL: URL) {
         Analytics.log(event: .swapButtonExplore, params: [.token: initialTokenItem.currencySymbol])
         coordinator?.openWebView(url: exploreURL)
     }
@@ -145,7 +145,9 @@ private extension ExpressSuccessSentViewModel {
             detailsType: .none
         )
 
-        let feeFormatted = feeFormatter.format(fee: data.fee, tokenItem: data.source.feeTokenItem)
-        expressFee = ExpressFeeRowData(title: Localization.commonNetworkFeeTitle, subtitle: .loaded(text: feeFormatted))
+        if !data.source.isExemptFee {
+            let feeFormatted = feeFormatter.format(fee: data.fee, tokenItem: data.source.feeTokenItem)
+            expressFee = ExpressFeeRowData(title: Localization.commonNetworkFeeTitle, subtitle: .loaded(text: feeFormatted))
+        }
     }
 }
