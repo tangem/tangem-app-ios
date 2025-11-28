@@ -28,11 +28,7 @@ final class TangemPayAccount {
     }
 
     var tangemPayCardIssuingInProgressPublisher: AnyPublisher<Bool, Never> {
-        authorizer.statePublisher
-            .compactMap(\.authorized)
-            .flatMapLatest { customerWalletAddress, _ in
-                TangemPayOrderIdStorage.cardIssuingOrderIdPublisher(customerWalletAddress: customerWalletAddress)
-            }
+        TangemPayOrderIdStorage.cardIssuingOrderIdPublisher(customerWalletId: customerWalletId)
             .map { $0 != nil }
             .eraseToAnyPublisher()
     }
@@ -89,6 +85,10 @@ final class TangemPayAccount {
 
     var cardId: String? {
         customerInfoSubject.value?.productInstance?.cardId
+    }
+
+    var customerWalletId: String {
+        authorizer.customerWalletId
     }
 
     var customerWalletAddress: String? {
@@ -172,9 +172,7 @@ final class TangemPayAccount {
                 tangemPayAccount.customerInfoSubject.send(customerInfo)
 
                 if customerInfo.tangemPayStatus.isActive {
-                    if let customerWalletAddress = tangemPayAccount.customerWalletAddress {
-                        TangemPayOrderIdStorage.deleteCardIssuingOrderId(customerWalletAddress: customerWalletAddress)
-                    }
+                    TangemPayOrderIdStorage.deleteCardIssuingOrderId(customerWalletId: tangemPayAccount.customerWalletId)
                     await tangemPayAccount.setupBalance()
                 }
             } catch {
@@ -202,7 +200,7 @@ final class TangemPayAccount {
             .withWeakCaptureOf(self)
             .sink { tangemPayAccount, state in
                 switch state {
-                case .authorized(let customerWalletAddress, let tokens):
+                case .authorized(_, let tokens):
                     do {
                         try tangemPayAccount.authorizationTokensHandler.saveTokens(tokens: tokens)
                     } catch {
@@ -211,7 +209,7 @@ final class TangemPayAccount {
 
                     tangemPayAccount.loadCustomerInfo()
 
-                    if let cardIssuingOrderId = TangemPayOrderIdStorage.cardIssuingOrderId(customerWalletAddress: customerWalletAddress) {
+                    if let cardIssuingOrderId = TangemPayOrderIdStorage.cardIssuingOrderId(customerWalletId: tangemPayAccount.customerWalletId) {
                         tangemPayAccount.startOrderStatusPolling(orderId: cardIssuingOrderId, interval: Constants.cardIssuingOrderPollInterval)
                     }
 
@@ -264,7 +262,7 @@ final class TangemPayAccount {
 
         do {
             let order = try await customerInfoManagementService.placeOrder(customerWalletAddress: customerWalletAddress)
-            TangemPayOrderIdStorage.saveCardIssuingOrderId(order.id, customerWalletAddress: customerWalletAddress)
+            TangemPayOrderIdStorage.saveCardIssuingOrderId(order.id, customerWalletId: customerWalletId)
 
             startOrderStatusPolling(orderId: order.id, interval: Constants.cardIssuingOrderPollInterval)
         } catch {
