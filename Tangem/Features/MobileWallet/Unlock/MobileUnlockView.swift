@@ -35,6 +35,7 @@ private extension MobileUnlockView {
 
             OnboardingPinStackView(
                 maxDigits: viewModel.accessCodeLength,
+                handleKeyboard: false,
                 isDisabled: !viewModel.isAccessCodeAvailable,
                 pinText: $viewModel.accessCode
             )
