@@ -704,7 +704,10 @@ extension MainCoordinator: MobileFinishActivationNeededRoutable {
 
     func openMobileBackupOnboarding(userWalletModel: UserWalletModel) {
         Task { @MainActor in
-            let backupInput = MobileOnboardingInput(flow: .walletActivate(userWalletModel: userWalletModel))
+            let backupInput = MobileOnboardingInput(flow: .walletActivate(
+                userWalletModel: userWalletModel,
+                source: .main(action: .backup)
+            ))
             openOnboardingModal(with: .mobileInput(backupInput))
         }
     }
