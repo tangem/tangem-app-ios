@@ -185,7 +185,6 @@ extension VisaAPIError: VisaError {
     }
 }
 
-#if ALPHA || BETA || DEBUG
 extension KYCService.KYCServiceError: VisaError {
     public var errorCode: Int {
         switch self {
@@ -196,7 +195,6 @@ extension KYCService.KYCServiceError: VisaError {
         }
     }
 }
-#endif // ALPHA || BETA || DEBUG
 
 extension RainCryptoUtilities.RainCryptoUtilitiesError: VisaError {
     public var errorCode: Int {

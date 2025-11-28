@@ -32,6 +32,7 @@
 "account_details_archive" = "Archive account";
 "account_details_archiving" = "Archiving...";
 "account_details_title" = "Account";
+"account_edit_failure_dialog_title" = "Can’t edit the account";
 "account_edit_success_message" = "Account saved";
 "account_for_rewards" = "Account for rewards";
 "account_form_account_index" = "Account #%@ — used for address derivation.";
@@ -54,7 +55,7 @@
 "account_unsaved_dialog_message_create" = "Are you sure you want to discard new account?";
 "account_unsaved_dialog_message_edit" = "Are you sure you want to discard edits?";
 "account_unsaved_dialog_title" = "Unsaved Changes";
-"accounts_migration_alert_message" = "Some custom tokens were moved from “%1$s” to “%2$s” as their derivation belongs to that account.";
+"accounts_migration_alert_message" = "Some custom tokens were moved from “%1$@” to “%2$@” as their derivation belongs to that account.";
 "accounts_migration_alert_title" = "Some custom tokens were moved";
 "action_buttons_buy_empty_search_message" = "Can’t find your token? Go to the Market section on the main page and add it to your portfolio for purchase";
 "action_buttons_buy_navigation_bar_title" = "Buy";
@@ -98,7 +99,7 @@
 "app_settings_biometrics_footer" = "Use %1$@ to unlock your wallet and approve sensitive actions, like signing transactions. For hardware wallets, a card or ring is still required to sign.";
 "app_settings_default_fee_footer" = "Enable Default Fee to set transaction fees automatically and skip the Fee page when sending funds. You can always go back to this page if necessary.";
 "app_settings_default_fee" = "Default Fee";
-"app_settings_off_biometrics_alert_message" = "Disabling %1$s will require you to enter your passcode to unlock the app and to interact with your wallet.";
+"app_settings_off_biometrics_alert_message" = "Disabling %1$@ will require you to enter your passcode to unlock the app and to interact with your wallet.";
 "app_settings_off_require_access_code_alert_message" = "You’ll be asked for your wallet’s access code later so we can securely store it for future use";
 "app_settings_off_saved_access_code_alert_message" = "This will delete all the saved wallet access codes. Any further operation with the wallet will require submitting the access code.";
 "app_settings_off_saved_wallet_alert_message" = "Removing the saved devices deletes all the saved wallets and their access codes from the app.";
@@ -363,7 +364,7 @@
 "currency_subtitle_expanded" = "Available networks";
 "custom_token_another_account_dialog_description" = "Derivation of your token matches the derivation of %1$@. Your token will be added to this account.";
 "custom_token_another_account_dialog_title" = "Derivation belongs to another account.";
-"custom_token_another_account_snackbar_text" = "Token added to %1$s account";
+"custom_token_another_account_snackbar_text" = "Token added to %1$@ account";
 "custom_token_contract_address_input_title" = "Contract address";
 "custom_token_creation_error_empty_fields" = "Please fill in all the fields";
 "custom_token_creation_error_invalid_contract_address" = "Contract address is invalid";
@@ -418,7 +419,7 @@
 "details_title" = "Details";
 "disclaimer_title" = "Terms of service";
 "domain_receive_assets_default_address" = "Default Address";
-"domain_receive_assets_legacy_address" = "Legacy Address";
+"domain_receive_assets_legacy_address" = "Legacy %@ Address";
 "domain_receive_assets_navigation_title" = "Receive assets";
 "domain_receive_assets_network_name_address" = "%@ address";
 "domain_receive_assets_onboarding_description" = "Sending assets in other networks will result in permanent loss.";
@@ -794,6 +795,8 @@
 "no_account_polkadot" = "Destination account is not active. Send %@ or more to activate the account.";
 "no_account_send_to_create" = "To create account send funds to this address";
 "no_trustline_xlm_asset" = "The destination account does not have a trustline for the asset being sent.";
+"notification_black_friday_text" = "Get $10 in BTC with every wallet\nHurry!";
+"notification_black_friday_title" = "Black Friday: up to 30%% OFF";
 "notification_referral_promo_button" = "Join Now";
 "notification_referral_promo_text" = "Share your code - earn 5 USDT per sale. Your friend gets 10%% OFF.";
 "notification_referral_promo_title" = "Get REWARDS for every friend!";
@@ -938,7 +941,7 @@
 "organize_tokens_sort_by_balance" = "By balance";
 "organize_tokens_title" = "Organize tokens";
 "organize_tokens_ungroup" = "Ungroup";
-"provider_name_support" = "%s support";
+"provider_name_support" = "%@ support";
 "push_notifications_more_info" = "More info";
 "push_notifications_permission_alert_description" = "You can enable Notifications for Tangem in Settings.";
 "push_notifications_permission_alert_negative_button" = "Enable Later";
@@ -1130,7 +1133,7 @@
 "staking_amount_requirement_error" = "The amount to stake must be at least %@";
 "staking_amount_tron_integer_error_unstaking" = "Unstaking amount will be rounded to %1$@ TRX due to network rules.";
 "staking_amount_tron_integer_error" = "Staking amount will be rounded to %1$@ TRX due to network rules.";
-"staking_apr_earn_badge" = "APR %1$s%%";
+"staking_apr_earn_badge" = "APR %1$@%%";
 "staking_claim_unstaked" = "Claim unstaked";
 "staking_details_account_fee_info" = "A staking account is a special account where staked SOL tokens are stored. It is created when you delegate your tokens to a validator to participate in transaction validation and receive rewards. A small fee is charged for creating the staking account, which is returned after the staking is completed.";
 "staking_details_account_fee" = "Stake account fee";
@@ -1370,11 +1373,21 @@
 "tangempay_card_details_swap_description" = "Swap any asset in your portfolio for card";
 "tangempay_card_details_title" = "Card details";
 "tangempay_card_details_unfreeze_card" = "Unfreeze Card";
+"tangempay_card_details_withdraw_error_title" = "Withdraw unavailable now";
+"tangempay_card_details_withdraw" = "Withdraw";
+"tangempay_failed_to_issue_card_retry_description" = "A technical error has occurred, please try again by clicking the button below.";
+"tangempay_failed_to_issue_card_support_description" = "A technical error has occurred, please contact support.";
+"tangempay_failed_to_issue_card" = "Failed to issue card";
 "tangempay_issue_card_notification_description" = "It usually takes up to 15 minutes";
 "tangempay_issue_card_notification_title" = "Setting up your Tangem Card";
+"tangempay_issuing_your_card_description" = "We’re getting your card ready. This may take a little time.";
+"tangempay_issuing_your_card" = "Issuing your card";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
+"tangempay_kyc_failed_description" = "We could not verify your profile. If you have any questions, please contact support.";
+"tangempay_kyc_failed_title" = "Unfortunately, we couldn't verify your identity ";
 "tangempay_kyc_in_progress_notification_button" = "View Status";
 "tangempay_kyc_in_progress_notification_title" = "KYC in progress for Tangem Pay";
+"tangempay_kyc_in_progress" = "KYC in progress";
 "tangempay_onboarding_get_card_button_text" = "Get card";
 "tangempay_onboarding_pay_description" = "With digital card that works with Apple Pay and Google Pay";
 "tangempay_onboarding_pay_title" = "Spend your assets anywhere";
@@ -1388,6 +1401,7 @@
 "tangempay_service_unavailable_description" = "We’re fixing a technical issue. Please try again later.";
 "tangempay_service_unavailable_title" = "Service temporarily unavailable";
 "tangempay_service_unreachable_try_later" = "The service is currently unreachable. Please try again later.";
+"tangempay_sync_needed" = "Sync needed";
 "tangempay_temporarily_unavailable" = "Tangem Pay is temporarily unavailable";
 "tangempay_title" = "Tangem Pay";
 "tangempay_use_tangem_device_to_restore_payment_account" = "Use your card or ring to restore access to your payment account";
@@ -1713,7 +1727,7 @@
 "wc_alert_unknown_error_description_no_error_code" = "If the problem persists — feel free to contact our support.";
 "wc_alert_unknown_error_description" = "Error code: %@. If the problem persists — feel free to contact our support.";
 "wc_alert_unknown_error_title" = "We've encountered unknown error";
-"wc_alert_unsupported_dapps_description" = "Tangem Wallet currently doesn’t support %s.";
+"wc_alert_unsupported_dapps_description" = "Tangem Wallet currently doesn’t support %@.";
 "wc_alert_unsupported_dapps_title" = "Unsupported dApp";
 "wc_alert_unsupported_method_description" = "Error code: 8 005. If the problem persists — feel free to contact our support.";
 "wc_alert_unsupported_method_title" = "We've encountered unknown error";
