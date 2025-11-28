@@ -7,45 +7,52 @@
 //
 
 import Combine
-import TangemLocalization
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUI
 
-// [REDACTED_TODO_COMMENT]
 struct CurrencySelectView: View {
     @ObservedObject var viewModel: CurrencySelectViewModel
-    @State private var searchText: String = ""
 
     var body: some View {
         ZStack {
             Colors.Background.secondary.ignoresSafeArea()
             content
         }
-        .searchable(text: $searchText, placement: searchFieldPlacement)
         .navigationTitle(Localization.detailsRowTitleCurrency)
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
-            viewModel.onAppear()
+            viewModel.handle(viewEvent: .viewDidAppear)
         }
     }
 
     @ViewBuilder
     private var content: some View {
-        switch viewModel.state {
+        switch viewModel.state.contentState {
         case .loading:
             ProgressView()
                 .controlSize(.regular)
 
         case .loaded(let currencies):
-            GroupedScrollView(alignment: .leading, spacing: 0) {
-                GroupedSection(filter(currencies: currencies)) { currency in
-                    currencyView(currency)
+            ScrollView {
+                VStack(alignment: .leading, spacing: .zero) {
+                    GroupedSection(currencies) { currency in
+                        currencyView(currency)
+                    }
+                    .innerContentPadding(14)
+                    .interItemSpacing(12)
                 }
-                .innerContentPadding(14)
-                .interItemSpacing(12)
+                .padding(.vertical, 8)
+                .padding(.horizontal, 16)
             }
-            .interContentPadding(8)
+            .searchable(
+                text: Binding(
+                    get: { viewModel.state.searchText },
+                    set: { viewModel.handle(viewEvent: .searchTextUpdated($0)) }
+                ),
+                placement: searchFieldPlacement
+            )
 
         case .failedToLoad(let error):
             Text(error.localizedDescription)
@@ -54,42 +61,26 @@ struct CurrencySelectView: View {
         }
     }
 
-    private func currencyView(_ currency: CurrenciesResponse.Currency) -> some View {
-        Button(action: { viewModel.onSelect(currency) }) {
-            HStack {
-                Text(currency.description)
+    private func currencyView(_ currency: CurrencySelectViewState.CurrencyItem) -> some View {
+        Button(action: { viewModel.handle(viewEvent: .currencySelected(currency)) }) {
+            HStack(spacing: .zero) {
+                Text(currency.title)
                     .style(Fonts.Regular.callout, color: Colors.Text.primary1)
 
-                Spacer()
+                if currency.isSelected {
+                    Spacer()
 
-                Image(systemName: "checkmark.circle")
-                    .resizable()
-                    .renderingMode(.template)
-                    .frame(width: 16, height: 16)
-                    .foregroundColor(Colors.Icon.accent)
-                    .hidden(!viewModel.isSelected(currency))
+                    Image(systemName: "checkmark.circle")
+                        .resizable()
+                        .renderingMode(.template)
+                        .frame(width: 16, height: 16)
+                        .foregroundColor(Colors.Icon.accent)
+                }
             }
             .lineLimit(1)
-            .contentShape(Rectangle())
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(.rect)
         }
-    }
-
-    private func filter(currencies: [CurrenciesResponse.Currency]) -> [CurrenciesResponse.Currency] {
-        let text = searchText.trimmed()
-
-        let sortindPredicate: (CurrenciesResponse.Currency, CurrenciesResponse.Currency) -> Bool = { first, _ in
-            viewModel.isSelected(first)
-        }
-
-        if text.isEmpty {
-            return currencies.sorted(by: sortindPredicate)
-        }
-
-        return currencies
-            .filter {
-                $0.description.localizedStandardContains(text)
-            }
-            .sorted(by: sortindPredicate)
     }
 
     private var searchFieldPlacement: SearchFieldPlacement {
@@ -102,7 +93,7 @@ struct CurrencySelectView: View {
 }
 
 struct CurrencySelectView_Preview: PreviewProvider {
-    class CurrencySelectRoutableMock: CurrencySelectRoutable {
+    private final class CurrencySelectRoutableMock: CurrencySelectRoutable {
         func dismissCurrencySelect() {}
     }
 
