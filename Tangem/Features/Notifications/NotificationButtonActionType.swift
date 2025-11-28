@@ -54,8 +54,6 @@ enum NotificationButtonActionType: Identifiable {
     case unlock
     case openMobileFinishActivation(needsAttention: Bool)
     case openMobileUpgrade
-    case tangemPayCreateAccountAndIssueCard
-    case tangemPayViewKYCStatus
     case tangemPaySync
     case allowPushPermissionRequest
     case postponePushPermissionRequest
@@ -91,8 +89,6 @@ enum NotificationButtonActionType: Identifiable {
         case .unlock: "unlock".hashValue
         case .openMobileFinishActivation(let needsAttention): "openMobileFinishActivation\(needsAttention)".hashValue
         case .openMobileUpgrade: "openMobileUpgrade".hashValue
-        case .tangemPayCreateAccountAndIssueCard: "tangemPayCreateAccountAndIssueCard".hashValue
-        case .tangemPayViewKYCStatus: "tangemPayViewKYCStatus".hashValue
         case .tangemPaySync: "tangemPaySync".hashValue
         case .allowPushPermissionRequest: "allowPushPermissionRequest".hashValue
         case .postponePushPermissionRequest: "postponePushPermissionRequest".hashValue
@@ -153,10 +149,6 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.hwActivationNeedFinish
         case .openMobileUpgrade:
             return .empty
-        case .tangemPayCreateAccountAndIssueCard:
-            return Localization.commonContinue
-        case .tangemPayViewKYCStatus:
-            return Localization.tangempayKycInProgressNotificationButton
         case .tangemPaySync:
             return Localization.homeButtonScan
         case .allowPushPermissionRequest:
@@ -202,8 +194,6 @@ enum NotificationButtonActionType: Identifiable {
              .addTokenTrustline,
              .openMobileFinishActivation,
              .openMobileUpgrade,
-             .tangemPayCreateAccountAndIssueCard,
-             .tangemPayViewKYCStatus,
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
              .activate,
@@ -243,8 +233,6 @@ enum NotificationButtonActionType: Identifiable {
              .seedSupport2Yes,
              .seedSupport2No,
              .addTokenTrustline,
-             .tangemPayCreateAccountAndIssueCard,
-             .tangemPayViewKYCStatus,
              .postponePushPermissionRequest,
              .givePermission:
             return .secondary
