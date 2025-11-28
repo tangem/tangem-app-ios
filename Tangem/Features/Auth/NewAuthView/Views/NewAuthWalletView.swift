@@ -29,7 +29,7 @@ struct NewAuthWalletView: View {
             }
             .padding(.vertical, 12)
             .padding(.horizontal, 14)
-            .background(Colors.Field.primary)
+            .background(Colors.Background.primary)
             .cornerRadius(14, corners: .allCorners)
         }
     }
