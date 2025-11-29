@@ -135,6 +135,9 @@ protocol TangemApiService: AnyObject {
 
     // MARK: - Accounts
 
+    /// - Returns: New revision for optimistic locking.
+    func createWallet(with context: some Encodable) async throws -> String?
+
     /// - Returns: New revision for optimistic locking and the list of active accounts.
     func getUserAccounts(
         userWalletId: String
