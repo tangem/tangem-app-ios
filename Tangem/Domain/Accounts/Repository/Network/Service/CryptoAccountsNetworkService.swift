@@ -9,8 +9,21 @@
 import Foundation
 
 protocol CryptoAccountsNetworkService {
-    func getCryptoAccounts() async throws(CryptoAccountsNetworkServiceError) -> RemoteCryptoAccountsInfo
+    func createWallet(with context: some Encodable) async throws(CryptoAccountsNetworkServiceError)
+
     @discardableResult
-    func saveAccounts(from cryptoAccounts: [StoredCryptoAccount]) async throws(CryptoAccountsNetworkServiceError) -> RemoteCryptoAccountsInfo
-    func saveTokens(from cryptoAccounts: [StoredCryptoAccount]) async throws(CryptoAccountsNetworkServiceError)
+    func getCryptoAccounts(
+        retryCount: Int
+    ) async throws(CryptoAccountsNetworkServiceError) -> RemoteCryptoAccountsInfo
+
+    @discardableResult
+    func saveAccounts(
+        from cryptoAccounts: [StoredCryptoAccount],
+        retryCount: Int
+    ) async throws(CryptoAccountsNetworkServiceError) -> RemoteCryptoAccountsInfo
+
+    func saveTokens(
+        from cryptoAccounts: [StoredCryptoAccount],
+        retryCount: Int
+    ) async throws(CryptoAccountsNetworkServiceError)
 }
