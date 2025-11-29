@@ -113,6 +113,8 @@ struct TangemApiTarget: TargetType {
             return "/promo-codes/activate"
 
         // MARK: - Accounts
+        case .createWallet:
+            return "/user-wallets/wallets"
         case .getUserAccounts(let userWalletId),
              .saveUserAccounts(let userWalletId, _, _):
             return "/wallets/\(userWalletId)/accounts"
@@ -163,7 +165,8 @@ struct TangemApiTarget: TargetType {
              .walletInitialized,
              .createUserWalletsApplication,
              .createAndConnectUserWallet,
-             .activatePromoCode:
+             .activatePromoCode,
+             .createWallet:
             return .post
         case .resetAward:
             return .delete
@@ -280,6 +283,8 @@ struct TangemApiTarget: TargetType {
             return .requestJSONEncodable(requestModel)
 
         // MARK: - Accounts
+        case .createWallet(let context):
+            return .requestJSONEncodable(context)
         case .getUserAccounts:
             return .requestPlain
         case .saveUserAccounts(_, _, let accounts):
@@ -336,7 +341,8 @@ struct TangemApiTarget: TargetType {
              .updateUserWallet,
              .createAndConnectUserWallet,
              .getUserAccounts,
-             .getArchivedUserAccounts:
+             .getArchivedUserAccounts,
+             .createWallet:
             return nil
         }
     }
@@ -407,6 +413,7 @@ extension TangemApiTarget {
         case createAndConnectUserWallet(applicationUid: String, items: Set<UserWalletDTO.Create.Request>)
 
         // Accounts
+        case createWallet(context: Encodable)
         case getUserAccounts(userWalletId: String)
         case saveUserAccounts(userWalletId: String, revision: String, accounts: AccountsDTO.Request.Accounts)
         case getArchivedUserAccounts(userWalletId: String)
@@ -448,7 +455,8 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .getUserWallets,
              .getUserWallet,
              .updateUserWallet,
-             .createAndConnectUserWallet:
+             .createAndConnectUserWallet,
+             .createWallet:
             return false
         case .geo,
              .features,
