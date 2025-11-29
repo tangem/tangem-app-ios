@@ -400,6 +400,21 @@ extension CommonTangemApiService: TangemApiService {
 
     // MARK: - Accounts
 
+    func createWallet(with context: some Encodable) async throws -> String? {
+        let target = TangemApiTarget(type: .createWallet(context: context))
+
+        return try await withErrorLoggingPipeline(target: target) {
+            let response = try await provider.asyncRequest(target)
+            let revision = response.response?.value(forHTTPHeaderField: TangemAPIHeaders.eTag.rawValue)
+            let _: EmptyGenericResponseDTO = try response.mapAPIResponseThrowingTangemAPIError(
+                allowRedirectCodes: true,
+                decoder: decoder
+            )
+
+            return revision
+        }
+    }
+
     func getUserAccounts(
         userWalletId: String
     ) async throws -> (revision: String?, accounts: AccountsDTO.Response.Accounts) {
