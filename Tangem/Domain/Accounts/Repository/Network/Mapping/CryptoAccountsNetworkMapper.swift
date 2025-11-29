@@ -283,8 +283,13 @@ final class CryptoAccountsNetworkMapper {
     }
 
     private func mapGroupingOption(
-        groupType: UserTokenList.GroupType
+        groupType: UserTokenList.GroupType?
     ) -> StoredUserTokenList.Grouping {
+        guard let groupType else {
+            // [REDACTED_TODO_COMMENT]
+            return .none
+        }
+
         switch groupType {
         case .none:
             return .none
@@ -294,8 +299,13 @@ final class CryptoAccountsNetworkMapper {
     }
 
     private func mapSortingOption(
-        sortType: UserTokenList.SortType
+        sortType: UserTokenList.SortType?
     ) -> StoredUserTokenList.Sorting {
+        guard let sortType else {
+            // [REDACTED_TODO_COMMENT]
+            return .manual
+        }
+
         switch sortType {
         case .manual:
             return .manual
