@@ -48,6 +48,21 @@ enum StoredEntryConverter {
             metadata: .fungibleTokenMetadata // By definition, in the domain layer we're dealing only with fungible tokens
         )
     }
+
+    static func convertFromBSDKToken(
+        _ bsdkToken: BlockchainSdk.Token,
+        in blockchainNetwork: BlockchainNetwork
+    ) -> StoredCryptoAccount.Token {
+        return StoredCryptoAccount.Token(
+            id: bsdkToken.id,
+            name: bsdkToken.name,
+            symbol: bsdkToken.symbol,
+            decimalCount: bsdkToken.decimalCount,
+            // By definition, all token domain entities are known
+            blockchainNetwork: .known(blockchainNetwork: blockchainNetwork),
+            contractAddress: bsdkToken.contractAddress
+        )
+    }
 }
 
 // MARK: - Convenience extensions
