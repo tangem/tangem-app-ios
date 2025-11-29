@@ -195,6 +195,10 @@ final class FakeTangemApiService: TangemApiService {
         .anyFail(error: .init(code: .notFound))
     }
 
+    func createWallet(with context: some Encodable) async throws -> String? {
+        throw "Not implemented"
+    }
+
     func getUserAccounts(
         userWalletId: String
     ) async throws -> (revision: String?, accounts: AccountsDTO.Response.Accounts) {
