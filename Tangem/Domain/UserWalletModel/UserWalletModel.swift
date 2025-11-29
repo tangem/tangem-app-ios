@@ -24,6 +24,7 @@ protocol UserWalletModel:
     TangemPayAuthorizingProvider,
     WalletSelectorInfoProvider,
     UserWalletModelUnlockerResolvable,
+    UserWalletInfoProvider,
     TangemPayAccountProvider,
     AnyObject {
     var hasBackupCards: Bool { get }
