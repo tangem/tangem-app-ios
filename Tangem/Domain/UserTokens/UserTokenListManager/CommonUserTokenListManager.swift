@@ -52,7 +52,7 @@ final class CommonUserTokenListManager {
         self.hdWalletsSupported = hdWalletsSupported
         self.hasTokenSynchronization = hasTokenSynchronization
         self.defaultBlockchains = defaultBlockchains
-        tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.hexString) // [REDACTED_TODO_COMMENT]
+        tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.hexString)
         initializedSubject = CurrentValueSubject(tokenItemsRepository.containsFile)
         userTokensListSubject = CurrentValueSubject(tokenItemsRepository.getList())
 
