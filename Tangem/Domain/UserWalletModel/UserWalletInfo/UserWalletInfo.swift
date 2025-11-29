@@ -33,18 +33,3 @@ extension UserWalletInfo: Hashable {
         hasher.combine(name)
     }
 }
-
-// MARK: - UserWalletModel+
-
-extension UserWalletModel {
-    var userWalletInfo: UserWalletInfo {
-        UserWalletInfo(
-            name: name,
-            id: userWalletId,
-            config: config,
-            refcode: refcodeProvider?.getRefcode(),
-            signer: signer,
-            emailDataProvider: self
-        )
-    }
-}
