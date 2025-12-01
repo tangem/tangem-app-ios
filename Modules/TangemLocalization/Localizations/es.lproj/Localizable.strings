@@ -18,7 +18,6 @@
 "account_archived_accounts" = "Archived accounts";
 "account_archived_recover_dialog_description" = "You’re about to recover “%1$@”.";
 "account_archived_recover_dialog_title" = "Recover account";
-"account_archived_recover_error_message" = "You have already exceeded the limit of 20 active accounts. Archive one to recover.";
 "account_archived_recover_error_title" = "Can't recover account";
 "account_archived_recover" = "Recover";
 "account_archived_title" = "Archived";
@@ -32,7 +31,6 @@
 "account_details_archive" = "Archivar cuenta";
 "account_details_archiving" = "Archiving...";
 "account_details_title" = "Cuenta";
-"account_edit_failure_dialog_title" = "Can’t edit the account";
 "account_edit_success_message" = "Account saved";
 "account_for_rewards" = "Account for rewards";
 "account_form_account_index" = "Account #%@ — used for address derivation.";
@@ -44,10 +42,10 @@
 "account_form_placeholder_new_account" = "New account";
 "account_form_title_create" = "Add account";
 "account_form_title_edit" = "Edit account";
+"account_generic_error_dialog_message" = "Please try again later. If it keeps happening, get in touch with support and we’ll help you resolve it.";
 "account_label_tokens_info" = "%1$@ in %2$@";
 "account_main_account_title" = "Main account";
 "account_recover_limit_dialog_description" = "You have already exceeded the limit of %1$@ active accounts. Archive one to recover";
-"account_recover_limit_dialog_title" = "Can’t recover account";
 "account_recover_success_message" = "Account recovered";
 "account_reorder_description" = "Long tap on an account to reorder accounts";
 "account_unsaved_dialog_action_first" = "Keep Editing";
@@ -1374,6 +1372,8 @@
 "tangempay_card_details_title" = "Card details";
 "tangempay_card_details_unfreeze_card" = "Unfreeze Card";
 "tangempay_card_details_withdraw_error_title" = "Withdraw unavailable now";
+"tangempay_card_details_withdraw_in_progress_description" = "You can't initiate swap or new withdrawal till the current one is finished";
+"tangempay_card_details_withdraw_in_progress_title" = "Withdrawal in progress";
 "tangempay_card_details_withdraw" = "Withdraw";
 "tangempay_failed_to_issue_card_retry_description" = "A technical error has occurred, please try again by clicking the button below.";
 "tangempay_failed_to_issue_card_support_description" = "A technical error has occurred, please contact support.";
@@ -1885,6 +1885,7 @@
 "yield_module_promo_screen_self_custodial_subtitle" = "Aave es un protocolo on-chain para crear mercados de liquidez no custodiales y ganar intereses a tasa variable.";
 "yield_module_promo_screen_self_custodial_title" = "Descentralizado y autocustodiado";
 "yield_module_promo_screen_terms_disclaimer" = "Al utilizar este servicio, usted acepta que el proveedor\n%1$@ y %2$@";
+"yield_module_promo_screen_title_v2" = "Enable %1$@%% APY on your balance";
 "yield_module_promo_screen_title" = "Conectar Aave";
 "yield_module_promo_screen_variable_rate_info" = "Aave %1$@%% - Tipo de interés variable";
 "yield_module_provider" = "Aave";

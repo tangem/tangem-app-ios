@@ -18,7 +18,6 @@
 "account_archived_accounts" = "Archivierte Konten";
 "account_archived_recover_dialog_description" = "Du bist dabei, dich zu erholen \"%1$@”.";
 "account_archived_recover_dialog_title" = "Konto wiederherstellen";
-"account_archived_recover_error_message" = "Du hast das Limit von 20 aktiven Konten bereits überschritten. Archiviere eines, um es wiederherzustellen.";
 "account_archived_recover_error_title" = "Konto kann nicht wiederhergestellt werden";
 "account_archived_recover" = "Wiederherstellen";
 "account_archived_title" = "Archiviert";
@@ -32,7 +31,6 @@
 "account_details_archive" = "Archivkonto";
 "account_details_archiving" = "Archivierung...";
 "account_details_title" = "Konto";
-"account_edit_failure_dialog_title" = "Can’t edit the account";
 "account_edit_success_message" = "Konto gespeichert";
 "account_for_rewards" = "Prämien berücksichtigen";
 "account_form_account_index" = "Kontonummer %@ – wird zur Adressableitung verwendet.";
@@ -44,10 +42,10 @@
 "account_form_placeholder_new_account" = "Neues Konto";
 "account_form_title_create" = "Konto hinzufügen";
 "account_form_title_edit" = "Konto bearbeiten";
+"account_generic_error_dialog_message" = "Please try again later. If it keeps happening, get in touch with support and we’ll help you resolve it.";
 "account_label_tokens_info" = "%1$@ in %2$@";
 "account_main_account_title" = "Hauptkonto";
 "account_recover_limit_dialog_description" = "Du hast das Limit von %1$@ aktiven Konten bereits überschritten. Archiviere eines zur Wiederherstellung";
-"account_recover_limit_dialog_title" = "Konto kann nicht wiederhergestellt werden";
 "account_recover_success_message" = "Konto wiederhergestellt";
 "account_reorder_description" = "Tippe lange auf ein Konto, um die Konten neu anzuordnen";
 "account_unsaved_dialog_action_first" = "Weiter bearbeiten";
@@ -795,8 +793,8 @@
 "no_account_polkadot" = "Das Zielkonto ist nicht aktiv. Sende %@ oder mehr, um das Konto zu aktivieren.";
 "no_account_send_to_create" = "Senden Sie Geld an diese Andresse um ein Konto zu erstellen";
 "no_trustline_xlm_asset" = "Das Zielkonto verfügt nicht über eine Vertrauensstellung für das gesendete Asset.";
-"notification_black_friday_text" = "Get $10 in BTC with every wallet\nHurry!";
-"notification_black_friday_title" = "Black Friday: up to 30%% OFF";
+"notification_black_friday_text" = "Sicher Dir 10 $ in BTC mit jeder Wallet greif schnell zu!";
+"notification_black_friday_title" = "Black Friday: bis zu 30%% Nachlass";
 "notification_referral_promo_button" = "Jetzt beitreten";
 "notification_referral_promo_text" = "Teile Deinen Code – verdiene 5 USDT pro Verkauf. Deine Freunde erhalten 10 %% Rabatt.";
 "notification_referral_promo_title" = "Erhalte BELOHNUNGEN für jeden Freund!";
@@ -1374,6 +1372,8 @@
 "tangempay_card_details_title" = "Kartendetails";
 "tangempay_card_details_unfreeze_card" = "Karte entsperren";
 "tangempay_card_details_withdraw_error_title" = "Withdraw unavailable now";
+"tangempay_card_details_withdraw_in_progress_description" = "You can't initiate swap or new withdrawal till the current one is finished";
+"tangempay_card_details_withdraw_in_progress_title" = "Withdrawal in progress";
 "tangempay_card_details_withdraw" = "Withdraw";
 "tangempay_failed_to_issue_card_retry_description" = "A technical error has occurred, please try again by clicking the button below.";
 "tangempay_failed_to_issue_card_support_description" = "A technical error has occurred, please contact support.";
@@ -1885,6 +1885,7 @@
 "yield_module_promo_screen_self_custodial_subtitle" = "Aave ist ein On-Chain-Protokoll zur Erstellung von nicht-kustodialen Liquiditätsmärkten, um Zinsen mit variablem Satz zu verdienen.";
 "yield_module_promo_screen_self_custodial_title" = "Dezentral und selbstverwahrend";
 "yield_module_promo_screen_terms_disclaimer" = "Durch die Nutzung dieses Dienstes erklärst Du Dich mit provider\n%1$@ und %2$@ einverstanden";
+"yield_module_promo_screen_title_v2" = "Enable %1$@%% APY on your balance";
 "yield_module_promo_screen_title" = "Mit Aave verbinden";
 "yield_module_promo_screen_variable_rate_info" = "Aave %1$@%% • Variabler Zinssatz";
 "yield_module_provider" = "Aave";
