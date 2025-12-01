@@ -47,6 +47,7 @@ extension Analytics {
         case mobileWallet = "MobileWallet"
         case visa = "Visa"
         case visaWaitlist = "Visa Waitlist"
+        case blackFriday = "Black Friday"
 
         case main = "Main"
         case token = "Token"
