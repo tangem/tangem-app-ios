@@ -108,6 +108,14 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
         openExpress(factory: factory)
     }
 
+    func openTangemWithdrawInProgressSheet() {
+        let viewModel = TangemPayWithdrawInProgressSheetViewModel(coordinator: self)
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
     func openTangemPayNoDepositAddressSheet() {
         let viewModel = TangemPayNoDepositAddressSheetViewModel(coordinator: self)
 
