@@ -23,17 +23,6 @@ struct MultiWalletMainContentView: View {
                 ActionButtonsView(viewModel: actionButtonsViewModel)
             }
 
-            ForEach(viewModel.tangemPayNotificationInputs) { input in
-                switch input.id {
-                case TangemPayNotificationEvent.syncNeeded.id:
-                    NotificationView(input: input)
-                        .setButtonsLoadingState(to: viewModel.tangemPaySyncInProgress)
-
-                default:
-                    NotificationView(input: input)
-                }
-            }
-
             ForEach(viewModel.bannerNotificationInputs) { input in
                 NotificationView(input: input)
             }
@@ -49,6 +38,17 @@ struct MultiWalletMainContentView: View {
 
             ForEach(viewModel.yieldModuleNotificationInputs) { input in
                 NotificationView(input: input)
+            }
+
+            ForEach(viewModel.tangemPayNotificationInputs) { input in
+                switch input.id {
+                case TangemPayNotificationEvent.syncNeeded.id:
+                    NotificationView(input: input)
+                        .setButtonsLoadingState(to: viewModel.tangemPaySyncInProgress)
+
+                default:
+                    NotificationView(input: input)
+                }
             }
 
             // [REDACTED_TODO_COMMENT]
