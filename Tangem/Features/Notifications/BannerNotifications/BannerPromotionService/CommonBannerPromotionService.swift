@@ -27,13 +27,10 @@ extension CommonBannerPromotionService: BannerPromotionService {
 
             let now = Date()
             if promotionInfo.all.status == .active, now < promotionInfo.all.timeline.end {
-                let link: URL?
-
-                switch promotion {
-                case .visaWaitlist:
-                    link = URL(string: Constants.visaWaitlinkLink)
-                default:
-                    link = promotionInfo.all.link.flatMap { URL(string: $0) }
+                let link: URL? = switch promotion {
+                case .visaWaitlist: Constants.visaWaitlinkLink
+                case .blackFriday: Constants.blackFridayLink
+                default: nil
                 }
 
                 return .init(bannerPromotion: promotion, timeline: promotionInfo.all.timeline, link: link)
@@ -67,6 +64,12 @@ extension CommonBannerPromotionService: BannerPromotionService {
 
 private extension CommonBannerPromotionService {
     enum Constants {
-        static let visaWaitlinkLink = "https://tangem.com/en/cardwaitlist/?utm_source=tangem-app-banner&utm_medium=banner&utm_campaign=tangempaywaitlist"
+        static let visaWaitlinkLink = URL(
+            string: "https://tangem.com/en/cardwaitlist/?utm_source=tangem-app-banner&utm_medium=banner&utm_campaign=tangempaywaitlist"
+        )!
+
+        static let blackFridayLink = URL(
+            string: "https://tangem.com/en/pricing/?promocode=BF2025&utm_source=tangem-app-banner&utm_medium=banner&utm_campaign=BlackFriday2025"
+        )!
     }
 }
