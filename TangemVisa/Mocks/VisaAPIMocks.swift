@@ -392,6 +392,14 @@ struct CustomerInfoManagementServiceMock: CustomerInfoManagementService {
         TangemPayTransactionHistoryResponse(transactions: [])
     }
 
+    func getWithdrawPreSignatureInfo(request: TangemPayWithdrawRequest) async throws -> TangemPayWithdrawPreSignature {
+        .init(sender: "", hash: Data(), salt: Data())
+    }
+
+    func sendWithdrawTransaction(request: TangemPayWithdrawRequest, signature: TangemPayWithdrawSignature) async throws -> TangemPayWithdrawTransactionResult {
+        .init(orderID: UUID().uuidString, host: "")
+    }
+
     func getOrder(orderId: String) async throws -> TangemPayOrderResponse {
         TangemPayOrderResponse(
             id: "",
@@ -411,7 +419,7 @@ struct CustomerInfoManagementServiceMock: CustomerInfoManagementService {
         )
     }
 
-    func placeOrder(walletAddress: String) async throws -> TangemPayOrderResponse {
+    func placeOrder(customerWalletAddress: String) async throws -> TangemPayOrderResponse {
         TangemPayOrderResponse(
             id: "",
             customerId: "",
