@@ -16,8 +16,6 @@
 "account_add_limit_dialog_title" = "Can’t add new account";
 "account_archive_success_message" = "Account archived";
 "account_archived_accounts" = "Archived accounts";
-"account_archived_recover_dialog_description" = "You’re about to recover “%1$@”.";
-"account_archived_recover_dialog_title" = "Recover account";
 "account_archived_recover_error_title" = "Can't recover account";
 "account_archived_recover" = "Recover";
 "account_archived_title" = "Archived";
@@ -26,7 +24,6 @@
 "account_could_not_archive" = "We couldn’t archive account. Please try again later.";
 "account_could_not_create" = "We couldn’t create account. Please try again later.";
 "account_create_success_message" = "Account created";
-"account_details_archive_action" = "Archive";
 "account_details_archive_description" = "You are archiving this account, but you can always get it back.";
 "account_details_archive" = "Archive account";
 "account_details_archiving" = "Archiving...";
@@ -374,7 +371,6 @@
 "custom_token_custom_derivation" = "Власна деривація";
 "custom_token_decimals_input_title" = "Знаків після коми";
 "custom_token_derivation_path_default" = "За замовчуванням";
-"custom_token_derivation_path_input_title" = "Тип монети BIP44";
 "custom_token_derivation_path" = "Шлях деривації";
 "custom_token_invalid_derivation_path" = "Введений шлях деривації недійсний";
 "custom_token_name_input_placeholder" = "Наприклад, USD Coin";
@@ -636,7 +632,6 @@
 "manage_tokens_list_header_title" = "Ринкова капіталізація";
 "manage_tokens_network_selector_native_subtitle" = "Спочатку був створений блокчейн криптовалюти";
 "manage_tokens_network_selector_native_title" = "Основна мережа";
-"manage_tokens_network_selector_non_native_info" = "Використання нерідних мереж для токенів забезпечує сумісність між блокчейнами, дозволяючи використовувати активи в різноманітних децентралізованих програмах і смарт-контрактах на різних платформах. Однак для цього часто використовується зберігач або смарт-контракт для надійного зберігання оригінального активу, вводячи централізацію та ризик контрагента.";
 "manage_tokens_network_selector_non_native_subtitle" = "Не оригінальний або первинний блокчейн, на якому розміщено токен";
 "manage_tokens_network_selector_non_native_title" = "Неосновні мережі";
 "manage_tokens_network_selector_title" = "Оберіть мережі";
@@ -785,7 +780,6 @@
 "nft_send" = "Надіслати NFT";
 "nft_traits_title" = "Риси";
 "nft_untitled_collection" = "Безіменна колекція";
-"nft_wallet_count" = "NFTs в %2$li колекціях%1$li";
 "nft_wallet_receive_nft" = "Натисніть тут, щоб отримати першу NFT";
 "nft_wallet_title" = "NFT колекції";
 "nft_wallet_unable_to_load" = "Неможливо завантажити дані";
@@ -796,8 +790,6 @@
 "notification_black_friday_text" = "Get $10 in BTC with every wallet\nHurry!";
 "notification_black_friday_title" = "Black Friday: up to 30%% OFF";
 "notification_referral_promo_button" = "Приєднатися";
-"notification_referral_promo_text" = "Поділіться промокодом — заробіть 5 USDT з кожної покупки. Ваші друзі отримають знижку 10%% на картку Tangem!";
-"notification_referral_promo_title" = "Отримуй бонуси за кожного друга!";
 "notification_sepa_button" = "Купити криптовалюту";
 "notification_sepa_text" = "Насолоджуйтесь **нульовою комісією** при купівлі криптовалюти через перекази SEPA.";
 "notification_sepa_title" = "Купуйте криптовалюту через SEPA";
@@ -826,7 +818,6 @@
 "onboarding_button_backup_card_format" = "Сканувати картку #%li";
 "onboarding_button_backup_card" = "Сканувати картку";
 "onboarding_button_backup_now" = "Створити резервну копію";
-"onboarding_button_backup_origin" = "Сканувати картку";
 "onboarding_button_backup_ring" = "Сканувати кільце";
 "onboarding_button_continue_wallet" = "Перейти до мого гаманця";
 "onboarding_button_finalize_backup" = "Завершення бекапу";
@@ -879,9 +870,7 @@
 "onboarding_title_scan_origin_card" = "Підготуйте свою картку";
 "onboarding_title_two_backup_cards" = "Додано два резервних пристрої";
 "onboarding_title" = "Активація гаманця";
-"onboarding_top_up_body_no_account_error" = "Щоб почати, просто поповніть гаманець більше, ніж на %1$@ %2$@";
 "onboarding_top_up_body" = "Поповніть гаманець на будь-яку суму, щоб почати користуватися карткою";
-"onboarding_top_up_button_but_crypto" = "Купити криптовалюту";
 "onboarding_top_up_button_show_wallet_address" = "Показати адресу гаманця";
 "onboarding_top_up_min_create_account_amount" = "Щоб почати, просто поповніть гаманець більше, ніж на %1$@";
 "onboarding_topup_title" = "Активація гаманця";
@@ -954,7 +943,6 @@
 "receive_bottom_sheet_no_memo_required_message" = "Memo не вимагається";
 "receive_bottom_sheet_warning_message_compact" = "%1$@ у мережі %2$@";
 "receive_bottom_sheet_warning_message_description" = "Використання іншої мережі може призвести до втрати коштів.";
-"receive_bottom_sheet_warning_message_full" = "Надсилайте лише %@ на цю адресу. Надсилання будь-якої іншої валюти призведе до її незворотної втрати.";
 "receive_bottom_sheet_warning_message_title" = "Надсилайте лише %@ на цю адресу";
 "receive_bottom_sheet_warning_message" = "%1$@ (%2$@) у мережі %3$@";
 "receive_bottom_sheet_warning_title" = "Надсилайте лише %1$@ у мережі %2$@";
@@ -991,10 +979,6 @@
 "reset_cards_dialog_first_description" = "Something went wrong with the activation process. Please reset the cards one by one.";
 "reset_cards_dialog_first_title" = "Card verification failed";
 "reset_cards_dialog_next_device_description" = "Please reset the next device to continue";
-"ring_promo_text" = "Власникам кілець - 3 обміни без комісії на Changelly до 15.11!";
-"ring_promo_title" = "Обмін з 0%% комісією!";
-"russian_bank_card_warning_subtitle" = "У вас є банківська картка іншої країни та посвідка на проживання або реєстрація за межами Російської Федерації?";
-"russian_bank_card_warning_title" = "Російські банківські картки наразі не приймаються";
 "save_user_wallet_agreement_access_description" = "Увійдіть у додаток та слідкуйте за своїм балансом без сканування картки чи кільця";
 "save_user_wallet_agreement_access_title" = "Доступ до додатку";
 "save_user_wallet_agreement_allow" = "Використовувати %@";
@@ -1081,7 +1065,6 @@
 "send_recent_transactions" = "Останні";
 "send_recipient_address_error" = "Недійсна адреса";
 "send_recipient_address_footer" = "Переконайтеся, що адреса отримувача знаходиться **в мережі %@**, щоб уникнути втрати ваших коштів.";
-"send_recipient_label" = "Надіслати до";
 "send_recipient_memo_footer_v2_highlighted" = "Увага: відсутність Memo може призвести до втрати коштів.";
 "send_recipient_memo_footer" = "Memo/ Тег призначення — це унікальний ідентифікатор для розрізнення транзакцій, надісланих тому самому одержувачу в тій самій мережі.\n**Застереження: відсутність тегу може призвести до втрати коштів.**";
 "send_recipient_wallets_title" = "Мої гаманці";
@@ -1220,7 +1203,6 @@
 "staking_reward_claiming_manual" = "Вручну";
 "staking_reward_schedule_block" = "За блок";
 "staking_reward_schedule_day" = "Щоденно";
-"staking_reward_schedule_each_day" = "Щодня";
 "staking_reward_schedule_each_days" = "Кожні %@ дні";
 "staking_reward_schedule_each_plural" = "Кожні";
 "staking_reward_schedule_each_sec" = "Кожні %1$@ сек";
@@ -1295,7 +1277,6 @@
 "swapping_alert_cex_description" = "Сума включає: \n• комісію постачальника послуг\n• комісію мережі за відправлення %@ з біржі назад на адресу користувача.";
 "swapping_alert_dex_description_with_slippage" = "Сума включає комісію провайдера послуг. \n\nПроскакування провайдера до %@";
 "swapping_alert_dex_description" = "Сума включає комісію постачальника послуг.";
-"swapping_alert_slippage_description" = "Прослизання провайдера становить до %@.";
 "swapping_alert_title" = "Інформація";
 "swapping_approve_information_text" = "Всі децентралізовані біржі вимагають схвалення, щоб запобігти доступу смарт-контрактів до вашого гаманця без вашого дозволу. За задумом смарт-контракти не можуть отримати доступ до ваших токенів без вашого схвалення. \"Розблоковуючи\" свої токени, ви дозволяєте смарт-контракту 1inch витрачати ваші активи. Майнери мережі отримують плату за газ (сплачену вами), щоб зафіксувати цю дію в блокчейні. Ви можете обміняти свій токен після того, як дасте дозвіл.";
 "swapping_approve_information_title" = "Підтвердити";
@@ -1877,7 +1858,6 @@
 "yield_module_network_fee_unreachable_notification_description" = "Перевірте підключення до мережі";
 "yield_module_network_fee_unreachable_notification_title" = "Інформація про комісію недоступна";
 "yield_module_promo_screen_auto_balance_subtitle_v2" = "Всі %1$@ на вашому рахунку будуть автоматично передані в Aave.";
-"yield_module_promo_screen_auto_balance_subtitle" = "Кожен ваш депозит буде автоматично надходити до Aave.";
 "yield_module_promo_screen_auto_balance_title" = "Автопереказ до AAVE";
 "yield_module_promo_screen_cash_out_subtitle" = "Відправляйте, обмінюйте або продавайте свої кошти миттєво, в будь-який час.";
 "yield_module_promo_screen_cash_out_title" = "Вільний доступ";
@@ -1885,7 +1865,7 @@
 "yield_module_promo_screen_self_custodial_subtitle" = "Aave — це ончейн-протокол для створення некостодіальних ринків ліквідності, що дозволяє отримувати дохід з змінною ставкою.";
 "yield_module_promo_screen_self_custodial_title" = "Децентралізований та некастодіальний";
 "yield_module_promo_screen_terms_disclaimer" = "Використовуючи сервіс, ви погоджуєтесь з умовами провайдера %1$@ та %2$@";
-"yield_module_promo_screen_title_v2" = "Enable %1$@%% APY on your balance";
+"yield_module_promo_screen_title_v2" = "Enable %1$@%% APY\non your balance";
 "yield_module_promo_screen_title" = "Підключити Aave";
 "yield_module_promo_screen_variable_rate_info_v2" = "Variable Interest Rate";
 "yield_module_promo_screen_variable_rate_info" = "Aave %1$@%% • Плаваюча ставка";
