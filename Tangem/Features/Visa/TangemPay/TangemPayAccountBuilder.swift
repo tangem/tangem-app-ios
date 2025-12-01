@@ -21,7 +21,7 @@ struct TangemPayAccountBuilder {
             throw Error.authorizerNotFound
         }
 
-        return try await makeTangemPayAccount(authorizer: authorizer, userWalletModel: userWalletModel)
+        return makeTangemPayAccount(authorizer: authorizer, userWalletModel: userWalletModel)
     }
 }
 
@@ -90,11 +90,7 @@ private extension TangemPayAccountBuilder {
         return authorizer
     }
 
-    func makeTangemPayAccount(authorizer: TangemPayAuthorizer, userWalletModel: UserWalletModel) async throws -> TangemPayAccount {
-        guard let walletPublicKey = TangemPayUtilities.getKey(from: userWalletModel.keysRepository) else {
-            throw Error.walletPublicKeyNotFound
-        }
-
+    func makeTangemPayAccount(authorizer: TangemPayAuthorizer, userWalletModel: UserWalletModel) -> TangemPayAccount {
         let authorizationTokensHandler = TangemPayAuthorizationTokensHandlerBuilder()
             .buildTangemPayAuthorizationTokensHandler(
                 customerWalletId: authorizer.customerWalletId,
@@ -113,8 +109,7 @@ private extension TangemPayAccountBuilder {
         let withdrawTransactionService = CommonTangemPayWithdrawTransactionService(
             customerInfoManagementService: customerInfoManagementService,
             fiatItem: TangemPayUtilities.fiatItem,
-            signer: userWalletModel.signer,
-            walletPublicKey: walletPublicKey
+            signer: userWalletModel.signer
         )
 
         return TangemPayAccount(
@@ -135,6 +130,5 @@ extension TangemPayAccountBuilder {
 
     enum Error: LocalizedError {
         case authorizerNotFound
-        case walletPublicKeyNotFound
     }
 }
