@@ -7,10 +7,11 @@
 //
 
 import Combine
+import PassKit
 import TangemUI
 import TangemVisa
+import TangemUIUtils
 import TangemFoundation
-import PassKit
 import TangemLocalization
 
 final class TangemPayMainViewModel: ObservableObject {
@@ -28,6 +29,8 @@ final class TangemPayMainViewModel: ObservableObject {
     @Published private(set) var tangemPayTransactionHistoryState: TransactionsListView.State = .loading
     @Published private(set) var freezingState: TangemPayFreezingState = .normal
     @Published private(set) var shouldDisplayAddToApplePayGuide: Bool = false
+    @Published private(set) var isWithdrawButtonLoading: Bool = false
+    @Published var alert: AlertBinder?
 
     private let userWalletInfo: UserWalletInfo
     private let tangemPayAccount: TangemPayAccount
@@ -103,13 +106,26 @@ final class TangemPayMainViewModel: ObservableObject {
             return
         }
 
-        let input = ExpressDependenciesInput(
-            userWalletInfo: userWalletInfo,
-            source: tangemPayWalletWrapper,
-            destination: .loadingAndSet
-        )
+        Task { @MainActor in
+            isWithdrawButtonLoading = true
+            defer { isWithdrawButtonLoading = false }
 
-        coordinator?.openTangemPayWithdraw(input: input)
+            do {
+                let hasActiveWithdrawOrder = try await tangemPayAccount.withdrawTransactionService.hasActiveWithdrawOrder()
+                if hasActiveWithdrawOrder {
+                    coordinator?.openTangemWithdrawInProgressSheet()
+                    return
+                }
+
+                coordinator?.openTangemPayWithdraw(input: ExpressDependenciesInput(
+                    userWalletInfo: userWalletInfo,
+                    source: tangemPayWalletWrapper,
+                    destination: .loadingAndSet
+                ))
+            } catch {
+                alert = error.alertBinder
+            }
+        }
     }
 
     func onAppear() {
