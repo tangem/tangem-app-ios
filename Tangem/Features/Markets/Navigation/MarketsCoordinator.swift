@@ -18,7 +18,7 @@ class MarketsCoordinator: CoordinatorObject {
 
     // MARK: - Root Published
 
-    @Published private(set) var rootViewModel: MarketsViewModel?
+    @Published private(set) var rootState: StateView?
 
     // MARK: - Coordinators
 
@@ -42,10 +42,17 @@ class MarketsCoordinator: CoordinatorObject {
     // MARK: - Implementation
 
     func start(with options: MarketsCoordinator.Options) {
-        rootViewModel = .init(
-            quotesRepositoryUpdateHelper: CommonMarketsQuotesUpdateHelper(),
-            coordinator: self
-        )
+        if FeatureProvider.isAvailable(.newShtorka) {
+            let viewModel = MarketsMainViewModel(coordinator: self)
+            rootState = .main(viewModel: viewModel)
+        } else {
+            let viewModel = MarketsViewModel(
+                quotesRepositoryUpdateHelper: CommonMarketsQuotesUpdateHelper(),
+                coordinator: self
+            )
+
+            rootState = .markets(viewModel: viewModel)
+        }
     }
 }
 
@@ -69,5 +76,29 @@ extension MarketsCoordinator: MarketsRoutable {
         tokenDetailsCoordinator.start(with: .init(info: tokenInfo, style: .marketsSheet))
 
         self.tokenDetailsCoordinator = tokenDetailsCoordinator
+    }
+}
+
+extension MarketsCoordinator: MarketsMainRoutable {}
+
+extension MarketsCoordinator {
+    enum StateView: Identifiable, Hashable, Equatable {
+        case markets(viewModel: MarketsViewModel)
+        case main(viewModel: MarketsMainViewModel)
+
+        var id: String {
+            switch self {
+            case .markets: return "markets_token_list"
+            case .main: return "main_markets_page"
+            }
+        }
+
+        func hash(into hasher: inout Hasher) {
+            hasher.combine(id)
+        }
+
+        static func == (lhs: MarketsCoordinator.StateView, rhs: MarketsCoordinator.StateView) -> Bool {
+            lhs.id == rhs.id
+        }
     }
 }

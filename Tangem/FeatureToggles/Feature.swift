@@ -19,6 +19,9 @@ enum Feature: String, Hashable, CaseIterable {
     case receiveENS
     case yieldModule
     case pushPermissionNotificationBanner
+    case newShtorka
+    case marketsNews
+    case marketsEarn
 
     var name: String {
         switch self {
@@ -32,6 +35,9 @@ enum Feature: String, Hashable, CaseIterable {
         case .receiveENS: return "Receive (ENS)"
         case .yieldModule: return "Yield Module"
         case .pushPermissionNotificationBanner: return "Push Permission Notification Banner"
+        case .newShtorka: return "New shtorka"
+        case .marketsNews: return "Markets News"
+        case .marketsEarn: return "Markets Earn"
         }
     }
 
@@ -47,6 +53,9 @@ enum Feature: String, Hashable, CaseIterable {
         case .receiveENS: return .version("5.28")
         case .yieldModule: return .version("5.30")
         case .pushPermissionNotificationBanner: return .version("5.30")
+        case .newShtorka: return .unspecified
+        case .marketsNews: return .unspecified
+        case .marketsEarn: return .unspecified
         }
     }
 }

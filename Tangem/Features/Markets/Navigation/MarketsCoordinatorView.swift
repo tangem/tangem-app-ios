@@ -14,11 +14,17 @@ struct MarketsCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: MarketsCoordinator
 
     var body: some View {
-        if let model = coordinator.rootViewModel {
+        if let state = coordinator.rootState {
             NavigationView {
                 ZStack {
-                    MarketsView(viewModel: model)
-                        .navigationLinks(links)
+                    switch state {
+                    case .markets(let viewModel):
+                        MarketsView(viewModel: viewModel)
+                            .navigationLinks(links)
+                    case .main(let viewModel):
+                        MarketsMainView(viewModel: viewModel)
+                            .navigationLinks(links)
+                    }
 
                     sheets
                 }
