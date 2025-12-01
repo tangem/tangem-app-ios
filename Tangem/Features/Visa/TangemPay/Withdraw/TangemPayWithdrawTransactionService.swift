@@ -12,20 +12,27 @@ import TangemVisa
 import TangemExpress
 
 protocol TangemPayWithdrawTransactionService {
-    func sendWithdrawTransaction(amount: Decimal, destination: String) async throws -> TangemPayWithdrawTransactionResult
+    func sendWithdrawTransaction(
+        amount: Decimal,
+        destination: String,
+        walletPublicKey: Wallet.PublicKey
+    ) async throws -> TangemPayWithdrawTransactionResult
 }
 
 struct CommonTangemPayWithdrawTransactionService {
     let customerInfoManagementService: any CustomerInfoManagementService
     let fiatItem: FiatItem
     let signer: any TangemSigner
-    let walletPublicKey: Wallet.PublicKey
 }
 
 // MARK: - TangemPayWithdrawTransactionService
 
 extension CommonTangemPayWithdrawTransactionService: TangemPayWithdrawTransactionService {
-    func sendWithdrawTransaction(amount: Decimal, destination: String) async throws -> TangemPayWithdrawTransactionResult {
+    func sendWithdrawTransaction(
+        amount: Decimal,
+        destination: String,
+        walletPublicKey: Wallet.PublicKey
+    ) async throws -> TangemPayWithdrawTransactionResult {
         let amountInCents = fiatItem.convertToCents(value: amount).description
         let request = TangemPayWithdrawRequest(amount: amount, amountInCents: amountInCents, destination: destination)
 
