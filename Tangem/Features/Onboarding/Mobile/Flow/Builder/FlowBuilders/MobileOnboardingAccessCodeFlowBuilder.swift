@@ -31,7 +31,8 @@ final class MobileOnboardingAccessCodeFlowBuilder: MobileOnboardingFlowBuilder {
     }
 
     override func setupFlow() {
-        let accessCodeStep = MobileOnboardingAccessCodeStep(mode: .change(context), source: source, delegate: self)
+        let mode: MobileOnboardingAccessCodeViewModel.Mode = userWalletModel.config.userWalletAccessCodeStatus.hasAccessCode ? .change(context) : .create
+        let accessCodeStep = MobileOnboardingAccessCodeStep(mode: mode, source: source, delegate: self)
             .configureNavBar(
                 title: Localization.accessCodeNavtitle,
                 leadingAction: navBarCloseAction
@@ -40,7 +41,11 @@ final class MobileOnboardingAccessCodeFlowBuilder: MobileOnboardingFlowBuilder {
 
         let doneStep = MobileOnboardingSuccessStep(
             type: .walletReady,
-            onAppear: {},
+            onAppear: { [weak self] in
+                if case .create = mode {
+                    self?.logOnboardingFinishedAnalytics()
+                }
+            },
             onComplete: weakify(self, forFunction: MobileOnboardingAccessCodeFlowBuilder.closeOnboarding)
         )
         doneStep.configureNavBar(title: Localization.commonDone)
@@ -67,6 +72,18 @@ private extension MobileOnboardingAccessCodeFlowBuilder {
         MobileOnboardingFlowNavBarAction.close(handler: { [weak self] in
             self?.closeOnboarding()
         })
+    }
+}
+
+// MARK: - Analytics
+
+private extension MobileOnboardingAccessCodeFlowBuilder {
+    func logOnboardingFinishedAnalytics() {
+        Analytics.log(
+            .onboardingFinished,
+            params: [.source: .walletSettings],
+            contextParams: .custom(userWalletModel.analyticsContextData)
+        )
     }
 }
 

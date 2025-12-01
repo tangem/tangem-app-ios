@@ -64,7 +64,10 @@ final class MobileOnboardingActivateWalletFlowBuilder: MobileOnboardingFlowBuild
 
         let doneStep = MobileOnboardingSuccessStep(
             type: .walletReady,
-            onAppear: weakify(self, forFunction: MobileOnboardingActivateWalletFlowBuilder.openConfetti),
+            onAppear: { [weak self] in
+                self?.openConfetti()
+                self?.logOnboardingFinishedAnalytics()
+            },
             onComplete: weakify(self, forFunction: MobileOnboardingActivateWalletFlowBuilder.closeOnboarding)
         )
         doneStep.configureNavBar(title: Localization.commonDone)
@@ -218,5 +221,13 @@ private extension MobileOnboardingActivateWalletFlowBuilder {
 
     func logSettingAccessCodeAnalytics() {
         Analytics.log(.settingAccessCodeStarted, contextParams: analyticsContextParams)
+    }
+
+    func logOnboardingFinishedAnalytics() {
+        Analytics.log(
+            .onboardingFinished,
+            params: [.source: .main],
+            contextParams: analyticsContextParams
+        )
     }
 }

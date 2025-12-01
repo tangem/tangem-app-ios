@@ -28,11 +28,11 @@ final class MobileOnboardingAccessCodeViewModel: ObservableObject {
 
     let codeLength: Int = 6
 
-    var leadingBavBarItem: MobileOnboardingFlowNavBarAction? {
+    var leadingNavBarItem: MobileOnboardingFlowNavBarAction? {
         makeLeadingNavBarItem()
     }
 
-    var trailingBavBarItem: MobileOnboardingFlowNavBarAction? {
+    var trailingNavBarItem: MobileOnboardingFlowNavBarAction? {
         makeTrailingNavBarItem()
     }
 

@@ -61,7 +61,10 @@ final class MobileOnboardingImportWalletFlowBuilder: MobileOnboardingFlowBuilder
 
         let doneStep = MobileOnboardingSuccessStep(
             type: .walletReady,
-            onAppear: weakify(self, forFunction: MobileOnboardingImportWalletFlowBuilder.openConfetti),
+            onAppear: { [weak self] in
+                self?.openConfetti()
+                self?.logOnboardingFinishedAnalytics()
+            },
             onComplete: weakify(self, forFunction: MobileOnboardingImportWalletFlowBuilder.openMain)
         )
         doneStep.configureNavBar(title: Localization.commonDone)
@@ -91,6 +94,18 @@ private extension MobileOnboardingImportWalletFlowBuilder {
 
     func closeOnboarding() {
         coordinator?.closeOnboarding()
+    }
+}
+
+// MARK: - Analytics
+
+private extension MobileOnboardingImportWalletFlowBuilder {
+    func logOnboardingFinishedAnalytics() {
+        Analytics.log(
+            .onboardingFinished,
+            params: [.source: .importWallet],
+            contextParams: .custom(.mobileWallet)
+        )
     }
 }
 
