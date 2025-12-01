@@ -235,7 +235,12 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
             throw WalletConnectTransactionRequestProcessingError.unsupportedMethod(action.rawValue)
 
         case .signMessage:
-            throw WalletConnectTransactionRequestProcessingError.unsupportedMethod(action.rawValue)
+            return try WalletConnectBitcoinSignMessageHandler(
+                request: params,
+                blockchainId: blockchainNetworkID,
+                signer: BitcoinWalletConnectSigner(signer: signer),
+                walletModelProvider: walletModelProvider
+            )
         }
     }
 
