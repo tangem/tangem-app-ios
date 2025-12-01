@@ -44,7 +44,7 @@ class BannerNotificationManager {
     private func load() {
         switch placement {
         case .main:
-            loadActivePromotions(programNames: [.sepa, .visaWaitlist])
+            loadActivePromotions(programNames: [.sepa, .visaWaitlist, .blackFriday])
         case .tokenDetails:
             break
         }
@@ -137,6 +137,10 @@ class BannerNotificationManager {
                 Analytics.log(event: .promotionBannerClicked, params: params)
             case .visaWaitlist:
                 Analytics.log(event: .promotionButtonJoinNow, params: event.analytics.analyticsParams)
+            case .blackFriday:
+                var params = event.analytics.analyticsParams
+                params[.action] = Analytics.ParameterValue.clicked.rawValue
+                Analytics.log(event: .promotionBannerClicked, params: params)
             }
         }
 
@@ -151,6 +155,10 @@ class BannerNotificationManager {
                 Analytics.log(event: .promotionBannerClicked, params: params)
             case .visaWaitlist:
                 Analytics.log(event: .promotionButtonClose, params: event.analytics.analyticsParams)
+            case .blackFriday:
+                var params = event.analytics.analyticsParams
+                params[.action] = Analytics.ParameterValue.closed.rawValue
+                Analytics.log(event: .promotionBannerClicked, params: params)
             }
         }
 
@@ -168,6 +176,8 @@ class BannerNotificationManager {
             return sepaEvent(promotion: promotion, analytics: analytics)
         case .visaWaitlist:
             return visaWaitlistEvent(promotion: promotion, analytics: analytics)
+        case .blackFriday:
+            return blackFridayEvent(promotion: promotion, analytics: analytics)
         }
     }
 
@@ -206,6 +216,27 @@ class BannerNotificationManager {
 
         if let link = promotion.link {
             buttonAction = .init(.openLink(promotionLink: link, buttonTitle: Localization.notificationReferralPromoButton))
+        } else {
+            buttonAction = nil
+        }
+
+        let event = BannerNotificationEvent(
+            programName: promotion.bannerPromotion,
+            analytics: analytics,
+            buttonAction: buttonAction
+        )
+
+        return .just(output: event)
+    }
+
+    private func blackFridayEvent(
+        promotion: ActivePromotionInfo,
+        analytics: BannerNotificationEventAnalyticsParamsBuilder
+    ) -> AnyPublisher<BannerNotificationEvent?, Never> {
+        let buttonAction: NotificationButtonAction?
+
+        if let link = promotion.link {
+            buttonAction = .init(.openLink(promotionLink: link, buttonTitle: Localization.commonClaim))
         } else {
             buttonAction = nil
         }
