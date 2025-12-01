@@ -13,6 +13,7 @@ import TangemVisa
 final class TangemPayAuthorizer {
     let customerWalletId: String
     let authorizationService: TangemPayAuthorizationService
+    let keysRepository: KeysRepository
 
     var state: State {
         stateSubject.value
@@ -23,8 +24,6 @@ final class TangemPayAuthorizer {
     }
 
     private let interactor: TangemPayAuthorizing
-    private let keysRepository: KeysRepository
-
     private let stateSubject: CurrentValueSubject<State, Never>
 
     init(
