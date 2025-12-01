@@ -3848,6 +3848,7 @@
 		EF4C04642DEF2ACC0059D7AA /* SendNewFeeCompactViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4C045E2DEF2ACC0059D7AA /* SendNewFeeCompactViewModel.swift */; };
 		EF4C04652DEF2ACC0059D7AA /* SendNewFeeCompactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4C045D2DEF2ACC0059D7AA /* SendNewFeeCompactView.swift */; };
 		EF4C0C5B2DDB52C100AFD567 /* SendDestinationAdditionalFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4C0C5A2DDB52C100AFD567 /* SendDestinationAdditionalFieldView.swift */; };
+		EF4EB4F72EDDFEEE00A32D25 /* CommonFiatTokenBalanceProviderInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4EB4F62EDDFEEE00A32D25 /* CommonFiatTokenBalanceProviderInput.swift */; };
 		EF52564A2D2FFC2A00ADCA7E /* LoadableTokenBalanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5256492D2FFC2A00ADCA7E /* LoadableTokenBalanceView.swift */; };
 		EF5256512D301E5D00ADCA7E /* TokenBalancesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF52564F2D301E5D00ADCA7E /* TokenBalancesRepository.swift */; };
 		EF5256522D301E5D00ADCA7E /* CommonTokenBalancesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF52564E2D301E5D00ADCA7E /* CommonTokenBalancesRepository.swift */; };
@@ -8433,6 +8434,7 @@
 		EF4C045D2DEF2ACC0059D7AA /* SendNewFeeCompactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewFeeCompactView.swift; sourceTree = "<group>"; };
 		EF4C045E2DEF2ACC0059D7AA /* SendNewFeeCompactViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewFeeCompactViewModel.swift; sourceTree = "<group>"; };
 		EF4C0C5A2DDB52C100AFD567 /* SendDestinationAdditionalFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDestinationAdditionalFieldView.swift; sourceTree = "<group>"; };
+		EF4EB4F62EDDFEEE00A32D25 /* CommonFiatTokenBalanceProviderInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonFiatTokenBalanceProviderInput.swift; sourceTree = "<group>"; };
 		EF5256492D2FFC2A00ADCA7E /* LoadableTokenBalanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadableTokenBalanceView.swift; sourceTree = "<group>"; };
 		EF52564E2D301E5D00ADCA7E /* CommonTokenBalancesRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonTokenBalancesRepository.swift; sourceTree = "<group>"; };
 		EF52564F2D301E5D00ADCA7E /* TokenBalancesRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenBalancesRepository.swift; sourceTree = "<group>"; };
@@ -12058,6 +12060,7 @@
 				B6116E402E8E7C7B00D9121A /* RateValue.swift */,
 				DC3DCAD62A40AA4B00F72554 /* WalletModelsFactory.swift */,
 				DC9113642D6FAE95002E17C5 /* AssetRequirements */,
+				EF4EB4F82EDDFF1E00A32D25 /* FiatBalanceProvider */,
 				EF42D7842D1D65D90065AFD1 /* BalanceProvider */,
 				B6E745262EBC3DD100A1BF81 /* DoubleDispatch */,
 				DC9113612D6FAD92002E17C5 /* TokenActions */,
@@ -22134,6 +22137,14 @@
 			path = SendDestinationAdditionalFieldView;
 			sourceTree = "<group>";
 		};
+		EF4EB4F82EDDFF1E00A32D25 /* FiatBalanceProvider */ = {
+			isa = PBXGroup;
+			children = (
+				EF4EB4F62EDDFEEE00A32D25 /* CommonFiatTokenBalanceProviderInput.swift */,
+			);
+			path = FiatBalanceProvider;
+			sourceTree = "<group>";
+		};
 		EF52564B2D2FFC3300ADCA7E /* LoadableTokenBalanceView */ = {
 			isa = PBXGroup;
 			children = (
@@ -26220,6 +26231,7 @@
 				0FFA34CE2E046D1B00ACB48F /* WordsCaptureProtectionView.swift in Sources */,
 				0A9246122E8EA12F00656D69 /* BlockchainAccountInitializationViewModel.swift in Sources */,
 				C2E9212C2DD7A6D700ACE654 /* WalletConnectDAppVerificationService.swift in Sources */,
+				EF4EB4F72EDDFEEE00A32D25 /* CommonFiatTokenBalanceProviderInput.swift in Sources */,
 				B6CAC21D2E46C673002DFA82 /* CommonCryptoAccountsRepository.swift in Sources */,
 				B0E3381C2A7A809600D36727 /* LockedUserTokensManager.swift in Sources */,
 				EFADE7A62E12BD6F00CA7916 /* SwapFeeProvider.swift in Sources */,

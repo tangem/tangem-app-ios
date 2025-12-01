@@ -65,6 +65,7 @@ struct CommonUserWalletModelFactory {
             nftManager: dependencies.nftManager,
             keysRepository: dependencies.keysRepository,
             totalBalanceProvider: dependencies.totalBalanceProvider,
+            tangemPayAccountProvider:
             userTokensPushNotificationsManager: dependencies.userTokensPushNotificationsManager,
             accountModelsManager: dependencies.accountModelsManager
         )

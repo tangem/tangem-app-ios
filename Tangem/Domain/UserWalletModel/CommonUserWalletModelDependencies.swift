@@ -17,6 +17,7 @@ struct CommonUserWalletModelDependencies {
     let keysRepository: KeysRepository
     let walletModelsManager: WalletModelsManager
     let totalBalanceProvider: TotalBalanceProvider
+    let tangemPayAccountProvider: TangemPayAccountProviderSetupable
     let userTokensManager: UserTokensManager
     let nftManager: NFTManager
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
@@ -99,6 +100,8 @@ struct CommonUserWalletModelDependencies {
             hasAccounts: hasAccounts
         )
         derivationManager?.configure(with: accountModelsManager)
+
+        tangemPayAccountProvider = CommonTangemPayAccountProvider()
 
         totalBalanceProvider = Self.makeTotalBalanceProvider(
             userWalletId: userWalletId,

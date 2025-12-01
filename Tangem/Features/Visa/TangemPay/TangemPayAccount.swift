@@ -70,6 +70,15 @@ final class TangemPayAccount {
         balanceSubject: balanceSubject
     )
 
+    lazy var fiatTokenBalanceProviderInput: FiatTokenBalanceProviderInput = CommonFiatTokenBalanceProviderInput(
+        tokenItem: TangemPayUtilities.usdcTokenItem,
+    )
+
+    lazy var fiatAvailableBalanceProvider: TokenBalanceProvider = FiatTokenBalanceProvider(
+        input: fiatTokenBalanceProviderInput,
+        cryptoBalanceProvider: tangemPayTokenBalanceProvider
+    )
+
     lazy var tangemPayMainHeaderBalanceProvider: MainHeaderBalanceProvider = TangemPayMainHeaderBalanceProvider(
         tangemPayTokenBalanceProvider: tangemPayTokenBalanceProvider
     )

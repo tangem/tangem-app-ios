@@ -16,6 +16,7 @@ final class WalletModelsTotalBalanceProvider {
     private let walletModelsManager: WalletModelsManager
     private let analyticsLogger: TotalBalanceProviderAnalyticsLogger
     private let derivationManager: DerivationManager?
+    private let tangemPayAccountProvider: TangemPayAccountProvider
     private let totalBalanceStateBuilder: WalletModelsTotalBalanceStateBuilder
 
     private let totalBalanceSubject: CurrentValueSubject<TotalBalanceState, Never>
@@ -24,11 +25,13 @@ final class WalletModelsTotalBalanceProvider {
     init(
         walletModelsManager: WalletModelsManager,
         analyticsLogger: TotalBalanceProviderAnalyticsLogger,
-        derivationManager: DerivationManager?
+        derivationManager: DerivationManager?,
+        tangemPayAccountProvider: TangemPayAccountProvider
     ) {
         self.walletModelsManager = walletModelsManager
         self.analyticsLogger = analyticsLogger
         self.derivationManager = derivationManager
+        self.tangemPayAccountProvider = tangemPayAccountProvider
 
         totalBalanceStateBuilder = .init(walletModelsManager: walletModelsManager)
         totalBalanceSubject = .init(totalBalanceStateBuilder.buildTotalBalanceState())
