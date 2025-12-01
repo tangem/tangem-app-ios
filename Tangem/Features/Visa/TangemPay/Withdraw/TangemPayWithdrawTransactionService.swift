@@ -10,16 +10,43 @@ import Foundation
 import BlockchainSdk
 import TangemVisa
 import TangemExpress
+import TangemFoundation
+
+protocol TangemPayWithdrawTransactionServiceOutput: AnyObject {
+    func withdrawTransactionDidSent()
+}
 
 protocol TangemPayWithdrawTransactionService {
     func sendWithdrawTransaction(amount: Decimal, destination: String) async throws -> TangemPayWithdrawTransactionResult
+    func set(output: TangemPayWithdrawTransactionServiceOutput)
+
+    func hasActiveWithdrawOrder() async throws -> Bool
 }
 
-struct CommonTangemPayWithdrawTransactionService {
-    let customerInfoManagementService: any CustomerInfoManagementService
-    let fiatItem: FiatItem
-    let signer: any TangemSigner
-    let walletPublicKey: Wallet.PublicKey
+class CommonTangemPayWithdrawTransactionService {
+    private let customerInfoManagementService: any CustomerInfoManagementService
+    private let fiatItem: FiatItem
+    private let signer: any TangemSigner
+    private let walletPublicKey: Wallet.PublicKey
+
+    private let activeWithdrawOrderID: ThreadSafeContainer<String?> = .init(nil)
+    private weak var output: TangemPayWithdrawTransactionServiceOutput?
+
+    init(
+        customerInfoManagementService: any CustomerInfoManagementService,
+        fiatItem: FiatItem,
+        signer: any TangemSigner,
+        walletPublicKey: Wallet.PublicKey
+    ) {
+        self.customerInfoManagementService = customerInfoManagementService
+        self.fiatItem = fiatItem
+        self.signer = signer
+        self.walletPublicKey = walletPublicKey
+    }
+
+    func set(output: TangemPayWithdrawTransactionServiceOutput) {
+        self.output = output
+    }
 }
 
 // MARK: - TangemPayWithdrawTransactionService
@@ -45,6 +72,24 @@ extension CommonTangemPayWithdrawTransactionService: TangemPayWithdrawTransactio
         let response = try await customerInfoManagementService
             .sendWithdrawTransaction(request: request, signature: signature)
 
+        activeWithdrawOrderID.mutate { $0 = response.orderID }
         return response
+    }
+
+    func hasActiveWithdrawOrder() async throws -> Bool {
+        guard let orderId = activeWithdrawOrderID.read() else {
+            return false
+        }
+
+        let order = try await customerInfoManagementService.getOrder(orderId: orderId)
+        try await Task.sleep(seconds: 5)
+
+        switch order.status {
+        case .new, .processing:
+            return true
+        case .completed, .canceled:
+            activeWithdrawOrderID.mutate { $0 = nil }
+            return false
+        }
     }
 }
