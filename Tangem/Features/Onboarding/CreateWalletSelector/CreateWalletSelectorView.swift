@@ -16,6 +16,8 @@ struct CreateWalletSelectorView: View {
 
     @ObservedObject var viewModel: ViewModel
 
+    @State private var scrollToId = UUID()
+
     var body: some View {
         content
             .allowsHitTesting(!viewModel.isScanning)
@@ -44,15 +46,21 @@ private extension CreateWalletSelectorView {
                 }
             )
 
-            ScrollView(.vertical, showsIndicators: false) {
-                VStack(spacing: 12) {
-                    info.padding(.horizontal, 20)
-                    tangemIcon
-                    actions
+            ScrollViewReader { proxy in
+                ScrollView(.vertical, showsIndicators: false) {
+                    VStack(spacing: 12) {
+                        info.padding(.horizontal, 20)
+                        tangemIcon
+                        actions
+                    }
+                    .padding(.top, 12)
+                    .id(scrollToId)
                 }
-                .padding(.top, 12)
+                .padding(.horizontal, 16)
+                .onFirstAppear {
+                    proxy.scrollTo(scrollToId, anchor: .bottom)
+                }
             }
-            .padding(.horizontal, 16)
         }
     }
 }
