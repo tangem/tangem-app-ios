@@ -8,6 +8,7 @@
 
 import Foundation
 import BlockchainSdk
+import TangemSdk
 
 /// The sole purpose of this wrapper is to inject a `CryptoAccountModel` into `WalletModel`s created by [REDACTED_AUTHOR]
 /// This can't be done during the initialization of these models due to the complexity of the domain and circular dependencies.
@@ -42,12 +43,14 @@ extension AccountsAwareWalletModelsFactoryWrapper: WalletModelsFactory {
     func makeWalletModels(
         for types: [Amount.AmountType],
         walletManager: WalletManager,
-        blockchainNetwork: BlockchainNetwork
+        blockchainNetwork: BlockchainNetwork,
+        targetAccountDerivationPath: DerivationPath?
     ) -> [any WalletModel] {
         let walletModels = innerFactory.makeWalletModels(
             for: types,
             walletManager: walletManager,
-            blockchainNetwork: blockchainNetwork
+            blockchainNetwork: blockchainNetwork,
+            targetAccountDerivationPath: targetAccountDerivationPath
         )
         enrichWalletModels(walletModels)
 

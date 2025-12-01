@@ -226,9 +226,13 @@ private extension CommonUserWalletModelDependencies {
             walletManagerFactory: walletManagerFactory
         )
 
+        // Legacy (non-accounts) flow is semantically equivalent to "account 0" -
+        // there's only ever one implicit account when the accounts feature is disabled
         return CommonWalletModelsManager(
             walletManagersRepository: walletManagersRepository,
-            walletModelsFactory: config.makeWalletModelsFactory(userWalletId: userWalletId)
+            walletModelsFactory: config.makeWalletModelsFactory(userWalletId: userWalletId),
+            derivationIndex: 0,
+            derivationStyle: config.derivationStyle
         )
     }
 
