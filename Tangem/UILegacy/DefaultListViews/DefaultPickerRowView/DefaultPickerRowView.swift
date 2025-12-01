@@ -23,6 +23,15 @@ struct DefaultPickerRowView: View {
             Text(viewModel.title)
                 .style(Fonts.Bold.callout, color: Colors.Text.primary1)
 
+            picker
+        }
+        .padding(.vertical, 14)
+        .connect(state: $selection, to: viewModel.selection)
+    }
+
+    @ViewBuilder
+    private var picker: some View {
+        if viewModel.pickerStyle == .segmented {
             Picker("", selection: $selection) {
                 ForEach(viewModel.options.indices, id: \.self) { index in
                     Text(viewModel.displayOptions[index]).tag(viewModel.options[index])
@@ -30,8 +39,14 @@ struct DefaultPickerRowView: View {
             }
             .labelsHidden()
             .pickerStyle(.segmented)
+        } else {
+            Picker("", selection: $selection) {
+                ForEach(viewModel.options.indices, id: \.self) { index in
+                    Text(viewModel.displayOptions[index]).tag(viewModel.options[index])
+                }
+            }
+            .labelsHidden()
+            .pickerStyle(.menu)
         }
-        .padding(.vertical, 14)
-        .connect(state: $selection, to: viewModel.selection)
     }
 }
