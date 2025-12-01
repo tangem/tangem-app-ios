@@ -25,10 +25,18 @@ final class MobileCreateWalletViewModel: ObservableObject {
 
     lazy var infoItems: [InfoItem] = makeInfoItems()
 
+    private let analyticsContextParams: Analytics.ContextParams = .custom(.mobileWallet)
+
+    private let source: MobileCreateWalletSource
     private weak var coordinator: MobileCreateWalletRoutable?
     private weak var delegate: MobileCreateWalletDelegate?
 
-    init(coordinator: MobileCreateWalletRoutable, delegate: MobileCreateWalletDelegate) {
+    init(
+        source: MobileCreateWalletSource,
+        coordinator: MobileCreateWalletRoutable,
+        delegate: MobileCreateWalletDelegate
+    ) {
+        self.source = source
         self.coordinator = coordinator
         self.delegate = delegate
     }
@@ -37,8 +45,9 @@ final class MobileCreateWalletViewModel: ObservableObject {
 // MARK: - Internal methods
 
 extension MobileCreateWalletViewModel {
-    func onAppear() {
-        Analytics.log(.createWalletScreenOpened, contextParams: .custom(.mobileWallet))
+    func onFirstAppear() {
+        logScreenOpenedAnalytics()
+        logOnboardingStartedAnalytics()
     }
 
     func onBackTap() {
@@ -49,11 +58,7 @@ extension MobileCreateWalletViewModel {
 
     func onCreateTap() {
         isCreating = true
-        Analytics.log(
-            event: .buttonCreateWallet,
-            params: [:],
-            contextParams: .custom(.mobileWallet)
-        )
+        logCreateWalletTapAnalytics()
 
         runTask(in: self) { viewModel in
             do {
@@ -72,7 +77,7 @@ extension MobileCreateWalletViewModel {
 
                 await runOnMain {
                     viewModel.isCreating = false
-                    viewModel.trackWalletCreated()
+                    viewModel.logWalletCreatedAnalytics()
                     viewModel.delegate?.onCreateWallet(userWalletModel: newUserWalletModel)
                 }
             } catch {
@@ -124,8 +129,28 @@ private extension MobileCreateWalletViewModel {
             ),
         ]
     }
+}
 
-    func trackWalletCreated() {
+// MARK: - Analytics
+
+private extension MobileCreateWalletViewModel {
+    func logScreenOpenedAnalytics() {
+        Analytics.log(.createWalletScreenOpened, contextParams: analyticsContextParams)
+    }
+
+    func logOnboardingStartedAnalytics() {
+        Analytics.log(
+            .onboardingStarted,
+            params: [.source: source.analyticsParameterValue],
+            contextParams: analyticsContextParams
+        )
+    }
+
+    func logCreateWalletTapAnalytics() {
+        Analytics.log(.buttonCreateWallet, contextParams: analyticsContextParams)
+    }
+
+    func logWalletCreatedAnalytics() {
         let params: [Analytics.ParameterKey: String] = [
             .creationType: Analytics.ParameterValue.walletCreationTypeNewSeed.rawValue,
             .seedLength: Constants.seedPhraseLength,
@@ -135,7 +160,7 @@ private extension MobileCreateWalletViewModel {
         Analytics.log(
             event: .walletCreatedSuccessfully,
             params: params,
-            contextParams: .custom(.mobileWallet)
+            contextParams: analyticsContextParams
         )
     }
 }

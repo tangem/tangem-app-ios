@@ -25,9 +25,11 @@ final class AddWalletSelectorViewModel: ObservableObject {
 
     private var analyticsContextParams: Analytics.ContextParams { .empty }
 
+    private let source: AddWalletSelectorSource
     private weak var coordinator: AddWalletSelectorRoutable?
 
-    init(coordinator: AddWalletSelectorRoutable) {
+    init(source: AddWalletSelectorSource, coordinator: AddWalletSelectorRoutable) {
+        self.source = source
         self.coordinator = coordinator
     }
 }
@@ -91,6 +93,13 @@ private extension AddWalletSelectorViewModel {
             self?.isBuyAvailable = true
         }
     }
+
+    func mobileCreateWalletSource() -> MobileCreateWalletSource {
+        switch source {
+        case .signIn: .signIn
+        case .settings: .settings
+        }
+    }
 }
 
 // MARK: - Navigation
@@ -102,7 +111,8 @@ private extension AddWalletSelectorViewModel {
 
     func openMobileWallet() {
         logMobileWalletTapAnalytics()
-        coordinator?.openAddMobileWallet()
+        let mobileCreateWalletSource = mobileCreateWalletSource()
+        coordinator?.openAddMobileWallet(source: mobileCreateWalletSource)
     }
 
     func openBuyHardwareWallet() {
