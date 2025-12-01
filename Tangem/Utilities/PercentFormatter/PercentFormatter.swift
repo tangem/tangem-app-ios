@@ -127,7 +127,6 @@ extension PercentFormatter {
         static let empty = Suffix(value: "")
         static let `default` = Suffix(value: " %")
         static let yield = Suffix(value: "%")
-        static let yieldEmptySuffix = Suffix(value: "")
 
         let value: String
     }
