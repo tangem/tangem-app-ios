@@ -54,7 +54,7 @@
 "account_unsaved_dialog_message_create" = "Are you sure you want to discard new account?";
 "account_unsaved_dialog_message_edit" = "Are you sure you want to discard edits?";
 "account_unsaved_dialog_title" = "Unsaved Changes";
-"accounts_migration_alert_message" = "Some custom tokens were moved from “%1$s” to “%2$s” as their derivation belongs to that account.";
+"accounts_migration_alert_message" = "Some custom tokens were moved from “%1$@” to “%2$@” as their derivation belongs to that account.";
 "accounts_migration_alert_title" = "Some custom tokens were moved";
 "action_buttons_buy_empty_search_message" = "Токен не знайдено у вашому портфелі? Перевірте Ринки, щоб знайти та додати його для покупки";
 "action_buttons_buy_navigation_bar_title" = "Купити";
@@ -98,7 +98,7 @@
 "app_settings_biometrics_footer" = "Use %1$@ to unlock your wallet and approve sensitive actions, like signing transactions. For hardware wallets, a card or ring is still required to sign.";
 "app_settings_default_fee_footer" = "Увімкніть комісію за замовчуванням, щоб автоматично встановлювати комісію за транзакцію і пропускати сторінку комісій під час відправлення коштів. Ви завжди можете повернутися до цієї сторінки за необхідності.";
 "app_settings_default_fee" = "Комісія за замовчуванням";
-"app_settings_off_biometrics_alert_message" = "Disabling %1$s will require you to enter your passcode to unlock the app and to interact with your wallet.";
+"app_settings_off_biometrics_alert_message" = "Disabling %1$@ will require you to enter your passcode to unlock the app and to interact with your wallet.";
 "app_settings_off_require_access_code_alert_message" = "You’ll be asked for your wallet’s access code later so we can securely store it for future use";
 "app_settings_off_saved_access_code_alert_message" = "Усі збережені коди доступу будуть видалені. Вам доведеться вводити код доступу при роботі з гаманцем.";
 "app_settings_off_saved_wallet_alert_message" = "При відключенні функції збереження гаманця всі до цього збережені гаманці будуть видалені зі застосунку.";
@@ -363,7 +363,7 @@
 "currency_subtitle_expanded" = "Доступні мережі";
 "custom_token_another_account_dialog_description" = "Derivation of your token matches the derivation of %1$@. Your token will be added to this account.";
 "custom_token_another_account_dialog_title" = "Derivation belongs to another account.";
-"custom_token_another_account_snackbar_text" = "Token added to %1$s account";
+"custom_token_another_account_snackbar_text" = "Token added to %1$@ account";
 "custom_token_contract_address_input_title" = "Адреса контракту";
 "custom_token_creation_error_empty_fields" = "Будь ласка, заповніть усі поля";
 "custom_token_creation_error_invalid_contract_address" = "Адреса контракту недійсна";
@@ -794,6 +794,8 @@
 "no_account_polkadot" = "Обліковий запис одержувача не активовано. Надішліть %@ або більше, щоб активувати обліковий запис.";
 "no_account_send_to_create" = "Для створення акаунту надішліть кошти на цю адресу";
 "no_trustline_xlm_asset" = "Акаунт одержувача не містить трастлайну для активу, що надсилається.";
+"notification_black_friday_text" = "Get $10 in BTC with every wallet\nHurry!";
+"notification_black_friday_title" = "Black Friday: up to 30%% OFF";
 "notification_referral_promo_button" = "Приєднатися";
 "notification_referral_promo_text" = "Поділіться промокодом — заробіть 5 USDT з кожної покупки. Ваші друзі отримають знижку 10%% на картку Tangem!";
 "notification_referral_promo_title" = "Отримуй бонуси за кожного друга!";
@@ -938,7 +940,7 @@
 "organize_tokens_sort_by_balance" = "За балансом";
 "organize_tokens_title" = "Сортування токенів";
 "organize_tokens_ungroup" = "Список";
-"provider_name_support" = "Підтримка %s";
+"provider_name_support" = "Підтримка %@";
 "push_notifications_more_info" = "Більше";
 "push_notifications_permission_alert_description" = "Ви можете ввімкнути сповіщення у налаштуваннях";
 "push_notifications_permission_alert_negative_button" = "Увімкнути пізніше";
@@ -1130,7 +1132,7 @@
 "staking_amount_requirement_error" = "Сума для стейкінгу має бути не менше %@";
 "staking_amount_tron_integer_error_unstaking" = "Сума зняття зі стейкінгу буде округлена до %1$@ TRX через мережеві правила.";
 "staking_amount_tron_integer_error" = "Сума стейкінгу буде округлена до %1$@ TRX відповідно до правил мережі.";
-"staking_apr_earn_badge" = "APR %1$s%%";
+"staking_apr_earn_badge" = "APR %1$@%%";
 "staking_claim_unstaked" = "Зняти кошти";
 "staking_details_account_fee_info" = "Стейкінг-акаунт — це спеціальний рахунок, на якому зберігаються застейкані SOL токени. Він створюється, коли ви делегуєте свої токени валідатору для участі у перевірці транзакцій та отримання винагород. За створення стейкінг-акаунту стягується невелика комісія, яка повертається після завершення стейкінгу.";
 "staking_details_account_fee" = "Комісія за стейкінг-акаунт";
@@ -1383,9 +1385,14 @@
 "tangempay_onboarding_security_description" = "A separate payment account will be created without disclosing your addresses and assets";
 "tangempay_onboarding_security_title" = "Unrivaled privacy";
 "tangempay_onboarding_title" = "Get your free Tangem Pay Card in minutes";
+"tangempay_payment_account_sync_needed" = "Payment account sync needed";
+"tangempay_payment_account" = "Payment account";
 "tangempay_service_unavailable_description" = "We’re fixing a technical issue. Please try again later.";
 "tangempay_service_unavailable_title" = "Service temporarily unavailable";
+"tangempay_service_unreachable_try_later" = "The service is currently unreachable. Please try again later.";
+"tangempay_temporarily_unavailable" = "Tangem Pay is temporarily unavailable";
 "tangempay_title" = "Tangem Pay";
+"tangempay_use_tangem_device_to_restore_payment_account" = "Use your card or ring to restore access to your payment account";
 "this_is_my_wallet_title" = "Це мій гаманець";
 "toast_balances_hidden" = "Баланси приховано";
 "toast_balances_shown" = "Баланси показано";
@@ -1708,7 +1715,7 @@
 "wc_alert_unknown_error_description_no_error_code" = "If the problem persists — feel free to contact our support.";
 "wc_alert_unknown_error_description" = "Код помилки: %@. Якщо проблема зберігається, зверніться до нашої служби підтримки.";
 "wc_alert_unknown_error_title" = "Ми зіткнулися з невідомою помилкою";
-"wc_alert_unsupported_dapps_description" = "Tangem Wallet наразі не підтримує %s";
+"wc_alert_unsupported_dapps_description" = "Tangem Wallet наразі не підтримує %@";
 "wc_alert_unsupported_dapps_title" = "Unsupported dApp";
 "wc_alert_unsupported_method_description" = "Error code: 8 005. If the problem persists — feel free to contact our support.";
 "wc_alert_unsupported_method_title" = "We've encountered unknown error";
