@@ -12,6 +12,8 @@ import TangemAccessibilityIdentifiers
 
 /// ViewModel for displaying all / available balances in the balance view.
 final class CommonBalancesViewModel: BalancesViewModel {
+    var isRefreshing: Bool { false }
+
     @Published var cryptoBalance: LoadableTokenBalanceView.State = .loading()
     @Published var fiatBalance: LoadableTokenBalanceView.State = .loading()
 
