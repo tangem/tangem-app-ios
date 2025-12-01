@@ -87,7 +87,7 @@ class MobileWalletAddressesTests {
                 address = try addressService.makeAddress(for: walletPublicKey, with: .default)
             }
 
-            // Did you add new blockchain and got failure here?
+            // Did you add new blockchain and got failure here? USE ONLY CARD TO GENERATE ADDRESS! NOT A MOBILE WALLET!
             // generate address for seedphrase "tiny escape drive pupil flavor endless love walk gadget match filter luxury"
             // and put it to test_addresses.json file
             #expect(json[blockchain.networkId] == address.value, "\(blockchain.displayName)")
