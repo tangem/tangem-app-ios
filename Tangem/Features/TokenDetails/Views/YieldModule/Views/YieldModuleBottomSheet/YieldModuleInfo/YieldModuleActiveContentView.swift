@@ -33,7 +33,11 @@ struct YieldModuleActiveContentView: View {
     private var scrollView: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 14) {
-                topSection
+                VStack(spacing: 8) {
+                    navTitleView
+
+                    topSection
+                }
 
                 notificationsView
 
@@ -52,27 +56,10 @@ struct YieldModuleActiveContentView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                backButton
-            }
-
-            ToolbarItem(placement: .topBarLeading) {
-                navTitleView
-            }
-        }
-    }
-
-    private var backButton: some View {
-        ArrowBack(action: viewModel.onBackButtonTap, height: 20)
     }
 
     private var navTitleView: some View {
-        YieldNavTitleView(
-            title: Localization.yieldModuleEarnSheetTitle,
-            statusText: viewModel.activityState.description
-        )
-        .padding(.leading, 6)
+        BottomSheetHeaderView(title: Localization.yieldModuleEarnSheetTitle, trailing: { CircleButton.close { viewModel.onBackButtonTap() } })
     }
 
     private var button: MainButton {
@@ -211,28 +198,6 @@ struct YieldModuleActiveContentView: View {
             if let footerText = viewModel.earInfoFooterText {
                 Text(footerText)
                     .padding(.leading, 14)
-            }
-        }
-    }
-}
-
-private struct YieldNavTitleView: View {
-    let title: String
-    let statusText: String
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(title)
-                .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
-
-            HStack(spacing: 6) {
-                Text(statusText)
-                    .style(Fonts.Regular.caption2, color: Colors.Text.tertiary)
-
-                Circle()
-                    .fill(Colors.Icon.accent)
-                    .frame(width: 8, height: 8)
-                    .alignmentGuide(.firstTextBaseline) { dimensions in dimensions[VerticalAlignment.center] }
             }
         }
     }
