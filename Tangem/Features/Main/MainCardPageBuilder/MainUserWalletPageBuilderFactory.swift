@@ -121,7 +121,6 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 bannerNotificationManager: bannerNotificationManager,
                 rateAppController: rateAppController,
                 nftFeatureLifecycleHandler: nftLifecycleHandler,
-                tangemPayAccountProvider: model,
                 tokenRouter: tokenRouter,
                 coordinator: coordinator
             )
