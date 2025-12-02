@@ -25,11 +25,11 @@ struct P2PTarget {
         /// Get rewards history for a delegator in a vault
         case getRewardsHistory(delegatorAddress: String, vaultAddress: String)
         /// Prepare deposit transaction
-        case prepareDepositTransaction(request: P2PDTO.PrepareDepositTransaction.Request)
+        case prepareDepositTransaction(request: P2PDTO.PrepareTransaction.Request)
         /// Prepare unstake transaction
-        case prepareUnstakeTransaction(request: P2PDTO.PrepareUnstakeTransaction.Request)
+        case prepareUnstakeTransaction(request: P2PDTO.PrepareTransaction.Request)
         /// Prepare withdraw transaction
-        case prepareWithdrawTransaction(request: P2PDTO.PrepareWithdrawTransaction.Request)
+        case prepareWithdrawTransaction(request: P2PDTO.PrepareTransaction.Request)
         /// Broadcast a signed transaction
         case broadcastTransaction(request: P2PDTO.BroadcastTransaction.Request)
     }
@@ -47,7 +47,7 @@ extension P2PTarget: TargetType {
         case .getAccountSummary(let delegatorAddress, let vaultAddress):
             return "account/\(delegatorAddress)/vault/\(vaultAddress)"
         case .getRewardsHistory(let delegatorAddress, let vaultAddress):
-            return "account/\(delegatorAddress)/vault/\(vaultAddress)/rewards-history"
+            return "account/\(delegatorAddress)/vault/\(vaultAddress)/rewards"
         case .prepareDepositTransaction:
             return "staking/deposit"
         case .prepareUnstakeTransaction:
@@ -55,7 +55,7 @@ extension P2PTarget: TargetType {
         case .prepareWithdrawTransaction:
             return "staking/withdraw"
         case .broadcastTransaction:
-            return "staking/broadcast"
+            return "transaction/send"
         }
     }
 
@@ -101,7 +101,7 @@ extension P2PTarget: TargetTypeLogConvertible {
         case .getVaultsList, .getAccountSummary, .getRewardsHistory:
             return true
         default:
-            return false
+            return true // [REDACTED_TODO_COMMENT]
         }
     }
 }
