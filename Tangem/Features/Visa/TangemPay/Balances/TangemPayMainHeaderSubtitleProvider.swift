@@ -47,7 +47,9 @@ extension TangemPayMainHeaderSubtitleProvider: MainHeaderSubtitleProvider {
 private extension TangemPayMainHeaderSubtitleProvider {
     func mapToMainHeaderSubtitleInfo(balance: LoadingResult<TangemPayBalance, Error>?) -> MainHeaderSubtitleInfo {
         switch balance {
-        case .none, .loading, .failure: return .empty
+        case .none, .loading: return .empty
+        case .failure:
+            return .init(messages: [BalanceFormatter.defaultEmptyBalanceString], formattingOption: .default)
         case .success(let balance):
             let message = balanceFormatter.formatCryptoBalance(
                 balance.crypto.balance,

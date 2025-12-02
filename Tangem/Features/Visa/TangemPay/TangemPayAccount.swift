@@ -64,23 +64,31 @@ final class TangemPayAccount {
 
     // MARK: - Balances
 
+    /// Tangem Pay as crypto currency balance from `tokenItem`, e.g. `USDC`
     lazy var tangemPayTokenBalanceProvider: TokenBalanceProvider = TangemPayTokenBalanceProvider(
-        walletModelId: .init(tokenItem: TangemPayUtilities.usdcTokenItem),
+        tokenItem: TangemPayUtilities.usdcTokenItem,
         tokenBalancesRepository: tokenBalancesRepository,
         balanceSubject: balanceSubject
     )
 
+    /// Tangem Pay with constant fiat rate `1:1`
+    lazy var tangemPayFiatTokenBalanceProvider: TokenBalanceProvider = TangemPayFiatTokenBalanceProvider(
+        cryptoBalanceProvider: tangemPayTokenBalanceProvider
+    )
+
+    /// Provider / Storage  to load `FiatRate` for `AppCurrency`
     lazy var fiatRateProvider: FiatRateProvider = CommonFiatRateProvider(
         tokenItem: TangemPayUtilities.usdcTokenItem,
     )
 
+    /// Tangem Pay with `AppCurrency` fiat rate
     lazy var fiatAvailableBalanceProvider: TokenBalanceProvider = FiatTokenBalanceProvider(
         input: fiatRateProvider,
         cryptoBalanceProvider: tangemPayTokenBalanceProvider
     )
 
     lazy var tangemPayMainHeaderBalanceProvider: MainHeaderBalanceProvider = TangemPayMainHeaderBalanceProvider(
-        tangemPayTokenBalanceProvider: tangemPayTokenBalanceProvider
+        tangemPayTokenBalanceProvider: tangemPayFiatTokenBalanceProvider
     )
 
     lazy var tangemPayMainHeaderSubtitleProvider: MainHeaderSubtitleProvider = TangemPayMainHeaderSubtitleProvider(

@@ -4169,6 +4169,7 @@
 		EFA23E782DEF6CFC004ADD0A /* SendFinishViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA23E772DEF6CFC004ADD0A /* SendFinishViewModel.swift */; };
 		EFA23E7E2DF08597004ADD0A /* ExpressProvidersEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA23E7D2DF08597004ADD0A /* ExpressProvidersEvents.swift */; };
 		EFA3B2212AC43C350037C48D /* MultipleAddressTransactionHistoryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA3B2202AC43C350037C48D /* MultipleAddressTransactionHistoryService.swift */; };
+		EFA449482EDF47C900BFB008 /* TangemPayFiatTokenBalanceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA449472EDF47C900BFB008 /* TangemPayFiatTokenBalanceProvider.swift */; };
 		EFA48BA52E157AB400BF1665 /* AllowanceChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF2FE4982C6B80560015940A /* AllowanceChecker.swift */; };
 		EFA48BA72E157DE000BF1665 /* ApprovePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA48BA62E157DE000BF1665 /* ApprovePolicy.swift */; };
 		EFA48BA92E157DE700BF1665 /* AllowanceState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA48BA82E157DE700BF1665 /* AllowanceState.swift */; };
@@ -8761,6 +8762,7 @@
 		EFA23E772DEF6CFC004ADD0A /* SendFinishViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFinishViewModel.swift; sourceTree = "<group>"; };
 		EFA23E7D2DF08597004ADD0A /* ExpressProvidersEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressProvidersEvents.swift; sourceTree = "<group>"; };
 		EFA3B2202AC43C350037C48D /* MultipleAddressTransactionHistoryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultipleAddressTransactionHistoryService.swift; sourceTree = "<group>"; };
+		EFA449472EDF47C900BFB008 /* TangemPayFiatTokenBalanceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayFiatTokenBalanceProvider.swift; sourceTree = "<group>"; };
 		EFA48BA62E157DE000BF1665 /* ApprovePolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApprovePolicy.swift; sourceTree = "<group>"; };
 		EFA48BA82E157DE700BF1665 /* AllowanceState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllowanceState.swift; sourceTree = "<group>"; };
 		EFA48BAA2E157DF000BF1665 /* ApproveTransactionData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApproveTransactionData.swift; sourceTree = "<group>"; };
@@ -22823,6 +22825,7 @@
 			isa = PBXGroup;
 			children = (
 				EF811A842ECCCE2800642432 /* TangemPayTokenBalanceProvider.swift */,
+				EFA449472EDF47C900BFB008 /* TangemPayFiatTokenBalanceProvider.swift */,
 				EF811A802ECCCB2200642432 /* TangemPayMainHeaderBalanceProvider.swift */,
 				EF811A862ECCD8EF00642432 /* TangemPayMainHeaderSubtitleProvider.swift */,
 			);
@@ -27619,6 +27622,7 @@
 				EF97841E2ED09273005C4890 /* TangemPayExpressCEXTransactionProcessor.swift in Sources */,
 				0AB346852E84009A004003A0 /* YieldModuleMarketInfo.swift in Sources */,
 				B0431B3F291951C200F84DEF /* IconWithMessageView.swift in Sources */,
+				EFA449482EDF47C900BFB008 /* TangemPayFiatTokenBalanceProvider.swift in Sources */,
 				DC8B13C82BA8B51700B3DB53 /* BackupValidator.swift in Sources */,
 				2DB648872C35877000DA100D /* MarketsRaitingHeaderView.swift in Sources */,
 				EF0B63F82C54132B00365A50 /* CommonUnstakingStepsManager.swift in Sources */,
