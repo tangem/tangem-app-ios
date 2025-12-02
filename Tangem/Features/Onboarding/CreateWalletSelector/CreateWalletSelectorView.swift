@@ -22,7 +22,7 @@ struct CreateWalletSelectorView: View {
         content
             .allowsHitTesting(!viewModel.isScanning)
             .background(Colors.Background.plain.ignoresSafeArea())
-            .onAppear(perform: viewModel.onAppear)
+            .onFirstAppear(perform: viewModel.onFirstAppear)
             .alert(item: $viewModel.error, content: { $0.alert })
             .confirmationDialog(viewModel: $viewModel.confirmationDialog)
             .environment(\.colorScheme, .dark)
