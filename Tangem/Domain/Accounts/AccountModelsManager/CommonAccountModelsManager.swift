@@ -233,6 +233,17 @@ actor CommonAccountModelsManager {
             return .unknownError(underlyingError)
         }
     }
+
+    private func mapDistributionResult(
+        _ distributionResult: StoredCryptoAccountsTokensDistributor.DistributionResult
+    ) -> AccountOperationResult {
+        switch distributionResult {
+        case .none:
+            return .none
+        case .redistributionHappened(let pairs):
+            return .redistributionHappened(pairs: pairs)
+        }
+    }
 }
 
 // MARK: - AccountModelsManager protocol conformance
@@ -266,7 +277,7 @@ extension CommonAccountModelsManager: AccountModelsManager {
         makeOrGetAccountModelsPublisher()
     }
 
-    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws(AccountModelsManagerError) {
+    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws(AccountModelsManagerError) -> AccountOperationResult {
         guard canAddCryptoAccounts else {
             throw .addingCryptoAccountsNotSupported
         }
@@ -296,7 +307,8 @@ extension CommonAccountModelsManager: AccountModelsManager {
         )
 
         do {
-            try await cryptoAccountsRepository.addNewCryptoAccount(withConfig: newAccountConfig, remoteState: remoteState)
+            let distributionResult = try await cryptoAccountsRepository.addNewCryptoAccount(withConfig: newAccountConfig, remoteState: remoteState)
+            return mapDistributionResult(distributionResult)
         } catch {
             AccountsLogger.error("Failed to add new crypto account for user wallet \(userWalletId)", error: error)
             throw .addingCryptoAccountsFailed
@@ -334,7 +346,7 @@ extension CommonAccountModelsManager: AccountModelsManager {
         }
     }
 
-    func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountRecoveryError) {
+    func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountRecoveryError) -> AccountOperationResult {
         var info = info
         let remoteState: CryptoAccountsRemoteState
 
@@ -369,7 +381,8 @@ extension CommonAccountModelsManager: AccountModelsManager {
         let persistentConfig = info.toPersistentConfig()
 
         do {
-            try await cryptoAccountsRepository.addNewCryptoAccount(withConfig: persistentConfig, remoteState: remoteState)
+            let distributionResult = try await cryptoAccountsRepository.addNewCryptoAccount(withConfig: persistentConfig, remoteState: remoteState)
+            return mapDistributionResult(distributionResult)
         } catch {
             AccountsLogger.error("Failed to unarchive existing crypto account with id \(info.id) for user wallet \(userWalletId)", error: error)
             throw .unknownError(error)
