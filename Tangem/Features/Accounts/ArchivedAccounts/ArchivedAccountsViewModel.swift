@@ -68,8 +68,11 @@ final class ArchivedAccountsViewModel: ObservableObject {
 
         recoverAccountTask = Task { [weak self] in
             do throws(AccountRecoveryError) {
-                try await self?.accountModelsManager.unarchiveCryptoAccount(info: accountInfo)
-                await self?.handleAccountRecoverySuccess()
+                guard let result = try await self?.accountModelsManager.unarchiveCryptoAccount(info: accountInfo) else {
+                    return
+                }
+
+                await self?.handleAccountRecoverySuccess(result: result)
             } catch {
                 await self?.handleAccountRecoveryFailure(accountInfo: accountInfo, error: error)
             }
@@ -79,9 +82,9 @@ final class ArchivedAccountsViewModel: ObservableObject {
     // MARK: - Private implementation
 
     @MainActor
-    private func handleAccountRecoverySuccess() {
+    private func handleAccountRecoverySuccess(result: AccountOperationResult) {
         recoveringAccountId = nil
-        coordinator?.close()
+        coordinator?.close(with: result)
 
         Toast(view: SuccessToast(text: Localization.accountRecoverSuccessMessage))
             .present(layout: .top(padding: 24), type: .temporary(interval: 4))
