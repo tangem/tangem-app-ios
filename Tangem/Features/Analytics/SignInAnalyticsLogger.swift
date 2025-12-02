@@ -15,12 +15,10 @@ struct SignInAnalyticsLogger {
         guard let selectedModel = userWalletRepository.selectedModel else {
             return
         }
-        let walletHasBackup = Analytics.ParameterValue.affirmativeOrNegative(for: selectedModel.hasBackupCards)
 
         Analytics.log(event: .signedIn, params: [
             .signInType: signInType.rawValue,
             .walletsCount: "\(userWalletRepository.models.count)",
-            .walletHasBackup: walletHasBackup.rawValue,
             .walletType: Analytics.ParameterValue.seedState(for: selectedModel.hasImportedWallets).rawValue,
         ])
     }

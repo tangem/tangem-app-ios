@@ -216,6 +216,7 @@ private extension HardwareCreateWalletViewModel {
     }
 
     func openBuyCard() {
+        logBuyHardwareWalletAnalytics()
         safariManager.openURL(TangemBlogUrlBuilder().url(root: .pricing))
     }
 
@@ -281,6 +282,14 @@ private extension HardwareCreateWalletViewModel {
     func logScanCardAnalytics(error: Error) {
         Analytics.logScanError(error, source: .introduction, contextParams: analyticsContextParams)
         Analytics.logVisaCardScanErrorIfNeeded(error, source: .introduction)
+    }
+
+    func logBuyHardwareWalletAnalytics() {
+        Analytics.log(
+            .basicButtonBuy,
+            params: [.source: Analytics.BuyWalletSource.hardwareWallet.parameterValue],
+            contextParams: analyticsContextParams
+        )
     }
 }
 
