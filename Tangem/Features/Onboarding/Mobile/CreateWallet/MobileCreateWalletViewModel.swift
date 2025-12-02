@@ -90,6 +90,7 @@ extension MobileCreateWalletViewModel {
     }
 
     func onImportTap() {
+        logImportWalletTapAnalytics()
         runTask(in: self) { viewModel in
             await viewModel.openImportWallet()
         }
@@ -172,6 +173,10 @@ private extension MobileCreateWalletViewModel {
             params: params,
             contextParams: analyticsContextParams
         )
+    }
+
+    func logImportWalletTapAnalytics() {
+        Analytics.log(.onboardingSeedButtonImportWallet, contextParams: analyticsContextParams)
     }
 }
 
