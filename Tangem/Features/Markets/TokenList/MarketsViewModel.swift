@@ -25,6 +25,8 @@ final class MarketsViewModel: MarketsBaseViewModel {
     @Published private(set) var tokenListLoadingState: MarketsView.ListLoadingState = .idle
     @Published private(set) var stakingNotificationState: MarketsStakingNotificationState = .hidden
 
+    @Published private(set) var pulseMarketWidgetViewModel: PulseMarketWidgetViewModel
+
     @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
     @Injected(\.viewHierarchySnapshotter) private var viewHierarchySnapshotter: ViewHierarchySnapshotting
 
@@ -79,6 +81,8 @@ final class MarketsViewModel: MarketsBaseViewModel {
     ) {
         self.quotesRepositoryUpdateHelper = quotesRepositoryUpdateHelper
         self.coordinator = coordinator
+
+        pulseMarketWidgetViewModel = PulseMarketWidgetViewModel(quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper, coordinator: nil)
 
         marketsNotificationsManager = MarketsNotificationsManager(dataProvider: dataProvider)
 
