@@ -117,6 +117,9 @@ final class MainViewModel: ObservableObject {
                 analyticsParameters[.walletType] = walletType
             }
 
+            let hasMobileWallet = userWalletRepository.models.contains { $0.config.productType == .mobileWallet }
+            analyticsParameters[.mobileWallet] = .affirmativeOrNegative(for: hasMobileWallet)
+
             Analytics.log(.mainScreenOpened, params: analyticsParameters)
         }
 
