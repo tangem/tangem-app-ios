@@ -29,6 +29,10 @@ final class MobileBackupTypesViewModel: ObservableObject {
         userWalletModel.config.hasFeature(.mnemonicBackup)
     }
 
+    private var analyticsContextParams: Analytics.ContextParams {
+        .custom(userWalletModel.analyticsContextData)
+    }
+
     private lazy var mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
 
     private let userWalletModel: UserWalletModel
@@ -41,7 +45,14 @@ final class MobileBackupTypesViewModel: ObservableObject {
         self.coordinator = coordinator
         setup()
         bind()
-        logStart()
+    }
+}
+
+// MARK: - Internal methods
+
+extension MobileBackupTypesViewModel {
+    func onFirstAppear() {
+        logScreenOpenedAnalytics()
     }
 }
 
@@ -151,6 +162,8 @@ private extension MobileBackupTypesViewModel {
     }
 
     func onSeedPhraseBackupTap() {
+        logRecoveryPhraseTapAnalytics()
+
         runTask(in: self) { viewModel in
             if viewModel.isBackupNeeded {
                 await viewModel.openSeedPhraseBackup()
@@ -175,6 +188,7 @@ private extension MobileBackupTypesViewModel {
     }
 
     func onHardwareBackupTap() {
+        logHardwareBackupTapAnalytics()
         runTask(in: self) { viewModel in
             await viewModel.openHardwareBackup()
         }
@@ -221,7 +235,10 @@ private extension MobileBackupTypesViewModel {
     }
 
     func openSeedPhraseBackup() {
-        let input = MobileOnboardingInput(flow: .seedPhraseBackup(userWalletModel: userWalletModel))
+        let input = MobileOnboardingInput(flow: .seedPhraseBackup(
+            userWalletModel: userWalletModel,
+            source: .backup(action: .backup)
+        ))
         coordinator?.openMobileOnboarding(input: input)
     }
 
@@ -231,7 +248,7 @@ private extension MobileBackupTypesViewModel {
     }
 
     func openBuyHardwareWallet() {
-        Analytics.log(.onboardingButtonBuy, params: [.source: .backup])
+        logBuyHardwareWalletAnalytics()
         safariManager.openURL(TangemBlogUrlBuilder().url(root: .pricing))
     }
 }
@@ -239,8 +256,30 @@ private extension MobileBackupTypesViewModel {
 // MARK: - Analytics
 
 private extension MobileBackupTypesViewModel {
-    func logStart() {
-        Analytics.log(.backupStarted)
+    func logScreenOpenedAnalytics() {
+        let hasManualBackup = !userWalletModel.config.hasFeature(.mnemonicBackup)
+        let hasICloudBackup = !userWalletModel.config.hasFeature(.iCloudBackup)
+
+        Analytics.log(
+            .walletSettingsBackupScreenOpened,
+            params: [
+                .backupManual: .affirmativeOrNegative(for: hasManualBackup),
+                .backupICloud: .affirmativeOrNegative(for: hasICloudBackup),
+            ],
+            contextParams: analyticsContextParams
+        )
+    }
+
+    func logHardwareBackupTapAnalytics() {
+        Analytics.log(.walletSettingsButtonHardwareUpdate, contextParams: analyticsContextParams)
+    }
+
+    func logRecoveryPhraseTapAnalytics() {
+        Analytics.log(.walletSettingsButtonRecoveryPhrase, contextParams: analyticsContextParams)
+    }
+
+    func logBuyHardwareWalletAnalytics() {
+        Analytics.log(.onboardingButtonBuy, params: [.source: .backup], contextParams: analyticsContextParams)
     }
 }
 

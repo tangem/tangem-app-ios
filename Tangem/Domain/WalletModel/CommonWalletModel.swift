@@ -45,7 +45,7 @@ class CommonWalletModel {
         }
     }
 
-    private weak var _account: (any CryptoAccountModel)?
+    private(set) weak var account: (any CryptoAccountModel)?
 
     private let sendAvailabilityProvider: TransactionSendAvailabilityProvider
     private let tokenBalancesRepository: TokenBalancesRepository
@@ -116,10 +116,27 @@ class CommonWalletModel {
     }
 
     func setCryptoAccount(_ cryptoAccount: any CryptoAccountModel) {
-        _account = cryptoAccount
+        account = cryptoAccount
     }
 
     private func bind() {
+        AppSettings.shared.$selectedCurrencyCode
+            // Ignore already the selected code
+            .dropFirst()
+            // Ignore if the selected code is equal
+            .removeDuplicates()
+            .handleEvents(receiveOutput: { [weak self] _ in
+                // Invoke immediate fiat update when currency changes (e.g. offline case)
+                self?._rate.send(.loading(cached: nil))
+            })
+            .withWeakCaptureOf(self)
+            // Reload existing quotes for a new currency code
+            .flatMap { model, _ in
+                model.loadQuotes()
+            }
+            .sink { _ in }
+            .store(in: &bag)
+
         quotesRepository
             .quotesPublisher
             .dropFirst() // we need to drop first value because it's an empty dictionary
@@ -240,8 +257,6 @@ extension CommonWalletModel: Equatable {
 // MARK: - WalletModel
 
 extension CommonWalletModel: WalletModel {
-    var account: (any CryptoAccountModel)? { _account }
-
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> { featureManager.featuresPublisher }
 
     var name: String {
@@ -345,6 +360,10 @@ extension CommonWalletModel: WalletModel {
 
     var stakeKitTransactionSender: StakeKitTransactionSender? {
         walletManager as? StakeKitTransactionSender
+    }
+
+    var p2pTransactionSender: P2PTransactionSender? {
+        walletManager as? P2PTransactionSender
     }
 
     var accountInitializationService: (any BlockchainAccountInitializationService)? {

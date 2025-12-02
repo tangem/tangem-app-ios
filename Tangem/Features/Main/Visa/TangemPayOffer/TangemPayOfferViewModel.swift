@@ -13,6 +13,7 @@ import TangemSdk
 
 final class TangemPayOfferViewModel: ObservableObject {
     @Published private(set) var isLoading = false
+    @Published var termsFeesAndLimitsViewModel: WebViewContainerViewModel?
 
     private let userWalletModel: any UserWalletModel
     private let closeOfferScreen: @MainActor () -> Void
@@ -53,27 +54,21 @@ final class TangemPayOfferViewModel: ObservableObject {
         }
     }
 
+    func termsFeesAndLimits() {
+        termsFeesAndLimitsViewModel = .init(
+            url: AppConstants.tangemPayTermsAndLimitsURL,
+            title: "",
+            withCloseButton: true
+        )
+    }
+
     private func makeTangemPayAccount() async throws -> TangemPayAccount {
-        let tangemPayAuthorizer = TangemPayAuthorizer(
-            customerWalletId: userWalletModel.userWalletId.stringValue,
-            interactor: userWalletModel.tangemPayAuthorizingInteractor,
-            keysRepository: userWalletModel.keysRepository
+        let builder = TangemPayAccountBuilder()
+        let tangemPayAccount = try await builder.makeTangemPayAccount(
+            authorizerType: .plain,
+            userWalletModel: userWalletModel
         )
-        let tokens = try await tangemPayAuthorizer.authorizeWithCustomerWallet()
-
-        guard let walletPublicKey = TangemPayUtilities.getKey(from: userWalletModel.keysRepository) else {
-            throw TangemPayOfferError.unableToCreateWalletPublicKey
-        }
-
-        let walletAddress = try TangemPayUtilities.makeAddress(using: walletPublicKey)
-        let tokenBalancesRepository = CommonTokenBalancesRepository(userWalletId: userWalletModel.userWalletId)
-
-        return TangemPayAccount(
-            authorizer: tangemPayAuthorizer,
-            walletAddress: walletAddress,
-            tokens: tokens,
-            tokenBalancesRepository: tokenBalancesRepository
-        )
+        return tangemPayAccount
     }
 }
 
