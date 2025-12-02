@@ -10,8 +10,8 @@ import Foundation
 import TangemFoundation
 import TangemAccounts
 import TangemUI
-import TangemLocalization
 import TangemUIUtils
+import TangemLocalization
 
 final class ArchivedAccountsViewModel: ObservableObject {
     private typealias LoadingState = LoadingValue<[ArchivedCryptoAccountInfo]>
@@ -95,22 +95,24 @@ final class ArchivedAccountsViewModel: ObservableObject {
         recoveringAccountId = nil
 
         let message: String
-        let buttonTitle: String
+        let buttonText: String
 
         switch error {
-        case .tooManyActiveAccounts:
+        case .tooManyAccounts:
             message = Localization.accountRecoverLimitDialogDescription(AccountModelUtils.maxNumberOfAccounts)
-            buttonTitle = Localization.commonGotIt
-
+            buttonText = Localization.commonGotIt
+        case .duplicateAccountName:
+            message = Localization.accountFormNameAlreadyExistErrorDescription
+            buttonText = Localization.commonGotIt
         case .unknownError:
-            message = Localization.commonSomethingWentWrong
-            buttonTitle = Localization.commonOk
+            message = Localization.accountGenericErrorDialogMessage
+            buttonText = Localization.commonOk
         }
 
         alertBinder = AlertBuilder.makeAlertWithDefaultPrimaryButton(
-            title: Localization.accountArchivedRecoverErrorTitle,
+            title: Localization.commonSomethingWentWrong,
             message: message,
-            buttonText: buttonTitle
+            buttonText: buttonText
         )
 
         AccountsLogger.error("Failed to recover archived account with info \(accountInfo)", error: error)
