@@ -84,12 +84,12 @@ extension StakingTokenBalanceProvider: TokenBalanceProvider {
 extension StakingTokenBalanceProvider {
     func mapToTokenBalance(state: StakingManagerState) -> TokenBalanceType {
         switch state {
-        case .loading(let cached):
-            return .loading(cached.flatMap { .init(balance: $0.stakeState.balance, date: $0.date) })
+        case .loading(let cachedState):
+            return .loading(mapToCachedBalance(cachedState: cachedState))
         case .notEnabled, .temporaryUnavailable:
             return .empty(.noData)
-        case .loadingError(_, let cached):
-            return .failure(cached.flatMap { .init(balance: $0.stakeState.balance, date: $0.date) })
+        case .loadingError(_, let cachedState):
+            return .failure(mapToCachedBalance(cachedState: cachedState))
         case .availableToStake:
             return .loaded(.zero)
         case .staked(let balances):
@@ -105,5 +105,9 @@ extension StakingTokenBalanceProvider {
         })
 
         return builder.mapToFormattedTokenBalanceType(type: type)
+    }
+
+    func mapToCachedBalance(cachedState: CachedStakingManagerState?) -> TokenBalanceType.Cached? {
+        cachedState.flatMap { .init(balance: $0.stakeState.balance, date: $0.date) }
     }
 }
