@@ -128,6 +128,12 @@ final class CommonServicesManager {
             StorageCleaner.clearCachedFiles()
         }
 
+        if arguments.contains("-uitest-disable-mobile-wallet") {
+            FeatureStorage.instance.availableFeatures[.mobileWallet] = .off
+        } else {
+            FeatureStorage.instance.availableFeatures[.mobileWallet] = .on
+        }
+
         UIView.setAnimationsEnabled(false)
     }
 }
