@@ -28,7 +28,6 @@ final class WalletConnectBitcoinGetAccountAddressesHandler {
             let params = try request.get(WalletConnectBtcGetAccountAddressesRequest.self)
             parsedIntentions = params.intentions ?? []
         } catch {
-            // If payload is empty or doesn't match the schema, proceed with defaults
             parsedIntentions = []
         }
         intentions = parsedIntentions.map { $0.lowercased() }
@@ -84,7 +83,7 @@ extension WalletConnectBitcoinGetAccountAddressesHandler: WalletConnectMessageHa
     func handle() async throws -> JSONRPC.RPCResult {
         // If the only intention is "ordinal" – return empty list
         if Set(intentions) == ["ordinal"] {
-            return .response(AnyCodable([WalletConnectBtcAccountAddressResponse]()))
+            return .response(AnyCodable(any: []))
         }
 
         // TOOD: path correct derivation path for each address
