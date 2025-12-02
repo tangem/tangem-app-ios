@@ -1,5 +1,5 @@
 //
-//  TopMarketWidgetViewModel.swift
+//  PulseMarketWidgetViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,11 +12,25 @@ import Combine
 import CombineExt
 import Kingfisher
 
-final class TopMarketWidgetViewModel: ObservableObject {
+final class PulseMarketWidgetViewModel: ObservableObject {
     // MARK: - Injected & Published Properties
 
     @Published private(set) var tokenViewModels: [MarketTokenItemViewModel] = []
     @Published private(set) var tokenListLoadingState: TopMarketWidgetView.ListLoadingState = .idle
+
+    @Published var filterSelectedId: String? = nil
+
+    var availabilityToSelectionOrderType: [MarketsListOrderType] {
+        MarketsListOrderType.allCases.filter {
+            if case .rating = $0 {
+                return false
+            }
+
+            return true
+        }.map { $0 }
+    }
+
+    // Chips are constructed in the view to avoid coupling the view model to TangemUI types.
 
     // MARK: - Properties
 
@@ -48,6 +62,7 @@ final class TopMarketWidgetViewModel: ObservableObject {
 
         bindToCurrencyCodeUpdate()
         dataProviderBind()
+        bindToOrderUpdate()
 
         // Need for preload markets list, when bottom sheet it has not been opened yet
         quotesUpdatesScheduler.saveQuotesUpdateDate(Date())
@@ -55,13 +70,13 @@ final class TopMarketWidgetViewModel: ObservableObject {
     }
 
     deinit {
-        AppLogger.debug("TopMarketWidgetViewModel deinit")
+        AppLogger.debug("PulseMarketWidgetViewModel deinit")
     }
 }
 
 // MARK: - Private Implementation
 
-private extension TopMarketWidgetViewModel {
+private extension PulseMarketWidgetViewModel {
     func fetch(by filter: MarketsListDataProvider.Filter) {
         dataProvider.fetch("", with: filter)
     }
@@ -78,6 +93,42 @@ private extension TopMarketWidgetViewModel {
             .store(in: &bag)
     }
 
+    func bindToOrderUpdate() {
+        // Map selected chip id to MarketsListOrderType and update provider
+        $filterSelectedId
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .compactMap { [weak self] id -> MarketsListOrderType? in
+                guard
+                    let self,
+                    let id
+                else {
+                    return nil
+                }
+                return availabilityToSelectionOrderType.first(where: { $0.rawValue == id })
+            }
+            .removeDuplicates()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, order in
+                viewModel.filterProvider.didSelectMarketOrder(order)
+            }
+            .store(in: &bag)
+
+        // React to filter changes and update data with current logic
+        filterProvider.filterPublisher
+            .dropFirst()
+            .removeDuplicates()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, newFilter in
+                let previousOrder = viewModel.dataProvider.lastFilterValue?.order
+                if previousOrder != newFilter.order {
+                    viewModel.dataProvider.reset()
+                    viewModel.fetch(by: viewModel.filterProvider.currentFilterValue)
+                }
+            }
+            .store(in: &bag)
+    }
+
     func dataProviderBind() {
         let dataProviderEventPipeline = dataProvider.$lastEvent
             .removeDuplicates()
@@ -90,11 +141,17 @@ private extension TopMarketWidgetViewModel {
             .sink { viewModel, events in
                 let (oldEvent, newEvent) = events
                 switch newEvent {
-                case .loading, .failedToFetchData:
+                case .loading:
                     if case .failedToFetchData = oldEvent { return }
                     viewModel.tokenListLoadingState = .loading
                 case .idle:
                     break
+                case .failedToFetchData:
+                    if viewModel.dataProvider.items.isEmpty {
+                        viewModel.quotesUpdatesScheduler.cancelUpdates()
+                    }
+
+                    viewModel.tokenListLoadingState = .loading
                 case .startInitialFetch, .cleared:
                     viewModel.tokenListLoadingState = .loading
                     viewModel.tokenViewModels.removeAll()
@@ -137,7 +194,7 @@ private extension TopMarketWidgetViewModel {
             }
             .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
-            .sink { (viewModel: TopMarketWidgetViewModel, items: [MarketTokenItemViewModel]) in
+            .sink { (viewModel: PulseMarketWidgetViewModel, items: [MarketTokenItemViewModel]) in
                 viewModel.tokenViewModels.append(contentsOf: items)
                 viewModel.tokenListLoadingState = .loaded
             }
@@ -145,7 +202,10 @@ private extension TopMarketWidgetViewModel {
     }
 
     func mapToItemViewModel(_ list: [MarketsTokenModel], offset: Int) -> [MarketTokenItemViewModel] {
-        list.prefix(Constants.itemsOnListWidget).enumerated().map { mapToTokenViewModel(index: $0 + offset, tokenItemModel: $1) }
+        list
+            .prefix(Constants.itemsOnListWidget)
+            .enumerated()
+            .map { mapToTokenViewModel(index: $0 + offset, tokenItemModel: $1) }
     }
 
     func mapToTokenViewModel(index: Int, tokenItemModel: MarketsTokenModel) -> MarketTokenItemViewModel {
@@ -161,7 +221,7 @@ private extension TopMarketWidgetViewModel {
     }
 }
 
-private extension TopMarketWidgetViewModel {
+private extension PulseMarketWidgetViewModel {
     enum Constants {
         static let itemsOnListWidget = 5
     }
