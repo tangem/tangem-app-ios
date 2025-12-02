@@ -191,7 +191,7 @@ struct AccountFormView: View {
     @Previewable @ObservedObject var viewModel = AccountFormViewModel(
         accountModelsManager: AccountModelsManagerMock(),
         flowType: .create(.crypto),
-        closeAction: {}
+        closeAction: { _ in }
     )
 
     Color.clear
