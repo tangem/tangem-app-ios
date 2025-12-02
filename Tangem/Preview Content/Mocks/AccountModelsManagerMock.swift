@@ -44,21 +44,38 @@ final class AccountModelsManagerMock {
                 walletModelsManager: walletModelsManager,
                 totalBalanceProvider: totalBalanceProvider,
                 userTokensManager: userTokensManager,
-            )
+            ) { [weak self] cryptoAccountModel in
+                Task { try? await self?.archiveCryptoAccount(withIdentifier: cryptoAccountModel.id) }
+            }
 
             let secondAccount = CryptoAccountModelMock(
                 isMainAccount: false,
                 walletModelsManager: walletModelsManager,
                 totalBalanceProvider: totalBalanceProvider,
                 userTokensManager: userTokensManager
-            )
+            ) { [weak self] cryptoAccountModel in
+                Task { try? await self?.archiveCryptoAccount(withIdentifier: cryptoAccountModel.id) }
+            }
 
             cryptoAccountModels = [mainAccount, secondAccount]
         }
     }
 
-    func removeCryptoAccount(withIdentifier identifier: some Hashable) async throws {
+    private func removeCryptoAccount(withIdentifier identifier: some Hashable) async throws {
         cryptoAccountModels.removeAll { $0.id.toPersistentIdentifier().toAnyHashable() == identifier.toAnyHashable() }
+    }
+
+    private func archiveCryptoAccount(
+        withIdentifier identifier: any AccountModelPersistentIdentifierConvertible
+    ) async throws(AccountArchivationError) {
+        do {
+            try await Task.sleep(seconds: 2) // simulate network call
+            try Task.checkCancellation()
+            try await removeCryptoAccount(withIdentifier: identifier.toPersistentIdentifier())
+            hasArchivedCryptoAccountsSubject.send(true)
+        } catch {
+            throw .unknownError(error)
+        }
     }
 }
 
@@ -90,8 +107,16 @@ extension AccountModelsManagerMock: AccountModelsManager {
         accountModelsSubject.eraseToAnyPublisher()
     }
 
-    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws(AccountModelsManagerError) -> AccountOperationResult {
-        cryptoAccountModels.append(CryptoAccountModelMock(isMainAccount: false, walletModelsManager: walletModelsManager))
+    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws(AccountEditError) -> AccountOperationResult {
+        let cryptoAccount = CryptoAccountModelMock(
+            isMainAccount: false,
+            walletModelsManager: walletModelsManager
+        ) { [weak self] cryptoAccountModel in
+            Task { try? await self?.archiveCryptoAccount(withIdentifier: cryptoAccountModel.id) }
+        }
+
+        cryptoAccountModels.append(cryptoAccount)
+
         return .none
     }
 
@@ -119,30 +144,23 @@ extension AccountModelsManagerMock: AccountModelsManager {
         ]
     }
 
-    func archiveCryptoAccount(
-        withIdentifier identifier: any AccountModelPersistentIdentifierConvertible
-    ) async throws(AccountArchivationError) {
-        do {
-            try await Task.sleep(seconds: 2) // simulate network call
-            try Task.checkCancellation()
-            try await removeCryptoAccount(withIdentifier: identifier.toPersistentIdentifier())
-            hasArchivedCryptoAccountsSubject.send(true)
-        } catch {
-            throw .unknownError(error)
-        }
-    }
-
     func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountRecoveryError) -> AccountOperationResult {
         do {
             let persistentConfig = info.toPersistentConfig()
             let isMainAccount = AccountModelUtils.isMainAccount(persistentConfig.derivationIndex)
-            let unarchivedCryptoAccount = CryptoAccountModelMock(isMainAccount: isMainAccount)
+            let unarchivedCryptoAccount = CryptoAccountModelMock(
+                isMainAccount: isMainAccount
+            ) { [weak self] cryptoAccountModel in
+                Task { try? await self?.archiveCryptoAccount(withIdentifier: cryptoAccountModel.id) }
+            }
 
             try await Task.sleep(seconds: 2) // simulate network call
             try Task.checkCancellation()
 
-            unarchivedCryptoAccount.setIcon(info.icon)
-            unarchivedCryptoAccount.setName(info.name)
+            try await unarchivedCryptoAccount.edit { editor in
+                editor.setName(info.name)
+                editor.setIcon(info.icon)
+            }
             cryptoAccountModels.append(unarchivedCryptoAccount)
 
             return .none
