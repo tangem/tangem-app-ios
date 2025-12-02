@@ -20,19 +20,7 @@ struct TopMarketWidgetView: View {
 
     @Environment(\.mainWindowSize) private var mainWindowSize
 
-    private var defaultBackgroundColor: Color { Colors.Background.primary }
-
     var body: some View {
-        rootView
-    }
-
-    @ViewBuilder
-    private var rootView: some View {
-        list
-    }
-
-    @ViewBuilder
-    private var list: some View {
         VStack(spacing: 0.0) {
             ForEach(viewModel.tokenViewModels) {
                 MarketTokenItemView(viewModel: $0, cellWidth: mainWindowSize.width)

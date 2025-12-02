@@ -8,6 +8,7 @@
 
 import Foundation
 
+@MainActor
 protocol TopMarketWidgetRoutable: AnyObject {
     func openMarketsTokenDetails(for tokenInfo: MarketsTokenModel)
 }

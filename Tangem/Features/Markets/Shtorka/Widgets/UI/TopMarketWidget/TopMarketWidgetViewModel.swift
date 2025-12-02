@@ -29,12 +29,9 @@ final class TopMarketWidgetViewModel: ObservableObject {
     private let dataProvider = MarketsListDataProvider()
     private let chartsHistoryProvider = MarketsListChartsHistoryProvider()
     private let quotesUpdatesScheduler = MarketsQuotesUpdatesScheduler()
-    private let imageCache = KingfisherManager.shared.cache
 
     private var marketCapFormatter: MarketCapFormatter
     private var bag = Set<AnyCancellable>()
-    private var currentSearchValue: String = ""
-    private var isViewVisible: Bool = false
 
     // MARK: - Init
 
@@ -56,7 +53,7 @@ final class TopMarketWidgetViewModel: ObservableObject {
 
         // Need for preload markets list, when bottom sheet it has not been opened yet
         quotesUpdatesScheduler.saveQuotesUpdateDate(Date())
-        fetch(with: "", by: filterProvider.currentFilterValue)
+        fetch(by: filterProvider.currentFilterValue)
     }
 
     deinit {
@@ -67,8 +64,8 @@ final class TopMarketWidgetViewModel: ObservableObject {
 // MARK: - Private Implementation
 
 private extension TopMarketWidgetViewModel {
-    func fetch(with searchText: String = "", by filter: MarketsListDataProvider.Filter) {
-        dataProvider.fetch(searchText, with: filter)
+    func fetch(by filter: MarketsListDataProvider.Filter) {
+        dataProvider.fetch("", with: filter)
     }
 
     func bindToCurrencyCodeUpdate() {
@@ -78,7 +75,7 @@ private extension TopMarketWidgetViewModel {
             .sink { viewModel, newCurrencyCode in
                 viewModel.marketCapFormatter = .init(divisorsList: AmountNotationSuffixFormatter.Divisor.defaultList, baseCurrencyCode: newCurrencyCode, notationFormatter: .init())
                 viewModel.dataProvider.reset()
-                viewModel.fetch(with: viewModel.currentSearchValue, by: viewModel.filterProvider.currentFilterValue)
+                viewModel.fetch(by: viewModel.filterProvider.currentFilterValue)
             }
             .store(in: &bag)
     }
@@ -163,10 +160,6 @@ private extension TopMarketWidgetViewModel {
                 self?.coordinator?.openMarketsTokenDetails(for: tokenItemModel)
             }
         )
-    }
-
-    func onAppearPrepareImageCache() {
-        imageCache.memoryStorage.config.countLimit = 250
     }
 }
 
