@@ -284,6 +284,7 @@ final class TangemPayAccount {
         do {
             balanceSubject.send(.loading)
             let balance = try await customerInfoManagementService.getBalance()
+            fiatTokenBalanceProviderInput
             balanceSubject.send(.success(balance))
         } catch {
             balanceSubject.send(.failure(error))

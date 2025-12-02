@@ -108,7 +108,8 @@ struct CommonUserWalletModelDependencies {
             hasAccounts: hasAccounts,
             accountModelsManager: accountModelsManager,
             walletModelsManager: walletModelsManager,
-            derivationManager: derivationManager
+            derivationManager: derivationManager,
+            tangemPayAccountProvider: tangemPayAccountProvider
         )
 
         nftManager = Self.makeNFTManager(
@@ -135,7 +136,8 @@ private extension CommonUserWalletModelDependencies {
         hasAccounts: Bool,
         accountModelsManager: AccountModelsManager,
         walletModelsManager: WalletModelsManager,
-        derivationManager: DerivationManager?
+        derivationManager: DerivationManager?,
+        tangemPayAccountProvider: any TangemPayAccountProvider
     ) -> TotalBalanceProvider {
         if hasAccounts {
             return AccountsAwareTotalBalanceProvider(
@@ -144,7 +146,7 @@ private extension CommonUserWalletModelDependencies {
             )
         }
 
-        return WalletModelsTotalBalanceProvider(
+        let walletModelsTotalBalanceProvider = WalletModelsTotalBalanceProvider(
             walletModelsManager: walletModelsManager,
             analyticsLogger: CommonTotalBalanceProviderAnalyticsLogger(
                 userWalletId: userWalletId,
@@ -152,6 +154,19 @@ private extension CommonUserWalletModelDependencies {
             ),
             derivationManager: derivationManager
         )
+
+        if FeatureProvider.isAvailable(.visa) {
+            let tangemPayTotalBalanceProvider = TangemPayTotalBalanceProvider(
+                tangemPayAccountProvider: tangemPayAccountProvider
+            )
+
+            return LegacyTotalBalanceProvider(
+                walletModelsTotalBalanceProvider: walletModelsTotalBalanceProvider,
+                tangemPayTotalBalanceProvider: tangemPayTotalBalanceProvider
+            )
+        }
+
+        return walletModelsTotalBalanceProvider
     }
 
     static func makeNFTManager(

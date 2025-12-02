@@ -80,6 +80,11 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private let tokenRouter: SingleTokenRoutable
     private let rateAppController: RateAppInteractionController
     private let balanceRestrictionFeatureAvailabilityProvider: BalanceRestrictionFeatureAvailabilityProvider
+
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_INFO]
+    private let tangemPayAccountProvider: TangemPayAccountProvider
+
     private weak var coordinator: (MultiWalletMainContentRoutable & ActionButtonsRoutable & NFTEntrypointRoutable)?
 
     private var derivator: TokenEntriesDerivator?
@@ -101,6 +106,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         bannerNotificationManager: NotificationManager?,
         rateAppController: RateAppInteractionController,
         nftFeatureLifecycleHandler: NFTFeatureLifecycleHandling,
+        tangemPayAccountProvider: TangemPayAccountProvider,
         tokenRouter: SingleTokenRoutable,
         coordinator: (MultiWalletMainContentRoutable & ActionButtonsRoutable & NFTEntrypointRoutable)?
     ) {
@@ -113,6 +119,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         self.tokenRouter = tokenRouter
         self.coordinator = coordinator
         self.nftFeatureLifecycleHandler = nftFeatureLifecycleHandler
+        self.tangemPayAccountProvider = tangemPayAccountProvider
 
         balanceRestrictionFeatureAvailabilityProvider = BalanceRestrictionFeatureAvailabilityProvider(
             userWalletConfig: userWalletModel.config,
@@ -293,17 +300,20 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             return
         }
 
-        userWalletModel.tangemPayAccountPublisher
+        tangemPayAccountProvider.tangemPayAccountPublisher
+            .compactMap(\.self)
             .flatMapLatest(\.tangemPayNotificationManager.notificationPublisher)
             .receiveOnMain()
             .assign(to: &$tangemPayNotificationInputs)
 
-        userWalletModel.tangemPayAccountPublisher
+        tangemPayAccountProvider.tangemPayAccountPublisher
+            .compactMap(\.self)
             .flatMapLatest(\.tangemPaySyncInProgressPublisher)
             .receiveOnMain()
             .assign(to: &$tangemPaySyncInProgress)
 
-        userWalletModel.tangemPayAccountPublisher
+        tangemPayAccountProvider.tangemPayAccountPublisher
+            .compactMap(\.self)
             .withWeakCaptureOf(self)
             .map { viewModel, tangemPayAccount in
                 TangemPayAccountViewModel(tangemPayAccount: tangemPayAccount, router: viewModel)
