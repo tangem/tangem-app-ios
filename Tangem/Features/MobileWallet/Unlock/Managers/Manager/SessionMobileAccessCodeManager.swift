@@ -178,13 +178,20 @@ extension SessionMobileAccessCodeManager: MobileAccessCodeManager {
                 cleanWrongAccessCodeStore()
                 command = makeValidCommand(context: context)
             } catch {
-                storeWrongAccessCode()
+                storeWrongAccessCode(replaceLast: isStoredWrongAccessCodeReplaced(availableState: availableState))
                 command = makeInvalidCommand(availableState: availableState)
             }
             stateCommandSubject.send(command)
 
         case .locked, .valid, .unavailable:
             break
+        }
+    }
+
+    func isStoredWrongAccessCodeReplaced(availableState: MobileAccessCodeState.AvailableState) -> Bool {
+        switch availableState {
+        case .normal, .beforeLock: false
+        case .beforeWarning, .beforeDelete: true
         }
     }
 
@@ -252,9 +259,13 @@ extension SessionMobileAccessCodeManager {
         storageManager.getWrongAccessCodeStore(userWalletId: userWalletId)
     }
 
-    func storeWrongAccessCode() {
+    func storeWrongAccessCode(replaceLast: Bool) {
         let lockInterval = currentUptime + lockedTimeout
-        storageManager.storeWrongAccessCode(userWalletId: userWalletId, lockInterval: lockInterval)
+        storageManager.storeWrongAccessCode(
+            userWalletId: userWalletId,
+            lockInterval: lockInterval,
+            replaceLast: replaceLast
+        )
     }
 
     func cleanWrongAccessCodeStore() {
