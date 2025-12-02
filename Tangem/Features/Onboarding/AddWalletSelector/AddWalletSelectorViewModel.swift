@@ -23,6 +23,8 @@ final class AddWalletSelectorViewModel: ObservableObject {
 
     @Injected(\.safariManager) private var safariManager: SafariManager
 
+    private var analyticsContextParams: Analytics.ContextParams { .empty }
+
     private weak var coordinator: AddWalletSelectorRoutable?
 
     init(coordinator: AddWalletSelectorRoutable) {
@@ -99,17 +101,33 @@ private extension AddWalletSelectorViewModel {
     }
 
     func openMobileWallet() {
-        Analytics.log(.buttonMobileWallet)
+        logMobileWalletTapAnalytics()
         coordinator?.openAddMobileWallet()
     }
 
     func openBuyHardwareWallet() {
-        Analytics.log(.onboardingButtonBuy, params: [.source: .createWallet])
+        logBuyHardwareWalletAnalytics()
         safariManager.openURL(TangemBlogUrlBuilder().url(root: .pricing))
     }
 
     func openWhatToChoose() {
         safariManager.openURL(TangemBlogUrlBuilder().url(post: .mobileVsHardware))
+    }
+}
+
+// MARK: - Analytics
+
+private extension AddWalletSelectorViewModel {
+    func logMobileWalletTapAnalytics() {
+        Analytics.log(.buttonMobileWallet, contextParams: analyticsContextParams)
+    }
+
+    func logBuyHardwareWalletAnalytics() {
+        Analytics.log(
+            .basicButtonBuy,
+            params: [.source: Analytics.BuyWalletSource.addWallet.parameterValue],
+            contextParams: analyticsContextParams
+        )
     }
 }
 
