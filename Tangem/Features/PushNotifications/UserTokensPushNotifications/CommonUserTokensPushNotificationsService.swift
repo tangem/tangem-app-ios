@@ -308,8 +308,12 @@ private extension CommonUserTokensPushNotificationsService {
             try await tangemApiService.connectUserWallets(uid: applicationUid, requestModel: request)
             await update(entries: entries)
         } catch let error as TangemAPIError where error.code == .badRequest {
-            await createMissingWallets(entries: entries)
-            await connectWallets(entries: entries, shouldRetry: false)
+            if shouldRetry {
+                await createMissingWallets(entries: entries)
+                await connectWallets(entries: entries, shouldRetry: false)
+            } else {
+                AppLogger.error(error: error)
+            }
         } catch {
             // Do nothing. If the wallet is not connected to the app, it simply will not receive push messages, and you can try to connect it again.
             AppLogger.error(error: error)
