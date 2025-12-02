@@ -9,6 +9,7 @@
 import TangemAssets
 import Foundation
 import TangemLocalization
+import TangemUI
 import TangemUIUtils
 import TangemAccounts
 import TangemFoundation
@@ -51,7 +52,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
 
     private let initialStateSnapshot: StateSnapshot
     private let flowType: FlowType
-    private let closeAction: () -> Void
+    private let closeAction: (AccountOperationResult) -> Void
     private let accountModelsManager: AccountModelsManager
 
     private var bag = Set<AnyCancellable>()
@@ -59,7 +60,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
     init(
         accountModelsManager: AccountModelsManager,
         flowType: FlowType,
-        closeAction: @escaping () -> Void
+        closeAction: @escaping (AccountOperationResult) -> Void
     ) {
         let accountName: String
         let selectedColor: GridItemColor<AccountModel.Icon.Color>
@@ -170,12 +171,12 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
             case .edit(let account):
                 account.setName(accountName)
                 account.setIcon(accountIcon)
-                close()
+                close(result: .none)
 
             case .create:
                 do {
-                    try await accountModelsManager.addCryptoAccount(name: accountName, icon: accountIcon)
-                    close()
+                    let result = try await accountModelsManager.addCryptoAccount(name: accountName, icon: accountIcon)
+                    close(result: result)
                 } catch {
                     alert = makeUnableToCreateAccountAlert()
                 }
@@ -197,13 +198,13 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
             return
         }
 
-        close()
+        close(result: .none)
     }
 
     // MARK: - Private
 
-    private func close() {
-        closeAction()
+    private func close(result: AccountOperationResult) {
+        closeAction(result)
     }
 
     private func bind() {
@@ -245,7 +246,9 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
             message: message,
             keepEditingButtonText: Localization.accountUnsavedDialogActionFirst,
             discardButtonText: Localization.accountUnsavedDialogActionSecond,
-            discardAction: close
+            discardAction: { [weak self] in
+                self?.close(result: .none)
+            }
         )
     }
 
