@@ -151,6 +151,7 @@ public func runTask<T>(
 public func runWithDelayedLoading<T>(
     thresholdSeconds: TimeInterval = 0.3,
     onLongRunning: @escaping @MainActor () async -> Void,
+    onCancel: @escaping () -> Void = {},
     operation: @escaping () async throws -> T
 ) -> Task<T, Error> {
     Task {
@@ -167,9 +168,11 @@ public func runWithDelayedLoading<T>(
 
             // Run the main operation
             let result = try await operation()
+            try Task.checkCancellation()
             return result
         } onCancel: {
             loadingTask.cancel()
+            onCancel()
         }
     }
 }
