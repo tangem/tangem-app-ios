@@ -14,7 +14,7 @@ final class CommonFiatRateProvider {
     private let tokenItem: TokenItem
     private var quotesCancellable: AnyCancellable?
 
-    private lazy var _rate: CurrentValueSubject<WalletModelRate, Never> = .init(
+    private lazy var rateSubject: CurrentValueSubject<WalletModelRate, Never> = .init(
         .loading(cached: quotesRepository.quote(for: tokenItem))
     )
 
@@ -30,19 +30,19 @@ final class CommonFiatRateProvider {
 
 extension CommonFiatRateProvider: FiatRateProvider {
     var rate: WalletModelRate {
-        _rate.value
+        rateSubject.value
     }
 
     var ratePublisher: AnyPublisher<WalletModelRate, Never> {
-        _rate.eraseToAnyPublisher()
+        rateSubject.eraseToAnyPublisher()
     }
 
     func updateRate() {
         guard let currencyId = tokenItem.currencyId else {
-            return _rate.send(.custom)
+            return rateSubject.send(.custom)
         }
 
-        _rate.send(.loading(cached: quotesRepository.quote(for: tokenItem)))
+        rateSubject.send(.loading(cached: rateSubject.value.quote))
         quotesRepository.loadQuotes(currencyIds: [currencyId])
     }
 }
@@ -62,12 +62,12 @@ private extension CommonFiatRateProvider {
         switch quote {
         // Don't have quote because we don't have currency id
         case .none where tokenItem.currencyId == nil:
-            _rate.send(.custom)
+            rateSubject.send(.custom)
         // Don't have quote because of error. Update with saving the previous one
         case .none:
-            _rate.send(.failure(cached: rate.quote))
+            rateSubject.send(.failure(cached: rate.quote))
         case .some(let quote):
-            _rate.send(.loaded(quote: quote))
+            rateSubject.send(.loaded(quote: quote))
         }
     }
 }

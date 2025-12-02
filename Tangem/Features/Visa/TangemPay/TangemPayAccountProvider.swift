@@ -10,6 +10,7 @@ import Combine
 import TangemFoundation
 
 // [REDACTED_TODO_COMMENT]
+// Remove it and setup it before UserWalletModel was created
 protocol TangemPayAccountProviderSetupable: TangemPayAccountProvider {
     func setup(for userWalletModel: any UserWalletModel)
 }
