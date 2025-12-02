@@ -162,8 +162,8 @@ private enum LeadingBadgeMapper {
                 return balance.validatorType.validator?.rewardRate
             }
 
-            guard !rewardRates.isEmpty else {
-                return nil
+            guard !rewardRates.isEmpty else { // all the balances are in unstaking/unstaked state
+                return mapRewards(stakingManagerState: .availableToStake(staked.yieldInfo))
             }
 
             let rewardValue = rewardRates.sum(by: \.self) / Decimal(rewardRates.count)
