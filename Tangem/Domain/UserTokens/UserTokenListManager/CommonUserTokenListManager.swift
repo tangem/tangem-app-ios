@@ -85,7 +85,7 @@ extension CommonUserTokenListManager: UserTokenListManager {
             externalParametersProvider: externalParametersProvider
         )
 
-        updateTokensOnServer(list: converter.convertStoredToRemote(userTokenList))
+        updateTokensOnServer(list: converter.convertStoredToRemote(userTokenList, userWalletId: userWalletId))
     }
 
     func update(_ type: UserTokenListUpdateType, shouldUpload: Bool) {
@@ -216,7 +216,7 @@ private extension CommonUserTokenListManager {
             externalParametersProvider: externalParametersProvider
         )
         let list = tokenItemsRepository.getList()
-        return converter.convertStoredToRemote(list)
+        return converter.convertStoredToRemote(list, userWalletId: userWalletId)
     }
 
     // MARK: - Token upgrading

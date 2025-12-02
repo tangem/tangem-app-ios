@@ -121,8 +121,8 @@ final class CommonUserTokensPushNotificationsService: NSObject {
             let pendingNameUpdates = service.findUserWalletsToUpdate()
 
             pendingNameUpdates.forEach {
-                if case .name(let value, let userWalletId) = $0 {
-                    service.updateRemoteWallet(name: value, by: userWalletId)
+                if case .name(let value, let userWalletId, let context) = $0 {
+                    service.updateRemoteWallet(name: value, context: context, userWalletId: userWalletId)
                 }
             }
         }
@@ -270,7 +270,7 @@ private extension CommonUserTokensPushNotificationsService {
 
     func updateEntryByUserWalletModelIfNeeded() async {
         guard await AppSettings.shared.saveUserWallets else {
-            await createAndConnectWallet(entries: [])
+            await connectWallets(entries: [])
             return
         }
 
@@ -298,24 +298,36 @@ private extension CommonUserTokensPushNotificationsService {
             return
         }
 
-        await createAndConnectWallet(entries: toUpdateEntries)
+        await connectWallets(entries: toUpdateEntries)
     }
 
-    func createAndConnectWallet(entries: [ApplicationWalletEntry]) async {
-        let toUpdateItems = entries.map {
-            UserWalletDTO.Create.Request(id: $0.id, name: $0.name)
-        }.toSet()
-
+    func connectWallets(entries: [ApplicationWalletEntry], shouldRetry: Bool = true) async {
         do {
-            try await tangemApiService.createAndConnectUserWallet(
-                applicationUid: applicationUid,
-                items: toUpdateItems
-            )
-
+            let walletIds = Array(Set(entries.map { $0.id }))
+            let request = ApplicationDTO.Connect.Request(walletIds: walletIds)
+            try await tangemApiService.connectUserWallets(uid: applicationUid, requestModel: request)
             await update(entries: entries)
+        } catch let error as TangemAPIError where error.code == .badRequest {
+            await createMissingWallets(entries: entries)
+            await connectWallets(entries: entries, shouldRetry: false)
         } catch {
             // Do nothing. If the wallet is not connected to the app, it simply will not receive push messages, and you can try to connect it again.
             AppLogger.error(error: error)
+        }
+    }
+
+    func createMissingWallets(entries: [ApplicationWalletEntry]) async {
+        for entry in entries {
+            guard let model = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == entry.id }) else {
+                continue
+            }
+
+            let helper = WalletCreationHelper(
+                userWalletId: model.userWalletId,
+                userWalletConfig: model.config
+            )
+
+            try? await helper.createWallet()
         }
     }
 
@@ -343,22 +355,30 @@ private extension CommonUserTokensPushNotificationsService {
             }
 
             if userWalletModel.name != entry.name {
-                pendingUpdates.append(.name(value: userWalletModel.name, userWalletId: userWalletModel.userWalletId.stringValue))
+                let context = userWalletModel.config
+                    .contextBuilder
+                    .enrich(withName: userWalletModel.name)
+                    .build()
+
+                pendingUpdates.append(.name(
+                    value: userWalletModel.name,
+                    userWalletId: userWalletModel.userWalletId.stringValue,
+                    context: context
+                ))
             }
         }
 
         return pendingUpdates
     }
 
-    func updateRemoteWallet(name: String, by userWalletId: String) {
+    func updateRemoteWallet(name: String, context: some Encodable, userWalletId: String) {
         runTask { [weak self] in
             guard let self else {
                 return
             }
 
             do {
-                let requestModel = UserWalletDTO.Update.Request(name: name)
-                try await tangemApiService.updateUserWallet(by: userWalletId, requestModel: requestModel)
+                try await tangemApiService.updateWallet(by: userWalletId, context: context)
 
                 let toLocalUpdateEntries = _applicationEntries.value.map {
                     let updateName = $0.id == userWalletId ? name : $0.name
@@ -433,7 +453,7 @@ extension CommonUserTokensPushNotificationsService {
     }
 
     enum PendingToUpdateUserWalletItem {
-        case name(value: String, userWalletId: String)
+        case name(value: String, userWalletId: String, context: Encodable)
     }
 
     enum Constants {

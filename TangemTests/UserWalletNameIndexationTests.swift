@@ -15,6 +15,8 @@ class UserWalletNameIndexationTests: XCTestCase {
             let existingNamesTestCases = testCaseSet.existingNamesTestCases
             let existingNames = existingNamesTestCases.map(\.1)
 
+            let helper = UserWalletNameIndexationHelper()
+
             for newNameTestCase in testCaseSet.newNameTestCases {
                 let name = UserWalletNameIndexationHelper.suggestedName(newNameTestCase.0, names: existingNames)
                 XCTAssertEqual(name, newNameTestCase.1)
