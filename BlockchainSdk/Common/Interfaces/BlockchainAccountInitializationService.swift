@@ -1,5 +1,5 @@
 //
-//  StakingAccountInitializationService.swift
+//  BlockchainAccountInitializationService.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
