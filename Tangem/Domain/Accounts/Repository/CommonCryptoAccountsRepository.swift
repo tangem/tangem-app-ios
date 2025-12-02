@@ -111,7 +111,7 @@ final class CommonCryptoAccountsRepository {
         // Instead, the token list will be updated if needed using tokens from the `additionalTokens`
         // field in the server response, distributed using `StoredCryptoAccountsTokensDistributor`
         // in the `addAccountsInternal` method call below.
-        try await addAccountsInternal([defaultAccount], forceUpdateTokenList: !isWalletAlreadyCreated)
+        _ = try await addAccountsInternal([defaultAccount], forceUpdateTokenList: !isWalletAlreadyCreated)
     }
 
     // MARK: - Loading accounts and tokens from server
@@ -166,7 +166,7 @@ final class CommonCryptoAccountsRepository {
             let shouldUpdateTokenListDueToTokensDistribution = StoredCryptoAccountsTokensDistributor.distributeTokens(
                 in: &updatedAccounts,
                 additionalTokens: remoteCryptoAccountsInfo.legacyTokens
-            )
+            ).isRedistributionHappened
 
             let shouldUpdateTokenListDueToCustomTokensMigration = await tryMigrateCustomTokensOnce(in: &updatedAccounts)
 
@@ -269,7 +269,29 @@ final class CommonCryptoAccountsRepository {
 
     // MARK: - Internal CRUD methods for accounts (always remote first, then local)
 
-    func addAccountsInternal(_ accounts: [StoredCryptoAccount], forceUpdateTokenList: Bool) async throws {
+    private func addNewOrUpdateExistingCryptoAccountInternal(
+        withConfig config: CryptoAccountPersistentConfig,
+        remoteState: CryptoAccountsRemoteState,
+    ) async throws -> StoredCryptoAccountsTokensDistributor.DistributionResult {
+        let newCryptoAccount = StoredCryptoAccount(config: config)
+        let existingCryptoAccounts = remoteState.accounts
+        let merger = StoredCryptoAccountsMerger(preserveTokensWhileMergingAccounts: true)
+        let (editedItems, isDirty) = merger.merge(oldAccounts: existingCryptoAccounts, newAccounts: [newCryptoAccount])
+
+        if isDirty {
+            // This methods either adds a new account w/o tokens or updates an existing one, preserving its tokens
+            // Therefore there is no need to forcefully update the token list
+            return try await addAccountsInternal(editedItems, forceUpdateTokenList: false)
+        }
+
+        // No changes were made, no tokens redistribution performed
+        return .none
+    }
+
+    private func addAccountsInternal(
+        _ accounts: [StoredCryptoAccount],
+        forceUpdateTokenList: Bool
+    ) async throws -> StoredCryptoAccountsTokensDistributor.DistributionResult {
         let remoteCryptoAccountsInfo = try await networkService.saveAccounts(from: accounts, retryCount: 0)
         try Task.checkCancellation()
 
@@ -284,12 +306,12 @@ final class CommonCryptoAccountsRepository {
             updatedAccounts = remoteCryptoAccountsInfo.accounts
         }
 
-        let areTokensDistributed = StoredCryptoAccountsTokensDistributor.distributeTokens(
+        let distributionResult = StoredCryptoAccountsTokensDistributor.distributeTokens(
             in: &updatedAccounts,
             additionalTokens: remoteCryptoAccountsInfo.legacyTokens
         )
 
-        if areTokensDistributed {
+        if distributionResult.isRedistributionHappened {
             try await networkService.saveTokens(from: updatedAccounts, retryCount: Constants.maxRetryCount)
             try Task.checkCancellation()
         }
@@ -297,11 +319,13 @@ final class CommonCryptoAccountsRepository {
         // Updating local storage only after successful remote update
         persistentStorage.replace(with: updatedAccounts)
         auxiliaryDataStorage.update(withRemoteInfo: remoteCryptoAccountsInfo)
+
+        return distributionResult
     }
 
     /// - Note: Unlike adding or updating accounts (using `addAccountsInternal` method),
     /// removing accounts doesn't require token distribution after updating the remote state.
-    func removeAccountsInternal(_ identifier: some Hashable) async throws {
+    private func removeAccountsInternal(_ identifier: some Hashable) async throws {
         var existingCryptoAccounts = persistentStorage.getList()
         existingCryptoAccounts.removeAll { $0.derivationIndex.toAnyHashable() == identifier.toAnyHashable() }
 
@@ -366,28 +390,19 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
         )
     }
 
-    func addNewCryptoAccount(withConfig config: CryptoAccountPersistentConfig, remoteState: CryptoAccountsRemoteState) async throws {
-        let newCryptoAccount = StoredCryptoAccount(config: config)
-        let existingCryptoAccounts = remoteState.accounts
-        let merger = StoredCryptoAccountsMerger(preserveTokensWhileMergingAccounts: false)
-        let (editedItems, isDirty) = merger.merge(oldAccounts: existingCryptoAccounts, newAccounts: [newCryptoAccount])
-
-        if isDirty {
-            try await addAccountsInternal(editedItems, forceUpdateTokenList: false)
-        }
+    func addNewCryptoAccount(
+        withConfig config: CryptoAccountPersistentConfig,
+        remoteState: CryptoAccountsRemoteState
+    ) async throws -> StoredCryptoAccountsTokensDistributor.DistributionResult {
+        return try await addNewOrUpdateExistingCryptoAccountInternal(withConfig: config, remoteState: remoteState)
     }
 
-    func updateExistingCryptoAccount(withConfig config: CryptoAccountPersistentConfig) {
-        let updatedCryptoAccount = StoredCryptoAccount(config: config)
-        let existingCryptoAccounts = persistentStorage.getList()
-        let merger = StoredCryptoAccountsMerger(preserveTokensWhileMergingAccounts: true)
-        let (editedItems, isDirty) = merger.merge(oldAccounts: existingCryptoAccounts, newAccounts: [updatedCryptoAccount])
-
-        if isDirty {
-            persistentStorage.appendNewOrUpdateExisting(editedItems)
-            // No tokens distribution was performed here therefore only accounts need to be updated on the server
-            updateAccountsOnServer(cryptoAccounts: editedItems, updateType: .accounts)
-        }
+    func updateExistingCryptoAccount(
+        withConfig config: CryptoAccountPersistentConfig,
+        remoteState: CryptoAccountsRemoteState
+    ) async throws {
+        // Ignoring the result, as tokens redistribution can't be performed when editing an existing account
+        let _ = try await addNewOrUpdateExistingCryptoAccountInternal(withConfig: config, remoteState: remoteState)
     }
 
     func removeCryptoAccount(withIdentifier identifier: some Hashable) async throws {
