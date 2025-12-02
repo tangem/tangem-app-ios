@@ -79,6 +79,7 @@ final class TangemPayAccount {
     )
 
     let customerInfoManagementService: any CustomerInfoManagementService
+    let withdrawTransactionService: any TangemPayWithdrawTransactionService
 
     var depositAddress: String? {
         customerInfoSubject.value?.depositAddress
@@ -109,9 +110,7 @@ final class TangemPayAccount {
 
     private let authorizer: TangemPayAuthorizer
     private let authorizationTokensHandler: TangemPayAuthorizationTokensHandler
-
     private let tokenBalancesRepository: any TokenBalancesRepository
-    private let withdrawTransactionService: any TangemPayWithdrawTransactionService
 
     private let customerInfoSubject = CurrentValueSubject<VisaCustomerInfoResponse?, Never>(nil)
     private let balanceSubject = CurrentValueSubject<LoadingResult<TangemPayBalance, Error>, Never>(.loading)
@@ -139,6 +138,7 @@ final class TangemPayAccount {
         tangemPayNotificationManager.setupManager(with: self)
         authorizationTokensHandler.setupAuthorizationTokensSaver(self)
         tangemPayIssuingManager.setupDelegate(self)
+        withdrawTransactionService.set(output: self)
 
         bind()
     }
@@ -304,6 +304,18 @@ extension TangemPayAccount: TangemPayAuthorizationTokensSaver {
     }
 }
 
+// MARK: - TangemPayWithdrawTransactionServiceOutput
+
+extension TangemPayAccount: TangemPayWithdrawTransactionServiceOutput {
+    func withdrawTransactionDidSent() {
+        Task {
+            // Update balance after withdraw with some delay
+            try await Task.sleep(seconds: 5)
+            await setupBalance()
+        }
+    }
+}
+
 // MARK: - NotificationTapDelegate
 
 extension TangemPayAccount: NotificationTapDelegate {
@@ -380,9 +392,4 @@ private extension TangemPayAccount {
         static let cardIssuingOrderPollInterval: TimeInterval = 60
         static let freezeUnfreezeOrderPollInterval: TimeInterval = 5
     }
-}
-
-struct TangemPayCardDetails {
-    let card: VisaCustomerInfoResponse.Card
-    let balance: TangemPayBalance
 }
