@@ -28,7 +28,7 @@ struct HardwareBackupTypesView: View {
             .padding(16)
             .readGeometry(\.frame.maxY, inCoordinateSpace: .global, bindTo: $screenMaxY)
             .background(Colors.Background.secondary)
-            .onFirstAppear(perform: viewModel.onAppear)
+            .onFirstAppear(perform: viewModel.onFirstAppear)
             .alert(item: $viewModel.alert) { $0.alert }
     }
 }
@@ -63,16 +63,16 @@ private extension HardwareBackupTypesView {
 private extension HardwareBackupTypesView {
     func backupType(item: ViewModel.BackupItem) -> some View {
         Button(action: item.action) {
-            HStack(spacing: 0) {
+            HStack(spacing: 4) {
                 backupTypeInfo(item: item)
 
-                Assets.chevronRight.image
+                Assets.chevronRightWithOffset24.image
                     .renderingMode(.template)
                     .resizable()
                     .foregroundStyle(Colors.Text.tertiary)
-                    .frame(width: 20, height: 20)
+                    .frame(width: 24, height: 24)
             }
-            .padding(EdgeInsets(top: 14, leading: 14, bottom: 14, trailing: 8))
+            .padding(14)
             .background(Colors.Background.primary)
             .cornerRadius(14, corners: .allCorners)
         }
@@ -91,7 +91,7 @@ private extension HardwareBackupTypesView {
             }
 
             Text(item.description)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                 .multilineTextAlignment(.leading)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .leading)

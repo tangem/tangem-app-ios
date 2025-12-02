@@ -26,7 +26,6 @@ struct NotificationButtonAction {
 enum NotificationButtonActionType: Identifiable {
     case generateAddresses
     case backupCard
-    case buyCrypto(currencySymbol: String?)
     case openFeeCurrency(currencySymbol: String)
     case refresh
     case refreshFee
@@ -55,9 +54,6 @@ enum NotificationButtonActionType: Identifiable {
     case unlock
     case openMobileFinishActivation(needsAttention: Bool)
     case openMobileUpgrade
-    case openBuyCrypto(walletModel: any WalletModel, parameters: PredefinedOnrampParameters)
-    case tangemPayCreateAccountAndIssueCard
-    case tangemPayViewKYCStatus
     case tangemPaySync
     case allowPushPermissionRequest
     case postponePushPermissionRequest
@@ -68,7 +64,6 @@ enum NotificationButtonActionType: Identifiable {
         switch self {
         case .generateAddresses: "generateAddresses".hashValue
         case .backupCard: "backupCard".hashValue
-        case .buyCrypto(let currencySymbol): "buyCrypto\(String(describing: currencySymbol))".hashValue
         case .openFeeCurrency(let currencySymbol): "openFeeCurrency\(currencySymbol)".hashValue
         case .refresh: "refresh".hashValue
         case .refreshFee: "refresh_fee".hashValue
@@ -94,9 +89,6 @@ enum NotificationButtonActionType: Identifiable {
         case .unlock: "unlock".hashValue
         case .openMobileFinishActivation(let needsAttention): "openMobileFinishActivation\(needsAttention)".hashValue
         case .openMobileUpgrade: "openMobileUpgrade".hashValue
-        case .openBuyCrypto(let walletModel, let parameters): "openBuyCrypto\(walletModel.id)\(parameters.hashValue)".hashValue
-        case .tangemPayCreateAccountAndIssueCard: "tangemPayCreateAccountAndIssueCard".hashValue
-        case .tangemPayViewKYCStatus: "tangemPayViewKYCStatus".hashValue
         case .tangemPaySync: "tangemPaySync".hashValue
         case .allowPushPermissionRequest: "allowPushPermissionRequest".hashValue
         case .postponePushPermissionRequest: "postponePushPermissionRequest".hashValue
@@ -111,12 +103,6 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.commonGenerateAddresses
         case .backupCard:
             return Localization.buttonStartBackupProcess
-        case .buyCrypto(let currencySymbol):
-            guard let currencySymbol else {
-                // [REDACTED_TODO_COMMENT]
-                return "Top up card"
-            }
-            return Localization.commonBuyCurrency(currencySymbol)
         case .openFeeCurrency(let currencySymbol):
             return Localization.commonBuyCurrency(currencySymbol)
         case .refresh, .refreshFee:
@@ -163,12 +149,6 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.hwActivationNeedFinish
         case .openMobileUpgrade:
             return .empty
-        case .openBuyCrypto:
-            return Localization.commonBuy
-        case .tangemPayCreateAccountAndIssueCard:
-            return Localization.commonContinue
-        case .tangemPayViewKYCStatus:
-            return Localization.tangempayKycInProgressNotificationButton
         case .tangemPaySync:
             return Localization.homeButtonScan
         case .allowPushPermissionRequest:
@@ -192,7 +172,6 @@ enum NotificationButtonActionType: Identifiable {
         case .swap:
             return .leading(Assets.exchangeMini)
         case .backupCard,
-             .buyCrypto,
              .openFeeCurrency,
              .refresh,
              .refreshFee,
@@ -215,9 +194,6 @@ enum NotificationButtonActionType: Identifiable {
              .addTokenTrustline,
              .openMobileFinishActivation,
              .openMobileUpgrade,
-             .openBuyCrypto,
-             .tangemPayCreateAccountAndIssueCard,
-             .tangemPayViewKYCStatus,
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
              .activate,
@@ -229,7 +205,6 @@ enum NotificationButtonActionType: Identifiable {
     var style: MainButton.Style {
         switch self {
         case .generateAddresses,
-             .openLink,
              .openAppStoreReview,
              .empty,
              .unlock,
@@ -239,7 +214,6 @@ enum NotificationButtonActionType: Identifiable {
              .tangemPaySync:
             return .primary
         case .backupCard,
-             .buyCrypto,
              .openFeeCurrency,
              .refresh,
              .refreshFee,
@@ -248,6 +222,7 @@ enum NotificationButtonActionType: Identifiable {
              .addHederaTokenAssociation,
              .retryKaspaTokenTransaction,
              .leaveAmount,
+             .openLink,
              .support,
              .stake,
              .openFeedbackMail,
@@ -258,9 +233,6 @@ enum NotificationButtonActionType: Identifiable {
              .seedSupport2Yes,
              .seedSupport2No,
              .addTokenTrustline,
-             .openBuyCrypto,
-             .tangemPayCreateAccountAndIssueCard,
-             .tangemPayViewKYCStatus,
              .postponePushPermissionRequest,
              .givePermission:
             return .secondary
