@@ -57,11 +57,11 @@ final class AccountsAwareManageTokensContext: ManageTokensContext {
     }
 
     func isAddedToPortfolio(_ tokenItem: TokenItem) -> Bool {
-        guard let targetСryptoAccount = findAccountForToken(tokenItem) else {
+        guard let targetCryptoAccount = findAccountForToken(tokenItem) else {
             return false
         }
 
-        return targetСryptoAccount.userTokensManager.contains(tokenItem, derivationInsensitive: false)
+        return targetCryptoAccount.userTokensManager.contains(tokenItem, derivationInsensitive: false)
     }
 
     // MARK: - Private Helpers
