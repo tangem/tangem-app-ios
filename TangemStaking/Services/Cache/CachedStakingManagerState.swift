@@ -9,7 +9,8 @@
 import Foundation
 
 public struct CachedStakingManagerState: Codable, Hashable {
-    let rewardType: CachedRewardType
-    let apy: Decimal
-    let stakeState: CachedStakeState
+    public let rewardType: CachedRewardType
+    public let apy: Decimal
+    public let stakeState: CachedStakeState
+    public let date: Date
 }

@@ -82,31 +82,18 @@ extension StakingTokenBalanceProvider: TokenBalanceProvider {
 // MARK: - Private
 
 extension StakingTokenBalanceProvider {
-    func storeBalance(balance: Decimal) {
-        let balance = CachedBalance(balance: balance, date: .now)
-        tokenBalancesRepository.store(balance: balance, for: walletModelId, type: .staked)
-    }
-
-    func cachedBalance() -> TokenBalanceType.Cached? {
-        tokenBalancesRepository
-            .balance(walletModelId: walletModelId, type: .staked)
-            .map { .init(balance: $0.balance, date: $0.date) }
-    }
-
     func mapToTokenBalance(state: StakingManagerState) -> TokenBalanceType {
         switch state {
-        case .loading:
-            return .loading(cachedBalance())
+        case .loading(let cached):
+            return .loading(cached.flatMap { .init(balance: $0.stakeState.balance, date: $0.date) })
         case .notEnabled, .temporaryUnavailable:
             return .empty(.noData)
-        case .loadingError:
-            return .failure(cachedBalance())
+        case .loadingError(_, let cached):
+            return .failure(cached.flatMap { .init(balance: $0.stakeState.balance, date: $0.date) })
         case .availableToStake:
-            storeBalance(balance: .zero)
             return .loaded(.zero)
         case .staked(let balances):
             let balance = balances.balances.blocked().sum()
-            storeBalance(balance: balance)
             return .loaded(balance)
         }
     }

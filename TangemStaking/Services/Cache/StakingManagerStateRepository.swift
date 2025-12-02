@@ -35,7 +35,8 @@ extension CommonStakingManagerStateRepository: StakingManagerStateRepository {
         let stateToCache = CachedStakingManagerState(
             rewardType: mapToCachedRewardType(rewardType),
             apy: apy,
-            stakeState: cachedStakeState
+            stakeState: cachedStakeState,
+            date: Date()
         )
 
         updateUserWalletState { stateForUserWallet in
