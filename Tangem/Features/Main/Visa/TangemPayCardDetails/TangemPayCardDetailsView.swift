@@ -42,7 +42,7 @@ struct TangemPayCardDetailsView: View {
         }
         .clipShape(RoundedRectangle(cornerRadius: 14))
         .aspectRatio(Constants.plasticCardStandardWidthToHeightRatio, contentMode: .fit)
-        .background(.black, in: RoundedRectangle(cornerRadius: 14))
+        .background(Color(hex: "#12151F") ?? .black, in: RoundedRectangle(cornerRadius: 14))
         .onAnimationTargetProgress(
             for: animationProgress,
             targetValue: 0.45,
@@ -109,6 +109,7 @@ struct TangemPayCardDetailsView: View {
                     showDetailsButton()
                 }
             }
+            .frame(height: 16)
         }
         .padding(16)
         .background(

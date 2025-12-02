@@ -65,7 +65,6 @@ final class TangemPayMainViewModel: ObservableObject {
         )
 
         tangemPayCardDetailsViewModel = TangemPayCardDetailsViewModel(
-            mode: .interactive,
             repository: cardDetailsRepository
         )
 
@@ -122,7 +121,7 @@ final class TangemPayMainViewModel: ObservableObject {
 
     func openAddToApplePayGuide() {
         coordinator?.openAddToApplePayGuide(
-            viewModel: .init(mode: .detailedOnly, repository: cardDetailsRepository)
+            viewModel: .init(repository: cardDetailsRepository)
         )
     }
 

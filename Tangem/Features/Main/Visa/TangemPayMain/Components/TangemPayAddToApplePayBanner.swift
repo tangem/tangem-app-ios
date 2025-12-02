@@ -34,6 +34,8 @@ struct TangemPayAddToApplePayBanner: View {
         .padding()
         .background {
             Assets.Visa.bgAddToWallet.image
+                .resizable()
+                .aspectRatio(contentMode: .fill)
         }
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .overlay(alignment: .topTrailing) {

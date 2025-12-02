@@ -19,6 +19,7 @@ protocol TangemPayAccountRoutable: AnyObject {
 
 final class TangemPayAccountViewModel: ObservableObject {
     @Published private(set) var state: ViewState
+    @Published private(set) var isLoading: Bool = false
 
     private let tangemPayAccount: TangemPayAccount
     private weak var router: TangemPayAccountRoutable?
@@ -42,12 +43,18 @@ final class TangemPayAccountViewModel: ObservableObject {
     func userDidTapView() {
         switch state {
         case .kycInProgress:
-            runTask(in: tangemPayAccount) { tangemPayAccount in
+            runTask(in: self) { viewModel in
                 do {
-                    try await tangemPayAccount.launchKYC {
-                        tangemPayAccount.loadCustomerInfo()
+                    try await viewModel.tangemPayAccount.launchKYC {
+                        viewModel.isLoading = true
+                        let task = viewModel.tangemPayAccount.loadCustomerInfo()
+                        runTask(in: viewModel) { viewModel in
+                            _ = await task.value
+                            viewModel.isLoading = false
+                        }
                     }
                 } catch {
+                    viewModel.isLoading = false
                     VisaLogger.error("Failed to launch KYC", error: error)
                 }
             }
