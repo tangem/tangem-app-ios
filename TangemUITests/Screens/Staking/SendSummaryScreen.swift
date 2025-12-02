@@ -15,6 +15,7 @@ final class SendSummaryScreen: ScreenBase<SendSummaryScreenElement> {
     private lazy var amountValue = staticText(.amountValue)
     private lazy var validatorBlock = staticText(.validatorBlock)
     private lazy var networkFeeBlock = otherElement(.networkFeeBlock)
+    private lazy var networkFeeAmount = staticText(.networkFeeAmount)
     private lazy var amountBlock = button(.amountBlock)
 
     @discardableResult
@@ -80,12 +81,51 @@ final class SendSummaryScreen: ScreenBase<SendSummaryScreenElement> {
     }
 
     @discardableResult
+    func waitForNetworkFeeSelectorUnavailable() -> Self {
+        XCTContext.runActivity(named: "Validate network fee selector is unavailable") { _ in
+            waitAndAssertTrue(networkFeeBlock, "Network fee block should exist")
+            networkFeeBlock.waitAndTap()
+
+            let feeSelectorDoneButton = app.buttons[FeeAccessibilityIdentifiers.feeSelectorDoneButton]
+            XCTAssertTrue(
+                feeSelectorDoneButton.waitForNonExistence(timeout: .robustUIUpdate),
+                "Fee selector should not be displayed for fixed-fee networks"
+            )
+        }
+        return self
+    }
+
+    @discardableResult
     func tapAmountField() -> SendScreen {
         XCTContext.runActivity(named: "Tap on amount field to edit") { _ in
             waitAndAssertTrue(amountBlock, "Amount block should exist")
             amountBlock.waitAndTap()
         }
         return SendScreen(app)
+    }
+
+    @discardableResult
+    func tapFeeBlock() -> SendFeeSelectorScreen {
+        XCTContext.runActivity(named: "Tap fee block on Send screen") { _ in
+            waitAndAssertTrue(networkFeeBlock, "Network fee button should exist")
+            networkFeeBlock.waitAndTap()
+        }
+        return SendFeeSelectorScreen(app)
+    }
+
+    @discardableResult
+    func waitForNetworkFeeAmount(_ expectedFiatAmount: String) -> Self {
+        XCTContext.runActivity(named: "Validate network fee amount matches expected fiat value: \(expectedFiatAmount)") { _ in
+            waitAndAssertTrue(networkFeeAmount, "Network fee amount element should exist")
+
+            let actualAmount = networkFeeAmount.label.trimmingCharacters(in: .whitespacesAndNewlines)
+            XCTAssertEqual(
+                actualAmount,
+                expectedFiatAmount,
+                "Network fee amount should be '\(expectedFiatAmount)' but was '\(actualAmount)'"
+            )
+        }
+        return self
     }
 }
 
@@ -95,6 +135,7 @@ enum SendSummaryScreenElement: String, UIElement {
     case amountValue
     case validatorBlock
     case networkFeeBlock
+    case networkFeeAmount
     case amountBlock
 
     var accessibilityIdentifier: String {
@@ -109,6 +150,8 @@ enum SendSummaryScreenElement: String, UIElement {
             return SendAccessibilityIdentifiers.validatorBlock
         case .networkFeeBlock:
             return SendAccessibilityIdentifiers.networkFeeBlock
+        case .networkFeeAmount:
+            return SendAccessibilityIdentifiers.networkFeeAmount
         case .amountBlock:
             return SendAccessibilityIdentifiers.fromWalletButton
         }
