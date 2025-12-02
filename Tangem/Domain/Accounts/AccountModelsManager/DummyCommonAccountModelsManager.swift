@@ -35,8 +35,8 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
         AnyPublisher.just(output: accountModels)
     }
 
-    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws(AccountModelsManagerError) -> AccountOperationResult {
-        throw .addingCryptoAccountsNotSupported
+    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws(AccountEditError) -> AccountOperationResult {
+        throw .unknownError(NSError.dummy)
     }
 
     func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] {
