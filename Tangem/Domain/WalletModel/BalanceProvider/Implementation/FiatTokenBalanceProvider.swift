@@ -52,8 +52,8 @@ extension FiatTokenBalanceProvider: TokenBalanceProvider {
         }
 
         return Publishers.CombineLatest(
-            strongInput.ratePublisher.removeDuplicates(),
-            cryptoBalanceProvider.balanceTypePublisher.removeDuplicates()
+            strongInput.ratePublisher,
+            cryptoBalanceProvider.balanceTypePublisher
         )
         .map { self.mapToTokenBalance(rate: $0, balanceType: $1) }
         .eraseToAnyPublisher()
