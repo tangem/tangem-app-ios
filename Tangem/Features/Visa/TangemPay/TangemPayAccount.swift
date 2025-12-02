@@ -19,14 +19,22 @@ final class TangemPayAccount {
     var tangemPayStatusPublisher: AnyPublisher<TangemPayStatus, Never> {
         customerInfoSubject
             .compactMap(\.self?.tangemPayStatus)
+            .merge(with: orderCancelledSignalSubject.mapToValue(.failedToIssue))
             .eraseToAnyPublisher()
     }
 
+    var tangemPayAccountStatePublisher: AnyPublisher<TangemPayAuthorizer.State, Never> {
+        authorizer.statePublisher
+    }
+
     var tangemPayCardIssuingInProgressPublisher: AnyPublisher<Bool, Never> {
-        orderIdStorage.cardIssuingOrderIdPublisher
+        TangemPayOrderIdStorage.cardIssuingOrderIdPublisher(customerWalletId: customerWalletId)
             .map { $0 != nil }
-            .merge(with: didTapIssueOrderSubject.mapToValue(true))
             .eraseToAnyPublisher()
+    }
+
+    var tangemPaySyncInProgressPublisher: AnyPublisher<Bool, Never> {
+        syncInProgressSubject.eraseToAnyPublisher()
     }
 
     var tangemPayCard: VisaCustomerInfoResponse.Card? {
@@ -41,12 +49,17 @@ final class TangemPayAccount {
     }
 
     lazy var tangemPayNotificationManager: TangemPayNotificationManager = .init(
-        tangemPayStatusPublisher: tangemPayStatusPublisher
+        tangemPayAccountStatePublisher: authorizer.statePublisher
     )
 
     lazy var tangemPayIssuingManager: TangemPayIssuingManager = .init(
         tangemPayStatusPublisher: tangemPayStatusPublisher,
         tangemPayCardIssuingPublisher: tangemPayCardIssuingInProgressPublisher
+    )
+
+    lazy var tangemPayExpressCEXTransactionProcessor = TangemPayExpressCEXTransactionProcessor(
+        withdrawTransactionService: withdrawTransactionService,
+        walletPublicKey: TangemPayUtilities.getKey(from: authorizer.keysRepository)
     )
 
     // MARK: - Balances
@@ -66,6 +79,7 @@ final class TangemPayAccount {
     )
 
     let customerInfoManagementService: any CustomerInfoManagementService
+    let withdrawTransactionService: any TangemPayWithdrawTransactionService
 
     var depositAddress: String? {
         customerInfoSubject.value?.depositAddress
@@ -75,92 +89,58 @@ final class TangemPayAccount {
         customerInfoSubject.value?.productInstance?.cardId
     }
 
+    var customerWalletId: String {
+        authorizer.customerWalletId
+    }
+
+    var customerWalletAddress: String? {
+        state.authorized?.customerWalletAddress
+    }
+
     var cardNumberEnd: String? {
         customerInfoSubject.value?.card?.cardNumberEnd
+    }
+
+    var state: TangemPayAuthorizer.State {
+        authorizer.state
     }
 
     @Injected(\.tangemPayAuthorizationTokensRepository)
     private var tangemPayAuthorizationTokensRepository: TangemPayAuthorizationTokensRepository
 
-    private let authorizationTokensHandler: TangemPayAuthorizationTokensHandler
     private let authorizer: TangemPayAuthorizer
-    private let walletAddress: String
-    private let tokenBalancesRepository: TokenBalancesRepository
-    private let orderIdStorage: TangemPayOrderIdStorage
+    private let authorizationTokensHandler: TangemPayAuthorizationTokensHandler
+    private let tokenBalancesRepository: any TokenBalancesRepository
 
     private let customerInfoSubject = CurrentValueSubject<VisaCustomerInfoResponse?, Never>(nil)
     private let balanceSubject = CurrentValueSubject<LoadingResult<TangemPayBalance, Error>, Never>(.loading)
 
-    private let didTapIssueOrderSubject = PassthroughSubject<Void, Never>()
+    private let orderCancelledSignalSubject = PassthroughSubject<Void, Never>()
+    private let syncInProgressSubject = CurrentValueSubject<Bool, Never>(false)
+
     private var orderStatusPollingTask: Task<Void, Never>?
+    private var accountStateObservingCancellable: Cancellable?
 
     init(
         authorizer: TangemPayAuthorizer,
-        walletAddress: String,
-        tokens: TangemPayAuthorizationTokens,
-        tokenBalancesRepository: TokenBalancesRepository,
+        authorizationTokensHandler: TangemPayAuthorizationTokensHandler,
+        customerInfoManagementService: any CustomerInfoManagementService,
+        tokenBalancesRepository: any TokenBalancesRepository,
+        withdrawTransactionService: any TangemPayWithdrawTransactionService
     ) {
         self.authorizer = authorizer
-        self.walletAddress = walletAddress
+        self.authorizationTokensHandler = authorizationTokensHandler
+        self.customerInfoManagementService = customerInfoManagementService
         self.tokenBalancesRepository = tokenBalancesRepository
-
-        authorizationTokensHandler = TangemPayAuthorizationTokensHandlerBuilder()
-            .buildTangemPayAuthorizationTokensHandler(
-                customerWalletId: authorizer.customerWalletId,
-                authorizationService: authorizer.authorizationService
-            )
-
-        customerInfoManagementService = TangemPayCustomerInfoManagementServiceBuilder()
-            .buildCustomerInfoManagementService(
-                authorizationTokensHandler: authorizationTokensHandler,
-                authorizeWithCustomerWallet: authorizer.authorizeWithCustomerWallet
-            )
-
-        orderIdStorage = TangemPayOrderIdStorage(
-            customerWalletAddress: walletAddress,
-            appSettings: .shared
-        )
+        self.withdrawTransactionService = withdrawTransactionService
 
         // No reference cycle here, self is stored as weak in all three entities
         tangemPayNotificationManager.setupManager(with: self)
-        authorizationTokensHandler.authorizationTokensSaver = self
+        authorizationTokensHandler.setupAuthorizationTokensSaver(self)
         tangemPayIssuingManager.setupDelegate(self)
+        withdrawTransactionService.set(output: self)
 
-        do {
-            try authorizationTokensHandler.saveTokens(tokens: tokens)
-        } catch {
-            VisaLogger.error("Failed to save authorization tokens", error: error)
-        }
-
-        loadCustomerInfo()
-
-        if let cardIssuingOrderId = orderIdStorage.cardIssuingOrderId {
-            startOrderStatusPolling(orderId: cardIssuingOrderId, interval: Constants.cardIssuingOrderPollInterval)
-        }
-    }
-
-    convenience init?(userWalletModel: UserWalletModel) {
-        guard let (walletAddress, tokens) = TangemPayUtilities.getWalletAddressAndAuthorizationTokens(
-            customerWalletId: userWalletModel.userWalletId.stringValue,
-            keysRepository: userWalletModel.keysRepository
-        ) else {
-            return nil
-        }
-
-        let authorizer = TangemPayAuthorizer(
-            customerWalletId: userWalletModel.userWalletId.stringValue,
-            interactor: userWalletModel.tangemPayAuthorizingInteractor,
-            keysRepository: userWalletModel.keysRepository
-        )
-
-        let tokenBalancesRepository = CommonTokenBalancesRepository(userWalletId: userWalletModel.userWalletId)
-
-        self.init(
-            authorizer: authorizer,
-            walletAddress: walletAddress,
-            tokens: tokens,
-            tokenBalancesRepository: tokenBalancesRepository
-        )
+        bind()
     }
 
     func launchKYC(onDidDismiss: @escaping () -> Void) async throws {
@@ -193,7 +173,7 @@ final class TangemPayAccount {
                 tangemPayAccount.customerInfoSubject.send(customerInfo)
 
                 if customerInfo.tangemPayStatus.isActive {
-                    tangemPayAccount.orderIdStorage.deleteCardIssuingOrderId()
+                    TangemPayOrderIdStorage.deleteCardIssuingOrderId(customerWalletId: tangemPayAccount.customerWalletId)
                     await tangemPayAccount.setupBalance()
                 }
             } catch {
@@ -216,6 +196,30 @@ final class TangemPayAccount {
         }
     }
 
+    private func bind() {
+        accountStateObservingCancellable = authorizer.statePublisher
+            .withWeakCaptureOf(self)
+            .sink { tangemPayAccount, state in
+                switch state {
+                case .authorized(_, let tokens):
+                    do {
+                        try tangemPayAccount.authorizationTokensHandler.saveTokens(tokens: tokens)
+                    } catch {
+                        VisaLogger.error("Failed to save authorization tokens", error: error)
+                    }
+
+                    tangemPayAccount.loadCustomerInfo()
+
+                    if let cardIssuingOrderId = TangemPayOrderIdStorage.cardIssuingOrderId(customerWalletId: tangemPayAccount.customerWalletId) {
+                        tangemPayAccount.startOrderStatusPolling(orderId: cardIssuingOrderId, interval: Constants.cardIssuingOrderPollInterval)
+                    }
+
+                case .syncNeeded, .unavailable:
+                    tangemPayAccount.orderStatusPollingTask?.cancel()
+                }
+            }
+    }
+
     private func startOrderStatusPolling(orderId: String, interval: TimeInterval) {
         orderStatusPollingTask?.cancel()
 
@@ -230,8 +234,16 @@ final class TangemPayAccount {
             for await result in polling {
                 switch result {
                 case .success(let order):
-                    if order.status == .completed {
+                    switch order.status {
+                    case .new, .processing:
+                        break
+
+                    case .completed:
                         tangemPayAccount.loadCustomerInfo()
+                        return
+
+                    case .canceled:
+                        tangemPayAccount.orderCancelledSignalSubject.send(())
                         return
                     }
 
@@ -244,9 +256,14 @@ final class TangemPayAccount {
     }
 
     private func createOrder() async {
+        guard let customerWalletAddress else {
+            VisaLogger.info("Failed to create order. `customerWalletAddress` was unexpectedly nil")
+            return
+        }
+
         do {
-            let order = try await customerInfoManagementService.placeOrder(walletAddress: walletAddress)
-            orderIdStorage.saveCardIssuingOrderId(order.id)
+            let order = try await customerInfoManagementService.placeOrder(customerWalletAddress: customerWalletAddress)
+            TangemPayOrderIdStorage.saveCardIssuingOrderId(order.id, customerWalletId: customerWalletId)
 
             startOrderStatusPolling(orderId: order.id, interval: Constants.cardIssuingOrderPollInterval)
         } catch {
@@ -287,26 +304,32 @@ extension TangemPayAccount: TangemPayAuthorizationTokensSaver {
     }
 }
 
+// MARK: - TangemPayWithdrawTransactionServiceOutput
+
+extension TangemPayAccount: TangemPayWithdrawTransactionServiceOutput {
+    func withdrawTransactionDidSent() {
+        Task {
+            // Update balance after withdraw with some delay
+            try await Task.sleep(seconds: 5)
+            await setupBalance()
+        }
+    }
+}
+
 // MARK: - NotificationTapDelegate
 
 extension TangemPayAccount: NotificationTapDelegate {
     func didTapNotification(with id: NotificationViewId, action: NotificationButtonActionType) {
         switch action {
-        case .tangemPayViewKYCStatus:
-            runTask(in: self) { tangemPayAccount in
+        case .tangemPaySync:
+            runTask { [self] in
+                syncInProgressSubject.value = true
                 do {
-                    try await tangemPayAccount.launchKYC {
-                        tangemPayAccount.loadCustomerInfo()
-                    }
+                    try await authorizer.authorizeWithCustomerWallet()
                 } catch {
-                    VisaLogger.error("Failed to launch KYC", error: error)
+                    VisaLogger.error("Failed to authorize with customer wallet", error: error)
                 }
-            }
-
-        case .tangemPayCreateAccountAndIssueCard:
-            didTapIssueOrderSubject.send(())
-            runTask(in: self) { tangemPayAccount in
-                await tangemPayAccount.createOrder()
+                syncInProgressSubject.value = false
             }
 
         default:
@@ -319,7 +342,6 @@ extension TangemPayAccount: NotificationTapDelegate {
 
 extension TangemPayAccount: TangemPayIssuingManagerDelegate {
     func createAccountAndIssueCard() {
-        didTapIssueOrderSubject.send(())
         runTask(in: self) { tangemPayAccount in
             await tangemPayAccount.createOrder()
         }
@@ -370,9 +392,4 @@ private extension TangemPayAccount {
         static let cardIssuingOrderPollInterval: TimeInterval = 60
         static let freezeUnfreezeOrderPollInterval: TimeInterval = 5
     }
-}
-
-struct TangemPayCardDetails {
-    let card: VisaCustomerInfoResponse.Card
-    let balance: TangemPayBalance
 }

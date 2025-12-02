@@ -104,16 +104,25 @@ class XRPWalletManager: BaseManager, WalletManager {
         }
     }
 
-    private func signAndSend(xrpTransaction: XRPTransaction, hash: Data, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
+    private func signAndSend(
+        transaction: Transaction,
+        xrpTransaction: XRPTransaction,
+        hashToSign: Data,
+        signer: TransactionSigner
+    ) -> AnyPublisher<TransactionSendResult, SendTxError> {
         return Future.async { [weak self] in
             guard let self else {
                 throw BlockchainSdkError.failedToSendTx
             }
 
-            let signature = try await signer.sign(hash: hash, walletPublicKey: wallet.publicKey).async()
+            let signature = try await signer.sign(hash: hashToSign, walletPublicKey: wallet.publicKey).async()
+            let txHash = try await sendXRPTransaction(xrpTransaction, signature: signature.signature)
 
-            let sendResult = try await sendXRPTransaction(xrpTransaction, signature: signature.signature)
-            return TransactionSendResult(hash: sendResult, currentProviderHost: currentHost)
+            let mapper = PendingTransactionRecordMapper()
+            let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: txHash)
+            wallet.addPendingTransaction(record)
+
+            return TransactionSendResult(hash: txHash, currentProviderHost: currentHost)
         }
         .mapSendTxError()
         .eraseToAnyPublisher()
@@ -144,7 +153,14 @@ class XRPWalletManager: BaseManager, WalletManager {
             .withWeakCaptureOf(self)
             .flatMap { manager, txAndHash in
                 let (xrpTransaction, hash) = txAndHash
-                let publisher = manager.signAndSend(xrpTransaction: xrpTransaction, hash: hash, signer: signer)
+
+                let publisher = manager.signAndSend(
+                    transaction: transaction,
+                    xrpTransaction: xrpTransaction,
+                    hashToSign: hash,
+                    signer: signer
+                )
+
                 return publisher
                     .handleEvents(receiveCompletion: { [weak manager] in
                         if case .failure = $0 {
@@ -176,7 +192,12 @@ class XRPWalletManager: BaseManager, WalletManager {
             .mapSendTxError()
             .withWeakCaptureOf(self)
             .flatMap { manager, _ in
-                manager.signAndSend(xrpTransaction: xrpTransaction, hash: hash, signer: signer)
+                manager.signAndSend(
+                    transaction: transaction,
+                    xrpTransaction: xrpTransaction,
+                    hashToSign: hash,
+                    signer: signer
+                )
             }
             .eraseToAnyPublisher()
     }

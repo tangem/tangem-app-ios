@@ -9,20 +9,20 @@
 import Combine
 
 final class TangemPayNotificationManager {
-    private let notificationInputsSubject = CurrentValueSubject<NotificationViewInput?, Never>(.none)
+    private let notificationInputsSubject = CurrentValueSubject<[NotificationViewInput], Never>([])
     private weak var delegate: NotificationTapDelegate?
 
     private var cancellable: Cancellable?
 
-    init(tangemPayStatusPublisher: AnyPublisher<TangemPayStatus, Never>) {
-        cancellable = tangemPayStatusPublisher
+    init(tangemPayAccountStatePublisher: AnyPublisher<TangemPayAuthorizer.State, Never>) {
+        cancellable = tangemPayAccountStatePublisher
             .map(\.notificationEvent)
             .withWeakCaptureOf(self)
             .map { manager, event in
                 if let event {
-                    manager.makeNotificationViewInput(event: event)
+                    [manager.makeNotificationViewInput(event: event)]
                 } else {
-                    nil
+                    []
                 }
             }
             .sink(receiveValue: notificationInputsSubject.send)
@@ -44,20 +44,11 @@ final class TangemPayNotificationManager {
 
 extension TangemPayNotificationManager: NotificationManager {
     var notificationInputs: [NotificationViewInput] {
-        guard let notification = notificationInputsSubject.value else {
-            return []
-        }
-        return [notification]
+        notificationInputsSubject.value
     }
 
     var notificationPublisher: AnyPublisher<[NotificationViewInput], Never> {
         notificationInputsSubject
-            .map { notification in
-                guard let notification else {
-                    return []
-                }
-                return [notification]
-            }
             .eraseToAnyPublisher()
     }
 
@@ -66,23 +57,23 @@ extension TangemPayNotificationManager: NotificationManager {
     }
 
     func dismissNotification(with id: NotificationViewId) {
-        notificationInputsSubject.send(.none)
+        // Notifications are not dismissable
     }
 }
 
-// MARK: - TangemPayStatus+notificationEvent
+// MARK: - TangemPayAuthorizer.State+notificationEvent
 
-private extension TangemPayStatus {
+private extension TangemPayAuthorizer.State {
     var notificationEvent: TangemPayNotificationEvent? {
         switch self {
-        case .kycRequired:
-            .viewKYCStatus
-
-        case .readyToIssueOrIssuing:
-            .createAccountAndIssueCard
-
-        case .active, .blocked:
+        case .authorized:
             nil
+
+        case .syncNeeded:
+            .syncNeeded
+
+        case .unavailable:
+            .unavailable
         }
     }
 }
