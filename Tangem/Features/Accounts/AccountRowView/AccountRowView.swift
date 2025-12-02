@@ -70,15 +70,6 @@ struct AccountRowView<Trailing: View>: View {
     }
 }
 
-// MARK: - Default Empty Trailing
-
-extension AccountRowView where Trailing == EmptyView {
-    init(input: AccountRowViewModel.Input) {
-        _viewModel = StateObject(wrappedValue: AccountRowViewModel(input: input))
-        trailing = EmptyView()
-    }
-}
-
 // MARK: - Constants
 
 private enum Constants {
