@@ -37,6 +37,10 @@ final class CreateWalletSelectorViewModel: ObservableObject {
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
 
+    private var analyticsCardScanSourceParameterValue: Analytics.ParameterValue {
+        Analytics.CardScanSource.welcome.cardWasScannedParameterValue
+    }
+
     private weak var coordinator: CreateWalletSelectorRoutable?
 
     init(coordinator: CreateWalletSelectorRoutable) {
@@ -47,8 +51,8 @@ final class CreateWalletSelectorViewModel: ObservableObject {
 // MARK: - Internal methods
 
 extension CreateWalletSelectorViewModel {
-    func onAppear() {
-        Analytics.log(.onboardingStarted)
+    func onFirstAppear() {
+        logOnboardingStartedAnalytics()
     }
 
     func onBackTap() {
@@ -94,7 +98,7 @@ private extension CreateWalletSelectorViewModel {
 
 private extension CreateWalletSelectorViewModel {
     func scanCard() {
-        Analytics.log(Analytics.CardScanSource.createWallet.cardScanButtonEvent)
+        logScanCardTapAnalytics()
 
         isScanning = true
 
@@ -112,8 +116,7 @@ private extension CreateWalletSelectorViewModel {
                 }
 
             case .error(let error):
-                Analytics.logScanError(error, source: .introduction)
-                Analytics.logVisaCardScanErrorIfNeeded(error, source: .introduction)
+                viewModel.logScanCardAnalytics(error: error)
                 viewModel.incomingActionManager.discardIncomingAction()
 
                 await runOnMain {
@@ -122,12 +125,7 @@ private extension CreateWalletSelectorViewModel {
                 }
 
             case .onboarding(let input, _):
-                Analytics.log(
-                    .cardWasScanned,
-                    params: [.source: Analytics.CardScanSource.createWallet.cardWasScannedParameterValue],
-                    contextParams: input.cardInput.getContextParams()
-                )
-
+                viewModel.logScanCardOnboardingAnalytics(cardInput: input.cardInput)
                 viewModel.incomingActionManager.discardIncomingAction()
 
                 await runOnMain {
@@ -136,7 +134,7 @@ private extension CreateWalletSelectorViewModel {
                 }
 
             case .scanTroubleshooting:
-                Analytics.log(.cantScanTheCard, params: [.source: .introduction])
+                viewModel.logScanCardTroubleshootingAnalytics()
                 viewModel.incomingActionManager.discardIncomingAction()
 
                 await MainActor.run {
@@ -145,11 +143,7 @@ private extension CreateWalletSelectorViewModel {
                 }
 
             case .success(let cardInfo):
-                Analytics.log(
-                    .cardWasScanned,
-                    params: [.source: Analytics.CardScanSource.createWallet.cardWasScannedParameterValue],
-                    contextParams: .custom(cardInfo.analyticsContextData)
-                )
+                viewModel.logScanCardSuccessAnalytics(cardInfo: cardInfo)
 
                 do {
                     if let newUserWalletModel = CommonUserWalletModelFactory().makeModel(
@@ -182,12 +176,12 @@ private extension CreateWalletSelectorViewModel {
 
 private extension CreateWalletSelectorViewModel {
     func openCreateMobileWallet() {
-        Analytics.log(.buttonMobileWallet)
+        logCreateNewWalletAnalytics()
         coordinator?.openCreateMobileWallet()
     }
 
     func openBuyHardwareWallet() {
-        Analytics.log(.onboardingButtonBuy, params: [.source: .createWallet])
+        logBuyHardwareWalletAnalytics()
         safariManager.openURL(TangemBlogUrlBuilder().url(root: .pricing))
     }
 
@@ -230,13 +224,13 @@ private extension CreateWalletSelectorViewModel {
 
 private extension CreateWalletSelectorViewModel {
     func scanCardTryAgain() {
-        Analytics.log(.cantScanTheCardTryAgainButton, params: [.source: .introduction])
+        logScanCardTryAgainAnalytics()
         scanCard()
     }
 
     @MainActor
     func requestSupport() {
-        Analytics.log(.requestSupport, params: [.source: .introduction])
+        logScanCardRequestSupportAnalytics()
         failedCardScanTracker.resetCounter()
         openMail(with: BaseDataCollector(), recipient: EmailConfig.default.recipient)
     }
@@ -256,6 +250,59 @@ private extension CreateWalletSelectorViewModel {
 
     func openScanCardManual() {
         safariManager.openURL(TangemBlogUrlBuilder().url(post: .scanCard))
+    }
+}
+
+// MARK: - Analytics
+
+private extension CreateWalletSelectorViewModel {
+    func logOnboardingStartedAnalytics() {
+        Analytics.log(.onboardingStarted)
+    }
+
+    func logScanCardTapAnalytics() {
+        Analytics.log(Analytics.CardScanSource.welcome.cardScanButtonEvent)
+    }
+
+    func logScanCardAnalytics(error: Error) {
+        Analytics.logScanError(error, source: .introduction)
+        Analytics.logVisaCardScanErrorIfNeeded(error, source: .introduction)
+    }
+
+    func logScanCardOnboardingAnalytics(cardInput: OnboardingInput.CardInput) {
+        Analytics.log(
+            .cardWasScanned,
+            params: [.source: analyticsCardScanSourceParameterValue],
+            contextParams: cardInput.getContextParams()
+        )
+    }
+
+    func logScanCardSuccessAnalytics(cardInfo: CardInfo) {
+        Analytics.log(
+            .cardWasScanned,
+            params: [.source: analyticsCardScanSourceParameterValue],
+            contextParams: .custom(cardInfo.analyticsContextData)
+        )
+    }
+
+    func logScanCardTryAgainAnalytics() {
+        Analytics.log(.cantScanTheCardTryAgainButton, params: [.source: analyticsCardScanSourceParameterValue])
+    }
+
+    func logScanCardTroubleshootingAnalytics() {
+        Analytics.log(.cantScanTheCard, params: [.source: analyticsCardScanSourceParameterValue])
+    }
+
+    func logScanCardRequestSupportAnalytics() {
+        Analytics.log(.requestSupport, params: [.source: analyticsCardScanSourceParameterValue])
+    }
+
+    func logCreateNewWalletAnalytics() {
+        Analytics.log(.buttonMobileWallet)
+    }
+
+    func logBuyHardwareWalletAnalytics() {
+        Analytics.log(.basicButtonBuy, params: [.source: Analytics.BuyWalletSource.createWallet.parameterValue])
     }
 }
 

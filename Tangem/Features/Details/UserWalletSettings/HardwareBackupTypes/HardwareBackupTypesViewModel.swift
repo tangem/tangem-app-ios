@@ -215,7 +215,11 @@ private extension HardwareBackupTypesViewModel {
     }
 
     func logBuyHardwareWalletAnalytics() {
-        Analytics.log(.onboardingButtonBuy, params: [.source: .backup], contextParams: analyticsContextParams)
+        Analytics.log(
+            .basicButtonBuy,
+            params: [.source: Analytics.BuyWalletSource.hardwareWallet.parameterValue],
+            contextParams: analyticsContextParams
+        )
     }
 
     func logCreateNewWalletTapAnalytics() {
