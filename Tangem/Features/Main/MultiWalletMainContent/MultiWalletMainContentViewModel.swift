@@ -584,7 +584,7 @@ extension MultiWalletMainContentViewModel {
     }
 
     private func openMobileFinishActivation() {
-        Analytics.log(.mainButtonFinishNow)
+        Analytics.log(.mainButtonFinalizeActivation)
         coordinator?.openMobileBackupOnboarding(userWalletModel: userWalletModel)
     }
 
