@@ -80,6 +80,7 @@ final class DetailsViewModel: ObservableObject {
 
     // MARK: - Private
 
+    private let signInAnalyticsLogger = SignInAnalyticsLogger()
     private var bag = Set<AnyCancellable>()
     private weak var coordinator: DetailsRoutable?
 
@@ -168,7 +169,11 @@ extension DetailsViewModel {
     }
 
     func openBuyWallet() {
-        Analytics.log(.shopScreenOpened)
+        Analytics.log(
+            .basicButtonBuy,
+            params: [.source: Analytics.BuyWalletSource.settings.parameterValue],
+            contextParams: .empty
+        )
         coordinator?.openShop()
     }
 
@@ -225,6 +230,7 @@ extension DetailsViewModel {
     }
 
     func openAddWallet() {
+        Analytics.log(.buttonAddWallet, params: [.source: .settings])
         coordinator?.openAddWallet()
     }
 
@@ -472,7 +478,9 @@ private extension DetailsViewModel {
             let context = try await UserWalletBiometricsUnlocker().unlock()
             let method = UserWalletRepositoryUnlockMethod.biometricsUserWallet(userWalletId: userWalletModel.userWalletId, context: context)
             let userWalletModel = try await userWalletRepository.unlock(with: method)
+            signInAnalyticsLogger.logSignInEvent(signInType: .biometrics)
             onDidUnlock(userWalletModel)
+
         } catch where error.isCancellationError {
             await unlockWithFallback(userWalletModel: userWalletModel, onDidUnlock: onDidUnlock)
         } catch let repositoryError as UserWalletRepositoryError {
@@ -489,10 +497,20 @@ private extension DetailsViewModel {
     func unlockWithFallback(userWalletModel: UserWalletModel, onDidUnlock: @escaping (UserWalletModel) -> Void) async {
         let unlocker = UserWalletModelUnlockerFactory.makeUnlocker(userWalletModel: userWalletModel)
         let unlockResult = await unlocker.unlock()
-        await handleUnlock(userWalletModel: userWalletModel, result: unlockResult, onDidUnlock: onDidUnlock)
+        await handleUnlock(
+            result: unlockResult,
+            userWalletModel: userWalletModel,
+            signInType: unlocker.analyticsSignInType,
+            onDidUnlock: onDidUnlock
+        )
     }
 
-    func handleUnlock(userWalletModel: UserWalletModel, result: UserWalletModelUnlockerResult, onDidUnlock: @escaping (UserWalletModel) -> Void) async {
+    func handleUnlock(
+        result: UserWalletModelUnlockerResult,
+        userWalletModel: UserWalletModel,
+        signInType: Analytics.SignInType,
+        onDidUnlock: @escaping (UserWalletModel) -> Void
+    ) async {
         switch result {
         case .error(let error):
             if error.isCancellationError {
@@ -514,7 +532,9 @@ private extension DetailsViewModel {
             do {
                 let method = UserWalletRepositoryUnlockMethod.biometrics(context)
                 let userWalletModel = try await userWalletRepository.unlock(with: method)
+                signInAnalyticsLogger.logSignInEvent(signInType: signInType)
                 onDidUnlock(userWalletModel)
+
             } catch {
                 alert = error.alertBinder
             }
@@ -529,7 +549,9 @@ private extension DetailsViewModel {
             do {
                 let method = UserWalletRepositoryUnlockMethod.encryptionKey(userWalletId: userWalletId, encryptionKey: encryptionKey)
                 let userWalletModel = try await userWalletRepository.unlock(with: method)
+                signInAnalyticsLogger.logSignInEvent(signInType: signInType)
                 onDidUnlock(userWalletModel)
+
             } catch {
                 alert = error.alertBinder
             }

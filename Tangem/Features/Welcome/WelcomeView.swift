@@ -17,6 +17,7 @@ struct WelcomeView: View {
             .alert(item: $viewModel.error, content: { $0.alert })
             .confirmationDialog(viewModel: $viewModel.confirmationDialog)
             .environment(\.colorScheme, .dark)
+            .onFirstAppear(perform: viewModel.onFirstAppear)
             .onAppear(perform: viewModel.onAppear)
             .onDisappear(perform: viewModel.onDisappear)
     }
