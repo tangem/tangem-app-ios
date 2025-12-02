@@ -24,10 +24,10 @@ struct TangemPayAccountView: View {
 
                 trailingContent
             }
-            .opacity(viewModel.state.isNormal ? 1 : 0.6)
+            .opacity(viewModel.state.isTappable ? 1 : 0.6)
             .defaultRoundedBackground(with: Colors.Background.primary, verticalPadding: 14, horizontalPadding: 14)
         }
-        .disabled(!viewModel.state.isNormal)
+        .disabled(!viewModel.state.isTappable)
     }
 
     @ViewBuilder
@@ -51,8 +51,12 @@ struct TangemPayAccountView: View {
     @ViewBuilder
     var trailingContent: some View {
         switch viewModel.state {
-        case .syncNeeded, .unavailable:
+        case .kycInProgress, .issuingYourCard, .syncNeeded, .unavailable:
             EmptyView()
+
+        case .failedToIssueCard:
+            Assets.redCircleWarning20Outline.image
+
         case .normal(_, let balance):
             VStack(alignment: .trailing, spacing: 4) {
                 LoadableTokenBalanceView(
@@ -61,7 +65,7 @@ struct TangemPayAccountView: View {
                     loader: .init(size: CGSize(width: 40, height: 17))
                 )
 
-                SensitiveText(AppConstants.usdCurrencyCode)
+                SensitiveText(TangemPayUtilities.usdcTokenItem.currencySymbol)
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
             }
         }

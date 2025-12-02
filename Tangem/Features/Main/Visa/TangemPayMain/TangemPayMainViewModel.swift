@@ -7,10 +7,11 @@
 //
 
 import Combine
+import PassKit
 import TangemUI
 import TangemVisa
+import TangemUIUtils
 import TangemFoundation
-import PassKit
 import TangemLocalization
 
 final class TangemPayMainViewModel: ObservableObject {
@@ -28,6 +29,8 @@ final class TangemPayMainViewModel: ObservableObject {
     @Published private(set) var tangemPayTransactionHistoryState: TransactionsListView.State = .loading
     @Published private(set) var freezingState: TangemPayFreezingState = .normal
     @Published private(set) var shouldDisplayAddToApplePayGuide: Bool = false
+    @Published private(set) var isWithdrawButtonLoading: Bool = false
+    @Published var alert: AlertBinder?
 
     private let userWalletInfo: UserWalletInfo
     private let tangemPayAccount: TangemPayAccount
@@ -36,6 +39,7 @@ final class TangemPayMainViewModel: ObservableObject {
     private let transactionHistoryService: TangemPayTransactionHistoryService
     private let cardDetailsRepository: TangemPayCardDetailsRepository
 
+    private var nextViewOpeningTask: Task<Void, Error>?
     private var bag = Set<AnyCancellable>()
 
     init(
@@ -82,19 +86,22 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func addFunds() {
-        guard let depositAddress = tangemPayAccount.depositAddress,
-              let tangemPayWalletWrapper = makeExpressInteractorTangemPayWalletWrapper() else {
-            coordinator?.openTangemPayNoDepositAddressSheet()
-            return
-        }
+        nextViewOpeningTask?.cancel()
+        nextViewOpeningTask = Task { @MainActor in
+            guard let depositAddress = tangemPayAccount.depositAddress,
+                  let tangemPayWalletWrapper = makeExpressInteractorTangemPayWalletWrapper() else {
+                coordinator?.openTangemPayNoDepositAddressSheet()
+                return
+            }
 
-        coordinator?.openTangemPayAddFundsSheet(
-            input: .init(
-                userWalletInfo: userWalletInfo,
-                address: depositAddress,
-                tangemPayWalletWrapper: tangemPayWalletWrapper
+            coordinator?.openTangemPayAddFundsSheet(
+                input: .init(
+                    userWalletInfo: userWalletInfo,
+                    address: depositAddress,
+                    tangemPayWalletWrapper: tangemPayWalletWrapper
+                )
             )
-        )
+        }
     }
 
     func withdraw() {
@@ -103,13 +110,22 @@ final class TangemPayMainViewModel: ObservableObject {
             return
         }
 
-        let input = ExpressDependenciesInput(
-            userWalletInfo: userWalletInfo,
-            source: tangemPayWalletWrapper,
-            destination: .loadingAndSet
-        )
+        nextViewOpeningTask?.cancel()
+        nextViewOpeningTask = runWithDelayedLoading(onLongRunning: { @MainActor [weak self] in
+            self?.isWithdrawButtonLoading = true
+        }, onCancel: { [weak self] in
+            self?.isWithdrawButtonLoading = false
+        }) { @MainActor [weak self] in
+            self?.isWithdrawButtonLoading = false
 
-        coordinator?.openTangemPayWithdraw(input: input)
+            do {
+                try await self?.openWithdraw(tangemPayWalletWrapper: tangemPayWalletWrapper)
+            } catch is CancellationError {
+                // Do nothing
+            } catch {
+                self?.alert = error.alertBinder
+            }
+        }
     }
 
     func onAppear() {
@@ -248,10 +264,31 @@ private extension TangemPayMainViewModel {
             tokenItem: TangemPayUtilities.usdcTokenItem,
             feeTokenItem: TangemPayUtilities.usdcTokenItem,
             defaultAddressString: depositAddress,
-            availableBalanceProvider: tangemPayAccount.tangemPayTokenBalanceProvider
+            availableBalanceProvider: tangemPayAccount.tangemPayTokenBalanceProvider,
+            cexTransactionProcessor: tangemPayAccount.tangemPayExpressCEXTransactionProcessor,
+            transactionValidator: TangemPayExpressTransactionValidator(
+                availableBalanceProvider: tangemPayAccount.tangemPayTokenBalanceProvider
+            )
         )
 
         return tangemPayWalletWrapper
+    }
+
+    @MainActor
+    func openWithdraw(tangemPayWalletWrapper: ExpressInteractorTangemPayWalletWrapper) async throws {
+        let hasActiveWithdrawOrder = try await tangemPayAccount.withdrawTransactionService.hasActiveWithdrawOrder()
+        try Task.checkCancellation()
+
+        if hasActiveWithdrawOrder {
+            coordinator?.openTangemWithdrawInProgressSheet()
+            return
+        }
+
+        coordinator?.openTangemPayWithdraw(input: ExpressDependenciesInput(
+            userWalletInfo: userWalletInfo,
+            source: tangemPayWalletWrapper,
+            destination: .loadingAndSet
+        ))
     }
 }
 

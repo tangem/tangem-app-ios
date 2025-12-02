@@ -282,11 +282,11 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
     }
 
     func openOrganizeTokens(for userWalletModel: UserWalletModel) {
-        // accounts_fixes_needed_main
-        let optionsManager = OrganizeTokensOptionsManager(userTokensReorderer: userWalletModel.userTokensManager)
-        // accounts_fixes_needed_main
+        // accounts_fixes_needed_organize_tokens
+        let userTokensManager = userWalletModel.userTokensManager
+        let optionsManager = OrganizeTokensOptionsManager(userTokensReorderer: userTokensManager)
         let tokenSectionsAdapter = TokenSectionsAdapter(
-            userTokensManager: userWalletModel.userTokensManager,
+            userTokensManager: userTokensManager,
             optionsProviding: optionsManager,
             preservesLastSortedOrderOnSwitchToDragAndDrop: true
         )
@@ -320,6 +320,20 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             let inputOptions = MobileUpgradeCoordinator.InputOptions(userWalletModel: userWalletModel, context: context)
             coordinator.start(with: inputOptions)
             mobileUpgradeCoordinator = coordinator
+        }
+    }
+
+    func openTangemPayIssuingYourCardPopup() {
+        let viewModel = TangemPayYourCardIsIssuingSheetViewModel(coordinator: self)
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func openTangemPayFailedToIssueCardPopup(userWalletModel: UserWalletModel) {
+        let viewModel = TangemPayFailedToIssueCardSheetViewModel(userWalletModel: userWalletModel, coordinator: self)
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
 
@@ -515,6 +529,31 @@ extension MainCoordinator: VisaWalletRoutable {
 
 extension MainCoordinator: VisaTransactionDetailsRouter {}
 
+extension MainCoordinator: TangemPayYourCardIsIssuingRoutable {
+    func closeYourCardIsIssuingSheet() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
+extension MainCoordinator: TangemPayFailedToIssueCardRoutable {
+    func closeFailedToIssueCardSheet() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+
+    func openMail(with dataCollector: any EmailDataCollector, recipient: String, emailType: EmailType) {
+        let logsComposer = LogsComposer(infoProvider: dataCollector)
+        let mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: emailType)
+
+        Task { @MainActor in
+            mailPresenter.present(viewModel: mailViewModel)
+        }
+    }
+}
+
 // MARK: - RateAppRoutable protocol conformance
 
 extension MainCoordinator: RateAppRoutable {
@@ -704,7 +743,10 @@ extension MainCoordinator: MobileFinishActivationNeededRoutable {
 
     func openMobileBackupOnboarding(userWalletModel: UserWalletModel) {
         Task { @MainActor in
-            let backupInput = MobileOnboardingInput(flow: .walletActivate(userWalletModel: userWalletModel))
+            let backupInput = MobileOnboardingInput(flow: .walletActivate(
+                userWalletModel: userWalletModel,
+                source: .main(action: .backup)
+            ))
             openOnboardingModal(with: .mobileInput(backupInput))
         }
     }

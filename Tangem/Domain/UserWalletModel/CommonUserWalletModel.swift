@@ -82,16 +82,22 @@ class CommonUserWalletModel {
         // [REDACTED_TODO_COMMENT]
         // [REDACTED_INFO]
         if FeatureProvider.isAvailable(.visa) {
-            tangemPayAccountCancellable = keysRepository.keysPublisher
-                .compactMap { [weak self] _ -> TangemPayAccount? in
-                    guard let self else { return nil }
-                    // No referency cycle here.
-                    // TangemPayAccount holds weak reference to userWalletModel under the hood
-                    return TangemPayAccount(userWalletModel: self)
+            runTask { [self] in
+                let builder = TangemPayAccountBuilder()
+                let tangemPayAccount = try? await builder.makeTangemPayAccount(
+                    authorizerType: .availabilityService,
+                    userWalletModel: self
+                )
+
+                if let tangemPayAccount {
+                    tangemPayAccountSubject.send(tangemPayAccount)
+                } else {
+                    // Make it possible to create TangemPayAccount from offer screen
+                    tangemPayAccountCancellable = updatePublisher.compactMap(\.tangemPayAccount)
+                        .first()
+                        .sink(receiveValue: tangemPayAccountSubject.send)
                 }
-                .merge(with: updatePublisher.compactMap(\.tangemPayAccount))
-                .first()
-                .sink(receiveValue: tangemPayAccountSubject.send)
+            }
         }
     }
 
