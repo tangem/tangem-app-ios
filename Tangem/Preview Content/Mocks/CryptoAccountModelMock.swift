@@ -9,9 +9,10 @@
 import Foundation
 import Combine
 import TangemLocalization
-import TangemNFT
 
 final class CryptoAccountModelMock {
+    typealias OnArchive = (_ cryptoAccountModel: CryptoAccountModelMock) -> Void
+
     let id = AccountId()
     let isMainAccount: Bool
     let walletModelsManager: WalletModelsManager
@@ -38,17 +39,20 @@ final class CryptoAccountModelMock {
     }
 
     private let didChangeSubject = PassthroughSubject<Void, Never>()
+    private let onArchive: OnArchive
 
     init(
         isMainAccount: Bool,
         walletModelsManager: WalletModelsManager = WalletModelsManagerMock(),
         totalBalanceProvider: TotalBalanceProvider = TotalBalanceProviderMock(),
-        userTokensManager: UserTokensManager = UserTokensManagerMock()
+        userTokensManager: UserTokensManager = UserTokensManagerMock(),
+        onArchive: @escaping OnArchive
     ) {
         self.isMainAccount = isMainAccount
         self.walletModelsManager = walletModelsManager
         self.totalBalanceProvider = totalBalanceProvider
         self.userTokensManager = userTokensManager
+        self.onArchive = onArchive
     }
 }
 
@@ -95,12 +99,15 @@ extension CryptoAccountModelMock: CryptoAccountModel {
         UserWalletModelMock()
     }
 
-    func setName(_ name: String) {
-        self.name = name
+    @discardableResult
+    func edit(with editor: Editor) async throws(AccountEditError) -> Self {
+        let cryptoAccountModelMockEditor = CryptoAccountModelMockEditor(cryptoAccountModel: self)
+        editor(cryptoAccountModelMockEditor)
+        return self
     }
 
-    func setIcon(_ icon: AccountModel.Icon) {
-        self.icon = icon
+    func archive() async throws(AccountArchivationError) {
+        onArchive(self)
     }
 }
 
@@ -113,5 +120,21 @@ extension CryptoAccountModelMock: BalanceProvidingAccountModel {
 
     var rateProvider: AccountRateProvider {
         AccountRateProviderStub()
+    }
+}
+
+// MARK: - Auxiliary types
+
+private extension CryptoAccountModelMock {
+    struct CryptoAccountModelMockEditor: AccountModelEditor {
+        let cryptoAccountModel: CryptoAccountModelMock
+
+        func setName(_ name: String) {
+            cryptoAccountModel.name = name
+        }
+
+        func setIcon(_ icon: AccountModel.Icon) {
+            cryptoAccountModel.icon = icon
+        }
     }
 }

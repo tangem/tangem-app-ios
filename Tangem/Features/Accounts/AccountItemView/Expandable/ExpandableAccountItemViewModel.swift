@@ -62,6 +62,7 @@ final class ExpandableAccountItemViewModel: Identifiable, ObservableObject {
 
         accountModel
             .didChangePublisher
+            .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, _ in
                 viewModel.onAccountModelDidChange()
