@@ -1,0 +1,31 @@
+//
+//  Analytics+BuyWalletSource.swift
+//  Tangem
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2025 Tangem AG. All rights reserved.
+//
+
+import Foundation
+
+extension Analytics {
+    enum BuyWalletSource {
+        case createWallet
+        case addWallet
+        case hardwareWallet
+        case settings
+        case backup
+        case upgrade
+
+        var parameterValue: Analytics.ParameterValue {
+            switch self {
+            case .createWallet: .createNewWallet
+            case .addWallet: .addNewWallet
+            case .hardwareWallet: .hardwareWallet
+            case .settings: .settings
+            case .backup: .backup
+            case .upgrade: .upgrade
+            }
+        }
+    }
+}

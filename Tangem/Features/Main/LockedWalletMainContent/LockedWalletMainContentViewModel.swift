@@ -56,6 +56,8 @@ final class LockedWalletMainContentViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
 
+    private let signInAnalyticsLogger = SignInAnalyticsLogger()
+
     private let userWalletModel: UserWalletModel
     private let contextData: AnalyticsContextData?
 
@@ -123,6 +125,8 @@ private extension LockedWalletMainContentViewModel {
             let context = try await UserWalletBiometricsUnlocker().unlock()
             let method = UserWalletRepositoryUnlockMethod.biometricsUserWallet(userWalletId: userWalletModel.userWalletId, context: context)
             _ = try await userWalletRepository.unlock(with: method)
+            signInAnalyticsLogger.logSignInEvent(signInType: .biometrics)
+
         } catch where error.isCancellationError {
             await unlockWithFallback()
         } catch let repositoryError as UserWalletRepositoryError {
@@ -143,10 +147,10 @@ private extension LockedWalletMainContentViewModel {
     func unlockWithFallback() async {
         let unlocker = UserWalletModelUnlockerFactory.makeUnlocker(userWalletModel: userWalletModel)
         let unlockResult = await unlocker.unlock()
-        await handleUnlock(result: unlockResult)
+        await handleUnlock(result: unlockResult, signInType: unlocker.analyticsSignInType)
     }
 
-    func handleUnlock(result: UserWalletModelUnlockerResult) async {
+    func handleUnlock(result: UserWalletModelUnlockerResult, signInType: Analytics.SignInType) async {
         switch result {
         case .error(let error):
             if error.isCancellationError {
@@ -170,6 +174,7 @@ private extension LockedWalletMainContentViewModel {
             do {
                 let method = UserWalletRepositoryUnlockMethod.biometrics(context)
                 _ = try await userWalletRepository.unlock(with: method)
+                signInAnalyticsLogger.logSignInEvent(signInType: signInType)
 
             } catch {
                 await runOnMain {
@@ -187,6 +192,7 @@ private extension LockedWalletMainContentViewModel {
             do {
                 let method = UserWalletRepositoryUnlockMethod.encryptionKey(userWalletId: userWalletId, encryptionKey: encryptionKey)
                 _ = try await userWalletRepository.unlock(with: method)
+                signInAnalyticsLogger.logSignInEvent(signInType: signInType)
 
             } catch {
                 await runOnMain {
