@@ -7,5 +7,5 @@
 //
 
 protocol RecoverableAccountRoutable: AnyObject {
-    func close()
+    func close(with accountOperationResult: AccountOperationResult)
 }
