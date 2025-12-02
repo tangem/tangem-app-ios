@@ -12,6 +12,7 @@ import BlockchainSdk
 import Combine
 import BigInt
 import TangemFoundation
+import TangemAccessibilityIdentifiers
 
 final class WCCustomEvmFeeService {
     private weak var output: CustomFeeServiceOutput?
@@ -288,7 +289,9 @@ extension WCCustomEvmFeeService: FeeSelectorCustomFeeFieldsBuilder {
                 .eraseToAnyPublisher(),
             onFocusChanged: { [weak self] focused in
                 self?.onCustomFeeChanged(focused)
-            }
+            },
+            accessibilityIdentifier: FeeAccessibilityIdentifiers.customFeeTotalAmountField,
+            alternativeAmountAccessibilityIdentifier: FeeAccessibilityIdentifiers.customFeeMaxFeeFiatValue
         )
 
         let gasLimitRowViewModel = FeeSelectorCustomFeeRowViewModel(

@@ -272,12 +272,7 @@ extension MainCoordinator {
         ) -> Bool {
             guard FeatureProvider.isAvailable(.visa),
                   let coordinator,
-                  let userWalletModel = userWalletRepository.selectedModel,
-                  // If it's not nil - user already received and accepted Tangem Pay offer
-                  TangemPayUtilities.getWalletAddressAndAuthorizationTokens(
-                      customerWalletId: userWalletModel.userWalletId.stringValue,
-                      keysRepository: userWalletModel.keysRepository
-                  ) == nil
+                  let userWalletModel = userWalletRepository.selectedModel
             else {
                 incomingActionManager.discardIncomingAction()
                 return false
@@ -320,14 +315,39 @@ extension MainCoordinator.MainNavigationActionHandler {
         networkId: String,
         derivation: String?
     ) -> (any WalletModel)? {
-        // accounts_fixes_needed_main
-        let models = userWalletModel.walletModelsManager.walletModels
-        if let derivation, derivation.isNotEmpty {
-            return models.first { isMatch($0, tokenId: tokenId, networkId: networkId, derivationPath: derivation) }
-        } else {
-            let matchingModels = models.filter { isMatch($0, tokenId: tokenId, networkId: networkId, derivationPath: nil) }
-            return matchingModels.first(where: { !$0.isCustom }) ?? matchingModels.first
+        var walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
+
+        if FeatureProvider.isAvailable(.accounts) {
+            // If derivation is missing, prefer main account's wallet model - this is why we sort them here
+            walletModels.sort { first, second in
+                let isFirstMainAccount = first.account?.isMainAccount ?? false
+                let isSecondMainAccount = second.account?.isMainAccount ?? false
+                return isFirstMainAccount && !isSecondMainAccount
+            }
         }
+
+        return findWalletModel(
+            in: walletModels,
+            tokenId: tokenId,
+            networkId: networkId,
+            derivation: derivation
+        )
+    }
+
+    private func findWalletModel(
+        in walletModels: [any WalletModel],
+        tokenId: String,
+        networkId: String,
+        derivation: String?
+    ) -> (any WalletModel)? {
+        // Strict match if derivation is provided
+        if let derivation = derivation?.nilIfEmpty {
+            return walletModels.first { isMatch($0, tokenId: tokenId, networkId: networkId, derivationPath: derivation) }
+        }
+
+        // Loose match with fallback if derivation is not provided
+        let matchingModels = walletModels.filter { isMatch($0, tokenId: tokenId, networkId: networkId, derivationPath: nil) }
+        return matchingModels.first(where: { !$0.isCustom }) ?? matchingModels.first
     }
 
     private func isMatch(_ model: any WalletModel, tokenId: String, networkId: String, derivationPath: String?) -> Bool {

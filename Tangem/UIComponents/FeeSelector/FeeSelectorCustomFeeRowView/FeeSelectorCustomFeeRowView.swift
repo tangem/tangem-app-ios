@@ -25,18 +25,22 @@ struct FeeSelectorCustomFeeRowView: View {
             }
 
             HStack(spacing: 4) {
-                SendDecimalNumberTextField(viewModel: viewModel.textFieldViewModel)
-                    .alignment(.leading)
-                    .appearance(.init(font: Fonts.Regular.subheadline, textColor: Colors.Text.primary1))
-                    .prefixSuffixOptions(.suffix(text: viewModel.suffix, hasSpace: true))
-                    .onFocusChanged(viewModel.onFocusChanged)
-                    .disabled(!viewModel.isEditable)
+                SendDecimalNumberTextField(
+                    viewModel: viewModel.textFieldViewModel,
+                    accessibilityIdentifier: viewModel.accessibilityIdentifier
+                )
+                .alignment(.leading)
+                .appearance(.init(font: Fonts.Regular.subheadline, textColor: Colors.Text.primary1))
+                .prefixSuffixOptions(.suffix(text: viewModel.suffix, hasSpace: true))
+                .onFocusChanged(viewModel.onFocusChanged)
+                .disabled(!viewModel.isEditable)
 
                 Spacer()
 
                 if let alternativeAmount = viewModel.alternativeAmount {
                     Text(alternativeAmount)
                         .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                        .accessibilityIdentifier(viewModel.alternativeAmountAccessibilityIdentifier)
                 }
             }
         }

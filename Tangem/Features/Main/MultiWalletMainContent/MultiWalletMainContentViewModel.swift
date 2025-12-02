@@ -35,7 +35,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     // [REDACTED_TODO_COMMENT]
     // [REDACTED_INFO]
     @Published var tangemPayNotificationInputs: [NotificationViewInput] = []
-    @Published var tangemPayCardIssuingInProgress: Bool = false
+    @Published var tangemPaySyncInProgress: Bool = false
 
     // [REDACTED_TODO_COMMENT]
     // [REDACTED_INFO]
@@ -53,18 +53,18 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     @Published private(set) var actionButtonsViewModel: ActionButtonsViewModel?
 
-    // [REDACTED_TODO_COMMENT]
     var isOrganizeTokensVisible: Bool {
-        guard canManageTokens else { return false }
-
-        if plainSections.isEmpty {
-            return false
+        func numberOfTokensInSections<T, U>(_ sections: [SectionModel<T, U>]) -> Int {
+            return sections.reduce(0) { $0 + $1.items.count }
         }
 
-        let numberOfTokens = plainSections.reduce(0) { $0 + $1.items.count }
-        let requiredNumberOfTokens = 2
+        guard canManageTokens else { return false }
 
-        return numberOfTokens >= requiredNumberOfTokens
+        let numberOfTokensInPlainSections = numberOfTokensInSections(plainSections)
+        let maxNumberOfTokensInAccountSections = accountSections.map { numberOfTokensInSections($0.items) }.max() ?? 0
+        let minRequiredNumberOfTokens = 2
+
+        return numberOfTokensInPlainSections >= minRequiredNumberOfTokens || maxNumberOfTokensInAccountSections >= minRequiredNumberOfTokens
     }
 
     // MARK: - Dependencies
@@ -299,9 +299,9 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .assign(to: &$tangemPayNotificationInputs)
 
         userWalletModel.tangemPayAccountPublisher
-            .flatMapLatest(\.tangemPayCardIssuingInProgressPublisher)
+            .flatMapLatest(\.tangemPaySyncInProgressPublisher)
             .receiveOnMain()
-            .assign(to: &$tangemPayCardIssuingInProgress)
+            .assign(to: &$tangemPaySyncInProgress)
 
         userWalletModel.tangemPayAccountPublisher
             .withWeakCaptureOf(self)
@@ -530,30 +530,17 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 private extension MultiWalletMainContentViewModel {
     func hideTokenAction(for tokenItemViewModel: TokenItemViewModel) {
         let tokenItem = tokenItemViewModel.tokenItem
-
         let alertBuilder = HideTokenAlertBuilder()
-        // accounts_fixes_needed_main
-        if userWalletModel.userTokensManager.canRemove(tokenItem) {
-            error = alertBuilder.hideTokenAlert(tokenItem: tokenItem, hideAction: {
-                [weak self] in
-                self?.hideToken(tokenItem: tokenItem)
-            })
-        } else {
-            error = alertBuilder.unableToHideTokenAlert(tokenItem: tokenItem)
+        let actionFactory = HideTokenActionFactory(userWalletModel: userWalletModel)
+        let walletModel = findWalletModel(with: tokenItemViewModel.id)
+
+        do {
+            let hideAction = try actionFactory.makeAction(tokenItem: tokenItem, walletModel: walletModel)
+            error = alertBuilder.hideTokenAlert(tokenItem: tokenItem, hideAction: hideAction)
+        } catch {
+            AppLogger.error("Can't hide token due to error:", error: error)
+            self.error = alertBuilder.unableToHideTokenAlert(tokenItem: tokenItem)
         }
-    }
-
-    func hideToken(tokenItem: TokenItem) {
-        // accounts_fixes_needed_main
-        userWalletModel.userTokensManager.remove(tokenItem)
-
-        Analytics.log(
-            event: .buttonRemoveToken,
-            params: [
-                Analytics.ParameterKey.token: tokenItem.currencySymbol,
-                Analytics.ParameterKey.source: Analytics.ParameterValue.main.rawValue,
-            ]
-        )
     }
 }
 
@@ -621,6 +608,14 @@ extension MultiWalletMainContentViewModel {
 // MARK: - TangemPayAccountRoutable
 
 extension MultiWalletMainContentViewModel: TangemPayAccountRoutable {
+    func openTangemPayIssuingYourCardPopup() {
+        coordinator?.openTangemPayIssuingYourCardPopup()
+    }
+
+    func openTangemPayFailedToIssueCardPopup() {
+        coordinator?.openTangemPayFailedToIssueCardPopup(userWalletModel: userWalletModel)
+    }
+
     func openTangemPayMainView(tangemPayAccount: TangemPayAccount) {
         coordinator?.openTangemPayMainView(
             userWalletInfo: userWalletModel.userWalletInfo,
@@ -693,9 +688,6 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
             openMobileFinishActivation()
         case .openMobileUpgrade:
             openMobileUpgrade()
-        case .openBuyCrypto(let walletModel, let parameters):
-            let input = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
-            coordinator?.openOnramp(input: input, parameters: parameters)
         case .allowPushPermissionRequest, .postponePushPermissionRequest:
             userWalletNotificationManager.dismissNotification(with: id)
         default:

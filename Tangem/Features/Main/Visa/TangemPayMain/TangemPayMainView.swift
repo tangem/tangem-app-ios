@@ -55,6 +55,7 @@ struct TangemPayMainView: View {
         .background(Colors.Background.secondary)
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
+        .alert(item: $viewModel.alert) { $0.alert }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
@@ -72,8 +73,6 @@ struct TangemPayMainView: View {
                             systemImage: "text.page.fill"
                         )
                     }
-
-                    Divider()
 
                     Button(
                         action: viewModel.freezingState.isFrozen
@@ -113,6 +112,7 @@ struct TangemPayMainView: View {
                     FixedSizeButtonWithIconInfo(
                         title: Localization.tangemPayWithdrawal,
                         icon: Assets.arrowUpMini,
+                        loading: viewModel.isWithdrawButtonLoading,
                         disabled: viewModel.freezingState.shouldDisableActionButtons,
                         action: viewModel.withdraw
                     ),

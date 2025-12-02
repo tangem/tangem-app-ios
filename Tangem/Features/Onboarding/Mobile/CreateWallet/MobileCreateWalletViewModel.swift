@@ -96,7 +96,8 @@ extension MobileCreateWalletViewModel {
 @MainActor
 private extension MobileCreateWalletViewModel {
     func openImportWallet() {
-        let input = MobileOnboardingInput(flow: .walletImport)
+        let source = MobileOnboardingFlowSource.importWallet
+        let input = MobileOnboardingInput(flow: .walletImport(source: source))
         let options = OnboardingCoordinator.Options.mobileInput(input)
         coordinator?.openOnboarding(options: options)
     }

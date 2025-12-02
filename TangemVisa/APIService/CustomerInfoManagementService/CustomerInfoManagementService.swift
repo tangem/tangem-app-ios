@@ -22,85 +22,49 @@ public protocol CustomerInfoManagementService {
 
     func getTransactionHistory(limit: Int, cursor: String?) async throws -> TangemPayTransactionHistoryResponse
 
-    func placeOrder(walletAddress: String) async throws -> TangemPayOrderResponse
+    func getWithdrawPreSignatureInfo(
+        request: TangemPayWithdrawRequest
+    ) async throws -> TangemPayWithdrawPreSignature
+
+    func sendWithdrawTransaction(
+        request: TangemPayWithdrawRequest,
+        signature: TangemPayWithdrawSignature
+    ) async throws -> TangemPayWithdrawTransactionResult
+
+    func placeOrder(customerWalletAddress: String) async throws -> TangemPayOrderResponse
     func getOrder(orderId: String) async throws -> TangemPayOrderResponse
 }
 
-/// For backwards compatibility.
-/// Will be removed in [REDACTED_INFO]
-public extension CustomerInfoManagementService {
-    func loadCustomerInfo(cardId: String) async throws -> VisaCustomerInfoResponse {
-        try await loadCustomerInfo()
-    }
-}
-
-actor CommonCustomerInfoManagementService {
+final class CommonCustomerInfoManagementService {
     typealias CIMAPIService = APIService<CustomerInfoManagementAPITarget>
     private let authorizationTokenHandler: TangemPayAuthorizationTokensHandler
     private let apiService: CIMAPIService
 
     private let apiType: VisaAPIType
-    private let authorizeWithCustomerWallet: () async throws -> TangemPayAuthorizationTokens
-
-    private var tokenPreparingTask: _Concurrency.Task<Void, Error>?
+    private let encoder: JSONEncoder = {
+        let encoder = JSONEncoder()
+        encoder.keyEncodingStrategy = .convertToSnakeCase
+        return encoder
+    }()
 
     init(
         apiType: VisaAPIType,
         authorizationTokenHandler: TangemPayAuthorizationTokensHandler,
-        apiService: CIMAPIService,
-        authorizeWithCustomerWallet: @escaping () async throws -> TangemPayAuthorizationTokens
+        apiService: CIMAPIService
     ) {
         self.apiType = apiType
         self.authorizationTokenHandler = authorizationTokenHandler
         self.apiService = apiService
-        self.authorizeWithCustomerWallet = authorizeWithCustomerWallet
     }
 
     private func makeRequest(for target: CustomerInfoManagementAPITarget.Target) async throws -> CustomerInfoManagementAPITarget {
-        try await prepareTokensHandler()
+        try await authorizationTokenHandler.prepare()
 
         return .init(
             target: target,
-            apiType: apiType
+            apiType: apiType,
+            encoder: encoder
         )
-    }
-
-    private func prepareTokensHandler() async throws {
-        if let tokenPreparingTask {
-            return try await tokenPreparingTask.value
-        }
-
-        tokenPreparingTask = runTask(in: self) { service in
-            try await service.refreshTokenIfNeeded()
-        }
-
-        try await tokenPreparingTask?.value
-        tokenPreparingTask = nil
-    }
-
-    private func refreshTokenIfNeeded() async throws {
-        if authorizationTokenHandler.refreshTokenExpired {
-            let tokens = try await authorizeWithCustomerWallet()
-            try authorizationTokenHandler.saveTokens(tokens: tokens)
-        }
-
-        if authorizationTokenHandler.accessTokenExpired {
-            do {
-                try await authorizationTokenHandler.refreshTokens()
-
-                // Either:
-                // 1. Maximum allowed refresh token reuse exceeded
-                // 2. Session doesn't have required client
-            } catch let error as TangemPayAPIErrorResponse where error.code == "invalid_token" {
-                // Call of `forceRefreshToken` func could fail if same refresh becomes invalid (not expired, but invalid)
-                // That could happen if:
-                // 1. Token refresh called twice on the same device (could happen in there is a race condition somewhere)
-                // 2. User have one TangemPay account linked to more than one device
-                // (i.e. calling token refresh on one device automatically makes refresh token on second device invalid)
-                let tokens = try await authorizeWithCustomerWallet()
-                try authorizationTokenHandler.saveTokens(tokens: tokens)
-            }
-        }
     }
 }
 
@@ -153,9 +117,41 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
         )
     }
 
-    func placeOrder(walletAddress: String) async throws -> TangemPayOrderResponse {
+    func getWithdrawPreSignatureInfo(request: TangemPayWithdrawRequest) async throws -> TangemPayWithdrawPreSignature {
+        let request = TangemPayWithdraw.SignableData.Request(
+            amountInCents: request.amountInCents,
+            recipientAddress: request.destination
+        )
+
+        let response: TangemPayWithdraw.SignableData.Response = try await apiService.request(
+            makeRequest(for: .getWithdrawSignableData(request))
+        )
+
+        return TangemPayWithdrawPreSignature(
+            sender: response.senderAddress,
+            hash: Data(hex: response.hash),
+            salt: Data(hex: response.salt)
+        )
+    }
+
+    func sendWithdrawTransaction(request: TangemPayWithdrawRequest, signature: TangemPayWithdrawSignature) async throws -> TangemPayWithdrawTransactionResult {
+        let requestTransaction = TangemPayWithdraw.Transaction.Request(
+            amountInCents: request.amountInCents,
+            senderAddress: signature.sender,
+            recipientAddress: request.destination,
+            adminSignature: signature.signature.hexString,
+            adminSalt: signature.salt.hexString
+        )
+
+        let request = try await makeRequest(for: .sendWithdrawTransaction(requestTransaction))
+        let response: TangemPayWithdraw.Transaction.Response = try await apiService.request(request)
+
+        return TangemPayWithdrawTransactionResult(orderID: response.orderId, host: request.baseURL.absoluteString)
+    }
+
+    func placeOrder(customerWalletAddress: String) async throws -> TangemPayOrderResponse {
         try await apiService.request(
-            makeRequest(for: .placeOrder(walletAddress: walletAddress))
+            makeRequest(for: .placeOrder(customerWalletAddress: customerWalletAddress))
         )
     }
 
