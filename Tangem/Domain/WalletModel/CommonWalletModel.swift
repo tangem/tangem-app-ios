@@ -362,6 +362,10 @@ extension CommonWalletModel: WalletModel {
         walletManager as? StakeKitTransactionSender
     }
 
+    var p2pTransactionSender: P2PTransactionSender? {
+        walletManager as? P2PTransactionSender
+    }
+
     var accountInitializationService: (any BlockchainAccountInitializationService)? {
         walletManager as? BlockchainAccountInitializationService
     }
