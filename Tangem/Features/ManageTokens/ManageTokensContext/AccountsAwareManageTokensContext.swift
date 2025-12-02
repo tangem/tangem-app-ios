@@ -56,6 +56,14 @@ final class AccountsAwareManageTokensContext: ManageTokensContext {
         return helper.areAccountsAvailableForBlockchain()
     }
 
+    func isAddedToPortfolio(_ tokenItem: TokenItem) -> Bool {
+        guard let targetСryptoAccount = findAccountForToken(tokenItem) else {
+            return false
+        }
+
+        return targetСryptoAccount.userTokensManager.contains(tokenItem, derivationInsensitive: false)
+    }
+
     // MARK: - Private Helpers
 
     private func findAccountForToken(_ tokenItem: TokenItem) -> (any CryptoAccountModel)? {
