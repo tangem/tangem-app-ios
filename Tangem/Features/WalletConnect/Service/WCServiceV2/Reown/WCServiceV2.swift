@@ -53,7 +53,6 @@ private extension WCServiceV2 {
     func subscribeToUserWalletEvents() {
         userWalletRepository
             .eventProvider
-            .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { wcService, event in
                 switch event {
