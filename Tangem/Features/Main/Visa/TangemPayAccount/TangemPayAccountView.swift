@@ -65,7 +65,7 @@ struct TangemPayAccountView: View {
                     loader: .init(size: CGSize(width: 40, height: 17))
                 )
 
-                SensitiveText(AppConstants.usdCurrencyCode)
+                SensitiveText(TangemPayUtilities.usdcTokenItem.currencySymbol)
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
             }
         }
