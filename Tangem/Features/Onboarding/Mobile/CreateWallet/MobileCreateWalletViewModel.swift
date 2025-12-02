@@ -164,6 +164,7 @@ private extension MobileCreateWalletViewModel {
             .creationType: Analytics.ParameterValue.walletCreationTypeNewSeed.rawValue,
             .seedLength: Constants.seedPhraseLength,
             .passphrase: Analytics.ParameterValue.empty.rawValue,
+            .source: source.analyticsParameterValue.rawValue,
         ]
 
         Analytics.log(

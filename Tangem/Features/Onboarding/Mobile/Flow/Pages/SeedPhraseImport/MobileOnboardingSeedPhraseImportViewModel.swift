@@ -106,6 +106,7 @@ private extension MobileOnboardingSeedPhraseImportViewModel {
             .passphrase: isPassphraseEmpty
                 ? Analytics.ParameterValue.empty.rawValue
                 : Analytics.ParameterValue.full.rawValue,
+            .source: Analytics.ParameterValue.importWallet.rawValue
         ]
 
         Analytics.log(
