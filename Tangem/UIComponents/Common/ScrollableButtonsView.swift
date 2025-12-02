@@ -32,15 +32,15 @@ struct ScrollableButtonsView: View {
                     FixedSizeButtonWithLeadingIcon(
                         title: button.title,
                         icon: button.icon.image,
+                        loading: button.loading,
                         style: button.style,
                         action: button.action,
                         longPressAction: button.longPressAction
                     )
+                    .allowsHitTesting(!button.loading)
                     .disabled(button.disabled)
                     .unreadNotificationBadge(button.shouldShowBadge, badgeColor: Colors.Icon.accent)
-                    .ifLet(button.accessibilityIdentifier) { view, identifier in
-                        view.accessibilityIdentifier(identifier)
-                    }
+                    .accessibilityIdentifier(button.accessibilityIdentifier)
                 }
             }
             .accessibilityElement(children: .contain)
