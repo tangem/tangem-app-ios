@@ -18,6 +18,7 @@ extension Analytics {
         case transactionSent = "[Basic] Transaction sent"
         case requestSupport = "[Basic] Request Support"
         case biometryFailed = "[Basic] Biometry Failed"
+        case basicButtonBuy = "[Basic] Button - Buy"
 
         case buttonTokensList = "[Introduction Process] Button - Tokens List"
         case buttonBuyCards = "[Introduction Process] Button - Buy Cards"
@@ -328,7 +329,7 @@ extension Analytics {
         case mainNoticeSeedSupport2 = "[Main Screen] Notice - Seed Phrase Support2"
         case mainNoticeSeedSupportButtonUsed = "[Main Screen] Button - Support Used"
         case mainNoticeSeedSupportButtonDeclined = "[Main Screen] Button - Support Declined"
-        case mainButtonFinishNow = "[Main Screen] Button - Finish Now"
+        case mainButtonFinalizeActivation = "[Main Screen] Button - Finalize Activation"
 
         // MARK: - BlockchainSdk exceptions
 
