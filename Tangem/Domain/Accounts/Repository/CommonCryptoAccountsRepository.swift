@@ -166,7 +166,7 @@ final class CommonCryptoAccountsRepository {
                 throw InternalError.migrationNeeded
             }
 
-            let shouldUpdateTokenListDueToTokensDistribution = StoredCryptoAccountsTokensDistributor.distributeTokens(
+            let distributionResult = StoredCryptoAccountsTokensDistributor.distributeTokens(
                 in: &updatedAccounts,
                 additionalTokens: remoteCryptoAccountsInfo.legacyTokens
             )
@@ -176,6 +176,8 @@ final class CommonCryptoAccountsRepository {
             // Updating the local storage first since it's the primary purpose of this method
             persistentStorage.replace(with: updatedAccounts)
             auxiliaryDataStorage.update(withRemoteInfo: remoteCryptoAccountsInfo)
+
+            let shouldUpdateTokenListDueToTokensDistribution = distributionResult.isRedistributionHappened
 
             if shouldUpdateTokenListDueToTokensDistribution || shouldUpdateTokenListDueToCustomTokensMigration {
                 // Tokens distribution between different accounts and/or custom tokens migration were performed,
@@ -287,12 +289,12 @@ final class CommonCryptoAccountsRepository {
             updatedAccounts = remoteCryptoAccountsInfo.accounts
         }
 
-        let areTokensDistributed = StoredCryptoAccountsTokensDistributor.distributeTokens(
+        let distributionResult = StoredCryptoAccountsTokensDistributor.distributeTokens(
             in: &updatedAccounts,
             additionalTokens: remoteCryptoAccountsInfo.legacyTokens
         )
 
-        if areTokensDistributed {
+        if distributionResult.isRedistributionHappened {
             try await networkService.saveTokens(from: updatedAccounts, retryCount: Constants.maxRetryCount)
             try Task.checkCancellation()
         }
@@ -369,7 +371,7 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
         )
     }
 
-    func addNewCryptoAccount(withConfig config: CryptoAccountPersistentConfig, remoteState: CryptoAccountsRemoteState) async throws {
+    func addNewCryptoAccount(withConfig config: CryptoAccountPersistentConfig, remoteState: CryptoAccountsRemoteState) async throws -> StoredCryptoAccountsTokensDistributor.DistributionResult {
         let newCryptoAccount = StoredCryptoAccount(config: config)
         let existingCryptoAccounts = remoteState.accounts
         let merger = StoredCryptoAccountsMerger(preserveTokensWhileMergingAccounts: false)
@@ -378,6 +380,9 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
         if isDirty {
             try await addAccountsInternal(editedItems, forceUpdateTokenList: false)
         }
+
+        // No changes were made, no redistribution happened
+        return .none
     }
 
     func updateExistingCryptoAccount(withConfig config: CryptoAccountPersistentConfig) {
