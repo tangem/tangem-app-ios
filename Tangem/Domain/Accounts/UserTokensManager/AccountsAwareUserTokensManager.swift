@@ -60,18 +60,27 @@ final class AccountsAwareUserTokensManager {
         let derivationPathHelper = AccountDerivationPathHelper(blockchain: blockchain)
         let derivationPath = tokenItem.blockchainNetwork.derivationPath
 
-        // In case when a token item already contains derivation such token item can be added to target account
-        // taking derivation into account
-        if derivationPath != nil {
+        // In case when a token item already contains derivation such token item can be added to main account as is
+        if isMainAccountManager, derivationPath != nil {
             return makeTokenItem(from: tokenItem, with: derivationPath)
+        }
+
+        // Non-main account with existing derivation: correct only the account node
+        if let existingDerivationPath = derivationPath {
+            let derivationIndexAwarePath = derivationPathHelper.makeDerivationPath(
+                from: existingDerivationPath,
+                forAccountWithIndex: derivationInfo.derivationIndex
+            )
+
+            return makeTokenItem(from: tokenItem, with: derivationIndexAwarePath)
         }
 
         guard let derivationStyle = derivationInfo.derivationStyle else {
             return tokenItem
         }
 
+        // No derivation: compute from blockchain's default
         let originalDerivationPath = blockchain.derivationPath(for: derivationStyle)
-
         let accountAwareDerivationPath = originalDerivationPath.map { path in
             return derivationPathHelper.makeDerivationPath(from: path, forAccountWithIndex: derivationInfo.derivationIndex)
         }
