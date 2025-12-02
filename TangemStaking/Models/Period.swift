@@ -9,14 +9,14 @@
 import Foundation
 
 public enum Period: Hashable {
-    case specific(days: Int)
-    case interval(minDays: Int, maxDays: Int)
+    case constant(days: Int)
+    case variable(minDays: Int, maxDays: Int)
 
     public var isZero: Bool {
         switch self {
-        case .specific(let days):
+        case .constant(let days):
             return days == 0
-        case .interval(let minDays, let maxDays):
+        case .variable(let minDays, let maxDays):
             return minDays == 0 && maxDays == 0
         }
     }
