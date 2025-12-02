@@ -3758,9 +3758,11 @@
 		EF3F754E2E324EFD00334E51 /* AlertPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3F754D2E324EFD00334E51 /* AlertPresenter.swift */; };
 		EF3F75502E324F0D00334E51 /* AlertPresenterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3F754F2E324F0D00334E51 /* AlertPresenterViewModel.swift */; };
 		EF3F75522E32608300334E51 /* SendDestinationExternalUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3F75512E32608300334E51 /* SendDestinationExternalUpdater.swift */; };
-		EF3FEF182EDEE7BF0084488D /* LegacyTotalBalanceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3FEF172EDEE7BD0084488D /* LegacyTotalBalanceProvider.swift */; };
+		EF3FEF182EDEE7BF0084488D /* TangemPayAwareTotalBalanceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3FEF172EDEE7BD0084488D /* TangemPayAwareTotalBalanceProvider.swift */; };
 		EF3FEF1B2EDF05A00084488D /* TokenBalanceTypesCombiner.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3FEF1A2EDF05A00084488D /* TokenBalanceTypesCombiner.swift */; };
 		EF3FEF1D2EDF0A160084488D /* TangemPayTotalBalanceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3FEF1C2EDF0A160084488D /* TangemPayTotalBalanceProvider.swift */; };
+		EF3FEF212EDF10C60084488D /* FiatRateProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3FEF202EDF10C60084488D /* FiatRateProvider.swift */; };
+		EF3FEF232EDF11020084488D /* CommonFiatRateProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3FEF222EDF11020084488D /* CommonFiatRateProvider.swift */; };
 		EF4041302DE4670E002F996A /* SendSummaryStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF40412F2DE4670E002F996A /* SendSummaryStep.swift */; };
 		EF4041322DE46749002F996A /* SendSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4041312DE46749002F996A /* SendSummaryView.swift */; };
 		EF4041352DE46772002F996A /* SendSummaryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4041342DE46772002F996A /* SendSummaryViewModel.swift */; };
@@ -3851,7 +3853,6 @@
 		EF4C04642DEF2ACC0059D7AA /* SendNewFeeCompactViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4C045E2DEF2ACC0059D7AA /* SendNewFeeCompactViewModel.swift */; };
 		EF4C04652DEF2ACC0059D7AA /* SendNewFeeCompactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4C045D2DEF2ACC0059D7AA /* SendNewFeeCompactView.swift */; };
 		EF4C0C5B2DDB52C100AFD567 /* SendDestinationAdditionalFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4C0C5A2DDB52C100AFD567 /* SendDestinationAdditionalFieldView.swift */; };
-		EF4EB4F72EDDFEEE00A32D25 /* CommonFiatTokenBalanceProviderInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4EB4F62EDDFEEE00A32D25 /* CommonFiatTokenBalanceProviderInput.swift */; };
 		EF52564A2D2FFC2A00ADCA7E /* LoadableTokenBalanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5256492D2FFC2A00ADCA7E /* LoadableTokenBalanceView.swift */; };
 		EF5256512D301E5D00ADCA7E /* TokenBalancesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF52564F2D301E5D00ADCA7E /* TokenBalancesRepository.swift */; };
 		EF5256522D301E5D00ADCA7E /* CommonTokenBalancesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF52564E2D301E5D00ADCA7E /* CommonTokenBalancesRepository.swift */; };
@@ -8342,9 +8343,11 @@
 		EF3F754D2E324EFD00334E51 /* AlertPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertPresenter.swift; sourceTree = "<group>"; };
 		EF3F754F2E324F0D00334E51 /* AlertPresenterViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertPresenterViewModel.swift; sourceTree = "<group>"; };
 		EF3F75512E32608300334E51 /* SendDestinationExternalUpdater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDestinationExternalUpdater.swift; sourceTree = "<group>"; };
-		EF3FEF172EDEE7BD0084488D /* LegacyTotalBalanceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyTotalBalanceProvider.swift; sourceTree = "<group>"; };
+		EF3FEF172EDEE7BD0084488D /* TangemPayAwareTotalBalanceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayAwareTotalBalanceProvider.swift; sourceTree = "<group>"; };
 		EF3FEF1A2EDF05A00084488D /* TokenBalanceTypesCombiner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenBalanceTypesCombiner.swift; sourceTree = "<group>"; };
 		EF3FEF1C2EDF0A160084488D /* TangemPayTotalBalanceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayTotalBalanceProvider.swift; sourceTree = "<group>"; };
+		EF3FEF202EDF10C60084488D /* FiatRateProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiatRateProvider.swift; sourceTree = "<group>"; };
+		EF3FEF222EDF11020084488D /* CommonFiatRateProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonFiatRateProvider.swift; sourceTree = "<group>"; };
 		EF40412F2DE4670E002F996A /* SendSummaryStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendSummaryStep.swift; sourceTree = "<group>"; };
 		EF4041312DE46749002F996A /* SendSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendSummaryView.swift; sourceTree = "<group>"; };
 		EF4041342DE46772002F996A /* SendSummaryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendSummaryViewModel.swift; sourceTree = "<group>"; };
@@ -8440,7 +8443,6 @@
 		EF4C045D2DEF2ACC0059D7AA /* SendNewFeeCompactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewFeeCompactView.swift; sourceTree = "<group>"; };
 		EF4C045E2DEF2ACC0059D7AA /* SendNewFeeCompactViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewFeeCompactViewModel.swift; sourceTree = "<group>"; };
 		EF4C0C5A2DDB52C100AFD567 /* SendDestinationAdditionalFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDestinationAdditionalFieldView.swift; sourceTree = "<group>"; };
-		EF4EB4F62EDDFEEE00A32D25 /* CommonFiatTokenBalanceProviderInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonFiatTokenBalanceProviderInput.swift; sourceTree = "<group>"; };
 		EF5256492D2FFC2A00ADCA7E /* LoadableTokenBalanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadableTokenBalanceView.swift; sourceTree = "<group>"; };
 		EF52564E2D301E5D00ADCA7E /* CommonTokenBalancesRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonTokenBalancesRepository.swift; sourceTree = "<group>"; };
 		EF52564F2D301E5D00ADCA7E /* TokenBalancesRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenBalancesRepository.swift; sourceTree = "<group>"; };
@@ -21723,12 +21725,12 @@
 			path = AlertPresenter;
 			sourceTree = "<group>";
 		};
-		EF3FEF162EDEE7B10084488D /* LegacyTotalBalanceProvider */ = {
+		EF3FEF162EDEE7B10084488D /* TangemPayAwareTotalBalanceProvider */ = {
 			isa = PBXGroup;
 			children = (
-				EF3FEF172EDEE7BD0084488D /* LegacyTotalBalanceProvider.swift */,
+				EF3FEF172EDEE7BD0084488D /* TangemPayAwareTotalBalanceProvider.swift */,
 			);
-			path = LegacyTotalBalanceProvider;
+			path = TangemPayAwareTotalBalanceProvider;
 			sourceTree = "<group>";
 		};
 		EF3FEF192EDF05910084488D /* Combiners */ = {
@@ -22171,7 +22173,8 @@
 		EF4EB4F82EDDFF1E00A32D25 /* FiatBalanceProvider */ = {
 			isa = PBXGroup;
 			children = (
-				EF4EB4F62EDDFEEE00A32D25 /* CommonFiatTokenBalanceProviderInput.swift */,
+				EF3FEF202EDF10C60084488D /* FiatRateProvider.swift */,
+				EF3FEF222EDF11020084488D /* CommonFiatRateProvider.swift */,
 			);
 			path = FiatBalanceProvider;
 			sourceTree = "<group>";
@@ -22238,7 +22241,7 @@
 			children = (
 				EF5A5ACE28D86089002544AC /* TotalBalanceProvider.swift */,
 				EF3FEF1E2EDF0A1B0084488D /* TangemPayTotalBalanceProvider */,
-				EF3FEF162EDEE7B10084488D /* LegacyTotalBalanceProvider */,
+				EF3FEF162EDEE7B10084488D /* TangemPayAwareTotalBalanceProvider */,
 				EFF610F42E9E972800552747 /* AccountsAwareTotalBalanceProvider */,
 				EFF610EB2E9E5D5600552747 /* WalletModelsTotalBalanceProvider */,
 				EF3FEF192EDF05910084488D /* Combiners */,
@@ -26265,7 +26268,6 @@
 				0FFA34CE2E046D1B00ACB48F /* WordsCaptureProtectionView.swift in Sources */,
 				0A9246122E8EA12F00656D69 /* BlockchainAccountInitializationViewModel.swift in Sources */,
 				C2E9212C2DD7A6D700ACE654 /* WalletConnectDAppVerificationService.swift in Sources */,
-				EF4EB4F72EDDFEEE00A32D25 /* CommonFiatTokenBalanceProviderInput.swift in Sources */,
 				B6CAC21D2E46C673002DFA82 /* CommonCryptoAccountsRepository.swift in Sources */,
 				B0E3381C2A7A809600D36727 /* LockedUserTokensManager.swift in Sources */,
 				EFADE7A62E12BD6F00CA7916 /* SwapFeeProvider.swift in Sources */,
@@ -26581,6 +26583,7 @@
 				B6CAC21B2E46C66D002DFA82 /* CryptoAccountsRepository.swift in Sources */,
 				EFC597BD2AA0B1B7001F6945 /* CommonTokenQuotesRepository.swift in Sources */,
 				2D9119C82EB00BAD0028F1B0 /* ExperimentService.swift in Sources */,
+				EF3FEF212EDF10C60084488D /* FiatRateProvider.swift in Sources */,
 				0F2786452E2BA95000742D0F /* MobileOnboardingBackupSeedPhraseFlowBuilder.swift in Sources */,
 				DAF59CC62ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorItemView.swift in Sources */,
 				0ABDAEC42E325816001C7EE4 /* MobileWalletSigner.swift in Sources */,
@@ -27852,6 +27855,7 @@
 				EF42D7852D1D65D90065AFD1 /* TotalTokenBalanceProvider.swift in Sources */,
 				EF42D7862D1D65D90065AFD1 /* FiatTokenBalanceProvider.swift in Sources */,
 				EF42D7872D1D65D90065AFD1 /* TokenBalanceType.swift in Sources */,
+				EF3FEF232EDF11020084488D /* CommonFiatRateProvider.swift in Sources */,
 				EF42D7882D1D65D90065AFD1 /* StakingTokenBalanceProvider.swift in Sources */,
 				DC8E03072DDEE057008967D8 /* WCEthPersonalSignTransactionView.swift in Sources */,
 				EA728C352E0158930044145D /* CommonDeeplinkPresenter.swift in Sources */,
@@ -27937,7 +27941,7 @@
 				EA4216502E74615800B36D39 /* YieldModulePromoViewModel.swift in Sources */,
 				0A713CEC2CAA6DA30042FC27 /* (null) in Sources */,
 				DC592B932C41A800005AB9A7 /* CommonStakingPendingHashesRepository.swift in Sources */,
-				EF3FEF182EDEE7BF0084488D /* LegacyTotalBalanceProvider.swift in Sources */,
+				EF3FEF182EDEE7BF0084488D /* TangemPayAwareTotalBalanceProvider.swift in Sources */,
 				B602638A2EC7F0C0001A4614 /* ExpandedAccountItemHeaderView.swift in Sources */,
 				DCE61E452B5EE05E005A8D2E /* SafariConfiguration.swift in Sources */,
 				EF9E2A472B5532A600418559 /* ExpressCurrencyViewModel.swift in Sources */,

@@ -139,12 +139,10 @@ private extension CommonUserWalletModelDependencies {
         derivationManager: DerivationManager?,
         tangemPayAccountProvider: any TangemPayAccountProvider
     ) -> TotalBalanceProvider {
-        if hasAccounts {
-            return AccountsAwareTotalBalanceProvider(
-                accountModelsManager: accountModelsManager,
-                analyticsLogger: AccountTotalBalanceProviderAnalyticsLogger()
-            )
-        }
+        let accountsAwareTotalBalanceProvider = AccountsAwareTotalBalanceProvider(
+            accountModelsManager: accountModelsManager,
+            analyticsLogger: AccountTotalBalanceProviderAnalyticsLogger()
+        )
 
         let walletModelsTotalBalanceProvider = WalletModelsTotalBalanceProvider(
             walletModelsManager: walletModelsManager,
@@ -155,18 +153,26 @@ private extension CommonUserWalletModelDependencies {
             derivationManager: derivationManager
         )
 
-        if FeatureProvider.isAvailable(.visa) {
-            let tangemPayTotalBalanceProvider = TangemPayTotalBalanceProvider(
-                tangemPayAccountProvider: tangemPayAccountProvider
-            )
+        let tangemPayTotalBalanceProvider = TangemPayTotalBalanceProvider(
+            tangemPayAccountProvider: tangemPayAccountProvider
+        )
 
-            return LegacyTotalBalanceProvider(
-                walletModelsTotalBalanceProvider: walletModelsTotalBalanceProvider,
+        switch (hasAccounts, FeatureProvider.isAvailable(.visa)) {
+        case (true, true):
+            return TangemPayAwareTotalBalanceProvider(
+                totalBalanceProvider: accountsAwareTotalBalanceProvider,
                 tangemPayTotalBalanceProvider: tangemPayTotalBalanceProvider
             )
+        case (false, true):
+            return TangemPayAwareTotalBalanceProvider(
+                totalBalanceProvider: walletModelsTotalBalanceProvider,
+                tangemPayTotalBalanceProvider: tangemPayTotalBalanceProvider
+            )
+        case (true, false):
+            return accountsAwareTotalBalanceProvider
+        case (false, false):
+            return walletModelsTotalBalanceProvider
         }
-
-        return walletModelsTotalBalanceProvider
     }
 
     static func makeNFTManager(

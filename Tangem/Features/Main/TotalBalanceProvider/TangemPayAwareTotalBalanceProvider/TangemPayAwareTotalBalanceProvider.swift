@@ -1,5 +1,5 @@
 //
-//  LegacyTotalBalanceProvider.swift
+//  TangemPayAwareTotalBalanceProvider.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,8 +8,8 @@
 
 import Combine
 
-final class LegacyTotalBalanceProvider {
-    private let walletModelsTotalBalanceProvider: any TotalBalanceProvider
+final class TangemPayAwareTotalBalanceProvider {
+    private let totalBalanceProvider: any TotalBalanceProvider
     private let tangemPayTotalBalanceProvider: any TotalBalanceProvider
     private let totalBalanceStatesCombiner: TotalBalanceStatesCombiner
 
@@ -17,11 +17,11 @@ final class LegacyTotalBalanceProvider {
     private var updateSubscription: AnyCancellable?
 
     init(
-        walletModelsTotalBalanceProvider: any TotalBalanceProvider,
+        totalBalanceProvider: any TotalBalanceProvider,
         tangemPayTotalBalanceProvider: any TotalBalanceProvider,
         totalBalanceStatesCombiner: TotalBalanceStatesCombiner = .init()
     ) {
-        self.walletModelsTotalBalanceProvider = walletModelsTotalBalanceProvider
+        self.totalBalanceProvider = totalBalanceProvider
         self.tangemPayTotalBalanceProvider = tangemPayTotalBalanceProvider
         self.totalBalanceStatesCombiner = totalBalanceStatesCombiner
 
@@ -31,7 +31,7 @@ final class LegacyTotalBalanceProvider {
 
 // MARK: - TotalBalanceProvider
 
-extension LegacyTotalBalanceProvider: TotalBalanceProvider {
+extension TangemPayAwareTotalBalanceProvider: TotalBalanceProvider {
     var totalBalance: TotalBalanceState {
         totalBalanceSubject.value
     }
@@ -43,10 +43,10 @@ extension LegacyTotalBalanceProvider: TotalBalanceProvider {
 
 // MARK: - Private
 
-private extension LegacyTotalBalanceProvider {
+private extension TangemPayAwareTotalBalanceProvider {
     func bind() {
         updateSubscription = [
-            walletModelsTotalBalanceProvider.totalBalancePublisher,
+            totalBalanceProvider.totalBalancePublisher,
             tangemPayTotalBalanceProvider.totalBalancePublisher,
         ]
         .combineLatest()

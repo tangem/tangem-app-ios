@@ -1,5 +1,5 @@
 //
-//  CommonFiatTokenBalanceProviderInput.swift
+//  CommonFiatRateProvider.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Combine
 
-class CommonFiatTokenBalanceProviderInput {
+final class CommonFiatRateProvider {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
 
     private let tokenItem: TokenItem
@@ -20,20 +20,15 @@ class CommonFiatTokenBalanceProviderInput {
 
     init(tokenItem: TokenItem) {
         self.tokenItem = tokenItem
-    }
 
-    func loadQuote() {
-        guard let currencyId = tokenItem.currencyId else {
-            return _rate.send(.custom)
-        }
-
-        quotesRepository.loadQuotes(currencyIds: [currencyId])
+        bind()
+        updateRate()
     }
 }
 
-// MARK: - FiatTokenBalanceProviderInput
+// MARK: - FiatRateProvider
 
-extension CommonFiatTokenBalanceProviderInput: FiatTokenBalanceProviderInput {
+extension CommonFiatRateProvider: FiatRateProvider {
     var rate: WalletModelRate {
         _rate.value
     }
@@ -41,11 +36,20 @@ extension CommonFiatTokenBalanceProviderInput: FiatTokenBalanceProviderInput {
     var ratePublisher: AnyPublisher<WalletModelRate, Never> {
         _rate.eraseToAnyPublisher()
     }
+
+    func updateRate() {
+        guard let currencyId = tokenItem.currencyId else {
+            return _rate.send(.custom)
+        }
+
+        _rate.send(.loading(cached: quotesRepository.quote(for: tokenItem)))
+        quotesRepository.loadQuotes(currencyIds: [currencyId])
+    }
 }
 
 // MARK: - Private
 
-private extension CommonFiatTokenBalanceProviderInput {
+private extension CommonFiatRateProvider {
     func bind() {
         quotesCancellable = quotesRepository.quotesPublisher
             .withWeakCaptureOf(self)

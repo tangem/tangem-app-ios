@@ -70,12 +70,12 @@ final class TangemPayAccount {
         balanceSubject: balanceSubject
     )
 
-    lazy var fiatTokenBalanceProviderInput: FiatTokenBalanceProviderInput = CommonFiatTokenBalanceProviderInput(
+    lazy var fiatRateProvider: FiatRateProvider = CommonFiatRateProvider(
         tokenItem: TangemPayUtilities.usdcTokenItem,
     )
 
     lazy var fiatAvailableBalanceProvider: TokenBalanceProvider = FiatTokenBalanceProvider(
-        input: fiatTokenBalanceProviderInput,
+        input: fiatRateProvider,
         cryptoBalanceProvider: tangemPayTokenBalanceProvider
     )
 
@@ -84,7 +84,8 @@ final class TangemPayAccount {
     )
 
     lazy var tangemPayMainHeaderSubtitleProvider: MainHeaderSubtitleProvider = TangemPayMainHeaderSubtitleProvider(
-        balanceSubject: balanceSubject
+        tokenItem: TangemPayUtilities.usdcTokenItem,
+        balanceSubject: balanceSubject,
     )
 
     let customerInfoManagementService: any CustomerInfoManagementService
@@ -122,7 +123,7 @@ final class TangemPayAccount {
     private let tokenBalancesRepository: any TokenBalancesRepository
 
     private let customerInfoSubject = CurrentValueSubject<VisaCustomerInfoResponse?, Never>(nil)
-    private let balanceSubject = CurrentValueSubject<LoadingResult<TangemPayBalance, Error>, Never>(.loading)
+    private let balanceSubject = CurrentValueSubject<LoadingResult<TangemPayBalance, Error>?, Never>(nil)
 
     private let orderCancelledSignalSubject = PassthroughSubject<Void, Never>()
     private let syncInProgressSubject = CurrentValueSubject<Bool, Never>(false)
@@ -284,8 +285,9 @@ final class TangemPayAccount {
         do {
             balanceSubject.send(.loading)
             let balance = try await customerInfoManagementService.getBalance()
-            fiatTokenBalanceProviderInput
             balanceSubject.send(.success(balance))
+
+            fiatRateProvider.updateRate()
         } catch {
             balanceSubject.send(.failure(error))
         }

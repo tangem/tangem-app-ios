@@ -13,13 +13,13 @@ import TangemFoundation
 struct TangemPayTokenBalanceProvider {
     private let walletModelId: WalletModelId
     private let tokenBalancesRepository: TokenBalancesRepository
-    private let balanceSubject: CurrentValueSubject<LoadingResult<TangemPayBalance, Error>, Never>
+    private let balanceSubject: CurrentValueSubject<LoadingResult<TangemPayBalance, Error>?, Never>
     private let balanceFormatter = BalanceFormatter()
 
     init(
         walletModelId: WalletModelId,
         tokenBalancesRepository: TokenBalancesRepository,
-        balanceSubject: CurrentValueSubject<LoadingResult<TangemPayBalance, Error>, Never>
+        balanceSubject: CurrentValueSubject<LoadingResult<TangemPayBalance, Error>?, Never>
     ) {
         self.walletModelId = walletModelId
         self.tokenBalancesRepository = tokenBalancesRepository
@@ -65,8 +65,10 @@ private extension TangemPayTokenBalanceProvider {
             .map { .init(balance: $0.balance, date: $0.date) }
     }
 
-    func mapToTokenBalanceType(balance: LoadingResult<TangemPayBalance, Error>) -> TokenBalanceType {
+    func mapToTokenBalanceType(balance: LoadingResult<TangemPayBalance, Error>?) -> TokenBalanceType {
         switch balance {
+        case .none:
+            return .empty(.noData)
         case .loading:
             return .loading(cachedBalance())
         case .failure:

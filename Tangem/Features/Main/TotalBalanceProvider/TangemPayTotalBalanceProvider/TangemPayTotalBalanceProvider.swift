@@ -13,6 +13,7 @@ final class TangemPayTotalBalanceProvider {
     private let tangemPayAccountProvider: TangemPayAccountProvider
     private let tokenBalanceTypesCombiner: TokenBalanceTypesCombiner
 
+    private let tokenItem = TangemPayUtilities.usdcTokenItem
     private let totalBalanceSubject: CurrentValueSubject<TotalBalanceState, Never> = .init(.empty)
     private var updateSubscription: AnyCancellable?
 
@@ -49,7 +50,7 @@ private extension TangemPayTotalBalanceProvider {
             .withWeakCaptureOf(self)
             .map {
                 $0.tokenBalanceTypesCombiner.mapToTotalBalance(
-                    balances: [.init(item: TangemPayUtilities.usdcTokenItem, balance: $1)]
+                    balances: [.init(item: $0.tokenItem, balance: $1)]
                 )
             }
             .assign(to: \.totalBalanceSubject.value, on: self, ownership: .weak)
