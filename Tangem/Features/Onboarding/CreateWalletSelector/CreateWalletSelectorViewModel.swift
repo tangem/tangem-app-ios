@@ -298,7 +298,7 @@ private extension CreateWalletSelectorViewModel {
     }
 
     func logCreateNewWalletAnalytics() {
-        Analytics.log(.buttonMobileWallet)
+        Analytics.log(.buttonMobileWallet, params: [.source: .createNewWallet])
     }
 
     func logBuyHardwareWalletAnalytics() {

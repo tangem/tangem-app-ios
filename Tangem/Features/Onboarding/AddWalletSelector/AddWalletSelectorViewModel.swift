@@ -129,7 +129,11 @@ private extension AddWalletSelectorViewModel {
 
 private extension AddWalletSelectorViewModel {
     func logMobileWalletTapAnalytics() {
-        Analytics.log(.buttonMobileWallet, contextParams: analyticsContextParams)
+        Analytics.log(
+            .buttonMobileWallet,
+            params: [.source: .addNewWallet],
+            contextParams: analyticsContextParams
+        )
     }
 
     func logBuyHardwareWalletAnalytics() {
