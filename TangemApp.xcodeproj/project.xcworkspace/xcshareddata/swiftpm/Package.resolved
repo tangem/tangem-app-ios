@@ -1,5 +1,5 @@
 {
-  "originHash" : "67a46ee3ac86602e97ffc178d9a9360072478efdd34ebf6cd31ba662a127efcf",
+  "originHash" : "997e9b5729af96f883477d6c2d55a74ccdc5177dc2122d9e6eed699bca2855e5",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -123,8 +123,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/krzyzanowskim/CryptoSwift.git",
       "state" : {
-        "revision" : "e45a26384239e028ec87fbcc788f513b67e10d8f",
-        "version" : "1.9.0"
+        "revision" : "729e01bc9b9dab466ac85f21fb9ee2bc1c61b258",
+        "version" : "1.8.4"
       }
     },
     {
@@ -384,8 +384,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/reown-com/reown-swift.git",
       "state" : {
-        "revision" : "eb3e428165b8e807386dc535fb1d7da193599a5c",
-        "version" : "2.0.0"
+        "revision" : "33d7f1c37e3e28a7909040a0f8028e20418300db",
+        "version" : "1.6.12"
       }
     },
     {
@@ -663,8 +663,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/tangem-sdk-ios.git",
       "state" : {
-        "revision" : "40a191fbc7af70833dfbd24861e61d0cd0393526",
-        "version" : "4.0.1"
+        "revision" : "b014173ee28a84c066d154333a72eb1efe5a9273",
+        "version" : "3.24.1"
       }
     },
     {
@@ -726,8 +726,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/reown-com/yttrium",
       "state" : {
-        "revision" : "3c8222684e5164af98027494226071d720e6e1d1",
-        "version" : "0.9.75"
+        "revision" : "08bd868788cfaaac6499bd15c9e655044832a610",
+        "version" : "0.9.35"
       }
     },
     {
