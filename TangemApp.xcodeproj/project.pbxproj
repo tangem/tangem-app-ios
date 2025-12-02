@@ -676,6 +676,7 @@
 		2DCB23A22E5700E50076C294 /* CommonReceiveAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCB239F2E5700E50076C294 /* CommonReceiveAnalyticsLogger.swift */; };
 		2DCB23A32E5700E50076C294 /* ReceiveAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCB23A02E5700E50076C294 /* ReceiveAnalyticsLogger.swift */; };
 		2DCC301A2E71770B004AF17D /* ShareActivitiesPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCC30192E71770B004AF17D /* ShareActivitiesPresenter.swift */; };
+		2DCC3B232EDF21B4001668D3 /* MarketsMainWidgetItemHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCC3B222EDF21B4001668D3 /* MarketsMainWidgetItemHeaderView.swift */; };
 		2DCDCD322E95237A0056072D /* ExpressProviderTransactionValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCDCD312E95237A0056072D /* ExpressProviderTransactionValidator.swift */; };
 		2DCDCD342E9526300056072D /* CommonExpressProviderTransactionValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCDCD332E9526300056072D /* CommonExpressProviderTransactionValidator.swift */; };
 		2DCDCD362E9528560056072D /* ExpressProviderTransactionValidatorMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DCDCD352E9528560056072D /* ExpressProviderTransactionValidatorMock.swift */; };
@@ -5311,6 +5312,7 @@
 		2DCB239F2E5700E50076C294 /* CommonReceiveAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonReceiveAnalyticsLogger.swift; sourceTree = "<group>"; };
 		2DCB23A02E5700E50076C294 /* ReceiveAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveAnalyticsLogger.swift; sourceTree = "<group>"; };
 		2DCC30192E71770B004AF17D /* ShareActivitiesPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareActivitiesPresenter.swift; sourceTree = "<group>"; };
+		2DCC3B222EDF21B4001668D3 /* MarketsMainWidgetItemHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsMainWidgetItemHeaderView.swift; sourceTree = "<group>"; };
 		2DCDCD312E95237A0056072D /* ExpressProviderTransactionValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressProviderTransactionValidator.swift; sourceTree = "<group>"; };
 		2DCDCD332E9526300056072D /* CommonExpressProviderTransactionValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonExpressProviderTransactionValidator.swift; sourceTree = "<group>"; };
 		2DCDCD352E9528560056072D /* ExpressProviderTransactionValidatorMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressProviderTransactionValidatorMock.swift; sourceTree = "<group>"; };
@@ -10051,6 +10053,7 @@
 		2D1F6F5C2EDDCFEE000BB98E /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				2DCC3B222EDF21B4001668D3 /* MarketsMainWidgetItemHeaderView.swift */,
 				2D1F6F542EDDB921000BB98E /* MarketsMainWidgetItemView.swift */,
 			);
 			path = Components;
@@ -26128,6 +26131,7 @@
 				2D93C4E02D661459002BCCE2 /* SupportSeedNotificationManager.swift in Sources */,
 				0F2786282E2AEA0A00742D0F /* MobileOnboardingImportWalletFlowBuilder.swift in Sources */,
 				B0A0910E26D362A600F46DF5 /* OnboardingProgressCircle.swift in Sources */,
+				2DCC3B232EDF21B4001668D3 /* MarketsMainWidgetItemHeaderView.swift in Sources */,
 				2DCDE45F2DE60F14007ECD34 /* UserWalletDTO.swift in Sources */,
 				2DCDE4612DE60F14007ECD34 /* ApplicationDTO.swift in Sources */,
 				2DCDE4622DE60F14007ECD34 /* NotificationDTO.swift in Sources */,

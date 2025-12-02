@@ -18,7 +18,7 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
     // MARK: - Injected & Published Properties
 
     @Published private(set) var headerViewModel: MainBottomSheetHeaderViewModel
-    @Published private(set) var widgetItems: [WidgetItem] = []
+    @Published private(set) var widgetItems: [WidgetStateItem] = []
 
     @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
     @Injected(\.viewHierarchySnapshotter) private var viewHierarchySnapshotter: ViewHierarchySnapshotting
@@ -119,14 +119,7 @@ private extension MarketsMainViewModel {
                     .filter(\.isEnabled)
                     .sorted(by: \.order)
                     .compactMap {
-                        switch $0.type {
-                        case .banner:
-                            return .banner(widgetModel: $0)
-                        case .news:
-                            return .news("")
-                        default:
-                            return nil
-                        }
+                        viewModel.mapToWidgetItem(widgetModel: $0)
                     }
             }
             .store(in: &bag)
@@ -156,6 +149,31 @@ private extension MarketsMainViewModel {
             darkAppearanceSnapshotImage: darkAppearanceSnapshotImage
         )
     }
+
+    func mapToWidgetItem(widgetModel: MarketsWidgetModel) -> WidgetStateItem? {
+        let contentItem: WidgetContentItem
+        let headerItem: WidgetHeaderItem?
+
+        switch widgetModel.type {
+        case .banner:
+            headerItem = nil
+            contentItem = .banner
+        case .market:
+            return nil
+        case .news:
+            return nil
+        case .earn:
+            return nil
+        case .pulse:
+            return nil
+        }
+
+        return WidgetStateItem(
+            type: widgetModel.type,
+            header: headerItem,
+            content: contentItem
+        )
+    }
 }
 
 extension MarketsMainViewModel: MainBottomSheetHeaderViewModelDelegate {
@@ -165,15 +183,21 @@ extension MarketsMainViewModel: MainBottomSheetHeaderViewModelDelegate {
 }
 
 extension MarketsMainViewModel {
-    enum WidgetItem: Identifiable, Hashable, Equatable {
-        var id: String {
-            switch self {
-            case .banner(let widgetModel), .news(let widgetModel):
-                return widgetModel.id
-            }
+    struct WidgetStateItem: Identifiable, Hashable, Equatable {
+        var id: MarketsWidgetType.ID {
+            type.id
         }
-        
-        case banner(widgetModel: MarketsWidgetModel)
-        case news(widgetModel: MarketsWidgetModel)
+
+        let type: MarketsWidgetType
+        let header: WidgetHeaderItem?
+        let content: WidgetContentItem
+    }
+
+    enum WidgetHeaderItem: Hashable, Equatable {
+        case common(title: String, isDisplayButton: Bool)
+    }
+
+    enum WidgetContentItem: Equatable {
+        case banner
     }
 }

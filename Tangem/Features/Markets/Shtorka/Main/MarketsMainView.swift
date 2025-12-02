@@ -129,15 +129,10 @@ struct MarketsMainView: View {
     private var defaultWidgetsView: some View {
         VStack(alignment: .leading, spacing: 8) {
             ForEach(viewModel.widgetItems, id: \.id) { item in
-                switch item {
-                case .banner(let widgetModel):
-                    MarketsMainWidgetItemView(
-                        title: widgetModel.headerTitle,
-                        content: MarketsBannerWidgetView()
-                    )
-                case .news(_):
-                    EmptyView()
-                }
+                MarketsMainWidgetItemView(
+                    header: { makeHeaderView(with: item.header) },
+                    content: { makeContentView(with: item.content) }
+                )
             }
         }
     }
@@ -215,6 +210,24 @@ struct MarketsMainView: View {
         listOverlayTitleOpacity = maxOffset.isZero ? 1.0 : 1.0 - offSet / maxOffset // Division by zero protection
         listOverlayVerticalOffset = -offSet
         isListContentObscured = contentOffset.y >= (maxOffset + Constants.listOverlayBottomInset)
+    }
+
+    // MARK: - Private Item Creation
+
+    private func makeHeaderView(with item: MarketsMainViewModel.WidgetHeaderItem?) -> (some View)? {
+        return switch item {
+        case .common(let title, _):
+            MarketsMainWidgetItemHeaderView(title: title)
+        case .none:
+            nil
+        }
+    }
+
+    private func makeContentView(with item: MarketsMainViewModel.WidgetContentItem) -> some View {
+        return switch item {
+        case .banner:
+            MarketsBannerWidgetView()
+        }
     }
 }
 
