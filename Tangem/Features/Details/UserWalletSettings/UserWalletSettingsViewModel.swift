@@ -193,6 +193,7 @@ private extension UserWalletSettingsViewModel {
                     UserSettingsAccountsViewModel(
                         accountModels: accounts,
                         accountModelsManager: viewModel.userWalletModel.accountModelsManager,
+                        accountModelsReorderer: viewModel.userWalletModel.accountModelsManager as! AccountModelsReordering, // [REDACTED_TODO_COMMENT]
                         userWalletConfig: viewModel.userWalletModel.config,
                         coordinator: viewModel.coordinator
                     )

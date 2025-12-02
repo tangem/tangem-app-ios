@@ -19,7 +19,7 @@ struct UserSettingsAccountsSectionView: View {
         ReorderableGroupedSection(
             reorderableModels: $viewModel.accountRows,
             reorderableContent: { model in
-                accountContentView(from: model)
+                accountContentView(from: model.viewData)
             },
             staticModels: [
                 viewModel.addNewAccountButton,

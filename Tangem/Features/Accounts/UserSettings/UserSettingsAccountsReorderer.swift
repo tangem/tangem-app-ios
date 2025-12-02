@@ -25,22 +25,26 @@ final class UserSettingsAccountsReorderer {
     }
 
     func schedulePendingReorderIdNeeded(
-        oldRows: [UserSettingsAccountRowViewData],
-        newRows: [UserSettingsAccountRowViewData]
+        oldRows: [UserSettingsAccountsViewModel._UserSettingsAccountRowViewData],
+        newRows: [UserSettingsAccountsViewModel._UserSettingsAccountRowViewData]
     ) {
-        let oldIds = oldRows.map(\.id).toSet()
-        let newIds = newRows.map(\.id)
+        let oldPersistentIdentifiers = oldRows
+            .map { $0.persId.toPersistentIdentifier().toAnyHashable() }
+            .toSet()
 
-        // We are interested in order changes only, therefore all structural changes of the list are filtered out
-        // (i.e. the nil value is returned to cancel pending reorder task, if any)
-        let orderedIds = oldIds == newIds.toSet()
-            ? newIds
+        let newPersistentIdentifiers = newRows
+            .map { $0.persId }
+
+        // We are only interested in order changes, therefore all structural changes to the list are filtered out
+        // (i.e., nil value is returned to cancel any pending reorder tasks, if any)
+        let orderedIds = oldPersistentIdentifiers == newPersistentIdentifiers.map { $0.toPersistentIdentifier().toAnyHashable() }.toSet()
+            ? newPersistentIdentifiers
             : nil
 
         schedulePendingReorder(orderedIds)
     }
 
-    private func schedulePendingReorder(_ orderedIds: [AnyHashable]?) {
+    private func schedulePendingReorder(_ orderedIds: [any AccountModelPersistentIdentifierConvertible]?) {
         ensureOnMainQueue()
 
         pendingReorderTask?.cancel()
@@ -65,7 +69,7 @@ final class UserSettingsAccountsReorderer {
             withExtendedLifetime(backgroundTaskHandle) {}
         }.eraseToAnyCancellable()
 
-        // Request additional execution time from system
+        // Request additional execution time from system in case the app goes to background
         backgroundTaskHandle = BackgroundTaskWrapper(taskName: "com.tangem.UserSettingsAccountsReorderer_\(UUID().uuidString)") {
             pendingReorderTask.cancel()
         }

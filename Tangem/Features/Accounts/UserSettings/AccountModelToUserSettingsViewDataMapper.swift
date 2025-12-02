@@ -13,7 +13,7 @@ enum AccountModelToUserSettingsViewDataMapper {
     static func map(
         from accountModel: AccountModel,
         onTap: @escaping (any BaseAccountModel) -> Void
-    ) -> [UserSettingsAccountRowViewData] {
+    ) -> [UserSettingsAccountsViewModel._UserSettingsAccountRowViewData] {
         switch accountModel {
         case .standard(let cryptoAccounts):
             mapStandardCryptoAccounts(cryptoAccounts, onTap: onTap)
@@ -23,7 +23,7 @@ enum AccountModelToUserSettingsViewDataMapper {
     private static func mapStandardCryptoAccounts(
         _ cryptoAccounts: CryptoAccounts,
         onTap: @escaping (any CryptoAccountModel) -> Void
-    ) -> [UserSettingsAccountRowViewData] {
+    ) -> [UserSettingsAccountsViewModel._UserSettingsAccountRowViewData] {
         switch cryptoAccounts {
         case .single:
             // No accounts are displayed until .single case is in action
@@ -44,11 +44,10 @@ enum AccountModelToUserSettingsViewDataMapper {
     private static func mapCryptoAccount(
         _ cryptoAccountModel: any CryptoAccountModel,
         onTap: @escaping (any CryptoAccountModel) -> Void
-    ) -> UserSettingsAccountRowViewData {
+    ) -> UserSettingsAccountsViewModel._UserSettingsAccountRowViewData {
         let accountIconViewData = AccountIconViewBuilder.makeAccountIconViewData(accountModel: cryptoAccountModel)
-
-        return UserSettingsAccountRowViewData(
-            id: cryptoAccountModel.id.toAnyHashable(),
+        let viewData = UserSettingsAccountRowViewData(
+            id: cryptoAccountModel.id,
             name: cryptoAccountModel.name,
             accountIconViewData: accountIconViewData,
             description: Localization.commonTokensCount(cryptoAccountModel.userTokensManager.userTokens.count),
@@ -56,6 +55,11 @@ enum AccountModelToUserSettingsViewDataMapper {
             onTap: {
                 onTap(cryptoAccountModel)
             }
+        )
+
+        return UserSettingsAccountsViewModel._UserSettingsAccountRowViewData(
+            viewData: viewData,
+            persId: cryptoAccountModel.id
         )
     }
 }

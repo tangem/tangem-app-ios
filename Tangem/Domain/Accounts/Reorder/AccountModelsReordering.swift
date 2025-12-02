@@ -9,5 +9,5 @@
 import Foundation
 
 protocol AccountModelsReordering {
-    func reorder(orderedIdentifiers: [some Hashable]) async throws
+    func reorder(orderedIdentifiers: [any AccountModelPersistentIdentifierConvertible]) async throws
 }

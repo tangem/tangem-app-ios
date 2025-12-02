@@ -17,13 +17,14 @@ import TangemFoundation
 final class UserSettingsAccountsViewModel: ObservableObject {
     // MARK: - Published State
 
-    @Published var accountRows: [UserSettingsAccountRowViewData] = []
+    @Published var accountRows: [_UserSettingsAccountRowViewData] = []
     @Published private(set) var addNewAccountButton: AddListItemButton.ViewData?
     @Published private(set) var archivedAccountButton: ArchivedAccountsButtonViewData?
 
     // MARK: - Dependencies
 
     private let accountModelsManager: AccountModelsManager
+    private let accountsReorderer: UserSettingsAccountsReorderer
     private let userWalletConfig: UserWalletConfig
     private weak var coordinator: UserSettingsAccountsRoutable?
     private var bag = Set<AnyCancellable>()
@@ -33,6 +34,7 @@ final class UserSettingsAccountsViewModel: ObservableObject {
     init(
         accountModels: [AccountModel],
         accountModelsManager: AccountModelsManager,
+        accountModelsReorderer: AccountModelsReordering,
         userWalletConfig: UserWalletConfig,
         coordinator: UserSettingsAccountsRoutable?
     ) {
@@ -40,11 +42,16 @@ final class UserSettingsAccountsViewModel: ObservableObject {
         self.userWalletConfig = userWalletConfig
         self.coordinator = coordinator
 
-        accountRows = accountModels.flatMap {
+        accountsReorderer = UserSettingsAccountsReorderer(
+            accountModelsReorderer: accountModelsReorderer,
+            debounceInterval: Constants.accountsReorderingDebounceInterval
+        )
+
+        accountRows = accountModels.flatMap { accountModel in
             AccountModelToUserSettingsViewDataMapper.map(
-                from: $0,
-                onTap: { [weak self] in
-                    self?.onTapAccount(account: $0)
+                from: accountModel,
+                onTap: { [weak self] accountModel in
+                    self?.onTapAccount(account: accountModel)
                 }
             )
         }
@@ -71,11 +78,6 @@ final class UserSettingsAccountsViewModel: ObservableObject {
     // MARK: - Binding
 
     private func bind() {
-        bindArchivedAccountsButton()
-        bindAddNewAccountButton()
-    }
-
-    private func bindArchivedAccountsButton() {
         accountModelsManager
             .hasArchivedCryptoAccountsPublisher
             .withWeakCaptureOf(self)
@@ -91,9 +93,7 @@ final class UserSettingsAccountsViewModel: ObservableObject {
             .receiveOnMain()
             .assign(to: \.archivedAccountButton, on: self, ownership: .weak)
             .store(in: &bag)
-    }
 
-    private func bindAddNewAccountButton() {
         accountModelsManager
             .accountModelsPublisher
             .withWeakCaptureOf(self)
@@ -102,6 +102,15 @@ final class UserSettingsAccountsViewModel: ObservableObject {
             }
             .receiveOnMain()
             .assign(to: \.addNewAccountButton, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        $accountRows
+            .pairwise()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, input in
+                let (oldRows, newRows) = input
+                viewModel.accountsReorderer.schedulePendingReorderIdNeeded(oldRows: oldRows, newRows: newRows)
+            }
             .store(in: &bag)
     }
 
@@ -168,6 +177,8 @@ final class UserSettingsAccountsViewModel: ObservableObject {
     }
 }
 
+// MARK: - Auxiliary types
+
 extension UserSettingsAccountsViewModel {
     struct ArchivedAccountsButtonViewData: Identifiable {
         let text: String
@@ -176,5 +187,28 @@ extension UserSettingsAccountsViewModel {
         var id: String {
             text
         }
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    struct _UserSettingsAccountRowViewData: Identifiable {
+        var id: AnyHashable {
+            viewData.id
+        }
+
+        let viewData: UserSettingsAccountRowViewData
+        /** private */ let persId: any AccountModelPersistentIdentifierConvertible
+
+        init(viewData: UserSettingsAccountRowViewData, persId: any AccountModelPersistentIdentifierConvertible) {
+            self.viewData = viewData
+            self.persId = persId
+        }
+    }
+}
+
+// MARK: - Constants
+
+private extension UserSettingsAccountsViewModel {
+    enum Constants {
+        static let accountsReorderingDebounceInterval = 1.0
     }
 }
