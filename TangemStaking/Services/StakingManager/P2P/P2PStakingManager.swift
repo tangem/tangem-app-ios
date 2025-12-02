@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 
 final class P2PStakingManager {
     private let wallet: StakingWallet
@@ -15,6 +16,7 @@ final class P2PStakingManager {
     private let analyticsLogger: StakingAnalyticsLogger
 
     private let _state = CurrentValueSubject<StakingManagerState, Never>(.loading)
+    private var pendingTransaction: StakingTransactionInfo?
 
     init(wallet: StakingWallet, provider: P2PAPIProvider, analyticsLogger: StakingAnalyticsLogger) {
         self.wallet = wallet
@@ -31,12 +33,15 @@ extension P2PStakingManager: StakingManager {
 
         let yield = try? await provider.yield()
 
-        guard let yield, !yield.validators.isEmpty else {
+        guard let yield, !yield.preferredValidators.isEmpty else {
             _state.send(.notEnabled)
             return
         }
 
-        let balances = try? await provider.balances(wallet: wallet, vaults: yield.validators.map(\.address))
+        let balances = try? await provider.balances(
+            walletAddress: wallet.address,
+            vaults: yield.validators.map(\.address)
+        )
         let state = state(balances: balances, yield: yield)
         _state.send(state)
     }
@@ -58,21 +63,37 @@ extension P2PStakingManager: StakingManager {
     }
 
     func estimateFee(action: StakingAction) async throws -> Decimal {
-        fatalError()
+        do {
+            let info = try await transactionInfo(action: action)
+            pendingTransaction = info
+            return info.fee
+        } catch {
+            pendingTransaction = nil
+            throw error
+        }
     }
 
     func transaction(action: StakingAction) async throws -> StakingTransactionAction {
-        fatalError()
+        guard let pendingTransaction else {
+            throw P2PStakingAPIError.transactionNotFound
+        }
+        return StakingTransactionAction(amount: action.amount, transactions: [pendingTransaction])
     }
 
-    func transactionDetails(id: String) async throws -> StakingTransactionInfo {
-        fatalError()
+    func transactionDidSent(action: StakingAction) {
+        pendingTransaction = nil
     }
+}
 
-    func transactionDidSent(action: StakingAction) {}
+extension P2PStakingManager: CustomStringConvertible {
+    var description: String {
+        objectDescription(self, userInfo: ["item": wallet.item])
+    }
+}
 
-    private func state(balances: [StakingBalanceInfo]?, yield: StakingYieldInfo?) -> StakingManagerState {
-        guard let yield, !yield.validators.isEmpty else {
+private extension P2PStakingManager {
+    func state(balances: [StakingBalanceInfo]?, yield: StakingYieldInfo?) -> StakingManagerState {
+        guard let yield, !yield.preferredValidators.isEmpty else {
             return .notEnabled
         }
 
@@ -88,6 +109,43 @@ extension P2PStakingManager: StakingManager {
             return .availableToStake(yield)
         }
 
-        return .staked(.init(balances: stakingBalances, yieldInfo: yield, canStakeMore: false))
+        return .staked(.init(balances: stakingBalances, yieldInfo: yield, canStakeMore: true))
+    }
+
+    func transactionInfo(action: StakingAction) async throws -> StakingTransactionInfo {
+        guard let validatorAddress = action.validatorInfo?.address else {
+            throw P2PStakingAPIError.invalidVault
+        }
+
+        let result: StakingTransactionInfo
+
+        switch (state, action.type) {
+        case (.loading, _):
+            try await waitForLoadingCompletion()
+            result = try await transactionInfo(action: action)
+        case (.availableToStake, .stake), (.staked, .stake):
+            result = try await provider.stakeTransaction(
+                walletAddress: wallet.address,
+                vault: validatorAddress,
+                amount: action.amount
+            )
+        case (.staked, .unstake):
+            result = try await provider.unstakeTransaction(
+                walletAddress: wallet.address,
+                vault: validatorAddress,
+                amount: action.amount
+            )
+        case (.staked, .pending):
+            result = try await provider.withdrawTransaction(
+                walletAddress: wallet.address,
+                vault: validatorAddress,
+                amount: action.amount
+            )
+        default:
+            StakingLogger.info(self, "Invalid staking manager state: \(state), for action: \(action)")
+            throw StakingManagerError.stakingManagerStateNotSupportEstimateFeeAction(action: action, state: state)
+        }
+
+        return result
     }
 }
