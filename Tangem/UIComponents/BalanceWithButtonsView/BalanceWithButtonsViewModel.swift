@@ -105,12 +105,12 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
 
         // setup two-way bindings with child viewModel
         $balanceTypeValues
-            .removeDuplicates()
+            .removeDuplicates() // breaks infinite loop
             .assign(to: \.balanceTypeValues, on: viewModel, ownership: .weak)
             .store(in: &bag)
 
         $selectedBalanceType
-            .removeDuplicates()
+            .removeDuplicates() // breaks infinite loop
             .assign(to: \.selectedBalanceType, on: viewModel, ownership: .weak)
             .store(in: &bag)
 

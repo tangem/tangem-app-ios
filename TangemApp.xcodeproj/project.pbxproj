@@ -163,7 +163,7 @@
 		0AED02FA2EDDA581001D067E /* StakingManagerStateRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AED02F92EDDA581001D067E /* StakingManagerStateRepository.swift */; };
 		0AED02FC2EDDA765001D067E /* CachedStakingManagerState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AED02FB2EDDA765001D067E /* CachedStakingManagerState.swift */; };
 		0AED02FE2EDDCD1F001D067E /* CachedRewardType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AED02FD2EDDCD1F001D067E /* CachedRewardType.swift */; };
-		0AED03002EDDCDFC001D067E /* CachedEnterState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AED02FF2EDDCDFC001D067E /* CachedEnterState.swift */; };
+		0AED03002EDDCDFC001D067E /* CachedStakeState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AED02FF2EDDCDFC001D067E /* CachedStakeState.swift */; };
 		0AEE7DB42DA3FB590039B06D /* SolanaTransactionHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AEE7DB32DA3FB590039B06D /* SolanaTransactionHelper.swift */; };
 		0AF14E782E435C8C00D9B40F /* NewAppSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF14E772E435C8C00D9B40F /* NewAppSettingsViewModel.swift */; };
 		0AF14E7A2E435D0400D9B40F /* NewAppSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF14E792E435D0400D9B40F /* NewAppSettingsView.swift */; };
@@ -4795,7 +4795,7 @@
 		0AED02F92EDDA581001D067E /* StakingManagerStateRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingManagerStateRepository.swift; sourceTree = "<group>"; };
 		0AED02FB2EDDA765001D067E /* CachedStakingManagerState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedStakingManagerState.swift; sourceTree = "<group>"; };
 		0AED02FD2EDDCD1F001D067E /* CachedRewardType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedRewardType.swift; sourceTree = "<group>"; };
-		0AED02FF2EDDCDFC001D067E /* CachedEnterState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedEnterState.swift; sourceTree = "<group>"; };
+		0AED02FF2EDDCDFC001D067E /* CachedStakeState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedStakeState.swift; sourceTree = "<group>"; };
 		0AEE7DB32DA3FB590039B06D /* SolanaTransactionHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaTransactionHelper.swift; sourceTree = "<group>"; };
 		0AF14E772E435C8C00D9B40F /* NewAppSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewAppSettingsViewModel.swift; sourceTree = "<group>"; };
 		0AF14E792E435D0400D9B40F /* NewAppSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewAppSettingsView.swift; sourceTree = "<group>"; };
@@ -9510,7 +9510,7 @@
 				0AED02F92EDDA581001D067E /* StakingManagerStateRepository.swift */,
 				0AED02FB2EDDA765001D067E /* CachedStakingManagerState.swift */,
 				0AED02FD2EDDCD1F001D067E /* CachedRewardType.swift */,
-				0AED02FF2EDDCDFC001D067E /* CachedEnterState.swift */,
+				0AED02FF2EDDCDFC001D067E /* CachedStakeState.swift */,
 			);
 			path = Cache;
 			sourceTree = "<group>";
@@ -29755,7 +29755,7 @@
 				EFB019412C4160EF009EE857 /* StakeKitDTO+Balances.swift in Sources */,
 				0A0DB7582C48FB0000003450 /* RewardRateValues.swift in Sources */,
 				0ABBB2A82ECB71400082BC76 /* P2PDTO.swift in Sources */,
-				0AED03002EDDCDFC001D067E /* CachedEnterState.swift in Sources */,
+				0AED03002EDDCDFC001D067E /* CachedStakeState.swift in Sources */,
 				EF19FAF62C6D43BB002155F1 /* PendingAction.swift in Sources */,
 				EF7C4B412C936200005F9360 /* StakingValidatorType.swift in Sources */,
 				EF407E622C04D67400366733 /* StakeKitMapper.swift in Sources */,
