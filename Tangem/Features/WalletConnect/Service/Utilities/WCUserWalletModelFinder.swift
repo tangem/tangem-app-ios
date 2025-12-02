@@ -7,7 +7,7 @@
 //
 
 enum WCUserWalletModelFinder {
-    static func findUserWalleModel(
+    static func findUserWalletModel(
         connectedDApp: WalletConnectConnectedDApp,
         userWalletModels: [any UserWalletModel]
     ) throws(WalletConnectTransactionRequestProcessingError) -> any UserWalletModel {
