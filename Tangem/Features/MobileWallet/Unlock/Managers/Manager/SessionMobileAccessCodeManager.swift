@@ -188,13 +188,6 @@ extension SessionMobileAccessCodeManager: MobileAccessCodeManager {
         }
     }
 
-    func isStoredWrongAccessCodeReplaced(availableState: MobileAccessCodeState.AvailableState) -> Bool {
-        switch availableState {
-        case .normal, .beforeLock: false
-        case .beforeWarning, .beforeDelete: true
-        }
-    }
-
     func cleanWrongAccessCodes() {
         cleanWrongAccessCodeStore()
     }
@@ -220,6 +213,17 @@ extension SessionMobileAccessCodeManager: MobileAccessCodeManager {
         case .beforeDelete:
             assertionFailure("Unexpected state: .beforeDelete should never happen.")
             return makeLockedTimerCommand(duration: lockedTimeout)
+        }
+    }
+}
+
+// MARK: - Private methods
+
+private extension SessionMobileAccessCodeManager {
+    func isStoredWrongAccessCodeReplaced(availableState: MobileAccessCodeState.AvailableState) -> Bool {
+        switch availableState {
+        case .normal, .beforeLock: false
+        case .beforeWarning, .beforeDelete: true
         }
     }
 }
