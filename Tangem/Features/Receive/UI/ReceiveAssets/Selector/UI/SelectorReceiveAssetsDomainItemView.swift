@@ -52,11 +52,9 @@ struct SelectorReceiveAssetsDomainItemView: View {
 
     private var buttonView: some View {
         HStack(spacing: Layout.ButtomView.horizontalSpacing) {
-            Button(action: viewModel.copyAddressButtonDidTap) {
-                SelectorReceiveCircleButtonView(actionType: .copy)
+            SelectorReceiveCircleButtonView(actionType: .copy, action: viewModel.copyAddressButtonDidTap)
 
-                SelectorReceiveCircleButtonView(actionType: .share)
-            }
+            SelectorReceiveCircleButtonView(actionType: .share, action: viewModel.shareAddressButtonDidTap)
         }
     }
 }

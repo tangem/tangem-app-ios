@@ -11,25 +11,26 @@ import TangemUI
 import TangemAssets
 
 struct SelectorReceiveCircleButtonView: View {
-    private let actionType: ActionType
-
-    init(actionType: ActionType) {
-        self.actionType = actionType
-    }
+    let actionType: ActionType
+    let action: () -> Void
 
     var body: some View {
-        actionType
-            .asset
-            .renderingMode(.template)
-            .resizable()
-            .frame(size: .init(bothDimensions: 20))
-            .foregroundStyle(Colors.Icon.informative)
-            .padding(Layout.paddingIcon)
-            .background(
-                Circle()
-                    .fill(Colors.Button.secondary)
-            )
-            .padding(Layout.paddingIconCircle)
+        Button {
+            action()
+        } label: {
+            actionType
+                .asset
+                .renderingMode(.template)
+                .resizable()
+                .frame(size: .init(bothDimensions: 20))
+                .foregroundStyle(Colors.Icon.informative)
+                .padding(Layout.paddingIcon)
+                .background(
+                    Circle()
+                        .fill(Colors.Button.secondary)
+                )
+                .padding(Layout.paddingIconCircle)
+        }
     }
 }
 

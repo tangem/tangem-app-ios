@@ -41,7 +41,7 @@ private struct UILabelView: UIViewRepresentable {
     func makeUIView(context: Context) -> UILabel {
         let label = UILabel(frame: .zero)
 
-        label.numberOfLines = lineLimit ?? 0
+        label.numberOfLines = lineLimit ?? 1
         label.attributedText = attributedString
 
         label.setContentHuggingPriority(.required, for: .vertical)
@@ -55,7 +55,7 @@ private struct UILabelView: UIViewRepresentable {
     func updateUIView(_ uiView: UILabel, context: Context) {
         uiView.attributedText = attributedString
         uiView.preferredMaxLayoutWidth = preferredMaxLayoutWidth
-        uiView.numberOfLines = lineLimit ?? 0
+        uiView.numberOfLines = lineLimit ?? 1
     }
 }
 
