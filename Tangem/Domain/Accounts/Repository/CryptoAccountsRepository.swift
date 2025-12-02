@@ -15,6 +15,7 @@ protocol CryptoAccountsRepository {
     var auxiliaryDataPublisher: AnyPublisher<CryptoAccountsAuxiliaryData, Never> { get }
 
     func initialize(forUserWalletWithId userWalletId: UserWalletId)
+
     func getRemoteState() async throws -> CryptoAccountsRemoteState
 
     func addNewCryptoAccount(
@@ -22,6 +23,10 @@ protocol CryptoAccountsRepository {
         remoteState: CryptoAccountsRemoteState
     ) async throws -> StoredCryptoAccountsTokensDistributor.DistributionResult
 
-    func updateExistingCryptoAccount(withConfig config: CryptoAccountPersistentConfig)
+    func updateExistingCryptoAccount(
+        withConfig config: CryptoAccountPersistentConfig,
+        remoteState: CryptoAccountsRemoteState
+    ) async throws
+
     func removeCryptoAccount(withIdentifier identifier: some Hashable) async throws
 }
