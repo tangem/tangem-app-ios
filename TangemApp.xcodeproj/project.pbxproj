@@ -2794,6 +2794,7 @@
 		D8E80E5F2EC23CFE00218D39 /* SolanaWCLinksUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E80E5E2EC23CFE00218D39 /* SolanaWCLinksUITests.swift */; };
 		D8E851F42EB0C74B0085DAC3 /* ContextMenuScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E851F32EB0C74B0085DAC3 /* ContextMenuScreen.swift */; };
 		D8E851FC2EB0E7870085DAC3 /* MainLongTapActionButtonsUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E851FA2EB0E7870085DAC3 /* MainLongTapActionButtonsUITests.swift */; };
+		D8EBDF282ED84DB800CB0579 /* SendFeeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8EBDF272ED84DB800CB0579 /* SendFeeUITests.swift */; };
 		D8EDA0DA2E5F46C700422CA7 /* TroubleShootSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8EDA0D92E5F46C700422CA7 /* TroubleShootSheet.swift */; };
 		D8EDA0DC2E5F4AF100422CA7 /* MailScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8EDA0DB2E5F4AF100422CA7 /* MailScreen.swift */; };
 		D8EDA17F2E60802000422CA7 /* SendScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8EDA17E2E60802000422CA7 /* SendScreen.swift */; };
@@ -7383,6 +7384,7 @@
 		D8E80E5E2EC23CFE00218D39 /* SolanaWCLinksUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaWCLinksUITests.swift; sourceTree = "<group>"; };
 		D8E851F32EB0C74B0085DAC3 /* ContextMenuScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextMenuScreen.swift; sourceTree = "<group>"; };
 		D8E851FA2EB0E7870085DAC3 /* MainLongTapActionButtonsUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainLongTapActionButtonsUITests.swift; sourceTree = "<group>"; };
+		D8EBDF272ED84DB800CB0579 /* SendFeeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFeeUITests.swift; sourceTree = "<group>"; };
 		D8EDA0D92E5F46C700422CA7 /* TroubleShootSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TroubleShootSheet.swift; sourceTree = "<group>"; };
 		D8EDA0DB2E5F4AF100422CA7 /* MailScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailScreen.swift; sourceTree = "<group>"; };
 		D8EDA17E2E60802000422CA7 /* SendScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendScreen.swift; sourceTree = "<group>"; };
@@ -17878,6 +17880,7 @@
 		D892E6BE2E95114000D29113 /* Send */ = {
 			isa = PBXGroup;
 			children = (
+				D8EBDF272ED84DB800CB0579 /* SendFeeUITests.swift */,
 				D82234462ED60B140053A574 /* SendAmountUITests.swift */,
 				D80A115B2ED0A4E000DCD516 /* Address */,
 				D8B80B612EC4B6860002B6A5 /* SendConfirmationUITests.swift */,
@@ -28079,6 +28082,7 @@
 				7985089F2DE99FE900388668 /* ToSScreen.swift in Sources */,
 				7982B00A2DE70E0100C41EA5 /* ScrollParameters.swift in Sources */,
 				D8EDA0DA2E5F46C700422CA7 /* TroubleShootSheet.swift in Sources */,
+				D8EBDF282ED84DB800CB0579 /* SendFeeUITests.swift in Sources */,
 				D82234472ED60B140053A574 /* SendAmountUITests.swift in Sources */,
 				7982B0202DE70E1900C41EA5 /* XCTestCase+Extensions.swift in Sources */,
 				D86C96C32EB4C34500132ED9 /* MainActionButtonsUITests.swift in Sources */,
