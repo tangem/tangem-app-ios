@@ -43,9 +43,6 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.yieldModulePromoCoordinator) {
                 YieldModulePromoCoordinatorView(coordinator: $0)
             }
-            .navigation(item: $coordinator.yieldModuleActiveCoordinator) {
-                YieldModuleActiveCoordinatorView(coordinator: $0)
-            }
     }
 
     @ViewBuilder
@@ -59,6 +56,9 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
             }
 
         NavHolder()
+            .sheet(item: $coordinator.yieldModuleActiveCoordinator) {
+                YieldModuleActiveCoordinatorView(coordinator: $0)
+            }
             .bottomSheet(
                 item: $coordinator.receiveBottomSheetViewModel,
                 settings: .init(backgroundColor: Colors.Background.primary, contentScrollsHorizontally: true)

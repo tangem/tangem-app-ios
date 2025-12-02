@@ -86,9 +86,6 @@ struct MainCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.yieldModulePromoCoordinator) {
                 YieldModulePromoCoordinatorView(coordinator: $0)
             }
-            .navigation(item: $coordinator.yieldModuleActiveCoordinator) {
-                YieldModuleActiveCoordinatorView(coordinator: $0)
-            }
     }
 
     @ViewBuilder
@@ -132,6 +129,9 @@ struct MainCoordinatorView: CoordinatorView {
             }
             .sheet(item: $coordinator.actionButtonsSwapCoordinator) {
                 ActionButtonsSwapCoordinatorView(coordinator: $0)
+            }
+            .sheet(item: $coordinator.yieldModuleActiveCoordinator) {
+                YieldModuleActiveCoordinatorView(coordinator: $0)
             }
             .floatingSheetContent(for: MobileFinishActivationNeededViewModel.self) {
                 MobileFinishActivationNeededView(viewModel: $0)

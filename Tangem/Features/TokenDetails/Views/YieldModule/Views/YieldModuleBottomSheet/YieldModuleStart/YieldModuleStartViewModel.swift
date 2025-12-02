@@ -50,7 +50,7 @@ final class YieldModuleStartViewModel: ObservableObject {
     private(set) var networkFeeState: YieldFeeSectionState
 
     @Published
-    private(set) var isButtonEnabled: Bool = true
+    private(set) var isButtonEnabled: Bool = false
 
     @Published
     private(set) var isNavigationToFeePolicyEnabled: Bool = false
@@ -103,7 +103,7 @@ final class YieldModuleStartViewModel: ObservableObject {
 
         networkFeeState = .init(
             footerText: Localization.yieldModuleStartEarningSheetNextDepositsV2(walletModel.tokenItem.currencySymbol),
-            isLinkActive: true
+            isLinkActive: false
         )
 
         notificationManager = YieldModuleNotificationManager(tokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem)
@@ -240,7 +240,9 @@ final class YieldModuleStartViewModel: ObservableObject {
             let feeValue = feeInCoins.totalFeeAmount.value
             let fiatFee = try await feeConverter.createFeeString(from: feeValue)
 
-            networkFeeState = networkFeeState.withFeeState(.loaded(text: fiatFee))
+            networkFeeState = networkFeeState
+                .withFeeState(.loaded(text: fiatFee))
+                .withLinkActive(true)
 
             let isFeeHigh = feeValue > walletModel.getFeeCurrencyBalance(amountType: walletModel.tokenItem.amountType)
 
@@ -256,7 +258,7 @@ final class YieldModuleStartViewModel: ObservableObject {
                 await self?.reloadAction()
             }
 
-            networkFeeState = networkFeeState.withFeeState(.noData)
+            networkFeeState = networkFeeState.withFeeState(.noData).withLinkActive(false)
             isButtonEnabled = false
         }
     }
