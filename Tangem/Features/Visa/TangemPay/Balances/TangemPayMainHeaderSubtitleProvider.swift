@@ -46,8 +46,8 @@ private extension TangemPayMainHeaderSubtitleProvider {
         case .success(let balance):
             // We use `formatCryptoBalance` to save `currencyCode` as is
             let message = balanceFormatter.formatCryptoBalance(
-                balance.fiat.availableBalance,
-                currencyCode: balance.fiat.currency
+                balance.crypto.balance,
+                currencyCode: TangemPayUtilities.usdcTokenItem.currencySymbol
             )
             return .init(messages: [message], formattingOption: .default)
         }
