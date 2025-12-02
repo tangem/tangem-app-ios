@@ -145,6 +145,7 @@ final class WalletModelTestsMock: WalletModel {
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> { Empty().eraseToAnyPublisher() }
     var stakingManager: StakingManager? { nil }
     var stakeKitTransactionSender: StakeKitTransactionSender? { nil }
+    var p2pTransactionSender: (any P2PTransactionSender)? { nil }
     var account: (any CryptoAccountModel)? { nil }
     var yieldModuleManager: YieldModuleManager? { nil }
     var availableBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }

@@ -10,14 +10,14 @@ import TangemFoundation
 import TangemStaking
 
 // `Subsystems`:
-// `000` - StakingTransactionDispatcher.Error
+// `000` - StakeKitTransactionDispatcher.Error
 // `001` - StakeKitMapperError
 // `002` - StakeKitHTTPError
 // `003` -
 // `004` -
 // `005` -
 
-extension StakingTransactionDispatcher.Error: UniversalError {
+extension StakeKitTransactionDispatcher.Error: UniversalError {
     var errorCode: Int {
         switch self {
         case .resultNotFound:
