@@ -10,7 +10,6 @@ import Foundation
 import Combine
 import TangemFoundation
 import TangemLocalization
-import TangemNFT
 
 final class CommonCryptoAccountModel {
     let walletModelsManager: WalletModelsManager

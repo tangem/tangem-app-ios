@@ -23,9 +23,11 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
 
     private let tokenItem: TokenItem
     private let buttonsPublisher: AnyPublisher<[FixedSizeButtonWithIconInfo], Never>
+    private var isRefresing = false
     private weak var balanceProvider: BalanceWithButtonsViewModelBalanceProvider?
     private weak var balanceTypeSelectorProvider: BalanceTypeSelectorProvider?
     private weak var yieldModuleStatusProvider: YieldModuleStatusProvider?
+    private weak var refreshStatusProvider: RefreshStatusProvider?
     private(set) var showYieldBalanceInfoAction: () -> Void
     private(set) var reloadBalance: () async -> Void
 
@@ -37,6 +39,7 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
         balanceProvider: BalanceWithButtonsViewModelBalanceProvider,
         balanceTypeSelectorProvider: BalanceTypeSelectorProvider,
         yieldModuleStatusProvider: YieldModuleStatusProvider,
+        refreshStatusProvider: RefreshStatusProvider,
         showYieldBalanceInfoAction: @escaping (() -> Void),
         reloadBalance: @escaping (() async -> Void)
     ) {
@@ -47,6 +50,8 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
         self.showYieldBalanceInfoAction = showYieldBalanceInfoAction
         self.yieldModuleStatusProvider = yieldModuleStatusProvider
         self.reloadBalance = reloadBalance
+
+        self.refreshStatusProvider = refreshStatusProvider
 
         bind()
     }
@@ -63,6 +68,13 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
             setupCommonBalances()
             return
         }
+
+        refreshStatusProvider?.isRefreshing
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] isRefreshing in
+                self?.isRefresing = isRefreshing
+            }
+            .store(in: &bag)
 
         yieldModuleStatusProvider
             .yieldModuleState
@@ -98,6 +110,7 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
                 tokenItem: tokenItem,
                 balanceProvider: balanceProvider,
                 yieldModuleStatusProvider: yieldModuleStatusProvider,
+                refreshStatusProvider: refreshStatusProvider,
                 showYieldBalanceInfoAction: showYieldBalanceInfoAction,
                 reloadBalance: reloadBalance
             )

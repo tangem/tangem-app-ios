@@ -20,6 +20,7 @@ struct MobileBackupTypesView: View {
             .padding(.horizontal, 16)
             .background(Colors.Background.secondary.ignoresSafeArea())
             .navigationTitle(viewModel.navTitle)
+            .onFirstAppear(perform: viewModel.onFirstAppear)
             .alert(item: $viewModel.alert) { $0.alert }
     }
 }
@@ -104,18 +105,18 @@ private extension MobileBackupTypesView {
 
     func sectionItem(model: ViewModel.SectionItem) -> some View {
         Button(action: model.action) {
-            HStack(spacing: 0) {
+            HStack(spacing: 4) {
                 sectionInfoItem(model: model)
 
                 if model.isEnabled {
-                    Assets.chevronRight.image
+                    Assets.chevronRightWithOffset24.image
                         .renderingMode(.template)
                         .resizable()
                         .foregroundStyle(Colors.Text.tertiary)
-                        .frame(width: 20, height: 20)
+                        .frame(width: 24, height: 24)
                 }
             }
-            .padding(EdgeInsets(top: 14, leading: 14, bottom: 14, trailing: 8))
+            .padding(14)
             .background(Colors.Background.primary)
             .cornerRadius(14, corners: .allCorners)
         }
@@ -135,7 +136,7 @@ private extension MobileBackupTypesView {
             }
 
             Text(model.description)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                 .multilineTextAlignment(.leading)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .leading)
