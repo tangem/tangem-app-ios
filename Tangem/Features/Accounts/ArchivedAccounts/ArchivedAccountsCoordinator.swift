@@ -15,7 +15,7 @@ import SwiftUI
 final class ArchivedAccountsCoordinator: CoordinatorObject {
     // MARK: - Navigation actions
 
-    let dismissAction: Action<Void>
+    let dismissAction: Action<AccountOperationResult>
     let popToRootAction: Action<PopToRootOptions>
 
     // MARK: - Root view model
@@ -23,7 +23,7 @@ final class ArchivedAccountsCoordinator: CoordinatorObject {
     @Published private(set) var rootViewModel: ArchivedAccountsViewModel?
 
     init(
-        dismissAction: @escaping Action<Void>,
+        dismissAction: @escaping Action<AccountOperationResult>,
         popToRootAction: @escaping Action<PopToRootOptions>
     ) {
         self.dismissAction = dismissAction
@@ -46,7 +46,7 @@ extension ArchivedAccountsCoordinator {
 // MARK: - RecoverableAccountRoutable
 
 extension ArchivedAccountsCoordinator: RecoverableAccountRoutable {
-    func close() {
-        dismiss()
+    func close(with accountOperationResult: AccountOperationResult) {
+        dismiss(with: accountOperationResult)
     }
 }

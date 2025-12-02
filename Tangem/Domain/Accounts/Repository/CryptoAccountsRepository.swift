@@ -16,7 +16,12 @@ protocol CryptoAccountsRepository {
 
     func initialize(forUserWalletWithId userWalletId: UserWalletId)
     func getRemoteState() async throws -> CryptoAccountsRemoteState
-    func addNewCryptoAccount(withConfig config: CryptoAccountPersistentConfig, remoteState: CryptoAccountsRemoteState) async throws
+
+    func addNewCryptoAccount(
+        withConfig config: CryptoAccountPersistentConfig,
+        remoteState: CryptoAccountsRemoteState
+    ) async throws -> StoredCryptoAccountsTokensDistributor.DistributionResult
+
     func updateExistingCryptoAccount(withConfig config: CryptoAccountPersistentConfig)
     func removeCryptoAccount(withIdentifier identifier: some Hashable) async throws
 }
