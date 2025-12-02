@@ -23,13 +23,13 @@ protocol AccountModelsManager {
     var totalAccountsCountPublisher: AnyPublisher<Int, Never> { get }
 
     /// - Note: This method is also responsible for moving custom tokens into the newly created account if they have a matching derivation.
-    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws(AccountModelsManagerError)
+    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws(AccountModelsManagerError) -> AccountOperationResult
 
     func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo]
 
     func archiveCryptoAccount(withIdentifier identifier: any AccountModelPersistentIdentifierConvertible) async throws(AccountArchivationError)
 
-    func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountRecoveryError)
+    func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountRecoveryError) -> AccountOperationResult
 }
 
 // MARK: - Convenience extensions

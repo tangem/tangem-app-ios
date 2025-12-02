@@ -90,8 +90,9 @@ extension AccountModelsManagerMock: AccountModelsManager {
         accountModelsSubject.eraseToAnyPublisher()
     }
 
-    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws(AccountModelsManagerError) {
+    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws(AccountModelsManagerError) -> AccountOperationResult {
         cryptoAccountModels.append(CryptoAccountModelMock(isMainAccount: false, walletModelsManager: walletModelsManager))
+        return .none
     }
 
     func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] {
@@ -131,7 +132,7 @@ extension AccountModelsManagerMock: AccountModelsManager {
         }
     }
 
-    func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountRecoveryError) {
+    func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) async throws(AccountRecoveryError) -> AccountOperationResult {
         do {
             let persistentConfig = info.toPersistentConfig()
             let isMainAccount = AccountModelUtils.isMainAccount(persistentConfig.derivationIndex)
@@ -143,6 +144,8 @@ extension AccountModelsManagerMock: AccountModelsManager {
             unarchivedCryptoAccount.setIcon(info.icon)
             unarchivedCryptoAccount.setName(info.name)
             cryptoAccountModels.append(unarchivedCryptoAccount)
+
+            return .none
         } catch {
             throw .unknownError(error)
         }
