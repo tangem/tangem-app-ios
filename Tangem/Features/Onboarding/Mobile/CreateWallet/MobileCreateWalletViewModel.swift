@@ -135,7 +135,16 @@ private extension MobileCreateWalletViewModel {
 
 private extension MobileCreateWalletViewModel {
     func logScreenOpenedAnalytics() {
-        Analytics.log(.createWalletScreenOpened, contextParams: analyticsContextParams)
+        let sourceParameterValue: Analytics.ParameterValue = switch source {
+        case .createWallet: .createWallet
+        case .signIn, .settings: .addNewWallet
+        }
+
+        Analytics.log(
+            .createWalletScreenOpened,
+            params: [.source: sourceParameterValue],
+            contextParams: analyticsContextParams
+        )
     }
 
     func logOnboardingStartedAnalytics() {
