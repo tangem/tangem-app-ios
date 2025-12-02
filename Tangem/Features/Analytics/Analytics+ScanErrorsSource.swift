@@ -16,6 +16,7 @@ extension Analytics {
         case deviceSettings
         case introduction
         case sign
+        case upgrade
 
         var parameterValue: Analytics.ParameterValue {
             switch self {
@@ -35,6 +36,8 @@ extension Analytics {
                 return .deviceSettings
             case .sign:
                 return .sign
+            case .upgrade:
+                return .upgrade
             }
         }
     }
