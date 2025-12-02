@@ -73,8 +73,6 @@ struct TangemPayMainView: View {
                         )
                     }
 
-                    Divider()
-
                     Button(
                         action: viewModel.freezingState.isFrozen
                             ? viewModel.unfreeze
