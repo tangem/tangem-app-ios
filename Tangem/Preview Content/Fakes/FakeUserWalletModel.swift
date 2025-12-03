@@ -17,7 +17,9 @@ import TangemFoundation
 class FakeUserWalletModel: UserWalletModel {
     var hasImportedWallets: Bool { false }
     var keysDerivingInteractor: any KeysDeriving { KeysDerivingMock() }
-    var tangemPayAuthorizingInteractor: TangemPayAuthorizing { TangemPayAuthorizingMock() }
+    var tangemPayAccountManager: TangemPayAccountManaging {
+        TangemPayAccountManagingMock()
+    }
 
     var keysRepository: KeysRepository {
         CommonKeysRepository(
@@ -26,11 +28,6 @@ class FakeUserWalletModel: UserWalletModel {
             keys: .cardWallet(keys: [])
         )
     }
-
-    // [REDACTED_TODO_COMMENT]
-    // [REDACTED_INFO]
-    var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount, Never> { .empty }
-    var tangemPayAccount: TangemPayAccount? { nil }
 
     private(set) var name: String
     let emailData: [EmailCollectedData] = []
