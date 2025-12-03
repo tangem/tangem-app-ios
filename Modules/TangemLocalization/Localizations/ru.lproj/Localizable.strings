@@ -1,6 +1,10 @@
 "access_code_alert_skip_description" = "Ваш кошелёк не защищён без кода доступа.";
 "access_code_alert_skip_ok" = "Сбросить все равно";
 "access_code_alert_skip_title" = "Код доступа не задан";
+"access_code_alert_validation_cancel" = "Change code";
+"access_code_alert_validation_description" = "Your access code will be used to unlock your wallet and to protect access to the assets";
+"access_code_alert_validation_ok" = "Use anyway";
+"access_code_alert_validation_title" = "This access code can be easily guessed";
 "access_code_check_title" = "Введите код доступа";
 "access_code_check_warining_delete" = "Неверный код доступа. Ваш мобильный кошелёк будет удалён после ещё %@ неверных попыток.";
 "access_code_check_warining_lock" = "Wrong access code. The app will be locked after %@ more failed attempts";
@@ -258,7 +262,7 @@
 "common_from_wallet_name" = "Из %@";
 "common_from" = "Из";
 "common_generate_addresses" = "Синхронизировать адреса";
-"common_get_started" = "Начать зарабатывать";
+"common_get_started" = "Начать";
 "common_get_token" = "Получить токен";
 "common_go_to_provider" = "К провайдеру";
 "common_go_to_token" = "Перейти в токен";
@@ -731,6 +735,10 @@
 "markets_token_details_volume" = "Объем";
 "markets_tooltip_message" = "Потяните вверх или коснитесь поисковой строки, чтобы добавить токены напрямую из рынка";
 "markets_tooltip_title" = "Добавить токены";
+"markets_yield_supply_banner_description" = "Power up your assets while supplying them with instant access. %@";
+"markets_yield_supply_banner_title" = "Activate Yield Mode";
+"mobile_wallet_requires_min_os_warning_body" = "You must update to %1$@ in order to create mobile wallet";
+"mobile_wallet_requires_min_os_warning_title" = "Mobile Wallet requires %1$@ or later";
 "news_all_news" = "All news";
 "news_stay_in_the_loop" = "Stay in the loop";
 "nft_about_title" = "О NFT";
@@ -1829,6 +1837,7 @@
 "yield_module_fee_policy_tangem_service_fee_title" = "Tangem взимает комиссию за обслуживание в размере 15%% от полученного дохода.";
 "yield_module_high_fee_error" = "Ваши средства будут автоматически переведены в Aave, как только комиссия сети снизится или баланс достигнет минимально необходимой суммы.";
 "yield_module_historical_returns" = "Историческая доходность";
+"yield_module_main_screen_promo_banner_message" = "\"Enable %1$@%% APY on your balance\"";
 "yield_module_main_view_approve_notification_description" = "Разрешение для вашего токена в режиме доходности было отозвано. Откройте токен, чтобы выдать разрешение снова.";
 "yield_module_main_view_approve_notification_title" = "Необходимо разрешение для токена";
 "yield_module_network_fee_unreachable_notification_description" = "Проверьте ваше интернет соединение";
@@ -1877,6 +1886,7 @@
 "yield_module_transaction_exit" = "Режим доходности выключен";
 "yield_module_transaction_topup_subtitle" = "%1$@ отправлено в Aave";
 "yield_module_transaction_topup" = "Перевод средств в Aave";
+"yield_module_transaction_withdraw" = "Withdrawn from Aave";
 "yield_module_transfer_mode_automatic" = "Автоматически";
 "yield_module_unable_to_cover_fee_description" = "Внесите немного %1$@ %2$@, чтобы покрыть комиссию сети за транзакции.";
 "yield_module_unable_to_cover_fee_title" = "Невозможно покрыть комиссию в %@";
