@@ -51,6 +51,7 @@ extension ReferralCoordinator: ReferralRoutable {
     func showAccountSelector(
         selectedAccount: any BaseAccountModel,
         userWalletModel: UserWalletModel,
+        cryptoAccountModelsFilter: @escaping (any CryptoAccountModel) -> Bool,
         onSelect: @escaping (any CryptoAccountModel) -> Void
     ) {
         Task { @MainActor in
@@ -58,6 +59,7 @@ extension ReferralCoordinator: ReferralRoutable {
                 sheet: AccountSelectorViewModel(
                     selectedItem: selectedAccount,
                     userWalletModel: userWalletModel,
+                    cryptoAccountModelsFilter: cryptoAccountModelsFilter,
                     onSelect: { [weak self] result in
                         onSelect(result.cryptoAccountModel)
                         self?.closeSheet()
