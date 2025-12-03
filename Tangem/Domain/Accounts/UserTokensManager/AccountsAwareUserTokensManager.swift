@@ -65,12 +65,22 @@ final class AccountsAwareUserTokensManager {
             return makeTokenItem(from: tokenItem, with: derivationPath)
         }
 
+        // Non-main account with existing derivation: correct only the account node
+        if let existingDerivationPath = derivationPath {
+            let derivationIndexAwarePath = derivationPathHelper.makeDerivationPath(
+                from: existingDerivationPath,
+                forAccountWithIndex: derivationInfo.derivationIndex
+            )
+
+            return makeTokenItem(from: tokenItem, with: derivationIndexAwarePath)
+        }
+
         guard let derivationStyle = derivationInfo.derivationStyle else {
             return tokenItem
         }
 
+        // No derivation: compute from blockchain's default
         let originalDerivationPath = blockchain.derivationPath(for: derivationStyle)
-
         let accountAwareDerivationPath = originalDerivationPath.map { path in
             return derivationPathHelper.makeDerivationPath(from: path, forAccountWithIndex: derivationInfo.derivationIndex)
         }
