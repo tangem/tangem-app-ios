@@ -342,7 +342,11 @@ extension CommonMobileAccessCodeManager {
 
     func storeWrongAccessCode() {
         let lockInterval = currentUptime + lockedTimeout
-        storageManager.storeWrongAccessCode(userWalletId: userWalletId, lockInterval: lockInterval)
+        storageManager.storeWrongAccessCode(
+            userWalletId: userWalletId,
+            lockInterval: lockInterval,
+            replaceLast: false
+        )
     }
 
     func cleanWrongAccessCodeStore() {
