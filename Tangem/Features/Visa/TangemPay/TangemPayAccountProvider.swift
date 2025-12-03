@@ -11,4 +11,6 @@ import Combine
 protocol TangemPayAccountProvider {
     var tangemPayAccount: TangemPayAccount? { get }
     var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount, Never> { get }
+    var tangemPayStatusPublisher: AnyPublisher<TangemPayStatus, Never> { get }
+    var tangemPaySyncInProgressPublisher: AnyPublisher<Bool, Never> { get }
 }

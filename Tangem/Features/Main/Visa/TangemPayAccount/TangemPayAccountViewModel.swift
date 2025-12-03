@@ -14,39 +14,35 @@ import TangemLocalization
 protocol TangemPayAccountRoutable: AnyObject {
     func openTangemPayIssuingYourCardPopup()
     func openTangemPayFailedToIssueCardPopup()
-    func openTangemPayMainView(tangemPayAccount: TangemPayAccount)
+    func openTangemPayMainView(
+        tangemPayAccount: TangemPayAccount,
+        tangemPayAccountManager: TangemPayAccountManaging
+    )
 }
 
 final class TangemPayAccountViewModel: ObservableObject {
-    @Published private(set) var state: ViewState
+    @Published private(set) var state: ViewState = .unavailable
 
-    private let tangemPayAccount: TangemPayAccount
+    private let tangemPayAccountManager: TangemPayAccountManaging
     private weak var router: TangemPayAccountRoutable?
 
     private let loadableTokenBalanceViewStateBuilder = LoadableTokenBalanceViewStateBuilder()
 
-    init(tangemPayAccount: TangemPayAccount, router: TangemPayAccountRoutable?) {
-        self.tangemPayAccount = tangemPayAccount
+    init(
+        tangemPayAccountManager: TangemPayAccountManaging,
+        router: TangemPayAccountRoutable?
+    ) {
+        self.tangemPayAccountManager = tangemPayAccountManager
         self.router = router
-
-        state = TangemPayAccountViewModel.mapToState(
-            state: tangemPayAccount.state,
-            status: .active,
-            card: tangemPayAccount.tangemPayCard,
-            balanceType: tangemPayAccount.tangemPayTokenBalanceProvider.formattedBalanceType
-        )
-
         bind()
     }
 
     func userDidTapView() {
         switch state {
         case .kycInProgress:
-            runTask(in: tangemPayAccount) { tangemPayAccount in
+            runTask(in: self) { viewModel in
                 do {
-                    try await tangemPayAccount.launchKYC {
-                        tangemPayAccount.loadCustomerInfo()
-                    }
+                    try await viewModel.tangemPayAccountManager.launchKYC()
                 } catch {
                     VisaLogger.error("Failed to launch KYC", error: error)
                 }
@@ -59,7 +55,16 @@ final class TangemPayAccountViewModel: ObservableObject {
             router?.openTangemPayIssuingYourCardPopup()
 
         case .normal:
-            router?.openTangemPayMainView(tangemPayAccount: tangemPayAccount)
+            guard let account = tangemPayAccountManager.tangemPayAccount else {
+                VisaLogger.info(
+                    "Unexpected behavior, normal state implies that TangemPayAccount exists"
+                )
+                return
+            }
+            router?.openTangemPayMainView(
+                tangemPayAccount: account,
+                tangemPayAccountManager: tangemPayAccountManager
+            )
 
         case .syncNeeded, .unavailable:
             break
@@ -71,55 +76,44 @@ final class TangemPayAccountViewModel: ObservableObject {
 
 private extension TangemPayAccountViewModel {
     func bind() {
-        Publishers.CombineLatest4(
-            tangemPayAccount
-                .tangemPayAccountStatePublisher,
-            tangemPayAccount
-                .tangemPayStatusPublisher,
-            tangemPayAccount
-                .tangemPayCardPublisher,
-            tangemPayAccount
-                .tangemPayTokenBalanceProvider
-                .formattedBalanceTypePublisher
-        )
-        .map(TangemPayAccountViewModel.mapToState)
-        .receiveOnMain()
-        .assign(to: &$state)
+        tangemPayAccountManager.statePublisher
+            .map(TangemPayAccountViewModel.mapToState(from:))
+            .receiveOnMain()
+            .assign(to: &$state)
     }
 
     static func mapToState(
-        state: TangemPayAuthorizer.State,
-        status: TangemPayStatus,
-        card: VisaCustomerInfoResponse.Card?,
-        balanceType: FormattedTokenBalanceType
+        from state: TangemPayAccountManager.State
     ) -> ViewState {
-        switch status {
-        case .kycRequired:
-            return .kycInProgress
-        case .readyToIssueOrIssuing:
-            return .issuingYourCard
-        case .failedToIssue:
-            return .failedToIssueCard
-        case .active, .blocked:
-            break
-        }
-
         switch state {
-        case .authorized:
-            break
+        case .idle, .unavailable:
+            return .unavailable
+
+        case .offered(let status):
+            switch status {
+            case .kycRequired:
+                return .kycInProgress
+            case .readyToIssueOrIssuing:
+                return .issuingYourCard
+            case .failedToIssue:
+                return .failedToIssueCard
+            case .active, .blocked:
+                return .unavailable
+            }
+
         case .syncNeeded:
             return .syncNeeded
-        case .unavailable:
-            return .unavailable
-        }
 
-        switch card {
-        case .none:
-            return .unavailable
-        case .some(let card):
-            let cardInfo = CardInfo(cardNumberEnd: card.cardNumberEnd)
-            let balance = LoadableTokenBalanceViewStateBuilder().build(type: balanceType)
-            return .normal(card: cardInfo, balance: balance)
+        case .activated(let account):
+            switch account.tangemPayCard {
+            case .none:
+                return .unavailable
+            case .some(let card):
+                let cardInfo = CardInfo(cardNumberEnd: card.cardNumberEnd)
+                let balanceType = account.tangemPayTokenBalanceProvider.formattedBalanceType
+                let balance = LoadableTokenBalanceViewStateBuilder().build(type: balanceType)
+                return .normal(card: cardInfo, balance: balance)
+            }
         }
     }
 }
