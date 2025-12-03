@@ -18,7 +18,7 @@ final class CreateWalletSelectorViewModel: ObservableObject {
     @Published var isScanning: Bool = false
 
     @Published var confirmationDialog: ConfirmationDialogViewModel?
-    @Published var error: AlertBinder?
+    @Published var alert: AlertBinder?
 
     let backButtonHeight: CGFloat = OnboardingLayoutConstants.navbarSize.height
 
@@ -36,6 +36,8 @@ final class CreateWalletSelectorViewModel: ObservableObject {
     @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
+
+    private let mobileWalletFeatureProvider = MobileWalletFeatureProvider()
 
     private var analyticsCardScanSourceParameterValue: Analytics.ParameterValue {
         Analytics.CardScanSource.welcome.cardWasScannedParameterValue
@@ -90,6 +92,10 @@ private extension CreateWalletSelectorViewModel {
     }
 
     func onMobileWalletTap() {
+        guard mobileWalletFeatureProvider.isAvailable else {
+            alert = mobileWalletFeatureProvider.makeRestrictionAlert()
+            return
+        }
         openCreateMobileWallet()
     }
 }
@@ -121,7 +127,7 @@ private extension CreateWalletSelectorViewModel {
 
                 await runOnMain {
                     viewModel.isScanning = false
-                    viewModel.error = error.alertBinder
+                    viewModel.alert = error.alertBinder
                 }
 
             case .onboarding(let input, _):
@@ -164,7 +170,7 @@ private extension CreateWalletSelectorViewModel {
 
                     await runOnMain {
                         viewModel.isScanning = false
-                        viewModel.error = error.alertBinder
+                        viewModel.alert = error.alertBinder
                     }
                 }
             }
