@@ -15,14 +15,14 @@ final class TangemPayOfferViewModel: ObservableObject {
     @Published private(set) var isLoading = false
     @Published var termsFeesAndLimitsViewModel: WebViewContainerViewModel?
 
-    private let userWalletModel: any UserWalletModel
+    private let tangemPayAccountManager: TangemPayAccountManaging
     private let closeOfferScreen: @MainActor () -> Void
 
     init(
-        userWalletModel: any UserWalletModel,
+        tangemPayAccountManager: TangemPayAccountManaging,
         closeOfferScreen: @escaping @MainActor () -> Void
     ) {
-        self.userWalletModel = userWalletModel
+        self.tangemPayAccountManager = tangemPayAccountManager
         self.closeOfferScreen = closeOfferScreen
     }
 
@@ -30,23 +30,10 @@ final class TangemPayOfferViewModel: ObservableObject {
         isLoading = true
         runTask(in: self) { viewModel in
             do {
-                let tangemPayAccount = try await viewModel.makeTangemPayAccount()
-                let tangemPayStatus = try await tangemPayAccount.getTangemPayStatus()
-
-                // [REDACTED_TODO_COMMENT]
-                // [REDACTED_INFO]
-                viewModel.userWalletModel.update(type: .tangemPayOfferAccepted(tangemPayAccount))
-
-                switch tangemPayStatus {
-                case .kycRequired:
-                    try await tangemPayAccount.launchKYC {
-                        tangemPayAccount.loadCustomerInfo()
-                        runTask(in: viewModel) { viewModel in
-                            await viewModel.closeOfferScreen()
-                        }
+                try await viewModel.tangemPayAccountManager.onTangemPayOfferAccepted {
+                    runTask(in: viewModel) { viewModel in
+                        await viewModel.closeOfferScreen()
                     }
-                default:
-                    await viewModel.closeOfferScreen()
                 }
             } catch {
                 await viewModel.closeOfferScreen()
@@ -60,15 +47,6 @@ final class TangemPayOfferViewModel: ObservableObject {
             title: "",
             withCloseButton: true
         )
-    }
-
-    private func makeTangemPayAccount() async throws -> TangemPayAccount {
-        let builder = TangemPayAccountBuilder()
-        let tangemPayAccount = try await builder.makeTangemPayAccount(
-            authorizerType: .plain,
-            userWalletModel: userWalletModel
-        )
-        return tangemPayAccount
     }
 }
 

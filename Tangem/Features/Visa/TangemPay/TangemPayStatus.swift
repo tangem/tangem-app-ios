@@ -6,7 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-enum TangemPayStatus {
+enum TangemPayStatus: Equatable {
     case kycRequired
     case readyToIssueOrIssuing
     case failedToIssue

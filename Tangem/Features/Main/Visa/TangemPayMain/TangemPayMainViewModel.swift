@@ -34,6 +34,7 @@ final class TangemPayMainViewModel: ObservableObject {
 
     private let userWalletInfo: UserWalletInfo
     private let tangemPayAccount: TangemPayAccount
+    private let tangemPayAccountManager: TangemPayAccountManaging
     private weak var coordinator: TangemPayMainRoutable?
 
     private let transactionHistoryService: TangemPayTransactionHistoryService
@@ -45,10 +46,12 @@ final class TangemPayMainViewModel: ObservableObject {
     init(
         userWalletInfo: UserWalletInfo,
         tangemPayAccount: TangemPayAccount,
+        tangemPayAccountManager: TangemPayAccountManaging,
         coordinator: TangemPayMainRoutable
     ) {
         self.userWalletInfo = userWalletInfo
         self.tangemPayAccount = tangemPayAccount
+        self.tangemPayAccountManager = tangemPayAccountManager
         self.coordinator = coordinator
 
         cardDetailsRepository = .init(
@@ -133,7 +136,7 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func onDisappear() {
-        tangemPayAccount.loadCustomerInfo()
+        tangemPayAccountManager.loadCustomerInfo()
     }
 
     func openAddToApplePayGuide() {
@@ -163,7 +166,7 @@ final class TangemPayMainViewModel: ObservableObject {
 
         Task { @MainActor in
             do {
-                try await tangemPayAccount.unfreeze(cardId: cardId)
+                try await tangemPayAccountManager.unfreeze(cardId: cardId)
             } catch {
                 freezingState = .frozen
                 showFreezeUnfreezeErrorToast(freeze: false)
@@ -190,7 +193,7 @@ final class TangemPayMainViewModel: ObservableObject {
 
         Task { @MainActor in
             do {
-                try await tangemPayAccount.freeze(cardId: cardId)
+                try await tangemPayAccountManager.freeze(cardId: cardId)
             } catch {
                 freezingState = .normal
                 showFreezeUnfreezeErrorToast(freeze: true)
@@ -231,7 +234,7 @@ private extension TangemPayMainViewModel {
 
         Publishers.CombineLatest(
             AppSettings.shared.$tangemPayShowAddToApplePayGuide,
-            tangemPayAccount.tangemPayStatusPublisher
+            tangemPayAccountManager.tangemPayStatusPublisher
         )
         .map { tangemPayShowAddToApplePayGuide, status in
             PKPaymentAuthorizationViewController.canMakePayments()
@@ -242,7 +245,7 @@ private extension TangemPayMainViewModel {
         .assign(to: \.shouldDisplayAddToApplePayGuide, on: self, ownership: .weak)
         .store(in: &bag)
 
-        tangemPayAccount.tangemPayStatusPublisher
+        tangemPayAccountManager.tangemPayStatusPublisher
             .map { $0 == .blocked ? .frozen : .normal }
             .receiveOnMain()
             .assign(to: \.freezingState, on: self, ownership: .weak)
