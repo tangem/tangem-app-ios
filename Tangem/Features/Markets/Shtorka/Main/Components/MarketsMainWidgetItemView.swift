@@ -7,31 +7,35 @@
 //
 
 import SwiftUI
+import TangemAssets
+import TangemUI
+import TangemUIUtils
 
 struct MarketsMainWidgetItemView<Header: View, Content: View, Footer: View>: View {
-    private let header: (() -> Header)?
+    private typealias Constants = MarketsMainWidgetItemViewConstants
+
+    private let header: () -> Header
     private let content: () -> Content
     private let footer: () -> Footer
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            if let header {
-                header()
-            }
+        VStack(alignment: .leading, spacing: Constants.interItemSpacing) {
+            header()
+                .padding(.horizontal, Constants.horizontalPadding)
 
             content()
+                .padding(.horizontal, Constants.horizontalPadding)
 
             footer()
+                .padding(.horizontal, Constants.horizontalPadding)
         }
-        .padding(12)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color(.secondarySystemBackground))
-        )
+        .padding(.vertical, Constants.innerContentPadding)
+        .background(Colors.Background.primary)
+        .cornerRadiusContinuous(Constants.cornerRadius)
     }
 
     init(
-        header: (() -> Header)? = nil,
+        @ViewBuilder header: @escaping () -> Header,
         @ViewBuilder content: @escaping () -> Content,
         @ViewBuilder footer: @escaping () -> Footer = { EmptyView() }
     ) {
@@ -43,20 +47,41 @@ struct MarketsMainWidgetItemView<Header: View, Content: View, Footer: View>: Vie
     // MARK: - Backward compatible convenience initializers
 
     init(
-        title: String?,
+        headerTitle: String,
+        buttonTitle: String?,
+        buttonAction: (() -> Void)?,
         content: Content
-    ) where Header == MarketsMainWidgetItemHeaderView, Footer == EmptyView {
-        header = { MarketsMainWidgetItemHeaderView(title: title) }
+    ) where Header == MarketsCommonWidgetHeaderView, Footer == EmptyView {
+        header = { MarketsCommonWidgetHeaderView(
+            headerTitle: headerTitle,
+            buttonTitle: buttonTitle,
+            buttonAction: buttonAction
+        ) }
         self.content = { content }
         footer = { EmptyView() }
     }
 
     init(
-        title: String?,
+        headerTitle: String,
+        buttonTitle: String?,
+        buttonAction: (() -> Void)?,
         @ViewBuilder content: @escaping () -> Content
-    ) where Header == MarketsMainWidgetItemHeaderView, Footer == EmptyView {
-        header = { MarketsMainWidgetItemHeaderView(title: title) }
+    ) where Header == MarketsCommonWidgetHeaderView, Footer == EmptyView {
+        header = { MarketsCommonWidgetHeaderView(
+            headerTitle: headerTitle,
+            buttonTitle: buttonTitle,
+            buttonAction: buttonAction
+        ) }
         self.content = content
         footer = { EmptyView() }
     }
+}
+
+// MARK: - Constants
+
+private enum MarketsMainWidgetItemViewConstants {
+    static let horizontalPadding: CGFloat = 16
+    static let cornerRadius: CGFloat = 14
+    static let interItemSpacing: CGFloat = 14
+    static let innerContentPadding: CGFloat = 0
 }

@@ -11,6 +11,7 @@ import SwiftUI
 import Combine
 import CombineExt
 import Kingfisher
+import TangemLocalization
 
 final class MarketsMainViewModel: MarketsBaseViewModel {
     private typealias SearchInput = MainBottomSheetHeaderViewModel.SearchInput
@@ -29,10 +30,24 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
         !currentSearchValue.isEmpty
     }
 
+    var headerTitle: String {
+        "Market & News"
+    }
+
+    var headerDate: String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale.current
+        formatter.setLocalizedDateFormatFromTemplate("d MMMM")
+        let dateString = formatter.string(from: Date())
+        return dateString.capitalized(with: formatter.locale)
+    }
+
     override var overlayContentHidingProgress: CGFloat {
         // Prevents unwanted content hiding (see [REDACTED_INFO]
         isViewVisible ? super.overlayContentHidingProgress : 1.0
     }
+
+    private let quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper
 
     // [REDACTED_TODO_COMMENT]
     private lazy var widgetsProvider: MarketsWidgetsProvder = CommonMarketsWidgetDataService()
@@ -46,7 +61,8 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
 
     // MARK: - Init
 
-    init(coordinator: MarketsMainRoutable) {
+    init(quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper, coordinator: MarketsMainRoutable) {
+        self.quotesRepositoryUpdateHelper = quotesRepositoryUpdateHelper
         self.coordinator = coordinator
 
         headerViewModel = MainBottomSheetHeaderViewModel()
@@ -89,6 +105,10 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
             isBottomSheetExpanded = false
         }
     }
+
+    // MARK: - Actions
+
+    func onHeaderActionButtonTap(for widgetType: MarketsWidgetType) {}
 }
 
 // MARK: - Private Implementation
@@ -155,17 +175,26 @@ private extension MarketsMainViewModel {
         let headerItem: WidgetHeaderItem?
 
         switch widgetModel.type {
-        case .banner:
-            headerItem = nil
-            contentItem = .banner
         case .market:
-            return nil
+            // [REDACTED_TODO_COMMENT]
+            let viewModel = TopMarketWidgetViewModel(
+                quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper,
+                coordinator: nil
+            )
+            contentItem = .top(viewModel)
+            headerItem = .common(title: widgetModel.headerTitle ?? "", buttonTitle: Localization.commonSeeAll)
         case .news:
             return nil
         case .earn:
             return nil
         case .pulse:
-            return nil
+            // [REDACTED_TODO_COMMENT]
+            let viewModel = PulseMarketWidgetViewModel(
+                quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper,
+                coordinator: nil
+            )
+            contentItem = .pulse(viewModel)
+            headerItem = .common(title: widgetModel.headerTitle ?? "", buttonTitle: Localization.commonSeeAll)
         }
 
         return WidgetStateItem(
@@ -194,10 +223,28 @@ extension MarketsMainViewModel {
     }
 
     enum WidgetHeaderItem: Hashable, Equatable {
-        case common(title: String, isDisplayButton: Bool)
+        case common(title: String, buttonTitle: String?)
     }
 
-    enum WidgetContentItem: Equatable {
-        case banner
+    enum WidgetContentItem: Identifiable, Equatable, Hashable {
+        case top(TopMarketWidgetViewModel)
+        case pulse(PulseMarketWidgetViewModel)
+
+        var id: MarketsWidgetType {
+            switch self {
+            case .top:
+                return .market
+            case .pulse:
+                return .pulse
+            }
+        }
+
+        static func == (lhs: MarketsMainViewModel.WidgetContentItem, rhs: MarketsMainViewModel.WidgetContentItem) -> Bool {
+            lhs.id == rhs.id
+        }
+
+        func hash(into hasher: inout Hasher) {
+            hasher.combine(id.rawValue)
+        }
     }
 }

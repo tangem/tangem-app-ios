@@ -9,7 +9,6 @@
 import Foundation
 
 enum MarketsWidgetType: String, Identifiable, CaseIterable {
-    case banner
     case market
     case news
     case earn

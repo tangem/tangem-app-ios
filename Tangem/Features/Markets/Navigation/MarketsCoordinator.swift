@@ -42,8 +42,14 @@ class MarketsCoordinator: CoordinatorObject {
     // MARK: - Implementation
 
     func start(with options: MarketsCoordinator.Options) {
+        let quotesRepositoryUpdateHelper = CommonMarketsQuotesUpdateHelper()
+
         if FeatureProvider.isAvailable(.newShtorka) {
-            let viewModel = MarketsMainViewModel(coordinator: self)
+            let viewModel = MarketsMainViewModel(
+                quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper,
+                coordinator: self
+            )
+
             rootState = .main(viewModel: viewModel)
         } else {
             let viewModel = MarketsViewModel(

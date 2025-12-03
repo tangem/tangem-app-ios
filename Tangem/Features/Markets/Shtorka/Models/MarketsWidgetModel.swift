@@ -15,10 +15,9 @@ struct MarketsWidgetModel: Identifiable, Hashable, Equatable {
     let isEnabled: Bool
     let order: Int
 
+    #warning("Need to implement localizations")
     var headerTitle: String? {
         switch type {
-        case .banner:
-            return nil
         case .market:
             return "Market"
         case .news:

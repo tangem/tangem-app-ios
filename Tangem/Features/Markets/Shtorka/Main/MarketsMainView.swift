@@ -67,7 +67,7 @@ struct MarketsMainView: View {
                 if showSearchResult {
                     searchResultView
                 } else {
-                    defaultWidgetsView
+                    listWidgets
                 }
             }
             .opacity(viewModel.overlayContentHidingProgress) // Hides list content on bottom sheet minimizing
@@ -130,7 +130,7 @@ struct MarketsMainView: View {
         VStack(alignment: .leading, spacing: 8) {
             ForEach(viewModel.widgetItems, id: \.id) { item in
                 MarketsMainWidgetItemView(
-                    header: { makeHeaderView(with: item.header) },
+                    header: { makeHeaderView(with: item.header, at: item.type) },
                     content: { makeContentView(with: item.content) }
                 )
             }
@@ -147,11 +147,11 @@ struct MarketsMainView: View {
         VStack(alignment: .leading, spacing: .zero) {
             HStack(alignment: .center, spacing: .zero) {
                 VStack(alignment: .leading, spacing: .zero) {
-                    Text("Market & News")
+                    Text(viewModel.headerTitle)
                         .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                         .opacity(listOverlayTitleOpacity)
 
-                    Text("21 October")
+                    Text(viewModel.headerDate)
                         .style(Fonts.Bold.title1, color: Colors.Text.tertiary)
                         .opacity(listOverlayTitleOpacity)
                 }
@@ -175,6 +175,38 @@ struct MarketsMainView: View {
             .padding(.top, Constants.listOverlayTopInset)
             .padding(.horizontal, Constants.defaultHorizontalInset)
             .readGeometry(\.size.height, bindTo: $searchResultListOverlayTotalHeight)
+    }
+
+    @ViewBuilder
+    private var listWidgets: some View {
+        ScrollViewReader { proxy in
+            ScrollView(showsIndicators: false) {
+                // ScrollView inserts default spacing between its content views.
+                // Wrapping content into a `VStack` prevents it.
+                VStack(spacing: 0.0) {
+                    Color.clear
+                        .frame(height: 0)
+                        .id(scrollTopAnchorId)
+
+                    // Using plain old overlay + dummy `Color.clear` spacer in the scroll view due to the buggy
+                    // `safeAreaInset(edge:alignment:spacing:content:)` iOS 15+ API which has both layout and touch-handling issues
+                    Color.clear
+                        .frame(height: headerHeight)
+
+                    // Using plain old overlay + dummy `Color.clear` spacer in the scroll view due to the buggy
+                    // `safeAreaInset(edge:alignment:spacing:content:)` iOS 15+ API which has both layout and touch-handling issues
+                    Color.clear
+                        .frame(height: overlayHeight)
+
+                    defaultWidgetsView
+                }
+                .readContentOffset(
+                    inCoordinateSpace: .named(scrollViewFrameCoordinateSpaceName),
+                    onChange: updateListOverlayAppearance(contentOffset:)
+                )
+            }
+            .coordinateSpace(name: scrollViewFrameCoordinateSpaceName)
+        }
     }
 
     private var noResultsStateView: some View {
@@ -214,19 +246,32 @@ struct MarketsMainView: View {
 
     // MARK: - Private Item Creation
 
-    private func makeHeaderView(with item: MarketsMainViewModel.WidgetHeaderItem?) -> (some View)? {
-        return switch item {
-        case .common(let title, _):
-            MarketsMainWidgetItemHeaderView(title: title)
+    @ViewBuilder
+    private func makeHeaderView(
+        with item: MarketsMainViewModel.WidgetHeaderItem?,
+        at widgetType: MarketsWidgetType
+    ) -> some View {
+        switch item {
+        case .common(let title, let buttonTitle):
+            MarketsCommonWidgetHeaderView(
+                headerTitle: title,
+                buttonTitle: buttonTitle,
+                buttonAction: {
+                    viewModel.onHeaderActionButtonTap(for: widgetType)
+                }
+            )
         case .none:
-            nil
+            EmptyView()
         }
     }
 
+    @ViewBuilder
     private func makeContentView(with item: MarketsMainViewModel.WidgetContentItem) -> some View {
-        return switch item {
-        case .banner:
-            MarketsBannerWidgetView()
+        switch item {
+        case .top(let viewModel):
+            TopMarketWidgetView(viewModel: viewModel)
+        case .pulse(let viewModel):
+            PulseMarketWidgetView(viewModel: viewModel)
         }
     }
 }

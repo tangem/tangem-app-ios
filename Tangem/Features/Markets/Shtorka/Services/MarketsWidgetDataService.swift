@@ -27,7 +27,7 @@ final class CommonMarketsWidgetDataService {
 
     func isEnabled(for type: MarketsWidgetType) -> Bool {
         switch type {
-        case .banner, .market, .pulse:
+        case .market, .pulse:
             return true
         case .news:
             return FeatureProvider.isAvailable(.marketsNews)
@@ -38,8 +38,6 @@ final class CommonMarketsWidgetDataService {
 
     func order(for type: MarketsWidgetType) -> Int {
         switch type {
-        case .banner:
-            return 0
         case .market:
             return 1
         case .news:
