@@ -65,7 +65,9 @@ extension NewAuthViewModel {
 
 private extension NewAuthViewModel {
     func setup(state: State) {
-        self.state = state
+        runTask(in: self) { @MainActor viewModel in
+            viewModel.state = state
+        }
     }
 
     func setupInitialState() {
