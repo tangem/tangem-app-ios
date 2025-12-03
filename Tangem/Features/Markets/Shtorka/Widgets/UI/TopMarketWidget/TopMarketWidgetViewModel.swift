@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 import Combine
 import CombineExt
-import Kingfisher
+import TangemFoundation
 
 final class TopMarketWidgetViewModel: ObservableObject {
     // MARK: - Injected & Published Properties
@@ -155,9 +155,17 @@ private extension TopMarketWidgetViewModel {
             chartsProvider: chartsHistoryProvider,
             filterProvider: filterProvider,
             onTapAction: { [weak self] in
-                self?.coordinator?.openMarketsTokenDetails(for: tokenItemModel)
+                self?.onTokenTapAction(with: tokenItemModel)
             }
         )
+    }
+
+    // MARK: - Actions
+
+    private func onTokenTapAction(with tokenItemModel: MarketsTokenModel) {
+        runTask(in: self) { @MainActor viewModel in
+            viewModel.coordinator?.openMarketsTokenDetails(for: tokenItemModel)
+        }
     }
 }
 
