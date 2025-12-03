@@ -369,9 +369,7 @@ private extension CommonYieldModuleManager {
         pendingTransactions: [PendingTransactionRecord],
         yieldContract: String?
     ) -> YieldModuleManagerStateInfo {
-        guard let marketInfo = marketsInfo.first(where: { $0.tokenContractAddress == token.contractAddress }) else {
-            return YieldModuleManagerStateInfo(marketInfo: nil, state: .disabled)
-        }
+        let marketInfo = marketsInfo.first(where: { $0.tokenContractAddress == token.contractAddress })
 
         if hasEnterTransactions(in: pendingTransactions, yieldContract: yieldContract) {
             return YieldModuleManagerStateInfo(marketInfo: marketInfo, state: .processing(action: .enter))
@@ -403,13 +401,13 @@ private extension CommonYieldModuleManager {
                     )
                 )
             } else {
-                state = marketInfo.isActive ? .notActive : .disabled
+                state = (marketInfo?.isActive ?? false) ? .notActive : .disabled
             }
         case .noAccount:
             state = .disabled
         case .failed(error: let error):
             let cachedState = yieldModuleStateRepository.state()
-            if marketInfo.isActive || cachedState?.isEffectivelyActive == true {
+            if (marketInfo?.isActive ?? false) || cachedState?.isEffectivelyActive == true {
                 state = .failedToLoad(error: error, cachedState: cachedState)
             } else {
                 state = .disabled
@@ -510,7 +508,7 @@ private extension CommonYieldModuleManager {
 
         let statePublisher = Publishers.CombineLatest4(
             _walletModelData.compactMap { $0 },
-            yieldModuleNetworkManager.marketsPublisher.filter { !$0.isEmpty }.removeDuplicates(),
+            yieldModuleNetworkManager.marketsPublisher.removeDuplicates(),
             pendingTransactionsPublisher,
             yieldContractPublisher
         )
