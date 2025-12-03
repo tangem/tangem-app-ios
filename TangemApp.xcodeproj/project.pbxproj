@@ -271,7 +271,6 @@
 		0FB93C9E2E5726C800DAB673 /* MobileUpgradeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FB93C9D2E5726C800DAB673 /* MobileUpgradeView.swift */; };
 		0FB93CA02E5726D000DAB673 /* MobileUpgradeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FB93C9F2E5726D000DAB673 /* MobileUpgradeViewModel.swift */; };
 		0FB93CE22E57671900DAB673 /* MobileUpgradeRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FB93CE12E57671900DAB673 /* MobileUpgradeRoutable.swift */; };
-		0FB93D632E58656A00DAB673 /* SessionMobileAccessCodeStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FB93BD82E55CEB700DAB673 /* SessionMobileAccessCodeStorageManager.swift */; };
 		0FB93D852E58918600DAB673 /* MobileOnboardingStepsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FB93D842E58918500DAB673 /* MobileOnboardingStepsBuilder.swift */; };
 		0FB93DE72E59A46900DAB673 /* MobileUpgradeCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FB93DE62E59A46900DAB673 /* MobileUpgradeCoordinator.swift */; };
 		0FBB13EE2E015DD80086784A /* MobileOnboardingSeedPhraseIntroViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBB13ED2E015DD80086784A /* MobileOnboardingSeedPhraseIntroViewModel.swift */; };
@@ -4906,7 +4905,6 @@
 		0FB938122E506FA300DAB673 /* UserWalletBiometricsUnlockProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletBiometricsUnlockProvider.swift; sourceTree = "<group>"; };
 		0FB938142E5072B200DAB673 /* CommonUserWalletBiometricsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonUserWalletBiometricsProvider.swift; sourceTree = "<group>"; };
 		0FB93BB62E55B9A900DAB673 /* SessionMobileAccessCodeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionMobileAccessCodeManager.swift; sourceTree = "<group>"; };
-		0FB93BD82E55CEB700DAB673 /* SessionMobileAccessCodeStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionMobileAccessCodeStorageManager.swift; sourceTree = "<group>"; };
 		0FB93C9D2E5726C800DAB673 /* MobileUpgradeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileUpgradeView.swift; sourceTree = "<group>"; };
 		0FB93C9F2E5726D000DAB673 /* MobileUpgradeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileUpgradeViewModel.swift; sourceTree = "<group>"; };
 		0FB93CE12E57671900DAB673 /* MobileUpgradeRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileUpgradeRoutable.swift; sourceTree = "<group>"; };
@@ -9813,7 +9811,6 @@
 				0FA453AA2E1D3AFE0055B5BB /* MobileWrongAccessCodeStore.swift */,
 				0FA453A82E1D3AFE0055B5BB /* MobileAccessCodeStorageManager.swift */,
 				0FA453A72E1D3AFE0055B5BB /* CommonMobileAccessCodeStorageManager.swift */,
-				0FB93BD82E55CEB700DAB673 /* SessionMobileAccessCodeStorageManager.swift */,
 			);
 			path = StorageManager;
 			sourceTree = "<group>";
@@ -25671,7 +25668,6 @@
 				DCE2F7E22CE354A400BDE145 /* ActionButtonsSellCoordinatorView.swift in Sources */,
 				C2459EF32E4FB0820061785C /* WCTransactionAddressRowView.swift in Sources */,
 				B09933A22B554E9F00240CDB /* CommonMainHeaderProviderFactory.swift in Sources */,
-				0FB93D632E58656A00DAB673 /* SessionMobileAccessCodeStorageManager.swift in Sources */,
 				B679CAFC2DE488DF00D67364 /* CommonNFTCacheDelegate.swift in Sources */,
 				EF6183802B4F04F10064B7CD /* SwappingSuccessCoordinatorView.swift in Sources */,
 				0F8414C82E994B5F00D03FB6 /* MobileRemoveWalletNotificationRoutable.swift in Sources */,
