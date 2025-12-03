@@ -111,7 +111,8 @@ final class EnvironmentSetupViewModel: ObservableObject {
                     default: ExpressAPIType.production.rawValue,
                     get: { $0.apiExpress },
                     set: { $0.apiExpress = $1 }
-                )
+                ),
+                pickerStyle: .menu
             ),
             DefaultPickerRowViewModel(
                 title: "Visa API type",
