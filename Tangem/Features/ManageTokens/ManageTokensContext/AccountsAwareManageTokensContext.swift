@@ -48,12 +48,7 @@ final class AccountsAwareManageTokensContext: ManageTokensContext {
     }
 
     func canManageBlockchain(_ blockchain: Blockchain) -> Bool {
-        if currentAccount.isMainAccount {
-            return true
-        }
-
-        let helper = AccountDerivationPathHelper(blockchain: blockchain)
-        return helper.areAccountsAvailableForBlockchain()
+        AccountBlockchainManageabilityChecker.canManageBlockchain(blockchain, for: currentAccount)
     }
 
     // MARK: - Private Helpers
