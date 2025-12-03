@@ -31,14 +31,6 @@ final class ReferralViewModel: ObservableObject {
     private let userWalletId: Data
     private let supportedBlockchains: Set<Blockchain>
 
-    private var shareLink: String {
-        guard let referralInfo = referralProgramInfo?.referral else {
-            return ""
-        }
-
-        return Localization.referralShareLink(referralInfo.shareLink)
-    }
-
     private let workMode: WorkMode
     private var accountModel: AccountModel?
     private var referralProgramInfo: ReferralProgramInfo?
@@ -89,13 +81,20 @@ final class ReferralViewModel: ObservableObject {
 
     @MainActor
     func openAccountSelector() {
-        guard let selectedCryptoAccount, let selectedUserWallet = userWalletRepository.selectedModel else {
+        guard
+            let selectedCryptoAccount,
+            let selectedUserWallet = userWalletRepository.selectedModel,
+            let networkId = awardToken?.networkId
+        else {
             return
         }
+
+        let filter = makeCryptoAccountModelsFilter(networkId: networkId)
 
         coordinator?.showAccountSelector(
             selectedAccount: selectedCryptoAccount,
             userWalletModel: selectedUserWallet,
+            cryptoAccountModelsFilter: filter,
             onSelect: { [weak self] cryptoAccountModel in
                 guard let self else { return }
 
@@ -111,6 +110,12 @@ final class ReferralViewModel: ObservableObject {
                 viewState = viewState.updateAccountData(with: accountData)
             }
         )
+    }
+
+    private func makeCryptoAccountModelsFilter(networkId: String) -> (any CryptoAccountModel) -> Bool {
+        return { [supportedBlockchains] account in
+            AccountBlockchainManageabilityChecker.canManageNetwork(networkId, for: account, in: supportedBlockchains)
+        }
     }
 
     func participateInReferralProgram() {
@@ -415,6 +420,22 @@ final class ReferralViewModel: ObservableObject {
         findAccount(by: selectedForReferralAccount?.id)
     }
 
+    private var award: ReferralProgramInfo.Award? {
+        referralProgramInfo?.conditions.awards.first
+    }
+
+    private var awardToken: AwardToken? {
+        award?.token
+    }
+
+    private var shareLink: String {
+        guard let referralInfo = referralProgramInfo?.referral else {
+            return ""
+        }
+
+        return Localization.referralShareLink(referralInfo.shareLink)
+    }
+
     private func findAccount(by id: some Hashable) -> (any CryptoAccountModel)? {
         switch workMode {
         case .plainUserTokensManager:
@@ -462,8 +483,7 @@ extension ReferralViewModel {
         var addressContent = ""
         var tokenName = ""
 
-        if let info = referralProgramInfo,
-           let award = info.conditions.awards.first {
+        if let award {
             formattedAward = "\(award.amount) \(award.token.symbol)"
         }
 
@@ -472,8 +492,7 @@ extension ReferralViewModel {
             addressContent = addressFormatter.truncated()
         }
 
-        if let token = referralProgramInfo?.conditions.awards.first?.token,
-           let blockchain = supportedBlockchains[token.networkId] {
+        if let awardToken, let blockchain = supportedBlockchains[awardToken.networkId] {
             tokenName = blockchain.displayName
         }
 
