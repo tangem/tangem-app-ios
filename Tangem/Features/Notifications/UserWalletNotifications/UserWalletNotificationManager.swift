@@ -266,7 +266,7 @@ final class UserWalletNotificationManager {
                 switch value {
                 case .configurationChanged:
                     return true
-                case .nameDidChange, .tangemPayOfferAccepted:
+                case .nameDidChange:
                     return false
                 }
             }

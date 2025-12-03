@@ -292,24 +292,21 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         guard FeatureProvider.isAvailable(.visa) else {
             return
         }
+        tangemPayAccountViewModel = .init(
+            tangemPayAccountManager: userWalletModel.tangemPayAccountManager,
+            router: self
+        )
 
-        userWalletModel.tangemPayAccountPublisher
-            .flatMapLatest(\.tangemPayNotificationManager.notificationPublisher)
+        userWalletModel.tangemPayAccountManager
+            .notificationManager
+            .notificationPublisher
             .receiveOnMain()
             .assign(to: &$tangemPayNotificationInputs)
 
-        userWalletModel.tangemPayAccountPublisher
-            .flatMapLatest(\.tangemPaySyncInProgressPublisher)
+        userWalletModel.tangemPayAccountManager
+            .tangemPaySyncInProgressPublisher
             .receiveOnMain()
             .assign(to: &$tangemPaySyncInProgress)
-
-        userWalletModel.tangemPayAccountPublisher
-            .withWeakCaptureOf(self)
-            .map { viewModel, tangemPayAccount in
-                TangemPayAccountViewModel(tangemPayAccount: tangemPayAccount, router: viewModel)
-            }
-            .receiveOnMain()
-            .assign(to: &$tangemPayAccountViewModel)
     }
 
     /// - Note: This method throws an opaque error if the NFT Entrypoint view model is already created and there is no need to update it.
@@ -616,10 +613,14 @@ extension MultiWalletMainContentViewModel: TangemPayAccountRoutable {
         coordinator?.openTangemPayFailedToIssueCardPopup(userWalletModel: userWalletModel)
     }
 
-    func openTangemPayMainView(tangemPayAccount: TangemPayAccount) {
+    func openTangemPayMainView(
+        tangemPayAccount: TangemPayAccount,
+        tangemPayAccountManager: TangemPayAccountManaging
+    ) {
         coordinator?.openTangemPayMainView(
             userWalletInfo: userWalletModel.userWalletInfo,
             tangemPayAccount: tangemPayAccount,
+            tangemPayAccountManager: tangemPayAccountManager
         )
     }
 }
@@ -690,6 +691,8 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
             openMobileUpgrade()
         case .allowPushPermissionRequest, .postponePushPermissionRequest:
             userWalletNotificationManager.dismissNotification(with: id)
+        case .tangemPaySync:
+            userWalletModel.tangemPayAccountManager.onTangemPaySync()
         default:
             break
         }

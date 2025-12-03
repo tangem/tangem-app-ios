@@ -16,14 +16,6 @@ enum MultiWalletMainContentUpdater {
                 await scheduleUpdateInternal(with: userWalletModel)
             }
 
-            // [REDACTED_TODO_COMMENT]
-            // [REDACTED_INFO]
-            if FeatureProvider.isAvailable(.visa), let tangemPayAccount = userWalletModel.tangemPayAccount {
-                outerGroup.addTask {
-                    await tangemPayAccount.loadCustomerInfo().value
-                }
-            }
-
             await outerGroup.waitForAll()
         }
     }
