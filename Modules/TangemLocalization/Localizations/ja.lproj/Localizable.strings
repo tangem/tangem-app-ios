@@ -1,6 +1,10 @@
 "access_code_alert_skip_description" = "アクセスコードがないとウォレットは安全ではありません。";
 "access_code_alert_skip_ok" = "とにかくスキップ";
 "access_code_alert_skip_title" = "アクセスコードが設定されていません";
+"access_code_alert_validation_cancel" = "Change code";
+"access_code_alert_validation_description" = "Your access code will be used to unlock your wallet and to protect access to the assets";
+"access_code_alert_validation_ok" = "Use anyway";
+"access_code_alert_validation_title" = "This access code can be easily guessed";
 "access_code_check_title" = "アクセスコードを入力";
 "access_code_check_warining_delete" = "アクセスコードが間違っています。あと%@回間違えると、モバイルウォレットが削除されます。";
 "access_code_check_warining_lock" = "アクセスコードが間違っています。あと%@回失敗すると、アプリはロックされます。";
@@ -731,6 +735,10 @@
 "markets_token_details_volume" = "取引量";
 "markets_tooltip_message" = "これをドラッグするか、検索窓をタップして、マーケットから直接トークンを追加します";
 "markets_tooltip_title" = "トークンを追加";
+"markets_yield_supply_banner_description" = "資産を即時アクセス可能な状態に保ったまま、パワーアップさせよう。%@";
+"markets_yield_supply_banner_title" = "利息モードを有効にする";
+"mobile_wallet_requires_min_os_warning_body" = "You must update to %1$@ in order to create mobile wallet";
+"mobile_wallet_requires_min_os_warning_title" = "Mobile Wallet requires %1$@ or later";
 "news_all_news" = "すべてのニュース";
 "news_stay_in_the_loop" = "最新情報を入手";
 "nft_about_title" = "NFTについて";
@@ -1829,6 +1837,7 @@
 "yield_module_fee_policy_tangem_service_fee_title" = "Tangemは、生成された利息に対して15%%サービス手数料も徴収します。";
 "yield_module_high_fee_error" = "ネットワーク手数料が下がるか、残高が最低必要額に達すると、資金は自動的にAaveに供給されます。";
 "yield_module_historical_returns" = "過去のリターン";
+"yield_module_main_screen_promo_banner_message" = "\"Enable %1$@%% APY on your balance\"";
 "yield_module_main_view_approve_notification_description" = "利息モードでのトークンの承認が取り消されました。トークンを開いて再度許可してください。";
 "yield_module_main_view_approve_notification_title" = "トークンの承認が必要です";
 "yield_module_network_fee_unreachable_notification_description" = "ネットワーク接続を確認してください";
@@ -1841,9 +1850,9 @@
 "yield_module_promo_screen_self_custodial_subtitle" = "Aave は、ノンカストディアルな流動性市場を提供し、ユーザーが変動レートで利回りを獲得できるようにするオンチェーンプロトコルです。";
 "yield_module_promo_screen_self_custodial_title" = "分散型・自己管理型";
 "yield_module_promo_screen_terms_disclaimer" = "このサービスを利用することにより、プロバイダー\n%1$@および%2$@に同意するものとします。";
-"yield_module_promo_screen_title_v2" = "Enable %1$@%% APY\non your balance";
+"yield_module_promo_screen_title_v2" = "残高に %1$@%% の年利（APY）を適用";
 "yield_module_promo_screen_title" = "Aaveに接続";
-"yield_module_promo_screen_variable_rate_info_v2" = "Variable Interest Rate";
+"yield_module_promo_screen_variable_rate_info_v2" = "変動金利";
 "yield_module_promo_screen_variable_rate_info" = "Aave %1$@%% • 変動金利";
 "yield_module_provider" = "Aave";
 "yield_module_rate_info_sheet_chart_average" = "平均%@";
@@ -1877,6 +1886,7 @@
 "yield_module_transaction_exit" = "利息モードが無効になりました";
 "yield_module_transaction_topup_subtitle" = "%1$@がAaveに供給されました";
 "yield_module_transaction_topup" = "Aaveへの供給";
+"yield_module_transaction_withdraw" = "Aaveから引き出されました";
 "yield_module_transfer_mode_automatic" = "自動";
 "yield_module_unable_to_cover_fee_description" = "取引のネットワーク手数料をカバーするために、 %1$@ %2$@を追加してください。";
 "yield_module_unable_to_cover_fee_title" = "%@手数料を支払えません";
