@@ -186,18 +186,6 @@ extension AccountDerivationPathHelper {
             AccountDerivationPathHelper(blockchain: blockchain).areAccountsAvailableForBlockchain()
         }
     }
-
-    /// Checks if a blockchain with the given networkId supports multiple accounts.
-    /// - Parameters:
-    ///   - networkId: The network identifier
-    ///   - supportedBlockchains: The set of supported blockchains to search in
-    /// - Returns: `true` if the blockchain exists and supports accounts, `false` otherwise
-    static func supportsAccounts(networkId: String, in supportedBlockchains: Set<Blockchain>) -> Bool {
-        guard let blockchain = supportedBlockchains[networkId] else {
-            return false
-        }
-        return AccountDerivationPathHelper(blockchain: blockchain).areAccountsAvailableForBlockchain()
-    }
 }
 
 // MARK: - Constants
