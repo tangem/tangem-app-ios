@@ -10,8 +10,8 @@ import Foundation
 import TangemFoundation
 import TangemAccounts
 import TangemUI
-import TangemLocalization
 import TangemUIUtils
+import TangemLocalization
 
 final class ArchivedAccountsViewModel: ObservableObject {
     private typealias LoadingState = LoadingValue<[ArchivedCryptoAccountInfo]>
@@ -68,8 +68,11 @@ final class ArchivedAccountsViewModel: ObservableObject {
 
         recoverAccountTask = Task { [weak self] in
             do throws(AccountRecoveryError) {
-                try await self?.accountModelsManager.unarchiveCryptoAccount(info: accountInfo)
-                await self?.handleAccountRecoverySuccess()
+                guard let result = try await self?.accountModelsManager.unarchiveCryptoAccount(info: accountInfo) else {
+                    return
+                }
+
+                await self?.handleAccountRecoverySuccess(result: result)
             } catch {
                 await self?.handleAccountRecoveryFailure(accountInfo: accountInfo, error: error)
             }
@@ -79,9 +82,9 @@ final class ArchivedAccountsViewModel: ObservableObject {
     // MARK: - Private implementation
 
     @MainActor
-    private func handleAccountRecoverySuccess() {
+    private func handleAccountRecoverySuccess(result: AccountOperationResult) {
         recoveringAccountId = nil
-        coordinator?.close()
+        coordinator?.close(with: result)
 
         Toast(view: SuccessToast(text: Localization.accountRecoverSuccessMessage))
             .present(layout: .top(padding: 24), type: .temporary(interval: 4))
@@ -92,22 +95,24 @@ final class ArchivedAccountsViewModel: ObservableObject {
         recoveringAccountId = nil
 
         let message: String
-        let buttonTitle: String
+        let buttonText: String
 
         switch error {
-        case .tooManyActiveAccounts:
+        case .tooManyAccounts:
             message = Localization.accountRecoverLimitDialogDescription(AccountModelUtils.maxNumberOfAccounts)
-            buttonTitle = Localization.commonGotIt
-
+            buttonText = Localization.commonGotIt
+        case .duplicateAccountName:
+            message = Localization.accountFormNameAlreadyExistErrorDescription
+            buttonText = Localization.commonGotIt
         case .unknownError:
-            message = Localization.commonSomethingWentWrong
-            buttonTitle = Localization.commonOk
+            message = Localization.accountGenericErrorDialogMessage
+            buttonText = Localization.commonOk
         }
 
         alertBinder = AlertBuilder.makeAlertWithDefaultPrimaryButton(
-            title: Localization.accountArchivedRecoverErrorTitle,
+            title: Localization.commonSomethingWentWrong,
             message: message,
-            buttonText: buttonTitle
+            buttonText: buttonText
         )
 
         AccountsLogger.error("Failed to recover archived account with info \(accountInfo)", error: error)

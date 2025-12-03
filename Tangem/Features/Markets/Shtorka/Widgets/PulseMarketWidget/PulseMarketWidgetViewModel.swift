@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 import Combine
 import CombineExt
-import Kingfisher
+import TangemFoundation
 
 final class PulseMarketWidgetViewModel: ObservableObject {
     // MARK: - Injected & Published Properties
@@ -215,15 +215,17 @@ private extension PulseMarketWidgetViewModel {
             marketCapFormatter: marketCapFormatter,
             chartsProvider: chartsHistoryProvider,
             filterProvider: filterProvider,
-            onTapAction: { [weak self] in self?.onTapViewModelAction(with: tokenItemModel) }
+            onTapAction: { [weak self] in
+                self?.onTokenTapAction(with: tokenItemModel)
+            }
         )
     }
 
     // MARK: - Actions
 
-    func onTapViewModelAction(with tokenItemModel: MarketsTokenModel) {
-        Task { @MainActor in
-            self.coordinator?.openMarketsTokenDetails(for: tokenItemModel)
+    private func onTokenTapAction(with tokenItemModel: MarketsTokenModel) {
+        runTask(in: self) { @MainActor viewModel in
+            viewModel.coordinator?.openMarketsTokenDetails(for: tokenItemModel)
         }
     }
 }

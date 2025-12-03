@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import TangemNFT
 
 protocol MainRoutable: AnyObject & WCTransactionRoutable & MainDeepLinkRoutable {
     func openDetails()
