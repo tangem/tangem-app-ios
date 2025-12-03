@@ -11,17 +11,23 @@ import TangemAssets
 
 struct DefaultMenuRowView<Action: DefaultMenuRowViewModelAction>: View {
     private let viewModel: DefaultMenuRowViewModel<Action>
+    private let titleFont: Font
     @Binding private var selection: Action
 
-    init(viewModel: DefaultMenuRowViewModel<Action>, selection: Binding<Action>) {
+    init(
+        viewModel: DefaultMenuRowViewModel<Action>,
+        selection: Binding<Action>,
+        titleFont: Font = Fonts.Regular.subheadline
+    ) {
         self.viewModel = viewModel
+        self.titleFont = titleFont
         _selection = selection
     }
 
     var body: some View {
         HStack(alignment: .center, spacing: 0) {
             Text(viewModel.title)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                .style(titleFont, color: Colors.Text.primary1)
 
             Spacer()
 
