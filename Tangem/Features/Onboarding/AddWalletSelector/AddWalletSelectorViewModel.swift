@@ -10,9 +10,11 @@ import Combine
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import struct TangemUIUtils.AlertBinder
 
 final class AddWalletSelectorViewModel: ObservableObject {
     @Published var isBuyAvailable = false
+    @Published var alert: AlertBinder?
 
     let navigationBarHeight = OnboardingLayoutConstants.navbarSize.height
     let screenTitle = Localization.walletAddCommonTitle
@@ -22,6 +24,8 @@ final class AddWalletSelectorViewModel: ObservableObject {
     lazy var buyItem: BuyItem = makeBuyItem()
 
     @Injected(\.safariManager) private var safariManager: SafariManager
+
+    private let mobileWalletFeatureProvider = MobileWalletFeatureProvider()
 
     private var analyticsContextParams: Analytics.ContextParams { .empty }
 
@@ -71,7 +75,7 @@ private extension AddWalletSelectorViewModel {
                 WalletInfoItem(icon: Assets.Glyphs.mobileWallet, title: Localization.hwCreateTitle),
                 WalletInfoItem(icon: Assets.Glyphs.importData, title: Localization.walletAddImportSeedPhrase),
             ],
-            action: weakify(self, forFunction: AddWalletSelectorViewModel.openMobileWallet)
+            action: weakify(self, forFunction: AddWalletSelectorViewModel.onMobileWalletTap)
         )
 
         return [hardwareItem, mobileItem]
@@ -91,6 +95,15 @@ private extension AddWalletSelectorViewModel {
             self?.isBuyAvailable = true
         }
     }
+
+    func onMobileWalletTap() {
+        logMobileWalletTapAnalytics()
+        guard mobileWalletFeatureProvider.isAvailable else {
+            alert = mobileWalletFeatureProvider.makeRestrictionAlert()
+            return
+        }
+        openMobileWallet()
+    }
 }
 
 // MARK: - Navigation
@@ -101,7 +114,6 @@ private extension AddWalletSelectorViewModel {
     }
 
     func openMobileWallet() {
-        logMobileWalletTapAnalytics()
         coordinator?.openAddMobileWallet()
     }
 
