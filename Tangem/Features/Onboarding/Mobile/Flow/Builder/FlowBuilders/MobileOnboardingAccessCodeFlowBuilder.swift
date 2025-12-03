@@ -31,7 +31,8 @@ final class MobileOnboardingAccessCodeFlowBuilder: MobileOnboardingFlowBuilder {
     }
 
     override func setupFlow() {
-        let accessCodeStep = MobileOnboardingAccessCodeStep(mode: .change(context), source: source, delegate: self)
+        let mode: MobileOnboardingAccessCodeViewModel.Mode = userWalletModel.config.userWalletAccessCodeStatus.hasAccessCode ? .change(context) : .create(canSkip: false)
+        let accessCodeStep = MobileOnboardingAccessCodeStep(mode: mode, source: source, delegate: self)
             .configureNavBar(
                 title: Localization.accessCodeNavtitle,
                 leadingAction: navBarCloseAction
