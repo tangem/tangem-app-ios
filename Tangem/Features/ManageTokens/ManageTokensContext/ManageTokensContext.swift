@@ -30,4 +30,5 @@ protocol ManageTokensContext {
     func findUserTokensManager(for tokenItem: TokenItem) -> UserTokensManager?
     func accountDestination(for tokenItem: TokenItem) -> TokenAccountDestination
     func canManageBlockchain(_ blockchain: Blockchain) -> Bool
+    func isAddedToPortfolio(_ tokenItem: TokenItem) -> Bool
 }
