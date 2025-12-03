@@ -246,7 +246,21 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
             }
 
         case .signPsbt:
-            throw WalletConnectTransactionRequestProcessingError.unsupportedMethod(action.rawValue)
+            switch connectedDApp {
+            case .v1:
+                return try WalletConnectBitcoinSignPsbtHandler(
+                    request: params,
+                    blockchainId: blockchainNetworkID,
+                    walletModelProvider: walletModelProvider
+                )
+            case .v2(let walletConnectConnectedDAppV2):
+                return try WalletConnectBitcoinSignPsbtHandler(
+                    request: params,
+                    blockchainId: blockchainNetworkID,
+                    wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
+                    accountId: walletConnectConnectedDAppV2.accountId
+                )
+            }
 
         case .signMessage:
             return try WalletConnectBitcoinSignMessageHandler(
