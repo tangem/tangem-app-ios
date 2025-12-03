@@ -304,7 +304,7 @@ private extension DetailsViewModel {
             }
         }
 
-        if MobileWalletFeatureProvider.isAvailable {
+        if FeatureProvider.isAvailable(.mobileWallet) {
             addNewUserWalletViewModel = DefaultRowViewModel(
                 title: Localization.userWalletListAddButton,
                 action: weakify(self, forFunction: DetailsViewModel.openAddWallet)
@@ -464,7 +464,7 @@ private extension DetailsViewModel {
         guard BiometricsUtil.isAvailable else {
             return false
         }
-        if MobileWalletFeatureProvider.isAvailable {
+        if FeatureProvider.isAvailable(.mobileWallet) {
             return AppSettings.shared.useBiometricAuthentication
         } else {
             return AppSettings.shared.saveUserWallets

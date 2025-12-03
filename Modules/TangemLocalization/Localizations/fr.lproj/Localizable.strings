@@ -1,6 +1,10 @@
 "access_code_alert_skip_description" = "Without an access code, your wallet is not secure.";
 "access_code_alert_skip_ok" = "Skip anyway";
 "access_code_alert_skip_title" = "Access code not set";
+"access_code_alert_validation_cancel" = "Change code";
+"access_code_alert_validation_description" = "Your access code will be used to unlock your wallet and to protect access to the assets";
+"access_code_alert_validation_ok" = "Use anyway";
+"access_code_alert_validation_title" = "This access code can be easily guessed";
 "access_code_check_title" = "Enter access code";
 "access_code_check_warining_delete" = "Wrong access code. Your mobile wallet will be deleted after %@ more incorrect attempts.";
 "access_code_check_warining_lock" = "Wrong access code. The app will be locked after %@ more failed attempts";
@@ -731,6 +735,10 @@
 "markets_token_details_volume" = "Volume";
 "markets_tooltip_message" = "Tirez vers le haut ou appuyez sur la barre de recherche pour ajouter des jetons directement depuis le marché";
 "markets_tooltip_title" = "Ajouter des jetons";
+"markets_yield_supply_banner_description" = "Power up your assets while supplying them with instant access. %@";
+"markets_yield_supply_banner_title" = "Activate Yield Mode";
+"mobile_wallet_requires_min_os_warning_body" = "You must update to %1$@ in order to create mobile wallet";
+"mobile_wallet_requires_min_os_warning_title" = "Mobile Wallet requires %1$@ or later";
 "news_all_news" = "All news";
 "news_stay_in_the_loop" = "Stay in the loop";
 "nft_about_title" = "À propos des NFT";
@@ -1829,6 +1837,7 @@
 "yield_module_fee_policy_tangem_service_fee_title" = "Tangem prélève également des frais de service de 15%% sur les revenus générés.";
 "yield_module_high_fee_error" = "Vos fonds seront automatiquement transférés vers Aave dès que les frais de réseau seront moins élevés ou que votre solde atteindra le montant minimum requis.";
 "yield_module_historical_returns" = "Rendements historiques";
+"yield_module_main_screen_promo_banner_message" = "\"Enable %1$@%% APY on your balance\"";
 "yield_module_main_view_approve_notification_description" = "L'autorisation pour votre token en mode Rendement a été révoquée. Ouvrez le token pour accorder à nouveau l'autorisation.";
 "yield_module_main_view_approve_notification_title" = "Approbations de tokens nécessaires";
 "yield_module_network_fee_unreachable_notification_description" = "Vérifiez votre connexion réseau.";
@@ -1877,6 +1886,7 @@
 "yield_module_transaction_exit" = "Mode rendement désactivé";
 "yield_module_transaction_topup_subtitle" = "%1$@ fourni à Aave";
 "yield_module_transaction_topup" = "Approvisionnement à Aave";
+"yield_module_transaction_withdraw" = "Withdrawn from Aave";
 "yield_module_transfer_mode_automatic" = "Automatique";
 "yield_module_unable_to_cover_fee_description" = "Déposez %1$@ %2$@ pour couvrir les frais de réseau liés aux transactions.";
 "yield_module_unable_to_cover_fee_title" = "Impossible de couvrir les frais %@";
