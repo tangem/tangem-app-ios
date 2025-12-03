@@ -111,7 +111,7 @@ private extension LockedWalletMainContentViewModel {
         guard BiometricsUtil.isAvailable else {
             return false
         }
-        if MobileWalletFeatureProvider.isAvailable {
+        if FeatureProvider.isAvailable(.mobileWallet) {
             return AppSettings.shared.useBiometricAuthentication
         } else {
             return AppSettings.shared.saveUserWallets
