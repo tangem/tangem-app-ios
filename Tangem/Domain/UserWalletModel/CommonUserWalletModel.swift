@@ -20,13 +20,13 @@ class CommonUserWalletModel {
     // MARK: Services
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-    @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
 
     let walletModelsManager: WalletModelsManager
     let userTokensManager: UserTokensManager
     let nftManager: NFTManager
     let keysRepository: KeysRepository
     let totalBalanceProvider: TotalBalanceProvider
+    let tangemPayAccountManager: TangemPayAccountManaging
 
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
     let accountModelsManager: AccountModelsManager
@@ -46,11 +46,6 @@ class CommonUserWalletModel {
 
     private let _updatePublisher: PassthroughSubject<UpdateResult, Never> = .init()
     private let _cardHeaderImagePublisher: CurrentValueSubject<ImageType?, Never>
-
-    // [REDACTED_TODO_COMMENT]
-    // [REDACTED_INFO]
-    private let tangemPayAccountSubject = CurrentValueSubject<TangemPayAccount?, Never>(nil)
-    private var tangemPayAccountCancellable: Cancellable?
 
     init(
         walletInfo: WalletInfo,
@@ -76,29 +71,14 @@ class CommonUserWalletModel {
         self.totalBalanceProvider = totalBalanceProvider
         self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
         self.accountModelsManager = accountModelsManager
-
+        tangemPayAccountManager = TangemPayAccountManager(
+            walletInfo: walletInfo,
+            config: config,
+            userWalletId: userWalletId,
+            keysRepository: keysRepository,
+            updatePublisher: _updatePublisher.eraseToAnyPublisher()
+        )
         _cardHeaderImagePublisher = .init(config.cardHeaderImage)
-
-        // [REDACTED_TODO_COMMENT]
-        // [REDACTED_INFO]
-        if FeatureProvider.isAvailable(.visa) {
-            runTask { [self] in
-                let builder = TangemPayAccountBuilder()
-                let tangemPayAccount = try? await builder.makeTangemPayAccount(
-                    authorizerType: .availabilityService,
-                    userWalletModel: self
-                )
-
-                if let tangemPayAccount {
-                    tangemPayAccountSubject.send(tangemPayAccount)
-                } else {
-                    // Make it possible to create TangemPayAccount from offer screen
-                    tangemPayAccountCancellable = updatePublisher.compactMap(\.tangemPayAccount)
-                        .first()
-                        .sink(receiveValue: tangemPayAccountSubject.send)
-                }
-            }
-        }
     }
 
     deinit {
@@ -197,18 +177,6 @@ extension CommonUserWalletModel: UserWalletModel {
         _updatePublisher.eraseToAnyPublisher()
     }
 
-    // [REDACTED_TODO_COMMENT]
-    // [REDACTED_INFO]
-    var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount, Never> {
-        tangemPayAccountSubject
-            .compactMap(\.self)
-            .eraseToAnyPublisher()
-    }
-
-    var tangemPayAccount: TangemPayAccount? {
-        tangemPayAccountSubject.value
-    }
-
     func update(type: UpdateRequest) {
         switch type {
         case .newName(let name):
@@ -288,9 +256,6 @@ extension CommonUserWalletModel: UserWalletModel {
                 mutableInfo.hasMnemonicBackup = true
                 updateConfiguration(walletInfo: .mobileWallet(mutableInfo))
             }
-
-        case .tangemPayOfferAccepted(let tangemPayAccount):
-            _updatePublisher.send(.tangemPayOfferAccepted(tangemPayAccount))
         }
     }
 
@@ -341,20 +306,6 @@ extension CommonUserWalletModel: KeysDerivingProvider {
             return KeysDerivingCardInteractor(with: cardInfo)
         case .mobileWallet:
             return KeysDerivingMobileWalletInteractor(userWalletId: userWalletId, userWalletConfig: config)
-        }
-    }
-}
-
-extension CommonUserWalletModel: TangemPayAuthorizingProvider {
-    var tangemPayAuthorizingInteractor: TangemPayAuthorizing {
-        switch walletInfo {
-        case .cardWallet(let cardInfo):
-            return TangemPayAuthorizingCardInteractor(with: cardInfo)
-        case .mobileWallet:
-            return TangemPayAuthorizingMobileWalletInteractor(
-                userWalletId: userWalletId,
-                userWalletConfig: config
-            )
         }
     }
 }

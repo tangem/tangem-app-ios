@@ -516,11 +516,6 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var keysRepository: any KeysRepository { userWalletModel.keysRepository }
 
-    // [REDACTED_TODO_COMMENT]
-    // [REDACTED_INFO]
-    var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount, Never> { .empty }
-    var tangemPayAccount: TangemPayAccount? { nil }
-
     var signer: TangemSigner { userWalletModel.signer }
 
     var updatePublisher: AnyPublisher<UpdateResult, Never> { userWalletModel.updatePublisher }
@@ -555,13 +550,13 @@ extension VisaUserWalletModel: UserWalletModel {
         NotSupportedWalletConnectAccountsWalletModelProvider()
     }
 
+    var tangemPayAccountManager: any TangemPayAccountManaging {
+        userWalletModel.tangemPayAccountManager
+    }
+
     var refcodeProvider: RefcodeProvider? { userWalletModel.refcodeProvider }
 
     var keysDerivingInteractor: any KeysDeriving { userWalletModel.keysDerivingInteractor }
-
-    var tangemPayAuthorizingInteractor: TangemPayAuthorizing {
-        userWalletModel.tangemPayAuthorizingInteractor
-    }
 
     var userTokensPushNotificationsManager: any UserTokensPushNotificationsManager {
         userWalletModel.userTokensPushNotificationsManager

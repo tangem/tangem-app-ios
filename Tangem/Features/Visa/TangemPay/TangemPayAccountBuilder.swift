@@ -7,51 +7,125 @@
 //
 
 import TangemVisa
+import TangemFoundation
+import Combine
 
 struct TangemPayAccountBuilder {
-    func makeTangemPayAccount(authorizerType: AuthorizerType, userWalletModel: UserWalletModel) async throws -> TangemPayAccount {
+    func makeTangemPayAuthorizer(
+        authorizerType: AuthorizerType,
+        userWalletId: UserWalletId,
+        keysRepository: KeysRepository,
+        tangemPayAuthorizingInteractor: TangemPayAuthorizing,
+        signer: TangemSigner
+    ) async throws -> TangemPayAuthorizer {
         let authorizer: TangemPayAuthorizer? = switch authorizerType {
-        case .plain:
-            try await makeTangemPayAuthorizer(userWalletModel: userWalletModel)
-        case .availabilityService:
-            await makeTangemPayAuthorizerViaAvailabilityService(userWalletModel: userWalletModel)
+        case .availability:
+            try await buildAvailabilityAuthorizer(
+                userWalletId: userWalletId,
+                keysRepository: keysRepository,
+                tangemPayAuthorizingInteractor: tangemPayAuthorizingInteractor,
+                signer: signer
+            )
+
+        case .paeraCustomer:
+            try await buildPaeraCustomerAuthorizer(
+                userWalletId: userWalletId,
+                keysRepository: keysRepository,
+                tangemPayAuthorizingInteractor: tangemPayAuthorizingInteractor,
+                signer: signer
+            )
         }
 
         guard let authorizer else {
             throw Error.authorizerNotFound
         }
 
-        return makeTangemPayAccount(authorizer: authorizer, userWalletModel: userWalletModel)
+        return authorizer
+    }
+
+    func buildAuthorizationTokenHandler(
+        authorizer: TangemPayAuthorizer
+    ) -> TangemPayAuthorizationTokensHandler {
+        TangemPayAuthorizationTokensHandlerBuilder()
+            .buildTangemPayAuthorizationTokensHandler(
+                customerWalletId: authorizer.customerWalletId,
+                authorizationService: authorizer.authorizationService,
+                setSyncNeeded: authorizer.setSyncNeeded,
+                setUnavailable: authorizer.setUnavailable
+            )
+    }
+
+    func makeTangemPayAccount(
+        authorizer: TangemPayAuthorizer,
+        userWalletId: UserWalletId,
+        keysRepository: KeysRepository,
+        tangemPayAuthorizingInteractor: TangemPayAuthorizing,
+        signer: TangemSigner,
+        customerInfoManagementService: CustomerInfoManagementService
+    ) async throws -> TangemPayAccount {
+        return makeTangemPayAccount(
+            authorizer: authorizer,
+            signer: signer,
+            userWalletId: userWalletId,
+            customerInfoManagementService: customerInfoManagementService
+        )
     }
 }
 
 // MARK: - Private
 
 private extension TangemPayAccountBuilder {
-    /// Uses in `CommonUserWalletModel`
-    func makeTangemPayAuthorizerViaAvailabilityService(userWalletModel: UserWalletModel) async -> TangemPayAuthorizer? {
-        let customerWalletId = userWalletModel.userWalletId.stringValue
-        let availabilityService = TangemPayAPIServiceBuilder().buildTangemPayAvailabilityService()
+    private func buildAvailabilityAuthorizer(
+        userWalletId: UserWalletId,
+        keysRepository: KeysRepository,
+        tangemPayAuthorizingInteractor: TangemPayAuthorizing,
+        signer: TangemSigner
+    ) async throws -> TangemPayAuthorizer? {
+        let isTangemPayAvailable = try await TangemPayAPIServiceBuilder()
+            .buildTangemPayAvailabilityService()
+            .loadEligibility()
+            .isTangemPayAvailable
+        guard isTangemPayAvailable else { return nil }
+        let walletId = userWalletId.stringValue
 
-        let state: TangemPayAuthorizer.State? = await {
+        let authorizer = TangemPayAuthorizer(
+            customerWalletId: walletId,
+            interactor: tangemPayAuthorizingInteractor,
+            keysRepository: keysRepository,
+            state: .unavailable
+        )
+
+        await MainActor.run {
+            AppSettings.shared.tangemPayIsPaeraCustomer[walletId] = true
+        }
+
+        return authorizer
+    }
+
+    private func buildPaeraCustomerAuthorizer(
+        userWalletId: UserWalletId,
+        keysRepository: KeysRepository,
+        tangemPayAuthorizingInteractor: TangemPayAuthorizing,
+        signer: TangemSigner
+    ) async throws -> TangemPayAuthorizer? {
+        let walletId = userWalletId.stringValue
+
+        let authorizerState: TangemPayAuthorizer.State? = await {
             do {
-                if await !AppSettings.shared.tangemPayIsPaeraCustomer[customerWalletId, default: false] {
-                    _ = try await availabilityService.isPaeraCustomer(customerWalletId: customerWalletId)
-                    await MainActor.run {
-                        AppSettings.shared.tangemPayIsPaeraCustomer[customerWalletId] = true
-                    }
+                await MainActor.run {
+                    AppSettings.shared.tangemPayIsPaeraCustomer[walletId] = true
                 }
 
                 if let (customerWalletAddress, tokens) = TangemPayUtilities.getCustomerWalletAddressAndAuthorizationTokens(
-                    customerWalletId: customerWalletId,
-                    keysRepository: userWalletModel.keysRepository
+                    customerWalletId: walletId,
+                    keysRepository: keysRepository
                 ) {
                     return .authorized(customerWalletAddress: customerWalletAddress, tokens: tokens)
                 } else {
                     return .syncNeeded
                 }
             } catch {
-                if await AppSettings.shared.tangemPayIsPaeraCustomer[customerWalletId, default: false] {
+                if await AppSettings.shared.tangemPayIsPaeraCustomer[walletId, default: false] {
                     return .unavailable
                 } else {
                     return nil
@@ -59,66 +133,40 @@ private extension TangemPayAccountBuilder {
             }
         }()
 
-        guard let state else {
-            return nil
+        guard let authorizerState else {
+            throw Error.authorizerNotFound
         }
 
         let authorizer = TangemPayAuthorizer(
-            customerWalletId: customerWalletId,
-            interactor: userWalletModel.tangemPayAuthorizingInteractor,
-            keysRepository: userWalletModel.keysRepository,
-            state: state
+            customerWalletId: walletId,
+            interactor: tangemPayAuthorizingInteractor,
+            keysRepository: keysRepository,
+            state: authorizerState
         )
 
         return authorizer
     }
 
-    /// Uses in `TangemPayOfferViewModel`
-    func makeTangemPayAuthorizer(userWalletModel: UserWalletModel) async throws -> TangemPayAuthorizer {
-        let customerWalletId = userWalletModel.userWalletId.stringValue
-        let authorizer = TangemPayAuthorizer(
-            customerWalletId: customerWalletId,
-            interactor: userWalletModel.tangemPayAuthorizingInteractor,
-            keysRepository: userWalletModel.keysRepository,
-            state: .unavailable
-        )
-
-        try await authorizer.authorizeWithCustomerWallet()
-
-        await MainActor.run {
-            AppSettings.shared.tangemPayIsPaeraCustomer[customerWalletId] = true
-        }
-
-        return authorizer
-    }
-
-    func makeTangemPayAccount(authorizer: TangemPayAuthorizer, userWalletModel: UserWalletModel) -> TangemPayAccount {
-        let authorizationTokensHandler = TangemPayAuthorizationTokensHandlerBuilder()
-            .buildTangemPayAuthorizationTokensHandler(
-                customerWalletId: authorizer.customerWalletId,
-                authorizationService: authorizer.authorizationService,
-                setSyncNeeded: authorizer.setSyncNeeded,
-                setUnavailable: authorizer.setUnavailable
-            )
-
-        let customerInfoManagementService = TangemPayCustomerInfoManagementServiceBuilder()
-            .buildCustomerInfoManagementService(authorizationTokensHandler: authorizationTokensHandler)
-
+    func makeTangemPayAccount(
+        authorizer: TangemPayAuthorizer,
+        signer: TangemSigner,
+        userWalletId: UserWalletId,
+        customerInfoManagementService: CustomerInfoManagementService
+    ) -> TangemPayAccount {
         let tokenBalancesRepository = CommonTokenBalancesRepository(
-            userWalletId: userWalletModel.userWalletId
+            userWalletId: userWalletId
         )
 
         let withdrawTransactionService = CommonTangemPayWithdrawTransactionService(
             customerInfoManagementService: customerInfoManagementService,
             fiatItem: TangemPayUtilities.fiatItem,
-            signer: userWalletModel.signer
+            signer: signer
         )
 
         return TangemPayAccount(
-            authorizer: authorizer,
-            authorizationTokensHandler: authorizationTokensHandler,
             customerInfoManagementService: customerInfoManagementService,
             tokenBalancesRepository: tokenBalancesRepository,
+            keysRepository: authorizer.keysRepository,
             withdrawTransactionService: withdrawTransactionService
         )
     }
@@ -126,8 +174,8 @@ private extension TangemPayAccountBuilder {
 
 extension TangemPayAccountBuilder {
     enum AuthorizerType {
-        case plain
-        case availabilityService
+        case availability
+        case paeraCustomer
     }
 
     enum Error: LocalizedError {
