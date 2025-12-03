@@ -41,7 +41,10 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
     private let pinValidator = VisaPinValidator()
     private var bag = Set<AnyCancellable>()
 
-    init(tangemPayAccount: TangemPayAccount, coordinator: TangemPayPinRoutable) {
+    init(
+        tangemPayAccount: TangemPayAccount,
+        coordinator: TangemPayPinRoutable
+    ) {
         self.tangemPayAccount = tangemPayAccount
         self.coordinator = coordinator
         bind()

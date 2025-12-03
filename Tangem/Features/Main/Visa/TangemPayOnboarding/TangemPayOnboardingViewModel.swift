@@ -45,7 +45,7 @@ final class TangemPayOnboardingViewModel: ObservableObject {
 
             await MainActor.run {
                 tangemPayOfferViewModel = TangemPayOfferViewModel(
-                    userWalletModel: userWalletModel,
+                    tangemPayAccountManager: userWalletModel.tangemPayAccountManager,
                     closeOfferScreen: closeOfferScreen
                 )
             }

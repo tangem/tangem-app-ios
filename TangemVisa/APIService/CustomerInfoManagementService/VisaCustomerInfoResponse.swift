@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct VisaCustomerInfoResponse: Decodable {
+public struct VisaCustomerInfoResponse: Decodable, Equatable {
     public let id: String
     public let state: CustomerState
     public let createdAt: Date
@@ -20,7 +20,7 @@ public struct VisaCustomerInfoResponse: Decodable {
 }
 
 public extension VisaCustomerInfoResponse {
-    enum CustomerState: String, Decodable {
+    enum CustomerState: String, Decodable, Equatable {
         case new
         case inProgress = "in_progress"
         case active
@@ -28,7 +28,7 @@ public extension VisaCustomerInfoResponse {
         case unknown
     }
 
-    struct ProductInstance: Decodable {
+    struct ProductInstance: Decodable, Equatable {
         public let id: String
         public let cardWalletAddress: String
         public let cardId: String
@@ -38,7 +38,7 @@ public extension VisaCustomerInfoResponse {
         public let paymentAccountId: String
     }
 
-    enum ProductStatus: String, Decodable {
+    enum ProductStatus: String, Decodable, Equatable {
         case new
         case readyForManufacturing = "ready_for_manufacturing"
         case manufacturing
@@ -53,7 +53,7 @@ public extension VisaCustomerInfoResponse {
         case unknown
     }
 
-    struct PaymentAccount: Decodable {
+    struct PaymentAccount: Decodable, Equatable {
         public let id: String
         public let customerWalletAddress: String
         public let address: String
@@ -68,7 +68,7 @@ public extension VisaCustomerInfoResponse {
         public let createdAt: Date
     }
 
-    enum KYCStatus: String, Decodable {
+    enum KYCStatus: String, Decodable, Equatable {
         case required = "REQUIRED"
         case approved = "APPROVED"
         case declined = "DECLINED"
@@ -77,20 +77,20 @@ public extension VisaCustomerInfoResponse {
         case undefined = "UNDEFINED"
     }
 
-    enum KYCRisk: String, Decodable {
+    enum KYCRisk: String, Decodable, Equatable {
         case low = "LOW"
         case medium = "MEDIUM"
         case high = "HIGH"
         case undefined = "UNDEFINED"
     }
 
-    enum KYCReviewAnswer: String, Decodable {
+    enum KYCReviewAnswer: String, Decodable, Equatable {
         case green = "GREEN"
         case red = "RED"
         case undefined = "UNDEFINED"
     }
 
-    struct Card: Decodable {
+    struct Card: Decodable, Equatable {
         public let cardNumberEnd: String
     }
 }

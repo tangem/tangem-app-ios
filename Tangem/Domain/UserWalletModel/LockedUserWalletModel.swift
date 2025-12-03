@@ -108,16 +108,11 @@ class LockedUserWalletModel: UserWalletModel {
         )
     }
 
-    // [REDACTED_TODO_COMMENT]
-    // [REDACTED_INFO]
-    var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount, Never> { .empty }
-    var tangemPayAccount: TangemPayAccount? { nil }
-
     var keysDerivingInteractor: any KeysDeriving {
         fatalError("Should not be called for locked wallets")
     }
 
-    var tangemPayAuthorizingInteractor: TangemPayAuthorizing {
+    var tangemPayAccountManager: any TangemPayAccountManaging {
         fatalError("Should not be called for locked wallets")
     }
 
@@ -162,8 +157,6 @@ class LockedUserWalletModel: UserWalletModel {
         case .iCloudBackupCompleted:
             break
         case .mnemonicBackupCompleted:
-            break
-        case .tangemPayOfferAccepted:
             break
         }
     }

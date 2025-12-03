@@ -14,7 +14,7 @@ final class TangemPayNotificationManager {
 
     private var cancellable: Cancellable?
 
-    init(tangemPayAccountStatePublisher: AnyPublisher<TangemPayAuthorizer.State, Never>) {
+    func bind(tangemPayAccountStatePublisher: AnyPublisher<TangemPayAuthorizer.State, Never>) {
         cancellable = tangemPayAccountStatePublisher
             .map(\.notificationEvent)
             .withWeakCaptureOf(self)
