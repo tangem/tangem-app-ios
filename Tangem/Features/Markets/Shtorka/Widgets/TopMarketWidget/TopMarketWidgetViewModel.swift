@@ -138,7 +138,7 @@ private extension TopMarketWidgetViewModel {
             .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
             .sink { (viewModel: TopMarketWidgetViewModel, items: [MarketTokenItemViewModel]) in
-                viewModel.tokenViewModels.append(contentsOf: items)
+                viewModel.tokenViewModels.append(contentsOf: items.prefix(Constants.itemsOnListWidget))
                 viewModel.tokenListLoadingState = .loaded
             }
             .store(in: &bag)

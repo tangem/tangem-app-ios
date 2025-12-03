@@ -24,7 +24,6 @@ struct MarketsMainWidgetItemView<Header: View, Content: View, Footer: View>: Vie
                 .padding(.horizontal, Constants.horizontalPadding)
 
             content()
-                .padding(.horizontal, Constants.horizontalPadding)
 
             footer()
                 .padding(.horizontal, Constants.horizontalPadding)

@@ -127,7 +127,7 @@ struct MarketsMainView: View {
 
     @ViewBuilder
     private var defaultWidgetsView: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: Layout.Widgets.verticalContentSpacing) {
             ForEach(viewModel.widgetItems, id: \.id) { item in
                 MarketsMainWidgetItemView(
                     header: { makeHeaderView(with: item.header, at: item.type) },
@@ -283,5 +283,15 @@ private extension MarketsMainView {
         static let defaultHorizontalInset = 16.0
         static let listOverlayTopInset = 10.0
         static let listOverlayBottomInset = 12.0
+    }
+}
+
+// MARK: - Layout
+
+private extension MarketsMainView {
+    enum Layout {
+        enum Widgets {
+            static let verticalContentSpacing: CGFloat = 40.0
+        }
     }
 }

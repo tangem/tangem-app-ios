@@ -49,6 +49,7 @@ public struct HorizontalChipsView: View {
                 }
             }
             .padding(.horizontal, Constants.horizontalContentPadding)
+            .padding(.vertical, Constants.verticalContentPadding)
         }
         .frame(height: Constants.chipHeight)
         .onAppear(perform: ensureDefaultSelectionIfNeeded)
@@ -90,6 +91,7 @@ extension HorizontalChipsView {
         static let chipCornerRadius: CGFloat = 24
         static let horizontalContentSpacing: CGFloat = 8
         static let horizontalContentPadding: CGFloat = 16
+        static let verticalContentPadding: CGFloat = 8
         static let horizontalChipPadding: CGFloat = 16
         static let verticalChipPadding: CGFloat = 8
     }

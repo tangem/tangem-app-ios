@@ -66,7 +66,7 @@ final class PulseMarketWidgetViewModel: ObservableObject {
 
         // Need for preload markets list, when bottom sheet it has not been opened yet
         quotesUpdatesScheduler.saveQuotesUpdateDate(Date())
-        fetch(by: filterProvider.currentFilterValue)
+//        fetch(by: filterProvider.currentFilterValue)
     }
 
     deinit {
@@ -196,17 +196,14 @@ private extension PulseMarketWidgetViewModel {
             .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
             .sink { (viewModel: PulseMarketWidgetViewModel, items: [MarketTokenItemViewModel]) in
-                viewModel.tokenViewModels.append(contentsOf: items)
+                viewModel.tokenViewModels.append(contentsOf: items.prefix(Constants.itemsOnListWidget))
                 viewModel.tokenListLoadingState = .loaded
             }
             .store(in: &bag)
     }
 
     func mapToItemViewModel(_ list: [MarketsTokenModel], offset: Int) -> [MarketTokenItemViewModel] {
-        list
-            .prefix(Constants.itemsOnListWidget)
-            .enumerated()
-            .map { mapToTokenViewModel(index: $0 + offset, tokenItemModel: $1) }
+        list.enumerated().map { mapToTokenViewModel(index: $0 + offset, tokenItemModel: $1) }
     }
 
     func mapToTokenViewModel(index: Int, tokenItemModel: MarketsTokenModel) -> MarketTokenItemViewModel {

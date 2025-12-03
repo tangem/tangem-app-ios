@@ -21,7 +21,7 @@ struct TopMarketWidgetView: View {
     @Environment(\.mainWindowSize) private var mainWindowSize
 
     var body: some View {
-        VStack(spacing: 0.0) {
+        VStack(spacing: .zero) {
             ForEach(viewModel.tokenViewModels) {
                 MarketTokenItemView(viewModel: $0, cellWidth: mainWindowSize.width)
             }
@@ -31,6 +31,8 @@ struct TopMarketWidgetView: View {
                 loadingSkeletons
             }
         }
+        .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: .zero, horizontalPadding: .zero)
+        .padding(.horizontal, Layout.List.horizontalContentPadding)
     }
 
     private var loadingSkeletons: some View {
@@ -49,5 +51,19 @@ extension TopMarketWidgetView {
         case idle
 
         var id: String { rawValue }
+    }
+}
+
+// MARK: - Layout
+
+extension TopMarketWidgetView {
+    enum Layout {
+        enum RootView {
+            static let verticalContentSpacing: CGFloat = 8.0
+        }
+
+        enum List {
+            static let horizontalContentPadding: CGFloat = 16.0
+        }
     }
 }
