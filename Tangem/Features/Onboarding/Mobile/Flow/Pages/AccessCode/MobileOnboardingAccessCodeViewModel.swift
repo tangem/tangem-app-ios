@@ -301,8 +301,8 @@ private extension MobileOnboardingAccessCodeViewModel {
 
     func makeTrailingNavBarItem() -> MobileOnboardingFlowNavBarAction? {
         switch mode {
-        case .create:
-            return .skip(handler: weakify(self, forFunction: MobileOnboardingAccessCodeViewModel.onSkipTap))
+        case .create(let canSkip):
+            return canSkip ? .skip(handler: weakify(self, forFunction: MobileOnboardingAccessCodeViewModel.onSkipTap)) : nil
         case .change:
             return nil
         }
@@ -384,7 +384,7 @@ private extension MobileOnboardingAccessCodeViewModel {
 
 extension MobileOnboardingAccessCodeViewModel {
     enum Mode {
-        case create
+        case create(canSkip: Bool)
         case change(MobileWalletContext)
     }
 
