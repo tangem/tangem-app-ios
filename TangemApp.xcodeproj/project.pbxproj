@@ -434,6 +434,7 @@
 		2D57CA862C3D0B0D0070D477 /* MarketsWalletDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D57CA852C3D0B0D0070D477 /* MarketsWalletDataSource.swift */; };
 		2D57CA882C3D0BA30070D477 /* MarketsGeneratedAddressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D57CA872C3D0BA30070D477 /* MarketsGeneratedAddressView.swift */; };
 		2D59AB022E31067D00C3C352 /* SolanaVersionedMessageError+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D59AB012E31067D00C3C352 /* SolanaVersionedMessageError+.swift */; };
+		2D5AA23C2EDD5BC100AC0A1D /* SelectorReceiveCircleButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D5AA23B2EDD5BC100AC0A1D /* SelectorReceiveCircleButtonView.swift */; };
 		2D5B25592DE4608300D8D809 /* TransactionNotificationsModalViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D5B25582DE4608300D8D809 /* TransactionNotificationsModalViewModel.swift */; };
 		2D5B255C2DE460C900D8D809 /* TransactionNotificationsItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D5B255A2DE460C900D8D809 /* TransactionNotificationsItemView.swift */; };
 		2D5B255D2DE460C900D8D809 /* TransactionNotificationsItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D5B255B2DE460C900D8D809 /* TransactionNotificationsItemViewModel.swift */; };
@@ -5049,6 +5050,7 @@
 		2D57CA852C3D0B0D0070D477 /* MarketsWalletDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsWalletDataSource.swift; sourceTree = "<group>"; };
 		2D57CA872C3D0BA30070D477 /* MarketsGeneratedAddressView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsGeneratedAddressView.swift; sourceTree = "<group>"; };
 		2D59AB012E31067D00C3C352 /* SolanaVersionedMessageError+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SolanaVersionedMessageError+.swift"; sourceTree = "<group>"; };
+		2D5AA23B2EDD5BC100AC0A1D /* SelectorReceiveCircleButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectorReceiveCircleButtonView.swift; sourceTree = "<group>"; };
 		2D5B25562DE4606F00D8D809 /* TransactionNotificationsModalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionNotificationsModalView.swift; sourceTree = "<group>"; };
 		2D5B25582DE4608300D8D809 /* TransactionNotificationsModalViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionNotificationsModalViewModel.swift; sourceTree = "<group>"; };
 		2D5B255A2DE460C900D8D809 /* TransactionNotificationsItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionNotificationsItemView.swift; sourceTree = "<group>"; };
@@ -11007,6 +11009,7 @@
 		2DD91FA42E66A77C00A0B0B5 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				2D5AA23B2EDD5BC100AC0A1D /* SelectorReceiveCircleButtonView.swift */,
 				2DE009302EA66DA200A3C9D0 /* SelectorReceiveQRCodeButtonView.swift */,
 				2DD91FA52E66A79300A0B0B5 /* SelectorReceiveRoundButtonView.swift */,
 				2DE009312EA66DA200A3C9D0 /* SelectorReceiveRoundGroupButtonView.swift */,
@@ -27915,6 +27918,7 @@
 				B690FC652C91CBA800D8683B /* MarketsBaseViewModel.swift in Sources */,
 				DCC05A602CD17DFD004CE6A4 /* TokenSelectorView.swift in Sources */,
 				2DBE29C42B3C4A8100109D5E /* View+DetentBottomSheet.swift in Sources */,
+				2D5AA23C2EDD5BC100AC0A1D /* SelectorReceiveCircleButtonView.swift in Sources */,
 				EF1E17682BF672AC000364AE /* DefaultTextFieldRowView.swift in Sources */,
 				EF41937A2C2DE0CB006A30A5 /* SendAmount.swift in Sources */,
 				DA76BF422CEF5BBE00199317 /* PollingService.swift in Sources */,
