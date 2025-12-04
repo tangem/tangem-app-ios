@@ -62,10 +62,21 @@ extension MobileOnboardingSeedPhraseImportViewModel: SeedPhraseImportDelegate {
 
                 let walletInfo = try await initializer.initializeWallet(mnemonic: mnemonic, passphrase: passphrase)
 
-                let userWalletId = UserWalletId(config: MobileUserWalletConfig(mobileWalletInfo: walletInfo))
+                let userWalletConfig = MobileUserWalletConfig(mobileWalletInfo: walletInfo)
+                let userWalletId = UserWalletId(config: userWalletConfig)
 
                 guard !viewModel.userWalletRepository.models.contains(where: { $0.userWalletId == userWalletId }) else {
                     throw UserWalletRepositoryError.duplicateWalletAdded
+                }
+
+                if let userWalletId {
+                    let walletCreationHelper = WalletCreationHelper(
+                        userWalletId: userWalletId,
+                        userWalletName: nil,
+                        userWalletConfig: userWalletConfig
+                    )
+
+                    try? await walletCreationHelper.createWallet()
                 }
 
                 guard let userWalletModel = CommonUserWalletModelFactory().makeModel(
