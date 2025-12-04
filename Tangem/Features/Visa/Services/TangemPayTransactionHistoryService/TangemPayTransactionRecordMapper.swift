@@ -37,8 +37,8 @@ struct TangemPayTransactionRecordMapper {
         switch transaction.record {
         case .spend, .payment, .fee:
             return true
-        case .collateral:
-            return false
+        case .collateral(let collateral):
+            return collateral.amount < 0
         }
     }
 
@@ -134,7 +134,8 @@ struct TangemPayTransactionRecordMapper {
         case .collateral(let collateral):
             // In the `collateral.currency` we have `USDC` crypto token
             // But we have to show user just simple `$` currency
-            return format(amount: collateral.amount, currencyCode: AppConstants.usdCurrencyCode, prefix: "+")
+            let prefix = collateral.amount > 0 ? "+" : ""
+            return format(amount: collateral.amount, currencyCode: AppConstants.usdCurrencyCode, prefix: prefix)
         case .payment(let payment):
             return format(amount: -payment.amount, currencyCode: payment.currency)
         case .fee(let fee):
@@ -155,8 +156,12 @@ struct TangemPayTransactionRecordMapper {
         switch transaction.record {
         case .spend(let spend):
             return spend.enrichedMerchantName ?? spend.merchantName ?? Localization.tangempayCardDetailsTitle
-        case .collateral:
-            return Localization.tangemPayDeposit
+        case .collateral(let collateral):
+            if collateral.amount > 0 {
+                return Localization.tangemPayDeposit
+            } else {
+                return Localization.tangemPayWithdrawal
+            }
         case .payment:
             return Localization.tangemPayWithdrawal
         case .fee:
