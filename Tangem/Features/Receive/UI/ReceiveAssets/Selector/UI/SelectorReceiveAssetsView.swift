@@ -44,7 +44,7 @@ struct SelectorReceiveAssetsView: View {
     }
 
     private func domainSectionView(viewModels: [SelectorReceiveAssetsContentItemViewModel]) -> some View {
-        GroupedSection(viewModels) {
+        ForEach(viewModels, id: \.id) {
             SelectorReceiveAssetsContentItemView(viewModel: $0)
         }
     }
