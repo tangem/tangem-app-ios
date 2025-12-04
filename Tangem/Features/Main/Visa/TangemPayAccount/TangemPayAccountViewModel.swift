@@ -83,6 +83,14 @@ private extension TangemPayAccountViewModel {
                 .formattedBalanceTypePublisher
         )
         .map(TangemPayAccountViewModel.mapToState)
+        .handleEvents(receiveOutput: { state in
+            switch state {
+            case .issuingYourCard:
+                Analytics.log(.visaOnboardingIssuingBannerDisplayed)
+            default:
+                break
+            }
+        })
         .receiveOnMain()
         .assign(to: &$state)
     }
