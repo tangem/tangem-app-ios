@@ -3766,6 +3766,7 @@
 		EF4041492DE4E08B002F996A /* SendAmountCompactTokenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4041382DE4712C002F996A /* SendAmountCompactTokenView.swift */; };
 		EF40414A2DE4E091002F996A /* SendAmountCompactTokenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF40413B2DE47401002F996A /* SendAmountCompactTokenViewModel.swift */; };
 		EF40414C2DE4E098002F996A /* SendAmountCompactViewSeparator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF40414B2DE4E098002F996A /* SendAmountCompactViewSeparator.swift */; };
+		EF404ACB2EE08900000F0252 /* TangemPayWithdrawAvailabilityProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF404ACA2EE08900000F0252 /* TangemPayWithdrawAvailabilityProvider.swift */; };
 		EF407E352C04AF6F00366733 /* TangemStakingFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF407E342C04AF6F00366733 /* TangemStakingFactory.swift */; };
 		EF407E5D2C04D64B00366733 /* StakeKitAPIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF407E5C2C04D64B00366733 /* StakeKitAPIProvider.swift */; };
 		EF407E5F2C04D65B00366733 /* CommonStakeKitAPIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF407E5E2C04D65B00366733 /* CommonStakeKitAPIProvider.swift */; };
@@ -8346,6 +8347,7 @@
 		EF4041422DE48198002F996A /* FiatItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiatItem.swift; sourceTree = "<group>"; };
 		EF4041442DE4830E002F996A /* SendAmountFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAmountFormatter.swift; sourceTree = "<group>"; };
 		EF40414B2DE4E098002F996A /* SendAmountCompactViewSeparator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAmountCompactViewSeparator.swift; sourceTree = "<group>"; };
+		EF404ACA2EE08900000F0252 /* TangemPayWithdrawAvailabilityProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayWithdrawAvailabilityProvider.swift; sourceTree = "<group>"; };
 		EF407E342C04AF6F00366733 /* TangemStakingFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemStakingFactory.swift; sourceTree = "<group>"; };
 		EF407E5C2C04D64B00366733 /* StakeKitAPIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakeKitAPIProvider.swift; sourceTree = "<group>"; };
 		EF407E5E2C04D65B00366733 /* CommonStakeKitAPIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonStakeKitAPIProvider.swift; sourceTree = "<group>"; };
@@ -23165,6 +23167,7 @@
 		EF9C66142ED091CA00992543 /* Withdraw */ = {
 			isa = PBXGroup;
 			children = (
+				EF404ACA2EE08900000F0252 /* TangemPayWithdrawAvailabilityProvider.swift */,
 				EF9C66152ED091D300992543 /* TangemPayWithdrawFeeProvider.swift */,
 				EF9C66172ED091DB00992543 /* TangemPayExpressBalanceProvider.swift */,
 				EF97841D2ED09273005C4890 /* TangemPayExpressCEXTransactionProcessor.swift */,
@@ -25463,6 +25466,7 @@
 				DCB14AEA2DC615C60075F340 /* WalletConnectQRScanRoutable.swift in Sources */,
 				DCB14AEB2DC615C60075F340 /* WalletConnectQRScanCoordinator.swift in Sources */,
 				B60F98C02E3BC72800141CA5 /* AccountModel.swift in Sources */,
+				EF404ACB2EE08900000F0252 /* TangemPayWithdrawAvailabilityProvider.swift in Sources */,
 				DCB14AED2DC615C60075F340 /* WalletConnectQRScanViewEvent.swift in Sources */,
 				DCB14AEE2DC615C60075F340 /* WalletConnectConnectedDAppDetailsViewState.swift in Sources */,
 				DCB14AEF2DC615C60075F340 /* WalletConnectQRScanViewModel.swift in Sources */,
