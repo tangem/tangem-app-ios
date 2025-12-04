@@ -111,23 +111,103 @@ final class SendFeeUITests: BaseTestCase {
             .waitForNetworkFeeAmount(maxFeeFiatValue)
     }
 
+    func testNetworkFeeSelectorDisplaysOptions_ForVeThor() {
+        setAllureId(4871)
+
+        let veChainScenario = ScenarioConfig(
+            name: "user_tokens_api",
+            initialState: "Vechain"
+        )
+        let quotesScenario = ScenarioConfig(
+            name: "quotes_api",
+            initialState: "Vechain"
+        )
+
+        launchApp(
+            tangemApiType: .mock,
+            scenarios: [veChainScenario, quotesScenario]
+        )
+
+        StoriesScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .tapToken(Constants.Network.vethor)
+            .tapActionButton(.send)
+
+        let sendSummaryScreen = SendScreen(app)
+            .waitForDisplay()
+            .enterAmount(Constants.Amount.vethor)
+            .tapNextButton()
+            .enterDestination(Constants.Address.vethor)
+            .tapNextButtonToSummary()
+
+        sendSummaryScreen
+            .waitForDisplay(checkValidatorBlock: false)
+            .verifyNetworkFeeContains("$")
+            .tapFeeBlock()
+            .waitForDisplay(cryptoSymbol: "VTHO", fiatSymbol: "$", includeCustom: false)
+    }
+
+    func testNetworkFeeSelectorNotDisplayed_ForTerraClassicUSD() {
+        setAllureId(4906)
+
+        let terraClassicScenario = ScenarioConfig(
+            name: "user_tokens_api",
+            initialState: "Terra"
+        )
+        let quotesScenario = ScenarioConfig(
+            name: "quotes_api",
+            initialState: "Terra"
+        )
+
+        launchApp(
+            tangemApiType: .mock,
+            scenarios: [terraClassicScenario, quotesScenario]
+        )
+
+        StoriesScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .tapToken(Constants.Network.terraClassicUSD)
+            .tapActionButton(.send)
+
+        let sendSummaryScreen = SendScreen(app)
+            .waitForDisplay()
+            .enterAmount(Constants.Amount.terraClassicUSD)
+            .tapNextButton()
+            .enterDestination(Constants.Address.terraClassicUSD)
+            .tapNextButtonToSummary()
+
+        sendSummaryScreen
+            .waitForDisplay(checkValidatorBlock: false)
+            .verifyNetworkFeeContains("$")
+            .tapFeeBlock()
+
+        SendSummaryScreen(app)
+            .waitForNetworkFeeSelectorUnavailable()
+    }
+
     private enum Constants {
         enum Network {
             static let polkadot = "Polkadot"
             static let ethereum = "Ethereum"
             static let bitcoin = "Bitcoin"
+            static let vethor = "VeThor"
+            static let terraClassicUSD = "TerraClassicUSD"
         }
 
         enum Address {
             static let polkadot = "143TfgFYAFfM86LRzt4UcFNU3KosxCndBCVz2U5HCxpLidKZ"
             static let ethereum = "0x24298f15b837E5851925E18439490859e0c1F1ee"
             static let bitcoin = "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh"
+            static let vethor = "0x24298f15b837E5851925E18439490859e0c1F1ee"
+            static let terraClassicUSD = "terra148dmp5ccazcwdmrcpvqz5rprnn886kemqen3tj"
         }
 
         enum Amount {
             static let polkadot = "1"
             static let ethereum = "0.8"
             static let bitcoin = "0.001"
+            static let vethor = "1"
+            static let terraClassicUSD = "1"
         }
 
         enum Fee {
