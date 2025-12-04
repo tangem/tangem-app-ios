@@ -57,9 +57,16 @@ final class TangemPayAccount {
         tangemPayCardIssuingPublisher: tangemPayCardIssuingInProgressPublisher
     )
 
+    // MARK: - Withdraw
+
     lazy var tangemPayExpressCEXTransactionProcessor = TangemPayExpressCEXTransactionProcessor(
         withdrawTransactionService: withdrawTransactionService,
         walletPublicKey: TangemPayUtilities.getKey(from: authorizer.keysRepository)
+    )
+
+    lazy var withdrawAvailabilityProvider: TangemPayWithdrawAvailabilityProvider = .init(
+        withdrawTransactionService: withdrawTransactionService,
+        tokenBalanceProvider: tangemPayTokenBalanceProvider
     )
 
     // MARK: - Balances
