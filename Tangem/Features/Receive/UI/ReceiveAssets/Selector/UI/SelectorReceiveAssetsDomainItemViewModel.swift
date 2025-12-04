@@ -41,4 +41,9 @@ class SelectorReceiveAssetsDomainItemViewModel: Identifiable, ObservableObject {
         analyticsLogger.logCopyDomainNameAddressButtonTapped()
         coordinator?.copyToClipboard(with: domainName)
     }
+
+    func shareAddressButtonDidTap() {
+        analyticsLogger.logShareDomainNameAddressButtonTapped()
+        coordinator?.share(with: domainName)
+    }
 }
