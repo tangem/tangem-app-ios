@@ -9,7 +9,7 @@
 import SwiftUI
 import TangemAssets
 
-public struct Chip: Identifiable, Hashable, Equatable {
+public struct Chip: Identifiable, Hashable {
     public let id: String
     public let title: String
 
@@ -35,16 +35,11 @@ public struct HorizontalChipsView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: Constants.horizontalContentSpacing) {
                 ForEach(chips) { chip in
-                    let title = chip.title
                     ChipView(
-                        title: title,
+                        title: chip.title,
                         isSelected: selectedId == chip.id
                     ) {
-                        if selectedId == chip.id {
-                            selectedId = nil
-                        } else {
-                            selectedId = chip.id
-                        }
+                        selectedId == chip.id ? nil : chip.id
                     }
                 }
             }
@@ -56,26 +51,6 @@ public struct HorizontalChipsView: View {
             ensureDefaultSelectionIfNeeded()
         }
     }
-}
-
-@available(iOS 17.0, *)
-#Preview("HorizontalChipsView") {
-    @Previewable @State var selectedId: Chip.ID? = nil
-
-    HorizontalChipsView(
-        chips: [
-            .init(id: "all", title: "All"),
-            .init(id: "top", title: "Top"),
-            .init(id: "gainers", title: "Gainers"),
-            .init(id: "losers", title: "Losers"),
-            .init(id: "nft", title: "NFT"),
-            .init(id: "defi", title: "DeFi"),
-            .init(id: "ai", title: "AI"),
-            .init(id: "metaverse", title: "Metaverse"),
-        ],
-        selectedId: $selectedId
-    )
-    .padding()
 }
 
 extension HorizontalChipsView {
@@ -102,12 +77,11 @@ extension HorizontalChipsView {
         var body: some View {
             Button(action: action) {
                 Text(title)
-                    .font(Fonts.Bold.subheadline)
+                    .style(Fonts.Bold.subheadline, color: foregroundColor)
                     .lineLimit(1)
                     .padding(.horizontal, Constants.horizontalChipPadding)
                     .padding(.vertical, Constants.verticalChipPadding)
                     .frame(height: Constants.chipHeight)
-                    .foregroundStyle(foregroundColor)
                     .background(
                         RoundedRectangle(
                             cornerRadius: Constants.chipCornerRadius,
@@ -128,3 +102,25 @@ extension HorizontalChipsView {
         }
     }
 }
+
+#if DEBUG
+@available(iOS 17.0, *)
+#Preview("HorizontalChipsView") {
+    @Previewable @State var selectedId: Chip.ID? = nil
+
+    HorizontalChipsView(
+        chips: [
+            .init(id: "all", title: "All"),
+            .init(id: "top", title: "Top"),
+            .init(id: "gainers", title: "Gainers"),
+            .init(id: "losers", title: "Losers"),
+            .init(id: "nft", title: "NFT"),
+            .init(id: "defi", title: "DeFi"),
+            .init(id: "ai", title: "AI"),
+            .init(id: "metaverse", title: "Metaverse"),
+        ],
+        selectedId: $selectedId
+    )
+    .padding()
+}
+#endif
