@@ -45,13 +45,22 @@ extension TangemPayTotalBalanceProvider: TotalBalanceProvider {
 private extension TangemPayTotalBalanceProvider {
     func bind() {
         updateSubscription = tangemPayAccountProvider.tangemPayAccountPublisher
-            .compactMap(\.self)
-            .flatMapLatest { $0.fiatAvailableBalanceProvider.balanceTypePublisher }
             .withWeakCaptureOf(self)
-            .map {
-                $0.tokenBalanceTypesCombiner.mapToTotalBalance(
-                    balances: [.init(item: $0.tokenItem, balance: $1)]
-                )
+            .flatMapLatest { provider, tangemPayAccount -> AnyPublisher<TotalBalanceState, Never> in
+                if let tangemPayAccount {
+                    return tangemPayAccount
+                        .fiatAvailableBalanceProvider
+                        .balanceTypePublisher
+                        .map { balanceType in
+                            let balance = TokenBalanceTypesCombiner.Balance(item: provider.tokenItem, balance: balanceType)
+                            return provider.tokenBalanceTypesCombiner.mapToTotalBalance(balances: [balance])
+                        }
+                        .eraseToAnyPublisher()
+                }
+
+                // If tangemPayAccount doesn't exist just return 0 as total balance
+                // That do not break a full total balance
+                return .just(output: .loaded(balance: 0))
             }
             .assign(to: \.totalBalanceSubject.value, on: self, ownership: .weak)
     }
