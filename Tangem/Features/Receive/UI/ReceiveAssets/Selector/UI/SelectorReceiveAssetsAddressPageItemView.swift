@@ -47,8 +47,7 @@ struct SelectorReceiveAssetsAddressPageItemView: View {
                 .style(Fonts.Bold.body, color: Colors.Text.primary1)
                 .lineLimit(1)
 
-            SUILabel(viewModel.address)
-                .lineLimit(2)
+            SUILabel(viewModel.address, lineLimit: 2)
                 .multilineTextAlignment(.center)
                 .frame(height: Layout.TokenContentView.addressHeight)
                 .padding(.horizontal, Layout.TokenContentView.addressHorizontalSpacing)
