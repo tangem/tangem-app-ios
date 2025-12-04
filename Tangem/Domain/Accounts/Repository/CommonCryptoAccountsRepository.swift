@@ -17,7 +17,7 @@ final class CommonCryptoAccountsRepository {
     @available(iOS, deprecated: 100000.0, message: "For migration purposes only. Will be removed later ([REDACTED_INFO])")
     private let tokenItemsRepository: TokenItemsRepository
     private let defaultAccountFactory: DefaultAccountFactory
-    private let networkService: CryptoAccountsNetworkService
+    private let networkService: CryptoAccountsNetworkService & WalletsNetworkService
     private let auxiliaryDataStorage: CryptoAccountsAuxiliaryDataStorage
     fileprivate let persistentStorage: CryptoAccountsPersistentStorage
     private let storageController: CryptoAccountsPersistentStorageController
@@ -48,7 +48,7 @@ final class CommonCryptoAccountsRepository {
     init(
         tokenItemsRepository: TokenItemsRepository,
         defaultAccountFactory: DefaultAccountFactory,
-        networkService: CryptoAccountsNetworkService,
+        networkService: CryptoAccountsNetworkService & WalletsNetworkService,
         auxiliaryDataStorage: CryptoAccountsAuxiliaryDataStorage,
         persistentStorage: CryptoAccountsPersistentStorage,
         storageController: CryptoAccountsPersistentStorageController,
@@ -92,15 +92,12 @@ final class CommonCryptoAccountsRepository {
             throw InternalError.noUserWalletInfoProviderSet
         }
 
-        let name = userWalletInfo.name
-        let identifier = userWalletInfo.id.stringValue
-        let contextBuilder = userWalletInfo.config.contextBuilder
-        let context = contextBuilder
-            .enrich(withName: name)
-            .enrich(withIdentifier: identifier)
-            .build()
+        let walletCreationHelper = WalletCreationHelper(
+            userWalletInfo: userWalletInfo,
+            networkService: networkService
+        )
 
-        try await networkService.createWallet(with: context)
+        try await walletCreationHelper.createWallet()
     }
 
     private func addDefaultAccount(isWalletAlreadyCreated: Bool) async throws {
