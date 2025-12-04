@@ -294,16 +294,19 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         }
 
         userWalletModel.tangemPayAccountPublisher
+            .compactMap(\.self)
             .flatMapLatest(\.tangemPayNotificationManager.notificationPublisher)
             .receiveOnMain()
             .assign(to: &$tangemPayNotificationInputs)
 
         userWalletModel.tangemPayAccountPublisher
+            .compactMap(\.self)
             .flatMapLatest(\.tangemPaySyncInProgressPublisher)
             .receiveOnMain()
             .assign(to: &$tangemPaySyncInProgress)
 
         userWalletModel.tangemPayAccountPublisher
+            .compactMap(\.self)
             .withWeakCaptureOf(self)
             .map { viewModel, tangemPayAccount in
                 TangemPayAccountViewModel(tangemPayAccount: tangemPayAccount, router: viewModel)
