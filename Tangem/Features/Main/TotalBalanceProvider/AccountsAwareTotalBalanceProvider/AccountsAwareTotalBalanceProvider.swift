@@ -12,7 +12,7 @@ import CombineExt
 
 class AccountsAwareTotalBalanceProvider {
     private let accountModelsManager: AccountModelsManager
-    private let totalBalanceStateBuilder: AccountsAwareTotalBalanceStateBuilder
+    private let totalBalanceStatesCombiner: TotalBalanceStatesCombiner
     private let analyticsLogger: TotalBalanceProviderAnalyticsLogger
 
     private let totalBalanceSubject: CurrentValueSubject<TotalBalanceState, Never> = .init(.loading(cached: .none))
@@ -20,11 +20,11 @@ class AccountsAwareTotalBalanceProvider {
 
     init(
         accountModelsManager: AccountModelsManager,
-        totalBalanceStateBuilder: AccountsAwareTotalBalanceStateBuilder = .init(),
+        totalBalanceStatesCombiner: TotalBalanceStatesCombiner = .init(),
         analyticsLogger: TotalBalanceProviderAnalyticsLogger
     ) {
         self.accountModelsManager = accountModelsManager
-        self.totalBalanceStateBuilder = totalBalanceStateBuilder
+        self.totalBalanceStatesCombiner = totalBalanceStatesCombiner
         self.analyticsLogger = analyticsLogger
 
         analyticsLogger.setupTotalBalanceState(publisher: totalBalancePublisher)
@@ -47,7 +47,7 @@ private extension AccountsAwareTotalBalanceProvider {
                     .combineLatest()
             }
             .withWeakCaptureOf(self)
-            .map { $0.totalBalanceStateBuilder.mapToTotalBalanceState(states: $1) }
+            .map { $0.totalBalanceStatesCombiner.mapToTotalBalanceState(states: $1) }
             .assign(to: \.totalBalanceSubject.value, on: self, ownership: .weak)
     }
 }
