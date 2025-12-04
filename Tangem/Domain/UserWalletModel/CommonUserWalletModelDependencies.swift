@@ -141,40 +141,33 @@ private extension CommonUserWalletModelDependencies {
         derivationManager: DerivationManager?,
         tangemPayAccountProvider: any TangemPayAccountProvider
     ) -> TotalBalanceProvider {
-        let accountsAwareTotalBalanceProvider = AccountsAwareTotalBalanceProvider(
-            accountModelsManager: accountModelsManager,
-            analyticsLogger: AccountTotalBalanceProviderAnalyticsLogger()
-        )
-
-        let walletModelsTotalBalanceProvider = WalletModelsTotalBalanceProvider(
-            walletModelsManager: walletModelsManager,
-            analyticsLogger: CommonTotalBalanceProviderAnalyticsLogger(
-                userWalletId: userWalletId,
-                walletModelsManager: walletModelsManager
-            ),
-            derivationManager: derivationManager
-        )
-
-        let tangemPayTotalBalanceProvider = TangemPayTotalBalanceProvider(
-            tangemPayAccountProvider: tangemPayAccountProvider
-        )
-
-        switch (hasAccounts, FeatureProvider.isAvailable(.visa)) {
-        case (true, true):
-            return TangemPayAwareTotalBalanceProvider(
-                totalBalanceProvider: accountsAwareTotalBalanceProvider,
-                tangemPayTotalBalanceProvider: tangemPayTotalBalanceProvider
+        // Create base provider based on accounts mode
+        // Note: WalletModelsTotalBalanceProvider must NOT be created when hasAccounts is true,
+        // because it uses derivationManager.hasPendingDerivations which crashes for AccountsAwareDerivationManager
+        let baseProvider: TotalBalanceProvider = hasAccounts
+            ? AccountsAwareTotalBalanceProvider(
+                accountModelsManager: accountModelsManager,
+                analyticsLogger: AccountTotalBalanceProviderAnalyticsLogger()
             )
-        case (false, true):
-            return TangemPayAwareTotalBalanceProvider(
-                totalBalanceProvider: walletModelsTotalBalanceProvider,
-                tangemPayTotalBalanceProvider: tangemPayTotalBalanceProvider
+            : WalletModelsTotalBalanceProvider(
+                walletModelsManager: walletModelsManager,
+                analyticsLogger: CommonTotalBalanceProviderAnalyticsLogger(
+                    userWalletId: userWalletId,
+                    walletModelsManager: walletModelsManager
+                ),
+                derivationManager: derivationManager
             )
-        case (true, false):
-            return accountsAwareTotalBalanceProvider
-        case (false, false):
-            return walletModelsTotalBalanceProvider
+
+        guard FeatureProvider.isAvailable(.visa) else {
+            return baseProvider
         }
+
+        return TangemPayAwareTotalBalanceProvider(
+            totalBalanceProvider: baseProvider,
+            tangemPayTotalBalanceProvider: TangemPayTotalBalanceProvider(
+                tangemPayAccountProvider: tangemPayAccountProvider
+            )
+        )
     }
 
     static func makeNFTManager(
