@@ -110,7 +110,7 @@ struct TangemPayMainView: View {
                         action: viewModel.addFunds
                     ),
                     FixedSizeButtonWithIconInfo(
-                        title: Localization.tangemPayWithdrawal,
+                        title: Localization.tangempayCardDetailsWithdraw,
                         icon: Assets.arrowUpMini,
                         loading: viewModel.isWithdrawButtonLoading,
                         disabled: viewModel.freezingState.shouldDisableActionButtons,
