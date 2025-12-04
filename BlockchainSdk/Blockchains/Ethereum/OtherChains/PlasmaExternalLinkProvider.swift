@@ -33,7 +33,7 @@ struct PlasmaExternalLinkProvider: ExternalLinkProvider {
         if let contractAddress {
             urlComponents.path.append("/tokentxns")
 
-            let contractAddressItem = URLQueryItem(name: "tokenaddresses", value: contractAddress)
+            let contractAddressItem = URLQueryItem(name: "tokenaddress", value: contractAddress)
             urlComponents.queryItems = [contractAddressItem]
         }
 
