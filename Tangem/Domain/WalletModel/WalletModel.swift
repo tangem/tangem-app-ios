@@ -43,7 +43,7 @@ protocol WalletModel:
     var isDemo: Bool { get }
     var demoBalance: Decimal? { get set }
 
-    var sendingRestrictions: TransactionSendAvailabilityProvider.SendingRestrictions? { get }
+    var sendingRestrictions: SendingRestrictions? { get }
 
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> { get }
 
