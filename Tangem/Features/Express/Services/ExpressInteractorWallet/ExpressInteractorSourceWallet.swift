@@ -22,7 +22,7 @@ protocol ExpressInteractorSourceWallet: ExpressInteractorDestinationWallet, Expr
     var feeTokenItem: TokenItem { get }
 
     var defaultAddressString: String { get }
-    var sendingRestrictions: TransactionSendAvailabilityProvider.SendingRestrictions? { get }
+    var sendingRestrictions: SendingRestrictions? { get }
     var amountToCreateAccount: Decimal { get }
 
     var allowanceService: (any AllowanceService)? { get }
