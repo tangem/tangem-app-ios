@@ -18,12 +18,6 @@ extension EmailDataCollector {
     var fileName: String {
         LogFilesNames.infoLogs
     }
-
-    func prepareLogFile() -> URL {
-        let url = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent(fileName)
-        try? logData?.write(to: url)
-        return url
-    }
 }
 
 private extension EmailDataCollector {
