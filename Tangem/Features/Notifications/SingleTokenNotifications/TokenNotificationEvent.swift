@@ -27,7 +27,7 @@ enum TokenNotificationEvent: Hashable {
     case maticMigration
 
     static func event(
-        for reason: TransactionSendAvailabilityProvider.SendingRestrictions,
+        for reason: SendingRestrictions,
         isFeeCurrencyPurchaseAllowed: Bool
     ) -> TokenNotificationEvent? {
         switch reason {
@@ -37,7 +37,8 @@ enum TokenNotificationEvent: Hashable {
              .blockchainLoading,
              .cantSignLongTransactions,
              .oldCard,
-             .hasOnlyCachedBalance:
+             .hasOnlyCachedBalance,
+             .hasPendingWithdrawOrder:
             return nil
         case .zeroFeeCurrencyBalance(let eventConfiguration):
             let configuration = NotEnoughFeeConfiguration(
@@ -252,7 +253,7 @@ extension TokenNotificationEvent: NotificationEvent {
 extension TokenNotificationEvent {
     struct NotEnoughFeeConfiguration: Hashable {
         let isFeeCurrencyPurchaseAllowed: Bool
-        let eventConfiguration: TransactionSendAvailabilityProvider.SendingRestrictions.NotEnoughFeeConfiguration
+        let eventConfiguration: SendingRestrictions.NotEnoughFeeConfiguration
     }
 
     enum UnfulfilledRequirementsConfiguration: Hashable {
