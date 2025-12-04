@@ -92,7 +92,7 @@ extension ExpressInteractorWalletModelWrapper: ExpressInteractorSourceWallet {
         }
     }
 
-    var sendingRestrictions: TransactionSendAvailabilityProvider.SendingRestrictions? {
+    var sendingRestrictions: SendingRestrictions? {
         walletModel.sendingRestrictions
     }
 
