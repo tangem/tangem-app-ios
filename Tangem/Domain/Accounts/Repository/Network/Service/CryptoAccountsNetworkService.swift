@@ -8,9 +8,12 @@
 
 import Foundation
 
-protocol CryptoAccountsNetworkService {
+protocol WalletsNetworkService {
     func createWallet(with context: some Encodable) async throws(CryptoAccountsNetworkServiceError)
+    func updateWallet(userWalletId: String, context: some Encodable) async throws(CryptoAccountsNetworkServiceError)
+}
 
+protocol CryptoAccountsNetworkService {
     @discardableResult
     func getCryptoAccounts(
         retryCount: Int
