@@ -90,6 +90,14 @@ extension CommonReceiveAnalyticsLogger: ItemSelectorReceiveAssetsAnalyticsLogger
         ])
     }
 
+    func logShareDomainNameAddressButtonTapped() {
+        Analytics.log(event: .buttonShareAddress, params: [
+            .token: tokenItem.currencySymbol,
+            .blockchain: tokenItem.blockchain.displayName,
+            .source: Analytics.ParameterValue.receive.rawValue,
+        ])
+    }
+
     func logCopyDomainNameAddressButtonTapped() {
         Analytics.log(event: .buttonENS, params: [
             .token: tokenItem.currencySymbol,
