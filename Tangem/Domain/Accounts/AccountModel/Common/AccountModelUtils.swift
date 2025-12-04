@@ -14,6 +14,9 @@ enum AccountModelUtils {
     static var maxAccountNameLength: Int { Constants.maxAccountNameLength }
     static var maxNumberOfAccounts: Int { Constants.maxNumberOfAccounts }
 
+    @available(iOS, deprecated: 100000.0, message: "Will be removed after accounts migration is complete ([REDACTED_INFO])")
+    static var mainAccountDerivationIndex: Int { Constants.mainAccountDerivationIndex }
+
     static func mainAccountPersistentConfig(forUserWalletWithId userWalletId: UserWalletId) -> CryptoAccountPersistentConfig {
         let iconColor = deriveMainAccountIconColor(from: userWalletId)
 
