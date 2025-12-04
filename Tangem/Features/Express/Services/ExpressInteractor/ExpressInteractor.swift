@@ -94,6 +94,28 @@ extension ExpressInteractor {
         _swappingPair.value.destination
     }
 
+    func providersPublisher() -> AnyPublisher<[ExpressAvailableProvider], Never> {
+        state
+            // Skip rates loading to avoid UI jumping
+            .filter { !$0.isRefreshRates }
+            .withWeakCaptureOf(self)
+            .asyncMap { interactor, _ in
+                await interactor.getAllProviders()
+            }
+            .eraseToAnyPublisher()
+    }
+
+    func selectedProviderPublisher() -> AnyPublisher<ExpressAvailableProvider?, Never> {
+        state
+            // Skip rates loading to avoid UI jumping
+            .filter { !$0.isRefreshRates }
+            .withWeakCaptureOf(self)
+            .asyncMap { interactor, _ in
+                await interactor.getSelectedProvider()
+            }
+            .eraseToAnyPublisher()
+    }
+
     // Proxy methods
 
     func getAllProviders() async -> [ExpressAvailableProvider] {
