@@ -74,25 +74,11 @@ extension CommonSwapManager: SwapManager {
     }
 
     var providersPublisher: AnyPublisher<[ExpressAvailableProvider], Never> {
-        statePublisher
-            // Skip rates loading to avoid UI jumping
-            .filter { !$0.isRefreshRates }
-            .withWeakCaptureOf(self)
-            .asyncMap { manager, _ in
-                await manager.interactor.getAllProviders()
-            }
-            .eraseToAnyPublisher()
+        interactor.providersPublisher()
     }
 
     var selectedProviderPublisher: AnyPublisher<ExpressAvailableProvider?, Never> {
-        statePublisher
-            // Skip rates loading to avoid UI jumping
-            .filter { !$0.isRefreshRates }
-            .withWeakCaptureOf(self)
-            .asyncMap { manager, _ in
-                await manager.interactor.getSelectedProvider()
-            }
-            .eraseToAnyPublisher()
+        interactor.selectedProviderPublisher()
     }
 
     func update(amount: Decimal?) {
