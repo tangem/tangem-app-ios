@@ -58,4 +58,17 @@ public extension Array where Element == StakingBalance {
     func sum() -> Decimal {
         reduce(.zero) { $0 + $1.amount }
     }
+
+    func apy(fallbackAPY: Decimal) -> Decimal {
+        let rewardRates = compactMap { balance -> Decimal? in
+            guard case .active = balance.balanceType else { return nil }
+            return balance.validatorType.validator?.rewardRate
+        }
+
+        guard !rewardRates.isEmpty else { // all the balances are in unstaking/unstaked state
+            return fallbackAPY
+        }
+
+        return rewardRates.sum() / Decimal(rewardRates.count)
+    }
 }
