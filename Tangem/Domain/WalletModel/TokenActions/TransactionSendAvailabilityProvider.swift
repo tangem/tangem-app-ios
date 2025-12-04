@@ -30,17 +30,8 @@ struct TransactionSendAvailabilityProvider {
             break
         }
 
-        switch walletModel.availableBalanceProvider.balanceType {
-        case .loading(.none):
-            return .blockchainLoading
-        case .empty, .failure(.none):
-            return .blockchainUnreachable
-        case .loading(.some), .failure(.some):
-            return .hasOnlyCachedBalance
-        case .loaded(let value) where value == .zero:
-            return .zeroWalletBalance
-        case .loaded:
-            break
+        if let restriction = walletModel.availableBalanceProvider.balanceType.sendingRestrictions {
+            return restriction
         }
 
         // has pending tx
@@ -69,27 +60,47 @@ struct TransactionSendAvailabilityProvider {
     }
 }
 
-extension TransactionSendAvailabilityProvider {
-    @CaseFlagable
-    enum SendingRestrictions: Hashable {
-        case zeroWalletBalance
-        case hasOnlyCachedBalance
-        case cantSignLongTransactions
-        case hasPendingTransaction(blockchain: Blockchain)
-        case zeroFeeCurrencyBalance(configuration: NotEnoughFeeConfiguration)
-        case blockchainUnreachable
-        case blockchainLoading
-        case oldCard
+// MARK: - SendingRestrictions
 
-        struct NotEnoughFeeConfiguration: Hashable {
-            let amountCurrencySymbol: String
-            let amountCurrencyBlockchainName: String
-            let transactionAmountTypeName: String
-            let feeAmountTypeName: String
-            let feeAmountTypeCurrencySymbol: String
-            let feeAmountTypeIconAsset: ImageType
-            let networkName: String
-            let currencyButtonTitle: String?
+@CaseFlagable
+enum SendingRestrictions: Hashable {
+    case zeroWalletBalance
+    case hasOnlyCachedBalance
+    case cantSignLongTransactions
+    case hasPendingWithdrawOrder
+    case hasPendingTransaction(blockchain: Blockchain)
+    case zeroFeeCurrencyBalance(configuration: NotEnoughFeeConfiguration)
+    case blockchainUnreachable
+    case blockchainLoading
+    case oldCard
+
+    struct NotEnoughFeeConfiguration: Hashable {
+        let amountCurrencySymbol: String
+        let amountCurrencyBlockchainName: String
+        let transactionAmountTypeName: String
+        let feeAmountTypeName: String
+        let feeAmountTypeCurrencySymbol: String
+        let feeAmountTypeIconAsset: ImageType
+        let networkName: String
+        let currencyButtonTitle: String?
+    }
+}
+
+// MARK: - TokenBalanceType + SendingRestrictions
+
+extension TokenBalanceType {
+    var sendingRestrictions: SendingRestrictions? {
+        switch self {
+        case .loading(.none):
+            return .blockchainLoading
+        case .empty, .failure(.none):
+            return .blockchainUnreachable
+        case .loading(.some), .failure(.some):
+            return .hasOnlyCachedBalance
+        case .loaded(let value) where value == .zero:
+            return .zeroWalletBalance
+        case .loaded:
+            return nil
         }
     }
 }
