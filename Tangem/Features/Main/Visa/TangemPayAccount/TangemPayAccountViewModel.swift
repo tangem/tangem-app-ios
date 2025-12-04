@@ -33,7 +33,7 @@ final class TangemPayAccountViewModel: ObservableObject {
             state: tangemPayAccount.state,
             status: .active,
             card: tangemPayAccount.tangemPayCard,
-            balanceType: tangemPayAccount.tangemPayTokenBalanceProvider.formattedBalanceType
+            balanceType: tangemPayAccount.tangemPayFiatTokenBalanceProvider.formattedBalanceType
         )
 
         bind()
@@ -79,7 +79,7 @@ private extension TangemPayAccountViewModel {
             tangemPayAccount
                 .tangemPayCardPublisher,
             tangemPayAccount
-                .tangemPayTokenBalanceProvider
+                .tangemPayFiatTokenBalanceProvider
                 .formattedBalanceTypePublisher
         )
         .map(TangemPayAccountViewModel.mapToState)
