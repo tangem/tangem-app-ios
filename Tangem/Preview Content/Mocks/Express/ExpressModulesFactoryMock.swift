@@ -171,7 +171,7 @@ private extension ExpressModulesFactoryMock {
     }
 
     var expressDestinationService: ExpressDestinationService {
-        CommonExpressDestinationService()
+        CommonExpressDestinationService(userWalletId: userWalletInfo.id)
     }
 
     // MARK: - Methods
