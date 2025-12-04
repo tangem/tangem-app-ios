@@ -86,6 +86,8 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func addFunds() {
+        Analytics.log(.visaMainScreenButtonAddFunds)
+
         nextViewOpeningTask?.cancel()
         nextViewOpeningTask = Task { @MainActor in
             guard let depositAddress = tangemPayAccount.depositAddress,
@@ -129,6 +131,8 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func onAppear() {
+        Analytics.log(.visaMainScreenMainScreenOpened)
+
         tangemPayAccount.loadBalance()
     }
 
