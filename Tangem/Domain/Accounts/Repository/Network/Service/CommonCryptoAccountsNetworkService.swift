@@ -52,9 +52,9 @@ final class CommonCryptoAccountsNetworkService {
     }
 }
 
-// MARK: - CryptoAccountsNetworkService protocol conformance
+// MARK: - WalletsNetworkService protocol conformance
 
-extension CommonCryptoAccountsNetworkService: CryptoAccountsNetworkService {
+extension CommonCryptoAccountsNetworkService: WalletsNetworkService {
     func createWallet(with context: some Encodable) async throws(CryptoAccountsNetworkServiceError) {
         do {
             let newRevision = try await tangemApiService.createWallet(with: context)
@@ -69,6 +69,20 @@ extension CommonCryptoAccountsNetworkService: CryptoAccountsNetworkService {
         }
     }
 
+    func updateWallet(userWalletId: String, context: some Encodable) async throws(CryptoAccountsNetworkServiceError) {
+        do {
+            try await tangemApiService.updateWallet(by: userWalletId, context: context)
+        } catch let error as CryptoAccountsNetworkServiceError {
+            throw error // Just re-throw an original error
+        } catch {
+            throw .underlyingError(error)
+        }
+    }
+}
+
+// MARK: - CryptoAccountsNetworkService protocol conformance
+
+extension CommonCryptoAccountsNetworkService: CryptoAccountsNetworkService {
     func getCryptoAccounts(
         retryCount: Int
     ) async throws(CryptoAccountsNetworkServiceError) -> RemoteCryptoAccountsInfo {
