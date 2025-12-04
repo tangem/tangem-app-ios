@@ -25,7 +25,7 @@ struct ExpressInteractorTangemPayWalletWrapper: ExpressInteractorTangemPayWallet
     let availableBalanceProvider: any TokenBalanceProvider
     let transactionValidator: any ExpressTransactionValidator
 
-    let sendingRestrictions: TransactionSendAvailabilityProvider.SendingRestrictions? = .none
+    let sendingRestrictions: SendingRestrictions? = .none
     let amountToCreateAccount: Decimal = .zero
     let allowanceService: (any AllowanceService)? = nil
     let withdrawalNotificationProvider: (any WithdrawalNotificationProvider)? = nil
