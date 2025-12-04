@@ -21,6 +21,7 @@ protocol SelectorReceiveAssetsAnalyticsLogger {
 
 protocol ItemSelectorReceiveAssetsAnalyticsLogger {
     func logCopyDomainNameAddressButtonTapped()
+    func logShareDomainNameAddressButtonTapped()
     func logCopyAddressButtonTapped()
 }
 
