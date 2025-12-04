@@ -9,6 +9,7 @@
 import Foundation
 import BlockchainSdk
 import TangemFoundation
+import TangemSdk
 
 struct DemoWalletModelsFactory {
     private let factory: CommonWalletModelsFactory
@@ -19,14 +20,11 @@ struct DemoWalletModelsFactory {
 }
 
 extension DemoWalletModelsFactory: WalletModelsFactory {
-    func makeWalletModels(from walletManager: WalletManager) -> [any WalletModel] {
-        return factory.makeWalletModels(from: walletManager)
-    }
-
     func makeWalletModels(
         for types: [Amount.AmountType],
         walletManager: WalletManager,
-        blockchainNetwork: BlockchainNetwork
+        blockchainNetwork: BlockchainNetwork,
+        targetAccountDerivationPath: DerivationPath?
     ) -> [any WalletModel] {
         let blockchain = walletManager.wallet.blockchain
         let derivationPath = walletManager.wallet.publicKey.derivationPath
@@ -35,7 +33,8 @@ extension DemoWalletModelsFactory: WalletModelsFactory {
         let models = factory.makeWalletModels(
             for: types,
             walletManager: walletManager,
-            blockchainNetwork: blockchainNetwork
+            blockchainNetwork: blockchainNetwork,
+            targetAccountDerivationPath: targetAccountDerivationPath
         )
 
         let demoUtil = DemoUtil()
