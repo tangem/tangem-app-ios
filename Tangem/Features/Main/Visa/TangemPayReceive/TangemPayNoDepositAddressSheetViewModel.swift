@@ -17,7 +17,7 @@ struct TangemPayNoDepositAddressSheetViewModel: FloatingSheetContentViewModel {
     var id: String { String(describing: Self.self) }
 
     let title = Localization.tangempayServiceUnavailableTitle
-    let subtitle = Localization.tangempayServiceUnavailableDescription
+    let subtitle = Localization.tangempayCardDetailsReceiveErrorDescription
 
     let coordinator: TangemPayNoDepositAddressSheetRoutable
 
