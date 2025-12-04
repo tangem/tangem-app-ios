@@ -54,13 +54,13 @@ struct AccountDerivationPathHelper {
             // Some non-UTXO and non-EVM blockchains (like Tezos, Quai and so on) require special handling
             nodeIndex = Constants.accountNodeIndex
         case _ where blockchain.isEvm:
-            nodeIndex = Constants.addressIndexNodeIndex
+            nodeIndex = evmAccountDerivationNodeIndex(for: derivationPath)
         default:
             nodeIndex = Constants.accountNodeIndex
         }
 
         guard nodesCount > nodeIndex else {
-            let message = "Unexpected derivation path nodes count: \(nodesCount) for blockchain: \(blockchain.displayName)"
+            let message = "Unexpected derivation path nodes count: \(nodesCount) for the blockchain: \(blockchain.displayName)"
 
             AppLogger.warning(message)
             assertionFailure(message)
@@ -69,6 +69,25 @@ struct AccountDerivationPathHelper {
         }
 
         return nodeIndex
+    }
+
+    /// See Accounts-REQ-App-006 for details.
+    private func evmAccountDerivationNodeIndex(for derivationPath: DerivationPath) -> Int {
+        guard
+            let purposeNode = derivationPath.nodes[safe: Constants.purposeNodeIndex],
+            let coinTypeNode = derivationPath.nodes[safe: Constants.coinTypeNodeIndex]
+        else {
+            let message = "No `purpose` and/or `coin_type` node in the derivation path for the blockchain: \(blockchain.displayName), likely malformed derivation path"
+
+            AppLogger.warning(message)
+            assertionFailure(message)
+
+            return Constants.addressIndexNodeIndex
+        }
+
+        return purposeNode.rawIndex == Constants.evmPurposeNodeValue && coinTypeNode.rawIndex == Constants.evmCoinTypeNodeValue
+            ? Constants.addressIndexNodeIndex
+            : Constants.accountNodeIndex
     }
 
     func areAccountsAvailableForBlockchain() -> Bool {
@@ -192,9 +211,17 @@ extension AccountDerivationPathHelper {
 
 private extension AccountDerivationPathHelper {
     enum Constants {
+        /// 1st node `purpose` (m / purpose' / coin_type' / account' / change / address_index)
+        static let purposeNodeIndex = 0
+        /// 2nd node `coin_type` (m / purpose' / coin_type' / account' / change / address_index)
+        static let coinTypeNodeIndex = 1
         /// 3rd node `account` (m / purpose' / coin_type' / account' / change / address_index)
         static let accountNodeIndex = 2
         /// 5th node `address_index` (m / purpose' / coin_type' / account' / change / address_index)
         static let addressIndexNodeIndex = 4
+        /// See Accounts-REQ-App-006 for details.
+        static let evmPurposeNodeValue = 44
+        /// See Accounts-REQ-App-006 for details.
+        static let evmCoinTypeNodeValue = 60
     }
 }
