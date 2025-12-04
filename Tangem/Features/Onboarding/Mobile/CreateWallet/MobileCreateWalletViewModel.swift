@@ -70,6 +70,17 @@ extension MobileCreateWalletViewModel {
 
                 let walletInfo = try await initializer.initializeWallet(mnemonic: nil, passphrase: nil)
 
+                let userWalletConfig = MobileUserWalletConfig(mobileWalletInfo: walletInfo)
+                if let userWalletId = UserWalletId(config: userWalletConfig) {
+                    let walletCreationHelper = WalletCreationHelper(
+                        userWalletId: userWalletId,
+                        userWalletName: nil,
+                        userWalletConfig: userWalletConfig
+                    )
+
+                    try? await walletCreationHelper.createWallet()
+                }
+
                 guard let newUserWalletModel = CommonUserWalletModelFactory().makeModel(
                     walletInfo: .mobileWallet(walletInfo),
                     keys: .mobileWallet(keys: walletInfo.keys),
