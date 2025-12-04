@@ -11,10 +11,15 @@ import TangemVisa
 import TangemFoundation
 
 struct TangemPayMainHeaderSubtitleProvider {
-    private let balanceSubject: CurrentValueSubject<LoadingResult<TangemPayBalance, Error>, Never>
+    private let tokenItem: TokenItem
+    private let balanceSubject: CurrentValueSubject<LoadingResult<TangemPayBalance, Error>?, Never>
     private let balanceFormatter = BalanceFormatter()
 
-    init(balanceSubject: CurrentValueSubject<LoadingResult<TangemPayBalance, Error>, Never>) {
+    init(
+        tokenItem: TokenItem,
+        balanceSubject: CurrentValueSubject<LoadingResult<TangemPayBalance, Error>?, Never>
+    ) {
+        self.tokenItem = tokenItem
         self.balanceSubject = balanceSubject
     }
 }
@@ -26,7 +31,7 @@ extension TangemPayMainHeaderSubtitleProvider: MainHeaderSubtitleProvider {
 
     var isLoadingPublisher: AnyPublisher<Bool, Never> {
         balanceSubject
-            .map(\.isLoading)
+            .map { $0?.isLoading ?? true }
             .eraseToAnyPublisher()
     }
 
@@ -40,14 +45,15 @@ extension TangemPayMainHeaderSubtitleProvider: MainHeaderSubtitleProvider {
 // MARK: - TangemPayMainHeaderSubtitleProvider
 
 private extension TangemPayMainHeaderSubtitleProvider {
-    func mapToMainHeaderSubtitleInfo(balance: LoadingResult<TangemPayBalance, Error>) -> MainHeaderSubtitleInfo {
+    func mapToMainHeaderSubtitleInfo(balance: LoadingResult<TangemPayBalance, Error>?) -> MainHeaderSubtitleInfo {
         switch balance {
-        case .loading, .failure: return .empty
+        case .none, .loading: return .empty
+        case .failure:
+            return .init(messages: [BalanceFormatter.defaultEmptyBalanceString], formattingOption: .default)
         case .success(let balance):
-            // We use `formatCryptoBalance` to save `currencyCode` as is
             let message = balanceFormatter.formatCryptoBalance(
                 balance.crypto.balance,
-                currencyCode: TangemPayUtilities.usdcTokenItem.currencySymbol
+                currencyCode: tokenItem.currencySymbol
             )
             return .init(messages: [message], formattingOption: .default)
         }
