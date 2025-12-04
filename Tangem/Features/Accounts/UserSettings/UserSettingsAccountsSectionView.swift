@@ -9,7 +9,6 @@
 import SwiftUI
 import TangemUI
 import TangemAssets
-import TangemAccounts
 import TangemLocalization
 
 struct UserSettingsAccountsSectionView: View {
@@ -17,9 +16,11 @@ struct UserSettingsAccountsSectionView: View {
 
     var body: some View {
         ReorderableGroupedSection(
-            reorderableModels: $viewModel.accountRows,
+            reorderableModels: $viewModel.accountRowViewModels,
             reorderableContent: { model in
-                accountContentView(from: model)
+                AccountRowButtonView(viewModel: model) {
+                    trailingChevron
+                }
             },
             staticModels: [
                 viewModel.addNewAccountButton,
@@ -30,7 +31,7 @@ struct UserSettingsAccountsSectionView: View {
             sectionHeader: {
                 accountsSectionHeader
             },
-            sectionFooter: viewModel.archivedAccountButton.map {
+            sectionFooter: viewModel.archivedAccountsButton.map {
                 makeSectionFooter(from: $0)
             },
             footer: {
@@ -42,17 +43,6 @@ struct UserSettingsAccountsSectionView: View {
                 }
             }
         )
-    }
-
-    private func accountContentView(from model: UserSettingsAccountRowViewData) -> some View {
-        Button(action: model.onTap) {
-            AccountRowView(
-                input: viewModel.makeAccountRowInput(from: model),
-                trailing: {
-                    trailingChevron
-                }
-            )
-        }
     }
 
     private var accountsSectionHeader: some View {
