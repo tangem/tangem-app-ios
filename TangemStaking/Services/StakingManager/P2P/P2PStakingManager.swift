@@ -14,14 +14,23 @@ final class P2PStakingManager {
     private let wallet: StakingWallet
     private let provider: P2PAPIProvider
     private let analyticsLogger: StakingAnalyticsLogger
+    private let stateRepository: StakingManagerStateRepository
 
-    private let _state = CurrentValueSubject<StakingManagerState, Never>(.loading)
+    private let _state: CurrentValueSubject<StakingManagerState, Never>
     private var pendingTransaction: StakingTransactionInfo?
 
-    init(wallet: StakingWallet, provider: P2PAPIProvider, analyticsLogger: StakingAnalyticsLogger) {
+    init(
+        wallet: StakingWallet,
+        provider: P2PAPIProvider,
+        stateRepository: StakingManagerStateRepository,
+        analyticsLogger: StakingAnalyticsLogger
+    ) {
         self.wallet = wallet
         self.provider = provider
+        self.stateRepository = stateRepository
         self.analyticsLogger = analyticsLogger
+
+        _state = CurrentValueSubject(.loading(cached: stateRepository.state()))
     }
 }
 
@@ -29,21 +38,25 @@ final class P2PStakingManager {
 
 extension P2PStakingManager: StakingManager {
     func updateState(loadActions: Bool) async {
-        _state.send(.loading)
+        updateState(.loading(cached: stateRepository.state()))
 
-        let yield = try? await provider.yield()
+        do {
+            let yield = try await provider.yield()
 
-        guard let yield, !yield.preferredValidators.isEmpty else {
-            _state.send(.notEnabled)
-            return
+            guard !yield.preferredValidators.isEmpty else {
+                updateState(.notEnabled)
+                return
+            }
+
+            let balances = try await provider.balances(
+                walletAddress: wallet.address,
+                vaults: yield.validators.map(\.address)
+            )
+            let state = state(balances: balances, yield: yield)
+            updateState(state)
+        } catch {
+            updateState(.loadingError(error.localizedDescription, cached: stateRepository.state()))
         }
-
-        let balances = try? await provider.balances(
-            walletAddress: wallet.address,
-            vaults: yield.validators.map(\.address)
-        )
-        let state = state(balances: balances, yield: yield)
-        _state.send(state)
     }
 
     var statePublisher: AnyPublisher<StakingManagerState, Never> {
@@ -92,6 +105,11 @@ extension P2PStakingManager: CustomStringConvertible {
 }
 
 private extension P2PStakingManager {
+    func updateState(_ state: StakingManagerState) {
+        stateRepository.storeState(state)
+        _state.send(state)
+    }
+
     func state(balances: [StakingBalanceInfo]?, yield: StakingYieldInfo?) -> StakingManagerState {
         guard let yield, !yield.preferredValidators.isEmpty else {
             return .notEnabled
