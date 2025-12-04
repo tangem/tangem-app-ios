@@ -54,6 +54,7 @@ extension CommonTokenQuotesRepository: TokenQuotesRepository {
         return quote
     }
 
+    @discardableResult
     func loadQuotes(currencyIds: [String]) -> AnyPublisher<[String: TokenQuote], Never> {
         AppLogger.info(self, "Request loading quotes for ids: \(currencyIds)")
 
