@@ -103,6 +103,8 @@ final class MobileOnboardingAccessCodeViewModel: ObservableObject {
 
     private lazy var mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
 
+    private let accessCodeValidator = MobileOnboardingAccessCodeValidator()
+
     private let mode: Mode
     private let source: MobileOnboardingFlowSource
     private weak var delegate: MobileOnboardingAccessCodeDelegate?
@@ -160,8 +162,15 @@ private extension MobileOnboardingAccessCodeViewModel {
         guard accessCode.count == codeLength else {
             return
         }
+
         logAccessCodeEnteredAnalytics()
-        state = .confirmAccessCode
+
+        guard accessCodeValidator.validate(accessCode: accessCode) else {
+            alert = makeAccessCodeValidationAlert()
+            return
+        }
+
+        setup(state: .confirmAccessCode)
     }
 
     func check(confirmAccessCode: String) {
@@ -266,10 +275,14 @@ private extension MobileOnboardingAccessCodeViewModel {
         return context
     }
 
+    func setup(state: State) {
+        self.state = state
+    }
+
     func resetState() {
         accessCode = ""
         confirmAccessCode = ""
-        state = .accessCode
+        setup(state: .accessCode)
     }
 }
 
@@ -334,6 +347,20 @@ private extension MobileOnboardingAccessCodeViewModel {
         )
     }
 
+    func makeAccessCodeValidationAlert() -> AlertBinder {
+        AlertBuilder.makeAlert(
+            title: Localization.accessCodeAlertValidationTitle,
+            message: Localization.accessCodeAlertValidationDescription,
+            with: .init(
+                primaryButton: .default(
+                    Text(Localization.accessCodeAlertValidationOk),
+                    action: weakify(self, forFunction: MobileOnboardingAccessCodeViewModel.onAccessCodeValidationOkTap)
+                ),
+                secondaryButton: .cancel(Text(Localization.accessCodeAlertValidationCancel))
+            )
+        )
+    }
+
     func onSkipOkTap() {
         logSkipTapAnalytics()
 
@@ -345,6 +372,10 @@ private extension MobileOnboardingAccessCodeViewModel {
         runTask(in: self) { viewModel in
             await viewModel.onAccessCodeComplete()
         }
+    }
+
+    func onAccessCodeValidationOkTap() {
+        setup(state: .confirmAccessCode)
     }
 }
 
