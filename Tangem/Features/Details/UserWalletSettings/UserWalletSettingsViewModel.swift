@@ -53,6 +53,11 @@ final class UserWalletSettingsViewModel: ObservableObject {
     @Published private var cardSettingsViewModel: DefaultRowViewModel?
     @Published private var referralViewModel: DefaultRowViewModel?
 
+    /// Alert that needs to be shown after a modal sheet is dismissed.
+    /// Used to defer alert display until the presenting sheet (e.g., AccountFormView) closes.
+    /// The alert is stored here temporarily and shown via `showPendingAlertIfNeeded()` in the sheet's `onDismiss` callback.
+    /// See `UserWalletSettingsCoordinatorView` for the trigger.
+    private var pendingAlert: AlertBinder?
     private let mobileSettingsUtil: MobileSettingsUtil
 
     private var isNFTEnabled: Bool {
@@ -89,6 +94,10 @@ final class UserWalletSettingsViewModel: ObservableObject {
         dependencyUpdater.setup(owner: self)
 
         bind()
+    }
+
+    deinit {
+        assert(pendingAlert == nil, "pendingAlert was not shown before deallocation. If AccountForm is no longer a modal, update the alert display mechanism.")
     }
 
     func onFirstAppear() {
@@ -130,12 +139,19 @@ final class UserWalletSettingsViewModel: ObservableObject {
                 return
             }
 
-            alert = AlertBuilder.makeAlert(
+            pendingAlert = AlertBuilder.makeAlert(
                 title: Localization.accountsMigrationAlertTitle,
                 message: Localization.accountsMigrationAlertMessage(namesPair.fromName, namesPair.toName),
                 primaryButton: .default(Text(Localization.commonGotIt))
             )
         }
+    }
+
+    func showPendingAlertIfNeeded() {
+        guard let pendingAlert else { return }
+
+        alert = pendingAlert
+        self.pendingAlert = nil
     }
 
     private func loadWalletImage() {
