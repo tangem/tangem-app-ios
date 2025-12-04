@@ -130,7 +130,7 @@ extension NFTSendWalletModelProxy: WalletModel {
         set {}
     }
 
-    var sendingRestrictions: TransactionSendAvailabilityProvider.SendingRestrictions? {
+    var sendingRestrictions: SendingRestrictions? {
         transactionSendAvailabilityProvider.sendingRestrictions(walletModel: self)
     }
 
