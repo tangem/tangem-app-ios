@@ -22,7 +22,7 @@ class FiatTokenBalanceProvider {
     private let balanceFormatter = BalanceFormatter()
 
     init(
-        input: FiatTokenBalanceProviderInput?,
+        input: FiatTokenBalanceProviderInput,
         cryptoBalanceProvider: TokenBalanceProvider
     ) {
         self.cryptoBalanceProvider = cryptoBalanceProvider
