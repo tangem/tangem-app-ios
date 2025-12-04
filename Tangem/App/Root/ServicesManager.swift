@@ -148,9 +148,9 @@ extension CommonServicesManager: ServicesManager {
             return
         }
 
-        SettingsMigrator.migrateIfNeeded()
-
         configureForUITests()
+
+        SettingsMigrator.migrateIfNeeded()
 
         TangemLoggerConfigurator().initialize()
 
