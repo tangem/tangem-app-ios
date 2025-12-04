@@ -355,11 +355,6 @@ extension CommonTangemApiService: TangemApiService {
         let _: EmptyGenericResponseDTO = try await request(for: target, decoder: decoder)
     }
 
-    func setWalletInitialized(userWalletId: String) async throws {
-        let target: TangemApiTarget.TargetType = .walletInitialized(userWalletId: userWalletId)
-        let _: EmptyGenericResponseDTO = try await request(for: target, decoder: decoder)
-    }
-
     // MARK: - Notification
 
     func pushNotificationsEligibleNetworks() async throws -> [NotificationDTO.NetworkItem] {
@@ -378,6 +373,11 @@ extension CommonTangemApiService: TangemApiService {
         let _: EmptyGenericResponseDTO = try await request(for: target, decoder: decoder)
     }
 
+    func connectUserWallets(uid: String, requestModel: ApplicationDTO.Connect.Request) async throws {
+        let target: TangemApiTarget.TargetType = .connectUserWallets(uid: uid, requestModel: requestModel)
+        let _: EmptyGenericResponseDTO = try await request(for: target, decoder: decoder)
+    }
+
     // MARK: - UserWallets
 
     func getUserWallets(applicationUid: String) async throws -> [UserWalletDTO.Response] {
@@ -388,17 +388,10 @@ extension CommonTangemApiService: TangemApiService {
         try await request(for: .getUserWallet(userWalletId: userWalletId), decoder: decoder)
     }
 
-    func updateUserWallet(by userWalletId: String, requestModel: UserWalletDTO.Update.Request) async throws {
-        let target: TangemApiTarget.TargetType = .updateUserWallet(userWalletId: userWalletId, requestModel: requestModel)
+    func updateWallet(by userWalletId: String, context: some Encodable) async throws {
+        let target: TangemApiTarget.TargetType = .updateWallet(userWalletId: userWalletId, context: context)
         let _: EmptyGenericResponseDTO = try await request(for: target, decoder: decoder)
     }
-
-    func createAndConnectUserWallet(applicationUid: String, items: Set<UserWalletDTO.Create.Request>) async throws {
-        let target: TangemApiTarget.TargetType = .createAndConnectUserWallet(applicationUid: applicationUid, items: items)
-        let _: EmptyGenericResponseDTO = try await request(for: target, decoder: decoder)
-    }
-
-    // MARK: - Accounts
 
     func createWallet(with context: some Encodable) async throws -> String? {
         let target = TangemApiTarget(type: .createWallet(context: context))
@@ -414,6 +407,8 @@ extension CommonTangemApiService: TangemApiService {
             return revision
         }
     }
+
+    // MARK: - Accounts
 
     func getUserAccounts(
         userWalletId: String
