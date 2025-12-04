@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemAccounts // [REDACTED_TODO_COMMENT]
 
 typealias OrganizeTokensListSection = SectionModel<OrganizeTokensListSectionViewModel, OrganizeTokensListItemViewModel>
 
@@ -19,4 +20,13 @@ extension OrganizeTokensListSection {
         }
         return false
     }
+}
+
+// [REDACTED_TODO_COMMENT]
+typealias _OrganizeTokensListSection = SectionModel<_AccountModel, OrganizeTokensListSection>
+
+// [REDACTED_TODO_COMMENT]
+struct _AccountModel {
+    let name: String
+    let iconData: AccountIconView.ViewData
 }
