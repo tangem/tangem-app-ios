@@ -83,7 +83,7 @@ extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFacto
             userTokensManager: userTokensManager,
             walletModelsManager: walletModelsManager,
             walletModelsFactoryInput: wrappedWalletModelsFactory,
-            derivationManager: accountSpecificDerivationManager
+            derivationManager: accountSpecificDerivationManager,
         )
     }
 }
