@@ -45,27 +45,11 @@ struct ArchivedAccountsView: View {
     private func makeAccountsView(from models: [ArchivedCryptoAccountInfo]) -> some View {
         GroupedScrollView(contentType: .lazy(alignment: .center, spacing: 0), showsIndicators: false) {
             GroupedSection(models) { model in
-                AccountRowView(
-                    input: viewModel.makeAccountRowData(for: model),
-                    trailing: {
-                        makeRecoverButton(for: model)
-                    }
-                )
-                .padding(.vertical, 12)
+                ArchivedAccountRowView(viewData: viewModel.makeAccountRowViewData(for: model))
+                    .padding(.vertical, 12)
             }
             .separatorStyle(.none)
         }
-    }
-
-    private func makeRecoverButton(for model: ArchivedCryptoAccountInfo) -> some View {
-        let isRecovering = viewModel.recoveringAccountId == model.id
-        let isAnyRecovering = viewModel.recoveringAccountId != nil
-
-        return CircleButton(title: Localization.accountArchivedRecover) {
-            viewModel.recoverAccount(model)
-        }
-        .loading(isRecovering)
-        .disabled(isAnyRecovering)
     }
 
     private var loadingView: some View {
