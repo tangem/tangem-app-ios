@@ -492,7 +492,7 @@ extension StakingModel: SendFinishInput {
 extension StakingModel: SendBaseInput, SendBaseOutput {
     var actionInProcessing: AnyPublisher<Bool, Never> {
         Publishers.Merge(
-            stakingManager.statePublisher.map { $0 == .loading },
+            stakingManager.statePublisher.map { $0.isLoading },
             _isLoading
         )
         .eraseToAnyPublisher()
