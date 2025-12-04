@@ -518,7 +518,6 @@ extension Analytics {
 
         // Onboarding events
 
-        case visaOnboardingActivationScreenOpened = "[Onboarding / Visa] Activation Screen Opened"
         case visaOnboardingSetAccessCodeScreenOpened = "[Onboarding / Visa] Setting Access Code Started"
         case visaOnboardingReEnterAccessCodeScreenOpened = "[Onboarding / Visa] Access Code Re-enter Screen"
         case visaOnboardingChooseWalletScreenOpened = "[Onboarding / Visa] Choose Wallet Screen"
@@ -544,6 +543,19 @@ extension Analytics {
         case visaMainBalancesLimits = "[Main Screen] Limits Clicked"
         case visaMainNoticeBalancesInfo = "[Main Screen] Notice - Balances Info"
         case visaMainNoticeLimitsInfo = "[Main Screen] Notice - Limits Info"
+
+        // Tangem Pay (Visa 2.0)
+
+        case visaOnboardingActivationScreenOpened = "[Onboarding / Visa] Activation Screen Opened"
+        case visaOnboardingButtonViewTerms = "[Onboarding / Visa] Button - View Terms"
+        case visaOnboardingButtonGetCard = "[Onboarding / Visa] Button - Get Сard"
+        case visaOnboardingKYCFlowOpened = "[Onboarding / Visa] KYC Flow Opened"
+        case visaOnboardingIssuingBannerDisplayed = "[Onboarding / Visa] Issuing Banner Displayed"
+
+        case visaMainScreenMainScreenOpened = "[Main Screen / Visa] Main Screen Opened"
+        case visaMainScreenButtonAddFunds = "[Main Screen / Visa] Button - Add Funds"
+        case visaMainScreenButtonReceive = "[Main Screen / Visa] Button - Receive"
+        case visaMainScreenButtonSwap = "[Main Screen / Visa] Button - Swap"
 
         // MARK: - NFT
 
