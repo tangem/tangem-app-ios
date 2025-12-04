@@ -47,8 +47,21 @@ final class ArchivedAccountsViewModel: ObservableObject {
 
     // MARK: - ViewData
 
-    func makeAccountRowData(for model: ArchivedCryptoAccountInfo) -> AccountRowViewModel.Input {
-        ArchivedAccountInfoToAccountRowDataMapper.map(model)
+    func makeAccountRowViewData(for model: ArchivedCryptoAccountInfo) -> ArchivedAccountRowView.ViewData {
+        let tokensString = Localization.commonTokensCount(model.tokensCount)
+        let networksString = Localization.commonNetworksCount(model.networksCount)
+        let subtitle = Localization.accountLabelTokensInfo(tokensString, networksString)
+
+        return ArchivedAccountRowView.ViewData(
+            iconData: AccountModelUtils.UI.iconViewData(icon: model.icon, accountName: model.name),
+            name: model.name,
+            subtitle: subtitle,
+            isRecovering: recoveringAccountId == model.id,
+            isRecoverDisabled: recoveringAccountId != nil,
+            onRecover: { [weak self] in
+                self?.recoverAccount(model)
+            }
+        )
     }
 
     @MainActor
