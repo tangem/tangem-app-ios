@@ -16,10 +16,11 @@ final class TopMarketWidgetViewModel: ObservableObject {
     // MARK: - Injected & Published Properties
 
     @Published private(set) var tokenViewModels: [MarketTokenItemViewModel] = []
-    @Published private(set) var tokenListLoadingState: TopMarketWidgetView.ListLoadingState = .idle
+    @Published private(set) var loadingState: WidgetLoadingState = .idle
 
     // MARK: - Properties
 
+    let widgetType: MarketsWidgetType
     private weak var coordinator: TopMarketWidgetRoutable?
 
     private let quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper
@@ -34,9 +35,11 @@ final class TopMarketWidgetViewModel: ObservableObject {
     // MARK: - Init
 
     init(
+        widgetType: MarketsWidgetType,
         quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper,
         coordinator: TopMarketWidgetRoutable?
     ) {
+        self.widgetType = widgetType
         self.quotesRepositoryUpdateHelper = quotesRepositoryUpdateHelper
         self.coordinator = coordinator
 
@@ -56,6 +59,14 @@ final class TopMarketWidgetViewModel: ObservableObject {
 
     deinit {
         AppLogger.debug("TopMarketWidgetViewModel deinit")
+    }
+
+    // MARK: - Public
+
+    func tryLoadAgain() {
+        loadingState = .loading
+        dataProvider.reset()
+        fetch(by: filterProvider.currentFilterValue)
     }
 }
 
@@ -90,13 +101,18 @@ private extension TopMarketWidgetViewModel {
             .sink { viewModel, events in
                 let (oldEvent, newEvent) = events
                 switch newEvent {
-                case .loading, .failedToFetchData:
+                case .loading:
                     if case .failedToFetchData = oldEvent { return }
-                    viewModel.tokenListLoadingState = .loading
+                    viewModel.loadingState = .loading
+                case .failedToFetchData:
+                    if viewModel.dataProvider.items.isEmpty {
+                        viewModel.quotesUpdatesScheduler.cancelUpdates()
+                    }
+                    viewModel.loadingState = .error
                 case .idle:
                     break
                 case .startInitialFetch, .cleared:
-                    viewModel.tokenListLoadingState = .loading
+                    viewModel.loadingState = .loading
                     viewModel.tokenViewModels.removeAll()
                     viewModel.quotesUpdatesScheduler.saveQuotesUpdateDate(Date())
 
@@ -139,7 +155,7 @@ private extension TopMarketWidgetViewModel {
             .withWeakCaptureOf(self)
             .sink { (viewModel: TopMarketWidgetViewModel, items: [MarketTokenItemViewModel]) in
                 viewModel.tokenViewModels.append(contentsOf: items.prefix(Constants.itemsOnListWidget))
-                viewModel.tokenListLoadingState = .loaded
+                viewModel.loadingState = .loaded
             }
             .store(in: &bag)
     }

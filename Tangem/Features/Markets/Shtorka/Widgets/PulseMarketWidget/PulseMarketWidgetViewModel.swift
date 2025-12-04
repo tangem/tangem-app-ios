@@ -16,7 +16,7 @@ final class PulseMarketWidgetViewModel: ObservableObject {
     // MARK: - Injected & Published Properties
 
     @Published private(set) var tokenViewModels: [MarketTokenItemViewModel] = []
-    @Published private(set) var tokenListLoadingState: TopMarketWidgetView.ListLoadingState = .idle
+    @Published private(set) var loadingState: WidgetLoadingState = .idle
 
     @Published var filterSelectedId: String? = nil
 
@@ -34,6 +34,7 @@ final class PulseMarketWidgetViewModel: ObservableObject {
 
     // MARK: - Properties
 
+    let widgetType: MarketsWidgetType
     private weak var coordinator: TopMarketWidgetRoutable?
 
     private let quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper
@@ -48,9 +49,11 @@ final class PulseMarketWidgetViewModel: ObservableObject {
     // MARK: - Init
 
     init(
+        widgetType: MarketsWidgetType,
         quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper,
         coordinator: TopMarketWidgetRoutable?
     ) {
+        self.widgetType = widgetType
         self.quotesRepositoryUpdateHelper = quotesRepositoryUpdateHelper
         self.coordinator = coordinator
 
@@ -71,6 +74,14 @@ final class PulseMarketWidgetViewModel: ObservableObject {
 
     deinit {
         AppLogger.debug("PulseMarketWidgetViewModel deinit")
+    }
+
+    // MARK: - Public
+
+    func tryLoadAgain() {
+        loadingState = .loading
+        dataProvider.reset()
+        fetch(by: filterProvider.currentFilterValue)
     }
 }
 
@@ -139,7 +150,7 @@ private extension PulseMarketWidgetViewModel {
                 switch newEvent {
                 case .loading:
                     if case .failedToFetchData = oldEvent { return }
-                    viewModel.tokenListLoadingState = .loading
+                    viewModel.loadingState = .loading
                 case .idle:
                     break
                 case .failedToFetchData:
@@ -147,9 +158,9 @@ private extension PulseMarketWidgetViewModel {
                         viewModel.quotesUpdatesScheduler.cancelUpdates()
                     }
 
-                    viewModel.tokenListLoadingState = .loading
+                    viewModel.loadingState = .error
                 case .startInitialFetch, .cleared:
-                    viewModel.tokenListLoadingState = .loading
+                    viewModel.loadingState = .loading
                     viewModel.tokenViewModels.removeAll()
                     viewModel.quotesUpdatesScheduler.saveQuotesUpdateDate(Date())
 
@@ -193,7 +204,7 @@ private extension PulseMarketWidgetViewModel {
             .withWeakCaptureOf(self)
             .sink { (viewModel: PulseMarketWidgetViewModel, items: [MarketTokenItemViewModel]) in
                 viewModel.tokenViewModels.append(contentsOf: items.prefix(Constants.itemsOnListWidget))
-                viewModel.tokenListLoadingState = .loaded
+                viewModel.loadingState = .loaded
             }
             .store(in: &bag)
     }

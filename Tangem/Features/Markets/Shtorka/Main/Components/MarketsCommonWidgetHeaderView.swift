@@ -8,14 +8,16 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 
 struct MarketsCommonWidgetHeaderView: View {
     let headerTitle: String
     let buttonTitle: String?
     let buttonAction: (() -> Void)?
+    let isLoading: Bool
 
     private var isDisplayButton: Bool {
-        buttonTitle != nil
+        buttonTitle != nil && !isLoading
     }
 
     var body: some View {
@@ -24,6 +26,7 @@ struct MarketsCommonWidgetHeaderView: View {
                 Text(headerTitle)
                     .style(Fonts.Bold.title3, color: Colors.Text.primary1)
                     .lineLimit(1)
+                    .skeletonable(isShown: isLoading)
 
                 Spacer(minLength: 8)
 

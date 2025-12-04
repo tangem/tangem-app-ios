@@ -172,17 +172,16 @@ private extension MarketsMainViewModel {
 
     func mapToWidgetItem(widgetModel: MarketsWidgetModel) -> WidgetStateItem? {
         let contentItem: WidgetContentItem
-        let headerItem: WidgetHeaderItem?
 
         switch widgetModel.type {
         case .market:
             // [REDACTED_TODO_COMMENT]
             let viewModel = TopMarketWidgetViewModel(
+                widgetType: widgetModel.type,
                 quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper,
                 coordinator: nil
             )
             contentItem = .top(viewModel)
-            headerItem = .common(title: widgetModel.headerTitle ?? "", buttonTitle: Localization.commonSeeAll)
         case .news:
             return nil
         case .earn:
@@ -190,16 +189,15 @@ private extension MarketsMainViewModel {
         case .pulse:
             // [REDACTED_TODO_COMMENT]
             let viewModel = PulseMarketWidgetViewModel(
+                widgetType: widgetModel.type,
                 quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper,
                 coordinator: nil
             )
             contentItem = .pulse(viewModel)
-            headerItem = .common(title: widgetModel.headerTitle ?? "", buttonTitle: Localization.commonSeeAll)
         }
 
         return WidgetStateItem(
             type: widgetModel.type,
-            header: headerItem,
             content: contentItem
         )
     }
@@ -218,12 +216,7 @@ extension MarketsMainViewModel {
         }
 
         let type: MarketsWidgetType
-        let header: WidgetHeaderItem?
         let content: WidgetContentItem
-    }
-
-    enum WidgetHeaderItem: Hashable, Equatable {
-        case common(title: String, buttonTitle: String?)
     }
 
     enum WidgetContentItem: Identifiable, Equatable, Hashable {

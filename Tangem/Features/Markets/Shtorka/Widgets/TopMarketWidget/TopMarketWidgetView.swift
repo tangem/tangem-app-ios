@@ -21,36 +21,51 @@ struct TopMarketWidgetView: View {
     @Environment(\.mainWindowSize) private var mainWindowSize
 
     var body: some View {
-        VStack(spacing: .zero) {
-            ForEach(viewModel.tokenViewModels) {
-                MarketTokenItemView(viewModel: $0, cellWidth: mainWindowSize.width)
-            }
+        VStack(alignment: .leading, spacing: MarketsWidgetLayout.Item.interItemSpacing) {
+            header
+                .padding(.horizontal, MarketsWidgetLayout.Header.horizontalPadding)
 
-            // Need for display list skeleton view
-            if case .loading = viewModel.tokenListLoadingState {
-                loadingSkeletons
+            content
+                .defaultRoundedBackground(
+                    with: Colors.Background.action,
+                    verticalPadding: MarketsWidgetLayout.Content.innerContentPadding,
+                    horizontalPadding: MarketsWidgetLayout.Content.innerContentPadding
+                )
+                .padding(.horizontal, MarketsWidgetLayout.Item.horizontalPadding)
+        }
+    }
+
+    private var header: some View {
+        MarketsCommonWidgetHeaderView(
+            headerTitle: viewModel.widgetType.headerTitle ?? "",
+            buttonTitle: Localization.commonSeeAll,
+            buttonAction: nil,
+            isLoading: viewModel.loadingState == .idle || viewModel.loadingState == .loading
+        )
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        switch viewModel.loadingState {
+        case .idle, .loading:
+            loadingSkeletons
+        case .loaded:
+            VStack(spacing: .zero) {
+                ForEach(viewModel.tokenViewModels) {
+                    MarketTokenItemView(viewModel: $0, cellWidth: mainWindowSize.width)
+                }
+            }
+        case .error:
+            MarketsMainWidgetErrorView {
+                viewModel.tryLoadAgain()
             }
         }
-        .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: .zero, horizontalPadding: .zero)
-        .padding(.horizontal, Layout.List.horizontalContentPadding)
     }
 
     private var loadingSkeletons: some View {
         ForEach(0 ..< 5) { _ in
             MarketsSkeletonItemView()
         }
-    }
-}
-
-// MARK: - Auxiliary types
-
-extension TopMarketWidgetView {
-    enum ListLoadingState: String, Identifiable, Hashable {
-        case loading
-        case loaded
-        case idle
-
-        var id: String { rawValue }
     }
 }
 

@@ -129,10 +129,7 @@ struct MarketsMainView: View {
     private var defaultWidgetsView: some View {
         VStack(alignment: .leading, spacing: Layout.Widgets.verticalContentSpacing) {
             ForEach(viewModel.widgetItems, id: \.id) { item in
-                MarketsMainWidgetItemView(
-                    header: { makeHeaderView(with: item.header, at: item.type) },
-                    content: { makeContentView(with: item.content) }
-                )
+                makeContentView(with: item.content)
             }
         }
     }
@@ -245,25 +242,6 @@ struct MarketsMainView: View {
     }
 
     // MARK: - Private Item Creation
-
-    @ViewBuilder
-    private func makeHeaderView(
-        with item: MarketsMainViewModel.WidgetHeaderItem?,
-        at widgetType: MarketsWidgetType
-    ) -> some View {
-        switch item {
-        case .common(let title, let buttonTitle):
-            MarketsCommonWidgetHeaderView(
-                headerTitle: title,
-                buttonTitle: buttonTitle,
-                buttonAction: {
-                    viewModel.onHeaderActionButtonTap(for: widgetType)
-                }
-            )
-        case .none:
-            EmptyView()
-        }
-    }
 
     @ViewBuilder
     private func makeContentView(with item: MarketsMainViewModel.WidgetContentItem) -> some View {

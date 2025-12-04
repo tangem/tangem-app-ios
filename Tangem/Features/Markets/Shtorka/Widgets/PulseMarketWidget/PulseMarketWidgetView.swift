@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemLocalization
 import Combine
 import BlockchainSdk
 import TangemAssets
@@ -20,11 +21,24 @@ struct PulseMarketWidgetView: View {
     @Environment(\.mainWindowSize) private var mainWindowSize
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Layout.RootView.verticalContentSpacing) {
+        VStack(alignment: .leading, spacing: MarketsWidgetLayout.Item.interItemSpacing) {
+            header
+                .padding(.horizontal, MarketsWidgetLayout.Header.horizontalPadding)
+
             filter
 
             list
+                .padding(.horizontal, MarketsWidgetLayout.Item.horizontalPadding)
         }
+    }
+
+    private var header: some View {
+        MarketsCommonWidgetHeaderView(
+            headerTitle: viewModel.widgetType.headerTitle ?? "",
+            buttonTitle: Localization.commonSeeAll,
+            buttonAction: nil,
+            isLoading: viewModel.loadingState == .idle
+        )
     }
 
     private var loadingSkeletons: some View {
@@ -34,18 +48,27 @@ struct PulseMarketWidgetView: View {
     }
 
     private var list: some View {
-        VStack(spacing: .zero) {
-            ForEach(viewModel.tokenViewModels) {
-                MarketTokenItemView(viewModel: $0, cellWidth: mainWindowSize.width)
-            }
-
-            // Need for display list skeleton view
-            if case .loading = viewModel.tokenListLoadingState {
+        Group {
+            switch viewModel.loadingState {
+            case .loading, .idle:
                 loadingSkeletons
+            case .loaded:
+                VStack(spacing: .zero) {
+                    ForEach(viewModel.tokenViewModels) {
+                        MarketTokenItemView(viewModel: $0, cellWidth: mainWindowSize.width)
+                    }
+                }
+            case .error:
+                MarketsMainWidgetErrorView {
+                    viewModel.tryLoadAgain()
+                }
             }
         }
-        .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: .zero, horizontalPadding: .zero)
-        .padding(.horizontal, Layout.List.horizontalContentPadding)
+        .defaultRoundedBackground(
+            with: Colors.Background.action,
+            verticalPadding: MarketsWidgetLayout.Content.innerContentPadding,
+            horizontalPadding: MarketsWidgetLayout.Content.innerContentPadding
+        )
     }
 
     private var filter: some View {
@@ -74,10 +97,6 @@ extension PulseMarketWidgetView {
     enum Layout {
         enum RootView {
             static let verticalContentSpacing: CGFloat = 8.0
-        }
-
-        enum List {
-            static let horizontalContentPadding: CGFloat = 16.0
         }
     }
 }

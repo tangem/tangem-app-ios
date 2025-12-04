@@ -14,18 +14,4 @@ struct MarketsWidgetModel: Identifiable, Hashable, Equatable {
     let type: MarketsWidgetType
     let isEnabled: Bool
     let order: Int
-
-    #warning("Need to implement localizations")
-    var headerTitle: String? {
-        switch type {
-        case .market:
-            return "Market"
-        case .news:
-            return "News"
-        case .earn:
-            return "Earn with Tangem"
-        case .pulse:
-            return "Market Pulse"
-        }
-    }
 }

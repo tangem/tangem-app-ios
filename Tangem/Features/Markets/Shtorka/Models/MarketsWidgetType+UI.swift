@@ -1,5 +1,5 @@
 //
-//  MarketsWidgetType.swift
+//  MarketsWidgetType+UI.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,18 +8,9 @@
 
 import Foundation
 
-enum MarketsWidgetType: String, Identifiable, CaseIterable {
-    case market
-    case news
-    case earn
-    case pulse
-
-    var id: String {
-        rawValue
-    }
-
-    #warning("Need to implement localizations")
-    var headerTitle: String? {
+extension MarketsWidgetType {
+    // [REDACTED_TODO_COMMENT]
+    var headerTitle: String {
         switch self {
         case .market:
             return "Market"

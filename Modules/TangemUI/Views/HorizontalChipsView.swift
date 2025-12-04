@@ -39,7 +39,7 @@ public struct HorizontalChipsView: View {
                         title: chip.title,
                         isSelected: selectedId == chip.id
                     ) {
-                        selectedId == chip.id ? nil : chip.id
+                        selectedId = (selectedId == chip.id) ? nil : chip.id
                     }
                 }
             }
