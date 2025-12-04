@@ -27,7 +27,7 @@ final class PulseMarketWidgetViewModel: ObservableObject {
             }
 
             return true
-        }.map { $0 }
+        }
     }
 
     // Chips are constructed in the view to avoid coupling the view model to TangemUI types.
@@ -84,6 +84,7 @@ private extension PulseMarketWidgetViewModel {
     func bindToCurrencyCodeUpdate() {
         AppSettings.shared.$selectedCurrencyCode
             .dropFirst()
+            .removeDuplicates()
             .withWeakCaptureOf(self)
             .sink { viewModel, newCurrencyCode in
                 viewModel.marketCapFormatter = .init(divisorsList: AmountNotationSuffixFormatter.Divisor.defaultList, baseCurrencyCode: newCurrencyCode, notationFormatter: .init())
@@ -97,14 +98,9 @@ private extension PulseMarketWidgetViewModel {
         // Map selected chip id to MarketsListOrderType and update provider
         $filterSelectedId
             .dropFirst()
-            .receive(on: DispatchQueue.main)
+            .receiveOnMain()
             .compactMap { [weak self] id -> MarketsListOrderType? in
-                guard
-                    let self,
-                    let id
-                else {
-                    return nil
-                }
+                guard let self, let id else { return nil }
                 return availabilityToSelectionOrderType.first(where: { $0.rawValue == id })
             }
             .removeDuplicates()
