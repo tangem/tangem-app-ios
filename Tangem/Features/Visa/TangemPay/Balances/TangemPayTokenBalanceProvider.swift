@@ -11,19 +11,24 @@ import TangemVisa
 import TangemFoundation
 
 struct TangemPayTokenBalanceProvider {
-    private let walletModelId: WalletModelId
+    private let tokenItem: TokenItem
     private let tokenBalancesRepository: TokenBalancesRepository
-    private let balanceSubject: CurrentValueSubject<LoadingResult<TangemPayBalance, Error>, Never>
-    private let balanceFormatter = BalanceFormatter()
+    private let balanceSubject: CurrentValueSubject<LoadingResult<TangemPayBalance, Error>?, Never>
+
+    private let walletModelId: WalletModelId
+    private let balanceFormatter: BalanceFormatter
 
     init(
-        walletModelId: WalletModelId,
+        tokenItem: TokenItem,
         tokenBalancesRepository: TokenBalancesRepository,
-        balanceSubject: CurrentValueSubject<LoadingResult<TangemPayBalance, Error>, Never>
+        balanceSubject: CurrentValueSubject<LoadingResult<TangemPayBalance, Error>?, Never>
     ) {
-        self.walletModelId = walletModelId
+        self.tokenItem = tokenItem
         self.tokenBalancesRepository = tokenBalancesRepository
         self.balanceSubject = balanceSubject
+
+        walletModelId = .init(tokenItem: tokenItem)
+        balanceFormatter = .init()
     }
 }
 
@@ -65,8 +70,10 @@ private extension TangemPayTokenBalanceProvider {
             .map { .init(balance: $0.balance, date: $0.date) }
     }
 
-    func mapToTokenBalanceType(balance: LoadingResult<TangemPayBalance, Error>) -> TokenBalanceType {
+    func mapToTokenBalanceType(balance: LoadingResult<TangemPayBalance, Error>?) -> TokenBalanceType {
         switch balance {
+        case .none:
+            return .empty(.noData)
         case .loading:
             return .loading(cachedBalance())
         case .failure:
@@ -78,10 +85,8 @@ private extension TangemPayTokenBalanceProvider {
     }
 
     func mapToFormattedTokenBalanceType(type: TokenBalanceType) -> FormattedTokenBalanceType {
-        // We assume that TangemPay has only `USD` currency code
-        let currencyCode = AppConstants.usdCurrencyCode
         let builder = FormattedTokenBalanceTypeBuilder(format: { [balanceFormatter] value in
-            balanceFormatter.formatFiatBalance(value, currencyCode: currencyCode)
+            balanceFormatter.formatCryptoBalance(value, currencyCode: tokenItem.currencySymbol)
         })
 
         return builder.mapToFormattedTokenBalanceType(type: type)
