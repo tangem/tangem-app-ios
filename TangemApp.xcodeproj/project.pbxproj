@@ -35923,8 +35923,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/amplitude/Amplitude-Swift";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.13.6;
+				kind = exactVersion;
+				version = 1.15.4;
 			};
 		};
 		B6DDDE7F2CF39C69008DEA94 /* XCRemoteSwiftPackageReference "analytics-connector-ios" */ = {
