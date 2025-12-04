@@ -23,7 +23,7 @@ final class SendFeeSelectorScreen: ScreenBase<SendFeeSelectorElement> {
     private lazy var feeUpToField = app.textFields[FeeAccessibilityIdentifiers.customFeeTotalAmountField]
 
     @discardableResult
-    func waitForDisplay(cryptoSymbol: String, fiatSymbol: String) -> Self {
+    func waitForDisplay(cryptoSymbol: String, fiatSymbol: String, includeCustom: Bool = true) -> Self {
         XCTContext.runActivity(named: "Validate fee selector options are displayed") { _ in
             waitForFeeOption(
                 slowOption,
@@ -43,12 +43,14 @@ final class SendFeeSelectorScreen: ScreenBase<SendFeeSelectorElement> {
                 cryptoSymbol: cryptoSymbol,
                 fiatSymbol: fiatSymbol
             )
-            waitForFeeOption(
-                customOption,
-                optionName: "Custom",
-                cryptoSymbol: cryptoSymbol,
-                fiatSymbol: fiatSymbol
-            )
+            if includeCustom {
+                waitForFeeOption(
+                    customOption,
+                    optionName: "Custom",
+                    cryptoSymbol: cryptoSymbol,
+                    fiatSymbol: fiatSymbol
+                )
+            }
         }
         return self
     }
