@@ -148,6 +148,7 @@ final class TangemPayAccount {
             getToken: customerInfoManagementService.loadKYCAccessToken,
             onDidDismiss: onDidDismiss
         )
+        Analytics.log(.visaOnboardingKYCFlowOpened)
     }
 
     func getTangemPayStatus() async throws -> TangemPayStatus {
