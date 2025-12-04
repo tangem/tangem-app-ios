@@ -118,8 +118,6 @@ final class TangemPayMainViewModel: ObservableObject {
         }, onCancel: { [weak self] in
             self?.isWithdrawButtonLoading = false
         }) { @MainActor [weak self] in
-            self?.isWithdrawButtonLoading = false
-
             do {
                 try await self?.openWithdraw(tangemPayWalletWrapper: tangemPayWalletWrapper)
             } catch is CancellationError {
@@ -127,6 +125,8 @@ final class TangemPayMainViewModel: ObservableObject {
             } catch {
                 self?.alert = error.alertBinder
             }
+
+            self?.isWithdrawButtonLoading = false
         }
     }
 
@@ -280,19 +280,20 @@ private extension TangemPayMainViewModel {
 
     @MainActor
     func openWithdraw(tangemPayWalletWrapper: ExpressInteractorTangemPayWalletWrapper) async throws {
-        let hasActiveWithdrawOrder = try await tangemPayAccount.withdrawTransactionService.hasActiveWithdrawOrder()
-        try Task.checkCancellation()
+        let restriction = try await tangemPayAccount.withdrawAvailabilityProvider.restriction()
 
-        if hasActiveWithdrawOrder {
+        switch restriction {
+        case .none:
+            coordinator?.openTangemPayWithdraw(input: ExpressDependenciesInput(
+                userWalletInfo: userWalletInfo,
+                source: tangemPayWalletWrapper,
+                destination: .loadingAndSet
+            ))
+        case .hasPendingWithdrawOrder:
             coordinator?.openTangemWithdrawInProgressSheet()
-            return
+        default:
+            coordinator?.openTangemPayNoDepositAddressSheet()
         }
-
-        coordinator?.openTangemPayWithdraw(input: ExpressDependenciesInput(
-            userWalletInfo: userWalletInfo,
-            source: tangemPayWalletWrapper,
-            destination: .loadingAndSet
-        ))
     }
 }
 
