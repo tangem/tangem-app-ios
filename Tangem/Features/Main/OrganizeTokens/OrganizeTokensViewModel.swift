@@ -21,6 +21,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
         optionsEditing: optionsEditing
     )
 
+    @Published private(set) var __sections: [_OrganizeTokensListSection] = []
     @Published private(set) var sections: [OrganizeTokensListSection] = []
 
     let id = UUID()
@@ -81,87 +82,159 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
         if didBind { return }
 
         let sourcePublisherFactory = TokenSectionsSourcePublisherFactory()
+        var tokenSectionsAdapterCache: [ObjectIdentifier: TokenSectionsAdapter] = [:]
+
         // [REDACTED_TODO_COMMENT]
-        let tokenSectionsSourcePublisher = sourcePublisherFactory.makeSourcePublisher(for: userWalletModel)
-
-        let organizedTokensSectionsPublisher = tokenSectionsAdapter
-            .organizedSections(from: tokenSectionsSourcePublisher, on: mappingQueue)
-            .share(replay: 1)
-
-        let cache = dragAndDropActionsCache
-
-        // Resetting drag-and-drop actions cache for grouped sections
-        // when the structure of the underlying model has changed
-        organizedTokensSectionsPublisher
-            .withLatestFrom(optionsProviding.groupingOption) { ($0, $1) }
-            .filter { $0.1.isGrouped }
-            .map(\.0)
-            .pairwise()
-            .sink { cache.resetIfNeeded(sectionsChange: $0, isGroupingEnabled: true) }
-            .store(in: &bag)
-
-        // Resetting drag-and-drop actions cache for plain (non-grouped) sections
-        // when the structure of the underlying model has changed
-        organizedTokensSectionsPublisher
-            .withLatestFrom(optionsProviding.groupingOption) { ($0, $1) }
-            .filter { !$0.1.isGrouped }
-            .map(\.0)
-            .pairwise()
-            .sink { cache.resetIfNeeded(sectionsChange: $0, isGroupingEnabled: false) }
-            .store(in: &bag)
-
-        // Resetting drag-and-drop actions cache unconditionally when sort option is changed
-        optionsProviding
-            .sortingOption
-            .removeDuplicates()
-            .sink { _ in cache.reset() }
-            .store(in: &bag)
-
-        organizedTokensSectionsPublisher
-            .withLatestFrom(
-                optionsProviding.sortingOption,
-                optionsProviding.groupingOption
-            ) { ($0, $1.0, $1.1, cache) }
-            .map(Self.map)
-            .receive(on: DispatchQueue.main)
-            .assign(to: \.sections, on: self, ownership: .weak)
-            .store(in: &bag)
-
-        let onSavePublisher = onSave
-            .throttle(for: 1.0, scheduler: DispatchQueue.main, latest: false)
-            .share(replay: 1)
-
-        onSavePublisher
-            .receive(on: mappingQueue)
+        userWalletModel
+            .accountModelsManager
+            .cryptoAccountModelsPublisher // [REDACTED_TODO_COMMENT]
             .withWeakCaptureOf(self)
-            .flatMapLatest { viewModel, _ in
-                let walletModelIds = viewModel
-                    .sections
-                    .flatMap(\.items)
-                    .map(\.id.walletModelId)
+            .flatMapLatest { provider, cryptoAccountModels -> AnyPublisher<[_OrganizeTokensListSection], Never> in
+                guard cryptoAccountModels.isNotEmpty else {
+                    return .just(output: [])
+                }
 
-                return viewModel.optionsEditing.save(reorderedWalletModelIds: walletModelIds, source: .organizeTokens)
-            }
-            .withWeakCaptureOf(self)
-            .receive(on: DispatchQueue.main)
-            .sink { viewModel, _ in
-                viewModel.coordinator?.didTapSaveButton()
-            }
-            .store(in: &bag)
+                // [REDACTED_TODO_COMMENT]
+                return cryptoAccountModels
+                    .map { cryptoAccountModel in
+                        let tokenSectionsAdapter = Self
+                            ._makeOrGetCachedTokenSectionsAdapter(for: cryptoAccountModel, using: &tokenSectionsAdapterCache)
 
-        onSavePublisher
-            .withLatestFrom(
-                optionsProviding.sortingOption,
-                optionsProviding.groupingOption
-            )
-            .withWeakCaptureOf(self)
-            .sink { input in
-                let (viewModel, (sortingOption, groupingOption)) = input
-                viewModel.reportOnSaveButtonTap(sortingOption: sortingOption, groupingOption: groupingOption)
+                        let tokenSectionsSourcePublisher = sourcePublisherFactory
+                            .makeSourcePublisher(for: cryptoAccountModel)
+
+                        let organizedTokensSectionsPublisher = tokenSectionsAdapter
+                            .organizedSections(from: tokenSectionsSourcePublisher, on: provider.mappingQueue)
+
+                        return organizedTokensSectionsPublisher
+                            .map { sections in
+                                let accountSectionModel = _AccountModel(
+                                    name: cryptoAccountModel.name,
+                                    iconData: AccountIconViewBuilder.makeAccountIconViewData(accountModel: cryptoAccountModel)
+                                )
+                                return _OrganizeTokensListSection(
+                                    model: accountSectionModel,
+                                    items: Self.map(
+                                        sections: sections,
+                                        sortingOption: .dragAndDrop, // [REDACTED_TODO_COMMENT]
+                                        groupingOption: .none, // [REDACTED_TODO_COMMENT]
+                                        dragAndDropActionsCache: .init() // [REDACTED_TODO_COMMENT]
+                                    )
+                                )
+                            }
+                    }
+                    .combineLatest()
             }
-            .store(in: &bag)
+            .assign(to: &$__sections)
+
+//        let sourcePublisherFactory = TokenSectionsSourcePublisherFactory()
+//        // [REDACTED_TODO_COMMENT]
+//        let tokenSectionsSourcePublisher = sourcePublisherFactory.makeSourcePublisher(for: userWalletModel)
+//
+//        let organizedTokensSectionsPublisher = tokenSectionsAdapter
+//            .organizedSections(from: tokenSectionsSourcePublisher, on: mappingQueue)
+//            .share(replay: 1)
+//
+//        let cache = dragAndDropActionsCache
+//
+//        // Resetting drag-and-drop actions cache for grouped sections
+//        // when the structure of the underlying model has changed
+//        organizedTokensSectionsPublisher
+//            .withLatestFrom(optionsProviding.groupingOption) { ($0, $1) }
+//            .filter { $0.1.isGrouped }
+//            .map(\.0)
+//            .pairwise()
+//            .sink { cache.resetIfNeeded(sectionsChange: $0, isGroupingEnabled: true) }
+//            .store(in: &bag)
+//
+//        // Resetting drag-and-drop actions cache for plain (non-grouped) sections
+//        // when the structure of the underlying model has changed
+//        organizedTokensSectionsPublisher
+//            .withLatestFrom(optionsProviding.groupingOption) { ($0, $1) }
+//            .filter { !$0.1.isGrouped }
+//            .map(\.0)
+//            .pairwise()
+//            .sink { cache.resetIfNeeded(sectionsChange: $0, isGroupingEnabled: false) }
+//            .store(in: &bag)
+//
+//        // Resetting drag-and-drop actions cache unconditionally when sort option is changed
+//        optionsProviding
+//            .sortingOption
+//            .removeDuplicates()
+//            .sink { _ in cache.reset() }
+//            .store(in: &bag)
+//
+//        organizedTokensSectionsPublisher
+//            .withLatestFrom(
+//                optionsProviding.sortingOption,
+//                optionsProviding.groupingOption
+//            ) { ($0, $1.0, $1.1, cache) }
+//            .map(Self.map)
+//            .receive(on: DispatchQueue.main)
+//            .assign(to: \.sections, on: self, ownership: .weak)
+//            .store(in: &bag)
+//
+//        let onSavePublisher = onSave
+//            .throttle(for: 1.0, scheduler: DispatchQueue.main, latest: false)
+//            .share(replay: 1)
+//
+//        onSavePublisher
+//            .receive(on: mappingQueue)
+//            .withWeakCaptureOf(self)
+//            .flatMapLatest { viewModel, _ in
+//                let walletModelIds = viewModel
+//                    .sections
+//                    .flatMap(\.items)
+//                    .map(\.id.walletModelId)
+//
+//                return viewModel.optionsEditing.save(reorderedWalletModelIds: walletModelIds, source: .organizeTokens)
+//            }
+//            .withWeakCaptureOf(self)
+//            .receive(on: DispatchQueue.main)
+//            .sink { viewModel, _ in
+//                viewModel.coordinator?.didTapSaveButton()
+//            }
+//            .store(in: &bag)
+//
+//        onSavePublisher
+//            .withLatestFrom(
+//                optionsProviding.sortingOption,
+//                optionsProviding.groupingOption
+//            )
+//            .withWeakCaptureOf(self)
+//            .sink { input in
+//                let (viewModel, (sortingOption, groupingOption)) = input
+//                viewModel.reportOnSaveButtonTap(sortingOption: sortingOption, groupingOption: groupingOption)
+//            }
+//            .store(in: &bag)
 
         didBind = true
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    private static func _makeOrGetCachedTokenSectionsAdapter(
+        for cryptoAccountModel: any CryptoAccountModel,
+        using cache: inout [ObjectIdentifier: TokenSectionsAdapter]
+    ) -> TokenSectionsAdapter {
+        let cacheKey = ObjectIdentifier(cryptoAccountModel)
+
+        if let cachedAdapter: TokenSectionsAdapter = cache /* .tokenSectionsAdapters */ [cacheKey] {
+            return cachedAdapter
+        }
+
+        let userTokensManager = cryptoAccountModel.userTokensManager
+        let optionsManager = OrganizeTokensOptionsManager(
+            userTokensReorderer: userTokensManager
+        )
+        let tokenSectionsAdapter = TokenSectionsAdapter(
+            userTokensManager: userTokensManager,
+            optionsProviding: optionsManager,
+            preservesLastSortedOrderOnSwitchToDragAndDrop: false
+        )
+        cache[cacheKey] = tokenSectionsAdapter
+        /* cache.mutate { $0.tokenSectionsAdapters[cacheKey] = tokenSectionsAdapter } */
+
+        return tokenSectionsAdapter
     }
 
     private static func map(
