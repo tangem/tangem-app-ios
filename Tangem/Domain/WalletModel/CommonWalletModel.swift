@@ -344,7 +344,7 @@ extension CommonWalletModel: WalletModel {
         .eraseToAnyPublisher()
     }
 
-    var sendingRestrictions: TransactionSendAvailabilityProvider.SendingRestrictions? {
+    var sendingRestrictions: SendingRestrictions? {
         sendAvailabilityProvider.sendingRestrictions(walletModel: self)
     }
 
