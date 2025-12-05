@@ -12,99 +12,115 @@ import Combine
 
 final class YieldBalanceTicker {
     private let tokenItem: TokenItem
-    private let initialFiatBalance: Decimal?
+    private let initialCryptoBalance: Decimal?
 
-    private var perTickDelta: Decimal = .zero
+    private var perTickDeltaInCrypto: Decimal = .zero
 
     private let balanceConverter = BalanceConverter()
 
-    private let balanceFormatter = BalanceFormatter()
-    private var balanceFormattingOptions = BalanceFormattingOptions(
+    private let fiatBalanceFormatter = BalanceFormatter()
+    private var fiatBalanceFormattingOptions = BalanceFormattingOptions(
         minFractionDigits: Constants.defaultDecimals,
         maxFractionDigits: Constants.defaultDecimals,
         formatEpsilonAsLowestRepresentableValue: true,
         roundingType: .default(roundingMode: .plain, scale: Constants.defaultDecimals)
     )
 
-    var currentBalancePublisher: AnyPublisher<String, Never> {
-        currentBalanceSubject
+    var currentCryptoBalancePublisher: AnyPublisher<String, Never> {
+        currentCryptoBalanceSubject
             .withWeakCaptureOf(self)
-            .compactMap { ticker, currentBalance in
-                guard let currentBalance else { return nil }
-                return ticker.balanceFormatter.formatFiatBalance(
-                    currentBalance,
+            .compactMap { ticker, currentCryptoBalance in
+                guard let currentCryptoBalance else { return nil }
+                return ticker.fiatBalanceFormatter.formatCryptoBalance(
+                    currentCryptoBalance,
+                    currencyCode: ticker.tokenItem.currencySymbol
+                )
+            }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
+    var currentFiatBalancePublisher: AnyPublisher<String, Never> {
+        currentCryptoBalanceSubject
+            .withWeakCaptureOf(self)
+            .compactMap { ticker, currentCryptoBalance in
+                guard let currentCryptoBalance,
+                      let currentFiatBalance = Self.convertToFiat(
+                          balance: currentCryptoBalance,
+                          tokenItem: ticker.tokenItem,
+                          balanceConverter: ticker.balanceConverter
+                      ) else { return nil }
+
+                return ticker.fiatBalanceFormatter.formatFiatBalance(
+                    currentFiatBalance,
                     currencyCode: AppSettings.shared.selectedCurrencyCode,
-                    formattingOptions: ticker.balanceFormattingOptions
+                    formattingOptions: ticker.fiatBalanceFormattingOptions
                 )
             }
             .eraseToAnyPublisher()
     }
 
-    private var currentBalanceSubject = CurrentValueSubject<Decimal?, Never>(nil)
+    private var currentCryptoBalanceSubject = CurrentValueSubject<Decimal?, Never>(nil)
 
     private var bag: Set<AnyCancellable> = []
 
-    init(tokenItem: TokenItem, initialBalance: Decimal, apy: Decimal) {
+    init(tokenItem: TokenItem, initialCryptoBalance: Decimal, apy: Decimal) {
         self.tokenItem = tokenItem
-        initialFiatBalance = Self.convertToFiat(
-            balance: initialBalance,
-            tokenItem: tokenItem,
-            balanceConverter: balanceConverter
-        )
+        self.initialCryptoBalance = initialCryptoBalance
 
-        updateCurrentBalance(initialBalance, apy: apy)
+        updateCurrentBalance(initialCryptoBalance, apy: apy)
 
         bind()
     }
 
     func updateCurrentBalance(_ balance: Decimal, apy: Decimal) {
-        guard let fiatBalance = Self.convertToFiat(
-            balance: balance,
-            tokenItem: tokenItem,
-            balanceConverter: balanceConverter
-        ) else { return }
-
-        updateTickParametersIfNeeded(balance: fiatBalance, apy: apy)
+        updateTickParametersIfNeeded(balance: balance, apy: apy)
 
         // Update only if balance changed to avoid resetting the ticker
-        if fiatBalance != initialFiatBalance || currentBalanceSubject.value == nil {
-            currentBalanceSubject.send(fiatBalance)
+        if balance != initialCryptoBalance || currentCryptoBalanceSubject.value == nil {
+            currentCryptoBalanceSubject.send(balance)
         }
     }
 
     private func updateTickParametersIfNeeded(balance: Decimal, apy: Decimal) {
-        let delta = calculatePerTickDelta(balance: balance, apy: apy)
-        let decimals = calculateMinVisibleDecimals(perTickDelta: delta)
+        let perTickDeltaInCrypto = calculatePerTickDeltaInCrypto(balance: balance, apy: apy)
+        let fiatDecimals = calculateMinVisibleFiatDecimals(perTickDeltaInCrypto: perTickDeltaInCrypto)
 
-        perTickDelta = delta
+        self.perTickDeltaInCrypto = perTickDeltaInCrypto
 
-        balanceFormattingOptions.minFractionDigits = decimals
-        balanceFormattingOptions.maxFractionDigits = decimals
-        balanceFormattingOptions.roundingType = .default(
+        fiatBalanceFormattingOptions.minFractionDigits = fiatDecimals
+        fiatBalanceFormattingOptions.maxFractionDigits = fiatDecimals
+        fiatBalanceFormattingOptions.roundingType = .default(
             roundingMode: .plain,
-            scale: decimals
+            scale: fiatDecimals
         )
     }
 
-    private func calculatePerTickDelta(balance: Decimal, apy: Decimal) -> Decimal {
+    private func calculatePerTickDeltaInCrypto(balance: Decimal, apy: Decimal) -> Decimal {
         balance * apy * Constants.tickTimeout / Constants.secondsPerYear
     }
 
-    private func calculateMinVisibleDecimals(perTickDelta: Decimal) -> Int {
-        guard perTickDelta > 0 else {
+    private func calculateMinVisibleFiatDecimals(perTickDeltaInCrypto: Decimal) -> Int {
+        guard let perTickDeltaInFiat = Self.convertToFiat(
+            balance: perTickDeltaInCrypto,
+            tokenItem: tokenItem,
+            balanceConverter: balanceConverter
+        ),
+            perTickDeltaInFiat > 0
+        else {
             return Constants.defaultDecimals
         }
 
-        guard perTickDelta < 1 else {
+        guard perTickDeltaInFiat < 1 else {
             return Constants.minDecimals
         }
 
-        let perTickAsDouble = (perTickDelta as NSDecimalNumber).doubleValue
+        let perTickDeltaFiatAsDouble = (perTickDeltaInFiat as NSDecimalNumber).doubleValue
 
-        let raw = ceil(-log(perTickAsDouble) / log(10))
+        let minVisibleDecimals = ceil(-log10(perTickDeltaFiatAsDouble))
 
         let clamp = Clamp(
-            wrappedValue: Int(raw) + Constants.additionalDigitsCount,
+            wrappedValue: Int(minVisibleDecimals) + Constants.additionalDigitsCount,
             minValue: Constants.minDecimals,
             maxValue: Constants.maxDecimals
         )
@@ -116,9 +132,9 @@ final class YieldBalanceTicker {
             .autoconnect()
             .withWeakCaptureOf(self)
             .sink { ticker, _ in
-                guard let balance = ticker.currentBalanceSubject.value else { return }
+                guard let balance = ticker.currentCryptoBalanceSubject.value else { return }
 
-                ticker.currentBalanceSubject.send(balance + ticker.perTickDelta)
+                ticker.currentCryptoBalanceSubject.send(balance + ticker.perTickDeltaInCrypto)
             }
             .store(in: &bag)
     }
