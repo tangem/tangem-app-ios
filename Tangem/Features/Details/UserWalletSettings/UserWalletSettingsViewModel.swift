@@ -93,25 +93,13 @@ final class UserWalletSettingsViewModel: ObservableObject {
         dependencyUpdater = DependencyUpdater(userWalletModel: userWalletModel)
         dependencyUpdater.setup(owner: self)
 
+        // Calling this setup method before `bind()` because we need to subscribe to accounts VM updates
         setupAccountsViewModel()
         bind()
     }
 
     deinit {
         assert(pendingAlert == nil, "pendingAlert was not shown before deallocation. If AccountForm is no longer a modal, update the alert display mechanism.")
-    }
-
-    private func setupAccountsViewModel() {
-        let accountModelsManager = userWalletModel.accountModelsManager
-        guard FeatureProvider.isAvailable(.accounts), accountModelsManager.canAddCryptoAccounts else {
-            return
-        }
-
-        accountsViewModel = UserSettingsAccountsViewModel(
-            accountModelsManager: accountModelsManager,
-            userWalletConfig: userWalletModel.config,
-            coordinator: coordinator
-        )
     }
 
     func onFirstAppear() {
@@ -213,16 +201,14 @@ private extension UserWalletSettingsViewModel {
             }
             .store(in: &bag)
 
-        guard let accountsViewModel else { return }
-
         // We should not display manageTokens row if we have visible accounts
         // because if they are visible, token management is performed from
         // their respective details screens
-        accountsViewModel
-            .$accountRowViewModels
+        accountsViewModel?
+            .$accountRows
             .withWeakCaptureOf(self)
-            .map { viewModel, accountRowViewModels in
-                viewModel.shouldShowManageTokens(accountRowViewModels: accountRowViewModels)
+            .map { viewModel, accountRows in
+                viewModel.shouldShowManageTokens(accountRows: accountRows)
                     ? viewModel.makeManageTokensRowViewModel()
                     : nil
             }
@@ -231,15 +217,15 @@ private extension UserWalletSettingsViewModel {
             .store(in: &bag)
     }
 
-    private func shouldShowManageTokens(accountRowViewModels: [AccountRowButtonViewModel]?) -> Bool {
+    private func shouldShowManageTokens(accountRows: [UserSettingsAccountsViewModel.AccountRow]?) -> Bool {
         guard userWalletModel.config.hasFeature(.multiCurrency) else {
             return false
         }
 
-        // If accounts are enabled (i.e. `accountRowViewModels` is not nil),
+        // If accounts are enabled (i.e. `accountRows` is not nil),
         // then manage tokens row should be shown only if there are no visible accounts
         // If accounts are not enabled, then manage tokens row should be always shown
-        return accountRowViewModels?.isEmpty ?? true
+        return accountRows?.isEmpty ?? true
     }
 
     func setupView() {
@@ -268,7 +254,7 @@ private extension UserWalletSettingsViewModel {
             )
         }
 
-        if shouldShowManageTokens(accountRowViewModels: accountsViewModel?.accountRowViewModels) {
+        if shouldShowManageTokens(accountRows: accountsViewModel?.accountRows) {
             manageTokensViewModel = makeManageTokensRowViewModel()
         }
 
@@ -320,6 +306,20 @@ private extension UserWalletSettingsViewModel {
                 action: weakify(self, forFunction: UserWalletSettingsViewModel.didTapForgetWallet)
             )
         }
+    }
+
+    func setupAccountsViewModel() {
+        let accountModelsManager = userWalletModel.accountModelsManager
+
+        guard FeatureProvider.isAvailable(.accounts), accountModelsManager.canAddCryptoAccounts else {
+            return
+        }
+
+        accountsViewModel = UserSettingsAccountsViewModel(
+            accountModelsManager: accountModelsManager,
+            userWalletConfig: userWalletModel.config,
+            coordinator: coordinator
+        )
     }
 
     func setupMobileViewModels() {
