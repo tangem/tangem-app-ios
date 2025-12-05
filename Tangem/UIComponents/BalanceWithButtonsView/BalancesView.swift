@@ -58,7 +58,8 @@ struct BalancesView<ViewModel: BalancesViewModel>: View {
             loader: .init(
                 size: .init(width: 70, height: 12),
                 padding: .init(top: 2, leading: 0, bottom: 2, trailing: 0)
-            )
+            ),
+            animationConfig: .init(isAnimationAllowed: true, isAnimationActive: !viewModel.isRefreshing)
         )
     }
 }
