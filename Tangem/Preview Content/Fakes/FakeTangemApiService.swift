@@ -159,10 +159,6 @@ final class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
-    func setWalletInitialized(userWalletId: String) async throws {
-        throw "Not implemented"
-    }
-
     func pushNotificationsEligibleNetworks() async throws -> [NotificationDTO.NetworkItem] {
         throw "Not implemented"
     }
@@ -183,11 +179,11 @@ final class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
-    func updateUserWallet(by userWalletId: String, requestModel: UserWalletDTO.Update.Request) async throws {
+    func updateWallet(by userWalletId: String, context: some Encodable) async throws {
         throw "Not implemented"
     }
 
-    func createAndConnectUserWallet(applicationUid: String, items: Set<UserWalletDTO.Create.Request>) async throws {
+    func connectUserWallets(uid: String, requestModel: ApplicationDTO.Connect.Request) async throws {
         throw "Not implemented"
     }
 

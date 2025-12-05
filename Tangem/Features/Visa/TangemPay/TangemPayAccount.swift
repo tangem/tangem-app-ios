@@ -57,25 +57,50 @@ final class TangemPayAccount {
         tangemPayCardIssuingPublisher: tangemPayCardIssuingInProgressPublisher
     )
 
+    // MARK: - Withdraw
+
     lazy var tangemPayExpressCEXTransactionProcessor = TangemPayExpressCEXTransactionProcessor(
         withdrawTransactionService: withdrawTransactionService,
         walletPublicKey: TangemPayUtilities.getKey(from: authorizer.keysRepository)
     )
 
+    lazy var withdrawAvailabilityProvider: TangemPayWithdrawAvailabilityProvider = .init(
+        withdrawTransactionService: withdrawTransactionService,
+        tokenBalanceProvider: tangemPayTokenBalanceProvider
+    )
+
     // MARK: - Balances
 
+    /// Tangem Pay as crypto currency balance from `tokenItem`, e.g. `USDC`
     lazy var tangemPayTokenBalanceProvider: TokenBalanceProvider = TangemPayTokenBalanceProvider(
-        walletModelId: .init(tokenItem: TangemPayUtilities.usdcTokenItem),
+        tokenItem: TangemPayUtilities.usdcTokenItem,
         tokenBalancesRepository: tokenBalancesRepository,
         balanceSubject: balanceSubject
     )
 
+    /// Tangem Pay with constant fiat rate `1:1`
+    lazy var tangemPayFiatTokenBalanceProvider: TokenBalanceProvider = TangemPayFiatTokenBalanceProvider(
+        cryptoBalanceProvider: tangemPayTokenBalanceProvider
+    )
+
+    /// Provider / Storage  to load `FiatRate` for `AppCurrency`
+    lazy var fiatRateProvider: FiatRateProvider = CommonFiatRateProvider(
+        tokenItem: TangemPayUtilities.usdcTokenItem,
+    )
+
+    /// Tangem Pay with `AppCurrency` fiat rate
+    lazy var fiatAvailableBalanceProvider: TokenBalanceProvider = FiatTokenBalanceProvider(
+        input: fiatRateProvider,
+        cryptoBalanceProvider: tangemPayTokenBalanceProvider
+    )
+
     lazy var tangemPayMainHeaderBalanceProvider: MainHeaderBalanceProvider = TangemPayMainHeaderBalanceProvider(
-        tangemPayTokenBalanceProvider: tangemPayTokenBalanceProvider
+        tangemPayTokenBalanceProvider: tangemPayFiatTokenBalanceProvider
     )
 
     lazy var tangemPayMainHeaderSubtitleProvider: MainHeaderSubtitleProvider = TangemPayMainHeaderSubtitleProvider(
-        balanceSubject: balanceSubject
+        tokenItem: TangemPayUtilities.usdcTokenItem,
+        balanceSubject: balanceSubject,
     )
 
     let customerInfoManagementService: any CustomerInfoManagementService
@@ -113,7 +138,7 @@ final class TangemPayAccount {
     private let tokenBalancesRepository: any TokenBalancesRepository
 
     private let customerInfoSubject = CurrentValueSubject<VisaCustomerInfoResponse?, Never>(nil)
-    private let balanceSubject = CurrentValueSubject<LoadingResult<TangemPayBalance, Error>, Never>(.loading)
+    private let balanceSubject = CurrentValueSubject<LoadingResult<TangemPayBalance, Error>?, Never>(nil)
 
     private let orderCancelledSignalSubject = PassthroughSubject<Void, Never>()
     private let syncInProgressSubject = CurrentValueSubject<Bool, Never>(false)
@@ -148,6 +173,7 @@ final class TangemPayAccount {
             getToken: customerInfoManagementService.loadKYCAccessToken,
             onDidDismiss: onDidDismiss
         )
+        Analytics.log(.visaOnboardingKYCFlowOpened)
     }
 
     func getTangemPayStatus() async throws -> TangemPayStatus {
@@ -276,6 +302,8 @@ final class TangemPayAccount {
             balanceSubject.send(.loading)
             let balance = try await customerInfoManagementService.getBalance()
             balanceSubject.send(.success(balance))
+
+            fiatRateProvider.updateRate()
         } catch {
             balanceSubject.send(.failure(error))
         }

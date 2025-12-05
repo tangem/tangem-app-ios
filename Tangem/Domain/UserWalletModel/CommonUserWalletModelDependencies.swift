@@ -17,6 +17,7 @@ struct CommonUserWalletModelDependencies {
     let keysRepository: KeysRepository
     let walletModelsManager: WalletModelsManager
     let totalBalanceProvider: TotalBalanceProvider
+    let tangemPayAccountProvider: TangemPayAccountProviderSetupable
     let userTokensManager: UserTokensManager
     let nftManager: NFTManager
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
@@ -102,12 +103,15 @@ struct CommonUserWalletModelDependencies {
         self.accountModelsManager = accountModelsManager
         innerDependencies = accountsAwareInnerDependencies
 
+        tangemPayAccountProvider = CommonTangemPayAccountProvider()
+
         totalBalanceProvider = Self.makeTotalBalanceProvider(
             userWalletId: userWalletId,
             hasAccounts: hasAccounts,
             accountModelsManager: accountModelsManager,
             walletModelsManager: walletModelsManager,
-            derivationManager: derivationManager
+            derivationManager: derivationManager,
+            tangemPayAccountProvider: tangemPayAccountProvider
         )
 
         nftManager = Self.makeNFTManager(
@@ -134,22 +138,35 @@ private extension CommonUserWalletModelDependencies {
         hasAccounts: Bool,
         accountModelsManager: AccountModelsManager,
         walletModelsManager: WalletModelsManager,
-        derivationManager: DerivationManager?
+        derivationManager: DerivationManager?,
+        tangemPayAccountProvider: any TangemPayAccountProvider
     ) -> TotalBalanceProvider {
-        if hasAccounts {
-            return AccountsAwareTotalBalanceProvider(
+        // Create base provider based on accounts mode
+        // Note: WalletModelsTotalBalanceProvider must NOT be created when hasAccounts is true,
+        // because it uses derivationManager.hasPendingDerivations which crashes for AccountsAwareDerivationManager
+        let baseProvider: TotalBalanceProvider = hasAccounts
+            ? AccountsAwareTotalBalanceProvider(
                 accountModelsManager: accountModelsManager,
                 analyticsLogger: AccountTotalBalanceProviderAnalyticsLogger()
             )
+            : WalletModelsTotalBalanceProvider(
+                walletModelsManager: walletModelsManager,
+                analyticsLogger: CommonTotalBalanceProviderAnalyticsLogger(
+                    userWalletId: userWalletId,
+                    walletModelsManager: walletModelsManager
+                ),
+                derivationManager: derivationManager
+            )
+
+        guard FeatureProvider.isAvailable(.visa) else {
+            return baseProvider
         }
 
-        return WalletModelsTotalBalanceProvider(
-            walletModelsManager: walletModelsManager,
-            analyticsLogger: CommonTotalBalanceProviderAnalyticsLogger(
-                userWalletId: userWalletId,
-                walletModelsManager: walletModelsManager
-            ),
-            derivationManager: derivationManager
+        return TangemPayAwareTotalBalanceProvider(
+            totalBalanceProvider: baseProvider,
+            tangemPayTotalBalanceProvider: TangemPayTotalBalanceProvider(
+                tangemPayAccountProvider: tangemPayAccountProvider
+            )
         )
     }
 
@@ -228,9 +245,13 @@ private extension CommonUserWalletModelDependencies {
             walletManagerFactory: walletManagerFactory
         )
 
+        // Legacy (non-accounts) flow is semantically equivalent to "main account" -
+        // there's only ever one implicit account when the accounts feature is disabled
         return CommonWalletModelsManager(
             walletManagersRepository: walletManagersRepository,
-            walletModelsFactory: config.makeWalletModelsFactory(userWalletId: userWalletId)
+            walletModelsFactory: config.makeWalletModelsFactory(userWalletId: userWalletId),
+            derivationIndex: AccountModelUtils.mainAccountDerivationIndex,
+            derivationStyle: config.derivationStyle
         )
     }
 
