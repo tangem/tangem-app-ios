@@ -98,7 +98,7 @@ private extension TangemPayAccountViewModel {
         .handleEvents(receiveOutput: { state in
             switch state {
             case .issuingYourCard:
-                Analytics.log(.visaOnboardingIssuingBannerDisplayed)
+                Analytics.log(.visaOnboardingVisaIssuingBannerDisplayed)
             default:
                 break
             }
