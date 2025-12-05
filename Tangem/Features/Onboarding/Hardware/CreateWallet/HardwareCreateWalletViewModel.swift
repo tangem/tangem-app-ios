@@ -36,10 +36,16 @@ final class HardwareCreateWalletViewModel: ObservableObject {
     }
 
     private let userWalletModel: UserWalletModel?
+    private let source: HardwareCreateWalletSource
     private weak var coordinator: HardwareCreateWalletRoutable?
 
-    init(userWalletModel: UserWalletModel?, coordinator: HardwareCreateWalletRoutable) {
+    init(
+        userWalletModel: UserWalletModel?,
+        source: HardwareCreateWalletSource,
+        coordinator: HardwareCreateWalletRoutable
+    ) {
         self.userWalletModel = userWalletModel
+        self.source = source
         self.coordinator = coordinator
     }
 }
@@ -217,7 +223,11 @@ private extension HardwareCreateWalletViewModel {
 
     func openBuyCard() {
         logBuyHardwareWalletAnalytics()
-        safariManager.openURL(TangemBlogUrlBuilder().url(root: .pricing))
+        let utmCampaign: TangemShopUrlBuilder.UTMCampaign = switch source {
+        case .addNewWallet: .users
+        case .hardwareWallet: .upgrade
+        }
+        safariManager.openURL(TangemShopUrlBuilder().url(utmCampaign: utmCampaign))
     }
 
     func openScanCardManual() {
