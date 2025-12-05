@@ -225,6 +225,8 @@
 		0F48DC8C2E45EAE50095D3C8 /* MobileAccessCodeCleaner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F48DC8B2E45EAE50095D3C8 /* MobileAccessCodeCleaner.swift */; };
 		0F61D5D82EB2131400F371AE /* ResetToFactoryUtilBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F61D5D72EB2131400F371AE /* ResetToFactoryUtilBuilder.swift */; };
 		0F721C202EE05BBB00C1183B /* MobileOnboardingAccessCodeValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F721C1F2EE05BBB00C1183B /* MobileOnboardingAccessCodeValidator.swift */; };
+		0F721C252EE1D5D800C1183B /* TangemShopUrlBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F721C242EE1D5D800C1183B /* TangemShopUrlBuilder.swift */; };
+		0F721C272EE1DED000C1183B /* HardwareCreateWalletSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F721C262EE1DED000C1183B /* HardwareCreateWalletSource.swift */; };
 		0F8414A82E96480400D03FB6 /* MobileCreateWalletCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F8414A72E96480400D03FB6 /* MobileCreateWalletCoordinator.swift */; };
 		0F8414AA2E96480F00D03FB6 /* MobileCreateWalletCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F8414A92E96480F00D03FB6 /* MobileCreateWalletCoordinatorView.swift */; };
 		0F8414AD2E96A8D600D03FB6 /* AddWalletSelectorCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F8414AC2E96A8D600D03FB6 /* AddWalletSelectorCoordinator.swift */; };
@@ -4875,6 +4877,8 @@
 		0F48DC8B2E45EAE50095D3C8 /* MobileAccessCodeCleaner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileAccessCodeCleaner.swift; sourceTree = "<group>"; };
 		0F61D5D72EB2131400F371AE /* ResetToFactoryUtilBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetToFactoryUtilBuilder.swift; sourceTree = "<group>"; };
 		0F721C1F2EE05BBB00C1183B /* MobileOnboardingAccessCodeValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingAccessCodeValidator.swift; sourceTree = "<group>"; };
+		0F721C242EE1D5D800C1183B /* TangemShopUrlBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemShopUrlBuilder.swift; sourceTree = "<group>"; };
+		0F721C262EE1DED000C1183B /* HardwareCreateWalletSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HardwareCreateWalletSource.swift; sourceTree = "<group>"; };
 		0F8414A72E96480400D03FB6 /* MobileCreateWalletCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileCreateWalletCoordinator.swift; sourceTree = "<group>"; };
 		0F8414A92E96480F00D03FB6 /* MobileCreateWalletCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileCreateWalletCoordinatorView.swift; sourceTree = "<group>"; };
 		0F8414AC2E96A8D600D03FB6 /* AddWalletSelectorCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddWalletSelectorCoordinator.swift; sourceTree = "<group>"; };
@@ -9779,6 +9783,7 @@
 			isa = PBXGroup;
 			children = (
 				0F8414B82E97DCB700D03FB6 /* HardwareCreateWalletCoordinator.swift */,
+				0F721C262EE1DED000C1183B /* HardwareCreateWalletSource.swift */,
 				0F8414BA2E97DCD300D03FB6 /* HardwareCreateWalletCoordinatorView.swift */,
 				0F8414BC2E97DCDD00D03FB6 /* HardwareCreateWalletRoutable.swift */,
 				0F8414BE2E97DCE600D03FB6 /* HardwareCreateWalletView.swift */,
@@ -12787,6 +12792,7 @@
 				0A74F7372E44D8200069344F /* SettingsMigrator.swift */,
 				B0323F2B258C041D005C7CD5 /* SignerUtils.swift */,
 				DA19EF602B8CBDE200F7BDFD /* TangemBlogUrlBuilder.swift */,
+				0F721C242EE1D5D800C1183B /* TangemShopUrlBuilder.swift */,
 				B0E0AF5C2996488100E52F7B /* TransactionHistoryMapper.swift */,
 				B0C87B422566461600F861DE /* TwinCardsFileCoder.swift */,
 				B068A7E625678A8800D28CD2 /* TwinCardsUtils.swift */,
@@ -26233,6 +26239,7 @@
 				DC3549E42E2E034700641727 /* WCTransactionValidationService.swift in Sources */,
 				EFE7D5792AA201CB0047D93A /* PercentFormatter.swift in Sources */,
 				B6FB04E72B1FEF13000BB59E /* StatusBarStyleConfigurator.swift in Sources */,
+				0F721C272EE1DED000C1183B /* HardwareCreateWalletSource.swift in Sources */,
 				C2300ED32D66152D00EBEA64 /* StoryAnalyticsService.swift in Sources */,
 				2DA100282E55E7C200EC2257 /* ReceiveTokenWithdrawNoticeInteractor.swift in Sources */,
 				C2FF4FFC2DD6710B00FE1D9E /* WalletConnectDAppConnectionRequestViewModel.swift in Sources */,
@@ -27143,6 +27150,7 @@
 				B06A828029C81E3A00B6160E /* SeedPhraseTextView.swift in Sources */,
 				DC51186128609F71004FB954 /* CardOperationRoutable.swift in Sources */,
 				EF5FAE9C2EC3DF40004FEA9D /* TangemPayTransactionRecordMapper.swift in Sources */,
+				0F721C252EE1D5D800C1183B /* TangemShopUrlBuilder.swift in Sources */,
 				EF3CC86E2CE4BF4C006A9FBD /* OnrampAmountCompactViewModel.swift in Sources */,
 				2D5DCC2F2C3309F1000EE379 /* MarketsTokensNetworkSelectorItemViewModel.swift in Sources */,
 				B0B8670626DF60E7008DAA67 /* CardStackAnimator.swift in Sources */,
