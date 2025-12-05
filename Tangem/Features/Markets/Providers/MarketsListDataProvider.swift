@@ -259,3 +259,13 @@ extension MarketsListDataProvider {
         }
     }
 }
+
+extension MarketsListDataProvider.Event {
+    var isAppendedItems: Bool {
+        if case .appendedItems = self {
+            return true
+        }
+
+        return false
+    }
+}
