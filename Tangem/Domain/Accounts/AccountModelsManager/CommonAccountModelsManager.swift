@@ -427,6 +427,16 @@ extension CommonAccountModelsManager: CommonCryptoAccountModelDelegate {
     }
 }
 
+// MARK: - AccountModelsReordering protocol conformance
+
+extension CommonAccountModelsManager: AccountModelsReordering {
+    func reorder(orderedIdentifiers: [any AccountModelPersistentIdentifierConvertible]) async throws {
+        try await cryptoAccountsRepository.reorder(
+            orderedIdentifiers: orderedIdentifiers.map { $0.toPersistentIdentifier().toAnyHashable() }
+        )
+    }
+}
+
 // MARK: - Auxiliary types
 
 private extension CommonAccountModelsManager {
