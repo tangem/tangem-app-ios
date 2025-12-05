@@ -408,6 +408,32 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
     func removeCryptoAccount(withIdentifier identifier: some Hashable) async throws {
         try await removeAccountsInternal(identifier)
     }
+
+    func reorder(orderedIdentifiers: [some Hashable]) async throws {
+        let orderedIndicesKeyedByIdentifiers = orderedIdentifiers
+            .enumerated()
+            .reduce(into: [:]) { partialResult, element in
+                partialResult[element.element.toAnyHashable()] = element.offset
+            }
+
+        let orderedCryptoAccounts = persistentStorage
+            .getList()
+            .sorted { first, second in
+                guard
+                    let firstIndex = orderedIndicesKeyedByIdentifiers[first.derivationIndex.toAnyHashable()],
+                    let secondIndex = orderedIndicesKeyedByIdentifiers[second.derivationIndex.toAnyHashable()]
+                else {
+                    // Preserve existing order
+                    return false
+                }
+
+                return firstIndex < secondIndex
+            }
+
+        persistentStorage.replace(with: orderedCryptoAccounts)
+
+        return try await updateAccountsOnServerAsync(cryptoAccounts: orderedCryptoAccounts, updateType: .accounts)
+    }
 }
 
 // MARK: - UserTokensRepository protocol adapter
