@@ -17,17 +17,18 @@ import TangemAccounts
 final class UserSettingsAccountsViewModel: ObservableObject {
     // MARK: - Published State
 
-    @Published var accountRowViewModels: [AccountRowButtonViewModel] = []
+    @Published var accountRows: [AccountRow] = []
     @Published private(set) var addNewAccountButton: AddListItemButton.ViewData?
     @Published private(set) var archivedAccountsButton: ArchivedAccountsButtonViewData?
 
     // MARK: - Dependencies
 
     private let accountModelsManager: AccountModelsManager
+    private let accountsReorderer: UserSettingsAccountsReorderer
     private let userWalletConfig: UserWalletConfig
     private weak var coordinator: UserSettingsAccountsRoutable?
 
-    private var cachedViewModels: [AnyHashable: AccountRowButtonViewModel] = [:]
+    private var cachedAccountRows: [AnyHashable: AccountRow] = [:]
     private var bag = Set<AnyCancellable>()
 
     // MARK: - Init
@@ -40,6 +41,10 @@ final class UserSettingsAccountsViewModel: ObservableObject {
         self.accountModelsManager = accountModelsManager
         self.userWalletConfig = userWalletConfig
         self.coordinator = coordinator
+        accountsReorderer = UserSettingsAccountsReorderer(
+            accountModelsReorderer: accountModelsManager,
+            debounceInterval: Constants.accountsReorderingDebounceInterval
+        )
 
         bind()
     }
@@ -47,24 +52,26 @@ final class UserSettingsAccountsViewModel: ObservableObject {
     // MARK: - Public
 
     var moreThatOneActiveAccount: Bool {
-        accountRowViewModels.count > 1
+        accountRows.count > 1
     }
 
     // MARK: - Binding
 
     private func bind() {
-        bindAccountRowButtonViewModels()
+        bindAccountRows()
         bindArchivedAccountsButton()
         bindAddNewAccountButton()
+        bindPendingReorder()
     }
 
-    private func bindAccountRowButtonViewModels() {
-        accountModelsManager.accountModelsPublisher
+    private func bindAccountRows() {
+        accountModelsManager
+            .accountModelsPublisher
             .map { Self.extractVisibleAccounts(from: $0) }
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, accounts in
-                viewModel.updateAccountRowButtonViewModels(from: accounts)
+                viewModel.updateAccountRows(from: accounts)
             }
             .store(in: &bag)
     }
@@ -97,6 +104,24 @@ final class UserSettingsAccountsViewModel: ObservableObject {
             }
             .receiveOnMain()
             .assign(to: \.addNewAccountButton, on: self, ownership: .weak)
+            .store(in: &bag)
+    }
+
+    private func bindPendingReorder() {
+        $accountRows
+            .removeDuplicates { lhs, rhs in
+                lhs.map(\.id) == rhs.map(\.id)
+            }
+            .pairwise()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, input in
+                let (oldRows, newRows) = input
+                viewModel.accountsReorderer.schedulePendingReorderIfNeeded(
+                    oldRows: oldRows,
+                    newRows: newRows,
+                    persistentIdentifierProvider: Self.extractPersistentIdentifier(from:)
+                )
+            }
             .store(in: &bag)
     }
 
@@ -149,22 +174,24 @@ final class UserSettingsAccountsViewModel: ObservableObject {
 
     // MARK: - Utilities
 
-    private func updateAccountRowButtonViewModels(from accounts: [any BaseAccountModel]) {
+    private func updateAccountRows(from accounts: [any BaseAccountModel]) {
         let currentIds = Set(accounts.map { $0.id.toAnyHashable() })
-        cachedViewModels = cachedViewModels.filter { currentIds.contains($0.key) }
+        cachedAccountRows = cachedAccountRows.filter { currentIds.contains($0.key) }
 
-        accountRowViewModels = accounts.map { account in
+        accountRows = accounts.map { account in
             let id = account.id.toAnyHashable()
 
-            if let cached = cachedViewModels[id] {
+            if let cached = cachedAccountRows[id] {
                 return cached
             }
 
-            let newVM = AccountRowButtonViewModel(accountModel: account) { [weak self] in
+            let viewModel = AccountRowButtonViewModel(accountModel: account) { [weak self] in
                 self?.onTapAccount(account: account)
             }
-            cachedViewModels[id] = newVM
-            return newVM
+            let accountRow = AccountRow(viewModel: viewModel, accountModel: account)
+            cachedAccountRows[id] = accountRow
+
+            return accountRow
         }
     }
 
@@ -178,6 +205,12 @@ final class UserSettingsAccountsViewModel: ObservableObject {
                 return cryptoAccountModels
             }
         }
+    }
+
+    private static func extractPersistentIdentifier(
+        from accountRow: AccountRow
+    ) -> any AccountModelPersistentIdentifierConvertible {
+        accountRow.accountModel.id
     }
 
     private func countAccounts(_ accountModels: [AccountModel]) -> Int {
@@ -194,6 +227,8 @@ final class UserSettingsAccountsViewModel: ObservableObject {
     }
 }
 
+// MARK: - Auxiliary types
+
 extension UserSettingsAccountsViewModel {
     struct ArchivedAccountsButtonViewData: Identifiable {
         let text: String
@@ -202,5 +237,28 @@ extension UserSettingsAccountsViewModel {
         var id: String {
             text
         }
+    }
+
+    /// An opaque wrapper to prevent an exposure of the `BaseAccountModel` associated with the row.
+    struct AccountRow: Identifiable {
+        var id: AccountRowButtonViewModel.ID { viewModel.id }
+        let viewModel: AccountRowButtonViewModel
+        fileprivate let accountModel: any BaseAccountModel
+
+        fileprivate init(
+            viewModel: AccountRowButtonViewModel,
+            accountModel: any BaseAccountModel
+        ) {
+            self.viewModel = viewModel
+            self.accountModel = accountModel
+        }
+    }
+}
+
+// MARK: - Constants
+
+private extension UserSettingsAccountsViewModel {
+    enum Constants {
+        static let accountsReorderingDebounceInterval = 1.0
     }
 }

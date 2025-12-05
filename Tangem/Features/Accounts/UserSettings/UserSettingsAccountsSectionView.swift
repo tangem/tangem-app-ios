@@ -16,9 +16,9 @@ struct UserSettingsAccountsSectionView: View {
 
     var body: some View {
         ReorderableGroupedSection(
-            reorderableModels: $viewModel.accountRowViewModels,
-            reorderableContent: { model in
-                AccountRowButtonView(viewModel: model) {
+            reorderableModels: $viewModel.accountRows,
+            reorderableContent: { accountRow in
+                AccountRowButtonView(viewModel: accountRow.viewModel) {
                     trailingChevron
                 }
             },
