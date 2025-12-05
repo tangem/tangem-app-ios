@@ -27,11 +27,11 @@ final class TangemPayOfferViewModel: ObservableObject {
     }
 
     func onAppear() {
-        Analytics.log(.visaOnboardingActivationScreenOpened)
+        Analytics.log(.visaOnboardingVisaActivationScreenOpened)
     }
 
     func getCard() {
-        Analytics.log(.visaOnboardingButtonGetCard)
+        Analytics.log(.visaOnboardingButtonVisaGetCard)
 
         isLoading = true
         runTask(in: self) { viewModel in
@@ -61,7 +61,7 @@ final class TangemPayOfferViewModel: ObservableObject {
     }
 
     func termsFeesAndLimits() {
-        Analytics.log(.visaOnboardingButtonViewTerms)
+        Analytics.log(.visaOnboardingButtonVisaViewTerms)
 
         termsFeesAndLimitsViewModel = .init(
             url: AppConstants.tangemPayTermsAndLimitsURL,
