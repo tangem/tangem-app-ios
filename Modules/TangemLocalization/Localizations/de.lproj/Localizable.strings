@@ -561,7 +561,7 @@
 "hw_backup_need_title" = "Zuerst die Sicherung abschließen";
 "hw_backup_no_backup" = "Unvollständig";
 "hw_backup_section_other_title" = "Andere Methoden";
-"hw_backup_seed_description" = "Physische Geräte, die Deine privaten Schlüssel sicher offline speichern.";
+"hw_backup_seed_description" = "Manually save your recovery phrase in a secure place and keep it private to protect your funds.";
 "hw_backup_seed_title" = "Wiederherstellungs-Phrase";
 "hw_backup_to_secure_description" = "To secure your wallet with a Access Code, complete the backup first.";
 "hw_backup_to_upgrade_description" = "Um Deine Wallet auf Hardware umzustellen, erstelle vorher ein Backup.";
@@ -1343,6 +1343,8 @@
 "tangempay_failed_to_issue_card_retry_description" = "A technical error has occurred, please try again by clicking the button below.";
 "tangempay_failed_to_issue_card_support_description" = "A technical error has occurred, please contact support.";
 "tangempay_failed_to_issue_card" = "Failed to issue card";
+"tangempay_get_banner_description" = "Use your crypto for real world spending. \nIt's a payment card unlike any other.";
+"tangempay_get_tangem_pay" = "Get Tangem Pay";
 "tangempay_issue_card_notification_description" = "Es dauert in der Regel bis zu 15 Minuten.";
 "tangempay_issue_card_notification_title" = "Setting up your Tangem Card";
 "tangempay_issuing_your_card_description" = "We’re getting your card ready. This may take a little time.";
@@ -1367,6 +1369,7 @@
 "tangempay_service_unavailable_title" = "Service temporarily unavailable";
 "tangempay_service_unreachable_try_later" = "The service is currently unreachable. Please try again later.";
 "tangempay_sync_needed" = "Sync needed";
+"tangempay_tangem_visa_card" = "Tangem Visa Card";
 "tangempay_temporarily_unavailable" = "Tangem Pay is temporarily unavailable";
 "tangempay_title" = "Tangem Pay";
 "tangempay_use_tangem_device_to_restore_payment_account" = "Use your card or ring to restore access to your payment account";
@@ -1880,13 +1883,16 @@
 "yield_module_token_details_earn_notification_earning_on_your_balance_title" = "Ertragsmodus";
 "yield_module_token_details_earn_notification_processing" = "Bearbeitung Deiner Einzahlung";
 "yield_module_token_details_earn_notification_title" = "Ertragsmodus";
+"yield_module_transaction_deploy_contract" = "Yield Mode contract deploy";
 "yield_module_transaction_enter_subtitle" = "%1$@ geliefert an Aave";
 "yield_module_transaction_enter" = "Ertragsmodus aktivieren";
 "yield_module_transaction_exit_subtitle" = "%1$@ aus Aave zurücküberwiesen";
 "yield_module_transaction_exit" = "Ertragsmodus deaktiviert";
+"yield_module_transaction_initialize" = "Yield Mode initialize";
+"yield_module_transaction_reactivate" = "Yield Mode reactivate";
 "yield_module_transaction_topup_subtitle" = "%1$@ geliefert an Aave";
 "yield_module_transaction_topup" = "Lieferung an Aave";
-"yield_module_transaction_withdraw" = "Withdrawn from Aave";
+"yield_module_transaction_withdraw" = "Withdraw from Aave";
 "yield_module_transfer_mode_automatic" = "Automatisch";
 "yield_module_unable_to_cover_fee_description" = "Einzahlung von %1$@ %2$@ zur Deckung der Netzwerkgebühr für Transaktionen";
 "yield_module_unable_to_cover_fee_title" = "Die Gebühr %@ kann nicht gedeckt werden";
