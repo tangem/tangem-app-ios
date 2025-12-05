@@ -29,11 +29,11 @@ final class TangemPayAddFundsSheetViewModel: ObservableObject, FloatingSheetCont
     func userDidTapOption(option: TangemPayAddFundsSheetOptionView.Option) {
         switch option {
         case .swap:
-            Analytics.log(.visaMainScreenButtonSwap)
+            Analytics.log(.visaScreenButtonVisaSwap)
             openSwap()
 
         case .receive:
-            Analytics.log(.visaMainScreenButtonReceive)
+            Analytics.log(.visaScreenButtonVisaReceive)
             openReceiveSheet()
         }
     }
