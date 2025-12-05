@@ -561,7 +561,7 @@
 "hw_backup_need_title" = "Сначала завершите создание резервной копии";
 "hw_backup_no_backup" = "Не завершено";
 "hw_backup_section_other_title" = "Другие способы";
-"hw_backup_seed_description" = "Физические устройства, которые надёжно хранят ваш приватный ключ офлайн.";
+"hw_backup_seed_description" = "Сохраните свою recovery-фразу вручную в надёжном месте. Держите её в секрете, чтобы защитить свои средства.";
 "hw_backup_seed_title" = "Фраза восстановления";
 "hw_backup_to_secure_description" = "Чтобы защитить ваш кошелёк с помощью кода доступа, сначала завершите резервное копирование.";
 "hw_backup_to_upgrade_description" = "Чтобы улучшить кошелёк до аппаратного, сначала создайте резервную копию.";
@@ -982,7 +982,7 @@
 "save_user_wallet_agreement_notice" = "Обратите внимание, что для совершения транзакции с вашими средствами по-прежнему потребуется ваша карта или кольцо";
 "scan_card_settings_button" = "Сканировать";
 "scan_card_settings_message" = "Отсканируйте карту или кольцо, чтобы изменить ее настройки. Изменения затронут только ту карту или кольцо, которые вы отсканировали, и не повлияют на другие устройства, привязанные к вашему кошельку.";
-"scan_card_settings_title" = "Приготовьте свой Tangem!";
+"scan_card_settings_title" = "Приготовьте устройство Tangem!";
 "security_alert_title" = "Уведомление безопасности";
 "seed_warning_no" = "Нет";
 "seed_warning_yes" = "Да";
@@ -1343,6 +1343,8 @@
 "tangempay_failed_to_issue_card_retry_description" = "A technical error has occurred, please try again by clicking the button below.";
 "tangempay_failed_to_issue_card_support_description" = "A technical error has occurred, please contact support.";
 "tangempay_failed_to_issue_card" = "Failed to issue card";
+"tangempay_get_banner_description" = "Use your crypto for real world spending. \nIt's a payment card unlike any other.";
+"tangempay_get_tangem_pay" = "Get Tangem Pay";
 "tangempay_issue_card_notification_description" = "It usually takes up to 15 minutes";
 "tangempay_issue_card_notification_title" = "Setting up your Tangem Card";
 "tangempay_issuing_your_card_description" = "We’re getting your card ready. This may take a little time.";
@@ -1367,6 +1369,7 @@
 "tangempay_service_unavailable_title" = "Service temporarily unavailable";
 "tangempay_service_unreachable_try_later" = "The service is currently unreachable. Please try again later.";
 "tangempay_sync_needed" = "Sync needed";
+"tangempay_tangem_visa_card" = "Tangem Visa Card";
 "tangempay_temporarily_unavailable" = "Tangem Pay is temporarily unavailable";
 "tangempay_title" = "Tangem Pay";
 "tangempay_use_tangem_device_to_restore_payment_account" = "Use your card or ring to restore access to your payment account";
@@ -1556,7 +1559,7 @@
 "wallet_import_icloud_description" = "Восстановите существующий кошелек через iCloud.";
 "wallet_import_icloud_title" = "Импортировать из iCloud";
 "wallet_import_navtitle" = "Добавить существующий кошелек";
-"wallet_import_scan_description" = "Physical devices that securely store your private key offline.";
+"wallet_import_scan_description" = "Физические устройства, которые безопасно хранят ваш приватный ключ офлайн.";
 "wallet_import_scan_title" = "Сканировать кошелек Tangem";
 "wallet_import_seed_description" = "Импортируйте существующий кошелек через вашу фразу восстановления.";
 "wallet_import_seed_navtitle" = "Имрортировать кошелек";
@@ -1880,13 +1883,16 @@
 "yield_module_token_details_earn_notification_earning_on_your_balance_title" = "Режим доходности";
 "yield_module_token_details_earn_notification_processing" = "Включение режима доходности";
 "yield_module_token_details_earn_notification_title" = "Режим доходности";
+"yield_module_transaction_deploy_contract" = "Yield Mode contract deploy";
 "yield_module_transaction_enter_subtitle" = "%1$@ отправлено в Aave";
-"yield_module_transaction_enter" = "Режим доходности включен";
+"yield_module_transaction_enter" = "Включение режима доходности";
 "yield_module_transaction_exit_subtitle" = "%1$@ выведено из Aave";
-"yield_module_transaction_exit" = "Режим доходности выключен";
+"yield_module_transaction_exit" = "Отключение режима доходности";
+"yield_module_transaction_initialize" = "Yield Mode initialize";
+"yield_module_transaction_reactivate" = "Yield Mode reactivate";
 "yield_module_transaction_topup_subtitle" = "%1$@ отправлено в Aave";
 "yield_module_transaction_topup" = "Перевод средств в Aave";
-"yield_module_transaction_withdraw" = "Withdrawn from Aave";
+"yield_module_transaction_withdraw" = "Withdraw from Aave";
 "yield_module_transfer_mode_automatic" = "Автоматически";
 "yield_module_unable_to_cover_fee_description" = "Внесите немного %1$@ %2$@, чтобы покрыть комиссию сети за транзакции.";
 "yield_module_unable_to_cover_fee_title" = "Невозможно покрыть комиссию в %@";
