@@ -1905,7 +1905,7 @@
 "yield_module_token_details_earn_notification_title" = "Yield Mode";
 "yield_module_transaction_deploy_contract" = "Yield Mode contract deploy";
 "yield_module_transaction_enter_subtitle" = "%1$@ supplied to Aave";
-"yield_module_transaction_enter" = "Yield Mode enabled";
+"yield_module_transaction_enter" = "Yield Mode enable";
 "yield_module_transaction_exit_subtitle" = "%1$@ withdrawn from Aave";
 "yield_module_transaction_exit" = "Yield Mode disabled";
 "yield_module_transaction_initialize" = "Yield Mode initialized";
