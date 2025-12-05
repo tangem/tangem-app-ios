@@ -58,6 +58,13 @@ const char *mnemonic_generate(int strength, char *buf, int buflen) {
   }
   uint8_t data[32] = {0};
   random_buffer(data, 32);
+
+  uint8_t zero[32] = {0};
+  if (memcmp(data, zero, 32) == 0) {
+    memzero(data, sizeof(data));
+    return 0;
+  }
+
   const char *r = mnemonic_from_data(data, strength / 8, buf, buflen);
   memzero(data, sizeof(data));
   return r;
