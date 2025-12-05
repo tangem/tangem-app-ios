@@ -5,6 +5,8 @@
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
+
+import TangemLocalization
 import enum BlockchainSdk.Blockchain
 
 struct TokenActionAvailabilityProvider {
@@ -222,6 +224,7 @@ extension TokenActionAvailabilityProvider {
         case .hasOnlyCachedBalance:
             return .hasOnlyCachedBalance
         case .hasPendingTransaction,
+             .hasPendingWithdrawOrder,
              .oldCard,
              .zeroFeeCurrencyBalance,
              .none:
@@ -285,6 +288,8 @@ extension TokenActionAvailabilityProvider {
             return .oldCard
         case .cantSignLongTransactions:
             return .cantSignLongTransactions
+        case .hasPendingWithdrawOrder:
+            return .hasPendingTransaction(blockchainDisplayName: Localization.tangempayTitle)
         case .hasPendingTransaction(let blockchain):
             return .hasPendingTransaction(blockchainDisplayName: blockchain.displayName)
         case .blockchainUnreachable:
@@ -344,6 +349,8 @@ extension TokenActionAvailabilityProvider {
             return .oldCard
         case .cantSignLongTransactions:
             return .cantSignLongTransactions
+        case .hasPendingWithdrawOrder:
+            return .hasPendingTransaction(blockchainDisplayName: Localization.tangempayTitle)
         case .hasPendingTransaction(let blockchain):
             return .hasPendingTransaction(blockchainDisplayName: blockchain.displayName)
         case .blockchainUnreachable:

@@ -53,6 +53,11 @@ final class UserWalletSettingsViewModel: ObservableObject {
     @Published private var cardSettingsViewModel: DefaultRowViewModel?
     @Published private var referralViewModel: DefaultRowViewModel?
 
+    /// Alert that needs to be shown after a modal sheet is dismissed.
+    /// Used to defer alert display until the presenting sheet (e.g., AccountFormView) closes.
+    /// The alert is stored here temporarily and shown via `showPendingAlertIfNeeded()` in the sheet's `onDismiss` callback.
+    /// See `UserWalletSettingsCoordinatorView` for the trigger.
+    private var pendingAlert: AlertBinder?
     private let mobileSettingsUtil: MobileSettingsUtil
 
     private var isNFTEnabled: Bool {
@@ -88,7 +93,25 @@ final class UserWalletSettingsViewModel: ObservableObject {
         dependencyUpdater = DependencyUpdater(userWalletModel: userWalletModel)
         dependencyUpdater.setup(owner: self)
 
+        setupAccountsViewModel()
         bind()
+    }
+
+    deinit {
+        assert(pendingAlert == nil, "pendingAlert was not shown before deallocation. If AccountForm is no longer a modal, update the alert display mechanism.")
+    }
+
+    private func setupAccountsViewModel() {
+        let accountModelsManager = userWalletModel.accountModelsManager
+        guard FeatureProvider.isAvailable(.accounts), accountModelsManager.canAddCryptoAccounts else {
+            return
+        }
+
+        accountsViewModel = UserSettingsAccountsViewModel(
+            accountModelsManager: accountModelsManager,
+            userWalletConfig: userWalletModel.config,
+            coordinator: coordinator
+        )
     }
 
     func onFirstAppear() {
@@ -130,12 +153,19 @@ final class UserWalletSettingsViewModel: ObservableObject {
                 return
             }
 
-            alert = AlertBuilder.makeAlert(
+            pendingAlert = AlertBuilder.makeAlert(
                 title: Localization.accountsMigrationAlertTitle,
                 message: Localization.accountsMigrationAlertMessage(namesPair.fromName, namesPair.toName),
                 primaryButton: .default(Text(Localization.commonGotIt))
             )
         }
+    }
+
+    func showPendingAlertIfNeeded() {
+        guard let pendingAlert else { return }
+
+        alert = pendingAlert
+        self.pendingAlert = nil
     }
 
     private func loadWalletImage() {
@@ -174,7 +204,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
 private extension UserWalletSettingsViewModel {
     func bind() {
         userWalletModel.updatePublisher
-            .receive(on: DispatchQueue.main)
+            .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, event in
                 if case .configurationChanged = event {
@@ -183,29 +213,33 @@ private extension UserWalletSettingsViewModel {
             }
             .store(in: &bag)
 
-        let accountModelsManager = userWalletModel.accountModelsManager
-        if FeatureProvider.isAvailable(.accounts), accountModelsManager.canAddCryptoAccounts {
-            accountModelsManager
-                .accountModelsPublisher
-                .receiveOnMain()
-                .withWeakCaptureOf(self)
-                .map { viewModel, accounts in
-                    UserSettingsAccountsViewModel(
-                        accountModels: accounts,
-                        accountModelsManager: viewModel.userWalletModel.accountModelsManager,
-                        userWalletConfig: viewModel.userWalletModel.config,
-                        coordinator: viewModel.coordinator
-                    )
-                }
-                .withWeakCaptureOf(self)
-                .sink { viewModel, accountsViewModel in
-                    if accountsViewModel.accountRows.isNotEmpty {
-                        viewModel.manageTokensViewModel = nil
-                    }
-                    viewModel.accountsViewModel = accountsViewModel
-                }
-                .store(in: &bag)
+        guard let accountsViewModel else { return }
+
+        // We should not display manageTokens row if we have visible accounts
+        // because if they are visible, token management is performed from
+        // their respective details screens
+        accountsViewModel
+            .$accountRowViewModels
+            .withWeakCaptureOf(self)
+            .map { viewModel, accountRowViewModels in
+                viewModel.shouldShowManageTokens(accountRowViewModels: accountRowViewModels)
+                    ? viewModel.makeManageTokensRowViewModel()
+                    : nil
+            }
+            .receiveOnMain()
+            .assign(to: \.manageTokensViewModel, on: self, ownership: .weak)
+            .store(in: &bag)
+    }
+
+    private func shouldShowManageTokens(accountRowViewModels: [AccountRowButtonViewModel]?) -> Bool {
+        guard userWalletModel.config.hasFeature(.multiCurrency) else {
+            return false
         }
+
+        // If accounts are enabled (i.e. `accountRowViewModels` is not nil),
+        // then manage tokens row should be shown only if there are no visible accounts
+        // If accounts are not enabled, then manage tokens row should be always shown
+        return accountRowViewModels?.isEmpty ?? true
     }
 
     func setupView() {
@@ -234,11 +268,8 @@ private extension UserWalletSettingsViewModel {
             )
         }
 
-        if userWalletModel.config.hasFeature(.multiCurrency) {
-            manageTokensViewModel = .init(
-                title: Localization.mainManageTokens,
-                action: weakify(self, forFunction: UserWalletSettingsViewModel.openManageTokens)
-            )
+        if shouldShowManageTokens(accountRowViewModels: accountsViewModel?.accountRowViewModels) {
+            manageTokensViewModel = makeManageTokensRowViewModel()
         }
 
         if userWalletModel.config.hasFeature(.cardSettings) {
@@ -427,6 +458,13 @@ private extension UserWalletSettingsViewModel {
 
     func showErrorAlert(error: Error) {
         alert = AlertBuilder.makeOkErrorAlert(message: error.localizedDescription)
+    }
+
+    func makeManageTokensRowViewModel() -> DefaultRowViewModel {
+        DefaultRowViewModel(
+            title: Localization.mainManageTokens,
+            action: weakify(self, forFunction: UserWalletSettingsViewModel.openManageTokens)
+        )
     }
 
     func displayEnablePushSettingsAlert() {

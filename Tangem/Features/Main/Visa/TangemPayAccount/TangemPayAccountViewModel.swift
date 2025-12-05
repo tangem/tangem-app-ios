@@ -20,6 +20,12 @@ protocol TangemPayAccountRoutable: AnyObject {
 final class TangemPayAccountViewModel: ObservableObject {
     @Published private(set) var state: ViewState
 
+    @Published private var isLoading: Bool = false
+
+    var disableButtonTap: Bool {
+        isLoading ? true : !state.isTappable
+    }
+
     private let tangemPayAccount: TangemPayAccount
     private weak var router: TangemPayAccountRoutable?
 
@@ -33,7 +39,7 @@ final class TangemPayAccountViewModel: ObservableObject {
             state: tangemPayAccount.state,
             status: .active,
             card: tangemPayAccount.tangemPayCard,
-            balanceType: tangemPayAccount.tangemPayTokenBalanceProvider.formattedBalanceType
+            balanceType: tangemPayAccount.tangemPayFiatTokenBalanceProvider.formattedBalanceType
         )
 
         bind()
@@ -42,10 +48,16 @@ final class TangemPayAccountViewModel: ObservableObject {
     func userDidTapView() {
         switch state {
         case .kycInProgress:
-            runTask(in: tangemPayAccount) { tangemPayAccount in
+            runTask(in: self) { viewModel in
                 do {
-                    try await tangemPayAccount.launchKYC {
-                        tangemPayAccount.loadCustomerInfo()
+                    try await viewModel.tangemPayAccount.launchKYC {
+                        viewModel.isLoading = true
+                        runTask(in: viewModel) { viewModel in
+                            _ = await viewModel.tangemPayAccount.loadCustomerInfo().value
+                            Task { @MainActor in
+                                viewModel.isLoading = false
+                            }
+                        }
                     }
                 } catch {
                     VisaLogger.error("Failed to launch KYC", error: error)
@@ -79,10 +91,18 @@ private extension TangemPayAccountViewModel {
             tangemPayAccount
                 .tangemPayCardPublisher,
             tangemPayAccount
-                .tangemPayTokenBalanceProvider
+                .tangemPayFiatTokenBalanceProvider
                 .formattedBalanceTypePublisher
         )
         .map(TangemPayAccountViewModel.mapToState)
+        .handleEvents(receiveOutput: { state in
+            switch state {
+            case .issuingYourCard:
+                Analytics.log(.visaOnboardingIssuingBannerDisplayed)
+            default:
+                break
+            }
+        })
         .receiveOnMain()
         .assign(to: &$state)
     }
