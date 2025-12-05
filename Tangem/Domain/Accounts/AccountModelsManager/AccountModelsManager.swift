@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-protocol AccountModelsManager {
+protocol AccountModelsManager: AccountModelsReordering {
     /// Indicates whether the user can add more additional (not `Main`) crypto accounts to the wallet.
     var canAddCryptoAccounts: Bool { get }
 
