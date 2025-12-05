@@ -79,18 +79,6 @@ struct PulseMarketWidgetView: View {
     }
 }
 
-// MARK: - Auxiliary types
-
-extension PulseMarketWidgetView {
-    enum ListLoadingState: String, Identifiable, Hashable {
-        case loading
-        case loaded
-        case idle
-
-        var id: String { rawValue }
-    }
-}
-
 // MARK: - Layout
 
 extension PulseMarketWidgetView {

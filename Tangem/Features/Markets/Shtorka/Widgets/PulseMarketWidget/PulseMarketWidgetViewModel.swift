@@ -30,8 +30,6 @@ final class PulseMarketWidgetViewModel: ObservableObject {
         }
     }
 
-    // Chips are constructed in the view to avoid coupling the view model to TangemUI types.
-
     // MARK: - Properties
 
     let widgetType: MarketsWidgetType
@@ -69,7 +67,6 @@ final class PulseMarketWidgetViewModel: ObservableObject {
 
         // Need for preload markets list, when bottom sheet it has not been opened yet
         quotesUpdatesScheduler.saveQuotesUpdateDate(Date())
-//        fetch(by: filterProvider.currentFilterValue)
     }
 
     deinit {
