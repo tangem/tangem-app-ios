@@ -168,4 +168,25 @@ extension AccountModelsManagerMock: AccountModelsManager {
             throw .unknownError(error)
         }
     }
+
+    func reorder(orderedIdentifiers: [any AccountModelPersistentIdentifierConvertible]) async throws {
+        let orderedIndicesKeyedByIdentifiers = orderedIdentifiers
+            .enumerated()
+            .reduce(into: [:]) { partialResult, element in
+                partialResult[element.element.toAnyHashable()] = element.offset
+            }
+
+        cryptoAccountModels
+            .sort { first, second in
+                guard
+                    let firstIndex = orderedIndicesKeyedByIdentifiers[first.id.toAnyHashable()],
+                    let secondIndex = orderedIndicesKeyedByIdentifiers[second.id.toAnyHashable()]
+                else {
+                    // Preserve existing order
+                    return false
+                }
+
+                return firstIndex < secondIndex
+            }
+    }
 }
