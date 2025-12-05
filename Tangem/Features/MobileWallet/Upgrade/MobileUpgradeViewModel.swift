@@ -317,7 +317,7 @@ private extension MobileUpgradeViewModel {
 
     func openBuyCard() {
         logBuyHardwareWalletAnalytics()
-        safariManager.openURL(TangemBlogUrlBuilder().url(root: .pricing))
+        safariManager.openURL(TangemShopUrlBuilder().url(utmCampaign: .upgrade))
     }
 
     func openScanCardManual() {
