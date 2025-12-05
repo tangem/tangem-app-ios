@@ -85,7 +85,7 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func addFunds() {
-        Analytics.log(.visaMainScreenButtonAddFunds)
+        Analytics.log(.visaScreenButtonVisaAddFunds)
 
         nextViewOpeningTask?.cancel()
         nextViewOpeningTask = Task { @MainActor in
@@ -130,7 +130,7 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func onAppear() {
-        Analytics.log(.visaMainScreenMainScreenOpened)
+        Analytics.log(.visaScreenVisaMainScreenOpened)
 
         tangemPayAccount.loadBalance()
     }
