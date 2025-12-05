@@ -52,4 +52,8 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
     func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) throws(AccountRecoveryError) -> AccountOperationResult {
         throw .unknownError(NSError.dummy)
     }
+
+    func reorder(orderedIdentifiers: [any AccountModelPersistentIdentifierConvertible]) async throws {
+        throw NSError.dummy
+    }
 }
