@@ -109,6 +109,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
                         return organizedTokensSectionsPublisher
                             .map { sections in
                                 let accountSectionModel = _AccountModel(
+                                    id: cryptoAccountModel.id,
                                     name: cryptoAccountModel.name,
                                     iconData: AccountIconViewBuilder.makeAccountIconViewData(accountModel: cryptoAccountModel)
                                 )
