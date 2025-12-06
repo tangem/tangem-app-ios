@@ -1441,6 +1441,7 @@
 "transaction_history_transaction_validator" = "validador: %@";
 "transaction_notifications_warning_description" = "Las notificaciones están activadas, pero no funcionarán hasta que permita las notificaciones en la configuración de su dispositivo.";
 "transaction_notifications_warning_title" = "Notificaciones de transacciones";
+"transaction_send" = "Send";
 "transfer_min_amount_error" = "Mínimo %@";
 "transfer_notification_invalid_minimum_transaction_amount_text" = "El monto mínimo para realizar esta transacción es %1$@.";
 "tron_will_be_send_token_fee_description" = "Las tarifas de la red Tron para tokens populares pueden ser más altas. Hacer staking de TRX puede ayudar a reducir costes de transacción.";
