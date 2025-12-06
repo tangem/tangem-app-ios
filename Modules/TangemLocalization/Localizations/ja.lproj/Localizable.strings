@@ -1441,6 +1441,7 @@
 "transaction_history_transaction_validator" = "バリデーター: %@";
 "transaction_notifications_warning_description" = "通知は有効になっていますが、デバイスの設定で通知を許可するまでは機能しません。";
 "transaction_notifications_warning_title" = "取引通知";
+"transaction_send" = "Send";
 "transfer_min_amount_error" = "最小%@";
 "transfer_notification_invalid_minimum_transaction_amount_text" = "最小取引金額は%1$@です。";
 "tron_will_be_send_token_fee_description" = "Tronネットワークの人気トークンの手数料は高い可能性があります。TRXをステーキングすると、取引コストを削減できる可能性があります。";
