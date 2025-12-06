@@ -830,11 +830,11 @@
 		30B4575D2D9434A4002B8BD0 /* FeaturesStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30B4575B2D9434A4002B8BD0 /* FeaturesStorage.swift */; };
 		30B64C7E2DB8E1E3002FAE12 /* NFTAssetDetailsCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30B64C7D2DB8E1D5002FAE12 /* NFTAssetDetailsCoordinatorView.swift */; };
 		30B8D7E02E81946000270458 /* UserSettingsAccountsSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30B8D7DF2E81946000270458 /* UserSettingsAccountsSectionView.swift */; };
+		30B8D7E52EC8100100270458 /* AccountRowButtonViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30B8D7E42EC8100100270458 /* AccountRowButtonViewModel.swift */; };
+		30B8D7E72EC8100100270458 /* ArchivedAccountRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30B8D7E62EC8100100270458 /* ArchivedAccountRowView.swift */; };
 		30B8FF4E2EA0F94D0031C6D0 /* MarketsAccountsAwarePortfolioContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30B8FF4D2EA0F94D0031C6D0 /* MarketsAccountsAwarePortfolioContainerView.swift */; };
 		30BA4FE72D7085FB00C2B108 /* TezosTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30BA4FE62D7085F500C2B108 /* TezosTransactionTests.swift */; };
 		30BD35622DBFC6F800866D51 /* NFTChainNameProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30BD35612DBFC6EE00866D51 /* NFTChainNameProvider.swift */; };
-		30B8D7E52EC8100100270458 /* AccountRowButtonViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30B8D7E42EC8100100270458 /* AccountRowButtonViewModel.swift */; };
-		30B8D7E72EC8100100270458 /* ArchivedAccountRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30B8D7E62EC8100100270458 /* ArchivedAccountRowView.swift */; };
 		30C470102D760568003DFBFD /* AlgorandAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30C4700F2D76055D003DFBFD /* AlgorandAddressTests.swift */; };
 		30C470122D760AE0003DFBFD /* AptosAddressTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30C470112D760ADA003DFBFD /* AptosAddressTest.swift */; };
 		30C470142D760E16003DFBFD /* BitcoinAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30C470132D760E10003DFBFD /* BitcoinAddressTests.swift */; };
@@ -5489,11 +5489,11 @@
 		30B4575B2D9434A4002B8BD0 /* FeaturesStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeaturesStorage.swift; sourceTree = "<group>"; };
 		30B64C7D2DB8E1D5002FAE12 /* NFTAssetDetailsCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTAssetDetailsCoordinatorView.swift; sourceTree = "<group>"; };
 		30B8D7DF2E81946000270458 /* UserSettingsAccountsSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSettingsAccountsSectionView.swift; sourceTree = "<group>"; };
+		30B8D7E42EC8100100270458 /* AccountRowButtonViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountRowButtonViewModel.swift; sourceTree = "<group>"; };
+		30B8D7E62EC8100100270458 /* ArchivedAccountRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchivedAccountRowView.swift; sourceTree = "<group>"; };
 		30B8FF4D2EA0F94D0031C6D0 /* MarketsAccountsAwarePortfolioContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsAccountsAwarePortfolioContainerView.swift; sourceTree = "<group>"; };
 		30BA4FE62D7085F500C2B108 /* TezosTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TezosTransactionTests.swift; sourceTree = "<group>"; };
 		30BD35612DBFC6EE00866D51 /* NFTChainNameProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTChainNameProvider.swift; sourceTree = "<group>"; };
-		30B8D7E42EC8100100270458 /* AccountRowButtonViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountRowButtonViewModel.swift; sourceTree = "<group>"; };
-		30B8D7E62EC8100100270458 /* ArchivedAccountRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchivedAccountRowView.swift; sourceTree = "<group>"; };
 		30C4700F2D76055D003DFBFD /* AlgorandAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlgorandAddressTests.swift; sourceTree = "<group>"; };
 		30C470112D760ADA003DFBFD /* AptosAddressTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AptosAddressTest.swift; sourceTree = "<group>"; };
 		30C470132D760E10003DFBFD /* BitcoinAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinAddressTests.swift; sourceTree = "<group>"; };
@@ -11575,14 +11575,14 @@
 		308631572E40E36C00D58D37 /* Accounts */ = {
 			isa = PBXGroup;
 			children = (
-				301916472EB4CB5900326BD2 /* AccountRowView */,
-				30502FA82E950640006A3888 /* Utils */,
-				30AD199D2E8558EC00EAE0A0 /* ArchivedAccounts */,
 				3027D3392E82DDCC001E15FB /* AccountDetails */,
 				3027D32D2E82C049001E15FB /* AccountItemView */,
+				301916472EB4CB5900326BD2 /* AccountRowView */,
+				DC7AFA2A2E840856005AA071 /* AccountSelector */,
+				30AD199D2E8558EC00EAE0A0 /* ArchivedAccounts */,
 				3027D3252E82BF90001E15FB /* Form */,
 				30C9C3272E76BFC500DC913B /* UserSettings */,
-				DC7AFA2A2E840856005AA071 /* AccountSelector */,
+				30502FA82E950640006A3888 /* Utils */,
 			);
 			path = Accounts;
 			sourceTree = "<group>";
