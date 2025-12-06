@@ -9,6 +9,7 @@
 import Foundation
 import struct UIKit.UIRectCorner
 
+// [REDACTED_TODO_COMMENT]
 struct OrganizeTokensListCornerRadiusParametersProvider {
     private let sections: [OrganizeTokensListSection]
     private let cornerRadius: CGFloat
