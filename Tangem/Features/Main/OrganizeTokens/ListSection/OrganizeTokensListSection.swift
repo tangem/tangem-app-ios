@@ -26,7 +26,9 @@ extension OrganizeTokensListSection {
 typealias _OrganizeTokensListSection = SectionModel<_AccountModel, OrganizeTokensListSection>
 
 // [REDACTED_TODO_COMMENT]
-struct _AccountModel {
+// [REDACTED_TODO_COMMENT]
+struct _AccountModel: Identifiable {
+    let id: AnyHashable
     let name: String
     let iconData: AccountIconView.ViewData
 }
