@@ -112,6 +112,7 @@ extension Publisher {
     ///      // Prints: "(nil, 1) (Optional(1), 2) (Optional(2), 3) (Optional(3), 4) (Optional(4), 5) ".
     ///
     /// - Returns: A publisher of a tuple of the previous and current elements from the upstream publisher.
+    @available(iOS, deprecated: 100000.0, message: "Use `pairwise()` from CombineExt package instead.")
     func withPrevious() -> AnyPublisher<(previous: Output?, current: Output), Failure> {
         scan((Output?, Output)?.none) { ($0?.1, $1) }
             .compactMap { $0 }
@@ -129,6 +130,7 @@ extension Publisher {
     ///
     /// - Parameter initialPreviousValue: The initial value to use as the "previous" value when the upstream publisher emits for the first time.
     /// - Returns: A publisher of a tuple of the previous and current elements from the upstream publisher.
+    @available(iOS, deprecated: 100000.0, message: "Use `pairwise()` from CombineExt package instead.")
     func withPrevious(_ initialPreviousValue: Output) -> AnyPublisher<(previous: Output, current: Output), Failure> {
         scan((initialPreviousValue, initialPreviousValue)) { ($0.1, $1) }.eraseToAnyPublisher()
     }
