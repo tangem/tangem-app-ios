@@ -20,4 +20,10 @@ protocol TangemPayMainRoutable: AnyObject {
     func openTermsAndLimits()
 
     func openTangemPayTransactionDetailsSheet(transaction: TangemPayTransactionRecord)
+    func openPendingExpressTransactionDetails(
+        pendingTransaction: PendingTransaction,
+        userWalletInfo: UserWalletInfo,
+        tokenItem: TokenItem,
+        pendingTransactionsManager: PendingExpressTransactionsManager
+    )
 }
