@@ -126,7 +126,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
                                 let accountSectionModel = _AccountModel(
                                     id: cryptoAccountModel.id,
                                     name: cryptoAccountModel.name,
-                                    iconData: AccountIconViewBuilder.makeAccountIconViewData(accountModel: cryptoAccountModel)
+                                    iconData: AccountModelUtils.UI.iconViewData(accountModel: cryptoAccountModel)
                                 )
                                 return _OrganizeTokensListSection(
                                     model: accountSectionModel,
