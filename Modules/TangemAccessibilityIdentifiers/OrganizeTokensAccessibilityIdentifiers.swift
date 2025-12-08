@@ -18,7 +18,7 @@ public enum OrganizeTokensAccessibilityIdentifiers {
         return "token_\(name)"
     }
 
-    public static func tokenAtPosition(name: String, section: Int, item: Int) -> String {
-        return "token_\(section)_\(item)_\(name)"
+    public static func tokenAtPosition(name: String, outerSection: Int, innerSection: Int, item: Int) -> String {
+        return "token_\(outerSection)_\(innerSection)_\(item)_\(name)"
     }
 }
