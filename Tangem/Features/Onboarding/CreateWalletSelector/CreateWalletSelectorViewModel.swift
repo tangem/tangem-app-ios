@@ -40,7 +40,7 @@ final class CreateWalletSelectorViewModel: ObservableObject {
     private let mobileWalletFeatureProvider = MobileWalletFeatureProvider()
 
     private var analyticsCardScanSourceParameterValue: Analytics.ParameterValue {
-        Analytics.CardScanSource.welcome.cardWasScannedParameterValue
+        Analytics.CardScanSource.createWalletIntro.cardWasScannedParameterValue
     }
 
     private weak var coordinator: CreateWalletSelectorRoutable?
@@ -54,7 +54,7 @@ final class CreateWalletSelectorViewModel: ObservableObject {
 
 extension CreateWalletSelectorViewModel {
     func onFirstAppear() {
-        logOnboardingStartedAnalytics()
+        logScreenOpenedAnalytics()
     }
 
     func onBackTap() {
@@ -262,12 +262,15 @@ private extension CreateWalletSelectorViewModel {
 // MARK: - Analytics
 
 private extension CreateWalletSelectorViewModel {
-    func logOnboardingStartedAnalytics() {
-        Analytics.log(.onboardingStarted)
+    func logScreenOpenedAnalytics() {
+        Analytics.log(.introductionProcessCreateWalletIntroScreenOpened)
     }
 
     func logScanCardTapAnalytics() {
-        Analytics.log(Analytics.CardScanSource.welcome.cardScanButtonEvent)
+        Analytics.log(
+            Analytics.CardScanSource.welcome.cardScanButtonEvent,
+            params: [.source: analyticsCardScanSourceParameterValue]
+        )
     }
 
     func logScanCardAnalytics(error: Error) {
@@ -304,11 +307,11 @@ private extension CreateWalletSelectorViewModel {
     }
 
     func logCreateNewWalletAnalytics() {
-        Analytics.log(.buttonMobileWallet)
+        Analytics.log(.buttonMobileWallet, params: [.source: analyticsCardScanSourceParameterValue])
     }
 
     func logBuyHardwareWalletAnalytics() {
-        Analytics.log(.basicButtonBuy, params: [.source: Analytics.BuyWalletSource.createWallet.parameterValue])
+        Analytics.log(.basicButtonBuy, params: [.source: analyticsCardScanSourceParameterValue])
     }
 }
 
