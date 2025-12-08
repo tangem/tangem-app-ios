@@ -12,6 +12,21 @@ import SwiftUI
 import TangemUI
 import TangemFoundation
 
+// [REDACTED_TODO_COMMENT]
+struct _IndexPath: Hashable {
+    let outerSection: Int
+    let innerSection: Int
+    // [REDACTED_TODO_COMMENT]
+    let _item: Int
+
+    // [REDACTED_TODO_COMMENT]
+    init(outerSection: Int, innerSection: Int, item: Int) {
+        self.outerSection = outerSection
+        self.innerSection = innerSection
+        _item = item
+    }
+}
+
 final class OrganizeTokensViewModel: ObservableObject, Identifiable {
     /// Sentinel value for `item` of `IndexPath` representing a section.
     var sectionHeaderItemIndex: Int { .min }
@@ -314,14 +329,17 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
 // MARK: - Drag and drop support
 
 extension OrganizeTokensViewModel {
-    func indexPath(for identifier: AnyHashable) -> IndexPath? {
-        for (sectionIndex, section) in sections.enumerated() {
-            if section.id == identifier {
-                return IndexPath(item: sectionHeaderItemIndex, section: sectionIndex)
-            }
-            for (itemIndex, item) in section.items.enumerated() {
-                if item.id.toAnyHashable() == identifier {
-                    return IndexPath(item: itemIndex, section: sectionIndex)
+    func indexPath(for identifier: AnyHashable) -> _IndexPath? {
+        for (outerSectionIndex, outerSection) in __sections.enumerated() {
+            // Outer sections can't be dragged, so we don't check them here
+            for (innerSectionIndex, innerSection) in outerSection.items.enumerated() {
+                if innerSection.id == identifier {
+                    return _IndexPath(outerSection: outerSectionIndex, innerSection: innerSectionIndex, item: sectionHeaderItemIndex)
+                }
+                for (itemIndex, item) in innerSection.items.enumerated() {
+                    if item.id.toAnyHashable() == identifier {
+                        return _IndexPath(outerSection: outerSectionIndex, innerSection: innerSectionIndex, item: itemIndex)
+                    }
                 }
             }
         }
@@ -340,7 +358,7 @@ extension OrganizeTokensViewModel {
             .first { $0.id == identifier }
     }
 
-    func move(from sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+    func move(from sourceIndexPath: _IndexPath, to destinationIndexPath: _IndexPath) {
         let isGroupingEnabled = headerViewModel.isGroupingEnabled
 
         if sourceIndexPath.item == sectionHeaderItemIndex {
@@ -386,7 +404,7 @@ extension OrganizeTokensViewModel {
         }
     }
 
-    func onDragStart(at indexPath: IndexPath) {
+    func onDragStart(at indexPath: _IndexPath) {
         // A started drag-and-drop session always disables sorting by balance
         optionsEditing.sort(by: .dragAndDrop)
 
