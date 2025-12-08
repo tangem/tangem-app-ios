@@ -89,7 +89,7 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
         )
         pendingExpressTransactionsManagerBuilder = .init(
             userWalletId: userWalletInfo.id.stringValue,
-            walletModel: walletModel
+            tokenItem: walletModel.tokenItem,
         )
 
         let expressDependenciesInput = ExpressDependenciesInput(

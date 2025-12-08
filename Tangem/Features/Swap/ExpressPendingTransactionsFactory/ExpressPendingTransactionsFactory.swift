@@ -10,7 +10,8 @@ import TangemExpress
 
 struct ExpressPendingTransactionsFactory {
     let userWalletInfo: UserWalletInfo
-    let walletModel: any WalletModel
+    let tokenItem: TokenItem
+    let walletModelUpdater: (any WalletModelUpdater)?
 
     func makePendingExpressTransactionsManager() -> any PendingExpressTransactionsManager {
         let tokenEnricher = CommonTokenEnricher(
@@ -28,14 +29,15 @@ struct ExpressPendingTransactionsFactory {
 
         let pendingExpressTransactionsManager = CommonPendingExpressTransactionsManager(
             userWalletId: userWalletInfo.id.stringValue,
-            walletModel: walletModel,
+            tokenItem: tokenItem,
+            walletModelUpdater: walletModelUpdater,
             expressAPIProvider: expressAPIProvider,
             expressRefundedTokenHandler: expressRefundedTokenHandler
         )
 
         let pendingOnrampTransactionsManager = CommonPendingOnrampTransactionsManager(
             userWalletId: userWalletInfo.id.stringValue,
-            walletModel: walletModel,
+            tokenItem: tokenItem,
             expressAPIProvider: expressAPIProvider
         )
 
