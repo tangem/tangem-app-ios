@@ -17,7 +17,6 @@ enum Feature: String, Hashable, CaseIterable {
     case wcSolanaALT
     case accounts
     case receiveENS
-    case yieldModule
     case pushPermissionNotificationBanner
 
     var name: String {
@@ -30,7 +29,6 @@ enum Feature: String, Hashable, CaseIterable {
         case .wcSolanaALT: return "WalletConnect Solana ALT"
         case .accounts: return "Accounts"
         case .receiveENS: return "Receive (ENS)"
-        case .yieldModule: return "Yield Module"
         case .pushPermissionNotificationBanner: return "Push Permission Notification Banner"
         }
     }
@@ -45,7 +43,6 @@ enum Feature: String, Hashable, CaseIterable {
         case .wcSolanaALT: return .version("5.28")
         case .accounts: return .unspecified
         case .receiveENS: return .version("5.28")
-        case .yieldModule: return .version("5.30")
         case .pushPermissionNotificationBanner: return .version("5.30")
         }
     }
