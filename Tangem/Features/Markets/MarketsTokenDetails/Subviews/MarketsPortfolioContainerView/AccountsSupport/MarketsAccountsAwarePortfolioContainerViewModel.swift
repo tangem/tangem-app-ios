@@ -206,7 +206,7 @@ final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
                     let accountData = TypeView.AccountData(
                         id: account.id.toAnyHashable(),
                         name: account.name,
-                        iconInfo: AccountIconViewBuilder.makeAccountIconViewData(accountModel: account)
+                        iconInfo: AccountModelUtils.UI.iconViewData(accountModel: account)
                     )
 
                     accountsWithTokenItems.append(
