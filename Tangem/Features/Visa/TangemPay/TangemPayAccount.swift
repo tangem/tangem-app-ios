@@ -20,6 +20,7 @@ final class TangemPayAccount {
         customerInfoSubject
             .compactMap(\.self?.tangemPayStatus)
             .merge(with: orderCancelledSignalSubject.mapToValue(.failedToIssue))
+            .merge(with: customerInfoLoadingFailedSignalSubject.mapToValue(.unavailable))
             .eraseToAnyPublisher()
     }
 
@@ -49,7 +50,8 @@ final class TangemPayAccount {
     }
 
     lazy var tangemPayNotificationManager: TangemPayNotificationManager = .init(
-        tangemPayAccountStatePublisher: authorizer.statePublisher
+        tangemPayAuthorizerStatePublisher: authorizer.statePublisher,
+        tangemPayAccountStatusPublisher: tangemPayStatusPublisher
     )
 
     lazy var tangemPayIssuingManager: TangemPayIssuingManager = .init(
@@ -140,6 +142,7 @@ final class TangemPayAccount {
     private let customerInfoSubject = CurrentValueSubject<VisaCustomerInfoResponse?, Never>(nil)
     private let balanceSubject = CurrentValueSubject<LoadingResult<TangemPayBalance, Error>?, Never>(nil)
 
+    private let customerInfoLoadingFailedSignalSubject = PassthroughSubject<Void, Never>()
     private let orderCancelledSignalSubject = PassthroughSubject<Void, Never>()
     private let syncInProgressSubject = CurrentValueSubject<Bool, Never>(false)
 
@@ -202,7 +205,10 @@ final class TangemPayAccount {
                     TangemPayOrderIdStorage.deleteCardIssuingOrderId(customerWalletId: tangemPayAccount.customerWalletId)
                     await tangemPayAccount.setupBalance()
                 }
+            } catch TangemPayAuthorizationTokensHandlerError.preparingFailed {
+                VisaLogger.error("Failed to load customer info", error: TangemPayAuthorizationTokensHandlerError.preparingFailed)
             } catch {
+                tangemPayAccount.customerInfoLoadingFailedSignalSubject.send(())
                 VisaLogger.error("Failed to load customer info", error: error)
             }
         }
