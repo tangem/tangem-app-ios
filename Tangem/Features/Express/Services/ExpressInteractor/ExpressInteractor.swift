@@ -451,7 +451,7 @@ private extension ExpressInteractor {
         )
         let correctState: State = .permissionRequired(permissionRequiredState, quote: quote)
 
-        return await validate(amount: amount, fee: fee, correctState: correctState)
+        return validate(amount: amount, fee: fee, correctState: correctState)
     }
 
     func map(ready: ExpressManagerState.Ready) async throws -> State {
@@ -464,7 +464,7 @@ private extension ExpressInteractor {
         let readyToSwapState = ReadyToSwapState(data: ready.data, fees: fees)
         let correctState: State = .readyToSwap(readyToSwapState, quote: quote)
 
-        return await validate(amount: amount, fee: fee, correctState: correctState)
+        return validate(amount: amount, fee: fee, correctState: correctState)
     }
 
     func map(previewCEX: ExpressManagerState.PreviewCEX) async throws -> State {
@@ -495,13 +495,13 @@ private extension ExpressInteractor {
         )
         let correctState: State = .previewCEX(previewCEXState, quote: quote)
 
-        return await validate(amount: amount, fee: fee, correctState: correctState)
+        return validate(amount: amount, fee: fee, correctState: correctState)
     }
 
-    func validate(amount: Amount, fee: Fee, correctState: State) async -> State {
+    func validate(amount: Amount, fee: Fee, correctState: State) -> State {
         do {
             let transactionValidator = try getSourceWallet().transactionValidator
-            try await transactionValidator.validate(amount: amount, fee: fee, destination: .generate)
+            try transactionValidator.validate(amount: amount, fee: fee)
         } catch ValidationError.totalExceedsBalance, ValidationError.amountExceedsBalance {
             return .restriction(.notEnoughBalanceForSwapping(requiredAmount: amount.value), quote: correctState.quote)
         } catch ValidationError.feeExceedsBalance {
