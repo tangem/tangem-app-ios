@@ -90,7 +90,7 @@ extension AuthCoordinator: NewAuthRoutable {
         }
 
         let coordinator = AddWalletSelectorCoordinator(dismissAction: dismissAction)
-        let inputOptions = AddWalletSelectorCoordinator.InputOptions()
+        let inputOptions = AddWalletSelectorCoordinator.InputOptions(source: .signIn)
         coordinator.start(with: inputOptions)
         addWalletSelectorCoordinator = coordinator
     }
