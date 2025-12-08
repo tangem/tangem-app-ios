@@ -18,7 +18,7 @@ struct OnrampCountrySelectorView: View {
 
     var body: some View {
         VStack(alignment: .center, spacing: .zero) {
-            GrabberViewFactory().makeSwiftUIView()
+            GrabberView()
 
             CustomSearchBar(
                 searchText: $viewModel.searchText,
