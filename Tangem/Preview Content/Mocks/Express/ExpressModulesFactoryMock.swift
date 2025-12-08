@@ -125,13 +125,14 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
         CompoundPendingTransactionsManager(
             first: CommonPendingExpressTransactionsManager(
                 userWalletId: userWalletModel.userWalletId.stringValue,
-                walletModel: initialWalletModel,
+                tokenItem: initialWalletModel.tokenItem,
+                walletModelUpdater: initialWalletModel,
                 expressAPIProvider: makeExpressAPIProvider(),
                 expressRefundedTokenHandler: ExpressRefundedTokenHandlerMock()
             ),
             second: CommonPendingOnrampTransactionsManager(
                 userWalletId: userWalletModel.userWalletId.stringValue,
-                walletModel: initialWalletModel,
+                tokenItem: initialWalletModel.tokenItem,
                 expressAPIProvider: makeExpressAPIProvider()
             )
         )
