@@ -117,7 +117,7 @@ extension DetailsCoordinator: DetailsRoutable {
         }
 
         let coordinator = AddWalletSelectorCoordinator(dismissAction: dismissAction)
-        let inputOptions = AddWalletSelectorCoordinator.InputOptions()
+        let inputOptions = AddWalletSelectorCoordinator.InputOptions(source: .settings)
         coordinator.start(with: inputOptions)
         addWalletSelectorCoordinator = coordinator
     }
