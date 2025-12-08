@@ -11,16 +11,16 @@ import TangemFoundation
 
 struct FeeCurrencyNavigatingDismissOption {
     let userWalletId: UserWalletId
-    let feeTokenItem: TokenItem
+    let tokenItem: TokenItem
 
     init(walletModel: any WalletModel) {
         userWalletId = walletModel.userWalletId
-        feeTokenItem = walletModel.feeTokenItem
+        tokenItem = walletModel.feeTokenItem
     }
 
-    init(userWalletId: UserWalletId, feeTokenItem: TokenItem) {
+    init(userWalletId: UserWalletId, tokenItem: TokenItem) {
         self.userWalletId = userWalletId
-        self.feeTokenItem = feeTokenItem
+        self.tokenItem = tokenItem
     }
 }
 
@@ -45,11 +45,11 @@ extension FeeCurrencyNavigating {
 
         let result = try? WalletModelFinder.findWalletModel(
             userWalletId: feeCurrencyOption.userWalletId,
-            tokenItem: feeCurrencyOption.feeTokenItem
+            tokenItem: feeCurrencyOption.tokenItem
         )
 
         guard let result else {
-            AppLogger.error(error: "FeeCurrency doesn't found for \(feeCurrencyOption.feeTokenItem.name)")
+            AppLogger.error(error: "FeeCurrency doesn't found for \(feeCurrencyOption.tokenItem.name)")
             return
         }
 
