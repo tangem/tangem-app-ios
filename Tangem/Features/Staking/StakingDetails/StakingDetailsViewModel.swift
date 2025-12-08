@@ -528,10 +528,10 @@ extension StakingDetailsViewModel {
 extension Period {
     func formatted(formatter: DateComponentsFormatter) -> String {
         switch self {
-        case .specific(let days):
+        case .constant(let days):
             return formatter.string(from: DateComponents(day: days)) ?? days.formatted()
-        case .interval(let min, let max):
-            let minString = formatter.string(from: DateComponents(day: min)) ?? min.formatted()
+        case .variable(let min, let max):
+            let minString = "\(min)"
             let maxString = formatter.string(from: DateComponents(day: max)) ?? max.formatted()
             return "\(minString) - \(maxString)"
         }

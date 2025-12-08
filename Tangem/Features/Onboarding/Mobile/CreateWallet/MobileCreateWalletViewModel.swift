@@ -11,9 +11,11 @@ import TangemAssets
 import TangemLocalization
 import TangemMobileWalletSdk
 import TangemFoundation
+import struct TangemUIUtils.AlertBinder
 
 final class MobileCreateWalletViewModel: ObservableObject {
     @Published var isCreating: Bool = false
+    @Published var alert: AlertBinder?
 
     let title = Localization.hwCreateTitle
     let createButtonTitle = Localization.onboardingCreateWalletButtonCreateWallet
@@ -22,6 +24,8 @@ final class MobileCreateWalletViewModel: ObservableObject {
     let navBarHeight: CGFloat = OnboardingLayoutConstants.navbarSize.height
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
+    private let mobileWalletFeatureProvider = MobileWalletFeatureProvider()
 
     lazy var infoItems: [InfoItem] = makeInfoItems()
 
@@ -48,6 +52,11 @@ extension MobileCreateWalletViewModel {
     }
 
     func onCreateTap() {
+        guard mobileWalletFeatureProvider.isAvailable else {
+            alert = mobileWalletFeatureProvider.makeRestrictionAlert()
+            return
+        }
+
         isCreating = true
         Analytics.log(
             event: .buttonCreateWallet,
@@ -60,6 +69,17 @@ extension MobileCreateWalletViewModel {
                 let initializer = MobileWalletInitializer()
 
                 let walletInfo = try await initializer.initializeWallet(mnemonic: nil, passphrase: nil)
+
+                let userWalletConfig = MobileUserWalletConfig(mobileWalletInfo: walletInfo)
+                if let userWalletId = UserWalletId(config: userWalletConfig) {
+                    let walletCreationHelper = WalletCreationHelper(
+                        userWalletId: userWalletId,
+                        userWalletName: nil,
+                        userWalletConfig: userWalletConfig
+                    )
+
+                    try? await walletCreationHelper.createWallet()
+                }
 
                 guard let newUserWalletModel = CommonUserWalletModelFactory().makeModel(
                     walletInfo: .mobileWallet(walletInfo),
@@ -85,6 +105,10 @@ extension MobileCreateWalletViewModel {
     }
 
     func onImportTap() {
+        guard mobileWalletFeatureProvider.isAvailable else {
+            alert = mobileWalletFeatureProvider.makeRestrictionAlert()
+            return
+        }
         runTask(in: self) { viewModel in
             await viewModel.openImportWallet()
         }
