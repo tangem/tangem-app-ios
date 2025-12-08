@@ -135,7 +135,7 @@ struct StakingDetailsView: View {
                 title: actionButtonType.title,
                 isLoading: viewModel.actionButtonLoading,
                 isDisabled: viewModel.actionButtonState != .enabled,
-                handleActionWhenDisabled: true
+                handleActionWhenDisabled: viewModel.actionButtonState.allowTapHandling
             ) {
                 viewModel.userDidTapActionButton()
             }

@@ -34,8 +34,7 @@ struct MainBottomSheetFooterView: View {
             }
             .cornerRadius(cornerRadius, corners: .topEdge)
             .overlay(alignment: .top) {
-                GrabberViewFactory()
-                    .makeSwiftUIView()
+                GrabberView()
             }
             .background(alignment: .top) {
                 MainBottomSheetFooterShadowView(colorScheme: colorScheme, shadowColor: .black)
