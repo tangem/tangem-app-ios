@@ -8,9 +8,11 @@
 
 import Foundation
 import BlockchainSdk
+import BigInt
 
 public protocol YieldTransactionFee {
     var totalFeeAmount: Amount { get }
+    var maxFeePerGas: BigUInt? { get }
 }
 
 struct DeployEnterFee: YieldTransactionFee {
@@ -35,6 +37,10 @@ struct DeployEnterFee: YieldTransactionFee {
             deployFee.amount + approveFee.amount
         }
     }
+
+    var maxFeePerGas: BigUInt? {
+        (deployFee.parameters as? EthereumFeeParameters)?.maximumFeePerGas
+    }
 }
 
 struct InitEnterFee: YieldTransactionFee {
@@ -58,6 +64,10 @@ struct InitEnterFee: YieldTransactionFee {
         } else {
             initFee.amount + approveFee.amount
         }
+    }
+
+    var maxFeePerGas: BigUInt? {
+        (initFee.parameters as? EthereumFeeParameters)?.maximumFeePerGas
     }
 }
 
@@ -101,6 +111,10 @@ struct ReactivateEnterFee: YieldTransactionFee {
             reactivateFee.amount
         }
     }
+
+    var maxFeePerGas: BigUInt? {
+        (reactivateFee.parameters as? EthereumFeeParameters)?.maximumFeePerGas
+    }
 }
 
 struct ExitFee: YieldTransactionFee {
@@ -117,6 +131,10 @@ struct ExitFee: YieldTransactionFee {
     var totalFeeAmount: Amount {
         fee.amount
     }
+
+    var maxFeePerGas: BigUInt? {
+        (fee.parameters as? EthereumFeeParameters)?.maximumFeePerGas
+    }
 }
 
 struct ApproveFee: YieldTransactionFee {
@@ -132,5 +150,9 @@ struct ApproveFee: YieldTransactionFee {
 
     var totalFeeAmount: Amount {
         fee.amount
+    }
+
+    var maxFeePerGas: BigUInt? {
+        (fee.parameters as? EthereumFeeParameters)?.maximumFeePerGas
     }
 }
