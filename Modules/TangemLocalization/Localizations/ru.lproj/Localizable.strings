@@ -1441,7 +1441,6 @@
 "transaction_history_transaction_validator" = "валидатор: %@";
 "transaction_notifications_warning_description" = "Уведомления включены, но не будут работать, пока вы не разрешите их в настройках устройства.";
 "transaction_notifications_warning_title" = "Уведомления о транзакциях";
-"transaction_send" = "Send";
 "transfer_min_amount_error" = "Минимум %@";
 "transfer_notification_invalid_minimum_transaction_amount_text" = "Минимальная сумма транзакции равна %1$@.";
 "tron_will_be_send_token_fee_description" = "Комиссии сети Tron для популярных токенов могут быть выше. Стейкинг TRX может помочь снизить расходы на транзакции.";
