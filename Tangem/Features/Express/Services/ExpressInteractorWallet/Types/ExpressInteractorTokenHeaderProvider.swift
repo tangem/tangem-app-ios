@@ -32,7 +32,7 @@ struct ExpressInteractorTokenHeaderProvider {
         let hasMultipleAccounts = cryptoAccountsGlobalStateProvider.globalCryptoAccountsState() == .multiple
 
         if hasMultipleAccounts, let account {
-            let icon = AccountIconViewBuilder.makeAccountIconViewData(accountModel: account)
+            let icon = AccountModelUtils.UI.iconViewData(accountModel: account)
             return .account(name: account.name, icon: icon)
         }
 
