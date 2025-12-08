@@ -88,38 +88,30 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
         closeAction: @escaping (AccountOperationResult) -> Void
     ) {
         let accountName: String
-        let selectedColor: GridItemColor<AccountModel.Icon.Color>
-        let selectedIcon: GridItemImage<AccountModel.Icon.Name>
+        let iconColor: AccountModel.Icon.Color
+        let iconName: AccountModel.Icon.Name
 
         switch flowType {
         case .edit(let account):
+            iconColor = account.icon.color
+            iconName = account.icon.name
             accountName = account.name
-            let accountColor = account.icon.color
-            selectedColor = GridItemColor(
-                id: accountColor,
-                color: AccountModelUtils.UI.iconColor(from: accountColor)
-            )
-
-            let gridItemImageKind: GridItemImageKind = switch account.icon.name {
-            case .letter:
-                .letter(visualImageRepresentation: Assets.Accounts.letter)
-
-            default:
-                .image(AccountModelUtils.UI.iconAsset(from: account.icon.name))
-            }
-
-            selectedIcon = GridItemImage(id: account.icon.name, kind: gridItemImageKind)
-
         case .create:
-            let randomAccountColor = AccountModelUtils.UI.getRandomIconColor()
-            let color = AccountModelUtils.UI.iconColor(from: randomAccountColor)
-            selectedColor = GridItemColor(id: randomAccountColor, color: color)
-            selectedIcon = GridItemImage(
-                id: .letter,
-                kind: .letter(visualImageRepresentation: Assets.Accounts.letter)
-            )
+            let newAccountIcon = AccountModelUtils.UI.newAccountIcon()
+            iconColor = newAccountIcon.color
+            iconName = newAccountIcon.name
             accountName = ""
         }
+
+        let selectedColor = GridItemColor(
+            id: iconColor,
+            color: AccountModelUtils.UI.iconColor(from: iconColor)
+        )
+
+        let selectedIcon = GridItemImage(
+            id: iconName,
+            kind: Self.gridItemImageKind(from: iconName)
+        )
 
         self.accountName = accountName
         self.selectedColor = selectedColor
@@ -140,8 +132,8 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
     // MARK: - ViewData
 
     var iconViewData: AccountIconView.ViewData {
-        // Can't use `AccountModelUtils.UI.iconColor` here because of slightly different logic of `nameMode` creation
-        // see nameMode
+        // Can't use `AccountModelUtils.UI.iconViewData(icon:accountName:)` here because of
+        // slightly different logic of `nameMode` creation, see `nameMode` property implementation
         AccountIconView.ViewData(
             backgroundColor: AccountModelUtils.UI.iconColor(from: selectedColor.id),
             nameMode: nameMode
@@ -305,6 +297,15 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
                 .receiveOnMain()
                 .assign(to: \.description, on: self, ownership: .weak)
                 .store(in: &bag)
+        }
+    }
+
+    private static func gridItemImageKind(from accountIconName: AccountModel.Icon.Name) -> GridItemImageKind {
+        switch accountIconName {
+        case .letter:
+            return .letter(visualImageRepresentation: Assets.Accounts.letter)
+        default:
+            return .image(AccountModelUtils.UI.iconAsset(from: accountIconName))
         }
     }
 
