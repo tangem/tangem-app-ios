@@ -16,6 +16,7 @@ class TangemPayMainCoordinator: CoordinatorObject {
 
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
     @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
+    @Injected(\.safariManager) private var safariManager: SafariManager
 
     // MARK: - Root view model
 
@@ -30,6 +31,7 @@ class TangemPayMainCoordinator: CoordinatorObject {
     @Published var addToApplePayGuideViewModel: TangemPayAddToAppPayGuideViewModel?
     @Published var tangemPayPinViewModel: TangemPayPinViewModel?
     @Published var termsAndLimitsViewModel: WebViewContainerViewModel?
+    @Published var pendingExpressTxStatusBottomSheet: PendingExpressTxStatusBottomSheetViewModel?
 
     required init(
         dismissAction: @escaping Action<DismissOptions?>,
@@ -143,6 +145,21 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
         }
     }
 
+    func openPendingExpressTransactionDetails(
+        pendingTransaction: PendingTransaction,
+        userWalletInfo: UserWalletInfo,
+        tokenItem: TokenItem,
+        pendingTransactionsManager: any PendingExpressTransactionsManager
+    ) {
+        pendingExpressTxStatusBottomSheet = PendingExpressTxStatusBottomSheetViewModel(
+            pendingTransaction: pendingTransaction,
+            currentTokenItem: tokenItem,
+            userWalletInfo: userWalletInfo,
+            pendingTransactionsManager: pendingTransactionsManager,
+            router: self
+        )
+    }
+
     func openTermsAndLimits() {
         termsAndLimitsViewModel = .init(
             url: AppConstants.tangemPayTermsAndLimitsURL,
@@ -247,5 +264,22 @@ extension TangemPayMainCoordinator: TangemPayTransactionDetailsRoutable {
             floatingSheetPresenter.removeActiveSheet()
             mailPresenter.present(viewModel: mailViewModel)
         }
+    }
+}
+
+// MARK: - PendingExpressTxStatusRoutable
+
+extension TangemPayMainCoordinator: PendingExpressTxStatusRoutable {
+    func openURL(_ url: URL) {
+        safariManager.openURL(url)
+    }
+
+    func openRefundCurrency(walletModel: any WalletModel, userWalletModel: any UserWalletModel) {
+        pendingExpressTxStatusBottomSheet = nil
+        dismiss(with: .init(userWalletId: walletModel.userWalletId, tokenItem: walletModel.tokenItem))
+    }
+
+    func dismissPendingTxSheet() {
+        pendingExpressTxStatusBottomSheet = nil
     }
 }
