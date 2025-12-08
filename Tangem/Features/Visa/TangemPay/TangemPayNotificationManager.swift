@@ -14,18 +14,23 @@ final class TangemPayNotificationManager {
 
     private var cancellable: Cancellable?
 
-    init(tangemPayAccountStatePublisher: AnyPublisher<TangemPayAuthorizer.State, Never>) {
-        cancellable = tangemPayAccountStatePublisher
-            .map(\.notificationEvent)
-            .withWeakCaptureOf(self)
-            .map { manager, event in
-                if let event {
-                    [manager.makeNotificationViewInput(event: event)]
-                } else {
-                    []
-                }
+    init(
+        tangemPayAuthorizerStatePublisher: AnyPublisher<TangemPayAuthorizer.State, Never>,
+        tangemPayAccountStatusPublisher: AnyPublisher<TangemPayStatus, Never>
+    ) {
+        cancellable = Publishers.Merge(
+            tangemPayAuthorizerStatePublisher.map(\.notificationEvent),
+            tangemPayAccountStatusPublisher.map(\.notificationEvent)
+        )
+        .withWeakCaptureOf(self)
+        .map { manager, event in
+            if let event {
+                [manager.makeNotificationViewInput(event: event)]
+            } else {
+                []
             }
-            .sink(receiveValue: notificationInputsSubject.send)
+        }
+        .sink(receiveValue: notificationInputsSubject.send)
     }
 
     private func makeNotificationViewInput(event: TangemPayNotificationEvent) -> NotificationViewInput {
@@ -74,6 +79,20 @@ private extension TangemPayAuthorizer.State {
 
         case .unavailable:
             .unavailable
+        }
+    }
+}
+
+// MARK: - TangemPayStatus+notificationEvent
+
+private extension TangemPayStatus {
+    var notificationEvent: TangemPayNotificationEvent? {
+        switch self {
+        case .unavailable:
+            .unavailable
+
+        default:
+            nil
         }
     }
 }
