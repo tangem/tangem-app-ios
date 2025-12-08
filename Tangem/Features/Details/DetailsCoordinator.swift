@@ -149,7 +149,7 @@ extension DetailsCoordinator: DetailsRoutable {
     }
 
     func openShop() {
-        safariManager.openURL(AppConstants.getWebShopUrl(isExistingUser: true))
+        safariManager.openURL(TangemShopUrlBuilder().url(utmCampaign: .users))
     }
 
     func openSocialNetwork(url: URL) {

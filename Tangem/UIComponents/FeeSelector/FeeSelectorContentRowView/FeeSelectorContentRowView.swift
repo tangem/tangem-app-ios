@@ -29,7 +29,6 @@ struct FeeSelectorContentRowView: SelectableSectionRow {
 
             customFeeFields
         }
-        .accessibilityIdentifier(viewModel.feeOption.accessibilityIdentifier)
     }
 
     private var mainContent: some View {
@@ -44,6 +43,7 @@ struct FeeSelectorContentRowView: SelectableSectionRow {
             .padding(.vertical, 16)
             .padding(.horizontal, 14)
         }
+        .accessibilityIdentifier(viewModel.feeOption.accessibilityIdentifier)
     }
 
     private var icon: some View {
