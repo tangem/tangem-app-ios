@@ -22,8 +22,7 @@ struct DetentBottomSheetContainer<ContentView: View>: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            GrabberViewFactory()
-                .makeSwiftUIView()
+            GrabberView()
 
             content()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
