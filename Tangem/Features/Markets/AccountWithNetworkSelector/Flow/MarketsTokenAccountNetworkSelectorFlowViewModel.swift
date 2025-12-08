@@ -501,7 +501,7 @@ private struct AccountSelectorDataProvider: MarketsAddTokenAccountWalletSelector
         case .account(let accountItem):
             account = accountItem.domainModel
             trailingContent = .account(
-                AccountIconViewBuilder.makeAccountIconViewData(accountModel: account),
+                AccountModelUtils.UI.iconViewData(accountModel: account),
                 name: account.name
             )
 
