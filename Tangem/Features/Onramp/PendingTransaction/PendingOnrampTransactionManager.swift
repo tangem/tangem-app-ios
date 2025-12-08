@@ -16,7 +16,7 @@ class CommonPendingOnrampTransactionsManager {
     @Injected(\.pendingExpressTransactionAnalayticsTracker) private var pendingExpressTransactionAnalyticsTracker: PendingExpressTransactionAnalyticsTracker
 
     private let userWalletId: String
-    private let walletModel: any WalletModel
+    private let tokenItem: TokenItem
     private let expressAPIProvider: ExpressAPIProvider
 
     private let pendingOnrampTransactionFactory = PendingOnrampTransactionFactory()
@@ -35,15 +35,13 @@ class CommonPendingOnrampTransactionsManager {
     private var pollingInitiatingTask: Task<Void, Never>?
     private var pollingResultTask: Task<Void, Never>?
 
-    private var tokenItem: TokenItem { walletModel.tokenItem }
-
     init(
         userWalletId: String,
-        walletModel: any WalletModel,
+        tokenItem: TokenItem,
         expressAPIProvider: ExpressAPIProvider
     ) {
         self.userWalletId = userWalletId
-        self.walletModel = walletModel
+        self.tokenItem = tokenItem
         self.expressAPIProvider = expressAPIProvider
 
         bind()
