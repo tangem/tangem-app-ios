@@ -18,4 +18,11 @@ public enum FeeAccessibilityIdentifiers {
 
     /// Fee selector actions
     public static let feeSelectorDoneButton = "feeSelectorDoneButton"
+
+    /// Custom fee fields
+    public static let customFeeMaxFeeField = "customFeeMaxFeeField"
+    public static let customFeeMaxFeeFiatValue = "customFeeMaxFeeFiatValue"
+    public static let customFeeSatoshiPerByteField = "customFeeSatoshiPerByteField"
+    public static let customFeeNonceField = "customFeeNonceField"
+    public static let customFeeTotalAmountField = "customFeeTotalAmountField"
 }
