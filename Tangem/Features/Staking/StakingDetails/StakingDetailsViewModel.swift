@@ -522,6 +522,15 @@ extension StakingDetailsViewModel {
     enum ActionButtonState: Hashable {
         case enabled
         case disabled(reason: DisableReason)
+
+        var allowTapHandling: Bool {
+            switch self {
+            case .enabled, .disabled(.cantStakeMore):
+                true
+            case .disabled(.insufficientFunds):
+                false
+            }
+        }
     }
 }
 

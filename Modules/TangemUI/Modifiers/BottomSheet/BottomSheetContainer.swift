@@ -105,8 +105,7 @@ public struct BottomSheetContainer<ContentView: View>: View {
 
     private var indicator: some View {
         ZStack {
-            GrabberViewFactory()
-                .makeSwiftUIView()
+            GrabberView()
         }
         .frame(maxWidth: .infinity)
         .background(settings.backgroundColor)
