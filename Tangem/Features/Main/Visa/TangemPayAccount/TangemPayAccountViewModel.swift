@@ -113,6 +113,15 @@ private extension TangemPayAccountViewModel {
         card: VisaCustomerInfoResponse.Card?,
         balanceType: FormattedTokenBalanceType
     ) -> ViewState {
+        switch state {
+        case .syncNeeded:
+            return .syncNeeded
+        case .unavailable:
+            return .unavailable
+        case .authorized:
+            break
+        }
+
         switch status {
         case .kycRequired:
             return .kycInProgress
@@ -120,17 +129,10 @@ private extension TangemPayAccountViewModel {
             return .issuingYourCard
         case .failedToIssue:
             return .failedToIssueCard
-        case .active, .blocked:
-            break
-        }
-
-        switch state {
-        case .authorized:
-            break
-        case .syncNeeded:
-            return .syncNeeded
         case .unavailable:
             return .unavailable
+        case .active, .blocked:
+            break
         }
 
         switch card {
