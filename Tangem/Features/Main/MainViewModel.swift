@@ -117,6 +117,9 @@ final class MainViewModel: ObservableObject {
                 analyticsParameters[.walletType] = walletType
             }
 
+            let hasMobileWallet = userWalletRepository.models.contains { $0.config.productType == .mobileWallet }
+            analyticsParameters[.mobileWallet] = .affirmativeOrNegative(for: hasMobileWallet)
+
             Analytics.log(.mainScreenOpened, params: analyticsParameters)
         }
 
@@ -279,9 +282,18 @@ final class MainViewModel: ObservableObject {
         // In this case we need to recreate this pages after API list loaded and WalletModelsManager publishes list of models
         let indexesToRecreate: [Int] = pages.indexed().compactMap { $1.missingBodyModel ? $0 : nil }
         if indexesToRecreate.isNotEmpty {
-            // accounts_fixes_needed_main
-            let walletModelPublishers = indexesToRecreate.map { userWalletRepository.models[$0].walletModelsManager.walletModelsPublisher }
-            walletModelPublishers.combineLatest()
+            let userWalletsWithMissingBodyModel = indexesToRecreate.map { userWalletRepository.models[$0] }
+
+            let walletModelsPublishers = userWalletsWithMissingBodyModel
+                .map(AccountsFeatureAwareWalletModelsResolver.walletModelsPublisher(for:))
+                .combineLatest()
+
+            let cryptoAccountModelsPublisher = userWalletsWithMissingBodyModel
+                .map(\.accountModelsManager.cryptoAccountModelsPublisher)
+                .combineLatest()
+
+            cryptoAccountModelsPublisher
+                .combineLatest(walletModelsPublishers)
                 .combineLatest(apiListProvider.apiListPublisher)
                 .receive(on: DispatchQueue.main)
                 .withWeakCaptureOf(self)
