@@ -29,7 +29,7 @@ class AddWalletSelectorCoordinator: CoordinatorObject {
     }
 
     func start(with options: InputOptions) {
-        rootViewModel = AddWalletSelectorViewModel(coordinator: self)
+        rootViewModel = AddWalletSelectorViewModel(source: options.source, coordinator: self)
     }
 }
 
@@ -49,7 +49,7 @@ extension AddWalletSelectorCoordinator: AddWalletSelectorRoutable {
         hardwareCreateWalletCoordinator = coordinator
     }
 
-    func openAddMobileWallet() {
+    func openAddMobileWallet(source: MobileCreateWalletSource) {
         let dismissAction: Action<MobileCreateWalletCoordinator.OutputOptions> = { [weak self] options in
             switch options {
             case .main(let userWalletModel):
@@ -60,7 +60,7 @@ extension AddWalletSelectorCoordinator: AddWalletSelectorRoutable {
         }
 
         let coordinator = MobileCreateWalletCoordinator(dismissAction: dismissAction)
-        coordinator.start(with: MobileCreateWalletCoordinator.InputOptions())
+        coordinator.start(with: MobileCreateWalletCoordinator.InputOptions(source: source))
         mobileCreateWalletCoordinator = coordinator
     }
 }
@@ -76,7 +76,9 @@ private extension AddWalletSelectorCoordinator {
 // MARK: - Options
 
 extension AddWalletSelectorCoordinator {
-    struct InputOptions {}
+    struct InputOptions {
+        let source: AddWalletSelectorSource
+    }
 
     enum OutputOptions {
         case main(userWalletModel: UserWalletModel)
