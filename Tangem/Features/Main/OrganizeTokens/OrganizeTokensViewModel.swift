@@ -37,6 +37,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
     )
 
     @Published private(set) var __sections: [_OrganizeTokensListSection] = []
+    @available(*, deprecated, message: "Delete")
     @Published private(set) var sections: [OrganizeTokensListSection] = []
 
     let id = UUID()
@@ -143,86 +144,88 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
             }
             .assign(to: &$__sections)
 
-//        let sourcePublisherFactory = TokenSectionsSourcePublisherFactory()
-//        // [REDACTED_TODO_COMMENT]
-//        let tokenSectionsSourcePublisher = sourcePublisherFactory.makeSourcePublisher(for: userWalletModel)
-//
-//        let organizedTokensSectionsPublisher = tokenSectionsAdapter
-//            .organizedSections(from: tokenSectionsSourcePublisher, on: mappingQueue)
-//            .share(replay: 1)
-//
-//        let cache = dragAndDropActionsCache
-//
-//        // Resetting drag-and-drop actions cache for grouped sections
-//        // when the structure of the underlying model has changed
-//        organizedTokensSectionsPublisher
-//            .withLatestFrom(optionsProviding.groupingOption) { ($0, $1) }
-//            .filter { $0.1.isGrouped }
-//            .map(\.0)
-//            .pairwise()
-//            .sink { cache.resetIfNeeded(sectionsChange: $0, isGroupingEnabled: true) }
-//            .store(in: &bag)
-//
-//        // Resetting drag-and-drop actions cache for plain (non-grouped) sections
-//        // when the structure of the underlying model has changed
-//        organizedTokensSectionsPublisher
-//            .withLatestFrom(optionsProviding.groupingOption) { ($0, $1) }
-//            .filter { !$0.1.isGrouped }
-//            .map(\.0)
-//            .pairwise()
-//            .sink { cache.resetIfNeeded(sectionsChange: $0, isGroupingEnabled: false) }
-//            .store(in: &bag)
-//
-//        // Resetting drag-and-drop actions cache unconditionally when sort option is changed
-//        optionsProviding
-//            .sortingOption
-//            .removeDuplicates()
-//            .sink { _ in cache.reset() }
-//            .store(in: &bag)
-//
-//        organizedTokensSectionsPublisher
-//            .withLatestFrom(
-//                optionsProviding.sortingOption,
-//                optionsProviding.groupingOption
-//            ) { ($0, $1.0, $1.1, cache) }
-//            .map(Self.map)
-//            .receive(on: DispatchQueue.main)
-//            .assign(to: \.sections, on: self, ownership: .weak)
-//            .store(in: &bag)
-//
-//        let onSavePublisher = onSave
-//            .throttle(for: 1.0, scheduler: DispatchQueue.main, latest: false)
-//            .share(replay: 1)
-//
-//        onSavePublisher
-//            .receive(on: mappingQueue)
-//            .withWeakCaptureOf(self)
-//            .flatMapLatest { viewModel, _ in
-//                let walletModelIds = viewModel
-//                    .sections
-//                    .flatMap(\.items)
-//                    .map(\.id.walletModelId)
-//
-//                return viewModel.optionsEditing.save(reorderedWalletModelIds: walletModelIds, source: .organizeTokens)
-//            }
-//            .withWeakCaptureOf(self)
-//            .receive(on: DispatchQueue.main)
-//            .sink { viewModel, _ in
-//                viewModel.coordinator?.didTapSaveButton()
-//            }
-//            .store(in: &bag)
-//
-//        onSavePublisher
-//            .withLatestFrom(
-//                optionsProviding.sortingOption,
-//                optionsProviding.groupingOption
-//            )
-//            .withWeakCaptureOf(self)
-//            .sink { input in
-//                let (viewModel, (sortingOption, groupingOption)) = input
-//                viewModel.reportOnSaveButtonTap(sortingOption: sortingOption, groupingOption: groupingOption)
-//            }
-//            .store(in: &bag)
+        /*
+         let sourcePublisherFactory = TokenSectionsSourcePublisherFactory()
+         // [REDACTED_TODO_COMMENT]
+         let tokenSectionsSourcePublisher = sourcePublisherFactory.makeSourcePublisher(for: userWalletModel)
+
+         let organizedTokensSectionsPublisher = tokenSectionsAdapter
+         .organizedSections(from: tokenSectionsSourcePublisher, on: mappingQueue)
+         .share(replay: 1)
+
+         let cache = dragAndDropActionsCache
+
+         // Resetting drag-and-drop actions cache for grouped sections
+         // when the structure of the underlying model has changed
+         organizedTokensSectionsPublisher
+         .withLatestFrom(optionsProviding.groupingOption) { ($0, $1) }
+         .filter { $0.1.isGrouped }
+         .map(\.0)
+         .pairwise()
+         .sink { cache.resetIfNeeded(sectionsChange: $0, isGroupingEnabled: true) }
+         .store(in: &bag)
+
+         // Resetting drag-and-drop actions cache for plain (non-grouped) sections
+         // when the structure of the underlying model has changed
+         organizedTokensSectionsPublisher
+         .withLatestFrom(optionsProviding.groupingOption) { ($0, $1) }
+         .filter { !$0.1.isGrouped }
+         .map(\.0)
+         .pairwise()
+         .sink { cache.resetIfNeeded(sectionsChange: $0, isGroupingEnabled: false) }
+         .store(in: &bag)
+
+         // Resetting drag-and-drop actions cache unconditionally when sort option is changed
+         optionsProviding
+         .sortingOption
+         .removeDuplicates()
+         .sink { _ in cache.reset() }
+         .store(in: &bag)
+
+         organizedTokensSectionsPublisher
+         .withLatestFrom(
+         optionsProviding.sortingOption,
+         optionsProviding.groupingOption
+         ) { ($0, $1.0, $1.1, cache) }
+         .map(Self.map)
+         .receive(on: DispatchQueue.main)
+         .assign(to: \.sections, on: self, ownership: .weak)
+         .store(in: &bag)
+
+         let onSavePublisher = onSave
+         .throttle(for: 1.0, scheduler: DispatchQueue.main, latest: false)
+         .share(replay: 1)
+
+         onSavePublisher
+         .receive(on: mappingQueue)
+         .withWeakCaptureOf(self)
+         .flatMapLatest { viewModel, _ in
+         let walletModelIds = viewModel
+         .sections
+         .flatMap(\.items)
+         .map(\.id.walletModelId)
+
+         return viewModel.optionsEditing.save(reorderedWalletModelIds: walletModelIds, source: .organizeTokens)
+         }
+         .withWeakCaptureOf(self)
+         .receive(on: DispatchQueue.main)
+         .sink { viewModel, _ in
+         viewModel.coordinator?.didTapSaveButton()
+         }
+         .store(in: &bag)
+
+         onSavePublisher
+         .withLatestFrom(
+         optionsProviding.sortingOption,
+         optionsProviding.groupingOption
+         )
+         .withWeakCaptureOf(self)
+         .sink { input in
+         let (viewModel, (sortingOption, groupingOption)) = input
+         viewModel.reportOnSaveButtonTap(sortingOption: sortingOption, groupingOption: groupingOption)
+         }
+         .store(in: &bag)
+         */
 
         didBind = true
     }
@@ -348,57 +351,79 @@ extension OrganizeTokensViewModel {
     }
 
     func itemViewModel(for identifier: AnyHashable) -> OrganizeTokensListItemViewModel? {
-        return sections
+        return __sections
+            .flatMap { $0.items }
             .flatMap { $0.items }
             .first { $0.id.toAnyHashable() == identifier }
     }
 
     func section(for identifier: AnyHashable) -> OrganizeTokensListSection? {
-        return sections
+        return __sections
+            .flatMap { $0.items }
             .first { $0.id == identifier }
     }
 
     func move(from sourceIndexPath: _IndexPath, to destinationIndexPath: _IndexPath) {
+        guard sourceIndexPath.outerSection == destinationIndexPath.outerSection else {
+            assertionFailure("Can't perform move operation between different outer sections")
+            return
+        }
+
+        let outerSectionIndex = sourceIndexPath.outerSection // Same value for both source and destination
         let isGroupingEnabled = headerViewModel.isGroupingEnabled
 
-        if sourceIndexPath.item == sectionHeaderItemIndex {
-            guard sourceIndexPath.item == destinationIndexPath.item else {
+        if sourceIndexPath._item == sectionHeaderItemIndex {
+            // Moving of inner sections
+            guard sourceIndexPath._item == destinationIndexPath._item else {
                 assertionFailure("Can't perform move operation between section and item or vice versa")
                 return
             }
 
-            let diff = sourceIndexPath.section > destinationIndexPath.section ? 0 : 1
-            sections.move(
-                fromOffsets: IndexSet(integer: sourceIndexPath.section),
-                toOffset: destinationIndexPath.section + diff
+            let offsetDiff = sourceIndexPath.innerSection > destinationIndexPath.innerSection ? 0 : 1
+            __sections[outerSectionIndex].items.move(
+                fromOffsets: IndexSet(integer: sourceIndexPath.innerSection),
+                toOffset: destinationIndexPath.innerSection + offsetDiff
             )
 
             dragAndDropActionsCache.addDragAndDropAction(isGroupingEnabled: isGroupingEnabled) { sectionsToMutate in
-                try sectionsToMutate.tryMove(
-                    fromOffsets: IndexSet(integer: sourceIndexPath.section),
-                    toOffset: destinationIndexPath.section + diff
+                try sectionsToMutate[outerSectionIndex].items.tryMove(
+                    fromOffsets: IndexSet(integer: sourceIndexPath.innerSection),
+                    toOffset: destinationIndexPath.innerSection + offsetDiff
                 )
             }
         } else {
-            guard sourceIndexPath.section == destinationIndexPath.section else {
+            // Moving of items
+            guard sourceIndexPath.innerSection == destinationIndexPath.innerSection else {
                 assertionFailure("Can't perform move operation between section and item or vice versa")
                 return
             }
 
-            let diff = sourceIndexPath.item > destinationIndexPath.item ? 0 : 1
-            sections[sourceIndexPath.section].items.move(
-                fromOffsets: IndexSet(integer: sourceIndexPath.item),
-                toOffset: destinationIndexPath.item + diff
+            let offsetDiff = sourceIndexPath._item > destinationIndexPath._item ? 0 : 1
+            __sections[outerSectionIndex].items[sourceIndexPath.innerSection].items.move(
+                fromOffsets: IndexSet(integer: sourceIndexPath._item),
+                toOffset: destinationIndexPath._item + offsetDiff
             )
 
             dragAndDropActionsCache.addDragAndDropAction(isGroupingEnabled: isGroupingEnabled) { sectionsToMutate in
-                guard sectionsToMutate.indices.contains(sourceIndexPath.section) else {
-                    throw Error.sectionOffsetOutOfBound(offset: sourceIndexPath.section, count: sectionsToMutate.count)
+                guard sectionsToMutate.indices.contains(outerSectionIndex) else {
+                    throw Error.sectionOffsetOutOfBound(
+                        offset: outerSectionIndex,
+                        count: sectionsToMutate.count,
+                        isOuter: true
+                    )
                 }
 
-                try sectionsToMutate[sourceIndexPath.section].items.tryMove(
-                    fromOffsets: IndexSet(integer: sourceIndexPath.item),
-                    toOffset: destinationIndexPath.item + diff
+                guard sectionsToMutate[outerSectionIndex].items.indices.contains(sourceIndexPath.innerSection) else {
+                    throw Error.sectionOffsetOutOfBound(
+                        offset: sourceIndexPath.innerSection,
+                        count: sectionsToMutate[outerSectionIndex].items.count,
+                        isOuter: false
+                    )
+                }
+
+                try sectionsToMutate[outerSectionIndex].items[sourceIndexPath.innerSection].items.tryMove(
+                    fromOffsets: IndexSet(integer: sourceIndexPath._item),
+                    toOffset: destinationIndexPath._item + offsetDiff
                 )
             }
         }
@@ -409,14 +434,16 @@ extension OrganizeTokensViewModel {
         optionsEditing.sort(by: .dragAndDrop)
 
         // Process further only if a section is currently being dragged
-        guard indexPath.item == sectionHeaderItemIndex else { return }
+        guard indexPath._item == sectionHeaderItemIndex else {
+            return
+        }
 
         // Setting the sort option to `dragAndDrop` will cause an update of SwiftUI view identifiers for all
         // cells and sections in `OrganizeTokensView`. This update may take a couple render passes, therefore
         // we must wait for this update to finish before collapsing the dragged section
         // (by calling `beginDragAndDropSession(forSectionWithIdentifier:)`), otherwise UI glitches may appear
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-            self.beginDragAndDropSession(forSectionAtIndex: indexPath.section)
+            self.beginDragAndDropSession(forSectionAtIndexPath: indexPath)
         }
     }
 
@@ -424,21 +451,23 @@ extension OrganizeTokensViewModel {
         endDragAndDropSessionForCurrentlyDraggedSectionIfNeeded()
     }
 
-    private func beginDragAndDropSession(forSectionAtIndex sectionIndex: Int) {
+    private func beginDragAndDropSession(forSectionAtIndexPath indexPath: _IndexPath) {
         assert(
             currentlyDraggedSectionIdentifier == nil,
             "Attempting to start a new drag and drop session without finishing the previous one"
         )
 
-        currentlyDraggedSectionIdentifier = sections[sectionIndex].id
-        currentlyDraggedSectionItems = sections[sectionIndex].items
-        sections[sectionIndex].items.removeAll()
+        currentlyDraggedSectionIdentifier = __sections[indexPath.outerSection].items[indexPath.innerSection].id
+        currentlyDraggedSectionItems = __sections[indexPath.outerSection].items[indexPath.innerSection].items
+        __sections[indexPath.outerSection].items[indexPath.innerSection].items.removeAll()
     }
 
     private func endDragAndDropSession(forSectionWithIdentifier identifier: AnyHashable) {
-        guard let index = indexPath(for: identifier)?.section else { return }
+        guard let indexPath = indexPath(for: identifier) else {
+            return
+        }
 
-        sections[index].items = currentlyDraggedSectionItems
+        __sections[indexPath.outerSection].items[indexPath.innerSection].items = currentlyDraggedSectionItems
         currentlyDraggedSectionItems.removeAll()
     }
 
@@ -447,43 +476,50 @@ extension OrganizeTokensViewModel {
         currentlyDraggedSectionIdentifier = nil
     }
 
-    private func itemViewModel(at indexPath: IndexPath) -> OrganizeTokensListItemViewModel {
-        return sections[indexPath.section].items[indexPath.item]
+    private func itemViewModel(at indexPath: _IndexPath) -> OrganizeTokensListItemViewModel {
+        return __sections[indexPath.outerSection]
+            .items[indexPath.innerSection]
+            .items[indexPath._item]
     }
 
-    private func section(at indexPath: IndexPath) -> OrganizeTokensListSection? {
-        guard indexPath.item == sectionHeaderItemIndex else { return nil }
+    private func section(at indexPath: _IndexPath) -> OrganizeTokensListSection? {
+        guard indexPath._item == sectionHeaderItemIndex else {
+            return nil
+        }
 
-        return sections[indexPath.section]
+        return __sections[indexPath.outerSection]
+            .items[indexPath.innerSection]
     }
 }
 
 // MARK: - OrganizeTokensDragAndDropControllerDataSource protocol conformance
 
 extension OrganizeTokensViewModel: OrganizeTokensDragAndDropControllerDataSource {
-    func numberOfSections(
-        for controller: OrganizeTokensDragAndDropController
+    func controller(
+        _ controller: OrganizeTokensDragAndDropController,
+        numberOfInnerSectionsInOuterSection outerSection: Int
     ) -> Int {
-        return sections.count
+        return __sections[outerSection].items.count
     }
 
     func controller(
         _ controller: OrganizeTokensDragAndDropController,
-        numberOfRowsInSection section: Int
+        numberOfRowsInInnerSection innerSection: Int,
+        outerSection: Int
     ) -> Int {
-        return sections[section].items.count
+        return __sections[outerSection].items[innerSection].items.count
     }
 
     func controller(
         _ controller: OrganizeTokensDragAndDropController,
-        listViewKindForItemAt indexPath: IndexPath
+        listViewKindForItemAt indexPath: _IndexPath
     ) -> OrganizeTokensDragAndDropControllerListViewKind {
-        return indexPath.item == sectionHeaderItemIndex ? .sectionHeader : .cell
+        return indexPath._item == sectionHeaderItemIndex ? .sectionHeader : .cell
     }
 
     func controller(
         _ controller: OrganizeTokensDragAndDropController,
-        listViewIdentifierForItemAt indexPath: IndexPath
+        listViewIdentifierForItemAt indexPath: _IndexPath
     ) -> AnyHashable {
         return section(at: indexPath)?.id ?? itemViewModel(at: indexPath).id.toAnyHashable()
     }
@@ -493,6 +529,6 @@ extension OrganizeTokensViewModel: OrganizeTokensDragAndDropControllerDataSource
 
 extension OrganizeTokensViewModel {
     enum Error: Swift.Error {
-        case sectionOffsetOutOfBound(offset: Int, count: Int)
+        case sectionOffsetOutOfBound(offset: Int, count: Int, isOuter: Bool)
     }
 }
