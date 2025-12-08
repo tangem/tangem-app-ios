@@ -8,7 +8,9 @@
 
 import TangemAssets
 import Foundation
+import TangemMacro
 
+@CaseFlagable
 enum YieldModuleNotificationBannerParams: Identifiable {
     enum Position {
         case `default`
@@ -19,6 +21,7 @@ enum YieldModuleNotificationBannerParams: Identifiable {
     case approveNeeded(buttonAction: @MainActor @Sendable () -> Void)
     case feeUnreachable(buttonAction: @MainActor @Sendable () -> Void)
     case hasUndepositedAmounts(amount: String, currencySymbol: String)
+    case highFees
 
     var id: String {
         switch self {
@@ -30,33 +33,8 @@ enum YieldModuleNotificationBannerParams: Identifiable {
             "feeUnreachable"
         case .hasUndepositedAmounts:
             "hasUndepositedAmounts"
-        }
-    }
-
-    var isApproveNeeded: Bool {
-        switch self {
-        case .approveNeeded:
-            return true
-        default:
-            return false
-        }
-    }
-
-    var isFeeUnreachable: Bool {
-        switch self {
-        case .feeUnreachable:
-            return true
-        default:
-            return false
-        }
-    }
-
-    var isNotEnoughCurrency: Bool {
-        switch self {
-        case .notEnoughFeeCurrency:
-            return true
-        default:
-            return false
+        case .highFees:
+            "highFees"
         }
     }
 
