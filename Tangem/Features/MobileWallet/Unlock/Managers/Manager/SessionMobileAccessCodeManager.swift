@@ -17,6 +17,7 @@ final class SessionMobileAccessCodeManager {
 
     private var attemptsToLockLimit: Int { configuration.attemptsToLockLimit }
     private var lockedTimeout: TimeInterval { configuration.lockedTimeout }
+    private var currentLockInterval: TimeInterval { currentUptime + lockedTimeout }
 
     private var currentUptime: TimeInterval {
         ProcessInfo.processInfo.systemUptime
@@ -260,14 +261,20 @@ private extension SessionMobileAccessCodeManager {
 
 extension SessionMobileAccessCodeManager {
     func getWrongAccessCodeStore() -> MobileWrongAccessCodeStore {
-        storageManager.getWrongAccessCodeStore(userWalletId: userWalletId)
+        do {
+            let store = try storageManager.getWrongAccessCodeStore(userWalletId: userWalletId)
+            return store
+        } catch {
+            AppLogger.error("Failed to get wrong access code storage", error: error)
+            let lockIntervals: [TimeInterval] = .init(repeating: currentLockInterval, count: attemptsToLockLimit)
+            return MobileWrongAccessCodeStore(lockIntervals: lockIntervals)
+        }
     }
 
     func storeWrongAccessCode(replaceLast: Bool) {
-        let lockInterval = currentUptime + lockedTimeout
         storageManager.storeWrongAccessCode(
             userWalletId: userWalletId,
-            lockInterval: lockInterval,
+            lockInterval: currentLockInterval,
             replaceLast: replaceLast
         )
     }
