@@ -18,7 +18,7 @@ struct StoriesBottomButtons: View {
     let scanCard: () -> Void
     let orderCard: () -> Void
 
-    private let isMobileWalletEnabled = MobileWalletFeatureProvider.isAvailable
+    private let isMobileWalletEnabled = FeatureProvider.isAvailable(.mobileWallet)
 
     private var scanColorStyle: MainButton.Style {
         isMobileWalletEnabled ? .secondary : .primary

@@ -52,7 +52,7 @@ final class CommonUserTokenListManager {
         self.hdWalletsSupported = hdWalletsSupported
         self.hasTokenSynchronization = hasTokenSynchronization
         self.defaultBlockchains = defaultBlockchains
-        tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.hexString) // [REDACTED_TODO_COMMENT]
+        tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.hexString)
         initializedSubject = CurrentValueSubject(tokenItemsRepository.containsFile)
         userTokensListSubject = CurrentValueSubject(tokenItemsRepository.getList())
 
@@ -85,7 +85,7 @@ extension CommonUserTokenListManager: UserTokenListManager {
             externalParametersProvider: externalParametersProvider
         )
 
-        updateTokensOnServer(list: converter.convertStoredToRemote(userTokenList))
+        updateTokensOnServer(list: converter.convertStoredToRemote(userTokenList, userWalletId: userWalletId))
     }
 
     func update(_ type: UserTokenListUpdateType, shouldUpload: Bool) {
@@ -216,7 +216,7 @@ private extension CommonUserTokenListManager {
             externalParametersProvider: externalParametersProvider
         )
         let list = tokenItemsRepository.getList()
-        return converter.convertStoredToRemote(list)
+        return converter.convertStoredToRemote(list, userWalletId: userWalletId)
     }
 
     // MARK: - Token upgrading

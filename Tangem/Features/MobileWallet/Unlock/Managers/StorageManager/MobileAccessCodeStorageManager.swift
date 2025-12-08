@@ -11,6 +11,6 @@ import TangemFoundation
 
 protocol MobileAccessCodeStorageManager {
     func getWrongAccessCodeStore(userWalletId: UserWalletId) -> MobileWrongAccessCodeStore
-    func storeWrongAccessCode(userWalletId: UserWalletId, lockInterval: TimeInterval)
+    func storeWrongAccessCode(userWalletId: UserWalletId, lockInterval: TimeInterval, replaceLast: Bool)
     func removeWrongAccessCode(userWalletId: UserWalletId)
 }

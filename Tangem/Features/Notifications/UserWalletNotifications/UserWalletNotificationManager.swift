@@ -213,13 +213,8 @@ final class UserWalletNotificationManager {
         let totalBalances = walletModels.compactMap(\.availableBalanceProvider.balanceType.value)
         let hasPositiveBalance = totalBalances.contains(where: { $0 > 0 })
 
-        Analytics.log(
-            .noticeFinishActivation,
-            params: [.balanceState: hasPositiveBalance ? .full : .empty]
-        )
-
         let input = factory.buildNotificationInput(
-            for: .mobileFinishActivation(needsAttention: hasPositiveBalance, hasBackup: !needBackup),
+            for: .mobileFinishActivation(hasPositiveBalance: hasPositiveBalance, hasBackup: !needBackup),
             action: action,
             buttonAction: buttonAction,
             dismissAction: dismissAction
