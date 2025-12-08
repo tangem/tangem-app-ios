@@ -8,6 +8,22 @@
 
 import Foundation
 
+// [REDACTED_TODO_COMMENT]
+final class OrganizeTokensDragAndDropActionsAggregatedCache {
+    private var innerCaches: [Int: OrganizeTokensDragAndDropActionsCache] = [:]
+
+    // [REDACTED_TODO_COMMENT]
+    func cache(forOuterSectionIndex outerSectionIndex: Int) -> OrganizeTokensDragAndDropActionsCache {
+        if let cache = innerCaches[outerSectionIndex] {
+            return cache
+        }
+
+        let newCache = OrganizeTokensDragAndDropActionsCache()
+        innerCaches[outerSectionIndex] = newCache
+        return newCache
+    }
+}
+
 final class OrganizeTokensDragAndDropActionsCache {
     typealias DragAndDropAction = (_ sectionsToMutate: inout [OrganizeTokensListSection]) throws -> Void
     typealias SectionsChange = (oldValue: [TokenSectionsAdapter.Section], newValue: [TokenSectionsAdapter.Section])
