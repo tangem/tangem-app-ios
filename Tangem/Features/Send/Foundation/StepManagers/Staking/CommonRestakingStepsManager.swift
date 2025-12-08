@@ -88,7 +88,7 @@ extension CommonRestakingStepsManager: SendStepsManager {
         case .validators:
             return .init(title: Localization.stakingValidator, trailingViewType: .closeButton)
         case .summary:
-            return .init(title: summaryTitleProvider.title, subtitle: summaryTitleProvider.subtitle, trailingViewType: .closeButton)
+            return .init(title: summaryTitleProvider.title, trailingViewType: .closeButton)
         case .finish:
             return .init(trailingViewType: .closeButton)
         default:

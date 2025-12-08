@@ -155,7 +155,6 @@ var serviceModules: [PackageDescription.Target] {
                 "crypto/ed25519-donna/README.md",
                 "crypto/nist256p1.table",
                 "crypto/secp256k1.table",
-                "crypto/test.db",
             ],
             sources: ["crypto"],
             publicHeadersPath: "include",
