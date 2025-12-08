@@ -6,14 +6,15 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import TangemAssets
 import Foundation
+import CombineExt
+import Combine
+import TangemAssets
 import TangemLocalization
+import TangemUI
 import TangemUIUtils
 import TangemAccounts
 import TangemFoundation
-import CombineExt
-import Combine
 
 final class AccountFormViewModel: ObservableObject, Identifiable {
     // MARK: - Dynamic State
@@ -47,11 +48,36 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
             return GridItemImage(id: iconName, kind: kind)
         }
 
+    // MARK: - Private
+
+    private var nameMode: AccountIconView.NameMode {
+        switch selectedIcon.kind {
+        case .image(let imageType):
+            return .imageType(imageType)
+
+        case .letter:
+            if let firstLetter = accountName.first {
+                return .letter(String(firstLetter))
+            }
+
+            return .imageType(
+                Assets.tangemIcon,
+                AccountIconView.NameMode.ImageConfig(opacity: 0.4)
+            )
+        }
+    }
+
+    private var accountIcon: AccountModel.Icon {
+        AccountModel.Icon(name: selectedIcon.id, color: selectedColor.id)
+    }
+
+    private var activeTask: AnyCancellable?
+
     // MARK: - Dependencies
 
     private let initialStateSnapshot: StateSnapshot
     private let flowType: FlowType
-    private let closeAction: () -> Void
+    private let closeAction: (AccountOperationResult) -> Void
     private let accountModelsManager: AccountModelsManager
 
     private var bag = Set<AnyCancellable>()
@@ -59,7 +85,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
     init(
         accountModelsManager: AccountModelsManager,
         flowType: FlowType,
-        closeAction: @escaping () -> Void
+        closeAction: @escaping (AccountOperationResult) -> Void
     ) {
         let accountName: String
         let selectedColor: GridItemColor<AccountModel.Icon.Color>
@@ -114,6 +140,10 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
         bind()
     }
 
+    deinit {
+        activeTask?.cancel()
+    }
+
     // MARK: - ViewData
 
     var iconViewData: AccountIconView.ViewData {
@@ -160,31 +190,34 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
 
     @MainActor
     func onMainButtonTap() {
-        Task {
-            isLoading = true
-            defer { isLoading = false }
+        activeTask = runTask(in: self) { viewModel in
+            viewModel.isLoading = true
+            defer { viewModel.isLoading = false }
 
-            let accountIcon = AccountModel.Icon(name: selectedIcon.id, color: selectedColor.id)
+            let result: AccountOperationResult
 
-            switch flowType {
-            case .edit(let account):
-                account.setName(accountName)
-                account.setIcon(accountIcon)
-                close()
-
-            case .create:
-                do {
-                    try await accountModelsManager.addCryptoAccount(name: accountName, icon: accountIcon)
-                    close()
-                } catch {
-                    alert = makeUnableToCreateAccountAlert()
+            do throws(AccountEditError) {
+                switch viewModel.flowType {
+                case .edit(let account):
+                    try await viewModel.editAccount(account: account)
+                    // Tokens redistribution can't be performed when editing an existing account
+                    result = .none
+                case .create:
+                    result = try await viewModel.accountModelsManager.addCryptoAccount(
+                        name: viewModel.accountName,
+                        icon: viewModel.accountIcon
+                    )
                 }
+                viewModel.handleFlowSuccess(result: result)
+            } catch {
+                viewModel.handleFlowFailure(error: error)
             }
-        }
+        }.eraseToAnyCancellable()
     }
 
     func onClose() {
         let currentSnapshot = StateSnapshot(name: accountName, color: selectedColor, image: selectedIcon)
+
         if currentSnapshot != initialStateSnapshot {
             let message = switch flowType {
             case .edit:
@@ -194,16 +227,75 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
             }
 
             alert = makeExitAlert(message: message)
-            return
+        } else {
+            // No changes were made, no tokens redistribution performed
+            close(result: .none)
         }
-
-        close()
     }
 
     // MARK: - Private
 
-    private func close() {
-        closeAction()
+    private func editAccount(account: any BaseAccountModel) async throws(AccountEditError) {
+        let currentSnapshot = StateSnapshot(name: accountName, color: selectedColor, image: selectedIcon)
+
+        try await account.edit { editor in
+            if currentSnapshot.name != initialStateSnapshot.name {
+                editor.setName(accountName)
+            }
+            if currentSnapshot.color != initialStateSnapshot.color || currentSnapshot.image != initialStateSnapshot.image {
+                editor.setIcon(accountIcon)
+            }
+        }
+    }
+
+    private func close(result: AccountOperationResult) {
+        activeTask?.cancel()
+        closeAction(result)
+    }
+
+    @MainActor
+    private func handleFlowSuccess(result: AccountOperationResult) {
+        let toastText: String
+
+        switch flowType {
+        case .edit:
+            toastText = Localization.accountEditSuccessMessage
+        case .create:
+            toastText = Localization.accountCreateSuccessMessage
+        }
+
+        close(result: result)
+
+        Toast(view: SuccessToast(text: toastText))
+            .present(layout: .top(padding: 24), type: .temporary(interval: 4))
+    }
+
+    @MainActor
+    private func handleFlowFailure(error: AccountEditError) {
+        let message: String
+        let buttonText: String
+
+        switch error {
+        case .tooManyAccounts:
+            message = Localization.accountAddLimitDialogDescription(AccountModelUtils.maxNumberOfAccounts)
+            buttonText = Localization.commonGotIt
+        case .duplicateAccountName:
+            message = Localization.accountFormNameAlreadyExistErrorDescription
+            buttonText = Localization.commonGotIt
+        case .accountNameTooLong,
+             .missingAccountName:
+            // These two errors should never be thrown because this VM validates account name before trying to edit/create an account
+            fallthrough
+        case .unknownError:
+            message = Localization.accountGenericErrorDialogMessage
+            buttonText = Localization.commonOk
+        }
+
+        alert = AlertBuilder.makeAlertWithDefaultPrimaryButton(
+            title: Localization.commonSomethingWentWrong,
+            message: message,
+            buttonText: buttonText
+        )
     }
 
     private func bind() {
@@ -220,24 +312,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
             .store(in: &bag)
     }
 
-    private var nameMode: AccountIconView.NameMode {
-        switch selectedIcon.kind {
-        case .image(let imageType):
-            return .imageType(imageType)
-
-        case .letter:
-            if let firstLetter = accountName.first {
-                return .letter(String(firstLetter))
-            }
-
-            return .imageType(
-                Assets.tangemIcon,
-                AccountIconView.NameMode.ImageConfig(opacity: 0.4)
-            )
-        }
-    }
-
-    // MARK: - Alerts
+    // MARK: - Alerts and toasts
 
     private func makeExitAlert(message: String) -> AlertBinder {
         AlertBuilder.makeExitAlert(
@@ -245,15 +320,10 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
             message: message,
             keepEditingButtonText: Localization.accountUnsavedDialogActionFirst,
             discardButtonText: Localization.accountUnsavedDialogActionSecond,
-            discardAction: close
-        )
-    }
-
-    private func makeUnableToCreateAccountAlert() -> AlertBinder {
-        AlertBuilder.makeAlertWithDefaultPrimaryButton(
-            title: Localization.commonSomethingWentWrong,
-            message: Localization.accountCouldNotCreate,
-            buttonText: Localization.commonOk
+            discardAction: { [weak self] in
+                // No changes were made, no tokens redistribution performed
+                self?.close(result: .none)
+            }
         )
     }
 }
