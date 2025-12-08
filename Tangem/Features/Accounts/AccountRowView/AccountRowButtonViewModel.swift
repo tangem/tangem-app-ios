@@ -45,7 +45,7 @@ final class AccountRowButtonViewModel: Identifiable, ObservableObject {
 
         id = accountModel.id.toAnyHashable()
         name = accountModel.name
-        iconData = AccountIconViewBuilder.makeAccountIconViewData(accountModel: accountModel)
+        iconData = AccountModelUtils.UI.iconViewData(accountModel: accountModel)
         isDisabled = availability != .available
 
         bind()
@@ -88,7 +88,7 @@ final class AccountRowButtonViewModel: Identifiable, ObservableObject {
 
     private func onAccountModelDidChange() {
         name = accountModel.name
-        iconData = AccountIconViewBuilder.makeAccountIconViewData(accountModel: accountModel)
+        iconData = AccountModelUtils.UI.iconViewData(accountModel: accountModel)
     }
 
     private func updateSubtitleState(description: String, balanceState: LoadableTokenBalanceView.State) {
