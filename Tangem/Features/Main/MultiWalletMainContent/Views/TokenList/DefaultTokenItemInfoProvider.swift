@@ -155,10 +155,6 @@ private enum LeadingBadgeMapper {
     }
 
     static func mapRewards(marketInfo: YieldModuleMarketInfo, state: YieldModuleManagerState) -> LeadingBadge? {
-        guard FeatureProvider.isAvailable(.yieldModule) else {
-            return nil
-        }
-
         let formattedRewardValue = PercentFormatter().format(marketInfo.apy, option: .staking)
 
         let actualState: YieldModuleManagerState = switch state {
