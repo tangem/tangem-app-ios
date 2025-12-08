@@ -60,6 +60,10 @@ final class MobileUnlockViewModel: ObservableObject {
         bind()
         setupUnlockItemIfNeeded()
     }
+
+    deinit {
+        AppLogger.debug("MobileUnlockViewModel deinit")
+    }
 }
 
 // MARK: - Internal methods
