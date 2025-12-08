@@ -8,7 +8,7 @@
 
 import TangemFoundation
 
-enum TangemPayAuthorizationTokensHandlerError: Error {
+public enum TangemPayAuthorizationTokensHandlerError: Error {
     case preparingFailed
 }
 
@@ -21,7 +21,7 @@ final class CommonTangemPayAuthorizationTokensHandler {
     private weak var authorizationTokensSaver: TangemPayAuthorizationTokensSaver?
 
     private let authorizationTokensHolder = ThreadSafeContainer<TangemPayAuthorizationTokens?>(nil)
-    private let tokenPreparingSucceededTask = ThreadSafeContainer<Task<Bool, Never>?>(nil)
+    private let taskCoordinator = TaskCoordinator()
 
     init(
         customerWalletId: String,
@@ -108,28 +108,36 @@ extension CommonTangemPayAuthorizationTokensHandler: TangemPayAuthorizationToken
     }
 
     func prepare() async throws {
-        if let tokenPreparingSucceededTask = tokenPreparingSucceededTask.read() {
-            let succeeded = await tokenPreparingSucceededTask.value
-            if !succeeded {
-                throw TangemPayAuthorizationTokensHandlerError.preparingFailed
-            }
-            return
+        let preparingSucceededTask = await taskCoordinator.getOrCreateTask { [weak self] in
+            await self?.refreshTokenIfNeeded() ?? false
         }
 
-        let tokenPreparingSucceededTask = _Concurrency.Task { [self] in
-            await refreshTokenIfNeeded()
-        }
-        self.tokenPreparingSucceededTask.mutate {
-            $0 = tokenPreparingSucceededTask
-        }
+        let preparingSucceeded = await preparingSucceededTask.value
 
-        let succeeded = await tokenPreparingSucceededTask.value
-        self.tokenPreparingSucceededTask.mutate {
-            $0 = nil
-        }
-
-        if !succeeded {
+        if !preparingSucceeded {
             throw TangemPayAuthorizationTokensHandlerError.preparingFailed
         }
+    }
+}
+
+private actor TaskCoordinator {
+    private var currentTask: Task<Bool, Never>?
+
+    func getOrCreateTask(action: @escaping () async -> Bool) -> Task<Bool, Never> {
+        if let existingTask = currentTask {
+            return existingTask
+        }
+
+        let newTask = Task { [weak self] in
+            let result = await action()
+            await self?.clearTask()
+            return result
+        }
+        currentTask = newTask
+        return newTask
+    }
+
+    private func clearTask() {
+        currentTask = nil
     }
 }
