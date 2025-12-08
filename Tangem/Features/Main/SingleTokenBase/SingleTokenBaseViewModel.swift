@@ -78,7 +78,13 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         walletModel.tokenItem.id != nil
     }
 
-    lazy var transactionHistoryMapper = TransactionHistoryMapper(currencySymbol: currencySymbol, walletAddresses: walletModel.addresses.map { $0.value }, showSign: true)
+    lazy var transactionHistoryMapper = TransactionHistoryMapper(
+        currencySymbol: currencySymbol,
+        walletAddresses: walletModel.addresses.map { $0.value },
+        showSign: true,
+        isToken: walletModel.tokenItem.isToken
+    )
+
     lazy var pendingTransactionRecordMapper = PendingTransactionRecordMapper(formatter: BalanceFormatter())
     lazy var miniChartsProvider = MarketsListChartsHistoryProvider()
 
