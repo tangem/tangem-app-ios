@@ -124,6 +124,10 @@ final class MobileOnboardingAccessCodeViewModel: ObservableObject {
         self.delegate = delegate
         bind()
     }
+
+    deinit {
+        AppLogger.debug("MobileOnboardingAccessCodeViewModel deinit")
+    }
 }
 
 // MARK: - Internal methods
