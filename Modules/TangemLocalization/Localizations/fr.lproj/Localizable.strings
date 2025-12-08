@@ -1441,7 +1441,6 @@
 "transaction_history_transaction_validator" = "validateur : %@";
 "transaction_notifications_warning_description" = "Les notifications sont activées, mais elles ne fonctionneront pas tant que vous n'aurez pas autorisé les notifications dans les paramètres de votre appareil.";
 "transaction_notifications_warning_title" = "Notifications de transaction";
-"transaction_send" = "Send";
 "transfer_min_amount_error" = "Minimum %@";
 "transfer_notification_invalid_minimum_transaction_amount_text" = "Le montant minimum pour effectuer cette transaction est %1$@.";
 "tron_will_be_send_token_fee_description" = "Les frais de réseau Tron pour les jetons populaires peuvent être plus élevés. Le staking de TRX peut contribuer à réduire les coûts de transaction.";
