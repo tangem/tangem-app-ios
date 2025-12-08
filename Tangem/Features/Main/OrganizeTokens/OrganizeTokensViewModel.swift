@@ -49,7 +49,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
     private let optionsProviding: OrganizeTokensOptionsProviding
     private let optionsEditing: OrganizeTokensOptionsEditing
 
-    private let dragAndDropActionsCache = OrganizeTokensDragAndDropActionsCache()
+    private let _dragAndDropActionsCache = OrganizeTokensDragAndDropActionsAggregatedCache()
     private var currentlyDraggedSectionIdentifier: AnyHashable?
     private var currentlyDraggedSectionItems: [OrganizeTokensListItemViewModel] = []
 
@@ -98,7 +98,8 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
         if didBind { return }
 
         let sourcePublisherFactory = TokenSectionsSourcePublisherFactory()
-        var tokenSectionsAdapterCache: [ObjectIdentifier: TokenSectionsAdapter] = [:]
+        let aggregatedCache = _dragAndDropActionsCache
+        var tokenSectionsAdapterCache: [ObjectIdentifier: TokenSectionsAdapter] = [:] // [REDACTED_TODO_COMMENT]
 
         // [REDACTED_TODO_COMMENT]
         userWalletModel
@@ -112,7 +113,8 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
 
                 // [REDACTED_TODO_COMMENT]
                 return cryptoAccountModels
-                    .map { cryptoAccountModel in
+                    .enumerated()
+                    .map { outerSectionIndex, cryptoAccountModel in
                         let tokenSectionsAdapter = Self
                             ._makeOrGetCachedTokenSectionsAdapter(for: cryptoAccountModel, using: &tokenSectionsAdapterCache)
 
@@ -135,7 +137,8 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
                                         sections: sections,
                                         sortingOption: .dragAndDrop, // [REDACTED_TODO_COMMENT]
                                         groupingOption: .none, // [REDACTED_TODO_COMMENT]
-                                        dragAndDropActionsCache: .init() // [REDACTED_TODO_COMMENT]
+                                        // [REDACTED_TODO_COMMENT]
+                                        dragAndDropActionsCache: aggregatedCache.cache(forOuterSectionIndex: outerSectionIndex)
                                     )
                                 )
                             }
@@ -370,6 +373,7 @@ extension OrganizeTokensViewModel {
         }
 
         let outerSectionIndex = sourceIndexPath.outerSection // Same value for both source and destination
+        let cache = _dragAndDropActionsCache.cache(forOuterSectionIndex: outerSectionIndex)
         let isGroupingEnabled = headerViewModel.isGroupingEnabled
 
         if sourceIndexPath._item == sectionHeaderItemIndex {
@@ -385,8 +389,8 @@ extension OrganizeTokensViewModel {
                 toOffset: destinationIndexPath.innerSection + offsetDiff
             )
 
-            dragAndDropActionsCache.addDragAndDropAction(isGroupingEnabled: isGroupingEnabled) { sectionsToMutate in
-                try sectionsToMutate[outerSectionIndex].items.tryMove(
+            cache.addDragAndDropAction(isGroupingEnabled: isGroupingEnabled) { sectionsToMutate in
+                try sectionsToMutate.tryMove(
                     fromOffsets: IndexSet(integer: sourceIndexPath.innerSection),
                     toOffset: destinationIndexPath.innerSection + offsetDiff
                 )
@@ -404,24 +408,15 @@ extension OrganizeTokensViewModel {
                 toOffset: destinationIndexPath._item + offsetDiff
             )
 
-            dragAndDropActionsCache.addDragAndDropAction(isGroupingEnabled: isGroupingEnabled) { sectionsToMutate in
-                guard sectionsToMutate.indices.contains(outerSectionIndex) else {
-                    throw Error.sectionOffsetOutOfBound(
-                        offset: outerSectionIndex,
-                        count: sectionsToMutate.count,
-                        isOuter: true
-                    )
-                }
-
-                guard sectionsToMutate[outerSectionIndex].items.indices.contains(sourceIndexPath.innerSection) else {
+            cache.addDragAndDropAction(isGroupingEnabled: isGroupingEnabled) { sectionsToMutate in
+                guard sectionsToMutate.indices.contains(sourceIndexPath.innerSection) else {
                     throw Error.sectionOffsetOutOfBound(
                         offset: sourceIndexPath.innerSection,
-                        count: sectionsToMutate[outerSectionIndex].items.count,
-                        isOuter: false
+                        count: sectionsToMutate.count,
                     )
                 }
 
-                try sectionsToMutate[outerSectionIndex].items[sourceIndexPath.innerSection].items.tryMove(
+                try sectionsToMutate[sourceIndexPath.innerSection].items.tryMove(
                     fromOffsets: IndexSet(integer: sourceIndexPath._item),
                     toOffset: destinationIndexPath._item + offsetDiff
                 )
@@ -529,6 +524,6 @@ extension OrganizeTokensViewModel: OrganizeTokensDragAndDropControllerDataSource
 
 extension OrganizeTokensViewModel {
     enum Error: Swift.Error {
-        case sectionOffsetOutOfBound(offset: Int, count: Int, isOuter: Bool)
+        case sectionOffsetOutOfBound(offset: Int, count: Int)
     }
 }
