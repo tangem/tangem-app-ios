@@ -249,7 +249,7 @@ private extension MobileBackupTypesViewModel {
 
     func openBuyHardwareWallet() {
         logBuyHardwareWalletAnalytics()
-        safariManager.openURL(TangemBlogUrlBuilder().url(root: .pricing))
+        safariManager.openURL(TangemShopUrlBuilder().url(utmCampaign: .backup))
     }
 }
 
@@ -279,7 +279,11 @@ private extension MobileBackupTypesViewModel {
     }
 
     func logBuyHardwareWalletAnalytics() {
-        Analytics.log(.onboardingButtonBuy, params: [.source: .backup], contextParams: analyticsContextParams)
+        Analytics.log(
+            .basicButtonBuy,
+            params: [.source: Analytics.BuyWalletSource.backup.parameterValue],
+            contextParams: analyticsContextParams
+        )
     }
 }
 
