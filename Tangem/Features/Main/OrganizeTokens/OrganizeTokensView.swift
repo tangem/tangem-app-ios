@@ -46,9 +46,9 @@ struct OrganizeTokensView: View {
 
     @StateObject private var dragAndDropController: OrganizeTokensDragAndDropController
 
-    @State private var dragAndDropSourceIndexPath: IndexPath?
+    @State private var dragAndDropSourceIndexPath: _IndexPath?
 
-    @State private var dragAndDropDestinationIndexPath: IndexPath?
+    @State private var dragAndDropDestinationIndexPath: _IndexPath?
 
     /// In a `scrollViewContentCoordinateSpaceName` coordinate space
     @State private var dragAndDropSourceItemFrame: CGRect?
@@ -198,20 +198,24 @@ struct OrganizeTokensView: View {
             cornerRadius: Constants.contentCornerRadius
         )
 
-        return ForEach(indexed: viewModel.__sections.indexed()) { accountSectionIndex, accountSectionViewModel in
+        return ForEach(indexed: viewModel.__sections.indexed()) { outerSectionIndex, accountSectionViewModel in
             Section(
                 content: {
                     ForEach(indexed: accountSectionViewModel.items.indexed()) { innerSectionIndex, innerSectionViewModel in
                         Section(
                             content: {
                                 ForEach(indexed: innerSectionViewModel.items.indexed()) { itemIndex, itemViewModel in
-                                    let indexPath = IndexPath(item: itemIndex, section: innerSectionIndex)
+                                    let indexPath = _IndexPath(
+                                        outerSection: outerSectionIndex,
+                                        innerSection: innerSectionIndex,
+                                        item: itemIndex
+                                    )
                                     let identifier = itemViewModel.id
                                     let isDragged = identifier.toAnyHashable() == dragAndDropSourceViewModelIdentifier
 
                                     makeCell(
                                         viewModel: itemViewModel,
-                                        indexPath: indexPath,
+                                        atIndexPath: indexPath,
                                         parametersProvider: parametersProvider
                                     )
                                     .hidden(isDragged)
@@ -227,13 +231,17 @@ struct OrganizeTokensView: View {
                                 }
                             },
                             header: {
-                                let indexPath = IndexPath(item: viewModel.sectionHeaderItemIndex, section: innerSectionIndex)
+                                let indexPath = _IndexPath(
+                                    outerSection: outerSectionIndex,
+                                    innerSection: innerSectionIndex,
+                                    item: viewModel.sectionHeaderItemIndex
+                                )
                                 let identifier = innerSectionViewModel.id
                                 let isDragged = identifier == dragAndDropSourceViewModelIdentifier
 
                                 makeSection(
                                     from: innerSectionViewModel,
-                                    atIndex: innerSectionIndex,
+                                    atIndexPath: indexPath,
                                     parametersProvider: parametersProvider
                                 )
                                 .hidden(isDragged)
@@ -388,11 +396,18 @@ struct OrganizeTokensView: View {
     @ViewBuilder
     private func makeCell(
         viewModel: OrganizeTokensListItemViewModel,
-        indexPath: IndexPath,
+        atIndexPath indexPath: _IndexPath,
         parametersProvider: OrganizeTokensListCornerRadiusParametersProvider
     ) -> some View {
         OrganizeTokensListItemView(viewModel: viewModel)
-            .accessibilityIdentifier(OrganizeTokensAccessibilityIdentifiers.tokenAtPosition(name: viewModel.name, section: indexPath.section, item: indexPath.item))
+            .accessibilityIdentifier(
+                OrganizeTokensAccessibilityIdentifiers.tokenAtPosition(
+                    name: viewModel.name,
+                    outerSection: indexPath.outerSection,
+                    innerSection: indexPath.innerSection,
+                    item: indexPath._item
+                )
+            )
             .background(Colors.Background.primary)
         // [REDACTED_TODO_COMMENT]
         /*
@@ -407,7 +422,7 @@ struct OrganizeTokensView: View {
     @ViewBuilder
     private func makeSection(
         from section: OrganizeTokensListSection,
-        atIndex sectionIndex: Int,
+        atIndexPath indexPath: _IndexPath,
         parametersProvider: OrganizeTokensListCornerRadiusParametersProvider
     ) -> some View {
         Group {
@@ -494,13 +509,13 @@ struct OrganizeTokensView: View {
                 if let section = viewModel.section(for: dragAndDropSourceViewModelIdentifier) {
                     makeSection(
                         from: section,
-                        atIndex: dragAndDropSourceIndexPath.section,
+                        atIndexPath: dragAndDropSourceIndexPath,
                         parametersProvider: parametersProvider
                     )
                 } else if let itemViewModel = viewModel.itemViewModel(for: dragAndDropSourceViewModelIdentifier) {
                     makeCell(
                         viewModel: itemViewModel,
-                        indexPath: dragAndDropSourceIndexPath,
+                        atIndexPath: dragAndDropSourceIndexPath,
                         parametersProvider: parametersProvider
                     )
                 }
@@ -510,7 +525,7 @@ struct OrganizeTokensView: View {
 
     private func makeDraggableView<Content>(
         width: CGFloat,
-        indexPath: IndexPath,
+        indexPath: _IndexPath,
         itemFrame: CGRect,
         @ViewBuilder content: () -> Content
     ) -> some View where Content: View {
