@@ -31,4 +31,8 @@ final class LegacyManageTokensContext: ManageTokensContext {
     func canManageBlockchain(_ blockchain: Blockchain) -> Bool {
         return true
     }
+
+    func isAddedToPortfolio(_ tokenItem: TokenItem) -> Bool {
+        userTokensManager.contains(tokenItem, derivationInsensitive: false)
+    }
 }
