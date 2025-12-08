@@ -95,6 +95,18 @@ class CommonUserWalletModel {
         }
         _updatePublisher.send(.configurationChanged(model: self))
     }
+
+    private func syncRemoteAfterUpgrade() {
+        runTask(in: self) { model in
+            let walletCreationHelper = WalletCreationHelper(
+                userWalletId: model.userWalletId,
+                userWalletName: model.name,
+                userWalletConfig: model.config
+            )
+
+            try? await walletCreationHelper.updateWallet()
+        }
+    }
 }
 
 extension CommonUserWalletModel {
@@ -216,6 +228,7 @@ extension CommonUserWalletModel: UserWalletModel {
                 updateConfiguration(walletInfo: WalletInfo.cardWallet(mutableCardInfo))
                 _cardHeaderImagePublisher.send(config.cardHeaderImage)
                 cleanMobileWallet()
+                syncRemoteAfterUpgrade()
             }
 
         case .accessCodeDidSet:
