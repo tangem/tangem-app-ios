@@ -19,7 +19,6 @@ public protocol StakingManager {
     func updateState(loadActions: Bool) async
     func estimateFee(action: StakingAction) async throws -> Decimal
     func transaction(action: StakingAction) async throws -> StakingTransactionAction
-    func transactionDetails(id: String) async throws -> StakingTransactionInfo
 
     func transactionDidSent(action: StakingAction)
 }
@@ -27,6 +26,16 @@ public protocol StakingManager {
 public extension StakingManager {
     func updateState() async {
         await updateState(loadActions: false)
+    }
+
+    func waitForLoadingCompletion() async throws {
+        // Drop the current `loading` state
+        _ = try await statePublisher.dropFirst().first().async()
+        // Check if after the loading state we have same status
+        // To exclude endless recursion
+        if case .loading = state {
+            throw StakingManagerError.stakingManagerIsLoading
+        }
     }
 
     func mapToStakingBalance(balance: StakingBalanceInfo, yield: StakingYieldInfo) -> StakingBalance {

@@ -53,7 +53,7 @@ struct ArchivedCryptoAccountConditionsValidator {
 // MARK: - CryptoAccountConditionsValidator protocol conformance
 
 extension ArchivedCryptoAccountConditionsValidator: CryptoAccountConditionsValidator {
-    typealias ValidationError = Error
+    typealias ValidationError = AccountArchivationError
 
     func validate() async throws(ValidationError) {
         do {
@@ -67,14 +67,5 @@ extension ArchivedCryptoAccountConditionsValidator: CryptoAccountConditionsValid
             // Wrap unexpected errors (e.g., network errors)
             throw .unknownError(error)
         }
-    }
-}
-
-// MARK: - Auxiliary types
-
-extension ArchivedCryptoAccountConditionsValidator {
-    enum Error: Swift.Error {
-        case participatesInReferralProgram
-        case unknownError(Swift.Error)
     }
 }
