@@ -173,13 +173,14 @@ private extension TokenDetailsView {
     )
     let pendingExpressTxsManager = CommonPendingExpressTransactionsManager(
         userWalletId: userWalletModel.userWalletId.stringValue,
-        walletModel: walletModel,
+        tokenItem: walletModel.tokenItem,
+        walletModelUpdater: walletModel,
         expressAPIProvider: expressAPIProvider,
         expressRefundedTokenHandler: ExpressRefundedTokenHandlerMock()
     )
     let pendingOnrampTxsManager = CommonPendingOnrampTransactionsManager(
         userWalletId: userWalletModel.userWalletId.stringValue,
-        walletModel: walletModel,
+        tokenItem: walletModel.tokenItem,
         expressAPIProvider: expressAPIProvider
     )
     let pendingTxsManager = CompoundPendingTransactionsManager(
