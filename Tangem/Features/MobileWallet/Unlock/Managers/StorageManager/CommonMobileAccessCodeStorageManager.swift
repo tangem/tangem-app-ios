@@ -42,9 +42,10 @@ extension CommonMobileAccessCodeStorageManager: MobileAccessCodeStorageManager {
         return MobileWrongAccessCodeStore(lockIntervals: lockIntervals)
     }
 
-    func storeWrongAccessCode(userWalletId: UserWalletId, lockInterval: TimeInterval) {
+    func storeWrongAccessCode(userWalletId: UserWalletId, lockInterval: TimeInterval, replaceLast: Bool) {
         var allLockIntervals = fetch()
         var lockIntervals = allLockIntervals[userWalletId.stringValue] ?? []
+        if replaceLast { _ = lockIntervals.popLast() }
         lockIntervals.append(lockInterval)
         allLockIntervals[userWalletId.stringValue] = lockIntervals
         save(lockIntervals: allLockIntervals)
