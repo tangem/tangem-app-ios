@@ -77,14 +77,12 @@ extension BindingValue {
     ) {
         self.init { [weak root] in
             guard let root else {
-                assertionFailure("Root is released")
                 return value
             }
 
             return get(root)
         } set: { [weak root] newValue in
             guard let root else {
-                assertionFailure("Root is released")
                 return
             }
 
