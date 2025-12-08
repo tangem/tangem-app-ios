@@ -47,6 +47,7 @@ class BaseTestCase: XCTestCase {
         stakingApiType: StakingAPI? = nil,
         skipToS: Bool = true,
         clearStorage: Bool = false,
+        disableMobileWallet: Bool = true,
         scenarios: [ScenarioConfig] = []
     ) {
         var arguments = ["--uitesting", "--alpha"]
@@ -63,6 +64,10 @@ class BaseTestCase: XCTestCase {
 
         if clearStorage {
             arguments.append("-uitest-clear-storage")
+        }
+
+        if disableMobileWallet {
+            arguments.append("-uitest-disable-mobile-wallet")
         }
 
         app.launchArguments = arguments

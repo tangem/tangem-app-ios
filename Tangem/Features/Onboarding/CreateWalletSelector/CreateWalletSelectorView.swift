@@ -16,12 +16,14 @@ struct CreateWalletSelectorView: View {
 
     @ObservedObject var viewModel: ViewModel
 
+    @State private var scrollToId = UUID()
+
     var body: some View {
         content
             .allowsHitTesting(!viewModel.isScanning)
             .background(Colors.Background.plain.ignoresSafeArea())
-            .onAppear(perform: viewModel.onAppear)
-            .alert(item: $viewModel.error, content: { $0.alert })
+            .onFirstAppear(perform: viewModel.onFirstAppear)
+            .alert(item: $viewModel.alert, content: { $0.alert })
             .confirmationDialog(viewModel: $viewModel.confirmationDialog)
             .environment(\.colorScheme, .dark)
     }
@@ -44,15 +46,21 @@ private extension CreateWalletSelectorView {
                 }
             )
 
-            ScrollView(.vertical, showsIndicators: false) {
-                VStack(spacing: 12) {
-                    info.padding(.horizontal, 20)
-                    tangemIcon
-                    actions
+            ScrollViewReader { proxy in
+                ScrollView(.vertical, showsIndicators: false) {
+                    VStack(spacing: 12) {
+                        info.padding(.horizontal, 20)
+                        tangemIcon
+                        actions
+                    }
+                    .padding(.top, 12)
+                    .id(scrollToId)
                 }
-                .padding(.top, 12)
+                .padding(.horizontal, 16)
+                .onFirstAppear {
+                    proxy.scrollTo(scrollToId, anchor: .bottom)
+                }
             }
-            .padding(.horizontal, 16)
         }
     }
 }

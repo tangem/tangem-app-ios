@@ -193,15 +193,19 @@ struct StakeKitMapper {
             throw StakeKitMapperError.noData("Transaction.stakeId not found")
         }
 
-        return try StakingTransactionInfo(
+        let metadata = StakeKitTransactionMetadata(
             id: response.id,
             actionId: stakeId,
-            network: response.network.rawValue,
-            unsignedTransactionData: mapToTransactionUnsignedData(from: unsignedTransaction, network: response.network),
-            fee: fee,
             type: response.type.rawValue,
             status: response.status.rawValue,
             stepIndex: response.stepIndex
+        )
+
+        return try StakingTransactionInfo(
+            network: response.network.rawValue,
+            unsignedTransactionData: .raw(mapToTransactionUnsignedData(from: unsignedTransaction, network: response.network)),
+            fee: fee,
+            metadata: metadata
         )
     }
 
@@ -431,7 +435,7 @@ struct StakeKitMapper {
     }
 
     func mapToPeriod(from period: StakeKitDTO.Yield.Info.Response.Metadata.Period) -> Period {
-        .specific(days: period.days)
+        .constant(days: period.days)
     }
 
     func mapToRewardClaimingType(from type: StakeKitDTO.Yield.Info.Response.Metadata.RewardClaiming) -> RewardClaimingType {

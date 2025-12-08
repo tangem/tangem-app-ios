@@ -282,11 +282,11 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
     }
 
     func openOrganizeTokens(for userWalletModel: UserWalletModel) {
-        // accounts_fixes_needed_main
-        let optionsManager = OrganizeTokensOptionsManager(userTokensReorderer: userWalletModel.userTokensManager)
-        // accounts_fixes_needed_main
+        // accounts_fixes_needed_organize_tokens
+        let userTokensManager = userWalletModel.userTokensManager
+        let optionsManager = OrganizeTokensOptionsManager(userTokensReorderer: userTokensManager)
         let tokenSectionsAdapter = TokenSectionsAdapter(
-            userTokensManager: userWalletModel.userTokensManager,
+            userTokensManager: userTokensManager,
             optionsProviding: optionsManager,
             preservesLastSortedOrderOnSwitchToDragAndDrop: true
         )

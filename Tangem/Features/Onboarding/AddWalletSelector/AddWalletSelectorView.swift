@@ -31,6 +31,7 @@ struct AddWalletSelectorView: View {
             .navigationBarItems(trailing: navigationBarTrailingItem)
             .onFirstAppear(perform: viewModel.onAppear)
             .background(Colors.Background.secondary)
+            .alert(item: $viewModel.alert, content: { $0.alert })
     }
 }
 
