@@ -385,8 +385,7 @@ private extension TokenDetailsViewModel {
         state: YieldModuleManagerState,
         marketInfo: YieldModuleMarketInfo?
     ) -> YieldModuleAvailability {
-        guard FeatureProvider.isAvailable(.yieldModule),
-              let manager = walletModel.yieldModuleManager,
+        guard let manager = walletModel.yieldModuleManager,
               let factory = makeYieldModuleFlowFactory(manager: manager)
         else {
             return .notApplicable
