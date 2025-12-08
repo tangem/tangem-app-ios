@@ -99,6 +99,7 @@ extension WalletConnectSolanaSignTransactionHandler: WalletConnectMessageHandler
     }
 
     func validate() async throws -> WalletConnectMessageHandleRestrictionType {
+        /*
         let (canHandleTransaction, _, _) = try prepareTransaction()
 
         if canHandleTransaction {
@@ -106,9 +107,13 @@ extension WalletConnectSolanaSignTransactionHandler: WalletConnectMessageHandler
         } else {
             return .multipleTransactions
         }
+         */
+        
+        return .multipleTransactions
     }
 
     func handle() async throws -> RPCResult {
+        /*
         let (canHandleTransaction, unsignedHash, signatureCount) = try prepareTransaction()
 
         if canHandleTransaction {
@@ -116,6 +121,10 @@ extension WalletConnectSolanaSignTransactionHandler: WalletConnectMessageHandler
         } else {
             return try await handleLongTransaction(unsignedHash: unsignedHash, signatureCount: signatureCount)
         }
+         */
+        
+        let (canHandleTransaction, unsignedHash, signatureCount) = try prepareTransaction()
+        return try await handleLongTransaction(unsignedHash: unsignedHash, signatureCount: signatureCount)
     }
 }
 
