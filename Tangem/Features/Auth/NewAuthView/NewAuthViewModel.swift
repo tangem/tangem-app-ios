@@ -144,9 +144,10 @@ private extension NewAuthViewModel {
         runTask(in: self) { viewModel in
             let unlocker = UserWalletModelUnlockerFactory.makeUnlocker(userWalletModel: userWalletModel)
 
-            if unlocker.analyticsSignInType == .card {
-                viewModel.logScanCardToUnlockAnalytics()
-            }
+            viewModel.signInAnalyticsLogger.logSignInButtonWalletEvent(
+                signInType: unlocker.analyticsSignInType,
+                userWalletModel: userWalletModel
+            )
 
             await viewModel.startUnlocking(userWalletId: userWalletModel.userWalletId)
             let unlockResult = await unlocker.unlock()
@@ -362,10 +363,6 @@ private extension NewAuthViewModel {
             params: [.walletCount: String(walletsCount)],
             contextParams: analyticsContextParams
         )
-    }
-
-    func logScanCardToUnlockAnalytics() {
-        Analytics.log(Analytics.CardScanSource.auth.cardScanButtonEvent, contextParams: analyticsContextParams)
     }
 
     func logSuccessScanCardToUnlockAnalytics(userWalletModel: UserWalletModel) {
