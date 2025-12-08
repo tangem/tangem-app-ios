@@ -53,7 +53,7 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
     func openFeeCurrency(walletModel: any WalletModel) {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
-            dismiss(with: .init(userWalletId: walletModel.userWalletId, feeTokenItem: walletModel.feeTokenItem))
+            dismiss(with: .init(userWalletId: walletModel.userWalletId, tokenItem: walletModel.feeTokenItem))
         }
     }
 
