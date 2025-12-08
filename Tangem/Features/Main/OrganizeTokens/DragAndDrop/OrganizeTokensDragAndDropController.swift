@@ -12,23 +12,26 @@ import Combine
 import CombineExt
 
 protocol OrganizeTokensDragAndDropControllerDataSource: AnyObject {
-    func numberOfSections(
-        for controller: OrganizeTokensDragAndDropController
+    func controller(
+        _ controller: OrganizeTokensDragAndDropController,
+        numberOfInnerSectionsInOuterSection outerSection: Int
+    ) -> Int
+
+    // [REDACTED_TODO_COMMENT]
+    func controller(
+        _ controller: OrganizeTokensDragAndDropController,
+        numberOfRowsInInnerSection innerSection: Int,
+        outerSection: Int
     ) -> Int
 
     func controller(
         _ controller: OrganizeTokensDragAndDropController,
-        numberOfRowsInSection section: Int
-    ) -> Int
-
-    func controller(
-        _ controller: OrganizeTokensDragAndDropController,
-        listViewKindForItemAt indexPath: IndexPath
+        listViewKindForItemAt indexPath: _IndexPath
     ) -> OrganizeTokensDragAndDropControllerListViewKind
 
     func controller(
         _ controller: OrganizeTokensDragAndDropController,
-        listViewIdentifierForItemAt indexPath: IndexPath
+        listViewIdentifierForItemAt indexPath: _IndexPath
     ) -> AnyHashable
 }
 
@@ -83,7 +86,7 @@ final class OrganizeTokensDragAndDropController: ObservableObject {
     var contentOffsetSubject: some Subject<CGPoint, Never> { _contentOffsetSubject }
     private let _contentOffsetSubject = CurrentValueSubject<CGPoint, Never>(.zero)
 
-    private var itemsFrames: [IndexPath: CGRect] = [:]
+    private var itemsFrames: [_IndexPath: CGRect] = [:]
 
     private let autoScrollStartSubject = PassthroughSubject<OrganizeTokensDragAndDropControllerAutoScrollDirection, Never>()
     private let autoScrollStopSubject = PassthroughSubject<Void, Never>()
@@ -122,19 +125,19 @@ final class OrganizeTokensDragAndDropController: ObservableObject {
         impactFeedbackGenerator.impactOccurred()
     }
 
-    func saveFrame(_ frame: CGRect, forItemAt indexPath: IndexPath) {
+    func saveFrame(_ frame: CGRect, forItemAt indexPath: _IndexPath) {
         itemsFrames[indexPath] = frame
     }
 
-    func frame(forItemAt indexPath: IndexPath?) -> CGRect? {
-        indexPath.flatMap { itemsFrames[$0] }
+    func frame(forItemAt indexPath: _IndexPath) -> CGRect? {
+        itemsFrames[indexPath]
     }
 
     func updatedDestinationIndexPath(
-        source sourceIndexPath: IndexPath,
-        currentDestination currentDestinationIndexPath: IndexPath,
+        source sourceIndexPath: _IndexPath,
+        currentDestination currentDestinationIndexPath: _IndexPath,
         translationValue: CGSize
-    ) -> IndexPath? {
+    ) -> _IndexPath? {
         guard let dataSource = dataSource else {
             assertionFailure("DataSource required, but not set for \(self)")
             return nil
@@ -177,18 +180,26 @@ final class OrganizeTokensDragAndDropController: ObservableObject {
 
     /// - Warning: O(N) time complexity.
     private func updatedDestinationIndexPath(
-        forItemAt indexPath: IndexPath,
+        forItemAt indexPath: _IndexPath,
         draggedItemFrame: CGRect,
         dataSource: OrganizeTokensDragAndDropControllerDataSource
-    ) -> IndexPath? {
-        let numberOfRowsInSection = dataSource.controller(self, numberOfRowsInSection: indexPath.section)
+    ) -> _IndexPath? {
+        let numberOfRowsInSection = dataSource.controller(
+            self,
+            numberOfRowsInInnerSection: indexPath.innerSection,
+            outerSection: indexPath.outerSection
+        )
         var hasReachedTop = false
         var hasReachedBottom = false
 
         for offset in 1 ..< numberOfRowsInSection {
             // Going in the upward direction from the current destination index path until OOB
-            if !hasReachedTop, indexPath.item - offset >= 0 {
-                let destinationIndexPathCandidate = IndexPath(item: indexPath.item - offset, section: indexPath.section)
+            if !hasReachedTop, indexPath._item - offset >= 0 {
+                let destinationIndexPathCandidate = _IndexPath(
+                    outerSection: indexPath.outerSection,
+                    innerSection: indexPath.innerSection,
+                    item: indexPath._item - offset
+                )
                 if isDestinationIndexPathCandidateValid(destinationIndexPathCandidate, draggedItemFrame: draggedItemFrame) {
                     return destinationIndexPathCandidate
                 }
@@ -197,8 +208,12 @@ final class OrganizeTokensDragAndDropController: ObservableObject {
             }
 
             // Going in the downward direction from the current destination index path until OOB
-            if !hasReachedBottom, indexPath.item + offset <= numberOfRowsInSection - 1 {
-                let destinationIndexPathCandidate = IndexPath(item: indexPath.item + offset, section: indexPath.section)
+            if !hasReachedBottom, indexPath._item + offset <= numberOfRowsInSection - 1 {
+                let destinationIndexPathCandidate = _IndexPath(
+                    outerSection: indexPath.outerSection,
+                    innerSection: indexPath.innerSection,
+                    item: indexPath._item + offset
+                )
                 if isDestinationIndexPathCandidateValid(destinationIndexPathCandidate, draggedItemFrame: draggedItemFrame) {
                     return destinationIndexPathCandidate
                 }
@@ -216,18 +231,22 @@ final class OrganizeTokensDragAndDropController: ObservableObject {
 
     /// - Warning: O(N) time complexity.
     private func updatedDestinationIndexPath(
-        forSectionAt indexPath: IndexPath,
+        forSectionAt indexPath: _IndexPath,
         draggedItemFrame: CGRect,
         dataSource: OrganizeTokensDragAndDropControllerDataSource
-    ) -> IndexPath? {
-        let numberOfSections = dataSource.numberOfSections(for: self)
+    ) -> _IndexPath? {
+        let numberOfSections = dataSource.controller(self, numberOfInnerSectionsInOuterSection: indexPath.outerSection)
         var hasReachedTop = false
         var hasReachedBottom = false
 
         for offset in 1 ..< numberOfSections {
             // Going in the upward direction from the current destination index path until OOB
-            if !hasReachedTop, indexPath.section - offset >= 0 {
-                let destinationIndexPathCandidate = IndexPath(item: indexPath.item, section: indexPath.section - offset)
+            if !hasReachedTop, indexPath.innerSection - offset >= 0 {
+                let destinationIndexPathCandidate = _IndexPath(
+                    outerSection: indexPath.outerSection,
+                    innerSection: indexPath.innerSection - offset,
+                    item: indexPath._item
+                )
                 if isDestinationIndexPathCandidateValid(destinationIndexPathCandidate, draggedItemFrame: draggedItemFrame) {
                     return destinationIndexPathCandidate
                 }
@@ -236,8 +255,12 @@ final class OrganizeTokensDragAndDropController: ObservableObject {
             }
 
             // Going in the downward direction from the current destination index path until OOB
-            if !hasReachedBottom, indexPath.section + offset <= numberOfSections - 1 {
-                let destinationIndexPathCandidate = IndexPath(item: indexPath.item, section: indexPath.section + offset)
+            if !hasReachedBottom, indexPath.innerSection + offset <= numberOfSections - 1 {
+                let destinationIndexPathCandidate = _IndexPath(
+                    outerSection: indexPath.outerSection,
+                    innerSection: indexPath.innerSection + offset,
+                    item: indexPath._item
+                )
                 if isDestinationIndexPathCandidateValid(destinationIndexPathCandidate, draggedItemFrame: draggedItemFrame) {
                     return destinationIndexPathCandidate
                 }
@@ -254,7 +277,7 @@ final class OrganizeTokensDragAndDropController: ObservableObject {
     }
 
     func isDestinationIndexPathCandidateValid(
-        _ destinationIndexPathCandidate: IndexPath,
+        _ destinationIndexPathCandidate: _IndexPath,
         draggedItemFrame: CGRect
     ) -> Bool {
         guard let candidateItemFrame = frame(forItemAt: destinationIndexPathCandidate) else {
@@ -268,19 +291,24 @@ final class OrganizeTokensDragAndDropController: ObservableObject {
     }
 
     /// Maybe not so memory-efficient, but definitely safer than manual clearing of `itemsFrames` cache
-    private func isIndexPathValid(_ indexPath: IndexPath) -> Bool {
+    private func isIndexPathValid(_ indexPath: _IndexPath) -> Bool {
         guard let dataSource = dataSource else {
             assertionFailure("DataSource required, but not set for \(self)")
             return false
         }
 
-        let isSectionValid = 0 ..< dataSource.numberOfSections(for: self) ~= indexPath.section
+        let numberOfSections = dataSource.controller(self, numberOfInnerSectionsInOuterSection: indexPath.outerSection)
+        let isSectionValid = 0 ..< numberOfSections ~= indexPath.innerSection
         let listViewKind = dataSource.controller(self, listViewKindForItemAt: indexPath)
 
         switch listViewKind {
         case .cell where isSectionValid:
-            let numberOfRowsInSection = dataSource.controller(self, numberOfRowsInSection: indexPath.section)
-            return 0 ..< numberOfRowsInSection ~= indexPath.item
+            let numberOfRowsInSection = dataSource.controller(
+                self,
+                numberOfRowsInInnerSection: indexPath.innerSection,
+                outerSection: indexPath.outerSection
+            )
+            return 0 ..< numberOfRowsInSection ~= indexPath._item
         case .cell, .sectionHeader:
             return isSectionValid
         }
@@ -291,7 +319,7 @@ final class OrganizeTokensDragAndDropController: ObservableObject {
         direction: OrganizeTokensDragAndDropControllerAutoScrollDirection,
         contentOffset: CGPoint,
         viewportSize: CGSize
-    ) -> IndexPath? {
+    ) -> _IndexPath? {
         // [REDACTED_TODO_COMMENT]
         let sortedItemsFrames = itemsFrames
             .filter { isIndexPathValid($0.key) }
