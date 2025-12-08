@@ -1,6 +1,10 @@
 "access_code_alert_skip_description" = "Ohne Zugangscode ist Deine Wallet nicht geschützt.";
 "access_code_alert_skip_ok" = "Trotzdem überspringen";
 "access_code_alert_skip_title" = "Zugangscode nicht festgelegt";
+"access_code_alert_validation_cancel" = "Change code";
+"access_code_alert_validation_description" = "Your access code will be used to unlock your wallet and to protect access to the assets";
+"access_code_alert_validation_ok" = "Use anyway";
+"access_code_alert_validation_title" = "This access code can be easily guessed";
 "access_code_check_title" = "Zugangscode eingeben";
 "access_code_check_warining_delete" = "Falscher Zugangscode. Deine mobile Wallet wird nach %@ weiteren Fehlversuchen gelöscht.";
 "access_code_check_warining_lock" = "Falscher Zugangscode. Die App wird nach %@ weiteren Fehlversuchen gesperrt.";
@@ -557,7 +561,7 @@
 "hw_backup_need_title" = "Zuerst die Sicherung abschließen";
 "hw_backup_no_backup" = "Unvollständig";
 "hw_backup_section_other_title" = "Andere Methoden";
-"hw_backup_seed_description" = "Physische Geräte, die Deine privaten Schlüssel sicher offline speichern.";
+"hw_backup_seed_description" = "Manually save your recovery phrase in a secure place and keep it private to protect your funds.";
 "hw_backup_seed_title" = "Wiederherstellungs-Phrase";
 "hw_backup_to_secure_description" = "To secure your wallet with a Access Code, complete the backup first.";
 "hw_backup_to_upgrade_description" = "Um Deine Wallet auf Hardware umzustellen, erstelle vorher ein Backup.";
@@ -731,6 +735,10 @@
 "markets_token_details_volume" = "Volumen";
 "markets_tooltip_message" = "Rufe dies auf oder tippe auf die Suchleiste, um Token direkt vom Markt hinzuzufügen";
 "markets_tooltip_title" = "Token hinzufügen";
+"markets_yield_supply_banner_description" = "Power up your assets while supplying them with instant access. %@";
+"markets_yield_supply_banner_title" = "Activate Yield Mode";
+"mobile_wallet_requires_min_os_warning_body" = "You must update to %1$@ in order to create mobile wallet";
+"mobile_wallet_requires_min_os_warning_title" = "Mobile Wallet requires %1$@ or later";
 "news_all_news" = "Alle Neuigkeiten";
 "news_stay_in_the_loop" = "Auf dem Laufenden bleiben";
 "nft_about_title" = "Über NFT";
@@ -1335,6 +1343,8 @@
 "tangempay_failed_to_issue_card_retry_description" = "A technical error has occurred, please try again by clicking the button below.";
 "tangempay_failed_to_issue_card_support_description" = "A technical error has occurred, please contact support.";
 "tangempay_failed_to_issue_card" = "Failed to issue card";
+"tangempay_get_banner_description" = "Use your crypto for real world spending. \nIt's a payment card unlike any other.";
+"tangempay_get_tangem_pay" = "Get Tangem Pay";
 "tangempay_issue_card_notification_description" = "Es dauert in der Regel bis zu 15 Minuten.";
 "tangempay_issue_card_notification_title" = "Setting up your Tangem Card";
 "tangempay_issuing_your_card_description" = "We’re getting your card ready. This may take a little time.";
@@ -1359,6 +1369,7 @@
 "tangempay_service_unavailable_title" = "Service temporarily unavailable";
 "tangempay_service_unreachable_try_later" = "The service is currently unreachable. Please try again later.";
 "tangempay_sync_needed" = "Sync needed";
+"tangempay_tangem_visa_card" = "Tangem Visa Card";
 "tangempay_temporarily_unavailable" = "Tangem Pay is temporarily unavailable";
 "tangempay_title" = "Tangem Pay";
 "tangempay_use_tangem_device_to_restore_payment_account" = "Use your card or ring to restore access to your payment account";
@@ -1829,6 +1840,7 @@
 "yield_module_fee_policy_tangem_service_fee_title" = "Tangem erhebt außerdem eine Servicegebühr von 15%% auf den erzielten Ertrag.";
 "yield_module_high_fee_error" = "Deine Gelder werden automatisch an Aave überwiesen, sobald die Netzwerkgebühren niedriger sind oder Dein Guthaben den erforderlichen Mindestbetrag erreicht.";
 "yield_module_historical_returns" = "Historische Renditen";
+"yield_module_main_screen_promo_banner_message" = "\"Enable %1$@%% APY on your balance\"";
 "yield_module_main_view_approve_notification_description" = "Die Genehmigung für Deine Token im Yield-Modus wurde widerrufen. Öffne den Token, um die Berechtigung erneut zu erteilen.";
 "yield_module_main_view_approve_notification_title" = "Token-Genehmigung erforderlich";
 "yield_module_network_fee_unreachable_notification_description" = "Prüfe Deine Netzwerkverbindung";
@@ -1871,12 +1883,16 @@
 "yield_module_token_details_earn_notification_earning_on_your_balance_title" = "Ertragsmodus";
 "yield_module_token_details_earn_notification_processing" = "Bearbeitung Deiner Einzahlung";
 "yield_module_token_details_earn_notification_title" = "Ertragsmodus";
+"yield_module_transaction_deploy_contract" = "Yield Mode contract deploy";
 "yield_module_transaction_enter_subtitle" = "%1$@ geliefert an Aave";
 "yield_module_transaction_enter" = "Ertragsmodus aktivieren";
 "yield_module_transaction_exit_subtitle" = "%1$@ aus Aave zurücküberwiesen";
 "yield_module_transaction_exit" = "Ertragsmodus deaktiviert";
+"yield_module_transaction_initialize" = "Yield Mode initialize";
+"yield_module_transaction_reactivate" = "Yield Mode reactivate";
 "yield_module_transaction_topup_subtitle" = "%1$@ geliefert an Aave";
 "yield_module_transaction_topup" = "Lieferung an Aave";
+"yield_module_transaction_withdraw" = "Withdraw from Aave";
 "yield_module_transfer_mode_automatic" = "Automatisch";
 "yield_module_unable_to_cover_fee_description" = "Einzahlung von %1$@ %2$@ zur Deckung der Netzwerkgebühr für Transaktionen";
 "yield_module_unable_to_cover_fee_title" = "Die Gebühr %@ kann nicht gedeckt werden";
