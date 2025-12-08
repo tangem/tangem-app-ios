@@ -758,7 +758,7 @@ private extension ExpressViewModel {
 
         coordinator?.presentFeeCurrency(feeCurrency: .init(
             userWalletId: userWalletInfo.id,
-            feeTokenItem: sender.feeTokenItem
+            tokenItem: sender.feeTokenItem
         ))
     }
 
