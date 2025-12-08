@@ -38,6 +38,10 @@ struct TangemPayMainView: View {
 
                 balance
 
+                ForEach(viewModel.pendingExpressTransactions) { transactionInfo in
+                    PendingExpressTransactionView(info: transactionInfo)
+                }
+
                 TransactionsListView(
                     state: viewModel.tangemPayTransactionHistoryState,
                     exploreAction: nil,
