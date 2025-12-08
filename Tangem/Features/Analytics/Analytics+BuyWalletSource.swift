@@ -11,6 +11,7 @@ import Foundation
 extension Analytics {
     enum BuyWalletSource {
         case createWallet
+        case createWalletIntro
         case addWallet
         case hardwareWallet
         case settings
@@ -19,7 +20,8 @@ extension Analytics {
 
         var parameterValue: Analytics.ParameterValue {
             switch self {
-            case .createWallet: .createNewWallet
+            case .createWallet: .createWallet
+            case .createWalletIntro: .createWalletIntro
             case .addWallet: .addNewWallet
             case .hardwareWallet: .hardwareWallet
             case .settings: .settings

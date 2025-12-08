@@ -20,7 +20,7 @@ struct MobileCreateWalletView: View {
             .padding(.horizontal, 16)
             .safeAreaInset(edge: .top) { navigationBar }
             .allowsHitTesting(!viewModel.isCreating)
-            .onAppear(perform: viewModel.onAppear)
+            .onFirstAppear(perform: viewModel.onFirstAppear)
             .alert(item: $viewModel.alert, content: { $0.alert })
     }
 }
