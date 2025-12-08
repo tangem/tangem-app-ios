@@ -10,7 +10,7 @@ import Combine
 import Foundation
 import UIKit
 
-class AppSettingsCoordinator: CoordinatorObject {
+final class AppSettingsCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
@@ -62,7 +62,9 @@ extension AppSettingsCoordinator: AppSettingsRoutable {
     }
 
     func openCurrencySelection() {
-        currencySelectViewModel = CurrencySelectViewModel(coordinator: self)
+        Task { @MainActor in
+            currencySelectViewModel = CurrencySelectViewModel(coordinator: self)
+        }
     }
 
     func openThemeSelection() {
