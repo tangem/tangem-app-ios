@@ -13,9 +13,11 @@ enum TangemPayStatus {
     case active
     case blocked
 
+    case unavailable // 'loadCustomerInfo' failed
+
     var isActive: Bool {
         switch self {
-        case .kycRequired, .readyToIssueOrIssuing, .failedToIssue, .blocked:
+        case .kycRequired, .readyToIssueOrIssuing, .failedToIssue, .blocked, .unavailable:
             false
         case .active:
             true
