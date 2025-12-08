@@ -128,16 +128,9 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
         self.closeAction = closeAction
         self.accountModelsManager = accountModelsManager
 
-        // [REDACTED_TODO_COMMENT]
-        description = if let cryptoAccount = flowType.account as? any CryptoAccountModel {
-            cryptoAccount.descriptionString
-        } else {
-            nil
-        }
-
         initialStateSnapshot = StateSnapshot(name: accountName, color: selectedColor, image: selectedIcon)
 
-        bind()
+        setupDescription()
     }
 
     deinit {
@@ -298,18 +291,21 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
         )
     }
 
-    private func bind() {
-        accountModelsManager.totalAccountsCountPublisher
-            .withWeakCaptureOf(self)
-            .map { viewModel, amount in
-                if case .create = viewModel.flowType {
-                    Localization.accountFormAccountIndex(amount)
-                } else {
-                    nil
-                }
+    private func setupDescription() {
+        switch flowType {
+        case .edit(let account):
+            // [REDACTED_TODO_COMMENT]
+            if let cryptoAccount = account as? any CryptoAccountModel {
+                description = cryptoAccount.descriptionString
             }
-            .assign(to: \.description, on: self, ownership: .weak)
-            .store(in: &bag)
+
+        case .create:
+            accountModelsManager.totalAccountsCountPublisher
+                .map { Localization.accountFormAccountIndex($0) }
+                .receiveOnMain()
+                .assign(to: \.description, on: self, ownership: .weak)
+                .store(in: &bag)
+        }
     }
 
     // MARK: - Alerts and toasts
@@ -332,13 +328,6 @@ extension AccountFormViewModel {
     enum FlowType {
         case edit(account: any BaseAccountModel)
         case create(CreatedAccountType)
-
-        var account: (any BaseAccountModel)? {
-            switch self {
-            case .create: nil
-            case .edit(let account): account
-            }
-        }
     }
 }
 
