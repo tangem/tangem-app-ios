@@ -9,4 +9,4 @@
 import Foundation
 
 /// namespacing
-enum P2PDTO {}
+public enum P2PDTO {}
