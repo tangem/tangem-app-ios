@@ -307,7 +307,7 @@ private extension TangemPayMainViewModel {
         let restriction = try await tangemPayAccount.withdrawAvailabilityProvider.restriction()
 
         switch restriction {
-        case .none:
+        case .none, .zeroWalletBalance:
             coordinator?.openTangemPayWithdraw(input: ExpressDependenciesInput(
                 userWalletInfo: userWalletInfo,
                 source: tangemPayWalletWrapper,
@@ -316,7 +316,7 @@ private extension TangemPayMainViewModel {
         case .hasPendingWithdrawOrder:
             coordinator?.openTangemWithdrawInProgressSheet()
         default:
-            coordinator?.openTangemPayNoDepositAddressSheet()
+            alert = TokenActionAvailabilityAlertBuilder().alert(for: restriction)
         }
     }
 
