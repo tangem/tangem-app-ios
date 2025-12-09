@@ -79,9 +79,14 @@ final class CommonCryptoAccountsRepository {
 
     private func migrateStorage(forUserWalletWithId userWalletId: UserWalletId) {
         let mainAccountPersistentConfig = AccountModelUtils.mainAccountPersistentConfig(forUserWalletWithId: userWalletId)
-        let legacyStoredTokens = tokenItemsRepository.getList().entries
-        let tokens = LegacyStoredEntryConverter.convert(legacyStoredTokens: legacyStoredTokens)
-        let newCryptoAccount = StoredCryptoAccount(config: mainAccountPersistentConfig, tokens: tokens)
+        let legacyStoredTokenList = tokenItemsRepository.getList()
+        let tokens = LegacyStoredEntryConverter.convert(legacyStoredTokens: legacyStoredTokenList.entries)
+        let tokenListAppearance = LegacyStoredEntryConverter.convert(legacyStoredTokenListToAppearance: legacyStoredTokenList)
+        let newCryptoAccount = StoredCryptoAccount(
+            config: mainAccountPersistentConfig,
+            tokenListAppearance: tokenListAppearance,
+            tokens: tokens
+        )
 
         persistentStorage.replace(with: [newCryptoAccount])
         auxiliaryDataStorage.update(withArchivedAccountsCount: 0, totalAccountsCount: 1)
@@ -273,7 +278,8 @@ final class CommonCryptoAccountsRepository {
         withConfig config: CryptoAccountPersistentConfig,
         remoteState: CryptoAccountsRemoteState,
     ) async throws -> StoredCryptoAccountsTokensDistributor.DistributionResult {
-        let newCryptoAccount = StoredCryptoAccount(config: config)
+        let tokenListAppearance = cryptoAccountTokenListAppearance(withConfig: config, remoteState: remoteState)
+        let newCryptoAccount = StoredCryptoAccount(config: config, tokenListAppearance: tokenListAppearance)
         let existingCryptoAccounts = remoteState.accounts
         let merger = StoredCryptoAccountsMerger(preserveTokensWhileMergingAccounts: true)
         let (editedItems, isDirty) = merger.merge(oldAccounts: existingCryptoAccounts, newAccounts: [newCryptoAccount])
@@ -335,6 +341,24 @@ final class CommonCryptoAccountsRepository {
         // Updating local storage only after successful remote update
         persistentStorage.removeAll { $0.derivationIndex.toAnyHashable() == identifier.toAnyHashable() }
         auxiliaryDataStorage.update(withRemoteInfo: remoteCryptoAccountsInfo)
+    }
+
+    private func cryptoAccountTokenListAppearance(
+        withConfig config: CryptoAccountPersistentConfig,
+        remoteState: CryptoAccountsRemoteState,
+    ) -> CryptoAccountPersistentConfig.TokenListAppearance {
+        // Currently, the token list appearance is shared between all accounts within a unique wallet and therefore
+        // has the same value for all accounts. So, we can simply take the appearance from any existing remote account
+        // if there is no account matching the provided derivation index.
+        let accounts = remoteState.accounts
+        let account = accounts.first { $0.derivationIndex == config.derivationIndex } ?? accounts.first
+
+        // Pretty much dead code path, since there is always exist at least one account
+        guard let account else {
+            return .default
+        }
+
+        return CryptoAccountPersistentConfig.TokenListAppearance(grouping: account.grouping, sorting: account.sorting)
     }
 
     // MARK: - Custom tokens upgrade and migration

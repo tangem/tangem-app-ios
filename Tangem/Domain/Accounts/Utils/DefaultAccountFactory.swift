@@ -22,6 +22,6 @@ struct DefaultAccountFactory {
         let config = AccountModelUtils.mainAccountPersistentConfig(forUserWalletWithId: userWalletId)
         let tokens = StoredEntryConverter.convertToStoredEntries(defaultBlockchains)
 
-        return StoredCryptoAccount(config: config, tokens: tokens)
+        return StoredCryptoAccount(config: config, tokenListAppearance: .default, tokens: tokens)
     }
 }
