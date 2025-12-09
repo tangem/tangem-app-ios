@@ -48,11 +48,11 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
     private var didBind = false
 
     init(
-        coordinator: OrganizeTokensRoutable,
         userWalletModel: UserWalletModel,
         tokenSectionsAdapter: TokenSectionsAdapter,
         optionsProviding: OrganizeTokensOptionsProviding,
-        optionsEditing: OrganizeTokensOptionsEditing
+        optionsEditing: OrganizeTokensOptionsEditing,
+        coordinator: OrganizeTokensRoutable
     ) {
         self.coordinator = coordinator
         self.userWalletModel = userWalletModel
@@ -73,7 +73,6 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
         if didBind { return }
 
         let sourcePublisherFactory = TokenSectionsSourcePublisherFactory()
-        // [REDACTED_TODO_COMMENT]
         let tokenSectionsSourcePublisher = sourcePublisherFactory.makeSourcePublisher(for: userWalletModel)
 
         let organizedTokensSectionsPublisher = tokenSectionsAdapter
