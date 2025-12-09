@@ -14,6 +14,7 @@ struct TangemPayTokenBalanceProvider {
     private let tokenItem: TokenItem
     private let tokenBalancesRepository: TokenBalancesRepository
     private let balanceSubject: CurrentValueSubject<LoadingResult<TangemPayBalance, Error>?, Never>
+    private let keyPath: KeyPath<TangemPayBalance, Decimal>
 
     private let walletModelId: WalletModelId
     private let balanceFormatter: BalanceFormatter
@@ -21,11 +22,13 @@ struct TangemPayTokenBalanceProvider {
     init(
         tokenItem: TokenItem,
         tokenBalancesRepository: TokenBalancesRepository,
-        balanceSubject: CurrentValueSubject<LoadingResult<TangemPayBalance, Error>?, Never>
+        balanceSubject: CurrentValueSubject<LoadingResult<TangemPayBalance, Error>?, Never>,
+        keyPath: KeyPath<TangemPayBalance, Decimal>
     ) {
         self.tokenItem = tokenItem
         self.tokenBalancesRepository = tokenBalancesRepository
         self.balanceSubject = balanceSubject
+        self.keyPath = keyPath
 
         walletModelId = .init(tokenItem: tokenItem)
         balanceFormatter = .init()
@@ -79,8 +82,9 @@ private extension TangemPayTokenBalanceProvider {
         case .failure:
             return .failure(cachedBalance())
         case .success(let balance):
-            storeBalance(balance: balance.fiat.availableBalance)
-            return .loaded(balance.fiat.availableBalance)
+            let targetBalance = balance[keyPath: keyPath]
+            storeBalance(balance: targetBalance)
+            return .loaded(targetBalance)
         }
     }
 
