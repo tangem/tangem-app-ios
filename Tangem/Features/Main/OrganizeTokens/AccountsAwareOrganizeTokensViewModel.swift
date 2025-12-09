@@ -18,12 +18,13 @@ final class AccountsAwareOrganizeTokensViewModel: ObservableObject, Identifiable
     var sectionHeaderItemIndex: Int { .min }
 
     private(set) lazy var headerViewModel = OrganizeTokensHeaderViewModel(
-        optionsProviding: optionsProviding,
-        optionsEditing: optionsEditing
+        optionsProviding: dummyOptionsManager,
+        optionsEditing: dummyOptionsManager
     )
 
     @Published private(set) var __sections: [OrganizeTokensListOuterSection] = []
-    @available(*, deprecated, message: "Delete")
+
+    @available(*, deprecated, message: "Delete this property ([REDACTED_INFO])")
     @Published private(set) var sections: [OrganizeTokensListInnerSection] = []
 
     let id = UUID()
@@ -31,9 +32,13 @@ final class AccountsAwareOrganizeTokensViewModel: ObservableObject, Identifiable
     private weak var coordinator: OrganizeTokensRoutable?
 
     private let userWalletModel: UserWalletModel
-    private let tokenSectionsAdapter: TokenSectionsAdapter
-    private let optionsProviding: OrganizeTokensOptionsProviding
-    private let optionsEditing: OrganizeTokensOptionsEditing
+
+    // [REDACTED_TODO_COMMENT]
+    @available(*, deprecated, message: "Temporary dummy implementation, replace with real one ([REDACTED_INFO])")
+    private let dummyOptionsManager = FakeOrganizeTokensOptionsManager(
+        initialGroupingOption: .none,
+        initialSortingOption: .dragAndDrop
+    )
 
     private let _dragAndDropActionsCache = OrganizeTokensDragAndDropActionsAggregatedCache()
     private var currentlyDraggedSectionIdentifier: AnyHashable?
@@ -50,17 +55,11 @@ final class AccountsAwareOrganizeTokensViewModel: ObservableObject, Identifiable
     private var didBind = false
 
     init(
-        coordinator: OrganizeTokensRoutable,
         userWalletModel: UserWalletModel,
-        tokenSectionsAdapter: TokenSectionsAdapter,
-        optionsProviding: OrganizeTokensOptionsProviding,
-        optionsEditing: OrganizeTokensOptionsEditing
+        coordinator: OrganizeTokensRoutable
     ) {
-        self.coordinator = coordinator
         self.userWalletModel = userWalletModel
-        self.tokenSectionsAdapter = tokenSectionsAdapter
-        self.optionsProviding = optionsProviding
-        self.optionsEditing = optionsEditing
+        self.coordinator = coordinator
     }
 
     func onViewWillAppear() {
@@ -403,7 +402,7 @@ extension AccountsAwareOrganizeTokensViewModel {
 
     func onDragStart(at indexPath: OrganizeTokensIndexPath) {
         // A started drag-and-drop session always disables sorting by balance
-        optionsEditing.sort(by: .dragAndDrop)
+        dummyOptionsManager.sort(by: .dragAndDrop)
 
         // Process further only if a section is currently being dragged
         guard indexPath._item == sectionHeaderItemIndex else {
