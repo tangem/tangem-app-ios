@@ -22,6 +22,7 @@ final class AccountsAwareOrganizeTokensViewModel: ObservableObject, Identifiable
         optionsEditing: dummyOptionsManager
     )
 
+    // [REDACTED_TODO_COMMENT]
     @Published private(set) var __sections: [OrganizeTokensListOuterSection] = []
 
     @available(*, deprecated, message: "[REDACTED_TODO_COMMENT]")
