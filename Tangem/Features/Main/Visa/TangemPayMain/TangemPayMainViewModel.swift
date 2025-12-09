@@ -288,10 +288,10 @@ private extension TangemPayMainViewModel {
             tokenItem: TangemPayUtilities.usdcTokenItem,
             feeTokenItem: TangemPayUtilities.usdcTokenItem,
             defaultAddressString: depositAddress,
-            availableBalanceProvider: tangemPayAccount.tangemPayTokenBalanceProvider,
+            availableBalanceProvider: tangemPayAccount.balancesProvider.availableBalanceProvider,
             cexTransactionProcessor: tangemPayAccount.tangemPayExpressCEXTransactionProcessor,
             transactionValidator: TangemPayExpressTransactionValidator(
-                availableBalanceProvider: tangemPayAccount.tangemPayTokenBalanceProvider
+                availableBalanceProvider: tangemPayAccount.balancesProvider.availableBalanceProvider,
             )
         )
 
@@ -307,7 +307,7 @@ private extension TangemPayMainViewModel {
         let restriction = try await tangemPayAccount.withdrawAvailabilityProvider.restriction()
 
         switch restriction {
-        case .none:
+        case .none, .zeroWalletBalance:
             coordinator?.openTangemPayWithdraw(input: ExpressDependenciesInput(
                 userWalletInfo: userWalletInfo,
                 source: tangemPayWalletWrapper,
@@ -316,7 +316,7 @@ private extension TangemPayMainViewModel {
         case .hasPendingWithdrawOrder:
             coordinator?.openTangemWithdrawInProgressSheet()
         default:
-            coordinator?.openTangemPayNoDepositAddressSheet()
+            alert = TokenActionAvailabilityAlertBuilder().alert(for: restriction)
         }
     }
 
