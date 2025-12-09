@@ -108,6 +108,11 @@ private extension TangemPayAccountBuilder {
             userWalletId: userWalletModel.userWalletId
         )
 
+        let balancesService = CommonTangemPayBalanceService(
+            customerInfoManagementService: customerInfoManagementService,
+            tokenBalancesRepository: tokenBalancesRepository
+        )
+
         let withdrawTransactionService = CommonTangemPayWithdrawTransactionService(
             customerInfoManagementService: customerInfoManagementService,
             fiatItem: TangemPayUtilities.fiatItem,
@@ -118,7 +123,7 @@ private extension TangemPayAccountBuilder {
             authorizer: authorizer,
             authorizationTokensHandler: authorizationTokensHandler,
             customerInfoManagementService: customerInfoManagementService,
-            tokenBalancesRepository: tokenBalancesRepository,
+            balancesService: balancesService,
             withdrawTransactionService: withdrawTransactionService
         )
     }
