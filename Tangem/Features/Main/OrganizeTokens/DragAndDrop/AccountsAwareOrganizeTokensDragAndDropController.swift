@@ -27,12 +27,12 @@ protocol AccountsAwareOrganizeTokensDragAndDropControllerDataSource: AnyObject {
 
     func controller(
         _ controller: AccountsAwareOrganizeTokensDragAndDropController,
-        listViewKindForItemAt indexPath: _IndexPath
+        listViewKindForItemAt indexPath: OrganizeTokensIndexPath
     ) -> OrganizeTokensDragAndDropControllerListViewKind
 
     func controller(
         _ controller: AccountsAwareOrganizeTokensDragAndDropController,
-        listViewIdentifierForItemAt indexPath: _IndexPath
+        listViewIdentifierForItemAt indexPath: OrganizeTokensIndexPath
     ) -> AnyHashable
 }
 
@@ -88,7 +88,7 @@ final class AccountsAwareOrganizeTokensDragAndDropController: ObservableObject {
     var contentOffsetSubject: some Subject<CGPoint, Never> { _contentOffsetSubject }
     private let _contentOffsetSubject = CurrentValueSubject<CGPoint, Never>(.zero)
 
-    private var itemsFrames: [_IndexPath: CGRect] = [:]
+    private var itemsFrames: [OrganizeTokensIndexPath: CGRect] = [:]
 
     private let autoScrollStartSubject = PassthroughSubject<OrganizeTokensDragAndDropControllerAutoScrollDirection, Never>()
     private let autoScrollStopSubject = PassthroughSubject<Void, Never>()
@@ -127,19 +127,19 @@ final class AccountsAwareOrganizeTokensDragAndDropController: ObservableObject {
         impactFeedbackGenerator.impactOccurred()
     }
 
-    func saveFrame(_ frame: CGRect, forItemAt indexPath: _IndexPath) {
+    func saveFrame(_ frame: CGRect, forItemAt indexPath: OrganizeTokensIndexPath) {
         itemsFrames[indexPath] = frame
     }
 
-    func frame(forItemAt indexPath: _IndexPath) -> CGRect? {
+    func frame(forItemAt indexPath: OrganizeTokensIndexPath) -> CGRect? {
         itemsFrames[indexPath]
     }
 
     func updatedDestinationIndexPath(
-        source sourceIndexPath: _IndexPath,
-        currentDestination currentDestinationIndexPath: _IndexPath,
+        source sourceIndexPath: OrganizeTokensIndexPath,
+        currentDestination currentDestinationIndexPath: OrganizeTokensIndexPath,
         translationValue: CGSize
-    ) -> _IndexPath? {
+    ) -> OrganizeTokensIndexPath? {
         guard let dataSource = dataSource else {
             assertionFailure("DataSource required, but not set for \(self)")
             return nil
@@ -182,10 +182,10 @@ final class AccountsAwareOrganizeTokensDragAndDropController: ObservableObject {
 
     /// - Warning: O(N) time complexity.
     private func updatedDestinationIndexPath(
-        forItemAt indexPath: _IndexPath,
+        forItemAt indexPath: OrganizeTokensIndexPath,
         draggedItemFrame: CGRect,
         dataSource: AccountsAwareOrganizeTokensDragAndDropControllerDataSource
-    ) -> _IndexPath? {
+    ) -> OrganizeTokensIndexPath? {
         let numberOfRowsInSection = dataSource.controller(
             self,
             numberOfRowsInInnerSection: indexPath.innerSection,
@@ -197,7 +197,7 @@ final class AccountsAwareOrganizeTokensDragAndDropController: ObservableObject {
         for offset in 1 ..< numberOfRowsInSection {
             // Going in the upward direction from the current destination index path until OOB
             if !hasReachedTop, indexPath._item - offset >= 0 {
-                let destinationIndexPathCandidate = _IndexPath(
+                let destinationIndexPathCandidate = OrganizeTokensIndexPath(
                     outerSection: indexPath.outerSection,
                     innerSection: indexPath.innerSection,
                     item: indexPath._item - offset
@@ -211,7 +211,7 @@ final class AccountsAwareOrganizeTokensDragAndDropController: ObservableObject {
 
             // Going in the downward direction from the current destination index path until OOB
             if !hasReachedBottom, indexPath._item + offset <= numberOfRowsInSection - 1 {
-                let destinationIndexPathCandidate = _IndexPath(
+                let destinationIndexPathCandidate = OrganizeTokensIndexPath(
                     outerSection: indexPath.outerSection,
                     innerSection: indexPath.innerSection,
                     item: indexPath._item + offset
@@ -233,10 +233,10 @@ final class AccountsAwareOrganizeTokensDragAndDropController: ObservableObject {
 
     /// - Warning: O(N) time complexity.
     private func updatedDestinationIndexPath(
-        forSectionAt indexPath: _IndexPath,
+        forSectionAt indexPath: OrganizeTokensIndexPath,
         draggedItemFrame: CGRect,
         dataSource: AccountsAwareOrganizeTokensDragAndDropControllerDataSource
-    ) -> _IndexPath? {
+    ) -> OrganizeTokensIndexPath? {
         let numberOfSections = dataSource.controller(self, numberOfInnerSectionsInOuterSection: indexPath.outerSection)
         var hasReachedTop = false
         var hasReachedBottom = false
@@ -244,7 +244,7 @@ final class AccountsAwareOrganizeTokensDragAndDropController: ObservableObject {
         for offset in 1 ..< numberOfSections {
             // Going in the upward direction from the current destination index path until OOB
             if !hasReachedTop, indexPath.innerSection - offset >= 0 {
-                let destinationIndexPathCandidate = _IndexPath(
+                let destinationIndexPathCandidate = OrganizeTokensIndexPath(
                     outerSection: indexPath.outerSection,
                     innerSection: indexPath.innerSection - offset,
                     item: indexPath._item
@@ -258,7 +258,7 @@ final class AccountsAwareOrganizeTokensDragAndDropController: ObservableObject {
 
             // Going in the downward direction from the current destination index path until OOB
             if !hasReachedBottom, indexPath.innerSection + offset <= numberOfSections - 1 {
-                let destinationIndexPathCandidate = _IndexPath(
+                let destinationIndexPathCandidate = OrganizeTokensIndexPath(
                     outerSection: indexPath.outerSection,
                     innerSection: indexPath.innerSection + offset,
                     item: indexPath._item
@@ -279,7 +279,7 @@ final class AccountsAwareOrganizeTokensDragAndDropController: ObservableObject {
     }
 
     func isDestinationIndexPathCandidateValid(
-        _ destinationIndexPathCandidate: _IndexPath,
+        _ destinationIndexPathCandidate: OrganizeTokensIndexPath,
         draggedItemFrame: CGRect
     ) -> Bool {
         guard let candidateItemFrame = frame(forItemAt: destinationIndexPathCandidate) else {
@@ -293,7 +293,7 @@ final class AccountsAwareOrganizeTokensDragAndDropController: ObservableObject {
     }
 
     /// Maybe not so memory-efficient, but definitely safer than manual clearing of `itemsFrames` cache
-    private func isIndexPathValid(_ indexPath: _IndexPath) -> Bool {
+    private func isIndexPathValid(_ indexPath: OrganizeTokensIndexPath) -> Bool {
         guard let dataSource = dataSource else {
             assertionFailure("DataSource required, but not set for \(self)")
             return false
@@ -321,7 +321,7 @@ final class AccountsAwareOrganizeTokensDragAndDropController: ObservableObject {
         direction: OrganizeTokensDragAndDropControllerAutoScrollDirection,
         contentOffset: CGPoint,
         viewportSize: CGSize
-    ) -> _IndexPath? {
+    ) -> OrganizeTokensIndexPath? {
         // [REDACTED_TODO_COMMENT]
         let sortedItemsFrames = itemsFrames
             .filter { isIndexPathValid($0.key) }
