@@ -108,7 +108,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
                     return sendKaspaTokenTransaction(transaction, token: token, signer: signer)
                 }
             }
-            .mapSendTxError()
+            .mapSendTxError(currentHost: currentHost)
             .eraseToAnyPublisher()
         case .coin:
             return sendKaspaCoinTransaction(transaction, signer: signer)
@@ -140,7 +140,10 @@ final class KaspaWalletManager: BaseManager, WalletManager {
             return manager
                 .networkService
                 .send(transaction: KaspaDTO.Send.Request(transaction: tx))
-                .mapAndEraseSendTxError(tx: encodedRawTransactionData?.hexString.lowercased())
+                .mapAndEraseSendTxError(
+                    tx: encodedRawTransactionData?.hexString.lowercased(),
+                    currentHost: manager.currentHost
+                )
         }
         .withWeakCaptureOf(self)
         .handleEvents(receiveOutput: { manager, response in
@@ -151,7 +154,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
         .map { manager, response in
             return TransactionSendResult(hash: response.transactionId, currentProviderHost: manager.currentHost)
         }
-        .mapSendTxError()
+        .mapSendTxError(currentHost: currentHost)
         .eraseToAnyPublisher()
     }
 
@@ -196,7 +199,10 @@ final class KaspaWalletManager: BaseManager, WalletManager {
 
             return manager.networkService
                 .send(transaction: KaspaDTO.Send.Request(transaction: commitTx))
-                .mapAndEraseSendTxError(tx: encodedRawTransactionData?.hexString.lowercased())
+                .mapAndEraseSendTxError(
+                    tx: encodedRawTransactionData?.hexString.lowercased(),
+                    currentHost: manager.currentHost
+                )
                 .mapToValue((revealTx, result))
         }
         .withWeakCaptureOf(self)
@@ -229,7 +235,10 @@ final class KaspaWalletManager: BaseManager, WalletManager {
                     // therefore `wire` operator is used here
                     return manager.updateUnspentOutputs()
                 }
-                .mapAndEraseSendTxError(tx: encodedRawTransactionData?.hexString.lowercased())
+                .mapAndEraseSendTxError(
+                    tx: encodedRawTransactionData?.hexString.lowercased(),
+                    currentHost: manager.currentHost
+                )
         }
         .withWeakCaptureOf(self)
         .handleEvents(receiveOutput: { manager, response in
@@ -240,7 +249,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
             await manager.removeIncompleteTokenTransaction(for: token)
             return TransactionSendResult(hash: response.transactionId, currentProviderHost: manager.currentHost)
         }
-        .mapSendTxError()
+        .mapSendTxError(currentHost: currentHost)
         .eraseToAnyPublisher()
     }
 
@@ -267,7 +276,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
 
                 return tokenTransaction
             }
-            .mapSendTxError()
+            .mapSendTxError(currentHost: currentHost)
             .withWeakCaptureOf(self)
             .flatMap { manager, tokenTransaction in
                 return manager.send(tokenTransaction, signer: signer)
@@ -287,7 +296,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
               // Here, we use fee, which is obtained from previously saved data and the hardcoded dust value
               let feeParams = transaction.fee.parameters as? KaspaKRC20.TokenTransactionFeeParams
         else {
-            return .sendTxFail(error: BlockchainSdkError.failedToBuildTx)
+            return .sendTxFail(error: BlockchainSdkError.failedToBuildTx, currentHost: currentHost)
         }
 
         do {
@@ -301,7 +310,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
             hashes = result.hashes
             commitRedeemScript = result.redeemScript
         } catch {
-            return .sendTxFail(error: error)
+            return .sendTxFail(error: error, currentHost: currentHost)
         }
 
         return signer.sign(hashes: hashes, walletPublicKey: wallet.publicKey)
@@ -334,7 +343,10 @@ final class KaspaWalletManager: BaseManager, WalletManager {
                         // therefore `wire` operator is used here
                         return manager.updateUnspentOutputs()
                     }
-                    .mapAndEraseSendTxError(tx: encodedRawTransactionData?.hex())
+                    .mapAndEraseSendTxError(
+                        tx: encodedRawTransactionData?.hex(),
+                        currentHost: manager.currentHost
+                    )
             }
             .withWeakCaptureOf(self)
             .handleEvents(receiveOutput: { manager, response in
@@ -345,7 +357,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
                 await manager.removeIncompleteTokenTransaction(for: token)
                 return TransactionSendResult(hash: response.transactionId, currentProviderHost: manager.currentHost)
             }
-            .mapSendTxError()
+            .mapSendTxError(currentHost: currentHost)
             .eraseToAnyPublisher()
     }
 

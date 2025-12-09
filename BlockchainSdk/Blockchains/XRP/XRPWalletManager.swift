@@ -124,7 +124,7 @@ class XRPWalletManager: BaseManager, WalletManager {
 
             return TransactionSendResult(hash: txHash, currentProviderHost: currentHost)
         }
-        .mapSendTxError()
+        .mapSendTxError(currentHost: currentHost)
         .eraseToAnyPublisher()
     }
 
@@ -189,7 +189,7 @@ class XRPWalletManager: BaseManager, WalletManager {
                     throw BlockchainSdkError.noTrustlineAtDestination
                 }
             }
-            .mapSendTxError()
+            .mapSendTxError(currentHost: currentHost)
             .withWeakCaptureOf(self)
             .flatMap { manager, _ in
                 manager.signAndSend(
@@ -214,7 +214,7 @@ extension XRPWalletManager: TransactionSender {
 
             return try await performSend(transaction: transaction, signer: signer)
         }
-        .mapSendTxError()
+        .mapSendTxError(currentHost: currentHost)
         .eraseToAnyPublisher()
     }
 
@@ -496,7 +496,7 @@ private extension XRPWalletManager {
 
         return try await networkService.send(blob: rawTransactionHash)
             .withWeakCaptureOf(self)
-            .mapAndEraseSendTxError(tx: rawTransactionHash)
+            .mapAndEraseSendTxError(tx: rawTransactionHash, currentHost: currentHost)
             .map { $0.1 }
             .eraseToAnyPublisher()
             .async()

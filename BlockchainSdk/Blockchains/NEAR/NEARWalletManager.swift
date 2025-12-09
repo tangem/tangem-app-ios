@@ -259,9 +259,12 @@ extension NEARWalletManager: WalletManager {
             .flatMap { walletManager, rawTransactionData in
                 return walletManager.networkService
                     .send(transaction: rawTransactionData)
-                    .mapAndEraseSendTxError(tx: rawTransactionData.hex())
+                    .mapAndEraseSendTxError(
+                        tx: rawTransactionData.hex(),
+                        currentHost: walletManager.currentHost
+                    )
             }
-            .mapSendTxError()
+            .mapSendTxError(currentHost: currentHost)
             .handleEvents(
                 receiveOutput: { [weak self] sendResult in
                     self?.updateWalletWithPendingTransaction(transaction, sendResult: sendResult)

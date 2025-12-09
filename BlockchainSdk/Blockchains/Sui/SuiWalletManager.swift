@@ -163,7 +163,7 @@ extension SuiWalletManager: TransactionSender {
         .flatMap { manager, builtTransaction -> AnyPublisher<SuiExecuteTransaction, Error> in
             return manager.networkService
                 .sendTransaction(transaction: builtTransaction.txBytes, signature: builtTransaction.signature)
-                .mapAndEraseSendTxError(tx: builtTransaction.txBytes)
+                .mapAndEraseSendTxError(tx: builtTransaction.txBytes, currentHost: manager.currentHost)
                 .eraseToAnyPublisher()
         }
         .withWeakCaptureOf(self)
@@ -175,7 +175,7 @@ extension SuiWalletManager: TransactionSender {
 
             return TransactionSendResult(hash: tx.digest, currentProviderHost: manager.currentHost)
         }
-        .mapSendTxError()
+        .mapSendTxError(currentHost: currentHost)
         .eraseToAnyPublisher()
     }
 }

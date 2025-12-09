@@ -104,7 +104,7 @@ extension AptosWalletManager: WalletManager {
         do {
             dataForSign = try transactionBuilder.buildForSign(transaction: transaction, expirationTimestamp: expirationTimestamp)
         } catch {
-            return .sendTxFail(error: BlockchainSdkError.failedToBuildTx)
+            return .sendTxFail(error: BlockchainSdkError.failedToBuildTx, currentHost: currentHost)
         }
 
         return signer
@@ -122,7 +122,7 @@ extension AptosWalletManager: WalletManager {
                 return walletManager
                     .networkService
                     .submitTransaction(data: rawTransactionData)
-                    .mapAndEraseSendTxError(tx: rawTransactionData.hex())
+                    .mapAndEraseSendTxError(tx: rawTransactionData.hex(), currentHost: walletManager.currentHost)
                     .eraseToAnyPublisher()
             }
             .withWeakCaptureOf(self)
@@ -132,7 +132,7 @@ extension AptosWalletManager: WalletManager {
                 walletManager.wallet.addPendingTransaction(record)
                 return TransactionSendResult(hash: transactionHash, currentProviderHost: walletManager.currentHost)
             }
-            .mapSendTxError()
+            .mapSendTxError(currentHost: currentHost)
             .eraseToAnyPublisher()
     }
 }

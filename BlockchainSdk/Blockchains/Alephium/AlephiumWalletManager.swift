@@ -84,7 +84,7 @@ class AlephiumWalletManager: BaseManager, WalletManager {
     func send(_ transaction: Transaction, signer: any TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
         Result { try transactionBuilder.buildForSign(transaction: transaction) }
             .publisher
-            .mapSendTxError()
+            .mapSendTxError(currentHost: currentHost)
             .withWeakCaptureOf(self)
             .flatMap { manager, hashForSign -> AnyPublisher<TransactionSendResult, SendTxError> in
                 return signer
@@ -108,7 +108,7 @@ class AlephiumWalletManager: BaseManager, WalletManager {
                         walletManager.wallet.addPendingTransaction(record)
                         return TransactionSendResult(hash: transactionHash, currentProviderHost: walletManager.currentHost)
                     }
-                    .mapSendTxError()
+                    .mapSendTxError(currentHost: manager.currentHost)
                     .eraseToAnyPublisher()
             }
             .eraseToAnyPublisher()

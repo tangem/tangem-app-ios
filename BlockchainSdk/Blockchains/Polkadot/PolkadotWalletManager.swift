@@ -85,7 +85,7 @@ extension PolkadotWalletManager: TransactionSender {
             }
             return networkService
                 .submitExtrinsic(data: image)
-                .mapAndEraseSendTxError(tx: image.hex())
+                .mapAndEraseSendTxError(tx: image.hex(), currentHost: currentHost)
                 .eraseToAnyPublisher()
         }
         .withWeakCaptureOf(self)
@@ -95,7 +95,7 @@ extension PolkadotWalletManager: TransactionSender {
             manager.wallet.addPendingTransaction(record)
             return TransactionSendResult(hash: hash, currentProviderHost: manager.currentHost)
         }
-        .mapSendTxError()
+        .mapSendTxError(currentHost: currentHost)
         .eraseToAnyPublisher()
     }
 

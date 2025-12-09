@@ -127,7 +127,7 @@ class KoinosWalletManager: BaseManager, WalletManager, FeeResourceRestrictable {
                 walletManager.wallet.addPendingTransaction(record)
                 return TransactionSendResult(hash: txId, currentProviderHost: walletManager.currentHost)
             }
-            .mapSendTxError()
+            .mapSendTxError(currentHost: currentHost)
             .eraseToAnyPublisher()
     }
 
