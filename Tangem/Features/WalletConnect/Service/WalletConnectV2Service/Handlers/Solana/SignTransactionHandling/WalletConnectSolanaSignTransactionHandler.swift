@@ -100,29 +100,29 @@ extension WalletConnectSolanaSignTransactionHandler: WalletConnectMessageHandler
 
     func validate() async throws -> WalletConnectMessageHandleRestrictionType {
         /*
-        let (canHandleTransaction, _, _) = try prepareTransaction()
+         let (canHandleTransaction, _, _) = try prepareTransaction()
 
-        if canHandleTransaction {
-            return .empty
-        } else {
-            return .multipleTransactions
-        }
-         */
-        
+         if canHandleTransaction {
+             return .empty
+         } else {
+             return .multipleTransactions
+         }
+          */
+
         return .multipleTransactions
     }
 
     func handle() async throws -> RPCResult {
         /*
-        let (canHandleTransaction, unsignedHash, signatureCount) = try prepareTransaction()
+         let (canHandleTransaction, unsignedHash, signatureCount) = try prepareTransaction()
 
-        if canHandleTransaction {
-            return try await handleDefaultTransaction(unsignedHash: unsignedHash)
-        } else {
-            return try await handleLongTransaction(unsignedHash: unsignedHash, signatureCount: signatureCount)
-        }
-         */
-        
+         if canHandleTransaction {
+             return try await handleDefaultTransaction(unsignedHash: unsignedHash)
+         } else {
+             return try await handleLongTransaction(unsignedHash: unsignedHash, signatureCount: signatureCount)
+         }
+          */
+
         let (canHandleTransaction, unsignedHash, signatureCount) = try prepareTransaction()
         return try await handleLongTransaction(unsignedHash: unsignedHash, signatureCount: signatureCount)
     }
