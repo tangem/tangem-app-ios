@@ -60,9 +60,11 @@ extension CommonTangemPayWithdrawTransactionService: TangemPayWithdrawTransactio
             .sign(hash: preSignature.hash, walletPublicKey: walletPublicKey)
             .async()
 
+        let unmarshalledSignature = try signatureInfo.unmarshal()
+
         let signature = TangemPayWithdrawSignature(
             sender: preSignature.sender,
-            signature: signatureInfo.signature,
+            signature: unmarshalledSignature,
             salt: preSignature.salt
         )
 
