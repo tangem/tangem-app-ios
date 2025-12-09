@@ -49,7 +49,8 @@ private extension TangemPayTotalBalanceProvider {
             .flatMapLatest { provider, tangemPayAccount -> AnyPublisher<TotalBalanceState, Never> in
                 if let tangemPayAccount {
                     return tangemPayAccount
-                        .fiatAvailableBalanceProvider
+                        .balancesProvider
+                        .fiatTotalTokenBalanceProvider
                         .balanceTypePublisher
                         .map { balanceType in
                             let balance = TokenBalanceTypesCombiner.Balance(item: provider.tokenItem, balance: balanceType)
