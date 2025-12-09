@@ -286,8 +286,8 @@ final class CryptoAccountsNetworkMapper {
         groupType: UserTokenList.GroupType?
     ) -> StoredUserTokenList.Grouping {
         guard let groupType else {
-            // [REDACTED_TODO_COMMENT]
-            return .none
+            // Fallback value for newly activated wallets (created by the very first PUT /accounts request)
+            return CryptoAccountPersistentConfig.TokenListAppearance.default.grouping
         }
 
         switch groupType {
@@ -302,8 +302,8 @@ final class CryptoAccountsNetworkMapper {
         sortType: UserTokenList.SortType?
     ) -> StoredUserTokenList.Sorting {
         guard let sortType else {
-            // [REDACTED_TODO_COMMENT]
-            return .manual
+            // Fallback value for newly activated wallets (created by the very first PUT /accounts request)
+            return CryptoAccountPersistentConfig.TokenListAppearance.default.sorting
         }
 
         switch sortType {
