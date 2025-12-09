@@ -47,9 +47,9 @@ struct AccountsAwareOrganizeTokensView: View {
 
     @StateObject private var dragAndDropController: AccountsAwareOrganizeTokensDragAndDropController
 
-    @State private var dragAndDropSourceIndexPath: _IndexPath?
+    @State private var dragAndDropSourceIndexPath: OrganizeTokensIndexPath?
 
-    @State private var dragAndDropDestinationIndexPath: _IndexPath?
+    @State private var dragAndDropDestinationIndexPath: OrganizeTokensIndexPath?
 
     /// In a `scrollViewContentCoordinateSpaceName` coordinate space
     @State private var dragAndDropSourceItemFrame: CGRect?
@@ -206,7 +206,7 @@ struct AccountsAwareOrganizeTokensView: View {
                         Section(
                             content: {
                                 ForEach(indexed: innerSectionViewModel.items.indexed()) { itemIndex, itemViewModel in
-                                    let indexPath = _IndexPath(
+                                    let indexPath = OrganizeTokensIndexPath(
                                         outerSection: outerSectionIndex,
                                         innerSection: innerSectionIndex,
                                         item: itemIndex
@@ -232,7 +232,7 @@ struct AccountsAwareOrganizeTokensView: View {
                                 }
                             },
                             header: {
-                                let indexPath = _IndexPath(
+                                let indexPath = OrganizeTokensIndexPath(
                                     outerSection: outerSectionIndex,
                                     innerSection: innerSectionIndex,
                                     item: viewModel.sectionHeaderItemIndex
@@ -397,7 +397,7 @@ struct AccountsAwareOrganizeTokensView: View {
     @ViewBuilder
     private func makeCell(
         viewModel: OrganizeTokensListItemViewModel,
-        atIndexPath indexPath: _IndexPath,
+        atIndexPath indexPath: OrganizeTokensIndexPath,
         parametersProvider: OrganizeTokensListCornerRadiusParametersProvider
     ) -> some View {
         OrganizeTokensListItemView(viewModel: viewModel)
@@ -423,7 +423,7 @@ struct AccountsAwareOrganizeTokensView: View {
     @ViewBuilder
     private func makeSection(
         from section: OrganizeTokensListSection,
-        atIndexPath indexPath: _IndexPath,
+        atIndexPath indexPath: OrganizeTokensIndexPath,
         parametersProvider: OrganizeTokensListCornerRadiusParametersProvider
     ) -> some View {
         Group {
@@ -526,7 +526,7 @@ struct AccountsAwareOrganizeTokensView: View {
 
     private func makeDraggableView<Content>(
         width: CGFloat,
-        indexPath: _IndexPath,
+        indexPath: OrganizeTokensIndexPath,
         itemFrame: CGRect,
         @ViewBuilder content: () -> Content
     ) -> some View where Content: View {
