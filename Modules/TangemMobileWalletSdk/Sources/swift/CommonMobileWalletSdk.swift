@@ -63,11 +63,14 @@ public final class CommonMobileWalletSdk: MobileWalletSdk {
     }
 
     public func exportMnemonic(context: MobileWalletContext) throws -> [String] {
-        let privateInfo = try privateInfoStorageManager.getPrivateInfoData(context: context)
+        var privateInfoData = try privateInfoStorageManager.getPrivateInfoData(context: context)
+        defer { secureErase(data: &privateInfoData) }
 
-        guard let privateInfo = PrivateInfo(data: privateInfo) else {
+        guard let privateInfo = PrivateInfo(data: privateInfoData) else {
             throw MobileWalletError.failedToExportMnemonic
         }
+
+        defer { privateInfo.clear() }
 
         let mnemonic = try Mnemonic(entropyData: privateInfo.entropy, wordList: .en)
 
@@ -75,11 +78,14 @@ public final class CommonMobileWalletSdk: MobileWalletSdk {
     }
 
     public func exportPassphrase(context: MobileWalletContext) throws -> String {
-        let privateInfo = try privateInfoStorageManager.getPrivateInfoData(context: context)
+        var privateInfoData = try privateInfoStorageManager.getPrivateInfoData(context: context)
+        defer { secureErase(data: &privateInfoData) }
 
-        guard let privateInfo = PrivateInfo(data: privateInfo) else {
+        guard let privateInfo = PrivateInfo(data: privateInfoData) else {
             throw MobileWalletError.failedToExportPassphrase
         }
+
+        defer { privateInfo.clear() }
 
         return privateInfo.passphrase
     }
@@ -150,15 +156,14 @@ public final class CommonMobileWalletSdk: MobileWalletSdk {
     }
 
     public func deriveMasterKeys(context: MobileWalletContext) throws -> MobileWallet {
-        let privateInfo = try privateInfoStorageManager.getPrivateInfoData(context: context)
+        var privateInfoData = try privateInfoStorageManager.getPrivateInfoData(context: context)
+        defer { secureErase(data: &privateInfoData) }
 
-        guard let privateInfo = PrivateInfo(data: privateInfo) else {
+        guard let privateInfo = PrivateInfo(data: privateInfoData) else {
             throw MobileWalletError.failedToDeriveKey
         }
 
-        defer {
-            privateInfo.clear()
-        }
+        defer { privateInfo.clear() }
 
         let keyInfos = try deriveMasterKeys(
             entropy: privateInfo.entropy,
@@ -172,15 +177,14 @@ public final class CommonMobileWalletSdk: MobileWalletSdk {
         context: MobileWalletContext,
         derivationPaths: [Data: [DerivationPath]]
     ) throws -> [Data: MobileWalletKeyInfo] {
-        let privateInfo = try privateInfoStorageManager.getPrivateInfoData(context: context)
+        var privateInfoData = try privateInfoStorageManager.getPrivateInfoData(context: context)
+        defer { secureErase(data: &privateInfoData) }
 
-        guard let privateInfo = PrivateInfo(data: privateInfo) else {
+        guard let privateInfo = PrivateInfo(data: privateInfoData) else {
             throw MobileWalletError.failedToDeriveKey
         }
 
-        defer {
-            privateInfo.clear()
-        }
+        defer { privateInfo.clear() }
 
         var result = [Data: MobileWalletKeyInfo]()
 
@@ -230,15 +234,14 @@ public final class CommonMobileWalletSdk: MobileWalletSdk {
         seedKey: Data,
         context: MobileWalletContext
     ) throws -> [Data: [Data]] {
-        let privateInfo = try privateInfoStorageManager.getPrivateInfoData(context: context)
+        var privateInfoData = try privateInfoStorageManager.getPrivateInfoData(context: context)
+        defer { secureErase(data: &privateInfoData) }
 
-        guard let privateInfo = PrivateInfo(data: privateInfo) else {
+        guard let privateInfo = PrivateInfo(data: privateInfoData) else {
             throw MobileWalletError.failedToDeriveKey
         }
 
-        defer {
-            privateInfo.clear()
-        }
+        defer { privateInfo.clear() }
 
         let curves: [Data: EllipticCurve] = dataToSign.reduce(into: [:]) { partialResult, signData in
             let curve = DerivationUtil.curve(
