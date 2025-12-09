@@ -8,7 +8,9 @@
 
 import Foundation
 import BlockchainSdk
+import TangemMacro
 
+@CaseFlagable
 indirect enum YieldModuleManagerState: Equatable {
     case disabled
     case loading(cachedState: YieldModuleManagerState?)
@@ -41,15 +43,6 @@ extension YieldModuleManagerStateInfo {
 }
 
 extension YieldModuleManagerState {
-    var isLoading: Bool {
-        switch self {
-        case .loading:
-            true
-        default:
-            false
-        }
-    }
-
     var isEffectivelyActive: Bool {
         switch self {
         case .active:
