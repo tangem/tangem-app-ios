@@ -139,8 +139,8 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
             amountInCents: request.amountInCents,
             senderAddress: signature.sender,
             recipientAddress: request.destination,
-            adminSignature: signature.signature.hexString,
-            adminSalt: signature.salt.hexString
+            adminSignature: signature.signature.hexString.addHexPrefix(),
+            adminSalt: signature.salt.hexString.addHexPrefix()
         )
 
         let request = try await makeRequest(for: .sendWithdrawTransaction(requestTransaction))
