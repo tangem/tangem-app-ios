@@ -199,10 +199,10 @@ struct AccountsAwareOrganizeTokensView: View {
             cornerRadius: Constants.contentCornerRadius
         )
 
-        return ForEach(indexed: viewModel.__sections.indexed()) { outerSectionIndex, accountSectionViewModel in
+        return ForEach(indexed: viewModel.__sections.indexed()) { outerSectionIndex, outerSectionViewModel in
             Section(
                 content: {
-                    ForEach(indexed: accountSectionViewModel.items.indexed()) { innerSectionIndex, innerSectionViewModel in
+                    ForEach(indexed: outerSectionViewModel.items.indexed()) { innerSectionIndex, innerSectionViewModel in
                         Section(
                             content: {
                                 ForEach(indexed: innerSectionViewModel.items.indexed()) { itemIndex, itemViewModel in
@@ -240,7 +240,7 @@ struct AccountsAwareOrganizeTokensView: View {
                                 let identifier = innerSectionViewModel.id
                                 let isDragged = identifier == dragAndDropSourceViewModelIdentifier
 
-                                makeSection(
+                                makeInnerSection(
                                     from: innerSectionViewModel,
                                     atIndexPath: indexPath,
                                     parametersProvider: parametersProvider
@@ -262,8 +262,8 @@ struct AccountsAwareOrganizeTokensView: View {
                 },
                 header: {
                     AccountIconWithContentView(
-                        iconData: accountSectionViewModel.model.iconData,
-                        name: accountSectionViewModel.model.name
+                        iconData: outerSectionViewModel.model.iconData,
+                        name: outerSectionViewModel.model.name
                     )
                     .iconSettings(.smallSized)
                     .style(Fonts.BoldStatic.caption1.weight(.medium), color: Colors.Text.primary1)
@@ -421,7 +421,7 @@ struct AccountsAwareOrganizeTokensView: View {
 
     // [REDACTED_TODO_COMMENT]
     @ViewBuilder
-    private func makeSection(
+    private func makeInnerSection(
         from section: OrganizeTokensListInnerSection,
         atIndexPath indexPath: OrganizeTokensIndexPath,
         parametersProvider: OrganizeTokensListCornerRadiusParametersProvider
@@ -508,7 +508,7 @@ struct AccountsAwareOrganizeTokensView: View {
                 itemFrame: dragAndDropSourceItemFrame
             ) {
                 if let section = viewModel.section(for: dragAndDropSourceViewModelIdentifier) {
-                    makeSection(
+                    makeInnerSection(
                         from: section,
                         atIndexPath: dragAndDropSourceIndexPath,
                         parametersProvider: parametersProvider

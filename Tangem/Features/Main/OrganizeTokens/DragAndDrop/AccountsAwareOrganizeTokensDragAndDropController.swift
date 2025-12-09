@@ -22,7 +22,7 @@ protocol AccountsAwareOrganizeTokensDragAndDropControllerDataSource: AnyObject {
     func controller(
         _ controller: AccountsAwareOrganizeTokensDragAndDropController,
         numberOfRowsInInnerSection innerSection: Int,
-        outerSection: Int
+        andOuterSection outerSection: Int
     ) -> Int
 
     func controller(
@@ -189,7 +189,7 @@ final class AccountsAwareOrganizeTokensDragAndDropController: ObservableObject {
         let numberOfRowsInSection = dataSource.controller(
             self,
             numberOfRowsInInnerSection: indexPath.innerSection,
-            outerSection: indexPath.outerSection
+            andOuterSection: indexPath.outerSection
         )
         var hasReachedTop = false
         var hasReachedBottom = false
@@ -308,7 +308,7 @@ final class AccountsAwareOrganizeTokensDragAndDropController: ObservableObject {
             let numberOfRowsInSection = dataSource.controller(
                 self,
                 numberOfRowsInInnerSection: indexPath.innerSection,
-                outerSection: indexPath.outerSection
+                andOuterSection: indexPath.outerSection
             )
             return 0 ..< numberOfRowsInSection ~= indexPath._item
         case .cell, .sectionHeader:
