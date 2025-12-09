@@ -387,7 +387,7 @@ struct OrganizeTokensView: View {
 
     @ViewBuilder
     private func makeSection(
-        from section: OrganizeTokensListSection,
+        from section: OrganizeTokensListInnerSection,
         atIndex sectionIndex: Int,
         parametersProvider: OrganizeTokensListCornerRadiusParametersProvider
     ) -> some View {
@@ -396,9 +396,9 @@ struct OrganizeTokensView: View {
             case .invisible:
                 EmptyView()
             case .fixed(let title):
-                OrganizeTokensListSectionView(title: title, isDraggable: false)
+                OrganizeTokensListInnerSectionView(title: title, isDraggable: false)
             case .draggable(let title):
-                OrganizeTokensListSectionView(title: title, identifier: section.model.id, isDraggable: true)
+                OrganizeTokensListInnerSectionView(title: title, identifier: section.model.id, isDraggable: true)
             }
         }
         .background(Colors.Background.primary)

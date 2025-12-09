@@ -22,7 +22,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
         optionsEditing: optionsEditing
     )
 
-    @Published private(set) var sections: [OrganizeTokensListSection] = []
+    @Published private(set) var sections: [OrganizeTokensListInnerSection] = []
 
     let id = UUID()
 
@@ -161,7 +161,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
         sortingOption: UserTokensReorderingOptions.Sorting,
         groupingOption: UserTokensReorderingOptions.Grouping,
         dragAndDropActionsCache: OrganizeTokensDragAndDropActionsCache
-    ) -> [OrganizeTokensListSection] {
+    ) -> [OrganizeTokensListInnerSection] {
         let tokenIconInfoBuilder = TokenIconInfoBuilder()
         let listFactory = OrganizeTokensListFactory(tokenIconInfoBuilder: tokenIconInfoBuilder)
 
@@ -253,7 +253,7 @@ extension OrganizeTokensViewModel {
             .first { $0.id.toAnyHashable() == identifier }
     }
 
-    func section(for identifier: AnyHashable) -> OrganizeTokensListSection? {
+    func section(for identifier: AnyHashable) -> OrganizeTokensListInnerSection? {
         return sections
             .first { $0.id == identifier }
     }
@@ -351,7 +351,7 @@ extension OrganizeTokensViewModel {
         return sections[indexPath.section].items[indexPath.item]
     }
 
-    private func section(at indexPath: IndexPath) -> OrganizeTokensListSection? {
+    private func section(at indexPath: IndexPath) -> OrganizeTokensListInnerSection? {
         guard indexPath.item == sectionHeaderItemIndex else { return nil }
 
         return sections[indexPath.section]
