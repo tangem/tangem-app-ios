@@ -422,7 +422,7 @@ struct AccountsAwareOrganizeTokensView: View {
     // [REDACTED_TODO_COMMENT]
     @ViewBuilder
     private func makeSection(
-        from section: OrganizeTokensListSection,
+        from section: OrganizeTokensListInnerSection,
         atIndexPath indexPath: OrganizeTokensIndexPath,
         parametersProvider: OrganizeTokensListCornerRadiusParametersProvider
     ) -> some View {
@@ -431,9 +431,9 @@ struct AccountsAwareOrganizeTokensView: View {
             case .invisible:
                 EmptyView()
             case .fixed(let title):
-                OrganizeTokensListSectionView(title: title, isDraggable: false)
+                OrganizeTokensListInnerSectionView(title: title, isDraggable: false)
             case .draggable(let title):
-                OrganizeTokensListSectionView(title: title, identifier: section.model.id, isDraggable: true)
+                OrganizeTokensListInnerSectionView(title: title, identifier: section.model.id, isDraggable: true)
             }
         }
         .background(Colors.Background.primary)

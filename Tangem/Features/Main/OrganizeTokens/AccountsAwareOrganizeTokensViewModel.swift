@@ -22,9 +22,9 @@ final class AccountsAwareOrganizeTokensViewModel: ObservableObject, Identifiable
         optionsEditing: optionsEditing
     )
 
-    @Published private(set) var __sections: [_OrganizeTokensListSection] = []
+    @Published private(set) var __sections: [OrganizeTokensListOuterSection] = []
     @available(*, deprecated, message: "Delete")
-    @Published private(set) var sections: [OrganizeTokensListSection] = []
+    @Published private(set) var sections: [OrganizeTokensListInnerSection] = []
 
     let id = UUID()
 
@@ -83,7 +83,7 @@ final class AccountsAwareOrganizeTokensViewModel: ObservableObject, Identifiable
             .accountModelsManager
             .cryptoAccountModelsPublisher // [REDACTED_TODO_COMMENT]
             .withWeakCaptureOf(self)
-            .flatMapLatest { provider, cryptoAccountModels -> AnyPublisher<[_OrganizeTokensListSection], Never> in
+            .flatMapLatest { provider, cryptoAccountModels -> AnyPublisher<[OrganizeTokensListOuterSection], Never> in
                 guard cryptoAccountModels.isNotEmpty else {
                     return .just(output: [])
                 }
@@ -103,12 +103,12 @@ final class AccountsAwareOrganizeTokensViewModel: ObservableObject, Identifiable
 
                         return organizedTokensSectionsPublisher
                             .map { sections in
-                                let accountSectionModel = _AccountModel(
+                                let accountSectionModel = OrganizeTokensListOuterSectionViewModel(
                                     id: cryptoAccountModel.id,
                                     name: cryptoAccountModel.name,
                                     iconData: AccountModelUtils.UI.iconViewData(accountModel: cryptoAccountModel)
                                 )
-                                return _OrganizeTokensListSection(
+                                return OrganizeTokensListOuterSection(
                                     model: accountSectionModel,
                                     items: Self.map(
                                         sections: sections,
@@ -241,7 +241,7 @@ final class AccountsAwareOrganizeTokensViewModel: ObservableObject, Identifiable
         sortingOption: UserTokensReorderingOptions.Sorting,
         groupingOption: UserTokensReorderingOptions.Grouping,
         dragAndDropActionsCache: OrganizeTokensDragAndDropActionsCache
-    ) -> [OrganizeTokensListSection] {
+    ) -> [OrganizeTokensListInnerSection] {
         let tokenIconInfoBuilder = TokenIconInfoBuilder()
         let listFactory = OrganizeTokensListFactory(tokenIconInfoBuilder: tokenIconInfoBuilder)
 
@@ -337,7 +337,7 @@ extension AccountsAwareOrganizeTokensViewModel {
             .first { $0.id.toAnyHashable() == identifier }
     }
 
-    func section(for identifier: AnyHashable) -> OrganizeTokensListSection? {
+    func section(for identifier: AnyHashable) -> OrganizeTokensListInnerSection? {
         return __sections
             .flatMap { $0.items }
             .first { $0.id == identifier }
@@ -454,7 +454,7 @@ extension AccountsAwareOrganizeTokensViewModel {
             .items[indexPath._item]
     }
 
-    private func section(at indexPath: OrganizeTokensIndexPath) -> OrganizeTokensListSection? {
+    private func section(at indexPath: OrganizeTokensIndexPath) -> OrganizeTokensListInnerSection? {
         guard indexPath._item == sectionHeaderItemIndex else {
             return nil
         }
