@@ -45,13 +45,13 @@ struct TransactionViewModel: Hashable, Identifiable {
     func getTransactionDescription() -> String? {
         switch transactionType {
         case .yieldEnter:
-            return Localization.yieldModuleTransactionEnterSubtitle(amount)
+            return Localization.yieldModuleTransactionEnterSubtitle(amount.amount)
 
         case .yieldTopup:
-            return Localization.yieldModuleTransactionTopupSubtitle(amount)
+            return Localization.yieldModuleTransactionTopupSubtitle(amount.amount)
 
         case .yieldWithdraw:
-            return Localization.yieldModuleTransactionExitSubtitle(amount)
+            return Localization.yieldModuleTransactionExitSubtitle(amount.amount)
 
         default:
             return localizeDestination
