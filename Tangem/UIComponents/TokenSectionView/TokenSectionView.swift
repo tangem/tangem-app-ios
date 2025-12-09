@@ -19,7 +19,7 @@ struct TokenSectionView: View {
 
     var body: some View {
         if let title = title {
-            OrganizeTokensListSectionView(title: title, isDraggable: false)
+            OrganizeTokensListInnerSectionView(title: title, isDraggable: false)
                 .background(background)
         }
     }
