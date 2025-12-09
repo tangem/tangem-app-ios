@@ -90,7 +90,7 @@ extension CardanoWalletManager: TransactionSender {
 
                 return networkService
                     .send(transaction: builtTransaction)
-                    .mapAndEraseSendTxError(tx: builtTransaction.hex())
+                    .mapAndEraseSendTxError(tx: builtTransaction.hex(), currentHost: currentHost)
                     .eraseToAnyPublisher()
             }
             .withWeakCaptureOf(self)
@@ -100,7 +100,7 @@ extension CardanoWalletManager: TransactionSender {
                 manager.wallet.addPendingTransaction(record)
                 return TransactionSendResult(hash: hash, currentProviderHost: manager.currentHost)
             }
-            .mapSendTxError()
+            .mapSendTxError(currentHost: currentHost)
             .eraseToAnyPublisher()
     }
 

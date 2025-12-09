@@ -146,7 +146,10 @@ class FilecoinWalletManager: BaseManager, WalletManager {
             .flatMap { walletManager, message in
                 walletManager.networkService
                     .submitTransaction(signedMessage: message)
-                    .mapAndEraseSendTxError(tx: try? JSONEncoder().encode(message).utf8String)
+                    .mapAndEraseSendTxError(
+                        tx: try? JSONEncoder().encode(message).utf8String,
+                        currentHost: walletManager.currentHost
+                    )
             }
             .withWeakCaptureOf(self)
             .map { walletManager, txId in
@@ -155,7 +158,7 @@ class FilecoinWalletManager: BaseManager, WalletManager {
                 walletManager.wallet.addPendingTransaction(record)
                 return TransactionSendResult(hash: txId, currentProviderHost: walletManager.currentHost)
             }
-            .mapSendTxError()
+            .mapSendTxError(currentHost: currentHost)
             .eraseToAnyPublisher()
     }
 }

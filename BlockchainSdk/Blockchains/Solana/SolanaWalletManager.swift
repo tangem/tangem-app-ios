@@ -71,7 +71,7 @@ extension SolanaWalletManager: TransactionSender {
         case .token(let token):
             sendPublisher = sendSplToken(transaction, token: token, signer: signer)
         case .reserve, .feeResource:
-            return .sendTxFail(error: BlockchainSdkError.empty)
+            return .sendTxFail(error: BlockchainSdkError.empty, currentHost: currentHost)
         }
 
         return sendPublisher
@@ -83,7 +83,7 @@ extension SolanaWalletManager: TransactionSender {
 
                 return TransactionSendResult(hash: hash, currentProviderHost: manager.currentHost)
             }
-            .mapSendTxError()
+            .mapSendTxError(currentHost: currentHost)
             .eraseToAnyPublisher()
     }
 
