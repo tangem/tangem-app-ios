@@ -13,21 +13,6 @@ import TangemUI
 import TangemFoundation
 
 // [REDACTED_TODO_COMMENT]
-struct _IndexPath: Hashable {
-    let outerSection: Int
-    let innerSection: Int
-    // [REDACTED_TODO_COMMENT]
-    let _item: Int
-
-    // [REDACTED_TODO_COMMENT]
-    init(outerSection: Int, innerSection: Int, item: Int) {
-        self.outerSection = outerSection
-        self.innerSection = innerSection
-        _item = item
-    }
-}
-
-// [REDACTED_TODO_COMMENT]
 final class AccountsAwareOrganizeTokensViewModel: ObservableObject, Identifiable {
     /// Sentinel value for `item` of `IndexPath` representing a section.
     var sectionHeaderItemIndex: Int { .min }
@@ -327,16 +312,16 @@ final class AccountsAwareOrganizeTokensViewModel: ObservableObject, Identifiable
 // MARK: - Drag and drop support
 
 extension AccountsAwareOrganizeTokensViewModel {
-    func indexPath(for identifier: AnyHashable) -> _IndexPath? {
+    func indexPath(for identifier: AnyHashable) -> OrganizeTokensIndexPath? {
         for (outerSectionIndex, outerSection) in __sections.enumerated() {
             // Outer sections can't be dragged, so we don't check them here
             for (innerSectionIndex, innerSection) in outerSection.items.enumerated() {
                 if innerSection.id == identifier {
-                    return _IndexPath(outerSection: outerSectionIndex, innerSection: innerSectionIndex, item: sectionHeaderItemIndex)
+                    return OrganizeTokensIndexPath(outerSection: outerSectionIndex, innerSection: innerSectionIndex, item: sectionHeaderItemIndex)
                 }
                 for (itemIndex, item) in innerSection.items.enumerated() {
                     if item.id.toAnyHashable() == identifier {
-                        return _IndexPath(outerSection: outerSectionIndex, innerSection: innerSectionIndex, item: itemIndex)
+                        return OrganizeTokensIndexPath(outerSection: outerSectionIndex, innerSection: innerSectionIndex, item: itemIndex)
                     }
                 }
             }
@@ -358,7 +343,7 @@ extension AccountsAwareOrganizeTokensViewModel {
             .first { $0.id == identifier }
     }
 
-    func move(from sourceIndexPath: _IndexPath, to destinationIndexPath: _IndexPath) {
+    func move(from sourceIndexPath: OrganizeTokensIndexPath, to destinationIndexPath: OrganizeTokensIndexPath) {
         guard sourceIndexPath.outerSection == destinationIndexPath.outerSection else {
             assertionFailure("Can't perform move operation between different outer sections")
             return
@@ -416,7 +401,7 @@ extension AccountsAwareOrganizeTokensViewModel {
         }
     }
 
-    func onDragStart(at indexPath: _IndexPath) {
+    func onDragStart(at indexPath: OrganizeTokensIndexPath) {
         // A started drag-and-drop session always disables sorting by balance
         optionsEditing.sort(by: .dragAndDrop)
 
@@ -438,7 +423,7 @@ extension AccountsAwareOrganizeTokensViewModel {
         endDragAndDropSessionForCurrentlyDraggedSectionIfNeeded()
     }
 
-    private func beginDragAndDropSession(forSectionAtIndexPath indexPath: _IndexPath) {
+    private func beginDragAndDropSession(forSectionAtIndexPath indexPath: OrganizeTokensIndexPath) {
         assert(
             currentlyDraggedSectionIdentifier == nil,
             "Attempting to start a new drag and drop session without finishing the previous one"
@@ -463,13 +448,13 @@ extension AccountsAwareOrganizeTokensViewModel {
         currentlyDraggedSectionIdentifier = nil
     }
 
-    private func itemViewModel(at indexPath: _IndexPath) -> OrganizeTokensListItemViewModel {
+    private func itemViewModel(at indexPath: OrganizeTokensIndexPath) -> OrganizeTokensListItemViewModel {
         return __sections[indexPath.outerSection]
             .items[indexPath.innerSection]
             .items[indexPath._item]
     }
 
-    private func section(at indexPath: _IndexPath) -> OrganizeTokensListSection? {
+    private func section(at indexPath: OrganizeTokensIndexPath) -> OrganizeTokensListSection? {
         guard indexPath._item == sectionHeaderItemIndex else {
             return nil
         }
@@ -499,14 +484,14 @@ extension AccountsAwareOrganizeTokensViewModel: AccountsAwareOrganizeTokensDragA
 
     func controller(
         _ controller: AccountsAwareOrganizeTokensDragAndDropController,
-        listViewKindForItemAt indexPath: _IndexPath
+        listViewKindForItemAt indexPath: OrganizeTokensIndexPath
     ) -> OrganizeTokensDragAndDropControllerListViewKind {
         return indexPath._item == sectionHeaderItemIndex ? .sectionHeader : .cell
     }
 
     func controller(
         _ controller: AccountsAwareOrganizeTokensDragAndDropController,
-        listViewIdentifierForItemAt indexPath: _IndexPath
+        listViewIdentifierForItemAt indexPath: OrganizeTokensIndexPath
     ) -> AnyHashable {
         return section(at: indexPath)?.id ?? itemViewModel(at: indexPath).id.toAnyHashable()
     }
