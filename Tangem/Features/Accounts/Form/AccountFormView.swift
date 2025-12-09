@@ -48,12 +48,6 @@ struct AccountFormView: View {
         }
         .ignoresSafeArea(.keyboard)
         .alert(item: $viewModel.alert, content: { $0.alert })
-        .toolbar {
-            ToolbarItemGroup(placement: .keyboard) {
-                Spacer()
-                Button(Localization.commonDone) { isNameFocused = false }
-            }
-        }
         .submitLabel(.done)
         .onSubmit {
             // Do NOT access SwiftUI internal state (@State, @FocusState, @Binding, @StateObject, etc) inside the `onSubmit(of:_:)` closure.
