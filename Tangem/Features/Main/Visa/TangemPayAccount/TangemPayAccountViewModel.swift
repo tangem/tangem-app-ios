@@ -23,7 +23,7 @@ final class TangemPayAccountViewModel: ObservableObject {
     @Published private var isLoading: Bool = false
 
     var disableButtonTap: Bool {
-        isLoading ? true : !state.isTappable
+        isLoading ? true : !state.isFullyVisible
     }
 
     private let tangemPayAccount: TangemPayAccount
@@ -39,7 +39,7 @@ final class TangemPayAccountViewModel: ObservableObject {
             state: tangemPayAccount.state,
             status: .active,
             card: tangemPayAccount.tangemPayCard,
-            balanceType: tangemPayAccount.tangemPayFiatTokenBalanceProvider.formattedBalanceType
+            balanceType: tangemPayAccount.balancesProvider.fixedFiatTotalTokenBalanceProvider.formattedBalanceType
         )
 
         bind()
@@ -73,7 +73,7 @@ final class TangemPayAccountViewModel: ObservableObject {
         case .normal:
             router?.openTangemPayMainView(tangemPayAccount: tangemPayAccount)
 
-        case .syncNeeded, .unavailable:
+        case .syncNeeded, .unavailable, .skeleton:
             break
         }
     }
@@ -91,7 +91,8 @@ private extension TangemPayAccountViewModel {
             tangemPayAccount
                 .tangemPayCardPublisher,
             tangemPayAccount
-                .tangemPayFiatTokenBalanceProvider
+                .balancesProvider
+                .fixedFiatTotalTokenBalanceProvider
                 .formattedBalanceTypePublisher
         )
         .map(TangemPayAccountViewModel.mapToState)
@@ -137,7 +138,7 @@ private extension TangemPayAccountViewModel {
 
         switch card {
         case .none:
-            return .unavailable
+            return .skeleton
         case .some(let card):
             let cardInfo = CardInfo(cardNumberEnd: card.cardNumberEnd)
             let balance = LoadableTokenBalanceViewStateBuilder().build(type: balanceType)
@@ -148,6 +149,7 @@ private extension TangemPayAccountViewModel {
 
 extension TangemPayAccountViewModel {
     enum ViewState {
+        case skeleton
         case kycInProgress
         case issuingYourCard
         case failedToIssueCard
@@ -167,18 +169,25 @@ extension TangemPayAccountViewModel {
                 "*" + card.cardNumberEnd
             case .syncNeeded:
                 Localization.tangempaySyncNeeded
-            case .unavailable:
+            case .unavailable, .skeleton:
                 "—"
             }
         }
 
-        var isTappable: Bool {
+        var isFullyVisible: Bool {
             switch self {
-            case .kycInProgress, .issuingYourCard, .failedToIssueCard, .normal:
+            case .kycInProgress, .issuingYourCard, .failedToIssueCard, .normal, .skeleton:
                 true
             case .syncNeeded, .unavailable:
                 false
             }
+        }
+
+        var isSkeleton: Bool {
+            if case .skeleton = self {
+                return true
+            }
+            return false
         }
     }
 
