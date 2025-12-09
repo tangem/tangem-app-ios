@@ -1,5 +1,5 @@
 {
-  "originHash" : "67a46ee3ac86602e97ffc178d9a9360072478efdd34ebf6cd31ba662a127efcf",
+  "originHash" : "94b83306600ef6fd20dcd40d2410aadf6fd78c725ddb8b7fe39947d29a1f9cc1",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -384,8 +384,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/reown-com/reown-swift.git",
       "state" : {
-        "revision" : "33d7f1c37e3e28a7909040a0f8028e20418300db",
-        "version" : "1.6.12"
+        "revision" : "eb3e428165b8e807386dc535fb1d7da193599a5c",
+        "version" : "2.0.0"
       }
     },
     {
@@ -726,8 +726,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/reown-com/yttrium",
       "state" : {
-        "revision" : "08bd868788cfaaac6499bd15c9e655044832a610",
-        "version" : "0.9.35"
+        "revision" : "3c8222684e5164af98027494226071d720e6e1d1",
+        "version" : "0.9.75"
       }
     },
     {
