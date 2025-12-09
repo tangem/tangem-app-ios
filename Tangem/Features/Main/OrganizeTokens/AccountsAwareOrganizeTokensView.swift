@@ -1,5 +1,5 @@
 //
-//  OrganizeTokensView.swift
+//  AccountsAwareOrganizeTokensView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,12 +12,13 @@ import TangemUI
 import TangemUIUtils
 import TangemFoundation
 import TangemAccessibilityIdentifiers
+import TangemAccounts
 
-@available(iOS, deprecated: 100000.0, message: "Will be removed after accounts migration is complete ([REDACTED_INFO])")
-struct OrganizeTokensView: View {
+// [REDACTED_TODO_COMMENT]
+struct AccountsAwareOrganizeTokensView: View {
     // MARK: - Model
 
-    @ObservedObject private var viewModel: OrganizeTokensViewModel
+    @ObservedObject private var viewModel: AccountsAwareOrganizeTokensViewModel
 
     @Environment(\.colorScheme) private var colorScheme
 
@@ -44,11 +45,11 @@ struct OrganizeTokensView: View {
 
     // MARK: - Drag and drop support
 
-    @StateObject private var dragAndDropController: OrganizeTokensDragAndDropController
+    @StateObject private var dragAndDropController: AccountsAwareOrganizeTokensDragAndDropController
 
-    @State private var dragAndDropSourceIndexPath: IndexPath?
+    @State private var dragAndDropSourceIndexPath: _IndexPath?
 
-    @State private var dragAndDropDestinationIndexPath: IndexPath?
+    @State private var dragAndDropDestinationIndexPath: _IndexPath?
 
     /// In a `scrollViewContentCoordinateSpaceName` coordinate space
     @State private var dragAndDropSourceItemFrame: CGRect?
@@ -198,52 +199,75 @@ struct OrganizeTokensView: View {
             cornerRadius: Constants.contentCornerRadius
         )
 
-        return ForEach(indexed: viewModel.sections.indexed()) { sectionIndex, sectionViewModel in
+        return ForEach(indexed: viewModel.__sections.indexed()) { outerSectionIndex, accountSectionViewModel in
             Section(
                 content: {
-                    ForEach(indexed: sectionViewModel.items.indexed()) { itemIndex, itemViewModel in
-                        let indexPath = IndexPath(item: itemIndex, section: sectionIndex)
-                        let identifier = itemViewModel.id
-                        let isDragged = identifier.toAnyHashable() == dragAndDropSourceViewModelIdentifier
+                    ForEach(indexed: accountSectionViewModel.items.indexed()) { innerSectionIndex, innerSectionViewModel in
+                        Section(
+                            content: {
+                                ForEach(indexed: innerSectionViewModel.items.indexed()) { itemIndex, itemViewModel in
+                                    let indexPath = _IndexPath(
+                                        outerSection: outerSectionIndex,
+                                        innerSection: innerSectionIndex,
+                                        item: itemIndex
+                                    )
+                                    let identifier = itemViewModel.id
+                                    let isDragged = identifier.toAnyHashable() == dragAndDropSourceViewModelIdentifier
 
-                        makeCell(
-                            viewModel: itemViewModel,
-                            indexPath: indexPath,
-                            parametersProvider: parametersProvider
-                        )
-                        .hidden(isDragged)
-                        .readGeometry(
-                            \.frame,
-                            inCoordinateSpace: .named(scrollViewContentCoordinateSpaceName)
-                        ) { frame in
-                            if !isDragged {
-                                dragAndDropController.saveFrame(frame, forItemAt: indexPath)
+                                    makeCell(
+                                        viewModel: itemViewModel,
+                                        atIndexPath: indexPath,
+                                        parametersProvider: parametersProvider
+                                    )
+                                    .hidden(isDragged)
+                                    .readGeometry(
+                                        \.frame,
+                                        inCoordinateSpace: .named(scrollViewContentCoordinateSpaceName)
+                                    ) { frame in
+                                        if !isDragged {
+                                            dragAndDropController.saveFrame(frame, forItemAt: indexPath)
+                                        }
+                                    }
+                                    .id(identifier)
+                                }
+                            },
+                            header: {
+                                let indexPath = _IndexPath(
+                                    outerSection: outerSectionIndex,
+                                    innerSection: innerSectionIndex,
+                                    item: viewModel.sectionHeaderItemIndex
+                                )
+                                let identifier = innerSectionViewModel.id
+                                let isDragged = identifier == dragAndDropSourceViewModelIdentifier
+
+                                makeSection(
+                                    from: innerSectionViewModel,
+                                    atIndexPath: indexPath,
+                                    parametersProvider: parametersProvider
+                                )
+                                .hidden(isDragged)
+                                .readGeometry(
+                                    \.frame,
+                                    inCoordinateSpace: .named(scrollViewContentCoordinateSpaceName)
+                                ) { frame in
+                                    if !isDragged {
+                                        dragAndDropController.saveFrame(frame, forItemAt: indexPath)
+                                    }
+                                }
+                                .id(identifier)
+                                .padding(.top, innerSectionIndex == 0 ? 0.0 : Constants.headerBottomInset)
                             }
-                        }
-                        .id(identifier)
+                        )
                     }
                 },
                 header: {
-                    let indexPath = IndexPath(item: viewModel.sectionHeaderItemIndex, section: sectionIndex)
-                    let identifier = sectionViewModel.id
-                    let isDragged = identifier == dragAndDropSourceViewModelIdentifier
-
-                    makeSection(
-                        from: sectionViewModel,
-                        atIndex: sectionIndex,
-                        parametersProvider: parametersProvider
+                    AccountIconWithContentView(
+                        iconData: accountSectionViewModel.model.iconData,
+                        name: accountSectionViewModel.model.name
                     )
-                    .hidden(isDragged)
-                    .readGeometry(
-                        \.frame,
-                        inCoordinateSpace: .named(scrollViewContentCoordinateSpaceName)
-                    ) { frame in
-                        if !isDragged {
-                            dragAndDropController.saveFrame(frame, forItemAt: indexPath)
-                        }
-                    }
-                    .id(identifier)
-                    .padding(.top, sectionIndex == 0 ? 0.0 : Constants.headerBottomInset)
+                    .iconSettings(.smallSized)
+                    .style(Fonts.BoldStatic.caption1.weight(.medium), color: Colors.Text.primary1)
+                    .background(Colors.Background.primary)
                 }
             )
         }
@@ -282,7 +306,7 @@ struct OrganizeTokensView: View {
     }
 
     init(
-        viewModel: OrganizeTokensViewModel
+        viewModel: AccountsAwareOrganizeTokensViewModel
     ) {
         self.viewModel = viewModel
         // Explicit @State/ @StateObject initialization is used here because we have a classic chicken-egg problem:
@@ -292,7 +316,7 @@ struct OrganizeTokensView: View {
         _scrollViewTopContentInsetSpacerIdentifier = .init(initialValue: topContentInsetIdentifier)
         _scrollViewBottomContentInsetSpacerIdentifier = .init(initialValue: bottomContentInsetIdentifier)
         _dragAndDropController = .init(
-            wrappedValue: OrganizeTokensDragAndDropController(
+            wrappedValue: AccountsAwareOrganizeTokensDragAndDropController(
                 autoScrollFrequency: Constants.autoScrollFrequency,
                 destinationItemSelectionThresholdRatio: Constants.dragAndDropDestinationItemSelectionThresholdRatio,
                 topEdgeAdditionalAutoScrollTargets: [topContentInsetIdentifier],
@@ -373,22 +397,33 @@ struct OrganizeTokensView: View {
     @ViewBuilder
     private func makeCell(
         viewModel: OrganizeTokensListItemViewModel,
-        indexPath: IndexPath,
+        atIndexPath indexPath: _IndexPath,
         parametersProvider: OrganizeTokensListCornerRadiusParametersProvider
     ) -> some View {
         OrganizeTokensListItemView(viewModel: viewModel)
-            .accessibilityIdentifier(OrganizeTokensAccessibilityIdentifiers.tokenAtPosition(name: viewModel.name, section: indexPath.section, item: indexPath.item))
-            .background(Colors.Background.primary)
-            .cornerRadius(
-                parametersProvider.cornerRadius(forItemAt: indexPath),
-                corners: parametersProvider.rectCorners(forItemAt: indexPath)
+            .accessibilityIdentifier(
+                OrganizeTokensAccessibilityIdentifiers.tokenAtPosition(
+                    name: viewModel.name,
+                    outerSection: indexPath.outerSection,
+                    innerSection: indexPath.innerSection,
+                    item: indexPath._item
+                )
             )
+            .background(Colors.Background.primary)
+        // [REDACTED_TODO_COMMENT]
+        /*
+         .cornerRadius(
+         parametersProvider.cornerRadius(forItemAt: indexPath),
+         corners: parametersProvider.rectCorners(forItemAt: indexPath)
+         )
+         */
     }
 
+    // [REDACTED_TODO_COMMENT]
     @ViewBuilder
     private func makeSection(
         from section: OrganizeTokensListSection,
-        atIndex sectionIndex: Int,
+        atIndexPath indexPath: _IndexPath,
         parametersProvider: OrganizeTokensListCornerRadiusParametersProvider
     ) -> some View {
         Group {
@@ -402,10 +437,13 @@ struct OrganizeTokensView: View {
             }
         }
         .background(Colors.Background.primary)
-        .cornerRadius(
-            parametersProvider.cornerRadius(forSectionAtIndex: sectionIndex),
-            corners: parametersProvider.rectCorners(forSectionAtIndex: sectionIndex)
-        )
+        // [REDACTED_TODO_COMMENT]
+        /*
+         .cornerRadius(
+         parametersProvider.cornerRadius(forSectionAtIndex: sectionIndex),
+         corners: parametersProvider.rectCorners(forSectionAtIndex: sectionIndex)
+         )
+         */
     }
 
     private func makeDragAndDropGestureOverlayView() -> some View {
@@ -472,13 +510,13 @@ struct OrganizeTokensView: View {
                 if let section = viewModel.section(for: dragAndDropSourceViewModelIdentifier) {
                     makeSection(
                         from: section,
-                        atIndex: dragAndDropSourceIndexPath.section,
+                        atIndexPath: dragAndDropSourceIndexPath,
                         parametersProvider: parametersProvider
                     )
                 } else if let itemViewModel = viewModel.itemViewModel(for: dragAndDropSourceViewModelIdentifier) {
                     makeCell(
                         viewModel: itemViewModel,
-                        indexPath: dragAndDropSourceIndexPath,
+                        atIndexPath: dragAndDropSourceIndexPath,
                         parametersProvider: parametersProvider
                     )
                 }
@@ -488,7 +526,7 @@ struct OrganizeTokensView: View {
 
     private func makeDraggableView<Content>(
         width: CGFloat,
-        indexPath: IndexPath,
+        indexPath: _IndexPath,
         itemFrame: CGRect,
         @ViewBuilder content: () -> Content
     ) -> some View where Content: View {
@@ -577,11 +615,11 @@ private extension AnyTransition {
             },
             identity: CornerRadiusAnimatableModifier(
                 progress: 1.0,
-                cornerRadius: OrganizeTokensView.Constants.draggableViewCornerRadius,
+                cornerRadius: AccountsAwareOrganizeTokensView.Constants.draggableViewCornerRadius,
                 cornerRadiusStyle: .continuous
             ) { clipShape in
                 clipShape
-                    .scale(OrganizeTokensView.Constants.draggableViewScale)
+                    .scale(AccountsAwareOrganizeTokensView.Constants.draggableViewScale)
                     .offset(y: insertionOffset)
             }
         )
@@ -591,7 +629,7 @@ private extension AnyTransition {
         let dummyViewInsertionProgressObserver = AnimationProgressObserverModifier(observedValue: 1.0) {}
         let viewRemovalProgressObserver = AnimationProgressObserverModifier(
             observedValue: 0.0,
-            targetValue: OrganizeTokensView.Constants.dropAnimationProgressThresholdForViewRemoval,
+            targetValue: AccountsAwareOrganizeTokensView.Constants.dropAnimationProgressThresholdForViewRemoval,
             valueComparator: <=,
             action: action
         )
@@ -605,7 +643,7 @@ private extension AnyTransition {
 
 // MARK: - Constants
 
-private extension OrganizeTokensView {
+private extension AccountsAwareOrganizeTokensView {
     enum Constants {
         static let contentCornerRadius = 14.0
         static let headerBottomInset = 10.0
@@ -626,15 +664,18 @@ private extension OrganizeTokensView {
 
 // MARK: - Previews
 
-struct OrganizeTokensView_Preview: PreviewProvider {
-    static var previews: some View {
-        let viewModelFactory = OrganizeTokensPreviewViewModelFactory()
+// [REDACTED_TODO_COMMENT]
+/*
+ struct AccountsAwareOrganizeTokensView_Preview: PreviewProvider {
+     static var previews: some View {
+         let viewModelFactory = OrganizeTokensPreviewViewModelFactory()
 
-        ForEach(OrganizeTokensPreviewConfiguration.allCases, id: \.name) { previewConfiguration in
-            let viewModel = viewModelFactory.makeViewModel(for: previewConfiguration)
-            OrganizeTokensView(viewModel: viewModel)
-                .previewLayout(.sizeThatFits)
-                .previewDisplayName(previewConfiguration.name)
-        }
-    }
-}
+         ForEach(OrganizeTokensPreviewConfiguration.allCases, id: \.name) { previewConfiguration in
+             let viewModel = viewModelFactory.makeViewModel(for: previewConfiguration)
+             AccountsAwareOrganizeTokensView(viewModel: viewModel)
+                 .previewLayout(.sizeThatFits)
+                 .previewDisplayName(previewConfiguration.name)
+         }
+     }
+ }
+ */
