@@ -68,42 +68,21 @@ final class TangemPayAccount {
 
     lazy var withdrawAvailabilityProvider: TangemPayWithdrawAvailabilityProvider = .init(
         withdrawTransactionService: withdrawTransactionService,
-        tokenBalanceProvider: tangemPayTokenBalanceProvider
+        tokenBalanceProvider: balancesService.availableBalanceProvider
     )
 
     // MARK: - Balances
 
-    /// Tangem Pay as crypto currency balance from `tokenItem`, e.g. `USDC`
-    lazy var tangemPayTokenBalanceProvider: TokenBalanceProvider = TangemPayTokenBalanceProvider(
-        tokenItem: TangemPayUtilities.usdcTokenItem,
-        tokenBalancesRepository: tokenBalancesRepository,
-        balanceSubject: balanceSubject
-    )
-
-    /// Tangem Pay with constant fiat rate `1:1`
-    lazy var tangemPayFiatTokenBalanceProvider: TokenBalanceProvider = TangemPayFiatTokenBalanceProvider(
-        cryptoBalanceProvider: tangemPayTokenBalanceProvider
-    )
-
-    /// Provider / Storage  to load `FiatRate` for `AppCurrency`
-    lazy var fiatRateProvider: FiatRateProvider = CommonFiatRateProvider(
-        tokenItem: TangemPayUtilities.usdcTokenItem,
-    )
-
-    /// Tangem Pay with `AppCurrency` fiat rate
-    lazy var fiatAvailableBalanceProvider: TokenBalanceProvider = FiatTokenBalanceProvider(
-        input: fiatRateProvider,
-        cryptoBalanceProvider: tangemPayTokenBalanceProvider
-    )
-
     lazy var tangemPayMainHeaderBalanceProvider: MainHeaderBalanceProvider = TangemPayMainHeaderBalanceProvider(
-        tangemPayTokenBalanceProvider: tangemPayFiatTokenBalanceProvider
+        tangemPayTokenBalanceProvider: balancesProvider.fixedFiatTotalTokenBalanceProvider
     )
 
-    lazy var tangemPayMainHeaderSubtitleProvider: MainHeaderSubtitleProvider = TangemPayMainHeaderSubtitleProvider(
-        tokenItem: TangemPayUtilities.usdcTokenItem,
-        balanceSubject: balanceSubject,
+    lazy var tangemPayMainHeaderSubtitleProvider: MainHeaderSubtitleProvider = SingleWalletMainHeaderSubtitleProvider(
+        isUserWalletLocked: false,
+        balanceProvider: balancesProvider.totalTokenBalanceProvider
     )
+
+    var balancesProvider: TangemPayBalancesProvider { balancesService }
 
     let customerInfoManagementService: any CustomerInfoManagementService
     let withdrawTransactionService: any TangemPayWithdrawTransactionService
@@ -137,10 +116,9 @@ final class TangemPayAccount {
 
     private let authorizer: TangemPayAuthorizer
     private let authorizationTokensHandler: TangemPayAuthorizationTokensHandler
-    private let tokenBalancesRepository: any TokenBalancesRepository
+    private let balancesService: any TangemPayBalancesService
 
     private let customerInfoSubject = CurrentValueSubject<VisaCustomerInfoResponse?, Never>(nil)
-    private let balanceSubject = CurrentValueSubject<LoadingResult<TangemPayBalance, Error>?, Never>(nil)
 
     private let customerInfoLoadingFailedSignalSubject = PassthroughSubject<Void, Never>()
     private let orderCancelledSignalSubject = PassthroughSubject<Void, Never>()
@@ -153,13 +131,13 @@ final class TangemPayAccount {
         authorizer: TangemPayAuthorizer,
         authorizationTokensHandler: TangemPayAuthorizationTokensHandler,
         customerInfoManagementService: any CustomerInfoManagementService,
-        tokenBalancesRepository: any TokenBalancesRepository,
+        balancesService: any TangemPayBalancesService,
         withdrawTransactionService: any TangemPayWithdrawTransactionService
     ) {
         self.authorizer = authorizer
         self.authorizationTokensHandler = authorizationTokensHandler
         self.customerInfoManagementService = customerInfoManagementService
-        self.tokenBalancesRepository = tokenBalancesRepository
+        self.balancesService = balancesService
         self.withdrawTransactionService = withdrawTransactionService
 
         // No reference cycle here, self is stored as weak in all three entities
@@ -304,15 +282,7 @@ final class TangemPayAccount {
     }
 
     private func setupBalance() async {
-        do {
-            balanceSubject.send(.loading)
-            let balance = try await customerInfoManagementService.getBalance()
-            balanceSubject.send(.success(balance))
-
-            fiatRateProvider.updateRate()
-        } catch {
-            balanceSubject.send(.failure(error))
-        }
+        await balancesService.loadBalance()
     }
 
     private func mapToCard(visaCustomerInfoResponse: VisaCustomerInfoResponse?) -> VisaCustomerInfoResponse.Card? {
