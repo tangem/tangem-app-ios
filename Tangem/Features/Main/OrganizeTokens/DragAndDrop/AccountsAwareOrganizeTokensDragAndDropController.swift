@@ -18,7 +18,6 @@ protocol AccountsAwareOrganizeTokensDragAndDropControllerDataSource: AnyObject {
         numberOfInnerSectionsInOuterSection outerSection: Int
     ) -> Int
 
-    // [REDACTED_TODO_COMMENT]
     func controller(
         _ controller: AccountsAwareOrganizeTokensDragAndDropController,
         numberOfRowsInInnerSection innerSection: Int,
