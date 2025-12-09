@@ -10,7 +10,7 @@ import Foundation
 
 public enum StakingNetworkType: String, RawRepresentable {
     case ethereum
-    case bsc = "binance-smart-chain"
+    case bsc = "binancecoin"
     case ton = "the-open-network"
     case solana
     case cosmos
