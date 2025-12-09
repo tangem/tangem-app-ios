@@ -431,7 +431,7 @@ extension CommonAccountModelsManager: CommonCryptoAccountModelDelegate {
 
 extension CommonAccountModelsManager: AccountModelsReordering {
     func reorder(orderedIdentifiers: [any AccountModelPersistentIdentifierConvertible]) async throws {
-        try await cryptoAccountsRepository.reorder(
+        try await cryptoAccountsRepository.reorderCryptoAccounts(
             orderedIdentifiers: orderedIdentifiers.map { $0.toPersistentIdentifier().toAnyHashable() }
         )
     }
