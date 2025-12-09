@@ -23,6 +23,7 @@ struct BalancesView<ViewModel: BalancesViewModel>: View {
         fiatBalance
 
         cryptoBalance
+            .monospacedDigit()
     }
 
     var fiatBalance: some View {
