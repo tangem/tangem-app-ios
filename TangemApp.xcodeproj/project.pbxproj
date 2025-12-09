@@ -14375,13 +14375,6 @@
 			children = (
 				B671C9752EE8496100D9D27B /* AccountsAwareOrganizeTokensView.swift */,
 				B671C9732EE8492B00D9D27B /* AccountsAwareOrganizeTokensViewModel.swift */,
-				B60B9FD52A952B0B00A7E905 /* DragAndDrop */,
-				B63B63BB2A44013100A7CECF /* ListFooter */,
-				B65591E92A2FF1900066A13B /* ListHeader */,
-				B63127D52A2F83CA007C124C /* ListInnerSection */,
-				B63127D62A2F83D0007C124C /* ListItem */,
-				B671C9862EE8628100D9D27B /* ListOuterSection */,
-				B60B9FD62A952B5100A7E905 /* OptionsManagement */,
 				B671C97F2EE85F1000D9D27B /* OrganizeTokensIndexPath.swift */,
 				B69D5EEA2A3252A800B494A9 /* OrganizeTokensListCornerRadiusParametersProvider.swift */,
 				B6210DEE2A94708700F885D5 /* OrganizeTokensListFactory.swift */,
@@ -14389,6 +14382,13 @@
 				B6C1B9FE2AE1627500A98D2F /* OrganizeTokensScrollState.swift */,
 				B6E932BD2A2F2D860068D466 /* OrganizeTokensView.swift */,
 				B6E932BE2A2F2D860068D466 /* OrganizeTokensViewModel.swift */,
+				B60B9FD52A952B0B00A7E905 /* DragAndDrop */,
+				B63B63BB2A44013100A7CECF /* ListFooter */,
+				B65591E92A2FF1900066A13B /* ListHeader */,
+				B63127D62A2F83D0007C124C /* ListItem */,
+				B63127D52A2F83CA007C124C /* ListInnerSection */,
+				B671C9862EE8628100D9D27B /* ListOuterSection */,
+				B60B9FD62A952B5100A7E905 /* OptionsManagement */,
 				B65CB4002A98B98C00C31199 /* UserTokensReordering */,
 			);
 			path = OrganizeTokens;
