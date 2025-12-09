@@ -70,6 +70,6 @@ struct CommonSendBaseDataBuilder: SendBaseDataBuilder {
     }
 
     func makeFeeCurrencyData() -> FeeCurrencyNavigatingDismissOption {
-        .init(userWalletId: walletModel.userWalletId, feeTokenItem: walletModel.feeTokenItem)
+        .init(userWalletId: walletModel.userWalletId, tokenItem: walletModel.feeTokenItem)
     }
 }

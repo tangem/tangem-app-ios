@@ -28,6 +28,7 @@ final class TangemPayMainViewModel: ObservableObject {
 
     @Published private(set) var tangemPayTransactionHistoryState: TransactionsListView.State = .loading
     @Published private(set) var freezingState: TangemPayFreezingState = .normal
+    @Published private(set) var pendingExpressTransactions: [PendingExpressTransactionView.Info] = []
     @Published private(set) var shouldDisplayAddToApplePayGuide: Bool = false
     @Published private(set) var isWithdrawButtonLoading: Bool = false
     @Published var alert: AlertBinder?
@@ -37,6 +38,7 @@ final class TangemPayMainViewModel: ObservableObject {
     private weak var coordinator: TangemPayMainRoutable?
 
     private let transactionHistoryService: TangemPayTransactionHistoryService
+    private let pendingExpressTransactionsManager: PendingExpressTransactionsManager
     private let cardDetailsRepository: TangemPayCardDetailsRepository
 
     private var nextViewOpeningTask: Task<Void, Error>?
@@ -67,6 +69,14 @@ final class TangemPayMainViewModel: ObservableObject {
         transactionHistoryService = TangemPayTransactionHistoryService(
             apiService: tangemPayAccount.customerInfoManagementService
         )
+
+        pendingExpressTransactionsManager = ExpressPendingTransactionsFactory(
+            userWalletInfo: userWalletInfo,
+            tokenItem: TangemPayUtilities.usdcTokenItem,
+            // We don't handle update after transaction is done here yet.
+            walletModelUpdater: nil
+        )
+        .makePendingExpressTransactionsManager()
 
         tangemPayCardDetailsViewModel = TangemPayCardDetailsViewModel(
             repository: cardDetailsRepository
@@ -256,6 +266,17 @@ private extension TangemPayMainViewModel {
             .receiveOnMain()
             .assign(to: \.state, on: tangemPayCardDetailsViewModel, ownership: .weak)
             .store(in: &bag)
+
+        pendingExpressTransactionsManager
+            .pendingTransactionsPublisher
+            .map { [weak self] transactions in
+                PendingExpressTransactionsConverter()
+                    .convertToTokenDetailsPendingTxInfo(transactions) { [weak self] id in
+                        self?.didTapPendingExpressTransaction(id: id)
+                    }
+            }
+            .receiveOnMain()
+            .assign(to: &$pendingExpressTransactions)
     }
 
     func makeExpressInteractorTangemPayWalletWrapper() -> ExpressInteractorTangemPayWalletWrapper? {
@@ -276,7 +297,11 @@ private extension TangemPayMainViewModel {
 
         return tangemPayWalletWrapper
     }
+}
 
+// MARK: - Navigation
+
+private extension TangemPayMainViewModel {
     @MainActor
     func openWithdraw(tangemPayWalletWrapper: ExpressInteractorTangemPayWalletWrapper) async throws {
         let restriction = try await tangemPayAccount.withdrawAvailabilityProvider.restriction()
@@ -293,6 +318,22 @@ private extension TangemPayMainViewModel {
         default:
             coordinator?.openTangemPayNoDepositAddressSheet()
         }
+    }
+
+    func didTapPendingExpressTransaction(id: String) {
+        let transactions = pendingExpressTransactionsManager.pendingTransactions
+        guard let transaction = transactions.first(where: { $0.expressTransactionId == id }) else {
+            return
+        }
+
+        let tokenItem = TangemPayUtilities.usdcTokenItem
+
+        coordinator?.openPendingExpressTransactionDetails(
+            pendingTransaction: transaction,
+            userWalletInfo: userWalletInfo,
+            tokenItem: tokenItem,
+            pendingTransactionsManager: pendingExpressTransactionsManager
+        )
     }
 }
 
