@@ -19,21 +19,20 @@ final class YieldBalanceTicker {
     private let balanceConverter = BalanceConverter()
 
     private let fiatBalanceFormatter = BalanceFormatter()
-    private var fiatBalanceFormattingOptions = BalanceFormattingOptions(
-        minFractionDigits: Constants.defaultDecimals,
-        maxFractionDigits: Constants.defaultDecimals,
-        formatEpsilonAsLowestRepresentableValue: true,
-        roundingType: .default(roundingMode: .plain, scale: Constants.defaultDecimals)
-    )
+    private var fiatBalanceFormattingOptions = makeDefaultFormattingOptions()
+
+    private let cryptoBalanceFormatter = BalanceFormatter()
+    private var cryptoBalanceFormattingOptions = makeDefaultFormattingOptions()
 
     var currentCryptoBalancePublisher: AnyPublisher<String, Never> {
         currentCryptoBalanceSubject
             .withWeakCaptureOf(self)
             .compactMap { ticker, currentCryptoBalance in
                 guard let currentCryptoBalance else { return nil }
-                return ticker.fiatBalanceFormatter.formatCryptoBalance(
+                return ticker.cryptoBalanceFormatter.formatCryptoBalance(
                     currentCryptoBalance,
-                    currencyCode: ticker.tokenItem.currencySymbol
+                    currencyCode: ticker.tokenItem.currencySymbol,
+                    formattingOptions: ticker.cryptoBalanceFormattingOptions
                 )
             }
             .removeDuplicates()
@@ -74,7 +73,10 @@ final class YieldBalanceTicker {
     }
 
     func updateCurrentBalance(_ balance: Decimal, apy: Decimal) {
-        updateTickParametersIfNeeded(balance: balance, apy: apy)
+        perTickDeltaInCrypto = calculatePerTickDeltaInCrypto(balance: balance, apy: apy)
+
+        updateCryptoTickParametersIfNeeded(perTickDeltaInCrypto: perTickDeltaInCrypto)
+        updateFiatTickParametersIfNeeded(perTickDeltaInCrypto: perTickDeltaInCrypto)
 
         // Update only if balance changed to avoid resetting the ticker
         if balance != initialCryptoBalance || currentCryptoBalanceSubject.value == nil {
@@ -82,11 +84,36 @@ final class YieldBalanceTicker {
         }
     }
 
-    private func updateTickParametersIfNeeded(balance: Decimal, apy: Decimal) {
-        let perTickDeltaInCrypto = calculatePerTickDeltaInCrypto(balance: balance, apy: apy)
-        let fiatDecimals = calculateMinVisibleFiatDecimals(perTickDeltaInCrypto: perTickDeltaInCrypto)
+    private func updateCryptoTickParametersIfNeeded(perTickDeltaInCrypto: Decimal) {
+        let minDecimals = BalanceFormattingOptions.defaultCryptoFormattingOptions.minFractionDigits
+        let cryptoDecimals = calculateMinVisibleDecimals(
+            perTickDelta: perTickDeltaInCrypto,
+            minDecimals: minDecimals,
+            maxDecimals: tokenItem.decimalCount
+        ) ?? minDecimals
 
-        self.perTickDeltaInCrypto = perTickDeltaInCrypto
+        cryptoBalanceFormattingOptions.minFractionDigits = cryptoDecimals
+        cryptoBalanceFormattingOptions.maxFractionDigits = cryptoDecimals
+        cryptoBalanceFormattingOptions.roundingType = .default(
+            roundingMode: .plain,
+            scale: cryptoDecimals
+        )
+    }
+
+    private func updateFiatTickParametersIfNeeded(perTickDeltaInCrypto: Decimal) {
+        guard let perTickDeltaInFiat = Self.convertToFiat(
+            balance: perTickDeltaInCrypto,
+            tokenItem: tokenItem,
+            balanceConverter: balanceConverter
+        ) else {
+            return
+        }
+
+        let fiatDecimals = calculateMinVisibleDecimals(
+            perTickDelta: perTickDeltaInFiat,
+            minDecimals: Constants.minFiatDecimals,
+            maxDecimals: Constants.maxFiatDecimals
+        ) ?? Constants.defaultDecimals
 
         fiatBalanceFormattingOptions.minFractionDigits = fiatDecimals
         fiatBalanceFormattingOptions.maxFractionDigits = fiatDecimals
@@ -100,29 +127,27 @@ final class YieldBalanceTicker {
         balance * apy * Constants.tickTimeout / Constants.secondsPerYear
     }
 
-    private func calculateMinVisibleFiatDecimals(perTickDeltaInCrypto: Decimal) -> Int {
-        guard let perTickDeltaInFiat = Self.convertToFiat(
-            balance: perTickDeltaInCrypto,
-            tokenItem: tokenItem,
-            balanceConverter: balanceConverter
-        ),
-            perTickDeltaInFiat > 0
-        else {
-            return Constants.defaultDecimals
+    private func calculateMinVisibleDecimals(
+        perTickDelta: Decimal,
+        minDecimals: Int,
+        maxDecimals: Int
+    ) -> Int? {
+        guard perTickDelta > 0 else {
+            return nil
         }
 
-        guard perTickDeltaInFiat < 1 else {
-            return Constants.minDecimals
+        guard perTickDelta < 1 else {
+            return minDecimals
         }
 
-        let perTickDeltaFiatAsDouble = (perTickDeltaInFiat as NSDecimalNumber).doubleValue
+        let perTickDeltaAsDouble = (perTickDelta as NSDecimalNumber).doubleValue
 
-        let minVisibleDecimals = ceil(-log10(perTickDeltaFiatAsDouble))
+        let minVisibleDecimals = ceil(-log10(perTickDeltaAsDouble))
 
         let clamp = Clamp(
-            wrappedValue: Int(minVisibleDecimals) + Constants.additionalDigitsCount,
-            minValue: Constants.minDecimals,
-            maxValue: Constants.maxDecimals
+            wrappedValue: Int(minVisibleDecimals),
+            minValue: minDecimals,
+            maxValue: maxDecimals
         )
         return clamp.wrappedValue
     }
@@ -147,15 +172,24 @@ final class YieldBalanceTicker {
         guard let currencyId = tokenItem.currencyId else { return nil }
         return balanceConverter.convertToFiat(balance, currencyId: currencyId)
     }
+
+    private static func makeDefaultFormattingOptions() -> BalanceFormattingOptions {
+        BalanceFormattingOptions(
+            minFractionDigits: Constants.defaultDecimals,
+            maxFractionDigits: Constants.defaultDecimals,
+            formatEpsilonAsLowestRepresentableValue: true,
+            roundingType: .default(roundingMode: .plain, scale: Constants.defaultDecimals)
+        )
+    }
 }
 
 extension YieldBalanceTicker {
     enum Constants {
         static let tickTimeout = Decimal(stringValue: "0.3")!
         static let secondsPerYear: Decimal = 31536000 // 365 * 24 * 60 * 60
+
         static let defaultDecimals = 2
-        static let minDecimals = 3
-        static let maxDecimals = 12
-        static let additionalDigitsCount = 1
+        static let minFiatDecimals = 3
+        static let maxFiatDecimals = 12
     }
 }
