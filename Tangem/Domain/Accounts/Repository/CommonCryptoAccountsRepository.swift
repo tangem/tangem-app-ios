@@ -75,7 +75,7 @@ final class CommonCryptoAccountsRepository {
         self.userWalletInfoProvider = userWalletInfoProvider
     }
 
-    // MARK: - Migration, not accounts created, no wallets created, etc.
+    // MARK: - Legacy storage migration, not accounts created, no wallets created, etc.
 
     private func migrateStorage(forUserWalletWithId userWalletId: UserWalletId) {
         let mainAccountPersistentConfig = AccountModelUtils.mainAccountPersistentConfig(forUserWalletWithId: userWalletId)
@@ -274,7 +274,7 @@ final class CommonCryptoAccountsRepository {
 
     // MARK: - Internal CRUD methods for accounts (always remote first, then local)
 
-    private func addNewOrUpdateExistingCryptoAccountInternal(
+    private func addNewOrUpdateExistingAccountInternal(
         withConfig config: CryptoAccountPersistentConfig,
         remoteState: CryptoAccountsRemoteState,
     ) async throws -> StoredCryptoAccountsTokensDistributor.DistributionResult {
@@ -306,7 +306,8 @@ final class CommonCryptoAccountsRepository {
         if forceUpdateTokenList {
             try await networkService.saveTokens(from: accounts, retryCount: Constants.maxRetryCount)
             try Task.checkCancellation()
-            // Overriding remote state when `forceUpdateTokenList` is `true` to ensure that tokens from the newly added accounts are saved
+            // Overriding the remote state when `forceUpdateTokenList` is `true`
+            // to ensure that tokens from the newly added accounts are saved
             updatedAccounts = accounts
         } else {
             updatedAccounts = remoteCryptoAccountsInfo.accounts
@@ -418,7 +419,7 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
         withConfig config: CryptoAccountPersistentConfig,
         remoteState: CryptoAccountsRemoteState
     ) async throws -> StoredCryptoAccountsTokensDistributor.DistributionResult {
-        return try await addNewOrUpdateExistingCryptoAccountInternal(withConfig: config, remoteState: remoteState)
+        return try await addNewOrUpdateExistingAccountInternal(withConfig: config, remoteState: remoteState)
     }
 
     func updateExistingCryptoAccount(
@@ -426,14 +427,14 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
         remoteState: CryptoAccountsRemoteState
     ) async throws {
         // Ignoring the result, as tokens redistribution can't be performed when editing an existing account
-        let _ = try await addNewOrUpdateExistingCryptoAccountInternal(withConfig: config, remoteState: remoteState)
+        let _ = try await addNewOrUpdateExistingAccountInternal(withConfig: config, remoteState: remoteState)
     }
 
     func removeCryptoAccount(withIdentifier identifier: some Hashable) async throws {
         try await removeAccountsInternal(identifier)
     }
 
-    func reorder(orderedIdentifiers: [some Hashable]) async throws {
+    func reorderCryptoAccounts(orderedIdentifiers: [some Hashable]) async throws {
         let orderedIndicesKeyedByIdentifiers = orderedIdentifiers
             .enumerated()
             .reduce(into: [:]) { partialResult, element in
