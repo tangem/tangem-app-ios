@@ -476,7 +476,7 @@ extension AccountsAwareOrganizeTokensViewModel: AccountsAwareOrganizeTokensDragA
     func controller(
         _ controller: AccountsAwareOrganizeTokensDragAndDropController,
         numberOfRowsInInnerSection innerSection: Int,
-        outerSection: Int
+        andOuterSection outerSection: Int
     ) -> Int {
         return __sections[outerSection].items[innerSection].items.count
     }
