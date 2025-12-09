@@ -24,7 +24,7 @@ final class AccountsAwareOrganizeTokensViewModel: ObservableObject, Identifiable
 
     @Published private(set) var __sections: [OrganizeTokensListOuterSection] = []
 
-    @available(*, deprecated, message: "Delete this property ([REDACTED_INFO])")
+    @available(*, deprecated, message: "[REDACTED_TODO_COMMENT]")
     @Published private(set) var sections: [OrganizeTokensListInnerSection] = []
 
     let id = UUID()
@@ -34,7 +34,7 @@ final class AccountsAwareOrganizeTokensViewModel: ObservableObject, Identifiable
     private let userWalletModel: UserWalletModel
 
     // [REDACTED_TODO_COMMENT]
-    @available(*, deprecated, message: "Temporary dummy implementation, replace with real one ([REDACTED_INFO])")
+    @available(*, deprecated, message: "[REDACTED_TODO_COMMENT]")
     private let dummyOptionsManager = FakeOrganizeTokensOptionsManager(
         initialGroupingOption: .none,
         initialSortingOption: .dragAndDrop
@@ -75,9 +75,8 @@ final class AccountsAwareOrganizeTokensViewModel: ObservableObject, Identifiable
 
         let sourcePublisherFactory = TokenSectionsSourcePublisherFactory()
         let aggregatedCache = _dragAndDropActionsCache
-        var tokenSectionsAdapterCache: [ObjectIdentifier: TokenSectionsAdapter] = [:] // [REDACTED_TODO_COMMENT]
+        var tokenSectionsAdapterCache: [ObjectIdentifier: TokenSectionsAdapter] = [:]
 
-        // [REDACTED_TODO_COMMENT]
         userWalletModel
             .accountModelsManager
             .cryptoAccountModelsPublisher // [REDACTED_TODO_COMMENT]
@@ -123,9 +122,9 @@ final class AccountsAwareOrganizeTokensViewModel: ObservableObject, Identifiable
             }
             .assign(to: &$__sections)
 
+        // [REDACTED_TODO_COMMENT]
         /*
          let sourcePublisherFactory = TokenSectionsSourcePublisherFactory()
-         // [REDACTED_TODO_COMMENT]
          let tokenSectionsSourcePublisher = sourcePublisherFactory.makeSourcePublisher(for: userWalletModel)
 
          let organizedTokensSectionsPublisher = tokenSectionsAdapter
