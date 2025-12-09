@@ -17,7 +17,7 @@ struct TransactionViewAmountViewData: Hashable {
 
     var formattedAmount: String? {
         switch type {
-        case .approve, .vote, .withdraw:
+        case .approve, .vote, .withdraw, .yieldEnter, .yieldWithdraw, .yieldTopup:
             return nil
         case .transfer,
              .swap,
@@ -28,10 +28,7 @@ struct TransactionViewAmountViewData: Hashable {
              .claimRewards,
              .restake,
              .tangemPay,
-             .yieldSupply,
-             .yieldEnter,
-             .yieldWithdraw,
-             .yieldTopup:
+             .yieldSupply:
             return amount
         }
     }
