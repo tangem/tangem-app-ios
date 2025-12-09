@@ -419,7 +419,6 @@ struct AccountsAwareOrganizeTokensView: View {
          */
     }
 
-    // [REDACTED_TODO_COMMENT]
     @ViewBuilder
     private func makeInnerSection(
         from section: OrganizeTokensListInnerSection,
