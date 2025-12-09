@@ -74,7 +74,7 @@ final class ChiaWalletManager: BaseManager, WalletManager {
 
                 return networkService
                     .send(spendBundle: spendBundle)
-                    .mapAndEraseSendTxError(tx: encodedTransactionData?.hex())
+                    .mapAndEraseSendTxError(tx: encodedTransactionData?.hex(), currentHost: currentHost)
                     .eraseToAnyPublisher()
             }
             .withWeakCaptureOf(self)
@@ -84,7 +84,7 @@ final class ChiaWalletManager: BaseManager, WalletManager {
                 manager.wallet.addPendingTransaction(record)
                 return TransactionSendResult(hash: hash, currentProviderHost: manager.currentHost)
             }
-            .mapSendTxError()
+            .mapSendTxError(currentHost: currentHost)
             .eraseToAnyPublisher()
     }
 

@@ -148,7 +148,7 @@ extension BitcoinWalletManager: TransactionSender {
         .flatMap { manager, transaction in
             manager.networkService
                 .send(transaction: transaction)
-                .mapAndEraseSendTxError(tx: transaction)
+                .mapAndEraseSendTxError(tx: transaction, currentHost: manager.currentHost)
         }
         .withWeakCaptureOf(self)
         .map { manager, result in
@@ -157,7 +157,7 @@ extension BitcoinWalletManager: TransactionSender {
             manager.wallet.addPendingTransaction(record)
             return result
         }
-        .mapSendTxError()
+        .mapSendTxError(currentHost: currentHost)
         .eraseToAnyPublisher()
     }
 }

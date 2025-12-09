@@ -34,7 +34,7 @@ extension DemoSendTransactionDispatcher: TransactionDispatcher {
         do {
             _ = try await transactionSigner
                 .sign(hash: hash, walletPublicKey: walletModel.publicKey)
-                .mapAndEraseSendTxError(tx: hash.hexString)
+                .mapAndEraseSendTxError(tx: hash.hexString, currentHost: nil)
                 .async()
         } catch {
             throw mapper.mapError(error.toUniversalError(), transaction: transaction)

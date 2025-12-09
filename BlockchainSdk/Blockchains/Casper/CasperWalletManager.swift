@@ -73,7 +73,7 @@ class CasperWalletManager: BaseManager, WalletManager {
                 timestamp: timestamp
             )
         } catch {
-            return .sendTxFail(error: error)
+            return .sendTxFail(error: error, currentHost: currentHost)
         }
 
         return signer
@@ -90,7 +90,7 @@ class CasperWalletManager: BaseManager, WalletManager {
             .flatMap { walletManager, rawTransactionData in
                 walletManager.networkService
                     .putDeploy(rawData: rawTransactionData)
-                    .mapAndEraseSendTxError(tx: rawTransactionData.hex())
+                    .mapAndEraseSendTxError(tx: rawTransactionData.hex(), currentHost: walletManager.currentHost)
             }
             .withWeakCaptureOf(self)
             .map { walletManager, transactionHash in
@@ -99,7 +99,7 @@ class CasperWalletManager: BaseManager, WalletManager {
                 walletManager.wallet.addPendingTransaction(record)
                 return TransactionSendResult(hash: transactionHash, currentProviderHost: walletManager.currentHost)
             }
-            .mapSendTxError()
+            .mapSendTxError(currentHost: currentHost)
             .eraseToAnyPublisher()
     }
 
