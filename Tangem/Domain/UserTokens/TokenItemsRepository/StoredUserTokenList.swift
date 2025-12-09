@@ -36,10 +36,12 @@ struct StoredUserTokenList: Codable, Equatable {
 
 // MARK: - Convenience extensions
 
+@available(iOS, deprecated: 100000.0, message: "Superseded by 'StoredCryptoAccount', will be removed in the future ([REDACTED_INFO])")
 extension StoredUserTokenList {
     static var empty: Self { Self(entries: [], grouping: .none, sorting: .manual) }
 }
 
+@available(iOS, deprecated: 100000.0, message: "Superseded by 'StoredCryptoAccount', will be removed in the future ([REDACTED_INFO])")
 extension StoredUserTokenList.Entry {
     var isToken: Bool { contractAddress != nil }
 
