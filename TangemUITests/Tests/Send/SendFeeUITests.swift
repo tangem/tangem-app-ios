@@ -22,7 +22,7 @@ final class SendFeeUITests: BaseTestCase {
             scenarios: [polkadotScenario]
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(Constants.Network.polkadot)
             .tapActionButton(.send)
@@ -44,7 +44,7 @@ final class SendFeeUITests: BaseTestCase {
 
         launchApp(tangemApiType: .mock)
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(Constants.Network.ethereum)
             .tapActionButton(.send)
@@ -76,7 +76,7 @@ final class SendFeeUITests: BaseTestCase {
             scenarios: [bitcoinScenario]
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(Constants.Network.bitcoin)
             .tapActionButton(.send)
@@ -128,7 +128,7 @@ final class SendFeeUITests: BaseTestCase {
             scenarios: [veChainScenario, quotesScenario]
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(Constants.Network.vethor)
             .tapActionButton(.send)
@@ -164,7 +164,7 @@ final class SendFeeUITests: BaseTestCase {
             scenarios: [terraClassicScenario, quotesScenario]
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(Constants.Network.terraClassicUSD)
             .tapActionButton(.send)
