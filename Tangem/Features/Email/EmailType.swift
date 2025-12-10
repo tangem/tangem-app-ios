@@ -37,7 +37,7 @@ enum EmailType {
         }
     }
 
-    var emailPreface: String {
+    var emailPreface: String? {
         switch self {
         case .negativeRateAppFeedback: return Localization.feedbackPrefaceRateNegative
         case .failedToScanCard: return Localization.feedbackPrefaceScanFailed
@@ -45,11 +45,12 @@ enum EmailType {
         case .failedToPushTx: return Localization.feedbackPrefaceTxFailed
         case .appFeedback,
              .activatedCard,
-             .attestationFailed,
-             .visaFeedback:
+             .attestationFailed:
             return Localization.feedbackPrefaceSupport
         case .walletConnectUntypedError(let formattedErrorCode):
             return Localization.emailPrefaceWcError(formattedErrorCode)
+        case .visaFeedback:
+            return nil
         }
     }
 
