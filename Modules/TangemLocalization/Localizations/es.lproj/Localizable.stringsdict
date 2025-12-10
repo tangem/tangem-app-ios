@@ -77,9 +77,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li network</string>
+        <string>%li red</string>
         <key>other</key>
-        <string>%li networks</string>
+        <string>%li redes</string>
       </dict>
     </dict>
     <key>common_tokens_count</key>
