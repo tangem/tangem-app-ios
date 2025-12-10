@@ -221,6 +221,7 @@ extension TangemPayMainCoordinator: TangemPayAddFundsSheetRoutable {
     func addFundsSheetRequestReceive(viewModel: ReceiveMainViewModel) {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
+            try? await Task.sleep(seconds: 0.2)
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
