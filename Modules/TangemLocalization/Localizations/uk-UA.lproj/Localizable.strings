@@ -227,6 +227,7 @@
 "common_coming_soon" = "Coming soon";
 "common_confirm" = "Підтвердити";
 "common_connecting" = "Підключення";
+"common_contact_support" = "Звернутися у підтримку";
 "common_contact_tangem_support" = "Contact Tangem Support";
 "common_contact_visa_support" = "Contact Visa Support";
 "common_continue" = "Продовжити";
@@ -563,7 +564,7 @@
 "hw_backup_section_other_title" = "Other methods";
 "hw_backup_seed_description" = "Manually save your recovery phrase in a secure place and keep it private to protect your funds.";
 "hw_backup_seed_title" = "Recovery phrase";
-"hw_backup_to_secure_description" = "To secure your wallet with a Access Code, complete the backup first.";
+"hw_backup_to_secure_description" = "To secure your wallet with an Access Code, complete the backup first.";
 "hw_backup_to_upgrade_description" = "To upgrade your wallet to hardware, back it up first.";
 "hw_create_keys_description" = "Your private keys are securely encrypted and stored on your phone";
 "hw_create_keys_title" = "Keys are stored in the app";
@@ -648,11 +649,13 @@
 "markets_available networks" = "Доступні мережі";
 "markets_common_my_portfolio" = "Моє портфоліо";
 "markets_common_title" = "Маркет";
+"markets_earn_common_title" = "Earn with Tangem";
 "markets_generate_addresses_notification" = "Щоб згенерувати адреси для обраних мереж, відскануйте вашу картку або кільце Tangem гаманця";
 "markets_hint" = "Щоб додати токени, потягніть вгору або торкніться панелі пошуку";
 "markets_insights_info_description_message" = "Дані цього розділу отримані з наступних мереж: %@";
 "markets_loading_error_title" = "Не вдалося завантажити дані...";
 "markets_loading_no_data_title" = "Немає даних";
+"markets_pulse_common_title" = "Market Pulse";
 "markets_quick_actions" = "Швидкі дії";
 "markets_search_header_title" = "Шукати на маркеті";
 "markets_search_result_title" = "Результат";
@@ -1104,6 +1107,8 @@
 "staking_account_initialization_title" = "Account activation";
 "staking_active_footer" = "Для завершення стейкінгу натисніть на блок вище";
 "staking_active" = "Активний";
+"staking_alert_network_fee_updated_message" = "The network fee has changed. Please review the new amount before proceeding.";
+"staking_alert_network_fee_updated_title" = "Network fee updated";
 "staking_amount_requirement_error" = "Сума для стейкінгу має бути не менше %@";
 "staking_amount_tron_integer_error_unstaking" = "Сума зняття зі стейкінгу буде округлена до %1$@ TRX через мережеві правила.";
 "staking_amount_tron_integer_error" = "Сума стейкінгу буде округлена до %1$@ TRX відповідно до правил мережі.";
@@ -1143,6 +1148,7 @@
 "staking_give_permission_fee_footer" = "Комісія за схвалення токену, щоб верифікувати, що саме ви дозволяєте використання токена для стейкінгу.";
 "staking_legal" = "Використовуючи функцію стейкінгу, ви погоджуєтесь з %1$@ та %2$@";
 "staking_locked" = "Заблоковано";
+"staking_max_amount_requirement_error" = "Maximum amount: %@";
 "staking_migrate" = "Перемістити";
 "staking_native" = "Нативний стейкінг";
 "staking_no_validators_error_message" = "На даний момент немає доступних активних валідаторів для стейкінгу. Будь ласка, спробуйте пізніше.";
@@ -1275,6 +1281,8 @@
 "swapping_to_title" = "Ви отримаєте";
 "swapping_token_list_title" = "Оберіть токен";
 "swapping_token_not_available" = "недоступно";
+"tangem_pay_beta_notification_subtitle" = "We would be happy to receive your feedback";
+"tangem_pay_beta_notification_title" = "Tangem Pay is now in beta";
 "tangem_pay_card_frozen" = "Card frozen";
 "tangem_pay_card_payment" = "Card payment";
 "tangem_pay_deposit" = "Deposit";
@@ -1340,6 +1348,8 @@
 "tangempay_card_details_withdraw_in_progress_description" = "You can't initiate swap or new withdrawal till the current one is finished";
 "tangempay_card_details_withdraw_in_progress_title" = "Withdrawal in progress";
 "tangempay_card_details_withdraw" = "Withdraw";
+"tangempay_change_pin_code" = "Change PIN-code";
+"tangempay_come_back_if_forget_pin" = "Come back to the app if you forget it.";
 "tangempay_failed_to_issue_card_retry_description" = "A technical error has occurred, please try again by clicking the button below.";
 "tangempay_failed_to_issue_card_support_description" = "A technical error has occurred, please contact support.";
 "tangempay_failed_to_issue_card" = "Failed to issue card";
@@ -1373,6 +1383,7 @@
 "tangempay_temporarily_unavailable" = "Tangem Pay is temporarily unavailable";
 "tangempay_title" = "Tangem Pay";
 "tangempay_use_tangem_device_to_restore_payment_account" = "Use your card or ring to restore access to your payment account";
+"tangempay_your_pin_code" = "Your PIN code";
 "this_is_my_wallet_title" = "Це мій гаманець";
 "toast_balances_hidden" = "Баланси приховано";
 "toast_balances_shown" = "Баланси показано";
@@ -1418,6 +1429,7 @@
 "transaction_history_multiple_addresses" = "Кілька адрес";
 "transaction_history_not_supported_description" = "Історія транзакцій наразі не підтримується для цього блокчейну. Але не хвилюйтеся, ми працюємо над цим! А поки можете перевірити це в оглядачі.";
 "transaction_history_operation" = "Операція";
+"transaction_history_transaction_for_address" = "for: %@";
 "transaction_history_transaction_from_address" = "від: %@";
 "transaction_history_transaction_to_address" = "до: %@";
 "transaction_history_transaction_validator" = "валідатор: %@";
@@ -1839,8 +1851,10 @@
 "yield_module_fee_policy_sheet_title" = "Політика комісій";
 "yield_module_fee_policy_tangem_service_fee_title" = "Tangem комісію за обслуговування у розмірі 15%% від отриманого доходу.";
 "yield_module_high_fee_error" = "Ваші кошти будуть автоматично переведені у Aave, як тільки мережеві комісії знизяться або ваш баланс досягне мінімально необхідної суми.";
+"yield_module_high_network_fees_notification_description" = "Fees are higher than usual because the market is very active. You can proceed now or check back later when the fees are lower.";
+"yield_module_high_network_fees_notification_title" = "High Network Fees";
 "yield_module_historical_returns" = "Історична прибутковість";
-"yield_module_main_screen_promo_banner_message" = "\"Enable %1$@%% APY on your balance\"";
+"yield_module_main_screen_promo_banner_message" = "Enable %1$@%% APY on your balance";
 "yield_module_main_view_approve_notification_description" = "Дозвіл для вашого токена в режимі Yield було відкликано. Відкрийте токен, щоб надати дозвіл знову.";
 "yield_module_main_view_approve_notification_title" = "Потрібний дозвіл для токену";
 "yield_module_network_fee_unreachable_notification_description" = "Перевірте підключення до мережі";
