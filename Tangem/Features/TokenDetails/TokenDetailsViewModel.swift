@@ -487,17 +487,19 @@ extension TokenDetailsViewModel: BalanceWithButtonsViewModelBalanceProvider {
 }
 
 extension TokenDetailsViewModel: BalanceTypeSelectorProvider {
-    var shouldShowBalanceSelector: Bool {
-        switch walletModel.stakingBalanceProvider.balanceType {
-        case .empty:
-            return false
-        case .loaded(let amount) where amount == .zero:
-            return false
-        case .failure(let cached) where cached?.balance == .zero || cached == nil:
-            return false
-        case .failure, .loading, .loaded:
-            return true
-        }
+    var showBalanceSelectorPublisher: AnyPublisher<Bool, Never> {
+        walletModel.stakingBalanceProvider.balanceTypePublisher.map {
+            switch $0 {
+            case .empty, .failure:
+                return false
+            case .loaded(let amount) where amount == .zero:
+                return false
+            case .loading(let cached) where cached?.balance == .zero || cached == nil:
+                return false
+            case .loading, .loaded:
+                return true
+            }
+        }.eraseToAnyPublisher()
     }
 }
 
