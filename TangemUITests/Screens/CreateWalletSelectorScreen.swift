@@ -1,7 +1,6 @@
-
 //
-//  StoriesScreen.swift
-//  TangemApp
+//  CreateWalletSelectorScreen.swift
+//  TangemUITests
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
@@ -10,42 +9,18 @@
 import XCTest
 import TangemAccessibilityIdentifiers
 
-final class StoriesScreen: ScreenBase<StoriesScreenElement> {
+final class CreateWalletSelectorScreen: ScreenBase<CreateWalletSelectorScreenElement> {
     private lazy var scanButton = button(.scanButton)
     private lazy var tosAcceptButton = button(.tosAcceptButton)
+    private lazy var getStartedButton = button(.getStartedButton)
 
     @discardableResult
     func scanMockWallet(name: CardMockAccessibilityIdentifiers) -> MainScreen {
         XCTContext.runActivity(named: "Scan Mock Wallet: \(name)") { _ in
-            // Wait for scan button with extended timeout
-            guard scanButton.waitForExistence(timeout: .robustUIUpdate) else {
-                XCTFail("Initial scan button not found")
-                return MainScreen(app)
-            }
+            getStartedButton.waitAndTap()
+            scanButton.waitAndTap()
 
-            // Tap the scan button directly after existence check
-            Thread.sleep(forTimeInterval: 0.5)
-            scanButton.tap()
-
-            // Find the mock wallet button in the alert
-            let walletButton = app.buttons[name.rawValue]
-
-            if !walletButton.isHittable {
-                app.swipeUp()
-            }
-
-            guard walletButton.waitForExistence(timeout: .robustUIUpdate) else {
-                let availableButtons = app.buttons.allElementsBoundByIndex.map { $0.identifier }
-                XCTFail("Mock wallet button '\(name.rawValue)' not found in alert. Available buttons: \(availableButtons)")
-                return MainScreen(app)
-            }
-
-            guard walletButton.waitForState(state: .hittable) else {
-                XCTFail("Mock wallet button '\(name.rawValue)' exists but is not hittable")
-                return MainScreen(app)
-            }
-
-            walletButton.tap()
+            selectWalletFromList(name: name)
 
             // For Twin cards, check if onboarding screen appears and handle it
             if name == .twin {
@@ -54,6 +29,30 @@ final class StoriesScreen: ScreenBase<StoriesScreenElement> {
 
             return MainScreen(app)
         }
+    }
+
+    func selectWalletFromList(name: CardMockAccessibilityIdentifiers) {
+        // Find the mock wallet button in the alert
+        let walletButton = app.buttons[name.rawValue]
+
+        if !walletButton.isHittable {
+            app.swipeUp()
+        }
+
+        guard walletButton.waitForExistence(timeout: .robustUIUpdate) else {
+            let availableButtons = app.buttons.allElementsBoundByIndex.map { $0.identifier }
+            XCTFail(
+                "Mock wallet button '\(name.rawValue)' not found in alert. Available buttons: \(availableButtons)"
+            )
+            return
+        }
+
+        guard walletButton.waitForState(state: .hittable) else {
+            XCTFail("Mock wallet button '\(name.rawValue)' exists but is not hittable")
+            return
+        }
+
+        walletButton.tap()
     }
 
     @discardableResult
@@ -83,6 +82,13 @@ final class StoriesScreen: ScreenBase<StoriesScreenElement> {
         }
     }
 
+    func skipStories() -> Self {
+        XCTContext.runActivity(named: "Skip stories screen") { _ in
+            getStartedButton.waitAndTap()
+            return self
+        }
+    }
+
     @discardableResult
     func cancelScan() -> Self {
         XCTContext.runActivity(named: "Close scan alert") { _ in
@@ -107,9 +113,10 @@ final class StoriesScreen: ScreenBase<StoriesScreenElement> {
     }
 }
 
-enum StoriesScreenElement: String, UIElement {
+enum CreateWalletSelectorScreenElement: String, UIElement {
     case scanButton
     case tosAcceptButton
+    case getStartedButton
 
     var accessibilityIdentifier: String {
         switch self {
@@ -117,6 +124,8 @@ enum StoriesScreenElement: String, UIElement {
             StoriesAccessibilityIdentifiers.scanButton
         case .tosAcceptButton:
             TOSAccessibilityIdentifiers.acceptButton
+        case .getStartedButton:
+            StoriesAccessibilityIdentifiers.getStartedButton
         }
     }
 }
