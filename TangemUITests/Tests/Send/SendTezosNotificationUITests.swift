@@ -68,7 +68,7 @@ final class SendTezosNotificationUITests: BaseTestCase {
             scenarios: [tezosTokenScenario, quotesScenario]
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(coin)
             .tapSendButton()
