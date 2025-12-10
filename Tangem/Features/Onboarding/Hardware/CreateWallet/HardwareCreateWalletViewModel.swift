@@ -297,7 +297,7 @@ private extension HardwareCreateWalletViewModel {
     func logBuyHardwareWalletAnalytics() {
         Analytics.log(
             .basicButtonBuy,
-            params: [.source: Analytics.BuyWalletSource.hardwareWallet.parameterValue],
+            params: [.source: Analytics.BuyWalletSource.createWallet.parameterValue],
             contextParams: analyticsContextParams
         )
     }

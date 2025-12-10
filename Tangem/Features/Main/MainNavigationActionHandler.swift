@@ -69,7 +69,7 @@ extension MainCoordinator {
             case .swap:
                 return routeSwapAction(userWalletId: navigationAction.params.userWalletId)
 
-            case .onboardVisa:
+            case .onboardVisa, .payApp:
                 return routeOnboardVisaAction(
                     params: navigationAction.params,
                     deeplinkString: navigationAction.deeplinkString
