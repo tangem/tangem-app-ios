@@ -30,8 +30,19 @@ final class MailComposePresenter: NSObject {
             completionInProcess = nil
         }
 
-        let topViewController = UIApplication.mainWindow?.topViewController
-        topViewController?.present(viewController, animated: true)
+        let presentingViewController: UIViewController?
+
+        // [REDACTED_USERNAME]: topViewController may be in the process of being dismissed
+        // (for example, when presenting from a SwiftUI .sheet that is currently closing).
+        // In that case, we must fall back to another valid presenter.
+
+        if let topViewController = UIApplication.mainWindow?.topViewController, !topViewController.isBeingDismissed {
+            presentingViewController = topViewController
+        } else {
+            presentingViewController = UIApplication.mainWindow?.rootViewController
+        }
+
+        presentingViewController?.present(viewController, animated: true)
     }
 }
 
