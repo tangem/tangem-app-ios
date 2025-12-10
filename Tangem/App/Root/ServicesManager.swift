@@ -112,31 +112,15 @@ final class CommonServicesManager {
         AppSettings.shared.startAppUsageDate = Date()
     }
 
+    #if DEBUG
+    private var mockWalletsCreated = false
+    #endif
+
     private func configureForUITests() {
-        // Only process UI testing arguments when running in UI test mode
-        guard AppEnvironment.current.isUITest else { return }
-
-        let arguments = ProcessInfo.processInfo.arguments
-
-        if let _ = arguments.firstIndex(of: "-uitest-skip-tos") {
-            AppSettings.shared.termsOfServicesAccepted = ["https://tangem.com/tangem_tos.html"]
-        } else {
-            AppSettings.shared.termsOfServicesAccepted = []
-        }
-
-        if let _ = arguments.firstIndex(of: "-uitest-clear-storage") {
-            UITestsStorageCleaner.clearCachedFiles()
-        }
-
-        if arguments.contains("-uitest-disable-mobile-wallet") {
-            FeatureStorage.instance.availableFeatures[.mobileWallet] = .off
-        } else {
-            FeatureStorage.instance.availableFeatures[.mobileWallet] = .on
-        }
-
-        UITestsStorageCleaner.clearWalletData()
-
-        UIView.setAnimationsEnabled(false)
+        #if DEBUG
+        let result = UITestsConfigurator.configure()
+        mockWalletsCreated = result.mockWalletsCreated
+        #endif
     }
 }
 
@@ -159,9 +143,7 @@ extension CommonServicesManager: ServicesManager {
         recordStartAppUsageDate()
         let initialLaunches = recordAppLaunch()
 
-        if initialLaunches == 0 {
-            KeychainCleaner.cleanAllData()
-        }
+        cleanKeychainOnFirstLaunchIfNeeded(initialLaunches: initialLaunches)
 
         AppLogger.info("Start services initializing")
 
@@ -183,6 +165,18 @@ extension CommonServicesManager: ServicesManager {
         eTagStorage.initialize()
         mobileAccessCodeCleaner.initialize()
         SendFeatureProvider.shared.loadFeaturesAvailability()
+    }
+
+    /// Cleans Keychain on first app launch.
+    /// In DEBUG builds, skips cleanup if mock wallets were created for UI tests.
+    private func cleanKeychainOnFirstLaunchIfNeeded(initialLaunches: Int) {
+        guard initialLaunches == 0 else { return }
+
+        #if DEBUG
+        if mockWalletsCreated { return }
+        #endif
+
+        KeychainCleaner.cleanAllData()
     }
 
     /// Some services should be initialized later, in SceneDelegate to bypass locked keychain during preheating
