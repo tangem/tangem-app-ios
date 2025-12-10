@@ -46,6 +46,7 @@ private extension StoriesBottomButtons {
             isDisabled: isScanning,
             action: createWallet
         )
+        .accessibilityIdentifier(StoriesAccessibilityIdentifiers.getStartedButton)
     }
 
     var scanCardButton: some View {
