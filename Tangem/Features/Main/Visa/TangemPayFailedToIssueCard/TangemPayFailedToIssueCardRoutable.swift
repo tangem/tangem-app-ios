@@ -8,5 +8,5 @@
 
 protocol TangemPayFailedToIssueCardRoutable: AnyObject {
     func closeFailedToIssueCardSheet()
-    func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType)
+    func openMailFromFailedToIssueCardSheet(mailViewModel: MailViewModel)
 }
