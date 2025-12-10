@@ -791,6 +791,9 @@
 "no_trustline_xlm_asset" = "目標帳戶沒有用於發送資產的 trustline";
 "notification_black_friday_text" = "Get $10 in BTC with every wallet\nHurry!";
 "notification_black_friday_title" = "Black Friday: up to 30%% OFF";
+"notification_one_plus_one_button" = "Let’s go";
+"notification_one_plus_one_text" = "Build Perfect pair of Tangem Sets. Limited time.";
+"notification_one_plus_one_title" = "1+1: Buy One Wallet, Get 50%% OFF the Second";
 "notification_referral_promo_button" = "Join Now";
 "notification_sepa_button" = "Buy crypto";
 "notification_sepa_text" = "Enjoy **0%% fees** when purchasing crypto via SEPA transfers.";

@@ -791,6 +791,9 @@
 "no_trustline_xlm_asset" = "Акаунт одержувача не містить трастлайну для активу, що надсилається.";
 "notification_black_friday_text" = "Get $10 in BTC with every wallet\nHurry!";
 "notification_black_friday_title" = "Black Friday: up to 30%% OFF";
+"notification_one_plus_one_button" = "Let’s go";
+"notification_one_plus_one_text" = "Build Perfect pair of Tangem Sets. Limited time.";
+"notification_one_plus_one_title" = "1+1: Buy One Wallet, Get 50%% OFF the Second";
 "notification_referral_promo_button" = "Приєднатися";
 "notification_sepa_button" = "Купити криптовалюту";
 "notification_sepa_text" = "Насолоджуйтесь **нульовою комісією** при купівлі криптовалюти через перекази SEPA.";
