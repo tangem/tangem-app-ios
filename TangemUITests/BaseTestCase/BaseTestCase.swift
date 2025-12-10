@@ -6,8 +6,22 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import XCTest
 import TangemAccessibilityIdentifiers
+import XCTest
+
+/// Hot wallet types for mock repository.
+/// Uses seed identifiers that are deterministically converted to BIP39 mnemonics.
+/// TEST WALLETS ONLY - Never use for real funds.
+enum HotWallet: String {
+    case hotWallet1 = "tangem_uitest_wallet_1"
+    case hotWallet2 = "tangem_uitest_wallet_2"
+
+    /// The seed identifier used for deterministic mnemonic generation.
+    /// This value is passed to the app and converted to a mnemonic via DeterministicMnemonicGenerator.
+    var seed: String {
+        rawValue
+    }
+}
 
 class BaseTestCase: XCTestCase {
     let app = XCUIApplication()
@@ -48,6 +62,7 @@ class BaseTestCase: XCTestCase {
         skipToS: Bool = true,
         clearStorage: Bool = false,
         disableMobileWallet: Bool = false,
+        mockHotWallets: [HotWallet] = [],
         scenarios: [ScenarioConfig] = []
     ) {
         var arguments = ["--uitesting", "--alpha"]
@@ -76,8 +91,23 @@ class BaseTestCase: XCTestCase {
             arguments.append("-uitest-disable-mobile-wallet")
         }
 
+        var launchEnvironment = ["UITEST": "1"]
+
+        // Configure mock repository if hot wallets are provided
+        if !mockHotWallets.isEmpty {
+            arguments.append("-uitest-mock-repository")
+
+            // Pass seed identifiers as JSON array in launch environment
+            // Seeds are converted to mnemonics in the app via DeterministicMnemonicGenerator
+            let seeds = mockHotWallets.map { $0.seed }
+            if let seedsJSON = try? JSONEncoder().encode(seeds),
+               let seedsString = String(data: seedsJSON, encoding: .utf8) {
+                launchEnvironment["UITEST_MOCK_WALLET_SEEDS"] = seedsString
+            }
+        }
+
         app.launchArguments = arguments
-        app.launchEnvironment = ["UITEST": "1"]
+        app.launchEnvironment = launchEnvironment
 
         // Setup WireMock scenarios before launching the app
         setupWireMockScenarios(scenarios)
@@ -112,7 +142,10 @@ class BaseTestCase: XCTestCase {
 
             // Wait for refresh to complete by waiting for state to change back to idle
             let refreshStateIdle = app.otherElements[MainAccessibilityIdentifiers.refreshStateIdle]
-            XCTAssertTrue(refreshStateIdle.waitForExistence(timeout: .conditional), "Refresh state should change to idle when refresh is complete")
+            XCTAssertTrue(
+                refreshStateIdle.waitForExistence(timeout: .conditional),
+                "Refresh state should change to idle when refresh is complete"
+            )
         }
     }
 
@@ -127,7 +160,10 @@ class BaseTestCase: XCTestCase {
     func maximizeApp() {
         XCTContext.runActivity(named: "Maximize application") { _ in
             app.activate()
-            XCTAssertTrue(app.wait(for: .runningForeground, timeout: 5.0), "App should be running in foreground")
+            XCTAssertTrue(
+                app.wait(for: .runningForeground, timeout: 5.0),
+                "App should be running in foreground"
+            )
         }
     }
 
