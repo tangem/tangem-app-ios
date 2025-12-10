@@ -44,8 +44,13 @@ extension MailComposePresenter {
 
         viewController.setToRecipients([viewModel.recipient])
         viewController.setSubject(viewModel.emailType.emailSubject)
-        var messageBody = "\n" + viewModel.emailType.emailPreface
-        messageBody.append("\n\n")
+
+        var messageBody = ""
+        if let preface = viewModel.emailType.emailPreface {
+            messageBody.append("\n")
+            messageBody.append(preface)
+            messageBody.append("\n\n")
+        }
 
         if let log = viewModel.logsComposer.getInfoData(), let messageLog = String(data: log, encoding: .utf8) {
             messageBody.append(messageLog)
