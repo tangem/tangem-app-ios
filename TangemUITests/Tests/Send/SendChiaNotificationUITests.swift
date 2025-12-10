@@ -77,7 +77,7 @@ final class SendChiaNotificationUITests: BaseTestCase {
             scenarios: [chiaTokenScenario, chiaGetCoinsScenario, quotesScenario]
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(coin)
             .tapSendButton()

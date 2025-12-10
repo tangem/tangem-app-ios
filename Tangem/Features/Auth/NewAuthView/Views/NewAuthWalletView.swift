@@ -10,6 +10,7 @@ import SwiftUI
 import TangemFoundation
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct NewAuthWalletView: View {
     @StateObject private var viewModel: NewAuthWalletViewModel
@@ -32,6 +33,7 @@ struct NewAuthWalletView: View {
             .background(Colors.Background.primary)
             .cornerRadius(14, corners: .allCorners)
         }
+        .accessibilityIdentifier(AuthAccessibilityIdentifiers.walletItem(walletName: viewModel.title))
     }
 }
 
