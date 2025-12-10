@@ -24,7 +24,7 @@ final class SendConfirmationUITests: BaseTestCase {
 
         launchApp(tangemApiType: .mock)
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(tokenName)
             .tapSendButton()
@@ -55,7 +55,7 @@ final class SendConfirmationUITests: BaseTestCase {
 
         launchApp(tangemApiType: .mock)
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(tokenName)
             .tapSendButton()
@@ -86,7 +86,7 @@ final class SendConfirmationUITests: BaseTestCase {
 
         launchApp(tangemApiType: .mock)
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(token)
             .tapSendButton()
@@ -116,7 +116,7 @@ final class SendConfirmationUITests: BaseTestCase {
             scenarios: [ethEstimateGasScenario]
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(tokenName)
             .tapSendButton()
@@ -146,7 +146,7 @@ final class SendConfirmationUITests: BaseTestCase {
             scenarios: [tokensScenario, quotesScenario, gasUnreachableScenario]
         )
 
-        let sendScreen = StoriesScreen(app)
+        let sendScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(tokenName)
             .tapSendButton()
