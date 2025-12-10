@@ -42,6 +42,8 @@ struct TangemPayMainView: View {
                     PendingExpressTransactionView(info: transactionInfo)
                 }
 
+                NotificationView(input: viewModel.contactSupportNotificationInput)
+
                 TransactionsListView(
                     state: viewModel.tangemPayTransactionHistoryState,
                     exploreAction: nil,

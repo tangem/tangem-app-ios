@@ -19,7 +19,11 @@ protocol TangemPayMainRoutable: AnyObject {
     func openTangemPayPin(tangemPayAccount: TangemPayAccount)
     func openTermsAndLimits()
 
-    func openTangemPayTransactionDetailsSheet(transaction: TangemPayTransactionRecord)
+    func openTangemPayTransactionDetailsSheet(
+        transaction: TangemPayTransactionRecord,
+        userWalletId: String
+    )
+
     func openPendingExpressTransactionDetails(
         pendingTransaction: PendingTransaction,
         userWalletInfo: UserWalletInfo,
