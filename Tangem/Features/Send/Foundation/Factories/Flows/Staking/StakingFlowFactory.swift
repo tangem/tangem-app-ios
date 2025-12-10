@@ -63,7 +63,7 @@ class StakingFlowFactory: StakingFlowDependenciesFactory {
         )
         allowanceServiceFactory = AllowanceServiceFactory(
             walletModel: walletModel,
-            transactionDispatcher: transactionDispatcherFactory.makeSendDispatcher(),
+            transactionDispatcher: transactionDispatcherFactory.makeExpressDispatcher()
         )
     }
 }
