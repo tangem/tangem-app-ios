@@ -54,7 +54,12 @@ final class CommonUserTokenListManager {
         self.defaultBlockchains = defaultBlockchains
         tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.hexString)
         initializedSubject = CurrentValueSubject(tokenItemsRepository.containsFile)
-        userTokensListSubject = CurrentValueSubject(tokenItemsRepository.getList())
+        let initialList = tokenItemsRepository.getList()
+        userTokensListSubject = CurrentValueSubject(initialList)
+
+        #if DEBUG
+        initializeDefaultBlockchainsForUITests(initialList: initialList)
+        #endif
 
         removeInvalidTokens()
     }
@@ -271,7 +276,6 @@ private extension CommonUserTokenListManager {
             .eraseToAnyPublisher()
     }
 
-    /// Remove tokens with derivation for cards without derivation
     func removeInvalidTokens() {
         guard !hdWalletsSupported else {
             return
@@ -287,4 +291,20 @@ private extension CommonUserTokenListManager {
         let blockchainNetwork = badEntries.map { $0.blockchainNetwork }
         tokenItemsRepository.remove(blockchainNetwork, completion: nil)
     }
+
+    #if DEBUG
+    /// Remove tokens with derivation for cards without derivation
+    /// Initializes default blockchains when token list is empty.
+    /// Used in UI tests with mock wallets where token synchronization is disabled.
+    private func initializeDefaultBlockchainsForUITests(initialList: StoredUserTokenList) {
+        guard initialList.entries.isEmpty, !defaultBlockchains.isEmpty else { return }
+
+        let converter = StorageEntryConverter()
+        let entries = converter.convertToStoredUserTokens(tokenItems: defaultBlockchains)
+        let newList = StoredUserTokenList(entries: entries, grouping: .none, sorting: .manual)
+        tokenItemsRepository.update(newList)
+        userTokensListSubject.send(newList)
+        initializedSubject.send(true)
+    }
+    #endif
 }
