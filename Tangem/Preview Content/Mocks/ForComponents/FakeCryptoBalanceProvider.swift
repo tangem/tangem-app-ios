@@ -69,7 +69,7 @@ extension FakeTokenBalanceProvider: BalanceWithButtonsViewModelBalanceProvider {
 }
 
 extension FakeTokenBalanceProvider: BalanceTypeSelectorProvider {
-    var shouldShowBalanceSelector: Bool { false }
+    var showBalanceSelectorPublisher: AnyPublisher<Bool, Never> { .just(output: true) }
 }
 
 extension FakeTokenBalanceProvider: YieldModuleStatusProvider {
