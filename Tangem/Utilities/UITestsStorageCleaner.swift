@@ -60,7 +60,7 @@ enum UITestsStorageCleaner {
     }
 
     /// Clears WalletConnect encrypted files from Documents directory
-    private static func clearWalletConnectFiles() {
+    static func clearWalletConnectFiles() {
         #if DEBUG
         let fileManager = FileManager.default
         let documentsDirectory = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
