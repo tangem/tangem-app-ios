@@ -17,5 +17,5 @@ protocol BalanceWithButtonsViewModelBalanceProvider: AnyObject {
 }
 
 protocol BalanceTypeSelectorProvider: AnyObject {
-    var shouldShowBalanceSelector: Bool { get }
+    var showBalanceSelectorPublisher: AnyPublisher<Bool, Never> { get }
 }
