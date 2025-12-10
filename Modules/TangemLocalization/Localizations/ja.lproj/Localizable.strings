@@ -791,6 +791,9 @@
 "no_trustline_xlm_asset" = "送信先アカウントには、送金されるアセットのトラストラインがありません。";
 "notification_black_friday_text" = "ウォレットごとに$10相当のBTCをプレゼント\nお早めに！";
 "notification_black_friday_title" = "ブラックフライデー：最大30%% オフ";
+"notification_one_plus_one_button" = "Let’s go";
+"notification_one_plus_one_text" = "Build Perfect pair of Tangem Sets. Limited time.";
+"notification_one_plus_one_title" = "1+1: Buy One Wallet, Get 50%% OFF the Second";
 "notification_referral_promo_button" = "今すぐ参加";
 "notification_sepa_button" = "暗号資産を買い付ける";
 "notification_sepa_text" = "SEPA送金で暗号資産を買い付けると、**手数料 0%% ** になります。";
