@@ -22,7 +22,7 @@ final class SendCommonNotificationUITests: BaseTestCase {
             .enterAmount("0.01")
             .tapNextButton()
             .enterDestination(destination)
-            .tapNextButton()
+            .tapNextButtonToSummary()
             .tapFeeBlock()
             .selectCustom()
             .setLowCustomFee()
@@ -54,7 +54,7 @@ final class SendCommonNotificationUITests: BaseTestCase {
             .enterAmount("0.01")
             .tapNextButton()
             .enterDestination(destination)
-            .tapNextButton()
+            .tapNextButtonToSummary()
             .tapFeeBlock()
             .selectCustom()
             .setHighCustomFee()
@@ -79,7 +79,7 @@ final class SendCommonNotificationUITests: BaseTestCase {
             scenarios: [ethNetworkScenario]
         )
 
-        let polTokenScreen = StoriesScreen(app)
+        let polTokenScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(polTokenName)
             .waitForNotEnoughFeeForTransactionBanner()
@@ -93,7 +93,7 @@ final class SendCommonNotificationUITests: BaseTestCase {
     private func prepareSendFlow() {
         launchApp(tangemApiType: .mock)
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(ethTokenName)
             .tapSendButton()
