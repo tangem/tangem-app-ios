@@ -66,9 +66,9 @@ struct FeeRowView: View {
         case .loading:
             SkeletonView()
                 .frame(width: 70, height: 15)
-        case .loaded(let components):
+        case .success(let components):
             trailingView(for: components)
-        case .failedToLoad:
+        case .failure:
             Text(AppConstants.emDashSign)
                 .style(leadingFont, color: Colors.Text.primary1)
                 .layoutPriority(1)
@@ -132,17 +132,17 @@ struct ExpressFeeRowView_Preview: PreviewProvider {
             [
                 FeeRowViewModel(
                     option: .slow,
-                    components: .loaded(.init(cryptoFee: "0.359817123123123123123 MATIC", fiatFee: "123123123123120.22 $")),
+                    components: .success(.init(cryptoFee: "0.359817123123123123123 MATIC", fiatFee: "123123123123120.22 $")),
                     style: .selectable(isSelected: .init(get: { option == .slow }, set: { _ in option = .slow }))
                 ),
                 FeeRowViewModel(
                     option: .market,
-                    components: .loaded(.init(cryptoFee: "0.159817 MATIC", fiatFee: "0.22 $")),
+                    components: .success(.init(cryptoFee: "0.159817 MATIC", fiatFee: "0.22 $")),
                     style: .selectable(isSelected: .init(get: { option == .market }, set: { _ in option = .market }))
                 ),
                 FeeRowViewModel(
                     option: .fast,
-                    components: .loaded(.init(cryptoFee: "0.159817 MATIC", fiatFee: "0.22 $")),
+                    components: .success(.init(cryptoFee: "0.159817 MATIC", fiatFee: "0.22 $")),
                     style: .selectable(isSelected: .init(get: { option == .fast }, set: { _ in option = .fast }))
                 ),
             ]
