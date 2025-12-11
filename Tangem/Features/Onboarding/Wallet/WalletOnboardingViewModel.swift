@@ -661,13 +661,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             case .success(let cardInfo):
                 initializeUserWallet(from: cardInfo)
 
-                if let userWalletModel, userWalletModel.hasImportedWallets {
-                    let userWalletId = userWalletModel.userWalletId.stringValue
-                    runTask(in: self) { model in
-                        try? await model.tangemApiService.setWalletInitialized(userWalletId: userWalletId)
-                    }
-                }
-
                 if let primaryCard = cardInfo.primaryCard {
                     backupService.setPrimaryCard(primaryCard)
                 }
