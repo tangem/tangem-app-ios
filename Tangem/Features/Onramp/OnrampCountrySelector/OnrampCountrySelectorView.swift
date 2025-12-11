@@ -45,10 +45,10 @@ private extension OnrampCountrySelectorView {
         case .loading:
             skeletonsView
                 .transition(.opacityLinear())
-        case .loaded(let data):
+        case .success(let data):
             countriesView(data: data)
                 .transition(.opacityLinear())
-        case .failedToLoad:
+        case .failure:
             failedToLoadView
                 .transition(.opacityLinear())
         }
