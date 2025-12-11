@@ -14,7 +14,7 @@ import TangemUIUtils
 import TangemLocalization
 
 final class ArchivedAccountsViewModel: ObservableObject {
-    private typealias LoadingState = LoadingValue<[ArchivedCryptoAccountInfo]>
+    private typealias LoadingState = LoadingResult<[ArchivedCryptoAccountInfo], AccountModelsManagerError>
 
     // MARK: - State
 
@@ -66,12 +66,12 @@ final class ArchivedAccountsViewModel: ObservableObject {
 
     @MainActor
     func fetchArchivedAccounts() async {
-        do {
+        do throws(AccountModelsManagerError) {
             viewState = .loading
             let archivedAccounts = try await accountModelsManager.archivedCryptoAccountInfos()
-            viewState = .loaded(archivedAccounts)
+            viewState = .success(archivedAccounts)
         } catch {
-            viewState = .failedToLoad(error: error)
+            viewState = .failure(error)
         }
     }
 
