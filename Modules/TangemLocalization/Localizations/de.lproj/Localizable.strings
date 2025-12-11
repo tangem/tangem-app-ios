@@ -389,6 +389,7 @@
 "custom_token_validation_error_not_found" = "Beachte, dass Token von jedem erstellt werden können. Achte darauf, keine Betrugstoken hinzuzufügen, diese können kostenlos sein.";
 "details_buy_wallet" = "Kaufe eine Tangem Wallet";
 "details_chat" = "Chat";
+"details_get_visa" = "Get Tangem Visa";
 "details_manage_security_access_code_description" = "Du musst den richtigen Zugangscode eingeben, bevor du die Karte oder Ring scannst.";
 "details_manage_security_access_code" = "Zugangscode";
 "details_manage_security_long_tap_description" = "Dieser Mechanismus schützt vor Annäherungsangriffen auf eine Karte oder einen Ring. Er erzwingt eine Verzögerung zwischen dem Empfang und der Ausführung eines Befehls.";
@@ -743,6 +744,7 @@
 "mobile_wallet_requires_min_os_warning_body" = "Du musst auf die folgende Version aktualisieren: %1$@ um eine mobile Wallet zu erstellen";
 "mobile_wallet_requires_min_os_warning_title" = "Mobile Wallet erfordert %1$@ oder später";
 "news_all_news" = "Alle Neuigkeiten";
+"news_published_hours_ago" = "%lih ago";
 "news_stay_in_the_loop" = "Auf dem Laufenden bleiben";
 "nft_about_title" = "Über NFT";
 "nft_asset" = "NFT-Vermögenswert";
@@ -793,7 +795,7 @@
 "notification_black_friday_title" = "Black Friday: bis zu 30%% Nachlass";
 "notification_one_plus_one_button" = "Let’s go";
 "notification_one_plus_one_text" = "Build Perfect pair of Tangem Sets. Limited time.";
-"notification_one_plus_one_title" = "1+1: Buy One Wallet, Get 50%% OFF the Second";
+"notification_one_plus_one_title" = "1+1: Buy One Wallet, Get 50% OFF the Second";
 "notification_referral_promo_button" = "Jetzt beitreten";
 "notification_sepa_button" = "Krypto kaufen";
 "notification_sepa_text" = "Profitiere von **0 %% Gebühren** beim Kauf von Kryptowährungen per SEPA-Überweisung.";
@@ -1369,6 +1371,8 @@
 "tangempay_kyc_in_progress_notification_button" = "Status anzeigen";
 "tangempay_kyc_in_progress_notification_title" = "KYC für Tangem Pay in Arbeit";
 "tangempay_kyc_in_progress" = "KYC in Bearbeitung";
+"tangempay_onboarding_banner_description" = "Use your crypto for real world spending. It’s a payment card unlike any other.";
+"tangempay_onboarding_banner_title" = "Tangem Visa Card";
 "tangempay_onboarding_get_card_button_text" = "Karte erhalten";
 "tangempay_onboarding_pay_description" = "Füge es Deiner Wallet hinzu und bezahle überall mit Deinem Smartphone.";
 "tangempay_onboarding_pay_title" = "Apple Pay &amp; Google Pay";
