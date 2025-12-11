@@ -34,7 +34,7 @@ struct CurrencySelectView: View {
             ProgressView()
                 .controlSize(.regular)
 
-        case .loaded(let currencies):
+        case .success(let currencies):
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: .zero) {
                     GroupedSection(currencies) { currency in
@@ -54,7 +54,7 @@ struct CurrencySelectView: View {
                 placement: searchFieldPlacement
             )
 
-        case .failedToLoad(let error):
+        case .failure(let error):
             Text(error.localizedDescription)
                 .style(Fonts.Regular.body, color: Colors.Text.primary1)
                 .padding(.horizontal, 16)
