@@ -45,10 +45,10 @@ private extension OnrampCurrencySelectorView {
         case .loading:
             skeletonsView
                 .transition(.opacityLinear())
-        case .loaded(let currencies):
+        case .success(let currencies):
             sectionsView(for: currencies)
                 .transition(.opacityLinear())
-        case .failedToLoad:
+        case .failure:
             failedToLoadView
                 .transition(.opacityLinear())
         }
