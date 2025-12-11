@@ -67,12 +67,10 @@ extension ArchivedCryptoAccountInfo: CustomStringConvertible {
 // MARK: - BaseAccountModel protocol conformance
 
 extension ArchivedCryptoAccountInfo: BaseAccountModel {
-    func setIcon(_ icon: AccountModel.Icon) {
+    @discardableResult
+    func edit(with editor: Editor) async throws(AccountEditError) -> Self {
         assertionFailure("Should never be called")
-    }
-
-    func setName(_ name: String) {
-        assertionFailure("Should never be called")
+        return self
     }
 
     var didChangePublisher: AnyPublisher<Void, Never> {

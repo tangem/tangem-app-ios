@@ -55,6 +55,7 @@ extension Analytics {
         case manageTokens = "Manage Tokens"
         case introduction = "Introduction"
         case onboarding = "Onboarding"
+        case details = "Details"
         case deviceSettings = "Device Settings"
         case settings = "Settings"
         case signIn = "Sign In"
@@ -264,6 +265,10 @@ extension Analytics {
         case upgrade = "Upgrade"
         case remove = "Remove"
         case hardwareWallet = "Hardware Wallet"
+        case notStarted = "Not Started"
+        case unfinished = "Unfinished"
+        case createWalletIntro = "Create Wallet Intro"
+        case addNewWallet = "Add New Wallet"
 
         case set = "Set"
         case changing = "Changing"
