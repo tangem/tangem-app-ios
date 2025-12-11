@@ -214,7 +214,7 @@ final class WCFeeInteractor: WCFeeInteractorType {
         case .success(let fees):
             return mapToFees(fees: fees, customFee: customFee)
         case .failure(let error):
-            return feeOptions.map { WCFee(option: $0, value: .failedToLoad(error: error)) }
+            return feeOptions.map { WCFee(option: $0, value: .failure(error)) }
         }
     }
 
@@ -230,14 +230,14 @@ final class WCFeeInteractor: WCFeeInteractorType {
             defaultOptions.insert(
                 .init(
                     option: suggestedFeeOption,
-                    value: .loaded(suggestedFee)
+                    value: .success(suggestedFee)
                 ),
                 at: 0
             )
         }
 
         if let customFee {
-            defaultOptions.append(WCFee(option: .custom, value: .loaded(customFee)))
+            defaultOptions.append(WCFee(option: .custom, value: .success(customFee)))
         }
 
         return defaultOptions
@@ -246,7 +246,7 @@ final class WCFeeInteractor: WCFeeInteractorType {
     // MARK: - Helper Methods
 
     private func mapToFeeSelectorFee(fee: WCFee) -> FeeSelectorFee? {
-        guard case .loaded(let feeValue) = fee.value else {
+        guard case .success(let feeValue) = fee.value else {
             return nil
         }
 
@@ -258,7 +258,7 @@ final class WCFeeInteractor: WCFeeInteractorType {
 
     private func handleFeeLoadingError(_ error: Error) {
         let currentSelectedFee = selectedFeeSubject.value
-        let failedFee = WCFee(option: currentSelectedFee.option, value: .failedToLoad(error: error))
+        let failedFee = WCFee(option: currentSelectedFee.option, value: .failure(error))
         selectedFeeSubject.send(failedFee)
 
         networkFeesSubject.send(.failure(error))
@@ -277,18 +277,18 @@ final class WCFeeInteractor: WCFeeInteractorType {
         switch fees.count {
         case 1:
             return [
-                WCFee(option: .market, value: .loaded(fees[0])),
+                WCFee(option: .market, value: .success(fees[0])),
             ]
         case 2:
             return [
-                WCFee(option: .market, value: .loaded(fees[0])),
-                WCFee(option: .fast, value: .loaded(fees[1])),
+                WCFee(option: .market, value: .success(fees[0])),
+                WCFee(option: .fast, value: .success(fees[1])),
             ]
         case 3:
             return [
-                WCFee(option: .slow, value: .loaded(fees[0])),
-                WCFee(option: .market, value: .loaded(fees[1])),
-                WCFee(option: .fast, value: .loaded(fees[2])),
+                WCFee(option: .slow, value: .success(fees[0])),
+                WCFee(option: .market, value: .success(fees[1])),
+                WCFee(option: .fast, value: .success(fees[2])),
             ]
         default:
             assertionFailure("Wrong count of fees")
@@ -303,7 +303,7 @@ extension WCFeeInteractor: WCCustomFeeServiceOutput {
     func customFeeDidChanged(_ customFee: Fee) {
         customFeeSubject.send(customFee)
 
-        let customWCFee = WCFee(option: .custom, value: .loaded(customFee))
+        let customWCFee = WCFee(option: .custom, value: .success(customFee))
         selectedFeeSubject.send(customWCFee)
     }
 
