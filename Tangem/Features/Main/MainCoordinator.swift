@@ -544,11 +544,9 @@ extension MainCoordinator: TangemPayFailedToIssueCardRoutable {
         }
     }
 
-    func openMail(with dataCollector: any EmailDataCollector, recipient: String, emailType: EmailType) {
-        let logsComposer = LogsComposer(infoProvider: dataCollector)
-        let mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: emailType)
-
+    func openMailFromFailedToIssueCardSheet(mailViewModel: MailViewModel) {
         Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
             mailPresenter.present(viewModel: mailViewModel)
         }
     }

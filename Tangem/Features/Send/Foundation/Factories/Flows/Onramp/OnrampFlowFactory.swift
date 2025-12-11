@@ -22,7 +22,8 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
     let defaultAddressString: String
 
     let walletModelDependenciesProvider: WalletModelDependenciesProvider
-    let walletModelBalancesProvider: WalletModelBalancesProvider
+    let availableBalanceProvider: any TokenBalanceProvider
+    let fiatAvailableBalanceProvider: any TokenBalanceProvider
     let transactionDispatcherFactory: TransactionDispatcherFactory
     let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let pendingExpressTransactionsManagerBuilder: PendingExpressTransactionsManagerBuilder
@@ -78,7 +79,8 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
         defaultAddressString = walletModel.defaultAddressString
 
         walletModelDependenciesProvider = walletModel
-        walletModelBalancesProvider = walletModel
+        availableBalanceProvider = walletModel.availableBalanceProvider
+        fiatAvailableBalanceProvider = walletModel.fiatAvailableBalanceProvider
         transactionDispatcherFactory = TransactionDispatcherFactory(
             walletModel: walletModel,
             signer: userWalletInfo.signer

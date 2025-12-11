@@ -412,3 +412,62 @@ struct VisaDisputeTransactionDataCollector: EmailDataCollector {
         self.transaction = transaction
     }
 }
+
+// MARK: - TangemPay
+
+struct TangemPaySupportDataCollector: EmailDataCollector {
+    enum Source {
+        case transactionDetails(TangemPayTransactionRecord)
+        case failedToIssueCardSheet
+        case permanentBanner
+    }
+
+    let source: Source
+    let userWalletId: String
+
+    var logData: Data? {
+        var stringBuilder = DeviceInfoProvider.Subject.allCases
+            .map(\.description)
+            .joined(separator: "\n")
+
+        var encodable: Encodable?
+        let issueType: String?
+        switch source {
+        case .transactionDetails(let transaction):
+            switch transaction.record {
+            case .spend(let value as Encodable),
+                 .fee(let value as Encodable),
+                 .payment(let value as Encodable):
+                issueType = "Transaction"
+                encodable = value
+
+            case .collateral(let value as Encodable):
+                issueType = "Receive/Withdraw"
+                encodable = value
+            }
+
+        case .failedToIssueCardSheet:
+            issueType = "Card issuing"
+            encodable = nil
+
+        case .permanentBanner:
+            issueType = nil
+            encodable = nil
+        }
+
+        if let issueType {
+            stringBuilder.append("\nIssue type: \(issueType)")
+        }
+
+        stringBuilder.append("\n--------\n")
+
+        if let encodable, let jsonData = try? JSONEncoder().encode(encodable), let jsonString = String(data: jsonData, encoding: .utf8) {
+            stringBuilder.append(jsonString)
+            stringBuilder.append("\n--------\n")
+        }
+
+        stringBuilder.append("User Wallet ID: \(userWalletId)")
+
+        return stringBuilder.data(using: .utf8)
+    }
+}
