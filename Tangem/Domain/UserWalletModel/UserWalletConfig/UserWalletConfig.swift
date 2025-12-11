@@ -13,7 +13,7 @@ import TangemSdk
 import BlockchainSdk
 import TangemFoundation
 
-protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, TangemSdkFactory {
+protocol UserWalletConfig: OnboardingStepsBuilderFactory, BackupServiceFactory, TangemSdkFactory, WalletCreationContextBuilderProvider {
     var emailConfig: EmailConfig? { get }
 
     var cardsCount: Int { get }
