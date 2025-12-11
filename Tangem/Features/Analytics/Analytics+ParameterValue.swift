@@ -48,6 +48,7 @@ extension Analytics {
         case visa = "Visa"
         case visaWaitlist = "Visa Waitlist"
         case blackFriday = "Black Friday"
+        case onePlusOne = "One-Plus-One"
 
         case main = "Main"
         case token = "Token"
