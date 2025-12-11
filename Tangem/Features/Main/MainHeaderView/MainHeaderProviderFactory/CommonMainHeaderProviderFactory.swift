@@ -27,10 +27,14 @@ struct CommonMainHeaderProviderFactory: MainHeaderProviderFactory {
             )
         }
 
-        // accounts_fixes_needed_main
+        let balanceProvider = AccountsFeatureAwareWalletModelsResolver
+            .walletModels(for: userWalletModel)
+            .first
+            .map(\.totalTokenBalanceProvider)
+
         return SingleWalletMainHeaderSubtitleProvider(
             isUserWalletLocked: isUserWalletLocked,
-            balanceProvider: userWalletModel.walletModelsManager.walletModels.first.map { $0.totalTokenBalanceProvider }
+            balanceProvider: balanceProvider
         )
     }
 }
