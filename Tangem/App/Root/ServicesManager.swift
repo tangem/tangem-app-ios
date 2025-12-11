@@ -100,6 +100,7 @@ final class CommonServicesManager {
         AppLogger.info(sessionMessage)
         AppLogger.info(launchNumberMessage)
         AppLogger.info(deviceInfoMessage)
+        AppLogger.info(RTCUtil().checkStatus())
 
         return initialLaunches
     }
@@ -125,7 +126,7 @@ final class CommonServicesManager {
         }
 
         if let _ = arguments.firstIndex(of: "-uitest-clear-storage") {
-            StorageCleaner.clearCachedFiles()
+            UITestsStorageCleaner.clearCachedFiles()
         }
 
         if arguments.contains("-uitest-disable-mobile-wallet") {
@@ -133,6 +134,8 @@ final class CommonServicesManager {
         } else {
             FeatureStorage.instance.availableFeatures[.mobileWallet] = .on
         }
+
+        UITestsStorageCleaner.clearWalletData()
 
         UIView.setAnimationsEnabled(false)
     }
