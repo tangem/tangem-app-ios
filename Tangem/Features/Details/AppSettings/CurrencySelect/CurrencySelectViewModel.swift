@@ -58,7 +58,7 @@ extension CurrencySelectViewModel {
             .sink(
                 receiveCompletion: { [weak self] completion in
                     if case .failure(let error) = completion {
-                        self?.state.contentState = .failedToLoad(error: error)
+                        self?.state.contentState = .failure(error)
                     }
                 },
                 receiveValue: { [weak self] currencies in
@@ -100,7 +100,7 @@ private extension CurrencySelectViewState {
             ? allCurrencies
             : allCurrencies.filter { $0.title.localizedStandardContains(searchText) }
 
-        contentState = .loaded(filteredCurrencies)
+        contentState = .success(filteredCurrencies)
         self.searchText = searchText
     }
 }

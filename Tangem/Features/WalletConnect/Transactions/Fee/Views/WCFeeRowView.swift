@@ -58,12 +58,12 @@ struct WCFeeRowView: View {
                 .frame(width: 70, height: 15)
                 .cornerRadius(4, corners: .allCorners)
 
-        case .loaded(let components):
+        case .success(let components):
             Text(formattedFee(components: components))
                 .style(Fonts.Regular.body, color: Colors.Text.tertiary)
                 .layoutPriority(1)
 
-        case .failedToLoad:
+        case .failure:
             Text(AppConstants.emDashSign)
                 .style(Fonts.Regular.body, color: Colors.Text.primary1)
                 .layoutPriority(1)
