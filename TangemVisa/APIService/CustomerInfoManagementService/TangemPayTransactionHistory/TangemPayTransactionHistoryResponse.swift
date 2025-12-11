@@ -58,7 +58,7 @@ public extension TangemPayTransactionHistoryResponse {
         case fee
     }
 
-    struct Spend: Decodable, Equatable {
+    struct Spend: Codable, Equatable {
         public let amount: Decimal
         public let currency: String
         public let localAmount: Decimal
@@ -86,7 +86,7 @@ public extension TangemPayTransactionHistoryResponse {
         }
     }
 
-    struct Collateral: Decodable, Equatable {
+    struct Collateral: Codable, Equatable {
         public let amount: Decimal
         public let currency: String
         public let memo: String?
@@ -96,7 +96,7 @@ public extension TangemPayTransactionHistoryResponse {
         public let postedAt: Date
     }
 
-    struct Payment: Decodable, Equatable {
+    struct Payment: Codable, Equatable {
         public let amount: Decimal
         public let currency: String
         public let memo: String?
@@ -107,12 +107,12 @@ public extension TangemPayTransactionHistoryResponse {
         public let postedAt: Date
     }
 
-    enum PaymentStatus: String, Decodable, Equatable {
+    enum PaymentStatus: String, Codable, Equatable {
         case pending
         case completed
     }
 
-    struct Fee: Decodable, Equatable {
+    struct Fee: Codable, Equatable {
         public let amount: Decimal
         public let currency: String
         public let description: String?
