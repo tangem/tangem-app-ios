@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct CreateWalletSelectorView: View {
     typealias ViewModel = CreateWalletSelectorViewModel
@@ -114,6 +115,7 @@ private extension CreateWalletSelectorView {
                 isLoading: viewModel.isScanning,
                 action: viewModel.onScanTap
             )
+            .accessibilityIdentifier(StoriesAccessibilityIdentifiers.scanButton)
 
             MainButton(
                 title: viewModel.buyTitle,

@@ -23,7 +23,8 @@ class UnstakingFlowFactory: StakingFlowDependenciesFactory {
     let tokenHeaderProvider: SendGenericTokenHeaderProvider
     let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let walletModelDependenciesProvider: WalletModelDependenciesProvider
-    let walletModelBalancesProvider: WalletModelBalancesProvider
+    let availableBalanceProvider: any TokenBalanceProvider
+    let fiatAvailableBalanceProvider: any TokenBalanceProvider
     let transactionDispatcherFactory: TransactionDispatcherFactory
 
     lazy var analyticsLogger = makeStakingSendAnalyticsLogger()
@@ -48,7 +49,14 @@ class UnstakingFlowFactory: StakingFlowDependenciesFactory {
             isCustom: walletModel.isCustom
         )
         walletModelDependenciesProvider = walletModel
-        walletModelBalancesProvider = walletModel
+        availableBalanceProvider = UnstakingBalanceProvider(
+            tokenItem: tokenItem,
+            action: action
+        )
+        fiatAvailableBalanceProvider = FiatTokenBalanceProvider(
+            input: walletModel,
+            cryptoBalanceProvider: availableBalanceProvider
+        )
         transactionDispatcherFactory = TransactionDispatcherFactory(
             walletModel: walletModel,
             signer: userWalletInfo.signer

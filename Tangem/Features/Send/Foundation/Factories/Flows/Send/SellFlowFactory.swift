@@ -20,7 +20,8 @@ class SellFlowFactory: SendFlowBaseDependenciesFactory {
 
     let walletModelFeeProvider: any WalletModelFeeProvider
     let walletModelDependenciesProvider: any WalletModelDependenciesProvider
-    let walletModelBalancesProvider: any WalletModelBalancesProvider
+    let availableBalanceProvider: any TokenBalanceProvider
+    let fiatAvailableBalanceProvider: any TokenBalanceProvider
     let transactionDispatcherFactory: TransactionDispatcherFactory
     let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let expressDependenciesFactory: any ExpressDependenciesFactory
@@ -64,7 +65,8 @@ class SellFlowFactory: SendFlowBaseDependenciesFactory {
         shouldShowFeeSelector = walletModel.shouldShowFeeSelector
         walletModelFeeProvider = walletModel
         walletModelDependenciesProvider = walletModel
-        walletModelBalancesProvider = walletModel
+        availableBalanceProvider = walletModel.availableBalanceProvider
+        fiatAvailableBalanceProvider = walletModel.fiatAvailableBalanceProvider
         transactionDispatcherFactory = TransactionDispatcherFactory(
             walletModel: walletModel,
             signer: userWalletInfo.signer
