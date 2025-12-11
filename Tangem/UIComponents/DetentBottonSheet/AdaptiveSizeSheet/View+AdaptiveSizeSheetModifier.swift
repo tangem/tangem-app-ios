@@ -25,8 +25,7 @@ struct AdaptiveSizeSheetModifier: ViewModifier {
         Color.clear
             .frame(height: viewModel.handleHeight)
             .overlay(alignment: .top) {
-                GrabberViewFactory()
-                    .makeSwiftUIView()
+                GrabberView()
             }
     }
 

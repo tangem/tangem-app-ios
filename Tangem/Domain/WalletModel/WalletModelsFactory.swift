@@ -8,12 +8,13 @@
 
 import Foundation
 import BlockchainSdk
+import TangemSdk
 
 protocol WalletModelsFactory {
-    func makeWalletModels(from walletManager: WalletManager) -> [any WalletModel]
     func makeWalletModels(
         for types: [Amount.AmountType],
         walletManager: WalletManager,
-        blockchainNetwork: BlockchainNetwork
+        blockchainNetwork: BlockchainNetwork,
+        targetAccountDerivationPath: DerivationPath?
     ) -> [any WalletModel]
 }
