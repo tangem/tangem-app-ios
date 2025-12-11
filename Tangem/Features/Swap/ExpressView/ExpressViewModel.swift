@@ -60,6 +60,7 @@ final class ExpressViewModel: ObservableObject {
 
     // MARK: - Private
 
+    private var sendingTransactionTask: Task<Void, Never>?
     private var refreshDataTimer: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
 
@@ -166,20 +167,18 @@ private extension ExpressViewModel {
             return
         }
 
-        runTask(in: self) { viewModel in
-            guard let source = viewModel.interactor.getSource().value,
-                  let selectedProvider = await viewModel.interactor.getSelectedProvider()?.provider else {
+        Task { @MainActor in
+            guard let source = interactor.getSource().value,
+                  let selectedProvider = await interactor.getSelectedProvider()?.provider else {
                 return
             }
 
             let selectedPolicy = permissionRequired.policy
-            await runOnMain {
-                viewModel.coordinator?.presentApproveView(
-                    source: source,
-                    provider: selectedProvider,
-                    selectedPolicy: selectedPolicy
-                )
-            }
+            coordinator?.presentApproveView(
+                source: source,
+                provider: selectedProvider,
+                selectedPolicy: selectedPolicy
+            )
         }
     }
 
@@ -270,10 +269,8 @@ private extension ExpressViewModel {
             .store(in: &bag)
 
         interactor.state
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] state in
-                self?.updateState(state: state)
-            }
+            .withWeakCaptureOf(self)
+            .sink { $0.expressInteractorStateDidUpdated(state: $1) }
             .store(in: &bag)
 
         interactor.swappingPair
@@ -393,11 +390,18 @@ private extension ExpressViewModel {
 
     // MARK: - Update for state
 
-    func updateState(state: ExpressInteractor.State) {
+    func expressInteractorStateDidUpdated(state: ExpressInteractor.State) {
+        Task { @MainActor in
+            await updateState(state: state)
+        }
+    }
+
+    @MainActor
+    func updateState(state: ExpressInteractor.State) async {
         updateFeeValue(state: state)
-        updateProviderView(state: state)
+        await updateProviderView(state: state)
         updateMainButton(state: state)
-        updateLegalText(state: state)
+        await updateLegalText(state: state)
         updateSendCurrencyHeaderState(state: state)
 
         switch state {
@@ -440,7 +444,8 @@ private extension ExpressViewModel {
         }
     }
 
-    func updateProviderView(state: ExpressInteractor.State) {
+    @MainActor
+    func updateProviderView(state: ExpressInteractor.State) async {
         switch state {
         case .idle:
             providerState = .none
@@ -449,15 +454,10 @@ private extension ExpressViewModel {
                 providerState = .loading
             }
         default:
-            runTask(in: self) { viewModel in
-                let providerRowViewModel = await viewModel.mapToProviderRowViewModel()
-                await runOnMain {
-                    if let providerRowViewModel {
-                        viewModel.providerState = .loaded(data: providerRowViewModel)
-                    } else {
-                        viewModel.providerState = .none
-                    }
-                }
+            if let providerRowViewModel = await mapToProviderRowViewModel() {
+                providerState = .loaded(data: providerRowViewModel)
+            } else {
+                providerState = .none
             }
         }
     }
@@ -558,19 +558,15 @@ private extension ExpressViewModel {
         }
     }
 
-    func updateLegalText(state: ExpressInteractor.State) {
+    @MainActor
+    func updateLegalText(state: ExpressInteractor.State) async {
         switch state {
         case .loading(.refreshRates), .loading(.fee):
             break
         case .idle, .loading(.full):
             legalText = nil
         case .restriction, .permissionRequired, .previewCEX, .readyToSwap:
-            runTask(in: self) { viewModel in
-                let text = await viewModel.interactor.getSelectedProvider()?.provider.legalText(branch: .swap)
-                await runOnMain {
-                    viewModel.legalText = text
-                }
-            }
+            legalText = await interactor.getSelectedProvider()?.provider.legalText(branch: .swap)
         }
     }
 }
@@ -627,7 +623,8 @@ private extension ExpressViewModel {
 
         stopTimer()
         mainButtonIsLoading = true
-        runTask(in: self) { root in
+        sendingTransactionTask?.cancel()
+        sendingTransactionTask = runTask(in: self) { root in
             do {
                 let sentTransactionData = try await root.interactor.send()
                 try Task.checkCancellation()
