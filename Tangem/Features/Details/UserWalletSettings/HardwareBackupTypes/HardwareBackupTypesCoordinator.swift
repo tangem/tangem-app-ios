@@ -64,7 +64,7 @@ extension HardwareBackupTypesCoordinator: HardwareBackupTypesRoutable {
         }
 
         let coordinator = HardwareCreateWalletCoordinator(dismissAction: dismissAction)
-        coordinator.start(with: HardwareCreateWalletCoordinator.InputOptions(userWalletModel: userWalletModel))
+        coordinator.start(with: HardwareCreateWalletCoordinator.InputOptions(userWalletModel: userWalletModel, source: .hardwareWallet))
         hardwareCreateWalletCoordinator = coordinator
     }
 

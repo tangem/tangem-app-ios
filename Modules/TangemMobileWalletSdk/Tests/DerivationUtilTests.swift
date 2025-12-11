@@ -144,6 +144,17 @@ struct DerivationUtilTests {
     }
 
     @Test
+    func edNonHardenedDerivationPath() throws {
+        #expect(throws: MobileWalletError.failedToDeriveKey) {
+            try DerivationUtil.deriveKeys(
+                entropy: entropy,
+                derivationPath: try DerivationPath(rawPath: "m/44'/354'/0'/0'/0"),
+                curve: .ed25519_slip0010
+            )
+        }
+    }
+
+    @Test
     func edDeriveFromMasterKey() throws {
         let result = try DerivationUtil.deriveKeys(
             entropy: entropy,
