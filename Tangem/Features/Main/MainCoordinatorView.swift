@@ -9,7 +9,6 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
-import TangemNFT
 import TangemUI
 
 struct MainCoordinatorView: CoordinatorView {
