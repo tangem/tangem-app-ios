@@ -793,9 +793,9 @@
 "no_trustline_xlm_asset" = "La cuenta de destino no tiene una Trustline (línea de confianza) para el activo que se envía.";
 "notification_black_friday_text" = "Obtén $10 en BTC con cada billetera \n ¡Date prisa!";
 "notification_black_friday_title" = "Black Friday: hasta 30%% DESCUENTO";
-"notification_one_plus_one_button" = "Let’s go";
-"notification_one_plus_one_text" = "Build Perfect pair of Tangem Sets. Limited time.";
-"notification_one_plus_one_title" = "1+1: Buy One Wallet, Get 50% OFF the Second";
+"notification_one_plus_one_button" = "Vamos";
+"notification_one_plus_one_text" = "Crea el par perfecto de packs de Tangem. Por tiempo limitado.";
+"notification_one_plus_one_title" = "1+1: Compra una billetera y obtén un 50%% dto. en la segunda";
 "notification_referral_promo_button" = "Únase ahora";
 "notification_sepa_button" = "Comprar cripto";
 "notification_sepa_text" = "Disfrute de unas comisiones del **0%%** al comprar criptomonedas mediante transferencias SEPA.";
