@@ -184,6 +184,8 @@ private extension ManageTokensAdapter {
                 pendingRemove.remove(tokenItem)
             } else {
                 pendingRemove.append(tokenItem)
+                // A token items remains in the list after canceling its addition (no derivation performed)
+                pendingAdd.remove(tokenItem)
             }
         } else {
             if selected {
