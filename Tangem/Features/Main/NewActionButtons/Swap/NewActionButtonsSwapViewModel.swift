@@ -21,7 +21,7 @@ final class NewActionButtonsSwapViewModel: ObservableObject {
 
     // MARK: - Published
 
-    @Published private(set) var source: TokenItemType = .placeholder(text: Localization.actionButtonsYouWantToReceive)
+    @Published private(set) var source: TokenItemType = .placeholder(text: Localization.actionButtonsYouWantToSwap)
     @Published private(set) var notificationInput: NotificationViewInput?
     @Published private(set) var notificationIsLoading: Bool = false
     @Published private(set) var destination: TokenItemType?
