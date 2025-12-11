@@ -49,7 +49,7 @@ private extension CommonTotalBalanceProviderAnalyticsLogger {
         trackTokenBalanceLoaded(walletModels: walletModels)
 
         if case .loaded(let loadedBalance) = state {
-            Analytics.logTopUpIfNeeded(balance: loadedBalance, for: userWalletId)
+            Analytics.logTopUpIfNeeded(balance: loadedBalance, for: userWalletId, contextParams: .userWallet(userWalletId))
         }
     }
 
@@ -72,6 +72,7 @@ private extension CommonTotalBalanceProviderAnalyticsLogger {
                 .balance: balance.rawValue,
                 .tokensCount: tokensCount.description,
             ],
+            contextParams: .userWallet(userWalletId),
             limit: .userWalletSession(userWalletId: userWalletId)
         )
     }
@@ -96,6 +97,7 @@ private extension CommonTotalBalanceProviderAnalyticsLogger {
                     .token: symbol,
                     .state: positiveBalance ? Analytics.ParameterValue.full.rawValue : Analytics.ParameterValue.empty.rawValue,
                 ],
+                contextParams: .userWallet(userWalletId),
                 limit: .userWalletSession(userWalletId: userWalletId, extraEventId: symbol)
             )
         }
