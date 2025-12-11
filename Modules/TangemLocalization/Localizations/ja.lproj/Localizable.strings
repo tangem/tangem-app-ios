@@ -1907,7 +1907,7 @@
 "yield_module_token_details_earn_notification_title" = "利息モード";
 "yield_module_transaction_deploy_contract" = "利息モードコントラクトのデプロイ";
 "yield_module_transaction_enter_subtitle" = "%1$@がAaveに供給されました";
-"yield_module_transaction_enter" = "利息モードが有効になりました";
+"yield_module_transaction_enter" = "利息モードを有効にする";
 "yield_module_transaction_exit_subtitle" = "%1$@がAaveから引き出されました";
 "yield_module_transaction_exit" = "利息モードが無効になりました";
 "yield_module_transaction_initialize" = "利息モードをセットアップ";
