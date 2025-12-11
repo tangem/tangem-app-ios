@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import struct TangemUI.TokenIconInfo
 
 protocol SendGenericFlowBaseDependenciesFactory {
@@ -15,7 +16,9 @@ protocol SendGenericFlowBaseDependenciesFactory {
     var userWalletInfo: UserWalletInfo { get }
 
     var tokenHeaderProvider: SendGenericTokenHeaderProvider { get }
-    var walletModelBalancesProvider: WalletModelBalancesProvider { get }
+    var availableBalanceProvider: TokenBalanceProvider { get }
+    var fiatAvailableBalanceProvider: TokenBalanceProvider { get }
+
     var walletModelDependenciesProvider: WalletModelDependenciesProvider { get }
     var transactionDispatcherFactory: TransactionDispatcherFactory { get }
     var baseDataBuilderFactory: SendBaseDataBuilderFactory { get }
@@ -32,8 +35,8 @@ extension SendGenericFlowBaseDependenciesFactory {
             tokenIconInfo: tokenIconInfo,
             fiatItem: makeFiatItem(),
             possibleToConvertToFiat: possibleToConvertToFiat(),
-            availableBalanceProvider: walletModelBalancesProvider.availableBalanceProvider,
-            fiatAvailableBalanceProvider: walletModelBalancesProvider.fiatAvailableBalanceProvider,
+            availableBalanceProvider: availableBalanceProvider,
+            fiatAvailableBalanceProvider: fiatAvailableBalanceProvider,
             transactionValidator: walletModelDependenciesProvider.transactionValidator,
             transactionCreator: walletModelDependenciesProvider.transactionCreator,
             transactionDispatcher: transactionDispatcherFactory.makeSendDispatcher()
@@ -45,7 +48,7 @@ extension SendGenericFlowBaseDependenciesFactory {
     }
 
     func possibleToConvertToFiat() -> Bool {
-        walletModelBalancesProvider.fiatAvailableBalanceProvider.balanceType.value != .none
+        fiatAvailableBalanceProvider.balanceType.value != .none
     }
 
     func makeFiatItem() -> FiatItem {
