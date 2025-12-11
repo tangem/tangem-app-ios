@@ -151,9 +151,9 @@ private extension UnstakingModel {
         case .loading:
             return SendFee(option: .market, value: .loading)
         case .networkError(let error):
-            return SendFee(option: .market, value: .failedToLoad(error: error))
+            return SendFee(option: .market, value: .failure(error))
         case .validationError(_, let fee), .ready(let fee, _):
-            return SendFee(option: .market, value: .loaded(makeFee(value: fee)))
+            return SendFee(option: .market, value: .success(makeFee(value: fee)))
         }
     }
 }

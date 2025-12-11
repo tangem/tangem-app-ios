@@ -9,7 +9,7 @@
 import TangemFoundation
 
 struct CurrencySelectViewState {
-    var contentState: LoadingValue<[CurrencyItem]>
+    var contentState: LoadingResult<[CurrencyItem], any Error>
     var searchText: String
 
     static let initial = CurrencySelectViewState(contentState: .loading, searchText: "")
