@@ -10,7 +10,7 @@ import Foundation
 import Moya
 import TangemFoundation
 
-public protocol CustomerInfoManagementService {
+public protocol CustomerInfoManagementService: AnyObject {
     func loadCustomerInfo() async throws -> VisaCustomerInfoResponse
     func loadKYCAccessToken() async throws -> VisaKYCAccessTokenResponse
 
