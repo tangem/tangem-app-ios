@@ -57,6 +57,8 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
 
         self.refreshStatusProvider = refreshStatusProvider
 
+        setupCommonBalances()
+
         bind()
     }
 
@@ -68,11 +70,6 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
             }
             .store(in: &bag)
 
-        guard let yieldModuleStatusProvider else {
-            setupCommonBalances()
-            return
-        }
-
         refreshStatusProvider?.isRefreshing
             .receiveOnMain()
             .sink { [weak self] isRefreshing in
@@ -80,9 +77,12 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
             }
             .store(in: &bag)
 
+        guard let yieldModuleStatusProvider else {
+            return
+        }
+
         yieldModuleStatusProvider
             .yieldModuleState
-            .filter { !$0.state.isLoading }
             .receiveOnMain()
             .map { $0.state.isEffectivelyActive && $0.marketInfo != nil }
             .removeDuplicates()
@@ -98,6 +98,10 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
 
     private func setupCommonBalances() {
         guard let balanceProvider, let balanceTypeSelectorProvider else { return }
+
+        if case .common = state { // could be already set up
+            return
+        }
 
         let viewModel = CommonBalancesViewModel(
             balanceProvider: balanceProvider,

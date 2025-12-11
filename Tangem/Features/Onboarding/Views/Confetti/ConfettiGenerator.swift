@@ -223,8 +223,6 @@ class ConfettiGenerator {
         emitterLayer.emitterSize = emitterSize // CGSize(width: 100, height: 120)
         emitterLayer.emitterShape = .sphere
         emitterLayer.frame = UIScreen.main.bounds
-
-        emitterLayer.beginTime = CACurrentMediaTime()
         return emitterLayer
     }
 }

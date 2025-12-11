@@ -40,13 +40,12 @@ struct MarketsTokenDetailsExchangesListView: View {
                 viewModel?.onOverlayContentProgressChange(progress)
             }
             .background(defaultBackgroundColor.ignoresSafeArea())
-            .animation(.default, value: viewModel.exchangesList)
+            .animation(.default, value: exchangeListAnimationValue)
             .ignoresSafeArea(.container, edges: .top) // Without it, the content won't go into the safe area top zone on over-scroll
             .readGeometry(\.safeAreaInsets, bindTo: $safeArea)
             .onAppear(perform: viewModel.loadExchangesList)
     }
 
-    @ViewBuilder
     private var rootView: some View {
         ZStack(alignment: .top) {
             listContent
@@ -108,9 +107,9 @@ struct MarketsTokenDetailsExchangesListView: View {
     @ViewBuilder
     private var listContent: some View {
         switch viewModel.exchangesList {
-        case .loading, .loaded:
+        case .loading, .success:
             scrollContent
-        case .failedToLoad:
+        case .failure:
             UnableToLoadDataView(
                 isButtonBusy: false,
                 retryButtonAction: {
@@ -123,7 +122,6 @@ struct MarketsTokenDetailsExchangesListView: View {
         }
     }
 
-    @ViewBuilder
     private var scrollContent: some View {
         ScrollView(showsIndicators: false) {
             LazyVStack(spacing: 0) {
@@ -135,11 +133,11 @@ struct MarketsTokenDetailsExchangesListView: View {
                     ForEach(0 ... max(viewModel.numberOfExchangesListedOn - 1, 0)) { _ in
                         ExchangeLoaderView()
                     }
-                case .loaded(let itemsList):
+                case .success(let itemsList):
                     ForEach(itemsList) { item in
                         MarketsTokenDetailsExchangeItemView(info: item)
                     }
-                case .failedToLoad:
+                case .failure:
                     EmptyView()
                 }
             }
@@ -149,6 +147,17 @@ struct MarketsTokenDetailsExchangesListView: View {
             .id(viewModel.exchangesList.value)
         }
         .coordinateSpace(name: scrollViewFrameCoordinateSpaceName)
+    }
+
+    private var exchangeListAnimationValue: Int {
+        switch viewModel.exchangesList {
+        case .success(let value):
+            value.hashValue
+        case .failure(let error):
+            error.localizedDescription.hashValue
+        case .loading:
+            .zero
+        }
     }
 }
 

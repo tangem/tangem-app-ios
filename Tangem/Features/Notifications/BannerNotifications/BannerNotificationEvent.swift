@@ -32,6 +32,7 @@ extension PromotionProgramName {
         switch self {
         case .visaWaitlist: Localization.notificationVisaWaitlistPromoTitle
         case .blackFriday: Localization.notificationBlackFridayTitle
+        case .onePlusOne: Localization.notificationOnePlusOneTitle
         }
     }
 
@@ -39,6 +40,7 @@ extension PromotionProgramName {
         switch self {
         case .visaWaitlist: Localization.notificationVisaWaitlistPromoText
         case .blackFriday: Localization.notificationBlackFridayText
+        case .onePlusOne: Localization.notificationOnePlusOneText
         }
     }
 
@@ -54,13 +56,26 @@ extension PromotionProgramName {
                 iconType: .image(Assets.blackFridayBannerImage.image),
                 size: .init(bothDimensions: 54)
             )
+        case .onePlusOne:
+            .init(
+                iconType: .image(Assets.onePlusOneIcon.image),
+                size: .init(bothDimensions: 54)
+            )
         }
     }
 
     var colorScheme: NotificationView.ColorScheme {
         switch self {
-        case .visaWaitlist: .primary
+        case .visaWaitlist, .onePlusOne: .primary
         case .blackFriday: .tertiary
+        }
+    }
+
+    var buttonTitle: String {
+        switch self {
+        case .visaWaitlist: Localization.notificationReferralPromoButton
+        case .blackFriday: Localization.commonClaim
+        case .onePlusOne: Localization.notificationOnePlusOneButton
         }
     }
 }

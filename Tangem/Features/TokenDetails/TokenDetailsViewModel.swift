@@ -490,6 +490,7 @@ extension TokenDetailsViewModel: BalanceTypeSelectorProvider {
         func isZeroOrNil(_ cached: TokenBalanceType.Cached?) -> Bool {
             cached?.balance == .zero || cached == nil
         }
+
         return walletModel.stakingBalanceProvider.balanceTypePublisher.map {
             switch $0 {
             case .empty:

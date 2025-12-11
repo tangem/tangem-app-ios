@@ -26,6 +26,18 @@ final class TangemPayMainViewModel: ObservableObject {
         _ = await (balanceUpdate, transactionsUpdate)
     }
 
+    lazy var contactSupportNotificationInput = NotificationViewInput(
+        style: .withButtons([.init(
+            action: { [weak self] _, _ in
+                self?.contactSupport()
+            },
+            actionType: .support,
+            isWithLoader: false
+        )]),
+        severity: .critical,
+        settings: .init(event: TangemPayNotificationEvent.tangemPayIsNowBeta, dismissAction: nil)
+    )
+
     @Published private(set) var tangemPayTransactionHistoryState: TransactionsListView.State = .loading
     @Published private(set) var freezingState: TangemPayFreezingState = .normal
     @Published private(set) var pendingExpressTransactions: [PendingExpressTransactionView.Info] = []
@@ -36,6 +48,8 @@ final class TangemPayMainViewModel: ObservableObject {
     private let userWalletInfo: UserWalletInfo
     private let tangemPayAccount: TangemPayAccount
     private weak var coordinator: TangemPayMainRoutable?
+
+    @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
 
     private let transactionHistoryService: TangemPayTransactionHistoryService
     private let pendingExpressTransactionsManager: PendingExpressTransactionsManager
@@ -192,6 +206,23 @@ final class TangemPayMainViewModel: ObservableObject {
         coordinator?.openTermsAndLimits()
     }
 
+    func contactSupport() {
+        let dataCollector = TangemPaySupportDataCollector(
+            source: .permanentBanner,
+            userWalletId: userWalletInfo.id.stringValue
+        )
+        let logsComposer = LogsComposer(infoProvider: dataCollector, includeZipLogs: false)
+        let mailViewModel = MailViewModel(
+            logsComposer: logsComposer,
+            recipient: EmailConfig.visaDefault(subject: .default).recipient,
+            emailType: .visaFeedback(subject: .default)
+        )
+
+        Task { @MainActor in
+            mailPresenter.present(viewModel: mailViewModel)
+        }
+    }
+
     private func freeze() {
         guard let cardId = tangemPayAccount.cardId else {
             showFreezeUnfreezeErrorToast(freeze: true)
@@ -229,7 +260,10 @@ final class TangemPayMainViewModel: ObservableObject {
             return
         }
 
-        coordinator?.openTangemPayTransactionDetailsSheet(transaction: transaction)
+        coordinator?.openTangemPayTransactionDetailsSheet(
+            transaction: transaction,
+            userWalletId: userWalletInfo.id.stringValue
+        )
     }
 }
 
