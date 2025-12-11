@@ -100,6 +100,7 @@ final class CommonServicesManager {
         AppLogger.info(sessionMessage)
         AppLogger.info(launchNumberMessage)
         AppLogger.info(deviceInfoMessage)
+        AppLogger.info(RTCUtil().checkStatus())
 
         return initialLaunches
     }
