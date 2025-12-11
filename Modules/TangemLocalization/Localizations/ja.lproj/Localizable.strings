@@ -1909,7 +1909,7 @@
 "yield_module_transaction_enter_subtitle" = "%1$@がAaveに供給されました";
 "yield_module_transaction_enter" = "利息モードを有効にする";
 "yield_module_transaction_exit_subtitle" = "%1$@がAaveから引き出されました";
-"yield_module_transaction_exit" = "利息モードを無効にする";
+"yield_module_transaction_exit" = "利息モードが無効になりました";
 "yield_module_transaction_initialize" = "利息モードをセットアップ";
 "yield_module_transaction_reactivate" = "利息モードの再有効化";
 "yield_module_transaction_topup_subtitle" = "%1$@がAaveに供給されました";
