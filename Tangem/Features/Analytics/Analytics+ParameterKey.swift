@@ -49,6 +49,7 @@ extension Analytics {
         case signInType = "Sign in type"
         case balance = "Balance"
         case balanceState = "Balance State"
+        case activationState = "Activation State"
         case creationType = "Creation Type"
         case seedLength = "Seed Phrase Length"
         case status = "Status"
@@ -82,6 +83,7 @@ extension Analytics {
         case button = "Button"
         case link = "Link"
         case method = "Method"
+        case mobileWallet = "Mobile Wallet"
 
         case fromSummary = "From Summary"
         case valid = "Valid"
