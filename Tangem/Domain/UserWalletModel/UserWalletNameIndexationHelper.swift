@@ -9,13 +9,20 @@
 import Foundation
 
 final class UserWalletNameIndexationHelper {
-    private var existingNames: Set<String>
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    private init(existingNames: [String]) {
-        self.existingNames = Set(existingNames).filter { NameComponents(from: $0) != nil }
+    func suggestedName(userWalletConfig: UserWalletConfig) -> String {
+        guard AppSettings.shared.saveUserWallets else {
+            return userWalletConfig.defaultName
+        }
+
+        return suggestedName(
+            userWalletConfig.defaultName,
+            names: userWalletRepository.models.map(\.name)
+        )
     }
 
-    static func suggestedName(_ rawName: String, names: [String]) -> String {
+    func suggestedName(_ rawName: String, names: [String]) -> String {
         if NameComponents(from: rawName) != nil {
             return rawName
         }
@@ -37,12 +44,6 @@ final class UserWalletNameIndexationHelper {
         } else {
             return "\(nameTemplate) \(nameIndex)"
         }
-    }
-
-    private func suggestedName(for rawName: String) -> String {
-        let name = Self.suggestedName(rawName, names: Array(existingNames))
-        existingNames.insert(name)
-        return name
     }
 }
 

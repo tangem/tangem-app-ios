@@ -40,19 +40,8 @@ public struct FloatingSheetView: View {
             }
         }
         .ignoresSafeArea(.all, edges: .bottom)
-        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notification in
-            guard
-                sheetContentConfiguration.keyboardHandlingEnabled,
-                let userInfo = notification.userInfo,
-                let keyboardFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect
-            else {
-                return
-            }
-
-            keyboardHeight = keyboardFrame.height
-        }
-        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
-            keyboardHeight = .zero
+        .if(sheetContentConfiguration.keyboardHandlingEnabled) { view in
+            view.keyboardHeight(bindTo: $keyboardHeight)
         }
         .onChange(of: isDragging) { _ in
             // [REDACTED_USERNAME], this may happed when DragGesture got canceled and onEnded block was not executed

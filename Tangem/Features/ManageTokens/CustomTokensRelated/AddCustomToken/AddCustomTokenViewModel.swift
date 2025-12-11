@@ -349,7 +349,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     private func checkLocalStorage() throws {
         guard let tokenItem = try? enteredTokenItem() else { return }
 
-        if userTokensManager.contains(tokenItem, derivationInsensitive: false) {
+        if context.isAddedToPortfolio(tokenItem) {
             throw TokenSearchError.alreadyAdded
         }
     }
@@ -580,7 +580,12 @@ private extension AddCustomTokenViewModel {
         case failedToFindToken
 
         var preventsFromAdding: Bool {
-            false
+            switch self {
+            case .alreadyAdded:
+                return true
+            case .failedToFindToken:
+                return false
+            }
         }
 
         var errorDescription: String? {
@@ -597,7 +602,7 @@ private extension AddCustomTokenViewModel {
             case .failedToFindToken:
                 return AddCustomTokenNotificationEvent.scamWarning
             case .alreadyAdded:
-                return nil
+                return AddCustomTokenNotificationEvent.alreadyAdded
             }
         }
     }
