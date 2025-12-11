@@ -19,6 +19,7 @@ final class CommonMobileAccessCodeManager {
     private var attemptsBeforeWarningLimit: Int { configuration.attemptsBeforeWarningLimit }
     private var attemptsBeforeDeleteLimit: Int { configuration.attemptsBeforeDeleteLimit }
     private var lockedTimeout: TimeInterval { configuration.lockedTimeout }
+    private var currentLockInterval: TimeInterval { currentUptime + lockedTimeout }
 
     private var currentUptime: TimeInterval {
         ProcessInfo.processInfo.systemUptime
@@ -337,12 +338,22 @@ private extension CommonMobileAccessCodeManager {
 
 extension CommonMobileAccessCodeManager {
     func getWrongAccessCodeStore() -> MobileWrongAccessCodeStore {
-        storageManager.getWrongAccessCodeStore(userWalletId: userWalletId)
+        do {
+            let store = try storageManager.getWrongAccessCodeStore(userWalletId: userWalletId)
+            return store
+        } catch {
+            AppLogger.error("Failed to get wrong access code storage", error: error)
+            let lockIntervals: [TimeInterval] = .init(repeating: currentLockInterval, count: attemptsToLockLimit)
+            return MobileWrongAccessCodeStore(lockIntervals: lockIntervals)
+        }
     }
 
     func storeWrongAccessCode() {
-        let lockInterval = currentUptime + lockedTimeout
-        storageManager.storeWrongAccessCode(userWalletId: userWalletId, lockInterval: lockInterval)
+        storageManager.storeWrongAccessCode(
+            userWalletId: userWalletId,
+            lockInterval: currentLockInterval,
+            replaceLast: false
+        )
     }
 
     func cleanWrongAccessCodeStore() {
