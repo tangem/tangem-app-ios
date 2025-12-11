@@ -153,7 +153,9 @@ final class MainViewModel: ObservableObject {
             uiManager.show()
         }
 
-        coordinator?.beginHandlingIncomingActions()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.coordinator?.beginHandlingIncomingActions()
+        }
     }
 
     func onPageChange(dueTo reason: CardsInfoPageChangeReason) {
