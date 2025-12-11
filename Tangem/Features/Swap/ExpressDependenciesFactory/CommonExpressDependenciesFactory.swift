@@ -86,7 +86,7 @@ private extension CommonExpressDependenciesFactory {
             transactionValidator: transactionValidator
         )
 
-        let shouldFilterForOneWallet = FeatureProvider.isAvailable(.accounts)
+        let shouldFilterForOneWallet = !FeatureProvider.isAvailable(.accounts)
         let interactor = ExpressInteractor(
             userWalletInfo: userWalletInfo,
             swappingPair: swappingPair,
