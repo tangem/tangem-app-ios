@@ -795,7 +795,7 @@
 "notification_black_friday_title" = "Black Friday: up to 30%% OFF";
 "notification_one_plus_one_button" = "Let’s go";
 "notification_one_plus_one_text" = "Build Perfect pair of Tangem Sets. Limited time.";
-"notification_one_plus_one_title" = "1+1: Buy One Wallet, Get 50% OFF the Second";
+"notification_one_plus_one_title" = "1+1: Buy One Wallet, Get 50%% OFF the Second";
 "notification_referral_promo_button" = "Join Now";
 "notification_sepa_button" = "Buy crypto";
 "notification_sepa_text" = "Enjoy **0%% fees** when purchasing crypto via SEPA transfers.";
@@ -1907,11 +1907,11 @@
 "yield_module_token_details_earn_notification_title" = "Yield Mode";
 "yield_module_transaction_deploy_contract" = "Yield Mode contract deploy";
 "yield_module_transaction_enter_subtitle" = "%1$@ supplied to Aave";
-"yield_module_transaction_enter" = "Yield Mode enable";
+"yield_module_transaction_enter" = "Yield Mode enabled";
 "yield_module_transaction_exit_subtitle" = "%1$@ withdrawn from Aave";
-"yield_module_transaction_exit" = "Yield Mode disable";
-"yield_module_transaction_initialize" = "Yield Mode initialize";
-"yield_module_transaction_reactivate" = "Yield Mode reactivate";
+"yield_module_transaction_exit" = "Yield Mode disabled";
+"yield_module_transaction_initialize" = "Yield Mode initialized";
+"yield_module_transaction_reactivate" = "Yield Mode reactivated";
 "yield_module_transaction_topup_subtitle" = "%1$@ supplied to Aave";
 "yield_module_transaction_topup" = "Supply to Aave";
 "yield_module_transaction_withdraw" = "Withdraw from Aave";
