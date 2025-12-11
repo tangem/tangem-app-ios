@@ -17,7 +17,7 @@ class SendAmountFinishViewModel: ObservableObject, Identifiable {
 
     @Published private var tokenHeader: SendTokenHeader
     @Published private var tokenIconInfo: TokenIconInfo
-    @Published private var amountDecimalNumberTextFieldViewModel: DecimalNumberTextField.ViewModel
+    @Published private var amountDecimalNumberTextFieldViewModel: DecimalNumberTextFieldViewModel
     @Published private var amountFieldOptions: SendDecimalNumberTextField.PrefixSuffixOptions
     @Published private var alternativeAmount: String?
 
@@ -151,7 +151,7 @@ private extension SendAmountFinishViewModel {
         case (.same, _):
             receiveSmallAmountViewModel = nil
         case (.swap(let token), .success(let receiveAmount)):
-            let textField = DecimalNumberTextField.ViewModel(
+            let textField = DecimalNumberTextFieldViewModel(
                 maximumFractionDigits: token.tokenItem.decimalCount
             )
             textField.update(value: receiveAmount.crypto)
