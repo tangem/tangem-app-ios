@@ -389,6 +389,7 @@
 "custom_token_validation_error_not_found" = "Tenga en cuenta que cualquiera puede crear tokens. Tenga cuidado al añadir tokens fraudulentos, pueden no costar nada.";
 "details_buy_wallet" = "Comprar Tangem Wallet";
 "details_chat" = "Chat";
+"details_get_visa" = "Get Tangem Visa";
 "details_manage_security_access_code_description" = "Deberá ingresar la contraseña correcta antes de escanear la tarjeta.";
 "details_manage_security_access_code" = "Código de acceso";
 "details_manage_security_long_tap_description" = "Este mecanismo protege contra los ataques de proximidad a una tarjeta o anillo. Aplicará un retardo entre la recepción y la ejecución de un comando.";
@@ -743,6 +744,7 @@
 "mobile_wallet_requires_min_os_warning_body" = "Debes actualizar a %1$@ para crear una mobile wallet";
 "mobile_wallet_requires_min_os_warning_title" = "Mobile Wallet requiere %1$@ o posterior";
 "news_all_news" = "All news";
+"news_published_hours_ago" = "%lih ago";
 "news_stay_in_the_loop" = "Stay in the loop";
 "nft_about_title" = "Acerca de NFT";
 "nft_asset" = "Activo NFT";
@@ -791,6 +793,9 @@
 "no_trustline_xlm_asset" = "La cuenta de destino no tiene una Trustline (línea de confianza) para el activo que se envía.";
 "notification_black_friday_text" = "Obtén $10 en BTC con cada billetera \n ¡Date prisa!";
 "notification_black_friday_title" = "Black Friday: hasta 30%% DESCUENTO";
+"notification_one_plus_one_button" = "Let’s go";
+"notification_one_plus_one_text" = "Build Perfect pair of Tangem Sets. Limited time.";
+"notification_one_plus_one_title" = "1+1: Buy One Wallet, Get 50% OFF the Second";
 "notification_referral_promo_button" = "Únase ahora";
 "notification_sepa_button" = "Comprar cripto";
 "notification_sepa_text" = "Disfrute de unas comisiones del **0%%** al comprar criptomonedas mediante transferencias SEPA.";
@@ -1355,6 +1360,7 @@
 "tangempay_failed_to_issue_card" = "Failed to issue card";
 "tangempay_get_banner_description" = "Use your crypto for real world spending. \nIt's a payment card unlike any other.";
 "tangempay_get_tangem_pay" = "Get Tangem Pay";
+"tangempay_go_to_support" = "Go to Support";
 "tangempay_issue_card_notification_description" = "It usually takes up to 15 minutes";
 "tangempay_issue_card_notification_title" = "Setting up your Tangem Card";
 "tangempay_issuing_your_card_description" = "We’re getting your card ready. This may take a little time.";
@@ -1365,6 +1371,8 @@
 "tangempay_kyc_in_progress_notification_button" = "View Status";
 "tangempay_kyc_in_progress_notification_title" = "KYC in progress for Tangem Pay";
 "tangempay_kyc_in_progress" = "KYC in progress";
+"tangempay_onboarding_banner_description" = "Use your crypto for real world spending. It’s a payment card unlike any other.";
+"tangempay_onboarding_banner_title" = "Tangem Visa Card";
 "tangempay_onboarding_get_card_button_text" = "Get card";
 "tangempay_onboarding_pay_description" = "With digital card that works with Apple Pay and Google Pay";
 "tangempay_onboarding_pay_title" = "Spend your assets anywhere";
