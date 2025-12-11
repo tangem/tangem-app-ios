@@ -137,8 +137,12 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
         }
     }
 
-    func openTangemPayTransactionDetailsSheet(transaction: TangemPayTransactionRecord) {
-        let viewModel = TangemPayTransactionDetailsViewModel(transaction: transaction, coordinator: self)
+    func openTangemPayTransactionDetailsSheet(transaction: TangemPayTransactionRecord, userWalletId: String) {
+        let viewModel = TangemPayTransactionDetailsViewModel(
+            transaction: transaction,
+            userWalletId: userWalletId,
+            coordinator: self
+        )
 
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
@@ -221,6 +225,7 @@ extension TangemPayMainCoordinator: TangemPayAddFundsSheetRoutable {
     func addFundsSheetRequestReceive(viewModel: ReceiveMainViewModel) {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
+            try? await Task.sleep(seconds: 0.2)
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
@@ -253,7 +258,7 @@ extension TangemPayMainCoordinator: TangemPayTransactionDetailsRoutable {
     }
 
     func transactionDetailsDidRequestDispute(dataCollector: EmailDataCollector, subject: VisaEmailSubject) {
-        let logsComposer = LogsComposer(infoProvider: dataCollector)
+        let logsComposer = LogsComposer(infoProvider: dataCollector, includeZipLogs: false)
         let mailViewModel = MailViewModel(
             logsComposer: logsComposer,
             recipient: EmailConfig.visaDefault(subject: subject).recipient,

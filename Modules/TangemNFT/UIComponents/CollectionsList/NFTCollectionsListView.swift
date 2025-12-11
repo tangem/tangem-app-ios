@@ -57,20 +57,19 @@ public struct NFTCollectionsListView: View {
         .animation(animation, value: viewModel.isSearchable)
     }
 
-    @ViewBuilder
     private var content: some View {
         Group {
             switch viewModel.state {
-            case .loaded(let displayMode) where viewModel.isStateEmpty(displayMode: displayMode):
+            case .success(let displayMode) where viewModel.isStateEmpty(displayMode: displayMode):
                 noCollectionsView
 
-            case .loaded(let displayMode):
+            case .success(let displayMode):
                 nonEmptyContentView(displayMode: displayMode)
 
             case .loading:
                 loadingView
 
-            case .failedToLoad:
+            case .failure:
                 UnableToLoadDataView(isButtonBusy: false, retryButtonAction: { viewModel.update() })
                     .infinityFrame()
             }
@@ -299,8 +298,8 @@ private extension NFTCollectionsListViewModel.ViewState {
     var animationValue: String {
         switch self {
         case .loading: "loading"
-        case .loaded(let value): "loaded_\(value.collections.count)"
-        case .failedToLoad: "failedToLoad"
+        case .success(let value): "success_\(value.collections.count)"
+        case .failure: "failure"
         }
     }
 }
@@ -350,7 +349,7 @@ let collections = (0 ... 20).map {
         NFTCollectionsListView(
             viewModel: .init(
                 nftManager: NFTManagerMock(
-                    state: .loaded(
+                    state: .success(
                         .init(value: collections)
                     )
                 ),
@@ -376,7 +375,7 @@ let collections = (0 ... 20).map {
             NFTCollectionsListView(
                 viewModel: .init(
                     nftManager: NFTManagerMock(
-                        state: .loaded(.init(value: collections, errors: []))
+                        state: .success(.init(value: collections, errors: []))
                     ),
                     accounForNFTCollectionsProvider: AccountNFTCollectionProviderMock(),
                     dependencies: NFTCollectionsListDependencies(
@@ -426,7 +425,7 @@ let collections = (0 ... 20).map {
             NFTCollectionsListView(
                 viewModel: .init(
                     nftManager: NFTManagerMock(
-                        state: .failedToLoad(error: NSError.dummy)
+                        state: .failure(NSError.dummy)
                     ),
                     accounForNFTCollectionsProvider: AccountNFTCollectionProviderMock(),
                     dependencies: NFTCollectionsListDependencies(
@@ -450,7 +449,7 @@ let collections = (0 ... 20).map {
         NavigationView {
             NFTCollectionsListView(
                 viewModel: .init(
-                    nftManager: NFTManagerMock(state: .loaded(.init(value: []))),
+                    nftManager: NFTManagerMock(state: .success(.init(value: []))),
                     accounForNFTCollectionsProvider: AccountNFTCollectionProviderMock(),
                     dependencies: NFTCollectionsListDependencies(
                         nftChainIconProvider: DummyProvider(),
