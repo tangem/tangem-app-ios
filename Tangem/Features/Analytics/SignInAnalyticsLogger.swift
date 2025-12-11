@@ -11,17 +11,29 @@ import Foundation
 struct SignInAnalyticsLogger {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
+    private var walletsCount: Int { userWalletRepository.models.count }
+
     func logSignInEvent(signInType: Analytics.SignInType) {
         guard let selectedModel = userWalletRepository.selectedModel else {
             return
         }
-        let walletHasBackup = Analytics.ParameterValue.affirmativeOrNegative(for: selectedModel.hasBackupCards)
 
         Analytics.log(event: .signedIn, params: [
             .signInType: signInType.rawValue,
-            .walletsCount: "\(userWalletRepository.models.count)",
-            .walletHasBackup: walletHasBackup.rawValue,
+            .walletsCount: String(walletsCount),
             .walletType: Analytics.ParameterValue.seedState(for: selectedModel.hasImportedWallets).rawValue,
         ])
+    }
+
+    func logSignInButtonWalletEvent(signInType: Analytics.SignInType, userWalletModel: UserWalletModel) {
+        Analytics.log(
+            event: .signInButtonWallet,
+            params: [
+                .signInType: signInType.rawValue,
+                .walletsCount: String(walletsCount),
+                .walletType: Analytics.ParameterValue.seedState(for: userWalletModel.hasImportedWallets).rawValue,
+            ],
+            contextParams: .custom(userWalletModel.analyticsContextData)
+        )
     }
 }

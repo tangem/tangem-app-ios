@@ -14,9 +14,6 @@ final class MobileAccessCodeCleaner {
     @Injected(\.userWalletRepository)
     private var userWalletRepository: UserWalletRepository
 
-    @Injected(\.sessionMobileAccessCodeStorageManager)
-    private var sessionStorageManager: MobileAccessCodeStorageManager
-
     private let commonStorageManager: MobileAccessCodeStorageManager = CommonMobileAccessCodeStorageManager()
 
     private var bag: Set<AnyCancellable> = []
@@ -59,7 +56,6 @@ private extension MobileAccessCodeCleaner {
 
     func cleanWrongAccessCode(userWalletId: UserWalletId) {
         commonStorageManager.removeWrongAccessCode(userWalletId: userWalletId)
-        sessionStorageManager.removeWrongAccessCode(userWalletId: userWalletId)
     }
 }
 
