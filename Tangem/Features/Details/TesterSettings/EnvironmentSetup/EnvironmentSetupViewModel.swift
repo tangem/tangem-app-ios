@@ -36,6 +36,9 @@ final class EnvironmentSetupViewModel: ObservableObject {
     @Published var finishedPromotionNames: String = ""
     @Published var awardedPromotionNames: String = ""
 
+    /// Application UID
+    @Published var applicationUid: String = ""
+
     // MARK: - Dependencies
 
     private let featureStorage = FeatureStorage.instance
@@ -108,7 +111,8 @@ final class EnvironmentSetupViewModel: ObservableObject {
                     default: ExpressAPIType.production.rawValue,
                     get: { $0.apiExpress },
                     set: { $0.apiExpress = $1 }
-                )
+                ),
+                pickerStyle: .menu
             ),
             DefaultPickerRowViewModel(
                 title: "Visa API type",
@@ -190,12 +194,19 @@ final class EnvironmentSetupViewModel: ObservableObject {
             .store(in: &bag)
 
         fcmToken = Messaging.messaging().fcmToken ?? "none"
+
+        updateApplicationUid()
     }
 
     func copyField(_ keyPath: KeyPath<EnvironmentSetupViewModel, String>) {
         let value = self[keyPath: keyPath]
         UIPasteboard.general.string = value
         UINotificationFeedbackGenerator().notificationOccurred(.success)
+    }
+
+    func resetApplicationUID() {
+        AppSettings.shared.applicationUid = ""
+        updateApplicationUid()
     }
 
     func resetCurrentPromoCode() {
@@ -253,5 +264,9 @@ final class EnvironmentSetupViewModel: ObservableObject {
         } else {
             self.awardedPromotionNames = awardedPromotionNames.joined(separator: ", ")
         }
+    }
+
+    private func updateApplicationUid() {
+        applicationUid = AppSettings.shared.applicationUid
     }
 }
