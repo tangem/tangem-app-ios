@@ -20,8 +20,8 @@ class BitcoinCustomFeeService {
     private let feeTokenItem: TokenItem
     private let bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator
 
-    private lazy var customFeeTextField = DecimalNumberTextField.ViewModel(maximumFractionDigits: feeTokenItem.decimalCount)
-    private lazy var satoshiPerByteTextField = DecimalNumberTextField.ViewModel(maximumFractionDigits: 0)
+    private lazy var customFeeTextField = DecimalNumberTextFieldViewModel(maximumFractionDigits: feeTokenItem.decimalCount)
+    private lazy var satoshiPerByteTextField = DecimalNumberTextFieldViewModel(maximumFractionDigits: 0)
 
     private let customFee: CurrentValueSubject<Fee?, Never> = .init(.none)
     private var cachedCustomFee: Fee?
