@@ -113,12 +113,10 @@ private extension ExpressTokensListViewModel {
         updateTask?.cancel()
         updateTask = runTask(in: self) { viewModel in
             let availablePairs = await viewModel.loadAvailablePairs()
-            await runOnMain {
-                viewModel.updateWalletModels(
-                    walletModels: walletModels,
-                    availableCurrencies: availablePairs
-                )
-            }
+            await viewModel.updateWalletModels(
+                walletModels: walletModels,
+                availableCurrencies: availablePairs
+            )
         }
     }
 
@@ -133,6 +131,7 @@ private extension ExpressTokensListViewModel {
         }
     }
 
+    @MainActor
     func updateWalletModels(walletModels: [any WalletModel], availableCurrencies: [ExpressCurrency]) {
         availableWalletModels.removeAll()
         unavailableWalletModels.removeAll()
