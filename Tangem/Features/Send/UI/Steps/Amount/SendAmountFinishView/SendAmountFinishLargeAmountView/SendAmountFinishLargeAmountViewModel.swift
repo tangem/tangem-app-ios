@@ -11,13 +11,13 @@ import TangemUI
 
 class SendAmountFinishLargeAmountViewModel: ObservableObject {
     @Published private(set) var tokenIconInfo: TokenIconInfo
-    @Published private(set) var amountDecimalNumberTextFieldViewModel: DecimalNumberTextField.ViewModel
+    @Published private(set) var amountDecimalNumberTextFieldViewModel: DecimalNumberTextFieldViewModel
     @Published private(set) var amountFieldOptions: SendDecimalNumberTextField.PrefixSuffixOptions
     @Published private(set) var alternativeAmount: String?
 
     init(
         tokenIconInfo: TokenIconInfo,
-        amountDecimalNumberTextFieldViewModel: DecimalNumberTextField.ViewModel,
+        amountDecimalNumberTextFieldViewModel: DecimalNumberTextFieldViewModel,
         amountFieldOptions: SendDecimalNumberTextField.PrefixSuffixOptions,
         alternativeAmount: String?
     ) {
