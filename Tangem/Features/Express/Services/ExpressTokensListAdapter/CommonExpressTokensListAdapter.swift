@@ -41,7 +41,7 @@ extension CommonExpressTokensListAdapter: ExpressTokensListAdapter {
         )
 
         return tokenSectionsAdapter
-            .organizedSections(from: tokenSectionsSourcePublisher, on: .global())
+            .organizedSections(from: tokenSectionsSourcePublisher, on: .main)
             .map { section -> [any WalletModel] in
                 withExtendedLifetime(tokenSectionsAdapter) {}
 
