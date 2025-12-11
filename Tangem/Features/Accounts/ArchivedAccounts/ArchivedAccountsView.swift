@@ -30,11 +30,11 @@ struct ArchivedAccountsView: View {
                 loadingView
                     .padding(.horizontal, Constants.horizontalPadding)
 
-            case .failedToLoad:
+            case .failure:
                 errorView
                     .padding(.horizontal, Constants.horizontalPadding)
 
-            case .loaded(let accountInfos):
+            case .success(let accountInfos):
                 makeAccountsView(from: accountInfos)
             }
         }
