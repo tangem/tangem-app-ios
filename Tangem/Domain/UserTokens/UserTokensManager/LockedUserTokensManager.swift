@@ -15,13 +15,17 @@ struct LockedUserTokensManager: UserTokensManager {
 
     var userTokens: [TokenItem] { [] }
 
-    var userTokensPublisher: AnyPublisher<[TokenItem], Never> { .just(output: []) }
+    var userTokensPublisher: AnyPublisher<[TokenItem], Never> { .just(output: userTokens) }
 
     var derivationManager: DerivationManager? { nil }
 
-    func deriveIfNeeded(completion: @escaping (Result<Void, Error>) -> Void) {}
+    func deriveIfNeeded(completion: @escaping (Result<Void, Error>) -> Void) {
+        completion(.success(()))
+    }
 
-    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], completion: @escaping (Result<Void, Error>) -> Void) {}
+    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], completion: @escaping (Result<Void, Error>) -> Void) {
+        completion(.success(()))
+    }
 
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) throws {}
 
@@ -31,7 +35,9 @@ struct LockedUserTokensManager: UserTokensManager {
         return ""
     }
 
-    func add(_ tokenItems: [TokenItem], completion: @escaping (Result<Void, Error>) -> Void) {}
+    func add(_ tokenItems: [TokenItem], completion: @escaping (Result<Void, Error>) -> Void) {
+        completion(.success(()))
+    }
 
     func contains(_ tokenItem: TokenItem, derivationInsensitive: Bool) -> Bool {
         false
@@ -47,7 +53,9 @@ struct LockedUserTokensManager: UserTokensManager {
 
     func remove(_ tokenItem: TokenItem) {}
 
-    func sync(completion: @escaping () -> Void) {}
+    func sync(completion: @escaping () -> Void) {
+        completion()
+    }
 }
 
 // MARK: - UserTokensPushNotificationsRemoteStatusSyncing protocol conformance
