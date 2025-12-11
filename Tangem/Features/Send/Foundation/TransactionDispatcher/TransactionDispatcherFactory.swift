@@ -42,17 +42,31 @@ struct TransactionDispatcherFactory {
             return DemoSendTransactionDispatcher(walletModel: walletModel, transactionSigner: signer)
         }
 
-        return StakingTransactionDispatcher(
-            walletModel: walletModel,
-            transactionSigner: signer,
-            pendingHashesSender: StakingDependenciesFactory().makePendingHashesSender(),
-            stakingTransactionMapper: StakingTransactionMapper(
-                tokenItem: walletModel.tokenItem,
-                feeTokenItem: walletModel.feeTokenItem
-            ),
-            analyticsLogger: analyticsLogger,
-            transactionStatusProvider: CommonStakeKitTransactionStatusProvider(stakingManager: stakingManger)
+        let mapper = StakingTransactionMapper(
+            tokenItem: walletModel.tokenItem,
+            feeTokenItem: walletModel.feeTokenItem
         )
+
+        switch (walletModel.tokenItem.blockchain, walletModel.tokenItem.token) {
+        case (.ethereum, .none):
+            return P2PTransactionDispatcher(
+                walletModel: walletModel,
+                transactionSigner: signer,
+                mapper: mapper,
+                apiProvider: StakingDependenciesFactory().makeP2PAPIProvider()
+            )
+        default:
+            return StakeKitTransactionDispatcher(
+                walletModel: walletModel,
+                transactionSigner: signer,
+                pendingHashesSender: StakingDependenciesFactory().makePendingHashesSender(),
+                stakingTransactionMapper: mapper,
+                analyticsLogger: analyticsLogger,
+                transactionStatusProvider: CommonStakeKitTransactionStatusProvider(
+                    apiProvider: StakingDependenciesFactory().makeStakeKitAPIProvider()
+                )
+            )
+        }
     }
 
     func makeYieldModuleDispatcher() -> TransactionDispatcher? {
