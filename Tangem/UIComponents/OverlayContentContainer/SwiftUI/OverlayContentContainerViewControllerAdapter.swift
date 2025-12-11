@@ -6,8 +6,8 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import SwiftUI
+import TangemUI
 
 /// SwiftUI-compatible adapter for `OverlayContentContainerViewController`.
 final class OverlayContentContainerViewControllerAdapter {
@@ -28,7 +28,13 @@ extension OverlayContentContainerViewControllerAdapter: OverlayContentContainer 
     var isScrollViewLocked: Bool { containerViewController?.isScrollViewLocked ?? false }
 
     func installOverlay(_ overlayView: some View) {
-        let overlayViewController = UIHostingController(rootView: overlayView)
+        let overlayViewController = UIHostingController(
+            rootView: overlayView
+                .overlay(alignment: .top) {
+                    GrabberView()
+                }
+        )
+
         containerViewController?.installOverlay(overlayViewController)
     }
 
