@@ -9,7 +9,7 @@
 import Combine
 import TangemFoundation
 
-public typealias NFTManagerState = LoadingValue<NFTPartialResult<[NFTCollection]>>
+public typealias NFTManagerState = LoadingResult<NFTPartialResult<[NFTCollection]>, any Error>
 
 public protocol NFTManager {
     var collections: [NFTCollection] { get }
