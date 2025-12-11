@@ -47,16 +47,22 @@ class BaseTestCase: XCTestCase {
         stakingApiType: StakingAPI? = nil,
         skipToS: Bool = true,
         clearStorage: Bool = false,
-        disableMobileWallet: Bool = true,
+        disableMobileWallet: Bool = false,
         scenarios: [ScenarioConfig] = []
     ) {
         var arguments = ["--uitesting", "--alpha"]
 
-        arguments.append(contentsOf: ["-tangem_api_type", tangemApiType?.rawValue ?? TangemAPI.prod.rawValue])
+        arguments.append(contentsOf: [
+            "-tangem_api_type", tangemApiType?.rawValue ?? TangemAPI.prod.rawValue,
+        ])
 
-        arguments.append(contentsOf: ["-api_express", expressApiType?.rawValue ?? ExpressAPI.production.rawValue])
+        arguments.append(contentsOf: [
+            "-api_express", expressApiType?.rawValue ?? ExpressAPI.production.rawValue,
+        ])
 
-        arguments.append(contentsOf: ["-stake_kit_api_type", stakingApiType?.rawValue ?? StakingAPI.prod.rawValue])
+        arguments.append(contentsOf: [
+            "-stake_kit_api_type", stakingApiType?.rawValue ?? StakingAPI.prod.rawValue,
+        ])
 
         if skipToS {
             arguments.append("-uitest-skip-tos")
