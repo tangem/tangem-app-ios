@@ -52,9 +52,13 @@ final class YieldBalancesViewModel: BalancesViewModel {
     private func bind() {
         refreshStatusProvider?.isRefreshing
             .dropFirst()
+            .removeDuplicates()
+            .flatMap { isRefreshing in
+                Just(isRefreshing).delay(for: isRefreshing ? .zero : .seconds(0.7), scheduler: DispatchQueue.main)
+            }
             .receiveOnMain()
-            .sink { [weak self] isRefreshing in
-                self?.isRefreshing = isRefreshing
+            .sink { [weak self] in
+                self?.isRefreshing = $0
             }
             .store(in: &bag)
 
