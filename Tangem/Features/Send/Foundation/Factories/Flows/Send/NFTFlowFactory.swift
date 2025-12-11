@@ -23,7 +23,8 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
     let walletModelHistoryUpdater: any WalletModelHistoryUpdater
     let walletModelFeeProvider: any WalletModelFeeProvider
     let walletModelDependenciesProvider: WalletModelDependenciesProvider
-    let walletModelBalancesProvider: WalletModelBalancesProvider
+    let availableBalanceProvider: any TokenBalanceProvider
+    let fiatAvailableBalanceProvider: any TokenBalanceProvider
     let transactionDispatcherFactory: TransactionDispatcherFactory
     let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let expressDependenciesFactory: ExpressDependenciesFactory
@@ -73,7 +74,8 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
         walletModelHistoryUpdater = walletModel
         walletModelFeeProvider = walletModel
         walletModelDependenciesProvider = walletModel
-        walletModelBalancesProvider = walletModel
+        availableBalanceProvider = walletModel.availableBalanceProvider
+        fiatAvailableBalanceProvider = walletModel.fiatAvailableBalanceProvider
         transactionDispatcherFactory = TransactionDispatcherFactory(
             walletModel: walletModel,
             signer: userWalletInfo.signer
