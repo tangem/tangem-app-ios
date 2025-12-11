@@ -111,6 +111,10 @@ extension TwinConfig: UserWalletConfig {
         return .cardId(card.cardId)
     }
 
+    var contextBuilder: WalletCreationContextBuilder {
+        ["type": "card"]
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .accessCode:
