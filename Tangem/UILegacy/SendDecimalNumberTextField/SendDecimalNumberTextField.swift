@@ -59,7 +59,7 @@ struct SendDecimalNumberTextField: View {
     }
 
     init(
-        viewModel: DecimalNumberTextField.ViewModel,
+        viewModel: DecimalNumberTextFieldViewModel,
         accessibilityIdentifier: String? = nil
     ) {
         self.viewModel = viewModel
