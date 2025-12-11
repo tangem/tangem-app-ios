@@ -22,9 +22,9 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     @Published var cryptoIconURL: URL?
     @Published var fiatIconURL: URL?
 
-    @Published var cryptoTextFieldViewModel: DecimalNumberTextField.ViewModel
+    @Published var cryptoTextFieldViewModel: DecimalNumberTextFieldViewModel
     @Published var cryptoTextFieldOptions: SendDecimalNumberTextField.PrefixSuffixOptions
-    @Published var fiatTextFieldViewModel: DecimalNumberTextField.ViewModel
+    @Published var fiatTextFieldViewModel: DecimalNumberTextFieldViewModel
     @Published var fiatTextFieldOptions: SendDecimalNumberTextField.PrefixSuffixOptions
     @Published var alternativeAmount: String
 
