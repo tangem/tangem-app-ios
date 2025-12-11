@@ -13,8 +13,8 @@ public final class NFTManagerMock: NFTManager {
 
     public var collectionsPublisher: AnyPublisher<NFTPartialResult<[NFTCollection]>, Never> {
         collections = switch state {
-        case .failedToLoad, .loading: []
-        case .loaded(let collections): collections.value
+        case .failure, .loading: []
+        case .success(let collections): collections.value
         }
 
         return Just(NFTPartialResult(value: collections))

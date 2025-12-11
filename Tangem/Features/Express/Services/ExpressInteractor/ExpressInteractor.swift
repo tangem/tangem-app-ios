@@ -198,11 +198,11 @@ extension ExpressInteractor {
 // MARK: - ApproveViewModelInput
 
 extension ExpressInteractor: ApproveViewModelInput {
-    var approveFeeValue: LoadingValue<Fee> {
-        mapToApproveFeeLoadingValue(state: getState()) ?? .failedToLoad(error: CommonError.noData)
+    var approveFeeValue: LoadingResult<Fee, any Error> {
+        mapToApproveFeeLoadingValue(state: getState()) ?? .failure(CommonError.noData)
     }
 
-    var approveFeeValuePublisher: AnyPublisher<LoadingValue<BlockchainSdk.Fee>, Never> {
+    var approveFeeValuePublisher: AnyPublisher<LoadingResult<BlockchainSdk.Fee, any Error>, Never> {
         state
             .withWeakCaptureOf(self)
             .compactMap { interactor, state in
@@ -211,18 +211,18 @@ extension ExpressInteractor: ApproveViewModelInput {
             .eraseToAnyPublisher()
     }
 
-    private func mapToApproveFeeLoadingValue(state: ExpressInteractor.State) -> LoadingValue<BlockchainSdk.Fee>? {
+    private func mapToApproveFeeLoadingValue(state: ExpressInteractor.State) -> LoadingResult<BlockchainSdk.Fee, any Error>? {
         switch state {
         case .permissionRequired(let state, _):
             guard let fee = try? state.fees.selectedFee() else {
-                return .failedToLoad(error: ExpressInteractorError.feeNotFound)
+                return .failure(ExpressInteractorError.feeNotFound)
             }
 
-            return .loaded(fee)
+            return .success(fee)
         case .loading:
             return .loading
         case .restriction(.requiredRefresh(let error), _):
-            return .failedToLoad(error: error)
+            return .failure(error)
         default:
             return nil
         }
