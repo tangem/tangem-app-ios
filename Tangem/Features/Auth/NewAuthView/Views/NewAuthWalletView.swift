@@ -56,12 +56,12 @@ private extension NewAuthWalletView {
         case .loading:
             Color.clear
 
-        case .loaded(let image):
+        case .success(let image):
             image.image
                 .resizable()
                 .aspectRatio(contentMode: .fit)
 
-        case .failedToLoad:
+        case .failure:
             Assets.Onboarding.darkCard.image
                 .resizable()
                 .aspectRatio(contentMode: .fit)
