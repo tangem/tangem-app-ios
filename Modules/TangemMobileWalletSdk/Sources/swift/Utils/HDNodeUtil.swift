@@ -33,6 +33,11 @@ enum HDNodeUtil {
                         curve: curve,
                     )
                 case .some(let derivationPath):
+                    // Double check that all nodes are hardened for ed25519-slip0010 curve. This case is already handled at `hdnode_helper.c`.
+                    if curve == .ed25519_slip0010, derivationPath.nodes.contains(where: { !$0.isHardened }) {
+                        throw MobileWalletError.failedToDeriveKey
+                    }
+
                     let derivationPathNodes = derivationPath.nodes.map { $0.index }
 
                     return try derivationPathNodes.withUnsafeBufferPointer { nodesPtr in

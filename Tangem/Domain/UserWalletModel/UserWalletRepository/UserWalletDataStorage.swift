@@ -84,7 +84,7 @@ class UserWalletDataStorage {
 
             let publicData = try encoder.encode(userWallets)
             let publicDataEncrypted = try encrypt(publicData, with: publicDataEncryptionKey())
-            try publicDataEncrypted.write(to: userWalletListPath(), options: .atomic)
+            try publicDataEncrypted.write(to: userWalletListPath(), options: [.atomic, .completeFileProtection])
             try excludeFromBackup(url: userWalletListPath())
 
             AppLogger.info("User wallets were saved successfully")
@@ -130,7 +130,7 @@ class UserWalletDataStorage {
             let serialized = try sensitiveInfo.serialize(encoder: encoder)
             let sensitiveDataEncrypted = try encrypt(serialized, with: encryptionKey)
             let sensitiveDataPath = userWalletPath(for: userWalletId)
-            try sensitiveDataEncrypted.write(to: sensitiveDataPath, options: .atomic)
+            try sensitiveDataEncrypted.write(to: sensitiveDataPath, options: [.atomic, .completeFileProtection])
             try excludeFromBackup(url: sensitiveDataPath)
         } catch {
             AppLogger.error("Failed to save user wallet private data", error: error)

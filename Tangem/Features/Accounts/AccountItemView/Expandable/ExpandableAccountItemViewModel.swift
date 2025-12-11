@@ -41,7 +41,7 @@ final class ExpandableAccountItemViewModel: Identifiable, ObservableObject {
         self.priceChangeUtility = priceChangeUtility
 
         name = accountModel.name
-        iconData = AccountIconViewBuilder.makeAccountIconViewData(accountModel: accountModel)
+        iconData = AccountModelUtils.UI.iconViewData(accountModel: accountModel)
         rawTokensCount = accountModel.userTokensManager.userTokens.count
         totalFiatBalance = accountModel.fiatTotalBalanceProvider.totalFiatBalance
         priceChange = priceChangeUtility.convertToPriceChangeState(
@@ -62,6 +62,7 @@ final class ExpandableAccountItemViewModel: Identifiable, ObservableObject {
 
         accountModel
             .didChangePublisher
+            .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, _ in
                 viewModel.onAccountModelDidChange()
@@ -93,6 +94,6 @@ final class ExpandableAccountItemViewModel: Identifiable, ObservableObject {
 
     private func onAccountModelDidChange() {
         name = accountModel.name
-        iconData = AccountIconViewBuilder.makeAccountIconViewData(accountModel: accountModel)
+        iconData = AccountModelUtils.UI.iconViewData(accountModel: accountModel)
     }
 }

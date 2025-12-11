@@ -17,7 +17,7 @@ final class MainLongTapActionButtonsUITests: BaseTestCase {
         setAllureId(82)
         launchApp(tangemApiType: .mock)
 
-        let contextMenu = StoriesScreen(app)
+        let contextMenu = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .longPressToken(token)
 
@@ -37,7 +37,7 @@ final class MainLongTapActionButtonsUITests: BaseTestCase {
         setAllureId(84)
         launchApp(tangemApiType: .mock)
 
-        let contextMenu = StoriesScreen(app)
+        let contextMenu = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .longPressToken(token)
 
@@ -51,7 +51,7 @@ final class MainLongTapActionButtonsUITests: BaseTestCase {
         setAllureId(79)
         launchApp(tangemApiType: .mock)
 
-        let contextMenu = StoriesScreen(app)
+        let contextMenu = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .longPressToken(token)
 
@@ -63,7 +63,7 @@ final class MainLongTapActionButtonsUITests: BaseTestCase {
         setAllureId(86)
         launchApp(tangemApiType: .mock)
 
-        let contextMenu = StoriesScreen(app)
+        let contextMenu = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .longPressToken(token)
 
@@ -83,7 +83,7 @@ final class MainLongTapActionButtonsUITests: BaseTestCase {
         setAllureId(83)
         launchApp(tangemApiType: .mock)
 
-        let contextMenu = StoriesScreen(app)
+        let contextMenu = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .longPressToken(token)
 
@@ -98,7 +98,7 @@ final class MainLongTapActionButtonsUITests: BaseTestCase {
         setAllureId(87)
         launchApp(tangemApiType: .mock)
 
-        let contextMenu = StoriesScreen(app)
+        let contextMenu = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .longPressToken(token)
 
@@ -116,7 +116,7 @@ final class MainLongTapActionButtonsUITests: BaseTestCase {
         setAllureId(85)
         launchApp(tangemApiType: .mock)
 
-        let contextMenu = StoriesScreen(app)
+        let contextMenu = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .longPressToken(token)
 
@@ -132,7 +132,7 @@ final class MainLongTapActionButtonsUITests: BaseTestCase {
         setAllureId(77)
         launchApp(tangemApiType: .mock)
 
-        let contextMenu = StoriesScreen(app)
+        let contextMenu = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .longPressToken(token)
 

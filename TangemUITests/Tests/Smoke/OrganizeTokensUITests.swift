@@ -13,7 +13,7 @@ final class OrganizeTokensUITests: BaseTestCase {
         setAllureId(2752)
         launchApp(tangemApiType: .mock)
 
-        let mainTokensOrder = StoriesScreen(app)
+        let mainTokensOrder = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .getTokensOrder()
 
@@ -27,7 +27,7 @@ final class OrganizeTokensUITests: BaseTestCase {
         let expectedTokensOrder: [String] = ["Ethereum", "POL (ex-MATIC)", "Polygon", "Bitcoin"]
         launchApp(tangemApiType: .mock)
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .organizeTokens()
             .sortByBalance()
@@ -43,7 +43,7 @@ final class OrganizeTokensUITests: BaseTestCase {
         let expectedTokensOrder: [String] = ["Bitcoin", "Polygon", "Ethereum", "POL (ex-MATIC)"]
         launchApp(tangemApiType: .mock)
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .organizeTokens()
             .drag(one: "Polygon", to: "Ethereum")
@@ -58,7 +58,7 @@ final class OrganizeTokensUITests: BaseTestCase {
         setAllureId(2755)
         launchApp(tangemApiType: .mock)
 
-        let organizeTokensScreen = StoriesScreen(app)
+        let organizeTokensScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .organizeTokens()
             .verifyIsGrouped(false)

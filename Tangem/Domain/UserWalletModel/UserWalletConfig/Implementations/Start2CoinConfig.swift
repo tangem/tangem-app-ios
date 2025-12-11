@@ -85,6 +85,10 @@ extension Start2CoinConfig: UserWalletConfig {
         Assets.Cards.s2c
     }
 
+    var contextBuilder: WalletCreationContextBuilder {
+        ["type": "card"]
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .signing:
