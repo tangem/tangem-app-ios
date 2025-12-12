@@ -11,9 +11,11 @@ import TangemAssets
 import TangemLocalization
 import TangemMobileWalletSdk
 import TangemFoundation
+import struct TangemUIUtils.AlertBinder
 
 final class MobileCreateWalletViewModel: ObservableObject {
     @Published var isCreating: Bool = false
+    @Published var alert: AlertBinder?
 
     let title = Localization.hwCreateTitle
     let createButtonTitle = Localization.onboardingCreateWalletButtonCreateWallet
@@ -23,12 +25,22 @@ final class MobileCreateWalletViewModel: ObservableObject {
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
+    private let mobileWalletFeatureProvider = MobileWalletFeatureProvider()
+
     lazy var infoItems: [InfoItem] = makeInfoItems()
 
+    private let analyticsContextParams: Analytics.ContextParams = .custom(.mobileWallet)
+
+    private let source: MobileCreateWalletSource
     private weak var coordinator: MobileCreateWalletRoutable?
     private weak var delegate: MobileCreateWalletDelegate?
 
-    init(coordinator: MobileCreateWalletRoutable, delegate: MobileCreateWalletDelegate) {
+    init(
+        source: MobileCreateWalletSource,
+        coordinator: MobileCreateWalletRoutable,
+        delegate: MobileCreateWalletDelegate
+    ) {
+        self.source = source
         self.coordinator = coordinator
         self.delegate = delegate
     }
@@ -37,8 +49,9 @@ final class MobileCreateWalletViewModel: ObservableObject {
 // MARK: - Internal methods
 
 extension MobileCreateWalletViewModel {
-    func onAppear() {
-        Analytics.log(.createWalletScreenOpened, contextParams: .custom(.mobileWallet))
+    func onFirstAppear() {
+        logScreenOpenedAnalytics()
+        logOnboardingStartedAnalytics()
     }
 
     func onBackTap() {
@@ -48,18 +61,30 @@ extension MobileCreateWalletViewModel {
     }
 
     func onCreateTap() {
+        guard mobileWalletFeatureProvider.isAvailable else {
+            alert = mobileWalletFeatureProvider.makeRestrictionAlert()
+            return
+        }
+
         isCreating = true
-        Analytics.log(
-            event: .buttonCreateWallet,
-            params: [:],
-            contextParams: .custom(.mobileWallet)
-        )
+        logCreateWalletTapAnalytics()
 
         runTask(in: self) { viewModel in
             do {
                 let initializer = MobileWalletInitializer()
 
                 let walletInfo = try await initializer.initializeWallet(mnemonic: nil, passphrase: nil)
+
+                let userWalletConfig = MobileUserWalletConfig(mobileWalletInfo: walletInfo)
+                if let userWalletId = UserWalletId(config: userWalletConfig) {
+                    let walletCreationHelper = WalletCreationHelper(
+                        userWalletId: userWalletId,
+                        userWalletName: nil,
+                        userWalletConfig: userWalletConfig
+                    )
+
+                    try? await walletCreationHelper.createWallet()
+                }
 
                 guard let newUserWalletModel = CommonUserWalletModelFactory().makeModel(
                     walletInfo: .mobileWallet(walletInfo),
@@ -72,7 +97,8 @@ extension MobileCreateWalletViewModel {
 
                 await runOnMain {
                     viewModel.isCreating = false
-                    viewModel.trackWalletCreated()
+                    viewModel.logWalletCreatedAnalytics()
+                    viewModel.logOnboardingFinishedAnalytics()
                     viewModel.delegate?.onCreateWallet(userWalletModel: newUserWalletModel)
                 }
             } catch {
@@ -85,6 +111,11 @@ extension MobileCreateWalletViewModel {
     }
 
     func onImportTap() {
+        logImportWalletTapAnalytics()
+        guard mobileWalletFeatureProvider.isAvailable else {
+            alert = mobileWalletFeatureProvider.makeRestrictionAlert()
+            return
+        }
         runTask(in: self) { viewModel in
             await viewModel.openImportWallet()
         }
@@ -124,19 +155,56 @@ private extension MobileCreateWalletViewModel {
             ),
         ]
     }
+}
 
-    func trackWalletCreated() {
+// MARK: - Analytics
+
+private extension MobileCreateWalletViewModel {
+    func logScreenOpenedAnalytics() {
+        Analytics.log(
+            .onboardingCreateMobileScreenOpened,
+            params: [.source: source.analyticsParameterValue],
+            contextParams: analyticsContextParams
+        )
+    }
+
+    func logOnboardingStartedAnalytics() {
+        Analytics.log(
+            .onboardingStarted,
+            params: [.source: source.analyticsParameterValue],
+            contextParams: analyticsContextParams
+        )
+    }
+
+    func logCreateWalletTapAnalytics() {
+        Analytics.log(.buttonCreateWallet, contextParams: analyticsContextParams)
+    }
+
+    func logWalletCreatedAnalytics() {
         let params: [Analytics.ParameterKey: String] = [
             .creationType: Analytics.ParameterValue.walletCreationTypeNewSeed.rawValue,
             .seedLength: Constants.seedPhraseLength,
             .passphrase: Analytics.ParameterValue.empty.rawValue,
+            .source: source.analyticsParameterValue.rawValue,
         ]
 
         Analytics.log(
             event: .walletCreatedSuccessfully,
             params: params,
-            contextParams: .custom(.mobileWallet)
+            contextParams: analyticsContextParams
         )
+    }
+
+    func logOnboardingFinishedAnalytics() {
+        Analytics.log(
+            .onboardingFinished,
+            params: [.source: source.analyticsParameterValue],
+            contextParams: analyticsContextParams
+        )
+    }
+
+    func logImportWalletTapAnalytics() {
+        Analytics.log(.onboardingSeedButtonImportWallet, contextParams: analyticsContextParams)
     }
 }
 

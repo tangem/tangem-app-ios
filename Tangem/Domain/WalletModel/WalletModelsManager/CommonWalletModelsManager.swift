@@ -9,10 +9,13 @@
 import Combine
 import CombineExt
 import BlockchainSdk
+import TangemSdk
 
 class CommonWalletModelsManager {
     private let walletManagersRepository: WalletManagersRepository
     private let walletModelsFactory: WalletModelsFactory
+    private let derivationIndex: Int
+    private let derivationStyle: DerivationStyle?
 
     /// We need to keep optional array to track state when wallet models array wasn't able to initialize
     /// This state can happen while app awaiting API list from server, because and Wallet managers can't be created without this info
@@ -28,10 +31,14 @@ class CommonWalletModelsManager {
 
     init(
         walletManagersRepository: WalletManagersRepository,
-        walletModelsFactory: WalletModelsFactory
+        walletModelsFactory: WalletModelsFactory,
+        derivationIndex: Int,
+        derivationStyle: DerivationStyle?
     ) {
         self.walletManagersRepository = walletManagersRepository
         self.walletModelsFactory = walletModelsFactory
+        self.derivationIndex = derivationIndex
+        self.derivationStyle = derivationStyle
     }
 
     private func bind() {
@@ -77,10 +84,12 @@ class CommonWalletModelsManager {
         let walletModelsToAdd: [any WalletModel] = dataToAdd.flatMap {
             if let walletManager = walletManagers[$0.key] {
                 let types = $0.value.map { $0.tokenItem.amountType }
+                let targetPath = makeTargetDerivationPath(for: $0.key.blockchain)
                 return walletModelsFactory.makeWalletModels(
                     for: types,
                     walletManager: walletManager,
-                    blockchainNetwork: $0.key
+                    blockchainNetwork: $0.key,
+                    targetAccountDerivationPath: targetPath
                 )
             }
 
@@ -174,5 +183,18 @@ extension CommonWalletModelsManager: WalletModelsManager {
 private extension CommonWalletModelsManager {
     func log(walletModels: [any WalletModel]) {
         AppLogger.info("✅ Actual List of WalletModels [\(walletModels.map(\.name))]")
+    }
+
+    func makeTargetDerivationPath(for blockchain: Blockchain) -> DerivationPath? {
+        guard let derivationStyle else {
+            return nil
+        }
+
+        guard let defaultPath = blockchain.derivationPath(for: derivationStyle) else {
+            return nil
+        }
+
+        let helper = AccountDerivationPathHelper(blockchain: blockchain)
+        return helper.makeDerivationPath(from: defaultPath, forAccountWithIndex: derivationIndex)
     }
 }
