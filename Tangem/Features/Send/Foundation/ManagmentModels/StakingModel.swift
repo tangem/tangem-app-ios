@@ -17,11 +17,11 @@ protocol StakingModelStateProvider {
     var state: AnyPublisher<StakingModel.State, Never> { get }
 }
 
-class StakingModel {
+final class StakingModel {
     // MARK: - Data
 
     private let _amount = CurrentValueSubject<SendAmount?, Never>(nil)
-    private let _selectedValidator = CurrentValueSubject<LoadingValue<ValidatorInfo>, Never>(.loading)
+    private let _selectedValidator = CurrentValueSubject<LoadingResult<ValidatorInfo, Never>, Never>(.loading)
     private let _state = CurrentValueSubject<State?, Never>(.none)
     private let _approvePolicy = CurrentValueSubject<ApprovePolicy, Never>(.unlimited)
     private let _transactionTime = PassthroughSubject<Date?, Never>()
@@ -186,18 +186,18 @@ private extension StakingModel {
         case .none, .loading:
             return SendFee(option: .market, value: .loading)
         case .readyToApprove(let approveData):
-            return SendFee(option: .market, value: .loaded(approveData.fee))
+            return SendFee(option: .market, value: .success(approveData.fee))
         case .readyToStake(let readyToStake):
-            return SendFee(option: .market, value: .loaded(makeFee(value: readyToStake.fee)))
+            return SendFee(option: .market, value: .success(makeFee(value: readyToStake.fee)))
         case .approveTransactionInProgress(let fee),
              .validationError(_, let fee):
-            return SendFee(option: .market, value: .loaded(makeFee(value: fee)))
+            return SendFee(option: .market, value: .success(makeFee(value: fee)))
         case .networkError(let error):
-            return SendFee(option: .market, value: .failedToLoad(error: error))
+            return SendFee(option: .market, value: .failure(error))
         case .blockchainAccountInitializationRequired(_, let transactionFee):
-            return SendFee(option: .market, value: .loaded(transactionFee))
+            return SendFee(option: .market, value: .success(transactionFee))
         case .blockchainAccountInitializationInProgress:
-            return SendFee(option: .market, value: .failedToLoad(error: StakingModelError.accountIsNotInitialized))
+            return SendFee(option: .market, value: .failure(StakingModelError.accountIsNotInitialized))
         }
     }
 
@@ -417,7 +417,7 @@ extension StakingModel: StakingValidatorsInput {
 
 extension StakingModel: StakingValidatorsOutput {
     func userDidSelected(validator: TangemStaking.ValidatorInfo) {
-        _selectedValidator.send(.loaded(validator))
+        _selectedValidator.send(.success(validator))
     }
 }
 
@@ -492,7 +492,7 @@ extension StakingModel: SendFinishInput {
 extension StakingModel: SendBaseInput, SendBaseOutput {
     var actionInProcessing: AnyPublisher<Bool, Never> {
         Publishers.Merge(
-            stakingManager.statePublisher.map { $0 == .loading },
+            stakingManager.statePublisher.map { $0.isLoading },
             _isLoading
         )
         .eraseToAnyPublisher()
@@ -561,11 +561,11 @@ extension StakingModel: NotificationTapDelegate {
 // MARK: - ApproveViewModelInput
 
 extension StakingModel: ApproveViewModelInput {
-    var approveFeeValue: LoadingValue<Fee> {
+    var approveFeeValue: LoadingResult<Fee, any Error> {
         selectedFee.value
     }
 
-    var approveFeeValuePublisher: AnyPublisher<LoadingValue<BlockchainSdk.Fee>, Never> {
+    var approveFeeValuePublisher: AnyPublisher<LoadingResult<BlockchainSdk.Fee, any Error>, Never> {
         _state
             .withWeakCaptureOf(self)
             .map { model, state in
