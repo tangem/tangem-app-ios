@@ -11,14 +11,13 @@ import TangemStaking
 import TangemExpress
 import TangemFoundation
 
-protocol SendBaseDataBuilder: SendGenericBaseDataBuilder {
+protocol SendBaseDataBuilder: SendFeeCurrencyProviderDataBuilder {
     func makeMailData(transaction: BSDKTransaction, error: SendTxError) -> (dataCollector: EmailDataCollector, recipient: String)
     func makeMailData(transactionData: Data, error: SendTxError) -> (dataCollector: EmailDataCollector, recipient: String)
     func makeSendReceiveTokensList() -> SendReceiveTokensListBuilder
-    func makeFeeCurrencyData() -> FeeCurrencyNavigatingDismissOption
 }
 
-protocol StakingBaseDataBuilder: SendGenericBaseDataBuilder {
+protocol StakingBaseDataBuilder: SendFeeCurrencyProviderDataBuilder {
     func makeMailData(stakingRequestError error: UniversalError) throws -> (dataCollector: EmailDataCollector, recipient: String)
     func makeMailData(action: StakingTransactionAction, error: SendTxError) -> (dataCollector: EmailDataCollector, recipient: String)
     func makeDataForExpressApproveViewModel() throws -> (settings: ExpressApproveViewModel.Settings, approveViewModelInput: any ApproveViewModelInput)
@@ -31,13 +30,26 @@ protocol OnrampBaseDataBuilder: SendGenericBaseDataBuilder {
     func demoAlertMessage() -> String?
 }
 
+protocol SendFeeCurrencyProviderDataBuilder: SendGenericBaseDataBuilder {
+    func makeFeeCurrencyData() -> FeeCurrencyNavigatingDismissOption
+}
+
 protocol SendGenericBaseDataBuilder {
+    func feeCurrencyProvider() throws -> SendFeeCurrencyProviderDataBuilder
+
     func sendBuilder() throws -> SendBaseDataBuilder
     func stakingBuilder() throws -> StakingBaseDataBuilder
     func onrampBuilder() throws -> OnrampBaseDataBuilder
 }
 
 extension SendGenericBaseDataBuilder {
+    func feeCurrencyProvider() throws -> SendFeeCurrencyProviderDataBuilder {
+        guard let builder = self as? SendFeeCurrencyProviderDataBuilder else {
+            throw SendBaseDataBuilderError.notFound("SendFeeCurrencyProviderDataBuilder")
+        }
+        return builder
+    }
+
     func sendBuilder() throws -> SendBaseDataBuilder {
         guard let builder = self as? SendBaseDataBuilder else {
             throw SendBaseDataBuilderError.notFound("SendBaseDataBuilder")
