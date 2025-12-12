@@ -217,7 +217,10 @@ extension TokenNotificationEvent: NotificationEvent {
         case .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction):
             return .init(.retryKaspaTokenTransaction)
         case .hasUnfulfilledRequirements(configuration: .missingTokenTrustline(let config)):
-            return .init(.addTokenTrustline, withLoader: true, isDisabled: config.trustlineOperationInProgress)
+            if config.canPerformAction {
+                return .init(.addTokenTrustline, withLoader: true, isDisabled: config.trustlineOperationInProgress)
+            }
+            return nil
         case .staking:
             return .init(.stake)
         }
@@ -261,6 +264,7 @@ extension TokenNotificationEvent {
             let reserveAmount: String
             let icon: ImageType
             let trustlineOperationInProgress: Bool
+            let canPerformAction: Bool
         }
 
         /// `associationFee` fetched asynchronously and therefore may be absent in some cases.

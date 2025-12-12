@@ -11,9 +11,9 @@ import Combine
 import TangemFoundation
 import TangemLocalization
 
-class WalletSelectorItemViewModel: ObservableObject, Identifiable {
+final class WalletSelectorItemViewModel: ObservableObject, Identifiable {
     @Published var name: String = ""
-    @Published var icon: LoadingValue<ImageValue> = .loading
+    @Published var icon: LoadingResult<ImageValue, Never> = .loading
     @Published var cardSetLabel: String
     @Published var balanceState: LoadableTokenBalanceView.State = .loading()
     @Published var isSelected: Bool = false
@@ -61,7 +61,7 @@ class WalletSelectorItemViewModel: ObservableObject, Identifiable {
             }
 
             await runOnMain {
-                viewModel.icon = .loaded(image)
+                viewModel.icon = .success(image)
             }
         }
     }

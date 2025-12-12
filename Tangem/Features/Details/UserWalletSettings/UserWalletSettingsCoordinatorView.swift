@@ -73,7 +73,12 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: MobileBackupToUpgradeNeededViewModel.self) {
                 MobileBackupToUpgradeNeededView(viewModel: $0)
             }
-            .sheet(item: $coordinator.accountFormViewModel) { viewModel in
+            .sheet(
+                item: $coordinator.accountFormViewModel,
+                onDismiss: {
+                    coordinator.rootViewModel?.showPendingAlertIfNeeded()
+                }
+            ) { viewModel in
                 NavigationView {
                     AccountFormView(viewModel: viewModel)
                 }
