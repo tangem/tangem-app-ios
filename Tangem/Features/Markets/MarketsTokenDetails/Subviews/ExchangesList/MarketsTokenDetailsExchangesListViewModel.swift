@@ -10,8 +10,8 @@ import Foundation
 import Combine
 import TangemFoundation
 
-class MarketsTokenDetailsExchangesListViewModel: MarketsBaseViewModel {
-    @Published var exchangesList: LoadingValue<[MarketsTokenDetailsExchangeItemInfo]> = .loading
+final class MarketsTokenDetailsExchangesListViewModel: MarketsBaseViewModel {
+    @Published var exchangesList: LoadingResult<[MarketsTokenDetailsExchangeItemInfo], any Error> = .loading
 
     /// For unknown reasons, the `@self` and `@identity` of our view change when push navigation is performed in other
     /// navigation controllers in the application (on the main screen for example), which causes the state of
@@ -91,18 +91,18 @@ extension MarketsTokenDetailsExchangesListViewModel {
 
 private extension MarketsTokenDetailsExchangesListViewModel {
     @MainActor
-    func handleLoadResult(_ result: Result<[MarketsTokenDetailsExchangeItemInfo], Error>) async {
+    func handleLoadResult(_ result: Result<[MarketsTokenDetailsExchangeItemInfo], any Error>) async {
         lastLoadAttemptDate = Date()
         do {
             let list = try result.get()
 
-            exchangesList = .loaded(list)
+            exchangesList = .success(list)
         } catch {
             if error.isCancellationError {
                 return
             }
 
-            exchangesList = .failedToLoad(error: error)
+            exchangesList = .failure(error)
         }
 
         loadingCancellable = nil
