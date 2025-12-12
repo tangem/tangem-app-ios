@@ -14,10 +14,6 @@ import TangemUI
 struct ExpressCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: ExpressCoordinator
 
-    init(coordinator: ExpressCoordinator) {
-        self.coordinator = coordinator
-    }
-
     var body: some View {
         NavigationView {
             ZStack {
