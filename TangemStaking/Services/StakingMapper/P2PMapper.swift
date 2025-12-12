@@ -15,12 +15,16 @@ struct P2PMapper {
     let rewardType: RewardType = .apy
 
     func mapToYieldInfo(from response: P2PDTO.Vaults.VaultsInfo) throws -> StakingYieldInfo {
-        let validators = response.vaults.map { mapToValidatorInfo(from: $0) }
+        let vaults = response.vaults
+            .filter { !$0.isSmoothingPool && !$0.isPrivate }
+            .map { mapToStakingTargetInfo(from: $0) }
 
         let rewardRateValues = RewardRateValues(
-            aprs: validators.compactMap(\.rewardRate),
+            aprs: vaults.compactMap(\.rewardRate),
             rewardRate: .zero
         )
+
+        let maximumStakeAmount = vaults.compactMap { $0.maximumStakeAmount }.compactMap { $0 }.min()
 
         return StakingYieldInfo(
             id: item.network.rawValue,
@@ -29,13 +33,14 @@ struct P2PMapper {
             rewardRateValues: rewardRateValues,
             enterMinimumRequirement: StakingConstants.p2pEnterMinimumRequirements,
             exitMinimumRequirement: .zero,
-            validators: validators,
-            preferredValidators: validators,
+            targets: vaults,
+            preferredTargets: vaults,
             item: item,
             unbondingPeriod: .variable(minDays: 1, maxDays: 4),
             warmupPeriod: .constant(days: 0),
             rewardClaimingType: .auto,
-            rewardScheduleType: .daily
+            rewardScheduleType: .daily,
+            maximumStakeAmount: maximumStakeAmount
         )
     }
 
@@ -47,7 +52,7 @@ struct P2PMapper {
                     item: .ethereum,
                     amount: assets,
                     balanceType: .active,
-                    validatorAddress: response.vaultAddress,
+                    targetAddress: response.vaultAddress,
                     actions: []
                 ),
             )
@@ -65,7 +70,7 @@ struct P2PMapper {
                     item: .ethereum,
                     amount: unstakingAmount,
                     balanceType: .unbonding(date: nil),
-                    validatorAddress: response.vaultAddress,
+                    targetAddress: response.vaultAddress,
                     actions: []
                 )
             )
@@ -83,7 +88,7 @@ struct P2PMapper {
                     item: .ethereum,
                     amount: unstakedAmount,
                     balanceType: .unstaked,
-                    validatorAddress: response.vaultAddress,
+                    targetAddress: response.vaultAddress,
                     actions: [StakingPendingActionInfo(type: .withdraw, passthrough: .empty)]
                 )
             )
@@ -100,7 +105,7 @@ struct P2PMapper {
                 item: .ethereum,
                 amount: lastRewards.rewards,
                 balanceType: .rewards,
-                validatorAddress: response.vaultAddress,
+                targetAddress: response.vaultAddress,
                 actions: []
             ),
         ]
@@ -131,8 +136,8 @@ struct P2PMapper {
         )
     }
 
-    func mapToValidatorInfo(from vault: P2PDTO.Vaults.Vault) -> ValidatorInfo {
-        ValidatorInfo(
+    func mapToStakingTargetInfo(from vault: P2PDTO.Vaults.Vault) -> StakingTargetInfo {
+        StakingTargetInfo(
             address: vault.vaultAddress,
             name: vault.displayName,
             preferred: true,
@@ -140,7 +145,12 @@ struct P2PMapper {
             iconURL: nil,
             rewardType: rewardType,
             rewardRate: vault.apy ?? .zero,
-            status: .active
+            status: .active,
+            maximumStakeAmount: vault.totalAssets.flatMap { totalAssets in
+                vault.capacity.flatMap { capacity in
+                    totalAssets - capacity
+                }
+            }
         )
     }
 
@@ -148,7 +158,7 @@ struct P2PMapper {
         guard let gasLimit = BigUInt(unsignedTransaction.gasLimit),
               let maxFeePerGas = BigUInt(unsignedTransaction.maxFeePerGas),
               let maxPriorityFeePerGas = BigUInt(unsignedTransaction.maxPriorityFeePerGas) else {
-            throw P2PStakingAPIError.failedToGetFee
+            throw P2PStakingError.failedToGetFee
         }
 
         let feeParameters = EthereumEIP1559FeeParameters(
