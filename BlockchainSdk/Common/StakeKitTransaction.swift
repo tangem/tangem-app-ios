@@ -24,7 +24,7 @@ public struct StakeKitTransaction: Hashable, StakingTransaction {
     public let type: TransactionType?
     public let status: Status?
     public let stepIndex: Int?
-    public let destination: String? // validator
+    public let target: String? // validator
     public let solanaBlockhashDate: Date?
 
     public init(
@@ -35,7 +35,7 @@ public struct StakeKitTransaction: Hashable, StakingTransaction {
         type: TransactionType?,
         status: Status?,
         stepIndex: Int?,
-        destination: String?,
+        target: String?,
         solanaBlockhashDate: Date?
     ) {
         self.id = id
@@ -45,7 +45,7 @@ public struct StakeKitTransaction: Hashable, StakingTransaction {
         self.type = type
         self.status = status
         self.stepIndex = stepIndex
-        self.destination = destination
+        self.target = target
         self.solanaBlockhashDate = solanaBlockhashDate
     }
 }

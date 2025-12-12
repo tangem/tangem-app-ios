@@ -1,5 +1,5 @@
 //
-//  StakingValidatorsView.swift
+//  StakingTargetsView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,13 +11,13 @@ import TangemLocalization
 import TangemAssets
 import TangemUI
 
-struct StakingValidatorsView: View {
-    @ObservedObject var viewModel: StakingValidatorsViewModel
+struct StakingTargetsView: View {
+    @ObservedObject var viewModel: StakingTargetsViewModel
 
     var body: some View {
         GroupedScrollView(spacing: 20) {
-            GroupedSection(viewModel.validators) { data in
-                ValidatorView(data: data, selection: $viewModel.selectedValidator)
+            GroupedSection(viewModel.targets) { data in
+                StakingTargetView(data: data, selection: $viewModel.selectedTarget)
             }
             .settings(\.backgroundColor, Colors.Background.action)
         }

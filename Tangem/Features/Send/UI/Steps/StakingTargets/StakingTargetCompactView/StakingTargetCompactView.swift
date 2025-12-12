@@ -11,7 +11,7 @@ import TangemAssets
 import TangemUI
 import TangemAccessibilityIdentifiers
 
-struct ValidatorCompactViewData: Identifiable, Hashable {
+struct StakingTargetCompactViewData: Identifiable, Hashable {
     var id: Int { hashValue }
 
     let address: String
@@ -20,8 +20,8 @@ struct ValidatorCompactViewData: Identifiable, Hashable {
     let aprFormatted: String?
 }
 
-struct ValidatorCompactView: View {
-    let data: ValidatorCompactViewData
+struct StakingTargetCompactView: View {
+    let data: StakingTargetCompactViewData
 
     var body: some View {
         HStack(spacing: 12) {
