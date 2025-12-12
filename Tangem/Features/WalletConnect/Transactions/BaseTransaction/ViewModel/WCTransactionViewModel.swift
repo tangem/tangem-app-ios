@@ -399,7 +399,7 @@ private extension WCTransactionViewModel {
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, fee in
-                if case .failedToLoad = fee?.value, let fee {
+                if case .failure = fee?.value, let fee {
                     viewModel.handleFeeLoadingError(fee)
                 }
             }
@@ -466,12 +466,12 @@ private extension WCTransactionViewModel {
 
     private func handleFeeLoadingError(_ selectedFee: WCFee) {
         switch selectedFee.value {
-        case .failedToLoad:
+        case .failure:
             let networkFeeEvent = WCNotificationEvent.networkFeeUnreachable
             feeValidationInputs = notificationManager.updateFeeValidationNotifications([networkFeeEvent], buttonAction: { [weak self] _, actionType in
                 self?.handleNotificationButtonAction(actionType)
             })
-        case .loading, .loaded:
+        case .loading, .success:
             let currentEvents = notificationManager.currentFeeValidationInputs(buttonAction: { [weak self] _, actionType in
                 self?.handleNotificationButtonAction(actionType)
             })
