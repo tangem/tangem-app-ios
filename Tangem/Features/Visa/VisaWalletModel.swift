@@ -169,11 +169,11 @@ extension VisaWalletModel: WalletModelFeeProvider {
         return .justWithError(output: [])
     }
 
-    func getFeeCurrencyBalance(amountType: Amount.AmountType) -> Decimal {
+    func getFeeCurrencyBalance() -> Decimal {
         return 0
     }
 
-    func hasFeeCurrency(amountType: Amount.AmountType) -> Bool {
+    func hasFeeCurrency() -> Bool {
         return false
     }
 
