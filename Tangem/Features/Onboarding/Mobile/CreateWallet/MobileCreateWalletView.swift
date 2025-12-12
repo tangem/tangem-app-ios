@@ -65,6 +65,7 @@ private extension MobileCreateWalletView {
         }
         .safeAreaInset(edge: .bottom, spacing: 16) {
             actionButtons
+                .bottomPaddingIfZeroSafeArea()
         }
     }
 
