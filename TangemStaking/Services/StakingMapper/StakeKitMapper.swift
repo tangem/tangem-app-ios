@@ -49,8 +49,8 @@ struct StakeKitMapper {
     func mapToActionsArgs(request: ActionGenericRequest) -> StakeKitDTO.Actions.Args {
         StakeKitDTO.Actions.Args(
             amount: request.amount.description,
-            validatorAddress: request.validator,
-            validatorAddresses: request.validator.map { [$0] },
+            validatorAddress: request.target,
+            validatorAddresses: request.target.map { [$0] },
             inputToken: mapToTokenDTO(from: request.token),
             tronResource: request.tronResource
         )
@@ -148,7 +148,7 @@ struct StakeKitMapper {
                 type: mapToActionType(from: action.type),
                 currentStepIndex: action.currentStepIndex,
                 transactions: actionTransaction,
-                validatorAddress: action.validatorAddress ?? action.validatorAddresses?.first
+                targetAddress: action.validatorAddress ?? action.validatorAddresses?.first
             )
         }
     }
@@ -174,7 +174,7 @@ struct StakeKitMapper {
             type: mapToActionType(from: response.type),
             currentStepIndex: response.currentStepIndex,
             transactions: actionTransaction,
-            validatorAddress: response.validatorAddress ?? response.validatorAddresses?.first
+            targetAddress: response.validatorAddress ?? response.validatorAddresses?.first
         )
     }
 
@@ -231,7 +231,7 @@ struct StakeKitMapper {
                 amount: amount,
                 accountAddress: balance.accountAddress,
                 balanceType: mapToBalanceType(from: balance),
-                validatorAddress: balance.validatorAddress ?? balance.validatorAddresses?.first,
+                targetAddress: balance.validatorAddress ?? balance.validatorAddresses?.first,
                 actions: mapToStakingBalanceInfoPendingAction(from: balance),
                 actionConstraints: mapToBalanceConstraints(from: balance.pendingActionConstraints)
             )
@@ -309,8 +309,8 @@ struct StakeKitMapper {
 
         let item = try mapToStakingTokenItem(from: response.token)
         let rewardType = try mapToRewardType(rewardType: response.rewardType)
-        let validators = response.validators.map { mapToValidatorInfo(from: $0, rewardType: rewardType) }
-        let preferredValidators = validators.filter { $0.preferred }.sorted { lhs, rhs in
+        let targets = response.validators.map { mapToStakingTargetInfo(from: $0, rewardType: rewardType) }
+        let preferredTargets = targets.filter { $0.preferred }.sorted { lhs, rhs in
             if lhs.partner {
                 return true
             }
@@ -323,7 +323,7 @@ struct StakeKitMapper {
         }
 
         let rewardRateValues = RewardRateValues(
-            aprs: preferredValidators.compactMap(\.rewardRate),
+            aprs: preferredTargets.compactMap(\.rewardRate),
             rewardRate: response.rewardRate
         )
 
@@ -334,20 +334,21 @@ struct StakeKitMapper {
             rewardRateValues: rewardRateValues,
             enterMinimumRequirement: enterAction.args.amount.minimum ?? .zero,
             exitMinimumRequirement: exitAction.args.amount.minimum ?? .zero,
-            validators: validators,
-            preferredValidators: preferredValidators,
+            targets: targets,
+            preferredTargets: preferredTargets,
             item: item,
             unbondingPeriod: mapToPeriod(from: response.metadata.cooldownPeriod),
             warmupPeriod: mapToPeriod(from: response.metadata.warmupPeriod),
             rewardClaimingType: mapToRewardClaimingType(from: response.metadata.rewardClaiming),
-            rewardScheduleType: mapToRewardScheduleType(from: response.metadata.rewardSchedule, item: item)
+            rewardScheduleType: mapToRewardScheduleType(from: response.metadata.rewardSchedule, item: item),
+            maximumStakeAmount: nil
         )
     }
 
     // MARK: - Validators
 
-    func mapToValidatorInfo(from validator: StakeKitDTO.Validator, rewardType: RewardType) -> ValidatorInfo {
-        ValidatorInfo(
+    func mapToStakingTargetInfo(from validator: StakeKitDTO.Validator, rewardType: RewardType) -> StakingTargetInfo {
+        StakingTargetInfo(
             address: validator.address,
             name: validator.name ?? "No name",
             preferred: validator.preferred ?? false,
@@ -369,7 +370,7 @@ struct StakeKitMapper {
         return rewardRate
     }
 
-    private func mapToValidatorStatus(_ status: StakeKitDTO.Validator.Status) -> ValidatorInfoStatus {
+    private func mapToValidatorStatus(_ status: StakeKitDTO.Validator.Status) -> StakingTargetInfoStatus {
         switch status {
         case .active: .active
         case .jailed: .jailed
