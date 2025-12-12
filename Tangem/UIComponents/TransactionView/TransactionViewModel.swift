@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import TangemMacro
 
 struct TransactionViewModel: Hashable, Identifiable {
     let id: ViewModelId
@@ -28,6 +29,8 @@ struct TransactionViewModel: Hashable, Identifiable {
         switch transactionType {
         case .yieldEnter, .yieldTopup, .yieldWithdraw:
             .tail
+        case .yieldSend where !isOutgoing:
+            .tail
         default:
             .middle
         }
@@ -41,7 +44,10 @@ struct TransactionViewModel: Hashable, Identifiable {
         case .yieldTopup:
             return Localization.yieldModuleTransactionTopupSubtitle(amount.amount)
 
-        case .yieldWithdraw:
+        case .yieldSend where isOutgoing:
+            return localizeDestination
+
+        case .yieldWithdraw, .yieldSend:
             return Localization.yieldModuleTransactionExitSubtitle(amount.amount)
 
         default:
@@ -61,6 +67,14 @@ struct TransactionViewModel: Hashable, Identifiable {
             } else {
                 return Localization.transactionHistoryTransactionFromAddress(address)
             }
+        case .contract(let address) where transactionType.isYieldWithdrawCoin:
+            return Localization.transactionHistoryTransactionForAddress(address)
+        case .contract(let address) where transactionType.isYieldEnterCoin:
+            return Localization.transactionHistoryTransactionForAddress(address)
+        case .contract(let address) where transactionType.isYieldInit:
+            return Localization.transactionHistoryTransactionForAddress(address)
+        case .contract(let address) where transactionType.isYieldDeploy:
+            return Localization.transactionHistoryTransactionForAddress(address)
         case .contract(let address):
             return Localization.transactionHistoryContractAddress(address)
         case .multiple:
@@ -83,6 +97,7 @@ struct TransactionViewModel: Hashable, Identifiable {
 
     var name: String {
         switch transactionType {
+        case .yieldSend where isOutgoing: Localization.commonTransfer
         case .transfer: Localization.commonTransfer
         case .swap: Localization.commonSwap
         case .approve: Localization.commonApproval
@@ -94,11 +109,14 @@ struct TransactionViewModel: Hashable, Identifiable {
         case .withdraw: Localization.stakingWithdraw
         case .claimRewards: Localization.commonClaimRewards
         case .restake: Localization.stakingRestake
-        case .yieldSupply: Localization.yieldModuleSupply
-        case .yieldEnter: Localization.yieldModuleTransactionEnter
-        case .yieldWithdraw: Localization.yieldModuleTransactionExit
-        case .yieldTopup: Localization.yieldModuleTransactionTopup
         case .tangemPay(let type): type.name
+        case .yieldDeploy: Localization.yieldModuleTransactionDeployContract
+        case .yieldEnter, .yieldEnterCoin: Localization.yieldModuleTransactionEnter
+        case .yieldInit: Localization.yieldModuleTransactionInitialize
+        case .yieldReactivate: Localization.yieldModuleTransactionReactivate
+        case .yieldSend: Localization.yieldModuleTransactionWithdraw
+        case .yieldTopup: Localization.yieldModuleTransactionTopup
+        case .yieldWithdraw, .yieldWithdrawCoin: Localization.yieldModuleTransactionExit
         }
     }
 
@@ -149,6 +167,7 @@ extension TransactionViewModel {
         case staking(validator: String?)
     }
 
+    @CaseFlagable
     enum TransactionType: Hashable {
         case transfer
         case swap
@@ -159,12 +178,18 @@ extension TransactionViewModel {
         case withdraw
         case claimRewards
         case restake
-        case yieldSupply
-        case yieldEnter
-        case yieldWithdraw
-        case yieldTopup
         case unknownOperation
         case operation(name: String)
+
+        case yieldDeploy
+        case yieldEnter
+        case yieldEnterCoin
+        case yieldInit
+        case yieldReactivate
+        case yieldSend
+        case yieldTopup
+        case yieldWithdraw
+        case yieldWithdrawCoin
 
         case tangemPay(TangemPayTransactionType)
     }
