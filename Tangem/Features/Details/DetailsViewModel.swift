@@ -335,7 +335,7 @@ private extension DetailsViewModel {
     func setupSupportSectionModels() {
         supportSectionModels = [
             DefaultRowViewModel(
-                title: Localization.detailsRowTitleContactToSupport,
+                title: Localization.commonContactSupport,
                 action: weakify(self, forFunction: DetailsViewModel.selectSupport)
             ),
             DefaultRowViewModel(
