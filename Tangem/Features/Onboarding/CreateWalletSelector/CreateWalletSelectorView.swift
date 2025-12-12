@@ -133,6 +133,8 @@ private extension CreateWalletSelectorView {
         VStack(spacing: 0) {
             Text(item.description)
                 .style(Fonts.Bold.subheadline, color: Colors.Text.tertiary)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
 
             Button(action: item.action) {
                 HStack(spacing: 0) {
