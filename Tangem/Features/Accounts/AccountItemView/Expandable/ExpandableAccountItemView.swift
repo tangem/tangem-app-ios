@@ -61,7 +61,8 @@ struct ExpandableAccountItemView<ExpandedView>: View where ExpandedView: View {
                 ExpandableAccountItemView(
                     viewModel: ExpandableAccountItemViewModel(
                         accountModel: CryptoAccountModelMock(
-                            isMainAccount: false
+                            isMainAccount: false,
+                            onArchive: { _ in }
                         )
                     ),
                     expandedView: {
