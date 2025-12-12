@@ -10,22 +10,22 @@ import Foundation
 
 public struct StakingAction: Hashable {
     public let amount: Decimal
-    public let validatorType: StakingValidatorType
+    public let targetType: StakingTargetType
     public let type: ActionType
     public let displayType: ActionType
 
-    public var validatorInfo: ValidatorInfo? {
-        validatorType.validator
+    public var targetInfo: StakingTargetInfo? {
+        targetType.target
     }
 
     public init(
         amount: Decimal,
-        validatorType: StakingValidatorType,
+        targetType: StakingTargetType,
         type: ActionType,
         displayType: ActionType? = nil
     ) {
         self.amount = amount
-        self.validatorType = validatorType
+        self.targetType = targetType
         self.type = type
         self.displayType = displayType ?? type
     }

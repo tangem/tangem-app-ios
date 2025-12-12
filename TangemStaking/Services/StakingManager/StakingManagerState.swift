@@ -47,10 +47,10 @@ public enum StakingManagerState: Hashable, CustomStringConvertible {
         }
     }
 
-    public func stakesCount(for validator: ValidatorInfo) -> Int? {
+    public func stakesCount(for target: StakingTargetInfo) -> Int? {
         switch self {
         case .staked(let staked):
-            staked.balances.filter { $0.validatorType.validator?.address == validator.address }.count
+            staked.balances.filter { $0.targetType.target?.address == target.address }.count
         default: nil
         }
     }
