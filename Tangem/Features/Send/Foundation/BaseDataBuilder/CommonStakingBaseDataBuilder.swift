@@ -102,4 +102,8 @@ struct CommonStakingBaseDataBuilder: StakingBaseDataBuilder {
 
         return (settings, input)
     }
+
+    func makeFeeCurrencyData() -> FeeCurrencyNavigatingDismissOption {
+        .init(userWalletId: walletModel.userWalletId, tokenItem: walletModel.feeTokenItem)
+    }
 }
