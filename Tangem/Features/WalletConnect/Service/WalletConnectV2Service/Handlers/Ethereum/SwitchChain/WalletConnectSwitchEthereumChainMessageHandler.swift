@@ -72,19 +72,10 @@ final class WalletConnectSwitchEthereumChainMessageHandler: WalletConnectMessage
 
         let userWallet: any UserWalletModel
 
-        if let userWalletID = connectedDApp.userWalletID, let model = userWalletRepository.models.first(where: {
-            $0.userWalletId.stringValue == userWalletID
-        }) {
-            userWallet = model
-        } else if let accountId = connectedDApp.accountId, let model = userWalletRepository.models.first(where: {
-            $0.accountModelsManager.accountModels.contains {
-                $0.firstAvailableStandard().id.walletConnectIdentifierString == accountId
-            }
-        }) {
-            userWallet = model
-        } else {
-            throw WalletConnectTransactionRequestProcessingError.userWalletNotFound
-        }
+        userWallet = try WCUserWalletModelFinder.findUserWalletModel(
+            connectedDApp: connectedDApp,
+            userWalletModels: userWalletRepository.models
+        )
 
         guard !userWallet.isUserWalletLocked else {
             throw WalletConnectTransactionRequestProcessingError.userWalletIsLocked
