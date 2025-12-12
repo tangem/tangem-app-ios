@@ -12,21 +12,28 @@ import TangemSdk
 
 final class CommonMobileAccessCodeStorageManager {
     private let secureStorage = SecureStorage()
+    private let secureEnclave = SecureEnclaveService()
 
-    private func fetch() -> [String: [TimeInterval]] {
-        do {
-            let data = try secureStorage.get(MobileAccessCodeStorageKey.wrongAccessCode) ?? Data()
-            return try JSONDecoder().decode([String: [TimeInterval]].self, from: data)
-        } catch {
-            AppLogger.error("Failed to get wrong access code storage", error: error)
-            return [:]
+    private func fetch(userWalletId: UserWalletId) throws -> [TimeInterval] {
+        let key = MobileAccessCodeStorageKey.wrongAccessCode(userWalletId: userWalletId)
+        let seKey = MobileAccessCodeStorageKey.wrongAccessCodeSEKeyTag(userWalletId: userWalletId)
+
+        if let encryptedData = try secureStorage.get(key) {
+            let encodedData = try secureEnclave.decryptData(encryptedData, keyTag: seKey)
+            return try JSONDecoder().decode([TimeInterval].self, from: encodedData)
         }
+
+        return []
     }
 
-    private func save(lockIntervals: [String: [TimeInterval]]) {
+    private func save(userWalletId: UserWalletId, lockIntervals: [TimeInterval]) {
+        let key = MobileAccessCodeStorageKey.wrongAccessCode(userWalletId: userWalletId)
+        let seKey = MobileAccessCodeStorageKey.wrongAccessCodeSEKeyTag(userWalletId: userWalletId)
+
         do {
             let data = try JSONEncoder().encode(lockIntervals)
-            try secureStorage.store(data, forKey: MobileAccessCodeStorageKey.wrongAccessCode)
+            let encryptedData = try secureEnclave.encryptData(data, keyTag: seKey)
+            try secureStorage.store(encryptedData, forKey: key)
         } catch {
             AppLogger.error("Failed to save wrong access code storage", error: error)
         }
@@ -36,24 +43,24 @@ final class CommonMobileAccessCodeStorageManager {
 // MARK: - MobileAccessCodeStorageManager
 
 extension CommonMobileAccessCodeStorageManager: MobileAccessCodeStorageManager {
-    func getWrongAccessCodeStore(userWalletId: UserWalletId) -> MobileWrongAccessCodeStore {
-        let allLockIntervals = fetch()
-        let lockIntervals = allLockIntervals[userWalletId.stringValue] ?? []
+    func getWrongAccessCodeStore(userWalletId: UserWalletId) throws -> MobileWrongAccessCodeStore {
+        let lockIntervals = try fetch(userWalletId: userWalletId)
         return MobileWrongAccessCodeStore(lockIntervals: lockIntervals)
     }
 
-    func storeWrongAccessCode(userWalletId: UserWalletId, lockInterval: TimeInterval) {
-        var allLockIntervals = fetch()
-        var lockIntervals = allLockIntervals[userWalletId.stringValue] ?? []
-        lockIntervals.append(lockInterval)
-        allLockIntervals[userWalletId.stringValue] = lockIntervals
-        save(lockIntervals: allLockIntervals)
+    func storeWrongAccessCode(userWalletId: UserWalletId, lockInterval: TimeInterval, replaceLast: Bool) {
+        do {
+            var lockIntervals = try fetch(userWalletId: userWalletId)
+            if replaceLast { _ = lockIntervals.popLast() }
+            lockIntervals.append(lockInterval)
+            save(userWalletId: userWalletId, lockIntervals: lockIntervals)
+        } catch {
+            AppLogger.error("Failed to storeWrongAccessCode", error: error)
+        }
     }
 
     func removeWrongAccessCode(userWalletId: UserWalletId) {
-        var allLockIntervals = fetch()
-        allLockIntervals[userWalletId.stringValue] = nil
-        save(lockIntervals: allLockIntervals)
+        save(userWalletId: userWalletId, lockIntervals: [])
     }
 }
 
@@ -61,5 +68,12 @@ extension CommonMobileAccessCodeStorageManager: MobileAccessCodeStorageManager {
 
 private enum MobileAccessCodeStorageKey {
     /// Store wrong access code input events.
-    static let wrongAccessCode = "wrongAccessCode"
+    static func wrongAccessCode(userWalletId: UserWalletId) -> String {
+        return "wrongAccessCode_\(userWalletId.stringValue)"
+    }
+
+    /// Secure enclave encryption key
+    static func wrongAccessCodeSEKeyTag(userWalletId: UserWalletId) -> String {
+        return "wrongAccessCodeSEKeyTag_\(userWalletId.stringValue)"
+    }
 }
