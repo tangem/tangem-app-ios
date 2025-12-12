@@ -1334,7 +1334,7 @@
 "tangempay_card_details_open_wallet_step_1_apple" = "Откройте Apple Wallet";
 "tangempay_card_details_open_wallet_step_1" = "Откройте Google Wallet";
 "tangempay_card_details_open_wallet_step_2_apple" = "Выберите \"Дебетовая или кредитная карта\"";
-"tangempay_card_details_open_wallet_step_2" = "Нажите \"Добавить карту\"";
+"tangempay_card_details_open_wallet_step_2" = "Нажмите \"Добавить карту\"";
 "tangempay_card_details_open_wallet_step_3" = "Заполните данные карты вручную";
 "tangempay_card_details_open_wallet_step_4" = "Введите код подтверждения, направленный в email или СМС";
 "tangempay_card_details_open_wallet_step_5" = "Всё готово! Можно пользоваться картой";
@@ -1373,7 +1373,7 @@
 "tangempay_onboarding_banner_description" = "Используйте криптовалюту в реальной жизни. \nКарта, не похожая ни на одну другую.";
 "tangempay_onboarding_banner_title" = "Tangem Visa Card";
 "tangempay_onboarding_get_card_button_text" = "Открыть карту";
-"tangempay_onboarding_pay_description" = "Виртуальную карту можно добавить в Apple Pay and Google Pay";
+"tangempay_onboarding_pay_description" = "Виртуальную карту можно добавить в Apple Pay и Google Pay";
 "tangempay_onboarding_pay_title" = "Покупайте где угодно";
 "tangempay_onboarding_purchases_description" = "Никаких дополнительных комиссий за покупки";
 "tangempay_onboarding_purchases_title" = "Сколько видишь – столько платишь";
