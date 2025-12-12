@@ -172,7 +172,7 @@ final class YieldModuleTransactionViewModel: ObservableObject {
 
             networkFeeState = networkFeeState.withFeeState(.loaded(text: convertedFee))
 
-            let isHighFee = feeValue > walletModel.getFeeCurrencyBalance(amountType: walletModel.tokenItem.amountType)
+            let isHighFee = feeValue > walletModel.getFeeCurrencyBalance()
 
             if isHighFee {
                 logger.logEarningNoticeNotEnoughFeeShown()
