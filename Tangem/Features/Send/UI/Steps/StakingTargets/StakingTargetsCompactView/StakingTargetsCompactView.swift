@@ -1,5 +1,5 @@
 //
-//  StakingValidatorsCompactView.swift
+//  StakingTargetsCompactView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,12 +11,12 @@ import TangemLocalization
 import TangemAssets
 import TangemUI
 
-struct StakingValidatorsCompactView: View {
-    @ObservedObject var viewModel: StakingValidatorsCompactViewModel
+struct StakingTargetsCompactView: View {
+    @ObservedObject var viewModel: StakingTargetsCompactViewModel
 
     var body: some View {
-        GroupedSection(viewModel.selectedValidator) { data in
-            ValidatorCompactView(data: data)
+        GroupedSection(viewModel.selectedTarget) { data in
+            StakingTargetCompactView(data: data)
         } header: {
             DefaultHeaderView(Localization.stakingValidator)
                 .padding(.top, 12)
