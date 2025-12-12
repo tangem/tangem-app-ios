@@ -44,8 +44,9 @@ final class ExpandableAccountItemViewModel: Identifiable, ObservableObject {
         iconData = AccountModelUtils.UI.iconViewData(accountModel: accountModel)
         rawTokensCount = accountModel.userTokensManager.userTokens.count
         totalFiatBalance = accountModel.fiatTotalBalanceProvider.totalFiatBalance
-        priceChange = priceChangeUtility.convertToPriceChangeState(
-            changePercent: accountModel.rateProvider.accountRate.quote?.priceChange24h
+        priceChange = Self.mapToPriceChangeState(
+            rate: accountModel.rateProvider.accountRate,
+            using: priceChangeUtility
         )
     }
 
@@ -87,9 +88,27 @@ final class ExpandableAccountItemViewModel: Identifiable, ObservableObject {
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .map { viewModel, rate in
-                viewModel.priceChangeUtility.convertToPriceChangeState(changePercent: rate.quote?.priceChange24h)
+                Self.mapToPriceChangeState(rate: rate, using: viewModel.priceChangeUtility)
             }
             .assign(to: &$priceChange)
+    }
+
+    private static func mapToPriceChangeState(
+        rate: RateValue<AccountQuote>,
+        using priceChangeUtility: PriceChangeUtility
+    ) -> TokenPriceChangeView.State {
+        switch rate {
+        case .loading(.none):
+            return .loading
+
+        case .loading(.some(let quote)),
+             .failure(.some(let quote)),
+             .loaded(let quote):
+            return priceChangeUtility.convertToPriceChangeState(changePercent: quote.priceChange24h)
+
+        case .custom, .failure(.none):
+            return .noData
+        }
     }
 
     private func onAccountModelDidChange() {
