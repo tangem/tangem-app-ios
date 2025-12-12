@@ -389,7 +389,7 @@
 "custom_token_validation_error_not_found" = "トークンは誰でも作成できることに注意してください。詐欺トークンの追加には注意が必要ですが、費用はかかりません。";
 "details_buy_wallet" = "Tangemウォレットを購入";
 "details_chat" = "チャット";
-"details_get_visa" = "Get Tangem Visa";
+"details_get_visa" = "Tangem Visaを入手";
 "details_manage_security_access_code_description" = "カードをスキャンする前に、正しいアクセスコードを送信する必要があります。";
 "details_manage_security_access_code" = "アクセスコード";
 "details_manage_security_long_tap_description" = "このメカニズムは、カードまたはリングに対する近接攻撃から保護します。コマンドの受信と実行の間に遅延を強制します。";
@@ -744,7 +744,6 @@
 "mobile_wallet_requires_min_os_warning_body" = "モバイルウォレットを作成するには、%1$@にアップデートする必要があります";
 "mobile_wallet_requires_min_os_warning_title" = "モバイルウォレットを使用するには、%1$@以降が必要です";
 "news_all_news" = "すべてのニュース";
-"news_published_hours_ago" = "%lih ago";
 "news_stay_in_the_loop" = "最新情報を入手";
 "nft_about_title" = "NFTについて";
 "nft_asset" = "NFTアセット";
@@ -1301,7 +1300,7 @@
 "tangem_pay_freeze_card_freeze" = "一時停止";
 "tangem_pay_freeze_card_success" = "カードが凍結されています";
 "tangem_pay_get_help" = "サポートを受ける";
-"tangem_pay_other" = "Other";
+"tangem_pay_other" = "その他";
 "tangem_pay_status_completed" = "完了";
 "tangem_pay_status_declined" = "拒否";
 "tangem_pay_status_pending" = "保留中";
@@ -1370,9 +1369,9 @@
 "tangempay_kyc_failed_title" = "申し訳ございませんが、本人確認を行うことができませんでした";
 "tangempay_kyc_in_progress_notification_button" = "ステータスを表示";
 "tangempay_kyc_in_progress_notification_title" = "Tangem PayのKYC手続き進行中";
-"tangempay_kyc_in_progress" = "KYC in progress";
-"tangempay_onboarding_banner_description" = "Use your crypto for real world spending. It’s a payment card unlike any other.";
-"tangempay_onboarding_banner_title" = "Tangem Visa Card";
+"tangempay_kyc_in_progress" = "KYC進行中";
+"tangempay_onboarding_banner_description" = "暗号資産を、リアルな支払いに。\n他とはまったく違う、新しいタイプの決済カード。";
+"tangempay_onboarding_banner_title" = "Tangem Visaカード";
 "tangempay_onboarding_get_card_button_text" = "カードをGET";
 "tangempay_onboarding_pay_description" = "Apple PayとGoogle Payに対応したデジタルカード付き";
 "tangempay_onboarding_pay_title" = "どこでも暗号資産を使える";
@@ -1386,7 +1385,7 @@
 "tangempay_service_unavailable_description" = "技術的な問題を修正しています。後でもう一度お試しください。";
 "tangempay_service_unavailable_title" = "サービスは一時的に利用できません";
 "tangempay_service_unreachable_try_later" = "現在サービスに接続できません。後ほどもう一度お試しください。";
-"tangempay_sync_needed" = "Sync needed";
+"tangempay_sync_needed" = "同期が必要です";
 "tangempay_tangem_visa_card" = "Tangem Visaカード";
 "tangempay_temporarily_unavailable" = "Tangem Payは一時的に利用できません";
 "tangempay_title" = "Tangem Pay";
@@ -1907,11 +1906,11 @@
 "yield_module_token_details_earn_notification_title" = "利息モード";
 "yield_module_transaction_deploy_contract" = "利息モードコントラクトのデプロイ";
 "yield_module_transaction_enter_subtitle" = "%1$@がAaveに供給されました";
-"yield_module_transaction_enter" = "利息モードを有効にする";
+"yield_module_transaction_enter" = "利息モードが有効になりました";
 "yield_module_transaction_exit_subtitle" = "%1$@がAaveから引き出されました";
-"yield_module_transaction_exit" = "利息モードを無効にする";
-"yield_module_transaction_initialize" = "利息モードをセットアップ";
-"yield_module_transaction_reactivate" = "利息モードの再有効化";
+"yield_module_transaction_exit" = "利息モードが無効になりました";
+"yield_module_transaction_initialize" = "利息モードを初期化しました";
+"yield_module_transaction_reactivate" = "利息モードが再度有効になりました";
 "yield_module_transaction_topup_subtitle" = "%1$@がAaveに供給されました";
 "yield_module_transaction_topup" = "Aaveへの供給";
 "yield_module_transaction_withdraw" = "Aaveから引き出す";
