@@ -244,7 +244,7 @@ final class YieldModuleStartViewModel: ObservableObject {
                 .withFeeState(.loaded(text: fiatFee))
                 .withLinkActive(true)
 
-            let isFeeHigh = feeValue > walletModel.getFeeCurrencyBalance(amountType: walletModel.tokenItem.amountType)
+            let isFeeHigh = feeValue > walletModel.getFeeCurrencyBalance()
 
             if isFeeHigh {
                 logger.logEarningNoticeNotEnoughFeeShown()
