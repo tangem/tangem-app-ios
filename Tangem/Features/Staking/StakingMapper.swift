@@ -40,7 +40,7 @@ struct StakingTransactionMapper {
                 type: .init(rawValue: metadata.type),
                 status: .init(rawValue: metadata.status),
                 stepIndex: metadata.stepIndex,
-                destination: action.validator,
+                target: action.target,
                 solanaBlockhashDate: Date()
             )
         }
@@ -61,7 +61,7 @@ struct StakingTransactionMapper {
                 amount: amount,
                 fee: Fee(feeAmount),
                 unsignedData: unsignedTransactionData,
-                destination: action.validator
+                target: action.target
             )
         }
     }
