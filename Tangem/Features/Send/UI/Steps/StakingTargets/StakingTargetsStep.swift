@@ -1,5 +1,5 @@
 //
-//  StakingValidatorsStep.swift
+//  StakingTargetsStep.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,14 +11,14 @@ import TangemLocalization
 import Combine
 import SwiftUI
 
-class StakingValidatorsStep {
-    private let viewModel: StakingValidatorsViewModel
-    private let interactor: StakingValidatorsInteractor
+class StakingTargetsStep {
+    private let viewModel: StakingTargetsViewModel
+    private let interactor: StakingTargetsInteractor
     private let sendFeeProvider: SendFeeProvider
 
     init(
-        viewModel: StakingValidatorsViewModel,
-        interactor: StakingValidatorsInteractor,
+        viewModel: StakingTargetsViewModel,
+        interactor: StakingTargetsInteractor,
         sendFeeProvider: SendFeeProvider
     ) {
         self.viewModel = viewModel
@@ -29,8 +29,8 @@ class StakingValidatorsStep {
 
 // MARK: - SendStep
 
-extension StakingValidatorsStep: SendStep {
-    var type: SendStepType { .validators(viewModel) }
+extension StakingTargetsStep: SendStep {
+    var type: SendStepType { .targets(viewModel) }
 
     var isValidPublisher: AnyPublisher<Bool, Never> {
         .just(output: true)

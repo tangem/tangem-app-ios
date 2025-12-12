@@ -24,7 +24,7 @@ struct TonStakingPendingActionsHandler: StakingPendingActionsHandler {
         // make all the balances matching validator active
         balances.forEach { balance in
             let matchingAction = actions.first(where: {
-                $0.validatorAddress != nil && $0.validatorAddress == balance.validatorType.validator?.address
+                $0.targetAddress != nil && $0.targetAddress == balance.targetType.target?.address
             })
 
             if let matchingAction {
@@ -33,7 +33,7 @@ struct TonStakingPendingActionsHandler: StakingPendingActionsHandler {
                     amount: balance.amount,
                     accountAddress: balance.accountAddress,
                     balanceType: balance.balanceType,
-                    validatorType: balance.validatorType,
+                    targetType: balance.targetType,
                     inProgress: true,
                     actions: balance.actions
                 )

@@ -1,5 +1,5 @@
 //
-//  ValidatorInfo.swift
+//  StakingTargetInfo.swift
 //  TangemStaking
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct ValidatorInfo: Hashable {
+public struct StakingTargetInfo: Hashable {
     public let address: String
     public let name: String
     public let preferred: Bool
@@ -16,7 +16,8 @@ public struct ValidatorInfo: Hashable {
     public let iconURL: URL?
     public let rewardType: RewardType
     public let rewardRate: Decimal
-    public let status: ValidatorInfoStatus
+    public let status: StakingTargetInfoStatus
+    public let maximumStakeAmount: Decimal?
 
     public init(
         address: String,
@@ -26,7 +27,8 @@ public struct ValidatorInfo: Hashable {
         iconURL: URL?,
         rewardType: RewardType,
         rewardRate: Decimal,
-        status: ValidatorInfoStatus
+        status: StakingTargetInfoStatus,
+        maximumStakeAmount: Decimal? = nil
     ) {
         self.address = address
         self.name = name
@@ -36,5 +38,6 @@ public struct ValidatorInfo: Hashable {
         self.rewardType = rewardType
         self.rewardRate = rewardRate
         self.status = status
+        self.maximumStakeAmount = maximumStakeAmount
     }
 }
