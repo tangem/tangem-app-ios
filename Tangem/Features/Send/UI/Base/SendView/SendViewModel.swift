@@ -315,7 +315,7 @@ private extension SendViewModel {
 extension SendViewModel: SendModelRoutable {
     func openNetworkCurrency() {
         do {
-            let builder = try dataBuilder.sendBuilder()
+            let builder = try dataBuilder.feeCurrencyProvider()
             let feeCurrency = builder.makeFeeCurrencyData()
             coordinator?.openFeeCurrency(feeCurrency: feeCurrency)
         } catch {
