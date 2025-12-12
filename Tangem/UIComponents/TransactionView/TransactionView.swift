@@ -37,29 +37,28 @@ struct TransactionView: View {
 
     private var twoRowsTextContent: some View {
         VStack(alignment: .leading, spacing: 4) {
-            HStack(spacing: 8) {
+            HStack(spacing: .zero) {
                 name
-                Spacer()
+                Spacer(minLength: 8)
                 amount
             }
 
-            HStack(spacing: 6) {
+            HStack(spacing: .zero) {
                 description
-                Spacer()
+                Spacer(minLength: 6)
                 subtitle
             }
         }
     }
 
     private var twoColumnsTextContent: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: .zero) {
             VStack(alignment: .leading, spacing: 4) {
                 name
                 description
             }
-            .layoutPriority(viewModel.transactionDescriptionLayoutPriority)
 
-            Spacer(minLength: 4)
+            Spacer(minLength: 8)
 
             VStack(alignment: .trailing, spacing: 4) {
                 amount
@@ -95,7 +94,8 @@ struct TransactionView: View {
     @ViewBuilder
     private var amount: some View {
         TransactionViewAmountView(data: viewModel.amount, size: .medium)
-            .layoutPriority(2)
+            // The amount has priority to show
+            .layoutPriority(1)
     }
 
     private var subtitle: some View {
