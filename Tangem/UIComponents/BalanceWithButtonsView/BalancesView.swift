@@ -23,6 +23,7 @@ struct BalancesView<ViewModel: BalancesViewModel>: View {
         fiatBalance
 
         cryptoBalance
+            .monospacedDigit()
     }
 
     var fiatBalance: some View {
@@ -34,8 +35,8 @@ struct BalancesView<ViewModel: BalancesViewModel>: View {
                 padding: .init(top: 5, leading: 0, bottom: 5, trailing: 0),
                 cornerRadius: 6
             ),
-            animationConfig: .init(isAnimationAllowed: true, isAnimationActive: !viewModel.isRefreshing)
         )
+        .setContentTransition(viewModel.isRefreshing ? nil : .numeric(isCountdown: false))
         .accessibilityIdentifier(viewModel.balanceAccessibilityIdentifier)
     }
 
@@ -58,7 +59,8 @@ struct BalancesView<ViewModel: BalancesViewModel>: View {
             loader: .init(
                 size: .init(width: 70, height: 12),
                 padding: .init(top: 2, leading: 0, bottom: 2, trailing: 0)
-            )
+            ),
         )
+        .setContentTransition(viewModel.isRefreshing ? nil : .numeric(isCountdown: false))
     }
 }
