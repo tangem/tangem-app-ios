@@ -125,10 +125,10 @@ struct SendScreenDataCollector: EmailDataCollector {
             data.append(EmailCollectedData(type: .staking(.stakingAction), data: stakingAction.title))
         }
 
-        if let validator {
+        if let stakingTarget {
             data.append(contentsOf: [
-                EmailCollectedData(type: .staking(.validatorName), data: validator.name),
-                EmailCollectedData(type: .staking(.validatorAddress), data: validator.address),
+                EmailCollectedData(type: .staking(.validatorName), data: stakingTarget.name),
+                EmailCollectedData(type: .staking(.validatorAddress), data: stakingTarget.address),
             ])
         }
 
@@ -151,7 +151,7 @@ struct SendScreenDataCollector: EmailDataCollector {
     private let isFeeIncluded: Bool
     private let lastError: SendTxError?
     private let stakingAction: StakingAction.ActionType?
-    private let validator: ValidatorInfo?
+    private let stakingTarget: StakingTargetInfo?
 
     init(
         userWalletEmailData: [EmailCollectedData],
@@ -162,7 +162,7 @@ struct SendScreenDataCollector: EmailDataCollector {
         isFeeIncluded: Bool,
         lastError: SendTxError?,
         stakingAction: StakingAction.ActionType?,
-        validator: ValidatorInfo?
+        stakingTarget: StakingTargetInfo?
     ) {
         self.userWalletEmailData = userWalletEmailData
         self.walletModel = walletModel
@@ -172,7 +172,7 @@ struct SendScreenDataCollector: EmailDataCollector {
         self.isFeeIncluded = isFeeIncluded
         self.lastError = lastError
         self.stakingAction = stakingAction
-        self.validator = validator
+        self.stakingTarget = stakingTarget
     }
 }
 

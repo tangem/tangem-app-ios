@@ -125,10 +125,10 @@ final class CommonP2PStakingAPIService: P2PStakingAPIService {
             }
 
             if let error = p2pResponse.error {
-                throw P2PStakingAPIError.apiError(error)
+                throw P2PStakingError.apiError(P2PAPIError(apiError: error))
             }
 
-            throw P2PStakingAPIError.httpError(statusCode: response.statusCode)
+            throw P2PStakingError.httpError(statusCode: response.statusCode)
         } catch {
             StakingLogger.error(error: error)
             throw error
