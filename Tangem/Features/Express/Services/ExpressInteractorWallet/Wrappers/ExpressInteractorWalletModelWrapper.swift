@@ -75,7 +75,6 @@ struct ExpressInteractorWalletModelWrapper {
         )
 
         _balanceProvider = CommonExpressBalanceProvider(
-            tokenItem: walletModel.tokenItem,
             availableBalanceProvider: walletModel.availableBalanceProvider,
             feeProvider: walletModel
         )
