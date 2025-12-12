@@ -116,7 +116,7 @@ struct YieldModuleStartView: View {
     }
 
     private var startEarningView: some View {
-        VStack(spacing: .zero) {
+        VStack(spacing: 8) {
             YieldFeeSection(
                 sectionState: viewModel.networkFeeState,
                 leadingTitle: Localization.commonNetworkFeeTitle,
@@ -124,6 +124,10 @@ struct YieldModuleStartView: View {
                 onLinkTapAction: viewModel.onShowFeePolicy,
                 notification: viewModel.networkFeeNotification
             )
+
+            if let params = viewModel.highNetworkFeesNotification {
+                YieldModuleBottomSheetNotificationBannerView(params: params)
+            }
         }
     }
 
