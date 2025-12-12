@@ -220,6 +220,13 @@ struct MultiWalletMainContentView: View {
             userWalletModel: userWalletModel
         )
 
+        let tokenItemPromoProvider = YieldTokenItemPromoProvider(
+            userWalletModel: userWalletModel,
+            sectionsProvider: sectionsProvider,
+            yieldModuleMarketsRepository: CommonYieldModuleMarketsRepository(),
+            tokenItemPromoBubbleVisibilityInteractor: TokenItemPromoBubbleVisibilityInteractor()
+        )
+
         return MultiWalletMainContentViewModel(
             userWalletModel: userWalletModel,
             userWalletNotificationManager: FakeUserWalletNotificationManager(),
@@ -229,7 +236,8 @@ struct MultiWalletMainContentView: View {
             rateAppController: RateAppControllerStub(),
             nftFeatureLifecycleHandler: NFTFeatureLifecycleHandler(),
             tokenRouter: SingleTokenRoutableMock(),
-            coordinator: mainCoordinator
+            coordinator: mainCoordinator,
+            tokenItemPromoProvider: tokenItemPromoProvider
         )
     }()
 
