@@ -130,7 +130,7 @@ enum NotificationButtonActionType: Identifiable {
         case .empty:
             return ""
         case .support:
-            return Localization.detailsRowTitleContactToSupport
+            return Localization.commonContactSupport
         case .openCurrency:
             return Localization.commonGoToToken
         case .seedSupportYes:
