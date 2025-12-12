@@ -403,7 +403,6 @@
 "details_row_subtitle_signed_hashes_format" = "%@ Hasch";
 "details_row_title_cid" = "Geräte-ID";
 "details_row_title_contact_to_support_chat" = "Support-Chat öffnen";
-"details_row_title_contact_to_support" = "Kontakt zum Support";
 "details_row_title_create_backup_footer" = "Du kannst bis zu drei Karten oder Ringe in einer Wallet synchronisieren. Dies ist nur einmal möglich.";
 "details_row_title_create_backup" = "Weitere Karten oder Ringe verknüpfen";
 "details_row_title_currency" = "App Währung";
