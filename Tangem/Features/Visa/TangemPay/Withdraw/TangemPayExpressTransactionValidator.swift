@@ -11,7 +11,7 @@ import BlockchainSdk
 struct TangemPayExpressTransactionValidator: ExpressTransactionValidator {
     let availableBalanceProvider: any TokenBalanceProvider
 
-    func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws {
+    func validate(amount: Amount, fee: Fee) throws {
         guard let balance = availableBalanceProvider.balanceType.value else {
             throw ValidationError.balanceNotFound
         }

@@ -47,6 +47,7 @@ private extension HardwareCreateWalletView {
         }
         .safeAreaInset(edge: .bottom, spacing: 16) {
             actionButtons
+                .bottomPaddingIfZeroSafeArea()
         }
     }
 
@@ -70,8 +71,10 @@ private extension HardwareCreateWalletView {
             ForEach(items) { item in
                 HStack(spacing: 16) {
                     item.icon.image
+                        .renderingMode(.template)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
+                        .foregroundStyle(Colors.Icon.primary1)
                         .frame(width: 24, height: 24)
                         .padding(10)
                         .background(

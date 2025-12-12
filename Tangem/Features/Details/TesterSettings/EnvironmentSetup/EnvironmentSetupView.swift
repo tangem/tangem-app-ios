@@ -41,6 +41,8 @@ struct EnvironmentSetupView: View {
 
                 demoCardIdControls
 
+                appUidControls
+
                 fcmControls
 
                 promotionProgramControls
@@ -70,6 +72,24 @@ struct EnvironmentSetupView: View {
                 """
             )
             .font(.footnote)
+        }
+        .padding(.horizontal)
+    }
+
+    private var appUidControls: some View {
+        VStack(spacing: 10) {
+            Text("Reset application UID")
+                .font(.headline)
+
+            VStack(spacing: 15) {
+                HStack {
+                    Text("UID: \(viewModel.applicationUid)")
+                        .font(.footnote)
+                }
+
+                Button("Reset application UID", action: viewModel.resetApplicationUID)
+                    .foregroundColor(Color.red)
+            }
         }
         .padding(.horizontal)
     }
