@@ -44,7 +44,7 @@ struct CommonSendBaseDataBuilder: SendBaseDataBuilder {
             isFeeIncluded: input.isFeeIncluded,
             lastError: .init(error: error),
             stakingAction: nil,
-            validator: nil
+            stakingTarget: nil
         )
 
         let recipient = emailDataProvider.emailConfig?.recipient ?? EmailConfig.default.recipient

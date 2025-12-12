@@ -68,12 +68,29 @@ extension StakeKitStakingManager: StakingManager {
     }
 
     func updateState(loadActions: Bool) async {
+        await updateState(loadActions: loadActions, startUpdateDate: nil)
+    }
+
+    func updateState(loadActions: Bool, startUpdateDate: Date? = nil) async {
         await updateState(.loading(cached: stateRepository.state()))
         do {
             async let balances = provider.balances(wallet: wallet, integrationId: integrationId)
             async let yield = provider.yield(integrationId: integrationId)
             async let actions = loadActions ? provider.actions(wallet: wallet) : []
-            try await updateState(state(balances: balances, yield: yield, actions: actions))
+
+            let (loadedBalances, loadedYield, loadedActions) = try await (balances, yield, actions)
+            await updateState(state(balances: loadedBalances, yield: loadedYield, actions: loadedActions))
+
+            let effectiveStartUpdateDate = startUpdateDate ?? Date()
+
+            if loadActions, !loadedActions.isEmpty,
+               Date().timeIntervalSince(effectiveStartUpdateDate) < Constants.statusUpdateTimeout {
+                try await Task.sleep(seconds: Constants.statusUpdateInterval) // Refresh pending actions status until empty
+                await updateState(loadActions: true, startUpdateDate: effectiveStartUpdateDate)
+            }
+        } catch is CancellationError {
+            // Ignored intentionally
+            return
         } catch {
             analyticsLogger.logError(error, currencySymbol: wallet.item.symbol)
             StakingLogger.error(self, error: error)
@@ -204,7 +221,7 @@ private extension StakeKitStakingManager {
         return mapToStakingTransactionAction(
             actionID: action.id,
             amount: action.amount,
-            validator: request.validator,
+            target: request.target,
             transactions: transactions
         )
     }
@@ -235,7 +252,7 @@ private extension StakeKitStakingManager {
         return mapToStakingTransactionAction(
             actionID: action.id,
             amount: action.amount,
-            validator: request.validator,
+            target: request.target,
             transactions: transactions.sorted {
                 guard let firstMetadata = $0.metadata as? StakeKitTransactionMetadata,
                       let secondMetadata = $1.metadata as? StakeKitTransactionMetadata else {
@@ -275,7 +292,7 @@ private extension StakeKitStakingManager {
 
             return mapToStakingTransactionAction(
                 amount: request.amount,
-                validator: request.validator,
+                target: request.target,
                 transactions: actions.flatMap { $0.transactions }
             )
         }
@@ -295,7 +312,7 @@ private extension StakeKitStakingManager {
         return mapToStakingTransactionAction(
             actionID: action.id,
             amount: action.amount,
-            validator: request.request.validator,
+            target: request.request.target,
             transactions: transactions
         )
     }
@@ -342,7 +359,7 @@ private extension StakeKitStakingManager {
             address: wallet.address,
             additionalAddresses: getAdditionalAddresses(),
             token: wallet.item,
-            validator: action.validatorInfo?.address,
+            target: action.targetInfo?.address,
             integrationId: integrationId,
             tronResource: getTronResource()
         )
@@ -353,20 +370,20 @@ private extension StakeKitStakingManager {
         yield: StakingYieldInfo,
         balanceType: StakingBalanceType
     ) -> StakingBalance {
-        let validatorType: StakingValidatorType = {
-            guard let address = action.validatorAddress,
-                  let validator = yield.validators.first(where: { $0.address == address }) else {
+        let targetType: StakingTargetType = {
+            guard let address = action.targetAddress,
+                  let target = yield.targets.first(where: { $0.address == address }) else {
                 return .empty
             }
 
-            return .validator(validator)
+            return .target(target)
         }()
 
         return StakingBalance(
             item: yield.item,
             amount: action.amount,
             balanceType: balanceType,
-            validatorType: validatorType,
+            targetType: targetType,
             inProgress: true,
             actions: []
         )
@@ -377,13 +394,13 @@ private extension StakeKitStakingManager {
     func mapToStakingTransactionAction(
         actionID: String? = nil,
         amount: Decimal,
-        validator: String?,
+        target: String?,
         transactions: [StakingTransactionInfo]
     ) -> StakingTransactionAction {
         StakingTransactionAction(
             id: actionID,
             amount: amount,
-            validator: validator,
+            target: target,
             transactions: transactions
         )
     }
@@ -426,6 +443,8 @@ extension StakeKitStakingManager: CustomStringConvertible {
 private extension StakeKitStakingManager {
     enum Constants {
         static let delay: UInt64 = 1 * NSEC_PER_SEC
+        static let statusUpdateInterval: TimeInterval = 10
+        static let statusUpdateTimeout: TimeInterval = 180 // 3 minutes should be enough to process staking actions
     }
 }
 
