@@ -1,5 +1,5 @@
 //
-//  ValidatorViewData.swift
+//  StakingTargetViewData.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import Foundation
 import TangemLocalization
 import TangemAssets
 
-struct ValidatorViewData: Hashable, Identifiable {
+struct StakingTargetViewData: Hashable, Identifiable {
     var id: Int { hashValue }
 
     let address: String
@@ -63,7 +63,7 @@ struct ValidatorViewData: Hashable, Identifiable {
     }
 }
 
-extension ValidatorViewData {
+extension StakingTargetViewData {
     enum SubtitleType: Hashable {
         /// Short prefix
         case active(formatted: String)
@@ -75,7 +75,7 @@ extension ValidatorViewData {
         case checkmark
         case balance(_ balance: BalanceFormatted, action: (() -> Void)? = nil)
 
-        static func == (lhs: ValidatorViewData.DetailsType, rhs: ValidatorViewData.DetailsType) -> Bool {
+        static func == (lhs: StakingTargetViewData.DetailsType, rhs: StakingTargetViewData.DetailsType) -> Bool {
             lhs.hashValue == rhs.hashValue
         }
 
