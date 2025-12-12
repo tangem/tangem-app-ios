@@ -19,10 +19,10 @@ protocol RestakingModelStateProvider {
     var statePublisher: AnyPublisher<RestakingModel.State, Never> { get }
 }
 
-class RestakingModel {
+final class RestakingModel {
     // MARK: - Data
 
-    private let _selectedValidator = CurrentValueSubject<LoadingValue<ValidatorInfo>, Never>(.loading)
+    private let _selectedValidator = CurrentValueSubject<LoadingResult<ValidatorInfo, Never>, Never>(.loading)
     private let _state = CurrentValueSubject<State, Never>(.loading)
     private let _transactionTime = PassthroughSubject<Date?, Never>()
     private let _transactionURL = PassthroughSubject<URL?, Never>()
@@ -177,11 +177,11 @@ private extension RestakingModel {
         case .loading:
             return SendFee(option: .market, value: .loading)
         case .networkError(let error):
-            return SendFee(option: .market, value: .failedToLoad(error: error))
+            return SendFee(option: .market, value: .failure(error))
         case .stakingValidationError(let error):
-            return SendFee(option: .market, value: .failedToLoad(error: error))
+            return SendFee(option: .market, value: .failure(error))
         case .validationError(_, let fee), .ready(let fee):
-            return SendFee(option: .market, value: .loaded(makeFee(value: fee)))
+            return SendFee(option: .market, value: .success(makeFee(value: fee)))
         }
     }
 }
@@ -313,7 +313,7 @@ extension RestakingModel: StakingValidatorsInput {
 
 extension RestakingModel: StakingValidatorsOutput {
     func userDidSelected(validator: TangemStaking.ValidatorInfo) {
-        _selectedValidator.send(.loaded(validator))
+        _selectedValidator.send(.success(validator))
     }
 }
 
