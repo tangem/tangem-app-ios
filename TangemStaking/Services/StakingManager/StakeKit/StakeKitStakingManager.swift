@@ -63,12 +63,29 @@ extension StakeKitStakingManager: StakingManager {
     }
 
     func updateState(loadActions: Bool) async {
+        await updateState(loadActions: loadActions, startUpdateDate: nil)
+    }
+
+    func updateState(loadActions: Bool, startUpdateDate: Date? = nil) async {
         await updateState(.loading)
         do {
             async let balances = provider.balances(wallet: wallet, integrationId: integrationId)
             async let yield = provider.yield(integrationId: integrationId)
             async let actions = loadActions ? provider.actions(wallet: wallet) : []
-            try await updateState(state(balances: balances, yield: yield, actions: actions))
+
+            let (loadedBalances, loadedYield, loadedActions) = try await (balances, yield, actions)
+            await updateState(state(balances: loadedBalances, yield: loadedYield, actions: loadedActions))
+
+            let effectiveStartUpdateDate = startUpdateDate ?? Date()
+
+            if loadActions, !loadedActions.isEmpty,
+               Date().timeIntervalSince(effectiveStartUpdateDate) < Constants.statusUpdateTimeout {
+                try await Task.sleep(seconds: Constants.statusUpdateInterval) // Refresh pending actions status until empty
+                await updateState(loadActions: true, startUpdateDate: effectiveStartUpdateDate)
+            }
+        } catch is CancellationError {
+            // Ignored intentionally
+            return
         } catch {
             analyticsLogger.logError(error, currencySymbol: wallet.item.symbol)
             StakingLogger.error(self, error: error)
@@ -428,6 +445,8 @@ extension StakeKitStakingManager: CustomStringConvertible {
 private extension StakeKitStakingManager {
     enum Constants {
         static let delay: UInt64 = 1 * NSEC_PER_SEC
+        static let statusUpdateInterval: TimeInterval = 10
+        static let statusUpdateTimeout: TimeInterval = 180 // 3 minutes should be enough to process staking actions
     }
 }
 
