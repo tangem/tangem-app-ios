@@ -123,6 +123,37 @@ struct MultiWalletMainContentView: View {
             .padding(.top, 96)
     }
 
+    @available(iOS 16, *)
+    private func tokenItemView(
+        item: TokenItemViewModel,
+        cornerRadius: CGFloat,
+        roundedCornersVerticalEdge: TokenItemView.RoundedCornersVerticalEdge?,
+        isFirstItem: Bool = false,
+        promoBubbleViewModel: TokenItemPromoBubbleViewModel?
+    ) -> some View {
+        VStack(spacing: .zero) {
+            if let promoBubbleViewModel {
+                TokenItemPromoBubbleView(viewModel: promoBubbleViewModel, position: isFirstItem ? .top : .normal)
+            }
+
+            TokenItemView(
+                viewModel: item,
+                cornerRadius: cornerRadius,
+                roundedCornersVerticalEdge: roundedCornersVerticalEdge
+            )
+            .overlay(alignment: .top) {
+                trianglePointer.opacity(promoBubbleViewModel == nil ? 0 : 1)
+            }
+        }
+    }
+
+    private var trianglePointer: some View {
+        Triangle()
+            .rotation(Angle(degrees: 180))
+            .fill(Colors.Control.unchecked)
+            .frame(width: 12, height: 8)
+    }
+
     private func makeTokensList(sections: [MultiWalletMainContentPlainSection]) -> some View {
         LazyVStack(spacing: 0) {
             ForEach(indexed: sections.indexed()) { sectionIndex, section in
@@ -143,14 +174,28 @@ struct MultiWalletMainContentView: View {
                         let isFirstItem = !hasTitle && sectionIndex == 0 && itemIndex == 0
                         let isLastItem = sectionIndex == sections.count - 1 && itemIndex == section.items.count - 1
 
-                        if isFirstItem {
-                            let isSingleItem = section.items.count == 1
-                            TokenItemView(viewModel: item, cornerRadius: cornerRadius, roundedCornersVerticalEdge: isSingleItem ? .all : .topEdge)
-                        } else if isLastItem {
-                            TokenItemView(viewModel: item, cornerRadius: cornerRadius, roundedCornersVerticalEdge: .bottomEdge)
-                        } else {
-                            TokenItemView(viewModel: item, cornerRadius: cornerRadius, roundedCornersVerticalEdge: nil)
-                        }
+                        let hasPromoBubble = viewModel.tokenItemPromoBubbleViewModel?.id == item.id
+                        let promoBubbleViewModel = hasPromoBubble ? viewModel.tokenItemPromoBubbleViewModel : nil
+
+                        let roundedEdges: TokenItemView.RoundedCornersVerticalEdge? = {
+                            if isFirstItem {
+                                return hasPromoBubble ? nil : (section.items.count == 1 ? .all : .topEdge)
+                            }
+
+                            if isLastItem {
+                                return .bottomEdge
+                            }
+
+                            return nil
+                        }()
+
+                        tokenItemView(
+                            item: item,
+                            cornerRadius: cornerRadius,
+                            roundedCornersVerticalEdge: roundedEdges,
+                            isFirstItem: isFirstItem,
+                            promoBubbleViewModel: promoBubbleViewModel
+                        )
                     } else {
                         TokenItemView(viewModel: item, cornerRadius: cornerRadius)
                     }
