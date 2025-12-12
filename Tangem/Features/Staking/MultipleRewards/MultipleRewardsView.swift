@@ -18,8 +18,8 @@ struct MultipleRewardsView: View {
     var body: some View {
         NavigationView {
             GroupedScrollView(alignment: .leading, spacing: 14) {
-                GroupedSection(viewModel.validators) { data in
-                    ValidatorView(data: data)
+                GroupedSection(viewModel.targets) { data in
+                    StakingTargetView(data: data)
                 }
                 .interItemSpacing(0)
                 .innerContentPadding(0)
