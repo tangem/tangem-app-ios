@@ -15,13 +15,14 @@ final class StakeKitStakingManager {
     private let integrationId: String
     private let wallet: StakingWallet
     private let provider: StakeKitAPIProvider
+    private let stateRepository: StakingManagerStateRepository
     private let analyticsLogger: StakingAnalyticsLogger
 
     private(set) var balances: [StakingBalance]?
 
     // MARK: Private
 
-    private let _state = CurrentValueSubject<StakingManagerState, Never>(.loading)
+    private let _state: CurrentValueSubject<StakingManagerState, Never>
     private var canStakeMore: Bool {
         switch wallet.item.network {
         case .solana, .cosmos, .tron, .ethereum, .bsc, .ton: true
@@ -33,12 +34,16 @@ final class StakeKitStakingManager {
         integrationId: String,
         wallet: StakingWallet,
         provider: StakeKitAPIProvider,
+        stateRepository: StakingManagerStateRepository,
         analyticsLogger: StakingAnalyticsLogger
     ) {
         self.integrationId = integrationId
         self.wallet = wallet
         self.provider = provider
+        self.stateRepository = stateRepository
         self.analyticsLogger = analyticsLogger
+
+        _state = CurrentValueSubject<StakingManagerState, Never>(.loading(cached: stateRepository.state()))
     }
 }
 
@@ -67,7 +72,7 @@ extension StakeKitStakingManager: StakingManager {
     }
 
     func updateState(loadActions: Bool, startUpdateDate: Date? = nil) async {
-        await updateState(.loading)
+        await updateState(.loading(cached: stateRepository.state()))
         do {
             async let balances = provider.balances(wallet: wallet, integrationId: integrationId)
             async let yield = provider.yield(integrationId: integrationId)
@@ -89,7 +94,7 @@ extension StakeKitStakingManager: StakingManager {
         } catch {
             analyticsLogger.logError(error, currencySymbol: wallet.item.symbol)
             StakingLogger.error(self, error: error)
-            await updateState(.loadingError(error.localizedDescription))
+            await updateState(.loadingError(error.localizedDescription, cached: stateRepository.state()))
         }
     }
 
@@ -144,10 +149,6 @@ extension StakeKitStakingManager: StakingManager {
         }
     }
 
-    func transactionDetails(id: String) async throws -> StakingTransactionInfo {
-        try await execute(try await provider.transaction(id: id))
-    }
-
     func transactionDidSent(action: StakingAction) {
         runTask(in: self) {
             await $0.updateState(loadActions: true)
@@ -161,6 +162,7 @@ private extension StakeKitStakingManager {
     @MainActor
     func updateState(_ state: StakingManagerState) {
         StakingLogger.info(self, "Update state to \(state)")
+        stateRepository.storeState(state)
         _state.send(state)
         updateBalances(state)
     }
@@ -251,7 +253,13 @@ private extension StakeKitStakingManager {
             actionID: action.id,
             amount: action.amount,
             validator: request.validator,
-            transactions: transactions.sorted(by: \.stepIndex)
+            transactions: transactions.sorted {
+                guard let firstMetadata = $0.metadata as? StakeKitTransactionMetadata,
+                      let secondMetadata = $1.metadata as? StakeKitTransactionMetadata else {
+                    return false
+                }
+                return firstMetadata.stepIndex > secondMetadata.stepIndex
+            }
         )
     }
 
@@ -338,16 +346,6 @@ private extension StakeKitStakingManager {
                 currencySymbol: wallet.item.symbol
             )
             throw error
-        }
-    }
-
-    private func waitForLoadingCompletion() async throws {
-        // Drop the current `loading` state
-        _ = try await _state.dropFirst().first().async()
-        // Check if after the loading state we have same status
-        // To exclude endless recursion
-        if case .loading = state {
-            throw StakingManagerError.stakingManagerIsLoading
         }
     }
 }

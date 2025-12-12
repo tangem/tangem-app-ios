@@ -10,7 +10,7 @@ import Combine
 import Foundation
 import UIKit
 
-class AppSettingsCoordinator: CoordinatorObject {
+final class AppSettingsCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
@@ -33,7 +33,7 @@ class AppSettingsCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        if MobileWalletFeatureProvider.isAvailable {
+        if FeatureProvider.isAvailable(.mobileWallet) {
             newRootViewModel = NewAppSettingsViewModel(coordinator: self)
         } else {
             rootViewModel = AppSettingsViewModel(coordinator: self)
@@ -62,7 +62,9 @@ extension AppSettingsCoordinator: AppSettingsRoutable {
     }
 
     func openCurrencySelection() {
-        currencySelectViewModel = CurrencySelectViewModel(coordinator: self)
+        Task { @MainActor in
+            currencySelectViewModel = CurrencySelectViewModel(coordinator: self)
+        }
     }
 
     func openThemeSelection() {
