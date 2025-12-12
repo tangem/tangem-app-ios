@@ -121,7 +121,7 @@ private extension MobileOnboardingActivateWalletFlowBuilder {
     }
 
     func setupAccessCodeFlow() {
-        let accessCodeStep = MobileOnboardingAccessCodeStep(mode: .create, source: source, delegate: self)
+        let accessCodeStep = MobileOnboardingAccessCodeStep(mode: .create(canSkip: true), source: source, delegate: self)
         accessCodeStep.configureNavBar(title: Localization.accessCodeNavtitle)
         append(step: accessCodeStep)
     }

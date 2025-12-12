@@ -28,7 +28,7 @@ final class StakingUITests: BaseTestCase {
             scenarios: [stakeScenario]
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(token)
             .openStakeDetails()
@@ -56,7 +56,7 @@ final class StakingUITests: BaseTestCase {
             scenarios: [stakedScenario]
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(token)
             .waitForStakingInfo()

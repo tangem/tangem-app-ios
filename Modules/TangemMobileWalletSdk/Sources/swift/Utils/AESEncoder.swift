@@ -117,9 +117,11 @@ enum AESEncoder {
     private static func encode(salt: Data, encryptedData: Data) -> Data {
         var data = Data()
         data.append(Constants.encodeSchemeVersion)
-        data.append(contentsOf: encodeUInt32(salt.count))
+        // Encodes an Int as a 4-byte big-endian UInt32.
+        data.append(contentsOf: salt.count.bytes4)
         data.append(salt)
-        data.append(contentsOf: encodeUInt32(encryptedData.count))
+        // Encodes an Int as a 4-byte big-endian UInt32.
+        data.append(contentsOf: encryptedData.count.bytes4)
         data.append(encryptedData)
         return data
     }
@@ -146,31 +148,35 @@ enum AESEncoder {
             throw EncodingError.invalidPayload
         }
         let saltLenData = data[cursor ..< cursor + 4]
-        let saltLen = saltLenData.withUnsafeBytes { ptr in
-            ptr.loadUnaligned(as: UInt32.self).bigEndian
+        guard let saltLen = saltLenData.toInt() else {
+            throw EncodingError.invalidPayload
         }
         cursor += 4
 
-        guard data.count >= cursor + Int(saltLen) else {
+        guard data.count >= cursor + saltLen else {
             throw EncodingError.invalidPayload
         }
-        let salt = data[cursor ..< cursor + Int(saltLen)]
-        cursor += Int(saltLen)
+        let salt = data[cursor ..< cursor + saltLen]
+        cursor += saltLen
 
         // Read encryptedData length
         guard data.count >= cursor + 4 else {
             throw EncodingError.invalidPayload
         }
-        let encLenData = data[cursor ..< cursor + 4]
-        let encLen = encLenData.withUnsafeBytes { ptr in
-            ptr.loadUnaligned(as: UInt32.self).bigEndian
-        }
-        cursor += 4
 
-        guard data.count >= cursor + Int(encLen) else {
+        let encLenData = data[cursor ..< cursor + 4]
+
+        guard let encLen = encLenData.toInt() else {
             throw EncodingError.invalidPayload
         }
-        let encrypted = data[cursor ..< cursor + Int(encLen)]
+
+        cursor += 4
+
+        guard data.count >= cursor + encLen else {
+            throw EncodingError.invalidPayload
+        }
+
+        let encrypted = data[cursor ..< cursor + encLen]
 
         return (salt: Data(salt), encryptedData: Data(encrypted))
     }
@@ -191,12 +197,6 @@ enum AESEncoder {
             rounds: Constants.iterations,
             keyByteCount: Constants.stretchedPasswordLengthBytes
         )
-    }
-
-    /// Encodes an Int as a 4-byte big-endian UInt32.
-    private static func encodeUInt32(_ value: Int) -> Data {
-        var be = UInt32(value).bigEndian
-        return Data(bytes: &be, count: MemoryLayout<UInt32>.size)
     }
 }
 

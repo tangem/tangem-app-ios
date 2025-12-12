@@ -39,7 +39,7 @@ final class AuthCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         // [REDACTED_TODO_COMMENT]
-        if MobileWalletFeatureProvider.isAvailable {
+        if FeatureProvider.isAvailable(.mobileWallet) {
             newRootViewModel = NewAuthViewModel(unlockOnAppear: options.unlockOnAppear, coordinator: self)
         } else {
             rootViewModel = AuthViewModel(unlockOnAppear: options.unlockOnAppear, coordinator: self)
@@ -90,7 +90,7 @@ extension AuthCoordinator: NewAuthRoutable {
         }
 
         let coordinator = AddWalletSelectorCoordinator(dismissAction: dismissAction)
-        let inputOptions = AddWalletSelectorCoordinator.InputOptions()
+        let inputOptions = AddWalletSelectorCoordinator.InputOptions(source: .signIn)
         coordinator.start(with: inputOptions)
         addWalletSelectorCoordinator = coordinator
     }

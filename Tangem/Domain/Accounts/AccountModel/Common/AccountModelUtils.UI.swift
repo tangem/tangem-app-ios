@@ -84,12 +84,15 @@ extension AccountModelUtils {
             }
         }
 
-        static func getRandomIconColor() -> AccountModel.Icon.Color {
-            AccountModel.Icon.Color.allCases.randomElement() ?? .azure
-        }
+        static func newAccountIcon() -> AccountModel.Icon {
+            let iconColor = AccountModel.Icon.Color.allCases.randomElement() ?? .azure
 
-        static func getRandomIconName() -> AccountModel.Icon.Name {
-            AccountModel.Icon.Name.allCases.randomElement() ?? .star
+            var allIconNames = AccountModel.Icon.Name.allCases.toSet()
+            allIconNames.remove(.letter)
+            allIconNames.remove(.star)
+            let iconName = allIconNames.randomElement() ?? .wallet
+
+            return AccountModel.Icon(name: iconName, color: iconColor)
         }
     }
 }
@@ -97,14 +100,6 @@ extension AccountModelUtils {
 // MARK: - Convenience extensions
 
 extension AccountModelUtils.UI {
-    static func iconColor(from icon: AccountModel.Icon) -> Color {
-        return iconColor(from: icon.color)
-    }
-
-    static func iconImage(from name: AccountModel.Icon.Name) -> Image {
-        return iconAsset(from: name).image
-    }
-
     static func iconViewData(
         icon: AccountModel.Icon,
         accountName: String
@@ -115,6 +110,14 @@ extension AccountModelUtils.UI {
         )
     }
 
+    static func iconViewData(accountModel: any BaseAccountModel) -> AccountIconView.ViewData {
+        iconViewData(icon: accountModel.icon, accountName: accountModel.name)
+    }
+}
+
+// MARK: - Private implementation
+
+private extension AccountModelUtils.UI {
     static func nameMode(from name: AccountModel.Icon.Name, accountName: String) -> AccountIconView.NameMode {
         switch name {
         case .letter:

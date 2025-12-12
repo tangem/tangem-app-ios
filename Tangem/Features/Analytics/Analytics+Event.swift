@@ -18,10 +18,12 @@ extension Analytics {
         case transactionSent = "[Basic] Transaction sent"
         case requestSupport = "[Basic] Request Support"
         case biometryFailed = "[Basic] Biometry Failed"
+        case basicButtonBuy = "[Basic] Button - Buy"
 
         case buttonTokensList = "[Introduction Process] Button - Tokens List"
         case buttonBuyCards = "[Introduction Process] Button - Buy Cards"
         case introductionProcessButtonScanCard = "[Introduction Process] Button - Scan Card"
+        case introductionProcessCreateWalletIntroScreenOpened = "[Introduction Process] Create Wallet Intro Screen Opened"
         case introductionProcessButtonCreateNewWallet = "[Introduction Process] Button - Create New Wallet"
         case introductionProcessButtonAddExistingWallet = "[Introduction Process] Button - Add Existing Wallet"
         case introductionProcessOpened = "[Introduction Process] Introduction Process Screen Opened"
@@ -35,6 +37,7 @@ extension Analytics {
         case redirected = "[Shop] Redirected"
 
         case signInScreenOpened = "[Sign In] Sign In Screen Opened"
+        case signInButtonWallet = "[Sign In] Button - Wallet"
         case buttonBiometricSignIn = "[Sign In] Button - Biometric Sign In"
         case buttonCardSignIn = "[Sign In] Button - Card Sign In"
         case signInErrorBiometricUpdated = "[Sign In] Error - Biometric Updated"
@@ -43,6 +46,7 @@ extension Analytics {
 
         case onboardingStarted = "[Onboarding] Onboarding Started"
         case onboardingFinished = "[Onboarding] Onboarding Finished"
+        case onboardingCreateMobileScreenOpened = "[Onboarding / Create Wallet] Create Mobile Screen Opened"
         case createWalletScreenOpened = "[Onboarding / Create Wallet] Create Wallet Screen Opened"
         case buttonCreateWallet = "[Onboarding / Create Wallet] Button - Create Wallet"
         case buttonMobileWallet = "[Onboarding] Button - Mobile Wallet"
@@ -328,7 +332,7 @@ extension Analytics {
         case mainNoticeSeedSupport2 = "[Main Screen] Notice - Seed Phrase Support2"
         case mainNoticeSeedSupportButtonUsed = "[Main Screen] Button - Support Used"
         case mainNoticeSeedSupportButtonDeclined = "[Main Screen] Button - Support Declined"
-        case mainButtonFinishNow = "[Main Screen] Button - Finish Now"
+        case mainButtonFinalizeActivation = "[Main Screen] Button - Finalize Activation"
 
         // MARK: - BlockchainSdk exceptions
 
