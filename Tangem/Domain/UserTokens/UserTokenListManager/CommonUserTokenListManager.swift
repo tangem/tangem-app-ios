@@ -17,7 +17,6 @@ final class CommonUserTokenListManager {
     typealias Completion = (Result<Void, Swift.Error>) -> Void
 
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
-    @Injected(\.wcService) private var wcService: any WCService
 
     weak var externalParametersProvider: UserTokenListExternalParametersProvider?
 
@@ -98,10 +97,6 @@ extension CommonUserTokenListManager: UserTokenListManager {
         case .remove(let entry):
             let storedUserToken = converter.convertToStoredUserToken(tokenItem: entry)
             tokenItemsRepository.remove([storedUserToken])
-            if entry.isBlockchain {
-                // [REDACTED_TODO_COMMENT]
-                wcService.handleHiddenBlockchainFromCurrentUserWallet(entry.blockchainNetwork.blockchain)
-            }
         case .update:
             break // No-op, not supported
         }
