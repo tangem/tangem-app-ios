@@ -36,8 +36,8 @@ struct SendFinishView: View {
                 SendDestinationCompactView(viewModel: sendDestinationCompactViewModel)
             }
 
-            if let stakingValidatorsCompactViewModel = viewModel.stakingValidatorsCompactViewModel {
-                StakingValidatorsCompactView(viewModel: stakingValidatorsCompactViewModel)
+            if let stakingTargetsCompactViewModel = viewModel.stakingTargetsCompactViewModel {
+                StakingTargetsCompactView(viewModel: stakingTargetsCompactViewModel)
             }
 
             if let sendFeeCompactViewModel = viewModel.sendFeeFinishViewModel {
