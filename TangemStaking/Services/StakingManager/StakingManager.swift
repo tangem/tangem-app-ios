@@ -39,13 +39,13 @@ public extension StakingManager {
     }
 
     func mapToStakingBalance(balance: StakingBalanceInfo, yield: StakingYieldInfo) -> StakingBalance {
-        let validatorType: StakingValidatorType = {
-            guard let validatorAddress = balance.validatorAddress else {
+        let targetType: StakingTargetType = {
+            guard let targetAddress = balance.targetAddress else {
                 return .empty
             }
 
-            let validator = yield.validators.first(where: { $0.address == validatorAddress })
-            return validator.map { .validator($0) } ?? .disabled
+            let target = yield.targets.first(where: { $0.address == targetAddress })
+            return target.map { .target($0) } ?? .disabled
         }()
 
         return StakingBalance(
@@ -53,7 +53,7 @@ public extension StakingManager {
             amount: balance.amount,
             accountAddress: balance.accountAddress,
             balanceType: balance.balanceType,
-            validatorType: validatorType,
+            targetType: targetType,
             inProgress: false,
             actions: balance.actions,
             actionConstraints: balance.actionConstraints
