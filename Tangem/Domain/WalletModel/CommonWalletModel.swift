@@ -637,12 +637,12 @@ extension CommonWalletModel: WalletModelFeeProvider {
         return walletManager.getFee(amount: amount, destination: destination)
     }
 
-    func getFeeCurrencyBalance(amountType: Amount.AmountType) -> Decimal {
-        wallet.feeCurrencyBalance(amountType: amountType)
+    func getFeeCurrencyBalance() -> Decimal {
+        wallet.feeCurrencyBalance(amountType: tokenItem.amountType)
     }
 
-    func hasFeeCurrency(amountType: BlockchainSdk.Amount.AmountType) -> Bool {
-        wallet.hasFeeCurrency(amountType: amountType)
+    func hasFeeCurrency() -> Bool {
+        wallet.hasFeeCurrency(amountType: tokenItem.amountType)
     }
 
     func getFee(compiledTransaction data: Data) async throws -> [Fee] {
