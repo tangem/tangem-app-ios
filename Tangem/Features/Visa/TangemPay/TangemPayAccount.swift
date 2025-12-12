@@ -183,6 +183,10 @@ final class TangemPayAccount {
                     TangemPayOrderIdStorage.deleteCardIssuingOrderId(customerWalletId: tangemPayAccount.customerWalletId)
                     await tangemPayAccount.setupBalance()
                 }
+                // [REDACTED_TODO_COMMENT]
+            } catch let error as VisaAPIError where error.code == 110101 {
+                tangemPayAccount.authorizer.setSyncNeeded()
+                VisaLogger.error("Failed to load customer info", error: error)
             } catch TangemPayAuthorizationTokensHandlerError.preparingFailed {
                 VisaLogger.error("Failed to load customer info", error: TangemPayAuthorizationTokensHandlerError.preparingFailed)
             } catch {
