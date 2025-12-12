@@ -20,14 +20,14 @@ protocol P2PStakingAPIService {
         vaultAddress: String
     ) async throws -> P2PDTO.RewardsHistory.RewardsHistoryInfo
     func prepareDepositTransaction(
-        request: P2PDTO.PrepareDepositTransaction.Request
-    ) async throws -> P2PDTO.PrepareDepositTransaction.PrepareDepositTransactionInfo
+        request: P2PDTO.PrepareTransaction.Request
+    ) async throws -> P2PDTO.PrepareTransaction.PrepareTransactionInfo
     func prepareUnstakeTransaction(
-        request: P2PDTO.PrepareUnstakeTransaction.Request
-    ) async throws -> P2PDTO.PrepareUnstakeTransaction.PrepareUnstakeTransactionInfo
+        request: P2PDTO.PrepareTransaction.Request
+    ) async throws -> P2PDTO.PrepareTransaction.PrepareTransactionInfo
     func prepareWithdrawTransaction(
-        request: P2PDTO.PrepareWithdrawTransaction.Request
-    ) async throws -> P2PDTO.PrepareWithdrawTransaction.PrepareWithdrawTransactionInfo
+        request: P2PDTO.PrepareTransaction.Request
+    ) async throws -> P2PDTO.PrepareTransaction.PrepareTransactionInfo
     func broadcastTransaction(
         request: P2PDTO.BroadcastTransaction.Request
     ) async throws -> P2PDTO.BroadcastTransaction.BroadcastTransactionInfo
