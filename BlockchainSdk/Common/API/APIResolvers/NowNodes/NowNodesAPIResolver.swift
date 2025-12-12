@@ -103,7 +103,7 @@ struct NowNodesAPIResolver {
         case .linea:
             link = "https://linea.nownodes.io/\(apiKey)"
         case .polkadot:
-            link = "https://dotasset-hub.nownodes.io"
+            link = "https://dot-assethub.nownodes.io"
         default:
             return nil
         }
