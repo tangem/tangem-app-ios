@@ -58,7 +58,7 @@ struct PendingTransactionRecordMapper {
             fee: stakingTransaction.fee,
             date: date,
             isIncoming: isIncoming,
-            transactionType: .stake(destination: stakingTransaction.destination),
+            transactionType: .stake(target: stakingTransaction.target),
             transactionParams: nil
         )
     }
@@ -112,7 +112,7 @@ struct PendingTransactionRecordMapper {
         let type: PendingTransactionRecord.TransactionType = switch transaction.type {
         case .transfer: .transfer
         case .contractMethodIdentifier, .contractMethodName: .operation
-        case .staking(_, let destination): .stake(destination: destination)
+        case .staking(_, let target): .stake(target: target)
         }
 
         return PendingTransactionRecord(

@@ -1,5 +1,5 @@
 //
-//  ValidatorView.swift
+//  StakingTargetView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,13 +12,13 @@ import TangemAssets
 import TangemUI
 import TangemUIUtils
 
-struct ValidatorView: View {
-    private let data: ValidatorViewData
+struct StakingTargetView: View {
+    private let data: StakingTargetViewData
     private let selection: Binding<String>?
 
     private var namespace: Namespace?
 
-    init(data: ValidatorViewData, selection: Binding<String>? = nil) {
+    init(data: StakingTargetViewData, selection: Binding<String>? = nil) {
         self.data = data
         self.selection = selection
     }
@@ -107,7 +107,7 @@ struct ValidatorView: View {
     }
 
     @ViewBuilder
-    private func detailsView(detailsType: ValidatorViewData.DetailsType) -> some View {
+    private func detailsView(detailsType: StakingTargetViewData.DetailsType) -> some View {
         switch detailsType {
         case .checkmark:
             let isSelected = selection?.isActive(compare: data.address).wrappedValue ?? false
@@ -120,7 +120,7 @@ struct ValidatorView: View {
 
 // MARK: - Setupable
 
-extension ValidatorView: Setupable {
+extension StakingTargetView: Setupable {
     func geometryEffect(_ namespace: Namespace) -> Self {
         map { $0.namespace = namespace }
     }
@@ -133,14 +133,14 @@ extension ValidatorView: Setupable {
         var body: some View {
             VStack {
                 GroupedSection([
-                    ValidatorViewData(
+                    StakingTargetViewData(
                         address: "1",
                         name: "InfStones",
                         imageURL: URL(string: "https://assets.stakek.it/validators/infstones.png"),
                         subtitleType: .none,
                         detailsType: .checkmark
                     ),
-                    ValidatorViewData(
+                    StakingTargetViewData(
                         address: "2",
                         name: "Coinbase",
                         imageURL: URL(string: "https://assets.stakek.it/validators/coinbase.png"),
@@ -148,12 +148,12 @@ extension ValidatorView: Setupable {
                         detailsType: .checkmark
                     ),
                 ]) {
-                    ValidatorView(data: $0, selection: $selected)
+                    StakingTargetView(data: $0, selection: $selected)
                 }
                 .padding()
 
                 GroupedSection([
-                    ValidatorViewData(
+                    StakingTargetViewData(
                         address: UUID().uuidString,
                         name: "InfStones",
                         imageURL: URL(string: "https://assets.stakek.it/validators/infstones.png"),
@@ -161,7 +161,7 @@ extension ValidatorView: Setupable {
                         detailsType: .balance(.init(crypto: "543 USD", fiat: "5 SOL"), action: nil)
                     ),
                 ]) {
-                    ValidatorView(data: $0, selection: $selected)
+                    StakingTargetView(data: $0, selection: $selected)
                 }
                 .padding()
             }
