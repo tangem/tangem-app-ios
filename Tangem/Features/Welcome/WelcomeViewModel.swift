@@ -64,8 +64,11 @@ final class WelcomeViewModel: ObservableObject {
         Analytics.log(.buttonBuyCards)
     }
 
-    func onAppear() {
+    func onFirstAppear() {
         Analytics.log(.introductionProcessOpened)
+    }
+
+    func onAppear() {
         incomingActionManager.becomeFirstResponder(self)
     }
 

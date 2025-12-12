@@ -19,7 +19,7 @@ struct CurrenciesStoryPage: View {
     let orderCard: () -> Void
     let searchTokens: () -> Void
 
-    private let isMobileWalletEnabled = MobileWalletFeatureProvider.isAvailable
+    private let isMobileWalletEnabled = FeatureProvider.isAvailable(.mobileWallet)
 
     private let numberOfRows = 6
     private let rowImages = [
