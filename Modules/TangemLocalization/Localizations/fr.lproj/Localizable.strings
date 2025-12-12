@@ -403,7 +403,6 @@
 "details_row_subtitle_signed_hashes_format" = "%@ hashes";
 "details_row_title_cid" = "ID de l'appareil";
 "details_row_title_contact_to_support_chat" = "Ouvrir le chat d'assistance";
-"details_row_title_contact_to_support" = "Contactez l'équipe de support";
 "details_row_title_create_backup_footer" = "Vous pouvez synchroniser jusqu'à trois cartes dans un même portefeuille. Cela ne peut être fait qu'une seule fois.";
 "details_row_title_create_backup" = "Lier plus de cartes";
 "details_row_title_currency" = "Monnaie de l'application";
