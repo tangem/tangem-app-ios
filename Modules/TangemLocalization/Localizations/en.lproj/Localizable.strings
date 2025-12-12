@@ -403,7 +403,6 @@
 "details_row_subtitle_signed_hashes_format" = "%@ hashes";
 "details_row_title_cid" = "Device ID";
 "details_row_title_contact_to_support_chat" = "Open support chat";
-"details_row_title_contact_to_support" = "Contact support";
 "details_row_title_create_backup_footer" = "You can synchronize up to three cards or rings into one wallet. It can only be done once.";
 "details_row_title_create_backup" = "Link More Cards";
 "details_row_title_currency" = "App Currency";
@@ -744,7 +743,6 @@
 "mobile_wallet_requires_min_os_warning_body" = "You must update to %1$@ in order to create mobile wallet";
 "mobile_wallet_requires_min_os_warning_title" = "Mobile Wallet requires %1$@ or later";
 "news_all_news" = "All news";
-"news_published_hours_ago" = "%lih ago";
 "news_stay_in_the_loop" = "Stay in the loop";
 "nft_about_title" = "About NFT";
 "nft_asset" = "NFT asset";
@@ -794,8 +792,8 @@
 "notification_black_friday_text" = "Get $10 in BTC with every wallet\nHurry!";
 "notification_black_friday_title" = "Black Friday: up to 30%% OFF";
 "notification_one_plus_one_button" = "Let’s go";
-"notification_one_plus_one_text" = "Build Perfect pair of Tangem Sets. Limited time.";
-"notification_one_plus_one_title" = "1+1: Buy One Wallet, Get 50%% OFF the Second";
+"notification_one_plus_one_text" = "Limited time!";
+"notification_one_plus_one_title" = "1+1: Buy One Wallet, Get 50%% OFF";
 "notification_referral_promo_button" = "Join Now";
 "notification_sepa_button" = "Buy crypto";
 "notification_sepa_text" = "Enjoy **0%% fees** when purchasing crypto via SEPA transfers.";
@@ -1295,7 +1293,7 @@
 "tangem_pay_explore_transaction" = "Explore transaction";
 "tangem_pay_fee_subtitle" = "Service fees";
 "tangem_pay_fee_title" = "Fee";
-"tangem_pay_freeze_card_alert_body" = "Keep your money safe if your card is lost or stolen. You can unfreeze anytime.";
+"tangem_pay_freeze_card_alert_body" = "Keep your money safe. You can unfreeze anytime.";
 "tangem_pay_freeze_card_alert_title" = "Freeze your card?";
 "tangem_pay_freeze_card_failed" = "Failed to freeze the card. Try again later.";
 "tangem_pay_freeze_card_freeze" = "Freeze";
@@ -1329,7 +1327,7 @@
 "tangempay_card_details_open_wallet_button" = "Open Google Wallet";
 "tangempay_card_details_open_wallet_notification_subtitle_apple" = "Set up Tangem Pay in a few taps and start paying with Apple Pay.";
 "tangempay_card_details_open_wallet_notification_subtitle" = "Set up Tangem Pay in a few taps and start paying with Google Pay.";
-"tangempay_card_details_open_wallet_notification_title_apple" = "Add your card to Apple Pay";
+"tangempay_card_details_open_wallet_notification_title_apple" = "Add your card to Apple Pay";
 "tangempay_card_details_open_wallet_notification_title" = "Add your card to Google Pay";
 "tangempay_card_details_open_wallet_step_1_5_apple" = "Tap “+” button on the top right";
 "tangempay_card_details_open_wallet_step_1_apple" = "Open Apple Wallet";
@@ -1337,7 +1335,7 @@
 "tangempay_card_details_open_wallet_step_2_apple" = "Tap “Debit or Credit Card”";
 "tangempay_card_details_open_wallet_step_2" = "Tap “Add a card”";
 "tangempay_card_details_open_wallet_step_3" = "Enter the card details manually";
-"tangempay_card_details_open_wallet_step_4" = "Verify card using the OTP sent to your device.";
+"tangempay_card_details_open_wallet_step_4" = "Verify card using the OTP sent to your device.";
 "tangempay_card_details_open_wallet_step_5" = "All set! Your card is ready to use.";
 "tangempay_card_details_open_wallet_title_apple" = "Add card to Apple Pay";
 "tangempay_card_details_open_wallet_title" = "Add card to Google Pay";
@@ -1371,7 +1369,7 @@
 "tangempay_kyc_in_progress_notification_button" = "View Status";
 "tangempay_kyc_in_progress_notification_title" = "KYC in progress for Tangem Pay";
 "tangempay_kyc_in_progress" = "KYC in progress";
-"tangempay_onboarding_banner_description" = "Use your crypto for real world spending. It’s a payment card unlike any other.";
+"tangempay_onboarding_banner_description" = "Use your crypto for real world spending. \nIt’s a payment card unlike any other.";
 "tangempay_onboarding_banner_title" = "Tangem Visa Card";
 "tangempay_onboarding_get_card_button_text" = "Get card";
 "tangempay_onboarding_pay_description" = "With digital card that works with Apple Pay and Google Pay";
@@ -1907,7 +1905,7 @@
 "yield_module_token_details_earn_notification_title" = "Yield Mode";
 "yield_module_transaction_deploy_contract" = "Yield Mode contract deploy";
 "yield_module_transaction_enter_subtitle" = "%1$@ supplied to Aave";
-"yield_module_transaction_enter" = "Yield Mode enabled";
+"yield_module_transaction_enter" = "Yield Mode enable";
 "yield_module_transaction_exit_subtitle" = "%1$@ withdrawn from Aave";
 "yield_module_transaction_exit" = "Yield Mode disabled";
 "yield_module_transaction_initialize" = "Yield Mode initialized";

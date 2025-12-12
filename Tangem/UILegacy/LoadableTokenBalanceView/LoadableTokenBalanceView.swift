@@ -10,26 +10,26 @@ import SwiftUI
 import TangemUI
 import TangemAssets
 import TangemAccessibilityIdentifiers
+import TangemUIUtils
 
 struct LoadableTokenBalanceView: View {
     let state: State
     let style: Style
     let loader: LoaderStyle
     let accessibilityIdentifier: String?
-    let animationConfig: AnimationConfig
+
+    private var contentTransitionType: ContentTransitionType?
 
     init(
         state: State,
         style: Style,
         loader: LoaderStyle,
         accessibilityIdentifier: String? = nil,
-        animationConfig: AnimationConfig = .disabled
     ) {
         self.state = state
         self.style = style
         self.loader = loader
         self.accessibilityIdentifier = accessibilityIdentifier
-        self.animationConfig = animationConfig
     }
 
     var body: some View {
@@ -77,20 +77,9 @@ struct LoadableTokenBalanceView: View {
 
     @ViewBuilder
     private func textView(_ text: Text) -> some View {
-        let view = commonTextView(text)
-
-        if #available(iOS 17, *), animationConfig.shouldAnimate {
-            view
-                .contentTransition(.numericText())
-                .animation(.default, value: text)
-        } else {
-            view
-        }
-    }
-
-    private func commonTextView(_ text: Text) -> some View {
         SensitiveText(text)
             .style(style.font, color: style.textColor)
+            .applyContentTransition(type: contentTransitionType, text: text)
             .accessibilityIdentifier(accessibilityIdentifier)
     }
 }
@@ -133,16 +122,46 @@ extension LoadableTokenBalanceView {
 }
 
 extension LoadableTokenBalanceView {
-    struct AnimationConfig {
-        let isAnimationAllowed: Bool
-        let isAnimationActive: Bool
+    enum ContentTransitionType {
+        case numeric(isCountdown: Bool)
 
-        var shouldAnimate: Bool {
-            isAnimationAllowed && isAnimationActive
+        @available(iOS 16.0, *)
+        var contentTransition: ContentTransition? {
+            switch self {
+            case .numeric(let isCountdown): .numericText(countsDown: isCountdown)
+            }
         }
+    }
+}
 
-        static let disabled = AnimationConfig(isAnimationAllowed: false, isAnimationActive: false)
-        static let enabled = AnimationConfig(isAnimationAllowed: true, isAnimationActive: true)
+private extension View {
+    @ViewBuilder
+    func applyContentTransition(type: LoadableTokenBalanceView.ContentTransitionType?, text: SensitiveText.TextType) -> some View {
+        switch type {
+        case .numeric(let isCountdown):
+            if #available(iOS 17, *) {
+                self
+                    .contentTransition(.numericText(countsDown: isCountdown))
+                    .animation(.default, value: text)
+            } else {
+                self
+            }
+
+        case nil:
+            self
+        }
+    }
+}
+
+// MARK: - Setupable
+
+extension LoadableTokenBalanceView: Setupable {
+    func setContentTransition(_ transitionType: ContentTransitionType?) -> Self {
+        if #available(iOS 16.0, *) {
+            return map { $0.contentTransitionType = transitionType }
+        } else {
+            return self
+        }
     }
 }
 

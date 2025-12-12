@@ -12,5 +12,5 @@ import TangemFoundation
 public protocol StakingTransaction {
     var amount: Amount { get }
     var fee: Fee { get }
-    var destination: String? { get }
+    var target: String? { get }
 }
