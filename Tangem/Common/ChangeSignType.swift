@@ -24,7 +24,7 @@ enum ChangeSignType: Int, Hashable {
         }
     }
 
-    var imageType: ImageType? {
+    var imageType: ImageType {
         switch self {
         case .positive:
             return Assets.quotePositive
