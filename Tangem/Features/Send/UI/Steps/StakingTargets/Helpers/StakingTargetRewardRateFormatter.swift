@@ -1,5 +1,5 @@
 //
-//  StakingValidatorRewardRateFormatter.swift
+//  StakingTargetRewardRateFormatter.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import TangemStaking
 import TangemLocalization
 
-struct StakingValidatorRewardRateFormatter {
+struct StakingTargetRewardRateFormatter {
     private let percentFormatter = PercentFormatter()
 
     func title(rewardType: RewardType, type: TitleType) -> String {
@@ -25,13 +25,13 @@ struct StakingValidatorRewardRateFormatter {
         percentFormatter.format(rewardRate, option: .staking)
     }
 
-    func format(validator: ValidatorInfo, type: TitleType) -> String {
-        let prefix = title(rewardType: validator.rewardType, type: type)
-        return "\(prefix) \(percent(rewardRate: validator.rewardRate))"
+    func format(target: StakingTargetInfo, type: TitleType) -> String {
+        let prefix = title(rewardType: target.rewardType, type: type)
+        return "\(prefix) \(percent(rewardRate: target.rewardRate))"
     }
 }
 
-extension StakingValidatorRewardRateFormatter {
+extension StakingTargetRewardRateFormatter {
     enum TitleType: Hashable {
         /// Abbreviation (APR)
         case short
