@@ -13,7 +13,7 @@ public struct StakingBalanceInfo: Hashable {
     public let amount: Decimal
     public let accountAddress: String?
     public let balanceType: StakingBalanceType
-    public let validatorAddress: String?
+    public let targetAddress: String?
     public let actions: [StakingPendingActionInfo]
     public let actionConstraints: [StakingPendingActionConstraint]?
 
@@ -22,7 +22,7 @@ public struct StakingBalanceInfo: Hashable {
         amount: Decimal,
         accountAddress: String? = nil,
         balanceType: StakingBalanceType,
-        validatorAddress: String?,
+        targetAddress: String?,
         actions: [StakingPendingActionInfo],
         actionConstraints: [StakingPendingActionConstraint]? = nil
     ) {
@@ -30,7 +30,7 @@ public struct StakingBalanceInfo: Hashable {
         self.amount = amount
         self.accountAddress = accountAddress
         self.balanceType = balanceType
-        self.validatorAddress = validatorAddress
+        self.targetAddress = targetAddress
         self.actions = actions
         self.actionConstraints = actionConstraints
     }
