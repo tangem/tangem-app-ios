@@ -221,7 +221,7 @@ private extension StakeKitStakingManager {
         return mapToStakingTransactionAction(
             actionID: action.id,
             amount: action.amount,
-            validator: request.validator,
+            target: request.target,
             transactions: transactions
         )
     }
@@ -252,7 +252,7 @@ private extension StakeKitStakingManager {
         return mapToStakingTransactionAction(
             actionID: action.id,
             amount: action.amount,
-            validator: request.validator,
+            target: request.target,
             transactions: transactions.sorted {
                 guard let firstMetadata = $0.metadata as? StakeKitTransactionMetadata,
                       let secondMetadata = $1.metadata as? StakeKitTransactionMetadata else {
@@ -292,7 +292,7 @@ private extension StakeKitStakingManager {
 
             return mapToStakingTransactionAction(
                 amount: request.amount,
-                validator: request.validator,
+                target: request.target,
                 transactions: actions.flatMap { $0.transactions }
             )
         }
@@ -312,7 +312,7 @@ private extension StakeKitStakingManager {
         return mapToStakingTransactionAction(
             actionID: action.id,
             amount: action.amount,
-            validator: request.request.validator,
+            target: request.request.target,
             transactions: transactions
         )
     }
@@ -359,7 +359,7 @@ private extension StakeKitStakingManager {
             address: wallet.address,
             additionalAddresses: getAdditionalAddresses(),
             token: wallet.item,
-            validator: action.validatorInfo?.address,
+            target: action.targetInfo?.address,
             integrationId: integrationId,
             tronResource: getTronResource()
         )
@@ -370,20 +370,20 @@ private extension StakeKitStakingManager {
         yield: StakingYieldInfo,
         balanceType: StakingBalanceType
     ) -> StakingBalance {
-        let validatorType: StakingValidatorType = {
-            guard let address = action.validatorAddress,
-                  let validator = yield.validators.first(where: { $0.address == address }) else {
+        let targetType: StakingTargetType = {
+            guard let address = action.targetAddress,
+                  let target = yield.targets.first(where: { $0.address == address }) else {
                 return .empty
             }
 
-            return .validator(validator)
+            return .target(target)
         }()
 
         return StakingBalance(
             item: yield.item,
             amount: action.amount,
             balanceType: balanceType,
-            validatorType: validatorType,
+            targetType: targetType,
             inProgress: true,
             actions: []
         )
@@ -394,13 +394,13 @@ private extension StakeKitStakingManager {
     func mapToStakingTransactionAction(
         actionID: String? = nil,
         amount: Decimal,
-        validator: String?,
+        target: String?,
         transactions: [StakingTransactionInfo]
     ) -> StakingTransactionAction {
         StakingTransactionAction(
             id: actionID,
             amount: amount,
-            validator: validator,
+            target: target,
             transactions: transactions
         )
     }
