@@ -38,4 +38,8 @@ struct YieldModuleNotificationManager {
     func createFeeUnreachableNotification(action: @escaping () -> Void) -> YieldModuleNotificationBannerParams {
         .feeUnreachable(buttonAction: { action() })
     }
+
+    func createHighFeesNotification() -> YieldModuleNotificationBannerParams {
+        .highFees
+    }
 }
