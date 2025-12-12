@@ -45,6 +45,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Published var error: AlertBinder? = nil
     @Published var nftEntrypointViewModel: NFTEntrypointViewModel?
 
+    @Published var tokenItemPromoBubbleViewModel: TokenItemPromoBubbleViewModel?
+
     weak var delegate: MultiWalletMainContentDelegate?
 
     var footerViewModel: MainFooterViewModel?
@@ -81,6 +83,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private let rateAppController: RateAppInteractionController
     private let balanceRestrictionFeatureAvailabilityProvider: BalanceRestrictionFeatureAvailabilityProvider
     private weak var coordinator: (MultiWalletMainContentRoutable & ActionButtonsRoutable & NFTEntrypointRoutable)?
+    private let tokenItemPromoProvider: TokenItemPromoProvider
 
     private var derivator: TokenEntriesDerivator?
 
@@ -102,7 +105,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         rateAppController: RateAppInteractionController,
         nftFeatureLifecycleHandler: NFTFeatureLifecycleHandling,
         tokenRouter: SingleTokenRoutable,
-        coordinator: (MultiWalletMainContentRoutable & ActionButtonsRoutable & NFTEntrypointRoutable)?
+        coordinator: (MultiWalletMainContentRoutable & ActionButtonsRoutable & NFTEntrypointRoutable)?,
+        tokenItemPromoProvider: TokenItemPromoProvider
     ) {
         self.userWalletModel = userWalletModel
         self.userWalletNotificationManager = userWalletNotificationManager
@@ -113,6 +117,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         self.tokenRouter = tokenRouter
         self.coordinator = coordinator
         self.nftFeatureLifecycleHandler = nftFeatureLifecycleHandler
+        self.tokenItemPromoProvider = tokenItemPromoProvider
 
         balanceRestrictionFeatureAvailabilityProvider = BalanceRestrictionFeatureAvailabilityProvider(
             userWalletConfig: userWalletModel.config,
@@ -240,6 +245,16 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         let accountSectionsPublisher = sectionsProvider.makeAccountSectionsPublisher()
         accountSectionsPublisher
             .assign(to: \.accountSections, on: self, ownership: .weak)
+            .store(in: &bag)
+
+        tokenItemPromoProvider.promoWalletModelPublisher
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .map { viewModel, params in
+                guard let params else { return nil }
+                return viewModel.makeTokenItemPromoVieModel(from: params)
+            }
+            .assign(to: \.tokenItemPromoBubbleViewModel, on: self, ownership: .weak)
             .store(in: &bag)
 
         subscribeToTokenListSync(
@@ -403,7 +418,25 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .assign(to: &$isLoadingTokenList)
     }
 
-    func makeApyBadgeTapAction(tokenItem: TokenItem) -> ((TokenItem) -> Void)? {
+    private func makeApyBadgeTapAction(tokenItem: TokenItem) -> ((TokenItem) -> Void)? {
+        guard let walletModel = findAvailableWalletModel(for: tokenItem) else {
+            return nil
+        }
+
+        if let stakingManager = walletModel.stakingManager {
+            return { [weak self] _ in
+                self?.handleStakingApyBadgeTapped(walletModel: walletModel, stakingManager: stakingManager)
+            }
+        }
+
+        if let yieldAction = makeYieldApyBadgeTapAction(walletModel: walletModel) {
+            return yieldAction
+        }
+
+        return nil
+    }
+
+    private func findAvailableWalletModel(for tokenItem: TokenItem) -> (any WalletModel)? {
         guard let result = try? WalletModelFinder.findWalletModel(userWalletId: userWalletModel.userWalletId, tokenItem: tokenItem),
               TokenActionAvailabilityProvider(
                   userWalletConfig: result.userWalletModel.config,
@@ -413,22 +446,19 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             return nil
         }
 
-        let walletModel = result.walletModel
+        return result.walletModel
+    }
 
-        if let stakingManager = walletModel.stakingManager {
-            return { [weak self] _ in
-                self?.handleStakingApyBadgeTapped(walletModel: walletModel, stakingManager: stakingManager)
-            }
+    private func makeYieldApyBadgeTapAction(walletModel: any WalletModel) -> ((TokenItem) -> Void)? {
+        guard let yieldManager = walletModel.yieldModuleManager,
+              let factory = makeYieldModuleFlowFactory(walletModel: walletModel, manager: yieldManager)
+        else {
+            return nil
         }
 
-        if let yieldManager = walletModel.yieldModuleManager,
-           let factory = makeYieldModuleFlowFactory(walletModel: walletModel, manager: yieldManager) {
-            return { [weak self] _ in
-                self?.handleYieldApyBadgeTapped(walletModel: walletModel, factory: factory, yieldManager: yieldManager)
-            }
+        return { [weak self] _ in
+            self?.handleYieldApyBadgeTapped(walletModel: walletModel, factory: factory, yieldManager: yieldManager)
         }
-
-        return nil
     }
 
     private func handleYieldApyBadgeTapped(walletModel: any WalletModel, factory: YieldModuleFlowFactory, yieldManager: YieldModuleManager) {
@@ -515,6 +545,30 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             walletModel: walletModel,
             yieldModuleManager: manager,
             transactionDispatcher: dispatcher
+        )
+    }
+
+    private func makeTokenItemPromoVieModel(from params: TokenItemPromoParams) -> TokenItemPromoBubbleViewModel? {
+        TokenItemPromoBubbleViewModel(
+            id: params.walletModelId,
+            leadingImage: params.icon,
+            message: params.message,
+            onDismiss: { [weak self] in
+                self?.tokenItemPromoProvider.hidePromoBubble()
+                self?.tokenItemPromoBubbleViewModel = nil
+            },
+            onTap: { [weak self] in
+                guard let userWalletModel = self?.userWalletModel,
+                      let walletModel = AccountsFeatureAwareWalletModelsResolver
+                      .walletModels(for: userWalletModel)
+                      .first(where: { model in model.id == params.walletModelId })
+                else {
+                    return
+                }
+
+                let navAction = self?.makeYieldApyBadgeTapAction(walletModel: walletModel)
+                navAction?(walletModel.tokenItem)
+            }
         )
     }
 
