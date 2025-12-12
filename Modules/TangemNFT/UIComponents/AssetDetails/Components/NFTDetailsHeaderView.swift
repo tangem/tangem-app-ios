@@ -124,7 +124,7 @@ private extension NFTDetailsHeaderView {
         NFTDetailsHeaderView(
             state: .full(
                 .priceWithDescription(
-                    .init(crypto: "0.0015 ETH", fiat: .loaded("34,5 $")),
+                    .init(crypto: "0.0015 ETH", fiat: .success("34,5 $")),
                     .init(
                         text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. In nunc velit, aliquet vitae facilisis eu, malesuada vitae dui. Cras eget.",
                         readMoreAction: {}
@@ -148,7 +148,7 @@ private extension NFTDetailsHeaderView {
         NFTDetailsHeaderView(
             state: .full(
                 .priceWithDescription(
-                    .init(crypto: "0.0015 ETH", fiat: .loaded("34,5 $")),
+                    .init(crypto: "0.0015 ETH", fiat: .success("34,5 $")),
                     .init(
                         text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. In nunc velit, aliquet vitae facilisis eu, malesuada vitae dui. Cras eget.",
                         readMoreAction: {}
@@ -166,7 +166,7 @@ private extension NFTDetailsHeaderView {
         Color.gray
         NFTDetailsHeaderView(
             state: .priceWithDescription(
-                .price(.init(crypto: "0.0015 ETH", fiat: .loaded("34,5 $")))
+                .price(.init(crypto: "0.0015 ETH", fiat: .success("34,5 $")))
             )
         )
         .padding(.horizontal, 16)
@@ -230,7 +230,7 @@ private extension NFTDetailsHeaderView {
         Color.gray
         NFTDetailsHeaderView(
             state: .full(
-                .price(.init(crypto: "0.0015 ETH", fiat: .failedToLoad(error: URLError(.cannotConnectToHost)))),
+                .price(.init(crypto: "0.0015 ETH", fiat: .failure(URLError(.cannotConnectToHost)))),
                 (0 ... 1).map {
                     KeyValuePairViewData(
                         key: KeyValuePairViewData.Key(text: "Title-\($0)", action: nil),

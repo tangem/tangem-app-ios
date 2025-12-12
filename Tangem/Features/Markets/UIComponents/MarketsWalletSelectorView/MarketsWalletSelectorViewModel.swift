@@ -11,9 +11,9 @@ import UIKit
 import Combine
 import TangemFoundation
 
-class MarketsWalletSelectorViewModel: ObservableObject {
+final class MarketsWalletSelectorViewModel: ObservableObject {
     @Published var name: String = ""
-    @Published var icon: LoadingValue<ImageValue> = .loading
+    @Published var icon: LoadingResult<ImageValue, Never> = .loading
 
     private weak var infoProvider: WalletSelectorInfoProvider?
 
@@ -37,7 +37,7 @@ class MarketsWalletSelectorViewModel: ObservableObject {
             }
 
             await runOnMain {
-                viewModel.icon = .loaded(image)
+                viewModel.icon = .success(image)
             }
         }
     }
