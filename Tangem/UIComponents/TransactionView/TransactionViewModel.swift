@@ -24,15 +24,6 @@ struct TransactionViewModel: Hashable, Identifiable {
         return timeFormatted ?? "-"
     }
 
-    var transactionDescriptionLayoutPriority: Double {
-        switch transactionType {
-        case .yieldEnter, .yieldTopup, .yieldWithdraw:
-            0
-        default:
-            1
-        }
-    }
-
     var transactionDescriptionTruncationMode: Text.TruncationMode {
         switch transactionType {
         case .yieldEnter, .yieldTopup, .yieldWithdraw:
