@@ -30,6 +30,14 @@ struct OnrampSummaryView: View {
         }
         .safeAreaInset(edge: .bottom, spacing: .zero) { bottomContainer }
         .animation(SendTransitions.animation, value: viewModel.viewState.id)
+        .onChange(of: viewModel.viewState) { viewState in
+            switch viewState {
+            case .idle, .presets:
+                break
+            case .loading, .suggestedOffers:
+                keyboardActive = false
+            }
+        }
     }
 
     @ViewBuilder
