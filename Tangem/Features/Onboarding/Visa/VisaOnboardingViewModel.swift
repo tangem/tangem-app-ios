@@ -431,7 +431,7 @@ extension VisaOnboardingViewModel: VisaOnboardingAccessCodeSetupDelegate {
             title: Localization.commonError,
             message: error.localizedDescription,
             primaryButton: .default(
-                Text(Localization.detailsRowTitleContactToSupport),
+                Text(Localization.commonContactSupport),
                 action: { [weak self] in
                     self?.openSupport()
                 }
