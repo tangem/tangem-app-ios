@@ -81,12 +81,17 @@ private extension HardwareBackupTypesView {
 
     func backupTypeInfo(item: ViewModel.BackupItem) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            HStack(spacing: 8) {
-                Text(item.title)
-                    .style(Fonts.Bold.body, color: Colors.Text.primary1)
-
-                item.badge.map {
-                    BadgeView(item: $0)
+            if #available(iOS 16.0, *) {
+                WrappingHStack(
+                    alignment: .leading,
+                    horizontalSpacing: 8,
+                    verticalSpacing: 4
+                ) {
+                    backupTypeInfoHeader(title: item.title, badge: item.badge)
+                }
+            } else {
+                HStack(alignment: .top, spacing: 8) {
+                    backupTypeInfoHeader(title: item.title, badge: item.badge)
                 }
             }
 
@@ -95,6 +100,19 @@ private extension HardwareBackupTypesView {
                 .multilineTextAlignment(.leading)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    func backupTypeInfoHeader(title: String, badge: BadgeView.Item?) -> some View {
+        Group {
+            Text(title)
+                .style(Fonts.Bold.body, color: Colors.Text.primary1)
+                .multilineTextAlignment(.leading)
+                .fixedSize(horizontal: false, vertical: true)
+
+            badge.map {
+                BadgeView(item: $0)
+            }
         }
     }
 
