@@ -24,7 +24,7 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
     }
 
     var totalAccountsCountPublisher: AnyPublisher<Int, Never> {
-        .just(output: 0)
+        .just(output: accountModels.count)
     }
 
     var accountModels: [AccountModel] {
@@ -32,11 +32,11 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
     }
 
     var accountModelsPublisher: AnyPublisher<[AccountModel], Never> {
-        AnyPublisher.just(output: [])
+        AnyPublisher.just(output: accountModels)
     }
 
-    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws(AccountModelsManagerError) {
-        throw .addingCryptoAccountsNotSupported
+    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws(AccountEditError) -> AccountOperationResult {
+        throw .unknownError(NSError.dummy)
     }
 
     func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] {
@@ -49,7 +49,11 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
         throw .unknownError(NSError.dummy)
     }
 
-    func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) throws(AccountRecoveryError) {
+    func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) throws(AccountRecoveryError) -> AccountOperationResult {
         throw .unknownError(NSError.dummy)
+    }
+
+    func reorder(orderedIdentifiers: [any AccountModelPersistentIdentifierConvertible]) async throws {
+        throw NSError.dummy
     }
 }
