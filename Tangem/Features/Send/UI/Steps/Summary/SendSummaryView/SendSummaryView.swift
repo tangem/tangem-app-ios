@@ -71,11 +71,11 @@ struct SendSummaryView: View {
 
     @ViewBuilder
     private var stakingValidatorsView: some View {
-        if let stakingValidatorsCompactViewModel = viewModel.stakingValidatorsCompactViewModel {
+        if let stakingTargetsCompactViewModel = viewModel.stakingTargetsCompactViewModel {
             Button(action: viewModel.userDidTapValidator) {
-                StakingValidatorsCompactView(viewModel: stakingValidatorsCompactViewModel)
+                StakingTargetsCompactView(viewModel: stakingTargetsCompactViewModel)
             }
-            .allowsHitTesting(stakingValidatorsCompactViewModel.canEditValidator)
+            .allowsHitTesting(stakingTargetsCompactViewModel.canEditTarget)
         }
     }
 
