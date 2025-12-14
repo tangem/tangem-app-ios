@@ -78,6 +78,11 @@ extension AccountsAwareDerivationManager: DerivationManager {
 
     /// - Note: The implementation is equivalent to `CommonDerivationManager.shouldDeriveKeys(networksToRemove:networksToAdd:)`,
     func shouldDeriveKeys(networksToRemove: [BlockchainNetwork], networksToAdd: [BlockchainNetwork]) -> Bool {
+        assert(
+            keysDerivingProvider != nil && accountModelsManagerSubscription != nil,
+            "AccountsAwareDerivationManager is not configured with required dependencies"
+        )
+
         guard
             let interactor = keysDerivingProvider?.keysDerivingInteractor,
             interactor.requiresCard
@@ -98,6 +103,11 @@ extension AccountsAwareDerivationManager: DerivationManager {
     }
 
     func deriveKeys(completion: @escaping (Result<Void, any Error>) -> Void) {
+        assert(
+            keysDerivingProvider != nil && accountModelsManagerSubscription != nil,
+            "AccountsAwareDerivationManager is not configured with required dependencies"
+        )
+
         // `debouncer` is lazy (and lazy vars are not thread-safe), so we need to make sure it's created on serial queue
         ensureOnMainQueue()
         // Multiple `AccountDerivationManager` instances may call this method simultaneously, so we need to debounce such calls.
