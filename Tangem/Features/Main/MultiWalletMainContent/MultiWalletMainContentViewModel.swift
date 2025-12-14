@@ -390,10 +390,11 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             // will emit the available models both after local initialization/migration and after remote synchronization,
             // so no separate `initializedPublisher` trigger needed
             didSyncTokenListPublisher = .just
-            // Either plain or account sections can be a trigger
+            // Both plain and account sections should emit a value to be a trigger for finishing loading state
             didReceiveSectionsPublisher = plainSectionsPublisher
                 .mapToVoid()
-                .merge(with: accountSectionsPublisher.mapToVoid())
+                .zip(accountSectionsPublisher.mapToVoid())
+                .mapToVoid()
                 .eraseToAnyPublisher()
         } else {
             // [REDACTED_TODO_COMMENT]
