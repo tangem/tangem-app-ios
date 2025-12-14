@@ -1,5 +1,5 @@
 //
-//  CommonUserTokensPushNotificationsManager.swift
+//  AccountsAwareUserTokensPushNotificationsManager.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,10 +9,11 @@
 import UIKit
 import Foundation
 import Combine
+import CombineExt
 import TangemFoundation
 
-@available(iOS, deprecated: 100000.0, message: "Will be removed after accounts migration is complete ([REDACTED_INFO])")
-final class CommonUserTokensPushNotificationsManager {
+// [REDACTED_TODO_COMMENT]
+final class AccountsAwareUserTokensPushNotificationsManager {
     // MARK: - Services
 
     @Injected(\.userTokensPushNotificationsService) var userTokensPushNotificationsService: UserTokensPushNotificationsService
@@ -22,17 +23,15 @@ final class CommonUserTokensPushNotificationsManager {
     // MARK: - Private Properties
 
     private let userWalletId: UserWalletId
-    private let walletModelsManager: WalletModelsManager
-    private let userTokensManager: UserTokensManager
+    private let accountModelsManager: AccountModelsManager
     private let remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncing
-    private let derivationManager: DerivationManager?
 
     private let _userWalletPushStatusSubject: CurrentValueSubject<UserWalletPushNotifyStatus, Never> = .init(
         .unavailable(reason: .notInitialized, enabledRemote: false)
     )
 
     private var updateTask: Task<Void, Error>?
-    private var cancellables = Set<AnyCancellable>()
+    private var bag: Set<AnyCancellable> = []
 
     private var currentEntry: ApplicationWalletEntry? {
         userTokensPushNotificationsService.entries.first(where: { $0.id == userWalletId.stringValue })
@@ -47,16 +46,12 @@ final class CommonUserTokensPushNotificationsManager {
 
     init(
         userWalletId: UserWalletId,
-        walletModelsManager: WalletModelsManager,
-        userTokensManager: UserTokensManager,
-        remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncing,
-        derivationManager: DerivationManager?,
+        accountModelsManager: AccountModelsManager,
+        remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncing
     ) {
         self.userWalletId = userWalletId
-        self.walletModelsManager = walletModelsManager
-        self.userTokensManager = userTokensManager
+        self.accountModelsManager = accountModelsManager
         self.remoteStatusSyncing = remoteStatusSyncing
-        self.derivationManager = derivationManager
 
         bind()
     }
@@ -64,14 +59,26 @@ final class CommonUserTokensPushNotificationsManager {
     // MARK: - Private Implementation
 
     private func bind() {
-        let readyUserTokenListPublisher = userTokensManager
-            .userTokensPublisher
-            .dropFirst()
+        let isUserTokenListReadyPublisher = accountModelsManager
+            .cryptoAccountModelsPublisher
+            .flatMapLatest { cryptoAccountModels -> AnyPublisher<Bool, Never> in
+                guard cryptoAccountModels.isNotEmpty else {
+                    return .just(output: false)
+                }
+
+                return cryptoAccountModels
+                    .map { $0.userTokensManager.userTokensPublisher }
+                    .combineLatest()
+                    .mapToValue(true)
+                    .eraseToAnyPublisher()
+            }
+            .filter { $0 }
+            .share(replay: 1)
 
         userTokensPushNotificationsService
             .entriesPublisher
             .removeDuplicates()
-            .combineLatest(readyUserTokenListPublisher)
+            .combineLatest(isUserTokenListReadyPublisher)
             .map(\.0)
             .receiveOnMain()
             .withWeakCaptureOf(self)
@@ -82,23 +89,38 @@ final class CommonUserTokensPushNotificationsManager {
 
                 manager.updateStatusIfNeeded(with: entry.notifyStatus)
             }
-            .store(in: &cancellables)
+            .store(in: &bag)
 
-        derivationManager?
-            .hasPendingDerivations
-            .dropFirst() // We synchronize only state changes and send them only when they change.
-            .removeDuplicates()
-            .combineLatest(readyUserTokenListPublisher)
-            .filter { !$0.0 }
+        accountModelsManager
+            .cryptoAccountModelsPublisher
+            .flatMapLatest { cryptoAccountModels -> AnyPublisher<Bool, Never> in
+                let hasPendingDerivationsPublishers = cryptoAccountModels
+                    .compactMap { $0.userTokensManager.derivationManager?.hasPendingDerivations }
+
+                guard hasPendingDerivationsPublishers.isNotEmpty else {
+                    return .just(output: false)
+                }
+
+                return hasPendingDerivationsPublishers
+                    .combineLatest()
+                    .map { $0.contains(true) }
+                    .eraseToAnyPublisher()
+            }
+            .pairwise()
+            .filter { previous, current in
+                // Proceed further only when pending derivations are finished
+                return previous != current && current == false
+            }
+            .combineLatest(isUserTokenListReadyPublisher)
             .withWeakCaptureOf(self)
             .sink { manager, _ in
                 manager.syncRemoteStatus()
             }
-            .store(in: &cancellables)
+            .store(in: &bag)
 
         NotificationCenter.default
             .publisher(for: UIApplication.willEnterForegroundNotification)
-            .combineLatest(readyUserTokenListPublisher)
+            .combineLatest(isUserTokenListReadyPublisher)
             .withWeakCaptureOf(self)
             .receiveOnMain()
             .sink { manager, _ in
@@ -108,7 +130,7 @@ final class CommonUserTokensPushNotificationsManager {
 
                 manager.updateStatusIfNeeded(with: currentEntry.notifyStatus)
             }
-            .store(in: &cancellables)
+            .store(in: &bag)
     }
 
     private func updateStatusIfNeeded(with remoteNotifyStatus: Bool) {
@@ -178,7 +200,7 @@ final class CommonUserTokensPushNotificationsManager {
 
 // MARK: - PushNotifyUserWalletStatusProvider
 
-extension CommonUserTokensPushNotificationsManager: UserTokensPushNotificationsManager {
+extension AccountsAwareUserTokensPushNotificationsManager: UserTokensPushNotificationsManager {
     var statusPublisher: AnyPublisher<UserWalletPushNotifyStatus, Never> {
         _userWalletPushStatusSubject.eraseToAnyPublisher()
     }
@@ -205,9 +227,9 @@ extension CommonUserTokensPushNotificationsManager: UserTokensPushNotificationsM
 
 // MARK: - UserTokenListExternalParametersProvider
 
-extension CommonUserTokensPushNotificationsManager: UserTokenListExternalParametersProvider {
+extension AccountsAwareUserTokensPushNotificationsManager: UserTokenListExternalParametersProvider {
     func provideTokenListAddresses() -> [WalletModelId: [String]]? {
-        let walletModels = walletModelsManager.walletModels
+        let walletModels = AccountWalletModelsAggregator.walletModels(from: accountModelsManager)
         let tokenListNotifyStatusValue = provideTokenListNotifyStatusValue()
 
         return UserTokenListExternalParametersHelper.provideTokenListAddresses(
