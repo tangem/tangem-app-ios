@@ -13,7 +13,7 @@ import struct TangemSdk.DerivationPath
 final class CryptoAccountsNetworkMapper {
     typealias RemoteIdentifierBuilder = (StoredCryptoAccount) -> String
 
-    var externalParametersProvider: UserTokenListExternalParametersProvider?
+    weak var externalParametersProvider: UserTokenListExternalParametersProvider?
 
     private let supportedBlockchains: SupportedBlockchainsSet
     private let remoteIdentifierBuilder: RemoteIdentifierBuilder
@@ -29,6 +29,8 @@ final class CryptoAccountsNetworkMapper {
     // MARK: - Stored to Remote
 
     func map(request: [StoredCryptoAccount]) -> (accounts: AccountsDTO.Request.Accounts, userTokens: AccountsDTO.Request.UserTokens) {
+        assert(externalParametersProvider != nil, "CryptoAccountsNetworkMapper is not configured with UserTokenListExternalParametersProvider")
+
         let walletModelAddresses = externalParametersProvider?.provideTokenListAddresses()
         var tokens: [AccountsDTO.Request.Token] = []
 
