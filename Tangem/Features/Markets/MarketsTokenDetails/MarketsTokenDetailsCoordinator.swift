@@ -199,13 +199,13 @@ extension MarketsTokenDetailsCoordinator {
         }
     }
 
-    func openOnramp(input: SendInput) {
+    func openOnramp(input: SendInput, parameters: PredefinedOnrampParameters) {
         let dismissAction: Action<SendCoordinator.DismissOptions?> = { [weak self] _ in
             self?.sendCoordinator = nil
         }
 
         let coordinator = SendCoordinator(dismissAction: dismissAction)
-        let options = SendCoordinator.Options(input: input, type: .onramp(), source: .markets)
+        let options = SendCoordinator.Options(input: input, type: .onramp(parameters: parameters), source: .markets)
         coordinator.start(with: options)
         sendCoordinator = coordinator
     }
