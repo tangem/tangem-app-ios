@@ -15,7 +15,7 @@ struct StakingTargetsView: View {
     @ObservedObject var viewModel: StakingTargetsViewModel
 
     var body: some View {
-        GroupedScrollView(spacing: 20) {
+        GroupedScrollView(contentType: .lazy(alignment: .center, spacing: 20)) {
             GroupedSection(viewModel.targets) { data in
                 StakingTargetView(data: data, selection: $viewModel.selectedTarget)
             }
