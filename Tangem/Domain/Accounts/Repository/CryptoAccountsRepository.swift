@@ -29,5 +29,5 @@ protocol CryptoAccountsRepository {
     ) async throws
 
     func removeCryptoAccount(withIdentifier identifier: some Hashable) async throws
-    func reorder(orderedIdentifiers: [some Hashable]) async throws
+    func reorderCryptoAccounts(orderedIdentifiers: [some Hashable]) async throws
 }

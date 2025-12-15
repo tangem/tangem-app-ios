@@ -23,11 +23,11 @@ struct OrganizeTokensPreviewViewModelFactory {
         )
 
         return OrganizeTokensViewModel(
-            coordinator: coordinator,
             userWalletModel: userWalletModel,
             tokenSectionsAdapter: tokenSectionsAdapter,
             optionsProviding: optionsManager,
-            optionsEditing: optionsManager
+            optionsEditing: optionsManager,
+            coordinator: coordinator
         )
     }
 }
