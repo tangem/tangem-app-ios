@@ -354,7 +354,7 @@ final class CommonCryptoAccountsRepository {
         let accounts = remoteState.accounts
         let account = accounts.first { $0.derivationIndex == config.derivationIndex } ?? accounts.first
 
-        // Pretty much dead code path, since there is always exist at least one account
+        // Pretty much dead code path, since there always exists at least one account
         guard let account else {
             return .default
         }
