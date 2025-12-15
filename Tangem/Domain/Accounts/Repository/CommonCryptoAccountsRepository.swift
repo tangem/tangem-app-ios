@@ -461,6 +461,14 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
     }
 }
 
+// MARK: - UserTokensPushNotificationsRemoteStatusSyncing protocol conformance
+
+extension CommonCryptoAccountsRepository: UserTokensPushNotificationsRemoteStatusSyncing {
+    func syncRemoteStatus() {
+        updateAccountsOnServer(updateType: .tokens)
+    }
+}
+
 // MARK: - UserTokensRepository protocol adapter
 
 /// An adapter to use `CommonCryptoAccountsRepository` as `UserTokensRepository`.

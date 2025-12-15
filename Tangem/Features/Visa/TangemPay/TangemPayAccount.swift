@@ -95,6 +95,10 @@ final class TangemPayAccount {
         customerInfoSubject.value?.productInstance?.cardId
     }
 
+    var isPinSet: Bool {
+        customerInfoSubject.value?.card?.isPINSet ?? false
+    }
+
     var customerWalletId: String {
         authorizer.customerWalletId
     }
@@ -183,6 +187,10 @@ final class TangemPayAccount {
                     TangemPayOrderIdStorage.deleteCardIssuingOrderId(customerWalletId: tangemPayAccount.customerWalletId)
                     await tangemPayAccount.setupBalance()
                 }
+                // [REDACTED_TODO_COMMENT]
+            } catch let error as VisaAPIError where error.code == 110101 {
+                tangemPayAccount.authorizer.setSyncNeeded()
+                VisaLogger.error("Failed to load customer info", error: error)
             } catch TangemPayAuthorizationTokensHandlerError.preparingFailed {
                 VisaLogger.error("Failed to load customer info", error: TangemPayAuthorizationTokensHandlerError.preparingFailed)
             } catch {
@@ -314,7 +322,7 @@ extension TangemPayAccount: TangemPayWithdrawTransactionServiceOutput {
     func withdrawTransactionDidSent() {
         Task {
             // Update balance after withdraw with some delay
-            try await Task.sleep(seconds: 5)
+            try await Task.sleep(for: .seconds(5))
             await setupBalance()
         }
     }
