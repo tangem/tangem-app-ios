@@ -68,7 +68,7 @@ enum WalletConnectAccountsMapper {
         }
 
         return wallets.compactMap { wallet in
-            ReownWalletKit.Account(chainIdentifier: reownBlockchain.absoluteString, address: wallet.defaultAddressString)
+            ReownWalletKit.Account(chainIdentifier: reownBlockchain.absoluteString, address: wallet.walletConnectAddress)
         }
     }
 
@@ -92,7 +92,7 @@ enum WalletConnectAccountsMapper {
         }
 
         return wallets.compactMap { wallet in
-            ReownWalletKit.Account(chainIdentifier: reownBlockchain.absoluteString, address: wallet.defaultAddressString)
+            ReownWalletKit.Account(chainIdentifier: reownBlockchain.absoluteString, address: wallet.walletConnectAddress)
         }
     }
 }
