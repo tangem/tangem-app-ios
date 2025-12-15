@@ -12,6 +12,7 @@ import TangemAccounts
 // [REDACTED_TODO_COMMENT]
 struct OrganizeTokensListOuterSectionViewModel: Identifiable {
     let id: AnyHashable
+    let cryptoAccountID: AnyHashable
     let name: String
     let iconData: AccountIconView.ViewData
 }
