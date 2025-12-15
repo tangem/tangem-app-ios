@@ -78,7 +78,8 @@ final class LockedWalletMainContentViewModel: ObservableObject {
         self.coordinator = coordinator
         balanceRestrictionFeatureAvailabilityProvider = BalanceRestrictionFeatureAvailabilityProvider(
             userWalletConfig: userWalletModel.config,
-            totalBalanceProvider: userWalletModel
+            walletModelsPublisher: AccountsFeatureAwareWalletModelsResolver.walletModelsPublisher(for: userWalletModel),
+            updatePublisher: userWalletModel.updatePublisher
         )
 
         contextData = userWalletModel.analyticsContextData
@@ -108,7 +109,7 @@ private extension LockedWalletMainContentViewModel {
         guard BiometricsUtil.isAvailable else {
             return false
         }
-        if FeatureProvider.isAvailable(.mobileWallet) {
+        if MobileWalletFeatureProvider.isAvailable {
             return AppSettings.shared.useBiometricAuthentication
         } else {
             return AppSettings.shared.saveUserWallets
@@ -124,6 +125,14 @@ private extension LockedWalletMainContentViewModel {
             _ = try await userWalletRepository.unlock(with: method)
         } catch where error.isCancellationError {
             await unlockWithFallback()
+        } catch let repositoryError as UserWalletRepositoryError {
+            if repositoryError == .biometricsChanged {
+                await unlockWithFallback()
+            } else {
+                await runOnMain {
+                    alert = repositoryError.alertBinder
+                }
+            }
         } catch {
             await runOnMain {
                 alert = error.alertBinder
@@ -262,7 +271,7 @@ private extension LockedWalletMainContentViewModel {
 
         return .init(
             coordinator: coordinator,
-            expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletModel: userWalletModel),
+            expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletId: userWalletModel.userWalletId),
             userWalletModel: userWalletModel
         )
     }

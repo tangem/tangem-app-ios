@@ -169,11 +169,11 @@ extension VisaWalletModel: WalletModelFeeProvider {
         return .justWithError(output: [])
     }
 
-    func getFeeCurrencyBalance(amountType: Amount.AmountType) -> Decimal {
+    func getFeeCurrencyBalance() -> Decimal {
         return 0
     }
 
-    func hasFeeCurrency(amountType: Amount.AmountType) -> Bool {
+    func hasFeeCurrency() -> Bool {
         return false
     }
 
@@ -239,6 +239,12 @@ extension VisaWalletModel: TransactionHistoryFetcher {
 extension VisaWalletModel: ExistentialDepositInfoProvider {
     var existentialDepositWarning: String? {
         nil
+    }
+}
+
+extension VisaWalletModel: WalletModelResolvable {
+    func resolve<R>(using resolver: R) -> R.Result where R: WalletModelResolving {
+        resolver.resolve(walletModel: self)
     }
 }
 
@@ -311,7 +317,7 @@ extension VisaWalletModel: WalletModel {
         false
     }
 
-    var sendingRestrictions: TransactionSendAvailabilityProvider.SendingRestrictions? {
+    var sendingRestrictions: SendingRestrictions? {
         transactionSendAvailabilityProvider.sendingRestrictions(walletModel: self)
     }
 
@@ -325,7 +331,7 @@ extension VisaWalletModel: WalletModel {
 
     var stakeKitTransactionSender: (any StakeKitTransactionSender)? { nil }
 
-    var account: any CryptoAccountModel {
+    var account: (any CryptoAccountModel)? {
         preconditionFailure("Visa should be implemented as a dedicated account type, not as a wallet model")
     }
 

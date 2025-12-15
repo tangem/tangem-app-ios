@@ -12,7 +12,10 @@ import Moya
 public protocol VisaAuthorizationService {
     func getCardAuthorizationChallenge(cardId: String, cardPublicKey: String) async throws -> VisaAuthChallengeResponse
     func getWalletAuthorizationChallenge(cardId: String, walletPublicKey: String) async throws -> VisaAuthChallengeResponse
-    func getCustomerWalletAuthorizationChallenge(customerWalletAddress: String) async throws -> VisaAuthChallengeResponse
+    func getCustomerWalletAuthorizationChallenge(
+        customerWalletAddress: String,
+        customerWalletId: String
+    ) async throws -> VisaAuthChallengeResponse
     func getAccessTokensForCardAuth(
         signedChallenge: String,
         salt: String,
@@ -74,7 +77,10 @@ extension CommonVisaAuthorizationService: VisaAuthorizationService {
         ))
     }
 
-    func getCustomerWalletAuthorizationChallenge(customerWalletAddress: String) async throws -> VisaAuthChallengeResponse {
+    func getCustomerWalletAuthorizationChallenge(
+        customerWalletAddress: String,
+        customerWalletId: String
+    ) async throws -> VisaAuthChallengeResponse {
         try await apiService.request(.init(
             target: .generateNonce(request: .init(
                 cardId: nil,

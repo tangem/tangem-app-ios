@@ -13,6 +13,36 @@ import struct TangemUIUtils.AlertBinder
 import enum BlockchainSdk.Blockchain
 
 struct TokenActionAvailabilityAlertBuilder {
+    func alert(for sendingRestrictions: SendingRestrictions?) -> AlertBinder? {
+        switch sendingRestrictions {
+        case .none, .zeroFeeCurrencyBalance:
+            return nil
+        case .zeroWalletBalance:
+            return AlertBinder(
+                title: "",
+                message: Localization.tokenButtonUnavailabilityReasonEmptyBalanceSend
+            )
+        case .hasOnlyCachedBalance:
+            return outOfDateBalanceAlert
+        case .cantSignLongTransactions:
+            return cantSignLongTransactionAlert
+        case .hasPendingWithdrawOrder:
+            return AlertBinder(
+                title: Localization.tangempayCardDetailsWithdrawInProgressTitle,
+                message: Localization.tangempayCardDetailsWithdrawInProgressDescription
+            )
+        case .hasPendingTransaction(let blockchainDisplayName):
+            return AlertBinder(
+                title: "",
+                message: Localization.tokenButtonUnavailabilityReasonPendingTransactionSend(blockchainDisplayName)
+            )
+        case .blockchainUnreachable, .blockchainLoading:
+            return tryAgainLaterAlert
+        case .oldCard:
+            return oldCardAlert
+        }
+    }
+
     func alert(for status: TokenActionAvailabilityProvider.SendActionAvailabilityStatus) -> AlertBinder? {
         switch status {
         case .available:

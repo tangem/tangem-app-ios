@@ -32,6 +32,7 @@ public struct VisaActivationManagerFactory {
                 cardId: cardId,
                 cardActivationStatus: initialActivationStatus,
                 refreshTokenSaver: nil,
+                allowRefresherTask: true,
                 urlSessionConfiguration: urlSessionConfiguration
             )
 

@@ -64,6 +64,10 @@ struct WalletConnectDAppConnectionView: View {
                 WalletConnectWalletSelectorView(viewModel: viewModel, scrollProxy: scrollProxy)
                     .transition(.content)
 
+            case .connectionTarget(let viewModel):
+                AccountSelectorView(viewModel: viewModel)
+                    .transition(.content)
+
             case .networkSelector(let viewModel):
                 WalletConnectNetworksSelectorView(viewModel: viewModel)
                     .transition(.content)
@@ -106,6 +110,12 @@ struct WalletConnectDAppConnectionView: View {
             backButtonAction = { viewModel.handle(viewEvent: .navigationBackButtonTapped) }
             closeButtonAction = nil
 
+        case .connectionTarget(let viewModel):
+            title = viewModel.state.navigationBarTitle
+            backgroundColor = Colors.Background.tertiary
+            backButtonAction = { self.viewModel.openConnectionRequest() }
+            closeButtonAction = nil
+
         case .error(let viewModel):
             title = nil
             backgroundColor = Colors.Background.tertiary
@@ -113,12 +123,13 @@ struct WalletConnectDAppConnectionView: View {
             closeButtonAction = { viewModel.handle(viewEvent: .closeButtonTapped) }
         }
 
-        return WalletConnectNavigationBarView(
+        return FloatingSheetNavigationBarView(
             title: title,
             backgroundColor: backgroundColor,
             bottomSeparatorLineIsVisible: navigationBarBottomSeparatorIsVisible,
             backButtonAction: backButtonAction,
-            closeButtonAction: closeButtonAction
+            closeButtonAction: closeButtonAction,
+            titleAccessibilityIdentifier: WalletConnectAccessibilityIdentifiers.headerTitle
         )
         .id(viewModel.state.id)
         .transition(.opacity)
@@ -137,7 +148,7 @@ struct WalletConnectDAppConnectionView: View {
                 domainVerificationFooter(viewModel)
                     .transition(.footer)
 
-            case .walletSelector:
+            case .walletSelector, .connectionTarget:
                 EmptyView()
 
             case .networkSelector(let viewModel):
@@ -260,6 +271,8 @@ private extension WalletConnectDAppConnectionViewState {
             "walletSelector"
         case .networkSelector:
             "networkSelector"
+        case .connectionTarget:
+            "connectionTarget"
         case .error:
             "error"
         }
@@ -287,7 +300,7 @@ private extension WalletConnectErrorViewState.Button.Style {
 extension WalletConnectDAppConnectionView {
     private enum Layout {
         /// 52
-        static let navigationBarHeight = WalletConnectNavigationBarView.Layout.topPadding + WalletConnectNavigationBarView.Layout.height
+        static let navigationBarHeight = FloatingSheetNavigationBarView.height
         /// 12
         static let contentTopPadding: CGFloat = 12
 

@@ -16,6 +16,7 @@ struct CreateWalletSelectorCoordinatorView: CoordinatorView {
         ZStack {
             if let viewModel = coordinator.viewModel {
                 CreateWalletSelectorView(viewModel: viewModel)
+                    .navigationBarHidden(true)
                     .navigationLinks(links)
             }
         }

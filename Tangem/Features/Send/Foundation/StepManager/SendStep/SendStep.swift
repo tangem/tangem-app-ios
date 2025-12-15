@@ -13,7 +13,6 @@ protocol SendStep {
     var shouldShowBottomOverlay: Bool { get }
 
     var type: SendStepType { get }
-    var sendStepViewAnimatable: any SendStepViewAnimatable { get }
 
     var isValidPublisher: AnyPublisher<Bool, Never> { get }
     var isUpdatingPublisher: AnyPublisher<Bool, Never> { get }

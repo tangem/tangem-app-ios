@@ -7,31 +7,30 @@
 //
 
 import TangemUI
+import TangemLocalization
 
-// [REDACTED_TODO_COMMENT]
-struct TangemPayNoDepositAddressSheetViewModel {
-    let title = "Service temporarily unavailable"
-    let subtitle = "We’re fixing a technical issue. Please try again later."
-    let buttonTitle = "Got it"
+protocol TangemPayNoDepositAddressSheetRoutable {
+    func closeNoDepositAddressSheet()
+}
+
+struct TangemPayNoDepositAddressSheetViewModel: FloatingSheetContentViewModel {
+    var id: String { String(describing: Self.self) }
+
+    let title = Localization.tangempayServiceUnavailableTitle
+    let subtitle = Localization.tangempayCardDetailsReceiveErrorDescription
+
+    let coordinator: TangemPayNoDepositAddressSheetRoutable
+
+    func close() {
+        coordinator.closeNoDepositAddressSheet()
+    }
 
     var primaryButtonSettings: MainButton.Settings {
         MainButton.Settings(
-            title: buttonTitle,
-            subtitle: nil,
-            icon: nil,
+            title: Localization.commonGotIt,
             style: .secondary,
             size: .default,
-            isLoading: false,
-            isDisabled: false,
             action: close
         )
-    }
-
-    let close: () -> Void
-}
-
-extension TangemPayNoDepositAddressSheetViewModel: FloatingSheetContentViewModel {
-    var id: String {
-        String(describing: Self.self)
     }
 }

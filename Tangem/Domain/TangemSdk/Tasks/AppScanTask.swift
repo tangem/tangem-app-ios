@@ -12,7 +12,9 @@ import BlockchainSdk
 import TangemVisa
 import SwiftUI
 import TangemFoundation
+import TangemMacro
 
+@CaseFlagable
 enum DefaultWalletData: Codable {
     case file(WalletData)
     case legacy(WalletData)
@@ -269,9 +271,9 @@ final class AppScanTask: CardSessionRunnable {
             let tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.stringValue) // [REDACTED_TODO_COMMENT]
 
             // Force add blockchains for demo cards
-            if let persistentBlockchains = config.persistentBlockchains {
+            if config.persistentBlockchains.isNotEmpty {
                 let converter = StorageEntryConverter()
-                tokenItemsRepository.append(converter.convertToStoredUserTokens(persistentBlockchains))
+                tokenItemsRepository.append(converter.convertToStoredUserTokens(tokenItems: config.persistentBlockchains))
             }
 
             let savedItems = tokenItemsRepository.getList().entries
@@ -329,9 +331,12 @@ final class AppScanTask: CardSessionRunnable {
                         recipient: EmailConfig.default.recipient,
                         emailType: .activatedCard
                     )
-                    let mailView = MailView(viewModel: mailViewModel)
-                    let controller = UIHostingController(rootView: mailView)
-                    AppPresenter.shared.show(controller)
+
+                    let mailPresenter: MailComposePresenter = InjectedValues[\.mailComposePresenter]
+                    Task { @MainActor in
+                        mailPresenter.present(viewModel: mailViewModel)
+                    }
+
                     completion(.failure(.userCancelled))
                 } cancelAction: {
                     completion(.failure(.userCancelled))
