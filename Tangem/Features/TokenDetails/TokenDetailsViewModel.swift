@@ -16,6 +16,7 @@ import TangemFoundation
 import TangemLocalization
 import TangemUI
 import struct TangemUIUtils.ConfirmationDialogViewModel
+import TangemAccessibilityIdentifiers
 
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Published var confirmationDialog: ConfirmationDialogViewModel?
@@ -28,6 +29,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         balanceProvider: self,
         balanceTypeSelectorProvider: self,
         yieldModuleStatusProvider: self,
+        refreshStatusProvider: self,
         showYieldBalanceInfoAction: { [weak self] in
             self?.openYieldBalanceInfo()
         },
@@ -38,14 +40,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
     private(set) lazy var tokenDetailsHeaderModel: TokenDetailsHeaderViewModel = .init(tokenItem: walletModel.tokenItem)
     @Published private(set) var activeStakingViewData: ActiveStakingViewData?
-
-    private weak var coordinator: TokenDetailsRoutable?
-    private let bannerNotificationManager: NotificationManager?
-    private let xpubGenerator: XPUBGenerator?
-    private let balanceConverter = BalanceConverter()
-    private let balanceFormatter = BalanceFormatter()
-    private let pendingTransactionDetails: PendingTransactionDetails?
-    private var bag = Set<AnyCancellable>()
 
     var iconUrl: URL? {
         guard let id = walletModel.tokenItem.id else {
@@ -59,20 +53,31 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         walletModel.tokenItem.token?.customTokenColor
     }
 
-    var canHideToken: Bool { userWalletModel.config.hasFeature(.multiCurrency) }
+    var canHideToken: Bool { userWalletInfo.config.hasFeature(.multiCurrency) }
 
     var canGenerateXPUB: Bool { xpubGenerator != nil }
 
     var hasDotsMenu: Bool { canHideToken || canGenerateXPUB }
 
+    private weak var coordinator: (any TokenDetailsRoutable)?
+    private let bannerNotificationManager: NotificationManager?
+    private let xpubGenerator: XPUBGenerator?
+    private let pendingTransactionDetails: PendingTransactionDetails?
+    private let userTokensManager: any UserTokensManager
+
+    private let balanceConverter = BalanceConverter()
+    private let balanceFormatter = BalanceFormatter()
+    private var bag = Set<AnyCancellable>()
+
     init(
-        userWalletModel: UserWalletModel,
+        userWalletInfo: UserWalletInfo,
         walletModel: any WalletModel,
         notificationManager: NotificationManager,
         bannerNotificationManager: NotificationManager?,
+        userTokensManager: any UserTokensManager,
         pendingExpressTransactionsManager: PendingExpressTransactionsManager,
         xpubGenerator: XPUBGenerator?,
-        coordinator: TokenDetailsRoutable,
+        coordinator: any TokenDetailsRoutable,
         tokenRouter: SingleTokenRoutable,
         pendingTransactionDetails: PendingTransactionDetails?
     ) {
@@ -80,9 +85,10 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         self.bannerNotificationManager = bannerNotificationManager
         self.xpubGenerator = xpubGenerator
         self.pendingTransactionDetails = pendingTransactionDetails
+        self.userTokensManager = userTokensManager
 
         super.init(
-            userWalletModel: userWalletModel,
+            userWalletInfo: userWalletInfo,
             walletModel: walletModel,
             notificationManager: notificationManager,
             pendingExpressTransactionsManager: pendingExpressTransactionsManager,
@@ -129,12 +135,13 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .unlock:
             break
         case .openFeeCurrency:
-            openFeeCurrency()
+            coordinator?.proceedFeeCurrencyNavigatingDismissOption(
+                option: .init(walletModel: walletModel)
+            )
         case .swap:
             openExchange()
         case .generateAddresses,
              .backupCard,
-             .buyCrypto,
              .refresh,
              .refreshFee,
              .goToProvider,
@@ -153,14 +160,11 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .seedSupportYes,
              .seedSupport2No,
              .seedSupport2Yes,
-             .openReferralProgram,
              .addTokenTrustline,
              .openMobileFinishActivation,
              .openMobileUpgrade,
-             .openBuyCrypto,
-             .tangemPayCreateAccountAndIssueCard,
+             .tangemPaySync,
              .activate,
-             .tangemPayViewKYCStatus,
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
              .givePermission:
@@ -178,11 +182,14 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             .token: walletModel.tokenItem.currencySymbol,
             .source: Analytics.ParameterValue.token.rawValue,
         ])
-        Toast(view: SuccessToast(text: Localization.walletNotificationAddressCopied))
-            .present(
-                layout: .bottom(padding: 80),
-                type: .temporary()
-            )
+        Toast(
+            view: SuccessToast(text: Localization.walletNotificationAddressCopied)
+                .accessibilityIdentifier(ActionButtonsAccessibilityIdentifiers.addressCopiedToast)
+        )
+        .present(
+            layout: .bottom(padding: 80),
+            type: .temporary()
+        )
     }
 
     override func openMarketsTokenDetails() {
@@ -204,7 +211,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
 extension TokenDetailsViewModel {
     func hideTokenButtonAction() {
-        if userWalletModel.userTokensManager.canRemove(walletModel.tokenItem) {
+        if userTokensManager.canRemove(walletModel.tokenItem) {
             showHideWarningAlert()
         } else {
             showUnableToHideAlert()
@@ -236,10 +243,10 @@ extension TokenDetailsViewModel {
             blockchain.displayName
         )
 
-        alert = AlertBuilder.makeAlert(
+        alert = AlertBuilder.makeAlertWithDefaultPrimaryButton(
             title: Localization.tokenDetailsUnableHideAlertTitle(tokenName),
             message: message,
-            primaryButton: .default(Text(Localization.commonOk))
+            buttonText: Localization.commonOk
         )
     }
 
@@ -263,8 +270,8 @@ extension TokenDetailsViewModel {
             ]
         )
 
-        userWalletModel.userTokensManager.remove(walletModel.tokenItem)
-        dismiss()
+        userTokensManager.remove(walletModel.tokenItem)
+        coordinator?.dismiss()
     }
 }
 
@@ -378,13 +385,17 @@ private extension TokenDetailsViewModel {
         state: YieldModuleManagerState,
         marketInfo: YieldModuleMarketInfo?
     ) -> YieldModuleAvailability {
-        guard FeatureProvider.isAvailable(.yieldModule), let manager = walletModel.yieldModuleManager else {
+        guard FeatureProvider.isAvailable(.yieldModule),
+              let manager = walletModel.yieldModuleManager,
+              let factory = makeYieldModuleFlowFactory(manager: manager)
+        else {
             return .notApplicable
         }
 
         func makeEligibleViewModelIfPossible() -> YieldModuleAvailability {
             if let apy = marketInfo?.apy {
-                let vm = makeYieldNotificationViewModel(apy: apy)
+                let action = { [weak self] apy in self?.coordinator?.openYieldModulePromoView(apy: apy, factory: factory) }
+                let vm = factory.makeYieldAvailableNotificationViewModel(apy: apy, onButtonTap: { apy in action(apy) })
                 return .eligible(vm)
             } else {
                 return .notApplicable
@@ -393,14 +404,15 @@ private extension TokenDetailsViewModel {
 
         switch state {
         case .active(let info):
-            let vm = makeYieldStatusViewModel(
-                yieldManager: manager,
-                state: .active(
-                    isApproveRequired: info.isAllowancePermissionRequired,
-                    undepositedAmount: info.nonYieldModuleBalanceValue,
-                    apy: marketInfo?.apy
-                )
+            let state: YieldStatusViewModel.State = .active(
+                isApproveRequired: info.isAllowancePermissionRequired,
+                undepositedAmount: info.nonYieldModuleBalanceValue,
+                apy: marketInfo?.apy
             )
+
+            let navigationAction = { [weak self] in self?.coordinator?.openYieldModuleActiveInfo(factory: factory) }
+            let vm = factory.makeYieldStatusViewModel(state: state, navigationAction: { navigationAction() })
+
             if info.isAllowancePermissionRequired {
                 Analytics.log(
                     event: .earningNoticeApproveNeeded,
@@ -414,7 +426,8 @@ private extension TokenDetailsViewModel {
             return makeEligibleViewModelIfPossible()
 
         case .processing(let action):
-            let vm = makeYieldStatusViewModel(yieldManager: manager, state: action == .enter ? .loading : .closing)
+            let state: YieldStatusViewModel.State = action == .enter ? .loading : .closing
+            let vm = factory.makeYieldStatusViewModel(state: state, navigationAction: {})
             return (action == .enter) ? .enter(vm) : .exit(vm)
 
         case .disabled:
@@ -430,25 +443,6 @@ private extension TokenDetailsViewModel {
         case .failedToLoad:
             return makeEligibleViewModelIfPossible()
         }
-    }
-}
-
-// MARK: - Navigation functions
-
-private extension TokenDetailsViewModel {
-    func dismiss() {
-        coordinator?.dismiss()
-    }
-
-    func openFeeCurrency() {
-        guard let feeCurrencyWalletModel = userWalletModel.walletModelsManager.walletModels.first(where: {
-            $0.tokenItem == walletModel.feeTokenItem
-        }) else {
-            assertionFailure("Fee currency '\(walletModel.feeTokenItem.name)' for currency '\(walletModel.tokenItem.name)' not found")
-            return
-        }
-
-        coordinator?.openFeeCurrency(for: feeCurrencyWalletModel, userWalletModel: userWalletModel)
     }
 }
 
@@ -493,58 +487,47 @@ extension TokenDetailsViewModel: BalanceWithButtonsViewModelBalanceProvider {
 }
 
 extension TokenDetailsViewModel: BalanceTypeSelectorProvider {
-    var shouldShowBalanceSelector: Bool {
-        switch walletModel.stakingBalanceProvider.balanceType {
-        case .empty:
-            return false
-        case .loaded(let amount) where amount == .zero:
-            return false
-        case .failure(let cached) where cached?.balance == .zero || cached == nil:
-            return false
-        case .failure, .loading, .loaded:
-            return true
-        }
+    var showBalanceSelectorPublisher: AnyPublisher<Bool, Never> {
+        walletModel.stakingBalanceProvider.balanceTypePublisher.map {
+            switch $0 {
+            case .empty, .failure:
+                return false
+            case .loaded(let amount) where amount == .zero:
+                return false
+            case .loading(let cached) where cached?.balance == .zero || cached == nil:
+                return false
+            case .loading, .loaded:
+                return true
+            }
+        }.eraseToAnyPublisher()
     }
 }
 
 extension TokenDetailsViewModel {
-    func makeYieldStatusViewModel(yieldManager: YieldModuleManager, state: YieldStatusViewModel.State) -> YieldStatusViewModel {
-        YieldStatusViewModel(
-            state: state,
-            manager: yieldManager,
-            feeTokenItem: walletModel.feeTokenItem,
-            token: walletModel.tokenItem,
-            navigationAction: { [weak self] in
-                self?.openYieldEarnInfo()
-            }
-        )
-    }
+    func makeYieldModuleFlowFactory(manager: YieldModuleManager) -> YieldModuleFlowFactory? {
+        let factory = TransactionDispatcherFactory(walletModel: walletModel, signer: userWalletInfo.signer)
+        guard let dispatcher = factory.makeYieldModuleDispatcher() else {
+            return nil
+        }
 
-    func makeYieldNotificationViewModel(apy: Decimal) -> YieldAvailableNotificationViewModel {
-        YieldAvailableNotificationViewModel(
-            apy: apy,
-            onButtonTap: { [weak self] apy in
-                guard let self else { return }
-                coordinator?.openYieldModulePromoView(
-                    walletModel: walletModel,
-                    apy: apy,
-                    signer: userWalletModel.signer
-                )
-            }
+        return CommonYieldModuleFlowFactory(
+            walletModel: walletModel,
+            yieldModuleManager: manager,
+            transactionDispatcher: dispatcher
         )
-    }
-
-    func openYieldEarnInfo() {
-        coordinator?.openYieldEarnInfo(walletModel: walletModel, signer: userWalletModel.signer)
     }
 
     func openYieldBalanceInfo() {
+        guard let manager = walletModel.yieldModuleManager, let factory = makeYieldModuleFlowFactory(manager: manager) else {
+            return
+        }
+
         Analytics.log(
             event: .earningEarnedFundsInfo,
             params: [.token: walletModel.tokenItem.currencySymbol, .blockchain: walletModel.tokenItem.blockchain.displayName]
         )
 
-        coordinator?.openYieldBalanceInfo(tokenName: walletModel.tokenItem.name, tokenId: walletModel.tokenItem.id)
+        coordinator?.openYieldBalanceInfo(factory: factory)
     }
 }
 
@@ -556,5 +539,11 @@ extension TokenDetailsViewModel: YieldModuleStatusProvider {
             .removeDuplicates()
             .eraseToAnyPublisher()
             ?? Just(YieldModuleManagerStateInfo(marketInfo: nil, state: .disabled)).eraseToAnyPublisher()
+    }
+}
+
+extension TokenDetailsViewModel: RefreshStatusProvider {
+    var isRefreshing: AnyPublisher<Bool, Never> {
+        isRefreshingSubject.eraseToAnyPublisher()
     }
 }
