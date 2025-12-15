@@ -21,7 +21,7 @@ public class AsyncTaskScheduler {
         task?.cancel()
         task = Task {
             repeat {
-                try await Task.sleep(seconds: interval)
+                try await Task.sleep(for: .seconds(interval))
                 try Task.checkCancellation()
                 try await action()
             } while !Task.isCancelled && repeats
