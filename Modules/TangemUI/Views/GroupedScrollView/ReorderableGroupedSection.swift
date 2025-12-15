@@ -122,7 +122,7 @@ public struct ReorderableGroupedSection<
             }
             .listStyle(.plain)
             .frame(height: reorderableRowSizes.values.map(\.height).reduce(0, +))
-            .scrollDisabledBackport(true)
+            .scrollDisabled(true)
         }
         .onChange(of: reorderableModels.map(\.id)) { ids in
             reorderableRowSizes = reorderableRowSizes.filter { ids.contains($0.key) }
