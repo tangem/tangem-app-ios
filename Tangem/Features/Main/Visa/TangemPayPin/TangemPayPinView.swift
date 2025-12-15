@@ -20,7 +20,6 @@ struct TangemPayPinView: View {
                 switch viewModel.state {
                 case .enterPin:
                     enterPinView
-                        .screenCaptureProtection()
                 case .created:
                     createdView
                 }
