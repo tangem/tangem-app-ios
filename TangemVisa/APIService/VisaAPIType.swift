@@ -10,27 +10,31 @@ import Foundation
 
 public enum VisaAPIType: String, CaseIterable, Codable {
     case prod
-    case stage
     case dev
 
     public var isTestnet: Bool {
         switch self {
         case .prod:
-            return false
-        case .stage, .dev:
-            return true
+            false
+        case .dev:
+            true
         }
     }
 
     var baseURL: URL {
         switch self {
         case .dev:
-            return .init(string: "https://api.dev.paera.com/bff/v1")!
-        case .stage:
-            // [REDACTED_TODO_COMMENT]
-            return .init(string: "https://api.dev.paera.com/bff/v1")!
+            URL(string: "https://api.dev.us.paera.com")!
         case .prod:
-            return .init(string: "https://api.us.paera.com/bff/v1")!
+            URL(string: "https://api.us.paera.com")!
         }
+    }
+
+    var bffBaseURL: URL {
+        baseURL.appendingPathComponent("bff/v1")
+    }
+
+    var bffAPIBaseURL: URL {
+        baseURL.appendingPathComponent("bff/api/v1")
     }
 }

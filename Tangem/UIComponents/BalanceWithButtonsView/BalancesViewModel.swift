@@ -16,4 +16,6 @@ protocol BalancesViewModel: ObservableObject {
 
     var balanceAccessibilityIdentifier: String? { get }
     var isYieldActive: Bool { get }
+
+    var isRefreshing: Bool { get }
 }
