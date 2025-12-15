@@ -8,14 +8,15 @@
 
 import Foundation
 import Combine
+import TangemExpress
 
 class SendCurrencyViewModel: ObservableObject, Identifiable {
     @Published private(set) var expressCurrencyViewModel: ExpressCurrencyViewModel
-    @Published private(set) var decimalNumberTextFieldViewModel: DecimalNumberTextField.ViewModel
+    @Published private(set) var decimalNumberTextFieldViewModel: DecimalNumberTextFieldViewModel
 
     init(
         expressCurrencyViewModel: ExpressCurrencyViewModel,
-        decimalNumberTextFieldViewModel: DecimalNumberTextField.ViewModel
+        decimalNumberTextFieldViewModel: DecimalNumberTextFieldViewModel
     ) {
         self.expressCurrencyViewModel = expressCurrencyViewModel
         self.decimalNumberTextFieldViewModel = decimalNumberTextFieldViewModel
@@ -25,12 +26,15 @@ class SendCurrencyViewModel: ObservableObject, Identifiable {
         Analytics.log(.swapSendTokenBalanceClicked)
     }
 
-    func update(wallet: any ExpressInteractorSourceWallet, initialWalletId: WalletModelId) {
-        expressCurrencyViewModel.update(wallet: .success(wallet), initialWalletId: initialWalletId)
-        decimalNumberTextFieldViewModel.update(maximumFractionDigits: wallet.tokenItem.decimalCount)
+    func update(wallet: ExpressInteractor.Source, initialWalletId: WalletModelId) {
+        expressCurrencyViewModel.update(wallet: wallet.mapValue { $0 as ExpressGenericWallet }, initialWalletId: initialWalletId)
+
+        if let tokenItem = wallet.value?.tokenItem {
+            decimalNumberTextFieldViewModel.update(maximumFractionDigits: tokenItem.decimalCount)
+        }
     }
 
-    func updateSendFiatValue(amount: Decimal?, tokenItem: TokenItem) {
+    func updateSendFiatValue(amount: Decimal?, tokenItem: TokenItem?) {
         expressCurrencyViewModel.updateFiatValue(expectAmount: amount, tokenItem: tokenItem)
     }
 }

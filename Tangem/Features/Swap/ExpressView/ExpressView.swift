@@ -54,9 +54,14 @@ struct ExpressView: View {
                 bottomView
             }
             .accessibilityIdentifier(SwapAccessibilityIdentifiers.title)
-            .scrollDismissesKeyboardCompat(.interactively)
+            .scrollDismissesKeyboardCompat(.immediately)
         }
+        .navigationBarTitle(Text(Localization.commonSwap), displayMode: .inline)
         .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                CloseButton(dismiss: { viewModel.didTapCloseButton() })
+            }
+
             ToolbarItemGroup(placement: .keyboard) {
                 if !viewModel.isMaxAmountButtonHidden {
                     Button(action: viewModel.userDidTapMaxAmount) {
