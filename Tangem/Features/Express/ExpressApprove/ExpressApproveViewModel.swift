@@ -155,7 +155,7 @@ private extension ExpressApproveViewModel {
         runTask(in: self) { viewModel in
             do {
                 try await viewModel.approveViewModelInput.sendApproveTransaction()
-                try await Task.sleep(seconds: 0.3)
+                try await Task.sleep(for: .seconds(0.3))
                 await viewModel.didSendApproveTransaction()
             } catch TransactionDispatcherResult.Error.userCancelled {
                 // Do nothing
