@@ -36,7 +36,7 @@ struct WalletConnectDAppConnectionView: View {
             .safeAreaInset(edge: .bottom, spacing: .zero) {
                 footer
             }
-            .scrollBounceBehaviorBackport(.basedOnSize)
+            .scrollBounceBehavior(.basedOnSize)
             .coordinateSpace(name: Layout.scrollViewCoordinateSpace)
         }
         .floatingSheetConfiguration { configuration in

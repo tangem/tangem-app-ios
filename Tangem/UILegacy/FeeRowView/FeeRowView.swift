@@ -46,7 +46,6 @@ struct FeeRowView: View {
         .padding(.vertical, 12)
     }
 
-    @ViewBuilder
     private var leadingView: some View {
         HStack(spacing: 8) {
             viewModel.option.icon.image
@@ -149,7 +148,7 @@ struct ExpressFeeRowView_Preview: PreviewProvider {
         }
 
         var body: some View {
-            GroupedScrollView(spacing: 14) {
+            GroupedScrollView(contentType: .lazy(alignment: .leading, spacing: 14)) {
                 GroupedSection(viewModels) {
                     FeeRowView(viewModel: $0)
                 }

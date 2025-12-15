@@ -15,7 +15,7 @@ struct SendFinishView: View {
     @ObservedObject var viewModel: SendFinishViewModel
 
     var body: some View {
-        GroupedScrollView(spacing: 14) {
+        GroupedScrollView(contentType: .lazy(alignment: .center, spacing: 14)) {
             if viewModel.showHeader, let transactionTime = viewModel.transactionSentTime {
                 header(transactionTime: transactionTime)
             }
@@ -58,7 +58,6 @@ struct SendFinishView: View {
 
     // MARK: - Header
 
-    @ViewBuilder
     private func header(transactionTime: String) -> some View {
         VStack(spacing: 12) {
             Assets.inProgress.image
@@ -82,7 +81,6 @@ struct SendFinishView: View {
         .padding(.bottom, 10)
     }
 
-    @ViewBuilder
     private func bottomButtons(url: URL) -> some View {
         HStack(spacing: 8) {
             MainButton(

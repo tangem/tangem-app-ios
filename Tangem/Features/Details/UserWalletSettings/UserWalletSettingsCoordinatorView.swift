@@ -83,7 +83,7 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
                     AccountFormView(viewModel: viewModel)
                 }
                 .presentation(onDismissalAttempt: viewModel.onClose)
-                .presentationCornerRadiusBackport(24)
+                .presentationCornerRadius(24)
             }
     }
 }

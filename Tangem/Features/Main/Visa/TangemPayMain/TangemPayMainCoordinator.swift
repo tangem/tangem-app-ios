@@ -225,7 +225,7 @@ extension TangemPayMainCoordinator: TangemPayAddFundsSheetRoutable {
     func addFundsSheetRequestReceive(viewModel: ReceiveMainViewModel) {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
-            try? await Task.sleep(seconds: 0.2)
+            try? await Task.sleep(for: .seconds(0.2))
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
@@ -235,7 +235,7 @@ extension TangemPayMainCoordinator: TangemPayAddFundsSheetRoutable {
             floatingSheetPresenter.removeActiveSheet()
 
             // Give some time to hide sheet with animation
-            try? await Task.sleep(seconds: 0.2)
+            try? await Task.sleep(for: .seconds(0.2))
             let factory = CommonExpressModulesFactory(input: input)
             openExpress(factory: factory)
         }
