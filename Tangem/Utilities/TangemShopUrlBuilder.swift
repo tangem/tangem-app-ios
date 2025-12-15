@@ -17,7 +17,7 @@ struct TangemShopUrlBuilder {
             "utm_source": "tangem-app",
             "utm_medium": "app",
             "utm_campaign": "\(utmCampaign.urlQueryValue)-\(Locale.appLanguageCode)",
-            "utm_content": "devicelang-" + Locale.deviceLanguageCode(),
+            "utm_content": "devicelang-" + Locale.deviceLanguageCode,
             "app_instance_id": FirebaseAnalytics.Analytics.appInstanceID(),
         ]
 
