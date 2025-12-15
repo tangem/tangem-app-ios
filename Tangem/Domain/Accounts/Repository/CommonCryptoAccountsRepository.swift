@@ -75,13 +75,18 @@ final class CommonCryptoAccountsRepository {
         self.userWalletInfoProvider = userWalletInfoProvider
     }
 
-    // MARK: - Migration, not accounts created, no wallets created, etc.
+    // MARK: - Legacy storage migration, not accounts created, no wallets created, etc.
 
     private func migrateStorage(forUserWalletWithId userWalletId: UserWalletId) {
         let mainAccountPersistentConfig = AccountModelUtils.mainAccountPersistentConfig(forUserWalletWithId: userWalletId)
-        let legacyStoredTokens = tokenItemsRepository.getList().entries
-        let tokens = LegacyStoredEntryConverter.convert(legacyStoredTokens: legacyStoredTokens)
-        let newCryptoAccount = StoredCryptoAccount(config: mainAccountPersistentConfig, tokens: tokens)
+        let legacyStoredTokenList = tokenItemsRepository.getList()
+        let tokens = LegacyStoredEntryConverter.convert(legacyStoredTokens: legacyStoredTokenList.entries)
+        let tokenListAppearance = LegacyStoredEntryConverter.convert(legacyStoredTokenListToAppearance: legacyStoredTokenList)
+        let newCryptoAccount = StoredCryptoAccount(
+            config: mainAccountPersistentConfig,
+            tokenListAppearance: tokenListAppearance,
+            tokens: tokens
+        )
 
         persistentStorage.replace(with: [newCryptoAccount])
         auxiliaryDataStorage.update(withArchivedAccountsCount: 0, totalAccountsCount: 1)
@@ -269,11 +274,12 @@ final class CommonCryptoAccountsRepository {
 
     // MARK: - Internal CRUD methods for accounts (always remote first, then local)
 
-    private func addNewOrUpdateExistingCryptoAccountInternal(
+    private func addNewOrUpdateExistingAccountInternal(
         withConfig config: CryptoAccountPersistentConfig,
         remoteState: CryptoAccountsRemoteState,
     ) async throws -> StoredCryptoAccountsTokensDistributor.DistributionResult {
-        let newCryptoAccount = StoredCryptoAccount(config: config)
+        let tokenListAppearance = cryptoAccountTokenListAppearance(withConfig: config, remoteState: remoteState)
+        let newCryptoAccount = StoredCryptoAccount(config: config, tokenListAppearance: tokenListAppearance)
         let existingCryptoAccounts = remoteState.accounts
         let merger = StoredCryptoAccountsMerger(preserveTokensWhileMergingAccounts: true)
         let (editedItems, isDirty) = merger.merge(oldAccounts: existingCryptoAccounts, newAccounts: [newCryptoAccount])
@@ -300,7 +306,8 @@ final class CommonCryptoAccountsRepository {
         if forceUpdateTokenList {
             try await networkService.saveTokens(from: accounts, retryCount: Constants.maxRetryCount)
             try Task.checkCancellation()
-            // Overriding remote state when `forceUpdateTokenList` is `true` to ensure that tokens from the newly added accounts are saved
+            // Overriding the remote state when `forceUpdateTokenList` is `true`
+            // to ensure that tokens from the newly added accounts are saved
             updatedAccounts = accounts
         } else {
             updatedAccounts = remoteCryptoAccountsInfo.accounts
@@ -335,6 +342,24 @@ final class CommonCryptoAccountsRepository {
         // Updating local storage only after successful remote update
         persistentStorage.removeAll { $0.derivationIndex.toAnyHashable() == identifier.toAnyHashable() }
         auxiliaryDataStorage.update(withRemoteInfo: remoteCryptoAccountsInfo)
+    }
+
+    private func cryptoAccountTokenListAppearance(
+        withConfig config: CryptoAccountPersistentConfig,
+        remoteState: CryptoAccountsRemoteState,
+    ) -> CryptoAccountPersistentConfig.TokenListAppearance {
+        // Currently, the token list appearance is shared between all accounts within a unique wallet and therefore
+        // has the same value for all accounts. So, we can simply take the appearance from any existing remote account
+        // if there is no account matching the provided derivation index.
+        let accounts = remoteState.accounts
+        let account = accounts.first { $0.derivationIndex == config.derivationIndex } ?? accounts.first
+
+        // Pretty much dead code path, since there always exists at least one account
+        guard let account else {
+            return .default
+        }
+
+        return CryptoAccountPersistentConfig.TokenListAppearance(grouping: account.grouping, sorting: account.sorting)
     }
 
     // MARK: - Custom tokens upgrade and migration
@@ -394,7 +419,7 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
         withConfig config: CryptoAccountPersistentConfig,
         remoteState: CryptoAccountsRemoteState
     ) async throws -> StoredCryptoAccountsTokensDistributor.DistributionResult {
-        return try await addNewOrUpdateExistingCryptoAccountInternal(withConfig: config, remoteState: remoteState)
+        return try await addNewOrUpdateExistingAccountInternal(withConfig: config, remoteState: remoteState)
     }
 
     func updateExistingCryptoAccount(
@@ -402,14 +427,14 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
         remoteState: CryptoAccountsRemoteState
     ) async throws {
         // Ignoring the result, as tokens redistribution can't be performed when editing an existing account
-        let _ = try await addNewOrUpdateExistingCryptoAccountInternal(withConfig: config, remoteState: remoteState)
+        let _ = try await addNewOrUpdateExistingAccountInternal(withConfig: config, remoteState: remoteState)
     }
 
     func removeCryptoAccount(withIdentifier identifier: some Hashable) async throws {
         try await removeAccountsInternal(identifier)
     }
 
-    func reorder(orderedIdentifiers: [some Hashable]) async throws {
+    func reorderCryptoAccounts(orderedIdentifiers: [some Hashable]) async throws {
         let orderedIndicesKeyedByIdentifiers = orderedIdentifiers
             .enumerated()
             .reduce(into: [:]) { partialResult, element in
