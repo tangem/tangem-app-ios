@@ -86,6 +86,10 @@ final class AccountsAwareOrganizeTokensViewModel: ObservableObject, Identifiable
                 guard cryptoAccountModels.isNotEmpty else {
                     return .just(output: [])
                 }
+                
+                // Invalidate caches for accounts that no longer exist
+                let currentAccountIDs = Set(cryptoAccountModels.map { AnyHashable($0.id) })
+                aggregatedCache.invalidateCaches(notIn: currentAccountIDs)
 
                 // [REDACTED_TODO_COMMENT]
                 return cryptoAccountModels
@@ -113,8 +117,7 @@ final class AccountsAwareOrganizeTokensViewModel: ObservableObject, Identifiable
                                         sections: sections,
                                         sortingOption: .dragAndDrop, // [REDACTED_TODO_COMMENT]
                                         groupingOption: .none, // [REDACTED_TODO_COMMENT]
-                                        // [REDACTED_TODO_COMMENT]
-                                        dragAndDropActionsCache: aggregatedCache.cache(forOuterSectionIndex: outerSectionIndex)
+                                        dragAndDropActionsCache: aggregatedCache.cache(forAccountID: AnyHashable(cryptoAccountModel.id))
                                     )
                                 )
                             }
@@ -349,7 +352,8 @@ extension AccountsAwareOrganizeTokensViewModel {
         }
 
         let outerSectionIndex = sourceIndexPath.outerSection // Same value for both source and destination
-        let cache = _dragAndDropActionsCache.cache(forOuterSectionIndex: outerSectionIndex)
+        let accountID = __sections[outerSectionIndex].model.id
+        let cache = _dragAndDropActionsCache.cache(forAccountID: accountID)
         let isGroupingEnabled = headerViewModel.isGroupingEnabled
 
         if sourceIndexPath._item == sectionHeaderItemIndex {
