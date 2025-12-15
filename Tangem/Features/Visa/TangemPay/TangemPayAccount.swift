@@ -95,6 +95,10 @@ final class TangemPayAccount {
         customerInfoSubject.value?.productInstance?.cardId
     }
 
+    var isPinSet: Bool {
+        customerInfoSubject.value?.card?.isPINSet ?? false
+    }
+
     var customerWalletId: String {
         authorizer.customerWalletId
     }
