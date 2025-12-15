@@ -38,14 +38,20 @@ public class RefreshScrollViewStateObject: ObservableObject {
 
     private let settings: Settings
     private var refreshable: () async -> Void
+    private var reachedRefreshOffsetAction: (() -> Void)?
 
     private var state: RefreshState = .idle {
         didSet { refreshControlStateObject.update(state: state) }
     }
 
-    public init(settings: Settings = .init(), refreshable: @escaping () async -> Void) {
+    public init(
+        settings: Settings = .init(),
+        reachedRefreshOffsetAction: (() -> Void)? = nil,
+        refreshable: @escaping () async -> Void
+    ) {
         self.settings = settings
         self.refreshable = refreshable
+        self.reachedRefreshOffsetAction = reachedRefreshOffsetAction
 
         refreshControlStateObject = .init(settings: settings)
     }
@@ -58,6 +64,7 @@ private extension RefreshScrollViewStateObject {
 
     func startRefreshing() {
         FeedbackGenerator.heavy()
+        reachedRefreshOffsetAction?()
 
         // Clouser which start refresh
         let refreshing: () -> Void = { [weak self] in
