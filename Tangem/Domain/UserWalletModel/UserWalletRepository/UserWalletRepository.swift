@@ -31,6 +31,13 @@ protocol UserWalletRepository {
     func save(userWalletModel: UserWalletModel)
 }
 
+extension UserWalletRepository {
+    /// User has only one wallet is app
+    var hasOnlyOneWallet: Bool {
+        models.count == 1
+    }
+}
+
 private struct UserWalletRepositoryKey: InjectionKey {
     static var currentValue: UserWalletRepository = CommonUserWalletRepository()
 }

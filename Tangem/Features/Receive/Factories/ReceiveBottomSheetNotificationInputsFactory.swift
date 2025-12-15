@@ -158,7 +158,11 @@ struct ReceiveBottomSheetNotificationInputsFactory {
              (_, .zkLinkNova),
              (_, .pepecoin),
              (_, .hyperliquidEVM),
-             (_, .quai):
+             (_, .quai),
+             (_, .scroll),
+             (_, .linea),
+             (_, .arbitrumNova),
+             (_, .plasma):
             // No additional notifications for these blockchains
             return baseNotificationInputs
         }
