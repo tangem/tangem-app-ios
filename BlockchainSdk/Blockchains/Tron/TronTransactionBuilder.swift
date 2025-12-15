@@ -30,7 +30,7 @@ class TronTransactionBuilder {
         }
 
         let blockData = try blockHeader.serializedData()
-        let blockHash = blockData.getSha256()
+        let blockHash = blockData.getSHA256()
         let refBlockHash = blockHash[8 ..< 16]
 
         let number = blockHeader.number
