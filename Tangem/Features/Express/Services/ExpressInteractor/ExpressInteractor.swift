@@ -25,15 +25,13 @@ class ExpressInteractor {
 
     // MARK: - Dependencies
 
-    private let userWalletId: String
-    private let initialWallet: any ExpressInteractorSourceWallet
+    private let userWalletInfo: UserWalletInfo
     private let expressManager: ExpressManager
-    private let expressRepository: ExpressRepository
+    private let expressPairsRepository: ExpressPairsRepository
     private let expressPendingTransactionRepository: ExpressPendingTransactionRepository
     private let expressDestinationService: ExpressDestinationService
     private let expressAnalyticsLogger: ExpressAnalyticsLogger
     private let expressAPIProvider: ExpressAPIProvider
-    private let signer: TangemSigner
 
     // MARK: - Options
 
@@ -43,32 +41,25 @@ class ExpressInteractor {
     private var updateStateTask: Task<Void, Error>?
 
     init(
-        userWalletId: String,
-        initialWallet: Source,
-        destinationWallet: Destination?,
+        userWalletInfo: UserWalletInfo,
+        swappingPair: SwappingPair,
         expressManager: ExpressManager,
-        expressRepository: ExpressRepository,
+        expressPairsRepository: ExpressPairsRepository,
         expressPendingTransactionRepository: ExpressPendingTransactionRepository,
         expressDestinationService: ExpressDestinationService,
         expressAnalyticsLogger: ExpressAnalyticsLogger,
-        expressAPIProvider: ExpressAPIProvider,
-        signer: TangemSigner
+        expressAPIProvider: ExpressAPIProvider
     ) {
-        self.userWalletId = userWalletId
-        self.initialWallet = initialWallet
+        self.userWalletInfo = userWalletInfo
         self.expressManager = expressManager
-        self.expressRepository = expressRepository
+        self.expressPairsRepository = expressPairsRepository
         self.expressPendingTransactionRepository = expressPendingTransactionRepository
         self.expressDestinationService = expressDestinationService
         self.expressAnalyticsLogger = expressAnalyticsLogger
         self.expressAPIProvider = expressAPIProvider
-        self.signer = signer
 
-        _swappingPair = .init(
-            SwappingPair(sender: initialWallet, destination: destinationWallet)
-        )
-
-        initialLoading(wallet: initialWallet)
+        _swappingPair = .init(swappingPair)
+        initialLoading(source: swappingPair.sender, destination: swappingPair.destination)
     }
 }
 
@@ -83,8 +74,16 @@ extension ExpressInteractor {
         _swappingPair.value
     }
 
-    func getSender() -> any ExpressInteractorSourceWallet {
+    func getSource() -> Source {
         _swappingPair.value.sender
+    }
+
+    func getSourceWallet() throws -> any ExpressInteractorSourceWallet {
+        guard let sender = _swappingPair.value.sender.value else {
+            throw ExpressInteractorError.sourceNotFound
+        }
+
+        return sender
     }
 
     func getDestination() -> (any ExpressInteractorDestinationWallet)? {
@@ -93,6 +92,28 @@ extension ExpressInteractor {
 
     func getDestinationValue() -> Destination? {
         _swappingPair.value.destination
+    }
+
+    func providersPublisher() -> AnyPublisher<[ExpressAvailableProvider], Never> {
+        state
+            // Skip rates loading to avoid UI jumping
+            .filter { !$0.isRefreshRates }
+            .withWeakCaptureOf(self)
+            .asyncMap { interactor, _ in
+                await interactor.getAllProviders()
+            }
+            .eraseToAnyPublisher()
+    }
+
+    func selectedProviderPublisher() -> AnyPublisher<ExpressAvailableProvider?, Never> {
+        state
+            // Skip rates loading to avoid UI jumping
+            .filter { !$0.isRefreshRates }
+            .withWeakCaptureOf(self)
+            .asyncMap { interactor, _ in
+                await interactor.getSelectedProvider()
+            }
+            .eraseToAnyPublisher()
     }
 
     // Proxy methods
@@ -110,12 +131,14 @@ extension ExpressInteractor {
 
 extension ExpressInteractor {
     func swapPair() {
-        guard let destination = getDestination() as? ExpressInteractorSourceWallet else {
+        guard
+            let source = _swappingPair.value.sender.value,
+            let destination = getDestination() as? ExpressInteractorSourceWallet else {
             log("The destination not found")
             return
         }
 
-        let newPair = SwappingPair(sender: destination, destination: .success(_swappingPair.value.sender))
+        let newPair = SwappingPair(sender: .success(destination), destination: .success(source))
         _swappingPair.value = newPair
 
         swappingPairDidChange()
@@ -124,7 +147,7 @@ extension ExpressInteractor {
     func update(sender wallet: any ExpressInteractorSourceWallet) {
         log("Will update sender to \(wallet)")
 
-        _swappingPair.value.sender = wallet
+        _swappingPair.value.sender = .success(wallet)
         swappingPairDidChange()
     }
 
@@ -239,20 +262,21 @@ extension ExpressInteractor {
             }
         }()
 
-        // Ignore error here
-        let source = getSender()
+        let source = try getSourceWallet()
         let expressSentResult = ExpressTransactionSentResult(
             hash: result.dispatcherResult.hash,
             source: source.tokenItem.expressCurrency,
             address: source.defaultAddressString,
             data: result.data
         )
+
+        // Ignore error here
         try? await expressAPIProvider.exchangeSent(result: expressSentResult)
 
         updateState(.idle)
         let sentTransactionData = SentExpressTransactionData(
             result: result.dispatcherResult,
-            source: getSender(),
+            source: source,
             destination: destination,
             fee: result.fee.amount.value,
             feeOption: getState().fees.selected,
@@ -264,7 +288,10 @@ extension ExpressInteractor {
         if shouldTrackAnalytics {
             logTransactionSentAnalyticsEvent(data: sentTransactionData, signerType: result.dispatcherResult.signerType)
         }
-        expressPendingTransactionRepository.swapTransactionDidSend(sentTransactionData, userWalletId: userWalletId)
+        expressPendingTransactionRepository.swapTransactionDidSend(
+            sentTransactionData,
+            userWalletId: userWalletInfo.id.stringValue
+        )
 
         return sentTransactionData
     }
@@ -274,17 +301,16 @@ extension ExpressInteractor {
             throw ExpressInteractorError.transactionDataNotFound
         }
 
-        let fee = try state.fees.selectedFee()
-
         logApproveTransactionAnalyticsEvent(policy: state.policy)
 
-        let sender = getSender()
-        let transaction = try await sender.expressTransactionBuilder.makeApproveTransaction(data: state.data, fee: fee)
-        let result = try await sender.transactionDispatcher(signer: signer).send(transaction: .express(transaction))
+        guard let allowanceService = try getSourceWallet().allowanceService else {
+            throw ExpressInteractorError.allowanceServiceNotFound
+        }
+
+        let result = try await allowanceService.sendApproveTransaction(data: state.data)
 
         ExpressLogger.info("Sent the approve transaction with result: \(result)")
-        sender.allowanceService.didSendApproveTransaction(for: state.data.spender)
-        logApproveTransactionSentAnalyticsEvent(policy: state.policy, signerType: result.signerType)
+        logApproveTransactionSentAnalyticsEvent(policy: state.policy, signerType: result.signerType, currentProviderHost: result.currentHost)
         updateState(.restriction(.hasPendingApproveTransaction, quote: getState().quote))
     }
 }
@@ -304,7 +330,7 @@ extension ExpressInteractor {
             if type == .full {
                 // If we have a restriction with destination after "refresh button"
                 // Just show it
-                if let restriction = await interactor.updatePairsAndLoadDestinationIfNeeded() {
+                if let restriction = await interactor.updatePairsIfNeeded() {
                     return .restriction(restriction, quote: .none)
                 }
             }
@@ -359,12 +385,12 @@ private extension ExpressInteractor {
     func updateState(_ state: State) {
         log("Update state to \(state)")
 
-        if case .restriction(.notEnoughAmountForFee, _) = state {
+        if let sender = getSource().value, case .restriction(.notEnoughAmountForFee, _) = state {
             Analytics.log(
                 event: .swapNoticeNotEnoughFee,
                 params: [
-                    .token: initialWallet.tokenItem.currencySymbol,
-                    .blockchain: initialWallet.tokenItem.blockchain.displayName,
+                    .token: sender.tokenItem.currencySymbol,
+                    .blockchain: sender.tokenItem.blockchain.displayName,
                 ]
             )
         }
@@ -377,11 +403,8 @@ private extension ExpressInteractor {
 
 private extension ExpressInteractor {
     func hasPendingTransaction() -> Bool {
-        if case .hasPendingTransaction = getSender().sendingRestrictions {
-            return true
-        }
-
-        return false
+        let hasPendingTransaction = getSource().value?.sendingRestrictions?.isHasPendingTransaction
+        return hasPendingTransaction ?? false
     }
 
     func map(restriction: ExpressRestriction, quote: ExpressQuote?) async throws -> State {
@@ -415,8 +438,9 @@ private extension ExpressInteractor {
     }
 
     func map(permissionRequired: ExpressManagerState.PermissionRequired) async throws -> State {
+        let sender = try getSourceWallet()
         let fees = mapToFees(fee: .init(option: .market, variants: .single(permissionRequired.data.fee)))
-        let amount = makeAmount(value: permissionRequired.quote.fromAmount)
+        let amount = makeAmount(value: permissionRequired.quote.fromAmount, tokenItem: sender.tokenItem)
         let fee = try fees.selectedFee()
         let quote = try await map(quote: permissionRequired.quote)
 
@@ -433,7 +457,8 @@ private extension ExpressInteractor {
     func map(ready: ExpressManagerState.Ready) async throws -> State {
         let fees = mapToFees(fee: ready.fee)
         let fee = try fees.selectedFee()
-        let amount = makeAmount(value: ready.quote.fromAmount)
+        let sender = try getSourceWallet()
+        let amount = makeAmount(value: ready.quote.fromAmount, tokenItem: sender.tokenItem)
         let quote = try await map(quote: ready.quote)
 
         let readyToSwapState = ReadyToSwapState(data: ready.data, fees: fees)
@@ -445,10 +470,11 @@ private extension ExpressInteractor {
     func map(previewCEX: ExpressManagerState.PreviewCEX) async throws -> State {
         let fees = mapToFees(fee: previewCEX.fee)
         let fee = try fees.selectedFee()
-        let amount = makeAmount(value: previewCEX.quote.fromAmount)
+        let sender = try getSourceWallet()
+        let amount = makeAmount(value: previewCEX.quote.fromAmount, tokenItem: sender.tokenItem)
         let quote = try await map(quote: previewCEX.quote)
 
-        let withdrawalNotificationProvider = getSender().withdrawalNotificationProvider
+        let withdrawalNotificationProvider = sender.withdrawalNotificationProvider
         let notification = withdrawalNotificationProvider?.withdrawalNotification(amount: amount, fee: fee)
 
         // Check on the minimum received amount
@@ -461,7 +487,12 @@ private extension ExpressInteractor {
             )
         }
 
-        let previewCEXState = PreviewCEXState(subtractFee: previewCEX.subtractFee, fees: fees, notification: notification)
+        let previewCEXState = PreviewCEXState(
+            subtractFee: previewCEX.subtractFee,
+            fees: fees,
+            isExemptFee: sender.isExemptFee,
+            notification: notification
+        )
         let correctState: State = .previewCEX(previewCEXState, quote: quote)
 
         return await validate(amount: amount, fee: fee, correctState: correctState)
@@ -469,7 +500,7 @@ private extension ExpressInteractor {
 
     func validate(amount: Amount, fee: Fee, correctState: State) async -> State {
         do {
-            let transactionValidator = getSender().transactionValidator
+            let transactionValidator = try getSourceWallet().transactionValidator
             try await transactionValidator.validate(amount: amount, fee: fee, destination: .generate)
         } catch ValidationError.totalExceedsBalance, ValidationError.amountExceedsBalance {
             return .restriction(.notEnoughBalanceForSwapping(requiredAmount: amount.value), quote: correctState.quote)
@@ -497,11 +528,12 @@ private extension ExpressInteractor {
     func calculateHighPriceImpact(quote: ExpressQuote?) async throws -> HighPriceImpactCalculator.Result? {
         guard let provider = await getSelectedProvider()?.provider,
               let quote,
+              let sourceCurrency = _swappingPair.value.sender.value?.tokenItem,
               let destinationCurrency = _swappingPair.value.destination?.value?.tokenItem else {
             return nil
         }
 
-        let priceImpactCalculator = HighPriceImpactCalculator(source: _swappingPair.value.sender.tokenItem, destination: destinationCurrency)
+        let priceImpactCalculator = HighPriceImpactCalculator(source: sourceCurrency, destination: destinationCurrency)
         let result = try await priceImpactCalculator.isHighPriceImpact(provider: provider, quote: quote)
         return result
     }
@@ -512,19 +544,19 @@ private extension ExpressInteractor {
 private extension ExpressInteractor {
     func sendDEXTransaction(state: ReadyToSwapState, provider: ExpressProvider) async throws -> TransactionSendResultState {
         let fee = try state.fees.selectedFee()
-        let sender = getSender()
-        let transaction = try await sender.expressTransactionBuilder.makeTransaction(data: state.data, fee: fee)
-        let result = try await sender.transactionDispatcher(signer: signer).send(transaction: .express(transaction))
+        let sender = try getSourceWallet()
+        let processor = try sender.dexTransactionProcessor()
+        let result = try await processor.process(data: state.data, fee: fee)
 
         return TransactionSendResultState(dispatcherResult: result, data: state.data, fee: fee, provider: provider)
     }
 
     func sendCEXTransaction(state: PreviewCEXState, provider: ExpressProvider) async throws -> TransactionSendResultState {
         let fee = try state.fees.selectedFee()
-        let sender = getSender()
+        let sender = try getSourceWallet()
         let data = try await expressManager.requestData()
-        let transaction = try await sender.expressTransactionBuilder.makeTransaction(data: data, fee: fee)
-        let result = try await sender.transactionDispatcher(signer: signer).send(transaction: .express(transaction))
+        let processor = try sender.cexTransactionProcessor()
+        let result = try await processor.process(data: data, fee: fee)
 
         return TransactionSendResultState(dispatcherResult: result, data: data, fee: fee, provider: provider)
     }
@@ -545,7 +577,7 @@ private extension ExpressInteractor {
                 interactor.updateState(.loading(type: .full))
             }
 
-            let sender = interactor.getSender()
+            let sender = try interactor.getSourceWallet()
             let pair = ExpressManagerSwappingPair(source: sender, destination: destination)
             let state = try await interactor.expressManager.update(pair: pair)
             return try await interactor.mapState(state: state)
@@ -589,9 +621,9 @@ private extension ExpressInteractor {
         }
     }
 
-    func initialLoading(wallet: any ExpressInteractorSourceWallet) {
+    func initialLoading(source: Source, destination: Destination?) {
         updateTask { interactor in
-            if let restriction = await interactor.initialLoading(wallet: wallet) {
+            if let restriction = await interactor.initialLoading(source: source, destination: destination) {
                 return .restriction(restriction, quote: .none)
             }
 
@@ -599,41 +631,70 @@ private extension ExpressInteractor {
         }
     }
 
-    func updatePairsAndLoadDestinationIfNeeded() async -> RestrictionType? {
-        guard getDestination() == nil else {
+    func updatePairsIfNeeded() async -> RestrictionType? {
+        guard getSource().value == nil || getDestination() == nil else {
             return nil
         }
 
-        let wallet = getSender()
-        return await initialLoading(wallet: wallet)
+        return await initialLoading(source: _swappingPair.value.sender, destination: _swappingPair.value.destination)
     }
 
-    func initialLoading(wallet: any ExpressInteractorSourceWallet) async -> RestrictionType? {
+    func initialLoading(source: Source, destination: Destination?) async -> RestrictionType? {
         do {
-            try await expressRepository.updatePairs(for: wallet.tokenItem.expressCurrency)
-
-            switch _swappingPair.value.destination {
-            case .none:
+            switch (source, destination) {
+            case (.success, .none):
                 log("Destination loading is not needed")
-            case .loading, .failure:
-                _swappingPair.value.destination = .loading
-                let destination = try await expressDestinationService.getDestination(source: wallet)
-                update(destination: destination)
-            case .success:
-                swappingPairDidChange()
-            }
 
-            return nil
-        } catch ExpressDestinationServiceError.destinationNotFound {
+            case (.success, .success):
+                // All already set
+                swappingPairDidChange()
+
+            case (.success(let source), _):
+                try await expressPairsRepository.updatePairs(for: source.tokenItem.expressCurrency, userWalletInfo: userWalletInfo)
+
+                _swappingPair.value.destination = .loading
+                let destination = try await expressDestinationService.getDestination(source: source)
+                update(destination: destination)
+
+            case (_, .success(let destination)):
+                try await expressPairsRepository.updatePairs(
+                    for: destination.tokenItem.expressCurrency,
+                    userWalletInfo: userWalletInfo
+                )
+                _swappingPair.value.sender = .loading
+                let source = try await expressDestinationService.getSource(destination: destination)
+                update(sender: source)
+
+            default:
+                assertionFailure("Wrong case. Check implementation")
+                _swappingPair.value.sender = .failure(ExpressInteractorError.sourceNotFound)
+                _swappingPair.value.destination = .failure(ExpressInteractorError.destinationNotFound)
+                return nil
+            }
+        } catch ExpressDestinationServiceError.sourceNotFound(let destination) {
             Analytics.log(.swapNoticeNoAvailableTokensToSwap)
             log("Destination not found")
-            _swappingPair.value.destination = .failure(ExpressDestinationServiceError.destinationNotFound)
-            return .noDestinationTokens
+            _swappingPair.value.sender = .failure(ExpressDestinationServiceError.sourceNotFound(destination: destination))
+            return .noSourceTokens(destination: destination.tokenItem)
+        } catch ExpressDestinationServiceError.destinationNotFound(let source) {
+            Analytics.log(.swapNoticeNoAvailableTokensToSwap)
+            log("Destination not found")
+            _swappingPair.value.destination = .failure(ExpressDestinationServiceError.destinationNotFound(source: source))
+            return .noDestinationTokens(source: source.tokenItem)
         } catch {
             log("Get destination failed with error: \(error)")
-            _swappingPair.value.destination = .failure(error)
+            if _swappingPair.value.destination?.isLoading == true {
+                _swappingPair.value.destination = .failure(error)
+            }
+
+            if _swappingPair.value.sender.isLoading {
+                _swappingPair.value.sender = .failure(error)
+            }
+
             return .requiredRefresh(occurredError: error)
         }
+
+        return nil
     }
 
     func mapToFees(fee: ExpressFee) -> Fees {
@@ -650,9 +711,8 @@ private extension ExpressInteractor {
         }
     }
 
-    func makeAmount(value: Decimal) -> Amount {
-        let wallet = getSender()
-        return Amount(with: wallet.tokenItem.blockchain, type: wallet.tokenItem.amountType, value: value)
+    func makeAmount(value: Decimal, tokenItem: TokenItem) -> Amount {
+        return Amount(with: tokenItem.blockchain, type: tokenItem.amountType, value: value)
     }
 }
 
@@ -675,8 +735,12 @@ private extension ExpressInteractor {
         expressAnalyticsLogger.logApproveTransactionAnalyticsEvent(policy: policy, destination: getDestination()?.tokenItem.currencySymbol)
     }
 
-    func logApproveTransactionSentAnalyticsEvent(policy: BSDKApprovePolicy, signerType: String) {
-        expressAnalyticsLogger.logApproveTransactionSentAnalyticsEvent(policy: policy, signerType: signerType)
+    func logApproveTransactionSentAnalyticsEvent(policy: BSDKApprovePolicy, signerType: String, currentProviderHost: String) {
+        expressAnalyticsLogger.logApproveTransactionSentAnalyticsEvent(
+            policy: policy,
+            signerType: signerType,
+            currentProviderHost: currentProviderHost
+        )
     }
 
     func logExpressError(_ error: Error) async {
@@ -699,6 +763,7 @@ private extension ExpressInteractor {
             .blockchain: data.source.tokenItem.blockchain.displayName,
             .feeType: analyticsFeeType.rawValue,
             .walletForm: signerType,
+            .selectedHost: data.result.currentHost,
         ])
     }
 }
@@ -716,7 +781,9 @@ extension ExpressInteractor: CustomStringConvertible {
 enum ExpressInteractorError: String, LocalizedError {
     case feeNotFound
     case quoteNotFound
+    case allowanceServiceNotFound
     case transactionDataNotFound
+    case sourceNotFound
     case destinationNotFound
     case providerNotFound
     case amountNotFound
@@ -801,7 +868,8 @@ extension ExpressInteractor {
         case notEnoughAmountForFee(_ returnState: State)
         case notEnoughAmountForTxValue(_ estimatedTxValue: Decimal)
         case requiredRefresh(occurredError: Error)
-        case noDestinationTokens
+        case noSourceTokens(destination: TokenItem)
+        case noDestinationTokens(source: TokenItem)
         case validationError(error: ValidationError, context: ValidationErrorContext)
         case notEnoughReceivedAmount(minAmount: Decimal, tokenSymbol: String)
     }
@@ -821,6 +889,7 @@ extension ExpressInteractor {
     struct PreviewCEXState {
         let subtractFee: Decimal
         let fees: Fees
+        let isExemptFee: Bool
         let notification: WithdrawalNotification?
     }
 
@@ -836,7 +905,7 @@ extension ExpressInteractor {
 
     // Manager models
 
-    typealias Source = any ExpressInteractorSourceWallet
+    typealias Source = LoadingResult<any ExpressInteractorSourceWallet, Error>
     typealias Destination = LoadingResult<any ExpressInteractorDestinationWallet, Error>
 
     struct SwappingPair {

@@ -7,6 +7,7 @@
 //
 
 import TangemExpress
+import TangemLocalization
 import struct TangemUI.TokenIconInfo
 
 class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
@@ -14,13 +15,15 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
     let parameters: PredefinedOnrampParameters
     let source: SendCoordinator.Source
 
+    let tokenHeaderProvider: SendGenericTokenHeaderProvider
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
     let tokenIconInfo: TokenIconInfo
     let defaultAddressString: String
 
     let walletModelDependenciesProvider: WalletModelDependenciesProvider
-    let walletModelBalancesProvider: WalletModelBalancesProvider
+    let availableBalanceProvider: any TokenBalanceProvider
+    let fiatAvailableBalanceProvider: any TokenBalanceProvider
     let transactionDispatcherFactory: TransactionDispatcherFactory
     let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let pendingExpressTransactionsManagerBuilder: PendingExpressTransactionsManagerBuilder
@@ -45,16 +48,6 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
     lazy var dataBuilder = makeOnrampBaseDataBuilder(
         onrampRepository: dependencies.repository,
         onrampDataRepository: dependencies.dataRepository,
-        providersBuilder: OnrampProvidersBuilder(
-            io: (input: onrampModel, output: onrampModel),
-            tokenItem: tokenItem,
-            paymentMethodsInput: onrampModel,
-            analyticsLogger: analyticsLogger
-        ),
-        paymentMethodsBuilder: OnrampPaymentMethodsBuilder(
-            io: (input: onrampModel, output: onrampModel),
-            analyticsLogger: analyticsLogger
-        ),
         onrampRedirectingBuilder: OnrampRedirectingBuilder(
             io: (input: onrampModel, output: onrampModel),
             tokenItem: tokenItem,
@@ -66,13 +59,17 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
         userWalletInfo: UserWalletInfo,
         parameters: PredefinedOnrampParameters,
         source: SendCoordinator.Source,
-        walletModel: any WalletModel,
-        expressInput: CommonExpressDependenciesFactory.Input,
+        walletModel: any WalletModel
     ) {
         self.userWalletInfo = userWalletInfo
         self.parameters = parameters
         self.source = source
 
+        tokenHeaderProvider = SendTokenHeaderProvider(
+            userWalletInfo: userWalletInfo,
+            account: walletModel.account,
+            flowActionType: .onramp
+        )
         tokenItem = walletModel.tokenItem
         feeTokenItem = walletModel.feeTokenItem
         tokenIconInfo = TokenIconInfoBuilder().build(
@@ -82,7 +79,8 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
         defaultAddressString = walletModel.defaultAddressString
 
         walletModelDependenciesProvider = walletModel
-        walletModelBalancesProvider = walletModel
+        availableBalanceProvider = walletModel.availableBalanceProvider
+        fiatAvailableBalanceProvider = walletModel.fiatAvailableBalanceProvider
         transactionDispatcherFactory = TransactionDispatcherFactory(
             walletModel: walletModel,
             signer: userWalletInfo.signer
@@ -93,15 +91,19 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
         )
         pendingExpressTransactionsManagerBuilder = .init(
             userWalletId: userWalletInfo.id.stringValue,
-            walletModel: walletModel
+            tokenItem: walletModel.tokenItem,
         )
+
+        let expressDependenciesInput = ExpressDependenciesInput(
+            userWalletInfo: userWalletInfo,
+            source: ExpressInteractorWalletModelWrapper(userWalletInfo: userWalletInfo, walletModel: walletModel),
+            destination: .none
+        )
+
         expressDependenciesFactory = CommonExpressDependenciesFactory(
-            input: expressInput,
-            initialWallet: walletModel.asExpressInteractorWallet,
-            destinationWallet: .none,
-            // We support only `CEX` in `Send With Swap` flow
-            supportedProviderTypes: [.cex],
-            operationType: .swapAndSend
+            input: expressDependenciesInput,
+            supportedProviderTypes: [.onramp],
+            operationType: .onramp
         )
     }
 }
@@ -110,7 +112,7 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
 
 extension OnrampFlowFactory: SendGenericFlowFactory {
     func make(router: any SendRoutable) -> SendViewModel {
-        let onramp = makeOnrampStep(router: router)
+        let onramp = makeOnrampSummaryStep()
         let offersSelectorViewModel = OnrampOffersSelectorViewModel(
             tokenItem: tokenItem,
             analyticsLogger: analyticsLogger,
@@ -140,7 +142,7 @@ extension OnrampFlowFactory: SendGenericFlowFactory {
         // And we can show keyboard safely
         let shouldActivateKeyboard = dependencies.repository.preferenceCountry != nil
 
-        let stepsManager = CommonNewOnrampStepsManager(
+        let stepsManager = CommonOnrampStepsManager(
             onrampStep: onramp,
             offersSelectorViewModel: offersSelectorViewModel,
             finishStep: finish,
@@ -179,26 +181,25 @@ extension OnrampFlowFactory: SendBaseBuildable {
     }
 }
 
-// MARK: - NewOnrampStepBuildable
+// MARK: - OnrampAmountStepBuildable
 
-extension OnrampFlowFactory: NewOnrampStepBuildable {
-    var onrampIO: NewOnrampStepBuilder.IO {
-        NewOnrampStepBuilder.IO(
-            input: onrampModel,
-            output: onrampModel,
+extension OnrampFlowFactory: OnrampSummaryStepBuildable {
+    var onrampIO: OnrampSummaryStepBuilder.IO {
+        OnrampSummaryStepBuilder.IO(
             amountInput: onrampModel,
             amountOutput: onrampModel,
+            output: onrampModel,
             providersInput: onrampModel,
             recentOnrampTransactionParametersFinder: onrampModel
         )
     }
 
-    var onrampTypes: NewOnrampStepBuilder.Types {
-        NewOnrampStepBuilder.Types(tokenItem: tokenItem)
+    var onrampTypes: OnrampSummaryStepBuilder.Types {
+        OnrampSummaryStepBuilder.Types(tokenItem: tokenItem)
     }
 
-    var onrampDependencies: NewOnrampStepBuilder.Dependencies {
-        NewOnrampStepBuilder.Dependencies(
+    var onrampDependencies: OnrampSummaryStepBuilder.Dependencies {
+        OnrampSummaryStepBuilder.Dependencies(
             notificationManager: notificationManager,
             analyticsLogger: analyticsLogger
         )
@@ -213,12 +214,13 @@ extension OnrampFlowFactory: SendFinishStepBuildable {
     }
 
     var finishTypes: SendFinishStepBuilder.Types {
-        SendFinishStepBuilder.Types(tokenItem: tokenItem)
+        SendFinishStepBuilder.Types(
+            title: Localization.commonInProgress,
+            tokenItem: tokenItem
+        )
     }
 
     var finishDependencies: SendFinishStepBuilder.Dependencies {
-        SendFinishStepBuilder.Dependencies(
-            analyticsLogger: analyticsLogger,
-        )
+        SendFinishStepBuilder.Dependencies(analyticsLogger: analyticsLogger)
     }
 }
