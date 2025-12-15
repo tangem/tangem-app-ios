@@ -41,7 +41,7 @@ class RadiantTransactionBuilder {
                 index: index
             )
 
-            return preImageHash.getDoubleSha256()
+            return preImageHash.getDoubleSHA256()
         }
 
         return hashes
