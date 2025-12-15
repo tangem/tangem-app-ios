@@ -48,8 +48,8 @@ class FeatureStorage {
     @AppStorageCompat(FeatureStorageKeys.tangemAPIType)
     var tangemAPIType = TangemAPIType.prod
 
-    @AppStorageCompat(FeatureStorageKeys.stakingAPIType)
-    var stakingAPIType = StakingAPIType.prod
+    @AppStorageCompat(FeatureStorageKeys.stakeKitAPIType)
+    var stakeKitAPIType = StakeKitAPIType.prod
 
     @AppStorageCompat(FeatureStorageKeys.yieldModuleAPIType)
     var yieldModuleAPIType = YieldModuleAPIType.prod
@@ -72,6 +72,6 @@ private enum FeatureStorageKeys: String {
     case useVisaAPIMocks = "use_visa_api_mocks"
     case visaAPIType = "visa_api_type"
     case tangemAPIType = "tangem_api_type"
-    case stakingAPIType = "staking_api_type"
+    case stakeKitAPIType = "stake_kit_api_type"
     case yieldModuleAPIType = "yield_module_api_type"
 }

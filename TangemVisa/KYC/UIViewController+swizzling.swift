@@ -6,7 +6,6 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-#if ALPHA || BETA || DEBUG
 import SwiftUI
 import IdensicMobileSDK
 import TangemAssets
@@ -158,4 +157,3 @@ private extension UIImage {
             .withRenderingMode(.alwaysOriginal)
     }
 }
-#endif // ALPHA || BETA || DEBUG

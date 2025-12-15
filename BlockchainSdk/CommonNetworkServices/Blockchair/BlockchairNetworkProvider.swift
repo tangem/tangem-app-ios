@@ -96,7 +96,10 @@ extension BlockchairNetworkProvider: UTXONetworkProvider {
 
     func send(transaction: String) -> AnyPublisher<TransactionSendResult, any Error> {
         execute(type: .send(txHex: transaction, endpoint: endpoint), response: BlockchairDTO.Send.Response.self)
-            .map { TransactionSendResult(hash: $0.data.transactionHash) }
+            .withWeakCaptureOf(self)
+            .map { provider, response in
+                TransactionSendResult(hash: response.data.transactionHash, currentProviderHost: provider.host)
+            }
             .eraseToAnyPublisher()
     }
 }

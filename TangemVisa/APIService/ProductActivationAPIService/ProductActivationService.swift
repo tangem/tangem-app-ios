@@ -43,27 +43,21 @@ protocol ProductActivationService {
 
 struct CommonProductActivationService {
     typealias ActivationAPIService = APIService<ProductActivationAPITarget>
-    private let authorizationTokensHandler: VisaAuthorizationTokensHandler
     private let apiService: ActivationAPIService
 
     private let apiType: VisaAPIType
 
     init(
         apiType: VisaAPIType,
-        authorizationTokensHandler: VisaAuthorizationTokensHandler,
         apiService: ActivationAPIService
     ) {
         self.apiType = apiType
-        self.authorizationTokensHandler = authorizationTokensHandler
         self.apiService = apiService
     }
 
     private func sendRequest<T: Decodable>(target: ProductActivationAPITarget.Target) async throws -> T {
-        let authorizationToken = try await authorizationTokensHandler.authorizationHeader
-
         return try await apiService.request(.init(
             target: target,
-            authorizationToken: authorizationToken,
             apiType: apiType
         ))
     }

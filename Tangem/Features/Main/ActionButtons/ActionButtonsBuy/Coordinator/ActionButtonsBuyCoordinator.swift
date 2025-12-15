@@ -64,15 +64,8 @@ extension ActionButtonsBuyCoordinator: ActionButtonsBuyRoutable {
         }
 
         let coordinator = SendCoordinator(dismissAction: dismissAction)
-        let options = SendCoordinator.Options(
-            input: .init(
-                userWalletInfo: userWalletModel.userWalletInfo,
-                walletModel: walletModel,
-                expressInput: .init(userWalletModel: userWalletModel)
-            ),
-            type: .onramp(),
-            source: .actionButtons
-        )
+        let sendInput = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
+        let options = SendCoordinator.Options(input: sendInput, type: .onramp(), source: .actionButtons)
         coordinator.start(with: options)
         viewState = .onramp(coordinator)
     }

@@ -35,7 +35,8 @@ struct UserSettingsAccountsSectionView: View {
             },
             footer: {
                 // We dont have reordering on iOS below 16.0
-                if #available(iOS 16.0, *) {
+                // And there is no need to show "reorder" text if there are less than 2 accounts
+                if #available(iOS 16.0, *), viewModel.moreThatOneActiveAccount {
                     Text(Localization.accountReorderDescription)
                         .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                 }
@@ -45,20 +46,9 @@ struct UserSettingsAccountsSectionView: View {
 
     private func accountContentView(from model: UserSettingsAccountRowViewData) -> some View {
         Button(action: model.onTap) {
-            RowWithLeadingAndTrailingIcons(
-                leadingIcon: {
-                    AccountIconView(data: model.accountIconViewData)
-                },
-                content: {
-                    VStack(alignment: .leading, spacing: 0) {
-                        Text(model.name)
-                            .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
-
-                        Text(model.description)
-                            .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-                    }
-                },
-                trailingIcon: {
+            AccountRowView(
+                input: viewModel.makeAccountRowInput(from: model),
+                trailing: {
                     trailingChevron
                 }
             )
