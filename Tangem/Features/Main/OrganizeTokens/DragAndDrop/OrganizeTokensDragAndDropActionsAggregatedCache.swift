@@ -9,16 +9,23 @@
 import Foundation
 
 final class OrganizeTokensDragAndDropActionsAggregatedCache {
-    private var innerCaches: [Int: OrganizeTokensDragAndDropActionsCache] = [:]
+    private var innerCaches: [AnyHashable: OrganizeTokensDragAndDropActionsCache] = [:]
 
-    // [REDACTED_TODO_COMMENT]
-    func cache(forOuterSectionIndex outerSectionIndex: Int) -> OrganizeTokensDragAndDropActionsCache {
-        if let cache = innerCaches[outerSectionIndex] {
+    func cache(forAccountID accountID: AnyHashable) -> OrganizeTokensDragAndDropActionsCache {
+        if let cache = innerCaches[accountID] {
             return cache
         }
 
         let newCache = OrganizeTokensDragAndDropActionsCache()
-        innerCaches[outerSectionIndex] = newCache
+        innerCaches[accountID] = newCache
         return newCache
+    }
+    
+    func invalidateCaches(notIn validAccountIDs: Set<AnyHashable>) {
+        innerCaches = innerCaches.filter { validAccountIDs.contains($0.key) }
+    }
+    
+    func resetAll() {
+        innerCaches.values.forEach { $0.reset() }
     }
 }
