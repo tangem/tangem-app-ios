@@ -20,7 +20,7 @@ enum YieldAnalyticsState: String {
 }
 
 protocol YieldAnalyticsLogger {
-    func logTransactionSent()
+    func logTransactionSent(with result: TransactionDispatcherResult)
     func logStartEarningScreenOpened()
     func logEarningScreenInfoOpened()
     func logEarningButtonStart()
@@ -49,11 +49,14 @@ final class CommonYieldAnalyticsLogger: YieldAnalyticsLogger {
 
     // MARK: - Earning analytics
 
-    func logTransactionSent() {
-        var params = tokenBlockchainParams()
-        params[.source] = Analytics.ParameterValue.yieldModuleSourceInfo.rawValue
-
-        Analytics.log(event: .transactionSent, params: params)
+    func logTransactionSent(with result: TransactionDispatcherResult) {
+        Analytics.log(
+            event: .transactionSent,
+            params: [
+                .source: Analytics.ParameterValue.yieldModuleSourceInfo.rawValue,
+                .selectedHost: result.currentHost,
+            ]
+        )
     }
 
     func logStartEarningScreenOpened() {

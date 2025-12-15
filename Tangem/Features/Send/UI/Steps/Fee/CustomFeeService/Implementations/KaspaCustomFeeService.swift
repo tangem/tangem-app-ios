@@ -15,7 +15,7 @@ class KaspaCustomFeeService {
     private let tokenItem: TokenItem
     private let feeTokenItem: TokenItem
 
-    private lazy var customFeeTextField = DecimalNumberTextField.ViewModel(maximumFractionDigits: feeTokenItem.decimalCount)
+    private lazy var customFeeTextField = DecimalNumberTextFieldViewModel(maximumFractionDigits: feeTokenItem.decimalCount)
 
     private let customFee = CurrentValueSubject<Fee?, Never>(nil)
 

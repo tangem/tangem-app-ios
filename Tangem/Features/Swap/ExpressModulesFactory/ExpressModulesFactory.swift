@@ -16,8 +16,14 @@ protocol ExpressModulesFactory {
         coordinator: ExpressTokensListRoutable
     ) -> ExpressTokensListViewModel
 
+    func makeSwapTokenSelectorViewModel(
+        swapDirection: SwapTokenSelectorViewModel.SwapDirection,
+        coordinator: SwapTokenSelectorRoutable
+    ) -> SwapTokenSelectorViewModel
+
     func makeExpressFeeSelectorViewModel(coordinator: ExpressFeeSelectorRoutable) -> ExpressFeeSelectorViewModel
     func makeExpressApproveViewModel(
+        source: any ExpressInteractorSourceWallet,
         providerName: String,
         selectedPolicy: BSDKApprovePolicy,
         coordinator: ExpressApproveRoutable
@@ -29,6 +35,4 @@ protocol ExpressModulesFactory {
         data: SentExpressTransactionData,
         coordinator: ExpressSuccessSentRoutable
     ) -> ExpressSuccessSentViewModel
-
-    func makePendingExpressTransactionsManager() -> PendingExpressTransactionsManager
 }

@@ -16,19 +16,6 @@ public extension TangemPayTransactionHistoryResponse {
         public let transactionType: TransactionType
         public let record: Record
 
-        public var transactionDate: Date {
-            switch record {
-            case .spend(let spend):
-                spend.postedAt ?? spend.authorizedAt
-            case .collateral(let collateral):
-                collateral.postedAt
-            case .payment(let payment):
-                payment.postedAt
-            case .fee(let fee):
-                fee.postedAt
-            }
-        }
-
         public init(from decoder: any Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
 
@@ -71,17 +58,17 @@ public extension TangemPayTransactionHistoryResponse {
         case fee
     }
 
-    struct Spend: Decodable, Equatable {
-        public let amount: Double
+    struct Spend: Codable, Equatable {
+        public let amount: Decimal
         public let currency: String
-        public let localAmount: Double
+        public let localAmount: Decimal
         public let localCurrency: String
-        public let authorizedAmount: Double
+        public let authorizedAmount: Decimal
         public let memo: String?
         public let receipt: Bool
         public let merchantName: String?
         public let merchantCategory: String?
-        public let merchantCategoryCode: String
+        public let merchantCategoryCode: String?
         public let merchantId: String?
         public let enrichedMerchantIcon: URL?
         public let enrichedMerchantName: String?
@@ -99,31 +86,36 @@ public extension TangemPayTransactionHistoryResponse {
         }
     }
 
-    struct Collateral: Decodable, Equatable {
-        public let amount: Double
+    struct Collateral: Codable, Equatable {
+        public let amount: Decimal
         public let currency: String
-        public let memo: String
-        public let chainId: Double
-        public let walletAddress: String
-        public let transactionHash: String
+        public let memo: String?
+        public let chainId: Double?
+        public let walletAddress: String?
+        public let transactionHash: String?
         public let postedAt: Date
     }
 
-    struct Payment: Decodable, Equatable {
-        public let amount: Double
+    struct Payment: Codable, Equatable {
+        public let amount: Decimal
         public let currency: String
-        public let memo: String
-        public let chainId: Double
-        public let walletAddress: String
-        public let transactionHash: String
-        public let status: String
+        public let memo: String?
+        public let chainId: Double?
+        public let walletAddress: String?
+        public let transactionHash: String?
+        public let status: PaymentStatus
         public let postedAt: Date
     }
 
-    struct Fee: Decodable, Equatable {
-        public let amount: Double
+    enum PaymentStatus: String, Codable, Equatable {
+        case pending
+        case completed
+    }
+
+    struct Fee: Codable, Equatable {
+        public let amount: Decimal
         public let currency: String
-        public let description: String
+        public let description: String?
         public let postedAt: Date
     }
 }

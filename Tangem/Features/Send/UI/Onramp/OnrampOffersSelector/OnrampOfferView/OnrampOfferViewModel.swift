@@ -17,14 +17,22 @@ struct OnrampOfferViewModel: Hashable, Identifiable {
     let title: Title
     let amount: Amount
     let provider: Provider
+    let isAvailable: Bool
 
     @IgnoredEquatable
     var buyButtonAction: () -> Void
 
-    init(title: Title, amount: Amount, provider: Provider, buyButtonAction: @escaping () -> Void) {
+    init(
+        title: Title,
+        amount: Amount,
+        provider: Provider,
+        isAvailable: Bool,
+        buyButtonAction: @escaping () -> Void
+    ) {
         self.title = title
         self.amount = amount
         self.provider = provider
+        self.isAvailable = isAvailable
         self.buyButtonAction = buyButtonAction
     }
 }

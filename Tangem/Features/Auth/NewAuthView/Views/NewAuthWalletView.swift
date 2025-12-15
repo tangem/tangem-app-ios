@@ -14,6 +14,8 @@ import TangemUI
 struct NewAuthWalletView: View {
     @StateObject private var viewModel: NewAuthWalletViewModel
 
+    @Environment(\.unlockingUserWalletId) private var unlockingUserWalletId: UserWalletId?
+
     init(item: NewAuthViewModel.WalletItem) {
         _viewModel = StateObject(wrappedValue: NewAuthWalletViewModel(item: item))
     }
@@ -22,12 +24,12 @@ struct NewAuthWalletView: View {
         Button(action: viewModel.onTap) {
             HStack(spacing: 12) {
                 icon
-                info
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                info.frame(maxWidth: .infinity, alignment: .leading)
+                loader
             }
             .padding(.vertical, 12)
             .padding(.horizontal, 14)
-            .background(Colors.Field.primary)
+            .background(Colors.Background.primary)
             .cornerRadius(14, corners: .allCorners)
         }
     }
@@ -81,6 +83,14 @@ private extension NewAuthWalletView {
                         .frame(width: 12, height: 12)
                 }
             }
+        }
+    }
+
+    @ViewBuilder
+    var loader: some View {
+        if viewModel.isUnlocking(with: unlockingUserWalletId) {
+            ProgressView()
+                .controlSize(.regular)
         }
     }
 }
