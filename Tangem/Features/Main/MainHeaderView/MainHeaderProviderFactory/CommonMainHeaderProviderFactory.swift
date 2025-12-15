@@ -23,11 +23,11 @@ struct CommonMainHeaderProviderFactory: MainHeaderProviderFactory {
         if isMultiWallet {
             return MultiWalletMainHeaderSubtitleProvider(
                 isUserWalletLocked: userWalletModel.isUserWalletLocked,
-                areWalletsImported: userWalletModel.hasImportedWallets,
                 dataSource: userWalletModel
             )
         }
 
+        // accounts_fixes_needed_main
         return SingleWalletMainHeaderSubtitleProvider(
             isUserWalletLocked: isUserWalletLocked,
             balanceProvider: userWalletModel.walletModelsManager.walletModels.first.map { $0.totalTokenBalanceProvider }
