@@ -15,28 +15,7 @@ struct TransactionView: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            if let iconURL = viewModel.iconURL {
-                KFImage(iconURL)
-                    .resizable()
-                    .placeholder {
-                        viewModel.icon
-                            .renderingMode(.template)
-                            .foregroundColor(viewModel.iconColor)
-                            .padding(10)
-                            .background(viewModel.iconBackgroundColor)
-                            .cornerRadiusContinuous(20)
-                    }
-                    .aspectRatio(contentMode: .fit)
-                    .frame(size: .init(bothDimensions: 40))
-                    .cornerRadiusContinuous(20)
-            } else {
-                viewModel.icon
-                    .renderingMode(.template)
-                    .foregroundColor(viewModel.iconColor)
-                    .padding(10)
-                    .background(viewModel.iconBackgroundColor)
-                    .cornerRadiusContinuous(20)
-            }
+            TransactionViewIconView(data: viewModel.icon, size: .medium)
 
             textContent
                 .lineLimit(1)
@@ -49,7 +28,7 @@ struct TransactionView: View {
     private var textContent: some View {
         // we can use 2 row layout only when all the data is present
         // otherwise left or right part needs to be vertically centered
-        if viewModel.localizeDestination != nil, viewModel.formattedAmount != nil {
+        if viewModel.localizeDestination != nil, viewModel.amount.formattedAmount != nil {
             twoRowsTextContent
         } else {
             twoColumnsTextContent
@@ -58,29 +37,28 @@ struct TransactionView: View {
 
     private var twoRowsTextContent: some View {
         VStack(alignment: .leading, spacing: 4) {
-            HStack(spacing: 8) {
+            HStack(spacing: .zero) {
                 name
-                Spacer()
+                Spacer(minLength: 8)
                 amount
             }
 
-            HStack(spacing: 6) {
+            HStack(spacing: .zero) {
                 description
-                Spacer()
+                Spacer(minLength: 6)
                 subtitle
             }
         }
     }
 
     private var twoColumnsTextContent: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: .zero) {
             VStack(alignment: .leading, spacing: 4) {
                 name
                 description
             }
-            .layoutPriority(viewModel.transactionDescriptionLayoutPriority)
 
-            Spacer(minLength: 4)
+            Spacer(minLength: 8)
 
             VStack(alignment: .trailing, spacing: 4) {
                 amount
@@ -115,11 +93,9 @@ struct TransactionView: View {
 
     @ViewBuilder
     private var amount: some View {
-        if let amount = viewModel.formattedAmount {
-            SensitiveText(amount)
-                .style(Fonts.Regular.subheadline, color: viewModel.amountColor)
-                .layoutPriority(2)
-        }
+        TransactionViewAmountView(data: viewModel.amount, size: .medium)
+            // The amount has priority to show
+            .layoutPriority(1)
     }
 
     private var subtitle: some View {
