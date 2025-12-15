@@ -6,37 +6,72 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import BlockchainSdk
+import Combine
 import TangemVisa
 
 final class TangemPayAuthorizer {
-    let walletModel: any WalletModel
+    let customerWalletId: String
+    let authorizationService: TangemPayAuthorizationService
+    let keysRepository: KeysRepository
 
-    init(walletModel: any WalletModel) {
-        self.walletModel = walletModel
+    var state: State {
+        stateSubject.value
     }
 
-    func authorizeWithCustomerWallet() async throws -> VisaAuthorizationTokens {
-        let tangemSdk = TangemSdkDefaultFactory().makeTangemSdk()
+    var statePublisher: AnyPublisher<State, Never> {
+        stateSubject.eraseToAnyPublisher()
+    }
 
-        let task = CustomerWalletAuthorizationTask(
-            walletPublicKey: walletModel.publicKey,
-            walletAddress: walletModel.defaultAddressString,
-            authorizationService: VisaAPIServiceBuilder().buildAuthorizationService()
+    private let interactor: TangemPayAuthorizing
+    private let stateSubject: CurrentValueSubject<State, Never>
+
+    init(
+        customerWalletId: String,
+        interactor: TangemPayAuthorizing,
+        keysRepository: KeysRepository,
+        state: State,
+        authorizationService: TangemPayAuthorizationService = TangemPayAPIServiceBuilder().buildTangemPayAuthorizationService()
+    ) {
+        self.customerWalletId = customerWalletId
+        self.authorizationService = authorizationService
+        self.interactor = interactor
+        self.keysRepository = keysRepository
+
+        stateSubject = CurrentValueSubject(state)
+    }
+
+    func authorizeWithCustomerWallet() async throws {
+        let response = try await interactor.authorize(
+            customerWalletId: customerWalletId,
+            authorizationService: authorizationService
         )
+        keysRepository.update(derivations: response.derivationResult)
+        stateSubject.send(.authorized(customerWalletAddress: response.customerWalletAddress, tokens: response.tokens))
+    }
 
-        let tokens = try await withCheckedThrowingContinuation { continuation in
-            tangemSdk.startSession(with: task) { result in
-                switch result {
-                case .success(let hashResponse):
-                    continuation.resume(returning: hashResponse)
-                case .failure(let error):
-                    continuation.resume(throwing: error)
-                }
+    func setSyncNeeded() {
+        stateSubject.send(.syncNeeded)
+    }
 
-                withExtendedLifetime(task) {}
+    func setUnavailable() {
+        stateSubject.send(.unavailable)
+    }
+}
+
+extension TangemPayAuthorizer {
+    enum State {
+        case authorized(customerWalletAddress: String, tokens: TangemPayAuthorizationTokens)
+        case syncNeeded
+        case unavailable
+
+        var authorized: (customerWalletAddress: String, tokens: TangemPayAuthorizationTokens)? {
+            switch self {
+            case .authorized(let customerWalletAddress, let tokens):
+                (customerWalletAddress, tokens)
+            case .syncNeeded, .unavailable:
+                nil
             }
         }
-
-        return tokens
     }
 }

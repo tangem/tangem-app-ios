@@ -13,6 +13,7 @@ import TangemLocalization
 import TangemUI
 import struct TangemUIUtils.ConfirmationDialogViewModel
 import TangemFoundation
+import TangemAccessibilityIdentifiers
 
 final class MainViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
@@ -152,7 +153,9 @@ final class MainViewModel: ObservableObject {
             uiManager.show()
         }
 
-        coordinator?.beginHandlingIncomingActions()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.coordinator?.beginHandlingIncomingActions()
+        }
     }
 
     func onPageChange(dueTo reason: CardsInfoPageChangeReason) {
@@ -173,36 +176,6 @@ final class MainViewModel: ObservableObject {
         if let selectedModel = userWalletRepository.selectedModel,
            let alert = AlertBuilder.makeWalletRenamingAlert(userWalletModel: selectedModel, userWalletRepository: userWalletRepository) {
             AppPresenter.shared.show(alert)
-        }
-    }
-
-    func didTapDeleteWallet() {
-        Analytics.log(.buttonDeleteWalletTapped)
-
-        confirmationDialog = ConfirmationDialogViewModel(
-            title: Localization.userWalletListDeletePrompt,
-            buttons: [
-                ConfirmationDialogViewModel.Button(
-                    title: Localization.commonDelete,
-                    role: .destructive,
-                    action: { [weak self] in
-                        self?.didConfirmWalletDeletion()
-                    }
-                ),
-                ConfirmationDialogViewModel.Button.cancel,
-            ]
-        )
-    }
-
-    func didConfirmWalletDeletion() {
-        guard let userWalletModel = userWalletRepository.selectedModel else {
-            return
-        }
-
-        userWalletRepository.delete(userWalletId: userWalletModel.userWalletId)
-
-        if userWalletRepository.models.isEmpty {
-            coordinator?.popToRoot()
         }
     }
 
@@ -308,6 +281,7 @@ final class MainViewModel: ObservableObject {
         // In this case we need to recreate this pages after API list loaded and WalletModelsManager publishes list of models
         let indexesToRecreate: [Int] = pages.indexed().compactMap { $1.missingBodyModel ? $0 : nil }
         if indexesToRecreate.isNotEmpty {
+            // accounts_fixes_needed_main
             let walletModelPublishers = indexesToRecreate.map { userWalletRepository.models[$0].walletModelsManager.walletModelsPublisher }
             walletModelPublishers.combineLatest()
                 .combineLatest(apiListProvider.apiListPublisher)
@@ -472,11 +446,14 @@ extension MainViewModel: MainLockedUserWalletDelegate {
 
 extension MainViewModel: MultiWalletMainContentDelegate {
     func displayAddressCopiedToast() {
-        Toast(view: SuccessToast(text: Localization.walletNotificationAddressCopied))
-            .present(
-                layout: .top(padding: 12),
-                type: .temporary()
-            )
+        Toast(
+            view: SuccessToast(text: Localization.walletNotificationAddressCopied)
+                .accessibilityIdentifier(ActionButtonsAccessibilityIdentifiers.addressCopiedToast)
+        )
+        .present(
+            layout: .top(padding: 12),
+            type: .temporary()
+        )
     }
 }
 
@@ -507,7 +484,7 @@ extension MainViewModel: WalletSwipeDiscoveryHelperDelegate {
 extension MainViewModel {
     func updateMarkets(force: Bool = false) {
         if force || yieldModuleNetworkManager.markets.isEmpty {
-            let walletModels = userWalletRepository.models.flatMap { $0.walletModelsManager.walletModels }
+            let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletRepository.models)
             let chainIDs = Set(
                 walletModels.compactMap { walletModel -> String? in
                     guard walletModel.tokenItem.isToken, walletModel.yieldModuleManager != nil else { return nil }
