@@ -54,6 +54,7 @@ extension CommonTokenQuotesRepository: TokenQuotesRepository {
         return quote
     }
 
+    @discardableResult
     func loadQuotes(currencyIds: [String]) -> AnyPublisher<[String: TokenQuote], Never> {
         AppLogger.info(self, "Request loading quotes for ids: \(currencyIds)")
 
@@ -87,22 +88,6 @@ extension CommonTokenQuotesRepository: TokenQuotesRepositoryUpdater {
 
 private extension CommonTokenQuotesRepository {
     func bind() {
-        AppSettings.shared.$selectedCurrencyCode
-            // Ignore already the selected code
-            .dropFirst()
-            .debounce(for: 0.5, scheduler: DispatchQueue.main)
-            // Ignore if the selected code is equal
-            .removeDuplicates()
-            .withLatestFrom(_quotes)
-            .withWeakCaptureOf(self)
-            // Reload existing quotes for a new currency code
-            .flatMapLatest { repository, quotes in
-                let currencyIds = Array(quotes.keys)
-                return repository.loadQuotes(currencyIds: currencyIds)
-            }
-            .sink()
-            .store(in: &bag)
-
         loadingQueue
             .collect(debouncedTime: 0.3, scheduler: DispatchQueue.global())
             .withWeakCaptureOf(self)
@@ -139,6 +124,7 @@ private extension CommonTokenQuotesRepository {
             .withWeakCaptureOf(self)
             .flatMap { repository, _ in
                 let userWallets = repository.userWalletRepository.models
+                // accounts_fixes_needed_quotes
                 let userCurrencyIds = Array(Set(userWallets.flatMap { $0.walletModelsManager.walletModels.compactMap(\.tokenItem.currencyId) }))
                 return repository.loadQuotes(currencyIds: userCurrencyIds)
             }

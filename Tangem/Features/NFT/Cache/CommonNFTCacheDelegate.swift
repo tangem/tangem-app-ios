@@ -15,13 +15,13 @@ import TangemNFT
 /// This only applies to locally cached collections, since remotely fetched collections are always updated
 /// based on the list of wallet models received on the emit of `walletModelsManager.walletModelsPublisher`.
 final class CommonNFTCacheDelegate: NFTCacheDelegate {
-    private let walletModelsManager: WalletModelsManager
+    private let provideWalletModels: () -> [any WalletModel]
 
-    init(walletModelsManager: WalletModelsManager) {
-        self.walletModelsManager = walletModelsManager
+    init(provideWalletModels: @escaping () -> [any WalletModel]) {
+        self.provideWalletModels = provideWalletModels
     }
 
     func cache(_ cache: NFTCache, shouldRetrieveCollection collection: NFTCollection) -> Bool {
-        return NFTWalletModelFinder.findWalletModel(for: collection.id, in: walletModelsManager.walletModels) != nil
+        return NFTWalletModelFinder.findWalletModel(for: collection.id, in: provideWalletModels()) != nil
     }
 }

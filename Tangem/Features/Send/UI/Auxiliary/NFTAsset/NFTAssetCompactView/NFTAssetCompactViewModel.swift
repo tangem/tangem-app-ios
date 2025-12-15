@@ -10,7 +10,7 @@ import TangemNFT
 import TangemLocalization
 
 struct NFTAssetCompactViewModel {
-    var walletTitle: String { Localization.sendFromWalletName(wallet) }
+    var walletTitle: String { Localization.commonFromWalletName(wallet) }
     var assetTitle: String { asset.name }
     var assetSubtitle: String { collection.name }
 

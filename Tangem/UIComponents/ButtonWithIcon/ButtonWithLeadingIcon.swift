@@ -21,6 +21,7 @@ struct FixedSizeButtonWithLeadingIcon: View {
         ButtonWithLeadingIconContentView(
             title: title,
             icon: icon,
+            loading: loading,
             colorConfiguration: colorConfiguration,
             spacing: 4,
             maintainsIdealSize: true,
@@ -33,6 +34,7 @@ struct FixedSizeButtonWithLeadingIcon: View {
 
     private let title: String
     private let icon: Image
+    private let loading: Bool
     private let style: Style
     private let action: () -> Void
     private let longPressAction: (() -> Void)?
@@ -51,12 +53,14 @@ struct FixedSizeButtonWithLeadingIcon: View {
     init(
         title: String,
         icon: Image,
+        loading: Bool = false,
         style: Style,
         action: @escaping () -> Void,
         longPressAction: (() -> Void)? = nil
     ) {
         self.title = title
         self.icon = icon
+        self.loading = loading
         self.style = style
         self.action = action
         self.longPressAction = longPressAction
@@ -107,6 +111,7 @@ struct FlexySizeButtonWithLeadingIcon: View {
         ButtonWithLeadingIconContentView(
             title: title,
             icon: icon,
+            loading: loading,
             colorConfiguration: colorConfiguration,
             spacing: 6,
             maintainsIdealSize: false,
@@ -117,6 +122,7 @@ struct FlexySizeButtonWithLeadingIcon: View {
 
     private let title: String
     private let icon: Image
+    private let loading: Bool
     /// A special appearance for cases when this button is used to switch between
     /// the discrete `On` and `Off` states, like `SwiftUI.Switch` does.
     /// See [this mockup]([REDACTED_INFO]
@@ -129,11 +135,13 @@ struct FlexySizeButtonWithLeadingIcon: View {
     init(
         title: String,
         icon: Image,
+        loading: Bool = false,
         isToggled: Bool = false,
         action: @escaping () -> Void
     ) {
         self.title = title
         self.icon = icon
+        self.loading = loading
         self.isToggled = isToggled
         self.action = action
     }
@@ -182,6 +190,7 @@ private struct ButtonWithLeadingIconContentView: View {
 
     let title: String
     let icon: Image
+    let loading: Bool
     let colorConfiguration: ColorConfiguration
     let spacing: Double
     let maintainsIdealSize: Bool
@@ -234,6 +243,13 @@ private struct ButtonWithLeadingIconContentView: View {
                 .resizable()
                 .frame(size: .init(bothDimensions: 20))
                 .foregroundColor(colorConfiguration.iconColor)
+                .visible(!loading)
+                .overlay {
+                    if loading {
+                        // A bit small to fit 20x20 icon size
+                        ProgressView().scaleEffect(0.8)
+                    }
+                }
 
             if !title.isEmpty {
                 Text(title)
