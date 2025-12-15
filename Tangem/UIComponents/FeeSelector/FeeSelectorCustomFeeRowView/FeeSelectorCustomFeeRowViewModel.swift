@@ -17,7 +17,7 @@ class FeeSelectorCustomFeeRowViewModel: ObservableObject, Identifiable {
     let isEditable: Bool
     let onFocusChanged: ((Bool) -> Void)?
 
-    @Published var textFieldViewModel: DecimalNumberTextField.ViewModel
+    @Published var textFieldViewModel: DecimalNumberTextFieldViewModel
     @Published var alternativeAmount: String?
 
     init(
@@ -25,7 +25,7 @@ class FeeSelectorCustomFeeRowViewModel: ObservableObject, Identifiable {
         tooltip: String? = nil,
         suffix: String?,
         isEditable: Bool,
-        textFieldViewModel: DecimalNumberTextField.ViewModel,
+        textFieldViewModel: DecimalNumberTextFieldViewModel,
         amountAlternativePublisher: AnyPublisher<String?, Never>,
         onFocusChanged: ((Bool) -> Void)? = nil
     ) {

@@ -25,7 +25,7 @@ struct ConfettiView: UIViewRepresentable {
     func updateUIView(_ uiView: UIView, context: Context) {
         if shouldFireConfetti.wrappedValue {
             launchConfetti(for: uiView)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                 shouldFireConfetti.wrappedValue = false
             }
         }
@@ -43,13 +43,14 @@ struct ConfettiView: UIViewRepresentable {
                     generationDuration: generationDuration
                 )
             )
+
+        let generator = UINotificationFeedbackGenerator()
+        generator.notificationOccurred(.success)
+
         for layer in confettiLayers {
             view.layer.addSublayer(layer)
             layer.frame = view.bounds
         }
-
-        let generator = UINotificationFeedbackGenerator()
-        generator.notificationOccurred(.success)
     }
 }
 

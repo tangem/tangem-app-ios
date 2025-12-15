@@ -19,15 +19,20 @@ class SendRoutableMock: SendRoutable {
     func openExplorer(url: URL) {}
     func openShareSheet(url: URL) {}
     func openQRScanner(with codeBinding: Binding<String>, networkName: String) {}
-    func openFeeCurrency(userWalletId: UserWalletId, feeTokenItem: TokenItem) {}
+    func openFeeCurrency(feeCurrency: FeeCurrencyNavigatingDismissOption) {}
     func openApproveView(settings: ExpressApproveViewModel.Settings, approveViewModelInput: any ApproveViewModelInput) {}
     func openOnrampCountryDetection(country: OnrampCountry, repository: any OnrampRepository, dataRepository: any OnrampDataRepository) {}
+    func openOnrampCountryDetection(
+        country: OnrampCountry,
+        repository: any OnrampRepository,
+        dataRepository: any OnrampDataRepository,
+        onCountrySelected: @escaping () -> Void
+    ) {}
     func openOnrampCountrySelector(repository: any OnrampRepository, dataRepository: any OnrampDataRepository) {}
     func openOnrampSettings(repository: any OnrampRepository) {}
     func openOnrampCurrencySelector(repository: any OnrampRepository, dataRepository: any OnrampDataRepository) {}
     func openOnrampCurrencySelector() {}
     func openOnrampOffersSelector(viewModel: OnrampOffersSelectorViewModel) {}
-    func openOnrampProviders(providersBuilder: OnrampProvidersBuilder, paymentMethodsBuilder: OnrampPaymentMethodsBuilder) {}
     func openOnrampRedirecting(onrampRedirectingBuilder: OnrampRedirectingBuilder) {}
     func openOnrampWebView(url: URL, onDismiss: @escaping () -> Void, onSuccess: @escaping (URL) -> Void) {}
     func openFeeSelector(viewModel: FeeSelectorContentViewModel) {}
