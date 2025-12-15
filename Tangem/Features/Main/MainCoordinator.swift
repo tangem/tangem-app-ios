@@ -63,7 +63,9 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     // MARK: - Child view models
 
     @Published var receiveBottomSheetViewModel: ReceiveBottomSheetViewModel?
-    @Published var organizeTokensViewModel: OrganizeTokensViewModel?
+    @Published var organizeTokensViewModel: AccountsAwareOrganizeTokensViewModel?
+    @available(iOS, deprecated: 100000.0, message: "Superseded by 'organizeTokensViewModel', will be removed in the future ([REDACTED_INFO])")
+    @Published var legacyOrganizeTokensViewModel: OrganizeTokensViewModel?
     @Published var pushNotificationsViewModel: PushNotificationsPermissionRequestViewModel?
     @Published var visaTransactionDetailsViewModel: VisaTransactionDetailsViewModel?
     @Published var pendingExpressTxStatusBottomSheetViewModel: PendingExpressTxStatusBottomSheetViewModel? = nil
@@ -282,21 +284,28 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
     }
 
     func openOrganizeTokens(for userWalletModel: UserWalletModel) {
-        // accounts_fixes_needed_organize_tokens
-        let userTokensManager = userWalletModel.userTokensManager
-        let optionsManager = OrganizeTokensOptionsManager(userTokensReorderer: userTokensManager)
-        let tokenSectionsAdapter = TokenSectionsAdapter(
-            userTokensManager: userTokensManager,
-            optionsProviding: optionsManager,
-            preservesLastSortedOrderOnSwitchToDragAndDrop: true
-        )
-        organizeTokensViewModel = OrganizeTokensViewModel(
-            coordinator: self,
-            userWalletModel: userWalletModel,
-            tokenSectionsAdapter: tokenSectionsAdapter,
-            optionsProviding: optionsManager,
-            optionsEditing: optionsManager
-        )
+        if FeatureProvider.isAvailable(.accounts) {
+            organizeTokensViewModel = AccountsAwareOrganizeTokensViewModel(
+                userWalletModel: userWalletModel,
+                coordinator: self
+            )
+        } else {
+            // accounts_fixes_needed_none
+            let userTokensManager = userWalletModel.userTokensManager
+            let optionsManager = OrganizeTokensOptionsManager(userTokensReorderer: userTokensManager)
+            let tokenSectionsAdapter = TokenSectionsAdapter(
+                userTokensManager: userTokensManager,
+                optionsProviding: optionsManager,
+                preservesLastSortedOrderOnSwitchToDragAndDrop: true
+            )
+            legacyOrganizeTokensViewModel = OrganizeTokensViewModel(
+                userWalletModel: userWalletModel,
+                tokenSectionsAdapter: tokenSectionsAdapter,
+                optionsProviding: optionsManager,
+                optionsEditing: optionsManager,
+                coordinator: self
+            )
+        }
     }
 
     func openMobileFinishActivation(userWalletModel: UserWalletModel) {
@@ -491,10 +500,12 @@ extension MainCoordinator: SendFeeCurrencyNavigating, ExpressFeeCurrencyNavigati
 extension MainCoordinator: OrganizeTokensRoutable {
     func didTapCancelButton() {
         organizeTokensViewModel = nil
+        legacyOrganizeTokensViewModel = nil
     }
 
     func didTapSaveButton() {
         organizeTokensViewModel = nil
+        legacyOrganizeTokensViewModel = nil
     }
 }
 
