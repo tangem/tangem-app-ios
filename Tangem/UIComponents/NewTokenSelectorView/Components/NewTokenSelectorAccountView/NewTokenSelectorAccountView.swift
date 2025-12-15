@@ -15,11 +15,13 @@ struct NewTokenSelectorAccountView: View {
     @ObservedObject var viewModel: NewTokenSelectorAccountViewModel
 
     var body: some View {
-        GroupedSection(viewModel.items) { item in
-            NewTokenSelectorItemView(viewModel: item)
-        } header: {
-            NewTokenSelectorAccountHeaderView(header: viewModel.header)
+        if let items = viewModel.items {
+            GroupedSection(items) { item in
+                NewTokenSelectorItemView(viewModel: item)
+            } header: {
+                NewTokenSelectorAccountHeaderView(header: viewModel.header)
+            }
+            .backgroundColor(Colors.Background.action)
         }
-        .backgroundColor(Colors.Background.action)
     }
 }
