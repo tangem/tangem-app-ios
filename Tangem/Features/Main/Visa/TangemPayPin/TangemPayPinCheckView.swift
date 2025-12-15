@@ -42,7 +42,6 @@ struct TangemPayPinCheckView: View {
                                 isDisabled: true,
                                 pinText: .constant(pin)
                             )
-                            .screenCaptureProtection()
                             .fixedSize()
                         }
                     }
