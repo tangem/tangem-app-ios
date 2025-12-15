@@ -83,13 +83,13 @@ final class AccountsAwareOrganizeTokensViewModel: ObservableObject, Identifiable
             .cryptoAccountModelsPublisher // [REDACTED_TODO_COMMENT]
             .withWeakCaptureOf(self)
             .flatMapLatest { provider, cryptoAccountModels -> AnyPublisher<[OrganizeTokensListOuterSection], Never> in
-                guard cryptoAccountModels.isNotEmpty else {
-                    return .just(output: [])
-                }
-                
                 // Invalidate caches for accounts that no longer exist
                 let currentAccountIDs = Set(cryptoAccountModels.map { $0.id.toAnyHashable() })
                 aggregatedCache.invalidateCaches(notIn: currentAccountIDs)
+                
+                guard cryptoAccountModels.isNotEmpty else {
+                    return .just(output: [])
+                }
 
                 // [REDACTED_TODO_COMMENT]
                 return cryptoAccountModels
