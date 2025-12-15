@@ -26,8 +26,10 @@ extension TransactionDispatcher {
 
 struct TransactionDispatcherResult: Hashable {
     let hash: String
+    /// Explorer url
     let url: URL?
     let signerType: String
+    let currentHost: String
 }
 
 extension TransactionDispatcherResult {

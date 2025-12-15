@@ -286,12 +286,24 @@ struct TestnetAPINodeInfoProvider {
             return [
                 .init(url: URL(string: "https://orchard.rpc.quai.network/cyprus1/")!),
             ]
+        case .scroll:
+            return [
+                .init(url: URL(string: "https://sepolia-rpc.scroll.io")!),
+            ]
+        case .linea:
+            return [
+                .init(url: URL(string: "https://rpc.sepolia.linea.build/")!),
+            ]
+        case .plasma:
+            return [
+                .init(url: URL(string: "https://testnet-rpc.plasma.to")!),
+            ]
         // [REDACTED_TODO_COMMENT]
         case .bitcoin, .litecoin, .disChain, .rsk, .bitcoinCash, .binance, .cardano,
              .xrp, .ducatus, .tezos, .dogecoin, .solana, .kusama, .dash, .gnosis,
              .terraV1, .terraV2, .cronos, .octa, .playa3ullGames, .radiant, .joystream,
              .bittensor, .internetComputer, .filecoin, .energyWebX, .canxium, .xodex, .clore,
-             .fact0rn:
+             .fact0rn, .arbitrumNova:
             return nil
         }
     }

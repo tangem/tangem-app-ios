@@ -45,7 +45,7 @@ class CommonWalletModel {
         }
     }
 
-    private unowned var _account: (any CryptoAccountModel)!
+    private weak var _account: (any CryptoAccountModel)?
 
     private let sendAvailabilityProvider: TransactionSendAvailabilityProvider
     private let tokenBalancesRepository: TokenBalancesRepository
@@ -115,7 +115,28 @@ class CommonWalletModel {
         AppLogger.debug(self)
     }
 
+    func setCryptoAccount(_ cryptoAccount: any CryptoAccountModel) {
+        _account = cryptoAccount
+    }
+
     private func bind() {
+        AppSettings.shared.$selectedCurrencyCode
+            // Ignore already the selected code
+            .dropFirst()
+            // Ignore if the selected code is equal
+            .removeDuplicates()
+            .handleEvents(receiveOutput: { [weak self] _ in
+                // Invoke immediate fiat update when currency changes (e.g. offline case)
+                self?._rate.send(.loading(cached: nil))
+            })
+            .withWeakCaptureOf(self)
+            // Reload existing quotes for a new currency code
+            .flatMap { model, _ in
+                model.loadQuotes()
+            }
+            .sink { _ in }
+            .store(in: &bag)
+
         quotesRepository
             .quotesPublisher
             .dropFirst() // we need to drop first value because it's an empty dictionary
@@ -236,7 +257,7 @@ extension CommonWalletModel: Equatable {
 // MARK: - WalletModel
 
 extension CommonWalletModel: WalletModel {
-    var account: any CryptoAccountModel { _account }
+    var account: (any CryptoAccountModel)? { _account }
 
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> { featureManager.featuresPublisher }
 
@@ -325,7 +346,7 @@ extension CommonWalletModel: WalletModel {
         .eraseToAnyPublisher()
     }
 
-    var sendingRestrictions: TransactionSendAvailabilityProvider.SendingRestrictions? {
+    var sendingRestrictions: SendingRestrictions? {
         sendAvailabilityProvider.sendingRestrictions(walletModel: self)
     }
 
@@ -614,12 +635,12 @@ extension CommonWalletModel: WalletModelFeeProvider {
         return walletManager.getFee(amount: amount, destination: destination)
     }
 
-    func getFeeCurrencyBalance(amountType: Amount.AmountType) -> Decimal {
-        wallet.feeCurrencyBalance(amountType: amountType)
+    func getFeeCurrencyBalance() -> Decimal {
+        wallet.feeCurrencyBalance(amountType: tokenItem.amountType)
     }
 
-    func hasFeeCurrency(amountType: BlockchainSdk.Amount.AmountType) -> Bool {
-        wallet.hasFeeCurrency(amountType: amountType)
+    func hasFeeCurrency() -> Bool {
+        wallet.hasFeeCurrency(amountType: tokenItem.amountType)
     }
 
     func getFee(compiledTransaction data: Data) async throws -> [Fee] {
@@ -918,6 +939,14 @@ extension CommonWalletModel: ReceiveAddressTypesProvider {
 
     var receiveAddressInfos: [ReceiveAddressInfo] {
         _receiveAddressService.addressInfos
+    }
+}
+
+// MARK: - WalletModelResolvable protocol conformance
+
+extension CommonWalletModel: WalletModelResolvable {
+    func resolve<R>(using resolver: R) -> R.Result where R: WalletModelResolving {
+        resolver.resolve(walletModel: self)
     }
 }
 

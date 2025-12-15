@@ -16,18 +16,34 @@ final class MobileOnboardingSeedPhraseIntroViewModel {
     lazy var commonItem: CommonItem = makeCommonItem()
     lazy var infoItems: [InfoItem] = makeInfoItems()
 
+    private let userWalletModel: UserWalletModel
+    private let source: MobileOnboardingFlowSource
     private weak var delegate: MobileOnboardingSeedPhraseIntroDelegate?
 
     private let wordsCount: Int = 12
 
-    init(delegate: MobileOnboardingSeedPhraseIntroDelegate) {
+    private var analyticsContextParams: Analytics.ContextParams {
+        .custom(userWalletModel.analyticsContextData)
+    }
+
+    private var isFirstAppeared: Bool = true
+
+    init(
+        userWalletModel: UserWalletModel,
+        source: MobileOnboardingFlowSource,
+        delegate: MobileOnboardingSeedPhraseIntroDelegate
+    ) {
+        self.userWalletModel = userWalletModel
+        self.source = source
         self.delegate = delegate
     }
 }
 
 extension MobileOnboardingSeedPhraseIntroViewModel {
     func onFirstAppear() {
-        Analytics.log(.walletSettingsBackupScreenOpened, contextParams: .custom(.mobileWallet))
+        guard isFirstAppeared else { return }
+        isFirstAppeared = false
+        logScreenOpenedAnalytics()
     }
 
     func onContinueTap() {
@@ -58,6 +74,18 @@ private extension MobileOnboardingSeedPhraseIntroViewModel {
                 icon: Assets.cog24
             ),
         ]
+    }
+}
+
+// MARK: - Analytics
+
+private extension MobileOnboardingSeedPhraseIntroViewModel {
+    func logScreenOpenedAnalytics() {
+        Analytics.log(
+            .walletSettingsRecoveryPhraseScreenInfo,
+            params: source.analyticsParams,
+            contextParams: analyticsContextParams
+        )
     }
 }
 

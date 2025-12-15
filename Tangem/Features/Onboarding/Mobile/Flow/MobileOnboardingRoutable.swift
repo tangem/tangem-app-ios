@@ -8,4 +8,6 @@
 
 import Foundation
 
-protocol MobileOnboardingRoutable: OnboardingRoutable {}
+protocol MobileOnboardingRoutable: OnboardingRoutable {
+    func mobileOnboardingDidComplete()
+}

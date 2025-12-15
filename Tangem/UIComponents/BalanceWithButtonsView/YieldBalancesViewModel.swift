@@ -15,6 +15,7 @@ import Combine
 final class YieldBalancesViewModel: BalancesViewModel {
     @Published var cryptoBalance: LoadableTokenBalanceView.State = .loading()
     @Published var fiatBalance: LoadableTokenBalanceView.State = .loading()
+    @Published var isRefreshing: Bool = false
 
     var balanceAccessibilityIdentifier: String? { nil }
     var isYieldActive: Bool { true }
@@ -23,6 +24,7 @@ final class YieldBalancesViewModel: BalancesViewModel {
 
     private weak var balanceProvider: BalanceWithButtonsViewModelBalanceProvider?
     private weak var yieldModuleStatusProvider: YieldModuleStatusProvider?
+    private weak var refreshStatusProvider: RefreshStatusProvider?
 
     private(set) var showYieldBalanceInfoAction: () -> Void
     private(set) var reloadBalance: () async -> Void
@@ -35,6 +37,7 @@ final class YieldBalancesViewModel: BalancesViewModel {
         tokenItem: TokenItem,
         balanceProvider: BalanceWithButtonsViewModelBalanceProvider?,
         yieldModuleStatusProvider: YieldModuleStatusProvider?,
+        refreshStatusProvider: RefreshStatusProvider?,
         showYieldBalanceInfoAction: @escaping () -> Void,
         reloadBalance: @escaping () async -> Void
     ) {
@@ -42,6 +45,7 @@ final class YieldBalancesViewModel: BalancesViewModel {
         self.balanceProvider = balanceProvider
         self.yieldModuleStatusProvider = yieldModuleStatusProvider
         self.showYieldBalanceInfoAction = showYieldBalanceInfoAction
+        self.refreshStatusProvider = refreshStatusProvider
         self.reloadBalance = reloadBalance
 
         bind()
@@ -50,6 +54,14 @@ final class YieldBalancesViewModel: BalancesViewModel {
 
     private func bind() {
         guard let balanceProvider else { return }
+
+        refreshStatusProvider?.isRefreshing
+            .dropFirst()
+            .receiveOnMain()
+            .sink { [weak self] isRefreshing in
+                self?.isRefreshing = isRefreshing
+            }
+            .store(in: &bag)
 
         balanceProvider.totalCryptoBalancePublisher
             .receiveOnMain()

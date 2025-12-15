@@ -13,7 +13,7 @@ struct NowNodesAPIKeysInfoProvider {
     let apiKey: String
     func apiKeys(for blockchain: Blockchain) -> APIHeaderKeyInfo? {
         switch blockchain {
-        case .xrp, .tron, .algorand, .aptos, .solana, .odysseyChain, .sonic:
+        case .xrp, .tron, .algorand, .aptos, .solana, .odysseyChain, .sonic, .polkadot:
             return .init(
                 headerName: Constants.nowNodesApiKeyHeaderName,
                 headerValue: apiKey

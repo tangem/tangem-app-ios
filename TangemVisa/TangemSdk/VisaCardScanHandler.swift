@@ -168,7 +168,6 @@ public final class VisaCardScanHandler: CardSessionRunnable {
         VisaLogger.info("Receive authorization tokens response")
 
         let cardActivationStatus = try await cardActivationStateProvider.getCardActivationStatus(
-            authorizationTokens: authorizationTokensResponse,
             cardId: cardId,
             cardPublicKey: cardPublicKey.hexString
         )

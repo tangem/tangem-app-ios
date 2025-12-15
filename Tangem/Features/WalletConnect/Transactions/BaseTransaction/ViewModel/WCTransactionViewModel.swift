@@ -15,6 +15,7 @@ import BlockchainSdk
 import TangemUI
 import TangemLocalization
 import TangemUIUtils
+import TangemAssets
 
 @MainActor
 final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewModel & WCTransactionViewModelDisplayData {
@@ -137,7 +138,18 @@ final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewM
             return nil
         }
 
-        return transactionData.userWalletModel.walletModelsManager.walletModels.first { walletModel in
+        let walletModels: [any WalletModel]
+
+        do {
+            walletModels = try WCWalletModelsResolver.resolveWalletModels(
+                account: transactionData.account, userWalletModel: transactionData.userWalletModel
+            )
+        } catch {
+            WCLogger.error(error: error)
+            return nil
+        }
+
+        return walletModels.first { walletModel in
             walletModel.tokenItem.blockchain.networkId == transactionData.blockchain.networkId &&
                 walletModel.defaultAddressString.caseInsensitiveCompare(ethTransaction.from) == .orderedSame
         }
@@ -146,9 +158,28 @@ final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewM
     func startTransactionSimulation() async {
         simulationState = .loading
 
+        let walletModels: [any WalletModel]
+
+        do {
+            walletModels = try WCWalletModelsResolver.resolveWalletModels(
+                account: transactionData.account, userWalletModel: transactionData.userWalletModel
+            )
+        } catch {
+            WCLogger.error(error: error)
+
+            simulationState = .simulationFailed(error: error.localizedDescription)
+
+            analyticsLogger.logSignatureRequestReceived(
+                transactionData: transactionData,
+                simulationState: simulationState
+            )
+
+            return
+        }
+
         simulationState = await simulationManager.startSimulation(
             for: transactionData,
-            userWalletModel: transactionData.userWalletModel
+            walletModels: walletModels
         )
 
         analyticsLogger.logSignatureRequestReceived(
@@ -380,19 +411,30 @@ private extension WCTransactionViewModel {
         do {
             analyticsLogger.logSignButtonTapped(transactionData: transactionData)
 
-            try await transactionData.accept()
+            switch try await transactionData.validate() {
+            case .empty:
+                try await transactionData.accept()
+                successSignTransaction(onComplete: onComplete)
+            case .multipleTransactions:
+                let input = WCMultipleTransactionAlertInput(
+                    primaryAction: { [weak self] in
+                        do {
+                            try await self?.handleMultipleSignTransaction(onComplete: onComplete)
+                        } catch {
+                            self?.errorSignTransaction(with: error, onComplete: onComplete)
+                        }
+                    },
+                    secondaryAction: { [weak self] in self?.returnToTransactionDetails() },
+                    backAction: { [weak self] in self?.returnToTransactionDetails() }
+                )
 
-            onComplete?()
-            analyticsLogger.logSignatureRequestHandled(transactionData: transactionData, simulationState: simulationState)
+                let state = WCMultipleTransactionsAlertFactory.makeMultipleTransactionAlertState()
+                let viewModel = WCMultipleTransactionAlertViewModel(state: state, input: input)
 
-            toastFactory.makeSuccessToast(with: Localization.sendTransactionSuccess)
-
-            floatingSheetPresenter.removeActiveSheet()
+                presentationState = .multipleTransactionsAlert(viewModel)
+            }
         } catch {
-            onComplete?()
-            analyticsLogger.logSignatureRequestFailed(transactionData: transactionData, error: error)
-
-            toastFactory.makeWarningToast(with: error.localizedDescription)
+            errorSignTransaction(with: error, onComplete: onComplete)
         }
     }
 
@@ -472,20 +514,39 @@ private extension WCTransactionViewModel {
     }
 
     private func getFeeTokenItem() -> TokenItem? {
-        if let walletModel = transactionData.userWalletModel.walletModelsManager.walletModels.first(where: {
-            $0.tokenItem.blockchain.networkId == transactionData.blockchain.networkId
-        }) {
-            return walletModel.feeTokenItem
+        let walletModels: [any WalletModel]
+
+        do {
+            walletModels = try WCWalletModelsResolver.resolveWalletModels(
+                account: transactionData.account, userWalletModel: transactionData.userWalletModel
+            )
+        } catch {
+            WCLogger.error(error: error)
+            return nil
         }
 
-        return nil
+        guard let walletModel = walletModels.first(where: {
+            $0.tokenItem.blockchain.networkId == transactionData.blockchain.networkId
+        }) else {
+            return nil
+        }
+
+        return walletModel.feeTokenItem
     }
 
     private static func makeAddressRowViewModel(from transactionData: WCHandleTransactionData) -> WCTransactionAddressRowViewModel? {
-        let walletModels = transactionData
-            .userWalletModel
-            .walletModelsManager
-            .walletModels
+        let walletModels: [any WalletModel]
+
+        do {
+            walletModels = try WCWalletModelsResolver.resolveWalletModels(
+                account: transactionData.account, userWalletModel: transactionData.userWalletModel
+            )
+        } catch {
+            WCLogger.error(error: error)
+            return nil
+        }
+
+        let filteredWalletModels = walletModels
             .filter { walletModel in
                 let isCoin = walletModel.tokenItem.blockchain.networkId == transactionData.blockchain.networkId && walletModel.isMainToken
                 let isTokenInOtherBlockchain = walletModel.tokenItem.token?.id == transactionData.blockchain.networkId
@@ -494,12 +555,45 @@ private extension WCTransactionViewModel {
             }
 
         guard
-            walletModels.count > 1,
-            let mainAddress = walletModels.first(where: { $0.isMainToken })?.defaultAddressString
+            filteredWalletModels.count > 1,
+            let mainAddress = filteredWalletModels.first(where: { $0.isMainToken })?.defaultAddressString
         else {
             return nil
         }
 
         return WCTransactionAddressRowViewModel(address: mainAddress)
+    }
+
+    private func successSignTransaction(onComplete: (() -> Void)? = nil) {
+        onComplete?()
+
+        analyticsLogger.logSignatureRequestHandled(transactionData: transactionData, simulationState: simulationState)
+
+        toastFactory.makeSuccessToast(with: Localization.sendTransactionSuccess)
+
+        floatingSheetPresenter.removeActiveSheet()
+    }
+
+    private func errorSignTransaction(with error: Error, onComplete: (() -> Void)? = nil) {
+        onComplete?()
+
+        analyticsLogger.logSignatureRequestFailed(transactionData: transactionData, error: error)
+
+        toastFactory.makeWarningToast(with: error.localizedDescription)
+    }
+
+    private func handleMultipleSignTransaction(onComplete: (() -> Void)? = nil) async throws {
+        do {
+            presentationState = .loading
+            try await transactionData.accept()
+            successSignTransaction(onComplete: onComplete)
+        } catch let error as WalletConnectTransactionRequestProcessingError {
+            if case .eraseMultipleTransactions = error {
+                successSignTransaction(onComplete: onComplete)
+                return
+            }
+
+            throw error
+        }
     }
 }

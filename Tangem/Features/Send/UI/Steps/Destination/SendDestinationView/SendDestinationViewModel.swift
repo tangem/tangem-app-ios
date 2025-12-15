@@ -12,20 +12,6 @@ import SwiftUI
 import TangemLocalization
 import TangemFoundation
 
-extension SendDestinationViewModel {
-    enum DestinationAddressSectionType: Identifiable {
-        case destinationAddress(SendDestinationAddressViewModel)
-        case destinationResolvedAddress(String)
-
-        var id: String {
-            switch self {
-            case .destinationAddress(let viewModel): String(describing: viewModel.id)
-            case .destinationResolvedAddress(let address): address
-            }
-        }
-    }
-}
-
 class SendDestinationViewModel: ObservableObject, Identifiable {
     var destinationAddressSectionType: [DestinationAddressSectionType] {
         var section: [DestinationAddressSectionType] = [.destinationAddress(destinationAddressViewModel)]
@@ -244,7 +230,10 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
 
     private func userDidTapSuggestedDestination(_ destination: SendDestinationSuggested) {
         FeedbackGenerator.success()
-        destinationAddressViewModel.update(address: .init(string: destination.address, source: .qrCode))
+        destinationAddressViewModel.update(address: .init(
+            string: destination.address,
+            source: destination.type.source
+        ))
 
         if let additionalField = destination.additionalField {
             additionalFieldViewModel?.update(text: additionalField)
@@ -268,7 +257,21 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
     }
 }
 
-// MARK: - SendStepViewAnimatable
+extension SendDestinationViewModel {
+    enum DestinationAddressSectionType: Identifiable {
+        case destinationAddress(SendDestinationAddressViewModel)
+        case destinationResolvedAddress(String)
+
+        var id: String {
+            switch self {
+            case .destinationAddress(let viewModel): String(describing: viewModel.id)
+            case .destinationResolvedAddress(let address): address
+            }
+        }
+    }
+}
+
+// MARK: - SendDestinationAddressViewRoutable
 
 extension SendDestinationViewModel: SendDestinationAddressViewRoutable {
     func didTapScanQRButton() {
@@ -296,12 +299,6 @@ extension SendDestinationViewModel: SendDestinationExternalUpdatableViewModel {
 
         additionalFieldViewModel?.update(text: value)
     }
-}
-
-// MARK: - SendStepViewAnimatable
-
-extension SendDestinationViewModel: SendStepViewAnimatable {
-    func viewDidChangeVisibilityState(_ state: SendStepVisibilityState) {}
 }
 
 private extension SendDestinationSuggested.DestinationType {

@@ -25,7 +25,7 @@ extension VisaTransactionDetailsViewModel {
             let tokenItem = TokenItem.token(VisaUtilities.mockToken, .init(visaBlockchain, derivationPath: nil))
             return .init(tokenItem: tokenItem, transaction: transaction, emailConfig: .visaDefault(subject: .dispute), router: nil)
         } catch {
-            AppLogger.debug("\n\n\nFailed to create UI mock. Error: \(error)\n\n\n")
+            VisaLogger.debug("\n\n\nFailed to create UI mock. Error: \(error)\n\n\n")
             fatalError("Failed to create UI mock. Error: \(error)")
         }
     }

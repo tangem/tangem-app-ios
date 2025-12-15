@@ -22,6 +22,8 @@ enum WalletConnectTransactionRequestProcessingError: LocalizedError {
     case userWalletRepositoryIsLocked
     case missingEthTransactionSigner
     case missingGasLoader
+    case eraseMultipleTransactions
+    case accountNotFound
 
     var errorDescription: String? {
         switch self {
@@ -60,6 +62,12 @@ enum WalletConnectTransactionRequestProcessingError: LocalizedError {
 
         case .missingGasLoader:
             "EthereumNetworkProvider is missing."
+
+        case .eraseMultipleTransactions:
+            "The transaction was sent by our service, the RPC does not need to be returned."
+
+        case .accountNotFound:
+            "Account not found."
         }
     }
 }

@@ -25,6 +25,7 @@ public struct BlockchainSdkKeysConfig {
     let chiaTangemApiKeys: ChiaTangemApiKeys
     let quickNodeSolanaCredentials: QuickNodeCredentials
     let quickNodeBscCredentials: QuickNodeCredentials
+    let quickNodePlasmaCredentials: QuickNodeCredentials
     let bittensorDwellirKey: String
     let bittensorOnfinalityKey: String
     let tangemAlephiumApiKey: String
@@ -48,6 +49,7 @@ public struct BlockchainSdkKeysConfig {
         chiaTangemApiKeys: ChiaTangemApiKeys,
         quickNodeSolanaCredentials: QuickNodeCredentials,
         quickNodeBscCredentials: QuickNodeCredentials,
+        quickNodePlasmaCredentials: QuickNodeCredentials,
         bittensorDwellirKey: String,
         bittensorOnfinalityKey: String,
         tangemAlephiumApiKey: String,
@@ -70,6 +72,7 @@ public struct BlockchainSdkKeysConfig {
         self.chiaTangemApiKeys = chiaTangemApiKeys
         self.quickNodeSolanaCredentials = quickNodeSolanaCredentials
         self.quickNodeBscCredentials = quickNodeBscCredentials
+        self.quickNodePlasmaCredentials = quickNodePlasmaCredentials
         self.bittensorDwellirKey = bittensorDwellirKey
         self.bittensorOnfinalityKey = bittensorOnfinalityKey
         self.tangemAlephiumApiKey = tangemAlephiumApiKey

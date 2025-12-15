@@ -100,6 +100,10 @@ struct NowNodesAPIResolver {
             link = "https://ftm-sonic.nownodes.io"
         case .alephium:
             link = "https://alephium.nownodes.io/\(apiKey)"
+        case .linea:
+            link = "https://linea.nownodes.io/\(apiKey)"
+        case .polkadot:
+            link = "https://dot-assethub.nownodes.io"
         default:
             return nil
         }

@@ -14,4 +14,5 @@ struct WCValidatedRequest {
     let dAppData: WalletConnectDAppData
     let targetBlockchain: Blockchain
     let userWalletModel: UserWalletModel
+    let account: (any CryptoAccountModel)?
 }
