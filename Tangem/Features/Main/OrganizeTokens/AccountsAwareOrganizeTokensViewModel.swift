@@ -88,7 +88,7 @@ final class AccountsAwareOrganizeTokensViewModel: ObservableObject, Identifiable
                 }
                 
                 // Invalidate caches for accounts that no longer exist
-                let currentAccountIDs = Set(cryptoAccountModels.map { AnyHashable($0.id) })
+                let currentAccountIDs = Set(cryptoAccountModels.map { $0.id.toAnyHashable() })
                 aggregatedCache.invalidateCaches(notIn: currentAccountIDs)
 
                 // [REDACTED_TODO_COMMENT]
@@ -117,7 +117,7 @@ final class AccountsAwareOrganizeTokensViewModel: ObservableObject, Identifiable
                                         sections: sections,
                                         sortingOption: .dragAndDrop, // [REDACTED_TODO_COMMENT]
                                         groupingOption: .none, // [REDACTED_TODO_COMMENT]
-                                        dragAndDropActionsCache: aggregatedCache.cache(forAccountID: AnyHashable(cryptoAccountModel.id))
+                                        dragAndDropActionsCache: aggregatedCache.cache(forAccountID: cryptoAccountModel.id.toAnyHashable())
                                     )
                                 )
                             }
