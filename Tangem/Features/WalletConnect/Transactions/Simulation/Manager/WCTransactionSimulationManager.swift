@@ -35,7 +35,7 @@ final class CommonWCTransactionSimulationManager: WCTransactionSimulationManager
     ) async -> TransactionSimulationState {
         guard let address = walletModels.first(where: {
             $0.tokenItem.blockchain.networkId == transactionData.blockchain.networkId
-        })?.defaultAddressString else {
+        })?.walletConnectAddress else {
             return .simulationFailed(error: Localization.wcEstimatedWalletChangesNotSimulated)
         }
 
