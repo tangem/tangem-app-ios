@@ -24,8 +24,4 @@ final class OrganizeTokensDragAndDropActionsAggregatedCache {
     func invalidateCaches(notIn validAccountIDs: Set<AnyHashable>) {
         innerCaches = innerCaches.filter { validAccountIDs.contains($0.key) }
     }
-    
-    func resetAll() {
-        innerCaches.values.forEach { $0.reset() }
-    }
 }
