@@ -93,15 +93,12 @@ extension CardanoWalletManager: TransactionSender {
                     .mapAndEraseSendTxError(tx: builtTransaction.hex())
                     .eraseToAnyPublisher()
             }
-            .tryMap { [weak self] hash in
-                guard let self else {
-                    throw BlockchainSdkError.empty
-                }
-
+            .withWeakCaptureOf(self)
+            .tryMap { manager, hash in
                 let mapper = PendingTransactionRecordMapper()
                 let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hash)
-                wallet.addPendingTransaction(record)
-                return TransactionSendResult(hash: hash)
+                manager.wallet.addPendingTransaction(record)
+                return TransactionSendResult(hash: hash, currentProviderHost: manager.currentHost)
             }
             .mapSendTxError()
             .eraseToAnyPublisher()

@@ -11,8 +11,11 @@ import TangemLogger
 
 class LogsComposer {
     private let infoProvider: LogFileProvider
-    init(infoProvider: LogFileProvider) {
+    private let includeZipLogs: Bool
+
+    init(infoProvider: LogFileProvider, includeZipLogs: Bool = true) {
         self.infoProvider = infoProvider
+        self.includeZipLogs = includeZipLogs
     }
 
     /// Tokens list info
@@ -21,6 +24,10 @@ class LogsComposer {
     }
 
     func getZipLogsData() -> (data: Data, file: URL)? {
+        guard includeZipLogs else {
+            return nil
+        }
+
         do {
             let file = try OSLogZipFileBuilder.zipFile()
             let data = try Data(contentsOf: file)
