@@ -7,11 +7,7 @@
 //
 
 protocol ActionButtonsSwapRoutable: AnyObject {
-    func openExpress(
-        for sourceWalletModel: any WalletModel,
-        and destinationWalletModel: any WalletModel,
-        with userWalletModel: UserWalletModel
-    )
+    func openExpress(input: ExpressDependenciesInput)
     func dismiss()
     func showYieldNotificationIfNeeded(for walletModel: any WalletModel, completion: (() -> Void)?)
 }

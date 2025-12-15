@@ -113,14 +113,11 @@ final class SingleTokenNotificationManager {
             events.append(.maticMigration)
         }
 
-        if let sendingRestrictions = walletModel.sendingRestrictions {
-            let isFeeCurrencyPurchaseAllowed = walletModelsManager.walletModels.contains {
-                $0.tokenItem == walletModel.feeTokenItem && $0.tokenItem.blockchainNetwork == walletModel.tokenItem.blockchainNetwork
-            }
-
-            if let event = TokenNotificationEvent.event(for: sendingRestrictions, isFeeCurrencyPurchaseAllowed: isFeeCurrencyPurchaseAllowed) {
-                events.append(event)
-            }
+        switch walletModel.sendingRestrictions {
+        case .zeroFeeCurrencyBalance(let configuration) where !walletModel.isMainToken:
+            events.append(.notEnoughFeeForTransaction(configuration: configuration))
+        default:
+            break
         }
 
         events += makeAssetRequirementsNotificationEvents()

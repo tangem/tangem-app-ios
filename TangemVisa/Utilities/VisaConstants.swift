@@ -16,12 +16,4 @@ enum VisaConstants {
     static let customerIdKey = "customer_id"
     static let cardIdKey = "card_id"
     static let productInstanceIdKey = "product_instance_id"
-    static var defaultHeaderParams: [String: String] {
-        let deviceInfo = DeviceInfo()
-        return [
-            "Content-Type": "application/json",
-            "platform": deviceInfo.platform,
-            "version": deviceInfo.version,
-        ]
-    }
 }

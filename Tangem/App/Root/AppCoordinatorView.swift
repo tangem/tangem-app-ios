@@ -49,7 +49,6 @@ struct AppCoordinatorView: CoordinatorView {
             }
     }
 
-    @ViewBuilder
     private var content: some View {
         // We need stack to force transition animation work
         ZStack {

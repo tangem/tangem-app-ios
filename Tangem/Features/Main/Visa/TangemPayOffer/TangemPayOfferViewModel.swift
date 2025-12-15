@@ -9,9 +9,11 @@
 import Combine
 import TangemVisa
 import TangemFoundation
+import TangemSdk
 
 final class TangemPayOfferViewModel: ObservableObject {
     @Published private(set) var isLoading = false
+    @Published var termsFeesAndLimitsViewModel: WebViewContainerViewModel?
 
     private let userWalletModel: any UserWalletModel
     private let closeOfferScreen: @MainActor () -> Void
@@ -24,8 +26,13 @@ final class TangemPayOfferViewModel: ObservableObject {
         self.closeOfferScreen = closeOfferScreen
     }
 
+    func onAppear() {
+        Analytics.log(.visaOnboardingVisaActivationScreenOpened)
+    }
+
     func getCard() {
-        #if ALPHA || BETA || DEBUG
+        Analytics.log(.visaOnboardingButtonVisaGetCard)
+
         isLoading = true
         runTask(in: self) { viewModel in
             do {
@@ -39,6 +46,7 @@ final class TangemPayOfferViewModel: ObservableObject {
                 switch tangemPayStatus {
                 case .kycRequired:
                     try await tangemPayAccount.launchKYC {
+                        tangemPayAccount.loadCustomerInfo()
                         runTask(in: viewModel) { viewModel in
                             await viewModel.closeOfferScreen()
                         }
@@ -50,36 +58,30 @@ final class TangemPayOfferViewModel: ObservableObject {
                 await viewModel.closeOfferScreen()
             }
         }
-        #endif // ALPHA || BETA || DEBUG
+    }
+
+    func termsFeesAndLimits() {
+        Analytics.log(.visaOnboardingButtonVisaViewTerms)
+
+        termsFeesAndLimitsViewModel = .init(
+            url: AppConstants.tangemPayTermsAndLimitsURL,
+            title: "",
+            withCloseButton: true
+        )
     }
 
     private func makeTangemPayAccount() async throws -> TangemPayAccount {
-        let tangemPayAuthorizer = try await makeTangemPayAuthorizer()
-        let tokens = try await tangemPayAuthorizer.authorizeWithCustomerWallet()
-        return TangemPayAccount(authorizer: tangemPayAuthorizer, tokens: tokens)
-    }
-
-    private func makeTangemPayAuthorizer() async throws -> TangemPayAuthorizer {
-        if let walletModel = userWalletModel.visaWalletModel {
-            return TangemPayAuthorizer(walletModel: walletModel)
-        }
-
-        let visaBlockchainNetwork = BlockchainNetwork(
-            VisaUtilities.visaBlockchain,
-            derivationPath: VisaUtilities.visaDefaultDerivationPath
+        let builder = TangemPayAccountBuilder()
+        let tangemPayAccount = try await builder.makeTangemPayAccount(
+            authorizerType: .plain,
+            userWalletModel: userWalletModel
         )
-        _ = try await userWalletModel.userTokensManager.add(.blockchain(visaBlockchainNetwork))
-
-        if let walletModel = userWalletModel.visaWalletModel {
-            return TangemPayAuthorizer(walletModel: walletModel)
-        }
-
-        throw TangemPayOfferError.unableToCreateRequiredWalletModel
+        return tangemPayAccount
     }
 }
 
 private extension TangemPayOfferViewModel {
     enum TangemPayOfferError: Error {
-        case unableToCreateRequiredWalletModel
+        case unableToCreateWalletPublicKey
     }
 }

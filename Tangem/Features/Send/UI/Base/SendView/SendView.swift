@@ -46,7 +46,6 @@ struct SendView: View {
             ToolbarItem(placement: .topBarLeading) { leadingView }
             ToolbarItem(placement: .principal) { principalView }
             ToolbarItem(placement: .topBarTrailing) { trailingView }
-            ToolbarItem(placement: .keyboard) { keyboardToolbarView }
         }
         .scrollDismissesKeyboardCompat(.immediately)
         .safeAreaInset(edge: .bottom, spacing: .zero) { bottomContainer }
@@ -81,6 +80,7 @@ struct SendView: View {
         case .closeButton:
             CircleButton.close(action: viewModel.dismiss)
                 .disabled(viewModel.closeButtonDisabled)
+                .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.closeButton)
 
         case .qrCodeButton(let action):
             Button(action: action) {
@@ -120,17 +120,6 @@ struct SendView: View {
     }
 
     @ViewBuilder
-    private var keyboardToolbarView: some View {
-        if viewModel.bottomBarSettings.keyboardHiddenToolbarButtonVisible {
-            HStack(spacing: .zero) {
-                Spacer()
-
-                HideKeyboardButton(focused: $focused)
-            }
-        }
-    }
-
-    @ViewBuilder
     private var currentPage: some View {
         switch viewModel.step.type {
         case .destination(let sendDestinationViewModel):
@@ -141,10 +130,6 @@ struct SendView: View {
             SendAmountView(viewModel: sendAmountViewModel)
                 .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
                 .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
-        case .newAmount(let sendAmountViewModel):
-            SendNewAmountView(viewModel: sendAmountViewModel)
-                .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
-                .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
         case .validators(let stakingValidatorsViewModel):
             StakingValidatorsView(viewModel: stakingValidatorsViewModel)
                 .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
@@ -153,24 +138,12 @@ struct SendView: View {
             SendSummaryView(viewModel: sendSummaryViewModel)
                 .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
                 .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
-        case .newSummary(let sendSummaryViewModel):
-            SendNewSummaryView(viewModel: sendSummaryViewModel)
-                .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
-                .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
         case .onramp(let onrampViewModel):
-            OnrampView(viewModel: onrampViewModel, keyboardActive: $focused)
-                .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
-                .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
-        case .newOnramp(let onrampViewModel):
-            NewOnrampView(viewModel: onrampViewModel, keyboardActive: $focused)
+            OnrampSummaryView(viewModel: onrampViewModel, keyboardActive: $focused)
                 .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
                 .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
         case .finish(let sendFinishViewModel):
             SendFinishView(viewModel: sendFinishViewModel)
-                .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
-                .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
-        case .newFinish(let sendFinishViewModel):
-            SendNewFinishView(viewModel: sendFinishViewModel)
                 .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
                 .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
         }
@@ -179,30 +152,18 @@ struct SendView: View {
     @ViewBuilder
     private var bottomContainer: some View {
         if let mainButtonType = viewModel.bottomBarSettings.action {
-            HStack(spacing: 8) {
-                if viewModel.bottomBarSettings.backButtonVisible {
-                    SendViewBackButton(
-                        backgroundColor: backButtonStyle.background(isDisabled: false),
-                        cornerRadius: backButtonStyle.cornerRadius(for: backButtonSize),
-                        height: backButtonSize.height,
-                        action: viewModel.userDidTapBackButton
-                    )
-                    .transition(.move(edge: .leading).combined(with: .opacity))
+            MainButton(
+                title: mainButtonType.title(action: viewModel.flowActionType),
+                icon: mainButtonType.icon(action: viewModel.flowActionType),
+                style: .primary,
+                size: .default,
+                isLoading: viewModel.mainButtonLoading,
+                isDisabled: !viewModel.actionIsAvailable,
+                action: {
+                    viewModel.userDidTapActionButton(mainButtonType: mainButtonType)
                 }
-
-                MainButton(
-                    title: mainButtonType.title(action: viewModel.flowActionType),
-                    icon: mainButtonType.icon(action: viewModel.flowActionType),
-                    style: .primary,
-                    size: .default,
-                    isLoading: viewModel.mainButtonLoading,
-                    isDisabled: !viewModel.actionIsAvailable,
-                    action: {
-                        viewModel.userDidTapActionButton(mainButtonType: mainButtonType)
-                    }
-                )
-                .accessibilityIdentifier(SendAccessibilityIdentifiers.sendViewNextButton)
-            }
+            )
+            .accessibilityIdentifier(SendAccessibilityIdentifiers.sendViewNextButton)
             .padding(.bottom, 14)
             .padding(.horizontal, 16)
         }
@@ -212,28 +173,5 @@ struct SendView: View {
         ListFooterOverlayShadowView(opacities: [0, 0.95, 1])
             .frame(height: bottomGradientHeight)
             .visible(viewModel.shouldShowBottomOverlay)
-    }
-}
-
-// MARK: - Back button
-
-private struct SendViewBackButton: View {
-    let backgroundColor: Color
-    let cornerRadius: CGFloat
-    let height: CGFloat
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            backgroundColor
-                .cornerRadiusContinuous(cornerRadius)
-                .overlay(
-                    Assets.arrowLeftMini
-                        .image
-                        .renderingMode(.template)
-                        .foregroundColor(Colors.Icon.primary1)
-                )
-                .frame(size: CGSize(bothDimensions: height))
-        }
     }
 }

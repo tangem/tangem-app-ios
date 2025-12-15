@@ -15,13 +15,16 @@ class StakingSingleActionFlowFactory: StakingFlowDependenciesFactory {
     let feeTokenItem: TokenItem
     let tokenIconInfo: TokenIconInfo
     let userWalletInfo: UserWalletInfo
+
     let manager: any StakingManager
     let action: RestakingModel.Action
     var actionType: StakingAction.ActionType { action.displayType }
 
+    let tokenHeaderProvider: SendGenericTokenHeaderProvider
     let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let walletModelDependenciesProvider: WalletModelDependenciesProvider
-    let walletModelBalancesProvider: WalletModelBalancesProvider
+    let availableBalanceProvider: any TokenBalanceProvider
+    let fiatAvailableBalanceProvider: any TokenBalanceProvider
     let transactionDispatcherFactory: TransactionDispatcherFactory
 
     lazy var analyticsLogger = makeStakingSendAnalyticsLogger()
@@ -38,6 +41,11 @@ class StakingSingleActionFlowFactory: StakingFlowDependenciesFactory {
         self.manager = manager
         self.action = action
 
+        tokenHeaderProvider = SendTokenHeaderProvider(
+            userWalletInfo: userWalletInfo,
+            account: walletModel.account,
+            flowActionType: action.displayType.sendFlowActionType
+        )
         tokenItem = walletModel.tokenItem
         feeTokenItem = walletModel.feeTokenItem
         tokenIconInfo = TokenIconInfoBuilder().build(
@@ -45,7 +53,8 @@ class StakingSingleActionFlowFactory: StakingFlowDependenciesFactory {
             isCustom: walletModel.isCustom
         )
         walletModelDependenciesProvider = walletModel
-        walletModelBalancesProvider = walletModel
+        availableBalanceProvider = walletModel.availableBalanceProvider
+        fiatAvailableBalanceProvider = walletModel.fiatAvailableBalanceProvider
         transactionDispatcherFactory = TransactionDispatcherFactory(
             walletModel: walletModel,
             signer: userWalletInfo.signer
@@ -66,15 +75,13 @@ extension StakingSingleActionFlowFactory {
     ) -> StakingSingleActionModel {
         StakingSingleActionModel(
             stakingManager: stakingManager,
+            sendSourceToken: makeSourceToken(),
             transactionDispatcher: makeStakingTransactionDispatcher(
                 stakingManger: stakingManager,
                 analyticsLogger: analyticsLogger
             ),
-            transactionValidator: walletModelDependenciesProvider.transactionValidator,
             analyticsLogger: analyticsLogger,
             action: action,
-            tokenItem: tokenItem,
-            feeTokenItem: feeTokenItem
         )
     }
 }
@@ -83,14 +90,22 @@ extension StakingSingleActionFlowFactory {
 
 extension StakingSingleActionFlowFactory: SendGenericFlowFactory {
     func make(router: any SendRoutable) -> SendViewModel {
-        let sendAmountCompactViewModel = SendAmountCompactViewModel(conventViewModel: SendAmountCompactContentViewModel(
-            input: actionModel,
-            tokenIconInfo: makeSendAmountViewModelSettings().tokenIconInfo,
-            tokenItem: tokenItem
-        ))
+        let sendAmountCompactViewModel = SendAmountCompactViewModel(
+            sourceTokenInput: actionModel,
+            sourceTokenAmountInput: actionModel
+        )
 
-        let sendFeeCompactViewModel = SendFeeCompactViewModel(
-            input: actionModel,
+        let sendAmountFinishViewModel = SendAmountFinishViewModel(
+            sourceTokenInput: actionModel,
+            sourceTokenAmountInput: actionModel
+        )
+
+        let sendFeeCompactViewModel = SendNewFeeCompactViewModel(
+            feeTokenItem: feeTokenItem,
+            isFeeApproximate: isFeeApproximate()
+        )
+
+        let sendFeeFinishViewModel = SendFeeFinishViewModel(
             feeTokenItem: feeTokenItem,
             isFeeApproximate: isFeeApproximate()
         )
@@ -101,13 +116,14 @@ extension StakingSingleActionFlowFactory: SendGenericFlowFactory {
         )
 
         let finish = makeSendFinishStep(
-            sendAmountCompactViewModel: sendAmountCompactViewModel,
-            sendFeeCompactViewModel: sendFeeCompactViewModel,
+            sendAmountFinishViewModel: sendAmountFinishViewModel,
+            sendFeeFinishViewModel: sendFeeFinishViewModel,
             router: router
         )
 
         // Steps
         sendFeeCompactViewModel.bind(input: actionModel)
+        sendFeeFinishViewModel.bind(input: actionModel)
 
         // Notifications setup
         notificationManager.setup(provider: actionModel, input: actionModel)
@@ -117,7 +133,7 @@ extension StakingSingleActionFlowFactory: SendGenericFlowFactory {
         analyticsLogger.setup(stakingValidatorsInput: actionModel)
 
         let stepsManager = CommonStakingSingleActionStepsManager(
-            summaryStep: summary.step,
+            summaryStep: summary,
             finishStep: finish,
             summaryTitleProvider: makeStakingSummaryTitleProvider(),
             action: action
@@ -158,10 +174,8 @@ extension StakingSingleActionFlowFactory: SendSummaryStepBuildable {
     var summaryTypes: SendSummaryStepBuilder.Types {
         SendSummaryStepBuilder.Types(
             settings: .init(
-                tokenItem: tokenItem,
                 destinationEditableType: .noEditable,
                 amountEditableType: .noEditable,
-                actionType: sendFlowActionType()
             )
         )
     }
@@ -172,6 +186,7 @@ extension StakingSingleActionFlowFactory: SendSummaryStepBuildable {
             notificationManager: notificationManager,
             analyticsLogger: analyticsLogger,
             sendDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder(),
+            swapDescriptionBuilder: makeSwapTransactionSummaryDescriptionBuilder(),
             stakingDescriptionBuilder: makeStakingTransactionSummaryDescriptionBuilder()
         )
     }
@@ -189,8 +204,6 @@ extension StakingSingleActionFlowFactory: SendFinishStepBuildable {
     }
 
     var finishDependencies: SendFinishStepBuilder.Dependencies {
-        SendFinishStepBuilder.Dependencies(
-            analyticsLogger: analyticsLogger,
-        )
+        SendFinishStepBuilder.Dependencies(analyticsLogger: analyticsLogger)
     }
 }

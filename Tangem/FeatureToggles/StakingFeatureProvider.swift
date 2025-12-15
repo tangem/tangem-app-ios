@@ -11,11 +11,11 @@ import BlockchainSdk
 import TangemStaking
 
 class StakingFeatureProvider {
-    private let longHashesSupported: Bool
     private let isFeatureAvailable: Bool
+    private let hardwareLimitationsUtil: HardwareLimitationsUtil
 
     init(config: UserWalletConfig) {
-        longHashesSupported = config.hasFeature(.longHashes)
+        hardwareLimitationsUtil = HardwareLimitationsUtil(config: config)
         isFeatureAvailable = config.isFeatureVisible(.staking)
     }
 
@@ -24,13 +24,7 @@ class StakingFeatureProvider {
             return nil
         }
 
-        let appUtils = AppUtils()
-
-        if appUtils.hasLongHashesForContractInteractions(tokenItem), !longHashesSupported {
-            return nil
-        }
-
-        guard appUtils.canPerformContractInteractions(with: tokenItem) else {
+        guard hardwareLimitationsUtil.canPerformContractInteractions(with: tokenItem) else {
             return nil
         }
 
@@ -70,8 +64,11 @@ extension StakingFeatureProvider {
             StakingItem(network: .solana, contractAddress: nil),
             StakingItem(network: .cosmos, contractAddress: nil),
             StakingItem(network: .tron, contractAddress: nil),
-            StakingItem(network: .ethereum, contractAddress: StakingConstants.polygonContractAddress),
-            StakingItem(network: .binance, contractAddress: nil),
+            StakingItem(
+                network: .ethereum,
+                contractAddress: StakingConstants.polygonContractAddress
+            ),
+            StakingItem(network: .bsc, contractAddress: nil),
             StakingItem(network: .ton, contractAddress: nil),
         ]
     }
@@ -79,6 +76,7 @@ extension StakingFeatureProvider {
     static var testableBlockchainItems: Set<StakingItem> {
         [
             StakingItem(network: .cardano, contractAddress: nil),
+            StakingItem(network: .ethereum, contractAddress: nil),
         ]
     }
 
@@ -92,12 +90,14 @@ extension StakingFeatureProvider {
             return "ethereum-matic-native-staking"
         case (.tron, .none):
             return "tron-trx-native-staking"
-        case (.binance, .none):
+        case (.bsc, .none):
             return "bsc-bnb-native-staking"
         case (.ton, .none):
             return "ton-ton-chorus-one-pools-staking"
         case (.cardano, .none):
             return "cardano-ada-native-staking"
+        case (.ethereum, .none):
+            return "ethereum-p2p-staking" // dummy id for consistency
         default:
             return nil
         }
@@ -106,7 +106,7 @@ extension StakingFeatureProvider {
 
 extension StakingFeatureProvider {
     struct StakingItem: Hashable {
-        let network: StakeKitNetworkType
+        let network: StakingNetworkType
         let contractAddress: String?
 
         var id: String {
