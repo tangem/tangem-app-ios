@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import ZIPFoundation
 
 public enum OSLogFileParser {
     public static let logFile: URL = OSLogFileWriter.shared.logFile
