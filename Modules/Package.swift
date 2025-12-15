@@ -11,7 +11,7 @@ let package = Package(
     name: modulesWrapperLibraryName,
     defaultLocalization: "en",
     platforms: [
-        .iOS(.v15),
+        .iOS("16.4"),
         // [REDACTED_USERNAME]
         // We enforce a set the macOS minimum target version
         // so that the swift-syntax dependency can compile and link for macros
