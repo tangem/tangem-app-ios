@@ -307,6 +307,13 @@ struct ProductActivationServiceMock: ProductActivationService {
 }
 
 final class CustomerInfoManagementServiceMock: CustomerInfoManagementService {
+    func getPin(cardId: String, sessionId: String) async throws -> TangemPayGetPinResponse {
+        .init(
+            encryptedPin: "",
+            iv: ""
+        )
+    }
+
     func loadCustomerInfo() async throws -> VisaCustomerInfoResponse {
         return .init(
             id: "89983505-cc0f-47d6-b428-eef3e158c5aa",
@@ -372,7 +379,8 @@ final class CustomerInfoManagementServiceMock: CustomerInfoManagementService {
             expirationMonth: "",
             expirationYear: "",
             pan: .init(secret: "", iv: ""),
-            cvv: .init(secret: "", iv: "")
+            cvv: .init(secret: "", iv: ""),
+            isPINSet: .init()
         )
     }
 
