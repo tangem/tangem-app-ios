@@ -48,7 +48,7 @@ public struct NFTCollectionsListView: View {
         .padding(.horizontal, 16)
         .background(Colors.Background.secondary)
         .onAppear(perform: viewModel.onViewAppear)
-        .scrollDismissesKeyboardCompat(.immediately)
+        .scrollDismissesKeyboard(.immediately)
         .onDidAppear {
             shouldAnimateViews = true
         }
