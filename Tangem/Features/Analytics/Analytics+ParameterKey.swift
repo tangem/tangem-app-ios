@@ -114,5 +114,10 @@ extension Analytics {
         case nftAssetsCount = "Nft"
         case nftStandard = "Standard"
         case nftDummyCollectionsCount = "No collection"
+
+        // MARK: - Backup
+
+        case backupManual = "Manual Backup"
+        case backupICloud = "Icloud Backup"
     }
 }
