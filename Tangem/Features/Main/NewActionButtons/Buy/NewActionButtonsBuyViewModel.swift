@@ -65,6 +65,7 @@ extension NewActionButtonsBuyViewModel: NewTokenSelectorViewModelOutput {
         ActionButtonsAnalyticsService.trackTokenClicked(.buy, tokenSymbol: item.walletModel.tokenItem.currencySymbol)
 
         let sendInput = SendInput(userWalletInfo: item.userWalletInfo, walletModel: item.walletModel)
-        coordinator?.openOnramp(input: sendInput)
+        let parameters = PredefinedOnrampParametersBuilder.makeMoonpayPromotionParametersIfActive()
+        coordinator?.openOnramp(input: sendInput, parameters: parameters)
     }
 }
