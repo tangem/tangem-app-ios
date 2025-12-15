@@ -24,11 +24,11 @@ class CommonUserWalletModel {
 
     let walletModelsManager: WalletModelsManager
     let userTokensManager: UserTokensManager
-    let userTokenListManager: UserTokenListManager
     let nftManager: NFTManager
     let keysRepository: KeysRepository
-    let derivationManager: DerivationManager?
-    let totalBalanceProvider: TotalBalanceProviding
+    let totalBalanceProvider: TotalBalanceProvider
+    let tangemPayAccountProvider: TangemPayAccountProvider
+
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
     let accountModelsManager: AccountModelsManager
 
@@ -55,11 +55,10 @@ class CommonUserWalletModel {
         userWalletId: UserWalletId,
         walletModelsManager: WalletModelsManager,
         userTokensManager: UserTokensManager,
-        userTokenListManager: UserTokenListManager,
         nftManager: NFTManager,
         keysRepository: KeysRepository,
-        derivationManager: DerivationManager?,
-        totalBalanceProvider: TotalBalanceProviding,
+        totalBalanceProvider: TotalBalanceProvider,
+        tangemPayAccountProvider: TangemPayAccountProviderSetupable,
         userTokensPushNotificationsManager: UserTokensPushNotificationsManager,
         accountModelsManager: AccountModelsManager
     ) {
@@ -69,51 +68,31 @@ class CommonUserWalletModel {
         self.name = name
         self.walletModelsManager = walletModelsManager
         self.userTokensManager = userTokensManager
-        self.userTokenListManager = userTokenListManager
         self.nftManager = nftManager
         self.keysRepository = keysRepository
-        self.derivationManager = derivationManager
         self.totalBalanceProvider = totalBalanceProvider
+        self.tangemPayAccountProvider = tangemPayAccountProvider
         self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
         self.accountModelsManager = accountModelsManager
 
         _cardHeaderImagePublisher = .init(config.cardHeaderImage)
-        appendPersistentBlockchains()
-        userTokensManager.sync {}
+
+        if FeatureProvider.isAvailable(.visa) {
+            tangemPayAccountProvider.setup(for: self)
+        }
     }
 
     deinit {
         AppLogger.debug(self)
     }
 
-    private func validateBackup(_ backupStatus: Card.BackupStatus?, wallets: [CardDTO.Wallet]) -> Bool {
-        switch walletInfo {
-        case .cardWallet(let cardInfo):
-            let backupValidator = BackupValidator()
-            if !backupValidator.validate(backupStatus: cardInfo.card.backupStatus, wallets: wallets) {
-                return false
-            }
-
-            return true
-
-        case .mobileWallet:
-            // nothing to validate here
-            return true
-        }
-    }
-
-    private func appendPersistentBlockchains() {
-        guard let persistentBlockchains = config.persistentBlockchains else {
-            return
-        }
-
-        userTokenListManager.update(.append(persistentBlockchains), shouldUpload: true)
-    }
-
-    private func updateConfiguration(walletInfo: WalletInfo) {
+    private func updateConfiguration(walletInfo: WalletInfo, shouldSave: Bool = true) {
         self.walletInfo = walletInfo
         config = UserWalletConfigFactory().makeConfig(walletInfo: walletInfo)
-        userWalletRepository.save(userWalletModel: self)
+        if shouldSave {
+            userWalletRepository.save(userWalletModel: self)
+            keysRepository.update(keys: walletInfo.keys)
+        }
         _updatePublisher.send(.configurationChanged(model: self))
     }
 }
@@ -137,6 +116,10 @@ extension CommonUserWalletModel: TangemSdkFactory {
 extension CommonUserWalletModel: UserWalletModel {
     var wcWalletModelProvider: WalletConnectWalletModelProvider {
         CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
+    }
+
+    var wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider {
+        CommonWalletConnectAccountsWalletModelProvider(accountModelsManager: accountModelsManager)
     }
 
     var refcodeProvider: RefcodeProvider? {
@@ -202,32 +185,29 @@ extension CommonUserWalletModel: UserWalletModel {
             userWalletRepository.savePublicData()
             _updatePublisher.send(.nameDidChange(name: name))
 
-        case .backupCompleted:
-            // we have to read an actual status from backup validator
-            _updatePublisher.send(.configurationChanged(model: self))
+        case .backupCompleted(let card, let associatedCardIds):
+            var mutableCardInfo = CardInfo(
+                card: CardDTO(card: card),
+                walletData: .none,
+                associatedCardIds: associatedCardIds
+            )
 
-        case .backupStarted(let card):
             switch walletInfo {
-            case .cardWallet(let cardInfo):
-                var mutableCardInfo = cardInfo
-                for updatedWallet in card.wallets {
-                    mutableCardInfo.card.wallets[updatedWallet.publicKey]?.hasBackup = updatedWallet.hasBackup
-                }
-
-                mutableCardInfo.card.settings = CardDTO.Settings(settings: card.settings)
-                mutableCardInfo.card.isAccessCodeSet = card.isAccessCodeSet
-                mutableCardInfo.card.backupStatus = card.backupStatus
-                updateConfiguration(walletInfo: .cardWallet(mutableCardInfo))
-
-                _cardHeaderImagePublisher.send(config.cardHeaderImage)
-                // prevent save until onboarding completed
-                if userWalletRepository.models[userWalletId] != nil {
-                    userWalletRepository.save(userWalletModel: self)
-                }
-            case .mobileWallet(let info):
-                var mutableCardInfo = CardInfo(card: CardDTO(card: card), walletData: .none, associatedCardIds: [])
+            case .cardWallet(let existingInfo):
                 for wallet in mutableCardInfo.card.wallets {
-                    if let existingDerivedKeys = info.keys[wallet.publicKey]?.derivedKeys {
+                    if let existingDerivedKeys = existingInfo.card.wallets[wallet.publicKey]?.derivedKeys {
+                        mutableCardInfo.card.wallets[wallet.publicKey]?.derivedKeys = existingDerivedKeys
+                    }
+                }
+
+                // prevent save until onboarding completed
+                let shouldSave = userWalletRepository.models[userWalletId] != nil
+                updateConfiguration(walletInfo: .cardWallet(mutableCardInfo), shouldSave: shouldSave)
+                _cardHeaderImagePublisher.send(config.cardHeaderImage)
+
+            case .mobileWallet(let existingInfo):
+                for wallet in mutableCardInfo.card.wallets {
+                    if let existingDerivedKeys = existingInfo.keys[wallet.publicKey]?.derivedKeys {
                         mutableCardInfo.card.wallets[wallet.publicKey]?.derivedKeys = existingDerivedKeys
                     }
                 }
@@ -244,7 +224,17 @@ extension CommonUserWalletModel: UserWalletModel {
                 break
             case .mobileWallet(let info):
                 var mutableInfo = info
-                mutableInfo.isAccessCodeSet = true
+                mutableInfo.accessCodeStatus = .set
+                updateConfiguration(walletInfo: .mobileWallet(mutableInfo))
+            }
+
+        case .accessCodeDidSkip:
+            switch walletInfo {
+            case .cardWallet:
+                break
+            case .mobileWallet(let info):
+                var mutableInfo = info
+                mutableInfo.accessCodeStatus = .skipped
                 updateConfiguration(walletInfo: .mobileWallet(mutableInfo))
             }
 
@@ -290,16 +280,7 @@ extension CommonUserWalletModel: UserWalletModel {
     func validate() -> Bool {
         switch walletInfo {
         case .cardWallet(let cardInfo):
-            let pendingBackupManager = PendingBackupManager()
-            if pendingBackupManager.fetchPendingCard(cardInfo.card.cardId) != nil {
-                return false
-            }
-
-            guard validateBackup(cardInfo.card.backupStatus, wallets: cardInfo.card.wallets) else {
-                return false
-            }
-
-            return true
+            return BackupValidator().validate(card: cardInfo.card)
         case .mobileWallet:
             return true
         }
@@ -317,8 +298,6 @@ extension CommonUserWalletModel: MainHeaderSupplementInfoProvider {
 extension CommonUserWalletModel: MainHeaderUserWalletStateInfoProvider {
     var isUserWalletLocked: Bool { false }
 
-    var isTokensListEmpty: Bool { userTokenListManager.userTokensList.entries.isEmpty }
-
     var hasImportedWallets: Bool {
         keysRepository.keys.contains(where: { $0.isImported ?? false })
     }
@@ -335,7 +314,35 @@ extension CommonUserWalletModel: KeysDerivingProvider {
     }
 }
 
-extension CommonUserWalletModel: TotalBalanceProviding {
+extension CommonUserWalletModel: TangemPayAuthorizingProvider {
+    var tangemPayAuthorizingInteractor: TangemPayAuthorizing {
+        switch walletInfo {
+        case .cardWallet(let cardInfo):
+            return TangemPayAuthorizingCardInteractor(with: cardInfo)
+        case .mobileWallet:
+            return TangemPayAuthorizingMobileWalletInteractor(
+                userWalletId: userWalletId,
+                userWalletConfig: config
+            )
+        }
+    }
+}
+
+// MARK: - TangemPayAccountProvider
+
+extension CommonUserWalletModel: TangemPayAccountProvider {
+    var tangemPayAccount: TangemPayAccount? {
+        tangemPayAccountProvider.tangemPayAccount
+    }
+
+    var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount?, Never> {
+        tangemPayAccountProvider.tangemPayAccountPublisher
+    }
+}
+
+// MARK: - TotalBalanceProvider
+
+extension CommonUserWalletModel: TotalBalanceProvider {
     var totalBalance: TotalBalanceState {
         totalBalanceProvider.totalBalance
     }
@@ -368,10 +375,13 @@ extension CommonUserWalletModel: UserWalletSerializable {
 
             return newStoredUserWallet
         case .mobileWallet(let mobileWalletInfo):
+            var mutableMobileWalletInfo = mobileWalletInfo
+            mutableMobileWalletInfo.keys = []
+
             let newStoredUserWallet = StoredUserWallet(
                 userWalletId: userWalletId.value,
                 name: name,
-                walletInfo: .mobileWallet(mobileWalletInfo),
+                walletInfo: .mobileWallet(mutableMobileWalletInfo),
             )
 
             return newStoredUserWallet

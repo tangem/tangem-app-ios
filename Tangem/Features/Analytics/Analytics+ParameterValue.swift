@@ -48,6 +48,7 @@ extension Analytics {
         case visa = "Visa"
         case visaWaitlist = "Visa Waitlist"
         case blackFriday = "Black Friday"
+        case onePlusOne = "One-Plus-One"
 
         case main = "Main"
         case token = "Token"
@@ -259,6 +260,10 @@ extension Analytics {
         case `import` = "Import"
         case create = "Create Wallet"
         case importWallet = "Import Wallet"
+        case walletSettings = "Wallet Settings"
+        case upgrade = "Upgrade"
+        case remove = "Remove"
+        case hardwareWallet = "Hardware Wallet"
 
         case set = "Set"
         case changing = "Changing"
@@ -288,6 +293,10 @@ extension Analytics {
 
         static func successOrFailed(for boolean: Bool) -> ParameterValue {
             return boolean ? .success : .failed
+        }
+
+        static func enabledOrDisabled(for boolean: Bool) -> ParameterValue {
+            return boolean ? .enabled : .disabled
         }
     }
 }
