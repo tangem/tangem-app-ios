@@ -22,7 +22,7 @@ struct WelcomeSearchTokensView: View {
 
     private var content: some View {
         ManageTokensListView(viewModel: viewModel.manageTokensListViewModel, isReadOnly: true)
-            .scrollDismissesKeyboardCompat(.immediately)
+            .scrollDismissesKeyboard(.immediately)
             .navigationTitle(Text(Localization.commonSearchTokens))
             .navigationBarTitleDisplayMode(.inline)
             .searchable(text: $viewModel.enteredSearchText.value, placement: .navigationBarDrawer(displayMode: .always))

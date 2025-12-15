@@ -34,7 +34,7 @@ struct FeeSelectorContentView: View {
                 .separatorPadding(.init(leading: 62, trailing: 14))
                 .padding(.horizontal, 14)
             }
-            .scrollBounceBehaviorBackport(.basedOnSize)
+            .scrollBounceBehavior(.basedOnSize)
             .padding(.bottom, 16)
 
             if viewModel.showDoneButton {

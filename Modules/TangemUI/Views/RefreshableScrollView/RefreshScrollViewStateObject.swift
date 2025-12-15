@@ -92,7 +92,7 @@ private extension RefreshScrollViewStateObject {
 
     func refreshing() async {
         await refreshable()
-        try? await Task.sleep(seconds: settings.stopRefreshingDelay)
+        try? await Task.sleep(for: .seconds(settings.stopRefreshingDelay))
         await stopRefreshing()
     }
 

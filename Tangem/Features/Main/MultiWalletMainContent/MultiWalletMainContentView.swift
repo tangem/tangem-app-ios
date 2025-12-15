@@ -6,6 +6,7 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
+import Combine
 import SwiftUI
 import TangemLocalization
 import TangemAssets
@@ -123,7 +124,6 @@ struct MultiWalletMainContentView: View {
             .padding(.top, 96)
     }
 
-    @available(iOS 16, *)
     private func tokenItemView(
         item: TokenItemViewModel,
         cornerRadius: CGFloat,
@@ -160,45 +160,37 @@ struct MultiWalletMainContentView: View {
                 let cornerRadius = Constants.cornerRadius
                 let hasTitle = section.model.title != nil
 
-                if #available(iOS 16.0, *) {
-                    let isFirstVisibleSection = hasTitle && sectionIndex == 0
-                    let topEdgeCornerRadius = isFirstVisibleSection ? cornerRadius : nil
+                let isFirstVisibleSection = hasTitle && sectionIndex == 0
+                let topEdgeCornerRadius = isFirstVisibleSection ? cornerRadius : nil
 
-                    TokenSectionView(title: section.model.title, cornerRadius: topEdgeCornerRadius)
-                } else {
-                    TokenSectionView(title: section.model.title)
-                }
+                TokenSectionView(title: section.model.title, topEdgeCornerRadius: topEdgeCornerRadius)
 
                 ForEach(indexed: section.items.indexed()) { itemIndex, item in
-                    if #available(iOS 16.0, *) {
-                        let isFirstItem = !hasTitle && sectionIndex == 0 && itemIndex == 0
-                        let isLastItem = sectionIndex == sections.count - 1 && itemIndex == section.items.count - 1
+                    let isFirstItem = !hasTitle && sectionIndex == 0 && itemIndex == 0
+                    let isLastItem = sectionIndex == sections.count - 1 && itemIndex == section.items.count - 1
 
-                        let hasPromoBubble = viewModel.tokenItemPromoBubbleViewModel?.id == item.id
-                        let promoBubbleViewModel = hasPromoBubble ? viewModel.tokenItemPromoBubbleViewModel : nil
+                    let hasPromoBubble = viewModel.tokenItemPromoBubbleViewModel?.id == item.id
+                    let promoBubbleViewModel = hasPromoBubble ? viewModel.tokenItemPromoBubbleViewModel : nil
 
-                        let roundedEdges: TokenItemView.RoundedCornersVerticalEdge? = {
-                            if isFirstItem {
-                                return hasPromoBubble ? nil : (section.items.count == 1 ? .all : .topEdge)
-                            }
+                    let roundedEdges: TokenItemView.RoundedCornersVerticalEdge? = {
+                        if isFirstItem {
+                            return hasPromoBubble ? nil : (section.items.count == 1 ? .all : .topEdge)
+                        }
 
-                            if isLastItem {
-                                return .bottomEdge
-                            }
+                        if isLastItem {
+                            return .bottomEdge
+                        }
 
-                            return nil
-                        }()
+                        return nil
+                    }()
 
-                        tokenItemView(
-                            item: item,
-                            cornerRadius: cornerRadius,
-                            roundedCornersVerticalEdge: roundedEdges,
-                            isFirstItem: isFirstItem,
-                            promoBubbleViewModel: promoBubbleViewModel
-                        )
-                    } else {
-                        TokenItemView(viewModel: item, cornerRadius: cornerRadius)
-                    }
+                    tokenItemView(
+                        item: item,
+                        cornerRadius: cornerRadius,
+                        roundedCornersVerticalEdge: roundedEdges,
+                        isFirstItem: isFirstItem,
+                        promoBubbleViewModel: promoBubbleViewModel
+                    )
                 }
             }
         }
