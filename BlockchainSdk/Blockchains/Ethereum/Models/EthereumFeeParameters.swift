@@ -32,7 +32,7 @@ public extension EthereumFeeParameters {
         switch parametersType {
         case .eip1559(let params):
             return params.maxFeePerGas
-        case .legacy(let params):
+        case .legacy:
             return nil
         }
     }
