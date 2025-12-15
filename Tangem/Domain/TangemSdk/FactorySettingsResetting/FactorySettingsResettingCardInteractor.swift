@@ -9,6 +9,7 @@
 import Foundation
 import TangemLocalization
 import TangemSdk
+import TangemFoundation
 
 class FactorySettingsResettingCardInteractor {
     private let tangemSdk: TangemSdk
@@ -17,7 +18,14 @@ class FactorySettingsResettingCardInteractor {
     init(with cardInfo: CardInfo) {
         let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
         tangemSdk = config.makeTangemSdk()
-        filter = config.cardSessionFilter
+
+        // Override filter to handle cardLinked status
+        if let userWalletIdSeed = config.userWalletIdSeed {
+            let userWalletId = UserWalletId(with: userWalletIdSeed)
+            filter = .custom(UserWalletIdPreflightReadFilter(userWalletId: userWalletId))
+        } else {
+            filter = config.cardSessionFilter
+        }
     }
 
     init(with cardId: String) {
