@@ -139,6 +139,10 @@ extension WalletConnectTransactionRequestProcessingError: UniversalError {
             107009018
         case .missingGasLoader:
             107009019
+        case .eraseMultipleTransactions:
+            107009020
+        case .accountNotFound:
+            1007009021
         }
     }
 }

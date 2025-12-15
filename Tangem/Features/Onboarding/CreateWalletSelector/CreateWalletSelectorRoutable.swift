@@ -12,4 +12,5 @@ protocol CreateWalletSelectorRoutable: AnyObject {
     func openOnboarding(options: OnboardingCoordinator.Options)
     func openMain(userWalletModel: UserWalletModel)
     func openCreateMobileWallet()
+    func closeCreateWalletSelector()
 }
