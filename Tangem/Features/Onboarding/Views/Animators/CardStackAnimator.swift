@@ -88,13 +88,6 @@ struct CardAnimSettings: Equatable {
         )
     }
 
-    @ViewBuilder
-    func applyAnim<Content: View>(to view: Content) -> some View {
-        applySettings(to: view)
-            .animation(animation)
-    }
-
-    @ViewBuilder
     func applySettings<Content: View>(to view: Content) -> some View {
         view
             .frame(size: frame)
@@ -145,14 +138,13 @@ struct CardStackAnimator<Card: View>: View {
         })
     }
 
-    @ViewBuilder
     private func modify(_ view: Card, at index: Int) -> some View {
         let delta = index - selectedIndex
         let cardIndex = selectedIndex > index ? cards.count + delta : delta
         let settings: CardAnimSettings = CGFloat(index) == hiddenIndex ?
             prehideAnimSettings(for: cardIndex) :
             cardInStackSettings(at: cardIndex)
-        view
+        return view
             .matchedGeometryEffect(id: "card\(index)", in: namespace)
             .frame(size: settings.frame)
             .rotationEffect(settings.rotationAngle)
@@ -317,7 +309,6 @@ struct CardStackAnimator_Previews: PreviewProvider {
         CardStackAnimatorPreview(
             viewModel:
             CardStackAnimatorPreviewModel(content: .twins)
-//                CardStackAnimatorPreviewModel(content: .backup(numberOfCards: 3))
         )
     }
 }
