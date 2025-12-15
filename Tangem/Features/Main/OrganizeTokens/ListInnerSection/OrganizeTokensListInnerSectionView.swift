@@ -1,5 +1,5 @@
 //
-//  OrganizeTokensListSectionView.swift
+//  OrganizeTokensListInnerSectionView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import SwiftUI
 import TangemAssets
 
-struct OrganizeTokensListSectionView: View {
+struct OrganizeTokensListInnerSectionView: View {
     let title: String
     var identifier: AnyHashable = 0 // Placeholder value when the view has no corresponding identifier from the VM
     let isDraggable: Bool
@@ -41,7 +41,7 @@ struct OrganizeTokensListSectionView: View {
 
 // MARK: - Constants
 
-private extension OrganizeTokensListSectionView {
+private extension OrganizeTokensListInnerSectionView {
     enum Constants {
         static let dragAndDropTapZoneSize = CGSize(bothDimensions: 64.0)
     }
@@ -49,16 +49,16 @@ private extension OrganizeTokensListSectionView {
 
 // MARK: - Previews
 
-struct OrganizeTokensListSectionView_Previews: PreviewProvider {
+struct OrganizeTokensListInnerSectionView_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
             Group {
-                OrganizeTokensListSectionView(
+                OrganizeTokensListInnerSectionView(
                     title: "Bitcoin network",
                     isDraggable: true
                 )
 
-                OrganizeTokensListSectionView(
+                OrganizeTokensListInnerSectionView(
                     title: "Bitcoin network",
                     isDraggable: false
                 )
