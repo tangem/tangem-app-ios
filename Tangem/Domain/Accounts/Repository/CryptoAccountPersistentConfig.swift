@@ -17,6 +17,21 @@ struct CryptoAccountPersistentConfig {
     let iconColor: String
 }
 
+// MARK: - Auxiliary types
+
+extension CryptoAccountPersistentConfig {
+    struct TokenListAppearance {
+        static let `default` = Self(
+            // [REDACTED_TODO_COMMENT]
+            grouping: StoredUserTokenList.empty.grouping,
+            sorting: StoredUserTokenList.empty.sorting,
+        )
+
+        let grouping: StoredCryptoAccount.Grouping
+        let sorting: StoredCryptoAccount.Sorting
+    }
+}
+
 // MARK: - Convenience extensions
 
 extension CryptoAccountPersistentConfig {
