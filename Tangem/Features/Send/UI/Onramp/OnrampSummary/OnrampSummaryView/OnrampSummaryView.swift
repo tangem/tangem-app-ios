@@ -56,7 +56,6 @@ struct OnrampSummaryView: View {
         }
     }
 
-    @ViewBuilder
     private var loadingView: some View {
         HStack(spacing: 8) {
             ProgressView()
@@ -98,7 +97,6 @@ struct OnrampSummaryView: View {
         .accessibilityIdentifier(OnrampAccessibilityIdentifiers.allOffersButton)
     }
 
-    @ViewBuilder
     private var bottomContainer: some View {
         HStack(spacing: 4) {
             presets

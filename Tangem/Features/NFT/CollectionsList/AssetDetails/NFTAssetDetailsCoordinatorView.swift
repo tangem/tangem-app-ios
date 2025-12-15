@@ -29,13 +29,11 @@ struct NFTAssetDetailsCoordinatorView: View {
         }
     }
 
-    @ViewBuilder
     private var links: some View {
         NavHolder()
             .navigation(item: $coordinator.tokenDetailsCoordinator) {
                 TokenDetailsCoordinatorView(coordinator: $0)
             }
-            .emptyNavigationLink()
     }
 
     @ViewBuilder

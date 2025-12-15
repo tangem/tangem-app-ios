@@ -20,9 +20,7 @@ struct SendNewFeeCompactView: View {
             icon: Assets.Glyphs.feeNew,
             title: Localization.commonNetworkFeeTitle,
             secondLeadingView: {
-                if #available(iOS 16.4, *) {
-                    InfoButtonView(size: .medium, tooltipText: .attributed(text: viewModel.infoButtonString))
-                }
+                InfoButtonView(size: .medium, tooltipText: .attributed(text: viewModel.infoButtonString))
             },
             trailingView: {
                 LoadableTextView(

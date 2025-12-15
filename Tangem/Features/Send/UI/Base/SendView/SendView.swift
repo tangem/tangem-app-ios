@@ -47,7 +47,7 @@ struct SendView: View {
             ToolbarItem(placement: .principal) { principalView }
             ToolbarItem(placement: .topBarTrailing) { trailingView }
         }
-        .scrollDismissesKeyboardCompat(.immediately)
+        .scrollDismissesKeyboard(.immediately)
         .safeAreaInset(edge: .bottom, spacing: .zero) { bottomContainer }
         .onReceive(viewModel.$isKeyboardActive, perform: { focused = $0 })
         .onChange(of: viewModel.shouldShowDismissAlert) { interactiveDismissDisabled = $0 }

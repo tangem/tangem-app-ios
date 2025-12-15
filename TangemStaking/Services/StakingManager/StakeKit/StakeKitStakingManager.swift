@@ -85,7 +85,7 @@ extension StakeKitStakingManager: StakingManager {
 
             if loadActions, !loadedActions.isEmpty,
                Date().timeIntervalSince(effectiveStartUpdateDate) < Constants.statusUpdateTimeout {
-                try await Task.sleep(seconds: Constants.statusUpdateInterval) // Refresh pending actions status until empty
+                try await Task.sleep(for: .seconds(Constants.statusUpdateInterval)) // Refresh pending actions status until empty
                 await updateState(loadActions: true, startUpdateDate: effectiveStartUpdateDate)
             }
         } catch is CancellationError {
