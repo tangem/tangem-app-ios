@@ -111,7 +111,7 @@ private extension JSONRPCWebSocketProvider {
 // MARK: - HostProvider
 
 extension JSONRPCWebSocketProvider: HostProvider {
-    nonisolated var host: String { url.absoluteString }
+    nonisolated var host: String { url.hostOrUnknown }
 }
 
 // MARK: - CustomStringConvertible
