@@ -91,11 +91,21 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
         )
     }
 
-    func openTangemPayPin(tangemPayAccount: TangemPayAccount) {
+    func openTangemPaySetPin(tangemPayAccount: TangemPayAccount) {
         tangemPayPinViewModel = TangemPayPinViewModel(
             tangemPayAccount: tangemPayAccount,
             coordinator: self
         )
+    }
+
+    func openTangemPayCheckPin(tangemPayAccount: TangemPayAccount) {
+        let viewModel = TangemPayPinCheckViewModel(
+            account: tangemPayAccount,
+            coordinator: self
+        )
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
     }
 
     func openTangemPayAddFundsSheet(input: TangemPayAddFundsSheetViewModel.Input) {
@@ -286,5 +296,15 @@ extension TangemPayMainCoordinator: PendingExpressTxStatusRoutable {
 
     func dismissPendingTxSheet() {
         pendingExpressTxStatusBottomSheet = nil
+    }
+}
+
+// MARK: - TangemPayPinCheckRoutable
+
+extension TangemPayMainCoordinator: TangemPayPinCheckRoutable {
+    func closePinCheck() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
     }
 }
