@@ -43,13 +43,11 @@ struct MarketsCoordinatorView: CoordinatorView {
             }
     }
 
-    @ViewBuilder
     private var links: some View {
         NavHolder()
             .navigation(item: $coordinator.tokenDetailsCoordinator) {
                 MarketsTokenDetailsCoordinatorView(coordinator: $0)
                     .ignoresSafeArea(.container, edges: .top) // Without it, the content won't go into the safe area top zone on over-scroll
             }
-            .emptyNavigationLink()
     }
 }
