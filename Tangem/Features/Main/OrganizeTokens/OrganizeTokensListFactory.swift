@@ -24,18 +24,18 @@ struct OrganizeTokensListFactory {
         from sectionType: TokenSectionsAdapter.SectionType,
         with itemViewModels: [OrganizeTokensListItemViewModel],
         atIndex index: Int
-    ) -> OrganizeTokensListSection {
+    ) -> OrganizeTokensListInnerSection {
         switch sectionType {
         case .plain:
             // Plain sections use section indices (from `enumerated()`) as a stable identity, but in
             // reality we always have only one single plain section, so the identity doesn't matter here
-            return OrganizeTokensListSection(
+            return OrganizeTokensListInnerSection(
                 model: .init(id: index, style: .invisible),
                 items: itemViewModels
             )
         case .group(let blockchainNetwork):
             let title = Localization.walletNetworkGroupTitle(blockchainNetwork.blockchain.displayName)
-            return OrganizeTokensListSection(
+            return OrganizeTokensListInnerSection(
                 model: .init(id: blockchainNetwork, style: .draggable(title: title)),
                 items: itemViewModels
             )
