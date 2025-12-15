@@ -9,6 +9,7 @@
 import Foundation
 
 public enum ExpressProviderError: LocalizedError {
+    case allowanceProviderNotFound
     case transactionDataNotFound
     case transactionSizeNotSupported
 }

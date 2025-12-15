@@ -34,30 +34,28 @@ class StakingSingleActionModel {
     // MARK: - Private injections
 
     private let stakingManager: StakingManager
+    private let sendSourceToken: SendSourceToken
     private let transactionDispatcher: TransactionDispatcher
-    private let transactionValidator: TransactionValidator
     private let analyticsLogger: StakingSendAnalyticsLogger
     private let action: Action
-    private let tokenItem: TokenItem
-    private let feeTokenItem: TokenItem
+
+    private var transactionValidator: TransactionValidator { sendSourceToken.transactionValidator }
+    private var tokenItem: TokenItem { sendSourceToken.tokenItem }
+    private var feeTokenItem: TokenItem { sendSourceToken.feeTokenItem }
 
     private var estimatedFeeTask: Task<Void, Never>?
     init(
         stakingManager: StakingManager,
+        sendSourceToken: SendSourceToken,
         transactionDispatcher: TransactionDispatcher,
-        transactionValidator: TransactionValidator,
         analyticsLogger: StakingSendAnalyticsLogger,
         action: Action,
-        tokenItem: TokenItem,
-        feeTokenItem: TokenItem
     ) {
         self.stakingManager = stakingManager
+        self.sendSourceToken = sendSourceToken
         self.transactionDispatcher = transactionDispatcher
-        self.transactionValidator = transactionValidator
         self.analyticsLogger = analyticsLogger
         self.action = action
-        self.tokenItem = tokenItem
-        self.feeTokenItem = feeTokenItem
 
         updateState()
     }
@@ -167,7 +165,7 @@ private extension StakingSingleActionModel {
     private func proceed(result: TransactionDispatcherResult) {
         _transactionTime.send(Date())
         _transactionURL.send(result.url)
-        analyticsLogger.logTransactionSent(fee: selectedFee, signerType: result.signerType)
+        analyticsLogger.logTransactionSent(fee: selectedFee, signerType: result.signerType, currentProviderHost: result.currentHost)
     }
 
     private func proceed(error: TransactionDispatcherResult.Error) {
@@ -205,27 +203,45 @@ extension StakingSingleActionModel: SendFeeProvider {
     func updateFees() {}
 }
 
-// MARK: - SendAmountInput
+// MARK: - SendSourceTokenInput
 
-extension StakingSingleActionModel: SendAmountInput {
-    var amount: SendAmount? {
+extension StakingSingleActionModel: SendSourceTokenInput {
+    var sourceToken: SendSourceToken {
+        sendSourceToken
+    }
+
+    var sourceTokenPublisher: AnyPublisher<SendSourceToken, Never> {
+        .just(output: sourceToken)
+    }
+}
+
+// MARK: - SendSourceTokenOutput
+
+extension StakingSingleActionModel: SendSourceTokenOutput {
+    func userDidSelect(sourceToken: SendSourceToken) {}
+}
+
+// MARK: - SendSourceTokenAmountInput
+
+extension StakingSingleActionModel: SendSourceTokenAmountInput {
+    var sourceAmount: LoadingResult<SendAmount, any Error> {
         let fiat = tokenItem.currencyId.flatMap {
             BalanceConverter().convertToFiat(action.amount, currencyId: $0)
         }
 
-        return .init(type: .typical(crypto: action.amount, fiat: fiat))
+        return .success(.init(type: .typical(crypto: action.amount, fiat: fiat)))
     }
 
-    var amountPublisher: AnyPublisher<SendAmount?, Never> {
-        Just(amount).eraseToAnyPublisher()
+    var sourceAmountPublisher: AnyPublisher<LoadingResult<SendAmount, any Error>, Never> {
+        .just(output: sourceAmount)
     }
 }
 
-// MARK: - SendAmountOutput
+// MARK: - SendSourceTokenAmountOutput
 
-extension StakingSingleActionModel: SendAmountOutput {
-    func amountDidChanged(amount: SendAmount?) {
-        assertionFailure("We can not change amount in rewards")
+extension StakingSingleActionModel: SendSourceTokenAmountOutput {
+    func sourceAmountDidChanged(amount: SendAmount?) {
+        assertionFailure("We can not change amount in single action model")
     }
 }
 

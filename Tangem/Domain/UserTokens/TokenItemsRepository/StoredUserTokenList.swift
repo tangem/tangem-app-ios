@@ -8,7 +8,7 @@
 
 import Foundation
 
-@available(iOS, deprecated: 100000.0, message: "Superseded by 'StoredCryptoAccount', will be removed in the future")
+@available(iOS, deprecated: 100000.0, message: "Superseded by 'StoredCryptoAccount', will be removed in the future ([REDACTED_INFO])")
 struct StoredUserTokenList: Codable, Equatable {
     enum Grouping: Codable, Equatable {
         case none
@@ -27,10 +27,6 @@ struct StoredUserTokenList: Codable, Equatable {
         let decimalCount: Int
         let blockchainNetwork: BlockchainNetwork
         let contractAddress: String?
-
-        var coinId: String? {
-            contractAddress == nil ? blockchainNetwork.blockchain.coinId : id
-        }
     }
 
     let entries: [Entry]

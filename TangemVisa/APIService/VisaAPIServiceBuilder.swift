@@ -20,14 +20,16 @@ public struct VisaAPIServiceBuilder {
     }
 
     public func buildTransactionHistoryService(
-        authorizationTokensHandler: VisaAuthorizationTokensHandler,
+        authorizationTokensHandler: TangemPayAuthorizationTokensHandler,
         urlSessionConfiguration: URLSessionConfiguration = .visaConfiguration
     ) -> VisaTransactionHistoryAPIService {
         return CommonTransactionHistoryService(
             apiType: apiType,
-            authorizationTokensHandler: authorizationTokensHandler,
             apiService: .init(
-                provider: MoyaProviderBuilder().buildProvider(configuration: urlSessionConfiguration),
+                provider: TangemPayProviderBuilder().buildProvider(
+                    configuration: urlSessionConfiguration,
+                    authorizationTokensHandler: authorizationTokensHandler
+                ),
                 decoder: JSONDecoderFactory().makePayAPIDecoder()
             )
         )
@@ -50,17 +52,5 @@ public struct VisaAPIServiceBuilder {
         }
 
         return AuthorizationServiceBuilder(apiType: apiType).build(urlSessionConfiguration: urlSessionConfiguration)
-    }
-
-    public func buildTangemPayAvailabilityService(
-        urlSessionConfiguration: URLSessionConfiguration = .visaConfiguration
-    ) -> TangemPayAvailabilityService {
-        CommonTangemPayAvailabilityService(
-            apiType: apiType,
-            apiService: .init(
-                provider: MoyaProviderBuilder().buildProvider(configuration: urlSessionConfiguration),
-                decoder: JSONDecoder()
-            )
-        )
     }
 }

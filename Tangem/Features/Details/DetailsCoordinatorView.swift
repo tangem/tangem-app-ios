@@ -24,7 +24,6 @@ struct DetailsCoordinatorView: CoordinatorView {
         }
     }
 
-    @ViewBuilder
     private var links: some View {
         NavHolder()
             .navigation(item: $coordinator.walletConnectCoordinator) {
@@ -37,10 +36,10 @@ struct DetailsCoordinatorView: CoordinatorView {
                 AppSettingsCoordinatorView(coordinator: $0)
             }
             .navigation(item: $coordinator.tosViewModel) {
-                TOSView(viewModel: $0)
+                DetailsTOSView(viewModel: $0)
             }
-            .navigation(item: $coordinator.createWalletSelectorCoordinator) {
-                CreateWalletSelectorCoordinatorView(coordinator: $0)
+            .navigation(item: $coordinator.addWalletSelectorCoordinator) {
+                AddWalletSelectorCoordinatorView(coordinator: $0)
             }
             .navigation(item: $coordinator.environmentSetupCoordinator) {
                 EnvironmentSetupCoordinatorView(coordinator: $0)
@@ -50,12 +49,8 @@ struct DetailsCoordinatorView: CoordinatorView {
             }
     }
 
-    @ViewBuilder
     private var sheets: some View {
         NavHolder()
-            .sheet(item: $coordinator.mailViewModel) {
-                MailView(viewModel: $0)
-            }
             .sheet(item: $coordinator.modalOnboardingCoordinator) {
                 OnboardingCoordinatorView(coordinator: $0)
                     .presentation(modal: true, onDismissalAttempt: $0.onDismissalAttempt, onDismissed: nil)
