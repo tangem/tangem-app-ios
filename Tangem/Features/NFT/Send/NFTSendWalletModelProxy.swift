@@ -130,7 +130,7 @@ extension NFTSendWalletModelProxy: WalletModel {
         set {}
     }
 
-    var sendingRestrictions: TransactionSendAvailabilityProvider.SendingRestrictions? {
+    var sendingRestrictions: SendingRestrictions? {
         transactionSendAvailabilityProvider.sendingRestrictions(walletModel: self)
     }
 
@@ -240,12 +240,12 @@ extension NFTSendWalletModelProxy: WalletModel {
         mainTokenWalletModel.getFee(amount: amount, destination: destination)
     }
 
-    func hasFeeCurrency(amountType: Amount.AmountType) -> Bool {
-        mainTokenWalletModel.hasFeeCurrency(amountType: amountType)
+    func hasFeeCurrency() -> Bool {
+        mainTokenWalletModel.hasFeeCurrency()
     }
 
-    func getFeeCurrencyBalance(amountType: Amount.AmountType) -> Decimal {
-        mainTokenWalletModel.getFeeCurrencyBalance(amountType: amountType)
+    func getFeeCurrencyBalance() -> Decimal {
+        mainTokenWalletModel.getFeeCurrencyBalance()
     }
 
     func getFee(compiledTransaction data: Data) async throws -> [Fee] {
@@ -368,7 +368,7 @@ extension NFTSendWalletModelProxy: WalletModel {
         nil
     }
 
-    var account: any CryptoAccountModel {
+    var account: (any CryptoAccountModel)? {
         mainTokenWalletModel.account
     }
 
@@ -382,5 +382,9 @@ extension NFTSendWalletModelProxy: WalletModel {
 
     var receiveAddressTypes: [ReceiveAddressType] {
         mainTokenWalletModel.receiveAddressTypes
+    }
+
+    func resolve<R>(using resolver: R) -> R.Result where R: WalletModelResolving {
+        resolver.resolve(walletModel: self)
     }
 }

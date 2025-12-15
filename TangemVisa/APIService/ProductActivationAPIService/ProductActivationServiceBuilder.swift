@@ -24,9 +24,11 @@ struct ProductActivationServiceBuilder {
 
         return CommonProductActivationService(
             apiType: apiType,
-            authorizationTokensHandler: authorizationTokensHandler,
             apiService: .init(
-                provider: MoyaProviderBuilder().buildProvider(configuration: urlSessionConfiguration),
+                provider: TangemPayProviderBuilder().buildProvider(
+                    configuration: urlSessionConfiguration,
+                    authorizationTokensHandler: nil
+                ),
                 decoder: JSONDecoder()
             )
         )

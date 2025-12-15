@@ -26,18 +26,18 @@ final class YieldStatusViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private let manager: YieldModuleManager
+    private let yieldInteractor: YieldManagerInteractor
     private let feeConverter: YieldModuleFeeFormatter
 
     init(
         state: State,
-        manager: YieldModuleManager,
+        yieldInteractor: YieldManagerInteractor,
         feeTokenItem: TokenItem,
         token: TokenItem,
         navigationAction: @escaping () -> Void
     ) {
         self.state = state
-        self.manager = manager
+        self.yieldInteractor = yieldInteractor
         self.navigationAction = navigationAction
         feeConverter = YieldModuleFeeFormatter(feeCurrency: feeTokenItem, token: token)
 
@@ -67,7 +67,8 @@ final class YieldStatusViewModel: ObservableObject {
         }
 
         if undepositedAmount > 0 {
-            guard let minimalTopupAmountInFiat = try? await manager.minimalFee(),
+            guard let params = try? await yieldInteractor.getCurrentFeeParameters(),
+                  let minimalTopupAmountInFiat = try? await yieldInteractor.getMinAmount(feeParameters: params),
                   let undepositedAmountInFiat = try? await feeConverter.convertToFiat(undepositedAmount, currency: .token),
                   undepositedAmountInFiat < minimalTopupAmountInFiat
             else {

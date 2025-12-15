@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 public class ExpressAvailableProvider {
     public let provider: ExpressProvider
@@ -49,6 +50,41 @@ public class ExpressAvailableProvider {
             return .low
         case .idle, .error:
             return .lowest
+        }
+    }
+}
+
+public extension [ExpressAvailableProvider] {
+    func sortedByPriorityAndQuotes() async -> [ExpressAvailableProvider] {
+        typealias SortableProvider = (priority: ExpressAvailableProvider.Priority, amount: Decimal)
+
+        return await asyncSorted(
+            sort: { (lhsProvider: SortableProvider, rhsProvider: SortableProvider) in
+                if lhsProvider.priority == rhsProvider.priority {
+                    return lhsProvider.amount > rhsProvider.amount
+                }
+
+                return lhsProvider.priority > rhsProvider.priority
+            },
+            by: { provider in
+                let priority = await provider.getPriority()
+                let expectedAmount = await provider.getState().quote?.expectAmount ?? 0
+                return (priority, expectedAmount)
+            }
+        )
+    }
+
+    func showableProviders(selectedProviderId: String?) async -> [ExpressAvailableProvider] {
+        await asyncFilter { provider in
+            guard provider.isAvailable else {
+                return false
+            }
+
+            // If the provider `isSelected` we are forced to show it anyway
+            let isSelected = selectedProviderId == provider.provider.id
+            let isAvailableToShow = await !provider.getState().isError
+
+            return isSelected || isAvailableToShow
         }
     }
 }

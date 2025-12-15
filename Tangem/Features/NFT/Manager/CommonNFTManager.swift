@@ -180,14 +180,14 @@ final class CommonNFTManager: NFTManager {
     init(
         userWalletId: UserWalletId,
         walletModelsPublisher: AnyPublisher<[any WalletModel], Never>,
-        walletModelsManager: WalletModelsManager,
+        provideWalletModels: @escaping () -> [any WalletModel],
         analytics: NFTAnalytics.Error
     ) {
         self.analytics = analytics
         self.walletModelsPublisher = walletModelsPublisher
 
         let cache = NFTCache(userWalletId: userWalletId)
-        let cacheDelegate = CommonNFTCacheDelegate(walletModelsManager: walletModelsManager)
+        let cacheDelegate = CommonNFTCacheDelegate(provideWalletModels: provideWalletModels)
         cache.delegate = cacheDelegate
         self.cache = cache
         self.cacheDelegate = cacheDelegate
