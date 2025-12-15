@@ -258,14 +258,10 @@ private extension MobileBackupTypesViewModel {
 private extension MobileBackupTypesViewModel {
     func logScreenOpenedAnalytics() {
         let hasManualBackup = !userWalletModel.config.hasFeature(.mnemonicBackup)
-        let hasICloudBackup = !userWalletModel.config.hasFeature(.iCloudBackup)
 
         Analytics.log(
             .walletSettingsBackupScreenOpened,
-            params: [
-                .backupManual: .affirmativeOrNegative(for: hasManualBackup),
-                .backupICloud: .affirmativeOrNegative(for: hasICloudBackup),
-            ],
+            params: [.backupManual: .affirmativeOrNegative(for: hasManualBackup)],
             contextParams: analyticsContextParams
         )
     }
