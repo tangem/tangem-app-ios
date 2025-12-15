@@ -6,6 +6,7 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
+import StoreKit
 import SwiftUI
 import TangemLocalization
 import TangemAssets
@@ -13,6 +14,8 @@ import TangemUI
 
 struct MainCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: MainCoordinator
+
+    @Environment(\.requestReview) private var requestReview
 
     @State private var responderChainIntrospectionTrigger = UUID()
 
@@ -169,7 +172,12 @@ struct MainCoordinatorView: CoordinatorView {
             }
 
         NavHolder()
-            .requestAppStoreReviewCompat($coordinator.isAppStoreReviewRequested)
+            .onChange(of: coordinator.isAppStoreReviewRequested) { newValue in
+                guard newValue else { return }
+
+                coordinator.isAppStoreReviewRequested.toggle()
+                requestReview()
+            }
     }
 
     /// Tooltip is placed on top of the other views
