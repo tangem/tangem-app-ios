@@ -35,35 +35,33 @@ class RestakingModel {
     // MARK: - Private injections
 
     private let stakingManager: StakingManager
+    private let action: Action
+    private let sendSourceToken: SendSourceToken
     private let transactionDispatcher: TransactionDispatcher
-    private let transactionValidator: TransactionValidator
     private let sendAmountValidator: SendAmountValidator
     private let analyticsLogger: StakingSendAnalyticsLogger
-    private let action: Action
-    private let tokenItem: TokenItem
-    private let feeTokenItem: TokenItem
+
+    private var transactionValidator: TransactionValidator { sendSourceToken.transactionValidator }
+    private var tokenItem: TokenItem { sendSourceToken.tokenItem }
+    private var feeTokenItem: TokenItem { sendSourceToken.feeTokenItem }
 
     private var estimatedFeeTask: Task<Void, Never>?
     private var bag: Set<AnyCancellable> = []
 
     init(
         stakingManager: StakingManager,
+        action: Action,
+        sendSourceToken: SendSourceToken,
         transactionDispatcher: TransactionDispatcher,
-        transactionValidator: TransactionValidator,
         sendAmountValidator: SendAmountValidator,
         analyticsLogger: StakingSendAnalyticsLogger,
-        action: Action,
-        tokenItem: TokenItem,
-        feeTokenItem: TokenItem
     ) {
         self.stakingManager = stakingManager
+        self.action = action
+        self.sendSourceToken = sendSourceToken
         self.transactionDispatcher = transactionDispatcher
-        self.transactionValidator = transactionValidator
         self.sendAmountValidator = sendAmountValidator
         self.analyticsLogger = analyticsLogger
-        self.tokenItem = tokenItem
-        self.feeTokenItem = feeTokenItem
-        self.action = action
 
         bind()
     }
@@ -220,7 +218,7 @@ private extension RestakingModel {
     private func proceed(result: TransactionDispatcherResult) {
         _transactionTime.send(Date())
         _transactionURL.send(result.url)
-        analyticsLogger.logTransactionSent(fee: selectedFee, signerType: result.signerType)
+        analyticsLogger.logTransactionSent(fee: selectedFee, signerType: result.signerType, currentProviderHost: result.currentHost)
     }
 
     private func proceed(error: TransactionDispatcherResult.Error) {
@@ -260,26 +258,44 @@ extension RestakingModel: SendFeeProvider {
     }
 }
 
-// MARK: - SendAmountInput
+// MARK: - SendSourceTokenInput
 
-extension RestakingModel: SendAmountInput {
-    var amount: SendAmount? {
+extension RestakingModel: SendSourceTokenInput {
+    var sourceToken: SendSourceToken {
+        sendSourceToken
+    }
+
+    var sourceTokenPublisher: AnyPublisher<SendSourceToken, Never> {
+        .just(output: sourceToken)
+    }
+}
+
+// MARK: - SendSourceTokenOutput
+
+extension RestakingModel: SendSourceTokenOutput {
+    func userDidSelect(sourceToken: SendSourceToken) {}
+}
+
+// MARK: - SendSourceTokenAmountInput
+
+extension RestakingModel: SendSourceTokenAmountInput {
+    var sourceAmount: LoadingResult<SendAmount, any Error> {
         let fiat = tokenItem.currencyId.flatMap {
             BalanceConverter().convertToFiat(action.amount, currencyId: $0)
         }
 
-        return .init(type: .typical(crypto: action.amount, fiat: fiat))
+        return .success(.init(type: .typical(crypto: action.amount, fiat: fiat)))
     }
 
-    var amountPublisher: AnyPublisher<SendAmount?, Never> {
-        Just(amount).eraseToAnyPublisher()
+    var sourceAmountPublisher: AnyPublisher<LoadingResult<SendAmount, any Error>, Never> {
+        .just(output: sourceAmount)
     }
 }
 
-// MARK: - SendAmountOutput
+// MARK: - SendSourceTokenAmountOutput
 
-extension RestakingModel: SendAmountOutput {
-    func amountDidChanged(amount: SendAmount?) {
+extension RestakingModel: SendSourceTokenAmountOutput {
+    func sourceAmountDidChanged(amount: SendAmount?) {
         assertionFailure("We can not change amount in restaking")
     }
 }

@@ -10,11 +10,11 @@ import Foundation
 
 class CommonStakingPendingHashesSender: StakingPendingHashesSender {
     let repository: StakingPendingHashesRepository
-    let provider: StakingAPIProvider
+    let provider: StakeKitAPIProvider
 
     init(
         repository: StakingPendingHashesRepository,
-        provider: StakingAPIProvider
+        provider: StakeKitAPIProvider
     ) {
         self.repository = repository
         self.provider = provider

@@ -47,7 +47,7 @@ extension EnvironmentSetupCoordinator {
 extension EnvironmentSetupCoordinator: EnvironmentSetupRoutable {
     func openSupportedBlockchainsPreferences() {
         supportedBlockchainsPreferencesViewModel = SupportedBlockchainsPreferencesViewModel(
-            blockchainIds: SupportedBlockchains.testableIDs.map { .init(name: $0, id: $0) }.toSet(),
+            blockchainIds: SupportedBlockchains.testableBlockchains(version: .v2).map { .init(name: $0.displayName, id: $0.networkId) }.toSet(),
             featureStorageKeyPath: \.supportedBlockchainsIds
         )
     }
