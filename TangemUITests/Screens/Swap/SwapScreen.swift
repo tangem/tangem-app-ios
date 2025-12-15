@@ -167,6 +167,17 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
         }
         return self
     }
+
+    @discardableResult
+    func waitFromTokenDisplayed(tokenSymbol: String) -> Self {
+        XCTContext.runActivity(named: "Validate 'You swap' section displays token '\(tokenSymbol)' with icon") { _ in
+            let fromContainerQuery = app.descendants(matching: .staticText).matching(identifier: SwapAccessibilityIdentifiers.fromAmountTextField)
+            let symbolPredicate = NSPredicate(format: "label == %@", tokenSymbol)
+            let symbolElement = fromContainerQuery.element(matching: symbolPredicate)
+            XCTAssertTrue(symbolElement.waitForExistence(timeout: .robustUIUpdate), "Token symbol '\(tokenSymbol)' should be displayed in 'You swap' section")
+        }
+        return self
+    }
 }
 
 enum FeeOptionType: String {
