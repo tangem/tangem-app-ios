@@ -25,10 +25,12 @@ public extension ProvidersList {
         first(where: { $0.paymentMethod.type == paymentMethod })
     }
 
-    func sorted(sorter: ProviderItemSorter) -> Self {
+    func sortNestedProviders() {
         forEach { $0.sort() }
+    }
 
-        return sorted { lhs, rhs in
+    func sortedByFirstItem(sorter: ProviderItemSorter) -> Self {
+        sorted { lhs, rhs in
             sorter.sort(lhs: lhs, rhs: rhs)
         }
     }
@@ -53,37 +55,35 @@ public extension ProvidersList {
 
         // Only if we have more than one providers with quote
         guard providers.filter(\.isSuccessfullyLoaded).count > 1 else {
-            providers.forEach { $0.update(attractiveType: .none) }
+            providers.forEach { $0.update(globalAttractiveType: .none) }
             return
         }
 
         let greatProvider = select(for: .sepa)?.maxPriorityProvider()
-        let bestProvider: OnrampProvider? = providers.max()
+        let bestProvider: OnrampProvider? = providers.min()
         let bestQuote: Decimal? = bestProvider?.quote?.expectedAmount
 
-        forEach {
-            $0.sort().forEach { provider in
-                switch provider.state {
-                case .loaded where provider == bestProvider:
-                    provider.update(globalAttractiveType: .best)
+        providers.forEach { provider in
+            switch provider.state {
+            case .loaded where provider == bestProvider:
+                provider.update(globalAttractiveType: .best)
 
-                case .loaded(let quote) where provider == greatProvider && provider != bestProvider:
-                    let percent = bestQuote.map { quote.expectedAmount / $0 - 1 }
-                    provider.update(globalAttractiveType: .great(percent: percent))
+            case .loaded(let quote) where provider == greatProvider && provider != bestProvider:
+                let percent = bestQuote.map { quote.expectedAmount / $0 - 1 }
+                provider.update(globalAttractiveType: .great(percent: percent))
 
-                case .loaded(let quote) where bestQuote != nil:
-                    let percent = quote.expectedAmount / bestQuote! - 1
-                    let rounded = percent.rounded(scale: 4)
-                    provider.update(globalAttractiveType: .loss(percent: rounded))
+            case .loaded(let quote) where bestQuote != nil:
+                let percent = quote.expectedAmount / bestQuote! - 1
+                let rounded = percent.rounded(scale: 4)
+                provider.update(globalAttractiveType: .loss(percent: rounded))
 
-                default:
-                    provider.update(globalAttractiveType: .none)
-                }
+            default:
+                provider.update(globalAttractiveType: .none)
             }
         }
     }
 
-    func updateProcessingTimeTypes() {
+    func updateProcessingTimeTypes(preferredProviderId: String?) {
         let providers = flatMap { $0.providers }
 
         // Setup fastest badge only if there is more than one successfully loaded provider
@@ -92,13 +92,14 @@ public extension ProvidersList {
             return
         }
 
-        let fastest = providers
-            .filter(\.isSuccessfullyLoaded)
-            .min(by: \.paymentMethod.type.processingTime)
+        let fastestProviderItem = min(by: \.paymentMethod.type.processingTime)
+        let successfullyLoadedProviders = fastestProviderItem?.providers.filter(\.isSuccessfullyLoaded)
+        let preferredProvider = successfullyLoadedProviders?.first(where: { $0.provider.id == preferredProviderId })
+        let fastestProvider = preferredProvider ?? successfullyLoadedProviders?.min()
 
         providers.forEach { provider in
             switch provider {
-            case let provider where provider == fastest:
+            case let provider where provider == fastestProvider:
                 provider.update(processingTimeType: .fastest)
             case let provider:
                 provider.update(processingTimeType: .none)
