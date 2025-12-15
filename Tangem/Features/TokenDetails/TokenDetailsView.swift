@@ -173,13 +173,14 @@ private extension TokenDetailsView {
     )
     let pendingExpressTxsManager = CommonPendingExpressTransactionsManager(
         userWalletId: userWalletModel.userWalletId.stringValue,
-        walletModel: walletModel,
+        tokenItem: walletModel.tokenItem,
+        walletModelUpdater: walletModel,
         expressAPIProvider: expressAPIProvider,
         expressRefundedTokenHandler: ExpressRefundedTokenHandlerMock()
     )
     let pendingOnrampTxsManager = CommonPendingOnrampTransactionsManager(
         userWalletId: userWalletModel.userWalletId.stringValue,
-        walletModel: walletModel,
+        tokenItem: walletModel.tokenItem,
         expressAPIProvider: expressAPIProvider
     )
     let pendingTxsManager = CompoundPendingTransactionsManager(
@@ -189,22 +190,23 @@ private extension TokenDetailsView {
     let coordinator = TokenDetailsCoordinator()
 
     let bannerNotificationManager = BannerNotificationManager(
-        userWallet: userWalletModel,
-        placement: .tokenDetails(walletModel.tokenItem)
+        userWalletInfo: userWalletModel.userWalletInfo,
+        placement: .tokenDetails(walletModel.tokenItem),
     )
 
     let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
 
     TokenDetailsView(viewModel: .init(
-        userWalletModel: userWalletModel,
+        userWalletInfo: userWalletModel.userWalletInfo,
         walletModel: walletModel,
         notificationManager: notifManager,
         bannerNotificationManager: bannerNotificationManager,
+        userTokensManager: userWalletModel.userTokensManager,
         pendingExpressTransactionsManager: pendingTxsManager,
         xpubGenerator: nil,
         coordinator: coordinator,
         tokenRouter: SingleTokenRouter(
-            userWalletModel: userWalletModel,
+            userWalletInfo: userWalletModel.userWalletInfo,
             coordinator: coordinator,
             yieldModuleNoticeInteractor: yieldModuleNoticeInteractor
         ),

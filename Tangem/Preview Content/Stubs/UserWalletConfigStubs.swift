@@ -24,12 +24,14 @@ enum UserWalletConfigStubs {
 
     static var xrpNoteStub: UserWalletConfig = NoteConfig(
         card: .init(card: CardMock.xrpNote.card),
-        noteData: .init(blockchain: "XRP", token: nil)
+        noteData: .init(blockchain: "XRP", token: nil),
+        isDemo: false
     )
 
     static var xlmBirdStub: UserWalletConfig = NoteConfig(
         card: .init(card: CardMock.xrpNote.card),
-        noteData: .init(blockchain: "XLM", token: nil)
+        noteData: .init(blockchain: "XLM", token: nil),
+        isDemo: false
     )
 
     static var visaStub: UserWalletConfig = VisaConfig(
