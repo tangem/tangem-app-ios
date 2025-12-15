@@ -7,7 +7,7 @@
 //
 
 enum AccountDetailsActionsProvider {
-    static func getAvailableActions(for account: any BaseAccountModel) -> [AccountDetailsAction] {
+    static func getAvailableActions(for account: any BaseAccountModel) -> [AccountDetailsViewModel.Action] {
         switch account {
         case let cryptoAccount as any CryptoAccountModel:
             return [

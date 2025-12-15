@@ -9,12 +9,15 @@
 import Foundation
 
 public enum Period: Hashable {
-    case days(_ days: Int)
+    case specific(days: Int)
+    case interval(minDays: Int, maxDays: Int)
 
     public var isZero: Bool {
         switch self {
-        case .days(let days):
+        case .specific(let days):
             return days == 0
+        case .interval(let minDays, let maxDays):
+            return minDays == 0 && maxDays == 0
         }
     }
 }

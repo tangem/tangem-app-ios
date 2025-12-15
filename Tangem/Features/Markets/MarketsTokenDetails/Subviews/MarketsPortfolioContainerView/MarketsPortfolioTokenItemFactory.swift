@@ -31,8 +31,9 @@ struct MarketsPortfolioTokenItemFactory {
     func makeViewModels(
         coinId: String,
         walletModels: [any WalletModel],
-        entries: [StoredUserTokenList.Entry],
-        userWalletInfo: UserWalletInfo
+        entries: [TokenItem],
+        userWalletInfo: UserWalletInfo,
+        namingStyle: NamingStyle = .userWalletName
     ) -> [MarketsPortfolioTokenItemViewModel] {
         let walletModelsKeyedByIds = walletModels.keyedFirst(by: \.id)
         let blockchainNetworksFromWalletModels = walletModels
@@ -43,7 +44,7 @@ struct MarketsPortfolioTokenItemFactory {
 
         let tokenItemTypes: [TokenItemType] = entries
             .filter { entry in
-                if entry.coinId == coinId {
+                if entry.id == coinId {
                     return true
                 }
 
@@ -59,7 +60,7 @@ struct MarketsPortfolioTokenItemFactory {
             .compactMap { userToken in
                 if blockchainNetworksFromWalletModels.contains(userToken.blockchainNetwork) {
                     // Most likely we have wallet model (and derivation too) for this entry
-                    return walletModelsKeyedByIds[userToken.walletModelId].map { .default($0) }
+                    return walletModelsKeyedByIds[WalletModelId(tokenItem: userToken)].map { .default($0) }
                 } else {
                     // Section item for entry without derivation (yet)
                     return .withoutDerivation(userToken)
@@ -67,7 +68,7 @@ struct MarketsPortfolioTokenItemFactory {
             }
 
         let viewModels = tokenItemTypes.map {
-            makeTokenItemViewModel(from: $0, with: userWalletInfo)
+            makeTokenItemViewModel(from: $0, with: userWalletInfo, namingStyle: namingStyle)
         }
 
         return viewModels
@@ -75,15 +76,29 @@ struct MarketsPortfolioTokenItemFactory {
 
     private func makeTokenItemViewModel(
         from tokenItemType: TokenItemType,
-        with userWalletInfo: UserWalletInfo
+        with userWalletInfo: UserWalletInfo,
+        namingStyle: NamingStyle
     ) -> MarketsPortfolioTokenItemViewModel {
         let (id, provider, tokenItem, tokenIcon) = tokenItemInfoProviderItemBuilder
             .mapTokenItemViewModel(from: tokenItemType)
 
+        let name, description: String
+
+        switch namingStyle {
+        case .tokenItemName:
+            name = tokenItem.name
+            description = tokenItem.networkName
+
+        case .userWalletName:
+            name = userWalletInfo.userWalletName
+            description = tokenItem.name
+        }
+
         return MarketsPortfolioTokenItemViewModel(
             walletModelId: id,
             userWalletId: userWalletInfo.userWalletId,
-            walletName: userWalletInfo.userWalletName,
+            name: name,
+            description: description,
             tokenIcon: tokenIcon,
             tokenItem: tokenItem,
             tokenItemInfoProvider: provider,
@@ -97,5 +112,16 @@ extension MarketsPortfolioTokenItemFactory {
     struct UserWalletInfo {
         let userWalletName: String
         let userWalletId: UserWalletId
+    }
+
+    enum NamingStyle {
+        case userWalletName
+        case tokenItemName
+
+        private var timeToRemove: Bool {
+            // Run into compilation error here? This means .accounts toggle is removed
+            // NamingStyle enum should be removed in favor of `.tokenItemName` case
+            FeatureProvider.isAvailable(.accounts)
+        }
     }
 }

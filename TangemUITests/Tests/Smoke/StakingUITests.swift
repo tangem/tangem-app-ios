@@ -35,12 +35,11 @@ final class StakingUITests: BaseTestCase {
             .validate()
             .validateValues()
             .proceedToSendScreen()
-            .validate()
+            .waitForDisplay()
             .enterStakingAmount(tokenValue)
-            .gotToSummary()
-            .validate()
-            .validateAmountValue(tokenValue)
-            .validate()
+            .goToSummary()
+            .waitForDisplay()
+            .waitForAmountValue(tokenValue)
     }
 
     func test_StakedToken_ShowStakingInfo() {
@@ -60,6 +59,6 @@ final class StakingUITests: BaseTestCase {
         StoriesScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(token)
-            .validateStakingInfo()
+            .waitForStakingInfo()
     }
 }

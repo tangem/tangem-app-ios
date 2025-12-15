@@ -124,6 +124,9 @@ public struct ReorderableGroupedSection<
             .frame(height: reorderableRowSizes.values.map(\.height).reduce(0, +))
             .scrollDisabledBackport(true)
         }
+        .onChange(of: reorderableModels.map(\.id)) { ids in
+            reorderableRowSizes = reorderableRowSizes.filter { ids.contains($0.key) }
+        }
     }
 
     /// Mikhail Andreev - we need this to exactly set List's height because

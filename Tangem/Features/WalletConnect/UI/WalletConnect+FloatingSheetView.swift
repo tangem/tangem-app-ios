@@ -10,6 +10,7 @@ import SwiftUI
 import Kingfisher
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 extension FloatingSheetRegistry {
     func registerWalletConnectFloatingSheets() {
@@ -41,11 +42,11 @@ extension WalletConnectErrorViewModel: FloatingSheetContentViewModel {}
 private extension WalletConnectErrorView {
     func includingHeaderAndFooter() -> some View {
         safeAreaInset(edge: .top, spacing: .zero) {
-            WalletConnectNavigationBarView(
-                title: nil,
+            FloatingSheetNavigationBarView(
                 backgroundColor: Colors.Background.tertiary,
-                backButtonAction: nil,
-                closeButtonAction: { viewModel.handle(viewEvent: .closeButtonTapped) }
+                bottomSeparatorLineIsVisible: false,
+                closeButtonAction: { viewModel.handle(viewEvent: .closeButtonTapped) },
+                titleAccessibilityIdentifier: WalletConnectAccessibilityIdentifiers.headerTitle
             )
         }
         .safeAreaInset(edge: .bottom, spacing: .zero) {
