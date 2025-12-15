@@ -30,7 +30,7 @@ extension CommonBannerPromotionService: BannerPromotionService {
                 let link: URL? = switch promotion {
                 case .visaWaitlist: Constants.visaWaitlinkLink
                 case .blackFriday: Constants.blackFridayLink
-                default: nil
+                case .onePlusOne: Constants.onePlusOneLink
                 }
 
                 return .init(bannerPromotion: promotion, timeline: promotionInfo.all.timeline, link: link)
@@ -70,6 +70,10 @@ private extension CommonBannerPromotionService {
 
         static let blackFridayLink = URL(
             string: "https://tangem.com/en/pricing/?promocode=BF2025&utm_source=tangem-app-banner&utm_medium=banner&utm_campaign=BlackFriday2025"
+        )!
+
+        static let onePlusOneLink = URL(
+            string: "https://tangem.com/pricing/?cat=family&utm_source=tangem-app-banner&utm_medium=banner&utm_campaign=BOGO50"
         )!
     }
 }

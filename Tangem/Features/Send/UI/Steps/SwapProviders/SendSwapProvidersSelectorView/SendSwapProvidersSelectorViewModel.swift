@@ -102,40 +102,10 @@ private extension SendSwapProvidersSelectorViewModel {
     }
 
     private func prepareProviderRows(providers: [ExpressAvailableProvider]) async -> [SendSwapProvidersSelectorProviderViewData] {
-        typealias SortableProvider = (priority: ExpressAvailableProvider.Priority, amount: Decimal)
-
         let viewModels: [SendSwapProvidersSelectorProviderViewData] = await providers
-            .asyncSorted(
-                sort: { (firstProvider: SortableProvider, secondProvider: SortableProvider) in
-                    if firstProvider.priority == secondProvider.priority {
-                        return firstProvider.amount > secondProvider.amount
-                    } else {
-                        return firstProvider.priority > secondProvider.priority
-                    }
-                },
-                by: { provider in
-                    async let priority = provider.getPriority()
-                    async let expectedAmount = provider.getState().quote?.expectAmount ?? 0
-                    return await (priority, expectedAmount)
-                }
-            )
-            .asyncCompactMap { provider in
-                guard provider.isAvailable else {
-                    return nil
-                }
-
-                // If the provider `isSelected` we are forced to show it anyway
-                let isSelected = selectedProvider?.provider.id == provider.provider.id
-                let isAvailableToShow = await !provider.getState().isError
-
-                guard isSelected || isAvailableToShow else {
-                    return nil
-                }
-
-                return await mapToSendSwapProvidersSelectorProviderViewData(
-                    availableProvider: provider
-                )
-            }
+            .showableProviders(selectedProviderId: selectedProvider?.provider.id)
+            .sortedByPriorityAndQuotes()
+            .asyncMap { await mapToSendSwapProvidersSelectorProviderViewData(availableProvider: $0) }
 
         return viewModels
     }
