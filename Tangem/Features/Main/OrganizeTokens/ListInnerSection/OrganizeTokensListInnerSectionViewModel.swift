@@ -1,5 +1,5 @@
 //
-//  OrganizeTokensListSectionViewModel.swift
+//  OrganizeTokensListInnerSectionViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct OrganizeTokensListSectionViewModel: Hashable, Identifiable {
+struct OrganizeTokensListInnerSectionViewModel: Hashable, Identifiable {
     enum SectionStyle: Hashable {
         case invisible
         case fixed(title: String)
