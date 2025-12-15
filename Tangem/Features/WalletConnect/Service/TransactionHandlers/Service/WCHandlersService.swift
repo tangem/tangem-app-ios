@@ -34,7 +34,9 @@ final class CommonWCHandlersService {
         for request: Request,
         blockchain: BlockchainSdk.Blockchain,
         signer: TangemSigner,
+        hardwareLimitationsUtil: HardwareLimitationsUtil,
         walletModelProvider: WalletConnectWalletModelProvider,
+        wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider,
         connectedDApp: WalletConnectConnectedDApp
     ) throws -> WalletConnectMessageHandler {
         let method = request.method
@@ -48,7 +50,9 @@ final class CommonWCHandlersService {
             with: request.params,
             blockchainNetworkID: blockchain.networkId,
             signer: signer,
+            hardwareLimitationsUtil: hardwareLimitationsUtil,
             walletModelProvider: walletModelProvider,
+            wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
             connectedDApp: connectedDApp
         )
     }
@@ -72,9 +76,11 @@ extension CommonWCHandlersService: WCHandlersService {
         }
 
         guard
-            let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == connectedDApp.userWalletID })
+            let userWalletID = connectedDApp.userWalletID,
+            let userWalletModel = userWalletRepository.models.first(where: {
+                $0.userWalletId.stringValue == userWalletID
+            })
         else {
-            WCLogger.warning("Failed to find target user wallet")
             throw WalletConnectTransactionRequestProcessingError.userWalletNotFound
         }
 
@@ -83,11 +89,23 @@ extension CommonWCHandlersService: WCHandlersService {
             throw WalletConnectTransactionRequestProcessingError.userWalletIsLocked
         }
 
+        let account: (any CryptoAccountModel)?
+
+        if FeatureProvider.isAvailable(.accounts), let accountId = connectedDApp.accountId {
+            account = WCAccountFinder.findCryptoAccountModel(
+                by: accountId,
+                accountModelsManager: userWalletModel.accountModelsManager
+            )
+        } else {
+            account = nil
+        }
+
         return WCValidatedRequest(
             request: request,
             dAppData: connectedDApp.dAppData,
             targetBlockchain: targetBlockchain,
-            userWalletModel: userWalletModel
+            userWalletModel: userWalletModel,
+            account: account
         )
     }
 
@@ -99,7 +117,9 @@ extension CommonWCHandlersService: WCHandlersService {
             for: validatedRequest.request,
             blockchain: validatedRequest.targetBlockchain,
             signer: validatedRequest.userWalletModel.signer,
+            hardwareLimitationsUtil: HardwareLimitationsUtil(config: validatedRequest.userWalletModel.config),
             walletModelProvider: validatedRequest.userWalletModel.wcWalletModelProvider,
+            wcAccountsWalletModelProvider: validatedRequest.userWalletModel.wcAccountsWalletModelProvider,
             connectedDApp: connectedDApp
         )
 
@@ -116,6 +136,7 @@ extension CommonWCHandlersService: WCHandlersService {
             requestData: handler.requestData,
             blockchain: blockchain,
             verificationStatus: connectedDApp.verificationStatus,
+            validate: { try await handler.validate() },
             accept: { try await handler.handle() },
             reject: { RPCResult.error(.init(code: 0, message: "User rejected sign")) },
             updatableHandler: handler as? WCTransactionUpdatable
