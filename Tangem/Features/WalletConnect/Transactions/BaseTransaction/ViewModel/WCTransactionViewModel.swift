@@ -151,7 +151,7 @@ final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewM
 
         return walletModels.first { walletModel in
             walletModel.tokenItem.blockchain.networkId == transactionData.blockchain.networkId &&
-                walletModel.defaultAddressString.caseInsensitiveCompare(ethTransaction.from) == .orderedSame
+                walletModel.walletConnectAddress.caseInsensitiveCompare(ethTransaction.from) == .orderedSame
         }
     }
 
@@ -556,7 +556,7 @@ private extension WCTransactionViewModel {
 
         guard
             filteredWalletModels.count > 1,
-            let mainAddress = filteredWalletModels.first(where: { $0.isMainToken })?.defaultAddressString
+            let mainAddress = filteredWalletModels.first(where: { $0.isMainToken })?.walletConnectAddress
         else {
             return nil
         }
