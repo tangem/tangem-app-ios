@@ -8,23 +8,35 @@
 
 import Combine
 
-final class CommonNewTokenSelectorWalletsProvider: NewTokenSelectorWalletsProvider {
+class CommonNewTokenSelectorWalletsProvider: NewTokenSelectorWalletsProvider {
     @Injected(\.userWalletRepository)
     private var userWalletRepository: UserWalletRepository
 
-    var walletsPublisher: AnyPublisher<[NewTokenSelectorWallet], Never> {
-        Just(userWalletRepository.models).map { userWalletModels in
-            userWalletModels.map { userWalletModel in
-                self.mapToNewTokenSelectorWallet(userWalletModel: userWalletModel)
-            }
-        }
-        .eraseToAnyPublisher()
+    private let availabilityProviderFactory: any NewTokenSelectorItemAvailabilityProviderFactory
+
+    init(availabilityProviderFactory: any NewTokenSelectorItemAvailabilityProviderFactory) {
+        self.availabilityProviderFactory = availabilityProviderFactory
     }
-}
 
-// MARK: - Private
+    var wallets: [NewTokenSelectorWallet] {
+        userWalletRepository.models.map { userWalletModel in
+            mapToNewTokenSelectorWallet(userWalletModel: userWalletModel)
+        }
+    }
 
-private extension CommonNewTokenSelectorWalletsProvider {
+    var walletsPublisher: AnyPublisher<[NewTokenSelectorWallet], Never> {
+        Just(userWalletRepository.models)
+            .withWeakCaptureOf(self)
+            .map { provider, userWalletModels in
+                userWalletModels.map { userWalletModel in
+                    provider.mapToNewTokenSelectorWallet(userWalletModel: userWalletModel)
+                }
+            }
+            .eraseToAnyPublisher()
+    }
+
+    // MARK: - Mapping
+
     func mapToNewTokenSelectorWallet(userWalletModel: any UserWalletModel) -> NewTokenSelectorWallet {
         let accountsPublisher = userWalletModel.accountModelsManager
             .accountModelsPublisher
@@ -51,18 +63,9 @@ private extension CommonNewTokenSelectorWalletsProvider {
         return NewTokenSelectorWallet(wallet: userWalletModel.userWalletInfo, accountsPublisher: accountsPublisher)
     }
 
-    private func mapToNewTokenSelectorAccount(wallet: any UserWalletModel, cryptoAccount: any CryptoAccountModel) -> NewTokenSelectorAccount {
-        let selectorWallet = NewTokenSelectorItem.Wallet(userWalletInfo: wallet.userWalletInfo)
-        let account = cryptoAccount
-        let iconViewData = AccountIconViewBuilder().makeAccountIconViewData(accountModel: account)
-        let selectorAccount = NewTokenSelectorItem.Account(
-            name: account.name,
-            icon: iconViewData,
-            walletModelsManager: account.walletModelsManager
-        )
-
+    func mapToNewTokenSelectorAccount(wallet: any UserWalletModel, cryptoAccount: any CryptoAccountModel) -> NewTokenSelectorAccount {
         let adapter = TokenSectionsAdapter(
-            userTokenListManager: cryptoAccount.userTokenListManager,
+            userTokensManager: cryptoAccount.userTokensManager,
             optionsProviding: OrganizeTokensOptionsManager(userTokensReorderer: cryptoAccount.userTokensManager),
             preservesLastSortedOrderOnSwitchToDragAndDrop: false
         )
@@ -81,20 +84,28 @@ private extension CommonNewTokenSelectorWalletsProvider {
 
                 return walletModels.map { walletModel in
                     provider.mapToNewTokenSelectorItem(
-                        selectorWallet: selectorWallet, selectorAccount: selectorAccount, walletModel: walletModel
+                        userWalletInfo: wallet.userWalletInfo, cryptoAccount: cryptoAccount, walletModel: walletModel
                     )
                 }
             }
             .eraseToAnyPublisher()
 
-        return NewTokenSelectorAccount(account: selectorAccount, itemsPublisher: itemsPublisher)
+        return NewTokenSelectorAccount(cryptoAccount: cryptoAccount, itemsPublisher: itemsPublisher)
     }
 
-    private func mapToNewTokenSelectorItem(
-        selectorWallet: NewTokenSelectorItem.Wallet,
-        selectorAccount: NewTokenSelectorItem.Account,
+    func mapToNewTokenSelectorItem(
+        userWalletInfo: UserWalletInfo,
+        cryptoAccount: any CryptoAccountModel,
         walletModel: any WalletModel
     ) -> NewTokenSelectorItem {
-        return NewTokenSelectorItem(wallet: selectorWallet, account: selectorAccount, walletModel: walletModel)
+        NewTokenSelectorItem(
+            userWalletInfo: userWalletInfo,
+            account: cryptoAccount,
+            walletModel: walletModel,
+            availabilityProvider: availabilityProviderFactory.makeAvailabilityProvider(
+                userWalletInfo: userWalletInfo,
+                walletModel: walletModel
+            ),
+        )
     }
 }
