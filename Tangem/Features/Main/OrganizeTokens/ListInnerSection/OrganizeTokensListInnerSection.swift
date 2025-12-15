@@ -1,5 +1,5 @@
 //
-//  OrganizeTokensListSection.swift
+//  OrganizeTokensListInnerSection.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,11 +8,11 @@
 
 import Foundation
 
-typealias OrganizeTokensListSection = SectionModel<OrganizeTokensListSectionViewModel, OrganizeTokensListItemViewModel>
+typealias OrganizeTokensListInnerSection = SectionModel<OrganizeTokensListInnerSectionViewModel, OrganizeTokensListItemViewModel>
 
 // MARK: - Convenience extensions
 
-extension OrganizeTokensListSection {
+extension OrganizeTokensListInnerSection {
     var isDraggable: Bool {
         if case .draggable = model.style {
             return true
