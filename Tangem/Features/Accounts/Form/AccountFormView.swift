@@ -80,7 +80,7 @@ struct AccountFormView: View {
             }
         }
         .coordinateSpace(name: coordinateSpaceName)
-        .scrollDisabledBackport(contentHeight <= containerHeight)
+        .scrollDisabled(contentHeight <= containerHeight)
         .readGeometry(\.size.height) { height in
             containerHeight = height
         }

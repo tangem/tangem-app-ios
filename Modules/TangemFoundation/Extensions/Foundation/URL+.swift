@@ -13,11 +13,7 @@ public extension URL {
         let separator = "."
         let rawHost: String?
 
-        if #available(iOS 16.0, *) {
-            rawHost = host()
-        } else {
-            rawHost = host
-        }
+        rawHost = host()
 
         guard let rawHost else {
             return nil
