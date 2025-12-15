@@ -108,6 +108,7 @@ final class AccountsAwareOrganizeTokensViewModel: ObservableObject, Identifiable
                             .map { sections in
                                 let accountSectionModel = OrganizeTokensListOuterSectionViewModel(
                                     id: cryptoAccountModel.id,
+                                    cryptoAccountID: cryptoAccountModel.id.toAnyHashable(),
                                     name: cryptoAccountModel.name,
                                     iconData: AccountModelUtils.UI.iconViewData(accountModel: cryptoAccountModel)
                                 )
@@ -352,7 +353,7 @@ extension AccountsAwareOrganizeTokensViewModel {
         }
 
         let outerSectionIndex = sourceIndexPath.outerSection // Same value for both source and destination
-        let accountID = __sections[outerSectionIndex].model.id
+        let accountID = __sections[outerSectionIndex].model.cryptoAccountID
         let cache = _dragAndDropActionsCache.cache(forAccountID: accountID)
         let isGroupingEnabled = headerViewModel.isGroupingEnabled
 
