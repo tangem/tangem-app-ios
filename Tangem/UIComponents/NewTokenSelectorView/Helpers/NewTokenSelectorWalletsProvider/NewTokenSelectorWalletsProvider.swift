@@ -10,6 +10,7 @@ import Combine
 import TangemAccounts
 
 protocol NewTokenSelectorWalletsProvider {
+    var wallets: [NewTokenSelectorWallet] { get }
     var walletsPublisher: AnyPublisher<[NewTokenSelectorWallet], Never> { get }
 }
 
@@ -30,16 +31,19 @@ extension NewTokenSelectorWallet {
 // MARK: - Nested Account
 
 struct NewTokenSelectorAccount {
-    let account: NewTokenSelectorItem.Account
+    let cryptoAccount: any CryptoAccountModel
     let itemsPublisher: AnyPublisher<[NewTokenSelectorItem], Never>
 }
 
 // MARK: - Account's items
 
-struct NewTokenSelectorItem: Hashable {
-    let wallet: Wallet
-    let account: Account
+struct NewTokenSelectorItem: Hashable, Identifiable {
+    var id: String { walletModel.id.id }
+
+    let userWalletInfo: UserWalletInfo
+    let account: any CryptoAccountModel
     let walletModel: any WalletModel
+    let availabilityProvider: NewTokenSelectorItemAvailabilityProvider
 
     var cryptoBalanceProvider: TokenBalanceProvider { walletModel.totalTokenBalanceProvider }
     var fiatBalanceProvider: TokenBalanceProvider { walletModel.fiatTotalTokenBalanceProvider }
@@ -52,8 +56,8 @@ struct NewTokenSelectorItem: Hashable {
     }
 
     func hash(into hasher: inout Hasher) {
-        hasher.combine(wallet)
-        hasher.combine(account)
+        hasher.combine(userWalletInfo.id)
+        hasher.combine(account.id)
         hasher.combine(walletModel.id)
     }
 
@@ -63,23 +67,8 @@ struct NewTokenSelectorItem: Hashable {
 }
 
 extension NewTokenSelectorItem {
-    struct Wallet: Hashable {
-        let userWalletInfo: UserWalletInfo
-    }
-
-    struct Account: Hashable {
-        let name: String
-        let icon: AccountIconView.ViewData
-
-        let walletModelsManager: any WalletModelsManager
-
-        static func == (lhs: NewTokenSelectorItem.Account, rhs: NewTokenSelectorItem.Account) -> Bool {
-            lhs.hashValue == rhs.hashValue
-        }
-
-        func hash(into hasher: inout Hasher) {
-            hasher.combine(name)
-            hasher.combine(icon)
-        }
+    enum AvailabilityType {
+        case available
+        case unavailable(reason: NewTokenSelectorItemViewModel.DisabledReason)
     }
 }

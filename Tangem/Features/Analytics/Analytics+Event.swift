@@ -183,7 +183,20 @@ extension Analytics {
         case walletSettingsButtonAccessCode = "[Settings / Wallet Settings] Button - Access Code"
         case walletSettingsBackupScreenOpened = "[Settings / Wallet Settings] Backup Screen Opened"
         case walletSettingsButtonManualBackup = "[Settings / Wallet Settings] Button - Manual Backup"
+        case walletSettingsButtonRecoveryPhrase = "[Settings / Wallet Settings] Button - Recovery phrase"
+        case walletSettingsButtonHardwareUpdate = "[Settings / Wallet Settings] Button - Hardware Update"
+        case walletSettingsButtonCreateNewWallet = "[Settings / Wallet Settings] Button - Create New Wallet"
+        case walletSettingsButtonUpgradeCurrent = "[Settings / Wallet Settings] Button - Upgrade Current"
+        case walletSettingsButtonStartUpgrade = "[Settings / Wallet Settings] Button - Start Upgrade"
         case walletSettingsNoticeBackupFirst = "[Settings / Wallet Settings] Notice - Backup First"
+        case walletSettingsHardwareBackupScreenOpened = "[Settings / Wallet Settings] Hardware Backup Screen Opened"
+        case walletSettingsCreateWalletScreenOpened = "[Settings / Wallet Settings] Create Wallet Screen Opened"
+        case walletSettingsRecoveryPhraseScreenInfo = "[Settings / Wallet Settings] Recovery Phrase Screen Info"
+        case walletSettingsRecoveryPhraseScreen = "[Settings / Wallet Settings] Recovery Phrase Screen"
+        case walletSettingsRecoveryPhraseCheck = "[Settings / Wallet Settings] Recovery Phrase Check"
+        case walletSettingsBackupCompleteScreen = "[Settings / Wallet Settings] Backup Complete Screen"
+        case walletSettingsCreateAccessCode = "[Settings / Wallet Settings] Access Code Screen Opened"
+        case walletSettingsConfirmAccessCode = "[Settings / Wallet Settings] Re-enter Access Code Screen"
 
         // MARK: - Wallet Connect
 
@@ -315,9 +328,6 @@ extension Analytics {
         case mainNoticeSeedSupport2 = "[Main Screen] Notice - Seed Phrase Support2"
         case mainNoticeSeedSupportButtonUsed = "[Main Screen] Button - Support Used"
         case mainNoticeSeedSupportButtonDeclined = "[Main Screen] Button - Support Declined"
-        case mainReferralProgram = "[Main Screen] Referral Banner"
-        case mainReferralProgramButtonParticipate = "[Main Screen] Button - Referral Participate"
-        case mainReferralProgramButtonDismiss = "[Main Screen] Button - Referral Dismiss"
         case mainButtonFinishNow = "[Main Screen] Button - Finish Now"
 
         // MARK: - BlockchainSdk exceptions
@@ -534,6 +544,19 @@ extension Analytics {
         case visaMainBalancesLimits = "[Main Screen] Limits Clicked"
         case visaMainNoticeBalancesInfo = "[Main Screen] Notice - Balances Info"
         case visaMainNoticeLimitsInfo = "[Main Screen] Notice - Limits Info"
+
+        // Tangem Pay (Visa 2.0)
+
+        case visaOnboardingVisaActivationScreenOpened = "[Visa Onboarding] Visa Activation Screen Opened"
+        case visaOnboardingButtonVisaViewTerms = "[Visa Onboarding] Button - Visa View Terms"
+        case visaOnboardingButtonVisaGetCard = "[Visa Onboarding] Button - Visa Get Card"
+        case visaOnboardingVisaKYCFlowOpened = "[Visa Onboarding] Visa KYC Flow Opened"
+        case visaOnboardingVisaIssuingBannerDisplayed = "[Visa Onboarding] Visa Issuing Banner Displayed"
+
+        case visaScreenVisaMainScreenOpened = "[Visa Screen] Visa Main Screen Opened"
+        case visaScreenButtonVisaAddFunds = "[Visa Screen] Button - Visa Add Funds"
+        case visaScreenButtonVisaReceive = "[Visa Screen] Button - Visa Receive"
+        case visaScreenButtonVisaSwap = "[Visa Screen] Button - Visa Swap"
 
         // MARK: - NFT
 

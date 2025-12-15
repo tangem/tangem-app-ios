@@ -153,7 +153,7 @@ class FilecoinWalletManager: BaseManager, WalletManager {
                 let mapper = PendingTransactionRecordMapper()
                 let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: txId)
                 walletManager.wallet.addPendingTransaction(record)
-                return TransactionSendResult(hash: txId)
+                return TransactionSendResult(hash: txId, currentProviderHost: walletManager.currentHost)
             }
             .mapSendTxError()
             .eraseToAnyPublisher()

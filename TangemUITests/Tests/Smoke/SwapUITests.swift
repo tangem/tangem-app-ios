@@ -49,7 +49,7 @@ final class SwapUITests: BaseTestCase {
     }
 
     func testSwapNoInternet_showConnectionError() {
-        setAllureId(3546)
+        setAllureId(3549)
 
         launchApp(tangemApiType: .mock, expressApiType: .mock)
 
