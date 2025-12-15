@@ -53,18 +53,20 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     private var foundStandardToken: CoinModel?
     private var settings: ManageTokensSettings
     private let userTokensManager: UserTokensManager
+    private let context: ManageTokensContext
     private var bag: Set<AnyCancellable> = []
 
     private weak var coordinator: AddCustomTokenRoutable?
 
     init(
         settings: ManageTokensSettings,
-        userTokensManager: UserTokensManager,
+        context: ManageTokensContext,
         coordinator: AddCustomTokenRoutable
     ) {
         self.settings = settings
         self.coordinator = coordinator
-        self.userTokensManager = userTokensManager
+        userTokensManager = context.userTokensManager
+        self.context = context
 
         networkSelectorViewModel = .init(
             selectedBlockchainNetworkId: nil,
@@ -91,7 +93,11 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
             let tokenItem = try enteredTokenItem()
             try checkLocalStorage()
 
+            // If we didn't find any suitable userTokensManager, we will use current. And if it can't add the token --
+            // we will present this error as alert
+            let userTokensManager = context.findUserTokensManager(for: tokenItem) ?? context.userTokensManager
             try userTokensManager.addTokenItemPrecondition(tokenItem)
+
             userTokensManager.add(tokenItem) { [weak self] result in
                 guard let self else { return }
 
@@ -343,7 +349,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     private func checkLocalStorage() throws {
         guard let tokenItem = try? enteredTokenItem() else { return }
 
-        if userTokensManager.contains(tokenItem) {
+        if userTokensManager.contains(tokenItem, derivationInsensitive: false) {
             throw TokenSearchError.alreadyAdded
         }
     }
@@ -500,13 +506,15 @@ extension AddCustomTokenViewModel {
 
         let blockchainDerivationOptions: [AddCustomTokenDerivationOption] = settings.supportedBlockchains.compactMap {
             guard let derivationPath = $0.derivationPath(for: derivationStyle) else { return nil }
-            return AddCustomTokenDerivationOption.blockchain(name: $0.displayName, derivationPath: derivationPath)
+            return .blockchain(name: $0.displayName, derivationPath: derivationPath)
         }
 
         coordinator?.openDerivationSelector(
             selectedDerivationOption: selectedDerivationOption,
             defaultDerivationPath: defaultDerivationPath,
-            blockchainDerivationOptions: blockchainDerivationOptions
+            blockchainDerivationOptions: blockchainDerivationOptions,
+            context: context,
+            blockchain: selectedBlockchain
         )
     }
 }
