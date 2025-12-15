@@ -144,7 +144,8 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     lazy var addTokensViewModel: OnboardingAddTokensViewModel? = {
         guard
             let userWalletModel,
-            userWalletModel.config.hasFeature(.multiCurrency)
+            userWalletModel.config.hasFeature(.multiCurrency),
+            let context = makeManageTokensContext(for: userWalletModel)
         else {
             goToNextStep()
             return nil
@@ -157,11 +158,11 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
         let manageTokensAdapter = ManageTokensAdapter(
             settings: .init(
-                longHashesSupported: userWalletModel.config.hasFeature(.longHashes),
                 existingCurves: userWalletModel.config.existingCurves,
                 supportedBlockchains: userWalletModel.config.supportedBlockchains,
-                userTokensManager: userWalletModel.userTokensManager,
-                analyticsSourceRawValue: analyticsSourceRawValue
+                hardwareLimitationUtil: HardwareLimitationsUtil(config: userWalletModel.config),
+                analyticsSourceRawValue: analyticsSourceRawValue,
+                context: context
             )
         )
 
@@ -440,6 +441,34 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             }
             .store(in: &bag)
     }
+
+    private func makeManageTokensContext(for userWalletModel: UserWalletModel) -> ManageTokensContext? {
+        if FeatureProvider.isAvailable(.accounts) {
+            makeAccountsAwareContext(for: userWalletModel)
+        } else {
+            makeLegacyContext(for: userWalletModel)
+        }
+    }
+
+    private func makeAccountsAwareContext(for userWalletModel: UserWalletModel) -> ManageTokensContext? {
+        guard let mainAccount = userWalletModel.accountModelsManager.cryptoAccountModels.first(where: { $0.isMainAccount }) else {
+            return nil
+        }
+
+        // Working with accounts in onboarding is equivalent of working with main account
+        return AccountsAwareManageTokensContext(
+            accountModelsManager: userWalletModel.accountModelsManager,
+            currentAccount: mainAccount
+        )
+    }
+
+    private func makeLegacyContext(for userWalletModel: UserWalletModel) -> ManageTokensContext {
+        LegacyManageTokensContext(
+            // accounts_fixes_needed_none
+            userTokensManager: userWalletModel.userTokensManager,
+            walletModelsManager: userWalletModel.walletModelsManager
+        )
+    }
 }
 
 // MARK: - Navigation
@@ -454,11 +483,13 @@ extension OnboardingViewModel {
     }
 
     func openSupportChat() {
+        let walletModels = userWalletModel.map { AccountsFeatureAwareWalletModelsResolver.walletModels(for: $0) } ?? []
+
         let dataCollector = DetailsFeedbackDataCollector(
             data: [
                 .init(
                     userWalletEmailData: input.cardInput.emailData,
-                    walletModels: userWalletModel?.walletModelsManager.walletModels ?? []
+                    walletModels: walletModels
                 ),
             ]
         )
@@ -474,11 +505,13 @@ extension OnboardingViewModel {
         // Hide keyboard on set pin screen
         UIApplication.shared.endEditing()
 
+        let walletModels = userWalletModel.map { AccountsFeatureAwareWalletModelsResolver.walletModels(for: $0) } ?? []
+
         let dataCollector = DetailsFeedbackDataCollector(
             data: [
                 .init(
                     userWalletEmailData: input.cardInput.emailData,
-                    walletModels: userWalletModel?.walletModelsManager.walletModels ?? []
+                    walletModels: walletModels
                 ),
             ]
         )

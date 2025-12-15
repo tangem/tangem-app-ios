@@ -118,7 +118,7 @@ final class SendViewModel: ObservableObject {
 
     func onAppear(newStep: any SendStep) {
         switch (step.type, newStep.type) {
-        case (_, .summary), (_, .newSummary):
+        case (_, .summary), (_, .finish):
             isKeyboardActive = false
         default:
             break
@@ -126,15 +126,8 @@ final class SendViewModel: ObservableObject {
     }
 
     func onDisappear(oldStep: any SendStep) {
-        oldStep.sendStepViewAnimatable.viewDidChangeVisibilityState(.disappeared)
-        step.sendStepViewAnimatable.viewDidChangeVisibilityState(.appeared)
-
         switch (oldStep.type, step.type) {
-        // It's possible to the destination step
-        // if the destination's TextField will be support @FocusState
-        // case (_, .destination):
-        //    isKeyboardActive = true
-        case (_, .amount), (_, .newAmount), (_, .destination):
+        case (_, .amount), (_, .destination):
             isKeyboardActive = true
         default:
             break
@@ -322,9 +315,9 @@ private extension SendViewModel {
 extension SendViewModel: SendModelRoutable {
     func openNetworkCurrency() {
         do {
-            let builder = try dataBuilder.sendBuilder()
-            let (userWalletId, feeTokenItem) = builder.makeFeeCurrencyData()
-            coordinator?.openFeeCurrency(userWalletId: userWalletId, feeTokenItem: feeTokenItem)
+            let builder = try dataBuilder.feeCurrencyProvider()
+            let feeCurrency = builder.makeFeeCurrencyData()
+            coordinator?.openFeeCurrency(feeCurrency: feeCurrency)
         } catch {
             showAlert(error.alertBinder)
         }
@@ -343,9 +336,9 @@ extension SendViewModel: SendModelRoutable {
     }
 }
 
-// MARK: - SendNewAmountRoutable
+// MARK: - SendAmountRoutable
 
-extension SendViewModel: SendNewAmountRoutable {
+extension SendViewModel: SendAmountRoutable {
     func openReceiveTokensList() {
         do {
             isKeyboardActive = false
@@ -361,12 +354,18 @@ extension SendViewModel: SendNewAmountRoutable {
 // MARK: - OnrampModelRoutable
 
 extension SendViewModel: OnrampModelRoutable {
+    // [REDACTED_TODO_COMMENT]
     func openOnrampCountryBottomSheet(country: OnrampCountry) {
         do {
             isKeyboardActive = false
             let builder = try dataBuilder.onrampBuilder()
             let (repository, dataRepository) = builder.makeDataForOnrampCountryBottomSheet()
-            coordinator?.openOnrampCountryDetection(country: country, repository: repository, dataRepository: dataRepository)
+            coordinator?.openOnrampCountryDetection(
+                country: country,
+                repository: repository,
+                dataRepository: dataRepository,
+                onCountrySelected: {}
+            )
         } catch {
             showAlert(error.alertBinder)
         }
@@ -399,43 +398,6 @@ extension SendViewModel: OnrampModelRoutable {
     }
 }
 
-// MARK: - OnrampSummaryRoutable
-
-extension SendViewModel: OnrampSummaryRoutable {
-    func onrampStepRequestEditProvider() {
-        do {
-            let builder = try dataBuilder.onrampBuilder()
-            let (providersBuilder, paymentMethodsBuilder) = builder.makeDataForOnrampProvidersPaymentMethodsView()
-            coordinator?.openOnrampProviders(providersBuilder: providersBuilder, paymentMethodsBuilder: paymentMethodsBuilder)
-        } catch {
-            showAlert(error.alertBinder)
-        }
-    }
-
-    func openOnrampSettingsView() {
-        do {
-            let builder = try dataBuilder.onrampBuilder()
-            let (repository, _) = builder.makeDataForOnrampCountrySelectorView()
-            coordinator?.openOnrampSettings(repository: repository)
-        } catch {
-            showAlert(error.alertBinder)
-        }
-    }
-
-    func openOnrampCurrencySelectorView() {
-        do {
-            let builder = try dataBuilder.onrampBuilder()
-            let (repository, dataRepository) = builder.makeDataForOnrampCountrySelectorView()
-            coordinator?.openOnrampCurrencySelector(
-                repository: repository,
-                dataRepository: dataRepository
-            )
-        } catch {
-            showAlert(error.alertBinder)
-        }
-    }
-}
-
 // MARK: - SendViewAlertPresenter
 
 extension SendViewModel: SendViewAlertPresenter {
@@ -447,16 +409,13 @@ extension SendViewModel: SendViewAlertPresenter {
 // MARK: - SendStepsManagerOutput
 
 extension SendViewModel: SendStepsManagerOutput {
+    func setKeyboardActive(_ isActive: Bool) {
+        isKeyboardActive = isActive
+    }
+
     func update(step newStep: any SendStep) {
         step.willDisappear(next: newStep)
-        step.sendStepViewAnimatable.viewDidChangeVisibilityState(
-            .disappearing(nextStep: newStep.type)
-        )
-
         newStep.willAppear(previous: step)
-        newStep.sendStepViewAnimatable.viewDidChangeVisibilityState(
-            .appearing(previousStep: step.type)
-        )
 
         // Give some time to update `transitions`
         DispatchQueue.main.async {
