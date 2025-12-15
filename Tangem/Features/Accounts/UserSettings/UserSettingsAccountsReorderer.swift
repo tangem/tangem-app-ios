@@ -64,7 +64,7 @@ final class UserSettingsAccountsReorderer {
         // after deallocation of the `UserSettingsAccountsReorderer` instance
         let pendingReorderTask = Task { [reorderer = accountModelsReorderer] in
             do {
-                try await Task.sleep(seconds: debounceInterval)
+                try await Task.sleep(for: .seconds(debounceInterval))
                 try await reorderer.reorder(orderedIdentifiers: orderedPersistentIdentifiers)
                 AccountsLogger.info("Reordering completed")
             } catch {
