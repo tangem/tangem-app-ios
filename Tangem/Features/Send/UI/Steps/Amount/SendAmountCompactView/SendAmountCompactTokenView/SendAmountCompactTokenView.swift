@@ -97,20 +97,8 @@ struct SendAmountCompactTokenView: View {
                         .padding(.leading, 4)
                 }
 
-                if #available(iOS 16.4, *) {
-                    InfoButtonView(size: .medium, tooltipText: highPriceImpactWarning.infoMessage)
-                        .color(highPriceImpactWarning.isHighPriceImpact ? Colors.Text.attention : Colors.Text.tertiary)
-                } else {
-                    Button(action: {
-                        viewModel.userDidTapHighPriceImpactWarning(highPriceImpactWarning: highPriceImpactWarning)
-                    }) {
-                        Assets.infoCircle16.image
-                            .renderingMode(.template)
-                            .resizable()
-                            .frame(width: 16, height: 16)
-                            .foregroundStyle(highPriceImpactWarning.isHighPriceImpact ? Colors.Text.attention : Colors.Text.tertiary)
-                    }
-                }
+                InfoButtonView(size: .medium, tooltipText: highPriceImpactWarning.infoMessage)
+                    .color(highPriceImpactWarning.isHighPriceImpact ? Colors.Text.attention : Colors.Text.tertiary)
             }
         }
     }
