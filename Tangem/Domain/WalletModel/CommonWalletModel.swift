@@ -319,8 +319,6 @@ extension CommonWalletModel: WalletModel {
 
     var shouldShowFeeSelector: Bool { walletManager.allowsFeeSelection }
 
-    var defaultAddressString: String { wallet.defaultAddress.value }
-
     var qrReceiveMessage: String {
         // [REDACTED_TODO_COMMENT]
         let symbol = wallet.amounts[amountType]?.currencySymbol ?? wallet.blockchain.currencySymbol
