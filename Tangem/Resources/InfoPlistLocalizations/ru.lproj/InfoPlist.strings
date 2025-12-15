@@ -2,4 +2,4 @@
 "NSCameraUsageDescription" = "Для сканирования QR кода или отправки фото в поддержку";
 "NSPhotoLibraryUsageDescription" = "Для отправки в службу поддержки";
 "NSFaceIDUsageDescription" = "Face ID используется для сохранения ваших карт в приложении";
-"NSMicrophoneUsageDescription" = "Для отправки видео в поддержку";
+"NSLocationWhenInUseUsageDescription" = "This app includes a third-party library with optional location features, which are not used";

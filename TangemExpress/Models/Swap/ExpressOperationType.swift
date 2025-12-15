@@ -11,4 +11,5 @@ import Foundation
 public enum ExpressOperationType: String, Codable, Hashable {
     case swap
     case swapAndSend = "swap-and-send"
+    case onramp
 }

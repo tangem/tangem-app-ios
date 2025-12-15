@@ -8,9 +8,10 @@
 
 import BlockchainSdk
 import struct TangemUI.TokenIconInfo
+import struct TangemAccounts.AccountIconView
 
 struct SendSourceToken {
-    let wallet: String
+    let header: SendTokenHeader
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
     let tokenIconInfo: TokenIconInfo
@@ -28,6 +29,6 @@ struct SendSourceToken {
 
 extension SendSourceToken: Equatable {
     static func == (lhs: SendSourceToken, rhs: SendSourceToken) -> Bool {
-        lhs.wallet == rhs.wallet && lhs.tokenItem == rhs.tokenItem
+        lhs.header == rhs.header && lhs.tokenItem == rhs.tokenItem
     }
 }

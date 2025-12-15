@@ -36,11 +36,11 @@ final class MockedSecureStorage: MobileWalletSecureStorage {
 
 final class MockedSecureEnclaveService: MobileWalletSecureEnclaveService {
     func encryptData(_ data: Data, keyTag: String) throws -> Data {
-        Data(data.bytes.reversed())
+        Data(data.reversed())
     }
 
     func decryptData(_ data: Data, keyTag: String) throws -> Data {
-        Data(data.bytes.reversed())
+        Data(data.reversed())
     }
 
     func delete(tag: String) {}
@@ -48,11 +48,11 @@ final class MockedSecureEnclaveService: MobileWalletSecureEnclaveService {
 
 final class MockedBiometricsSecureEnclaveService: MobileWalletBiometricsSecureEnclaveService {
     func encryptData(_ data: Data, keyTag: String, context: LAContext?) throws -> Data {
-        Data(data.bytes.reversed())
+        Data(data.reversed())
     }
 
     func decryptData(_ data: Data, keyTag: String, context: LAContext) throws -> Data {
-        Data(data.bytes.reversed())
+        Data(data.reversed())
     }
 
     func delete(tag: String) {}
