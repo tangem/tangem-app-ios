@@ -38,25 +38,10 @@ public struct HorizontalFlowLayout<Item: Hashable, ItemContent: View>: View {
     }
 
     public var body: some View {
-        if #available(iOS 16.0, *) {
-            WrappingHStack(
-                alignment: alignment,
-                horizontalSpacing: horizontalSpacing,
-                verticalSpacing: verticalSpacing
-            ) {
-                ForEach(items, id: \.self) {
-                    itemContent($0)
-                }
+        WrappingHStack(alignment: alignment, horizontalSpacing: horizontalSpacing, verticalSpacing: verticalSpacing) {
+            ForEach(items, id: \.self) {
+                itemContent($0)
             }
-        } else {
-            LegacyFlowLayout(
-                items: items,
-                horizontalAlignment: alignment.horizontal,
-                verticalAlignment: alignment.vertical,
-                horizontalSpacing: horizontalSpacing,
-                verticalSpacing: verticalSpacing,
-                itemContent: itemContent
-            )
         }
     }
 }
