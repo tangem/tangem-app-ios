@@ -13,11 +13,16 @@ public typealias AddressService = AddressProvider & AddressValidator
 public protocol AddressValidator {
     func validate(_ address: String) -> Bool
     func validateCustomTokenAddress(_ address: String) -> Bool
+    func resolveAddress(_ address: String) -> String
 }
 
 public extension AddressValidator {
     func validateCustomTokenAddress(_ address: String) -> Bool {
         validate(address)
+    }
+
+    func resolveAddress(_ address: String) -> String {
+        return address
     }
 }
 

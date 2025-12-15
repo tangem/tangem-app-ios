@@ -12,16 +12,19 @@ import SwiftUI
 
 struct SUILabel: View {
     var attributedString: NSAttributedString
+    var lineLimit: Int
 
-    init(_ attributedString: NSAttributedString) {
+    init(_ attributedString: NSAttributedString, lineLimit: Int = 0) {
         self.attributedString = attributedString
+        self.lineLimit = lineLimit
     }
 
     var body: some View {
         HorizontalGeometryReader { width in
             UILabelView(
                 attributedString: attributedString,
-                preferredMaxLayoutWidth: width
+                preferredMaxLayoutWidth: width,
+                lineLimit: lineLimit
             )
         }
     }
@@ -33,11 +36,12 @@ private struct UILabelView: UIViewRepresentable {
     let attributedString: NSAttributedString
 
     var preferredMaxLayoutWidth: CGFloat = .greatestFiniteMagnitude
+    var lineLimit: Int = 0
 
     func makeUIView(context: Context) -> UILabel {
         let label = UILabel(frame: .zero)
 
-        label.numberOfLines = 0
+        label.numberOfLines = lineLimit
         label.attributedText = attributedString
 
         label.setContentHuggingPriority(.required, for: .vertical)
@@ -51,6 +55,7 @@ private struct UILabelView: UIViewRepresentable {
     func updateUIView(_ uiView: UILabel, context: Context) {
         uiView.attributedText = attributedString
         uiView.preferredMaxLayoutWidth = preferredMaxLayoutWidth
+        uiView.numberOfLines = lineLimit
     }
 }
 

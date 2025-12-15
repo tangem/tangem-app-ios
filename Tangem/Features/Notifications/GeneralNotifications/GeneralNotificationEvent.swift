@@ -30,7 +30,6 @@ enum GeneralNotificationEvent: Equatable, Hashable {
     case backupErrors
     case seedSupport
     case seedSupport2
-    case referralProgram
     case mobileFinishActivation(needsAttention: Bool, hasBackup: Bool)
     case mobileUpgrade
     case pushNotificationsPermissionRequest
@@ -82,8 +81,6 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .string(Localization.warningSeedphraseIssueTitle)
         case .seedSupport2:
             return .string(Localization.warningSeedphraseActionRequiredTitle)
-        case .referralProgram:
-            return .string(Localization.notificationReferralPromoTitle)
         case .mobileFinishActivation(let needsAttention, _):
             let text = Localization.hwActivationNeedTitle
             if needsAttention {
@@ -142,8 +139,6 @@ extension GeneralNotificationEvent: NotificationEvent {
             return Localization.warningSeedphraseIssueMessage
         case .seedSupport2:
             return Localization.warningSeedphraseContactedSupport
-        case .referralProgram:
-            return Localization.notificationReferralPromoText
         case .mobileFinishActivation(_, let hasBackup):
             return hasBackup ? Localization.hwActivationNeedWarningDescription : Localization.hwActivationNeedDescription
         case .mobileUpgrade:
@@ -160,7 +155,6 @@ extension GeneralNotificationEvent: NotificationEvent {
              .missingBackup,
              .seedSupport,
              .seedSupport2,
-             .referralProgram,
              .backupErrors,
              .mobileFinishActivation,
              .mobileUpgrade,
@@ -190,8 +184,6 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .init(iconType: .image(Assets.star.image))
         case .walletLocked:
             return .init(iconType: .image(Assets.lock.image), color: Colors.Icon.primary1)
-        case .referralProgram:
-            return .init(iconType: .image(Assets.dollar.image), size: CGSize(width: 54, height: 54))
         case .mobileFinishActivation(let needsAttention, _):
             let imageType = needsAttention ? Assets.criticalAttentionShield : Assets.attentionShield
             return .init(iconType: .image(imageType.image), size: CGSize(width: 16, height: 18))
@@ -215,7 +207,6 @@ extension GeneralNotificationEvent: NotificationEvent {
              .legacyDerivation,
              .systemDeprecationTemporary,
              .missingDerivation,
-             .referralProgram,
              .rateApp,
              .mobileUpgrade,
              .pushNotificationsPermissionRequest:
@@ -255,7 +246,6 @@ extension GeneralNotificationEvent: NotificationEvent {
             return false
         case .numberOfSignedHashesIncorrect,
              .systemDeprecationTemporary,
-             .referralProgram,
              .rateApp,
              .mobileUpgrade,
              .pushNotificationsPermissionRequest:
@@ -312,13 +302,6 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .withButtons([
                 .init(action: buttonAction, actionType: .support, isWithLoader: false),
             ])
-        case .referralProgram:
-            guard let buttonAction else {
-                break
-            }
-            return .withButtons([
-                .init(action: buttonAction, actionType: .openReferralProgram, isWithLoader: false),
-            ])
         case .mobileFinishActivation(let needsAttention, _):
             guard let buttonAction else {
                 break
@@ -365,7 +348,6 @@ extension GeneralNotificationEvent {
         case .backupErrors: return .mainNoticeBackupErrors
         case .seedSupport: return .mainNoticeSeedSupport
         case .seedSupport2: return .mainNoticeSeedSupport2
-        case .referralProgram: return .mainReferralProgram
         case .mobileFinishActivation: return nil
         case .mobileUpgrade: return nil
         case .pushNotificationsPermissionRequest: return .promoPushBanner

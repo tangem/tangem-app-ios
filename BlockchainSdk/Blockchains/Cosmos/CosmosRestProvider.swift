@@ -13,14 +13,14 @@ import TangemNetworkUtils
 
 class CosmosRestProvider: HostProvider {
     var host: String {
-        url.hostOrUnknown
+        nodeInfo.host
     }
 
-    private let url: URL
+    private let nodeInfo: NodeInfo
     private let provider: TangemProvider<CosmosTarget>
 
-    init(url: String, configuration: TangemProviderConfiguration) {
-        self.url = URL(string: url)!
+    init(nodeInfo: NodeInfo, configuration: TangemProviderConfiguration) {
+        self.nodeInfo = nodeInfo
         provider = TangemProvider<CosmosTarget>(configuration: configuration)
     }
 
@@ -61,7 +61,7 @@ class CosmosRestProvider: HostProvider {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
 
-        return provider.requestPublisher(CosmosTarget(baseURL: url, type: target))
+        return provider.requestPublisher(CosmosTarget(baseURL: nodeInfo.url, type: target))
             .filterSuccessfulStatusAndRedirectCodes()
             .map(T.self, using: decoder)
             .mapError { moyaError in

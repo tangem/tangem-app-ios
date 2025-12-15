@@ -15,3 +15,11 @@ enum TransactionDispatcherTransactionType {
     case staking(StakingTransactionAction)
     case express(ExpressTransactionResult)
 }
+
+enum ExpressTransactionResult {
+    /// Uncompiled BSDK Transaction for sign
+    case `default`(BSDKTransaction)
+
+    /// Compiled BSDK Transaction for sign
+    case compiled(Data)
+}
