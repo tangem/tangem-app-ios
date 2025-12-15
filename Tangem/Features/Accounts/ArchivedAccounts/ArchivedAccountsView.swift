@@ -43,13 +43,14 @@ struct ArchivedAccountsView: View {
     }
 
     private func makeAccountsView(from models: [ArchivedCryptoAccountInfo]) -> some View {
-        GroupedScrollView(contentType: .lazy(alignment: .center, spacing: 0), showsIndicators: false) {
+        GroupedScrollView(contentType: .lazy(alignment: .center, spacing: 0)) {
             GroupedSection(models) { model in
                 ArchivedAccountRowView(viewData: viewModel.makeAccountRowViewData(for: model))
                     .padding(.vertical, 12)
             }
             .separatorStyle(.none)
         }
+        .scrollIndicators(.hidden)
     }
 
     private var loadingView: some View {

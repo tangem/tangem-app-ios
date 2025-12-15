@@ -42,7 +42,7 @@ final class PromocodeActivationViewModel: ObservableObject {
 
         do {
             // Delay added to handle cold start, since getWalletAddress may fail before wallet models are fully loaded
-            try await Task.sleep(seconds: 1)
+            try await Task.sleep(for: .seconds(1))
             let address = try getWalletAddress()
             let request = PromoCodeActivationDTO.Request(address: address, promoCode: promoCode)
             _ = try await tangemApiService.activatePromoCode(request: request).async()
