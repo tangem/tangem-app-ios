@@ -251,12 +251,14 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
                 return try WalletConnectBitcoinSignPsbtHandler(
                     request: params,
                     blockchainId: blockchainNetworkID,
+                    signer: signer,
                     walletModelProvider: walletModelProvider
                 )
             case .v2(let walletConnectConnectedDAppV2):
                 return try WalletConnectBitcoinSignPsbtHandler(
                     request: params,
                     blockchainId: blockchainNetworkID,
+                    signer: signer,
                     wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
                     accountId: walletConnectConnectedDAppV2.accountId
                 )
