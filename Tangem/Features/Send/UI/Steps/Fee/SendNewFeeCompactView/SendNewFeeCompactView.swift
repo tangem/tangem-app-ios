@@ -10,6 +10,7 @@ import SwiftUI
 import TangemUI
 import TangemAssets
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct SendNewFeeCompactView: View {
     @ObservedObject var viewModel: SendNewFeeCompactViewModel
@@ -30,6 +31,7 @@ struct SendNewFeeCompactView: View {
                     textColor: Colors.Text.tertiary,
                     loaderSize: CGSize(width: 70, height: 15)
                 )
+                .accessibilityIdentifier(SendAccessibilityIdentifiers.networkFeeAmount)
             }
         )
         .shouldShowTrailingIcon(viewModel.canEditFee)
