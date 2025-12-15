@@ -328,13 +328,13 @@ private extension UserWalletSettingsViewModel {
             case .setAccessCode:
                 mobileAccessCodeViewModel = DefaultRowViewModel(
                     title: Localization.walletSettingsSetAccessCodeTitle,
-                    action: weakify(self, forFunction: UserWalletSettingsViewModel.mobileAccessCodeAction)
+                    action: weakify(self, forFunction: UserWalletSettingsViewModel.mobileAccessCodeTap)
                 )
 
             case .changeAccessCode:
                 mobileAccessCodeViewModel = DefaultRowViewModel(
                     title: Localization.walletSettingsChangeAccessCodeTitle,
-                    action: weakify(self, forFunction: UserWalletSettingsViewModel.mobileAccessCodeAction)
+                    action: weakify(self, forFunction: UserWalletSettingsViewModel.mobileAccessCodeTap)
                 )
 
             case .backup(let needsBackup):
@@ -366,7 +366,6 @@ private extension UserWalletSettingsViewModel {
 
         runTask(in: self) { viewModel in
             if isBackupNeeded {
-                viewModel.logMobileBackupNeededAnalytics(action: .upgrade)
                 await viewModel.openMobileBackupToUpgradeNeeded()
             } else {
                 await viewModel.upgradeMobileWallet()
@@ -398,17 +397,19 @@ private extension UserWalletSettingsViewModel {
         setupView()
     }
 
-    func mobileAccessCodeAction() {
-        let hasAccessCode = userWalletModel.config.userWalletAccessCodeStatus.hasAccessCode
-        logMobileAccessCodeTapAnalytics(hasAccessCode: hasAccessCode)
+    func mobileAccessCodeTap() {
+        logMobileAccessCodeTapAnalytics()
+        mobileAccessCodeAction()
+    }
 
+    func mobileAccessCodeAction() {
         runTask(in: self) { viewModel in
             let state = await viewModel.mobileSettingsUtil.calculateAccessCodeState()
 
             await runOnMain {
                 switch state {
                 case .needsBackup:
-                    viewModel.logMobileBackupNeededAnalytics(action: .accessCode)
+                    viewModel.logMobileBackupNeededToAccessCodeAnalytics()
                     viewModel.openMobileBackupNeeded()
                 case .onboarding(let context):
                     viewModel.openMobileAccessCodeOnboarding(context: context)
@@ -447,7 +448,6 @@ private extension UserWalletSettingsViewModel {
     }
 
     func didTapRemoveMobileWallet() {
-        logMobileBackupNeededAnalytics(action: .remove)
         coordinator?.openMobileRemoveWalletNotification(userWalletModel: userWalletModel)
     }
 
@@ -589,7 +589,6 @@ private extension UserWalletSettingsViewModel {
 
     @MainActor
     func openMobileBackupToUpgradeNeeded() {
-        logMobileBackupNeededAnalytics(action: .upgrade)
         coordinator?.openMobileBackupToUpgradeNeeded(
             onBackupRequested: weakify(self, forFunction: UserWalletSettingsViewModel.openBackupMobileWallet)
         )
@@ -719,18 +718,19 @@ private extension UserWalletSettingsViewModel {
         Analytics.log(.walletSettingsScreenOpened, contextParams: analyticsContextParams)
     }
 
-    func logMobileBackupNeededAnalytics(action: Analytics.ParameterValue) {
+    func logMobileBackupNeededToAccessCodeAnalytics() {
         Analytics.log(
             .walletSettingsNoticeBackupFirst,
             params: [
                 .source: .walletSettings,
-                .action: action,
+                .action: .accessCode,
             ],
             contextParams: analyticsContextParams
         )
     }
 
-    func logMobileAccessCodeTapAnalytics(hasAccessCode: Bool) {
+    func logMobileAccessCodeTapAnalytics() {
+        let hasAccessCode = userWalletModel.config.userWalletAccessCodeStatus.hasAccessCode
         Analytics.log(
             .walletSettingsButtonAccessCode,
             params: [.action: hasAccessCode ? .changing : .set],
