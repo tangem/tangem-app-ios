@@ -10,11 +10,11 @@ import Foundation
 import Moya
 
 struct TezosTarget: TargetType {
-    let host: String
+    let node: NodeInfo
     let endpoint: TargetEndpoint
 
     var baseURL: URL {
-        return URL(string: host)!
+        return node.url
     }
 
     var path: String {

@@ -16,14 +16,18 @@ import TangemNetworkUtils
 /// https://github.com/RavenDevKit/insight-api
 /// https://github.com/RavenProject/Ravencoin/blob/master/doc/REST-interface.md
 class RavencoinNetworkProvider: HostProvider {
-    let host: String
-    let provider: TangemProvider<RavencoinTarget>
+    var host: String {
+        nodeInfo.host
+    }
+
+    private let nodeInfo: NodeInfo
+    private let provider: TangemProvider<RavencoinTarget>
 
     private let blockchain = Blockchain.ravencoin(testnet: false)
     private var decimalValue: Decimal { blockchain.decimalValue }
 
-    init(host: String, provider: TangemProvider<RavencoinTarget>) {
-        self.host = host
+    init(nodeInfo: NodeInfo, provider: TangemProvider<RavencoinTarget>) {
+        self.nodeInfo = nodeInfo
         self.provider = provider
     }
 }
@@ -70,7 +74,10 @@ extension RavencoinNetworkProvider: UTXONetworkProvider {
 
     func send(transaction: String) -> AnyPublisher<TransactionSendResult, any Error> {
         execute(target: .send(transaction: .init(rawtx: transaction)), response: RavencoinDTO.Send.Response.self)
-            .map { TransactionSendResult(hash: $0.txid) }
+            .withWeakCaptureOf(self)
+            .map { provider, response in
+                TransactionSendResult(hash: response.txid, currentProviderHost: provider.host)
+            }
             .eraseToAnyPublisher()
     }
 }
@@ -80,7 +87,7 @@ extension RavencoinNetworkProvider: UTXONetworkProvider {
 private extension RavencoinNetworkProvider {
     func execute<T: Decodable>(target: RavencoinTarget.Target, response: T.Type) -> AnyPublisher<T, Error> {
         provider
-            .requestPublisher(RavencoinTarget(host: host, target: target))
+            .requestPublisher(RavencoinTarget(node: nodeInfo, target: target))
             .filterSuccessfulStatusAndRedirectCodes()
             .map(response.self)
             .mapError { $0 as Error }

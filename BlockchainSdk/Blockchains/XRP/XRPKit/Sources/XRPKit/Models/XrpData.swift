@@ -81,6 +81,7 @@ struct XRPTrustLine: Codable, Hashable {
     let account: String
     let balance: String
     let currency: String
+    let no_ripple: Bool?
 
     func matches(currency: String, issuer: String) -> Bool {
         self.currency == currency && account == issuer

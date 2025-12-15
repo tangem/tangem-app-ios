@@ -25,13 +25,6 @@ protocol WCCustomAllowanceManager {
         originalTransaction: WCSendableTransaction,
         newAmount: BigUInt
     ) -> WCSendableTransaction?
-
-    func determineTokenInfoForApproval(
-        approvalInfo: ApprovalInfo,
-        transaction: WCSendableTransaction?,
-        userWalletModel: UserWalletModel,
-        simulationResult: BlockaidChainScanResult?
-    ) -> WCApprovalHelpers.TokenInfo?
 }
 
 final class CommonWCCustomAllowanceManager: WCCustomAllowanceManager {
@@ -68,28 +61,6 @@ final class CommonWCCustomAllowanceManager: WCCustomAllowanceManager {
         return WCApprovalAnalyzer.createUpdatedApproval(
             originalTransaction: originalTransaction,
             newAmount: newAmount
-        )
-    }
-
-    func determineTokenInfoForApproval(
-        approvalInfo: ApprovalInfo,
-        transaction: WCSendableTransaction?,
-        userWalletModel: UserWalletModel,
-        simulationResult: BlockaidChainScanResult?
-    ) -> WCApprovalHelpers.TokenInfo? {
-        guard let transaction = transaction else {
-            return WCApprovalHelpers.TokenInfo(
-                symbol: "",
-                decimals: 18,
-                source: .wallet
-            )
-        }
-
-        return WCApprovalHelpers.determineTokenInfo(
-            contractAddress: transaction.to,
-            amount: approvalInfo.amount,
-            userWalletModel: userWalletModel,
-            simulationResult: simulationResult
         )
     }
 }

@@ -13,6 +13,7 @@ extension Analytics {
         case userWallet(UserWalletId)
         case custom(AnalyticsContextData)
         case `default`
+        case empty
 
         var analyticsParams: [Analytics.ParameterKey: String] {
             switch self {
@@ -26,6 +27,8 @@ extension Analytics {
                 let builder = AnalyticsDefaultContextParamsBuilder()
                 let contextData = builder.getDefaultAnalyticsContextData()
                 return contextData?.analyticsParams ?? [:]
+            case .empty:
+                return [:]
             }
         }
     }

@@ -19,7 +19,6 @@ struct SettingsUserWalletRowView: View {
             content
         }
         .buttonStyle(.plain)
-        .allowsHitTesting(!viewModel.isUserWalletLocked)
         .accessibilityIdentifier(WalletSettingsAccessibilityIdentifiers.walletSettingsButton(name: viewModel.name))
         .onAppear(perform: viewModel.onAppear)
     }
@@ -31,12 +30,10 @@ struct SettingsUserWalletRowView: View {
             content: { textViews },
             trailingIcon: {
                 if viewModel.isUserWalletBackupNeeded {
-                    BadgeView.noBackup
+                    Assets.redCircleWarning.image
                 }
 
-                if !viewModel.isUserWalletLocked {
-                    Assets.chevron.image
-                }
+                Assets.chevron.image
             }
         )
         .infinityFrame(axis: .horizontal, alignment: .leading)
