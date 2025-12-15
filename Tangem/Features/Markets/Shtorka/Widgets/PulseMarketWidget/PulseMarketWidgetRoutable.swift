@@ -1,5 +1,5 @@
 //
-//  TopMarketWidgetRoutable.swift
+//  PulseMarketWidgetRoutable.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,6 +9,7 @@
 import Foundation
 
 @MainActor
-protocol TopMarketWidgetRoutable: AnyObject {
+protocol PulseMarketWidgetRoutable: AnyObject {
     func openMarketsTokenDetails(for tokenInfo: MarketsTokenModel)
+    func openSeeAll(with widgetType: MarketsWidgetType)
 }
