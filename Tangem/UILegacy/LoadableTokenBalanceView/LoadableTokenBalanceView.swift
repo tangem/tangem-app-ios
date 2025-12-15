@@ -16,12 +16,20 @@ struct LoadableTokenBalanceView: View {
     let style: Style
     let loader: LoaderStyle
     let accessibilityIdentifier: String?
+    let animationConfig: AnimationConfig
 
-    init(state: State, style: Style, loader: LoaderStyle, accessibilityIdentifier: String? = nil) {
+    init(
+        state: State,
+        style: Style,
+        loader: LoaderStyle,
+        accessibilityIdentifier: String? = nil,
+        animationConfig: AnimationConfig = .disabled
+    ) {
         self.state = state
         self.style = style
         self.loader = loader
         self.accessibilityIdentifier = accessibilityIdentifier
+        self.animationConfig = animationConfig
     }
 
     var body: some View {
@@ -69,12 +77,14 @@ struct LoadableTokenBalanceView: View {
 
     @ViewBuilder
     private func textView(_ text: Text) -> some View {
-        if #available(iOS 17, *) {
-            commonTextView(text)
+        let view = commonTextView(text)
+
+        if #available(iOS 17, *), animationConfig.shouldAnimate {
+            view
                 .contentTransition(.numericText())
                 .animation(.default, value: text)
         } else {
-            commonTextView(text)
+            view
         }
     }
 
@@ -119,6 +129,20 @@ extension LoadableTokenBalanceView {
             self.padding = padding
             self.cornerRadius = cornerRadius
         }
+    }
+}
+
+extension LoadableTokenBalanceView {
+    struct AnimationConfig {
+        let isAnimationAllowed: Bool
+        let isAnimationActive: Bool
+
+        var shouldAnimate: Bool {
+            isAnimationAllowed && isAnimationActive
+        }
+
+        static let disabled = AnimationConfig(isAnimationAllowed: false, isAnimationActive: false)
+        static let enabled = AnimationConfig(isAnimationAllowed: true, isAnimationActive: true)
     }
 }
 

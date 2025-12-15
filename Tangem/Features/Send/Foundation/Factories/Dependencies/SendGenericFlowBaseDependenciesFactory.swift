@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import struct TangemUI.TokenIconInfo
 
 protocol SendGenericFlowBaseDependenciesFactory {
@@ -14,7 +15,10 @@ protocol SendGenericFlowBaseDependenciesFactory {
     var tokenIconInfo: TokenIconInfo { get }
     var userWalletInfo: UserWalletInfo { get }
 
-    var walletModelBalancesProvider: WalletModelBalancesProvider { get }
+    var tokenHeaderProvider: SendGenericTokenHeaderProvider { get }
+    var availableBalanceProvider: TokenBalanceProvider { get }
+    var fiatAvailableBalanceProvider: TokenBalanceProvider { get }
+
     var walletModelDependenciesProvider: WalletModelDependenciesProvider { get }
     var transactionDispatcherFactory: TransactionDispatcherFactory { get }
     var baseDataBuilderFactory: SendBaseDataBuilderFactory { get }
@@ -23,12 +27,28 @@ protocol SendGenericFlowBaseDependenciesFactory {
 // MARK: - Common dependencies
 
 extension SendGenericFlowBaseDependenciesFactory {
+    func makeSourceToken() -> SendSourceToken {
+        SendSourceToken(
+            header: tokenHeaderProvider.makeSendTokenHeader(),
+            tokenItem: tokenItem,
+            feeTokenItem: feeTokenItem,
+            tokenIconInfo: tokenIconInfo,
+            fiatItem: makeFiatItem(),
+            possibleToConvertToFiat: possibleToConvertToFiat(),
+            availableBalanceProvider: availableBalanceProvider,
+            fiatAvailableBalanceProvider: fiatAvailableBalanceProvider,
+            transactionValidator: walletModelDependenciesProvider.transactionValidator,
+            transactionCreator: walletModelDependenciesProvider.transactionCreator,
+            transactionDispatcher: transactionDispatcherFactory.makeSendDispatcher()
+        )
+    }
+
     func isFeeApproximate() -> Bool {
         tokenItem.blockchain.isFeeApproximate(for: tokenItem.amountType)
     }
 
     func possibleToConvertToFiat() -> Bool {
-        walletModelBalancesProvider.fiatAvailableBalanceProvider.balanceType.value != .none
+        fiatAvailableBalanceProvider.balanceType.value != .none
     }
 
     func makeFiatItem() -> FiatItem {

@@ -11,9 +11,11 @@ import TangemFoundation
 
 public struct TransactionSendResult: Hashable {
     public let hash: String
+    public let currentProviderHost: String
 
-    init(hash: String) {
+    init(hash: String, currentProviderHost: String) {
         self.hash = hash
+        self.currentProviderHost = currentProviderHost
     }
 }
 
@@ -36,6 +38,10 @@ public struct SendTxError: UniversalError {
             tx: \(tx ?? "undefined")
             lastRetryHost: \(lastRetryHost ?? "undefined")
         """
+    }
+
+    public var formattedLastRetryHost: String? {
+        HostAnalyticsFormatterUtil().formattedHost(from: lastRetryHost ?? "")
     }
 
     // MARK: - Init

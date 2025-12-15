@@ -7,6 +7,7 @@
 
 import Foundation
 import TangemNetworkUtils
+import TangemFoundation
 
 public typealias APIList = [String: [NetworkProviderType]]
 
@@ -43,7 +44,7 @@ struct NodeInfo: HostProvider {
 
     var link: String { url.absoluteString }
 
-    var host: String { link }
+    var host: String { url.hostOrUnknown }
 
     init(url: URL, keyInfo: APIHeaderKeyInfo? = nil) {
         self.url = url

@@ -11,7 +11,7 @@ import Combine
 import TangemSdk
 
 class FakeWalletModelsManager: WalletModelsManager {
-    var isInitialized: Bool { true }
+    private(set) var isInitialized = false
 
     var walletModels: [any WalletModel] {
         walletModelsSubject.value
@@ -48,5 +48,9 @@ class FakeWalletModelsManager: WalletModelsManager {
             .receiveCompletion { _ in
                 completion()
             }
+    }
+
+    func initialize() {
+        isInitialized = true
     }
 }

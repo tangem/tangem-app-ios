@@ -8,7 +8,7 @@
 
 import Foundation
 import TangemFoundation
-import enum BlockchainSdk.YieldModuleError
+import BlockchainSdk
 
 actor YieldManagerInteractor {
     private(set) var enterFee: YieldTransactionFee?
@@ -76,16 +76,37 @@ actor YieldManagerInteractor {
         return nil
     }
 
-    func getMinAmount() async throws -> Decimal {
-        try await manager.minimalFee()
-    }
-
     func getChartData() async throws -> YieldChartData {
         try await manager.fetchChartData()
     }
 
-    func getCurrentNetworkFee() async throws -> Decimal {
-        try await manager.currentNetworkFee()
+    func getCurrentFeeParameters() async throws -> EthereumFeeParameters {
+        try await manager.currentNetworkFeeParameters()
+    }
+
+    func getMinAmount(feeParameters: EthereumFeeParameters) async throws -> Decimal {
+        let converter = BalanceConverter()
+
+        let feeNative = feeParameters.calculateFee(decimalValue: manager.blockchain.decimalValue)
+        let gasInFiat = try await converter.convertToFiat(feeNative, currencyId: manager.blockchain.currencyId)
+
+        guard let gasInToken = converter.convertFromFiat(gasInFiat, currencyId: manager.tokenId) else {
+            throw YieldModuleError.minimalTopUpAmountNotFound
+        }
+
+        let feeBuffered = gasInToken * Constants.minimalTopUpBuffer
+        let minAmount = feeBuffered / Constants.minimalTopUpFeeLimit
+
+        let minAmountInFiat = try await converter.convertToFiat(minAmount, currencyId: manager.tokenId)
+        return minAmountInFiat
+    }
+
+    func getCurrentNetworkFee(feeParameters: EthereumFeeParameters) async throws -> Decimal {
+        let converter = BalanceConverter()
+
+        let feeNative = feeParameters.calculateFee(decimalValue: manager.blockchain.decimalValue)
+        let gasInFiat = try await converter.convertToFiat(feeNative, currencyId: manager.blockchain.currencyId)
+        return gasInFiat
     }
 
     func clearAll() {
@@ -184,5 +205,12 @@ actor YieldManagerInteractor {
         } catch {
             throw error
         }
+    }
+}
+
+private extension YieldManagerInteractor {
+    enum Constants {
+        static let minimalTopUpBuffer: Decimal = 1.25
+        static let minimalTopUpFeeLimit: Decimal = 0.04
     }
 }

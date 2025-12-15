@@ -16,13 +16,19 @@ class CommonSwapManager {
 
     @Injected(\.expressAvailabilityProvider)
     private var expressAvailabilityProvider: ExpressAvailabilityProvider
+
+    private let userWalletConfig: any UserWalletConfig
     private let interactor: ExpressInteractor
 
     // Private
     private var refreshDataTask: Task<Void, Error>?
     private var bag: Set<AnyCancellable> = []
 
-    init(interactor: ExpressInteractor) {
+    init(
+        userWalletConfig: any UserWalletConfig,
+        interactor: ExpressInteractor
+    ) {
+        self.userWalletConfig = userWalletConfig
         self.interactor = interactor
 
         bind()
@@ -33,10 +39,14 @@ class CommonSwapManager {
 
 extension CommonSwapManager: SwapManager {
     var isSwapAvailable: Bool {
-        let canSwap = expressAvailabilityProvider.canSwap(tokenItem: swappingPair.sender.tokenItem)
-        let hasMemo = SendDestinationAdditionalFieldType.type(for: swappingPair.sender.tokenItem.blockchain) != nil
+        guard let source = swappingPair.sender.value else {
+            return false
+        }
 
-        return canSwap && !hasMemo
+        let canSwap = expressAvailabilityProvider.canSwap(tokenItem: source.tokenItem)
+        let isMultiCurrency = userWalletConfig.hasFeature(.multiCurrency)
+
+        return canSwap && isMultiCurrency
     }
 
     var swappingPair: SwapManagerSwappingPair {
@@ -64,25 +74,11 @@ extension CommonSwapManager: SwapManager {
     }
 
     var providersPublisher: AnyPublisher<[ExpressAvailableProvider], Never> {
-        statePublisher
-            // Skip rates loading to avoid UI jumping
-            .filter { !$0.isRefreshRates }
-            .withWeakCaptureOf(self)
-            .asyncMap { manager, _ in
-                await manager.interactor.getAllProviders()
-            }
-            .eraseToAnyPublisher()
+        interactor.providersPublisher()
     }
 
     var selectedProviderPublisher: AnyPublisher<ExpressAvailableProvider?, Never> {
-        statePublisher
-            // Skip rates loading to avoid UI jumping
-            .filter { !$0.isRefreshRates }
-            .withWeakCaptureOf(self)
-            .asyncMap { manager, _ in
-                await manager.interactor.getSelectedProvider()
-            }
-            .eraseToAnyPublisher()
+        interactor.selectedProviderPublisher()
     }
 
     func update(amount: Decimal?) {
@@ -91,7 +87,7 @@ extension CommonSwapManager: SwapManager {
 
     func update(destination: TokenItem?, address: String?) {
         let destinationWallet = destination.map {
-            SwapManagerDestinationWallet(tokenItem: $0, address: address)
+            SwapDestinationWalletWrapper(tokenItem: $0, address: address)
         }
 
         interactor.update(destination: destinationWallet)
