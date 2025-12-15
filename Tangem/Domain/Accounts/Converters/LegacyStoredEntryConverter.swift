@@ -23,4 +23,13 @@ enum LegacyStoredEntryConverter {
             )
         }
     }
+
+    static func convert(
+        legacyStoredTokenListToAppearance legacyStoredTokenList: StoredUserTokenList
+    ) -> CryptoAccountPersistentConfig.TokenListAppearance {
+        return CryptoAccountPersistentConfig.TokenListAppearance(
+            grouping: legacyStoredTokenList.grouping,
+            sorting: legacyStoredTokenList.sorting
+        )
+    }
 }
