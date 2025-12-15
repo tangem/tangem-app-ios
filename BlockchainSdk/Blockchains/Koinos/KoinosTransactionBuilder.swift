@@ -55,7 +55,7 @@ class KoinosTransactionBuilder {
             }
         }
 
-        let operationSha256 = try operation.serializedData().getSha256()
+        let operationSha256 = try operation.serializedData().getSHA256()
         let operationMerkleRoot = Data([18, 32] + operationSha256.bytes)
         let encodedNextNonce = try Koinos_Chain_value_type.with {
             $0.uint64Value = nextNonce
@@ -74,7 +74,7 @@ class KoinosTransactionBuilder {
             $0.payer = from.base58DecodedData
         }
 
-        let hashToSign = try header.serializedData().getSha256()
+        let hashToSign = try header.serializedData().getSHA256()
         let transactionId = "\(KoinosNetworkParams.Transfer.transactionIDPrefix)\(hashToSign.hex())"
 
         let transactionToSign = KoinosProtocol.Transaction(
