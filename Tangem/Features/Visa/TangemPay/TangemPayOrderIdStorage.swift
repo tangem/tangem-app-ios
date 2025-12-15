@@ -9,26 +9,22 @@
 import Combine
 import Foundation
 
-struct TangemPayOrderIdStorage {
-    let savedOrderIdPublisher: AnyPublisher<String?, Never>
+enum TangemPayOrderIdStorage {
+    static func cardIssuingOrderId(customerWalletId: String) -> String? {
+        AppSettings.shared.tangemPayCardIssuingOrderIdForCustomerWalletId[customerWalletId]
+    }
 
-    private let appSettings: AppSettings
-    private let customerWalletAddress: String
-
-    init(customerWalletAddress: String, appSettings: AppSettings) {
-        self.customerWalletAddress = customerWalletAddress
-        self.appSettings = appSettings
-
-        savedOrderIdPublisher = appSettings.$tangemPayOrderIdForCustomerWalletAddress
-            .map { $0[customerWalletAddress] }
+    static func cardIssuingOrderIdPublisher(customerWalletId: String) -> AnyPublisher<String?, Never> {
+        AppSettings.shared.$tangemPayCardIssuingOrderIdForCustomerWalletId
+            .map { $0[customerWalletId] }
             .eraseToAnyPublisher()
     }
 
-    func saveOrderId(_ orderId: String) {
-        appSettings.tangemPayOrderIdForCustomerWalletAddress[customerWalletAddress] = orderId
+    static func saveCardIssuingOrderId(_ orderId: String, customerWalletId: String) {
+        AppSettings.shared.tangemPayCardIssuingOrderIdForCustomerWalletId[customerWalletId] = orderId
     }
 
-    func deleteSavedOrderId() {
-        appSettings.tangemPayOrderIdForCustomerWalletAddress[customerWalletAddress] = nil
+    static func deleteCardIssuingOrderId(customerWalletId: String) {
+        AppSettings.shared.tangemPayCardIssuingOrderIdForCustomerWalletId[customerWalletId] = nil
     }
 }
