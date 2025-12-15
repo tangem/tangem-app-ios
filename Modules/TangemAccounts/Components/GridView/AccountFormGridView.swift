@@ -18,18 +18,9 @@ public struct AccountFormGridView<Item: Identifiable & Equatable, Content: View>
     private let content: (Item, Bool) -> Content
 
     private let columns = Array(
-        repeating: GridItem(.flexible(), spacing: interitemPadding),
+        repeating: GridItem(.flexible(), spacing: 16),
         count: 6
     )
-
-    private static var interitemPadding: CGFloat {
-        switch IPhoneModel() {
-        case .iPhoneSE:
-            8
-        default:
-            16
-        }
-    }
 
     public init(
         selectedItem: Binding<Item>,
@@ -42,7 +33,7 @@ public struct AccountFormGridView<Item: Identifiable & Equatable, Content: View>
     }
 
     public var body: some View {
-        LazyVGrid(columns: columns, spacing: Self.interitemPadding) {
+        LazyVGrid(columns: columns, spacing: 16) {
             ForEach(items) { item in
                 let isSelected = item == selectedItem
                 content(item, isSelected)
