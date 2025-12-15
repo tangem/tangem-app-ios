@@ -22,7 +22,7 @@ struct EnvironmentSetupView: View {
         ZStack {
             Colors.Background.secondary.edgesIgnoringSafeArea(.all)
 
-            GroupedScrollView(spacing: 16) {
+            GroupedScrollView(contentType: .lazy(alignment: .center, spacing: 16)) {
                 GroupedSection(viewModel.appSettingsTogglesViewModels) {
                     DefaultToggleRowView(viewModel: $0)
                 }
