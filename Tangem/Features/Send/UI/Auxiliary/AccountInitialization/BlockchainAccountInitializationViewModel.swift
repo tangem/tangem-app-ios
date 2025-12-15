@@ -78,7 +78,7 @@ final class BlockchainAccountInitializationViewModel: ObservableObject, Floating
                 let transaction = accountInitializationService.initializationTransaction(fee: fee)
                 _ = try await transactionDispatcher.send(transaction: .transfer(transaction))
                 onStartInitialization()
-                try await Task.sleep(seconds: Constants.startPollingInterval) // activation takes some time, doesn't make sense to start tracking earlier
+                try await Task.sleep(for: .seconds(Constants.startPollingInterval)) // activation takes some time, doesn't make sense to start tracking earlier
                 try await trackInitializationStatus()
                 onInitialized()
                 dismiss()
@@ -128,7 +128,7 @@ private extension BlockchainAccountInitializationViewModel {
                 return
             }
 
-            try await Task.sleep(seconds: Constants.pollingInterval)
+            try await Task.sleep(for: .seconds(Constants.pollingInterval))
         }
 
         throw StakingModelError.accountIsNotInitialized
