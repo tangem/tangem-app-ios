@@ -87,7 +87,7 @@ extension NewActionButtonsSwapViewModel: NewTokenSelectorViewModelOutput {
         case .token(let source, _):
             Task {
                 await updateDestinationToken(item: item)
-                try? await Task.sleep(seconds: 0.2)
+                try? await Task.sleep(for: .seconds(0.2))
 
                 await MainActor.run {
                     coordinator?.openExpress(

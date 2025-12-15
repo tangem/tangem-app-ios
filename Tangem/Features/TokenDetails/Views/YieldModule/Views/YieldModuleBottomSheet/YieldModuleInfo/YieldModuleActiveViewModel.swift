@@ -219,7 +219,7 @@ final class YieldModuleActiveViewModel: ObservableObject {
         chartState = .loading
 
         do {
-            try await Task.sleep(seconds: 0.5)
+            try await Task.sleep(for: .seconds(0.5))
             let chartData = try await yieldManagerInteractor.getChartData()
             chartState = .loaded(chartData)
         } catch {
