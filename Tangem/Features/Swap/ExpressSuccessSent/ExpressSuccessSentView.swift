@@ -81,12 +81,15 @@ struct ExpressSuccessSentView: View {
             VStack(spacing: 10) {
                 if viewModel.shouldShowShareExploreButtons {
                     HStack(spacing: 8) {
-                        MainButton(
-                            title: Localization.commonExplore,
-                            icon: .leading(Assets.compassExplore),
-                            style: .secondary,
-                            action: viewModel.openExplore
-                        )
+                        if let exploreURL = viewModel.exploreURL {
+                            MainButton(
+                                title: Localization.commonExplore,
+                                icon: .leading(Assets.compassExplore),
+                                style: .secondary
+                            ) {
+                                viewModel.openExplore(exploreURL: exploreURL)
+                            }
+                        }
 
                         if viewModel.isStatusButtonVisible {
                             MainButton(

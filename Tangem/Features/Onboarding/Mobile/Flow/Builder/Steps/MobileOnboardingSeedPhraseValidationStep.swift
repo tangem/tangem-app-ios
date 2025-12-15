@@ -13,8 +13,16 @@ import TangemMobileWalletSdk
 final class MobileOnboardingSeedPhraseValidationStep: MobileOnboardingFlowStep {
     private let viewModel: MobileOnboardingSeedPhraseValidationViewModel
 
-    init(userWalletId: UserWalletId, delegate: MobileOnboardingSeedPhraseValidationDelegate) {
-        viewModel = MobileOnboardingSeedPhraseValidationViewModel(userWalletId: userWalletId, delegate: delegate)
+    init(
+        userWalletModel: UserWalletModel,
+        source: MobileOnboardingFlowSource,
+        delegate: MobileOnboardingSeedPhraseValidationDelegate
+    ) {
+        viewModel = MobileOnboardingSeedPhraseValidationViewModel(
+            userWalletModel: userWalletModel,
+            source: source,
+            delegate: delegate
+        )
     }
 
     override func build() -> any View {

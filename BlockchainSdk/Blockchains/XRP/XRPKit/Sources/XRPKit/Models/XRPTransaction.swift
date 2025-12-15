@@ -79,12 +79,29 @@ extension XRPTransaction {
     /// These flags control specific behaviors on the trust line, such as enabling or disabling rippling,
     /// setting authorization requirements, or freezing trust lines.
     /// Combine multiple flags using the bitwise OR (`|`) operator.
-    enum Flag: Int {
+    enum TrustsetFlag: Int {
+        /*
+         - https://xrpl.org/docs/references/protocol/transactions/types/trustset#trustset-flags
+
+         tfClearNoRipple    0x00040000    262144    Disable the No Ripple flag, allowing rippling on this trust line.
+         tfSetNoRipple    0x00020000    131072    Enable the No Ripple flag, which blocks rippling between two trust lines of the same currency if this flag is enabled on both.
+         */
+
         /// Disables the No Ripple flag on the trust line,
         /// allowing rippling (value transfer through this trust line).
         case tfClearNoRipple = 262144
 
-        /// Allows partial payment (used in Payment transactions).
+        /// Enable the No Ripple flag
+        case tfSetNoRipple = 131072
+    }
+
+    /// Transactions of the Payment type support additional values in the Flags field, as follows:
+    enum PaymentFlags: Int {
+        /**
+         - https://xrpl.org/docs/references/protocol/transactions/types/payment#payment-flags
+
+         tfPartialPayment    0x00020000    131072    If the specified Amount cannot be sent without spending more than SendMax, reduce the received amount instead of failing outright. See Partial Payments for more details.
+         */
         case tfPartialPayment = 131072
     }
 
@@ -102,7 +119,7 @@ extension XRPTransaction {
         /// Specifies the asset and limit to which this trust line applies
         let limitAmount: LimitAmount
         /// Integer bitmask for TrustSet flags (e.g. tfClearNoRipple)
-        let flags: Set<Flag>
+        let flags: Set<Int>
 
         /// Represents the "LimitAmount" object in a TrustSet transaction
         /// This defines the asset to trust and the maximum amount trusted
@@ -136,7 +153,7 @@ extension XRPTransaction {
                 "Fee": fee.decimalNumber.description(withLocale: Locale.posixEnUS),
                 "Sequence": sequence,
                 "LimitAmount": limitAmount.asDictionary,
-                "Flags": flags.reduce(0) { $0 | $1.rawValue },
+                "Flags": flags.reduce(0) { $0 | $1 },
             ]
         }
     }
@@ -150,7 +167,7 @@ extension XRPTransaction {
         let fee: Decimal
         let sequence: Int
         let destinationTag: UInt32?
-        let flags: Set<Flag>?
+        let flags: Set<Int>?
 
         // MARK: - XRPTransactionEncodable
 
@@ -163,7 +180,7 @@ extension XRPTransaction {
                 "Fee": fee.decimalNumber.description(withLocale: Locale.posixEnUS),
                 "Sequence": sequence,
                 "DestinationTag": destinationTag,
-                "Flags": flags?.reduce(0) { $0 | $1.rawValue },
+                "Flags": flags?.reduce(0) { $0 | $1 },
             ]
 
             return dict.compactMapValues { $0 }

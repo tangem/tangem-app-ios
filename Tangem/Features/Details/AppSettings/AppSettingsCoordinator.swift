@@ -33,7 +33,7 @@ class AppSettingsCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        if FeatureProvider.isAvailable(.mobileWallet) {
+        if MobileWalletFeatureProvider.isAvailable {
             newRootViewModel = NewAppSettingsViewModel(coordinator: self)
         } else {
             rootViewModel = AppSettingsViewModel(coordinator: self)

@@ -12,6 +12,7 @@ import TangemFoundation
 
 protocol KeysRepository: AnyObject, KeysProvider {
     func update(derivations: DerivationResult)
+    func update(keys: WalletKeys)
 }
 
 protocol KeysProvider {
@@ -87,6 +88,10 @@ extension CommonKeysRepository: KeysRepository {
         }
 
         _keys.value = existingKeys
+    }
+
+    func update(keys: WalletKeys) {
+        _keys.value = keys
     }
 }
 
