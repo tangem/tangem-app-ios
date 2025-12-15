@@ -30,27 +30,22 @@ struct BannerNotificationEvent: NotificationEvent {
 extension PromotionProgramName {
     var title: String {
         switch self {
-        case .sepa: Localization.notificationSepaTitle
         case .visaWaitlist: Localization.notificationVisaWaitlistPromoTitle
         case .blackFriday: Localization.notificationBlackFridayTitle
+        case .onePlusOne: Localization.notificationOnePlusOneTitle
         }
     }
 
     var description: String? {
         switch self {
-        case .sepa: Localization.notificationSepaText
         case .visaWaitlist: Localization.notificationVisaWaitlistPromoText
         case .blackFriday: Localization.notificationBlackFridayText
+        case .onePlusOne: Localization.notificationOnePlusOneText
         }
     }
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .sepa:
-            .init(
-                iconType: .image(Assets.sepaBannerImage.image),
-                size: .init(bothDimensions: 54)
-            )
         case .visaWaitlist:
             .init(
                 iconType: .image(Assets.promotionVisaWaitlist.image),
@@ -61,14 +56,26 @@ extension PromotionProgramName {
                 iconType: .image(Assets.blackFridayBannerImage.image),
                 size: .init(bothDimensions: 54)
             )
+        case .onePlusOne:
+            .init(
+                iconType: .image(Assets.onePlusOneIcon.image),
+                size: .init(bothDimensions: 54)
+            )
         }
     }
 
     var colorScheme: NotificationView.ColorScheme {
         switch self {
-        case .sepa: .primary
-        case .visaWaitlist: .primary
+        case .visaWaitlist, .onePlusOne: .primary
         case .blackFriday: .tertiary
+        }
+    }
+
+    var buttonTitle: String {
+        switch self {
+        case .visaWaitlist: Localization.notificationReferralPromoButton
+        case .blackFriday: Localization.commonClaim
+        case .onePlusOne: Localization.notificationOnePlusOneButton
         }
     }
 }

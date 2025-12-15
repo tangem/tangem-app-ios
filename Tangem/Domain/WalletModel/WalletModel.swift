@@ -19,7 +19,7 @@ protocol WalletModel:
     WalletModelHelpers, WalletModelFeeProvider, WalletModelDependenciesProvider,
     WalletModelRentProvider, WalletModelHistoryUpdater, TransactionHistoryFetcher,
     StakingTokenBalanceProviderInput, FiatTokenBalanceProviderInput, ExistentialDepositInfoProvider,
-    ReceiveAddressTypesProvider {
+    ReceiveAddressTypesProvider, WalletModelResolvable {
     var id: WalletModelId { get }
     var userWalletId: UserWalletId { get }
     var name: String { get }
@@ -43,7 +43,7 @@ protocol WalletModel:
     var isDemo: Bool { get }
     var demoBalance: Decimal? { get set }
 
-    var sendingRestrictions: TransactionSendAvailabilityProvider.SendingRestrictions? { get }
+    var sendingRestrictions: SendingRestrictions? { get }
 
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> { get }
 
@@ -54,9 +54,8 @@ protocol WalletModel:
 
     // MARK: - Accounts
 
-    // [REDACTED_TODO_COMMENT]
-    /// - Warning: Unowned, has the meaningful value only when accounts feature toggle is enabled.
-    var account: any CryptoAccountModel { get }
+    /// - Warning: Weak property, has the meaningful value only when accounts feature toggle is enabled.
+    var account: (any CryptoAccountModel)? { get }
 
     // MARK: - Yield
 
@@ -118,9 +117,10 @@ protocol WalletModelHelpers {
 protocol WalletModelFeeProvider {
     func estimatedFee(amount: Amount) -> AnyPublisher<[Fee], Error>
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error>
-    func getFeeCurrencyBalance(amountType: Amount.AmountType) -> Decimal
-    func hasFeeCurrency(amountType: Amount.AmountType) -> Bool
     func getFee(compiledTransaction data: Data) async throws -> [Fee]
+
+    func getFeeCurrencyBalance() -> Decimal
+    func hasFeeCurrency() -> Bool
 }
 
 // MARK: - Dependencies
