@@ -15,18 +15,10 @@ struct HardwareBackupTypesView: View {
 
     @ObservedObject var viewModel: ViewModel
 
-    @State private var screenMaxY: CGFloat = 0
-    @State private var buyButtonMinY: CGFloat = 0
-
-    private var buyButtonOffsetY: CGFloat {
-        viewModel.isBuyAvailable ? 0 : (screenMaxY - buyButtonMinY + UIApplication.safeAreaInsets.bottom)
-    }
-
     var body: some View {
         content
-            .navigationTitle(viewModel.navigationTitle)
             .padding(16)
-            .readGeometry(\.frame.maxY, inCoordinateSpace: .global, bindTo: $screenMaxY)
+            .navigationTitle(viewModel.navigationTitle)
             .background(Colors.Background.secondary)
             .onFirstAppear(perform: viewModel.onFirstAppear)
             .alert(item: $viewModel.alert) { $0.alert }
@@ -43,9 +35,6 @@ private extension HardwareBackupTypesView {
             Spacer()
 
             buyButton(item: viewModel.buyItem)
-                .offset(y: buyButtonOffsetY)
-                .readGeometry(\.frame.minY, inCoordinateSpace: .global, bindTo: $buyButtonMinY)
-                .animation(.default, value: viewModel.isBuyAvailable)
         }
     }
 
