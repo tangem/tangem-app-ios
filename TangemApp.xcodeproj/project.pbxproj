@@ -3982,6 +3982,7 @@
 		EF5F1BAC29D1A2BE0093307B /* TotalBalanceProviderMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5F1BAB29D1A2BE0093307B /* TotalBalanceProviderMock.swift */; };
 		EF5F54672C875D8F00B7D1E7 /* StakingDetailsStakeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5F54662C875D8F00B7D1E7 /* StakingDetailsStakeView.swift */; };
 		EF5F54692C875D9500B7D1E7 /* StakingDetailsStakeViewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5F54682C875D9500B7D1E7 /* StakingDetailsStakeViewData.swift */; };
+		EF5F791D2EF0483300EE29E4 /* PredefinedOnrampParametersBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5F791C2EF0483000EE29E4 /* PredefinedOnrampParametersBuilder.swift */; };
 		EF5FAE992EC3993B004FEA9D /* TangemPayTransactionDetailsStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5FAE982EC3993B004FEA9D /* TangemPayTransactionDetailsStateView.swift */; };
 		EF5FAE9C2EC3DF40004FEA9D /* TangemPayTransactionRecordMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5FAE9B2EC3DF40004FEA9D /* TangemPayTransactionRecordMapper.swift */; };
 		EF60C8B72E0151AD005D538C /* ExpressWalletCurrency.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF60C8B62E0151AD005D538C /* ExpressWalletCurrency.swift */; };
@@ -8648,6 +8649,7 @@
 		EF5F1BAB29D1A2BE0093307B /* TotalBalanceProviderMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotalBalanceProviderMock.swift; sourceTree = "<group>"; };
 		EF5F54662C875D8F00B7D1E7 /* StakingDetailsStakeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingDetailsStakeView.swift; sourceTree = "<group>"; };
 		EF5F54682C875D9500B7D1E7 /* StakingDetailsStakeViewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingDetailsStakeViewData.swift; sourceTree = "<group>"; };
+		EF5F791C2EF0483000EE29E4 /* PredefinedOnrampParametersBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PredefinedOnrampParametersBuilder.swift; sourceTree = "<group>"; };
 		EF5FAE982EC3993B004FEA9D /* TangemPayTransactionDetailsStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayTransactionDetailsStateView.swift; sourceTree = "<group>"; };
 		EF5FAE9B2EC3DF40004FEA9D /* TangemPayTransactionRecordMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayTransactionRecordMapper.swift; sourceTree = "<group>"; };
 		EF60C8B62E0151AD005D538C /* ExpressWalletCurrency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressWalletCurrency.swift; sourceTree = "<group>"; };
@@ -22752,6 +22754,14 @@
 			path = StakingDetailsStakeView;
 			sourceTree = "<group>";
 		};
+		EF5F791B2EF0482400EE29E4 /* PredefinedOnrampParametersBuilder */ = {
+			isa = PBXGroup;
+			children = (
+				EF5F791C2EF0483000EE29E4 /* PredefinedOnrampParametersBuilder.swift */,
+			);
+			path = PredefinedOnrampParametersBuilder;
+			sourceTree = "<group>";
+		};
 		EF5FAE9A2EC3993F004FEA9D /* Components */ = {
 			isa = PBXGroup;
 			children = (
@@ -23880,6 +23890,7 @@
 				DC1D4C192C38289F00B2A422 /* BannerNotificationManager.swift */,
 				EF9E38012B73FCBD004B694C /* BannerNotificationEvent.swift */,
 				EF7E7C082E55D47100256960 /* BannerPromotionService */,
+				EF5F791B2EF0482400EE29E4 /* PredefinedOnrampParametersBuilder */,
 			);
 			path = BannerNotifications;
 			sourceTree = "<group>";
@@ -26497,6 +26508,7 @@
 				B60263972EC818CA001A4614 /* CryptoAccountsGlobalStateProvider.swift in Sources */,
 				DC7539FB2C9204AB00CE2D30 /* LockView.swift in Sources */,
 				EFADE79A2E0EE19500CA7916 /* CommonSendAmountValidator.swift in Sources */,
+				EF5F791D2EF0483300EE29E4 /* PredefinedOnrampParametersBuilder.swift in Sources */,
 				EFB4CA5A2E0C3CEC003C1522 /* SendReceiveTokenType.swift in Sources */,
 				B6ACD00C2AD698E0005A6CA3 /* DragAndDropGesturePredicate.swift in Sources */,
 				EF6EDD7E296C0D40001B21A3 /* CommonIncomingActionManager.swift in Sources */,
