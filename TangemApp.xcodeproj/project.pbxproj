@@ -774,6 +774,7 @@
 		3027D3462E82EBAE001E15FB /* AccountDetailsCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3027D3452E82EBAE001E15FB /* AccountDetailsCoordinatorView.swift */; };
 		303D556F2D7873B300FA859D /* VeChainAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303D556E2D7873AD00FA859D /* VeChainAddressTests.swift */; };
 		303D55712D78754000FA859D /* XRPAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303D55702D78753900FA859D /* XRPAddressTests.swift */; };
+		303D67C62EE9A2A400142016 /* ManageTokensAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303D67C52EE9A2A400142016 /* ManageTokensAnalyticsLogger.swift */; };
 		303DE11E2E7975160077F895 /* UserSettingsAccountsRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 303DE11D2E79750D0077F895 /* UserSettingsAccountsRoutable.swift */; };
 		304017442DB672C4007F5D69 /* NFTFeatureLifecycleHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 304017432DB672C4007F5D69 /* NFTFeatureLifecycleHandler.swift */; };
 		30410B3F2D7740270044C703 /* NEARAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30410B3E2D7740200044C703 /* NEARAddressTests.swift */; };
@@ -5464,6 +5465,7 @@
 		3027D3452E82EBAE001E15FB /* AccountDetailsCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDetailsCoordinatorView.swift; sourceTree = "<group>"; };
 		303D556E2D7873AD00FA859D /* VeChainAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VeChainAddressTests.swift; sourceTree = "<group>"; };
 		303D55702D78753900FA859D /* XRPAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XRPAddressTests.swift; sourceTree = "<group>"; };
+		303D67C52EE9A2A400142016 /* ManageTokensAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageTokensAnalyticsLogger.swift; sourceTree = "<group>"; };
 		303DE11D2E79750D0077F895 /* UserSettingsAccountsRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSettingsAccountsRoutable.swift; sourceTree = "<group>"; };
 		304017432DB672C4007F5D69 /* NFTFeatureLifecycleHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTFeatureLifecycleHandler.swift; sourceTree = "<group>"; };
 		30410B3E2D7740200044C703 /* NEARAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NEARAddressTests.swift; sourceTree = "<group>"; };
@@ -11563,6 +11565,7 @@
 		304EF5232EA7C37A00541325 /* ManageTokensContext */ = {
 			isa = PBXGroup;
 			children = (
+				303D67C52EE9A2A400142016 /* ManageTokensAnalyticsLogger.swift */,
 				300D252A2EAFB21200AB4A83 /* AccountsAwareManageTokensContext.swift */,
 				300D25282EAFB20200AB4A83 /* LegacyManageTokensContext.swift */,
 				30A654AC2EA9305600B90B25 /* ManageTokensContext.swift */,
@@ -26331,6 +26334,7 @@
 				0F8414B52E96A96D00D03FB6 /* AddWalletSelectorViewModel.swift in Sources */,
 				EF6A8B032B278A6200CA3535 /* CommonExpressRepository.swift in Sources */,
 				C27672CF2DE713970037F1FC /* WalletConnectDAppDomainVerificationView.swift in Sources */,
+				303D67C62EE9A2A400142016 /* ManageTokensAnalyticsLogger.swift in Sources */,
 				DA1FAB352E7C652A0059FFE5 /* TangemPayNotificationManager.swift in Sources */,
 				B6CAC21F2E46C9E1002DFA82 /* StoredCryptoAccount.swift in Sources */,
 				DA76BF4F2CEF964300199317 /* OnrampPendingTransactionRepository.swift in Sources */,
