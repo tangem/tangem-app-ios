@@ -1092,6 +1092,8 @@ extension WalletOnboardingViewModel: OnboardingSeedPhraseGenerationDelegate {
 
 extension WalletOnboardingViewModel: SeedPhraseImportDelegate {
     func importSeedPhrase(mnemonic: Mnemonic, passphrase: String) {
+        Analytics.log(.onboardingSeedButtonImport)
+
         do {
             try ensureWalletIsNotAlreadyAdded(mnemonic: mnemonic, passphrase: passphrase)
 
