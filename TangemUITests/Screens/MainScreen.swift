@@ -482,6 +482,24 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         return self
     }
 
+    @discardableResult
+    func openMarketsSheetWithSwipe() -> MarketsScreen {
+        XCTContext.runActivity(named: "Open markets sheet with swipe up gesture") { _ in
+            // Find the grabber view or bottom sheet area to swipe up
+            let grabberView = app.otherElements.matching(identifier: "commonUIGrabber").firstMatch
+
+            waitAndAssertTrue(grabberView)
+
+            // Swipe up on the grabber view
+            let startPoint = grabberView.coordinate(
+                withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+            let endPoint = startPoint.withOffset(CGVector(dx: 0, dy: -300))
+            startPoint.press(forDuration: 0.1, thenDragTo: endPoint)
+
+            return MarketsScreen(app)
+        }
+    }
+
     private func isGrouped() -> Bool {
         let networkHeaders = tokensList.descendants(matching: .staticText)
             .allElementsBoundByIndex
