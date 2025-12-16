@@ -15,6 +15,7 @@ import TangemStaking
 import TangemFoundation
 import TangemExpress
 import TangemSdk
+import UIKit // [REDACTED_TODO_COMMENT]
 
 class CommonWalletModel {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
@@ -153,6 +154,7 @@ class CommonWalletModel {
     // MARK: - State updates
 
     private func walletManagerDidUpdate(_ walletManagerState: WalletManagerState) {
+        _ = print("\(#function) called at \(CACurrentMediaTime()) with \(self) and state: \(walletManagerState) and wm: \(objectDescription(walletManager))")
         switch walletManagerState {
         case .loaded:
             if let demoBalance {
@@ -184,7 +186,8 @@ class CommonWalletModel {
     }
 
     private func updateState(_ state: WalletModelState) {
-        AppLogger.info(self, "Updating state. New state is \(state)")
+        let cs = Thread.callStackSymbols
+        _ = print("\(#function) called at \(CACurrentMediaTime()) with \(self); Updating state. New state is \(state). CS: \n\(cs.joined(separator: "\n"))")
         DispatchQueue.main.async { [_state, _yieldModuleManager, wallet, amountType] in
             _yieldModuleManager?.updateState(
                 walletModelState: state,
@@ -413,28 +416,38 @@ extension CommonWalletModel: WalletModelUpdater {
             updateState(.loading)
         }
 
-        updateWalletModelSubscription = walletManager
-            .updatePublisher()
-            .combineLatest(
-                loadQuotes(),
-                updateStakingManagerState()
-            )
-            .withWeakCaptureOf(self)
-            // There must be a delayed call, as we are waiting for the wallet manager update. Workflow for blockchains like Hedera
-            .flatMap { walletModel, newState in
-                walletModel
-                    .updateReceiveAddressTypes()
-                    .map { newState }
-            }
-            .withWeakCaptureOf(self)
-            .sink { walletModel, newState in
-                let newState = walletModel.walletManager.state
-                walletModel.walletManagerDidUpdate(newState)
+        updateWalletModelSubscription = Publishers.CombineLatest3(
+            walletManager.updatePublisher() /* .materialize().values() */
+                .handleEvents(receiveCancel: { [weak self] in
+                    if let self {
+                        _ = print("\(#function) called at \(CACurrentMediaTime()) WTF for \(self)")
+                    }
+                })
+                .print("walletManager.updatePublisher for \(self)"),
 
-                walletModel.updatePublisher?.send(walletModel.mapState(newState))
-                walletModel.updatePublisher?.send(completion: .finished)
-                walletModel.updatePublisher = nil
-            }
+            loadQuotes()
+                .print("loadQuotes for \(self)"),
+
+            updateStakingManagerState()
+                .print("updateStakingManagerState for \(self)")
+        )
+        .withWeakCaptureOf(self)
+        // There must be a delayed call, as we are waiting for the wallet manager update. Workflow for blockchains like Hedera
+        .flatMap { walletModel, newState in
+            walletModel
+                .updateReceiveAddressTypes()
+                .print("updateReceiveAddressTypes for \(self)")
+                .map { newState }
+        }
+        .withWeakCaptureOf(self)
+        .sink { walletModel, _ in
+            let newState = walletModel.walletManager.state
+            walletModel.walletManagerDidUpdate(newState)
+
+            walletModel.updatePublisher?.send(walletModel.mapState(newState))
+            walletModel.updatePublisher?.send(completion: .finished)
+            walletModel.updatePublisher = nil
+        }
 
         return newUpdatePublisher.eraseToAnyPublisher()
     }
