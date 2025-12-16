@@ -31,6 +31,8 @@ final class MobileCreateWalletViewModel: ObservableObject {
 
     private let analyticsContextParams: Analytics.ContextParams = .custom(.mobileWallet)
 
+    private var isAppeared = false
+
     private let source: MobileCreateWalletSource
     private weak var coordinator: MobileCreateWalletRoutable?
     private weak var delegate: MobileCreateWalletDelegate?
@@ -50,6 +52,8 @@ final class MobileCreateWalletViewModel: ObservableObject {
 
 extension MobileCreateWalletViewModel {
     func onFirstAppear() {
+        guard !isAppeared else { return }
+        isAppeared = true
         logScreenOpenedAnalytics()
         logOnboardingStartedAnalytics()
     }
