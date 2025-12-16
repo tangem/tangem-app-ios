@@ -1388,7 +1388,7 @@
 "tangempay_payment_account" = "支払いアカウント";
 "tangempay_service_unavailable_description" = "技術的な問題を修正しています。後でもう一度お試しください。";
 "tangempay_service_unavailable_title" = "サービスは一時的に利用できません";
-"tangempay_service_unreachable_try_later" = "現在サービスに接続できません。後ほどもう一度お試しください。";
+"tangempay_service_unreachable_try_later" = "現在、データを表示できませんが、カードでのお支払いは引き続きご利用いただけます。";
 "tangempay_sync_needed" = "同期が必要です";
 "tangempay_tangem_visa_card" = "Tangem Visaカード";
 "tangempay_temporarily_unavailable" = "Tangem Payは一時的に利用できません";
