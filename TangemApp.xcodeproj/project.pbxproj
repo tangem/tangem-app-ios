@@ -3126,7 +3126,7 @@
 		DC1C177D2E9CD965000682A7 /* WalletConnectAccountsWalletModelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC1C177C2E9CD965000682A7 /* WalletConnectAccountsWalletModelProvider.swift */; };
 		DC1D4C1A2C38289F00B2A422 /* BannerNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC1D4C192C38289F00B2A422 /* BannerNotificationManager.swift */; };
 		DC1D4C412C385F2C00B2A422 /* ExpressAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC1D4C402C385F2C00B2A422 /* ExpressAnalyticsLogger.swift */; };
-		DC1D4C452C38616500B2A422 /* CommonExpressAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC1D4C442C38616500B2A422 /* CommonExpressAnalyticsLogger.swift */; };
+		DC1D4C452C38616500B2A422 /* CommonExpressInteractorAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC1D4C442C38616500B2A422 /* CommonExpressInteractorAnalyticsLogger.swift */; };
 		DC1DA92A2D554356003638ED /* ScrollViewContentOffsetLocker.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC1DA9272D554356003638ED /* ScrollViewContentOffsetLocker.swift */; };
 		DC1DA92B2D554356003638ED /* OverlayContentContainerProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC1DA9252D554356003638ED /* OverlayContentContainerProgress.swift */; };
 		DC1DA92C2D554356003638ED /* UIView+OverlayContentContainerProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC1DA9282D554356003638ED /* UIView+OverlayContentContainerProgress.swift */; };
@@ -4306,6 +4306,7 @@
 		EFC7AD6F2DD7889400AE78E1 /* SendDestinationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC7AD6E2DD7889400AE78E1 /* SendDestinationView.swift */; };
 		EFC7AD732DD8BB7100AE78E1 /* SendDestinationStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC7AD722DD8BB7100AE78E1 /* SendDestinationStep.swift */; };
 		EFC7AD752DD8BBB900AE78E1 /* SendDestinationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC7AD742DD8BBB900AE78E1 /* SendDestinationViewModel.swift */; };
+		EFC7B5EF2EF1CF4600E45DF4 /* ExpressInteractorAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC7B5EE2EF1CF4600E45DF4 /* ExpressInteractorAnalyticsLogger.swift */; };
 		EFC84B262C37FBB300546882 /* SendStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC84B1C2C37FBB200546882 /* SendStep.swift */; };
 		EFC84B2F2C37FF1E00546882 /* SendDestinationRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC84B2E2C37FF1E00546882 /* SendDestinationRoutable.swift */; };
 		EFC990172CD3CC9C0098B7C8 /* ExpressBranch.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC990162CD3CC9C0098B7C8 /* ExpressBranch.swift */; };
@@ -7712,7 +7713,7 @@
 		DC1C177C2E9CD965000682A7 /* WalletConnectAccountsWalletModelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectAccountsWalletModelProvider.swift; sourceTree = "<group>"; };
 		DC1D4C192C38289F00B2A422 /* BannerNotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BannerNotificationManager.swift; sourceTree = "<group>"; };
 		DC1D4C402C385F2C00B2A422 /* ExpressAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAnalyticsLogger.swift; sourceTree = "<group>"; };
-		DC1D4C442C38616500B2A422 /* CommonExpressAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonExpressAnalyticsLogger.swift; sourceTree = "<group>"; };
+		DC1D4C442C38616500B2A422 /* CommonExpressInteractorAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonExpressInteractorAnalyticsLogger.swift; sourceTree = "<group>"; };
 		DC1DA9242D554356003638ED /* OverlayContentContainerAppLifecycleHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayContentContainerAppLifecycleHelper.swift; sourceTree = "<group>"; };
 		DC1DA9252D554356003638ED /* OverlayContentContainerProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayContentContainerProgress.swift; sourceTree = "<group>"; };
 		DC1DA9262D554356003638ED /* OverlayContentContainerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayContentContainerViewController.swift; sourceTree = "<group>"; };
@@ -8908,6 +8909,7 @@
 		EFC7AD6E2DD7889400AE78E1 /* SendDestinationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDestinationView.swift; sourceTree = "<group>"; };
 		EFC7AD722DD8BB7100AE78E1 /* SendDestinationStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDestinationStep.swift; sourceTree = "<group>"; };
 		EFC7AD742DD8BBB900AE78E1 /* SendDestinationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDestinationViewModel.swift; sourceTree = "<group>"; };
+		EFC7B5EE2EF1CF4600E45DF4 /* ExpressInteractorAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressInteractorAnalyticsLogger.swift; sourceTree = "<group>"; };
 		EFC84B1C2C37FBB200546882 /* SendStep.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendStep.swift; sourceTree = "<group>"; };
 		EFC84B2E2C37FF1E00546882 /* SendDestinationRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDestinationRoutable.swift; sourceTree = "<group>"; };
 		EFC990162CD3CC9C0098B7C8 /* ExpressBranch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressBranch.swift; sourceTree = "<group>"; };
@@ -13316,6 +13318,7 @@
 		B0AF2DED2B1D8FD2001A8696 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				EFC7B5F02EF1CF4B00E45DF4 /* ExpressInteractorAnalyticsLogger */,
 				EFFA43752E0407A6001E0E54 /* ExpressBalanceProvider */,
 				DC96325D2C5140B4009B250A /* ExpressRefundedTokenHandler */,
 				EF5820462B33348B00940387 /* ExpressExchangeDataDecoder */,
@@ -13586,7 +13589,6 @@
 				B08E99592D9E709D008F367F /* Analytics+Visa.swift */,
 				C259BBCB2D786FFB000DAFD1 /* Analytics+WalletConnectSessionSource.swift */,
 				DCBC944A2993F3420050BC35 /* AnalyticsStorageKey.swift */,
-				DC1D4C442C38616500B2A422 /* CommonExpressAnalyticsLogger.swift */,
 				0AD13F942C8AD76800C2EE16 /* CommonStakingAnalyticsLogger.swift */,
 				C28E01672E798A7700B47571 /* AppsFlyerAnalyticsEventConverter.swift */,
 				B6438A0D2D091BE5009439CA /* FirebaseAnalyticsEventConverter.swift */,
@@ -24239,6 +24241,15 @@
 			path = StringPasteButton;
 			sourceTree = "<group>";
 		};
+		EFC7B5F02EF1CF4B00E45DF4 /* ExpressInteractorAnalyticsLogger */ = {
+			isa = PBXGroup;
+			children = (
+				EFC7B5EE2EF1CF4600E45DF4 /* ExpressInteractorAnalyticsLogger.swift */,
+				DC1D4C442C38616500B2A422 /* CommonExpressInteractorAnalyticsLogger.swift */,
+			);
+			path = ExpressInteractorAnalyticsLogger;
+			sourceTree = "<group>";
+		};
 		EFC84AEC2C37F91400546882 /* Base */ = {
 			isa = PBXGroup;
 			children = (
@@ -26791,6 +26802,7 @@
 				EFC6846D2A0FA3C600660690 /* BindingValue.swift in Sources */,
 				EFA6B045295334AF0090A92F /* ResetToFactoryViewModel.swift in Sources */,
 				B07FDD402C23139200CBEFDE /* CustomTokenItemView.swift in Sources */,
+				EFC7B5EF2EF1CF4600E45DF4 /* ExpressInteractorAnalyticsLogger.swift in Sources */,
 				30AD19A92E85673800EAE0A0 /* RecoverableAccountRoutable.swift in Sources */,
 				B601D3852D42ECEB002694AE /* PerformanceTracker.swift in Sources */,
 				DA5044E32ABACA6600D1E5CF /* MarketPriceView.swift in Sources */,
@@ -27151,7 +27163,7 @@
 				DC2891702CD4B42900F57F59 /* ActionButtonsTokenSelectorItemBuilder.swift in Sources */,
 				EF4BEF8328ACF0E700C5D1BE /* UserTokenListManager.swift in Sources */,
 				B612AFD42B2884B80058A13A /* RateAppRequest.swift in Sources */,
-				DC1D4C452C38616500B2A422 /* CommonExpressAnalyticsLogger.swift in Sources */,
+				DC1D4C452C38616500B2A422 /* CommonExpressInteractorAnalyticsLogger.swift in Sources */,
 				B61F71362E94A1CB002C3C66 /* ArchivedCryptoAccountInfo.AccountId.swift in Sources */,
 				B61F71372E94A1CB002C3C66 /* ArchivedCryptoAccountInfo.swift in Sources */,
 				DA71FCA62A20D08500C8D1F7 /* LearnAndEarnStoryPage.swift in Sources */,
