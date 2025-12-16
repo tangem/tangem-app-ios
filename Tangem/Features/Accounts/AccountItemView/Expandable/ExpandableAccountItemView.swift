@@ -18,6 +18,13 @@ struct ExpandableAccountItemView<ExpandedView>: View where ExpandedView: View {
 
     var body: some View {
         ExpandableItemView(
+            onExpandedChange: { isExpanded in
+                if isExpanded {
+                    Analytics.log(.mainButtonAccountShowTokens)
+                } else {
+                    Analytics.log(.mainButtonAccountHideTokens)
+                }
+            },
             collapsedView: {
                 CollapsedAccountItemHeaderView(
                     name: viewModel.name,
