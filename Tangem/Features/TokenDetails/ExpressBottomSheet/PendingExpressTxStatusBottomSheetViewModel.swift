@@ -91,7 +91,11 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
             sheetTitle = Localization.commonTransactionStatus
             statusViewTitle = Localization.commonTransactionStatus
             sourceAmountText = balanceFormatter.formatFiatBalance(sourceAmount, currencyCode: sourceCurrencySymbol)
-            destinationAmountText = balanceFormatter.formatCryptoBalance(destination.amount, currencyCode: destination.tokenItem.currencySymbol)
+            if destination.amount > 0 {
+                destinationAmountText = balanceFormatter.formatCryptoBalance(destination.amount, currencyCode: destination.tokenItem.currencySymbol)
+            } else {
+                destinationAmountText = destination.tokenItem.currencySymbol
+            }
             sourceTokenIconInfo = iconBuilder.build(from: sourceCurrencySymbol)
             destinationTokenIconInfo = iconBuilder.build(from: destination.tokenItem, isCustom: destination.isCustom)
         }
@@ -185,7 +189,11 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
             loadRatesIfNeeded(stateKeyPath: \.destinationFiatAmountTextState, for: destination, on: self)
         case .onramp(_, _, let destination):
             sourceFiatAmountTextState = .noData
-            loadRatesIfNeeded(stateKeyPath: \.destinationFiatAmountTextState, for: destination, on: self)
+            if destination.amount > 0 {
+                loadRatesIfNeeded(stateKeyPath: \.destinationFiatAmountTextState, for: destination, on: self)
+            } else {
+                destinationFiatAmountTextState = .noData
+            }
         }
     }
 
