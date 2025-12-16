@@ -77,9 +77,13 @@ final class AccountDetailsViewModel: ObservableObject {
 
     // MARK: - Methods
 
+    func onFirstAppear() {
+        Analytics.log(.accountSettingsScreenOpened)
+    }
+
     func archiveAccount() {
-        archiveAccountTask?.cancel()
         archivingState = .archivingInProgress
+        archiveAccountTask?.cancel()
 
         archiveAccountTask = Task { [weak self] in
             do throws(AccountArchivationError) {
@@ -99,14 +103,23 @@ final class AccountDetailsViewModel: ObservableObject {
     // MARK: - Routing
 
     func showShouldArchiveDialog() {
+        Analytics.log(.accountSettingsButtonArchiveAccount)
         archiveAccountDialogPresented = true
     }
 
+    func handleDialogDismissed() {
+        if archivingState == .readyToBeArchived {
+            Analytics.log(.accountSettingsButtonCancelAccountArchivation)
+        }
+    }
+
     func openEditAccount() {
+        Analytics.log(.accountSettingsButtonEdit)
         coordinator?.editAccount()
     }
 
     func openManageTokens() {
+        Analytics.log(.accountSettingsButtonManageTokens)
         coordinator?.manageTokens()
     }
 
@@ -146,6 +159,7 @@ final class AccountDetailsViewModel: ObservableObject {
 
     @MainActor
     private func handleAccountArchivingSuccess() {
+        Analytics.log(.accountSettingsAccountArchived)
         coordinator?.close()
 
         Toast(view: SuccessToast(text: Localization.accountArchiveSuccessMessage))
@@ -155,6 +169,11 @@ final class AccountDetailsViewModel: ObservableObject {
     @MainActor
     private func handleAccountArchivingFailure(error: AccountArchivationError) {
         archivingState = .readyToBeArchived
+
+        Analytics.log(event: .accountSettingsAccountError, params: [
+            .source: Analytics.ParameterValue.accountSourceArchive.rawValue,
+            .errorDescription: String(describing: error),
+        ])
 
         let message: String
         let buttonText: String
