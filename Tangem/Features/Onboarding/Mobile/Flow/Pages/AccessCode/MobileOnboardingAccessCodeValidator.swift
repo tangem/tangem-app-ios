@@ -9,10 +9,22 @@
 import Foundation
 
 struct MobileOnboardingAccessCodeValidator {
-    private static let sequencePattern = #"^(?:012345|123456|234567|345678|456789|567890|678901|789012|890123|"# +
-        #"901234|987654|876543|765432|654321|543210|432109|321098|210987|109876|098765)$"#
+    /// Sequence with same repeated digit
+    private static let repeatedDigitPattern = #"^(\d)\1{5}$"#
+
+    /// Ascending strictly digit sequence
+    private static let ascendingSequencePattern = #"^(012345|123456|234567|345678|456789)$"#
+
+    /// Descending strictly digit sequence
+    private static let descendingSequencePattern = #"^(987654|876543|765432|654321|543210)$"#
 
     func validate(accessCode: String) -> Bool {
-        accessCode.range(of: Self.sequencePattern, options: .regularExpression) == nil
+        validate(accessCode, pattern: Self.repeatedDigitPattern) &&
+            validate(accessCode, pattern: Self.ascendingSequencePattern) &&
+            validate(accessCode, pattern: Self.descendingSequencePattern)
+    }
+
+    private func validate(_ string: String, pattern: String) -> Bool {
+        string.range(of: pattern, options: .regularExpression) == nil
     }
 }
