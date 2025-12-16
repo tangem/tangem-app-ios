@@ -1385,10 +1385,10 @@
 "tangempay_onboarding_security_title" = "Unerreichte Privatsphäre";
 "tangempay_onboarding_title" = "Erhalten Sie Ihre kostenlose Tangem Pay Card in wenigen Minuten";
 "tangempay_payment_account_sync_needed" = "Synchronisierung des Zahlungskontos erforderlich";
-"tangempay_payment_account" = "Payment account";
+"tangempay_payment_account" = "Zahlungskonto";
 "tangempay_service_unavailable_description" = "Wir beheben ein technisches Problem. Bitte versuchen Sie es später erneut.";
 "tangempay_service_unavailable_title" = "Service vorübergehend nicht verfügbar";
-"tangempay_service_unreachable_try_later" = "Der Dienst ist derzeit nicht erreichbar. Bitte versuchen Sie es später erneut.";
+"tangempay_service_unreachable_try_later" = "Daten können derzeit nicht angezeigt werden, Kartenzahlungen funktionieren jedoch weiterhin.";
 "tangempay_sync_needed" = "Synchronisation erforderlich";
 "tangempay_tangem_visa_card" = "Tangem Visa Card";
 "tangempay_temporarily_unavailable" = "Tangem Pay ist vorübergehend nicht verfügbar";
