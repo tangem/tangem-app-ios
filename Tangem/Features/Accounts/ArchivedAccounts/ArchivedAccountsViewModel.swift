@@ -75,7 +75,12 @@ final class ArchivedAccountsViewModel: ObservableObject {
         }
     }
 
+    func onAppear() {
+        Analytics.log(.walletSettingsArchivedAccountsScreenOpened)
+    }
+
     func recoverAccount(_ accountInfo: ArchivedCryptoAccountInfo) {
+        Analytics.log(.walletSettingsButtonRecoverAccount)
         recoverAccountTask?.cancel()
         recoveringAccountId = accountInfo.id
 
@@ -98,6 +103,8 @@ final class ArchivedAccountsViewModel: ObservableObject {
     private func handleAccountRecoverySuccess(result: AccountOperationResult) {
         recoveringAccountId = nil
         coordinator?.close(with: result)
+
+        Analytics.log(.walletSettingsAccountRecovered)
 
         Toast(view: SuccessToast(text: Localization.accountRecoverSuccessMessage))
             .present(layout: .top(padding: 24), type: .temporary(interval: 4))
