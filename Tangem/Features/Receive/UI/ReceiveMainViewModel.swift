@@ -43,6 +43,8 @@ class ReceiveMainViewModel: ObservableObject {
     private let receiveTokenWithdrawNoticeInteractor = ReceiveTokenWithdrawNoticeInteractor()
     private let yieldModuleNotificationInteractor = YieldModuleNoticeInteractor()
 
+    private lazy var selectorViewModel = receiveFlowFactory.makeSelectorReceiveAssetViewModel()
+
     // MARK: - Helpers
 
     init(options: Options) {
@@ -63,7 +65,6 @@ class ReceiveMainViewModel: ObservableObject {
 
     func onBackTapAction() {
         if case .qrCode = viewState {
-            let selectorViewModel = receiveFlowFactory.makeSelectorReceiveAssetViewModel()
             viewState = .selector(viewModel: selectorViewModel)
         }
     }
@@ -74,17 +75,16 @@ class ReceiveMainViewModel: ObservableObject {
         if yieldModuleNotificationInteractor.shouldShowYieldModuleAlert(for: options.tokenItem) {
             receiveTokenWithdrawNoticeInteractor.markWithdrawalAlertShown(for: options.tokenItem)
 
-            let vm = receiveFlowFactory.makeTokenAlertReceiveAssetViewModel()
+            let vm = receiveFlowFactory.makeTokenAlertReceiveAssetViewModel(with: selectorViewModel)
             return .yieldTokenAlert(viewModel: vm)
         }
 
         if isNeedDisplayTokenAlert() {
-            let viewModel = receiveFlowFactory.makeTokenAlertReceiveAssetViewModel()
+            let viewModel = receiveFlowFactory.makeTokenAlertReceiveAssetViewModel(with: selectorViewModel)
             return .tokenAlert(viewModel: viewModel)
         }
 
-        let viewModel = receiveFlowFactory.makeSelectorReceiveAssetViewModel()
-        return .selector(viewModel: viewModel)
+        return .selector(viewModel: selectorViewModel)
     }
 
     func isNeedDisplayTokenAlert() -> Bool {
