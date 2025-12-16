@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 public struct UnableToLoadDataView: View {
     private let isButtonBusy: Bool
@@ -39,6 +40,7 @@ public struct UnableToLoadDataView: View {
             })
             .roundedBackground(with: Colors.Button.secondary, verticalPadding: 6, horizontalPadding: 12, radius: 10)
             .disabled(isButtonBusy)
+            .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.retryButton)
         }
     }
 }
