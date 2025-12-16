@@ -167,18 +167,27 @@ private extension ExpressViewModel {
             return
         }
 
-        Task { @MainActor in
+        Task {
             guard let source = interactor.getSource().value,
                   let selectedProvider = await interactor.getSelectedProvider()?.provider else {
                 return
             }
 
-            let selectedPolicy = permissionRequired.policy
-            coordinator?.presentApproveView(
-                source: source,
-                provider: selectedProvider,
-                selectedPolicy: selectedPolicy
-            )
+            var params: [Analytics.ParameterKey: String] = [
+                .sendToken: source.tokenItem.currencySymbol,
+                .provider: selectedProvider.name,
+            ]
+
+            params[.receiveToken] = interactor.getDestination()?.tokenItem.currencySymbol
+            Analytics.log(event: .swapButtonGivePermission, params: params)
+
+            await MainActor.run {
+                coordinator?.presentApproveView(
+                    source: source,
+                    provider: selectedProvider,
+                    selectedPolicy: permissionRequired.policy
+                )
+            }
         }
     }
 
@@ -713,7 +722,6 @@ extension ExpressViewModel: NotificationTapDelegate {
 
             updateSendDecimalValue(to: targetValue)
         case .givePermission:
-            Analytics.log(.swapButtonGivePermission)
             openApproveView()
         case .generateAddresses,
              .backupCard,
