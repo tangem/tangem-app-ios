@@ -2782,7 +2782,6 @@
 		D85E20082E84935D004174E6 /* TotalBalanceSmokeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85E20072E84935D004174E6 /* TotalBalanceSmokeUITests.swift */; };
 		D85E200B2E854D5F004174E6 /* AppSettingsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85E20092E854D5F004174E6 /* AppSettingsScreen.swift */; };
 		D85E200C2E854D5F004174E6 /* CurrencySelectionScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85E200A2E854D5F004174E6 /* CurrencySelectionScreen.swift */; };
-		D85E200E2E8D106E004174E6 /* MarketsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85E200D2E8D106E004174E6 /* MarketsScreen.swift */; };
 		D85E20122E8D7A50004174E6 /* UITestsStorageCleaner.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85E20112E8D7A50004174E6 /* UITestsStorageCleaner.swift */; };
 		D863E7502E65C77D00912D52 /* ResetCardScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D863E74F2E65C77D00912D52 /* ResetCardScreen.swift */; };
 		D863E7532E65CEBB00912D52 /* ScanCardSettingsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D863E7512E65CEBB00912D52 /* ScanCardSettingsScreen.swift */; };
@@ -2820,6 +2819,10 @@
 		D8B80B622EC4B6860002B6A5 /* SendConfirmationUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8B80B612EC4B6860002B6A5 /* SendConfirmationUITests.swift */; };
 		D8B80B662EC695110002B6A5 /* SendAddressUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8B80B652EC695110002B6A5 /* SendAddressUITests.swift */; };
 		D8BCA6892E5DF4A400DC6876 /* WalletConnectedAppSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BCA6882E5DF4A400DC6876 /* WalletConnectedAppSheet.swift */; };
+		D8BDC58F2EEC15F700709D4F /* MarketsTokenDetailsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BDC58E2EEC15F700709D4F /* MarketsTokenDetailsScreen.swift */; };
+		D8BDC5932EEC162E00709D4F /* MarketsExchangeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BDC5922EEC162E00709D4F /* MarketsExchangeUITests.swift */; };
+		D8BDC5992EEC3BE500709D4F /* MarketsExchangeScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BDC5972EEC3BE500709D4F /* MarketsExchangeScreen.swift */; };
+		D8BDC59A2EEC3BE500709D4F /* MarketsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BDC5982EEC3BE500709D4F /* MarketsScreen.swift */; };
 		D8C314C22E964A4000B9F552 /* MockBlockBookConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C314C12E964A4000B9F552 /* MockBlockBookConfig.swift */; };
 		D8C314C42E968C0700B9F552 /* SendNotificationDogecoinUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C314C32E968C0700B9F552 /* SendNotificationDogecoinUITests.swift */; };
 		D8C314C62E9853F200B9F552 /* SendXRPNotificationUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C314C52E9853F200B9F552 /* SendXRPNotificationUITests.swift */; };
@@ -7439,7 +7442,6 @@
 		D85E20072E84935D004174E6 /* TotalBalanceSmokeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotalBalanceSmokeUITests.swift; sourceTree = "<group>"; };
 		D85E20092E854D5F004174E6 /* AppSettingsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettingsScreen.swift; sourceTree = "<group>"; };
 		D85E200A2E854D5F004174E6 /* CurrencySelectionScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencySelectionScreen.swift; sourceTree = "<group>"; };
-		D85E200D2E8D106E004174E6 /* MarketsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsScreen.swift; sourceTree = "<group>"; };
 		D85E20112E8D7A50004174E6 /* UITestsStorageCleaner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestsStorageCleaner.swift; sourceTree = "<group>"; };
 		D863E74F2E65C77D00912D52 /* ResetCardScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetCardScreen.swift; sourceTree = "<group>"; };
 		D863E7512E65CEBB00912D52 /* ScanCardSettingsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanCardSettingsScreen.swift; sourceTree = "<group>"; };
@@ -7477,6 +7479,10 @@
 		D8B80B612EC4B6860002B6A5 /* SendConfirmationUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendConfirmationUITests.swift; sourceTree = "<group>"; };
 		D8B80B652EC695110002B6A5 /* SendAddressUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAddressUITests.swift; sourceTree = "<group>"; };
 		D8BCA6882E5DF4A400DC6876 /* WalletConnectedAppSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectedAppSheet.swift; sourceTree = "<group>"; };
+		D8BDC58E2EEC15F700709D4F /* MarketsTokenDetailsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsTokenDetailsScreen.swift; sourceTree = "<group>"; };
+		D8BDC5922EEC162E00709D4F /* MarketsExchangeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsExchangeUITests.swift; sourceTree = "<group>"; };
+		D8BDC5972EEC3BE500709D4F /* MarketsExchangeScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsExchangeScreen.swift; sourceTree = "<group>"; };
+		D8BDC5982EEC3BE500709D4F /* MarketsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsScreen.swift; sourceTree = "<group>"; };
 		D8C314C12E964A4000B9F552 /* MockBlockBookConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockBlockBookConfig.swift; sourceTree = "<group>"; };
 		D8C314C32E968C0700B9F552 /* SendNotificationDogecoinUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNotificationDogecoinUITests.swift; sourceTree = "<group>"; };
 		D8C314C52E9853F200B9F552 /* SendXRPNotificationUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendXRPNotificationUITests.swift; sourceTree = "<group>"; };
@@ -12237,6 +12243,7 @@
 		7982B01C2DE70E1900C41EA5 /* Screens */ = {
 			isa = PBXGroup;
 			children = (
+				D8BDC5912EEC15FD00709D4F /* Markets */,
 				D89D14762EE62FD500D610CC /* CreateWalletSelectorScreen.swift */,
 				D89D14742EE32ED300D610CC /* WelcomeBackScreen.swift */,
 				D82234442ED483A60053A574 /* SendQRScannerScreen.swift */,
@@ -12248,7 +12255,6 @@
 				D876699A2EB116C100E53613 /* ReceiveTemplatesSheet.swift */,
 				D8E851F32EB0C74B0085DAC3 /* ContextMenuScreen.swift */,
 				D8F18BCE2EA0D91300A4AF58 /* SendFeeSelectorScreen.swift */,
-				D85E200D2E8D106E004174E6 /* MarketsScreen.swift */,
 				D85E20092E854D5F004174E6 /* AppSettingsScreen.swift */,
 				D85E200A2E854D5F004174E6 /* CurrencySelectionScreen.swift */,
 				D863E7A52E68ABF700912D52 /* CreateBackupScreen.swift */,
@@ -12278,6 +12284,7 @@
 		7982B01F2DE70E1900C41EA5 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				D8BDC5942EEC163200709D4F /* Markets */,
 				D8E851FB2EB0E7870085DAC3 /* ActionButtons */,
 				D892E6BE2E95114000D29113 /* Send */,
 				D852F81C2E5C86AB00C71B7F /* Smoke */,
@@ -18227,6 +18234,24 @@
 				D852F8442E5CBEA800C71B7F /* WalletConnectSheet.swift */,
 			);
 			path = WC;
+			sourceTree = "<group>";
+		};
+		D8BDC5912EEC15FD00709D4F /* Markets */ = {
+			isa = PBXGroup;
+			children = (
+				D8BDC5972EEC3BE500709D4F /* MarketsExchangeScreen.swift */,
+				D8BDC5982EEC3BE500709D4F /* MarketsScreen.swift */,
+				D8BDC58E2EEC15F700709D4F /* MarketsTokenDetailsScreen.swift */,
+			);
+			path = Markets;
+			sourceTree = "<group>";
+		};
+		D8BDC5942EEC163200709D4F /* Markets */ = {
+			isa = PBXGroup;
+			children = (
+				D8BDC5922EEC162E00709D4F /* MarketsExchangeUITests.swift */,
+			);
+			path = Markets;
 			sourceTree = "<group>";
 		};
 		D8DAE25F2EC292B20043964D /* WalletConnect */ = {
@@ -28531,6 +28556,8 @@
 				D852F8352E5C86C200C71B7F /* WireMockClient.swift in Sources */,
 				D852F8362E5C86C200C71B7F /* WireMockError.swift in Sources */,
 				D852F8372E5C86C200C71B7F /* WireMockScenario.swift in Sources */,
+				D8BDC5992EEC3BE500709D4F /* MarketsExchangeScreen.swift in Sources */,
+				D8BDC59A2EEC3BE500709D4F /* MarketsScreen.swift in Sources */,
 				D8CD7E3E2E9E951400CA6DF6 /* SendChiaNotificationUITests.swift in Sources */,
 				7985089F2DE99FE900388668 /* ToSScreen.swift in Sources */,
 				D89D14752EE32ED300D610CC /* WelcomeBackScreen.swift in Sources */,
@@ -28541,6 +28568,7 @@
 				7982B0202DE70E1900C41EA5 /* XCTestCase+Extensions.swift in Sources */,
 				D86C96C32EB4C34500132ED9 /* MainActionButtonsUITests.swift in Sources */,
 				D863E7532E65CEBB00912D52 /* ScanCardSettingsScreen.swift in Sources */,
+				D8BDC5932EEC162E00709D4F /* MarketsExchangeUITests.swift in Sources */,
 				D8E851F42EB0C74B0085DAC3 /* ContextMenuScreen.swift in Sources */,
 				7982B02E2DE7259E00C41EA5 /* MainScreen.swift in Sources */,
 				D863E7562E65CFA300912D52 /* DeviceSettingsScreen.swift in Sources */,
@@ -28549,6 +28577,7 @@
 				D852F82B2E5C86B400C71B7F /* OnrampCurrencySelectorScreen.swift in Sources */,
 				D852F8392E5C86EB00C71B7F /* EthereumWCLinksUITests.swift in Sources */,
 				D852F82C2E5C86B400C71B7F /* OnrampPaymentMethodsScreen.swift in Sources */,
+				D8BDC58F2EEC15F700709D4F /* MarketsTokenDetailsScreen.swift in Sources */,
 				D8F983D92EBA26670061F55F /* BuyTokenSelectorScreen.swift in Sources */,
 				D863E7A82E68B22B00912D52 /* OnboardingUITests.swift in Sources */,
 				D80A115D2ED0A4F200DCD516 /* SendAddressXRPUITests.swift in Sources */,
@@ -28617,7 +28646,6 @@
 				D8216C762E1FA192002CCA15 /* OrganizeTokensScreen.swift in Sources */,
 				D8F983DC2EBA2AB00061F55F /* SellTokenSelectorScreen.swift in Sources */,
 				D89ABED92E31979900855B00 /* SwapScreen.swift in Sources */,
-				D85E200E2E8D106E004174E6 /* MarketsScreen.swift in Sources */,
 				D8F18BCF2EA0D91300A4AF58 /* SendFeeSelectorScreen.swift in Sources */,
 				D852F8452E5CBEA800C71B7F /* WalletConnectSheet.swift in Sources */,
 				D8FE50022DF84BF50017A0E3 /* PushPermissionRequestScreen.swift in Sources */,
