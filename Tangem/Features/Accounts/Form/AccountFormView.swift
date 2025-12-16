@@ -56,6 +56,7 @@ struct AccountFormView: View {
             UIResponder.current?.resignFirstResponder()
         }
         .onAppear {
+            viewModel.onAppear()
             isNameFocused = true
         }
     }

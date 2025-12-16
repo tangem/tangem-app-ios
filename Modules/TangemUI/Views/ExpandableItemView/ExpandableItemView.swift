@@ -22,16 +22,19 @@ public struct ExpandableItemView<
     private let expandedViewHeader: ExpandedViewHeader
     private let backgroundColor: Color
     private let cornerRadius: CGFloat
+    private let onExpandedChange: ((Bool) -> Void)?
 
     public init(
         backgroundColor: Color = Colors.Background.primary,
         cornerRadius: CGFloat = 14,
+        onExpandedChange: ((Bool) -> Void)? = nil,
         @ViewBuilder collapsedView: () -> CollapsedView,
         @ViewBuilder expandedView: () -> ExpandedView,
         @ViewBuilder expandedViewHeader: () -> ExpandedViewHeader
     ) {
         self.backgroundColor = backgroundColor
         self.cornerRadius = cornerRadius
+        self.onExpandedChange = onExpandedChange
         self.collapsedView = collapsedView()
         self.expandedView = expandedView()
         self.expandedViewHeader = expandedViewHeader()
@@ -98,6 +101,8 @@ public struct ExpandableItemView<
                 isPressed = false
                 isExpanded.toggle()
             }
+
+            onExpandedChange?(isExpanded)
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 isAnimating = false
