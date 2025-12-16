@@ -165,13 +165,3 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
         )
     }
 }
-
-// MARK: Dependencies
-
-private extension CommonExpressModulesFactory {
-    /// Be careful to use tokenItem in CommonExpressAnalyticsLogger
-    /// Becase there will be inly initial tokenItem without updating
-    var analyticsLogger: ExpressAnalyticsLogger {
-        CommonExpressAnalyticsLogger(tokenItem: initialTokenItem)
-    }
-}
