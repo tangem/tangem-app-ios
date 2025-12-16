@@ -52,6 +52,8 @@ final class MainViewModel: ObservableObject {
 
     private var shouldDelayBottomSheetVisibility = true
     private var isLoggingOut = false
+    private var didLogMainScreenOpenedAnalytics = false
+    private var mainScreenOpenedAnalyticsCancellable: AnyCancellable?
 
     private var bag: Set<AnyCancellable> = []
 
@@ -109,19 +111,7 @@ final class MainViewModel: ObservableObject {
 
     /// Handles `SwiftUI.View.onAppear(perform:)`.
     func onViewAppear() {
-        if !isLoggingOut {
-            var analyticsParameters: [Analytics.ParameterKey: Analytics.ParameterValue] = [:]
-
-            if let userWalletModel = userWalletRepository.selectedModel {
-                let walletType = Analytics.ParameterValue.seedState(for: userWalletModel.hasImportedWallets)
-                analyticsParameters[.walletType] = walletType
-            }
-
-            let hasMobileWallet = userWalletRepository.models.contains { $0.config.productType == .mobileWallet }
-            analyticsParameters[.mobileWallet] = .affirmativeOrNegative(for: hasMobileWallet)
-
-            Analytics.log(.mainScreenOpened, params: analyticsParameters)
-        }
+        logMainScreenOpenedAnalytics()
 
         updateMarkets()
 
@@ -131,6 +121,9 @@ final class MainViewModel: ObservableObject {
 
     /// Handles `SwiftUI.View.onDisappear(perform:)`.
     func onViewDisappear() {
+        didLogMainScreenOpenedAnalytics = false
+        mainScreenOpenedAnalyticsCancellable = nil
+
         swipeDiscoveryHelper.cancelScheduledSwipeDiscovery()
         coordinator?.resignHandlingIncomingActions()
     }
@@ -368,6 +361,49 @@ final class MainViewModel: ObservableObject {
                 }
             }
             .store(in: &bag)
+    }
+
+    private func logMainScreenOpenedAnalytics() {
+        guard !didLogMainScreenOpenedAnalytics else { return }
+
+        let userWalletModel = userWalletRepository.selectedModel
+
+        if let userWalletModel, FeatureProvider.isAvailable(.accounts) {
+            mainScreenOpenedAnalyticsCancellable = userWalletModel
+                .accountModelsManager
+                .accountModelsPublisher
+                .filter(\.isNotEmpty)
+                .first()
+                .receiveOnMain()
+                .withWeakCaptureOf(self)
+                .sink { viewModel, accountModels in
+                    viewModel.logMainScreenOpenedEvent(userWalletModel: userWalletModel, accountModels: accountModels)
+                }
+        } else {
+            logMainScreenOpenedEvent(userWalletModel: userWalletModel, accountModels: nil)
+        }
+    }
+
+    private func logMainScreenOpenedEvent(userWalletModel: UserWalletModel?, accountModels: [AccountModel]?) {
+        guard !isLoggingOut else { return }
+
+        didLogMainScreenOpenedAnalytics = true
+
+        var params: [Analytics.ParameterKey: String] = [:]
+
+        let hasMobileWallet = userWalletRepository.models.contains { $0.config.productType == .mobileWallet }
+        params[.mobileWallet] = Analytics.ParameterValue.affirmativeOrNegative(for: hasMobileWallet).rawValue
+
+        if let userWalletModel {
+            let walletType = Analytics.ParameterValue.seedState(for: userWalletModel.hasImportedWallets)
+            params[.walletType] = walletType.rawValue
+        }
+
+        if let accountModels {
+            params[.accountsCount] = String(accountModels.cryptoAccountsCount)
+        }
+
+        Analytics.log(event: .mainScreenOpened, params: params)
     }
 
     private func openPushNotificationsAuthorizationIfNeeded() {
