@@ -23,6 +23,7 @@ struct ExpressInteractorWalletModelWrapper {
     let availableBalanceProvider: any TokenBalanceProvider
     let transactionValidator: any ExpressTransactionValidator
     let withdrawalNotificationProvider: (any WithdrawalNotificationProvider)?
+    let interactorAnalyticsLogger: any ExpressInteractorAnalyticsLogger
 
     private let walletModel: any WalletModel
 
@@ -49,6 +50,7 @@ struct ExpressInteractorWalletModelWrapper {
         availableBalanceProvider = walletModel.availableBalanceProvider
         transactionValidator = BSDKExpressTransactionValidator(transactionValidator: walletModel.transactionValidator)
         withdrawalNotificationProvider = walletModel.withdrawalNotificationProvider
+        interactorAnalyticsLogger = CommonExpressInteractorAnalyticsLogger(tokenItem: walletModel.tokenItem)
 
         let transactionDispatcher = TransactionDispatcherFactory(
             walletModel: walletModel,
