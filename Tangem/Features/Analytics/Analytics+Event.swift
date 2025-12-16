@@ -116,6 +116,8 @@ extension Analytics {
         case buttonEditWalletTapped = "[Main Screen] Button - Edit Wallet Tapped"
         case buttonDeleteWalletTapped = "[Main Screen] Button - Delete Wallet Tapped"
         case apyClicked = "[Main Screen] APY Clicked"
+        case mainButtonAccountShowTokens = "[Main Screen] Button - Account Show Tokens"
+        case mainButtonAccountHideTokens = "[Main Screen] Button - Account Hide Tokens"
 
         // MARK: - Send
 
@@ -201,6 +203,28 @@ extension Analytics {
         case walletSettingsBackupCompleteScreen = "[Settings / Wallet Settings] Backup Complete Screen"
         case walletSettingsCreateAccessCode = "[Settings / Wallet Settings] Access Code Screen Opened"
         case walletSettingsConfirmAccessCode = "[Settings / Wallet Settings] Re-enter Access Code Screen"
+        case walletSettingsButtonAddAccount = "[Settings / Wallet] Button - Add Account"
+        case walletSettingsButtonOpenExistingAccount = "[Settings / Wallet] Button - Open Existing Account"
+        case walletSettingsButtonArchivedAccounts = "[Settings / Wallet] Button - Archived Accounts"
+        case walletSettingsLongtapAccountsOrder = "[Settings / Wallet] Longtap - Accounts Order"
+        case walletSettingsAccountCreated = "[Settings / Wallet] Account Created"
+        case walletSettingsAccountRecovered = "[Settings / Wallet] Account Recovered"
+        case walletSettingsArchivedAccountsScreenOpened = "[Settings / Wallet] Archived Accounts Screen Opened"
+        case walletSettingsButtonRecoverAccount = "[Settings / Wallet] Button - Recover Account"
+
+        // MARK: - Account Settings
+
+        case accountSettingsScreenOpened = "[Settings / Account] Account Settings Screen Opened"
+        case accountSettingsButtonManageTokens = "[Settings / Account] Button - Manage Tokens"
+        case accountSettingsButtonArchiveAccount = "[Settings / Account] Button - Archive Account"
+        case accountSettingsButtonArchiveAccountConfirmation = "[Settings / Account] Button - Archive Account Confirmation"
+        case accountSettingsButtonCancelAccountArchivation = "[Settings / Account] Button - Cancel Account Archivation"
+        case accountSettingsAccountArchived = "[Settings / Account] Account Archived"
+        case accountSettingsButtonEdit = "[Settings / Account] Button - Edit"
+        case accountSettingsEditScreenOpened = "[Settings / Account] Account Edit Screen Opened"
+        case accountSettingsButtonSave = "[Settings / Account] Button - Save"
+        case accountSettingsButtonAddNewAccount = "[Settings / Account] Button - Add New Account"
+        case accountSettingsAccountError = "[Settings / Account] Account Error"
 
         // MARK: - Wallet Connect
 
@@ -459,6 +483,7 @@ extension Analytics {
         case manageTokensCustomTokenName = "[Manage Tokens / Custom] Custom Token Name"
         case manageTokensCustomTokenSymbol = "[Manage Tokens / Custom] Custom Token Symbol"
         case manageTokensCustomTokenDecimals = "[Manage Tokens / Custom] Custom Token Decimals"
+        case manageTokensCustomTokenAddedToAnotherAccount = "[Manage Tokens / Custom Token] Button - Add Token To Another Account"
 
         // MARK: - Onramp
 
