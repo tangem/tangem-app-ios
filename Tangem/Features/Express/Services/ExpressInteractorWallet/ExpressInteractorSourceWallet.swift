@@ -29,6 +29,7 @@ protocol ExpressInteractorSourceWallet: ExpressInteractorDestinationWallet, Expr
     var availableBalanceProvider: TokenBalanceProvider { get }
     var transactionValidator: any ExpressTransactionValidator { get }
     var withdrawalNotificationProvider: (any WithdrawalNotificationProvider)? { get }
+    var interactorAnalyticsLogger: any ExpressInteractorAnalyticsLogger { get }
 
     func dexTransactionProcessor() throws -> ExpressDEXTransactionProcessor
     func cexTransactionProcessor() throws -> ExpressCEXTransactionProcessor
@@ -41,4 +42,5 @@ extension ExpressSourceWallet where Self: ExpressInteractorSourceWallet {
     var currency: ExpressWalletCurrency { tokenItem.expressCurrency }
     var feeCurrency: ExpressWalletCurrency { feeTokenItem.expressCurrency }
     var allowanceProvider: (any ExpressAllowanceProvider)? { allowanceService }
+    var analyticsLogger: ExpressAnalyticsLogger { interactorAnalyticsLogger }
 }
