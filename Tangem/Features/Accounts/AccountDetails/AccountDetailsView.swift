@@ -30,6 +30,7 @@ struct AccountDetailsView: View {
             actionSheets
         }
         .alert(item: $viewModel.alert) { $0.alert }
+        .onFirstAppear(perform: viewModel.onFirstAppear)
     }
 
     private var accountSection: some View {
@@ -122,7 +123,13 @@ struct AccountDetailsView: View {
                 titleVisibility: .visible
             ) {
                 Button(Localization.accountDetailsArchive, role: .destructive) {
+                    Analytics.log(.accountSettingsButtonArchiveAccountConfirmation)
                     viewModel.archiveAccount()
+                }
+            }
+            .onChange(of: viewModel.archiveAccountDialogPresented) { isPresented in
+                if !isPresented {
+                    viewModel.handleDialogDismissed()
                 }
             }
     }
