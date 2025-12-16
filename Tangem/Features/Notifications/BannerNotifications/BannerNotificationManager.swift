@@ -174,12 +174,11 @@ class BannerNotificationManager {
         promotion: ActivePromotionInfo,
         analytics: BannerNotificationEventAnalyticsParamsBuilder
     ) -> AnyPublisher<BannerNotificationEvent?, Never> {
-        let buttonAction: NotificationButtonAction?
-
-        if let link = promotion.link {
-            buttonAction = .init(.openLink(promotionLink: link, buttonTitle: promotion.bannerPromotion.buttonTitle))
-        } else {
-            buttonAction = nil
+        let buttonAction: NotificationButtonAction? = promotion.link.map { link in
+            .init(.openLink(
+                promotionLink: link,
+                buttonTitle: promotion.bannerPromotion.buttonTitle
+            ))
         }
 
         let event = BannerNotificationEvent(

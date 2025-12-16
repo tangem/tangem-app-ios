@@ -239,15 +239,6 @@ private extension OnrampModel {
         _onrampProviders.send(.success(list))
         _selectedOnrampProvider.send(.success(provider))
     }
-
-    // MARK: - Payment method
-
-    func updatePaymentMethod(method: OnrampPaymentMethod) {
-        runTask(in: self) {
-            let provider = try await $0.onrampManager.suggestProvider(in: $0.providersList(), paymentMethod: method)
-            $0._selectedOnrampProvider.send(.success(provider))
-        }
-    }
 }
 
 // MARK: - Preference bindings
