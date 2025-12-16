@@ -10,8 +10,9 @@ import Combine
 import CombineExt
 import BlockchainSdk
 import TangemSdk
+import TangemFoundation
 
-class CommonWalletModelsManager {
+final class CommonWalletModelsManager {
     private let walletManagersRepository: WalletManagersRepository
     private let walletModelsFactory: WalletModelsFactory
     private let derivationIndex: Int
@@ -45,13 +46,14 @@ class CommonWalletModelsManager {
         walletManagersRepository
             .walletManagersPublisher
             .sink { [weak self] managers in
+                // this triggers first sync!
                 self?.updateWalletModels(with: managers)
             }
             .store(in: &bag)
     }
 
     private func updateWalletModels(with walletManagers: [BlockchainNetwork: WalletManager]) {
-        AppLogger.info("🔄 Updating Wallet models")
+        AppLogger.info("\(self): 🔄 Updating wallet models")
 
         let existingWalletModelIds = Set(walletModels.map { $0.id })
 
@@ -128,7 +130,13 @@ class CommonWalletModelsManager {
     }
 }
 
-// MARK: - Initializable protocol conformance
+// MARK: - CustomStringConvertible protocol conformance
+
+extension CommonWalletModelsManager: CustomStringConvertible {
+    var description: String {
+        objectDescription(self)
+    }
+}
 
 extension CommonWalletModelsManager: Initializable {
     func initialize() {
@@ -182,7 +190,7 @@ extension CommonWalletModelsManager: WalletModelsManager {
 
 private extension CommonWalletModelsManager {
     func log(walletModels: [any WalletModel]) {
-        AppLogger.info("✅ Actual List of WalletModels [\(walletModels.map(\.name))]")
+        AppLogger.info("\(self): ✅ Actual list of wallet models - \(walletModels.map(\.name))")
     }
 
     func makeTargetDerivationPath(for blockchain: Blockchain) -> DerivationPath? {
