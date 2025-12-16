@@ -1385,10 +1385,10 @@
 "tangempay_onboarding_security_title" = "無與倫比的隱私";
 "tangempay_onboarding_title" = "在幾分鐘內獲得免費的 Tangem Pay 卡";
 "tangempay_payment_account_sync_needed" = "需要同步支付账户";
-"tangempay_payment_account" = "Payment account";
+"tangempay_payment_account" = "付款帳戶";
 "tangempay_service_unavailable_description" = "我们正在修复技术问题。请稍后再试。";
 "tangempay_service_unavailable_title" = "服務暫時無法使用";
-"tangempay_service_unreachable_try_later" = "服务当前不可用，请稍后再试";
+"tangempay_service_unreachable_try_later" = "目前無法顯示資料，但卡片支付仍可正常使用。";
 "tangempay_sync_needed" = "需要同步";
 "tangempay_tangem_visa_card" = "Tangem Visa Card";
 "tangempay_temporarily_unavailable" = "Tangem Pay暂时不可用";
