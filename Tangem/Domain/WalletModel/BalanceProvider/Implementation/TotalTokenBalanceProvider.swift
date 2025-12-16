@@ -139,7 +139,7 @@ private extension TotalTokenBalanceProvider {
 
     private func combineBalances(available: Decimal, staked: Decimal) -> Decimal {
         switch tokenItem.blockchain {
-        case .cardano: available // cardano doesn't block staked amount, so staked == available
+        case .cardano: staked // cardano doesn't block staked amount, so total balance == staked == balance in staking + rewards
         default: available + staked
         }
     }
