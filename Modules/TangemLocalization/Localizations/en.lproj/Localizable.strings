@@ -1388,10 +1388,10 @@
 "tangempay_payment_account" = "Payment account";
 "tangempay_service_unavailable_description" = "We’re fixing a technical issue. Please try again later.";
 "tangempay_service_unavailable_title" = "Service temporarily unavailable";
-"tangempay_service_unreachable_try_later" = "The service is currently unreachable. Please try again later.";
+"tangempay_service_unreachable_try_later" = "Unable to display details. However, card payments are still working.";
 "tangempay_sync_needed" = "Sync needed";
 "tangempay_tangem_visa_card" = "Tangem Visa Card";
-"tangempay_temporarily_unavailable" = "Tangem Pay is temporarily unavailable";
+"tangempay_temporarily_unavailable" = "Tangem Pay is temporarily unreachable";
 "tangempay_title" = "Tangem Pay";
 "tangempay_use_tangem_device_to_restore_payment_account" = "Use your card or ring to restore access to your payment account";
 "tangempay_your_pin_code" = "Your PIN code";
