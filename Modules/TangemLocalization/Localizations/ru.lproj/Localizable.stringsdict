@@ -193,7 +193,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string></string>
+        <string>%lih ago</string>
         <key>other</key>
         <string>%lih ago</string>
       </dict>
