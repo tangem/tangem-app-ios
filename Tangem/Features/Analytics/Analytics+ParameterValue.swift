@@ -278,6 +278,12 @@ extension Analytics {
         case yieldModuleApproveNeeded = "Approve Required"
         case yieldModuleSourceInfo = "Earning"
 
+        // MARK: - Account Settings
+
+        case accountSourceEdit = "Edit"
+        case accountSourceNew = "New Account"
+        case accountSourceArchive = "Archive"
+
         // MARK: - Common
 
         static func toggleState(for boolean: Bool) -> ParameterValue {
