@@ -49,9 +49,7 @@ struct ReceiveFlowFactory {
         )
     }
 
-    func makeTokenAlertReceiveAssetViewModel() -> TokenAlertReceiveAssetsViewModel {
-        let selectorViewModel = makeSelectorReceiveAssetViewModel()
-
+    func makeTokenAlertReceiveAssetViewModel(with selectorViewModel: SelectorReceiveAssetsViewModel) -> TokenAlertReceiveAssetsViewModel {
         return TokenAlertReceiveAssetsViewModel(
             tokenItem: tokenItem,
             selectorViewModel: selectorViewModel,
