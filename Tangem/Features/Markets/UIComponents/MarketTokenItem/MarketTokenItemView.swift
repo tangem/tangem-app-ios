@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemUI
 
@@ -39,6 +40,8 @@ struct MarketTokenItemView: View {
             .padding(.horizontal, Constants.horizontalViewPadding)
             .padding(.vertical, 14)
         }
+        .accessibilityIdentifier(
+            MarketsAccessibilityIdentifiers.marketsListTokenItem(uniqueId: viewModel.name))
     }
 
     private var tokenInfoView: some View {
