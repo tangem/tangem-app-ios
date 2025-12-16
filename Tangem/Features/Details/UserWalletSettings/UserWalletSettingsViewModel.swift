@@ -715,7 +715,17 @@ private extension UserWalletSettingsViewModel {
 
 private extension UserWalletSettingsViewModel {
     func logScreenOpenedAnalytics() {
-        Analytics.log(.walletSettingsScreenOpened, contextParams: analyticsContextParams)
+        var params: [Analytics.ParameterKey: String] = [:]
+
+        if FeatureProvider.isAvailable(.accounts) {
+            params[.accountsCount] = String(userWalletModel.accountModelsManager.accountModels.cryptoAccountsCount)
+        }
+
+        Analytics.log(
+            event: .walletSettingsScreenOpened,
+            params: params,
+            contextParams: analyticsContextParams
+        )
     }
 
     func logMobileBackupNeededToAccessCodeAnalytics() {
