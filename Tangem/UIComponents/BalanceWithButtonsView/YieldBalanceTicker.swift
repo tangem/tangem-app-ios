@@ -185,7 +185,7 @@ final class YieldBalanceTicker {
 
 extension YieldBalanceTicker {
     enum Constants {
-        static let tickTimeout = Decimal(stringValue: "0.3")!
+        static let tickTimeout = Decimal(stringValue: "0.8")!
         static let secondsPerYear: Decimal = 31536000 // 365 * 24 * 60 * 60
 
         static let defaultDecimals = 2
