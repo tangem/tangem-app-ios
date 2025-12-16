@@ -6,33 +6,14 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import XCTest
 import TangemAccessibilityIdentifiers
+import XCTest
 
 final class MarketsScreen: ScreenBase<MarketsScreenElement> {
     private lazy var searchField = textField(.searchThroughMarketField)
     private lazy var addToPortfolioButton = button(.addToPortfolioButton)
     private lazy var mainNetworkSwitch = switchElement(.mainNetworkSwitch)
     private lazy var continueButton = button(.continueButton)
-
-    @discardableResult
-    func openMarketsSheetWithSwipe() -> Self {
-        XCTContext.runActivity(named: "Open markets sheet with swipe up gesture") { _ in
-            // Find the grabber view or bottom sheet area to swipe up
-            let grabberView = app.otherElements.matching(identifier: "commonUIGrabber").firstMatch
-
-            waitAndAssertTrue(grabberView)
-
-            // Swipe up on the grabber view
-            let startPoint = grabberView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
-            let endPoint = startPoint.withOffset(CGVector(dx: 0, dy: -300)) // Swipe up 200 points
-            startPoint.press(forDuration: 0.1, thenDragTo: endPoint)
-
-            // Wait for the markets sheet to appear
-            XCTAssertTrue(searchField.waitForExistence(timeout: .robustUIUpdate), "Markets search field should exist after swipe")
-            return self
-        }
-    }
 
     @discardableResult
     func closeMarketsSheetWithSwipe() -> MainScreen {
@@ -43,7 +24,8 @@ final class MarketsScreen: ScreenBase<MarketsScreenElement> {
             waitAndAssertTrue(grabberView)
 
             // Swipe down on the grabber view
-            let startPoint = grabberView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+            let startPoint = grabberView.coordinate(
+                withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
             let endPoint = startPoint.withOffset(CGVector(dx: 0, dy: 400)) // Swipe down 300 points
             startPoint.press(forDuration: 0.1, thenDragTo: endPoint)
 
@@ -54,7 +36,9 @@ final class MarketsScreen: ScreenBase<MarketsScreenElement> {
     @discardableResult
     func searchForToken(_ tokenName: String) -> Self {
         XCTContext.runActivity(named: "Search for token: \(tokenName)") { _ in
-            let marketsSearchField = app.textFields.matching(identifier: MainAccessibilityIdentifiers.searchThroughMarketField).element(boundBy: 1)
+            let marketsSearchField = app.textFields.matching(
+                identifier: MainAccessibilityIdentifiers.searchThroughMarketField
+            ).element(boundBy: 1)
             waitAndAssertTrue(marketsSearchField, "Markets search field should exist")
             marketsSearchField.tap()
             marketsSearchField.typeText(tokenName)
@@ -65,17 +49,28 @@ final class MarketsScreen: ScreenBase<MarketsScreenElement> {
     @discardableResult
     func tapTokenInSearchResults(_ tokenName: String) -> Self {
         XCTContext.runActivity(named: "Tap token in search results: \(tokenName)") { _ in
-            let tokenButton = app.staticTexts[tokenName].firstMatch
-            XCTAssertTrue(tokenButton.waitForExistence(timeout: .robustUIUpdate), "Token button should exist")
-            tokenButton.waitAndTap()
+            let tokenButton = app.buttons[
+                MarketsAccessibilityIdentifiers.marketsListTokenItem(uniqueId: tokenName)
+            ]
+            waitAndAssertTrue(tokenButton, "Token button should exist")
+            tokenButton.tap()
             return self
         }
     }
 
     @discardableResult
+    func openTokenDetails(_ tokenName: String) -> MarketsTokenDetailsScreen {
+        tapTokenInSearchResults(tokenName)
+        return MarketsTokenDetailsScreen(app)
+    }
+
+    @discardableResult
     func tapAddToPortfolioButton() -> Self {
         XCTContext.runActivity(named: "Tap Add to Portfolio button") { _ in
-            XCTAssertTrue(addToPortfolioButton.waitForExistence(timeout: .robustUIUpdate), "Add to Portfolio button should exist")
+            XCTAssertTrue(
+                addToPortfolioButton.waitForExistence(timeout: .robustUIUpdate),
+                "Add to Portfolio button should exist"
+            )
             addToPortfolioButton.waitAndTap()
             return self
         }
@@ -84,7 +79,10 @@ final class MarketsScreen: ScreenBase<MarketsScreenElement> {
     @discardableResult
     func toggleMainNetworkSwitch() -> Self {
         XCTContext.runActivity(named: "Toggle MAIN network switch") { _ in
-            XCTAssertTrue(mainNetworkSwitch.waitForExistence(timeout: .robustUIUpdate), "MAIN network switch should exist")
+            XCTAssertTrue(
+                mainNetworkSwitch.waitForExistence(timeout: .robustUIUpdate),
+                "MAIN network switch should exist"
+            )
             mainNetworkSwitch.waitAndTap()
             return self
         }
@@ -93,7 +91,10 @@ final class MarketsScreen: ScreenBase<MarketsScreenElement> {
     @discardableResult
     func tapContinueButton() -> Self {
         XCTContext.runActivity(named: "Tap Continue button") { _ in
-            XCTAssertTrue(continueButton.waitForExistence(timeout: .robustUIUpdate), "Continue button should exist")
+            XCTAssertTrue(
+                continueButton.waitForExistence(timeout: .robustUIUpdate),
+                "Continue button should exist"
+            )
             continueButton.waitAndTap()
             return self
         }
