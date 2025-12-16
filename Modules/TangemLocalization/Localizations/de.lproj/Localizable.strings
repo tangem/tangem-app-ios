@@ -360,6 +360,7 @@
 "common_week" = "Woche";
 "common_with" = "mit";
 "common_yes" = "Ja";
+"common_yield_mode" = "Ertragsmodus";
 "contract_address_copied_message" = "Vertragsadresse kopiert!";
 "currency_subtitle_expanded" = "Verfügbare Netzwerke";
 "custom_token_another_account_dialog_description" = "Die Ableitung Deines Tokens entspricht der Ableitung von %1$@. Dein Token wird diesem Konto gutgeschrieben.";
@@ -558,13 +559,13 @@
 "hw_backup_icloud_title" = "iCloud-Sicherung";
 "hw_backup_need_action" = "Gehe zum Backup";
 "hw_backup_need_description" = "Bitte sicher Deine Wallet, bevor Du einen Zugangscode erstellst.";
-"hw_backup_need_finish_first" = "Finish Backup First";
+"hw_backup_need_finish_first" = "Finish backup first";
 "hw_backup_need_title" = "Zuerst die Sicherung abschließen";
 "hw_backup_no_backup" = "Unvollständig";
 "hw_backup_section_other_title" = "Andere Methoden";
-"hw_backup_seed_description" = "Manually save your recovery phrase in a secure place and keep it private to protect your funds.";
+"hw_backup_seed_description" = "Save your recovery phrase in a secure place and keep it private to protect your funds.";
 "hw_backup_seed_title" = "Wiederherstellungs-Phrase";
-"hw_backup_to_secure_description" = "To secure your wallet with an Access Code, complete the backup first.";
+"hw_backup_to_secure_description" = "To secure your wallet with an access code, complete the backup process.";
 "hw_backup_to_upgrade_description" = "Um Deine Wallet auf Hardware umzustellen, erstelle vorher ein Backup.";
 "hw_create_keys_description" = "Deine privaten Schlüssel sind sicher verschlüsselt und auf Deinem Telefon gespeichert.";
 "hw_create_keys_title" = "Schlüssel werden in der App gespeichert";
@@ -677,6 +678,7 @@
 "markets_sort_by_top_gainers_title" = "Top-Gewinner";
 "markets_sort_by_top_losers_title" = "Top-Verlierer";
 "markets_sort_by_trending_title" = "Beliebt";
+"markets_sort_by_yield_mode_title" = "Yield Mode";
 "markets_staking_banner_description_placeholder" = "Staking ist der einfachste Weg, um Belohnungen für Deine Kryptowährung zu erhalten. %@";
 "markets_staking_banner_title" = "Verdiene bis zu %@ APY";
 "markets_token_added" = "Token hinzugefügt";
@@ -791,9 +793,9 @@
 "no_trustline_xlm_asset" = "Das Zielkonto verfügt nicht über eine Vertrauensstellung für das gesendete Asset.";
 "notification_black_friday_text" = "Sicher Dir 10 $ in BTC mit jeder Wallet greif schnell zu!";
 "notification_black_friday_title" = "Black Friday: bis zu 30%% Nachlass";
-"notification_one_plus_one_button" = "Let’s go";
-"notification_one_plus_one_text" = "Limited time!";
-"notification_one_plus_one_title" = "1+1: Buy One Wallet, Get 50%% OFF";
+"notification_one_plus_one_button" = "Los geht's";
+"notification_one_plus_one_text" = "Nur für kurze Zeit!";
+"notification_one_plus_one_title" = "1+1: Beim Kauf einer Wallet erhältst Du 50%% Rabatt";
 "notification_referral_promo_button" = "Jetzt beitreten";
 "notification_sepa_button" = "Krypto kaufen";
 "notification_sepa_text" = "Profitiere von **0 %% Gebühren** beim Kauf von Kryptowährungen per SEPA-Überweisung.";
@@ -891,6 +893,7 @@
 "onramp_currency_other" = "Andere Währungen";
 "onramp_currency_popular" = "Beliebte Fiats";
 "onramp_currency_search" = "Suche nach Währung";
+"onramp_error_transaction_already_processed" = "This transaction has already been processed. No further action is required.";
 "onramp_fetching_best_rates" = "Die besten Preise erzielen...";
 "onramp_instant_status" = "Sofort";
 "onramp_legal_text" = "Der Service wird von einem externen Anbieter bereitgestellt. \n Tangem übernimmt keine Verantwortung.";
@@ -1312,6 +1315,7 @@
 "tangem_pay_unfreeze_card_failed" = "Entsperren der Karte fehlgeschlagen. Versuchen Sie es später erneut.";
 "tangem_pay_unfreeze_card_success" = "Ihre Karte ist entsperrt.";
 "tangem_pay_withdrawal" = "Abhebung";
+"tangempay_account_unable_to_use_rooted" = "Unable to use on rooted device";
 "tangempay_card_details_add_funds_subtitle" = "Aufladeoptionen";
 "tangempay_card_details_add_funds" = "Guthaben hinzufügen";
 "tangempay_card_details_card_number" = "Kartennummer";
@@ -1353,6 +1357,7 @@
 "tangempay_card_details_withdraw" = "Auszahlung";
 "tangempay_change_pin_code" = "PIN-Code ändern";
 "tangempay_come_back_if_forget_pin" = "Kehren Sie zur App zurück, falls Sie ihn vergessen.";
+"tangempay_factory_settings_warning_title" = "I understand that I will completely lose access to my Tangem Pay Card and all funds on it without the possibility of recovery";
 "tangempay_failed_to_issue_card_retry_description" = "Ein technischer Fehler ist aufgetreten, bitte versuchen Sie es erneut, indem Sie auf die Schaltfläche unten klicken";
 "tangempay_failed_to_issue_card_support_description" = "Ein technischer Fehler ist aufgetreten, bitte kontaktieren Sie den Support";
 "tangempay_failed_to_issue_card" = "Kartenausstellung fehlgeschlagen";
