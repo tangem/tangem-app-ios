@@ -13,9 +13,21 @@ import TangemSdk
 // MARK: - Token Account Destination
 
 enum TokenAccountDestination {
-    case currentAccount
-    case differentAccount(accountName: String)
+    case currentAccount(isMainAccount: Bool)
+    case differentAccount(accountName: String, isMainAccount: Bool)
+    @available(iOS, deprecated: 100000.0, message: "Will be removed in the future ([REDACTED_INFO])")
     case noAccount
+
+    var isMainAccount: Bool {
+        switch self {
+        case .currentAccount(let isMainAccount):
+            return isMainAccount
+        case .differentAccount(_, let isMainAccount):
+            return isMainAccount
+        case .noAccount:
+            return true
+        }
+    }
 }
 
 // MARK: - Provider Protocol
