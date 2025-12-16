@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemFoundation
+import UIKit // [REDACTED_TODO_COMMENT]
 
 private extension DispatchQueue {
     static let baseManagerUpdateQueue = DispatchQueue(label: "com.tangem.BaseManager.updateQueue", attributes: .concurrent)
@@ -53,6 +54,7 @@ class BaseManager {
 
 extension BaseManager: WalletUpdater {
     func setNeedsUpdate() {
+        let _ = print("\(#function) called at \(CACurrentMediaTime())")
         _latestUpdateTime = nil
         _updatingSubscription?.cancel()
         _updatingSubscription = nil
@@ -63,7 +65,7 @@ extension BaseManager: WalletUpdater {
         // It can be cause of the race condition to initiate update and create `_updatingPublisher`
         return _updateQueue.sync {
             let logger = BSDKLogger.tag("BaseManager")
-            let walletName = "wallet \(wallet.blockchain.displayName)"
+            let walletName = "wallet \(wallet.blockchain.displayName) \(wallet.address)"
 
             // If updating already in process return updating Publisher
             if _updatingSubscription != nil, let updatePublisher = _updatingPublisher {
@@ -79,7 +81,9 @@ extension BaseManager: WalletUpdater {
             }
 
             logger.info(self, "Start updating \(walletName)")
+            logger.info(self, "Start sending \(walletName)")
             _state.send(.loading)
+            logger.info(self, "Finish sending \(walletName)")
 
             _updatingSubscription = makeUpdatePublisher()
                 .sink(receiveCompletion: { [weak self] completion in
@@ -94,28 +98,42 @@ extension BaseManager: WalletUpdater {
                         _state.send(.loaded)
                         _latestUpdateTime = Date()
                     }
+                    logger.info(self, "Test 1 \(walletName)")
                     _updatingPublisher?.send(())
                     _updatingSubscription = nil
                     _updatingPublisher = nil
+                    logger.info(self, "Test 3 \(walletName)")
                 }, receiveValue: { _ in })
 
             if let _updatingPublisher {
                 return _updatingPublisher.eraseToAnyPublisher()
             }
 
+            logger.info(self, "Start creating updatePublisher \(walletName)")
             let updatePublisher = PassthroughSubject<Void, Never>()
             _updatingPublisher = updatePublisher
+            logger.info(self, "Finish creating updatePublisher \(walletName)")
+
             return updatePublisher.eraseToAnyPublisher()
         }
     }
 
     private func makeUpdatePublisher() -> AnyPublisher<Void, Error> {
+        let logger = BSDKLogger.tag("BaseManager")
+        let walletName = "wallet \(wallet.blockchain.displayName) \(wallet.address)"
+
         return Future<Void, Error> { [weak self] promise in
             self?.update { result in
                 switch result {
                 case .success:
+                    if let self {
+                        logger.info(self, "Successful update \(walletName)")
+                    }
                     promise(.success(()))
                 case .failure(let error):
+                    if let self {
+                        logger.info(self, "Failed update \(walletName)")
+                    }
                     promise(.failure(error))
                 }
             }
@@ -144,7 +162,7 @@ extension BaseManager: TokensWalletProvider {
     var cardTokens: [Token] { _tokens }
 }
 
-// MARK: - Config
+// MARK: - CustomStringConvertible
 
 extension BaseManager: CustomStringConvertible {
     var description: String {
