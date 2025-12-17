@@ -271,9 +271,7 @@ extension MainCoordinator {
             deeplinkString: String
         ) -> Bool {
             guard FeatureProvider.isAvailable(.visa),
-                  let coordinator,
-                  let userWalletModel = userWalletRepository.selectedModel,
-                  userWalletModel.config.hasFeature(.hdWallets)
+                  let coordinator
             else {
                 incomingActionManager.discardIncomingAction()
                 return false
@@ -281,8 +279,7 @@ extension MainCoordinator {
 
             coordinator.openDeepLink(
                 .onboardVisa(
-                    deeplinkString: deeplinkString,
-                    userWalletModel: userWalletModel
+                    deeplinkString: deeplinkString
                 )
             )
             return true

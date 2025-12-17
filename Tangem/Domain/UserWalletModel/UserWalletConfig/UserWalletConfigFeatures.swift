@@ -38,6 +38,7 @@ enum UserWalletFeature: Int, CaseIterable { // [REDACTED_TODO_COMMENT]
     case isBalanceRestrictionActive
     case nfcInteraction
     case transactionPayloadLimit
+    case tangemPay
 }
 
 extension UserWalletFeature {

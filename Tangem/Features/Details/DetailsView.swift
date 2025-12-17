@@ -66,7 +66,7 @@ struct DetailsView: View {
     }
 
     private var buyWalletSection: some View {
-        GroupedSection(viewModel.buyWalletViewModel) {
+        GroupedSection(viewModel.getSectionViewModels) {
             DefaultRowView(viewModel: $0)
                 .appearance(.accentButton)
         }

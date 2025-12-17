@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 60;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -9211,6 +9211,12 @@
 		F990070B2CD3E1D800DFE2D3 /* KaspaUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KaspaUtils.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		DF34D6F62EF11F6F0076C9F2 /* AvailabilityRepository */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = AvailabilityRepository; sourceTree = "<group>"; };
+		DFB0DFA52EEA7323006885A1 /* Coordinator */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Coordinator; sourceTree = "<group>"; };
+		DFFE445E2EE1A917004CAC28 /* GetTangemPay */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = GetTangemPay; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
 		5D3F77BF24BF56D800E8695B /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
@@ -12573,6 +12579,7 @@
 				B08394E22B299FA00025176F /* VisaWalletMainContent */,
 				B036625D2B63848F0064E073 /* VisaTransactionDetails */,
 				B04718FD2B4E7BED00444734 /* VisaBalancesLimits */,
+				DFFE445E2EE1A917004CAC28 /* GetTangemPay */,
 			);
 			path = Visa;
 			sourceTree = "<group>";
@@ -18396,6 +18403,7 @@
 				DA1FAB342E7C652A0059FFE5 /* TangemPayNotificationManager.swift */,
 				DF42B0232ECEEF4300019970 /* TangemPayIssuingManager.swift */,
 				EFB142C42ED6384F00886D11 /* TangemPayAccountProvider.swift */,
+				DF34D6F62EF11F6F0076C9F2 /* AvailabilityRepository */,
 			);
 			path = TangemPay;
 			sourceTree = "<group>";
@@ -18873,6 +18881,7 @@
 			children = (
 				DAEE39852E740995006BE201 /* TangemPayOnboardingView.swift */,
 				DAEE39872E7409A6006BE201 /* TangemPayOnboardingViewModel.swift */,
+				DFB0DFA52EEA7323006885A1 /* Coordinator */,
 				DFDA6B412ED865FC009F4B50 /* TangemPayOnboardingHostingController.swift */,
 			);
 			path = TangemPayOnboarding;
@@ -25187,6 +25196,11 @@
 				B09933892B5517EC00240CDB /* PBXTargetDependency */,
 				EFEE239C2BFF62D60099917E /* PBXTargetDependency */,
 				B68E1F772CBC44060043E598 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				DF34D6F62EF11F6F0076C9F2 /* AvailabilityRepository */,
+				DFB0DFA52EEA7323006885A1 /* Coordinator */,
+				DFFE445E2EE1A917004CAC28 /* GetTangemPay */,
 			);
 			name = Tangem;
 			packageProductDependencies = (
