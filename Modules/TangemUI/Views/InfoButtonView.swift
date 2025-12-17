@@ -10,7 +10,6 @@ import SwiftUI
 import TangemAssets
 import TangemUIUtils
 
-@available(iOS 16.4, *)
 public struct InfoButtonView: View {
     @State private var isTooltipShowing: Bool = false
     @State private var tooltipSize: CGSize = .zero
@@ -49,14 +48,12 @@ public struct InfoButtonView: View {
 
 // MARK: - Setupable
 
-@available(iOS 16.4, *)
 extension InfoButtonView: Setupable {
     public func color(_ color: Color) -> Self {
         map { $0.color = color }
     }
 }
 
-@available(iOS 16.4, *)
 public extension InfoButtonView {
     enum Size {
         case small
