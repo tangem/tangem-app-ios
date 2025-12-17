@@ -235,7 +235,11 @@ extension DetailsViewModel {
     }
 
     func openAddWallet() {
-        Analytics.log(.buttonAddWallet, params: [.source: .settings])
+        Analytics.log(
+            .buttonAddWallet,
+            params: [.source: .settings],
+            contextParams: .empty
+        )
         coordinator?.openAddWallet()
     }
 
