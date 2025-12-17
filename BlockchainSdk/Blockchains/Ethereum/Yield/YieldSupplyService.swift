@@ -46,7 +46,7 @@ public final class EthereumYieldSupplyService: YieldSupplyService {
     }
 
     public func getYieldContract() async throws -> String {
-        let walletAddressPart = Data(hex: wallet.defaultAddress.value).getSha256().hexString
+        let walletAddressPart = Data(hex: wallet.defaultAddress.value).getSHA256().hexString
 
         let storageKey = [
             walletAddressPart,
