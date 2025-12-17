@@ -389,7 +389,9 @@ final class MainViewModel: ObservableObject {
 
         didLogMainScreenOpenedAnalytics = true
 
-        var params: [Analytics.ParameterKey: String] = [:]
+        var params: [Analytics.ParameterKey: String] = [
+            .appTheme: AppSettings.shared.appTheme.analyticsParamValue,
+        ]
 
         let hasMobileWallet = userWalletRepository.models.contains { $0.config.productType == .mobileWallet }
         params[.mobileWallet] = Analytics.ParameterValue.affirmativeOrNegative(for: hasMobileWallet).rawValue
