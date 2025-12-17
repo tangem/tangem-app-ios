@@ -92,5 +92,7 @@ public extension VisaCustomerInfoResponse {
 
     struct Card: Decodable {
         public let cardNumberEnd: String
+        @DefaultIfMissing
+        public var isPINSet: Bool
     }
 }

@@ -12,17 +12,13 @@ import TangemAssets
 import TangemUI
 
 struct NewAppSettingsView: View {
-    @ObservedObject private var viewModel: NewAppSettingsViewModel
-
-    init(viewModel: NewAppSettingsViewModel) {
-        self.viewModel = viewModel
-    }
+    @ObservedObject var viewModel: NewAppSettingsViewModel
 
     var body: some View {
         ZStack {
             Colors.Background.secondary.edgesIgnoringSafeArea(.all)
 
-            GroupedScrollView(spacing: 24) {
+            GroupedScrollView(contentType: .lazy(alignment: .center, spacing: 24)) {
                 appCurrencySection
 
                 warningSection
@@ -41,14 +37,12 @@ struct NewAppSettingsView: View {
         .navigationBarTitle(Text(Localization.appSettingsTitle), displayMode: .inline)
     }
 
-    @ViewBuilder
     private var appCurrencySection: some View {
         GroupedSection(viewModel.currencySelectionViewModel) {
             DefaultRowView(viewModel: $0)
         }
     }
 
-    @ViewBuilder
     private var warningSection: some View {
         GroupedSection(viewModel.warningViewModel) {
             DefaultWarningRow(viewModel: $0)
