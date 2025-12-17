@@ -48,7 +48,7 @@ struct OnrampOffersSelectorView: View {
             GroupedScrollView(contentType: .plain(alignment: .leading, spacing: 8)) {
                 content
             }
-            .scrollBounceBehaviorBackport(.basedOnSize)
+            .scrollBounceBehavior(.basedOnSize)
             .animation(.contentFrameUpdate, value: viewModel.viewState.isPaymentMethods)
             .padding(.bottom, 16)
         }
