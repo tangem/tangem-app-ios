@@ -32,7 +32,7 @@ struct WCRequestDetailsView: View {
                 ForEach(viewModel.requestDetails, content: requestDataSection)
                     .padding(.horizontal, 16)
             }
-            .scrollBounceBehaviorBackport(.basedOnSize)
+            .scrollBounceBehavior(.basedOnSize)
         }
     }
 
