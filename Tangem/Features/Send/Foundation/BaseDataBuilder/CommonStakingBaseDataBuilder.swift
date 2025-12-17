@@ -17,7 +17,7 @@ protocol StakingBaseDataBuilderInput: SendBaseDataBuilderInput {
     var approveViewModelInput: ApproveViewModelInput? { get }
 
     var stakingActionType: StakingAction.ActionType? { get }
-    var validator: ValidatorInfo? { get }
+    var target: StakingTargetInfo? { get }
 }
 
 struct CommonStakingBaseDataBuilder: StakingBaseDataBuilder {
@@ -53,7 +53,7 @@ struct CommonStakingBaseDataBuilder: StakingBaseDataBuilder {
             isFeeIncluded: input.isFeeIncluded,
             lastError: .init(error: error),
             stakingAction: input.stakingActionType,
-            validator: input.validator
+            stakingTarget: input.target
         )
 
         let recipient = emailDataProvider.emailConfig?.recipient ?? EmailConfig.default.recipient
@@ -75,7 +75,7 @@ struct CommonStakingBaseDataBuilder: StakingBaseDataBuilder {
             isFeeIncluded: input.isFeeIncluded,
             lastError: .init(error: error),
             stakingAction: input.stakingActionType,
-            validator: input.validator
+            stakingTarget: input.target
         )
 
         let recipient = emailDataProvider.emailConfig?.recipient ?? EmailConfig.default.recipient
