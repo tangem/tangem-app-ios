@@ -76,7 +76,7 @@ private extension TangemPayTokenBalanceProvider {
     func mapToTokenBalanceType(balance: LoadingResult<TangemPayBalance, Error>?) -> TokenBalanceType {
         switch balance {
         case .none:
-            return .empty(.noData)
+            return .loaded(.zero)
         case .loading:
             return .loading(cachedBalance())
         case .failure:
