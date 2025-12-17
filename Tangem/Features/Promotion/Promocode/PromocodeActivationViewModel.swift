@@ -42,7 +42,7 @@ final class PromocodeActivationViewModel: ObservableObject {
 
         do {
             // Delay added to handle cold start, since getWalletAddress may fail before wallet models are fully loaded
-            try await Task.sleep(seconds: 1)
+            try await Task.sleep(for: .seconds(1))
             let address = try getWalletAddress()
             let request = PromoCodeActivationDTO.Request(address: address, promoCode: promoCode)
             _ = try await tangemApiService.activatePromoCode(request: request).async()
@@ -65,17 +65,26 @@ final class PromocodeActivationViewModel: ObservableObject {
     }
 
     private func getWalletAddress() throws -> String {
-        // accounts_fixes_needed_promocode
-        guard let address = userWalletRepository
-            .selectedModel?
-            .walletModelsManager
-            .walletModels
-            .first(where: { $0.tokenItem.blockchain == .bitcoin(testnet: false) })?.defaultAddressString
-        else {
+        guard let userWalletModel = userWalletRepository.selectedModel else {
             throw PromocodeActivationError.noAddress
         }
 
-        return address
+        var walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
+
+        if FeatureProvider.isAvailable(.accounts) {
+            // Prefer main account's wallet model when multiple accounts are present - this is why we sort them here
+            walletModels.sort { first, second in
+                let isFirstMainAccount = first.account?.isMainAccount ?? false
+                let isSecondMainAccount = second.account?.isMainAccount ?? false
+                return isFirstMainAccount && !isSecondMainAccount
+            }
+        }
+
+        guard let walletModel = walletModels.first(where: { $0.tokenItem.blockchain == .bitcoin(testnet: false) }) else {
+            throw PromocodeActivationError.noAddress
+        }
+
+        return walletModel.defaultAddressString
     }
 }
 
