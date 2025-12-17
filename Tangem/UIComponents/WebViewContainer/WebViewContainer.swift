@@ -22,7 +22,7 @@ struct WebViewContainer: View {
     var body: some View {
         VStack {
             if viewModel.withCloseButton {
-                NavigationView {
+                NavigationStack {
                     content
                         .navigationBarItems(
                             leading: CloseButton { presentationMode.wrappedValue.dismiss() }
@@ -34,7 +34,7 @@ struct WebViewContainer: View {
             }
         }
         .sheet(item: $popupUrl) { popupUrl in
-            NavigationView {
+            NavigationStack {
                 WebView(url: popupUrl, popupUrl: .constant(nil), isLoading: .constant(false))
                     .navigationBarTitle("", displayMode: .inline)
             }
