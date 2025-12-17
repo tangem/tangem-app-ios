@@ -41,6 +41,7 @@ struct AppCoordinatorView: CoordinatorView {
                 // Ensures that this is a full-screen container and keyboard avoidance is disabled to mitigate [REDACTED_INFO]
                 .ignoresSafeArea(.all, edges: .vertical)
             }
+            .observeAppColorScheme()
             .bottomSheet(
                 item: $sensitiveTextVisibilityViewModel.informationHiddenBalancesViewModel,
                 backgroundColor: Colors.Background.primary
