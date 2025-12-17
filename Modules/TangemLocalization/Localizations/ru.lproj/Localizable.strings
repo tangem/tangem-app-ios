@@ -350,6 +350,7 @@
 "common_transactions" = "Транзакции";
 "common_transfer" = "Перевод";
 "common_unable_to_load" = "Невозможно загрузить данные…";
+"common_understand_continue" = "I understand, continue";
 "common_understand" = "Я понял";
 "common_unknown_error" = "Произошла ошибка. Пожалуйста, попробуйте снова.";
 "common_unreachable" = "Недоступно";
@@ -614,6 +615,8 @@
 "initial_message_purge_wallet_body" = "Чтобы сбросить настройки до заводских, приложите карту или кольцо как показано выше и не убирайте до окончания операции";
 "initial_message_reset_backup_card_header" = "Приложите карту #%@ для сброса";
 "initial_message_sign_body" = "Чтобы подписать транзакцию, приложите карту или кольцо как показано выше и не убирайте до окончания операции";
+"jailbreak_warning_message" = "Devices with jailbreak detected are considered less secure. Your data may be exposed to additional risks.";
+"jailbreak_warning_title" = "Jailbreak detected";
 "key_invalidated_warning_description" = "Вы обновили данные биометрии, отсканируйте свою карту или кольцо для входа";
 "koinos_insufficient_balance_to_send_koin_description" = "Ваш баланс должен быть выше суммы комиссии для осуществления перевода";
 "koinos_insufficient_balance_to_send_koin_title" = "Недостаточно средств";
@@ -1303,6 +1306,7 @@
 "tangem_pay_freeze_card_success" = "Карта заморожена";
 "tangem_pay_get_help" = "Обратиться в поддержку";
 "tangem_pay_other" = "Другое";
+"tangem_pay_rooted_device_subtitle" = "Unable to use on rooted devices";
 "tangem_pay_status_completed" = "Успешно завершено";
 "tangem_pay_status_declined" = "Отклонено";
 "tangem_pay_status_pending" = "В процессе";
@@ -1916,7 +1920,7 @@
 "yield_module_transaction_initialize" = "Режим доходности инициализирован";
 "yield_module_transaction_reactivate" = "Режим доходности реактивирован";
 "yield_module_transaction_topup_subtitle" = "%1$@ отправлено в Aave";
-"yield_module_transaction_topup" = "Перевод средств в Aave";
+"yield_module_transaction_topup" = "Перевод в Aave";
 "yield_module_transaction_withdraw" = "Вывод из Aave";
 "yield_module_transfer_mode_automatic" = "Автоматически";
 "yield_module_unable_to_cover_fee_description" = "Внесите немного %1$@ %2$@, чтобы покрыть комиссию сети за транзакции.";
