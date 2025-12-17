@@ -397,8 +397,8 @@ final class MainViewModel: ObservableObject {
         params[.mobileWallet] = Analytics.ParameterValue.affirmativeOrNegative(for: hasMobileWallet).rawValue
 
         if let userWalletModel {
-            let walletType = Analytics.ParameterValue.seedState(for: userWalletModel.hasImportedWallets)
-            params[.walletType] = walletType.rawValue
+            let hasSeedPhrase = userWalletModel.config.productType == .mobileWallet || userWalletModel.hasImportedWallets
+            params[.walletType] = Analytics.ParameterValue.seedState(for: hasSeedPhrase).rawValue
 
             let userWalletConfig = userWalletModel.config
             let walletHasBackup = userWalletConfig.productType == .mobileWallet
