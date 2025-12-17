@@ -18,6 +18,7 @@ struct ArchivedAccountsView: View {
     var body: some View {
         content
             .task { await viewModel.fetchArchivedAccounts() }
+            .onAppear { viewModel.onAppear() }
             .frame(maxWidth: .infinity)
             .background(Colors.Background.secondary.ignoresSafeArea())
             .alert(item: $viewModel.alertBinder, content: { $0.alert })
@@ -30,11 +31,11 @@ struct ArchivedAccountsView: View {
                 loadingView
                     .padding(.horizontal, Constants.horizontalPadding)
 
-            case .failedToLoad:
+            case .failure:
                 errorView
                     .padding(.horizontal, Constants.horizontalPadding)
 
-            case .loaded(let accountInfos):
+            case .success(let accountInfos):
                 makeAccountsView(from: accountInfos)
             }
         }
@@ -43,29 +44,14 @@ struct ArchivedAccountsView: View {
     }
 
     private func makeAccountsView(from models: [ArchivedCryptoAccountInfo]) -> some View {
-        GroupedScrollView(contentType: .lazy(alignment: .center, spacing: 0), showsIndicators: false) {
+        GroupedScrollView(contentType: .lazy(alignment: .center, spacing: 0)) {
             GroupedSection(models) { model in
-                AccountRowView(
-                    input: viewModel.makeAccountRowData(for: model),
-                    trailing: {
-                        makeRecoverButton(for: model)
-                    }
-                )
-                .padding(.vertical, 12)
+                ArchivedAccountRowView(viewData: viewModel.makeAccountRowViewData(for: model))
+                    .padding(.vertical, 12)
             }
             .separatorStyle(.none)
         }
-    }
-
-    private func makeRecoverButton(for model: ArchivedCryptoAccountInfo) -> some View {
-        let isRecovering = viewModel.recoveringAccountId == model.id
-        let isAnyRecovering = viewModel.recoveringAccountId != nil
-
-        return CircleButton(title: Localization.accountArchivedRecover) {
-            viewModel.recoverAccount(model)
-        }
-        .loading(isRecovering)
-        .disabled(isAnyRecovering)
+        .scrollIndicators(.hidden)
     }
 
     private var loadingView: some View {

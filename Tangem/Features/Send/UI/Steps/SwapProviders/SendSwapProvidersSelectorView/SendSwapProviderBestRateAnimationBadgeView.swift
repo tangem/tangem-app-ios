@@ -64,12 +64,12 @@ struct SendSwapProviderBestRateAnimationBadgeView: View {
         animateTask = Task { @MainActor in
             do {
                 // Wait after view is appeared
-                try await Task.sleep(seconds: 1)
+                try await Task.sleep(for: .seconds(1))
                 try Task.checkCancellation()
 
                 isOpen = true
                 shouldAnimate = false
-                try await Task.sleep(seconds: 1.5)
+                try await Task.sleep(for: .seconds(1.5))
                 isOpen = false
             } catch {
                 isOpen = false
