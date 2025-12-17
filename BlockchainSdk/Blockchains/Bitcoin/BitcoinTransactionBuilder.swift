@@ -9,6 +9,7 @@
 import Foundation
 import TangemSdk
 import WalletCore
+import BitcoinDevKit
 
 /// Decoder:
 /// https://learnmeabitcoin.com/tools/
@@ -170,19 +171,30 @@ public enum BitcoinPsbtSigningBuilder {
     /// Build hashes that must be signed for the given PSBT inputs (sorted by index).
     /// - Note: Returned hashes are double-SHA256 preimages for BTC SIGHASH_ALL.
     public static func hashesToSign(psbtBase64: String, signInputs: [SignInput]) throws -> [Data] {
-        guard let psbtData = Data(base64Encoded: psbtBase64) else {
+        guard Data(base64Encoded: psbtBase64) != nil else {
             throw Error.invalidBase64
         }
 
-        let psbt = try PsbtKeyValueMaps(data: psbtData)
-        let unsignedTx = try BitcoinUnsignedTransaction(data: psbt.unsignedTransaction)
+        let psbt = try Psbt(psbtBase64: psbtBase64)
+        let tx = try psbt.extractTx()
+        let txInputs = tx.input()
+        let txOutputs = tx.output()
+        let psbtInputs = psbt.input()
         let indices = signInputs.map(\.index).sorted()
 
         var hashes: [Data] = []
         hashes.reserveCapacity(indices.count)
 
         for index in indices {
-            hashes.append(try sighashAll(unsignedTx: unsignedTx, psbt: psbt, inputIndex: index))
+            hashes.append(
+                try sighashAll(
+                    tx: tx,
+                    txInputs: txInputs,
+                    txOutputs: txOutputs,
+                    psbtInputs: psbtInputs,
+                    inputIndex: index
+                )
+            )
         }
 
         return hashes
@@ -200,8 +212,11 @@ public enum BitcoinPsbtSigningBuilder {
             throw Error.invalidBase64
         }
 
-        var psbt = try PsbtKeyValueMaps(data: psbtData)
-        let unsignedTx = try BitcoinUnsignedTransaction(data: psbt.unsignedTransaction)
+        let bdkPsbt = try Psbt(psbtBase64: psbtBase64)
+        let tx = try bdkPsbt.extractTx()
+        let inputCount = tx.input().count
+        let outputCount = tx.output().count
+        var psbt = try PsbtKeyValueMaps(data: psbtData, inputCount: inputCount, outputCount: outputCount)
 
         let indices = signInputs.map(\.index).sorted()
         guard indices.count == signatures.count else {
@@ -209,36 +224,26 @@ public enum BitcoinPsbtSigningBuilder {
         }
 
         for (i, inputIndex) in indices.enumerated() {
-            guard unsignedTx.inputs.indices.contains(inputIndex) else {
+            guard inputIndex >= 0, inputIndex < inputCount else {
                 throw Error.inputIndexOutOfRange(inputIndex)
             }
-
-            let utxo = try psbt.spendUtxo(unsignedTx: unsignedTx, inputIndex: inputIndex)
-            let scriptPubKey = utxo.scriptPubKey
-            let scriptType = ScriptType(scriptPubKey: scriptPubKey)
 
             // PSBT partial sigs expect DER signature + 1-byte sighash type.
             let der = try signatures[i].der()
             let sigWithHashType = der + Data([0x01]) // SIGHASH_ALL
 
             try psbt.setPartialSignature(inputIndex: inputIndex, publicKey: publicKey, signatureWithSighash: sigWithHashType)
-
-            // Finalize input: write final_scriptSig / final_scriptwitness (BIP174).
-            switch scriptType {
-            case .p2pkh:
-                let scriptSig = ScriptSigBuilder.p2pkh(signatureWithSighash: sigWithHashType, publicKey: publicKey)
-                psbt.setFinalScriptSig(inputIndex: inputIndex, scriptSig: scriptSig)
-                psbt.clearFinalScriptWitness(inputIndex: inputIndex)
-            case .p2wpkh:
-                psbt.clearFinalScriptSig(inputIndex: inputIndex)
-                let witness = WitnessBuilder.p2wpkh(signatureWithSighash: sigWithHashType, publicKey: publicKey)
-                psbt.setFinalScriptWitness(inputIndex: inputIndex, witness: witness)
-            case .unsupported(let reason):
-                throw Error.unsupported(reason)
-            }
         }
 
-        return psbt.serialize().base64EncodedString()
+        let signedBase64 = psbt.serialize().base64EncodedString()
+        let bdkSigned = try Psbt(psbtBase64: signedBase64)
+        let finalized = bdkSigned.finalize()
+
+        guard finalized.couldFinalize else {
+            throw Error.invalidPsbt("Could not finalize PSBT")
+        }
+
+        return finalized.psbt.serialize()
     }
 }
 
@@ -249,9 +254,7 @@ private struct PsbtKeyValueMaps {
     private(set) var inputMaps: [[KV]]
     private(set) var outputMaps: [[KV]]
 
-    let unsignedTransaction: Data
-
-    init(data: Data) throws {
+    init(data: Data, inputCount: Int, outputCount: Int) throws {
         var reader = ByteReader(data)
         let magic = try reader.read(count: 5)
         guard magic == Data([0x70, 0x73, 0x62, 0x74, 0xff]) else {
@@ -259,61 +262,12 @@ private struct PsbtKeyValueMaps {
         }
 
         globalMap = try reader.readKVMap()
-        guard let unsignedTxKV = globalMap.first(where: { $0.key.first == KeyType.globalUnsignedTx }) else {
-            throw BitcoinPsbtSigningBuilder.Error.invalidPsbt("Missing global unsigned tx")
-        }
-        unsignedTransaction = unsignedTxKV.value
-
-        let unsigned = try BitcoinUnsignedTransaction(data: unsignedTransaction)
-        inputMaps = try (0 ..< unsigned.inputs.count).map { _ in try reader.readKVMap() }
-        outputMaps = try (0 ..< unsigned.outputs.count).map { _ in try reader.readKVMap() }
+        inputMaps = try (0 ..< inputCount).map { _ in try reader.readKVMap() }
+        outputMaps = try (0 ..< outputCount).map { _ in try reader.readKVMap() }
     }
 
     mutating func setPartialSignature(inputIndex: Int, publicKey: Data, signatureWithSighash: Data) throws {
         try setInputKV(inputIndex: inputIndex, key: Data([KeyType.inputPartialSig]) + publicKey, value: signatureWithSighash)
-    }
-
-    mutating func setFinalScriptSig(inputIndex: Int, scriptSig: Data) {
-        setInputKVNoThrow(inputIndex: inputIndex, key: Data([KeyType.inputFinalScriptSig]), value: scriptSig)
-    }
-
-    mutating func clearFinalScriptSig(inputIndex: Int) {
-        removeInputKVNoThrow(inputIndex: inputIndex, key: Data([KeyType.inputFinalScriptSig]))
-    }
-
-    mutating func setFinalScriptWitness(inputIndex: Int, witness: Data) {
-        setInputKVNoThrow(inputIndex: inputIndex, key: Data([KeyType.inputFinalScriptWitness]), value: witness)
-    }
-
-    mutating func clearFinalScriptWitness(inputIndex: Int) {
-        removeInputKVNoThrow(inputIndex: inputIndex, key: Data([KeyType.inputFinalScriptWitness]))
-    }
-
-    func spendUtxo(unsignedTx: BitcoinUnsignedTransaction, inputIndex: Int) throws -> UTXO {
-        guard inputMaps.indices.contains(inputIndex) else {
-            throw BitcoinPsbtSigningBuilder.Error.inputIndexOutOfRange(inputIndex)
-        }
-
-        let map = inputMaps[inputIndex]
-
-        if let witness = map.first(where: { $0.key.first == KeyType.inputWitnessUtxo }) {
-            var r = ByteReader(witness.value)
-            let value = try r.readUInt64LE()
-            let scriptPubKey = try r.readVarBytes()
-            return .init(value: value, scriptPubKey: scriptPubKey)
-        }
-
-        if let nonWitness = map.first(where: { $0.key.first == KeyType.inputNonWitnessUtxo }) {
-            let prevTx = try BitcoinUnsignedTransaction(data: nonWitness.value)
-            let vout = unsignedTx.inputs[inputIndex].vout
-            guard prevTx.outputs.indices.contains(Int(vout)) else {
-                throw BitcoinPsbtSigningBuilder.Error.invalidPsbt("nonWitnessUtxo vout out of range")
-            }
-            let out = prevTx.outputs[Int(vout)]
-            return .init(value: out.value, scriptPubKey: out.scriptPubKey)
-        }
-
-        throw BitcoinPsbtSigningBuilder.Error.missingUtxo(inputIndex)
     }
 
     func serialize() -> Data {
@@ -373,61 +327,9 @@ private struct PsbtKeyValueMaps {
         let value: Data
     }
 
-    struct UTXO: Hashable {
-        let value: UInt64
-        let scriptPubKey: Data
-    }
-
     enum KeyType {
         static let globalUnsignedTx: UInt8 = 0x00
-        static let inputNonWitnessUtxo: UInt8 = 0x00
-        static let inputWitnessUtxo: UInt8 = 0x01
         static let inputPartialSig: UInt8 = 0x02
-        static let inputFinalScriptSig: UInt8 = 0x07
-        static let inputFinalScriptWitness: UInt8 = 0x08
-    }
-}
-
-// MARK: - Minimal unsigned transaction parser (non-witness)
-
-private struct BitcoinUnsignedTransaction {
-    let version: UInt32
-    let inputs: [TxIn]
-    let outputs: [TxOut]
-    let lockTime: UInt32
-
-    init(data: Data) throws {
-        var r = ByteReader(data)
-        version = try r.readUInt32LE()
-
-        let inputCount = Int(try r.readVarInt())
-        inputs = try (0 ..< inputCount).map { _ in
-            let txidLE = try r.read(count: 32)
-            let vout = try r.readUInt32LE()
-            _ = try r.readVarBytes() // scriptSig
-            let sequence = try r.readUInt32LE()
-            return TxIn(txidLE: txidLE, vout: vout, sequence: sequence)
-        }
-
-        let outputCount = Int(try r.readVarInt())
-        outputs = try (0 ..< outputCount).map { _ in
-            let value = try r.readUInt64LE()
-            let scriptPubKey = try r.readVarBytes()
-            return TxOut(value: value, scriptPubKey: scriptPubKey)
-        }
-
-        lockTime = try r.readUInt32LE()
-    }
-
-    struct TxIn: Hashable {
-        let txidLE: Data
-        let vout: UInt32
-        let sequence: UInt32
-    }
-
-    struct TxOut: Hashable {
-        let value: UInt64
-        let scriptPubKey: Data
     }
 }
 
@@ -458,68 +360,87 @@ private enum ScriptType {
     }
 }
 
-private func sighashAll(unsignedTx: BitcoinUnsignedTransaction, psbt: PsbtKeyValueMaps, inputIndex: Int) throws -> Data {
-    guard unsignedTx.inputs.indices.contains(inputIndex) else {
+private func sighashAll(
+    tx: BitcoinDevKit.Transaction,
+    txInputs: [BitcoinDevKit.TxIn],
+    txOutputs: [BitcoinDevKit.TxOut],
+    psbtInputs: [BitcoinDevKit.Input],
+    inputIndex: Int
+) throws -> Data {
+    guard txInputs.indices.contains(inputIndex) else {
         throw BitcoinPsbtSigningBuilder.Error.inputIndexOutOfRange(inputIndex)
     }
 
-    let utxo = try psbt.spendUtxo(unsignedTx: unsignedTx, inputIndex: inputIndex)
-    let scriptType = ScriptType(scriptPubKey: utxo.scriptPubKey)
-
-    let sighashInputs = unsignedTx.inputs.map {
-        BitcoinSighashBuilder.Input(txid: $0.txidLE, vout: $0.vout, sequence: $0.sequence)
+    guard psbtInputs.indices.contains(inputIndex) else {
+        throw BitcoinPsbtSigningBuilder.Error.inputIndexOutOfRange(inputIndex)
     }
 
-    let sighashOutputs = unsignedTx.outputs.map {
-        BitcoinSighashBuilder.Output(value: $0.value, scriptPubKey: $0.scriptPubKey)
+    let outpoint = txInputs[inputIndex].previousOutput
+    let utxo = try spendingUtxo(psbtInput: psbtInputs[inputIndex], vout: outpoint.vout)
+    let scriptPubKey = utxo.scriptPubkey.toBytes()
+    let scriptType = ScriptType(scriptPubKey: scriptPubKey)
+
+    let sighashInputs = txInputs.map {
+        BitcoinSighashBuilder.Input(
+            txid: $0.previousOutput.txid.serialize(),
+            vout: $0.previousOutput.vout,
+            sequence: $0.sequence
+        )
     }
+
+    let sighashOutputs = txOutputs.map {
+        BitcoinSighashBuilder.Output(
+            value: $0.value.toSat(),
+            scriptPubKey: $0.scriptPubkey.toBytes()
+        )
+    }
+
+    let version = UInt32(bitPattern: tx.version())
+    let lockTime = tx.lockTime()
 
     switch scriptType {
     case .p2pkh:
         return try BitcoinSighashBuilder.legacySighashAll(
-            version: unsignedTx.version,
-            lockTime: unsignedTx.lockTime,
+            version: version,
+            lockTime: lockTime,
             inputs: sighashInputs,
             outputs: sighashOutputs,
             inputIndex: inputIndex,
-            scriptCode: utxo.scriptPubKey
+            scriptCode: scriptPubKey
         )
     case .p2wpkh:
-        let pubKeyHash = utxo.scriptPubKey.subdata(in: 2 ..< 22)
+        let pubKeyHash = scriptPubKey.subdata(in: 2 ..< 22)
         return try BitcoinSighashBuilder.segwitV0SighashAll(
-            version: unsignedTx.version,
-            lockTime: unsignedTx.lockTime,
+            version: version,
+            lockTime: lockTime,
             inputs: sighashInputs,
             outputs: sighashOutputs,
             inputIndex: inputIndex,
             scriptCode: OpCodeUtils.p2pkh(data: pubKeyHash),
-            value: utxo.value
+            value: utxo.value.toSat()
         )
     case .unsupported(let reason):
         throw BitcoinPsbtSigningBuilder.Error.unsupported(reason)
     }
 }
 
-// MARK: - Final scripts
-
-private enum ScriptSigBuilder {
-    static func p2pkh(signatureWithSighash: Data, publicKey: Data) -> Data {
-        // Use the same push rules as the rest of the Bitcoin script utilities.
-        OpCode.push(signatureWithSighash) + OpCode.push(publicKey)
+private func spendingUtxo(psbtInput: BitcoinDevKit.Input, vout: UInt32) throws -> BitcoinDevKit.TxOut {
+    if let witness = psbtInput.witnessUtxo {
+        return witness
     }
+
+    if let nonWitness = psbtInput.nonWitnessUtxo {
+        let outputs = nonWitness.output()
+        guard outputs.indices.contains(Int(vout)) else {
+            throw BitcoinPsbtSigningBuilder.Error.invalidPsbt("nonWitnessUtxo output index out of range")
+        }
+        return outputs[Int(vout)]
+    }
+
+    throw BitcoinPsbtSigningBuilder.Error.missingUtxo(Int(vout))
 }
 
-private enum WitnessBuilder {
-    static func p2wpkh(signatureWithSighash: Data, publicKey: Data) -> Data {
-        var data = Data()
-        data += VarInt.encode(2)
-        data += VarInt.encode(UInt64(signatureWithSighash.count))
-        data += signatureWithSighash
-        data += VarInt.encode(UInt64(publicKey.count))
-        data += publicKey
-        return data
-    }
-}
+// finalScriptSig / finalScriptWitness are produced by `BitcoinDevKit.Psbt.finalize()`
 
 // MARK: - Low-level readers/writers
 
