@@ -23,7 +23,7 @@ struct SendAmountView: View {
     private let scrollViewSpacing: CGFloat = 8
 
     var body: some View {
-        GroupedScrollView(spacing: scrollViewSpacing) {
+        GroupedScrollView(contentType: .lazy(alignment: .center, spacing: scrollViewSpacing)) {
             content
             receiveTokenView
         }

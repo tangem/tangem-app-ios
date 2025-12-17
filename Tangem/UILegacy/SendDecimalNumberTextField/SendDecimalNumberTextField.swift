@@ -58,8 +58,12 @@ struct SendDecimalNumberTextField: View {
         }
     }
 
-    init(viewModel: DecimalNumberTextFieldViewModel) {
+    init(
+        viewModel: DecimalNumberTextFieldViewModel,
+        accessibilityIdentifier: String? = nil
+    ) {
         self.viewModel = viewModel
+        self.accessibilityIdentifier = accessibilityIdentifier
     }
 
     var body: some View {
