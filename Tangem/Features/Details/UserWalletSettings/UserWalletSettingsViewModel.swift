@@ -366,6 +366,7 @@ private extension UserWalletSettingsViewModel {
 
         runTask(in: self) { viewModel in
             if isBackupNeeded {
+                viewModel.logMobileBackupNeededAnalytics(action: .upgrade)
                 await viewModel.openMobileBackupToUpgradeNeeded()
             } else {
                 await viewModel.upgradeMobileWallet()
@@ -409,7 +410,7 @@ private extension UserWalletSettingsViewModel {
             await runOnMain {
                 switch state {
                 case .needsBackup:
-                    viewModel.logMobileBackupNeededToAccessCodeAnalytics()
+                    viewModel.logMobileBackupNeededAnalytics(action: .accessCode)
                     viewModel.openMobileBackupNeeded()
                 case .onboarding(let context):
                     viewModel.openMobileAccessCodeOnboarding(context: context)
@@ -728,12 +729,12 @@ private extension UserWalletSettingsViewModel {
         )
     }
 
-    func logMobileBackupNeededToAccessCodeAnalytics() {
+    func logMobileBackupNeededAnalytics(action: Analytics.ParameterValue) {
         Analytics.log(
             .walletSettingsNoticeBackupFirst,
             params: [
                 .source: .walletSettings,
-                .action: .accessCode,
+                .action: action,
             ],
             contextParams: analyticsContextParams
         )
