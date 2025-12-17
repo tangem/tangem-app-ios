@@ -98,7 +98,7 @@ struct CurrencySelectView_Preview: PreviewProvider {
     }
 
     static var previews: some View {
-        NavigationView {
+        NavigationStack {
             CurrencySelectView(
                 viewModel: CurrencySelectViewModel(
                     coordinator: CurrencySelectRoutableMock()

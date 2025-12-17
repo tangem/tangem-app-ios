@@ -113,11 +113,15 @@ var serviceModules: [PackageDescription.Target] {
                 "TangemAssets",
                 "TangemLocalization",
                 "TangemFoundation",
+                "TangemUIUtilsObjC",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
                 .swiftLanguageMode(.v5),
             ]
+        ),
+        .tangemTarget(
+            name: "TangemUIUtilsObjC"
         ),
         .tangemTarget(
             name: "TangemUI",
