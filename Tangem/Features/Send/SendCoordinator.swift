@@ -222,16 +222,7 @@ extension SendCoordinator: OnrampRoutable {
                 self?.onrampCountryDetectionCoordinator = nil
                 onCountrySelected()
             case .closeOnramp:
-                if #available(iOS 16, *) {
-                    self?.dismiss(with: nil)
-                } else {
-                    // On iOS 15 double dismiss doesn't work
-                    self?.onrampCountryDetectionCoordinator = nil
-
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-                        self?.dismiss(with: nil)
-                    }
-                }
+                self?.dismiss(with: nil)
             }
         })
 
