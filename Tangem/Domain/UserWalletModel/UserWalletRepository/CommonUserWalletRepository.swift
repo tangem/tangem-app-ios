@@ -266,7 +266,12 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private func _handleUnlock(context: LAContext) throws {
-        let userWalletIds = models.map { $0.userWalletId }
+        // `userWalletIds` is filtered to include only locked user wallets.
+        // This is required for the case when biometrics have changed:
+        // some wallets may be unprotected and should be ignored during unlock.
+        // Otherwise, they would produce non-empty `sensitiveInfos` and prevent
+        // the biometrics-changed error from being propagated.
+        let userWalletIds = models.filter(\.isUserWalletLocked).map { $0.userWalletId }
         let encryptionKeys = try userWalletEncryptionKeyStorage.fetch(userWalletIds: userWalletIds, context: context)
         let sensitiveInfos = userWalletDataStorage.fetchPrivateData(encryptionKeys: encryptionKeys)
 
