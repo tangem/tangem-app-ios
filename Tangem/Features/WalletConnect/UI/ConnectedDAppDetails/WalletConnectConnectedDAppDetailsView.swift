@@ -12,6 +12,7 @@ import TangemAssets
 import TangemUI
 import TangemUIUtils
 import TangemAccessibilityIdentifiers
+import TangemAccounts
 
 struct WalletConnectConnectedDAppDetailsView: View {
     @ObservedObject var viewModel: WalletConnectConnectedDAppDetailsViewModel
@@ -35,7 +36,7 @@ struct WalletConnectConnectedDAppDetailsView: View {
         .safeAreaInset(edge: .bottom, spacing: .zero) {
             footer
         }
-        .scrollBounceBehaviorBackport(.basedOnSize)
+        .scrollBounceBehavior(.basedOnSize)
         .coordinateSpace(name: Layout.scrollViewCoordinateSpace)
         .floatingSheetConfiguration { configuration in
             configuration.sheetBackgroundColor = Colors.Background.tertiary
@@ -112,11 +113,13 @@ struct WalletConnectConnectedDAppDetailsView: View {
             .padding(.vertical, 16)
 
             if let walletSectionState = viewState.walletSection {
-                Divider()
-                    .frame(height: 1)
-                    .overlay(Colors.Stroke.primary)
+                Separator(color: Colors.Stroke.primary)
 
                 walletSection(walletSectionState)
+            } else if let connectionTargetSectionState = viewState.connectionTargetSection {
+                Separator(color: Colors.Stroke.primary)
+
+                connectionTargetSection(connectionTargetSectionState)
             }
         }
         .background(Colors.Background.action)
@@ -127,6 +130,42 @@ struct WalletConnectConnectedDAppDetailsView: View {
     private func dAppVerificationWarningSection(_ viewState: WalletConnectConnectedDAppDetailsViewState.DAppDetails) -> some View {
         if let dAppVerificationWarningSection = viewState.dAppVerificationWarningSection {
             WalletConnectWarningNotificationView(viewModel: dAppVerificationWarningSection)
+        }
+    }
+
+    @ViewBuilder
+    private func connectionTargetSection(
+        _ connectionTargetSectionState: WalletConnectConnectedDAppDetailsViewState.DAppDetails.ConnectionTargetSection
+    ) -> some View {
+        let label = switch connectionTargetSectionState.target {
+        case .wallet:
+            connectionTargetSectionState.targetName
+        case .account(let target):
+            target.label
+        }
+
+        BaseOneLineRow(icon: connectionTargetSectionState.iconAsset, title: label) {
+            switch connectionTargetSectionState.target {
+            case .wallet:
+                walletSectionTrailingView(connectionTargetSectionState.targetName)
+            case .account(let target):
+                accountTargetTrailingView(icon: target.icon, accountName: connectionTargetSectionState.targetName)
+            }
+        }
+        .shouldShowTrailingIcon(false)
+        .padding(.vertical, 12)
+        .padding(.horizontal, 14)
+    }
+
+    private func accountTargetTrailingView(icon: AccountModel.Icon, accountName: String) -> some View {
+        HStack(spacing: 6) {
+            AccountIconView(
+                data: AccountModelUtils.UI.iconViewData(icon: icon, accountName: accountName)
+            )
+            .settings(.smallSized)
+
+            Text(accountName)
+                .style(Fonts.Regular.body, color: Colors.Text.tertiary)
         }
     }
 
@@ -145,11 +184,15 @@ struct WalletConnectConnectedDAppDetailsView: View {
 
             Spacer(minLength: 12)
 
-            Text(walletSectionState.walletName)
-                .style(Fonts.Regular.body, color: Colors.Text.tertiary)
+            walletSectionTrailingView(walletSectionState.walletName)
         }
         .padding(.vertical, 12)
         .padding(.horizontal, 14)
+    }
+
+    private func walletSectionTrailingView(_ userWalletName: String) -> some View {
+        Text(userWalletName)
+            .style(Fonts.Regular.body, color: Colors.Text.tertiary)
     }
 
     @ViewBuilder
