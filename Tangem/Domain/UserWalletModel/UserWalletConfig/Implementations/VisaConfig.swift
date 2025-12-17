@@ -149,6 +149,8 @@ extension VisaConfig: UserWalletConfig {
             return .available
         case .transactionPayloadLimit:
             return .available
+        case .tangemPay:
+            return .hidden
         }
     }
 
