@@ -55,10 +55,10 @@ struct NFTCollectionDisclosureGroupView: View {
         case .loading:
             buildGridView(with: .init(assetsCount: viewModel.numberOfItems))
 
-        case .loaded(let viewModel):
+        case .success(let viewModel):
             buildGridView(with: viewModel)
 
-        case .failedToLoad:
+        case .failure:
             errorView
         }
     }
