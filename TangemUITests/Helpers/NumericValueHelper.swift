@@ -26,12 +26,26 @@ enum NumericValueHelper {
         }
 
         // If that fails, try removing common currency symbols and parsing again
-        let cleanedText = text
-            .replacingOccurrences(of: "[$₽€£¥]", with: "", options: .regularExpression)
-            .trimmingCharacters(in: .whitespaces)
+        var cleanedText =
+            text
+                .replacingOccurrences(of: "[$₽€£¥]", with: "", options: .regularExpression)
+                .trimmingCharacters(in: .whitespaces)
+
+        // Handle suffixes
+        let multipliers: [String: Decimal] = ["K": 1_000, "M": 1_000_000, "B": 1_000_000_000]
+        var multiplier: Decimal = 1
+
+        for (suffix, value) in multipliers {
+            if cleanedText.hasSuffix(suffix) {
+                multiplier = value
+                cleanedText = String(cleanedText.dropLast(suffix.count)).trimmingCharacters(
+                    in: .whitespaces)
+                break
+            }
+        }
 
         if let number = formatter.number(from: cleanedText) {
-            return number.decimalValue
+            return number.decimalValue * multiplier
         }
 
         XCTFail("Failed to parse text '\(text)' as Decimal")

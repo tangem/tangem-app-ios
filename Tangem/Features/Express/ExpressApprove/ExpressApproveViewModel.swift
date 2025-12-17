@@ -129,9 +129,9 @@ private extension ExpressApproveViewModel {
             .store(in: &bag)
     }
 
-    func updateView(state: LoadingValue<Fee>) {
+    func updateView(state: LoadingResult<Fee, any Error>) {
         switch state {
-        case .loaded(let fee):
+        case .success(let fee):
             updateFeeAmount(fee: fee)
             isLoading = false
             mainButtonIsDisabled = false
@@ -139,7 +139,7 @@ private extension ExpressApproveViewModel {
             feeRowViewModel?.update(detailsType: .loader)
             isLoading = true
             mainButtonIsDisabled = false
-        case .failedToLoad(let error):
+        case .failure(let error):
             errorAlert = AlertBinder(title: Localization.commonError, message: error.localizedDescription)
             isLoading = false
             mainButtonIsDisabled = true
@@ -155,7 +155,7 @@ private extension ExpressApproveViewModel {
         runTask(in: self) { viewModel in
             do {
                 try await viewModel.approveViewModelInput.sendApproveTransaction()
-                try await Task.sleep(seconds: 0.3)
+                try await Task.sleep(for: .seconds(0.3))
                 await viewModel.didSendApproveTransaction()
             } catch TransactionDispatcherResult.Error.userCancelled {
                 // Do nothing

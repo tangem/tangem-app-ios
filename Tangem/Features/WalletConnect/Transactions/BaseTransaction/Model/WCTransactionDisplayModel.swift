@@ -78,7 +78,7 @@ final class CommonWCTransactionDisplayModel: WCTransactionDisplayModel {
     }
 
     var isActionButtonBlocked: Bool {
-        if case .failedToLoad = viewModel?.selectedFee?.value {
+        if case .failure = viewModel?.selectedFee?.value {
             return true
         }
 
