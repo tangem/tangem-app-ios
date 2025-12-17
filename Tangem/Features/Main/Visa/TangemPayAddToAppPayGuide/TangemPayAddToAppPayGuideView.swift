@@ -15,7 +15,7 @@ struct TangemPayAddToAppPayGuideView: View {
     @ObservedObject var viewModel: TangemPayAddToAppPayGuideViewModel
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ScrollView {
                 VStack(spacing: 32) {
                     TangemPayCardDetailsView(viewModel: viewModel.tangemPayCardDetailsViewModel)
