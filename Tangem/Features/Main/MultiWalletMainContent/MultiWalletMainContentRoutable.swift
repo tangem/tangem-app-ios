@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import TangemNFT
 import TangemMobileWalletSdk
 
 protocol MultiWalletMainContentRoutable: SingleTokenBaseRoutable {
