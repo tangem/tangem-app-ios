@@ -38,6 +38,5 @@ private extension MobileUpgradeCoordinatorView {
                 OnboardingCoordinatorView(coordinator: $0)
                     .navigationBarHidden(true)
             }
-            .emptyNavigationLink()
     }
 }
