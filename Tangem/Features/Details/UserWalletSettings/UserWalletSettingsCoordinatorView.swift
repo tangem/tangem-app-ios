@@ -79,7 +79,7 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
                     coordinator.rootViewModel?.showPendingAlertIfNeeded()
                 }
             ) { viewModel in
-                NavigationView {
+                NavigationStack {
                     AccountFormView(viewModel: viewModel)
                 }
                 .presentation(onDismissalAttempt: viewModel.onClose)
