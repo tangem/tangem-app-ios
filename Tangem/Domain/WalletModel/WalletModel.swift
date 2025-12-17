@@ -52,6 +52,7 @@ protocol WalletModel:
 
     var stakingManager: StakingManager? { get }
     var stakeKitTransactionSender: StakeKitTransactionSender? { get }
+    var p2pTransactionSender: P2PTransactionSender? { get }
 
     // MARK: - Accounts
 

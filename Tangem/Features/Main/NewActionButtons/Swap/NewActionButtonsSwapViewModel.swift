@@ -21,7 +21,7 @@ final class NewActionButtonsSwapViewModel: ObservableObject {
 
     // MARK: - Published
 
-    @Published private(set) var source: TokenItemType = .placeholder(text: Localization.actionButtonsYouWantToReceive)
+    @Published private(set) var source: TokenItemType = .placeholder(text: Localization.actionButtonsYouWantToSwap)
     @Published private(set) var notificationInput: NotificationViewInput?
     @Published private(set) var notificationIsLoading: Bool = false
     @Published private(set) var destination: TokenItemType?
@@ -87,7 +87,7 @@ extension NewActionButtonsSwapViewModel: NewTokenSelectorViewModelOutput {
         case .token(let source, _):
             Task {
                 await updateDestinationToken(item: item)
-                try? await Task.sleep(seconds: 0.2)
+                try? await Task.sleep(for: .seconds(0.2))
 
                 await MainActor.run {
                     coordinator?.openExpress(

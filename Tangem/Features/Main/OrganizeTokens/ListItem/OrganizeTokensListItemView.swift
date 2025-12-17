@@ -111,7 +111,7 @@ struct OrganizeTokensListItemView_Previews: PreviewProvider {
                             VStack(spacing: 0.0) {
                                 switch section.model.style {
                                 case .draggable(let title), .fixed(let title):
-                                    OrganizeTokensListSectionView(
+                                    OrganizeTokensListInnerSectionView(
                                         title: title,
                                         identifier: section.id,
                                         isDraggable: section.isDraggable

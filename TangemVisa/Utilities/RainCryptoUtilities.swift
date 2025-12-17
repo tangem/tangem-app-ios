@@ -53,7 +53,7 @@ public enum RainCryptoUtilities {
     public static func encryptPin(pin: String, secretKey: String) throws -> (base64Secret: String, base64Iv: String) {
         // Format PIN into ISO 9564 Format 2 PIN block: 2[length][PIN][padding with F]
         // Example: "246784FFFFFFFFFF" for PIN "6784"
-        let pinBlock = "2\(pin.count)\(pin)\(String(repeating: "F", count: 14 - pin.count))"
+        let pinBlock = "\(Character.ISO_9564_Format_2_prefix)\(pin.count)\(pin)\(String(repeating: "F", count: 14 - pin.count))"
 
         guard let pinBlockData = pinBlock.data(using: .utf8) else {
             throw RainCryptoUtilitiesError.invalidSecretToEncrypt(pin)
@@ -70,6 +70,37 @@ public enum RainCryptoUtilities {
         }
 
         return (base64Secret: encryptedData.base64EncodedString(), base64Iv: ivData.base64EncodedString())
+    }
+
+    public static func decryptPinBlock(
+        encryptedBlock: String
+    ) throws -> String {
+        guard encryptedBlock.count >= 16 else {
+            throw RainCryptoUtilitiesError
+                .invalidDecryptedPinBlock(encryptedBlock)
+        }
+
+        let chars = Array(encryptedBlock)
+
+        guard chars[0] == Character.ISO_9564_Format_2_prefix else {
+            throw RainCryptoUtilitiesError
+                .invalidDecryptedPinBlock(encryptedBlock)
+        }
+
+        guard let pinLength = Int(String(chars[1])) else {
+            throw RainCryptoUtilitiesError
+                .invalidDecryptedPinBlock(encryptedBlock)
+        }
+
+        let pinStartIndex = 2
+        let pinEndIndex = pinStartIndex + pinLength
+        guard pinEndIndex <= chars.count else {
+            throw RainCryptoUtilitiesError
+                .invalidDecryptedPinBlock(encryptedBlock)
+        }
+
+        let pin = String(chars[pinStartIndex ..< pinEndIndex])
+        return pin
     }
 
     public static func decryptSecret(base64Secret: String, base64Iv: String, secretKey: String) throws(RainCryptoUtilitiesError) -> String {
@@ -110,5 +141,10 @@ public extension RainCryptoUtilities {
         case aesGCM(Error)
         case invalidDecryptedData(Data)
         case invalidSecretToEncrypt(String)
+        case invalidDecryptedPinBlock(String)
     }
+}
+
+private extension Character {
+    static let ISO_9564_Format_2_prefix: Self = "2"
 }
