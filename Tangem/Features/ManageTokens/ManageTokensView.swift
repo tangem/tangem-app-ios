@@ -109,7 +109,7 @@ struct ManageTokensView: View {
         )
     )
 
-    return NavigationView {
+    return NavigationStack {
         ManageTokensView(viewModel: .init(
             adapter: adapter,
             context: context,
