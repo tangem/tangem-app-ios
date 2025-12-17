@@ -13,11 +13,10 @@ struct MobileUpgradeCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: MobileUpgradeCoordinator
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             content
                 .navigationLinks(links)
         }
-        .navigationViewStyle(.stack)
     }
 }
 
