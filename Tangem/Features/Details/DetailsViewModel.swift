@@ -22,6 +22,7 @@ final class DetailsViewModel: ObservableObject {
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
+    @Injected(\.tangemPayAvailabilityRepository) private var tangemPayAvailabilityRepository: TangemPayAvailabilityRepository
 
     // MARK: - View State
 
@@ -38,7 +39,7 @@ final class DetailsViewModel: ObservableObject {
         return viewModels
     }
 
-    @Published var buyWalletViewModel: DefaultRowViewModel?
+    @Published var getSectionViewModels: [DefaultRowViewModel] = []
     @Published var appSettingsViewModel: DefaultRowViewModel?
     @Published var supportSectionModels: [DefaultRowViewModel] = []
     @Published var environmentSetupViewModel: [DefaultRowViewModel] = []
@@ -177,6 +178,10 @@ extension DetailsViewModel {
         coordinator?.openShop()
     }
 
+    func openGetTangemPay() {
+        coordinator?.openGetTangemPay()
+    }
+
     func openSupportChat() {
         guard selectedUserWalletModel != nil else {
             return
@@ -247,7 +252,7 @@ private extension DetailsViewModel {
     func setupView() {
         setupWalletConnectRowViewModel()
         setupUserWalletViewModels()
-        setupBuyWalletViewModel()
+        setupGetSectionViewModels()
         setupAppSettingsViewModel()
         setupSupportSectionModels()
         setupEnvironmentSetupSection()
@@ -272,6 +277,16 @@ private extension DetailsViewModel {
                 default:
                     break
                 }
+            }
+            .store(in: &bag)
+
+        tangemPayAvailabilityRepository.shouldShowGetTangemPay
+            .withWeakCaptureOf(self)
+            .receiveOnMain()
+            .sink { viewModel, should in
+                viewModel.setupGetSectionViewModels(
+                    shouldShowGetTangemPay: should
+                )
             }
             .store(in: &bag)
     }
@@ -324,11 +339,24 @@ private extension DetailsViewModel {
         addOrScanNewUserWalletViewModel?.update(action: isScanning ? nil : weakify(self, forFunction: DetailsViewModel.addOrScanNewUserWallet))
     }
 
-    func setupBuyWalletViewModel() {
-        buyWalletViewModel = DefaultRowViewModel(
-            title: Localization.detailsBuyWallet,
-            action: weakify(self, forFunction: DetailsViewModel.openBuyWallet)
-        )
+    func setupGetSectionViewModels(shouldShowGetTangemPay: Bool = false) {
+        var models = [
+            DefaultRowViewModel(
+                title: Localization.detailsBuyWallet,
+                action: weakify(self, forFunction: DetailsViewModel.openBuyWallet)
+            ),
+        ]
+
+        if shouldShowGetTangemPay {
+            models.append(
+                DefaultRowViewModel(
+                    title: Localization.tangempayGetTangemPay,
+                    action: weakify(self, forFunction: DetailsViewModel.openGetTangemPay)
+                )
+            )
+        }
+
+        getSectionViewModels = models
     }
 
     func setupAppSettingsViewModel() {
