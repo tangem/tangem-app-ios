@@ -15,11 +15,12 @@ extension Analytics {
         case mainUnlock
         case settings
         case createWallet
-        case importWallet
+        case createWalletIntro
+        case upgrade
 
         var cardScanButtonEvent: Analytics.Event {
             switch self {
-            case .welcome, .createWallet, .importWallet:
+            case .welcome, .createWallet, .createWalletIntro, .upgrade:
                 return .introductionProcessButtonScanCard
             case .auth:
                 return .buttonCardSignIn
@@ -42,8 +43,10 @@ extension Analytics {
                 return .settings
             case .createWallet:
                 return .createWallet
-            case .importWallet:
-                return .importWallet
+            case .createWalletIntro:
+                return .createWalletIntro
+            case .upgrade:
+                return .upgrade
             }
         }
     }

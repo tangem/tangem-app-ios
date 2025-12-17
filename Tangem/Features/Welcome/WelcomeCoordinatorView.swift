@@ -42,7 +42,6 @@ struct WelcomeCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.createWalletSelectorCoordinator) {
                 CreateWalletSelectorCoordinatorView(coordinator: $0)
             }
-            .emptyNavigationLink()
     }
 
     private var sheets: some View {
