@@ -18,7 +18,7 @@ struct AddCustomTokenCoordinatorView: CoordinatorView {
     }
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 if let rootViewModel = coordinator.rootViewModel {
                     AddCustomTokenView(viewModel: rootViewModel)

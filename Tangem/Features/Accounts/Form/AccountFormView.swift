@@ -194,7 +194,7 @@ struct AccountFormView: View {
 
     Color.clear
         .sheet(isPresented: .constant(true)) {
-            NavigationView {
+            NavigationStack {
                 AccountFormView(viewModel: viewModel)
             }
         }
