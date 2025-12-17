@@ -45,6 +45,18 @@ struct BitcoinWalletAssembly: WalletManagerAssembly {
                         with: input.networkInput
                     )
                 )
+            case .mock:
+                if let node = APINodeInfoResolver(
+                    blockchain: input.networkInput.blockchain,
+                    keysConfig: input.networkInput.keysConfig
+                ).resolve(for: .mock) {
+                    let provider = BlockBookUTXOProvider(
+                        blockchain: input.networkInput.blockchain,
+                        blockBookConfig: MockBlockBookConfig(urlNode: node.url),
+                        networkConfiguration: input.networkInput.tangemProviderConfig
+                    )
+                    partialResult.append(provider)
+                }
             default:
                 break
             }

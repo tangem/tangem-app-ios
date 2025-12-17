@@ -194,6 +194,15 @@ extension OrganizeTokensViewModel.Error: UniversalError {
     }
 }
 
+extension AccountsAwareOrganizeTokensViewModel.Error: UniversalError {
+    var errorCode: Int {
+        switch self {
+        case .sectionOffsetOutOfBound:
+            100009000
+        }
+    }
+}
+
 extension WalletModelError: UniversalError {
     var errorCode: Int {
         switch self {
