@@ -15,7 +15,7 @@ final class SendAmountUITests: BaseTestCase {
 
         launchApp(tangemApiType: .mock)
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(Constants.tokenName)
             .tapSendButton()
@@ -42,7 +42,7 @@ final class SendAmountUITests: BaseTestCase {
 
         launchApp(tangemApiType: .mock)
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(Constants.tokenName)
             .tapSendButton()
