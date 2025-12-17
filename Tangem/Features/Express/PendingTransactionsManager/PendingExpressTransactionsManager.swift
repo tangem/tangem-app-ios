@@ -165,7 +165,7 @@ class CommonPendingExpressTransactionsManager {
 
                 try Task.checkCancellation()
 
-                try await Task.sleep(seconds: Constants.statusUpdateTimeout)
+                try await Task.sleep(for: .seconds(Constants.statusUpdateTimeout))
 
                 try Task.checkCancellation()
 
