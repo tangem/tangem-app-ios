@@ -157,7 +157,7 @@ struct ResetToFactoryView_Previews: PreviewProvider {
     )
 
     static var previews: some View {
-        NavigationView {
+        NavigationStack {
             ResetToFactoryView(viewModel: viewModel)
         }
     }
