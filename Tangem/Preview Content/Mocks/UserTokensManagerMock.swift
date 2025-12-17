@@ -23,8 +23,13 @@ struct UserTokensManagerMock: UserTokensManager {
         completion(.success(()))
     }
 
-    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], completion: @escaping (Result<Void, Error>) -> Void) {
-        completion(.success(()))
+    func update(
+        itemsToRemove: [TokenItem],
+        itemsToAdd: [TokenItem],
+        completion: @escaping (Result<UserTokensManagerResult.UpdatedTokenItems, any Error>) -> Void
+    ) {
+        let updatedItems = UserTokensManagerResult.UpdatedTokenItems(removed: itemsToRemove, added: itemsToAdd)
+        completion(.success(updatedItems))
     }
 
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) throws {}
@@ -35,8 +40,8 @@ struct UserTokensManagerMock: UserTokensManager {
         return ""
     }
 
-    func add(_ tokenItems: [TokenItem], completion: @escaping (Result<Void, Error>) -> Void) {
-        completion(.success(()))
+    func add(_ tokenItems: [TokenItem], completion: @escaping (Result<[TokenItem], Error>) -> Void) {
+        completion(.success(tokenItems))
     }
 
     func contains(_ tokenItem: TokenItem, derivationInsensitive: Bool) -> Bool {
