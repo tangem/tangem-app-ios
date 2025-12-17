@@ -15,7 +15,7 @@ struct LogsView: View {
     @ObservedObject var viewModel: LogsViewModel
 
     var body: some View {
-        GroupedScrollView(alignment: .leading, spacing: .zero) {
+        GroupedScrollView(contentType: .lazy(alignment: .leading, spacing: .zero)) {
             content
         }
         .background(Colors.Background.tertiary.ignoresSafeArea())

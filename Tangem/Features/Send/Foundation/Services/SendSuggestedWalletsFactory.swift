@@ -36,7 +36,7 @@ struct SendSuggestedWalletsFactory {
 
             return suggestedWalletModels.map { walletModel in
                 let account: SendDestinationSuggestedWallet.Account? = walletModel.account.map { accountModel in
-                    let icon = AccountIconViewBuilder.makeAccountIconViewData(accountModel: accountModel)
+                    let icon = AccountModelUtils.UI.iconViewData(accountModel: accountModel)
                     return .init(icon: icon, name: accountModel.name)
                 }
 

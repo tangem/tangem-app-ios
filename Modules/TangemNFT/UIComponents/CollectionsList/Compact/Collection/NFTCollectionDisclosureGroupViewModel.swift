@@ -80,8 +80,8 @@ struct NFTCollectionDisclosureGroupViewModel: Identifiable {
 
 extension NFTCollectionDisclosureGroupViewModel {
     /// Input state.
-    typealias AssetsState = LoadingValue<[NFTAsset]>
+    typealias AssetsState = LoadingResult<[NFTAsset], any Error>
 
     /// Output state.
-    typealias ViewState = LoadingValue<NFTAssetsGridViewModel>
+    typealias ViewState = LoadingResult<NFTAssetsGridViewModel, any Error>
 }
