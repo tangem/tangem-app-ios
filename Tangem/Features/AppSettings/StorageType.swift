@@ -53,4 +53,5 @@ enum StorageType: String {
     case tangemPayShowAddToApplePayGuide = "tangem_pay_show_add_to_apple_pay_guide"
     case tangemPayIsPaeraCustomer = "tangem_pay_is_paera_customer"
     case tangemPayShouldShowGetBanner = "tangem_pay_should_show_get_banner"
+    case jailbreakWarningWasShown = "jailbreak_warning_was_shown"
 }
