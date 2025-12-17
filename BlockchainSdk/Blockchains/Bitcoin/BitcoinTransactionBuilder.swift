@@ -144,3 +144,468 @@ extension BitcoinTransactionBuilder {
         case custom
     }
 }
+
+// MARK: - PSBT signing (WalletConnect)
+
+/// Minimal PSBT (BIP174) signing helper for BTC-style transactions (p2pkh + p2wpkh, SIGHASH_ALL only).
+/// Designed to be reused by app-layer features (e.g. WalletConnect) without pulling BitcoinDevKit into `BlockchainSdk`.
+public enum BitcoinPsbtSigningBuilder {
+    public struct SignInput: Hashable, Sendable {
+        public let index: Int
+
+        public init(index: Int) {
+            self.index = index
+        }
+    }
+
+    public enum Error: Swift.Error {
+        case invalidBase64
+        case invalidPsbt(String)
+        case unsupported(String)
+        case inputIndexOutOfRange(Int)
+        case missingUtxo(Int)
+        case wrongSignaturesCount
+    }
+
+    /// Build hashes that must be signed for the given PSBT inputs (sorted by index).
+    /// - Note: Returned hashes are double-SHA256 preimages for BTC SIGHASH_ALL.
+    public static func hashesToSign(psbtBase64: String, signInputs: [SignInput]) throws -> [Data] {
+        guard let psbtData = Data(base64Encoded: psbtBase64) else {
+            throw Error.invalidBase64
+        }
+
+        let psbt = try PsbtKeyValueMaps(data: psbtData)
+        let unsignedTx = try BitcoinUnsignedTransaction(data: psbt.unsignedTransaction)
+        let indices = signInputs.map(\.index).sorted()
+
+        var hashes: [Data] = []
+        hashes.reserveCapacity(indices.count)
+
+        for index in indices {
+            hashes.append(try sighashAll(unsignedTx: unsignedTx, psbt: psbt, inputIndex: index))
+        }
+
+        return hashes
+    }
+
+    /// Apply signatures (in the same order as `signInputs.sorted(by: index)`), finalize inputs and return a base64 PSBT.
+    /// - Important: `signatures` must correspond to `hashesToSign` output order.
+    public static func applySignaturesAndFinalize(
+        psbtBase64: String,
+        signInputs: [SignInput],
+        signatures: [SignatureInfo],
+        publicKey: Data
+    ) throws -> String {
+        guard let psbtData = Data(base64Encoded: psbtBase64) else {
+            throw Error.invalidBase64
+        }
+
+        var psbt = try PsbtKeyValueMaps(data: psbtData)
+        let unsignedTx = try BitcoinUnsignedTransaction(data: psbt.unsignedTransaction)
+
+        let indices = signInputs.map(\.index).sorted()
+        guard indices.count == signatures.count else {
+            throw Error.wrongSignaturesCount
+        }
+
+        for (i, inputIndex) in indices.enumerated() {
+            guard unsignedTx.inputs.indices.contains(inputIndex) else {
+                throw Error.inputIndexOutOfRange(inputIndex)
+            }
+
+            let utxo = try psbt.spendUtxo(unsignedTx: unsignedTx, inputIndex: inputIndex)
+            let scriptPubKey = utxo.scriptPubKey
+            let scriptType = ScriptType(scriptPubKey: scriptPubKey)
+
+            // PSBT partial sigs expect DER signature + 1-byte sighash type.
+            let der = try signatures[i].der()
+            let sigWithHashType = der + Data([0x01]) // SIGHASH_ALL
+
+            try psbt.setPartialSignature(inputIndex: inputIndex, publicKey: publicKey, signatureWithSighash: sigWithHashType)
+
+            // Finalize input: write final_scriptSig / final_scriptwitness (BIP174).
+            switch scriptType {
+            case .p2pkh:
+                let scriptSig = ScriptSigBuilder.p2pkh(signatureWithSighash: sigWithHashType, publicKey: publicKey)
+                psbt.setFinalScriptSig(inputIndex: inputIndex, scriptSig: scriptSig)
+                psbt.clearFinalScriptWitness(inputIndex: inputIndex)
+            case .p2wpkh:
+                psbt.clearFinalScriptSig(inputIndex: inputIndex)
+                let witness = WitnessBuilder.p2wpkh(signatureWithSighash: sigWithHashType, publicKey: publicKey)
+                psbt.setFinalScriptWitness(inputIndex: inputIndex, witness: witness)
+            case .unsupported(let reason):
+                throw Error.unsupported(reason)
+            }
+        }
+
+        return psbt.serialize().base64EncodedString()
+    }
+}
+
+// MARK: - PSBT internals (BIP174)
+
+private struct PsbtKeyValueMaps {
+    private(set) var globalMap: [KV]
+    private(set) var inputMaps: [[KV]]
+    private(set) var outputMaps: [[KV]]
+
+    let unsignedTransaction: Data
+
+    init(data: Data) throws {
+        var reader = ByteReader(data)
+        let magic = try reader.read(count: 5)
+        guard magic == Data([0x70, 0x73, 0x62, 0x74, 0xff]) else {
+            throw BitcoinPsbtSigningBuilder.Error.invalidPsbt("Invalid PSBT magic")
+        }
+
+        globalMap = try reader.readKVMap()
+        guard let unsignedTxKV = globalMap.first(where: { $0.key.first == KeyType.globalUnsignedTx }) else {
+            throw BitcoinPsbtSigningBuilder.Error.invalidPsbt("Missing global unsigned tx")
+        }
+        unsignedTransaction = unsignedTxKV.value
+
+        let unsigned = try BitcoinUnsignedTransaction(data: unsignedTransaction)
+        inputMaps = try (0 ..< unsigned.inputs.count).map { _ in try reader.readKVMap() }
+        outputMaps = try (0 ..< unsigned.outputs.count).map { _ in try reader.readKVMap() }
+    }
+
+    mutating func setPartialSignature(inputIndex: Int, publicKey: Data, signatureWithSighash: Data) throws {
+        try setInputKV(inputIndex: inputIndex, key: Data([KeyType.inputPartialSig]) + publicKey, value: signatureWithSighash)
+    }
+
+    mutating func setFinalScriptSig(inputIndex: Int, scriptSig: Data) {
+        setInputKVNoThrow(inputIndex: inputIndex, key: Data([KeyType.inputFinalScriptSig]), value: scriptSig)
+    }
+
+    mutating func clearFinalScriptSig(inputIndex: Int) {
+        removeInputKVNoThrow(inputIndex: inputIndex, key: Data([KeyType.inputFinalScriptSig]))
+    }
+
+    mutating func setFinalScriptWitness(inputIndex: Int, witness: Data) {
+        setInputKVNoThrow(inputIndex: inputIndex, key: Data([KeyType.inputFinalScriptWitness]), value: witness)
+    }
+
+    mutating func clearFinalScriptWitness(inputIndex: Int) {
+        removeInputKVNoThrow(inputIndex: inputIndex, key: Data([KeyType.inputFinalScriptWitness]))
+    }
+
+    func spendUtxo(unsignedTx: BitcoinUnsignedTransaction, inputIndex: Int) throws -> UTXO {
+        guard inputMaps.indices.contains(inputIndex) else {
+            throw BitcoinPsbtSigningBuilder.Error.inputIndexOutOfRange(inputIndex)
+        }
+
+        let map = inputMaps[inputIndex]
+
+        if let witness = map.first(where: { $0.key.first == KeyType.inputWitnessUtxo }) {
+            var r = ByteReader(witness.value)
+            let value = try r.readUInt64LE()
+            let scriptPubKey = try r.readVarBytes()
+            return .init(value: value, scriptPubKey: scriptPubKey)
+        }
+
+        if let nonWitness = map.first(where: { $0.key.first == KeyType.inputNonWitnessUtxo }) {
+            let prevTx = try BitcoinUnsignedTransaction(data: nonWitness.value)
+            let vout = unsignedTx.inputs[inputIndex].vout
+            guard prevTx.outputs.indices.contains(Int(vout)) else {
+                throw BitcoinPsbtSigningBuilder.Error.invalidPsbt("nonWitnessUtxo vout out of range")
+            }
+            let out = prevTx.outputs[Int(vout)]
+            return .init(value: out.value, scriptPubKey: out.scriptPubKey)
+        }
+
+        throw BitcoinPsbtSigningBuilder.Error.missingUtxo(inputIndex)
+    }
+
+    func serialize() -> Data {
+        var data = Data([0x70, 0x73, 0x62, 0x74, 0xff])
+        data.append(serializeKVMap(globalMap))
+        for map in inputMaps {
+            data.append(serializeKVMap(map))
+        }
+        for map in outputMaps {
+            data.append(serializeKVMap(map))
+        }
+        return data
+    }
+
+    // MARK: - Private
+
+    private mutating func setInputKV(inputIndex: Int, key: Data, value: Data) throws {
+        guard inputMaps.indices.contains(inputIndex) else {
+            throw BitcoinPsbtSigningBuilder.Error.inputIndexOutOfRange(inputIndex)
+        }
+        setInputKVNoThrow(inputIndex: inputIndex, key: key, value: value)
+    }
+
+    private mutating func setInputKVNoThrow(inputIndex: Int, key: Data, value: Data) {
+        var map = inputMaps[inputIndex]
+        let kv = KV(key: key, value: value)
+        if let idx = map.firstIndex(where: { $0.key == key }) {
+            map[idx] = kv
+        } else {
+            map.append(kv)
+        }
+        map.sort(by: { $0.key.lexicographicallyPrecedes($1.key) })
+        inputMaps[inputIndex] = map
+    }
+
+    private mutating func removeInputKVNoThrow(inputIndex: Int, key: Data) {
+        guard inputMaps.indices.contains(inputIndex) else { return }
+        var map = inputMaps[inputIndex]
+        map.removeAll(where: { $0.key == key })
+        inputMaps[inputIndex] = map
+    }
+
+    private func serializeKVMap(_ map: [KV]) -> Data {
+        var data = Data()
+        for kv in map.sorted(by: { $0.key.lexicographicallyPrecedes($1.key) }) {
+            data.append(VarInt.encode(UInt64(kv.key.count)))
+            data.append(kv.key)
+            data.append(VarInt.encode(UInt64(kv.value.count)))
+            data.append(kv.value)
+        }
+        data.append(0x00)
+        return data
+    }
+
+    struct KV: Hashable {
+        let key: Data
+        let value: Data
+    }
+
+    struct UTXO: Hashable {
+        let value: UInt64
+        let scriptPubKey: Data
+    }
+
+    enum KeyType {
+        static let globalUnsignedTx: UInt8 = 0x00
+        static let inputNonWitnessUtxo: UInt8 = 0x00
+        static let inputWitnessUtxo: UInt8 = 0x01
+        static let inputPartialSig: UInt8 = 0x02
+        static let inputFinalScriptSig: UInt8 = 0x07
+        static let inputFinalScriptWitness: UInt8 = 0x08
+    }
+}
+
+// MARK: - Minimal unsigned transaction parser (non-witness)
+
+private struct BitcoinUnsignedTransaction {
+    let version: UInt32
+    let inputs: [TxIn]
+    let outputs: [TxOut]
+    let lockTime: UInt32
+
+    init(data: Data) throws {
+        var r = ByteReader(data)
+        version = try r.readUInt32LE()
+
+        let inputCount = Int(try r.readVarInt())
+        inputs = try (0 ..< inputCount).map { _ in
+            let txidLE = try r.read(count: 32)
+            let vout = try r.readUInt32LE()
+            _ = try r.readVarBytes() // scriptSig
+            let sequence = try r.readUInt32LE()
+            return TxIn(txidLE: txidLE, vout: vout, sequence: sequence)
+        }
+
+        let outputCount = Int(try r.readVarInt())
+        outputs = try (0 ..< outputCount).map { _ in
+            let value = try r.readUInt64LE()
+            let scriptPubKey = try r.readVarBytes()
+            return TxOut(value: value, scriptPubKey: scriptPubKey)
+        }
+
+        lockTime = try r.readUInt32LE()
+    }
+
+    struct TxIn: Hashable {
+        let txidLE: Data
+        let vout: UInt32
+        let sequence: UInt32
+    }
+
+    struct TxOut: Hashable {
+        let value: UInt64
+        let scriptPubKey: Data
+    }
+}
+
+// MARK: - Script + sighash (SIGHASH_ALL)
+
+private enum ScriptType {
+    case p2pkh
+    case p2wpkh
+    case unsupported(String)
+
+    init(scriptPubKey: Data) {
+        if scriptPubKey.count == 22, scriptPubKey[0] == 0x00, scriptPubKey[1] == 0x14 {
+            self = .p2wpkh
+            return
+        }
+
+        if scriptPubKey.count == 25,
+           scriptPubKey[0] == 0x76,
+           scriptPubKey[1] == 0xA9,
+           scriptPubKey[2] == 0x14,
+           scriptPubKey[23] == 0x88,
+           scriptPubKey[24] == 0xAC {
+            self = .p2pkh
+            return
+        }
+
+        self = .unsupported("Unsupported scriptPubKey (len=\(scriptPubKey.count))")
+    }
+}
+
+private func sighashAll(unsignedTx: BitcoinUnsignedTransaction, psbt: PsbtKeyValueMaps, inputIndex: Int) throws -> Data {
+    guard unsignedTx.inputs.indices.contains(inputIndex) else {
+        throw BitcoinPsbtSigningBuilder.Error.inputIndexOutOfRange(inputIndex)
+    }
+
+    let utxo = try psbt.spendUtxo(unsignedTx: unsignedTx, inputIndex: inputIndex)
+    let scriptType = ScriptType(scriptPubKey: utxo.scriptPubKey)
+
+    let sighashInputs = unsignedTx.inputs.map {
+        BitcoinSighashBuilder.Input(txid: $0.txidLE, vout: $0.vout, sequence: $0.sequence)
+    }
+
+    let sighashOutputs = unsignedTx.outputs.map {
+        BitcoinSighashBuilder.Output(value: $0.value, scriptPubKey: $0.scriptPubKey)
+    }
+
+    switch scriptType {
+    case .p2pkh:
+        return try BitcoinSighashBuilder.legacySighashAll(
+            version: unsignedTx.version,
+            lockTime: unsignedTx.lockTime,
+            inputs: sighashInputs,
+            outputs: sighashOutputs,
+            inputIndex: inputIndex,
+            scriptCode: utxo.scriptPubKey
+        )
+    case .p2wpkh:
+        let pubKeyHash = utxo.scriptPubKey.subdata(in: 2 ..< 22)
+        return try BitcoinSighashBuilder.segwitV0SighashAll(
+            version: unsignedTx.version,
+            lockTime: unsignedTx.lockTime,
+            inputs: sighashInputs,
+            outputs: sighashOutputs,
+            inputIndex: inputIndex,
+            scriptCode: OpCodeUtils.p2pkh(data: pubKeyHash),
+            value: utxo.value
+        )
+    case .unsupported(let reason):
+        throw BitcoinPsbtSigningBuilder.Error.unsupported(reason)
+    }
+}
+
+// MARK: - Final scripts
+
+private enum ScriptSigBuilder {
+    static func p2pkh(signatureWithSighash: Data, publicKey: Data) -> Data {
+        // Use the same push rules as the rest of the Bitcoin script utilities.
+        OpCode.push(signatureWithSighash) + OpCode.push(publicKey)
+    }
+}
+
+private enum WitnessBuilder {
+    static func p2wpkh(signatureWithSighash: Data, publicKey: Data) -> Data {
+        var data = Data()
+        data += VarInt.encode(2)
+        data += VarInt.encode(UInt64(signatureWithSighash.count))
+        data += signatureWithSighash
+        data += VarInt.encode(UInt64(publicKey.count))
+        data += publicKey
+        return data
+    }
+}
+
+// MARK: - Low-level readers/writers
+
+private struct ByteReader {
+    private let data: Data
+    private var offset: Int = 0
+
+    init(_ data: Data) {
+        self.data = data
+    }
+
+    mutating func read(count: Int) throws -> Data {
+        guard offset + count <= data.count else {
+            throw BitcoinPsbtSigningBuilder.Error.invalidPsbt("Unexpected EOF")
+        }
+        defer { offset += count }
+        return data.subdata(in: offset ..< offset + count)
+    }
+
+    mutating func readUInt32LE() throws -> UInt32 {
+        let d = try read(count: 4)
+        return UInt32(littleEndian: d.withUnsafeBytes { $0.load(as: UInt32.self) })
+    }
+
+    mutating func readUInt64LE() throws -> UInt64 {
+        let d = try read(count: 8)
+        return UInt64(littleEndian: d.withUnsafeBytes { $0.load(as: UInt64.self) })
+    }
+
+    mutating func readVarInt() throws -> UInt64 {
+        let first = try read(count: 1).first!
+        switch first {
+        case 0x00 ... 0xFC:
+            return UInt64(first)
+        case 0xFD:
+            let d = try read(count: 2)
+            return UInt64(UInt16(littleEndian: d.withUnsafeBytes { $0.load(as: UInt16.self) }))
+        case 0xFE:
+            return UInt64(try readUInt32LE())
+        case 0xFF:
+            return try readUInt64LE()
+        default:
+            throw BitcoinPsbtSigningBuilder.Error.invalidPsbt("Invalid varint")
+        }
+    }
+
+    mutating func readVarBytes() throws -> Data {
+        let len = Int(try readVarInt())
+        return try read(count: len)
+    }
+
+    mutating func readKVMap() throws -> [PsbtKeyValueMaps.KV] {
+        var items: [PsbtKeyValueMaps.KV] = []
+        while true {
+            let keyLen = try readVarInt()
+            if keyLen == 0 { break }
+            let key = try read(count: Int(keyLen))
+            let valueLen = try readVarInt()
+            let value = try read(count: Int(valueLen))
+            items.append(.init(key: key, value: value))
+        }
+        return items
+    }
+}
+
+private enum VarInt {
+    static func encode(_ value: UInt64) -> Data {
+        switch value {
+        case 0 ..< 0xFD:
+            return Data([UInt8(value)])
+        case 0xFD ..< 0x1_0000:
+            var v = UInt16(value).littleEndian
+            return Data([0xFD]) + withUnsafeBytes(of: &v) { Data($0) }
+        case 0x1_0000 ..< 0x1_0000_0000:
+            var v = UInt32(value).littleEndian
+            return Data([0xFE]) + withUnsafeBytes(of: &v) { Data($0) }
+        default:
+            var v = UInt64(value).littleEndian
+            return Data([0xFF]) + withUnsafeBytes(of: &v) { Data($0) }
+        }
+    }
+}
+
+private extension FixedWidthInteger {
+    var littleEndianData: Data {
+        var v = littleEndian
+        return withUnsafeBytes(of: &v) { Data($0) }
+    }
+}
