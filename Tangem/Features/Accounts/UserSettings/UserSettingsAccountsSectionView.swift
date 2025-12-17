@@ -9,7 +9,6 @@
 import SwiftUI
 import TangemUI
 import TangemAssets
-import TangemAccounts
 import TangemLocalization
 
 struct UserSettingsAccountsSectionView: View {
@@ -18,8 +17,10 @@ struct UserSettingsAccountsSectionView: View {
     var body: some View {
         ReorderableGroupedSection(
             reorderableModels: $viewModel.accountRows,
-            reorderableContent: { model in
-                accountContentView(from: model)
+            reorderableContent: { accountRow in
+                AccountRowButtonView(viewModel: accountRow.viewModel) {
+                    trailingChevron
+                }
             },
             staticModels: [
                 viewModel.addNewAccountButton,
@@ -30,29 +31,17 @@ struct UserSettingsAccountsSectionView: View {
             sectionHeader: {
                 accountsSectionHeader
             },
-            sectionFooter: viewModel.archivedAccountButton.map {
+            sectionFooter: viewModel.archivedAccountsButton.map {
                 makeSectionFooter(from: $0)
             },
             footer: {
-                // We dont have reordering on iOS below 16.0
-                // And there is no need to show "reorder" text if there are less than 2 accounts
-                if #available(iOS 16.0, *), viewModel.moreThatOneActiveAccount {
+                // there is no need to show "reorder" text if there are less than 2 accounts
+                if viewModel.moreThatOneActiveAccount {
                     Text(Localization.accountReorderDescription)
                         .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                 }
             }
         )
-    }
-
-    private func accountContentView(from model: UserSettingsAccountRowViewData) -> some View {
-        Button(action: model.onTap) {
-            AccountRowView(
-                input: viewModel.makeAccountRowInput(from: model),
-                trailing: {
-                    trailingChevron
-                }
-            )
-        }
     }
 
     private var accountsSectionHeader: some View {

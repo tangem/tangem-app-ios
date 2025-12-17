@@ -63,7 +63,7 @@ final class TangemStoriesViewModel: ObservableObject {
         delayedPresentCompletionTask = Task {
             // [REDACTED_USERNAME], slightly more than 1 second for smoother SwiftUI.sheet transition that may happen under stories view.
             let presentationDelayInSeconds = 1.1
-            try await Task.sleep(seconds: presentationDelayInSeconds)
+            try await Task.sleep(for: .seconds(presentationDelayInSeconds))
             presentCompletion()
         }
 
