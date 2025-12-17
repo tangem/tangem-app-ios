@@ -6,14 +6,13 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import Combine
 import BlockchainSdk
 import TangemFoundation
 
 protocol ApproveViewModelInput {
-    var approveFeeValue: LoadingValue<Fee> { get }
-    var approveFeeValuePublisher: AnyPublisher<LoadingValue<Fee>, Never> { get }
+    var approveFeeValue: LoadingResult<Fee, any Error> { get }
+    var approveFeeValuePublisher: AnyPublisher<LoadingResult<Fee, any Error>, Never> { get }
 
     func updateApprovePolicy(policy: ApprovePolicy)
     func sendApproveTransaction() async throws

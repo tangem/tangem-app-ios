@@ -67,7 +67,7 @@ final class NewTokenSelectorWalletItemViewModel: ObservableObject, Identifiable 
 
         case .multiple(let accounts):
             let accounts = accounts.map { account in
-                let icon = AccountIconViewBuilder.makeAccountIconViewData(accountModel: account.cryptoAccount)
+                let icon = AccountModelUtils.UI.iconViewData(accountModel: account.cryptoAccount)
                 let header = NewTokenSelectorAccountViewModel.HeaderType.account(
                     icon: icon,
                     name: account.cryptoAccount.name
