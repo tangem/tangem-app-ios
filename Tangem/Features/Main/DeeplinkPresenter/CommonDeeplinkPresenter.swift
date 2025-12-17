@@ -56,7 +56,12 @@ extension CommonDeeplinkPresenter: DeeplinkPresenter {
 // MARK: - Private Implementation
 
 private extension CommonDeeplinkPresenter {
-    func makeDeeplinkViewController<Content: View>(@ViewBuilder view: () -> Content, embedInNavigationView: Bool) -> UIViewController {
+    func makeDeeplinkViewController<Content: View>(
+        @ViewBuilder view: () -> Content,
+        embedInNavigationView: Bool,
+        modalPresentationStyle: UIModalPresentationStyle = .automatic
+    ) -> UIViewController {
+        let controller: UIViewController
         if embedInNavigationView {
             let navRoot = NavigationView {
                 view()
@@ -69,10 +74,13 @@ private extension CommonDeeplinkPresenter {
                         }
                     }
             }
-            return UIHostingController(rootView: navRoot)
+            controller = UIHostingController(rootView: navRoot)
         } else {
-            return UIHostingController(rootView: view())
+            controller = UIHostingController(rootView: view())
         }
+        controller.modalPresentationStyle = modalPresentationStyle
+
+        return controller
     }
 }
 
@@ -107,10 +115,9 @@ private extension CommonDeeplinkPresenter {
         case .marketsTokenDetails(let tokenId):
             return constructMarketsTokenViewController(tokenId: tokenId)
 
-        case .onboardVisa(let deeplinkString, let userWalletModel):
+        case .onboardVisa(let deeplinkString):
             return constructTangemPayOnboardViewController(
                 deeplinkString: deeplinkString,
-                userWalletModel: userWalletModel
             )
 
         case .promo(let promoCode):
@@ -276,28 +283,20 @@ private extension CommonDeeplinkPresenter {
     }
 
     private func constructTangemPayOnboardViewController(
-        deeplinkString: String,
-        userWalletModel: UserWalletModel
+        deeplinkString: String
     ) -> UIViewController {
-        var viewController: TangemPayOnboardingHostingController?
+        let coordinator = coordinatorFactory.makeTangemPayOnboardingCoordinator { _ in
+            UIApplication.dismissTop()
+        }
+        coordinator.start(with: .init(source: .deeplink(deeplinkString)))
 
-        let viewModel = TangemPayOnboardingViewModel(
-            deeplinkString: deeplinkString,
-            userWalletModel: userWalletModel,
-            closeOfferScreen: { @MainActor in
-                viewController?.customDismiss()
-                // To exclude reference cycle possibility
-                viewController = nil
-            }
+        return makeDeeplinkViewController(
+            view: {
+                TangemPayOnboardingCoordinatorView(coordinator: coordinator)
+            },
+            embedInNavigationView: false,
+            modalPresentationStyle: .overFullScreen
         )
-
-        let view = TangemPayOnboardingView(viewModel: viewModel)
-        let controller = TangemPayOnboardingHostingController(rootView: view)
-        controller.modalPresentationStyle = .overFullScreen
-
-        viewController = controller
-
-        return controller
     }
 }
 
