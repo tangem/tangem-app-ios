@@ -93,6 +93,11 @@ struct MainCoordinatorView: CoordinatorView {
     @ViewBuilder
     private var sheets: some View {
         NavHolder()
+            .fullScreenCover(
+                item: $coordinator.tangemPayOnboardingCoordinator
+            ) {
+                TangemPayOnboardingCoordinatorView(coordinator: $0)
+            }
             .sheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
             }
@@ -147,6 +152,9 @@ struct MainCoordinatorView: CoordinatorView {
             }
             .floatingSheetContent(for: ReceiveMainViewModel.self) {
                 ReceiveMainView(viewModel: $0)
+            }
+            .floatingSheetContent(for: AccountSelectorViewModel.self) {
+                AccountSelectorView(viewModel: $0)
             }
             .floatingSheetContent(for: YieldNoticeViewModel.self) {
                 YieldNoticeView(viewModel: $0)

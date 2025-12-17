@@ -54,6 +54,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private(set) lazy var bottomSheetFooterViewModel = MainBottomSheetFooterViewModel()
 
     @Published private(set) var actionButtonsViewModel: ActionButtonsViewModel?
+    @Published private(set) var tangemPayBannerViewModel: GetTangemPayBannerViewModel?
 
     var isOrganizeTokensVisible: Bool {
         func numberOfTokensInSections<T, U>(_ sections: [SectionModel<T, U>]) -> Int {
@@ -72,6 +73,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     // MARK: - Dependencies
 
     @Injected(\.mobileFinishActivationManager) private var mobileFinishActivationManager: MobileFinishActivationManager
+    @Injected(\.tangemPayAvailabilityRepository) private var tangemPayAvailabilityRepository: TangemPayAvailabilityRepository
 
     private let nftFeatureLifecycleHandler: NFTFeatureLifecycleHandling
     private let userWalletModel: UserWalletModel
@@ -328,6 +330,20 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             }
             .receiveOnMain()
             .assign(to: &$tangemPayAccountViewModel)
+
+        tangemPayAvailabilityRepository.shouldShowGetTangemPayBanner
+            .withWeakCaptureOf(self)
+            .map { viewModel, shouldShow in
+                shouldShow
+                    ? GetTangemPayBannerViewModel(
+                        onBannerTap: { [weak viewModel] in
+                            viewModel?.coordinator?.openGetTangemPay()
+                        }
+                    )
+                    : nil
+            }
+            .receiveOnMain()
+            .assign(to: &$tangemPayBannerViewModel)
     }
 
     /// - Note: This method throws an opaque error if the NFT Entrypoint view model is already created and there is no need to update it.
