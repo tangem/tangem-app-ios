@@ -20,7 +20,7 @@ extension Analytics {
 
         var parameterValue: Analytics.ParameterValue {
             switch self {
-            case .createWallet: .createWallet
+            case .createWallet: .create
             case .createWalletIntro: .createWalletIntro
             case .addWallet: .addNewWallet
             case .hardwareWallet: .hardwareWallet
