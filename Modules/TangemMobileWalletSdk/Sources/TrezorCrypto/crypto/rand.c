@@ -22,36 +22,19 @@
  */
 
 #include <TrezorCrypto/rand.h>
+#include <Security/Security.h>
 
-#include <fcntl.h>
-#include <sys/types.h>
-#include <sys/uio.h>
-#include <unistd.h>
-
-// [wallet-core]
 uint32_t __attribute__((weak)) random32(void) {
-    int randomData = open("/dev/urandom", O_RDONLY);
-    if (randomData < 0) {
+    uint32_t result = 0;
+    OSStatus status = SecRandomCopyBytes(kSecRandomDefault, sizeof(result), &result);
+    if (status != errSecSuccess) {
         return 0;
     }
-
-    uint32_t result;
-    if (read(randomData, &result, sizeof(result)) < 0) {
-        return 0;
-    }
-
-    close(randomData);
-
     return result;
 }
 
 void __attribute__((weak)) random_buffer(uint8_t *buf, size_t len) {
-    int randomData = open("/dev/urandom", O_RDONLY);
-    if (randomData < 0) {
-        return;
+    if (SecRandomCopyBytes(kSecRandomDefault, len, buf) != errSecSuccess) {
+        memset(buf, 0, len);
     }
-    if (read(randomData, buf, len) < 0) {
-        return;
-    }
-    close(randomData);
 }
