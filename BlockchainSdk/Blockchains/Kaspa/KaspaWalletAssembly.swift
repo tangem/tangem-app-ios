@@ -22,7 +22,10 @@ struct KaspaWalletAssembly: WalletManagerAssembly {
                 )
             }
 
-        let providerKRC20URL = blockchain.isTestnet ? URL("https://tn10api.kasplex.org/v1")! : URL("https://api.kasplex.org/v1/")!
+        let providerKRC20URL = blockchain.isTestnet
+            ? URL(string: "https://tn10api.kasplex.org/v1")!
+            : URL(string: "https://api.kasplex.org/v1/")!
+
         let providersKRC20 = [
             KaspaNetworkProviderKRC20(
                 url: providerKRC20URL,
