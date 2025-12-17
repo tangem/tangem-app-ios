@@ -69,7 +69,7 @@ final class SendCardanoNotificationUITests: BaseTestCase {
             scenarios: [cardanoScenario]
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(network)
             .tapActionButton(.send)
