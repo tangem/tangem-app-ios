@@ -112,7 +112,7 @@ private extension NFTAssetDetailsView {
 
 #if DEBUG
 #Preview {
-    NavigationView {
+    NavigationStack {
         NFTAssetDetailsView(
             viewModel: NFTAssetDetailsViewModel(
                 asset: NFTAsset(

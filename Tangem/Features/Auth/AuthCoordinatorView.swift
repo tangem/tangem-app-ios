@@ -20,11 +20,10 @@ struct AuthCoordinatorView: CoordinatorView {
     }
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             content
                 .navigationLinks(links)
         }
-        .navigationViewStyle(.stack)
     }
 
     private var content: some View {

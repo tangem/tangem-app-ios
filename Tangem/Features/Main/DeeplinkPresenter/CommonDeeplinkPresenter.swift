@@ -58,12 +58,12 @@ extension CommonDeeplinkPresenter: DeeplinkPresenter {
 private extension CommonDeeplinkPresenter {
     func makeDeeplinkViewController<Content: View>(
         @ViewBuilder view: () -> Content,
-        embedInNavigationView: Bool,
+        embedInNavigationStack: Bool,
         modalPresentationStyle: UIModalPresentationStyle = .automatic
     ) -> UIViewController {
         let controller: UIViewController
-        if embedInNavigationView {
-            let navRoot = NavigationView {
+        if embedInNavigationStack {
+            let navRoot = NavigationStack {
                 view()
                     .toolbar {
                         ToolbarItem(placement: .navigationBarLeading) {
@@ -131,7 +131,10 @@ private extension CommonDeeplinkPresenter {
 
 private extension CommonDeeplinkPresenter {
     private func constructPromoViewController(promoCode: String) -> UIViewController {
-        let viewController = makeDeeplinkViewController(view: { PromocodeActivationView(promoCode: promoCode) }, embedInNavigationView: false)
+        let viewController = makeDeeplinkViewController(
+            view: { PromocodeActivationView(promoCode: promoCode) },
+            embedInNavigationStack: false
+        )
 
         viewController.view.backgroundColor = .clear
         viewController.modalPresentationStyle = .overFullScreen
@@ -156,7 +159,7 @@ private extension CommonDeeplinkPresenter {
 
         return makeDeeplinkViewController(
             view: { TokenDetailsCoordinatorView(coordinator: coordinator) },
-            embedInNavigationView: true
+            embedInNavigationStack: true
         )
     }
 
@@ -173,7 +176,7 @@ private extension CommonDeeplinkPresenter {
 
         return makeDeeplinkViewController(
             view: { TokenDetailsCoordinatorView(coordinator: coordinator) },
-            embedInNavigationView: true
+            embedInNavigationStack: true
         )
     }
 
@@ -183,7 +186,7 @@ private extension CommonDeeplinkPresenter {
         coordinator.start(with: .init(input: input))
         return makeDeeplinkViewController(
             view: { ReferralCoordinatorView(coordinator: coordinator) },
-            embedInNavigationView: true
+            embedInNavigationStack: true
         )
     }
 
@@ -202,7 +205,7 @@ private extension CommonDeeplinkPresenter {
 
         return makeDeeplinkViewController(
             view: { ActionButtonsBuyCoordinatorView(coordinator: coordinator) },
-            embedInNavigationView: false
+            embedInNavigationStack: false
         )
     }
 
@@ -215,7 +218,7 @@ private extension CommonDeeplinkPresenter {
         coordinator.start(with: .default)
         return makeDeeplinkViewController(
             view: { ActionButtonsSellCoordinatorView(coordinator: coordinator) },
-            embedInNavigationView: false
+            embedInNavigationStack: false
         )
     }
 
@@ -228,7 +231,7 @@ private extension CommonDeeplinkPresenter {
         coordinator.start(with: .default)
         return makeDeeplinkViewController(
             view: { ActionButtonsSwapCoordinatorView(coordinator: coordinator) },
-            embedInNavigationView: false
+            embedInNavigationStack: false
         )
     }
 
@@ -241,7 +244,7 @@ private extension CommonDeeplinkPresenter {
         coordinator.start(with: options)
         return makeDeeplinkViewController(
             view: { StakingDetailsCoordinatorView(coordinator: coordinator) },
-            embedInNavigationView: true
+            embedInNavigationStack: true
         )
     }
 
@@ -278,7 +281,7 @@ private extension CommonDeeplinkPresenter {
                 MarketsTokenDetailsCoordinatorView(coordinator: coordinator)
                     .environment(\.mainWindowSize, windowSize ?? .zero)
             },
-            embedInNavigationView: true
+            embedInNavigationStack: true
         )
     }
 
@@ -294,7 +297,7 @@ private extension CommonDeeplinkPresenter {
             view: {
                 TangemPayOnboardingCoordinatorView(coordinator: coordinator)
             },
-            embedInNavigationView: false,
+            embedInNavigationStack: false,
             modalPresentationStyle: .overFullScreen
         )
     }

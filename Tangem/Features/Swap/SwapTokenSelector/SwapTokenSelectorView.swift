@@ -15,7 +15,7 @@ struct SwapTokenSelectorView: View {
     @ObservedObject var viewModel: SwapTokenSelectorViewModel
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             NewTokenSelectorView(viewModel: viewModel.tokenSelectorViewModel) {
                 NewTokenSelectorEmptyContentView(message: Localization.expressTokenListEmptySearch)
             }
