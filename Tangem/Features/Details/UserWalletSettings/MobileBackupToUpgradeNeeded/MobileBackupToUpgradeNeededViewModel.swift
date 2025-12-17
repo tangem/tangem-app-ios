@@ -16,12 +16,17 @@ final class MobileBackupToUpgradeNeededViewModel {
     let description = Localization.hwBackupToUpgradeDescription
     let actionTitle = Localization.hwBackupNeedAction
 
-    private let onBackup: () -> Void
+    private var analyticsContextParams: Analytics.ContextParams {
+        .custom(.mobileWallet)
+    }
+
     private weak var coordinator: MobileBackupToUpgradeNeededRoutable?
+    private let onBackup: () -> Void
 
     init(coordinator: MobileBackupToUpgradeNeededRoutable, onBackup: @escaping () -> Void) {
         self.coordinator = coordinator
         self.onBackup = onBackup
+        logMobileBackupNeededAnalytics()
     }
 }
 
@@ -38,6 +43,21 @@ extension MobileBackupToUpgradeNeededViewModel {
         runTask(in: self) { viewModel in
             await viewModel.openMobileBackup()
         }
+    }
+}
+
+// MARK: - Analytics
+
+private extension MobileBackupToUpgradeNeededViewModel {
+    func logMobileBackupNeededAnalytics() {
+        Analytics.log(
+            .walletSettingsNoticeBackupFirst,
+            params: [
+                .source: .walletSettings,
+                .action: .upgrade,
+            ],
+            contextParams: analyticsContextParams
+        )
     }
 }
 
