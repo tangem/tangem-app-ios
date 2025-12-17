@@ -111,7 +111,7 @@ final class MainViewModel: ObservableObject {
     func onViewAppear() {
         if !isLoggingOut {
             var analyticsParameters: [Analytics.ParameterKey: Analytics.ParameterValue] = [
-                .appTheme: AppSettings.shared.appTheme.analyticsParamValue
+                .appTheme: AppSettings.shared.appTheme.analyticsParamValue,
             ]
 
             if let userWalletModel = userWalletRepository.selectedModel {
