@@ -418,7 +418,7 @@ extension UnstakingModel {
         guard validatorInfo.preferred else { return false }
 
         return switch tokenItem.blockchain {
-        case .ton: false // ton does not support partial unstake
+        case .ton, .cardano: false // ton and cardano do not support partial unstake
         default: true
         }
     }
