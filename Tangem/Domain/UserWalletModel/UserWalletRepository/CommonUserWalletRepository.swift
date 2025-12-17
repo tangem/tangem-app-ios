@@ -321,7 +321,10 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
 
         guard !targetUnlockedModel.isUserWalletLocked else {
-            Analytics.log(.signInErrorBiometricUpdated)
+            Analytics.log(
+                .signInErrorBiometricUpdated,
+                contextParams: .custom(targetUnlockedModel.analyticsContextData)
+            )
             throw UserWalletRepositoryError.biometricsChanged
         }
 
