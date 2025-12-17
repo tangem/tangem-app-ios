@@ -64,7 +64,7 @@ class SendNewFeeCompactViewModel: ObservableObject, Identifiable {
         case .loading:
             selectedFeeComponents = .loading
 
-        case .loaded(let fee):
+        case .success(let fee):
             let feeComponents = feeFormatter.formattedFeeComponents(
                 fee: fee.amount.value,
                 currencySymbol: feeTokenItem.currencySymbol,
@@ -74,7 +74,7 @@ class SendNewFeeCompactViewModel: ObservableObject, Identifiable {
             )
             selectedFeeComponents = .loaded(text: feeComponents.fiatFee ?? feeComponents.cryptoFee)
 
-        case .failedToLoad:
+        case .failure:
             selectedFeeComponents = .noData
         }
     }
