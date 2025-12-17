@@ -60,7 +60,7 @@ final class SendPolkadotNotificationUITests: BaseTestCase {
             scenarios: [polkadotTokenScenario, quotesScenario]
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(coin)
             .tapSendButton()

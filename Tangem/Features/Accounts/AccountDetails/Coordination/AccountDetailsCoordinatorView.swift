@@ -33,7 +33,6 @@ struct AccountDetailsCoordinatorView: View {
             .navigation(item: $coordinator.manageTokensCoordinator) {
                 ManageTokensCoordinatorView(coordinator: $0)
             }
-            .emptyNavigationLink()
     }
 
     private var sheets: some View {
@@ -43,7 +42,7 @@ struct AccountDetailsCoordinatorView: View {
                     AccountFormView(viewModel: viewModel)
                 }
                 .presentation(onDismissalAttempt: viewModel.onClose)
-                .presentationCornerRadiusBackport(24)
+                .presentationCornerRadius(24)
             }
     }
 }
