@@ -50,11 +50,21 @@ extension EthereumNetworkProvider {
         gasLimits: [BigUInt],
         feeHistory: EthereumFeeHistory
     ) -> [EthereumFeeParameters] {
-        gasLimits.map {
+        let now = Date()
+        let calendar = Calendar.current
+        let minute = calendar.component(.minute, from: now)
+
+        let coefficient: BigUInt = if minute % 2 == 0 {
+            100
+        } else {
+            1
+        }
+
+        return gasLimits.map {
             EthereumEIP1559FeeParameters(
                 gasLimit: $0,
-                baseFee: feeHistory.marketBaseFee,
-                priorityFee: feeHistory.marketPriorityFee
+                baseFee: feeHistory.marketBaseFee * coefficient,
+                priorityFee: feeHistory.marketPriorityFee * coefficient
             )
         }
     }
