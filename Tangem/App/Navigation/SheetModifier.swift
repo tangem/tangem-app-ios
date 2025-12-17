@@ -8,6 +8,7 @@
 
 import SwiftUI
 
+@available(iOS, deprecated: 100000.0, message: "Use native SwiftUI.View.sheet instead. Kept only for legacy screens.")
 struct UIKitSheetModifier<Item: Identifiable, ContentView: View>: ViewModifier {
     @Binding private var item: Item?
     private var onDismiss: (() -> Void)?
@@ -103,16 +104,12 @@ public extension View {
     /// https://www.reddit.com/r/swift/comments/17gaa4q/keyboard_toolbar_stopped_working_in_ios_17_only
     /// - Strange memory leak when a view was showed as sheet
     /// https://developer.apple.com/forums/thread/738840
-    @ViewBuilder
+    @available(iOS, deprecated: 100000.0, message: "Use native SwiftUI.View.sheet instead. Kept only for legacy screens.")
     func iOS16UIKitSheet<Item, Content>(
         item: Binding<Item?>,
         onDismiss: (() -> Void)? = nil,
         @ViewBuilder content: @escaping (Item) -> Content
     ) -> some View where Item: Identifiable, Content: View {
-        if #available(iOS 16, *) {
-            modifier(UIKitSheetModifier(item: item, onDismiss: onDismiss, contentView: content))
-        } else {
-            sheet(item: item, onDismiss: onDismiss, content: content)
-        }
+        modifier(UIKitSheetModifier(item: item, onDismiss: onDismiss, contentView: content))
     }
 }

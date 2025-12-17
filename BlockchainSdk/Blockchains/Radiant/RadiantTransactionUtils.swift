@@ -35,13 +35,13 @@ struct RadiantScriptUtils {
             .map { Data($0.hash.reversed()) + $0.index.bytes4LE }
             .joined()
 
-        let hashPrevouts = Data(prevouts).getDoubleSha256()
+        let hashPrevouts = Data(prevouts).getDoubleSHA256()
         txToSign.append(contentsOf: hashPrevouts)
     }
 
     func writeSequenceHash(_ unspents: [RadiantTransactionBuilder.UnspentOutput], into txToSign: inout Data) {
         let sequence = Data(repeating: UInt8(0xFF), count: 4 * unspents.count)
-        let hashSequence = sequence.getDoubleSha256()
+        let hashSequence = sequence.getDoubleSHA256()
         txToSign.append(contentsOf: hashSequence)
     }
 
@@ -58,7 +58,7 @@ struct RadiantScriptUtils {
             bytes.append(contentsOf: output.lockingScript.data)
         }
 
-        let hashOutput = bytes.getDoubleSha256()
+        let hashOutput = bytes.getDoubleSHA256()
         // Write bytes
         txToSign.append(contentsOf: hashOutput)
     }
@@ -76,7 +76,7 @@ struct RadiantScriptUtils {
         outputs.forEach { output in
             bytes.append(output.amount.bytes8LE)
 
-            let scriptHash = output.lockingScript.data.getDoubleSha256()
+            let scriptHash = output.lockingScript.data.getDoubleSHA256()
             bytes.append(contentsOf: scriptHash)
 
             // Total refs
@@ -86,7 +86,7 @@ struct RadiantScriptUtils {
             bytes.append(contentsOf: zeroRefHash)
         }
 
-        let hashOutputHash = bytes.getDoubleSha256()
+        let hashOutputHash = bytes.getDoubleSHA256()
         txToSign.append(contentsOf: hashOutputHash)
     }
 }

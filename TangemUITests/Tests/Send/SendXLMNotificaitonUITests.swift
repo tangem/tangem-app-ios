@@ -88,7 +88,7 @@ final class SendXLMNotificationUITests: BaseTestCase {
             scenarios: [xlmScenario]
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(coin)
             .tapSendButton()
