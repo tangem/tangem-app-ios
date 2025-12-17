@@ -47,7 +47,7 @@ struct SendView: View {
             ToolbarItem(placement: .principal) { principalView }
             ToolbarItem(placement: .topBarTrailing) { trailingView }
         }
-        .scrollDismissesKeyboardCompat(.immediately)
+        .scrollDismissesKeyboard(.immediately)
         .safeAreaInset(edge: .bottom, spacing: .zero) { bottomContainer }
         .onReceive(viewModel.$isKeyboardActive, perform: { focused = $0 })
         .onChange(of: viewModel.shouldShowDismissAlert) { interactiveDismissDisabled = $0 }
@@ -103,19 +103,11 @@ struct SendView: View {
         case .none:
             EmptyView()
         case .some(let title):
-            VStack(spacing: 2) {
-                Text(title)
-                    .multilineTextAlignment(.center)
-                    .style(Fonts.BoldStatic.body, color: Colors.Text.primary1)
-                    .accessibilityIdentifier(SendAccessibilityIdentifiers.sendViewTitle)
-
-                if let subtitle = viewModel.navigationBarSettings.subtitle {
-                    Text(subtitle)
-                        .style(Fonts.RegularStatic.caption1, color: Colors.Text.tertiary)
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
-                }
-            }
-            .lineLimit(1)
+            Text(title)
+                .multilineTextAlignment(.center)
+                .style(Fonts.BoldStatic.body, color: Colors.Text.primary1)
+                .lineLimit(1)
+                .accessibilityIdentifier(SendAccessibilityIdentifiers.sendViewTitle)
         }
     }
 
@@ -130,8 +122,8 @@ struct SendView: View {
             SendAmountView(viewModel: sendAmountViewModel)
                 .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
                 .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
-        case .validators(let stakingValidatorsViewModel):
-            StakingValidatorsView(viewModel: stakingValidatorsViewModel)
+        case .targets(let stakingTargetsViewModel):
+            StakingTargetsView(viewModel: stakingTargetsViewModel)
                 .onAppear { [step = viewModel.step] in viewModel.onAppear(newStep: step) }
                 .onDisappear { [step = viewModel.step] in viewModel.onDisappear(oldStep: step) }
         case .summary(let sendSummaryViewModel):

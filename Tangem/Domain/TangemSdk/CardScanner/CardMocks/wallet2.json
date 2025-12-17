@@ -90,6 +90,20 @@
             "chainCode" : "4D3F458EE76985D6A96B56D52E5CB295B8AF9A2D4B6188F6761BDECEA4032F82",
             "childNumber" : 0,
             "parentFingerprint" : "00000000"
+          },
+        "m/44'/818'/0'/0/0": {
+            "depth" : 0,
+            "publicKey" : "02CD3E6119534BB11706D6A22D5BBE39B0B5D913A85F843227728A1B8630BB0791",
+            "chainCode" : "4D3F458EE76985D6A96B56D52E5CB295B8AF9A2D4B6188F6761BDECEA4032F82",
+            "childNumber" : 0,
+            "parentFingerprint" : "00000000"
+          },
+        "m/44'/330'/0'/0/0" : {
+            "depth" : 0,
+            "publicKey" : "02CD3E6119534BB11706D6A22D5BBE39B0B5D913A85F843227728A1B8630BB0791",
+            "chainCode" : "4D3F458EE76985D6A96B56D52E5CB295B8AF9A2D4B6188F6761BDECEA4032F82",
+            "childNumber" : 0,
+            "parentFingerprint" : "00000000"
           }
       },
       "chainCode" : "AFDD6D9AA67FBDCCC95DE65223171E01CBF6590DD06EEF9F69BEDE1CCBEE8A16",

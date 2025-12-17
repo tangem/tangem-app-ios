@@ -16,33 +16,42 @@ struct MobileOnboardingSeedPhraseIntroView: View {
     let viewModel: ViewModel
 
     var body: some View {
-        VStack(spacing: 32) {
-            commonView(item: viewModel.commonItem)
-                .padding(.horizontal, 24)
-
-            ForEach(viewModel.infoItems) {
-                infoView(item: $0)
-                    .padding(.leading, 32)
-                    .padding(.trailing, 26)
-            }
-
-            Spacer()
-
-            MainButton(
-                title: viewModel.continueButtonTitle,
-                action: viewModel.onContinueTap
-            )
-        }
-        .onAppear(perform: viewModel.onFirstAppear)
-        .padding(.top, 32)
-        .padding(.horizontal, 16)
-        .padding(.bottom, 6)
+        content
+            .padding(.horizontal, 16)
+            .onAppear(perform: viewModel.onFirstAppear)
     }
 }
 
 // MARK: - Subviews
 
 private extension MobileOnboardingSeedPhraseIntroView {
+    var content: some View {
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(spacing: 32) {
+                commonView(item: viewModel.commonItem)
+                    .padding(.horizontal, 24)
+
+                ForEach(viewModel.infoItems) {
+                    infoView(item: $0)
+                        .padding(.leading, 32)
+                        .padding(.trailing, 26)
+                }
+            }
+            .padding(.top, 32)
+        }
+        .safeAreaInset(edge: .bottom, spacing: 16) {
+            actionButtons
+                .bottomPaddingIfZeroSafeArea()
+        }
+    }
+
+    var actionButtons: some View {
+        MainButton(
+            title: viewModel.continueButtonTitle,
+            action: viewModel.onContinueTap
+        )
+    }
+
     func commonView(item: ViewModel.CommonItem) -> some View {
         VStack(spacing: 12) {
             Text(item.title)
@@ -50,9 +59,9 @@ private extension MobileOnboardingSeedPhraseIntroView {
 
             Text(item.subtitle)
                 .style(Fonts.Regular.callout, color: Colors.Text.secondary)
-                .multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
         }
+        .fixedSize(horizontal: false, vertical: true)
+        .multilineTextAlignment(.center)
     }
 
     func infoView(item: ViewModel.InfoItem) -> some View {

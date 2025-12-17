@@ -6,14 +6,16 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
+import StoreKit
 import SwiftUI
 import TangemLocalization
 import TangemAssets
-import TangemNFT
 import TangemUI
 
 struct MainCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: MainCoordinator
+
+    @Environment(\.requestReview) private var requestReview
 
     @State private var responderChainIntrospectionTrigger = UUID()
 
@@ -106,6 +108,13 @@ struct MainCoordinatorView: CoordinatorView {
             }
             .sheet(item: $coordinator.organizeTokensViewModel) { viewModel in
                 NavigationBarHidingView(shouldWrapInNavigationView: true) {
+                    AccountsAwareOrganizeTokensView(viewModel: viewModel)
+                        .navigationTitle(Localization.organizeTokensTitle)
+                        .navigationBarTitleDisplayMode(.inline)
+                }
+            }
+            .sheet(item: $coordinator.legacyOrganizeTokensViewModel) { viewModel in
+                NavigationBarHidingView(shouldWrapInNavigationView: true) {
                     OrganizeTokensView(viewModel: viewModel)
                         .navigationTitle(Localization.organizeTokensTitle)
                         .navigationBarTitleDisplayMode(.inline)
@@ -170,7 +179,12 @@ struct MainCoordinatorView: CoordinatorView {
             }
 
         NavHolder()
-            .requestAppStoreReviewCompat($coordinator.isAppStoreReviewRequested)
+            .onChange(of: coordinator.isAppStoreReviewRequested) { newValue in
+                guard newValue else { return }
+
+                coordinator.isAppStoreReviewRequested.toggle()
+                requestReview()
+            }
     }
 
     /// Tooltip is placed on top of the other views

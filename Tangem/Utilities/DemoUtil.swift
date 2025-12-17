@@ -67,7 +67,7 @@ extension DemoUtil {
      */
     private static let demoNoteAsMultiWalletBatch = "DE00"
 
-    var demoCardIds: [String] {
+    var demoCardIds: Set<String> {
         [
             // === Development ===
 

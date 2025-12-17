@@ -22,20 +22,20 @@ extension StakingPendingActionsHandler {
         yield: StakingYieldInfo,
         balanceType: StakingBalanceType
     ) -> StakingBalance {
-        let validatorType: StakingValidatorType = {
-            guard let address = action.validatorAddress,
-                  let validator = yield.validators.first(where: { $0.address == address }) else {
+        let targetType: StakingTargetType = {
+            guard let address = action.targetAddress,
+                  let target = yield.targets.first(where: { $0.address == address }) else {
                 return .empty
             }
 
-            return .validator(validator)
+            return .target(target)
         }()
 
         return StakingBalance(
             item: yield.item,
             amount: action.amount,
             balanceType: balanceType,
-            validatorType: validatorType,
+            targetType: targetType,
             inProgress: true,
             actions: []
         )
