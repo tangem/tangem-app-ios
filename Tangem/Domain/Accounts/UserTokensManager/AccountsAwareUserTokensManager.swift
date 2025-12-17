@@ -65,12 +65,22 @@ final class AccountsAwareUserTokensManager {
             return makeTokenItem(from: tokenItem, with: derivationPath)
         }
 
+        // Non-main account with existing derivation: correct only the account node
+        if let existingDerivationPath = derivationPath {
+            let derivationIndexAwarePath = derivationPathHelper.makeDerivationPath(
+                from: existingDerivationPath,
+                forAccountWithIndex: derivationInfo.derivationIndex
+            )
+
+            return makeTokenItem(from: tokenItem, with: derivationIndexAwarePath)
+        }
+
         guard let derivationStyle = derivationInfo.derivationStyle else {
             return tokenItem
         }
 
+        // No derivation: compute from blockchain's default
         let originalDerivationPath = blockchain.derivationPath(for: derivationStyle)
-
         let accountAwareDerivationPath = originalDerivationPath.map { path in
             return derivationPathHelper.makeDerivationPath(from: path, forAccountWithIndex: derivationInfo.derivationIndex)
         }
@@ -313,7 +323,7 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
         }
 
         // wait for walletModelsManager to be updated
-        try await Task.sleep(seconds: 0.1)
+        try await Task.sleep(for: .seconds(0.1))
 
         let walletModelId = WalletModelId(tokenItem: tokenItem)
 

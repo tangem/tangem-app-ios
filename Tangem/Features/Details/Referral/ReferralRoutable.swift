@@ -15,6 +15,7 @@ protocol ReferralRoutable: AnyObject {
     func showAccountSelector(
         selectedAccount: any BaseAccountModel,
         userWalletModel: UserWalletModel,
+        cryptoAccountModelsFilter: @escaping (any CryptoAccountModel) -> Bool,
         onSelect: @escaping (any CryptoAccountModel) -> Void
     )
 }
