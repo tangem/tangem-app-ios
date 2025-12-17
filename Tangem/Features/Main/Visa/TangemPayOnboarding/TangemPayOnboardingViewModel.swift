@@ -8,21 +8,26 @@
 
 import TangemVisa
 
+enum TangemPayOnboardingSource {
+    case deeplink(String)
+    case other
+}
+
 final class TangemPayOnboardingViewModel: ObservableObject {
     let closeOfferScreen: @MainActor () -> Void
     @Published private(set) var tangemPayOfferViewModel: TangemPayOfferViewModel?
 
-    private let deeplinkString: String
-    private let userWalletModel: UserWalletModel
+    private let source: TangemPayOnboardingSource
     private let availabilityService: TangemPayAvailabilityService
+    private weak var coordinator: TangemPayOnboardingRoutable?
 
     init(
-        deeplinkString: String,
-        userWalletModel: UserWalletModel,
+        source: TangemPayOnboardingSource,
+        coordinator: TangemPayOnboardingRoutable?,
         closeOfferScreen: @escaping @MainActor () -> Void
     ) {
-        self.deeplinkString = deeplinkString
-        self.userWalletModel = userWalletModel
+        self.source = source
+        self.coordinator = coordinator
         self.closeOfferScreen = closeOfferScreen
 
         availabilityService = TangemPayAPIServiceBuilder().buildTangemPayAvailabilityService()
@@ -40,13 +45,18 @@ final class TangemPayOnboardingViewModel: ObservableObject {
         }
 
         do {
-            try await validateDeeplink()
+            switch source {
+            case .deeplink(let deeplink):
+                try await validateDeeplink(deeplinkString: deeplink)
+            case .other:
+                break
+            }
             try? await minimumLoaderShowingTimeTask.value
 
             await MainActor.run {
                 tangemPayOfferViewModel = TangemPayOfferViewModel(
-                    userWalletModel: userWalletModel,
-                    closeOfferScreen: closeOfferScreen
+                    closeOfferScreen: closeOfferScreen,
+                    coordinator: coordinator
                 )
             }
         } catch {
@@ -55,7 +65,7 @@ final class TangemPayOnboardingViewModel: ObservableObject {
         }
     }
 
-    private func validateDeeplink() async throws {
+    private func validateDeeplink(deeplinkString: String) async throws {
         let validationResponse = try await availabilityService.validateDeeplink(deeplinkString: deeplinkString)
         switch validationResponse.status {
         case .valid:
@@ -69,5 +79,11 @@ final class TangemPayOnboardingViewModel: ObservableObject {
 private extension TangemPayOnboardingViewModel {
     enum TangemPayOnboardingError: Error {
         case invalidDeeplink
+    }
+}
+
+extension TangemPayOnboardingViewModel: Identifiable {
+    var id: String {
+        "\(source)"
     }
 }

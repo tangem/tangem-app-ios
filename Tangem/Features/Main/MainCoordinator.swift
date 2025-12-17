@@ -59,6 +59,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var actionButtonsSwapCoordinator: ActionButtonsSwapCoordinator? = nil
     @Published var mobileUpgradeCoordinator: MobileUpgradeCoordinator? = nil
     @Published var tangemPayMainCoordinator: TangemPayMainCoordinator?
+    @Published var tangemPayOnboardingCoordinator: TangemPayOnboardingCoordinator?
 
     // MARK: - Child view models
 
@@ -259,6 +260,16 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         mainBottomSheetUIManager.hide()
         let coordinator = factory.makeYieldPromoCoordinator(apy: apy, dismissAction: dismissAction)
         yieldModulePromoCoordinator = coordinator
+    }
+
+    func openGetTangemPay() {
+        let dismissAction: Action<TangemPayOnboardingCoordinator.DismissOptions?> = { [weak self] _ in
+            self?.tangemPayOnboardingCoordinator = nil
+        }
+
+        let coordinator = TangemPayOnboardingCoordinator(dismissAction: dismissAction)
+        coordinator.start(with: .init(source: .other))
+        tangemPayOnboardingCoordinator = coordinator
     }
 
     func openYieldModuleActiveInfo(factory: YieldModuleFlowFactory) {
@@ -736,7 +747,7 @@ extension MainCoordinator {
         case marketsTokenDetails(tokenId: String)
         case externalLink(url: URL)
         case market
-        case onboardVisa(deeplinkString: String, userWalletModel: UserWalletModel)
+        case onboardVisa(deeplinkString: String)
         case promo(code: String)
     }
 }
