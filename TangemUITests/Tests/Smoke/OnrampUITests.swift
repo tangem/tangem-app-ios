@@ -21,7 +21,7 @@ final class OnrampUITests: BaseTestCase {
 
         launchApp(tangemApiType: .mock)
 
-        try StoriesScreen(app)
+        try CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(token)
             .tapBuyButton()
@@ -40,7 +40,7 @@ final class OnrampUITests: BaseTestCase {
         setAllureId(2570)
         launchApp(tangemApiType: .mock)
 
-        let providersAfterSelection = StoriesScreen(app)
+        let providersAfterSelection = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(token)
             .tapBuyButton()
@@ -66,7 +66,7 @@ final class OnrampUITests: BaseTestCase {
 
         launchApp(tangemApiType: .mock)
 
-        try StoriesScreen(app)
+        try CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(token)
             .tapBuyButton()
@@ -89,7 +89,7 @@ final class OnrampUITests: BaseTestCase {
 
         launchApp(tangemApiType: .mock)
 
-        try StoriesScreen(app)
+        try CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(token)
             .tapBuyButton()
@@ -114,7 +114,7 @@ final class OnrampUITests: BaseTestCase {
 
         launchApp(tangemApiType: .mock)
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(token)
             .tapBuyButton()
@@ -141,7 +141,7 @@ final class OnrampUITests: BaseTestCase {
             scenarios: [errorScenario]
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(token)
             .tapBuyButton()
