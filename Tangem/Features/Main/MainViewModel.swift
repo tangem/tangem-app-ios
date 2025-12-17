@@ -110,7 +110,9 @@ final class MainViewModel: ObservableObject {
     /// Handles `SwiftUI.View.onAppear(perform:)`.
     func onViewAppear() {
         if !isLoggingOut {
-            var analyticsParameters: [Analytics.ParameterKey: Analytics.ParameterValue] = [:]
+            var analyticsParameters: [Analytics.ParameterKey: Analytics.ParameterValue] = [
+                .appTheme: AppSettings.shared.appTheme.analyticsParamValue
+            ]
 
             if let userWalletModel = userWalletRepository.selectedModel {
                 let walletType = Analytics.ParameterValue.seedState(for: userWalletModel.hasImportedWallets)
