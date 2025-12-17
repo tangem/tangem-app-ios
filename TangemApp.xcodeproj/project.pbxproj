@@ -3587,6 +3587,10 @@
 		DCED46552EF04FDB0021AC0D /* CryptoSwift in Frameworks */ = {isa = PBXBuildFile; productRef = DCED46542EF04FDB0021AC0D /* CryptoSwift */; };
 		DCED46572EF0502B0021AC0D /* CryptoSwift in Frameworks */ = {isa = PBXBuildFile; productRef = DCED46562EF0502B0021AC0D /* CryptoSwift */; };
 		DCEE80A52E798FF2005CFABC /* Analytics+ContextParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCEE80A42E798FE1005CFABC /* Analytics+ContextParams.swift */; };
+		DCF109412EF3114100B97F19 /* JailbreakWarningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF109402EF3113A00B97F19 /* JailbreakWarningView.swift */; };
+		DCF109432EF3115D00B97F19 /* JailbreakWarningViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF109422EF3115600B97F19 /* JailbreakWarningViewModel.swift */; };
+		DCF109452EF3136A00B97F19 /* JailbreakWarningRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF109442EF3135900B97F19 /* JailbreakWarningRoutable.swift */; };
+		DCF109472EF31D1200B97F19 /* JailbreakWarningUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF109462EF31CF600B97F19 /* JailbreakWarningUtil.swift */; };
 		DCF2369129924C0900FE1855 /* AnalyticsSessionContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF2369029924C0900FE1855 /* AnalyticsSessionContext.swift */; };
 		DCF23693299257EB00FE1855 /* AnalyticsContextData.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF23692299257EB00FE1855 /* AnalyticsContextData.swift */; };
 		DCF8972D28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF8972C28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift */; };
@@ -8248,6 +8252,10 @@
 		DCE940B92C3ECC2500B67398 /* StakingFeatureProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingFeatureProvider.swift; sourceTree = "<group>"; };
 		DCEC71F42B8683FB00B3847E /* CardValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardValidator.swift; sourceTree = "<group>"; };
 		DCEE80A42E798FE1005CFABC /* Analytics+ContextParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Analytics+ContextParams.swift"; sourceTree = "<group>"; };
+		DCF109402EF3113A00B97F19 /* JailbreakWarningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JailbreakWarningView.swift; sourceTree = "<group>"; };
+		DCF109422EF3115600B97F19 /* JailbreakWarningViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JailbreakWarningViewModel.swift; sourceTree = "<group>"; };
+		DCF109442EF3135900B97F19 /* JailbreakWarningRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JailbreakWarningRoutable.swift; sourceTree = "<group>"; };
+		DCF109462EF31CF600B97F19 /* JailbreakWarningUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JailbreakWarningUtil.swift; sourceTree = "<group>"; };
 		DCF2369029924C0900FE1855 /* AnalyticsSessionContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsSessionContext.swift; sourceTree = "<group>"; };
 		DCF23692299257EB00FE1855 /* AnalyticsContextData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsContextData.swift; sourceTree = "<group>"; };
 		DCF8972C28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSdkConfigFactory.swift; sourceTree = "<group>"; };
@@ -20335,6 +20343,7 @@
 		DC8C22E42D89FF6E005159FE /* Features */ = {
 			isa = PBXGroup;
 			children = (
+				DCF1093F2EF3111800B97F19 /* JailbreakWarning */,
 				0A941BE32E6B29D200770474 /* YieldModule */,
 				308631572E40E36C00D58D37 /* Accounts */,
 				B0D1AC302906718600584E6C /* Analytics */,
@@ -21339,6 +21348,17 @@
 				B074AF862B06778800E9CEA3 /* AnalyticsContextDataProvider.swift */,
 			);
 			path = ContextData;
+			sourceTree = "<group>";
+		};
+		DCF1093F2EF3111800B97F19 /* JailbreakWarning */ = {
+			isa = PBXGroup;
+			children = (
+				DCF109462EF31CF600B97F19 /* JailbreakWarningUtil.swift */,
+				DCF109442EF3135900B97F19 /* JailbreakWarningRoutable.swift */,
+				DCF109422EF3115600B97F19 /* JailbreakWarningViewModel.swift */,
+				DCF109402EF3113A00B97F19 /* JailbreakWarningView.swift */,
+			);
+			path = JailbreakWarning;
 			sourceTree = "<group>";
 		};
 		DCFEFE422CF07D8C002DFE58 /* Model */ = {
@@ -26139,6 +26159,7 @@
 				EF0DC11C2A0CE29E007E3DA7 /* ExpressApproveViewModel.swift in Sources */,
 				DCE2F7D72CE350F500BDE145 /* SellTokenSelectorStrings.swift in Sources */,
 				EFC7AD612DD6128500AE78E1 /* SendAmountTokenViewData.swift in Sources */,
+				DCF109412EF3114100B97F19 /* JailbreakWarningView.swift in Sources */,
 				B62EE31C2B28977B006BA412 /* RateAppResponse.swift in Sources */,
 				0F8414AD2E96A8D600D03FB6 /* AddWalletSelectorCoordinator.swift in Sources */,
 				EF6DFA332EA6D47300C5710D /* SwapNewTokenSelectorWalletsProvider.swift in Sources */,
@@ -26356,6 +26377,7 @@
 				0AF14E782E435C8C00D9B40F /* NewAppSettingsViewModel.swift in Sources */,
 				0F27861C2E2ADAAB00742D0F /* MobileOnboardingFlowStep.swift in Sources */,
 				EA5132BD2EE2BE48001F11E5 /* TokenItemPromoProvider.swift in Sources */,
+				DCF109472EF31D1200B97F19 /* JailbreakWarningUtil.swift in Sources */,
 				DC0BA52A2CA2E112009D9233 /* CommonUserWalletModelFactory.swift in Sources */,
 				B04719012B4E7C4800444734 /* VisaBalancesLimitsBottomSheetViewModel.swift in Sources */,
 				DC70C0172B95EEC3002205BA /* FactorySettingsResetting.swift in Sources */,
@@ -26942,6 +26964,7 @@
 				DA72BEB92EC33B0800F06EB5 /* TangemPayFreezingState.swift in Sources */,
 				B68E5E7F2A9526BD00216281 /* SectionModel.swift in Sources */,
 				DC3DCAE52A41FA6A00F72554 /* KeysRepository.swift in Sources */,
+				DCF109432EF3115D00B97F19 /* JailbreakWarningViewModel.swift in Sources */,
 				DAB19D4A2B2C72A100DD08C4 /* AddCustomTokenView.swift in Sources */,
 				B0DCC81B2A8A1B4900D85E53 /* NotificationsFactory.swift in Sources */,
 				B0625A2529CB3D2700EDD245 /* OnboardingSeedPhraseImportViewModel.swift in Sources */,
@@ -26992,6 +27015,7 @@
 				EFE1812B292E30C00072D80C /* SupportChatViewModel.swift in Sources */,
 				EF46622F2924DF0300346B6C /* DefaultRowViewModel.swift in Sources */,
 				B0C87B432566461600F861DE /* TwinCardsFileCoder.swift in Sources */,
+				DCF109452EF3136A00B97F19 /* JailbreakWarningRoutable.swift in Sources */,
 				EF59E24A2EA23FF6005E3DA2 /* ExpressPairsRepository.swift in Sources */,
 				EAF4F5962DF7081C0045996D /* DeeplinkNavigationAction.swift in Sources */,
 				B6B8CB092E96E92F000435D8 /* CryptoAccountsRemoteState.swift in Sources */,
