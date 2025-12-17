@@ -41,7 +41,7 @@ final class SendAddressMyWalletsUITests: BaseTestCase {
             clearStorage: true
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .longPressToken(tokenName)
             .waitForActionButtons()
@@ -77,7 +77,7 @@ private extension SendAddressMyWalletsUITests {
             scenarios: [dogecoinScenario, dogecoinQuotesScenario, txHistoryScenario]
         )
 
-        return StoriesScreen(app)
+        return CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .longPressToken(DogecoinAddressTestData.tokenName)
             .waitForActionButtons()
