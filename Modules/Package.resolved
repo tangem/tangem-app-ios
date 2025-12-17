@@ -1,5 +1,5 @@
 {
-  "originHash" : "487d986902701f7675cf5dffe1376624a440b94bbc6cbcba9db2fc05e489204e",
+  "originHash" : "7fc76098da54363fd94070f3dd86def07ed73746b266db8fd0804778b34bded0",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -26,6 +26,15 @@
       "state" : {
         "revision" : "d7b896fa9ca8b47fa7bcde6b43ef9b70bf8c1f56",
         "version" : "1.8.1"
+      }
+    },
+    {
+      "identity" : "cryptoswift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/krzyzanowskim/CryptoSwift.git",
+      "state" : {
+        "revision" : "e45a26384239e028ec87fbcc788f513b67e10d8f",
+        "version" : "1.9.0"
       }
     },
     {
@@ -87,8 +96,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/tangem-sdk-ios.git",
       "state" : {
-        "revision" : "b014173ee28a84c066d154333a72eb1efe5a9273",
-        "version" : "3.24.1"
+        "revision" : "40a191fbc7af70833dfbd24861e61d0cd0393526",
+        "version" : "4.0.1"
       }
     },
     {

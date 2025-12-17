@@ -249,7 +249,7 @@ private extension MobileBackupTypesViewModel {
 
     func openBuyHardwareWallet() {
         logBuyHardwareWalletAnalytics()
-        safariManager.openURL(TangemBlogUrlBuilder().url(root: .pricing))
+        safariManager.openURL(TangemShopUrlBuilder().url(utmCampaign: .backup))
     }
 }
 
@@ -258,14 +258,10 @@ private extension MobileBackupTypesViewModel {
 private extension MobileBackupTypesViewModel {
     func logScreenOpenedAnalytics() {
         let hasManualBackup = !userWalletModel.config.hasFeature(.mnemonicBackup)
-        let hasICloudBackup = !userWalletModel.config.hasFeature(.iCloudBackup)
 
         Analytics.log(
             .walletSettingsBackupScreenOpened,
-            params: [
-                .backupManual: .affirmativeOrNegative(for: hasManualBackup),
-                .backupICloud: .affirmativeOrNegative(for: hasICloudBackup),
-            ],
+            params: [.backupManual: .affirmativeOrNegative(for: hasManualBackup)],
             contextParams: analyticsContextParams
         )
     }
@@ -279,7 +275,11 @@ private extension MobileBackupTypesViewModel {
     }
 
     func logBuyHardwareWalletAnalytics() {
-        Analytics.log(.onboardingButtonBuy, params: [.source: .backup], contextParams: analyticsContextParams)
+        Analytics.log(
+            .basicButtonBuy,
+            params: [.source: Analytics.BuyWalletSource.backup.parameterValue],
+            contextParams: analyticsContextParams
+        )
     }
 }
 

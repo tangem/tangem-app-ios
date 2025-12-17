@@ -130,7 +130,7 @@ extension StakingSingleActionFlowFactory: SendGenericFlowFactory {
         notificationManager.setupManager(with: actionModel)
 
         // Analytics
-        analyticsLogger.setup(stakingValidatorsInput: actionModel)
+        analyticsLogger.setup(stakingTargetsInput: actionModel)
 
         let stepsManager = CommonStakingSingleActionStepsManager(
             summaryStep: summary,

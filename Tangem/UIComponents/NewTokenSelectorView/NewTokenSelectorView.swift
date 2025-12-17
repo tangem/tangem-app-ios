@@ -47,7 +47,8 @@ struct NewTokenSelectorView<EmptyContentView: View>: View {
     }
 
     private func scrollView(@ViewBuilder content: @escaping () -> some View) -> some View {
-        GroupedScrollView(contentType: .lazy(spacing: 8), showsIndicators: false, content: content)
+        GroupedScrollView(contentType: .lazy(spacing: 8), content: content)
+            .scrollIndicators(.hidden)
     }
 
     @ViewBuilder

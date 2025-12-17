@@ -13,15 +13,12 @@ import TangemMobileWalletSdk
 import class TangemSdk.BiometricsUtil
 
 final class MobileAuthUtil {
-    @Injected(\.sessionMobileAccessCodeStorageManager)
-    private var accessCodeStorageManager: MobileAccessCodeStorageManager
-
     private lazy var mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
 
     private lazy var accessCodeManager = SessionMobileAccessCodeManager(
         userWalletId: userWalletId,
         configuration: .default,
-        storageManager: accessCodeStorageManager
+        storageManager: CommonMobileAccessCodeStorageManager()
     )
 
     private var isAccessCodeSet: Bool {

@@ -141,6 +141,10 @@ class LockedUserWalletModel: UserWalletModel {
     func update(type: UpdateRequest) {
         switch type {
         case .backupCompleted(let card, let associatedCardIds):
+            if case .mobileWallet = userWallet.walletInfo {
+                syncRemoteAfterUpgrade()
+            }
+
             let cardInfo = CardInfo(
                 card: CardDTO(card: card),
                 walletData: .none,
@@ -206,6 +210,18 @@ class LockedUserWalletModel: UserWalletModel {
         )
 
         cleanMobileWallet()
+    }
+
+    private func syncRemoteAfterUpgrade() {
+        runTask(in: self) { model in
+            let walletCreationHelper = WalletCreationHelper(
+                userWalletId: model.userWalletId,
+                userWalletName: model.name,
+                userWalletConfig: model.config
+            )
+
+            try? await walletCreationHelper.updateWallet()
+        }
     }
 }
 

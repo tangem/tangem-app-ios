@@ -6,49 +6,23 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import SwiftUI
-import UIKit
-
-// MARK: - Convenience extensions
 
 public extension View {
     /// Protects the given view from both screenshots and built-in screen recording.
-    @ViewBuilder
     func screenCaptureProtection() -> some View {
-        if #available(iOS 16.0, *) {
-            modifier(ScreenCaptureProtectionIOS16AndAboveViewModifier())
-        } else {
-            modifier(ScreenCaptureProtectionIOS15AndBelowViewModifier())
-        }
-    }
-}
-
-// MARK: - Private implementation iOS 15
-
-@available(iOS, deprecated: 16.0, message: "Not used on iOS 16+, can be safely removed")
-private struct ScreenCaptureProtectionIOS15AndBelowViewModifier: ViewModifier {
-    @State private var contentSizeChange: CGSize?
-
-    func body(content: Content) -> some View {
-        ScreenCaptureProtectionContainerView(
-            content: { content },
-            onContentSizeChange: { contentSizeChange = $0 }
-        )
-        .frame(width: contentSizeChange?.width, height: contentSizeChange?.height)
+        modifier(ScreenCaptureProtectionViewModifier())
     }
 }
 
 // MARK: - Private implementation iOS 16+
 
-@available(iOS 16.0, *)
-private struct ScreenCaptureProtectionIOS16AndAboveViewModifier: ViewModifier {
+private struct ScreenCaptureProtectionViewModifier: ViewModifier {
     func body(content: Content) -> some View {
         ScreenCaptureProtectionContainerView { content }
     }
 }
 
-@available(iOS 16.0, *)
 private final class PreferredContentSizeForwardingUIHostingController<T>: UIHostingController<T> where T: View {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
@@ -61,55 +35,18 @@ private final class PreferredContentSizeForwardingUIHostingController<T>: UIHost
 
 // MARK: - Private implementation common
 
-private struct ScreenCaptureProtectionContainerView<Content>: UIViewControllerRepresentable where Content: View {
-    typealias UIViewControllerType = UIViewController
+private struct ScreenCaptureProtectionContainerView<Content: View>: UIViewControllerRepresentable {
+    let content: () -> Content
 
-    @available(iOS, deprecated: 16.0, message: "Not used on iOS 16+, can be safely removed")
-    typealias OnContentSizeChange = (_ size: CGSize) -> Void
-
-    @available(iOS, deprecated: 16.0, message: "Not used on iOS 16+, can be safely removed")
-    private let onContentSizeChange: OnContentSizeChange?
-
-    private let content: () -> Content
-
-    @available(iOS, deprecated: 16.0, message: "Use 'init(content:)' instead. Not used on iOS 16+, can be safely removed")
-    init(
-        content: @escaping () -> Content,
-        onContentSizeChange: @escaping OnContentSizeChange
-    ) {
-        self.content = content
-        self.onContentSizeChange = onContentSizeChange
-    }
-
-    @available(iOS 16.0, *)
-    init(
-        content: @escaping () -> Content
-    ) {
-        self.content = content
-        onContentSizeChange = nil
-    }
-
-    func makeUIViewController(context: Context) -> UIViewControllerType {
+    func makeUIViewController(context: Context) -> UIViewController {
         let containerViewController = ScreenCaptureProtectionContainerViewController()
         let contentViewController: UIViewControllerType
 
-        if #available(iOS 16.0, *) {
-            let hostingViewController = PreferredContentSizeForwardingUIHostingController(rootView: content())
-            hostingViewController.sizingOptions = .preferredContentSize
-            contentViewController = hostingViewController
-        } else {
-            let rootView = content()
-                .readGeometry(\.size) { size in
-                    onContentSizeChange?(size)
-                }
-            contentViewController = UIHostingController(rootView: rootView)
-        }
+        let hostingViewController = PreferredContentSizeForwardingUIHostingController(rootView: content())
+        hostingViewController.sizingOptions = .preferredContentSize
+        contentViewController = hostingViewController
 
-        // UIKit Container view controllers APIs are intentionally not used on iOS 15 because the presence of child VCs
-        // causes various layout bugs in SwiftUI NavigationView, see [REDACTED_INFO]
-        if #available(iOS 16.0, *) {
-            containerViewController.addChild(contentViewController)
-        }
+        containerViewController.addChild(contentViewController)
 
         let containerView = containerViewController.view!
         let contentView = contentViewController.view!
@@ -125,11 +62,7 @@ private struct ScreenCaptureProtectionContainerView<Content>: UIViewControllerRe
             contentView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
         ])
 
-        // UIKit Container view controllers APIs are intentionally not used on iOS 15 because the presence of child VCs
-        // causes various layout bugs in SwiftUI NavigationView, see [REDACTED_INFO]
-        if #available(iOS 16.0, *) {
-            contentViewController.didMove(toParent: containerViewController)
-        }
+        contentViewController.didMove(toParent: containerViewController)
 
         return containerViewController
     }
@@ -173,9 +106,7 @@ private final class ScreenCaptureProtectionContainerViewController: UIViewContro
 
     override func preferredContentSizeDidChange(forChildContentContainer container: any UIContentContainer) {
         super.preferredContentSizeDidChange(forChildContentContainer: container)
-        if #available(iOS 16.0, *) {
-            preferredContentSize = container.preferredContentSize
-        }
+        preferredContentSize = container.preferredContentSize
     }
 }
 
