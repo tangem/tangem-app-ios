@@ -125,13 +125,12 @@ struct DetailsView: View {
 
 struct SettingsView_Previews: PreviewProvider {
     static var previews: some View {
-        NavigationView {
+        NavigationStack {
             DetailsView(
                 viewModel: DetailsViewModel(
                     coordinator: DetailsCoordinator()
                 )
             )
         }
-        .navigationViewStyle(.stack)
     }
 }

@@ -371,7 +371,7 @@ let collections = (0 ... 20).map {
 #Preview("Multiple collections with loading error") {
     ZStack {
         Colors.Background.secondary
-        NavigationView {
+        NavigationStack {
             NFTCollectionsListView(
                 viewModel: .init(
                     nftManager: NFTManagerMock(
@@ -396,7 +396,7 @@ let collections = (0 ... 20).map {
 #Preview("Loading collections") {
     ZStack {
         Colors.Background.secondary
-        NavigationView {
+        NavigationStack {
             NFTCollectionsListView(
                 viewModel: .init(
                     nftManager: NFTManagerMock(
@@ -421,7 +421,7 @@ let collections = (0 ... 20).map {
 #Preview("Failed to load collections") {
     ZStack {
         Colors.Background.secondary
-        NavigationView {
+        NavigationStack {
             NFTCollectionsListView(
                 viewModel: .init(
                     nftManager: NFTManagerMock(
@@ -446,7 +446,7 @@ let collections = (0 ... 20).map {
 #Preview("No Collections") {
     ZStack {
         Colors.Background.secondary
-        NavigationView {
+        NavigationStack {
             NFTCollectionsListView(
                 viewModel: .init(
                     nftManager: NFTManagerMock(state: .success(.init(value: []))),
