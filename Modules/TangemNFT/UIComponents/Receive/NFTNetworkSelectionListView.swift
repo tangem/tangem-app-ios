@@ -113,7 +113,7 @@ public struct NFTNetworkSelectionListView: View {
 
 #if DEBUG
 #Preview {
-    NavigationView {
+    NavigationStack {
         NFTNetworkSelectionListView(
             viewModel: .init(
                 userWalletName: "Test Wallet",
