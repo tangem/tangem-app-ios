@@ -399,6 +399,12 @@ final class MainViewModel: ObservableObject {
         if let userWalletModel {
             let walletType = Analytics.ParameterValue.seedState(for: userWalletModel.hasImportedWallets)
             params[.walletType] = walletType.rawValue
+
+            let userWalletConfig = userWalletModel.config
+            let walletHasBackup = userWalletConfig.productType == .mobileWallet
+                ? !userWalletConfig.hasFeature(.mnemonicBackup)
+                : !userWalletConfig.hasFeature(.backup)
+            params[.walletHasBackup] = Analytics.ParameterValue.affirmativeOrNegative(for: walletHasBackup).rawValue
         }
 
         if let accountModels {
