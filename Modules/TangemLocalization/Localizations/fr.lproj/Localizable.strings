@@ -350,6 +350,7 @@
 "common_transactions" = "Transactions";
 "common_transfer" = "Fourniture";
 "common_unable_to_load" = "Impossible de charger les données…";
+"common_understand_continue" = "I understand, continue";
 "common_understand" = "Je comprends";
 "common_unknown_error" = "Il y avait une erreur. Veuillez réessayer.";
 "common_unreachable" = "Inaccessible";
@@ -614,6 +615,8 @@
 "initial_message_purge_wallet_body" = "Pour réinitialiser aux paramètres d'usine, appuyez sur la carte comme indiqué ci-dessus et ne la retirez pas jusqu'à la fin de l'opération";
 "initial_message_reset_backup_card_header" = "Appuyez sur la carte n°%@ du portefeuille";
 "initial_message_sign_body" = "Pour signer, appuyez sur la carte comme indiqué ci-dessus et ne la retirez pas jusqu'à la fin de l'opération";
+"jailbreak_warning_message" = "Devices with jailbreak detected are considered less secure. Your data may be exposed to additional risks.";
+"jailbreak_warning_title" = "Jailbreak detected";
 "key_invalidated_warning_description" = "Vous avez mis à jour vos données biométriques, scannez votre carte ou bague pour entrer";
 "koinos_insufficient_balance_to_send_koin_description" = "Votre solde doit être supérieur à la valeur des frais pour effectuer un transfert";
 "koinos_insufficient_balance_to_send_koin_title" = "Solde insuffisant";
@@ -1303,6 +1306,7 @@
 "tangem_pay_freeze_card_success" = "Votre carte est gelée.";
 "tangem_pay_get_help" = "Obtenir de l'aide";
 "tangem_pay_other" = "Autre";
+"tangem_pay_rooted_device_subtitle" = "Unable to use on rooted devices";
 "tangem_pay_status_completed" = "Terminé";
 "tangem_pay_status_declined" = "Refusé";
 "tangem_pay_status_pending" = "En attente";
