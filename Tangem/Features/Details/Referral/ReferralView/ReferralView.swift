@@ -360,7 +360,7 @@ struct ReferralView: View {
 
 struct ReferralView_Previews: PreviewProvider {
     static var previews: some View {
-        NavigationView {
+        NavigationStack {
             ReferralView(
                 viewModel: ReferralViewModel(
                     input: .init(
@@ -375,7 +375,7 @@ struct ReferralView_Previews: PreviewProvider {
         }
         .previewGroup(devices: [.iPhone7], withZoomed: false)
 
-        NavigationView {
+        NavigationStack {
             ReferralView(
                 viewModel: ReferralViewModel(
                     input: .init(
