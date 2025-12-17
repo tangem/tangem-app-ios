@@ -350,6 +350,7 @@
 "common_transactions" = "取引";
 "common_transfer" = "送金";
 "common_unable_to_load" = "データを読み込めません…";
+"common_understand_continue" = "I understand, continue";
 "common_understand" = "わかりました";
 "common_unknown_error" = "エラーが発生しました。もう一度お試しください。";
 "common_unreachable" = "アクセスできません";
@@ -614,6 +615,8 @@
 "initial_message_purge_wallet_body" = "工場出荷時の設定にリセットするには、上記のようにカードまたはリングをタップし、操作が終了するまで取り外さないでください。";
 "initial_message_reset_backup_card_header" = "ウォレットの%@番目のカードをタップします";
 "initial_message_sign_body" = "署名するには、上記のようにカードまはたリングをタップし、操作が終了するまで取り外さないでください。";
+"jailbreak_warning_message" = "Devices with jailbreak detected are considered less secure. Your data may be exposed to additional risks.";
+"jailbreak_warning_title" = "Jailbreak detected";
 "key_invalidated_warning_description" = "生体認証を更新しました。カードまたはリングをスキャンして入ってください。";
 "koinos_insufficient_balance_to_send_koin_description" = "送金するには、残高が手数料額より高くなければなりません。";
 "koinos_insufficient_balance_to_send_koin_title" = "残高不足";
@@ -1303,6 +1306,7 @@
 "tangem_pay_freeze_card_success" = "カードが凍結されています";
 "tangem_pay_get_help" = "サポートを受ける";
 "tangem_pay_other" = "その他";
+"tangem_pay_rooted_device_subtitle" = "Unable to use on rooted devices";
 "tangem_pay_status_completed" = "完了";
 "tangem_pay_status_declined" = "拒否";
 "tangem_pay_status_pending" = "保留中";
