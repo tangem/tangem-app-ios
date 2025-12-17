@@ -16,4 +16,7 @@ public struct TangemPayCardDetailsResponse: Decodable {
     public let expirationYear: String
     public let pan: Secret
     public let cvv: Secret
+
+    @DefaultIfMissing
+    public var isPINSet: Bool
 }
