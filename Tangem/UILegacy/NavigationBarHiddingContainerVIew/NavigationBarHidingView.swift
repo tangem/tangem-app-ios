@@ -9,12 +9,12 @@
 import SwiftUI
 
 struct NavigationBarHidingView<Content: View>: View {
-    var shouldWrapInNavigationView: Bool
+    var shouldWrapInNavigationStack: Bool
     var content: Content
 
     var body: some View {
-        if shouldWrapInNavigationView {
-            NavigationView {
+        if shouldWrapInNavigationStack {
+            NavigationStack {
                 content
                     .toolbarBackground(.hidden, for: .navigationBar)
             }
@@ -24,8 +24,8 @@ struct NavigationBarHidingView<Content: View>: View {
         }
     }
 
-    init(shouldWrapInNavigationView: Bool, @ViewBuilder contentBuilder: () -> Content) {
-        self.shouldWrapInNavigationView = shouldWrapInNavigationView
+    init(shouldWrapInNavigationStack: Bool, @ViewBuilder contentBuilder: () -> Content) {
+        self.shouldWrapInNavigationStack = shouldWrapInNavigationStack
         content = contentBuilder()
     }
 }
