@@ -11,6 +11,7 @@ import TangemLocalization
 import BlockchainSdk
 import Combine
 import BigInt
+import TangemAccessibilityIdentifiers
 
 class EVMCustomFeeService {
     private weak var output: CustomFeeServiceOutput?
@@ -226,10 +227,13 @@ extension EVMCustomFeeService: FeeSelectorCustomFeeFieldsBuilder {
                 .compactMap { $0 }
                 .withWeakCaptureOf(self)
                 .map { $0.formatToFiat(value: $1.amount.value) }
-                .eraseToAnyPublisher()
-        ) { [weak self] focused in
-            self?.onCustomFeeChanged(focused)
-        }
+                .eraseToAnyPublisher(),
+            onFocusChanged: { [weak self] focused in
+                self?.onCustomFeeChanged(focused)
+            },
+            accessibilityIdentifier: FeeAccessibilityIdentifiers.customFeeTotalAmountField,
+            alternativeAmountAccessibilityIdentifier: FeeAccessibilityIdentifiers.customFeeMaxFeeFiatValue
+        )
 
         let gasLimitRowViewModel = FeeSelectorCustomFeeRowViewModel(
             title: Localization.sendGasLimit,
@@ -248,10 +252,12 @@ extension EVMCustomFeeService: FeeSelectorCustomFeeFieldsBuilder {
             suffix: nil,
             isEditable: true,
             textFieldViewModel: nonceTextField,
-            amountAlternativePublisher: AnyPublisher.just(output: nil)
-        ) { [weak self] focused in
-            self?.onNonceChanged(focused)
-        }
+            amountAlternativePublisher: AnyPublisher.just(output: nil),
+            onFocusChanged: { [weak self] focused in
+                self?.onNonceChanged(focused)
+            },
+            accessibilityIdentifier: FeeAccessibilityIdentifiers.customFeeNonceField
+        )
 
         if feeTokenItem.blockchain.supportsEIP1559 {
             let maxFeeRowViewModel = FeeSelectorCustomFeeRowViewModel(
