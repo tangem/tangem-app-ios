@@ -165,9 +165,20 @@ private extension MobileCreateWalletViewModel {
 
 private extension MobileCreateWalletViewModel {
     func logScreenOpenedAnalytics() {
+        let params: [Analytics.ParameterKey: String] = [
+            .source: source.analyticsParameterValue.rawValue,
+        ]
+
         Analytics.log(
-            .onboardingCreateMobileScreenOpened,
-            params: [.source: source.analyticsParameterValue],
+            event: .onboardingCreateMobileScreenOpened,
+            params: params,
+            contextParams: analyticsContextParams
+        )
+
+        Analytics.log(
+            event: .afWalletEntryScreen,
+            params: params,
+            analyticsSystems: [.appsFlyer],
             contextParams: analyticsContextParams
         )
     }
@@ -195,6 +206,13 @@ private extension MobileCreateWalletViewModel {
         Analytics.log(
             event: .walletCreatedSuccessfully,
             params: params,
+            contextParams: analyticsContextParams
+        )
+
+        Analytics.log(
+            event: .afWalletCreatedSuccessfully,
+            params: params,
+            analyticsSystems: [.appsFlyer],
             contextParams: analyticsContextParams
         )
     }
