@@ -14,14 +14,12 @@ import TangemAssets
 import TangemFoundation
 
 struct SquaredOrRectangleImageView: View {
-    private typealias LoadingState = LoadingValue<Void>
-
     private let media: NFTMedia?
     private var cornerRadius = Constants.defaultCornerRadius
 
     @State private var containerSize: CGSize = .zero
     @State private var originalSize: CGSize = .zero
-    @State private var loadingState: LoadingState = .loading
+    @State private var loadingState: LoadingResult<Void, any Error> = .loading
 
     init(media: NFTMedia?) {
         self.media = media
@@ -89,11 +87,11 @@ struct SquaredOrRectangleImageView: View {
             .fade(duration: 0.3)
             .cacheOriginalImage()
             .onSuccess { r in
-                loadingState = .loaded(())
+                loadingState = .success(())
                 originalSize = r.image.size
             }
             .onFailure {
-                loadingState = .failedToLoad(error: $0)
+                loadingState = .failure($0)
             }
             .skeletonable(
                 isShown: loadingState.isLoading,
