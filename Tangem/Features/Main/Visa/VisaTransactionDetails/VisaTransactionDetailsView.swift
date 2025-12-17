@@ -14,7 +14,7 @@ struct VisaTransactionDetailsView: View {
     @ObservedObject var viewModel: VisaTransactionDetailsViewModel
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack(spacing: 14) {
                 ScrollView {
                     VStack(spacing: 14) {

@@ -109,7 +109,7 @@ struct MainView_Preview: PreviewProvider {
     }()
 
     static var previews: some View {
-        NavigationView {
+        NavigationStack {
             MainView(viewModel: viewModel)
         }
     }
