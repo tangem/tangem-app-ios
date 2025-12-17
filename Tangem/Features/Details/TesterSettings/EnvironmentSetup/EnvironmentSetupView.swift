@@ -166,7 +166,7 @@ struct EnvironmentSetupView_Preview: PreviewProvider {
     static let viewModel = EnvironmentSetupViewModel(coordinator: EnvironmentSetupRoutableMock())
 
     static var previews: some View {
-        NavigationView {
+        NavigationStack {
             EnvironmentSetupView(viewModel: viewModel)
         }
     }

@@ -13,11 +13,10 @@ struct WelcomeCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: WelcomeCoordinator
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             content
                 .navigationLinks(links)
         }
-        .navigationViewStyle(.stack)
     }
 
     private var content: some View {
