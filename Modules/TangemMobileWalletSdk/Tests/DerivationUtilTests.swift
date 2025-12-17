@@ -34,6 +34,28 @@ struct DerivationUtilTests {
         #expect(pubKeyFromMobileWallet.chainCode == pubKeyFromMobileWalletTangemSdk.chainCode)
     }
 
+    @Test(
+        arguments: [
+            EllipticCurve.secp256k1,
+            EllipticCurve.ed25519_slip0010,
+        ]
+    )
+    func compareMasterKeysWithTangemSDKWithPassphrase(curve: EllipticCurve) throws {
+        let passphrase = "test-passphrase"
+        let pubKeyFromMobileWallet = try DerivationUtil.deriveKeys(
+            entropy: entropy,
+            passphrase: passphrase,
+            derivationPath: nil,
+            curve: curve
+        )
+
+        let mnemonic = try Mnemonic(entropyData: entropy)
+        let pubKeyFromMobileWalletTangemSdk = try AnyMasterKeyFactory(mnemonic: mnemonic, passphrase: passphrase).makeMasterKey(for: curve).makePublicKey(for: curve)
+
+        #expect(pubKeyFromMobileWallet.publicKey == pubKeyFromMobileWalletTangemSdk.publicKey)
+        #expect(pubKeyFromMobileWallet.chainCode == pubKeyFromMobileWalletTangemSdk.chainCode)
+    }
+
     @Test
     func compareMasterKeysWithTangemSDKStatic() throws {
         // ed25519
@@ -49,6 +71,30 @@ struct DerivationUtilTests {
         // bls12381_G2_AUG
         let blsKey = try BLSUtil.publicKey(entropy: entropy)
         #expect(blsKey.publicKey == Data(hexString: "B9247498D0F9EC5064185D717AF600E9F1788579D308471DF5AB76B9913E6E3E47F3363B8F424045DBA67630C4CA5222"))
+    }
+
+    @Test
+    func compareMasterKeysWithTangemSDKStaticWithPassphrase() throws {
+        let passphrase = "test-passphrase"
+
+        // ed25519 with passphrase
+        let ed25519Key = try DerivationUtil.deriveKeys(
+            entropy: entropy,
+            passphrase: passphrase,
+            derivationPath: nil,
+            curve: .ed25519
+        )
+
+        #expect(ed25519Key.publicKey == Data(hexString: "E0A38396F60683552BD6F85549480B74F4CC760579585F71015EDEC0ADF73139"))
+        #expect(ed25519Key.chainCode == Data(hexString: "D6E974739B3864882EAF0B2541B6F94E72747BFCADE6A9EBA0E2F426C45DAA7D"))
+
+        // bls12381_G2_AUG with passphrase
+        let blsKey = try BLSUtil.publicKey(
+            entropy: entropy,
+            passphrase: passphrase
+        )
+
+        #expect(blsKey.publicKey == Data(hexString: "837119FBBF7759BAB615E5A6F89399B084E6001D07E351D35359C873B13A216EB1DD046B4F9FD784DE6DBBA39C83919A"))
     }
 
     @Test
@@ -141,6 +187,17 @@ struct DerivationUtilTests {
         let expected = "1A32F68FAABFFEAA618CD6B03D7CF0985E60688399A047166DE2F8686F074EBE"
 
         #expect(result.publicKey.hexString == expected)
+    }
+
+    @Test
+    func edNonHardenedDerivationPath() throws {
+        #expect(throws: MobileWalletError.failedToDeriveKey) {
+            try DerivationUtil.deriveKeys(
+                entropy: entropy,
+                derivationPath: try DerivationPath(rawPath: "m/44'/354'/0'/0'/0"),
+                curve: .ed25519_slip0010
+            )
+        }
     }
 
     @Test
