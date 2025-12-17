@@ -18,6 +18,8 @@ import class TangemSdk.BiometricsUtil
 final class MobileUnlockUtil {
     private var presentedAccessCodeController: UIViewController?
 
+    private lazy var mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
+
     private let userWalletId: UserWalletId
     private let config: UserWalletConfig
     private let biometricsProvider: UserWalletBiometricsProvider
@@ -61,6 +63,7 @@ private extension MobileUnlockUtil {
     func handleAction(_ action: MobileUnlockViewModel.Action) async -> Result? {
         switch action {
         case .accessCodeSuccessful(let context):
+            refreshBiometricsIfNeeded(context: context)
             await dismissAccessCode()
             return .accessCode(context)
 
@@ -85,6 +88,15 @@ private extension MobileUnlockUtil {
         case .unavailableDueToDeletion:
             await dismissAccessCode()
             return .userWalletNeedsToDelete
+        }
+    }
+
+    func refreshBiometricsIfNeeded(context: MobileWalletContext) {
+        if BiometricsUtil.isAvailable,
+           AppSettings.shared.useBiometricAuthentication,
+           !AppSettings.shared.requireAccessCodes,
+           !mobileWalletSdk.isBiometricsEnabled(for: userWalletId) {
+            try? mobileWalletSdk.refreshBiometrics(context: context)
         }
     }
 }
