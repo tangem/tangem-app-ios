@@ -137,6 +137,9 @@ final class AppSettings {
     @AppStorageCompat(StorageType.tangemPayIsPaeraCustomer)
     var tangemPayIsPaeraCustomer: [String: Bool] = [:]
 
+    @AppStorageCompat(StorageType.tangemPayShouldShowGetBanner)
+    var tangemPayShouldShowGetBanner: Bool = true
+
     static let shared: AppSettings = .init()
 
     private init() {}
