@@ -75,14 +75,12 @@ extension CommonWCHandlersService: WCHandlersService {
             throw WalletConnectTransactionRequestProcessingError.userWalletRepositoryIsLocked
         }
 
-        guard
-            let userWalletID = connectedDApp.userWalletID,
-            let userWalletModel = userWalletRepository.models.first(where: {
-                $0.userWalletId.stringValue == userWalletID
-            })
-        else {
-            throw WalletConnectTransactionRequestProcessingError.userWalletNotFound
-        }
+        let userWalletModel: any UserWalletModel
+
+        userWalletModel = try WCUserWalletModelFinder.findUserWalletModel(
+            connectedDApp: connectedDApp,
+            userWalletModels: userWalletRepository.models
+        )
 
         if userWalletModel.isUserWalletLocked {
             WCLogger.warning("Attempt to handle message with locked user wallet")

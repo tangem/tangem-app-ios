@@ -30,6 +30,14 @@ struct OnrampSummaryView: View {
         }
         .safeAreaInset(edge: .bottom, spacing: .zero) { bottomContainer }
         .animation(SendTransitions.animation, value: viewModel.viewState.id)
+        .onChange(of: viewModel.viewState) { viewState in
+            switch viewState {
+            case .idle, .presets:
+                break
+            case .loading, .suggestedOffers:
+                keyboardActive = false
+            }
+        }
     }
 
     @ViewBuilder
@@ -48,7 +56,6 @@ struct OnrampSummaryView: View {
         }
     }
 
-    @ViewBuilder
     private var loadingView: some View {
         HStack(spacing: 8) {
             ProgressView()
@@ -90,7 +97,6 @@ struct OnrampSummaryView: View {
         .accessibilityIdentifier(OnrampAccessibilityIdentifiers.allOffersButton)
     }
 
-    @ViewBuilder
     private var bottomContainer: some View {
         HStack(spacing: 4) {
             presets

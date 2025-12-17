@@ -13,9 +13,7 @@ import TangemFoundation
 import struct TangemUI.TokenIconInfo
 import struct TangemUIUtils.AlertBinder
 
-class SendAmountCompactTokenViewModel: ObservableObject, Identifiable {
-    @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
-
+final class SendAmountCompactTokenViewModel: ObservableObject, Identifiable {
     let title: Title
     let tokenIconInfo: TokenIconInfo
 
@@ -102,10 +100,6 @@ class SendAmountCompactTokenViewModel: ObservableObject, Identifiable {
         }
         .receiveOnMain()
         .assign(to: &$highPriceImpactWarning)
-    }
-
-    func userDidTapHighPriceImpactWarning(highPriceImpactWarning: HighPriceImpactWarning) {
-        alertPresenter.present(alert: .init(title: "", message: highPriceImpactWarning.infoMessage))
     }
 
     private func updateAmount(from amount: LoadingResult<SendAmount, Error>) {
