@@ -15,7 +15,7 @@ final class ReferralUITests: BaseTestCase {
 
         launchApp(tangemApiType: .mock)
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .openDetails()
             .openWalletSettings(for: walletName)
