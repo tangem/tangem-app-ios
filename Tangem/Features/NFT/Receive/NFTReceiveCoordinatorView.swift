@@ -17,7 +17,7 @@ struct NFTReceiveCoordinatorView: CoordinatorView {
     var body: some View {
         ZStack {
             if let rootViewModel = coordinator.rootViewModel {
-                NavigationView {
+                NavigationStack {
                     NFTNetworkSelectionListView(viewModel: rootViewModel)
                         .navigationBarTitleDisplayMode(.inline)
                 }
