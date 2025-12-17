@@ -18,7 +18,8 @@ struct MobileUpgradeView: View {
 
     var body: some View {
         content
-            .padding(EdgeInsets(top: 16, leading: 16, bottom: 6, trailing: 16))
+            .padding(.top, 16)
+            .padding(.horizontal, 16)
             .alert(item: $viewModel.alert, content: { $0.alert })
             .confirmationDialog(viewModel: $viewModel.confirmationDialog)
     }
@@ -56,6 +57,7 @@ private extension MobileUpgradeView {
         }
         .safeAreaInset(edge: .bottom, spacing: 16) {
             actionButtons
+                .bottomPaddingIfZeroSafeArea()
         }
     }
 
@@ -79,8 +81,10 @@ private extension MobileUpgradeView {
             ForEach(items) { item in
                 HStack(spacing: 16) {
                     item.icon.image
+                        .renderingMode(.template)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
+                        .foregroundStyle(Colors.Icon.primary1)
                         .frame(width: 24, height: 24)
                         .padding(10)
                         .background(

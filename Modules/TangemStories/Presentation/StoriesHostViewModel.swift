@@ -99,7 +99,7 @@ public final class StoriesHostViewModel: ObservableObject {
 
         // [REDACTED_USERNAME], prevents mid-transition break when user taps faster than animation duration.
         Task {
-            try? await Task.sleep(seconds: Constants.storyTransitionDuration)
+            try? await Task.sleep(for: .seconds(Constants.storyTransitionDuration))
             allowsHitTesting = true
         }
     }

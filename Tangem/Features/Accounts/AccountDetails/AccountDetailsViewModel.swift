@@ -24,7 +24,7 @@ final class AccountDetailsViewModel: ObservableObject {
     // MARK: - State
 
     @Published private(set) var accountName: String = ""
-    @Published private(set) var accountIcon = AccountModel.Icon(name: .letter, color: .azure)
+    @Published private(set) var accountIcon = AccountModelUtils.UI.newAccountIcon()
     @Published var alert: AlertBinder?
     @Published var archiveAccountDialogPresented = false
 
@@ -77,17 +77,22 @@ final class AccountDetailsViewModel: ObservableObject {
 
     // MARK: - Methods
 
+    func onFirstAppear() {
+        Analytics.log(.accountSettingsScreenOpened)
+    }
+
     func archiveAccount() {
-        archiveAccountTask?.cancel()
         archivingState = .archivingInProgress
+        archiveAccountTask?.cancel()
 
         archiveAccountTask = Task { [weak self] in
             do throws(AccountArchivationError) {
-                guard let identifier = self?.account.id else {
+                // [REDACTED_TODO_COMMENT]
+                guard let cryptoAccount = self?.account as? any CryptoAccountModel else {
                     return
                 }
 
-                try await self?.accountModelsManager.archiveCryptoAccount(withIdentifier: identifier)
+                try await cryptoAccount.archive()
                 await self?.handleAccountArchivingSuccess()
             } catch {
                 await self?.handleAccountArchivingFailure(error: error)
@@ -98,14 +103,23 @@ final class AccountDetailsViewModel: ObservableObject {
     // MARK: - Routing
 
     func showShouldArchiveDialog() {
+        Analytics.log(.accountSettingsButtonArchiveAccount)
         archiveAccountDialogPresented = true
     }
 
+    func handleDialogDismissed() {
+        if archivingState == .readyToBeArchived {
+            Analytics.log(.accountSettingsButtonCancelAccountArchivation)
+        }
+    }
+
     func openEditAccount() {
+        Analytics.log(.accountSettingsButtonEdit)
         coordinator?.editAccount()
     }
 
     func openManageTokens() {
+        Analytics.log(.accountSettingsButtonManageTokens)
         coordinator?.manageTokens()
     }
 
@@ -145,6 +159,7 @@ final class AccountDetailsViewModel: ObservableObject {
 
     @MainActor
     private func handleAccountArchivingSuccess() {
+        Analytics.log(.accountSettingsAccountArchived)
         coordinator?.close()
 
         Toast(view: SuccessToast(text: Localization.accountArchiveSuccessMessage))
@@ -155,26 +170,28 @@ final class AccountDetailsViewModel: ObservableObject {
     private func handleAccountArchivingFailure(error: AccountArchivationError) {
         archivingState = .readyToBeArchived
 
-        let title: String
+        Analytics.log(event: .accountSettingsAccountError, params: [
+            .source: Analytics.ParameterValue.accountSourceArchive.rawValue,
+            .errorDescription: String(describing: error),
+        ])
+
         let message: String
-        let buttonTitle: String
+        let buttonText: String
 
         switch error {
         case .participatesInReferralProgram:
-            title = Localization.accountCouldNotArchiveReferralProgramTitle
             message = Localization.accountCouldNotArchiveReferralProgramMessage
-            buttonTitle = Localization.commonGotIt
+            buttonText = Localization.commonGotIt
 
         case .unknownError:
-            title = Localization.commonSomethingWentWrong
-            message = Localization.accountCouldNotArchive
-            buttonTitle = Localization.commonOk
+            message = Localization.accountGenericErrorDialogMessage
+            buttonText = Localization.commonOk
         }
 
         alert = AlertBuilder.makeAlertWithDefaultPrimaryButton(
-            title: title,
+            title: Localization.commonSomethingWentWrong,
             message: message,
-            buttonText: buttonTitle
+            buttonText: buttonText
         )
 
         AccountsLogger.error("Failed to archive account", error: error)
