@@ -12,7 +12,7 @@ struct BlockchainSdkExampleView: View {
     @EnvironmentObject var model: BlockchainSdkExampleViewModel
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             Form {
                 Section {
                     Button {
