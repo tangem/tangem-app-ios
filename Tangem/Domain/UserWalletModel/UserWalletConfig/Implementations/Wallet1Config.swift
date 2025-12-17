@@ -271,6 +271,8 @@ extension Wallet1Config: UserWalletConfig {
             return .available
         case .transactionPayloadLimit:
             return .available
+        case .tangemPay:
+            return card.settings.isHDWalletAllowed ? .available : .hidden
         }
     }
 
