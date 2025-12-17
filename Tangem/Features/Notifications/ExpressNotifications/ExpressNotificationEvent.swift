@@ -276,6 +276,11 @@ extension ExpressNotificationEvent {
     }
 
     var isOneShotAnalyticsEvent: Bool {
-        return false
+        switch self {
+        case .permissionNeeded:
+            return true
+        default:
+            return false
+        }
     }
 }
