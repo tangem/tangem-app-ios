@@ -14,7 +14,6 @@ import TangemUIUtils
 import TangemMobileWalletSdk
 
 final class HardwareBackupTypesViewModel: ObservableObject {
-    @Published var isBuyAvailable = false
     @Published var alert: AlertBinder?
 
     let navigationTitle = Localization.hwBackupHardwareTitle
@@ -45,7 +44,6 @@ final class HardwareBackupTypesViewModel: ObservableObject {
 
 extension HardwareBackupTypesViewModel {
     func onFirstAppear() {
-        scheduleBuyAvailability()
         logScreenOpenedAnalytics()
     }
 }
@@ -124,13 +122,6 @@ private extension HardwareBackupTypesViewModel {
             await viewModel.upgradeMobileWallet()
         }
     }
-
-    func scheduleBuyAvailability() {
-        guard !isBuyAvailable else { return }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
-            self?.isBuyAvailable = true
-        }
-    }
 }
 
 // MARK: - Mobile wallet unlocking
@@ -199,7 +190,7 @@ private extension HardwareBackupTypesViewModel {
 
     func openBuyHardwareWallet() {
         logBuyHardwareWalletAnalytics()
-        safariManager.openURL(TangemBlogUrlBuilder().url(root: .pricing))
+        safariManager.openURL(TangemShopUrlBuilder().url(utmCampaign: .backup))
     }
 
     func closeOnboarding() {
@@ -215,7 +206,11 @@ private extension HardwareBackupTypesViewModel {
     }
 
     func logBuyHardwareWalletAnalytics() {
-        Analytics.log(.onboardingButtonBuy, params: [.source: .backup], contextParams: analyticsContextParams)
+        Analytics.log(
+            .basicButtonBuy,
+            params: [.source: Analytics.BuyWalletSource.hardwareWallet.parameterValue],
+            contextParams: analyticsContextParams
+        )
     }
 
     func logCreateNewWalletTapAnalytics() {
