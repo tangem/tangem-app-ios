@@ -18,6 +18,7 @@ final class DetailsCoordinator: CoordinatorObject {
     @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.connectedDAppRepository) private var connectedDAppRepository: any WalletConnectConnectedDAppRepository
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
 
     // MARK: - Main view model
 
@@ -30,9 +31,11 @@ final class DetailsCoordinator: CoordinatorObject {
     @Published var modalOnboardingCoordinator: OnboardingCoordinator?
     @Published var appSettingsCoordinator: AppSettingsCoordinator?
     @Published var addWalletSelectorCoordinator: AddWalletSelectorCoordinator?
+    @Published var tangemPayOnboardingCoordinator: TangemPayOnboardingCoordinator?
 
     // MARK: - Child view models
 
+    @Published var tangemPayWalletSelectorViewModel: TangemPayWalletSelectorViewModel?
     @Published var supportChatViewModel: SupportChatViewModel?
     @Published var tosViewModel: DetailsTOSViewModel?
     @Published var environmentSetupCoordinator: EnvironmentSetupCoordinator?
@@ -133,6 +136,16 @@ extension DetailsCoordinator: DetailsRoutable {
         let mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: emailType)
 
         mailPresenter.present(viewModel: mailViewModel)
+    }
+
+    func openGetTangemPay() {
+        let dismissAction: Action<TangemPayOnboardingCoordinator.DismissOptions?> = { [weak self] _ in
+            self?.tangemPayOnboardingCoordinator = nil
+        }
+
+        let coordinator = TangemPayOnboardingCoordinator(dismissAction: dismissAction)
+        coordinator.start(with: .init(source: .other))
+        tangemPayOnboardingCoordinator = coordinator
     }
 
     func openSupportChat(input: SupportChatInputModel) {

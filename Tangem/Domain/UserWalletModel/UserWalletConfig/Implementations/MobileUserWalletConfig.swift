@@ -153,6 +153,8 @@ extension MobileUserWalletConfig: UserWalletConfig {
             return .hidden
         case .transactionPayloadLimit:
             return .hidden
+        case .tangemPay:
+            return .available
         }
     }
 

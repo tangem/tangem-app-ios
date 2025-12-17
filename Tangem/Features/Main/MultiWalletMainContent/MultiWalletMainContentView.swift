@@ -28,6 +28,10 @@ struct MultiWalletMainContentView: View {
                 NotificationView(input: input)
             }
 
+            if let viewModel = viewModel.tangemPayBannerViewModel {
+                GetTangemPayBannerView(viewModel: viewModel)
+            }
+
             ForEach(viewModel.notificationInputs) { input in
                 NotificationView(input: input)
                     .setButtonsLoadingState(to: viewModel.isScannerBusy)
