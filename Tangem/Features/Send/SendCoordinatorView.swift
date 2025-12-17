@@ -15,7 +15,7 @@ struct SendCoordinatorView: CoordinatorView {
     @State private var interactiveDismissDisabled: Bool = false
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 if let rootViewModel = coordinator.rootViewModel {
                     SendView(
