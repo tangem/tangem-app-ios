@@ -15,7 +15,7 @@ struct AccessCodeSaveUtility {
             return
         }
 
-        let accessCodeData: Data = accessCode.sha256()
+        let accessCodeData: Data = accessCode.getSHA256()
         let accessCodeRepository = AccessCodeRepository()
         try? accessCodeRepository.save(accessCodeData, for: Array(cardIds))
     }

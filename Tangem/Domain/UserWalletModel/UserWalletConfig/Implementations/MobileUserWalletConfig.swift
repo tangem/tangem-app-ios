@@ -102,6 +102,10 @@ extension MobileUserWalletConfig: UserWalletConfig {
 
     var cardSessionFilter: SessionFilter { .cardId("") }
 
+    var contextBuilder: WalletCreationContextBuilder {
+        ["type": "mobile"]
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .accessCode: return .hidden
