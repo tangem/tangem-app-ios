@@ -31,10 +31,10 @@ protocol StakingSendAnalyticsLogger: StakingAnalyticsLogger,
     SendManagementModelAnalyticsLogger,
     SendBaseViewAnalyticsLogger,
     SendAmountAnalyticsLogger,
-    SendValidatorsAnalyticsLogger,
+    SendTargetsAnalyticsLogger,
     SendSummaryAnalyticsLogger,
     SendFinishAnalyticsLogger {
-    func setup(stakingValidatorsInput: StakingValidatorsInput)
+    func setup(stakingTargetsInput: StakingTargetsInput)
     func logNoticeUninitializedAddress()
 }
 
@@ -116,8 +116,8 @@ protocol SendFeeAnalyticsLogger {
     func logFeeStepReopened()
 }
 
-protocol SendValidatorsAnalyticsLogger {
-    func logStakingValidatorChosen()
+protocol SendTargetsAnalyticsLogger {
+    func logStakingTargetChosen()
 }
 
 protocol SendOnrampOffersAnalyticsLogger: SendOnrampProvidersAnalyticsLogger,
