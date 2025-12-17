@@ -15,7 +15,7 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
     private var userWalletRepository: UserWalletRepository
 
     private var _availableUserWalletModels = CurrentValueSubject<[UserWalletModel], Never>([])
-    private var _isTangemPayAvailable = CurrentValueSubject<Bool, Never>(true)
+    private var _isTangemPayAvailable = CurrentValueSubject<Bool, Never>(false)
     private var _shouldShowGetTangemPayBanner = CurrentValueSubject<Bool, Never>(
         AppSettings.shared.tangemPayShouldShowGetBanner
     )
