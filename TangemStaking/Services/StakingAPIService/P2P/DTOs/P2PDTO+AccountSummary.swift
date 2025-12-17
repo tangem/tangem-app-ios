@@ -36,7 +36,7 @@ extension P2PDTO {
             let ticket: String
             @FlexibleDecimal var totalAssets: Decimal?
             let timestamp: Double
-            let withdrawalTimestamp: Double
+            let withdrawalTimestamp: Double?
             let isClaimable: Bool
         }
     }

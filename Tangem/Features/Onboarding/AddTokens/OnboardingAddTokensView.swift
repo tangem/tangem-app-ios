@@ -44,7 +44,7 @@ struct OnboardingAddTokensView: View {
                     )
             }
         }
-        .scrollDismissesKeyboardCompat(.interactively)
+        .scrollDismissesKeyboard(.interactively)
         .keyboardType(.alphabet)
     }
 }
