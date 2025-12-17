@@ -111,6 +111,8 @@ struct ResetToFactoryView: View {
             return CardSettingsAccessibilityIdentifiers.accessToCard
         case .accessCodeRecovery:
             return CardSettingsAccessibilityIdentifiers.accessCodeRecovery
+        case .tangemPay:
+            return CardSettingsAccessibilityIdentifiers.tangemPay
         }
     }
 }
