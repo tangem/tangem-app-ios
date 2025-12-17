@@ -48,7 +48,6 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private(set) var models = [UserWalletModel]()
-    private let encryptionKeyStorage = UserWalletEncryptionKeyStorage()
     private let userWalletDataStorage = UserWalletDataStorage()
     private let userWalletEncryptionKeyStorage = UserWalletEncryptionKeyStorage()
     private let accessCodeRepository = AccessCodeRepository()
@@ -133,7 +132,7 @@ class CommonUserWalletRepository: UserWalletRepository {
 
         if let encryptionKey = UserWalletEncryptionKey(config: userWalletModel.config) {
             savePrivateData(userWalletModel: userWalletModel, encryptionKey: encryptionKey)
-            encryptionKeyStorage.refreshEncryptionKey(encryptionKey, for: userWalletModel.userWalletId)
+            userWalletEncryptionKeyStorage.refreshEncryptionKey(encryptionKey, for: userWalletModel.userWalletId)
         }
     }
 
@@ -164,7 +163,7 @@ class CommonUserWalletRepository: UserWalletRepository {
 
             if let selectedModel, let encryptionKey = UserWalletEncryptionKey(config: selectedModel.config) {
                 savePrivateData(userWalletModel: selectedModel, encryptionKey: encryptionKey)
-                encryptionKeyStorage.refreshEncryptionKey(encryptionKey, for: selectedModel.userWalletId)
+                userWalletEncryptionKeyStorage.refreshEncryptionKey(encryptionKey, for: selectedModel.userWalletId)
             }
 
             // All the necessary data is already saved in MobileWalletSdk, so we don't need to do anything else.
@@ -176,7 +175,7 @@ class CommonUserWalletRepository: UserWalletRepository {
             tangemPayAuthorizationTokensRepository.clearPersistent()
             let userWalletIds = models.map { $0.userWalletId }
             userWalletDataStorage.clear()
-            encryptionKeyStorage.clear(userWalletIds: userWalletIds)
+            userWalletEncryptionKeyStorage.clear(userWalletIds: userWalletIds)
 
             let modelsToDelete = userWalletIds.filter { $0 != selectedModel?.userWalletId }
 
@@ -222,7 +221,7 @@ class CommonUserWalletRepository: UserWalletRepository {
 
         let nextSelectionIndex = currentIndex > 0 ? (currentIndex - 1) : 0
 
-        encryptionKeyStorage.clear(userWalletIds: [userWalletId])
+        userWalletEncryptionKeyStorage.clear(userWalletIds: [userWalletId])
 
         let associatedCardIds = models[currentIndex].associatedCardIds
         try? accessCodeRepository.deleteAccessCode(for: Array(associatedCardIds))
@@ -268,7 +267,7 @@ class CommonUserWalletRepository: UserWalletRepository {
 
     private func _handleUnlock(context: LAContext) throws {
         let userWalletIds = models.map { $0.userWalletId }
-        let encryptionKeys = try encryptionKeyStorage.fetch(userWalletIds: userWalletIds, context: context)
+        let encryptionKeys = try userWalletEncryptionKeyStorage.fetch(userWalletIds: userWalletIds, context: context)
         let sensitiveInfos = userWalletDataStorage.fetchPrivateData(encryptionKeys: encryptionKeys)
 
         if sensitiveInfos.isEmpty {
@@ -280,7 +279,14 @@ class CommonUserWalletRepository: UserWalletRepository {
 
         let publicData = models.compactMap { $0.serializePublic() }
         let unlockedModels = publicData.map { userWalletStorageItem in
-            if let sensitiveInfo = sensitiveInfos[UserWalletId(value: userWalletStorageItem.userWalletId)],
+            let userWalletId = UserWalletId(value: userWalletStorageItem.userWalletId)
+
+            // Already unlocked and unprotected mobile wallet
+            if let userWalletModel = models[userWalletId], !userWalletModel.isUserWalletLocked {
+                return userWalletModel
+            }
+
+            if let sensitiveInfo = sensitiveInfos[userWalletId],
                let userWalletModel = CommonUserWalletModelFactory().makeModel(publicData: userWalletStorageItem, sensitiveData: sensitiveInfo) {
                 return userWalletModel
             }
@@ -335,7 +341,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
 
         // We have to refresh a key on every unlock because we are unable to check presence of the key
-        encryptionKeyStorage.refreshEncryptionKey(encryptionKey, for: userWalletId)
+        userWalletEncryptionKeyStorage.refreshEncryptionKey(encryptionKey, for: userWalletId)
 
         guard let sensitiveInfo = userWalletDataStorage.fetchPrivateData(encryptionKeys: [userWalletId: encryptionKey])[userWalletId],
               let publicData = existingLockedModel.serializePublic(),
@@ -366,6 +372,8 @@ class CommonUserWalletRepository: UserWalletRepository {
             switch result {
             case .success(let userWalletId, let encryptionKey):
                 encryptionKeys[userWalletId] = encryptionKey
+                // We have to refresh a key on every unlock because we are unable to check presence of the key
+                userWalletEncryptionKeyStorage.refreshEncryptionKey(encryptionKey, for: userWalletId)
             default:
                 continue
             }

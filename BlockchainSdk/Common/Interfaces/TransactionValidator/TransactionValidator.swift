@@ -17,8 +17,6 @@ public protocol TransactionValidator: WalletProvider {
 }
 
 public enum DestinationType: Hashable {
-    /// Will generate a dummy destination address for verification
-    case generate
     /// The specified address will be used for verification
     case address(String)
 }
@@ -190,7 +188,11 @@ extension TransactionValidator where Self: DustRestrictable, Self: CardanoTransf
 extension TransactionValidator where Self: ReserveAmountRestrictable {
     func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws {
         try validateAmounts(amount: amount, fee: fee.amount)
-        try await validateReserveAmount(amount: amount, destination: destination)
+
+        switch destination {
+        case .address(let address):
+            try await validateReserveAmount(amount: amount, address: address)
+        }
     }
 }
 
@@ -199,7 +201,7 @@ extension TransactionValidator where Self: ReserveAmountRestrictable {
 extension TransactionValidator where Self: RequiredMemoRestrictable, Self: ReserveAmountRestrictable {
     func validate(transaction: Transaction) async throws {
         try validateAmounts(amount: transaction.amount, fee: transaction.fee.amount)
-        try await validateReserveAmount(amount: transaction.amount, destination: .address(transaction.destinationAddress))
+        try await validateReserveAmount(amount: transaction.amount, address: transaction.destinationAddress)
         try await validateRequiredMemo(destination: transaction.destinationAddress, transactionParams: transaction.params)
     }
 }
