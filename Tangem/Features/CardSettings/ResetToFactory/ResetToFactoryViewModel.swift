@@ -35,6 +35,12 @@ final class ResetToFactoryViewModel: ObservableObject {
         input.backupCardsCount > 0
     }
 
+    private var isPaeraCustomer: Bool {
+        AppSettings.shared.tangemPayIsPaeraCustomer[
+            input.userWalletId.stringValue
+        ] ?? false
+    }
+
     private let input: ResetToFactoryViewModel.Input
     private let resetUtil: ResetToFactoryUtil
     private weak var coordinator: ResetToFactoryViewRoutable?
@@ -87,6 +93,10 @@ private extension ResetToFactoryViewModel {
         if hasBackupCards {
             warnings.append(Warning(isAccepted: false, type: .accessCodeRecovery))
         }
+
+        if isPaeraCustomer {
+            warnings.append(Warning(isAccepted: false, type: .tangemPay))
+        }
     }
 
     func showConfirmationDialog() {
@@ -127,12 +137,15 @@ extension ResetToFactoryViewModel {
 
     enum WarningType: String, CaseIterable, Hashable {
         case accessToCard
+        case tangemPay
         case accessCodeRecovery
 
         var title: String {
             switch self {
             case .accessToCard:
                 return Localization.resetCardToFactoryCondition1
+            case .tangemPay:
+                return Localization.tangempayFactorySettingsWarningTitle
             case .accessCodeRecovery:
                 return Localization.resetCardToFactoryCondition2
             }
