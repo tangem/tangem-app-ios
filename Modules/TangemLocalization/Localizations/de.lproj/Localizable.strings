@@ -350,6 +350,7 @@
 "common_transactions" = "Transaktionen";
 "common_transfer" = "Überweisung";
 "common_unable_to_load" = "Die Daten konnten nicht geladen werden…";
+"common_understand_continue" = "I understand, continue";
 "common_understand" = "Ich verstehe";
 "common_unknown_error" = "Es ist ein Fehler aufgetreten. Bitte versuche es erneut.";
 "common_unreachable" = "Nicht erreichbar";
@@ -614,6 +615,8 @@
 "initial_message_purge_wallet_body" = "Um die Karte oder Ring auf die Werkseinstellungen zurückzusetzen, halte die Karte oder Ring wie oben gezeigt an und entferne sie erst am Ende des Vorgangs.";
 "initial_message_reset_backup_card_header" = "Halte deine Karte oder Ring Nr. %@ des Sets an dein Smartphone";
 "initial_message_sign_body" = "Zum Signieren, halte die Karte oder Ring wie oben gezeigt an und entfernen sie erst am Ende des Vorgangs.";
+"jailbreak_warning_message" = "Devices with jailbreak detected are considered less secure. Your data may be exposed to additional risks.";
+"jailbreak_warning_title" = "Jailbreak detected";
 "key_invalidated_warning_description" = "Du hast deine biometrischen Daten aktualisiert, scanne deine Karte oder Ring, um einzutreten";
 "koinos_insufficient_balance_to_send_koin_description" = "Dein Guthaben sollte höher sein als der Gebührenwert, um eine Überweisung zu tätigen";
 "koinos_insufficient_balance_to_send_koin_title" = "Unzureichende Mittel";
@@ -1303,6 +1306,7 @@
 "tangem_pay_freeze_card_success" = "Ihre Karte ist eingefroren.";
 "tangem_pay_get_help" = "Hilfe erhalten";
 "tangem_pay_other" = "Andere";
+"tangem_pay_rooted_device_subtitle" = "Unable to use on rooted devices";
 "tangem_pay_status_completed" = "Abgeschlossen";
 "tangem_pay_status_declined" = "Abgelehnt";
 "tangem_pay_status_pending" = "Ausstehend";
