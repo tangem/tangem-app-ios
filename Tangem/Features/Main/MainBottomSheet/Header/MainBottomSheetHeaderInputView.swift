@@ -12,7 +12,6 @@ import TangemUI
 import TangemAccessibilityIdentifiers
 
 /// Header UI component containing an input field.
-/// - Note: Text field focus state control is supported on iOS 15 and above.
 struct MainBottomSheetHeaderInputView: View {
     @Binding var searchText: String
 
