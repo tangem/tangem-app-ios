@@ -961,6 +961,8 @@
 		A792FCB42ED84EA5000DE695 /* WalletConnectBtcTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = A792FCB32ED84EA5000DE695 /* WalletConnectBtcTransaction.swift */; };
 		A792FCB72ED9CF0F000DE695 /* WalletConnectBitcoinSignMessageHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A792FCB62ED9CF0F000DE695 /* WalletConnectBitcoinSignMessageHandler.swift */; };
 		A792FCB92EDDAA17000DE695 /* BitcoinWalletConnectSigner.swift in Sources */ = {isa = PBXBuildFile; fileRef = A792FCB82EDDAA17000DE695 /* BitcoinWalletConnectSigner.swift */; };
+		A7C492492EF2B1DF00E867BB /* BitcoinSighashBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7C492482EF2B1DF00E867BB /* BitcoinSighashBuilder.swift */; };
+		A7C4924A2EF2B1DF00E867BB /* BitcoinSighashBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7C492482EF2B1DF00E867BB /* BitcoinSighashBuilder.swift */; };
 		A7CD56912ECB36BF00FD6F36 /* PlasmaExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7CD56902ECB36BF00FD6F36 /* PlasmaExternalLinkProvider.swift */; };
 		A7DD58032EE8F06200B6D152 /* BitcoinDevKit in Frameworks */ = {isa = PBXBuildFile; productRef = A7DD58022EE8F06200B6D152 /* BitcoinDevKit */; };
 		B00142BD2D79954A00923B6D /* WalletModelId.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00142BC2D79954A00923B6D /* WalletModelId.swift */; };
@@ -5666,6 +5668,7 @@
 		A792FCB32ED84EA5000DE695 /* WalletConnectBtcTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectBtcTransaction.swift; sourceTree = "<group>"; };
 		A792FCB62ED9CF0F000DE695 /* WalletConnectBitcoinSignMessageHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectBitcoinSignMessageHandler.swift; sourceTree = "<group>"; };
 		A792FCB82EDDAA17000DE695 /* BitcoinWalletConnectSigner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinWalletConnectSigner.swift; sourceTree = "<group>"; };
+		A7C492482EF2B1DF00E867BB /* BitcoinSighashBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinSighashBuilder.swift; sourceTree = "<group>"; };
 		A7CD56902ECB36BF00FD6F36 /* PlasmaExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlasmaExternalLinkProvider.swift; sourceTree = "<group>"; };
 		B00142BC2D79954A00923B6D /* WalletModelId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletModelId.swift; sourceTree = "<group>"; };
 		B0017EA42D3E76480057F164 /* VisaOnboardingSuccessView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaOnboardingSuccessView.swift; sourceTree = "<group>"; };
@@ -14893,6 +14896,7 @@
 				B62D3C572CBC79D900C2460E /* BitcoinWalletAssembly.swift */,
 				B62D3C582CBC79D900C2460E /* BitcoinWalletManager.swift */,
 				EFBAC30C2D89CAFF00024E38 /* BitcoinNetworkParams.swift */,
+				A7C492482EF2B1DF00E867BB /* BitcoinSighashBuilder.swift */,
 			);
 			path = Bitcoin;
 			sourceTree = "<group>";
@@ -26621,6 +26625,7 @@
 				2D5B255D2DE460C900D8D809 /* TransactionNotificationsItemViewModel.swift in Sources */,
 				3027D32F2E82C049001E15FB /* ExpandableAccountItemView.swift in Sources */,
 				3027D3302E82C049001E15FB /* ExpandableAccountItemViewModel.swift in Sources */,
+				A7C4924A2EF2B1DF00E867BB /* BitcoinSighashBuilder.swift in Sources */,
 				B04126EF29CC322D00A8BB43 /* OnboardingSeedPhraseUserValidationViewModel.swift in Sources */,
 				DC8E03152DE16B08008967D8 /* WCHandleTransactionData.swift in Sources */,
 				B00FA51C2C05C496007041B0 /* OnboardingAddTokensDelegate.swift in Sources */,
@@ -29617,6 +29622,7 @@
 				B62D42012CBC79DB00C2460E /* XDCExternalLinkProvider.swift in Sources */,
 				B62D41742CBC79DA00C2460E /* RadiantTransactionBuilder.swift in Sources */,
 				B62D410A2CBC79DA00C2460E /* KaspaWalletAssembly.swift in Sources */,
+				A7C492492EF2B1DF00E867BB /* BitcoinSighashBuilder.swift in Sources */,
 				B62D414B2CBC79DA00C2460E /* NEARWalletManager.swift in Sources */,
 				B62D42862CBC79DB00C2460E /* EtherscanTransactionHistoryTarget.swift in Sources */,
 				B62D42052CBC79DB00C2460E /* XRPAmount.swift in Sources */,
