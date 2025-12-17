@@ -21,7 +21,7 @@ struct SignInAnalyticsLogger {
         Analytics.log(event: .signedIn, params: [
             .signInType: signInType.rawValue,
             .walletsCount: String(walletsCount),
-            .walletType: Analytics.ParameterValue.seedState(for: selectedModel.hasImportedWallets).rawValue,
+            .walletType: seedStateParameter(userWalletModel: selectedModel).rawValue,
         ])
     }
 
@@ -31,9 +31,14 @@ struct SignInAnalyticsLogger {
             params: [
                 .signInType: signInType.rawValue,
                 .walletsCount: String(walletsCount),
-                .walletType: Analytics.ParameterValue.seedState(for: userWalletModel.hasImportedWallets).rawValue,
+                .walletType: seedStateParameter(userWalletModel: userWalletModel).rawValue,
             ],
             contextParams: .custom(userWalletModel.analyticsContextData)
         )
+    }
+
+    private func seedStateParameter(userWalletModel: UserWalletModel) -> Analytics.ParameterValue {
+        let hasSeedPhrase = userWalletModel.config.productType == .mobileWallet || userWalletModel.hasImportedWallets
+        return .seedState(for: hasSeedPhrase)
     }
 }
