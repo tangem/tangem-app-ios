@@ -30,13 +30,27 @@ class FakeWalletManager: WalletManager {
     init(wallet: BlockchainSdk.Wallet) {
         self.wallet = wallet
         cardTokens = wallet.amounts.compactMap { $0.key.token }
+
+        var types: [Amount.AmountType] = [.coin]
+        types += cardTokens.map { Amount.AmountType.token(value: $0) }
+
+        let blockchainNetwork = BlockchainNetwork(
+            wallet.blockchain,
+            derivationPath: wallet.publicKey.derivationPath
+        )
+
         walletModels = CommonWalletModelsFactory(
             config: Wallet2Config(
                 card: CardDTO(card: CardMock.wallet.card),
                 isDemo: false
             ),
             userWalletId: UserWalletId(value: Data())
-        ).makeWalletModels(from: self)
+        ).makeWalletModels(
+            for: types,
+            walletManager: self,
+            blockchainNetwork: blockchainNetwork,
+            targetAccountDerivationPath: blockchainNetwork.derivationPath
+        )
 
         bind()
         updateWalletModels()
