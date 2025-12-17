@@ -25,6 +25,7 @@
 		0A2261802D9588F3004DC848 /* CardanoUnspentOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A22617F2D9588F3004DC848 /* CardanoUnspentOutput.swift */; };
 		0A2261832D958ADA004DC848 /* CardanoTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2261822D958ADA004DC848 /* CardanoTransaction.swift */; };
 		0A2261852D95A8DC004DC848 /* StakingBlockchainParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2261842D95A8DC004DC848 /* StakingBlockchainParams.swift */; };
+		0A24C3F32EF2D7AF004125EF /* YieldModuleDustFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A24C3F22EF2D7AF004125EF /* YieldModuleDustFilter.swift */; };
 		0A2843BB2E4CDD7800BDE2D2 /* Analytics+SignInType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2843BA2E4CDD7800BDE2D2 /* Analytics+SignInType.swift */; };
 		0A2A04DB2C91B167007EAE64 /* TronSendTransactionSummaryDescriptionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2A04DA2C91B167007EAE64 /* TronSendTransactionSummaryDescriptionBuilder.swift */; };
 		0A2D94512DCB5832008AEC67 /* StakingPendingActionsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2D94502DCB5832008AEC67 /* StakingPendingActionsHandler.swift */; };
@@ -4653,6 +4654,7 @@
 		0A2261822D958ADA004DC848 /* CardanoTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardanoTransaction.swift; sourceTree = "<group>"; };
 		0A2261842D95A8DC004DC848 /* StakingBlockchainParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBlockchainParams.swift; sourceTree = "<group>"; };
 		0A249D642E1FEF5500E0C87E /* CosmosProtoMessage.proto */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.protobuf; path = CosmosProtoMessage.proto; sourceTree = "<group>"; };
+		0A24C3F22EF2D7AF004125EF /* YieldModuleDustFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleDustFilter.swift; sourceTree = "<group>"; };
 		0A2843BA2E4CDD7800BDE2D2 /* Analytics+SignInType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Analytics+SignInType.swift"; sourceTree = "<group>"; };
 		0A2A04DA2C91B167007EAE64 /* TronSendTransactionSummaryDescriptionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TronSendTransactionSummaryDescriptionBuilder.swift; sourceTree = "<group>"; };
 		0A2D94502DCB5832008AEC67 /* StakingPendingActionsHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPendingActionsHandler.swift; sourceTree = "<group>"; };
@@ -21167,6 +21169,7 @@
 		EA9D0CE92E83F91400B1A968 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				0A24C3F22EF2D7AF004125EF /* YieldModuleDustFilter.swift */,
 				EA9D0CE82E83F91400B1A968 /* YieldModuleFeeFormatter.swift */,
 			);
 			path = Utils;
@@ -27366,6 +27369,7 @@
 				B0F79C6A2689AC56008C9B30 /* FileEncryptionUtility.swift in Sources */,
 				B6FECF512C4032930030A8A9 /* PushNotificationsAvailabilityProviderStub.swift in Sources */,
 				EFA265A92EE9DBAF00F02EC7 /* UnstakingBalanceProvider.swift in Sources */,
+				0A24C3F32EF2D7AF004125EF /* YieldModuleDustFilter.swift in Sources */,
 				DC7796072E17CC09000E3213 /* WCTransactionSecurityAlertInput.swift in Sources */,
 				DC2AB6E72C08D9F80050796C /* WelcomeOnboardingTOSViewModel.swift in Sources */,
 				30502FAA2E950651006A3888 /* AccountsLogger.swift in Sources */,
