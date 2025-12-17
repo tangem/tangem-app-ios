@@ -16,7 +16,7 @@ final class TokenDetailsActionButtonsUITests: BaseTestCase {
             clearStorage: true
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .validate(cardType: .wallet2)
             .tapToken("Ethereum")
@@ -37,7 +37,7 @@ final class TokenDetailsActionButtonsUITests: BaseTestCase {
             scenarios: [expressApiErrorScenario]
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .validate(cardType: .wallet2)
             .tapToken("Polygon")
@@ -55,7 +55,7 @@ final class TokenDetailsActionButtonsUITests: BaseTestCase {
             clearStorage: true
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .validate(cardType: .wallet2)
             .tapToken("POL (ex-MATIC)")
@@ -73,7 +73,7 @@ final class TokenDetailsActionButtonsUITests: BaseTestCase {
             clearStorage: true
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .validate(cardType: .wallet2)
             .tapToken("Ethereum")
@@ -91,7 +91,7 @@ final class TokenDetailsActionButtonsUITests: BaseTestCase {
             clearStorage: true
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken("Bitcoin")
             .waitForActionButtons()
@@ -109,7 +109,7 @@ final class TokenDetailsActionButtonsUITests: BaseTestCase {
             clearStorage: true
         )
 
-        let tokenScreen = StoriesScreen(app)
+        let tokenScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .validate(cardType: .wallet2)
             .tapToken("Bitcoin")

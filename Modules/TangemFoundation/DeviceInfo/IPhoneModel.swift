@@ -8,21 +8,6 @@
 import Foundation
 
 public enum IPhoneModel {
-    @available(iOS, obsoleted: 16.0, message: "iPhone 6S does not support iOS 16.0 or newer. Remove this case")
-    case iPhone6S
-
-    @available(iOS, obsoleted: 16.0, message: "iPhone 6S Plus does not support iOS 16.0 or newer. Remove this case")
-    case iPhone6SPlus
-
-    @available(iOS, obsoleted: 16.0, message: "iPhone SE (1st generation) does not support iOS 16.0 or newer. Remove this case")
-    case iPhoneSE
-
-    @available(iOS, obsoleted: 16.0, message: "iPhone 7 does not support iOS 16.0 or newer. Remove this case")
-    case iPhone7
-
-    @available(iOS, obsoleted: 16.0, message: "iPhone 7 Plus does not support iOS 16.0 or newer. Remove this case")
-    case iPhone7Plus
-
     case iPhone8
     case iPhone8Plus
     case iPhoneX
@@ -61,11 +46,6 @@ public enum IPhoneModel {
 
     public var name: String {
         switch self {
-        case .iPhone6S: return "iPhone 6S"
-        case .iPhone6SPlus: return "iPhone 6S Plus"
-        case .iPhoneSE: return "iPhone SE"
-        case .iPhone7: return "iPhone 7"
-        case .iPhone7Plus: return "iPhone 7 Plus"
         case .iPhone8: return "iPhone 8"
         case .iPhone8Plus: return "iPhone 8 Plus"
         case .iPhoneX: return "iPhone X"
@@ -118,11 +98,6 @@ public enum IPhoneModel {
         }
 
         switch modelIdentifier {
-        case "iPhone8,1": self = .iPhone6S
-        case "iPhone8,2": self = .iPhone6SPlus
-        case "iPhone8,4": self = .iPhoneSE
-        case "iPhone9,1", "iPhone9,3": self = .iPhone7
-        case "iPhone9,2", "iPhone9,4": self = .iPhone7Plus
         case "iPhone10,1", "iPhone10,4": self = .iPhone8
         case "iPhone10,2", "iPhone10,5": self = .iPhone8Plus
         case "iPhone10,3", "iPhone10,6": self = .iPhoneX

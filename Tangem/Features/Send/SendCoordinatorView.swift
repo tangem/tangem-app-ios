@@ -32,7 +32,6 @@ struct SendCoordinatorView: CoordinatorView {
         .interactiveDismissDisabled(interactiveDismissDisabled)
     }
 
-    @ViewBuilder
     private var links: some View {
         NavHolder()
             .navigation(item: $coordinator.onrampSettingsViewModel) {
@@ -41,10 +40,8 @@ struct SendCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.onrampRedirectingViewModel) {
                 OnrampRedirectingView(viewModel: $0)
             }
-            .emptyNavigationLink()
     }
 
-    @ViewBuilder
     private var sheets: some View {
         NavHolder()
             .bottomSheet(

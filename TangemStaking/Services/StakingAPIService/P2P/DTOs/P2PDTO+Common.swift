@@ -11,7 +11,7 @@ import Foundation
 extension P2PDTO {
     struct GenericResponse<T: Decodable>: Decodable {
         let error: APIError?
-        let result: T
+        let result: T?
     }
 
     struct APIError: Decodable {
@@ -26,7 +26,7 @@ extension P2PDTO {
         let constraints: [String: String]?
     }
 
-    struct UnsignedTransaction: Decodable {
+    public struct UnsignedTransaction: Decodable, Hashable {
         let serializeTx: String
         let to: String
         let data: String

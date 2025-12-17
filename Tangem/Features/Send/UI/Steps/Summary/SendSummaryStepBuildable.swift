@@ -17,7 +17,7 @@ extension SendSummaryStepBuildable {
         sendDestinationCompactViewModel: SendDestinationCompactViewModel? = nil,
         sendAmountCompactViewModel: SendAmountCompactViewModel? = nil,
         nftAssetCompactViewModel: NFTAssetCompactViewModel? = nil,
-        stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel? = nil,
+        stakingTargetsCompactViewModel: StakingTargetsCompactViewModel? = nil,
         sendFeeCompactViewModel: SendNewFeeCompactViewModel? = nil
     ) -> SendSummaryStepBuilder.ReturnValue {
         SendSummaryStepBuilder.make(
@@ -27,7 +27,7 @@ extension SendSummaryStepBuildable {
             sendDestinationCompactViewModel: sendDestinationCompactViewModel,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
             nftAssetCompactViewModel: nftAssetCompactViewModel,
-            stakingValidatorsCompactViewModel: stakingValidatorsCompactViewModel,
+            stakingTargetsCompactViewModel: stakingTargetsCompactViewModel,
             sendFeeCompactViewModel: sendFeeCompactViewModel,
         )
     }
@@ -72,7 +72,7 @@ enum SendSummaryStepBuilder {
         sendDestinationCompactViewModel: SendDestinationCompactViewModel?,
         sendAmountCompactViewModel: SendAmountCompactViewModel?,
         nftAssetCompactViewModel: NFTAssetCompactViewModel?,
-        stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?,
+        stakingTargetsCompactViewModel: StakingTargetsCompactViewModel?,
         sendFeeCompactViewModel: SendNewFeeCompactViewModel?
     ) -> ReturnValue {
         let interactor = CommonSendSummaryInteractor(
@@ -92,7 +92,7 @@ enum SendSummaryStepBuilder {
             sendAmountCompactViewModel: sendAmountCompactViewModel,
             nftAssetCompactViewModel: nftAssetCompactViewModel,
             sendDestinationCompactViewModel: sendDestinationCompactViewModel,
-            stakingValidatorsCompactViewModel: stakingValidatorsCompactViewModel,
+            stakingTargetsCompactViewModel: stakingTargetsCompactViewModel,
             sendFeeCompactViewModel: sendFeeCompactViewModel
         )
 

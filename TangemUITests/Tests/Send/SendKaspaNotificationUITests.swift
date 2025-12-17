@@ -77,7 +77,7 @@ final class SendKaspaNotificationUITests: BaseTestCase {
             scenarios: [kaspaTokenScenario, kaspaUtxoScenario, quotesScenario]
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(coin)
             .tapSendButton()
