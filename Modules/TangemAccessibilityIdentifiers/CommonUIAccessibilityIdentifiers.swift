@@ -32,4 +32,8 @@ public enum CommonUIAccessibilityIdentifiers {
     public static let yieldModuleNotificationButton = "yieldModuleNotificationButton"
 
     public static let retryButton = "commonRetryButton"
+
+    // Addresses info
+    public static let addressesInfoButton = "commonUIAddressesInfoButton"
+    public static let addressesInfoCopyButton = "commonUIAddressesInfoCopyButton"
 }
