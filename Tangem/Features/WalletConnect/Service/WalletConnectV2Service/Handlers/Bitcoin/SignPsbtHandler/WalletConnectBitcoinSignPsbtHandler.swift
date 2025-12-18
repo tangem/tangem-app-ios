@@ -16,7 +16,7 @@ final class WalletConnectBitcoinSignPsbtHandler {
     private let request: AnyCodable
     private let walletModel: any WalletModel
     private let signer: TangemSigner
-    private let parsedRequest: WalletConnectBtcSignPsbtRequest
+    private let parsedRequest: WalletConnectBitcoinSignPsbtDTO.Request
     private let encoder = JSONEncoder()
 
     init(
@@ -26,7 +26,7 @@ final class WalletConnectBitcoinSignPsbtHandler {
         walletModelProvider: WalletConnectWalletModelProvider
     ) throws {
         do {
-            parsedRequest = try request.get(WalletConnectBtcSignPsbtRequest.self)
+            parsedRequest = try request.get(WalletConnectBitcoinSignPsbtDTO.Request.self)
         } catch {
             throw WalletConnectTransactionRequestProcessingError.invalidPayload(request.description)
         }
@@ -48,7 +48,7 @@ final class WalletConnectBitcoinSignPsbtHandler {
         accountId: String
     ) throws {
         do {
-            parsedRequest = try request.get(WalletConnectBtcSignPsbtRequest.self)
+            parsedRequest = try request.get(WalletConnectBitcoinSignPsbtDTO.Request.self)
         } catch {
             throw WalletConnectTransactionRequestProcessingError.invalidPayload(request.description)
         }
@@ -95,7 +95,7 @@ extension WalletConnectBitcoinSignPsbtHandler: WalletConnectMessageHandler {
         }
 
         let signedPsbtBase64 = try await sign()
-        let response = WalletConnectBtcSignPsbtResponse(psbt: signedPsbtBase64, txid: nil)
+        let response = WalletConnectBitcoinSignPsbtDTO.Response(psbt: signedPsbtBase64, txid: nil)
         return .response(AnyCodable(response))
     }
 }
@@ -127,7 +127,7 @@ private extension WalletConnectBitcoinSignPsbtHandler {
         )
     }
 
-    func signingPublicKey(for inputs: [WalletConnectBtcPsbtSignInput]) throws -> Data {
+    func signingPublicKey(for inputs: [WalletConnectBitcoinSignPsbtDTO.SignInput]) throws -> Data {
         // WC spec provides `address` per input. We validate it's one of our wallet addresses.
         for input in inputs {
             let matches = walletModel.addresses.contains(where: { $0.value.caseInsensitiveCompare(input.address) == .orderedSame })
@@ -148,23 +148,4 @@ private extension WalletConnectBitcoinSignPsbtHandler {
             .eraseToAnyPublisher()
             .async()
     }
-}
-
-// MARK: - Models
-
-struct WalletConnectBtcSignPsbtRequest: Codable {
-    let psbt: String
-    let signInputs: [WalletConnectBtcPsbtSignInput]
-    let broadcast: Bool?
-}
-
-struct WalletConnectBtcPsbtSignInput: Codable {
-    let address: String
-    let index: Int
-    let sighashTypes: [Int]?
-}
-
-struct WalletConnectBtcSignPsbtResponse: Codable {
-    let psbt: String
-    let txid: String?
 }

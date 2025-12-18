@@ -190,10 +190,3 @@ private struct ByteReader {
         return items
     }
 }
-
-private extension FixedWidthInteger {
-    var littleEndianData: Data {
-        var v = littleEndian
-        return withUnsafeBytes(of: &v) { Data($0) }
-    }
-}
