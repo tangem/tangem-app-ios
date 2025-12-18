@@ -77,11 +77,6 @@ final class TangemPayAccount {
         tangemPayTokenBalanceProvider: balancesProvider.fixedFiatTotalTokenBalanceProvider
     )
 
-    lazy var tangemPayMainHeaderSubtitleProvider: MainHeaderSubtitleProvider = SingleWalletMainHeaderSubtitleProvider(
-        isUserWalletLocked: false,
-        balanceProvider: balancesProvider.totalTokenBalanceProvider
-    )
-
     var balancesProvider: TangemPayBalancesProvider { balancesService }
 
     let customerInfoManagementService: any CustomerInfoManagementService
