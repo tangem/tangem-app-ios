@@ -35,11 +35,20 @@ class RestakingAmountValidator {
         stakingManagerStatePublisher
             .withWeakCaptureOf(self)
             .compactMap { validator, state -> Decimal? in
-                guard case .staked(let staked) = state,
-                      case .pending(.stake) = validator.action else { return nil }
+                // this validator is also used for regular staking flow in cardano
+                if case .availableToStake(let yieldInfo) = state {
+                    return yieldInfo.enterMinimumRequirement
+                }
 
-                let stakingParams = StakingBlockchainParams(blockchain: validator.tokenItem.blockchain)
-                return staked.yieldInfo.enterMinimumRequirement - Decimal(stakingParams.stakingDeposit)
+                // reduce minimum amount when user is restaking
+                // because deposit is already paid
+                if case .staked(let staked) = state,
+                   case .pending(.stake) = validator.action {
+                    let stakingParams = StakingBlockchainParams(blockchain: validator.tokenItem.blockchain)
+                    return staked.yieldInfo.enterMinimumRequirement - Decimal(stakingParams.stakingDeposit)
+                }
+
+                return nil
             }
             .sink(receiveValue: { [weak self] amount in
                 self?.minimumAmount = amount
@@ -51,7 +60,10 @@ class RestakingAmountValidator {
 extension RestakingAmountValidator: SendAmountValidator {
     func validate(amount: Decimal) throws {
         if let minAmount = minimumAmount, amount < minAmount {
-            throw StakingValidationError.amountRequirementError(minAmount: minAmount)
+            throw StakingValidationError.amountRequirementError(
+                minAmount: minAmount,
+                action: action
+            )
         }
     }
 }
