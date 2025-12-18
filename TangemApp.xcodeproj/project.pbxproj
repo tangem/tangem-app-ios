@@ -297,6 +297,7 @@
 		0FE9420C2ECC73710080CA53 /* MobileWalletFeatureProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FE9420B2ECC73710080CA53 /* MobileWalletFeatureProvider.swift */; };
 		0FE942842ED4B7650080CA53 /* MobileOnboardingFlowSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FE942832ED4B7650080CA53 /* MobileOnboardingFlowSource.swift */; };
 		0FE942862ED992310080CA53 /* Analytics+BuyWalletSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FE942852ED992310080CA53 /* Analytics+BuyWalletSource.swift */; };
+		0FEBB07B2EF44F65000B79EC /* TangemUrlHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FEBB07A2EF44F65000B79EC /* TangemUrlHelper.swift */; };
 		0FF19C922E3CBCC700008D8E /* NewAuthWalletView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FF19C912E3CBCC700008D8E /* NewAuthWalletView.swift */; };
 		0FF19C942E3CBCD800008D8E /* NewAuthWalletViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FF19C932E3CBCD800008D8E /* NewAuthWalletViewModel.swift */; };
 		0FF8F9672EA8F5E400251C53 /* DetailsTOSView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FF8F9662EA8F5E400251C53 /* DetailsTOSView.swift */; };
@@ -4999,6 +5000,7 @@
 		0FE9420B2ECC73710080CA53 /* MobileWalletFeatureProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileWalletFeatureProvider.swift; sourceTree = "<group>"; };
 		0FE942832ED4B7650080CA53 /* MobileOnboardingFlowSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingFlowSource.swift; sourceTree = "<group>"; };
 		0FE942852ED992310080CA53 /* Analytics+BuyWalletSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Analytics+BuyWalletSource.swift"; sourceTree = "<group>"; };
+		0FEBB07A2EF44F65000B79EC /* TangemUrlHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemUrlHelper.swift; sourceTree = "<group>"; };
 		0FF19C912E3CBCC700008D8E /* NewAuthWalletView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewAuthWalletView.swift; sourceTree = "<group>"; };
 		0FF19C932E3CBCD800008D8E /* NewAuthWalletViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewAuthWalletViewModel.swift; sourceTree = "<group>"; };
 		0FF8F9662EA8F5E400251C53 /* DetailsTOSView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsTOSView.swift; sourceTree = "<group>"; };
@@ -13012,6 +13014,7 @@
 				B0323F2B258C041D005C7CD5 /* SignerUtils.swift */,
 				DA19EF602B8CBDE200F7BDFD /* TangemBlogUrlBuilder.swift */,
 				0F721C242EE1D5D800C1183B /* TangemShopUrlBuilder.swift */,
+				0FEBB07A2EF44F65000B79EC /* TangemUrlHelper.swift */,
 				B0E0AF5C2996488100E52F7B /* TransactionHistoryMapper.swift */,
 				B0C87B422566461600F861DE /* TwinCardsFileCoder.swift */,
 				B068A7E625678A8800D28CD2 /* TwinCardsUtils.swift */,
@@ -27534,6 +27537,7 @@
 				2D96E9682E55D25300B69F91 /* ReceiveFlowFactory.swift in Sources */,
 				2D96E9692E55D25300B69F91 /* ReceiveMainView.swift in Sources */,
 				2D96E96A2E55D25300B69F91 /* ReceiveNotificationEvent.swift in Sources */,
+				0FEBB07B2EF44F65000B79EC /* TangemUrlHelper.swift in Sources */,
 				2D96E96E2E55D25300B69F91 /* ReceiveFlowCoordinator.swift in Sources */,
 				300D25292EAFB20200AB4A83 /* LegacyManageTokensContext.swift in Sources */,
 				3027D3262E82BF90001E15FB /* AccountFormView.swift in Sources */,
