@@ -16,7 +16,6 @@ import TangemLocalization
 
 final class TangemPayMainViewModel: ObservableObject {
     let tangemPayCardDetailsViewModel: TangemPayCardDetailsViewModel
-    let mainHeaderViewModel: MainHeaderViewModel
     lazy var refreshScrollViewStateObject = RefreshScrollViewStateObject { [weak self] in
         guard let self else { return }
 
@@ -38,6 +37,7 @@ final class TangemPayMainViewModel: ObservableObject {
         settings: .init(event: TangemPayNotificationEvent.tangemPayIsNowBeta, dismissAction: nil)
     )
 
+    @Published private(set) var balance: LoadableTokenBalanceView.State
     @Published private(set) var tangemPayTransactionHistoryState: TransactionsListView.State = .loading
     @Published private(set) var freezingState: TangemPayFreezingState = .normal
     @Published private(set) var pendingExpressTransactions: [PendingExpressTransactionView.Info] = []
@@ -72,13 +72,7 @@ final class TangemPayMainViewModel: ObservableObject {
             customerService: tangemPayAccount.customerInfoManagementService
         )
 
-        mainHeaderViewModel = MainHeaderViewModel(
-            isUserWalletLocked: false,
-            supplementInfoProvider: tangemPayAccount,
-            subtitleProvider: tangemPayAccount.tangemPayMainHeaderSubtitleProvider,
-            balanceProvider: tangemPayAccount.tangemPayMainHeaderBalanceProvider,
-            updatePublisher: .empty
-        )
+        balance = tangemPayAccount.tangemPayMainHeaderBalanceProvider.balance
 
         transactionHistoryService = TangemPayTransactionHistoryService(
             apiService: tangemPayAccount.customerInfoManagementService
@@ -271,6 +265,12 @@ final class TangemPayMainViewModel: ObservableObject {
 
 private extension TangemPayMainViewModel {
     func bind() {
+        tangemPayAccount.tangemPayMainHeaderBalanceProvider
+            .balancePublisher
+            .receiveOnMain()
+            .assign(to: \.balance, on: self, ownership: .weak)
+            .store(in: &bag)
+
         transactionHistoryService
             .tangemPayTransactionHistoryState
             .receiveOnMain()
