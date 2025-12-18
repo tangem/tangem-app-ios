@@ -57,10 +57,10 @@ struct DetailsView: View {
                 SettingsUserWalletRowView(viewModel: viewModel)
             case .addOrScanNewUserWalletButton(let viewModel):
                 DefaultRowView(viewModel: viewModel)
-                    .appearance(.accentButton)
+                    .appearance(.addButton)
             case .addNewUserWalletButton(let viewModel):
                 DefaultRowView(viewModel: viewModel)
-                    .appearance(.accentButton)
+                    .appearance(.addButton)
             }
         }
     }
