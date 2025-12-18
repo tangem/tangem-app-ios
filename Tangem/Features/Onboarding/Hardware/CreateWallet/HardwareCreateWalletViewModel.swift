@@ -223,7 +223,7 @@ private extension HardwareCreateWalletViewModel {
 
     func openBuyCard() {
         logBuyHardwareWalletAnalytics()
-        let utmCampaign: TangemShopUrlBuilder.UTMCampaign = switch source {
+        let utmCampaign: TangemUTM.Campaign = switch source {
         case .addNewWallet: .users
         case .hardwareWallet: .upgrade
         }
