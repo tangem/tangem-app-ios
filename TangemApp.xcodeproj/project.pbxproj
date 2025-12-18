@@ -962,10 +962,11 @@
 		A792FCB72ED9CF0F000DE695 /* WalletConnectBitcoinSignMessageHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A792FCB62ED9CF0F000DE695 /* WalletConnectBitcoinSignMessageHandler.swift */; };
 		A792FCB92EDDAA17000DE695 /* BitcoinWalletConnectSigner.swift in Sources */ = {isa = PBXBuildFile; fileRef = A792FCB82EDDAA17000DE695 /* BitcoinWalletConnectSigner.swift */; };
 		A7C492492EF2B1DF00E867BB /* BitcoinSighashBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7C492482EF2B1DF00E867BB /* BitcoinSighashBuilder.swift */; };
-		A7C4924A2EF2B1DF00E867BB /* BitcoinSighashBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7C492482EF2B1DF00E867BB /* BitcoinSighashBuilder.swift */; };
 		A7C4924F2EF2D4B000E867BB /* BitcoinDevKit in Frameworks */ = {isa = PBXBuildFile; productRef = A7C4924E2EF2D4B000E867BB /* BitcoinDevKit */; };
 		A7C492522EF2EB4E00E867BB /* PsbtKeyValueMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7C492512EF2EB4E00E867BB /* PsbtKeyValueMap.swift */; };
 		A7C492542EF2F2B500E867BB /* BitcoinPsbtSigningBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7C492532EF2F2B500E867BB /* BitcoinPsbtSigningBuilder.swift */; };
+		A7C492782EF40DCB00E867BB /* PsbtScriptPubKeyType.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7C492772EF40DCB00E867BB /* PsbtScriptPubKeyType.swift */; };
+		A7C4927A2EF424E300E867BB /* VariantIntEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7C492792EF424E300E867BB /* VariantIntEncoder.swift */; };
 		A7CD56912ECB36BF00FD6F36 /* PlasmaExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7CD56902ECB36BF00FD6F36 /* PlasmaExternalLinkProvider.swift */; };
 		B00142BD2D79954A00923B6D /* WalletModelId.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00142BC2D79954A00923B6D /* WalletModelId.swift */; };
 		B0017EA52D3E76480057F164 /* VisaOnboardingSuccessView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0017EA42D3E76480057F164 /* VisaOnboardingSuccessView.swift */; };
@@ -5673,6 +5674,8 @@
 		A7C492482EF2B1DF00E867BB /* BitcoinSighashBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinSighashBuilder.swift; sourceTree = "<group>"; };
 		A7C492512EF2EB4E00E867BB /* PsbtKeyValueMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PsbtKeyValueMap.swift; sourceTree = "<group>"; };
 		A7C492532EF2F2B500E867BB /* BitcoinPsbtSigningBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinPsbtSigningBuilder.swift; sourceTree = "<group>"; };
+		A7C492772EF40DCB00E867BB /* PsbtScriptPubKeyType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PsbtScriptPubKeyType.swift; sourceTree = "<group>"; };
+		A7C492792EF424E300E867BB /* VariantIntEncoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VariantIntEncoder.swift; sourceTree = "<group>"; };
 		A7CD56902ECB36BF00FD6F36 /* PlasmaExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlasmaExternalLinkProvider.swift; sourceTree = "<group>"; };
 		B00142BC2D79954A00923B6D /* WalletModelId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletModelId.swift; sourceTree = "<group>"; };
 		B0017EA42D3E76480057F164 /* VisaOnboardingSuccessView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaOnboardingSuccessView.swift; sourceTree = "<group>"; };
@@ -12354,6 +12357,8 @@
 			children = (
 				A7C492512EF2EB4E00E867BB /* PsbtKeyValueMap.swift */,
 				A7C492532EF2F2B500E867BB /* BitcoinPsbtSigningBuilder.swift */,
+				A7C492772EF40DCB00E867BB /* PsbtScriptPubKeyType.swift */,
+				A7C492792EF424E300E867BB /* VariantIntEncoder.swift */,
 			);
 			path = PSBT;
 			sourceTree = "<group>";
@@ -26639,7 +26644,6 @@
 				2D5B255D2DE460C900D8D809 /* TransactionNotificationsItemViewModel.swift in Sources */,
 				3027D32F2E82C049001E15FB /* ExpandableAccountItemView.swift in Sources */,
 				3027D3302E82C049001E15FB /* ExpandableAccountItemViewModel.swift in Sources */,
-				A7C4924A2EF2B1DF00E867BB /* BitcoinSighashBuilder.swift in Sources */,
 				B04126EF29CC322D00A8BB43 /* OnboardingSeedPhraseUserValidationViewModel.swift in Sources */,
 				DC8E03152DE16B08008967D8 /* WCHandleTransactionData.swift in Sources */,
 				B00FA51C2C05C496007041B0 /* OnboardingAddTokensDelegate.swift in Sources */,
@@ -29490,6 +29494,7 @@
 				2DB1D70A2D56978D00AD43A3 /* ALPH+UnsignedTransactionSerde.swift in Sources */,
 				2D614C9A2E9E649C001A8DD1 /* ScrollExternalLinkProvider.swift in Sources */,
 				B62D42C12CBC79DB00C2460E /* WalletManagerAssembly.swift in Sources */,
+				A7C4927A2EF424E300E867BB /* VariantIntEncoder.swift in Sources */,
 				2DFDD6092DF1ECF700CB72B5 /* SuiContractAddressConverter.swift in Sources */,
 				B62D423D2CBC79DB00C2460E /* AddressService.swift in Sources */,
 				0A7221842ED6FB190034C025 /* P2PTransactionSender.swift in Sources */,
@@ -29893,6 +29898,7 @@
 				B62D40772CBC79DA00C2460E /* DashWalletAssembly.swift in Sources */,
 				B62D428C2CBC79DB00C2460E /* UTXOTransactionHistoryProvider.swift in Sources */,
 				B62D40F82CBC79DA00C2460E /* ICPNetworkService.swift in Sources */,
+				A7C492782EF40DCB00E867BB /* PsbtScriptPubKeyType.swift in Sources */,
 				B62D40D92CBC79DA00C2460E /* FilecoinWalletManager.swift in Sources */,
 				0A51D9D92ED993F3008F3EBD /* EthereumCompiledTransaction.swift in Sources */,
 				300B38052DDB3C39007BDD32 /* NFTExternalLinksProvider.swift in Sources */,

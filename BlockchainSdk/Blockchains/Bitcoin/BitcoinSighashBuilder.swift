@@ -54,13 +54,13 @@ public enum BitcoinSighashBuilder {
         var bytes = Data()
         bytes += version.littleEndianData
 
-        bytes += VarInt.encode(UInt64(inputs.count))
+        bytes += VariantIntEncoder.encode(UInt64(inputs.count))
         for (idx, input) in inputs.enumerated() {
             bytes += input.txid
             bytes += input.vout.littleEndianData
 
             if idx == inputIndex {
-                bytes += VarInt.encode(UInt64(scriptCode.count))
+                bytes += VariantIntEncoder.encode(UInt64(scriptCode.count))
                 bytes += scriptCode
             } else {
                 bytes += Data([0x00])
@@ -69,10 +69,10 @@ public enum BitcoinSighashBuilder {
             bytes += input.sequence.littleEndianData
         }
 
-        bytes += VarInt.encode(UInt64(outputs.count))
+        bytes += VariantIntEncoder.encode(UInt64(outputs.count))
         for output in outputs {
             bytes += output.value.littleEndianData
-            bytes += VarInt.encode(UInt64(output.scriptPubKey.count))
+            bytes += VariantIntEncoder.encode(UInt64(output.scriptPubKey.count))
             bytes += output.scriptPubKey
         }
 
@@ -135,14 +135,14 @@ public enum BitcoinSighashBuilder {
         bytes += input.txid
         bytes += input.vout.littleEndianData
 
-        bytes += VarInt.encode(UInt64(scriptCode.count))
+        bytes += VariantIntEncoder.encode(UInt64(scriptCode.count))
         bytes += scriptCode
 
         bytes += value.littleEndianData
         bytes += input.sequence.littleEndianData
 
         let outs = outputs.flatMap { output in
-            output.value.littleEndianData + VarInt.encode(UInt64(output.scriptPubKey.count)) + output.scriptPubKey
+            output.value.littleEndianData + VariantIntEncoder.encode(UInt64(output.scriptPubKey.count)) + output.scriptPubKey
         }
         bytes += Data(outs).getDoubleSHA256()
 
@@ -182,24 +182,6 @@ public extension BitcoinSighashBuilder {
 }
 
 // MARK: - Helpers
-
-private enum VarInt {
-    static func encode(_ value: UInt64) -> Data {
-        switch value {
-        case 0 ..< 0xFD:
-            return Data([UInt8(value)])
-        case 0xFD ..< 0x1_0000:
-            var v = UInt16(value).littleEndian
-            return Data([0xFD]) + withUnsafeBytes(of: &v) { Data($0) }
-        case 0x1_0000 ..< 0x1_0000_0000:
-            var v = UInt32(value).littleEndian
-            return Data([0xFE]) + withUnsafeBytes(of: &v) { Data($0) }
-        default:
-            var v = UInt64(value).littleEndian
-            return Data([0xFF]) + withUnsafeBytes(of: &v) { Data($0) }
-        }
-    }
-}
 
 private extension FixedWidthInteger {
     var littleEndianData: Data {
