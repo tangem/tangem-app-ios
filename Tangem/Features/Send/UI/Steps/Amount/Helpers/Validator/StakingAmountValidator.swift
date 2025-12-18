@@ -52,7 +52,7 @@ class StakingAmountValidator {
 extension StakingAmountValidator: SendAmountValidator {
     func validate(amount: Decimal) throws {
         if let minAmount = minimumAmount, amount < minAmount {
-            throw StakingValidationError.amountRequirementError(minAmount: minAmount)
+            throw StakingValidationError.amountRequirementError(minAmount: minAmount, action: .stake)
         }
 
         let amount = Amount(with: tokenItem.blockchain, type: tokenItem.amountType, value: amount)
@@ -61,11 +61,11 @@ extension StakingAmountValidator: SendAmountValidator {
 }
 
 enum StakingValidationError: LocalizedError {
-    case amountRequirementError(minAmount: Decimal)
+    case amountRequirementError(minAmount: Decimal, action: StakingAction.ActionType)
 
     var errorDescription: String? {
         switch self {
-        case .amountRequirementError(let minAmount):
+        case .amountRequirementError(let minAmount, _):
             Localization.stakingAmountRequirementError(minAmount)
         }
     }
