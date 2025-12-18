@@ -964,6 +964,8 @@
 		A7C492492EF2B1DF00E867BB /* BitcoinSighashBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7C492482EF2B1DF00E867BB /* BitcoinSighashBuilder.swift */; };
 		A7C4924A2EF2B1DF00E867BB /* BitcoinSighashBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7C492482EF2B1DF00E867BB /* BitcoinSighashBuilder.swift */; };
 		A7C4924F2EF2D4B000E867BB /* BitcoinDevKit in Frameworks */ = {isa = PBXBuildFile; productRef = A7C4924E2EF2D4B000E867BB /* BitcoinDevKit */; };
+		A7C492522EF2EB4E00E867BB /* PsbtKeyValueMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7C492512EF2EB4E00E867BB /* PsbtKeyValueMap.swift */; };
+		A7C492542EF2F2B500E867BB /* BitcoinPsbtSigningBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7C492532EF2F2B500E867BB /* BitcoinPsbtSigningBuilder.swift */; };
 		A7CD56912ECB36BF00FD6F36 /* PlasmaExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7CD56902ECB36BF00FD6F36 /* PlasmaExternalLinkProvider.swift */; };
 		B00142BD2D79954A00923B6D /* WalletModelId.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00142BC2D79954A00923B6D /* WalletModelId.swift */; };
 		B0017EA52D3E76480057F164 /* VisaOnboardingSuccessView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0017EA42D3E76480057F164 /* VisaOnboardingSuccessView.swift */; };
@@ -5669,6 +5671,8 @@
 		A792FCB62ED9CF0F000DE695 /* WalletConnectBitcoinSignMessageHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectBitcoinSignMessageHandler.swift; sourceTree = "<group>"; };
 		A792FCB82EDDAA17000DE695 /* BitcoinWalletConnectSigner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinWalletConnectSigner.swift; sourceTree = "<group>"; };
 		A7C492482EF2B1DF00E867BB /* BitcoinSighashBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinSighashBuilder.swift; sourceTree = "<group>"; };
+		A7C492512EF2EB4E00E867BB /* PsbtKeyValueMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PsbtKeyValueMap.swift; sourceTree = "<group>"; };
+		A7C492532EF2F2B500E867BB /* BitcoinPsbtSigningBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinPsbtSigningBuilder.swift; sourceTree = "<group>"; };
 		A7CD56902ECB36BF00FD6F36 /* PlasmaExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlasmaExternalLinkProvider.swift; sourceTree = "<group>"; };
 		B00142BC2D79954A00923B6D /* WalletModelId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletModelId.swift; sourceTree = "<group>"; };
 		B0017EA42D3E76480057F164 /* VisaOnboardingSuccessView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaOnboardingSuccessView.swift; sourceTree = "<group>"; };
@@ -12345,6 +12349,15 @@
 			path = SignMessageHandler;
 			sourceTree = "<group>";
 		};
+		A7C492502EF2EB3600E867BB /* PSBT */ = {
+			isa = PBXGroup;
+			children = (
+				A7C492512EF2EB4E00E867BB /* PsbtKeyValueMap.swift */,
+				A7C492532EF2F2B500E867BB /* BitcoinPsbtSigningBuilder.swift */,
+			);
+			path = PSBT;
+			sourceTree = "<group>";
+		};
 		B0017EA32D3E762C0057F164 /* Success */ = {
 			isa = PBXGroup;
 			children = (
@@ -14888,6 +14901,7 @@
 		B62D3C592CBC79D900C2460E /* Bitcoin */ = {
 			isa = PBXGroup;
 			children = (
+				A7C492502EF2EB3600E867BB /* PSBT */,
 				B62D3BDF2CBC79D900C2460E /* Address */,
 				B62D3C4D2CBC79D900C2460E /* BitcoinScript */,
 				B62D3C522CBC79D900C2460E /* BitcoinExternalLinkProvider.swift */,
@@ -29497,6 +29511,8 @@
 				B62D41032CBC79DA00C2460E /* KaspaNetworkService.swift in Sources */,
 				B62D40922CBC79DA00C2460E /* EthereumAddressConverterFactory.swift in Sources */,
 				DC2F88F02E1454050034D437 /* ChiaError.swift in Sources */,
+				A7C492522EF2EB4E00E867BB /* PsbtKeyValueMap.swift in Sources */,
+				A7C492542EF2F2B500E867BB /* BitcoinPsbtSigningBuilder.swift in Sources */,
 				B62D40FC2CBC79DA00C2460E /* ICPTransactionParams.swift in Sources */,
 				B62D40582CBC79DA00C2460E /* ClvmProgram.swift in Sources */,
 				B62D405D2CBC79DA00C2460E /* ChiaAddressService.swift in Sources */,
