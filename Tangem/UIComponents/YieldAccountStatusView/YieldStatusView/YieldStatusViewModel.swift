@@ -28,6 +28,7 @@ final class YieldStatusViewModel: ObservableObject {
 
     private let yieldInteractor: YieldManagerInteractor
     private let feeConverter: YieldModuleFeeFormatter
+    private lazy var dustFilter = YieldModuleDustFilter(feeConverter: feeConverter)
 
     init(
         state: State,
@@ -66,18 +67,16 @@ final class YieldStatusViewModel: ObservableObject {
             return
         }
 
-        if undepositedAmount > 0 {
-            guard let params = try? await yieldInteractor.getCurrentFeeParameters(),
-                  let minimalTopupAmountInFiat = try? await yieldInteractor.getMinAmount(feeParameters: params),
-                  let undepositedAmountInFiat = try? await feeConverter.convertToFiat(undepositedAmount, currency: .token),
-                  undepositedAmountInFiat < minimalTopupAmountInFiat
-            else {
-                setWarningSign(to: .hasUndepositedAmounts)
-                return
-            }
-
-            setWarningSign(to: .none)
+        if let params = try? await yieldInteractor.getCurrentFeeParameters(),
+           await dustFilter.filterUndepositedAmount(
+               undepositedAmount,
+               minimalTopupAmountInFiat: try? await yieldInteractor.getMinAmount(feeParameters: params)
+           ) != nil {
+            setWarningSign(to: .hasUndepositedAmounts)
+            return
         }
+
+        setWarningSign(to: .none)
     }
 
     private func setWarningSign(to warningType: WarningType) {
