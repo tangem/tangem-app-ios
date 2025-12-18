@@ -29,8 +29,8 @@ struct CommonAccountRateProviderTests {
         )
 
         // Then
-        guard case .loading = receivedRate else {
-            Issue.record("Expected loading state")
+        guard case .failure = receivedRate else {
+            Issue.record("Expected failure state")
             return
         }
     }
