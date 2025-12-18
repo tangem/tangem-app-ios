@@ -23,7 +23,7 @@ struct PsbtKeyValueMap {
     init(data: Data, inputCount: Int, outputCount: Int) throws {
         var reader = ByteReader(data)
         let magic = try reader.read(count: 5)
-        guard magic == Data([0x70, 0x73, 0x62, 0x74, 0xff]) else {
+        guard magic == Const.magicBytes else {
             throw Error.invalidPsbt("Invalid PSBT magic")
         }
 
@@ -37,7 +37,7 @@ struct PsbtKeyValueMap {
     }
 
     func serialize() -> Data {
-        var data = Data([0x70, 0x73, 0x62, 0x74, 0xff])
+        var data = Const.magicBytes
         data.append(serializeKVMap(globalMap))
         for map in inputMaps {
             data.append(serializeKVMap(map))
@@ -79,9 +79,9 @@ struct PsbtKeyValueMap {
     private func serializeKVMap(_ map: [KV]) -> Data {
         var data = Data()
         for kv in map.sorted(by: { $0.key.lexicographicallyPrecedes($1.key) }) {
-            data.append(VarInt.encode(UInt64(kv.key.count)))
+            data.append(VariantIntEncoder.encode(UInt64(kv.key.count)))
             data.append(kv.key)
-            data.append(VarInt.encode(UInt64(kv.value.count)))
+            data.append(VariantIntEncoder.encode(UInt64(kv.value.count)))
             data.append(kv.value)
         }
         data.append(0x00)
@@ -110,6 +110,10 @@ struct PsbtKeyValueMap {
     enum KeyType {
         static let globalUnsignedTx: UInt8 = 0x00
         static let inputPartialSig: UInt8 = 0x02
+    }
+
+    enum Const {
+        static let magicBytes = Data([0x70, 0x73, 0x62, 0x74, 0xff])
     }
 }
 
@@ -141,6 +145,16 @@ private struct ByteReader {
         return UInt64(littleEndian: d.withUnsafeBytes { $0.load(as: UInt64.self) })
     }
 
+    /// Reads a Bitcoin/PSBT CompactSize varint (aka "varint") from the underlying byte stream.
+    ///
+    /// Encoding:
+    /// - `0x00 ... 0xFC`: the value is the prefix byte itself (1 byte total)
+    /// - `0xFD`: followed by `UInt16` little-endian (3 bytes total)
+    /// - `0xFE`: followed by `UInt32` little-endian (5 bytes total)
+    /// - `0xFF`: followed by `UInt64` little-endian (9 bytes total)
+    ///
+    /// - Returns: Decoded unsigned integer.
+    /// - Throws: `PsbtKeyValueMap.Error.invalidPsbt("Unexpected EOF")` if there aren't enough bytes to read.
     mutating func readVarInt() throws -> UInt64 {
         let first = try read(count: 1).first!
         switch first {
@@ -174,24 +188,6 @@ private struct ByteReader {
             items.append(.init(key: key, value: value))
         }
         return items
-    }
-}
-
-private enum VarInt {
-    static func encode(_ value: UInt64) -> Data {
-        switch value {
-        case 0 ..< 0xFD:
-            return Data([UInt8(value)])
-        case 0xFD ..< 0x1_0000:
-            var v = UInt16(value).littleEndian
-            return Data([0xFD]) + withUnsafeBytes(of: &v) { Data($0) }
-        case 0x1_0000 ..< 0x1_0000_0000:
-            var v = UInt32(value).littleEndian
-            return Data([0xFE]) + withUnsafeBytes(of: &v) { Data($0) }
-        default:
-            var v = UInt64(value).littleEndian
-            return Data([0xFF]) + withUnsafeBytes(of: &v) { Data($0) }
-        }
     }
 }
 

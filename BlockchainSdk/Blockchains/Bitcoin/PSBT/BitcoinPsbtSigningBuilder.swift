@@ -13,7 +13,7 @@ import TangemSdk
 ///
 /// - Important: BitcoinDevKit Swift bindings do not currently expose mutable PSBT maps.
 ///   We therefore insert `partial_sigs` via `PsbtKeyValueMap`, then finalize the PSBT via `BitcoinDevKit.Psbt.finalize()`.
-public enum BitcoinPsbtSigningBuilder {
+public class BitcoinPsbtSigningBuilder {
     public struct SignInput: Hashable, Sendable {
         public let index: Int
 
@@ -127,109 +127,84 @@ public enum BitcoinPsbtSigningBuilder {
 
 // MARK: - Sighash
 
-private enum ScriptPubKeyType {
-    case p2pkh
-    case p2wpkh
-    case unsupported(String)
-
-    init(scriptPubKey: Data) {
-        // p2wpkh: 0x00 0x14 <20>
-        if scriptPubKey.count == 22, scriptPubKey[0] == 0x00, scriptPubKey[1] == 0x14 {
-            self = .p2wpkh
-            return
+private extension BitcoinPsbtSigningBuilder {
+    static func sighashAll(
+        tx: BitcoinDevKit.Transaction,
+        txInputs: [BitcoinDevKit.TxIn],
+        txOutputs: [BitcoinDevKit.TxOut],
+        psbtInputs: [BitcoinDevKit.Input],
+        inputIndex: Int
+    ) throws -> Data {
+        guard txInputs.indices.contains(inputIndex) else {
+            throw BitcoinPsbtSigningBuilder.Error.inputIndexOutOfRange(inputIndex)
         }
 
-        // p2pkh: 76 a9 14 <20> 88 ac
-        if scriptPubKey.count == 25,
-           scriptPubKey[0] == 0x76,
-           scriptPubKey[1] == 0xA9,
-           scriptPubKey[2] == 0x14,
-           scriptPubKey[23] == 0x88,
-           scriptPubKey[24] == 0xAC {
-            self = .p2pkh
-            return
+        guard psbtInputs.indices.contains(inputIndex) else {
+            throw BitcoinPsbtSigningBuilder.Error.inputIndexOutOfRange(inputIndex)
         }
 
-        self = .unsupported("Unsupported scriptPubKey (len=\(scriptPubKey.count))")
-    }
-}
+        let outpoint = txInputs[inputIndex].previousOutput
+        let utxo = try spendingUtxo(psbtInput: psbtInputs[inputIndex], vout: outpoint.vout)
+        let scriptPubKey = utxo.scriptPubkey.toBytes()
+        let scriptType = PsbtScriptPubKeyType(scriptPubKey: scriptPubKey)
 
-private func sighashAll(
-    tx: BitcoinDevKit.Transaction,
-    txInputs: [BitcoinDevKit.TxIn],
-    txOutputs: [BitcoinDevKit.TxOut],
-    psbtInputs: [BitcoinDevKit.Input],
-    inputIndex: Int
-) throws -> Data {
-    guard txInputs.indices.contains(inputIndex) else {
-        throw BitcoinPsbtSigningBuilder.Error.inputIndexOutOfRange(inputIndex)
-    }
-
-    guard psbtInputs.indices.contains(inputIndex) else {
-        throw BitcoinPsbtSigningBuilder.Error.inputIndexOutOfRange(inputIndex)
-    }
-
-    let outpoint = txInputs[inputIndex].previousOutput
-    let utxo = try spendingUtxo(psbtInput: psbtInputs[inputIndex], vout: outpoint.vout)
-    let scriptPubKey = utxo.scriptPubkey.toBytes()
-    let scriptType = ScriptPubKeyType(scriptPubKey: scriptPubKey)
-
-    let sighashInputs = txInputs.map {
-        BitcoinSighashBuilder.Input(
-            txid: $0.previousOutput.txid.serialize(),
-            vout: $0.previousOutput.vout,
-            sequence: $0.sequence
-        )
-    }
-
-    let sighashOutputs = txOutputs.map {
-        BitcoinSighashBuilder.Output(
-            value: $0.value.toSat(),
-            scriptPubKey: $0.scriptPubkey.toBytes()
-        )
-    }
-
-    let version = UInt32(bitPattern: tx.version())
-    let lockTime = tx.lockTime()
-
-    switch scriptType {
-    case .p2pkh:
-        return try BitcoinSighashBuilder.legacySighashAll(
-            version: version,
-            lockTime: lockTime,
-            inputs: sighashInputs,
-            outputs: sighashOutputs,
-            inputIndex: inputIndex,
-            scriptCode: scriptPubKey
-        )
-    case .p2wpkh:
-        let pubKeyHash = scriptPubKey.subdata(in: 2 ..< 22)
-        return try BitcoinSighashBuilder.segwitV0SighashAll(
-            version: version,
-            lockTime: lockTime,
-            inputs: sighashInputs,
-            outputs: sighashOutputs,
-            inputIndex: inputIndex,
-            scriptCode: OpCodeUtils.p2pkh(data: pubKeyHash),
-            value: utxo.value.toSat()
-        )
-    case .unsupported(let reason):
-        throw BitcoinPsbtSigningBuilder.Error.unsupported(reason)
-    }
-}
-
-private func spendingUtxo(psbtInput: BitcoinDevKit.Input, vout: UInt32) throws -> BitcoinDevKit.TxOut {
-    if let witness = psbtInput.witnessUtxo {
-        return witness
-    }
-
-    if let nonWitness = psbtInput.nonWitnessUtxo {
-        let outputs = nonWitness.output()
-        guard outputs.indices.contains(Int(vout)) else {
-            throw BitcoinPsbtSigningBuilder.Error.invalidPsbt("nonWitnessUtxo output index out of range")
+        let sighashInputs = txInputs.map {
+            BitcoinSighashBuilder.Input(
+                txid: $0.previousOutput.txid.serialize(),
+                vout: $0.previousOutput.vout,
+                sequence: $0.sequence
+            )
         }
-        return outputs[Int(vout)]
+
+        let sighashOutputs = txOutputs.map {
+            BitcoinSighashBuilder.Output(
+                value: $0.value.toSat(),
+                scriptPubKey: $0.scriptPubkey.toBytes()
+            )
+        }
+
+        let version = UInt32(bitPattern: tx.version())
+        let lockTime = tx.lockTime()
+
+        switch scriptType {
+        case .p2pkh:
+            return try BitcoinSighashBuilder.legacySighashAll(
+                version: version,
+                lockTime: lockTime,
+                inputs: sighashInputs,
+                outputs: sighashOutputs,
+                inputIndex: inputIndex,
+                scriptCode: scriptPubKey
+            )
+        case .p2wpkh:
+            let pubKeyHash = scriptPubKey.subdata(in: 2 ..< 22)
+            return try BitcoinSighashBuilder.segwitV0SighashAll(
+                version: version,
+                lockTime: lockTime,
+                inputs: sighashInputs,
+                outputs: sighashOutputs,
+                inputIndex: inputIndex,
+                scriptCode: OpCodeUtils.p2pkh(data: pubKeyHash),
+                value: utxo.value.toSat()
+            )
+        case .unsupported(let reason):
+            throw BitcoinPsbtSigningBuilder.Error.unsupported(reason)
+        }
     }
 
-    throw BitcoinPsbtSigningBuilder.Error.missingUtxo(Int(vout))
+    static func spendingUtxo(psbtInput: BitcoinDevKit.Input, vout: UInt32) throws -> BitcoinDevKit.TxOut {
+        if let witness = psbtInput.witnessUtxo {
+            return witness
+        }
+
+        if let nonWitness = psbtInput.nonWitnessUtxo {
+            let outputs = nonWitness.output()
+            guard outputs.indices.contains(Int(vout)) else {
+                throw BitcoinPsbtSigningBuilder.Error.invalidPsbt("nonWitnessUtxo output index out of range")
+            }
+            return outputs[Int(vout)]
+        }
+
+        throw BitcoinPsbtSigningBuilder.Error.missingUtxo(Int(vout))
+    }
 }
