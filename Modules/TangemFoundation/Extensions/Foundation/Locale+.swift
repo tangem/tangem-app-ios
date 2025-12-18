@@ -16,6 +16,7 @@ public extension Locale {
 public extension Locale {
     static let appLanguageCode = Bundle.main.preferredLocalizations.first ?? enLanguageCode
     static let deviceLanguageCode = Locale.current.language.languageCode?.identifier ?? LanguageCode.english.identifier
+    static let systemLanguageCode = Locale.preferredLanguages.first ?? enLanguageCode
 }
 
 public extension Locale {
