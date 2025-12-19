@@ -288,6 +288,7 @@ private extension TokenDetailsViewModel {
             .compactMap { $0 }
             .filter { !$0.state.isLoading }
             .receiveOnMain()
+            .removeDuplicates()
             .sink { [weak self] state in
                 self?.updateYieldAvailability(state: state)
             }
