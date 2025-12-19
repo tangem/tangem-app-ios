@@ -73,7 +73,8 @@ struct TransactionHistoryMapper {
             amount: transferAmount(from: record),
             isOutgoing: record.isOutgoing,
             transactionType: transactionType(from: record),
-            status: status(from: record)
+            status: status(from: record),
+            isFromYieldContract: record.isFromYieldContract
         )
     }
 
