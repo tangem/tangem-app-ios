@@ -9,10 +9,18 @@
 import Foundation
 import Combine
 import CombineExt
+import TangemFoundation
 
 final class CommonCryptoAccountsGlobalStateProvider {
-    private let cryptoAccountsCountSubject = CurrentValueSubject<[AnyHashable: Int], Never>([:])
-    private var subscriptions: [AnyHashable: AnyCancellable] = [:]
+    private let didChangeSubject = PassthroughSubject<Void, Never>()
+
+    private var unsafeCryptoAccountsCount: [AnyHashable: Int] = [:] {
+        didSet { didChangeSubject.send() }
+    }
+
+    private var unsafeSubscriptions: [AnyHashable: AnyCancellable] = [:]
+
+    private let criticalSection = Lock(isRecursive: true)
 
     fileprivate init() {}
 }
@@ -21,24 +29,37 @@ final class CommonCryptoAccountsGlobalStateProvider {
 
 extension CommonCryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider {
     func register<T, U>(_ manager: T, forIdentifier identifier: U) where T: AccountModelsManager, U: Hashable {
-        subscriptions[identifier] = manager
-            .cryptoAccountModelsPublisher
-            .map(\.count)
-            .assign(to: \.value[identifier], on: cryptoAccountsCountSubject, ownership: .weak)
+        criticalSection {
+            unsafeSubscriptions[identifier] = manager
+                .cryptoAccountModelsPublisher
+                .map(\.count)
+                .withWeakCaptureOf(self)
+                .sink { provider, count in
+                    provider.onCryptoAccountsCountChanged(identifier: identifier, count: count)
+                }
+        }
     }
 
     func unregister<T, U>(_ manager: T, forIdentifier identifier: U) where T: AccountModelsManager, U: Hashable {
-        subscriptions.removeValue(forKey: identifier)
-        cryptoAccountsCountSubject.value.removeValue(forKey: identifier)
+        criticalSection {
+            unsafeSubscriptions.removeValue(forKey: identifier)
+            unsafeCryptoAccountsCount.removeValue(forKey: identifier)
+        }
     }
 
     func globalCryptoAccountsState() -> CryptoAccounts.State {
-        Self.globalState(for: cryptoAccountsCountSubject.value)
+        criticalSection {
+            Self.globalState(for: unsafeCryptoAccountsCount)
+        }
     }
 
     func globalCryptoAccountsStatePublisher() -> AnyPublisher<CryptoAccounts.State, Never> {
-        cryptoAccountsCountSubject
-            .map(Self.globalState(for:))
+        didChangeSubject
+            .prepend(())
+            .withWeakCaptureOf(self)
+            .map { provider, _ in
+                return provider.globalCryptoAccountsState()
+            }
             .removeDuplicates()
             .eraseToAnyPublisher()
     }
@@ -46,6 +67,12 @@ extension CommonCryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProv
     private static func globalState(for cryptoAccountsCount: [AnyHashable: Int]) -> CryptoAccounts.State {
         // If we have at least one wallet with more than one crypto account, then the global state is `.multiple`
         return cryptoAccountsCount.values.contains { $0 > 1 } ? .multiple : .single
+    }
+
+    private func onCryptoAccountsCountChanged<T>(identifier: T, count: Int) where T: Hashable {
+        criticalSection {
+            unsafeCryptoAccountsCount[identifier] = count
+        }
     }
 }
 
