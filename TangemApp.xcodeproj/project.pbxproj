@@ -955,6 +955,7 @@
 		9345E59CCF194B22F38F4A45 /* AccountOperationResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9345E59CCF194B22F38F4A46 /* AccountOperationResult.swift */; };
 		99AAEEC4800C458A897C37DD /* FloatingSheetNavigationBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E69B531B7D974A48A77CBE89 /* FloatingSheetNavigationBarView.swift */; };
 		A71BEDE22EF459E9000DAE13 /* WalletConnectBitcoinSignPsbtDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = A71BEDE12EF459E9000DAE13 /* WalletConnectBitcoinSignPsbtDTO.swift */; };
+		A71BEDE42EF46403000DAE13 /* WalletConnectPsbtSignInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = A71BEDE32EF46403000DAE13 /* WalletConnectPsbtSignInput.swift */; };
 		A76141D02EDEDE90007C2833 /* WalletConnectBitcoinGetAccountAddressesHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A76141CF2EDEDE90007C2833 /* WalletConnectBitcoinGetAccountAddressesHandler.swift */; };
 		A76141D32EDEED78007C2833 /* WalletConnectBitcoinSignPsbtHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A76141D22EDEED78007C2833 /* WalletConnectBitcoinSignPsbtHandler.swift */; };
 		A792FCB02ED740BA000DE695 /* WalletConnectSendTransferHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A792FCAF2ED740BA000DE695 /* WalletConnectSendTransferHandler.swift */; };
@@ -5666,6 +5667,7 @@
 		7985089E2DE99FE800388668 /* ToSScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToSScreen.swift; sourceTree = "<group>"; };
 		9345E59CCF194B22F38F4A46 /* AccountOperationResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountOperationResult.swift; sourceTree = "<group>"; };
 		A71BEDE12EF459E9000DAE13 /* WalletConnectBitcoinSignPsbtDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectBitcoinSignPsbtDTO.swift; sourceTree = "<group>"; };
+		A71BEDE32EF46403000DAE13 /* WalletConnectPsbtSignInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectPsbtSignInput.swift; sourceTree = "<group>"; };
 		A76141CF2EDEDE90007C2833 /* WalletConnectBitcoinGetAccountAddressesHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectBitcoinGetAccountAddressesHandler.swift; sourceTree = "<group>"; };
 		A76141D22EDEED78007C2833 /* WalletConnectBitcoinSignPsbtHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectBitcoinSignPsbtHandler.swift; sourceTree = "<group>"; };
 		A792FCAF2ED740BA000DE695 /* WalletConnectSendTransferHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectSendTransferHandler.swift; sourceTree = "<group>"; };
@@ -19194,6 +19196,7 @@
 			children = (
 				DC0002C92DC2090600305FB6 /* WalletConnectEthTransaction.swift */,
 				A792FCB32ED84EA5000DE695 /* WalletConnectBtcTransaction.swift */,
+				A71BEDE32EF46403000DAE13 /* WalletConnectPsbtSignInput.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -27044,6 +27047,7 @@
 				0A8E8FE52EB4AC7C00F0B06C /* YieldBalanceTicker.swift in Sources */,
 				EFF9A2FA2BD6B45E007C63D2 /* UserWalletSettingsCoordinator.swift in Sources */,
 				DCB573632E8C0B5B003D54E6 /* AccountSelectorAccountItem.swift in Sources */,
+				A71BEDE42EF46403000DAE13 /* WalletConnectPsbtSignInput.swift in Sources */,
 				EF0DC1072A0BD7F8007E3DA7 /* OptionPicker.swift in Sources */,
 				B63FDB182A5F09F10080240F /* CardsInfoPagerFlexibleFooterView.swift in Sources */,
 				0AB346812E83CD8F004003A0 /* YieldModuleDTO.swift in Sources */,

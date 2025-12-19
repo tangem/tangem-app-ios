@@ -251,6 +251,7 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
                 return try WalletConnectBitcoinSignPsbtHandler(
                     request: params,
                     blockchainId: blockchainNetworkID,
+                    transactionBuilder: btcTransactionBuilder,
                     signer: signer,
                     walletModelProvider: walletModelProvider
                 )
@@ -258,6 +259,7 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
                 return try WalletConnectBitcoinSignPsbtHandler(
                     request: params,
                     blockchainId: blockchainNetworkID,
+                    transactionBuilder: btcTransactionBuilder,
                     signer: signer,
                     wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
                     accountId: walletConnectConnectedDAppV2.accountId

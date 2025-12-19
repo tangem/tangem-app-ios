@@ -14,6 +14,11 @@ protocol WCBtcTransactionBuilder {
         from transaction: WalletConnectBtcTransaction,
         for walletModel: any WalletModel
     ) async throws -> Transaction
+
+    func buildPsbtHashes(
+        from psbtBase64: String,
+        signInputs: [WalletConnectPsbtSignInput]
+    ) throws -> [Data]
 }
 
 struct CommonWCBtcTransactionBuilder {}
@@ -53,6 +58,17 @@ extension CommonWCBtcTransactionBuilder: WCBtcTransactionBuilder {
         )
 
         return transaction
+    }
+
+    func buildPsbtHashes(
+        from psbtBase64: String,
+        signInputs: [WalletConnectPsbtSignInput]
+    ) throws -> [Data] {
+        let hashesToSign = try BlockchainSdk.BitcoinPsbtSigningBuilder.hashesToSign(
+            psbtBase64: psbtBase64,
+            signInputs: signInputs.map { BlockchainSdk.BitcoinPsbtSigningBuilder.SignInput(index: $0.index) }
+        )
+        return hashesToSign
     }
 
     private func selectDefaultFee(from fees: [Fee]) -> Fee? {
