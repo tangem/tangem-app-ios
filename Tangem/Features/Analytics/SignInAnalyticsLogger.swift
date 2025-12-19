@@ -13,32 +13,38 @@ struct SignInAnalyticsLogger {
 
     private var walletsCount: Int { userWalletRepository.models.count }
 
-    func logSignInEvent(signInType: Analytics.SignInType) {
-        guard let selectedModel = userWalletRepository.selectedModel else {
-            return
-        }
-
-        Analytics.log(event: .signedIn, params: [
-            .signInType: signInType.rawValue,
-            .walletsCount: String(walletsCount),
-            .walletType: seedStateParameter(userWalletModel: selectedModel).rawValue,
-        ])
-    }
-
-    func logSignInButtonWalletEvent(signInType: Analytics.SignInType, userWalletModel: UserWalletModel) {
-        Analytics.log(
-            event: .signInButtonWallet,
-            params: [
-                .signInType: signInType.rawValue,
-                .walletsCount: String(walletsCount),
-                .walletType: seedStateParameter(userWalletModel: userWalletModel).rawValue,
-            ],
-            contextParams: .custom(userWalletModel.analyticsContextData)
+    func logSignInEvent(signInType: Analytics.SignInType, userWalletModel: UserWalletModel) {
+        log(
+            event: .signedIn,
+            signInType: signInType,
+            userWalletModel: userWalletModel
         )
     }
 
-    private func seedStateParameter(userWalletModel: UserWalletModel) -> Analytics.ParameterValue {
+    func logSignInButtonWalletEvent(signInType: Analytics.SignInType, userWalletModel: UserWalletModel) {
+        log(
+            event: .signInButtonWallet,
+            signInType: signInType,
+            userWalletModel: userWalletModel
+        )
+    }
+
+    private func log(
+        event: Analytics.Event,
+        signInType: Analytics.SignInType,
+        userWalletModel: UserWalletModel
+    ) {
         let hasSeedPhrase = userWalletModel.config.productType == .mobileWallet || userWalletModel.hasImportedWallets
-        return .seedState(for: hasSeedPhrase)
+        let walletType = Analytics.ParameterValue.seedState(for: hasSeedPhrase)
+
+        Analytics.log(
+            event: event,
+            params: [
+                .signInType: signInType.rawValue,
+                .walletsCount: String(walletsCount),
+                .walletType: walletType.rawValue,
+            ],
+            contextParams: .custom(userWalletModel.analyticsContextData)
+        )
     }
 }

@@ -278,7 +278,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         if sensitiveInfos.isEmpty {
             // clean to prevent double tap
             AccessCodeRepository().clear()
-            Analytics.log(.signInErrorBiometricUpdated)
+            Analytics.log(.signInErrorBiometricUpdated, contextParams: .empty)
             throw UserWalletRepositoryError.biometricsChanged
         }
 
