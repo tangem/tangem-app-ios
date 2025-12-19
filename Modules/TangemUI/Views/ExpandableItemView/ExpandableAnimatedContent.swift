@@ -19,8 +19,8 @@ struct ExpandableAnimatedContent<CollapsedView: View, ExpandedView: View>: Anima
     let cornerRadius: CGFloat
     var progress: Double
 
-    @State private var expandedHeight: CGFloat = 0
-    @State private var collapsedHeight: CGFloat = 0
+    @State private var expandedHeight: CGFloat = 62
+    @State private var collapsedHeight: CGFloat = 62
 
     @Environment(\.displayScale) private var displayScale
 
