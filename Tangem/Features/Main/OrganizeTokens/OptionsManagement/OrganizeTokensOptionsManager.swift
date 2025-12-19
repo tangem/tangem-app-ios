@@ -14,8 +14,8 @@ final class OrganizeTokensOptionsManager {
     private typealias OptionChange<T> = (currentValue: T, newValue: T?)
 
     private let userTokensReorderer: UserTokensReordering
-    private let editedGroupingOption = CurrentValueSubject<UserTokensReorderingOptions.Grouping?, Never>(nil)
-    private let editedSortingOption = CurrentValueSubject<UserTokensReorderingOptions.Sorting?, Never>(nil)
+    private let editedGroupingOption: CurrentValueSubject<UserTokensReorderingOptions.Grouping?, Never>
+    private let editedSortingOption: CurrentValueSubject<UserTokensReorderingOptions.Sorting?, Never>
 
     private var groupingOptionToSave: AnyPublisher<OptionChange<UserTokensReorderingOptions.Grouping>, Never> {
         return editedGroupingOption
@@ -32,9 +32,13 @@ final class OrganizeTokensOptionsManager {
     }
 
     init(
-        userTokensReorderer: UserTokensReordering
+        userTokensReorderer: UserTokensReordering,
+        initialGroupingOption: UserTokensReorderingOptions.Grouping? = nil,
+        initialSortingOption: UserTokensReorderingOptions.Sorting? = nil
     ) {
         self.userTokensReorderer = userTokensReorderer
+        editedGroupingOption = .init(initialGroupingOption)
+        editedSortingOption = .init(initialSortingOption)
     }
 }
 
