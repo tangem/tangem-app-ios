@@ -24,10 +24,15 @@ class MarketsCoordinator: CoordinatorObject {
     // MARK: - Coordinators
 
     @Published var tokenDetailsCoordinator: MarketsTokenDetailsCoordinator?
+    @Published var marketsSearchCoordinator: MarketsSearchCoordinator?
 
     // MARK: - Child ViewModels
 
     @Published var marketsListOrderBottomSheetViewModel: MarketsListOrderBottomSheetViewModel?
+
+    // MARK: - Private Properties
+
+    private lazy var quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper = CommonMarketsQuotesUpdateHelper()
 
     // MARK: - Init
 
@@ -43,8 +48,6 @@ class MarketsCoordinator: CoordinatorObject {
     // MARK: - Implementation
 
     func start(with options: MarketsCoordinator.Options) {
-        let quotesRepositoryUpdateHelper = CommonMarketsQuotesUpdateHelper()
-
         if FeatureProvider.isAvailable(.marketsAndNews) {
             let viewModel = MarketsMainViewModel(
                 quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper,
@@ -90,8 +93,20 @@ extension MarketsCoordinator: MarketsRoutable {
 
 extension MarketsCoordinator: MarketsMainRoutable {
     func openSeeAll(with widgetType: MarketsWidgetType) {
-        // Will be implemented partially. For completed features etc. news, earn
-        // For market & pulse will be implement in:
-        // [REDACTED_TODO_COMMENT]
+        switch widgetType {
+        case .market, .pulse:
+            let marketsSearchCoordinator = MarketsSearchCoordinator(
+                dismissAction: { [weak self] in
+                    self?.marketsSearchCoordinator = nil
+                }
+            )
+
+            marketsSearchCoordinator.start(with: .init(quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper))
+
+            self.marketsSearchCoordinator = marketsSearchCoordinator
+        case .earn, .news:
+            // [REDACTED_TODO_COMMENT]
+            break
+        }
     }
 }

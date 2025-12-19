@@ -55,7 +55,7 @@ struct PulseMarketWidgetView: View {
                     }
                 }
             case .error:
-                MarketsMainWidgetErrorView {
+                MarketsListErrorView {
                     viewModel.tryLoadAgain()
                 }
             }
