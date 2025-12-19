@@ -1,5 +1,5 @@
 //
-//  MarketsMainWidgetErrorView.swift
+//  MarketsListErrorView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import SwiftUI
 import TangemUI
 
-struct MarketsMainWidgetErrorView: View {
+struct MarketsListErrorView: View {
     let tryLoadAgain: () -> Void
 
     var body: some View {
@@ -23,7 +23,7 @@ struct MarketsMainWidgetErrorView: View {
     }
 }
 
-private extension MarketsMainWidgetErrorView {
+private extension MarketsListErrorView {
     enum Layout {
         static let defaultHorizontalInset = 16.0
         static let verticalPadding: CGFloat = 34
