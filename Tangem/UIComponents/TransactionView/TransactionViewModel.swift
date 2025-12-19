@@ -29,7 +29,7 @@ struct TransactionViewModel: Hashable, Identifiable {
         switch transactionType {
         case .yieldEnter, .yieldTopup, .yieldWithdraw:
             .tail
-        case .yieldSend where !isOutgoing:
+        case .yieldSend where isFromYieldContract:
             .tail
         default:
             .middle
@@ -47,7 +47,8 @@ struct TransactionViewModel: Hashable, Identifiable {
         case .yieldSend where isOutgoing:
             return localizeDestination
 
-        case .yieldWithdraw, .yieldSend:
+        case .yieldWithdraw,
+             .yieldSend where isFromYieldContract:
             return Localization.yieldModuleTransactionExitSubtitle(amount.amount)
 
         default:
@@ -97,7 +98,8 @@ struct TransactionViewModel: Hashable, Identifiable {
 
     var name: String {
         switch transactionType {
-        case .yieldSend where isOutgoing: Localization.commonTransfer
+        case .yieldSend where isOutgoing,
+             .yieldSend where !isFromYieldContract: Localization.commonTransfer
         case .transfer: Localization.commonTransfer
         case .swap: Localization.commonSwap
         case .approve: Localization.commonApproval
@@ -123,6 +125,7 @@ struct TransactionViewModel: Hashable, Identifiable {
     private let interactionAddress: InteractionAddressType
     private let timeFormatted: String?
     private let isOutgoing: Bool
+    private let isFromYieldContract: Bool
     private let transactionType: TransactionType
     private let status: Status
 
@@ -136,16 +139,24 @@ struct TransactionViewModel: Hashable, Identifiable {
         amount: String,
         isOutgoing: Bool,
         transactionType: TransactionViewModel.TransactionType,
-        status: TransactionViewModel.Status
+        status: TransactionViewModel.Status,
+        isFromYieldContract: Bool
     ) {
         id = ViewModelId(hash: hash, index: index)
         self.hash = hash
         icon = TransactionViewIconViewData(type: transactionType, status: status, isOutgoing: isOutgoing)
-        self.amount = TransactionViewAmountViewData(amount: amount, type: transactionType, status: status, isOutgoing: isOutgoing)
+        self.amount = TransactionViewAmountViewData(
+            amount: amount,
+            type: transactionType,
+            status: status,
+            isOutgoing: isOutgoing,
+            isFromYieldContract: isFromYieldContract
+        )
 
         self.interactionAddress = interactionAddress
         self.timeFormatted = timeFormatted
         self.isOutgoing = isOutgoing
+        self.isFromYieldContract = isFromYieldContract
         self.transactionType = transactionType
         self.status = status
     }
