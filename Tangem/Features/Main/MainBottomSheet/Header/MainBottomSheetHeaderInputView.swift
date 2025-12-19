@@ -20,6 +20,7 @@ struct MainBottomSheetHeaderInputView: View {
     let allowsHitTestingForTextField: Bool
 
     let clearButtonAction: (() -> Void)?
+    let cancelButtonAction: (() -> Void)?
 
     var body: some View {
         FocusableWrapperView(content: searchBar, isFocused: isTextFieldFocused)
@@ -32,7 +33,8 @@ struct MainBottomSheetHeaderInputView: View {
             placeholder: Localization.marketsSearchHeaderTitle,
             keyboardType: .alphabet,
             style: .translucent,
-            clearButtonAction: clearButtonAction
+            clearButtonAction: clearButtonAction,
+            cancelButtonAction: cancelButtonAction
         )
         .accessibilityIdentifier(MainAccessibilityIdentifiers.searchThroughMarketField)
 
