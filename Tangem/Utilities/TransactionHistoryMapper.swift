@@ -289,7 +289,7 @@ private extension TransactionHistoryMapper {
         switch transactionType(from: record) {
         case .yieldEnter, .yieldTopup, .yieldWithdraw:
             return balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol)
-        case .yieldSend where !record.isOutgoing:
+        case .yieldSend where record.isFromYieldContract:
             return balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol)
         default:
             return formatted(amount: amount, isOutgoing: record.isOutgoing)
