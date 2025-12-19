@@ -623,18 +623,3 @@ private extension OrganizeTokensView {
         static let autoScrollTriggerHeightDiff = 10.0
     }
 }
-
-// MARK: - Previews
-
-struct OrganizeTokensView_Preview: PreviewProvider {
-    static var previews: some View {
-        let viewModelFactory = OrganizeTokensPreviewViewModelFactory()
-
-        ForEach(OrganizeTokensPreviewConfiguration.allCases, id: \.name) { previewConfiguration in
-            let viewModel = viewModelFactory.makeViewModel(for: previewConfiguration)
-            OrganizeTokensView(viewModel: viewModel)
-                .previewLayout(.sizeThatFits)
-                .previewDisplayName(previewConfiguration.name)
-        }
-    }
-}
