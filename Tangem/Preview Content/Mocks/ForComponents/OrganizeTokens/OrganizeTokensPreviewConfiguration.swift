@@ -8,6 +8,7 @@
 
 import Foundation
 
+@available(iOS, deprecated: 100000.0, message: "Will be removed after accounts migration is complete ([REDACTED_INFO])")
 struct OrganizeTokensPreviewConfiguration {
     let name: String
     let groupingOption: UserTokensReorderingOptions.Grouping
