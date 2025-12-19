@@ -23,8 +23,12 @@ final class CommonCryptoAccountsRepository {
     private let storageController: CryptoAccountsPersistentStorageController
     private let storageDidUpdateSubject: CryptoAccountsPersistentStorageController.StorageDidUpdateSubject
     private let stateHolder: StateHolder
+
     /// Implicitly unwrapped to resolve circular dependency
-    fileprivate var debouncer: Debouncer<UserTokensRepository.Result>! // [REDACTED_TODO_COMMENT]
+    fileprivate var loadAccountsFromServerDebouncer: Debouncer<UserTokensRepository.Result>! // [REDACTED_TODO_COMMENT]
+
+    /// Implicitly unwrapped to resolve circular dependency
+    fileprivate var updateTokensOnServerDebouncer: Debouncer<UserTokensRepository.Result>! // [REDACTED_TODO_COMMENT]
 
     private weak var userWalletInfoProvider: UserWalletInfoProvider?
 
@@ -63,9 +67,16 @@ final class CommonCryptoAccountsRepository {
         self.persistentStorage = persistentStorage
         self.storageController = storageController
         self.hasTokenSynchronization = hasTokenSynchronization
-        debouncer = Debouncer(interval: Constants.loadAccountsDebounceInterval) { [weak self] completion in
+
+        loadAccountsFromServerDebouncer = Debouncer(interval: Constants.debounceInterval) { [weak self] completion in
             self?.loadAccountsFromServer(completion)
         }
+
+        updateTokensOnServerDebouncer = Debouncer(interval: Constants.debounceInterval) { [weak self] completion in
+            // No account properties were changed here therefore only tokens need to be updated on the server
+            self?.updateAccountsOnServer(updateType: .tokens, completion: completion)
+        }
+
         storageController.bind(to: storageDidUpdateSubject)
     }
 
@@ -206,7 +217,7 @@ final class CommonCryptoAccountsRepository {
 
     // MARK: - Updating accounts and tokens on server
 
-    fileprivate func updateAccountsOnServer(
+    private func updateAccountsOnServer(
         cryptoAccounts: [StoredCryptoAccount]? = nil,
         updateType: RemoteUpdateType,
         completion: UserTokensRepository.Completion? = nil
@@ -507,34 +518,40 @@ final class UserTokensRepositoryAdapter: UserTokensRepository {
         let updates = updater.updates
 
         for update in updates {
+            let updatedAccount: StoredCryptoAccount
+
             switch update {
             case .append(let tokenItems):
                 let merger = StoredCryptoAccountsMerger(preserveTokensWhileMergingAccounts: false)
-                let (updatedAccount, isDirty) = merger.merge(newTokenItems: tokenItems, to: cryptoAccount)
+                let (account, isDirty) = merger.merge(newTokenItems: tokenItems, to: cryptoAccount)
 
                 guard isDirty else {
                     continue
                 }
 
-                innerRepository.persistentStorage.appendNewOrUpdateExisting(updatedAccount)
+                updatedAccount = account
             case .remove(let tokenItem):
-                let updatedTokens = cryptoAccount.tokens.filter { $0 != tokenItem.toStoredToken() }
-                let updatedAccount = cryptoAccount.withTokens(updatedTokens)
-                innerRepository.persistentStorage.appendNewOrUpdateExisting(updatedAccount)
-            case .update:
-                break // [REDACTED_TODO_COMMENT]
+                let updatedTokens = cryptoAccount
+                    .tokens
+                    .filter { $0 != tokenItem.toStoredToken() }
+                updatedAccount = cryptoAccount.withTokens(updatedTokens)
+            case .update(let request):
+                updatedAccount = cryptoAccount
+                    .with(sorting: request.sorting, grouping: request.grouping)
+                    .withTokens(request.tokens)
             }
+
+            innerRepository.persistentStorage.appendNewOrUpdateExisting(updatedAccount)
         }
 
         if updates.isNotEmpty {
-            // No account properties were changed here therefore only tokens need to be updated on the server
-            innerRepository.updateAccountsOnServer(updateType: .tokens)
+            innerRepository.updateTokensOnServerDebouncer.debounce(withCompletion: { _ in })
         }
     }
 
     func updateLocalRepositoryFromServer(_ completion: @escaping Completion) {
         // Debounced loading to avoid multiple simultaneous requests when multiple accounts request an update in a short time frame
-        innerRepository.debouncer.debounce(withCompletion: completion)
+        innerRepository.loadAccountsFromServerDebouncer.debounce(withCompletion: completion)
     }
 
     private static func cryptoAccount(
@@ -593,7 +610,7 @@ private extension CommonCryptoAccountsRepository {
 private extension CommonCryptoAccountsRepository {
     enum Constants {
         static let maxRetryCount = 3
-        static let loadAccountsDebounceInterval = 0.3
+        static let debounceInterval = 0.3
     }
 }
 
