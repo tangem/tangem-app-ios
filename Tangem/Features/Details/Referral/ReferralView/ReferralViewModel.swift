@@ -245,7 +245,8 @@ final class ReferralViewModel: ObservableObject {
     }
 
     private func bindAccountModelsUpdates(_ accountModelsManager: AccountModelsManager) {
-        accountModelsManager.accountModelsPublisher
+        accountModelsManager
+            .accountModelsPublisher
             .withWeakCaptureOf(self)
             .receiveOnMain()
             .sink { viewModel, accountModels in
