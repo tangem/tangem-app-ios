@@ -128,6 +128,8 @@ final class CommonServicesManager {
             StorageCleaner.clearCachedFiles()
         }
 
+        FeatureStorage.instance.availableFeatures[.mobileWallet] = .off
+
         UIView.setAnimationsEnabled(false)
     }
 }
