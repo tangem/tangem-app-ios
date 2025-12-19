@@ -44,6 +44,21 @@ enum TotalBalanceState: Hashable {
         }
         return balance > 0
     }
+
+    var hasAnyPositiveBalance: Bool {
+        switch self {
+        case .loading(let cached), .failed(let cached, _):
+            if let cached {
+                return cached > 0
+            }
+
+            return false
+        case .loaded(let balance):
+            return balance > 0
+        case .empty:
+            return false
+        }
+    }
 }
 
 // MARK: - CustomStringConvertible
