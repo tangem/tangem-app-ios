@@ -99,10 +99,10 @@
 "app_settings_default_fee_footer" = "Enable Default Fee to set transaction fees automatically and skip the Fee page when sending funds. You can always go back to this page if necessary.";
 "app_settings_default_fee" = "Default Fee";
 "app_settings_off_biometrics_alert_message" = "Disabling %1$@ will require you to enter your passcode to unlock the app and to interact with your wallet.";
-"app_settings_off_require_access_code_alert_message" = "You’ll be asked for your wallet’s access code later so we can securely store it for future use";
+"app_settings_off_require_access_code_alert_message" = "You'll be asked for your access code later for secure storage.";
 "app_settings_off_saved_access_code_alert_message" = "這將刪除所有保存的錢包訪問代碼。對錢包的任何進一步操作都需要提交訪問代碼。";
 "app_settings_off_saved_wallet_alert_message" = "移除已保存的卡會刪除所有已保存的錢包及其訪問密碼";
-"app_settings_on_require_access_code_alert_message" = "This will delete all the saved wallet access codes. Any further interaction with the wallet will require submitting the access code.";
+"app_settings_on_require_access_code_alert_message" = "This will delete all saved wallet access codes. You’ll need to enter the access code again to use the wallet.";
 "app_settings_require_access_code_footer" = "This option turns off biometrics for sensitive actions. You’ll need to enter your access code each time you sign a transaction.";
 "app_settings_require_access_code" = "Require Access Code";
 "app_settings_saved_access_codes_footer" = "在與您的卡進行交互時，將要求進行生物識別身份驗證，而不是訪問密碼";
@@ -160,7 +160,7 @@
 "card_reset_alert_finish_ok_button" = "Upgrade again";
 "card_reset_alert_finish_title" = "Reset complete";
 "card_reset_alert_incomplete_message" = "We recommend completing the reset process for all Tangem devices in this wallet.";
-"card_reset_alert_incomplete_title" = "You haven’t reset all your Tangem devices";
+"card_reset_alert_incomplete_title" = "Some Tangem devices still need to be reset.";
 "card_settings_access_code_recovery_disabled_description" = "如果您不希望使用此卡重置此錢包中其他卡上的訪問密碼，請禁用此選項。請注意，這也會阻止您重置此卡上的訪問密碼。";
 "card_settings_access_code_recovery_enabled_description" = "允許您使用此卡重置此錢包中其他卡上的訪問密碼";
 "card_settings_access_code_recovery_footer" = "禁用重置此卡或此錢包中其他卡上的訪問密碼的功能";
@@ -349,7 +349,8 @@
 "common_transaction_status" = "Transaction status";
 "common_transactions" = "交易";
 "common_transfer" = "Transfer";
-"common_unable_to_load" = "Unable to load the data…";
+"common_unable_to_load" = "Unable to load data…";
+"common_understand_continue" = "I understand, continue";
 "common_understand" = "我了解";
 "common_unknown_error" = "There was an error. Please try again.";
 "common_unreachable" = "無法觸達";
@@ -614,6 +615,8 @@
 "initial_message_purge_wallet_body" = "要重置為出廠設置，請完全按照上圖所示連接手機和卡片";
 "initial_message_reset_backup_card_header" = "Tap the card #%@ of the wallet";
 "initial_message_sign_body" = "要簽名，請完全按照上圖所示連接手機和卡";
+"jailbreak_warning_message" = "Devices with jailbreak are considered less secure. Your data may be exposed to additional risks.";
+"jailbreak_warning_title" = "Jailbreak detected";
 "key_invalidated_warning_description" = "您已更新生物識別登入，掃描您的卡進入";
 "koinos_insufficient_balance_to_send_koin_description" = "Your balance should be higher than the fee value to make a transfer";
 "koinos_insufficient_balance_to_send_koin_title" = "Not enough balance";
@@ -742,7 +745,7 @@
 "markets_tooltip_title" = "Add tokens";
 "markets_yield_supply_banner_description" = "Power up your assets while supplying them with instant access. %@";
 "markets_yield_supply_banner_title" = "Activate Yield Mode";
-"mobile_wallet_requires_min_os_warning_body" = "You must update to %1$@ in order to create mobile wallet";
+"mobile_wallet_requires_min_os_warning_body" = "You must update to %1$@  before creating a mobile wallet";
 "mobile_wallet_requires_min_os_warning_title" = "Mobile Wallet requires %1$@ or later";
 "news_all_news" = "All news";
 "news_stay_in_the_loop" = "Stay in the loop";
@@ -975,6 +978,7 @@
 "reset_card_to_factory_button_title" = "重置卡片";
 "reset_card_to_factory_condition_1" = "我了解執行此操作後，我將無法再訪問當前錢包";
 "reset_card_to_factory_condition_2" = "I realize that I can't use this card to recover my access code on the other cards of the current wallet";
+"reset_card_to_factory_condition_3" = "I understand that I will completely lose access to my Tangem Pay Card and all funds on it without the possibility of recovery";
 "reset_card_with_backup_to_factory_message" = "恢復原廠設置將從所選卡中完全刪除錢包。您將無法恢復當前錢包或使用卡恢復訪問密碼";
 "reset_card_without_backup_to_factory_message" = "恢復原廠設置將從所選卡中完全刪除錢包並將其從應用程序中刪除。您將無法恢復當前錢包";
 "reset_cards_dialog_complete_description" = "All Tangem devices have been reset.";
@@ -1303,6 +1307,7 @@
 "tangem_pay_freeze_card_success" = "您的卡片已凍結。";
 "tangem_pay_get_help" = "獲取幫助";
 "tangem_pay_other" = "其他";
+"tangem_pay_rooted_device_subtitle" = "Unable to use on rooted devices";
 "tangem_pay_status_completed" = "已完成";
 "tangem_pay_status_declined" = "已拒絕";
 "tangem_pay_status_pending" = "處理中";
@@ -1316,6 +1321,7 @@
 "tangem_pay_unfreeze_card_success" = "您的卡片已解凍。";
 "tangem_pay_withdrawal" = "提現";
 "tangempay_account_unable_to_use_rooted" = "Unable to use on rooted device";
+"tangempay_cancel_kyc" = "Cancel KYC";
 "tangempay_card_details_add_funds_subtitle" = "充值选项";
 "tangempay_card_details_add_funds" = "添加资金";
 "tangempay_card_details_card_number" = "卡號";
@@ -1343,6 +1349,7 @@
 "tangempay_card_details_open_wallet_step_5" = "全部完成！您的卡片已準備就緒。";
 "tangempay_card_details_open_wallet_title_apple" = "添加卡片到 Apple Pay";
 "tangempay_card_details_open_wallet_title" = "將卡片添加到 Google Pay";
+"tangempay_card_details_pin_code" = "PIN code";
 "tangempay_card_details_receive_description" = "分享您的地址或显示二维码";
 "tangempay_card_details_receive_error_description" = "Technical issues detected. Please try again later or contact support.";
 "tangempay_card_details_receive_error_title" = "暫時無法接收";
@@ -1351,6 +1358,8 @@
 "tangempay_card_details_swap_description" = "將您投資組合中的任何資產兌換成卡片";
 "tangempay_card_details_title" = "卡片详情";
 "tangempay_card_details_unfreeze_card" = "解凍卡片";
+"tangempay_card_details_view_pin_code_description" = "Come back to the app if you forget it.";
+"tangempay_card_details_view_pin_code_title" = "Your PIN code";
 "tangempay_card_details_withdraw_error_title" = "目前无法提现";
 "tangempay_card_details_withdraw_in_progress_description" = "在当前操作完成之前，您无法启动兑换或新的提款。";
 "tangempay_card_details_withdraw_in_progress_title" = "提款进行中";
@@ -1373,6 +1382,7 @@
 "tangempay_kyc_failed_title" = "很抱歉，我们无法验证您的身份";
 "tangempay_kyc_in_progress_notification_button" = "查看状态";
 "tangempay_kyc_in_progress_notification_title" = "Tangem Pay 的 KYC 正在進行中";
+"tangempay_kyc_in_progress_popup_description" = "Use the buttons below to view your current KYC status or cancel it.";
 "tangempay_kyc_in_progress" = "KYC进行中";
 "tangempay_onboarding_banner_description" = "使用您的加密货币进行真实世界消费。这是一张与众不同的支付卡。";
 "tangempay_onboarding_banner_title" = "Tangem Visa Card";
@@ -1602,7 +1612,7 @@
 "wallet_settings_access_code_title" = "Set/Change access code";
 "wallet_settings_change_access_code_title" = "Change access code";
 "wallet_settings_push_notifications_description" = "Stay notified on wallet incoming transactions and Tangem updates.";
-"wallet_settings_push_notifications_title" = "Transaction Notifications";
+"wallet_settings_push_notifications_title" = "Transaction notifications";
 "wallet_settings_set_access_code_title" = "Set access code";
 "wallet_settings_title" = "Wallet settings";
 "wallet_title" = "Tangem";
@@ -1800,7 +1810,7 @@
 "wc_warning_tx_alert_default_description" = "This transaction appears unusual or risky. Please review it carefully before signing.";
 "welcome_create_wallet_already_have" = "Already have Tangem Wallet?";
 "welcome_create_wallet_feature_assets" = "Thousands of assets";
-"welcome_create_wallet_feature_class" = "Best in class hardware wallet";
+"welcome_create_wallet_feature_class" = "Top-tier hardware wallet";
 "welcome_create_wallet_feature_delivery" = "Fast delivery";
 "welcome_create_wallet_feature_one_tap" = "Start in one tap";
 "welcome_create_wallet_feature_seamless" = "Seamless and secure";
@@ -1809,7 +1819,7 @@
 "welcome_create_wallet_mobile_description_full" = "Create or import a software wallet on your phone.";
 "welcome_create_wallet_mobile_description" = "Create or import a software wallet";
 "welcome_create_wallet_mobile_title" = "Start with Mobile Wallet";
-"welcome_create_wallet_other_method" = "Other method";
+"welcome_create_wallet_other_method" = "Other methods";
 "welcome_create_wallet_use_hardware_description" = "Use a Tangem hardware wallet";
 "welcome_create_wallet_use_hardware_title" = "Learn more & buy";
 "welcome_interrupted_backup_alert_discard" = "捨棄";
