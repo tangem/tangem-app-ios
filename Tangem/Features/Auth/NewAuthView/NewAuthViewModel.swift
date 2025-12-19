@@ -181,7 +181,7 @@ private extension NewAuthViewModel {
             do {
                 let unlockMethod = UserWalletRepositoryUnlockMethod.encryptionKey(userWalletId: userWalletId, encryptionKey: encryptionKey)
                 let userWalletModel = try await userWalletRepository.unlock(with: unlockMethod)
-                signInAnalyticsLogger.logSignInEvent(signInType: signInType)
+                signInAnalyticsLogger.logSignInEvent(signInType: signInType, userWalletModel: userWalletModel)
                 await openMain(userWalletModel: userWalletModel)
             } catch {
                 incomingActionManager.discardIncomingAction()
@@ -194,7 +194,7 @@ private extension NewAuthViewModel {
             do {
                 let unlockMethod = UserWalletRepositoryUnlockMethod.biometrics(context)
                 let userWalletModel = try await userWalletRepository.unlock(with: unlockMethod)
-                signInAnalyticsLogger.logSignInEvent(signInType: signInType)
+                signInAnalyticsLogger.logSignInEvent(signInType: signInType, userWalletModel: userWalletModel)
                 await openMain(userWalletModel: userWalletModel)
             } catch {
                 incomingActionManager.discardIncomingAction()
@@ -253,7 +253,7 @@ private extension NewAuthViewModel {
                 let context = try await UserWalletBiometricsUnlocker().unlock()
                 let userWalletModel = try await viewModel.userWalletRepository.unlock(with: .biometrics(context))
 
-                viewModel.signInAnalyticsLogger.logSignInEvent(signInType: .biometrics)
+                viewModel.signInAnalyticsLogger.logSignInEvent(signInType: .biometrics, userWalletModel: userWalletModel)
 
                 await viewModel.openMain(userWalletModel: userWalletModel)
             } catch {
