@@ -33,7 +33,8 @@ final class CommonWalletConnectAccountsWalletModelProvider: WalletConnectAccount
     init(accountModelsManager: AccountModelsManager) {
         self.accountModelsManager = accountModelsManager
 
-        accountModelsManager.accountModelsPublisher
+        accountModelsManager
+            .accountModelsPublisher
             .withWeakCaptureOf(self)
             .sink { viewModel, accounts in
                 viewModel.accountModels = accounts
