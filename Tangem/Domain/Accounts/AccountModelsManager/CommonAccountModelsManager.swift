@@ -183,6 +183,7 @@ actor CommonAccountModelsManager {
                         self?.unsafeAccountModels = accountModels
                     }
                 })
+                .share(replay: 1)
                 .eraseToAnyPublisher()
 
             unsafeAccountModelsPublisher = publisher
