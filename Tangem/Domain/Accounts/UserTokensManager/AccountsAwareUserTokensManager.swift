@@ -212,15 +212,9 @@ final class AccountsAwareUserTokensManager {
             }
 
             guard let reorderedWalletModelId = reorderedWalletModelIds.popLast() else {
-                let walletModelsCount = walletModelIds.count
-                let allTokensCount = tokens.count
-                let unsupportedTokensCount = tokens.count { $0.walletModelId == nil }
-                assertionFailure(
-                    """
-                    Inconsistency detected: mismatched number of wallet models (\(walletModelsCount)) and the \
-                    number of tokens (\(allTokensCount)) minus the number of unsupported tokens (\(unsupportedTokensCount))
-                    """
-                )
+                // There may be tokens without derivation and thus without a wallet model,
+                // so we just append them, preserving the order
+                reorderedTokens.append(token)
                 continue
             }
 
