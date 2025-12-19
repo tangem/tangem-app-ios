@@ -16,7 +16,7 @@ protocol YieldModuleNetworkManager {
     var markets: [YieldModuleMarketInfo] { get }
     var marketsPublisher: AnyPublisher<[YieldModuleMarketInfo], Never> { get }
 
-    func updateMarkets(chainIDs: [String])
+    func updateMarkets()
 
     func fetchYieldTokenInfo(tokenContractAddress: String, chainId: Int) async throws -> YieldModuleTokenInfo
     func fetchChartData(tokenContractAddress: String, chainId: Int) async throws -> YieldChartData
@@ -30,6 +30,10 @@ final class CommonYieldModuleNetworkManager {
     private let yieldMarketsRepository: YieldModuleMarketsRepository
     private let yieldModuleChartManager: YieldModuleChartManager
 
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
+    private var bag = Set<AnyCancellable>()
+
     private let marketsSubject = CurrentValueSubject<[YieldModuleMarketInfo], Never>([])
 
     init(
@@ -40,6 +44,8 @@ final class CommonYieldModuleNetworkManager {
         self.yieldModuleAPIService = yieldModuleAPIService
         self.yieldMarketsRepository = yieldMarketsRepository
         self.yieldModuleChartManager = yieldModuleChartManager
+
+        bind()
     }
 }
 
@@ -52,9 +58,17 @@ extension CommonYieldModuleNetworkManager: YieldModuleNetworkManager {
         marketsSubject.eraseToAnyPublisher()
     }
 
-    func updateMarkets(chainIDs: [String]) {
+    func updateMarkets() {
+        let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletRepository.models)
+        let chainIDs = Set(
+            walletModels.compactMap { walletModel -> String? in
+                guard walletModel.tokenItem.isToken, walletModel.yieldModuleManager != nil else { return nil }
+                return walletModel.tokenItem.blockchain.chainId.map { String($0) }
+            }
+        )
+
         Task { @MainActor in
-            let markets = await fetchMarkets(chainIDs: chainIDs)
+            let markets = await fetchMarkets(chainIDs: Array(chainIDs))
             marketsSubject.send(markets)
         }
     }
@@ -112,6 +126,53 @@ extension CommonYieldModuleNetworkManager: YieldModuleNetworkManager {
 }
 
 private extension CommonYieldModuleNetworkManager {
+    func bind() {
+        userWalletRepository.eventProvider
+            .filter {
+                switch $0 {
+                case .inserted, .unlocked:
+                    true
+                default:
+                    false
+                }
+            }
+            .withWeakCaptureOf(self)
+            .map { manager, _ in
+                manager.userWalletRepository.models
+            }
+            .map { userWalletModels in
+                userWalletModels.map { userWalletModel in
+                    AccountsFeatureAwareWalletModelsResolver.walletModelsPublisher(for: userWalletModel)
+                }
+            }
+            .flatMapLatest { publishers -> AnyPublisher<[any WalletModel], Never> in
+                guard !publishers.isEmpty else {
+                    return Just([]).eraseToAnyPublisher()
+                }
+
+                return publishers.combineLatest()
+                    .map { $0.flatMap { $0 } }
+                    .eraseToAnyPublisher()
+            }
+            .pairwise()
+            .receiveOnMain()
+            .sink { [weak self] value in
+                guard let self else { return }
+
+                let oldTokenItems = Set(value.0.map(\.tokenItem))
+                let newTokenItems = Set(value.1.map(\.tokenItem))
+
+                let diff = newTokenItems.subtracting(oldTokenItems)
+
+                let didAddEVMBlockchain = diff.contains(where: { $0.isBlockchain && $0.blockchain.isEvm })
+
+                if didAddEVMBlockchain {
+                    updateMarkets()
+                }
+            }
+            .store(in: &bag)
+    }
+
     func fetchMarkets(chainIDs: [String]) async -> [YieldModuleMarketInfo] {
         do {
             let response = try await yieldModuleAPIService.getYieldMarkets(chainIDs: chainIDs)
