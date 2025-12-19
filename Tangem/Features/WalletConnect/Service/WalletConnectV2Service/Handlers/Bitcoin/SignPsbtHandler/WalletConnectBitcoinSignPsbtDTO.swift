@@ -11,14 +11,8 @@ import Foundation
 enum WalletConnectBitcoinSignPsbtDTO {
     struct Request: Codable {
         let psbt: String
-        let signInputs: [SignInput]
+        let signInputs: [WalletConnectPsbtSignInput]
         let broadcast: Bool?
-    }
-
-    struct SignInput: Codable {
-        let address: String
-        let index: Int
-        let sighashTypes: [Int]?
     }
 
     struct Response: Codable {

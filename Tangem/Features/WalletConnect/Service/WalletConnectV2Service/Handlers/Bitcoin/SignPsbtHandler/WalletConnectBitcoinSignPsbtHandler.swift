@@ -18,10 +18,12 @@ final class WalletConnectBitcoinSignPsbtHandler {
     private let signer: TangemSigner
     private let parsedRequest: WalletConnectBitcoinSignPsbtDTO.Request
     private let encoder = JSONEncoder()
+    private let transactionBuilder: WCBtcTransactionBuilder
 
     init(
         request: AnyCodable,
         blockchainId: String,
+        transactionBuilder: WCBtcTransactionBuilder,
         signer: TangemSigner,
         walletModelProvider: WalletConnectWalletModelProvider
     ) throws {
@@ -38,11 +40,13 @@ final class WalletConnectBitcoinSignPsbtHandler {
         walletModel = model
         self.request = request
         self.signer = signer
+        self.transactionBuilder = transactionBuilder
     }
 
     init(
         request: AnyCodable,
         blockchainId: String,
+        transactionBuilder: WCBtcTransactionBuilder,
         signer: TangemSigner,
         wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider,
         accountId: String
@@ -60,6 +64,7 @@ final class WalletConnectBitcoinSignPsbtHandler {
         walletModel = model
         self.request = request
         self.signer = signer
+        self.transactionBuilder = transactionBuilder
     }
 }
 
@@ -94,6 +99,12 @@ extension WalletConnectBitcoinSignPsbtHandler: WalletConnectMessageHandler {
             throw WalletConnectTransactionRequestProcessingError.unsupportedMethod("signPsbt broadcast")
         }
 
+        // Only sign requested inputs
+        guard !parsedRequest.signInputs.isEmpty else {
+            let response = WalletConnectBitcoinSignPsbtDTO.Response(psbt: parsedRequest.psbt, txid: nil)
+            return .response(AnyCodable(response))
+        }
+
         let signedPsbtBase64 = try await sign()
         let response = WalletConnectBitcoinSignPsbtDTO.Response(psbt: signedPsbtBase64, txid: nil)
         return .response(AnyCodable(response))
@@ -104,16 +115,10 @@ extension WalletConnectBitcoinSignPsbtHandler: WalletConnectMessageHandler {
 
 private extension WalletConnectBitcoinSignPsbtHandler {
     func sign() async throws -> String {
-        // Only sign requested inputs
-        guard !parsedRequest.signInputs.isEmpty else {
-            return parsedRequest.psbt
-        }
-
-        // Prepare hashes in original order for multi-sign (one tap)
         let inputsToSign = parsedRequest.signInputs.sorted(by: { $0.index < $1.index })
-        let hashesToSign = try BlockchainSdk.BitcoinPsbtSigningBuilder.hashesToSign(
-            psbtBase64: parsedRequest.psbt,
-            signInputs: inputsToSign.map { BlockchainSdk.BitcoinPsbtSigningBuilder.SignInput(index: $0.index) }
+        let hashesToSign = try transactionBuilder.buildPsbtHashes(
+            from: parsedRequest.psbt,
+            signInputs: inputsToSign
         )
 
         let signatureInfos = try await sign(hashes: hashesToSign)
@@ -127,7 +132,7 @@ private extension WalletConnectBitcoinSignPsbtHandler {
         )
     }
 
-    func signingPublicKey(for inputs: [WalletConnectBitcoinSignPsbtDTO.SignInput]) throws -> Data {
+    func signingPublicKey(for inputs: [WalletConnectPsbtSignInput]) throws -> Data {
         // WC spec provides `address` per input. We validate it's one of our wallet addresses.
         for input in inputs {
             let matches = walletModel.addresses.contains(where: { $0.value.caseInsensitiveCompare(input.address) == .orderedSame })
@@ -136,8 +141,6 @@ private extension WalletConnectBitcoinSignPsbtHandler {
             }
         }
 
-        // Use walletModel public key as signer key.
-        // BDK uses hex-encoded pubkey string as map key; we store raw bytes here.
         return walletModel.publicKey.blockchainKey
     }
 
