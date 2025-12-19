@@ -25,7 +25,8 @@ final class AccountForNFTCollectionProvider {
     }
 
     private func bind() {
-        accountModelsManager.accountModelsPublisher
+        accountModelsManager
+            .accountModelsPublisher
             .compactMap(\.first)
             .withWeakCaptureOf(self)
             .sink { viewModel, accountModel in

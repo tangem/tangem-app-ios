@@ -38,7 +38,8 @@ class CommonNewTokenSelectorWalletsProvider: NewTokenSelectorWalletsProvider {
     // MARK: - Mapping
 
     func mapToNewTokenSelectorWallet(userWalletModel: any UserWalletModel) -> NewTokenSelectorWallet {
-        let accountsPublisher = userWalletModel.accountModelsManager
+        let accountsPublisher = userWalletModel
+            .accountModelsManager
             .accountModelsPublisher
             .withWeakCaptureOf(self)
             .compactMap { provider, accountModels -> NewTokenSelectorWallet.AccountType? in
