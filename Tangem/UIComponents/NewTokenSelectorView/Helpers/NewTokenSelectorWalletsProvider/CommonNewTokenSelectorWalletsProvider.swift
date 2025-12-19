@@ -71,7 +71,7 @@ class CommonNewTokenSelectorWalletsProvider: NewTokenSelectorWalletsProvider {
         )
 
         let sourcePublisherFactory = TokenSectionsSourcePublisherFactory()
-        let tokenSectionsSourcePublisher = sourcePublisherFactory.makeSourcePublisher(for: cryptoAccount)
+        let tokenSectionsSourcePublisher = sourcePublisherFactory.makeSourcePublisher(for: cryptoAccount, in: wallet)
 
         let itemsPublisher = adapter
             .organizedSections(from: tokenSectionsSourcePublisher, on: .global())
