@@ -510,7 +510,7 @@ private extension DetailsViewModel {
             let context = try await UserWalletBiometricsUnlocker().unlock()
             let method = UserWalletRepositoryUnlockMethod.biometricsUserWallet(userWalletId: userWalletModel.userWalletId, context: context)
             let userWalletModel = try await userWalletRepository.unlock(with: method)
-            signInAnalyticsLogger.logSignInEvent(signInType: .biometrics)
+            signInAnalyticsLogger.logSignInEvent(signInType: .biometrics, userWalletModel: userWalletModel)
             onDidUnlock(userWalletModel)
 
         } catch where error.isCancellationError {
@@ -564,7 +564,7 @@ private extension DetailsViewModel {
             do {
                 let method = UserWalletRepositoryUnlockMethod.biometrics(context)
                 let userWalletModel = try await userWalletRepository.unlock(with: method)
-                signInAnalyticsLogger.logSignInEvent(signInType: signInType)
+                signInAnalyticsLogger.logSignInEvent(signInType: signInType, userWalletModel: userWalletModel)
                 onDidUnlock(userWalletModel)
 
             } catch {
@@ -581,7 +581,7 @@ private extension DetailsViewModel {
             do {
                 let method = UserWalletRepositoryUnlockMethod.encryptionKey(userWalletId: userWalletId, encryptionKey: encryptionKey)
                 let userWalletModel = try await userWalletRepository.unlock(with: method)
-                signInAnalyticsLogger.logSignInEvent(signInType: signInType)
+                signInAnalyticsLogger.logSignInEvent(signInType: signInType, userWalletModel: userWalletModel)
                 onDidUnlock(userWalletModel)
 
             } catch {
