@@ -21,6 +21,7 @@ public struct CustomSearchBar: View {
     @State private var isEditing: Bool = false
     private var onEditingChanged: ((_ isEditing: Bool) -> Void)?
     private var clearButtonAction: (() -> Void)?
+    private var cancelButtonAction: (() -> Void)?
 
     @FocusState private var isFocused: Bool
 
@@ -31,13 +32,15 @@ public struct CustomSearchBar: View {
         placeholder: String,
         keyboardType: UIKeyboardType = .default,
         style: Style = .default,
-        clearButtonAction: (() -> Void)? = nil
+        clearButtonAction: (() -> Void)? = nil,
+        cancelButtonAction: (() -> Void)? = nil,
     ) {
         _searchText = searchText
         self.placeholder = placeholder
         self.keyboardType = keyboardType
         self.style = style
         self.clearButtonAction = clearButtonAction
+        self.cancelButtonAction = cancelButtonAction
     }
 
     public var body: some View {
@@ -106,8 +109,8 @@ public struct CustomSearchBar: View {
 
     private var cancelButton: some View {
         Button {
-            if let clearButtonAction {
-                clearButtonAction()
+            if let cancelButtonAction {
+                cancelButtonAction()
             } else {
                 searchText = ""
             }
@@ -173,7 +176,8 @@ public extension CustomSearchBar {
         CustomSearchBar(
             searchText: text,
             placeholder: Localization.commonSearch,
-            clearButtonAction: {}
+            clearButtonAction: {},
+            cancelButtonAction: {},
         )
         .padding(.horizontal, 16)
         .padding(.top, 20)
@@ -189,7 +193,8 @@ public extension CustomSearchBar {
         CustomSearchBar(
             searchText: text,
             placeholder: Localization.commonSearch,
-            clearButtonAction: {}
+            clearButtonAction: {},
+            cancelButtonAction: {}
         )
         .padding(.horizontal, 16)
     }
