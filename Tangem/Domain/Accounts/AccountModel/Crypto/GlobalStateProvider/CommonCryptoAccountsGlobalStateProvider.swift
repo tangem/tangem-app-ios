@@ -13,14 +13,9 @@ import TangemFoundation
 
 final class CommonCryptoAccountsGlobalStateProvider {
     private let didChangeSubject = PassthroughSubject<Void, Never>()
-
-    private var unsafeCryptoAccountsCount: [AnyHashable: Int] = [:] {
-        didSet { didChangeSubject.send() }
-    }
-
+    private var unsafeCryptoAccountsCount: [AnyHashable: Int] = [:]
     private var unsafeSubscriptions: [AnyHashable: AnyCancellable] = [:]
-
-    private let criticalSection = Lock(isRecursive: true)
+    private let criticalSection = Lock(isRecursive: false)
 
     fileprivate init() {}
 }
@@ -29,21 +24,29 @@ final class CommonCryptoAccountsGlobalStateProvider {
 
 extension CommonCryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider {
     func register<T, U>(_ manager: T, forIdentifier identifier: U) where T: AccountModelsManager, U: Hashable {
+        let subscription = manager
+            .cryptoAccountModelsPublisher
+            .map(\.count)
+            .withWeakCaptureOf(self)
+            .sink { provider, count in
+                provider.onCryptoAccountsCountChanged(identifier: identifier, count: count)
+            }
+
         criticalSection {
-            unsafeSubscriptions[identifier] = manager
-                .cryptoAccountModelsPublisher
-                .map(\.count)
-                .withWeakCaptureOf(self)
-                .sink { provider, count in
-                    provider.onCryptoAccountsCountChanged(identifier: identifier, count: count)
-                }
+            unsafeSubscriptions[identifier] = subscription
         }
     }
 
     func unregister<T, U>(_ manager: T, forIdentifier identifier: U) where T: AccountModelsManager, U: Hashable {
-        criticalSection {
+        let hasChanges = criticalSection {
             unsafeSubscriptions.removeValue(forKey: identifier)
-            unsafeCryptoAccountsCount.removeValue(forKey: identifier)
+            let removedValue = unsafeCryptoAccountsCount.removeValue(forKey: identifier)
+
+            return removedValue != nil
+        }
+
+        if hasChanges {
+            didChangeSubject.send()
         }
     }
 
@@ -70,8 +73,15 @@ extension CommonCryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProv
     }
 
     private func onCryptoAccountsCountChanged<T>(identifier: T, count: Int) where T: Hashable {
-        criticalSection {
+        let hasChanges = criticalSection {
+            let oldValue = unsafeCryptoAccountsCount[identifier]
             unsafeCryptoAccountsCount[identifier] = count
+
+            return oldValue != count
+        }
+
+        if hasChanges {
+            didChangeSubject.send()
         }
     }
 }
