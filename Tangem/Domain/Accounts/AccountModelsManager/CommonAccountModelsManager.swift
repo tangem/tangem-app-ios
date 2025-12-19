@@ -26,10 +26,12 @@ actor CommonAccountModelsManager {
     private let executor: any SerialExecutor
     private let userWalletId: UserWalletId
     private let areHDWalletsSupported: Bool
+    private var cache: Cache = [:]
 
-    /// - Note: Manual synchronization is used for reads/writes, hence it is safe to mark this as `nonisolated(unsafe)`.
+    // Manual synchronization is used for reads/writes, hence it is safe to mark this group of properties as `nonisolated(unsafe)`.
     private nonisolated(unsafe) var unsafeAccountModelsPublisher: AnyPublisher<[AccountModel], Never>?
     private nonisolated(unsafe) var unsafeAccountModels: [AccountModel] = []
+
     private nonisolated let criticalSection: Lock
 
     init(
@@ -69,10 +71,7 @@ actor CommonAccountModelsManager {
         }
     }
 
-    private func makeCryptoAccountModels(
-        from storedCryptoAccounts: [StoredCryptoAccount],
-        cache: inout Cache
-    ) -> [any CryptoAccountModel] {
+    private func makeCryptoAccountModels(from storedCryptoAccounts: [StoredCryptoAccount]) -> [any CryptoAccountModel] {
         // [REDACTED_TODO_COMMENT]
         let currentAccountIds = cache.keys.toSet()
         var storedCryptoAccountsKeyedByAccountIds: [AccountId: StoredCryptoAccount] = [:]
@@ -165,14 +164,13 @@ actor CommonAccountModelsManager {
                 return publisher
             }
 
-            var cache: Cache = [:]
             let publisher = cryptoAccountsRepository
                 .cryptoAccountsPublisher
                 .combineLatest(cryptoAccountsGlobalStateProvider.globalCryptoAccountsStatePublisher())
                 .withWeakCaptureOf(self)
                 .asyncMap { manager, input -> [AccountModel] in
                     let (storedCryptoAccounts, globalState) = input
-                    let cryptoAccountModels = await manager.makeCryptoAccountModels(from: storedCryptoAccounts, cache: &cache)
+                    let cryptoAccountModels = await manager.makeCryptoAccountModels(from: storedCryptoAccounts)
                     let cryptoAccountsBuilder = CryptoAccountsBuilder(globalState: globalState)
                     let cryptoAccounts = cryptoAccountsBuilder.build(from: cryptoAccountModels)
 
