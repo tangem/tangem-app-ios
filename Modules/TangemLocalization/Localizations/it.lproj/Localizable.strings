@@ -99,10 +99,10 @@
 "app_settings_default_fee_footer" = "Enable Default Fee to set transaction fees automatically and skip the Fee page when sending funds. You can always go back to this page if necessary.";
 "app_settings_default_fee" = "Default Fee";
 "app_settings_off_biometrics_alert_message" = "Disabling %1$@ will require you to enter your passcode to unlock the app and to interact with your wallet.";
-"app_settings_off_require_access_code_alert_message" = "You’ll be asked for your wallet’s access code later so we can securely store it for future use";
-"app_settings_off_saved_access_code_alert_message" = "This will delete all the saved wallet access codes. Any further operation with the wallet will require submitting the access code.";
+"app_settings_off_require_access_code_alert_message" = "You'll be asked for your access code later for secure storage.";
+"app_settings_off_saved_access_code_alert_message" = "This will delete all saved wallet access codes. You'll need to enter the access code again to use the wallet.";
 "app_settings_off_saved_wallet_alert_message" = "Removing the saved devices deletes all the saved wallets and their access codes from the app.";
-"app_settings_on_require_access_code_alert_message" = "This will delete all the saved wallet access codes. Any further interaction with the wallet will require submitting the access code.";
+"app_settings_on_require_access_code_alert_message" = "This will delete all saved wallet access codes. You’ll need to enter the access code again to use the wallet.";
 "app_settings_require_access_code_footer" = "This option turns off biometrics for sensitive actions. You’ll need to enter your access code each time you sign a transaction.";
 "app_settings_require_access_code" = "Require Access Code";
 "app_settings_saved_access_codes_footer" = "Biometric authentication will be requested instead of the access code for interactions with your card or ring.";
@@ -160,7 +160,7 @@
 "card_reset_alert_finish_ok_button" = "Upgrade again";
 "card_reset_alert_finish_title" = "Reset complete";
 "card_reset_alert_incomplete_message" = "We recommend completing the reset process for all Tangem devices in this wallet.";
-"card_reset_alert_incomplete_title" = "You haven’t reset all your Tangem devices";
+"card_reset_alert_incomplete_title" = "Some Tangem devices still need to be reset.";
 "card_settings_access_code_recovery_disabled_description" = "Disable this option if you don't want this card to be used to reset access codes on other cards or rings in this wallet. Please note that this will also prevent you from resetting the access code on this card.";
 "card_settings_access_code_recovery_enabled_description" = "Allows you to use this card to reset access code on other cards in this wallet";
 "card_settings_access_code_recovery_footer" = "Disable the ability to reset the access code on this card or other cards in this wallet";
@@ -349,7 +349,8 @@
 "common_transaction_status" = "Transaction status";
 "common_transactions" = "Transactions";
 "common_transfer" = "Transfer";
-"common_unable_to_load" = "Unable to load the data…";
+"common_unable_to_load" = "Unable to load data…";
+"common_understand_continue" = "I understand, continue";
 "common_understand" = "I understand";
 "common_unknown_error" = "There was an error. Please try again.";
 "common_unreachable" = "Unreachable";
@@ -614,6 +615,8 @@
 "initial_message_purge_wallet_body" = "To reset to factory settings tap the card or ring as shown above and do not remove until the end of the operation";
 "initial_message_reset_backup_card_header" = "Tap the card #%@ of the wallet";
 "initial_message_sign_body" = "To sign tap the card or ring as shown above and do not remove until the end of the operation";
+"jailbreak_warning_message" = "Devices with jailbreak are considered less secure. Your data may be exposed to additional risks.";
+"jailbreak_warning_title" = "Jailbreak detected";
 "key_invalidated_warning_description" = "You have updated biometrics, scan your card or ring to enter";
 "koinos_insufficient_balance_to_send_koin_description" = "Your balance should be higher than the fee value to make a transfer";
 "koinos_insufficient_balance_to_send_koin_title" = "Not enough balance";
@@ -742,7 +745,7 @@
 "markets_tooltip_title" = "Add tokens";
 "markets_yield_supply_banner_description" = "Power up your assets while supplying them with instant access. %@";
 "markets_yield_supply_banner_title" = "Activate Yield Mode";
-"mobile_wallet_requires_min_os_warning_body" = "You must update to %1$@ in order to create mobile wallet";
+"mobile_wallet_requires_min_os_warning_body" = "You must update to %1$@  before creating a mobile wallet";
 "mobile_wallet_requires_min_os_warning_title" = "Mobile Wallet requires %1$@ or later";
 "news_all_news" = "All news";
 "news_stay_in_the_loop" = "Stay in the loop";
@@ -975,6 +978,7 @@
 "reset_card_to_factory_button_title" = "Reset the card";
 "reset_card_to_factory_condition_1" = "I understand that after performing this action, I will no longer have access to the current wallet";
 "reset_card_to_factory_condition_2" = "I realize that I can't use this card to recover my access code on the other cards of the current wallet";
+"reset_card_to_factory_condition_3" = "I understand that I will completely lose access to my Tangem Pay Card and all funds on it without the possibility of recovery";
 "reset_card_with_backup_to_factory_message" = "Factory Reset will completely delete the wallet from the selected card or ring. You will not be able to restore the current wallet or use the card or ring to recover the access code.";
 "reset_card_without_backup_to_factory_message" = "Factory Reset will completely delete the wallet from the selected card or ring and remove it from the app. You will not be able to restore the current wallet.";
 "reset_cards_dialog_complete_description" = "All Tangem devices have been reset.";
@@ -1303,6 +1307,7 @@
 "tangem_pay_freeze_card_success" = "La tua carta è congelata.";
 "tangem_pay_get_help" = "Ottenere aiuto";
 "tangem_pay_other" = "Altro";
+"tangem_pay_rooted_device_subtitle" = "Unable to use on rooted devices";
 "tangem_pay_status_completed" = "Completato";
 "tangem_pay_status_declined" = "Rifiutato";
 "tangem_pay_status_pending" = "In sospeso";
@@ -1316,6 +1321,7 @@
 "tangem_pay_unfreeze_card_success" = "La tua carta è sbloccata.";
 "tangem_pay_withdrawal" = "Prelievo";
 "tangempay_account_unable_to_use_rooted" = "Unable to use on rooted device";
+"tangempay_cancel_kyc" = "Cancel KYC";
 "tangempay_card_details_add_funds_subtitle" = "Opzioni di ricarica";
 "tangempay_card_details_add_funds" = "Aggiungi fondi";
 "tangempay_card_details_card_number" = "Numero carta";
@@ -1343,6 +1349,7 @@
 "tangempay_card_details_open_wallet_step_5" = "Tutto pronto! La tua carta è pronta per l'uso.";
 "tangempay_card_details_open_wallet_title_apple" = "Aggiungi carta ad Apple Pay";
 "tangempay_card_details_open_wallet_title" = "Aggiungi carta a Google Pay";
+"tangempay_card_details_pin_code" = "PIN code";
 "tangempay_card_details_receive_description" = "Condividi il tuo indirizzo o mostra il QR code";
 "tangempay_card_details_receive_error_description" = "Technical issues detected. Please try again later or contact support.";
 "tangempay_card_details_receive_error_title" = "Ricezione non disponibile al momento";
@@ -1351,6 +1358,8 @@
 "tangempay_card_details_swap_description" = "Scambia qualsiasi asset nel tuo portafoglio con una carta";
 "tangempay_card_details_title" = "Dettagli carta";
 "tangempay_card_details_unfreeze_card" = "Sblocca carta";
+"tangempay_card_details_view_pin_code_description" = "Come back to the app if you forget it.";
+"tangempay_card_details_view_pin_code_title" = "Your PIN code";
 "tangempay_card_details_withdraw_error_title" = "Ritiro non disponibile ora";
 "tangempay_card_details_withdraw_in_progress_description" = "Non puoi avviare uno swap o un nuovo prelievo finché quello attuale non è terminato";
 "tangempay_card_details_withdraw_in_progress_title" = "Prelievo in corso";
@@ -1373,6 +1382,7 @@
 "tangempay_kyc_failed_title" = "Purtroppo non siamo riusciti a verificare la tua identità";
 "tangempay_kyc_in_progress_notification_button" = "Visualizza stato";
 "tangempay_kyc_in_progress_notification_title" = "KYC in corso per Tangem Pay";
+"tangempay_kyc_in_progress_popup_description" = "Use the buttons below to view your current KYC status or cancel it.";
 "tangempay_kyc_in_progress" = "KYC in corso";
 "tangempay_onboarding_banner_description" = "Utilizza le tue attività per fare acquisti nel mondo reale. \nÈ una carta di pagamento diversa da qualsiasi altra.";
 "tangempay_onboarding_banner_title" = "Tangem Visa Card";
@@ -1477,7 +1487,7 @@
 "user_push_notification_agreement_header" = "Would you like to use\nPush-notifications?";
 "user_push_notification_banner_subtitle" = "Enable push notifications to receive alerts when funds arrive in your wallet.";
 "user_push_notification_banner_title" = "Don't Miss a Transaction";
-"user_wallet_list_add_button" = "Add new wallet";
+"user_wallet_list_add_button" = "Add Wallet";
 "user_wallet_list_delete_hw_prompt" = "If you delete this wallet without a backup, you will permanently lose access to your funds.";
 "user_wallet_list_delete_prompt" = "Are you sure you want to forget this wallet?";
 "user_wallet_list_error_wallet_already_saved" = "This wallet has already been saved, you can add another one";
@@ -1602,7 +1612,7 @@
 "wallet_settings_access_code_title" = "Set/Change access code";
 "wallet_settings_change_access_code_title" = "Change access code";
 "wallet_settings_push_notifications_description" = "Stay notified on wallet incoming transactions and Tangem updates.";
-"wallet_settings_push_notifications_title" = "Transaction Notifications";
+"wallet_settings_push_notifications_title" = "Transaction notifications";
 "wallet_settings_set_access_code_title" = "Set access code";
 "wallet_settings_title" = "Wallet settings";
 "wallet_title" = "Tangem";
@@ -1800,7 +1810,7 @@
 "wc_warning_tx_alert_default_description" = "This transaction appears unusual or risky. Please review it carefully before signing.";
 "welcome_create_wallet_already_have" = "Already have Tangem Wallet?";
 "welcome_create_wallet_feature_assets" = "Thousands of assets";
-"welcome_create_wallet_feature_class" = "Best in class hardware wallet";
+"welcome_create_wallet_feature_class" = "Top-tier hardware wallet";
 "welcome_create_wallet_feature_delivery" = "Fast delivery";
 "welcome_create_wallet_feature_one_tap" = "Start in one tap";
 "welcome_create_wallet_feature_seamless" = "Seamless and secure";
@@ -1809,7 +1819,7 @@
 "welcome_create_wallet_mobile_description_full" = "Create or import a software wallet on your phone.";
 "welcome_create_wallet_mobile_description" = "Create or import a software wallet";
 "welcome_create_wallet_mobile_title" = "Start with Mobile Wallet";
-"welcome_create_wallet_other_method" = "Other method";
+"welcome_create_wallet_other_method" = "Other methods";
 "welcome_create_wallet_use_hardware_description" = "Use a Tangem hardware wallet";
 "welcome_create_wallet_use_hardware_title" = "Learn more & buy";
 "welcome_interrupted_backup_alert_discard" = "Discard";
