@@ -171,6 +171,11 @@ final class TangemPayAccount {
     func loadCustomerInfo() -> Task<Void, Never> {
         runTask(in: self) { tangemPayAccount in
             do {
+                if tangemPayAccount.authorizer.state.authorized == nil {
+                    tangemPayAccount.authorizer.setAuthorized()
+                    return
+                }
+
                 let customerInfo = try await tangemPayAccount.customerInfoManagementService.loadCustomerInfo()
                 tangemPayAccount.customerInfoSubject.send(customerInfo)
 
