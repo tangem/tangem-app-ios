@@ -356,11 +356,14 @@ private extension MobileOnboardingAccessCodeViewModel {
             title: Localization.accessCodeAlertValidationTitle,
             message: Localization.accessCodeAlertValidationDescription,
             with: .init(
-                primaryButton: .default(
+                primaryButton: .destructive(
                     Text(Localization.accessCodeAlertValidationOk),
                     action: weakify(self, forFunction: MobileOnboardingAccessCodeViewModel.onAccessCodeValidationOkTap)
                 ),
-                secondaryButton: .cancel(Text(Localization.accessCodeAlertValidationCancel))
+                secondaryButton: .default(
+                    Text(Localization.accessCodeAlertValidationCancel),
+                    action: {}
+                ),
             )
         )
     }
