@@ -48,7 +48,8 @@ struct PendingTransactionRecordMapper {
             amount: amount(for: transaction),
             isOutgoing: !transaction.isIncoming,
             transactionType: transactionType(for: transaction),
-            status: .inProgress
+            status: .inProgress,
+            isFromYieldContract: false
         )
     }
 
