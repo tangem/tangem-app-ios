@@ -47,9 +47,9 @@ final class ActionButtonsBuyCoordinator: CoordinatorObject {
                     userWalletModel: options.userWalletModel
                 )
             )
-        case .new:
+        case .new(let tokenSelectorViewModel):
             viewState = .newTokenList(
-                NewActionButtonsBuyViewModel(coordinator: self)
+                AccountsAwareActionButtonsBuyViewModel(tokenSelectorViewModel: tokenSelectorViewModel, coordinator: self)
             )
         }
     }
@@ -87,7 +87,7 @@ extension ActionButtonsBuyCoordinator: ActionButtonsBuyRoutable {
 extension ActionButtonsBuyCoordinator {
     enum Options {
         case `default`(options: DefaultActionButtonBuyCoordinatorOptions)
-        case new
+        case new(tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel)
 
         struct DefaultActionButtonBuyCoordinatorOptions {
             let userWalletModel: UserWalletModel
@@ -98,7 +98,7 @@ extension ActionButtonsBuyCoordinator {
 
     enum RootViewState: Equatable {
         case tokenList(ActionButtonsBuyViewModel)
-        case newTokenList(NewActionButtonsBuyViewModel)
+        case newTokenList(AccountsAwareActionButtonsBuyViewModel)
         case onramp(SendCoordinator)
 
         static func == (lhs: RootViewState, rhs: RootViewState) -> Bool {
