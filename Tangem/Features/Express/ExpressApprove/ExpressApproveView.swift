@@ -121,6 +121,7 @@ struct ExpressApproveView_Preview: PreviewProvider {
                     source: ExpressInteractorWalletModelWrapper(
                         userWalletInfo: UserWalletModelMock().userWalletInfo,
                         walletModel: CommonWalletModel.mockETH,
+                        expressOperationType: .swap,
                     ),
                     providerName: "1inch",
                     selectedPolicy: .unlimited,
