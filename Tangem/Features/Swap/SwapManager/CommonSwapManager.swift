@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import BlockchainSdk
 import TangemExpress
 import TangemFoundation
 
@@ -122,6 +123,26 @@ extension CommonSwapManager: SwapManager {
         } catch {
             throw error
         }
+    }
+}
+
+// MARK: - SwapManager
+
+extension CommonSwapManager: SendApproveDataBuilderInput {
+    var selectedExpressProvider: ExpressProvider? {
+        get async { await selectedProvider?.provider }
+    }
+
+    var approveViewModelInput: (any ApproveViewModelInput)? {
+        interactor
+    }
+
+    var selectedPolicy: ApprovePolicy? {
+        guard case .permissionRequired(let permissionRequired, _) = interactor.getState() else {
+            return nil
+        }
+
+        return permissionRequired.policy
     }
 }
 
