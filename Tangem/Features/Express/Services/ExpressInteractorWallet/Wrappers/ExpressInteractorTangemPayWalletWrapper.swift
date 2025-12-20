@@ -84,5 +84,7 @@ extension ExpressInteractorTangemPayWalletWrapper {
 
     var balanceProvider: ExpressBalanceProvider { _balanceProvider }
 
-    var supportedProviders: [ExpressProviderType] { [.cex] }
+    var operationType: ExpressOperationType { .swap }
+
+    var supportedProvidersFilter: SupportedProvidersFilter { .cex }
 }

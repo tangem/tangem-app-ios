@@ -67,7 +67,8 @@ extension SwapTokenSelectorViewModel: AccountsAwareTokenSelectorViewModelOutput 
     func usedDidSelect(item: AccountsAwareTokenSelectorItem) {
         let expressInteractorWallet = ExpressInteractorWalletModelWrapper(
             userWalletInfo: item.userWalletInfo,
-            walletModel: item.walletModel
+            walletModel: item.walletModel,
+            expressOperationType: .swap
         )
 
         switch swapDirection {
