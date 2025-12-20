@@ -14,6 +14,7 @@ public struct ExpressProvider: Hashable {
     public let id: Id
     public let name: String
     public let type: ExpressProviderType
+    public let exchangeOnlyWithinSingleAddress: Bool
     public let imageURL: URL?
     public let termsOfUse: URL?
     public let privacyPolicy: URL?
@@ -24,6 +25,7 @@ public struct ExpressProvider: Hashable {
         id: Id,
         name: String,
         type: ExpressProviderType,
+        exchangeOnlyWithinSingleAddress: Bool,
         imageURL: URL?,
         termsOfUse: URL?,
         privacyPolicy: URL?,
@@ -33,6 +35,7 @@ public struct ExpressProvider: Hashable {
         self.id = id
         self.name = name
         self.type = type
+        self.exchangeOnlyWithinSingleAddress = exchangeOnlyWithinSingleAddress
         self.imageURL = imageURL
         self.termsOfUse = termsOfUse
         self.privacyPolicy = privacyPolicy
