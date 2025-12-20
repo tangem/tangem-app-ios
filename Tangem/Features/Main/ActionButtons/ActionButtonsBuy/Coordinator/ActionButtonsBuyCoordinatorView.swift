@@ -25,7 +25,7 @@ struct ActionButtonsBuyCoordinatorView: View {
                 .transition(SendTransitions.transition)
             case .newTokenList(let actionButtonsBuyViewModel):
                 NavigationStack {
-                    NewActionButtonsBuyView(viewModel: actionButtonsBuyViewModel)
+                    AccountsAwareActionButtonsBuyView(viewModel: actionButtonsBuyViewModel)
                 }
                 .transition(SendTransitions.transition)
             case .onramp(let sendCoordinator):
