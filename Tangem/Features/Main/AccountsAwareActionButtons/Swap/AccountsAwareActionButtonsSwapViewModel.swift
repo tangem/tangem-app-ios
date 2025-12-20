@@ -91,12 +91,14 @@ extension AccountsAwareActionButtonsSwapViewModel: AccountsAwareTokenSelectorVie
                             userWalletInfo: item.userWalletInfo,
                             source: ExpressInteractorWalletModelWrapper(
                                 userWalletInfo: source.userWalletInfo,
-                                walletModel: source.walletModel
+                                walletModel: source.walletModel,
+                                expressOperationType: .swap
                             ),
                             destination: .chosen(
                                 ExpressInteractorWalletModelWrapper(
                                     userWalletInfo: item.userWalletInfo,
-                                    walletModel: item.walletModel
+                                    walletModel: item.walletModel,
+                                    expressOperationType: .swap
                                 )
                             )
                         )
