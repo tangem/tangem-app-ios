@@ -158,16 +158,8 @@ extension SendCoordinator: SendRoutable {
         dismiss(with: .openFeeCurrency(feeCurrency: feeCurrency))
     }
 
-    func openApproveView(settings: ExpressApproveViewModel.Settings, approveViewModelInput: any ApproveViewModelInput) {
-        expressApproveViewModel = .init(
-            settings: settings,
-            feeFormatter: CommonFeeFormatter(
-                balanceFormatter: .init(),
-                balanceConverter: .init()
-            ),
-            approveViewModelInput: approveViewModelInput,
-            coordinator: self
-        )
+    func openApproveView(expressApproveViewModelInput: ExpressApproveViewModel.Input) {
+        expressApproveViewModel = .init(input: expressApproveViewModelInput, coordinator: self)
     }
 
     func openFeeSelector(viewModel: FeeSelectorContentViewModel) {
@@ -284,7 +276,9 @@ extension SendCoordinator: ExpressApproveRoutable {
         expressApproveViewModel = nil
     }
 
-    func openLearnMore() {}
+    func openLearnMore() {
+        safariManager.openURL(TangemBlogUrlBuilder().url(post: .giveRevokePermission))
+    }
 }
 
 // MARK: - OnrampCountrySelectorRoutable
