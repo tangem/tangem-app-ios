@@ -31,7 +31,7 @@ struct ActionButtonsSwapCoordinatorView: View {
                 .transition(.opacity)
             case .new(let viewModel):
                 NavigationStack {
-                    NewActionButtonsSwapView(viewModel: viewModel)
+                    AccountsAwareActionButtonsSwapView(viewModel: viewModel)
                 }
                 .transition(SendTransitions.transition)
             case .express(let expressCoordinator):
