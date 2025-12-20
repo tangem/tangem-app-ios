@@ -361,7 +361,6 @@
 		2D245E442E97EB56006AD2DC /* MarketsTokenQuoteHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D245DEF2E97EB56006AD2DC /* MarketsTokenQuoteHelper.swift */; };
 		2D245E452E97EB56006AD2DC /* MarketsPortfolioContainerRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D245E092E97EB56006AD2DC /* MarketsPortfolioContainerRoutable.swift */; };
 		2D245E462E97EB56006AD2DC /* MarketsPortfolioContainerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D245E0B2E97EB56006AD2DC /* MarketsPortfolioContainerViewModel.swift */; };
-		2D245E472E97EB56006AD2DC /* MarketsTokenDetailsPortfolioCoordinatorFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D245DEA2E97EB56006AD2DC /* MarketsTokenDetailsPortfolioCoordinatorFactory.swift */; };
 		2D245E482E97EB56006AD2DC /* MarketsTokenDetailsPricePerformanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D245E142E97EB56006AD2DC /* MarketsTokenDetailsPricePerformanceView.swift */; };
 		2D245E492E97EB56006AD2DC /* MarketsHistoryChartXAxisValueFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D245DFB2E97EB56006AD2DC /* MarketsHistoryChartXAxisValueFormatter.swift */; };
 		2D245E4A2E97EB56006AD2DC /* MarketsTokenDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D245E2F2E97EB56006AD2DC /* MarketsTokenDetailsView.swift */; };
@@ -5057,7 +5056,6 @@
 		2D245DD62E97E9BD006AD2DC /* MarketsTokenDetailsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsTokenDetailsModel.swift; sourceTree = "<group>"; };
 		2D245DD72E97E9BD006AD2DC /* MarketsTokenModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsTokenModel.swift; sourceTree = "<group>"; };
 		2D245DD82E97E9BD006AD2DC /* MarketsTokensSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsTokensSummary.swift; sourceTree = "<group>"; };
-		2D245DEA2E97EB56006AD2DC /* MarketsTokenDetailsPortfolioCoordinatorFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsTokenDetailsPortfolioCoordinatorFactory.swift; sourceTree = "<group>"; };
 		2D245DEC2E97EB56006AD2DC /* MarketsTokenDetailsDateFormatterRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsTokenDetailsDateFormatterRepository.swift; sourceTree = "<group>"; };
 		2D245DED2E97EB56006AD2DC /* MarketsTokenDetailsDateHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsTokenDetailsDateHelper.swift; sourceTree = "<group>"; };
 		2D245DEE2E97EB56006AD2DC /* MarketsTokenDetailsPriceInfoHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsTokenDetailsPriceInfoHelper.swift; sourceTree = "<group>"; };
@@ -10233,14 +10231,6 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
-		2D245DEB2E97EB56006AD2DC /* Common */ = {
-			isa = PBXGroup;
-			children = (
-				2D245DEA2E97EB56006AD2DC /* MarketsTokenDetailsPortfolioCoordinatorFactory.swift */,
-			);
-			path = Common;
-			sourceTree = "<group>";
-		};
 		2D245DF02E97EB56006AD2DC /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
@@ -10417,7 +10407,6 @@
 		2D245E322E97EB56006AD2DC /* MarketsTokenDetails */ = {
 			isa = PBXGroup;
 			children = (
-				2D245DEB2E97EB56006AD2DC /* Common */,
 				2D245DF02E97EB56006AD2DC /* Helpers */,
 				2D245E2B2E97EB56006AD2DC /* Subviews */,
 				2D245E2C2E97EB56006AD2DC /* MarketsTokenDetailsCoordinator.swift */,
@@ -28017,7 +28006,6 @@
 				2D245E442E97EB56006AD2DC /* MarketsTokenQuoteHelper.swift in Sources */,
 				2D245E452E97EB56006AD2DC /* MarketsPortfolioContainerRoutable.swift in Sources */,
 				2D245E462E97EB56006AD2DC /* MarketsPortfolioContainerViewModel.swift in Sources */,
-				2D245E472E97EB56006AD2DC /* MarketsTokenDetailsPortfolioCoordinatorFactory.swift in Sources */,
 				2D245E482E97EB56006AD2DC /* MarketsTokenDetailsPricePerformanceView.swift in Sources */,
 				2D245E492E97EB56006AD2DC /* MarketsHistoryChartXAxisValueFormatter.swift in Sources */,
 				2D245E4A2E97EB56006AD2DC /* MarketsTokenDetailsView.swift in Sources */,
