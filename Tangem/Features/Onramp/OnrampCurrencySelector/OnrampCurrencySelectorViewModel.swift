@@ -17,7 +17,7 @@ enum OnrampCurrencySelectorState {
 
 final class OnrampCurrencySelectorViewModel: Identifiable, ObservableObject {
     @Published var searchText: String = ""
-    @Published private(set) var currencies: LoadingValue<OnrampCurrencySelectorState> = .loading
+    @Published private(set) var currencies: LoadingResult<OnrampCurrencySelectorState, any Error> = .loading
 
     private let repository: OnrampRepository
     private let dataRepository: OnrampDataRepository
@@ -51,7 +51,7 @@ final class OnrampCurrencySelectorViewModel: Identifiable, ObservableObject {
                 viewModel.currenciesSubject.send(currencies)
             } catch {
                 await runOnMain {
-                    viewModel.currencies = .failedToLoad(error: error)
+                    viewModel.currencies = .failure(error)
                 }
             }
         }
@@ -67,7 +67,7 @@ private extension OnrampCurrencySelectorViewModel {
         .withWeakCaptureOf(self)
         .map { viewModel, data in
             let (currencies, searchText) = data
-            return .loaded(
+            return .success(
                 viewModel.mapToState(
                     currencies: currencies,
                     searchText: searchText

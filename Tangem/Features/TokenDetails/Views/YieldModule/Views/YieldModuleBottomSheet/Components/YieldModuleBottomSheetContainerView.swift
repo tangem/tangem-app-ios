@@ -95,7 +95,7 @@ struct YieldModuleBottomSheetContainerView<
                 .padding(.bottom, 18)
                 .background(ListFooterOverlayShadowView())
         }
-        .scrollBounceBehaviorBackport(.basedOnSize)
+        .scrollBounceBehavior(.basedOnSize)
     }
 
     // MARK: - Sub Views

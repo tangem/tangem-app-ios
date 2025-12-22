@@ -48,7 +48,7 @@ extension CreateWalletSelectorCoordinator: CreateWalletSelectorRoutable {
         }
 
         let coordinator = MobileCreateWalletCoordinator(dismissAction: dismissAction)
-        coordinator.start(with: MobileCreateWalletCoordinator.InputOptions())
+        coordinator.start(with: MobileCreateWalletCoordinator.InputOptions(source: .createWalletIntro))
         mobileCreateWalletCoordinator = coordinator
     }
 

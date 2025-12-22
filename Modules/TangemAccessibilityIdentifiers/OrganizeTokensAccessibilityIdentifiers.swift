@@ -18,6 +18,11 @@ public enum OrganizeTokensAccessibilityIdentifiers {
         return "token_\(name)"
     }
 
+    public static func tokenAtPosition(name: String, outerSection: Int, innerSection: Int, item: Int) -> String {
+        return "token_\(outerSection)_\(innerSection)_\(item)_\(name)"
+    }
+
+    @available(iOS, deprecated: 100000.0, message: "Will be removed after accounts migration is complete ([REDACTED_INFO])")
     public static func tokenAtPosition(name: String, section: Int, item: Int) -> String {
         return "token_\(section)_\(item)_\(name)"
     }

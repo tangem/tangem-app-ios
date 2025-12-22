@@ -28,6 +28,5 @@ struct MobileCreateWalletCoordinatorView: CoordinatorView {
                 OnboardingCoordinatorView(coordinator: $0)
                     .navigationBarHidden(true)
             }
-            .emptyNavigationLink()
     }
 }

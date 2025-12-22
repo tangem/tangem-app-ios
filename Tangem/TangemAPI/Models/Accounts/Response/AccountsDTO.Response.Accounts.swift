@@ -17,9 +17,15 @@ extension AccountsDTO.Response {
         typealias SortType = UserTokenList.SortType
 
         struct Wallet: Decodable {
-            let version: Int
-            let group: GroupType
-            let sort: SortType
+            /// - Note: This field may be nil in cases where a new wallet is created by [REDACTED_AUTHOR]
+            /// and the PUT request `/user-tokens` has not been sent yet.
+            let version: Int?
+            /// - Note: This field may be nil in cases where a new wallet is created by [REDACTED_AUTHOR]
+            /// and the PUT request `/user-tokens` has not been sent yet.
+            let group: GroupType?
+            /// - Note: This field may be nil in cases where a new wallet is created by [REDACTED_AUTHOR]
+            /// and the PUT request `/user-tokens` has not been sent yet.
+            let sort: SortType?
             let totalAccounts: Int
             let totalArchivedAccounts: Int
         }
