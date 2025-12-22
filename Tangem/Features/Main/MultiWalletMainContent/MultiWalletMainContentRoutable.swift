@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import TangemNFT
 import TangemMobileWalletSdk
 
 protocol MultiWalletMainContentRoutable: SingleTokenBaseRoutable {
@@ -22,4 +21,5 @@ protocol MultiWalletMainContentRoutable: SingleTokenBaseRoutable {
     func openTangemPayIssuingYourCardPopup()
     func openTangemPayFailedToIssueCardPopup(userWalletModel: UserWalletModel)
     func openTangemPayMainView(userWalletInfo: UserWalletInfo, tangemPayAccount: TangemPayAccount)
+    func openGetTangemPay()
 }

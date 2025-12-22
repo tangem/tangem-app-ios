@@ -12,10 +12,6 @@ struct TangemBlogUrlBuilder {
     func url(post: Post) -> URL {
         return URL(string: "https://tangem.com/\(Locale.webLanguageCode())/blog/post/\(post.path)/")!
     }
-
-    func url(root: Root) -> URL {
-        return URL(string: "https://tangem.com/\(Locale.webLanguageCode())/\(root.path)/")!
-    }
 }
 
 extension TangemBlogUrlBuilder {
@@ -27,10 +23,6 @@ extension TangemBlogUrlBuilder {
         case seedNotify
         case mobileVsHardware
         case giveRevokePermission
-    }
-
-    enum Root {
-        case pricing
     }
 }
 
@@ -51,15 +43,6 @@ private extension TangemBlogUrlBuilder.Post {
             "mobile-vs-hardware"
         case .giveRevokePermission:
             "give-revoke-permission"
-        }
-    }
-}
-
-private extension TangemBlogUrlBuilder.Root {
-    var path: String {
-        switch self {
-        case .pricing:
-            "pricing"
         }
     }
 }
