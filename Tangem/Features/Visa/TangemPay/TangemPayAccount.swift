@@ -91,7 +91,7 @@ final class TangemPayAccount {
     }
 
     var isPinSet: Bool {
-        customerInfoSubject.value?.card?.isPINSet ?? false
+        customerInfoSubject.value?.card?.isPinSet ?? false
     }
 
     var customerWalletId: String {
@@ -375,7 +375,7 @@ private extension VisaCustomerInfoResponse {
             }
         }
 
-        guard case .approved = kyc.status else {
+        guard case .approved = kyc?.status else {
             return .kycRequired
         }
 
