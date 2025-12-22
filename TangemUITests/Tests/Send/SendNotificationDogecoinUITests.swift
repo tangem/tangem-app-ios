@@ -88,7 +88,7 @@ final class SendNotificationDogecoinUITests: BaseTestCase {
             scenarios: [dogecoinScenario]
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(coin)
             .tapSendButton()

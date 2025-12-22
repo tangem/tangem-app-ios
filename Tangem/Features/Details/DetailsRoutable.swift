@@ -25,6 +25,7 @@ protocol DetailsRoutable: AnyObject {
     func openShop()
     func openSocialNetwork(url: URL)
 
+    func openGetTangemPay()
     func openEnvironmentSetup()
     func openLogs()
     func dismiss()
