@@ -53,6 +53,7 @@ final class YieldModuleActiveViewModel: ObservableObject {
     private(set) var walletModel: any WalletModel
     private weak var coordinator: YieldModuleActiveCoordinator?
     private lazy var feeConverter = YieldModuleFeeFormatter(feeCurrency: walletModel.feeTokenItem, token: walletModel.tokenItem)
+    private lazy var dustFilter = YieldModuleDustFilter(feeConverter: feeConverter)
 
     private let transactionFlowFactory: YieldModuleTransactionFlowFactory
     private let yieldManagerInteractor: YieldManagerInteractor
@@ -256,16 +257,13 @@ final class YieldModuleActiveViewModel: ObservableObject {
             earnInfoNotifications.append(createApproveRequiredNotification())
         }
 
-        if let undepositedAmount {
-            guard let minimalTopupAmountInFiat,
-                  let undepositedAmountInFiat = try? await feeConverter.convertToFiat(undepositedAmount, currency: .token),
-                  undepositedAmountInFiat < minimalTopupAmountInFiat
-            else {
-                let formatted = feeConverter.formatDecimal(undepositedAmount)
-                earnInfoNotifications.append(createHasUndepositedAmountsNotification(undepositedAmount: formatted))
-                logger.logEarningNoticeAmountNotDepositedShown()
-                return
-            }
+        if let undepositedAmount = await dustFilter.filterUndepositedAmount(
+            undepositedAmount,
+            minimalTopupAmountInFiat: minimalTopupAmountInFiat
+        ) {
+            let formatted = feeConverter.formatDecimal(undepositedAmount)
+            earnInfoNotifications.append(createHasUndepositedAmountsNotification(undepositedAmount: formatted))
+            logger.logEarningNoticeAmountNotDepositedShown()
         }
     }
 

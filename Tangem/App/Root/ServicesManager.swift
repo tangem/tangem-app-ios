@@ -175,6 +175,7 @@ extension CommonServicesManager: ServicesManager {
         eTagStorage.initialize()
         mobileAccessCodeCleaner.initialize()
         SendFeatureProvider.shared.loadFeaturesAvailability()
+        PredefinedOnrampParametersBuilder.loadMoonpayPromotion()
     }
 
     /// Some services should be initialized later, in SceneDelegate to bypass locked keychain during preheating
