@@ -166,13 +166,7 @@ struct WalletConnectDAppConnectionRequestView: View {
     private func accountTargetTrailingView(icon: AccountModel.Icon, accountName: String) -> some View {
         HStack(spacing: 6) {
             AccountIconView(
-                data: AccountIconView.ViewData(
-                    backgroundColor: AccountModelUtils.UI.iconColor(from: icon.color),
-                    nameMode: AccountModelUtils.UI.nameMode(
-                        from: icon.name,
-                        accountName: accountName
-                    )
-                )
+                data: AccountModelUtils.UI.iconViewData(icon: icon, accountName: accountName)
             )
             .settings(.smallSized)
 
