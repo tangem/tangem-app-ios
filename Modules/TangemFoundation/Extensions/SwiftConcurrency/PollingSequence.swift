@@ -89,7 +89,7 @@ public struct TaskSleepPollDelayProvider: PollDelayProvider {
     public init() {}
 
     public func wait(for seconds: TimeInterval) async throws {
-        try await Task.sleep(seconds: seconds)
+        try await Task.sleep(for: .seconds(seconds))
     }
 }
 
