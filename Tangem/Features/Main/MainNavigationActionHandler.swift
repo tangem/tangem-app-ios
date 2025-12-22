@@ -272,7 +272,8 @@ extension MainCoordinator {
         ) -> Bool {
             guard FeatureProvider.isAvailable(.visa),
                   let coordinator,
-                  let userWalletModel = userWalletRepository.selectedModel
+                  let userWalletModel = userWalletRepository.selectedModel,
+                  userWalletModel.config.hasFeature(.hdWallets)
             else {
                 incomingActionManager.discardIncomingAction()
                 return false
