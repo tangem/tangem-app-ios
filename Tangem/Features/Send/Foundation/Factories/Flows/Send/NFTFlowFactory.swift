@@ -105,7 +105,8 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
 
 extension NFTFlowFactory: SendGenericFlowFactory {
     func make(router: any SendRoutable) -> SendViewModel {
-        let nftAssetCompactViewModel = nftAssetStepBuilder.makeNFTAssetCompactViewModel()
+        let header = tokenHeaderProvider.makeSendTokenHeader()
+        let nftAssetCompactViewModel = nftAssetStepBuilder.makeNFTAssetCompactViewModel(header: header)
         let destination = makeSendDestinationStep(router: router)
         let fee = makeSendFeeStep()
 
