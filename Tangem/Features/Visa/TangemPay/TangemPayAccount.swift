@@ -77,11 +77,6 @@ final class TangemPayAccount {
         tangemPayTokenBalanceProvider: balancesProvider.fixedFiatTotalTokenBalanceProvider
     )
 
-    lazy var tangemPayMainHeaderSubtitleProvider: MainHeaderSubtitleProvider = SingleWalletMainHeaderSubtitleProvider(
-        isUserWalletLocked: false,
-        balanceProvider: balancesProvider.totalTokenBalanceProvider
-    )
-
     var balancesProvider: TangemPayBalancesProvider { balancesService }
 
     let customerInfoManagementService: any CustomerInfoManagementService
@@ -96,7 +91,7 @@ final class TangemPayAccount {
     }
 
     var isPinSet: Bool {
-        customerInfoSubject.value?.card?.isPINSet ?? false
+        customerInfoSubject.value?.card?.isPinSet ?? false
     }
 
     var customerWalletId: String {
@@ -180,6 +175,11 @@ final class TangemPayAccount {
     func loadCustomerInfo() -> Task<Void, Never> {
         runTask(in: self) { tangemPayAccount in
             do {
+                if tangemPayAccount.authorizer.state.authorized == nil {
+                    tangemPayAccount.authorizer.setAuthorized()
+                    return
+                }
+
                 let customerInfo = try await tangemPayAccount.customerInfoManagementService.loadCustomerInfo()
                 tangemPayAccount.customerInfoSubject.send(customerInfo)
 
@@ -375,7 +375,7 @@ private extension VisaCustomerInfoResponse {
             }
         }
 
-        guard case .approved = kyc.status else {
+        guard case .approved = kyc?.status else {
             return .kycRequired
         }
 
