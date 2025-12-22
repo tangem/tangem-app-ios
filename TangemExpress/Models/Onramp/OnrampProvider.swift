@@ -12,9 +12,6 @@ public class OnrampProvider {
     public let provider: ExpressProvider
     public let paymentMethod: OnrampPaymentMethod
 
-    @available(iOS, deprecated: 100000.0, message: "Use globalAttractiveType")
-    public private(set) var attractiveType: AttractiveType?
-
     public private(set) var processingTimeType: ProcessingTimeType?
     public private(set) var globalAttractiveType: AttractiveType?
 
@@ -28,10 +25,6 @@ public class OnrampProvider {
         self.provider = provider
         self.paymentMethod = paymentMethod
         self.manager = manager
-    }
-
-    func update(attractiveType: AttractiveType?) {
-        self.attractiveType = attractiveType
     }
 
     func update(globalAttractiveType: AttractiveType?) {
@@ -89,7 +82,8 @@ extension OnrampProvider: Hashable {
         hasher.combine(provider)
         hasher.combine(paymentMethod)
         hasher.combine(state)
-        hasher.combine(attractiveType)
+        hasher.combine(processingTimeType)
+        hasher.combine(globalAttractiveType)
     }
 }
 
@@ -97,42 +91,30 @@ extension OnrampProvider: Hashable {
 
 extension OnrampProvider: Comparable {
     public static func < (lhs: OnrampProvider, rhs: OnrampProvider) -> Bool {
-        !(lhs > rhs)
-    }
-
-    public static func > (lhs: OnrampProvider, rhs: OnrampProvider) -> Bool {
         switch (lhs.state, rhs.state) {
-        case (.loaded(let lhsQuote), .loaded(let rhsQuote)) where lhsQuote == rhsQuote:
-            // If same processing time
-            if lhs.paymentMethod.type.processingTime == rhs.paymentMethod.type.processingTime {
-                return lhs.paymentMethod.type.priority > rhs.paymentMethod.type.priority
-            }
+        // 1) Same amount and processing time: lower priority value first
+        case (.loaded(let lhsQuote), .loaded(let rhsQuote)) where lhsQuote.expectedAmount == rhsQuote.expectedAmount && lhs.paymentMethod.type.processingTime == rhs.paymentMethod.type.processingTime:
+            return lhs.paymentMethod.type.priority < rhs.paymentMethod.type.priority
 
+        // 2) Same amount, different processing time: shorter first
+        case (.loaded(let lhsQuote), .loaded(let rhsQuote)) where lhsQuote.expectedAmount == rhsQuote.expectedAmount:
             return lhs.paymentMethod.type.processingTime < rhs.paymentMethod.type.processingTime
 
+        // 3) Different expected amounts: higher first
         case (.loaded(let lhsQuote), .loaded(let rhsQuote)):
             return lhsQuote.expectedAmount > rhsQuote.expectedAmount
 
-        // All cases which is not `loaded` have to be ordered after
-        case (_, .loaded):
-            return false
-
-        // All cases which is `loaded` have to be ordered before `rhs`
-        // Exclude case where `rhs == .loaded`. This case processed above
+        // 4) Loaded is always before non-loaded
         case (.loaded, _):
             return true
 
+        // 5) Restrictions: place after loaded/non-restricted states
         case (.restriction(let lhsRestriction), .restriction(let rhsRestriction)):
             let lhsDiff = (lhs.amount ?? 0) - lhsRestriction.amount
             let rhsDiff = (rhs.amount ?? 0) - rhsRestriction.amount
             return abs(lhsDiff) < abs(rhsDiff)
 
-        case (.restriction, _):
-            return true
-
-        case (_, .restriction):
-            return false
-
+        // For other states (idle, loading, failed, notSupported), keep deterministic but after loaded
         default:
             return false
         }
@@ -216,7 +198,8 @@ extension OnrampProvider: CustomStringConvertible {
             "provider": provider.name,
             "paymentMethod": paymentMethod.name,
             "manager.state": manager.state,
-            "attractiveType": attractiveType as Any,
+            "processingTimeType": processingTimeType as Any,
+            "globalAttractiveType": globalAttractiveType as Any,
         ])
     }
 }

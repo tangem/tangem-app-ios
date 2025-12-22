@@ -33,6 +33,10 @@ enum AppConstants {
     static let rubSign = "₽"
     static let usdCurrencyCode = "USD"
     static let usdSign = "$"
+    static let audCurrencyCode = "AUD"
+    static let eurCurrencyCode = "EUR"
+    static let cadCurrencyCode = "CAD"
+    static let gbpCurrencyCode = "GBP"
 
     static let sessionId = UUID().uuidString
     static let tosURL = URL(string: "https://tangem.com/tangem_tos.html")!
