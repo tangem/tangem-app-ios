@@ -86,7 +86,7 @@ final class AuthViewModel: ObservableObject {
             do {
                 let context = try await UserWalletBiometricsUnlocker().unlock()
                 let userWalletModel = try await viewModel.userWalletRepository.unlock(with: .biometrics(context))
-                viewModel.signInAnalyticsLogger.logSignInEvent(signInType: .biometrics)
+                viewModel.signInAnalyticsLogger.logSignInEvent(signInType: .biometrics, userWalletModel: userWalletModel)
                 await MainActor.run {
                     viewModel.openMain(with: userWalletModel)
                 }
@@ -168,7 +168,7 @@ final class AuthViewModel: ObservableObject {
                         with: .encryptionKey(userWalletId: userWalletId, encryptionKey: encryptionKey)
                     )
 
-                    viewModel.signInAnalyticsLogger.logSignInEvent(signInType: .card)
+                    viewModel.signInAnalyticsLogger.logSignInEvent(signInType: .card, userWalletModel: userWalletModel)
 
                     await MainActor.run {
                         viewModel.isScanningCard = false
@@ -192,7 +192,7 @@ final class AuthViewModel: ObservableObject {
                 keys: .cardWallet(keys: cardInfo.card.wallets)
             ) {
                 try userWalletRepository.add(userWalletModel: newUserWalletModel)
-                signInAnalyticsLogger.logSignInEvent(signInType: .card)
+                signInAnalyticsLogger.logSignInEvent(signInType: .card, userWalletModel: newUserWalletModel)
                 await MainActor.run {
                     isScanningCard = false
                     openMain(with: newUserWalletModel)
