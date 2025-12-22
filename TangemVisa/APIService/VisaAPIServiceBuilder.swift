@@ -19,22 +19,6 @@ public struct VisaAPIServiceBuilder {
         self.isMockedAPIEnabled = isMockedAPIEnabled
     }
 
-    public func buildTransactionHistoryService(
-        authorizationTokensHandler: TangemPayAuthorizationTokensHandler,
-        urlSessionConfiguration: URLSessionConfiguration = .visaConfiguration
-    ) -> VisaTransactionHistoryAPIService {
-        return CommonTransactionHistoryService(
-            apiType: apiType,
-            apiService: .init(
-                provider: TangemPayProviderBuilder().buildProvider(
-                    configuration: urlSessionConfiguration,
-                    authorizationTokensHandler: authorizationTokensHandler
-                ),
-                decoder: JSONDecoderFactory().makePayAPIDecoder()
-            )
-        )
-    }
-
     /// Requirements are changed so this function will be also changed, but for now it is used for testing purposes
     public func buildAuthorizationService(
         urlSessionConfiguration: URLSessionConfiguration = .visaConfiguration
