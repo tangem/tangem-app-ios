@@ -25,7 +25,7 @@ struct CardInfoPagePreviewContainerView: View {
     }
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 Colors.Background.secondary
                     .ignoresSafeArea()
