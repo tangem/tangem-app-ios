@@ -8,4 +8,4 @@
 
 import Foundation
 
-protocol MarketsMainRoutable: AnyObject, TopMarketWidgetRoutable, PulseMarketWidgetRoutable {}
+protocol MarketsMainRoutable: AnyObject, MarketsRoutable, TopMarketWidgetRoutable, PulseMarketWidgetRoutable {}
