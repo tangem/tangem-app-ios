@@ -14,12 +14,7 @@ struct AvalancheExternalLinkProvider {
 
     init(isTestnet: Bool) {
         self.isTestnet = isTestnet
-        // The official network explorer ('subnets.avax.network') simply won't load in any browser on iOS 15 and earlier versions
-        baseURL = if #available(iOS 16.0, *) {
-            "https://subnets.avax.network/c-chain/"
-        } else {
-            "https://avascan.info/blockchain/c/"
-        }
+        baseURL = "https://subnets.avax.network/c-chain/"
     }
 }
 

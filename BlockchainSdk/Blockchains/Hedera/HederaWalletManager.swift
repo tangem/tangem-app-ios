@@ -27,7 +27,7 @@ final class HederaWalletManager: BaseManager {
         return wallet
             .publicKey
             .blockchainKey
-            .getSha256()
+            .getSHA256()
             .hex()
     }
 

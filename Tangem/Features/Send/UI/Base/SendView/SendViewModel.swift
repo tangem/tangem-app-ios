@@ -189,7 +189,7 @@ private extension SendViewModel {
                 await viewModel.proceed(result: result)
             } catch let error as TransactionDispatcherResult.Error {
                 // The demo alert doesn't show without delay
-                try? await Task.sleep(seconds: 1)
+                try? await Task.sleep(for: .seconds(1))
                 await viewModel.proceed(error: error)
             } catch _ as CancellationError {
                 // Do nothing
