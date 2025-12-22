@@ -20,12 +20,10 @@ struct SecurityModeCoordinatorView: CoordinatorView {
         }
     }
 
-    @ViewBuilder
     private var links: some View {
         NavHolder()
             .navigation(item: $coordinator.cardOperationViewModel) {
                 CardOperationView(viewModel: $0)
             }
-            .emptyNavigationLink()
     }
 }

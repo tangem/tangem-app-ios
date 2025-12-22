@@ -16,7 +16,7 @@ import struct TangemUIUtils.ConfirmationDialogViewModel
 final class MultipleRewardsViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
 
-    @Published var validators: [ValidatorViewData] = []
+    @Published var targets: [StakingTargetViewData] = []
     @Published var confirmationDialog: ConfirmationDialogViewModel?
     @Published var alert: AlertBinder?
 
@@ -26,7 +26,7 @@ final class MultipleRewardsViewModel: ObservableObject, Identifiable {
     private let stakingManager: StakingManager
     private weak var coordinator: MultipleRewardsRoutable?
 
-    private let rewardRateFormatter = StakingValidatorRewardRateFormatter()
+    private let rewardRateFormatter = StakingTargetRewardRateFormatter()
     private let balanceFormatter = BalanceFormatter()
     private var bag: Set<AnyCancellable> = []
 
@@ -58,7 +58,7 @@ private extension MultipleRewardsViewModel {
                 switch state {
                 case .staked(let staked):
                     let data = staked.balances.rewards().compactMap { balance in
-                        viewModel.mapToValidatorViewData(balance: balance, yield: staked.yieldInfo)
+                        viewModel.mapToTargetsViewData(balance: balance, yield: staked.yieldInfo)
                     }
                     return Just(data).eraseToAnyPublisher()
                 default:
@@ -67,12 +67,12 @@ private extension MultipleRewardsViewModel {
                 }
             }
             .receive(on: DispatchQueue.main)
-            .assign(to: \.validators, on: self, ownership: .weak)
+            .assign(to: \.targets, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
-    func mapToValidatorViewData(balance: StakingBalance, yield: StakingYieldInfo) -> ValidatorViewData? {
-        guard let validator = balance.validatorType.validator else {
+    func mapToTargetsViewData(balance: StakingBalance, yield: StakingYieldInfo) -> StakingTargetViewData? {
+        guard let target = balance.targetType.target else {
             return nil
         }
 
@@ -85,21 +85,21 @@ private extension MultipleRewardsViewModel {
         }
         let balanceFiatFormatted = balanceFormatter.formatFiatBalance(balanceFiat)
 
-        let percent = rewardRateFormatter.format(validator: validator, type: .short)
-        let subtitleType: ValidatorViewData.SubtitleType = .active(formatted: percent)
+        let percent = rewardRateFormatter.format(target: target, type: .short)
+        let subtitleType: StakingTargetViewData.SubtitleType = .active(formatted: percent)
 
-        return ValidatorViewData(
-            address: validator.address,
-            name: validator.name,
-            imageURL: validator.iconURL,
+        return StakingTargetViewData(
+            address: target.address,
+            name: target.name,
+            imageURL: target.iconURL,
             subtitleType: subtitleType,
             detailsType: .balance(.init(crypto: balanceCryptoFormatted, fiat: balanceFiatFormatted)) { [weak self] in
-                self?.openStakingSingleActionFlow(balance: balance, validators: yield.validators)
+                self?.openStakingSingleActionFlow(balance: balance, validators: yield.targets)
             }
         )
     }
 
-    func openStakingSingleActionFlow(balance: StakingBalance, validators: [ValidatorInfo]) {
+    func openStakingSingleActionFlow(balance: StakingBalance, validators: [StakingTargetInfo]) {
         do {
             let action = try PendingActionMapper(balance: balance, validators: validators).getAction()
             switch action {

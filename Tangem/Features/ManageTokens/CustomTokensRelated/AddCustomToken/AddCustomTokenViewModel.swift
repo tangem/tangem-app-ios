@@ -93,6 +93,8 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
             let tokenItem = try enteredTokenItem()
             try checkLocalStorage()
 
+            logAddTokenToNonMainAccountAnalyticsIfNeeded(tokenItem: tokenItem)
+
             // If we didn't find any suitable userTokensManager, we will use current. And if it can't add the token --
             // we will present this error as alert
             let userTokensManager = context.findUserTokensManager(for: tokenItem) ?? context.userTokensManager
@@ -349,7 +351,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     private func checkLocalStorage() throws {
         guard let tokenItem = try? enteredTokenItem() else { return }
 
-        if userTokensManager.contains(tokenItem, derivationInsensitive: false) {
+        if context.isAddedToPortfolio(tokenItem) {
             throw TokenSearchError.alreadyAdded
         }
     }
@@ -460,6 +462,14 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
         params[.source] = settings.analyticsSourceRawValue
 
         Analytics.log(event: .manageTokensCustomTokenWasAdded, params: params)
+    }
+
+    private func logAddTokenToNonMainAccountAnalyticsIfNeeded(tokenItem: TokenItem) {
+        let destination = context.accountDestination(for: tokenItem)
+        ManageTokensAnalyticsLogger.logAddTokenToNonMainAccountIfNeeded(
+            tokenItem: tokenItem,
+            destination: destination
+        )
     }
 
     private func updateDefaultDerivationOption() {
@@ -580,7 +590,12 @@ private extension AddCustomTokenViewModel {
         case failedToFindToken
 
         var preventsFromAdding: Bool {
-            false
+            switch self {
+            case .alreadyAdded:
+                return true
+            case .failedToFindToken:
+                return false
+            }
         }
 
         var errorDescription: String? {
@@ -597,7 +612,7 @@ private extension AddCustomTokenViewModel {
             case .failedToFindToken:
                 return AddCustomTokenNotificationEvent.scamWarning
             case .alreadyAdded:
-                return nil
+                return AddCustomTokenNotificationEvent.alreadyAdded
             }
         }
     }

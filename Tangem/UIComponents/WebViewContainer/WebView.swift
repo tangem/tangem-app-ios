@@ -95,12 +95,7 @@ struct WebView: UIViewRepresentable {
 
             let tangemURL = AppEnvironment.current.tangemComBaseUrl
 
-            let hostMatch: Bool
-            if #available(iOS 16.0, *) {
-                hostMatch = tangemURL.host() == requestURL.host()
-            } else {
-                hostMatch = tangemURL.host == requestURL.host
-            }
+            let hostMatch = tangemURL.host() == requestURL.host()
 
             if hostMatch,
                let url = requestURL.absoluteString.split(separator: "?").first,

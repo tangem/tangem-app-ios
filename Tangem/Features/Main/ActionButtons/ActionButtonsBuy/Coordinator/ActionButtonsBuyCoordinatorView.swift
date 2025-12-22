@@ -19,12 +19,12 @@ struct ActionButtonsBuyCoordinatorView: View {
             case .none:
                 EmptyView()
             case .tokenList(let actionButtonsBuyViewModel):
-                NavigationView {
+                NavigationStack {
                     ActionButtonsBuyView(viewModel: actionButtonsBuyViewModel)
                 }
                 .transition(SendTransitions.transition)
             case .newTokenList(let actionButtonsBuyViewModel):
-                NavigationView {
+                NavigationStack {
                     NewActionButtonsBuyView(viewModel: actionButtonsBuyViewModel)
                 }
                 .transition(SendTransitions.transition)
