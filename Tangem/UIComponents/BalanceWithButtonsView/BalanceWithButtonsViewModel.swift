@@ -131,12 +131,9 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
     }
 
     private func setupYieldBalances() {
-        guard let balanceProvider else { return }
-
         state = .yield(
             viewModel: YieldBalancesViewModel(
                 tokenItem: tokenItem,
-                balanceProvider: balanceProvider,
                 yieldModuleStatusProvider: yieldModuleStatusProvider,
                 refreshStatusProvider: refreshStatusProvider,
                 showYieldBalanceInfoAction: showYieldBalanceInfoAction,
