@@ -14,7 +14,7 @@ import SwiftUI
 
 class StakingDetailsStakeViewDataBuilder {
     private lazy var balanceFormatter = BalanceFormatter()
-    private lazy var rewardRateFormatter = StakingValidatorRewardRateFormatter()
+    private lazy var rewardRateFormatter = StakingTargetRewardRateFormatter()
     private lazy var dateFormatter = DateComponentsFormatter.staking()
 
     private let tokenItem: TokenItem
@@ -24,13 +24,13 @@ class StakingDetailsStakeViewDataBuilder {
     }
 
     func mapToStakingDetailsStakeViewData(yield: StakingYieldInfo, balance: StakingBalance, action: @escaping () -> Void) -> StakingDetailsStakeViewData {
-        let validator = balance.validatorType.validator
+        let target = balance.targetType.target
         let inProgress = balance.inProgress
 
         let title: String = switch balance.balanceType {
         case .rewards: Localization.stakingRewards
         case .locked: inProgress ? Localization.stakingUnlocking : Localization.stakingLocked
-        case .warmup, .active, .pending: validator?.name ?? Localization.stakingValidator
+        case .warmup, .active, .pending: target?.name ?? Localization.stakingValidator
         case .unbonding: Localization.stakingUnstaking
         case .unstaked: Localization.stakingUnstaked
         }
@@ -42,7 +42,7 @@ class StakingDetailsStakeViewDataBuilder {
         case .unstaked: .withdraw
         case .warmup: .warmup(period: yield.warmupPeriod.formatted(formatter: dateFormatter))
         case .active, .pending:
-            validator.map {
+            target.map {
                 .active(
                     type: rewardRateFormatter.title(rewardType: $0.rewardType, type: .short),
                     rate: rewardRateFormatter.percent(rewardRate: $0.rewardRate)
@@ -54,12 +54,12 @@ class StakingDetailsStakeViewDataBuilder {
 
         let icon: StakingDetailsStakeViewData.IconType = switch balance.balanceType {
         case .rewards, .warmup, .active, .pending:
-            balance.validatorType == .disabled
+            balance.targetType == .disabled
                 ? .icon(
                     Assets.stakingIconFilled,
                     colors: .init(foreground: Colors.Icon.inactive, background: Colors.Icon.primary1)
                 )
-                : .image(url: validator?.iconURL)
+                : .image(url: target?.iconURL)
         case .locked:
             .icon(
                 inProgress ? Assets.stakingUnlockingIcon : Assets.stakingLockIcon,
