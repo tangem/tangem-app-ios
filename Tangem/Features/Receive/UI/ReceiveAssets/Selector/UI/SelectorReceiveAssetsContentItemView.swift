@@ -47,7 +47,8 @@ struct SelectorReceiveAssetsContentItemView: View {
             PagerWithDots(
                 viewModels,
                 indexUpdateNotifier: viewModel.pageAssetIndexUpdateNotifier,
-                pageWidth: pageWidth
+                pageWidth: pageWidth,
+                initialIndex: viewModel.pageAssetIndex
             ) {
                 SelectorReceiveAssetsAddressPageItemView(viewModel: $0)
                     .padding(.horizontal, pageSpacing)
