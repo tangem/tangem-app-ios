@@ -11,6 +11,7 @@ import Foundation
 import Combine
 import TangemFoundation
 import TangemMobileWalletSdk
+import TangemLocalization
 import struct TangemUIUtils.AlertBinder
 
 final class UserWalletSettingsCoordinator: CoordinatorObject {
@@ -240,8 +241,9 @@ extension UserWalletSettingsCoordinator:
             // Mikhail Andreev - in future we will support multiple types of accounts and their creation process
             // will vary
             flowType: .create(.crypto),
-            closeAction: { [weak self] in
+            closeAction: { [weak self] result in
                 self?.accountFormViewModel = nil
+                self?.rootViewModel?.handleAccountOperationResult(result)
             }
         )
     }
@@ -267,8 +269,9 @@ extension UserWalletSettingsCoordinator:
 
     func openArchivedAccounts(accountModelsManager: any AccountModelsManager) {
         let coordinator = ArchivedAccountsCoordinator(
-            dismissAction: { [weak self] in
+            dismissAction: { [weak self] result in
                 self?.archivedAccountsCoordinator = nil
+                self?.rootViewModel?.handleAccountOperationResult(result)
             },
             popToRootAction: popToRootAction
         )
