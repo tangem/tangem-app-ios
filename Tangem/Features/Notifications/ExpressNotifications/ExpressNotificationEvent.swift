@@ -14,7 +14,7 @@ import TangemAssets
 
 enum ExpressNotificationEvent: Hashable {
     // Express specific notifications
-    case permissionNeeded(providerName: String, currencyCode: String)
+    case permissionNeeded(providerName: String, currencyCode: String, analyticsParams: [Analytics.ParameterKey: String])
     case refreshRequired(
         title: String,
         message: String,
@@ -84,7 +84,7 @@ extension ExpressNotificationEvent: NotificationEvent {
 
     var description: String? {
         switch self {
-        case .permissionNeeded(let providerName, let currencyCode):
+        case .permissionNeeded(let providerName, let currencyCode, _):
             return Localization.givePermissionSwapSubtitle(providerName, currencyCode)
         case .refreshRequired(_, let message, _, _):
             return message
@@ -249,12 +249,13 @@ extension ExpressNotificationEvent: NotificationEvent {
 
 // MARK: Analytics
 
-// [REDACTED_TODO_COMMENT]
 extension ExpressNotificationEvent {
     var analyticsEvent: Analytics.Event? {
         switch self {
         case .refreshRequired(_, _, .exchangeNotPossibleError, _):
             .swapNoticeExpressError
+        case .permissionNeeded:
+            .swapNoticePermissionNeeded
         case .longTimeAverageDuration:
             // Sending from in place PendingExpressTxStatusBottomSheetViewModel.swift
             nil
@@ -267,12 +268,19 @@ extension ExpressNotificationEvent {
         switch self {
         case .refreshRequired(_, _, _, .some(let params)):
             params
+        case .permissionNeeded(_, _, let params):
+            params
         default:
             [:]
         }
     }
 
     var isOneShotAnalyticsEvent: Bool {
-        return false
+        switch self {
+        case .permissionNeeded:
+            return true
+        default:
+            return false
+        }
     }
 }
