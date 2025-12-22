@@ -350,7 +350,7 @@
 "common_transactions" = "Транзакции";
 "common_transfer" = "Перевод";
 "common_unable_to_load" = "Невозможно загрузить данные…";
-"common_understand_continue" = "I understand, continue";
+"common_understand_continue" = "Я понимаю, продолжить";
 "common_understand" = "Я понял";
 "common_unknown_error" = "Произошла ошибка. Пожалуйста, попробуйте снова.";
 "common_unreachable" = "Недоступно";
@@ -615,8 +615,8 @@
 "initial_message_purge_wallet_body" = "Чтобы сбросить настройки до заводских, приложите карту или кольцо как показано выше и не убирайте до окончания операции";
 "initial_message_reset_backup_card_header" = "Приложите карту #%@ для сброса";
 "initial_message_sign_body" = "Чтобы подписать транзакцию, приложите карту или кольцо как показано выше и не убирайте до окончания операции";
-"jailbreak_warning_message" = "Devices with jailbreak detected are considered less secure. Your data may be exposed to additional risks.";
-"jailbreak_warning_title" = "Jailbreak detected";
+"jailbreak_warning_message" = "Устройства с джейлбрейком считаются менее безопасными. Ваши данные могут быть подвержены дополнительным рискам.";
+"jailbreak_warning_title" = "Обнаружен джейлбрейк";
 "key_invalidated_warning_description" = "Вы обновили данные биометрии, отсканируйте свою карту или кольцо для входа";
 "koinos_insufficient_balance_to_send_koin_description" = "Ваш баланс должен быть выше суммы комиссии для осуществления перевода";
 "koinos_insufficient_balance_to_send_koin_title" = "Недостаточно средств";
@@ -681,7 +681,7 @@
 "markets_sort_by_top_gainers_title" = "Лидеры роста";
 "markets_sort_by_top_losers_title" = "Лидеры падения";
 "markets_sort_by_trending_title" = "В тренде";
-"markets_sort_by_yield_mode_title" = "Yield Mode";
+"markets_sort_by_yield_mode_title" = "Режим доходности";
 "markets_staking_banner_description_placeholder" = "Стейкинг — простой способ получать доход с вашей криптовалюты. %@";
 "markets_staking_banner_title" = "Получайте до %@ APY";
 "markets_token_added" = "Токен добавлен";
@@ -896,7 +896,7 @@
 "onramp_currency_other" = "Другие валюты";
 "onramp_currency_popular" = "Популярные фиаты";
 "onramp_currency_search" = "Поиск по валюте";
-"onramp_error_transaction_already_processed" = "This transaction has already been processed. No further action is required.";
+"onramp_error_transaction_already_processed" = "Эта транзакция уже была обработана. Дополнительных действий не требуется.";
 "onramp_fetching_best_rates" = "Получение лучших курсов...";
 "onramp_instant_status" = "Моментально";
 "onramp_legal_text" = "Service is provided by an external provider.\nTangem is not responsible.";
@@ -978,6 +978,7 @@
 "reset_card_to_factory_button_title" = "Сбросить карту";
 "reset_card_to_factory_condition_1" = "Я понимаю, что после выполнения этого действия у меня больше не будет доступа к текущему кошельку";
 "reset_card_to_factory_condition_2" = "Я понимаю, что не смогу использовать эту карту для восстановления кода доступа на других картах текущего кошелька";
+"reset_card_to_factory_condition_3" = "I understand that I will completely lose access to my Tangem Pay Card and all funds on it without the possibility of recovery";
 "reset_card_with_backup_to_factory_message" = "Сброс к заводским настройкам приведет к полному удалению кошелька с выбранной карты или кольца. Вы не сможете восстановить текущий кошелек или использовать данную карту или кольцо для восстановления кода доступа.";
 "reset_card_without_backup_to_factory_message" = "Сброс к заводским настройкам приведет к полному удалению кошелька с выбранной карты или кольца. Вы не сможете восстановить текущий кошелек.";
 "reset_cards_dialog_complete_description" = "Все Tangem девайсы были сброшены.";
@@ -1320,6 +1321,7 @@
 "tangem_pay_unfreeze_card_success" = "Карта разморожена";
 "tangem_pay_withdrawal" = "Вывести";
 "tangempay_account_unable_to_use_rooted" = "Unable to use on rooted device";
+"tangempay_cancel_kyc" = "Cancel KYC";
 "tangempay_card_details_add_funds_subtitle" = "Способы пополнения";
 "tangempay_card_details_add_funds" = "Пополнить";
 "tangempay_card_details_card_number" = "Номер";
@@ -1347,6 +1349,7 @@
 "tangempay_card_details_open_wallet_step_5" = "Всё готово! Можно пользоваться картой";
 "tangempay_card_details_open_wallet_title_apple" = "Добавить карту в Apple Pay";
 "tangempay_card_details_open_wallet_title" = "Добавьте карту в Google Pay";
+"tangempay_card_details_pin_code" = "PIN code";
 "tangempay_card_details_receive_description" = "Скопируйте свой адрес или покажите QR";
 "tangempay_card_details_receive_error_description" = "Техническая ошибка. Попробуйте позже или обратитесь в поддержку.";
 "tangempay_card_details_receive_error_title" = "Пополнение недоступно";
@@ -1355,13 +1358,15 @@
 "tangempay_card_details_swap_description" = "Пополните карту любым активом через обмен ";
 "tangempay_card_details_title" = "Реквизиты";
 "tangempay_card_details_unfreeze_card" = "Разморозить карту";
+"tangempay_card_details_view_pin_code_description" = "Come back to the app if you forget it.";
+"tangempay_card_details_view_pin_code_title" = "Your PIN code";
 "tangempay_card_details_withdraw_error_title" = "Вывод сейчас недоступен";
 "tangempay_card_details_withdraw_in_progress_description" = "Вы не можете начать обмен или новый вывод, пока не завершится текущий.";
 "tangempay_card_details_withdraw_in_progress_title" = "Вывод выполняется";
 "tangempay_card_details_withdraw" = "Вывести";
 "tangempay_change_pin_code" = "Изменить PIN-код";
 "tangempay_come_back_if_forget_pin" = "Можно посмотреть здесь, если забудете его.";
-"tangempay_factory_settings_warning_title" = "I understand that I will completely lose access to my Tangem Pay Card and all funds on it without the possibility of recovery";
+"tangempay_factory_settings_warning_title" = "Я понимаю, что полностью потеряю доступ к своей карте Tangem Pay и ко всем средствам на ней без возможности восстановления.";
 "tangempay_failed_to_issue_card_retry_description" = "Техническая ошибка, попробуйте ещё раз, нажав кнопку ниже";
 "tangempay_failed_to_issue_card_support_description" = "Техническая ошибка, свяжитесь с поддержкой";
 "tangempay_failed_to_issue_card" = "Не удалось выпустить карту";
@@ -1373,10 +1378,13 @@
 "tangempay_issuing_your_card_description" = "Выпускаем карту, это займет немного времени.";
 "tangempay_issuing_your_card" = "Выпускаем карту";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
+"tangempay_kyc_confirm_cancellation_alert_title" = "Confirm Cancellation";
+"tangempay_kyc_confirm_cancellation_description" = "Are you sure you want to stop the KYC process? You can return to it anytime.";
 "tangempay_kyc_failed_description" = "Не удалось подтвердить ваш профиль. Если у вас есть вопросы, обратитесь в службу поддержки.";
 "tangempay_kyc_failed_title" = "К сожалению, нам не удалось подтвердить вашу личность";
 "tangempay_kyc_in_progress_notification_button" = "Посмотреть статус";
 "tangempay_kyc_in_progress_notification_title" = "KYC в процессе для Tangem Pay";
+"tangempay_kyc_in_progress_popup_description" = "Use the buttons below to view your current KYC status or cancel it.";
 "tangempay_kyc_in_progress" = "KYC в процессе";
 "tangempay_onboarding_banner_description" = "Используйте криптовалюту в реальной жизни. \nКарта, не похожая ни на одну другую.";
 "tangempay_onboarding_banner_title" = "Tangem Visa Card";
@@ -1554,7 +1562,7 @@
 "visa_unlock_notification_title" = "Needed unlock";
 "voice_over_open_card_details" = "Открыть детали устройства";
 "voice_over_open_new_wallet_connect_session" = "Отсканируйте QR-код, чтобы открыть новую сессию WalletConnect";
-"wallet_add_common_title" = "Выберите способ добавления кошелька";
+"wallet_add_common_title" = "Выберите тип кошелька";
 "wallet_add_hardware_description" = "Отсканируйте вашу карту или кольцо Tangem, чтобы восстановить её или импортировать из другого кошелька.";
 "wallet_add_hardware_info_create" = "Создать аппаратный кошелёк";
 "wallet_add_hardware_purchase" = "Хотите приобрести кошелек Tangem?";
@@ -1866,7 +1874,7 @@
 "yield_module_fee_policy_sheet_title" = "Политика комиссий за пополнение";
 "yield_module_fee_policy_tangem_service_fee_title" = "Tangem взимает комиссию за обслуживание в размере 15%% от полученного дохода.";
 "yield_module_high_fee_error" = "Ваши средства будут автоматически переведены в Aave, как только комиссия сети снизится или баланс достигнет минимально необходимой суммы.";
-"yield_module_high_network_fees_notification_description" = "Fees are higher than usual because the market is very active. You can proceed now or check back later when the fees are lower.";
+"yield_module_high_network_fees_notification_description" = "Комиссии сейчас выше обычного из-за высокой активности на рынке. Вы можете продолжить сейчас или вернуться позже, когда комиссии снизятся.";
 "yield_module_high_network_fees_notification_title" = "Высокая сетевая комиссия";
 "yield_module_historical_returns" = "Историческая доходность";
 "yield_module_main_screen_promo_banner_message" = "Получай до %1$@ APY на свой баланс";
