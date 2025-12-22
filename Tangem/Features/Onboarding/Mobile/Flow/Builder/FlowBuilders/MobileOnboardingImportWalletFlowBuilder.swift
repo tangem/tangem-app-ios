@@ -42,7 +42,7 @@ final class MobileOnboardingImportWalletFlowBuilder: MobileOnboardingFlowBuilder
         importCompletedStep.configureNavBar(title: Localization.walletImportTitle)
         append(step: importCompletedStep)
 
-        let accessCodeStep = MobileOnboardingAccessCodeStep(mode: .create, source: source, delegate: self)
+        let accessCodeStep = MobileOnboardingAccessCodeStep(mode: .create(canSkip: true), source: source, delegate: self)
             .configureNavBar(title: Localization.accessCodeNavtitle)
         append(step: accessCodeStep)
 

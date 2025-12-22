@@ -66,7 +66,6 @@ class OnboardingSeedPhraseImportViewModel: ObservableObject {
 
         do {
             let mnemonic = try Mnemonic(with: validatedPhrase)
-            Analytics.log(.onboardingSeedButtonImport)
             delegate?.importSeedPhrase(mnemonic: mnemonic, passphrase: passphrase)
         } catch {
             AppLogger.error("Failed to generate seed phrase using input", error: error)
