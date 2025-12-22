@@ -36,51 +36,41 @@ final class CommonTangemPayAuthorizationTokensHandler {
     }
 
     private func refreshTokenIfNeeded() async -> Bool {
-        if authorizationTokensHolder.read()?.refreshTokenExpired ?? true {
+        guard let tokens = authorizationTokensHolder.read() else {
             setSyncNeeded()
             return false
         }
 
-        if authorizationTokensHolder.read()?.accessTokenExpired ?? true {
+        if tokens.refreshTokenExpired {
+            setSyncNeeded()
+            return false
+        }
+
+        if tokens.accessTokenExpired {
             do {
-                try await refreshTokens()
+                let newTokens = try await authorizationService.refreshTokens(refreshToken: tokens.refreshToken)
+                try? saveTokens(tokens: newTokens)
 
                 // Either:
                 // 1. Maximum allowed refresh token reuse exceeded
                 // 2. Session doesn't have required client
-            } catch let error as TangemPayAPIErrorResponse where error.code == "invalid_credentials" {
+            } catch let error as TangemPayAPIErrorResponse where ["invalid_credentials", "invalid_token"].contains(error.code) {
                 // Call of `forceRefreshToken` func could fail if same refresh becomes invalid (not expired, but invalid)
                 // That could happen if:
                 // 1. Token refresh called twice on the same device (could happen in there is a race condition somewhere)
                 // 2. User have one TangemPay account linked to more than one device
                 // (i.e. calling token refresh on one device automatically makes refresh token on second device invalid)
                 setSyncNeeded()
+                VisaLogger.error("Failed to refresh token", error: error)
                 return false
             } catch {
                 setUnavailable()
+                VisaLogger.error("Failed to refresh token", error: error)
                 return false
             }
         }
 
         return true
-    }
-
-    private func refreshTokens() async throws {
-        guard let tokens = authorizationTokensHolder.read() else {
-            return
-        }
-
-        if tokens.refreshTokenExpired {
-            throw VisaAuthorizationTokensHandlerError.refreshTokenExpired
-        }
-
-        let newTokens = try await authorizationService.refreshTokens(refreshToken: tokens.refreshToken)
-
-        if newTokens.accessTokenExpired {
-            throw VisaAuthorizationTokensHandlerError.failedToUpdateAccessToken
-        }
-
-        try saveTokens(tokens: newTokens)
     }
 }
 
