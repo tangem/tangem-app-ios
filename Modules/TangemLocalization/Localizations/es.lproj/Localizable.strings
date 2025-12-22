@@ -1378,6 +1378,8 @@
 "tangempay_issuing_your_card_description" = "Estamos preparando tu tarjeta. Esto puede llevar un poco de tiempo.";
 "tangempay_issuing_your_card" = "Emisión de su tarjeta";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
+"tangempay_kyc_confirm_cancellation_alert_title" = "Confirm Cancellation";
+"tangempay_kyc_confirm_cancellation_description" = "Are you sure you want to stop the KYC process? You can return to it anytime.";
 "tangempay_kyc_failed_description" = "No pudimos verificar tu perfil. Si tienes alguna pregunta, contacta con el soporte.";
 "tangempay_kyc_failed_title" = "Lamentablemente, no pudimos verificar tu identidad";
 "tangempay_kyc_in_progress_notification_button" = "Ver estado";
