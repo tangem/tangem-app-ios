@@ -117,7 +117,7 @@ private extension AddWalletSelectorViewModel {
     }
 
     func openWhatToChoose() {
-        safariManager.openURL(TangemBlogUrlBuilder().url(post: .mobileVsHardware))
+        safariManager.openURL(TangemBlogUrlBuilder().url(post: .mobileWallet))
     }
 }
 

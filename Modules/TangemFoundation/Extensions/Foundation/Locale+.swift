@@ -15,7 +15,11 @@ public extension Locale {
 
 public extension Locale {
     static let appLanguageCode = Bundle.main.preferredLocalizations.first ?? enLanguageCode
-    static let deviceLanguageCode = Locale.current.language.languageCode?.identifier ?? LanguageCode.english.identifier
+
+    static let deviceLanguageCode = {
+        let languages = CFPreferencesCopyAppValue("AppleLanguages" as CFString, kCFPreferencesAnyApplication) as? [String]
+        return languages?.first ?? LanguageCode.english.identifier
+    }()
 }
 
 public extension Locale {
