@@ -90,6 +90,10 @@ final class TangemPayAccount {
         customerInfoSubject.value?.productInstance?.cardId
     }
 
+    var isPinSet: Bool {
+        customerInfoSubject.value?.card?.isPINSet ?? false
+    }
+
     var customerWalletId: String {
         authorizer.customerWalletId
     }
@@ -318,7 +322,7 @@ extension TangemPayAccount: TangemPayWithdrawTransactionServiceOutput {
     func withdrawTransactionDidSent() {
         Task {
             // Update balance after withdraw with some delay
-            try await Task.sleep(seconds: 5)
+            try await Task.sleep(for: .seconds(5))
             await setupBalance()
         }
     }

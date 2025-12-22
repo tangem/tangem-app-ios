@@ -7,11 +7,11 @@
 //
 
 import SwiftUI
-import TangemAssets
-import TangemUIUtils
-import TangemUI
-import TangemLocalization
 import TangemAccessibilityIdentifiers
+import TangemAssets
+import TangemLocalization
+import TangemUI
+import TangemUIUtils
 
 struct ExpressView: View {
     @ObservedObject private var viewModel: ExpressViewModel
@@ -39,7 +39,7 @@ struct ExpressView: View {
         ZStack {
             Colors.Background.tertiary.ignoresSafeArea(.all)
 
-            GroupedScrollView(spacing: .zero) {
+            GroupedScrollView(contentType: .lazy(alignment: .center, spacing: .zero)) {
                 VStack(spacing: 14) {
                     swappingViews
 
@@ -54,27 +54,15 @@ struct ExpressView: View {
                 bottomView
             }
             .accessibilityIdentifier(SwapAccessibilityIdentifiers.title)
-            .scrollDismissesKeyboardCompat(.immediately)
+            .scrollDismissesKeyboard(.immediately)
         }
         .navigationBarTitle(Text(Localization.commonSwap), displayMode: .inline)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 CloseButton(dismiss: { viewModel.didTapCloseButton() })
             }
-
-            ToolbarItemGroup(placement: .keyboard) {
-                if !viewModel.isMaxAmountButtonHidden {
-                    Button(action: viewModel.userDidTapMaxAmount) {
-                        Text(Localization.sendMaxAmountLabel)
-                            .style(Fonts.Bold.callout, color: Colors.Text.primary1)
-                    }
-                }
-
-                Spacer()
-
-                HideKeyboardButton(focused: $isFocused)
-            }
         }
+        .keyboardToolbar(keyboardToolbarContent)
         .onAppear { isFocused = true }
         .focused($isFocused)
         .readGeometry(bindTo: $viewGeometryInfo)
@@ -86,7 +74,6 @@ struct ExpressView: View {
         .animation(.easeInOut, value: viewModel.expressFeeRowViewModel)
     }
 
-    @ViewBuilder
     private var swappingViews: some View {
         ZStack(alignment: .center) {
             VStack(spacing: 14) {
@@ -113,7 +100,6 @@ struct ExpressView: View {
         .padding(.top, 10)
     }
 
-    @ViewBuilder
     private var swappingButton: some View {
         Button(action: viewModel.userDidTapSwapSwappingItemsButton) {
             if viewModel.isSwapButtonLoading {
@@ -137,7 +123,6 @@ struct ExpressView: View {
         )
     }
 
-    @ViewBuilder
     private var informationSection: some View {
         ForEach(viewModel.notificationInputs) {
             NotificationView(input: $0)
@@ -146,7 +131,6 @@ struct ExpressView: View {
         }
     }
 
-    @ViewBuilder
     private var feeSection: some View {
         GroupedSection(viewModel.expressFeeRowViewModel) {
             ExpressFeeRowView(viewModel: $0)
@@ -156,7 +140,6 @@ struct ExpressView: View {
         .backgroundColor(Colors.Background.action)
     }
 
-    @ViewBuilder
     private var providerSection: some View {
         GroupedSection(viewModel.providerState) { state in
             switch state {
@@ -170,7 +153,6 @@ struct ExpressView: View {
         .backgroundColor(Colors.Background.action)
     }
 
-    @ViewBuilder
     private var bottomView: some View {
         VStack(spacing: 12) {
             FixedSpacer(height: spacer)
@@ -198,30 +180,75 @@ struct ExpressView: View {
                 .multilineTextAlignment(.center)
         }
     }
+
+    @ViewBuilder
+    private var keyboardToolbarContent: some View {
+        #if compiler(>=6.2)
+        if #available(iOS 26.0, *) {
+            glassToolbarContent
+        } else {
+            regularToolbarContent
+        }
+        #else
+        regularToolbarContent
+        #endif
+    }
+
+    #if compiler(>=6.2)
+    @available(iOS 26.0, *)
+    private var glassToolbarContent: some View {
+        HStack(spacing: .zero) {
+            if !viewModel.isMaxAmountButtonHidden {
+                Button(action: viewModel.userDidTapMaxAmount) {
+                    Text(Localization.sendMaxAmountLabel)
+                        .style(Fonts.Bold.callout, color: Colors.Text.primary1)
+                        .padding(.horizontal, 16)
+                        .frame(height: 50)
+                        .contentShape(.rect)
+                }
+                .glassEffect(.regular.interactive())
+                .glassEffectTransition(.materialize)
+            }
+
+            Spacer()
+
+            Button(action: { isFocused = false }) {
+                keyboardSFSymbol
+                    .frame(width: 50, height: 50)
+                    .contentShape(Circle())
+            }
+            .glassEffect(.regular.interactive(), in: Circle())
+            .glassEffectTransition(.materialize)
+        }
+        .padding(.horizontal, 20)
+    }
+    #endif
+
+    private var regularToolbarContent: some View {
+        HStack(spacing: .zero) {
+            if !viewModel.isMaxAmountButtonHidden {
+                Button(action: viewModel.userDidTapMaxAmount) {
+                    Text(Localization.sendMaxAmountLabel)
+                        .style(Fonts.Bold.callout, color: Colors.Text.primary1)
+                        .padding(.horizontal, 20)
+                        .frame(height: 40)
+                        .contentShape(.rect)
+                }
+            }
+
+            Spacer()
+
+            Button(action: { isFocused = false }) {
+                keyboardSFSymbol
+                    .padding(.horizontal, 20)
+                    .frame(height: 40)
+                    .contentShape(.rect)
+            }
+        }
+    }
+
+    private var keyboardSFSymbol: some View {
+        Image(systemName: "keyboard.chevron.compact.down")
+            .style(Fonts.Bold.callout, color: Colors.Icon.primary1)
+    }
 }
-
-/*
- struct ExpressView_Preview: PreviewProvider {
-     static let viewModel = ExpressViewModel(
-         initialWallet: .mock,
-         swappingInteractor: .init(
-             swappingManager: SwappingManagerMock(),
-             userTokensManager: UserTokensManagerMock(),
-             currencyMapper: CurrencyMapper(),
-             blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!
-         ),
-         swappingDestinationService: SwappingDestinationServiceMock(),
-         tokenIconURLBuilder: TokenIconURLBuilder(),
-         transactionSender: TransactionSenderMock(),
-         fiatRatesProvider: FiatRatesProviderMock(),
-         feeFormatter: FeeFormatterMock(),
-         coordinator: ExpressCoordinator()
-     )
-
-     static var previews: some View {
-         NavigationView {
-             ExpressView(viewModel: viewModel)
-         }
-     }
- }
- */
