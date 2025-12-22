@@ -60,7 +60,7 @@ final class TangemPayCardDetailsRepository {
             number: formattedPan,
             expirationDate: formattedExpiryDate,
             cvc: decryptedCVV,
-            isPINSet: cardDetails.isPINSet
+            isPinSet: cardDetails.isPinSet
         )
         return details
     }

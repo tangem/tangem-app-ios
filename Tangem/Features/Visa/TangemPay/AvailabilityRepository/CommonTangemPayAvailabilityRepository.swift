@@ -19,7 +19,6 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
     private var _shouldShowGetTangemPayBanner = CurrentValueSubject<Bool, Never>(
         AppSettings.shared.tangemPayShouldShowGetBanner
     )
-    private var _onUserWalletRepositoryEvent = PassthroughSubject<Void, Never>()
 
     var isTangemPayAvailablePublisher: AnyPublisher<Bool, Never> {
         _isTangemPayAvailable
