@@ -1378,6 +1378,8 @@
 "tangempay_issuing_your_card_description" = "Stiamo preparando la tua carta. Ci vorrà un po' di tempo.";
 "tangempay_issuing_your_card" = "Emissione della tua carta";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
+"tangempay_kyc_confirm_cancellation_alert_title" = "Confirm Cancellation";
+"tangempay_kyc_confirm_cancellation_description" = "Are you sure you want to stop the KYC process? You can return to it anytime.";
 "tangempay_kyc_failed_description" = "Non siamo riusciti a verificare il tuo profilo. Per domande, contatta il supporto.";
 "tangempay_kyc_failed_title" = "Purtroppo non siamo riusciti a verificare la tua identità";
 "tangempay_kyc_in_progress_notification_button" = "Visualizza stato";
@@ -1560,7 +1562,7 @@
 "visa_unlock_notification_title" = "Needed unlock";
 "voice_over_open_card_details" = "Open device details";
 "voice_over_open_new_wallet_connect_session" = "Scan QR code to open new WalletConnect session";
-"wallet_add_common_title" = "Choose how to add your wallet";
+"wallet_add_common_title" = "Choose your wallet type";
 "wallet_add_hardware_description" = "Scan your Tangem card or ring to restore it or import from another wallet.";
 "wallet_add_hardware_info_create" = "Create Hardware Wallet";
 "wallet_add_hardware_purchase" = "Want to purchase a Tangem Wallet?";
