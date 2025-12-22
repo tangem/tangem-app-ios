@@ -158,6 +158,10 @@ extension LegacyConfig: UserWalletConfig {
         return nil
     }
 
+    var contextBuilder: WalletCreationContextBuilder {
+        ["type": "card"]
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .accessCode:
@@ -226,6 +230,8 @@ extension LegacyConfig: UserWalletConfig {
             return .available
         case .transactionPayloadLimit:
             return .available
+        case .tangemPay:
+            return .hidden
         }
     }
 
