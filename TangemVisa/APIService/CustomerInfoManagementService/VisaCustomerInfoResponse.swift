@@ -14,43 +14,43 @@ public struct VisaCustomerInfoResponse: Decodable {
     public let createdAt: Date
     public let productInstance: ProductInstance?
     public let paymentAccount: PaymentAccount?
-    public let kyc: KYCInfo
+    public let kyc: KYCInfo?
     public let card: Card?
     public let depositAddress: String?
 }
 
 public extension VisaCustomerInfoResponse {
     enum CustomerState: String, Decodable {
-        case new
-        case inProgress = "in_progress"
-        case active
-        case blocked
-        case unknown
+        case new = "NEW"
+        case inProgress = "IN_PROGRESS"
+        case active = "ACTIVE"
+        case blocked = "BLOCKED"
+        case unknown = "UNKNOWN"
     }
 
     struct ProductInstance: Decodable {
         public let id: String
-        public let cardWalletAddress: String
+        public let cardWalletAddress: String?
         public let cardId: String
-        public let cid: String
+        public let cid: String?
         public let status: ProductStatus
         public let updatedAt: Date
         public let paymentAccountId: String
     }
 
     enum ProductStatus: String, Decodable {
-        case new
-        case readyForManufacturing = "ready_for_manufacturing"
-        case manufacturing
-        case sentToDelivery = "sent_to_delivery"
-        case delivered
-        case activating
-        case active
-        case blocked
-        case deactivating
-        case deactivated
-        case canceled
-        case unknown
+        case new = "NEW"
+        case readyForManufacturing = "READY_FOR_MANUFACTURING"
+        case manufacturing = "MANUFACTURING"
+        case sentToDelivery = "SENT_TO_DELIVERY"
+        case delivered = "DELIVERED"
+        case activating = "ACTIVATING"
+        case active = "ACTIVE"
+        case blocked = "BLOCKED"
+        case deactivating = "DEACTIVATING"
+        case deactivated = "DEACTIVATED"
+        case canceled = "CANCELED"
+        case unknown = "UNKNOWN"
     }
 
     struct PaymentAccount: Decodable {
@@ -92,7 +92,30 @@ public extension VisaCustomerInfoResponse {
 
     struct Card: Decodable {
         public let cardNumberEnd: String
+        public let expirationMonth: String
+        public let expirationYear: String
+        public let token: String
+        public let embossName: String
+        public let cardType: CardType
+        public let cardStatus: CardStatus
+
         @DefaultIfMissing
-        public var isPINSet: Bool
+        public var isPinSet: Bool
+    }
+}
+
+public extension VisaCustomerInfoResponse.Card {
+    enum CardType: String, Decodable {
+        case virtual = "VIRTUAL"
+        case physical = "PHYSICAL"
+        case undefined = "UNDEFINED"
+    }
+
+    enum CardStatus: String, Decodable {
+        case active = "ACTIVE"
+        case inactive = "INACTIVE"
+        case blocked = "BLOCKED"
+        case cancelled = "CANCELLED"
+        case undefined = "UNDEFINED"
     }
 }

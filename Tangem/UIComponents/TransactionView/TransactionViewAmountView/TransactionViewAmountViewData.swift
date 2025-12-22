@@ -14,10 +14,11 @@ struct TransactionViewAmountViewData: Hashable {
     let type: TransactionViewModel.TransactionType
     let status: TransactionViewModel.Status
     let isOutgoing: Bool
+    let isFromYieldContract: Bool
 
     var formattedAmount: String? {
         switch type {
-        case .yieldSend where !isOutgoing:
+        case .yieldSend where isFromYieldContract:
             return nil
         case .yieldWithdrawCoin, .yieldEnterCoin, .yieldReactivate, .yieldDeploy, .yieldSend, .yieldInit:
             return amount
