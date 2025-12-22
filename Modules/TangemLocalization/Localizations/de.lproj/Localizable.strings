@@ -615,8 +615,8 @@
 "initial_message_purge_wallet_body" = "Um die Karte oder Ring auf die Werkseinstellungen zurückzusetzen, halte die Karte oder Ring wie oben gezeigt an und entferne sie erst am Ende des Vorgangs.";
 "initial_message_reset_backup_card_header" = "Halte deine Karte oder Ring Nr. %@ des Sets an dein Smartphone";
 "initial_message_sign_body" = "Zum Signieren, halte die Karte oder Ring wie oben gezeigt an und entfernen sie erst am Ende des Vorgangs.";
-"jailbreak_warning_message" = "Devices with jailbreak detected are considered less secure. Your data may be exposed to additional risks.";
-"jailbreak_warning_title" = "Jailbreak detected";
+"jailbreak_warning_message" = "Geräte mit Jailbreak gelten als weniger sicher. Deine Daten können zusätzlichen Risiken ausgesetzt sein.";
+"jailbreak_warning_title" = "Jailbreak erkannt";
 "key_invalidated_warning_description" = "Du hast deine biometrischen Daten aktualisiert, scanne deine Karte oder Ring, um einzutreten";
 "koinos_insufficient_balance_to_send_koin_description" = "Dein Guthaben sollte höher sein als der Gebührenwert, um eine Überweisung zu tätigen";
 "koinos_insufficient_balance_to_send_koin_title" = "Unzureichende Mittel";
@@ -978,6 +978,7 @@
 "reset_card_to_factory_button_title" = "Karte oder Ring zurücksetzen";
 "reset_card_to_factory_condition_1" = "Mir ist bewusst, dass ich nach der Durchführung dieser Aktion keinen Zugriff mehr auf die aktuelle Wallet habe.";
 "reset_card_to_factory_condition_2" = "Mir ist klar, dass ich diese Karte oder Ring nicht verwenden kann, um meinen Zugangscode auf den anderen Karten oder Ringe der aktuellen Wallet wiederherzustellen";
+"reset_card_to_factory_condition_3" = "I understand that I will completely lose access to my Tangem Pay Card and all funds on it without the possibility of recovery";
 "reset_card_with_backup_to_factory_message" = "Durch das Zurücksetzen auf Werkseinstellungen wird die Wallet vollständig von der ausgewählten Karte oder Ring gelöscht. Du kannst die aktuelle Wallet nicht wiederherstellen oder die Karte oder Ring verwenden, um den Zugangscode wiederherzustellen.";
 "reset_card_without_backup_to_factory_message" = "Beim Zurücksetzen auf die Werkseinstellungen wird die Wallet der ausgewählten Karte oder Ring vollständig gelöscht und aus der App entfernt. Es ist nicht möglich, die aktuelle Wallet wiederherzustellen.";
 "reset_cards_dialog_complete_description" = "Alle Tangem-Geräte wurden zurückgesetzt.";
@@ -1320,6 +1321,7 @@
 "tangem_pay_unfreeze_card_success" = "Ihre Karte ist entsperrt.";
 "tangem_pay_withdrawal" = "Abhebung";
 "tangempay_account_unable_to_use_rooted" = "Unable to use on rooted device";
+"tangempay_cancel_kyc" = "Cancel KYC";
 "tangempay_card_details_add_funds_subtitle" = "Aufladeoptionen";
 "tangempay_card_details_add_funds" = "Guthaben hinzufügen";
 "tangempay_card_details_card_number" = "Kartennummer";
@@ -1347,6 +1349,7 @@
 "tangempay_card_details_open_wallet_step_5" = "Alles erledigt! Deine Karte ist einsatzbereit.";
 "tangempay_card_details_open_wallet_title_apple" = "Karte zu Apple Pay hinzufügen";
 "tangempay_card_details_open_wallet_title" = "Karte zu Google Pay hinzufügen";
+"tangempay_card_details_pin_code" = "PIN code";
 "tangempay_card_details_receive_description" = "Teile Deine Adresse mit oder zeig den QR-Code.";
 "tangempay_card_details_receive_error_description" = "Es wurden technische Probleme festgestellt. Bitte versuche es später erneut oder kontaktiere den Support.";
 "tangempay_card_details_receive_error_title" = "Empfangen ist jetzt nicht verfügbar";
@@ -1355,6 +1358,8 @@
 "tangempay_card_details_swap_description" = "Tausche beliebige Vermögenswerte in Deinem Portfolio gegen eine Karte.";
 "tangempay_card_details_title" = "Kartendetails";
 "tangempay_card_details_unfreeze_card" = "Karte entsperren";
+"tangempay_card_details_view_pin_code_description" = "Come back to the app if you forget it.";
+"tangempay_card_details_view_pin_code_title" = "Your PIN code";
 "tangempay_card_details_withdraw_error_title" = "Auszahlung derzeit nicht möglich";
 "tangempay_card_details_withdraw_in_progress_description" = "Sie können keinen Tausch oder eine neue Auszahlung starten, bis die aktuelle abgeschlossen ist.";
 "tangempay_card_details_withdraw_in_progress_title" = "Auszahlung läuft";
@@ -1373,10 +1378,13 @@
 "tangempay_issuing_your_card_description" = "Wir bereiten Ihre Karte vor. Dies kann etwas dauern.";
 "tangempay_issuing_your_card" = "Ausstellung Deiner Karte";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
+"tangempay_kyc_confirm_cancellation_alert_title" = "Confirm Cancellation";
+"tangempay_kyc_confirm_cancellation_description" = "Are you sure you want to stop the KYC process? You can return to it anytime.";
 "tangempay_kyc_failed_description" = "Wir konnten Ihr Profil nicht verifizieren. Bei Fragen wenden Sie sich bitte an den Support.";
 "tangempay_kyc_failed_title" = "Leider konnten wir Ihre Identität nicht verifizieren";
 "tangempay_kyc_in_progress_notification_button" = "Status anzeigen";
 "tangempay_kyc_in_progress_notification_title" = "KYC für Tangem Pay in Arbeit";
+"tangempay_kyc_in_progress_popup_description" = "Use the buttons below to view your current KYC status or cancel it.";
 "tangempay_kyc_in_progress" = "KYC in Bearbeitung";
 "tangempay_onboarding_banner_description" = "Nutzen Sie Ihre Kryptowährungen für Einkäufe im echten Leben. \nEs ist eine Zahlungskarte, die ihresgleichen sucht.";
 "tangempay_onboarding_banner_title" = "Tangem Visa Card";
@@ -1866,7 +1874,7 @@
 "yield_module_fee_policy_sheet_title" = "Gebührenpolitik";
 "yield_module_fee_policy_tangem_service_fee_title" = "Tangem erhebt außerdem eine Servicegebühr von 15%% auf den erzielten Ertrag.";
 "yield_module_high_fee_error" = "Deine Gelder werden automatisch an Aave überwiesen, sobald die Netzwerkgebühren niedriger sind oder Dein Guthaben den erforderlichen Mindestbetrag erreicht.";
-"yield_module_high_network_fees_notification_description" = "Fees are higher than usual because the market is very active. You can proceed now or check back later when the fees are lower.";
+"yield_module_high_network_fees_notification_description" = "Die Gebühren sind aufgrund der hohen Marktaktivität derzeit höher als üblich. Du kannst jetzt fortfahren oder später noch einmal vorbeischauen, wenn die Gebühren niedriger sind.";
 "yield_module_high_network_fees_notification_title" = "Hohe Netzwerkgebühren";
 "yield_module_historical_returns" = "Historische Renditen";
 "yield_module_main_screen_promo_banner_message" = "Aktiviere %1$@%% Jahreszins auf Dein Guthaben";
