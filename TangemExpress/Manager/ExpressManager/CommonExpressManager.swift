@@ -18,7 +18,6 @@ actor CommonExpressManager {
     private let expressAPIProvider: ExpressAPIProvider
     private let expressProviderManagerFactory: ExpressProviderManagerFactory
     private let expressRepository: ExpressRepository
-    private let analyticsLogger: ExpressAnalyticsLogger
     private let supportedProviderTypes: [ExpressProviderType]
     private let operationType: ExpressOperationType
 
@@ -40,14 +39,12 @@ actor CommonExpressManager {
         expressAPIProvider: ExpressAPIProvider,
         expressProviderManagerFactory: ExpressProviderManagerFactory,
         expressRepository: ExpressRepository,
-        analyticsLogger: ExpressAnalyticsLogger,
         supportedProviderTypes: [ExpressProviderType],
         operationType: ExpressOperationType
     ) {
         self.expressAPIProvider = expressAPIProvider
         self.expressProviderManagerFactory = expressProviderManagerFactory
         self.expressRepository = expressRepository
-        self.analyticsLogger = analyticsLogger
         self.supportedProviderTypes = supportedProviderTypes
         self.operationType = operationType
     }
@@ -159,7 +156,7 @@ private extension CommonExpressManager {
 
         try Task.checkCancellation()
 
-        await updateSelectedProvider(by: source)
+        await updateSelectedProvider(pair: pair, by: source)
 
         return try await selectedProviderState()
     }
@@ -217,12 +214,12 @@ private extension CommonExpressManager {
         }
     }
 
-    func updateSelectedProvider(by source: ExpressProviderUpdateSource) async {
+    func updateSelectedProvider(pair: ExpressManagerSwappingPair, by source: ExpressProviderUpdateSource) async {
         if source.isRequiredUpdateSelectedProvider || selectedProvider == nil {
             selectedProvider = await bestProvider()
 
             if let selectedProvider {
-                analyticsLogger.bestProviderSelected(selectedProvider)
+                pair.source.analyticsLogger.bestProviderSelected(selectedProvider)
             }
         }
     }

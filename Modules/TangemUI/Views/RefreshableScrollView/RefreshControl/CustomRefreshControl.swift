@@ -20,7 +20,7 @@ class CustomRefreshControlStateObject: ObservableObject {
 
     var isSpinning: Bool {
         switch state {
-        case .idle: false
+        case .idle, .willStartRefreshing: false
         case .refreshing, .stillDragging: true
         }
     }
@@ -40,6 +40,8 @@ class CustomRefreshControlStateObject: ObservableObject {
             isHidden = offset.y.rounded() > settings.refreshAreaHeight
         case .stillDragging:
             isHidden = true
+        case .willStartRefreshing:
+            break
         }
     }
 
@@ -70,6 +72,8 @@ struct CustomRefreshControl: View {
             return MainAccessibilityIdentifiers.refreshStateRefreshing
         case .stillDragging:
             return MainAccessibilityIdentifiers.refreshStateRefreshing // Still considered refreshing
+        case .willStartRefreshing:
+            return MainAccessibilityIdentifiers.refreshStateWillStartRefreshing
         }
     }
 }
