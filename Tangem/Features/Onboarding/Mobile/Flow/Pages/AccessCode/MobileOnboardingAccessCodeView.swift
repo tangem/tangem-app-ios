@@ -45,6 +45,12 @@ private extension MobileOnboardingAccessCodeView {
             )
             .pinStackColor(viewModel.pinColor)
             .pinStackSecured(viewModel.isPinSecured)
+            .shake(
+                trigger: viewModel.shakeTrigger,
+                duration: viewModel.shakeDuration,
+                shakesPerUnit: 3,
+                travelDistance: 10
+            )
         }
         .padding(.top, 32)
     }
