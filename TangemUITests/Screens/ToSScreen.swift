@@ -13,10 +13,10 @@ final class ToSScreen: ScreenBase<ToSPageUIElement> {
     private lazy var acceptButton = button(.acceptButton)
 
     @discardableResult
-    func acceptAgreement() -> StoriesScreen {
+    func acceptAgreement() -> CreateWalletSelectorScreen {
         XCTContext.runActivity(named: "Tap Accept Button") { _ in
             acceptButton.waitAndTap()
-            return StoriesScreen(app)
+            return CreateWalletSelectorScreen(app)
         }
     }
 
