@@ -39,6 +39,10 @@ actor YieldManagerInteractor {
 
     // MARK: - Public Implementation
 
+    func isGasPriceHigh(in fee: YieldTransactionFee) -> Bool {
+        return fee.maxFeePerGas?.decimal ?? .zero > Constants.maxFeePerGasLimitWei
+    }
+
     func getAvailableBalance() -> Decimal? {
         manager.state?.state.activeInfo?.yieldModuleBalanceValue
     }
@@ -212,5 +216,6 @@ private extension YieldManagerInteractor {
     enum Constants {
         static let minimalTopUpBuffer: Decimal = 1.25
         static let minimalTopUpFeeLimit: Decimal = 0.04
+        static let maxFeePerGasLimitWei: Decimal = 4000000000
     }
 }
