@@ -750,6 +750,7 @@
 		2DE0BBB42CAED2CF002C09D9 /* TokenDescriptionBottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE0BBB32CAED2CF002C09D9 /* TokenDescriptionBottomSheetView.swift */; };
 		2DE173F22EA6287200922CF9 /* ArbitrumNovaExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE173F12EA6287100922CF9 /* ArbitrumNovaExternalLinkProvider.swift */; };
 		2DE66F0E2E7F3AB700CCE029 /* PushPermissionNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE66F0D2E7F3AB700CCE029 /* PushPermissionNotificationManager.swift */; };
+		2DFB00D42EF58396006C2392 /* MarketsMainSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFB00D32EF58396006C2392 /* MarketsMainSearchView.swift */; };
 		2DFC278D2C78E7A5009B247E /* TokenContextActionsSectionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFC278C2C78E7A5009B247E /* TokenContextActionsSectionBuilder.swift */; };
 		2DFC27922C78E833009B247E /* TokenItemInfoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFC278E2C78E833009B247E /* TokenItemInfoProvider.swift */; };
 		2DFC27932C78E833009B247E /* TokenItemInfoProviderMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFC278F2C78E833009B247E /* TokenItemInfoProviderMapper.swift */; };
@@ -5464,6 +5465,7 @@
 		2DE0BBB32CAED2CF002C09D9 /* TokenDescriptionBottomSheetView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenDescriptionBottomSheetView.swift; sourceTree = "<group>"; };
 		2DE173F12EA6287100922CF9 /* ArbitrumNovaExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArbitrumNovaExternalLinkProvider.swift; sourceTree = "<group>"; };
 		2DE66F0D2E7F3AB700CCE029 /* PushPermissionNotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushPermissionNotificationManager.swift; sourceTree = "<group>"; };
+		2DFB00D32EF58396006C2392 /* MarketsMainSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsMainSearchView.swift; sourceTree = "<group>"; };
 		2DFC278C2C78E7A5009B247E /* TokenContextActionsSectionBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenContextActionsSectionBuilder.swift; sourceTree = "<group>"; };
 		2DFC278E2C78E833009B247E /* TokenItemInfoProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenItemInfoProvider.swift; sourceTree = "<group>"; };
 		2DFC278F2C78E833009B247E /* TokenItemInfoProviderMapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenItemInfoProviderMapper.swift; sourceTree = "<group>"; };
@@ -10732,10 +10734,11 @@
 		2D72D9622EF5605B008868DE /* Main */ = {
 			isa = PBXGroup;
 			children = (
-				2D72D95E2EF5605B008868DE /* Components */,
 				2D72D95F2EF5605B008868DE /* MarketsMainRoutable.swift */,
+				2DFB00D32EF58396006C2392 /* MarketsMainSearchView.swift */,
 				2D72D9602EF5605B008868DE /* MarketsMainView.swift */,
 				2D72D9612EF5605B008868DE /* MarketsMainViewModel.swift */,
+				2D72D95E2EF5605B008868DE /* Components */,
 			);
 			path = Main;
 			sourceTree = "<group>";
@@ -18868,7 +18871,6 @@
 		DAD98A752AB2E3240051CFBE /* Markets */ = {
 			isa = PBXGroup;
 			children = (
-				2D0639872EF024DA00BE0499 /* Shtorka */,
 				30F6A8B12EA4D303009D4C6D /* AccountWithNetworkSelector */,
 				B690FC662C91CE8800D8683B /* Common */,
 				2D245E322E97EB56006AD2DC /* MarketsTokenDetails */,
@@ -18876,6 +18878,7 @@
 				2DC5675F2B0DFFAF00B0244F /* Navigation */,
 				0AEB1FCF2DBF75A5009EA212 /* Notifications */,
 				2D1BB3752C07501C008392F7 /* Providers */,
+				2D0639872EF024DA00BE0499 /* Shtorka */,
 				2DC567592B0DFFAF00B0244F /* TokenList */,
 				2D5DCC2B2C3309F1000EE379 /* TokensNetworkSelector */,
 				2DB648812C35877000DA100D /* UIComponents */,
@@ -26612,6 +26615,7 @@
 				B60F98CE2E3BC84C00141CA5 /* CommonCryptoAccountModel.swift in Sources */,
 				C207D60B2DE60F2500A5FB2E /* WalletConnectApproveDAppProposalUseCase.swift in Sources */,
 				C207D60C2DE60F2500A5FB2E /* WalletConnectEstablishDAppConnectionUseCase.swift in Sources */,
+				2DFB00D42EF58396006C2392 /* MarketsMainSearchView.swift in Sources */,
 				EF4C04562DEF2A740059D7AA /* FeeSelectorContentRowViewModel.swift in Sources */,
 				EF4C04572DEF2A740059D7AA /* FeeSelectorContentRowView.swift in Sources */,
 				EF4C04582DEF2A740059D7AA /* FeeSelectorContentViewModel.swift in Sources */,
