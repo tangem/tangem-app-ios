@@ -82,12 +82,7 @@ extension StakingTokenBalanceProvider: TokenBalanceProvider {
 // MARK: - Private
 
 extension StakingTokenBalanceProvider {
-    func storeBalance(balance: Decimal) {
-        let balance = CachedBalance(balance: balance, date: .now)
-        tokenBalancesRepository.store(balance: balance, for: walletModelId, type: .staked)
-    }
-
-    func cachedBalance() -> TokenBalanceType.Cached? {
+    func oldCachedBalance() -> TokenBalanceType.Cached? {
         tokenBalancesRepository
             .balance(walletModelId: walletModelId, type: .staked)
             .map { .init(balance: $0.balance, date: $0.date) }
@@ -95,18 +90,20 @@ extension StakingTokenBalanceProvider {
 
     func mapToTokenBalance(state: StakingManagerState) -> TokenBalanceType {
         switch state {
-        case .loading:
-            return .loading(cachedBalance())
+        case .loading(.some(let cachedState)):
+            return .loading(mapToCachedBalance(cachedState: cachedState))
+        case .loading(.none):
+            return .loading(oldCachedBalance())
         case .notEnabled, .temporaryUnavailable:
             return .empty(.noData)
-        case .loadingError:
-            return .failure(cachedBalance())
+        case .loadingError(_, .some(let cachedState)):
+            return .failure(mapToCachedBalance(cachedState: cachedState))
+        case .loadingError(_, .none):
+            return .loading(oldCachedBalance())
         case .availableToStake:
-            storeBalance(balance: .zero)
             return .loaded(.zero)
         case .staked(let balances):
             let balance = balances.balances.blocked().sum()
-            storeBalance(balance: balance)
             return .loaded(balance)
         }
     }
@@ -118,5 +115,9 @@ extension StakingTokenBalanceProvider {
         })
 
         return builder.mapToFormattedTokenBalanceType(type: type)
+    }
+
+    func mapToCachedBalance(cachedState: CachedStakingManagerState?) -> TokenBalanceType.Cached? {
+        cachedState.flatMap { .init(balance: $0.stakeState.balance, date: $0.date) }
     }
 }

@@ -266,7 +266,7 @@ extension SolanaWalletManager: ThenProcessable {}
 
 // MARK: - StakeKitTransactionSender, StakeKitTransactionSenderProvider
 
-extension SolanaWalletManager: StakeKitTransactionsBuilder, StakeKitTransactionSender, StakeKitTransactionDataProvider {
+extension SolanaWalletManager: StakeKitTransactionSender, StakingTransactionsBuilder, StakeKitTransactionDataProvider {
     struct RawTransactionData: CustomStringConvertible {
         let serializedData: String
         let blockhashDate: Date
@@ -289,15 +289,20 @@ extension SolanaWalletManager: StakeKitTransactionsBuilder, StakeKitTransactionS
             signature.signature,
             transaction: Data(hex: transaction.unsignedData)
         )
+
+        guard let solanaBlockhashDate = transaction.solanaBlockhashDate else {
+            throw BlockchainSdkError.failedToBuildTx
+        }
+
         return RawTransactionData(
             serializedData: signedTransaction,
-            blockhashDate: transaction.params.solanaBlockhashDate
+            blockhashDate: solanaBlockhashDate
         )
     }
 }
 
 extension SolanaWalletManager: StakeKitTransactionDataBroadcaster {
-    func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> String {
+    func broadcast(rawTransaction: RawTransaction) async throws -> String {
         try await networkService.sendRaw(
             base64serializedTransaction: rawTransaction.serializedData,
             startSendingTimestamp: rawTransaction.blockhashDate

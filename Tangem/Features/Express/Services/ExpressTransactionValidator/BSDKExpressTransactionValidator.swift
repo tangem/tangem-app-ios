@@ -11,7 +11,7 @@ import BlockchainSdk
 struct BSDKExpressTransactionValidator: ExpressTransactionValidator {
     let transactionValidator: any TransactionValidator
 
-    func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws {
-        try await transactionValidator.validate(amount: amount, fee: fee, destination: destination)
+    func validate(amount: Amount, fee: Fee) throws {
+        try transactionValidator.validate(amount: amount, fee: fee)
     }
 }

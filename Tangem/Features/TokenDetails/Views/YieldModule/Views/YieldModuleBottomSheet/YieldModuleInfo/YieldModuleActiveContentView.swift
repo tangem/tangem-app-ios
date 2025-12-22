@@ -42,7 +42,7 @@ struct YieldModuleActiveContentView: View {
                 bottomSection
             }
         }
-        .scrollBounceBehaviorBackport(.basedOnSize)
+        .scrollBounceBehavior(.basedOnSize)
         .padding(.horizontal, 16)
         .padding(.top, 2)
         .safeAreaInset(edge: .top) {

@@ -386,8 +386,7 @@ private extension TokenDetailsViewModel {
         state: YieldModuleManagerState,
         marketInfo: YieldModuleMarketInfo?
     ) -> YieldModuleAvailability {
-        guard FeatureProvider.isAvailable(.yieldModule),
-              let manager = walletModel.yieldModuleManager,
+        guard let manager = walletModel.yieldModuleManager,
               let factory = makeYieldModuleFlowFactory(manager: manager)
         else {
             return .notApplicable
@@ -489,15 +488,20 @@ extension TokenDetailsViewModel: BalanceWithButtonsViewModelBalanceProvider {
 
 extension TokenDetailsViewModel: BalanceTypeSelectorProvider {
     var showBalanceSelectorPublisher: AnyPublisher<Bool, Never> {
-        walletModel.stakingBalanceProvider.balanceTypePublisher.map {
+        func isZeroOrNil(_ cached: TokenBalanceType.Cached?) -> Bool {
+            cached?.balance == .zero || cached == nil
+        }
+
+        return walletModel.stakingBalanceProvider.balanceTypePublisher.map {
             switch $0 {
-            case .empty, .failure:
+            case .empty:
                 return false
             case .loaded(let amount) where amount == .zero:
                 return false
-            case .loading(let cached) where cached?.balance == .zero || cached == nil:
+            case .failure(let cached) where isZeroOrNil(cached),
+                 .loading(let cached) where isZeroOrNil(cached):
                 return false
-            case .loading, .loaded:
+            case .failure, .loading, .loaded:
                 return true
             }
         }.eraseToAnyPublisher()

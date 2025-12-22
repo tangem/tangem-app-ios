@@ -92,7 +92,7 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
                 let cardDetailsData = try await viewModel.repository.revealRequest()
                 viewModel.flip(to: .loaded(.revealed(cardDetailsData)))
 
-                try? await Task.sleep(seconds: Constants.cardDetailsVisibilityPeriodInSeconds)
+                try? await Task.sleep(for: .seconds(Constants.cardDetailsVisibilityPeriodInSeconds))
                 viewModel.flip(to: .hidden(isFrozen: viewModel.state.isFrozen))
             } catch {
                 viewModel.state = .hidden(isFrozen: viewModel.state.isFrozen)

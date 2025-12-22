@@ -17,11 +17,11 @@ protocol StakingModelStateProvider {
     var state: AnyPublisher<StakingModel.State, Never> { get }
 }
 
-class StakingModel {
+final class StakingModel {
     // MARK: - Data
 
     private let _amount = CurrentValueSubject<SendAmount?, Never>(nil)
-    private let _selectedValidator = CurrentValueSubject<LoadingValue<ValidatorInfo>, Never>(.loading)
+    private let _selectedTarget = CurrentValueSubject<LoadingResult<StakingTargetInfo, Never>, Never>(.loading)
     private let _state = CurrentValueSubject<State?, Never>(.none)
     private let _approvePolicy = CurrentValueSubject<ApprovePolicy, Never>(.unlimited)
     private let _transactionTime = PassthroughSubject<Date?, Never>()
@@ -92,7 +92,7 @@ extension StakingModel: StakingModelStateProvider {
 private extension StakingModel {
     func updateState() {
         guard let currentAmount = _amount.value?.crypto,
-              let validator = _selectedValidator.value.value else {
+              let target = _selectedTarget.value.value else {
             return
         }
 
@@ -104,7 +104,7 @@ private extension StakingModel {
         estimatedFeeTask = runTask(in: self) { model in
             do {
                 model.update(state: .loading)
-                let newState = try await model.state(amount: amount, validator: validator, approvePolicy: model._approvePolicy.value)
+                let newState = try await model.state(amount: amount, target: target, approvePolicy: model._approvePolicy.value)
                 model.update(state: newState)
             } catch _ as CancellationError {
                 // Do nothing
@@ -114,7 +114,7 @@ private extension StakingModel {
         }
     }
 
-    func state(amount: Decimal, validator: ValidatorInfo, approvePolicy: ApprovePolicy) async throws -> StakingModel.State {
+    func state(amount: Decimal, target: StakingTargetInfo, approvePolicy: ApprovePolicy) async throws -> StakingModel.State {
         if let allowanceState = try await allowanceState(amount: amount, approvePolicy: approvePolicy) {
             switch allowanceState {
             case .permissionRequired(let approveData):
@@ -128,7 +128,7 @@ private extension StakingModel {
 
             case .approveTransactionInProgress:
                 return try await .approveTransactionInProgress(
-                    stakingFee: estimateFee(amount: amount, validator: validator)
+                    stakingFee: estimateFee(amount: amount, target: target)
                 )
 
             case .enoughAllowance:
@@ -136,7 +136,7 @@ private extension StakingModel {
             }
         }
 
-        let fee = try await estimateFee(amount: amount, validator: validator)
+        let fee = try await estimateFee(amount: amount, target: target)
 
         if let accountInitializationService,
            try await accountInitializationService.isAccountInitialized() == false {
@@ -149,7 +149,7 @@ private extension StakingModel {
             )
         }
 
-        return makeState(amount: amount, fee: fee)
+        return makeState(amount: amount, fee: fee, target: target)
     }
 
     func validate(amount: Decimal, fee: Decimal) -> StakingModel.State? {
@@ -158,6 +158,7 @@ private extension StakingModel {
             let fee = makeFee(value: fee)
 
             try transactionValidator.validate(amount: amount, fee: fee)
+
             return nil
         } catch let error as ValidationError {
             return .validationError(error: error, fee: fee)
@@ -166,9 +167,9 @@ private extension StakingModel {
         }
     }
 
-    func estimateFee(amount: Decimal, validator: ValidatorInfo) async throws -> Decimal {
+    func estimateFee(amount: Decimal, target: StakingTargetInfo) async throws -> Decimal {
         try await stakingManager.estimateFee(
-            action: StakingAction(amount: amount, validatorType: .validator(validator), type: .stake)
+            action: StakingAction(amount: amount, targetType: .target(target), type: .stake)
         )
     }
 
@@ -186,18 +187,18 @@ private extension StakingModel {
         case .none, .loading:
             return SendFee(option: .market, value: .loading)
         case .readyToApprove(let approveData):
-            return SendFee(option: .market, value: .loaded(approveData.fee))
+            return SendFee(option: .market, value: .success(approveData.fee))
         case .readyToStake(let readyToStake):
-            return SendFee(option: .market, value: .loaded(makeFee(value: readyToStake.fee)))
+            return SendFee(option: .market, value: .success(makeFee(value: readyToStake.fee)))
         case .approveTransactionInProgress(let fee),
              .validationError(_, let fee):
-            return SendFee(option: .market, value: .loaded(makeFee(value: fee)))
+            return SendFee(option: .market, value: .success(makeFee(value: fee)))
         case .networkError(let error):
-            return SendFee(option: .market, value: .failedToLoad(error: error))
+            return SendFee(option: .market, value: .failure(error))
         case .blockchainAccountInitializationRequired(_, let transactionFee):
-            return SendFee(option: .market, value: .loaded(transactionFee))
+            return SendFee(option: .market, value: .success(transactionFee))
         case .blockchainAccountInitializationInProgress:
-            return SendFee(option: .market, value: .failedToLoad(error: StakingModelError.accountIsNotInitialized))
+            return SendFee(option: .market, value: .failure(StakingModelError.accountIsNotInitialized))
         }
     }
 
@@ -214,7 +215,7 @@ private extension StakingModel {
         Fee(.init(with: feeTokenItem.blockchain, type: feeTokenItem.amountType, value: value))
     }
 
-    private func makeState(amount: Decimal, fee: Decimal) -> State {
+    private func makeState(amount: Decimal, fee: Decimal, target: StakingTargetInfo) -> State {
         let includeFee = feeIncludedCalculator.shouldIncludeFee(makeFee(value: fee), into: makeAmount(value: amount))
         let newAmount = includeFee ? amount - fee : amount
         _isFeeIncluded.send(includeFee)
@@ -225,7 +226,7 @@ private extension StakingModel {
 
         let balances = stakingManager.balances ?? []
         let hasPreviousStakeOnDifferentValidator = balances.contains { balance in
-            balance.balanceType == .active && balance.validatorType.validator != validator
+            balance.balanceType == .active && balance.targetType.target != target
         }
 
         let increasedFee = fee * Constants.reduceAmountMultiplier
@@ -257,7 +258,7 @@ private extension StakingModel {
         timerTask = runTask(in: self) { model in
             try Task.checkCancellation()
 
-            try await Task.sleep(seconds: 5)
+            try await Task.sleep(for: .seconds(5))
 
             model.log("timer realised")
             model.updateState()
@@ -283,14 +284,14 @@ private extension StakingModel {
             throw StakingModelError.readyToStakeNotFound
         }
 
-        guard let validator = _selectedValidator.value.value else {
-            throw StakingModelError.validatorNotFound
+        guard let target = _selectedTarget.value.value else {
+            throw StakingModelError.targetNotFound
         }
 
         do {
             let action = StakingAction(
                 amount: readyToStake.amount,
-                validatorType: .validator(validator),
+                targetType: .target(target),
                 type: .stake
             )
 
@@ -299,7 +300,7 @@ private extension StakingModel {
             if readyToStake.isFeeIncluded,
                transactionsFee > readyToStake.fee,
                let amount = _amount.value?.crypto {
-                update(state: makeState(amount: amount, fee: transactionsFee))
+                update(state: makeState(amount: amount, fee: transactionsFee, target: target))
                 throw TransactionDispatcherResult.Error.informationRelevanceServiceFeeWasIncreased
             }
             let result = try await stakingTransactionDispatcher.send(transaction: .staking(transactionInfo))
@@ -310,6 +311,9 @@ private extension StakingModel {
         } catch let error as TransactionDispatcherResult.Error {
             proceed(error: error)
             throw error
+        } catch P2PStakingError.feeIncreased(let newFee) {
+            update(state: makeState(amount: readyToStake.amount, fee: newFee, target: target))
+            throw P2PStakingError.feeIncreased(newFee: newFee)
         } catch {
             throw TransactionDispatcherResult.Error.loadTransactionInfo(error: error.toUniversalError())
         }
@@ -406,18 +410,18 @@ extension StakingModel: SendSourceTokenAmountOutput {
 
 // MARK: - StakingValidatorsInput
 
-extension StakingModel: StakingValidatorsInput {
-    var selectedValidator: ValidatorInfo? { _selectedValidator.value.value }
-    var selectedValidatorPublisher: AnyPublisher<TangemStaking.ValidatorInfo, Never> {
-        _selectedValidator.compactMap { $0.value }.eraseToAnyPublisher()
+extension StakingModel: StakingTargetsInput {
+    var selectedTarget: StakingTargetInfo? { _selectedTarget.value.value }
+    var selectedTargetPublisher: AnyPublisher<TangemStaking.StakingTargetInfo, Never> {
+        _selectedTarget.compactMap { $0.value }.eraseToAnyPublisher()
     }
 }
 
 // MARK: - StakingValidatorsOutput
 
-extension StakingModel: StakingValidatorsOutput {
-    func userDidSelected(validator: TangemStaking.ValidatorInfo) {
-        _selectedValidator.send(.loaded(validator))
+extension StakingModel: StakingTargetsOutput {
+    func userDidSelect(target: TangemStaking.StakingTargetInfo) {
+        _selectedTarget.send(.success(target))
     }
 }
 
@@ -492,7 +496,7 @@ extension StakingModel: SendFinishInput {
 extension StakingModel: SendBaseInput, SendBaseOutput {
     var actionInProcessing: AnyPublisher<Bool, Never> {
         Publishers.Merge(
-            stakingManager.statePublisher.map { $0 == .loading },
+            stakingManager.statePublisher.map { $0.isLoading },
             _isLoading
         )
         .eraseToAnyPublisher()
@@ -561,11 +565,11 @@ extension StakingModel: NotificationTapDelegate {
 // MARK: - ApproveViewModelInput
 
 extension StakingModel: ApproveViewModelInput {
-    var approveFeeValue: LoadingValue<Fee> {
+    var approveFeeValue: LoadingResult<Fee, Error> {
         selectedFee.value
     }
 
-    var approveFeeValuePublisher: AnyPublisher<LoadingValue<BlockchainSdk.Fee>, Never> {
+    var approveFeeValuePublisher: AnyPublisher<LoadingResult<Fee, Error>, Never> {
         _state
             .withWeakCaptureOf(self)
             .map { model, state in
@@ -611,7 +615,7 @@ extension StakingModel: StakingBaseDataBuilderInput {
 
     var stakingActionType: StakingAction.ActionType? { .stake }
 
-    var validator: ValidatorInfo? { _selectedValidator.value.value }
+    var target: StakingTargetInfo? { _selectedTarget.value.value }
 }
 
 extension StakingModel {
@@ -647,7 +651,7 @@ extension StakingModel {
 
 enum StakingModelError: String, Hashable, LocalizedError {
     case readyToStakeNotFound
-    case validatorNotFound
+    case targetNotFound
     case allowanceServiceNotFound
     case approveDataNotFound
     case accountIsNotInitialized

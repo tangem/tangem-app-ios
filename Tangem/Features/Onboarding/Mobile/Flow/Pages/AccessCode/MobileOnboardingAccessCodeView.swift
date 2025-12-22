@@ -17,10 +17,10 @@ struct MobileOnboardingAccessCodeView: View {
 
     var body: some View {
         content
-            .ifLet(viewModel.leadingBavBarItem) { view, item in
+            .ifLet(viewModel.leadingNavBarItem) { view, item in
                 view.flowNavBar(leadingItem: item.view)
             }
-            .ifLet(viewModel.trailingBavBarItem) { view, item in
+            .ifLet(viewModel.trailingNavBarItem) { view, item in
                 view.flowNavBar(trailingItem: item.view)
             }
             .background(Color.clear.alert(item: $viewModel.alert) { $0.alert })

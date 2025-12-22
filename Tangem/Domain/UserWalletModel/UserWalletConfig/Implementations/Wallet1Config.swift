@@ -169,6 +169,10 @@ extension Wallet1Config: UserWalletConfig {
         }
     }
 
+    var contextBuilder: WalletCreationContextBuilder {
+        ["type": "card"]
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .accessCode:
@@ -267,6 +271,8 @@ extension Wallet1Config: UserWalletConfig {
             return .available
         case .transactionPayloadLimit:
             return .available
+        case .tangemPay:
+            return card.settings.isHDWalletAllowed ? .available : .hidden
         }
     }
 
