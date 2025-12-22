@@ -110,7 +110,9 @@ final class MainViewModel: ObservableObject {
     /// Handles `SwiftUI.View.onAppear(perform:)`.
     func onViewAppear() {
         if !isLoggingOut {
-            var analyticsParameters: [Analytics.ParameterKey: Analytics.ParameterValue] = [:]
+            var analyticsParameters: [Analytics.ParameterKey: Analytics.ParameterValue] = [
+                .appTheme: AppSettings.shared.appTheme.analyticsParamValue,
+            ]
 
             if let userWalletModel = userWalletRepository.selectedModel {
                 let walletType = Analytics.ParameterValue.seedState(for: userWalletModel.hasImportedWallets)
@@ -120,7 +122,7 @@ final class MainViewModel: ObservableObject {
             Analytics.log(.mainScreenOpened, params: analyticsParameters)
         }
 
-        updateMarkets()
+        updateYieldMarkets()
 
         swipeDiscoveryHelper.scheduleSwipeDiscoveryIfNeeded()
         openPushNotificationsAuthorizationIfNeeded()
@@ -396,7 +398,7 @@ final class MainViewModel: ObservableObject {
             await viewModel.onPullToRefresh()
         }
 
-        updateMarkets(force: true)
+        updateYieldMarkets(force: true)
     }
 }
 
@@ -482,16 +484,9 @@ extension MainViewModel: WalletSwipeDiscoveryHelperDelegate {
 // MARK: - Yield module
 
 extension MainViewModel {
-    func updateMarkets(force: Bool = false) {
+    func updateYieldMarkets(force: Bool = false) {
         if force || yieldModuleNetworkManager.markets.isEmpty {
-            let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletRepository.models)
-            let chainIDs = Set(
-                walletModels.compactMap { walletModel -> String? in
-                    guard walletModel.tokenItem.isToken, walletModel.yieldModuleManager != nil else { return nil }
-                    return walletModel.tokenItem.blockchain.chainId.map { String($0) }
-                }
-            )
-            yieldModuleNetworkManager.updateMarkets(chainIDs: chainIDs.asArray)
+            yieldModuleNetworkManager.updateMarkets()
         }
     }
 }
