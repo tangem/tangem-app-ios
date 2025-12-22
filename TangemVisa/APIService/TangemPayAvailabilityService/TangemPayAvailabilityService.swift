@@ -48,7 +48,7 @@ extension CommonTangemPayAvailabilityService: TangemPayAvailabilityService {
     }
 
     func isPaeraCustomer(customerWalletId: String) async throws -> TangemPayIsPaeraCustomerResponse {
-        try await tangemPayAPIService.request(
+        try await apiService.request(
             .init(
                 target: .isPaeraCustomer(
                     customerWalletId: customerWalletId,
