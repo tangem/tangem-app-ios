@@ -188,10 +188,16 @@ private extension CommonStakingNotificationManager {
 
             show(error: .validationErrorEvent(validationErrorEvent))
         case .stakingValidationError(let error):
-            guard case .amountRequirementError(let minAmount) = error else {
+            guard case .amountRequirementError(let minAmount, let action) = error else {
                 return
             }
-            show(error: .amountRequirementError(minAmount: minAmount.stringValue, currency: tokenItem.currencySymbol))
+            show(
+                error: .amountRequirementError(
+                    minAmount: minAmount.stringValue,
+                    blockchain: tokenItem.blockchain,
+                    actionType: action
+                )
+            )
         }
     }
 }

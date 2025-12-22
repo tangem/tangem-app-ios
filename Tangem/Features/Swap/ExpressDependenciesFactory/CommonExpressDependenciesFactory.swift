@@ -80,7 +80,6 @@ private extension CommonExpressDependenciesFactory {
         let expressManager = TangemExpressFactory().makeExpressManager(
             expressAPIProvider: expressAPIProvider,
             expressRepository: expressRepository,
-            analyticsLogger: analyticsLogger,
             supportedProviderTypes: supportedProviderTypes,
             operationType: operationType,
             transactionValidator: transactionValidator
@@ -96,7 +95,6 @@ private extension CommonExpressDependenciesFactory {
             expressDestinationService: CommonExpressDestinationService(
                 userWalletId: shouldFilterForOneWallet ? userWalletInfo.id : nil
             ),
-            expressAnalyticsLogger: analyticsLogger,
             expressAPIProvider: expressAPIProvider
         )
 
@@ -121,12 +119,6 @@ private extension CommonExpressDependenciesFactory {
         }
 
         return _onrampRepository
-    }
-
-    /// Be careful to use tokenItem in CommonExpressAnalyticsLogger
-    /// Because there will be inly initial tokenItem without updating
-    var analyticsLogger: ExpressAnalyticsLogger {
-        CommonExpressAnalyticsLogger(tokenItem: initialTokenItem)
     }
 }
 

@@ -30,7 +30,6 @@ class ExpressInteractor {
     private let expressPairsRepository: ExpressPairsRepository
     private let expressPendingTransactionRepository: ExpressPendingTransactionRepository
     private let expressDestinationService: ExpressDestinationService
-    private let expressAnalyticsLogger: ExpressAnalyticsLogger
     private let expressAPIProvider: ExpressAPIProvider
 
     // MARK: - Options
@@ -47,7 +46,6 @@ class ExpressInteractor {
         expressPairsRepository: ExpressPairsRepository,
         expressPendingTransactionRepository: ExpressPendingTransactionRepository,
         expressDestinationService: ExpressDestinationService,
-        expressAnalyticsLogger: ExpressAnalyticsLogger,
         expressAPIProvider: ExpressAPIProvider
     ) {
         self.userWalletInfo = userWalletInfo
@@ -55,7 +53,6 @@ class ExpressInteractor {
         self.expressPairsRepository = expressPairsRepository
         self.expressPendingTransactionRepository = expressPendingTransactionRepository
         self.expressDestinationService = expressDestinationService
-        self.expressAnalyticsLogger = expressAnalyticsLogger
         self.expressAPIProvider = expressAPIProvider
 
         _swappingPair = .init(swappingPair)
@@ -301,7 +298,7 @@ extension ExpressInteractor {
             throw ExpressInteractorError.transactionDataNotFound
         }
 
-        logApproveTransactionAnalyticsEvent(policy: state.policy)
+        await logApproveTransactionAnalyticsEvent(policy: state.policy)
 
         guard let allowanceService = try getSourceWallet().allowanceService else {
             throw ExpressInteractorError.allowanceServiceNotFound
@@ -728,24 +725,47 @@ private extension ExpressInteractor {
 
 private extension ExpressInteractor {
     func logSwapTransactionAnalyticsEvent() {
-        expressAnalyticsLogger.logSwapTransactionAnalyticsEvent(destination: getDestination()?.tokenItem.currencySymbol)
+        guard let source = getSource().value,
+              let destination = getDestination() else {
+            return
+        }
+
+        source.interactorAnalyticsLogger
+            .logSwapTransactionAnalyticsEvent(destination: destination.tokenItem)
     }
 
-    func logApproveTransactionAnalyticsEvent(policy: BSDKApprovePolicy) {
-        expressAnalyticsLogger.logApproveTransactionAnalyticsEvent(policy: policy, destination: getDestination()?.tokenItem.currencySymbol)
+    func logApproveTransactionAnalyticsEvent(policy: BSDKApprovePolicy) async {
+        guard let source = getSource().value,
+              let destination = getDestination(),
+              let provider = await getSelectedProvider() else {
+            return
+        }
+
+        source.interactorAnalyticsLogger
+            .logApproveTransactionAnalyticsEvent(
+                policy: policy,
+                provider: provider.provider,
+                destination: destination.tokenItem
+            )
     }
 
-    func logApproveTransactionSentAnalyticsEvent(policy: BSDKApprovePolicy, signerType: String, currentProviderHost: String) {
-        expressAnalyticsLogger.logApproveTransactionSentAnalyticsEvent(
-            policy: policy,
-            signerType: signerType,
-            currentProviderHost: currentProviderHost
-        )
+    func logApproveTransactionSentAnalyticsEvent(
+        policy: BSDKApprovePolicy,
+        signerType: String,
+        currentProviderHost: String
+    ) {
+        getSource().value?.interactorAnalyticsLogger
+            .logApproveTransactionSentAnalyticsEvent(
+                policy: policy,
+                signerType: signerType,
+                currentProviderHost: currentProviderHost
+            )
     }
 
     func logExpressError(_ error: Error) async {
         let selectedProvider = await getSelectedProvider()
-        expressAnalyticsLogger.logExpressError(error, provider: selectedProvider?.provider)
+        getSource().value?.interactorAnalyticsLogger
+            .logExpressError(error, provider: selectedProvider?.provider)
     }
 
     func logTransactionSentAnalyticsEvent(data: SentExpressTransactionData, signerType: String) {

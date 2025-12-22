@@ -41,4 +41,9 @@ struct PredefinedOnrampParameters: Hashable {
 
     let amount: Decimal?
     let preferredValues: PreferredValues
+
+    init(amount: Decimal? = .none, preferredValues: PreferredValues = .none) {
+        self.amount = amount
+        self.preferredValues = preferredValues
+    }
 }

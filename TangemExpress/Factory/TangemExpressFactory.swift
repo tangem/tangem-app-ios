@@ -19,7 +19,6 @@ public struct TangemExpressFactory {
     public func makeExpressManager(
         expressAPIProvider: ExpressAPIProvider,
         expressRepository: ExpressRepository,
-        analyticsLogger: ExpressAnalyticsLogger,
         supportedProviderTypes: [ExpressProviderType],
         operationType: ExpressOperationType,
         transactionValidator: ExpressProviderTransactionValidator
@@ -34,7 +33,6 @@ public struct TangemExpressFactory {
             expressAPIProvider: expressAPIProvider,
             expressProviderManagerFactory: factory,
             expressRepository: expressRepository,
-            analyticsLogger: analyticsLogger,
             supportedProviderTypes: supportedProviderTypes,
             operationType: operationType
         )
