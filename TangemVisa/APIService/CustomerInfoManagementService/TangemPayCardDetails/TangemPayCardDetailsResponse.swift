@@ -18,5 +18,5 @@ public struct TangemPayCardDetailsResponse: Decodable {
     public let cvv: Secret
 
     @DefaultIfMissing
-    public var isPINSet: Bool
+    public var isPinSet: Bool
 }
