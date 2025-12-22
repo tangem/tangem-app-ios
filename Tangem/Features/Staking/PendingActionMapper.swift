@@ -11,9 +11,9 @@ import TangemStaking
 
 struct PendingActionMapper {
     private let balance: StakingBalance
-    private let validators: [ValidatorInfo]
+    private let validators: [StakingTargetInfo]
 
-    init(balance: StakingBalance, validators: [ValidatorInfo]) {
+    init(balance: StakingBalance, validators: [StakingTargetInfo]) {
         self.balance = balance
         self.validators = validators
     }
@@ -139,7 +139,7 @@ struct PendingActionMapper {
     ) -> StakingAction {
         StakingAction(
             amount: balance.amount,
-            validatorType: balance.validatorType,
+            targetType: balance.targetType,
             type: type,
             displayType: displayType
         )
