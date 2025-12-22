@@ -1378,6 +1378,8 @@
 "tangempay_issuing_your_card_description" = "Выпускаем карту, это займет немного времени.";
 "tangempay_issuing_your_card" = "Выпускаем карту";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
+"tangempay_kyc_confirm_cancellation_alert_title" = "Confirm Cancellation";
+"tangempay_kyc_confirm_cancellation_description" = "Are you sure you want to stop the KYC process? You can return to it anytime.";
 "tangempay_kyc_failed_description" = "Не удалось подтвердить ваш профиль. Если у вас есть вопросы, обратитесь в службу поддержки.";
 "tangempay_kyc_failed_title" = "К сожалению, нам не удалось подтвердить вашу личность";
 "tangempay_kyc_in_progress_notification_button" = "Посмотреть статус";
@@ -1560,7 +1562,7 @@
 "visa_unlock_notification_title" = "Needed unlock";
 "voice_over_open_card_details" = "Открыть детали устройства";
 "voice_over_open_new_wallet_connect_session" = "Отсканируйте QR-код, чтобы открыть новую сессию WalletConnect";
-"wallet_add_common_title" = "Выберите способ добавления кошелька";
+"wallet_add_common_title" = "Выберите тип кошелька";
 "wallet_add_hardware_description" = "Отсканируйте вашу карту или кольцо Tangem, чтобы восстановить её или импортировать из другого кошелька.";
 "wallet_add_hardware_info_create" = "Создать аппаратный кошелёк";
 "wallet_add_hardware_purchase" = "Хотите приобрести кошелек Tangem?";
