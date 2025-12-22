@@ -32,17 +32,9 @@ struct WordsCaptureProtectionView: View {
                     let wordView = Text("\(words[index])")
                         .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
 
-                    // The order of the `fixedSize` modifier must be different on iOS 15 and iOS 16+,
-                    // otherwise the layout will be broken
-                    if #available(iOS 16.0, *) {
-                        wordView
-                            .screenCaptureProtection()
-                            .fixedSize()
-                    } else {
-                        wordView
-                            .fixedSize()
-                            .screenCaptureProtection()
-                    }
+                    wordView
+                        .screenCaptureProtection()
+                        .fixedSize()
 
                     Spacer()
                 }

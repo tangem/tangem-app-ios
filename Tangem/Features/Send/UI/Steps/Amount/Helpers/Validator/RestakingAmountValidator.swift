@@ -60,10 +60,7 @@ class RestakingAmountValidator {
 extension RestakingAmountValidator: SendAmountValidator {
     func validate(amount: Decimal) throws {
         if let minAmount = minimumAmount, amount < minAmount {
-            throw StakingValidationError.amountRequirementError(
-                minAmount: minAmount,
-                action: action
-            )
+            throw StakingValidationError.minAmountRequirementError(minAmount, action: action)
         }
     }
 }

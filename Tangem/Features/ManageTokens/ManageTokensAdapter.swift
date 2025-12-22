@@ -21,6 +21,7 @@ class ManageTokensAdapter {
     private let userTokensManager: UserTokensManager
     private let hardwareLimitationUtil: HardwareLimitationsUtil
     private let loader: TokensListDataLoader
+    private let context: ManageTokensContext
 
     /// This parameter is required due to the fact that the adapter is used in various places
     private let analyticsSourceRawValue: String
@@ -60,6 +61,7 @@ class ManageTokensAdapter {
     init(settings: Settings) {
         hardwareLimitationUtil = settings.hardwareLimitationUtil
         existingCurves = settings.existingCurves
+        context = settings.context
         userTokensManager = settings.context.userTokensManager
         analyticsSourceRawValue = settings.analyticsSourceRawValue
 
@@ -73,6 +75,8 @@ class ManageTokensAdapter {
     }
 
     func saveChanges(completion: @escaping (Result<Void, Error>) -> Void) {
+        logAddTokenToNonMainAccountAnalyticsIfNeeded()
+
         userTokensManager.update(
             itemsToRemove: pendingRemove,
             itemsToAdd: pendingAdd
@@ -330,6 +334,16 @@ private extension ManageTokensAdapter {
 
         let analyticsParams: [Analytics.ParameterKey: String] = [.input: searchValue]
         Analytics.log(event: .manageTokensTokenIsNotFound, params: analyticsParams)
+    }
+
+    func logAddTokenToNonMainAccountAnalyticsIfNeeded() {
+        for tokenItem in pendingAdd {
+            let destination = context.accountDestination(for: tokenItem)
+            ManageTokensAnalyticsLogger.logAddTokenToNonMainAccountIfNeeded(
+                tokenItem: tokenItem,
+                destination: destination
+            )
+        }
     }
 }
 
