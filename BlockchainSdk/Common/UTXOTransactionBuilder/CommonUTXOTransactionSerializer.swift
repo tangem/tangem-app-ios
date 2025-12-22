@@ -10,7 +10,7 @@ import Foundation
 import TangemSdk
 
 struct CommonUTXOTransactionSerializer {
-    typealias Transaction = PreImageTransaction
+    typealias Transaction = (transaction: BlockchainSdk.Transaction, preImage: PreImageTransaction)
 
     let version: UInt32
     let sequence: SequenceType
@@ -28,7 +28,7 @@ struct CommonUTXOTransactionSerializer {
 
 extension CommonUTXOTransactionSerializer: UTXOTransactionSerializer {
     func preImageHashes(transaction: Transaction) throws -> [Data] {
-        let hashes = try transaction.inputs.indexed().map { index, input in
+        let hashes = try transaction.preImage.inputs.indexed().map { index, input in
             if input.script.type.isWitness || signHashType == .bitcoinCashAll {
                 return try bip143PreImageHash(transaction: transaction, inputIndex: index)
             }
@@ -53,7 +53,9 @@ private extension CommonUTXOTransactionSerializer {
         // Version
         bytes += version.data
 
-        if transaction.isWitness {
+        let opReturnOutput = try opReturnOutput(from: transaction.transaction)
+
+        if transaction.preImage.isWitness {
             // Marker
             bytes += UInt8(0).data
             // Flag
@@ -61,19 +63,23 @@ private extension CommonUTXOTransactionSerializer {
         }
 
         // Inputs
-        bytes += transaction.inputs.count.byte
-        zip(transaction.inputs, signatures).forEach { input, signature in
+        bytes += transaction.preImage.inputs.count.byte
+        zip(transaction.preImage.inputs, signatures).forEach { input, signature in
             bytes += encodeInput(input, script: input.script.type.isWitness ? .blank : .signed(signature))
         }
 
         // Outputs
-        bytes += transaction.outputs.count.byte
-        transaction.outputs.forEach { output in
+        let outputsCount = transaction.preImage.outputs.count + (opReturnOutput == nil ? 0 : 1)
+        bytes += outputsCount.byte
+        transaction.preImage.outputs.forEach { output in
             bytes += encodeOutput(output)
         }
+        if let opReturnOutput {
+            bytes += opReturnOutput
+        }
 
-        if transaction.isWitness {
-            try zip(transaction.inputs, signatures).forEach { input, signature in
+        if transaction.preImage.isWitness {
+            try zip(transaction.preImage.inputs, signatures).forEach { input, signature in
                 bytes += try encodeWitnessInput(input, signature: signature.signature)
             }
         }
@@ -116,7 +122,7 @@ private extension CommonUTXOTransactionSerializer {
         return bytes
     }
 
-    func encodeOutput(_ output: Transaction.OutputType) -> Data {
+    func encodeOutput(_ output: PreImageTransaction.OutputType) -> Data {
         var bytes = Data()
         bytes += output.value.bytes8LE
         bytes += output.script.data.count.byte
@@ -146,6 +152,31 @@ private extension CommonUTXOTransactionSerializer {
         data.forEach { bytes += $0 }
         return bytes
     }
+
+    func opReturnOutput(from transaction: BlockchainSdk.Transaction) throws -> Data? {
+        guard let params = transaction.params as? BitcoinTransactionParams else {
+            return nil
+        }
+
+        guard !params.memo.isEmpty else {
+            return nil
+        }
+
+        // Standard OP_RETURN relay policy historically limits data to 80 bytes.
+        if params.memo.count > 80 {
+            throw UTXOTransactionSerializerError.walletCoreError("UTXO memo exceeds 80 bytes")
+        }
+
+        // Build locking script: OP_RETURN + push(memo)
+        let lockingScript = Data([OpCode.OP_RETURN.value]) + OpCode.push(params.memo)
+
+        // Serialize output: value(8 LE) + scriptLen(varint) + script
+        var bytes = Data()
+        bytes += UInt64.zero.bytes8LE
+        bytes += lockingScript.count.byte
+        bytes += lockingScript
+        return bytes
+    }
 }
 
 // MARK: - Digest
@@ -158,17 +189,23 @@ private extension CommonUTXOTransactionSerializer {
         // Version
         bytes += version.data
 
+        let opReturnOutput = try opReturnOutput(from: transaction.transaction)
+
         // Inputs
-        bytes += transaction.inputs.count.byte
-        transaction.inputs.enumerated().forEach { index, input in
+        bytes += transaction.preImage.inputs.count.byte
+        transaction.preImage.inputs.enumerated().forEach { index, input in
             let currentInputToBeSigned = inputIndex == index
             bytes += encodeInput(input, script: currentInputToBeSigned ? .toBeSigned(lockingScript: input.script.data) : .blank)
         }
 
         // Outputs
-        bytes += transaction.outputs.count.byte
-        transaction.outputs.forEach { output in
+        let outputsCount = transaction.preImage.outputs.count + (opReturnOutput == nil ? 0 : 1)
+        bytes += outputsCount.byte
+        transaction.preImage.outputs.forEach { output in
             bytes += encodeOutput(output)
+        }
+        if let opReturnOutput {
+            bytes += opReturnOutput
         }
 
         bytes += locktime.data
@@ -185,13 +222,15 @@ private extension CommonUTXOTransactionSerializer {
         // Version
         bytes += version.data
 
-        let prevouts = transaction.inputs.flatMap { encodeOutPoint($0) }
+        let opReturnOutput = try opReturnOutput(from: transaction.transaction)
+
+        let prevouts = transaction.preImage.inputs.flatMap { encodeOutPoint($0) }
         bytes += prevouts.getDoubleSHA256()
 
-        let sequences = transaction.inputs.flatMap { _ in sequence.value.data }
+        let sequences = transaction.preImage.inputs.flatMap { _ in sequence.value.data }
         bytes += sequences.getDoubleSHA256()
 
-        let input = transaction.inputs[inputIndex]
+        let input = transaction.preImage.inputs[inputIndex]
         bytes += encodeOutPoint(input)
 
         switch (input.script.type, input.script.spendable) {
@@ -215,8 +254,10 @@ private extension CommonUTXOTransactionSerializer {
         bytes += input.amount.data
         bytes += sequence.value.data
 
-        let outputs = transaction.outputs.flatMap { encodeOutput($0) }
-        bytes += Data(outputs).getDoubleSHA256()
+        let outputsCount = transaction.preImage.outputs.count + (opReturnOutput == nil ? 0 : 1)
+        let outputsBytes = transaction.preImage.outputs.map { encodeOutput($0) } + (opReturnOutput.map { [$0] } ?? [])
+        assert(outputsBytes.count == outputsCount)
+        bytes += Data(outputsBytes.flatMap(\.self)).getDoubleSHA256()
 
         bytes += locktime.data
         bytes += UInt32(signHashType.value).data

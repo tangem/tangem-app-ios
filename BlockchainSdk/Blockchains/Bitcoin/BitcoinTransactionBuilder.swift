@@ -51,7 +51,7 @@ class BitcoinTransactionBuilder {
                 return try builderType.preImageHashes(transaction: (transaction: transaction, preImage: preImage))
             case .custom, .walletCore:
                 let builderType = CommonUTXOTransactionSerializer(sequence: sequence, signHashType: signHashType)
-                return try builderType.preImageHashes(transaction: preImage)
+                return try builderType.preImageHashes(transaction: (transaction: transaction, preImage: preImage))
             }
         }()
 
@@ -70,7 +70,7 @@ class BitcoinTransactionBuilder {
                 return try builderType.compile(transaction: (transaction: transaction, preImage: preImage), signatures: signatures)
             case .custom, .walletCore:
                 let builderType = CommonUTXOTransactionSerializer(sequence: sequence, signHashType: signHashType)
-                return try builderType.compile(transaction: preImage, signatures: signatures)
+                return try builderType.compile(transaction: (transaction: transaction, preImage: preImage), signatures: signatures)
             }
         }()
 
