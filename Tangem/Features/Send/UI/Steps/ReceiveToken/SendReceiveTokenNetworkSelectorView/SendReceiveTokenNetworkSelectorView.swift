@@ -58,7 +58,7 @@ struct SendReceiveTokenNetworkSelectorView: View {
                 }
                 .padding(.bottom, 16)
             }
-            .scrollBounceBehaviorBackport(.basedOnSize)
+            .scrollBounceBehavior(.basedOnSize)
         }
     }
 

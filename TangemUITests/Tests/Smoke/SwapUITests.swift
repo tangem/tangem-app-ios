@@ -17,7 +17,7 @@ final class SwapUITests: BaseTestCase {
 
         launchApp(tangemApiType: .mock)
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(token)
             .tapSwapButton()
@@ -33,7 +33,7 @@ final class SwapUITests: BaseTestCase {
 
         launchApp(tangemApiType: .mock)
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(token)
             .tapSwapButton()
@@ -53,7 +53,7 @@ final class SwapUITests: BaseTestCase {
 
         launchApp(tangemApiType: .mock, expressApiType: .mock)
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(token)
             .tapSwapButton()

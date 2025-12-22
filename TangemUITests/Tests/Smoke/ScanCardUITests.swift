@@ -13,7 +13,7 @@ final class ScanCardUITests: BaseTestCase {
         setAllureId(869)
         launchApp()
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .twin)
             .validate(cardType: .twin)
     }
@@ -22,7 +22,7 @@ final class ScanCardUITests: BaseTestCase {
         setAllureId(865)
         launchApp()
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .validate(cardType: .wallet2)
     }
@@ -31,7 +31,7 @@ final class ScanCardUITests: BaseTestCase {
         setAllureId(867)
         launchApp()
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet)
             .validate(cardType: .wallet)
     }
@@ -40,7 +40,7 @@ final class ScanCardUITests: BaseTestCase {
         setAllureId(868)
         launchApp()
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .xrpNote)
             .validate(cardType: .xrpNote)
     }
@@ -49,7 +49,7 @@ final class ScanCardUITests: BaseTestCase {
         setAllureId(866)
         launchApp()
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .shiba)
             .validate(cardType: .shiba)
     }
@@ -58,7 +58,7 @@ final class ScanCardUITests: BaseTestCase {
         setAllureId(870)
         launchApp()
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .xlmBird)
             .validate(cardType: .xlmBird)
     }
@@ -67,7 +67,7 @@ final class ScanCardUITests: BaseTestCase {
         setAllureId(872)
         launchApp()
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .v3seckp)
             .validate(cardType: .v3seckp)
     }
@@ -76,7 +76,7 @@ final class ScanCardUITests: BaseTestCase {
         setAllureId(864)
         launchApp()
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .ring)
             .validate(cardType: .ring)
     }
@@ -85,7 +85,7 @@ final class ScanCardUITests: BaseTestCase {
         setAllureId(871)
         launchApp()
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .four12)
             .validate(cardType: .four12)
     }

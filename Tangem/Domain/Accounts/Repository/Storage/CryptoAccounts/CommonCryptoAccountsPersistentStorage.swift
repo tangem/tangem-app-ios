@@ -109,7 +109,7 @@ extension CommonCryptoAccountsPersistentStorage: CryptoAccountsPersistentStorage
                 return try unsafeFetchOptional() == nil
             } catch {
                 assertionFailure("CommonCryptoAccountsPersistentStorage unable to query migration status due to error: \(error)")
-                return false
+                return true
             }
         }
     }
