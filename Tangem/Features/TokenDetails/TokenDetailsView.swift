@@ -49,7 +49,7 @@ struct TokenDetailsView: View {
                     )
                 }
 
-                yieldStatueView
+                yieldStatusView
 
                 if let activeStakingViewData = viewModel.activeStakingViewData {
                     ActiveStakingView(data: activeStakingViewData)
@@ -135,7 +135,7 @@ struct TokenDetailsView: View {
     }
 
     @ViewBuilder
-    private var yieldStatueView: some View {
+    private var yieldStatusView: some View {
         switch viewModel.yieldModuleAvailability {
         case .checking, .notApplicable:
             EmptyView()
