@@ -10,8 +10,4 @@ import Foundation
 
 struct AccountQuote: Hashable {
     let priceChange24h: Decimal?
-
-    static var zero: AccountQuote {
-        AccountQuote(priceChange24h: 0)
-    }
 }
