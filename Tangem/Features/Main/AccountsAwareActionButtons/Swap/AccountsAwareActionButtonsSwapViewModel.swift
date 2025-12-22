@@ -32,7 +32,11 @@ final class AccountsAwareActionButtonsSwapViewModel: ObservableObject {
     // MARK: - Private
 
     private let filterTokenItem: CurrentValueSubject<TokenItem?, Never> = .init(nil)
-    private let itemViewModelBuilder = AccountsAwareTokenSelectorItemViewModelBuilder(availabilityProvider: AvailableAccountsAwareTokenSelectorItemAvailabilityProvider()
+
+    /// Selected source/destination token should be always available, otherwise it couldn't be selected.
+    /// Hence, `AvailableAccountsAwareTokenSelectorItemAvailabilityProvider` is used here.
+    private let itemViewModelBuilder = AccountsAwareTokenSelectorItemViewModelBuilder(
+        availabilityProvider: AvailableAccountsAwareTokenSelectorItemAvailabilityProvider()
     )
 
     private weak var coordinator: ActionButtonsSwapRoutable?
