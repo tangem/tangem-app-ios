@@ -96,6 +96,8 @@ extension HardwareCreateWalletViewModel {
 
 private extension HardwareCreateWalletViewModel {
     func scanCard() {
+        logScanCardTapAnalytics()
+
         isScanning = true
 
         runTask(in: self) { viewModel in
@@ -223,7 +225,7 @@ private extension HardwareCreateWalletViewModel {
 
     func openBuyCard() {
         logBuyHardwareWalletAnalytics()
-        let utmCampaign: TangemShopUrlBuilder.UTMCampaign = switch source {
+        let utmCampaign: TangemUTM.Campaign = switch source {
         case .addNewWallet: .users
         case .hardwareWallet: .upgrade
         }
@@ -259,6 +261,14 @@ private extension HardwareCreateWalletViewModel {
 private extension HardwareCreateWalletViewModel {
     func logScreenOpenedAnalytics() {
         Analytics.log(.walletSettingsCreateWalletScreenOpened, contextParams: analyticsContextParams)
+    }
+
+    func logScanCardTapAnalytics() {
+        Analytics.log(
+            Analytics.CardScanSource.createWallet.cardScanButtonEvent,
+            params: [.source: .create],
+            contextParams: analyticsContextParams
+        )
     }
 
     func logScanCardSuccessAnalytics() {
