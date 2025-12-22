@@ -615,8 +615,8 @@
 "initial_message_purge_wallet_body" = "Para restablecer a los ajustes de fábrica, coloque la tarjeta o el anillo como se muestra arriba y no lo retire hasta el fin de la operación";
 "initial_message_reset_backup_card_header" = "Toque la tarjeta no. %@ de la billetera";
 "initial_message_sign_body" = "Para firmar, coloque la tarjeta o el anillo como se muestra arriba y no lo retire hasta el fin de la operación";
-"jailbreak_warning_message" = "Devices with jailbreak are considered less secure. Your data may be exposed to additional risks.";
-"jailbreak_warning_title" = "Jailbreak detected";
+"jailbreak_warning_message" = "Los dispositivos con jailbreak se consideran menos seguros. Sus datos podrían estar expuestos a riesgos adicionales.";
+"jailbreak_warning_title" = "Jailbreak detectado";
 "key_invalidated_warning_description" = "Ha actualizado la biometría, escanee su tarjeta o anillo para entrar";
 "koinos_insufficient_balance_to_send_koin_description" = "Su saldo debe ser mayor que el valor de la tarifa para hacer una transferencia";
 "koinos_insufficient_balance_to_send_koin_title" = "Saldo insuficiente";

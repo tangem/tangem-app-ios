@@ -23,11 +23,13 @@ final class SolanaWCLinksUITests: BaseTestCase {
             initialState: "Solana"
         )
         setupWireMockScenarios([userTokensScenario])
+        app.launchEnvironment = ["UITEST": "1"]
         app.launch()
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .acceptToSIfNeeded()
             .allowPushNotificationsIfNeeded()
             .scanMockWallet(name: .wallet2)
+            .validate(cardType: .wallet2)
         app.terminate()
 
         safari.launch()
@@ -36,8 +38,10 @@ final class SolanaWCLinksUITests: BaseTestCase {
 
         app.activate()
 
-        StoriesScreen(app)
-            .scanMockWallet(name: .wallet2)
+        WelcomeBackScreen(app)
+            .selectWalletByName("Wallet")
+        CreateWalletSelectorScreen(app)
+            .selectWalletFromList(name: .wallet2)
 
         WalletConnectSheet(app)
             .waitForConnectionProposalBottomSheetToBeVisible()
@@ -64,7 +68,7 @@ final class SolanaWCLinksUITests: BaseTestCase {
             tangemApiType: .mock,
             scenarios: [userTokensScenario]
         )
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
 
         safari.launch()
@@ -95,7 +99,7 @@ final class SolanaWCLinksUITests: BaseTestCase {
             tangemApiType: .mock,
             scenarios: [userTokensScenario]
         )
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .openDetails()
 
@@ -130,7 +134,7 @@ final class SolanaWCLinksUITests: BaseTestCase {
             scenarios: [userTokensScenario]
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .openDetails()
 
