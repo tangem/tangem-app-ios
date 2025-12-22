@@ -39,6 +39,7 @@ struct OnboardingPinStackView: View {
                 isResponder = !isDisabled
             }
         }
+        .screenCaptureProtection()
         .onChange(of: isDisabled) { disabled in
             isResponder = !disabled
         }

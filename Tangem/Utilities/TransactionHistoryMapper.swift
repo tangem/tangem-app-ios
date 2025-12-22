@@ -14,6 +14,7 @@ struct TransactionHistoryMapper {
     private let currencySymbol: String
     private let walletAddresses: [String]
     private let showSign: Bool
+    private let isToken: Bool
 
     private let balanceFormatter = BalanceFormatter()
     private let dateFormatter: DateFormatter = {
@@ -37,10 +38,11 @@ struct TransactionHistoryMapper {
         return dateFormatter
     }()
 
-    init(currencySymbol: String, walletAddresses: [String], showSign: Bool) {
+    init(currencySymbol: String, walletAddresses: [String], showSign: Bool, isToken: Bool) {
         self.currencySymbol = currencySymbol
         self.walletAddresses = walletAddresses
         self.showSign = showSign
+        self.isToken = isToken
     }
 
     func mapTransactionListItem(from records: [TransactionRecord]) -> [TransactionListItem] {
@@ -71,7 +73,8 @@ struct TransactionHistoryMapper {
             amount: transferAmount(from: record),
             isOutgoing: record.isOutgoing,
             transactionType: transactionType(from: record),
-            status: status(from: record)
+            status: status(from: record),
+            isFromYieldContract: record.isFromYieldContract
         )
     }
 
@@ -236,10 +239,15 @@ private extension TransactionHistoryMapper {
         case "unstakeClaimTokens_new", "unstakeClaimTokens_newPOL", "claim": .withdraw
         case "withdrawRewards", "withdrawRewardsPOL": .claimRewards
         case "redelegate": .restake
+        case "yieldEnter" where !isToken: .yieldEnterCoin
         case "yieldEnter": .yieldEnter
+        case "yieldWithdraw" where !isToken: .yieldWithdrawCoin
         case "yieldWithdraw": .yieldWithdraw
+        case "yieldReactivate": .yieldReactivate
         case "yieldTopup": .yieldTopup
-        case "yieldDeploy", "yieldInit", "yieldReactivate": .yieldSupply
+        case "yieldSend": .yieldSend
+        case "yieldDeploy": .yieldDeploy
+        case "yieldInit": .yieldInit
         case .none: .unknownOperation
         case .some(let name): .operation(name: name.capitalizingFirstLetter())
         }
@@ -280,6 +288,8 @@ private extension TransactionHistoryMapper {
     func getFormattedAmount(amount: Decimal, record: TransactionRecord) -> String {
         switch transactionType(from: record) {
         case .yieldEnter, .yieldTopup, .yieldWithdraw:
+            return balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol)
+        case .yieldSend where record.isFromYieldContract:
             return balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol)
         default:
             return formatted(amount: amount, isOutgoing: record.isOutgoing)
