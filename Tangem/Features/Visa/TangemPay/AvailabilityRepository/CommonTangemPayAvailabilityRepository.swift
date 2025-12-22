@@ -30,6 +30,10 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
         _availableUserWalletModels.value
     }
 
+    var isDeviceRooted: Bool {
+        RTCUtil().checkStatus().hasIssues
+    }
+
     var availableUserWalletModelsPublisher: AnyPublisher<[UserWalletModel], Never> {
         _availableUserWalletModels
             .eraseToAnyPublisher()
@@ -58,11 +62,12 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
 
     var shouldShowGetTangemPay: AnyPublisher<Bool, Never> {
         Publishers
-            .CombineLatest(
+            .CombineLatest3(
                 isTangemPayAvailablePublisher,
-                isUserWalletModelsAvailble
+                isUserWalletModelsAvailble,
+                Just(isDeviceRooted).map { !$0 }
             )
-            .map { $0 && $1 }
+            .map { $0 && $1 && $2 }
             .removeDuplicates()
             .eraseToAnyPublisher()
     }
