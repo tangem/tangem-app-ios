@@ -61,7 +61,7 @@
 		0A5544C82DF72A8D00BF409C /* PublicKeyProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A5544C72DF72A8D00BF409C /* PublicKeyProvider.swift */; };
 		0A66678F2D1C0749008BE9D4 /* CardanoStakeKitTransactionHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A66678E2D1C0749008BE9D4 /* CardanoStakeKitTransactionHelper.swift */; };
 		0A6EB33B2EAB5E230006DB1C /* YieldModuleStateRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A6EB33A2EAB5E230006DB1C /* YieldModuleStateRepository.swift */; };
-		0A713CEC2CAA6DA30042FC27 /* (null) in Sources */ = {isa = PBXBuildFile; };
+		0A713CEC2CAA6DA30042FC27 /* BuildFile in Sources */ = {isa = PBXBuildFile; };
 		0A713CF02CAA76530042FC27 /* CommonRestakingStepsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A713CEF2CAA76530042FC27 /* CommonRestakingStepsManager.swift */; };
 		0A71BE042EBF190F005111DB /* CommonBalancesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A71BE032EBF190F005111DB /* CommonBalancesViewModel.swift */; };
 		0A71BE062EBF1D3D005111DB /* YieldBalancesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A71BE052EBF1D3D005111DB /* YieldBalancesViewModel.swift */; };
@@ -4458,7 +4458,7 @@
 		EFFE8C572E98296600F9F06B /* NewActionButtonsBuyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFFE8C562E98296600F9F06B /* NewActionButtonsBuyViewModel.swift */; };
 		EFFE8C592E983E0A00F9F06B /* NewActionButtonsBuyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFFE8C582E983E0A00F9F06B /* NewActionButtonsBuyView.swift */; };
 		EFFF153D2D37DEC500982C79 /* PulseEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFFF153C2D37DEC500982C79 /* PulseEffect.swift */; };
-		F91094E32CC7E11600042E9E /* (null) in Sources */ = {isa = PBXBuildFile; };
+		F91094E32CC7E11600042E9E /* BuildFile in Sources */ = {isa = PBXBuildFile; };
 		F92DB9C92CD4C2F400C16530 /* TangemModules in Frameworks */ = {isa = PBXBuildFile; productRef = F92DB9C82CD4C2F400C16530 /* TangemModules */; };
 		F92DB9CB2CD4C36100C16530 /* TangemModules in Frameworks */ = {isa = PBXBuildFile; productRef = F92DB9CA2CD4C36100C16530 /* TangemModules */; };
 		F92DB9CD2CD4C3D200C16530 /* TangemModules in Frameworks */ = {isa = PBXBuildFile; productRef = F92DB9CC2CD4C3D200C16530 /* TangemModules */; };
@@ -4468,11 +4468,11 @@
 		F99007092CD3E1C700DFE2D3 /* KaspaTargetKRC20.swift in Sources */ = {isa = PBXBuildFile; fileRef = F99007042CD3E1C700DFE2D3 /* KaspaTargetKRC20.swift */; };
 		F990070A2CD3E1C700DFE2D3 /* KaspaNetworkProviderKRC20.swift in Sources */ = {isa = PBXBuildFile; fileRef = F99007052CD3E1C700DFE2D3 /* KaspaNetworkProviderKRC20.swift */; };
 		F990070C2CD3E1D800DFE2D3 /* KaspaUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = F990070B2CD3E1D800DFE2D3 /* KaspaUtils.swift */; };
-		F9F62C842CBFE21E008A3EE6 /* (null) in Sources */ = {isa = PBXBuildFile; };
-		F9F62C862CC15EF4008A3EE6 /* (null) in Sources */ = {isa = PBXBuildFile; };
-		F9F62C882CC15F17008A3EE6 /* (null) in Sources */ = {isa = PBXBuildFile; };
-		F9F62C8A2CC15FA8008A3EE6 /* (null) in Sources */ = {isa = PBXBuildFile; };
-		F9F62C8C2CC169E4008A3EE6 /* (null) in Sources */ = {isa = PBXBuildFile; };
+		F9F62C842CBFE21E008A3EE6 /* BuildFile in Sources */ = {isa = PBXBuildFile; };
+		F9F62C862CC15EF4008A3EE6 /* BuildFile in Sources */ = {isa = PBXBuildFile; };
+		F9F62C882CC15F17008A3EE6 /* BuildFile in Sources */ = {isa = PBXBuildFile; };
+		F9F62C8A2CC15FA8008A3EE6 /* BuildFile in Sources */ = {isa = PBXBuildFile; };
+		F9F62C8C2CC169E4008A3EE6 /* BuildFile in Sources */ = {isa = PBXBuildFile; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -24794,6 +24794,8 @@
 			);
 			name = Tangem;
 			packageProductDependencies = (
+				B64404402D3FE77300195004 /* FirebasePerformance */,
+				B6E27FA42DFD1CAC00B29813 /* TangemModules */,
 				B63BAA6B2B7410AE00DA26C9 /* TangemWalletCoreBinariesWrapper */,
 				0ABC61142C410AFD00065EBA /* TweetNacl */,
 				B0B11A072C787FE70018A2A6 /* MarkdownUI */,
@@ -24810,11 +24812,9 @@
 				B62C24882CF48327003377F1 /* FirebaseCrashlytics */,
 				B62C248A2CF48327003377F1 /* FirebaseMessaging */,
 				B69FC9082CF67D9300A5C51D /* GDPerformanceView-Swift */,
-				B64404402D3FE77300195004 /* FirebasePerformance */,
 				B0776C362DA69090004A8765 /* Lottie */,
 				3075F0CF2DCA6B430094B4C7 /* Kingfisher */,
 				B6C144062DFD1BF8008E9478 /* DGCharts */,
-				B6E27FA42DFD1CAC00B29813 /* TangemModules */,
 				B660E23C2E1431060069A5E8 /* ZIPFoundation */,
 				DA709FF92E167E36006B9774 /* IdensicMobileSDK */,
 				C28E016A2E79A6FA00B47571 /* AppsFlyerLib-Strict */,
@@ -24882,9 +24882,9 @@
 				B6C0D3FA2CBDC6DD001113ED /* Moya */,
 				B62C16782CBE095A00522683 /* Alamofire */,
 				B67E38BA2CC7179000D660EB /* TangemSdk */,
-				B0D70D472CE5FB6800A8A0F1 /* JWTDecode */,
 				F92DB9C82CD4C2F400C16530 /* TangemModules */,
 				DA709FF72E167E2A006B9774 /* IdensicMobileSDK */,
+				B0D70D472CE5FB6800A8A0F1 /* JWTDecode */,
 			);
 			productName = TangemVisa;
 			productReference = B09933772B5517E300240CDB /* TangemVisa.framework */;
@@ -24949,6 +24949,11 @@
 			);
 			name = BlockchainSdk;
 			packageProductDependencies = (
+				B6C0D3F32CBDC543001113ED /* Moya */,
+				B6E352722CC0B06B002636BC /* TangemWalletCoreBinariesWrapper */,
+				B67E38B82CC7147600D660EB /* TangemSdk */,
+				B63DFC492CD4DBED00720D9F /* TangemModules */,
+				300C26332DAFA29600C7E0B0 /* CombineExt */,
 				B68E1F892CBC44910043E598 /* Hedera */,
 				B68E1F8C2CBC44AA0043E598 /* CryptoSwift */,
 				B68E1F8F2CBC44E30043E598 /* SwiftProtobuf */,
@@ -24959,13 +24964,8 @@
 				B62D34462CBC51D400C2460E /* SwiftCBOR */,
 				B62D344C2CBC675600C2460E /* stellarsdk */,
 				B62D344F2CBC67D500C2460E /* AnyCodable */,
-				B6C0D3F32CBDC543001113ED /* Moya */,
 				B6C0D3F52CBDC552001113ED /* BinanceChain */,
-				B6E352722CC0B06B002636BC /* TangemWalletCoreBinariesWrapper */,
 				B6CAC1CB2CC336220001A427 /* SolanaSwift */,
-				B67E38B82CC7147600D660EB /* TangemSdk */,
-				B63DFC492CD4DBED00720D9F /* TangemModules */,
-				300C26332DAFA29600C7E0B0 /* CombineExt */,
 				308501862E0DA20700AB58B3 /* TonSwift */,
 				B6E3A3912E144E9300183942 /* GRPC */,
 				0AE2C97F2E58838000D3B9EB /* OrderedCollections */,
@@ -25167,7 +25167,7 @@
 				B68E1F882CBC44910043E598 /* XCRemoteSwiftPackageReference "hedera-sdk-swift" */,
 				B68E1F8B2CBC44AA0043E598 /* XCRemoteSwiftPackageReference "CryptoSwift" */,
 				B68E1F8E2CBC44E30043E598 /* XCRemoteSwiftPackageReference "swift-protobuf-binaries" */,
-				B68E1F942CBC451D0043E598 /* XCRemoteSwiftPackageReference "ScaleCodec" */,
+				B68E1F942CBC451D0043E598 /* XCRemoteSwiftPackageReference "ScaleCodec.swift" */,
 				B68E1F972CBC453E0043E598 /* XCRemoteSwiftPackageReference "IcpKit" */,
 				B62D343B2CBC4FD000C2460E /* XCRemoteSwiftPackageReference "swift-sodium" */,
 				B62D34452CBC51D400C2460E /* XCRemoteSwiftPackageReference "SwiftCBOR" */,
@@ -25178,7 +25178,7 @@
 				B62C16772CBE095A00522683 /* XCRemoteSwiftPackageReference "Alamofire" */,
 				B6CAC1C82CC3352D0001A427 /* XCRemoteSwiftPackageReference "Solana.Swift" */,
 				B67E38B72CC7147600D660EB /* XCRemoteSwiftPackageReference "tangem-sdk-ios" */,
-				B09FF1882CE24DF5004881F6 /* XCRemoteSwiftPackageReference "JWTDecode" */,
+				B09FF1882CE24DF5004881F6 /* XCRemoteSwiftPackageReference "JWTDecode.swift" */,
 				F92DB9C52CD4C24800C16530 /* XCLocalSwiftPackageReference "Modules" */,
 				B6DDDE732CF39079008DEA94 /* XCRemoteSwiftPackageReference "BlockiesSwift" */,
 				B6DDDE762CF39157008DEA94 /* XCRemoteSwiftPackageReference "CombineExt" */,
@@ -28019,7 +28019,7 @@
 				EA728C2F2E0054A30044145D /* IncomingURLValidator.swift in Sources */,
 				0F48D8462E41F5A50095D3C8 /* MobileUnlockUtil.swift in Sources */,
 				EA4216502E74615800B36D39 /* YieldModulePromoViewModel.swift in Sources */,
-				0A713CEC2CAA6DA30042FC27 /* (null) in Sources */,
+				0A713CEC2CAA6DA30042FC27 /* BuildFile in Sources */,
 				DC592B932C41A800005AB9A7 /* CommonStakingPendingHashesRepository.swift in Sources */,
 				EF3FEF182EDEE7BF0084488D /* TangemPayAwareTotalBalanceProvider.swift in Sources */,
 				B602638A2EC7F0C0001A4614 /* ExpandedAccountItemHeaderView.swift in Sources */,
@@ -28561,7 +28561,7 @@
 				B62D40602CBC79DA00C2460E /* ChiaNetworkService.swift in Sources */,
 				B62D422D2CBC79DB00C2460E /* BlockBookTarget.swift in Sources */,
 				B62D42832CBC79DB00C2460E /* EthereumTransactionHistoryProvider.swift in Sources */,
-				F9F62C8A2CC15FA8008A3EE6 /* (null) in Sources */,
+				F9F62C8A2CC15FA8008A3EE6 /* BuildFile in Sources */,
 				B62D3FA12CBC79DA00C2460E /* AlgorandResponse+TransactionHistory.swift in Sources */,
 				B62D42BC2CBC79DB00C2460E /* Wallet.swift in Sources */,
 				B62D40892CBC79DA00C2460E /* ABIEncoder.swift in Sources */,
@@ -28798,7 +28798,7 @@
 				B62D40032CBC79DA00C2460E /* OP_0.swift in Sources */,
 				B62D3FFB2CBC79DA00C2460E /* OP_VERIF.swift in Sources */,
 				B62D41962CBC79DA00C2460E /* StellarNetworkProvider.swift in Sources */,
-				F9F62C862CC15EF4008A3EE6 /* (null) in Sources */,
+				F9F62C862CC15EF4008A3EE6 /* BuildFile in Sources */,
 				B62D40542CBC79DA00C2460E /* Chia+Int64.swift in Sources */,
 				B62D406D2CBC79DA00C2460E /* CosmosRestProvider.swift in Sources */,
 				B62D3FCD2CBC79DA00C2460E /* OP_ADD.swift in Sources */,
@@ -29049,7 +29049,7 @@
 				EF86AA132DDCBA0F00369392 /* UTXOTransactionSerializer.swift in Sources */,
 				B62D41892CBC79DA00C2460E /* SolanaDummyAccountStorage.swift in Sources */,
 				B62D40762CBC79DA00C2460E /* DashTestNetworkParams.swift in Sources */,
-				F9F62C842CBFE21E008A3EE6 /* (null) in Sources */,
+				F9F62C842CBFE21E008A3EE6 /* BuildFile in Sources */,
 				B62D3FB62CBC79DA00C2460E /* AptosTransactionBuilder.swift in Sources */,
 				B62D3FA02CBC79DA00C2460E /* AlgorandResponse+Transaction.swift in Sources */,
 				0ACB00092D5F0D1900C86172 /* StakeKitTransactionsBuilder.swift in Sources */,
@@ -29083,7 +29083,7 @@
 				B62D42202CBC79DB00C2460E /* XRPTarget.swift in Sources */,
 				B62D41E42CBC79DB00C2460E /* TronWalletAssembly.swift in Sources */,
 				B62D42522CBC79DB00C2460E /* Blockchain+AllCases.swift in Sources */,
-				F9F62C8C2CC169E4008A3EE6 /* (null) in Sources */,
+				F9F62C8C2CC169E4008A3EE6 /* BuildFile in Sources */,
 				B62D40E42CBC79DA00C2460E /* HederaNetworkResult.ExchangeRate.swift in Sources */,
 				B62D41072CBC79DA00C2460E /* KaspaFeeMapper.swift in Sources */,
 				B62D419B2CBC79DA00C2460E /* StellarWalletAssembly.swift in Sources */,
@@ -29310,7 +29310,7 @@
 				B62D40B02CBC79DA00C2460E /* GnosisExternalLinkProvider.swift in Sources */,
 				B62D40A82CBC79DA00C2460E /* CronosExternalLinkProvider.swift in Sources */,
 				B62D42DC2CBC79DB00C2460E /* TWPublicKey+.swift in Sources */,
-				F91094E32CC7E11600042E9E /* (null) in Sources */,
+				F91094E32CC7E11600042E9E /* BuildFile in Sources */,
 				B62D3FD02CBC79DA00C2460E /* OP_DIV.swift in Sources */,
 				B62D42DA2CBC79DB00C2460E /* ThenProcessable.swift in Sources */,
 				B62D40232CBC79DA00C2460E /* BitcoinScriptBuilder.swift in Sources */,
@@ -29385,7 +29385,7 @@
 				B62D40BD2CBC79DA00C2460E /* ShibariumExternalLinkProvider.swift in Sources */,
 				B62D3FEE2CBC79DA00C2460E /* OP_CODESEPARATOR.swift in Sources */,
 				0A3C78752D8883080031170E /* HederaNetworkResult.TokensCustomFees.swift in Sources */,
-				F9F62C882CC15F17008A3EE6 /* (null) in Sources */,
+				F9F62C882CC15F17008A3EE6 /* BuildFile in Sources */,
 				2D9FABA02E13E526005AE305 /* EthereumMapper.swift in Sources */,
 				B62D40592CBC79DA00C2460E /* ChiaNetworkProvider.swift in Sources */,
 				B62D40772CBC79DA00C2460E /* DashWalletAssembly.swift in Sources */,
@@ -35621,294 +35621,151 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
+		0ABC61132C410AFD00065EBA /* XCLocalSwiftPackageReference "tweetnacl-swiftwrap" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "./vendor/ios_dependencies/checkouts/tweetnacl-swiftwrap";
+		};
+		0AE2C97E2E58838000D3B9EB /* XCLocalSwiftPackageReference "swift-collections" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "./vendor/ios_dependencies/checkouts/swift-collections";
+		};
+		2D26855E2EB09D3A000E472A /* XCLocalSwiftPackageReference "experiment-ios-client" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "./vendor/ios_dependencies/checkouts/experiment-ios-client";
+		};
+		3075F0CE2DCA6B3A0094B4C7 /* XCLocalSwiftPackageReference "Kingfisher" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ./vendor/ios_dependencies/checkouts/Kingfisher;
+		};
+		3076C5332E0D9F1E00F6E835 /* XCLocalSwiftPackageReference "ton-swift" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "./vendor/ios_dependencies/checkouts/ton-swift";
+		};
+		B0776C352DA69090004A8765 /* XCLocalSwiftPackageReference "lottie-spm" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "./vendor/ios_dependencies/checkouts/lottie-spm";
+		};
+		B09FF1882CE24DF5004881F6 /* XCLocalSwiftPackageReference "JWTDecode.swift" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ./vendor/ios_dependencies/checkouts/JWTDecode.swift;
+		};
+		B0B11A062C787FE70018A2A6 /* XCLocalSwiftPackageReference "swift-markdown-ui" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "./vendor/ios_dependencies/checkouts/swift-markdown-ui";
+		};
+		B62C16772CBE095A00522683 /* XCLocalSwiftPackageReference "Alamofire" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ./vendor/ios_dependencies/checkouts/Alamofire;
+		};
+		B62C24852CF48327003377F1 /* XCLocalSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "./vendor/ios_dependencies/checkouts/firebase-ios-sdk";
+		};
+		B62D343B2CBC4FD000C2460E /* XCLocalSwiftPackageReference "swift-sodium" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "./vendor/ios_dependencies/checkouts/swift-sodium";
+		};
+		B62D34452CBC51D400C2460E /* XCLocalSwiftPackageReference "SwiftCBOR" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ./vendor/ios_dependencies/checkouts/SwiftCBOR;
+		};
+		B62D344B2CBC675600C2460E /* XCLocalSwiftPackageReference "stellar-ios-mac-sdk" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "./vendor/ios_dependencies/checkouts/stellar-ios-mac-sdk";
+		};
+		B62D344E2CBC67D500C2460E /* XCLocalSwiftPackageReference "AnyCodable" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ./vendor/ios_dependencies/checkouts/AnyCodable;
+		};
+		B67E38B72CC7147600D660EB /* XCLocalSwiftPackageReference "tangem-sdk-ios" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "./vendor/ios_dependencies/checkouts/tangem-sdk-ios";
+		};
+		B68E1F882CBC44910043E598 /* XCLocalSwiftPackageReference "hedera-sdk-swift" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "./vendor/ios_dependencies/checkouts/hedera-sdk-swift";
+		};
+		B68E1F8B2CBC44AA0043E598 /* XCLocalSwiftPackageReference "CryptoSwift" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ./vendor/ios_dependencies/checkouts/CryptoSwift;
+		};
+		B68E1F8E2CBC44E30043E598 /* XCLocalSwiftPackageReference "swift-protobuf-binaries" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "./vendor/ios_dependencies/checkouts/swift-protobuf-binaries";
+		};
+		B68E1F942CBC451D0043E598 /* XCLocalSwiftPackageReference "ScaleCodec.swift" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ./vendor/ios_dependencies/checkouts/ScaleCodec.swift;
+		};
+		B68E1F972CBC453E0043E598 /* XCLocalSwiftPackageReference "IcpKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ./vendor/ios_dependencies/checkouts/IcpKit;
+		};
+		B69FC9072CF67D9300A5C51D /* XCLocalSwiftPackageReference "GDPerformanceView-Swift" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "./vendor/ios_dependencies/checkouts/GDPerformanceView-Swift";
+		};
+		B6C0D3EA2CBDC3E0001113ED /* XCLocalSwiftPackageReference "SwiftBinanceChain" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ./vendor/ios_dependencies/checkouts/SwiftBinanceChain;
+		};
+		B6C0D3F02CBDC52D001113ED /* XCLocalSwiftPackageReference "Moya" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ./vendor/ios_dependencies/checkouts/Moya;
+		};
+		B6CAC1C82CC3352D0001A427 /* XCLocalSwiftPackageReference "Solana.Swift" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ./vendor/ios_dependencies/checkouts/Solana.Swift;
+		};
+		B6DB40D22E142F260023A90A /* XCLocalSwiftPackageReference "grpc-swift" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "./vendor/ios_dependencies/checkouts/grpc-swift";
+		};
+		B6DDDE732CF39079008DEA94 /* XCLocalSwiftPackageReference "BlockiesSwift" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ./vendor/ios_dependencies/checkouts/BlockiesSwift;
+		};
+		B6DDDE762CF39157008DEA94 /* XCLocalSwiftPackageReference "CombineExt" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ./vendor/ios_dependencies/checkouts/CombineExt;
+		};
+		B6DDDE7C2CF39729008DEA94 /* XCLocalSwiftPackageReference "Amplitude-Swift" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "./vendor/ios_dependencies/checkouts/Amplitude-Swift";
+		};
+		B6DDDE7F2CF39C69008DEA94 /* XCLocalSwiftPackageReference "analytics-connector-ios" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "./vendor/ios_dependencies/checkouts/analytics-connector-ios";
+		};
+		B6DF8E182D94AEB000A2E379 /* XCLocalSwiftPackageReference "ZIPFoundation" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ./vendor/ios_dependencies/checkouts/ZIPFoundation;
+		};
+		B6F525902B6C05210079ADD1 /* XCLocalSwiftPackageReference "wallet-core-binaries-ios" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "./vendor/ios_dependencies/checkouts/wallet-core-binaries-ios";
+		};
+		B6F6252E2C85E1A600DEF098 /* XCLocalSwiftPackageReference "DGCharts" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ./vendor/ios_dependencies/checkouts/DGCharts;
+		};
+		C28E01692E79A6FA00B47571 /* XCLocalSwiftPackageReference "AppsFlyerFramework-Strict" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "./vendor/ios_dependencies/checkouts/AppsFlyerFramework-Strict";
+		};
+		DA709FF62E167E2A006B9774 /* XCLocalSwiftPackageReference "IdensicMobileSDK-iOS" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "./vendor/ios_dependencies/checkouts/IdensicMobileSDK-iOS";
+		};
+		DCB616E32CB39A8100BE4481 /* XCLocalSwiftPackageReference "reown-swift" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "./vendor/ios_dependencies/checkouts/reown-swift";
+		};
 		F92DB9C52CD4C24800C16530 /* XCLocalSwiftPackageReference "Modules" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Modules;
 		};
 /* End XCLocalSwiftPackageReference section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		0ABC61132C410AFD00065EBA /* XCRemoteSwiftPackageReference "tweetnacl-swiftwrap" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/bitmark-inc/tweetnacl-swiftwrap.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.1.0;
-			};
-		};
-		0AE2C97E2E58838000D3B9EB /* XCRemoteSwiftPackageReference "swift-collections" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/apple/swift-collections.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.5;
-			};
-		};
-		2D26855E2EB09D3A000E472A /* XCRemoteSwiftPackageReference "experiment-ios-client" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/amplitude/experiment-ios-client";
-			requirement = {
-				kind = exactVersion;
-				version = 1.18.3;
-			};
-		};
-		3075F0CE2DCA6B3A0094B4C7 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 8.3.2;
-			};
-		};
-		3076C5332E0D9F1E00F6E835 /* XCRemoteSwiftPackageReference "ton-swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "git@github.com:tangem-developments/ton-swift.git";
-			requirement = {
-				kind = exactVersion;
-				version = "1.0.17-tangem1";
-			};
-		};
-		B0776C352DA69090004A8765 /* XCRemoteSwiftPackageReference "lottie-spm" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/airbnb/lottie-spm.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 4.5.2;
-			};
-		};
-		B09FF1882CE24DF5004881F6 /* XCRemoteSwiftPackageReference "JWTDecode" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/auth0/JWTDecode.swift";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 3.3.0;
-			};
-		};
-		B0B11A062C787FE70018A2A6 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/gonzalezreal/swift-markdown-ui";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.4.1;
-			};
-		};
-		B62C16772CBE095A00522683 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 5.10.2;
-			};
-		};
-		B62C24852CF48327003377F1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "git@github.com:tangem-developments/firebase-ios-sdk.git";
-			requirement = {
-				kind = exactVersion;
-				version = "11.7.0-tangem2";
-			};
-		};
-		B62D343B2CBC4FD000C2460E /* XCRemoteSwiftPackageReference "swift-sodium" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/jedisct1/swift-sodium.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.9.1;
-			};
-		};
-		B62D34452CBC51D400C2460E /* XCRemoteSwiftPackageReference "SwiftCBOR" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/valpackett/SwiftCBOR.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.5.0;
-			};
-		};
-		B62D344B2CBC675600C2460E /* XCRemoteSwiftPackageReference "stellar-ios-mac-sdk" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "git@github.com:tangem-developments/stellar-ios-mac-sdk.git";
-			requirement = {
-				kind = exactVersion;
-				version = "3.1.0-tangem1";
-			};
-		};
-		B62D344E2CBC67D500C2460E /* XCRemoteSwiftPackageReference "AnyCodable" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Flight-School/AnyCodable.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.6.7;
-			};
-		};
-		B67E38B72CC7147600D660EB /* XCRemoteSwiftPackageReference "tangem-sdk-ios" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "git@github.com:tangem-developments/tangem-sdk-ios.git";
-			requirement = {
-				kind = exactVersion;
-				version = 3.24.1;
-			};
-		};
-		B68E1F882CBC44910043E598 /* XCRemoteSwiftPackageReference "hedera-sdk-swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "git@github.com:tangem-developments/hedera-sdk-swift.git";
-			requirement = {
-				kind = exactVersion;
-				version = "0.26.0-tangem6";
-			};
-		};
-		B68E1F8B2CBC44AA0043E598 /* XCRemoteSwiftPackageReference "CryptoSwift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/krzyzanowskim/CryptoSwift.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.8.4;
-			};
-		};
-		B68E1F8E2CBC44E30043E598 /* XCRemoteSwiftPackageReference "swift-protobuf-binaries" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "git@github.com:tangem-developments/swift-protobuf-binaries.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = "1.25.2-tangem1";
-			};
-		};
-		B68E1F942CBC451D0043E598 /* XCRemoteSwiftPackageReference "ScaleCodec" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/tesseract-one/ScaleCodec.swift";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.3.1;
-			};
-		};
-		B68E1F972CBC453E0043E598 /* XCRemoteSwiftPackageReference "IcpKit" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "git@github.com:tangem-developments/IcpKit.git";
-			requirement = {
-				kind = exactVersion;
-				version = "0.1.2-tangem4";
-			};
-		};
-		B69FC9072CF67D9300A5C51D /* XCRemoteSwiftPackageReference "GDPerformanceView-Swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/dani-gavrilov/GDPerformanceView-Swift.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.1.1;
-			};
-		};
-		B6C0D3EA2CBDC3E0001113ED /* XCRemoteSwiftPackageReference "SwiftBinanceChain" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "git@github.com:tangem-developments/SwiftBinanceChain.git";
-			requirement = {
-				kind = exactVersion;
-				version = 0.0.17;
-			};
-		};
-		B6C0D3F02CBDC52D001113ED /* XCRemoteSwiftPackageReference "Moya" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Moya/Moya.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 15.0.0;
-			};
-		};
-		B6CAC1C82CC3352D0001A427 /* XCRemoteSwiftPackageReference "Solana.Swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "git@github.com:tangem-developments/Solana.Swift.git";
-			requirement = {
-				kind = exactVersion;
-				version = "1.2.0-tangem18";
-			};
-		};
-		B6DB40D22E142F260023A90A /* XCRemoteSwiftPackageReference "grpc-swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "git@github.com:tangem-developments/grpc-swift.git";
-			requirement = {
-				kind = exactVersion;
-				version = "1.21.0-tangem3";
-			};
-		};
-		B6DDDE732CF39079008DEA94 /* XCRemoteSwiftPackageReference "BlockiesSwift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "git@github.com:tangem-developments/BlockiesSwift.git";
-			requirement = {
-				kind = exactVersion;
-				version = "0.1.2-tangem1";
-			};
-		};
-		B6DDDE762CF39157008DEA94 /* XCRemoteSwiftPackageReference "CombineExt" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/CombineCommunity/CombineExt.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.8.1;
-			};
-		};
-		B6DDDE7C2CF39729008DEA94 /* XCRemoteSwiftPackageReference "Amplitude-Swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/amplitude/Amplitude-Swift";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.13.6;
-			};
-		};
-		B6DDDE7F2CF39C69008DEA94 /* XCRemoteSwiftPackageReference "analytics-connector-ios" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/amplitude/analytics-connector-ios.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.3.1;
-			};
-		};
-		B6DF8E182D94AEB000A2E379 /* XCRemoteSwiftPackageReference "ZIPFoundation" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/weichsel/ZIPFoundation.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.9.19;
-			};
-		};
-		B6F525902B6C05210079ADD1 /* XCRemoteSwiftPackageReference "wallet-core-binaries-ios" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "git@github.com:tangem-developments/wallet-core-binaries-ios.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = "4.1.20-tangem7";
-			};
-		};
-		B6F6252E2C85E1A600DEF098 /* XCRemoteSwiftPackageReference "DGCharts" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "git@github.com:tangem-developments/DGCharts.git";
-			requirement = {
-				kind = exactVersion;
-				version = "5.1.0-tangem3";
-			};
-		};
-		C28E01692E79A6FA00B47571 /* XCRemoteSwiftPackageReference "AppsFlyerFramework-Strict" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/AppsFlyerSDK/AppsFlyerFramework-Strict";
-			requirement = {
-				kind = exactVersion;
-				version = 6.17.2;
-			};
-		};
-		DA709FF62E167E2A006B9774 /* XCRemoteSwiftPackageReference "IdensicMobileSDK-iOS" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/SumSubstance/IdensicMobileSDK-iOS.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.39.0;
-			};
-		};
-		DCB616E32CB39A8100BE4481 /* XCRemoteSwiftPackageReference "reown-swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/reown-com/reown-swift.git";
-			requirement = {
-				kind = exactVersion;
-				version = 1.6.12;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
 		0A40A87F2E2FCB28006411E5 /* Lottie */ = {
@@ -35963,7 +35820,7 @@
 		};
 		B0D70D472CE5FB6800A8A0F1 /* JWTDecode */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = B09FF1882CE24DF5004881F6 /* XCRemoteSwiftPackageReference "JWTDecode" */;
+			package = B09FF1882CE24DF5004881F6 /* XCRemoteSwiftPackageReference "JWTDecode.swift" */;
 			productName = JWTDecode;
 		};
 		B62C16782CBE095A00522683 /* Alamofire */ = {
@@ -36124,7 +35981,7 @@
 		};
 		B68E1F952CBC451D0043E598 /* ScaleCodec */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = B68E1F942CBC451D0043E598 /* XCRemoteSwiftPackageReference "ScaleCodec" */;
+			package = B68E1F942CBC451D0043E598 /* XCRemoteSwiftPackageReference "ScaleCodec.swift" */;
 			productName = ScaleCodec;
 		};
 		B68E1F982CBC453E0043E598 /* IcpKit */ = {
