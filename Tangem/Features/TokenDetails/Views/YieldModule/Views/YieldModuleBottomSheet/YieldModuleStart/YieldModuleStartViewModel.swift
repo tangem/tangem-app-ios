@@ -252,7 +252,7 @@ final class YieldModuleStartViewModel: ObservableObject {
 
             let isFeeHigh = feeValue > walletModel.getFeeCurrencyBalance()
 
-            if case .ethereum = walletModel.tokenItem.blockchain, isGasPriceHigh {
+            if case .ethereum = walletModel.tokenItem.blockchain, isGasPriceHigh, !isFeeHigh {
                 logger.logEarningNoticeHighNetworkFeeShown()
                 highNetworkFeesNotification = createHighNetworkFeesNotification()
             }
