@@ -17,7 +17,7 @@ final class SendAddressQRCodeUITests: BaseTestCase {
 
         launchApp(tangemApiType: .mock)
 
-        let sendScreen = StoriesScreen(app)
+        let sendScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .longPressToken(tokenName)
             .waitForActionButtons()
