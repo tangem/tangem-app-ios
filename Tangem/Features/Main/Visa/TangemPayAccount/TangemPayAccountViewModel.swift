@@ -93,7 +93,9 @@ private extension TangemPayAccountViewModel {
             tangemPayAccount
                 .tangemPayAccountStatePublisher,
             tangemPayAccount
-                .tangemPayStatusPublisher,
+                .tangemPayStatusPublisher
+                .map(Optional.some)
+                .prepend(nil),
             tangemPayAccount
                 .tangemPayCardPublisher,
             tangemPayAccount
@@ -116,7 +118,7 @@ private extension TangemPayAccountViewModel {
 
     static func mapToState(
         state: TangemPayAuthorizer.State,
-        status: TangemPayStatus,
+        status: TangemPayStatus?,
         card: VisaCustomerInfoResponse.Card?,
         balanceType: FormattedTokenBalanceType
     ) -> ViewState {
@@ -138,7 +140,7 @@ private extension TangemPayAccountViewModel {
             return .failedToIssueCard
         case .unavailable:
             return .unavailable
-        case .active, .blocked:
+        case .active, .blocked, .none:
             break
         }
 

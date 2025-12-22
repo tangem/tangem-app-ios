@@ -89,6 +89,7 @@ extension PercentFormatter.Option {
     static let onramp = PercentFormatter.Option(fractionDigits: .two, prefix: .onlyMinus, suffix: .default)
 
     static let yield = PercentFormatter.Option(fractionDigits: .two, prefix: .empty, suffix: .yield)
+    static let yieldEmptySuffix = PercentFormatter.Option(fractionDigits: .one, prefix: .empty, suffix: .empty)
 }
 
 // MARK: Options
