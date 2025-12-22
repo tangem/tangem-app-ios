@@ -64,7 +64,7 @@ class StakingAmountValidator {
 extension StakingAmountValidator: SendAmountValidator {
     func validate(amount: Decimal) throws {
         if let minimumAmount, amount < minimumAmount {
-            throw StakingValidationError.minAmountRequirementError(minimumAmount)
+            throw StakingValidationError.minAmountRequirementError(minimumAmount, action: .stake)
         }
 
         if let maximumAmount, amount > maximumAmount {
@@ -82,12 +82,12 @@ extension StakingAmountValidator: SendAmountValidator {
 }
 
 enum StakingValidationError: LocalizedError {
-    case minAmountRequirementError(_ minAmount: Decimal)
+    case minAmountRequirementError(_ minAmount: Decimal, action: StakingAction.ActionType)
     case maxAmountRequirementError(_ maxAmountFormatted: String)
 
     var errorDescription: String? {
         switch self {
-        case .minAmountRequirementError(let minAmount):
+        case .minAmountRequirementError(let minAmount, _):
             Localization.stakingAmountRequirementError(minAmount)
         case .maxAmountRequirementError(let maxAmountFormatted):
             Localization.stakingMaxAmountRequirementError(maxAmountFormatted)
