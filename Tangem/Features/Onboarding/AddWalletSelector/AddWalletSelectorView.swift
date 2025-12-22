@@ -80,8 +80,6 @@ private extension AddWalletSelectorView {
         Button(action: item.action) {
             VStack(alignment: .leading, spacing: 12) {
                 walletDescription(item: item.description)
-                Separator(height: .exact(0.5), color: Colors.Stroke.primary, axis: .horizontal)
-                walletInfos(items: item.infos)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(14)
@@ -131,23 +129,6 @@ private extension AddWalletSelectorView {
                 .fixedSize(horizontal: false, vertical: true)
 
             badge.map(BadgeView.init)
-        }
-    }
-
-    func walletInfos(items: [ViewModel.WalletInfoItem]) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            ForEach(items) { item in
-                HStack(spacing: 6) {
-                    item.icon.image
-                        .renderingMode(.template)
-                        .resizable()
-                        .foregroundStyle(Colors.Icon.accent)
-                        .frame(width: 16, height: 16)
-
-                    Text(item.title)
-                        .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
-                }
-            }
         }
     }
 
