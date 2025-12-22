@@ -57,6 +57,22 @@ final class TangemPayAuthorizer {
     func setUnavailable() {
         stateSubject.send(.unavailable)
     }
+
+    func setAuthorized() {
+        guard state.authorized == nil else {
+            return
+        }
+
+        if let (customerWalletAddress, tokens) = TangemPayUtilities.getCustomerWalletAddressAndAuthorizationTokens(
+            customerWalletId: customerWalletId,
+            keysRepository: keysRepository
+        ) {
+            stateSubject.send(.authorized(
+                customerWalletAddress: customerWalletAddress,
+                tokens: tokens
+            ))
+        }
+    }
 }
 
 extension TangemPayAuthorizer {

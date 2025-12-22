@@ -19,7 +19,6 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
     private var _shouldShowGetTangemPayBanner = CurrentValueSubject<Bool, Never>(
         AppSettings.shared.tangemPayShouldShowGetBanner
     )
-    private var _onUserWalletRepositoryEvent = PassthroughSubject<Void, Never>()
 
     var isTangemPayAvailablePublisher: AnyPublisher<Bool, Never> {
         _isTangemPayAvailable
@@ -29,6 +28,10 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
 
     var availableUserWalletModels: [UserWalletModel] {
         _availableUserWalletModels.value
+    }
+
+    var isDeviceRooted: Bool {
+        RTCUtil().checkStatus().hasIssues
     }
 
     var availableUserWalletModelsPublisher: AnyPublisher<[UserWalletModel], Never> {
@@ -59,11 +62,12 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
 
     var shouldShowGetTangemPay: AnyPublisher<Bool, Never> {
         Publishers
-            .CombineLatest(
+            .CombineLatest3(
                 isTangemPayAvailablePublisher,
-                isUserWalletModelsAvailble
+                isUserWalletModelsAvailble,
+                Just(isDeviceRooted).map { !$0 }
             )
-            .map { $0 && $1 }
+            .map { $0 && $1 && $2 }
             .removeDuplicates()
             .eraseToAnyPublisher()
     }
