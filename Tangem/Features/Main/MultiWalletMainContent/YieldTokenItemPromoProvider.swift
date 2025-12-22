@@ -22,6 +22,8 @@ final class YieldTokenItemPromoProvider {
 
     private let yieldPromoWalletModelSubject: CurrentValueSubject<TokenItemPromoParams?, Never> = .init(nil)
 
+    private let decimalRoundingUtility = DecimalRoundingUtility()
+
     private var bag = Set<AnyCancellable>()
 
     private let processingQueue = DispatchQueue(
@@ -67,10 +69,11 @@ final class YieldTokenItemPromoProvider {
 
                 let (marketInfo, sections) = output
 
-                let allWalletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: provider.userWalletRepository.models)
-                let thisUserWalletWalletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: provider.userWalletModel)
+                let thisUserWalletWalletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(
+                    for: provider.userWalletModel
+                )
 
-                guard !allWalletModels.hasActiveYield() else {
+                guard !thisUserWalletWalletModels.hasActiveYield() else {
                     provider.yieldPromoWalletModelSubject.send(nil)
                     return
                 }
@@ -137,8 +140,16 @@ final class YieldTokenItemPromoProvider {
         var maxBalance: Decimal = .zero
         var topIds = Set<WalletModelId>()
 
+        let roundingType = BalanceFormattingOptions.defaultFiatFormattingOptions.roundingType
+
         for model in filtered {
-            let balance = model.fiatBalance()
+            var balance = model.fiatBalance()
+
+            // add rounding to avoid the problem when visually identical balances
+            // with different exact values lead to incorrect promo banner positioning
+            if let roundingType {
+                balance = decimalRoundingUtility.roundDecimal(balance, with: roundingType)
+            }
 
             if balance > maxBalance {
                 maxBalance = balance
