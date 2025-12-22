@@ -55,7 +55,8 @@ struct VisaTransactionHistoryMapper {
             amount: balanceFormatter.formatCryptoBalance(record.blockchainAmount, currencyCode: currencySymbol),
             isOutgoing: true,
             transactionType: .operation(name: record.merchantName ?? .unknown),
-            status: .confirmed
+            status: .confirmed,
+            isFromYieldContract: false
         )
     }
 
