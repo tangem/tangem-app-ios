@@ -30,12 +30,14 @@ struct PagerWithDots<Data, Content>: View
         _ data: Data,
         indexUpdateNotifier: PassthroughSubject<Int, Never>,
         pageWidth: CGFloat,
+        initialIndex: Int = 0,
         @ViewBuilder content: @escaping (Data.Element) -> Content
     ) {
         self.data = data
         self.indexUpdateNotifier = indexUpdateNotifier
         self.pageWidth = pageWidth
         self.content = content
+        _currentIndex = State(initialValue: Self.clampIndex(initialIndex, dataCount: data.count))
     }
 
     var body: some View {
@@ -83,6 +85,13 @@ struct PagerWithDots<Data, Content>: View
                 .frame(width: pageWidth, height: 20, alignment: .center)
             }
         }
+    }
+}
+
+private extension PagerWithDots {
+    static func clampIndex(_ index: Int, dataCount: Int) -> Int {
+        guard dataCount > 0 else { return 0 }
+        return min(max(index, 0), dataCount - 1)
     }
 }
 
