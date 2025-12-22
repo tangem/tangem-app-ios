@@ -15,7 +15,7 @@ final class MainScreenUITests: BaseTestCase {
         setAllureId(880)
         launchApp(tangemApiType: .mock)
 
-        let mainScreen = StoriesScreen(app)
+        let mainScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(token)
             .hideToken(name: token)
@@ -27,7 +27,7 @@ final class MainScreenUITests: BaseTestCase {
         setAllureId(898)
         launchApp()
 
-        let mainScreen = StoriesScreen(app)
+        let mainScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
 
         mainScreen.waitDeveloperCardBannerExists()
@@ -37,7 +37,7 @@ final class MainScreenUITests: BaseTestCase {
         setAllureId(3991)
         launchApp()
 
-        let mainScreen = StoriesScreen(app)
+        let mainScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .ring)
 
         mainScreen.waitDeveloperCardBannerNotExists()
@@ -47,7 +47,7 @@ final class MainScreenUITests: BaseTestCase {
         setAllureId(227)
         launchApp()
 
-        let mainScreen = StoriesScreen(app)
+        let mainScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2Imported)
 
         mainScreen.validateMandatorySecurityUpdateBannerExists()
