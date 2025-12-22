@@ -615,7 +615,7 @@
 "initial_message_purge_wallet_body" = "要重置為出廠設置，請完全按照上圖所示連接手機和卡片";
 "initial_message_reset_backup_card_header" = "Tap the card #%@ of the wallet";
 "initial_message_sign_body" = "要簽名，請完全按照上圖所示連接手機和卡";
-"jailbreak_warning_message" = "Devices with jailbreak detected are considered less secure. Your data may be exposed to additional risks.";
+"jailbreak_warning_message" = "Devices with jailbreak are considered less secure. Your data may be exposed to additional risks.";
 "jailbreak_warning_title" = "Jailbreak detected";
 "key_invalidated_warning_description" = "您已更新生物識別登入，掃描您的卡進入";
 "koinos_insufficient_balance_to_send_koin_description" = "Your balance should be higher than the fee value to make a transfer";
@@ -978,6 +978,7 @@
 "reset_card_to_factory_button_title" = "重置卡片";
 "reset_card_to_factory_condition_1" = "我了解執行此操作後，我將無法再訪問當前錢包";
 "reset_card_to_factory_condition_2" = "I realize that I can't use this card to recover my access code on the other cards of the current wallet";
+"reset_card_to_factory_condition_3" = "I understand that I will completely lose access to my Tangem Pay Card and all funds on it without the possibility of recovery";
 "reset_card_with_backup_to_factory_message" = "恢復原廠設置將從所選卡中完全刪除錢包。您將無法恢復當前錢包或使用卡恢復訪問密碼";
 "reset_card_without_backup_to_factory_message" = "恢復原廠設置將從所選卡中完全刪除錢包並將其從應用程序中刪除。您將無法恢復當前錢包";
 "reset_cards_dialog_complete_description" = "All Tangem devices have been reset.";
@@ -1320,6 +1321,7 @@
 "tangem_pay_unfreeze_card_success" = "您的卡片已解凍。";
 "tangem_pay_withdrawal" = "提現";
 "tangempay_account_unable_to_use_rooted" = "Unable to use on rooted device";
+"tangempay_cancel_kyc" = "Cancel KYC";
 "tangempay_card_details_add_funds_subtitle" = "充值选项";
 "tangempay_card_details_add_funds" = "添加资金";
 "tangempay_card_details_card_number" = "卡號";
@@ -1347,6 +1349,7 @@
 "tangempay_card_details_open_wallet_step_5" = "全部完成！您的卡片已準備就緒。";
 "tangempay_card_details_open_wallet_title_apple" = "添加卡片到 Apple Pay";
 "tangempay_card_details_open_wallet_title" = "將卡片添加到 Google Pay";
+"tangempay_card_details_pin_code" = "PIN code";
 "tangempay_card_details_receive_description" = "分享您的地址或显示二维码";
 "tangempay_card_details_receive_error_description" = "Technical issues detected. Please try again later or contact support.";
 "tangempay_card_details_receive_error_title" = "暫時無法接收";
@@ -1355,6 +1358,8 @@
 "tangempay_card_details_swap_description" = "將您投資組合中的任何資產兌換成卡片";
 "tangempay_card_details_title" = "卡片详情";
 "tangempay_card_details_unfreeze_card" = "解凍卡片";
+"tangempay_card_details_view_pin_code_description" = "Come back to the app if you forget it.";
+"tangempay_card_details_view_pin_code_title" = "Your PIN code";
 "tangempay_card_details_withdraw_error_title" = "目前无法提现";
 "tangempay_card_details_withdraw_in_progress_description" = "在当前操作完成之前，您无法启动兑换或新的提款。";
 "tangempay_card_details_withdraw_in_progress_title" = "提款进行中";
@@ -1373,10 +1378,13 @@
 "tangempay_issuing_your_card_description" = "正在为您准备卡片，这可能需要一些时间";
 "tangempay_issuing_your_card" = "正在发行您的卡片";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
+"tangempay_kyc_confirm_cancellation_alert_title" = "Confirm Cancellation";
+"tangempay_kyc_confirm_cancellation_description" = "Are you sure you want to stop the KYC process? You can return to it anytime.";
 "tangempay_kyc_failed_description" = "我们无法验证您的资料。如有任何疑问，请联系客服。";
 "tangempay_kyc_failed_title" = "很抱歉，我们无法验证您的身份";
 "tangempay_kyc_in_progress_notification_button" = "查看状态";
 "tangempay_kyc_in_progress_notification_title" = "Tangem Pay 的 KYC 正在進行中";
+"tangempay_kyc_in_progress_popup_description" = "Use the buttons below to view your current KYC status or cancel it.";
 "tangempay_kyc_in_progress" = "KYC进行中";
 "tangempay_onboarding_banner_description" = "使用您的加密货币进行真实世界消费。这是一张与众不同的支付卡。";
 "tangempay_onboarding_banner_title" = "Tangem Visa Card";
@@ -1554,7 +1562,7 @@
 "visa_unlock_notification_title" = "Needed unlock";
 "voice_over_open_card_details" = "開啟卡片細節";
 "voice_over_open_new_wallet_connect_session" = "掃描二維碼打開新的 WalletConnect 鏈接";
-"wallet_add_common_title" = "Choose how to add your wallet";
+"wallet_add_common_title" = "Choose your wallet type";
 "wallet_add_hardware_description" = "Scan your Tangem card or ring to restore it or import from another wallet.";
 "wallet_add_hardware_info_create" = "Create Hardware Wallet";
 "wallet_add_hardware_purchase" = "Want to purchase a Tangem Wallet?";
