@@ -16,8 +16,6 @@ final class AccountsAwareTokenSelectorItemSwapAvailabilityProvider {
     private var availableCurrencies: CurrentValueSubject<[ExpressCurrency]?, Never> = .init(nil)
     private var directionSubscription: AnyCancellable?
 
-    init() {}
-
     func setup(directionPublisher: some Publisher<SwapDirection?, Never>) {
         directionSubscription = directionPublisher
             .withWeakCaptureOf(self)
@@ -26,15 +24,15 @@ final class AccountsAwareTokenSelectorItemSwapAvailabilityProvider {
                 case .none:
                     return .none
                 case .fromSource(let source):
-                    let pairs = await provider.expressPairsRepository.getPairs(from: source.expressCurrency)
-                    // We add the `source` token because it pair will not contains it as `destination`
-                    // But of course it's available for swap as `source`
-                    return [source.expressCurrency.asCurrency] + pairs.map { $0.destination }
+                    return await provider
+                        .expressPairsRepository
+                        .getPairs(from: source.expressCurrency)
+                        .map(\.destination)
                 case .toDestination(let destination):
-                    let pairs = await provider.expressPairsRepository.getPairs(to: destination.expressCurrency)
-                    // We add the `destination` token because it pair will not contains it as `source`
-                    // But of course it's available for swap as `destination`
-                    return [destination.expressCurrency.asCurrency] + pairs.map { $0.source }
+                    return await provider
+                        .expressPairsRepository
+                        .getPairs(to: destination.expressCurrency)
+                        .map(\.source)
                 }
             }
             .assign(to: \.availableCurrencies.value, on: self, ownership: .weak)
