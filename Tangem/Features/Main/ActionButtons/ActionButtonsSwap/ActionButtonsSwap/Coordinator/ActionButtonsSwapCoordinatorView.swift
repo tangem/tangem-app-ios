@@ -19,7 +19,7 @@ struct ActionButtonsSwapCoordinatorView: View {
             case .none:
                 EmptyView()
             case .legacy(let viewModel):
-                NavigationView {
+                NavigationStack {
                     ActionButtonsSwapView(viewModel: viewModel)
                         .navigationBarTitle(Text(Localization.actionButtonsSwapNavigationBarTitle), displayMode: .inline)
                         .toolbar {
@@ -30,7 +30,7 @@ struct ActionButtonsSwapCoordinatorView: View {
                 }
                 .transition(.opacity)
             case .new(let viewModel):
-                NavigationView {
+                NavigationStack {
                     NewActionButtonsSwapView(viewModel: viewModel)
                 }
                 .transition(SendTransitions.transition)

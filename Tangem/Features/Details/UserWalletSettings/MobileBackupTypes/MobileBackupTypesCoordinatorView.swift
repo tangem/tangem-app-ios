@@ -33,7 +33,6 @@ struct MobileBackupTypesCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.hardwareBackupTypesCoordinator) {
                 HardwareBackupTypesCoordinatorView(coordinator: $0)
             }
-            .emptyNavigationLink()
     }
 
     @ViewBuilder

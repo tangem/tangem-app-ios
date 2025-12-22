@@ -138,7 +138,7 @@ extension UnstakingFlowFactory: SendGenericFlowFactory {
         notificationManager.setupManager(with: unstakingModel)
 
         // Analytics
-        analyticsLogger.setup(stakingValidatorsInput: unstakingModel)
+        analyticsLogger.setup(stakingTargetsInput: unstakingModel)
 
         let stepsManager = CommonUnstakingStepsManager(
             amountStep: amount.step,

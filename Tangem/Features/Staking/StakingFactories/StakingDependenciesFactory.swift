@@ -58,6 +58,10 @@ class StakingDependenciesFactory {
             TangemStakingFactory().makeP2PStakingManager(
                 wallet: wallet,
                 provider: makeP2PAPIProvider(),
+                stateRepository: CommonStakingManagerStateRepository(
+                    stakingWallet: wallet,
+                    storage: CachesDirectoryStorage(file: .cachedStakingManagerState)
+                ),
                 analyticsLogger: CommonStakingAnalyticsLogger()
             )
         default:
@@ -65,6 +69,10 @@ class StakingDependenciesFactory {
                 integrationId: integrationId,
                 wallet: wallet,
                 provider: makeStakeKitAPIProvider(),
+                stateRepository: CommonStakingManagerStateRepository(
+                    stakingWallet: wallet,
+                    storage: CachesDirectoryStorage(file: .cachedStakingManagerState)
+                ),
                 analyticsLogger: CommonStakingAnalyticsLogger()
             )
         }

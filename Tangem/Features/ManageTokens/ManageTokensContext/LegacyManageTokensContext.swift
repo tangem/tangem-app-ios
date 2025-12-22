@@ -24,11 +24,15 @@ final class LegacyManageTokensContext: ManageTokensContext {
     }
 
     func accountDestination(for tokenItem: TokenItem) -> TokenAccountDestination {
-        // Legacy mode: all tokens go to the same single account/wallet
-        return .currentAccount
+        // Legacy mode: all tokens go to the same single account/wallet (always main)
+        return .currentAccount(isMainAccount: true)
     }
 
     func canManageBlockchain(_ blockchain: Blockchain) -> Bool {
         return true
+    }
+
+    func isAddedToPortfolio(_ tokenItem: TokenItem) -> Bool {
+        userTokensManager.contains(tokenItem, derivationInsensitive: false)
     }
 }

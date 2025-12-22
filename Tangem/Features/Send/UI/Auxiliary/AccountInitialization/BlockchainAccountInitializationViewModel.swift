@@ -62,7 +62,7 @@ final class BlockchainAccountInitializationViewModel: ObservableObject, Floating
 
         feeRowViewModel = DefaultRowViewModel(title: Localization.commonNetworkFeeTitle, detailsType: .none)
 
-        updateView(state: .loaded(fee))
+        updateView(state: .success(fee))
     }
 
     func onAppear() {
@@ -78,14 +78,14 @@ final class BlockchainAccountInitializationViewModel: ObservableObject, Floating
                 let transaction = accountInitializationService.initializationTransaction(fee: fee)
                 _ = try await transactionDispatcher.send(transaction: .transfer(transaction))
                 onStartInitialization()
-                try await Task.sleep(seconds: Constants.startPollingInterval) // activation takes some time, doesn't make sense to start tracking earlier
+                try await Task.sleep(for: .seconds(Constants.startPollingInterval)) // activation takes some time, doesn't make sense to start tracking earlier
                 try await trackInitializationStatus()
                 onInitialized()
                 dismiss()
             } catch TransactionDispatcherResult.Error.userCancelled {
-                updateView(state: .loaded(fee))
+                updateView(state: .success(fee))
             } catch {
-                updateView(state: .failedToLoad(error: error))
+                updateView(state: .failure(error))
             }
         }
     }
@@ -97,15 +97,15 @@ final class BlockchainAccountInitializationViewModel: ObservableObject, Floating
 }
 
 private extension BlockchainAccountInitializationViewModel {
-    func updateView(state: LoadingValue<Fee>) {
+    func updateView(state: LoadingResult<Fee, any Error>) {
         switch state {
-        case .loaded(let fee):
+        case .success(let fee):
             updateFeeAmount(fee: fee)
             isLoading = false
         case .loading:
             feeRowViewModel.update(detailsType: .loader)
             isLoading = true
-        case .failedToLoad(let error):
+        case .failure(let error):
             isLoading = false
             alertPresenter.present(
                 alert: AlertBinder(title: Localization.commonError, message: error.localizedDescription)
@@ -128,7 +128,7 @@ private extension BlockchainAccountInitializationViewModel {
                 return
             }
 
-            try await Task.sleep(seconds: Constants.pollingInterval)
+            try await Task.sleep(for: .seconds(Constants.pollingInterval))
         }
 
         throw StakingModelError.accountIsNotInitialized

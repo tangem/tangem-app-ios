@@ -12,7 +12,7 @@ struct BlockchainSdkExampleView: View {
     @EnvironmentObject var model: BlockchainSdkExampleViewModel
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             Form {
                 Section {
                     Button {
@@ -192,24 +192,15 @@ struct BlockchainSdkExampleView: View {
 
 private struct PickerStyleModifier: ViewModifier {
     func body(content: Content) -> some View {
-        if #available(iOS 14, *) {
-            content
-                .pickerStyle(.menu)
-        } else {
-            content
-                .pickerStyle(.automatic)
-        }
+        content
+            .pickerStyle(.menu)
     }
 }
 
 private struct TextSelectionConditionalModifier: ViewModifier {
     func body(content: Content) -> some View {
-        if #available(iOS 15, *) {
-            content
-                .textSelection(.enabled)
-        } else {
-            content
-        }
+        content
+            .textSelection(.enabled)
     }
 }
 

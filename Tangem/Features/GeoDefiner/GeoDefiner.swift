@@ -15,7 +15,7 @@ class GeoDefiner: Initializable {
 
     public var geoIpRegionCode: String?
     public var phoneRegionCode: String? {
-        Locale.current.regionCode?.lowercased()
+        Locale.current.region?.identifier.lowercased()
     }
 
     private var ipRegionCodeTask: Task<String, Error>?
