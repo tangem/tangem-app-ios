@@ -60,10 +60,6 @@ private extension AddWalletSelectorViewModel {
                 subtitle: Localization.walletAddHardwareDescription,
                 badge: BadgeView.Item(title: Localization.commonRecommended, style: .accent)
             ),
-            infos: [
-                WalletInfoItem(icon: Assets.Glyphs.addData, title: Localization.walletAddHardwareInfoCreate),
-                WalletInfoItem(icon: Assets.Glyphs.importData, title: Localization.walletAddImportSeedPhrase),
-            ],
             action: weakify(self, forFunction: AddWalletSelectorViewModel.openHardwareWallet)
         )
 
@@ -73,10 +69,6 @@ private extension AddWalletSelectorViewModel {
                 subtitle: Localization.walletAddMobileDescription,
                 badge: nil
             ),
-            infos: [
-                WalletInfoItem(icon: Assets.Glyphs.mobileWallet, title: Localization.hwCreateTitle),
-                WalletInfoItem(icon: Assets.Glyphs.importData, title: Localization.walletAddImportSeedPhrase),
-            ],
             action: weakify(self, forFunction: AddWalletSelectorViewModel.onMobileWalletTap)
         )
 
@@ -125,7 +117,7 @@ private extension AddWalletSelectorViewModel {
     }
 
     func openWhatToChoose() {
-        safariManager.openURL(TangemBlogUrlBuilder().url(post: .mobileVsHardware))
+        safariManager.openURL(TangemBlogUrlBuilder().url(post: .mobileWallet))
     }
 }
 
@@ -155,7 +147,6 @@ extension AddWalletSelectorViewModel {
     struct WalletItem: Identifiable {
         let id = UUID()
         let description: WalletDescriptionItem
-        let infos: [WalletInfoItem]
         let action: () -> Void
     }
 
@@ -169,11 +160,5 @@ extension AddWalletSelectorViewModel {
         let title: String
         let subtitle: String
         let badge: BadgeView.Item?
-    }
-
-    struct WalletInfoItem: Identifiable {
-        let id = UUID()
-        let icon: ImageType
-        let title: String
     }
 }
