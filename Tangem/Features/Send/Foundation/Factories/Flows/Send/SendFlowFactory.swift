@@ -238,7 +238,8 @@ extension SendFlowFactory: SendDestinationStepBuildable {
                     transactionHistoryMapper: TransactionHistoryMapper(
                         currencySymbol: tokenItem.currencySymbol,
                         walletAddresses: walletAddresses,
-                        showSign: false
+                        showSign: false,
+                        isToken: tokenItem.isToken
                     )
                 ),
                 analyticsLogger: analyticsLogger

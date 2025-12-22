@@ -487,7 +487,8 @@ extension MarketsAccountsAwarePortfolioContainerViewModel: MarketsPortfolioConte
         switch action {
         case .buy:
             Analytics.log(event: .marketsChartButtonBuy, params: analyticsParams)
-            coordinator.openOnramp(input: sendInput)
+            let parameters = PredefinedOnrampParametersBuilder.makeMoonpayPromotionParametersIfActive()
+            coordinator.openOnramp(input: sendInput, parameters: parameters)
         case .receive:
             Analytics.log(event: .marketsChartButtonReceive, params: analyticsParams)
             coordinator.openReceive(walletModel: walletModel)

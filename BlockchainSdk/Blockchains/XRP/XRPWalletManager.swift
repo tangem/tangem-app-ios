@@ -417,6 +417,10 @@ private extension XRPWalletManager {
             )
         }
 
+        let mapper = PendingTransactionRecordMapper()
+        let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: result)
+        wallet.addPendingTransaction(record)
+
         return TransactionSendResult(hash: result, currentProviderHost: currentHost)
     }
 
