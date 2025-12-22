@@ -28,6 +28,15 @@ public enum EthereumFeeParametersConstants {
 }
 
 public extension EthereumFeeParameters {
+    var maximumFeePerGas: BigUInt? {
+        switch parametersType {
+        case .eip1559(let params):
+            return params.maxFeePerGas
+        case .legacy:
+            return nil
+        }
+    }
+
     var gasLimit: BigUInt {
         switch parametersType {
         case .eip1559(let params):
