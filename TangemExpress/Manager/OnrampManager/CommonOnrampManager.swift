@@ -65,28 +65,17 @@ extension CommonOnrampManager: OnrampManager {
         try await updateQuotesInEachManager(providers: providers, amount: amount)
         OnrampLogger.info(self, "The quotes was updated for amount: \(amount)")
 
+        providers.sortNestedProviders()
         providers.updateSupportedPaymentMethods()
-        let sorted = providers.sorted(sorter: sorter)
+        providers.updateAttractiveTypes()
+        providers.updateProcessingTimeTypes(preferredProviderId: preferredValues.providerId)
+
+        // `suggestProvider` logic will be remove
+        // [REDACTED_TODO_COMMENT]
+        let sorted = providers.sortedByFirstItem(sorter: sorter)
         let suggestProvider = try suggestProvider(in: sorted)
+
         return (list: sorted, provider: suggestProvider)
-    }
-
-    public func suggestProvider(in providers: ProvidersList, paymentMethod: OnrampPaymentMethod) throws -> OnrampProvider {
-        OnrampLogger.info(self, "Payment method was updated by user to: \(paymentMethod.name)")
-
-        guard let providerItem = providers.select(for: paymentMethod.type) else {
-            throw OnrampManagerError.noProviderForPaymentMethod
-        }
-
-        providerItem.updateAttractiveTypes()
-        OnrampLogger.info(self, "Providers for paymentMethod: \(providerItem.paymentMethod.name) was sorted to order: \(providerItem.providers)")
-
-        guard let selectedProvider = providerItem.maxPriorityProvider() else {
-            throw OnrampManagerError.noProviderForPaymentMethod
-        }
-
-        OnrampLogger.info(self, "New selected provider was updated to: \(selectedProvider as Any)")
-        return selectedProvider
     }
 
     public func loadRedirectData(provider: OnrampProvider, redirectSettings: OnrampRedirectSettings) async throws -> OnrampRedirectData {
@@ -124,13 +113,6 @@ private extension CommonOnrampManager {
 
     func suggestProvider(in providers: ProvidersList) throws -> OnrampProvider {
         OnrampLogger.info(self, "Start to find the best provider")
-
-        // Global types
-        providers.updateAttractiveTypes()
-        providers.updateProcessingTimeTypes()
-
-        // Internal attractive types
-        providers.forEach { $0.updateAttractiveTypes() }
 
         if let paymentMethodType = preferredValues.paymentMethodType {
             OnrampLogger.info(self, "Has preferredValues \(preferredValues)")
