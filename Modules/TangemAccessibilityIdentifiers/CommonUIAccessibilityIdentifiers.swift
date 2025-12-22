@@ -30,4 +30,6 @@ public enum CommonUIAccessibilityIdentifiers {
     public static let yieldModuleNotificationIcon = "yieldModuleNotificationIcon"
     public static let yieldModuleNotificationDismissButton = "yieldModuleNotificationDismissButton"
     public static let yieldModuleNotificationButton = "yieldModuleNotificationButton"
+
+    public static let retryButton = "commonRetryButton"
 }

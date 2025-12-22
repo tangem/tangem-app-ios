@@ -11,7 +11,7 @@ let package = Package(
     name: modulesWrapperLibraryName,
     defaultLocalization: "en",
     platforms: [
-        .iOS(.v15),
+        .iOS("16.4"),
         // [REDACTED_USERNAME]
         // We enforce a set the macOS minimum target version
         // so that the swift-syntax dependency can compile and link for macros
@@ -33,7 +33,7 @@ let package = Package(
         .package(url: "https://github.com/weichsel/ZIPFoundation.git", .upToNextMajor(from: "0.9.19")),
         .package(url: "https://github.com/airbnb/lottie-spm.git", .upToNextMajor(from: "4.5.2")),
         .package(url: "https://github.com/CombineCommunity/CombineExt.git", .upToNextMajor(from: "1.8.1")),
-        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", .upToNextMajor(from: "3.24.1")),
+        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", .upToNextMajor(from: "4.0.1")),
         .package(url: "https://github.com/swiftlang/swift-syntax.git", .upToNextMajor(from: "602.0.0")),
     ],
     targets: [modulesWrapperLibrary] + serviceModules + featureModules + unitTestsModules
@@ -113,11 +113,15 @@ var serviceModules: [PackageDescription.Target] {
                 "TangemAssets",
                 "TangemLocalization",
                 "TangemFoundation",
+                "TangemUIUtilsObjC",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
                 .swiftLanguageMode(.v5),
             ]
+        ),
+        .tangemTarget(
+            name: "TangemUIUtilsObjC"
         ),
         .tangemTarget(
             name: "TangemUI",
@@ -155,7 +159,6 @@ var serviceModules: [PackageDescription.Target] {
                 "crypto/ed25519-donna/README.md",
                 "crypto/nist256p1.table",
                 "crypto/secp256k1.table",
-                "crypto/test.db",
             ],
             sources: ["crypto"],
             publicHeadersPath: "include",

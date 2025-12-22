@@ -10,9 +10,11 @@ import Combine
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import struct TangemUIUtils.AlertBinder
 
 final class AddWalletSelectorViewModel: ObservableObject {
     @Published var isBuyAvailable = false
+    @Published var alert: AlertBinder?
 
     let navigationBarHeight = OnboardingLayoutConstants.navbarSize.height
     let screenTitle = Localization.walletAddCommonTitle
@@ -23,9 +25,15 @@ final class AddWalletSelectorViewModel: ObservableObject {
 
     @Injected(\.safariManager) private var safariManager: SafariManager
 
+    private let mobileWalletFeatureProvider = MobileWalletFeatureProvider()
+
+    private var analyticsContextParams: Analytics.ContextParams { .empty }
+
+    private let source: AddWalletSelectorSource
     private weak var coordinator: AddWalletSelectorRoutable?
 
-    init(coordinator: AddWalletSelectorRoutable) {
+    init(source: AddWalletSelectorSource, coordinator: AddWalletSelectorRoutable) {
+        self.source = source
         self.coordinator = coordinator
     }
 }
@@ -52,10 +60,6 @@ private extension AddWalletSelectorViewModel {
                 subtitle: Localization.walletAddHardwareDescription,
                 badge: BadgeView.Item(title: Localization.commonRecommended, style: .accent)
             ),
-            infos: [
-                WalletInfoItem(icon: Assets.Glyphs.addData, title: Localization.walletAddHardwareInfoCreate),
-                WalletInfoItem(icon: Assets.Glyphs.importData, title: Localization.walletAddImportSeedPhrase),
-            ],
             action: weakify(self, forFunction: AddWalletSelectorViewModel.openHardwareWallet)
         )
 
@@ -65,11 +69,7 @@ private extension AddWalletSelectorViewModel {
                 subtitle: Localization.walletAddMobileDescription,
                 badge: nil
             ),
-            infos: [
-                WalletInfoItem(icon: Assets.Glyphs.mobileWallet, title: Localization.hwCreateTitle),
-                WalletInfoItem(icon: Assets.Glyphs.importData, title: Localization.walletAddImportSeedPhrase),
-            ],
-            action: weakify(self, forFunction: AddWalletSelectorViewModel.openMobileWallet)
+            action: weakify(self, forFunction: AddWalletSelectorViewModel.onMobileWalletTap)
         )
 
         return [hardwareItem, mobileItem]
@@ -89,6 +89,15 @@ private extension AddWalletSelectorViewModel {
             self?.isBuyAvailable = true
         }
     }
+
+    func onMobileWalletTap() {
+        logMobileWalletTapAnalytics()
+        guard mobileWalletFeatureProvider.isAvailable else {
+            alert = mobileWalletFeatureProvider.makeRestrictionAlert()
+            return
+        }
+        openMobileWallet()
+    }
 }
 
 // MARK: - Navigation
@@ -99,17 +108,36 @@ private extension AddWalletSelectorViewModel {
     }
 
     func openMobileWallet() {
-        Analytics.log(.buttonMobileWallet)
-        coordinator?.openAddMobileWallet()
+        coordinator?.openAddMobileWallet(source: .addNewWallet)
     }
 
     func openBuyHardwareWallet() {
-        Analytics.log(.onboardingButtonBuy, params: [.source: .createWallet])
-        safariManager.openURL(TangemBlogUrlBuilder().url(root: .pricing))
+        logBuyHardwareWalletAnalytics()
+        safariManager.openURL(TangemShopUrlBuilder().url(utmCampaign: .users))
     }
 
     func openWhatToChoose() {
         safariManager.openURL(TangemBlogUrlBuilder().url(post: .mobileVsHardware))
+    }
+}
+
+// MARK: - Analytics
+
+private extension AddWalletSelectorViewModel {
+    func logMobileWalletTapAnalytics() {
+        Analytics.log(
+            .buttonMobileWallet,
+            params: [.source: .addNewWallet],
+            contextParams: analyticsContextParams
+        )
+    }
+
+    func logBuyHardwareWalletAnalytics() {
+        Analytics.log(
+            .basicButtonBuy,
+            params: [.source: Analytics.BuyWalletSource.addWallet.parameterValue],
+            contextParams: analyticsContextParams
+        )
     }
 }
 
@@ -119,7 +147,6 @@ extension AddWalletSelectorViewModel {
     struct WalletItem: Identifiable {
         let id = UUID()
         let description: WalletDescriptionItem
-        let infos: [WalletInfoItem]
         let action: () -> Void
     }
 
@@ -133,11 +160,5 @@ extension AddWalletSelectorViewModel {
         let title: String
         let subtitle: String
         let badge: BadgeView.Item?
-    }
-
-    struct WalletInfoItem: Identifiable {
-        let id = UUID()
-        let icon: ImageType
-        let title: String
     }
 }

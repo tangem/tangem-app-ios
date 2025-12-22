@@ -45,7 +45,7 @@ class CommonWalletModel {
         }
     }
 
-    private weak var _account: (any CryptoAccountModel)?
+    private(set) weak var account: (any CryptoAccountModel)?
 
     private let sendAvailabilityProvider: TransactionSendAvailabilityProvider
     private let tokenBalancesRepository: TokenBalancesRepository
@@ -116,7 +116,7 @@ class CommonWalletModel {
     }
 
     func setCryptoAccount(_ cryptoAccount: any CryptoAccountModel) {
-        _account = cryptoAccount
+        account = cryptoAccount
     }
 
     private func bind() {
@@ -257,8 +257,6 @@ extension CommonWalletModel: Equatable {
 // MARK: - WalletModel
 
 extension CommonWalletModel: WalletModel {
-    var account: (any CryptoAccountModel)? { _account }
-
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> { featureManager.featuresPublisher }
 
     var name: String {
@@ -360,6 +358,10 @@ extension CommonWalletModel: WalletModel {
 
     var stakeKitTransactionSender: StakeKitTransactionSender? {
         walletManager as? StakeKitTransactionSender
+    }
+
+    var p2pTransactionSender: P2PTransactionSender? {
+        walletManager as? P2PTransactionSender
     }
 
     var accountInitializationService: (any BlockchainAccountInitializationService)? {
