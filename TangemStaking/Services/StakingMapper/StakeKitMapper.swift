@@ -213,8 +213,21 @@ struct StakeKitMapper {
         }
 
         return try balances.compactMap { balance in
-            guard let amount = Decimal(stringValue: balance.amount) else {
+            guard var amount = Decimal(stringValue: balance.amount) else {
                 return nil
+            }
+
+            let stakingTokenItem = try mapToStakingTokenItem(from: balance.token)
+
+            // for cardano rewards for some reason are included in balances
+            // (e.g. staked balance == amount user staked initially + rewards amount
+            // so we need to subtract the amount of rewards from balances to display them
+            // consistently with the other network's balances
+            if stakingTokenItem.rewardsIncludedInBalance, balance.type != .rewards {
+                amount -= balances
+                    .filter { $0.type == .rewards }
+                    .compactMap { Decimal(stringValue: $0.amount) }
+                    .sum()
             }
 
             // For Polygon token we can receive a staking balance with zero amount
@@ -223,7 +236,7 @@ struct StakeKitMapper {
             }
 
             return try StakingBalanceInfo(
-                item: mapToStakingTokenItem(from: balance.token),
+                item: stakingTokenItem,
                 amount: amount,
                 accountAddress: balance.accountAddress,
                 balanceType: mapToBalanceType(from: balance),
@@ -467,6 +480,15 @@ public enum StakeKitMapperError: Error, LocalizedError {
         case .notImplement: "Not implemented"
         case .noData(let string): string
         case .tronTransactionMappingFailed: "TronTransactionMappingFailed"
+        }
+    }
+}
+
+private extension StakingTokenItem {
+    var rewardsIncludedInBalance: Bool {
+        switch network {
+        case .cardano: true
+        default: false
         }
     }
 }
