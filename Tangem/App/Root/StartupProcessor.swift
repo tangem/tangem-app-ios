@@ -40,7 +40,7 @@ class StartupProcessor {
         }
 
         if let modelToOpen = shouldOpenMainScreen() {
-            SignInAnalyticsLogger().logSignInEvent(signInType: .noSecurity)
+            SignInAnalyticsLogger().logSignInEvent(signInType: .noSecurity, userWalletModel: modelToOpen)
             return .main(modelToOpen)
         }
 

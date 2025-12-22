@@ -380,7 +380,7 @@ final class CustomerInfoManagementServiceMock: CustomerInfoManagementService {
             expirationYear: "",
             pan: .init(secret: "", iv: ""),
             cvv: .init(secret: "", iv: ""),
-            isPINSet: .init()
+            isPinSet: .init()
         )
     }
 
