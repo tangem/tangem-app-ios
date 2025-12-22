@@ -24,7 +24,7 @@ struct WCFeeSelectorView: View {
             .separatorPadding(.init(leading: 62, trailing: 14))
             .padding(.horizontal, 14)
         }
-        .scrollBounceBehaviorBackport(.basedOnSize)
+        .scrollBounceBehavior(.basedOnSize)
         .onAppear(perform: viewModel.onAppear)
     }
 }

@@ -10,7 +10,7 @@ import Foundation
 import TangemUI
 
 struct OrganizeTokensListItemPreviewProvider {
-    func singleSmallHeaderlessSection() -> [OrganizeTokensListSection] {
+    func singleSmallHeaderlessSection() -> [OrganizeTokensListInnerSection] {
         return [
             .init(
                 model: .init(id: UUID(), style: .invisible),
@@ -33,7 +33,7 @@ struct OrganizeTokensListItemPreviewProvider {
         ]
     }
 
-    func singleSmallSection() -> [OrganizeTokensListSection] {
+    func singleSmallSection() -> [OrganizeTokensListInnerSection] {
         return [
             .init(
                 model: .init(id: UUID(), style: .draggable(title: "Bitcoin Network")),
@@ -56,7 +56,7 @@ struct OrganizeTokensListItemPreviewProvider {
         ]
     }
 
-    func singleMediumSection() -> [OrganizeTokensListSection] {
+    func singleMediumSection() -> [OrganizeTokensListInnerSection] {
         return [
             .init(
                 model: .init(id: UUID(), style: .draggable(title: "Bitcoin Network")),
@@ -127,7 +127,7 @@ struct OrganizeTokensListItemPreviewProvider {
         ]
     }
 
-    func singleLargeSection() -> [OrganizeTokensListSection] {
+    func singleLargeSection() -> [OrganizeTokensListInnerSection] {
         return [
             .init(
                 model: .init(id: UUID(), style: .invisible),
@@ -449,7 +449,7 @@ struct OrganizeTokensListItemPreviewProvider {
         ]
     }
 
-    func multipleSections() -> [OrganizeTokensListSection] {
+    func multipleSections() -> [OrganizeTokensListInnerSection] {
         return [
             .init(
                 model: .init(id: UUID(), style: .draggable(title: "Section #1")),

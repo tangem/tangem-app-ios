@@ -531,16 +531,6 @@ private extension MarketsViewModel {
     }
 }
 
-private extension MarketsListDataProvider.Event {
-    var isAppendedItems: Bool {
-        if case .appendedItems = self {
-            return true
-        }
-
-        return false
-    }
-}
-
 import Moya
 import Alamofire
 

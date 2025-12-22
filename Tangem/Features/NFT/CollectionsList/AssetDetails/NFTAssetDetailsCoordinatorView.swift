@@ -18,7 +18,7 @@ struct NFTAssetDetailsCoordinatorView: View {
     var body: some View {
         ZStack {
             if let rootViewModel = coordinator.rootViewModel {
-                NavigationView {
+                NavigationStack {
                     NFTAssetDetailsView(viewModel: rootViewModel)
                         .withCloseButton { coordinator.dismiss(with: nil) }
                         .navigationLinks(links)
@@ -29,20 +29,18 @@ struct NFTAssetDetailsCoordinatorView: View {
         }
     }
 
-    @ViewBuilder
     private var links: some View {
         NavHolder()
             .navigation(item: $coordinator.tokenDetailsCoordinator) {
                 TokenDetailsCoordinatorView(coordinator: $0)
             }
-            .emptyNavigationLink()
     }
 
     @ViewBuilder
     private var sheets: some View {
         NavHolder()
             .sheet(item: $coordinator.traitsViewData) { viewData in
-                NavigationView {
+                NavigationStack {
                     NFTAssetExtendedTraitsView(viewData: viewData)
                         .withCloseButton(action: coordinator.closeTraits)
                 }
