@@ -17,7 +17,7 @@ final class CommonTangemPayBalanceService: TangemPayBalancesService {
         tokenItem: tokenItem,
         tokenBalancesRepository: tokenBalancesRepository,
         balanceSubject: balanceSubject,
-        keyPath: \.crypto.balance
+        keyPath: \.fiat.availableBalance
     )
 
     lazy var availableBalanceProvider: TokenBalanceProvider = TangemPayTokenBalanceProvider(
