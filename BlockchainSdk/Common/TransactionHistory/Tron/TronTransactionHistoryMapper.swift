@@ -204,16 +204,16 @@ final class TronTransactionHistoryMapper {
                 // not sure if it's possible to have several validators inside,
                 // moreover there are no place to display more than one on UI,
                 // so we take first
-                let validator = transaction.voteList?.keys.first
-                return .staking(type: .vote, validator: validator)
+                let target = transaction.voteList?.keys.first
+                return .staking(type: .vote, target: target)
             case TronContractType.withdrawExpireUnfreezeContractType.rawValue:
-                return .staking(type: .withdraw, validator: nil)
+                return .staking(type: .withdraw, target: nil)
             case TronContractType.freezeBalanceV2ContractType.rawValue:
-                return .staking(type: .stake, validator: nil)
+                return .staking(type: .stake, target: nil)
             case TronContractType.unfreezeBalanceV2ContractType.rawValue:
-                return .staking(type: .unstake, validator: nil)
+                return .staking(type: .unstake, target: nil)
             case TronContractType.withdrawBalanceContractType.rawValue:
-                return .staking(type: .claimRewards, validator: nil)
+                return .staking(type: .claimRewards, target: nil)
             default:
                 return .contractMethodIdentifier(id: transaction.contractName ?? "")
             }
