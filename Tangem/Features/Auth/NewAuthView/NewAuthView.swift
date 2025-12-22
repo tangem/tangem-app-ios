@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct NewAuthView: View {
     typealias ViewModel = NewAuthViewModel
@@ -65,6 +66,7 @@ private extension NewAuthView {
                     .padding(.bottom, 6)
             }
         }
+        .accessibilityIdentifier(AuthAccessibilityIdentifiers.walletsList)
     }
 }
 
@@ -98,6 +100,7 @@ private extension NewAuthView {
                 .style(Fonts.Regular.body, color: Colors.Text.primary1)
         }
         .allowsHitTesting(!viewModel.isUnlocking)
+        .accessibilityIdentifier(AuthAccessibilityIdentifiers.addWalletButton)
     }
 }
 
@@ -108,9 +111,11 @@ private extension NewAuthView {
         VStack(alignment: .leading, spacing: 12) {
             Text(item.title)
                 .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+                .accessibilityIdentifier(AuthAccessibilityIdentifiers.title)
 
             Text(item.description)
                 .style(Fonts.Regular.callout, color: Colors.Text.secondary)
+                .accessibilityIdentifier(AuthAccessibilityIdentifiers.subtitle)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -133,5 +138,6 @@ private extension NewAuthView {
                 .background(Colors.Button.secondary)
                 .cornerRadius(14, corners: .allCorners)
         }
+        .accessibilityIdentifier(AuthAccessibilityIdentifiers.biometricsUnlockButton)
     }
 }

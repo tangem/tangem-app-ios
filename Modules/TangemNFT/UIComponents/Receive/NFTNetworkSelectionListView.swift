@@ -50,9 +50,8 @@ public struct NFTNetworkSelectionListView: View {
         }
     }
 
-    @ViewBuilder
     private var listContent: some View {
-        GroupedScrollView(spacing: 12.0, showsIndicators: false) {
+        GroupedScrollView(contentType: .lazy(alignment: .center, spacing: 12.0)) {
             GroupedSection(
                 viewModel.allItems,
                 content: { item in
@@ -89,6 +88,7 @@ public struct NFTNetworkSelectionListView: View {
             .settings(\.separatorStyle, .none)
             .settings(\.backgroundColor, Colors.Background.action)
         }
+        .scrollIndicators(.hidden)
     }
 
     public init(viewModel: NFTNetworkSelectionListViewModel) {
@@ -113,7 +113,7 @@ public struct NFTNetworkSelectionListView: View {
 
 #if DEBUG
 #Preview {
-    NavigationView {
+    NavigationStack {
         NFTNetworkSelectionListView(
             viewModel: .init(
                 userWalletName: "Test Wallet",

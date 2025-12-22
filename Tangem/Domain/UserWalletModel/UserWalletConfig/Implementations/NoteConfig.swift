@@ -96,6 +96,10 @@ extension NoteConfig: UserWalletConfig {
         }
     }
 
+    var contextBuilder: WalletCreationContextBuilder {
+        ["type": "card"]
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .accessCode:
@@ -158,6 +162,8 @@ extension NoteConfig: UserWalletConfig {
             return .available
         case .transactionPayloadLimit:
             return .available
+        case .tangemPay:
+            return .hidden
         }
     }
 

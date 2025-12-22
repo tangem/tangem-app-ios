@@ -86,7 +86,8 @@ private extension StakingSingleActionModel {
         estimatedFeeTask = runTask(in: self) { model in
             do {
                 model.update(state: .loading)
-                let state = try await model.state()
+                let estimateFee = try await model.stakingManager.estimateFee(action: model.action)
+                let state = model.makeState(fee: estimateFee)
                 model.update(state: state)
             } catch {
                 StakingLogger.error(error: error)
@@ -95,16 +96,14 @@ private extension StakingSingleActionModel {
         }
     }
 
-    func state() async throws -> StakingSingleActionModel.State {
-        let estimateFee = try await stakingManager.estimateFee(action: action)
-
-        if let error = validate(amount: action.amount, fee: estimateFee) {
+    func makeState(fee: Decimal) -> StakingSingleActionModel.State {
+        if let error = validate(amount: action.amount, fee: fee) {
             return error
         }
 
         return .ready(
-            fee: estimateFee,
-            stakesCount: action.validatorInfo.flatMap { stakingManager.state.stakesCount(for: $0) } ?? 0
+            fee: fee,
+            stakesCount: action.targetInfo.flatMap { stakingManager.state.stakesCount(for: $0) } ?? 0
         )
     }
 
@@ -136,9 +135,9 @@ private extension StakingSingleActionModel {
         case .loading:
             return SendFee(option: .market, value: .loading)
         case .networkError(let error):
-            return SendFee(option: .market, value: .failedToLoad(error: error))
+            return SendFee(option: .market, value: .failure(error))
         case .validationError(_, let fee), .ready(let fee, _):
-            return SendFee(option: .market, value: .loaded(makeFee(value: fee)))
+            return SendFee(option: .market, value: .success(makeFee(value: fee)))
         }
     }
 }
@@ -157,6 +156,9 @@ private extension StakingSingleActionModel {
         } catch let error as TransactionDispatcherResult.Error {
             proceed(error: error)
             throw error
+        } catch P2PStakingError.feeIncreased(let newFee) {
+            update(state: makeState(fee: newFee))
+            throw P2PStakingError.feeIncreased(newFee: newFee)
         } catch {
             throw TransactionDispatcherResult.Error.loadTransactionInfo(error: error.toUniversalError())
         }
@@ -292,11 +294,11 @@ extension StakingSingleActionModel: SendSummaryInput, SendSummaryOutput {
 
 // MARK: - StakingValidatorsInput
 
-extension StakingSingleActionModel: StakingValidatorsInput {
-    var selectedValidator: ValidatorInfo? { action.validatorInfo }
+extension StakingSingleActionModel: StakingTargetsInput {
+    var selectedTarget: StakingTargetInfo? { action.targetInfo }
 
-    var selectedValidatorPublisher: AnyPublisher<ValidatorInfo, Never> {
-        Just(action.validatorInfo).compactMap { $0 }.eraseToAnyPublisher()
+    var selectedTargetPublisher: AnyPublisher<StakingTargetInfo, Never> {
+        Just(action.targetInfo).compactMap { $0 }.eraseToAnyPublisher()
     }
 }
 
@@ -359,7 +361,7 @@ extension StakingSingleActionModel: StakingBaseDataBuilderInput {
 
     var isFeeIncluded: Bool { false }
 
-    var validator: ValidatorInfo? { action.validatorInfo }
+    var target: StakingTargetInfo? { action.targetInfo }
 
     var selectedPolicy: ApprovePolicy? { nil }
 
