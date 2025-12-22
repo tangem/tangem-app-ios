@@ -68,7 +68,8 @@ struct TangemPayTransactionHistoryMapper {
             amount: mapper.amount(),
             isOutgoing: mapper.isOutgoing(),
             transactionType: mapper.type(),
-            status: mapper.status()
+            status: mapper.status(),
+            isFromYieldContract: false
         )
     }
 }

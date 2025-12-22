@@ -124,8 +124,8 @@ private extension LockedWalletMainContentViewModel {
         do {
             let context = try await UserWalletBiometricsUnlocker().unlock()
             let method = UserWalletRepositoryUnlockMethod.biometricsUserWallet(userWalletId: userWalletModel.userWalletId, context: context)
-            _ = try await userWalletRepository.unlock(with: method)
-            signInAnalyticsLogger.logSignInEvent(signInType: .biometrics)
+            let userWalletModel = try await userWalletRepository.unlock(with: method)
+            signInAnalyticsLogger.logSignInEvent(signInType: .biometrics, userWalletModel: userWalletModel)
 
         } catch where error.isCancellationError {
             await unlockWithFallback()
@@ -173,8 +173,8 @@ private extension LockedWalletMainContentViewModel {
         case .biometrics(let context):
             do {
                 let method = UserWalletRepositoryUnlockMethod.biometrics(context)
-                _ = try await userWalletRepository.unlock(with: method)
-                signInAnalyticsLogger.logSignInEvent(signInType: signInType)
+                let userWalletModel = try await userWalletRepository.unlock(with: method)
+                signInAnalyticsLogger.logSignInEvent(signInType: signInType, userWalletModel: userWalletModel)
 
             } catch {
                 await runOnMain {
@@ -191,8 +191,8 @@ private extension LockedWalletMainContentViewModel {
 
             do {
                 let method = UserWalletRepositoryUnlockMethod.encryptionKey(userWalletId: userWalletId, encryptionKey: encryptionKey)
-                _ = try await userWalletRepository.unlock(with: method)
-                signInAnalyticsLogger.logSignInEvent(signInType: signInType)
+                let userWalletModel = try await userWalletRepository.unlock(with: method)
+                signInAnalyticsLogger.logSignInEvent(signInType: signInType, userWalletModel: userWalletModel)
 
             } catch {
                 await runOnMain {
