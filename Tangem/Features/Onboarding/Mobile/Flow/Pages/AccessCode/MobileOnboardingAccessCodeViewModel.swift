@@ -18,6 +18,7 @@ import class TangemSdk.BiometricsUtil
 
 final class MobileOnboardingAccessCodeViewModel: ObservableObject {
     @Published private(set) var state: State = .accessCode
+    @Published private(set) var shakeTrigger: CGFloat = 0
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
@@ -27,6 +28,7 @@ final class MobileOnboardingAccessCodeViewModel: ObservableObject {
     @Published var alert: AlertBinder?
 
     let codeLength: Int = 6
+    let shakeDuration: TimeInterval = 0.3
 
     var leadingNavBarItem: MobileOnboardingFlowNavBarAction? {
         makeLeadingNavBarItem()
@@ -178,10 +180,12 @@ private extension MobileOnboardingAccessCodeViewModel {
     }
 
     func check(confirmAccessCode: String) {
-        guard
-            confirmAccessCode.count == codeLength,
-            confirmAccessCode == accessCode
-        else {
+        guard confirmAccessCode.count == codeLength else {
+            return
+        }
+
+        guard confirmAccessCode == accessCode else {
+            handleWrongConfirmAccessCode()
             return
         }
 
@@ -244,6 +248,13 @@ private extension MobileOnboardingAccessCodeViewModel {
         }
     }
 
+    func handleWrongConfirmAccessCode() {
+        shakeTrigger += 1
+        DispatchQueue.main.asyncAfter(deadline: .now() + shakeDuration) { [weak self] in
+            self?.reset(state: .confirmAccessCode)
+        }
+    }
+
     func isBiometricsAvailable() async -> Bool {
         if BiometricsUtil.isAvailable {
             do {
@@ -283,10 +294,16 @@ private extension MobileOnboardingAccessCodeViewModel {
         self.state = state
     }
 
-    func resetState() {
-        accessCode = ""
-        confirmAccessCode = ""
-        setup(state: .accessCode)
+    func reset(state: State) {
+        switch state {
+        case .accessCode:
+            accessCode = ""
+            confirmAccessCode = ""
+            setup(state: .accessCode)
+        case .confirmAccessCode:
+            confirmAccessCode = ""
+            setup(state: .confirmAccessCode)
+        }
     }
 }
 
@@ -330,7 +347,7 @@ private extension MobileOnboardingAccessCodeViewModel {
     }
 
     func onBackTap() {
-        resetState()
+        reset(state: .accessCode)
     }
 }
 
