@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemFoundation
 import TangemUIUtils
 import TangemAssets
 
@@ -67,7 +68,10 @@ public struct ExpandableItemView<
                 progress: animationProgress
             )
         }
-        .buttonStyle(.scaled(scaleAmount: isExpanded ? 1.0 : 0.98))
+        .buttonStyle(.scaled(
+            scaleAmount: isExpanded ? 1.0 : 0.98,
+            dimmingAmount: isExpanded ? 1.0 : 0.7
+        ))
     }
 
     // MARK: - Views
@@ -89,6 +93,7 @@ public struct ExpandableItemView<
     // MARK: - Private functions
 
     private func toggleExpanded() {
+        FeedbackGenerator.selectionChanged()
         // Actual curve is set in ExpandableAnimatedContent
         withAnimation(.linear(duration: 0.5)) {
             animationProgress = isExpanded ? 0.0 : 1.0
