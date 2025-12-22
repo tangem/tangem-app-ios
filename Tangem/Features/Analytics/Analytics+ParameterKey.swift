@@ -82,6 +82,7 @@ extension Analytics {
         case button = "Button"
         case link = "Link"
         case method = "Method"
+        case appTheme = "App Theme"
 
         case fromSummary = "From Summary"
         case valid = "Valid"

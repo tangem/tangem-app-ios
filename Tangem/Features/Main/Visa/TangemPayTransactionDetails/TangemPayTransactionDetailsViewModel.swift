@@ -53,7 +53,8 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
             amount: mapper.amount(),
             type: mapper.type(),
             status: mapper.status(),
-            isOutgoing: mapper.isOutgoing()
+            isOutgoing: mapper.isOutgoing(),
+            isFromYieldContract: false
         )
         localAmount = mapper.localAmount()
         state = mapper.state()
