@@ -219,7 +219,7 @@ final class YieldModuleActiveViewModel: ObservableObject {
         chartState = .loading
 
         do {
-            try await Task.sleep(seconds: 0.5)
+            try await Task.sleep(for: .seconds(0.5))
             let chartData = try await yieldManagerInteractor.getChartData()
             chartState = .loaded(chartData)
         } catch {
@@ -265,19 +265,6 @@ final class YieldModuleActiveViewModel: ObservableObject {
             earnInfoNotifications.append(createHasUndepositedAmountsNotification(undepositedAmount: formatted))
             logger.logEarningNoticeAmountNotDepositedShown()
         }
-    }
-
-    private func getFeeCurrencyWalletModel(in userWalletModel: any UserWalletModel) -> (any WalletModel)? {
-        guard let selectedUserModel = userWalletRepository.selectedModel,
-              let feeCurrencyWalletModel = selectedUserModel.walletModelsManager.walletModels.first(where: {
-                  $0.tokenItem == walletModel.feeTokenItem
-              })
-        else {
-            assertionFailure("Fee currency '\(walletModel.feeTokenItem.name)' for currency '\(walletModel.tokenItem.name)' not found")
-            return nil
-        }
-
-        return feeCurrencyWalletModel
     }
 }
 

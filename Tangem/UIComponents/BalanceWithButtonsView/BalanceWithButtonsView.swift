@@ -48,14 +48,9 @@ struct BalanceWithButtonsView: View {
 
     @ViewBuilder
     private var balancePicker: some View {
-        if case .common(let commonViewModel) = viewModel.state,
-           let balanceTypeValues = commonViewModel.balanceTypeValues {
+        if let balanceTypeValues = viewModel.balanceTypeValues {
             SegmentedPicker(
-                selectedOption: .init(get: {
-                    commonViewModel.selectedBalanceType
-                }, set: { newValue in
-                    commonViewModel.selectedBalanceType = newValue
-                }),
+                selectedOption: $viewModel.selectedBalanceType,
                 options: balanceTypeValues,
                 shouldStretchToFill: false,
                 isDisabled: false,
