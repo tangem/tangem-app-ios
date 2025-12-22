@@ -10,8 +10,6 @@ import Foundation
 import TangemFoundation
 
 struct CommonUserWalletModelFactory {
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-
     func makeModel(publicData: StoredUserWallet, sensitiveData: StoredUserWallet.SensitiveInfo) -> UserWalletModel? {
         switch (publicData.walletInfo, sensitiveData) {
         case (.cardWallet(let cardInfo), .cardWallet(let keys)):
@@ -57,7 +55,7 @@ struct CommonUserWalletModelFactory {
 
         let commonModel = CommonUserWalletModel(
             walletInfo: walletInfo,
-            name: name ?? fallbackName(config: config),
+            name: name ?? UserWalletNameIndexationHelper().suggestedName(userWalletConfig: config),
             config: config,
             userWalletId: userWalletId,
             walletModelsManager: dependencies.walletModelsManager,
@@ -78,16 +76,5 @@ struct CommonUserWalletModelFactory {
         default:
             return commonModel
         }
-    }
-
-    private func fallbackName(config: UserWalletConfig) -> String {
-        guard AppSettings.shared.saveUserWallets else {
-            return config.defaultName
-        }
-
-        return UserWalletNameIndexationHelper.suggestedName(
-            config.defaultName,
-            names: userWalletRepository.models.map(\.name)
-        )
     }
 }

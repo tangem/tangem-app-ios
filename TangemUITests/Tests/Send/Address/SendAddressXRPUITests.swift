@@ -27,7 +27,7 @@ final class SendAddressXRPUITests: BaseTestCase {
             scenarios: [xrpScenario]
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .longPressToken(tokenName)
             .waitForActionButtons()
@@ -58,7 +58,7 @@ final class SendAddressXRPUITests: BaseTestCase {
             scenarios: [xrpScenario]
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .longPressToken(tokenName)
             .waitForActionButtons()
@@ -91,7 +91,7 @@ final class SendAddressXRPUITests: BaseTestCase {
             scenarios: [xrpScenario]
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .longPressToken(tokenName)
             .waitForActionButtons()
@@ -124,7 +124,7 @@ final class SendAddressXRPUITests: BaseTestCase {
             scenarios: [xrpScenario]
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .longPressToken(tokenName)
             .waitForActionButtons()
@@ -156,7 +156,7 @@ final class SendAddressXRPUITests: BaseTestCase {
             scenarios: [xrpScenario]
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .longPressToken(tokenName)
             .waitForActionButtons()

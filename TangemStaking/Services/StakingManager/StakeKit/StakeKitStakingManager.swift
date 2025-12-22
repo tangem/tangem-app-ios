@@ -15,13 +15,14 @@ final class StakeKitStakingManager {
     private let integrationId: String
     private let wallet: StakingWallet
     private let provider: StakeKitAPIProvider
+    private let stateRepository: StakingManagerStateRepository
     private let analyticsLogger: StakingAnalyticsLogger
 
     private(set) var balances: [StakingBalance]?
 
     // MARK: Private
 
-    private let _state = CurrentValueSubject<StakingManagerState, Never>(.loading)
+    private let _state: CurrentValueSubject<StakingManagerState, Never>
     private var canStakeMore: Bool {
         switch wallet.item.network {
         case .solana, .cosmos, .tron, .ethereum, .bsc, .ton: true
@@ -33,12 +34,16 @@ final class StakeKitStakingManager {
         integrationId: String,
         wallet: StakingWallet,
         provider: StakeKitAPIProvider,
+        stateRepository: StakingManagerStateRepository,
         analyticsLogger: StakingAnalyticsLogger
     ) {
         self.integrationId = integrationId
         self.wallet = wallet
         self.provider = provider
+        self.stateRepository = stateRepository
         self.analyticsLogger = analyticsLogger
+
+        _state = CurrentValueSubject<StakingManagerState, Never>(.loading(cached: stateRepository.state()))
     }
 }
 
@@ -67,7 +72,7 @@ extension StakeKitStakingManager: StakingManager {
     }
 
     func updateState(loadActions: Bool, startUpdateDate: Date? = nil) async {
-        await updateState(.loading)
+        await updateState(.loading(cached: stateRepository.state()))
         do {
             async let balances = provider.balances(wallet: wallet, integrationId: integrationId)
             async let yield = provider.yield(integrationId: integrationId)
@@ -80,7 +85,7 @@ extension StakeKitStakingManager: StakingManager {
 
             if loadActions, !loadedActions.isEmpty,
                Date().timeIntervalSince(effectiveStartUpdateDate) < Constants.statusUpdateTimeout {
-                try await Task.sleep(seconds: Constants.statusUpdateInterval) // Refresh pending actions status until empty
+                try await Task.sleep(for: .seconds(Constants.statusUpdateInterval)) // Refresh pending actions status until empty
                 await updateState(loadActions: true, startUpdateDate: effectiveStartUpdateDate)
             }
         } catch is CancellationError {
@@ -89,7 +94,7 @@ extension StakeKitStakingManager: StakingManager {
         } catch {
             analyticsLogger.logError(error, currencySymbol: wallet.item.symbol)
             StakingLogger.error(self, error: error)
-            await updateState(.loadingError(error.localizedDescription))
+            await updateState(.loadingError(error.localizedDescription, cached: stateRepository.state()))
         }
     }
 
@@ -144,10 +149,6 @@ extension StakeKitStakingManager: StakingManager {
         }
     }
 
-    func transactionDetails(id: String) async throws -> StakingTransactionInfo {
-        try await execute(try await provider.transaction(id: id))
-    }
-
     func transactionDidSent(action: StakingAction) {
         runTask(in: self) {
             await $0.updateState(loadActions: true)
@@ -161,6 +162,7 @@ private extension StakeKitStakingManager {
     @MainActor
     func updateState(_ state: StakingManagerState) {
         StakingLogger.info(self, "Update state to \(state)")
+        stateRepository.storeState(state)
         _state.send(state)
         updateBalances(state)
     }
@@ -219,7 +221,7 @@ private extension StakeKitStakingManager {
         return mapToStakingTransactionAction(
             actionID: action.id,
             amount: action.amount,
-            validator: request.validator,
+            target: request.target,
             transactions: transactions
         )
     }
@@ -250,8 +252,14 @@ private extension StakeKitStakingManager {
         return mapToStakingTransactionAction(
             actionID: action.id,
             amount: action.amount,
-            validator: request.validator,
-            transactions: transactions.sorted(by: \.stepIndex)
+            target: request.target,
+            transactions: transactions.sorted {
+                guard let firstMetadata = $0.metadata as? StakeKitTransactionMetadata,
+                      let secondMetadata = $1.metadata as? StakeKitTransactionMetadata else {
+                    return false
+                }
+                return firstMetadata.stepIndex > secondMetadata.stepIndex
+            }
         )
     }
 
@@ -284,7 +292,7 @@ private extension StakeKitStakingManager {
 
             return mapToStakingTransactionAction(
                 amount: request.amount,
-                validator: request.validator,
+                target: request.target,
                 transactions: actions.flatMap { $0.transactions }
             )
         }
@@ -304,7 +312,7 @@ private extension StakeKitStakingManager {
         return mapToStakingTransactionAction(
             actionID: action.id,
             amount: action.amount,
-            validator: request.request.validator,
+            target: request.request.target,
             transactions: transactions
         )
     }
@@ -340,16 +348,6 @@ private extension StakeKitStakingManager {
             throw error
         }
     }
-
-    private func waitForLoadingCompletion() async throws {
-        // Drop the current `loading` state
-        _ = try await _state.dropFirst().first().async()
-        // Check if after the loading state we have same status
-        // To exclude endless recursion
-        if case .loading = state {
-            throw StakingManagerError.stakingManagerIsLoading
-        }
-    }
 }
 
 // MARK: - Helping
@@ -361,7 +359,7 @@ private extension StakeKitStakingManager {
             address: wallet.address,
             additionalAddresses: getAdditionalAddresses(),
             token: wallet.item,
-            validator: action.validatorInfo?.address,
+            target: action.targetInfo?.address,
             integrationId: integrationId,
             tronResource: getTronResource()
         )
@@ -372,20 +370,20 @@ private extension StakeKitStakingManager {
         yield: StakingYieldInfo,
         balanceType: StakingBalanceType
     ) -> StakingBalance {
-        let validatorType: StakingValidatorType = {
-            guard let address = action.validatorAddress,
-                  let validator = yield.validators.first(where: { $0.address == address }) else {
+        let targetType: StakingTargetType = {
+            guard let address = action.targetAddress,
+                  let target = yield.targets.first(where: { $0.address == address }) else {
                 return .empty
             }
 
-            return .validator(validator)
+            return .target(target)
         }()
 
         return StakingBalance(
             item: yield.item,
             amount: action.amount,
             balanceType: balanceType,
-            validatorType: validatorType,
+            targetType: targetType,
             inProgress: true,
             actions: []
         )
@@ -396,13 +394,13 @@ private extension StakeKitStakingManager {
     func mapToStakingTransactionAction(
         actionID: String? = nil,
         amount: Decimal,
-        validator: String?,
+        target: String?,
         transactions: [StakingTransactionInfo]
     ) -> StakingTransactionAction {
         StakingTransactionAction(
             id: actionID,
             amount: amount,
-            validator: validator,
+            target: target,
             transactions: transactions
         )
     }

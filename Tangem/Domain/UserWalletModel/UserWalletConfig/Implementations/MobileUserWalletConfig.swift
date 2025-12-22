@@ -102,6 +102,10 @@ extension MobileUserWalletConfig: UserWalletConfig {
 
     var cardSessionFilter: SessionFilter { .cardId("") }
 
+    var contextBuilder: WalletCreationContextBuilder {
+        ["type": "mobile"]
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .accessCode: return .hidden
@@ -149,6 +153,8 @@ extension MobileUserWalletConfig: UserWalletConfig {
             return .hidden
         case .transactionPayloadLimit:
             return .hidden
+        case .tangemPay:
+            return .available
         }
     }
 
