@@ -22,7 +22,7 @@ struct MarketsNetworkSelectorView: View {
             }
         }
         .roundedBackground(with: Colors.Background.action, verticalPadding: 0, horizontalPadding: 16)
-        .scrollBounceBehaviorBackport(.basedOnSize)
+        .scrollBounceBehavior(.basedOnSize)
         .padding(.bottom, 16)
         .padding(.top, 12)
         .padding(.horizontal, 16)
