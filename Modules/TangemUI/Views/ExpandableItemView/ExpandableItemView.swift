@@ -22,6 +22,8 @@ public struct ExpandableItemView<
     private let expandedViewHeader: ExpandedViewHeader
     private let backgroundColor: Color
     private let cornerRadius: CGFloat
+    private let initialCollapsedHeight: CGFloat
+    private let initialExpandedHeight: CGFloat
     private let onExpandedChange: ((Bool) -> Void)?
 
     // MARK: - Init
@@ -29,6 +31,8 @@ public struct ExpandableItemView<
     public init(
         backgroundColor: Color = Colors.Background.primary,
         cornerRadius: CGFloat = 14,
+        initialCollapsedHeight: CGFloat = 0,
+        initialExpandedHeight: CGFloat = 0,
         onExpandedChange: ((Bool) -> Void)? = nil,
         @ViewBuilder collapsedView: () -> CollapsedView,
         @ViewBuilder expandedView: () -> ExpandedView,
@@ -40,16 +44,13 @@ public struct ExpandableItemView<
         self.collapsedView = collapsedView()
         self.expandedView = expandedView()
         self.expandedViewHeader = expandedViewHeader()
+        self.initialCollapsedHeight = initialCollapsedHeight
+        self.initialExpandedHeight = initialExpandedHeight
     }
 
     // MARK: - State
 
     @State private var animationProgress: Double = 0.0
-    @State private var collapsedHeight: CGFloat = 0
-
-    // MARK: - Environment
-
-    @Environment(\.displayScale) private var displayScale
 
     // MARK: - Body
 
@@ -59,6 +60,8 @@ public struct ExpandableItemView<
                 collapsedView: collapsedView
                     .contentShape(Rectangle()),
                 expandedView: expandedViewWithHeader,
+                initialCollapsedHeight: initialCollapsedHeight,
+                initialExpandedHeight: initialExpandedHeight,
                 backgroundColor: backgroundColor,
                 cornerRadius: cornerRadius,
                 progress: animationProgress
