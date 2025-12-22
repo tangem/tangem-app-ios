@@ -49,7 +49,7 @@ struct ReceiveMainView: View {
         .floatingSheetConfiguration { configuration in
             configuration.sheetBackgroundColor = viewModel.viewState?.backgroundColor ?? Colors.Background.tertiary
             configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
-            configuration.backgroundInteractionBehavior = .consumeTouches
+            configuration.backgroundInteractionBehavior = .tapToDismiss
         }
     }
 
