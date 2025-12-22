@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0A0186BC2EF400D800D9AD5E /* AAVETokenRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0186BB2EF400D800D9AD5E /* AAVETokenRepository.swift */; };
 		0A0412B72D772656000D3A63 /* KaspaTransactionHistoryResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0412B62D772656000D3A63 /* KaspaTransactionHistoryResponse.swift */; };
 		0A0412B92D7727A6000D3A63 /* KaspaTransactionHistoryMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0412B82D7727A6000D3A63 /* KaspaTransactionHistoryMapper.swift */; };
 		0A04FCA52E03009800ABB6B0 /* ImageProviderFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A04FCA42E03009800ABB6B0 /* ImageProviderFactory.swift */; };
@@ -4712,6 +4713,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0A0186BB2EF400D800D9AD5E /* AAVETokenRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AAVETokenRepository.swift; sourceTree = "<group>"; };
 		0A0412B62D772656000D3A63 /* KaspaTransactionHistoryResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaTransactionHistoryResponse.swift; sourceTree = "<group>"; };
 		0A0412B82D7727A6000D3A63 /* KaspaTransactionHistoryMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaTransactionHistoryMapper.swift; sourceTree = "<group>"; };
 		0A04FCA42E03009800ABB6B0 /* ImageProviderFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageProviderFactory.swift; sourceTree = "<group>"; };
@@ -9682,6 +9684,7 @@
 				0A8E6CE32E697F85004ABC72 /* YieldModuleError.swift */,
 				0AA3225F2E7999B00090B803 /* YieldSupplyServiceFactory.swift */,
 				0AA322572E795A500090B803 /* YieldSupplyContractAddressFactory.swift */,
+				0A0186BB2EF400D800D9AD5E /* AAVETokenRepository.swift */,
 			);
 			path = Yield;
 			sourceTree = "<group>";
@@ -29122,6 +29125,7 @@
 				B62D40412CBC79DA00C2460E /* RosettaBody.swift in Sources */,
 				B62D3FAC2CBC79DA00C2460E /* AptosFeeInfo.swift in Sources */,
 				B62D40DC2CBC79DA00C2460E /* HederaError.swift in Sources */,
+				0A0186BC2EF400D800D9AD5E /* AAVETokenRepository.swift in Sources */,
 				B62D41242CBC79DA00C2460E /* KoinosTransactionBuilder.swift in Sources */,
 				B62D41F82CBC79DB00C2460E /* VeChainExternalLinkProvider.swift in Sources */,
 				2DB071FD2E2547D000E9F789 /* SolanaAccountKeysSplitUtils.swift in Sources */,

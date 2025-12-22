@@ -113,7 +113,7 @@ final class MainViewModel: ObservableObject {
     func onViewAppear() {
         logMainScreenOpenedAnalytics()
 
-        updateMarkets()
+        updateYieldMarkets()
 
         swipeDiscoveryHelper.scheduleSwipeDiscoveryIfNeeded()
         openPushNotificationsAuthorizationIfNeeded()
@@ -452,7 +452,7 @@ final class MainViewModel: ObservableObject {
             await viewModel.onPullToRefresh()
         }
 
-        updateMarkets(force: true)
+        updateYieldMarkets(force: true)
     }
 }
 
@@ -538,16 +538,9 @@ extension MainViewModel: WalletSwipeDiscoveryHelperDelegate {
 // MARK: - Yield module
 
 extension MainViewModel {
-    func updateMarkets(force: Bool = false) {
+    func updateYieldMarkets(force: Bool = false) {
         if force || yieldModuleNetworkManager.markets.isEmpty {
-            let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletRepository.models)
-            let chainIDs = Set(
-                walletModels.compactMap { walletModel -> String? in
-                    guard walletModel.tokenItem.isToken, walletModel.yieldModuleManager != nil else { return nil }
-                    return walletModel.tokenItem.blockchain.chainId.map { String($0) }
-                }
-            )
-            yieldModuleNetworkManager.updateMarkets(chainIDs: chainIDs.asArray)
+            yieldModuleNetworkManager.updateMarkets()
         }
     }
 }
