@@ -615,7 +615,7 @@
 "initial_message_purge_wallet_body" = "Щоб скинути налаштування до заводських, прикладіть картку або кільце як показано вище, і не прибирайте її до завершення операції";
 "initial_message_reset_backup_card_header" = "Прикладіть картку #%@ для скидання";
 "initial_message_sign_body" = "Щоб підписати транзакцію, прикладіть картку або кільце як показано вище, і не прибирайте її до кінця операції";
-"jailbreak_warning_message" = "Devices with jailbreak detected are considered less secure. Your data may be exposed to additional risks.";
+"jailbreak_warning_message" = "Devices with jailbreak are considered less secure. Your data may be exposed to additional risks.";
 "jailbreak_warning_title" = "Jailbreak detected";
 "key_invalidated_warning_description" = "Ви оновили дані біометрії, відскануйте свою картку або кільце для входу";
 "koinos_insufficient_balance_to_send_koin_description" = "Ваш баланс повинен перевищувати суму комісії для здійснення переказу";
@@ -978,6 +978,7 @@
 "reset_card_to_factory_button_title" = "Скинути картку";
 "reset_card_to_factory_condition_1" = "Я розумію, що після виконання цієї дії у мене більше не буде доступу до поточного гаманця";
 "reset_card_to_factory_condition_2" = "Я розумію, що не можу використати цю картку для відновлення свого коду доступу на інших картках поточного гаманця";
+"reset_card_to_factory_condition_3" = "I understand that I will completely lose access to my Tangem Pay Card and all funds on it without the possibility of recovery";
 "reset_card_with_backup_to_factory_message" = "Скидання до заводських налаштувань призведе до повного видалення гаманця з обраної картки або кільця. Ви не зможете відновити поточний гаманець або використати цю картку або кільце для відновлення коду доступу.";
 "reset_card_without_backup_to_factory_message" = "Скидання до заводських налаштувань призведе до повного видалення гаманця з обраної картки або кільця. Ви не зможете відновити поточний гаманець.";
 "reset_cards_dialog_complete_description" = "All Tangem devices have been reset.";
@@ -1320,6 +1321,7 @@
 "tangem_pay_unfreeze_card_success" = "Your card is unfrozen.";
 "tangem_pay_withdrawal" = "Withdrawal";
 "tangempay_account_unable_to_use_rooted" = "Unable to use on rooted device";
+"tangempay_cancel_kyc" = "Cancel KYC";
 "tangempay_card_details_add_funds_subtitle" = "Top-up options";
 "tangempay_card_details_add_funds" = "Add funds";
 "tangempay_card_details_card_number" = "Номер картки";
@@ -1347,6 +1349,7 @@
 "tangempay_card_details_open_wallet_step_5" = "Все готово! Ваша картка готова до використання.";
 "tangempay_card_details_open_wallet_title_apple" = "Додайте свою картку в Apple Pay";
 "tangempay_card_details_open_wallet_title" = "Add card to Google Pay";
+"tangempay_card_details_pin_code" = "PIN code";
 "tangempay_card_details_receive_description" = "Share your address or show QR-code";
 "tangempay_card_details_receive_error_description" = "Technical issues detected. Please try again later or contact support.";
 "tangempay_card_details_receive_error_title" = "Receive unavailable now";
@@ -1355,6 +1358,8 @@
 "tangempay_card_details_swap_description" = "Обміняйте будь-який актив у вашому портфелі на картку";
 "tangempay_card_details_title" = "Card details";
 "tangempay_card_details_unfreeze_card" = "Розморозити картку";
+"tangempay_card_details_view_pin_code_description" = "Come back to the app if you forget it.";
+"tangempay_card_details_view_pin_code_title" = "Your PIN code";
 "tangempay_card_details_withdraw_error_title" = "Withdraw unavailable now";
 "tangempay_card_details_withdraw_in_progress_description" = "You can't initiate swap or new withdrawal till the current one is finished";
 "tangempay_card_details_withdraw_in_progress_title" = "Withdrawal in progress";
@@ -1373,10 +1378,13 @@
 "tangempay_issuing_your_card_description" = "We’re getting your card ready. This may take a little time.";
 "tangempay_issuing_your_card" = "Issuing your card";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
+"tangempay_kyc_confirm_cancellation_alert_title" = "Confirm Cancellation";
+"tangempay_kyc_confirm_cancellation_description" = "Are you sure you want to stop the KYC process? You can return to it anytime.";
 "tangempay_kyc_failed_description" = "We could not verify your profile. If you have any questions, please contact support.";
 "tangempay_kyc_failed_title" = "Unfortunately, we couldn't verify your identity ";
 "tangempay_kyc_in_progress_notification_button" = "View Status";
 "tangempay_kyc_in_progress_notification_title" = "KYC in progress for Tangem Pay";
+"tangempay_kyc_in_progress_popup_description" = "Use the buttons below to view your current KYC status or cancel it.";
 "tangempay_kyc_in_progress" = "KYC in progress";
 "tangempay_onboarding_banner_description" = "Use your crypto for real world spending. \nIt’s a payment card unlike any other.";
 "tangempay_onboarding_banner_title" = "Tangem Visa Card";
@@ -1554,7 +1562,7 @@
 "visa_unlock_notification_title" = "Needed unlock";
 "voice_over_open_card_details" = "Відкрити деталі пристрою";
 "voice_over_open_new_wallet_connect_session" = "Відскануйте QR-код, щоб відкрити новий сеанс WalletConnect";
-"wallet_add_common_title" = "Choose how to add your wallet";
+"wallet_add_common_title" = "Choose your wallet type";
 "wallet_add_hardware_description" = "Scan your Tangem card or ring to restore it or import from another wallet.";
 "wallet_add_hardware_info_create" = "Create Hardware Wallet";
 "wallet_add_hardware_purchase" = "Want to purchase a Tangem Wallet?";
