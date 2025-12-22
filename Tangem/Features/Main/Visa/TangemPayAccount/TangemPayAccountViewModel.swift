@@ -73,7 +73,7 @@ final class TangemPayAccountViewModel: ObservableObject {
         case .normal:
             router?.openTangemPayMainView(tangemPayAccount: tangemPayAccount)
 
-        case .syncNeeded, .unavailable, .skeleton:
+        case .syncNeeded, .unavailable, .skeleton, .rootedDevice:
             break
         }
     }
@@ -93,7 +93,9 @@ private extension TangemPayAccountViewModel {
             tangemPayAccount
                 .tangemPayAccountStatePublisher,
             tangemPayAccount
-                .tangemPayStatusPublisher,
+                .tangemPayStatusPublisher
+                .map(Optional.some)
+                .prepend(nil),
             tangemPayAccount
                 .tangemPayCardPublisher,
             tangemPayAccount
@@ -116,10 +118,14 @@ private extension TangemPayAccountViewModel {
 
     static func mapToState(
         state: TangemPayAuthorizer.State,
-        status: TangemPayStatus,
+        status: TangemPayStatus?,
         card: VisaCustomerInfoResponse.Card?,
         balanceType: FormattedTokenBalanceType
     ) -> ViewState {
+        guard !RTCUtil().checkStatus().hasIssues else {
+            return .rootedDevice
+        }
+
         switch state {
         case .syncNeeded:
             return .syncNeeded
@@ -138,7 +144,7 @@ private extension TangemPayAccountViewModel {
             return .failedToIssueCard
         case .unavailable:
             return .unavailable
-        case .active, .blocked:
+        case .active, .blocked, .none:
             break
         }
 
@@ -162,6 +168,7 @@ extension TangemPayAccountViewModel {
         case normal(card: CardInfo, balance: LoadableTokenBalanceView.State)
         case syncNeeded
         case unavailable
+        case rootedDevice
 
         var subtitle: String {
             switch self {
@@ -177,6 +184,8 @@ extension TangemPayAccountViewModel {
                 Localization.tangempaySyncNeeded
             case .unavailable, .skeleton:
                 "—"
+            case .rootedDevice:
+                Localization.tangempayAccountUnableToUseRooted
             }
         }
 
@@ -184,7 +193,7 @@ extension TangemPayAccountViewModel {
             switch self {
             case .kycInProgress, .issuingYourCard, .failedToIssueCard, .normal, .skeleton:
                 true
-            case .syncNeeded, .unavailable:
+            case .syncNeeded, .unavailable, .rootedDevice:
                 false
             }
         }
