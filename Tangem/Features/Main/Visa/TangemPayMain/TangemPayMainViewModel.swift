@@ -9,6 +9,7 @@
 import Combine
 import PassKit
 import TangemUI
+import TangemSdk
 import TangemVisa
 import TangemUIUtils
 import TangemFoundation
@@ -123,6 +124,26 @@ final class TangemPayMainViewModel: ObservableObject {
         }
     }
 
+    func onPin() {
+        let isPinSet = tangemPayAccount.isPinSet
+
+        if isPinSet {
+            runTask(in: self) { viewModel in
+                do {
+                    _ = try await BiometricsUtil.requestAccess(
+                        localizedReason: Localization.biometryTouchIdReason
+                    )
+                    viewModel.checkPin()
+                } catch {
+                    VisaLogger.error("Failed to receive biometry for PIN", error: error)
+                    return
+                }
+            }
+        } else {
+            setPin()
+        }
+    }
+
     func withdraw() {
         guard let tangemPayWalletWrapper = makeExpressInteractorTangemPayWalletWrapper() else {
             coordinator?.openTangemPayNoDepositAddressSheet()
@@ -193,7 +214,11 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func setPin() {
-        coordinator?.openTangemPayPin(tangemPayAccount: tangemPayAccount)
+        coordinator?.openTangemPaySetPin(tangemPayAccount: tangemPayAccount)
+    }
+
+    func checkPin() {
+        coordinator?.openTangemPayCheckPin(tangemPayAccount: tangemPayAccount)
     }
 
     func termsAndLimits() {
