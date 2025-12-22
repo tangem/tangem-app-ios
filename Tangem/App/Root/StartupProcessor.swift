@@ -13,8 +13,10 @@ class StartupProcessor {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.servicesManager) private var servicesManager: ServicesManager
 
+    private let jailbreakWarningUtil = JailbreakWarningUtil()
+
     var shouldOpenAuthScreen: Bool {
-        if MobileWalletFeatureProvider.isAvailable {
+        if FeatureProvider.isAvailable(.mobileWallet) {
             AppSettings.shared.saveUserWallets
                 && userWalletRepository.models.isNotEmpty
         } else {
@@ -25,6 +27,10 @@ class StartupProcessor {
     }
 
     func getStartupOption() -> StartupOption {
+        if jailbreakWarningUtil.shouldShowWarning() {
+            return .jailbreakWarning
+        }
+
         guard servicesManager.initialized else {
             return .launchScreen
         }
@@ -34,7 +40,7 @@ class StartupProcessor {
         }
 
         if let modelToOpen = shouldOpenMainScreen() {
-            SignInAnalyticsLogger().logSignInEvent(signInType: .noSecurity)
+            SignInAnalyticsLogger().logSignInEvent(signInType: .noSecurity, userWalletModel: modelToOpen)
             return .main(modelToOpen)
         }
 
@@ -46,7 +52,7 @@ class StartupProcessor {
     }
 
     private func shouldOpenMainScreen() -> UserWalletModel? {
-        guard MobileWalletFeatureProvider.isAvailable else {
+        guard FeatureProvider.isAvailable(.mobileWallet) else {
             return nil
         }
 
@@ -69,4 +75,5 @@ enum StartupOption {
     case welcome
     case main(UserWalletModel)
     case launchScreen
+    case jailbreakWarning
 }

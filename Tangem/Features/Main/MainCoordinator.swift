@@ -59,11 +59,14 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var actionButtonsSwapCoordinator: ActionButtonsSwapCoordinator? = nil
     @Published var mobileUpgradeCoordinator: MobileUpgradeCoordinator? = nil
     @Published var tangemPayMainCoordinator: TangemPayMainCoordinator?
+    @Published var tangemPayOnboardingCoordinator: TangemPayOnboardingCoordinator?
 
     // MARK: - Child view models
 
     @Published var receiveBottomSheetViewModel: ReceiveBottomSheetViewModel?
-    @Published var organizeTokensViewModel: OrganizeTokensViewModel?
+    @Published var organizeTokensViewModel: AccountsAwareOrganizeTokensViewModel?
+    @available(iOS, deprecated: 100000.0, message: "Superseded by 'organizeTokensViewModel', will be removed in the future ([REDACTED_INFO])")
+    @Published var legacyOrganizeTokensViewModel: OrganizeTokensViewModel?
     @Published var pushNotificationsViewModel: PushNotificationsPermissionRequestViewModel?
     @Published var visaTransactionDetailsViewModel: VisaTransactionDetailsViewModel?
     @Published var pendingExpressTxStatusBottomSheetViewModel: PendingExpressTxStatusBottomSheetViewModel? = nil
@@ -259,6 +262,16 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         yieldModulePromoCoordinator = coordinator
     }
 
+    func openGetTangemPay() {
+        let dismissAction: Action<TangemPayOnboardingCoordinator.DismissOptions?> = { [weak self] _ in
+            self?.tangemPayOnboardingCoordinator = nil
+        }
+
+        let coordinator = TangemPayOnboardingCoordinator(dismissAction: dismissAction)
+        coordinator.start(with: .init(source: .other))
+        tangemPayOnboardingCoordinator = coordinator
+    }
+
     func openYieldModuleActiveInfo(factory: YieldModuleFlowFactory) {
         let dismissAction: Action<YieldModuleActiveCoordinator.DismissOptions?> = { [weak self] option in
             self?.yieldModuleActiveCoordinator = nil
@@ -282,21 +295,28 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
     }
 
     func openOrganizeTokens(for userWalletModel: UserWalletModel) {
-        // accounts_fixes_needed_main
-        let optionsManager = OrganizeTokensOptionsManager(userTokensReorderer: userWalletModel.userTokensManager)
-        // accounts_fixes_needed_main
-        let tokenSectionsAdapter = TokenSectionsAdapter(
-            userTokensManager: userWalletModel.userTokensManager,
-            optionsProviding: optionsManager,
-            preservesLastSortedOrderOnSwitchToDragAndDrop: true
-        )
-        organizeTokensViewModel = OrganizeTokensViewModel(
-            coordinator: self,
-            userWalletModel: userWalletModel,
-            tokenSectionsAdapter: tokenSectionsAdapter,
-            optionsProviding: optionsManager,
-            optionsEditing: optionsManager
-        )
+        if FeatureProvider.isAvailable(.accounts) {
+            organizeTokensViewModel = AccountsAwareOrganizeTokensViewModel(
+                userWalletModel: userWalletModel,
+                coordinator: self
+            )
+        } else {
+            // accounts_fixes_needed_none
+            let userTokensManager = userWalletModel.userTokensManager
+            let optionsManager = OrganizeTokensOptionsManager(userTokensReorderer: userTokensManager)
+            let tokenSectionsAdapter = TokenSectionsAdapter(
+                userTokensManager: userTokensManager,
+                optionsProviding: optionsManager,
+                preservesLastSortedOrderOnSwitchToDragAndDrop: true
+            )
+            legacyOrganizeTokensViewModel = OrganizeTokensViewModel(
+                userWalletModel: userWalletModel,
+                tokenSectionsAdapter: tokenSectionsAdapter,
+                optionsProviding: optionsManager,
+                optionsEditing: optionsManager,
+                coordinator: self
+            )
+        }
     }
 
     func openMobileFinishActivation(userWalletModel: UserWalletModel) {
@@ -491,10 +511,12 @@ extension MainCoordinator: SendFeeCurrencyNavigating, ExpressFeeCurrencyNavigati
 extension MainCoordinator: OrganizeTokensRoutable {
     func didTapCancelButton() {
         organizeTokensViewModel = nil
+        legacyOrganizeTokensViewModel = nil
     }
 
     func didTapSaveButton() {
         organizeTokensViewModel = nil
+        legacyOrganizeTokensViewModel = nil
     }
 }
 
@@ -725,7 +747,7 @@ extension MainCoordinator {
         case marketsTokenDetails(tokenId: String)
         case externalLink(url: URL)
         case market
-        case onboardVisa(deeplinkString: String, userWalletModel: UserWalletModel)
+        case onboardVisa(deeplinkString: String)
         case promo(code: String)
     }
 }

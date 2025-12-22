@@ -42,7 +42,6 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
             .detentBottomSheet(
                 item: $coordinator.tokenNetworkSelectorCoordinator,
                 detents: [.large],
-                settings: .init(background: Colors.Background.tertiary)
             ) {
                 MarketsTokenNetworkSelectorCoordinatorView(coordinator: $0)
             }
@@ -62,17 +61,9 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
     private var links: some View {
         NavHolder()
             .navigation(item: $coordinator.exchangesListViewModel) { viewModel in
-                let container = NavigationBarHidingView(shouldWrapInNavigationView: false) {
+                NavigationBarHidingView(shouldWrapInNavigationStack: false) {
                     MarketsTokenDetailsExchangesListView(viewModel: viewModel)
                 }
-
-                if #available(iOS 16, *) {
-                    container
-                } else {
-                    container
-                        .ignoresSafeArea(.container, edges: .vertical) // Without this on iOS 15 content won't ignore safe area and don't go below navbar
-                }
             }
-            .emptyNavigationLink()
     }
 }

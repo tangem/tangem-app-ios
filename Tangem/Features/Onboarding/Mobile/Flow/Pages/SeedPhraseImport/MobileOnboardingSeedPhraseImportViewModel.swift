@@ -7,7 +7,9 @@
 //
 
 import Combine
+import UIKit
 import TangemFoundation
+import TangemLocalization
 import TangemMobileWalletSdk
 import TangemUIUtils
 import TangemSdk
@@ -25,10 +27,15 @@ final class MobileOnboardingSeedPhraseImportViewModel: ObservableObject {
 
     private lazy var mobileSdk: MobileWalletSdk = CommonMobileWalletSdk()
 
+    private let analyticsContextParams: Analytics.ContextParams = .custom(.mobileWallet)
+
     private weak var delegate: MobileOnboardingSeedPhraseImportDelegate?
+
+    private var bag: Set<AnyCancellable> = []
 
     init(delegate: MobileOnboardingSeedPhraseImportDelegate) {
         self.delegate = delegate
+        bind()
     }
 }
 
@@ -36,11 +43,22 @@ final class MobileOnboardingSeedPhraseImportViewModel: ObservableObject {
 
 extension MobileOnboardingSeedPhraseImportViewModel {
     func onAppear() {
-        Analytics.log(
-            event: .onboardingSeedImportScreenOpened,
-            params: [:],
-            contextParams: .custom(.mobileWallet)
-        )
+        logScreenOpenedAnalytics()
+    }
+}
+
+// MARK: - Private methods
+
+private extension MobileOnboardingSeedPhraseImportViewModel {
+    func bind() {
+        NotificationCenter.default.publisher(for: UIApplication.userDidTakeScreenshotNotification)
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, _ in
+                viewModel.alert = AlertBuilder.makeOkGotItAlert(message: Localization.onboardingSeedScreenshotAlert)
+                viewModel.logScreenCaptureAnalytics()
+            }
+            .store(in: &bag)
     }
 }
 
@@ -49,12 +67,7 @@ extension MobileOnboardingSeedPhraseImportViewModel {
 extension MobileOnboardingSeedPhraseImportViewModel: SeedPhraseImportDelegate {
     func importSeedPhrase(mnemonic: Mnemonic, passphrase: String) {
         isCreating = true
-
-        Analytics.log(
-            event: .onboardingSeedButtonImportWallet,
-            params: [:],
-            contextParams: .custom(.mobileWallet)
-        )
+        logImportTapAnalytics()
 
         runTask(in: self) { viewModel in
             do {
@@ -62,10 +75,21 @@ extension MobileOnboardingSeedPhraseImportViewModel: SeedPhraseImportDelegate {
 
                 let walletInfo = try await initializer.initializeWallet(mnemonic: mnemonic, passphrase: passphrase)
 
-                let userWalletId = UserWalletId(config: MobileUserWalletConfig(mobileWalletInfo: walletInfo))
+                let userWalletConfig = MobileUserWalletConfig(mobileWalletInfo: walletInfo)
+                let userWalletId = UserWalletId(config: userWalletConfig)
 
                 guard !viewModel.userWalletRepository.models.contains(where: { $0.userWalletId == userWalletId }) else {
                     throw UserWalletRepositoryError.duplicateWalletAdded
+                }
+
+                if let userWalletId {
+                    let walletCreationHelper = WalletCreationHelper(
+                        userWalletId: userWalletId,
+                        userWalletName: nil,
+                        userWalletConfig: userWalletConfig
+                    )
+
+                    try? await walletCreationHelper.createWallet()
                 }
 
                 guard let userWalletModel = CommonUserWalletModelFactory().makeModel(
@@ -79,10 +103,11 @@ extension MobileOnboardingSeedPhraseImportViewModel: SeedPhraseImportDelegate {
 
                 await runOnMain {
                     viewModel.isCreating = false
-                    viewModel.trackWalletImported(
+                    viewModel.logWalletImportedAnalytics(
                         seedLength: mnemonic.mnemonicComponents.count,
                         isPassphraseEmpty: passphrase.isEmpty
                     )
+                    viewModel.logOnboardingFinishedAnalytics()
                     viewModel.delegate?.didImportSeedPhrase(userWalletModel: userWalletModel)
                 }
             } catch {
@@ -99,19 +124,47 @@ extension MobileOnboardingSeedPhraseImportViewModel: SeedPhraseImportDelegate {
 // MARK: - Analytics
 
 private extension MobileOnboardingSeedPhraseImportViewModel {
-    func trackWalletImported(seedLength: Int, isPassphraseEmpty: Bool) {
+    func logScreenOpenedAnalytics() {
+        Analytics.log(.onboardingSeedImportScreenOpened, contextParams: analyticsContextParams)
+    }
+
+    func logImportTapAnalytics() {
+        Analytics.log(.onboardingSeedButtonImport, contextParams: analyticsContextParams)
+    }
+
+    func logWalletImportedAnalytics(seedLength: Int, isPassphraseEmpty: Bool) {
         let params: [Analytics.ParameterKey: String] = [
             .creationType: Analytics.ParameterValue.walletCreationTypeSeedImport.rawValue,
             .seedLength: "\(seedLength)",
             .passphrase: isPassphraseEmpty
                 ? Analytics.ParameterValue.empty.rawValue
                 : Analytics.ParameterValue.full.rawValue,
+            .source: Analytics.ParameterValue.importWallet.rawValue,
         ]
 
         Analytics.log(
             event: .walletCreatedSuccessfully,
             params: params,
-            contextParams: .custom(.mobileWallet)
+            contextParams: analyticsContextParams
         )
+
+        Analytics.log(
+            event: .afWalletImported,
+            params: params,
+            analyticsSystems: [.appsFlyer],
+            contextParams: analyticsContextParams
+        )
+    }
+
+    func logOnboardingFinishedAnalytics() {
+        Analytics.log(
+            .onboardingFinished,
+            params: [.source: .importWallet],
+            contextParams: analyticsContextParams
+        )
+    }
+
+    func logScreenCaptureAnalytics() {
+        Analytics.log(.onboardingSeedScreenCapture, contextParams: analyticsContextParams)
     }
 }

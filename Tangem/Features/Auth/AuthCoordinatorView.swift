@@ -20,11 +20,10 @@ struct AuthCoordinatorView: CoordinatorView {
     }
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             content
                 .navigationLinks(links)
         }
-        .navigationViewStyle(.stack)
     }
 
     private var content: some View {
@@ -45,7 +44,6 @@ struct AuthCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.addWalletSelectorCoordinator) {
                 AddWalletSelectorCoordinatorView(coordinator: $0)
             }
-            .emptyNavigationLink()
     }
 }
 

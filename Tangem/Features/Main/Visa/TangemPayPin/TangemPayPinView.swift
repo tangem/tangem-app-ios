@@ -15,7 +15,7 @@ struct TangemPayPinView: View {
     @ObservedObject var viewModel: TangemPayPinViewModel
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             Group {
                 switch viewModel.state {
                 case .enterPin:
