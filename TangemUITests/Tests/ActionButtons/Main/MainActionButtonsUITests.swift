@@ -16,7 +16,7 @@ final class MainActionButtonsUITests: BaseTestCase {
             clearStorage: true,
         )
 
-        let mainScreen = StoriesScreen(app)
+        let mainScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .validate(cardType: .wallet2)
             .tapMainBuy()
@@ -48,7 +48,7 @@ final class MainActionButtonsUITests: BaseTestCase {
             scenarios: [expressApiErrorScenario]
         )
 
-        let mainScreen = StoriesScreen(app)
+        let mainScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
 
         mainScreen.tapMainBuy()
@@ -72,7 +72,7 @@ final class MainActionButtonsUITests: BaseTestCase {
             scenarios: [expressApiErrorScenario]
         )
 
-        let mainScreen = StoriesScreen(app)
+        let mainScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
 
         mainScreen.tapMainBuy()
@@ -92,7 +92,7 @@ final class MainActionButtonsUITests: BaseTestCase {
 
         launchApp(tangemApiType: .mock, clearStorage: true)
 
-        let mainScreen = StoriesScreen(app)
+        let mainScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
 
         mainScreen
@@ -115,7 +115,7 @@ final class MainActionButtonsUITests: BaseTestCase {
             clearStorage: true,
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .validate(cardType: .wallet2)
             .tapMainBuy()

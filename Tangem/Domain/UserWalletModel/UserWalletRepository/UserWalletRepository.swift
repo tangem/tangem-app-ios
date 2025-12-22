@@ -49,7 +49,7 @@ extension InjectedValues {
     }
 }
 
-enum UserWalletRepositoryEvent {
+enum UserWalletRepositoryEvent: Equatable {
     case locked
     case unlocked
     case inserted(userWalletId: UserWalletId)
