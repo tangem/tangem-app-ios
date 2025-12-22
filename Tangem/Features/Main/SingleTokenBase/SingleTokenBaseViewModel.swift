@@ -32,7 +32,6 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
 
     private(set) lazy var refreshScrollViewStateObject: RefreshScrollViewStateObject = .init(
         settings: .init(stopRefreshingDelay: 0.2),
-        reachedRefreshOffsetAction: { [weak self] in self?.isRefreshingSubject.send(true) },
         refreshable: { [weak self] in await self?.onPullToRefresh() }
     )
 
@@ -78,7 +77,13 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         walletModel.tokenItem.id != nil
     }
 
-    lazy var transactionHistoryMapper = TransactionHistoryMapper(currencySymbol: currencySymbol, walletAddresses: walletModel.addresses.map { $0.value }, showSign: true)
+    lazy var transactionHistoryMapper = TransactionHistoryMapper(
+        currencySymbol: currencySymbol,
+        walletAddresses: walletModel.addresses.map { $0.value },
+        showSign: true,
+        isToken: walletModel.tokenItem.isToken
+    )
+
     lazy var pendingTransactionRecordMapper = PendingTransactionRecordMapper(formatter: BalanceFormatter())
     lazy var miniChartsProvider = MarketsListChartsHistoryProvider()
 
@@ -160,12 +165,6 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         await updateTask?.value
 
         AppLogger.info(self, "♻️ loading state changed")
-
-        Task {
-            try? await Task.sleep(seconds: 0.7)
-            isRefreshingSubject.send(false)
-        }
-
         isReloadingTransactionHistory = false
 
         updateTask = nil
@@ -304,6 +303,14 @@ extension SingleTokenBaseViewModel {
     }
 
     private func bind() {
+        refreshScrollViewStateObject.statePublisher
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, state in
+                viewModel.isRefreshingSubject.send(state.isRefreshing)
+            }
+            .store(in: &bag)
+
         walletModel.isAssetRequirementsTaskInProgressPublisher
             .receiveOnMain()
             .assign(to: \.isFulfillingAssetRequirements, on: self, ownership: .weak)
