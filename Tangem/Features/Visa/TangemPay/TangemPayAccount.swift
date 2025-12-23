@@ -148,6 +148,24 @@ final class TangemPayAccount {
         bind()
     }
 
+    func cancelKYC(onFinish: @escaping (Bool) -> Void) {
+        runTask(in: self) { account in
+            do {
+                try await account.customerInfoManagementService.cancelKYC()
+                await MainActor.run {
+                    AppSettings.shared
+                        .tangemPayIsKYCHiddenForCustomerWalletId[
+                            account.customerWalletId
+                        ] = true
+                }
+                onFinish(true)
+            } catch {
+                VisaLogger.error("Failed to cancel KYC", error: error)
+                onFinish(false)
+            }
+        }
+    }
+
     func launchKYC(onDidDismiss: @escaping () -> Void) async throws {
         try await KYCService.start(
             getToken: customerInfoManagementService.loadKYCAccessToken,
