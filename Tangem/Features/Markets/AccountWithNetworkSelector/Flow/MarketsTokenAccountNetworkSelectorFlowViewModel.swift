@@ -185,12 +185,14 @@ private extension MarketsTokenAccountNetworkSelectorFlowViewModel {
         }
 
         let filter = makeCryptoAccountModelsFilter(with: supportedBlockchains)
+        let availabilityProvider = makeAccountAvailabilityProvider(supportedBlockchains: supportedBlockchains)
 
         viewState = .accountSelector(
             viewModel: AccountSelectorViewModel(
                 selectedItem: selectedItem,
                 userWalletModels: userWalletDataProvider.userWalletModels,
                 cryptoAccountModelsFilter: filter,
+                availabilityProvider: availabilityProvider,
                 onSelect: onSelectAccount
             ),
             context: context
@@ -310,13 +312,18 @@ private extension MarketsTokenAccountNetworkSelectorFlowViewModel {
         case .buy:
             Analytics.log(event: .marketsChartButtonBuy, params: analyticsParams)
             let sendInput = SendInput(userWalletInfo: userWalletInfo, walletModel: walletModel)
-            coordinator?.openOnramp(input: sendInput)
+            let parameters = PredefinedOnrampParametersBuilder.makeMoonpayPromotionParametersIfActive()
+            coordinator?.openOnramp(input: sendInput, parameters: parameters)
 
         case .exchange:
             Analytics.log(event: .marketsChartButtonSwap, params: analyticsParams)
             let expressInput = ExpressDependenciesInput(
                 userWalletInfo: userWalletInfo,
-                source: ExpressInteractorWalletModelWrapper(userWalletInfo: userWalletInfo, walletModel: walletModel),
+                source: ExpressInteractorWalletModelWrapper(
+                    userWalletInfo: userWalletInfo,
+                    walletModel: walletModel,
+                    expressOperationType: .swap
+                ),
                 destination: .loadingAndSet
             )
 
@@ -448,14 +455,30 @@ private extension MarketsTokenAccountNetworkSelectorFlowViewModel {
     }
 
     func makeCryptoAccountModelsFilter(with supportedBlockchains: Set<Blockchain>) -> (any CryptoAccountModel) -> Bool {
-        let networks = inputData.networks
+        let networkIds = inputData.networks.map(\.networkId)
+        return { account in
+            networkIds.contains { networkId in
+                AccountBlockchainManageabilityChecker.canManageNetwork(networkId, for: account, in: supportedBlockchains)
+            }
+        }
+    }
+
+    func makeAccountAvailabilityProvider(
+        supportedBlockchains: Set<Blockchain>
+    ) -> (any CryptoAccountModel) -> AccountAvailability {
+        let inputData = inputData
 
         return { cryptoAccount in
-            let areAccountsUnavailableForAllNetworks = networks.allSatisfy { network in
-                !AccountDerivationPathHelper.supportsAccounts(networkId: network.networkId, in: supportedBlockchains)
-            }
+            let isAddedOnAll = MarketsTokenNetworkChecker.isTokenAddedOnNetworks(
+                account: cryptoAccount,
+                coinId: inputData.coinId,
+                availableNetworks: inputData.networks,
+                supportedBlockchains: supportedBlockchains
+            )
 
-            return cryptoAccount.isMainAccount || !areAccountsUnavailableForAllNetworks
+            return isAddedOnAll
+                ? .unavailable(reason: Localization.marketsTokenAdded)
+                : .available
         }
     }
 }
@@ -483,7 +506,7 @@ private struct AccountSelectorDataProvider: MarketsAddTokenAccountWalletSelector
         case .account(let accountItem):
             account = accountItem.domainModel
             trailingContent = .account(
-                AccountIconViewBuilder.makeAccountIconViewData(accountModel: account),
+                AccountModelUtils.UI.iconViewData(accountModel: account),
                 name: account.name
             )
 

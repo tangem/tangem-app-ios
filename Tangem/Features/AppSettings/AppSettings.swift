@@ -137,6 +137,15 @@ final class AppSettings {
     @AppStorageCompat(StorageType.tangemPayIsPaeraCustomer)
     var tangemPayIsPaeraCustomer: [String: Bool] = [:]
 
+    @AppStorageCompat(StorageType.tangemPayIsKYCHiddenForCustomerWalletId)
+    var tangemPayIsKYCHiddenForCustomerWalletId: [String: Bool] = [:]
+
+    @AppStorageCompat(StorageType.tangemPayShouldShowGetBanner)
+    var tangemPayShouldShowGetBanner: Bool = true
+
+    @AppStorageCompat(StorageType.jailbreakWarningWasShown)
+    var jailbreakWarningWasShown: Bool = false
+
     static let shared: AppSettings = .init()
 
     private init() {}

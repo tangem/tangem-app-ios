@@ -111,7 +111,8 @@ final class EnvironmentSetupViewModel: ObservableObject {
                     default: ExpressAPIType.production.rawValue,
                     get: { $0.apiExpress },
                     set: { $0.apiExpress = $1 }
-                )
+                ),
+                pickerStyle: .menu
             ),
             DefaultPickerRowViewModel(
                 title: "Visa API type",
@@ -174,6 +175,9 @@ final class EnvironmentSetupViewModel: ObservableObject {
             }),
             DefaultRowViewModel(title: "NFT-enabled Blockchains", action: { [weak self] in
                 self?.coordinator?.openNFTBlockchainsPreferences()
+            }),
+            DefaultRowViewModel(title: "Addresses info", action: { [weak self] in
+                self?.coordinator?.openAddressesInfo()
             }),
         ]
 

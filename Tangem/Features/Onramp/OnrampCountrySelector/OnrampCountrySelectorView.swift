@@ -18,7 +18,7 @@ struct OnrampCountrySelectorView: View {
 
     var body: some View {
         VStack(alignment: .center, spacing: .zero) {
-            GrabberViewFactory().makeSwiftUIView()
+            GrabberView()
 
             CustomSearchBar(
                 searchText: $viewModel.searchText,
@@ -26,6 +26,9 @@ struct OnrampCountrySelectorView: View {
                 keyboardType: .alphabet,
                 style: .translucent,
                 clearButtonAction: {
+                    viewModel.searchText = ""
+                },
+                cancelButtonAction: {
                     viewModel.searchText = ""
                 }
             )
@@ -45,10 +48,10 @@ private extension OnrampCountrySelectorView {
         case .loading:
             skeletonsView
                 .transition(.opacityLinear())
-        case .loaded(let data):
+        case .success(let data):
             countriesView(data: data)
                 .transition(.opacityLinear())
-        case .failedToLoad:
+        case .failure:
             failedToLoadView
                 .transition(.opacityLinear())
         }

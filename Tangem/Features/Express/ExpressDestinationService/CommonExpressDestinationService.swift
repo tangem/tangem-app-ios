@@ -15,6 +15,14 @@ struct CommonExpressDestinationService {
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
     @Injected(\.expressPendingTransactionsRepository) private var pendingTransactionRepository: ExpressPendingTransactionRepository
     @Injected(\.expressPairsRepository) private var expressPairsRepository: ExpressPairsRepository
+
+    /// [REDACTED_TODO_COMMENT]
+    /// [REDACTED_INFO]
+    private let userWalletId: UserWalletId?
+
+    init(userWalletId: UserWalletId?) {
+        self.userWalletId = userWalletId
+    }
 }
 
 // MARK: - ExpressDestinationService
@@ -44,15 +52,27 @@ private extension CommonExpressDestinationService {
         base: any ExpressInteractorDestinationWallet,
         searchType: SearchType
     ) async -> (any ExpressInteractorSourceWallet)? {
-        let walletModels: [UserWalletInfoWalletModelPair] = userWalletRepository.models.flatMap { userWalletModel in
-            let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
-            return walletModels.map { walletModel in
-                UserWalletInfoWalletModelPair(
-                    userWalletInfo: userWalletModel.userWalletInfo,
-                    walletModel: walletModel
-                )
+        let walletModels: [UserWalletInfoWalletModelPair] = {
+            if let userWalletId, let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId == userWalletId }) {
+                let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
+                return walletModels.map { walletModel in
+                    UserWalletInfoWalletModelPair(
+                        userWalletInfo: userWalletModel.userWalletInfo,
+                        walletModel: walletModel
+                    )
+                }
             }
-        }
+
+            return userWalletRepository.models.flatMap { userWalletModel in
+                let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
+                return walletModels.map { walletModel in
+                    UserWalletInfoWalletModelPair(
+                        userWalletInfo: userWalletModel.userWalletInfo,
+                        walletModel: walletModel
+                    )
+                }
+            }
+        }()
 
         let availablePairs = await expressPairsRepository.getPairs(from: base.tokenItem.expressCurrency)
         let searchableWalletModels = walletModels.filter { wallet in
@@ -124,7 +144,11 @@ extension CommonExpressDestinationService {
         }
 
         var asExpressInteractorWalletModelWrapper: ExpressInteractorWalletModelWrapper {
-            ExpressInteractorWalletModelWrapper(userWalletInfo: userWalletInfo, walletModel: walletModel)
+            ExpressInteractorWalletModelWrapper(
+                userWalletInfo: userWalletInfo,
+                walletModel: walletModel,
+                expressOperationType: .swap
+            )
         }
     }
 

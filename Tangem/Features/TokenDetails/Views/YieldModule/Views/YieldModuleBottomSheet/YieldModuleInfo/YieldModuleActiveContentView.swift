@@ -33,11 +33,7 @@ struct YieldModuleActiveContentView: View {
     private var scrollView: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 14) {
-                VStack(spacing: 8) {
-                    navTitleView
-
-                    topSection
-                }
+                topSection
 
                 notificationsView
 
@@ -46,9 +42,13 @@ struct YieldModuleActiveContentView: View {
                 bottomSection
             }
         }
-        .scrollBounceBehaviorBackport(.basedOnSize)
+        .scrollBounceBehavior(.basedOnSize)
         .padding(.horizontal, 16)
-        .padding(.top, 8)
+        .padding(.top, 2)
+        .safeAreaInset(edge: .top) {
+            navTitleView
+                .padding(.horizontal, 16)
+        }
         .safeAreaInset(edge: .bottom) {
             button
                 .padding(.horizontal, 16)

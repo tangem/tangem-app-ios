@@ -77,9 +77,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li network</string>
+        <string>%li red</string>
         <key>other</key>
-        <string>%li networks</string>
+        <string>%li redes</string>
       </dict>
     </dict>
     <key>common_tokens_count</key>
@@ -144,6 +144,38 @@
         <string>Basado en %li evaluación </string>
         <key>other</key>
         <string>Basado en %li evaluaciónes</string>
+      </dict>
+    </dict>
+    <key>news_published_hours_ago</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%lih ago</string>
+        <key>other</key>
+        <string>%lih ago</string>
+      </dict>
+    </dict>
+    <key>news_published_minutes_ago</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li minute ago</string>
+        <key>other</key>
+        <string>%li minutes ago</string>
       </dict>
     </dict>
     <key>nft_collections_count</key>

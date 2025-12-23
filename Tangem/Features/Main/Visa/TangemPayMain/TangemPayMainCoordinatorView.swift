@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemAssets
 
 struct TangemPayMainCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: TangemPayMainCoordinator
@@ -37,6 +38,9 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: TangemPayNoDepositAddressSheetViewModel.self) {
                 TangemPayNoDepositAddressSheetView(viewModel: $0)
             }
+            .floatingSheetContent(for: TangemPayPinCheckViewModel.self) {
+                TangemPayPinCheckView(viewModel: $0)
+            }
             .floatingSheetContent(for: TangemPayWithdrawInProgressSheetViewModel.self) {
                 TangemPayWithdrawInProgressSheetView(viewModel: $0)
             }
@@ -60,6 +64,12 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
             }
             .sheet(item: $coordinator.termsAndLimitsViewModel) {
                 WebViewContainer(viewModel: $0)
+            }
+            .bottomSheet(
+                item: $coordinator.pendingExpressTxStatusBottomSheet,
+                backgroundColor: Colors.Background.tertiary
+            ) {
+                PendingExpressTxStatusBottomSheetView(viewModel: $0)
             }
     }
 }

@@ -18,15 +18,21 @@ class MarketsCoordinator: CoordinatorObject {
 
     // MARK: - Root Published
 
-    @Published private(set) var rootViewModel: MarketsViewModel?
+    @Published private(set) var marketsViewModel: MarketsViewModel?
+    @Published private(set) var marketsMainViewModel: MarketsMainViewModel?
 
     // MARK: - Coordinators
 
     @Published var tokenDetailsCoordinator: MarketsTokenDetailsCoordinator?
+    @Published var marketsSearchCoordinator: MarketsSearchCoordinator?
 
     // MARK: - Child ViewModels
 
     @Published var marketsListOrderBottomSheetViewModel: MarketsListOrderBottomSheetViewModel?
+
+    // MARK: - Private Properties
+
+    private lazy var quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper = CommonMarketsQuotesUpdateHelper()
 
     // MARK: - Init
 
@@ -42,10 +48,21 @@ class MarketsCoordinator: CoordinatorObject {
     // MARK: - Implementation
 
     func start(with options: MarketsCoordinator.Options) {
-        rootViewModel = .init(
-            quotesRepositoryUpdateHelper: CommonMarketsQuotesUpdateHelper(),
-            coordinator: self
-        )
+        if FeatureProvider.isAvailable(.marketsAndNews) {
+            let viewModel = MarketsMainViewModel(
+                quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper,
+                coordinator: self
+            )
+
+            marketsMainViewModel = viewModel
+        } else {
+            let viewModel = MarketsViewModel(
+                quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper,
+                coordinator: self
+            )
+
+            marketsViewModel = viewModel
+        }
     }
 }
 
@@ -69,5 +86,27 @@ extension MarketsCoordinator: MarketsRoutable {
         tokenDetailsCoordinator.start(with: .init(info: tokenInfo, style: .marketsSheet))
 
         self.tokenDetailsCoordinator = tokenDetailsCoordinator
+    }
+}
+
+// MARK: - MarketsMainRoutable
+
+extension MarketsCoordinator: MarketsMainRoutable {
+    func openSeeAll(with widgetType: MarketsWidgetType) {
+        switch widgetType {
+        case .market, .pulse:
+            let marketsSearchCoordinator = MarketsSearchCoordinator(
+                dismissAction: { [weak self] in
+                    self?.marketsSearchCoordinator = nil
+                }
+            )
+
+            marketsSearchCoordinator.start(with: .init(quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper))
+
+            self.marketsSearchCoordinator = marketsSearchCoordinator
+        case .earn, .news:
+            // [REDACTED_TODO_COMMENT]
+            break
+        }
     }
 }

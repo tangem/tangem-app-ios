@@ -288,6 +288,7 @@ private extension TokenDetailsViewModel {
             .compactMap { $0 }
             .filter { !$0.state.isLoading }
             .receiveOnMain()
+            .removeDuplicates()
             .sink { [weak self] state in
                 self?.updateYieldAvailability(state: state)
             }
@@ -385,8 +386,7 @@ private extension TokenDetailsViewModel {
         state: YieldModuleManagerState,
         marketInfo: YieldModuleMarketInfo?
     ) -> YieldModuleAvailability {
-        guard FeatureProvider.isAvailable(.yieldModule),
-              let manager = walletModel.yieldModuleManager,
+        guard let manager = walletModel.yieldModuleManager,
               let factory = makeYieldModuleFlowFactory(manager: manager)
         else {
             return .notApplicable
@@ -487,17 +487,24 @@ extension TokenDetailsViewModel: BalanceWithButtonsViewModelBalanceProvider {
 }
 
 extension TokenDetailsViewModel: BalanceTypeSelectorProvider {
-    var shouldShowBalanceSelector: Bool {
-        switch walletModel.stakingBalanceProvider.balanceType {
-        case .empty:
-            return false
-        case .loaded(let amount) where amount == .zero:
-            return false
-        case .failure(let cached) where cached?.balance == .zero || cached == nil:
-            return false
-        case .failure, .loading, .loaded:
-            return true
+    var showBalanceSelectorPublisher: AnyPublisher<Bool, Never> {
+        func isZeroOrNil(_ cached: TokenBalanceType.Cached?) -> Bool {
+            cached?.balance == .zero || cached == nil
         }
+
+        return walletModel.stakingBalanceProvider.balanceTypePublisher.map {
+            switch $0 {
+            case .empty:
+                return false
+            case .loaded(let amount) where amount == .zero:
+                return false
+            case .failure(let cached) where isZeroOrNil(cached),
+                 .loading(let cached) where isZeroOrNil(cached):
+                return false
+            case .failure, .loading, .loaded:
+                return true
+            }
+        }.eraseToAnyPublisher()
     }
 }
 

@@ -27,13 +27,16 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
     // MARK: - Dependencies
 
     private let transaction: TangemPayTransactionRecord
+    private let userWalletId: String
     private weak var coordinator: TangemPayTransactionDetailsRoutable?
 
     init(
         transaction: TangemPayTransactionRecord,
+        userWalletId: String,
         coordinator: TangemPayTransactionDetailsRoutable
     ) {
         self.transaction = transaction
+        self.userWalletId = userWalletId
         self.coordinator = coordinator
 
         let mapper = TangemPayTransactionRecordMapper(transaction: transaction)
@@ -50,7 +53,8 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
             amount: mapper.amount(),
             type: mapper.type(),
             status: mapper.status(),
-            isOutgoing: mapper.isOutgoing()
+            isOutgoing: mapper.isOutgoing(),
+            isFromYieldContract: false
         )
         localAmount = mapper.localAmount()
         state = mapper.state()
@@ -68,7 +72,12 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
         case .info: .default
         }
 
-        coordinator?.transactionDetailsDidRequestDispute(dataCollector: BaseDataCollector(), subject: subject)
+        let dataCollector = TangemPaySupportDataCollector(
+            source: .transactionDetails(transaction),
+            userWalletId: userWalletId
+        )
+
+        coordinator?.transactionDetailsDidRequestDispute(dataCollector: dataCollector, subject: subject)
     }
 }
 
@@ -79,8 +88,8 @@ extension TangemPayTransactionDetailsViewModel {
 
         var title: String {
             switch self {
-            case .dispute: Localization.tangemPayDispute
-            case .info: Localization.tangemPayGetHelp
+            case .dispute, .info:
+                Localization.tangemPayGetHelp
             }
         }
     }
