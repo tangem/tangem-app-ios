@@ -47,6 +47,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "order/\(orderId)"
         case .getPin(cardId: let cardId):
             "customer/card/\(cardId)/pin"
+        case .setPayEnabled:
+            "customer/pay-enabled"
         }
     }
 
@@ -68,6 +70,9 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getPin:
             .post
 
+        case .setPayEnabled:
+            .patch
+
         case .setPin:
             .put
         }
@@ -80,6 +85,10 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getOrder,
              .getBalance:
             return .requestPlain
+
+        case .setPayEnabled:
+            let requestData = TangemPaySetPayEnabledRequest()
+            return .requestJSONEncodable(requestData)
 
         case .freeze(let cardId), .unfreeze(let cardId):
             let requestData = TangemPayFreezeUnfreezeRequest(cardId: cardId)
@@ -132,6 +141,7 @@ extension CustomerInfoManagementAPITarget {
         /// Retrieves an access token for the SumSub KYC flow
         case getKYCAccessToken
 
+        case setPayEnabled
         case getBalance
         case getCardDetails(sessionId: String)
         case freeze(cardId: String)
