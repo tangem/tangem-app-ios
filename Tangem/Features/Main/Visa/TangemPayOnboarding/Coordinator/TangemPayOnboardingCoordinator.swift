@@ -14,7 +14,8 @@ protocol TangemPayOnboardingRoutable: AnyObject {
 }
 
 final class TangemPayOnboardingCoordinator: CoordinatorObject {
-    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
+    @Injected(\.floatingSheetPresenter)
+    private var floatingSheetPresenter: FloatingSheetPresenter
 
     let dismissAction: Action<DismissOptions?>
     let popToRootAction: Action<PopToRootOptions>

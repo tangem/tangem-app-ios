@@ -14,6 +14,9 @@ enum TangemPayOnboardingSource {
 }
 
 final class TangemPayOnboardingViewModel: ObservableObject {
+    @Injected(\.tangemPayAvailabilityRepository)
+    private var tangemPayAvailabilityRepository: TangemPayAvailabilityRepository
+
     let closeOfferScreen: @MainActor () -> Void
     @Published private(set) var tangemPayOfferViewModel: TangemPayOfferViewModel?
 
@@ -47,6 +50,10 @@ final class TangemPayOnboardingViewModel: ObservableObject {
         do {
             switch source {
             case .deeplink(let deeplink):
+                guard tangemPayAvailabilityRepository.isUserWalletModelsAvailable else {
+                    throw TangemPayOnboardingError.noAvailableWallets
+                }
+
                 try await validateDeeplink(deeplinkString: deeplink)
             case .other:
                 break
@@ -79,6 +86,7 @@ final class TangemPayOnboardingViewModel: ObservableObject {
 private extension TangemPayOnboardingViewModel {
     enum TangemPayOnboardingError: Error {
         case invalidDeeplink
+        case noAvailableWallets
     }
 }
 
