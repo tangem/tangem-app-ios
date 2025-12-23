@@ -38,6 +38,7 @@
 "account_form_create_button" = "Добавить аккаунт";
 "account_form_edit_button" = "Сохранить";
 "account_form_name_already_exist_error_description" = "Имя аккаунта уже существует";
+"account_form_name_already_exist_error_title" = "Account name already in use";
 "account_form_name" = "Название аккаунта";
 "account_form_placeholder_edit_account" = "Аккаунт";
 "account_form_placeholder_new_account" = "Новый аккаунт";
@@ -51,7 +52,7 @@
 "account_reorder_description" = "Нажмите и удерживайте аккаунт, чтобы изменить порядок аккаунтов.";
 "account_unsaved_dialog_action_first" = "Продолжить";
 "account_unsaved_dialog_action_second" = "Отменить";
-"account_unsaved_dialog_message_create" = "Вы уверены, что хотите создание нового аккаунта?";
+"account_unsaved_dialog_message_create" = "Вы уверены, что хотите отменить создание нового аккаунта?";
 "account_unsaved_dialog_message_edit" = "Вы уверены, что хотите отменить изменения?";
 "account_unsaved_dialog_title" = "Несохраненные изменения";
 "accounts_migration_alert_message" = "Некоторые пользовательские токены были перемещены из «%1$@» в «%2$@», поскольку их путь деривации относится к этой учётной записи.";
@@ -607,6 +608,7 @@
 "hw_upgrade_title" = "Обновиться до аппаратного кошелька";
 "hw_upgrade_to_cold_banner_description" = "Храните свою криптовалюту в безопасности с помощью первоклассного аппаратного кошелька Tangem.";
 "hw_upgrade_to_cold_banner_title" = "Сделать апгрейд кошелька до аппаратной версии.";
+"hw_upgrade" = "Upgrade";
 "information_generated_with_ai" = "Эта информация была сгенерирована ИИ.\nНажмите здесь, если обнаружили ошибку.";
 "initial_message_change_access_code_body" = "Чтобы изменить код доступа, приложите карту или кольцо как показано выше и не убирайте до окончания операции";
 "initial_message_change_passcode_body" = "Чтобы изменить пароль, приложите карту как показано выше и не убирайте до окончания операции";
@@ -748,6 +750,10 @@
 "mobile_wallet_requires_min_os_warning_body" = "Обновитесь до версии %1$@, чтобы создать мобильный кошелёк";
 "mobile_wallet_requires_min_os_warning_title" = "Мобильный кошелек требует %1$@ или новее.";
 "news_all_news" = "Все новости";
+"news_like" = "Like";
+"news_quick_recap" = "Quick recap";
+"news_related_news" = "Related News";
+"news_sources" = "Sources";
 "news_stay_in_the_loop" = "Будьте в курсе";
 "nft_about_title" = "О NFT";
 "nft_asset" = "NFT";
@@ -1370,7 +1376,7 @@
 "tangempay_failed_to_issue_card_retry_description" = "Техническая ошибка, попробуйте ещё раз, нажав кнопку ниже";
 "tangempay_failed_to_issue_card_support_description" = "Техническая ошибка, свяжитесь с поддержкой";
 "tangempay_failed_to_issue_card" = "Не удалось выпустить карту";
-"tangempay_get_banner_description" = "Используйте криптовалюту в реальной жизни. \nКарта, не похожая ни на одну другую.";
+"tangempay_get_banner_description" = "Откройте бесплатную виртуальную карту Tangem Visa";
 "tangempay_get_tangem_pay" = "Получить Tangem Pay";
 "tangempay_go_to_support" = "Написать в поддержку";
 "tangempay_issue_card_notification_description" = "Обычно это занимает до 15 минут";
@@ -1386,8 +1392,8 @@
 "tangempay_kyc_in_progress_notification_title" = "KYC в процессе для Tangem Pay";
 "tangempay_kyc_in_progress_popup_description" = "Use the buttons below to view your current KYC status or cancel it.";
 "tangempay_kyc_in_progress" = "KYC в процессе";
-"tangempay_onboarding_banner_description" = "Используйте криптовалюту в реальной жизни. \nКарта, не похожая ни на одну другую.";
-"tangempay_onboarding_banner_title" = "Tangem Visa Card";
+"tangempay_onboarding_banner_description" = "Откройте бесплатную виртуальную карту Tangem Visa";
+"tangempay_onboarding_banner_title" = "Оплачивайте ежедневные покупки в USDC";
 "tangempay_onboarding_get_card_button_text" = "Открыть карту";
 "tangempay_onboarding_pay_description" = "Виртуальную карту можно добавить в Apple Pay и Google Pay";
 "tangempay_onboarding_pay_title" = "Покупайте где угодно";
@@ -1402,7 +1408,7 @@
 "tangempay_service_unavailable_title" = "Сервис временно недоступен";
 "tangempay_service_unreachable_try_later" = "Не можем показать данные карты, но оплаты продолжают работать.";
 "tangempay_sync_needed" = "Требуется синхронизация";
-"tangempay_tangem_visa_card" = "Tangem Visa Card";
+"tangempay_tangem_visa_card" = "Оплачивайте ежедневные покупки в USDC";
 "tangempay_temporarily_unavailable" = "Tangem Pay временно недоступен";
 "tangempay_title" = "Tangem Pay";
 "tangempay_use_tangem_device_to_restore_payment_account" = "Используйте вашу карту или кольцо для восстановления доступа к платежному аккаунту";
