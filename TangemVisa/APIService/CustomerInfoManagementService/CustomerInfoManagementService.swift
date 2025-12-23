@@ -34,6 +34,9 @@ public protocol CustomerInfoManagementService: AnyObject {
 
     func placeOrder(customerWalletAddress: String) async throws -> TangemPayOrderResponse
     func getOrder(orderId: String) async throws -> TangemPayOrderResponse
+
+    @discardableResult
+    func cancelKYC() async throws -> TangemPayCancelKYCResponse
 }
 
 final class CommonCustomerInfoManagementService {
@@ -70,6 +73,12 @@ final class CommonCustomerInfoManagementService {
 }
 
 extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
+    func cancelKYC() async throws -> TangemPayCancelKYCResponse {
+        return try await apiService.request(
+            makeRequest(for: .setPayEnabled)
+        )
+    }
+
     func loadCustomerInfo() async throws -> VisaCustomerInfoResponse {
         return try await apiService.request(
             makeRequest(for: .getCustomerInfo)
