@@ -86,7 +86,12 @@ final class CommonCryptoAccountsRepository {
         self.userWalletInfoProvider = userWalletInfoProvider
     }
 
-    // MARK: - Legacy storage migration, not accounts created, no wallets created, etc.
+    // MARK: - Legacy storage migration and initialization, not accounts created, no wallets created, etc.
+
+    private func initializeStorage(with initialAccount: StoredCryptoAccount) {
+        persistentStorage.replace(with: [initialAccount])
+        auxiliaryDataStorage.update(withArchivedAccountsCount: 0, totalAccountsCount: 1)
+    }
 
     private func migrateStorage(forUserWalletWithId userWalletId: UserWalletId) {
         let mainAccountPersistentConfig = AccountModelUtils.mainAccountPersistentConfig(forUserWalletWithId: userWalletId)
@@ -98,9 +103,7 @@ final class CommonCryptoAccountsRepository {
             tokenListAppearance: tokenListAppearance,
             tokens: tokens
         )
-
-        persistentStorage.replace(with: [newCryptoAccount])
-        auxiliaryDataStorage.update(withArchivedAccountsCount: 0, totalAccountsCount: 1)
+        initializeStorage(with: newCryptoAccount)
     }
 
     private func createWallet() async throws {
@@ -412,8 +415,20 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
     }
 
     func initialize(forUserWalletWithId userWalletId: UserWalletId) {
-        if storageController.isMigrationNeeded() {
+        guard storageController.isMigrationNeeded() else {
+            return
+        }
+
+        if tokenItemsRepository.containsFile {
+            // There is no need to call `loadAccountsFromServer` explicitly here, as this migration will create the main
+            // account, and its user tokens manager will trigger the initial synchronization with the remote server
             migrateStorage(forUserWalletWithId: userWalletId)
+        } else if !hasTokenSynchronization {
+            // Local-only storage initialization with a default account
+            initializeStorage(with: defaultAccountFactory.makeDefaultAccount())
+        } else {
+            // Last resort option: initialize storage with remote info from the server
+            loadAccountsFromServer()
         }
     }
 
