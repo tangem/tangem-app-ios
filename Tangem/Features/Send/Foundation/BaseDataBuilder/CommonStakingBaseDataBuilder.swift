@@ -17,10 +17,10 @@ protocol StakingBaseDataBuilderInput: SendBaseDataBuilderInput {
     var approveViewModelInput: ApproveViewModelInput? { get }
 
     var stakingActionType: StakingAction.ActionType? { get }
-    var validator: ValidatorInfo? { get }
+    var target: StakingTargetInfo? { get }
 }
 
-struct CommonStakingBaseDataBuilder: StakingBaseDataBuilder {
+struct CommonStakingBaseDataBuilder {
     private let input: StakingBaseDataBuilderInput
     private let walletModel: any WalletModel
     private let emailDataProvider: EmailDataProvider
@@ -34,8 +34,12 @@ struct CommonStakingBaseDataBuilder: StakingBaseDataBuilder {
         self.walletModel = walletModel
         self.emailDataProvider = emailDataProvider
     }
+}
 
-    func makeMailData(stakingRequestError error: UniversalError) throws -> (dataCollector: EmailDataCollector, recipient: String) {
+// MARK: - StakingBaseDataBuilder
+
+extension CommonStakingBaseDataBuilder: StakingBaseDataBuilder {
+    func makeMailData(stakingRequestError error: UniversalError) throws -> MailData {
         guard let fee = input.bsdkFee?.amount else {
             throw SendBaseDataBuilderError.notFound("Fee")
         }
@@ -53,7 +57,7 @@ struct CommonStakingBaseDataBuilder: StakingBaseDataBuilder {
             isFeeIncluded: input.isFeeIncluded,
             lastError: .init(error: error),
             stakingAction: input.stakingActionType,
-            validator: input.validator
+            stakingTarget: input.target
         )
 
         let recipient = emailDataProvider.emailConfig?.recipient ?? EmailConfig.default.recipient
@@ -61,7 +65,7 @@ struct CommonStakingBaseDataBuilder: StakingBaseDataBuilder {
         return (dataCollector: emailDataCollector, recipient: recipient)
     }
 
-    func makeMailData(action: StakingTransactionAction, error: SendTxError) -> (dataCollector: EmailDataCollector, recipient: String) {
+    func makeMailData(action: StakingTransactionAction, error: SendTxError) -> MailData {
         let feeValue = action.transactions.reduce(0) { $0 + $1.fee }
         let fee = Amount(with: walletModel.feeTokenItem.blockchain, type: walletModel.feeTokenItem.amountType, value: feeValue)
         let amount = Amount(with: walletModel.tokenItem.blockchain, type: walletModel.tokenItem.amountType, value: action.amount)
@@ -75,20 +79,32 @@ struct CommonStakingBaseDataBuilder: StakingBaseDataBuilder {
             isFeeIncluded: input.isFeeIncluded,
             lastError: .init(error: error),
             stakingAction: input.stakingActionType,
-            validator: input.validator
+            stakingTarget: input.target
         )
 
         let recipient = emailDataProvider.emailConfig?.recipient ?? EmailConfig.default.recipient
 
         return (dataCollector: emailDataCollector, recipient: recipient)
     }
+}
 
-    func makeDataForExpressApproveViewModel() throws -> (settings: ExpressApproveViewModel.Settings, approveViewModelInput: any ApproveViewModelInput) {
+// MARK: - SendFeeCurrencyProviderDataBuilder
+
+extension CommonStakingBaseDataBuilder: SendFeeCurrencyProviderDataBuilder {
+    func makeFeeCurrencyData() -> FeeCurrencyNavigatingDismissOption {
+        .init(userWalletId: walletModel.userWalletId, tokenItem: walletModel.feeTokenItem)
+    }
+}
+
+// MARK: - SendApproveViewModelInputDataBuilder
+
+extension CommonStakingBaseDataBuilder: SendApproveViewModelInputDataBuilder {
+    func makeExpressApproveViewModelInput() async throws -> ExpressApproveViewModel.Input {
         guard let selectedPolicy = input.selectedPolicy else {
             throw SendBaseDataBuilderError.notFound("Selected approve policy")
         }
 
-        guard let input = input.approveViewModelInput else {
+        guard let approveViewModelInput = input.approveViewModelInput else {
             throw SendBaseDataBuilderError.notFound("ApproveViewModelInput")
         }
 
@@ -100,6 +116,12 @@ struct CommonStakingBaseDataBuilder: StakingBaseDataBuilder {
             selectedPolicy: selectedPolicy
         )
 
-        return (settings, input)
+        let feeFormatter = CommonFeeFormatter()
+
+        return ExpressApproveViewModel.Input(
+            settings: settings,
+            feeFormatter: feeFormatter,
+            approveViewModelInput: approveViewModelInput,
+        )
     }
 }

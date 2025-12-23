@@ -29,8 +29,8 @@ struct SelectorReceiveAssetsDomainItemView: View {
         }
         .defaultRoundedBackground(
             with: Colors.Background.action,
-            verticalPadding: Layout.Container.padding,
-            horizontalPadding: .zero
+            verticalPadding: Layout.Container.verticalPadding,
+            horizontalPadding: Layout.Container.horizontalPadding
         )
     }
 
@@ -52,9 +52,9 @@ struct SelectorReceiveAssetsDomainItemView: View {
 
     private var buttonView: some View {
         HStack(spacing: Layout.ButtomView.horizontalSpacing) {
-            Button(action: viewModel.copyAddressButtonDidTap) {
-                SelectorReceiveRoundButtonView(actionType: .copy)
-            }
+            SelectorReceiveCircleButtonView(actionType: .copy, action: viewModel.copyAddressButtonDidTap)
+
+            SelectorReceiveCircleButtonView(actionType: .share, action: viewModel.shareAddressButtonDidTap)
         }
     }
 }
@@ -64,7 +64,8 @@ struct SelectorReceiveAssetsDomainItemView: View {
 private extension SelectorReceiveAssetsDomainItemView {
     enum Layout {
         enum Container {
-            static let padding: CGFloat = 14
+            static let verticalPadding: CGFloat = 14
+            static let horizontalPadding: CGFloat = 12
             static let contentSpacing: CGFloat = 12
         }
 

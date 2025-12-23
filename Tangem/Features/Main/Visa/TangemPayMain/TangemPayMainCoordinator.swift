@@ -16,6 +16,7 @@ class TangemPayMainCoordinator: CoordinatorObject {
 
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
     @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
+    @Injected(\.safariManager) private var safariManager: SafariManager
 
     // MARK: - Root view model
 
@@ -30,6 +31,7 @@ class TangemPayMainCoordinator: CoordinatorObject {
     @Published var addToApplePayGuideViewModel: TangemPayAddToAppPayGuideViewModel?
     @Published var tangemPayPinViewModel: TangemPayPinViewModel?
     @Published var termsAndLimitsViewModel: WebViewContainerViewModel?
+    @Published var pendingExpressTxStatusBottomSheet: PendingExpressTxStatusBottomSheetViewModel?
 
     required init(
         dismissAction: @escaping Action<DismissOptions?>,
@@ -89,11 +91,21 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
         )
     }
 
-    func openTangemPayPin(tangemPayAccount: TangemPayAccount) {
+    func openTangemPaySetPin(tangemPayAccount: TangemPayAccount) {
         tangemPayPinViewModel = TangemPayPinViewModel(
             tangemPayAccount: tangemPayAccount,
             coordinator: self
         )
+    }
+
+    func openTangemPayCheckPin(tangemPayAccount: TangemPayAccount) {
+        let viewModel = TangemPayPinCheckViewModel(
+            account: tangemPayAccount,
+            coordinator: self
+        )
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
     }
 
     func openTangemPayAddFundsSheet(input: TangemPayAddFundsSheetViewModel.Input) {
@@ -135,12 +147,31 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
         }
     }
 
-    func openTangemPayTransactionDetailsSheet(transaction: TangemPayTransactionRecord) {
-        let viewModel = TangemPayTransactionDetailsViewModel(transaction: transaction, coordinator: self)
+    func openTangemPayTransactionDetailsSheet(transaction: TangemPayTransactionRecord, userWalletId: String) {
+        let viewModel = TangemPayTransactionDetailsViewModel(
+            transaction: transaction,
+            userWalletId: userWalletId,
+            coordinator: self
+        )
 
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
+    }
+
+    func openPendingExpressTransactionDetails(
+        pendingTransaction: PendingTransaction,
+        userWalletInfo: UserWalletInfo,
+        tokenItem: TokenItem,
+        pendingTransactionsManager: any PendingExpressTransactionsManager
+    ) {
+        pendingExpressTxStatusBottomSheet = PendingExpressTxStatusBottomSheetViewModel(
+            pendingTransaction: pendingTransaction,
+            currentTokenItem: tokenItem,
+            userWalletInfo: userWalletInfo,
+            pendingTransactionsManager: pendingTransactionsManager,
+            router: self
+        )
     }
 
     func openTermsAndLimits() {
@@ -204,6 +235,7 @@ extension TangemPayMainCoordinator: TangemPayAddFundsSheetRoutable {
     func addFundsSheetRequestReceive(viewModel: ReceiveMainViewModel) {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
+            try? await Task.sleep(for: .seconds(0.2))
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
@@ -213,7 +245,7 @@ extension TangemPayMainCoordinator: TangemPayAddFundsSheetRoutable {
             floatingSheetPresenter.removeActiveSheet()
 
             // Give some time to hide sheet with animation
-            try? await Task.sleep(seconds: 0.2)
+            try? await Task.sleep(for: .seconds(0.2))
             let factory = CommonExpressModulesFactory(input: input)
             openExpress(factory: factory)
         }
@@ -236,7 +268,7 @@ extension TangemPayMainCoordinator: TangemPayTransactionDetailsRoutable {
     }
 
     func transactionDetailsDidRequestDispute(dataCollector: EmailDataCollector, subject: VisaEmailSubject) {
-        let logsComposer = LogsComposer(infoProvider: dataCollector)
+        let logsComposer = LogsComposer(infoProvider: dataCollector, includeZipLogs: false)
         let mailViewModel = MailViewModel(
             logsComposer: logsComposer,
             recipient: EmailConfig.visaDefault(subject: subject).recipient,
@@ -246,6 +278,33 @@ extension TangemPayMainCoordinator: TangemPayTransactionDetailsRoutable {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
             mailPresenter.present(viewModel: mailViewModel)
+        }
+    }
+}
+
+// MARK: - PendingExpressTxStatusRoutable
+
+extension TangemPayMainCoordinator: PendingExpressTxStatusRoutable {
+    func openURL(_ url: URL) {
+        safariManager.openURL(url)
+    }
+
+    func openRefundCurrency(walletModel: any WalletModel, userWalletModel: any UserWalletModel) {
+        pendingExpressTxStatusBottomSheet = nil
+        dismiss(with: .init(userWalletId: walletModel.userWalletId, tokenItem: walletModel.tokenItem))
+    }
+
+    func dismissPendingTxSheet() {
+        pendingExpressTxStatusBottomSheet = nil
+    }
+}
+
+// MARK: - TangemPayPinCheckRoutable
+
+extension TangemPayMainCoordinator: TangemPayPinCheckRoutable {
+    func closePinCheck() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
         }
     }
 }

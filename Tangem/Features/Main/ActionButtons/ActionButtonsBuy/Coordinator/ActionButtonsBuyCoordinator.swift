@@ -47,9 +47,9 @@ final class ActionButtonsBuyCoordinator: CoordinatorObject {
                     userWalletModel: options.userWalletModel
                 )
             )
-        case .new:
+        case .new(let tokenSelectorViewModel):
             viewState = .newTokenList(
-                NewActionButtonsBuyViewModel(coordinator: self)
+                AccountsAwareActionButtonsBuyViewModel(tokenSelectorViewModel: tokenSelectorViewModel, coordinator: self)
             )
         }
     }
@@ -58,19 +58,7 @@ final class ActionButtonsBuyCoordinator: CoordinatorObject {
 // MARK: - ActionButtonsBuyRoutable
 
 extension ActionButtonsBuyCoordinator: ActionButtonsBuyRoutable {
-    func openOnramp(walletModel: any WalletModel, userWalletModel: UserWalletModel) {
-        let dismissAction: Action<SendCoordinator.DismissOptions?> = { [weak self] _ in
-            self?.dismiss()
-        }
-
-        let coordinator = SendCoordinator(dismissAction: dismissAction)
-        let sendInput = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
-        let options = SendCoordinator.Options(input: sendInput, type: .onramp(), source: .actionButtons)
-        coordinator.start(with: options)
-        viewState = .onramp(coordinator)
-    }
-
-    func openOnramp(input: SendInput) {
+    func openOnramp(input: SendInput, parameters: PredefinedOnrampParameters) {
         let dismissAction: Action<SendCoordinator.DismissOptions?> = { [weak self] _ in
             self?.dismiss()
         }
@@ -78,7 +66,7 @@ extension ActionButtonsBuyCoordinator: ActionButtonsBuyRoutable {
         let coordinator = SendCoordinator(dismissAction: dismissAction)
         let options = SendCoordinator.Options(
             input: input,
-            type: .onramp(),
+            type: .onramp(parameters: parameters),
             source: .actionButtons
         )
         coordinator.start(with: options)
@@ -99,7 +87,7 @@ extension ActionButtonsBuyCoordinator: ActionButtonsBuyRoutable {
 extension ActionButtonsBuyCoordinator {
     enum Options {
         case `default`(options: DefaultActionButtonBuyCoordinatorOptions)
-        case new
+        case new(tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel)
 
         struct DefaultActionButtonBuyCoordinatorOptions {
             let userWalletModel: UserWalletModel
@@ -110,7 +98,7 @@ extension ActionButtonsBuyCoordinator {
 
     enum RootViewState: Equatable {
         case tokenList(ActionButtonsBuyViewModel)
-        case newTokenList(NewActionButtonsBuyViewModel)
+        case newTokenList(AccountsAwareActionButtonsBuyViewModel)
         case onramp(SendCoordinator)
 
         static func == (lhs: RootViewState, rhs: RootViewState) -> Bool {

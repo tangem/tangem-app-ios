@@ -24,7 +24,7 @@ extension NFTDetailsHeaderState {
 
     struct Price {
         let crypto: String
-        let fiat: LoadingValue<String>
+        let fiat: LoadingResult<String, any Error>
     }
 
     struct DescriptionConfig {

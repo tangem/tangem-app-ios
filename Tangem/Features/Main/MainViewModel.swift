@@ -52,6 +52,8 @@ final class MainViewModel: ObservableObject {
 
     private var shouldDelayBottomSheetVisibility = true
     private var isLoggingOut = false
+    private var didLogMainScreenOpenedAnalytics = false
+    private var mainScreenOpenedAnalyticsCancellable: AnyCancellable?
 
     private var bag: Set<AnyCancellable> = []
 
@@ -109,18 +111,9 @@ final class MainViewModel: ObservableObject {
 
     /// Handles `SwiftUI.View.onAppear(perform:)`.
     func onViewAppear() {
-        if !isLoggingOut {
-            var analyticsParameters: [Analytics.ParameterKey: Analytics.ParameterValue] = [:]
+        logMainScreenOpenedAnalytics()
 
-            if let userWalletModel = userWalletRepository.selectedModel {
-                let walletType = Analytics.ParameterValue.seedState(for: userWalletModel.hasImportedWallets)
-                analyticsParameters[.walletType] = walletType
-            }
-
-            Analytics.log(.mainScreenOpened, params: analyticsParameters)
-        }
-
-        updateMarkets()
+        updateYieldMarkets()
 
         swipeDiscoveryHelper.scheduleSwipeDiscoveryIfNeeded()
         openPushNotificationsAuthorizationIfNeeded()
@@ -128,6 +121,9 @@ final class MainViewModel: ObservableObject {
 
     /// Handles `SwiftUI.View.onDisappear(perform:)`.
     func onViewDisappear() {
+        didLogMainScreenOpenedAnalytics = false
+        mainScreenOpenedAnalyticsCancellable = nil
+
         swipeDiscoveryHelper.cancelScheduledSwipeDiscovery()
         coordinator?.resignHandlingIncomingActions()
     }
@@ -153,7 +149,9 @@ final class MainViewModel: ObservableObject {
             uiManager.show()
         }
 
-        coordinator?.beginHandlingIncomingActions()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.coordinator?.beginHandlingIncomingActions()
+        }
     }
 
     func onPageChange(dueTo reason: CardsInfoPageChangeReason) {
@@ -365,6 +363,57 @@ final class MainViewModel: ObservableObject {
             .store(in: &bag)
     }
 
+    private func logMainScreenOpenedAnalytics() {
+        guard !didLogMainScreenOpenedAnalytics else { return }
+
+        let userWalletModel = userWalletRepository.selectedModel
+
+        if let userWalletModel, FeatureProvider.isAvailable(.accounts) {
+            mainScreenOpenedAnalyticsCancellable = userWalletModel
+                .accountModelsManager
+                .accountModelsPublisher
+                .filter(\.isNotEmpty)
+                .first()
+                .receiveOnMain()
+                .withWeakCaptureOf(self)
+                .sink { viewModel, accountModels in
+                    viewModel.logMainScreenOpenedEvent(userWalletModel: userWalletModel, accountModels: accountModels)
+                }
+        } else {
+            logMainScreenOpenedEvent(userWalletModel: userWalletModel, accountModels: nil)
+        }
+    }
+
+    private func logMainScreenOpenedEvent(userWalletModel: UserWalletModel?, accountModels: [AccountModel]?) {
+        guard !isLoggingOut else { return }
+
+        didLogMainScreenOpenedAnalytics = true
+
+        var params: [Analytics.ParameterKey: String] = [
+            .appTheme: AppSettings.shared.appTheme.analyticsParamValue.rawValue,
+        ]
+
+        let hasMobileWallet = userWalletRepository.models.contains { $0.config.productType == .mobileWallet }
+        params[.mobileWallet] = Analytics.ParameterValue.affirmativeOrNegative(for: hasMobileWallet).rawValue
+
+        if let userWalletModel {
+            let hasSeedPhrase = userWalletModel.config.productType == .mobileWallet || userWalletModel.hasImportedWallets
+            params[.walletType] = Analytics.ParameterValue.seedState(for: hasSeedPhrase).rawValue
+
+            let userWalletConfig = userWalletModel.config
+            let walletHasBackup = userWalletConfig.productType == .mobileWallet
+                ? !userWalletConfig.hasFeature(.mnemonicBackup)
+                : !userWalletConfig.hasFeature(.backup)
+            params[.walletHasBackup] = Analytics.ParameterValue.affirmativeOrNegative(for: walletHasBackup).rawValue
+        }
+
+        if let accountModels {
+            params[.accountsCount] = String(accountModels.cryptoAccountsCount)
+        }
+
+        Analytics.log(event: .mainScreenOpened, params: params)
+    }
+
     private func openPushNotificationsAuthorizationIfNeeded() {
         guard pushNotificationsAvailabilityProvider.isAvailable else {
             return
@@ -403,7 +452,7 @@ final class MainViewModel: ObservableObject {
             await viewModel.onPullToRefresh()
         }
 
-        updateMarkets(force: true)
+        updateYieldMarkets(force: true)
     }
 }
 
@@ -489,16 +538,9 @@ extension MainViewModel: WalletSwipeDiscoveryHelperDelegate {
 // MARK: - Yield module
 
 extension MainViewModel {
-    func updateMarkets(force: Bool = false) {
+    func updateYieldMarkets(force: Bool = false) {
         if force || yieldModuleNetworkManager.markets.isEmpty {
-            let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletRepository.models)
-            let chainIDs = Set(
-                walletModels.compactMap { walletModel -> String? in
-                    guard walletModel.tokenItem.isToken, walletModel.yieldModuleManager != nil else { return nil }
-                    return walletModel.tokenItem.blockchain.chainId.map { String($0) }
-                }
-            )
-            yieldModuleNetworkManager.updateMarkets(chainIDs: chainIDs.asArray)
+            yieldModuleNetworkManager.updateMarkets()
         }
     }
 }

@@ -64,7 +64,9 @@ extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFacto
 
         let walletModelsManager = CommonWalletModelsManager(
             walletManagersRepository: walletManagersRepository,
-            walletModelsFactory: wrappedWalletModelsFactory
+            walletModelsFactory: wrappedWalletModelsFactory,
+            derivationIndex: derivationIndex,
+            derivationStyle: derivationStyle
         )
 
         // A single instance per unique account, account-specific proxy for `derivationManager`
@@ -83,7 +85,7 @@ extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFacto
             userTokensManager: userTokensManager,
             walletModelsManager: walletModelsManager,
             walletModelsFactoryInput: wrappedWalletModelsFactory,
-            derivationManager: accountSpecificDerivationManager
+            derivationManager: accountSpecificDerivationManager,
         )
     }
 }

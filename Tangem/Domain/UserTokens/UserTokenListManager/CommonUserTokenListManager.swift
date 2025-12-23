@@ -17,7 +17,6 @@ final class CommonUserTokenListManager {
     typealias Completion = (Result<Void, Swift.Error>) -> Void
 
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
-    @Injected(\.wcService) private var wcService: any WCService
 
     weak var externalParametersProvider: UserTokenListExternalParametersProvider?
 
@@ -85,7 +84,7 @@ extension CommonUserTokenListManager: UserTokenListManager {
             externalParametersProvider: externalParametersProvider
         )
 
-        updateTokensOnServer(list: converter.convertStoredToRemote(userTokenList))
+        updateTokensOnServer(list: converter.convertStoredToRemote(userTokenList, userWalletId: userWalletId))
     }
 
     func update(_ type: UserTokenListUpdateType, shouldUpload: Bool) {
@@ -98,10 +97,6 @@ extension CommonUserTokenListManager: UserTokenListManager {
         case .remove(let entry):
             let storedUserToken = converter.convertToStoredUserToken(tokenItem: entry)
             tokenItemsRepository.remove([storedUserToken])
-            if entry.isBlockchain {
-                // [REDACTED_TODO_COMMENT]
-                wcService.handleHiddenBlockchainFromCurrentUserWallet(entry.blockchainNetwork.blockchain)
-            }
         case .update:
             break // No-op, not supported
         }
@@ -216,7 +211,7 @@ private extension CommonUserTokenListManager {
             externalParametersProvider: externalParametersProvider
         )
         let list = tokenItemsRepository.getList()
-        return converter.convertStoredToRemote(list)
+        return converter.convertStoredToRemote(list, userWalletId: userWalletId)
     }
 
     // MARK: - Token upgrading

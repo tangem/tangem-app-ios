@@ -46,6 +46,7 @@ enum IncomingActionConstants {
         case link
         case onboardVisa = "onboard-visa"
         case promo
+        case payApp = "pay-app"
     }
 
     enum DeeplinkType: String {

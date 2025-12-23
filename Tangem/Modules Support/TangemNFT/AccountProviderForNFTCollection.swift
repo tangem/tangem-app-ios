@@ -10,7 +10,7 @@ import TangemNFT
 import Combine
 
 final class AccountForNFTCollectionProvider {
-    private let accountModelsManager: AccountModelsManager
+    private let userWalletModel: UserWalletModel
     private var cryptoAccounts: CryptoAccounts?
 
     /// Cached mapping:  address -> crypto account
@@ -18,14 +18,14 @@ final class AccountForNFTCollectionProvider {
     private var addressToAccountMap: [String: any CryptoAccountModel]?
     private var bag = Set<AnyCancellable>()
 
-    init(accountModelsManager: AccountModelsManager) {
-        self.accountModelsManager = accountModelsManager
+    init(userWalletModel: UserWalletModel) {
+        self.userWalletModel = userWalletModel
 
         bind()
     }
 
     private func bind() {
-        accountModelsManager.accountModelsPublisher
+        userWalletModel.accountModelsManager.accountModelsPublisher
             .compactMap(\.first)
             .withWeakCaptureOf(self)
             .sink { viewModel, accountModel in
@@ -86,16 +86,23 @@ final class AccountForNFTCollectionProvider {
                 return nil
             }
 
-            let iconData = AccountIconViewBuilder.makeAccountIconViewData(accountModel: tuple.account)
+            let iconData = AccountModelUtils.UI.iconViewData(accountModel: tuple.account)
             let accountData = AccountForNFTData(
                 id: accountId,
                 iconData: iconData,
                 name: tuple.account.name
             )
 
+            let navigationContext = NFTNavigationInput(
+                userWalletModel: userWalletModel,
+                name: tuple.account.name,
+                walletModelsManager: tuple.account.walletModelsManager
+            )
+
             return AccountWithCollectionsData(
                 accountData: accountData,
-                collections: tuple.collections
+                collections: tuple.collections,
+                navigationContext: navigationContext
             )
         }
     }

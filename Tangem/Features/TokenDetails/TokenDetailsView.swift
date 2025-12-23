@@ -49,7 +49,7 @@ struct TokenDetailsView: View {
                     )
                 }
 
-                yieldStatueView
+                yieldStatusView
 
                 if let activeStakingViewData = viewModel.activeStakingViewData {
                     ActiveStakingView(data: activeStakingViewData)
@@ -135,7 +135,7 @@ struct TokenDetailsView: View {
     }
 
     @ViewBuilder
-    private var yieldStatueView: some View {
+    private var yieldStatusView: some View {
         switch viewModel.yieldModuleAvailability {
         case .checking, .notApplicable:
             EmptyView()
@@ -173,13 +173,14 @@ private extension TokenDetailsView {
     )
     let pendingExpressTxsManager = CommonPendingExpressTransactionsManager(
         userWalletId: userWalletModel.userWalletId.stringValue,
-        walletModel: walletModel,
+        tokenItem: walletModel.tokenItem,
+        walletModelUpdater: walletModel,
         expressAPIProvider: expressAPIProvider,
         expressRefundedTokenHandler: ExpressRefundedTokenHandlerMock()
     )
     let pendingOnrampTxsManager = CommonPendingOnrampTransactionsManager(
         userWalletId: userWalletModel.userWalletId.stringValue,
-        walletModel: walletModel,
+        tokenItem: walletModel.tokenItem,
         expressAPIProvider: expressAPIProvider
     )
     let pendingTxsManager = CompoundPendingTransactionsManager(

@@ -9,15 +9,11 @@
 import Foundation
 import BlockchainSdk
 
-public protocol ExpressAnalyticsLogger {
+public typealias ExpressAnalyticsLogger = TangemExpress.AnalyticsLogger
+
+public protocol AnalyticsLogger {
     /// Swap
     func bestProviderSelected(_ provider: ExpressAvailableProvider)
-
-    func logExpressError(_ error: Error, provider: ExpressProvider?)
-
-    func logSwapTransactionAnalyticsEvent(destination: String?)
-    func logApproveTransactionAnalyticsEvent(policy: ApprovePolicy, destination: String?)
-    func logApproveTransactionSentAnalyticsEvent(policy: ApprovePolicy, signerType: String, currentProviderHost: String)
 
     // Onramp
     func logAppError(_ error: Error, provider: ExpressProvider)

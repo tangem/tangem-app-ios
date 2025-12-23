@@ -64,7 +64,7 @@ struct ActionButtonsBuyView: View {
             }
         }
         .background(Colors.Background.tertiary.ignoresSafeArea(.all))
-        .scrollDismissesKeyboardCompat(.immediately)
+        .scrollDismissesKeyboard(.immediately)
         .accessibilityIdentifier(ActionButtonsAccessibilityIdentifiers.buyTokenSelectorTokensList)
     }
 }

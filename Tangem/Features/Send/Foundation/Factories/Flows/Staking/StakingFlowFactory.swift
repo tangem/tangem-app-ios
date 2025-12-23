@@ -21,7 +21,8 @@ class StakingFlowFactory: StakingFlowDependenciesFactory {
     let tokenHeaderProvider: SendGenericTokenHeaderProvider
     let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let walletModelDependenciesProvider: WalletModelDependenciesProvider
-    let walletModelBalancesProvider: WalletModelBalancesProvider
+    let availableBalanceProvider: any TokenBalanceProvider
+    let fiatAvailableBalanceProvider: any TokenBalanceProvider
     let transactionDispatcherFactory: TransactionDispatcherFactory
     let allowanceServiceFactory: AllowanceServiceFactory
 
@@ -56,7 +57,8 @@ class StakingFlowFactory: StakingFlowDependenciesFactory {
             userWalletInfo: userWalletInfo
         )
         walletModelDependenciesProvider = walletModel
-        walletModelBalancesProvider = walletModel
+        availableBalanceProvider = walletModel.availableBalanceProvider
+        fiatAvailableBalanceProvider = walletModel.fiatAvailableBalanceProvider
         transactionDispatcherFactory = TransactionDispatcherFactory(
             walletModel: walletModel,
             signer: userWalletInfo.signer
@@ -97,7 +99,7 @@ extension StakingFlowFactory {
 extension StakingFlowFactory: SendGenericFlowFactory {
     func make(router: any SendRoutable) -> SendViewModel {
         let amount = makeSendAmountStep()
-        let validators = makeStakingValidatorsStep()
+        let targets = makeStakingTargetsStep()
 
         let sendFeeCompactViewModel = SendNewFeeCompactViewModel(
             feeTokenItem: feeTokenItem,
@@ -111,13 +113,13 @@ extension StakingFlowFactory: SendGenericFlowFactory {
 
         let summary = makeSendSummaryStep(
             sendAmountCompactViewModel: amount.compact,
-            stakingValidatorsCompactViewModel: validators.compact,
+            stakingTargetsCompactViewModel: targets.compact,
             sendFeeCompactViewModel: sendFeeCompactViewModel,
         )
 
         let finish = makeSendFinishStep(
             sendAmountFinishViewModel: amount.finish,
-            stakingValidatorsCompactViewModel: validators.compact,
+            stakingTargetsCompactViewModel: targets.compact,
             sendFeeFinishViewModel: sendFeeFinishViewModel,
             router: router
         )
@@ -131,12 +133,12 @@ extension StakingFlowFactory: SendGenericFlowFactory {
         notificationManager.setupManager(with: stakingModel)
 
         // Analytics
-        analyticsLogger.setup(stakingValidatorsInput: stakingModel)
+        analyticsLogger.setup(stakingTargetsInput: stakingModel)
 
         let stepsManager = CommonStakingStepsManager(
             provider: stakingModel,
             amountStep: amount.step,
-            validatorsStep: validators.step,
+            targetsStep: targets.step,
             summaryStep: summary,
             finishStep: finish,
             summaryTitleProvider: makeStakingSummaryTitleProvider()
@@ -195,17 +197,17 @@ extension StakingFlowFactory: SendAmountStepBuildable {
 
 // MARK: - StakingValidatorsStepBuildable
 
-extension StakingFlowFactory: StakingValidatorsStepBuildable {
-    var stakingValidatorsIO: StakingValidatorsStepBuilder.IO {
-        StakingValidatorsStepBuilder.IO(input: stakingModel, output: stakingModel)
+extension StakingFlowFactory: StakingTargetsStepBuildable {
+    var stakingTargetsIO: StakingTargetsStepBuilder.IO {
+        StakingTargetsStepBuilder.IO(input: stakingModel, output: stakingModel)
     }
 
-    var stakingValidatorsTypes: StakingValidatorsStepBuilder.Types {
-        StakingValidatorsStepBuilder.Types(actionType: actionType.sendFlowActionType, currentValidator: stakingModel.validator)
+    var stakingTargetsTypes: StakingTargetsStepBuilder.Types {
+        StakingTargetsStepBuilder.Types(actionType: actionType.sendFlowActionType, currentTarget: stakingModel.target)
     }
 
-    var stakingValidatorsDependencies: StakingValidatorsStepBuilder.Dependencies {
-        StakingValidatorsStepBuilder.Dependencies(
+    var stakingTargetsDependencies: StakingTargetsStepBuilder.Dependencies {
+        StakingTargetsStepBuilder.Dependencies(
             manager: manager,
             sendFeeProvider: stakingModel,
             analyticsLogger: analyticsLogger

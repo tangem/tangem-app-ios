@@ -16,6 +16,8 @@ struct TangemPayCardDetailsView: View {
     @State private var animationProgress: CGFloat = .zero
     @State private var onHalfFlipCalled: Bool = false
 
+    @ScaledMetric(relativeTo: .body) var cardNumberHeight: CGFloat = 16
+
     var body: some View {
         Group {
             switch viewModel.state {
@@ -42,7 +44,7 @@ struct TangemPayCardDetailsView: View {
         }
         .clipShape(RoundedRectangle(cornerRadius: 14))
         .aspectRatio(Constants.plasticCardStandardWidthToHeightRatio, contentMode: .fit)
-        .background(.black, in: RoundedRectangle(cornerRadius: 14))
+        .background(Color.Tangem.Visa.cardDetailBackground, in: RoundedRectangle(cornerRadius: 14))
         .onAnimationTargetProgress(
             for: animationProgress,
             targetValue: 0.45,
@@ -109,6 +111,7 @@ struct TangemPayCardDetailsView: View {
                     showDetailsButton()
                 }
             }
+            .frame(height: cardNumberHeight)
         }
         .padding(16)
         .background(
@@ -227,6 +230,8 @@ struct TangemPayCardDetailsView: View {
                         Fonts.Regular.subheadline,
                         color: Colors.Text.constantWhite
                     )
+                    .screenCaptureProtection()
+                    .fixedSize()
 
                 Spacer()
 

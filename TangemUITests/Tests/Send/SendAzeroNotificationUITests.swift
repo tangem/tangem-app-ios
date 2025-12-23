@@ -60,7 +60,7 @@ final class SendAzeroNotificationUITests: BaseTestCase {
             scenarios: [alephZeroTokenScenario, quotesScenario]
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(coin)
             .tapSendButton()

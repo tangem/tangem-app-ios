@@ -49,8 +49,8 @@ struct StakeKitMapper {
     func mapToActionsArgs(request: ActionGenericRequest) -> StakeKitDTO.Actions.Args {
         StakeKitDTO.Actions.Args(
             amount: request.amount.description,
-            validatorAddress: request.validator,
-            validatorAddresses: request.validator.map { [$0] },
+            validatorAddress: request.target,
+            validatorAddresses: request.target.map { [$0] },
             inputToken: mapToTokenDTO(from: request.token),
             tronResource: request.tronResource
         )
@@ -148,7 +148,7 @@ struct StakeKitMapper {
                 type: mapToActionType(from: action.type),
                 currentStepIndex: action.currentStepIndex,
                 transactions: actionTransaction,
-                validatorAddress: action.validatorAddress ?? action.validatorAddresses?.first
+                targetAddress: action.validatorAddress ?? action.validatorAddresses?.first
             )
         }
     }
@@ -174,7 +174,7 @@ struct StakeKitMapper {
             type: mapToActionType(from: response.type),
             currentStepIndex: response.currentStepIndex,
             transactions: actionTransaction,
-            validatorAddress: response.validatorAddress ?? response.validatorAddresses?.first
+            targetAddress: response.validatorAddress ?? response.validatorAddresses?.first
         )
     }
 
@@ -217,8 +217,21 @@ struct StakeKitMapper {
         }
 
         return try balances.compactMap { balance in
-            guard let amount = Decimal(stringValue: balance.amount) else {
+            guard var amount = Decimal(stringValue: balance.amount) else {
                 return nil
+            }
+
+            let stakingTokenItem = try mapToStakingTokenItem(from: balance.token)
+
+            // for cardano rewards for some reason are included in balances
+            // (e.g. staked balance == amount user staked initially + rewards amount
+            // so we need to subtract the amount of rewards from balances to display them
+            // consistently with the other network's balances
+            if stakingTokenItem.rewardsIncludedInBalance, balance.type != .rewards {
+                amount -= balances
+                    .filter { $0.type == .rewards }
+                    .compactMap { Decimal(stringValue: $0.amount) }
+                    .sum()
             }
 
             // For Polygon token we can receive a staking balance with zero amount
@@ -227,11 +240,11 @@ struct StakeKitMapper {
             }
 
             return try StakingBalanceInfo(
-                item: mapToStakingTokenItem(from: balance.token),
+                item: stakingTokenItem,
                 amount: amount,
                 accountAddress: balance.accountAddress,
                 balanceType: mapToBalanceType(from: balance),
-                validatorAddress: balance.validatorAddress ?? balance.validatorAddresses?.first,
+                targetAddress: balance.validatorAddress ?? balance.validatorAddresses?.first,
                 actions: mapToStakingBalanceInfoPendingAction(from: balance),
                 actionConstraints: mapToBalanceConstraints(from: balance.pendingActionConstraints)
             )
@@ -309,8 +322,8 @@ struct StakeKitMapper {
 
         let item = try mapToStakingTokenItem(from: response.token)
         let rewardType = try mapToRewardType(rewardType: response.rewardType)
-        let validators = response.validators.map { mapToValidatorInfo(from: $0, rewardType: rewardType) }
-        let preferredValidators = validators.filter { $0.preferred }.sorted { lhs, rhs in
+        let targets = response.validators.map { mapToStakingTargetInfo(from: $0, rewardType: rewardType) }
+        let preferredTargets = targets.filter { $0.preferred }.sorted { lhs, rhs in
             if lhs.partner {
                 return true
             }
@@ -323,7 +336,7 @@ struct StakeKitMapper {
         }
 
         let rewardRateValues = RewardRateValues(
-            aprs: preferredValidators.compactMap(\.rewardRate),
+            aprs: preferredTargets.compactMap(\.rewardRate),
             rewardRate: response.rewardRate
         )
 
@@ -334,20 +347,21 @@ struct StakeKitMapper {
             rewardRateValues: rewardRateValues,
             enterMinimumRequirement: enterAction.args.amount.minimum ?? .zero,
             exitMinimumRequirement: exitAction.args.amount.minimum ?? .zero,
-            validators: validators,
-            preferredValidators: preferredValidators,
+            targets: targets,
+            preferredTargets: preferredTargets,
             item: item,
             unbondingPeriod: mapToPeriod(from: response.metadata.cooldownPeriod),
             warmupPeriod: mapToPeriod(from: response.metadata.warmupPeriod),
             rewardClaimingType: mapToRewardClaimingType(from: response.metadata.rewardClaiming),
-            rewardScheduleType: mapToRewardScheduleType(from: response.metadata.rewardSchedule, item: item)
+            rewardScheduleType: mapToRewardScheduleType(from: response.metadata.rewardSchedule, item: item),
+            maximumStakeAmount: nil
         )
     }
 
     // MARK: - Validators
 
-    func mapToValidatorInfo(from validator: StakeKitDTO.Validator, rewardType: RewardType) -> ValidatorInfo {
-        ValidatorInfo(
+    func mapToStakingTargetInfo(from validator: StakeKitDTO.Validator, rewardType: RewardType) -> StakingTargetInfo {
+        StakingTargetInfo(
             address: validator.address,
             name: validator.name ?? "No name",
             preferred: validator.preferred ?? false,
@@ -369,7 +383,7 @@ struct StakeKitMapper {
         return rewardRate
     }
 
-    private func mapToValidatorStatus(_ status: StakeKitDTO.Validator.Status) -> ValidatorInfoStatus {
+    private func mapToValidatorStatus(_ status: StakeKitDTO.Validator.Status) -> StakingTargetInfoStatus {
         switch status {
         case .active: .active
         case .jailed: .jailed
@@ -471,6 +485,15 @@ public enum StakeKitMapperError: Error, LocalizedError {
         case .notImplement: "Not implemented"
         case .noData(let string): string
         case .tronTransactionMappingFailed: "TronTransactionMappingFailed"
+        }
+    }
+}
+
+private extension StakingTokenItem {
+    var rewardsIncludedInBalance: Bool {
+        switch network {
+        case .cardano: true
+        default: false
         }
     }
 }
