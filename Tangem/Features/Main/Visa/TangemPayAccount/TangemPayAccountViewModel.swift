@@ -14,17 +14,12 @@ import TangemLocalization
 protocol TangemPayAccountRoutable: AnyObject {
     func openTangemPayIssuingYourCardPopup()
     func openTangemPayFailedToIssueCardPopup()
+    func openTangemPayKYCInProgressPopup(tangemPayAccount: TangemPayAccount)
     func openTangemPayMainView(tangemPayAccount: TangemPayAccount)
 }
 
 final class TangemPayAccountViewModel: ObservableObject {
     @Published private(set) var state: ViewState
-
-    @Published private var isKYCInProgress: Bool = false
-
-    var disableButtonTap: Bool {
-        isKYCInProgress ? true : !state.isFullyVisible
-    }
 
     private let tangemPayAccount: TangemPayAccount
     private weak var router: TangemPayAccountRoutable?
@@ -48,21 +43,9 @@ final class TangemPayAccountViewModel: ObservableObject {
     func userDidTapView() {
         switch state {
         case .kycInProgress:
-            guard !isKYCInProgress else { return }
-            isKYCInProgress = true
-            runTask(in: self) { viewModel in
-                do {
-                    try await viewModel.tangemPayAccount.launchKYC {
-                        runTask(in: viewModel) { viewModel in
-                            _ = await viewModel.tangemPayAccount.loadCustomerInfo().value
-                            viewModel.setKYCEnded()
-                        }
-                    }
-                } catch {
-                    viewModel.setKYCEnded()
-                    VisaLogger.error("Failed to launch KYC", error: error)
-                }
-            }
+            router?.openTangemPayKYCInProgressPopup(
+                tangemPayAccount: tangemPayAccount
+            )
 
         case .failedToIssueCard:
             router?.openTangemPayFailedToIssueCardPopup()
@@ -82,12 +65,6 @@ final class TangemPayAccountViewModel: ObservableObject {
 // MARK: - Private
 
 private extension TangemPayAccountViewModel {
-    func setKYCEnded() {
-        Task { @MainActor in
-            isKYCInProgress = false
-        }
-    }
-
     func bind() {
         Publishers.CombineLatest4(
             tangemPayAccount

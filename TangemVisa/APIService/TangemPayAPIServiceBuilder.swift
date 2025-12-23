@@ -23,6 +23,7 @@ public extension TangemPayAPIServiceBuilder {
         urlSessionConfiguration: URLSessionConfiguration = .visaConfiguration
     ) -> TangemPayAvailabilityService {
         let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
         let provider: TangemProvider<TangemPayAvailabilityAPITarget> = TangemPayProviderBuilder().buildProvider(
             configuration: urlSessionConfiguration,
             authorizationTokensHandler: nil
@@ -31,7 +32,6 @@ public extension TangemPayAPIServiceBuilder {
         return CommonTangemPayAvailabilityService(
             apiType: apiType,
             apiService: APIService(provider: provider, decoder: decoder),
-            tangemPayAPIService: TangemPayAPIService(provider: provider, decoder: decoder),
             bffStaticToken: bffStaticToken
         )
     }
