@@ -22,7 +22,8 @@ class SendFlowFactory: SendFlowBaseDependenciesFactory {
     let walletModelHistoryUpdater: any WalletModelHistoryUpdater
     let walletModelFeeProvider: any WalletModelFeeProvider
     let walletModelDependenciesProvider: WalletModelDependenciesProvider
-    let walletModelBalancesProvider: WalletModelBalancesProvider
+    let availableBalanceProvider: any TokenBalanceProvider
+    let fiatAvailableBalanceProvider: any TokenBalanceProvider
     let transactionDispatcherFactory: TransactionDispatcherFactory
     let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let expressDependenciesFactory: ExpressDependenciesFactory
@@ -60,7 +61,8 @@ class SendFlowFactory: SendFlowBaseDependenciesFactory {
         walletModelHistoryUpdater = walletModel
         walletModelFeeProvider = walletModel
         walletModelDependenciesProvider = walletModel
-        walletModelBalancesProvider = walletModel
+        availableBalanceProvider = walletModel.availableBalanceProvider
+        fiatAvailableBalanceProvider = walletModel.fiatAvailableBalanceProvider
         transactionDispatcherFactory = TransactionDispatcherFactory(
             walletModel: walletModel,
             signer: userWalletInfo.signer
@@ -70,18 +72,19 @@ class SendFlowFactory: SendFlowBaseDependenciesFactory {
             userWalletInfo: userWalletInfo
         )
 
+        let source = ExpressInteractorWalletModelWrapper(
+            userWalletInfo: userWalletInfo,
+            walletModel: walletModel,
+            expressOperationType: .swapAndSend
+        )
+
         let expressDependenciesInput = ExpressDependenciesInput(
             userWalletInfo: userWalletInfo,
-            source: ExpressInteractorWalletModelWrapper(userWalletInfo: userWalletInfo, walletModel: walletModel),
+            source: source,
             destination: .none
         )
 
-        expressDependenciesFactory = CommonExpressDependenciesFactory(
-            input: expressDependenciesInput,
-            // We support only `CEX` in `Send With Swap` flow
-            supportedProviderTypes: [.cex],
-            operationType: .swapAndSend
-        )
+        expressDependenciesFactory = CommonExpressDependenciesFactory(input: expressDependenciesInput)
     }
 }
 
@@ -166,7 +169,8 @@ extension SendFlowFactory: SendBaseBuildable {
         SendViewModelBuilder.Dependencies(
             alertBuilder: makeSendAlertBuilder(),
             dataBuilder: baseDataBuilderFactory.makeSendBaseDataBuilder(
-                input: sendModel,
+                baseDataInput: sendModel,
+                approveDataInput: swapManager,
                 sendReceiveTokensListBuilder: SendReceiveTokensListBuilder(
                     userWalletInfo: userWalletInfo,
                     sourceTokenInput: sendModel,
@@ -236,7 +240,8 @@ extension SendFlowFactory: SendDestinationStepBuildable {
                     transactionHistoryMapper: TransactionHistoryMapper(
                         currencySymbol: tokenItem.currencySymbol,
                         walletAddresses: walletAddresses,
-                        showSign: false
+                        showSign: false,
+                        isToken: tokenItem.isToken
                     )
                 ),
                 analyticsLogger: analyticsLogger

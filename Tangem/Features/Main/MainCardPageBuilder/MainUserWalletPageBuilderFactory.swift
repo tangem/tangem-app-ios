@@ -113,6 +113,13 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
 
             let sectionsProvider = makeMultiWalletMainContentViewSectionsProvider(userWalletModel: model)
 
+            let tokenItemPromoProvider = YieldTokenItemPromoProvider(
+                userWalletModel: model,
+                sectionsProvider: sectionsProvider,
+                yieldModuleMarketsRepository: CommonYieldModuleMarketsRepository(),
+                tokenItemPromoBubbleVisibilityInteractor: TokenItemPromoBubbleVisibilityInteractor()
+            )
+
             let viewModel = MultiWalletMainContentViewModel(
                 userWalletModel: model,
                 userWalletNotificationManager: userWalletNotificationManager,
@@ -122,7 +129,8 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 rateAppController: rateAppController,
                 nftFeatureLifecycleHandler: nftLifecycleHandler,
                 tokenRouter: tokenRouter,
-                coordinator: coordinator
+                coordinator: coordinator,
+                tokenItemPromoProvider: tokenItemPromoProvider
             )
             viewModel.delegate = multiWalletContentDelegate
             userWalletNotificationManager.setupManager(with: viewModel)
@@ -147,7 +155,8 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
 
         let expressFactory = ExpressPendingTransactionsFactory(
             userWalletInfo: model.userWalletInfo,
-            walletModel: dependencies.walletModel,
+            tokenItem: dependencies.walletModel.tokenItem,
+            walletModelUpdater: dependencies.walletModel,
         )
 
         let pendingTransactionsManager = expressFactory.makePendingExpressTransactionsManager()

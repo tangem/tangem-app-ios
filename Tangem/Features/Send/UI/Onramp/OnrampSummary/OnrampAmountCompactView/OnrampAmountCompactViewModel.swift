@@ -13,7 +13,7 @@ import TangemFoundation
 
 class OnrampAmountCompactViewModel: ObservableObject {
     @Published var fiatIconURL: URL?
-    @Published var decimalNumberTextFieldViewModel: DecimalNumberTextField.ViewModel
+    @Published var decimalNumberTextFieldViewModel: DecimalNumberTextFieldViewModel
     @Published var currentFieldOptions: SendDecimalNumberTextField.PrefixSuffixOptions?
     @Published var alternativeAmount: String?
     @Published var providerName: String?

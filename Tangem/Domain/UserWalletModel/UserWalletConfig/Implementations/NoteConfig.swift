@@ -162,6 +162,8 @@ extension NoteConfig: UserWalletConfig {
             return .available
         case .transactionPayloadLimit:
             return .available
+        case .tangemPay:
+            return .hidden
         }
     }
 

@@ -22,7 +22,8 @@ class CommonPendingExpressTransactionsManager {
     @Injected(\.pendingExpressTransactionAnalayticsTracker) private var pendingExpressTransactionAnalyticsTracker: PendingExpressTransactionAnalyticsTracker
 
     private let userWalletId: String
-    private let walletModel: any WalletModel
+    private let tokenItem: TokenItem
+    private let walletModelUpdater: WalletModelUpdater?
     private let expressAPIProvider: ExpressAPIProvider
     private let expressRefundedTokenHandler: ExpressRefundedTokenHandler
 
@@ -33,16 +34,17 @@ class CommonPendingExpressTransactionsManager {
     private var bag = Set<AnyCancellable>()
     private var updateTask: Task<Void, Never>?
     private var transactionsScheduledForUpdate: [PendingExpressTransaction] = []
-    private var tokenItem: TokenItem { walletModel.tokenItem }
 
     init(
         userWalletId: String,
-        walletModel: any WalletModel,
+        tokenItem: TokenItem,
+        walletModelUpdater: WalletModelUpdater?,
         expressAPIProvider: ExpressAPIProvider,
         expressRefundedTokenHandler: ExpressRefundedTokenHandler
     ) {
         self.userWalletId = userWalletId
-        self.walletModel = walletModel
+        self.tokenItem = tokenItem
+        self.walletModelUpdater = walletModelUpdater
         self.expressAPIProvider = expressAPIProvider
         self.expressRefundedTokenHandler = expressRefundedTokenHandler
 
@@ -143,7 +145,7 @@ class CommonPendingExpressTransactionsManager {
 
                     // If transaction is done we have to update balance
                     if loadedPendingTransaction.transactionRecord.transactionStatus.isDone {
-                        self?.walletModel.update(silent: true)
+                        self?.walletModelUpdater?.update(silent: true)
                     }
 
                     transactionsToSchedule.append(loadedPendingTransaction)
@@ -163,7 +165,7 @@ class CommonPendingExpressTransactionsManager {
 
                 try Task.checkCancellation()
 
-                try await Task.sleep(seconds: Constants.statusUpdateTimeout)
+                try await Task.sleep(for: .seconds(Constants.statusUpdateTimeout))
 
                 try Task.checkCancellation()
 
@@ -197,8 +199,8 @@ class CommonPendingExpressTransactionsManager {
                 return false
             }
 
-            let isSourceToken = walletModel.tokenItem == record.sourceTokenTxInfo.tokenItem
-            let isDestinationToken = walletModel.tokenItem == record.destinationTokenTxInfo.tokenItem
+            let isSourceToken = tokenItem == record.sourceTokenTxInfo.tokenItem
+            let isDestinationToken = tokenItem == record.destinationTokenTxInfo.tokenItem
 
             let isRelatedToken = isSourceToken || isDestinationToken
             return isRelatedToken

@@ -30,7 +30,6 @@ class ExpressInteractor {
     private let expressPairsRepository: ExpressPairsRepository
     private let expressPendingTransactionRepository: ExpressPendingTransactionRepository
     private let expressDestinationService: ExpressDestinationService
-    private let expressAnalyticsLogger: ExpressAnalyticsLogger
     private let expressAPIProvider: ExpressAPIProvider
 
     // MARK: - Options
@@ -47,7 +46,6 @@ class ExpressInteractor {
         expressPairsRepository: ExpressPairsRepository,
         expressPendingTransactionRepository: ExpressPendingTransactionRepository,
         expressDestinationService: ExpressDestinationService,
-        expressAnalyticsLogger: ExpressAnalyticsLogger,
         expressAPIProvider: ExpressAPIProvider
     ) {
         self.userWalletInfo = userWalletInfo
@@ -55,7 +53,6 @@ class ExpressInteractor {
         self.expressPairsRepository = expressPairsRepository
         self.expressPendingTransactionRepository = expressPendingTransactionRepository
         self.expressDestinationService = expressDestinationService
-        self.expressAnalyticsLogger = expressAnalyticsLogger
         self.expressAPIProvider = expressAPIProvider
 
         _swappingPair = .init(swappingPair)
@@ -92,6 +89,28 @@ extension ExpressInteractor {
 
     func getDestinationValue() -> Destination? {
         _swappingPair.value.destination
+    }
+
+    func providersPublisher() -> AnyPublisher<[ExpressAvailableProvider], Never> {
+        state
+            // Skip rates loading to avoid UI jumping
+            .filter { !$0.isRefreshRates }
+            .withWeakCaptureOf(self)
+            .asyncMap { interactor, _ in
+                await interactor.getAllProviders()
+            }
+            .eraseToAnyPublisher()
+    }
+
+    func selectedProviderPublisher() -> AnyPublisher<ExpressAvailableProvider?, Never> {
+        state
+            // Skip rates loading to avoid UI jumping
+            .filter { !$0.isRefreshRates }
+            .withWeakCaptureOf(self)
+            .asyncMap { interactor, _ in
+                await interactor.getSelectedProvider()
+            }
+            .eraseToAnyPublisher()
     }
 
     // Proxy methods
@@ -176,11 +195,11 @@ extension ExpressInteractor {
 // MARK: - ApproveViewModelInput
 
 extension ExpressInteractor: ApproveViewModelInput {
-    var approveFeeValue: LoadingValue<Fee> {
-        mapToApproveFeeLoadingValue(state: getState()) ?? .failedToLoad(error: CommonError.noData)
+    var approveFeeValue: LoadingResult<Fee, any Error> {
+        mapToApproveFeeLoadingValue(state: getState()) ?? .failure(CommonError.noData)
     }
 
-    var approveFeeValuePublisher: AnyPublisher<LoadingValue<BlockchainSdk.Fee>, Never> {
+    var approveFeeValuePublisher: AnyPublisher<LoadingResult<BlockchainSdk.Fee, any Error>, Never> {
         state
             .withWeakCaptureOf(self)
             .compactMap { interactor, state in
@@ -189,18 +208,18 @@ extension ExpressInteractor: ApproveViewModelInput {
             .eraseToAnyPublisher()
     }
 
-    private func mapToApproveFeeLoadingValue(state: ExpressInteractor.State) -> LoadingValue<BlockchainSdk.Fee>? {
+    private func mapToApproveFeeLoadingValue(state: ExpressInteractor.State) -> LoadingResult<BlockchainSdk.Fee, any Error>? {
         switch state {
         case .permissionRequired(let state, _):
             guard let fee = try? state.fees.selectedFee() else {
-                return .failedToLoad(error: ExpressInteractorError.feeNotFound)
+                return .failure(ExpressInteractorError.feeNotFound)
             }
 
-            return .loaded(fee)
+            return .success(fee)
         case .loading:
             return .loading
         case .restriction(.requiredRefresh(let error), _):
-            return .failedToLoad(error: error)
+            return .failure(error)
         default:
             return nil
         }
@@ -279,7 +298,7 @@ extension ExpressInteractor {
             throw ExpressInteractorError.transactionDataNotFound
         }
 
-        logApproveTransactionAnalyticsEvent(policy: state.policy)
+        await logApproveTransactionAnalyticsEvent(policy: state.policy)
 
         guard let allowanceService = try getSourceWallet().allowanceService else {
             throw ExpressInteractorError.allowanceServiceNotFound
@@ -429,7 +448,7 @@ private extension ExpressInteractor {
         )
         let correctState: State = .permissionRequired(permissionRequiredState, quote: quote)
 
-        return await validate(amount: amount, fee: fee, correctState: correctState)
+        return validate(amount: amount, fee: fee, correctState: correctState)
     }
 
     func map(ready: ExpressManagerState.Ready) async throws -> State {
@@ -442,7 +461,7 @@ private extension ExpressInteractor {
         let readyToSwapState = ReadyToSwapState(data: ready.data, fees: fees)
         let correctState: State = .readyToSwap(readyToSwapState, quote: quote)
 
-        return await validate(amount: amount, fee: fee, correctState: correctState)
+        return validate(amount: amount, fee: fee, correctState: correctState)
     }
 
     func map(previewCEX: ExpressManagerState.PreviewCEX) async throws -> State {
@@ -473,13 +492,13 @@ private extension ExpressInteractor {
         )
         let correctState: State = .previewCEX(previewCEXState, quote: quote)
 
-        return await validate(amount: amount, fee: fee, correctState: correctState)
+        return validate(amount: amount, fee: fee, correctState: correctState)
     }
 
-    func validate(amount: Amount, fee: Fee, correctState: State) async -> State {
+    func validate(amount: Amount, fee: Fee, correctState: State) -> State {
         do {
             let transactionValidator = try getSourceWallet().transactionValidator
-            try await transactionValidator.validate(amount: amount, fee: fee, destination: .generate)
+            try transactionValidator.validate(amount: amount, fee: fee)
         } catch ValidationError.totalExceedsBalance, ValidationError.amountExceedsBalance {
             return .restriction(.notEnoughBalanceForSwapping(requiredAmount: amount.value), quote: correctState.quote)
         } catch ValidationError.feeExceedsBalance {
@@ -706,24 +725,47 @@ private extension ExpressInteractor {
 
 private extension ExpressInteractor {
     func logSwapTransactionAnalyticsEvent() {
-        expressAnalyticsLogger.logSwapTransactionAnalyticsEvent(destination: getDestination()?.tokenItem.currencySymbol)
+        guard let source = getSource().value,
+              let destination = getDestination() else {
+            return
+        }
+
+        source.interactorAnalyticsLogger
+            .logSwapTransactionAnalyticsEvent(destination: destination.tokenItem)
     }
 
-    func logApproveTransactionAnalyticsEvent(policy: BSDKApprovePolicy) {
-        expressAnalyticsLogger.logApproveTransactionAnalyticsEvent(policy: policy, destination: getDestination()?.tokenItem.currencySymbol)
+    func logApproveTransactionAnalyticsEvent(policy: BSDKApprovePolicy) async {
+        guard let source = getSource().value,
+              let destination = getDestination(),
+              let provider = await getSelectedProvider() else {
+            return
+        }
+
+        source.interactorAnalyticsLogger
+            .logApproveTransactionAnalyticsEvent(
+                policy: policy,
+                provider: provider.provider,
+                destination: destination.tokenItem
+            )
     }
 
-    func logApproveTransactionSentAnalyticsEvent(policy: BSDKApprovePolicy, signerType: String, currentProviderHost: String) {
-        expressAnalyticsLogger.logApproveTransactionSentAnalyticsEvent(
-            policy: policy,
-            signerType: signerType,
-            currentProviderHost: currentProviderHost
-        )
+    func logApproveTransactionSentAnalyticsEvent(
+        policy: BSDKApprovePolicy,
+        signerType: String,
+        currentProviderHost: String
+    ) {
+        getSource().value?.interactorAnalyticsLogger
+            .logApproveTransactionSentAnalyticsEvent(
+                policy: policy,
+                signerType: signerType,
+                currentProviderHost: currentProviderHost
+            )
     }
 
     func logExpressError(_ error: Error) async {
         let selectedProvider = await getSelectedProvider()
-        expressAnalyticsLogger.logExpressError(error, provider: selectedProvider?.provider)
+        getSource().value?.interactorAnalyticsLogger
+            .logExpressError(error, provider: selectedProvider?.provider)
     }
 
     func logTransactionSentAnalyticsEvent(data: SentExpressTransactionData, signerType: String) {

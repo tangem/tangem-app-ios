@@ -11,9 +11,7 @@ import TangemVisa
 
 final class TangemPayCardDetailsRepository {
     let lastFourDigits: String
-
-    private var detailedData: TangemPayCardDetailsData?
-    private var customerService: CustomerInfoManagementService
+    private weak var customerService: CustomerInfoManagementService?
 
     init(
         lastFourDigits: String,
@@ -24,6 +22,10 @@ final class TangemPayCardDetailsRepository {
     }
 
     func revealRequest() async throws -> TangemPayCardDetailsData {
+        guard let customerService else {
+            throw Error.customerServiceNotFound
+        }
+
         let publicKey = try await RainCryptoUtilities
             .getRainRSAPublicKey(
                 for: FeatureStorage.instance.visaAPIType
@@ -57,9 +59,9 @@ final class TangemPayCardDetailsRepository {
         let details = TangemPayCardDetailsData(
             number: formattedPan,
             expirationDate: formattedExpiryDate,
-            cvc: decryptedCVV
+            cvc: decryptedCVV,
+            isPinSet: cardDetails.isPinSet
         )
-        detailedData = details
         return details
     }
 
@@ -82,5 +84,11 @@ final class TangemPayCardDetailsRepository {
         let formattedMonth = String(format: "%02d", monthInt)
         let formattedYear = String(year).suffix(2)
         return "\(formattedMonth)/\(formattedYear)"
+    }
+}
+
+private extension TangemPayCardDetailsRepository {
+    enum Error: LocalizedError {
+        case customerServiceNotFound
     }
 }

@@ -25,11 +25,11 @@ final class WCCustomEvmFeeService {
     private let notificationManager: WCNotificationManager?
     private let onValidationUpdate: ([NotificationViewInput]) -> Void
 
-    private lazy var customFeeTextField = DecimalNumberTextField.ViewModel(maximumFractionDigits: feeTokenItem.decimalCount)
-    private lazy var gasLimitTextField = DecimalNumberTextField.ViewModel(maximumFractionDigits: 0)
-    private lazy var gasPriceTextField = DecimalNumberTextField.ViewModel(maximumFractionDigits: Constants.gweiDigits)
-    private lazy var maxFeePerGasTextField = DecimalNumberTextField.ViewModel(maximumFractionDigits: Constants.gweiDigits)
-    private lazy var priorityFeeTextField = DecimalNumberTextField.ViewModel(maximumFractionDigits: Constants.gweiDigits)
+    private lazy var customFeeTextField = DecimalNumberTextFieldViewModel(maximumFractionDigits: feeTokenItem.decimalCount)
+    private lazy var gasLimitTextField = DecimalNumberTextFieldViewModel(maximumFractionDigits: 0)
+    private lazy var gasPriceTextField = DecimalNumberTextFieldViewModel(maximumFractionDigits: Constants.gweiDigits)
+    private lazy var maxFeePerGasTextField = DecimalNumberTextFieldViewModel(maximumFractionDigits: Constants.gweiDigits)
+    private lazy var priorityFeeTextField = DecimalNumberTextFieldViewModel(maximumFractionDigits: Constants.gweiDigits)
 
     private var gasLimit: BigUInt? {
         gasLimitTextField.value

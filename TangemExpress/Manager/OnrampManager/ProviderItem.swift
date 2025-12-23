@@ -56,35 +56,9 @@ public class ProviderItem: Identifiable {
 
     @discardableResult
     public func sort() -> [OnrampProvider] {
-        providers.sort(by: >)
+        providers.sort()
         // Return sorted providers
         return providers
-    }
-
-    /// Providers will be sorted and their `attractiveType` will be updated
-    public func updateAttractiveTypes() {
-        // Only if we have more than one providers with quote
-        guard providers.filter(\.isSuccessfullyLoaded).count > 1 else {
-            providers.forEach { $0.update(attractiveType: .none) }
-            return
-        }
-
-        var bestQuote: Decimal?
-
-        sort().indexed().forEach { index, provider in
-            switch (index, provider.state) {
-            case (.zero, .loaded(let quote)):
-                provider.update(attractiveType: .best)
-                bestQuote = quote.expectedAmount
-
-            case (_, .loaded(let quote)) where bestQuote != nil:
-                let percent = quote.expectedAmount / bestQuote! - 1
-                provider.update(attractiveType: .loss(percent: percent))
-
-            case (_, _):
-                provider.update(attractiveType: .none)
-            }
-        }
     }
 }
 

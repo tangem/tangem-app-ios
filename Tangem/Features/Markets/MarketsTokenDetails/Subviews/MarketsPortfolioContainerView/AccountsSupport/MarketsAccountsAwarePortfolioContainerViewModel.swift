@@ -70,7 +70,7 @@ final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
     private func supportedState(networks: [NetworkModel]) -> SupportedStateOption {
         let multiCurrencyUserWalletModels = walletDataProvider.userWalletModels.filter { $0.config.hasFeature(.multiCurrency) }
 
-        guard !networks.isEmpty else {
+        guard networks.isNotEmpty else {
             return .unsupported
         }
 
@@ -95,91 +95,11 @@ final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
     }
 
     private func tokenAddedToAllNetworksInAllAccounts(availableNetworks: [NetworkModel]) -> Bool {
-        guard availableNetworks.isNotEmpty else {
-            return true
-        }
-
-        let multiCurrencyWallets = walletDataProvider.userWalletModels.filter { $0.config.hasFeature(.multiCurrency) }
-
-        for wallet in multiCurrencyWallets {
-            let accounts = wallet.accountModelsManager.cryptoAccountModels
-
-            for account in accounts {
-                let networksToCheck = networksToCheckForAccount(
-                    account: account,
-                    availableNetworks: availableNetworks,
-                    supportedBlockchains: wallet.config.supportedBlockchains
-                )
-
-                guard networksToCheck.isNotEmpty else {
-                    continue
-                }
-
-                let addedNetworkIds = collectAddedNetworkIds(from: account)
-                let missingNetworkIds = networksToCheck.subtracting(addedNetworkIds)
-
-                if missingNetworkIds.isNotEmpty {
-                    return false
-                }
-            }
-        }
-
-        return true
-    }
-
-    /// Determines which networks should be checked for a given account.
-    /// For main accounts, all networks are checked.
-    /// For non-main accounts, only networks whose blockchains support accounts are checked
-    private func networksToCheckForAccount(
-        account: any CryptoAccountModel,
-        availableNetworks: [NetworkModel],
-        supportedBlockchains: Set<Blockchain>
-    ) -> Set<String> {
-        // Main account can have tokens on all networks
-        guard !account.isMainAccount else {
-            return Set(availableNetworks.map(\.networkId))
-        }
-
-        // Non-main accounts can only have tokens on networks that support accounts
-        return availableNetworks.compactMap { network in
-            AccountDerivationPathHelper.supportsAccounts(networkId: network.networkId, in: supportedBlockchains)
-                ? network.networkId
-                : nil
-        }
-        .toSet()
-    }
-
-    private func collectAddedNetworkIds(from account: any CryptoAccountModel) -> Set<String> {
-        let l2BlockchainIds = Set(SupportedBlockchains.l2Blockchains.map(\.coinId))
-        var addedNetworkIds = Set<String>()
-
-        for token in account.userTokensManager.userTokens {
-            if let networkId = matchingNetworkId(for: token, l2BlockchainIds: l2BlockchainIds) {
-                addedNetworkIds.insert(networkId)
-            }
-        }
-
-        return addedNetworkIds
-    }
-
-    private func matchingNetworkId(for token: TokenItem, l2BlockchainIds: Set<String>) -> String? {
-        guard let tokenId = token.id else {
-            return nil
-        }
-
-        let networkId = token.networkId
-
-        // Check L2 networks for Ethereum
-        if coinId == Blockchain.ethereum(testnet: false).coinId, l2BlockchainIds.contains(tokenId) {
-            return networkId
-        }
-
-        // Check if token matches the current coinId
-        guard tokenId == coinId else {
-            return nil
-        }
-
-        return networkId
+        MarketsTokenNetworkChecker.isTokenAddedOnNetworksInAllAccounts(
+            coinId: coinId,
+            availableNetworks: availableNetworks,
+            userWalletModels: walletDataProvider.userWalletModels
+        )
     }
 
     private func updateExpandedAction() {
@@ -286,7 +206,7 @@ final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
                     let accountData = TypeView.AccountData(
                         id: account.id.toAnyHashable(),
                         name: account.name,
-                        iconInfo: AccountIconViewBuilder.makeAccountIconViewData(accountModel: account)
+                        iconInfo: AccountModelUtils.UI.iconViewData(accountModel: account)
                     )
 
                     accountsWithTokenItems.append(
@@ -475,24 +395,28 @@ extension MarketsAccountsAwarePortfolioContainerViewModel: MarketsPortfolioConte
             return
         }
 
-        let expressInput = ExpressDependenciesInput(
-            userWalletInfo: userWalletModel.userWalletInfo,
-            source: ExpressInteractorWalletModelWrapper(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel),
-            destination: .loadingAndSet
-        )
-
         let sendInput = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
         let analyticsParams = makeAnalyticsParams(for: walletModel)
 
         switch action {
         case .buy:
             Analytics.log(event: .marketsChartButtonBuy, params: analyticsParams)
-            coordinator.openOnramp(input: sendInput)
+            let parameters = PredefinedOnrampParametersBuilder.makeMoonpayPromotionParametersIfActive()
+            coordinator.openOnramp(input: sendInput, parameters: parameters)
         case .receive:
             Analytics.log(event: .marketsChartButtonReceive, params: analyticsParams)
             coordinator.openReceive(walletModel: walletModel)
         case .exchange:
             Analytics.log(event: .marketsChartButtonSwap, params: analyticsParams)
+            let expressInput = ExpressDependenciesInput(
+                userWalletInfo: userWalletModel.userWalletInfo,
+                source: ExpressInteractorWalletModelWrapper(
+                    userWalletInfo: userWalletModel.userWalletInfo,
+                    walletModel: walletModel,
+                    expressOperationType: .swap
+                ),
+                destination: .loadingAndSet
+            )
             coordinator.openExchange(input: expressInput)
         case .stake:
             Analytics.log(event: .marketsChartButtonStake, params: analyticsParams)

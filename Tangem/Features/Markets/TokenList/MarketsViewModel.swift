@@ -208,7 +208,7 @@ private extension MarketsViewModel {
                     )
 
                     viewModel.fetch(with: value, by: searchFilter)
-                case .clearInput:
+                case .clearInput, .cancelInput:
                     if viewModel.currentSearchValue.isEmpty {
                         return
                     }
@@ -528,16 +528,6 @@ extension MarketsViewModel: MarketsListStateUpdater {
 private extension MarketsViewModel {
     enum Constants {
         static let filterRequiredReloadInterval: Set<MarketsListOrderType> = [.buyers, .gainers, .losers]
-    }
-}
-
-private extension MarketsListDataProvider.Event {
-    var isAppendedItems: Bool {
-        if case .appendedItems = self {
-            return true
-        }
-
-        return false
     }
 }
 

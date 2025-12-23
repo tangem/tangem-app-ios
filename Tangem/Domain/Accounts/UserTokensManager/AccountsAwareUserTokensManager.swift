@@ -65,12 +65,22 @@ final class AccountsAwareUserTokensManager {
             return makeTokenItem(from: tokenItem, with: derivationPath)
         }
 
+        // Non-main account with existing derivation: correct only the account node
+        if let existingDerivationPath = derivationPath {
+            let derivationIndexAwarePath = derivationPathHelper.makeDerivationPath(
+                from: existingDerivationPath,
+                forAccountWithIndex: derivationInfo.derivationIndex
+            )
+
+            return makeTokenItem(from: tokenItem, with: derivationIndexAwarePath)
+        }
+
         guard let derivationStyle = derivationInfo.derivationStyle else {
             return tokenItem
         }
 
+        // No derivation: compute from blockchain's default
         let originalDerivationPath = blockchain.derivationPath(for: derivationStyle)
-
         let accountAwareDerivationPath = originalDerivationPath.map { path in
             return derivationPathHelper.makeDerivationPath(from: path, forAccountWithIndex: derivationInfo.derivationIndex)
         }
@@ -202,15 +212,9 @@ final class AccountsAwareUserTokensManager {
             }
 
             guard let reorderedWalletModelId = reorderedWalletModelIds.popLast() else {
-                let walletModelsCount = walletModelIds.count
-                let allTokensCount = tokens.count
-                let unsupportedTokensCount = tokens.count { $0.walletModelId == nil }
-                assertionFailure(
-                    """
-                    Inconsistency detected: mismatched number of wallet models (\(walletModelsCount)) and the \
-                    number of tokens (\(allTokensCount)) minus the number of unsupported tokens (\(unsupportedTokensCount))
-                    """
-                )
+                // There may be tokens without derivation and thus without a wallet model,
+                // so we just append them, preserving the order
+                reorderedTokens.append(token)
                 continue
             }
 
@@ -306,16 +310,21 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
     func add(_ tokenItem: TokenItem) async throws -> String {
         let tokenItem = withBlockchainNetwork(tokenItem)
 
-        try await withCheckedThrowingContinuation { continuation in
+        let addedToken = try await withCheckedThrowingContinuation { continuation in
             add(tokenItem) { result in
-                continuation.resume(with: result)
+                switch result {
+                case .success(let addedTokenItem):
+                    continuation.resume(returning: addedTokenItem)
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
             }
         }
 
         // wait for walletModelsManager to be updated
-        try await Task.sleep(seconds: 0.1)
+        try await Task.sleep(for: .seconds(0.1))
 
-        let walletModelId = WalletModelId(tokenItem: tokenItem)
+        let walletModelId = WalletModelId(tokenItem: addedToken)
 
         guard let walletModel = walletModelsManager?.walletModels.first(where: { $0.id == walletModelId }) else {
             throw Error.addressNotFound
@@ -324,7 +333,7 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
         return walletModel.defaultAddressString
     }
 
-    func add(_ tokenItems: [TokenItem], completion: @escaping (Result<Void, Swift.Error>) -> Void) {
+    func add(_ tokenItems: [TokenItem], completion: @escaping (Result<[TokenItem], Swift.Error>) -> Void) {
         let tokenItems = tokenItems.map { withBlockchainNetwork($0) }
 
         do {
@@ -336,7 +345,14 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
             return
         }
 
-        deriveIfNeeded(completion: completion)
+        deriveIfNeeded { result in
+            switch result {
+            case .success:
+                completion(.success(tokenItems))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
     }
 
     func canRemove(_ tokenItem: TokenItem, pendingToAddItems: [TokenItem], pendingToRemoveItems: [TokenItem]) -> Bool {
@@ -375,7 +391,11 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
         }
     }
 
-    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], completion: @escaping (Result<Void, Swift.Error>) -> Void) {
+    func update(
+        itemsToRemove: [TokenItem],
+        itemsToAdd: [TokenItem],
+        completion: @escaping (Result<UserTokensManagerResult.UpdatedTokenItems, Swift.Error>) -> Void
+    ) {
         let itemsToRemove = itemsToRemove.map { withBlockchainNetwork($0) }
         let itemsToAdd = itemsToAdd.map { withBlockchainNetwork($0) }
 
@@ -386,7 +406,15 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
             return
         }
 
-        deriveIfNeeded(completion: completion)
+        deriveIfNeeded { result in
+            switch result {
+            case .success:
+                let updatedItems = UserTokensManagerResult.UpdatedTokenItems(removed: itemsToRemove, added: itemsToAdd)
+                completion(.success(updatedItems))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
     }
 
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) throws {

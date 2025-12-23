@@ -6,6 +6,7 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
+import Combine
 import SwiftUI
 import TangemLocalization
 import TangemAssets
@@ -25,6 +26,10 @@ struct MultiWalletMainContentView: View {
 
             ForEach(viewModel.bannerNotificationInputs) { input in
                 NotificationView(input: input)
+            }
+
+            if let viewModel = viewModel.tangemPayBannerViewModel {
+                GetTangemPayBannerView(viewModel: viewModel)
             }
 
             ForEach(viewModel.notificationInputs) { input in
@@ -123,37 +128,73 @@ struct MultiWalletMainContentView: View {
             .padding(.top, 96)
     }
 
+    private func tokenItemView(
+        item: TokenItemViewModel,
+        cornerRadius: CGFloat,
+        roundedCornersVerticalEdge: TokenItemView.RoundedCornersVerticalEdge?,
+        isFirstItem: Bool = false,
+        promoBubbleViewModel: TokenItemPromoBubbleViewModel?
+    ) -> some View {
+        VStack(spacing: .zero) {
+            if let promoBubbleViewModel {
+                TokenItemPromoBubbleView(viewModel: promoBubbleViewModel, position: isFirstItem ? .top : .normal)
+            }
+
+            TokenItemView(
+                viewModel: item,
+                cornerRadius: cornerRadius,
+                roundedCornersVerticalEdge: roundedCornersVerticalEdge
+            )
+            .overlay(alignment: .top) {
+                trianglePointer.opacity(promoBubbleViewModel == nil ? 0 : 1)
+            }
+        }
+    }
+
+    private var trianglePointer: some View {
+        Triangle()
+            .rotation(Angle(degrees: 180))
+            .fill(Colors.Control.unchecked)
+            .frame(width: 12, height: 8)
+    }
+
     private func makeTokensList(sections: [MultiWalletMainContentPlainSection]) -> some View {
         LazyVStack(spacing: 0) {
             ForEach(indexed: sections.indexed()) { sectionIndex, section in
                 let cornerRadius = Constants.cornerRadius
                 let hasTitle = section.model.title != nil
 
-                if #available(iOS 16.0, *) {
-                    let isFirstVisibleSection = hasTitle && sectionIndex == 0
-                    let topEdgeCornerRadius = isFirstVisibleSection ? cornerRadius : nil
+                let isFirstVisibleSection = hasTitle && sectionIndex == 0
+                let topEdgeCornerRadius = isFirstVisibleSection ? cornerRadius : nil
 
-                    TokenSectionView(title: section.model.title, cornerRadius: topEdgeCornerRadius)
-                } else {
-                    TokenSectionView(title: section.model.title)
-                }
+                TokenSectionView(title: section.model.title, topEdgeCornerRadius: topEdgeCornerRadius)
 
                 ForEach(indexed: section.items.indexed()) { itemIndex, item in
-                    if #available(iOS 16.0, *) {
-                        let isFirstItem = !hasTitle && sectionIndex == 0 && itemIndex == 0
-                        let isLastItem = sectionIndex == sections.count - 1 && itemIndex == section.items.count - 1
+                    let isFirstItem = !hasTitle && sectionIndex == 0 && itemIndex == 0
+                    let isLastItem = sectionIndex == sections.count - 1 && itemIndex == section.items.count - 1
 
+                    let hasPromoBubble = viewModel.tokenItemPromoBubbleViewModel?.id == item.id
+                    let promoBubbleViewModel = hasPromoBubble ? viewModel.tokenItemPromoBubbleViewModel : nil
+
+                    let roundedEdges: TokenItemView.RoundedCornersVerticalEdge? = {
                         if isFirstItem {
-                            let isSingleItem = section.items.count == 1
-                            TokenItemView(viewModel: item, cornerRadius: cornerRadius, roundedCornersVerticalEdge: isSingleItem ? .all : .topEdge)
-                        } else if isLastItem {
-                            TokenItemView(viewModel: item, cornerRadius: cornerRadius, roundedCornersVerticalEdge: .bottomEdge)
-                        } else {
-                            TokenItemView(viewModel: item, cornerRadius: cornerRadius, roundedCornersVerticalEdge: nil)
+                            return hasPromoBubble ? nil : (section.items.count == 1 ? .all : .topEdge)
                         }
-                    } else {
-                        TokenItemView(viewModel: item, cornerRadius: cornerRadius)
-                    }
+
+                        if isLastItem {
+                            return .bottomEdge
+                        }
+
+                        return nil
+                    }()
+
+                    tokenItemView(
+                        item: item,
+                        cornerRadius: cornerRadius,
+                        roundedCornersVerticalEdge: roundedEdges,
+                        isFirstItem: isFirstItem,
+                        promoBubbleViewModel: promoBubbleViewModel
+                    )
                 }
             }
         }
@@ -175,6 +216,13 @@ struct MultiWalletMainContentView: View {
             userWalletModel: userWalletModel
         )
 
+        let tokenItemPromoProvider = YieldTokenItemPromoProvider(
+            userWalletModel: userWalletModel,
+            sectionsProvider: sectionsProvider,
+            yieldModuleMarketsRepository: CommonYieldModuleMarketsRepository(),
+            tokenItemPromoBubbleVisibilityInteractor: TokenItemPromoBubbleVisibilityInteractor()
+        )
+
         return MultiWalletMainContentViewModel(
             userWalletModel: userWalletModel,
             userWalletNotificationManager: FakeUserWalletNotificationManager(),
@@ -184,7 +232,8 @@ struct MultiWalletMainContentView: View {
             rateAppController: RateAppControllerStub(),
             nftFeatureLifecycleHandler: NFTFeatureLifecycleHandler(),
             tokenRouter: SingleTokenRoutableMock(),
-            coordinator: mainCoordinator
+            coordinator: mainCoordinator,
+            tokenItemPromoProvider: tokenItemPromoProvider
         )
     }()
 

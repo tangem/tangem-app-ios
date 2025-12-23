@@ -25,7 +25,7 @@ struct TangemPayFailedToIssueCardSheetViewModel: FloatingSheetContentViewModel {
 
     var primaryButtonSettings: MainButton.Settings {
         MainButton.Settings(
-            title: Localization.commonContactTangemSupport,
+            title: Localization.tangempayGoToSupport,
             style: .primary,
             size: .default,
             action: goToSupport
@@ -33,24 +33,17 @@ struct TangemPayFailedToIssueCardSheetViewModel: FloatingSheetContentViewModel {
     }
 
     func goToSupport() {
-        guard let emailConfig = userWalletModel.emailConfig else {
-            return
-        }
-
-        let dataCollector = DetailsFeedbackDataCollector(
-            data: [
-                DetailsFeedbackData(
-                    userWalletEmailData: userWalletModel.emailData,
-                    walletModels: AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
-                ),
-            ]
+        let dataCollector = TangemPaySupportDataCollector(
+            source: .failedToIssueCardSheet,
+            userWalletId: userWalletModel.userWalletId.stringValue
+        )
+        let logsComposer = LogsComposer(infoProvider: dataCollector, includeZipLogs: false)
+        let mailViewModel = MailViewModel(
+            logsComposer: logsComposer,
+            recipient: EmailConfig.visaDefault(subject: .default).recipient,
+            emailType: .visaFeedback(subject: .default)
         )
 
-        coordinator?.closeFailedToIssueCardSheet()
-        coordinator?.openMail(
-            with: dataCollector,
-            recipient: emailConfig.recipient,
-            emailType: .appFeedback(subject: emailConfig.subject)
-        )
+        coordinator?.openMailFromFailedToIssueCardSheet(mailViewModel: mailViewModel)
     }
 }

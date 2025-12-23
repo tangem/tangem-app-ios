@@ -11,14 +11,18 @@ import Foundation
 // MARK: - Convenience extensions
 
 extension StoredCryptoAccount {
-    init(config: CryptoAccountPersistentConfig, tokens: [StoredCryptoAccount.Token] = []) {
+    init(
+        config: CryptoAccountPersistentConfig,
+        tokenListAppearance: CryptoAccountPersistentConfig.TokenListAppearance,
+        tokens: [StoredCryptoAccount.Token] = []
+    ) {
         self.init(
             derivationIndex: config.derivationIndex,
             name: config.name,
             icon: .init(iconName: config.iconName, iconColor: config.iconColor),
             tokens: tokens,
-            grouping: .none, // [REDACTED_TODO_COMMENT]
-            sorting: .manual // [REDACTED_TODO_COMMENT]
+            grouping: tokenListAppearance.grouping,
+            sorting: tokenListAppearance.sorting
         )
     }
 
@@ -28,6 +32,17 @@ extension StoredCryptoAccount {
             name: name,
             icon: icon,
             tokens: newTokens,
+            grouping: grouping,
+            sorting: sorting
+        )
+    }
+
+    func with(sorting: StoredCryptoAccount.Sorting, grouping: StoredCryptoAccount.Grouping) -> Self {
+        return StoredCryptoAccount(
+            derivationIndex: derivationIndex,
+            name: name,
+            icon: icon,
+            tokens: tokens,
             grouping: grouping,
             sorting: sorting
         )

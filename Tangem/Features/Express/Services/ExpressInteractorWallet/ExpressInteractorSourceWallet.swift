@@ -22,13 +22,14 @@ protocol ExpressInteractorSourceWallet: ExpressInteractorDestinationWallet, Expr
     var feeTokenItem: TokenItem { get }
 
     var defaultAddressString: String { get }
-    var sendingRestrictions: TransactionSendAvailabilityProvider.SendingRestrictions? { get }
+    var sendingRestrictions: SendingRestrictions? { get }
     var amountToCreateAccount: Decimal { get }
 
     var allowanceService: (any AllowanceService)? { get }
     var availableBalanceProvider: TokenBalanceProvider { get }
     var transactionValidator: any ExpressTransactionValidator { get }
     var withdrawalNotificationProvider: (any WithdrawalNotificationProvider)? { get }
+    var interactorAnalyticsLogger: any ExpressInteractorAnalyticsLogger { get }
 
     func dexTransactionProcessor() throws -> ExpressDEXTransactionProcessor
     func cexTransactionProcessor() throws -> ExpressCEXTransactionProcessor
@@ -41,4 +42,5 @@ extension ExpressSourceWallet where Self: ExpressInteractorSourceWallet {
     var currency: ExpressWalletCurrency { tokenItem.expressCurrency }
     var feeCurrency: ExpressWalletCurrency { feeTokenItem.expressCurrency }
     var allowanceProvider: (any ExpressAllowanceProvider)? { allowanceService }
+    var analyticsLogger: ExpressAnalyticsLogger { interactorAnalyticsLogger }
 }

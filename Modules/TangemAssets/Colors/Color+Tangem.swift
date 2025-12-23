@@ -24,6 +24,7 @@ public extension Color {
         public enum Fill {}
         public enum Skeleton {}
         public enum Markers {}
+        public enum Visa {}
     }
 }
 
@@ -192,6 +193,13 @@ public extension Color.Tangem.Markers {
     static let backgroundTintedBlue: Color = Primitives.Blue.azure.opacity(0.1)
     static let backgroundTintedRed: Color = Primitives.Red.amaranth.opacity(0.1)
     static let backgroundTintedGray: Color = .dynamic(light: Primitives.darkAlpha.opacity(0.1), dark: Primitives.lightAlpha.opacity(0.1))
+}
+
+// MARK: - Visa
+
+public extension Color.Tangem.Visa {
+    static let bannerGradientStart: Color = Primitives.Visa.bannerGradientStart
+    static let cardDetailBackground: Color = Primitives.Visa.background
 }
 
 private extension Color {

@@ -7,67 +7,31 @@
 //
 
 import SwiftUI
-import TangemLocalization
 import TangemAssets
 import TangemUIUtils
 
 public struct GroupedScrollView<Content: View>: View {
     private let contentType: ContentType
-    private let showsIndicators: Bool?
     private let content: () -> Content
 
     private var interContentPadding: CGFloat = 0
-    private var horizontalPadding: CGFloat = 16
-
-    @available(iOS, deprecated: 100000.0, message: "Use the init(contentType:_) instead")
-    public init(
-        alignment: HorizontalAlignment = .center,
-        spacing: CGFloat = 0,
-        @ViewBuilder content: @escaping () -> Content
-    ) {
-        contentType = .lazy(alignment: alignment, spacing: spacing)
-        showsIndicators = nil
-        self.content = content
-    }
-
-    @available(iOS, deprecated: 16.0, message: "Use the scrollIndicators(:_) modifier instead")
-    public init(
-        alignment: HorizontalAlignment = .center,
-        spacing: CGFloat = 0,
-        showsIndicators: Bool,
-        @ViewBuilder content: @escaping () -> Content
-    ) {
-        contentType = .lazy(alignment: alignment, spacing: spacing)
-        self.showsIndicators = showsIndicators
-        self.content = content
-    }
-
-    @available(iOS, deprecated: 16.0, message: "Use the scrollIndicators(:_) modifier instead")
-    public init(
-        contentType: ContentType,
-        showsIndicators: Bool,
-        @ViewBuilder content: @escaping () -> Content
-    ) {
-        self.contentType = contentType
-        self.showsIndicators = showsIndicators
-        self.content = content
-    }
+    private var scrollIndicatorsHidden: Bool = true
 
     public init(
-        contentType: ContentType,
+        contentType: ContentType = .lazy(alignment: .center, spacing: .zero),
         @ViewBuilder content: @escaping () -> Content
     ) {
         self.contentType = contentType
         self.content = content
-        showsIndicators = nil
     }
 
     public var body: some View {
-        makeScrollView {
+        ScrollView {
             contentView
-                .padding(.horizontal, horizontalPadding)
+                .padding(.horizontal, 16)
                 .padding(.vertical, interContentPadding)
         }
+        .scrollIndicators(scrollIndicatorsHidden ? .hidden : .automatic)
     }
 
     @ViewBuilder
@@ -77,15 +41,6 @@ public struct GroupedScrollView<Content: View>: View {
             VStack(alignment: alignment, spacing: spacing, content: content)
         case .lazy(let alignment, let spacing):
             LazyVStack(alignment: alignment, spacing: spacing, content: content)
-        }
-    }
-
-    @ViewBuilder
-    private func makeScrollView<ScrollViewContent: View>(content: () -> ScrollViewContent) -> some View {
-        if let showsIndicators {
-            ScrollView(showsIndicators: showsIndicators, content: content)
-        } else {
-            ScrollView(content: content)
         }
     }
 }
@@ -103,29 +58,35 @@ extension GroupedScrollView: Setupable {
     public func interContentPadding(_ padding: CGFloat) -> Self {
         map { $0.interContentPadding = padding }
     }
+
+    public func scrollIndicatorsHidden(_ hidden: Bool) -> Self {
+        map { $0.scrollIndicatorsHidden = hidden }
+    }
 }
 
 #if DEBUG
-#Preview {
+struct SettingsViewGroupedScrollView_Previews: PreviewProvider {
     struct ViewModel: Identifiable {
         let id = UUID()
         let text: String
     }
 
-    return GroupedScrollView {
-        let models = [
-            ViewModel(text: "Text1"),
-            ViewModel(text: "Text2"),
-        ]
+    static var previews: some View {
+        GroupedScrollView {
+            let models = [
+                ViewModel(text: "Text1"),
+                ViewModel(text: "Text2"),
+            ]
 
-        GroupedSection(models) {
-            Text($0.text)
-        } footer: {
-            Text("I am footer")
-                .frame(maxWidth: .infinity)
-                .background(Colors.Background.action)
+            GroupedSection(models) {
+                Text($0.text)
+            } footer: {
+                Text("I am footer")
+                    .frame(maxWidth: .infinity)
+                    .background(Colors.Background.action)
+            }
         }
+        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
     }
-    .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
 }
 #endif

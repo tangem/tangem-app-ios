@@ -20,6 +20,7 @@ final class TangemPayAccount {
         customerInfoSubject
             .compactMap(\.self?.tangemPayStatus)
             .merge(with: orderCancelledSignalSubject.mapToValue(.failedToIssue))
+            .merge(with: customerInfoLoadingFailedSignalSubject.mapToValue(.unavailable))
             .eraseToAnyPublisher()
     }
 
@@ -49,7 +50,8 @@ final class TangemPayAccount {
     }
 
     lazy var tangemPayNotificationManager: TangemPayNotificationManager = .init(
-        tangemPayAccountStatePublisher: authorizer.statePublisher
+        tangemPayAuthorizerStatePublisher: authorizer.statePublisher,
+        tangemPayAccountStatusPublisher: tangemPayStatusPublisher
     )
 
     lazy var tangemPayIssuingManager: TangemPayIssuingManager = .init(
@@ -57,26 +59,25 @@ final class TangemPayAccount {
         tangemPayCardIssuingPublisher: tangemPayCardIssuingInProgressPublisher
     )
 
+    // MARK: - Withdraw
+
     lazy var tangemPayExpressCEXTransactionProcessor = TangemPayExpressCEXTransactionProcessor(
         withdrawTransactionService: withdrawTransactionService,
         walletPublicKey: TangemPayUtilities.getKey(from: authorizer.keysRepository)
     )
 
+    lazy var withdrawAvailabilityProvider: TangemPayWithdrawAvailabilityProvider = .init(
+        withdrawTransactionService: withdrawTransactionService,
+        tokenBalanceProvider: balancesService.availableBalanceProvider
+    )
+
     // MARK: - Balances
 
-    lazy var tangemPayTokenBalanceProvider: TokenBalanceProvider = TangemPayTokenBalanceProvider(
-        walletModelId: .init(tokenItem: TangemPayUtilities.usdcTokenItem),
-        tokenBalancesRepository: tokenBalancesRepository,
-        balanceSubject: balanceSubject
-    )
-
     lazy var tangemPayMainHeaderBalanceProvider: MainHeaderBalanceProvider = TangemPayMainHeaderBalanceProvider(
-        tangemPayTokenBalanceProvider: tangemPayTokenBalanceProvider
+        tangemPayTokenBalanceProvider: balancesProvider.fixedFiatTotalTokenBalanceProvider
     )
 
-    lazy var tangemPayMainHeaderSubtitleProvider: MainHeaderSubtitleProvider = TangemPayMainHeaderSubtitleProvider(
-        balanceSubject: balanceSubject
-    )
+    var balancesProvider: TangemPayBalancesProvider { balancesService }
 
     let customerInfoManagementService: any CustomerInfoManagementService
     let withdrawTransactionService: any TangemPayWithdrawTransactionService
@@ -87,6 +88,10 @@ final class TangemPayAccount {
 
     var cardId: String? {
         customerInfoSubject.value?.productInstance?.cardId
+    }
+
+    var isPinSet: Bool {
+        customerInfoSubject.value?.card?.isPinSet ?? false
     }
 
     var customerWalletId: String {
@@ -110,11 +115,11 @@ final class TangemPayAccount {
 
     private let authorizer: TangemPayAuthorizer
     private let authorizationTokensHandler: TangemPayAuthorizationTokensHandler
-    private let tokenBalancesRepository: any TokenBalancesRepository
+    private let balancesService: any TangemPayBalancesService
 
     private let customerInfoSubject = CurrentValueSubject<VisaCustomerInfoResponse?, Never>(nil)
-    private let balanceSubject = CurrentValueSubject<LoadingResult<TangemPayBalance, Error>, Never>(.loading)
 
+    private let customerInfoLoadingFailedSignalSubject = PassthroughSubject<Void, Never>()
     private let orderCancelledSignalSubject = PassthroughSubject<Void, Never>()
     private let syncInProgressSubject = CurrentValueSubject<Bool, Never>(false)
 
@@ -125,13 +130,13 @@ final class TangemPayAccount {
         authorizer: TangemPayAuthorizer,
         authorizationTokensHandler: TangemPayAuthorizationTokensHandler,
         customerInfoManagementService: any CustomerInfoManagementService,
-        tokenBalancesRepository: any TokenBalancesRepository,
+        balancesService: any TangemPayBalancesService,
         withdrawTransactionService: any TangemPayWithdrawTransactionService
     ) {
         self.authorizer = authorizer
         self.authorizationTokensHandler = authorizationTokensHandler
         self.customerInfoManagementService = customerInfoManagementService
-        self.tokenBalancesRepository = tokenBalancesRepository
+        self.balancesService = balancesService
         self.withdrawTransactionService = withdrawTransactionService
 
         // No reference cycle here, self is stored as weak in all three entities
@@ -143,11 +148,30 @@ final class TangemPayAccount {
         bind()
     }
 
+    func cancelKYC(onFinish: @escaping (Bool) -> Void) {
+        runTask(in: self) { account in
+            do {
+                try await account.customerInfoManagementService.cancelKYC()
+                await MainActor.run {
+                    AppSettings.shared
+                        .tangemPayIsKYCHiddenForCustomerWalletId[
+                            account.customerWalletId
+                        ] = true
+                }
+                onFinish(true)
+            } catch {
+                VisaLogger.error("Failed to cancel KYC", error: error)
+                onFinish(false)
+            }
+        }
+    }
+
     func launchKYC(onDidDismiss: @escaping () -> Void) async throws {
         try await KYCService.start(
             getToken: customerInfoManagementService.loadKYCAccessToken,
             onDidDismiss: onDidDismiss
         )
+        Analytics.log(.visaOnboardingVisaKYCFlowOpened)
     }
 
     func getTangemPayStatus() async throws -> TangemPayStatus {
@@ -169,6 +193,11 @@ final class TangemPayAccount {
     func loadCustomerInfo() -> Task<Void, Never> {
         runTask(in: self) { tangemPayAccount in
             do {
+                if tangemPayAccount.authorizer.state.authorized == nil {
+                    tangemPayAccount.authorizer.setAuthorized()
+                    return
+                }
+
                 let customerInfo = try await tangemPayAccount.customerInfoManagementService.loadCustomerInfo()
                 tangemPayAccount.customerInfoSubject.send(customerInfo)
 
@@ -176,7 +205,14 @@ final class TangemPayAccount {
                     TangemPayOrderIdStorage.deleteCardIssuingOrderId(customerWalletId: tangemPayAccount.customerWalletId)
                     await tangemPayAccount.setupBalance()
                 }
+                // [REDACTED_TODO_COMMENT]
+            } catch let error as VisaAPIError where error.code == 110101 {
+                tangemPayAccount.authorizer.setSyncNeeded()
+                VisaLogger.error("Failed to load customer info", error: error)
+            } catch TangemPayAuthorizationTokensHandlerError.preparingFailed {
+                VisaLogger.error("Failed to load customer info", error: TangemPayAuthorizationTokensHandlerError.preparingFailed)
             } catch {
+                tangemPayAccount.customerInfoLoadingFailedSignalSubject.send(())
                 VisaLogger.error("Failed to load customer info", error: error)
             }
         }
@@ -272,13 +308,7 @@ final class TangemPayAccount {
     }
 
     private func setupBalance() async {
-        do {
-            balanceSubject.send(.loading)
-            let balance = try await customerInfoManagementService.getBalance()
-            balanceSubject.send(.success(balance))
-        } catch {
-            balanceSubject.send(.failure(error))
-        }
+        await balancesService.loadBalance()
     }
 
     private func mapToCard(visaCustomerInfoResponse: VisaCustomerInfoResponse?) -> VisaCustomerInfoResponse.Card? {
@@ -310,7 +340,7 @@ extension TangemPayAccount: TangemPayWithdrawTransactionServiceOutput {
     func withdrawTransactionDidSent() {
         Task {
             // Update balance after withdraw with some delay
-            try await Task.sleep(seconds: 5)
+            try await Task.sleep(for: .seconds(5))
             await setupBalance()
         }
     }
@@ -363,7 +393,7 @@ private extension VisaCustomerInfoResponse {
             }
         }
 
-        guard case .approved = kyc.status else {
+        guard case .approved = kyc?.status else {
             return .kycRequired
         }
 

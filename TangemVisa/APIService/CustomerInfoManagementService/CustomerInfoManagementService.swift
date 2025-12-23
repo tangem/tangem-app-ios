@@ -10,7 +10,7 @@ import Foundation
 import Moya
 import TangemFoundation
 
-public protocol CustomerInfoManagementService {
+public protocol CustomerInfoManagementService: AnyObject {
     func loadCustomerInfo() async throws -> VisaCustomerInfoResponse
     func loadKYCAccessToken() async throws -> VisaKYCAccessTokenResponse
 
@@ -18,6 +18,7 @@ public protocol CustomerInfoManagementService {
     func getCardDetails(sessionId: String) async throws -> TangemPayCardDetailsResponse
     func freeze(cardId: String) async throws -> TangemPayFreezeUnfreezeResponse
     func unfreeze(cardId: String) async throws -> TangemPayFreezeUnfreezeResponse
+    func getPin(cardId: String, sessionId: String) async throws -> TangemPayGetPinResponse
     func setPin(pin: String, sessionId: String, iv: String) async throws -> TangemPaySetPinResponse
 
     func getTransactionHistory(limit: Int, cursor: String?) async throws -> TangemPayTransactionHistoryResponse
@@ -33,6 +34,9 @@ public protocol CustomerInfoManagementService {
 
     func placeOrder(customerWalletAddress: String) async throws -> TangemPayOrderResponse
     func getOrder(orderId: String) async throws -> TangemPayOrderResponse
+
+    @discardableResult
+    func cancelKYC() async throws -> TangemPayCancelKYCResponse
 }
 
 final class CommonCustomerInfoManagementService {
@@ -69,6 +73,12 @@ final class CommonCustomerInfoManagementService {
 }
 
 extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
+    func cancelKYC() async throws -> TangemPayCancelKYCResponse {
+        return try await apiService.request(
+            makeRequest(for: .setPayEnabled)
+        )
+    }
+
     func loadCustomerInfo() async throws -> VisaCustomerInfoResponse {
         return try await apiService.request(
             makeRequest(for: .getCustomerInfo)
@@ -111,6 +121,12 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
         )
     }
 
+    func getPin(cardId: String, sessionId: String) async throws -> TangemPayGetPinResponse {
+        try await apiService.request(
+            makeRequest(for: .getPin(cardId: cardId, sessionId: sessionId))
+        )
+    }
+
     func getTransactionHistory(limit: Int, cursor: String?) async throws -> TangemPayTransactionHistoryResponse {
         try await apiService.request(
             makeRequest(for: .getTransactionHistory(limit: limit, cursor: cursor))
@@ -139,8 +155,8 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
             amountInCents: request.amountInCents,
             senderAddress: signature.sender,
             recipientAddress: request.destination,
-            adminSignature: signature.signature.hexString,
-            adminSalt: signature.salt.hexString
+            adminSignature: signature.signature.hexString.addHexPrefix(),
+            adminSalt: signature.salt.hexString.addHexPrefix()
         )
 
         let request = try await makeRequest(for: .sendWithdrawTransaction(requestTransaction))

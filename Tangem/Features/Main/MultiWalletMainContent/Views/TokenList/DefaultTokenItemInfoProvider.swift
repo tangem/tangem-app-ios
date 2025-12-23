@@ -76,7 +76,7 @@ extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
         Publishers.CombineLatest3(
             hasPendingTransactions,
             yieldModuleStatePublisher,
-            walletModel.stakingManagerStatePublisher.filter { $0 != .loading }
+            walletModel.stakingManagerStatePublisher
         )
         .map { hasPendingTransactions, yieldModuleState, stakingManagerState -> TokenItemViewModel.LeadingBadge? in
             guard !hasPendingTransactions else {
@@ -137,55 +137,24 @@ private enum LeadingBadgeMapper {
     typealias LeadingBadge = TokenItemViewModel.LeadingBadge
 
     static func mapRewards(stakingManagerState: StakingManagerState) -> LeadingBadge? {
-        switch stakingManagerState {
-        case .loading, .notEnabled, .loadingError, .temporaryUnavailable:
+        guard let apy = stakingManagerState.apy,
+              let rewardType = stakingManagerState.rewardType else {
             return nil
-        case .availableToStake(let stakingYieldInfo):
-            let rewardValue = switch stakingYieldInfo.rewardRateValues {
-            case .single(let apy): apy
-            case .interval(_, let maxAPY): maxAPY
-            }
-
-            let formattedRewardValue = PercentFormatter().format(rewardValue, option: .staking)
-
-            return .rewards(
-                RewardsInfo(
-                    type: stakingYieldInfo.rewardType,
-                    rewardValue: formattedRewardValue,
-                    isActive: false,
-                    isUpdating: false
-                )
-            )
-        case .staked(let staked):
-            let rewardRates = staked.balances.compactMap { balance -> Decimal? in
-                guard case .active = balance.balanceType else { return nil }
-                return balance.validatorType.validator?.rewardRate
-            }
-
-            guard !rewardRates.isEmpty else { // all the balances are in unstaking/unstaked state
-                return mapRewards(stakingManagerState: .availableToStake(staked.yieldInfo))
-            }
-
-            let rewardValue = rewardRates.sum(by: \.self) / Decimal(rewardRates.count)
-
-            let formattedRewardValue = PercentFormatter().format(rewardValue, option: .staking)
-
-            return .rewards(
-                RewardsInfo(
-                    type: staked.yieldInfo.rewardType,
-                    rewardValue: formattedRewardValue,
-                    isActive: true,
-                    isUpdating: false
-                )
-            )
         }
+
+        let formattedRewardValue = PercentFormatter().format(apy, option: .staking)
+
+        return .rewards(
+            RewardsInfo(
+                type: rewardType,
+                rewardValue: formattedRewardValue,
+                isActive: stakingManagerState.isActive,
+                isUpdating: stakingManagerState.isLoading
+            )
+        )
     }
 
     static func mapRewards(marketInfo: YieldModuleMarketInfo, state: YieldModuleManagerState) -> LeadingBadge? {
-        guard FeatureProvider.isAvailable(.yieldModule) else {
-            return nil
-        }
-
         let formattedRewardValue = PercentFormatter().format(marketInfo.apy, option: .staking)
 
         let actualState: YieldModuleManagerState = switch state {
