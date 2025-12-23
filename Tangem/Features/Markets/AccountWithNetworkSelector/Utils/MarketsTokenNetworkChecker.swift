@@ -72,9 +72,15 @@ private extension MarketsTokenNetworkChecker {
         supportedBlockchains: Set<Blockchain>
     ) -> Set<String> {
         availableNetworks.compactMap { network in
-            AccountBlockchainManageabilityChecker.canManageNetwork(network.networkId, for: account, in: supportedBlockchains)
-                ? network.networkId
-                : nil
+            guard AccountBlockchainManageabilityChecker.canManageNetwork(network.networkId, for: account, in: supportedBlockchains) else {
+                return nil
+            }
+
+            guard NetworkSupportChecker.isNetworkSupported(network, in: supportedBlockchains) else {
+                return nil
+            }
+
+            return network.networkId
         }
         .toSet()
     }
