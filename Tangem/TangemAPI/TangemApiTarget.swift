@@ -42,9 +42,10 @@ struct TangemApiTarget: TargetType {
         case .features:
             return "/features"
         case .getUserWalletTokens(let key),
-             .saveUserWalletTokensLegacy(let key, _),
-             .saveUserWalletTokens(let key, _):
+             .saveUserWalletTokensLegacy(let key, _):
             return "/user-tokens/\(key)"
+        case .saveUserWalletTokens(let key, _):
+            return "/wallets/\(key)/tokens"
         case .loadReferralProgramInfo(let userWalletId, _):
             return "/referral/\(userWalletId)"
         case .participateInReferralProgram:
