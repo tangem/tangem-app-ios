@@ -678,6 +678,7 @@
 		2DB43917296EBC6000CBBB1E /* AppsFlyerConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB43916296EBC6000CBBB1E /* AppsFlyerConfig.swift */; };
 		2DB648622C353BC000DA100D /* NetworkModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB648612C353BC000DA100D /* NetworkModel.swift */; };
 		2DB648642C3542E700DA100D /* TokenItemMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB648632C3542E700DA100D /* TokenItemMapper.swift */; };
+		2DB6486B2C3542E700DA100E /* NetworkSupportChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB6486A2C3542E700DA100E /* NetworkSupportChecker.swift */; };
 		2DB648832C35877000DA100D /* MarketsWalletSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB648792C35877000DA100D /* MarketsWalletSelectorView.swift */; };
 		2DB648842C35877000DA100D /* MarketsWalletSelectorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB6487A2C35877000DA100D /* MarketsWalletSelectorViewModel.swift */; };
 		2DB648862C35877000DA100D /* MarketsPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB6487D2C35877000DA100D /* MarketsPickerView.swift */; };
@@ -5399,6 +5400,7 @@
 		2DB43916296EBC6000CBBB1E /* AppsFlyerConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppsFlyerConfig.swift; sourceTree = "<group>"; };
 		2DB648612C353BC000DA100D /* NetworkModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkModel.swift; sourceTree = "<group>"; };
 		2DB648632C3542E700DA100D /* TokenItemMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenItemMapper.swift; sourceTree = "<group>"; };
+		2DB6486A2C3542E700DA100E /* NetworkSupportChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkSupportChecker.swift; sourceTree = "<group>"; };
 		2DB648792C35877000DA100D /* MarketsWalletSelectorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsWalletSelectorView.swift; sourceTree = "<group>"; };
 		2DB6487A2C35877000DA100D /* MarketsWalletSelectorViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsWalletSelectorViewModel.swift; sourceTree = "<group>"; };
 		2DB6487D2C35877000DA100D /* MarketsPickerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsPickerView.swift; sourceTree = "<group>"; };
@@ -23175,6 +23177,7 @@
 				EF75A3CE2B06416F0023A60A /* TokenItem+ExpressCurrency.swift */,
 				B06BB8E62BCD139500C0FBCF /* TokenItemSwapState.swift */,
 				2DB648632C3542E700DA100D /* TokenItemMapper.swift */,
+				2DB6486A2C3542E700DA100E /* NetworkSupportChecker.swift */,
 				EFB0194E2C4187BB009EE857 /* TokenItem+StakingTokenItem.swift */,
 				5D96BD2727F60AC5000AA797 /* BlockchainNetwork.swift */,
 				2DFC27912C78E833009B247E /* TokenItemInfo */,
@@ -28089,6 +28092,7 @@
 				DC0DE2782B61709D00E7247F /* IncomingActionURLHelper.swift in Sources */,
 				B65C518E2B7FB208006E3C34 /* TangemInputAPIError.swift in Sources */,
 				2DB648642C3542E700DA100D /* TokenItemMapper.swift in Sources */,
+				2DB6486B2C3542E700DA100E /* NetworkSupportChecker.swift in Sources */,
 				EFF8F1C82E85638100A5EF0C /* SendSwapProvidersBuildable.swift in Sources */,
 				5D84DBEF270EEADA0013A813 /* TwinIntroBackgroundView.swift in Sources */,
 				EFF8F1F02E85D51E00A5EF0C /* StakingSingleActionFlowFactory.swift in Sources */,
