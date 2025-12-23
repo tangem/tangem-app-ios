@@ -16,8 +16,19 @@ protocol TangemPayMainRoutable: AnyObject {
     func openTangemPayNoDepositAddressSheet()
     func openTangemWithdrawInProgressSheet()
     func openTangemPayFreezeSheet(freezeAction: @escaping () -> Void)
-    func openTangemPayPin(tangemPayAccount: TangemPayAccount)
+    func openTangemPaySetPin(tangemPayAccount: TangemPayAccount)
+    func openTangemPayCheckPin(tangemPayAccount: TangemPayAccount)
     func openTermsAndLimits()
 
-    func openTangemPayTransactionDetailsSheet(transaction: TangemPayTransactionRecord)
+    func openTangemPayTransactionDetailsSheet(
+        transaction: TangemPayTransactionRecord,
+        userWalletId: String
+    )
+
+    func openPendingExpressTransactionDetails(
+        pendingTransaction: PendingTransaction,
+        userWalletInfo: UserWalletInfo,
+        tokenItem: TokenItem,
+        pendingTransactionsManager: PendingExpressTransactionsManager
+    )
 }

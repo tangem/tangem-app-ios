@@ -36,10 +36,16 @@ final class HardwareCreateWalletViewModel: ObservableObject {
     }
 
     private let userWalletModel: UserWalletModel?
+    private let source: HardwareCreateWalletSource
     private weak var coordinator: HardwareCreateWalletRoutable?
 
-    init(userWalletModel: UserWalletModel?, coordinator: HardwareCreateWalletRoutable) {
+    init(
+        userWalletModel: UserWalletModel?,
+        source: HardwareCreateWalletSource,
+        coordinator: HardwareCreateWalletRoutable
+    ) {
         self.userWalletModel = userWalletModel
+        self.source = source
         self.coordinator = coordinator
     }
 }
@@ -90,6 +96,8 @@ extension HardwareCreateWalletViewModel {
 
 private extension HardwareCreateWalletViewModel {
     func scanCard() {
+        logScanCardTapAnalytics()
+
         isScanning = true
 
         runTask(in: self) { viewModel in
@@ -216,7 +224,12 @@ private extension HardwareCreateWalletViewModel {
     }
 
     func openBuyCard() {
-        safariManager.openURL(TangemBlogUrlBuilder().url(root: .pricing))
+        logBuyHardwareWalletAnalytics()
+        let utmCampaign: TangemUTM.Campaign = switch source {
+        case .addNewWallet: .users
+        case .hardwareWallet: .upgrade
+        }
+        safariManager.openURL(TangemShopUrlBuilder().url(utmCampaign: utmCampaign))
     }
 
     func openScanCardManual() {
@@ -250,6 +263,14 @@ private extension HardwareCreateWalletViewModel {
         Analytics.log(.walletSettingsCreateWalletScreenOpened, contextParams: analyticsContextParams)
     }
 
+    func logScanCardTapAnalytics() {
+        Analytics.log(
+            Analytics.CardScanSource.createWallet.cardScanButtonEvent,
+            params: [.source: .create],
+            contextParams: analyticsContextParams
+        )
+    }
+
     func logScanCardSuccessAnalytics() {
         Analytics.log(
             .cardWasScanned,
@@ -281,6 +302,14 @@ private extension HardwareCreateWalletViewModel {
     func logScanCardAnalytics(error: Error) {
         Analytics.logScanError(error, source: .introduction, contextParams: analyticsContextParams)
         Analytics.logVisaCardScanErrorIfNeeded(error, source: .introduction)
+    }
+
+    func logBuyHardwareWalletAnalytics() {
+        Analytics.log(
+            .basicButtonBuy,
+            params: [.source: Analytics.BuyWalletSource.createWallet.parameterValue],
+            contextParams: analyticsContextParams
+        )
     }
 }
 

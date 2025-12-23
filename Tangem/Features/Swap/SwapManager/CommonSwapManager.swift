@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import BlockchainSdk
 import TangemExpress
 import TangemFoundation
 
@@ -74,25 +75,11 @@ extension CommonSwapManager: SwapManager {
     }
 
     var providersPublisher: AnyPublisher<[ExpressAvailableProvider], Never> {
-        statePublisher
-            // Skip rates loading to avoid UI jumping
-            .filter { !$0.isRefreshRates }
-            .withWeakCaptureOf(self)
-            .asyncMap { manager, _ in
-                await manager.interactor.getAllProviders()
-            }
-            .eraseToAnyPublisher()
+        interactor.providersPublisher()
     }
 
     var selectedProviderPublisher: AnyPublisher<ExpressAvailableProvider?, Never> {
-        statePublisher
-            // Skip rates loading to avoid UI jumping
-            .filter { !$0.isRefreshRates }
-            .withWeakCaptureOf(self)
-            .asyncMap { manager, _ in
-                await manager.interactor.getSelectedProvider()
-            }
-            .eraseToAnyPublisher()
+        interactor.selectedProviderPublisher()
     }
 
     func update(amount: Decimal?) {
@@ -139,6 +126,26 @@ extension CommonSwapManager: SwapManager {
     }
 }
 
+// MARK: - SwapManager
+
+extension CommonSwapManager: SendApproveDataBuilderInput {
+    var selectedExpressProvider: ExpressProvider? {
+        get async { await selectedProvider?.provider }
+    }
+
+    var approveViewModelInput: (any ApproveViewModelInput)? {
+        interactor
+    }
+
+    var selectedPolicy: ApprovePolicy? {
+        guard case .permissionRequired(let permissionRequired, _) = interactor.getState() else {
+            return nil
+        }
+
+        return permissionRequired.policy
+    }
+}
+
 // MARK: - Private
 
 private extension CommonSwapManager {
@@ -172,7 +179,7 @@ private extension CommonSwapManager {
 
         refreshDataTask?.cancel()
         refreshDataTask = runTask(in: self) {
-            try await Task.sleep(seconds: 10)
+            try await Task.sleep(for: .seconds(10))
             try Task.checkCancellation()
 
             AppLogger.info("Timer call autoupdate")

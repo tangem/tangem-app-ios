@@ -76,7 +76,7 @@ extension UnstakingModel: UnstakingModelStateProvider {
 
     var stakingAction: Action {
         let amount = _amount.value?.crypto ?? initialAction.amount
-        return Action(amount: amount, validatorType: initialAction.validatorType, type: initialAction.type)
+        return Action(amount: amount, targetType: initialAction.targetType, type: initialAction.type)
     }
 
     var state: State {
@@ -99,7 +99,8 @@ private extension UnstakingModel {
         estimatedFeeTask = runTask(in: self) { model in
             do {
                 model.update(state: .loading)
-                let state = try await model.state(amount: amount)
+                let estimateFee = try await model.stakingManager.estimateFee(action: model.stakingAction)
+                let state = model.makeState(amount: amount, fee: estimateFee)
                 model.update(state: state)
             } catch _ as CancellationError {
                 // Do nothing
@@ -110,16 +111,14 @@ private extension UnstakingModel {
         }
     }
 
-    func state(amount: Decimal) async throws -> UnstakingModel.State {
-        let estimateFee = try await stakingManager.estimateFee(action: stakingAction)
-
-        if let error = validate(amount: amount, fee: estimateFee) {
+    func makeState(amount: Decimal, fee: Decimal) -> UnstakingModel.State {
+        if let error = validate(amount: amount, fee: fee) {
             return error
         }
 
         return .ready(
-            fee: estimateFee,
-            stakesCount: stakingAction.validatorInfo.flatMap { stakingManager.state.stakesCount(for: $0) } ?? 0
+            fee: fee,
+            stakesCount: stakingAction.targetInfo.flatMap { stakingManager.state.stakesCount(for: $0) } ?? 0
         )
     }
 
@@ -151,9 +150,9 @@ private extension UnstakingModel {
         case .loading:
             return SendFee(option: .market, value: .loading)
         case .networkError(let error):
-            return SendFee(option: .market, value: .failedToLoad(error: error))
+            return SendFee(option: .market, value: .failure(error))
         case .validationError(_, let fee), .ready(let fee, _):
-            return SendFee(option: .market, value: .loaded(makeFee(value: fee)))
+            return SendFee(option: .market, value: .success(makeFee(value: fee)))
         }
     }
 }
@@ -162,7 +161,7 @@ private extension UnstakingModel {
 
 private extension UnstakingModel {
     private func send() async throws -> TransactionDispatcherResult {
-        guard sourceAmount.value?.crypto != nil else {
+        guard let amount = sourceAmount.value?.crypto else {
             throw TransactionDispatcherResult.Error.transactionNotFound
         }
 
@@ -176,6 +175,9 @@ private extension UnstakingModel {
         } catch let error as TransactionDispatcherResult.Error {
             proceed(error: error)
             throw error
+        } catch P2PStakingError.feeIncreased(let newFee) {
+            update(state: makeState(amount: amount, fee: newFee))
+            throw P2PStakingError.feeIncreased(newFee: newFee)
         } catch {
             throw TransactionDispatcherResult.Error.loadTransactionInfo(error: error.toUniversalError())
         }
@@ -333,11 +335,11 @@ extension UnstakingModel: SendFinishInput {
 
 // MARK: - StakingValidatorsInput
 
-extension UnstakingModel: StakingValidatorsInput {
-    var selectedValidator: ValidatorInfo? { stakingAction.validatorInfo }
+extension UnstakingModel: StakingTargetsInput {
+    var selectedTarget: StakingTargetInfo? { stakingAction.targetInfo }
 
-    var selectedValidatorPublisher: AnyPublisher<ValidatorInfo, Never> {
-        Just(stakingAction.validatorInfo).compactMap { $0 }.eraseToAnyPublisher()
+    var selectedTargetPublisher: AnyPublisher<StakingTargetInfo, Never> {
+        Just(stakingAction.targetInfo).compactMap { $0 }.eraseToAnyPublisher()
     }
 }
 
@@ -388,7 +390,7 @@ extension UnstakingModel: StakingBaseDataBuilderInput {
 
     var isFeeIncluded: Bool { false }
 
-    var validator: ValidatorInfo? { initialAction.validatorInfo }
+    var target: StakingTargetInfo? { initialAction.targetInfo }
 
     var selectedPolicy: ApprovePolicy? { nil }
 
@@ -410,15 +412,15 @@ extension UnstakingModel {
 
 extension UnstakingModel {
     var isPartialUnstakeAllowed: Bool {
-        guard case .validator(let validatorInfo) = initialAction.validatorType else {
+        guard case .target(let targetInfo) = initialAction.targetType else {
             return false
         }
         // disable partial unstake for disabled validators,
         // preferred == false means it's disabled in admin tool
-        guard validatorInfo.preferred else { return false }
+        guard targetInfo.preferred else { return false }
 
         return switch tokenItem.blockchain {
-        case .ton: false // ton does not support partial unstake
+        case .ton, .cardano: false // ton and cardano do not support partial unstake
         default: true
         }
     }

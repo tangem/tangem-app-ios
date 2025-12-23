@@ -14,7 +14,7 @@ import TangemFoundation
 
 class OnrampAmountViewModel: ObservableObject {
     @Published var fiatItem: FiatItem?
-    @Published var decimalNumberTextFieldViewModel: DecimalNumberTextField.ViewModel
+    @Published var decimalNumberTextFieldViewModel: DecimalNumberTextFieldViewModel
     @Published var error: String?
     @Published var currentFieldOptions: SendDecimalNumberTextField.PrefixSuffixOptions?
 

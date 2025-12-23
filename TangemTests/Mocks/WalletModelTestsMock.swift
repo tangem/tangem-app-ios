@@ -141,7 +141,7 @@ final class WalletModelTestsMock: WalletModel {
     var balanceState: WalletModelBalanceState? { nil }
     var isDemo: Bool { false }
     var demoBalance: Decimal? { get { nil } set {} }
-    var sendingRestrictions: TransactionSendAvailabilityProvider.SendingRestrictions? { nil }
+    var sendingRestrictions: SendingRestrictions? { nil }
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> { Empty().eraseToAnyPublisher() }
     var stakingManager: StakingManager? { nil }
     var stakeKitTransactionSender: StakeKitTransactionSender? { nil }
@@ -187,8 +187,8 @@ final class WalletModelTestsMock: WalletModel {
     func fulfillRequirements(signer: any TransactionSigner) -> AnyPublisher<Void, Error> { Empty().eraseToAnyPublisher() }
     func estimatedFee(amount: Amount) -> AnyPublisher<[Fee], Error> { Empty().eraseToAnyPublisher() }
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> { Empty().eraseToAnyPublisher() }
-    func getFeeCurrencyBalance(amountType: Amount.AmountType) -> Decimal { 0 }
-    func hasFeeCurrency(amountType: Amount.AmountType) -> Bool { false }
+    func getFeeCurrencyBalance() -> Decimal { 0 }
+    func hasFeeCurrency() -> Bool { false }
     func getFee(compiledTransaction data: Data) async throws -> [Fee] { [] }
     func hash(into hasher: inout Hasher) {}
     static func == (lhs: WalletModelTestsMock, rhs: WalletModelTestsMock) -> Bool { false }

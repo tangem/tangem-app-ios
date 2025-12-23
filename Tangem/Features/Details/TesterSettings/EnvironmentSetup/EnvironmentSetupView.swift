@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct EnvironmentSetupView: View {
     @ObservedObject private var viewModel: EnvironmentSetupViewModel
@@ -22,7 +23,7 @@ struct EnvironmentSetupView: View {
         ZStack {
             Colors.Background.secondary.edgesIgnoringSafeArea(.all)
 
-            GroupedScrollView(spacing: 16) {
+            GroupedScrollView(contentType: .lazy(alignment: .center, spacing: 16)) {
                 GroupedSection(viewModel.appSettingsTogglesViewModels) {
                     DefaultToggleRowView(viewModel: $0)
                 }
@@ -166,7 +167,7 @@ struct EnvironmentSetupView_Preview: PreviewProvider {
     static let viewModel = EnvironmentSetupViewModel(coordinator: EnvironmentSetupRoutableMock())
 
     static var previews: some View {
-        NavigationView {
+        NavigationStack {
             EnvironmentSetupView(viewModel: viewModel)
         }
     }

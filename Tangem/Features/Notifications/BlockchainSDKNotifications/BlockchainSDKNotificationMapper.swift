@@ -47,7 +47,9 @@ struct BlockchainSDKNotificationMapper {
                     feeAmountTypeCurrencySymbol: feeTokenItem.currencySymbol,
                     feeAmountTypeIconAsset: blockchainIconProvider.provide(by: feeTokenItem.blockchain, filled: true),
                     networkName: tokenItem.networkName,
-                    currencyButtonTitle: nil
+                    currencyButtonTitle: nil,
+                    // We set true here because we have to show "Go to \(coin)" button
+                    isFeeCurrencyPurchaseAllowed: true
                 )
             )
         case .dustAmount(let minimumAmount), .dustChange(let minimumAmount):
