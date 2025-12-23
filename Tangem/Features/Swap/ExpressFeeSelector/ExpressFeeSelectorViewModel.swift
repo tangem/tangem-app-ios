@@ -73,7 +73,7 @@ final class ExpressFeeSelectorViewModel: ObservableObject, Identifiable {
 
         return FeeRowViewModel(
             option: option,
-            components: .loaded(formattedFeeComponents),
+            components: .success(formattedFeeComponents),
             style: .selectable(
                 isSelected: .init(root: self, default: false, get: { root in
                     root.selectedFeeOption == option

@@ -73,12 +73,17 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: MobileBackupToUpgradeNeededViewModel.self) {
                 MobileBackupToUpgradeNeededView(viewModel: $0)
             }
-            .sheet(item: $coordinator.accountFormViewModel) { viewModel in
-                NavigationView {
+            .sheet(
+                item: $coordinator.accountFormViewModel,
+                onDismiss: {
+                    coordinator.rootViewModel?.showPendingAlertIfNeeded()
+                }
+            ) { viewModel in
+                NavigationStack {
                     AccountFormView(viewModel: viewModel)
                 }
                 .presentation(onDismissalAttempt: viewModel.onClose)
-                .presentationCornerRadiusBackport(24)
+                .presentationCornerRadius(24)
             }
     }
 }

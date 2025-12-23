@@ -25,28 +25,6 @@ enum TokenNotificationEvent: Hashable {
     case staking(tokenIconInfo: TokenIconInfo, earnUpToFormatted: String)
     case manaLevel(currentMana: String, maxMana: String)
     case maticMigration
-
-    static func event(
-        for reason: TransactionSendAvailabilityProvider.SendingRestrictions,
-        isFeeCurrencyPurchaseAllowed: Bool
-    ) -> TokenNotificationEvent? {
-        switch reason {
-        case .zeroWalletBalance,
-             .hasPendingTransaction,
-             .blockchainUnreachable,
-             .blockchainLoading,
-             .cantSignLongTransactions,
-             .oldCard,
-             .hasOnlyCachedBalance:
-            return nil
-        case .zeroFeeCurrencyBalance(let eventConfiguration):
-            let configuration = NotEnoughFeeConfiguration(
-                isFeeCurrencyPurchaseAllowed: isFeeCurrencyPurchaseAllowed,
-                eventConfiguration: eventConfiguration
-            )
-            return .notEnoughFeeForTransaction(configuration: configuration)
-        }
-    }
 }
 
 extension TokenNotificationEvent: NotificationEvent {
@@ -63,7 +41,7 @@ extension TokenNotificationEvent: NotificationEvent {
         case .existentialDepositWarning:
             return .string(Localization.warningExistentialDepositTitle)
         case .notEnoughFeeForTransaction(let configuration):
-            return .string(Localization.warningSendBlockedFundsForFeeTitle(configuration.eventConfiguration.feeAmountTypeName))
+            return .string(Localization.warningSendBlockedFundsForFeeTitle(configuration.feeAmountTypeName))
         case .bnbBeaconChainRetirement:
             return .string(Localization.warningBeaconChainRetirementTitle)
         case .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation):
@@ -98,11 +76,11 @@ extension TokenNotificationEvent: NotificationEvent {
             return message
         case .notEnoughFeeForTransaction(let configuration):
             return Localization.warningSendBlockedFundsForFeeMessage(
-                configuration.eventConfiguration.transactionAmountTypeName,
-                configuration.eventConfiguration.networkName,
-                configuration.eventConfiguration.transactionAmountTypeName,
-                configuration.eventConfiguration.feeAmountTypeName,
-                configuration.eventConfiguration.feeAmountTypeCurrencySymbol
+                configuration.transactionAmountTypeName,
+                configuration.networkName,
+                configuration.transactionAmountTypeName,
+                configuration.feeAmountTypeName,
+                configuration.feeAmountTypeCurrencySymbol
             )
         case .bnbBeaconChainRetirement:
             return Localization.warningBeaconChainRetirementContent
@@ -163,7 +141,7 @@ extension TokenNotificationEvent: NotificationEvent {
         case .rentFee, .noAccount, .existentialDepositWarning, .manaLevel:
             return .init(iconType: .image(Assets.blueCircleWarning.image))
         case .notEnoughFeeForTransaction(let configuration):
-            return .init(iconType: .image(configuration.eventConfiguration.feeAmountTypeIconAsset.image))
+            return .init(iconType: .image(configuration.feeAmountTypeIconAsset.image))
         case .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation):
             return .init(iconType: .image(Tokens.hederaFill.image))
         case .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction):
@@ -228,8 +206,7 @@ extension TokenNotificationEvent: NotificationEvent {
              .maticMigration:
             return nil
         case .notEnoughFeeForTransaction(let configuration):
-            let eventConfig = configuration.eventConfiguration
-            let currencySymbol = eventConfig.currencyButtonTitle ?? eventConfig.feeAmountTypeCurrencySymbol
+            let currencySymbol = configuration.currencyButtonTitle ?? configuration.feeAmountTypeCurrencySymbol
             if configuration.isFeeCurrencyPurchaseAllowed {
                 return .init(.openFeeCurrency(currencySymbol: currencySymbol))
             }
@@ -240,7 +217,10 @@ extension TokenNotificationEvent: NotificationEvent {
         case .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction):
             return .init(.retryKaspaTokenTransaction)
         case .hasUnfulfilledRequirements(configuration: .missingTokenTrustline(let config)):
-            return .init(.addTokenTrustline, withLoader: true, isDisabled: config.trustlineOperationInProgress)
+            if config.canPerformAction {
+                return .init(.addTokenTrustline, withLoader: true, isDisabled: config.trustlineOperationInProgress)
+            }
+            return nil
         case .staking:
             return .init(.stake)
         }
@@ -250,10 +230,7 @@ extension TokenNotificationEvent: NotificationEvent {
 // MARK: - Auxiliary types
 
 extension TokenNotificationEvent {
-    struct NotEnoughFeeConfiguration: Hashable {
-        let isFeeCurrencyPurchaseAllowed: Bool
-        let eventConfiguration: TransactionSendAvailabilityProvider.SendingRestrictions.NotEnoughFeeConfiguration
-    }
+    typealias NotEnoughFeeConfiguration = SendingRestrictions.NotEnoughFeeConfiguration
 
     enum UnfulfilledRequirementsConfiguration: Hashable {
         /// `formattedValue` is a formatted string for the value denominated in HBARs.
@@ -287,6 +264,7 @@ extension TokenNotificationEvent {
             let reserveAmount: String
             let icon: ImageType
             let trustlineOperationInProgress: Bool
+            let canPerformAction: Bool
         }
 
         /// `associationFee` fetched asynchronously and therefore may be absent in some cases.
@@ -327,8 +305,8 @@ extension TokenNotificationEvent {
             return [.token: currencySymbol]
         case .notEnoughFeeForTransaction(let configuration):
             return [
-                .token: configuration.eventConfiguration.amountCurrencySymbol,
-                .blockchain: configuration.eventConfiguration.amountCurrencyBlockchainName,
+                .token: configuration.amountCurrencySymbol,
+                .blockchain: configuration.amountCurrencyBlockchainName,
             ]
         case .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction(let revealTransaction)):
             return [.token: revealTransaction.currencySymbol, .blockchain: revealTransaction.blockchainName]

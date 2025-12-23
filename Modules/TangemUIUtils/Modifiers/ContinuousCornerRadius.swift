@@ -8,66 +8,25 @@
 
 import SwiftUI
 
-// MARK: - Convenience extensions
-
 public extension View {
-    @ViewBuilder
     func cornerRadiusContinuous(_ radius: CGFloat) -> some View {
-        modifier(
-            ContinuousCornerRadiusViewModifier(radius: radius)
-        )
+        clipShape(RoundedRectangle(cornerRadius: radius, style: .continuous))
     }
 
-    /// - Note: The `UnevenRoundedRectangle` shape is available on iOS 16+ and Apple's formula for `continuous`
-    /// corner radius is notoriously difficult to reproduce properly. Therefore this method has iOS 16+
-    /// as a minimum supported version. Consider back-porting `UnevenRoundedRectangle` to lower iOS versions.
-    @available(iOS 16.0, *)
-    @ViewBuilder
     func cornerRadiusContinuous(
         topLeadingRadius: CGFloat = 0,
         bottomLeadingRadius: CGFloat = 0,
         bottomTrailingRadius: CGFloat = 0,
         topTrailingRadius: CGFloat = 0
     ) -> some View {
-        modifier(
-            UnevenContinuousCornerRadiusViewModifier(
+        clipShape(
+            UnevenRoundedRectangle(
                 topLeadingRadius: topLeadingRadius,
                 bottomLeadingRadius: bottomLeadingRadius,
                 bottomTrailingRadius: bottomTrailingRadius,
-                topTrailingRadius: topTrailingRadius
+                topTrailingRadius: topTrailingRadius,
+                style: .continuous
             )
         )
-    }
-}
-
-// MARK: - Private implementation
-
-private struct ContinuousCornerRadiusViewModifier: ViewModifier {
-    let radius: CGFloat
-
-    func body(content: Content) -> some View {
-        content
-            .clipShape(RoundedRectangle(cornerRadius: radius, style: .continuous))
-    }
-}
-
-@available(iOS 16.0, *)
-private struct UnevenContinuousCornerRadiusViewModifier: ViewModifier {
-    let topLeadingRadius: CGFloat
-    let bottomLeadingRadius: CGFloat
-    let bottomTrailingRadius: CGFloat
-    let topTrailingRadius: CGFloat
-
-    func body(content: Content) -> some View {
-        let shape = UnevenRoundedRectangle(
-            topLeadingRadius: topLeadingRadius,
-            bottomLeadingRadius: bottomLeadingRadius,
-            bottomTrailingRadius: bottomTrailingRadius,
-            topTrailingRadius: topTrailingRadius,
-            style: .continuous
-        )
-
-        content
-            .clipShape(shape)
     }
 }

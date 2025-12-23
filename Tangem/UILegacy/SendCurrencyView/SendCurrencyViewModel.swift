@@ -12,11 +12,11 @@ import TangemExpress
 
 class SendCurrencyViewModel: ObservableObject, Identifiable {
     @Published private(set) var expressCurrencyViewModel: ExpressCurrencyViewModel
-    @Published private(set) var decimalNumberTextFieldViewModel: DecimalNumberTextField.ViewModel
+    @Published private(set) var decimalNumberTextFieldViewModel: DecimalNumberTextFieldViewModel
 
     init(
         expressCurrencyViewModel: ExpressCurrencyViewModel,
-        decimalNumberTextFieldViewModel: DecimalNumberTextField.ViewModel
+        decimalNumberTextFieldViewModel: DecimalNumberTextFieldViewModel
     ) {
         self.expressCurrencyViewModel = expressCurrencyViewModel
         self.decimalNumberTextFieldViewModel = decimalNumberTextFieldViewModel

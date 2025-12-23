@@ -25,6 +25,7 @@ protocol WalletModel:
     var name: String { get }
     var addresses: [Address] { get }
     var defaultAddress: Address { get }
+    var defaultAddressString: String { get }
     var addressNames: [String] { get }
     var isMainToken: Bool { get }
     var tokenItem: TokenItem { get }
@@ -43,7 +44,7 @@ protocol WalletModel:
     var isDemo: Bool { get }
     var demoBalance: Decimal? { get set }
 
-    var sendingRestrictions: TransactionSendAvailabilityProvider.SendingRestrictions? { get }
+    var sendingRestrictions: SendingRestrictions? { get }
 
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> { get }
 
@@ -76,6 +77,13 @@ extension WalletModel {
 
     var defaultAddressString: String {
         defaultAddress.value
+    }
+
+    var walletConnectAddress: String {
+        let factory = EthereumAddressConverterFactory()
+        let converter = factory.makeConverter(for: tokenItem.blockchain)
+        let convertedAddress = try? converter.convertToETHAddress(defaultAddress.value)
+        return convertedAddress ?? defaultAddressString
     }
 }
 
@@ -118,9 +126,10 @@ protocol WalletModelHelpers {
 protocol WalletModelFeeProvider {
     func estimatedFee(amount: Amount) -> AnyPublisher<[Fee], Error>
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error>
-    func getFeeCurrencyBalance(amountType: Amount.AmountType) -> Decimal
-    func hasFeeCurrency(amountType: Amount.AmountType) -> Bool
     func getFee(compiledTransaction data: Data) async throws -> [Fee]
+
+    func getFeeCurrencyBalance() -> Decimal
+    func hasFeeCurrency() -> Bool
 }
 
 // MARK: - Dependencies

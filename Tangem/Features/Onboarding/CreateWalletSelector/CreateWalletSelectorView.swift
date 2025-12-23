@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct CreateWalletSelectorView: View {
     typealias ViewModel = CreateWalletSelectorViewModel
@@ -22,8 +23,8 @@ struct CreateWalletSelectorView: View {
         content
             .allowsHitTesting(!viewModel.isScanning)
             .background(Colors.Background.plain.ignoresSafeArea())
-            .onAppear(perform: viewModel.onAppear)
-            .alert(item: $viewModel.error, content: { $0.alert })
+            .onFirstAppear(perform: viewModel.onFirstAppear)
+            .alert(item: $viewModel.alert, content: { $0.alert })
             .confirmationDialog(viewModel: $viewModel.confirmationDialog)
             .environment(\.colorScheme, .dark)
     }
@@ -114,6 +115,7 @@ private extension CreateWalletSelectorView {
                 isLoading: viewModel.isScanning,
                 action: viewModel.onScanTap
             )
+            .accessibilityIdentifier(StoriesAccessibilityIdentifiers.scanButton)
 
             MainButton(
                 title: viewModel.buyTitle,
@@ -131,6 +133,8 @@ private extension CreateWalletSelectorView {
         VStack(spacing: 0) {
             Text(item.description)
                 .style(Fonts.Bold.subheadline, color: Colors.Text.tertiary)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
 
             Button(action: item.action) {
                 HStack(spacing: 0) {

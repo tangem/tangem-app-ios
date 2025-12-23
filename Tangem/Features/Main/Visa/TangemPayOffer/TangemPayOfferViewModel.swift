@@ -14,28 +14,45 @@ import TangemSdk
 final class TangemPayOfferViewModel: ObservableObject {
     @Published private(set) var isLoading = false
     @Published var termsFeesAndLimitsViewModel: WebViewContainerViewModel?
+    @Published var walletSelectorViewModel: TangemPayWalletSelectorViewModel?
 
-    private let userWalletModel: any UserWalletModel
+    private weak var coordinator: TangemPayOnboardingRoutable?
     private let closeOfferScreen: @MainActor () -> Void
 
     init(
-        userWalletModel: any UserWalletModel,
-        closeOfferScreen: @escaping @MainActor () -> Void
+        closeOfferScreen: @escaping @MainActor () -> Void,
+        coordinator: TangemPayOnboardingRoutable?
     ) {
-        self.userWalletModel = userWalletModel
+        self.coordinator = coordinator
         self.closeOfferScreen = closeOfferScreen
     }
 
+    func onAppear() {
+        Analytics.log(.visaOnboardingVisaActivationScreenOpened)
+    }
+
     func getCard() {
+        Analytics.log(.visaOnboardingButtonVisaGetCard)
+
+        coordinator?.openWalletSelector { [weak self] walletModel in
+            self?.acceptOffer(on: walletModel)
+        }
+    }
+
+    func acceptOffer(on userWalletModel: UserWalletModel) {
         isLoading = true
         runTask(in: self) { viewModel in
             do {
-                let tangemPayAccount = try await viewModel.makeTangemPayAccount()
+                let tangemPayAccount = try await viewModel.makeTangemPayAccount(
+                    userWalletModel: userWalletModel
+                )
                 let tangemPayStatus = try await tangemPayAccount.getTangemPayStatus()
 
                 // [REDACTED_TODO_COMMENT]
                 // [REDACTED_INFO]
-                viewModel.userWalletModel.update(type: .tangemPayOfferAccepted(tangemPayAccount))
+                userWalletModel.update(
+                    type: .tangemPayOfferAccepted(tangemPayAccount)
+                )
 
                 switch tangemPayStatus {
                 case .kycRequired:
@@ -55,6 +72,8 @@ final class TangemPayOfferViewModel: ObservableObject {
     }
 
     func termsFeesAndLimits() {
+        Analytics.log(.visaOnboardingButtonVisaViewTerms)
+
         termsFeesAndLimitsViewModel = .init(
             url: AppConstants.tangemPayTermsAndLimitsURL,
             title: "",
@@ -62,7 +81,7 @@ final class TangemPayOfferViewModel: ObservableObject {
         )
     }
 
-    private func makeTangemPayAccount() async throws -> TangemPayAccount {
+    private func makeTangemPayAccount(userWalletModel: UserWalletModel) async throws -> TangemPayAccount {
         let builder = TangemPayAccountBuilder()
         let tangemPayAccount = try await builder.makeTangemPayAccount(
             authorizerType: .plain,

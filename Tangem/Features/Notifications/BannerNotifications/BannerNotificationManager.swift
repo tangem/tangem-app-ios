@@ -45,7 +45,7 @@ class BannerNotificationManager {
     private func load() {
         switch placement {
         case .main:
-            loadActivePromotions(programNames: [.visaWaitlist, .blackFriday])
+            loadActivePromotions(programNames: [.visaWaitlist, .blackFriday, .onePlusOne])
         case .tokenDetails:
             break
         }
@@ -134,7 +134,7 @@ class BannerNotificationManager {
             switch event.programName {
             case .visaWaitlist:
                 Analytics.log(event: .promotionButtonJoinNow, params: event.analytics.analyticsParams)
-            case .blackFriday:
+            case .blackFriday, .onePlusOne:
                 var params = event.analytics.analyticsParams
                 params[.action] = Analytics.ParameterValue.clicked.rawValue
                 Analytics.log(event: .promotionBannerClicked, params: params)
@@ -148,7 +148,7 @@ class BannerNotificationManager {
             switch event.programName {
             case .visaWaitlist:
                 Analytics.log(event: .promotionButtonClose, params: event.analytics.analyticsParams)
-            case .blackFriday:
+            case .blackFriday, .onePlusOne:
                 var params = event.analytics.analyticsParams
                 params[.action] = Analytics.ParameterValue.closed.rawValue
                 Analytics.log(event: .promotionBannerClicked, params: params)
@@ -164,42 +164,21 @@ class BannerNotificationManager {
     private func makeEvent(promotion: ActivePromotionInfo) -> AnyPublisher<BannerNotificationEvent?, Never> {
         let analytics = BannerNotificationEventAnalyticsParamsBuilder(programName: promotion.bannerPromotion, placement: placement)
 
-        switch promotion.bannerPromotion {
-        case .visaWaitlist:
-            return visaWaitlistEvent(promotion: promotion, analytics: analytics)
-        case .blackFriday:
-            return blackFridayEvent(promotion: promotion, analytics: analytics)
-        }
-    }
-
-    private func visaWaitlistEvent(promotion: ActivePromotionInfo, analytics: BannerNotificationEventAnalyticsParamsBuilder) -> AnyPublisher<BannerNotificationEvent?, Never> {
-        let buttonAction: NotificationButtonAction?
-
-        if let link = promotion.link {
-            buttonAction = .init(.openLink(promotionLink: link, buttonTitle: Localization.notificationReferralPromoButton))
-        } else {
-            buttonAction = nil
-        }
-
-        let event = BannerNotificationEvent(
-            programName: promotion.bannerPromotion,
-            analytics: analytics,
-            buttonAction: buttonAction
+        return event(
+            promotion: promotion,
+            analytics: analytics
         )
-
-        return .just(output: event)
     }
 
-    private func blackFridayEvent(
+    private func event(
         promotion: ActivePromotionInfo,
         analytics: BannerNotificationEventAnalyticsParamsBuilder
     ) -> AnyPublisher<BannerNotificationEvent?, Never> {
-        let buttonAction: NotificationButtonAction?
-
-        if let link = promotion.link {
-            buttonAction = .init(.openLink(promotionLink: link, buttonTitle: Localization.commonClaim))
-        } else {
-            buttonAction = nil
+        let buttonAction: NotificationButtonAction? = promotion.link.map { link in
+            .init(.openLink(
+                promotionLink: link,
+                buttonTitle: promotion.bannerPromotion.buttonTitle
+            ))
         }
 
         let event = BannerNotificationEvent(

@@ -14,14 +14,23 @@ final class P2PStakingManager {
     private let wallet: StakingWallet
     private let provider: P2PAPIProvider
     private let analyticsLogger: StakingAnalyticsLogger
+    private let stateRepository: StakingManagerStateRepository
 
-    private let _state = CurrentValueSubject<StakingManagerState, Never>(.loading)
-    private var pendingTransaction: StakingTransactionInfo?
+    private let _state: CurrentValueSubject<StakingManagerState, Never>
+    private var pendingTransaction: PendingStakingTransactionData?
 
-    init(wallet: StakingWallet, provider: P2PAPIProvider, analyticsLogger: StakingAnalyticsLogger) {
+    init(
+        wallet: StakingWallet,
+        provider: P2PAPIProvider,
+        stateRepository: StakingManagerStateRepository,
+        analyticsLogger: StakingAnalyticsLogger
+    ) {
         self.wallet = wallet
         self.provider = provider
+        self.stateRepository = stateRepository
         self.analyticsLogger = analyticsLogger
+
+        _state = CurrentValueSubject(.loading(cached: stateRepository.state()))
     }
 }
 
@@ -29,21 +38,25 @@ final class P2PStakingManager {
 
 extension P2PStakingManager: StakingManager {
     func updateState(loadActions: Bool) async {
-        _state.send(.loading)
+        updateState(.loading(cached: stateRepository.state()))
 
-        let yield = try? await provider.yield()
+        do {
+            let yield = try await provider.yield()
 
-        guard let yield, !yield.preferredValidators.isEmpty else {
-            _state.send(.notEnabled)
-            return
+            guard !yield.preferredTargets.isEmpty else {
+                updateState(.notEnabled)
+                return
+            }
+
+            let balances = try await provider.balances(
+                walletAddress: wallet.address,
+                vaults: yield.preferredTargets.map(\.address)
+            )
+            let state = state(balances: balances, yield: yield)
+            updateState(state)
+        } catch {
+            updateState(.loadingError(error.localizedDescription, cached: stateRepository.state()))
         }
-
-        let balances = try? await provider.balances(
-            walletAddress: wallet.address,
-            vaults: yield.validators.map(\.address)
-        )
-        let state = state(balances: balances, yield: yield)
-        _state.send(state)
     }
 
     var statePublisher: AnyPublisher<StakingManagerState, Never> {
@@ -64,9 +77,9 @@ extension P2PStakingManager: StakingManager {
 
     func estimateFee(action: StakingAction) async throws -> Decimal {
         do {
-            let info = try await transactionInfo(action: action)
-            pendingTransaction = info
-            return info.fee
+            let transaction = try await transactionInfo(action: action)
+            pendingTransaction = PendingStakingTransactionData(transaction: transaction, date: Date())
+            return transaction.fee
         } catch {
             pendingTransaction = nil
             throw error
@@ -75,9 +88,17 @@ extension P2PStakingManager: StakingManager {
 
     func transaction(action: StakingAction) async throws -> StakingTransactionAction {
         guard let pendingTransaction else {
-            throw P2PStakingAPIError.transactionNotFound
+            throw P2PStakingError.transactionNotFound
         }
-        return StakingTransactionAction(amount: action.amount, transactions: [pendingTransaction])
+
+        if Date().timeIntervalSince(pendingTransaction.date) > Constants.transactionDataReloadInterval {
+            let newTransaction = try await transactionInfo(action: action)
+            if newTransaction.fee > pendingTransaction.transaction.fee {
+                throw P2PStakingError.feeIncreased(newFee: newTransaction.fee)
+            }
+        }
+
+        return StakingTransactionAction(amount: action.amount, transactions: [pendingTransaction.transaction])
     }
 
     func transactionDidSent(action: StakingAction) {
@@ -92,8 +113,13 @@ extension P2PStakingManager: CustomStringConvertible {
 }
 
 private extension P2PStakingManager {
+    func updateState(_ state: StakingManagerState) {
+        stateRepository.storeState(state)
+        _state.send(state)
+    }
+
     func state(balances: [StakingBalanceInfo]?, yield: StakingYieldInfo?) -> StakingManagerState {
-        guard let yield, !yield.preferredValidators.isEmpty else {
+        guard let yield, !yield.preferredTargets.isEmpty else {
             return .notEnabled
         }
 
@@ -113,8 +139,8 @@ private extension P2PStakingManager {
     }
 
     func transactionInfo(action: StakingAction) async throws -> StakingTransactionInfo {
-        guard let validatorAddress = action.validatorInfo?.address else {
-            throw P2PStakingAPIError.invalidVault
+        guard let vaultAddress = action.targetInfo?.address else {
+            throw P2PStakingError.invalidVault
         }
 
         let result: StakingTransactionInfo
@@ -126,19 +152,19 @@ private extension P2PStakingManager {
         case (.availableToStake, .stake), (.staked, .stake):
             result = try await provider.stakeTransaction(
                 walletAddress: wallet.address,
-                vault: validatorAddress,
+                vault: vaultAddress,
                 amount: action.amount
             )
         case (.staked, .unstake):
             result = try await provider.unstakeTransaction(
                 walletAddress: wallet.address,
-                vault: validatorAddress,
+                vault: vaultAddress,
                 amount: action.amount
             )
         case (.staked, .pending):
             result = try await provider.withdrawTransaction(
                 walletAddress: wallet.address,
-                vault: validatorAddress,
+                vault: vaultAddress,
                 amount: action.amount
             )
         default:
@@ -148,4 +174,15 @@ private extension P2PStakingManager {
 
         return result
     }
+}
+
+private extension P2PStakingManager {
+    enum Constants {
+        static let transactionDataReloadInterval: TimeInterval = 60
+    }
+}
+
+private struct PendingStakingTransactionData {
+    let transaction: StakingTransactionInfo
+    let date: Date
 }

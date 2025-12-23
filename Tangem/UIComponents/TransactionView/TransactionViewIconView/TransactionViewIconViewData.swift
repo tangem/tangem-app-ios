@@ -19,11 +19,10 @@ struct TransactionViewIconViewData: Hashable {
         if status == .failed {
             return Assets.crossBig.image
         }
-
         switch type {
-        case .approve:
+        case .approve, .yieldDeploy:
             return Assets.approve.image
-        case .transfer, .swap, .operation, .unknownOperation, .tangemPay(.transfer), .yieldSupply, .yieldEnter, .yieldWithdraw, .yieldTopup:
+        case .transfer, .swap, .operation, .unknownOperation, .tangemPay(.transfer), .yieldTopup, .yieldSend:
             return isOutgoing ? Assets.arrowUpMini.image : Assets.arrowDownMini.image
         case .stake, .vote, .restake:
             return Assets.TokenItemContextMenu.menuStaking.image
@@ -35,6 +34,14 @@ struct TransactionViewIconViewData: Hashable {
             return Assets.Visa.feeTransactionPercent.image
         case .tangemPay(.spend):
             return Assets.Visa.otherTransaction.image
+        case .yieldReactivate:
+            return Assets.YieldModule.yieldModeReactivate.image
+        case .yieldEnter, .yieldEnterCoin:
+            return Assets.YieldModule.yieldModeEnable.image
+        case .yieldWithdraw, .yieldWithdrawCoin:
+            return Assets.YieldModule.yieldModeDisable.image
+        case .yieldInit:
+            return Assets.YieldModule.yieldModeInit.image
         }
     }
 

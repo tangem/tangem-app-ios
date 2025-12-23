@@ -14,11 +14,6 @@ import TangemUI
 import TangemFoundation
 import TangemVisa
 
-enum TangemPayCardDetailsViewMode {
-    case detailedOnly
-    case interactive
-}
-
 final class TangemPayCardDetailsViewModel: ObservableObject {
     let lastFourDigits: String
 
@@ -30,24 +25,12 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
     private var bag = Set<AnyCancellable>()
     private var cardDetailsExposureTask: Task<Void, Never>?
     private let repository: TangemPayCardDetailsRepository
-    private let mode: TangemPayCardDetailsViewMode
 
     init(
-        mode: TangemPayCardDetailsViewMode,
         repository: TangemPayCardDetailsRepository
     ) {
-        self.mode = mode
         self.repository = repository
         lastFourDigits = repository.lastFourDigits
-        switch mode {
-        case .detailedOnly:
-            state = .loaded(
-                .unrevealed(details: .hidden(lastFourDigits: lastFourDigits), isLoading: false)
-            )
-
-        case .interactive:
-            break
-        }
 
         NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)
             .withWeakCaptureOf(self)
@@ -75,12 +58,7 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
             return
         }
 
-        switch mode {
-        case .detailedOnly:
-            toggleDetailedOnly()
-        case .interactive:
-            toggleInteractive()
-        }
+        toggleInteractive()
     }
 
     func changeStateIfNeeded() {
@@ -107,26 +85,6 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
             )
     }
 
-    private func toggleDetailedOnly() {
-        state = .loaded(.unrevealed(details: .hidden(lastFourDigits: lastFourDigits), isLoading: true))
-        cardDetailsExposureTask = runTask(in: self) { @MainActor viewModel in
-            do {
-                let cardDetailsData = try await viewModel.repository.revealRequest()
-                viewModel.state = .loaded(.revealed(cardDetailsData))
-
-                try? await Task.sleep(seconds: Constants.cardDetailsVisibilityPeriodInSeconds)
-                viewModel.state = .loaded(
-                    .unrevealed(details: .hidden(lastFourDigits: viewModel.lastFourDigits), isLoading: false)
-                )
-            } catch {
-                viewModel.state = .loaded(
-                    .unrevealed(details: .hidden(lastFourDigits: viewModel.lastFourDigits), isLoading: false)
-                )
-                AppLogger.error("Failed to load card details", error: error)
-            }
-        }
-    }
-
     private func toggleInteractive() {
         state = .loading(isFrozen: state.isFrozen)
         cardDetailsExposureTask = runTask(in: self) { @MainActor viewModel in
@@ -134,7 +92,7 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
                 let cardDetailsData = try await viewModel.repository.revealRequest()
                 viewModel.flip(to: .loaded(.revealed(cardDetailsData)))
 
-                try? await Task.sleep(seconds: Constants.cardDetailsVisibilityPeriodInSeconds)
+                try? await Task.sleep(for: .seconds(Constants.cardDetailsVisibilityPeriodInSeconds))
                 viewModel.flip(to: .hidden(isFrozen: viewModel.state.isFrozen))
             } catch {
                 viewModel.state = .hidden(isFrozen: viewModel.state.isFrozen)

@@ -16,12 +16,12 @@ struct VisaAPIErrorResponse: Decodable {
     let error: VisaAPIError
 }
 
-struct VisaAPIError: Error, Decodable {
-    let code: Int
-    let name: String
-    let message: String
+public struct VisaAPIError: Error, Decodable {
+    public let code: Int
+    public let name: String
+    public let message: String
 
-    var errorDescription: String? {
+    public var errorDescription: String? {
         return """
         Name: \(name)
         Code: \(errorCode)

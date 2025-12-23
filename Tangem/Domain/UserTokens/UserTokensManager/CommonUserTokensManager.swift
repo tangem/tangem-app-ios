@@ -214,16 +214,21 @@ extension CommonUserTokensManager: UserTokensManager {
     func add(_ tokenItem: TokenItem) async throws -> String {
         let tokenItem = withBlockchainNetwork(tokenItem)
 
-        try await withCheckedThrowingContinuation { continuation in
+        let addedToken = try await withCheckedThrowingContinuation { continuation in
             add(tokenItem) { result in
-                continuation.resume(with: result)
+                switch result {
+                case .success(let addedTokenItem):
+                    continuation.resume(returning: addedTokenItem)
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
             }
         }
 
         // wait for walletModelsManager to be updated
-        try await Task.sleep(seconds: 0.1)
+        try await Task.sleep(for: .seconds(0.1))
 
-        let walletModelId = WalletModelId(tokenItem: tokenItem)
+        let walletModelId = WalletModelId(tokenItem: addedToken)
 
         guard let walletModel = walletModelsManager?.walletModels.first(where: { $0.id == walletModelId }) else {
             throw Error.addressNotFound
@@ -232,7 +237,7 @@ extension CommonUserTokensManager: UserTokensManager {
         return walletModel.defaultAddressString
     }
 
-    func add(_ tokenItems: [TokenItem], completion: @escaping (Result<Void, Swift.Error>) -> Void) {
+    func add(_ tokenItems: [TokenItem], completion: @escaping (Result<[TokenItem], Swift.Error>) -> Void) {
         let tokenItems = tokenItems.map { withBlockchainNetwork($0) }
 
         do {
@@ -242,7 +247,14 @@ extension CommonUserTokensManager: UserTokensManager {
             return
         }
 
-        deriveIfNeeded(completion: completion)
+        deriveIfNeeded { result in
+            switch result {
+            case .success:
+                completion(.success(tokenItems))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
     }
 
     func canRemove(_ tokenItem: TokenItem, pendingToAddItems: [TokenItem], pendingToRemoveItems: [TokenItem]) -> Bool {
@@ -279,7 +291,11 @@ extension CommonUserTokensManager: UserTokensManager {
         removeInternal(tokenItem, shouldUpload: true)
     }
 
-    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], completion: @escaping (Result<Void, Swift.Error>) -> Void) {
+    func update(
+        itemsToRemove: [TokenItem],
+        itemsToAdd: [TokenItem],
+        completion: @escaping (Result<UserTokensManagerResult.UpdatedTokenItems, Swift.Error>) -> Void
+    ) {
         let itemsToRemove = itemsToRemove.map { withBlockchainNetwork($0) }
         let itemsToAdd = itemsToAdd.map { withBlockchainNetwork($0) }
 
@@ -290,7 +306,16 @@ extension CommonUserTokensManager: UserTokensManager {
             return
         }
 
-        deriveIfNeeded(completion: completion)
+        deriveIfNeeded { result in
+            switch result {
+            case .success:
+                let updatedItems = UserTokensManagerResult.UpdatedTokenItems(removed: itemsToRemove, added: itemsToAdd)
+                completion(.success(updatedItems))
+
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
     }
 
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) throws {

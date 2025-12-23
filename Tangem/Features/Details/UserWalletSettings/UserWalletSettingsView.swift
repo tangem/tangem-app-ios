@@ -20,7 +20,7 @@ struct UserWalletSettingsView: View {
     }
 
     var body: some View {
-        GroupedScrollView(alignment: .leading, spacing: 24) {
+        GroupedScrollView(contentType: .lazy(alignment: .leading, spacing: 24)) {
             walletSection
 
             mobileUpgradeSection
@@ -45,7 +45,7 @@ struct UserWalletSettingsView: View {
         .navigationBarTitleDisplayMode(.inline)
         .alert(item: $viewModel.alert) { $0.alert }
         .confirmationDialog(viewModel: $viewModel.confirmationDialog)
-        .scrollDismissesKeyboardCompat(.interactively)
+        .scrollDismissesKeyboard(.interactively)
         .onFirstAppear(perform: viewModel.onFirstAppear)
         .onAppear(perform: viewModel.onAppear)
     }

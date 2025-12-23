@@ -63,7 +63,7 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
     ) -> SwapTokenSelectorViewModel {
         SwapTokenSelectorViewModel(
             swapDirection: swapDirection,
-            expressPairsRepository: expressPairsRepository,
+            tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel(walletsProvider: .common(), availabilityProvider: .swap()),
             expressInteractor: expressInteractor,
             coordinator: coordinator
         )
@@ -84,15 +84,17 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
         coordinator: any ExpressApproveRoutable
     ) -> ExpressApproveViewModel {
         ExpressApproveViewModel(
-            settings: .init(
-                subtitle: Localization.givePermissionSwapSubtitle(providerName, "USDT"),
-                feeFooterText: Localization.swapGivePermissionFeeFooter,
-                tokenItem: .token(.tetherMock, .init(.ethereum(testnet: false), derivationPath: .none)),
-                feeTokenItem: .blockchain(.init(.ethereum(testnet: false), derivationPath: .none)),
-                selectedPolicy: selectedPolicy
+            input: .init(
+                settings: .init(
+                    subtitle: Localization.givePermissionSwapSubtitle(providerName, "USDT"),
+                    feeFooterText: Localization.swapGivePermissionFeeFooter,
+                    tokenItem: .token(.tetherMock, .init(.ethereum(testnet: false), derivationPath: .none)),
+                    feeTokenItem: .blockchain(.init(.ethereum(testnet: false), derivationPath: .none)),
+                    selectedPolicy: selectedPolicy
+                ),
+                feeFormatter: feeFormatter,
+                approveViewModelInput: expressInteractor,
             ),
-            feeFormatter: feeFormatter,
-            approveViewModelInput: expressInteractor,
             coordinator: coordinator
         )
     }
@@ -125,13 +127,14 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
         CompoundPendingTransactionsManager(
             first: CommonPendingExpressTransactionsManager(
                 userWalletId: userWalletModel.userWalletId.stringValue,
-                walletModel: initialWalletModel,
+                tokenItem: initialWalletModel.tokenItem,
+                walletModelUpdater: initialWalletModel,
                 expressAPIProvider: makeExpressAPIProvider(),
                 expressRefundedTokenHandler: ExpressRefundedTokenHandlerMock()
             ),
             second: CommonPendingOnrampTransactionsManager(
                 userWalletId: userWalletModel.userWalletId.stringValue,
-                walletModel: initialWalletModel,
+                tokenItem: initialWalletModel.tokenItem,
                 expressAPIProvider: makeExpressAPIProvider()
             )
         )
@@ -171,7 +174,7 @@ private extension ExpressModulesFactoryMock {
     }
 
     var expressDestinationService: ExpressDestinationService {
-        CommonExpressDestinationService()
+        CommonExpressDestinationService(userWalletId: userWalletInfo.id)
     }
 
     // MARK: - Methods
@@ -184,32 +187,27 @@ private extension ExpressModulesFactoryMock {
     }
 
     func makeExpressInteractor() -> ExpressInteractor {
-        let analyticsLogger = ExpressAnalyticsLoggerMock()
         let transactionValidator = ExpressProviderTransactionValidatorMock()
 
         let expressManager = TangemExpressFactory().makeExpressManager(
             expressAPIProvider: expressAPIProvider,
             expressRepository: expressRepository,
-            analyticsLogger: analyticsLogger,
-            supportedProviderTypes: .swap,
-            operationType: .swap,
             transactionValidator: transactionValidator
+        )
+
+        let sender = ExpressInteractorWalletModelWrapper(
+            userWalletInfo: userWalletInfo,
+            walletModel: initialWalletModel,
+            expressOperationType: .swap
         )
 
         let interactor = ExpressInteractor(
             userWalletInfo: userWalletInfo,
-            swappingPair: .init(
-                sender: .success(ExpressInteractorWalletModelWrapper(
-                    userWalletInfo: userWalletInfo,
-                    walletModel: initialWalletModel
-                )),
-                destination: .loading
-            ),
+            swappingPair: .init(sender: .success(sender), destination: .loading),
             expressManager: expressManager,
             expressPairsRepository: expressPairsRepository,
             expressPendingTransactionRepository: pendingTransactionRepository,
             expressDestinationService: expressDestinationService,
-            expressAnalyticsLogger: analyticsLogger,
             expressAPIProvider: expressAPIProvider,
         )
 

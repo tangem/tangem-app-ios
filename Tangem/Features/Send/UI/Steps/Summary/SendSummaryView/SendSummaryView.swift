@@ -16,7 +16,7 @@ struct SendSummaryView: View {
     @ObservedObject var viewModel: SendSummaryViewModel
 
     var body: some View {
-        GroupedScrollView(spacing: 14) {
+        GroupedScrollView(contentType: .lazy(alignment: .center, spacing: 14)) {
             amountSectionView
 
             nftSectionView
@@ -71,11 +71,11 @@ struct SendSummaryView: View {
 
     @ViewBuilder
     private var stakingValidatorsView: some View {
-        if let stakingValidatorsCompactViewModel = viewModel.stakingValidatorsCompactViewModel {
+        if let stakingTargetsCompactViewModel = viewModel.stakingTargetsCompactViewModel {
             Button(action: viewModel.userDidTapValidator) {
-                StakingValidatorsCompactView(viewModel: stakingValidatorsCompactViewModel)
+                StakingTargetsCompactView(viewModel: stakingTargetsCompactViewModel)
             }
-            .allowsHitTesting(stakingValidatorsCompactViewModel.canEditValidator)
+            .allowsHitTesting(stakingTargetsCompactViewModel.canEditTarget)
         }
     }
 
@@ -98,7 +98,6 @@ struct SendSummaryView: View {
 
     // MARK: - Notifications
 
-    @ViewBuilder
     private var notificationsView: some View {
         ForEach(viewModel.notificationInputs) { input in
             NotificationView(input: input)

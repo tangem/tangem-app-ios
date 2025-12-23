@@ -30,8 +30,19 @@ final class MailComposePresenter: NSObject {
             completionInProcess = nil
         }
 
-        let topViewController = UIApplication.mainWindow?.topViewController
-        topViewController?.present(viewController, animated: true)
+        let presentingViewController: UIViewController?
+
+        // [REDACTED_USERNAME]: topViewController may be in the process of being dismissed
+        // (for example, when presenting from a SwiftUI .sheet that is currently closing).
+        // In that case, we must fall back to another valid presenter.
+
+        if let topViewController = UIApplication.mainWindow?.topViewController, !topViewController.isBeingDismissed {
+            presentingViewController = topViewController
+        } else {
+            presentingViewController = UIApplication.mainWindow?.rootViewController
+        }
+
+        presentingViewController?.present(viewController, animated: true)
     }
 }
 
@@ -44,8 +55,13 @@ extension MailComposePresenter {
 
         viewController.setToRecipients([viewModel.recipient])
         viewController.setSubject(viewModel.emailType.emailSubject)
-        var messageBody = "\n" + viewModel.emailType.emailPreface
-        messageBody.append("\n\n")
+
+        var messageBody = ""
+        if let preface = viewModel.emailType.emailPreface {
+            messageBody.append("\n")
+            messageBody.append(preface)
+            messageBody.append("\n\n")
+        }
 
         if let log = viewModel.logsComposer.getInfoData(), let messageLog = String(data: log, encoding: .utf8) {
             messageBody.append(messageLog)

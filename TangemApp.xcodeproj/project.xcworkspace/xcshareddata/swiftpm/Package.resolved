@@ -1,5 +1,5 @@
 {
-  "originHash" : "b25c317aa6942d8a314056d0253f55885241f3642ff3a95c5126ad6173566c3e",
+  "originHash" : "67a46ee3ac86602e97ffc178d9a9360072478efdd34ebf6cd31ba662a127efcf",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -24,8 +24,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/amplitude/Amplitude-Swift",
       "state" : {
-        "revision" : "9b5ed56da4e92d5a537d2d7a0af8307f922731a7",
-        "version" : "1.13.6"
+        "revision" : "1f368406d103c7a45b0d8dbd7cddb0361f48d00b",
+        "version" : "1.15.4"
       }
     },
     {
@@ -33,8 +33,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/amplitude/AmplitudeCore-Swift.git",
       "state" : {
-        "revision" : "13fd0eb0aa080816ffa409669758b2e8787322b2",
-        "version" : "1.1.0"
+        "revision" : "1d9b590e202c3e2abb27ccb6b5b5ae62145406f0",
+        "version" : "1.2.4"
       }
     },
     {
@@ -123,8 +123,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/krzyzanowskim/CryptoSwift.git",
       "state" : {
-        "revision" : "729e01bc9b9dab466ac85f21fb9ee2bc1c61b258",
-        "version" : "1.8.4"
+        "revision" : "e45a26384239e028ec87fbcc788f513b67e10d8f",
+        "version" : "1.9.0"
       }
     },
     {
@@ -384,8 +384,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/reown-com/reown-swift.git",
       "state" : {
-        "revision" : "33d7f1c37e3e28a7909040a0f8028e20418300db",
-        "version" : "1.6.12"
+        "revision" : "eb3e428165b8e807386dc535fb1d7da193599a5c",
+        "version" : "2.0.0"
       }
     },
     {
@@ -663,8 +663,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/tangem-sdk-ios.git",
       "state" : {
-        "revision" : "b014173ee28a84c066d154333a72eb1efe5a9273",
-        "version" : "3.24.1"
+        "revision" : "40a191fbc7af70833dfbd24861e61d0cd0393526",
+        "version" : "4.0.1"
       }
     },
     {
@@ -726,8 +726,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/reown-com/yttrium",
       "state" : {
-        "revision" : "08bd868788cfaaac6499bd15c9e655044832a610",
-        "version" : "0.9.35"
+        "revision" : "3c8222684e5164af98027494226071d720e6e1d1",
+        "version" : "0.9.75"
       }
     },
     {
