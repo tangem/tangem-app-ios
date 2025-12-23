@@ -27,7 +27,6 @@ struct TangemPayAccountView: View {
             .opacity(viewModel.state.isFullyVisible ? 1 : 0.6)
             .defaultRoundedBackground(with: Colors.Background.primary, verticalPadding: 14, horizontalPadding: 14)
         }
-        .disabled(viewModel.disableButtonTap)
     }
 
     @ViewBuilder
