@@ -77,11 +77,6 @@ final class TangemPayAccount {
         tangemPayTokenBalanceProvider: balancesProvider.fixedFiatTotalTokenBalanceProvider
     )
 
-    lazy var tangemPayMainHeaderSubtitleProvider: MainHeaderSubtitleProvider = SingleWalletMainHeaderSubtitleProvider(
-        isUserWalletLocked: false,
-        balanceProvider: balancesProvider.totalTokenBalanceProvider
-    )
-
     var balancesProvider: TangemPayBalancesProvider { balancesService }
 
     let customerInfoManagementService: any CustomerInfoManagementService
@@ -96,7 +91,7 @@ final class TangemPayAccount {
     }
 
     var isPinSet: Bool {
-        customerInfoSubject.value?.card?.isPINSet ?? false
+        customerInfoSubject.value?.card?.isPinSet ?? false
     }
 
     var customerWalletId: String {
@@ -153,6 +148,24 @@ final class TangemPayAccount {
         bind()
     }
 
+    func cancelKYC(onFinish: @escaping (Bool) -> Void) {
+        runTask(in: self) { account in
+            do {
+                try await account.customerInfoManagementService.cancelKYC()
+                await MainActor.run {
+                    AppSettings.shared
+                        .tangemPayIsKYCHiddenForCustomerWalletId[
+                            account.customerWalletId
+                        ] = true
+                }
+                onFinish(true)
+            } catch {
+                VisaLogger.error("Failed to cancel KYC", error: error)
+                onFinish(false)
+            }
+        }
+    }
+
     func launchKYC(onDidDismiss: @escaping () -> Void) async throws {
         try await KYCService.start(
             getToken: customerInfoManagementService.loadKYCAccessToken,
@@ -180,6 +193,11 @@ final class TangemPayAccount {
     func loadCustomerInfo() -> Task<Void, Never> {
         runTask(in: self) { tangemPayAccount in
             do {
+                if tangemPayAccount.authorizer.state.authorized == nil {
+                    tangemPayAccount.authorizer.setAuthorized()
+                    return
+                }
+
                 let customerInfo = try await tangemPayAccount.customerInfoManagementService.loadCustomerInfo()
                 tangemPayAccount.customerInfoSubject.send(customerInfo)
 
@@ -375,7 +393,7 @@ private extension VisaCustomerInfoResponse {
             }
         }
 
-        guard case .approved = kyc.status else {
+        guard case .approved = kyc?.status else {
             return .kycRequired
         }
 

@@ -41,22 +41,14 @@ class CommonExpressModulesFactory {
         userWalletInfo = input.userWalletInfo
         initialTokenItem = input.source.tokenItem
 
-        expressDependenciesFactory = CommonExpressDependenciesFactory(
-            input: input,
-            supportedProviderTypes: .swap,
-            operationType: .swap
-        )
+        expressDependenciesFactory = CommonExpressDependenciesFactory(input: input)
     }
 
     init(input: ExpressDependenciesDestinationInput) {
         userWalletInfo = input.userWalletInfo
         initialTokenItem = input.destination.tokenItem
 
-        expressDependenciesFactory = CommonExpressDependenciesFactory(
-            input: input,
-            supportedProviderTypes: .swap,
-            operationType: .swap
-        )
+        expressDependenciesFactory = CommonExpressDependenciesFactory(input: input)
     }
 }
 
@@ -104,7 +96,7 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
     ) -> SwapTokenSelectorViewModel {
         SwapTokenSelectorViewModel(
             swapDirection: swapDirection,
-            expressPairsRepository: expressPairsRepository,
+            tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel(walletsProvider: .common(), availabilityProvider: .swap()),
             expressInteractor: expressDependenciesFactory.expressInteractor,
             coordinator: coordinator
         )
@@ -128,15 +120,17 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
         let feeTokenItem = source.feeTokenItem
 
         return ExpressApproveViewModel(
-            settings: .init(
-                subtitle: Localization.givePermissionSwapSubtitle(providerName, tokenItem.currencySymbol),
-                feeFooterText: Localization.swapGivePermissionFeeFooter,
-                tokenItem: tokenItem,
-                feeTokenItem: feeTokenItem,
-                selectedPolicy: selectedPolicy
+            input: .init(
+                settings: .init(
+                    subtitle: Localization.givePermissionSwapSubtitle(providerName, tokenItem.currencySymbol),
+                    feeFooterText: Localization.swapGivePermissionFeeFooter,
+                    tokenItem: tokenItem,
+                    feeTokenItem: feeTokenItem,
+                    selectedPolicy: selectedPolicy
+                ),
+                feeFormatter: feeFormatter,
+                approveViewModelInput: expressDependenciesFactory.expressInteractor,
             ),
-            feeFormatter: feeFormatter,
-            approveViewModelInput: expressDependenciesFactory.expressInteractor,
             coordinator: coordinator
         )
     }
