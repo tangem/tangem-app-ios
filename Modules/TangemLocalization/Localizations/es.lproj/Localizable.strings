@@ -615,8 +615,8 @@
 "initial_message_purge_wallet_body" = "Para restablecer a los ajustes de fábrica, coloque la tarjeta o el anillo como se muestra arriba y no lo retire hasta el fin de la operación";
 "initial_message_reset_backup_card_header" = "Toque la tarjeta no. %@ de la billetera";
 "initial_message_sign_body" = "Para firmar, coloque la tarjeta o el anillo como se muestra arriba y no lo retire hasta el fin de la operación";
-"jailbreak_warning_message" = "Devices with jailbreak detected are considered less secure. Your data may be exposed to additional risks.";
-"jailbreak_warning_title" = "Jailbreak detected";
+"jailbreak_warning_message" = "Los dispositivos con jailbreak se consideran menos seguros. Sus datos podrían estar expuestos a riesgos adicionales.";
+"jailbreak_warning_title" = "Jailbreak detectado";
 "key_invalidated_warning_description" = "Ha actualizado la biometría, escanee su tarjeta o anillo para entrar";
 "koinos_insufficient_balance_to_send_koin_description" = "Su saldo debe ser mayor que el valor de la tarifa para hacer una transferencia";
 "koinos_insufficient_balance_to_send_koin_title" = "Saldo insuficiente";
@@ -978,6 +978,7 @@
 "reset_card_to_factory_button_title" = "Resetear la tarjeta";
 "reset_card_to_factory_condition_1" = "Entiendo que después de realizar esta acción, ya no tendré acceso a la billetera actual";
 "reset_card_to_factory_condition_2" = "Entiendo que no puedo usar esta tarjeta para recuperar mi código de acceso en las otras tarjetas de la wallet actual";
+"reset_card_to_factory_condition_3" = "I understand that I will completely lose access to my Tangem Pay Card and all funds on it without the possibility of recovery";
 "reset_card_with_backup_to_factory_message" = "El restablecimiento de fábrica eliminará completamente la billetera de la tarjeta seleccionada. No podrá restaurar la billetera actual ni usar la tarjeta para recuperar el código de acceso.";
 "reset_card_without_backup_to_factory_message" = "El reseteo a valores de fábrica eliminará completamente la billetera de la tarjeta/anillo seleccionado y lo eliminará de la app. No podrá restaurar la billetera actual.";
 "reset_cards_dialog_complete_description" = "All Tangem devices have been reset.";
@@ -1320,6 +1321,7 @@
 "tangem_pay_unfreeze_card_success" = "Tu tarjeta está descongelada.";
 "tangem_pay_withdrawal" = "Retirada";
 "tangempay_account_unable_to_use_rooted" = "Unable to use on rooted device";
+"tangempay_cancel_kyc" = "Cancel KYC";
 "tangempay_card_details_add_funds_subtitle" = "Opciones de recarga";
 "tangempay_card_details_add_funds" = "Agregar fondos";
 "tangempay_card_details_card_number" = "Número de tarjeta";
@@ -1347,6 +1349,7 @@
 "tangempay_card_details_open_wallet_step_5" = "¡Todo listo! Tu tarjeta está lista para usar.";
 "tangempay_card_details_open_wallet_title_apple" = "Añade tu tarjeta a Apple Pay";
 "tangempay_card_details_open_wallet_title" = "Añadir tarjeta a Google Pay";
+"tangempay_card_details_pin_code" = "PIN code";
 "tangempay_card_details_receive_description" = "Comparte tu dirección o muestra el código QR";
 "tangempay_card_details_receive_error_description" = "Technical issues detected. Please try again later or contact support.";
 "tangempay_card_details_receive_error_title" = "Recepción no disponible ahora";
@@ -1355,6 +1358,8 @@
 "tangempay_card_details_swap_description" = "Intercambia cualquier activo de tu portafolio por una tarjeta";
 "tangempay_card_details_title" = "Detalles de la tarjeta";
 "tangempay_card_details_unfreeze_card" = "Descongelar tarjeta";
+"tangempay_card_details_view_pin_code_description" = "Come back to the app if you forget it.";
+"tangempay_card_details_view_pin_code_title" = "Your PIN code";
 "tangempay_card_details_withdraw_error_title" = "Retiro no disponible ahora";
 "tangempay_card_details_withdraw_in_progress_description" = "No puedes iniciar un intercambio o un nuevo retiro hasta que el actual finalice.";
 "tangempay_card_details_withdraw_in_progress_title" = "Retiro en progreso";
@@ -1373,10 +1378,13 @@
 "tangempay_issuing_your_card_description" = "Estamos preparando tu tarjeta. Esto puede llevar un poco de tiempo.";
 "tangempay_issuing_your_card" = "Emisión de su tarjeta";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
+"tangempay_kyc_confirm_cancellation_alert_title" = "Confirm Cancellation";
+"tangempay_kyc_confirm_cancellation_description" = "Are you sure you want to stop the KYC process? You can return to it anytime.";
 "tangempay_kyc_failed_description" = "No pudimos verificar tu perfil. Si tienes alguna pregunta, contacta con el soporte.";
 "tangempay_kyc_failed_title" = "Lamentablemente, no pudimos verificar tu identidad";
 "tangempay_kyc_in_progress_notification_button" = "Ver estado";
 "tangempay_kyc_in_progress_notification_title" = "KYC en progreso para Tangem Pay";
+"tangempay_kyc_in_progress_popup_description" = "Use the buttons below to view your current KYC status or cancel it.";
 "tangempay_kyc_in_progress" = "KYC en curso";
 "tangempay_onboarding_banner_description" = "Usa tus criptomonedas para compras en el mundo real. \nEs una tarjeta de pago única en su tipo.";
 "tangempay_onboarding_banner_title" = "Tangem Visa Card";

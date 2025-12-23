@@ -232,7 +232,10 @@ public final class NFTCollectionsListViewModel: ObservableObject {
         }
     }
 
-    private func buildCollections(from collections: [NFTCollection]) -> [NFTCollectionDisclosureGroupViewModel] {
+    private func buildCollections(
+        from collections: [NFTCollection],
+        navigationContext: NFTNavigationContext? = nil
+    ) -> [NFTCollectionDisclosureGroupViewModel] {
         collections
             .sorted { lhs, rhs in
                 if lhs.id.chain.id.caseInsensitiveEquals(to: rhs.id.chain.id) {
@@ -256,7 +259,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
                     assetsState: assetsState,
                     dependencies: dependencies,
                     openAssetDetailsAction: { [weak self] asset in
-                        self?.openAssetDetails(for: asset, in: collection)
+                        self?.openAssetDetails(for: asset, in: collection, navigationContext: navigationContext)
                     },
                     onCollectionTap: { [weak self] collection, isExpanded in
                         self?.onCollectionTap(collection: collection, isExpanded: isExpanded)
@@ -275,7 +278,10 @@ public final class NFTCollectionsListViewModel: ObservableObject {
                     name: accountWithCollectionsData.accountData.name,
                     iconData: accountWithCollectionsData.accountData.iconData
                 ),
-                collectionsViewModels: buildCollections(from: accountWithCollectionsData.collections)
+                collectionsViewModels: buildCollections(
+                    from: accountWithCollectionsData.collections,
+                    navigationContext: accountWithCollectionsData.navigationContext
+                )
             )
         }
     }
@@ -344,8 +350,12 @@ public final class NFTCollectionsListViewModel: ObservableObject {
         }
     }
 
-    private func openAssetDetails(for asset: NFTAsset, in collection: NFTCollection) {
-        coordinator?.openAssetDetails(for: asset, in: collection)
+    private func openAssetDetails(
+        for asset: NFTAsset,
+        in collection: NFTCollection,
+        navigationContext: NFTNavigationContext?
+    ) {
+        coordinator?.openAssetDetails(for: asset, in: collection, navigationContext: navigationContext)
         dependencies.analytics.logDetailsOpen(
             dependencies.nftChainNameProviding.provide(for: asset.id.chain),
             asset.id.contractType.description
