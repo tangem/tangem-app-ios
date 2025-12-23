@@ -39,7 +39,11 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
             .eraseToAnyPublisher()
     }
 
-    var isUserWalletModelsAvailble: AnyPublisher<Bool, Never> {
+    var isUserWalletModelsAvailable: Bool {
+        _availableUserWalletModels.value.isNotEmpty
+    }
+
+    var isUserWalletModelsAvailblePublisher: AnyPublisher<Bool, Never> {
         availableUserWalletModelsPublisher
             .map { $0.isNotEmpty }
             .eraseToAnyPublisher()
@@ -51,12 +55,26 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
 
     var shouldShowGetTangemPayBanner: AnyPublisher<Bool, Never> {
         Publishers
-            .CombineLatest(
+            .CombineLatest3(
                 shouldShowGetTangemPay,
-                _shouldShowGetTangemPayBanner.eraseToAnyPublisher()
+                isTangemPayHiddenAnywhereOnce.map { !$0 },
+                _shouldShowGetTangemPayBanner
             )
-            .map { $0 && $1 }
+            .map { $0 && $1 && $2 }
             .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
+    private var isTangemPayHiddenPublisher: AnyPublisher<[String: Bool], Never> {
+        AppSettings.shared
+            .$tangemPayIsKYCHiddenForCustomerWalletId
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
+    private var isTangemPayHiddenAnywhereOnce: AnyPublisher<Bool, Never> {
+        isTangemPayHiddenPublisher
+            .map { $0.contains(where: { $0.value }) }
             .eraseToAnyPublisher()
     }
 
@@ -64,7 +82,7 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
         Publishers
             .CombineLatest3(
                 isTangemPayAvailablePublisher,
-                isUserWalletModelsAvailble,
+                isUserWalletModelsAvailblePublisher,
                 Just(isDeviceRooted).map { !$0 }
             )
             .map { $0 && $1 && $2 }
@@ -78,18 +96,20 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
     private var cancellable: Cancellable?
 
     init() {
-        // [REDACTED_TODO_COMMENT]
-//        runTask(in: self) { repository in
-//            do {
-//                let isTangemPayAvailable = try await availabilityService
-//                    .loadEligibility()
-//                    .isTangemPayAvailable
-//
-//                self._isTangemPayAvailable.send(isTangemPayAvailable)
-//            } catch {
-//                VisaLogger.error("Failed to receive TangemPay availability", error: error)
-//            }
-//        }
+        guard FeatureProvider.isAvailable(.visa) else {
+            return
+        }
+        runTask(in: self) { repository in
+            do {
+                let isTangemPayAvailable = try await repository.availabilityService
+                    .loadEligibility()
+                    .isTangemPayAvailable
+
+                repository._isTangemPayAvailable.send(isTangemPayAvailable)
+            } catch {
+                VisaLogger.error("Failed to receive TangemPay availability", error: error)
+            }
+        }
 
         bind()
     }
@@ -99,11 +119,26 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
         AppSettings.shared.tangemPayShouldShowGetBanner = false
     }
 
+    func isTangemPayHiddenPublisher(for userWalletId: String) -> AnyPublisher<Bool, Never> {
+        isTangemPayHiddenPublisher
+            .map {
+                $0[userWalletId, default: false]
+            }
+            .eraseToAnyPublisher()
+    }
+
     private func bind() {
-        cancellable = userWalletRepository.eventProvider
+        let userWalletRepoEvent = userWalletRepository.eventProvider
             .removeDuplicates()
             .mapToVoid()
             .prepend(())
+
+        cancellable = Publishers
+            .CombineLatest(
+                userWalletRepoEvent,
+                isTangemPayHiddenPublisher
+            )
+            .mapToVoid()
             .withWeakCaptureOf(self)
             .asyncMap { repository, _ in
                 return await repository.userWalletRepository.models
@@ -111,12 +146,20 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
                         guard !model.isUserWalletLocked, model.config.hasFeature(.tangemPay) else {
                             return false
                         }
+                        let customerWalletId = model.userWalletId.stringValue
 
                         do {
-                            _ = try await repository.availabilityService
+                            let result = try await repository.availabilityService
                                 .isPaeraCustomer(
-                                    customerWalletId: model.userWalletId.stringValue
+                                    customerWalletId: customerWalletId
                                 )
+
+                            if !result.isTangemPayEnabled {
+                                await MainActor.run {
+                                    AppSettings.shared.tangemPayShouldShowGetBanner = false
+                                }
+                            }
+
                             return false
                         } catch {
                             return true
