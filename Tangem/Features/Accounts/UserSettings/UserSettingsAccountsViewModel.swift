@@ -66,8 +66,7 @@ final class UserSettingsAccountsViewModel: ObservableObject {
 
     private func bindAccountRows() {
         accountModelsManager
-            .accountModelsPublisher
-            .map { Self.extractVisibleAccounts(from: $0) }
+            .cryptoAccountModelsPublisher
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, accounts in
@@ -195,18 +194,6 @@ final class UserSettingsAccountsViewModel: ObservableObject {
             cachedAccountRows[id] = accountRow
 
             return accountRow
-        }
-    }
-
-    private static func extractVisibleAccounts(from accountModels: [AccountModel]) -> [any BaseAccountModel] {
-        accountModels.flatMap { accountModel -> [any BaseAccountModel] in
-            switch accountModel {
-            case .standard(.single):
-                // Single accounts are not displayed in the UI
-                return []
-            case .standard(.multiple(let cryptoAccountModels)):
-                return cryptoAccountModels
-            }
         }
     }
 
