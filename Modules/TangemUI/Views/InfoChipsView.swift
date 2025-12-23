@@ -9,13 +9,14 @@
 import SwiftUI
 import TangemAssets
 import TangemUIUtils
+import TangemFoundation
 
 /// Data model for a single chip.
-public struct InfoChipItem: Identifiable, Hashable {
+public struct InfoChipItem: Identifiable, Equatable {
     public let id: String
     public let title: String
-    public let leadingIcon: InfoChipIcon?
-    public let trailingIcon: InfoChipIcon?
+    public var leadingIcon: InfoChipIcon?
+    public var trailingIcon: InfoChipIcon?
 
     public init(
         id: String = UUID().uuidString,
@@ -28,19 +29,10 @@ public struct InfoChipItem: Identifiable, Hashable {
         self.leadingIcon = leadingIcon
         self.trailingIcon = trailingIcon
     }
-
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-        hasher.combine(title)
-    }
-
-    public static func == (lhs: InfoChipItem, rhs: InfoChipItem) -> Bool {
-        lhs.id == rhs.id && lhs.title == rhs.title
-    }
 }
 
 /// Defines how an icon should be rendered inside a chip.
-public enum InfoChipIcon {
+public enum InfoChipIcon: Equatable {
     case system(String)
     case asset(String)
 
