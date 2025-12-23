@@ -13,10 +13,13 @@ protocol TangemPayAvailabilityRepository {
     var isTangemPayAvailable: Bool { get }
     var availableUserWalletModels: [any UserWalletModel] { get }
     var isTangemPayAvailablePublisher: AnyPublisher<Bool, Never> { get }
-    var isUserWalletModelsAvailble: AnyPublisher<Bool, Never> { get }
+    var isUserWalletModelsAvailable: Bool { get }
+    var isUserWalletModelsAvailblePublisher: AnyPublisher<Bool, Never> { get }
 
     var shouldShowGetTangemPay: AnyPublisher<Bool, Never> { get }
     var shouldShowGetTangemPayBanner: AnyPublisher<Bool, Never> { get }
+
+    func isTangemPayHiddenPublisher(for userWalletId: String) -> AnyPublisher<Bool, Never>
     func userDidCloseGetTangemPayBanner()
 }
 
