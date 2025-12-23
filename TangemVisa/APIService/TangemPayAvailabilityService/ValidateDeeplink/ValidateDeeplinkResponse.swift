@@ -8,8 +8,8 @@
 
 public struct ValidateDeeplinkResponse: Decodable {
     public enum Status: String, Decodable {
-        case valid
-        case invalid
+        case valid = "VALID"
+        case invalid = "INVALID"
     }
 
     public let status: Status

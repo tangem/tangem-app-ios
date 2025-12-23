@@ -16,6 +16,7 @@ import TangemNFT
 import TangemFoundation
 import TangemUI
 import TangemMobileWalletSdk
+import struct TangemUIUtils.AlertBinder
 
 final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     let dismissAction: Action<Void>
@@ -350,6 +351,16 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         }
     }
 
+    func openTangemPayKYCInProgressPopup(tangemPayAccount: TangemPayAccount) {
+        let viewModel = TangemPayKYCStatusPopupViewModel(
+            tangemPayAccount: tangemPayAccount,
+            coordinator: self
+        )
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
     func openTangemPayFailedToIssueCardPopup(userWalletModel: UserWalletModel) {
         let viewModel = TangemPayFailedToIssueCardSheetViewModel(userWalletModel: userWalletModel, coordinator: self)
         Task { @MainActor in
@@ -677,6 +688,14 @@ extension MainCoordinator {
     enum Constants {
         static let tooltipAnimationDuration: Double = 0.3
         static let tooltipAnimationDelay: Double = 1.5
+    }
+}
+
+extension MainCoordinator: TangemPayKYCStatusRoutable {
+    func closeKYCStatusPopup() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
     }
 }
 
