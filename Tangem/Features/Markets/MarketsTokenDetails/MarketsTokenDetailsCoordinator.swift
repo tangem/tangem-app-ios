@@ -38,8 +38,6 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     @Published var stakingDetailsCoordinator: StakingDetailsCoordinator? = nil
 
     private var safariHandle: SafariHandle?
-
-    private let portfolioCoordinatorFactory = MarketsTokenDetailsPortfolioCoordinatorFactory()
     private let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
 
     // MARK: - Init

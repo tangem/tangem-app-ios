@@ -231,6 +231,7 @@ struct TangemPayCardDetailsView: View {
                         color: Colors.Text.constantWhite
                     )
                     .screenCaptureProtection()
+                    .fixedSize()
 
                 Spacer()
 

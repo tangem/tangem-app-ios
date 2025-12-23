@@ -310,23 +310,61 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             return
         }
 
-        userWalletModel.tangemPayAccountPublisher
-            .compactMap(\.self)
-            .flatMapLatest(\.tangemPayNotificationManager.notificationPublisher)
+        let userWalletId = userWalletModel.userWalletId.stringValue
+        let isTangemPayHidden = tangemPayAvailabilityRepository
+            .isTangemPayHiddenPublisher(for: userWalletId)
+
+        Publishers
+            .CombineLatest(
+                userWalletModel.tangemPayAccountPublisher.compactMap(\.self),
+                isTangemPayHidden
+            )
+            .flatMapLatest { tangemPayAccount, isHidden in
+                guard !isHidden else {
+                    return Just([NotificationViewInput]())
+                        .eraseToAnyPublisher()
+                }
+
+                return tangemPayAccount
+                    .tangemPayNotificationManager
+                    .notificationPublisher
+            }
             .receiveOnMain()
             .assign(to: &$tangemPayNotificationInputs)
 
-        userWalletModel.tangemPayAccountPublisher
-            .compactMap(\.self)
-            .flatMapLatest(\.tangemPaySyncInProgressPublisher)
+        Publishers
+            .CombineLatest(
+                userWalletModel.tangemPayAccountPublisher.compactMap(\.self),
+                isTangemPayHidden
+            )
+            .flatMapLatest { tangemPayAccount, isHidden in
+                guard !isHidden else {
+                    return Just(false)
+                        .eraseToAnyPublisher()
+                }
+
+                return tangemPayAccount
+                    .tangemPaySyncInProgressPublisher
+            }
             .receiveOnMain()
             .assign(to: &$tangemPaySyncInProgress)
 
-        userWalletModel.tangemPayAccountPublisher
-            .compactMap(\.self)
+        Publishers
+            .CombineLatest(
+                userWalletModel
+                    .tangemPayAccountPublisher.compactMap(\.self),
+                tangemPayAvailabilityRepository
+                    .isTangemPayHiddenPublisher(for: userWalletId)
+            )
             .withWeakCaptureOf(self)
-            .map { viewModel, tangemPayAccount in
-                TangemPayAccountViewModel(tangemPayAccount: tangemPayAccount, router: viewModel)
+            .map { viewModel, args in
+                let (tangemPayAccount, isAccountHidden) = args
+
+                if isAccountHidden {
+                    return nil
+                }
+
+                return TangemPayAccountViewModel(tangemPayAccount: tangemPayAccount, router: viewModel)
             }
             .receiveOnMain()
             .assign(to: &$tangemPayAccountViewModel)
@@ -360,9 +398,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             throw "NFTEntrypointViewModel already created"
         }
 
-        let accountForNFTCollectionsProvider = AccountForNFTCollectionProvider(
-            accountModelsManager: userWalletModel.accountModelsManager
-        )
+        let accountForNFTCollectionsProvider = AccountForNFTCollectionProvider(userWalletModel: userWalletModel)
 
         // [REDACTED_TODO_COMMENT]
         let navigationInput = NFTNavigationInput(
@@ -682,6 +718,12 @@ extension MultiWalletMainContentViewModel {
 // MARK: - TangemPayAccountRoutable
 
 extension MultiWalletMainContentViewModel: TangemPayAccountRoutable {
+    func openTangemPayKYCInProgressPopup(tangemPayAccount: TangemPayAccount) {
+        coordinator?.openTangemPayKYCInProgressPopup(
+            tangemPayAccount: tangemPayAccount
+        )
+    }
+
     func openTangemPayIssuingYourCardPopup() {
         coordinator?.openTangemPayIssuingYourCardPopup()
     }
