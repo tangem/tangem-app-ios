@@ -8,4 +8,5 @@
 
 public struct TangemPayIsPaeraCustomerResponse: Decodable {
     public let id: String
+    public let isTangemPayEnabled: Bool
 }
