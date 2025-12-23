@@ -247,6 +247,11 @@
        "source": "https://eips.ethereum.org/EIPS/eip-1155",
        "name": "yieldTopup"
    },
+   "0x0779afe6": {
+       "info": "ERC1155",
+       "source": "https://eips.ethereum.org/EIPS/eip-1155",
+       "name": "yieldSend"
+   },
    "0xf9609f08": {
        "info": "ERC1155",
        "source": "https://eips.ethereum.org/EIPS/eip-1155",

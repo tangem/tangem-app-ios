@@ -13,7 +13,7 @@ public struct StakingBalance: Hashable {
     public let amount: Decimal
     public let accountAddress: String?
     public let balanceType: StakingBalanceType
-    public let validatorType: StakingValidatorType
+    public let targetType: StakingTargetType
     public let inProgress: Bool
     public let actions: [StakingPendingActionInfo]
     public let actionConstraints: [StakingPendingActionConstraint]?
@@ -23,7 +23,7 @@ public struct StakingBalance: Hashable {
         amount: Decimal,
         accountAddress: String? = nil,
         balanceType: StakingBalanceType,
-        validatorType: StakingValidatorType,
+        targetType: StakingTargetType,
         inProgress: Bool,
         actions: [StakingPendingActionInfo],
         actionConstraints: [StakingPendingActionConstraint]? = nil
@@ -32,7 +32,7 @@ public struct StakingBalance: Hashable {
         self.amount = amount
         self.accountAddress = accountAddress
         self.balanceType = balanceType
-        self.validatorType = validatorType
+        self.targetType = targetType
         self.inProgress = inProgress
         self.actions = actions
         self.actionConstraints = actionConstraints
@@ -42,7 +42,7 @@ public struct StakingBalance: Hashable {
 public extension Array where Element == StakingBalance {
     /// All staked / blocked balances that were received from the blockchain
     func blocked() -> Self {
-        filter { $0.balanceType != .pending }
+        filter { $0.balanceType != .pending && !$0.inProgress }
     }
 
     /// The balance of "stakes" includes the `pending` balance from the local cache
@@ -57,5 +57,18 @@ public extension Array where Element == StakingBalance {
 
     func sum() -> Decimal {
         reduce(.zero) { $0 + $1.amount }
+    }
+
+    func apy(fallbackAPY: Decimal) -> Decimal {
+        let rewardRates = compactMap { balance -> Decimal? in
+            guard case .active = balance.balanceType else { return nil }
+            return balance.targetType.target?.rewardRate
+        }
+
+        guard !rewardRates.isEmpty else { // all the balances are in unstaking/unstaked state
+            return fallbackAPY
+        }
+
+        return rewardRates.sum() / Decimal(rewardRates.count)
     }
 }

@@ -209,6 +209,20 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             return
         }
 
+        runTask(in: self) { _ in
+            let userWalletConfig = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
+
+            if let userWalletId = UserWalletId(config: userWalletConfig) {
+                let walletCreationHelper = WalletCreationHelper(
+                    userWalletId: userWalletId,
+                    userWalletName: nil,
+                    userWalletConfig: userWalletConfig
+                )
+
+                try? await walletCreationHelper.createWallet()
+            }
+        }
+
         guard let userWallet = CommonUserWalletModelFactory().makeModel(
             walletInfo: .cardWallet(cardInfo),
             keys: .cardWallet(keys: cardInfo.card.wallets)

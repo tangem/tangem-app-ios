@@ -319,8 +319,6 @@ extension CommonWalletModel: WalletModel {
 
     var shouldShowFeeSelector: Bool { walletManager.allowsFeeSelection }
 
-    var defaultAddressString: String { wallet.defaultAddress.value }
-
     var qrReceiveMessage: String {
         // [REDACTED_TODO_COMMENT]
         let symbol = wallet.amounts[amountType]?.currencySymbol ?? wallet.blockchain.currencySymbol
@@ -344,7 +342,7 @@ extension CommonWalletModel: WalletModel {
         .eraseToAnyPublisher()
     }
 
-    var sendingRestrictions: TransactionSendAvailabilityProvider.SendingRestrictions? {
+    var sendingRestrictions: SendingRestrictions? {
         sendAvailabilityProvider.sendingRestrictions(walletModel: self)
     }
 
@@ -637,12 +635,12 @@ extension CommonWalletModel: WalletModelFeeProvider {
         return walletManager.getFee(amount: amount, destination: destination)
     }
 
-    func getFeeCurrencyBalance(amountType: Amount.AmountType) -> Decimal {
-        wallet.feeCurrencyBalance(amountType: amountType)
+    func getFeeCurrencyBalance() -> Decimal {
+        wallet.feeCurrencyBalance(amountType: tokenItem.amountType)
     }
 
-    func hasFeeCurrency(amountType: BlockchainSdk.Amount.AmountType) -> Bool {
-        wallet.hasFeeCurrency(amountType: amountType)
+    func hasFeeCurrency() -> Bool {
+        wallet.hasFeeCurrency(amountType: tokenItem.amountType)
     }
 
     func getFee(compiledTransaction data: Data) async throws -> [Fee] {

@@ -69,7 +69,7 @@ extension MainCoordinator {
             case .swap:
                 return routeSwapAction(userWalletId: navigationAction.params.userWalletId)
 
-            case .onboardVisa:
+            case .onboardVisa, .payApp:
                 return routeOnboardVisaAction(
                     params: navigationAction.params,
                     deeplinkString: navigationAction.deeplinkString
@@ -271,8 +271,7 @@ extension MainCoordinator {
             deeplinkString: String
         ) -> Bool {
             guard FeatureProvider.isAvailable(.visa),
-                  let coordinator,
-                  let userWalletModel = userWalletRepository.selectedModel
+                  let coordinator
             else {
                 incomingActionManager.discardIncomingAction()
                 return false
@@ -280,8 +279,7 @@ extension MainCoordinator {
 
             coordinator.openDeepLink(
                 .onboardVisa(
-                    deeplinkString: deeplinkString,
-                    userWalletModel: userWalletModel
+                    deeplinkString: deeplinkString
                 )
             )
             return true

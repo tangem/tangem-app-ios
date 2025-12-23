@@ -27,6 +27,7 @@ class CommonUserWalletModel {
     let nftManager: NFTManager
     let keysRepository: KeysRepository
     let totalBalanceProvider: TotalBalanceProvider
+    let tangemPayAccountProvider: TangemPayAccountProvider
 
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
     let accountModelsManager: AccountModelsManager
@@ -47,11 +48,6 @@ class CommonUserWalletModel {
     private let _updatePublisher: PassthroughSubject<UpdateResult, Never> = .init()
     private let _cardHeaderImagePublisher: CurrentValueSubject<ImageType?, Never>
 
-    // [REDACTED_TODO_COMMENT]
-    // [REDACTED_INFO]
-    private let tangemPayAccountSubject = CurrentValueSubject<TangemPayAccount?, Never>(nil)
-    private var tangemPayAccountCancellable: Cancellable?
-
     init(
         walletInfo: WalletInfo,
         name: String,
@@ -62,6 +58,7 @@ class CommonUserWalletModel {
         nftManager: NFTManager,
         keysRepository: KeysRepository,
         totalBalanceProvider: TotalBalanceProvider,
+        tangemPayAccountProvider: TangemPayAccountProviderSetupable,
         userTokensPushNotificationsManager: UserTokensPushNotificationsManager,
         accountModelsManager: AccountModelsManager
     ) {
@@ -74,30 +71,14 @@ class CommonUserWalletModel {
         self.nftManager = nftManager
         self.keysRepository = keysRepository
         self.totalBalanceProvider = totalBalanceProvider
+        self.tangemPayAccountProvider = tangemPayAccountProvider
         self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
         self.accountModelsManager = accountModelsManager
 
         _cardHeaderImagePublisher = .init(config.cardHeaderImage)
 
-        // [REDACTED_TODO_COMMENT]
-        // [REDACTED_INFO]
         if FeatureProvider.isAvailable(.visa) {
-            runTask { [self] in
-                let builder = TangemPayAccountBuilder()
-                let tangemPayAccount = try? await builder.makeTangemPayAccount(
-                    authorizerType: .availabilityService,
-                    userWalletModel: self
-                )
-
-                if let tangemPayAccount {
-                    tangemPayAccountSubject.send(tangemPayAccount)
-                } else {
-                    // Make it possible to create TangemPayAccount from offer screen
-                    tangemPayAccountCancellable = updatePublisher.compactMap(\.tangemPayAccount)
-                        .first()
-                        .sink(receiveValue: tangemPayAccountSubject.send)
-                }
-            }
+            tangemPayAccountProvider.setup(for: self)
         }
     }
 
@@ -113,6 +94,18 @@ class CommonUserWalletModel {
             keysRepository.update(keys: walletInfo.keys)
         }
         _updatePublisher.send(.configurationChanged(model: self))
+    }
+
+    private func syncRemoteAfterUpgrade() {
+        runTask(in: self) { model in
+            let walletCreationHelper = WalletCreationHelper(
+                userWalletId: model.userWalletId,
+                userWalletName: model.name,
+                userWalletConfig: model.config
+            )
+
+            try? await walletCreationHelper.updateWallet()
+        }
     }
 }
 
@@ -197,18 +190,6 @@ extension CommonUserWalletModel: UserWalletModel {
         _updatePublisher.eraseToAnyPublisher()
     }
 
-    // [REDACTED_TODO_COMMENT]
-    // [REDACTED_INFO]
-    var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount, Never> {
-        tangemPayAccountSubject
-            .compactMap(\.self)
-            .eraseToAnyPublisher()
-    }
-
-    var tangemPayAccount: TangemPayAccount? {
-        tangemPayAccountSubject.value
-    }
-
     func update(type: UpdateRequest) {
         switch type {
         case .newName(let name):
@@ -247,6 +228,7 @@ extension CommonUserWalletModel: UserWalletModel {
                 updateConfiguration(walletInfo: WalletInfo.cardWallet(mutableCardInfo))
                 _cardHeaderImagePublisher.send(config.cardHeaderImage)
                 cleanMobileWallet()
+                syncRemoteAfterUpgrade()
             }
 
         case .accessCodeDidSet:
@@ -358,6 +340,20 @@ extension CommonUserWalletModel: TangemPayAuthorizingProvider {
         }
     }
 }
+
+// MARK: - TangemPayAccountProvider
+
+extension CommonUserWalletModel: TangemPayAccountProvider {
+    var tangemPayAccount: TangemPayAccount? {
+        tangemPayAccountProvider.tangemPayAccount
+    }
+
+    var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount?, Never> {
+        tangemPayAccountProvider.tangemPayAccountPublisher
+    }
+}
+
+// MARK: - TotalBalanceProvider
 
 extension CommonUserWalletModel: TotalBalanceProvider {
     var totalBalance: TotalBalanceState {

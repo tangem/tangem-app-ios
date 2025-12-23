@@ -22,7 +22,8 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
     let defaultAddressString: String
 
     let walletModelDependenciesProvider: WalletModelDependenciesProvider
-    let walletModelBalancesProvider: WalletModelBalancesProvider
+    let availableBalanceProvider: any TokenBalanceProvider
+    let fiatAvailableBalanceProvider: any TokenBalanceProvider
     let transactionDispatcherFactory: TransactionDispatcherFactory
     let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let pendingExpressTransactionsManagerBuilder: PendingExpressTransactionsManagerBuilder
@@ -78,7 +79,8 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
         defaultAddressString = walletModel.defaultAddressString
 
         walletModelDependenciesProvider = walletModel
-        walletModelBalancesProvider = walletModel
+        availableBalanceProvider = walletModel.availableBalanceProvider
+        fiatAvailableBalanceProvider = walletModel.fiatAvailableBalanceProvider
         transactionDispatcherFactory = TransactionDispatcherFactory(
             walletModel: walletModel,
             signer: userWalletInfo.signer
@@ -89,20 +91,17 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
         )
         pendingExpressTransactionsManagerBuilder = .init(
             userWalletId: userWalletInfo.id.stringValue,
-            walletModel: walletModel
+            tokenItem: walletModel.tokenItem,
         )
 
-        let expressDependenciesInput = ExpressDependenciesInput(
+        let source = ExpressInteractorWalletModelWrapper(
             userWalletInfo: userWalletInfo,
-            source: ExpressInteractorWalletModelWrapper(userWalletInfo: userWalletInfo, walletModel: walletModel),
-            destination: .none
+            walletModel: walletModel,
+            expressOperationType: .onramp
         )
 
-        expressDependenciesFactory = CommonExpressDependenciesFactory(
-            input: expressDependenciesInput,
-            supportedProviderTypes: [.onramp],
-            operationType: .onramp
-        )
+        let expressDependenciesInput = ExpressDependenciesInput(userWalletInfo: userWalletInfo, source: source)
+        expressDependenciesFactory = CommonExpressDependenciesFactory(input: expressDependenciesInput)
     }
 }
 

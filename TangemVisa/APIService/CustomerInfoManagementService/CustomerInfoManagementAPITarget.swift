@@ -45,6 +45,10 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "order"
         case .getOrder(let orderId):
             "order/\(orderId)"
+        case .getPin(cardId: let cardId):
+            "customer/card/\(cardId)/pin"
+        case .setPayEnabled:
+            "customer/pay-enabled"
         }
     }
 
@@ -62,8 +66,12 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .freeze,
              .unfreeze,
              .getWithdrawSignableData,
-             .sendWithdrawTransaction:
+             .sendWithdrawTransaction,
+             .getPin:
             .post
+
+        case .setPayEnabled:
+            .patch
 
         case .setPin:
             .put
@@ -78,12 +86,20 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getBalance:
             return .requestPlain
 
+        case .setPayEnabled:
+            let requestData = TangemPaySetPayEnabledRequest()
+            return .requestJSONEncodable(requestData)
+
         case .freeze(let cardId), .unfreeze(let cardId):
             let requestData = TangemPayFreezeUnfreezeRequest(cardId: cardId)
             return .requestJSONEncodable(requestData)
 
         case .setPin(let pin, let sessionId, let iv):
             let requestData = TangemPaySetPinRequest(pin: pin, sessionId: sessionId, iv: iv)
+            return .requestJSONEncodable(requestData)
+
+        case .getPin(let cardId, let sessionId):
+            let requestData = TangemPayGetPinRequest(cardId: cardId, sessionId: sessionId)
             return .requestJSONEncodable(requestData)
 
         case .getTransactionHistory(let limit, let cursor):
@@ -125,12 +141,13 @@ extension CustomerInfoManagementAPITarget {
         /// Retrieves an access token for the SumSub KYC flow
         case getKYCAccessToken
 
+        case setPayEnabled
         case getBalance
         case getCardDetails(sessionId: String)
         case freeze(cardId: String)
         case unfreeze(cardId: String)
+        case getPin(cardId: String, sessionId: String)
         case setPin(pin: String, sessionId: String, iv: String)
-
         case getTransactionHistory(limit: Int, cursor: String?)
 
         case getWithdrawSignableData(TangemPayWithdraw.SignableData.Request)

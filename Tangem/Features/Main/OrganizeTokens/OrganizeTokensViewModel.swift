@@ -12,6 +12,7 @@ import SwiftUI
 import TangemUI
 import TangemFoundation
 
+@available(iOS, deprecated: 100000.0, message: "Will be removed after accounts migration is complete ([REDACTED_INFO])")
 final class OrganizeTokensViewModel: ObservableObject, Identifiable {
     /// Sentinel value for `item` of `IndexPath` representing a section.
     var sectionHeaderItemIndex: Int { .min }
@@ -21,7 +22,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
         optionsEditing: optionsEditing
     )
 
-    @Published private(set) var sections: [OrganizeTokensListSection] = []
+    @Published private(set) var sections: [OrganizeTokensListInnerSection] = []
 
     let id = UUID()
 
@@ -47,11 +48,11 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
     private var didBind = false
 
     init(
-        coordinator: OrganizeTokensRoutable,
         userWalletModel: UserWalletModel,
         tokenSectionsAdapter: TokenSectionsAdapter,
         optionsProviding: OrganizeTokensOptionsProviding,
-        optionsEditing: OrganizeTokensOptionsEditing
+        optionsEditing: OrganizeTokensOptionsEditing,
+        coordinator: OrganizeTokensRoutable
     ) {
         self.coordinator = coordinator
         self.userWalletModel = userWalletModel
@@ -68,20 +69,10 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
         reportScreenOpened()
     }
 
-    func onCancelButtonTap() {
-        Analytics.log(.organizeTokensButtonCancel)
-        coordinator?.didTapCancelButton()
-    }
-
-    func onApplyButtonTap() {
-        onSave.send()
-    }
-
     private func bind() {
         if didBind { return }
 
         let sourcePublisherFactory = TokenSectionsSourcePublisherFactory()
-        // [REDACTED_TODO_COMMENT]
         let tokenSectionsSourcePublisher = sourcePublisherFactory.makeSourcePublisher(for: userWalletModel)
 
         let organizedTokensSectionsPublisher = tokenSectionsAdapter
@@ -169,12 +160,12 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
         sortingOption: UserTokensReorderingOptions.Sorting,
         groupingOption: UserTokensReorderingOptions.Grouping,
         dragAndDropActionsCache: OrganizeTokensDragAndDropActionsCache
-    ) -> [OrganizeTokensListSection] {
+    ) -> [OrganizeTokensListInnerSection] {
         let tokenIconInfoBuilder = TokenIconInfoBuilder()
         let listFactory = OrganizeTokensListFactory(tokenIconInfoBuilder: tokenIconInfoBuilder)
 
         var listItemViewModels = sections.enumerated().map { index, section in
-            let isListSectionGrouped = isListSectionGrouped(section)
+            let isListSectionGrouped = section.isGrouped
             let isDraggable = section.items.count > 1
             let items = section.items.map { item in
                 listFactory.makeListItemViewModel(
@@ -196,17 +187,6 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
         }
 
         return listItemViewModels
-    }
-
-    private static func isListSectionGrouped(
-        _ section: TokenSectionsAdapter.Section
-    ) -> Bool {
-        switch section.model {
-        case .plain:
-            return false
-        case .group:
-            return true
-        }
     }
 
     private func reportScreenOpened() {
@@ -261,7 +241,7 @@ extension OrganizeTokensViewModel {
             .first { $0.id.toAnyHashable() == identifier }
     }
 
-    func section(for identifier: AnyHashable) -> OrganizeTokensListSection? {
+    func section(for identifier: AnyHashable) -> OrganizeTokensListInnerSection? {
         return sections
             .first { $0.id == identifier }
     }
@@ -359,7 +339,7 @@ extension OrganizeTokensViewModel {
         return sections[indexPath.section].items[indexPath.item]
     }
 
-    private func section(at indexPath: IndexPath) -> OrganizeTokensListSection? {
+    private func section(at indexPath: IndexPath) -> OrganizeTokensListInnerSection? {
         guard indexPath.item == sectionHeaderItemIndex else { return nil }
 
         return sections[indexPath.section]
@@ -394,6 +374,19 @@ extension OrganizeTokensViewModel: OrganizeTokensDragAndDropControllerDataSource
         listViewIdentifierForItemAt indexPath: IndexPath
     ) -> AnyHashable {
         return section(at: indexPath)?.id ?? itemViewModel(at: indexPath).id.toAnyHashable()
+    }
+}
+
+// MARK: - OrganizeTokensListFooterActionsHandler protocol conformance
+
+extension OrganizeTokensViewModel: OrganizeTokensListFooterActionsHandler {
+    func onCancelButtonTap() {
+        Analytics.log(.organizeTokensButtonCancel)
+        coordinator?.didTapCancelButton()
+    }
+
+    func onApplyButtonTap() {
+        onSave.send()
     }
 }
 

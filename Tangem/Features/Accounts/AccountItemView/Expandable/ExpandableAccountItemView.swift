@@ -18,6 +18,15 @@ struct ExpandableAccountItemView<ExpandedView>: View where ExpandedView: View {
 
     var body: some View {
         ExpandableItemView(
+            initialCollapsedHeight: Constants.initialCollapsedHeight,
+            initialExpandedHeight: Constants.initialExpandedHeight,
+            onExpandedChange: { isExpanded in
+                if isExpanded {
+                    Analytics.log(.mainButtonAccountShowTokens)
+                } else {
+                    Analytics.log(.mainButtonAccountHideTokens)
+                }
+            },
             collapsedView: {
                 CollapsedAccountItemHeaderView(
                     name: viewModel.name,
@@ -45,6 +54,19 @@ struct ExpandableAccountItemView<ExpandedView>: View where ExpandedView: View {
     }
 }
 
+// MARK: - Constants
+
+private extension ExpandableAccountItemView {
+    enum Constants {
+        /// Measured height of the standard collapsed account item view.
+        static var initialCollapsedHeight: CGFloat { 64.0 }
+        /// Measured height of the expanded account item view with a single token in the account.
+        static var initialExpandedHeight: CGFloat { 108.0 }
+    }
+}
+
+// MARK: - Previews
+
 #if DEBUG
 #Preview {
     let infoProvider: FakeTokenItemInfoProvider = {
@@ -61,7 +83,8 @@ struct ExpandableAccountItemView<ExpandedView>: View where ExpandedView: View {
                 ExpandableAccountItemView(
                     viewModel: ExpandableAccountItemViewModel(
                         accountModel: CryptoAccountModelMock(
-                            isMainAccount: false
+                            isMainAccount: false,
+                            onArchive: { _ in }
                         )
                     ),
                     expandedView: {

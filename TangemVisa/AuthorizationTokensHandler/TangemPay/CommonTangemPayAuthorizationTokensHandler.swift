@@ -8,7 +8,7 @@
 
 import TangemFoundation
 
-enum TangemPayAuthorizationTokensHandlerError: Error {
+public enum TangemPayAuthorizationTokensHandlerError: Error {
     case preparingFailed
 }
 
@@ -21,7 +21,7 @@ final class CommonTangemPayAuthorizationTokensHandler {
     private weak var authorizationTokensSaver: TangemPayAuthorizationTokensSaver?
 
     private let authorizationTokensHolder = ThreadSafeContainer<TangemPayAuthorizationTokens?>(nil)
-    private let tokenPreparingSucceededTask = ThreadSafeContainer<Task<Bool, Never>?>(nil)
+    private let taskCoordinator = TaskCoordinator()
 
     init(
         customerWalletId: String,
@@ -36,51 +36,41 @@ final class CommonTangemPayAuthorizationTokensHandler {
     }
 
     private func refreshTokenIfNeeded() async -> Bool {
-        if authorizationTokensHolder.read()?.refreshTokenExpired ?? true {
+        guard let tokens = authorizationTokensHolder.read() else {
             setSyncNeeded()
             return false
         }
 
-        if authorizationTokensHolder.read()?.accessTokenExpired ?? true {
+        if tokens.refreshTokenExpired {
+            setSyncNeeded()
+            return false
+        }
+
+        if tokens.accessTokenExpired {
             do {
-                try await refreshTokens()
+                let newTokens = try await authorizationService.refreshTokens(refreshToken: tokens.refreshToken)
+                try? saveTokens(tokens: newTokens)
 
                 // Either:
                 // 1. Maximum allowed refresh token reuse exceeded
                 // 2. Session doesn't have required client
-            } catch let error as TangemPayAPIErrorResponse where error.code == "invalid_credentials" {
+            } catch let error as TangemPayAPIErrorResponse where ["invalid_credentials", "invalid_token"].contains(error.code) {
                 // Call of `forceRefreshToken` func could fail if same refresh becomes invalid (not expired, but invalid)
                 // That could happen if:
                 // 1. Token refresh called twice on the same device (could happen in there is a race condition somewhere)
                 // 2. User have one TangemPay account linked to more than one device
                 // (i.e. calling token refresh on one device automatically makes refresh token on second device invalid)
                 setSyncNeeded()
+                VisaLogger.error("Failed to refresh token", error: error)
                 return false
             } catch {
                 setUnavailable()
+                VisaLogger.error("Failed to refresh token", error: error)
                 return false
             }
         }
 
         return true
-    }
-
-    private func refreshTokens() async throws {
-        guard let tokens = authorizationTokensHolder.read() else {
-            return
-        }
-
-        if tokens.refreshTokenExpired {
-            throw VisaAuthorizationTokensHandlerError.refreshTokenExpired
-        }
-
-        let newTokens = try await authorizationService.refreshTokens(refreshToken: tokens.refreshToken)
-
-        if newTokens.accessTokenExpired {
-            throw VisaAuthorizationTokensHandlerError.failedToUpdateAccessToken
-        }
-
-        try saveTokens(tokens: newTokens)
     }
 }
 
@@ -108,28 +98,36 @@ extension CommonTangemPayAuthorizationTokensHandler: TangemPayAuthorizationToken
     }
 
     func prepare() async throws {
-        if let tokenPreparingSucceededTask = tokenPreparingSucceededTask.read() {
-            let succeeded = await tokenPreparingSucceededTask.value
-            if !succeeded {
-                throw TangemPayAuthorizationTokensHandlerError.preparingFailed
-            }
-            return
+        let preparingSucceededTask = await taskCoordinator.getOrCreateTask { [weak self] in
+            await self?.refreshTokenIfNeeded() ?? false
         }
 
-        let tokenPreparingSucceededTask = _Concurrency.Task { [self] in
-            await refreshTokenIfNeeded()
-        }
-        self.tokenPreparingSucceededTask.mutate {
-            $0 = tokenPreparingSucceededTask
-        }
+        let preparingSucceeded = await preparingSucceededTask.value
 
-        let succeeded = await tokenPreparingSucceededTask.value
-        self.tokenPreparingSucceededTask.mutate {
-            $0 = nil
-        }
-
-        if !succeeded {
+        if !preparingSucceeded {
             throw TangemPayAuthorizationTokensHandlerError.preparingFailed
         }
+    }
+}
+
+private actor TaskCoordinator {
+    private var currentTask: Task<Bool, Never>?
+
+    func getOrCreateTask(action: @escaping () async -> Bool) -> Task<Bool, Never> {
+        if let existingTask = currentTask {
+            return existingTask
+        }
+
+        let newTask = Task { [weak self] in
+            let result = await action()
+            await self?.clearTask()
+            return result
+        }
+        currentTask = newTask
+        return newTask
+    }
+
+    private func clearTask() {
+        currentTask = nil
     }
 }
