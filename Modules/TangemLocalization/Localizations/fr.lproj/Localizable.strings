@@ -23,8 +23,8 @@
 "account_archived_recover_error_title" = "Can't recover account";
 "account_archived_recover" = "Recover";
 "account_archived_title" = "Archived";
-"account_could_not_archive_referral_program_message" = "This account participates in the referral program.";
-"account_could_not_archive_referral_program_title" = "This account cannot be archived.";
+"account_could_not_archive_referral_program_message" = "This account is participating in the referral program.";
+"account_could_not_archive_referral_program_title" = "This account can’t be archived";
 "account_could_not_archive" = "We couldn’t archive account. Please try again later.";
 "account_could_not_create" = "We couldn’t create account. Please try again later.";
 "account_create_success_message" = "Account created";
@@ -37,13 +37,14 @@
 "account_form_account_index" = "Account #%@ — used for address derivation.";
 "account_form_create_button" = "Add account";
 "account_form_edit_button" = "Save";
-"account_form_name_already_exist_error_description" = "Account name already exists";
+"account_form_name_already_exist_error_description" = "An account with this name already exists. Please choose a different name.";
+"account_form_name_already_exist_error_title" = "Account name already in use";
 "account_form_name" = "Account name";
 "account_form_placeholder_edit_account" = "Account";
 "account_form_placeholder_new_account" = "New account";
 "account_form_title_create" = "Add account";
 "account_form_title_edit" = "Edit account";
-"account_generic_error_dialog_message" = "Please try again later. If it keeps happening, get in touch with support and we’ll help you resolve it.";
+"account_generic_error_dialog_message" = "Please try again later. If the problem persists, contact support and we’ll help you resolve it.";
 "account_label_tokens_info" = "%1$@ in %2$@";
 "account_main_account_title" = "Main account";
 "account_recover_limit_dialog_description" = "You have already exceeded the limit of %1$@ active accounts. Archive one to recover";
@@ -607,6 +608,7 @@
 "hw_upgrade_title" = "Upgrade to our Hardware Wallet";
 "hw_upgrade_to_cold_banner_description" = "Keep your crypto safe with Tangem's top-tier hardware wallet.";
 "hw_upgrade_to_cold_banner_title" = "Upgrade your wallet to hardware security";
+"hw_upgrade" = "Upgrade";
 "information_generated_with_ai" = "Ces informations ont été générées avec l'IA.\nAppuyez ici si vous trouvez des erreurs.";
 "initial_message_change_access_code_body" = "Touchez, pour modifier le code d'accès";
 "initial_message_change_passcode_body" = "Touchez, pour modifier le mot de passe";
@@ -748,6 +750,10 @@
 "mobile_wallet_requires_min_os_warning_body" = "Vous devez effectuer la mise à jour %1$@ afin de créer un portefeuille mobile.";
 "mobile_wallet_requires_min_os_warning_title" = "Le portefeuille mobile nécessite %1$@ ou une version supérieure.";
 "news_all_news" = "All news";
+"news_like" = "Like";
+"news_quick_recap" = "Quick recap";
+"news_related_news" = "Related News";
+"news_sources" = "Sources";
 "news_stay_in_the_loop" = "Stay in the loop";
 "nft_about_title" = "À propos des NFT";
 "nft_asset" = "Actif NFT";
@@ -1370,7 +1376,7 @@
 "tangempay_failed_to_issue_card_retry_description" = "Une erreur technique s'est produite, veuillez réessayer en cliquant sur le bouton ci-dessous";
 "tangempay_failed_to_issue_card_support_description" = "Une erreur technique s'est produite, veuillez contacter le support";
 "tangempay_failed_to_issue_card" = "Échec de l'émission de la carte";
-"tangempay_get_banner_description" = "Utilisez vos cryptomonnaies pour vos dépenses quotidiennes. \nC'est une carte de paiement unique en son genre.";
+"tangempay_get_banner_description" = "Obtenez votre carte virtuelle Tangem Visa gratuite";
 "tangempay_get_tangem_pay" = "Obtenir Tangem Pay";
 "tangempay_go_to_support" = "Contacter le support";
 "tangempay_issue_card_notification_description" = "Cela prend généralement jusqu'à 15 minutes";
@@ -1386,8 +1392,8 @@
 "tangempay_kyc_in_progress_notification_title" = "KYC en cours pour Tangem Pay";
 "tangempay_kyc_in_progress_popup_description" = "Use the buttons below to view your current KYC status or cancel it.";
 "tangempay_kyc_in_progress" = "KYC en cours";
-"tangempay_onboarding_banner_description" = "Utilisez vos cryptomonnaies pour vos dépenses du quotidien. \nC'est une carte de paiement unique en son genre.";
-"tangempay_onboarding_banner_title" = "Tangem Visa Card";
+"tangempay_onboarding_banner_description" = "Obtenez votre carte virtuelle Tangem Visa gratuite";
+"tangempay_onboarding_banner_title" = "Utilisez USDC pour les paiements quotidiens";
 "tangempay_onboarding_get_card_button_text" = "Obtenir la carte";
 "tangempay_onboarding_pay_description" = "Avec carte numérique compatible Apple Pay et Google Pay";
 "tangempay_onboarding_pay_title" = "Dépensez vos actifs partout";
@@ -1402,7 +1408,7 @@
 "tangempay_service_unavailable_title" = "Service temporairement indisponible";
 "tangempay_service_unreachable_try_later" = "Les données ne peuvent pas être affichées pour le moment, mais les paiements par carte fonctionnent toujours.";
 "tangempay_sync_needed" = "Synchronisation requise";
-"tangempay_tangem_visa_card" = "Tangem Visa Card";
+"tangempay_tangem_visa_card" = "Utilisez USDC pour les paiements quotidiens";
 "tangempay_temporarily_unavailable" = "Tangem Pay est temporairement indisponible";
 "tangempay_title" = "Tangem Pay";
 "tangempay_use_tangem_device_to_restore_payment_account" = "Utilisez votre carte ou votre bague pour restaurer l'accès à votre compte de paiement";
