@@ -687,6 +687,7 @@
 		2DB6488B2C3587D900DA100D /* WalletSelectorDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB6488A2C3587D900DA100D /* WalletSelectorDataSource.swift */; };
 		2DB6488C2C35885D00DA100D /* WalletSelectorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D788E7F2ADD657000E0884B /* WalletSelectorViewModel.swift */; };
 		2DB6488D2C35885D00DA100D /* WalletSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D788E822ADD657000E0884B /* WalletSelectorView.swift */; };
+		2DBA551F2EF93EC400F43B9A /* TrendingCardNewsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DBA551E2EF93EC400F43B9A /* TrendingCardNewsView.swift */; };
 		2DBE29C42B3C4A8100109D5E /* View+detentBottomSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DBE29C12B3C4A8100109D5E /* View+detentBottomSheet.swift */; };
 		2DC10DA52DE8967300B72C64 /* TransactionNotificationsModalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D5B25562DE4606F00D8D809 /* TransactionNotificationsModalView.swift */; };
 		2DC46BA02C945C4400749F7C /* BasicTooltipView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC46B9F2C945C4400749F7C /* BasicTooltipView.swift */; };
@@ -5405,6 +5406,7 @@
 		2DB6487F2C35877000DA100D /* MarketsRatingHeaderViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsRatingHeaderViewModel.swift; sourceTree = "<group>"; };
 		2DB648802C35877000DA100D /* MarketsSkeletonItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsSkeletonItemView.swift; sourceTree = "<group>"; };
 		2DB6488A2C3587D900DA100D /* WalletSelectorDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletSelectorDataSource.swift; sourceTree = "<group>"; };
+		2DBA551E2EF93EC400F43B9A /* TrendingCardNewsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrendingCardNewsView.swift; sourceTree = "<group>"; };
 		2DBE29C12B3C4A8100109D5E /* View+detentBottomSheet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "View+detentBottomSheet.swift"; sourceTree = "<group>"; };
 		2DC46B9F2C945C4400749F7C /* BasicTooltipView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasicTooltipView.swift; sourceTree = "<group>"; };
 		2DC46C382C98022F00749F7C /* Triangle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Triangle.swift; sourceTree = "<group>"; };
@@ -11262,8 +11264,17 @@
 				B600F4DC2C50F781008E53FE /* LineChartView */,
 				2DB6487B2C35877000DA100D /* MarketsWalletSelectorView */,
 				2D8B96092ED739AE00AA79AF /* MarketTokenItem */,
+				2DBA54E82EF93E9C00F43B9A /* News */,
 			);
 			path = UIComponents;
+			sourceTree = "<group>";
+		};
+		2DBA54E82EF93E9C00F43B9A /* News */ = {
+			isa = PBXGroup;
+			children = (
+				2DBA551E2EF93EC400F43B9A /* TrendingCardNewsView.swift */,
+			);
+			path = News;
 			sourceTree = "<group>";
 		};
 		2DBE29BE2B3C4A8100109D5E /* DetentBottonSheet */ = {
@@ -28260,6 +28271,7 @@
 				B61F71292E949D55002C3C66 /* CryptoAccountsNetworkServiceError.swift in Sources */,
 				B61F712A2E949D55002C3C66 /* CommonCryptoAccountsNetworkService.swift in Sources */,
 				B0C4F77126F08C4D0086D815 /* TwinsOnboardingCardLayout.swift in Sources */,
+				2DBA551F2EF93EC400F43B9A /* TrendingCardNewsView.swift in Sources */,
 				B0A4C4A22A271CD20060E039 /* BalanceWithButtonsViewModel.swift in Sources */,
 				2D535E722A0CB4D20081EB76 /* BottomSheetInfoView.swift in Sources */,
 				EF97E73E2EBCCB4500B95C60 /* TangemPayAddFundsSheetOptionView.swift in Sources */,
