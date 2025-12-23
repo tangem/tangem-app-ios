@@ -23,8 +23,8 @@
 "account_archived_recover_error_title" = "Can't recover account";
 "account_archived_recover" = "Recover";
 "account_archived_title" = "Archived";
-"account_could_not_archive_referral_program_message" = "This account participates in the referral program.";
-"account_could_not_archive_referral_program_title" = "This account cannot be archived.";
+"account_could_not_archive_referral_program_message" = "This account is participating in the referral program.";
+"account_could_not_archive_referral_program_title" = "This account can’t be archived";
 "account_could_not_archive" = "We couldn’t archive account. Please try again later.";
 "account_could_not_create" = "We couldn’t create account. Please try again later.";
 "account_create_success_message" = "Account created";
@@ -37,13 +37,14 @@
 "account_form_account_index" = "Account #%@ — used for address derivation.";
 "account_form_create_button" = "Add account";
 "account_form_edit_button" = "Save";
-"account_form_name_already_exist_error_description" = "Account name already exists";
+"account_form_name_already_exist_error_description" = "An account with this name already exists. Please choose a different name.";
+"account_form_name_already_exist_error_title" = "Account name already in use";
 "account_form_name" = "Account name";
 "account_form_placeholder_edit_account" = "Account";
 "account_form_placeholder_new_account" = "New account";
 "account_form_title_create" = "Add account";
 "account_form_title_edit" = "Edit account";
-"account_generic_error_dialog_message" = "Please try again later. If it keeps happening, get in touch with support and we’ll help you resolve it.";
+"account_generic_error_dialog_message" = "Please try again later. If the problem persists, contact support and we’ll help you resolve it.";
 "account_label_tokens_info" = "%1$@ in %2$@";
 "account_main_account_title" = "Main account";
 "account_recover_limit_dialog_description" = "You have already exceeded the limit of %1$@ active accounts. Archive one to recover";
@@ -607,6 +608,7 @@
 "hw_upgrade_title" = "Upgrade to our Hardware Wallet";
 "hw_upgrade_to_cold_banner_description" = "Keep your crypto safe with Tangem's top-tier hardware wallet.";
 "hw_upgrade_to_cold_banner_title" = "Upgrade your wallet to hardware security";
+"hw_upgrade" = "Upgrade";
 "information_generated_with_ai" = "This information was generated with AI.\nTap here, if you find any errors.";
 "initial_message_change_access_code_body" = "要更改訪問密碼，請完全按照上圖所示連接手機和卡片";
 "initial_message_change_passcode_body" = "要更改密碼，請完全按照上圖所示連接手機和卡";
@@ -748,6 +750,10 @@
 "mobile_wallet_requires_min_os_warning_body" = "You must update to %1$@  before creating a mobile wallet";
 "mobile_wallet_requires_min_os_warning_title" = "Mobile Wallet requires %1$@ or later";
 "news_all_news" = "All news";
+"news_like" = "Like";
+"news_quick_recap" = "Quick recap";
+"news_related_news" = "Related News";
+"news_sources" = "Sources";
 "news_stay_in_the_loop" = "Stay in the loop";
 "nft_about_title" = "About NFT";
 "nft_asset" = "NFT asset";
@@ -1370,7 +1376,7 @@
 "tangempay_failed_to_issue_card_retry_description" = "出现技术错误，请点击下方按钮重试";
 "tangempay_failed_to_issue_card_support_description" = "出现技术错误，请联系客服";
 "tangempay_failed_to_issue_card" = "无法发行卡片";
-"tangempay_get_banner_description" = "使用您的加密货币进行真实世界消费。\n这是一张与众不同的支付卡。";
+"tangempay_get_banner_description" = "獲取您的免費 Tangem Visa 虛擬卡";
 "tangempay_get_tangem_pay" = "获取Tangem Pay";
 "tangempay_go_to_support" = "前往客服中心";
 "tangempay_issue_card_notification_description" = "通常需要最多15分钟";
@@ -1386,8 +1392,8 @@
 "tangempay_kyc_in_progress_notification_title" = "Tangem Pay 的 KYC 正在進行中";
 "tangempay_kyc_in_progress_popup_description" = "Use the buttons below to view your current KYC status or cancel it.";
 "tangempay_kyc_in_progress" = "KYC进行中";
-"tangempay_onboarding_banner_description" = "使用您的加密货币进行真实世界消费。这是一张与众不同的支付卡。";
-"tangempay_onboarding_banner_title" = "Tangem Visa Card";
+"tangempay_onboarding_banner_description" = "獲取您的免費 Tangem Visa 虛擬卡";
+"tangempay_onboarding_banner_title" = "使用 USDC 進行日常支付";
 "tangempay_onboarding_get_card_button_text" = "获取卡片";
 "tangempay_onboarding_pay_description" = "使用支援 Apple Pay 和 Google Pay 的數位卡";
 "tangempay_onboarding_pay_title" = "在任何地方花费您的资产";
@@ -1402,7 +1408,7 @@
 "tangempay_service_unavailable_title" = "服務暫時無法使用";
 "tangempay_service_unreachable_try_later" = "目前無法顯示資料，但卡片支付仍可正常使用。";
 "tangempay_sync_needed" = "需要同步";
-"tangempay_tangem_visa_card" = "Tangem Visa Card";
+"tangempay_tangem_visa_card" = "使用 USDC 進行日常支付";
 "tangempay_temporarily_unavailable" = "Tangem Pay暂时不可用";
 "tangempay_title" = "Tangem Pay";
 "tangempay_use_tangem_device_to_restore_payment_account" = "使用您的卡片或戒指恢复对支付账户的访问";
