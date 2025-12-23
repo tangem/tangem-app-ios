@@ -17,21 +17,6 @@ struct TangemPayOnboardingCoordinatorView: CoordinatorView {
             if let rootViewModel = coordinator.rootViewModel {
                 TangemPayOnboardingView(viewModel: rootViewModel)
             }
-
-            sheets
         }
-    }
-
-    @ViewBuilder
-    private var sheets: some View {
-        NavHolder()
-            .floatingSheetContent(for: TangemPayWalletSelectorViewModel.self) {
-                TangemPayWalletSelectorProxyView(viewModel: $0)
-            }
-    }
-
-    @ViewBuilder
-    private var links: some View {
-        EmptyView()
     }
 }
