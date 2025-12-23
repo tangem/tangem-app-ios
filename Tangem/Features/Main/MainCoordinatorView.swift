@@ -149,6 +149,9 @@ struct MainCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: TangemPayFailedToIssueCardSheetViewModel.self) {
                 TangemPayFailedToIssueCardSheetView(viewModel: $0)
             }
+            .floatingSheetContent(for: TangemPayKYCStatusPopupViewModel.self) {
+                TangemPayKYCStatusPopupView(viewModel: $0)
+            }
 
         NavHolder()
             .bottomSheet(
