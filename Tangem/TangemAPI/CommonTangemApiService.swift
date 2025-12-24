@@ -331,6 +331,16 @@ extension CommonTangemApiService: TangemApiService {
         return try await request(for: .tokenExchangesList(requestModel), decoder: decoder)
     }
 
+    // MARK: - News Implementation
+
+    func loadNewsList(requestModel: NewsDTO.List.Request) async throws -> NewsDTO.List.Response {
+        return try await request(for: .newsList(requestModel), decoder: decoder)
+    }
+
+    func loadNewsCategories() async throws -> NewsDTO.Categories.Response {
+        return try await request(for: .newsCategories, decoder: decoder)
+    }
+
     // MARK: - Action Buttons
 
     func loadHotCrypto(requestModel: HotCryptoDTO.Request) async throws -> HotCryptoDTO.Response {
