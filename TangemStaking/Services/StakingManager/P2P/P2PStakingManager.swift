@@ -98,6 +98,10 @@ extension P2PStakingManager: StakingManager {
 
     func transactionDidSent(action: StakingAction) {
         previousFee = nil
+
+        Task { @MainActor [weak self] in
+            await self?.updateState()
+        }
     }
 }
 
