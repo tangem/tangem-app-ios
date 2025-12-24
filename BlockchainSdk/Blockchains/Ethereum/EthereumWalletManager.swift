@@ -42,17 +42,13 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
         cancellable = addressConverter.convertToETHAddressPublisher(wallet.address)
             .withWeakCaptureOf(self)
             .flatMap { walletManager, convertedAddress in
-                Publishers.Zip(
-                    walletManager.networkService
-                        .getInfo(
-                            address: convertedAddress,
-                            tokens: walletManager.cardTokens,
-                        ),
-                    walletManager
-                        .getYieldBalances(
-                            address: convertedAddress,
-                            tokens: walletManager.cardTokens
-                        )
+                Publishers.Zip3(
+                    walletManager.networkService.getInfo(address: convertedAddress, tokens: walletManager.cardTokens),
+                    walletManager.getYieldBalances(address: convertedAddress, tokens: walletManager.cardTokens),
+                    walletManager.networkService.getPendingTransactionsInfo(
+                        address: convertedAddress,
+                        pendingTransactionHashes: walletManager.wallet.pendingTransactions.filter { !$0.isDummy }.map(\.hash)
+                    )
                 )
             }
             .sink(receiveCompletion: { [weak self] completionSubscription in
@@ -61,7 +57,7 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
                     completion(.failure(error))
                 }
             }, receiveValue: { [weak self] response in
-                self?.updateWallet(with: response.0, yieldTokensBalances: response.1)
+                self?.updateWallet(with: response.0, yieldTokensBalances: response.1, pendingTransactionInfo: response.2)
                 completion(.success(()))
             })
     }
@@ -401,7 +397,11 @@ private extension EthereumWalletManager {
         .eraseToAnyPublisher()
     }
 
-    func updateWallet(with response: EthereumInfoResponse, yieldTokensBalances: [Token: Result<Amount, Error>]) {
+    func updateWallet(
+        with response: EthereumInfoResponse,
+        yieldTokensBalances: [Token: Result<Amount, Error>],
+        pendingTransactionInfo: EthereumPendingTransactionInfo,
+    ) {
         wallet.add(coinValue: response.balance)
 
         for tokenBalance in response.tokenBalances {
@@ -415,20 +415,37 @@ private extension EthereumWalletManager {
             }
         }
 
-        if response.txCount == response.pendingTxCount {
-            wallet.clearPendingTransaction()
-        } else if response.pendingTxs.isEmpty {
-            if wallet.pendingTransactions.isEmpty {
-                wallet.addDummyPendingTransaction()
+        // Refresh pending transactions:
+        // 1. Update locally stored pending transactions by checking their hashes (via eth_getTransactionByHash)
+        //    and keep only those that are still pending.
+        // 2. Compare the number of known pending transactions with the pending nonce gap reported by the node
+        //    (pendingNonce - latestNonce(transactionCount)) to detect unknown/external pending transactions.
+        // 3. If the node reports more pending transactions than we know about, append dummy pending records
+        //    to represent pending transactions with unknown hashes (e.g. sent from another wallet or device).
+        var pendingTransactions = wallet.pendingTransactions.compactMap { transaction -> PendingTransactionRecord? in
+            guard let newStatus = pendingTransactionInfo.statuses[transaction.hash], newStatus.isPending else {
+                return nil
             }
-        } else {
-            wallet.clearPendingTransaction()
-            response.pendingTxs.forEach {
-                let mapper = PendingTransactionRecordMapper()
-                let transaction = mapper.mapToPendingTransactionRecord($0, blockchain: wallet.blockchain)
-                wallet.addPendingTransaction(transaction)
+
+            var transactionToUpdate = transaction
+            transactionToUpdate.status = newStatus
+            return transactionToUpdate
+        }
+
+        let localPendingCount = pendingTransactions.count
+        let nodePendingCount = max(0, pendingTransactionInfo.pendingTransactionCount - pendingTransactionInfo.transactionCount)
+
+        if nodePendingCount > localPendingCount {
+            let diff = nodePendingCount - localPendingCount
+            let mapper = PendingTransactionRecordMapper()
+
+            for _ in 0 ..< diff {
+                let dummy = mapper.makeDummy(blockchain: wallet.blockchain)
+                pendingTransactions.append(dummy)
             }
         }
+
+        wallet.updatePendingTransaction(pendingTransactions)
     }
 }
 
