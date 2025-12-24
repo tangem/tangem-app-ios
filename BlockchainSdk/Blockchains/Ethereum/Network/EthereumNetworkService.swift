@@ -203,17 +203,15 @@ class EthereumNetworkService: MultiNetworkProvider {
             .withWeakCaptureOf(self)
             .flatMap { networkService, transaction -> AnyPublisher<PendingTransactionStatus, Error> in
                 switch transaction {
-                case .some(let transaction) where transaction.blockNumber == nil &&
-                    transaction.blockHash == nil &&
-                    transaction.transactionIndex == nil:
+                case .some(let transaction) where transaction.blockNumber == nil:
                     return .justWithError(output: .pending)
-                case .some(let transaction) where transaction.blockHash != nil:
+                case .some(let transaction) where transaction.blockNumber != nil:
                     return networkService.getTransactionReceipt(hash: hash)
                         .map { receipt -> PendingTransactionStatus in
                             switch receipt?.status {
-                            case "0x1": .confirmed
-                            case "0x0": .failed
-                            default: .dropped
+                            case .confirmed: .confirmed
+                            case .failed: .failed
+                            case .dropped, .none: .dropped
                             }
                         }
                         .eraseToAnyPublisher()
