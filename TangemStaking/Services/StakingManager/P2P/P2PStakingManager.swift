@@ -17,7 +17,7 @@ final class P2PStakingManager {
     private let stateRepository: StakingManagerStateRepository
 
     private let _state: CurrentValueSubject<StakingManagerState, Never>
-    private var pendingTransaction: PendingStakingTransactionData?
+    private var previousFee: Decimal?
 
     init(
         wallet: StakingWallet,
@@ -78,31 +78,26 @@ extension P2PStakingManager: StakingManager {
     func estimateFee(action: StakingAction) async throws -> Decimal {
         do {
             let transaction = try await transactionInfo(action: action)
-            pendingTransaction = PendingStakingTransactionData(transaction: transaction, date: Date())
+            previousFee = transaction.fee
             return transaction.fee
         } catch {
-            pendingTransaction = nil
+            previousFee = nil
             throw error
         }
     }
 
     func transaction(action: StakingAction) async throws -> StakingTransactionAction {
-        guard let pendingTransaction else {
-            throw P2PStakingError.transactionNotFound
+        let newTransaction = try await transactionInfo(action: action)
+
+        if newTransaction.fee > previousFee ?? .zero {
+            throw P2PStakingError.feeIncreased(newFee: newTransaction.fee)
         }
 
-        if Date().timeIntervalSince(pendingTransaction.date) > Constants.transactionDataReloadInterval {
-            let newTransaction = try await transactionInfo(action: action)
-            if newTransaction.fee > pendingTransaction.transaction.fee {
-                throw P2PStakingError.feeIncreased(newFee: newTransaction.fee)
-            }
-        }
-
-        return StakingTransactionAction(amount: action.amount, transactions: [pendingTransaction.transaction])
+        return StakingTransactionAction(amount: action.amount, transactions: [newTransaction])
     }
 
     func transactionDidSent(action: StakingAction) {
-        pendingTransaction = nil
+        previousFee = nil
     }
 }
 
@@ -174,15 +169,4 @@ private extension P2PStakingManager {
 
         return result
     }
-}
-
-private extension P2PStakingManager {
-    enum Constants {
-        static let transactionDataReloadInterval: TimeInterval = 60
-    }
-}
-
-private struct PendingStakingTransactionData {
-    let transaction: StakingTransactionInfo
-    let date: Date
 }
