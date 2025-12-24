@@ -25,6 +25,7 @@ class MarketsCoordinator: CoordinatorObject {
 
     @Published var tokenDetailsCoordinator: MarketsTokenDetailsCoordinator?
     @Published var marketsSearchCoordinator: MarketsSearchCoordinator?
+    @Published var newsListCoordinator: NewsListCoordinator?
 
     // MARK: - Child ViewModels
 
@@ -104,7 +105,17 @@ extension MarketsCoordinator: MarketsMainRoutable {
             marketsSearchCoordinator.start(with: .init(quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper))
 
             self.marketsSearchCoordinator = marketsSearchCoordinator
-        case .earn, .news:
+        case .news:
+            let coordinator = NewsListCoordinator(
+                dismissAction: { [weak self] in
+                    self?.newsListCoordinator = nil
+                }
+            )
+
+            coordinator.start(with: .init())
+
+            newsListCoordinator = coordinator
+        case .earn:
             // [REDACTED_TODO_COMMENT]
             break
         }

@@ -8,15 +8,20 @@
 import SwiftUI
 import TangemAssets
 
-struct PageIndicatorView: View {
-    let totalPages: Int
-    let currentIndex: Int
+public struct PageIndicatorView: View {
+    public let totalPages: Int
+    public let currentIndex: Int
+
+    public init(totalPages: Int, currentIndex: Int) {
+        self.totalPages = totalPages
+        self.currentIndex = currentIndex
+    }
 
     private let backgroundSize = CGSize(width: 92, height: 32)
     private let maxVisibleDots = 5
     private let spacing: CGFloat = 6
 
-    var body: some View {
+    public var body: some View {
         HStack(spacing: spacing) {
             ForEach(visibleIndices, id: \.self) { index in
                 dot(for: index)
