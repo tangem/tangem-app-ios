@@ -47,10 +47,14 @@ extension CommonTangemPayAuthorizationService: TangemPayAuthorizationService {
         ))
     }
 
-    func refreshTokens(refreshToken: String) async throws -> TangemPayAuthorizationTokens {
-        try await apiService.request(.init(
-            target: .refreshTokens(.init(refreshToken: refreshToken)),
-            apiType: apiType
-        ))
+    func refreshTokens(refreshToken: String) async -> Result<TangemPayAuthorizationTokens, TangemPayAPIServiceError> {
+        do {
+            return .success(try await apiService.request(.init(
+                target: .refreshTokens(.init(refreshToken: refreshToken)),
+                apiType: apiType
+            )))
+        } catch {
+            return .failure(error)
+        }
     }
 }

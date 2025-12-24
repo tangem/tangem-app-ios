@@ -9,6 +9,17 @@
 import Moya
 import TangemNetworkUtils
 
+public enum TangemPayAPIServiceError: Error {
+    case moyaError(Error)
+    case apiError(TangemPayAPIErrorWithStatusCode)
+    case decodingError(Error)
+}
+
+public struct TangemPayAPIErrorWithStatusCode {
+    public let statusCode: Int
+    public let error: TangemPayAPIError
+}
+
 struct TangemPayAPIService<Target: TargetType> {
     private let provider: TangemProvider<Target>
     private var decoder: JSONDecoder
@@ -21,21 +32,44 @@ struct TangemPayAPIService<Target: TargetType> {
         self.decoder = decoder
     }
 
-    func request<T: Decodable>(_ request: Target) async throws -> T {
-        var response = try await provider.asyncRequest(request)
+    func request<T: Decodable>(_ request: Target) async throws(TangemPayAPIServiceError) -> T {
+        var response: Response
+        do {
+            response = try await provider.asyncRequest(request)
+        } catch {
+            throw .moyaError(error)
+        }
 
         do {
             response = try response.filterSuccessfulStatusAndRedirectCodes()
         } catch {
-            let errorResponse = try decoder.decode(TangemPayAPIErrorResponse.self, from: response.data)
-            throw errorResponse
+            let errorResponse = try? decoder.decode(TangemPayAPIError.self, from: response.data)
+            throw .apiError(
+                .init(
+                    statusCode: response.statusCode,
+                    error: errorResponse ?? TangemPayAPIError(
+                        code: nil,
+                        correlationId: nil,
+                        type: nil,
+                        title: nil,
+                        status: nil,
+                        detail: nil,
+                        instance: nil,
+                        timestamp: nil
+                    )
+                )
+            )
         }
 
-        return try decoder.decode(T.self, from: response.data)
+        do {
+            return try decoder.decode(T.self, from: response.data)
+        } catch {
+            throw .decodingError(error)
+        }
     }
 }
 
-public struct TangemPayAPIErrorResponse: Error, Decodable {
+public struct TangemPayAPIError: Error, Decodable {
     public let code: String?
     public let correlationId: String?
     public let type: String?

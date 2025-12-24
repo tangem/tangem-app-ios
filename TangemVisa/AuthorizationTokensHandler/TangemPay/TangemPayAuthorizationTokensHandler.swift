@@ -7,10 +7,9 @@
 //
 
 public protocol TangemPayAuthorizationTokensHandler: AnyObject {
+    var tokens: TangemPayAuthorizationTokens? { get }
     var authorizationHeader: String? { get }
 
-    func setupAuthorizationTokensSaver(_ authorizationTokensSaver: TangemPayAuthorizationTokensSaver)
     func saveTokens(tokens: TangemPayAuthorizationTokens) throws
-
-    func prepare() async throws
+    func prepare() async throws(TangemPayAuthorizationTokensHandlerError)
 }

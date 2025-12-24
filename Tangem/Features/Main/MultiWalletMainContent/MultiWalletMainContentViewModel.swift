@@ -316,7 +316,24 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
         Publishers
             .CombineLatest(
-                userWalletModel.tangemPayAccountPublisher.compactMap(\.self),
+                userWalletModel.paeraCustomerPublisher
+                    .flatMapLatest { paeraCustomer -> AnyPublisher<TangemPayAccount?, Never> in
+                        if let paeraCustomer {
+                            paeraCustomer.statePublisher
+                                .map { state -> TangemPayAccount? in
+                                    switch state {
+                                    case .tangemPayAccount(let tangemPayAccount):
+                                        tangemPayAccount
+                                    default:
+                                        nil
+                                    }
+                                }
+                                .eraseToAnyPublisher()
+                        } else {
+                            .just(output: nil)
+                        }
+                    }
+                    .compactMap(\.self),
                 isTangemPayHidden
             )
             .flatMapLatest { tangemPayAccount, isHidden in
@@ -334,17 +351,17 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
         Publishers
             .CombineLatest(
-                userWalletModel.tangemPayAccountPublisher.compactMap(\.self),
+                userWalletModel.paeraCustomerPublisher.compactMap(\.self),
                 isTangemPayHidden
             )
-            .flatMapLatest { tangemPayAccount, isHidden in
+            .flatMapLatest { paeraCustomer, isHidden in
                 guard !isHidden else {
                     return Just(false)
                         .eraseToAnyPublisher()
                 }
 
-                return tangemPayAccount
-                    .tangemPaySyncInProgressPublisher
+                return paeraCustomer
+                    .syncInProgressPublisher
             }
             .receiveOnMain()
             .assign(to: &$tangemPaySyncInProgress)
@@ -352,19 +369,19 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         Publishers
             .CombineLatest(
                 userWalletModel
-                    .tangemPayAccountPublisher.compactMap(\.self),
+                    .paeraCustomerPublisher.compactMap(\.self),
                 tangemPayAvailabilityRepository
                     .isTangemPayHiddenPublisher(for: userWalletId)
             )
             .withWeakCaptureOf(self)
             .map { viewModel, args in
-                let (tangemPayAccount, isAccountHidden) = args
+                let (paeraCustomer, isAccountHidden) = args
 
                 if isAccountHidden {
                     return nil
                 }
 
-                return TangemPayAccountViewModel(tangemPayAccount: tangemPayAccount, router: viewModel)
+                return TangemPayAccountViewModel(paeraCustomer: paeraCustomer, router: viewModel)
             }
             .receiveOnMain()
             .assign(to: &$tangemPayAccountViewModel)
@@ -718,9 +735,9 @@ extension MultiWalletMainContentViewModel {
 // MARK: - TangemPayAccountRoutable
 
 extension MultiWalletMainContentViewModel: TangemPayAccountRoutable {
-    func openTangemPayKYCInProgressPopup(tangemPayAccount: TangemPayAccount) {
+    func openTangemPayKYCInProgressPopup(paeraCustomer: PaeraCustomer) {
         coordinator?.openTangemPayKYCInProgressPopup(
-            tangemPayAccount: tangemPayAccount
+            paeraCustomer: paeraCustomer
         )
     }
 
