@@ -7,20 +7,11 @@
 //
 
 import LocalAuthentication
-import TangemVisa
 
-protocol TangemPayAuthorizationTokensRepository: TangemPayAuthorizationTokensSaver {
+public protocol TangemPayAuthorizationTokensRepository {
     func save(tokens: TangemPayAuthorizationTokens, customerWalletId: String) throws
     func deleteTokens(customerWalletId: String) throws
     func clearPersistent()
     func fetch(using context: LAContext)
     func getToken(forCustomerWalletId customerWalletId: String) -> TangemPayAuthorizationTokens?
-}
-
-// MARK: - TangemPayAuthorizationTokensSaver
-
-extension TangemPayAuthorizationTokensRepository {
-    func saveAuthorizationTokensToStorage(tokens: TangemPayAuthorizationTokens, customerWalletId: String) throws {
-        try save(tokens: tokens, customerWalletId: customerWalletId)
-    }
 }

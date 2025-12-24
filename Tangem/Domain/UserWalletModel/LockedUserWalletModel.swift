@@ -110,8 +110,8 @@ class LockedUserWalletModel: UserWalletModel {
 
     // [REDACTED_TODO_COMMENT]
     // [REDACTED_INFO]
-    var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount?, Never> { .empty }
-    var tangemPayAccount: TangemPayAccount? { nil }
+    var paeraCustomer: PaeraCustomer? { nil }
+    var paeraCustomerPublisher: AnyPublisher<PaeraCustomer?, Never> { .empty }
 
     var keysDerivingInteractor: any KeysDeriving {
         fatalError("Should not be called for locked wallets")
@@ -167,7 +167,7 @@ class LockedUserWalletModel: UserWalletModel {
             break
         case .mnemonicBackupCompleted:
             break
-        case .tangemPayOfferAccepted:
+        case .paeraCustomerCreated:
             break
         }
     }
