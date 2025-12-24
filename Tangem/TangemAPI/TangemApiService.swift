@@ -44,6 +44,11 @@ protocol TangemApiService: AnyObject {
 
     func loadTokenExchangesListDetails(requestModel: MarketsDTO.ExchangesRequest) async throws -> MarketsDTO.ExchangesResponse
 
+    // MARK: - News
+
+    func loadNewsList(requestModel: NewsDTO.List.Request) async throws -> NewsDTO.List.Response
+    func loadNewsCategories() async throws -> NewsDTO.Categories.Response
+
     // MARK: - User token list management
 
     @available(iOS, deprecated: 100000.0, message: "Superseded by 'getUserAccounts(userWalletId:)', will be removed in the future ([REDACTED_INFO])")
