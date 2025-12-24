@@ -81,6 +81,12 @@ struct TangemApiTarget: TargetType {
         case .tokenExchangesList(let requestModel):
             return "/coins/\(requestModel.tokenId)/exchanges"
 
+        // MARK: - News paths
+        case .newsList:
+            return "/news"
+        case .newsCategories:
+            return "/news/categories"
+
         // MARK: - Action Buttons
         case .hotCrypto:
             return "/hot_crypto"
@@ -139,6 +145,8 @@ struct TangemApiTarget: TargetType {
              .tokenMarketsDetails,
              .historyChart,
              .tokenExchangesList,
+             .newsList,
+             .newsCategories,
              .hotCrypto,
              .seedNotifyGetStatus,
              .seedNotifyGetStatusConfirmed,
@@ -254,6 +262,12 @@ struct TangemApiTarget: TargetType {
             return .requestParameters(requestModel, encoding: URLEncoding.default)
         case .tokenExchangesList, .seedNotifyGetStatus, .seedNotifyGetStatusConfirmed:
             return .requestPlain
+
+        // MARK: - News tasks
+        case .newsList(let requestModel):
+            return .requestParameters(parameters: requestModel.parameters, encoding: URLEncoding.default)
+        case .newsCategories:
+            return .requestPlain
         case .hotCrypto(let requestModel):
             return .requestParameters(parameters: ["currency": requestModel.currency], encoding: URLEncoding.default)
         case .pushNotificationsEligible:
@@ -317,6 +331,8 @@ struct TangemApiTarget: TargetType {
              .tokenMarketsDetails,
              .historyChart,
              .tokenExchangesList,
+             .newsList,
+             .newsCategories,
              .hotCrypto,
              .apiList,
              .seedNotifyGetStatus,
@@ -374,6 +390,11 @@ extension TangemApiTarget {
         case historyChart(_ requestModel: MarketsDTO.ChartsHistory.HistoryRequest)
         case tokenExchangesList(_ requestModel: MarketsDTO.ExchangesList.Request)
 
+        // MARK: - News Targets
+
+        case newsList(_ requestModel: NewsDTO.List.Request)
+        case newsCategories
+
         // MARK: - Action Buttons
 
         case hotCrypto(_ requestModel: HotCryptoDTO.Request)
@@ -411,7 +432,7 @@ extension TangemApiTarget {
 extension TangemApiTarget: CachePolicyProvider {
     var cachePolicy: URLRequest.CachePolicy {
         switch type {
-        case .geo, .features, .apiList, .quotes, .coinsList, .tokenMarketsDetails:
+        case .geo, .features, .apiList, .quotes, .coinsList, .tokenMarketsDetails, .newsList, .newsCategories:
             return .reloadIgnoringLocalAndRemoteCacheData
         default:
             return .useProtocolCachePolicy
@@ -435,6 +456,8 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .historyChart,
              .tokenMarketsDetails,
              .tokenExchangesList,
+             .newsList,
+             .newsCategories,
              .story,
              .rawData,
              .hotCrypto,
