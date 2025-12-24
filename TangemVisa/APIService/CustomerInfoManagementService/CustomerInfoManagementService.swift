@@ -10,8 +10,13 @@ import Foundation
 import Moya
 import TangemFoundation
 
+public enum CustomerInfoManagementServiceError: Error {
+    case syncNeeded
+    case unavailable(Error)
+}
+
 public protocol CustomerInfoManagementService: AnyObject {
-    func loadCustomerInfo() async throws -> VisaCustomerInfoResponse
+    func loadCustomerInfo() async throws(CustomerInfoManagementServiceError) -> VisaCustomerInfoResponse
     func loadKYCAccessToken() async throws -> VisaKYCAccessTokenResponse
 
     func getBalance() async throws -> TangemPayBalance
@@ -61,76 +66,71 @@ final class CommonCustomerInfoManagementService {
         self.apiService = apiService
     }
 
-    private func makeRequest(for target: CustomerInfoManagementAPITarget.Target) async throws -> CustomerInfoManagementAPITarget {
-        try await authorizationTokenHandler.prepare()
+    private func request<T: Decodable>(for target: CustomerInfoManagementAPITarget.Target) async throws(CustomerInfoManagementServiceError) -> T {
+        do {
+            try await authorizationTokenHandler.prepare()
+        } catch {
+            switch error {
+            case .syncNeeded:
+                throw .syncNeeded
+            case .unavailable(let error):
+                throw .unavailable(error)
+            }
+        }
 
-        return .init(
-            target: target,
-            apiType: apiType,
-            encoder: encoder
-        )
+        do {
+            return try await apiService.request(
+                .init(
+                    target: target,
+                    apiType: apiType,
+                    encoder: encoder
+                )
+            )
+        } catch {
+            throw .unavailable(error)
+        }
     }
 }
 
 extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
     func cancelKYC() async throws -> TangemPayCancelKYCResponse {
-        return try await apiService.request(
-            makeRequest(for: .setPayEnabled)
-        )
+        try await request(for: .setPayEnabled)
     }
 
-    func loadCustomerInfo() async throws -> VisaCustomerInfoResponse {
-        return try await apiService.request(
-            makeRequest(for: .getCustomerInfo)
-        )
+    func loadCustomerInfo() async throws(CustomerInfoManagementServiceError) -> VisaCustomerInfoResponse {
+        try await request(for: .getCustomerInfo)
     }
 
     func loadKYCAccessToken() async throws -> VisaKYCAccessTokenResponse {
-        try await apiService.request(
-            makeRequest(for: .getKYCAccessToken)
-        )
+        try await request(for: .getKYCAccessToken)
     }
 
     func getBalance() async throws -> TangemPayBalance {
-        try await apiService.request(
-            makeRequest(for: .getBalance)
-        )
+        try await request(for: .getBalance)
     }
 
     func getCardDetails(sessionId: String) async throws -> TangemPayCardDetailsResponse {
-        try await apiService.request(
-            makeRequest(for: .getCardDetails(sessionId: sessionId))
-        )
+        try await request(for: .getCardDetails(sessionId: sessionId))
     }
 
     func freeze(cardId: String) async throws -> TangemPayFreezeUnfreezeResponse {
-        try await apiService.request(
-            makeRequest(for: .freeze(cardId: cardId))
-        )
+        try await request(for: .freeze(cardId: cardId))
     }
 
     func unfreeze(cardId: String) async throws -> TangemPayFreezeUnfreezeResponse {
-        try await apiService.request(
-            makeRequest(for: .unfreeze(cardId: cardId))
-        )
+        try await request(for: .unfreeze(cardId: cardId))
     }
 
     func setPin(pin: String, sessionId: String, iv: String) async throws -> TangemPaySetPinResponse {
-        try await apiService.request(
-            makeRequest(for: .setPin(pin: pin, sessionId: sessionId, iv: iv))
-        )
+        try await request(for: .setPin(pin: pin, sessionId: sessionId, iv: iv))
     }
 
     func getPin(cardId: String, sessionId: String) async throws -> TangemPayGetPinResponse {
-        try await apiService.request(
-            makeRequest(for: .getPin(cardId: cardId, sessionId: sessionId))
-        )
+        try await request(for: .getPin(cardId: cardId, sessionId: sessionId))
     }
 
     func getTransactionHistory(limit: Int, cursor: String?) async throws -> TangemPayTransactionHistoryResponse {
-        try await apiService.request(
-            makeRequest(for: .getTransactionHistory(limit: limit, cursor: cursor))
-        )
+        try await request(for: .getTransactionHistory(limit: limit, cursor: cursor))
     }
 
     func getWithdrawPreSignatureInfo(request: TangemPayWithdrawRequest) async throws -> TangemPayWithdrawPreSignature {
@@ -139,9 +139,7 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
             recipientAddress: request.destination
         )
 
-        let response: TangemPayWithdraw.SignableData.Response = try await apiService.request(
-            makeRequest(for: .getWithdrawSignableData(request))
-        )
+        let response: TangemPayWithdraw.SignableData.Response = try await self.request(for: .getWithdrawSignableData(request))
 
         return TangemPayWithdrawPreSignature(
             sender: response.senderAddress,
@@ -159,21 +157,15 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
             adminSalt: signature.salt.hexString.addHexPrefix()
         )
 
-        let request = try await makeRequest(for: .sendWithdrawTransaction(requestTransaction))
-        let response: TangemPayWithdraw.Transaction.Response = try await apiService.request(request)
-
-        return TangemPayWithdrawTransactionResult(orderID: response.orderId, host: request.baseURL.absoluteString)
+        let response: TangemPayWithdraw.Transaction.Response = try await self.request(for: .sendWithdrawTransaction(requestTransaction))
+        return TangemPayWithdrawTransactionResult(orderID: response.orderId, host: apiType.baseURL.absoluteString)
     }
 
     func placeOrder(customerWalletAddress: String) async throws -> TangemPayOrderResponse {
-        try await apiService.request(
-            makeRequest(for: .placeOrder(customerWalletAddress: customerWalletAddress))
-        )
+        try await request(for: .placeOrder(customerWalletAddress: customerWalletAddress))
     }
 
     func getOrder(orderId: String) async throws -> TangemPayOrderResponse {
-        try await apiService.request(
-            makeRequest(for: .getOrder(orderId: orderId))
-        )
+        try await request(for: .getOrder(orderId: orderId))
     }
 }

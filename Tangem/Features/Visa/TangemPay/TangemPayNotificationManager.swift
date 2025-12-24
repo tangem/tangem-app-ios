@@ -15,12 +15,14 @@ final class TangemPayNotificationManager {
     private var cancellable: Cancellable?
 
     init(
-        tangemPayAuthorizerStatePublisher: AnyPublisher<TangemPayAuthorizer.State, Never>,
-        tangemPayAccountStatusPublisher: AnyPublisher<TangemPayStatus, Never>
+        syncNeededSignalPublisher: AnyPublisher<Void, Never>,
+        unavailableSignalPublisher: AnyPublisher<Void, Never>,
+        clearNotificationsSignalPublisher: AnyPublisher<Void, Never>
     ) {
-        cancellable = Publishers.Merge(
-            tangemPayAuthorizerStatePublisher.map(\.notificationEvent),
-            tangemPayAccountStatusPublisher.map(\.notificationEvent)
+        cancellable = Publishers.Merge3(
+            syncNeededSignalPublisher.mapToValue(TangemPayNotificationEvent.syncNeeded),
+            unavailableSignalPublisher.mapToValue(TangemPayNotificationEvent.unavailable),
+            clearNotificationsSignalPublisher.mapToValue(nil)
         )
         .withWeakCaptureOf(self)
         .map { manager, event in
@@ -63,36 +65,5 @@ extension TangemPayNotificationManager: NotificationManager {
 
     func dismissNotification(with id: NotificationViewId) {
         // Notifications are not dismissable
-    }
-}
-
-// MARK: - TangemPayAuthorizer.State+notificationEvent
-
-private extension TangemPayAuthorizer.State {
-    var notificationEvent: TangemPayNotificationEvent? {
-        switch self {
-        case .authorized:
-            nil
-
-        case .syncNeeded:
-            .syncNeeded
-
-        case .unavailable:
-            .unavailable
-        }
-    }
-}
-
-// MARK: - TangemPayStatus+notificationEvent
-
-private extension TangemPayStatus {
-    var notificationEvent: TangemPayNotificationEvent? {
-        switch self {
-        case .unavailable:
-            .unavailable
-
-        default:
-            nil
-        }
     }
 }

@@ -18,9 +18,9 @@ enum MultiWalletMainContentUpdater {
 
             // [REDACTED_TODO_COMMENT]
             // [REDACTED_INFO]
-            if FeatureProvider.isAvailable(.visa), let tangemPayAccount = userWalletModel.tangemPayAccount {
+            if FeatureProvider.isAvailable(.visa), let paeraCustomer = userWalletModel.paeraCustomer {
                 outerGroup.addTask {
-                    await tangemPayAccount.loadCustomerInfo().value
+                    await paeraCustomer.updateState().value
                 }
             }
 
