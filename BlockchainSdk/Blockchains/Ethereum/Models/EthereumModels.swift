@@ -13,9 +13,6 @@ import BigInt
 struct EthereumInfoResponse {
     let balance: Decimal
     let tokenBalances: [Token: Result<Decimal, Error>]
-    let txCount: Int
-    let pendingTxCount: Int
-    var pendingTxs: [PendingTransaction]
 }
 
 struct EthereumEIP1559FeeResponse {
@@ -46,4 +43,21 @@ public struct EthereumFeeHistory {
     public let lowPriorityFee: BigUInt
     public let marketPriorityFee: BigUInt
     public let fastPriorityFee: BigUInt
+}
+
+public struct EthereumTransaction: Decodable {
+    let blockHash: String?
+    let blockNumber: String?
+    let hash: String
+    let transactionIndex: String?
+}
+
+public struct EthereumTransactionReceipt: Decodable {
+    let status: String
+}
+
+struct EthereumPendingTransactionInfo {
+    let statuses: [String: PendingTransactionStatus]
+    let transactionCount: Int
+    let pendingTransactionCount: Int
 }
