@@ -65,7 +65,7 @@ enum UpdateRequest {
 
     // [REDACTED_TODO_COMMENT]
     // [REDACTED_INFO]
-    case tangemPayOfferAccepted(TangemPayAccount)
+    case paeraCustomerCreated(PaeraCustomer)
 }
 
 enum UpdateResult {
@@ -74,7 +74,7 @@ enum UpdateResult {
 
     // [REDACTED_TODO_COMMENT]
     // [REDACTED_INFO]
-    case tangemPayOfferAccepted(TangemPayAccount)
+    case paeraCustomerCreated(PaeraCustomer)
 
     var newName: String? {
         switch self {
@@ -87,9 +87,9 @@ enum UpdateResult {
 
     // [REDACTED_TODO_COMMENT]
     // [REDACTED_INFO]
-    var tangemPayAccount: TangemPayAccount? {
-        if case .tangemPayOfferAccepted(let tangemPayAccount) = self {
-            return tangemPayAccount
+    var paeraCustomer: PaeraCustomer? {
+        if case .paeraCustomerCreated(let paeraCustomer) = self {
+            return paeraCustomer
         }
         return nil
     }

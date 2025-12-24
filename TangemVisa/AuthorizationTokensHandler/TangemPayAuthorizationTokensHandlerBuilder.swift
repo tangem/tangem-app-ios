@@ -20,15 +20,15 @@ public struct TangemPayAuthorizationTokensHandlerBuilder {
 public extension TangemPayAuthorizationTokensHandlerBuilder {
     func buildTangemPayAuthorizationTokensHandler(
         customerWalletId: String,
+        tokens: TangemPayAuthorizationTokens?,
         authorizationService: TangemPayAuthorizationService,
-        setSyncNeeded: @escaping () -> Void,
-        setUnavailable: @escaping () -> Void
+        authorizationTokensRepository: TangemPayAuthorizationTokensRepository
     ) -> TangemPayAuthorizationTokensHandler {
         CommonTangemPayAuthorizationTokensHandler(
             customerWalletId: customerWalletId,
+            tokens: tokens,
             authorizationService: apiServiceBuilder.buildTangemPayAuthorizationService(),
-            setSyncNeeded: setSyncNeeded,
-            setUnavailable: setUnavailable
+            authorizationTokensRepository: authorizationTokensRepository
         )
     }
 }

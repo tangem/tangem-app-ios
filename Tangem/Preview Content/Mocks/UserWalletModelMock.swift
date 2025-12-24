@@ -28,8 +28,8 @@ class UserWalletModelMock: UserWalletModel {
 
     // [REDACTED_TODO_COMMENT]
     // [REDACTED_INFO]
-    var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount?, Never> { .empty }
-    var tangemPayAccount: TangemPayAccount? { nil }
+    var paeraCustomer: PaeraCustomer? { nil }
+    var paeraCustomerPublisher: AnyPublisher<PaeraCustomer?, Never> { .empty }
 
     var name: String { "" }
     var hasBackupCards: Bool { false }
