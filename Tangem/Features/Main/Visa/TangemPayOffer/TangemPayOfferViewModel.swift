@@ -43,25 +43,24 @@ final class TangemPayOfferViewModel: ObservableObject {
         isLoading = true
         runTask(in: self) { viewModel in
             do {
-                let tangemPayAccount = try await viewModel.makeTangemPayAccount(
-                    userWalletModel: userWalletModel
-                )
-                let tangemPayStatus = try await tangemPayAccount.getTangemPayStatus()
+                let paeraCustomer = PaeraCustomer(userWalletModel: userWalletModel)
+                let state = try await paeraCustomer.authorizeWithCustomerWallet()
 
                 // [REDACTED_TODO_COMMENT]
                 // [REDACTED_INFO]
                 userWalletModel.update(
-                    type: .tangemPayOfferAccepted(tangemPayAccount)
+                    type: .paeraCustomerCreated(paeraCustomer)
                 )
 
-                switch tangemPayStatus {
-                case .kycRequired:
-                    try await tangemPayAccount.launchKYC {
-                        tangemPayAccount.loadCustomerInfo()
+                switch await paeraCustomer.getCurrentState() {
+                case .kyc:
+                    try await paeraCustomer.launchKYC {
+                        paeraCustomer.updateState()
                         runTask(in: viewModel) { viewModel in
                             await viewModel.closeOfferScreen()
                         }
                     }
+
                 default:
                     await viewModel.closeOfferScreen()
                 }
@@ -79,15 +78,6 @@ final class TangemPayOfferViewModel: ObservableObject {
             title: "",
             withCloseButton: true
         )
-    }
-
-    private func makeTangemPayAccount(userWalletModel: UserWalletModel) async throws -> TangemPayAccount {
-        let builder = TangemPayAccountBuilder()
-        let tangemPayAccount = try await builder.makeTangemPayAccount(
-            authorizerType: .plain,
-            userWalletModel: userWalletModel
-        )
-        return tangemPayAccount
     }
 }
 

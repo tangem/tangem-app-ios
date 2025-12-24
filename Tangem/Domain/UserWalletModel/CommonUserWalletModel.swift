@@ -271,8 +271,8 @@ extension CommonUserWalletModel: UserWalletModel {
                 updateConfiguration(walletInfo: .mobileWallet(mutableInfo))
             }
 
-        case .tangemPayOfferAccepted(let tangemPayAccount):
-            _updatePublisher.send(.tangemPayOfferAccepted(tangemPayAccount))
+        case .paeraCustomerCreated(let paeraCustomer):
+            _updatePublisher.send(.paeraCustomerCreated(paeraCustomer))
         }
     }
 
@@ -344,12 +344,12 @@ extension CommonUserWalletModel: TangemPayAuthorizingProvider {
 // MARK: - TangemPayAccountProvider
 
 extension CommonUserWalletModel: TangemPayAccountProvider {
-    var tangemPayAccount: TangemPayAccount? {
-        tangemPayAccountProvider.tangemPayAccount
+    var paeraCustomer: PaeraCustomer? {
+        tangemPayAccountProvider.paeraCustomer
     }
 
-    var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount?, Never> {
-        tangemPayAccountProvider.tangemPayAccountPublisher
+    var paeraCustomerPublisher: AnyPublisher<PaeraCustomer?, Never> {
+        tangemPayAccountProvider.paeraCustomerPublisher
     }
 }
 

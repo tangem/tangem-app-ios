@@ -8,6 +8,7 @@
 
 import Combine
 import TangemFoundation
+import TangemVisa
 
 // [REDACTED_TODO_COMMENT]
 // Remove it and setup it before UserWalletModel was created
@@ -16,13 +17,13 @@ protocol TangemPayAccountProviderSetupable: TangemPayAccountProvider {
 }
 
 protocol TangemPayAccountProvider {
-    var tangemPayAccount: TangemPayAccount? { get }
-    var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount?, Never> { get }
+    var paeraCustomer: PaeraCustomer? { get }
+    var paeraCustomerPublisher: AnyPublisher<PaeraCustomer?, Never> { get }
 }
 
 class CommonTangemPayAccountProvider {
-    private let tangemPayAccountSubject: CurrentValueSubject<TangemPayAccount?, Never> = .init(nil)
-    private var tangemPayAccountCancellable: Cancellable?
+    private let paeraCustomerSubject: CurrentValueSubject<PaeraCustomer?, Never> = .init(nil)
+    private var paeraCustomerCancellable: Cancellable?
 
     init() {}
 }
@@ -32,20 +33,16 @@ class CommonTangemPayAccountProvider {
 extension CommonTangemPayAccountProvider: TangemPayAccountProviderSetupable {
     func setup(for userWalletModel: any UserWalletModel) {
         Task { [self] in
-            let builder = TangemPayAccountBuilder()
-            let tangemPayAccount = try? await builder.makeTangemPayAccount(
-                authorizerType: .availabilityService,
-                userWalletModel: userWalletModel
-            )
+            let paeraCustomer = await PaeraCustomerBuilder(userWalletModel: userWalletModel).getIfExist()
 
-            if let tangemPayAccount {
-                tangemPayAccountSubject.send(tangemPayAccount)
+            if let paeraCustomer {
+                paeraCustomerSubject.send(paeraCustomer)
             } else {
-                // Make it possible to create TangemPayAccount from offer screen
-                tangemPayAccountCancellable = userWalletModel.updatePublisher
-                    .compactMap(\.tangemPayAccount)
+                // Make it possible to create PaeraCustomer from offer screen
+                paeraCustomerCancellable = userWalletModel.updatePublisher
+                    .compactMap(\.paeraCustomer)
                     .first()
-                    .sink(receiveValue: tangemPayAccountSubject.send)
+                    .sink(receiveValue: paeraCustomerSubject.send)
             }
         }
     }
@@ -54,11 +51,11 @@ extension CommonTangemPayAccountProvider: TangemPayAccountProviderSetupable {
 // MARK: - TangemPayAccountProvider
 
 extension CommonTangemPayAccountProvider: TangemPayAccountProvider {
-    var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount?, Never> {
-        tangemPayAccountSubject.eraseToAnyPublisher()
+    var paeraCustomer: PaeraCustomer? {
+        paeraCustomerSubject.value
     }
 
-    var tangemPayAccount: TangemPayAccount? {
-        tangemPayAccountSubject.value
+    var paeraCustomerPublisher: AnyPublisher<PaeraCustomer?, Never> {
+        paeraCustomerSubject.eraseToAnyPublisher()
     }
 }
