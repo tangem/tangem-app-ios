@@ -78,10 +78,12 @@ public struct FloatingSheetView: View {
                         )
                         .frame(maxWidth: .infinity)
                         .background {
-                            sheetContent
-                                .fixedSize(horizontal: false, vertical: true)
-                                .hidden()
-                                .readGeometry(\.size.height, bindTo: $sheetContentHeight)
+                            if sheetContentHasAppeared {
+                                sheetContent
+                                    .fixedSize(horizontal: false, vertical: true)
+                                    .hidden()
+                                    .readGeometry(\.size.height, bindTo: $sheetContentHeight)
+                            }
                         }
                         .background(sheetContentConfiguration.sheetBackgroundColor)
                         .contentShape(roundedRectangle)
