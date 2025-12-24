@@ -64,7 +64,7 @@ extension TangemPayUtilities {
     static func getCustomerWalletAddressAndAuthorizationTokens(
         customerWalletId: String,
         keysRepository: KeysRepository
-    ) -> (walletAddress: String, tokens: TangemPayAuthorizationTokens)? {
+    ) -> (customerWalletAddress: String, tokens: TangemPayAuthorizationTokens)? {
         guard let walletPublicKey = TangemPayUtilities.getKey(from: keysRepository),
               let customerWalletAddress = try? TangemPayUtilities.makeAddress(using: walletPublicKey),
               // If there was no refreshToken saved - means user never got tangem pay offer

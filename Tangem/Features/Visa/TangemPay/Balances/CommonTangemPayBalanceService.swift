@@ -68,6 +68,7 @@ extension CommonTangemPayBalanceService {
             fiatRateProvider.updateRate()
         } catch {
             balanceSubject.send(.failure(error))
+            // [REDACTED_TODO_COMMENT]
         }
     }
 }
