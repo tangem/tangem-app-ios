@@ -40,25 +40,22 @@ class EthereumNetworkService: MultiNetworkProvider {
         }
     }
 
-    func getInfo(
-        address: String,
-        tokens: [Token]
-    ) -> AnyPublisher<EthereumInfoResponse, Error> {
-        Publishers.Zip4(
-            getBalance(address),
-            getTokensBalance(address, tokens: tokens),
+    func getPendingTransactionsInfo(address: String, pendingTransactionHashes: [String]) -> AnyPublisher<EthereumPendingTransactionInfo, Error> {
+        Publishers.Zip3(
+            getPendingTransactionStatuses(pendingTransactionHashes),
             getTxCount(address),
             getPendingTxCount(address)
         )
-        .map { balance, tokenBalances, txCount, pendingTxCount in
-            return EthereumInfoResponse(
-                balance: balance,
-                tokenBalances: tokenBalances,
-                txCount: txCount,
-                pendingTxCount: pendingTxCount,
-                pendingTxs: []
-            )
-        }
+        .map { EthereumPendingTransactionInfo(statuses: $0, transactionCount: $1, pendingTransactionCount: $2) }
+        .eraseToAnyPublisher()
+    }
+
+    func getInfo(address: String, tokens: [Token]) -> AnyPublisher<EthereumInfoResponse, Error> {
+        Publishers.Zip(
+            getBalance(address),
+            getTokensBalance(address, tokens: tokens)
+        )
+        .map { EthereumInfoResponse(balance: $0, tokenBalances: $1) }
         .eraseToAnyPublisher()
     }
 
@@ -183,6 +180,60 @@ class EthereumNetworkService: MultiNetworkProvider {
                     return value
                 }
                 .eraseToAnyPublisher()
+        }
+    }
+
+    func getPendingTransactionStatuses(_ hashes: [String]) -> AnyPublisher<[String: PendingTransactionStatus], Error> {
+        hashes.publisher
+            .withWeakCaptureOf(self)
+            .flatMap { networkService, hash in
+                return networkService.getTransactionStatus(hash: hash)
+            }
+            .collect()
+            .map { statuses in
+                statuses.reduce(into: [:]) { partialResult, status in
+                    partialResult[status.0] = status.1
+                }
+            }
+            .eraseToAnyPublisher()
+    }
+
+    func getTransactionStatus(hash: String) -> AnyPublisher<(String, PendingTransactionStatus), Error> {
+        getTransactionByHash(hash)
+            .withWeakCaptureOf(self)
+            .flatMap { networkService, transaction -> AnyPublisher<PendingTransactionStatus, Error> in
+                switch transaction {
+                case .some(let transaction) where transaction.blockNumber == nil &&
+                    transaction.blockHash == nil &&
+                    transaction.transactionIndex == nil:
+                    return .justWithError(output: .pending)
+                case .some(let transaction) where transaction.blockHash != nil:
+                    return networkService.getTransactionReceipt(hash: hash)
+                        .map { receipt -> PendingTransactionStatus in
+                            switch receipt?.status {
+                            case "0x1": .confirmed
+                            case "0x0": .failed
+                            default: .dropped
+                            }
+                        }
+                        .eraseToAnyPublisher()
+                default:
+                    return .justWithError(output: .dropped)
+                }
+            }
+            .map { (hash, $0) }
+            .eraseToAnyPublisher()
+    }
+
+    func getTransactionByHash(_ hash: String) -> AnyPublisher<EthereumTransaction?, Error> {
+        providerPublisher {
+            $0.getTransactionByHash(hash)
+        }
+    }
+
+    func getTransactionReceipt(hash: String) -> AnyPublisher<EthereumTransactionReceipt?, Error> {
+        providerPublisher {
+            $0.getTransactionReceipt(hash: hash)
         }
     }
 
