@@ -53,7 +53,32 @@ public struct EthereumTransaction: Decodable {
 }
 
 public struct EthereumTransactionReceipt: Decodable {
-    let status: String
+    enum Status: Decodable {
+        case confirmed
+        case failed
+        case dropped
+
+        init(from decoder: any Decoder) throws {
+            let container = try decoder.singleValueContainer()
+            let raw = try container.decode(String.self)
+            switch raw {
+            case "0x1": self = .confirmed
+            case "0x0": self = .failed
+            default: self = .dropped
+            }
+        }
+    }
+
+    let status: Status
+    
+    enum CodingKeys: CodingKey {
+        case status
+    }
+    
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.status = try container.decode(Status.self, forKey: .status)
+    }
 }
 
 struct EthereumPendingTransactionInfo {
