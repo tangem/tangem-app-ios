@@ -903,7 +903,7 @@ public extension Blockchain {
     /// https://chainlist.org
     var chainId: Int? {
         switch self {
-        case .ethereum: return isTestnet ? 5 : 1
+        case .ethereum: return isTestnet ? 560048 : 1
         case .ethereumClassic: return isTestnet ? 6 : 61 // https://besu.hyperledger.org/en/stable/Concepts/NetworkID-And-ChainID/
         case .ethereumPoW: return isTestnet ? 10002 : 10001
         case .disChain: return 513100
