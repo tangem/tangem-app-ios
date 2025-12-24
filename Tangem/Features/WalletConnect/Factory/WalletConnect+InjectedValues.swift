@@ -51,7 +51,10 @@ private final class WalletConnectEnvironment {
 
     lazy var wcService: CommonWCService = {
         let v2Service = WCServiceV2(walletKitClient: walletKitClient, wcHandlersService: handlersService)
-        return CommonWCService(v2Service: v2Service, dAppSessionsExtender: dAppSessionsExtender)
+        let commonService = CommonWCService(v2Service: v2Service, dAppSessionsExtender: dAppSessionsExtender)
+        let eventsService = WalletConnectEventsService(walletConnectService: commonService)
+        v2Service.setWalletConnectEventsService(eventsService)
+        return commonService
     }()
 
     lazy var dAppVerificationService = BlockaidWalletConnectDAppVerificationService(

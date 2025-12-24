@@ -86,7 +86,6 @@ extension WalletConnectBitcoinGetAccountAddressesHandler: WalletConnectMessageHa
             return .response(AnyCodable(any: []))
         }
 
-        // TOOD: path correct derivation path for each address
         let pathString = walletModel.tokenItem.blockchainNetwork.derivationPath?.rawPath
 
         let responses: [WalletConnectBtcAccountAddressResponse] = walletModel.addresses.map {
