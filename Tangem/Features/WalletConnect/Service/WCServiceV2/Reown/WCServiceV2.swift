@@ -27,6 +27,7 @@ final class WCServiceV2 {
 
     private let walletKitClient: ReownWalletKit.WalletKitClient
     private let wcHandlersService: WCHandlersService
+    private var walletConnectEventsService: WalletConnectEventsService?
 
     var transactionRequestPublisher: AnyPublisher<Result<WCHandleTransactionData, any Error>, Never> {
         transactionRequestSubject.eraseToAnyPublisher()
@@ -48,6 +49,26 @@ private extension WCServiceV2 {
         setupMessagesSubscriptions()
         subscribeToUserWalletEvents()
         subscribeToWalletModelsIfNeeded()
+        observeConnectedDAppsRepository()
+    }
+
+    func observeConnectedDAppsRepository() {
+        let task = Task { [weak self, connectedDAppRepository] in
+            guard let self else { return }
+
+            let stream = await connectedDAppRepository.makeDAppsStream()
+
+            for await dApps in stream {
+                guard !Task.isCancelled else { return }
+                handleConnectedDAppsRepositoryYield(dApps)
+            }
+        }
+
+        AnyCancellable { task.cancel() }.store(in: &bag)
+    }
+
+    func handleConnectedDAppsRepositoryYield(_ dApps: [WalletConnectConnectedDApp]) {
+        walletConnectEventsService?.handle(event: .dappConnected(dApps))
     }
 
     func subscribeToUserWalletEvents() {
@@ -252,6 +273,52 @@ private extension WCServiceV2 {
 
         removedBlockchains.forEach {
             handleHiddenBlockchainFromCurrentUserWallet($0)
+        }
+    }
+}
+
+// MARK: - Events
+
+extension WCServiceV2 {
+    func setWalletConnectEventsService(_ walletConnectEventsService: WalletConnectEventsService) {
+        self.walletConnectEventsService = walletConnectEventsService
+    }
+
+    func emitEvent(_ event: Session.Event, on blockchain: BlockchainSdk.Blockchain) {
+        runTask { [weak self, walletKitClient] in
+            guard let self else { return }
+
+            guard let chainId = WalletConnectBlockchainMapper.mapFromDomain(blockchain) else {
+                WCLogger.error(error: "Failed to emit WC event. Unsupported blockchain: \(blockchain)")
+                return
+            }
+
+            let allDApps = (try? await connectedDAppRepository.getAllDApps()) ?? []
+
+            let topics = Set(
+                allDApps
+                    .filter { dApp in
+                        dApp.dAppBlockchains.contains(where: { $0.blockchain.networkId == blockchain.networkId })
+                    }
+                    .map(\.session.topic)
+            )
+
+            guard topics.isNotEmpty else {
+                WCLogger.info("No WC sessions found for blockchain: \(blockchain)")
+                return
+            }
+
+            await withTaskGroup(of: Void.self) { taskGroup in
+                for topic in topics {
+                    taskGroup.addTask {
+                        do {
+                            try await walletKitClient.emit(topic: topic, event: event, chainId: chainId)
+                        } catch {
+                            WCLogger.error("Failed to emit WC event for topic: \(topic)", error: error)
+                        }
+                    }
+                }
+            }
         }
     }
 }
