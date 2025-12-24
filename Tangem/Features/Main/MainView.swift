@@ -49,13 +49,8 @@ struct MainView: View {
         .navigationBarBackButtonHidden(true)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .ignoresSafeArea(.keyboard)
-        .mainViewToolbar(leadingItem: tangemLogo, trailingItem: detailsNavigationButton)
+        .tangemLogoNavigationToolbar(trailingItem: detailsNavigationButton)
         .confirmationDialog(viewModel: $viewModel.confirmationDialog)
-    }
-
-    private var tangemLogo: some View {
-        Assets.newTangemLogo.image
-            .foregroundColor(Colors.Icon.primary1)
     }
 
     private var detailsNavigationButton: some View {
@@ -74,35 +69,6 @@ struct MainView: View {
             HStack {
                 Text(Localization.commonRename)
                 Image(systemName: "pencil")
-            }
-        }
-    }
-}
-
-private extension View {
-    @ViewBuilder
-    func mainViewToolbar(leadingItem: some View, trailingItem: some View) -> some View {
-        if #available(iOS 26.0, *) {
-            toolbar {
-                ToolbarItem(placement: .principal) {
-                    leadingItem
-                }
-                .sharedBackgroundVisibility(.hidden)
-
-                ToolbarItem(placement: .topBarTrailing) {
-                    trailingItem
-                }
-            }
-            .toolbarRole(.editor)
-        } else {
-            toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    leadingItem
-                }
-
-                ToolbarItem(placement: .topBarTrailing) {
-                    trailingItem
-                }
             }
         }
     }
