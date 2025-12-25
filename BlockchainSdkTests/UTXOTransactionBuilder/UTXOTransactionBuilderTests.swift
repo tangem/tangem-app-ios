@@ -15,8 +15,8 @@ struct UTXOTransactionSerializerTests {
         // given
         let builder = CommonUTXOTransactionSerializer(version: 1, sequence: .final, signHashType: .bitcoinAll)
         let tx = Transaction(
-            amount: Amount(with: .bitcoin, type: .coin, value: 0),
-            fee: Fee(Amount(with: .bitcoin, type: .coin, value: 0)),
+            amount: Amount(with: .bitcoin(testnet: false), type: .coin, value: 0),
+            fee: Fee(Amount(with: .bitcoin(testnet: false), type: .coin, value: 0)),
             sourceAddress: "source",
             destinationAddress: "destination",
             changeAddress: "change",
@@ -71,8 +71,8 @@ struct UTXOTransactionSerializerTests {
         // given
         let builder = CommonUTXOTransactionSerializer(version: 1, sequence: .zero, signHashType: .bitcoinAll)
         let tx = Transaction(
-            amount: Amount(with: .bitcoin, type: .coin, value: 0),
-            fee: Fee(Amount(with: .bitcoin, type: .coin, value: 0)),
+            amount: Amount(with: .bitcoin(testnet: false), type: .coin, value: 0),
+            fee: Fee(Amount(with: .bitcoin(testnet: false), type: .coin, value: 0)),
             sourceAddress: "source",
             destinationAddress: "destination",
             changeAddress: "change",
@@ -128,8 +128,8 @@ struct UTXOTransactionSerializerTests {
         let builder = CommonUTXOTransactionSerializer(version: 1, sequence: .final, signHashType: .bitcoinAll)
 
         let txNoMemo = Transaction(
-            amount: Amount(with: .bitcoin, type: .coin, value: 0),
-            fee: Fee(Amount(with: .bitcoin, type: .coin, value: 0)),
+            amount: Amount(with: .bitcoin(testnet: false), type: .coin, value: 0),
+            fee: Fee(Amount(with: .bitcoin(testnet: false), type: .coin, value: 0)),
             sourceAddress: "source",
             destinationAddress: "destination",
             changeAddress: "change",
@@ -139,8 +139,8 @@ struct UTXOTransactionSerializerTests {
 
         let memo = Data("hi".utf8)
         let txWithMemo = Transaction(
-            amount: Amount(with: .bitcoin, type: .coin, value: 0),
-            fee: Fee(Amount(with: .bitcoin, type: .coin, value: 0)),
+            amount: Amount(with: .bitcoin(testnet: false), type: .coin, value: 0),
+            fee: Fee(Amount(with: .bitcoin(testnet: false), type: .coin, value: 0)),
             sourceAddress: "source",
             destinationAddress: "destination",
             changeAddress: "change",
