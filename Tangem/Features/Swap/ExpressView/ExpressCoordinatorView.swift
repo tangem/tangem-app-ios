@@ -15,7 +15,7 @@ struct ExpressCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: ExpressCoordinator
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 if let rootViewModel = coordinator.rootViewModel {
                     ExpressView(viewModel: rootViewModel)

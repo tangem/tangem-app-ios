@@ -38,7 +38,7 @@ struct AccountDetailsCoordinatorView: View {
     private var sheets: some View {
         NavHolder()
             .sheet(item: $coordinator.editAccountViewModel) { viewModel in
-                NavigationView {
+                NavigationStack {
                     AccountFormView(viewModel: viewModel)
                 }
                 .presentation(onDismissalAttempt: viewModel.onClose)

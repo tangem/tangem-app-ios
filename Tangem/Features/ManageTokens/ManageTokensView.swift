@@ -24,9 +24,13 @@ struct ManageTokensView: View {
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
-                CustomSearchBar(searchText: $viewModel.searchText, placeholder: Localization.commonSearch)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
+                CustomSearchBar(
+                    searchText: $viewModel.searchText,
+                    placeholder: Localization.commonSearch,
+                    cancelButtonAction: nil
+                )
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
 
                 if contentOffset.y > 0 {
                     Divider()
@@ -109,7 +113,7 @@ struct ManageTokensView: View {
         )
     )
 
-    return NavigationView {
+    return NavigationStack {
         ManageTokensView(viewModel: .init(
             adapter: adapter,
             context: context,

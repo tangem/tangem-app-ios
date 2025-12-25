@@ -57,16 +57,16 @@ struct DetailsView: View {
                 SettingsUserWalletRowView(viewModel: viewModel)
             case .addOrScanNewUserWalletButton(let viewModel):
                 DefaultRowView(viewModel: viewModel)
-                    .appearance(.accentButton)
+                    .appearance(.addButton)
             case .addNewUserWalletButton(let viewModel):
                 DefaultRowView(viewModel: viewModel)
-                    .appearance(.accentButton)
+                    .appearance(.addButton)
             }
         }
     }
 
     private var buyWalletSection: some View {
-        GroupedSection(viewModel.buyWalletViewModel) {
+        GroupedSection(viewModel.getSectionViewModels) {
             DefaultRowView(viewModel: $0)
                 .appearance(.accentButton)
         }
@@ -125,13 +125,12 @@ struct DetailsView: View {
 
 struct SettingsView_Previews: PreviewProvider {
     static var previews: some View {
-        NavigationView {
+        NavigationStack {
             DetailsView(
                 viewModel: DetailsViewModel(
                     coordinator: DetailsCoordinator()
                 )
             )
         }
-        .navigationViewStyle(.stack)
     }
 }

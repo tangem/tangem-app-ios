@@ -312,13 +312,18 @@ private extension MarketsTokenAccountNetworkSelectorFlowViewModel {
         case .buy:
             Analytics.log(event: .marketsChartButtonBuy, params: analyticsParams)
             let sendInput = SendInput(userWalletInfo: userWalletInfo, walletModel: walletModel)
-            coordinator?.openOnramp(input: sendInput)
+            let parameters = PredefinedOnrampParametersBuilder.makeMoonpayPromotionParametersIfActive()
+            coordinator?.openOnramp(input: sendInput, parameters: parameters)
 
         case .exchange:
             Analytics.log(event: .marketsChartButtonSwap, params: analyticsParams)
             let expressInput = ExpressDependenciesInput(
                 userWalletInfo: userWalletInfo,
-                source: ExpressInteractorWalletModelWrapper(userWalletInfo: userWalletInfo, walletModel: walletModel),
+                source: ExpressInteractorWalletModelWrapper(
+                    userWalletInfo: userWalletInfo,
+                    walletModel: walletModel,
+                    expressOperationType: .swap
+                ),
                 destination: .loadingAndSet
             )
 

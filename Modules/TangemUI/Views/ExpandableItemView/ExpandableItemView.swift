@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemFoundation
 import TangemUIUtils
 import TangemAssets
 
@@ -22,11 +23,17 @@ public struct ExpandableItemView<
     private let expandedViewHeader: ExpandedViewHeader
     private let backgroundColor: Color
     private let cornerRadius: CGFloat
+    private let initialCollapsedHeight: CGFloat
+    private let initialExpandedHeight: CGFloat
     private let onExpandedChange: ((Bool) -> Void)?
+
+    // MARK: - Init
 
     public init(
         backgroundColor: Color = Colors.Background.primary,
         cornerRadius: CGFloat = 14,
+        initialCollapsedHeight: CGFloat = 0,
+        initialExpandedHeight: CGFloat = 0,
         onExpandedChange: ((Bool) -> Void)? = nil,
         @ViewBuilder collapsedView: () -> CollapsedView,
         @ViewBuilder expandedView: () -> ExpandedView,
@@ -38,83 +45,59 @@ public struct ExpandableItemView<
         self.collapsedView = collapsedView()
         self.expandedView = expandedView()
         self.expandedViewHeader = expandedViewHeader()
+        self.initialCollapsedHeight = initialCollapsedHeight
+        self.initialExpandedHeight = initialExpandedHeight
     }
 
     // MARK: - State
 
-    @State private var isExpanded = false
-    @Namespace private var namespace
-    @State private var isAnimating = false
-    @State private var isPressed = false
+    @State private var animationProgress: Double = 0.0
 
     // MARK: - Body
 
     public var body: some View {
-        if isExpanded {
-            ExpandedContentWrapperView(
-                header: expandedViewHeader,
-                content: expandedView,
-                onTap: toggleExpanded
+        Button(action: toggleExpanded) {
+            ExpandableAnimatedContent(
+                collapsedView: collapsedView
+                    .contentShape(Rectangle()),
+                expandedView: expandedViewWithHeader,
+                initialCollapsedHeight: initialCollapsedHeight,
+                initialExpandedHeight: initialExpandedHeight,
+                backgroundColor: backgroundColor,
+                cornerRadius: cornerRadius,
+                progress: animationProgress
             )
-            // Mikhail Andreev - can't extract those to reusable properties because then matchedGeometryEffect behaves funny
-            .background(
-                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .fill(backgroundColor)
-                    .matchedGeometryEffect(id: Constants.backgroundGeometryEffectID, in: namespace)
-            )
-            .mask(
-                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .matchedGeometryEffect(id: Constants.maskGeometryEffectID, in: namespace)
-            )
-        } else {
-            collapsedView
-                .transition(.collapsedViewTransition)
-                .background(
-                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                        .fill(backgroundColor)
-                        .matchedGeometryEffect(id: Constants.backgroundGeometryEffectID, in: namespace)
-                )
-                .mask(
-                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                        .matchedGeometryEffect(id: Constants.maskGeometryEffectID, in: namespace)
-                )
-                .transformEffect(.identity)
-                .onTapGesture(perform: toggleExpanded)
-                .scaleEffect(isPressed ? 0.95 : 1.0)
         }
+        .buttonStyle(.scaled(
+            scaleAmount: isExpanded ? 1.0 : 0.98,
+            dimmingAmount: isExpanded ? 1.0 : 0.7
+        ))
+    }
+
+    // MARK: - Views
+
+    private var expandedViewWithHeader: some View {
+        VStack(spacing: 8) {
+            expandedViewHeader
+                .contentShape(Rectangle())
+                .onTapGesture(perform: toggleExpanded)
+
+            expandedView
+        }
+    }
+
+    private var isExpanded: Bool {
+        animationProgress > ExpandableAnimatedContentConstants.phaseDivisionThreshold
     }
 
     // MARK: - Private functions
 
     private func toggleExpanded() {
-        // [REDACTED_TODO_COMMENT]
-        guard !isAnimating else { return }
-
-        isAnimating = true
-
-        withAnimation(.easeInOut(duration: 0.1)) {
-            isPressed = true
-        }
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            withAnimation(.easeInOut(duration: 0.5)) {
-                isPressed = false
-                isExpanded.toggle()
-            }
-
+        FeedbackGenerator.selectionChanged()
+        // Actual curve is set in ExpandableAnimatedContent
+        withAnimation(.linear(duration: 0.5)) {
+            animationProgress = isExpanded ? 0.0 : 1.0
             onExpandedChange?(isExpanded)
-
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                isAnimating = false
-            }
         }
     }
-}
-
-// MARK: - Constants
-
-private enum Constants {
-    static let cornerRadius: CGFloat = 14
-    static let backgroundGeometryEffectID = "cardBG"
-    static let maskGeometryEffectID = "cardMask"
 }

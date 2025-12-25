@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct EnvironmentSetupView: View {
     @ObservedObject private var viewModel: EnvironmentSetupViewModel
@@ -166,7 +167,7 @@ struct EnvironmentSetupView_Preview: PreviewProvider {
     static let viewModel = EnvironmentSetupViewModel(coordinator: EnvironmentSetupRoutableMock())
 
     static var previews: some View {
-        NavigationView {
+        NavigationStack {
             EnvironmentSetupView(viewModel: viewModel)
         }
     }

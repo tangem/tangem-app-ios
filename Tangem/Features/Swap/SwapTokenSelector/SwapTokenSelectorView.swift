@@ -15,9 +15,9 @@ struct SwapTokenSelectorView: View {
     @ObservedObject var viewModel: SwapTokenSelectorViewModel
 
     var body: some View {
-        NavigationView {
-            NewTokenSelectorView(viewModel: viewModel.tokenSelectorViewModel) {
-                NewTokenSelectorEmptyContentView(message: Localization.expressTokenListEmptySearch)
+        NavigationStack {
+            AccountsAwareTokenSelectorView(viewModel: viewModel.tokenSelectorViewModel) {
+                AccountsAwareTokenSelectorEmptyContentView(message: Localization.expressTokenListEmptySearch)
             }
             .searchType(.native)
             .background(Colors.Background.tertiary.ignoresSafeArea())

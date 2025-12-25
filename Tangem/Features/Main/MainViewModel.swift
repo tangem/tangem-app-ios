@@ -113,7 +113,7 @@ final class MainViewModel: ObservableObject {
     func onViewAppear() {
         logMainScreenOpenedAnalytics()
 
-        updateMarkets()
+        updateYieldMarkets()
 
         swipeDiscoveryHelper.scheduleSwipeDiscoveryIfNeeded()
         openPushNotificationsAuthorizationIfNeeded()
@@ -389,14 +389,22 @@ final class MainViewModel: ObservableObject {
 
         didLogMainScreenOpenedAnalytics = true
 
-        var params: [Analytics.ParameterKey: String] = [:]
+        var params: [Analytics.ParameterKey: String] = [
+            .appTheme: AppSettings.shared.appTheme.analyticsParamValue.rawValue,
+        ]
 
         let hasMobileWallet = userWalletRepository.models.contains { $0.config.productType == .mobileWallet }
         params[.mobileWallet] = Analytics.ParameterValue.affirmativeOrNegative(for: hasMobileWallet).rawValue
 
         if let userWalletModel {
-            let walletType = Analytics.ParameterValue.seedState(for: userWalletModel.hasImportedWallets)
-            params[.walletType] = walletType.rawValue
+            let hasSeedPhrase = userWalletModel.config.productType == .mobileWallet || userWalletModel.hasImportedWallets
+            params[.walletType] = Analytics.ParameterValue.seedState(for: hasSeedPhrase).rawValue
+
+            let userWalletConfig = userWalletModel.config
+            let walletHasBackup = userWalletConfig.productType == .mobileWallet
+                ? !userWalletConfig.hasFeature(.mnemonicBackup)
+                : !userWalletConfig.hasFeature(.backup)
+            params[.walletHasBackup] = Analytics.ParameterValue.affirmativeOrNegative(for: walletHasBackup).rawValue
         }
 
         if let accountModels {
@@ -444,7 +452,7 @@ final class MainViewModel: ObservableObject {
             await viewModel.onPullToRefresh()
         }
 
-        updateMarkets(force: true)
+        updateYieldMarkets(force: true)
     }
 }
 
@@ -530,16 +538,9 @@ extension MainViewModel: WalletSwipeDiscoveryHelperDelegate {
 // MARK: - Yield module
 
 extension MainViewModel {
-    func updateMarkets(force: Bool = false) {
+    func updateYieldMarkets(force: Bool = false) {
         if force || yieldModuleNetworkManager.markets.isEmpty {
-            let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletRepository.models)
-            let chainIDs = Set(
-                walletModels.compactMap { walletModel -> String? in
-                    guard walletModel.tokenItem.isToken, walletModel.yieldModuleManager != nil else { return nil }
-                    return walletModel.tokenItem.blockchain.chainId.map { String($0) }
-                }
-            )
-            yieldModuleNetworkManager.updateMarkets(chainIDs: chainIDs.asArray)
+            yieldModuleNetworkManager.updateMarkets()
         }
     }
 }
