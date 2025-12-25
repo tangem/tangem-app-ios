@@ -301,7 +301,7 @@ final class ReferralViewModel: ObservableObject {
 
         case .multiple(let accounts):
             guard let account = ReferralAccountFinder.find(forAddress: address, accounts: accounts) else {
-                processReferralError(.accountFetchError)
+                viewState = .loaded(.alreadyParticipant(.simple))
                 return
             }
 
