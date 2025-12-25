@@ -113,8 +113,12 @@ class CommonUserWalletRepository: UserWalletRepository {
             throw UserWalletRepositoryError.duplicateWalletAdded
         }
 
+        let shouldShowInsertedEvent = models.isNotEmpty
         models.append(userWalletModel)
-        sendEvent(.inserted(userWalletId: userWalletModel.userWalletId))
+        if shouldShowInsertedEvent {
+            sendEvent(.inserted(userWalletId: userWalletModel.userWalletId))
+        }
+
         select(userWalletId: userWalletModel.userWalletId)
         save(userWalletModel: userWalletModel)
 
