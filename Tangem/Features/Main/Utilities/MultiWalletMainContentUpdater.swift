@@ -20,7 +20,8 @@ enum MultiWalletMainContentUpdater {
             // [REDACTED_INFO]
             if FeatureProvider.isAvailable(.visa), let paeraCustomer = userWalletModel.paeraCustomer {
                 outerGroup.addTask {
-                    await paeraCustomer.updateState().value
+                    // [REDACTED_TODO_COMMENT]
+//                    await paeraCustomer.updateState().value
                 }
             }
 

@@ -286,17 +286,14 @@ final class PaeraCustomer {
         case tangemPayAccount(TangemPayAccount)
     }
 
-    let userWalletModel: UserWalletModel
-
-    var statePublisher: AnyPublisher<State?, Never> {
-        stateSubject.eraseToAnyPublisher()
+    var customerWalletId: String {
+        userWalletId.stringValue
     }
 
-    var state: State? {
-        stateSubject.value
-    }
-
-    lazy var tangemPayNotificationManager = TangemPayNotificationManager(paeraCustomerStatePublisher: statePublisher)
+    let userWalletId: UserWalletId
+    let keysRepository: KeysRepository
+    let tangemPayAuthorizingInteractor: TangemPayAuthorizing
+    let signer: any TangemSigner
 
     private let stateSubject = CurrentValueSubject<State?, Never>(nil)
 
@@ -310,12 +307,15 @@ final class PaeraCustomer {
     private let customerInfoManagementService: CustomerInfoManagementService
 
     private lazy var cardIssuingManager = TangemPayCardIssuingManager(
-        customerWalletId: userWalletModel.userWalletId.stringValue,
+        customerWalletId: customerWalletId,
         customerInfoManagementService: customerInfoManagementService
     )
 
     fileprivate init(userWalletModel: UserWalletModel) {
-        self.userWalletModel = userWalletModel
+        userWalletId = userWalletModel.userWalletId
+        keysRepository = userWalletModel.keysRepository
+        tangemPayAuthorizingInteractor = userWalletModel.tangemPayAuthorizingInteractor
+        signer = userWalletModel.signer
 
         authorizationService = TangemPayAPIServiceBuilder().buildTangemPayAuthorizationService()
 
@@ -334,18 +334,6 @@ final class PaeraCustomer {
 
         customerInfoManagementService = TangemPayCustomerInfoManagementServiceBuilder()
             .buildCustomerInfoManagementService(authorizationTokensHandler: authorizationTokensHandler)
-
-        // No reference cycle here, self is stored as weak
-        tangemPayNotificationManager.setupManager(with: self)
-
-        updateState()
-    }
-
-    @discardableResult
-    func updateState() -> Task<Void, Never> {
-        runTask { [self] in
-            stateSubject.send(await getCurrentState())
-        }
     }
 
     func launchKYC(onDidDismiss: @escaping () -> Void) async throws {
@@ -361,7 +349,7 @@ final class PaeraCustomer {
             do {
                 try await customerInfoManagementService.cancelKYC()
                 await MainActor.run {
-                    AppSettings.shared.tangemPayIsKYCHiddenForCustomerWalletId[userWalletModel.userWalletId.stringValue] = true
+                    AppSettings.shared.tangemPayIsKYCHiddenForCustomerWalletId[customerWalletId] = true
                 }
                 onFinish(true)
             } catch {
@@ -371,24 +359,19 @@ final class PaeraCustomer {
         }
     }
 
-    @discardableResult
-    func authorizeWithCustomerWallet() async throws -> State {
-        let response = try await userWalletModel.tangemPayAuthorizingInteractor.authorize(
-            customerWalletId: userWalletModel.userWalletId.stringValue,
+    func authorizeWithCustomerWallet() async throws {
+        let response = try await tangemPayAuthorizingInteractor.authorize(
+            customerWalletId: customerWalletId,
             authorizationService: authorizationService
         )
-        userWalletModel.keysRepository.update(derivations: response.derivationResult)
+        keysRepository.update(derivations: response.derivationResult)
         try authorizationTokensHandler.saveTokens(tokens: response.tokens)
-
-        let currentState = await getCurrentState()
-        stateSubject.send(currentState)
-        return currentState
     }
 
-    func getCurrentState() async -> State {
+    func getCurrentState() async -> TangemPayManager.State {
         let customerWalletAddressAndTokens = TangemPayUtilities.getCustomerWalletAddressAndAuthorizationTokens(
-            customerWalletId: userWalletModel.userWalletId.stringValue,
-            keysRepository: userWalletModel.keysRepository
+            customerWalletId: customerWalletId,
+            keysRepository: keysRepository
         )
 
         guard let customerWalletAddress = customerWalletAddressAndTokens?.customerWalletAddress,
@@ -418,7 +401,9 @@ final class PaeraCustomer {
                     TangemPayAccountBuilderr(
                         customerWalletAddress: customerWalletAddress,
                         customerInfo: customerInfo,
-                        userWalletModel: userWalletModel,
+                        userWalletId: userWalletId,
+                        keysRepository: keysRepository,
+                        signer: signer,
                         authorizationTokensHandler: authorizationTokensHandler,
                         customerInfoManagementService: customerInfoManagementService
                     )
@@ -445,44 +430,21 @@ final class PaeraCustomer {
     }
 }
 
-// MARK: - NotificationTapDelegate
-
-extension PaeraCustomer: NotificationTapDelegate {
-    func didTapNotification(with id: NotificationViewId, action: NotificationButtonActionType) {
-        switch action {
-        case .tangemPaySync:
-            runTask { [self] in
-                stateSubject.value = .syncInProgress
-                do {
-                    // Changes state under the hood
-                    try await authorizeWithCustomerWallet()
-                } catch {
-                    VisaLogger.error("Failed to authorize with customer wallet", error: error)
-                    stateSubject.value = .unavailable
-                }
-            }
-
-        default:
-            break
-        }
-    }
-}
-
 struct TangemPayAccountBuilderr {
     let customerWalletAddress: String
     let customerInfo: VisaCustomerInfoResponse
-    let userWalletModel: UserWalletModel
+    let userWalletId: UserWalletId
+    let keysRepository: KeysRepository
+    let signer: any TangemSigner
 
     let authorizationTokensHandler: TangemPayAuthorizationTokensHandler
     let customerInfoManagementService: CustomerInfoManagementService
 
     func build() -> TangemPayAccount {
         // [REDACTED_TODO_COMMENT]
-        TangemPayOrderIdStorage.deleteCardIssuingOrderId(customerWalletId: userWalletModel.userWalletId.stringValue)
+        TangemPayOrderIdStorage.deleteCardIssuingOrderId(customerWalletId: userWalletId.stringValue)
 
-        let tokenBalancesRepository = CommonTokenBalancesRepository(
-            userWalletId: userWalletModel.userWalletId
-        )
+        let tokenBalancesRepository = CommonTokenBalancesRepository(userWalletId: userWalletId)
 
         let balancesService = CommonTangemPayBalanceService(
             customerInfoManagementService: customerInfoManagementService,
@@ -492,14 +454,14 @@ struct TangemPayAccountBuilderr {
         let withdrawTransactionService = CommonTangemPayWithdrawTransactionService(
             customerInfoManagementService: customerInfoManagementService,
             fiatItem: TangemPayUtilities.fiatItem,
-            signer: userWalletModel.signer
+            signer: signer
         )
 
         return TangemPayAccount(
-            customerWalletId: userWalletModel.userWalletId.stringValue,
+            customerWalletId: userWalletId.stringValue,
             customerWalletAddress: customerWalletAddress,
             customerInfo: customerInfo,
-            keysRepository: userWalletModel.keysRepository,
+            keysRepository: keysRepository,
             authorizationTokensHandler: authorizationTokensHandler,
             customerInfoManagementService: customerInfoManagementService,
             balancesService: balancesService,
@@ -616,9 +578,81 @@ struct TangemPayCardIssuingManager {
     }
 }
 
-enum TangemPayManager {
+final class TangemPayManager {
+    @CaseFlagable
     enum State {
-        case unknown
-        case known
+        case initial
+
+        case syncNeeded
+        case syncInProgress
+        case unavailable
+
+        case kyc
+        case readyToIssueOrIssuing
+        case failedToIssue
+        case tangemPayAccount(TangemPayAccount)
+    }
+
+    let tangemPayNotificationManager: TangemPayNotificationManager
+
+    private let stateSubject = CurrentValueSubject<State, Never>(.initial)
+    private let paeraCustomerSubject = CurrentValueSubject<PaeraCustomer?, Never>(nil)
+
+    init(userWalletModel: UserWalletModel) {
+        tangemPayNotificationManager = TangemPayNotificationManager(
+            paeraCustomerStatePublisher: stateSubject.eraseToAnyPublisher()
+        )
+
+        let builder = PaeraCustomerBuilder(userWalletModel: userWalletModel)
+
+        // No reference cycle here, self is stored as weak
+        tangemPayNotificationManager.setupManager(with: self)
+
+        runTask { [self] in
+            if let paeraCustomer = await builder.getIfExist() {
+                paeraCustomerSubject.send(paeraCustomer)
+
+                let state = await paeraCustomer.getCurrentState()
+                stateSubject.send(state)
+            }
+        }
+    }
+
+    func initialize(userWalletModel: UserWalletModel) {
+        let builder = PaeraCustomerBuilder(userWalletModel: userWalletModel)
+        let paeraCustomer = builder.create()
+        paeraCustomerSubject.send(paeraCustomer)
+    }
+
+    private func sync() {
+        guard let paeraCustomer = paeraCustomerSubject.value else {
+            stateSubject.value = .unavailable
+            return
+        }
+
+        runTask { [self] in
+            stateSubject.value = .syncInProgress
+            do {
+                try await paeraCustomer.authorizeWithCustomerWallet()
+                stateSubject.value = await paeraCustomer.getCurrentState()
+            } catch {
+                VisaLogger.error("Failed to authorize with customer wallet", error: error)
+                stateSubject.value = .unavailable
+            }
+        }
+    }
+}
+
+// MARK: - NotificationTapDelegate
+
+extension TangemPayManager: NotificationTapDelegate {
+    func didTapNotification(with id: NotificationViewId, action: NotificationButtonActionType) {
+        switch action {
+        case .tangemPaySync:
+            sync()
+
+        default:
+            break
+        }
     }
 }
