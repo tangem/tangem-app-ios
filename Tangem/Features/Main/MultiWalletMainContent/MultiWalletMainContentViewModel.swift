@@ -325,9 +325,11 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                         .eraseToAnyPublisher()
                 }
 
-                return paeraCustomer
-                    .tangemPayNotificationManager
-                    .notificationPublisher
+                // [REDACTED_TODO_COMMENT]
+                fatalError()
+//                return paeraCustomer
+//                    .tangemPayNotificationManager
+//                    .notificationPublisher
             }
             .receiveOnMain()
             .assign(to: &$tangemPayNotificationInputs)
@@ -343,10 +345,12 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                         .eraseToAnyPublisher()
                 }
 
-                return paeraCustomer
-                    .statePublisher
-                    .compactMap(\.?.isSyncInProgress)
-                    .eraseToAnyPublisher()
+                // [REDACTED_TODO_COMMENT]
+                fatalError()
+//                return paeraCustomer
+//                    .statePublisher
+//                    .compactMap(\.?.isSyncInProgress)
+//                    .eraseToAnyPublisher()
             }
             .receiveOnMain()
             .assign(to: &$tangemPaySyncInProgress)

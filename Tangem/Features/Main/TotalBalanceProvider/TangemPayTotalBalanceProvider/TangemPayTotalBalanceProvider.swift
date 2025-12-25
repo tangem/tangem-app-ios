@@ -48,16 +48,18 @@ private extension TangemPayTotalBalanceProvider {
             .paeraCustomerPublisher
             .flatMapLatest { paeraCustomer -> AnyPublisher<TangemPayAccount?, Never> in
                 if let paeraCustomer {
-                    paeraCustomer.statePublisher
-                        .map { state in
-                            switch state {
-                            case .tangemPayAccount(let tangemPayAccount):
-                                tangemPayAccount
-                            default:
-                                nil
-                            }
-                        }
-                        .eraseToAnyPublisher()
+//                    paeraCustomer.statePublisher
+//                        .map { state in
+//                            switch state {
+//                            case .tangemPayAccount(let tangemPayAccount):
+//                                tangemPayAccount
+//                            default:
+//                                nil
+//                            }
+//                        }
+//                        .eraseToAnyPublisher()
+                    // [REDACTED_TODO_COMMENT]
+                    fatalError()
                 } else {
                     .just(output: nil)
                 }
