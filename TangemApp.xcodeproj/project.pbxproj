@@ -953,6 +953,9 @@
 		5DFE855724EF051400194106 /* Error+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFE855624EF051400194106 /* Error+.swift */; };
 		6563B8B92858B92A009A8A7D /* SupportChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6563B8B82858B92A009A8A7D /* SupportChatView.swift */; };
 		65C9FCAE28644F9D00FDE63E /* DetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9FCAD28644F9D00FDE63E /* DetailsView.swift */; };
+		693AC41700000001000FFFFF /* AccountsAnalyticsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 693AC41700000002000FFFFF /* AccountsAnalyticsBuilder.swift */; };
+		693AC41700000003001FFFFF /* SingleAccountAnalyticsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 693AC41700000004001FFFFF /* SingleAccountAnalyticsBuilder.swift */; };
+		693AC41700000005002FFFFF /* PairedAccountAnalyticsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 693AC41700000006002FFFFF /* PairedAccountAnalyticsBuilder.swift */; };
 		7982B0032DE70DF300C41EA5 /* BaseTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7982B0002DE70DF300C41EA5 /* BaseTestCase.swift */; };
 		7982B00A2DE70E0100C41EA5 /* ScrollParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7982B0062DE70E0100C41EA5 /* ScrollParameters.swift */; };
 		7982B00B2DE70E0100C41EA5 /* TangemAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7982B0072DE70E0100C41EA5 /* TangemAPI.swift */; };
@@ -5685,6 +5688,9 @@
 		6563B8B82858B92A009A8A7D /* SupportChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportChatView.swift; sourceTree = "<group>"; };
 		65C9FCAD28644F9D00FDE63E /* DetailsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailsView.swift; sourceTree = "<group>"; };
 		65C9FCB92869CC3E00FDE63E /* SupportChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportChatViewModel.swift; sourceTree = "<group>"; };
+		693AC41700000002000FFFFF /* AccountsAnalyticsBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountsAnalyticsBuilder.swift; sourceTree = "<group>"; };
+		693AC41700000004001FFFFF /* SingleAccountAnalyticsBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleAccountAnalyticsBuilder.swift; sourceTree = "<group>"; };
+		693AC41700000006002FFFFF /* PairedAccountAnalyticsBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairedAccountAnalyticsBuilder.swift; sourceTree = "<group>"; };
 		7982B0002DE70DF300C41EA5 /* BaseTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseTestCase.swift; sourceTree = "<group>"; };
 		7982B0062DE70E0100C41EA5 /* ScrollParameters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollParameters.swift; sourceTree = "<group>"; };
 		7982B0072DE70E0100C41EA5 /* TangemAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemAPI.swift; sourceTree = "<group>"; };
@@ -11551,6 +11557,15 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		301557CF2EF2D020000A38EA /* AnalyticsBuilding */ = {
+			isa = PBXGroup;
+			children = (
+				693AC41700000006002FFFFF /* PairedAccountAnalyticsBuilder.swift */,
+				693AC41700000004001FFFFF /* SingleAccountAnalyticsBuilder.swift */,
+			);
+			path = AnalyticsBuilding;
+			sourceTree = "<group>";
+		};
 		30188F672D75CF8E00217353 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
@@ -14409,8 +14424,10 @@
 		B60F98C82E3BC81300141CA5 /* Crypto */ = {
 			isa = PBXGroup;
 			children = (
+				301557CF2EF2D020000A38EA /* AnalyticsBuilding */,
 				B60263952EC818C3001A4614 /* GlobalStateProvider */,
 				B6BC3B9A2EB05A4900C8975D /* Dependencies */,
+				693AC41700000002000FFFFF /* AccountsAnalyticsBuilder.swift */,
 				B60F98CD2E3BC84C00141CA5 /* CommonCryptoAccountModel.swift */,
 				B68C40A72E4FE0C600BA37BB /* CommonCryptoAccountModel.AccountId.swift */,
 				B6572F552ED7F28E00C93E59 /* CommonCryptoAccountModelDelegate.swift */,
@@ -26648,6 +26665,9 @@
 				EF2561122CC6A91900D3C16A /* CommonOnrampStorage.swift in Sources */,
 				EF1E176D2BF69065000364AE /* WalletConnectRowViewModel.swift in Sources */,
 				B60F98CE2E3BC84C00141CA5 /* CommonCryptoAccountModel.swift in Sources */,
+				693AC41700000001000FFFFF /* AccountsAnalyticsBuilder.swift in Sources */,
+				693AC41700000003001FFFFF /* SingleAccountAnalyticsBuilder.swift in Sources */,
+				693AC41700000005002FFFFF /* PairedAccountAnalyticsBuilder.swift in Sources */,
 				C207D60B2DE60F2500A5FB2E /* WalletConnectApproveDAppProposalUseCase.swift in Sources */,
 				C207D60C2DE60F2500A5FB2E /* WalletConnectEstablishDAppConnectionUseCase.swift in Sources */,
 				2DFB00D42EF58396006C2392 /* MarketsMainSearchView.swift in Sources */,
