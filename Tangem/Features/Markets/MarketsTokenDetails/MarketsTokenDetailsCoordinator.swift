@@ -43,8 +43,6 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     private var openFeeCurrency: OpenFeeCurrency?
 
     private var safariHandle: SafariHandle?
-
-    private let portfolioCoordinatorFactory = MarketsTokenDetailsPortfolioCoordinatorFactory()
     private let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
 
     // MARK: - Init
