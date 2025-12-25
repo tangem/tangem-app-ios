@@ -334,7 +334,7 @@ final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
     }
 
     private func updateTypeView(hasTokens: Bool, listStyle: TypeView.ListStyle, animated: Bool) {
-        if let networks = networks {
+        if let networks {
             let supportedState = supportedState(networks: networks)
             isAddTokenButtonDisabled = tokenAddedToAllNetworksInAllAccounts(availableNetworks: networks)
 
@@ -395,12 +395,6 @@ extension MarketsAccountsAwarePortfolioContainerViewModel: MarketsPortfolioConte
             return
         }
 
-        let expressInput = ExpressDependenciesInput(
-            userWalletInfo: userWalletModel.userWalletInfo,
-            source: ExpressInteractorWalletModelWrapper(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel),
-            destination: .loadingAndSet
-        )
-
         let sendInput = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
         let analyticsParams = makeAnalyticsParams(for: walletModel)
 
@@ -414,6 +408,15 @@ extension MarketsAccountsAwarePortfolioContainerViewModel: MarketsPortfolioConte
             coordinator.openReceive(walletModel: walletModel)
         case .exchange:
             Analytics.log(event: .marketsChartButtonSwap, params: analyticsParams)
+            let expressInput = ExpressDependenciesInput(
+                userWalletInfo: userWalletModel.userWalletInfo,
+                source: ExpressInteractorWalletModelWrapper(
+                    userWalletInfo: userWalletModel.userWalletInfo,
+                    walletModel: walletModel,
+                    expressOperationType: .swap
+                ),
+                destination: .loadingAndSet
+            )
             coordinator.openExchange(input: expressInput)
         case .stake:
             Analytics.log(event: .marketsChartButtonStake, params: analyticsParams)
