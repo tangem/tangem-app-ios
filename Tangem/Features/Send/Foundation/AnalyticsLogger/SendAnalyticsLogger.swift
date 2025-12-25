@@ -90,6 +90,8 @@ protocol SendDestinationAnalyticsLogger {
 
     func logDestinationStepOpened()
     func logDestinationStepReopened()
+
+    func setDestinationAnalyticsProvider(_ analyticsProvider: (any AccountModelAnalyticsProviding)?)
 }
 
 protocol SendAmountAnalyticsLogger {
