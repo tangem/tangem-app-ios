@@ -7,7 +7,7 @@
 //
 
 public protocol TangemPayAuthorizationTokensHandler: AnyObject {
-    var tokens: TangemPayAuthorizationTokens? { get }
+    var refreshTokenExpired: Bool { get }
     var authorizationHeader: String? { get }
 
     func saveTokens(tokens: TangemPayAuthorizationTokens) throws
