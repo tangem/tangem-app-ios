@@ -34,8 +34,9 @@ struct TangemPayKYCStatusPopupView: View {
                         Fonts.RegularStatic.subheadline,
                         color: Colors.Text.secondary
                     )
+                    .multilineTextAlignment(.center)
             }
-            .padding(.horizontal, 32)
+            .padding(.horizontal, 16)
 
             VStack(spacing: 8) {
                 MainButton(settings: viewModel.viewStatusSettings)
