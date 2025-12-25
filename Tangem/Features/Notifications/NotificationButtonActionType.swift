@@ -150,7 +150,7 @@ enum NotificationButtonActionType: Identifiable {
         case .openMobileUpgrade:
             return .empty
         case .tangemPaySync:
-            return Localization.homeButtonScan
+            return Localization.tangempaySyncNeededRestoreAccess
         case .allowPushPermissionRequest:
             return Localization.commonEnable
         case .postponePushPermissionRequest:
