@@ -22,6 +22,7 @@ final class DetailsViewModel: ObservableObject {
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
+    @Injected(\.tangemPayAvailabilityRepository) private var tangemPayAvailabilityRepository: TangemPayAvailabilityRepository
 
     // MARK: - View State
 
@@ -38,7 +39,7 @@ final class DetailsViewModel: ObservableObject {
         return viewModels
     }
 
-    @Published var buyWalletViewModel: DefaultRowViewModel?
+    @Published var getSectionViewModels: [DefaultRowViewModel] = []
     @Published var appSettingsViewModel: DefaultRowViewModel?
     @Published var supportSectionModels: [DefaultRowViewModel] = []
     @Published var environmentSetupViewModel: [DefaultRowViewModel] = []
@@ -177,6 +178,10 @@ extension DetailsViewModel {
         coordinator?.openShop()
     }
 
+    func openGetTangemPay() {
+        coordinator?.openGetTangemPay()
+    }
+
     func openSupportChat() {
         guard selectedUserWalletModel != nil else {
             return
@@ -230,7 +235,11 @@ extension DetailsViewModel {
     }
 
     func openAddWallet() {
-        Analytics.log(.buttonAddWallet, params: [.source: .settings])
+        Analytics.log(
+            .buttonAddWallet,
+            params: [.source: .settings],
+            contextParams: .empty
+        )
         coordinator?.openAddWallet()
     }
 
@@ -247,7 +256,7 @@ private extension DetailsViewModel {
     func setupView() {
         setupWalletConnectRowViewModel()
         setupUserWalletViewModels()
-        setupBuyWalletViewModel()
+        setupGetSectionViewModels()
         setupAppSettingsViewModel()
         setupSupportSectionModels()
         setupEnvironmentSetupSection()
@@ -272,6 +281,16 @@ private extension DetailsViewModel {
                 default:
                     break
                 }
+            }
+            .store(in: &bag)
+
+        tangemPayAvailabilityRepository.shouldShowGetTangemPay
+            .withWeakCaptureOf(self)
+            .receiveOnMain()
+            .sink { viewModel, should in
+                viewModel.setupGetSectionViewModels(
+                    shouldShowGetTangemPay: should
+                )
             }
             .store(in: &bag)
     }
@@ -310,25 +329,41 @@ private extension DetailsViewModel {
                 action: weakify(self, forFunction: DetailsViewModel.openAddWallet)
             )
         } else {
-            addOrScanNewUserWalletViewModel = DefaultRowViewModel(
-                title: AppSettings.shared.saveUserWallets ? Localization.userWalletListAddButton : Localization.scanCardSettingsButton,
-                detailsType: isScanning ? .loader : .none,
-                action: isScanning ? nil : weakify(self, forFunction: DetailsViewModel.addOrScanNewUserWallet)
-            )
+            addOrScanNewUserWalletViewModel = makeAddOrScanUserWalletViewModel()
         }
     }
 
     func updateAddOrScanNewUserWalletButton() {
-        addOrScanNewUserWalletViewModel?.update(title: AppSettings.shared.saveUserWallets ? Localization.userWalletListAddButton : Localization.scanCardSettingsButton)
-        addOrScanNewUserWalletViewModel?.update(detailsType: isScanning ? .loader : .none)
-        addOrScanNewUserWalletViewModel?.update(action: isScanning ? nil : weakify(self, forFunction: DetailsViewModel.addOrScanNewUserWallet))
+        addOrScanNewUserWalletViewModel = makeAddOrScanUserWalletViewModel()
     }
 
-    func setupBuyWalletViewModel() {
-        buyWalletViewModel = DefaultRowViewModel(
-            title: Localization.detailsBuyWallet,
-            action: weakify(self, forFunction: DetailsViewModel.openBuyWallet)
+    private func makeAddOrScanUserWalletViewModel() -> DefaultRowViewModel {
+        let isSaveUserWallets = AppSettings.shared.saveUserWallets
+        return DefaultRowViewModel(
+            title: isSaveUserWallets ? Localization.userWalletListAddButton : Localization.scanCardSettingsButton,
+            detailsType: isScanning ? .loader : .none,
+            action: isScanning ? nil : weakify(self, forFunction: DetailsViewModel.addOrScanNewUserWallet)
         )
+    }
+
+    func setupGetSectionViewModels(shouldShowGetTangemPay: Bool = false) {
+        var models = [
+            DefaultRowViewModel(
+                title: Localization.detailsBuyWallet,
+                action: weakify(self, forFunction: DetailsViewModel.openBuyWallet)
+            ),
+        ]
+
+        if shouldShowGetTangemPay {
+            models.append(
+                DefaultRowViewModel(
+                    title: Localization.tangempayGetTangemPay,
+                    action: weakify(self, forFunction: DetailsViewModel.openGetTangemPay)
+                )
+            )
+        }
+
+        getSectionViewModels = models
     }
 
     func setupAppSettingsViewModel() {
@@ -478,7 +513,7 @@ private extension DetailsViewModel {
             let context = try await UserWalletBiometricsUnlocker().unlock()
             let method = UserWalletRepositoryUnlockMethod.biometricsUserWallet(userWalletId: userWalletModel.userWalletId, context: context)
             let userWalletModel = try await userWalletRepository.unlock(with: method)
-            signInAnalyticsLogger.logSignInEvent(signInType: .biometrics)
+            signInAnalyticsLogger.logSignInEvent(signInType: .biometrics, userWalletModel: userWalletModel)
             onDidUnlock(userWalletModel)
 
         } catch where error.isCancellationError {
@@ -532,7 +567,7 @@ private extension DetailsViewModel {
             do {
                 let method = UserWalletRepositoryUnlockMethod.biometrics(context)
                 let userWalletModel = try await userWalletRepository.unlock(with: method)
-                signInAnalyticsLogger.logSignInEvent(signInType: signInType)
+                signInAnalyticsLogger.logSignInEvent(signInType: signInType, userWalletModel: userWalletModel)
                 onDidUnlock(userWalletModel)
 
             } catch {
@@ -549,7 +584,7 @@ private extension DetailsViewModel {
             do {
                 let method = UserWalletRepositoryUnlockMethod.encryptionKey(userWalletId: userWalletId, encryptionKey: encryptionKey)
                 let userWalletModel = try await userWalletRepository.unlock(with: method)
-                signInAnalyticsLogger.logSignInEvent(signInType: signInType)
+                signInAnalyticsLogger.logSignInEvent(signInType: signInType, userWalletModel: userWalletModel)
                 onDidUnlock(userWalletModel)
 
             } catch {

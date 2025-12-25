@@ -38,6 +38,9 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: TangemPayNoDepositAddressSheetViewModel.self) {
                 TangemPayNoDepositAddressSheetView(viewModel: $0)
             }
+            .floatingSheetContent(for: TangemPayPinCheckViewModel.self) {
+                TangemPayPinCheckView(viewModel: $0)
+            }
             .floatingSheetContent(for: TangemPayWithdrawInProgressSheetViewModel.self) {
                 TangemPayWithdrawInProgressSheetView(viewModel: $0)
             }
