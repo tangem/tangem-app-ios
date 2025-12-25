@@ -13,5 +13,11 @@ extension FloatingSheetRegistry {
         register(MarketsTokenAccountNetworkSelectorFlowViewModel.self) { flowViewModel in
             MarketsTokenAccountNetworkSelectorFlowView(viewModel: flowViewModel)
         }
+        register(YieldModuleStartViewModel.self) { flowViewModel in
+            YieldModuleStartView(viewModel: flowViewModel)
+        }
+        register(YieldModuleTransactionViewModel.self) { flowViewModel in
+            YieldModuleTransactionView(viewModel: flowViewModel)
+        }
     }
 }
