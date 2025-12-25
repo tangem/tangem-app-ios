@@ -45,8 +45,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "order"
         case .getOrder(let orderId):
             "order/\(orderId)"
-        case .getPin(cardId: let cardId):
-            "customer/card/\(cardId)/pin"
+        case .getPin:
+            "customer/card/pin"
         case .setPayEnabled:
             "customer/pay-enabled"
         }
@@ -58,7 +58,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getKYCAccessToken,
              .getOrder,
              .getBalance,
-             .getTransactionHistory:
+             .getTransactionHistory,
+             .getPin:
             .get
 
         case .placeOrder,
@@ -66,8 +67,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .freeze,
              .unfreeze,
              .getWithdrawSignableData,
-             .sendWithdrawTransaction,
-             .getPin:
+             .sendWithdrawTransaction:
             .post
 
         case .setPayEnabled:
@@ -83,7 +83,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
         case .getCustomerInfo,
              .getKYCAccessToken,
              .getOrder,
-             .getBalance:
+             .getBalance,
+             .getPin:
             return .requestPlain
 
         case .setPayEnabled:
@@ -96,10 +97,6 @@ struct CustomerInfoManagementAPITarget: TargetType {
 
         case .setPin(let pin, let sessionId, let iv):
             let requestData = TangemPaySetPinRequest(pin: pin, sessionId: sessionId, iv: iv)
-            return .requestJSONEncodable(requestData)
-
-        case .getPin(let cardId, let sessionId):
-            let requestData = TangemPayGetPinRequest(cardId: cardId, sessionId: sessionId)
             return .requestJSONEncodable(requestData)
 
         case .getTransactionHistory(let limit, let cursor):
@@ -128,7 +125,12 @@ struct CustomerInfoManagementAPITarget: TargetType {
     }
 
     var headers: [String: String]? {
-        ["Content-Type": "application/json"]
+        switch target {
+        case .getPin(let sessionId):
+            ["X-Session-Id": "\(sessionId)"]
+        default:
+            ["Content-Type": "application/json"]
+        }
     }
 }
 
@@ -146,7 +148,7 @@ extension CustomerInfoManagementAPITarget {
         case getCardDetails(sessionId: String)
         case freeze(cardId: String)
         case unfreeze(cardId: String)
-        case getPin(cardId: String, sessionId: String)
+        case getPin(sessionId: String)
         case setPin(pin: String, sessionId: String, iv: String)
         case getTransactionHistory(limit: Int, cursor: String?)
 
