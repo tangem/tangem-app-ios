@@ -507,6 +507,7 @@
 "feedback_preface_scan_failed" = "Please tell us what card or ring do you have";
 "feedback_preface_support" = "Hi support team,";
 "feedback_preface_tx_failed" = "Please tell us more about your issue. Every small detail can help.";
+"feedback_subject_backup_problem" = "Backup issue";
 "feedback_subject_pre_activated_wallet" = "Previously activated wallet";
 "feedback_subject_rate_negative" = "My suggestions";
 "feedback_subject_scan_failed" = "Can't scan a card/ring";
@@ -1636,6 +1637,8 @@
 "warning_button_ok" = "Ok, Got it!";
 "warning_button_really_cool" = "Really cool!";
 "warning_button_refresh" = "Refresh";
+"warning_clore_migration_message" = "According to Clore’s official documentation, all tokens received before December 21 will be migrated to Clore (ERC20); tokens received after will not. Transfer solution coming — stay tuned.";
+"warning_clore_migration_title" = "Clore Network Migration";
 "warning_demo_mode_message" = "You are currently in the Demo mode";
 "warning_demo_mode_title" = "Demo mode active";
 "warning_developer_card_message" = "The card you scanned is a developer card. Do not use it to create your wallet.";
