@@ -507,6 +507,7 @@
 "feedback_preface_scan_failed" = "Por favor, díganos qué tarjeta o anillo tiene";
 "feedback_preface_support" = "Hola equipo de soporte,";
 "feedback_preface_tx_failed" = "Por favor, cuéntenos más sobre tu problema. Cada pequeño detalle puede ayudar.";
+"feedback_subject_backup_problem" = "Backup issue";
 "feedback_subject_pre_activated_wallet" = "Billetera previamente activada";
 "feedback_subject_rate_negative" = "Mis recomendaciones";
 "feedback_subject_scan_failed" = "No se puede escanear una tarjeta/anillo";
@@ -1636,6 +1637,8 @@
 "warning_button_ok" = "Entendido";
 "warning_button_really_cool" = "¡Realmente genial!";
 "warning_button_refresh" = "Actualizar";
+"warning_clore_migration_message" = "According to Clore’s official documentation, all tokens received before December 21 will be migrated to Clore (ERC20); tokens received after will not. Transfer solution coming — stay tuned.";
+"warning_clore_migration_title" = "Clore Network Migration";
 "warning_demo_mode_message" = "Actualmente estás en el modo Demo";
 "warning_demo_mode_title" = "Modo demo activo";
 "warning_developer_card_message" = "La tarjeta que ha escaneado es una tarjeta de desarrollador. No la use para crear su billetera.";
