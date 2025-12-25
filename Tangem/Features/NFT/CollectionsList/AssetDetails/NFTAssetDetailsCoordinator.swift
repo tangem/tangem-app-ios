@@ -24,7 +24,6 @@ final class NFTAssetDetailsCoordinator: CoordinatorObject, SendFeeCurrencyNaviga
     let popToRootAction: Action<PopToRootOptions>
 
     @Injected(\.safariManager) private var safariManager: SafariManager
-    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
 
     // MARK: - Root view model
 
@@ -117,58 +116,6 @@ extension NFTAssetDetailsCoordinator {
     }
 }
 
-// MARK: - Navigation methods
-
-extension NFTAssetDetailsCoordinator {
-    private func startSendFlow(for asset: NFTAsset, in collection: NFTCollection, navigationContext: NFTNavigationContext) {
-        guard
-            let input = navigationContext as? NFTNavigationInput,
-            let walletModel = NFTWalletModelFinder.findWalletModel(for: asset, in: input.walletModelsManager.walletModels)
-        else {
-            return
-        }
-
-        let nftSendUtil = NFTSendUtil(walletModel: walletModel, userWalletModel: input.userWalletModel)
-        let options = nftSendUtil.makeOptions(for: asset, in: collection)
-
-        let coordinator = SendCoordinator(
-            dismissAction: makeSendCoordinatorDismissActionInternal(for: asset),
-            popToRootAction: makeSendCoordinatorPopToRootAction()
-        )
-
-        coordinator.start(with: options)
-        sendCoordinator = coordinator
-    }
-
-    private func openAccountSelector(for asset: NFTAsset, in collection: NFTCollection) {
-        guard let options else { return }
-
-        Task { @MainActor in
-            floatingSheetPresenter.enqueue(
-                sheet: AccountSelectorViewModel(
-                    userWalletModel: options.navigationInput.userWalletModel,
-                    onSelect: { [weak self] result in
-                        self?.closeSheet()
-
-                        let navigationInput = NFTNavigationInput(
-                            userWalletModel: options.navigationInput.userWalletModel,
-                            name: result.cryptoAccountModel.name,
-                            walletModelsManager: result.cryptoAccountModel.walletModelsManager
-                        )
-
-                        self?.startSendFlow(for: asset, in: collection, navigationContext: navigationInput)
-                    }
-                )
-            )
-        }
-    }
-
-    @MainActor
-    func closeSheet() {
-        floatingSheetPresenter.removeActiveSheet()
-    }
-}
-
 // MARK: - NFTAssetDetailsRoutable
 
 extension NFTAssetDetailsCoordinator: NFTAssetDetailsRoutable {
@@ -177,18 +124,22 @@ extension NFTAssetDetailsCoordinator: NFTAssetDetailsRoutable {
             return
         }
 
-        if FeatureProvider.isAvailable(.accounts) {
-            openAccountSelector(
-                for: asset,
-                in: collection
-            )
-        } else {
-            startSendFlow(
-                for: asset,
-                in: collection,
-                navigationContext: options.navigationInput
-            )
+        let navigationInput = options.navigationInput
+
+        guard let walletModel = NFTWalletModelFinder.findWalletModel(for: asset, in: navigationInput.walletModelsManager.walletModels) else {
+            return
         }
+
+        let nftSendUtil = NFTSendUtil(walletModel: walletModel, userWalletModel: navigationInput.userWalletModel)
+        let sendOptions = nftSendUtil.makeOptions(for: asset, in: collection)
+
+        let coordinator = SendCoordinator(
+            dismissAction: makeSendCoordinatorDismissActionInternal(for: asset),
+            popToRootAction: makeSendCoordinatorPopToRootAction()
+        )
+
+        coordinator.start(with: sendOptions)
+        sendCoordinator = coordinator
     }
 
     func openInfo(with viewData: NFTAssetExtendedInfoViewData) {
