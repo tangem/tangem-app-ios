@@ -36,4 +36,6 @@ class SingleTokenRoutableMock: SingleTokenRoutable {
     func openOnramp(walletModel: any WalletModel) {}
 
     func openPendingExpressTransactionDetails(pendingTransaction: PendingTransaction, tokenItem: TokenItem, pendingTransactionsManager: any PendingExpressTransactionsManager) {}
+
+    func openYieldModule(walletModel: any WalletModel) {}
 }
