@@ -173,6 +173,8 @@ struct MarketsPortfolioTokenItemView: View {
             return Assets.Portfolio.receive12
         case .stake:
             return Assets.Portfolio.stake12
+        case .yield:
+            return Assets.YieldModule.yieldSupplyAssets
         default:
             assertionFailure("Unhandled TokenActionType: \(type)")
             return Assets.Portfolio.buy12
