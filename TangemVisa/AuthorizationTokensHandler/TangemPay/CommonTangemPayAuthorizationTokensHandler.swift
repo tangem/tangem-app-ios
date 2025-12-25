@@ -21,6 +21,10 @@ final class CommonTangemPayAuthorizationTokensHandler {
     private let authorizationTokensHolder: ThreadSafeContainer<TangemPayAuthorizationTokens?>
     private let taskProcessor = SingleTaskProcessor<Void, Error>()
 
+    private var tokens: TangemPayAuthorizationTokens? {
+        authorizationTokensHolder.read()
+    }
+
     init(
         customerWalletId: String,
         tokens: TangemPayAuthorizationTokens?,
@@ -62,8 +66,8 @@ final class CommonTangemPayAuthorizationTokensHandler {
 }
 
 extension CommonTangemPayAuthorizationTokensHandler: TangemPayAuthorizationTokensHandler {
-    var tokens: TangemPayAuthorizationTokens? {
-        authorizationTokensHolder.read()
+    var refreshTokenExpired: Bool {
+        tokens?.refreshTokenExpired ?? true
     }
 
     var authorizationHeader: String? {

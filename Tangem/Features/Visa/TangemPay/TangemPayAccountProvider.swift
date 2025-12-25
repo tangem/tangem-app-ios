@@ -33,7 +33,12 @@ class CommonTangemPayAccountProvider {
 extension CommonTangemPayAccountProvider: TangemPayAccountProviderSetupable {
     func setup(for userWalletModel: any UserWalletModel) {
         Task { [self] in
-            let paeraCustomer = await PaeraCustomerBuilder(userWalletModel: userWalletModel).getIfExist()
+            let paeraCustomer = await PaeraCustomerBuilder.make(
+                userWalletId: userWalletModel.userWalletId,
+                keysRepository: userWalletModel.keysRepository,
+                tangemPayAuthorizingInteractor: userWalletModel.tangemPayAuthorizingInteractor
+            )
+            .getIfExist()
 
             if let paeraCustomer {
                 paeraCustomerSubject.send(paeraCustomer)
