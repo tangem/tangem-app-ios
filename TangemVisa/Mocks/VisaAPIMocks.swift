@@ -311,9 +311,9 @@ final class CustomerInfoManagementServiceMock: CustomerInfoManagementService {
         return .init()
     }
 
-    func getPin(cardId: String, sessionId: String) async throws -> TangemPayGetPinResponse {
+    func getPin(sessionId: String) async throws -> TangemPayGetPinResponse {
         .init(
-            encryptedPin: "",
+            secret: "",
             iv: ""
         )
     }

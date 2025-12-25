@@ -9,6 +9,6 @@
 import Foundation
 
 public struct TangemPayGetPinResponse: Decodable {
-    public let encryptedPin: String
+    public let secret: String
     public let iv: String
 }
