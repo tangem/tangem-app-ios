@@ -52,7 +52,8 @@ final class TangemPayKYCStatusPopupViewModel {
         runTask(in: paeraCustomer) { paeraCustomer in
             do {
                 try await paeraCustomer.launchKYC {
-                    paeraCustomer.updateState()
+                    // [REDACTED_TODO_COMMENT]
+//                    paeraCustomer.updateState()
                 }
             } catch {
                 VisaLogger.error("Failed to launch KYC", error: error)
