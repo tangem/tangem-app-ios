@@ -319,7 +319,11 @@ private extension MarketsTokenAccountNetworkSelectorFlowViewModel {
             Analytics.log(event: .marketsChartButtonSwap, params: analyticsParams)
             let expressInput = ExpressDependenciesInput(
                 userWalletInfo: userWalletInfo,
-                source: ExpressInteractorWalletModelWrapper(userWalletInfo: userWalletInfo, walletModel: walletModel),
+                source: ExpressInteractorWalletModelWrapper(
+                    userWalletInfo: userWalletInfo,
+                    walletModel: walletModel,
+                    expressOperationType: .swap
+                ),
                 destination: .loadingAndSet
             )
 
