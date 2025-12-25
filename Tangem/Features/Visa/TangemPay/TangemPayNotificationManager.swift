@@ -14,25 +14,18 @@ final class TangemPayNotificationManager {
 
     private var cancellable: Cancellable?
 
-    init(
-        syncNeededSignalPublisher: AnyPublisher<Void, Never>,
-        unavailableSignalPublisher: AnyPublisher<Void, Never>,
-        clearNotificationsSignalPublisher: AnyPublisher<Void, Never>
-    ) {
-        cancellable = Publishers.Merge3(
-            syncNeededSignalPublisher.mapToValue(TangemPayNotificationEvent.syncNeeded),
-            unavailableSignalPublisher.mapToValue(TangemPayNotificationEvent.unavailable),
-            clearNotificationsSignalPublisher.mapToValue(nil)
-        )
-        .withWeakCaptureOf(self)
-        .map { manager, event in
-            if let event {
-                [manager.makeNotificationViewInput(event: event)]
-            } else {
-                []
+    init(paeraCustomerStatePublisher: AnyPublisher<PaeraCustomer.State?, Never>) {
+        cancellable = paeraCustomerStatePublisher
+            .map(\.?.notificationEvent)
+            .withWeakCaptureOf(self)
+            .map { manager, event in
+                if let event {
+                    [manager.makeNotificationViewInput(event: event)]
+                } else {
+                    []
+                }
             }
-        }
-        .sink(receiveValue: notificationInputsSubject.send)
+            .sink(receiveValue: notificationInputsSubject.send)
     }
 
     private func makeNotificationViewInput(event: TangemPayNotificationEvent) -> NotificationViewInput {
@@ -65,5 +58,20 @@ extension TangemPayNotificationManager: NotificationManager {
 
     func dismissNotification(with id: NotificationViewId) {
         // Notifications are not dismissable
+    }
+}
+
+// MARK: - PaeraCustomer.State+notificationEvent
+
+private extension PaeraCustomer.State {
+    var notificationEvent: TangemPayNotificationEvent? {
+        switch self {
+        case .syncNeeded:
+            .syncNeeded
+        case .unavailable:
+            .unavailable
+        default:
+            nil
+        }
     }
 }
