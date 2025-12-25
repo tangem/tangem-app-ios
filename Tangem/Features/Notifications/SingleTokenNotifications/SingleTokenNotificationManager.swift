@@ -121,6 +121,10 @@ final class SingleTokenNotificationManager {
             events.append(.maticMigration)
         }
 
+        if case .clore = walletModel.tokenItem.blockchain {
+            events.append(.cloreMigration)
+        }
+
         switch walletModel.sendingRestrictions {
         case .zeroFeeCurrencyBalance(let configuration) where !walletModel.isMainToken:
             events.append(.notEnoughFeeForTransaction(configuration: configuration))
