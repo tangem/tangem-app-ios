@@ -36,7 +36,7 @@ private extension TangemPayAccountBuilder {
         let state: TangemPayAuthorizer.State? = await {
             do {
                 if await !AppSettings.shared.tangemPayIsPaeraCustomer[customerWalletId, default: false] {
-                    let isPaeraCustomer = try await availabilityService.isPaeraCustomer(
+                    _ = try await availabilityService.isPaeraCustomer(
                         customerWalletId: customerWalletId
                     )
 
@@ -44,7 +44,7 @@ private extension TangemPayAccountBuilder {
                         AppSettings.shared.tangemPayIsPaeraCustomer[customerWalletId] = true
                         AppSettings.shared.tangemPayIsKYCHiddenForCustomerWalletId[
                             customerWalletId
-                        ] = !isPaeraCustomer.isTangemPayEnabled
+                        ] = false
                     }
                 }
 
@@ -93,6 +93,7 @@ private extension TangemPayAccountBuilder {
 
         await MainActor.run {
             AppSettings.shared.tangemPayIsPaeraCustomer[customerWalletId] = true
+            AppSettings.shared.tangemPayIsKYCHiddenForCustomerWalletId[customerWalletId] = false
         }
 
         return authorizer
