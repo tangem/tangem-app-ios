@@ -8,4 +8,5 @@
 
 protocol ActionButtonsBuyFlowRoutable: AnyObject {
     func openBuy(userWalletModel: some UserWalletModel)
+    func openBuy(tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel)
 }
