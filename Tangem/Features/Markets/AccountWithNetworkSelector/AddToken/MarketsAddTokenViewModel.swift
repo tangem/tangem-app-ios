@@ -157,12 +157,12 @@ final class MarketsAddTokenViewModel: ObservableObject, FloatingSheetContentView
         let userTokensManager = account.userTokensManager
 
         do {
-            try await performTokenUpdate(
+            let addedToken = try await performTokenUpdate(
                 tokenItem: tokenItem,
                 userTokensManager: userTokensManager
             )
 
-            handleAddTokenSuccess()
+            handleAddTokenSuccess(addedToken: addedToken)
         } catch {
             handleAddTokenFailure(error)
         }
@@ -171,18 +171,28 @@ final class MarketsAddTokenViewModel: ObservableObject, FloatingSheetContentView
     private func performTokenUpdate(
         tokenItem: TokenItem,
         userTokensManager: UserTokensManager
-    ) async throws {
+    ) async throws -> TokenItem {
         try await withCheckedThrowingContinuation { continuation in
             userTokensManager.update(itemsToRemove: [], itemsToAdd: [tokenItem]) { result in
-                continuation.resume(with: result)
+                switch result {
+                case .success(let updatedItems):
+                    if let addedToken = updatedItems.added.first {
+                        continuation.resume(returning: addedToken)
+                    } else {
+                        continuation.resume(throwing: WalletModelCreationError.tokenNotReturned)
+                    }
+
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
             }
         }
     }
 
-    private func handleAddTokenSuccess() {
+    private func handleAddTokenSuccess(addedToken: TokenItem) {
         isSaving = false
         sendAnalytics()
-        onAddTokenTapped(.success(tokenItem))
+        onAddTokenTapped(.success(addedToken))
     }
 
     private func handleAddTokenFailure(_ error: Error) {
@@ -243,11 +253,11 @@ extension MarketsAddTokenViewModel {
 
 extension MarketsAddTokenViewModel {
     enum WalletModelCreationError: LocalizedError {
-        case timeout
+        case tokenNotReturned
 
         var errorDescription: String? {
             switch self {
-            case .timeout:
+            case .tokenNotReturned:
                 return Localization.commonSomethingWentWrong
             }
         }

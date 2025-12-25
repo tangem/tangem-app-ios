@@ -35,7 +35,7 @@ struct AccountFormView: View {
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            scrollableContent
+            content
 
             overlayButtonView
         }
@@ -56,11 +56,18 @@ struct AccountFormView: View {
             UIResponder.current?.resignFirstResponder()
         }
         .onAppear {
+            viewModel.onAppear()
             isNameFocused = true
+        }
+        .onChange(of: viewModel.selectedColor) { _ in
+            isNameFocused = false
+        }
+        .onChange(of: viewModel.selectedIcon) { _ in
+            isNameFocused = false
         }
     }
 
-    private var scrollableContent: some View {
+    private var content: some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 8) {
                 mainContent
@@ -80,7 +87,8 @@ struct AccountFormView: View {
             }
         }
         .coordinateSpace(name: coordinateSpaceName)
-        .scrollDisabledBackport(contentHeight <= containerHeight)
+        .scrollDismissesKeyboard(.immediately)
+        .scrollBounceBehavior(.basedOnSize)
         .readGeometry(\.size.height) { height in
             containerHeight = height
         }
@@ -193,7 +201,7 @@ struct AccountFormView: View {
 
     Color.clear
         .sheet(isPresented: .constant(true)) {
-            NavigationView {
+            NavigationStack {
                 AccountFormView(viewModel: viewModel)
             }
         }

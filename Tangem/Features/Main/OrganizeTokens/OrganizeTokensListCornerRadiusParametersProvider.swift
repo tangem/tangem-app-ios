@@ -9,12 +9,13 @@
 import Foundation
 import struct UIKit.UIRectCorner
 
+@available(iOS, deprecated: 100000.0, message: "Will be removed after accounts migration is complete ([REDACTED_INFO])")
 struct OrganizeTokensListCornerRadiusParametersProvider {
-    private let sections: [OrganizeTokensListSection]
+    private let sections: [OrganizeTokensListInnerSection]
     private let cornerRadius: CGFloat
 
     init(
-        sections: [OrganizeTokensListSection],
+        sections: [OrganizeTokensListInnerSection],
         cornerRadius: CGFloat
     ) {
         self.sections = sections
