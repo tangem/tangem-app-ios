@@ -510,7 +510,7 @@ extension SingleTokenBaseViewModel {
             return !tokenActionAvailabilityProvider.isSwapAvailable
         case .sell:
             return !tokenActionAvailabilityProvider.isSellAvailable
-        case .copyAddress, .hide, .stake, .marketsDetails:
+        case .copyAddress, .hide, .stake, .marketsDetails, .yield:
             return true
         }
     }
@@ -531,7 +531,7 @@ extension SingleTokenBaseViewModel {
         case .receive: return openReceiveAction
         case .exchange: return openExchangeAction
         case .sell: return openSellAction
-        case .copyAddress, .hide, .stake, .marketsDetails: return nil
+        case .copyAddress, .hide, .stake, .marketsDetails, .yield: return nil
         }
     }
 
@@ -539,7 +539,7 @@ extension SingleTokenBaseViewModel {
         switch buttonType {
         case .receive:
             return weakify(self, forFunction: SingleTokenBaseViewModel.copyDefaultAddress)
-        case .buy, .send, .exchange, .sell, .copyAddress, .hide, .stake, .marketsDetails:
+        case .buy, .send, .exchange, .sell, .copyAddress, .hide, .stake, .marketsDetails, .yield:
             return nil
         }
     }
