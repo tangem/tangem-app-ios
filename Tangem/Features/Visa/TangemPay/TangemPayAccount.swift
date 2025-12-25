@@ -18,7 +18,7 @@ import TangemLocalization
 final class TangemPayAccount {
     var tangemPayStatusPublisher: AnyPublisher<TangemPayStatus, Never> {
         customerInfoSubject
-            .compactMap(\.self?.tangemPayStatus)
+            .map(\.tangemPayStatus)
             .eraseToAnyPublisher()
     }
 
@@ -58,35 +58,35 @@ final class TangemPayAccount {
     let withdrawTransactionService: any TangemPayWithdrawTransactionService
 
     var depositAddress: String? {
-        customerInfoSubject.value?.depositAddress
+        customerInfoSubject.value.depositAddress
     }
 
     var cardId: String? {
-        customerInfoSubject.value?.productInstance?.cardId
+        customerInfoSubject.value.productInstance?.cardId
     }
 
     var isPinSet: Bool {
-        customerInfoSubject.value?.card?.isPinSet ?? false
+        customerInfoSubject.value.card?.isPinSet ?? false
     }
 
     let customerWalletId: String
 
     var cardNumberEnd: String? {
-        customerInfoSubject.value?.card?.cardNumberEnd
+        customerInfoSubject.value.card?.cardNumberEnd
     }
 
     private let keysRepository: KeysRepository
     private let authorizationTokensHandler: TangemPayAuthorizationTokensHandler
     private let balancesService: any TangemPayBalancesService
 
-    private let customerInfoSubject = CurrentValueSubject<VisaCustomerInfoResponse?, Never>(nil)
+    private let customerInfoSubject: CurrentValueSubject<VisaCustomerInfoResponse, Never>
 
-    private var orderStatusPollingTask: Task<Void, Never>?
-    private var bag = Set<AnyCancellable>()
+    private let freezeUnfreezeOrderStatusPollingService: TangemPayOrderStatusPollingService
 
     init(
         customerWalletId: String,
         customerWalletAddress: String,
+        customerInfo: VisaCustomerInfoResponse,
         keysRepository: KeysRepository,
         authorizationTokensHandler: TangemPayAuthorizationTokensHandler,
         customerInfoManagementService: any CustomerInfoManagementService,
@@ -95,11 +95,16 @@ final class TangemPayAccount {
     ) {
         self.customerWalletId = customerWalletId
         self.customerWalletAddress = customerWalletAddress
+        customerInfoSubject = CurrentValueSubject(customerInfo)
         self.keysRepository = keysRepository
         self.authorizationTokensHandler = authorizationTokensHandler
         self.customerInfoManagementService = customerInfoManagementService
         self.balancesService = balancesService
         self.withdrawTransactionService = withdrawTransactionService
+
+        freezeUnfreezeOrderStatusPollingService = TangemPayOrderStatusPollingService(
+            customerInfoManagementService: customerInfoManagementService
+        )
 
         // No reference cycle here, self is stored as weak
         withdrawTransactionService.set(output: self)
@@ -130,68 +135,45 @@ final class TangemPayAccount {
     func freeze(cardId: String) async throws {
         let response = try await customerInfoManagementService.freeze(cardId: cardId)
         if response.status != .completed {
-            startOrderStatusPolling(orderId: response.orderId, interval: Constants.freezeUnfreezeOrderPollInterval)
+            startFreezeUnfreezeOrderStatusPolling(orderId: response.orderId)
         }
     }
 
     func unfreeze(cardId: String) async throws {
         let response = try await customerInfoManagementService.unfreeze(cardId: cardId)
         if response.status != .completed {
-            startOrderStatusPolling(orderId: response.orderId, interval: Constants.freezeUnfreezeOrderPollInterval)
+            startFreezeUnfreezeOrderStatusPolling(orderId: response.orderId)
         }
     }
 
-    private func startOrderStatusPolling(orderId: String, interval: TimeInterval) {
-        orderStatusPollingTask?.cancel()
-
-        let polling = PollingSequence(
-            interval: interval,
-            request: { [customerInfoManagementService] in
-                try await customerInfoManagementService.getOrder(orderId: orderId)
+    private func startFreezeUnfreezeOrderStatusPolling(orderId: String) {
+        freezeUnfreezeOrderStatusPollingService.startOrderStatusPolling(
+            orderId: orderId,
+            interval: Constants.freezeUnfreezeOrderPollInterval,
+            onCompleted: { [weak self] in
+                self?.loadCustomerInfo()
+            },
+            onCanceled: {
+                // [REDACTED_TODO_COMMENT]
+            },
+            onFailed: { error in
+                VisaLogger.error("Failed to poll order status", error: error)
             }
         )
-
-        orderStatusPollingTask = runTask(in: self) { tangemPayAccount in
-            for await result in polling {
-                switch result {
-                case .success(let order):
-                    switch order.status {
-                    case .new, .processing:
-                        break
-
-                    case .completed:
-                        tangemPayAccount.loadCustomerInfo()
-                        return
-
-                    case .canceled:
-                        // [REDACTED_TODO_COMMENT]
-                        return
-                    }
-
-                case .failure(let error):
-                    VisaLogger.error("Failed to poll order status", error: error)
-                    return
-                }
-            }
-        }
     }
 
     private func setupBalance() async {
         await balancesService.loadBalance()
     }
 
-    private func mapToCard(visaCustomerInfoResponse: VisaCustomerInfoResponse?) -> VisaCustomerInfoResponse.Card? {
-        guard let card = customerInfoSubject.value?.card,
-              let productInstance = customerInfoSubject.value?.productInstance,
+    private func mapToCard(visaCustomerInfoResponse: VisaCustomerInfoResponse) -> VisaCustomerInfoResponse.Card? {
+        guard let card = customerInfoSubject.value.card,
+              let productInstance = customerInfoSubject.value.productInstance,
               [.active, .blocked].contains(productInstance.status) else {
             return nil
         }
 
         return card
-    }
-
-    deinit {
-        orderStatusPollingTask?.cancel()
     }
 }
 
@@ -244,7 +226,6 @@ extension TangemPayAccount: MainHeaderSupplementInfoProvider {
 
 private extension TangemPayAccount {
     enum Constants {
-        static let cardIssuingOrderPollInterval: TimeInterval = 60
         static let freezeUnfreezeOrderPollInterval: TimeInterval = 5
     }
 }
@@ -328,7 +309,7 @@ final class PaeraCustomer {
     private let authorizationTokensHandler: TangemPayAuthorizationTokensHandler
     private let customerInfoManagementService: CustomerInfoManagementService
 
-    private var orderStatusPollingTask: Task<Void, Never>?
+    private let cardIssuingOrderStatusPollingService: TangemPayOrderStatusPollingService
 
     init(userWalletModel: UserWalletModel) {
         AppSettings.shared.tangemPayIsPaeraCustomer[userWalletModel.userWalletId.stringValue] = true
@@ -352,6 +333,8 @@ final class PaeraCustomer {
 
         customerInfoManagementService = TangemPayCustomerInfoManagementServiceBuilder()
             .buildCustomerInfoManagementService(authorizationTokensHandler: authorizationTokensHandler)
+
+        cardIssuingOrderStatusPollingService = TangemPayOrderStatusPollingService(customerInfoManagementService: customerInfoManagementService)
 
         // No reference cycle here, self is stored as weak
         tangemPayNotificationManager.setupManager(with: self)
@@ -423,7 +406,7 @@ final class PaeraCustomer {
               let tokens = authorizationTokensHandler.tokens,
               !tokens.refreshTokenExpired
         else {
-            orderStatusPollingTask?.cancel()
+            cardIssuingOrderStatusPollingService.cancel()
             return .syncNeeded
         }
 
@@ -433,11 +416,11 @@ final class PaeraCustomer {
         } catch {
             switch error {
             case .syncNeeded:
-                orderStatusPollingTask?.cancel()
+                cardIssuingOrderStatusPollingService.cancel()
                 return .syncNeeded
 
             case .unavailable:
-                orderStatusPollingTask?.cancel()
+                cardIssuingOrderStatusPollingService.cancel()
                 return .unavailable
             }
         }
@@ -447,6 +430,7 @@ final class PaeraCustomer {
             case .active, .blocked:
                 let account = TangemPayAccountBuilderr(
                     customerWalletAddress: customerWalletAddress,
+                    customerInfo: customerInfo,
                     userWalletModel: userWalletModel,
                     authorizationTokensHandler: authorizationTokensHandler,
                     customerInfoManagementService: customerInfoManagementService
@@ -465,14 +449,15 @@ final class PaeraCustomer {
             return .kyc
         }
 
-        if let cardIssuingOrderId = TangemPayOrderIdStorage.cardIssuingOrderId(customerWalletId: userWalletModel.userWalletId.stringValue) {
-            startOrderStatusPolling(orderId: cardIssuingOrderId, interval: Constants.cardIssuingOrderPollInterval)
+        let customerWalletId = userWalletModel.userWalletId.stringValue
+
+        if let cardIssuingOrderId = TangemPayOrderIdStorage.cardIssuingOrderId(customerWalletId: customerWalletId) {
+            startCardIssuingOrderStatusPolling(orderId: cardIssuingOrderId)
         } else {
             do {
                 let order = try await customerInfoManagementService.placeOrder(customerWalletAddress: customerWalletAddress)
-                TangemPayOrderIdStorage.saveCardIssuingOrderId(order.id, customerWalletId: userWalletModel.userWalletId.stringValue)
-
-                startOrderStatusPolling(orderId: order.id, interval: Constants.cardIssuingOrderPollInterval)
+                TangemPayOrderIdStorage.saveCardIssuingOrderId(order.id, customerWalletId: customerWalletId)
+                startCardIssuingOrderStatusPolling(orderId: order.id)
             } catch {
                 VisaLogger.error("Failed to create order", error: error)
             }
@@ -481,39 +466,20 @@ final class PaeraCustomer {
         return .readyToIssueOrIssuing
     }
 
-    private func startOrderStatusPolling(orderId: String, interval: TimeInterval) {
-        orderStatusPollingTask?.cancel()
-
-        let polling = PollingSequence(
-            interval: interval,
-            request: { [customerInfoManagementService] in
-                try await customerInfoManagementService.getOrder(orderId: orderId)
+    private func startCardIssuingOrderStatusPolling(orderId: String) {
+        cardIssuingOrderStatusPollingService.startOrderStatusPolling(
+            orderId: orderId,
+            interval: Constants.cardIssuingOrderPollInterval,
+            onCompleted: { [weak self] in
+                self?.updateState()
+            },
+            onCanceled: { [weak self] in
+                self?.orderCancelledSignalSubject.send(())
+            },
+            onFailed: { error in
+                VisaLogger.error("Failed to poll order status", error: error)
             }
         )
-
-        orderStatusPollingTask = runTask { [self] in
-            for await result in polling {
-                switch result {
-                case .success(let order):
-                    switch order.status {
-                    case .new, .processing:
-                        break
-
-                    case .completed:
-                        updateState()
-                        return
-
-                    case .canceled:
-                        orderCancelledSignalSubject.send(())
-                        return
-                    }
-
-                case .failure(let error):
-                    VisaLogger.error("Failed to poll order status", error: error)
-                    return
-                }
-            }
-        }
     }
 }
 
@@ -542,6 +508,7 @@ extension PaeraCustomer: NotificationTapDelegate {
 
 struct TangemPayAccountBuilderr {
     let customerWalletAddress: String
+    let customerInfo: VisaCustomerInfoResponse
     let userWalletModel: UserWalletModel
 
     let authorizationTokensHandler: TangemPayAuthorizationTokensHandler
@@ -566,6 +533,7 @@ struct TangemPayAccountBuilderr {
         return TangemPayAccount(
             customerWalletId: userWalletModel.userWalletId.stringValue,
             customerWalletAddress: customerWalletAddress,
+            customerInfo: customerInfo,
             keysRepository: userWalletModel.keysRepository,
             authorizationTokensHandler: authorizationTokensHandler,
             customerInfoManagementService: customerInfoManagementService,
@@ -578,5 +546,64 @@ struct TangemPayAccountBuilderr {
 private extension PaeraCustomer {
     enum Constants {
         static let cardIssuingOrderPollInterval: TimeInterval = 60
+    }
+}
+
+final class TangemPayOrderStatusPollingService {
+    private let customerInfoManagementService: CustomerInfoManagementService
+
+    private var orderStatusPollingTask: Task<Void, Never>?
+
+    init(customerInfoManagementService: CustomerInfoManagementService) {
+        self.customerInfoManagementService = customerInfoManagementService
+    }
+
+    func startOrderStatusPolling(
+        orderId: String,
+        interval: TimeInterval,
+        onCompleted: @escaping () -> Void,
+        onCanceled: @escaping () -> Void,
+        onFailed: @escaping (Error) -> Void
+    ) {
+        orderStatusPollingTask?.cancel()
+
+        let polling = PollingSequence(
+            interval: interval,
+            request: { [customerInfoManagementService] in
+                try await customerInfoManagementService.getOrder(orderId: orderId)
+            }
+        )
+
+        orderStatusPollingTask = runTask {
+            for await result in polling {
+                switch result {
+                case .success(let order):
+                    switch order.status {
+                    case .new, .processing:
+                        break
+
+                    case .completed:
+                        onCompleted()
+                        return
+
+                    case .canceled:
+                        onCanceled()
+                        return
+                    }
+
+                case .failure(let error):
+                    onFailed(error)
+                    return
+                }
+            }
+        }
+    }
+
+    func cancel() {
+        orderStatusPollingTask?.cancel()
+    }
+
+    deinit {
+        orderStatusPollingTask?.cancel()
     }
 }
