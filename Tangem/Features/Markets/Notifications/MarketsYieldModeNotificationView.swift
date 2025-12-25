@@ -1,5 +1,5 @@
 //
-//  MarketsStakingNotificationView.swift
+//  MarketsYieldModeNotificationView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,13 +10,11 @@ import SwiftUI
 import TangemAssets
 import TangemLocalization
 
-struct MarketsStakingNotificationView: View {
-    private let apy: String
+struct MarketsYieldModeNotificationView: View {
     private let openAction: () -> Void
     private let closeAction: () -> Void
 
-    init(apy: String, openAction: @escaping () -> Void, closeAction: @escaping () -> Void) {
-        self.apy = apy
+    init(openAction: @escaping () -> Void, closeAction: @escaping () -> Void) {
         self.openAction = openAction
         self.closeAction = closeAction
     }
@@ -44,10 +42,10 @@ struct MarketsStakingNotificationView: View {
 
     private var messageIconContent: some View {
         HStack(spacing: 12) {
-            Assets.changellyIcon.image
+            Assets.yieldNotificationIcon.image
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(Localization.marketsStakingBannerTitle(apy))
+                Text(Localization.marketsYieldSupplyBannerTitle)
                     .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
                     .fixedSize(horizontal: false, vertical: true)
 
@@ -60,7 +58,7 @@ struct MarketsStakingNotificationView: View {
     }
 
     private var whatIsStakingText: AttributedString {
-        var result = AttributedString(Localization.marketsStakingBannerDescriptionPlaceholder(""))
+        var result = AttributedString(Localization.marketsYieldSupplyBannerDescription(""))
         result.font = Fonts.Regular.caption1
         result.foregroundColor = Colors.Text.secondary
         return result
