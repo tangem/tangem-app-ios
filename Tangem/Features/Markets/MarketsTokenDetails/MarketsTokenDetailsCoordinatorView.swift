@@ -61,7 +61,7 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
     private var links: some View {
         NavHolder()
             .navigation(item: $coordinator.exchangesListViewModel) { viewModel in
-                NavigationBarHidingView(shouldWrapInNavigationView: false) {
+                NavigationBarHidingView(shouldWrapInNavigationStack: false) {
                     MarketsTokenDetailsExchangesListView(viewModel: viewModel)
                 }
             }

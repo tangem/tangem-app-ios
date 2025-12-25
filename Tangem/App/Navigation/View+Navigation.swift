@@ -8,23 +8,32 @@
 import SwiftUI
 
 extension View {
+    @available(
+        iOS,
+        deprecated: 100000.0,
+        message: """
+            This navigation approach is kept for backwards compatibility reasons.        
+            Consider structuring your navigation using `navigationDestination(for:destination:)` or `NavigationStack.init(path:root:)` instead.
+        """
+    )
     func navigation<Item, Destination: View>(
         item: Binding<Item?>,
         @ViewBuilder destination: (Item) -> Destination
     ) -> some View {
-        overlay(
-            NavigationLink(
-                destination: item.wrappedValue.map(destination),
-                isActive: Binding(
-                    get: { item.wrappedValue != nil },
-                    set: { value in
-                        if !value {
-                            item.wrappedValue = nil
-                        }
+        navigationDestination(
+            isPresented: Binding(
+                get: { item.wrappedValue != nil },
+                set: { isPresented in
+                    if !isPresented {
+                        item.wrappedValue = nil
                     }
-                ),
-                label: { EmptyView() }
-            )
+                }
+            ),
+            destination: {
+                if let unwrappedItem = item.wrappedValue {
+                    destination(unwrappedItem)
+                }
+            }
         )
     }
 

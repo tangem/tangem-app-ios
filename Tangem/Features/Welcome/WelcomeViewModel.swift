@@ -137,7 +137,7 @@ final class WelcomeViewModel: ObservableObject {
 
                     let unlockMethod = UserWalletRepositoryUnlockMethod.encryptionKey(userWalletId: userWalletId, encryptionKey: encryptionKey)
                     let userWalletModel = try await viewModel.userWalletRepository.unlock(with: unlockMethod)
-                    viewModel.signInAnalyticsLogger.logSignInEvent(signInType: .card)
+                    viewModel.signInAnalyticsLogger.logSignInEvent(signInType: .card, userWalletModel: userWalletModel)
                     await runOnMain {
                         viewModel.isScanningCard.send(false)
                         viewModel.openMain(with: userWalletModel)
@@ -160,7 +160,7 @@ final class WelcomeViewModel: ObservableObject {
                 keys: .cardWallet(keys: cardInfo.card.wallets)
             ) {
                 try userWalletRepository.add(userWalletModel: newUserWalletModel)
-                signInAnalyticsLogger.logSignInEvent(signInType: .card)
+                signInAnalyticsLogger.logSignInEvent(signInType: .card, userWalletModel: newUserWalletModel)
                 await runOnMain {
                     isScanningCard.send(false)
                     openMain(with: newUserWalletModel)

@@ -16,6 +16,7 @@ import TangemNFT
 import TangemFoundation
 import TangemUI
 import TangemMobileWalletSdk
+import struct TangemUIUtils.AlertBinder
 
 final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     let dismissAction: Action<Void>
@@ -59,6 +60,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var actionButtonsSwapCoordinator: ActionButtonsSwapCoordinator? = nil
     @Published var mobileUpgradeCoordinator: MobileUpgradeCoordinator? = nil
     @Published var tangemPayMainCoordinator: TangemPayMainCoordinator?
+    @Published var tangemPayOnboardingCoordinator: TangemPayOnboardingCoordinator?
 
     // MARK: - Child view models
 
@@ -261,6 +263,16 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         yieldModulePromoCoordinator = coordinator
     }
 
+    func openGetTangemPay() {
+        let dismissAction: Action<TangemPayOnboardingCoordinator.DismissOptions?> = { [weak self] _ in
+            self?.tangemPayOnboardingCoordinator = nil
+        }
+
+        let coordinator = TangemPayOnboardingCoordinator(dismissAction: dismissAction)
+        coordinator.start(with: .init(source: .other))
+        tangemPayOnboardingCoordinator = coordinator
+    }
+
     func openYieldModuleActiveInfo(factory: YieldModuleFlowFactory) {
         let dismissAction: Action<YieldModuleActiveCoordinator.DismissOptions?> = { [weak self] option in
             self?.yieldModuleActiveCoordinator = nil
@@ -334,6 +346,16 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
 
     func openTangemPayIssuingYourCardPopup() {
         let viewModel = TangemPayYourCardIsIssuingSheetViewModel(coordinator: self)
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func openTangemPayKYCInProgressPopup(tangemPayAccount: TangemPayAccount) {
+        let viewModel = TangemPayKYCStatusPopupViewModel(
+            tangemPayAccount: tangemPayAccount,
+            coordinator: self
+        )
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
@@ -589,17 +611,23 @@ extension MainCoordinator: ActionButtonsBuyFlowRoutable {
             }
         )
 
-        let options: ActionButtonsBuyCoordinator.Options = if FeatureProvider.isAvailable(.accounts) {
-            .new
-        } else {
-            .default(options: .init(
-                userWalletModel: userWalletModel,
-                expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletId: userWalletModel.userWalletId),
-                tokenSorter: CommonBuyTokenAvailabilitySorter(userWalletModelConfig: userWalletModel.config)
-            ))
-        }
+        coordinator.start(with: .default(options: .init(
+            userWalletModel: userWalletModel,
+            expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletId: userWalletModel.userWalletId),
+            tokenSorter: CommonBuyTokenAvailabilitySorter(userWalletModelConfig: userWalletModel.config)
+        )))
 
-        coordinator.start(with: options)
+        actionButtonsBuyCoordinator = coordinator
+    }
+
+    func openBuy(tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel) {
+        let coordinator = coordinatorFactory.makeBuyCoordinator(
+            dismissAction: { [weak self] _ in
+                self?.actionButtonsBuyCoordinator = nil
+            }
+        )
+
+        coordinator.start(with: .new(tokenSelectorViewModel: tokenSelectorViewModel))
         actionButtonsBuyCoordinator = coordinator
     }
 }
@@ -619,7 +647,23 @@ extension MainCoordinator: ActionButtonsSellFlowRoutable {
             }
         )
 
-        coordinator.start(with: FeatureProvider.isAvailable(.accounts) ? .new : .default)
+        coordinator.start(with: .default)
+        actionButtonsSellCoordinator = coordinator
+    }
+
+    func openSell(userWalletModel: some UserWalletModel, tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel) {
+        let coordinator = coordinatorFactory.makeSellCoordinator(
+            userWalletModel: userWalletModel,
+            dismissAction: { [weak self] model in
+                self?.actionButtonsSellCoordinator = nil
+                guard let model else { return }
+
+                let input = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: model.walletModel)
+                self?.openSendToSell(input: input, sellParameters: model.sellParameters)
+            }
+        )
+
+        coordinator.start(with: .new(tokenSelectorViewModel: tokenSelectorViewModel))
         actionButtonsSellCoordinator = coordinator
     }
 }
@@ -637,7 +681,27 @@ extension MainCoordinator: ActionButtonsSwapFlowRoutable {
                 story: .swap(.initialWithoutImages),
                 analyticsSource: .main,
                 presentCompletion: { [weak self] in
-                    coordinator.start(with: FeatureProvider.isAvailable(.accounts) ? .new : .default)
+                    coordinator.start(with: .default)
+                    self?.actionButtonsSwapCoordinator = coordinator
+                }
+            )
+        }
+    }
+
+    func openSwap(
+        userWalletModel: some UserWalletModel,
+        tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel
+    ) {
+        let coordinator = coordinatorFactory.makeSwapCoordinator(userWalletModel: userWalletModel) { [weak self] _ in
+            self?.actionButtonsSwapCoordinator = nil
+        }
+
+        Task { @MainActor [tangemStoriesPresenter] in
+            tangemStoriesPresenter.present(
+                story: .swap(.initialWithoutImages),
+                analyticsSource: .main,
+                presentCompletion: { [weak self] in
+                    coordinator.start(with: .new(tokenSelectorViewModel: tokenSelectorViewModel))
                     self?.actionButtonsSwapCoordinator = coordinator
                 }
             )
@@ -666,6 +730,14 @@ extension MainCoordinator {
     enum Constants {
         static let tooltipAnimationDuration: Double = 0.3
         static let tooltipAnimationDelay: Double = 1.5
+    }
+}
+
+extension MainCoordinator: TangemPayKYCStatusRoutable {
+    func closeKYCStatusPopup() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
     }
 }
 
@@ -736,7 +808,7 @@ extension MainCoordinator {
         case marketsTokenDetails(tokenId: String)
         case externalLink(url: URL)
         case market
-        case onboardVisa(deeplinkString: String, userWalletModel: UserWalletModel)
+        case onboardVisa(deeplinkString: String)
         case promo(code: String)
     }
 }

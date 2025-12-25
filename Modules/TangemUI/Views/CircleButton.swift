@@ -56,7 +56,8 @@ public struct CircleButton: View {
 
             if isLoading {
                 ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle(tint: style.iconColor))
+                    // Loading spinner should use non-disabled color since it indicates activity.
+                    .progressViewStyle(CircularProgressViewStyle(tint: style.iconColor(isDisabled: false)))
                     .frame(width: size.iconSize, height: size.iconSize)
             }
         }
@@ -93,7 +94,7 @@ public struct CircleButton: View {
             .resizable()
             .renderingMode(.template)
             .frame(width: size.iconSize, height: size.iconSize)
-            .foregroundStyle(style.iconColor)
+            .foregroundStyle(style.iconColor(isDisabled: disabled))
     }
 
     @ViewBuilder
@@ -187,8 +188,12 @@ public extension CircleButton {
             }
         }
 
-        var iconColor: Color {
-            switch self {
+        func iconColor(isDisabled: Bool) -> Color {
+            if isDisabled {
+                return Colors.Icon.inactive
+            }
+
+            return switch self {
             case .primary: Colors.Icon.primary2
             case .secondary: Colors.Icon.informative
             }
