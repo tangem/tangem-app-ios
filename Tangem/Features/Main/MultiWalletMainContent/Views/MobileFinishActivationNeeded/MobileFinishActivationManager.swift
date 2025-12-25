@@ -16,7 +16,6 @@ final class MobileFinishActivationManager {
     private var userWalletId: UserWalletId?
     private var onActivation: Activation?
     private var isObservationFinished: Bool = false
-    private var walletModelsSubscription: AnyCancellable?
 
     func observe(userWalletId: UserWalletId, onActivation: @escaping Activation) {
         self.userWalletId = userWalletId
@@ -26,7 +25,7 @@ final class MobileFinishActivationManager {
 
     func activateIfNeeded(userWalletModel: UserWalletModel) {
         guard
-            let userWalletId, onActivation != nil,
+            let userWalletId, let onActivation,
             userWalletId == userWalletModel.userWalletId,
             !isObservationFinished
         else {
@@ -43,15 +42,13 @@ final class MobileFinishActivationManager {
             return
         }
 
-        walletModelsSubscription = userWalletModel
-            .totalBalancePublisher
-            .map { $0.hasAnyPositiveBalance }
-            .filter { $0 }
-            .first()
-            .withWeakCaptureOf(self)
-            .sink { manager, _ in
-                manager.onActivation?(userWalletModel)
-            }
+        let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
+        let totalBalances = walletModels.compactMap(\.availableBalanceProvider.balanceType.value)
+        let hasPositiveBalance = totalBalances.contains(where: { $0 > 0 })
+
+        if hasPositiveBalance {
+            onActivation(userWalletModel)
+        }
     }
 }
 
