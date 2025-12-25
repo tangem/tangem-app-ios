@@ -507,6 +507,7 @@
 "feedback_preface_scan_failed" = "請告訴我們你有什麼卡";
 "feedback_preface_support" = "嗨! 幫助團隊，";
 "feedback_preface_tx_failed" = "請告訴我們更多有關您的問題。提供任何細節都會帶來幫助";
+"feedback_subject_backup_problem" = "Backup issue";
 "feedback_subject_pre_activated_wallet" = "Previously activated wallet";
 "feedback_subject_rate_negative" = "我的建議";
 "feedback_subject_scan_failed" = "無法掃卡";
@@ -1636,6 +1637,8 @@
 "warning_button_ok" = "了解";
 "warning_button_really_cool" = "真的很酷！";
 "warning_button_refresh" = "Refresh";
+"warning_clore_migration_message" = "According to Clore’s official documentation, all tokens received before December 21 will be migrated to Clore (ERC20); tokens received after will not. Transfer solution coming — stay tuned.";
+"warning_clore_migration_title" = "Clore Network Migration";
 "warning_demo_mode_message" = "You are currently in the Demo mode";
 "warning_demo_mode_title" = "Demo mode active";
 "warning_developer_card_message" = "The card you scanned is a developer card. Do not use it to create your wallet.";
