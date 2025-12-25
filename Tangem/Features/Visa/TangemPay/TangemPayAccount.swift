@@ -19,14 +19,6 @@ final class TangemPayAccount {
     var tangemPayStatusPublisher: AnyPublisher<TangemPayStatus, Never> {
         customerInfoSubject
             .compactMap(\.self?.tangemPayStatus)
-            .merge(with: orderCancelledSignalSubject.mapToValue(.failedToIssue))
-//            .merge(with: unavailableSignalSubject.mapToValue(.unavailable))
-            .eraseToAnyPublisher()
-    }
-
-    var tangemPayCardIssuingInProgressPublisher: AnyPublisher<Bool, Never> {
-        TangemPayOrderIdStorage.cardIssuingOrderIdPublisher(customerWalletId: customerWalletId)
-            .map { $0 != nil }
             .eraseToAnyPublisher()
     }
 
@@ -40,11 +32,6 @@ final class TangemPayAccount {
             .map { $0.mapToCard(visaCustomerInfoResponse: $1) }
             .eraseToAnyPublisher()
     }
-
-    lazy var tangemPayIssuingManager: TangemPayIssuingManager = .init(
-        tangemPayStatusPublisher: tangemPayStatusPublisher,
-        tangemPayCardIssuingPublisher: tangemPayCardIssuingInProgressPublisher
-    )
 
     // MARK: - Withdraw
 
@@ -94,8 +81,6 @@ final class TangemPayAccount {
 
     private let customerInfoSubject = CurrentValueSubject<VisaCustomerInfoResponse?, Never>(nil)
 
-    private let orderCancelledSignalSubject = PassthroughSubject<Void, Never>()
-
     private var orderStatusPollingTask: Task<Void, Never>?
     private var bag = Set<AnyCancellable>()
 
@@ -116,14 +101,8 @@ final class TangemPayAccount {
         self.balancesService = balancesService
         self.withdrawTransactionService = withdrawTransactionService
 
-        // [REDACTED_TODO_COMMENT]
-        //        tangemPayNotificationManager.setupManager(with: paeraCustomer)
-
         // No reference cycle here, self is stored as weak
-        tangemPayIssuingManager.setupDelegate(self)
         withdrawTransactionService.set(output: self)
-
-        bind()
     }
 
     @discardableResult
@@ -162,31 +141,6 @@ final class TangemPayAccount {
         }
     }
 
-    private func bind() {
-//        authorizer.statePublisher
-//            .withWeakCaptureOf(self)
-//            .sink { tangemPayAccount, state in
-//                switch state {
-//                case .authorized(_, let tokens):
-//                    do {
-//                        try tangemPayAccount.authorizationTokensHandler.saveTokens(tokens: tokens)
-//                    } catch {
-//                        VisaLogger.error("Failed to save authorization tokens", error: error)
-//                    }
-//
-//                    tangemPayAccount.loadCustomerInfo()
-//
-//                    if let cardIssuingOrderId = TangemPayOrderIdStorage.cardIssuingOrderId(customerWalletId: tangemPayAccount.customerWalletId) {
-//                        tangemPayAccount.startOrderStatusPolling(orderId: cardIssuingOrderId, interval: Constants.cardIssuingOrderPollInterval)
-//                    }
-//
-//                case .syncNeeded:
-//                    tangemPayAccount.orderStatusPollingTask?.cancel()
-//                }
-//            }
-//            .store(in: &bag)
-    }
-
     private func startOrderStatusPolling(orderId: String, interval: TimeInterval) {
         orderStatusPollingTask?.cancel()
 
@@ -210,7 +164,7 @@ final class TangemPayAccount {
                         return
 
                     case .canceled:
-                        tangemPayAccount.orderCancelledSignalSubject.send(())
+                        // [REDACTED_TODO_COMMENT]
                         return
                     }
 
@@ -219,17 +173,6 @@ final class TangemPayAccount {
                     return
                 }
             }
-        }
-    }
-
-    private func createOrder() async {
-        do {
-            let order = try await customerInfoManagementService.placeOrder(customerWalletAddress: customerWalletAddress)
-            TangemPayOrderIdStorage.saveCardIssuingOrderId(order.id, customerWalletId: customerWalletId)
-
-            startOrderStatusPolling(orderId: order.id, interval: Constants.cardIssuingOrderPollInterval)
-        } catch {
-            VisaLogger.error("Failed to create order", error: error)
         }
     }
 
@@ -264,16 +207,6 @@ extension TangemPayAccount: TangemPayWithdrawTransactionServiceOutput {
     }
 }
 
-// MARK: - TangemPayIssuingManagerDelegated
-
-extension TangemPayAccount: TangemPayIssuingManagerDelegate {
-    func createAccountAndIssueCard() {
-        runTask(in: self) { tangemPayAccount in
-            await tangemPayAccount.createOrder()
-        }
-    }
-}
-
 // MARK: - VisaCustomerInfoResponse+tangemPayStatus
 
 private extension VisaCustomerInfoResponse {
@@ -289,11 +222,7 @@ private extension VisaCustomerInfoResponse {
             }
         }
 
-        guard case .approved = kyc?.status else {
-            return .kycRequired
-        }
-
-        return .readyToIssueOrIssuing
+        return .unavailable
     }
 }
 
@@ -390,6 +319,7 @@ final class PaeraCustomer {
     private let syncNeededSignalSubject = PassthroughSubject<Void, Never>()
     private let unavailableSignalSubject = PassthroughSubject<Void, Never>()
     private let clearNotificationsSignalSubject = PassthroughSubject<Void, Never>()
+    private let orderCancelledSignalSubject = PassthroughSubject<Void, Never>()
 
     @Injected(\.tangemPayAuthorizationTokensRepository)
     private static var tangemPayAuthorizationTokensRepository: TangemPayAuthorizationTokensRepository
@@ -397,6 +327,8 @@ final class PaeraCustomer {
     private let authorizationService: TangemPayAuthorizationService
     private let authorizationTokensHandler: TangemPayAuthorizationTokensHandler
     private let customerInfoManagementService: CustomerInfoManagementService
+
+    private var orderStatusPollingTask: Task<Void, Never>?
 
     init(userWalletModel: UserWalletModel) {
         AppSettings.shared.tangemPayIsPaeraCustomer[userWalletModel.userWalletId.stringValue] = true
@@ -420,6 +352,9 @@ final class PaeraCustomer {
 
         customerInfoManagementService = TangemPayCustomerInfoManagementServiceBuilder()
             .buildCustomerInfoManagementService(authorizationTokensHandler: authorizationTokensHandler)
+
+        // No reference cycle here, self is stored as weak
+        tangemPayNotificationManager.setupManager(with: self)
 
         updateState()
     }
@@ -488,6 +423,7 @@ final class PaeraCustomer {
               let tokens = authorizationTokensHandler.tokens,
               !tokens.refreshTokenExpired
         else {
+            orderStatusPollingTask?.cancel()
             return .syncNeeded
         }
 
@@ -497,8 +433,11 @@ final class PaeraCustomer {
         } catch {
             switch error {
             case .syncNeeded:
+                orderStatusPollingTask?.cancel()
                 return .syncNeeded
+
             case .unavailable:
+                orderStatusPollingTask?.cancel()
                 return .unavailable
             }
         }
@@ -514,6 +453,7 @@ final class PaeraCustomer {
                 )
                 .build()
 
+                TangemPayOrderIdStorage.deleteCardIssuingOrderId(customerWalletId: userWalletModel.userWalletId.stringValue)
                 return .tangemPayAccount(account)
 
             default:
@@ -521,11 +461,59 @@ final class PaeraCustomer {
             }
         }
 
-        if customerInfo.kyc?.status == .approved {
-            return .readyToIssueOrIssuing
+        guard customerInfo.kyc?.status == .approved else {
+            return .kyc
         }
 
-        return .kyc
+        if let cardIssuingOrderId = TangemPayOrderIdStorage.cardIssuingOrderId(customerWalletId: userWalletModel.userWalletId.stringValue) {
+            startOrderStatusPolling(orderId: cardIssuingOrderId, interval: Constants.cardIssuingOrderPollInterval)
+        } else {
+            do {
+                let order = try await customerInfoManagementService.placeOrder(customerWalletAddress: customerWalletAddress)
+                TangemPayOrderIdStorage.saveCardIssuingOrderId(order.id, customerWalletId: userWalletModel.userWalletId.stringValue)
+
+                startOrderStatusPolling(orderId: order.id, interval: Constants.cardIssuingOrderPollInterval)
+            } catch {
+                VisaLogger.error("Failed to create order", error: error)
+            }
+        }
+
+        return .readyToIssueOrIssuing
+    }
+
+    private func startOrderStatusPolling(orderId: String, interval: TimeInterval) {
+        orderStatusPollingTask?.cancel()
+
+        let polling = PollingSequence(
+            interval: interval,
+            request: { [customerInfoManagementService] in
+                try await customerInfoManagementService.getOrder(orderId: orderId)
+            }
+        )
+
+        orderStatusPollingTask = runTask { [self] in
+            for await result in polling {
+                switch result {
+                case .success(let order):
+                    switch order.status {
+                    case .new, .processing:
+                        break
+
+                    case .completed:
+                        updateState()
+                        return
+
+                    case .canceled:
+                        orderCancelledSignalSubject.send(())
+                        return
+                    }
+
+                case .failure(let error):
+                    VisaLogger.error("Failed to poll order status", error: error)
+                    return
+                }
+            }
+        }
     }
 }
 
@@ -584,5 +572,11 @@ struct TangemPayAccountBuilderr {
             balancesService: balancesService,
             withdrawTransactionService: withdrawTransactionService
         )
+    }
+}
+
+private extension PaeraCustomer {
+    enum Constants {
+        static let cardIssuingOrderPollInterval: TimeInterval = 60
     }
 }
