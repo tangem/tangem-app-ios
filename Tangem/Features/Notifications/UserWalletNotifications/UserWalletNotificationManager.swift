@@ -34,6 +34,8 @@ final class UserWalletNotificationManager {
     private var showAppRateNotification = false
     private var shownAppRateNotificationId: NotificationViewId?
 
+    private var shownMobileActivationNotificationId: NotificationViewId?
+
     private lazy var supportSeedNotificationInteractor: SupportSeedNotificationManager = makeSupportSeedNotificationsManager()
     private lazy var pushPermissionNotificationInteractor: PushPermissionNotificationManager = makePushPermissionNotificationsManager()
 
@@ -191,6 +193,8 @@ final class UserWalletNotificationManager {
     }
 
     private func showMobileActivationNotificationIfNeeded() {
+        hideMobileActivationNotificationIfNeeded()
+
         let config = userWalletModel.config
         let needBackup = config.hasFeature(.mnemonicBackup) && config.hasFeature(.iCloudBackup)
         let needAccessCode = config.hasFeature(.userWalletAccessCode) && config.userWalletAccessCodeStatus == .none
@@ -208,7 +212,10 @@ final class UserWalletNotificationManager {
         }
 
         let dismissAction: NotificationView.NotificationAction = weakify(self, forFunction: UserWalletNotificationManager.dismissNotification)
-        let hasPositiveBalance = userWalletModel.totalBalance.hasAnyPositiveBalance
+
+        let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
+        let totalBalances = walletModels.compactMap(\.availableBalanceProvider.balanceType.value)
+        let hasPositiveBalance = totalBalances.contains(where: { $0 > 0 })
 
         let input = factory.buildNotificationInput(
             for: .mobileFinishActivation(hasPositiveBalance: hasPositiveBalance, hasBackup: !needBackup),
@@ -217,7 +224,17 @@ final class UserWalletNotificationManager {
             dismissAction: dismissAction
         )
 
+        shownMobileActivationNotificationId = input.id
         addInputIfNeeded(input)
+    }
+
+    private func hideMobileActivationNotificationIfNeeded() {
+        guard let shownMobileActivationNotificationId else {
+            return
+        }
+
+        hideNotification(with: shownMobileActivationNotificationId)
+        self.shownMobileActivationNotificationId = nil
     }
 
     // [REDACTED_TODO_COMMENT]
@@ -292,8 +309,8 @@ final class UserWalletNotificationManager {
             .removeDuplicates()
             .receiveOnMain()
             .withWeakCaptureOf(self)
-            .sink(receiveValue: { manager, _ in
-                manager.createNotifications()
+            .sink(receiveValue: { manager, shouldShow in
+                manager.showMobileActivationNotificationIfNeeded()
             })
             .store(in: &bag)
     }
