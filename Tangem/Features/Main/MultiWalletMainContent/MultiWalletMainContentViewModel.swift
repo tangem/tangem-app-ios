@@ -316,33 +316,16 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
         Publishers
             .CombineLatest(
-                userWalletModel.paeraCustomerPublisher
-                    .flatMapLatest { paeraCustomer -> AnyPublisher<TangemPayAccount?, Never> in
-                        if let paeraCustomer {
-                            paeraCustomer.statePublisher
-                                .map { state -> TangemPayAccount? in
-                                    switch state {
-                                    case .tangemPayAccount(let tangemPayAccount):
-                                        tangemPayAccount
-                                    default:
-                                        nil
-                                    }
-                                }
-                                .eraseToAnyPublisher()
-                        } else {
-                            .just(output: nil)
-                        }
-                    }
-                    .compactMap(\.self),
+                userWalletModel.paeraCustomerPublisher.compactMap(\.self),
                 isTangemPayHidden
             )
-            .flatMapLatest { tangemPayAccount, isHidden in
+            .flatMapLatest { paeraCustomer, isHidden in
                 guard !isHidden else {
                     return Just([NotificationViewInput]())
                         .eraseToAnyPublisher()
                 }
 
-                return tangemPayAccount
+                return paeraCustomer
                     .tangemPayNotificationManager
                     .notificationPublisher
             }

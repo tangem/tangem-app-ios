@@ -20,7 +20,7 @@ final class TangemPayAccount {
         customerInfoSubject
             .compactMap(\.self?.tangemPayStatus)
             .merge(with: orderCancelledSignalSubject.mapToValue(.failedToIssue))
-            .merge(with: unavailableSignalSubject.mapToValue(.unavailable))
+//            .merge(with: unavailableSignalSubject.mapToValue(.unavailable))
             .eraseToAnyPublisher()
     }
 
@@ -40,12 +40,6 @@ final class TangemPayAccount {
             .map { $0.mapToCard(visaCustomerInfoResponse: $1) }
             .eraseToAnyPublisher()
     }
-
-    lazy var tangemPayNotificationManager: TangemPayNotificationManager = .init(
-        syncNeededSignalPublisher: syncNeededSignalSubject.eraseToAnyPublisher(),
-        unavailableSignalPublisher: unavailableSignalSubject.eraseToAnyPublisher(),
-        clearNotificationsSignalPublisher: clearNotificationsSignalSubject.eraseToAnyPublisher()
-    )
 
     lazy var tangemPayIssuingManager: TangemPayIssuingManager = .init(
         tangemPayStatusPublisher: tangemPayStatusPublisher,
@@ -101,9 +95,6 @@ final class TangemPayAccount {
     private let customerInfoSubject = CurrentValueSubject<VisaCustomerInfoResponse?, Never>(nil)
 
     private let orderCancelledSignalSubject = PassthroughSubject<Void, Never>()
-    private let syncNeededSignalSubject = PassthroughSubject<Void, Never>()
-    private let unavailableSignalSubject = PassthroughSubject<Void, Never>()
-    private let clearNotificationsSignalSubject = PassthroughSubject<Void, Never>()
 
     private var orderStatusPollingTask: Task<Void, Never>?
     private var bag = Set<AnyCancellable>()
@@ -135,16 +126,6 @@ final class TangemPayAccount {
         bind()
     }
 
-    func getTangemPayStatus() async throws -> TangemPayStatus {
-        // Since customerInfo polling starts in the init - there is no need to make another call
-        for await customerInfo in await customerInfoSubject.compactMap(\.self).values {
-            return customerInfo.tangemPayStatus
-        }
-
-        // This will never happen since the sequence written above will never be terminated without emitting a value
-        return try await customerInfoManagementService.loadCustomerInfo().tangemPayStatus
-    }
-
     @discardableResult
     func loadBalance() -> Task<Void, Never> {
         Task { await setupBalance() }
@@ -162,14 +143,7 @@ final class TangemPayAccount {
                     await tangemPayAccount.setupBalance()
                 }
             } catch {
-                switch error {
-                case .syncNeeded:
-                    tangemPayAccount.syncNeededSignalSubject.send(())
-                    VisaLogger.error("Failed to load customer info", error: error)
-                case .unavailable:
-                    tangemPayAccount.unavailableSignalSubject.send(())
-                    VisaLogger.error("Failed to load customer info", error: error)
-                }
+                VisaLogger.error("Failed to load customer info", error: error)
             }
         }
     }
@@ -404,8 +378,18 @@ final class PaeraCustomer {
         syncInProgressSubject.eraseToAnyPublisher()
     }
 
+    lazy var tangemPayNotificationManager: TangemPayNotificationManager = .init(
+        syncNeededSignalPublisher: syncNeededSignalSubject.eraseToAnyPublisher(),
+        unavailableSignalPublisher: unavailableSignalSubject.eraseToAnyPublisher(),
+        clearNotificationsSignalPublisher: clearNotificationsSignalSubject.eraseToAnyPublisher()
+    )
+
     private let stateSubject = CurrentValueSubject<State?, Never>(nil)
     private let syncInProgressSubject = CurrentValueSubject<Bool, Never>(false)
+
+    private let syncNeededSignalSubject = PassthroughSubject<Void, Never>()
+    private let unavailableSignalSubject = PassthroughSubject<Void, Never>()
+    private let clearNotificationsSignalSubject = PassthroughSubject<Void, Never>()
 
     @Injected(\.tangemPayAuthorizationTokensRepository)
     private static var tangemPayAuthorizationTokensRepository: TangemPayAuthorizationTokensRepository
@@ -443,7 +427,17 @@ final class PaeraCustomer {
     @discardableResult
     func updateState() -> Task<Void, Never> {
         runTask { [self] in
-            stateSubject.send(await getCurrentState())
+            let state = await getCurrentState()
+            stateSubject.send(state)
+
+            switch state {
+            case .syncNeeded:
+                syncNeededSignalSubject.send(())
+            case .unavailable:
+                unavailableSignalSubject.send(())
+            case .kyc, .readyToIssueOrIssuing, .failedToIssue, .tangemPayAccount:
+                clearNotificationsSignalSubject.send(())
+            }
         }
     }
 
@@ -515,7 +509,6 @@ final class PaeraCustomer {
                 let account = TangemPayAccountBuilderr(
                     customerWalletAddress: customerWalletAddress,
                     userWalletModel: userWalletModel,
-                    paeraCustomer: self,
                     authorizationTokensHandler: authorizationTokensHandler,
                     customerInfoManagementService: customerInfoManagementService
                 )
@@ -562,7 +555,6 @@ extension PaeraCustomer: NotificationTapDelegate {
 struct TangemPayAccountBuilderr {
     let customerWalletAddress: String
     let userWalletModel: UserWalletModel
-    let paeraCustomer: PaeraCustomer
 
     let authorizationTokensHandler: TangemPayAuthorizationTokensHandler
     let customerInfoManagementService: CustomerInfoManagementService
@@ -584,9 +576,9 @@ struct TangemPayAccountBuilderr {
         )
 
         return TangemPayAccount(
-            customerWalletId: paeraCustomer.userWalletModel.userWalletId.stringValue,
+            customerWalletId: userWalletModel.userWalletId.stringValue,
             customerWalletAddress: customerWalletAddress,
-            keysRepository: paeraCustomer.userWalletModel.keysRepository,
+            keysRepository: userWalletModel.keysRepository,
             authorizationTokensHandler: authorizationTokensHandler,
             customerInfoManagementService: customerInfoManagementService,
             balancesService: balancesService,
