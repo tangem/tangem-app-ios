@@ -33,7 +33,7 @@ final class TangemPayAccountViewModel: ObservableObject {
 
     func userDidTapView() {
         switch paeraCustomer.state {
-        case .none, .syncNeeded, .unavailable:
+        case .none, .syncNeeded, .syncInProgress, .unavailable:
             break
         case .kyc:
             router?.openTangemPayKYCInProgressPopup(paeraCustomer: paeraCustomer)
@@ -60,7 +60,7 @@ private extension TangemPayAccountViewModel {
                 return switch state {
                 case .none:
                     .just(output: .skeleton)
-                case .syncNeeded:
+                case .syncNeeded, .syncInProgress:
                     .just(output: .syncNeeded)
                 case .unavailable:
                     .just(output: .unavailable)

@@ -344,7 +344,9 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                 }
 
                 return paeraCustomer
-                    .syncInProgressPublisher
+                    .statePublisher
+                    .compactMap(\.?.isSyncInProgress)
+                    .eraseToAnyPublisher()
             }
             .receiveOnMain()
             .assign(to: &$tangemPaySyncInProgress)
