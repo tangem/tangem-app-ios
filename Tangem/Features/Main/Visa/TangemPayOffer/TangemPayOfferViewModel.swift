@@ -52,7 +52,7 @@ final class TangemPayOfferViewModel: ObservableObject {
                     type: .paeraCustomerCreated(paeraCustomer)
                 )
 
-                switch await paeraCustomer.getCurrentState() {
+                switch state {
                 case .kyc:
                     try await paeraCustomer.launchKYC {
                         paeraCustomer.updateState()
