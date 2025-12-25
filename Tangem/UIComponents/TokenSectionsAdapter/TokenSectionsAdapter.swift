@@ -295,6 +295,15 @@ extension TokenSectionsAdapter.SectionItem {
 }
 
 extension TokenSectionsAdapter.Section {
+    var isGrouped: Bool {
+        switch model {
+        case .plain:
+            return false
+        case .group:
+            return true
+        }
+    }
+
     var walletModels: [any WalletModel] {
         return items.compactMap(\.walletModel)
     }
