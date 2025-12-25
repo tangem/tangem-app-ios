@@ -94,17 +94,14 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
             tokenItem: walletModel.tokenItem,
         )
 
-        let expressDependenciesInput = ExpressDependenciesInput(
+        let source = ExpressInteractorWalletModelWrapper(
             userWalletInfo: userWalletInfo,
-            source: ExpressInteractorWalletModelWrapper(userWalletInfo: userWalletInfo, walletModel: walletModel),
-            destination: .none
+            walletModel: walletModel,
+            expressOperationType: .onramp
         )
 
-        expressDependenciesFactory = CommonExpressDependenciesFactory(
-            input: expressDependenciesInput,
-            supportedProviderTypes: [.onramp],
-            operationType: .onramp
-        )
+        let expressDependenciesInput = ExpressDependenciesInput(userWalletInfo: userWalletInfo, source: source)
+        expressDependenciesFactory = CommonExpressDependenciesFactory(input: expressDependenciesInput)
     }
 }
 
