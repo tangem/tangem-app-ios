@@ -21,7 +21,6 @@ final class MarketsListDataProvider {
 
     @Published var items: [MarketsTokenModel] = []
     @Published var lastEvent: Event = .idle
-    @Published private(set) var stakingApy: Decimal?
 
     // MARK: - Public Properties
 
@@ -180,7 +179,6 @@ private extension MarketsListDataProvider {
             }
 
             items.append(contentsOf: response.tokens)
-            stakingApy = response.summary?.maxApy
             lastEvent = .appendedItems(items: response.tokens, lastPage: currentOffset >= response.total)
         } catch {
             if error.isCancellationError {
