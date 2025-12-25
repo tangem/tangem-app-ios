@@ -77,11 +77,6 @@ final class TangemPayAccount {
         tangemPayTokenBalanceProvider: balancesProvider.fixedFiatTotalTokenBalanceProvider
     )
 
-    lazy var tangemPayMainHeaderSubtitleProvider: MainHeaderSubtitleProvider = SingleWalletMainHeaderSubtitleProvider(
-        isUserWalletLocked: false,
-        balanceProvider: balancesProvider.totalTokenBalanceProvider
-    )
-
     var balancesProvider: TangemPayBalancesProvider { balancesService }
 
     let customerInfoManagementService: any CustomerInfoManagementService
@@ -93,6 +88,10 @@ final class TangemPayAccount {
 
     var cardId: String? {
         customerInfoSubject.value?.productInstance?.cardId
+    }
+
+    var isPinSet: Bool {
+        customerInfoSubject.value?.card?.isPinSet ?? false
     }
 
     var customerWalletId: String {
@@ -127,6 +126,8 @@ final class TangemPayAccount {
     private var orderStatusPollingTask: Task<Void, Never>?
     private var accountStateObservingCancellable: Cancellable?
 
+    private weak var kycCancellationDelegate: TangemPayKYCCancellationDelegate?
+
     init(
         authorizer: TangemPayAuthorizer,
         authorizationTokensHandler: TangemPayAuthorizationTokensHandler,
@@ -147,6 +148,35 @@ final class TangemPayAccount {
         withdrawTransactionService.set(output: self)
 
         bind()
+    }
+
+    func setupKYCCancellationDelegate(_ delegate: TangemPayKYCCancellationDelegate) {
+        kycCancellationDelegate = delegate
+    }
+
+    func cancelKYC(onFinish: @escaping (Bool) -> Void) {
+        runTask(in: self) { account in
+            do {
+                try await account.customerInfoManagementService.cancelKYC()
+                await MainActor.run {
+                    AppSettings.shared
+                        .tangemPayIsKYCHiddenForCustomerWalletId[
+                            account.customerWalletId
+                        ] = true
+                    AppSettings.shared
+                        .tangemPayIsPaeraCustomer[
+                            account.customerWalletId
+                        ] = false
+                    AppSettings.shared
+                        .tangemPayShouldShowGetBanner = false
+                }
+                account.kycCancellationDelegate?.onKYCCancelled()
+                onFinish(true)
+            } catch {
+                VisaLogger.error("Failed to cancel KYC", error: error)
+                onFinish(false)
+            }
+        }
     }
 
     func launchKYC(onDidDismiss: @escaping () -> Void) async throws {
@@ -176,6 +206,11 @@ final class TangemPayAccount {
     func loadCustomerInfo() -> Task<Void, Never> {
         runTask(in: self) { tangemPayAccount in
             do {
+                if tangemPayAccount.authorizer.state.authorized == nil {
+                    tangemPayAccount.authorizer.setAuthorized()
+                    return
+                }
+
                 let customerInfo = try await tangemPayAccount.customerInfoManagementService.loadCustomerInfo()
                 tangemPayAccount.customerInfoSubject.send(customerInfo)
 
@@ -318,7 +353,7 @@ extension TangemPayAccount: TangemPayWithdrawTransactionServiceOutput {
     func withdrawTransactionDidSent() {
         Task {
             // Update balance after withdraw with some delay
-            try await Task.sleep(seconds: 5)
+            try await Task.sleep(for: .seconds(5))
             await setupBalance()
         }
     }
@@ -371,7 +406,7 @@ private extension VisaCustomerInfoResponse {
             }
         }
 
-        guard case .approved = kyc.status else {
+        guard case .approved = kyc?.status else {
             return .kycRequired
         }
 

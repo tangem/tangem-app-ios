@@ -73,7 +73,8 @@ struct TransactionHistoryMapper {
             amount: transferAmount(from: record),
             isOutgoing: record.isOutgoing,
             transactionType: transactionType(from: record),
-            status: status(from: record)
+            status: status(from: record),
+            isFromYieldContract: record.isFromYieldContract
         )
     }
 
@@ -233,8 +234,8 @@ private extension TransactionHistoryMapper {
         case "transfer": .transfer
         case "approve": .approve
         case "swap": .swap
-        case "buyVoucher", "buyVoucherPOL", "delegate": .stake
-        case "sellVoucher_new", "sellVoucher_newPOL", "undelegate": .unstake
+        case "buyVoucher", "buyVoucherPOL", "delegate", "stakeETH": .stake
+        case "sellVoucher_new", "sellVoucher_newPOL", "undelegate", "unstakeETH": .unstake
         case "unstakeClaimTokens_new", "unstakeClaimTokens_newPOL", "claim": .withdraw
         case "withdrawRewards", "withdrawRewardsPOL": .claimRewards
         case "redelegate": .restake
@@ -288,7 +289,7 @@ private extension TransactionHistoryMapper {
         switch transactionType(from: record) {
         case .yieldEnter, .yieldTopup, .yieldWithdraw:
             return balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol)
-        case .yieldSend where !record.isOutgoing:
+        case .yieldSend where record.isFromYieldContract:
             return balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol)
         default:
             return formatted(amount: amount, isOutgoing: record.isOutgoing)

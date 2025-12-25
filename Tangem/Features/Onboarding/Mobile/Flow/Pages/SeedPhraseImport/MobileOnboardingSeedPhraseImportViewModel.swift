@@ -7,7 +7,9 @@
 //
 
 import Combine
+import UIKit
 import TangemFoundation
+import TangemLocalization
 import TangemMobileWalletSdk
 import TangemUIUtils
 import TangemSdk
@@ -29,8 +31,11 @@ final class MobileOnboardingSeedPhraseImportViewModel: ObservableObject {
 
     private weak var delegate: MobileOnboardingSeedPhraseImportDelegate?
 
+    private var bag: Set<AnyCancellable> = []
+
     init(delegate: MobileOnboardingSeedPhraseImportDelegate) {
         self.delegate = delegate
+        bind()
     }
 }
 
@@ -39,6 +44,21 @@ final class MobileOnboardingSeedPhraseImportViewModel: ObservableObject {
 extension MobileOnboardingSeedPhraseImportViewModel {
     func onAppear() {
         logScreenOpenedAnalytics()
+    }
+}
+
+// MARK: - Private methods
+
+private extension MobileOnboardingSeedPhraseImportViewModel {
+    func bind() {
+        NotificationCenter.default.publisher(for: UIApplication.userDidTakeScreenshotNotification)
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, _ in
+                viewModel.alert = AlertBuilder.makeOkGotItAlert(message: Localization.onboardingSeedScreenshotAlert)
+                viewModel.logScreenCaptureAnalytics()
+            }
+            .store(in: &bag)
     }
 }
 
@@ -127,6 +147,13 @@ private extension MobileOnboardingSeedPhraseImportViewModel {
             params: params,
             contextParams: analyticsContextParams
         )
+
+        Analytics.log(
+            event: .afWalletImported,
+            params: params,
+            analyticsSystems: [.appsFlyer],
+            contextParams: analyticsContextParams
+        )
     }
 
     func logOnboardingFinishedAnalytics() {
@@ -135,5 +162,9 @@ private extension MobileOnboardingSeedPhraseImportViewModel {
             params: [.source: .importWallet],
             contextParams: analyticsContextParams
         )
+    }
+
+    func logScreenCaptureAnalytics() {
+        Analytics.log(.onboardingSeedScreenCapture, contextParams: analyticsContextParams)
     }
 }

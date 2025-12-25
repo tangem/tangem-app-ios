@@ -8,6 +8,7 @@
 
 import Foundation
 
+@available(iOS, deprecated: 100000.0, message: "Will be removed after accounts migration is complete ([REDACTED_INFO])")
 struct OrganizeTokensPreviewViewModelFactory {
     func makeViewModel(for configuration: OrganizeTokensPreviewConfiguration) -> OrganizeTokensViewModel {
         let coordinator = OrganizeTokensRoutableStub()
@@ -23,11 +24,11 @@ struct OrganizeTokensPreviewViewModelFactory {
         )
 
         return OrganizeTokensViewModel(
-            coordinator: coordinator,
             userWalletModel: userWalletModel,
             tokenSectionsAdapter: tokenSectionsAdapter,
             optionsProviding: optionsManager,
-            optionsEditing: optionsManager
+            optionsEditing: optionsManager,
+            coordinator: coordinator
         )
     }
 }
