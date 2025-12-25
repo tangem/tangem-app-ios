@@ -310,17 +310,9 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             return
         }
 
-        let userWalletId = userWalletModel.userWalletId.stringValue
-        let isTangemPayHidden = tangemPayAvailabilityRepository
-            .isTangemPayHiddenPublisher(for: userWalletId)
-
-        Publishers
-            .CombineLatest(
-                userWalletModel.tangemPayAccountPublisher.compactMap(\.self),
-                isTangemPayHidden
-            )
-            .flatMapLatest { tangemPayAccount, isHidden in
-                guard !isHidden else {
+        userWalletModel.tangemPayAccountPublisher
+            .flatMapLatest { tangemPayAccount in
+                guard let tangemPayAccount else {
                     return Just([NotificationViewInput]())
                         .eraseToAnyPublisher()
                 }
@@ -332,13 +324,9 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .receiveOnMain()
             .assign(to: &$tangemPayNotificationInputs)
 
-        Publishers
-            .CombineLatest(
-                userWalletModel.tangemPayAccountPublisher.compactMap(\.self),
-                isTangemPayHidden
-            )
-            .flatMapLatest { tangemPayAccount, isHidden in
-                guard !isHidden else {
+        userWalletModel.tangemPayAccountPublisher
+            .flatMapLatest { tangemPayAccount in
+                guard let tangemPayAccount else {
                     return Just(false)
                         .eraseToAnyPublisher()
                 }
@@ -349,21 +337,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .receiveOnMain()
             .assign(to: &$tangemPaySyncInProgress)
 
-        Publishers
-            .CombineLatest(
-                userWalletModel
-                    .tangemPayAccountPublisher.compactMap(\.self),
-                tangemPayAvailabilityRepository
-                    .isTangemPayHiddenPublisher(for: userWalletId)
-            )
+        userWalletModel.tangemPayAccountPublisher
             .withWeakCaptureOf(self)
-            .map { viewModel, args in
-                let (tangemPayAccount, isAccountHidden) = args
-
-                if isAccountHidden {
-                    return nil
-                }
-
+            .map { viewModel, tangemPayAccount in
+                guard let tangemPayAccount else { return nil }
                 return TangemPayAccountViewModel(tangemPayAccount: tangemPayAccount, router: viewModel)
             }
             .receiveOnMain()
