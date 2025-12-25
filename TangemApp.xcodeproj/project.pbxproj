@@ -33,6 +33,7 @@
 		0A2D94532DCB6CA7008AEC67 /* StakingPendingActionsHandlerProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2D94522DCB6CA7008AEC67 /* StakingPendingActionsHandlerProvider.swift */; };
 		0A2D94552DCB6CDD008AEC67 /* CommonStakingPendingActionsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2D94542DCB6CDD008AEC67 /* CommonStakingPendingActionsHandler.swift */; };
 		0A2D94582DCB6D1A008AEC67 /* TonStakingPendingActionsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2D94572DCB6D1A008AEC67 /* TonStakingPendingActionsHandler.swift */; };
+		0A3B4A362EFD32CB0054E884 /* ApyFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3B4A352EFD32CB0054E884 /* ApyFormatter.swift */; };
 		0A3BF9692C6CDAD900163492 /* AdditionalAddresses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3BF9682C6CDAD900163492 /* AdditionalAddresses.swift */; };
 		0A3BF96B2C6CE96B00163492 /* StakingAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3BF96A2C6CE96B00163492 /* StakingAction.swift */; };
 		0A3C78752D8883080031170E /* HederaNetworkResult.TokensCustomFees.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3C78742D8883080031170E /* HederaNetworkResult.TokensCustomFees.swift */; };
@@ -140,7 +141,7 @@
 		0ABBCB752ED07F980008B1C7 /* StakingNetworkType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABBCB742ED07F980008B1C7 /* StakingNetworkType.swift */; };
 		0ABC61152C410AFD00065EBA /* TweetNacl in Frameworks */ = {isa = PBXBuildFile; productRef = 0ABC61142C410AFD00065EBA /* TweetNacl */; };
 		0ABCEE672E3B954000662B9F /* WalletInitializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABCEE662E3B954000662B9F /* WalletInitializer.swift */; };
-		0ABCFCEB2DCA35F400C9F901 /* MarketsStakingNotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABCFCEA2DCA35F400C9F901 /* MarketsStakingNotificationView.swift */; };
+		0ABCFCEB2DCA35F400C9F901 /* MarketsYieldModeNotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABCFCEA2DCA35F400C9F901 /* MarketsYieldModeNotificationView.swift */; };
 		0ABDAEC42E325816001C7EE4 /* MobileWalletSigner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABDAEC32E325816001C7EE4 /* MobileWalletSigner.swift */; };
 		0AC8489A2ED0A699001A2884 /* EthereumCompiledTransactionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC848992ED0A699001A2884 /* EthereumCompiledTransactionData.swift */; };
 		0AC8489C2ED0A6EB001A2884 /* UnsignedTransactionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC8489B2ED0A6EB001A2884 /* UnsignedTransactionData.swift */; };
@@ -4758,6 +4759,7 @@
 		0A2D94522DCB6CA7008AEC67 /* StakingPendingActionsHandlerProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPendingActionsHandlerProvider.swift; sourceTree = "<group>"; };
 		0A2D94542DCB6CDD008AEC67 /* CommonStakingPendingActionsHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonStakingPendingActionsHandler.swift; sourceTree = "<group>"; };
 		0A2D94572DCB6D1A008AEC67 /* TonStakingPendingActionsHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonStakingPendingActionsHandler.swift; sourceTree = "<group>"; };
+		0A3B4A352EFD32CB0054E884 /* ApyFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApyFormatter.swift; sourceTree = "<group>"; };
 		0A3BF9682C6CDAD900163492 /* AdditionalAddresses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdditionalAddresses.swift; sourceTree = "<group>"; };
 		0A3BF96A2C6CE96B00163492 /* StakingAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAction.swift; sourceTree = "<group>"; };
 		0A3C78742D8883080031170E /* HederaNetworkResult.TokensCustomFees.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HederaNetworkResult.TokensCustomFees.swift; sourceTree = "<group>"; };
@@ -4862,7 +4864,7 @@
 		0ABBB2D52ECDFDA70082BC76 /* P2PTransactionDispatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = P2PTransactionDispatcher.swift; sourceTree = "<group>"; };
 		0ABBCB742ED07F980008B1C7 /* StakingNetworkType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingNetworkType.swift; sourceTree = "<group>"; };
 		0ABCEE662E3B954000662B9F /* WalletInitializer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletInitializer.swift; sourceTree = "<group>"; };
-		0ABCFCEA2DCA35F400C9F901 /* MarketsStakingNotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsStakingNotificationView.swift; sourceTree = "<group>"; };
+		0ABCFCEA2DCA35F400C9F901 /* MarketsYieldModeNotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsYieldModeNotificationView.swift; sourceTree = "<group>"; };
 		0ABDAEC32E325816001C7EE4 /* MobileWalletSigner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileWalletSigner.swift; sourceTree = "<group>"; };
 		0AC848992ED0A699001A2884 /* EthereumCompiledTransactionData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumCompiledTransactionData.swift; sourceTree = "<group>"; };
 		0AC8489B2ED0A6EB001A2884 /* UnsignedTransactionData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnsignedTransactionData.swift; sourceTree = "<group>"; };
@@ -9694,7 +9696,7 @@
 		0AEB1FCF2DBF75A5009EA212 /* Notifications */ = {
 			isa = PBXGroup;
 			children = (
-				0ABCFCEA2DCA35F400C9F901 /* MarketsStakingNotificationView.swift */,
+				0ABCFCEA2DCA35F400C9F901 /* MarketsYieldModeNotificationView.swift */,
 				0A83F56B2DD3609400ADB321 /* MarketsNotificationsManager.swift */,
 			);
 			path = Notifications;
@@ -14146,6 +14148,7 @@
 				2D276FEB2BFCD3690099001A /* TokenPriceFormatter */,
 				2DDFA7932C230E2300E51F7F /* MarketCapFormatter */,
 				B03F19022C3D291100C93CFD /* AmountNotationSuffixFormatter.swift */,
+				0A3B4A352EFD32CB0054E884 /* ApyFormatter.swift */,
 			);
 			path = AmountFormatters;
 			sourceTree = "<group>";
@@ -27909,6 +27912,7 @@
 				B06C3A272BFE31BB005E6D40 /* ManageTokensListViewModel.swift in Sources */,
 				B6364F882ACEE9AC00D615B5 /* EmptyMainFooterView.swift in Sources */,
 				DC66BBFE285A389000CDF765 /* View+Navigation.swift in Sources */,
+				0A3B4A362EFD32CB0054E884 /* ApyFormatter.swift in Sources */,
 				EA1C22782E8EBAE30084F6DE /* YieldChartData.swift in Sources */,
 				B04090C42AF3969700DF8DD5 /* NotificationsAnalyticsService.swift in Sources */,
 				EF40C1122CF5EE1A007EF710 /* Sequence+.swift in Sources */,
@@ -28443,7 +28447,7 @@
 				EF5D83D92B0B7A2B00516B5F /* ExpressSuccessSentView.swift in Sources */,
 				DAFD69432ED9D9B6007FAF9B /* TangemPayFailedToIssueCardSheetView.swift in Sources */,
 				EF339E4F2C21FC9500B5CDC9 /* SendFee.swift in Sources */,
-				0ABCFCEB2DCA35F400C9F901 /* MarketsStakingNotificationView.swift in Sources */,
+				0ABCFCEB2DCA35F400C9F901 /* MarketsYieldModeNotificationView.swift in Sources */,
 				5D9DCB0C255199AA0059799C /* SecurityModeViewModel.swift in Sources */,
 				B6FE066D2CFFF35300B5EB22 /* RestakingModel.swift in Sources */,
 				B04D81DE2BDA232A0020AAC0 /* APIListUtils.swift in Sources */,
