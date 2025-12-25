@@ -646,7 +646,7 @@ final class TangemPayManager {
         )
     }
 
-    private func sync() {
+    private func syncTokens() {
         guard let paeraCustomer = paeraCustomerSubject.value else {
             stateSubject.value = .unavailable
             return
@@ -671,7 +671,7 @@ extension TangemPayManager: NotificationTapDelegate {
     func didTapNotification(with id: NotificationViewId, action: NotificationButtonActionType) {
         switch action {
         case .tangemPaySync:
-            sync()
+            syncTokens()
 
         default:
             break
