@@ -19,10 +19,14 @@ struct ExpandableAnimatedContent<CollapsedView: View, ExpandedView: View>: Anima
     let cornerRadius: CGFloat
     var progress: Double
 
-    @State private var expandedHeight: CGFloat = 0
-    @State private var collapsedHeight: CGFloat = 0
+    @State private var expandedHeight: CGFloat
+    @State private var collapsedHeight: CGFloat
 
     @Environment(\.displayScale) private var displayScale
+
+    private var eps: CGFloat {
+        1.0 / displayScale
+    }
 
     var animatableData: Double {
         get { progress }
@@ -58,7 +62,7 @@ struct ExpandableAnimatedContent<CollapsedView: View, ExpandedView: View>: Anima
         collapsedView
             .fixedSize(horizontal: false, vertical: true)
             .readGeometry(\.size.height) { height in
-                if abs(collapsedHeight - height) > (1.0 / displayScale) {
+                if abs(collapsedHeight - height) > eps {
                     collapsedHeight = height
                 }
             }
@@ -68,7 +72,7 @@ struct ExpandableAnimatedContent<CollapsedView: View, ExpandedView: View>: Anima
         expandedView
             .fixedSize(horizontal: false, vertical: true)
             .readGeometry(\.size.height) { height in
-                if abs(expandedHeight - height) > (1.0 / displayScale) {
+                if abs(expandedHeight - height) > eps {
                     expandedHeight = height
                 }
             }
@@ -116,6 +120,24 @@ struct ExpandableAnimatedContent<CollapsedView: View, ExpandedView: View>: Anima
         }
 
         return clamp(easedProgress, min: 0, max: 1)
+    }
+
+    init(
+        collapsedView: CollapsedView,
+        expandedView: ExpandedView,
+        initialCollapsedHeight: CGFloat,
+        initialExpandedHeight: CGFloat,
+        backgroundColor: Color,
+        cornerRadius: CGFloat,
+        progress: Double
+    ) {
+        self.collapsedView = collapsedView
+        self.expandedView = expandedView
+        self.backgroundColor = backgroundColor
+        self.cornerRadius = cornerRadius
+        self.progress = progress
+        _collapsedHeight = State(initialValue: initialCollapsedHeight)
+        _expandedHeight = State(initialValue: initialExpandedHeight)
     }
 }
 
