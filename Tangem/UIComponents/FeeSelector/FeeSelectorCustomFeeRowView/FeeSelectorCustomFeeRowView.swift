@@ -19,7 +19,7 @@ struct FeeSelectorCustomFeeRowView: View {
                 Text(viewModel.title)
                     .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
-                if #available(iOS 16.4, *), let tooltip = viewModel.tooltip {
+                if let tooltip = viewModel.tooltip {
                     InfoButtonView(size: .small, tooltipText: tooltip)
                 }
             }

@@ -258,7 +258,7 @@ private extension StakingModel {
         timerTask = runTask(in: self) { model in
             try Task.checkCancellation()
 
-            try await Task.sleep(seconds: 5)
+            try await Task.sleep(for: .seconds(5))
 
             model.log("timer realised")
             model.updateState()

@@ -69,7 +69,7 @@ final class AccountModelsManagerMock {
         withIdentifier identifier: any AccountModelPersistentIdentifierConvertible
     ) async throws(AccountArchivationError) {
         do {
-            try await Task.sleep(seconds: 2) // simulate network call
+            try await Task.sleep(for: .seconds(2)) // simulate network call
             try Task.checkCancellation()
             try await removeCryptoAccount(withIdentifier: identifier.toPersistentIdentifier())
             hasArchivedCryptoAccountsSubject.send(true)
@@ -121,7 +121,7 @@ extension AccountModelsManagerMock: AccountModelsManager {
     }
 
     func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] {
-        try? await Task.sleep(seconds: 2) // simulate network call
+        try? await Task.sleep(for: .seconds(2)) // simulate network call
         try? Task.checkCancellation()
 
         return [
@@ -154,7 +154,7 @@ extension AccountModelsManagerMock: AccountModelsManager {
                 Task { try? await self?.archiveCryptoAccount(withIdentifier: cryptoAccountModel.id) }
             }
 
-            try await Task.sleep(seconds: 2) // simulate network call
+            try await Task.sleep(for: .seconds(2)) // simulate network call
             try Task.checkCancellation()
 
             try await unarchivedCryptoAccount.edit { editor in

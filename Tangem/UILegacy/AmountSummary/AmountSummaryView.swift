@@ -47,7 +47,7 @@ struct AmountSummaryView: View {
 }
 
 #Preview {
-    GroupedScrollView(spacing: 14) {
+    GroupedScrollView(contentType: .lazy(alignment: .leading, spacing: 14)) {
         GroupedSection(
             [
                 AmountSummaryViewData(

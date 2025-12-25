@@ -39,7 +39,7 @@ struct ExpressView: View {
         ZStack {
             Colors.Background.tertiary.ignoresSafeArea(.all)
 
-            GroupedScrollView(spacing: .zero) {
+            GroupedScrollView(contentType: .lazy(alignment: .center, spacing: .zero)) {
                 VStack(spacing: 14) {
                     swappingViews
 
@@ -54,7 +54,7 @@ struct ExpressView: View {
                 bottomView
             }
             .accessibilityIdentifier(SwapAccessibilityIdentifiers.title)
-            .scrollDismissesKeyboardCompat(.immediately)
+            .scrollDismissesKeyboard(.immediately)
         }
         .navigationBarTitle(Text(Localization.commonSwap), displayMode: .inline)
         .toolbar {

@@ -13,25 +13,36 @@ struct SignInAnalyticsLogger {
 
     private var walletsCount: Int { userWalletRepository.models.count }
 
-    func logSignInEvent(signInType: Analytics.SignInType) {
-        guard let selectedModel = userWalletRepository.selectedModel else {
-            return
-        }
-
-        Analytics.log(event: .signedIn, params: [
-            .signInType: signInType.rawValue,
-            .walletsCount: String(walletsCount),
-            .walletType: Analytics.ParameterValue.seedState(for: selectedModel.hasImportedWallets).rawValue,
-        ])
+    func logSignInEvent(signInType: Analytics.SignInType, userWalletModel: UserWalletModel) {
+        log(
+            event: .signedIn,
+            signInType: signInType,
+            userWalletModel: userWalletModel
+        )
     }
 
     func logSignInButtonWalletEvent(signInType: Analytics.SignInType, userWalletModel: UserWalletModel) {
-        Analytics.log(
+        log(
             event: .signInButtonWallet,
+            signInType: signInType,
+            userWalletModel: userWalletModel
+        )
+    }
+
+    private func log(
+        event: Analytics.Event,
+        signInType: Analytics.SignInType,
+        userWalletModel: UserWalletModel
+    ) {
+        let hasSeedPhrase = userWalletModel.config.productType == .mobileWallet || userWalletModel.hasImportedWallets
+        let walletType = Analytics.ParameterValue.seedState(for: hasSeedPhrase)
+
+        Analytics.log(
+            event: event,
             params: [
                 .signInType: signInType.rawValue,
                 .walletsCount: String(walletsCount),
-                .walletType: Analytics.ParameterValue.seedState(for: userWalletModel.hasImportedWallets).rawValue,
+                .walletType: walletType.rawValue,
             ],
             contextParams: .custom(userWalletModel.analyticsContextData)
         )

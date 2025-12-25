@@ -53,11 +53,9 @@ final class UserWalletSettingsViewModel: ObservableObject {
     @Published private var cardSettingsViewModel: DefaultRowViewModel?
     @Published private var referralViewModel: DefaultRowViewModel?
 
-    /// Alert that needs to be shown after a modal sheet is dismissed.
-    /// Used to defer alert display until the presenting sheet (e.g., AccountFormView) closes.
-    /// The alert is stored here temporarily and shown via `showPendingAlertIfNeeded()` in the sheet's `onDismiss` callback.
+    /// Alert for account operations that needs to be shown after a modal sheet is dismissed.
     /// See `UserWalletSettingsCoordinatorView` for the trigger.
-    private var pendingAlert: AlertBinder?
+    private var accountsPendingAlert: AlertBinder?
     private let mobileSettingsUtil: MobileSettingsUtil
 
     private var isNFTEnabled: Bool {
@@ -99,7 +97,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
     }
 
     deinit {
-        assert(pendingAlert == nil, "pendingAlert was not shown before deallocation. If AccountForm is no longer a modal, update the alert display mechanism.")
+        assert(accountsPendingAlert == nil, "accountsPendingAlert was not shown before deallocation. Update the alert display mechanism.")
     }
 
     func onFirstAppear() {
@@ -141,7 +139,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
                 return
             }
 
-            pendingAlert = AlertBuilder.makeAlert(
+            accountsPendingAlert = AlertBuilder.makeAlert(
                 title: Localization.accountsMigrationAlertTitle,
                 message: Localization.accountsMigrationAlertMessage(namesPair.fromName, namesPair.toName),
                 primaryButton: .default(Text(Localization.commonGotIt))
@@ -149,11 +147,11 @@ final class UserWalletSettingsViewModel: ObservableObject {
         }
     }
 
-    func showPendingAlertIfNeeded() {
-        guard let pendingAlert else { return }
+    func showAccountsPendingAlertIfNeeded() {
+        guard let pendingAlert = accountsPendingAlert else { return }
 
         alert = pendingAlert
-        self.pendingAlert = nil
+        accountsPendingAlert = nil
     }
 
     private func loadWalletImage() {
@@ -328,13 +326,13 @@ private extension UserWalletSettingsViewModel {
             case .setAccessCode:
                 mobileAccessCodeViewModel = DefaultRowViewModel(
                     title: Localization.walletSettingsSetAccessCodeTitle,
-                    action: weakify(self, forFunction: UserWalletSettingsViewModel.mobileAccessCodeAction)
+                    action: weakify(self, forFunction: UserWalletSettingsViewModel.mobileAccessCodeTap)
                 )
 
             case .changeAccessCode:
                 mobileAccessCodeViewModel = DefaultRowViewModel(
                     title: Localization.walletSettingsChangeAccessCodeTitle,
-                    action: weakify(self, forFunction: UserWalletSettingsViewModel.mobileAccessCodeAction)
+                    action: weakify(self, forFunction: UserWalletSettingsViewModel.mobileAccessCodeTap)
                 )
 
             case .backup(let needsBackup):
@@ -398,10 +396,12 @@ private extension UserWalletSettingsViewModel {
         setupView()
     }
 
-    func mobileAccessCodeAction() {
-        let hasAccessCode = userWalletModel.config.userWalletAccessCodeStatus.hasAccessCode
-        logMobileAccessCodeTapAnalytics(hasAccessCode: hasAccessCode)
+    func mobileAccessCodeTap() {
+        logMobileAccessCodeTapAnalytics()
+        mobileAccessCodeAction()
+    }
 
+    func mobileAccessCodeAction() {
         runTask(in: self) { viewModel in
             let state = await viewModel.mobileSettingsUtil.calculateAccessCodeState()
 
@@ -447,7 +447,6 @@ private extension UserWalletSettingsViewModel {
     }
 
     func didTapRemoveMobileWallet() {
-        logMobileBackupNeededAnalytics(action: .remove)
         coordinator?.openMobileRemoveWalletNotification(userWalletModel: userWalletModel)
     }
 
@@ -589,7 +588,6 @@ private extension UserWalletSettingsViewModel {
 
     @MainActor
     func openMobileBackupToUpgradeNeeded() {
-        logMobileBackupNeededAnalytics(action: .upgrade)
         coordinator?.openMobileBackupToUpgradeNeeded(
             onBackupRequested: weakify(self, forFunction: UserWalletSettingsViewModel.openBackupMobileWallet)
         )
@@ -716,7 +714,17 @@ private extension UserWalletSettingsViewModel {
 
 private extension UserWalletSettingsViewModel {
     func logScreenOpenedAnalytics() {
-        Analytics.log(.walletSettingsScreenOpened, contextParams: analyticsContextParams)
+        var params: [Analytics.ParameterKey: String] = [:]
+
+        if FeatureProvider.isAvailable(.accounts) {
+            params[.accountsCount] = String(userWalletModel.accountModelsManager.accountModels.cryptoAccountsCount)
+        }
+
+        Analytics.log(
+            event: .walletSettingsScreenOpened,
+            params: params,
+            contextParams: analyticsContextParams
+        )
     }
 
     func logMobileBackupNeededAnalytics(action: Analytics.ParameterValue) {
@@ -730,7 +738,8 @@ private extension UserWalletSettingsViewModel {
         )
     }
 
-    func logMobileAccessCodeTapAnalytics(hasAccessCode: Bool) {
+    func logMobileAccessCodeTapAnalytics() {
+        let hasAccessCode = userWalletModel.config.userWalletAccessCodeStatus.hasAccessCode
         Analytics.log(
             .walletSettingsButtonAccessCode,
             params: [.action: hasAccessCode ? .changing : .set],

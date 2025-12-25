@@ -16,8 +16,8 @@ struct MultipleRewardsView: View {
     @ObservedObject var viewModel: MultipleRewardsViewModel
 
     var body: some View {
-        NavigationView {
-            GroupedScrollView(alignment: .leading, spacing: 14) {
+        NavigationStack {
+            GroupedScrollView(contentType: .lazy(alignment: .leading, spacing: 14)) {
                 GroupedSection(viewModel.targets) { data in
                     StakingTargetView(data: data)
                 }

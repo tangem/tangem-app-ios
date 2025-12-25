@@ -75,7 +75,12 @@ final class ArchivedAccountsViewModel: ObservableObject {
         }
     }
 
+    func onAppear() {
+        Analytics.log(.walletSettingsArchivedAccountsScreenOpened)
+    }
+
     func recoverAccount(_ accountInfo: ArchivedCryptoAccountInfo) {
+        Analytics.log(.walletSettingsButtonRecoverAccount)
         recoverAccountTask?.cancel()
         recoveringAccountId = accountInfo.id
 
@@ -99,6 +104,8 @@ final class ArchivedAccountsViewModel: ObservableObject {
         recoveringAccountId = nil
         coordinator?.close(with: result)
 
+        Analytics.log(.walletSettingsAccountRecovered)
+
         Toast(view: SuccessToast(text: Localization.accountRecoverSuccessMessage))
             .present(layout: .top(padding: 24), type: .temporary(interval: 4))
     }
@@ -107,23 +114,27 @@ final class ArchivedAccountsViewModel: ObservableObject {
     private func handleAccountRecoveryFailure(accountInfo: ArchivedCryptoAccountInfo, error: AccountRecoveryError) {
         recoveringAccountId = nil
 
+        let title: String
         let message: String
         let buttonText: String
 
         switch error {
         case .tooManyAccounts:
+            title = Localization.accountArchivedRecoverErrorTitle
             message = Localization.accountRecoverLimitDialogDescription(AccountModelUtils.maxNumberOfAccounts)
             buttonText = Localization.commonGotIt
         case .duplicateAccountName:
+            title = Localization.accountFormNameAlreadyExistErrorTitle
             message = Localization.accountFormNameAlreadyExistErrorDescription
             buttonText = Localization.commonGotIt
         case .unknownError:
+            title = Localization.commonSomethingWentWrong
             message = Localization.accountGenericErrorDialogMessage
             buttonText = Localization.commonOk
         }
 
         alertBinder = AlertBuilder.makeAlertWithDefaultPrimaryButton(
-            title: Localization.commonSomethingWentWrong,
+            title: title,
             message: message,
             buttonText: buttonText
         )

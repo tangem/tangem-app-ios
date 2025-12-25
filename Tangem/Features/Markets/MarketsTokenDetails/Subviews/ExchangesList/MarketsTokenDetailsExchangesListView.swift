@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct MarketsTokenDetailsExchangesListView: View {
     @ObservedObject var viewModel: MarketsTokenDetailsExchangesListViewModel
@@ -84,6 +85,7 @@ struct MarketsTokenDetailsExchangesListView: View {
         HStack {
             Text(Localization.marketsTokenDetailsExchange)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .accessibilityIdentifier(MarketsAccessibilityIdentifiers.exchangesListTitle)
 
             Spacer()
 
