@@ -14,4 +14,5 @@ protocol MarketsPortfolioContainerRoutable: AnyObject {
     func openExchange(input: ExpressDependenciesInput)
     func openOnramp(input: SendInput, parameters: PredefinedOnrampParameters)
     func openStaking(input: SendInput, stakingManager: any StakingManager)
+    func openYield(input: SendInput, yieldModuleManager: any YieldModuleManager)
 }
