@@ -55,7 +55,7 @@ class MarketsListDataFilterProvider {
         Analytics.log(
             event: .marketsTokensSort,
             params: [
-                .type: _orderTypeValue.value.rawValue.capitalizingFirstLetter(),
+                .type: _orderTypeValue.value.analyticsValue.capitalizingFirstLetter(),
                 .period: _intervalTypeValue.value.rawValue,
             ]
         )
