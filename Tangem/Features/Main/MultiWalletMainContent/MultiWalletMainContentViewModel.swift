@@ -54,6 +54,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private(set) lazy var bottomSheetFooterViewModel = MainBottomSheetFooterViewModel()
 
     @Published private(set) var actionButtonsViewModel: ActionButtonsViewModel?
+    @Published private(set) var tangemPayBannerViewModel: GetTangemPayBannerViewModel?
 
     var isOrganizeTokensVisible: Bool {
         func numberOfTokensInSections<T, U>(_ sections: [SectionModel<T, U>]) -> Int {
@@ -72,6 +73,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     // MARK: - Dependencies
 
     @Injected(\.mobileFinishActivationManager) private var mobileFinishActivationManager: MobileFinishActivationManager
+    @Injected(\.tangemPayAvailabilityRepository) private var tangemPayAvailabilityRepository: TangemPayAvailabilityRepository
 
     private let nftFeatureLifecycleHandler: NFTFeatureLifecycleHandling
     private let userWalletModel: UserWalletModel
@@ -309,25 +311,54 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         }
 
         userWalletModel.tangemPayAccountPublisher
-            .compactMap(\.self)
-            .flatMapLatest(\.tangemPayNotificationManager.notificationPublisher)
+            .flatMapLatest { tangemPayAccount in
+                guard let tangemPayAccount else {
+                    return Just([NotificationViewInput]())
+                        .eraseToAnyPublisher()
+                }
+
+                return tangemPayAccount
+                    .tangemPayNotificationManager
+                    .notificationPublisher
+            }
             .receiveOnMain()
             .assign(to: &$tangemPayNotificationInputs)
 
         userWalletModel.tangemPayAccountPublisher
-            .compactMap(\.self)
-            .flatMapLatest(\.tangemPaySyncInProgressPublisher)
+            .flatMapLatest { tangemPayAccount in
+                guard let tangemPayAccount else {
+                    return Just(false)
+                        .eraseToAnyPublisher()
+                }
+
+                return tangemPayAccount
+                    .tangemPaySyncInProgressPublisher
+            }
             .receiveOnMain()
             .assign(to: &$tangemPaySyncInProgress)
 
         userWalletModel.tangemPayAccountPublisher
-            .compactMap(\.self)
             .withWeakCaptureOf(self)
             .map { viewModel, tangemPayAccount in
-                TangemPayAccountViewModel(tangemPayAccount: tangemPayAccount, router: viewModel)
+                guard let tangemPayAccount else { return nil }
+                return TangemPayAccountViewModel(tangemPayAccount: tangemPayAccount, router: viewModel)
             }
             .receiveOnMain()
             .assign(to: &$tangemPayAccountViewModel)
+
+        tangemPayAvailabilityRepository.shouldShowGetTangemPayBanner
+            .withWeakCaptureOf(self)
+            .map { viewModel, shouldShow in
+                shouldShow
+                    ? GetTangemPayBannerViewModel(
+                        onBannerTap: { [weak viewModel] in
+                            viewModel?.coordinator?.openGetTangemPay()
+                        }
+                    )
+                    : nil
+            }
+            .receiveOnMain()
+            .assign(to: &$tangemPayBannerViewModel)
     }
 
     /// - Note: This method throws an opaque error if the NFT Entrypoint view model is already created and there is no need to update it.
@@ -344,9 +375,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             throw "NFTEntrypointViewModel already created"
         }
 
-        let accountForNFTCollectionsProvider = AccountForNFTCollectionProvider(
-            accountModelsManager: userWalletModel.accountModelsManager
-        )
+        let accountForNFTCollectionsProvider = AccountForNFTCollectionProvider(userWalletModel: userWalletModel)
 
         // [REDACTED_TODO_COMMENT]
         let navigationInput = NFTNavigationInput(
@@ -666,6 +695,12 @@ extension MultiWalletMainContentViewModel {
 // MARK: - TangemPayAccountRoutable
 
 extension MultiWalletMainContentViewModel: TangemPayAccountRoutable {
+    func openTangemPayKYCInProgressPopup(tangemPayAccount: TangemPayAccount) {
+        coordinator?.openTangemPayKYCInProgressPopup(
+            tangemPayAccount: tangemPayAccount
+        )
+    }
+
     func openTangemPayIssuingYourCardPopup() {
         coordinator?.openTangemPayIssuingYourCardPopup()
     }

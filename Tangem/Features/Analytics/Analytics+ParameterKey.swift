@@ -38,6 +38,10 @@ extension Analytics {
         case batch = "Batch"
         case cardsCount = "Cards Count"
         case walletCount = "Wallet Count"
+        case accountsCount = "Accounts Count"
+        case accountName = "Name"
+        case accountColor = "Color"
+        case accountIcon = "Icon"
         case sku = "SKU"
         case amount = "Amount"
         case count = "Count"
@@ -83,6 +87,7 @@ extension Analytics {
         case button = "Button"
         case link = "Link"
         case method = "Method"
+        case appTheme = "App Theme"
         case mobileWallet = "Mobile Wallet"
 
         case fromSummary = "From Summary"

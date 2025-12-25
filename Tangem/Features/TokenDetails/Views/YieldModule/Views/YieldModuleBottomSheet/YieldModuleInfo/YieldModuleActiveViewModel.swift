@@ -53,7 +53,7 @@ final class YieldModuleActiveViewModel: ObservableObject {
     private(set) var walletModel: any WalletModel
     private weak var coordinator: YieldModuleActiveCoordinator?
     private lazy var feeConverter = YieldModuleFeeFormatter(feeCurrency: walletModel.feeTokenItem, token: walletModel.tokenItem)
-    private lazy var dustFilter = DustFilter(feeConverter: feeConverter)
+    private lazy var dustFilter = YieldModuleDustFilter(feeConverter: feeConverter)
 
     private let transactionFlowFactory: YieldModuleTransactionFlowFactory
     private let yieldManagerInteractor: YieldManagerInteractor
@@ -219,7 +219,7 @@ final class YieldModuleActiveViewModel: ObservableObject {
         chartState = .loading
 
         do {
-            try await Task.sleep(seconds: 0.5)
+            try await Task.sleep(for: .seconds(0.5))
             let chartData = try await yieldManagerInteractor.getChartData()
             chartState = .loaded(chartData)
         } catch {
@@ -330,48 +330,5 @@ private extension YieldModuleActiveViewModel {
 
     func createHasUndepositedAmountsNotification(undepositedAmount: String) -> YieldModuleNotificationBannerParams {
         notificationManager.createHasUndepositedAmountsNotification(undepositedAmount: undepositedAmount)
-    }
-}
-
-private extension YieldModuleActiveViewModel {
-    struct DustFilter {
-        let feeConverter: YieldModuleFeeFormatter
-
-        /// Filters the undeposited amount based on fiat value.
-        /// - For major currencies (USD/EUR/etc.), ignores amounts below or equal to 0.1.
-        /// - For other currencies, compares against a configurable minimum top-up threshold.
-        /// Returns nil when the amount is too small to be processed.
-        func filterUndepositedAmount(_ undepositedAmount: Decimal?, minimalTopupAmountInFiat: Decimal?) async -> Decimal? {
-            guard let undepositedAmount,
-                  let undepositedInFiat = try? await feeConverter.convertToFiat(undepositedAmount, currency: .token)
-            else {
-                return nil
-            }
-
-            let selectedCurrency = await AppSettings.shared.selectedCurrencyCode
-            let majorCurrencies = [
-                AppConstants.usdCurrencyCode,
-                AppConstants.eurCurrencyCode,
-                AppConstants.cadCurrencyCode,
-                AppConstants.gbpCurrencyCode,
-                AppConstants.audCurrencyCode,
-            ]
-
-            if majorCurrencies.contains(selectedCurrency) {
-                return undepositedInFiat >= Constants.majorCurrenciesMinUndepositedAmount ? undepositedAmount : nil
-            }
-
-            if let minimalTopupAmountInFiat, undepositedInFiat >= minimalTopupAmountInFiat {
-                return undepositedAmount
-            }
-
-            return nil
-        }
-    }
-}
-
-private extension YieldModuleActiveViewModel.DustFilter {
-    enum Constants {
-        static let majorCurrenciesMinUndepositedAmount: Decimal = 0.1
     }
 }

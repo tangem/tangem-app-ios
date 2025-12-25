@@ -14,19 +14,24 @@ struct MarketsCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: MarketsCoordinator
 
     var body: some View {
-        if let model = coordinator.rootViewModel {
-            NavigationView {
-                ZStack {
-                    MarketsView(viewModel: model)
+        NavigationStack {
+            ZStack {
+                // [REDACTED_TODO_COMMENT]
+                if let marketsViewModel = coordinator.marketsViewModel {
+                    MarketsView(viewModel: marketsViewModel)
                         .navigationLinks(links)
-
-                    sheets
                 }
-                .ignoresSafeArea(.container, edges: .top) // Without it, the content won't go into the safe area top zone on over-scroll
+
+                if let mainMarketsViewModel = coordinator.marketsMainViewModel {
+                    MarketsMainView(viewModel: mainMarketsViewModel)
+                        .navigationLinks(links)
+                }
+
+                sheets
             }
-            .navigationViewStyle(.stack)
-            .tint(Colors.Text.primary1)
+            .ignoresSafeArea(.container, edges: .top) // Without it, the content won't go into the safe area top zone on over-scroll
         }
+        .tint(Colors.Text.primary1)
     }
 
     @ViewBuilder
@@ -43,13 +48,14 @@ struct MarketsCoordinatorView: CoordinatorView {
             }
     }
 
-    @ViewBuilder
     private var links: some View {
         NavHolder()
             .navigation(item: $coordinator.tokenDetailsCoordinator) {
                 MarketsTokenDetailsCoordinatorView(coordinator: $0)
                     .ignoresSafeArea(.container, edges: .top) // Without it, the content won't go into the safe area top zone on over-scroll
             }
-            .emptyNavigationLink()
+            .navigation(item: $coordinator.marketsSearchCoordinator) {
+                MarketsSearchCoordinatorView(coordinator: $0)
+            }
     }
 }

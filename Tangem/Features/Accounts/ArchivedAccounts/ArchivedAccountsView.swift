@@ -18,6 +18,7 @@ struct ArchivedAccountsView: View {
     var body: some View {
         content
             .task { await viewModel.fetchArchivedAccounts() }
+            .onAppear { viewModel.onAppear() }
             .frame(maxWidth: .infinity)
             .background(Colors.Background.secondary.ignoresSafeArea())
             .alert(item: $viewModel.alertBinder, content: { $0.alert })
@@ -43,13 +44,14 @@ struct ArchivedAccountsView: View {
     }
 
     private func makeAccountsView(from models: [ArchivedCryptoAccountInfo]) -> some View {
-        GroupedScrollView(contentType: .lazy(alignment: .center, spacing: 0), showsIndicators: false) {
+        GroupedScrollView(contentType: .lazy(alignment: .center, spacing: 0)) {
             GroupedSection(models) { model in
                 ArchivedAccountRowView(viewData: viewModel.makeAccountRowViewData(for: model))
                     .padding(.vertical, 12)
             }
             .separatorStyle(.none)
         }
+        .scrollIndicators(.hidden)
     }
 
     private var loadingView: some View {

@@ -10,6 +10,7 @@ import Foundation
 import TangemLocalization
 import TangemAssets
 import TangemStaking
+import BlockchainSdk
 
 enum StakingNotificationEvent {
     case approveTransactionInProgress
@@ -27,7 +28,7 @@ enum StakingNotificationEvent {
     case lowStakedBalance
     case maxAmountStaking(reduceAmount: Decimal, reduceAmountFormatted: String)
     case cardanoAdditionalDeposit
-    case amountRequirementError(minAmount: String, currency: String)
+    case amountRequirementError(minAmount: String, blockchain: Blockchain, actionType: StakingAction.ActionType)
     case tonExtraReserveInfo
     case tonUnstaking
     case tonAccountInitialization
@@ -51,8 +52,8 @@ extension StakingNotificationEvent: NotificationEvent {
         case .lowStakedBalance: "lowStakedBalance".hashValue
         case .maxAmountStaking: "maxAmountStaking".hashValue
         case .cardanoAdditionalDeposit: "cardanoAdditionalDeposit".hashValue
-        case .amountRequirementError(let minAmount, let currency):
-            "amountRequirementError\(minAmount)\(currency)".hashValue
+        case .amountRequirementError(let minAmount, let blockchain, let action):
+            "amountRequirementError\(minAmount)\(blockchain.currencySymbol)\(action)".hashValue
         case .tonExtraReserveInfo: "tonAdditionalFee".hashValue
         case .tonUnstaking: "tonUnstaking".hashValue
         case .tonAccountInitialization: "tonAccountInitialization".hashValue
@@ -76,8 +77,8 @@ extension StakingNotificationEvent: NotificationEvent {
         case .lowStakedBalance: .string(Localization.stakingNotificationLowStakedBalanceTitle)
         case .maxAmountStaking: .string(Localization.commonNetworkFeeTitle)
         case .cardanoAdditionalDeposit: .string(Localization.stakingNotificationAdditionalAdaDepositTitle)
-        case .amountRequirementError(_, let currency):
-            .string(Localization.stakingNotificationMinimumBalanceErrorTitle(currency))
+        case .amountRequirementError:
+            .string(Localization.stakingNotificationMinimumBalanceTitle)
         case .tonExtraReserveInfo: .string(Localization.stakingNotificationTonExtraReserveTitle)
         case .tonUnstaking: .string(Localization.stakingNotificationTonHaveToUnstakeAllTitle)
         case .tonAccountInitialization: .string(Localization.stakingNotificationTonAccountInitializationTitle)
@@ -117,8 +118,12 @@ extension StakingNotificationEvent: NotificationEvent {
             Localization.stakingNotificationStakeEntireBalanceText
         case .cardanoAdditionalDeposit:
             Localization.stakingNotificationAdditionalAdaDepositText
-        case .amountRequirementError(let minAmount, let currency):
-            Localization.stakingNotificationMinimumBalanceErrorText(minAmount, currency)
+        case .amountRequirementError(_, .cardano, .stake):
+            Localization.stakingNotificationMinimumStakeAdaText
+        case .amountRequirementError(let minAmount, let blockchain, actionType: .pending(.restake)):
+            Localization.stakingNotificationMinimumBalanceErrorText(minAmount, blockchain.currencySymbol)
+        case .amountRequirementError(let minAmount, _, _):
+            Localization.stakingAmountRequirementError(minAmount)
         case .tonExtraReserveInfo:
             Localization.stakingNotificationTonExtraReserveInfo
         case .tonUnstaking:

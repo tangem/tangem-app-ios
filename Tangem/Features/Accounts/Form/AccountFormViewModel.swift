@@ -24,12 +24,27 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
     @Published var selectedColor: GridItemColor<AccountModel.Icon.Color>
     @Published var selectedIcon: GridItemImage<AccountModel.Icon.Name>
     @Published var alert: AlertBinder?
-    @Published var description: String?
     @Published var isLoading: Bool = false
+    @Published private var totalAccountsCount: Int = 0
 
     // MARK: - Static state
 
     var maxNameLength: Int { AccountModelUtils.maxAccountNameLength }
+
+    var description: String? {
+        switch flowType {
+        case .edit(let account):
+            // [REDACTED_TODO_COMMENT]
+            if let cryptoAccount = account as? any CryptoAccountModel {
+                return cryptoAccount.descriptionString
+            }
+
+            return nil
+
+        case .create:
+            return Localization.accountFormAccountIndex(totalAccountsCount)
+        }
+    }
 
     let colors: [GridItemColor] = AccountModel.Icon.Color
         .allCases
@@ -173,8 +188,16 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
 
     // MARK: - Actions
 
+    func onAppear() {
+        if case .edit = flowType {
+            Analytics.log(.accountSettingsEditScreenOpened)
+        }
+    }
+
     @MainActor
     func onMainButtonTap() {
+        logMainButtonAnalytics()
+
         activeTask = runTask(in: self) { viewModel in
             viewModel.isLoading = true
             defer { viewModel.isLoading = false }
@@ -198,6 +221,26 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
                 viewModel.handleFlowFailure(error: error)
             }
         }.eraseToAnyCancellable()
+    }
+
+    private func logMainButtonAnalytics() {
+        switch flowType {
+        case .edit:
+            Analytics.log(event: .accountSettingsButtonSave, params: [
+                .accountName: accountName,
+                .accountColor: selectedColor.id.rawValue,
+                .accountIcon: selectedIcon.id.rawValue,
+            ])
+        case .create:
+            Analytics.log(event: .accountSettingsButtonAddNewAccount, params: [
+                .accountName: accountName,
+                .accountColor: selectedColor.id.rawValue,
+                .accountIcon: selectedIcon.id.rawValue,
+                // In analytics this field is named "Derivation", but in the form we don't want to
+                // expose any knowledge about derivation — as far as we're concerned, it's the account's ordinal number
+                .derivation: String(totalAccountsCount),
+            ])
+        }
     }
 
     func onClose() {
@@ -246,6 +289,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
         case .edit:
             toastText = Localization.accountEditSuccessMessage
         case .create:
+            Analytics.log(.walletSettingsAccountCreated)
             toastText = Localization.accountCreateSuccessMessage
         }
 
@@ -257,14 +301,28 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
 
     @MainActor
     private func handleFlowFailure(error: AccountEditError) {
+        let source: Analytics.ParameterValue
+        switch flowType {
+        case .edit: source = .accountSourceEdit
+        case .create: source = .accountSourceNew
+        }
+
+        Analytics.log(event: .accountSettingsAccountError, params: [
+            .source: source.rawValue,
+            .errorDescription: String(describing: error),
+        ])
+
+        let title: String
         let message: String
         let buttonText: String
 
         switch error {
         case .tooManyAccounts:
+            title = Localization.accountAddLimitDialogTitle
             message = Localization.accountAddLimitDialogDescription(AccountModelUtils.maxNumberOfAccounts)
             buttonText = Localization.commonGotIt
         case .duplicateAccountName:
+            title = Localization.accountFormNameAlreadyExistErrorTitle
             message = Localization.accountFormNameAlreadyExistErrorDescription
             buttonText = Localization.commonGotIt
         case .accountNameTooLong,
@@ -272,32 +330,24 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
             // These two errors should never be thrown because this VM validates account name before trying to edit/create an account
             fallthrough
         case .unknownError:
+            title = Localization.commonSomethingWentWrong
             message = Localization.accountGenericErrorDialogMessage
             buttonText = Localization.commonOk
         }
 
         alert = AlertBuilder.makeAlertWithDefaultPrimaryButton(
-            title: Localization.commonSomethingWentWrong,
+            title: title,
             message: message,
             buttonText: buttonText
         )
     }
 
     private func setupDescription() {
-        switch flowType {
-        case .edit(let account):
-            // [REDACTED_TODO_COMMENT]
-            if let cryptoAccount = account as? any CryptoAccountModel {
-                description = cryptoAccount.descriptionString
-            }
+        guard case .create = flowType else { return }
 
-        case .create:
-            accountModelsManager.totalAccountsCountPublisher
-                .map { Localization.accountFormAccountIndex($0) }
-                .receiveOnMain()
-                .assign(to: \.description, on: self, ownership: .weak)
-                .store(in: &bag)
-        }
+        accountModelsManager.totalAccountsCountPublisher
+            .receiveOnMain()
+            .assign(to: &$totalAccountsCount)
     }
 
     private static func gridItemImageKind(from accountIconName: AccountModel.Icon.Name) -> GridItemImageKind {

@@ -12,9 +12,11 @@ import TangemFoundation
 final class EtherscanTransactionHistoryMapper {
     private let blockchain: Blockchain
     private var transactionIndicesCounter: [String: Int] = [:]
+    private let aaveTokens: Set<String>?
 
     init(blockchain: Blockchain) {
         self.blockchain = blockchain
+        aaveTokens = AAVETokenRepository.tokens(for: blockchain)
     }
 
     private func mapAmount(
@@ -183,6 +185,8 @@ extension EtherscanTransactionHistoryMapper: TransactionHistoryMapper {
             let index = transactionIndicesCounter[transaction.hash, default: 0]
             transactionIndicesCounter[transaction.hash] = index + 1
 
+            let isFromYieldContract = aaveTokens?.contains(transaction.from.lowercased()) ?? false
+
             return TransactionRecord(
                 hash: transaction.hash,
                 index: index,
@@ -192,7 +196,8 @@ extension EtherscanTransactionHistoryMapper: TransactionHistoryMapper {
                 status: mapStatus(transaction),
                 isOutgoing: isOutgoing,
                 type: mapType(transaction, amountType: amountType),
-                date: Date(timeIntervalSince1970: timeStamp)
+                date: Date(timeIntervalSince1970: timeStamp),
+                isFromYieldContract: isFromYieldContract
             )
         }
     }
