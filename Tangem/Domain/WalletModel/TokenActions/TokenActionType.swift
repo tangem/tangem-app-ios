@@ -10,8 +10,10 @@ import Foundation
 import TangemLocalization
 import TangemAssets
 import TangemAccessibilityIdentifiers
+import TangemMacro
 
-enum TokenActionType: String {
+@RawCaseName
+enum TokenActionType {
     case buy
     case send
     case receive
@@ -21,6 +23,7 @@ enum TokenActionType: String {
     case copyAddress
     case marketsDetails
     case hide
+    case yield(apy: String)
 
     var title: String {
         switch self {
@@ -33,6 +36,7 @@ enum TokenActionType: String {
         case .copyAddress: return Localization.commonCopyAddress
         case .marketsDetails: return Localization.commonAnalytics
         case .hide: return Localization.tokenDetailsHideToken
+        case .yield: return Localization.commonYieldMode
         }
     }
 
@@ -47,6 +51,7 @@ enum TokenActionType: String {
         case .copyAddress: return Assets.Glyphs.copy
         case .marketsDetails: return Assets.chartMini20
         case .hide: return Assets.minusCircle
+        case .yield: return Assets.YieldModule.yieldSupplyAssets
         }
     }
 
@@ -68,11 +73,12 @@ enum TokenActionType: String {
         case .copyAddress: return nil
         case .marketsDetails: return nil
         case .hide: return nil
+        case .yield(let apy): return Localization.yieldModuleMainScreenPromoBannerMessage(apy)
         }
     }
 
     var analyticsParameterValue: String {
-        rawValue.capitalizingFirstLetter()
+        rawCaseValue.capitalizingFirstLetter()
     }
 
     var accessibilityIdentifier: String? {
@@ -87,12 +93,19 @@ enum TokenActionType: String {
             return ActionButtonsAccessibilityIdentifiers.swapButton
         case .sell:
             return ActionButtonsAccessibilityIdentifiers.sellButton
-        case .copyAddress, .hide, .stake, .marketsDetails:
+        case .copyAddress, .hide, .stake, .marketsDetails, .yield:
             return nil
         }
     }
 }
 
-extension TokenActionType: CaseIterable, Identifiable {
-    var id: String { rawValue }
+extension TokenActionType: Identifiable, Hashable {
+    var id: String {
+        let suffix: String = switch self {
+        case .yield(let apy): apy
+        default: .empty
+        }
+
+        return rawCaseValue + suffix
+    }
 }
