@@ -26,6 +26,7 @@ struct ExpressInteractorWalletModelWrapper {
     let interactorAnalyticsLogger: any ExpressInteractorAnalyticsLogger
 
     private let walletModel: any WalletModel
+    private let expressOperationType: ExpressOperationType
 
     private let transactionProcessorFactory: ExpressTransactionProcessorFactory
     private let allowanceServiceFactory: AllowanceServiceFactory
@@ -34,14 +35,22 @@ struct ExpressInteractorWalletModelWrapper {
     private let _feeProvider: any ExpressFeeProvider
     private let _balanceProvider: any ExpressBalanceProvider
 
-    init(userWalletInfo: UserWalletInfo, walletModel: any WalletModel) {
+    init(
+        userWalletInfo: UserWalletInfo,
+        walletModel: any WalletModel,
+        expressOperationType: ExpressOperationType
+    ) {
         self.walletModel = walletModel
+        self.expressOperationType = expressOperationType
 
         id = walletModel.id
         isCustom = walletModel.isCustom
         isMainToken = walletModel.isMainToken
 
-        let headerProvider = ExpressInteractorTokenHeaderProvider(userWalletInfo: userWalletInfo, account: walletModel.account)
+        let headerProvider = ExpressInteractorTokenHeaderProvider(
+            userWalletInfo: userWalletInfo,
+            account: walletModel.account
+        )
         tokenHeader = headerProvider.makeHeader()
         tokenItem = walletModel.tokenItem
         feeTokenItem = walletModel.feeTokenItem
@@ -86,10 +95,19 @@ struct ExpressInteractorWalletModelWrapper {
 // MARK: - ExpressInteractorSourceWallet
 
 extension ExpressInteractorWalletModelWrapper: ExpressInteractorSourceWallet {
-    var supportedProviders: [ExpressProviderType] {
-        switch walletModel.yieldModuleManager?.state?.state {
-        case .active: .yieldActive
-        default: .swap
+    var supportedProvidersFilter: SupportedProvidersFilter {
+        let isYieldModuleActive = walletModel.yieldModuleManager?.state?.state.isActive == true
+
+        switch expressOperationType {
+        case .onramp:
+            return .onramp
+        case .swapAndSend where isYieldModuleActive,
+             .swap where isYieldModuleActive:
+            return .cex
+        case .swapAndSend:
+            return .byDifferentAddressExchangeSupport
+        case .swap:
+            return .swap
         }
     }
 
@@ -121,4 +139,5 @@ extension ExpressInteractorWalletModelWrapper: ExpressInteractorSourceWallet {
 extension ExpressInteractorWalletModelWrapper {
     var feeProvider: any ExpressFeeProvider { _feeProvider }
     var balanceProvider: any ExpressBalanceProvider { _balanceProvider }
+    var operationType: ExpressOperationType { expressOperationType }
 }
