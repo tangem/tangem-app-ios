@@ -7,20 +7,16 @@
 //
 
 enum TangemPayStatus {
-    case kycRequired
-    case readyToIssueOrIssuing
-    case failedToIssue
+    case unavailable
     case active
     case blocked
 
-    case unavailable // 'loadCustomerInfo' failed
-
     var isActive: Bool {
         switch self {
-        case .kycRequired, .readyToIssueOrIssuing, .failedToIssue, .blocked, .unavailable:
-            false
         case .active:
             true
+        case .unavailable, .blocked:
+            false
         }
     }
 }
