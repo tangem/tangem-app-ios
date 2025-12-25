@@ -39,7 +39,7 @@ struct AdaptiveSizeSheetModifier: ViewModifier {
                     viewModel.contentHeight = $0
                 }
         }
-        .scrollDisabledBackport(viewModel.contentHeight <= viewModel.containerHeight)
+        .scrollDisabled(viewModel.contentHeight <= viewModel.containerHeight)
         .readGeometry(\.size.height) {
             viewModel.containerHeight = $0
         }
@@ -47,21 +47,14 @@ struct AdaptiveSizeSheetModifier: ViewModifier {
 }
 
 private extension View {
-    @ViewBuilder
     func presentationDetents(contentHeight: CGFloat, cornerRadius: CGFloat) -> some View {
-        if #available(iOS 16.0, *) {
-            self
-                .presentationDetents([.height(contentHeight)])
-                .presentationDragIndicator(.hidden)
-                .presentationCornerRadiusBackport(cornerRadius)
-        } else {
-            self
-        }
+        presentationDetents([.height(contentHeight)])
+            .presentationDragIndicator(.hidden)
+            .presentationCornerRadius(cornerRadius)
     }
 }
 
 extension View {
-    @ViewBuilder
     func adaptivePresentationDetents() -> some View {
         modifier(AdaptiveSizeSheetModifier())
     }

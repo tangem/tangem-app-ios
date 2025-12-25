@@ -93,6 +93,8 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
             let tokenItem = try enteredTokenItem()
             try checkLocalStorage()
 
+            logAddTokenToNonMainAccountAnalyticsIfNeeded(tokenItem: tokenItem)
+
             // If we didn't find any suitable userTokensManager, we will use current. And if it can't add the token --
             // we will present this error as alert
             let userTokensManager = context.findUserTokensManager(for: tokenItem) ?? context.userTokensManager
@@ -102,8 +104,8 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
                 guard let self else { return }
 
                 switch result {
-                case .success:
-                    logSuccess(tokenItem: tokenItem)
+                case .success(let enrichedTokenItem):
+                    logSuccess(tokenItem: enrichedTokenItem)
                     coordinator?.dismiss()
                 case .failure(let error):
                     if error.isCancellationError {
@@ -460,6 +462,14 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
         params[.source] = settings.analyticsSourceRawValue
 
         Analytics.log(event: .manageTokensCustomTokenWasAdded, params: params)
+    }
+
+    private func logAddTokenToNonMainAccountAnalyticsIfNeeded(tokenItem: TokenItem) {
+        let destination = context.accountDestination(for: tokenItem)
+        ManageTokensAnalyticsLogger.logAddTokenToNonMainAccountIfNeeded(
+            tokenItem: tokenItem,
+            destination: destination
+        )
     }
 
     private func updateDefaultDerivationOption() {

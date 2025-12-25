@@ -19,6 +19,8 @@ protocol MultiWalletMainContentRoutable: SingleTokenBaseRoutable {
     func openYieldModuleActiveInfo(factory: YieldModuleFlowFactory)
     func openYieldModulePromoView(apy: Decimal, factory: YieldModuleFlowFactory)
     func openTangemPayIssuingYourCardPopup()
+    func openTangemPayKYCInProgressPopup(tangemPayAccount: TangemPayAccount)
     func openTangemPayFailedToIssueCardPopup(userWalletModel: UserWalletModel)
     func openTangemPayMainView(userWalletInfo: UserWalletInfo, tangemPayAccount: TangemPayAccount)
+    func openGetTangemPay()
 }

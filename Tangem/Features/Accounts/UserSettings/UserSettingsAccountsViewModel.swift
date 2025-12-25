@@ -66,8 +66,7 @@ final class UserSettingsAccountsViewModel: ObservableObject {
 
     private func bindAccountRows() {
         accountModelsManager
-            .accountModelsPublisher
-            .map { Self.extractVisibleAccounts(from: $0) }
+            .cryptoAccountModelsPublisher
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, accounts in
@@ -128,7 +127,7 @@ final class UserSettingsAccountsViewModel: ObservableObject {
     // MARK: - View Data Factory
 
     private func makeAddNewAccountButtonViewData(from accountModels: [AccountModel]) -> AddListItemButton.ViewData {
-        let accountCount = countAccounts(accountModels)
+        let accountCount = accountModels.cryptoAccountsCount
         let isLimitReached = accountCount >= AccountModelUtils.maxNumberOfAccounts
         let buttonState = makeAddNewAccountButtonState(isLimitReached: isLimitReached)
 
@@ -153,6 +152,7 @@ final class UserSettingsAccountsViewModel: ObservableObject {
     // MARK: - Actions
 
     private func onTapAccount(account: any BaseAccountModel) {
+        Analytics.log(.walletSettingsButtonOpenExistingAccount)
         coordinator?.openAccountDetails(
             account: account,
             accountModelsManager: accountModelsManager,
@@ -161,10 +161,12 @@ final class UserSettingsAccountsViewModel: ObservableObject {
     }
 
     private func onTapArchivedAccounts() {
+        Analytics.log(.walletSettingsButtonArchivedAccounts)
         coordinator?.openArchivedAccounts(accountModelsManager: accountModelsManager)
     }
 
     private func onTapNewAccount() {
+        Analytics.log(.walletSettingsButtonAddAccount)
         coordinator?.addNewAccount(accountModelsManager: accountModelsManager)
     }
 
@@ -195,35 +197,10 @@ final class UserSettingsAccountsViewModel: ObservableObject {
         }
     }
 
-    private static func extractVisibleAccounts(from accountModels: [AccountModel]) -> [any BaseAccountModel] {
-        accountModels.flatMap { accountModel -> [any BaseAccountModel] in
-            switch accountModel {
-            case .standard(.single):
-                // Single accounts are not displayed in the UI
-                return []
-            case .standard(.multiple(let cryptoAccountModels)):
-                return cryptoAccountModels
-            }
-        }
-    }
-
     private static func extractPersistentIdentifier(
         from accountRow: AccountRow
     ) -> any AccountModelPersistentIdentifierConvertible {
         accountRow.accountModel.id
-    }
-
-    private func countAccounts(_ accountModels: [AccountModel]) -> Int {
-        accountModels.reduce(0) { count, accountModel in
-            // When new account types appear, clarify with your manager
-            // Whether those accounts should participate in this logic
-            switch accountModel {
-            case .standard(.single):
-                return count + 1
-            case .standard(.multiple(let cryptoAccountModels)):
-                return count + cryptoAccountModels.count
-            }
-        }
     }
 }
 

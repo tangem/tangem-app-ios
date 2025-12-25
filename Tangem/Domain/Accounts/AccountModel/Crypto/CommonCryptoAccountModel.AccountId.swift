@@ -17,7 +17,7 @@ extension CommonCryptoAccountModel {
         var rawValue: Data {
             let bytes = userWalletId.value + derivationIndex.bytes4
 
-            return bytes.getSha256()
+            return bytes.getSHA256()
         }
 
         private let userWalletId: UserWalletId

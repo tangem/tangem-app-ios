@@ -255,7 +255,7 @@ private extension WCTransactionView {
             }
             .padding(.horizontal, 16)
         }
-        .scrollBounceBehaviorBackport(.basedOnSize)
+        .scrollBounceBehavior(.basedOnSize)
     }
 
     var dappInfoSection: some View {

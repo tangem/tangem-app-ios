@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Regex
 
 extension String {
     var dropTrailingPeriod: SubSequence { hasSuffix(".") ? dropLast(1) : self[...] }
@@ -45,5 +46,16 @@ extension String {
         let regex = try! NSRegularExpression(pattern: "([A-Z])", options: [])
         let range = NSRange(location: 0, length: count)
         return regex.stringByReplacingMatches(in: self, options: [], range: range, withTemplate: "_$1").lowercased()
+    }
+
+    /// Converts string to underscored format (words separated by `_`).
+    ///
+    /// Non-word characters (anything other than letters, numbers, and underscore)
+    /// are replaced with underscores. Leading and trailing underscores are trimmed.
+    func toUnderscoreCase() -> String {
+        let replacingPattern: StaticString = "[^\\w]+"
+        let wordSeparator = "_"
+        let trimmingCharacterSet = CharacterSet(charactersIn: wordSeparator)
+        return replacingAll(matching: replacingPattern, with: wordSeparator).trimmingCharacters(in: trimmingCharacterSet)
     }
 }

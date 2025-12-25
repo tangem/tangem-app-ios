@@ -42,24 +42,22 @@ final class ExpressApproveViewModel: ObservableObject, Identifiable {
     private var bag: Set<AnyCancellable> = []
 
     init(
-        settings: Settings,
-        feeFormatter: FeeFormatter,
-        approveViewModelInput: ApproveViewModelInput,
+        input: Input,
         coordinator: ExpressApproveRoutable
     ) {
-        self.feeFormatter = feeFormatter
-        self.approveViewModelInput = approveViewModelInput
+        feeFormatter = input.feeFormatter
+        approveViewModelInput = input.approveViewModelInput
         self.coordinator = coordinator
 
-        tokenItem = settings.tokenItem
-        feeTokenItem = settings.feeTokenItem
+        tokenItem = input.settings.tokenItem
+        feeTokenItem = input.settings.feeTokenItem
 
-        selectedAction = settings.selectedPolicy
-        subtitle = settings.subtitle
-        feeFooterText = settings.feeFooterText
+        selectedAction = input.settings.selectedPolicy
+        subtitle = input.settings.subtitle
+        feeFooterText = input.settings.feeFooterText
 
         menuRowViewModel = .init(
-            title: Localization.givePermissionRowsAmount(settings.tokenItem.currencySymbol),
+            title: Localization.givePermissionRowsAmount(input.settings.tokenItem.currencySymbol),
             actions: [.unlimited, .specified]
         )
 
@@ -155,7 +153,7 @@ private extension ExpressApproveViewModel {
         runTask(in: self) { viewModel in
             do {
                 try await viewModel.approveViewModelInput.sendApproveTransaction()
-                try await Task.sleep(seconds: 0.3)
+                try await Task.sleep(for: .seconds(0.3))
                 await viewModel.didSendApproveTransaction()
             } catch TransactionDispatcherResult.Error.userCancelled {
                 // Do nothing
@@ -170,6 +168,12 @@ private extension ExpressApproveViewModel {
 }
 
 extension ExpressApproveViewModel {
+    struct Input {
+        let settings: Settings
+        let feeFormatter: FeeFormatter
+        let approveViewModelInput: ApproveViewModelInput
+    }
+
     struct Settings {
         let subtitle: String
         let feeFooterText: String
