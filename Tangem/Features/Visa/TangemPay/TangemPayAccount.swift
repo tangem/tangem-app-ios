@@ -388,10 +388,10 @@ final class PaeraCustomer {
             customerInfo = try await customerInfoManagementService.loadCustomerInfo()
         } catch {
             switch error {
-            case .syncNeeded:
+            case .unauthorized:
                 return .syncNeeded
 
-            case .unavailable:
+            case .otherError:
                 return .unavailable
             }
         }
