@@ -52,12 +52,20 @@ final class AccountsOrganizeOptionsManagerAdapter {
 // MARK: - OrganizeTokensOptionsProviding protocol conformance
 
 extension AccountsOrganizeOptionsManagerAdapter: OrganizeTokensOptionsProviding {
-    var groupingOption: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> {
+    var groupingOption: UserTokensReorderingOptions.Grouping {
         innerSharedOptionsManager.groupingOption
     }
 
-    var sortingOption: AnyPublisher<UserTokensReorderingOptions.Sorting, Never> {
+    var sortingOption: UserTokensReorderingOptions.Sorting {
         innerSharedOptionsManager.sortingOption
+    }
+
+    var groupingOptionPublisher: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> {
+        innerSharedOptionsManager.groupingOptionPublisher
+    }
+
+    var sortingOptionPublisher: AnyPublisher<UserTokensReorderingOptions.Sorting, Never> {
+        innerSharedOptionsManager.sortingOptionPublisher
     }
 }
 
