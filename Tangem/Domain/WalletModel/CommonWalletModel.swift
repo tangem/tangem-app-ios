@@ -334,10 +334,11 @@ extension CommonWalletModel: WalletModel {
     }
 
     var actionsUpdatePublisher: AnyPublisher<Void, Never> {
-        Publishers.Merge3(
+        Publishers.Merge4(
             expressAvailabilityProvider.availabilityDidChangePublisher,
             stakingManagerStatePublisher.mapToVoid(),
-            totalTokenBalanceProvider.balanceTypePublisher.mapToVoid()
+            totalTokenBalanceProvider.balanceTypePublisher.mapToVoid(),
+            (yieldModuleManager?.statePublisher ?? Just(.none).eraseToAnyPublisher()).mapToVoid()
         )
         .eraseToAnyPublisher()
     }
