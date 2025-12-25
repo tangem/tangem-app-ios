@@ -288,18 +288,11 @@ final class PaeraCustomer {
         syncInProgressSubject.eraseToAnyPublisher()
     }
 
-    lazy var tangemPayNotificationManager: TangemPayNotificationManager = .init(
-        syncNeededSignalPublisher: syncNeededSignalSubject.eraseToAnyPublisher(),
-        unavailableSignalPublisher: unavailableSignalSubject.eraseToAnyPublisher(),
-        clearNotificationsSignalPublisher: clearNotificationsSignalSubject.eraseToAnyPublisher()
-    )
+    lazy var tangemPayNotificationManager = TangemPayNotificationManager(paeraCustomerStatePublisher: statePublisher)
 
     private let stateSubject = CurrentValueSubject<State?, Never>(nil)
     private let syncInProgressSubject = CurrentValueSubject<Bool, Never>(false)
 
-    private let syncNeededSignalSubject = PassthroughSubject<Void, Never>()
-    private let unavailableSignalSubject = PassthroughSubject<Void, Never>()
-    private let clearNotificationsSignalSubject = PassthroughSubject<Void, Never>()
     private let orderCancelledSignalSubject = PassthroughSubject<Void, Never>()
 
     @Injected(\.tangemPayAuthorizationTokensRepository)
@@ -345,17 +338,7 @@ final class PaeraCustomer {
     @discardableResult
     func updateState() -> Task<Void, Never> {
         runTask { [self] in
-            let state = await getCurrentState()
-            stateSubject.send(state)
-
-            switch state {
-            case .syncNeeded:
-                syncNeededSignalSubject.send(())
-            case .unavailable:
-                unavailableSignalSubject.send(())
-            case .kyc, .readyToIssueOrIssuing, .failedToIssue, .tangemPayAccount:
-                clearNotificationsSignalSubject.send(())
-            }
+            stateSubject.send(await getCurrentState())
         }
     }
 
