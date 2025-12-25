@@ -274,30 +274,10 @@ struct PaeraCustomerBuilder {
 import TangemMacro
 
 final class PaeraCustomer {
-    @CaseFlagable
-    enum State {
-        case syncNeeded
-        case syncInProgress
-        case unavailable
-
-        case kyc
-        case readyToIssueOrIssuing
-        case failedToIssue
-        case tangemPayAccount(TangemPayAccount)
-    }
-
-    var customerWalletId: String {
-        userWalletId.stringValue
-    }
-
-    let userWalletId: UserWalletId
-    let keysRepository: KeysRepository
-    let tangemPayAuthorizingInteractor: TangemPayAuthorizing
-    let signer: any TangemSigner
-
-    private let stateSubject = CurrentValueSubject<State?, Never>(nil)
-
-    private let orderCancelledSignalSubject = PassthroughSubject<Void, Never>()
+    private let userWalletId: UserWalletId
+    private let keysRepository: KeysRepository
+    private let tangemPayAuthorizingInteractor: TangemPayAuthorizing
+    private let signer: any TangemSigner
 
     @Injected(\.tangemPayAuthorizationTokensRepository)
     private static var tangemPayAuthorizationTokensRepository: TangemPayAuthorizationTokensRepository
@@ -310,6 +290,10 @@ final class PaeraCustomer {
         customerWalletId: customerWalletId,
         customerInfoManagementService: customerInfoManagementService
     )
+
+    private var customerWalletId: String {
+        userWalletId.stringValue
+    }
 
     fileprivate init(userWalletModel: UserWalletModel) {
         userWalletId = userWalletModel.userWalletId
@@ -368,7 +352,7 @@ final class PaeraCustomer {
         try authorizationTokensHandler.saveTokens(tokens: response.tokens)
     }
 
-    func getCurrentState() async -> TangemPayManager.State {
+    func getCurrentState() async -> TangemPayState {
         let customerWalletAddressAndTokens = TangemPayUtilities.getCustomerWalletAddressAndAuthorizationTokens(
             customerWalletId: customerWalletId,
             keysRepository: keysRepository
@@ -397,18 +381,7 @@ final class PaeraCustomer {
         if let productInstance = customerInfo.productInstance {
             switch productInstance.status {
             case .active, .blocked:
-                return .tangemPayAccount(
-                    TangemPayAccountBuilderr(
-                        customerWalletAddress: customerWalletAddress,
-                        customerInfo: customerInfo,
-                        userWalletId: userWalletId,
-                        keysRepository: keysRepository,
-                        signer: signer,
-                        authorizationTokensHandler: authorizationTokensHandler,
-                        customerInfoManagementService: customerInfoManagementService
-                    )
-                    .build()
-                )
+                return .tangemPayReady(customerInfo)
 
             default:
                 break
@@ -426,7 +399,7 @@ final class PaeraCustomer {
             VisaLogger.error("Failed to issue card", error: error)
         }
 
-        return .readyToIssueOrIssuing
+        return .issuingCard
     }
 }
 
@@ -578,24 +551,26 @@ struct TangemPayCardIssuingManager {
     }
 }
 
+@CaseFlagable
+enum TangemPayState {
+    case initial
+
+    case syncNeeded
+    case syncInProgress
+
+    case unavailable
+
+    case kyc
+    case issuingCard
+    case failedToIssueCard
+
+    case tangemPayReady(VisaCustomerInfoResponse)
+}
+
 final class TangemPayManager {
-    @CaseFlagable
-    enum State {
-        case initial
-
-        case syncNeeded
-        case syncInProgress
-        case unavailable
-
-        case kyc
-        case readyToIssueOrIssuing
-        case failedToIssue
-        case tangemPayAccount(TangemPayAccount)
-    }
-
     let tangemPayNotificationManager: TangemPayNotificationManager
 
-    private let stateSubject = CurrentValueSubject<State, Never>(.initial)
+    private let stateSubject = CurrentValueSubject<TangemPayState, Never>(.initial)
     private let paeraCustomerSubject = CurrentValueSubject<PaeraCustomer?, Never>(nil)
 
     init(userWalletModel: UserWalletModel) {
