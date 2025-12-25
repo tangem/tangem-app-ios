@@ -66,11 +66,11 @@ extension TangemPayNotificationManager: NotificationManager {
 private extension PaeraCustomer.State {
     var notificationEvent: TangemPayNotificationEvent? {
         switch self {
-        case .syncNeeded:
+        case .syncNeeded, .syncInProgress:
             .syncNeeded
         case .unavailable:
             .unavailable
-        default:
+        case .kyc, .readyToIssueOrIssuing, .failedToIssue, .tangemPayAccount:
             nil
         }
     }

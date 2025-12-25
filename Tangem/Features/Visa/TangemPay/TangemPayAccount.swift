@@ -263,9 +263,13 @@ struct PaeraCustomerBuilder {
     }
 }
 
+import TangemMacro
+
 final class PaeraCustomer {
+    @CaseFlagable
     enum State {
         case syncNeeded
+        case syncInProgress
         case unavailable
 
         case kyc
@@ -284,14 +288,9 @@ final class PaeraCustomer {
         stateSubject.value
     }
 
-    var syncInProgressPublisher: AnyPublisher<Bool, Never> {
-        syncInProgressSubject.eraseToAnyPublisher()
-    }
-
     lazy var tangemPayNotificationManager = TangemPayNotificationManager(paeraCustomerStatePublisher: statePublisher)
 
     private let stateSubject = CurrentValueSubject<State?, Never>(nil)
-    private let syncInProgressSubject = CurrentValueSubject<Bool, Never>(false)
 
     private let orderCancelledSignalSubject = PassthroughSubject<Void, Never>()
 
@@ -473,14 +472,14 @@ extension PaeraCustomer: NotificationTapDelegate {
         switch action {
         case .tangemPaySync:
             runTask { [self] in
-                syncInProgressSubject.value = true
+                stateSubject.value = .syncInProgress
                 do {
+                    // Changes state under the hood
                     try await authorizeWithCustomerWallet()
                 } catch {
                     VisaLogger.error("Failed to authorize with customer wallet", error: error)
                     stateSubject.value = .unavailable
                 }
-                syncInProgressSubject.value = false
             }
 
         default:
