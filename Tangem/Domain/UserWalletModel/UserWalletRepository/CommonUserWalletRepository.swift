@@ -236,7 +236,6 @@ class CommonUserWalletRepository: UserWalletRepository {
         try? mobileWalletSdk.delete(walletIDs: [userWalletId])
 
         if models.isEmpty {
-            AppSettings.shared.startWalletUsageDate = nil
             lockInternal()
         } else {
             sendEvent(.deleted(userWalletIds: [userWalletId]))
@@ -252,16 +251,6 @@ class CommonUserWalletRepository: UserWalletRepository {
                 userWalletId: userWalletModel.userWalletId,
                 encryptionKey: encryptionKey
             )
-        }
-    }
-
-    private func setStartWalletUsageDateIfNeeded() {
-        guard selectedModel != nil else {
-            return
-        }
-
-        if AppSettings.shared.startWalletUsageDate == nil {
-            AppSettings.shared.startWalletUsageDate = Date()
         }
     }
 
@@ -400,7 +389,6 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private func unlockInternal() {
-        setStartWalletUsageDateIfNeeded()
         _locked = false
         sendEvent(.unlocked)
     }

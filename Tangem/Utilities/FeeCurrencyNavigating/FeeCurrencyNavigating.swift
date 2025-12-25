@@ -9,6 +9,8 @@
 import Foundation
 import TangemFoundation
 
+typealias OpenFeeCurrency = (FeeCurrencyNavigatingDismissOption) -> Void
+
 struct FeeCurrencyNavigatingDismissOption {
     let userWalletId: UserWalletId
     let tokenItem: TokenItem
