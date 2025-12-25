@@ -41,6 +41,15 @@ final class TokenSectionsAdapter {
         self.preservesLastSortedOrderOnSwitchToDragAndDrop = preservesLastSortedOrderOnSwitchToDragAndDrop
     }
 
+    func organizedSections(from walletModels: [any WalletModel]) -> [Section] {
+        makeSections(
+            walletModels: walletModels,
+            userTokens: userTokensManager.userTokens,
+            groupingOption: optionsProviding.groupingOption,
+            sortingOption: optionsProviding.sortingOption
+        )
+    }
+
     func organizedSections(
         from walletModels: some Publisher<[any WalletModel], Never>,
         on workingQueue: DispatchQueue
@@ -48,8 +57,8 @@ final class TokenSectionsAdapter {
         return walletModels
             .combineLatest(
                 userTokensManager.userTokensPublisher,
-                optionsProviding.groupingOption,
-                optionsProviding.sortingOption,
+                optionsProviding.groupingOptionPublisher,
+                optionsProviding.sortingOptionPublisher,
             )
             .receive(on: workingQueue)
             .withWeakCaptureOf(self)
