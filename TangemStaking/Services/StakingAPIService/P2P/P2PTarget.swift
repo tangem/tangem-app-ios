@@ -22,8 +22,6 @@ struct P2PTarget {
         case getVaultsList
         /// Get account summary for a delegator in a vault
         case getAccountSummary(delegatorAddress: String, vaultAddress: String)
-        /// Get rewards history for a delegator in a vault
-        case getRewardsHistory(delegatorAddress: String, vaultAddress: String)
         /// Prepare deposit transaction
         case prepareDepositTransaction(request: P2PDTO.PrepareTransaction.Request)
         /// Prepare unstake transaction
@@ -46,8 +44,6 @@ extension P2PTarget: TargetType {
             return "vaults"
         case .getAccountSummary(let delegatorAddress, let vaultAddress):
             return "account/\(delegatorAddress)/vault/\(vaultAddress)"
-        case .getRewardsHistory(let delegatorAddress, let vaultAddress):
-            return "account/\(delegatorAddress)/vault/\(vaultAddress)/rewards"
         case .prepareDepositTransaction:
             return "staking/deposit"
         case .prepareUnstakeTransaction:
@@ -61,7 +57,7 @@ extension P2PTarget: TargetType {
 
     var method: Moya.Method {
         switch target {
-        case .getVaultsList, .getAccountSummary, .getRewardsHistory:
+        case .getVaultsList, .getAccountSummary:
             return .get
         case .prepareDepositTransaction, .prepareUnstakeTransaction, .prepareWithdrawTransaction, .broadcastTransaction:
             return .post
@@ -70,7 +66,7 @@ extension P2PTarget: TargetType {
 
     var task: Task {
         switch target {
-        case .getVaultsList, .getAccountSummary, .getRewardsHistory:
+        case .getVaultsList, .getAccountSummary:
             return .requestPlain
         case .prepareDepositTransaction(let request):
             return .requestJSONEncodable(request)
@@ -98,7 +94,7 @@ extension P2PTarget: TargetTypeLogConvertible {
 
     var shouldLogResponseBody: Bool {
         switch target {
-        case .getVaultsList, .getAccountSummary, .getRewardsHistory:
+        case .getVaultsList, .getAccountSummary:
             return true
         default:
             return true // [REDACTED_TODO_COMMENT]
