@@ -19,7 +19,7 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
     @Injected(\.safariManager)
     private var safariManager: any SafariManager
 
-    // MARK: - Propeties
+    // MARK: - Properties
 
     let dismissAction: Action<DismissOptions?>
     let popToRootAction: Action<PopToRootOptions>
