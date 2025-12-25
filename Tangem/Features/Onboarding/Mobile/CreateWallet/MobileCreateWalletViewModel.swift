@@ -12,6 +12,7 @@ import TangemLocalization
 import TangemMobileWalletSdk
 import TangemFoundation
 import struct TangemUIUtils.AlertBinder
+import TangemSdk
 
 final class MobileCreateWalletViewModel: ObservableObject {
     @Published var isCreating: Bool = false
@@ -116,11 +117,96 @@ extension MobileCreateWalletViewModel {
             alert = mobileWalletFeatureProvider.makeRestrictionAlert()
             return
         }
+
+        #if DEBUG
+        if shouldAutoImportSeed() {
+            runTask(in: self) { viewModel in
+                await viewModel.importWalletWithAutoSeed()
+            }
+            return
+        }
+        #endif
+
         runTask(in: self) { viewModel in
             await viewModel.openImportWallet()
         }
     }
 }
+
+// MARK: - UI Test Support
+
+#if DEBUG
+private extension MobileCreateWalletViewModel {
+    /// Default seed phrase used for UI tests when no custom seed is provided.
+    static let defaultUITestSeedPhrase = "tiny escape drive pupil flavor endless love walk gadget match filter luxury"
+
+    func shouldAutoImportSeed() -> Bool {
+        AppEnvironment.current.isUITest &&
+            ProcessInfo.processInfo.arguments.contains("-uitest-auto-import-seed")
+    }
+
+    /// Imports wallet with predefined seed phrase for UI tests.
+    /// Skips all intermediate screens and goes directly to main screen.
+    func importWalletWithAutoSeed() async {
+        await runOnMain {
+            isCreating = true
+        }
+
+        do {
+            let seed = ProcessInfo.processInfo.environment["UITEST_SEED"]
+                ?? Self.defaultUITestSeedPhrase
+
+            let mnemonic = try Mnemonic(with: seed)
+            let initializer = MobileWalletInitializer()
+
+            let walletInfo = try await initializer.initializeWallet(mnemonic: mnemonic, passphrase: "")
+
+            let userWalletConfig = MobileUserWalletConfig(mobileWalletInfo: walletInfo)
+            let userWalletId = UserWalletId(config: userWalletConfig)
+
+            guard !userWalletRepository.models.contains(where: { $0.userWalletId == userWalletId }) else {
+                throw UserWalletRepositoryError.duplicateWalletAdded
+            }
+
+            if let userWalletId {
+                let walletCreationHelper = WalletCreationHelper(
+                    userWalletId: userWalletId,
+                    userWalletName: nil,
+                    userWalletConfig: userWalletConfig
+                )
+
+                try? await walletCreationHelper.createWallet()
+            }
+
+            guard let userWalletModel = CommonUserWalletModelFactory().makeModel(
+                walletInfo: .mobileWallet(walletInfo),
+                keys: .mobileWallet(keys: walletInfo.keys)
+            ) else {
+                throw UserWalletRepositoryError.cantUnlockWallet
+            }
+
+            // Skip access code for UI tests
+            userWalletModel.update(type: .accessCodeDidSkip)
+
+            try userWalletRepository.add(userWalletModel: userWalletModel)
+
+            await runOnMain {
+                isCreating = false
+                logWalletCreatedAnalytics()
+                logOnboardingFinishedAnalytics()
+                delegate?.onCreateWallet(userWalletModel: userWalletModel)
+            }
+        } catch {
+            AppLogger.error("Failed to import wallet with auto seed", error: error)
+
+            await runOnMain {
+                isCreating = false
+                alert = error.alertBinder
+            }
+        }
+    }
+}
+#endif
 
 // MARK: - Navigation
 
