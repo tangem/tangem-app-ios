@@ -14,7 +14,7 @@ final class TangemPayNotificationManager {
 
     private var cancellable: Cancellable?
 
-    init(paeraCustomerStatePublisher: AnyPublisher<TangemPayManager.State, Never>) {
+    init(paeraCustomerStatePublisher: AnyPublisher<TangemPayState, Never>) {
         cancellable = paeraCustomerStatePublisher
             .map(\.notificationEvent)
             .withWeakCaptureOf(self)
@@ -63,14 +63,14 @@ extension TangemPayNotificationManager: NotificationManager {
 
 // MARK: - PaeraCustomer.State+notificationEvent
 
-private extension TangemPayManager.State {
+private extension TangemPayState {
     var notificationEvent: TangemPayNotificationEvent? {
         switch self {
         case .syncNeeded, .syncInProgress:
             .syncNeeded
         case .unavailable:
             .unavailable
-        case .initial, .kyc, .readyToIssueOrIssuing, .failedToIssue, .tangemPayAccount:
+        case .initial, .kyc, .issuingCard, .failedToIssueCard, .tangemPayReady:
             nil
         }
     }
