@@ -864,6 +864,8 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
             tokenRouter.openExchange(walletModel: walletModel)
         case .stake:
             tokenRouter.openStaking(walletModel: walletModel)
+        case .yield:
+            tokenRouter.openYieldModule(walletModel: walletModel)
         case .marketsDetails, .hide:
             return
         }

@@ -184,14 +184,13 @@ struct MarketsView: View {
                         .frame(height: overlayHeight)
 
                     LazyVStack(spacing: 0) {
-                        if !showSearchResult, case .visible(let apy) = viewModel.stakingNotificationState {
-                            MarketsStakingNotificationView(
-                                apy: apy,
+                        if !showSearchResult, viewModel.yieldModeNotificationVisible {
+                            MarketsYieldModeNotificationView(
                                 openAction: { [viewModel] in
-                                    viewModel.openStakingFiter()
+                                    viewModel.openYieldModeFiter()
                                 },
                                 closeAction: { [viewModel] in
-                                    viewModel.closeStakingNotification()
+                                    viewModel.closeYieldModeNotification()
                                 }
                             )
                         }
