@@ -95,17 +95,6 @@ extension SendFlowBaseDependenciesFactory {
         return factory.makeService(input: input)
     }
 
-    // MARK: - Analytics
-
-    func makeSendAnalyticsLogger(sendType: CommonSendAnalyticsLogger.SendType) -> SendAnalyticsLogger {
-        CommonSendAnalyticsLogger(
-            tokenItem: tokenItem,
-            feeTokenItem: feeTokenItem,
-            feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder(isFixedFee: !shouldShowFeeSelector),
-            sendType: sendType
-        )
-    }
-
     // MARK: - Notifications
 
     func makeSendWithSwapNotificationManager(receiveTokenInput: SendReceiveTokenInput) -> SendNotificationManager {
@@ -139,6 +128,20 @@ extension SendFlowBaseDependenciesFactory {
                 blockchain: tokenItem.blockchain,
                 decimalCount: tokenItem.decimalCount
             )
+        )
+    }
+
+    // MARK: - Analytics
+
+    static func makeSendAnalyticsLogger(
+        walletModel: any WalletModel,
+        sendType: CommonSendAnalyticsLogger.SendType
+    ) -> SendAnalyticsLogger {
+        CommonSendAnalyticsLogger(
+            tokenItem: walletModel.tokenItem,
+            feeTokenItem: walletModel.feeTokenItem,
+            feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder(isFixedFee: !walletModel.shouldShowFeeSelector),
+            sendType: sendType
         )
     }
 }
