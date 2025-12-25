@@ -17,6 +17,7 @@ struct ExpressInteractorTangemPayWalletWrapper: ExpressInteractorTangemPayWallet
     let tokenHeader: ExpressInteractorTokenHeader? = nil
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
+    let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? = nil
 
     let isCustom: Bool = false
     let isMainToken: Bool = false
