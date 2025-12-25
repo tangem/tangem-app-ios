@@ -38,7 +38,6 @@ enum StorageType: String {
     case supportSeedNotificationShownDate = "support_seed_notification_shown_date"
     case userWalletIdsWithNFTEnabled = "user_wallet_ids_with_nft_enabled"
     case marketsTooltipWasShown = "tangem_markets_tooltip_was_shown"
-    case startWalletUsageDate = "tangem_start_wallet_usage_date"
     case startAppUsageDate = "tangem_start_app_usage_date"
     case tronWarningWithdrawTokenDisplayed = "tron_warning_withdraw_token_displayed"
     case applicationUid = "application_uid"
@@ -55,4 +54,5 @@ enum StorageType: String {
     case tangemPayIsKYCHiddenForCustomerWalletId = "tangem_pay_is_kyc_hidden_for_customer_wallet_id"
     case tangemPayShouldShowGetBanner = "tangem_pay_should_show_get_banner"
     case jailbreakWarningWasShown = "jailbreak_warning_was_shown"
+    case showMarketsYieldModeNotification = "show_markets_yield_mode_notification"
 }
