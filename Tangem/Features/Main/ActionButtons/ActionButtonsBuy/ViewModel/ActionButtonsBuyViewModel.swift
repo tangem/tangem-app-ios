@@ -142,15 +142,15 @@ extension ActionButtonsBuyViewModel {
 
         // accounts_fixes_needed_action_buttons_buy
         userWalletModel.userTokensManager.add(tokenItem) { [weak self] result in
-            guard let self, result.error == nil else { return }
+            guard let self, case .success(let enrichedTokenItem) = result else { return }
 
             expressAvailabilityProvider.updateExpressAvailability(
-                for: [tokenItem],
+                for: [enrichedTokenItem],
                 forceReload: true,
                 userWalletId: userWalletModel.userWalletId.stringValue
             )
 
-            handleTokenAdding(tokenItem: tokenItem)
+            handleTokenAdding(tokenItem: enrichedTokenItem)
         }
     }
 

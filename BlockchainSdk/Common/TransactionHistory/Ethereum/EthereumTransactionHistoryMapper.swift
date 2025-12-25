@@ -202,7 +202,7 @@ private extension EthereumTransactionHistoryMapper {
                     return nil
                 }
 
-                let decimalValue = pow(10, transfer.decimals)
+                let decimalValue = transfer.decimals.map { pow(10, $0) } ?? decimalValue
                 let transactionAmount = value / decimalValue
 
                 let source = TransactionRecord.Source(
