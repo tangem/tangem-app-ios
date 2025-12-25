@@ -126,6 +126,8 @@ final class TangemPayAccount {
     private var orderStatusPollingTask: Task<Void, Never>?
     private var accountStateObservingCancellable: Cancellable?
 
+    private weak var kycCancellationDelegate: TangemPayKYCCancellationDelegate?
+
     init(
         authorizer: TangemPayAuthorizer,
         authorizationTokensHandler: TangemPayAuthorizationTokensHandler,
@@ -148,6 +150,10 @@ final class TangemPayAccount {
         bind()
     }
 
+    func setupKYCCancellationDelegate(_ delegate: TangemPayKYCCancellationDelegate) {
+        kycCancellationDelegate = delegate
+    }
+
     func cancelKYC(onFinish: @escaping (Bool) -> Void) {
         runTask(in: self) { account in
             do {
@@ -157,7 +163,14 @@ final class TangemPayAccount {
                         .tangemPayIsKYCHiddenForCustomerWalletId[
                             account.customerWalletId
                         ] = true
+                    AppSettings.shared
+                        .tangemPayIsPaeraCustomer[
+                            account.customerWalletId
+                        ] = false
+                    AppSettings.shared
+                        .tangemPayShouldShowGetBanner = false
                 }
+                account.kycCancellationDelegate?.onKYCCancelled()
                 onFinish(true)
             } catch {
                 VisaLogger.error("Failed to cancel KYC", error: error)
