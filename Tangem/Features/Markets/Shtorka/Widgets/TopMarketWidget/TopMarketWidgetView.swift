@@ -52,7 +52,7 @@ struct TopMarketWidgetView: View {
                 }
             }
         case .error:
-            MarketsMainWidgetErrorView {
+            MarketsListErrorView {
                 viewModel.tryLoadAgain()
             }
         }
