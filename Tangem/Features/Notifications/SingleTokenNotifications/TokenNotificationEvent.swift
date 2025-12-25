@@ -25,6 +25,7 @@ enum TokenNotificationEvent: Hashable {
     case staking(tokenIconInfo: TokenIconInfo, earnUpToFormatted: String)
     case manaLevel(currentMana: String, maxMana: String)
     case maticMigration
+    case cloreMigration
 }
 
 extension TokenNotificationEvent: NotificationEvent {
@@ -56,6 +57,8 @@ extension TokenNotificationEvent: NotificationEvent {
             return .string(Localization.koinosManaLevelTitle)
         case .maticMigration:
             return .string(Localization.warningMaticMigrationTitle)
+        case .cloreMigration:
+            return .string(Localization.warningCloreMigrationTitle)
         }
     }
 
@@ -106,6 +109,8 @@ extension TokenNotificationEvent: NotificationEvent {
             return Localization.koinosManaLevelDescription(currentMana, maxMana)
         case .maticMigration:
             return Localization.warningMaticMigrationMessage
+        case .cloreMigration:
+            return Localization.warningCloreMigrationMessage
         }
     }
 
@@ -125,7 +130,8 @@ extension TokenNotificationEvent: NotificationEvent {
              .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation),
              .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction),
              .hasUnfulfilledRequirements(configuration: .missingTokenTrustline),
-             .staking:
+             .staking,
+             .cloreMigration:
             return .primary
         }
     }
@@ -136,7 +142,8 @@ extension TokenNotificationEvent: NotificationEvent {
             return .init(iconType: .image(Assets.failedCloud.image), color: Colors.Icon.attention)
         case .networkUnreachable,
              .bnbBeaconChainRetirement,
-             .maticMigration:
+             .maticMigration,
+             .cloreMigration:
             return .init(iconType: .image(Assets.attention.image))
         case .rentFee, .noAccount, .existentialDepositWarning, .manaLevel:
             return .init(iconType: .image(Assets.blueCircleWarning.image))
@@ -160,7 +167,8 @@ extension TokenNotificationEvent: NotificationEvent {
              .existentialDepositWarning,
              .staking,
              .manaLevel,
-             .maticMigration:
+             .maticMigration,
+             .cloreMigration:
             return .info
         case .networkUnreachable,
              .networkNotUpdated,
@@ -188,7 +196,8 @@ extension TokenNotificationEvent: NotificationEvent {
              .hasUnfulfilledRequirements(configuration: .missingTokenTrustline),
              .staking,
              .manaLevel,
-             .maticMigration:
+             .maticMigration,
+             .cloreMigration:
             return false
         }
     }
@@ -203,7 +212,8 @@ extension TokenNotificationEvent: NotificationEvent {
              .noAccount,
              .bnbBeaconChainRetirement,
              .manaLevel,
-             .maticMigration:
+             .maticMigration,
+             .cloreMigration:
             return nil
         case .notEnoughFeeForTransaction(let configuration):
             let currencySymbol = configuration.currencyButtonTitle ?? configuration.feeAmountTypeCurrencySymbol
@@ -296,6 +306,7 @@ extension TokenNotificationEvent {
         case .staking: return nil
         case .manaLevel: return nil
         case .maticMigration: return nil
+        case .cloreMigration: return nil
         }
     }
 
@@ -319,7 +330,8 @@ extension TokenNotificationEvent {
              .staking,
              .manaLevel,
              .maticMigration,
-             .networkNotUpdated:
+             .networkNotUpdated,
+             .cloreMigration:
             return [:]
         }
     }
