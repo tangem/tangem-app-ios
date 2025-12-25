@@ -169,6 +169,8 @@ class LockedUserWalletModel: UserWalletModel {
             break
         case .tangemPayOfferAccepted:
             break
+        case .tangemPayKYCDeclined:
+            break
         }
     }
 
