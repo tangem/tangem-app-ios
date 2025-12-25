@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemFoundation
+import TangemStaking
 
 final class MarketTokenItemViewModel: Identifiable, ObservableObject {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
@@ -29,7 +30,7 @@ final class MarketTokenItemViewModel: Identifiable, ObservableObject {
     let name: String
     let symbol: String
     let marketCap: String
-    private(set) var stakingApy: String?
+    let maxApy: String?
     let didTapAction: (() -> Void)?
 
     // MARK: - Private Properties
@@ -64,12 +65,15 @@ final class MarketTokenItemViewModel: Identifiable, ObservableObject {
             self.marketRating = "\(marketRating)"
         }
 
-        if let stakingOpportunity = tokenModel.stakingOpportunities?.first,
-           let apy = Decimal(stringValue: stakingOpportunity.apy) {
-            let percentFormatter = PercentFormatter()
-            let rewardType = stakingOpportunity.rewardType.uppercased()
-            let apyFormatted = percentFormatter.format(apy, option: .staking)
-            stakingApy = rewardType + " " + apyFormatted
+        let apyFormatter = ApyFormatter()
+
+        if let stakingOpportunity = tokenModel.stakingOpportunities?.first {
+            let apyDecimal = Decimal(stringValue: stakingOpportunity.apy)
+            maxApy = apyFormatter.formatStaking(apy: apyDecimal, rewardType: stakingOpportunity.rewardType)
+        } else if let maxYieldApy = tokenModel.maxYieldApy {
+            maxApy = apyFormatter.formatYieldMode(apy: maxYieldApy)
+        } else {
+            maxApy = nil
         }
 
         setupPriceInfo(input: formatViewUpdateInput(

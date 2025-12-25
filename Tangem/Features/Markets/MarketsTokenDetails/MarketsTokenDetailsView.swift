@@ -386,6 +386,7 @@ private extension MarketsTokenDetailsView {
         currentPrice: nil,
         priceChangePercentage: [:],
         marketRating: 1,
+        maxYieldApy: .zero,
         marketCap: 100_000_000_000,
         isUnderMarketCapLimit: false,
         stakingOpportunities: nil
