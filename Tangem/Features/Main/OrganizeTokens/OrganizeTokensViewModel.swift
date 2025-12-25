@@ -165,7 +165,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
         let listFactory = OrganizeTokensListFactory(tokenIconInfoBuilder: tokenIconInfoBuilder)
 
         var listItemViewModels = sections.enumerated().map { index, section in
-            let isListSectionGrouped = isListSectionGrouped(section)
+            let isListSectionGrouped = section.isGrouped
             let isDraggable = section.items.count > 1
             let items = section.items.map { item in
                 listFactory.makeListItemViewModel(
@@ -187,17 +187,6 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
         }
 
         return listItemViewModels
-    }
-
-    private static func isListSectionGrouped(
-        _ section: TokenSectionsAdapter.Section
-    ) -> Bool {
-        switch section.model {
-        case .plain:
-            return false
-        case .group:
-            return true
-        }
     }
 
     private func reportScreenOpened() {
