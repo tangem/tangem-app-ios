@@ -11,8 +11,8 @@ import Moya
 import TangemFoundation
 
 public enum CustomerInfoManagementServiceError: Error {
-    case syncNeeded
-    case unavailable(Error)
+    case unauthorized
+    case otherError(Error)
 }
 
 public protocol CustomerInfoManagementService: AnyObject {
@@ -71,10 +71,10 @@ final class CommonCustomerInfoManagementService {
             try await authorizationTokenHandler.prepare()
         } catch {
             switch error {
-            case .syncNeeded:
-                throw .syncNeeded
-            case .unavailable(let error):
-                throw .unavailable(error)
+            case .unauthorized:
+                throw .unauthorized
+            case .otherError(let error):
+                throw .otherError(error)
             }
         }
 
@@ -87,7 +87,7 @@ final class CommonCustomerInfoManagementService {
                 )
             )
         } catch {
-            throw .unavailable(error)
+            throw .otherError(error)
         }
     }
 }
