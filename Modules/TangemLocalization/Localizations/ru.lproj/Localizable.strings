@@ -392,7 +392,6 @@
 "custom_token_validation_error_not_found" = "Токены могут быть созданы кем угодно. Остерегайтесь мошеннических токенов, они могут ничего не стоить";
 "details_buy_wallet" = "Купить кошелек Tangem";
 "details_chat" = "Чат";
-"details_get_visa" = "Get Tangem Visa";
 "details_manage_security_access_code_description" = "Перед сканированием карты вам нужно будет ввести правильный код доступа.";
 "details_manage_security_access_code" = "Код доступа";
 "details_manage_security_long_tap_description" = "Этот механизм защищает карту или кольцо от бесконтактных атак. Между сканированием и выполнением команды будет добавлена задержка.";
@@ -508,6 +507,7 @@
 "feedback_preface_scan_failed" = "Скажите, пожалуйста, какая у вас карта или кольцо?";
 "feedback_preface_support" = "Привет, команда поддержки,";
 "feedback_preface_tx_failed" = "Пожалуйста, расскажите нам больше о вашей проблеме. Каждая маленькая деталь может помочь.";
+"feedback_subject_backup_problem" = "Backup issue";
 "feedback_subject_pre_activated_wallet" = "Ранее активированный кошелек";
 "feedback_subject_rate_negative" = "Мои предложения";
 "feedback_subject_scan_failed" = "Не могу отсканировать карту/кольцо";
@@ -1326,7 +1326,7 @@
 "tangem_pay_unfreeze_card_failed" = "Не удалось разморозить карту, попробуйте еще раз";
 "tangem_pay_unfreeze_card_success" = "Карта разморожена";
 "tangem_pay_withdrawal" = "Вывести";
-"tangempay_account_unable_to_use_rooted" = "Unable to use on rooted device";
+"tangempay_account_unable_to_use_rooted" = "Запрещено использовать на root-устройствах";
 "tangempay_cancel_kyc" = "Cancel KYC";
 "tangempay_card_details_add_funds_subtitle" = "Способы пополнения";
 "tangempay_card_details_add_funds" = "Пополнить";
@@ -1355,7 +1355,7 @@
 "tangempay_card_details_open_wallet_step_5" = "Всё готово! Можно пользоваться картой";
 "tangempay_card_details_open_wallet_title_apple" = "Добавить карту в Apple Pay";
 "tangempay_card_details_open_wallet_title" = "Добавьте карту в Google Pay";
-"tangempay_card_details_pin_code" = "PIN code";
+"tangempay_card_details_pin_code" = "ПИН-код";
 "tangempay_card_details_receive_description" = "Скопируйте свой адрес или покажите QR";
 "tangempay_card_details_receive_error_description" = "Техническая ошибка. Попробуйте позже или обратитесь в поддержку.";
 "tangempay_card_details_receive_error_title" = "Пополнение недоступно";
@@ -1365,7 +1365,7 @@
 "tangempay_card_details_title" = "Реквизиты";
 "tangempay_card_details_unfreeze_card" = "Разморозить карту";
 "tangempay_card_details_view_pin_code_description" = "Come back to the app if you forget it.";
-"tangempay_card_details_view_pin_code_title" = "Your PIN code";
+"tangempay_card_details_view_pin_code_title" = "Ваш ПИН";
 "tangempay_card_details_withdraw_error_title" = "Вывод сейчас недоступен";
 "tangempay_card_details_withdraw_in_progress_description" = "Вы не можете начать обмен или новый вывод, пока не завершится текущий.";
 "tangempay_card_details_withdraw_in_progress_title" = "Вывод выполняется";
@@ -1390,7 +1390,7 @@
 "tangempay_kyc_failed_title" = "К сожалению, нам не удалось подтвердить вашу личность";
 "tangempay_kyc_in_progress_notification_button" = "Посмотреть статус";
 "tangempay_kyc_in_progress_notification_title" = "KYC в процессе для Tangem Pay";
-"tangempay_kyc_in_progress_popup_description" = "Use the buttons below to view your current KYC status or cancel it.";
+"tangempay_kyc_in_progress_popup_description" = "Вы можете посмотреть текущий статус KYC или отменить его";
 "tangempay_kyc_in_progress" = "KYC в процессе";
 "tangempay_onboarding_banner_description" = "Откройте бесплатную виртуальную карту Tangem Visa";
 "tangempay_onboarding_banner_title" = "Оплачивайте ежедневные покупки в USDC";
@@ -1402,16 +1402,17 @@
 "tangempay_onboarding_security_description" = "Мы создадим отдельный платежный счет без раскрытия ваших активов \nи их адресов";
 "tangempay_onboarding_security_title" = "Абсолютная приватность";
 "tangempay_onboarding_title" = "Откройте виртуальную \nTangem Pay Card";
-"tangempay_payment_account_sync_needed" = "Требуется синхронизация платежного аккаунта";
+"tangempay_payment_account_sync_needed" = "Платежный аккаунт не синхронизирован";
 "tangempay_payment_account" = "Платежный аккаунт";
 "tangempay_service_unavailable_description" = "Мы устраняем техническую проблему. Пожалуйста, попробуйте позже.";
 "tangempay_service_unavailable_title" = "Сервис временно недоступен";
 "tangempay_service_unreachable_try_later" = "Не можем показать данные карты, но оплаты продолжают работать.";
-"tangempay_sync_needed" = "Требуется синхронизация";
+"tangempay_sync_needed_restore_access" = "Restore access";
+"tangempay_sync_needed" = "Не синхронизирован";
 "tangempay_tangem_visa_card" = "Оплачивайте ежедневные покупки в USDC";
 "tangempay_temporarily_unavailable" = "Tangem Pay временно недоступен";
 "tangempay_title" = "Tangem Pay";
-"tangempay_use_tangem_device_to_restore_payment_account" = "Используйте вашу карту или кольцо для восстановления доступа к платежному аккаунту";
+"tangempay_use_tangem_device_to_restore_payment_account" = "Нажмите на кнопку ниже, чтобы восстановить доступ";
 "tangempay_your_pin_code" = "Ваш PIN-код";
 "this_is_my_wallet_title" = "Это мой кошелек";
 "toast_balances_hidden" = "Балансы скрыты";
@@ -1636,6 +1637,8 @@
 "warning_button_ok" = "Понятно!";
 "warning_button_really_cool" = "Очень круто!";
 "warning_button_refresh" = "Обновить";
+"warning_clore_migration_message" = "According to Clore’s official documentation, all tokens received before December 21 will be migrated to Clore (ERC20); tokens received after will not. Transfer solution coming — stay tuned.";
+"warning_clore_migration_title" = "Clore Network Migration";
 "warning_demo_mode_message" = "Вы находитесь в режиме демо";
 "warning_demo_mode_title" = "Демо режим включен";
 "warning_developer_card_message" = "Отсканированная вами карта является картой разработчика. Не используйте ее для создания своего кошелька.";
