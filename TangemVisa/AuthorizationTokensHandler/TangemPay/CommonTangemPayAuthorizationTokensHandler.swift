@@ -9,8 +9,8 @@
 import TangemFoundation
 
 public enum TangemPayAuthorizationTokensHandlerError: Error {
-    case syncNeeded
-    case unavailable(Error)
+    case unauthorized
+    case otherError(Error)
 }
 
 final class CommonTangemPayAuthorizationTokensHandler {
@@ -39,11 +39,11 @@ final class CommonTangemPayAuthorizationTokensHandler {
 
     private func refreshTokenIfNeeded() async throws(TangemPayAuthorizationTokensHandlerError) {
         guard let tokens else {
-            throw .syncNeeded
+            throw .unauthorized
         }
 
         if tokens.refreshTokenExpired {
-            throw .syncNeeded
+            throw .unauthorized
         }
 
         if tokens.accessTokenExpired {
@@ -55,11 +55,11 @@ final class CommonTangemPayAuthorizationTokensHandler {
 
             case .failure(.apiError(let errorWithStatusCode)) where errorWithStatusCode.statusCode == 401:
                 VisaLogger.error("Failed to refresh token", error: errorWithStatusCode.error)
-                throw .syncNeeded
+                throw .unauthorized
 
             case .failure(let error):
                 VisaLogger.error("Failed to refresh token", error: error)
-                throw .unavailable(error)
+                throw .otherError(error)
             }
         }
     }
@@ -93,7 +93,7 @@ extension CommonTangemPayAuthorizationTokensHandler: TangemPayAuthorizationToken
         } catch let error as TangemPayAuthorizationTokensHandlerError {
             throw error
         } catch {
-            throw .unavailable(error)
+            throw .otherError(error)
         }
     }
 }
