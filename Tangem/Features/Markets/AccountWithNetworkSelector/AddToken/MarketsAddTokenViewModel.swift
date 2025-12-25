@@ -211,6 +211,10 @@ final class MarketsAddTokenViewModel: ObservableObject, FloatingSheetContentView
                 .blockchain: tokenItem.blockchain.displayName.capitalizingFirstLetter(),
             ]
         )
+
+        if !account.isMainAccount {
+            Analytics.log(.marketsChartButtonAddTokenToAnotherAccount)
+        }
     }
 }
 
