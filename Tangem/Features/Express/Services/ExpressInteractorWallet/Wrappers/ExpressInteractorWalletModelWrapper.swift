@@ -95,6 +95,10 @@ struct ExpressInteractorWalletModelWrapper {
 // MARK: - ExpressInteractorSourceWallet
 
 extension ExpressInteractorWalletModelWrapper: ExpressInteractorSourceWallet {
+    var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? {
+        walletModel.account
+    }
+
     var supportedProvidersFilter: SupportedProvidersFilter {
         let isYieldModuleActive = walletModel.yieldModuleManager?.state?.state.isActive == true
 
