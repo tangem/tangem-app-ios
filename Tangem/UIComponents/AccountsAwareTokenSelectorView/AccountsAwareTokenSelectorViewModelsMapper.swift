@@ -58,6 +58,20 @@ final class AccountsAwareTokenSelectorViewModelsMapper {
 // MARK: - Private
 
 private extension AccountsAwareTokenSelectorViewModelsMapper {
+    func items(provider: AccountsAwareTokenSelectorCryptoAccountModelItemsProvider) -> [AccountsAwareTokenSelectorItem] {
+        var items = provider.items
+
+        if !searchText.value.isEmpty {
+            items = items.filter { $0.isMatching(searchText: searchText.value) }
+        }
+
+        if let selected = selectedItem.value {
+            items = items.filter { $0.walletModel.tokenItem != selected }
+        }
+
+        return items
+    }
+
     func itemsPublisher(provider: AccountsAwareTokenSelectorCryptoAccountModelItemsProvider) -> AnyPublisher<[AccountsAwareTokenSelectorItem], Never> {
         provider
             .itemsPublisher
@@ -125,6 +139,9 @@ private extension AccountsAwareTokenSelectorViewModelsMapper {
         header: AccountsAwareTokenSelectorAccountViewModel.HeaderType,
         account: AccountsAwareTokenSelectorAccount
     ) -> AccountsAwareTokenSelectorAccountViewModel {
+        let items = items(provider: account.itemsProvider)
+            .map { mapToAccountsAwareTokenSelectorItemViewModel(item: $0) }
+
         let itemsPublisher = itemsPublisher(provider: account.itemsProvider)
             .withWeakCaptureOf(self)
             .map { provider, items in
@@ -132,7 +149,7 @@ private extension AccountsAwareTokenSelectorViewModelsMapper {
             }
             .eraseToAnyPublisher()
 
-        return AccountsAwareTokenSelectorAccountViewModel(header: header, itemsPublisher: itemsPublisher)
+        return AccountsAwareTokenSelectorAccountViewModel(header: header, items: items, itemsPublisher: itemsPublisher)
     }
 
     func mapToAccountsAwareTokenSelectorItemViewModel(item: AccountsAwareTokenSelectorItem) -> AccountsAwareTokenSelectorItemViewModel {
