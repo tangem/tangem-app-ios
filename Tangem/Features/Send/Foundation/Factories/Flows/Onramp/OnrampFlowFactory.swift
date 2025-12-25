@@ -28,6 +28,7 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
     let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let pendingExpressTransactionsManagerBuilder: PendingExpressTransactionsManagerBuilder
     let expressDependenciesFactory: ExpressDependenciesFactory
+    let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
 
     lazy var dependencies = makeOnrampDependencies(
         preferredValues: parameters.preferredValues
@@ -102,6 +103,8 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
 
         let expressDependenciesInput = ExpressDependenciesInput(userWalletInfo: userWalletInfo, source: source)
         expressDependenciesFactory = CommonExpressDependenciesFactory(input: expressDependenciesInput)
+
+        accountModelAnalyticsProvider = walletModel.account
     }
 }
 
