@@ -48,6 +48,8 @@ class BaseTestCase: XCTestCase {
         skipToS: Bool = true,
         clearStorage: Bool = false,
         disableMobileWallet: Bool = false,
+        autoImportSeed: Bool = false,
+        customSeed: String? = nil,
         scenarios: [ScenarioConfig] = []
     ) {
         var arguments = ["--uitesting", "--alpha"]
@@ -76,8 +78,17 @@ class BaseTestCase: XCTestCase {
             arguments.append("-uitest-disable-mobile-wallet")
         }
 
+        if autoImportSeed {
+            arguments.append("-uitest-auto-import-seed")
+        }
+
         app.launchArguments = arguments
-        app.launchEnvironment = ["UITEST": "1"]
+
+        var environment = ["UITEST": "1"]
+        if let seed = customSeed {
+            environment["UITEST_SEED"] = seed
+        }
+        app.launchEnvironment = environment
 
         // Setup WireMock scenarios before launching the app
         setupWireMockScenarios(scenarios)
