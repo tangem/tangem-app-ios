@@ -273,6 +273,9 @@ extension CommonUserWalletModel: UserWalletModel {
 
         case .tangemPayOfferAccepted(let tangemPayAccount):
             _updatePublisher.send(.tangemPayOfferAccepted(tangemPayAccount))
+
+        case .tangemPayKYCDeclined:
+            _updatePublisher.send(.tangemPayKYCDeclined)
         }
     }
 
