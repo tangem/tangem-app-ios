@@ -43,7 +43,12 @@ final class TangemPayOfferViewModel: ObservableObject {
         isLoading = true
         runTask(in: self) { viewModel in
             do {
-                let paeraCustomer = PaeraCustomerBuilder(userWalletModel: userWalletModel).create()
+                let paeraCustomer = PaeraCustomerBuilder.make(
+                    userWalletId: userWalletModel.userWalletId,
+                    keysRepository: userWalletModel.keysRepository,
+                    tangemPayAuthorizingInteractor: userWalletModel.tangemPayAuthorizingInteractor
+                )
+                .create()
                 try await paeraCustomer.authorizeWithCustomerWallet()
                 let state = await paeraCustomer.getCurrentState()
 
