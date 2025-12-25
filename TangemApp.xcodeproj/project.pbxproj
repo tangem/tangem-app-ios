@@ -12863,7 +12863,7 @@
 		B068A7E525678A6E00D28CD2 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
-				D85E20112E8D7A50004174E6 /* UITestsStorageCleaner.swift */,
+				D883E7A32EF0339C0010FE5E /* UITests */,
 				DC6340DE2E1D8037004BFDE5 /* KeychainCleaner.swift */,
 				B0E1C2402C2430B2005309E1 /* AlertBuilders */,
 				B0ED3F022C3D6EC800311DE2 /* AmountFormatters */,
@@ -18091,6 +18091,14 @@
 				D8E851FA2EB0E7870085DAC3 /* MainLongTapActionButtonsUITests.swift */,
 			);
 			path = Main;
+			sourceTree = "<group>";
+		};
+		D883E7A32EF0339C0010FE5E /* UITests */ = {
+			isa = PBXGroup;
+			children = (
+				D85E20112E8D7A50004174E6 /* UITestsStorageCleaner.swift */,
+			);
+			path = UITests;
 			sourceTree = "<group>";
 		};
 		D892E6BE2E95114000D29113 /* Send */ = {
