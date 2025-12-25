@@ -101,9 +101,6 @@ final class AppSettings {
     @AppStorageCompat(StorageType.marketsTooltipWasShown)
     var marketsTooltipWasShown: Bool = false
 
-    @AppStorageCompat(StorageType.startWalletUsageDate)
-    var startWalletUsageDate: Date? = nil
-
     @AppStorageCompat(StorageType.tronWarningWithdrawTokenDisplayed)
     var tronWarningWithdrawTokenDisplayed: Int = 0
 
@@ -145,6 +142,9 @@ final class AppSettings {
 
     @AppStorageCompat(StorageType.jailbreakWarningWasShown)
     var jailbreakWarningWasShown: Bool = false
+
+    @AppStorageCompat(StorageType.showMarketsYieldModeNotification)
+    var showMarketsYieldModeNotification = true
 
     static let shared: AppSettings = .init()
 
