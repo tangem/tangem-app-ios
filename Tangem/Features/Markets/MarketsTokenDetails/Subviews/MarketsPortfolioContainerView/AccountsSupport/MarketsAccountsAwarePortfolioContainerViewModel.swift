@@ -423,6 +423,11 @@ extension MarketsAccountsAwarePortfolioContainerViewModel: MarketsPortfolioConte
             if let stakingManager = walletModel.stakingManager {
                 coordinator.openStaking(input: sendInput, stakingManager: stakingManager)
             }
+        case .yield:
+            Analytics.log(event: .marketsChartButtonYieldMode, params: analyticsParams)
+            if let yieldModuleManager = walletModel.yieldModuleManager {
+                coordinator.openYield(input: sendInput, yieldModuleManager: yieldModuleManager)
+            }
         case .hide, .marketsDetails, .send, .sell, .copyAddress:
             break
         }
