@@ -15,6 +15,7 @@ import TangemFoundation
 
 protocol SendModelRoutable: AnyObject {
     func openNetworkCurrency()
+    func openApproveSheet()
     func openHighPriceImpactWarningSheetViewModel(viewModel: HighPriceImpactWarningSheetViewModel)
     func resetFlow()
     func openAccountInitializationFlow(viewModel: BlockchainAccountInitializationViewModel)
@@ -497,11 +498,11 @@ extension SendModel: SendReceiveTokenAmountInput {
         switch state {
         case .restriction(.requiredRefresh(let error), _):
             return .failure(error)
-        case .idle, .restriction, .permissionRequired, .readyToSwap:
+        case .idle, .restriction:
             return .failure(SendAmountError.noAmount)
         case .loading:
             return .loading
-        case .previewCEX(_, let quote):
+        case .permissionRequired(_, let quote), .readyToSwap(_, let quote), .previewCEX(_, let quote):
             let fiat = receiveToken.tokenItem.currencyId.flatMap { currencyId in
                 balanceConverter.convertToFiat(quote.expectAmount, currencyId: currencyId)
             }
@@ -668,15 +669,18 @@ extension SendModel: SendSummaryInput, SendSummaryOutput {
         case .same:
             return _transaction.map { $0?.value != nil }.eraseToAnyPublisher()
         case .swap:
-            return swapManager.statePublisher.map { state in
-                switch state {
-                case .loading, .permissionRequired, .readyToSwap, .previewCEX:
-                    return true
-                case .idle, .restriction:
-                    return false
+            return swapManager.statePublisher
+                // Avoid button disable / non-disable state jumping
+                .filter { !$0.isRefreshRates }
+                .map { state in
+                    switch state {
+                    case .loading, .readyToSwap, .previewCEX:
+                        return true
+                    case .idle, .restriction, .permissionRequired:
+                        return false
+                    }
                 }
-            }
-            .eraseToAnyPublisher()
+                .eraseToAnyPublisher()
         }
     }
 
@@ -799,6 +803,8 @@ extension SendModel: NotificationTapDelegate {
             reduceAmountTo(amount)
         case .refresh:
             swapManager.update()
+        case .givePermission:
+            router?.openApproveSheet()
         case .generateAddresses,
              .backupCard,
              .goToProvider,
@@ -823,8 +829,7 @@ extension SendModel: NotificationTapDelegate {
              .tangemPaySync,
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
-             .activate,
-             .givePermission:
+             .activate:
             assertionFailure("Notification tap not handled")
         }
     }
