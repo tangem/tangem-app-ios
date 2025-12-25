@@ -58,6 +58,7 @@ class SendModel {
 
     private let balanceConverter = BalanceConverter()
 
+    private var destinationAccountAnalyticsProvider: (any AccountModelAnalyticsProviding)?
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Public interface
@@ -153,7 +154,8 @@ private extension SendModel {
             .sink {
                 $0.swapManager.update(
                     destination: $1.0.receiveToken?.tokenItem,
-                    address: $1.1?.value.transactionAddress
+                    address: $1.1?.value.transactionAddress,
+                    accountModelAnalyticsProvider: $0.destinationAccountAnalyticsProvider
                 )
             }
             .store(in: &bag)
@@ -876,6 +878,15 @@ extension SendModel: SendBaseDataBuilderInput {
 
     var isFeeIncluded: Bool {
         _isFeeIncluded.value
+    }
+}
+
+// MARK: - SendDestinationAccountOutput
+
+extension SendModel: SendDestinationAccountOutput {
+    func setDestinationAccountAnalyticsProvider(_ provider: (any AccountModelAnalyticsProviding)?) {
+        destinationAccountAnalyticsProvider = provider
+        analyticsLogger.setDestinationAnalyticsProvider(provider)
     }
 }
 
