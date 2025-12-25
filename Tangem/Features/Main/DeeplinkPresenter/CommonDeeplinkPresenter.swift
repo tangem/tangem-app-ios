@@ -257,6 +257,7 @@ private extension CommonDeeplinkPresenter {
             currentPrice: nil,
             priceChangePercentage: [:],
             marketRating: nil,
+            maxYieldApy: nil,
             marketCap: nil,
             isUnderMarketCapLimit: nil,
             stakingOpportunities: nil
