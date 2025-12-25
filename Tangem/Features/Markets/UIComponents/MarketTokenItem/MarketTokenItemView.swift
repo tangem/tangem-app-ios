@@ -82,14 +82,16 @@ struct MarketTokenItemView: View {
                 Text(viewModel.marketCap)
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
 
-                if let stakingApy = viewModel.stakingApy {
-                    Text(stakingApy)
+                if let maxApy = viewModel.maxApy {
+                    Text(maxApy)
                         .style(Fonts.Regular.caption2, color: Colors.Text.secondary)
+                        .lineLimit(1)
                         .padding(EdgeInsets(top: 3, leading: 5, bottom: 2, trailing: 5))
                         .overlay(content: {
                             RoundedRectangle(cornerRadius: 5, style: .continuous)
                                 .stroke(Colors.Stroke.primary, lineWidth: 1)
                         })
+                        .layoutPriority(10)
                 }
             }
             .frame(minWidth: 0.32 * textBlockWidth, maxWidth: .infinity, alignment: .leading)
@@ -121,11 +123,11 @@ struct MarketTokenItemView: View {
 
 extension MarketTokenItemView {
     enum Constants {
-        static let textBlockItemsSpacing = 8.0
+        static let textBlockItemsSpacing = 4.0
         static let horizontalViewPadding: CGFloat = 16.0
         static let imageSize: CGSize = .init(bothDimensions: 36)
         static let imageTrailingPadding: CGFloat = 2
-        static let itemsHorizontalSpacing: CGFloat = 12.0
+        static let itemsHorizontalSpacing: CGFloat = 10.0
         static let chartSize: CGSize = .init(width: 56, height: 24)
         static let skeletonMediumWidthValue: String = "---------"
         static let skeletonSmallWidthValue: String = "------"

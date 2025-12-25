@@ -36,6 +36,12 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
                 StakingDetailsCoordinatorView(coordinator: coordinator)
                     .stakingNavigationView()
             }
+            .sheet(item: $coordinator.yieldModulePromoCoordinator) {
+                YieldModulePromoCoordinatorView(coordinator: $0)
+            }
+            .sheet(item: $coordinator.yieldModuleActiveCoordinator) {
+                YieldModuleActiveCoordinatorView(coordinator: $0)
+            }
             .sheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
             }
