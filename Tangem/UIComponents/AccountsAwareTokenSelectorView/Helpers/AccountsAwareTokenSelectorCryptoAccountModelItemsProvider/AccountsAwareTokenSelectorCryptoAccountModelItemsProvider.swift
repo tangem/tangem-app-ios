@@ -9,6 +9,7 @@
 import Combine
 
 protocol AccountsAwareTokenSelectorCryptoAccountModelItemsProvider {
+    var items: [AccountsAwareTokenSelectorItem] { get }
     var itemsPublisher: AnyPublisher<[AccountsAwareTokenSelectorItem], Never> { get }
 }
 
@@ -36,6 +37,13 @@ struct CommonAccountsAwareTokenSelectorCryptoAccountModelItemsProvider {
 // MARK: - AccountsAwareTokenSelectorCryptoAccountModelItemsProvider
 
 extension CommonAccountsAwareTokenSelectorCryptoAccountModelItemsProvider: AccountsAwareTokenSelectorCryptoAccountModelItemsProvider {
+    var items: [AccountsAwareTokenSelectorItem] {
+        tokenSectionsAdapter
+            .organizedSections(from: cryptoAccount.walletModelsManager.walletModels)
+            .flatMap { $0.items.compactMap { $0.walletModel } }
+            .map { mapToAccountsAwareTokenSelectorItem(walletModel: $0) }
+    }
+
     var itemsPublisher: AnyPublisher<[AccountsAwareTokenSelectorItem], Never> {
         let walletModelsPublisher = cryptoAccount.walletModelsManager.walletModelsPublisher
 
