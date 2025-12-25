@@ -46,6 +46,11 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.mobileRemoveWalletViewModel) {
                 MobileRemoveWalletView(viewModel: $0)
             }
+            .onChange(of: coordinator.noActiveCreateOrArchiveAccountFlows) { hasNoFlows in
+                if hasNoFlows {
+                    coordinator.rootViewModel?.showAccountsPendingAlertIfNeeded()
+                }
+            }
     }
 
     private var sheets: some View {
@@ -76,10 +81,10 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
             .sheet(
                 item: $coordinator.accountFormViewModel,
                 onDismiss: {
-                    coordinator.rootViewModel?.showPendingAlertIfNeeded()
+                    coordinator.accountCreationFlowClosed = true
                 }
             ) { viewModel in
-                NavigationView {
+                NavigationStack {
                     AccountFormView(viewModel: viewModel)
                 }
                 .presentation(onDismissalAttempt: viewModel.onClose)

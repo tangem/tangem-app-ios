@@ -16,8 +16,6 @@ import TangemFoundation
 struct MarketsMainView: View {
     @ObservedObject var viewModel: MarketsMainViewModel
 
-    @StateObject private var navigationControllerConfigurator = MarketsViewNavigationControllerConfigurator()
-
     @Environment(\.mainWindowSize) private var mainWindowSize
 
     @Injected(\.overlayContentStateObserver) private var overlayContentStateObserver: OverlayContentStateObserver
@@ -30,7 +28,6 @@ struct MarketsMainView: View {
     @State private var listOverlayVerticalOffset: CGFloat = .zero
     @State private var listOverlayTitleOpacity: CGFloat = 1.0
     @State private var isListContentObscured = false
-    @State private var responderChainIntrospectionTrigger = UUID()
 
     private var defaultBackgroundColor: Color { Colors.Background.tertiary }
 
@@ -58,7 +55,6 @@ struct MarketsMainView: View {
             }
     }
 
-    @ViewBuilder
     private var rootView: some View {
         ZStack {
             Group {
@@ -83,23 +79,7 @@ struct MarketsMainView: View {
         // `navigationControllerConfigurator` won't hide the navigation bar on that page (`Markets Token Details`)
         .navigationTitle("MarketsMainView")
         .navigationBarTitleDisplayMode(.inline)
-        .onWillAppear {
-            navigationControllerConfigurator.setCornerRadius(overlayContentContainer.cornerRadius)
-            // `UINavigationBar` may be installed into the view hierarchy quite late;
-            // therefore, we're triggering introspection in the `viewWillAppear` callback
-            responderChainIntrospectionTrigger = UUID()
-        }
-        .onAppear {
-            navigationControllerConfigurator.setCornerRadius(overlayContentContainer.cornerRadius)
-            // `UINavigationBar` may be installed into the view hierarchy quite late;
-            // therefore, we're triggering introspection in the `onAppear` callback
-            responderChainIntrospectionTrigger = UUID()
-        }
-        .introspectResponderChain(
-            introspectedType: UINavigationController.self,
-            updateOnChangeOf: responderChainIntrospectionTrigger,
-            action: navigationControllerConfigurator.configure(_:)
-        )
+        .injectMarketsNavigationControllerConfigurator()
     }
 
     private var navigationBarBackground: some View {
@@ -125,9 +105,24 @@ struct MarketsMainView: View {
         .infinityFrame(axis: .vertical, alignment: .top)
     }
 
+    @ViewBuilder
     private var searchResultView: some View {
-        // [REDACTED_TODO_COMMENT]
-        MarketsNoResultsStateView()
+        switch viewModel.tokenListViewModel.tokenListLoadingState {
+        case .noResults:
+            noResultsStateView
+        case .error:
+            errorStateView
+        case .loading, .allDataLoaded, .idle:
+            MarketsMainSearchView(
+                headerHeight: headerHeight,
+                scrollTopAnchorId: scrollTopAnchorId,
+                scrollViewFrameCoordinateSpaceName: scrollViewFrameCoordinateSpaceName,
+                searchResultListOverlayTotalHeight: searchResultListOverlayTotalHeight,
+                mainWindowSize: mainWindowSize,
+                updateListOverlayAppearance: updateListOverlayAppearance(contentOffset:),
+                viewModel: viewModel.tokenListViewModel
+            )
+        }
     }
 
     private var defaultListOverlay: some View {
@@ -222,6 +217,20 @@ struct MarketsMainView: View {
             ForEach(viewModel.widgetItems, id: \.id) { item in
                 makeContentView(with: item.content)
             }
+        }
+    }
+
+    private var noResultsStateView: some View {
+        MarketsNoResultsStateView()
+    }
+
+    private var errorStateView: some View {
+        MarketsListErrorView(tryLoadAgain: viewModel.tokenListViewModel.onTryLoadList)
+    }
+
+    private var loadingSkeletons: some View {
+        ForEach(0 ..< 20) { _ in
+            MarketsSkeletonItemView()
         }
     }
 

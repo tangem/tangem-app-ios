@@ -53,11 +53,9 @@ final class UserWalletSettingsViewModel: ObservableObject {
     @Published private var cardSettingsViewModel: DefaultRowViewModel?
     @Published private var referralViewModel: DefaultRowViewModel?
 
-    /// Alert that needs to be shown after a modal sheet is dismissed.
-    /// Used to defer alert display until the presenting sheet (e.g., AccountFormView) closes.
-    /// The alert is stored here temporarily and shown via `showPendingAlertIfNeeded()` in the sheet's `onDismiss` callback.
+    /// Alert for account operations that needs to be shown after a modal sheet is dismissed.
     /// See `UserWalletSettingsCoordinatorView` for the trigger.
-    private var pendingAlert: AlertBinder?
+    private var accountsPendingAlert: AlertBinder?
     private let mobileSettingsUtil: MobileSettingsUtil
 
     private var isNFTEnabled: Bool {
@@ -99,7 +97,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
     }
 
     deinit {
-        assert(pendingAlert == nil, "pendingAlert was not shown before deallocation. If AccountForm is no longer a modal, update the alert display mechanism.")
+        assert(accountsPendingAlert == nil, "accountsPendingAlert was not shown before deallocation. Update the alert display mechanism.")
     }
 
     func onFirstAppear() {
@@ -141,7 +139,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
                 return
             }
 
-            pendingAlert = AlertBuilder.makeAlert(
+            accountsPendingAlert = AlertBuilder.makeAlert(
                 title: Localization.accountsMigrationAlertTitle,
                 message: Localization.accountsMigrationAlertMessage(namesPair.fromName, namesPair.toName),
                 primaryButton: .default(Text(Localization.commonGotIt))
@@ -149,11 +147,11 @@ final class UserWalletSettingsViewModel: ObservableObject {
         }
     }
 
-    func showPendingAlertIfNeeded() {
-        guard let pendingAlert else { return }
+    func showAccountsPendingAlertIfNeeded() {
+        guard let pendingAlert = accountsPendingAlert else { return }
 
         alert = pendingAlert
-        self.pendingAlert = nil
+        accountsPendingAlert = nil
     }
 
     private func loadWalletImage() {
@@ -366,6 +364,7 @@ private extension UserWalletSettingsViewModel {
 
         runTask(in: self) { viewModel in
             if isBackupNeeded {
+                viewModel.logMobileBackupNeededAnalytics(action: .upgrade)
                 await viewModel.openMobileBackupToUpgradeNeeded()
             } else {
                 await viewModel.upgradeMobileWallet()
@@ -409,7 +408,7 @@ private extension UserWalletSettingsViewModel {
             await runOnMain {
                 switch state {
                 case .needsBackup:
-                    viewModel.logMobileBackupNeededToAccessCodeAnalytics()
+                    viewModel.logMobileBackupNeededAnalytics(action: .accessCode)
                     viewModel.openMobileBackupNeeded()
                 case .onboarding(let context):
                     viewModel.openMobileAccessCodeOnboarding(context: context)
@@ -728,12 +727,12 @@ private extension UserWalletSettingsViewModel {
         )
     }
 
-    func logMobileBackupNeededToAccessCodeAnalytics() {
+    func logMobileBackupNeededAnalytics(action: Analytics.ParameterValue) {
         Analytics.log(
             .walletSettingsNoticeBackupFirst,
             params: [
                 .source: .walletSettings,
-                .action: .accessCode,
+                .action: action,
             ],
             contextParams: analyticsContextParams
         )

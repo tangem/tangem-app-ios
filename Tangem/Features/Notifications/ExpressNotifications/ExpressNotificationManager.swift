@@ -222,10 +222,18 @@ class ExpressNotificationManager {
         let source = try interactor.getSourceWallet()
         let sourceTokenItem = source.tokenItem
         let selectedProvider = await interactor.getSelectedProvider()?.provider
+
+        var analyticsParams: [Analytics.ParameterKey: String] = [:]
+        analyticsParams[.sendToken] = sourceTokenItem.currencySymbol
+        analyticsParams[.provider] = selectedProvider?.name
+        analyticsParams[.receiveToken] = interactor.getDestination()?.tokenItem.currencySymbol
+
         let event: ExpressNotificationEvent = .permissionNeeded(
             providerName: selectedProvider?.name ?? "",
-            currencyCode: sourceTokenItem.currencySymbol
+            currencyCode: sourceTokenItem.currencySymbol,
+            analyticsParams: analyticsParams
         )
+
         let notificationsFactory = NotificationsFactory()
         let notification = notificationsFactory.buildNotificationInput(for: event) { [weak self] id, actionType in
             self?.delegate?.didTapNotification(with: id, action: actionType)

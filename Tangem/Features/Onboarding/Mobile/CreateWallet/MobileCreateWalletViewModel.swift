@@ -31,6 +31,8 @@ final class MobileCreateWalletViewModel: ObservableObject {
 
     private let analyticsContextParams: Analytics.ContextParams = .custom(.mobileWallet)
 
+    private var isAppeared = false
+
     private let source: MobileCreateWalletSource
     private weak var coordinator: MobileCreateWalletRoutable?
     private weak var delegate: MobileCreateWalletDelegate?
@@ -50,6 +52,8 @@ final class MobileCreateWalletViewModel: ObservableObject {
 
 extension MobileCreateWalletViewModel {
     func onFirstAppear() {
+        guard !isAppeared else { return }
+        isAppeared = true
         logScreenOpenedAnalytics()
         logOnboardingStartedAnalytics()
     }
@@ -161,9 +165,20 @@ private extension MobileCreateWalletViewModel {
 
 private extension MobileCreateWalletViewModel {
     func logScreenOpenedAnalytics() {
+        let params: [Analytics.ParameterKey: String] = [
+            .source: source.analyticsParameterValue.rawValue,
+        ]
+
         Analytics.log(
-            .onboardingCreateMobileScreenOpened,
-            params: [.source: source.analyticsParameterValue],
+            event: .onboardingCreateMobileScreenOpened,
+            params: params,
+            contextParams: analyticsContextParams
+        )
+
+        Analytics.log(
+            event: .afWalletEntryScreen,
+            params: params,
+            analyticsSystems: [.appsFlyer],
             contextParams: analyticsContextParams
         )
     }
@@ -191,6 +206,13 @@ private extension MobileCreateWalletViewModel {
         Analytics.log(
             event: .walletCreatedSuccessfully,
             params: params,
+            contextParams: analyticsContextParams
+        )
+
+        Analytics.log(
+            event: .afWalletCreatedSuccessfully,
+            params: params,
+            analyticsSystems: [.appsFlyer],
             contextParams: analyticsContextParams
         )
     }

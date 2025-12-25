@@ -307,6 +307,10 @@ struct ProductActivationServiceMock: ProductActivationService {
 }
 
 final class CustomerInfoManagementServiceMock: CustomerInfoManagementService {
+    func cancelKYC() async throws -> TangemPayCancelKYCResponse {
+        return .init()
+    }
+
     func getPin(cardId: String, sessionId: String) async throws -> TangemPayGetPinResponse {
         .init(
             encryptedPin: "",
@@ -380,7 +384,7 @@ final class CustomerInfoManagementServiceMock: CustomerInfoManagementService {
             expirationYear: "",
             pan: .init(secret: "", iv: ""),
             cvv: .init(secret: "", iv: ""),
-            isPINSet: .init()
+            isPinSet: .init()
         )
     }
 

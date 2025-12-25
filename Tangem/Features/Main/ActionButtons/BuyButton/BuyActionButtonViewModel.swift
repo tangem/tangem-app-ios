@@ -138,7 +138,12 @@ extension BuyActionButtonViewModel {
 
 extension BuyActionButtonViewModel {
     private func openBuy() {
-        coordinator?.openBuy(userWalletModel: userWalletModel)
+        if FeatureProvider.isAvailable(.accounts) {
+            let tokenSelectorViewModel = AccountsAwareTokenSelectorViewModel(walletsProvider: .common(), availabilityProvider: .buy())
+            coordinator?.openBuy(tokenSelectorViewModel: tokenSelectorViewModel)
+        } else {
+            coordinator?.openBuy(userWalletModel: userWalletModel)
+        }
     }
 }
 

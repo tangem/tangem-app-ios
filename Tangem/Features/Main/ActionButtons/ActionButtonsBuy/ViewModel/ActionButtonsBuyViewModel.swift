@@ -74,7 +74,10 @@ final class ActionButtonsBuyViewModel: ObservableObject {
 
     private func handleTokenTap(_ token: ActionButtonsTokenSelectorItem) {
         ActionButtonsAnalyticsService.trackTokenClicked(.buy, tokenSymbol: token.infoProvider.tokenItem.currencySymbol)
-        coordinator?.openOnramp(walletModel: token.walletModel, userWalletModel: userWalletModel)
+
+        let sendInput = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: token.walletModel)
+        let parameters = PredefinedOnrampParametersBuilder.makeMoonpayPromotionParametersIfActive()
+        coordinator?.openOnramp(input: sendInput, parameters: parameters)
     }
 }
 
@@ -139,15 +142,15 @@ extension ActionButtonsBuyViewModel {
 
         // accounts_fixes_needed_action_buttons_buy
         userWalletModel.userTokensManager.add(tokenItem) { [weak self] result in
-            guard let self, result.error == nil else { return }
+            guard let self, case .success(let enrichedTokenItem) = result else { return }
 
             expressAvailabilityProvider.updateExpressAvailability(
-                for: [tokenItem],
+                for: [enrichedTokenItem],
                 forceReload: true,
                 userWalletId: userWalletModel.userWalletId.stringValue
             )
 
-            handleTokenAdding(tokenItem: tokenItem)
+            handleTokenAdding(tokenItem: enrichedTokenItem)
         }
     }
 
@@ -173,7 +176,9 @@ extension ActionButtonsBuyViewModel {
         coordinator?.closeAddToPortfolio()
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self, userWalletModel] in
-            self?.coordinator?.openOnramp(walletModel: walletModel, userWalletModel: userWalletModel)
+            let sendInput = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
+            let parameters = PredefinedOnrampParametersBuilder.makeMoonpayPromotionParametersIfActive()
+            self?.coordinator?.openOnramp(input: sendInput, parameters: parameters)
         }
     }
 }
