@@ -438,9 +438,9 @@ extension Analytics {
         case marketsScreenOpened = "[Markets] Markets Screen Opened"
         case marketsTokensSort = "[Markets] Sort By"
         case marketsDataError = "[Markets] Data Error"
-        case marketsNoticeStakingPromo = "[Markets] Notice - Staking Promo"
-        case marketsStakingPromoClosed = "[Markets] Staking Promo Closed"
-        case marketsStakingMoreInfo = "[Markets] Staking More Info"
+        case marketsNoticeYieldModePromo = "[Markets] Notice - Yield Mode Promo"
+        case marketsYieldModePromoClosed = "[Markets] Yield Mode Promo Closed"
+        case marketsYieldModeMoreInfo = "[Markets] Yield Mode More Info"
         case marketsTokenSearch = "[Markets] Token Search"
 
         // MARK: - Markets / Chart
@@ -457,6 +457,7 @@ extension Analytics {
         case marketsChartButtonReceive = "[Markets / Chart] Button - Receive"
         case marketsChartButtonSwap = "[Markets / Chart] Button - Swap"
         case marketsChartButtonStake = "[Markets / Chart] Button - Stake"
+        case marketsChartButtonYieldMode = "[Markets/Charts] Button - Yield Mode"
         case marketsChartDataError = "[Markets / Chart] Data Error"
         case marketsChartExchangesScreenOpened = "[Markets / Chart] Exchanges Screen Opened"
         case marketsChartSecurityScoreInfo = "[Markets / Chart] Security Score Info"
