@@ -1,6 +1,6 @@
 //
-//  MarketsAddTokenView.swift
-//  Tangem
+//  AccountsAwareAddTokenFlowView.swift
+//  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
@@ -11,8 +11,8 @@ import TangemAssets
 import TangemUI
 import TangemLocalization
 
-struct MarketsTokenAccountNetworkSelectorFlowView: View {
-    @ObservedObject var viewModel: MarketsTokenAccountNetworkSelectorFlowViewModel
+struct AccountsAwareAddTokenFlowView: View {
+    @ObservedObject var viewModel: AccountsAwareAddTokenFlowViewModel
 
     var body: some View {
         contentView
@@ -26,16 +26,16 @@ struct MarketsTokenAccountNetworkSelectorFlowView: View {
                 AccountSelectorView(viewModel: accountSelectorViewModel)
                     .transition(.content)
 
-            case .networksSelection(let marketsNetworkSelectorViewModel, _):
-                MarketsNetworkSelectorView(viewModel: marketsNetworkSelectorViewModel)
+            case .networkSelector(let networkSelectorViewModel, _):
+                AccountsAwareNetworkSelectorView(viewModel: networkSelectorViewModel)
                     .transition(.content)
 
             case .addToken(let addTokenViewModel):
-                MarketsAddTokenView(viewModel: addTokenViewModel)
+                AccountsAwareAddTokenView(viewModel: addTokenViewModel)
                     .transition(.content)
 
             case .getToken(let getTokenViewModel):
-                MarketsGetTokenView(viewModel: getTokenViewModel)
+                AccountsAwareGetTokenView(viewModel: getTokenViewModel)
                     .transition(.content)
             }
         }
@@ -50,7 +50,7 @@ struct MarketsTokenAccountNetworkSelectorFlowView: View {
         }
     }
 
-    private func header(from viewState: MarketsTokenAccountNetworkSelectorFlowViewModel.ViewState) -> some View {
+    private func header(from viewState: AccountsAwareAddTokenFlowViewModel.ViewState) -> some View {
         let title: String
         let backButtonAction = viewState.canGoBack ? { viewModel.back() } : nil
         let closeButtonAction = viewState.canBeClosed ? { viewModel.close() } : nil
@@ -59,7 +59,7 @@ struct MarketsTokenAccountNetworkSelectorFlowView: View {
         case .accountSelector:
             title = Localization.commonChooseAccount
 
-        case .networksSelection:
+        case .networkSelector:
             title = Localization.commonChooseNetwork
 
         case .addToken:
@@ -94,8 +94,8 @@ private extension AnyTransition {
     )
 }
 
-extension MarketsTokenAccountNetworkSelectorFlowView {
+extension AccountsAwareAddTokenFlowView {
     private enum Layout {
-        static let scrollViewCoordinateSpace = "MarketsTokenAccountNetworkSelectorFlowView.ScrollView"
+        static let scrollViewCoordinateSpace = "AccountsAwareAddTokenFlowView.ScrollView"
     }
 }
