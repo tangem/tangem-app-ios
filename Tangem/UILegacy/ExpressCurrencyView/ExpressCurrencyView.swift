@@ -74,13 +74,18 @@ struct ExpressCurrencyView<Content: View>: View {
         case (.wallet(let name), .none):
             Text(name)
                 .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
-        case (.account(let name, let icon), .none):
+        case (.account(let prefix, let name, let icon), .none):
             HStack(spacing: 6) {
-                AccountIconView(data: icon)
-                    .settings(.extraSmallSized)
+                Text(prefix)
+                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
-                Text(name)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
+                HStack(spacing: 4) {
+                    AccountIconView(data: icon)
+                        .settings(.extraSmallSized)
+
+                    Text(name)
+                        .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
+                }
             }
         case (_, .insufficientFunds):
             Text(Localization.swappingInsufficientFunds)
