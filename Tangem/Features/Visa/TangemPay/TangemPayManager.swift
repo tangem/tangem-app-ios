@@ -155,8 +155,7 @@ final class TangemPayManager {
                 return
             }
             do {
-                let orderId = try await issueCardIfNeeded(customerWalletAddress: customerWalletAddress)
-                startCardIssuingOrderStatusPolling(orderId: orderId)
+                try await issueCardIfNeededAndStartStatusPolling(customerWalletAddress: customerWalletAddress)
                 stateSubject.value = .issuingCard
             } catch {
                 stateSubject.value = .unavailable
@@ -186,18 +185,16 @@ final class TangemPayManager {
         }
     }
 
-    private func issueCardIfNeeded(customerWalletAddress: String) async throws -> String {
+    private func issueCardIfNeededAndStartStatusPolling(customerWalletAddress: String) async throws {
+        let orderId: String
+
         if let cardIssuingOrderId = TangemPayOrderIdStorage.cardIssuingOrderId(customerWalletId: customerWalletId) {
-            return cardIssuingOrderId
+            orderId = cardIssuingOrderId
+        } else {
+            orderId = try await customerInfoManagementService.placeOrder(customerWalletAddress: customerWalletAddress).id
+            TangemPayOrderIdStorage.saveCardIssuingOrderId(orderId, customerWalletId: customerWalletId)
         }
 
-        let order = try await customerInfoManagementService.placeOrder(customerWalletAddress: customerWalletAddress)
-        TangemPayOrderIdStorage.saveCardIssuingOrderId(order.id, customerWalletId: customerWalletId)
-
-        return order.id
-    }
-
-    private func startCardIssuingOrderStatusPolling(orderId: String) {
         cardIssuingOrderStatusPollingService.startOrderStatusPolling(
             orderId: orderId,
             interval: Constants.cardIssuingOrderPollInterval,
