@@ -27,11 +27,6 @@ class FakeUserWalletModel: UserWalletModel {
         )
     }
 
-    // [REDACTED_TODO_COMMENT]
-    // [REDACTED_INFO]
-    var paeraCustomer: PaeraCustomer? { nil }
-    var paeraCustomerPublisher: AnyPublisher<PaeraCustomer?, Never> { .empty }
-
     private(set) var name: String
     let emailData: [EmailCollectedData] = []
     let backupInput: OnboardingInput? = nil
@@ -83,6 +78,15 @@ class FakeUserWalletModel: UserWalletModel {
 
     var accountModelsManager: AccountModelsManager {
         AccountModelsManagerMock()
+    }
+    
+    var tangemPayManager: TangemPayManager {
+        TangemPayManager(
+            userWalletId: userWalletId,
+            keysRepository: keysRepository,
+            tangemPayAuthorizingInteractor: tangemPayAuthorizingInteractor,
+            signer: signer
+        )
     }
 
     var refcodeProvider: RefcodeProvider? {
