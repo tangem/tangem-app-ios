@@ -47,7 +47,8 @@ struct CommonUserWalletModelFactory {
             let dependencies = CommonUserWalletModelDependencies(
                 userWalletId: userWalletId,
                 config: config,
-                keys: keys
+                keys: keys,
+                walletInfo: walletInfo
             )
         else {
             return nil
@@ -63,9 +64,9 @@ struct CommonUserWalletModelFactory {
             nftManager: dependencies.nftManager,
             keysRepository: dependencies.keysRepository,
             totalBalanceProvider: dependencies.totalBalanceProvider,
-            tangemPayAccountProvider: dependencies.tangemPayAccountProvider,
             userTokensPushNotificationsManager: dependencies.userTokensPushNotificationsManager,
-            accountModelsManager: dependencies.accountModelsManager
+            accountModelsManager: dependencies.accountModelsManager,
+            tangemPayManager: dependencies.tangemPayManager
         )
 
         dependencies.update(from: commonModel)

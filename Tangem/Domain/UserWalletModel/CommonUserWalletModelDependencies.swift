@@ -21,11 +21,13 @@ struct CommonUserWalletModelDependencies {
     let nftManager: NFTManager
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
     let accountModelsManager: AccountModelsManager
+    let tangemPayAuthorizingInteractor: TangemPayAuthorizing
+    let tangemPayManager: TangemPayManager
 
     private var derivationManager: (DerivationManager & DerivationDependenciesConfigurable)?
     private var innerDependencies: InnerDependenciesConfigurable
 
-    init?(userWalletId: UserWalletId, config: UserWalletConfig, keys: WalletKeys) {
+    init?(userWalletId: UserWalletId, config: UserWalletConfig, keys: WalletKeys, walletInfo: WalletInfo) {
         guard
             let walletManagerFactory = try? config.makeAnyWalletManagerFactory(),
             let keysRepositoryEncryptionKey = UserWalletEncryptionKey(config: config)
@@ -111,13 +113,30 @@ struct CommonUserWalletModelDependencies {
         self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
         innerDependencies.configure(with: userTokensPushNotificationsManager)
 
+        tangemPayAuthorizingInteractor = switch walletInfo {
+        case .cardWallet(let cardInfo):
+            TangemPayAuthorizingCardInteractor(with: cardInfo)
+        case .mobileWallet:
+            TangemPayAuthorizingMobileWalletInteractor(
+                userWalletId: userWalletId,
+                userWalletConfig: config
+            )
+        }
+
+        tangemPayManager = TangemPayManager(
+            userWalletId: userWalletId,
+            keysRepository: keysRepository,
+            tangemPayAuthorizingInteractor: tangemPayAuthorizingInteractor,
+            signer: config.tangemSigner
+        )
+
         totalBalanceProvider = Self.makeTotalBalanceProvider(
             userWalletId: userWalletId,
             hasAccounts: hasAccounts,
             accountModelsManager: accountModelsManager,
             walletModelsManager: walletModelsManager,
             derivationManager: derivationManager,
-            tangemPayAccountProvider: tangemPayAccountProvider
+            tangemPayManager: tangemPayManager
         )
 
         nftManager = Self.makeNFTManager(
@@ -145,7 +164,7 @@ private extension CommonUserWalletModelDependencies {
         accountModelsManager: AccountModelsManager,
         walletModelsManager: WalletModelsManager,
         derivationManager: DerivationManager?,
-        tangemPayAccountProvider: any TangemPayAccountProvider
+        tangemPayManager: TangemPayManager
     ) -> TotalBalanceProvider {
         // Create base provider based on accounts mode
         // Note: WalletModelsTotalBalanceProvider must NOT be created when hasAccounts is true,
@@ -171,7 +190,7 @@ private extension CommonUserWalletModelDependencies {
         return TangemPayAwareTotalBalanceProvider(
             totalBalanceProvider: baseProvider,
             tangemPayTotalBalanceProvider: TangemPayTotalBalanceProvider(
-                tangemPayAccountProvider: tangemPayAccountProvider
+                tangemPayManager: tangemPayManager
             )
         )
     }
