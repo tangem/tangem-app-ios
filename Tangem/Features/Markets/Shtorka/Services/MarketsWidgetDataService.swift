@@ -19,6 +19,15 @@ final class CommonMarketsMainWidgetDataService {
     private let _widgetsValueSubject: CurrentValueSubject<[MarketsWidgetModel], Never> = .init([])
     private let _widgetsUpdateStateEventSubject: PassthroughSubject<WidgetLoadingStateEvent, Never> = .init()
 
+    private lazy var widgetsLoadingStates: [MarketsWidgetType: WidgetLoadingState] = {
+        let allCases = MarketsWidgetType.allCases
+        let enabledCases = allCases.filter { isEnabled(for: $0) }
+
+        return enabledCases.reduce(into: [:]) { partialResult, widgetType in
+            partialResult[widgetType] = .loading
+        }
+    }()
+
     // MARK: - Private Implementation
 
     func isEnabled(for type: MarketsWidgetType) -> Bool {
@@ -59,7 +68,7 @@ extension CommonMarketsMainWidgetDataService: MarketsMainWidgetsProvider {
         _widgetsValueSubject.value
     }
 
-    func initializationWidgets() {
+    func reloadWidgets() {
         let widgetTypes = MarketsWidgetType.allCases
 
         let widgetModels = widgetTypes.map {
@@ -78,7 +87,19 @@ extension CommonMarketsMainWidgetDataService: MarketsMainWidgetsProvider {
 
 extension CommonMarketsMainWidgetDataService: MarketsMainWidgetsUpdateHandler {
     func performUpdateLoading(state: WidgetLoadingState, for widgetType: MarketsWidgetType) {
-        _widgetsUpdateStateEventSubject.send(.init(type: widgetType, state: state))
+        widgetsLoadingStates[widgetType] = state
+
+        if widgetsLoadingStates.allSatisfy({ $0.value.isError }) {
+            _widgetsUpdateStateEventSubject.send(.allWidgetsWithError)
+            return
+        }
+
+        if widgetsLoadingStates.values.allSatisfy({ !$0.isLoading }) {
+            _widgetsUpdateStateEventSubject.send(.readyForDisplay)
+            return
+        }
+
+        _widgetsUpdateStateEventSubject.send(.lockedForDisplay)
     }
 }
 
