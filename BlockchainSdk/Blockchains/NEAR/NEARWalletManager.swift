@@ -37,39 +37,26 @@ final class NEARWalletManager: BaseManager {
         fatalError("\(#function) has not been implemented")
     }
 
-    override func update(completion: @escaping (Result<Void, Error>) -> Void) {
+    override func updateWalletManager() async throws {
         let accountId = wallet.address
         let transactionHashes = wallet.pendingTransactions.map(\.hash)
 
-        cancellable = Publishers.CombineLatest3(
-            getProtocolConfig().setFailureType(to: Error.self),
-            networkService.getInfo(accountId: accountId),
-            networkService.getTransactionsInfo(accountId: accountId, transactionHashes: transactionHashes)
-        )
-        .withWeakCaptureOf(self)
-        .tryMap { walletManager, input in
-            let (protocolConfig, accountInfo, transactionsInfo) = input
-            switch accountInfo {
+        do {
+            async let protocolConfig = getProtocolConfig().async()
+            async let accountInfo = networkService.getInfo(accountId: accountId).async()
+            async let transactionsInfo = networkService.getTransactionsInfo(accountId: accountId, transactionHashes: transactionHashes).async()
+
+            switch try await accountInfo {
             case .notInitialized:
-                throw walletManager.makeNoAccountError(using: protocolConfig)
+                let config = try await protocolConfig
+                throw makeNoAccountError(using: config)
             case .initialized(let account):
-                return (account, transactionsInfo, protocolConfig)
+                try await updateWallet(account: account, transactionsInfo: transactionsInfo, protocolConfig: protocolConfig)
             }
+        } catch {
+            wallet.clearAmounts()
+            throw error
         }
-        .sink(
-            receiveCompletion: { [weak self] result in
-                switch result {
-                case .failure(let error):
-                    self?.wallet.clearAmounts()
-                    completion(.failure(error))
-                case .finished:
-                    completion(.success(()))
-                }
-            },
-            receiveValue: { [weak self] account, transactionsInfo, protocolConfig in
-                self?.updateWallet(account: account, transactionsInfo: transactionsInfo, protocolConfig: protocolConfig)
-            }
-        )
     }
 
     private func updateWallet(
