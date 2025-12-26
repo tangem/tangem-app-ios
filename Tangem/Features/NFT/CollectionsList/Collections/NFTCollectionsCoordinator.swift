@@ -154,10 +154,10 @@ extension NFTCollectionsCoordinator: NFTCollectionsListRoutable {
         }
     }
 
-    func openAssetDetails(for asset: NFTAsset, in collection: NFTCollection) {
+    func openAssetDetails(for asset: NFTAsset, in collection: NFTCollection, navigationContext: NFTNavigationContext?) {
         guard
             let options,
-            let input = options.navigationContext as? NFTNavigationInput
+            let input = (navigationContext ?? options.navigationContext) as? NFTNavigationInput
         else {
             return
         }

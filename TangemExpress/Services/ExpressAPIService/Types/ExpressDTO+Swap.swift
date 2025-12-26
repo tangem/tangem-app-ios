@@ -59,6 +59,7 @@ extension ExpressDTO {
                 let id: Provider.Id
                 let name: String
                 let type: ExpressProviderType?
+                let exchangeOnlyWithinSingleAddress: Bool?
                 let imageLarge: String?
                 let imageSmall: String?
                 let termsOfUse: String?

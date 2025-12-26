@@ -63,7 +63,7 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
     ) -> SwapTokenSelectorViewModel {
         SwapTokenSelectorViewModel(
             swapDirection: swapDirection,
-            expressPairsRepository: expressPairsRepository,
+            tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel(walletsProvider: .common(), availabilityProvider: .swap()),
             expressInteractor: expressInteractor,
             coordinator: coordinator
         )
@@ -84,15 +84,17 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
         coordinator: any ExpressApproveRoutable
     ) -> ExpressApproveViewModel {
         ExpressApproveViewModel(
-            settings: .init(
-                subtitle: Localization.givePermissionSwapSubtitle(providerName, "USDT"),
-                feeFooterText: Localization.swapGivePermissionFeeFooter,
-                tokenItem: .token(.tetherMock, .init(.ethereum(testnet: false), derivationPath: .none)),
-                feeTokenItem: .blockchain(.init(.ethereum(testnet: false), derivationPath: .none)),
-                selectedPolicy: selectedPolicy
+            input: .init(
+                settings: .init(
+                    subtitle: Localization.givePermissionSwapSubtitle(providerName, "USDT"),
+                    feeFooterText: Localization.swapGivePermissionFeeFooter,
+                    tokenItem: .token(.tetherMock, .init(.ethereum(testnet: false), derivationPath: .none)),
+                    feeTokenItem: .blockchain(.init(.ethereum(testnet: false), derivationPath: .none)),
+                    selectedPolicy: selectedPolicy
+                ),
+                feeFormatter: feeFormatter,
+                approveViewModelInput: expressInteractor,
             ),
-            feeFormatter: feeFormatter,
-            approveViewModelInput: expressInteractor,
             coordinator: coordinator
         )
     }
@@ -190,20 +192,18 @@ private extension ExpressModulesFactoryMock {
         let expressManager = TangemExpressFactory().makeExpressManager(
             expressAPIProvider: expressAPIProvider,
             expressRepository: expressRepository,
-            supportedProviderTypes: .swap,
-            operationType: .swap,
             transactionValidator: transactionValidator
+        )
+
+        let sender = ExpressInteractorWalletModelWrapper(
+            userWalletInfo: userWalletInfo,
+            walletModel: initialWalletModel,
+            expressOperationType: .swap
         )
 
         let interactor = ExpressInteractor(
             userWalletInfo: userWalletInfo,
-            swappingPair: .init(
-                sender: .success(ExpressInteractorWalletModelWrapper(
-                    userWalletInfo: userWalletInfo,
-                    walletModel: initialWalletModel
-                )),
-                destination: .loading
-            ),
+            swappingPair: .init(sender: .success(sender), destination: .loading),
             expressManager: expressManager,
             expressPairsRepository: expressPairsRepository,
             expressPendingTransactionRepository: pendingTransactionRepository,
