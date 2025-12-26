@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Combine
 import Foundation
 import UIKit
 import TangemSdk
@@ -307,6 +308,10 @@ struct ProductActivationServiceMock: ProductActivationService {
 }
 
 final class CustomerInfoManagementServiceMock: CustomerInfoManagementService {
+    var errorEventPublisher: AnyPublisher<TangemPayApiErrorEvent, Never> {
+        .empty
+    }
+
     func cancelKYC() async throws -> TangemPayCancelKYCResponse {
         return .init()
     }
@@ -318,7 +323,7 @@ final class CustomerInfoManagementServiceMock: CustomerInfoManagementService {
         )
     }
 
-    func loadCustomerInfo() async throws(CustomerInfoManagementServiceError) -> VisaCustomerInfoResponse {
+    func loadCustomerInfo() async throws -> VisaCustomerInfoResponse {
         return .init(
             id: "89983505-cc0f-47d6-b428-eef3e158c5aa",
             state: .active,

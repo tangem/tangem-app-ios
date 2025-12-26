@@ -50,7 +50,7 @@ final class TangemPayOfferViewModel: ObservableObject {
                 )
                 .create()
                 try await paeraCustomer.authorizeWithCustomerWallet()
-                let state = await paeraCustomer.getCurrentState()
+                let state = try await paeraCustomer.getCurrentState()
 
                 // [REDACTED_TODO_COMMENT]
                 // [REDACTED_INFO]
