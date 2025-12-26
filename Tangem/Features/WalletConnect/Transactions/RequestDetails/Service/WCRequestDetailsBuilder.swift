@@ -35,7 +35,6 @@ struct WCRequestDetailsBuilder: Equatable {
         case .bnbSign, .bnbTxConfirmation, .switchChain:
             []
         case .sendTransfer, .getAccountAddresses, .signPsbt, .signMessage:
-            // [REDACTED_TODO_COMMENT]
             []
         }
     }

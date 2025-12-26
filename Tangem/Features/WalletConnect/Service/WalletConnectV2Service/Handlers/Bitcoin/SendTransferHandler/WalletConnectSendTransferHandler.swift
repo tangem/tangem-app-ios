@@ -73,8 +73,6 @@ extension WalletConnectSendTransferHandler: WalletConnectMessageHandler {
 
         let result = try await transactionDispatcher.send(transaction: .transfer(transaction))
 
-        // [REDACTED_TODO_COMMENT]
-
         return .response(AnyCodable(result.hash.lowercased()))
     }
 }
