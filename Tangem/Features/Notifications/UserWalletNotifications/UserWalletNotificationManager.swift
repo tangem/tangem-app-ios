@@ -135,10 +135,6 @@ final class UserWalletNotificationManager {
     }
 
     private func createAndShowPushPermissionNotificationIfNeeded() {
-        guard FeatureProvider.isAvailable(.pushPermissionNotificationBanner) else {
-            return
-        }
-
         pushPermissionNotificationInteractor.showPushPermissionNotificationIfNeeded()
     }
 

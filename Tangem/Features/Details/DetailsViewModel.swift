@@ -329,18 +329,21 @@ private extension DetailsViewModel {
                 action: weakify(self, forFunction: DetailsViewModel.openAddWallet)
             )
         } else {
-            addOrScanNewUserWalletViewModel = DefaultRowViewModel(
-                title: AppSettings.shared.saveUserWallets ? Localization.userWalletListAddButton : Localization.scanCardSettingsButton,
-                detailsType: isScanning ? .loader : .none,
-                action: isScanning ? nil : weakify(self, forFunction: DetailsViewModel.addOrScanNewUserWallet)
-            )
+            addOrScanNewUserWalletViewModel = makeAddOrScanUserWalletViewModel()
         }
     }
 
     func updateAddOrScanNewUserWalletButton() {
-        addOrScanNewUserWalletViewModel?.update(title: AppSettings.shared.saveUserWallets ? Localization.userWalletListAddButton : Localization.scanCardSettingsButton)
-        addOrScanNewUserWalletViewModel?.update(detailsType: isScanning ? .loader : .none)
-        addOrScanNewUserWalletViewModel?.update(action: isScanning ? nil : weakify(self, forFunction: DetailsViewModel.addOrScanNewUserWallet))
+        addOrScanNewUserWalletViewModel = makeAddOrScanUserWalletViewModel()
+    }
+
+    private func makeAddOrScanUserWalletViewModel() -> DefaultRowViewModel {
+        let isSaveUserWallets = AppSettings.shared.saveUserWallets
+        return DefaultRowViewModel(
+            title: isSaveUserWallets ? Localization.userWalletListAddButton : Localization.scanCardSettingsButton,
+            detailsType: isScanning ? .loader : .none,
+            action: isScanning ? nil : weakify(self, forFunction: DetailsViewModel.addOrScanNewUserWallet)
+        )
     }
 
     func setupGetSectionViewModels(shouldShowGetTangemPay: Bool = false) {
