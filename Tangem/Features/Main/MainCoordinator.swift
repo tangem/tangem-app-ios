@@ -603,6 +603,7 @@ extension MainCoordinator: PushNotificationsPermissionRequestDelegate {
 // MARK: - Action buttons buy routable
 
 extension MainCoordinator: ActionButtonsBuyFlowRoutable {
+    // [REDACTED_TODO_COMMENT]
     func openBuy(userWalletModel: some UserWalletModel) {
         let coordinator = coordinatorFactory.makeBuyCoordinator(
             dismissAction: { [weak self] _ in
@@ -619,14 +620,18 @@ extension MainCoordinator: ActionButtonsBuyFlowRoutable {
         actionButtonsBuyCoordinator = coordinator
     }
 
-    func openBuy(tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel) {
+    func openBuy(userWalletModels: [UserWalletModel]) {
         let coordinator = coordinatorFactory.makeBuyCoordinator(
             dismissAction: { [weak self] _ in
                 self?.actionButtonsBuyCoordinator = nil
             }
         )
 
-        coordinator.start(with: .new(tokenSelectorViewModel: tokenSelectorViewModel))
+        let options = ActionButtonsBuyCoordinator.Options.AccountsAwareActionButtonBuyCoordinatorOptions(
+            userWalletModels: userWalletModels
+        )
+
+        coordinator.start(with: .new(options: options))
         actionButtonsBuyCoordinator = coordinator
     }
 }
