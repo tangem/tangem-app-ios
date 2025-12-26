@@ -659,7 +659,8 @@ final class TangemPayManager {
                 stateSubject.value = await paeraCustomer.getCurrentState()
             } catch {
                 VisaLogger.error("Failed to authorize with customer wallet", error: error)
-                stateSubject.value = .unavailable
+                // [REDACTED_TODO_COMMENT]
+                stateSubject.value = .syncNeeded
             }
         }
     }
