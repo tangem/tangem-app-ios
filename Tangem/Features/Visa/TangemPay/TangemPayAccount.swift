@@ -454,10 +454,6 @@ final class PaeraCustomer {
 }
 
 final class TangemPayManager {
-    enum Constants {
-        static let cardIssuingOrderPollInterval: TimeInterval = 60
-    }
-
     let tangemPayNotificationManager: TangemPayNotificationManager
 
     var tangemPayAccount: TangemPayAccount? {
@@ -470,24 +466,17 @@ final class TangemPayManager {
             .eraseToAnyPublisher()
     }
 
-    var paeraCustomer: PaeraCustomer? {
-        paeraCustomerSubject.value
+    var tangemPayState: TangemPayState {
+        stateSubject.value
     }
 
-    var paeraCustomerPublisher: AnyPublisher<PaeraCustomer?, Never> {
-        paeraCustomerSubject.eraseToAnyPublisher()
-    }
-
-    var isSyncInProgressPublisher: AnyPublisher<Bool, Never> {
-        stateSubject
-            .map(\.isSyncInProgress)
-            .eraseToAnyPublisher()
+    var tangemPayStatePublisher: AnyPublisher<TangemPayState, Never> {
+        stateSubject.eraseToAnyPublisher()
     }
 
     private let paeraCustomerBuilder: PaeraCustomerBuilder
-
+    private(set) var paeraCustomer: PaeraCustomer?
     private let stateSubject = CurrentValueSubject<TangemPayState, Never>(.initial)
-    private let paeraCustomerSubject = CurrentValueSubject<PaeraCustomer?, Never>(nil)
 
     private lazy var cardIssuingOrderStatusPollingService = TangemPayOrderStatusPollingService(
         customerInfoManagementService: paeraCustomerBuilder.customerInfoManagementService
@@ -520,19 +509,23 @@ final class TangemPayManager {
         tangemPayNotificationManager.setupManager(with: self)
 
         bind()
-        refresh()
+
+        runTask { [self] in
+            paeraCustomer = await paeraCustomerBuilder.getIfExist()
+            await refresh().value
+        }
     }
 
     func createNewCustomer() -> PaeraCustomer {
         let paeraCustomer = paeraCustomerBuilder.create()
-        paeraCustomerSubject.send(paeraCustomer)
+        self.paeraCustomer = paeraCustomer
         return paeraCustomer
     }
 
     @discardableResult
     func refresh() -> Task<Void, Never> {
         runTask { [self] in
-            guard let paeraCustomer = paeraCustomerSubject.value else {
+            guard let paeraCustomer else {
                 return
             }
 
@@ -583,7 +576,7 @@ final class TangemPayManager {
     }
 
     private func syncTokens() {
-        guard let paeraCustomer = paeraCustomerSubject.value else {
+        guard let paeraCustomer else {
             stateSubject.value = .unavailable
             return
         }
@@ -635,5 +628,11 @@ extension TangemPayManager: NotificationTapDelegate {
         default:
             break
         }
+    }
+}
+
+private extension TangemPayManager {
+    enum Constants {
+        static let cardIssuingOrderPollInterval: TimeInterval = 60
     }
 }
