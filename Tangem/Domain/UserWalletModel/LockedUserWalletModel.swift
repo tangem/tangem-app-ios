@@ -95,6 +95,15 @@ class LockedUserWalletModel: UserWalletModel {
     var accountModelsManager: AccountModelsManager {
         DummyCommonAccountModelsManager()
     }
+    
+    var tangemPayManager: TangemPayManager {
+        TangemPayManager(
+            userWalletId: userWalletId,
+            keysRepository: keysRepository,
+            tangemPayAuthorizingInteractor: tangemPayAuthorizingInteractor,
+            signer: signer
+        )
+    }
 
     var refcodeProvider: RefcodeProvider? {
         return nil
@@ -107,11 +116,6 @@ class LockedUserWalletModel: UserWalletModel {
             keys: .cardWallet(keys: [])
         )
     }
-
-    // [REDACTED_TODO_COMMENT]
-    // [REDACTED_INFO]
-    var paeraCustomer: PaeraCustomer? { nil }
-    var paeraCustomerPublisher: AnyPublisher<PaeraCustomer?, Never> { .empty }
 
     var keysDerivingInteractor: any KeysDeriving {
         fatalError("Should not be called for locked wallets")
