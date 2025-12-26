@@ -6,7 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-struct AccountNFTCollectionProviderMock: AccountForNFTCollectionProviding {
+struct AccountNFTCollectionProviderMock: AccountForNFTCollectionsProviding {
     func provideAccountsWithCollectionsState(for collections: [NFTCollection]) -> AccountsWithCollectionsState {
         .singleAccount
     }
