@@ -311,10 +311,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         }
 
         let userWalletId = userWalletModel.userWalletId.stringValue
+        let tangemPayManager = userWalletModel.tangemPayManager
         let isTangemPayHidden = tangemPayAvailabilityRepository
             .isTangemPayHiddenPublisher(for: userWalletId)
 
-        let tangemPayNotificationPublisher = userWalletModel.tangemPayManager.tangemPayNotificationManager.notificationPublisher
         isTangemPayHidden
             .flatMapLatest { isHidden in
                 guard !isHidden else {
@@ -322,12 +322,13 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                         .eraseToAnyPublisher()
                 }
 
-                return tangemPayNotificationPublisher
+                return tangemPayManager
+                    .tangemPayNotificationManager
+                    .notificationPublisher
             }
             .receiveOnMain()
             .assign(to: &$tangemPayNotificationInputs)
 
-        let isSyncInProgressPublisher = userWalletModel.tangemPayManager.isSyncInProgressPublisher
         isTangemPayHidden
             .flatMapLatest { isHidden in
                 guard !isHidden else {
@@ -335,28 +336,26 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                         .eraseToAnyPublisher()
                 }
 
-                return isSyncInProgressPublisher
+                return tangemPayManager
+                    .tangemPayStatePublisher
+                    .map(\.isSyncInProgress)
+                    .eraseToAnyPublisher()
             }
             .receiveOnMain()
             .assign(to: &$tangemPaySyncInProgress)
 
-        Publishers
-            .CombineLatest(
-                userWalletModel
-                    .tangemPayManager
-                    .paeraCustomerPublisher.compactMap(\.self),
-                tangemPayAvailabilityRepository
-                    .isTangemPayHiddenPublisher(for: userWalletId)
-            )
+        tangemPayAvailabilityRepository
+            .isTangemPayHiddenPublisher(for: userWalletId)
             .withWeakCaptureOf(self)
-            .map { viewModel, args in
-                let (paeraCustomer, isAccountHidden) = args
-
+            .map { viewModel, isAccountHidden in
                 if isAccountHidden {
                     return nil
                 }
 
-                return TangemPayAccountViewModel(paeraCustomer: paeraCustomer, router: viewModel)
+                return TangemPayAccountViewModel(
+                    tangemPayManager: viewModel.userWalletModel.tangemPayManager,
+                    router: viewModel
+                )
             }
             .receiveOnMain()
             .assign(to: &$tangemPayAccountViewModel)
@@ -710,9 +709,9 @@ extension MultiWalletMainContentViewModel {
 // MARK: - TangemPayAccountRoutable
 
 extension MultiWalletMainContentViewModel: TangemPayAccountRoutable {
-    func openTangemPayKYCInProgressPopup(paeraCustomer: PaeraCustomer) {
+    func openTangemPayKYCInProgressPopup(tangemPayManager: TangemPayManager) {
         coordinator?.openTangemPayKYCInProgressPopup(
-            paeraCustomer: paeraCustomer
+            tangemPayManager: tangemPayManager
         )
     }
 
