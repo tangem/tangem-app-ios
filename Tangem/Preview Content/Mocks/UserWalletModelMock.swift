@@ -16,7 +16,6 @@ import TangemFoundation
 class UserWalletModelMock: UserWalletModel {
     var hasImportedWallets: Bool { false }
     var keysDerivingInteractor: any KeysDeriving { KeysDerivingMock() }
-    var tangemPayAuthorizingInteractor: TangemPayAuthorizing { TangemPayAuthorizingMock() }
 
     var keysRepository: KeysRepository {
         CommonKeysRepository(
@@ -103,7 +102,7 @@ class UserWalletModelMock: UserWalletModel {
         TangemPayManager(
             userWalletId: userWalletId,
             keysRepository: keysRepository,
-            tangemPayAuthorizingInteractor: tangemPayAuthorizingInteractor,
+            tangemPayAuthorizingInteractor: TangemPayAuthorizingMock(),
             signer: signer
         )
     }
