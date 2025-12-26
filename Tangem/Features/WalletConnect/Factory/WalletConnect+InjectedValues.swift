@@ -50,7 +50,11 @@ private final class WalletConnectEnvironment {
     )
 
     lazy var wcService: CommonWCService = {
-        let v2Service = WCServiceV2(walletKitClient: walletKitClient, wcHandlersService: handlersService)
+        let v2Service = WCServiceV2(
+            walletKitClient: walletKitClient,
+            wcHandlersService: handlersService,
+            balancesToObserve: WalletConnectBalanceObserveChains.chains()
+        )
         let commonService = CommonWCService(v2Service: v2Service, dAppSessionsExtender: dAppSessionsExtender)
         let eventsService = WalletConnectEventsService(walletConnectService: commonService)
         v2Service.setWalletConnectEventsService(eventsService)
