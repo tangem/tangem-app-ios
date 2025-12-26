@@ -1,5 +1,5 @@
 //
-//  MarketsAddTokenViewModel.swift
+//  AccountsAwareAddTokenViewModel.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -16,14 +16,14 @@ import struct TangemUIUtils.AlertBinder
 
 // MARK: - Selector Data Provider Protocols
 
-protocol MarketsAddTokenAccountWalletSelectorDataProvider {
+protocol AccountsAwareAddTokenAccountWalletSelectorDataProvider {
     var displayTitle: String { get }
-    var trailingContent: MarketsAddTokenViewModel.AccountWalletTrailingContent { get }
+    var trailingContent: AccountsAwareAddTokenViewModel.AccountWalletTrailingContent { get }
     var isSelectionAvailable: Bool { get }
     var handleSelection: () -> Void { get }
 }
 
-protocol MarketsAddTokenNetworkSelectorDataProvider {
+protocol AccountsAwareAddTokenNetworkSelectorDataProvider {
     var displayTitle: String { get }
     var trailingContent: (imageAsset: ImageType, name: String) { get }
     var isSelectionAvailable: Bool { get }
@@ -33,7 +33,7 @@ protocol MarketsAddTokenNetworkSelectorDataProvider {
 // MARK: - ViewModel
 
 @MainActor
-final class MarketsAddTokenViewModel: ObservableObject, FloatingSheetContentViewModel {
+final class AccountsAwareAddTokenViewModel: ObservableObject, FloatingSheetContentViewModel {
     // MARK: - Published Properties
 
     @Published private(set) var accountWalletSelectorState: AccountWalletSelectorState
@@ -49,8 +49,9 @@ final class MarketsAddTokenViewModel: ObservableObject, FloatingSheetContentView
 
     private let tokenItem: TokenItem
     private let account: any CryptoAccountModel
-    private let accountWalletDataProvider: MarketsAddTokenAccountWalletSelectorDataProvider
-    private let networkDataProvider: MarketsAddTokenNetworkSelectorDataProvider
+    private let accountWalletDataProvider: AccountsAwareAddTokenAccountWalletSelectorDataProvider
+    private let networkDataProvider: AccountsAwareAddTokenNetworkSelectorDataProvider
+    private let analyticsLogger: AddTokenAnalyticsLogger
     private let onAddTokenTapped: (Result<TokenItem, Error>) -> Void
     private var bag = Set<AnyCancellable>()
 
@@ -60,14 +61,16 @@ final class MarketsAddTokenViewModel: ObservableObject, FloatingSheetContentView
         tokenItem: TokenItem,
         account: any CryptoAccountModel,
         tokenItemIconInfoBuilder: TokenIconInfoBuilder,
-        accountWalletDataProvider: MarketsAddTokenAccountWalletSelectorDataProvider,
-        networkDataProvider: MarketsAddTokenNetworkSelectorDataProvider,
+        accountWalletDataProvider: AccountsAwareAddTokenAccountWalletSelectorDataProvider,
+        networkDataProvider: AccountsAwareAddTokenNetworkSelectorDataProvider,
+        analyticsLogger: AddTokenAnalyticsLogger,
         onAddTokenTapped: @escaping (Result<TokenItem, Error>) -> Void
     ) {
         self.tokenItem = tokenItem
         self.account = account
         self.accountWalletDataProvider = accountWalletDataProvider
         self.networkDataProvider = networkDataProvider
+        self.analyticsLogger = analyticsLogger
         self.onAddTokenTapped = onAddTokenTapped
 
         // Build token header
@@ -203,24 +206,13 @@ final class MarketsAddTokenViewModel: ObservableObject, FloatingSheetContentView
     }
 
     private func sendAnalytics() {
-        Analytics.log(
-            event: .marketsChartTokenNetworkSelected,
-            params: [
-                .token: tokenItem.currencySymbol.uppercased(),
-                .count: "1",
-                .blockchain: tokenItem.blockchain.displayName.capitalizingFirstLetter(),
-            ]
-        )
-
-        if !account.isMainAccount {
-            Analytics.log(.marketsChartButtonAddTokenToAnotherAccount)
-        }
+        analyticsLogger.logTokenAdded(tokenItem: tokenItem, isMainAccount: account.isMainAccount)
     }
 }
 
 // MARK: - ViewEvent
 
-extension MarketsAddTokenViewModel {
+extension AccountsAwareAddTokenViewModel {
     enum ViewEvent {
         case accountWalletSelectorTapped
         case networkSelectorTapped
@@ -230,7 +222,7 @@ extension MarketsAddTokenViewModel {
 
 // MARK: - Account/Wallet Selector State
 
-extension MarketsAddTokenViewModel {
+extension AccountsAwareAddTokenViewModel {
     struct AccountWalletSelectorState {
         let label: String
         let trailingContent: AccountWalletTrailingContent
@@ -245,7 +237,7 @@ extension MarketsAddTokenViewModel {
 
 // MARK: - Network Selector State
 
-extension MarketsAddTokenViewModel {
+extension AccountsAwareAddTokenViewModel {
     struct NetworkSelectorState {
         let label: String
         let trailingContent: (imageAsset: ImageType, name: String)
@@ -255,7 +247,7 @@ extension MarketsAddTokenViewModel {
 
 // MARK: - Errors
 
-extension MarketsAddTokenViewModel {
+extension AccountsAwareAddTokenViewModel {
     enum WalletModelCreationError: LocalizedError {
         case tokenNotReturned
 
