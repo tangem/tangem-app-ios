@@ -279,7 +279,6 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             self?.proceedFeeCurrencyNavigatingDismissOption(option: option)
         }
 
-        mainBottomSheetUIManager.hide()
         let coordinator = factory.makeYieldActiveCoordinator(dismissAction: dismissAction)
         yieldModuleActiveCoordinator = coordinator
     }
