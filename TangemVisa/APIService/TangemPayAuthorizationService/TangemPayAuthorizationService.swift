@@ -23,8 +23,6 @@ public protocol TangemPayAuthorizationTokensHandler: AnyObject {
 }
 
 public protocol TangemPayAuthorizationService: TangemPayAuthorizationTokensHandler {
-    func authorizeWithCustomerWallet() async throws
-
     func getChallenge(
         customerWalletAddress: String,
         customerWalletId: String
