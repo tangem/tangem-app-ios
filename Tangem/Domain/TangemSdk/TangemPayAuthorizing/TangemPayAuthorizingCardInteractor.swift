@@ -24,7 +24,7 @@ final class TangemPayAuthorizingCardInteractor: TangemPayAuthorizing {
     func authorize(
         customerWalletId: String,
         authorizationService: TangemPayAuthorizationService
-    ) async throws -> TangemPayAuthorizingResponse {
+    ) async throws {
         let task = CustomerWalletAuthorizationTask(
             customerWalletId: customerWalletId,
             authorizationService: authorizationService
@@ -44,10 +44,6 @@ final class TangemPayAuthorizingCardInteractor: TangemPayAuthorizing {
         }
 
         keysRepository.update(derivations: response.derivationResult)
-
-        return TangemPayAuthorizingResponse(
-            customerWalletAddress: response.customerWalletAddress,
-            tokens: response.tokens
-        )
+        try authorizationService.saveTokens(tokens: response.tokens)
     }
 }

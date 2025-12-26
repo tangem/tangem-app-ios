@@ -83,7 +83,7 @@ class FakeUserWalletModel: UserWalletModel {
         TangemPayManager(
             userWalletId: userWalletId,
             keysRepository: keysRepository,
-            tangemPayAuthorizingInteractor: TangemPayAuthorizingMock(),
+            authorizingInteractor: TangemPayAuthorizingMock(),
             signer: signer
         )
     }
