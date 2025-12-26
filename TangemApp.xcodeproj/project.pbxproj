@@ -786,7 +786,7 @@
 		300E06BD2D7734F8006317EC /* ICPAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300E06BC2D7734ED006317EC /* ICPAddressTests.swift */; };
 		300E06BF2D7736EC006317EC /* KaspaAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300E06BE2D7736E2006317EC /* KaspaAddressTests.swift */; };
 		300E06C12D773D25006317EC /* LitecoinAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300E06C02D773D1D006317EC /* LitecoinAddressTests.swift */; };
-		3011DF792E9CF11C003F6464 /* AccountProviderForNFTCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3011DF782E9CF103003F6464 /* AccountProviderForNFTCollection.swift */; };
+		3011DF792E9CF11C003F6464 /* AccountForNFTCollectionsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3011DF782E9CF103003F6464 /* AccountForNFTCollectionsProvider.swift */; };
 		30145CF92D75D7DF00C1DA5D /* AlephiumAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30145CF82D75D7DB00C1DA5D /* AlephiumAddressTests.swift */; };
 		30188F662D75CE5B00217353 /* TezosAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30188F652D75CE4F00217353 /* TezosAddressTests.swift */; };
 		30188F692D75CF9900217353 /* Keys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30188F682D75CF9900217353 /* Keys.swift */; };
@@ -5148,8 +5148,6 @@
 		2D245E2F2E97EB56006AD2DC /* MarketsTokenDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsTokenDetailsView.swift; sourceTree = "<group>"; };
 		2D245E302E97EB56006AD2DC /* MarketsTokenDetailsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsTokenDetailsViewModel.swift; sourceTree = "<group>"; };
 		2D245E312E97EB56006AD2DC /* ScrollViewOffsetHandler+MarketsTokenDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ScrollViewOffsetHandler+MarketsTokenDetails.swift"; sourceTree = "<group>"; };
-		2D24895B2EFAA6DF002A5C41 /* CarouselNewsCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CarouselNewsCardView.swift; sourceTree = "<group>"; };
-		2D24895C2EFAA6DF002A5C41 /* CarouselNewsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CarouselNewsView.swift; sourceTree = "<group>"; };
 		2D26855F2EB09D79000E472A /* ExperimentWalletContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExperimentWalletContext.swift; sourceTree = "<group>"; };
 		2D2B9C272CE5176A00D744C6 /* ChilizExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChilizExternalLinkProvider.swift; sourceTree = "<group>"; };
 		2D2F27792EBA4D6E00C63178 /* HostAnalyticsFormatterUtilTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostAnalyticsFormatterUtilTests.swift; sourceTree = "<group>"; };
@@ -5536,7 +5534,7 @@
 		300E06BC2D7734ED006317EC /* ICPAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ICPAddressTests.swift; sourceTree = "<group>"; };
 		300E06BE2D7736E2006317EC /* KaspaAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaAddressTests.swift; sourceTree = "<group>"; };
 		300E06C02D773D1D006317EC /* LitecoinAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LitecoinAddressTests.swift; sourceTree = "<group>"; };
-		3011DF782E9CF103003F6464 /* AccountProviderForNFTCollection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountProviderForNFTCollection.swift; sourceTree = "<group>"; };
+		3011DF782E9CF103003F6464 /* AccountForNFTCollectionsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountForNFTCollectionsProvider.swift; sourceTree = "<group>"; };
 		30145CF82D75D7DB00C1DA5D /* AlephiumAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlephiumAddressTests.swift; sourceTree = "<group>"; };
 		30188F652D75CE4F00217353 /* TezosAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TezosAddressTests.swift; sourceTree = "<group>"; };
 		30188F682D75CF9900217353 /* Keys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Keys.swift; sourceTree = "<group>"; };
@@ -11066,15 +11064,6 @@
 			path = UI;
 			sourceTree = "<group>";
 		};
-		2D9E300F2EFB032D006E7D7D /* Recovered References */ = {
-			isa = PBXGroup;
-			children = (
-				2D24895C2EFAA6DF002A5C41 /* CarouselNewsView.swift */,
-				2D24895B2EFAA6DF002A5C41 /* CarouselNewsCardView.swift */,
-			);
-			name = "Recovered References";
-			sourceTree = "<group>";
-		};
 		2D9FAB9B2E13E51D005AE305 /* ENS */ = {
 			isa = PBXGroup;
 			children = (
@@ -11763,7 +11752,7 @@
 		304CB0282E8FD17500F631C8 /* TangemNFT */ = {
 			isa = PBXGroup;
 			children = (
-				3011DF782E9CF103003F6464 /* AccountProviderForNFTCollection.swift */,
+				3011DF782E9CF103003F6464 /* AccountForNFTCollectionsProvider.swift */,
 			);
 			path = TangemNFT;
 			sourceTree = "<group>";
@@ -12134,7 +12123,6 @@
 				B62D43792CBC7EC700C2460E /* BlockchainSdkExample */,
 				5D3F77C324BF56D800E8695B /* Products */,
 				2E5061A84512B23CCB5F2E17 /* Frameworks */,
-				2D9E300F2EFB032D006E7D7D /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -27435,7 +27423,7 @@
 				B0A7DB502C58E56F00986D95 /* MarketsListStateUpdater.swift in Sources */,
 				DC261CB7292CF6B700875E64 /* UncompletedBackupRoutable.swift in Sources */,
 				B6796E7B2C65C16E005D7292 /* TouchPassthroughView.swift in Sources */,
-				3011DF792E9CF11C003F6464 /* AccountProviderForNFTCollection.swift in Sources */,
+				3011DF792E9CF11C003F6464 /* AccountForNFTCollectionsProvider.swift in Sources */,
 				DA559C3A2B0261F400F59584 /* SendView.swift in Sources */,
 				C216A8E32EF0C60D008CC5F9 /* MarketsView+NavigationController.swift in Sources */,
 				DAB19D4E2B2C72C400DD08C4 /* AddCustomTokenNotificationEvent.swift in Sources */,
