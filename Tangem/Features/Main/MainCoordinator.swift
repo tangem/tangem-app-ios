@@ -603,6 +603,7 @@ extension MainCoordinator: PushNotificationsPermissionRequestDelegate {
 // MARK: - Action buttons buy routable
 
 extension MainCoordinator: ActionButtonsBuyFlowRoutable {
+    // [REDACTED_TODO_COMMENT]
     func openBuy(userWalletModel: some UserWalletModel) {
         let coordinator = coordinatorFactory.makeBuyCoordinator(
             dismissAction: { [weak self] _ in
@@ -610,17 +611,27 @@ extension MainCoordinator: ActionButtonsBuyFlowRoutable {
             }
         )
 
-        let options: ActionButtonsBuyCoordinator.Options = if FeatureProvider.isAvailable(.accounts) {
-            .new
-        } else {
-            .default(options: .init(
-                userWalletModel: userWalletModel,
-                expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletId: userWalletModel.userWalletId),
-                tokenSorter: CommonBuyTokenAvailabilitySorter(userWalletModelConfig: userWalletModel.config)
-            ))
-        }
+        coordinator.start(with: .default(options: .init(
+            userWalletModel: userWalletModel,
+            expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletId: userWalletModel.userWalletId),
+            tokenSorter: CommonBuyTokenAvailabilitySorter(userWalletModelConfig: userWalletModel.config)
+        )))
 
-        coordinator.start(with: options)
+        actionButtonsBuyCoordinator = coordinator
+    }
+
+    func openBuy(userWalletModels: [UserWalletModel]) {
+        let coordinator = coordinatorFactory.makeBuyCoordinator(
+            dismissAction: { [weak self] _ in
+                self?.actionButtonsBuyCoordinator = nil
+            }
+        )
+
+        let options = ActionButtonsBuyCoordinator.Options.AccountsAwareActionButtonBuyCoordinatorOptions(
+            userWalletModels: userWalletModels
+        )
+
+        coordinator.start(with: .new(options: options))
         actionButtonsBuyCoordinator = coordinator
     }
 }
@@ -640,7 +651,23 @@ extension MainCoordinator: ActionButtonsSellFlowRoutable {
             }
         )
 
-        coordinator.start(with: FeatureProvider.isAvailable(.accounts) ? .new : .default)
+        coordinator.start(with: .default)
+        actionButtonsSellCoordinator = coordinator
+    }
+
+    func openSell(userWalletModel: some UserWalletModel, tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel) {
+        let coordinator = coordinatorFactory.makeSellCoordinator(
+            userWalletModel: userWalletModel,
+            dismissAction: { [weak self] model in
+                self?.actionButtonsSellCoordinator = nil
+                guard let model else { return }
+
+                let input = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: model.walletModel)
+                self?.openSendToSell(input: input, sellParameters: model.sellParameters)
+            }
+        )
+
+        coordinator.start(with: .new(tokenSelectorViewModel: tokenSelectorViewModel))
         actionButtonsSellCoordinator = coordinator
     }
 }
@@ -658,7 +685,27 @@ extension MainCoordinator: ActionButtonsSwapFlowRoutable {
                 story: .swap(.initialWithoutImages),
                 analyticsSource: .main,
                 presentCompletion: { [weak self] in
-                    coordinator.start(with: FeatureProvider.isAvailable(.accounts) ? .new : .default)
+                    coordinator.start(with: .default)
+                    self?.actionButtonsSwapCoordinator = coordinator
+                }
+            )
+        }
+    }
+
+    func openSwap(
+        userWalletModel: some UserWalletModel,
+        tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel
+    ) {
+        let coordinator = coordinatorFactory.makeSwapCoordinator(userWalletModel: userWalletModel) { [weak self] _ in
+            self?.actionButtonsSwapCoordinator = nil
+        }
+
+        Task { @MainActor [tangemStoriesPresenter] in
+            tangemStoriesPresenter.present(
+                story: .swap(.initialWithoutImages),
+                analyticsSource: .main,
+                presentCompletion: { [weak self] in
+                    coordinator.start(with: .new(tokenSelectorViewModel: tokenSelectorViewModel))
                     self?.actionButtonsSwapCoordinator = coordinator
                 }
             )
