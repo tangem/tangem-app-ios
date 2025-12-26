@@ -14,41 +14,53 @@ final class OrganizeTokensOptionsManager {
     private typealias OptionChange<T> = (currentValue: T, newValue: T?)
 
     private let userTokensReorderer: UserTokensReordering
-    private let editedGroupingOption = CurrentValueSubject<UserTokensReorderingOptions.Grouping?, Never>(nil)
-    private let editedSortingOption = CurrentValueSubject<UserTokensReorderingOptions.Sorting?, Never>(nil)
+    private let editedGroupingOption: CurrentValueSubject<UserTokensReorderingOptions.Grouping?, Never>
+    private let editedSortingOption: CurrentValueSubject<UserTokensReorderingOptions.Sorting?, Never>
 
     private var groupingOptionToSave: AnyPublisher<OptionChange<UserTokensReorderingOptions.Grouping>, Never> {
         return editedGroupingOption
             .prepend(nil)
-            .withLatestFrom(userTokensReorderer.groupingOption) { (currentValue: $1, newValue: $0) }
+            .withLatestFrom(userTokensReorderer.groupingOptionPublisher) { (currentValue: $1, newValue: $0) }
             .eraseToAnyPublisher()
     }
 
     private var sortingOptionToSave: AnyPublisher<OptionChange<UserTokensReorderingOptions.Sorting>, Never> {
         return editedSortingOption
             .prepend(nil)
-            .withLatestFrom(userTokensReorderer.sortingOption) { (currentValue: $1, newValue: $0) }
+            .withLatestFrom(userTokensReorderer.sortingOptionPublisher) { (currentValue: $1, newValue: $0) }
             .eraseToAnyPublisher()
     }
 
     init(
-        userTokensReorderer: UserTokensReordering
+        userTokensReorderer: UserTokensReordering,
+        initialGroupingOption: UserTokensReorderingOptions.Grouping? = nil,
+        initialSortingOption: UserTokensReorderingOptions.Sorting? = nil
     ) {
         self.userTokensReorderer = userTokensReorderer
+        editedGroupingOption = .init(initialGroupingOption)
+        editedSortingOption = .init(initialSortingOption)
     }
 }
 
 // MARK: - OrganizeTokensOptionsProviding protocol conformance
 
 extension OrganizeTokensOptionsManager: OrganizeTokensOptionsProviding {
-    var groupingOption: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> {
+    var groupingOption: UserTokensReorderingOptions.Grouping {
+        return userTokensReorderer.groupingOption
+    }
+
+    var sortingOption: UserTokensReorderingOptions.Sorting {
+        return userTokensReorderer.sortingOption
+    }
+
+    var groupingOptionPublisher: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> {
         let editedGroupingOption = editedGroupingOption
             .compactMap { $0 }
             .removeDuplicates()
             .eraseToAnyPublisher()
 
         let currentGroupingOption = userTokensReorderer
-            .groupingOption
+            .groupingOptionPublisher
             .prefix(untilOutputFrom: editedGroupingOption)
             .eraseToAnyPublisher()
 
@@ -58,14 +70,14 @@ extension OrganizeTokensOptionsManager: OrganizeTokensOptionsProviding {
         ].merge()
     }
 
-    var sortingOption: AnyPublisher<UserTokensReorderingOptions.Sorting, Never> {
+    var sortingOptionPublisher: AnyPublisher<UserTokensReorderingOptions.Sorting, Never> {
         let editedSortingOption = editedSortingOption
             .compactMap { $0 }
             .removeDuplicates()
             .eraseToAnyPublisher()
 
         let currentSortingOption = userTokensReorderer
-            .sortingOption
+            .sortingOptionPublisher
             .prefix(untilOutputFrom: editedSortingOption)
             .eraseToAnyPublisher()
 
