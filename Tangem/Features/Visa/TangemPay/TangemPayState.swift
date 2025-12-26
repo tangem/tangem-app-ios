@@ -12,7 +12,7 @@ import TangemVisa
 enum TangemPayRemoteState {
     case notEnrolled
     case kyc
-    case issuingCard(orderId: String)
+    case issuingCard
     case enrolled(VisaCustomerInfoResponse)
 }
 
@@ -26,7 +26,7 @@ enum TangemPayState {
     case unavailable
 
     case kyc
-    case issuingCard(orderId: String)
+    case issuingCard
     case failedToIssueCard
 
     case tangemPayAccount(TangemPayAccount)
