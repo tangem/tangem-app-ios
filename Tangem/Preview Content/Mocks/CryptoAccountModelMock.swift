@@ -91,6 +91,11 @@ extension CryptoAccountModelMock: CryptoAccountModel {
         didChangeSubject.eraseToAnyPublisher()
     }
 
+    func analyticsParameters(with builder: AccountsAnalyticsBuilder) -> [Analytics.ParameterKey: String] {
+        // No-op for mock - doesn't contribute to analytics
+        return [:]
+    }
+
     var descriptionString: String {
         Localization.accountFormAccountIndex(0)
     }
