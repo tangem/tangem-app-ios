@@ -337,7 +337,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                 }
 
                 return tangemPayManager
-                    .tangemPayStatePublisher
+                    .statePublisher
                     .map(\.isSyncInProgress)
                     .eraseToAnyPublisher()
             }
