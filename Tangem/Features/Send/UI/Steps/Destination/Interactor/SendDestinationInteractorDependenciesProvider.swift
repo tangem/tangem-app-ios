@@ -33,7 +33,7 @@ class SendDestinationInteractorDependenciesProvider {
 
     init(
         receivedTokenType: SendReceiveTokenType,
-        sendingWalletData: SendingWalletData,
+        sendingWalletData: SendingWalletData
     ) {
         self.receivedTokenType = receivedTokenType
         self.sendingWalletData = sendingWalletData
