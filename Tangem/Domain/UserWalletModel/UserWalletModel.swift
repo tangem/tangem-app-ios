@@ -62,19 +62,11 @@ enum UpdateRequest {
     case iCloudBackupCompleted
     case accessCodeDidSet
     case accessCodeDidSkip
-
-    // [REDACTED_TODO_COMMENT]
-    // [REDACTED_INFO]
-    case paeraCustomerCreated(PaeraCustomer)
 }
 
 enum UpdateResult {
     case configurationChanged(model: UserWalletModel)
     case nameDidChange(name: String)
-
-    // [REDACTED_TODO_COMMENT]
-    // [REDACTED_INFO]
-    case paeraCustomerCreated(PaeraCustomer)
 
     var newName: String? {
         switch self {
@@ -83,14 +75,5 @@ enum UpdateResult {
         default:
             return nil
         }
-    }
-
-    // [REDACTED_TODO_COMMENT]
-    // [REDACTED_INFO]
-    var paeraCustomer: PaeraCustomer? {
-        if case .paeraCustomerCreated(let paeraCustomer) = self {
-            return paeraCustomer
-        }
-        return nil
     }
 }

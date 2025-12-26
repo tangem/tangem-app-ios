@@ -95,7 +95,7 @@ class LockedUserWalletModel: UserWalletModel {
     var accountModelsManager: AccountModelsManager {
         DummyCommonAccountModelsManager()
     }
-    
+
     var tangemPayManager: TangemPayManager {
         TangemPayManager(
             userWalletId: userWalletId,
@@ -170,8 +170,6 @@ class LockedUserWalletModel: UserWalletModel {
         case .iCloudBackupCompleted:
             break
         case .mnemonicBackupCompleted:
-            break
-        case .paeraCustomerCreated:
             break
         }
     }
