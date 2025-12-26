@@ -218,7 +218,6 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
 
         // MARK: - Bitcoin
 
-        // [REDACTED_TODO_COMMENT]
         case .sendTransfer:
             return try WalletConnectSendTransferHandler(
                 requestParams: params,
