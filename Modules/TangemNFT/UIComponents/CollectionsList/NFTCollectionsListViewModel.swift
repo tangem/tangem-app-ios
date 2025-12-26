@@ -57,20 +57,20 @@ public final class NFTCollectionsListViewModel: ObservableObject {
     // MARK: Dependencies
 
     private let nftManager: NFTManager
-    private let accounForNFTCollectionsProvider: AccountForNFTCollectionProviding
+    private let accountForNFTCollectionsProvider: AccountForNFTCollectionsProviding
     private let dependencies: NFTCollectionsListDependencies
     private let assetSendPublisher: AnyPublisher<NFTAsset, Never>
     private weak var coordinator: NFTCollectionsListRoutable?
 
     public init(
         nftManager: NFTManager,
-        accounForNFTCollectionsProvider: AccountForNFTCollectionProviding,
+        accountForNFTCollectionsProvider: AccountForNFTCollectionsProviding,
         dependencies: NFTCollectionsListDependencies,
         assetSendPublisher: AnyPublisher<NFTAsset, Never>,
         coordinator: NFTCollectionsListRoutable?
     ) {
         self.nftManager = nftManager
-        self.accounForNFTCollectionsProvider = accounForNFTCollectionsProvider
+        self.accountForNFTCollectionsProvider = accountForNFTCollectionsProvider
         self.coordinator = coordinator
         self.dependencies = dependencies
         self.assetSendPublisher = assetSendPublisher
@@ -215,7 +215,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
 
         case .success(let collectionsResult):
             let loadingTroublesViewData = collectionsResult.hasErrors ? makeNotificationViewData() : nil
-            let state = accounForNFTCollectionsProvider.provideAccountsWithCollectionsState(for: collectionsResult.value)
+            let state = accountForNFTCollectionsProvider.provideAccountsWithCollectionsState(for: collectionsResult.value)
 
             let viewState: NFTCollectionsListViewModel.ViewState = switch state {
             case .singleAccount:
