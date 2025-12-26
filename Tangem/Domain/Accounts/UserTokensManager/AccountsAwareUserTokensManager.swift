@@ -182,7 +182,9 @@ final class AccountsAwareUserTokensManager {
 
     private func handleUserTokensSync() {
         loadSwapAvailabilityStateIfNeeded(forceReload: true)
-        walletModelsManager?.updateAll(silent: false) { [weak self] in
+
+        Task { [weak self] in
+            await self?.walletModelsManager?.updateAll(silent: false)
             self?.handleWalletModelsUpdate()
         }
     }
