@@ -16,11 +16,13 @@ import TangemVisa
 class TangemPayAuthorizingMobileWalletInteractor {
     private let userWalletId: UserWalletId
     private let userWalletConfig: UserWalletConfig
+    private let keysRepository: KeysRepository
     private let mobileWalletSdk = CommonMobileWalletSdk()
 
-    init(userWalletId: UserWalletId, userWalletConfig: UserWalletConfig,) {
+    init(userWalletId: UserWalletId, userWalletConfig: UserWalletConfig, keysRepository: KeysRepository) {
         self.userWalletId = userWalletId
         self.userWalletConfig = userWalletConfig
+        self.keysRepository = keysRepository
     }
 }
 
@@ -67,10 +69,11 @@ extension TangemPayAuthorizingMobileWalletInteractor: TangemPayAuthorizing {
             authorizationService: authorizationService
         )
 
+        keysRepository.update(derivations: derivationResult)
+
         return TangemPayAuthorizingResponse(
             customerWalletAddress: customerWalletAddress,
-            tokens: tokens,
-            derivationResult: derivationResult
+            tokens: tokens
         )
     }
 
