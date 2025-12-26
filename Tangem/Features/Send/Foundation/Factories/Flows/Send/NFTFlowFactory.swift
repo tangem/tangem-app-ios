@@ -13,6 +13,7 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
     let tokenIconInfo: TokenIconInfo
+    let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
     let nftAssetStepBuilder: NFTAssetStepBuilder
     let tokenHeaderProvider: SendGenericTokenHeaderProvider
 
@@ -29,8 +30,9 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
     let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let expressDependenciesFactory: ExpressDependenciesFactory
 
+    let analyticsLogger: SendAnalyticsLogger
+
     lazy var swapManager = makeSwapManager()
-    lazy var analyticsLogger = makeSendAnalyticsLogger(sendType: .nft)
     lazy var sendModel = makeSendWithSwapModel(
         swapManager: swapManager,
         analyticsLogger: analyticsLogger,
@@ -66,11 +68,13 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
             from: walletModel.tokenItem,
             isCustom: walletModel.isCustom
         )
+        accountModelAnalyticsProvider = walletModel.account
         walletAddresses = walletModel.addresses.map(\.value)
-        suggestedWallets = SendSuggestedWalletsFactory().makeSuggestedWallets(
-            walletModel: walletModel
-        )
         shouldShowFeeSelector = walletModel.shouldShowFeeSelector
+
+        suggestedWallets = SendSuggestedWalletsFactory().makeSuggestedWallets(walletModel: walletModel)
+        analyticsLogger = Self.makeSendAnalyticsLogger(walletModel: walletModel, sendType: .nft)
+
         walletModelHistoryUpdater = walletModel
         walletModelFeeProvider = walletModel
         walletModelDependenciesProvider = walletModel
@@ -85,18 +89,19 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
             userWalletInfo: userWalletInfo
         )
 
+        let source = ExpressInteractorWalletModelWrapper(
+            userWalletInfo: userWalletInfo,
+            walletModel: walletModel,
+            expressOperationType: .swapAndSend
+        )
+
         let expressDependenciesInput = ExpressDependenciesInput(
             userWalletInfo: userWalletInfo,
-            source: ExpressInteractorWalletModelWrapper(userWalletInfo: userWalletInfo, walletModel: walletModel),
+            source: source,
             destination: .none
         )
 
-        expressDependenciesFactory = CommonExpressDependenciesFactory(
-            input: expressDependenciesInput,
-            // We support only `CEX` in `Send With Swap` flow
-            supportedProviderTypes: [.cex],
-            operationType: .swapAndSend
-        )
+        expressDependenciesFactory = CommonExpressDependenciesFactory(input: expressDependenciesInput)
     }
 }
 
@@ -104,7 +109,8 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
 
 extension NFTFlowFactory: SendGenericFlowFactory {
     func make(router: any SendRoutable) -> SendViewModel {
-        let nftAssetCompactViewModel = nftAssetStepBuilder.makeNFTAssetCompactViewModel()
+        let header = tokenHeaderProvider.makeSendTokenHeader()
+        let nftAssetCompactViewModel = nftAssetStepBuilder.makeNFTAssetCompactViewModel(header: header)
         let destination = makeSendDestinationStep(router: router)
         let fee = makeSendFeeStep()
 
@@ -177,7 +183,8 @@ extension NFTFlowFactory: SendBaseBuildable {
         SendViewModelBuilder.Dependencies(
             alertBuilder: makeSendAlertBuilder(),
             dataBuilder: baseDataBuilderFactory.makeSendBaseDataBuilder(
-                input: sendModel,
+                baseDataInput: sendModel,
+                approveDataInput: swapManager,
                 sendReceiveTokensListBuilder: SendReceiveTokensListBuilder(
                     userWalletInfo: userWalletInfo,
                     sourceTokenInput: sendModel,
@@ -196,7 +203,12 @@ extension NFTFlowFactory: SendBaseBuildable {
 
 extension NFTFlowFactory: SendDestinationStepBuildable {
     var destinationIO: SendDestinationStepBuilder.IO {
-        SendDestinationStepBuilder.IO(input: sendModel, output: sendModel, receiveTokenInput: sendModel)
+        SendDestinationStepBuilder.IO(
+            input: sendModel,
+            output: sendModel,
+            receiveTokenInput: sendModel,
+            destinationAccountOutput: sendModel
+        )
     }
 
     var destinationDependencies: SendDestinationStepBuilder.Dependencies {

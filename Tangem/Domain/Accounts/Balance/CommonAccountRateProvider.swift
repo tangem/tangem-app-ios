@@ -69,14 +69,14 @@ private extension CommonAccountRateProvider {
         switch totalBalance {
         case .empty:
             let cachedQuote = accountRateSubject.value.quote
+            newRate = .failure(cached: cachedQuote)
+
+        case .loading:
+            let cachedQuote = accountRateSubject.value.quote
             newRate = .loading(cached: cachedQuote)
 
-        case .loading(let cached):
-            let cachedQuote = accountRateSubject.value.quote ?? cached.map { AccountQuote(priceChange24h: $0) }
-            newRate = .loading(cached: cachedQuote)
-
-        case .failed(let cached, _):
-            let cachedQuote = accountRateSubject.value.quote ?? cached.map { AccountQuote(priceChange24h: $0) }
+        case .failed:
+            let cachedQuote = accountRateSubject.value.quote
             newRate = .failure(cached: cachedQuote)
 
         case .loaded(let balance) where balance.isZero:
