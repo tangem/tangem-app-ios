@@ -16,20 +16,19 @@ import TangemAssets
 import TangemLocalization
 
 final class TangemPayAccount {
-    var tangemPayStatusPublisher: AnyPublisher<TangemPayStatus, Never> {
+    var statusPublisher: AnyPublisher<VisaCustomerInfoResponse.ProductStatus, Never> {
         customerInfoSubject
-            .map(\.tangemPayStatus)
+            .compactMap(\.productInstance?.status)
             .eraseToAnyPublisher()
     }
 
-    var tangemPayCard: VisaCustomerInfoResponse.Card? {
-        mapToCard(visaCustomerInfoResponse: customerInfoSubject.value)
+    var card: VisaCustomerInfoResponse.Card? {
+        customerInfoSubject.value.cardIfActiveOrBlocked
     }
 
-    var tangemPayCardPublisher: AnyPublisher<VisaCustomerInfoResponse.Card?, Never> {
+    var cardPublisher: AnyPublisher<VisaCustomerInfoResponse.Card?, Never> {
         customerInfoSubject
-            .withWeakCaptureOf(self)
-            .map { $0.mapToCard(visaCustomerInfoResponse: $1) }
+            .map(\.cardIfActiveOrBlocked)
             .eraseToAnyPublisher()
     }
 
@@ -65,15 +64,7 @@ final class TangemPayAccount {
         customerInfoSubject.value.productInstance?.cardId
     }
 
-    var isPinSet: Bool {
-        customerInfoSubject.value.card?.isPinSet ?? false
-    }
-
     let customerWalletId: String
-
-    var cardNumberEnd: String? {
-        customerInfoSubject.value.card?.cardNumberEnd
-    }
 
     private let keysRepository: KeysRepository
     private let authorizationTokensHandler: TangemPayAuthorizationTokensHandler
@@ -122,8 +113,7 @@ final class TangemPayAccount {
                 let customerInfo = try await tangemPayAccount.customerInfoManagementService.loadCustomerInfo()
                 tangemPayAccount.customerInfoSubject.send(customerInfo)
 
-                if customerInfo.tangemPayStatus.isActive {
-                    TangemPayOrderIdStorage.deleteCardIssuingOrderId(customerWalletId: tangemPayAccount.customerWalletId)
+                if customerInfo.productInstance?.status == .active {
                     await tangemPayAccount.setupBalance()
                 }
             } catch {
@@ -165,15 +155,13 @@ final class TangemPayAccount {
     private func setupBalance() async {
         await balancesService.loadBalance()
     }
+}
 
-    private func mapToCard(visaCustomerInfoResponse: VisaCustomerInfoResponse) -> VisaCustomerInfoResponse.Card? {
-        guard let card = customerInfoSubject.value.card,
-              let productInstance = customerInfoSubject.value.productInstance,
-              [.active, .blocked].contains(productInstance.status) else {
-            return nil
-        }
-
-        return card
+private extension VisaCustomerInfoResponse {
+    var cardIfActiveOrBlocked: VisaCustomerInfoResponse.Card? {
+        [.active, .blocked].contains(productInstance?.status)
+            ? card
+            : nil
     }
 }
 
@@ -186,25 +174,6 @@ extension TangemPayAccount: TangemPayWithdrawTransactionServiceOutput {
             try await Task.sleep(for: .seconds(5))
             await setupBalance()
         }
-    }
-}
-
-// MARK: - VisaCustomerInfoResponse+tangemPayStatus
-
-private extension VisaCustomerInfoResponse {
-    var tangemPayStatus: TangemPayStatus {
-        if let productInstance {
-            switch productInstance.status {
-            case .active:
-                return .active
-            case .blocked:
-                return .blocked
-            default:
-                break
-            }
-        }
-
-        return .unavailable
     }
 }
 
@@ -280,16 +249,6 @@ struct TangemPayRemoteStateFetcher {
 
 final class TangemPayManager {
     let tangemPayNotificationManager: TangemPayNotificationManager
-
-    var tangemPayAccount: TangemPayAccount? {
-        stateSubject.value.tangemPayAccount
-    }
-
-    var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount?, Never> {
-        stateSubject
-            .map(\.tangemPayAccount)
-            .eraseToAnyPublisher()
-    }
 
     var tangemPayState: TangemPayState {
         stateSubject.value
