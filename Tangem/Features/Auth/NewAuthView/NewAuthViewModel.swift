@@ -100,7 +100,7 @@ private extension NewAuthViewModel {
         let biometricsUnlock: BiometricsUnlockItem?
         if isBiometricsUtilAvailable {
             biometricsUnlock = BiometricsUnlockItem(
-                title: Localization.userWalletListUnlockAllWith(BiometricAuthorizationUtils.biometryType.name),
+                title: Localization.userWalletListUnlockAllWith(BiometricsUtil.biometryType.name),
                 action: weakify(self, forFunction: NewAuthViewModel.onUnlockWithBiometryTap)
             )
         } else {
