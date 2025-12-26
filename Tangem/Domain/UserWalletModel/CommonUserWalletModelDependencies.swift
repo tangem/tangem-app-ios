@@ -22,7 +22,6 @@ struct CommonUserWalletModelDependencies {
     let nftManager: NFTManager
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
     let accountModelsManager: AccountModelsManager
-    let tangemPayAuthorizingInteractor: TangemPayAuthorizing
     let tangemPayManager: TangemPayManager
 
     private var derivationManager: (DerivationManager & DerivationDependenciesConfigurable)?
@@ -114,7 +113,7 @@ struct CommonUserWalletModelDependencies {
         self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
         innerDependencies.configure(with: userTokensPushNotificationsManager)
 
-        tangemPayAuthorizingInteractor = switch walletInfo {
+        let tangemPayAuthorizingInteractor: TangemPayAuthorizing = switch walletInfo {
         case .cardWallet(let cardInfo):
             TangemPayAuthorizingCardInteractor(
                 with: cardInfo,
@@ -131,7 +130,7 @@ struct CommonUserWalletModelDependencies {
         tangemPayManager = TangemPayManager(
             userWalletId: userWalletId,
             keysRepository: keysRepository,
-            tangemPayAuthorizingInteractor: tangemPayAuthorizingInteractor,
+            authorizingInteractor: tangemPayAuthorizingInteractor,
             signer: config.tangemSigner
         )
 
