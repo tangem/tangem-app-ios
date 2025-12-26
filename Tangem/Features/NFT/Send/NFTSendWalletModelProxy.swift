@@ -175,16 +175,12 @@ extension NFTSendWalletModelProxy: WalletModel {
         .just(output: state)
     }
 
-    func generalUpdate(silent: Bool) -> AnyPublisher<Void, Never> {
-        mainTokenWalletModel.generalUpdate(silent: silent)
+    func update(silent: Bool, features: [WalletModelUpdaterFeatureType]) async {
+        await mainTokenWalletModel.update(silent: silent, features: features)
     }
 
-    func update(silent: Bool) -> AnyPublisher<WalletModelState, Never> {
-        mainTokenWalletModel.update(silent: silent)
-    }
-
-    func updateTransactionsHistory() -> AnyPublisher<Void, Never> {
-        mainTokenWalletModel.updateTransactionsHistory()
+    func updateTransactionsHistory() async {
+        await mainTokenWalletModel.updateTransactionsHistory()
     }
 
     func updateAfterSendingTransaction() {

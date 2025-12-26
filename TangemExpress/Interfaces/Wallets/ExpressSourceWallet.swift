@@ -16,9 +16,19 @@ public protocol ExpressSourceWallet: ExpressDestinationWallet {
     var balanceProvider: BalanceProvider { get }
     var analyticsLogger: AnalyticsLogger { get }
 
-    var supportedProviders: [ExpressProviderType] { get }
+    var operationType: ExpressOperationType { get }
+    var supportedProvidersFilter: SupportedProvidersFilter { get }
 }
 
 public extension ExpressSourceWallet {
     var isFeeCurrency: Bool { currency == feeCurrency }
+}
+
+public enum SupportedProvidersFilter {
+    public static let swap: SupportedProvidersFilter = .byTypes([.dex, .cex, .dexBridge])
+    public static let onramp: SupportedProvidersFilter = .byTypes([.onramp])
+    public static let cex: SupportedProvidersFilter = .byTypes([.cex])
+
+    case byTypes([ExpressProviderType])
+    case byDifferentAddressExchangeSupport
 }
