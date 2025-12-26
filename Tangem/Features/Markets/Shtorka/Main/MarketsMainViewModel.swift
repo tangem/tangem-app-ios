@@ -18,6 +18,7 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
 
     // MARK: - Injected & Published Properties
 
+    @Published private(set) var isError: Bool = false
     @Published private(set) var isSearching: Bool = false
     @Published private(set) var headerViewModel: MainBottomSheetHeaderViewModel
     @Published private(set) var tokenListViewModel: MarketsTokenListViewModel
@@ -92,7 +93,7 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
         searchTextBind(publisher: headerViewModel.enteredSearchInputPublisher)
         bindToWidgetsProvider()
 
-        widgetsProvider.initializationWidgets()
+        widgetsProvider.reloadWidgets()
     }
 
     deinit {
@@ -120,12 +121,6 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
         case .collapsed:
             isBottomSheetExpanded = false
         }
-    }
-
-    // MARK: - Actions
-
-    func onHeaderActionButtonTap(for widgetType: MarketsWidgetType) {
-        // [REDACTED_TODO_COMMENT]
     }
 }
 
@@ -189,11 +184,17 @@ private extension MarketsMainViewModel {
             }
             .store(in: &bag)
 
-        widgetsProvider
+        widgetsUpdateHandler
             .widgetsUpdateStateEventPublisher
-            .receive(on: DispatchQueue.main)
+            .receiveOnMain()
             .withWeakCaptureOf(self)
-            .sink { viewModel, _ in
+            .sink { viewModel, state in
+                /*
+                 if case .allWidgetsWithError = state {
+                     viewModel.isError = true
+                 }
+                  */
+
                 // [REDACTED_TODO_COMMENT]
             }
             .store(in: &bag)
@@ -237,7 +238,12 @@ private extension MarketsMainViewModel {
             )
             contentItem = .top(viewModel)
         case .news:
-            return nil
+            let viewModel = NewsWidgetViewModel(
+                widgetType: widgetModel.type,
+                widgetsUpdateHandler: widgetsUpdateHandler,
+                coordinator: coordinator
+            )
+            contentItem = .news(viewModel)
         case .earn:
             return nil
         case .pulse:
@@ -251,10 +257,7 @@ private extension MarketsMainViewModel {
             contentItem = .pulse(viewModel)
         }
 
-        return WidgetStateItem(
-            type: widgetModel.type,
-            content: contentItem
-        )
+        return WidgetStateItem(type: widgetModel.type, content: contentItem)
     }
 }
 
@@ -277,6 +280,7 @@ extension MarketsMainViewModel {
     enum WidgetContentItem: Identifiable, Hashable {
         case top(TopMarketWidgetViewModel)
         case pulse(PulseMarketWidgetViewModel)
+        case news(NewsWidgetViewModel)
 
         var id: MarketsWidgetType {
             switch self {
@@ -284,6 +288,8 @@ extension MarketsMainViewModel {
                 return .market
             case .pulse:
                 return .pulse
+            case .news:
+                return .news
             }
         }
 

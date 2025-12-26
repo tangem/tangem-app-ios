@@ -13,7 +13,5 @@ protocol MarketsMainWidgetsProvider {
     var widgetsPublisher: AnyPublisher<[MarketsWidgetModel], Never> { get }
     var widgets: [MarketsWidgetModel] { get }
 
-    var widgetsUpdateStateEventPublisher: AnyPublisher<WidgetLoadingStateEvent, Never> { get }
-
-    func initializationWidgets()
+    func reloadWidgets()
 }
