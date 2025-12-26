@@ -12,6 +12,7 @@ import TangemUI
 
 struct MarketsCommonWidgetHeaderView: View {
     let headerTitle: String
+    let headerImage: Image?
     let buttonTitle: String?
     let buttonAction: (() -> Void)?
     let isLoading: Bool
@@ -27,6 +28,16 @@ struct MarketsCommonWidgetHeaderView: View {
                     .lineLimit(1)
                     .style(Fonts.Bold.title3, color: Colors.Text.primary1)
                     .skeletonable(isShown: isLoading)
+
+                if let headerImage = headerImage {
+                    FixedSpacer(width: Layout.HeaderImage.spacing)
+
+                    headerImage
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: Layout.HeaderImage.height)
+                        .hidden(isLoading)
+                }
 
                 Spacer(minLength: 8)
 
@@ -60,9 +71,13 @@ struct MarketsCommonWidgetHeaderView: View {
 extension MarketsCommonWidgetHeaderView {
     enum Layout {
         enum Container {
-            static let minHorizontalSpacing: CGFloat = 8.0
-            static let horizontalPadding: CGFloat = 8.0
+            static let horizontalPadding: CGFloat = 16.0
             static let verticalPadding: CGFloat = 2.0
+        }
+
+        enum HeaderImage {
+            static let spacing: CGFloat = 8.0
+            static let height: CGFloat = 20.0
         }
 
         enum ButtonView {
@@ -74,3 +89,35 @@ extension MarketsCommonWidgetHeaderView {
         }
     }
 }
+
+#if DEBUG
+#Preview {
+    VStack(spacing: 20) {
+        MarketsCommonWidgetHeaderView(
+            headerTitle: "News",
+            headerImage: Image("TangemAI"),
+            buttonTitle: "See All",
+            buttonAction: {},
+            isLoading: false
+        )
+
+        MarketsCommonWidgetHeaderView(
+            headerTitle: "Markets",
+            headerImage: Image(systemName: "chart.line.uptrend.xyaxis"),
+            buttonTitle: "See All",
+            buttonAction: {},
+            isLoading: false
+        )
+
+        MarketsCommonWidgetHeaderView(
+            headerTitle: "Loading Title",
+            headerImage: Image(systemName: "star.fill"),
+            buttonTitle: nil,
+            buttonAction: nil,
+            isLoading: true
+        )
+    }
+    .padding()
+    .background(Colors.Background.primary)
+}
+#endif
