@@ -304,6 +304,7 @@ final class TangemPayManager {
 
     private let userWalletId: UserWalletId
     private let keysRepository: KeysRepository
+    private let authorizingInteractor: TangemPayAuthorizing
     private let signer: any TangemSigner
     private let authorizationService: TangemPayAuthorizationService
     private let customerInfoManagementService: CustomerInfoManagementService
@@ -332,11 +333,12 @@ final class TangemPayManager {
     init(
         userWalletId: UserWalletId,
         keysRepository: KeysRepository,
-        tangemPayAuthorizingInteractor: TangemPayAuthorizing,
+        authorizingInteractor: TangemPayAuthorizing,
         signer: any TangemSigner
     ) {
         self.userWalletId = userWalletId
         self.keysRepository = keysRepository
+        self.authorizingInteractor = authorizingInteractor
         self.signer = signer
 
         tangemPayNotificationManager = TangemPayNotificationManager(
@@ -350,7 +352,6 @@ final class TangemPayManager {
 
         authorizationService = TangemPayAPIServiceBuilder().buildTangemPayAuthorizationService(
             customerWalletId: userWalletId.stringValue,
-            authorizingInteractor: tangemPayAuthorizingInteractor,
             authorizationTokensRepository: Self.tangemPayAuthorizationTokensRepository,
             tokens: customerWalletAddressAndTokens?.tokens
         )
@@ -392,7 +393,10 @@ final class TangemPayManager {
 
     @discardableResult
     func authorizeWithCustomerWallet() async throws -> TangemPayRemoteState {
-        try await authorizationService.authorizeWithCustomerWallet()
+        try await authorizingInteractor.authorize(
+            customerWalletId: customerWalletId,
+            authorizationService: authorizationService
+        )
         let remoteState = try await remoteStateFetcher.getRemoteState()
         await handleRemoteState(remoteState)
         return remoteState
