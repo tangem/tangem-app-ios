@@ -65,6 +65,8 @@ final class AccountsAwareTokenSelectorViewModel: ObservableObject {
     }
 }
 
+// MARK: - ContentVisibility
+
 extension AccountsAwareTokenSelectorViewModel {
     enum ContentVisibility: Equatable {
         case visible
