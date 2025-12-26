@@ -12,4 +12,5 @@ protocol ExpressInteractorDestinationWallet: ExpressDestinationWallet {
     var id: WalletModelId { get }
     var tokenItem: TokenItem { get }
     var isCustom: Bool { get }
+    var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { get }
 }

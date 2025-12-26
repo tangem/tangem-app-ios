@@ -38,32 +38,24 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
         super.init(wallet: wallet)
     }
 
-    override func update(completion: @escaping (Result<Void, Error>) -> Void) {
-        cancellable = addressConverter.convertToETHAddressPublisher(wallet.address)
-            .withWeakCaptureOf(self)
-            .flatMap { walletManager, convertedAddress in
-                Publishers.Zip(
-                    walletManager.networkService
-                        .getInfo(
-                            address: convertedAddress,
-                            tokens: walletManager.cardTokens,
-                        ),
-                    walletManager
-                        .getYieldBalances(
-                            address: convertedAddress,
-                            tokens: walletManager.cardTokens
-                        )
-                )
-            }
-            .sink(receiveCompletion: { [weak self] completionSubscription in
-                if case .failure(let error) = completionSubscription {
-                    self?.wallet.clearAmounts()
-                    completion(.failure(error))
-                }
-            }, receiveValue: { [weak self] response in
-                self?.updateWallet(with: response.0, yieldTokensBalances: response.1)
-                completion(.success(()))
-            })
+    override func updateWalletManager() async throws {
+        do {
+            let convertedAddress = try addressConverter.convertToETHAddress(wallet.address)
+
+            async let infoAndTokens: EthereumInfoResponse = try await networkService
+                .getInfo(address: convertedAddress, tokens: cardTokens)
+                .async()
+
+            async let yieldBalances: [Token: Result<Amount, Error>] = try await getYieldBalances(
+                address: convertedAddress,
+                tokens: cardTokens
+            ).async()
+
+            try await updateWallet(with: infoAndTokens, yieldTokensBalances: yieldBalances)
+        } catch {
+            wallet.clearAmounts()
+            throw error
+        }
     }
 
     /// It can't be into extension because it will be overridden in the `OptimismWalletManager`
