@@ -516,11 +516,6 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var keysRepository: any KeysRepository { userWalletModel.keysRepository }
 
-    // [REDACTED_TODO_COMMENT]
-    // [REDACTED_INFO]
-    var paeraCustomer: PaeraCustomer? { nil }
-    var paeraCustomerPublisher: AnyPublisher<PaeraCustomer?, Never> { .empty }
-
     var signer: TangemSigner { userWalletModel.signer }
 
     var updatePublisher: AnyPublisher<UpdateResult, Never> { userWalletModel.updatePublisher }
@@ -569,6 +564,10 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var accountModelsManager: AccountModelsManager {
         userWalletModel.accountModelsManager
+    }
+    
+    var tangemPayManager: TangemPayManager {
+        userWalletModel.tangemPayManager
     }
 
     func validate() -> Bool { userWalletModel.validate() }
