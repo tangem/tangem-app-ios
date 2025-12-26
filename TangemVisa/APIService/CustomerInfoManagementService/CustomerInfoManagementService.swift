@@ -6,17 +6,15 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
+import Combine
 import Foundation
 import Moya
 import TangemFoundation
 
-public enum CustomerInfoManagementServiceError: Error {
-    case unauthorized
-    case otherError(Error)
-}
-
 public protocol CustomerInfoManagementService: AnyObject {
-    func loadCustomerInfo() async throws(CustomerInfoManagementServiceError) -> VisaCustomerInfoResponse
+    var errorEventPublisher: AnyPublisher<TangemPayApiErrorEvent, Never> { get }
+
+    func loadCustomerInfo() async throws -> VisaCustomerInfoResponse
     func loadKYCAccessToken() async throws -> VisaKYCAccessTokenResponse
 
     func getBalance() async throws -> TangemPayBalance
@@ -56,6 +54,8 @@ final class CommonCustomerInfoManagementService {
         return encoder
     }()
 
+    private let errorEventSubject = PassthroughSubject<TangemPayApiErrorEvent, Never>()
+
     init(
         apiType: VisaAPIType,
         authorizationTokenHandler: TangemPayAuthorizationTokensHandler,
@@ -66,17 +66,8 @@ final class CommonCustomerInfoManagementService {
         self.apiService = apiService
     }
 
-    private func request<T: Decodable>(for target: CustomerInfoManagementAPITarget.Target) async throws(CustomerInfoManagementServiceError) -> T {
-        do {
-            try await authorizationTokenHandler.prepare()
-        } catch {
-            switch error {
-            case .unauthorized:
-                throw .unauthorized
-            case .otherError(let error):
-                throw .otherError(error)
-            }
-        }
+    private func request<T: Decodable>(for target: CustomerInfoManagementAPITarget.Target) async throws -> T {
+        try await authorizationTokenHandler.prepare()
 
         do {
             return try await apiService.request(
@@ -86,18 +77,26 @@ final class CommonCustomerInfoManagementService {
                     encoder: encoder
                 )
             )
+        } catch .apiError(let errorWithCode) where errorWithCode.statusCode == 401 {
+            errorEventSubject.send(.unauthorized)
+            throw errorWithCode.error
         } catch {
-            throw .otherError(error)
+            errorEventSubject.send(.other)
+            throw error.underlyingError
         }
     }
 }
 
 extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
+    var errorEventPublisher: AnyPublisher<TangemPayApiErrorEvent, Never> {
+        errorEventSubject.eraseToAnyPublisher()
+    }
+
     func cancelKYC() async throws -> TangemPayCancelKYCResponse {
         try await request(for: .setPayEnabled)
     }
 
-    func loadCustomerInfo() async throws(CustomerInfoManagementServiceError) -> VisaCustomerInfoResponse {
+    func loadCustomerInfo() async throws -> VisaCustomerInfoResponse {
         try await request(for: .getCustomerInfo)
     }
 
