@@ -165,13 +165,10 @@ class BlockchainSdkExampleViewModel: ObservableObject {
 
     func updateBalance() {
         balance = "--"
-        walletManagerUpdateSubscription = walletManager?
-            .updatePublisher()
-            .sink { [weak self] _ in
-                // Some blockchains (like `Hedera`) updates wallet addresses asynchronously,
-                // so we have to update the UI too
-                self?.sourceAddresses = self?.walletManager?.wallet.addresses ?? []
-            }
+        Task {
+            await walletManager?.update()
+            sourceAddresses = walletManager?.wallet.addresses ?? []
+        }
     }
 
     func copySourceAddressToClipboard(_ sourceAddress: Address) {
