@@ -19,7 +19,6 @@ struct PulseMarketWidgetView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: MarketsWidgetLayout.Item.interItemSpacing) {
             header
-                .padding(.horizontal, MarketsWidgetLayout.Header.horizontalPadding)
 
             filter
 
@@ -31,9 +30,10 @@ struct PulseMarketWidgetView: View {
     private var header: some View {
         MarketsCommonWidgetHeaderView(
             headerTitle: viewModel.widgetType.headerTitle ?? "",
+            headerImage: nil,
             buttonTitle: Localization.commonSeeAll,
             buttonAction: viewModel.onSeeAllTapAction,
-            isLoading: viewModel.loadingState == .idle
+            isLoading: viewModel.loadingState == .loading
         )
     }
 
@@ -46,7 +46,7 @@ struct PulseMarketWidgetView: View {
     private var list: some View {
         Group {
             switch viewModel.loadingState {
-            case .loading, .idle:
+            case .loading:
                 loadingSkeletons
             case .loaded:
                 VStack(spacing: .zero) {
@@ -55,7 +55,7 @@ struct PulseMarketWidgetView: View {
                     }
                 }
             case .error:
-                MarketsMainWidgetErrorView {
+                MarketsListErrorView {
                     viewModel.tryLoadAgain()
                 }
             }

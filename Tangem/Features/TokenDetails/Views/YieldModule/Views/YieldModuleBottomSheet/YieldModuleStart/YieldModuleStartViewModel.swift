@@ -311,7 +311,7 @@ final class YieldModuleStartViewModel: ObservableObject {
         networkFeeNotification = nil
         highNetworkFeesNotification = nil
         setAllFeesState(.loading)
-        _ = try? await walletModel.update(silent: true).async()
+        await walletModel.update(silent: true, features: .balances)
         fetchFees()
     }
 
