@@ -14,12 +14,6 @@ enum TangemPayOrderIdStorage {
         AppSettings.shared.tangemPayCardIssuingOrderIdForCustomerWalletId[customerWalletId]
     }
 
-    static func cardIssuingOrderIdPublisher(customerWalletId: String) -> AnyPublisher<String?, Never> {
-        AppSettings.shared.$tangemPayCardIssuingOrderIdForCustomerWalletId
-            .map { $0[customerWalletId] }
-            .eraseToAnyPublisher()
-    }
-
     static func saveCardIssuingOrderId(_ orderId: String, customerWalletId: String) {
         AppSettings.shared.tangemPayCardIssuingOrderIdForCustomerWalletId[customerWalletId] = orderId
     }
