@@ -17,11 +17,7 @@ final class PulseMarketWidgetViewModel: ObservableObject {
 
     @Published var filterSelectedId: String? = nil
     @Published private(set) var tokenViewModels: [MarketTokenItemViewModel] = []
-    @Published private(set) var loadingState: WidgetLoadingState = .idle {
-        didSet {
-            widgetsUpdateHandler.performUpdateLoading(state: loadingState, for: widgetType)
-        }
-    }
+    @Published private(set) var loadingState: WidgetLoadingState = .loading
 
     var availabilityToSelectionOrderType: [MarketsListOrderType] {
         MarketsListOrderType.allCases.filter {

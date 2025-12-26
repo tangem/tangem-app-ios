@@ -118,4 +118,12 @@ extension MarketsCoordinator: MarketsMainRoutable {
             break
         }
     }
+
+    func openNews(by id: NewsId) {
+        // [REDACTED_TODO_COMMENT]
+    }
+
+    func openAllNews() {
+        // [REDACTED_TODO_COMMENT]
+    }
 }
