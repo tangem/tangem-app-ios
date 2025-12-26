@@ -58,6 +58,7 @@ struct TrendingCardNewsView: View {
                 }
             }
         }
+        .buttonStyle(.plain)
         .allowsHitTesting(!itemState.isLoading)
     }
 
@@ -196,9 +197,9 @@ private extension TrendingCardNewsItem {
                     timeAgo: "Time",
                     tags: [
                         InfoChipItem(title: "Tag"),
-                        InfoChipItem(title: "Tag", leadingIcon: .system("bitcoinsign.circle.fill")),
+                        InfoChipItem(title: "Tag", leadingIcon: .image(Image(systemName: "bitcoinsign.circle.fill"))),
                         InfoChipItem(title: "Tag"),
-                        InfoChipItem(title: "Tag", leadingIcon: .system("bitcoinsign.circle.fill")),
+                        InfoChipItem(title: "Tag", leadingIcon: .image(Image(systemName: "bitcoinsign.circle.fill"))),
                         InfoChipItem(title: "Tag"),
                         InfoChipItem(title: "+3"),
                     ],
@@ -218,9 +219,9 @@ private extension TrendingCardNewsItem {
                     timeAgo: "Time",
                     tags: [
                         InfoChipItem(title: "Tag"),
-                        InfoChipItem(title: "Tag", leadingIcon: .system("bitcoinsign.circle.fill")),
+                        InfoChipItem(title: "Tag", leadingIcon: .image(Image(systemName: "bitcoinsign.circle.fill"))),
                         InfoChipItem(title: "Tag"),
-                        InfoChipItem(title: "Tag", leadingIcon: .system("bitcoinsign.circle.fill")),
+                        InfoChipItem(title: "Tag", leadingIcon: .image(Image(systemName: "bitcoinsign.circle.fill"))),
                         InfoChipItem(title: "Tag"),
                         InfoChipItem(title: "+3"),
                     ],
