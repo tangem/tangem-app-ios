@@ -46,6 +46,7 @@ struct MarketsYieldModeNotificationView: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(Localization.marketsYieldSupplyBannerTitle)
+                    .multilineTextAlignment(.leading)
                     .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
                     .fixedSize(horizontal: false, vertical: true)
 
