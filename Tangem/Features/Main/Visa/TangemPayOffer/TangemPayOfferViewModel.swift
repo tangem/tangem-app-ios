@@ -44,7 +44,7 @@ final class TangemPayOfferViewModel: ObservableObject {
         runTask(in: self) { viewModel in
             do {
                 let paeraCustomer = userWalletModel.tangemPayManager.createNewCustomer()
-                try await paeraCustomer.authorizeWithCustomerWallet()
+                try await userWalletModel.tangemPayManager.authorizeWithCustomerWallet()
                 let state = try await paeraCustomer.getCurrentState()
 
                 switch state {

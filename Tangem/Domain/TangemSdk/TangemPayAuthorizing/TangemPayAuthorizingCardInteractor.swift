@@ -12,11 +12,13 @@ import TangemVisa
 final class TangemPayAuthorizingCardInteractor: TangemPayAuthorizing {
     private let tangemSdk: TangemSdk
     private let filter: SessionFilter
+    private let keysRepository: KeysRepository
 
-    init(with cardInfo: CardInfo) {
+    init(with cardInfo: CardInfo, keysRepository: KeysRepository) {
         let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
         tangemSdk = config.makeTangemSdk()
         filter = config.cardSessionFilter
+        self.keysRepository = keysRepository
     }
 
     func authorize(
@@ -41,10 +43,11 @@ final class TangemPayAuthorizingCardInteractor: TangemPayAuthorizing {
             }
         }
 
+        keysRepository.update(derivations: response.derivationResult)
+
         return TangemPayAuthorizingResponse(
             customerWalletAddress: response.customerWalletAddress,
-            tokens: response.tokens,
-            derivationResult: response.derivationResult
+            tokens: response.tokens
         )
     }
 }
