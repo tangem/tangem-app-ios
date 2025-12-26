@@ -1,12 +1,12 @@
 //
-//  MarketsTokenAccountNetworkSelectorFlowState.swift
+//  AccountsAwareAddTokenFlowState.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-extension MarketsTokenAccountNetworkSelectorFlowViewModel {
+extension AccountsAwareAddTokenFlowViewModel {
     /// Defines the navigation context for a given state
     enum NavigationContext: Equatable {
         case root
@@ -16,16 +16,16 @@ extension MarketsTokenAccountNetworkSelectorFlowViewModel {
 
     enum ViewState: Equatable {
         case accountSelector(viewModel: AccountSelectorViewModel, context: NavigationContext)
-        case networksSelection(viewModel: MarketsNetworkSelectorViewModel, context: NavigationContext)
-        case addToken(viewModel: MarketsAddTokenViewModel)
-        case getToken(viewModel: MarketsGetTokenViewModel)
+        case networkSelector(viewModel: AccountsAwareNetworkSelectorViewModel, context: NavigationContext)
+        case addToken(viewModel: AccountsAwareAddTokenViewModel)
+        case getToken(viewModel: AccountsAwareGetTokenViewModel)
 
         var id: String {
             switch self {
             case .accountSelector:
                 "accountSelector"
-            case .networksSelection:
-                "networksSelection"
+            case .networkSelector:
+                "networkSelector"
             case .addToken:
                 "addToken"
             case .getToken:
@@ -39,7 +39,7 @@ extension MarketsTokenAccountNetworkSelectorFlowViewModel {
             case .accountSelector(_, let context):
                 return context == .fromAddToken
 
-            case .networksSelection(_, let context):
+            case .networkSelector(_, let context):
                 return context != .root
 
             case .addToken:
@@ -56,7 +56,7 @@ extension MarketsTokenAccountNetworkSelectorFlowViewModel {
             case .accountSelector(_, let context):
                 return context != .fromAddToken
 
-            case .networksSelection(_, let context):
+            case .networkSelector(_, let context):
                 return context != .fromAddToken
 
             case .addToken:
@@ -70,13 +70,13 @@ extension MarketsTokenAccountNetworkSelectorFlowViewModel {
         // MARK: - Equatable
 
         static func == (
-            lhs: MarketsTokenAccountNetworkSelectorFlowViewModel.ViewState,
-            rhs: MarketsTokenAccountNetworkSelectorFlowViewModel.ViewState
+            lhs: AccountsAwareAddTokenFlowViewModel.ViewState,
+            rhs: AccountsAwareAddTokenFlowViewModel.ViewState
         ) -> Bool {
             switch (lhs, rhs) {
             case (.accountSelector, .accountSelector):
                 return true
-            case (.networksSelection, .networksSelection):
+            case (.networkSelector, .networkSelector):
                 return true
             case (.addToken, .addToken):
                 return true

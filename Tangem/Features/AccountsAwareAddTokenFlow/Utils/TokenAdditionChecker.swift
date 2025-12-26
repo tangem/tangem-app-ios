@@ -1,5 +1,5 @@
 //
-//  MarketsTokenNetworkChecker.swift
+//  TokenAdditionChecker.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,16 +9,19 @@
 import Foundation
 import BlockchainSdk
 
-/// Methods will be reused when adapting "Hot Tokens" to account-selection.
-enum MarketsTokenNetworkChecker {
-    /// Checks if token is added on networks for this account
+/// Unified checker for token addition status across accounts and wallets.
+enum TokenAdditionChecker {
     static func isTokenAddedOnNetworks(
         account: any CryptoAccountModel,
         coinId: String,
         availableNetworks: [NetworkModel],
         supportedBlockchains: Set<Blockchain>
     ) -> Bool {
-        let networksToCheck = networksToCheck(for: account, availableNetworks: availableNetworks, supportedBlockchains: supportedBlockchains)
+        let networksToCheck = networksToCheck(
+            for: account,
+            availableNetworks: availableNetworks,
+            supportedBlockchains: supportedBlockchains
+        )
 
         guard networksToCheck.isNotEmpty else {
             return true
@@ -63,9 +66,9 @@ enum MarketsTokenNetworkChecker {
     }
 }
 
-// MARK: - Private
+// MARK: - Private Helpers
 
-private extension MarketsTokenNetworkChecker {
+private extension TokenAdditionChecker {
     static func networksToCheck(
         for account: any CryptoAccountModel,
         availableNetworks: [NetworkModel],
