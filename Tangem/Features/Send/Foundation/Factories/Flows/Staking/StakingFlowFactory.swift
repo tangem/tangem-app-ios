@@ -25,6 +25,8 @@ class StakingFlowFactory: StakingFlowDependenciesFactory {
     let fiatAvailableBalanceProvider: any TokenBalanceProvider
     let transactionDispatcherFactory: TransactionDispatcherFactory
     let allowanceServiceFactory: AllowanceServiceFactory
+    /// Staking doesn't support account-based analytics
+    let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? = nil
 
     var actionType: StakingAction.ActionType { .stake }
 

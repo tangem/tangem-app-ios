@@ -8,11 +8,12 @@
 
 import Foundation
 
-struct WidgetLoadingStateEvent: Identifiable, Hashable {
-    let type: MarketsWidgetType
-    let state: WidgetLoadingState
+enum WidgetLoadingStateEvent: String, Identifiable, Hashable {
+    case readyForDisplay = "ready_for_display"
+    case lockedForDisplay = "locked_for_display"
+    case allWidgetsWithError = "all_widgets_with_error"
 
-    var id: MarketsWidgetType.ID {
-        type.id
+    var id: String {
+        rawValue
     }
 }
