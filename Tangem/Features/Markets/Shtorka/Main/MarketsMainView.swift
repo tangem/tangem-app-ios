@@ -105,9 +105,24 @@ struct MarketsMainView: View {
         .infinityFrame(axis: .vertical, alignment: .top)
     }
 
+    @ViewBuilder
     private var searchResultView: some View {
-        // [REDACTED_TODO_COMMENT]
-        MarketsNoResultsStateView()
+        switch viewModel.tokenListViewModel.tokenListLoadingState {
+        case .noResults:
+            noResultsStateView
+        case .error:
+            errorStateView
+        case .loading, .allDataLoaded, .idle:
+            MarketsMainSearchView(
+                headerHeight: headerHeight,
+                scrollTopAnchorId: scrollTopAnchorId,
+                scrollViewFrameCoordinateSpaceName: scrollViewFrameCoordinateSpaceName,
+                searchResultListOverlayTotalHeight: searchResultListOverlayTotalHeight,
+                mainWindowSize: mainWindowSize,
+                updateListOverlayAppearance: updateListOverlayAppearance(contentOffset:),
+                viewModel: viewModel.tokenListViewModel
+            )
+        }
     }
 
     private var defaultListOverlay: some View {
@@ -205,6 +220,20 @@ struct MarketsMainView: View {
         }
     }
 
+    private var noResultsStateView: some View {
+        MarketsNoResultsStateView()
+    }
+
+    private var errorStateView: some View {
+        MarketsListErrorView(tryLoadAgain: viewModel.tokenListViewModel.onTryLoadList)
+    }
+
+    private var loadingSkeletons: some View {
+        ForEach(0 ..< 20) { _ in
+            MarketsSkeletonItemView()
+        }
+    }
+
     @ViewBuilder
     private func makeContentView(with item: MarketsMainViewModel.WidgetContentItem) -> some View {
         switch item {
@@ -212,6 +241,8 @@ struct MarketsMainView: View {
             TopMarketWidgetView(viewModel: viewModel)
         case .pulse(let viewModel):
             PulseMarketWidgetView(viewModel: viewModel)
+        case .news(let viewModel):
+            NewsWidgetView(viewModel: viewModel)
         }
     }
 }
