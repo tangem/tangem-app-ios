@@ -98,7 +98,7 @@ class UserWalletModelMock: UserWalletModel {
     var accountModelsManager: AccountModelsManager {
         AccountModelsManagerMock()
     }
-    
+
     var tangemPayManager: TangemPayManager {
         TangemPayManager(
             userWalletId: userWalletId,
