@@ -1,5 +1,5 @@
 //
-//  MarketsAddTokenView.swift
+//  AccountsAwareAddTokenView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,8 +12,8 @@ import TangemAssets
 import TangemAccounts
 import TangemLocalization
 
-struct MarketsAddTokenView: View {
-    @ObservedObject var viewModel: MarketsAddTokenViewModel
+struct AccountsAwareAddTokenView: View {
+    @ObservedObject var viewModel: AccountsAwareAddTokenViewModel
 
     private var buttonIcon: MainButton.Icon? {
         viewModel.needsCardDerivation ? .trailing(Assets.tangemIcon) : nil

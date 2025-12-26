@@ -1,6 +1,6 @@
 //
-//  MarketsNetworkSelectorView.swift
-//  Tangem
+//  AccountsAwareNetworkSelectorView.swift
+//  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
@@ -10,14 +10,14 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 
-struct MarketsNetworkSelectorView: View {
-    let viewModel: MarketsNetworkSelectorViewModel
+struct AccountsAwareNetworkSelectorView: View {
+    let viewModel: AccountsAwareNetworkSelectorViewModel
 
     var body: some View {
         GroupedScrollView(contentType: .lazy(alignment: .leading, spacing: 0)) {
             LazyVStack(spacing: 0) {
-                ForEach(viewModel.tokenItemViewModels) { viewModel in
-                    MarketsNetworkItemView(viewModel: viewModel)
+                ForEach(viewModel.itemViewModels) { itemViewModel in
+                    AccountsAwareNetworkSelectorItemView(viewModel: itemViewModel)
                 }
             }
         }

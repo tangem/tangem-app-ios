@@ -1,16 +1,16 @@
 //
-//  MarketsTokensNetworkSelectorItemViewModel.swift
-//  Tangem
+//  AccountsAwareNetworkSelectorItemViewModel.swift
+//  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2023 Tangem AG. All rights reserved.
+//  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
 import Combine
 import SwiftUI
 import TangemAssets
 
-class MarketsNetworkSelectorItemViewModel: Identifiable, ObservableObject {
+final class AccountsAwareNetworkSelectorItemViewModel: Identifiable, ObservableObject {
     let id: UUID = .init()
 
     let tokenItem: TokenItem
