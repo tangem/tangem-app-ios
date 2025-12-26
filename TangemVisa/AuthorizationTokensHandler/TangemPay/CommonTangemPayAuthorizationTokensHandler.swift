@@ -6,11 +6,12 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Combine
 import TangemFoundation
 
-public enum TangemPayAuthorizationTokensHandlerError: Error {
+public enum TangemPayApiErrorEvent {
     case unauthorized
-    case otherError(Error)
+    case other
 }
 
 final class CommonTangemPayAuthorizationTokensHandler {
@@ -20,6 +21,7 @@ final class CommonTangemPayAuthorizationTokensHandler {
 
     private let authorizationTokensHolder: ThreadSafeContainer<TangemPayAuthorizationTokens?>
     private let taskProcessor = SingleTaskProcessor<Void, Error>()
+    private let errorEventSubject = PassthroughSubject<TangemPayApiErrorEvent, Never>()
 
     private var tokens: TangemPayAuthorizationTokens? {
         authorizationTokensHolder.read()
@@ -37,29 +39,25 @@ final class CommonTangemPayAuthorizationTokensHandler {
         self.authorizationTokensRepository = authorizationTokensRepository
     }
 
-    private func refreshTokenIfNeeded() async throws(TangemPayAuthorizationTokensHandlerError) {
-        guard let tokens else {
-            throw .unauthorized
-        }
-
-        if tokens.refreshTokenExpired {
-            throw .unauthorized
+    private func refreshTokenIfNeeded() async throws {
+        guard let tokens, !tokens.refreshTokenExpired else {
+            errorEventSubject.send(.unauthorized)
+            // [REDACTED_TODO_COMMENT]
+            throw VisaAuthorizationTokensHandlerError.refreshTokenExpired
         }
 
         if tokens.accessTokenExpired {
-            let newTokensResult = await authorizationService.refreshTokens(refreshToken: tokens.refreshToken)
-
-            switch newTokensResult {
-            case .success(let value):
-                try? saveTokens(tokens: value)
-
-            case .failure(.apiError(let errorWithStatusCode)) where errorWithStatusCode.statusCode == 401:
+            do {
+                let newTokens = try await authorizationService.refreshTokens(refreshToken: tokens.refreshToken)
+                try? saveTokens(tokens: newTokens)
+            } catch .apiError(let errorWithStatusCode) where errorWithStatusCode.statusCode == 401 {
                 VisaLogger.error("Failed to refresh token", error: errorWithStatusCode.error)
-                throw .unauthorized
-
-            case .failure(let error):
+                errorEventSubject.send(.unauthorized)
+                throw errorWithStatusCode.error
+            } catch {
                 VisaLogger.error("Failed to refresh token", error: error)
-                throw .otherError(error)
+                errorEventSubject.send(.other)
+                throw error.underlyingError
             }
         }
     }
@@ -77,6 +75,10 @@ extension CommonTangemPayAuthorizationTokensHandler: TangemPayAuthorizationToken
         return AuthorizationTokensUtility.getAuthorizationHeader(from: tokens)
     }
 
+    var errorEventPublisher: AnyPublisher<TangemPayApiErrorEvent, Never> {
+        errorEventSubject.eraseToAnyPublisher()
+    }
+
     func saveTokens(tokens: TangemPayAuthorizationTokens) throws {
         authorizationTokensHolder.mutate {
             $0 = tokens
@@ -85,15 +87,9 @@ extension CommonTangemPayAuthorizationTokensHandler: TangemPayAuthorizationToken
         try authorizationTokensRepository.save(tokens: tokens, customerWalletId: customerWalletId)
     }
 
-    func prepare() async throws(TangemPayAuthorizationTokensHandlerError) {
-        do {
-            try await taskProcessor.execute { [weak self] in
-                try await self?.refreshTokenIfNeeded()
-            }
-        } catch let error as TangemPayAuthorizationTokensHandlerError {
-            throw error
-        } catch {
-            throw .otherError(error)
+    func prepare() async throws {
+        try await taskProcessor.execute { [weak self] in
+            try await self?.refreshTokenIfNeeded()
         }
     }
 }
