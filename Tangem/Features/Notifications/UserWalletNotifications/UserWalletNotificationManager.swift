@@ -263,7 +263,7 @@ final class UserWalletNotificationManager {
                 switch value {
                 case .configurationChanged:
                     return true
-                case .nameDidChange, .paeraCustomerCreated:
+                case .nameDidChange:
                     return false
                 }
             }

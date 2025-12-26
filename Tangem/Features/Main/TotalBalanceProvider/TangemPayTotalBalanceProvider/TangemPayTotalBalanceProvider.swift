@@ -10,7 +10,7 @@ import Combine
 import TangemVisa
 
 final class TangemPayTotalBalanceProvider {
-    private let tangemPayAccountProvider: TangemPayAccountProvider
+    private let tangemPayManager: TangemPayManager
     private let tokenBalanceTypesCombiner: TokenBalanceTypesCombiner
 
     private let tokenItem = TangemPayUtilities.usdcTokenItem
@@ -18,10 +18,10 @@ final class TangemPayTotalBalanceProvider {
     private var updateSubscription: AnyCancellable?
 
     init(
-        tangemPayAccountProvider: TangemPayAccountProvider,
+        tangemPayManager: TangemPayManager,
         tokenBalanceTypesCombiner: TokenBalanceTypesCombiner = .init()
     ) {
-        self.tangemPayAccountProvider = tangemPayAccountProvider
+        self.tangemPayManager = tangemPayManager
         self.tokenBalanceTypesCombiner = tokenBalanceTypesCombiner
 
         bind()
@@ -44,26 +44,7 @@ extension TangemPayTotalBalanceProvider: TotalBalanceProvider {
 
 private extension TangemPayTotalBalanceProvider {
     func bind() {
-        updateSubscription = tangemPayAccountProvider
-            .paeraCustomerPublisher
-            .flatMapLatest { paeraCustomer -> AnyPublisher<TangemPayAccount?, Never> in
-                if let paeraCustomer {
-//                    paeraCustomer.statePublisher
-//                        .map { state in
-//                            switch state {
-//                            case .tangemPayAccount(let tangemPayAccount):
-//                                tangemPayAccount
-//                            default:
-//                                nil
-//                            }
-//                        }
-//                        .eraseToAnyPublisher()
-                    // [REDACTED_TODO_COMMENT]
-                    fatalError()
-                } else {
-                    .just(output: nil)
-                }
-            }
+        updateSubscription = tangemPayManager.tangemPayAccountPublisher
             .withWeakCaptureOf(self)
             .flatMapLatest { provider, tangemPayAccount -> AnyPublisher<TotalBalanceState, Never> in
                 if let tangemPayAccount {

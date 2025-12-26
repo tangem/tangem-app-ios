@@ -58,9 +58,9 @@ class CommonUserWalletModel {
         nftManager: NFTManager,
         keysRepository: KeysRepository,
         totalBalanceProvider: TotalBalanceProvider,
-        tangemPayAccountProvider: TangemPayAccountProviderSetupable,
         userTokensPushNotificationsManager: UserTokensPushNotificationsManager,
-        accountModelsManager: AccountModelsManager
+        accountModelsManager: AccountModelsManager,
+        tangemPayManager: TangemPayManager
     ) {
         self.walletInfo = walletInfo
         self.config = config
@@ -71,18 +71,11 @@ class CommonUserWalletModel {
         self.nftManager = nftManager
         self.keysRepository = keysRepository
         self.totalBalanceProvider = totalBalanceProvider
-        self.tangemPayAccountProvider = tangemPayAccountProvider
         self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
         self.accountModelsManager = accountModelsManager
+        self.tangemPayManager = tangemPayManager
 
         _cardHeaderImagePublisher = .init(config.cardHeaderImage)
-
-        tangemPayManager = TangemPayManager(
-            userWalletId: userWalletId,
-            keysRepository: keysRepository,
-            tangemPayAuthorizingInteractor: tangemPayAuthorizingInteractor,
-            signer: signer
-        )
     }
 
     deinit {
@@ -273,9 +266,6 @@ extension CommonUserWalletModel: UserWalletModel {
                 mutableInfo.hasMnemonicBackup = true
                 updateConfiguration(walletInfo: .mobileWallet(mutableInfo))
             }
-
-        case .paeraCustomerCreated(let paeraCustomer):
-            _updatePublisher.send(.paeraCustomerCreated(paeraCustomer))
         }
     }
 

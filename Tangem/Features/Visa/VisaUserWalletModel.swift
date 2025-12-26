@@ -565,7 +565,7 @@ extension VisaUserWalletModel: UserWalletModel {
     var accountModelsManager: AccountModelsManager {
         userWalletModel.accountModelsManager
     }
-    
+
     var tangemPayManager: TangemPayManager {
         userWalletModel.tangemPayManager
     }
