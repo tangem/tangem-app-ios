@@ -44,9 +44,9 @@ final class TangemPayOfferViewModel: ObservableObject {
         runTask(in: self) { viewModel in
             do {
                 let tangemPayManager = userWalletModel.tangemPayManager
-                let tangemPayRemoteState = try await tangemPayManager.authorizeWithCustomerWallet()
+                let TangemPayEnrollmentState = try await tangemPayManager.authorizeWithCustomerWallet()
 
-                switch tangemPayRemoteState {
+                switch TangemPayEnrollmentState {
                 case .kyc:
                     try await tangemPayManager.launchKYC {
                         tangemPayManager.refresh()
