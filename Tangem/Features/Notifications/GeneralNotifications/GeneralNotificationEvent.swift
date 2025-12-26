@@ -9,6 +9,7 @@
 import Foundation
 import TangemLocalization
 import TangemAssets
+import TangemSdk
 
 enum GeneralNotificationEvent: Equatable, Hashable {
     case numberOfSignedHashesIncorrect
@@ -128,7 +129,7 @@ extension GeneralNotificationEvent: NotificationEvent {
         case .missingDerivation(let numberOfNetworks):
             return Localization.warningMissingDerivationMessage(numberOfNetworks)
         case .walletLocked:
-            return Localization.warningAccessDeniedMessage(BiometricAuthorizationUtils.biometryType.name)
+            return Localization.warningAccessDeniedMessage(BiometricsUtil.biometryType.name)
         case .missingBackup:
             return Localization.warningNoBackupMessage
         case .supportedOnlySingleCurrencyWallet:
