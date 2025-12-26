@@ -4325,7 +4325,7 @@
 		EFA4E3872C3F046C008815AD /* StakingTargetViewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA4E3862C3F046C008815AD /* StakingTargetViewData.swift */; };
 		EFA5683C2C480D120064EBA1 /* TransactionDispatcherTransactionType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA5683B2C480D120064EBA1 /* TransactionDispatcherTransactionType.swift */; };
 		EFA5683E2C480F6C0064EBA1 /* StakingTransactionInfo+Mock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA5683D2C480F6C0064EBA1 /* StakingTransactionInfo+Mock.swift */; };
-		EFA580632893E6AA00110DB0 /* BiometricAuthorizationUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA580622893E6AA00110DB0 /* BiometricAuthorizationUtils.swift */; };
+		EFA580632893E6AA00110DB0 /* LABiometryType+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA580622893E6AA00110DB0 /* LABiometryType+.swift */; };
 		EFA5BC0A2C88D31C004662CA /* StakingTransactionAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA5BC092C88D31C004662CA /* StakingTransactionAction.swift */; };
 		EFA6164E2B62A96B0013A129 /* TransactionSendAvailabilityProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA6164D2B62A96A0013A129 /* TransactionSendAvailabilityProvider.swift */; };
 		EFA696F72DD4971600370459 /* SendAmountViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA696F62DD4971600370459 /* SendAmountViewModel.swift */; };
@@ -9051,7 +9051,7 @@
 		EFA4E3862C3F046C008815AD /* StakingTargetViewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingTargetViewData.swift; sourceTree = "<group>"; };
 		EFA5683B2C480D120064EBA1 /* TransactionDispatcherTransactionType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionDispatcherTransactionType.swift; sourceTree = "<group>"; };
 		EFA5683D2C480F6C0064EBA1 /* StakingTransactionInfo+Mock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StakingTransactionInfo+Mock.swift"; sourceTree = "<group>"; };
-		EFA580622893E6AA00110DB0 /* BiometricAuthorizationUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BiometricAuthorizationUtils.swift; sourceTree = "<group>"; };
+		EFA580622893E6AA00110DB0 /* LABiometryType+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "LABiometryType+.swift"; sourceTree = "<group>"; };
 		EFA5BC092C88D31C004662CA /* StakingTransactionAction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakingTransactionAction.swift; sourceTree = "<group>"; };
 		EFA6164D2B62A96A0013A129 /* TransactionSendAvailabilityProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionSendAvailabilityProvider.swift; sourceTree = "<group>"; };
 		EFA696F62DD4971600370459 /* SendAmountViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAmountViewModel.swift; sourceTree = "<group>"; };
@@ -12356,6 +12356,7 @@
 				B0A948FE2ACD999C00C80B0A /* WeakifyFunction.swift */,
 				B0D008B2296E9290004D5AF5 /* Combine */,
 				B07DBC9C2625E08A00BAE18E /* UIKit */,
+				EFA580622893E6AA00110DB0 /* LABiometryType+.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -13241,7 +13242,6 @@
 				B047A0202D411A2E00CA44EA /* AccessCodeSaveUtility.swift */,
 				DCFE143D294B31C00053106B /* AppPresenter.swift */,
 				B003BDAB2A029C4300B282F7 /* BalanceConverter.swift */,
-				EFA580622893E6AA00110DB0 /* BiometricAuthorizationUtils.swift */,
 				B64781E12C22F74300B0E882 /* CustomTokenContractAddressConverter.swift */,
 				DC5DBBC8289B951600C21E35 /* DemoUtil.swift */,
 				B0F62C5425DE4F6B005C8BA0 /* DeviceInfoProvider.swift */,
@@ -27183,7 +27183,7 @@
 				B67DC1E82B7C4716008ACB0E /* BlockchainAccountCreator.swift in Sources */,
 				DC7D39EF29DFFBDC007BCD23 /* OnboardingStepsBuilderFactory.swift in Sources */,
 				B0BA266E2BAD71630055C6C1 /* OnboardingAccessCodeViewModel.swift in Sources */,
-				EFA580632893E6AA00110DB0 /* BiometricAuthorizationUtils.swift in Sources */,
+				EFA580632893E6AA00110DB0 /* LABiometryType+.swift in Sources */,
 				DAA5E30228D21369003C0E80 /* UserWalletStorageAgreementView.swift in Sources */,
 				EA3999402E770C34008E4932 /* YieldModuleActiveContentView.swift in Sources */,
 				EF7B9CF5286C7023004C33A9 /* CardSettingsCoordinator.swift in Sources */,
@@ -36596,7 +36596,7 @@
 			repositoryURL = "git@github.com:tangem-developments/tangem-sdk-ios.git";
 			requirement = {
 				kind = exactVersion;
-				version = 4.0.2;
+				version = 4.0.3;
 			};
 		};
 		B68E1F882CBC44910043E598 /* XCRemoteSwiftPackageReference "hedera-sdk-swift" */ = {
