@@ -1,5 +1,5 @@
 //
-//  GetTokenViewModel.swift
+//  AccountsAwareGetTokenViewModel.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,14 +11,13 @@ import TangemAccounts
 import Foundation
 
 @MainActor
-final class MarketsGetTokenViewModel: ObservableObject, FloatingSheetContentViewModel {
+final class AccountsAwareGetTokenViewModel: ObservableObject, FloatingSheetContentViewModel {
     // MARK: - Published Properties
 
     let tokenItemViewState: EntitySummaryView.ViewState
 
     // MARK: - Private Properties
 
-    private let tokenItem: TokenItem
     private let onBuy: () -> Void
     private let onExchange: () -> Void
     private let onReceive: () -> Void
@@ -34,7 +33,6 @@ final class MarketsGetTokenViewModel: ObservableObject, FloatingSheetContentView
         onReceive: @escaping () -> Void,
         onLater: @escaping () -> Void
     ) {
-        self.tokenItem = tokenItem
         self.onBuy = onBuy
         self.onExchange = onExchange
         self.onReceive = onReceive
@@ -87,7 +85,7 @@ final class MarketsGetTokenViewModel: ObservableObject, FloatingSheetContentView
 
 // MARK: - ViewEvent
 
-extension MarketsGetTokenViewModel {
+extension AccountsAwareGetTokenViewModel {
     enum ViewEvent {
         case buyTapped
         case exchangeTapped

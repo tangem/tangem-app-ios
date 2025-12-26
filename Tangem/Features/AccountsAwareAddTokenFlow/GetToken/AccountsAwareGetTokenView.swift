@@ -1,5 +1,5 @@
 //
-//  GetTokenView.swift
+//  AccountsAwareGetTokenView.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,8 +11,8 @@ import TangemUI
 import TangemAssets
 import TangemLocalization
 
-struct MarketsGetTokenView: View {
-    @ObservedObject var viewModel: MarketsGetTokenViewModel
+struct AccountsAwareGetTokenView: View {
+    @ObservedObject var viewModel: AccountsAwareGetTokenViewModel
 
     var body: some View {
         VStack(spacing: 0) {
@@ -21,21 +21,21 @@ struct MarketsGetTokenView: View {
                 .padding(.bottom, 14)
 
             VStack(spacing: 0) {
-                MarketsActionRowView(
+                GetTokenActionRowView(
                     icon: Assets.plus24,
                     title: Localization.commonBuy,
                     subtitle: Localization.buyTokenDescription
                 )
                 .asTappableRow { viewModel.handleViewEvent(.buyTapped) }
 
-                MarketsActionRowView(
+                GetTokenActionRowView(
                     icon: Assets.exchangeMini,
                     title: Localization.commonExchange,
                     subtitle: Localization.exсhangeTokenDescription
                 )
                 .asTappableRow { viewModel.handleViewEvent(.exchangeTapped) }
 
-                MarketsActionRowView(
+                GetTokenActionRowView(
                     icon: Assets.arrowDownMini,
                     title: Localization.commonReceive,
                     subtitle: Localization.receiveTokenDescription
@@ -59,7 +59,7 @@ struct MarketsGetTokenView: View {
 
 // MARK: - Convenience for tappable actions
 
-private extension MarketsActionRowView {
+private extension GetTokenActionRowView {
     func asTappableRow(action: @escaping () -> Void) -> some View {
         Button(action: action) {
             self
