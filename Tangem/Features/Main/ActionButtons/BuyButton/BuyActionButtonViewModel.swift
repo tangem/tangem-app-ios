@@ -18,6 +18,9 @@ final class BuyActionButtonViewModel: ActionButtonViewModel {
     @Injected(\.expressAvailabilityProvider)
     private var expressAvailabilityProvider: ExpressAvailabilityProvider
 
+    @Injected(\.userWalletRepository)
+    private var userWalletRepository: UserWalletRepository
+
     // MARK: Published property
 
     @Published var alert: AlertBinder?
@@ -139,8 +142,8 @@ extension BuyActionButtonViewModel {
 extension BuyActionButtonViewModel {
     private func openBuy() {
         if FeatureProvider.isAvailable(.accounts) {
-            let tokenSelectorViewModel = AccountsAwareTokenSelectorViewModel(walletsProvider: .common(), availabilityProvider: .buy())
-            coordinator?.openBuy(tokenSelectorViewModel: tokenSelectorViewModel)
+            let userWalletModels = userWalletRepository.models.filter { !$0.isUserWalletLocked }
+            coordinator?.openBuy(userWalletModels: userWalletModels)
         } else {
             coordinator?.openBuy(userWalletModel: userWalletModel)
         }
