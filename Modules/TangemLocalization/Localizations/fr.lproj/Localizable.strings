@@ -416,7 +416,7 @@
 "details_title" = "Détails";
 "disclaimer_title" = "Conditions d'utilisation";
 "domain_receive_assets_default_address" = "Adresse par défaut";
-"domain_receive_assets_legacy_address" = "Legacy adresse";
+"domain_receive_assets_legacy_address" = "Legacy %@ adresse";
 "domain_receive_assets_navigation_title" = "Recevoir des actifs";
 "domain_receive_assets_network_name_address" = "%@ adresse";
 "domain_receive_assets_onboarding_description" = "L’envoi d’actifs sur d’autres réseaux entraînera une perte définitive.";
@@ -507,7 +507,7 @@
 "feedback_preface_scan_failed" = "Veuillez nous dire quelle carte vous avez";
 "feedback_preface_support" = "Chère équipe de support,";
 "feedback_preface_tx_failed" = "Veuillez nous en dire plus sur votre problème. Chaque petit détail peut nous aider.";
-"feedback_subject_backup_problem" = "Backup issue";
+"feedback_subject_backup_problem" = "Problème de sauvegarde";
 "feedback_subject_pre_activated_wallet" = "Portefeuille précédemment activé";
 "feedback_subject_rate_negative" = "Mes suggestions";
 "feedback_subject_scan_failed" = "Impossible de scanner une carte";
@@ -1637,8 +1637,8 @@
 "warning_button_ok" = "Ok, compris!";
 "warning_button_really_cool" = "Vraiment cool !";
 "warning_button_refresh" = "Rafraîchir";
-"warning_clore_migration_message" = "According to Clore’s official documentation, all tokens received before December 21 will be migrated to Clore (ERC20); tokens received after will not. Transfer solution coming — stay tuned.";
-"warning_clore_migration_title" = "Clore Network Migration";
+"warning_clore_migration_message" = "Selon la documentation officielle de Clore, toutes les pièces reçues avant le 21 décembre seront migrées vers Clore (token ERC-20) ; les pièces reçues après cette date ne le seront pas. Une solution de transfert arrive — restez à l'écoute.";
+"warning_clore_migration_title" = "Migration du réseau Clore";
 "warning_demo_mode_message" = "Vous êtes actuellement en mode démo";
 "warning_demo_mode_title" = "Mode démo actif";
 "warning_developer_card_message" = "La carte que vous avez scannée est une carte de développeur. Ne l'utilisez pas pour créer votre portefeuille.";
