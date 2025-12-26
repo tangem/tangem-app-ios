@@ -18,11 +18,11 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
 
     // MARK: - Injected & Published Properties
 
-    @Published private(set) var headerViewModel: MainBottomSheetHeaderViewModel
-    @Published private(set) var widgetItems: [WidgetStateItem] = []
-
-    // [REDACTED_TODO_COMMENT]
+    @Published private(set) var isError: Bool = false
     @Published private(set) var isSearching: Bool = false
+    @Published private(set) var headerViewModel: MainBottomSheetHeaderViewModel
+    @Published private(set) var tokenListViewModel: MarketsTokenListViewModel
+    @Published private(set) var widgetItems: [WidgetStateItem] = []
 
     @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
     @Injected(\.viewHierarchySnapshotter) private var viewHierarchySnapshotter: ViewHierarchySnapshotting
@@ -45,11 +45,18 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
         isViewVisible ? super.overlayContentHidingProgress : 1.0
     }
 
-    private let quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper
-
     private weak var coordinator: MarketsMainRoutable?
 
+    private let filterProvider = MarketsListDataFilterProvider()
+    private let dataProvider = MarketsListDataProvider()
+    private let chartsHistoryProvider = MarketsListChartsHistoryProvider()
+    private let quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper
+    private let quotesUpdatesScheduler = MarketsQuotesUpdatesScheduler()
+    private let marketsNotificationsManager: MarketsNotificationsManager
+
     private var bag = Set<AnyCancellable>()
+
+    private var currentSearchValue: String = ""
     private var isViewVisible: Bool = false
     private var isBottomSheetExpanded: Bool = false
 
@@ -67,6 +74,16 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
         self.coordinator = coordinator
 
         headerViewModel = MainBottomSheetHeaderViewModel()
+        marketsNotificationsManager = MarketsNotificationsManager(dataProvider: dataProvider)
+
+        tokenListViewModel = MarketsTokenListViewModel(
+            listDataProvider: dataProvider,
+            listDataFilterProvider: filterProvider,
+            quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper,
+            quotesUpdatesScheduler: quotesUpdatesScheduler,
+            chartsHistoryProvider: chartsHistoryProvider,
+            coordinator: coordinator
+        )
 
         // Our view is initially presented when the sheet is collapsed, hence the `0.0` initial value.
         super.init(overlayContentProgressInitialValue: 0.0)
@@ -76,7 +93,7 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
         searchTextBind(publisher: headerViewModel.enteredSearchInputPublisher)
         bindToWidgetsProvider()
 
-        widgetsProvider.initializationWidgets()
+        widgetsProvider.reloadWidgets()
     }
 
     deinit {
@@ -96,8 +113,7 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
     func onOverlayContentStateChange(_ state: OverlayContentState) {
         switch state {
         case .expanded:
-            // Need for locked fetchMore process when bottom sheet not yet open
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.bottomSheetExpandedDelay) {
                 self.isBottomSheetExpanded = true
             }
 
@@ -105,12 +121,6 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
         case .collapsed:
             isBottomSheetExpanded = false
         }
-    }
-
-    // MARK: - Actions
-
-    func onHeaderActionButtonTap(for widgetType: MarketsWidgetType) {
-        // [REDACTED_TODO_COMMENT]
     }
 }
 
@@ -126,7 +136,35 @@ private extension MarketsMainViewModel {
             .removeDuplicates()
             .withWeakCaptureOf(self)
             .sink { viewModel, searchInput in
-                // [REDACTED_TODO_COMMENT]
+                viewModel.isSearching = true
+
+                switch searchInput {
+                case .textInput(let value):
+                    if viewModel.currentSearchValue.compare(value) != .orderedSame {
+                        viewModel.tokenListViewModel.onResetShowItemsBelowCapFlag()
+                    }
+
+                    viewModel.currentSearchValue = value
+                    let currentFilter = viewModel.dataProvider.lastFilterValue ?? viewModel.filterProvider.currentFilterValue
+
+                    // Always use rating sorting for search
+                    let searchFilter = MarketsListDataProvider.Filter(
+                        interval: currentFilter.interval,
+                        order: value.isEmpty ? currentFilter.order : .rating
+                    )
+
+                    viewModel.tokenListViewModel.onFetch(with: value, by: searchFilter)
+                case .clearInput, .cancelInput:
+                    viewModel.isSearching = false
+
+                    if viewModel.currentSearchValue.isEmpty {
+                        return
+                    }
+
+                    viewModel.tokenListViewModel.onResetShowItemsBelowCapFlag()
+                    viewModel.currentSearchValue = ""
+                    viewModel.tokenListViewModel.onFetch(with: "", by: viewModel.filterProvider.currentFilterValue)
+                }
             }
             .store(in: &bag)
     }
@@ -146,11 +184,17 @@ private extension MarketsMainViewModel {
             }
             .store(in: &bag)
 
-        widgetsProvider
+        widgetsUpdateHandler
             .widgetsUpdateStateEventPublisher
-            .receive(on: DispatchQueue.main)
+            .receiveOnMain()
             .withWeakCaptureOf(self)
-            .sink { viewModel, _ in
+            .sink { viewModel, state in
+                /*
+                 if case .allWidgetsWithError = state {
+                     viewModel.isError = true
+                 }
+                  */
+
                 // [REDACTED_TODO_COMMENT]
             }
             .store(in: &bag)
@@ -194,7 +238,12 @@ private extension MarketsMainViewModel {
             )
             contentItem = .top(viewModel)
         case .news:
-            return nil
+            let viewModel = NewsWidgetViewModel(
+                widgetType: widgetModel.type,
+                widgetsUpdateHandler: widgetsUpdateHandler,
+                coordinator: coordinator
+            )
+            contentItem = .news(viewModel)
         case .earn:
             return nil
         case .pulse:
@@ -208,10 +257,7 @@ private extension MarketsMainViewModel {
             contentItem = .pulse(viewModel)
         }
 
-        return WidgetStateItem(
-            type: widgetModel.type,
-            content: contentItem
-        )
+        return WidgetStateItem(type: widgetModel.type, content: contentItem)
     }
 }
 
@@ -234,6 +280,7 @@ extension MarketsMainViewModel {
     enum WidgetContentItem: Identifiable, Hashable {
         case top(TopMarketWidgetViewModel)
         case pulse(PulseMarketWidgetViewModel)
+        case news(NewsWidgetViewModel)
 
         var id: MarketsWidgetType {
             switch self {
@@ -241,6 +288,8 @@ extension MarketsMainViewModel {
                 return .market
             case .pulse:
                 return .pulse
+            case .news:
+                return .news
             }
         }
 
@@ -251,5 +300,14 @@ extension MarketsMainViewModel {
         func hash(into hasher: inout Hasher) {
             hasher.combine(id.rawValue)
         }
+    }
+}
+
+private extension MarketsMainViewModel {
+    enum Constants {
+        static let filterRequiredReloadInterval: Set<MarketsListOrderType> = [.buyers, .gainers, .losers]
+
+        /// Need for locked fetchMore process when bottom sheet not yet open
+        static let bottomSheetExpandedDelay: Double = 0.5
     }
 }
