@@ -39,11 +39,14 @@ public extension TangemPayAPIServiceBuilder {
     func buildTangemPayAuthorizationService(
         customerWalletId: String,
         authorizingInteractor: TangemPayAuthorizing,
+        authorizationTokensRepository: TangemPayAuthorizationTokensRepository,
+        tokens: TangemPayAuthorizationTokens?,
         urlSessionConfiguration: URLSessionConfiguration = .visaConfiguration
     ) -> TangemPayAuthorizationService {
         CommonTangemPayAuthorizationService(
             customerWalletId: customerWalletId,
             authorizingInteractor: authorizingInteractor,
+            authorizationTokensRepository: authorizationTokensRepository,
             apiType: apiType,
             apiService: .init(
                 provider: TangemPayProviderBuilder().buildProvider(
@@ -51,7 +54,8 @@ public extension TangemPayAPIServiceBuilder {
                     authorizationTokensHandler: nil
                 ),
                 decoder: JSONDecoderFactory().makeTangemPayAuthorizationServiceDecoder()
-            )
+            ),
+            tokens: tokens
         )
     }
 }

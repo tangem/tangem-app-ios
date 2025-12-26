@@ -76,18 +76,6 @@ extension TangemPayAPIServiceBuilder {
     }
 }
 
-extension TangemPayAuthorizationTokensHandlerBuilder {
-    @Injected(\.keysManager)
-    private static var keysManager: KeysManager
-
-    init() {
-        self = TangemPayAuthorizationTokensHandlerBuilder(
-            apiType: FeatureStorage.instance.visaAPIType,
-            bffStaticToken: Self.keysManager.bffStaticToken
-        )
-    }
-}
-
 extension TangemPayCustomerInfoManagementServiceBuilder {
     init() {
         self = TangemPayCustomerInfoManagementServiceBuilder(
