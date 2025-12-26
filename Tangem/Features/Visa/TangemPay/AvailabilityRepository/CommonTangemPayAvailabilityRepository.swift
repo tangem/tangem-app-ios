@@ -80,12 +80,13 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
 
     var shouldShowGetTangemPay: AnyPublisher<Bool, Never> {
         Publishers
-            .CombineLatest3(
+            .CombineLatest4(
                 isTangemPayAvailablePublisher,
                 isUserWalletModelsAvailblePublisher,
-                Just(isDeviceRooted).map { !$0 }
+                Just(isDeviceRooted).map { !$0 },
+                Just(FeatureProvider.isAvailable(.tangemPayPermanentEntryPoint))
             )
-            .map { $0 && $1 && $2 }
+            .map { $0 && $1 && $2 && $3 }
             .removeDuplicates()
             .eraseToAnyPublisher()
     }
@@ -96,7 +97,9 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
     private var cancellable: Cancellable?
 
     init() {
-        guard FeatureProvider.isAvailable(.visa) else {
+        bind()
+
+        guard FeatureProvider.isAvailable(.tangemPayPermanentEntryPoint) else {
             return
         }
         runTask(in: self) { repository in
@@ -110,8 +113,6 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
                 VisaLogger.error("Failed to receive TangemPay availability", error: error)
             }
         }
-
-        bind()
     }
 
     func userDidCloseGetTangemPayBanner() {
@@ -154,13 +155,7 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
                                     customerWalletId: customerWalletId
                                 )
 
-                            if !result.isTangemPayEnabled {
-                                await MainActor.run {
-                                    AppSettings.shared.tangemPayShouldShowGetBanner = false
-                                }
-                            }
-
-                            return false
+                            return !result.isTangemPayEnabled
                         } catch {
                             return true
                         }
