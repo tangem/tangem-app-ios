@@ -19,8 +19,7 @@ class TangemPayAuthorizingMock: TangemPayAuthorizing {
                 refreshToken: "",
                 expiresAt: .distantFuture,
                 refreshExpiresAt: .distantFuture
-            ),
-            derivationResult: [:]
+            )
         )
     }
 }

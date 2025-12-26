@@ -248,7 +248,10 @@ struct PaeraCustomerBuilder {
         tangemPayAuthorizingInteractor: TangemPayAuthorizing,
         signer: any TangemSigner
     ) -> PaeraCustomerBuilder {
-        let authorizationService = TangemPayAPIServiceBuilder().buildTangemPayAuthorizationService()
+        let authorizationService = TangemPayAPIServiceBuilder().buildTangemPayAuthorizationService(
+            customerWalletId: userWalletId.stringValue,
+            authorizingInteractor: tangemPayAuthorizingInteractor
+        )
 
         let customerWalletAddressAndTokens = TangemPayUtilities.getCustomerWalletAddressAndAuthorizationTokens(
             customerWalletId: userWalletId.stringValue,
@@ -287,19 +290,6 @@ struct PaeraCustomerBuilder {
             AppSettings.shared.tangemPayIsPaeraCustomer[userWalletId.stringValue] = true
         }
 
-        return PaeraCustomer(
-            userWalletId: userWalletId,
-            keysRepository: keysRepository,
-            tangemPayAuthorizingInteractor: tangemPayAuthorizingInteractor,
-            signer: signer,
-            authorizationService: authorizationService,
-            authorizationTokensHandler: authorizationTokensHandler,
-            customerInfoManagementService: customerInfoManagementService
-        )
-    }
-
-    func create() -> PaeraCustomer {
-        AppSettings.shared.tangemPayIsPaeraCustomer[userWalletId.stringValue] = true
         return PaeraCustomer(
             userWalletId: userWalletId,
             keysRepository: keysRepository,
@@ -362,15 +352,6 @@ final class PaeraCustomer {
         self.authorizationService = authorizationService
         self.authorizationTokensHandler = authorizationTokensHandler
         self.customerInfoManagementService = customerInfoManagementService
-    }
-
-    func authorizeWithCustomerWallet() async throws {
-        let response = try await tangemPayAuthorizingInteractor.authorize(
-            customerWalletId: customerWalletId,
-            authorizationService: authorizationService
-        )
-        keysRepository.update(derivations: response.derivationResult)
-        try authorizationTokensHandler.saveTokens(tokens: response.tokens)
     }
 
     func getCurrentState() async throws -> TangemPayState {
@@ -517,7 +498,16 @@ final class TangemPayManager {
     }
 
     func createNewCustomer() -> PaeraCustomer {
-        let paeraCustomer = paeraCustomerBuilder.create()
+        AppSettings.shared.tangemPayIsPaeraCustomer[customerWalletId] = true
+        let paeraCustomer = PaeraCustomer(
+            userWalletId: paeraCustomerBuilder.userWalletId,
+            keysRepository: paeraCustomerBuilder.keysRepository,
+            tangemPayAuthorizingInteractor: paeraCustomerBuilder.tangemPayAuthorizingInteractor,
+            signer: paeraCustomerBuilder.signer,
+            authorizationService: paeraCustomerBuilder.authorizationService,
+            authorizationTokensHandler: paeraCustomerBuilder.authorizationTokensHandler,
+            customerInfoManagementService: paeraCustomerBuilder.customerInfoManagementService
+        )
         self.paeraCustomer = paeraCustomer
         return paeraCustomer
     }
@@ -559,6 +549,10 @@ final class TangemPayManager {
         }
     }
 
+    func authorizeWithCustomerWallet() async throws {
+        try await paeraCustomerBuilder.authorizationService.authorizeWithCustomerWallet()
+    }
+
     private func startCardIssuingOrderStatusPolling(orderId: String) {
         cardIssuingOrderStatusPollingService.startOrderStatusPolling(
             orderId: orderId,
@@ -584,7 +578,8 @@ final class TangemPayManager {
         runTask { [self] in
             stateSubject.value = .syncInProgress
             do {
-                try await paeraCustomer.authorizeWithCustomerWallet()
+                let response = try await paeraCustomerBuilder.authorizationService.authorizeWithCustomerWallet()
+                try paeraCustomerBuilder.authorizationTokensHandler.saveTokens(tokens: response.tokens)
                 do {
                     stateSubject.value = try await paeraCustomer.getCurrentState()
                 } catch {

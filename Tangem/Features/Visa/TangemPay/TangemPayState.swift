@@ -7,6 +7,14 @@
 //
 
 import TangemMacro
+import TangemVisa
+
+enum TangemPayRemoteState {
+    case notEnrolled
+    case kyc
+    case issuingCard(orderId: String)
+    case enrolled(VisaCustomerInfoResponse)
+}
 
 @CaseFlagable
 enum TangemPayState {

@@ -7,6 +7,8 @@
 //
 
 public protocol TangemPayAuthorizationService {
+    func authorizeWithCustomerWallet() async throws -> TangemPayAuthorizingResponse
+
     func getChallenge(
         customerWalletAddress: String,
         customerWalletId: String

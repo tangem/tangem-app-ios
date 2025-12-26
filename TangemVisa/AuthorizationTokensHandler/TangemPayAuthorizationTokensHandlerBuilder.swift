@@ -27,7 +27,7 @@ public extension TangemPayAuthorizationTokensHandlerBuilder {
         CommonTangemPayAuthorizationTokensHandler(
             customerWalletId: customerWalletId,
             tokens: tokens,
-            authorizationService: apiServiceBuilder.buildTangemPayAuthorizationService(),
+            authorizationService: authorizationService,
             authorizationTokensRepository: authorizationTokensRepository
         )
     }

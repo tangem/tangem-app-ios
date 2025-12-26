@@ -6,19 +6,53 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import TangemSdk
+
+public protocol TangemPayAuthorizing: AnyObject {
+    func authorize(
+        customerWalletId: String,
+        authorizationService: TangemPayAuthorizationService
+    ) async throws -> TangemPayAuthorizingResponse
+}
+
+public struct TangemPayAuthorizingResponse {
+    public let customerWalletAddress: String
+    public let tokens: TangemPayAuthorizationTokens
+
+    public init(customerWalletAddress: String, tokens: TangemPayAuthorizationTokens) {
+        self.customerWalletAddress = customerWalletAddress
+        self.tokens = tokens
+    }
+}
+
 struct CommonTangemPayAuthorizationService {
-    typealias AuthorizationAPIService = TangemPayAPIService<TangemPayAuthorizationAPITarget>
-    private let apiService: AuthorizationAPIService
+    private let customerWalletId: String
+    private let authorizingInteractor: TangemPayAuthorizing
 
     private let apiType: VisaAPIType
+    private let apiService: TangemPayAPIService<TangemPayAuthorizationAPITarget>
 
-    init(apiType: VisaAPIType, apiService: AuthorizationAPIService) {
+    init(
+        customerWalletId: String,
+        authorizingInteractor: TangemPayAuthorizing,
+        apiType: VisaAPIType,
+        apiService: TangemPayAPIService<TangemPayAuthorizationAPITarget>
+    ) {
+        self.customerWalletId = customerWalletId
+        self.authorizingInteractor = authorizingInteractor
         self.apiType = apiType
         self.apiService = apiService
     }
 }
 
 extension CommonTangemPayAuthorizationService: TangemPayAuthorizationService {
+    func authorizeWithCustomerWallet() async throws -> TangemPayAuthorizingResponse {
+        try await authorizingInteractor.authorize(
+            customerWalletId: customerWalletId,
+            authorizationService: self
+        )
+    }
+
     func getChallenge(
         customerWalletAddress: String,
         customerWalletId: String
