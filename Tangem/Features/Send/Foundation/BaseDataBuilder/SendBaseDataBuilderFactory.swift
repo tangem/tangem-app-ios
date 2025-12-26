@@ -13,11 +13,13 @@ struct SendBaseDataBuilderFactory {
     let userWalletInfo: UserWalletInfo
 
     func makeSendBaseDataBuilder(
-        input: SendBaseDataBuilderInput,
+        baseDataInput: any SendBaseDataBuilderInput,
+        approveDataInput: any SendApproveDataBuilderInput,
         sendReceiveTokensListBuilder: SendReceiveTokensListBuilder
     ) -> SendBaseDataBuilder {
         CommonSendBaseDataBuilder(
-            input: input,
+            baseDataInput: baseDataInput,
+            approveDataInput: approveDataInput,
             walletModel: walletModel,
             emailDataProvider: userWalletInfo.emailDataProvider,
             sendReceiveTokensListBuilder: sendReceiveTokensListBuilder

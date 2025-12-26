@@ -194,12 +194,12 @@ struct AccountsAwareOrganizeTokensView: View {
     }
 
     private var tokenListContent: some View {
-        let parametersProvider = OrganizeTokensListCornerRadiusParametersProvider(
+        let parametersProvider = AccountsAwareOrganizeTokensListCornerRadiusParametersProvider(
             sections: viewModel.sections,
             cornerRadius: Constants.contentCornerRadius
         )
 
-        return ForEach(indexed: viewModel.__sections.indexed()) { outerSectionIndex, outerSectionViewModel in
+        return ForEach(indexed: viewModel.sections.indexed()) { outerSectionIndex, outerSectionViewModel in
             Section(
                 content: {
                     ForEach(indexed: outerSectionViewModel.items.indexed()) { innerSectionIndex, innerSectionViewModel in
@@ -239,6 +239,7 @@ struct AccountsAwareOrganizeTokensView: View {
                                 )
                                 let identifier = innerSectionViewModel.id
                                 let isDragged = identifier == dragAndDropSourceViewModelIdentifier
+                                let isOuterSectionInvisible = outerSectionViewModel.model.style == .invisible
 
                                 makeInnerSection(
                                     from: innerSectionViewModel,
@@ -255,34 +256,36 @@ struct AccountsAwareOrganizeTokensView: View {
                                     }
                                 }
                                 .id(identifier)
-                                .padding(.top, innerSectionIndex == 0 ? 0.0 : Constants.headerBottomInset)
+                                .padding(.top, innerSectionIndex != 0 && isOuterSectionInvisible ? Constants.interSectionSpacing : 0.0)
                             }
                         )
                     }
                 },
                 header: {
-                    AccountIconWithContentView(
-                        iconData: outerSectionViewModel.model.iconData,
-                        name: outerSectionViewModel.model.name
+                    makeOuterSection(
+                        from: outerSectionViewModel,
+                        atIndex: outerSectionIndex,
+                        parametersProvider: parametersProvider
                     )
-                    .iconSettings(.smallSized)
-                    .style(Fonts.BoldStatic.caption1.weight(.medium), color: Colors.Text.primary1)
-                    .background(Colors.Background.primary)
+                    .padding(.top, outerSectionIndex != 0 ? Constants.interSectionSpacing : 0.0)
                 }
             )
         }
     }
 
+    @ViewBuilder
     private var tokenListHeader: some View {
-        OrganizeTokensListHeader(
-            viewModel: viewModel.headerViewModel,
-            horizontalInset: Constants.contentHorizontalInset,
-            bottomInset: Constants.headerBottomInset
-        )
-        .background(.bar.hidden(scrollState.isNavigationBarBackgroundHidden))
-        .padding(.bottom, Constants.headerAdditionalBottomInset)
-        .readGeometry(\.size.height, bindTo: $scrollViewTopContentInset)
-        .infinityFrame(alignment: .top)
+        if let headerViewModel = viewModel.headerViewModel {
+            OrganizeTokensListHeader(
+                viewModel: headerViewModel,
+                horizontalInset: Constants.contentHorizontalInset,
+                bottomInset: Constants.headerBottomInset
+            )
+            .background(.bar.hidden(scrollState.isNavigationBarBackgroundHidden))
+            .padding(.bottom, Constants.headerAdditionalBottomInset)
+            .readGeometry(\.size.height, bindTo: $scrollViewTopContentInset)
+            .infinityFrame(alignment: .top)
+        }
     }
 
     private var tokenListFooter: some View {
@@ -398,7 +401,7 @@ struct AccountsAwareOrganizeTokensView: View {
     private func makeCell(
         viewModel: OrganizeTokensListItemViewModel,
         atIndexPath indexPath: OrganizeTokensIndexPath,
-        parametersProvider: OrganizeTokensListCornerRadiusParametersProvider
+        parametersProvider: AccountsAwareOrganizeTokensListCornerRadiusParametersProvider
     ) -> some View {
         OrganizeTokensListItemView(viewModel: viewModel)
             .accessibilityIdentifier(
@@ -406,24 +409,21 @@ struct AccountsAwareOrganizeTokensView: View {
                     name: viewModel.name,
                     outerSection: indexPath.outerSection,
                     innerSection: indexPath.innerSection,
-                    item: indexPath._item
+                    item: indexPath.item
                 )
             )
             .background(Colors.Background.primary)
-        // [REDACTED_TODO_COMMENT]
-        /*
-         .cornerRadius(
-         parametersProvider.cornerRadius(forItemAt: indexPath),
-         corners: parametersProvider.rectCorners(forItemAt: indexPath)
-         )
-         */
+            .cornerRadius(
+                parametersProvider.cornerRadius(forItemAt: indexPath),
+                corners: parametersProvider.rectCorners(forItemAt: indexPath)
+            )
     }
 
     @ViewBuilder
     private func makeInnerSection(
         from section: OrganizeTokensListInnerSection,
         atIndexPath indexPath: OrganizeTokensIndexPath,
-        parametersProvider: OrganizeTokensListCornerRadiusParametersProvider
+        parametersProvider: AccountsAwareOrganizeTokensListCornerRadiusParametersProvider
     ) -> some View {
         Group {
             switch section.model.style {
@@ -436,13 +436,31 @@ struct AccountsAwareOrganizeTokensView: View {
             }
         }
         .background(Colors.Background.primary)
-        // [REDACTED_TODO_COMMENT]
-        /*
-         .cornerRadius(
-         parametersProvider.cornerRadius(forSectionAtIndex: sectionIndex),
-         corners: parametersProvider.rectCorners(forSectionAtIndex: sectionIndex)
-         )
-         */
+        .cornerRadius(
+            parametersProvider.cornerRadius(forInnerSectionAt: indexPath),
+            corners: parametersProvider.rectCorners(forInnerSectionAt: indexPath)
+        )
+    }
+
+    @ViewBuilder
+    private func makeOuterSection(
+        from section: OrganizeTokensListOuterSection,
+        atIndex sectionIndex: Int,
+        parametersProvider: AccountsAwareOrganizeTokensListCornerRadiusParametersProvider
+    ) -> some View {
+        Group {
+            switch section.model.style {
+            case .invisible:
+                EmptyView()
+            case .default(let title, let iconData):
+                OrganizeTokensListOuterSectionView(title: title, iconData: iconData)
+            }
+        }
+        .background(Colors.Background.primary)
+        .cornerRadius(
+            parametersProvider.cornerRadius(forOuterSectionAtIndex: sectionIndex),
+            corners: parametersProvider.rectCorners(forOuterSectionAtIndex: sectionIndex)
+        )
     }
 
     private func makeDragAndDropGestureOverlayView() -> some View {
@@ -496,7 +514,7 @@ struct AccountsAwareOrganizeTokensView: View {
            let dragAndDropSourceItemFrame = dragAndDropSourceItemFrame,
            let dragAndDropSourceViewModelIdentifier = dragAndDropSourceViewModelIdentifier,
            let dragAndDropDestinationIndexPath = dragAndDropDestinationIndexPath {
-            let parametersProvider = OrganizeTokensListCornerRadiusParametersProvider(
+            let parametersProvider = AccountsAwareOrganizeTokensListCornerRadiusParametersProvider(
                 sections: viewModel.sections,
                 cornerRadius: Constants.draggableViewCornerRadius
             )
@@ -645,6 +663,7 @@ private extension AnyTransition {
 private extension AccountsAwareOrganizeTokensView {
     enum Constants {
         static let contentCornerRadius = 14.0
+        static let interSectionSpacing = 8.0
         static let headerBottomInset = 10.0
         static var headerAdditionalBottomInset: CGFloat { contentVerticalInset - headerBottomInset }
         static let contentVerticalInset = 14.0
@@ -660,21 +679,3 @@ private extension AccountsAwareOrganizeTokensView {
         static let autoScrollTriggerHeightDiff = 10.0
     }
 }
-
-// MARK: - Previews
-
-// [REDACTED_TODO_COMMENT]
-/*
- struct AccountsAwareOrganizeTokensView_Preview: PreviewProvider {
-     static var previews: some View {
-         let viewModelFactory = OrganizeTokensPreviewViewModelFactory()
-
-         ForEach(OrganizeTokensPreviewConfiguration.allCases, id: \.name) { previewConfiguration in
-             let viewModel = viewModelFactory.makeViewModel(for: previewConfiguration)
-             AccountsAwareOrganizeTokensView(viewModel: viewModel)
-                 .previewLayout(.sizeThatFits)
-                 .previewDisplayName(previewConfiguration.name)
-         }
-     }
- }
- */
