@@ -69,7 +69,7 @@ final class TangemPayMainViewModel: ObservableObject {
         self.coordinator = coordinator
 
         cardDetailsRepository = .init(
-            lastFourDigits: tangemPayAccount.cardNumberEnd ?? "",
+            lastFourDigits: tangemPayAccount.card?.cardNumberEnd ?? "",
             customerService: tangemPayAccount.customerInfoManagementService
         )
 
@@ -125,9 +125,7 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func onPin() {
-        let isPinSet = tangemPayAccount.isPinSet
-
-        if isPinSet {
+        if tangemPayAccount.card?.isPinSet == true {
             runTask(in: self) { viewModel in
                 do {
                     _ = try await BiometricsUtil.requestAccess(
@@ -303,7 +301,7 @@ private extension TangemPayMainViewModel {
 
         Publishers.CombineLatest(
             AppSettings.shared.$tangemPayShowAddToApplePayGuide,
-            tangemPayAccount.tangemPayStatusPublisher
+            tangemPayAccount.statusPublisher
         )
         .map { tangemPayShowAddToApplePayGuide, status in
             PKPaymentAuthorizationViewController.canMakePayments()
@@ -314,7 +312,7 @@ private extension TangemPayMainViewModel {
         .assign(to: \.shouldDisplayAddToApplePayGuide, on: self, ownership: .weak)
         .store(in: &bag)
 
-        tangemPayAccount.tangemPayStatusPublisher
+        tangemPayAccount.statusPublisher
             .map { $0 == .blocked ? .frozen : .normal }
             .receiveOnMain()
             .assign(to: \.freezingState, on: self, ownership: .weak)
