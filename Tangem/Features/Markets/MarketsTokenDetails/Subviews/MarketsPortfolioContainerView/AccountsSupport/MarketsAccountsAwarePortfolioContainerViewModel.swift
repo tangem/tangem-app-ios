@@ -95,7 +95,7 @@ final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
     }
 
     private func tokenAddedToAllNetworksInAllAccounts(availableNetworks: [NetworkModel]) -> Bool {
-        MarketsTokenNetworkChecker.isTokenAddedOnNetworksInAllAccounts(
+        TokenAdditionChecker.isTokenAddedOnNetworksInAllAccounts(
             coinId: coinId,
             availableNetworks: availableNetworks,
             userWalletModels: walletDataProvider.userWalletModels
