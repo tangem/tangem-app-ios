@@ -16,13 +16,8 @@ enum MultiWalletMainContentUpdater {
                 await scheduleUpdateInternal(with: userWalletModel)
             }
 
-            // [REDACTED_TODO_COMMENT]
-            // [REDACTED_INFO]
-            if FeatureProvider.isAvailable(.visa), let paeraCustomer = userWalletModel.paeraCustomer {
-                outerGroup.addTask {
-                    // [REDACTED_TODO_COMMENT]
-//                    await paeraCustomer.updateState().value
-                }
+            outerGroup.addTask {
+                await userWalletModel.tangemPayManager.refresh().value
             }
 
             await outerGroup.waitForAll()

@@ -76,7 +76,7 @@ private extension MobileBackupTypesViewModel {
         switch result {
         case .configurationChanged:
             setup()
-        case .nameDidChange, .paeraCustomerCreated:
+        case .nameDidChange:
             break
         }
     }

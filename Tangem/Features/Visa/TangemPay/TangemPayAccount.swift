@@ -523,9 +523,10 @@ final class TangemPayManager {
         refresh()
     }
 
-    func initializeWithNew() {
+    func createNewCustomer() -> PaeraCustomer {
         let paeraCustomer = paeraCustomerBuilder.create()
         paeraCustomerSubject.send(paeraCustomer)
+        return paeraCustomer
     }
 
     @discardableResult
