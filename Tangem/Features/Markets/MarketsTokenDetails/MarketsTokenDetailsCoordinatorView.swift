@@ -71,5 +71,15 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
                     MarketsTokenDetailsExchangesListView(viewModel: viewModel)
                 }
             }
+            .fullScreenCover(item: $coordinator.tokenDetailsCoordinator, content: { item in
+                NavigationView {
+                    TokenDetailsCoordinatorView(coordinator: item)
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarLeading) {
+                                BackButton(height: 44.0, isVisible: true, isEnabled: true, hPadding: 10.0, action: { UIApplication.dismissTop() })
+                            }
+                        }
+                }
+            })
     }
 }
