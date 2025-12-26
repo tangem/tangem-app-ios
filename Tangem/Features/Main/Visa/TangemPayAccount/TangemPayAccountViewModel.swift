@@ -72,7 +72,7 @@ private extension TangemPayAccountViewModel {
                     .just(output: .failedToIssueCard)
                 case .tangemPayAccount(let tangemPayAccount):
                     Publishers.CombineLatest(
-                        tangemPayAccount.tangemPayCardPublisher,
+                        tangemPayAccount.cardPublisher,
                         tangemPayAccount.balancesProvider.fixedFiatTotalTokenBalanceProvider.formattedBalanceTypePublisher
                     )
                     .map { card, balanceType in
