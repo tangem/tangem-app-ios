@@ -81,8 +81,9 @@ struct CarouselNewsCardView: View {
                 radius: Layout.Shadow.radius,
                 y: Layout.Shadow.yOffset
             )
+            .opacity(item.isRead ? Layout.ReadState.opacity : 1.0)
         }
-        .opacity(item.isRead ? Layout.ReadState.opacity : 1.0)
+        .buttonStyle(.plain)
     }
 }
 
@@ -124,7 +125,7 @@ extension CarouselNewsCardView {
                     timeAgo: "1h ago",
                     tags: [
                         InfoChipItem(title: "Regulation"),
-                        InfoChipItem(title: "XRP", leadingIcon: .system("bitcoinsign.circle.fill")),
+                        InfoChipItem(title: "XRP", leadingIcon: .image(Image(systemName: "bitcoinsign.circle.fill"))),
                         InfoChipItem(title: "+2"),
                     ],
                     isRead: false,
@@ -143,7 +144,7 @@ extension CarouselNewsCardView {
                     timeAgo: "1h ago",
                     tags: [
                         InfoChipItem(title: "Regulation"),
-                        InfoChipItem(title: "XRP", leadingIcon: .system("bitcoinsign.circle.fill")),
+                        InfoChipItem(title: "XRP", leadingIcon: .image(Image(systemName: "bitcoinsign.circle.fill"))),
                         InfoChipItem(title: "+2"),
                     ],
                     isRead: true,
