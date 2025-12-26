@@ -43,14 +43,13 @@ final class TangemPayOfferViewModel: ObservableObject {
         isLoading = true
         runTask(in: self) { viewModel in
             do {
-                let paeraCustomer = userWalletModel.tangemPayManager.createNewCustomer()
-                try await userWalletModel.tangemPayManager.authorizeWithCustomerWallet()
-                let state = try await paeraCustomer.getCurrentState()
+                let tangemPayManager = userWalletModel.tangemPayManager
+                let tangemPayRemoteState = try await tangemPayManager.authorizeWithCustomerWallet()
 
-                switch state {
+                switch tangemPayRemoteState {
                 case .kyc:
-                    try await paeraCustomer.launchKYC {
-                        userWalletModel.tangemPayManager.refresh()
+                    try await tangemPayManager.launchKYC {
+                        tangemPayManager.refresh()
                         runTask(in: viewModel) { viewModel in
                             await viewModel.closeOfferScreen()
                         }
