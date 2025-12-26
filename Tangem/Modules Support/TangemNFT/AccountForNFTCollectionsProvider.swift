@@ -1,5 +1,5 @@
 //
-//  AccountProviderForNFTCollection.swift
+//  AccountForNFTCollectionsProvider.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import TangemNFT
 import Combine
 
-final class AccountForNFTCollectionProvider {
+final class AccountForNFTCollectionsProvider {
     private let userWalletModel: UserWalletModel
     private var cryptoAccounts: CryptoAccounts?
 
@@ -108,7 +108,7 @@ final class AccountForNFTCollectionProvider {
     }
 }
 
-extension AccountForNFTCollectionProvider: AccountForNFTCollectionProviding {
+extension AccountForNFTCollectionsProvider: AccountForNFTCollectionsProviding {
     func provideAccountsWithCollectionsState(for collections: [NFTCollection]) -> AccountsWithCollectionsState {
         guard let cryptoAccounts else {
             return .singleAccount
