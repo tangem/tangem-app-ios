@@ -343,7 +343,7 @@
 "common_tangem" = "Tangem";
 "common_terms_and_conditions" = "terms and conditions";
 "common_terms_of_use" = "Terms of Use";
-"common_to_wallet_name" = "From %@";
+"common_to_wallet_name" = "To %@";
 "common_to" = "To";
 "common_today" = "Today";
 "common_transaction_failed" = "Transaction failed";
@@ -1637,7 +1637,7 @@
 "warning_button_ok" = "Ok, ho capito!";
 "warning_button_really_cool" = "Really cool!";
 "warning_button_refresh" = "Refresh";
-"warning_clore_migration_message" = "According to Clore’s official documentation, all tokens received before December 21 will be migrated to Clore (ERC20); tokens received after will not. Transfer solution coming — stay tuned.";
+"warning_clore_migration_message" = "According to Clore’s official documentation, all coins received before December 21 will be migrated to Clore (ERC-20 token); coins received after that date will not. A transfer solution is coming — stay tuned.";
 "warning_clore_migration_title" = "Clore Network Migration";
 "warning_demo_mode_message" = "You are currently in the Demo mode";
 "warning_demo_mode_title" = "Demo mode active";
