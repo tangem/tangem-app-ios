@@ -70,7 +70,7 @@ private extension TangemPayState {
             .syncNeeded
         case .unavailable:
             .unavailable
-        case .initial, .kyc, .issuingCard, .failedToIssueCard, .tangemPayReady:
+        case .initial, .kyc, .issuingCard, .failedToIssueCard, .tangemPayAccount:
             nil
         }
     }

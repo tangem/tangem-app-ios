@@ -27,10 +27,10 @@ class CommonUserWalletModel {
     let nftManager: NFTManager
     let keysRepository: KeysRepository
     let totalBalanceProvider: TotalBalanceProvider
-    let tangemPayAccountProvider: TangemPayAccountProvider
 
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
     let accountModelsManager: AccountModelsManager
+    let tangemPayManager: TangemPayManager
 
     var emailConfig: EmailConfig? {
         config.emailConfig
@@ -77,9 +77,12 @@ class CommonUserWalletModel {
 
         _cardHeaderImagePublisher = .init(config.cardHeaderImage)
 
-        if FeatureProvider.isAvailable(.visa) {
-            tangemPayAccountProvider.setup(for: self)
-        }
+        tangemPayManager = TangemPayManager(
+            userWalletId: userWalletId,
+            keysRepository: keysRepository,
+            tangemPayAuthorizingInteractor: tangemPayAuthorizingInteractor,
+            signer: signer
+        )
     }
 
     deinit {
@@ -338,18 +341,6 @@ extension CommonUserWalletModel: TangemPayAuthorizingProvider {
                 userWalletConfig: config
             )
         }
-    }
-}
-
-// MARK: - TangemPayAccountProvider
-
-extension CommonUserWalletModel: TangemPayAccountProvider {
-    var paeraCustomer: PaeraCustomer? {
-        tangemPayAccountProvider.paeraCustomer
-    }
-
-    var paeraCustomerPublisher: AnyPublisher<PaeraCustomer?, Never> {
-        tangemPayAccountProvider.paeraCustomerPublisher
     }
 }
 

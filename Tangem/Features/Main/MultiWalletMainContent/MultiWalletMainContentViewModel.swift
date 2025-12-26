@@ -314,43 +314,28 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         let isTangemPayHidden = tangemPayAvailabilityRepository
             .isTangemPayHiddenPublisher(for: userWalletId)
 
-        Publishers
-            .CombineLatest(
-                userWalletModel.paeraCustomerPublisher.compactMap(\.self),
-                isTangemPayHidden
-            )
-            .flatMapLatest { paeraCustomer, isHidden in
+        let tangemPayNotificationPublisher = userWalletModel.tangemPayManager.tangemPayNotificationManager.notificationPublisher
+        isTangemPayHidden
+            .flatMapLatest { isHidden in
                 guard !isHidden else {
                     return Just([NotificationViewInput]())
                         .eraseToAnyPublisher()
                 }
 
-                // [REDACTED_TODO_COMMENT]
-                fatalError()
-//                return paeraCustomer
-//                    .tangemPayNotificationManager
-//                    .notificationPublisher
+                return tangemPayNotificationPublisher
             }
             .receiveOnMain()
             .assign(to: &$tangemPayNotificationInputs)
 
-        Publishers
-            .CombineLatest(
-                userWalletModel.paeraCustomerPublisher.compactMap(\.self),
-                isTangemPayHidden
-            )
-            .flatMapLatest { paeraCustomer, isHidden in
+        let isSyncInProgressPublisher = userWalletModel.tangemPayManager.isSyncInProgressPublisher
+        isTangemPayHidden
+            .flatMapLatest { isHidden in
                 guard !isHidden else {
                     return Just(false)
                         .eraseToAnyPublisher()
                 }
 
-                // [REDACTED_TODO_COMMENT]
-                fatalError()
-//                return paeraCustomer
-//                    .statePublisher
-//                    .compactMap(\.?.isSyncInProgress)
-//                    .eraseToAnyPublisher()
+                return isSyncInProgressPublisher
             }
             .receiveOnMain()
             .assign(to: &$tangemPaySyncInProgress)
@@ -358,6 +343,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         Publishers
             .CombineLatest(
                 userWalletModel
+                    .tangemPayManager
                     .paeraCustomerPublisher.compactMap(\.self),
                 tangemPayAvailabilityRepository
                     .isTangemPayHiddenPublisher(for: userWalletId)
