@@ -42,8 +42,6 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     @Published var yieldModuleActiveCoordinator: YieldModuleActiveCoordinator? = nil
     @Published var tokenDetailsCoordinator: TokenDetailsCoordinator? = nil
 
-    private var openFeeCurrency: OpenFeeCurrency?
-
     private var safariHandle: SafariHandle?
 
     private let portfolioCoordinatorFactory = MarketsTokenDetailsPortfolioCoordinatorFactory()
@@ -60,8 +58,6 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        openFeeCurrency = options.openFeeCurrency
-
         rootViewModel = .init(
             tokenInfo: options.info,
             presentationStyle: options.style,
@@ -76,16 +72,10 @@ extension MarketsTokenDetailsCoordinator {
     struct Options {
         let info: MarketsTokenModel
         let style: MarketsTokenDetailsPresentationStyle
-        let openFeeCurrency: OpenFeeCurrency?
 
-        init(
-            info: MarketsTokenModel,
-            style: MarketsTokenDetailsPresentationStyle,
-            openFeeCurrency: OpenFeeCurrency? = nil
-        ) {
+        init(info: MarketsTokenModel, style: MarketsTokenDetailsPresentationStyle) {
             self.info = info
             self.style = style
-            self.openFeeCurrency = openFeeCurrency
         }
     }
 }
@@ -173,10 +163,7 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
     func openYieldModulePromoView(apy: Decimal, factory: YieldModuleFlowFactory) {
         let dismissAction: Action<YieldModulePromoCoordinator.DismissOptions?> = { [weak self] option in
             self?.yieldModulePromoCoordinator = nil
-            if let option {
-                self?.bottomSheetStateController.collapse()
-                self?.openFeeCurrency?(option)
-            }
+            self?.proceedFeeCurrencyNavigatingDismissOption(option: option)
         }
 
         let coordinator = factory.makeYieldPromoCoordinator(apy: apy, dismissAction: dismissAction)
@@ -184,12 +171,9 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
     }
 
     func openYieldModuleActiveInfo(factory: YieldModuleFlowFactory) {
-        let dismissAction: Action<YieldModuleActiveCoordinator.DismissOptions?> = { [weak self] option in
+        let dismissAction: Action<YieldModulePromoCoordinator.DismissOptions?> = { [weak self] option in
             self?.yieldModuleActiveCoordinator = nil
-            if let option {
-                self?.bottomSheetStateController.collapse()
-                self?.openFeeCurrency?(option)
-            }
+            self?.proceedFeeCurrencyNavigatingDismissOption(option: option)
         }
 
         let coordinator = factory.makeYieldActiveCoordinator(dismissAction: dismissAction)
@@ -276,10 +260,7 @@ extension MarketsTokenDetailsCoordinator {
 
             let dismissAction: ExpressCoordinator.DismissAction = { [weak self] option in
                 self?.expressCoordinator = nil
-                if let option {
-                    self?.bottomSheetStateController.collapse()
-                    self?.openFeeCurrency?(option)
-                }
+                self?.proceedFeeCurrencyNavigatingDismissOption(option: option)
             }
 
             let openSwapBlock = { [weak self] in
@@ -379,3 +360,5 @@ private extension MarketsTokenDetailsCoordinator {
         static let topPadding: CGFloat = 52
     }
 }
+
+extension MarketsTokenDetailsCoordinator: FeeCurrencyNavigating {}
