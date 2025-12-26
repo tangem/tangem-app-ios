@@ -375,7 +375,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             throw "NFTEntrypointViewModel already created"
         }
 
-        let accountForNFTCollectionsProvider = AccountForNFTCollectionProvider(userWalletModel: userWalletModel)
+        let accountForNFTCollectionsProvider = AccountForNFTCollectionsProvider(userWalletModel: userWalletModel)
 
         // [REDACTED_TODO_COMMENT]
         let navigationInput = NFTNavigationInput(
