@@ -25,12 +25,35 @@ final class WalletConnectEventsService {
         switch event {
         case .dappConnected(let dApps):
             handleDappConnected(dApps: dApps)
+        case .balanceChanged(let dApps, let blockchain):
+            handleBalanceChanged(dApps: dApps, blockchain: blockchain)
         }
     }
 
     private func handleDappConnected(
         dApps: [WalletConnectConnectedDApp]
     ) {
+        emitBitcoinAddressesChangedIfPossible(dApps: dApps)
+    }
+
+    private func handleBalanceChanged(dApps: [WalletConnectConnectedDApp], blockchain: BlockchainSdk.Blockchain) {
+        guard case .bitcoin = blockchain else {
+            return
+        }
+
+        // Filter dApps only for this specific bitcoin chain (mainnet/testnet).
+        let filteredDApps = dApps.filter { dApp in
+            dApp.dAppBlockchains.contains(where: { $0.blockchain.networkId == blockchain.networkId })
+        }
+
+        guard filteredDApps.isNotEmpty else {
+            return
+        }
+
+        emitBitcoinAddressesChangedIfPossible(dApps: filteredDApps)
+    }
+
+    private func emitBitcoinAddressesChangedIfPossible(dApps: [WalletConnectConnectedDApp]) {
         guard let selectedUserWalletModel = userWalletRepository.selectedModel else {
             return
         }
@@ -92,6 +115,7 @@ final class WalletConnectEventsService {
 
 enum WCAppEvent {
     case dappConnected([WalletConnectConnectedDApp])
+    case balanceChanged([WalletConnectConnectedDApp], BlockchainSdk.Blockchain)
 }
 
 enum WCEvent: String {
