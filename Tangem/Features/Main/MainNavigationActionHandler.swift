@@ -183,8 +183,8 @@ extension MainCoordinator {
                     userWalletModel: userWalletModel
                 )
             } else {
-                // Trigger the update without retaining the subscription — it's internally managed by WalletModel and TransactionHistoryService
-                walletModel.generalUpdate(silent: false)
+                // Trigger the update without awaiting to finished
+                walletModel.startUpdateTask()
                 coordinator.openDeepLink(.tokenDetails(walletModel: walletModel, userWalletModel: userWalletModel))
                 return true
             }
