@@ -10,26 +10,8 @@ import Combine
 import TangemFoundation
 import TangemSdk
 
-public protocol TangemPayAuthorizing: AnyObject {
-    func authorize(
-        customerWalletId: String,
-        authorizationService: TangemPayAuthorizationService
-    ) async throws -> TangemPayAuthorizingResponse
-}
-
-public struct TangemPayAuthorizingResponse {
-    public let customerWalletAddress: String
-    public let tokens: TangemPayAuthorizationTokens
-
-    public init(customerWalletAddress: String, tokens: TangemPayAuthorizationTokens) {
-        self.customerWalletAddress = customerWalletAddress
-        self.tokens = tokens
-    }
-}
-
 final class CommonTangemPayAuthorizationService {
     private let customerWalletId: String
-    private let authorizingInteractor: TangemPayAuthorizing
     private let authorizationTokensRepository: TangemPayAuthorizationTokensRepository
 
     private let apiType: VisaAPIType
@@ -45,14 +27,12 @@ final class CommonTangemPayAuthorizationService {
 
     init(
         customerWalletId: String,
-        authorizingInteractor: TangemPayAuthorizing,
         authorizationTokensRepository: TangemPayAuthorizationTokensRepository,
         apiType: VisaAPIType,
         apiService: TangemPayAPIService<TangemPayAuthorizationAPITarget>,
         tokens: TangemPayAuthorizationTokens?
     ) {
         self.customerWalletId = customerWalletId
-        self.authorizingInteractor = authorizingInteractor
         self.authorizationTokensRepository = authorizationTokensRepository
         self.apiType = apiType
         self.apiService = apiService
@@ -84,14 +64,6 @@ final class CommonTangemPayAuthorizationService {
 }
 
 extension CommonTangemPayAuthorizationService: TangemPayAuthorizationService {
-    func authorizeWithCustomerWallet() async throws {
-        let response = try await authorizingInteractor.authorize(
-            customerWalletId: customerWalletId,
-            authorizationService: self
-        )
-        try saveTokens(tokens: response.tokens)
-    }
-
     func getChallenge(
         customerWalletAddress: String,
         customerWalletId: String
