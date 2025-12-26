@@ -43,7 +43,11 @@ enum StoredCryptoAccountsTokensDistributor {
             var updatedAccountTokens: [StoredCryptoAccount.Token] = []
 
             for token in account.tokens {
-                guard let tokenAccountDerivationIndex = extractAccountDerivationIndex(from: token, using: &cachedHelpers) else {
+                guard let tokenAccountDerivationIndex = extractAccountDerivationIndex(
+                    from: token,
+                    using: &cachedHelpers,
+                    fallbackToMainAccount: false
+                ) else {
                     // Unsupported network and/or token, no derivation path and/or account derivation node, etc
                     // Keeping this token in its original account as is
                     updatedAccountTokens.append(token)
@@ -160,7 +164,14 @@ enum StoredCryptoAccountsTokensDistributor {
 
         // Second loop (required) - processing additional tokens
         for token in additionalTokens {
-            guard let tokenAccountDerivationIndex = extractAccountDerivationIndex(from: token, using: &cachedHelpers) else {
+            // `additionalTokens` (i.e. tokens from the `unassignedTokens` DTO field) may contain tokens that were added
+            // in a legacy version of the app w/o accounts support on wallets w/o HD wallets support (i.e. w/o derivation paths)
+            // Such tokens should always be assigned to the `Main` account; therefore we set `fallbackToMainAccount` to `true` here
+            guard let tokenAccountDerivationIndex = extractAccountDerivationIndex(
+                from: token,
+                using: &cachedHelpers,
+                fallbackToMainAccount: true
+            ) else {
                 // Unsupported network and/or token, no derivation path and/or account derivation node, etc
                 // Ignoring this token since there is nothing we can do with it
                 continue
@@ -227,7 +238,8 @@ enum StoredCryptoAccountsTokensDistributor {
 
     private static func extractAccountDerivationIndex(
         from token: StoredCryptoAccount.Token,
-        using cachedHelpers: inout Cache
+        using cachedHelpers: inout Cache,
+        fallbackToMainAccount: Bool
     ) -> DerivationIndex? {
         guard let blockchainNetwork = token.blockchainNetwork.knownValue else {
             // Unsupported network and/or token, cannot extract derivation index
@@ -247,12 +259,11 @@ enum StoredCryptoAccountsTokensDistributor {
             cachedHelpers[blockchain] = helper
         }
 
-        guard let tokenAccountDerivationNode = helper.extractAccountDerivationNode(from: derivationPath) else {
-            // No derivation path and/or account derivation node, cannot extract derivation index
-            return nil
+        if let tokenAccountDerivationNode = helper.extractAccountDerivationNode(from: derivationPath) {
+            return Int(tokenAccountDerivationNode.rawIndex)
         }
 
-        return Int(tokenAccountDerivationNode.rawIndex)
+        return fallbackToMainAccount ? AccountModelUtils.mainAccountDerivationIndex : nil
     }
 }
 
