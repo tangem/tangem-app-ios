@@ -51,7 +51,7 @@ final class TangemPayKYCStatusPopupViewModel {
         coordinator?.closeKYCStatusPopup()
         runTask { [self] in
             do {
-                try await tangemPayManager.paeraCustomer?.launchKYC {
+                try await tangemPayManager.launchKYC {
                     self.tangemPayManager.refresh()
                 }
             } catch {
@@ -75,7 +75,7 @@ final class TangemPayKYCStatusPopupViewModel {
     }
 
     private func cancelKYC() {
-        tangemPayManager.paeraCustomer?.cancelKYC { [weak self] succeeded in
+        tangemPayManager.cancelKYC { [weak self] succeeded in
             succeeded ? self?.dismiss() : self?.showSomethingWentWrong()
         }
     }
