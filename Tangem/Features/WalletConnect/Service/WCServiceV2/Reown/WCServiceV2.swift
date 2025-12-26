@@ -29,13 +29,24 @@ final class WCServiceV2 {
     private let wcHandlersService: WCHandlersService
     private var walletConnectEventsService: WalletConnectEventsService?
 
+    private let balancesToObserve: [Blockchain]
+
+    private var lastConnectedDAppsSnapshot: [WalletConnectConnectedDApp] = []
+    private var balancesCancellables: [String: AnyCancellable] = [:]
+    private var balancesWalletModelIds: [String: WalletModelId] = [:]
+
     var transactionRequestPublisher: AnyPublisher<Result<WCHandleTransactionData, any Error>, Never> {
         transactionRequestSubject.eraseToAnyPublisher()
     }
 
-    init(walletKitClient: WalletKitClient, wcHandlersService: WCHandlersService) {
+    init(
+        walletKitClient: WalletKitClient,
+        wcHandlersService: WCHandlersService,
+        balancesToObserve: [Blockchain]
+    ) {
         self.walletKitClient = walletKitClient
         self.wcHandlersService = wcHandlersService
+        self.balancesToObserve = balancesToObserve
 
         bind()
     }
@@ -49,6 +60,7 @@ private extension WCServiceV2 {
         setupMessagesSubscriptions()
         subscribeToUserWalletEvents()
         subscribeToWalletModelsIfNeeded()
+        subscribeToBalancesChange()
         observeConnectedDAppsRepository()
     }
 
@@ -68,7 +80,44 @@ private extension WCServiceV2 {
     }
 
     func handleConnectedDAppsRepositoryYield(_ dApps: [WalletConnectConnectedDApp]) {
+        lastConnectedDAppsSnapshot = dApps
         walletConnectEventsService?.handle(event: .dappConnected(dApps))
+    }
+
+    func subscribeToBalancesChange() {
+        guard let selectedUserWalletModel = userWalletRepository.selectedModel else {
+            return
+        }
+
+        for blockchain in balancesToObserve {
+            let networkId = blockchain.networkId
+
+            guard let walletModel = selectedUserWalletModel.wcWalletModelProvider.getModel(with: networkId) else {
+                balancesCancellables[networkId]?.cancel()
+                balancesCancellables[networkId] = nil
+                balancesWalletModelIds[networkId] = nil
+                continue
+            }
+
+            // Keep subscriber alive regardless of connected dApps.
+            // Recreate only when the underlying wallet model changes (e.g. selected wallet switched).
+            guard balancesWalletModelIds[networkId] != walletModel.id else {
+                continue
+            }
+
+            balancesWalletModelIds[networkId] = walletModel.id
+            balancesCancellables[networkId]?.cancel()
+
+            balancesCancellables[networkId] = walletModel
+                .availableBalanceProvider
+                .balanceTypePublisher
+                .map(\.value)
+                .removeDuplicates()
+                .sink { [weak self] _ in
+                    guard let self else { return }
+                    walletConnectEventsService?.handle(event: .balanceChanged(lastConnectedDAppsSnapshot, blockchain))
+                }
+        }
     }
 
     func subscribeToUserWalletEvents() {
@@ -86,12 +135,15 @@ private extension WCServiceV2 {
 
                 case .selected(let userWalletId), .unlockedWallet(let userWalletId):
                     wcService.subscribeToWalletModels(for: userWalletId)
+                    wcService.subscribeToBalancesChange()
 
                 case .inserted(let userWalletId):
                     wcService.subscribeToWalletModels(for: userWalletId)
+                    wcService.subscribeToBalancesChange()
 
                 case .unlocked:
                     wcService.subscribeToWalletModelsIfNeeded()
+                    wcService.subscribeToBalancesChange()
 
                 case .locked:
                     break
