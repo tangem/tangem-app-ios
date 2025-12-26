@@ -87,7 +87,7 @@ extension ActionButtonsBuyViewModel {
     private func bind() {
         let tokenMapper = TokenItemMapper(supportedBlockchains: userWalletModel.config.supportedBlockchains)
 
-        // accounts_fixes_needed_action_buttons_buy
+        // accounts_fixes_needed_none
         userWalletModel
             .walletModelsManager
             .walletModelsPublisher
@@ -116,10 +116,10 @@ extension ActionButtonsBuyViewModel {
             guard let tokenItem = hotToken.tokenItem else { return false }
 
             do {
-                // accounts_fixes_needed_action_buttons_buy
+                // accounts_fixes_needed_none
                 try userWalletModel.userTokensManager.addTokenItemPrecondition(tokenItem)
 
-                // accounts_fixes_needed_action_buttons_buy
+                // accounts_fixes_needed_none
                 let isNotAddedToken = !userWalletModel.userTokensManager.contains(tokenItem, derivationInsensitive: true)
 
                 return isNotAddedToken
@@ -140,22 +140,22 @@ extension ActionButtonsBuyViewModel {
     func addTokenToPortfolio(_ hotToken: HotCryptoToken) {
         guard let tokenItem = hotToken.tokenItem else { return }
 
-        // accounts_fixes_needed_action_buttons_buy
+        // accounts_fixes_needed_none
         userWalletModel.userTokensManager.add(tokenItem) { [weak self] result in
-            guard let self, result.error == nil else { return }
+            guard let self, case .success(let enrichedTokenItem) = result else { return }
 
             expressAvailabilityProvider.updateExpressAvailability(
-                for: [tokenItem],
+                for: [enrichedTokenItem],
                 forceReload: true,
                 userWalletId: userWalletModel.userWalletId.stringValue
             )
 
-            handleTokenAdding(tokenItem: tokenItem)
+            handleTokenAdding(tokenItem: enrichedTokenItem)
         }
     }
 
     private func handleTokenAdding(tokenItem: TokenItem) {
-        // accounts_fixes_needed_action_buttons_buy
+        // accounts_fixes_needed_none
         let walletModels = userWalletModel.walletModelsManager.walletModels
 
         guard
