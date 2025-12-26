@@ -76,6 +76,11 @@ extension ArchivedCryptoAccountInfo: BaseAccountModel {
     var didChangePublisher: AnyPublisher<Void, Never> {
         .empty
     }
+
+    func analyticsParameters(with builder: any AccountsAnalyticsBuilder) -> [Analytics.ParameterKey: String] {
+        assertionFailure("Should never be called")
+        return [:]
+    }
 }
 
 // MARK: - CryptoAccountPersistentConfigConvertible protocol conformance

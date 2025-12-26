@@ -67,17 +67,32 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
         self.coordinator = coordinator
 
         setupView()
-        Analytics.log(
-            event: .swapSwapInProgressScreenOpened,
-            params: [
-                .provider: data.provider.name,
-                .commission: data.feeOption.analyticsValue.rawValue,
-                .sendToken: data.source.tokenItem.currencySymbol,
-                .receiveToken: data.destination.tokenItem.currencySymbol,
-                .sendBlockchain: data.source.tokenItem.blockchain.displayName,
-                .receiveBlockchain: data.destination.tokenItem.blockchain.displayName,
-            ]
-        )
+        logSwapInProgressScreenOpened()
+    }
+
+    private func logSwapInProgressScreenOpened() {
+        var params: [Analytics.ParameterKey: String] = [
+            .provider: data.provider.name,
+            .commission: data.feeOption.analyticsValue.rawValue,
+            .sendToken: data.source.tokenItem.currencySymbol,
+            .receiveToken: data.destination.tokenItem.currencySymbol,
+            .sendBlockchain: data.source.tokenItem.blockchain.displayName,
+            .receiveBlockchain: data.destination.tokenItem.blockchain.displayName,
+        ]
+
+        if FeatureProvider.isAvailable(.accounts) {
+            if let sourceAccount = data.source.accountModelAnalyticsProvider {
+                let builder = PairedAccountAnalyticsBuilder(role: .source)
+                params.merge(sourceAccount.analyticsParameters(with: builder)) { $1 }
+            }
+
+            if let destAccount = data.destination.accountModelAnalyticsProvider {
+                let builder = PairedAccountAnalyticsBuilder(role: .destination)
+                params.merge(destAccount.analyticsParameters(with: builder)) { $1 }
+            }
+        }
+
+        Analytics.log(event: .swapSwapInProgressScreenOpened, params: params)
     }
 
     func openExplore(exploreURL: URL) {
