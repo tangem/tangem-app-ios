@@ -32,7 +32,7 @@ final class TangemPayAccountViewModel: ObservableObject {
     }
 
     func userDidTapView() {
-        switch tangemPayManager.tangemPayState {
+        switch tangemPayManager.state {
         case .initial, .syncNeeded, .syncInProgress, .unavailable:
             break
         case .kyc:
@@ -51,7 +51,7 @@ final class TangemPayAccountViewModel: ObservableObject {
 
 private extension TangemPayAccountViewModel {
     func bind() {
-        tangemPayManager.tangemPayStatePublisher
+        tangemPayManager.statePublisher
             .flatMapLatest { state -> AnyPublisher<ViewState, Never> in
                 guard !RTCUtil().checkStatus().hasIssues else {
                     return .just(output: .rootedDevice)

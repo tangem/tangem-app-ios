@@ -44,7 +44,7 @@ extension TangemPayTotalBalanceProvider: TotalBalanceProvider {
 
 private extension TangemPayTotalBalanceProvider {
     func bind() {
-        updateSubscription = tangemPayManager.tangemPayStatePublisher
+        updateSubscription = tangemPayManager.statePublisher
             .map(\.tangemPayAccount)
             .withWeakCaptureOf(self)
             .flatMapLatest { provider, tangemPayAccount -> AnyPublisher<TotalBalanceState, Never> in

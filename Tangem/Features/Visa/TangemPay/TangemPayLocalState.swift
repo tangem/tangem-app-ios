@@ -1,5 +1,5 @@
 //
-//  TangemPayState.swift
+//  TangemPayLocalState.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -7,17 +7,9 @@
 //
 
 import TangemMacro
-import TangemVisa
-
-enum TangemPayRemoteState {
-    case notEnrolled
-    case kyc
-    case issuingCard
-    case enrolled(VisaCustomerInfoResponse)
-}
 
 @CaseFlagable
-enum TangemPayState {
+enum TangemPayLocalState {
     case initial
 
     case syncNeeded
@@ -32,7 +24,7 @@ enum TangemPayState {
     case tangemPayAccount(TangemPayAccount)
 }
 
-extension TangemPayState {
+extension TangemPayLocalState {
     var tangemPayAccount: TangemPayAccount? {
         if case .tangemPayAccount(let tangemPayAccount) = self {
             return tangemPayAccount
