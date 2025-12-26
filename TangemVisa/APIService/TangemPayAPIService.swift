@@ -13,6 +13,17 @@ public enum TangemPayAPIServiceError: Error {
     case moyaError(Error)
     case apiError(TangemPayAPIErrorWithStatusCode)
     case decodingError(Error)
+
+    var underlyingError: Error {
+        switch self {
+        case .moyaError(let error):
+            error
+        case .apiError(let tangemPayAPIErrorWithStatusCode):
+            tangemPayAPIErrorWithStatusCode.error
+        case .decodingError(let error):
+            error
+        }
+    }
 }
 
 public struct TangemPayAPIErrorWithStatusCode {
@@ -43,22 +54,17 @@ struct TangemPayAPIService<Target: TargetType> {
         do {
             response = try response.filterSuccessfulStatusAndRedirectCodes()
         } catch {
-            let errorResponse = try? decoder.decode(TangemPayAPIError.self, from: response.data)
-            throw .apiError(
-                .init(
-                    statusCode: response.statusCode,
-                    error: errorResponse ?? TangemPayAPIError(
-                        code: nil,
-                        correlationId: nil,
-                        type: nil,
-                        title: nil,
-                        status: nil,
-                        detail: nil,
-                        instance: nil,
-                        timestamp: nil
+            do {
+                let errorResponse = try decoder.decode(TangemPayAPIError.self, from: response.data)
+                throw TangemPayAPIServiceError.apiError(
+                    .init(
+                        statusCode: response.statusCode,
+                        error: errorResponse
                     )
                 )
-            )
+            } catch {
+                throw .decodingError(error)
+            }
         }
 
         do {

@@ -18,5 +18,5 @@ public protocol TangemPayAuthorizationService {
         messageFormat: String
     ) async throws -> TangemPayAuthorizationTokens
 
-    func refreshTokens(refreshToken: String) async -> Result<TangemPayAuthorizationTokens, TangemPayAPIServiceError>
+    func refreshTokens(refreshToken: String) async throws(TangemPayAPIServiceError) -> TangemPayAuthorizationTokens
 }

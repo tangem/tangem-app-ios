@@ -14,11 +14,22 @@ public enum APIServiceError: Error {
     case moyaError(Error)
     case apiError(VisaAPIErrorWithStatusCode)
     case decodingError(Error)
+
+    var underlyingError: Error {
+        switch self {
+        case .moyaError(let error):
+            error
+        case .apiError(let visaAPIErrorWithStatusCode):
+            visaAPIErrorWithStatusCode.error
+        case .decodingError(let error):
+            error
+        }
+    }
 }
 
 public struct VisaAPIErrorWithStatusCode {
     public let statusCode: Int
-    public let error: VisaAPIError?
+    public let error: VisaAPIError
 }
 
 struct APIService<Target: TargetType> {
@@ -44,13 +55,17 @@ struct APIService<Target: TargetType> {
         do {
             response = try response.filterSuccessfulStatusAndRedirectCodes()
         } catch {
-            let errorResponse = try? decoder.decode(VisaAPIErrorResponse.self, from: response.data)
-            throw .apiError(
-                .init(
-                    statusCode: response.statusCode,
-                    error: errorResponse?.error
+            do {
+                let errorResponse = try decoder.decode(VisaAPIErrorResponse.self, from: response.data)
+                throw APIServiceError.apiError(
+                    .init(
+                        statusCode: response.statusCode,
+                        error: errorResponse.error
+                    )
                 )
-            )
+            } catch {
+                throw .decodingError(error)
+            }
         }
 
         do {

@@ -118,7 +118,7 @@ final class TangemPayAccount {
     @discardableResult
     func loadCustomerInfo() -> Task<Void, Never> {
         runTask(in: self) { tangemPayAccount in
-            do throws(CustomerInfoManagementServiceError) {
+            do {
                 let customerInfo = try await tangemPayAccount.customerInfoManagementService.loadCustomerInfo()
                 tangemPayAccount.customerInfoSubject.send(customerInfo)
 
@@ -371,7 +371,7 @@ final class PaeraCustomer {
         try authorizationTokensHandler.saveTokens(tokens: response.tokens)
     }
 
-    func getCurrentState() async -> TangemPayState {
+    func getCurrentState() async throws -> TangemPayState {
         let customerWalletAddressAndTokens = TangemPayUtilities.getCustomerWalletAddressAndAuthorizationTokens(
             customerWalletId: customerWalletId,
             keysRepository: keysRepository
@@ -383,18 +383,7 @@ final class PaeraCustomer {
             return .syncNeeded
         }
 
-        let customerInfo: VisaCustomerInfoResponse
-        do {
-            customerInfo = try await customerInfoManagementService.loadCustomerInfo()
-        } catch {
-            switch error {
-            case .unauthorized:
-                return .syncNeeded
-
-            case .otherError:
-                return .unavailable
-            }
-        }
+        let customerInfo = try await customerInfoManagementService.loadCustomerInfo()
 
         if let productInstance = customerInfo.productInstance {
             switch productInstance.status {
@@ -550,6 +539,8 @@ final class TangemPayManager {
         customerInfoManagementService: paeraCustomerBuilder.customerInfoManagementService
     )
 
+    private var bag = Set<AnyCancellable>()
+
     init(
         userWalletId: UserWalletId,
         keysRepository: KeysRepository,
@@ -574,16 +565,8 @@ final class TangemPayManager {
         // No reference cycle here, self is stored as weak
         tangemPayNotificationManager.setupManager(with: self)
 
-        runTask { [self] in
-            guard let paeraCustomer = await paeraCustomerBuilder.getIfExist() else {
-                return
-            }
-
-            paeraCustomerSubject.send(paeraCustomer)
-
-            let state = await paeraCustomer.getCurrentState()
-            stateSubject.send(state)
-        }
+        bind()
+        refresh()
     }
 
     func initializeWithNew() {
@@ -598,7 +581,15 @@ final class TangemPayManager {
                 return
             }
 
-            let state = await paeraCustomer.getCurrentState()
+            let state: TangemPayState
+            do {
+                state = try await paeraCustomer.getCurrentState()
+            } catch {
+                // failure events will be handled via corresponding publisher subscription
+                VisaLogger.error("Failed to get current TangemPay state", error: error)
+                return
+            }
+
             stateSubject.value = state
 
             switch state {
@@ -656,13 +647,35 @@ final class TangemPayManager {
             stateSubject.value = .syncInProgress
             do {
                 try await paeraCustomer.authorizeWithCustomerWallet()
-                stateSubject.value = await paeraCustomer.getCurrentState()
+                do {
+                    stateSubject.value = try await paeraCustomer.getCurrentState()
+                } catch {
+                    // failure events will be handled via corresponding publisher subscription
+                    VisaLogger.error("Failed to get current TangemPay state", error: error)
+                }
             } catch {
                 VisaLogger.error("Failed to authorize with customer wallet", error: error)
                 // [REDACTED_TODO_COMMENT]
                 stateSubject.value = .syncNeeded
             }
         }
+    }
+
+    private func bind() {
+        Publishers.Merge(
+            paeraCustomerBuilder.authorizationTokensHandler.errorEventPublisher,
+            paeraCustomerBuilder.customerInfoManagementService.errorEventPublisher
+        )
+        .map { event -> TangemPayState in
+            switch event {
+            case .unauthorized:
+                .syncNeeded
+            case .other:
+                .unavailable
+            }
+        }
+        .sink(receiveValue: stateSubject.send)
+        .store(in: &bag)
     }
 }
 
