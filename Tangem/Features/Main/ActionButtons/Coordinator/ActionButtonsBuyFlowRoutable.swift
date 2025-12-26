@@ -7,6 +7,9 @@
 //
 
 protocol ActionButtonsBuyFlowRoutable: AnyObject {
+    // [REDACTED_TODO_COMMENT]
     func openBuy(userWalletModel: some UserWalletModel)
-    func openBuy(tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel)
+
+    /// Used for accounts-aware buy flow
+    func openBuy(userWalletModels: [UserWalletModel])
 }
