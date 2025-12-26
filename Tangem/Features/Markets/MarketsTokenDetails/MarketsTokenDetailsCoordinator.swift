@@ -20,6 +20,7 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
     @Injected(\.overlayContentStateController) private var bottomSheetStateController: OverlayContentStateController
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     // MARK: - Root ViewModels
 
@@ -39,6 +40,7 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     @Published var stakingDetailsCoordinator: StakingDetailsCoordinator? = nil
     @Published var yieldModulePromoCoordinator: YieldModulePromoCoordinator? = nil
     @Published var yieldModuleActiveCoordinator: YieldModuleActiveCoordinator? = nil
+    @Published var tokenDetailsCoordinator: TokenDetailsCoordinator? = nil
 
     private var openFeeCurrency: OpenFeeCurrency?
 
@@ -204,6 +206,19 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
         yieldModuleActiveCoordinator = coordinator
     }
 
+    private func openTokenDetails(walletModel: any WalletModel) {
+        guard let userWalletModel = userWalletRepository.selectedModel else {
+            return
+        }
+
+        let coordinator = TokenDetailsCoordinator { [weak self] in
+            self?.tokenDetailsCoordinator = nil
+        }
+
+        coordinator.start(with: .init(userWalletModel: userWalletModel, walletModel: walletModel))
+        tokenDetailsCoordinator = coordinator
+    }
+
     func openYield(input: SendInput, yieldModuleManager: any YieldModuleManager) {
         guard let factory = makeYieldModuleFlowFactory(input: input, manager: yieldModuleManager) else { return }
 
@@ -234,7 +249,7 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
                 break
             }
         case .processing:
-            break
+            openTokenDetails(walletModel: input.walletModel)
         case .notActive:
             openPromoYield()
         case .disabled, .failedToLoad, .loading, .none:
