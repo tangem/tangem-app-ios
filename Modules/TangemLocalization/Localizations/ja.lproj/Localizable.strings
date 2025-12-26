@@ -1637,7 +1637,7 @@
 "warning_button_ok" = "はい、わかりました!";
 "warning_button_really_cool" = "すごくクールだ！";
 "warning_button_refresh" = "リフレッシュ";
-"warning_clore_migration_message" = "According to Clore’s official documentation, all tokens received before December 21 will be migrated to Clore (ERC20); tokens received after will not. Transfer solution coming — stay tuned.";
+"warning_clore_migration_message" = "According to Clore’s official documentation, all coins received before December 21 will be migrated to Clore (ERC-20 token); coins received after that date will not. A transfer solution is coming — stay tuned.";
 "warning_clore_migration_title" = "Clore Network Migration";
 "warning_demo_mode_message" = "現在デモモードです";
 "warning_demo_mode_title" = "デモモードが有効になっています";
