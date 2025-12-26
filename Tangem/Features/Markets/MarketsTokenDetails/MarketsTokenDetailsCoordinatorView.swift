@@ -36,9 +36,6 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
                 StakingDetailsCoordinatorView(coordinator: coordinator)
                     .stakingNavigationView()
             }
-            .sheet(item: $coordinator.yieldModulePromoCoordinator) {
-                YieldModulePromoCoordinatorView(coordinator: $0)
-            }
             .sheet(item: $coordinator.yieldModuleActiveCoordinator) {
                 YieldModuleActiveCoordinatorView(coordinator: $0)
             }
@@ -71,15 +68,44 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
                     MarketsTokenDetailsExchangesListView(viewModel: viewModel)
                 }
             }
+            .fullScreenCover(item: $coordinator.yieldModulePromoCoordinator) { coordinator in
+                NavigationView {
+                    YieldModulePromoCoordinatorView(coordinator: coordinator)
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarLeading) {
+                                backButton
+                            }
+                        }
+                }
+            }
             .fullScreenCover(item: $coordinator.tokenDetailsCoordinator, content: { item in
                 NavigationView {
                     TokenDetailsCoordinatorView(coordinator: item)
                         .toolbar {
                             ToolbarItem(placement: .navigationBarLeading) {
-                                BackButton(height: 44.0, isVisible: true, isEnabled: true, hPadding: 10.0, action: { UIApplication.dismissTop() })
+                                backButton
                             }
                         }
                 }
             })
+    }
+
+    private var backButton: some View {
+        BackButton(
+            height: Constants.backButtonHeight,
+            isVisible: true,
+            isEnabled: true,
+            hPadding: Constants.backButtonHorizontalPadding,
+            action: { UIApplication.dismissTop() }
+        )
+    }
+}
+
+// MARK: - Constants
+
+private extension MarketsTokenDetailsCoordinatorView {
+    enum Constants {
+        static let backButtonHeight: CGFloat = 44.0
+        static let backButtonHorizontalPadding: CGFloat = 10.0
     }
 }
