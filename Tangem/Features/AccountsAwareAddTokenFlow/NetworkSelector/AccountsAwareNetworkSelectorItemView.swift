@@ -1,6 +1,6 @@
 //
-//  MarketsNetworkItemView.swift
-//  Tangem
+//  AccountsAwareNetworkSelectorItemView.swift
+//  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
@@ -12,8 +12,8 @@ import TangemAssets
 import TangemLocalization
 import TangemAccessibilityIdentifiers
 
-struct MarketsNetworkItemView: View {
-    @ObservedObject var viewModel: MarketsNetworkSelectorItemViewModel
+struct AccountsAwareNetworkSelectorItemView: View {
+    @ObservedObject var viewModel: AccountsAwareNetworkSelectorItemViewModel
 
     var body: some View {
         Button(action: viewModel.handleTap) {
