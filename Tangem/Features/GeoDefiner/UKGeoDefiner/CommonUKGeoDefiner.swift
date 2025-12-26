@@ -28,11 +28,12 @@ class CommonUKGeoDefiner: UKGeoDefiner {
     }
 
     var isUK: Bool {
-        guard !isPhoneRegionCodeUK else {
-            return true
-        }
-
-        return geoDefiner.geoIpRegionCode?.contains(Constants.ukRegionCode) ?? false
+        true
+//        guard !isPhoneRegionCodeUK else {
+//            return true
+//        }
+//
+//        return geoDefiner.geoIpRegionCode?.contains(Constants.ukRegionCode) ?? false
     }
 
     private var isPhoneRegionCodeUK: Bool {
