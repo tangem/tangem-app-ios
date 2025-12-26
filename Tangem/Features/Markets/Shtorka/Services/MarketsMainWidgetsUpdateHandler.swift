@@ -7,7 +7,10 @@
 //
 
 import Foundation
+import Combine
 
 protocol MarketsMainWidgetsUpdateHandler {
+    var widgetsUpdateStateEventPublisher: AnyPublisher<WidgetLoadingStateEvent, Never> { get }
+
     func performUpdateLoading(state: WidgetLoadingState, for widgetType: MarketsWidgetType)
 }

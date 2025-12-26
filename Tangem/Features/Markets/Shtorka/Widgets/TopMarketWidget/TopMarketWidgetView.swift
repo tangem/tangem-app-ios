@@ -19,7 +19,6 @@ struct TopMarketWidgetView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: MarketsWidgetLayout.Item.interItemSpacing) {
             header
-                .padding(.horizontal, MarketsWidgetLayout.Header.horizontalPadding)
 
             content
                 .defaultRoundedBackground(
@@ -34,16 +33,17 @@ struct TopMarketWidgetView: View {
     private var header: some View {
         MarketsCommonWidgetHeaderView(
             headerTitle: viewModel.widgetType.headerTitle ?? "",
+            headerImage: nil,
             buttonTitle: Localization.commonSeeAll,
             buttonAction: viewModel.onSeeAllTapAction,
-            isLoading: viewModel.loadingState == .idle || viewModel.loadingState == .loading
+            isLoading: viewModel.loadingState == .loading
         )
     }
 
     @ViewBuilder
     private var content: some View {
         switch viewModel.loadingState {
-        case .idle, .loading:
+        case .loading:
             loadingSkeletons
         case .loaded:
             VStack(spacing: .zero) {
