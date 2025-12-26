@@ -320,20 +320,6 @@ extension CommonUserWalletModel: KeysDerivingProvider {
     }
 }
 
-extension CommonUserWalletModel: TangemPayAuthorizingProvider {
-    var tangemPayAuthorizingInteractor: TangemPayAuthorizing {
-        switch walletInfo {
-        case .cardWallet(let cardInfo):
-            return TangemPayAuthorizingCardInteractor(with: cardInfo)
-        case .mobileWallet:
-            return TangemPayAuthorizingMobileWalletInteractor(
-                userWalletId: userWalletId,
-                userWalletConfig: config
-            )
-        }
-    }
-}
-
 // MARK: - TotalBalanceProvider
 
 extension CommonUserWalletModel: TotalBalanceProvider {

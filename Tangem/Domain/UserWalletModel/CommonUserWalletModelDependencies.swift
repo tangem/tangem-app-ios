@@ -11,6 +11,7 @@ import TangemFoundation
 import TangemNFT
 import TangemMobileWalletSdk
 import TangemAccounts
+import TangemVisa
 
 // [REDACTED_TODO_COMMENT]
 struct CommonUserWalletModelDependencies {
@@ -115,11 +116,15 @@ struct CommonUserWalletModelDependencies {
 
         tangemPayAuthorizingInteractor = switch walletInfo {
         case .cardWallet(let cardInfo):
-            TangemPayAuthorizingCardInteractor(with: cardInfo)
+            TangemPayAuthorizingCardInteractor(
+                with: cardInfo,
+                keysRepository: keysRepository
+            )
         case .mobileWallet:
             TangemPayAuthorizingMobileWalletInteractor(
                 userWalletId: userWalletId,
-                userWalletConfig: config
+                userWalletConfig: config,
+                keysRepository: keysRepository
             )
         }
 
