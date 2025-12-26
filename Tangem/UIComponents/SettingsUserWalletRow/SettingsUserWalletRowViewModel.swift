@@ -93,8 +93,6 @@ final class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
                         viewModel.walletImageProvider = model.walletImageProvider
                         viewModel.reloadImage()
                     }
-                case .paeraCustomerCreated:
-                    break
                 }
             }
             .store(in: &bag)
