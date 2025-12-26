@@ -16,8 +16,6 @@ class MarketsCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
-    private var openFeeCurrency: OpenFeeCurrency?
-
     // MARK: - Root Published
 
     @Published private(set) var marketsViewModel: MarketsViewModel?
@@ -50,7 +48,6 @@ class MarketsCoordinator: CoordinatorObject {
     // MARK: - Implementation
 
     func start(with options: MarketsCoordinator.Options) {
-        openFeeCurrency = options.openFeeCurrency
         let quotesRepositoryUpdateHelper = CommonMarketsQuotesUpdateHelper()
 
         if FeatureProvider.isAvailable(.marketsAndNews) {
@@ -72,9 +69,7 @@ class MarketsCoordinator: CoordinatorObject {
 }
 
 extension MarketsCoordinator {
-    struct Options {
-        let openFeeCurrency: OpenFeeCurrency?
-    }
+    struct Options {}
 }
 
 extension MarketsCoordinator: MarketsRoutable {
@@ -91,7 +86,7 @@ extension MarketsCoordinator: MarketsRoutable {
             }
         )
         tokenDetailsCoordinator.start(
-            with: .init(info: tokenInfo, style: .marketsSheet, openFeeCurrency: openFeeCurrency)
+            with: .init(info: tokenInfo, style: .marketsSheet)
         )
 
         self.tokenDetailsCoordinator = tokenDetailsCoordinator
