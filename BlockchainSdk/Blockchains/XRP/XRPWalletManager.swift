@@ -29,19 +29,14 @@ class XRPWalletManager: BaseManager, WalletManager {
     /// We assume that a trustline transaction will be finished within 10 seconds of setting this timestamp.
     private var lastTrustlineOpenAttemptDate: Date?
 
-    override func update(completion: @escaping (Result<Void, Error>) -> Void) {
-        let tokens = cardTokens
-        cancellable = networkService
-            .getInfo(account: wallet.address)
-            .sink(receiveCompletion: { [weak self] completionSubscription in
-                if case .failure(let error) = completionSubscription {
-                    self?.wallet.clearAmounts()
-                    completion(.failure(error))
-                }
-            }, receiveValue: { [weak self] response in
-                self?.updateWallet(with: response, tokens: tokens)
-                completion(.success(()))
-            })
+    override func updateWalletManager() async throws {
+        do {
+            let response = try await networkService.getInfo(account: wallet.address).async()
+            updateWallet(with: response, tokens: cardTokens)
+        } catch {
+            wallet.clearAmounts()
+            throw error
+        }
     }
 
     private func updateWallet(with response: XrpInfoResponse, tokens: [Token]) {
