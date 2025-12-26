@@ -33,20 +33,14 @@ final class RadiantWalletManager: BaseManager {
 
     // MARK: - Implementation
 
-    override func update(completion: @escaping (Result<Void, Error>) -> Void) {
-        cancellable = networkService.getInfo(address: wallet.address)
-            .withWeakCaptureOf(self)
-            .sink(receiveCompletion: { [weak self] result in
-                switch result {
-                case .failure(let error):
-                    self?.wallet.clearAmounts()
-                    completion(.failure(error))
-                case .finished:
-                    completion(.success(()))
-                }
-            }, receiveValue: { manager, response in
-                manager.updateWallet(with: response)
-            })
+    override func updateWalletManager() async throws {
+        do {
+            let response = try await networkService.getInfo(address: wallet.address).async()
+            updateWallet(with: response)
+        } catch {
+            wallet.clearAmounts()
+            throw error
+        }
     }
 }
 
