@@ -23,6 +23,7 @@ struct CarouselNewsView: View {
                 ForEach(displayItems, id: \.id) { item in
                     CarouselNewsCardView(item: item)
                         .skeletonable(isShown: itemsState.isLoading, radius: Layout.MainCard.cornerRadius)
+                        .allowsHitTesting(!itemsState.isLoading)
                 }
 
                 if !itemsState.isLoading {
@@ -153,7 +154,7 @@ private extension CarouselNewsItem {
                     timeAgo: "1h ago",
                     tags: [
                         InfoChipItem(title: "Regulation"),
-                        InfoChipItem(title: "XRP", leadingIcon: .system("bitcoinsign.circle.fill")),
+                        InfoChipItem(title: "XRP", leadingIcon: .image(Image(systemName: "bitcoinsign.circle.fill"))),
                         InfoChipItem(title: "+2"),
                     ],
                     isRead: false,
