@@ -21,7 +21,7 @@ public struct FloatingSheetConfiguration: Equatable {
         maxHeightFraction: 0.8,
         sheetFrameUpdateAnimation: nil,
         sheetBackgroundColor: Colors.Background.tertiary,
-        backgroundInteractionBehavior: FloatingSheetConfiguration.BackgroundInteractionBehavior.consumeTouches,
+        backgroundInteractionBehavior: .consumeTouches,
         verticalSwipeBehavior: nil,
         keyboardHandlingEnabled: true
     )
