@@ -344,8 +344,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .receiveOnMain()
             .assign(to: &$tangemPaySyncInProgress)
 
-        tangemPayAvailabilityRepository
-            .isTangemPayHiddenPublisher(for: userWalletId)
+        isTangemPayHidden
             .withWeakCaptureOf(self)
             .map { viewModel, isAccountHidden in
                 if isAccountHidden {
