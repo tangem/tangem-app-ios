@@ -173,11 +173,13 @@ private extension SendViewModel {
     }
 
     func performApprove() {
-        do {
-            let (settings, approveViewModelInput) = try dataBuilder.stakingBuilder().makeDataForExpressApproveViewModel()
-            coordinator?.openApproveView(settings: settings, approveViewModelInput: approveViewModelInput)
-        } catch {
-            showAlert(error.alertBinder)
+        Task { @MainActor in
+            do {
+                let input = try await dataBuilder.approveViewModelProvider().makeExpressApproveViewModelInput()
+                coordinator?.openApproveView(expressApproveViewModelInput: input)
+            } catch {
+                showAlert(error.alertBinder)
+            }
         }
     }
 
@@ -321,6 +323,10 @@ extension SendViewModel: SendModelRoutable {
         } catch {
             showAlert(error.alertBinder)
         }
+    }
+
+    func openApproveSheet() {
+        performApprove()
     }
 
     func openHighPriceImpactWarningSheetViewModel(viewModel: HighPriceImpactWarningSheetViewModel) {

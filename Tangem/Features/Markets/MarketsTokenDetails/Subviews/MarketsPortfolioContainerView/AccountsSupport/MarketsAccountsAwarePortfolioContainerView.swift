@@ -76,6 +76,8 @@ struct MarketsAccountsAwarePortfolioContainerView: View {
                     content: .title(icon: .trailing(Assets.plus14), title: Localization.marketsAddToken),
                     action: viewModel.onAddTapAction
                 )
+                .disabled(viewModel.isAddTokenButtonDisabled)
+                .loading(viewModel.isLoadingNetworks)
             }
         }
     }

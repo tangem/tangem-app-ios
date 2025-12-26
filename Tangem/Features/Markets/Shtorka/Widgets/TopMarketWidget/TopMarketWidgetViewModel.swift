@@ -16,11 +16,7 @@ final class TopMarketWidgetViewModel: ObservableObject {
     // MARK: - Injected & Published Properties
 
     @Published private(set) var tokenViewModels: [MarketTokenItemViewModel] = []
-    @Published private(set) var loadingState: WidgetLoadingState = .idle {
-        didSet {
-            widgetsUpdateHandler.performUpdateLoading(state: loadingState, for: widgetType)
-        }
-    }
+    @Published private(set) var loadingState: WidgetLoadingState = .loading
 
     // MARK: - Properties
 
