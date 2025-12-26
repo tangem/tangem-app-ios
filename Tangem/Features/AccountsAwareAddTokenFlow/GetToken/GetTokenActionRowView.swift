@@ -1,5 +1,5 @@
 //
-//  MarketsActionRowView.swift
+//  GetTokenActionRowView.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import SwiftUI
 import TangemUI
 import TangemAssets
 
-struct MarketsActionRowView: View {
+struct GetTokenActionRowView: View {
     let icon: ImageType
     let title: String
     let subtitle: String?
@@ -84,7 +84,7 @@ struct MarketsActionRowView: View {
 
 // MARK: - Style
 
-extension MarketsActionRowView {
+extension GetTokenActionRowView {
     enum Style {
         case colored(Color)
         case solid
