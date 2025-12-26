@@ -8,13 +8,14 @@
 
 import Combine
 import Foundation
+import BlockchainSdk
+import TangemFoundation
 import struct TangemUIUtils.AlertBinder
 
 final class AccountsAwareActionButtonsBuyViewModel: ObservableObject {
     // MARK: - Dependencies
 
-    @Injected(\.hotCryptoService)
-    private var hotCryptoService: HotCryptoService
+    @Injected(\.hotCryptoService) private var hotCryptoService: HotCryptoService
 
     // MARK: - ViewState
 
@@ -25,16 +26,20 @@ final class AccountsAwareActionButtonsBuyViewModel: ObservableObject {
 
     // MARK: - Private
 
+    private let userWalletModels: [UserWalletModel]
     private weak var coordinator: ActionButtonsBuyRoutable?
 
     init(
+        userWalletModels: [UserWalletModel],
         tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel,
         coordinator: some ActionButtonsBuyRoutable
     ) {
+        self.userWalletModels = userWalletModels
         self.tokenSelectorViewModel = tokenSelectorViewModel
         self.coordinator = coordinator
 
         tokenSelectorViewModel.setup(with: self)
+        bind()
     }
 
     func onAppear() {
@@ -47,13 +52,47 @@ final class AccountsAwareActionButtonsBuyViewModel: ObservableObject {
     }
 
     func userDidTapHotCryptoToken(_ token: HotCryptoToken) {
-        // [REDACTED_TODO_COMMENT]
-        // coordinator?.openAddToPortfolio(.init(token: token, userWalletName: userWalletModel.name))
+        ActionButtonsAnalyticsService.hotTokenClicked(tokenSymbol: token.tokenItem?.currencySymbol ?? token.name)
+        coordinator?.openAddHotToken(hotToken: token, userWalletModels: userWalletModels)
+    }
+}
+
+// MARK: - Private
+
+private extension AccountsAwareActionButtonsBuyViewModel {
+    func bind() {
+        hotCryptoService.hotCryptoItemsPublisher
+            .map { [weak self] in self?.mapHotCryptoItems($0) ?? [] }
+            .receiveOnMain()
+            .assign(to: &$hotCryptoItems)
     }
 
-    func userDidRequestAddHotCryptoToken(_ token: HotCryptoToken) {
-        // [REDACTED_TODO_COMMENT]
-        // coordinator?.openAddToPortfolio(.init(token: token, userWalletName: userWalletModel.name))
+    func mapHotCryptoItems(_ items: [HotCryptoDTO.Response.HotToken]) -> [HotCryptoToken] {
+        let allSupportedBlockchains = Set(userWalletModels.flatMap { $0.config.supportedBlockchains })
+        let tokenMapper = TokenItemMapper(supportedBlockchains: allSupportedBlockchains)
+
+        let mappedTokens = items.map { HotCryptoToken(from: $0, tokenMapper: tokenMapper, imageHost: nil) }
+        return filterHotTokens(mappedTokens)
+    }
+
+    func filterHotTokens(_ hotTokens: [HotCryptoToken]) -> [HotCryptoToken] {
+        hotTokens.filter { hotToken in
+            guard let tokenItem = hotToken.tokenItem, let coinId = tokenItem.id else { return false }
+
+            let network = NetworkModel(
+                networkId: tokenItem.networkId,
+                contractAddress: tokenItem.contractAddress,
+                decimalCount: tokenItem.decimalCount
+            )
+
+            let isAddedOnAll = TokenAdditionChecker.isTokenAddedOnNetworksInAllAccounts(
+                coinId: coinId,
+                availableNetworks: [network],
+                userWalletModels: userWalletModels
+            )
+
+            return !isAddedOnAll
+        }
     }
 }
 
