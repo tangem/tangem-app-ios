@@ -236,7 +236,6 @@ struct PaeraCustomerBuilder {
     let tangemPayAuthorizingInteractor: TangemPayAuthorizing
     let signer: any TangemSigner
     let authorizationService: TangemPayAuthorizationService
-    let authorizationTokensHandler: TangemPayAuthorizationTokensHandler
     let customerInfoManagementService: CustomerInfoManagementService
 
     @Injected(\.tangemPayAuthorizationTokensRepository)
@@ -248,26 +247,20 @@ struct PaeraCustomerBuilder {
         tangemPayAuthorizingInteractor: TangemPayAuthorizing,
         signer: any TangemSigner
     ) -> PaeraCustomerBuilder {
-        let authorizationService = TangemPayAPIServiceBuilder().buildTangemPayAuthorizationService(
-            customerWalletId: userWalletId.stringValue,
-            authorizingInteractor: tangemPayAuthorizingInteractor
-        )
-
         let customerWalletAddressAndTokens = TangemPayUtilities.getCustomerWalletAddressAndAuthorizationTokens(
             customerWalletId: userWalletId.stringValue,
             keysRepository: keysRepository
         )
 
-        let authorizationTokensHandler = TangemPayAuthorizationTokensHandlerBuilder()
-            .buildTangemPayAuthorizationTokensHandler(
-                customerWalletId: userWalletId.stringValue,
-                tokens: customerWalletAddressAndTokens?.tokens,
-                authorizationService: authorizationService,
-                authorizationTokensRepository: Self.tangemPayAuthorizationTokensRepository
-            )
+        let authorizationService = TangemPayAPIServiceBuilder().buildTangemPayAuthorizationService(
+            customerWalletId: userWalletId.stringValue,
+            authorizingInteractor: tangemPayAuthorizingInteractor,
+            authorizationTokensRepository: tangemPayAuthorizationTokensRepository,
+            tokens: customerWalletAddressAndTokens?.tokens
+        )
 
         let customerInfoManagementService = TangemPayCustomerInfoManagementServiceBuilder()
-            .buildCustomerInfoManagementService(authorizationTokensHandler: authorizationTokensHandler)
+            .buildCustomerInfoManagementService(authorizationTokensHandler: authorizationService)
 
         return PaeraCustomerBuilder(
             userWalletId: userWalletId,
@@ -275,7 +268,6 @@ struct PaeraCustomerBuilder {
             tangemPayAuthorizingInteractor: tangemPayAuthorizingInteractor,
             signer: signer,
             authorizationService: authorizationService,
-            authorizationTokensHandler: authorizationTokensHandler,
             customerInfoManagementService: customerInfoManagementService
         )
     }
@@ -296,7 +288,6 @@ struct PaeraCustomerBuilder {
             tangemPayAuthorizingInteractor: tangemPayAuthorizingInteractor,
             signer: signer,
             authorizationService: authorizationService,
-            authorizationTokensHandler: authorizationTokensHandler,
             customerInfoManagementService: customerInfoManagementService
         )
     }
@@ -328,7 +319,6 @@ final class PaeraCustomer {
     private let tangemPayAuthorizingInteractor: TangemPayAuthorizing
     private let signer: any TangemSigner
     private let authorizationService: TangemPayAuthorizationService
-    private let authorizationTokensHandler: TangemPayAuthorizationTokensHandler
     private let customerInfoManagementService: CustomerInfoManagementService
 
     private var customerWalletId: String {
@@ -341,7 +331,6 @@ final class PaeraCustomer {
         tangemPayAuthorizingInteractor: TangemPayAuthorizing,
         signer: any TangemSigner,
         authorizationService: TangemPayAuthorizationService,
-        authorizationTokensHandler: TangemPayAuthorizationTokensHandler,
         customerInfoManagementService: CustomerInfoManagementService
     ) {
         self.userWalletId = userWalletId
@@ -350,7 +339,6 @@ final class PaeraCustomer {
         self.signer = signer
 
         self.authorizationService = authorizationService
-        self.authorizationTokensHandler = authorizationTokensHandler
         self.customerInfoManagementService = customerInfoManagementService
     }
 
@@ -361,7 +349,7 @@ final class PaeraCustomer {
         )
 
         guard let customerWalletAddress = customerWalletAddressAndTokens?.customerWalletAddress,
-              !authorizationTokensHandler.refreshTokenExpired
+              !authorizationService.refreshTokenExpired
         else {
             return .syncNeeded
         }
@@ -377,7 +365,7 @@ final class PaeraCustomer {
                     userWalletId: userWalletId,
                     keysRepository: keysRepository,
                     signer: signer,
-                    authorizationTokensHandler: authorizationTokensHandler,
+                    authorizationTokensHandler: authorizationService,
                     customerInfoManagementService: customerInfoManagementService
                 ))
 
@@ -505,7 +493,6 @@ final class TangemPayManager {
             tangemPayAuthorizingInteractor: paeraCustomerBuilder.tangemPayAuthorizingInteractor,
             signer: paeraCustomerBuilder.signer,
             authorizationService: paeraCustomerBuilder.authorizationService,
-            authorizationTokensHandler: paeraCustomerBuilder.authorizationTokensHandler,
             customerInfoManagementService: paeraCustomerBuilder.customerInfoManagementService
         )
         self.paeraCustomer = paeraCustomer
@@ -578,8 +565,7 @@ final class TangemPayManager {
         runTask { [self] in
             stateSubject.value = .syncInProgress
             do {
-                let response = try await paeraCustomerBuilder.authorizationService.authorizeWithCustomerWallet()
-                try paeraCustomerBuilder.authorizationTokensHandler.saveTokens(tokens: response.tokens)
+                try await paeraCustomerBuilder.authorizationService.authorizeWithCustomerWallet()
                 do {
                     stateSubject.value = try await paeraCustomer.getCurrentState()
                 } catch {
@@ -596,7 +582,7 @@ final class TangemPayManager {
 
     private func bind() {
         Publishers.Merge(
-            paeraCustomerBuilder.authorizationTokensHandler.errorEventPublisher,
+            paeraCustomerBuilder.authorizationService.errorEventPublisher,
             paeraCustomerBuilder.customerInfoManagementService.errorEventPublisher
         )
         .map { event -> TangemPayState in

@@ -6,8 +6,24 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-public protocol TangemPayAuthorizationService {
-    func authorizeWithCustomerWallet() async throws -> TangemPayAuthorizingResponse
+import Combine
+
+public enum TangemPayApiErrorEvent {
+    case unauthorized
+    case other
+}
+
+public protocol TangemPayAuthorizationTokensHandler: AnyObject {
+    var refreshTokenExpired: Bool { get }
+    var authorizationHeader: String? { get }
+    var errorEventPublisher: AnyPublisher<TangemPayApiErrorEvent, Never> { get }
+
+    func saveTokens(tokens: TangemPayAuthorizationTokens) throws
+    func prepare() async throws
+}
+
+public protocol TangemPayAuthorizationService: TangemPayAuthorizationTokensHandler {
+    func authorizeWithCustomerWallet() async throws
 
     func getChallenge(
         customerWalletAddress: String,
