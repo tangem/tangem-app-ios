@@ -23,8 +23,12 @@ final class CommonCryptoAccountsRepository {
     private let storageController: CryptoAccountsPersistentStorageController
     private let storageDidUpdateSubject: CryptoAccountsPersistentStorageController.StorageDidUpdateSubject
     private let stateHolder: StateHolder
+
     /// Implicitly unwrapped to resolve circular dependency
-    fileprivate var debouncer: Debouncer<UserTokensRepository.Result>! // [REDACTED_TODO_COMMENT]
+    fileprivate var loadAccountsFromServerDebouncer: Debouncer<UserTokensRepository.Result>! // [REDACTED_TODO_COMMENT]
+
+    /// Implicitly unwrapped to resolve circular dependency
+    fileprivate var updateTokensOnServerDebouncer: Debouncer<UserTokensRepository.Result>! // [REDACTED_TODO_COMMENT]
 
     private weak var userWalletInfoProvider: UserWalletInfoProvider?
 
@@ -63,9 +67,16 @@ final class CommonCryptoAccountsRepository {
         self.persistentStorage = persistentStorage
         self.storageController = storageController
         self.hasTokenSynchronization = hasTokenSynchronization
-        debouncer = Debouncer(interval: Constants.loadAccountsDebounceInterval) { [weak self] completion in
+
+        loadAccountsFromServerDebouncer = Debouncer(interval: Constants.debounceInterval) { [weak self] completion in
             self?.loadAccountsFromServer(completion)
         }
+
+        updateTokensOnServerDebouncer = Debouncer(interval: Constants.debounceInterval) { [weak self] completion in
+            // No account properties were changed here therefore only tokens need to be updated on the server
+            self?.updateAccountsOnServer(updateType: .tokens, completion: completion)
+        }
+
         storageController.bind(to: storageDidUpdateSubject)
     }
 
@@ -75,7 +86,12 @@ final class CommonCryptoAccountsRepository {
         self.userWalletInfoProvider = userWalletInfoProvider
     }
 
-    // MARK: - Legacy storage migration, not accounts created, no wallets created, etc.
+    // MARK: - Legacy storage migration and initialization, not accounts created, no wallets created, etc.
+
+    private func initializeStorage(with initialAccount: StoredCryptoAccount) {
+        persistentStorage.replace(with: [initialAccount])
+        auxiliaryDataStorage.update(withArchivedAccountsCount: 0, totalAccountsCount: 1)
+    }
 
     private func migrateStorage(forUserWalletWithId userWalletId: UserWalletId) {
         let mainAccountPersistentConfig = AccountModelUtils.mainAccountPersistentConfig(forUserWalletWithId: userWalletId)
@@ -87,9 +103,7 @@ final class CommonCryptoAccountsRepository {
             tokenListAppearance: tokenListAppearance,
             tokens: tokens
         )
-
-        persistentStorage.replace(with: [newCryptoAccount])
-        auxiliaryDataStorage.update(withArchivedAccountsCount: 0, totalAccountsCount: 1)
+        initializeStorage(with: newCryptoAccount)
     }
 
     private func createWallet() async throws {
@@ -110,7 +124,8 @@ final class CommonCryptoAccountsRepository {
             try await createWallet()
         }
         let defaultAccount = defaultAccountFactory.makeDefaultAccount()
-        // If the wallet has already been created, we don't need to forcefully update the token list with
+        // If the wallet has already been created (i.e. this exact wallet has been used on previous app version,
+        // w/o accounts support) - we don't need to forcefully update the token list with
         // `DefaultAccountFactory.defaultBlockchains` (i.e. `UserWalletConfig.defaultBlockchains`).
         //
         // Instead, the token list will be updated if needed using tokens from the `additionalTokens`
@@ -121,9 +136,9 @@ final class CommonCryptoAccountsRepository {
 
     // MARK: - Loading accounts and tokens from server
 
-    private func loadAccountsFromServer(_ completion: @escaping UserTokensRepository.Completion) {
+    private func loadAccountsFromServer(_ completion: UserTokensRepository.Completion? = nil) {
         guard hasTokenSynchronization else {
-            completion(.success(()))
+            completion?(.success(()))
             return
         }
 
@@ -151,7 +166,7 @@ final class CommonCryptoAccountsRepository {
 
             do {
                 try await repository.loadAccountsFromServerAsync()
-                await runOnMainIfNotCancelled { completion(.success(())) }
+                await runOnMainIfNotCancelled { completion?(.success(())) }
             } catch {
                 await repository.handleFailedLoadingAccountsFromServer(error: error, completion: completion)
             }
@@ -196,17 +211,17 @@ final class CommonCryptoAccountsRepository {
         }
     }
 
-    private func handleFailedLoadingAccountsFromServer(error: Error, completion: UserTokensRepository.Completion) async {
+    private func handleFailedLoadingAccountsFromServer(error: Error, completion: UserTokensRepository.Completion?) async {
         guard !error.isCancellationError else {
             return
         }
 
-        await runOnMainIfNotCancelled { completion(.failure(error)) }
+        await runOnMainIfNotCancelled { completion?(.failure(error)) }
     }
 
     // MARK: - Updating accounts and tokens on server
 
-    fileprivate func updateAccountsOnServer(
+    private func updateAccountsOnServer(
         cryptoAccounts: [StoredCryptoAccount]? = nil,
         updateType: RemoteUpdateType,
         completion: UserTokensRepository.Completion? = nil
@@ -400,8 +415,20 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
     }
 
     func initialize(forUserWalletWithId userWalletId: UserWalletId) {
-        if storageController.isMigrationNeeded() {
+        guard storageController.isMigrationNeeded() else {
+            return
+        }
+
+        if tokenItemsRepository.containsFile {
+            // There is no need to call `loadAccountsFromServer` explicitly here, as this migration will create the main
+            // account, and its user tokens manager will trigger the initial synchronization with the remote server
             migrateStorage(forUserWalletWithId: userWalletId)
+        } else if !hasTokenSynchronization {
+            // Local-only storage initialization with a default account
+            initializeStorage(with: defaultAccountFactory.makeDefaultAccount())
+        } else {
+            // Last resort option: initialize storage with remote info from the server
+            loadAccountsFromServer()
         }
     }
 
@@ -507,34 +534,40 @@ final class UserTokensRepositoryAdapter: UserTokensRepository {
         let updates = updater.updates
 
         for update in updates {
+            let updatedAccount: StoredCryptoAccount
+
             switch update {
             case .append(let tokenItems):
                 let merger = StoredCryptoAccountsMerger(preserveTokensWhileMergingAccounts: false)
-                let (updatedAccount, isDirty) = merger.merge(newTokenItems: tokenItems, to: cryptoAccount)
+                let (account, isDirty) = merger.merge(newTokenItems: tokenItems, to: cryptoAccount)
 
                 guard isDirty else {
                     continue
                 }
 
-                innerRepository.persistentStorage.appendNewOrUpdateExisting(updatedAccount)
+                updatedAccount = account
             case .remove(let tokenItem):
-                let updatedTokens = cryptoAccount.tokens.filter { $0 != tokenItem.toStoredToken() }
-                let updatedAccount = cryptoAccount.withTokens(updatedTokens)
-                innerRepository.persistentStorage.appendNewOrUpdateExisting(updatedAccount)
-            case .update:
-                break // [REDACTED_TODO_COMMENT]
+                let updatedTokens = cryptoAccount
+                    .tokens
+                    .filter { $0 != tokenItem.toStoredToken() }
+                updatedAccount = cryptoAccount.withTokens(updatedTokens)
+            case .update(let request):
+                updatedAccount = cryptoAccount
+                    .with(sorting: request.sorting, grouping: request.grouping)
+                    .withTokens(request.tokens)
             }
+
+            innerRepository.persistentStorage.appendNewOrUpdateExisting(updatedAccount)
         }
 
         if updates.isNotEmpty {
-            // No account properties were changed here therefore only tokens need to be updated on the server
-            innerRepository.updateAccountsOnServer(updateType: .tokens)
+            innerRepository.updateTokensOnServerDebouncer.debounce(withCompletion: { _ in })
         }
     }
 
     func updateLocalRepositoryFromServer(_ completion: @escaping Completion) {
         // Debounced loading to avoid multiple simultaneous requests when multiple accounts request an update in a short time frame
-        innerRepository.debouncer.debounce(withCompletion: completion)
+        innerRepository.loadAccountsFromServerDebouncer.debounce(withCompletion: completion)
     }
 
     private static func cryptoAccount(
@@ -593,7 +626,7 @@ private extension CommonCryptoAccountsRepository {
 private extension CommonCryptoAccountsRepository {
     enum Constants {
         static let maxRetryCount = 3
-        static let loadAccountsDebounceInterval = 0.3
+        static let debounceInterval = 0.3
     }
 }
 
