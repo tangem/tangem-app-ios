@@ -102,9 +102,21 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
     }
 
     func openAccountsSelector(with model: MarketsTokenDetailsModel, walletDataProvider: MarketsWalletDataProvider) {
-        let viewModel = MarketsTokenAccountNetworkSelectorFlowViewModel(
-            inputData: .init(coinId: model.id, coinName: model.name, coinSymbol: model.symbol, networks: model.availableNetworks),
-            userWalletDataProvider: walletDataProvider,
+        let inputData = MarketsTokensNetworkSelectorViewModel.InputData(
+            coinId: model.id,
+            coinName: model.name,
+            coinSymbol: model.symbol,
+            networks: model.availableNetworks
+        )
+
+        let configuration = MarketsAddTokenFlowConfigurationFactory.make(
+            inputData: inputData,
+            coordinator: self
+        )
+
+        let viewModel = AccountsAwareAddTokenFlowViewModel(
+            userWalletModels: walletDataProvider.userWalletModels,
+            configuration: configuration,
             coordinator: self
         )
 
@@ -233,7 +245,7 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
 
 // MARK: - MarketsPortfolioContainerRoutable
 
-extension MarketsTokenDetailsCoordinator {
+extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
     func openReceive(walletModel: any WalletModel) {
         let receiveFlowFactory = AvailabilityReceiveFlowFactory(
             flow: .crypto,
@@ -308,9 +320,9 @@ extension MarketsTokenDetailsCoordinator {
     }
 }
 
-// MARK: - MarketsTokenAccountNetworkSelectorRoutable
+// MARK: - AccountsAwareAddTokenFlowRoutable
 
-extension MarketsTokenDetailsCoordinator: MarketsTokenAccountNetworkSelectorRoutable {
+extension MarketsTokenDetailsCoordinator: AccountsAwareAddTokenFlowRoutable {
     func close() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
