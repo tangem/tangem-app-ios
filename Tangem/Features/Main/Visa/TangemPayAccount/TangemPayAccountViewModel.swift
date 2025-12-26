@@ -14,37 +14,36 @@ import TangemLocalization
 protocol TangemPayAccountRoutable: AnyObject {
     func openTangemPayIssuingYourCardPopup()
     func openTangemPayFailedToIssueCardPopup()
-    func openTangemPayKYCInProgressPopup(paeraCustomer: PaeraCustomer)
+    func openTangemPayKYCInProgressPopup(tangemPayManager: TangemPayManager)
     func openTangemPayMainView(tangemPayAccount: TangemPayAccount)
 }
 
 final class TangemPayAccountViewModel: ObservableObject {
     @Published private(set) var state: ViewState = .skeleton
 
-    private let paeraCustomer: PaeraCustomer
+    private let tangemPayManager: TangemPayManager
     private weak var router: TangemPayAccountRoutable?
 
-    init(paeraCustomer: PaeraCustomer, router: TangemPayAccountRoutable?) {
-        self.paeraCustomer = paeraCustomer
+    init(tangemPayManager: TangemPayManager, router: TangemPayAccountRoutable?) {
+        self.tangemPayManager = tangemPayManager
         self.router = router
 
         bind()
     }
 
     func userDidTapView() {
-        // [REDACTED_TODO_COMMENT]
-//        switch paeraCustomer.state {
-//        case .none, .syncNeeded, .syncInProgress, .unavailable:
-//            break
-//        case .kyc:
-//            router?.openTangemPayKYCInProgressPopup(paeraCustomer: paeraCustomer)
-//        case .readyToIssueOrIssuing:
-//            router?.openTangemPayIssuingYourCardPopup()
-//        case .failedToIssue:
-//            router?.openTangemPayFailedToIssueCardPopup()
-//        case .tangemPayAccount(let tangemPayAccount):
-//            router?.openTangemPayMainView(tangemPayAccount: tangemPayAccount)
-//        }
+        switch tangemPayManager.tangemPayState {
+        case .initial, .syncNeeded, .syncInProgress, .unavailable:
+            break
+        case .kyc:
+            router?.openTangemPayKYCInProgressPopup(tangemPayManager: tangemPayManager)
+        case .issuingCard:
+            router?.openTangemPayIssuingYourCardPopup()
+        case .failedToIssueCard:
+            router?.openTangemPayFailedToIssueCardPopup()
+        case .tangemPayAccount(let tangemPayAccount):
+            router?.openTangemPayMainView(tangemPayAccount: tangemPayAccount)
+        }
     }
 }
 
@@ -52,54 +51,53 @@ final class TangemPayAccountViewModel: ObservableObject {
 
 private extension TangemPayAccountViewModel {
     func bind() {
-        // [REDACTED_TODO_COMMENT]
-//        paeraCustomer.statePublisher
-//            .flatMapLatest { state -> AnyPublisher<ViewState, Never> in
-//                guard !RTCUtil().checkStatus().hasIssues else {
-//                    return .just(output: .rootedDevice)
-//                }
-//
-//                return switch state {
-//                case .none:
-//                    .just(output: .skeleton)
-//                case .syncNeeded, .syncInProgress:
-//                    .just(output: .syncNeeded)
-//                case .unavailable:
-//                    .just(output: .unavailable)
-//                case .kyc:
-//                    .just(output: .kycInProgress)
-//                case .readyToIssueOrIssuing:
-//                    .just(output: .issuingYourCard)
-//                case .failedToIssue:
-//                    .just(output: .failedToIssueCard)
-//                case .tangemPayAccount(let tangemPayAccount):
-//                    Publishers.CombineLatest(
-//                        tangemPayAccount.tangemPayCardPublisher,
-//                        tangemPayAccount.balancesProvider.fixedFiatTotalTokenBalanceProvider.formattedBalanceTypePublisher
-//                    )
-//                    .map { card, balanceType in
-//                        switch card {
-//                        case .none:
-//                            return .skeleton
-//                        case .some(let card):
-//                            let cardInfo = CardInfo(cardNumberEnd: card.cardNumberEnd)
-//                            let balance = LoadableTokenBalanceViewStateBuilder().build(type: balanceType)
-//                            return .normal(card: cardInfo, balance: balance)
-//                        }
-//                    }
-//                    .eraseToAnyPublisher()
-//                }
-//            }
-//            .handleEvents(receiveOutput: { state in
-//                switch state {
-//                case .issuingYourCard:
-//                    Analytics.log(.visaOnboardingVisaIssuingBannerDisplayed)
-//                default:
-//                    break
-//                }
-//            })
-//            .receiveOnMain()
-//            .assign(to: &$state)
+        tangemPayManager.tangemPayStatePublisher
+            .flatMapLatest { state -> AnyPublisher<ViewState, Never> in
+                guard !RTCUtil().checkStatus().hasIssues else {
+                    return .just(output: .rootedDevice)
+                }
+
+                return switch state {
+                case .initial:
+                    .just(output: .skeleton)
+                case .syncNeeded, .syncInProgress:
+                    .just(output: .syncNeeded)
+                case .unavailable:
+                    .just(output: .unavailable)
+                case .kyc:
+                    .just(output: .kycInProgress)
+                case .issuingCard:
+                    .just(output: .issuingYourCard)
+                case .failedToIssueCard:
+                    .just(output: .failedToIssueCard)
+                case .tangemPayAccount(let tangemPayAccount):
+                    Publishers.CombineLatest(
+                        tangemPayAccount.tangemPayCardPublisher,
+                        tangemPayAccount.balancesProvider.fixedFiatTotalTokenBalanceProvider.formattedBalanceTypePublisher
+                    )
+                    .map { card, balanceType in
+                        switch card {
+                        case .none:
+                            return .skeleton
+                        case .some(let card):
+                            let cardInfo = CardInfo(cardNumberEnd: card.cardNumberEnd)
+                            let balance = LoadableTokenBalanceViewStateBuilder().build(type: balanceType)
+                            return .normal(card: cardInfo, balance: balance)
+                        }
+                    }
+                    .eraseToAnyPublisher()
+                }
+            }
+            .handleEvents(receiveOutput: { state in
+                switch state {
+                case .issuingYourCard:
+                    Analytics.log(.visaOnboardingVisaIssuingBannerDisplayed)
+                default:
+                    break
+                }
+            })
+            .receiveOnMain()
+            .assign(to: &$state)
     }
 }
 
