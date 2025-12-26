@@ -100,7 +100,7 @@ class LockedUserWalletModel: UserWalletModel {
         TangemPayManager(
             userWalletId: userWalletId,
             keysRepository: keysRepository,
-            tangemPayAuthorizingInteractor: tangemPayAuthorizingInteractor,
+            authorizingInteractor: TangemPayAuthorizingMock(),
             signer: signer
         )
     }
@@ -118,10 +118,6 @@ class LockedUserWalletModel: UserWalletModel {
     }
 
     var keysDerivingInteractor: any KeysDeriving {
-        fatalError("Should not be called for locked wallets")
-    }
-
-    var tangemPayAuthorizingInteractor: TangemPayAuthorizing {
         fatalError("Should not be called for locked wallets")
     }
 

@@ -32,7 +32,7 @@ extension TangemPayAuthorizingMobileWalletInteractor: TangemPayAuthorizing {
     func authorize(
         customerWalletId: String,
         authorizationService: TangemPayAuthorizationService
-    ) async throws -> TangemPayAuthorizingResponse {
+    ) async throws {
         let context = try await unlock()
         let mobileWallet = try mobileWalletSdk.deriveMasterKeys(context: context)
 
@@ -70,11 +70,7 @@ extension TangemPayAuthorizingMobileWalletInteractor: TangemPayAuthorizing {
         )
 
         keysRepository.update(derivations: derivationResult)
-
-        return TangemPayAuthorizingResponse(
-            customerWalletAddress: customerWalletAddress,
-            tokens: tokens
-        )
+        try authorizationService.saveTokens(tokens: tokens)
     }
 
     private func handleCustomerWalletAuthorization(
