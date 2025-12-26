@@ -26,11 +26,6 @@ class UserWalletModelMock: UserWalletModel {
         )
     }
 
-    // [REDACTED_TODO_COMMENT]
-    // [REDACTED_INFO]
-    var paeraCustomer: PaeraCustomer? { nil }
-    var paeraCustomerPublisher: AnyPublisher<PaeraCustomer?, Never> { .empty }
-
     var name: String { "" }
     var hasBackupCards: Bool { false }
     var emailConfig: EmailConfig? { nil }
@@ -102,6 +97,15 @@ class UserWalletModelMock: UserWalletModel {
 
     var accountModelsManager: AccountModelsManager {
         AccountModelsManagerMock()
+    }
+    
+    var tangemPayManager: TangemPayManager {
+        TangemPayManager(
+            userWalletId: userWalletId,
+            keysRepository: keysRepository,
+            tangemPayAuthorizingInteractor: tangemPayAuthorizingInteractor,
+            signer: signer
+        )
     }
 
     var refcodeProvider: RefcodeProvider? {

@@ -234,6 +234,7 @@ struct PaeraCustomerBuilder {
     let userWalletId: UserWalletId
     let keysRepository: KeysRepository
     let tangemPayAuthorizingInteractor: TangemPayAuthorizing
+    let signer: any TangemSigner
     let authorizationService: TangemPayAuthorizationService
     let authorizationTokensHandler: TangemPayAuthorizationTokensHandler
     let customerInfoManagementService: CustomerInfoManagementService
@@ -244,7 +245,8 @@ struct PaeraCustomerBuilder {
     static func make(
         userWalletId: UserWalletId,
         keysRepository: KeysRepository,
-        tangemPayAuthorizingInteractor: TangemPayAuthorizing
+        tangemPayAuthorizingInteractor: TangemPayAuthorizing,
+        signer: any TangemSigner
     ) -> PaeraCustomerBuilder {
         let authorizationService = TangemPayAPIServiceBuilder().buildTangemPayAuthorizationService()
 
@@ -268,6 +270,7 @@ struct PaeraCustomerBuilder {
             userWalletId: userWalletId,
             keysRepository: keysRepository,
             tangemPayAuthorizingInteractor: tangemPayAuthorizingInteractor,
+            signer: signer,
             authorizationService: authorizationService,
             authorizationTokensHandler: authorizationTokensHandler,
             customerInfoManagementService: customerInfoManagementService
@@ -288,6 +291,7 @@ struct PaeraCustomerBuilder {
             userWalletId: userWalletId,
             keysRepository: keysRepository,
             tangemPayAuthorizingInteractor: tangemPayAuthorizingInteractor,
+            signer: signer,
             authorizationService: authorizationService,
             authorizationTokensHandler: authorizationTokensHandler,
             customerInfoManagementService: customerInfoManagementService
@@ -300,6 +304,7 @@ struct PaeraCustomerBuilder {
             userWalletId: userWalletId,
             keysRepository: keysRepository,
             tangemPayAuthorizingInteractor: tangemPayAuthorizingInteractor,
+            signer: signer,
             authorizationService: authorizationService,
             authorizationTokensHandler: authorizationTokensHandler,
             customerInfoManagementService: customerInfoManagementService
@@ -327,16 +332,11 @@ struct PaeraCustomerBuilder {
     }
 }
 
-import TangemMacro
-
 final class PaeraCustomer {
     private let userWalletId: UserWalletId
     private let keysRepository: KeysRepository
     private let tangemPayAuthorizingInteractor: TangemPayAuthorizing
-
-    @Injected(\.tangemPayAuthorizationTokensRepository)
-    private static var tangemPayAuthorizationTokensRepository: TangemPayAuthorizationTokensRepository
-
+    private let signer: any TangemSigner
     private let authorizationService: TangemPayAuthorizationService
     private let authorizationTokensHandler: TangemPayAuthorizationTokensHandler
     private let customerInfoManagementService: CustomerInfoManagementService
@@ -349,6 +349,7 @@ final class PaeraCustomer {
         userWalletId: UserWalletId,
         keysRepository: KeysRepository,
         tangemPayAuthorizingInteractor: TangemPayAuthorizing,
+        signer: any TangemSigner,
         authorizationService: TangemPayAuthorizationService,
         authorizationTokensHandler: TangemPayAuthorizationTokensHandler,
         customerInfoManagementService: CustomerInfoManagementService
@@ -356,6 +357,7 @@ final class PaeraCustomer {
         self.userWalletId = userWalletId
         self.keysRepository = keysRepository
         self.tangemPayAuthorizingInteractor = tangemPayAuthorizingInteractor
+        self.signer = signer
 
         self.authorizationService = authorizationService
         self.authorizationTokensHandler = authorizationTokensHandler
@@ -388,7 +390,15 @@ final class PaeraCustomer {
         if let productInstance = customerInfo.productInstance {
             switch productInstance.status {
             case .active, .blocked:
-                return .tangemPayReady(customerWalletAddress: customerWalletAddress, customerInfo: customerInfo)
+                return .tangemPayAccount(TangemPayAccountBuilder().build(
+                    customerWalletAddress: customerWalletAddress,
+                    customerInfo: customerInfo,
+                    userWalletId: userWalletId,
+                    keysRepository: keysRepository,
+                    signer: signer,
+                    authorizationTokensHandler: authorizationTokensHandler,
+                    customerInfoManagementService: customerInfoManagementService
+                ))
 
             default:
                 break
@@ -443,81 +453,6 @@ final class PaeraCustomer {
     }
 }
 
-final class TangemPayOrderStatusPollingService {
-    private let customerInfoManagementService: CustomerInfoManagementService
-
-    private var orderStatusPollingTask: Task<Void, Never>?
-
-    init(customerInfoManagementService: CustomerInfoManagementService) {
-        self.customerInfoManagementService = customerInfoManagementService
-    }
-
-    func startOrderStatusPolling(
-        orderId: String,
-        interval: TimeInterval,
-        onCompleted: @escaping () -> Void,
-        onCanceled: @escaping () -> Void,
-        onFailed: @escaping (Error) -> Void
-    ) {
-        orderStatusPollingTask?.cancel()
-
-        let polling = PollingSequence(
-            interval: interval,
-            request: { [customerInfoManagementService] in
-                try await customerInfoManagementService.getOrder(orderId: orderId)
-            }
-        )
-
-        orderStatusPollingTask = runTask {
-            for await result in polling {
-                switch result {
-                case .success(let order):
-                    switch order.status {
-                    case .new, .processing:
-                        break
-
-                    case .completed:
-                        onCompleted()
-                        return
-
-                    case .canceled:
-                        onCanceled()
-                        return
-                    }
-
-                case .failure(let error):
-                    onFailed(error)
-                    return
-                }
-            }
-        }
-    }
-
-    func cancel() {
-        orderStatusPollingTask?.cancel()
-    }
-
-    deinit {
-        orderStatusPollingTask?.cancel()
-    }
-}
-
-@CaseFlagable
-enum TangemPayState {
-    case initial
-
-    case syncNeeded
-    case syncInProgress
-
-    case unavailable
-
-    case kyc
-    case issuingCard(orderId: String)
-    case failedToIssueCard
-
-    case tangemPayReady(customerWalletAddress: String, customerInfo: VisaCustomerInfoResponse)
-}
-
 final class TangemPayManager {
     enum Constants {
         static let cardIssuingOrderPollInterval: TimeInterval = 60
@@ -525,10 +460,29 @@ final class TangemPayManager {
 
     let tangemPayNotificationManager: TangemPayNotificationManager
 
-    private let userWalletId: UserWalletId
-    private let customerWalletId: String
-    private let keysRepository: KeysRepository
-    private let signer: any TangemSigner
+    var tangemPayAccount: TangemPayAccount? {
+        stateSubject.value.tangemPayAccount
+    }
+
+    var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount?, Never> {
+        stateSubject
+            .map(\.tangemPayAccount)
+            .eraseToAnyPublisher()
+    }
+
+    var paeraCustomer: PaeraCustomer? {
+        paeraCustomerSubject.value
+    }
+
+    var paeraCustomerPublisher: AnyPublisher<PaeraCustomer?, Never> {
+        paeraCustomerSubject.eraseToAnyPublisher()
+    }
+
+    var isSyncInProgressPublisher: AnyPublisher<Bool, Never> {
+        stateSubject
+            .map(\.isSyncInProgress)
+            .eraseToAnyPublisher()
+    }
 
     private let paeraCustomerBuilder: PaeraCustomerBuilder
 
@@ -541,21 +495,21 @@ final class TangemPayManager {
 
     private var bag = Set<AnyCancellable>()
 
+    private var customerWalletId: String {
+        paeraCustomerBuilder.userWalletId.stringValue
+    }
+
     init(
         userWalletId: UserWalletId,
         keysRepository: KeysRepository,
         tangemPayAuthorizingInteractor: TangemPayAuthorizing,
         signer: any TangemSigner
     ) {
-        self.userWalletId = userWalletId
-        customerWalletId = userWalletId.stringValue
-        self.keysRepository = keysRepository
-        self.signer = signer
-
         paeraCustomerBuilder = PaeraCustomerBuilder.make(
             userWalletId: userWalletId,
             keysRepository: keysRepository,
-            tangemPayAuthorizingInteractor: tangemPayAuthorizingInteractor
+            tangemPayAuthorizingInteractor: tangemPayAuthorizingInteractor,
+            signer: signer
         )
 
         tangemPayNotificationManager = TangemPayNotificationManager(
@@ -596,19 +550,9 @@ final class TangemPayManager {
             case .issuingCard(let orderId):
                 startCardIssuingOrderStatusPolling(orderId: orderId)
 
-            case .tangemPayReady(let customerWalletAddress, let customerInfo):
+            case .tangemPayAccount:
                 cardIssuingOrderStatusPollingService.cancel()
                 TangemPayOrderIdStorage.deleteCardIssuingOrderId(customerWalletId: customerWalletId)
-
-                let tangemPayAccount = TangemPayAccountBuilder().build(
-                    customerWalletAddress: customerWalletAddress,
-                    customerInfo: customerInfo,
-                    userWalletId: userWalletId,
-                    keysRepository: keysRepository,
-                    signer: signer,
-                    authorizationTokensHandler: paeraCustomerBuilder.authorizationTokensHandler,
-                    customerInfoManagementService: paeraCustomerBuilder.customerInfoManagementService
-                )
 
             case .initial,
                  .syncNeeded,

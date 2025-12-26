@@ -46,7 +46,8 @@ final class TangemPayOfferViewModel: ObservableObject {
                 let paeraCustomer = PaeraCustomerBuilder.make(
                     userWalletId: userWalletModel.userWalletId,
                     keysRepository: userWalletModel.keysRepository,
-                    tangemPayAuthorizingInteractor: userWalletModel.tangemPayAuthorizingInteractor
+                    tangemPayAuthorizingInteractor: userWalletModel.tangemPayAuthorizingInteractor,
+                    signer: userWalletModel.signer
                 )
                 .create()
                 try await paeraCustomer.authorizeWithCustomerWallet()
