@@ -25,8 +25,8 @@ final class MarketsSearchViewModel: MarketsBaseViewModel {
     @Published private(set) var headerViewModel: MainBottomSheetHeaderViewModel
     @Published private(set) var marketsRatingHeaderViewModel: MarketsRatingHeaderViewModel
     @Published private(set) var tokenListViewModel: MarketsTokenListViewModel
-    @Published private(set) var stakingNotificationState: MarketsStakingNotificationState = .hidden
     @Published private(set) var isSearching: Bool = false
+    @Published private(set) var yieldModeNotificationVisible = false
 
     let resetScrollPositionPublisher = PassthroughSubject<Void, Never>()
 
@@ -97,7 +97,7 @@ final class MarketsSearchViewModel: MarketsBaseViewModel {
         searchTextBind(publisher: headerViewModel.enteredSearchInputPublisher)
         searchFilterBind(filterPublisher: filterProvider.filterPublisher)
 
-        stakingNotificationBind(filterProvider.filterPublisher)
+        yieldModeNotificationBind(filterProvider.filterPublisher)
 
         bindToMainBottomSheetUIManager()
     }
@@ -138,14 +138,14 @@ final class MarketsSearchViewModel: MarketsBaseViewModel {
         tokenListViewModel.onTryLoadList()
     }
 
-    func openStakingFiter() {
-        Analytics.log(.marketsStakingMoreInfo)
-        filterProvider.didSelectMarketOrder(.staking)
+    func openYieldModeFiter() {
+        Analytics.log(.marketsYieldModeMoreInfo)
+        filterProvider.didSelectMarketOrder(.yield)
     }
 
-    func closeStakingNotification() {
-        Analytics.log(.marketsStakingPromoClosed)
-        AppSettings.shared.startWalletUsageDate = .distantFuture
+    func closeYieldModeNotification() {
+        Analytics.log(.marketsYieldModePromoClosed)
+        AppSettings.shared.showMarketsYieldModeNotification = false
     }
 
     func onSearchButtonAction() {
@@ -199,13 +199,13 @@ private extension MarketsSearchViewModel {
         tokenListViewModel.onFetch(with: "", by: filterProvider.currentFilterValue)
     }
 
-    private func stakingNotificationBind(_ filterPublisher: some Publisher<MarketsListDataProvider.Filter, Never>) {
-        marketsNotificationsManager.stakingNotificationState(from: filterPublisher)
-            .sink { [weak self] state in
-                if case .visible = state {
-                    Analytics.log(.marketsNoticeStakingPromo)
+    private func yieldModeNotificationBind(_ filterPublisher: some Publisher<MarketsListDataProvider.Filter, Never>) {
+        marketsNotificationsManager.yieldNotificationVisible(from: filterPublisher)
+            .sink { [weak self] visible in
+                if visible {
+                    Analytics.log(.marketsNoticeYieldModePromo)
                 }
-                self?.stakingNotificationState = state
+                self?.yieldModeNotificationVisible = visible
             }
             .store(in: &bag)
     }

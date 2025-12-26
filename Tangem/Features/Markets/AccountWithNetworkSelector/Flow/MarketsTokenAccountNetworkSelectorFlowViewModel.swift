@@ -102,6 +102,8 @@ private extension MarketsTokenAccountNetworkSelectorFlowViewModel {
             // Use union of all supported blockchains from all wallets
             let allSupportedBlockchains = Set(userWalletDataProvider.userWalletModels.flatMap { $0.config.supportedBlockchains })
 
+            Analytics.log(.marketsChartPopupChooseAccount)
+
             openAccountSelector(
                 selectedItem: nil,
                 supportedBlockchains: allSupportedBlockchains,
@@ -274,6 +276,7 @@ private extension MarketsTokenAccountNetworkSelectorFlowViewModel {
                     )
                 },
                 onLater: { [weak self] in
+                    Analytics.log(.marketsChartPopupGetTokenButtonLater)
                     self?.coordinator?.close()
                 }
             )
@@ -299,24 +302,18 @@ private extension MarketsTokenAccountNetworkSelectorFlowViewModel {
             return
         }
 
-        let analyticsParams: [Analytics.ParameterKey: String] = [
-            .source: Analytics.ParameterValue.market.rawValue,
-            .token: actualTokenItem.currencySymbol.uppercased(),
-            .blockchain: actualTokenItem.blockchain.displayName,
-        ]
-
         coordinator?.close()
 
         let userWalletInfo = accountSelectorCell.userWalletModel.userWalletInfo
         switch action {
         case .buy:
-            Analytics.log(event: .marketsChartButtonBuy, params: analyticsParams)
+            Analytics.log(.marketsChartPopupGetTokenButtonBuy)
             let sendInput = SendInput(userWalletInfo: userWalletInfo, walletModel: walletModel)
             let parameters = PredefinedOnrampParametersBuilder.makeMoonpayPromotionParametersIfActive()
             coordinator?.openOnramp(input: sendInput, parameters: parameters)
 
         case .exchange:
-            Analytics.log(event: .marketsChartButtonSwap, params: analyticsParams)
+            Analytics.log(.marketsChartPopupGetTokenButtonExchange)
             let expressInput = ExpressDependenciesInput(
                 userWalletInfo: userWalletInfo,
                 source: ExpressInteractorWalletModelWrapper(
@@ -330,7 +327,7 @@ private extension MarketsTokenAccountNetworkSelectorFlowViewModel {
             coordinator?.openExchange(input: expressInput)
 
         case .receive:
-            Analytics.log(event: .marketsChartButtonReceive, params: analyticsParams)
+            Analytics.log(.marketsChartPopupGetTokenButtonReceive)
             coordinator?.openReceive(walletModel: walletModel)
 
         default:
