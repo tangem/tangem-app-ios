@@ -351,9 +351,9 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         }
     }
 
-    func openTangemPayKYCInProgressPopup(paeraCustomer: PaeraCustomer) {
+    func openTangemPayKYCInProgressPopup(tangemPayManager: TangemPayManager) {
         let viewModel = TangemPayKYCStatusPopupViewModel(
-            paeraCustomer: paeraCustomer,
+            tangemPayManager: tangemPayManager,
             coordinator: self
         )
         Task { @MainActor in
