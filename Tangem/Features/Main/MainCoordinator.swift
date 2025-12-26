@@ -74,7 +74,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
 
     // MARK: - Helpers
 
-    @Published var modalOnboardingCoordinatorKeeper: Bool = false
+    @Published var modalOnboardingCoordinatorKeeper = false
     @Published var isAppStoreReviewRequested = false
     @Published var isMarketsTooltipVisible = false
 
@@ -750,7 +750,7 @@ extension MainCoordinator: TangemPayKYCStatusRoutable {
 extension MainCoordinator: NFTEntrypointRoutable {
     func openCollections(
         nftManager: NFTManager,
-        accounForNFTCollectionsProvider: any AccountForNFTCollectionProviding,
+        accountForNFTCollectionsProvider: any AccountForNFTCollectionsProviding,
         navigationContext: NFTNavigationContext
     ) {
         mainBottomSheetUIManager.hide()
@@ -768,7 +768,7 @@ extension MainCoordinator: NFTEntrypointRoutable {
         coordinator.start(
             with: .init(
                 nftManager: nftManager,
-                accounForNFTCollectionsProvider: accounForNFTCollectionsProvider,
+                accountForNFTCollectionsProvider: accountForNFTCollectionsProvider,
                 navigationContext: navigationContext,
                 nftChainIconProvider: NetworkImageProvider(),
                 nftChainNameProvider: NFTChainNameProvider(),
