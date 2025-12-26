@@ -104,8 +104,8 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
                 guard let self else { return }
 
                 switch result {
-                case .success:
-                    logSuccess(tokenItem: tokenItem)
+                case .success(let enrichedTokenItem):
+                    logSuccess(tokenItem: enrichedTokenItem)
                     coordinator?.dismiss()
                 case .failure(let error):
                     if error.isCancellationError {

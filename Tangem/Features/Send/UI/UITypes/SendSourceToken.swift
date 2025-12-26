@@ -23,6 +23,8 @@ struct SendSourceToken {
     let transactionValidator: TransactionValidator
     let transactionCreator: TransactionCreator
     let transactionDispatcher: TransactionDispatcher
+
+    let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
 }
 
 // MARK: - Equatable

@@ -15,8 +15,12 @@ public struct GroupedScrollView<Content: View>: View {
     private let content: () -> Content
 
     private var interContentPadding: CGFloat = 0
+    private var scrollIndicatorsHidden: Bool = true
 
-    public init(contentType: ContentType = .lazy(alignment: .center, spacing: .zero), @ViewBuilder content: @escaping () -> Content) {
+    public init(
+        contentType: ContentType = .lazy(alignment: .center, spacing: .zero),
+        @ViewBuilder content: @escaping () -> Content
+    ) {
         self.contentType = contentType
         self.content = content
     }
@@ -27,6 +31,7 @@ public struct GroupedScrollView<Content: View>: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, interContentPadding)
         }
+        .scrollIndicators(scrollIndicatorsHidden ? .hidden : .automatic)
     }
 
     @ViewBuilder
@@ -52,6 +57,10 @@ public extension GroupedScrollView {
 extension GroupedScrollView: Setupable {
     public func interContentPadding(_ padding: CGFloat) -> Self {
         map { $0.interContentPadding = padding }
+    }
+
+    public func scrollIndicatorsHidden(_ hidden: Bool) -> Self {
+        map { $0.scrollIndicatorsHidden = hidden }
     }
 }
 
