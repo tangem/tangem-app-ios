@@ -254,6 +254,7 @@ extension Analytics {
 
         case walletConnectTransactionSolanaLarge = "[Wallet Connect] Solana Large Transaction"
         case walletConnectTransactionSolanaLargeStatus = "[Wallet Connect] Solana Large Transaction Status"
+        case walletConnectButtonConnectWithAccount = "[WalletConnect - Account] Button - Connect"
 
         case chatScreenOpened = "[Chat] Chat Screen Opened"
         case settingsScreenOpened = "[Settings] Settings Screen Opened"
@@ -267,6 +268,7 @@ extension Analytics {
         case referralButtonOpenTos = "[Referral Program] Link - TaC"
         case referralParticipateSuccessfull = "[Referral Program] Participate Successfull"
         case referralError = "[Referral Program] Referral Error"
+        case referralListChooseAccount = "[Referral program - Account] List - choose account"
 
         // MARK: - Swap
 
@@ -438,9 +440,9 @@ extension Analytics {
         case marketsScreenOpened = "[Markets] Markets Screen Opened"
         case marketsTokensSort = "[Markets] Sort By"
         case marketsDataError = "[Markets] Data Error"
-        case marketsNoticeStakingPromo = "[Markets] Notice - Staking Promo"
-        case marketsStakingPromoClosed = "[Markets] Staking Promo Closed"
-        case marketsStakingMoreInfo = "[Markets] Staking More Info"
+        case marketsNoticeYieldModePromo = "[Markets] Notice - Yield Mode Promo"
+        case marketsYieldModePromoClosed = "[Markets] Yield Mode Promo Closed"
+        case marketsYieldModeMoreInfo = "[Markets] Yield Mode More Info"
         case marketsTokenSearch = "[Markets] Token Search"
 
         // MARK: - Markets / Chart
@@ -457,10 +459,17 @@ extension Analytics {
         case marketsChartButtonReceive = "[Markets / Chart] Button - Receive"
         case marketsChartButtonSwap = "[Markets / Chart] Button - Swap"
         case marketsChartButtonStake = "[Markets / Chart] Button - Stake"
+        case marketsChartButtonYieldMode = "[Markets/Charts] Button - Yield Mode"
         case marketsChartDataError = "[Markets / Chart] Data Error"
         case marketsChartExchangesScreenOpened = "[Markets / Chart] Exchanges Screen Opened"
         case marketsChartSecurityScoreInfo = "[Markets / Chart] Security Score Info"
         case marketsChartSecurityScoreProviderClicked = "[Markets / Chart] Security Score Provider Clicked"
+        case marketsChartPopupChooseAccount = "[Markets / Chart] Popup to choose account"
+        case marketsChartButtonAddTokenToAnotherAccount = "[Markets / Chart] Button - Add (token not to main Account)"
+        case marketsChartPopupGetTokenButtonBuy = "[Markets / Chart] Popup Get token - Button Buy"
+        case marketsChartPopupGetTokenButtonExchange = "[Markets / Chart] Popup Get token - Button Exchange"
+        case marketsChartPopupGetTokenButtonReceive = "[Markets / Chart] Popup Get token - Button Receive"
+        case marketsChartPopupGetTokenButtonLater = "[Markets / Chart] Popup Get token - Button Later"
 
         // MARK: - Manage Tokens
 
