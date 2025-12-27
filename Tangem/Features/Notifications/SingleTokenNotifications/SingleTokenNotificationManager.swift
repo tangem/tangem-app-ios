@@ -60,6 +60,11 @@ final class SingleTokenNotificationManager {
             self?.notificationsUpdateTask?.cancel()
             self?.totalState = totalState
 
+            if case .binance = self?.walletModel.tokenItem.blockchain {
+                self?.setupBinanceNotification()
+                return
+            }
+
             switch (availableState, totalState) {
             case (.failure(.none), _):
                 self?.setupNetworkUnreachable()
@@ -114,6 +119,10 @@ final class SingleTokenNotificationManager {
            walletModel.tokenItem.isToken,
            walletModel.tokenItem.networkId != Blockchain.polygon(testnet: false).networkId {
             events.append(.maticMigration)
+        }
+
+        if case .clore = walletModel.tokenItem.blockchain {
+            events.append(.cloreMigration)
         }
 
         switch walletModel.sendingRestrictions {
@@ -172,19 +181,13 @@ final class SingleTokenNotificationManager {
     private func setupNetworkUnreachable() {
         let factory = NotificationsFactory()
 
-        if case .binance = walletModel.tokenItem.blockchain {
-            notificationInputsSubject.send([
-                factory.buildNotificationInput(for: TokenNotificationEvent.bnbBeaconChainRetirement),
+        notificationInputsSubject
+            .send([
+                factory.buildNotificationInput(
+                    for: TokenNotificationEvent.networkUnreachable(currencySymbol: walletModel.tokenItem.blockchain.currencySymbol),
+                    dismissAction: weakify(self, forFunction: SingleTokenNotificationManager.dismissNotification(with:))
+                ),
             ])
-        } else {
-            notificationInputsSubject
-                .send([
-                    factory.buildNotificationInput(
-                        for: TokenNotificationEvent.networkUnreachable(currencySymbol: walletModel.tokenItem.blockchain.currencySymbol),
-                        dismissAction: weakify(self, forFunction: SingleTokenNotificationManager.dismissNotification(with:))
-                    ),
-                ])
-        }
     }
 
     private func setupNetworkNotUpdated(lastUpdatedDate: Date) {
@@ -195,13 +198,21 @@ final class SingleTokenNotificationManager {
         ])
     }
 
-    private func setupNoAccountNotification(with message: String) {
-        // Skip displaying the BEP2 account creation top-up notification
-        // since it will be deprecated shortly due to the network shutdown
-        if case .binance = walletModel.tokenItem.blockchain {
+    /// Skip displaying the BEP2 account creation top-up notification
+    /// since it will be deprecated shortly due to the network shutdown
+    private func setupBinanceNotification() {
+        guard case .binance = walletModel.tokenItem.blockchain else {
             return
         }
 
+        let factory = NotificationsFactory()
+
+        notificationInputsSubject.send([
+            factory.buildNotificationInput(for: TokenNotificationEvent.bnbBeaconChainRetirement),
+        ])
+    }
+
+    private func setupNoAccountNotification(with message: String) {
         let factory = NotificationsFactory()
         let noAccountEvent = TokenNotificationEvent.noAccount(message: message)
         let missingTrustlineEvents = makeAssetRequirementsNotificationEvents()

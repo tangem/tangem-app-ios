@@ -156,8 +156,8 @@ final class AccountsAwareOrganizeTokensViewModel: ObservableObject, Identifiable
 
                         return organizedTokensSectionsPublisher
                             .withLatestFrom(
-                                optionsManagerAdapter.sortingOption,
-                                optionsManagerAdapter.groupingOption
+                                optionsManagerAdapter.sortingOptionPublisher,
+                                optionsManagerAdapter.groupingOptionPublisher
                             ) { ($0, $1.0, $1.1, dragAndDropActionsCache) }
                             .map(Self.map)
                             .map { OrganizeTokensListOuterSection(model: outerSectionViewModel, items: $0) }
@@ -249,7 +249,7 @@ final class AccountsAwareOrganizeTokensViewModel: ObservableObject, Identifiable
 
         // Resetting drag-and-drop actions cache unconditionally when sort option is changed
         optionsManager
-            .sortingOption
+            .sortingOptionPublisher
             .removeDuplicates()
             .withWeakCaptureOf(self)
             .sink { viewModel, _ in
@@ -267,8 +267,8 @@ final class AccountsAwareOrganizeTokensViewModel: ObservableObject, Identifiable
         // Analytics logging on Save button tap
         onSavePublisher
             .withLatestFrom(
-                optionsManager.sortingOption,
-                optionsManager.groupingOption
+                optionsManager.sortingOptionPublisher,
+                optionsManager.groupingOptionPublisher
             )
             .withWeakCaptureOf(self)
             .sink { input in
@@ -293,7 +293,7 @@ final class AccountsAwareOrganizeTokensViewModel: ObservableObject, Identifiable
         // Resetting drag-and-drop actions cache for grouped sections
         // when the structure of the underlying model has changed
         tokenSectionsPublisher
-            .withLatestFrom(optionsManagerAdapter.groupingOption) { ($0, $1) }
+            .withLatestFrom(optionsManagerAdapter.groupingOptionPublisher) { ($0, $1) }
             .filter { $0.1.isGrouped }
             .map(\.0)
             .pairwise()
@@ -303,7 +303,7 @@ final class AccountsAwareOrganizeTokensViewModel: ObservableObject, Identifiable
         // Resetting drag-and-drop actions cache for plain (non-grouped) sections
         // when the structure of the underlying model has changed
         tokenSectionsPublisher
-            .withLatestFrom(optionsManagerAdapter.groupingOption) { ($0, $1) }
+            .withLatestFrom(optionsManagerAdapter.groupingOptionPublisher) { ($0, $1) }
             .filter { !$0.1.isGrouped }
             .map(\.0)
             .pairwise()

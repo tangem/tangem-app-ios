@@ -95,7 +95,7 @@ final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
     }
 
     private func tokenAddedToAllNetworksInAllAccounts(availableNetworks: [NetworkModel]) -> Bool {
-        MarketsTokenNetworkChecker.isTokenAddedOnNetworksInAllAccounts(
+        TokenAdditionChecker.isTokenAddedOnNetworksInAllAccounts(
             coinId: coinId,
             availableNetworks: availableNetworks,
             userWalletModels: walletDataProvider.userWalletModels
@@ -336,7 +336,7 @@ final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
     }
 
     private func updateTypeView(hasTokens: Bool, listStyle: TypeView.ListStyle, animated: Bool) {
-        if let networks = networks {
+        if let networks {
             let supportedState = supportedState(networks: networks)
             isAddTokenButtonDisabled = tokenAddedToAllNetworksInAllAccounts(availableNetworks: networks)
 
@@ -424,6 +424,11 @@ extension MarketsAccountsAwarePortfolioContainerViewModel: MarketsPortfolioConte
             Analytics.log(event: .marketsChartButtonStake, params: analyticsParams)
             if let stakingManager = walletModel.stakingManager {
                 coordinator.openStaking(input: sendInput, stakingManager: stakingManager)
+            }
+        case .yield:
+            Analytics.log(event: .marketsChartButtonYieldMode, params: analyticsParams)
+            if let yieldModuleManager = walletModel.yieldModuleManager {
+                coordinator.openYield(input: sendInput, yieldModuleManager: yieldModuleManager)
             }
         case .hide, .marketsDetails, .send, .sell, .copyAddress:
             break

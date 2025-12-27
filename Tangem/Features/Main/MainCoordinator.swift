@@ -74,7 +74,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
 
     // MARK: - Helpers
 
-    @Published var modalOnboardingCoordinatorKeeper: Bool = false
+    @Published var modalOnboardingCoordinatorKeeper = false
     @Published var isAppStoreReviewRequested = false
     @Published var isMarketsTooltipVisible = false
 
@@ -279,7 +279,6 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             self?.proceedFeeCurrencyNavigatingDismissOption(option: option)
         }
 
-        mainBottomSheetUIManager.hide()
         let coordinator = factory.makeYieldActiveCoordinator(dismissAction: dismissAction)
         yieldModuleActiveCoordinator = coordinator
     }
@@ -604,6 +603,7 @@ extension MainCoordinator: PushNotificationsPermissionRequestDelegate {
 // MARK: - Action buttons buy routable
 
 extension MainCoordinator: ActionButtonsBuyFlowRoutable {
+    // [REDACTED_TODO_COMMENT]
     func openBuy(userWalletModel: some UserWalletModel) {
         let coordinator = coordinatorFactory.makeBuyCoordinator(
             dismissAction: { [weak self] _ in
@@ -620,14 +620,18 @@ extension MainCoordinator: ActionButtonsBuyFlowRoutable {
         actionButtonsBuyCoordinator = coordinator
     }
 
-    func openBuy(tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel) {
+    func openBuy(userWalletModels: [UserWalletModel]) {
         let coordinator = coordinatorFactory.makeBuyCoordinator(
             dismissAction: { [weak self] _ in
                 self?.actionButtonsBuyCoordinator = nil
             }
         )
 
-        coordinator.start(with: .new(tokenSelectorViewModel: tokenSelectorViewModel))
+        let options = ActionButtonsBuyCoordinator.Options.AccountsAwareActionButtonBuyCoordinatorOptions(
+            userWalletModels: userWalletModels
+        )
+
+        coordinator.start(with: .new(options: options))
         actionButtonsBuyCoordinator = coordinator
     }
 }
@@ -746,7 +750,7 @@ extension MainCoordinator: TangemPayKYCStatusRoutable {
 extension MainCoordinator: NFTEntrypointRoutable {
     func openCollections(
         nftManager: NFTManager,
-        accounForNFTCollectionsProvider: any AccountForNFTCollectionProviding,
+        accountForNFTCollectionsProvider: any AccountForNFTCollectionsProviding,
         navigationContext: NFTNavigationContext
     ) {
         mainBottomSheetUIManager.hide()
@@ -764,7 +768,7 @@ extension MainCoordinator: NFTEntrypointRoutable {
         coordinator.start(
             with: .init(
                 nftManager: nftManager,
-                accounForNFTCollectionsProvider: accounForNFTCollectionsProvider,
+                accountForNFTCollectionsProvider: accountForNFTCollectionsProvider,
                 navigationContext: navigationContext,
                 nftChainIconProvider: NetworkImageProvider(),
                 nftChainNameProvider: NFTChainNameProvider(),

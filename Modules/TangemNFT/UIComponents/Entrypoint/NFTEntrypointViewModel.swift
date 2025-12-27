@@ -20,7 +20,7 @@ public final class NFTEntrypointViewModel: ObservableObject {
     }
 
     private let nftManager: NFTManager
-    private let accountForCollectionsProvider: AccountForNFTCollectionProviding
+    private let accountForCollectionsProvider: AccountForNFTCollectionsProviding
     private let navigationContext: NFTNavigationContext
     private let analytics: NFTAnalytics.Entrypoint
     private var bag: Set<AnyCancellable> = []
@@ -30,7 +30,7 @@ public final class NFTEntrypointViewModel: ObservableObject {
 
     public init(
         nftManager: NFTManager,
-        accountForCollectionsProvider: AccountForNFTCollectionProviding,
+        accountForCollectionsProvider: AccountForNFTCollectionsProviding,
         navigationContext: NFTNavigationContext,
         analytics: NFTAnalytics.Entrypoint,
         coordinator: NFTEntrypointRoutable?
@@ -70,7 +70,7 @@ public final class NFTEntrypointViewModel: ObservableObject {
     func openCollections() {
         coordinator?.openCollections(
             nftManager: nftManager,
-            accounForNFTCollectionsProvider: accountForCollectionsProvider,
+            accountForNFTCollectionsProvider: accountForCollectionsProvider,
             navigationContext: navigationContext
         )
 

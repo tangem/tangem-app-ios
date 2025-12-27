@@ -87,17 +87,9 @@ final class WalletModelTestsMock: WalletModel {
 
     // MARK: - WalletModelUpdater
 
-    func generalUpdate(silent: Bool) -> AnyPublisher<Void, Never> {
-        Just(()).eraseToAnyPublisher()
-    }
+    func update(silent: Bool, features: [WalletModelUpdaterFeatureType]) async {}
 
-    func update(silent: Bool) -> AnyPublisher<WalletModelState, Never> {
-        Just(state).eraseToAnyPublisher()
-    }
-
-    func updateTransactionsHistory() -> AnyPublisher<Void, Never> {
-        Just(()).eraseToAnyPublisher()
-    }
+    func updateTransactionsHistory() async {}
 
     func updateAfterSendingTransaction() {}
 
