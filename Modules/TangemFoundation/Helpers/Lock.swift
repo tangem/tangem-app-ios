@@ -7,18 +7,34 @@
 //
 
 import Foundation
+import os.lock
 
 public final class Lock {
-    private let lock: NSLocking
+    private let isRecursive: Bool
 
+    /// - Note: Implicitly unwrapped optional to avoid boxing overhead with Swift protocols.
+    private var recursiveLock: NSRecursiveLock!
+
+    /// - Note: Implicitly unwrapped optional to avoid boxing overhead with Swift protocols.
+    private var nonRecursiveLock: OSAllocatedUnfairLock<Void>!
+
+    /// - Warning: Think twice before using recursive lock, as it has a much higher overhead than non-recursive one.
     public init(isRecursive: Bool) {
-        lock = isRecursive ? NSRecursiveLock() : NSLock()
+        self.isRecursive = isRecursive
+
+        if isRecursive {
+            recursiveLock = NSRecursiveLock()
+        } else {
+            nonRecursiveLock = OSAllocatedUnfairLock()
+        }
     }
 
     public func withLock<R>(_ body: () throws -> R) rethrows -> R {
-        lock.lock()
-        defer { lock.unlock() }
-        return try body()
+        if isRecursive {
+            return try recursiveLock.withLock(body)
+        } else {
+            return try nonRecursiveLock.withLockUnchecked(body)
+        }
     }
 
     public func callAsFunction<R>(_ body: () throws -> R) rethrows -> R {
