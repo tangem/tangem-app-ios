@@ -140,7 +140,7 @@ struct MarketsPortfolioTokenItemView: View {
     }
 
     private func makeQuickActionItem(for actionType: TokenActionType, at index: Int) -> some View {
-        MarketsActionRowView(
+        GetTokenActionRowView(
             icon: portfolioTokenActionTypeImageType(for: actionType),
             title: actionType.title,
             subtitle: actionType.description,
@@ -173,6 +173,8 @@ struct MarketsPortfolioTokenItemView: View {
             return Assets.Portfolio.receive12
         case .stake:
             return Assets.Portfolio.stake12
+        case .yield:
+            return Assets.YieldModule.yieldSupplyAssets
         default:
             assertionFailure("Unhandled TokenActionType: \(type)")
             return Assets.Portfolio.buy12
