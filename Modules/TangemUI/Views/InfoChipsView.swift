@@ -9,13 +9,14 @@
 import SwiftUI
 import TangemAssets
 import TangemUIUtils
+import TangemFoundation
 
 /// Data model for a single chip.
-public struct InfoChipItem: Identifiable, Hashable {
+public struct InfoChipItem: Identifiable, Equatable {
     public let id: String
     public let title: String
-    public let leadingIcon: InfoChipIcon?
-    public let trailingIcon: InfoChipIcon?
+    public var leadingIcon: InfoChipIcon?
+    public var trailingIcon: InfoChipIcon?
 
     public init(
         id: String = UUID().uuidString,
@@ -28,30 +29,12 @@ public struct InfoChipItem: Identifiable, Hashable {
         self.leadingIcon = leadingIcon
         self.trailingIcon = trailingIcon
     }
-
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-        hasher.combine(title)
-    }
-
-    public static func == (lhs: InfoChipItem, rhs: InfoChipItem) -> Bool {
-        lhs.id == rhs.id && lhs.title == rhs.title
-    }
 }
 
 /// Defines how an icon should be rendered inside a chip.
-public enum InfoChipIcon {
-    case system(String)
-    case asset(String)
-
-    public var view: Image {
-        switch self {
-        case .system(let name):
-            Image(systemName: name)
-        case .asset(let name):
-            Image(name)
-        }
-    }
+public enum InfoChipIcon: Equatable {
+    case image(Image)
+    case url(URL)
 }
 
 /// Alignment options for chips container.
@@ -71,10 +54,8 @@ public struct InfoChipView: View {
     public var body: some View {
         HStack(spacing: Layout.contentSpacing) {
             if let icon = item.leadingIcon {
-                icon.view
-                    .resizable()
-                    .renderingMode(.template)
-                    .frame(size: .init(bothDimensions: 16))
+                makeIconImage(with: icon)
+                    .frame(size: Layout.iconSize)
                     .fixedSize(horizontal: true, vertical: true)
             }
 
@@ -84,10 +65,8 @@ public struct InfoChipView: View {
                 .fixedSize(horizontal: true, vertical: true)
 
             if let icon = item.trailingIcon {
-                icon.view
-                    .resizable()
-                    .renderingMode(.template)
-                    .frame(size: .init(bothDimensions: 16))
+                makeIconImage(with: icon)
+                    .frame(size: Layout.iconSize)
                     .fixedSize(horizontal: true, vertical: true)
             }
         }
@@ -99,11 +78,24 @@ public struct InfoChipView: View {
         )
     }
 
+    @ViewBuilder
+    private func makeIconImage(with iconType: InfoChipIcon) -> some View {
+        switch iconType {
+        case .image(let image):
+            image
+                .resizable()
+                .renderingMode(.template)
+        case .url(let url):
+            IconView(url: url, size: Layout.iconSize, forceKingfisher: true)
+        }
+    }
+
     private enum Layout {
         static let contentSpacing: CGFloat = 4
         static let horizontalPadding: CGFloat = 10
         static let verticalPadding: CGFloat = 4
         static let cornerRadius: CGFloat = 16
+        static let iconSize: CGSize = .init(bothDimensions: 16)
     }
 }
 
@@ -246,9 +238,9 @@ private extension InfoChipsAlignment {
         InfoChipsView(
             chips: [
                 InfoChipItem(title: "Tag"),
-                InfoChipItem(title: "Tag", leadingIcon: .system("bitcoinsign.circle.fill")),
+                InfoChipItem(title: "Tag", leadingIcon: .image(Image(systemName: "bitcoinsign.circle.fill"))),
                 InfoChipItem(title: "Tag"),
-                InfoChipItem(title: "Tag", leadingIcon: .system("bitcoinsign.circle.fill")),
+                InfoChipItem(title: "Tag", leadingIcon: .image(Image(systemName: "bitcoinsign.circle.fill"))),
                 InfoChipItem(title: "Tag"),
                 InfoChipItem(title: "+3"),
             ],
@@ -258,7 +250,7 @@ private extension InfoChipsAlignment {
         InfoChipsView(
             chips: [
                 InfoChipItem(title: "Regulation"),
-                InfoChipItem(title: "Tag", leadingIcon: .system("bitcoinsign.circle.fill"), trailingIcon: .system("bitcoinsign.circle.fill")),
+                InfoChipItem(title: "Tag", leadingIcon: .image(Image(systemName: "bitcoinsign.circle.fill")), trailingIcon: .image(Image(systemName: "bitcoinsign.circle.fill"))),
                 InfoChipItem(title: "Tag"),
             ],
             alignment: .center
