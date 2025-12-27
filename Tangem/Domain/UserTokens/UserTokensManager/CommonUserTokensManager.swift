@@ -125,7 +125,8 @@ final class CommonUserTokensManager {
 
     private func handleUserTokensSync() {
         loadSwapAvailabilityStateIfNeeded(forceReload: true)
-        walletModelsManager?.updateAll(silent: false) { [weak self] in
+        Task { [weak self] in
+            await self?.walletModelsManager?.updateAll(silent: false)
             self?.handleWalletModelsUpdate()
         }
     }
@@ -357,7 +358,17 @@ extension CommonUserTokensManager: UserTokensReordering {
             .eraseToAnyPublisher()
     }
 
-    var groupingOption: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> {
+    var groupingOption: UserTokensReorderingOptions.Grouping {
+        let converter = UserTokensReorderingOptionsConverter()
+        return converter.convert(userTokenListManager.userTokensList.grouping)
+    }
+
+    var sortingOption: UserTokensReorderingOptions.Sorting {
+        let converter = UserTokensReorderingOptionsConverter()
+        return converter.convert(userTokenListManager.userTokensList.sorting)
+    }
+
+    var groupingOptionPublisher: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> {
         let converter = UserTokensReorderingOptionsConverter()
         return userTokenListManager
             .userTokensListPublisher
@@ -365,7 +376,7 @@ extension CommonUserTokensManager: UserTokensReordering {
             .eraseToAnyPublisher()
     }
 
-    var sortingOption: AnyPublisher<UserTokensReorderingOptions.Sorting, Never> {
+    var sortingOptionPublisher: AnyPublisher<UserTokensReorderingOptions.Sorting, Never> {
         let converter = UserTokensReorderingOptionsConverter()
         return userTokenListManager
             .userTokensListPublisher

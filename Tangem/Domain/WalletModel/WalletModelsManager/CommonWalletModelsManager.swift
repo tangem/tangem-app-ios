@@ -10,6 +10,7 @@ import Combine
 import CombineExt
 import BlockchainSdk
 import TangemSdk
+import TangemFoundation
 
 class CommonWalletModelsManager {
     private let walletManagersRepository: WalletManagersRepository
@@ -24,7 +25,6 @@ class CommonWalletModelsManager {
     private var _walletModels = CurrentValueSubject<[any WalletModel]?, Never>(nil)
     private var _initialized = false
     private var bag = Set<AnyCancellable>()
-    private var updateAllSubscription: AnyCancellable?
 
     /// An update is tracked only once per lifecycle of this manager.
     private var shouldTrackWalletModelsUpdate = true
@@ -113,18 +113,15 @@ class CommonWalletModelsManager {
             token = PerformanceTracker.startTracking(metric: .totalBalanceLoaded(tokensCount: walletModels.count))
         }
 
-        var subscription: AnyCancellable?
-        subscription = walletModels
-            .map { $0.update(silent: false) }
-            .combineLatest()
-            .sink { states in
-                if states.contains(where: \.isBlockchainUnreachable) {
-                    PerformanceTracker.endTracking(token: token, with: .failure)
-                } else {
-                    PerformanceTracker.endTracking(token: token, with: .success)
-                }
-                withExtendedLifetime(subscription) {}
+        Task {
+            await updateAll(silent: false)
+
+            if walletModels.contains(where: \.state.isBlockchainUnreachable) {
+                PerformanceTracker.endTracking(token: token, with: .failure)
+            } else {
+                PerformanceTracker.endTracking(token: token, with: .success)
             }
+        }
     }
 }
 
@@ -156,25 +153,10 @@ extension CommonWalletModelsManager: WalletModelsManager {
             .eraseToAnyPublisher()
     }
 
-    func updateAll() {
-        walletModels.forEach {
-            $0.update(silent: false)
+    func updateAll(silent: Bool) async {
+        await TaskGroup.execute(items: walletModels) {
+            await $0.update(silent: silent, features: .balances)
         }
-    }
-
-    func updateAll(silent: Bool, completion: @escaping () -> Void) {
-        let publishers = walletModels.map {
-            $0.update(silent: silent)
-        }
-
-        updateAllSubscription = Publishers
-            .MergeMany(publishers)
-            .collect(publishers.count)
-            .mapToVoid()
-            .receive(on: DispatchQueue.main)
-            .receiveCompletion { _ in
-                completion()
-            }
     }
 }
 

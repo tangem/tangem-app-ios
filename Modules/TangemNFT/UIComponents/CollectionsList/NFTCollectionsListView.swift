@@ -353,7 +353,7 @@ let collections = (0 ... 20).map {
                         .init(value: collections)
                     )
                 ),
-                accounForNFTCollectionsProvider: AccountNFTCollectionProviderMock(),
+                accountForNFTCollectionsProvider: AccountNFTCollectionProviderMock(),
                 dependencies: NFTCollectionsListDependencies(
                     nftChainIconProvider: DummyProvider(),
                     nftChainNameProviding: NFTChainNameProviderMock(),
@@ -377,7 +377,7 @@ let collections = (0 ... 20).map {
                     nftManager: NFTManagerMock(
                         state: .success(.init(value: collections, errors: []))
                     ),
-                    accounForNFTCollectionsProvider: AccountNFTCollectionProviderMock(),
+                    accountForNFTCollectionsProvider: AccountNFTCollectionProviderMock(),
                     dependencies: NFTCollectionsListDependencies(
                         nftChainIconProvider: DummyProvider(),
                         nftChainNameProviding: NFTChainNameProviderMock(),
@@ -402,7 +402,7 @@ let collections = (0 ... 20).map {
                     nftManager: NFTManagerMock(
                         state: .loading
                     ),
-                    accounForNFTCollectionsProvider: AccountNFTCollectionProviderMock(),
+                    accountForNFTCollectionsProvider: AccountNFTCollectionProviderMock(),
                     dependencies: NFTCollectionsListDependencies(
                         nftChainIconProvider: DummyProvider(),
                         nftChainNameProviding: NFTChainNameProviderMock(),
@@ -427,7 +427,7 @@ let collections = (0 ... 20).map {
                     nftManager: NFTManagerMock(
                         state: .failure(NSError.dummy)
                     ),
-                    accounForNFTCollectionsProvider: AccountNFTCollectionProviderMock(),
+                    accountForNFTCollectionsProvider: AccountNFTCollectionProviderMock(),
                     dependencies: NFTCollectionsListDependencies(
                         nftChainIconProvider: DummyProvider(),
                         nftChainNameProviding: NFTChainNameProviderMock(),
@@ -450,7 +450,7 @@ let collections = (0 ... 20).map {
             NFTCollectionsListView(
                 viewModel: .init(
                     nftManager: NFTManagerMock(state: .success(.init(value: []))),
-                    accounForNFTCollectionsProvider: AccountNFTCollectionProviderMock(),
+                    accountForNFTCollectionsProvider: AccountNFTCollectionProviderMock(),
                     dependencies: NFTCollectionsListDependencies(
                         nftChainIconProvider: DummyProvider(),
                         nftChainNameProviding: NFTChainNameProviderMock(),
