@@ -130,7 +130,6 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
             return true
         }
 
-        let availableNetworksIds = availableNetworks.reduce(into: Set<String>()) { $0.insert($1.networkId) }
         let l2BlockchainsIds = SupportedBlockchains.l2Blockchains.map { $0.coinId }
 
         for userWalletModel in walletDataProvider.userWalletModels {
@@ -138,7 +137,14 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
                 continue
             }
 
-            var networkIds = availableNetworksIds
+            let supportedBlockchains = userWalletModel.config.supportedBlockchains
+
+            let supportedNetworkIds = availableNetworks
+                .filter { NetworkSupportChecker.isNetworkSupported($0, in: supportedBlockchains) }
+                .map(\.networkId)
+                .toSet()
+
+            var networkIds = supportedNetworkIds
             // accounts_fixes_needed_none
             let userTokenList = userWalletModel.userTokensManager.userTokens
             for entry in userTokenList {
@@ -305,6 +311,11 @@ extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsDele
             Analytics.log(event: .marketsChartButtonStake, params: analyticsParams)
             if let stakingManager = walletModel.stakingManager {
                 coordinator.openStaking(input: sendInput, stakingManager: stakingManager)
+            }
+        case .yield:
+            Analytics.log(event: .marketsChartButtonYieldMode, params: analyticsParams)
+            if let yieldModuleManager = walletModel.yieldModuleManager {
+                coordinator.openYield(input: sendInput, yieldModuleManager: yieldModuleManager)
             }
         case .hide, .marketsDetails, .send, .sell, .copyAddress:
             // An empty value because it is not available

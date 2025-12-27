@@ -98,6 +98,8 @@ final class ReferralViewModel: ObservableObject {
             onSelect: { [weak self] cryptoAccountModel in
                 guard let self else { return }
 
+                Analytics.log(.referralListChooseAccount)
+
                 let accountData = SelectedAccountViewData(
                     id: cryptoAccountModel.id.toAnyHashable(),
                     iconViewData: AccountModelUtils.UI.iconViewData(
@@ -302,7 +304,7 @@ final class ReferralViewModel: ObservableObject {
 
         case .multiple(let accounts):
             guard let account = ReferralAccountFinder.find(forAddress: address, accounts: accounts) else {
-                processReferralError(.accountFetchError)
+                viewState = .loaded(.alreadyParticipant(.simple))
                 return
             }
 

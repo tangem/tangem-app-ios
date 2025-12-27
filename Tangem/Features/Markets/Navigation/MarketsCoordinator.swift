@@ -48,6 +48,8 @@ class MarketsCoordinator: CoordinatorObject {
     // MARK: - Implementation
 
     func start(with options: MarketsCoordinator.Options) {
+        let quotesRepositoryUpdateHelper = CommonMarketsQuotesUpdateHelper()
+
         if FeatureProvider.isAvailable(.marketsAndNews) {
             let viewModel = MarketsMainViewModel(
                 quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper,
@@ -83,7 +85,9 @@ extension MarketsCoordinator: MarketsRoutable {
                 self?.tokenDetailsCoordinator = nil
             }
         )
-        tokenDetailsCoordinator.start(with: .init(info: tokenInfo, style: .marketsSheet))
+        tokenDetailsCoordinator.start(
+            with: .init(info: tokenInfo, style: .marketsSheet)
+        )
 
         self.tokenDetailsCoordinator = tokenDetailsCoordinator
     }
@@ -108,5 +112,13 @@ extension MarketsCoordinator: MarketsMainRoutable {
             // [REDACTED_TODO_COMMENT]
             break
         }
+    }
+
+    func openNews(by id: NewsId) {
+        // [REDACTED_TODO_COMMENT]
+    }
+
+    func openAllNews() {
+        // [REDACTED_TODO_COMMENT]
     }
 }

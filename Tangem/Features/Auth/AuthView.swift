@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemAssets
 import TangemUI
 import TangemUIUtils
+import TangemSdk
 
 struct AuthView: View {
     @ObservedObject private var viewModel: AuthViewModel
@@ -43,7 +44,7 @@ struct AuthView: View {
                 .multilineTextAlignment(.center)
                 .padding(.bottom, 14)
 
-            Text(Localization.welcomeUnlockDescription(BiometricAuthorizationUtils.biometryType.name))
+            Text(Localization.welcomeUnlockDescription(BiometricsUtil.biometryType.name))
                 .style(Fonts.Regular.callout, color: Colors.Text.secondary)
                 .multilineTextAlignment(.center)
 
