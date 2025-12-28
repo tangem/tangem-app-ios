@@ -151,6 +151,7 @@ private extension CreateWalletSelectorView {
                 .padding(.vertical, 12)
                 .frame(maxWidth: .infinity)
             }
+            .accessibilityIdentifier(OnboardingAccessibilityIdentifiers.mobileWalletButton)
         }
     }
 
