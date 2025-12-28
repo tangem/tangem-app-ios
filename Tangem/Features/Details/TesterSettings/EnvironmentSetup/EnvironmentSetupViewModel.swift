@@ -13,6 +13,7 @@ import FirebaseMessaging
 import TangemVisa
 import struct TangemUIUtils.AlertBinder
 import TangemStaking
+import TangemAccessibilityIdentifiers
 
 final class EnvironmentSetupViewModel: ObservableObject {
     @Injected(\.promotionService) var promotionService: PromotionServiceProtocol
@@ -176,9 +177,13 @@ final class EnvironmentSetupViewModel: ObservableObject {
             DefaultRowViewModel(title: "NFT-enabled Blockchains", action: { [weak self] in
                 self?.coordinator?.openNFTBlockchainsPreferences()
             }),
-            DefaultRowViewModel(title: "Addresses info", action: { [weak self] in
-                self?.coordinator?.openAddressesInfo()
-            }),
+            DefaultRowViewModel(
+                title: "Addresses info",
+                accessibilityIdentifier: CommonUIAccessibilityIdentifiers.addressesInfoButton,
+                action: { [weak self] in
+                    self?.coordinator?.openAddressesInfo()
+                }
+            ),
         ]
 
         updateCurrentPromoCode()
