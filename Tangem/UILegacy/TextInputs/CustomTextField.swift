@@ -141,6 +141,7 @@ struct CustomTextField: UIViewRepresentable {
     var isEnabled = true
     var maxCount: Int?
     var onPaste: () -> Void = {}
+    var accessibilityIdentifier: String?
 
     func makeUIView(context: UIViewRepresentableContext<CustomTextField>) -> UITextField {
         let textField = CustomUITextField(frame: .zero)
@@ -162,6 +163,10 @@ struct CustomTextField: UIViewRepresentable {
 
         if let autocapitalizationType {
             textField.autocapitalizationType = autocapitalizationType
+        }
+
+        if let accessibilityIdentifier = accessibilityIdentifier {
+            textField.accessibilityIdentifier = accessibilityIdentifier
         }
 
         var toolbarItems = [UIBarButtonItem]()
@@ -232,6 +237,10 @@ struct CustomTextField: UIViewRepresentable {
         context.coordinator.decimalCount = decimalCount
         context.coordinator.isEnabled = isEnabled
 
+        if let accessibilityIdentifier = accessibilityIdentifier {
+            uiView.accessibilityIdentifier = accessibilityIdentifier
+        }
+
         DispatchQueue.main.async {
             if isResponder ?? false {
                 uiView.becomeFirstResponder()
@@ -245,6 +254,10 @@ struct CustomTextField: UIViewRepresentable {
 extension CustomTextField: Setupable {
     func setAutocapitalizationType(_ autocapitalizationType: UITextAutocapitalizationType) -> Self {
         map { $0.autocapitalizationType = autocapitalizationType }
+    }
+
+    func setAccessibilityIdentifier(_ identifier: String?) -> Self {
+        map { $0.accessibilityIdentifier = identifier }
     }
 }
 
