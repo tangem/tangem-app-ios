@@ -36,4 +36,5 @@ public enum CommonUIAccessibilityIdentifiers {
     // Addresses info
     public static let addressesInfoButton = "commonUIAddressesInfoButton"
     public static let addressesInfoCopyButton = "commonUIAddressesInfoCopyButton"
+    public static let addressesInfoText = "commonUIAddressesInfoText"
 }

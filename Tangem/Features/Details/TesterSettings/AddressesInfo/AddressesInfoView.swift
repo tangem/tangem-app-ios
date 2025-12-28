@@ -22,6 +22,7 @@ struct AddressesInfoView: View {
                     .font(.system(.footnote, design: .monospaced))
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.addressesInfoText)
             }
         }
         .navigationTitle("Addresses info")
