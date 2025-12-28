@@ -79,6 +79,29 @@ final class QAToolsClient {
         }
     }
 
+    func getAddresses() async throws -> [WalletInfoJSON] {
+        guard let url = URL(string: "\(baseURL)/addresses") else {
+            throw URLError(.badURL)
+        }
+
+        let (data, response) = try await URLSession.shared.data(from: url)
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw URLError(.badServerResponse)
+        }
+
+        guard httpResponse.statusCode == 200 else {
+            throw URLError(.badServerResponse)
+        }
+
+        do {
+            let addressesResponse = try JSONDecoder().decode(AddressesResponse.self, from: data)
+            return addressesResponse.data
+        } catch {
+            throw error
+        }
+    }
+
     // MARK: - Sync Wrappers for XCTest
 
     func getWCURISync(
@@ -96,6 +119,24 @@ final class QAToolsClient {
                 expectation.fulfill()
             } catch {
                 XCTFail("Failed to get WC URI: \(error)")
+                expectation.fulfill()
+            }
+        }
+
+        XCTestCase().wait(for: [expectation], timeout: timeout)
+        return result
+    }
+
+    func getAddressesSync(timeout: TimeInterval = .networkRequest) -> [WalletInfoJSON] {
+        let expectation = XCTestExpectation(description: "Get addresses")
+        var result: [WalletInfoJSON] = []
+
+        Task {
+            do {
+                result = try await getAddresses()
+                expectation.fulfill()
+            } catch {
+                XCTFail("Failed to get addresses: \(error)")
                 expectation.fulfill()
             }
         }
