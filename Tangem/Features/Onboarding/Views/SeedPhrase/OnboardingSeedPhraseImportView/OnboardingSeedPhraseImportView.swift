@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemAssets
 import TangemUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct OnboardingSeedPhraseImportView: View {
     @ObservedObject var viewModel: OnboardingSeedPhraseImportViewModel
@@ -68,6 +69,7 @@ struct OnboardingSeedPhraseImportView: View {
                         isDisabled: !viewModel.isSeedPhraseValid,
                         action: viewModel.importSeedPhrase
                     )
+                    .accessibilityIdentifier(OnboardingAccessibilityIdentifiers.seedPhraseImportButton)
                     .padding(.top, 14)
                     .padding(.horizontal, 16)
                     .padding(.bottom, 6)
@@ -125,6 +127,7 @@ struct OnboardingSeedPhraseImportView: View {
                 clearButtonMode: .whileEditing,
                 placeholder: Localization.sendOptionalField
             )
+            .setAccessibilityIdentifier(OnboardingAccessibilityIdentifiers.seedPhraseImportPassphraseField)
             .setAutocapitalizationType(.none)
             .screenCaptureProtection()
         }
