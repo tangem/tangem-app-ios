@@ -10,7 +10,6 @@ import TangemVisa
 
 struct TangemPayEnrollmentStateFetcher {
     let customerWalletId: String
-    let keysRepository: KeysRepository
     let customerInfoManagementService: CustomerInfoManagementService
 
     func getEnrollmentState() async throws -> TangemPayEnrollmentState {
