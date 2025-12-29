@@ -48,11 +48,11 @@ struct TangemPayAPIService<Target: TargetType> {
 
         do {
             if wrapped {
-                let errorResponse = try decoder.decode(WrappedInError<VisaAPIError>.self, from: response.data)
-                return .apiError(.visa(errorResponse.error))
+                let error = try decoder.decode(WrappedInError<VisaAPIError>.self, from: response.data).error
+                return .apiError(.visa(error))
             } else {
-                let errorResponse = try decoder.decode(TangemPayAPIError.self, from: response.data)
-                return .apiError(.tangemPay(errorResponse))
+                let error = try decoder.decode(TangemPayAPIError.self, from: response.data)
+                return .apiError(.tangemPay(error))
             }
         } catch {
             return .decodingError(error)
@@ -101,18 +101,4 @@ private struct WrappedInResult<T: Decodable>: Decodable {
 
 private struct WrappedInError<T: Decodable>: Decodable {
     let error: T
-}
-
-public struct VisaAPIError: Error, Decodable {
-    public let code: Int
-    public let name: String
-    public let message: String
-
-    public var errorDescription: String? {
-        return """
-        Name: \(name)
-        Code: \(errorCode)
-        Message: \(message)
-        """
-    }
 }

@@ -22,16 +22,15 @@ public extension TangemPayAPIServiceBuilder {
     func buildTangemPayAvailabilityService(
         urlSessionConfiguration: URLSessionConfiguration = .visaConfiguration
     ) -> TangemPayAvailabilityService {
-        let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
-        let provider: TangemProvider<TangemPayAvailabilityAPITarget> = TangemPayProviderBuilder().buildProvider(
-            configuration: urlSessionConfiguration,
-            authorizationTokensHandler: nil
-        )
-
-        return CommonTangemPayAvailabilityService(
+        CommonTangemPayAvailabilityService(
             apiType: apiType,
-            apiService: APIService(provider: provider, decoder: decoder),
+            apiService: TangemPayAPIService(
+                provider: TangemPayProviderBuilder().buildProvider(
+                    configuration: urlSessionConfiguration,
+                    authorizationTokensHandler: nil
+                ),
+                decoder: JSONDecoderFactory().makePayAPIDecoder()
+            ),
             bffStaticToken: bffStaticToken
         )
     }
@@ -46,7 +45,7 @@ public extension TangemPayAPIServiceBuilder {
             customerWalletId: customerWalletId,
             authorizationTokensRepository: authorizationTokensRepository,
             apiType: apiType,
-            apiService: .init(
+            apiService: TangemPayAPIService(
                 provider: TangemPayProviderBuilder().buildProvider(
                     configuration: urlSessionConfiguration,
                     authorizationTokensHandler: nil
