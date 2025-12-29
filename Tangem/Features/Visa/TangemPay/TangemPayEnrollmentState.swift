@@ -11,6 +11,6 @@ import TangemVisa
 enum TangemPayEnrollmentState {
     case notEnrolled
     case kyc
-    case issuingCard
-    case enrolled(VisaCustomerInfoResponse)
+    case issuingCard(customerWalletAddress: String)
+    case enrolled(customerInfo: VisaCustomerInfoResponse, productInstance: VisaCustomerInfoResponse.ProductInstance)
 }
