@@ -80,7 +80,7 @@ class FakeUserWalletModel: UserWalletModel {
     }
 
     var tangemPayManager: TangemPayManager {
-        TangemPayManagerBuilder(
+        TangemPayBuilder(
             userWalletId: userWalletId,
             keysRepository: keysRepository,
             authorizingInteractor: TangemPayAuthorizingMock(),
