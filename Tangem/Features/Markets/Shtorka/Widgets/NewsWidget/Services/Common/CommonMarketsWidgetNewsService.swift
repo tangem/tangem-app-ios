@@ -13,13 +13,16 @@ import TangemFoundation
 // MARK: - Common Implementation
 
 final class CommonMarketsWidgetNewsService: MarketsWidgetNewsProvider {
-    // MARK: - Private Properties
+    // MARK: - Inject Services
 
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
-    private let newsResultValueSubject: CurrentValueSubject<LoadingResult<[TrendingNewsModel], Error>, Never> = .init(.loading)
+    // MARK: - Private Properties
 
     private let newsReadStatusDidUpdateSubject: PassthroughSubject<Void, Never> = .init()
+    private let newsResultValueSubject: CurrentValueSubject<LoadingResult<[TrendingNewsModel], Error>, Never> = .init(.loading)
+
+    private let mapper = TrendingNewsModelMapper()
 
     private var updateTask: AnyCancellable?
 
@@ -44,7 +47,29 @@ extension CommonMarketsWidgetNewsService {
     }
 
     func fetch() {
-        // [REDACTED_TODO_COMMENT]
+        updateTask?.cancel()
+
+        newsResultValueSubject.value = .loading
+
+        updateTask = runTask(in: self) { service in
+            do {
+                let response = try await service.tangemApiService.loadTrendingNews(
+                    limit: Constants.newsLimit,
+                    lang: Constants.language
+                )
+
+                // [REDACTED_TODO_COMMENT]
+                let result = response.items.map { service.mapper.mapToNewsModel(from: $0, isRead: Bool.random()) }
+
+                service.newsResultValueSubject.send(.success(result))
+            } catch {
+                if error.isCancellationError {
+                    return
+                }
+
+                service.newsResultValueSubject.send(.failure(error))
+            }
+        }.eraseToAnyCancellable()
     }
 }
 
