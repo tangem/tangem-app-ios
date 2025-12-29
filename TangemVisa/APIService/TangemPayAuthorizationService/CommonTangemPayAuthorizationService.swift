@@ -50,14 +50,15 @@ final class CommonTangemPayAuthorizationService {
             do {
                 let newTokens = try await refreshTokens(refreshToken: tokens.refreshToken)
                 try? saveTokens(tokens: newTokens)
-            } catch .apiError(let errorWithStatusCode) where errorWithStatusCode.statusCode == 401 {
-                VisaLogger.error("Failed to refresh token", error: errorWithStatusCode.error)
-                errorEventSubject.send(.unauthorized)
-                throw errorWithStatusCode.error
             } catch {
+                switch error {
+                case .unauthorized:
+                    errorEventSubject.send(.unauthorized)
+                case .moyaError, .apiError, .decodingError:
+                    errorEventSubject.send(.other)
+                }
                 VisaLogger.error("Failed to refresh token", error: error)
-                errorEventSubject.send(.other)
-                throw error.underlyingError
+                throw error
             }
         }
     }

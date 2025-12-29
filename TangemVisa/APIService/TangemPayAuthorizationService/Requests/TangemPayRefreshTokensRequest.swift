@@ -9,7 +9,5 @@
 struct TangemPayRefreshTokensRequest: Encodable {
     let refreshToken: String
 
-    // [REDACTED_TODO_COMMENT]
-    // [REDACTED_INFO]
-    let authType = VisaAuthorizationType.customerWallet
+    let authType = "customer_wallet"
 }
