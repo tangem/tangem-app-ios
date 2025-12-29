@@ -565,7 +565,6 @@
 		2D93C4EB2D7043E8002BCCE2 /* CommonExpressRefcodeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D93C4EA2D7043E8002BCCE2 /* CommonExpressRefcodeProvider.swift */; };
 		2D96E9602E55D25300B69F91 /* ReceiveAddressInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D96E9342E55D25300B69F91 /* ReceiveAddressInfo.swift */; };
 		2D96E9612E55D25300B69F91 /* ReceiveFlowUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D96E9322E55D25300B69F91 /* ReceiveFlowUtils.swift */; };
-		2D96E9642E55D25300B69F91 /* ReceiveBottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D96E93C2E55D25300B69F91 /* ReceiveBottomSheetView.swift */; };
 		2D96E9682E55D25300B69F91 /* ReceiveFlowFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D96E9312E55D25300B69F91 /* ReceiveFlowFactory.swift */; };
 		2D96E9692E55D25300B69F91 /* ReceiveMainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D96E95C2E55D25300B69F91 /* ReceiveMainView.swift */; };
 		2D96E96A2E55D25300B69F91 /* ReceiveNotificationEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D96E9372E55D25300B69F91 /* ReceiveNotificationEvent.swift */; };
@@ -574,7 +573,6 @@
 		2D96E9732E55D25300B69F91 /* ReceiveFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D96E9362E55D25300B69F91 /* ReceiveFlow.swift */; };
 		2D96E9752E55D25300B69F91 /* ReceiveAddressType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D96E9352E55D25300B69F91 /* ReceiveAddressType.swift */; };
 		2D96E9762E55D25300B69F91 /* VisaReceiveAssetInfoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D96E9392E55D25300B69F91 /* VisaReceiveAssetInfoProvider.swift */; };
-		2D96E97B2E55D25300B69F91 /* ReceiveBottomSheetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D96E93D2E55D25300B69F91 /* ReceiveBottomSheetViewModel.swift */; };
 		2D96E97D2E55D25300B69F91 /* ReceiveDependenciesBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D96E9302E55D25300B69F91 /* ReceiveDependenciesBuilder.swift */; };
 		2D96E9802E55D25300B69F91 /* ReceiveAddressService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D96E93A2E55D25300B69F91 /* ReceiveAddressService.swift */; };
 		2D96E9822E55D25300B69F91 /* ReceiveMainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D96E95D2E55D25300B69F91 /* ReceiveMainViewModel.swift */; };
@@ -5339,8 +5337,6 @@
 		2D96E9372E55D25300B69F91 /* ReceiveNotificationEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveNotificationEvent.swift; sourceTree = "<group>"; };
 		2D96E9392E55D25300B69F91 /* VisaReceiveAssetInfoProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaReceiveAssetInfoProvider.swift; sourceTree = "<group>"; };
 		2D96E93A2E55D25300B69F91 /* ReceiveAddressService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveAddressService.swift; sourceTree = "<group>"; };
-		2D96E93C2E55D25300B69F91 /* ReceiveBottomSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveBottomSheetView.swift; sourceTree = "<group>"; };
-		2D96E93D2E55D25300B69F91 /* ReceiveBottomSheetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveBottomSheetViewModel.swift; sourceTree = "<group>"; };
 		2D96E95B2E55D25300B69F91 /* ReceiveFlowCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveFlowCoordinator.swift; sourceTree = "<group>"; };
 		2D96E95C2E55D25300B69F91 /* ReceiveMainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveMainView.swift; sourceTree = "<group>"; };
 		2D96E95D2E55D25300B69F91 /* ReceiveMainViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveMainViewModel.swift; sourceTree = "<group>"; };
@@ -11058,22 +11054,12 @@
 			path = Services;
 			sourceTree = "<group>";
 		};
-		2D96E93E2E55D25300B69F91 /* BottomSheet */ = {
-			isa = PBXGroup;
-			children = (
-				2D96E93C2E55D25300B69F91 /* ReceiveBottomSheetView.swift */,
-				2D96E93D2E55D25300B69F91 /* ReceiveBottomSheetViewModel.swift */,
-			);
-			path = BottomSheet;
-			sourceTree = "<group>";
-		};
 		2D96E95F2E55D25300B69F91 /* UI */ = {
 			isa = PBXGroup;
 			children = (
 				2D96E95B2E55D25300B69F91 /* ReceiveFlowCoordinator.swift */,
 				2D96E95C2E55D25300B69F91 /* ReceiveMainView.swift */,
 				2D96E95D2E55D25300B69F91 /* ReceiveMainViewModel.swift */,
-				2D96E93E2E55D25300B69F91 /* BottomSheet */,
 				2DD91FA42E66A77C00A0B0B5 /* Components */,
 				2DE0091A2EA66BCD00A3C9D0 /* ReceiveAssets */,
 			);
@@ -27866,7 +27852,6 @@
 				5D15F9E8258A522500392BA5 /* PickerView.swift in Sources */,
 				2D96E9602E55D25300B69F91 /* ReceiveAddressInfo.swift in Sources */,
 				2D96E9612E55D25300B69F91 /* ReceiveFlowUtils.swift in Sources */,
-				2D96E9642E55D25300B69F91 /* ReceiveBottomSheetView.swift in Sources */,
 				2D96E9682E55D25300B69F91 /* ReceiveFlowFactory.swift in Sources */,
 				2D96E9692E55D25300B69F91 /* ReceiveMainView.swift in Sources */,
 				2D96E96A2E55D25300B69F91 /* ReceiveNotificationEvent.swift in Sources */,
@@ -27881,7 +27866,6 @@
 				DAD212BC2E822F6B00097D16 /* TangemPayCardDetailsViewModel.swift in Sources */,
 				2D96E9752E55D25300B69F91 /* ReceiveAddressType.swift in Sources */,
 				2D96E9762E55D25300B69F91 /* VisaReceiveAssetInfoProvider.swift in Sources */,
-				2D96E97B2E55D25300B69F91 /* ReceiveBottomSheetViewModel.swift in Sources */,
 				B6F06D192E5D40C1003DB0A9 /* AccountsAwareUserTokensManager.swift in Sources */,
 				2D96E97D2E55D25300B69F91 /* ReceiveDependenciesBuilder.swift in Sources */,
 				EFF8F1EA2E85B3C500A5EF0C /* StakingTargetsStepBuildable.swift in Sources */,
