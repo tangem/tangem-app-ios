@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 import TangemLocalization
 import SwiftUI
 import TangemAssets
@@ -15,19 +16,30 @@ final class YieldAvailableNotificationViewModel: ObservableObject {
     // MARK: - Properties
 
     private var apy: Decimal
+    private let logger: YieldAnalyticsLogger
     private let onButtonTap: (Decimal) -> Void
 
     // MARK: - Init
 
-    init(apy: Decimal, onButtonTap: @escaping (Decimal) -> Void) {
-        self.onButtonTap = onButtonTap
+    init(
+        apy: Decimal,
+        logger: YieldAnalyticsLogger,
+        onButtonTap: @escaping (Decimal) -> Void
+    ) {
         self.apy = apy
+        self.logger = logger
+        self.onButtonTap = onButtonTap
     }
 
     // MARK: - Public Implementation
 
     func onGetStartedTap() {
+        logger.logYieldNoticeClicked()
         onButtonTap(apy)
+    }
+
+    func onAppear() {
+        logger.logYieldNoticeShown()
     }
 
     func makeTitleText() -> AttributedString {
