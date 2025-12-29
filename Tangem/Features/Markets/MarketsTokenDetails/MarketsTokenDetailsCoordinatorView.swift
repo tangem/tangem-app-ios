@@ -83,7 +83,7 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
                     TokenDetailsCoordinatorView(coordinator: item)
                         .toolbar {
                             ToolbarItem(placement: .navigationBarLeading) {
-                                backButton
+                                backButton.padding(.leading, -22)
                             }
                         }
                 }
