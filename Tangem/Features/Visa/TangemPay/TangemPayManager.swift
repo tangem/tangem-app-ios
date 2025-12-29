@@ -10,12 +10,13 @@ import Combine
 import TangemFoundation
 import TangemVisa
 
-struct TangemPayBuilder {
+struct TangemPayManagerBuilder {
     let userWalletId: UserWalletId
     let keysRepository: KeysRepository
+    let authorizingInteractor: TangemPayAuthorizing
     let signer: any TangemSigner
 
-    func buildTangemPayManager() {
+    func buildTangemPayManager() -> TangemPayManager {
         let customerWalletAddressAndTokens = TangemPayUtilities.getCustomerWalletAddressAndAuthorizationTokens(
             customerWalletId: userWalletId.stringValue,
             keysRepository: keysRepository
@@ -29,48 +30,25 @@ struct TangemPayBuilder {
         let customerInfoManagementService = TangemPayCustomerInfoManagementServiceBuilder()
             .buildCustomerInfoManagementService(authorizationTokensHandler: authorizationService)
 
-        let remoteStateFetcher = TangemPayEnrollmentStateFetcher(
+        let enrollmentStateFetcher = TangemPayEnrollmentStateFetcher(
             customerWalletId: userWalletId.stringValue,
             customerInfoManagementService: customerInfoManagementService
         )
-    }
 
-    func buildTangemPayNotificationManager(
-        tangemPayManager: TangemPayManager
-    ) -> TangemPayNotificationManager {
-        let notificationManager = TangemPayNotificationManager(
-            paeraCustomerStatePublisher: tangemPayManager.statePublisher
-        )
-        notificationManager.setupManager(with: tangemPayManager)
-        return notificationManager
-    }
-
-    func buildTangemPayAccount(
-        customerWalletAddress: String,
-        customerInfo: VisaCustomerInfoResponse,
-        customerInfoManagementService: CustomerInfoManagementService
-    ) -> TangemPayAccount {
-        let tokenBalancesRepository = CommonTokenBalancesRepository(userWalletId: userWalletId)
-
-        let balancesService = CommonTangemPayBalanceService(
-            customerInfoManagementService: customerInfoManagementService,
-            tokenBalancesRepository: tokenBalancesRepository
-        )
-
-        let withdrawTransactionService = CommonTangemPayWithdrawTransactionService(
-            customerInfoManagementService: customerInfoManagementService,
-            fiatItem: TangemPayUtilities.fiatItem,
+        let tangemPayAccountBuilder = TangemPayAccountBuilder(
+            userWalletId: userWalletId,
+            keysRepository: keysRepository,
             signer: signer
         )
 
-        return TangemPayAccount(
-            customerWalletId: userWalletId.stringValue,
-            customerWalletAddress: customerWalletAddress,
-            customerInfo: customerInfo,
+        return TangemPayManager(
+            userWalletId: userWalletId,
             keysRepository: keysRepository,
+            authorizingInteractor: authorizingInteractor,
+            authorizationService: authorizationService,
             customerInfoManagementService: customerInfoManagementService,
-            balancesService: balancesService,
-            withdrawTransactionService: withdrawTransactionService
+            enrollmentStateFetcher: enrollmentStateFetcher,
+            tangemPayAccountBuilder: tangemPayAccountBuilder
         )
     }
 }
@@ -89,10 +67,11 @@ final class TangemPayManager {
     private let userWalletId: UserWalletId
     private let keysRepository: KeysRepository
     private let authorizingInteractor: TangemPayAuthorizing
-    private let signer: any TangemSigner
     private let authorizationService: TangemPayAuthorizationService
     private let customerInfoManagementService: CustomerInfoManagementService
-    private let remoteStateFetcher: TangemPayEnrollmentStateFetcher
+    private let enrollmentStateFetcher: TangemPayEnrollmentStateFetcher
+
+    private let tangemPayAccountBuilder: TangemPayAccountBuilder
 
     private let stateSubject = CurrentValueSubject<TangemPayLocalState, Never>(.initial)
 
@@ -118,42 +97,25 @@ final class TangemPayManager {
         userWalletId: UserWalletId,
         keysRepository: KeysRepository,
         authorizingInteractor: TangemPayAuthorizing,
-        signer: any TangemSigner
+        authorizationService: TangemPayAuthorizationService,
+        customerInfoManagementService: CustomerInfoManagementService,
+        enrollmentStateFetcher: TangemPayEnrollmentStateFetcher,
+        tangemPayAccountBuilder: TangemPayAccountBuilder
     ) {
         self.userWalletId = userWalletId
         self.keysRepository = keysRepository
         self.authorizingInteractor = authorizingInteractor
-        self.signer = signer
+        self.authorizationService = authorizationService
+        self.customerInfoManagementService = customerInfoManagementService
+        self.enrollmentStateFetcher = enrollmentStateFetcher
+        self.tangemPayAccountBuilder = tangemPayAccountBuilder
 
         tangemPayNotificationManager = TangemPayNotificationManager(
             paeraCustomerStatePublisher: stateSubject.eraseToAnyPublisher()
         )
 
-        let customerWalletAddressAndTokens = TangemPayUtilities.getCustomerWalletAddressAndAuthorizationTokens(
-            customerWalletId: userWalletId.stringValue,
-            keysRepository: keysRepository
-        )
-
-        authorizationService = TangemPayAPIServiceBuilder().buildTangemPayAuthorizationService(
-            customerWalletId: userWalletId.stringValue,
-            tokens: customerWalletAddressAndTokens?.tokens
-        )
-
-        customerInfoManagementService = TangemPayCustomerInfoManagementServiceBuilder()
-            .buildCustomerInfoManagementService(authorizationTokensHandler: authorizationService)
-
-        remoteStateFetcher = TangemPayEnrollmentStateFetcher(
-            customerWalletId: userWalletId.stringValue,
-            customerInfoManagementService: customerInfoManagementService
-        )
-
         // No reference cycle here, self is stored as weak
         tangemPayNotificationManager.setupManager(with: self)
-
-        guard customerWalletAddressAndTokens != nil else {
-            stateSubject.value = .syncNeeded
-            return
-        }
 
         runTask { [self] in
             await refreshState()
@@ -201,7 +163,7 @@ final class TangemPayManager {
     func refreshState() async {
         let enrollmentState: TangemPayEnrollmentState
         do {
-            enrollmentState = try await remoteStateFetcher.getEnrollmentState()
+            enrollmentState = try await enrollmentStateFetcher.getEnrollmentState()
         } catch {
             switch error {
             case .unauthorized:
@@ -234,12 +196,9 @@ final class TangemPayManager {
             cardIssuingOrderStatusPollingService.cancel()
             TangemPayOrderIdStorage.deleteCardIssuingOrderId(customerWalletId: customerWalletId)
             stateSubject.value = .tangemPayAccount(
-                TangemPayAccountBuilder().build(
+                tangemPayAccountBuilder.buildTangemPayAccount(
                     customerWalletAddress: customerWalletAddress,
                     customerInfo: customerInfo,
-                    userWalletId: userWalletId,
-                    keysRepository: keysRepository,
-                    signer: signer,
                     customerInfoManagementService: customerInfoManagementService
                 )
             )
