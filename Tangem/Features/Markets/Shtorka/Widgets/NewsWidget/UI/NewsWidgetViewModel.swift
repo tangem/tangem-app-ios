@@ -23,8 +23,9 @@ final class NewsWidgetViewModel: ObservableObject {
     // MARK: - Properties
 
     private let widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler
-    private let newsProvider: MarketsWidgetNewsProvider = MockMarketsWidgetNewsService()
+
     private let mapper = TrendingNewsModelMapper()
+    private let newsProvider = CommonMarketsWidgetNewsService()
 
     private weak var coordinator: NewsWidgetRoutable?
 
@@ -78,8 +79,8 @@ private extension NewsWidgetViewModel {
             .removeDuplicates()
             .receiveOnMain()
             .withWeakCaptureOf(self)
-            .sink { viewModel, state in
-                if case .readyForDisplay = state {
+            .sink { viewModel, event in
+                if case .readyForDisplay = event {
                     viewModel.updateViewState()
                 }
             }
