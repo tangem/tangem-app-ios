@@ -8,15 +8,9 @@
 
 import Combine
 
-public enum TangemPayApiErrorEvent {
-    case unauthorized
-    case other
-}
-
 public protocol TangemPayAuthorizationTokensHandler: AnyObject {
     var refreshTokenExpired: Bool { get }
     var authorizationHeader: String? { get }
-    var errorEventPublisher: AnyPublisher<TangemPayApiErrorEvent, Never> { get }
 
     func saveTokens(tokens: TangemPayAuthorizationTokens) throws
     func prepare() async throws(TangemPayAPIServiceError)

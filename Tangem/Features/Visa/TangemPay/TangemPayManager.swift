@@ -10,6 +10,71 @@ import Combine
 import TangemFoundation
 import TangemVisa
 
+struct TangemPayBuilder {
+    let userWalletId: UserWalletId
+    let keysRepository: KeysRepository
+    let signer: any TangemSigner
+
+    func buildTangemPayManager() {
+        let customerWalletAddressAndTokens = TangemPayUtilities.getCustomerWalletAddressAndAuthorizationTokens(
+            customerWalletId: userWalletId.stringValue,
+            keysRepository: keysRepository
+        )
+
+        let authorizationService = TangemPayAPIServiceBuilder().buildTangemPayAuthorizationService(
+            customerWalletId: userWalletId.stringValue,
+            tokens: customerWalletAddressAndTokens?.tokens
+        )
+
+        let customerInfoManagementService = TangemPayCustomerInfoManagementServiceBuilder()
+            .buildCustomerInfoManagementService(authorizationTokensHandler: authorizationService)
+
+        let remoteStateFetcher = TangemPayEnrollmentStateFetcher(
+            customerWalletId: userWalletId.stringValue,
+            customerInfoManagementService: customerInfoManagementService
+        )
+    }
+
+    func buildTangemPayNotificationManager(
+        tangemPayManager: TangemPayManager
+    ) -> TangemPayNotificationManager {
+        let notificationManager = TangemPayNotificationManager(
+            paeraCustomerStatePublisher: tangemPayManager.statePublisher
+        )
+        notificationManager.setupManager(with: tangemPayManager)
+        return notificationManager
+    }
+
+    func buildTangemPayAccount(
+        customerWalletAddress: String,
+        customerInfo: VisaCustomerInfoResponse,
+        customerInfoManagementService: CustomerInfoManagementService
+    ) -> TangemPayAccount {
+        let tokenBalancesRepository = CommonTokenBalancesRepository(userWalletId: userWalletId)
+
+        let balancesService = CommonTangemPayBalanceService(
+            customerInfoManagementService: customerInfoManagementService,
+            tokenBalancesRepository: tokenBalancesRepository
+        )
+
+        let withdrawTransactionService = CommonTangemPayWithdrawTransactionService(
+            customerInfoManagementService: customerInfoManagementService,
+            fiatItem: TangemPayUtilities.fiatItem,
+            signer: signer
+        )
+
+        return TangemPayAccount(
+            customerWalletId: userWalletId.stringValue,
+            customerWalletAddress: customerWalletAddress,
+            customerInfo: customerInfo,
+            keysRepository: keysRepository,
+            customerInfoManagementService: customerInfoManagementService,
+            balancesService: balancesService,
+            withdrawTransactionService: withdrawTransactionService
+        )
+    }
+}
+
 final class TangemPayManager {
     let tangemPayNotificationManager: TangemPayNotificationManager
 
@@ -20,9 +85,6 @@ final class TangemPayManager {
     var statePublisher: AnyPublisher<TangemPayLocalState, Never> {
         stateSubject.eraseToAnyPublisher()
     }
-
-    @Injected(\.tangemPayAuthorizationTokensRepository)
-    private static var tangemPayAuthorizationTokensRepository: TangemPayAuthorizationTokensRepository
 
     private let userWalletId: UserWalletId
     private let keysRepository: KeysRepository
@@ -74,7 +136,6 @@ final class TangemPayManager {
 
         authorizationService = TangemPayAPIServiceBuilder().buildTangemPayAuthorizationService(
             customerWalletId: userWalletId.stringValue,
-            authorizationTokensRepository: Self.tangemPayAuthorizationTokensRepository,
             tokens: customerWalletAddressAndTokens?.tokens
         )
 
@@ -89,38 +150,29 @@ final class TangemPayManager {
         // No reference cycle here, self is stored as weak
         tangemPayNotificationManager.setupManager(with: self)
 
-        bind()
-
         guard customerWalletAddressAndTokens != nil else {
             stateSubject.value = .syncNeeded
             return
         }
 
-        refresh()
-    }
-
-    @discardableResult
-    func refresh() -> Task<Void, Never> {
         runTask { [self] in
-            do {
-                let remoteState = try await remoteStateFetcher.getEnrollmentState()
-                await handleRemoteState(remoteState)
-            } catch {
-                // failure events handled via corresponding publisher subscription
-                VisaLogger.error("Failed to get TangemPay remote state", error: error)
-            }
+            await refreshState()
         }
     }
 
-    @discardableResult
-    func authorizeWithCustomerWallet() async throws -> TangemPayEnrollmentState {
-        try await authorizingInteractor.authorize(
-            customerWalletId: customerWalletId,
-            authorizationService: authorizationService
-        )
-        let remoteState = try await remoteStateFetcher.getEnrollmentState()
-        await handleRemoteState(remoteState)
-        return remoteState
+    func authorizeWithCustomerWallet() async {
+        do {
+            try await authorizingInteractor.authorize(
+                customerWalletId: customerWalletId,
+                authorizationService: authorizationService
+            )
+        } catch {
+            VisaLogger.error("Failed to authorize with customer wallet", error: error)
+            stateSubject.value = .syncNeeded
+            return
+        }
+
+        await refreshState()
     }
 
     func launchKYC(onDidDismiss: @escaping () -> Void) async throws {
@@ -146,8 +198,22 @@ final class TangemPayManager {
         }
     }
 
-    private func handleRemoteState(_ remoteState: TangemPayEnrollmentState) async {
-        switch remoteState {
+    func refreshState() async {
+        let enrollmentState: TangemPayEnrollmentState
+        do {
+            enrollmentState = try await remoteStateFetcher.getEnrollmentState()
+        } catch {
+            switch error {
+            case .unauthorized:
+                stateSubject.value = .syncNeeded
+            case .moyaError, .apiError, .decodingError:
+                stateSubject.value = .unavailable
+            }
+            VisaLogger.error("Failed to get TangemPay enrollment state", error: error)
+            return
+        }
+
+        switch enrollmentState {
         case .issuingCard:
             guard let customerWalletAddress else {
                 stateSubject.value = .syncNeeded
@@ -174,7 +240,6 @@ final class TangemPayManager {
                     userWalletId: userWalletId,
                     keysRepository: keysRepository,
                     signer: signer,
-                    authorizationTokensHandler: authorizationService,
                     customerInfoManagementService: customerInfoManagementService
                 )
             )
@@ -198,7 +263,9 @@ final class TangemPayManager {
             orderId: orderId,
             interval: Constants.cardIssuingOrderPollInterval,
             onCompleted: { [weak self] in
-                self?.refresh()
+                runTask {
+                    await self?.refreshState()
+                }
             },
             onCanceled: { [weak self] in
                 self?.stateSubject.value = .failedToIssueCard
@@ -212,30 +279,8 @@ final class TangemPayManager {
     private func syncTokens() {
         runTask { [self] in
             stateSubject.value = .syncInProgress
-            do {
-                try await authorizeWithCustomerWallet()
-            } catch {
-                VisaLogger.error("Failed to authorize with customer wallet", error: error)
-                stateSubject.value = .syncNeeded
-            }
+            await authorizeWithCustomerWallet()
         }
-    }
-
-    private func bind() {
-        Publishers.Merge(
-            authorizationService.errorEventPublisher,
-            customerInfoManagementService.errorEventPublisher
-        )
-        .map { event -> TangemPayLocalState in
-            switch event {
-            case .unauthorized:
-                .syncNeeded
-            case .other:
-                .unavailable
-            }
-        }
-        .sink(receiveValue: stateSubject.send)
-        .store(in: &bag)
     }
 }
 

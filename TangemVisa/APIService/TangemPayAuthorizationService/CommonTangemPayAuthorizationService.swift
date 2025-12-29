@@ -19,7 +19,6 @@ final class CommonTangemPayAuthorizationService {
 
     private let authorizationTokensHolder: ThreadSafeContainer<TangemPayAuthorizationTokens?>
     private let taskProcessor = SingleTaskProcessor<Void, TangemPayAPIServiceError>()
-    private let errorEventSubject = PassthroughSubject<TangemPayApiErrorEvent, Never>()
 
     private var tokens: TangemPayAuthorizationTokens? {
         authorizationTokensHolder.read()
@@ -41,25 +40,12 @@ final class CommonTangemPayAuthorizationService {
 
     private func refreshTokenIfNeeded() async throws(TangemPayAPIServiceError) {
         guard let tokens, !tokens.refreshTokenExpired else {
-            errorEventSubject.send(.unauthorized)
-            // [REDACTED_TODO_COMMENT]
-            fatalError()
+            throw .unauthorized
         }
 
         if tokens.accessTokenExpired {
-            do {
-                let newTokens = try await refreshTokens(refreshToken: tokens.refreshToken)
-                try? saveTokens(tokens: newTokens)
-            } catch {
-                switch error {
-                case .unauthorized:
-                    errorEventSubject.send(.unauthorized)
-                case .moyaError, .apiError, .decodingError:
-                    errorEventSubject.send(.other)
-                }
-                VisaLogger.error("Failed to refresh token", error: error)
-                throw error
-            }
+            let newTokens = try await refreshTokens(refreshToken: tokens.refreshToken)
+            try? saveTokens(tokens: newTokens)
         }
     }
 }
@@ -121,10 +107,6 @@ extension CommonTangemPayAuthorizationService: TangemPayAuthorizationTokensHandl
             return nil
         }
         return AuthorizationTokensUtility.getAuthorizationHeader(from: tokens)
-    }
-
-    var errorEventPublisher: AnyPublisher<TangemPayApiErrorEvent, Never> {
-        errorEventSubject.eraseToAnyPublisher()
     }
 
     func saveTokens(tokens: TangemPayAuthorizationTokens) throws {

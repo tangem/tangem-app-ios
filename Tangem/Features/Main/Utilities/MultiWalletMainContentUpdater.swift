@@ -17,7 +17,7 @@ enum MultiWalletMainContentUpdater {
             }
 
             outerGroup.addTask {
-                await userWalletModel.tangemPayManager.refresh().value
+                await userWalletModel.tangemPayManager.refreshState()
             }
 
             await outerGroup.waitForAll()

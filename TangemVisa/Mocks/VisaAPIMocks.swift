@@ -308,10 +308,6 @@ struct ProductActivationServiceMock: ProductActivationService {
 }
 
 final class CustomerInfoManagementServiceMock: CustomerInfoManagementService {
-    var errorEventPublisher: AnyPublisher<TangemPayApiErrorEvent, Never> {
-        .empty
-    }
-
     func cancelKYC() async throws(TangemPayAPIServiceError) -> TangemPayCancelKYCResponse {
         return .init()
     }
