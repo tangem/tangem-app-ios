@@ -55,8 +55,8 @@
 "account_unsaved_dialog_message_create" = "Are you sure you want to discard new account?";
 "account_unsaved_dialog_message_edit" = "Are you sure you want to discard edits?";
 "account_unsaved_dialog_title" = "Unsaved Changes";
-"accounts_migration_alert_message" = "Some custom tokens were moved from “%1$@” to “%2$@” as their derivation belongs to that account.";
-"accounts_migration_alert_title" = "Some custom tokens were moved";
+"accounts_migration_alert_message" = "Some custom tokens will be automatically moved from “%1$@” to “%2$@” as their derivation belongs to that account.";
+"accounts_migration_alert_title" = "Some custom tokens will be automatically moved";
 "action_buttons_buy_empty_search_message" = "Токен не знайдено у вашому портфелі? Перевірте Ринки, щоб знайти та додати його для покупки";
 "action_buttons_buy_navigation_bar_title" = "Купити";
 "action_buttons_sell_empty_search_message" = "Токен не знайдено у вашому портфелі? Перевірте Ринки, щоб знайти та додати його для продажу";
@@ -753,6 +753,7 @@
 "news_like" = "Like";
 "news_quick_recap" = "Quick recap";
 "news_related_news" = "Related News";
+"news_related_tokens" = "Related tokens";
 "news_sources" = "Sources";
 "news_stay_in_the_loop" = "Stay in the loop";
 "nft_about_title" = "Про NFT";
@@ -1404,9 +1405,11 @@
 "tangempay_onboarding_title" = "Get your free Tangem Pay Card in minutes";
 "tangempay_payment_account_sync_needed" = "Платіжний рахунок не синхронізовано";
 "tangempay_payment_account" = "Payment account";
+"tangempay_pin_validation_error_message" = "Invalid PIN: avoid sequences or repeats";
 "tangempay_service_unavailable_description" = "Ми усуваємо технічну проблему. Будь ласка, спробуйте пізніше.";
 "tangempay_service_unavailable_title" = "Сервіс тимчасово недоступний";
 "tangempay_service_unreachable_try_later" = "Unable to display details. However, card payments are still working.";
+"tangempay_set_pin_code" = "Set \nPIN code";
 "tangempay_sync_needed_restore_access" = "Restore access";
 "tangempay_sync_needed" = "Not synced";
 "tangempay_tangem_visa_card" = "Використовуйте USDC для щоденних платежів";

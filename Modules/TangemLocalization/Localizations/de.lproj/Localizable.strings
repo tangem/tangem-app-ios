@@ -753,6 +753,7 @@
 "news_like" = "Gefällt mir";
 "news_quick_recap" = "Kurze Zusammenfassung";
 "news_related_news" = "Verwandte Nachrichten";
+"news_related_tokens" = "Related tokens";
 "news_sources" = "Quellen";
 "news_stay_in_the_loop" = "Auf dem Laufenden bleiben";
 "nft_about_title" = "Über NFT";
@@ -1404,9 +1405,11 @@
 "tangempay_onboarding_title" = "Erhalten Sie Ihre kostenlose Tangem Pay Card in wenigen Minuten";
 "tangempay_payment_account_sync_needed" = "Zahlungskonto ist nicht synchronisiert";
 "tangempay_payment_account" = "Zahlungskonto";
+"tangempay_pin_validation_error_message" = "Ungültige PIN: Sequenzen oder Wiederholungen vermeiden";
 "tangempay_service_unavailable_description" = "Wir beheben ein technisches Problem. Bitte versuchen Sie es später erneut.";
 "tangempay_service_unavailable_title" = "Service vorübergehend nicht verfügbar";
 "tangempay_service_unreachable_try_later" = "Daten können derzeit nicht angezeigt werden, Kartenzahlungen funktionieren jedoch weiterhin.";
+"tangempay_set_pin_code" = "Set \nPIN code";
 "tangempay_sync_needed_restore_access" = "Restore access";
 "tangempay_sync_needed" = "Synchronisation erforderlich";
 "tangempay_tangem_visa_card" = "Nutzen Sie USDC für alltägliche Zahlungen";
