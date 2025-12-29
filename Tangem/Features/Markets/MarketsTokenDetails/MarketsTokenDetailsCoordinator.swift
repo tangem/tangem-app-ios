@@ -29,7 +29,6 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
 
     // MARK: - Child ViewModels
 
-    @Published var receiveBottomSheetViewModel: ReceiveBottomSheetViewModel? = nil
     @Published var exchangesListViewModel: MarketsTokenDetailsExchangesListViewModel? = nil
 
     // MARK: - Child Coordinators
@@ -254,13 +253,10 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
             isYieldModuleActive: false
         )
 
-        switch receiveFlowFactory.makeAvailabilityReceiveFlow() {
-        case .bottomSheetReceiveFlow(let viewModel):
-            receiveBottomSheetViewModel = viewModel
-        case .domainReceiveFlow(let viewModel):
-            Task { @MainActor in
-                floatingSheetPresenter.enqueue(sheet: viewModel)
-            }
+        let viewModel = receiveFlowFactory.makeAvailabilityReceiveFlow()
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
 
