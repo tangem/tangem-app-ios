@@ -753,6 +753,7 @@
 "news_like" = "Like";
 "news_quick_recap" = "Quick recap";
 "news_related_news" = "Related News";
+"news_related_tokens" = "Related tokens";
 "news_sources" = "Sources";
 "news_stay_in_the_loop" = "Будьте в курсе";
 "nft_about_title" = "О NFT";
@@ -1404,9 +1405,11 @@
 "tangempay_onboarding_title" = "Откройте виртуальную \nTangem Pay Card";
 "tangempay_payment_account_sync_needed" = "Платежный аккаунт не синхронизирован";
 "tangempay_payment_account" = "Платежный аккаунт";
+"tangempay_pin_validation_error_message" = "Слабый ПИН: не используйте повторы или последовательности.";
 "tangempay_service_unavailable_description" = "Мы устраняем техническую проблему. Пожалуйста, попробуйте позже.";
 "tangempay_service_unavailable_title" = "Сервис временно недоступен";
 "tangempay_service_unreachable_try_later" = "Не можем показать данные карты, но оплаты продолжают работать.";
+"tangempay_set_pin_code" = "Set \nPIN code";
 "tangempay_sync_needed_restore_access" = "Restore access";
 "tangempay_sync_needed" = "Не синхронизирован";
 "tangempay_tangem_visa_card" = "Оплачивайте ежедневные покупки в USDC";
