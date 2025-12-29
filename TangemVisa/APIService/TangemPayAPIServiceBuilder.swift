@@ -11,10 +11,16 @@ import TangemNetworkUtils
 public struct TangemPayAPIServiceBuilder {
     private let apiType: VisaAPIType
     private let bffStaticToken: String
+    private let authorizationTokensRepository: TangemPayAuthorizationTokensRepository
 
-    public init(apiType: VisaAPIType, bffStaticToken: String) {
+    public init(
+        apiType: VisaAPIType,
+        bffStaticToken: String,
+        authorizationTokensRepository: TangemPayAuthorizationTokensRepository
+    ) {
         self.apiType = apiType
         self.bffStaticToken = bffStaticToken
+        self.authorizationTokensRepository = authorizationTokensRepository
     }
 }
 
@@ -37,7 +43,6 @@ public extension TangemPayAPIServiceBuilder {
 
     func buildTangemPayAuthorizationService(
         customerWalletId: String,
-        authorizationTokensRepository: TangemPayAuthorizationTokensRepository,
         tokens: TangemPayAuthorizationTokens?,
         urlSessionConfiguration: URLSessionConfiguration = .visaConfiguration
     ) -> TangemPayAuthorizationService {
