@@ -55,8 +55,8 @@
 "account_unsaved_dialog_message_create" = "Are you sure you want to discard new account?";
 "account_unsaved_dialog_message_edit" = "Are you sure you want to discard edits?";
 "account_unsaved_dialog_title" = "Unsaved Changes";
-"accounts_migration_alert_message" = "Some custom tokens were moved from “%1$@” to “%2$@” as their derivation belongs to that account.";
-"accounts_migration_alert_title" = "Some custom tokens were moved";
+"accounts_migration_alert_message" = "Some custom tokens will be automatically moved from “%1$@” to “%2$@” as their derivation belongs to that account.";
+"accounts_migration_alert_title" = "Some custom tokens will be automatically moved";
 "action_buttons_buy_empty_search_message" = "Can’t find your token? Go to the Market section on the main page and add it to your portfolio for purchase";
 "action_buttons_buy_navigation_bar_title" = "Buy";
 "action_buttons_sell_empty_search_message" = "Can’t find your token? Go to the Market section on the main page and add it to your portfolio for selling.";
@@ -753,6 +753,7 @@
 "news_like" = "Like";
 "news_quick_recap" = "Quick recap";
 "news_related_news" = "Related News";
+"news_related_tokens" = "Related tokens";
 "news_sources" = "Sources";
 "news_stay_in_the_loop" = "Stay in the loop";
 "nft_about_title" = "About NFT";
@@ -1404,9 +1405,11 @@
 "tangempay_onboarding_title" = "在幾分鐘內獲得免費的 Tangem Pay 卡";
 "tangempay_payment_account_sync_needed" = "付款帳戶未同步";
 "tangempay_payment_account" = "付款帳戶";
+"tangempay_pin_validation_error_message" = "Invalid PIN: avoid sequences or repeats";
 "tangempay_service_unavailable_description" = "我们正在修复技术问题。请稍后再试。";
 "tangempay_service_unavailable_title" = "服務暫時無法使用";
 "tangempay_service_unreachable_try_later" = "目前無法顯示資料，但卡片支付仍可正常使用。";
+"tangempay_set_pin_code" = "Set \nPIN code";
 "tangempay_sync_needed_restore_access" = "Restore access";
 "tangempay_sync_needed" = "需要同步";
 "tangempay_tangem_visa_card" = "使用 USDC 進行日常支付";

@@ -55,8 +55,8 @@
 "account_unsaved_dialog_message_create" = "Are you sure you want to discard new account?";
 "account_unsaved_dialog_message_edit" = "Are you sure you want to discard edits?";
 "account_unsaved_dialog_title" = "Unsaved Changes";
-"accounts_migration_alert_message" = "Some custom tokens were moved from “%1$@” to “%2$@” as their derivation belongs to that account.";
-"accounts_migration_alert_title" = "Some custom tokens were moved";
+"accounts_migration_alert_message" = "Some custom tokens will be automatically moved from “%1$@” to “%2$@” as their derivation belongs to that account.";
+"accounts_migration_alert_title" = "Some custom tokens will be automatically moved";
 "action_buttons_buy_empty_search_message" = "¿No encuentra el token en su billetera? Consulte la sección de Mercados para encontrarlo y añadirlo a la compra";
 "action_buttons_buy_navigation_bar_title" = "Comprar";
 "action_buttons_sell_empty_search_message" = "¿No encuentra el token en su billetera? Consulte los mercados para encontrarlo y añadirlo a la venta";
@@ -753,6 +753,7 @@
 "news_like" = "Like";
 "news_quick_recap" = "Quick recap";
 "news_related_news" = "Related News";
+"news_related_tokens" = "Related tokens";
 "news_sources" = "Sources";
 "news_stay_in_the_loop" = "Stay in the loop";
 "nft_about_title" = "Acerca de NFT";
@@ -1404,9 +1405,11 @@
 "tangempay_onboarding_title" = "Obtén tu tarjeta Tangem Pay gratuita en minutos";
 "tangempay_payment_account_sync_needed" = "La cuenta de pago no está sincronizada";
 "tangempay_payment_account" = "Cuenta de pago";
+"tangempay_pin_validation_error_message" = "PIN no válido: evitar secuencias o repeticiones";
 "tangempay_service_unavailable_description" = "Estamos solucionando un problema técnico. Por favor, inténtelo de nuevo más tarde.";
 "tangempay_service_unavailable_title" = "Servicio temporalmente no disponible";
 "tangempay_service_unreachable_try_later" = "No es posible mostrar los datos en este momento, pero los pagos con tarjeta siguen funcionando.";
+"tangempay_set_pin_code" = "Set \nPIN code";
 "tangempay_sync_needed_restore_access" = "Restore access";
 "tangempay_sync_needed" = "Sincronización necesaria";
 "tangempay_tangem_visa_card" = "Usa USDC para pagos cotidianos";

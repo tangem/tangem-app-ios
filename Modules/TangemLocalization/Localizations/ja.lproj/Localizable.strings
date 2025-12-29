@@ -753,6 +753,7 @@
 "news_like" = "いいね";
 "news_quick_recap" = "クイックまとめ";
 "news_related_news" = "関連ニュース";
+"news_related_tokens" = "Related tokens";
 "news_sources" = "情報源";
 "news_stay_in_the_loop" = "最新情報を入手";
 "nft_about_title" = "NFTについて";
@@ -1404,9 +1405,11 @@
 "tangempay_onboarding_title" = "無料のTangem Payカードを数分でゲットしましょう";
 "tangempay_payment_account_sync_needed" = "支払アカウントが同期されていません";
 "tangempay_payment_account" = "支払いアカウント";
+"tangempay_pin_validation_error_message" = "無効な暗証番号：連続や繰り返しを避けてください";
 "tangempay_service_unavailable_description" = "技術的な問題を修正しています。後でもう一度お試しください。";
 "tangempay_service_unavailable_title" = "サービスは一時的に利用できません";
 "tangempay_service_unreachable_try_later" = "現在、データを表示できませんが、カードでのお支払いは引き続きご利用いただけます。";
+"tangempay_set_pin_code" = "Set \nPIN code";
 "tangempay_sync_needed_restore_access" = "Restore access";
 "tangempay_sync_needed" = "同期が必要です";
 "tangempay_tangem_visa_card" = "日常の支払いにUSDCを利用";
