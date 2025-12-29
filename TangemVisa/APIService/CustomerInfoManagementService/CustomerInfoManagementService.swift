@@ -43,9 +43,8 @@ public protocol CustomerInfoManagementService: AnyObject {
 }
 
 final class CommonCustomerInfoManagementService {
-    typealias CIMAPIService = TangemPayAPIService<CustomerInfoManagementAPITarget>
     private let authorizationTokenHandler: TangemPayAuthorizationTokensHandler
-    private let apiService: CIMAPIService
+    private let apiService: TangemPayAPIService<CustomerInfoManagementAPITarget>
 
     private let apiType: VisaAPIType
     private let encoder: JSONEncoder = {
@@ -59,7 +58,7 @@ final class CommonCustomerInfoManagementService {
     init(
         apiType: VisaAPIType,
         authorizationTokenHandler: TangemPayAuthorizationTokensHandler,
-        apiService: CIMAPIService
+        apiService: TangemPayAPIService<CustomerInfoManagementAPITarget>
     ) {
         self.apiType = apiType
         self.authorizationTokenHandler = authorizationTokenHandler
@@ -78,12 +77,14 @@ final class CommonCustomerInfoManagementService {
                 ),
                 wrapped: true
             )
-        } catch .apiError(let errorWithCode) where errorWithCode.statusCode == 401 {
-            errorEventSubject.send(.unauthorized)
-            throw errorWithCode.error
         } catch {
-            errorEventSubject.send(.other)
-            throw error.underlyingError
+            switch error {
+            case .unauthorized:
+                errorEventSubject.send(.unauthorized)
+            case .moyaError, .apiError, .decodingError:
+                errorEventSubject.send(.other)
+            }
+            throw error
         }
     }
 }

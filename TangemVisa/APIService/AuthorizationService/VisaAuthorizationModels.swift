@@ -16,7 +16,6 @@ public struct VisaAuthChallengeResponse: Decodable {
 public enum VisaAuthorizationType: String, Codable {
     case cardId = "card_id"
     case cardWallet = "card_wallet"
-    case customerWallet = "customer_wallet"
 }
 
 public struct VisaAuthorizationTokens: Codable, Equatable {
