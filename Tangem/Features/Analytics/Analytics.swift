@@ -32,6 +32,7 @@ class Analytics {
         // Send only first topped up event. Do not send the event to analytics on following topup events.
         if balance > 0, hasPreviousPositiveBalance == false {
             logEventInternal(.toppedUp, contextParams: contextParams)
+            logEventInternal(.afWalletFunded, analyticsSystems: [.appsFlyer], contextParams: contextParams)
             analyticsContext.set(value: true, forKey: .hasPositiveBalance, scope: .userWallet(userWalletId))
         } else if hasPreviousPositiveBalance == nil { // Do not save in a withdrawal case
             // Register the first app launch with balance.
