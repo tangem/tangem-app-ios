@@ -55,8 +55,8 @@
 "account_unsaved_dialog_message_create" = "Are you sure you want to discard new account?";
 "account_unsaved_dialog_message_edit" = "Are you sure you want to discard edits?";
 "account_unsaved_dialog_title" = "Unsaved Changes";
-"accounts_migration_alert_message" = "Some custom tokens were moved from “%1$@” to “%2$@” as their derivation belongs to that account.";
-"accounts_migration_alert_title" = "Some custom tokens were moved";
+"accounts_migration_alert_message" = "Some custom tokens will be automatically moved from “%1$@” to “%2$@” as their derivation belongs to that account.";
+"accounts_migration_alert_title" = "Some custom tokens will be automatically moved";
 "action_buttons_buy_empty_search_message" = "Can’t find your token? Go to the Market section on the main page and add it to your portfolio for purchase";
 "action_buttons_buy_navigation_bar_title" = "Buy";
 "action_buttons_sell_empty_search_message" = "Can’t find your token? Go to the Market section on the main page and add it to your portfolio for selling.";
@@ -343,7 +343,7 @@
 "common_tangem" = "Tangem";
 "common_terms_and_conditions" = "terms and conditions";
 "common_terms_of_use" = "Terms of Use";
-"common_to_wallet_name" = "From %@";
+"common_to_wallet_name" = "To %@";
 "common_to" = "To";
 "common_today" = "Today";
 "common_transaction_failed" = "Transaction failed";
@@ -753,6 +753,7 @@
 "news_like" = "Like";
 "news_quick_recap" = "Quick recap";
 "news_related_news" = "Related News";
+"news_related_tokens" = "Related tokens";
 "news_sources" = "Sources";
 "news_stay_in_the_loop" = "Stay in the loop";
 "nft_about_title" = "About NFT";
@@ -1404,9 +1405,11 @@
 "tangempay_onboarding_title" = "Ottieni la tua carta Tangem Pay gratuita in pochi minuti";
 "tangempay_payment_account_sync_needed" = "Il conto di pagamento non è sincronizzato";
 "tangempay_payment_account" = "Conto di pagamento";
+"tangempay_pin_validation_error_message" = "PIN non valido: evitare sequenze o ripetizioni";
 "tangempay_service_unavailable_description" = "Stiamo risolvendo un problema tecnico. Riprova più tardi.";
 "tangempay_service_unavailable_title" = "Servizio temporaneamente non disponibile";
 "tangempay_service_unreachable_try_later" = "Al momento non è possibile visualizzare i dati, ma i pagamenti con carta continuano a funzionare.";
+"tangempay_set_pin_code" = "Set \nPIN code";
 "tangempay_sync_needed_restore_access" = "Restore access";
 "tangempay_sync_needed" = "Sincronizzazione necessaria";
 "tangempay_tangem_visa_card" = "Usa USDC per i pagamenti quotidiani";
@@ -1637,7 +1640,7 @@
 "warning_button_ok" = "Ok, ho capito!";
 "warning_button_really_cool" = "Really cool!";
 "warning_button_refresh" = "Refresh";
-"warning_clore_migration_message" = "According to Clore’s official documentation, all tokens received before December 21 will be migrated to Clore (ERC20); tokens received after will not. Transfer solution coming — stay tuned.";
+"warning_clore_migration_message" = "According to Clore’s official documentation, all coins received before December 21 will be migrated to Clore (ERC-20 token); coins received after that date will not. A transfer solution is coming — stay tuned.";
 "warning_clore_migration_title" = "Clore Network Migration";
 "warning_demo_mode_message" = "You are currently in the Demo mode";
 "warning_demo_mode_title" = "Demo mode active";
