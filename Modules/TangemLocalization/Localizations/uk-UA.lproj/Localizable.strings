@@ -55,8 +55,8 @@
 "account_unsaved_dialog_message_create" = "Are you sure you want to discard new account?";
 "account_unsaved_dialog_message_edit" = "Are you sure you want to discard edits?";
 "account_unsaved_dialog_title" = "Unsaved Changes";
-"accounts_migration_alert_message" = "Some custom tokens were moved from “%1$@” to “%2$@” as their derivation belongs to that account.";
-"accounts_migration_alert_title" = "Some custom tokens were moved";
+"accounts_migration_alert_message" = "Some custom tokens will be automatically moved from “%1$@” to “%2$@” as their derivation belongs to that account.";
+"accounts_migration_alert_title" = "Some custom tokens will be automatically moved";
 "action_buttons_buy_empty_search_message" = "Токен не знайдено у вашому портфелі? Перевірте Ринки, щоб знайти та додати його для покупки";
 "action_buttons_buy_navigation_bar_title" = "Купити";
 "action_buttons_sell_empty_search_message" = "Токен не знайдено у вашому портфелі? Перевірте Ринки, щоб знайти та додати його для продажу";
@@ -343,7 +343,7 @@
 "common_tangem" = "Tangem";
 "common_terms_and_conditions" = "умови участі";
 "common_terms_of_use" = "Умовами використання";
-"common_to_wallet_name" = "From %@";
+"common_to_wallet_name" = "To %@";
 "common_to" = "До";
 "common_today" = "Сьогодні";
 "common_transaction_failed" = "Помилка транзакції";
@@ -416,7 +416,7 @@
 "details_title" = "Деталі";
 "disclaimer_title" = "Умови використання";
 "domain_receive_assets_default_address" = "Основна адреса";
-"domain_receive_assets_legacy_address" = "Legacy адреса";
+"domain_receive_assets_legacy_address" = "Legacy %@ адреса";
 "domain_receive_assets_navigation_title" = "Отримати активи";
 "domain_receive_assets_network_name_address" = "%@ адреса";
 "domain_receive_assets_onboarding_description" = "Надсилання активів в інші мережі призведе до безповоротної втрати.";
@@ -507,7 +507,7 @@
 "feedback_preface_scan_failed" = "Розкажіть, будь ласка, яку картку або кільце ви маєте?";
 "feedback_preface_support" = "Привіт, команда підтримки,";
 "feedback_preface_tx_failed" = "Будь ласка, розкажіть нам більше про вашу проблему. Кожна дрібниця може допомогти.";
-"feedback_subject_backup_problem" = "Backup issue";
+"feedback_subject_backup_problem" = "Проблема з резервним копіюванням";
 "feedback_subject_pre_activated_wallet" = "Раніше активований гаманець";
 "feedback_subject_rate_negative" = "Мої пропозиції";
 "feedback_subject_scan_failed" = "Не вдається відсканувати картку/кільце";
@@ -753,6 +753,7 @@
 "news_like" = "Like";
 "news_quick_recap" = "Quick recap";
 "news_related_news" = "Related News";
+"news_related_tokens" = "Related tokens";
 "news_sources" = "Sources";
 "news_stay_in_the_loop" = "Stay in the loop";
 "nft_about_title" = "Про NFT";
@@ -1404,9 +1405,11 @@
 "tangempay_onboarding_title" = "Get your free Tangem Pay Card in minutes";
 "tangempay_payment_account_sync_needed" = "Платіжний рахунок не синхронізовано";
 "tangempay_payment_account" = "Payment account";
+"tangempay_pin_validation_error_message" = "Invalid PIN: avoid sequences or repeats";
 "tangempay_service_unavailable_description" = "Ми усуваємо технічну проблему. Будь ласка, спробуйте пізніше.";
 "tangempay_service_unavailable_title" = "Сервіс тимчасово недоступний";
 "tangempay_service_unreachable_try_later" = "Unable to display details. However, card payments are still working.";
+"tangempay_set_pin_code" = "Set \nPIN code";
 "tangempay_sync_needed_restore_access" = "Restore access";
 "tangempay_sync_needed" = "Not synced";
 "tangempay_tangem_visa_card" = "Використовуйте USDC для щоденних платежів";
@@ -1637,8 +1640,8 @@
 "warning_button_ok" = "Зрозуміло!";
 "warning_button_really_cool" = "Дуже круто!";
 "warning_button_refresh" = "Оновити";
-"warning_clore_migration_message" = "According to Clore’s official documentation, all tokens received before December 21 will be migrated to Clore (ERC20); tokens received after will not. Transfer solution coming — stay tuned.";
-"warning_clore_migration_title" = "Clore Network Migration";
+"warning_clore_migration_message" = "Згідно з офіційною документацією Clore, усі монети, отримані до 21 грудня, будуть мігровані в токен Clore (ERC-20); монети, отримані після цієї дати, — ні. Рішення для переказу перебуває в розробці — стежте за оновленнями.";
+"warning_clore_migration_title" = "Міграція мережі Clore";
 "warning_demo_mode_message" = "Ви перебуваєте в демонстраційному режимі";
 "warning_demo_mode_title" = "Демонстраційний режим активовано";
 "warning_developer_card_message" = "Відсканована вами картка є карткою розробника. Не використовуйте її для створення гаманця.";
