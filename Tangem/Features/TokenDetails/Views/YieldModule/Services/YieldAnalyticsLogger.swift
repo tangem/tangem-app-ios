@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 enum YieldAnalyticsAction: String {
     case stop = "Stop"
@@ -38,13 +39,18 @@ protocol YieldAnalyticsLogger {
     func logEarningErrors(action: YieldAnalyticsAction, error: Error)
     func logEarningNoticeAmountNotDepositedShown()
     func logEarningApyClicked(state: YieldAnalyticsState)
+
+    func logYieldNoticeShown()
+    func logYieldNoticeClicked()
 }
 
 final class CommonYieldAnalyticsLogger: YieldAnalyticsLogger {
     private let tokenItem: TokenItem
+    private let userWalletId: UserWalletId
 
-    init(tokenItem: TokenItem) {
+    init(tokenItem: TokenItem, userWalletId: UserWalletId) {
         self.tokenItem = tokenItem
+        self.userWalletId = userWalletId
     }
 
     // MARK: - Earning analytics
@@ -55,64 +61,65 @@ final class CommonYieldAnalyticsLogger: YieldAnalyticsLogger {
             params: [
                 .source: Analytics.ParameterValue.yieldModuleSourceInfo.rawValue,
                 .selectedHost: result.currentHost,
-            ]
+            ],
+            contextParams: .userWallet(userWalletId)
         )
     }
 
     func logStartEarningScreenOpened() {
-        Analytics.log(event: .earningStartScreen, params: tokenBlockchainParams())
+        Analytics.log(event: .earningStartScreen, params: tokenBlockchainParams(), contextParams: .userWallet(userWalletId))
     }
 
     func logEarningScreenInfoOpened() {
-        Analytics.log(event: .earningScreenInfoOpened, params: tokenBlockchainParams())
+        Analytics.log(event: .earningScreenInfoOpened, params: tokenBlockchainParams(), contextParams: .userWallet(userWalletId))
     }
 
     func logEarningButtonStart() {
-        Analytics.log(event: .earningButtonStart, params: tokenBlockchainParams())
+        Analytics.log(event: .earningButtonStart, params: tokenBlockchainParams(), contextParams: .userWallet(userWalletId))
     }
 
     func logEarningStopScreenOpened() {
-        Analytics.log(event: .earningStopScreen, params: tokenBlockchainParams())
+        Analytics.log(event: .earningStopScreen, params: tokenBlockchainParams(), contextParams: .userWallet(userWalletId))
     }
 
     func logEarningButtonStop() {
-        Analytics.log(event: .earningButtonStop, params: tokenBlockchainParams())
+        Analytics.log(event: .earningButtonStop, params: tokenBlockchainParams(), contextParams: .userWallet(userWalletId))
     }
 
     func logEarningButtonFeePolicy() {
-        Analytics.log(event: .earningButtonFeePolicy, params: tokenBlockchainParams())
+        Analytics.log(event: .earningButtonFeePolicy, params: tokenBlockchainParams(), contextParams: .userWallet(userWalletId))
     }
 
     func logEarningInProgressScreenOpened() {
-        Analytics.log(event: .earningInProgressScreen, params: tokenBlockchainParams())
+        Analytics.log(event: .earningInProgressScreen, params: tokenBlockchainParams(), contextParams: .userWallet(userWalletId))
     }
 
     func logEarningFundsEarned() {
-        Analytics.log(event: .earningFundsEarned, params: tokenBlockchainParams())
+        Analytics.log(event: .earningFundsEarned, params: tokenBlockchainParams(), contextParams: .userWallet(userWalletId))
     }
 
     func logEarningFundsWithdrawed() {
-        Analytics.log(event: .earningFundsWithdrawed, params: tokenBlockchainParams())
+        Analytics.log(event: .earningFundsWithdrawed, params: tokenBlockchainParams(), contextParams: .userWallet(userWalletId))
     }
 
     func logEarningEarnedFundsInfoOpened() {
-        Analytics.log(event: .earningEarnedFundsInfo, params: tokenBlockchainParams())
+        Analytics.log(event: .earningEarnedFundsInfo, params: tokenBlockchainParams(), contextParams: .userWallet(userWalletId))
     }
 
     func logEarningNoticeNotEnoughFeeShown() {
-        Analytics.log(event: .earningNoticeNotEnoughFee, params: tokenBlockchainParams())
+        Analytics.log(event: .earningNoticeNotEnoughFee, params: tokenBlockchainParams(), contextParams: .userWallet(userWalletId))
     }
 
     func logEarningNoticeApproveNeededShown() {
-        Analytics.log(event: .earningNoticeApproveNeeded, params: tokenBlockchainParams())
+        Analytics.log(event: .earningNoticeApproveNeeded, params: tokenBlockchainParams(), contextParams: .userWallet(userWalletId))
     }
 
     func logEarningButtonGiveApprove() {
-        Analytics.log(event: .earningButtonGiveApprove, params: tokenBlockchainParams())
+        Analytics.log(event: .earningButtonGiveApprove, params: tokenBlockchainParams(), contextParams: .userWallet(userWalletId))
     }
 
     func logEarningNoticeHighNetworkFeeShown() {
-        Analytics.log(event: .earningNoticeHighNetworkFee, params: tokenBlockchainParams())
+        Analytics.log(event: .earningNoticeHighNetworkFee, params: tokenBlockchainParams(), contextParams: .userWallet(userWalletId))
     }
 
     func logEarningErrors(action: YieldAnalyticsAction, error: Error) {
@@ -122,7 +129,8 @@ final class CommonYieldAnalyticsLogger: YieldAnalyticsLogger {
                 .action: action.rawValue,
                 .errorCode: String(error.universalErrorCode),
                 .errorDescription: error.localizedDescription,
-            ]
+            ],
+            contextParams: .userWallet(userWalletId)
         )
     }
 
@@ -138,7 +146,15 @@ final class CommonYieldAnalyticsLogger: YieldAnalyticsLogger {
         paramsDict[.state] = stateParamValue
         paramsDict[.action] = actionParamValue
 
-        Analytics.log(event: .apyClicked, params: paramsDict)
+        Analytics.log(event: .apyClicked, params: paramsDict, contextParams: .userWallet(userWalletId))
+    }
+
+    func logYieldNoticeShown() {
+        Analytics.log(event: .mainNoticeYieldPromo, params: tokenBlockchainParams(), contextParams: .userWallet(userWalletId))
+    }
+
+    func logYieldNoticeClicked() {
+        Analytics.log(event: .mainNoticeYieldPromoClicked, params: tokenBlockchainParams(), contextParams: .userWallet(userWalletId))
     }
 }
 
@@ -146,7 +162,7 @@ extension CommonYieldAnalyticsLogger {
     func tokenBlockchainParams() -> [Analytics.ParameterKey: String] {
         [
             .token: SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenItem),
-            .blockchain: tokenItem.blockchain.displayName,
+            .blockchain: tokenItem.networkName,
         ]
     }
 }
