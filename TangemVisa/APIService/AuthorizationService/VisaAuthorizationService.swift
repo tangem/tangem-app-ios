@@ -12,10 +12,6 @@ import Moya
 public protocol VisaAuthorizationService {
     func getCardAuthorizationChallenge(cardId: String, cardPublicKey: String) async throws -> VisaAuthChallengeResponse
     func getWalletAuthorizationChallenge(cardId: String, walletPublicKey: String) async throws -> VisaAuthChallengeResponse
-    func getCustomerWalletAuthorizationChallenge(
-        customerWalletAddress: String,
-        customerWalletId: String
-    ) async throws -> VisaAuthChallengeResponse
     func getAccessTokensForCardAuth(
         signedChallenge: String,
         salt: String,
@@ -25,11 +21,6 @@ public protocol VisaAuthorizationService {
         signedChallenge: String,
         salt: String,
         sessionId: String
-    ) async throws -> VisaAuthorizationTokens
-    func getAccessTokensForCustomerWalletAuth(
-        sessionId: String,
-        signedChallenge: String,
-        messageFormat: String
     ) async throws -> VisaAuthorizationTokens
 }
 
@@ -77,22 +68,6 @@ extension CommonVisaAuthorizationService: VisaAuthorizationService {
         ))
     }
 
-    func getCustomerWalletAuthorizationChallenge(
-        customerWalletAddress: String,
-        customerWalletId: String
-    ) async throws -> VisaAuthChallengeResponse {
-        try await apiService.request(.init(
-            target: .generateNonce(request: .init(
-                cardId: nil,
-                cardPublicKey: nil,
-                cardWalletAddress: nil,
-                customerWalletAddress: customerWalletAddress,
-                authType: .customerWallet
-            )),
-            apiType: apiType
-        ))
-    }
-
     func getAccessTokensForCardAuth(
         signedChallenge: String,
         salt: String,
@@ -129,25 +104,6 @@ extension CommonVisaAuthorizationService: VisaAuthorizationService {
         ))
 
         return .init(dto: dto, authorizationType: .cardWallet)
-    }
-
-    func getAccessTokensForCustomerWalletAuth(
-        sessionId: String,
-        signedChallenge: String,
-        messageFormat: String
-    ) async throws -> VisaAuthorizationTokens {
-        let dto: AuthorizationTokenDTO = try await apiService.request(.init(
-            target: .getAuthorizationTokens(request: .init(
-                signature: signedChallenge,
-                salt: nil,
-                sessionId: sessionId,
-                authType: .customerWallet,
-                messageFormat: messageFormat
-            )),
-            apiType: apiType
-        ))
-
-        return .init(dto: dto, authorizationType: .customerWallet)
     }
 }
 
