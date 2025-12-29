@@ -312,18 +312,18 @@ final class CustomerInfoManagementServiceMock: CustomerInfoManagementService {
         .empty
     }
 
-    func cancelKYC() async throws -> TangemPayCancelKYCResponse {
+    func cancelKYC() async throws(TangemPayAPIServiceError) -> TangemPayCancelKYCResponse {
         return .init()
     }
 
-    func getPin(cardId: String, sessionId: String) async throws -> TangemPayGetPinResponse {
+    func getPin(cardId: String, sessionId: String) async throws(TangemPayAPIServiceError) -> TangemPayGetPinResponse {
         .init(
             encryptedPin: "",
             iv: ""
         )
     }
 
-    func loadCustomerInfo() async throws -> VisaCustomerInfoResponse {
+    func loadCustomerInfo() async throws(TangemPayAPIServiceError) -> VisaCustomerInfoResponse {
         return .init(
             id: "89983505-cc0f-47d6-b428-eef3e158c5aa",
             state: .active,
@@ -355,11 +355,11 @@ final class CustomerInfoManagementServiceMock: CustomerInfoManagementService {
         )
     }
 
-    func loadKYCAccessToken() async throws -> VisaKYCAccessTokenResponse {
+    func loadKYCAccessToken() async throws(TangemPayAPIServiceError) -> VisaKYCAccessTokenResponse {
         VisaKYCAccessTokenResponse(token: "", locale: "")
     }
 
-    func getBalance() async throws -> TangemPayBalance {
+    func getBalance() async throws(TangemPayAPIServiceError) -> TangemPayBalance {
         .init(
             fiat: .init(
                 currency: "",
@@ -383,7 +383,7 @@ final class CustomerInfoManagementServiceMock: CustomerInfoManagementService {
         )
     }
 
-    func getCardDetails(sessionId: String) async throws -> TangemPayCardDetailsResponse {
+    func getCardDetails(sessionId: String) async throws(TangemPayAPIServiceError) -> TangemPayCardDetailsResponse {
         TangemPayCardDetailsResponse(
             expirationMonth: "",
             expirationYear: "",
@@ -393,31 +393,34 @@ final class CustomerInfoManagementServiceMock: CustomerInfoManagementService {
         )
     }
 
-    func freeze(cardId: String) async throws -> TangemPayFreezeUnfreezeResponse {
+    func freeze(cardId: String) async throws(TangemPayAPIServiceError) -> TangemPayFreezeUnfreezeResponse {
         .init(orderId: "", status: .processing)
     }
 
-    func unfreeze(cardId: String) async throws -> TangemPayFreezeUnfreezeResponse {
+    func unfreeze(cardId: String) async throws(TangemPayAPIServiceError) -> TangemPayFreezeUnfreezeResponse {
         .init(orderId: "", status: .processing)
     }
 
-    func setPin(pin: String, sessionId: String, iv: String) async throws -> TangemPaySetPinResponse {
+    func setPin(pin: String, sessionId: String, iv: String) async throws(TangemPayAPIServiceError) -> TangemPaySetPinResponse {
         .init(result: .success)
     }
 
-    func getTransactionHistory(limit: Int, cursor: String?) async throws -> TangemPayTransactionHistoryResponse {
+    func getTransactionHistory(limit: Int, cursor: String?) async throws(TangemPayAPIServiceError) -> TangemPayTransactionHistoryResponse {
         TangemPayTransactionHistoryResponse(transactions: [])
     }
 
-    func getWithdrawPreSignatureInfo(request: TangemPayWithdrawRequest) async throws -> TangemPayWithdrawPreSignature {
+    func getWithdrawPreSignatureInfo(request: TangemPayWithdrawRequest) async throws(TangemPayAPIServiceError) -> TangemPayWithdrawPreSignature {
         .init(sender: "", hash: Data(), salt: Data())
     }
 
-    func sendWithdrawTransaction(request: TangemPayWithdrawRequest, signature: TangemPayWithdrawSignature) async throws -> TangemPayWithdrawTransactionResult {
+    func sendWithdrawTransaction(
+        request: TangemPayWithdrawRequest,
+        signature: TangemPayWithdrawSignature
+    ) async throws(TangemPayAPIServiceError) -> TangemPayWithdrawTransactionResult {
         .init(orderID: UUID().uuidString, host: "")
     }
 
-    func getOrder(orderId: String) async throws -> TangemPayOrderResponse {
+    func getOrder(orderId: String) async throws(TangemPayAPIServiceError) -> TangemPayOrderResponse {
         TangemPayOrderResponse(
             id: "",
             customerId: "",
@@ -436,7 +439,7 @@ final class CustomerInfoManagementServiceMock: CustomerInfoManagementService {
         )
     }
 
-    func placeOrder(customerWalletAddress: String) async throws -> TangemPayOrderResponse {
+    func placeOrder(customerWalletAddress: String) async throws(TangemPayAPIServiceError) -> TangemPayOrderResponse {
         TangemPayOrderResponse(
             id: "",
             customerId: "",
