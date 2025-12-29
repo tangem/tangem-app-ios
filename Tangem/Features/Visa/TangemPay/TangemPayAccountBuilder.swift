@@ -13,11 +13,11 @@ struct TangemPayAccountBuilder {
     let userWalletId: UserWalletId
     let keysRepository: KeysRepository
     let signer: any TangemSigner
+    let customerInfoManagementService: CustomerInfoManagementService
 
     func buildTangemPayAccount(
-        customerWalletAddress: String,
         customerInfo: VisaCustomerInfoResponse,
-        customerInfoManagementService: CustomerInfoManagementService
+        productInstance: VisaCustomerInfoResponse.ProductInstance
     ) -> TangemPayAccount {
         let tokenBalancesRepository = CommonTokenBalancesRepository(userWalletId: userWalletId)
 
@@ -32,14 +32,32 @@ struct TangemPayAccountBuilder {
             signer: signer
         )
 
+        let expressCEXTransactionProcessor = TangemPayExpressCEXTransactionProcessor(
+            withdrawTransactionService: withdrawTransactionService,
+            walletPublicKey: TangemPayUtilities.getKey(from: keysRepository)
+        )
+
+        let withdrawAvailabilityProvider = TangemPayWithdrawAvailabilityProvider(
+            withdrawTransactionService: withdrawTransactionService,
+            tokenBalanceProvider: balancesService.availableBalanceProvider
+        )
+
+        let orderStatusPollingService = TangemPayOrderStatusPollingService(customerInfoManagementService: customerInfoManagementService)
+
+        let mainHeaderBalanceProvider = TangemPayMainHeaderBalanceProvider(
+            tangemPayTokenBalanceProvider: balancesService.fixedFiatTotalTokenBalanceProvider
+        )
+
         return TangemPayAccount(
-            customerWalletId: userWalletId.stringValue,
-            customerWalletAddress: customerWalletAddress,
             customerInfo: customerInfo,
-            keysRepository: keysRepository,
+            productInstance: productInstance,
             customerInfoManagementService: customerInfoManagementService,
             balancesService: balancesService,
-            withdrawTransactionService: withdrawTransactionService
+            withdrawTransactionService: withdrawTransactionService,
+            expressCEXTransactionProcessor: expressCEXTransactionProcessor,
+            withdrawAvailabilityProvider: withdrawAvailabilityProvider,
+            orderStatusPollingService: orderStatusPollingService,
+            mainHeaderBalanceProvider: mainHeaderBalanceProvider
         )
     }
 }

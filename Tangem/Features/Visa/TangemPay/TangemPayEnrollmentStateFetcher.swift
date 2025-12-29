@@ -10,9 +10,17 @@ import TangemVisa
 
 struct TangemPayEnrollmentStateFetcher {
     let customerWalletId: String
+    let keysRepository: KeysRepository
     let customerInfoManagementService: CustomerInfoManagementService
 
     func getEnrollmentState() async throws(TangemPayAPIServiceError) -> TangemPayEnrollmentState {
+        guard let (customerWalletAddress, _) = TangemPayUtilities.getCustomerWalletAddressAndAuthorizationTokens(
+            customerWalletId: customerWalletId,
+            keysRepository: keysRepository
+        ) else {
+            throw .unauthorized
+        }
+
         guard await isPaeraCustomer() else {
             return .notEnrolled
         }
@@ -22,7 +30,7 @@ struct TangemPayEnrollmentStateFetcher {
         if let productInstance = customerInfo.productInstance {
             switch productInstance.status {
             case .active, .blocked:
-                return .enrolled(customerInfo)
+                return .enrolled(customerInfo: customerInfo, productInstance: productInstance)
 
             default:
                 break
@@ -33,7 +41,7 @@ struct TangemPayEnrollmentStateFetcher {
             return .kyc
         }
 
-        return .issuingCard
+        return .issuingCard(customerWalletAddress: customerWalletAddress)
     }
 
     private func isPaeraCustomer() async -> Bool {
