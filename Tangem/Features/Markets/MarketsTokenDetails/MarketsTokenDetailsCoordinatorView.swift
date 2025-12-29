@@ -97,7 +97,7 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
 
 private extension MarketsTokenDetailsCoordinatorView {
     enum Constants {
+        static let backButtonHorizontalPadding: CGFloat = -6
         static let backButtonHeight: CGFloat = 44.0
-        static let backButtonHorizontalPadding: CGFloat = 10.0
     }
 }
