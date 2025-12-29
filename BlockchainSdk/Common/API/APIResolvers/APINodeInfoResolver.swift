@@ -55,7 +55,7 @@ struct APINodeInfoResolver {
                 .resolve()
         case .dwellir:
             return DwellirAPIResolver(keysConfig: keysConfig)
-                .resolve()
+                .resolve(for: blockchain)
         case .koinosPro:
             return KoinosAPIResolver(keysConfig: keysConfig)
                 .resolve(blockchain: blockchain)
