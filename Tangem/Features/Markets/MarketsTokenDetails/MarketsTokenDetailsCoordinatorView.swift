@@ -83,7 +83,7 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
                     TokenDetailsCoordinatorView(coordinator: item)
                         .toolbar {
                             ToolbarItem(placement: .navigationBarLeading) {
-                                backButton.padding(.leading, -22)
+                                backButton
                             }
                         }
                 }
@@ -95,7 +95,7 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
             height: Constants.backButtonHeight,
             isVisible: true,
             isEnabled: true,
-            hPadding: Constants.backButtonHorizontalPadding,
+            hPadding: .zero,
             action: { UIApplication.dismissTop() }
         )
     }
