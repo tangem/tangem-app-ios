@@ -43,7 +43,7 @@ public protocol CustomerInfoManagementService: AnyObject {
 }
 
 final class CommonCustomerInfoManagementService {
-    typealias CIMAPIService = APIService<CustomerInfoManagementAPITarget>
+    typealias CIMAPIService = TangemPayAPIService<CustomerInfoManagementAPITarget>
     private let authorizationTokenHandler: TangemPayAuthorizationTokensHandler
     private let apiService: CIMAPIService
 
@@ -75,7 +75,8 @@ final class CommonCustomerInfoManagementService {
                     target: target,
                     apiType: apiType,
                     encoder: encoder
-                )
+                ),
+                wrapped: true
             )
         } catch .apiError(let errorWithCode) where errorWithCode.statusCode == 401 {
             errorEventSubject.send(.unauthorized)
