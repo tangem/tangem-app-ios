@@ -83,7 +83,6 @@ final class TangemPayManager {
 
         remoteStateFetcher = TangemPayEnrollmentStateFetcher(
             customerWalletId: userWalletId.stringValue,
-            keysRepository: keysRepository,
             customerInfoManagementService: customerInfoManagementService
         )
 
