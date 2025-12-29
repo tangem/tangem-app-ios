@@ -127,7 +127,7 @@ struct CommonUserWalletModelDependencies {
             )
         }
 
-        tangemPayManager = TangemPayManagerBuilder(
+        tangemPayManager = TangemPayBuilder(
             userWalletId: userWalletId,
             keysRepository: keysRepository,
             authorizingInteractor: tangemPayAuthorizingInteractor,
