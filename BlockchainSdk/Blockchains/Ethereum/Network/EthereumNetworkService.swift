@@ -232,7 +232,7 @@ private extension EthereumNetworkService {
         address: String,
         token: Token
     ) -> AnyPublisher<(Token, Result<Decimal, Error>), Error> {
-        providerPublisher { provider -> AnyPublisher<Result<Decimal, Error>, Error> in
+        providerPublisher { provider -> AnyPublisher<Decimal, Error> in
             let method = TokenBalanceERC20TokenMethod(owner: address)
 
             return provider
@@ -245,10 +245,10 @@ private extension EthereumNetworkService {
 
                     return value
                 }
-                .mapToResult()
-                .setFailureType(to: Error.self)
                 .eraseToAnyPublisher()
         }
+        .mapToResult()
+        .setFailureType(to: Error.self)
         .map { (token, $0) }
         .eraseToAnyPublisher()
     }
