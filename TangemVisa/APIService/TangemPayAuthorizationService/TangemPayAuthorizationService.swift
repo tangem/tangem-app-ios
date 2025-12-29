@@ -19,7 +19,7 @@ public protocol TangemPayAuthorizationTokensHandler: AnyObject {
     var errorEventPublisher: AnyPublisher<TangemPayApiErrorEvent, Never> { get }
 
     func saveTokens(tokens: TangemPayAuthorizationTokens) throws
-    func prepare() async throws
+    func prepare() async throws(TangemPayAPIServiceError)
 }
 
 public protocol TangemPayAuthorizationService: TangemPayAuthorizationTokensHandler {
