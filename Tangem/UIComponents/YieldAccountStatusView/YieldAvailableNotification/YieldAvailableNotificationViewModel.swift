@@ -16,30 +16,19 @@ final class YieldAvailableNotificationViewModel: ObservableObject {
     // MARK: - Properties
 
     private var apy: Decimal
-    private let logger: YieldAnalyticsLogger
     private let onButtonTap: (Decimal) -> Void
 
     // MARK: - Init
 
-    init(
-        apy: Decimal,
-        logger: YieldAnalyticsLogger,
-        onButtonTap: @escaping (Decimal) -> Void
-    ) {
+    init(apy: Decimal, onButtonTap: @escaping (Decimal) -> Void) {
         self.apy = apy
-        self.logger = logger
         self.onButtonTap = onButtonTap
     }
 
     // MARK: - Public Implementation
 
     func onGetStartedTap() {
-        logger.logYieldNoticeClicked()
         onButtonTap(apy)
-    }
-
-    func onAppear() {
-        logger.logYieldNoticeShown()
     }
 
     func makeTitleText() -> AttributedString {
