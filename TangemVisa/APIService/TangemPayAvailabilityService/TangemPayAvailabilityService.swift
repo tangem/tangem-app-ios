@@ -13,13 +13,13 @@ public protocol TangemPayAvailabilityService {
 }
 
 class CommonTangemPayAvailabilityService {
-    private let apiService: APIService<TangemPayAvailabilityAPITarget>
+    private let apiService: TangemPayAPIService<TangemPayAvailabilityAPITarget>
     private let apiType: VisaAPIType
     private let bffStaticToken: String
 
     init(
         apiType: VisaAPIType,
-        apiService: APIService<TangemPayAvailabilityAPITarget>,
+        apiService: TangemPayAPIService<TangemPayAvailabilityAPITarget>,
         bffStaticToken: String
     ) {
         self.apiType = apiType
@@ -31,7 +31,8 @@ class CommonTangemPayAvailabilityService {
 extension CommonTangemPayAvailabilityService: TangemPayAvailabilityService {
     func loadEligibility() async throws -> TangemPayAvailabilityResponse {
         try await apiService.request(
-            .init(target: .getEligibility, apiType: apiType)
+            .init(target: .getEligibility, apiType: apiType),
+            wrapped: true
         )
     }
 
@@ -40,7 +41,8 @@ extension CommonTangemPayAvailabilityService: TangemPayAvailabilityService {
             .init(
                 target: .validateDeeplink(deeplinkString: deeplinkString),
                 apiType: apiType
-            )
+            ),
+            wrapped: true
         )
     }
 
@@ -52,7 +54,8 @@ extension CommonTangemPayAvailabilityService: TangemPayAvailabilityService {
                     bffStaticToken: bffStaticToken
                 ),
                 apiType: apiType
-            )
+            ),
+            wrapped: true
         )
     }
 }
