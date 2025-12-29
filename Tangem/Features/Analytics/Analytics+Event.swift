@@ -631,6 +631,8 @@ extension Analytics {
         case earningNoticeHighNetworkFee = "[Earning] Notice - High Network Fee"
         case earningErrors = "[Earning] Earn Errors"
         case earningNoticeAmountNotDeposited = "[Earning] Notice - Amount Not Deposited"
+        case mainNoticeYieldPromo = "[Main Screen] Yield Promo"
+        case mainNoticeYieldPromoClicked = "[Main Screen] Yield Promo Clicked"
 
         // MARK: - AppsFlyer
 
