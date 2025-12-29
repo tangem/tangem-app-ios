@@ -196,7 +196,7 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
     func openYield(input: SendInput, yieldModuleManager: any YieldModuleManager) {
         guard let factory = makeYieldModuleFlowFactory(input: input, manager: yieldModuleManager) else { return }
 
-        let logger = CommonYieldAnalyticsLogger(tokenItem: input.walletModel.tokenItem)
+        let logger = CommonYieldAnalyticsLogger(tokenItem: input.walletModel.tokenItem, userWalletId: input.walletModel.userWalletId)
 
         func openActiveYield() {
             logger.logEarningApyClicked(state: .enabled)
