@@ -452,6 +452,10 @@ extension CommonTangemApiService: TangemApiService {
             return try response.mapAPIResponseThrowingTangemAPIError(allowRedirectCodes: true, decoder: decoder)
         }
     }
+
+    func loadTrendingNews(limit: Int?, lang: String?) async throws -> TrendingNewsResponse {
+        return try await request(for: .trendingNews(limit: limit, lang: lang), decoder: JSONDecoder.trendingNewsDecoder)
+    }
 }
 
 // MARK: - Analytics
