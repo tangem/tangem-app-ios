@@ -49,10 +49,12 @@ final class TangemPayKYCStatusPopupViewModel {
 
     private func viewStatus() {
         coordinator?.closeKYCStatusPopup()
-        runTask { [self] in
+        runTask { [tangemPayManager] in
             do {
                 try await tangemPayManager.launchKYC {
-                    self.tangemPayManager.refresh()
+                    runTask {
+                        await tangemPayManager.refreshState()
+                    }
                 }
             } catch {
                 VisaLogger.error("Failed to launch KYC", error: error)
