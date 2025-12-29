@@ -278,7 +278,7 @@ final class CommonVisaAuthorizationTokensHandler {
         try await authorizationTokensHolder.setTokens(authorizationTokens: authTokens)
 
         switch authTokens.bffTokens.authorizationType {
-        case .cardWallet, .customerWallet:
+        case .cardWallet:
             break
         case .cardId:
             return

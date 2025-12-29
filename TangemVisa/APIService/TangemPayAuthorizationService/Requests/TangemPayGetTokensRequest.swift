@@ -11,7 +11,5 @@ struct TangemPayGetTokensRequest: Encodable {
     let sessionId: String
     let messageFormat: String
 
-    // [REDACTED_TODO_COMMENT]
-    // [REDACTED_INFO]
-    let authType = VisaAuthorizationType.customerWallet
+    let authType = "customer_wallet"
 }

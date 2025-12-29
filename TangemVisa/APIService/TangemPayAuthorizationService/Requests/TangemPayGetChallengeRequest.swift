@@ -10,7 +10,5 @@ struct TangemPayGetChallengeRequest: Encodable {
     let customerWalletAddress: String
     let customerWalletId: String
 
-    // [REDACTED_TODO_COMMENT]
-    // [REDACTED_INFO]
-    let authType = VisaAuthorizationType.customerWallet
+    let authType = "customer_wallet"
 }
