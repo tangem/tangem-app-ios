@@ -63,7 +63,7 @@ final class CommonYieldModuleFlowFactory {
             apy: apy,
             coordinator: coordinator,
             startFlowFactory: startFlowFactory,
-            logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem)
+            logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId)
         )
     }
 
@@ -76,7 +76,7 @@ final class CommonYieldModuleFlowFactory {
             transactionFlowFactory: makeTransactionFlowFactory(coordinator: coordinator, interactor: interactor),
             yieldManagerInteractor: interactor,
             notificationManager: YieldModuleNotificationManager(tokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem),
-            logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem)
+            logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId)
         )
     }
 
@@ -87,7 +87,7 @@ final class CommonYieldModuleFlowFactory {
             walletModel: walletModel,
             yieldManagerInteractor: interactor,
             coordinator: coordinator,
-            logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem)
+            logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId)
         )
     }
 
@@ -98,7 +98,7 @@ final class CommonYieldModuleFlowFactory {
         YieldModuleTransactionFlowFactory(
             walletModel: walletModel,
             yieldManagerInteractor: interactor,
-            logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem),
+            logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId),
             coordinator: coordinator
         )
     }
@@ -132,7 +132,11 @@ extension CommonYieldModuleFlowFactory: YieldModuleFlowFactory {
     }
 
     func makeYieldAvailableNotificationViewModel(apy: Decimal, onButtonTap: @escaping (Decimal) -> Void) -> YieldAvailableNotificationViewModel {
-        YieldAvailableNotificationViewModel(apy: apy, onButtonTap: onButtonTap)
+        YieldAvailableNotificationViewModel(
+            apy: apy,
+            logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId),
+            onButtonTap: onButtonTap
+        )
     }
 
     func makeYieldPromoCoordinator(
