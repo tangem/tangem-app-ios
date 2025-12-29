@@ -637,5 +637,6 @@ extension Analytics {
         case afWalletCreatedSuccessfully = "[Onboarding / Create Wallet] wallet_created_successfully"
         case afWalletImported = "[Onboarding / Seed Phrase] wallet_imported"
         case afWalletEntryScreen = "[Onboarding] wallet_entry_screen_view"
+        case afWalletFunded = "[Basic] wallet_funded"
     }
 }
