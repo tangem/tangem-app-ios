@@ -119,6 +119,10 @@ struct TangemApiTarget: TargetType {
             return "/wallets/\(userWalletId)/accounts"
         case .getArchivedUserAccounts(let userWalletId):
             return "/wallets/\(userWalletId)/accounts/archived"
+
+        // MARK: - News
+        case .trendingNews:
+            return "/news/trending"
         }
     }
 
@@ -147,7 +151,8 @@ struct TangemApiTarget: TargetType {
              .getUserAccounts,
              .getArchivedUserAccounts,
              .getUserWallets,
-             .getUserWallet:
+             .getUserWallet,
+             .trendingNews:
             return .get
         case .saveUserWalletTokensLegacy,
              .saveUserWalletTokens,
@@ -282,6 +287,21 @@ struct TangemApiTarget: TargetType {
             return .requestJSONEncodable(accounts)
         case .getArchivedUserAccounts:
             return .requestPlain
+
+        // MARK: - News
+        case .trendingNews(let limit, let lang):
+            var parameters = [String: Any]()
+            if let lang {
+                parameters["lang"] = lang
+            }
+
+            if let limit {
+                parameters["limit"] = limit
+            }
+            return .requestParameters(
+                parameters: parameters,
+                encoding: URLEncoding.default
+            )
         }
     }
 
@@ -332,7 +352,8 @@ struct TangemApiTarget: TargetType {
              .connectUserWallets,
              .getUserAccounts,
              .getArchivedUserAccounts,
-             .createWallet:
+             .createWallet,
+             .trendingNews:
             return nil
         }
     }
@@ -405,6 +426,10 @@ extension TangemApiTarget {
         case getUserAccounts(userWalletId: String)
         case saveUserAccounts(userWalletId: String, revision: String, accounts: AccountsDTO.Request.Accounts)
         case getArchivedUserAccounts(userWalletId: String)
+
+        // MARK: - News
+
+        case trendingNews(limit: Int?, lang: String?)
     }
 }
 
@@ -468,7 +493,8 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .getUserAccounts,
              .saveUserAccounts,
              .getArchivedUserAccounts,
-             .activatePromoCode:
+             .activatePromoCode,
+             .trendingNews:
             return true
         }
     }
