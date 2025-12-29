@@ -12,7 +12,7 @@ struct TangemPayEnrollmentStateFetcher {
     let customerWalletId: String
     let customerInfoManagementService: CustomerInfoManagementService
 
-    func getEnrollmentState() async throws -> TangemPayEnrollmentState {
+    func getEnrollmentState() async throws(TangemPayAPIServiceError) -> TangemPayEnrollmentState {
         guard await isPaeraCustomer() else {
             return .notEnrolled
         }
