@@ -10,12 +10,13 @@ import TangemFoundation
 import TangemVisa
 
 struct TangemPayAccountBuilder {
-    func build(
+    let userWalletId: UserWalletId
+    let keysRepository: KeysRepository
+    let signer: any TangemSigner
+
+    func buildTangemPayAccount(
         customerWalletAddress: String,
         customerInfo: VisaCustomerInfoResponse,
-        userWalletId: UserWalletId,
-        keysRepository: KeysRepository,
-        signer: any TangemSigner,
         customerInfoManagementService: CustomerInfoManagementService
     ) -> TangemPayAccount {
         let tokenBalancesRepository = CommonTokenBalancesRepository(userWalletId: userWalletId)
