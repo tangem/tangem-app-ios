@@ -494,7 +494,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     private func handleYieldApyBadgeTapped(walletModel: any WalletModel, factory: YieldModuleFlowFactory, yieldManager: YieldModuleManager) {
-        let logger = CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem)
+        let logger = CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId)
 
         func openActiveYield() {
             logger.logEarningApyClicked(state: .enabled)
