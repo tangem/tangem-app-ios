@@ -17,13 +17,15 @@ struct TangemPayManagerBuilder {
     let signer: any TangemSigner
 
     func buildTangemPayManager() -> TangemPayManager {
+        let customerWalletId = userWalletId.stringValue
+
         let customerWalletAddressAndTokens = TangemPayUtilities.getCustomerWalletAddressAndAuthorizationTokens(
-            customerWalletId: userWalletId.stringValue,
+            customerWalletId: customerWalletId,
             keysRepository: keysRepository
         )
 
         let authorizationService = TangemPayAPIServiceBuilder().buildTangemPayAuthorizationService(
-            customerWalletId: userWalletId.stringValue,
+            customerWalletId: customerWalletId,
             tokens: customerWalletAddressAndTokens?.tokens
         )
 
@@ -31,19 +33,20 @@ struct TangemPayManagerBuilder {
             .buildCustomerInfoManagementService(authorizationTokensHandler: authorizationService)
 
         let enrollmentStateFetcher = TangemPayEnrollmentStateFetcher(
-            customerWalletId: userWalletId.stringValue,
+            customerWalletId: customerWalletId,
+            keysRepository: keysRepository,
             customerInfoManagementService: customerInfoManagementService
         )
 
         let tangemPayAccountBuilder = TangemPayAccountBuilder(
             userWalletId: userWalletId,
             keysRepository: keysRepository,
-            signer: signer
+            signer: signer,
+            customerInfoManagementService: customerInfoManagementService
         )
 
         return TangemPayManager(
-            userWalletId: userWalletId,
-            keysRepository: keysRepository,
+            customerWalletId: customerWalletId,
             authorizingInteractor: authorizingInteractor,
             authorizationService: authorizationService,
             customerInfoManagementService: customerInfoManagementService,
@@ -64,8 +67,7 @@ final class TangemPayManager {
         stateSubject.eraseToAnyPublisher()
     }
 
-    private let userWalletId: UserWalletId
-    private let keysRepository: KeysRepository
+    private let customerWalletId: String
     private let authorizingInteractor: TangemPayAuthorizing
     private let authorizationService: TangemPayAuthorizationService
     private let customerInfoManagementService: CustomerInfoManagementService
@@ -81,29 +83,15 @@ final class TangemPayManager {
 
     private var bag = Set<AnyCancellable>()
 
-    private var customerWalletId: String {
-        userWalletId.stringValue
-    }
-
-    private var customerWalletAddress: String? {
-        TangemPayUtilities.getCustomerWalletAddressAndAuthorizationTokens(
-            customerWalletId: userWalletId.stringValue,
-            keysRepository: keysRepository
-        )?
-            .customerWalletAddress
-    }
-
     init(
-        userWalletId: UserWalletId,
-        keysRepository: KeysRepository,
+        customerWalletId: String,
         authorizingInteractor: TangemPayAuthorizing,
         authorizationService: TangemPayAuthorizationService,
         customerInfoManagementService: CustomerInfoManagementService,
         enrollmentStateFetcher: TangemPayEnrollmentStateFetcher,
         tangemPayAccountBuilder: TangemPayAccountBuilder
     ) {
-        self.userWalletId = userWalletId
-        self.keysRepository = keysRepository
+        self.customerWalletId = customerWalletId
         self.authorizingInteractor = authorizingInteractor
         self.authorizationService = authorizationService
         self.customerInfoManagementService = customerInfoManagementService
@@ -176,11 +164,7 @@ final class TangemPayManager {
         }
 
         switch enrollmentState {
-        case .issuingCard:
-            guard let customerWalletAddress else {
-                stateSubject.value = .syncNeeded
-                return
-            }
+        case .issuingCard(let customerWalletAddress):
             do {
                 try await issueCardIfNeededAndStartStatusPolling(customerWalletAddress: customerWalletAddress)
                 stateSubject.value = .issuingCard
@@ -188,19 +172,11 @@ final class TangemPayManager {
                 stateSubject.value = .unavailable
             }
 
-        case .enrolled(let customerInfo):
-            guard let customerWalletAddress else {
-                stateSubject.value = .syncNeeded
-                return
-            }
+        case .enrolled(let customerInfo, let productInstance):
             cardIssuingOrderStatusPollingService.cancel()
             TangemPayOrderIdStorage.deleteCardIssuingOrderId(customerWalletId: customerWalletId)
             stateSubject.value = .tangemPayAccount(
-                tangemPayAccountBuilder.buildTangemPayAccount(
-                    customerWalletAddress: customerWalletAddress,
-                    customerInfo: customerInfo,
-                    customerInfoManagementService: customerInfoManagementService
-                )
+                tangemPayAccountBuilder.buildTangemPayAccount(customerInfo: customerInfo, productInstance: productInstance)
             )
 
         case .notEnrolled, .kyc:

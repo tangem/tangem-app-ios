@@ -12,13 +12,8 @@ import TangemVisa
 import TangemExpress
 import TangemFoundation
 
-protocol TangemPayWithdrawTransactionServiceOutput: AnyObject {
-    func withdrawTransactionDidSent()
-}
-
 protocol TangemPayWithdrawTransactionService {
     func sendWithdrawTransaction(amount: Decimal, destination: String, walletPublicKey: Wallet.PublicKey) async throws -> TangemPayWithdrawTransactionResult
-    func set(output: TangemPayWithdrawTransactionServiceOutput)
 
     func hasActiveWithdrawOrder() async throws -> Bool
 }
@@ -29,7 +24,6 @@ class CommonTangemPayWithdrawTransactionService {
     private let signer: any TangemSigner
 
     private let activeWithdrawOrderID: ThreadSafeContainer<String?> = .init(nil)
-    private weak var output: TangemPayWithdrawTransactionServiceOutput?
 
     init(
         customerInfoManagementService: any CustomerInfoManagementService,
@@ -73,10 +67,6 @@ extension CommonTangemPayWithdrawTransactionService: TangemPayWithdrawTransactio
 
         activeWithdrawOrderID.mutate { $0 = response.orderID }
         return response
-    }
-
-    func set(output: TangemPayWithdrawTransactionServiceOutput) {
-        self.output = output
     }
 
     func hasActiveWithdrawOrder() async throws -> Bool {
