@@ -68,13 +68,16 @@ extension CommonTangemPayAuthorizationService: TangemPayAuthorizationService {
         customerWalletAddress: String,
         customerWalletId: String
     ) async throws -> TangemPayGetChallengeResponse {
-        try await apiService.request(.init(
-            target: .getChallenge(.init(
-                customerWalletAddress: customerWalletAddress,
-                customerWalletId: customerWalletId
-            )),
-            apiType: apiType
-        ))
+        try await apiService.request(
+            .init(
+                target: .getChallenge(.init(
+                    customerWalletAddress: customerWalletAddress,
+                    customerWalletId: customerWalletId
+                )),
+                apiType: apiType
+            ),
+            wrapped: false
+        )
     }
 
     func getTokens(
@@ -82,21 +85,28 @@ extension CommonTangemPayAuthorizationService: TangemPayAuthorizationService {
         signedChallenge: String,
         messageFormat: String
     ) async throws -> TangemPayAuthorizationTokens {
-        try await apiService.request(.init(
-            target: .getTokens(.init(
-                signature: signedChallenge,
-                sessionId: sessionId,
-                messageFormat: messageFormat
-            )),
-            apiType: apiType
-        ))
+        try await apiService.request(
+            .init(
+                target: .getTokens(
+                    .init(
+                        signature: signedChallenge,
+                        sessionId: sessionId,
+                        messageFormat: messageFormat
+                    )),
+                apiType: apiType
+            ),
+            wrapped: false
+        )
     }
 
     func refreshTokens(refreshToken: String) async throws(TangemPayAPIServiceError) -> TangemPayAuthorizationTokens {
-        try await apiService.request(.init(
-            target: .refreshTokens(.init(refreshToken: refreshToken)),
-            apiType: apiType
-        ))
+        try await apiService.request(
+            .init(
+                target: .refreshTokens(.init(refreshToken: refreshToken)),
+                apiType: apiType
+            ),
+            wrapped: false
+        )
     }
 }
 
