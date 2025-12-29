@@ -12,8 +12,6 @@ import Moya
 import TangemFoundation
 
 public protocol CustomerInfoManagementService: AnyObject {
-    var errorEventPublisher: AnyPublisher<TangemPayApiErrorEvent, Never> { get }
-
     func loadCustomerInfo() async throws(TangemPayAPIServiceError) -> VisaCustomerInfoResponse
     func loadKYCAccessToken() async throws(TangemPayAPIServiceError) -> VisaKYCAccessTokenResponse
 
@@ -53,8 +51,6 @@ final class CommonCustomerInfoManagementService {
         return encoder
     }()
 
-    private let errorEventSubject = PassthroughSubject<TangemPayApiErrorEvent, Never>()
-
     init(
         apiType: VisaAPIType,
         authorizationTokenHandler: TangemPayAuthorizationTokensHandler,
@@ -68,32 +64,18 @@ final class CommonCustomerInfoManagementService {
     private func request<T: Decodable>(for target: CustomerInfoManagementAPITarget.Target) async throws(TangemPayAPIServiceError) -> T {
         try await authorizationTokenHandler.prepare()
 
-        do {
-            return try await apiService.request(
-                .init(
-                    target: target,
-                    apiType: apiType,
-                    encoder: encoder
-                ),
-                wrapped: true
-            )
-        } catch {
-            switch error {
-            case .unauthorized:
-                errorEventSubject.send(.unauthorized)
-            case .moyaError, .apiError, .decodingError:
-                errorEventSubject.send(.other)
-            }
-            throw error
-        }
+        return try await apiService.request(
+            .init(
+                target: target,
+                apiType: apiType,
+                encoder: encoder
+            ),
+            wrapped: true
+        )
     }
 }
 
 extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
-    var errorEventPublisher: AnyPublisher<TangemPayApiErrorEvent, Never> {
-        errorEventSubject.eraseToAnyPublisher()
-    }
-
     func cancelKYC() async throws(TangemPayAPIServiceError) -> TangemPayCancelKYCResponse {
         try await request(for: .setPayEnabled)
     }

@@ -67,7 +67,6 @@ final class TangemPayAccount {
     let customerWalletId: String
 
     private let keysRepository: KeysRepository
-    private let authorizationTokensHandler: TangemPayAuthorizationTokensHandler
     private let balancesService: any TangemPayBalancesService
 
     private let customerInfoSubject: CurrentValueSubject<VisaCustomerInfoResponse, Never>
@@ -79,7 +78,6 @@ final class TangemPayAccount {
         customerWalletAddress: String,
         customerInfo: VisaCustomerInfoResponse,
         keysRepository: KeysRepository,
-        authorizationTokensHandler: TangemPayAuthorizationTokensHandler,
         customerInfoManagementService: any CustomerInfoManagementService,
         balancesService: any TangemPayBalancesService,
         withdrawTransactionService: any TangemPayWithdrawTransactionService
@@ -88,7 +86,6 @@ final class TangemPayAccount {
         self.customerWalletAddress = customerWalletAddress
         customerInfoSubject = CurrentValueSubject(customerInfo)
         self.keysRepository = keysRepository
-        self.authorizationTokensHandler = authorizationTokensHandler
         self.customerInfoManagementService = customerInfoManagementService
         self.balancesService = balancesService
         self.withdrawTransactionService = withdrawTransactionService
