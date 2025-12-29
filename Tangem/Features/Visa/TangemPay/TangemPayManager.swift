@@ -10,52 +10,6 @@ import Combine
 import TangemFoundation
 import TangemVisa
 
-struct TangemPayManagerBuilder {
-    let userWalletId: UserWalletId
-    let keysRepository: KeysRepository
-    let authorizingInteractor: TangemPayAuthorizing
-    let signer: any TangemSigner
-
-    func buildTangemPayManager() -> TangemPayManager {
-        let customerWalletId = userWalletId.stringValue
-
-        let customerWalletAddressAndTokens = TangemPayUtilities.getCustomerWalletAddressAndAuthorizationTokens(
-            customerWalletId: customerWalletId,
-            keysRepository: keysRepository
-        )
-
-        let authorizationService = TangemPayAPIServiceBuilder().buildTangemPayAuthorizationService(
-            customerWalletId: customerWalletId,
-            tokens: customerWalletAddressAndTokens?.tokens
-        )
-
-        let customerInfoManagementService = TangemPayCustomerInfoManagementServiceBuilder()
-            .buildCustomerInfoManagementService(authorizationTokensHandler: authorizationService)
-
-        let enrollmentStateFetcher = TangemPayEnrollmentStateFetcher(
-            customerWalletId: customerWalletId,
-            keysRepository: keysRepository,
-            customerInfoManagementService: customerInfoManagementService
-        )
-
-        let tangemPayAccountBuilder = TangemPayAccountBuilder(
-            userWalletId: userWalletId,
-            keysRepository: keysRepository,
-            signer: signer,
-            customerInfoManagementService: customerInfoManagementService
-        )
-
-        return TangemPayManager(
-            customerWalletId: customerWalletId,
-            authorizingInteractor: authorizingInteractor,
-            authorizationService: authorizationService,
-            customerInfoManagementService: customerInfoManagementService,
-            enrollmentStateFetcher: enrollmentStateFetcher,
-            tangemPayAccountBuilder: tangemPayAccountBuilder
-        )
-    }
-}
-
 final class TangemPayManager {
     let tangemPayNotificationManager: TangemPayNotificationManager
 
@@ -72,14 +26,11 @@ final class TangemPayManager {
     private let authorizationService: TangemPayAuthorizationService
     private let customerInfoManagementService: CustomerInfoManagementService
     private let enrollmentStateFetcher: TangemPayEnrollmentStateFetcher
+    private let orderStatusPollingService: TangemPayOrderStatusPollingService
 
-    private let tangemPayAccountBuilder: TangemPayAccountBuilder
+    private let tangemPayBuilder: TangemPayBuilder
 
     private let stateSubject = CurrentValueSubject<TangemPayLocalState, Never>(.initial)
-
-    private lazy var cardIssuingOrderStatusPollingService = TangemPayOrderStatusPollingService(
-        customerInfoManagementService: customerInfoManagementService
-    )
 
     private var bag = Set<AnyCancellable>()
 
@@ -89,14 +40,16 @@ final class TangemPayManager {
         authorizationService: TangemPayAuthorizationService,
         customerInfoManagementService: CustomerInfoManagementService,
         enrollmentStateFetcher: TangemPayEnrollmentStateFetcher,
-        tangemPayAccountBuilder: TangemPayAccountBuilder
+        orderStatusPollingService: TangemPayOrderStatusPollingService,
+        tangemPayBuilder: TangemPayBuilder
     ) {
         self.customerWalletId = customerWalletId
         self.authorizingInteractor = authorizingInteractor
         self.authorizationService = authorizationService
         self.customerInfoManagementService = customerInfoManagementService
         self.enrollmentStateFetcher = enrollmentStateFetcher
-        self.tangemPayAccountBuilder = tangemPayAccountBuilder
+        self.orderStatusPollingService = orderStatusPollingService
+        self.tangemPayBuilder = tangemPayBuilder
 
         tangemPayNotificationManager = TangemPayNotificationManager(
             paeraCustomerStatePublisher: stateSubject.eraseToAnyPublisher()
@@ -173,14 +126,14 @@ final class TangemPayManager {
             }
 
         case .enrolled(let customerInfo, let productInstance):
-            cardIssuingOrderStatusPollingService.cancel()
+            orderStatusPollingService.cancel()
             TangemPayOrderIdStorage.deleteCardIssuingOrderId(customerWalletId: customerWalletId)
             stateSubject.value = .tangemPayAccount(
-                tangemPayAccountBuilder.buildTangemPayAccount(customerInfo: customerInfo, productInstance: productInstance)
+                tangemPayBuilder.buildTangemPayAccount(customerInfo: customerInfo, productInstance: productInstance)
             )
 
         case .notEnrolled, .kyc:
-            cardIssuingOrderStatusPollingService.cancel()
+            orderStatusPollingService.cancel()
         }
     }
 
@@ -194,7 +147,7 @@ final class TangemPayManager {
             TangemPayOrderIdStorage.saveCardIssuingOrderId(orderId, customerWalletId: customerWalletId)
         }
 
-        cardIssuingOrderStatusPollingService.startOrderStatusPolling(
+        orderStatusPollingService.startOrderStatusPolling(
             orderId: orderId,
             interval: Constants.cardIssuingOrderPollInterval,
             onCompleted: { [weak self] in
