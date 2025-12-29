@@ -24,7 +24,6 @@ struct YieldAvailableNotificationView: View {
             .padding(.horizontal, 14)
             .background(Colors.Background.primary)
             .cornerRadiusContinuous(14)
-            .onAppear(perform: viewModel.onAppear)
     }
 
     // MARK: - Sub Views
