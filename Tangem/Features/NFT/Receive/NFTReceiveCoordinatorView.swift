@@ -30,12 +30,6 @@ struct NFTReceiveCoordinatorView: CoordinatorView {
     @ViewBuilder
     var sheets: some View {
         NavHolder()
-            .bottomSheet(
-                item: $coordinator.receiveBottomSheetViewModel,
-                settings: .init(backgroundColor: Colors.Background.primary, contentScrollsHorizontally: true)
-            ) {
-                ReceiveBottomSheetView(viewModel: $0)
-            }
             .floatingSheetContent(for: ReceiveMainViewModel.self) {
                 ReceiveMainView(viewModel: $0)
             }
