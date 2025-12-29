@@ -134,7 +134,6 @@ extension CommonYieldModuleFlowFactory: YieldModuleFlowFactory {
     func makeYieldAvailableNotificationViewModel(apy: Decimal, onButtonTap: @escaping (Decimal) -> Void) -> YieldAvailableNotificationViewModel {
         YieldAvailableNotificationViewModel(
             apy: apy,
-            logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId),
             onButtonTap: onButtonTap
         )
     }
