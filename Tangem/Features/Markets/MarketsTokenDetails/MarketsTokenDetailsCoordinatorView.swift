@@ -95,7 +95,7 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
             height: Constants.backButtonHeight,
             isVisible: true,
             isEnabled: true,
-            hPadding: .zero,
+            hPadding: -6,
             action: { UIApplication.dismissTop() }
         )
     }
