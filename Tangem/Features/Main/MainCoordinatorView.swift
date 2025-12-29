@@ -155,12 +155,6 @@ struct MainCoordinatorView: CoordinatorView {
 
         NavHolder()
             .bottomSheet(
-                item: $coordinator.receiveBottomSheetViewModel,
-                settings: .init(backgroundColor: Colors.Background.primary, contentScrollsHorizontally: true)
-            ) {
-                ReceiveBottomSheetView(viewModel: $0)
-            }
-            .bottomSheet(
                 item: $coordinator.pushNotificationsViewModel,
                 backgroundColor: Colors.Background.primary
             ) {
