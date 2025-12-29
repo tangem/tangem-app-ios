@@ -18,7 +18,7 @@ final class CommonTangemPayAuthorizationService {
     private let apiService: TangemPayAPIService<TangemPayAuthorizationAPITarget>
 
     private let authorizationTokensHolder: ThreadSafeContainer<TangemPayAuthorizationTokens?>
-    private let taskProcessor = SingleTaskProcessor<Void, Error>()
+    private let taskProcessor = SingleTaskProcessor<Void, TangemPayAPIServiceError>()
     private let errorEventSubject = PassthroughSubject<TangemPayApiErrorEvent, Never>()
 
     private var tokens: TangemPayAuthorizationTokens? {
@@ -39,11 +39,11 @@ final class CommonTangemPayAuthorizationService {
         authorizationTokensHolder = ThreadSafeContainer(tokens)
     }
 
-    private func refreshTokenIfNeeded() async throws {
+    private func refreshTokenIfNeeded() async throws(TangemPayAPIServiceError) {
         guard let tokens, !tokens.refreshTokenExpired else {
             errorEventSubject.send(.unauthorized)
             // [REDACTED_TODO_COMMENT]
-            throw VisaAuthorizationTokensHandlerError.refreshTokenExpired
+            fatalError()
         }
 
         if tokens.accessTokenExpired {
@@ -135,8 +135,8 @@ extension CommonTangemPayAuthorizationService: TangemPayAuthorizationTokensHandl
         try authorizationTokensRepository.save(tokens: tokens, customerWalletId: customerWalletId)
     }
 
-    func prepare() async throws {
-        try await taskProcessor.execute { [weak self] in
+    func prepare() async throws(TangemPayAPIServiceError) {
+        try await taskProcessor.execute { [weak self] () async throws(TangemPayAPIServiceError) in
             try await self?.refreshTokenIfNeeded()
         }
     }
