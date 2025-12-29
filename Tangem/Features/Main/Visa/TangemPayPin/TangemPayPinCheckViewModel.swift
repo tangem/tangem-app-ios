@@ -53,39 +53,12 @@ final class TangemPayPinCheckViewModel: ObservableObject, Identifiable {
     }
 
     private func revealPin() {
-        runTask(in: self) { viewModel in
+        runTask { [self] in
             do {
-                guard let cardId = viewModel.tangemPayAccount.cardId else {
-                    return
-                }
-                let service = viewModel.tangemPayAccount
-                    .customerInfoManagementService
-
-                let publicKey = try await RainCryptoUtilities
-                    .getRainRSAPublicKey(
-                        for: FeatureStorage.instance.visaAPIType
-                    )
-
-                let (secretKey, sessionId) = try RainCryptoUtilities
-                    .generateSecretKeyAndSessionId(
-                        publicKey: publicKey
-                    )
-                let response = try await service.getPin(
-                    cardId: cardId,
-                    sessionId: sessionId
-                )
-                let decryptedBlock = try RainCryptoUtilities.decryptSecret(
-                    base64Secret: response.encryptedPin,
-                    base64Iv: response.iv,
-                    secretKey: secretKey
-                )
-                let decryptedPin = try RainCryptoUtilities.decryptPinBlock(
-                    encryptedBlock: decryptedBlock
-                )
-
-                viewModel.state = .loaded(PIN: decryptedPin)
+                let pin = try await tangemPayAccount.getPin()
+                state = .loaded(PIN: pin)
             } catch {
-                viewModel.onError()
+                onError()
             }
         }
     }
