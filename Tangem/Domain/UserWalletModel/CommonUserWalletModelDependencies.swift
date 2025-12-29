@@ -127,12 +127,13 @@ struct CommonUserWalletModelDependencies {
             )
         }
 
-        tangemPayManager = TangemPayManager(
+        tangemPayManager = TangemPayManagerBuilder(
             userWalletId: userWalletId,
             keysRepository: keysRepository,
             authorizingInteractor: tangemPayAuthorizingInteractor,
             signer: config.tangemSigner
         )
+        .buildTangemPayManager()
 
         totalBalanceProvider = Self.makeTotalBalanceProvider(
             userWalletId: userWalletId,

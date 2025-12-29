@@ -97,12 +97,13 @@ class LockedUserWalletModel: UserWalletModel {
     }
 
     var tangemPayManager: TangemPayManager {
-        TangemPayManager(
+        TangemPayManagerBuilder(
             userWalletId: userWalletId,
             keysRepository: keysRepository,
             authorizingInteractor: TangemPayAuthorizingMock(),
             signer: signer
         )
+        .buildTangemPayManager()
     }
 
     var refcodeProvider: RefcodeProvider? {
