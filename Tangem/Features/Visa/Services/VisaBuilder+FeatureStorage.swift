@@ -68,10 +68,14 @@ extension TangemPayAPIServiceBuilder {
     @Injected(\.keysManager)
     private static var keysManager: KeysManager
 
+    @Injected(\.tangemPayAuthorizationTokensRepository)
+    private static var tangemPayAuthorizationTokensRepository: TangemPayAuthorizationTokensRepository
+
     init() {
         self = TangemPayAPIServiceBuilder(
             apiType: FeatureStorage.instance.visaAPIType,
-            bffStaticToken: Self.keysManager.bffStaticToken
+            bffStaticToken: Self.keysManager.bffStaticToken,
+            authorizationTokensRepository: Self.tangemPayAuthorizationTokensRepository
         )
     }
 }
