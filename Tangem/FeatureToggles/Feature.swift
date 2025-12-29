@@ -16,7 +16,6 @@ enum Feature: String, Hashable, CaseIterable {
     case mobileWallet
     case wcSolanaALT
     case accounts
-    case receiveENS
     case marketsAndNews
     case marketsEarn
     case tangemPayPermanentEntryPoint
@@ -30,7 +29,6 @@ enum Feature: String, Hashable, CaseIterable {
         case .mobileWallet: return "Mobile wallet"
         case .wcSolanaALT: return "WalletConnect Solana ALT"
         case .accounts: return "Accounts"
-        case .receiveENS: return "Receive (ENS)"
         case .marketsAndNews: return "Markets & News"
         case .marketsEarn: return "Markets Earn"
         case .tangemPayPermanentEntryPoint: return "TangemPay Permanent Entry Point"
@@ -46,7 +44,6 @@ enum Feature: String, Hashable, CaseIterable {
         case .mobileWallet: return .version("5.32")
         case .wcSolanaALT: return .version("5.28")
         case .accounts: return .unspecified
-        case .receiveENS: return .version("5.28")
         case .marketsAndNews: return .unspecified
         case .marketsEarn: return .unspecified
         case .tangemPayPermanentEntryPoint: return .version("5.33")
