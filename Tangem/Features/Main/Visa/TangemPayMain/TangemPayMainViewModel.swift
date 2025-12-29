@@ -20,7 +20,7 @@ final class TangemPayMainViewModel: ObservableObject {
     lazy var refreshScrollViewStateObject = RefreshScrollViewStateObject { [weak self] in
         guard let self else { return }
 
-        async let balanceUpdate: Void = tangemPayAccount.loadBalance().value
+        async let balanceUpdate: Void = tangemPayAccount.loadBalance()
         async let transactionsUpdate: Void = transactionHistoryService.reloadHistory().value
 
         _ = await (balanceUpdate, transactionsUpdate)
@@ -73,7 +73,7 @@ final class TangemPayMainViewModel: ObservableObject {
             customerService: tangemPayAccount.customerInfoManagementService
         )
 
-        balance = tangemPayAccount.tangemPayMainHeaderBalanceProvider.balance
+        balance = tangemPayAccount.mainHeaderBalanceProvider.balance
 
         transactionHistoryService = TangemPayTransactionHistoryService(
             apiService: tangemPayAccount.customerInfoManagementService
@@ -169,11 +169,15 @@ final class TangemPayMainViewModel: ObservableObject {
     func onAppear() {
         Analytics.log(.visaScreenVisaMainScreenOpened)
 
-        tangemPayAccount.loadBalance()
+        runTask { [tangemPayAccount] in
+            await tangemPayAccount.loadBalance()
+        }
     }
 
     func onDisappear() {
-        tangemPayAccount.loadCustomerInfo()
+        runTask { [tangemPayAccount] in
+            await tangemPayAccount.loadCustomerInfo()
+        }
     }
 
     func openAddToApplePayGuide() {
@@ -193,17 +197,12 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func unfreeze() {
-        guard let cardId = tangemPayAccount.cardId else {
-            showFreezeUnfreezeErrorToast(freeze: false)
-            return
-        }
-
         freezingState = .unfreezingInProgress
         tangemPayCardDetailsViewModel.state = .loading(isFrozen: tangemPayCardDetailsViewModel.state.isFrozen)
 
         Task { @MainActor in
             do {
-                try await tangemPayAccount.unfreeze(cardId: cardId)
+                try await tangemPayAccount.unfreeze()
             } catch {
                 freezingState = .frozen
                 showFreezeUnfreezeErrorToast(freeze: false)
@@ -241,17 +240,12 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     private func freeze() {
-        guard let cardId = tangemPayAccount.cardId else {
-            showFreezeUnfreezeErrorToast(freeze: true)
-            return
-        }
-
         freezingState = .freezingInProgress
         tangemPayCardDetailsViewModel.state = .loading(isFrozen: tangemPayCardDetailsViewModel.state.isFrozen)
 
         Task { @MainActor in
             do {
-                try await tangemPayAccount.freeze(cardId: cardId)
+                try await tangemPayAccount.freeze()
             } catch {
                 freezingState = .normal
                 showFreezeUnfreezeErrorToast(freeze: true)
@@ -288,7 +282,7 @@ final class TangemPayMainViewModel: ObservableObject {
 
 private extension TangemPayMainViewModel {
     func bind() {
-        tangemPayAccount.tangemPayMainHeaderBalanceProvider
+        tangemPayAccount.mainHeaderBalanceProvider
             .balancePublisher
             .receiveOnMain()
             .assign(to: \.balance, on: self, ownership: .weak)
@@ -346,7 +340,7 @@ private extension TangemPayMainViewModel {
             feeTokenItem: TangemPayUtilities.usdcTokenItem,
             defaultAddressString: depositAddress,
             availableBalanceProvider: tangemPayAccount.balancesProvider.availableBalanceProvider,
-            cexTransactionProcessor: tangemPayAccount.tangemPayExpressCEXTransactionProcessor,
+            cexTransactionProcessor: tangemPayAccount.expressCEXTransactionProcessor,
             transactionValidator: TangemPayExpressTransactionValidator(
                 availableBalanceProvider: tangemPayAccount.balancesProvider.availableBalanceProvider,
             )
