@@ -9,31 +9,9 @@
 import Moya
 import TangemNetworkUtils
 
-public enum TangemPayAPIServiceError: Error {
-    case moyaError(Error)
-    case apiError(TangemPayAPIErrorWithStatusCode)
-    case decodingError(Error)
-
-    var underlyingError: Error {
-        switch self {
-        case .moyaError(let error):
-            error
-        case .apiError(let tangemPayAPIErrorWithStatusCode):
-            tangemPayAPIErrorWithStatusCode.error
-        case .decodingError(let error):
-            error
-        }
-    }
-}
-
-public struct TangemPayAPIErrorWithStatusCode {
-    public let statusCode: Int
-    public let error: TangemPayAPIError
-}
-
 struct TangemPayAPIService<Target: TargetType> {
     private let provider: TangemProvider<Target>
-    private var decoder: JSONDecoder
+    private let decoder: JSONDecoder
 
     init(
         provider: TangemProvider<Target>,
@@ -43,36 +21,67 @@ struct TangemPayAPIService<Target: TargetType> {
         self.decoder = decoder
     }
 
-    func request<T: Decodable>(_ request: Target) async throws(TangemPayAPIServiceError) -> T {
-        var response: Response
+    func request<T: Decodable>(_ request: Target, wrapped: Bool) async throws(TangemPayAPIServiceError) -> T {
+        let response = try await executeRequest(request)
+
         do {
-            response = try await provider.asyncRequest(request)
+            _ = try response.filterSuccessfulStatusAndRedirectCodes()
+        } catch {
+            throw parseError(response, wrapped: wrapped)
+        }
+
+        return try parseResponse(response, wrapped: wrapped)
+    }
+
+    private func executeRequest(_ request: Target) async throws(TangemPayAPIServiceError) -> Response {
+        do {
+            return try await provider.asyncRequest(request)
         } catch {
             throw .moyaError(error)
         }
+    }
 
-        do {
-            response = try response.filterSuccessfulStatusAndRedirectCodes()
-        } catch {
-            do {
-                let errorResponse = try decoder.decode(TangemPayAPIError.self, from: response.data)
-                throw TangemPayAPIServiceError.apiError(
-                    .init(
-                        statusCode: response.statusCode,
-                        error: errorResponse
-                    )
-                )
-            } catch {
-                throw .decodingError(error)
-            }
+    private func parseError(_ response: Response, wrapped: Bool) -> TangemPayAPIServiceError {
+        if response.statusCode == 401 {
+            return .unauthorized
         }
 
         do {
-            return try decoder.decode(T.self, from: response.data)
+            if wrapped {
+                let errorResponse = try decoder.decode(WrappedInError<VisaAPIError>.self, from: response.data)
+                return .apiError(.visa(errorResponse.error))
+            } else {
+                let errorResponse = try decoder.decode(TangemPayAPIError.self, from: response.data)
+                return .apiError(.tangemPay(errorResponse))
+            }
+        } catch {
+            return .decodingError(error)
+        }
+    }
+
+    private func parseResponse<T: Decodable>(_ response: Response, wrapped: Bool) throws(TangemPayAPIServiceError) -> T {
+        do {
+            if wrapped {
+                return try decoder.decode(WrappedInResult<T>.self, from: response.data).result
+            } else {
+                return try decoder.decode(T.self, from: response.data)
+            }
         } catch {
             throw .decodingError(error)
         }
     }
+}
+
+public enum TangemPayAPIServiceError: Error {
+    public enum Kind {
+        case tangemPay(TangemPayAPIError)
+        case visa(VisaAPIError)
+    }
+
+    case moyaError(Error)
+    case unauthorized
+    case apiError(Kind)
+    case decodingError(Error)
 }
 
 public struct TangemPayAPIError: Error, Decodable {
@@ -84,4 +93,26 @@ public struct TangemPayAPIError: Error, Decodable {
     public let detail: String?
     public let instance: String?
     public let timestamp: String?
+}
+
+private struct WrappedInResult<T: Decodable>: Decodable {
+    let result: T
+}
+
+private struct WrappedInError<T: Decodable>: Decodable {
+    let error: T
+}
+
+public struct VisaAPIError: Error, Decodable {
+    public let code: Int
+    public let name: String
+    public let message: String
+
+    public var errorDescription: String? {
+        return """
+        Name: \(name)
+        Code: \(errorCode)
+        Message: \(message)
+        """
+    }
 }
