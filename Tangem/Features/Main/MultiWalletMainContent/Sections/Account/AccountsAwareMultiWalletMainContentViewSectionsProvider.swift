@@ -106,6 +106,7 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
 
     private static func makeOrGetCachedAccountItemViewModel(
         for cryptoAccountModel: any CryptoAccountModel,
+        in userWallet: UserWalletModel,
         using cache: EntitiesCache
     ) -> ExpandableAccountItemViewModel {
         let cacheKey = ObjectIdentifier(cryptoAccountModel)
@@ -114,7 +115,12 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
             return cachedItemViewModel
         }
 
-        let itemViewModel = ExpandableAccountItemViewModel(accountModel: cryptoAccountModel)
+        @Injected(\.expandableAccountItemStateStorageProvider)
+        var expandableAccountItemStateStorageProvider: ExpandableAccountItemStateStorageProvider
+
+        let stateStorage = expandableAccountItemStateStorageProvider.makeStateStorage(for: userWallet.userWalletId)
+        let itemViewModel = ExpandableAccountItemViewModel(accountModel: cryptoAccountModel, stateStorage: stateStorage)
+
         cache.mutate { $0.accountItemViewModels[cacheKey] = itemViewModel }
 
         return itemViewModel
@@ -281,7 +287,11 @@ extension AccountsAwareMultiWalletMainContentViewSectionsProvider: MultiWalletMa
             .withWeakCaptureOf(self)
             .map { provider, input in
                 return input.map { input in
-                    let model = Self.makeOrGetCachedAccountItemViewModel(for: input.cryptoAccountModel, using: cache)
+                    let model = Self.makeOrGetCachedAccountItemViewModel(
+                        for: input.cryptoAccountModel,
+                        in: provider.userWalletModel,
+                        using: cache
+                    )
                     let items = provider.convertToSections(input.sections, using: cache)
 
                     return MultiWalletMainContentAccountSection(model: model, items: items)

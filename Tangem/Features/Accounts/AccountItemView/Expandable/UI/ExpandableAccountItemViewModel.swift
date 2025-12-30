@@ -14,6 +14,7 @@ import TangemLocalization
 final class ExpandableAccountItemViewModel: Identifiable, ObservableObject {
     // MARK: - View State
 
+    @Published private(set) var isExpanded: Bool
     @Published private(set) var name: String
     @Published private(set) var iconData: AccountIconView.ViewData
     @Published private(set) var totalFiatBalance: LoadableTokenBalanceView.State
@@ -27,15 +28,18 @@ final class ExpandableAccountItemViewModel: Identifiable, ObservableObject {
     @Published private var rawTokensCount: Int
 
     private let accountModel: any CryptoAccountModel
+    private var stateStorage: ExpandableAccountItemStateStorage
     private let priceChangeUtility: PriceChangeUtility
 
     private var bag: Set<AnyCancellable> = []
     private var didBind = false
 
     init(
-        accountModel: any CryptoAccountModel
+        accountModel: any CryptoAccountModel,
+        stateStorage: ExpandableAccountItemStateStorage
     ) {
         self.accountModel = accountModel
+        self.stateStorage = stateStorage
 
         let priceChangeUtility = PriceChangeUtility()
         self.priceChangeUtility = priceChangeUtility
@@ -48,10 +52,22 @@ final class ExpandableAccountItemViewModel: Identifiable, ObservableObject {
             rate: accountModel.rateProvider.accountRate,
             using: priceChangeUtility
         )
+
+        isExpanded = stateStorage.isExpanded(accountModel)
     }
 
     func onViewAppear() {
         bind()
+    }
+
+    func onExpandedChange(_ isExpanded: Bool) {
+        if isExpanded {
+            Analytics.log(.mainButtonAccountShowTokens)
+        } else {
+            Analytics.log(.mainButtonAccountHideTokens)
+        }
+
+        stateStorage.setIsExpanded(isExpanded, for: accountModel)
     }
 
     private func bind() {
@@ -91,6 +107,15 @@ final class ExpandableAccountItemViewModel: Identifiable, ObservableObject {
                 Self.mapToPriceChangeState(rate: rate, using: viewModel.priceChangeUtility)
             }
             .assign(to: &$priceChange)
+
+        stateStorage
+            .didUpdatePublisher
+            .debounce(for: 0.3, scheduler: DispatchQueue.main) // Aggregating sequential changes to avoid redundant UI updates
+            .withWeakCaptureOf(self)
+            .sink { viewModel, _ in
+                viewModel.onStorageDidChange()
+            }
+            .store(in: &bag)
     }
 
     private static func mapToPriceChangeState(
@@ -114,5 +139,9 @@ final class ExpandableAccountItemViewModel: Identifiable, ObservableObject {
     private func onAccountModelDidChange() {
         name = accountModel.name
         iconData = AccountModelUtils.UI.iconViewData(accountModel: accountModel)
+    }
+
+    private func onStorageDidChange() {
+        isExpanded = stateStorage.isExpanded(accountModel)
     }
 }
