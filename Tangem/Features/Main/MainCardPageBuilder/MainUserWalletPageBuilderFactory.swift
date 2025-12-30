@@ -150,7 +150,8 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         let singleWalletNotificationManager = SingleTokenNotificationManager(
             userWalletId: model.userWalletId,
             walletModel: dependencies.walletModel,
-            walletModelsManager: dependencies.walletModelsManager
+            walletModelsManager: dependencies.walletModelsManager,
+            tangemIconProvider: CommonTangemIconProvider(config: model.config)
         )
 
         let expressFactory = ExpressPendingTransactionsFactory(
