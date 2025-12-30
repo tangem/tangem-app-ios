@@ -44,6 +44,7 @@ final class CommonServicesManager {
     @Injected(\.wcService) private var wcService: any WCService
     @Injected(\.cryptoAccountsETagStorage) private var eTagStorage: CryptoAccountsETagStorage
     @Injected(\.experimentService) private var experimentService: ExperimentService
+    @Injected(\.expandableAccountItemStateStorageProvider) private var stateStorageProvider: ExpandableAccountItemStateStorageProvider
 
     private var stakingPendingHashesSender: StakingPendingHashesSender?
     private let storyDataPrefetchService: StoryDataPrefetchService
@@ -183,6 +184,7 @@ extension CommonServicesManager: ServicesManager {
         wcService.initialize()
         eTagStorage.initialize()
         mobileAccessCodeCleaner.initialize()
+        stateStorageProvider.initialize()
         SendFeatureProvider.shared.loadFeaturesAvailability()
         PredefinedOnrampParametersBuilder.loadMoonpayPromotion()
     }
