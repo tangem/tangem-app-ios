@@ -111,7 +111,7 @@ struct MarketsMainView: View {
         case .noResults:
             noResultsStateView
         case .error:
-            errorStateView
+            errorStateView(with: viewModel.tokenListViewModel.onTryLoadList)
         case .loading, .allDataLoaded, .idle:
             MarketsMainSearchView(
                 headerHeight: headerHeight,
@@ -181,41 +181,46 @@ struct MarketsMainView: View {
 
     // MARK: - Widgets Implementation
 
+    @ViewBuilder
     private var widgetsListView: some View {
-        ScrollViewReader { proxy in
-            ScrollView(showsIndicators: false) {
-                // ScrollView inserts default spacing between its content views.
-                // Wrapping content into a `VStack` prevents it.
-                VStack(spacing: 0.0) {
-                    Color.clear
-                        .frame(height: 0)
-                        .id(scrollTopAnchorId)
+        ZStack {
+            ScrollViewReader { proxy in
+                ScrollView(showsIndicators: false) {
+                    // ScrollView inserts default spacing between its content views.
+                    // Wrapping content into a `VStack` prevents it.
+                    VStack(spacing: 0.0) {
+                        Color.clear
+                            .frame(height: 0)
+                            .id(scrollTopAnchorId)
 
-                    // Using plain old overlay + dummy `Color.clear` spacer in the scroll view due to the buggy
-                    // `safeAreaInset(edge:alignment:spacing:content:)` iOS 15+ API which has both layout and touch-handling issues
-                    Color.clear
-                        .frame(height: headerHeight)
+                        // Using plain old overlay + dummy `Color.clear` spacer in the scroll view due to the buggy
+                        // `safeAreaInset(edge:alignment:spacing:content:)` iOS 15+ API which has both layout and touch-handling issues
+                        Color.clear
+                            .frame(height: headerHeight)
 
-                    // Using plain old overlay + dummy `Color.clear` spacer in the scroll view due to the buggy
-                    // `safeAreaInset(edge:alignment:spacing:content:)` iOS 15+ API which has both layout and touch-handling issues
-                    Color.clear
-                        .frame(height: overlayHeight)
+                        // Using plain old overlay + dummy `Color.clear` spacer in the scroll view due to the buggy
+                        // `safeAreaInset(edge:alignment:spacing:content:)` iOS 15+ API which has both layout and touch-handling issues
+                        Color.clear
+                            .frame(height: overlayHeight)
 
-                    defaultWidgetsView
+                        if case .present(let widgetItems) = viewModel.widgetsViewState {
+                            VStack(alignment: .leading, spacing: Layout.Widgets.verticalContentSpacing) {
+                                ForEach(widgetItems, id: \.id) { item in
+                                    makeContentView(with: item.content)
+                                }
+                            }
+                        }
+                    }
+                    .readContentOffset(
+                        inCoordinateSpace: .named(scrollViewFrameCoordinateSpaceName),
+                        onChange: updateListOverlayAppearance(contentOffset:)
+                    )
                 }
-                .readContentOffset(
-                    inCoordinateSpace: .named(scrollViewFrameCoordinateSpaceName),
-                    onChange: updateListOverlayAppearance(contentOffset:)
-                )
+                .coordinateSpace(name: scrollViewFrameCoordinateSpaceName)
             }
-            .coordinateSpace(name: scrollViewFrameCoordinateSpaceName)
-        }
-    }
 
-    private var defaultWidgetsView: some View {
-        VStack(alignment: .leading, spacing: Layout.Widgets.verticalContentSpacing) {
-            ForEach(viewModel.widgetItems, id: \.id) { item in
-                makeContentView(with: item.content)
+            if case .error = viewModel.widgetsViewState {
+                errorStateView(with: viewModel.onTryLoadAgain)
             }
         }
     }
@@ -224,8 +229,8 @@ struct MarketsMainView: View {
         MarketsNoResultsStateView()
     }
 
-    private var errorStateView: some View {
-        MarketsListErrorView(tryLoadAgain: viewModel.tokenListViewModel.onTryLoadList)
+    private func errorStateView(with tryLoadAgain: @escaping () -> Void) -> some View {
+        MarketsListErrorView(tryLoadAgain: tryLoadAgain)
     }
 
     private var loadingSkeletons: some View {
