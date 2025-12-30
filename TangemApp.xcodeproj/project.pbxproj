@@ -3644,6 +3644,7 @@
 		DCF109432EF3115D00B97F19 /* JailbreakWarningViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF109422EF3115600B97F19 /* JailbreakWarningViewModel.swift */; };
 		DCF109452EF3136A00B97F19 /* JailbreakWarningRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF109442EF3135900B97F19 /* JailbreakWarningRoutable.swift */; };
 		DCF109472EF31D1200B97F19 /* JailbreakWarningUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF109462EF31CF600B97F19 /* JailbreakWarningUtil.swift */; };
+		DCF109AD2EF45D5400B97F19 /* TangemIconProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF109AC2EF45D5000B97F19 /* TangemIconProvider.swift */; };
 		DCF2369129924C0900FE1855 /* AnalyticsSessionContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF2369029924C0900FE1855 /* AnalyticsSessionContext.swift */; };
 		DCF23693299257EB00FE1855 /* AnalyticsContextData.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF23692299257EB00FE1855 /* AnalyticsContextData.swift */; };
 		DCF8972D28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF8972C28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift */; };
@@ -8372,6 +8373,7 @@
 		DCF109422EF3115600B97F19 /* JailbreakWarningViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JailbreakWarningViewModel.swift; sourceTree = "<group>"; };
 		DCF109442EF3135900B97F19 /* JailbreakWarningRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JailbreakWarningRoutable.swift; sourceTree = "<group>"; };
 		DCF109462EF31CF600B97F19 /* JailbreakWarningUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JailbreakWarningUtil.swift; sourceTree = "<group>"; };
+		DCF109AC2EF45D5000B97F19 /* TangemIconProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemIconProvider.swift; sourceTree = "<group>"; };
 		DCF2369029924C0900FE1855 /* AnalyticsSessionContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsSessionContext.swift; sourceTree = "<group>"; };
 		DCF23692299257EB00FE1855 /* AnalyticsContextData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsContextData.swift; sourceTree = "<group>"; };
 		DCF8972C28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSdkConfigFactory.swift; sourceTree = "<group>"; };
@@ -13241,6 +13243,7 @@
 		B068A7E525678A6E00D28CD2 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				DCF109AC2EF45D5000B97F19 /* TangemIconProvider.swift */,
 				D85E20112E8D7A50004174E6 /* UITestsStorageCleaner.swift */,
 				DC6340DE2E1D8037004BFDE5 /* KeychainCleaner.swift */,
 				B0E1C2402C2430B2005309E1 /* AlertBuilders */,
@@ -28879,6 +28882,7 @@
 				2D57CA862C3D0B0D0070D477 /* MarketsWalletDataSource.swift in Sources */,
 				EF6CB17E292E1190001335EA /* EnvironmentSetupViewModel.swift in Sources */,
 				EFFC85D32E7B63110079F320 /* OnrampProviderItemViewModelBuilder.swift in Sources */,
+				DCF109AD2EF45D5400B97F19 /* TangemIconProvider.swift in Sources */,
 				DA3880A02E391E25000B0242 /* VisaBuilder+FeatureStorage.swift in Sources */,
 				30B457582D943444002B8BD0 /* PropertyListObjectRepresentable.swift in Sources */,
 				30B457592D943444002B8BD0 /* AppStorageCompat.swift in Sources */,
