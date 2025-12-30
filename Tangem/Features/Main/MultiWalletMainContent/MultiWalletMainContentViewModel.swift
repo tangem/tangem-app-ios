@@ -250,6 +250,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .store(in: &bag)
 
         tokenItemPromoProvider.promoWalletModelPublisher
+            .removeDuplicates()
             .handleEvents(receiveOutput: { [weak self] params in
                 guard let params, let walletModel = self?.findWalletModel(with: params.walletModelId) else {
                     return
