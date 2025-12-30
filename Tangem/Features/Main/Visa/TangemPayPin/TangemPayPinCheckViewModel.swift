@@ -79,7 +79,9 @@ final class TangemPayPinCheckViewModel: ObservableObject, Identifiable {
                     encryptedBlock: decryptedBlock
                 )
 
-                viewModel.state = .loaded(PIN: decryptedPin)
+                Task { @MainActor in
+                    viewModel.state = .loaded(PIN: decryptedPin)
+                }
             } catch {
                 viewModel.onError()
             }
