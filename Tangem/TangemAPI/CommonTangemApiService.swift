@@ -454,7 +454,7 @@ extension CommonTangemApiService: TangemApiService {
     }
 
     func loadTrendingNews(limit: Int?, lang: String?) async throws -> TrendingNewsResponse {
-        return try await request(for: .trendingNews(limit: limit, lang: lang), decoder: JSONDecoder.trendingNewsDecoder)
+        try await request(for: .trendingNews(limit: limit, lang: lang), decoder: decoder)
     }
 }
 
