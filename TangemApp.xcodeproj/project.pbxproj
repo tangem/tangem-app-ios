@@ -465,6 +465,9 @@
 		2D5B255C2DE460C900D8D809 /* TransactionNotificationsItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D5B255A2DE460C900D8D809 /* TransactionNotificationsItemView.swift */; };
 		2D5B255D2DE460C900D8D809 /* TransactionNotificationsItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D5B255B2DE460C900D8D809 /* TransactionNotificationsItemViewModel.swift */; };
 		2D5B255F2DE46CAF00D8D809 /* TransactionNotificationsModalRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D5B255E2DE46CAF00D8D809 /* TransactionNotificationsModalRoutable.swift */; };
+		2D5C19CE2F03C4E8007BC52C /* NewsId.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D5C19CA2F03C4E8007BC52C /* NewsId.swift */; };
+		2D5C19CF2F03C4E8007BC52C /* NewsModelMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D5C19CB2F03C4E8007BC52C /* NewsModelMapper.swift */; };
+		2D5C19D02F03C4E8007BC52C /* NewsDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D5C19C92F03C4E8007BC52C /* NewsDTO.swift */; };
 		2D5DCC2D2C3309F1000EE379 /* MarketsTokensNetworkSelectorAlertBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D5DCC262C3309F1000EE379 /* MarketsTokensNetworkSelectorAlertBuilder.swift */; };
 		2D5DCC2E2C3309F1000EE379 /* MarketsTokensNetworkSelectorItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D5DCC272C3309F1000EE379 /* MarketsTokensNetworkSelectorItemView.swift */; };
 		2D5DCC2F2C3309F1000EE379 /* MarketsTokensNetworkSelectorItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D5DCC282C3309F1000EE379 /* MarketsTokensNetworkSelectorItemViewModel.swift */; };
@@ -544,18 +547,15 @@
 		2D91AD7C2EFEBD710022503F /* trendingNews.json in Resources */ = {isa = PBXBuildFile; fileRef = 2D91AD7B2EFEBD710022503F /* trendingNews.json */; };
 		2D91AD7D2EFEBD710022503F /* coinsListResponse.json in Resources */ = {isa = PBXBuildFile; fileRef = 2D91AD7A2EFEBD710022503F /* coinsListResponse.json */; };
 		2D91AD802EFEBD7C0022503F /* MockMarketsWidgetNewsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D91AD7E2EFEBD7C0022503F /* MockMarketsWidgetNewsService.swift */; };
-		2D91AD942EFEBD8F0022503F /* TrendingNewsResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D91AD852EFEBD8F0022503F /* TrendingNewsResponse.swift */; };
 		2D91AD952EFEBD8F0022503F /* NewsWidgetRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D91AD8F2EFEBD8F0022503F /* NewsWidgetRoutable.swift */; };
 		2D91AD962EFEBD8F0022503F /* TrendingCardNewsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D91AD8D2EFEBD8F0022503F /* TrendingCardNewsView.swift */; };
 		2D91AD972EFEBD8F0022503F /* CommonMarketsWidgetNewsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D91AD872EFEBD8F0022503F /* CommonMarketsWidgetNewsService.swift */; };
 		2D91AD982EFEBD8F0022503F /* TrendingNewsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D91AD822EFEBD8F0022503F /* TrendingNewsModel.swift */; };
 		2D91AD992EFEBD8F0022503F /* MarketsWidgetNewsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D91AD892EFEBD8F0022503F /* MarketsWidgetNewsProvider.swift */; };
-		2D91AD9A2EFEBD8F0022503F /* TrendingNewsModelMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D91AD832EFEBD8F0022503F /* TrendingNewsModelMapper.swift */; };
 		2D91AD9B2EFEBD8F0022503F /* CarouselNewsCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D91AD8B2EFEBD8F0022503F /* CarouselNewsCardView.swift */; };
 		2D91AD9C2EFEBD8F0022503F /* CarouselNewsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D91AD8C2EFEBD8F0022503F /* CarouselNewsView.swift */; };
 		2D91AD9D2EFEBD8F0022503F /* NewsWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D91AD902EFEBD8F0022503F /* NewsWidgetView.swift */; };
 		2D91AD9E2EFEBD8F0022503F /* NewsWidgetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D91AD912EFEBD8F0022503F /* NewsWidgetViewModel.swift */; };
-		2D91AD9F2EFEBD8F0022503F /* NewsId.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D91AD812EFEBD8F0022503F /* NewsId.swift */; };
 		2D91ADA22EFEBD9D0022503F /* MarketsCommonWidgetHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D91ADA02EFEBD9D0022503F /* MarketsCommonWidgetHeaderView.swift */; };
 		2D91ADA32EFEBD9D0022503F /* MarketsWidgetErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D91ADA12EFEBD9D0022503F /* MarketsWidgetErrorView.swift */; };
 		2D92E6542D0C1E9D008FDECF /* SolanaSignerTestUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D92E6532D0C1E9D008FDECF /* SolanaSignerTestUtility.swift */; };
@@ -5228,6 +5228,9 @@
 		2D5B255A2DE460C900D8D809 /* TransactionNotificationsItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionNotificationsItemView.swift; sourceTree = "<group>"; };
 		2D5B255B2DE460C900D8D809 /* TransactionNotificationsItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionNotificationsItemViewModel.swift; sourceTree = "<group>"; };
 		2D5B255E2DE46CAF00D8D809 /* TransactionNotificationsModalRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionNotificationsModalRoutable.swift; sourceTree = "<group>"; };
+		2D5C19C92F03C4E8007BC52C /* NewsDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsDTO.swift; sourceTree = "<group>"; };
+		2D5C19CA2F03C4E8007BC52C /* NewsId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsId.swift; sourceTree = "<group>"; };
+		2D5C19CB2F03C4E8007BC52C /* NewsModelMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsModelMapper.swift; sourceTree = "<group>"; };
 		2D5DCC262C3309F1000EE379 /* MarketsTokensNetworkSelectorAlertBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsTokensNetworkSelectorAlertBuilder.swift; sourceTree = "<group>"; };
 		2D5DCC272C3309F1000EE379 /* MarketsTokensNetworkSelectorItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsTokensNetworkSelectorItemView.swift; sourceTree = "<group>"; };
 		2D5DCC282C3309F1000EE379 /* MarketsTokensNetworkSelectorItemViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsTokensNetworkSelectorItemViewModel.swift; sourceTree = "<group>"; };
@@ -5313,10 +5316,7 @@
 		2D91AD7A2EFEBD710022503F /* coinsListResponse.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = coinsListResponse.json; sourceTree = "<group>"; };
 		2D91AD7B2EFEBD710022503F /* trendingNews.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = trendingNews.json; sourceTree = "<group>"; };
 		2D91AD7E2EFEBD7C0022503F /* MockMarketsWidgetNewsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockMarketsWidgetNewsService.swift; sourceTree = "<group>"; };
-		2D91AD812EFEBD8F0022503F /* NewsId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsId.swift; sourceTree = "<group>"; };
 		2D91AD822EFEBD8F0022503F /* TrendingNewsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrendingNewsModel.swift; sourceTree = "<group>"; };
-		2D91AD832EFEBD8F0022503F /* TrendingNewsModelMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrendingNewsModelMapper.swift; sourceTree = "<group>"; };
-		2D91AD852EFEBD8F0022503F /* TrendingNewsResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrendingNewsResponse.swift; sourceTree = "<group>"; };
 		2D91AD872EFEBD8F0022503F /* CommonMarketsWidgetNewsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonMarketsWidgetNewsService.swift; sourceTree = "<group>"; };
 		2D91AD892EFEBD8F0022503F /* MarketsWidgetNewsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsWidgetNewsProvider.swift; sourceTree = "<group>"; };
 		2D91AD8B2EFEBD8F0022503F /* CarouselNewsCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CarouselNewsCardView.swift; sourceTree = "<group>"; };
@@ -10705,6 +10705,24 @@
 			path = TransactionNotifications;
 			sourceTree = "<group>";
 		};
+		2D5C19CC2F03C4E8007BC52C /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				2D5C19C92F03C4E8007BC52C /* NewsDTO.swift */,
+				2D5C19CA2F03C4E8007BC52C /* NewsId.swift */,
+				2D5C19CB2F03C4E8007BC52C /* NewsModelMapper.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		2D5C19CD2F03C4E8007BC52C /* News */ = {
+			isa = PBXGroup;
+			children = (
+				2D5C19CC2F03C4E8007BC52C /* Model */,
+			);
+			path = News;
+			sourceTree = "<group>";
+		};
 		2D5DCC2B2C3309F1000EE379 /* TokensNetworkSelector */ = {
 			isa = PBXGroup;
 			children = (
@@ -10959,19 +10977,9 @@
 		2D91AD842EFEBD8F0022503F /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				2D91AD812EFEBD8F0022503F /* NewsId.swift */,
 				2D91AD822EFEBD8F0022503F /* TrendingNewsModel.swift */,
-				2D91AD832EFEBD8F0022503F /* TrendingNewsModelMapper.swift */,
 			);
 			path = Model;
-			sourceTree = "<group>";
-		};
-		2D91AD862EFEBD8F0022503F /* Network */ = {
-			isa = PBXGroup;
-			children = (
-				2D91AD852EFEBD8F0022503F /* TrendingNewsResponse.swift */,
-			);
-			path = Network;
 			sourceTree = "<group>";
 		};
 		2D91AD882EFEBD8F0022503F /* Common */ = {
@@ -11016,7 +11024,6 @@
 			isa = PBXGroup;
 			children = (
 				2D91AD842EFEBD8F0022503F /* Model */,
-				2D91AD862EFEBD8F0022503F /* Network */,
 				2D91AD8A2EFEBD8F0022503F /* Services */,
 				2D91AD922EFEBD8F0022503F /* UI */,
 			);
@@ -20671,10 +20678,8 @@
 		DC8C22E42D89FF6E005159FE /* Features */ = {
 			isa = PBXGroup;
 			children = (
-				30AC0FD82EFBCFE5009AACB7 /* AccountsAwareAddTokenFlow */,
-				DCF1093F2EF3111800B97F19 /* JailbreakWarning */,
-				0A941BE32E6B29D200770474 /* YieldModule */,
 				308631572E40E36C00D58D37 /* Accounts */,
+				30AC0FD82EFBCFE5009AACB7 /* AccountsAwareAddTokenFlow */,
 				B0D1AC302906718600584E6C /* Analytics */,
 				DC5E6FDA2C906331008A98D0 /* AppLock */,
 				B082E91E255A8E7800A0CEA9 /* AppSettings */,
@@ -20683,16 +20688,17 @@
 				EF7B9CED286C6B95004C33A9 /* CardSettings */,
 				DC8C22EC2D8A01E0005159FE /* Details */,
 				B043FA1826B16B1D00D77729 /* Email */,
-				DC0A57FF28243D050031BECC /* SellLegacy */,
 				DC8C22F42D8AD966005159FE /* Express */,
 				DC0A582428252CFC0031BECC /* FailedScanTracker */,
 				EF9156162D3E8CAC0037521D /* GeoDefiner */,
-				0A4C217D2DF1AFA300B8B1BD /* MobileWallet */,
 				EF6EDD7B296C0D40001B21A3 /* IncomingActions */,
 				B09E51882981044D0042998A /* IOSDeprecation */,
+				DCF1093F2EF3111800B97F19 /* JailbreakWarning */,
 				B06C08442A73FB2C00D982BC /* Main */,
 				B0B3FF6C2C0757B900B61EF7 /* ManageTokens */,
 				DAD98A752AB2E3240051CFBE /* Markets */,
+				0A4C217D2DF1AFA300B8B1BD /* MobileWallet */,
+				2D5C19CD2F03C4E8007BC52C /* News */,
 				B61EBDE32D70D058008BA0A7 /* NFT */,
 				B02FF9992A9A05A80073D93C /* Notifications */,
 				B0E1564926B9417E005B33E4 /* Onboarding */,
@@ -20702,8 +20708,9 @@
 				DA91770F2A25F14A006CD67B /* Promotion */,
 				B62C65C62C38D04F00189AD4 /* PushNotifications */,
 				DC0A5816282526B50031BECC /* RateApp */,
-				B080DE552BB3F4E5001A23BD /* RemoteAPIList */,
 				2DE281902E4DEA7300B8BC1E /* Receive */,
+				B080DE552BB3F4E5001A23BD /* RemoteAPIList */,
+				DC0A57FF28243D050031BECC /* SellLegacy */,
 				DAFC3E002AA8A50000D1013F /* Send */,
 				DC8C22E62D89FF9B005159FE /* Staking */,
 				C2E3ADC42D5F5D390042ADDA /* Stories */,
@@ -20717,6 +20724,7 @@
 				B0B56AAB2C20756F001FD72A /* Visa */,
 				DC0002F12DC2090600305FB6 /* WalletConnect */,
 				DC66BBE12858DB1900CDF765 /* Welcome */,
+				0A941BE32E6B29D200770474 /* YieldModule */,
 			);
 			path = Features;
 			sourceTree = "<group>";
@@ -27117,6 +27125,9 @@
 				B62E1C262DDC0FD400CE8049 /* NFTPriceFormatter.swift in Sources */,
 				B0B86CFF2A1B594000AB1475 /* MainHeaderSupplementInfoProvider.swift in Sources */,
 				30B8D7E02E81946000270458 /* UserSettingsAccountsSectionView.swift in Sources */,
+				2D5C19CE2F03C4E8007BC52C /* NewsId.swift in Sources */,
+				2D5C19CF2F03C4E8007BC52C /* NewsModelMapper.swift in Sources */,
+				2D5C19D02F03C4E8007BC52C /* NewsDTO.swift in Sources */,
 				B0B335DC29FA948F00E2082E /* FakeTokenItemInfoProvider.swift in Sources */,
 				B643EBC12E9BF39D00DBBFE3 /* CryptoAccountConditionsValidator.swift in Sources */,
 				B6FECF502C4032930030A8A9 /* PushNotificationsPermissionRequestDelegateStub.swift in Sources */,
@@ -28809,18 +28820,15 @@
 				EF48E6C42B02273800FE0072 /* ExpressTokenItemViewModel.swift in Sources */,
 				DC3DCADB2A40AACF00F72554 /* DemoWalletModelsFactory.swift in Sources */,
 				B69E7FC82B220C3400B78D9A /* Dictionary+.swift in Sources */,
-				2D91AD942EFEBD8F0022503F /* TrendingNewsResponse.swift in Sources */,
 				2D91AD952EFEBD8F0022503F /* NewsWidgetRoutable.swift in Sources */,
 				2D91AD962EFEBD8F0022503F /* TrendingCardNewsView.swift in Sources */,
 				2D91AD972EFEBD8F0022503F /* CommonMarketsWidgetNewsService.swift in Sources */,
 				2D91AD982EFEBD8F0022503F /* TrendingNewsModel.swift in Sources */,
 				2D91AD992EFEBD8F0022503F /* MarketsWidgetNewsProvider.swift in Sources */,
-				2D91AD9A2EFEBD8F0022503F /* TrendingNewsModelMapper.swift in Sources */,
 				2D91AD9B2EFEBD8F0022503F /* CarouselNewsCardView.swift in Sources */,
 				2D91AD9C2EFEBD8F0022503F /* CarouselNewsView.swift in Sources */,
 				2D91AD9D2EFEBD8F0022503F /* NewsWidgetView.swift in Sources */,
 				2D91AD9E2EFEBD8F0022503F /* NewsWidgetViewModel.swift in Sources */,
-				2D91AD9F2EFEBD8F0022503F /* NewsId.swift in Sources */,
 				C2FF50002DD6713600FE1D9E /* WalletConnectDAppConnectionRequestViewEvent.swift in Sources */,
 				DC3549E02E2DFC9500641727 /* WCNotificationEvent.swift in Sources */,
 				DC3549E12E2DFC9500641727 /* WCNotificationManager.swift in Sources */,
