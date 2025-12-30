@@ -74,7 +74,7 @@ final class CommonCryptoAccountsRepository {
 
         updateTokensOnServerDebouncer = Debouncer(interval: Constants.debounceInterval) { [weak self] completion in
             // No account properties were changed here therefore only tokens need to be updated on the server
-            self?.updateAccountsOnServer(updateType: .tokens, completion: completion)
+            self?.updateAccountsOnServer(updateOptions: .tokens, completion: completion)
         }
 
         storageController.bind(to: storageDidUpdateSubject)
@@ -131,7 +131,8 @@ final class CommonCryptoAccountsRepository {
         // Instead, the token list will be updated if needed using tokens from the `additionalTokens`
         // field in the server response, distributed using `StoredCryptoAccountsTokensDistributor`
         // in the `addAccountsInternal` method call below.
-        _ = try await addAccountsInternal([defaultAccount], forceUpdateTokenList: !isWalletAlreadyCreated)
+        let tokenListUpdateOptions: TokenListUpdateOptions = isWalletAlreadyCreated ? .none : [.forceUpdate]
+        _ = try await addAccountsInternal([defaultAccount], tokenListUpdateOptions: tokenListUpdateOptions)
     }
 
     // MARK: - Loading accounts and tokens from server
@@ -152,7 +153,7 @@ final class CommonCryptoAccountsRepository {
                 }
 
                 holder.cryptoAccountsToUpdate = nil
-                repository.updateAccountsOnServer(cryptoAccounts: pending, updateType: .all, completion: completion)
+                repository.updateAccountsOnServer(cryptoAccounts: pending, updateOptions: .all, completion: completion)
 
                 return true
             }
@@ -197,7 +198,7 @@ final class CommonCryptoAccountsRepository {
             if shouldUpdateTokenListDueToTokensDistribution || shouldUpdateTokenListDueToCustomTokensMigration {
                 // Tokens distribution between different accounts and/or custom tokens migration were performed,
                 // therefore tokens need to be updated on the server
-                try await updateAccountsOnServerAsync(cryptoAccounts: updatedAccounts, updateType: .tokens)
+                try await updateAccountsOnServerAsync(cryptoAccounts: updatedAccounts, updateOptions: .tokens)
             }
         } catch CryptoAccountsNetworkServiceError.missingRevision, CryptoAccountsNetworkServiceError.inconsistentState {
             // Impossible case, since we don't update remote accounts here
@@ -223,7 +224,7 @@ final class CommonCryptoAccountsRepository {
 
     private func updateAccountsOnServer(
         cryptoAccounts: [StoredCryptoAccount]? = nil,
-        updateType: RemoteUpdateType,
+        updateOptions: RemoteUpdateOptions,
         completion: UserTokensRepository.Completion? = nil
     ) {
         guard hasTokenSynchronization else {
@@ -235,7 +236,7 @@ final class CommonCryptoAccountsRepository {
             let cryptoAccounts = cryptoAccounts ?? repository.persistentStorage.getList()
 
             do {
-                try await repository.updateAccountsOnServerAsync(cryptoAccounts: cryptoAccounts, updateType: updateType)
+                try await repository.updateAccountsOnServerAsync(cryptoAccounts: cryptoAccounts, updateOptions: updateOptions)
                 await runOnMainIfNotCancelled { completion?(.success(())) }
             } catch {
                 await repository.handleFailedUpdateAccountsOnServer(cryptoAccounts: cryptoAccounts, error: error, completion: completion)
@@ -243,18 +244,18 @@ final class CommonCryptoAccountsRepository {
         }.eraseToAnyCancellable()
     }
 
-    private func updateAccountsOnServerAsync(cryptoAccounts: [StoredCryptoAccount], updateType: RemoteUpdateType) async throws {
+    private func updateAccountsOnServerAsync(cryptoAccounts: [StoredCryptoAccount], updateOptions: RemoteUpdateOptions) async throws {
         do {
-            if updateType.contains(.accounts) {
+            if updateOptions.contains(.accounts) {
                 try await networkService.saveAccounts(from: cryptoAccounts, retryCount: 0)
             }
-            if updateType.contains(.tokens) {
-                try await networkService.saveTokens(from: cryptoAccounts, retryCount: Constants.maxRetryCount)
+            if updateOptions.contains(.tokens) {
+                try await networkService.saveTokens(from: cryptoAccounts, tokenListUpdateOptions: .none)
             }
         } catch CryptoAccountsNetworkServiceError.missingRevision, CryptoAccountsNetworkServiceError.inconsistentState {
             try await refreshInconsistentState()
             try Task.checkCancellation()
-            try await updateAccountsOnServerAsync(cryptoAccounts: cryptoAccounts, updateType: updateType) // Schedules a retry after fixing the state
+            try await updateAccountsOnServerAsync(cryptoAccounts: cryptoAccounts, updateOptions: updateOptions) // Schedules a retry after fixing the state
         } catch CryptoAccountsNetworkServiceError.noAccountsCreated {
             try await loadAccountsFromServerAsync() // Implicitly creates a new account if none exist on the server yet
         } catch CryptoAccountsNetworkServiceError.underlyingError(let error) {
@@ -302,7 +303,10 @@ final class CommonCryptoAccountsRepository {
         if isDirty {
             // This methods either adds a new account w/o tokens or updates an existing one, preserving its tokens
             // Therefore there is no need to forcefully update the token list
-            return try await addAccountsInternal(editedItems, forceUpdateTokenList: false)
+            //
+            // Also, in case of a failure when updating the token list while adding/updating an account, the attempt to
+            // update the token list will be performed on every following synchronization, so errors can be ignored here
+            return try await addAccountsInternal(editedItems, tokenListUpdateOptions: [.ignoreErrors])
         }
 
         // No changes were made, no tokens redistribution performed
@@ -311,17 +315,17 @@ final class CommonCryptoAccountsRepository {
 
     private func addAccountsInternal(
         _ accounts: [StoredCryptoAccount],
-        forceUpdateTokenList: Bool
+        tokenListUpdateOptions: TokenListUpdateOptions
     ) async throws -> StoredCryptoAccountsTokensDistributor.DistributionResult {
         let remoteCryptoAccountsInfo = try await networkService.saveAccounts(from: accounts, retryCount: 0)
         try Task.checkCancellation()
 
         var updatedAccounts: [StoredCryptoAccount]
 
-        if forceUpdateTokenList {
-            try await networkService.saveTokens(from: accounts, retryCount: Constants.maxRetryCount)
+        if tokenListUpdateOptions.contains(.forceUpdate) {
+            try await networkService.saveTokens(from: accounts, tokenListUpdateOptions: tokenListUpdateOptions)
             try Task.checkCancellation()
-            // Overriding the remote state when `forceUpdateTokenList` is `true`
+            // Overriding the remote state when token list is forcefully updated
             // to ensure that tokens from the newly added accounts are saved
             updatedAccounts = accounts
         } else {
@@ -334,7 +338,7 @@ final class CommonCryptoAccountsRepository {
         )
 
         if distributionResult.isRedistributionHappened {
-            try await networkService.saveTokens(from: updatedAccounts, retryCount: Constants.maxRetryCount)
+            try await networkService.saveTokens(from: updatedAccounts, tokenListUpdateOptions: tokenListUpdateOptions)
             try Task.checkCancellation()
         }
 
@@ -484,7 +488,7 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
 
         persistentStorage.replace(with: orderedCryptoAccounts)
 
-        return try await updateAccountsOnServerAsync(cryptoAccounts: orderedCryptoAccounts, updateType: .accounts)
+        return try await updateAccountsOnServerAsync(cryptoAccounts: orderedCryptoAccounts, updateOptions: .accounts)
     }
 }
 
@@ -492,7 +496,7 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
 
 extension CommonCryptoAccountsRepository: UserTokensPushNotificationsRemoteStatusSyncing {
     func syncRemoteStatus() {
-        updateAccountsOnServer(updateType: .tokens)
+        updateAccountsOnServer(updateOptions: .tokens)
     }
 }
 
@@ -602,12 +606,22 @@ private extension CommonCryptoAccountsRepository {
         var cryptoAccountsToUpdate: [StoredCryptoAccount]?
     }
 
-    struct RemoteUpdateType: OptionSet {
+    struct RemoteUpdateOptions: OptionSet {
         let rawValue: Int
 
         static let accounts = Self(rawValue: 1 << 0)
         static let tokens = Self(rawValue: 1 << 1)
         static let all: Self = [.accounts, .tokens]
+    }
+
+    struct TokenListUpdateOptions: OptionSet {
+        let rawValue: Int
+
+        /// Forcefully updates the token list on the server, even if no changes were detected locally.
+        static let forceUpdate = Self(rawValue: 1 << 0)
+        /// Ignores errors that occur during token list update on the server.
+        static let ignoreErrors = Self(rawValue: 1 << 1)
+        static let none: Self = []
     }
 
     enum InternalError: Error {
@@ -636,5 +650,21 @@ private extension CommonCryptoAccountsRepository {
 private func runOnMainIfNotCancelled(_ code: () throws -> Void) rethrows {
     if !Task.isCancelled {
         try code()
+    }
+}
+
+private extension CryptoAccountsNetworkService {
+    /// Convenience helper to save tokens with given options and a predefined retry count.
+    func saveTokens(
+        from accounts: [StoredCryptoAccount],
+        tokenListUpdateOptions: CommonCryptoAccountsRepository.TokenListUpdateOptions
+    ) async throws {
+        do {
+            try await saveTokens(from: accounts, retryCount: CommonCryptoAccountsRepository.Constants.maxRetryCount)
+        } catch {
+            if !tokenListUpdateOptions.contains(.ignoreErrors) {
+                throw error
+            }
+        }
     }
 }
