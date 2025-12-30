@@ -24,7 +24,7 @@ final class NewsWidgetViewModel: ObservableObject {
 
     private let widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler
 
-    private let mapper = TrendingNewsModelMapper()
+    private let mapper = NewsModelMapper()
     private let newsProvider = CommonMarketsWidgetNewsService()
 
     private weak var coordinator: NewsWidgetRoutable?
