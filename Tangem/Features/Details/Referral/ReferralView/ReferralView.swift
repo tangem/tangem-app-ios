@@ -334,7 +334,7 @@ struct ReferralView: View {
     private var participateButton: some View {
         MainButton(
             title: Localization.referralButtonParticipate,
-            icon: .trailing(Assets.tangemIcon),
+            icon: viewModel.mainButtonIcon,
             style: .primary,
             action: viewModel.participateInReferralProgram
         )
