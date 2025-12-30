@@ -46,7 +46,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .accounts: return .version("5.33")
         case .marketsAndNews: return .unspecified
         case .marketsEarn: return .unspecified
-        case .tangemPayPermanentEntryPoint: return .version("5.33")
+        case .tangemPayPermanentEntryPoint: return .unspecified
         }
     }
 }
