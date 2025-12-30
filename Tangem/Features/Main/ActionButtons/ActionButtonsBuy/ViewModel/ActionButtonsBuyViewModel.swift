@@ -11,6 +11,7 @@ import Foundation
 import BlockchainSdk
 import struct TangemUIUtils.AlertBinder
 
+@available(iOS, deprecated: 100000.0, message: "Only used when accounts are disabled, will be removed in the future ([REDACTED_INFO])")
 final class ActionButtonsBuyViewModel: ObservableObject {
     // MARK: - Dependencies
 
