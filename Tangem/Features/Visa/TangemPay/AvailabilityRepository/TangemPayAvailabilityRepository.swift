@@ -19,7 +19,6 @@ protocol TangemPayAvailabilityRepository {
     var shouldShowGetTangemPay: AnyPublisher<Bool, Never> { get }
     var shouldShowGetTangemPayBanner: AnyPublisher<Bool, Never> { get }
 
-    func isTangemPayHiddenPublisher(for userWalletId: String) -> AnyPublisher<Bool, Never>
     func userDidCloseGetTangemPayBanner()
 }
 
