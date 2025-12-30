@@ -29,6 +29,10 @@ extension WCTransactionViewModel {
         displayModel.simulationDisplayModel
     }
 
+    var tangemIconProvider: TangemIconProvider {
+        displayModel.tangemIconProvider
+    }
+
     private var isDataReady: Bool {
         displayModel.isDataReady
     }

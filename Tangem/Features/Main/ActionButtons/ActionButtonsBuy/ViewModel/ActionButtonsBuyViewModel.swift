@@ -63,6 +63,7 @@ final class ActionButtonsBuyViewModel: ObservableObject {
                 viewModel: .init(
                     token: token,
                     userWalletName: userWalletModel.name,
+                    tangemIconProvider: CommonTangemIconProvider(config: userWalletModel.config),
                     action: { [weak self] in
                         self?.addTokenToPortfolio(token)
                     }
