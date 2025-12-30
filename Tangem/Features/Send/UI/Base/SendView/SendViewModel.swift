@@ -13,6 +13,7 @@ import TangemAssets
 import TangemExpress
 import TangemFoundation
 import TangemLocalization
+import TangemUI
 import struct TangemUIUtils.AlertBinder
 
 protocol SendViewAlertPresenter: AnyObject {
@@ -44,6 +45,8 @@ final class SendViewModel: ObservableObject {
         stepsManager.shouldShowDismissAlert
     }
 
+    let tangemIconProvider: TangemIconProvider
+
     private let interactor: SendBaseInteractor
     private let stepsManager: SendStepsManager
     private let alertBuilder: SendAlertBuilder
@@ -66,6 +69,7 @@ final class SendViewModel: ObservableObject {
         dataBuilder: SendGenericBaseDataBuilder,
         analyticsLogger: SendBaseViewAnalyticsLogger,
         blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper,
+        tangemIconProvider: TangemIconProvider,
         coordinator: SendRoutable
     ) {
         self.interactor = interactor
@@ -74,6 +78,7 @@ final class SendViewModel: ObservableObject {
         self.analyticsLogger = analyticsLogger
         self.blockchainSDKNotificationMapper = blockchainSDKNotificationMapper
         self.dataBuilder = dataBuilder
+        self.tangemIconProvider = tangemIconProvider
         self.coordinator = coordinator
 
         step = stepsManager.initialStep
