@@ -52,7 +52,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .pushPermissionNotificationBanner: return .version("5.30")
         case .marketsAndNews: return .unspecified
         case .marketsEarn: return .unspecified
-        case .tangemPayPermanentEntryPoint: return .version("5.33")
+        case .tangemPayPermanentEntryPoint: return .unspecified
         }
     }
 }
