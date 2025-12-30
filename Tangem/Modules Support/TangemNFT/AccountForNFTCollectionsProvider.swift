@@ -25,11 +25,12 @@ final class AccountForNFTCollectionsProvider {
     }
 
     private func bind() {
-        userWalletModel.accountModelsManager.accountModelsPublisher
-            .compactMap(\.first)
+        userWalletModel
+            .accountModelsManager
+            .accountModelsPublisher
             .withWeakCaptureOf(self)
-            .sink { viewModel, accountModel in
-                if case .standard(let cryptoAccounts) = accountModel {
+            .sink { viewModel, accountModels in
+                if let cryptoAccounts = accountModels.cryptoAccounts().first {
                     viewModel.cryptoAccounts = cryptoAccounts
                     // Invalidate cache when accounts change
                     viewModel.addressToAccountMap = nil
