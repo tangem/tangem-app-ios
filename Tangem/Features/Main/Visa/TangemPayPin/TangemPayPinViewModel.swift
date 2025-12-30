@@ -48,6 +48,13 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
     }
 
     func close() {
+        switch state {
+        case .created:
+            tangemPayAccount.loadCustomerInfo()
+
+        case .enterPin:
+            break
+        }
         coordinator?.closeTangemPayPin()
     }
 
