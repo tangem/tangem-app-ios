@@ -40,7 +40,8 @@ class AccountsAwareTotalBalanceProvider {
 
 private extension AccountsAwareTotalBalanceProvider {
     func bind() {
-        updateSubscription = accountModelsManager.cryptoAccountModelsPublisher
+        updateSubscription = accountModelsManager
+            .cryptoAccountModelsPublisher
             .flatMapLatest { cryptoAccountModels in
                 cryptoAccountModels
                     .map(\.fiatTotalBalanceProvider.totalBalancePublisher)
