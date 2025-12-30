@@ -18,8 +18,8 @@ struct TrendingNewsModel: Identifiable, Hashable {
     let language: String?
     let isTrending: Bool
     let newsUrl: String
-    let categories: [NewsCategory]
-    let relatedTokens: [RelatedToken]
+    let categories: [NewsDTO.List.Category]
+    let relatedTokens: [NewsDTO.List.RelatedToken]
     let title: String
     let isRead: Bool
 }
