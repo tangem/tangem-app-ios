@@ -248,11 +248,20 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .store(in: &bag)
 
         tokenItemPromoProvider.promoWalletModelPublisher
+            .removeDuplicates()
+            .handleEvents(receiveOutput: { [weak self] params in
+                guard let params, let walletModel = self?.findWalletModel(with: params.walletModelId) else {
+                    return
+                }
+
+                let logger = CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId)
+                logger.logYieldNoticeShown()
+            })
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .map { viewModel, params in
                 guard let params else { return nil }
-                return viewModel.makeTokenItemPromoVieModel(from: params)
+                return viewModel.makeTokenItemPromoViewModel(from: params)
             }
             .assign(to: \.tokenItemPromoBubbleViewModel, on: self, ownership: .weak)
             .store(in: &bag)
@@ -462,7 +471,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     private func handleYieldApyBadgeTapped(walletModel: any WalletModel, factory: YieldModuleFlowFactory, yieldManager: YieldModuleManager) {
-        let logger = CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem)
+        let logger = CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId)
 
         func openActiveYield() {
             logger.logEarningApyClicked(state: .enabled)
@@ -548,7 +557,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         )
     }
 
-    private func makeTokenItemPromoVieModel(from params: TokenItemPromoParams) -> TokenItemPromoBubbleViewModel? {
+    private func makeTokenItemPromoViewModel(from params: TokenItemPromoParams) -> TokenItemPromoBubbleViewModel? {
         TokenItemPromoBubbleViewModel(
             id: params.walletModelId,
             leadingImage: params.icon,
@@ -566,6 +575,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                     return
                 }
 
+                let logger = CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: userWalletModel.userWalletId)
+                logger.logYieldNoticeClicked()
                 let navAction = self?.makeYieldApyBadgeTapAction(walletModel: walletModel)
                 navAction?(walletModel.tokenItem)
             }
