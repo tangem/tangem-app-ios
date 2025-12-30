@@ -30,7 +30,7 @@ extension CommonAccountsAwareTokenSelectorWalletsProvider: AccountsAwareTokenSel
 private extension CommonAccountsAwareTokenSelectorWalletsProvider {
     func mapToAccountsAwareTokenSelectorWallet(userWalletModel: any UserWalletModel) -> AccountsAwareTokenSelectorWallet {
         func mapToAccountType(accountModels: [AccountModel]) -> AccountsAwareTokenSelectorWallet.AccountType {
-            switch accountModels.standard() {
+            switch accountModels.firstStandard() {
             case .none:
                 assertionFailure("UserWalletModel does not contain CryptoAccount")
                 return .multiple([])
@@ -47,7 +47,8 @@ private extension CommonAccountsAwareTokenSelectorWalletsProvider {
         }
 
         let accounts = mapToAccountType(accountModels: userWalletModel.accountModelsManager.accountModels)
-        let accountsPublisher = userWalletModel.accountModelsManager
+        let accountsPublisher = userWalletModel
+            .accountModelsManager
             .accountModelsPublisher
             .map { mapToAccountType(accountModels: $0) }
             .eraseToAnyPublisher()
