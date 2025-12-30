@@ -12,17 +12,18 @@ import Combine
 import CombineExt
 import Kingfisher
 import TangemLocalization
+import TangemFoundation
 
 final class MarketsMainViewModel: MarketsBaseViewModel {
     private typealias SearchInput = MainBottomSheetHeaderViewModel.SearchInput
 
     // MARK: - Injected & Published Properties
 
-    @Published private(set) var isError: Bool = false
     @Published private(set) var isSearching: Bool = false
+    @Published private(set) var widgetsViewState: WidgetsViewState = .present([])
+
     @Published private(set) var headerViewModel: MainBottomSheetHeaderViewModel
     @Published private(set) var tokenListViewModel: MarketsTokenListViewModel
-    @Published private(set) var widgetItems: [WidgetStateItem] = []
 
     @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
     @Injected(\.viewHierarchySnapshotter) private var viewHierarchySnapshotter: ViewHierarchySnapshotting
@@ -122,6 +123,12 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
             isBottomSheetExpanded = false
         }
     }
+
+    // MARK: - Actions
+
+    func onTryLoadAgain() {
+        widgetsProvider.reloadWidgets()
+    }
 }
 
 // MARK: - Private Implementation
@@ -175,12 +182,14 @@ private extension MarketsMainViewModel {
             .dropFirst()
             .withWeakCaptureOf(self)
             .sink { viewModel, widgets in
-                viewModel.widgetItems = widgets
+                let widgetItems = widgets
                     .filter(\.isEnabled)
                     .sorted(by: \.order)
                     .compactMap {
                         viewModel.mapToWidgetItem(widgetModel: $0)
                     }
+
+                viewModel.widgetsViewState = .present(widgetItems)
             }
             .store(in: &bag)
 
@@ -189,13 +198,9 @@ private extension MarketsMainViewModel {
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, state in
-                /*
-                 if case .allWidgetsWithError = state {
-                     viewModel.isError = true
-                 }
-                  */
-
-                // [REDACTED_TODO_COMMENT]
+                if case .allWidgetsWithError = state {
+                    viewModel.widgetsViewState = .error
+                }
             }
             .store(in: &bag)
     }
@@ -268,6 +273,11 @@ extension MarketsMainViewModel: MainBottomSheetHeaderViewModelDelegate {
 }
 
 extension MarketsMainViewModel {
+    enum WidgetsViewState: Hashable {
+        case present([WidgetStateItem])
+        case error
+    }
+
     struct WidgetStateItem: Identifiable, Hashable {
         var id: MarketsWidgetType.ID {
             type.id

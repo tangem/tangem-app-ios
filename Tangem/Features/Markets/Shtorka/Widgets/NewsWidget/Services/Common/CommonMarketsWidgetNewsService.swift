@@ -22,7 +22,7 @@ final class CommonMarketsWidgetNewsService: MarketsWidgetNewsProvider {
     private let newsReadStatusDidUpdateSubject: PassthroughSubject<Void, Never> = .init()
     private let newsResultValueSubject: CurrentValueSubject<LoadingResult<[TrendingNewsModel], Error>, Never> = .init(.loading)
 
-    private let mapper = TrendingNewsModelMapper()
+    private let mapper = NewsModelMapper()
 
     private var updateTask: AnyCancellable?
 
