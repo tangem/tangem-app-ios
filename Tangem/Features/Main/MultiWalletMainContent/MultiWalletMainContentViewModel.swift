@@ -629,10 +629,9 @@ private extension MultiWalletMainContentViewModel {
         let tokenItem = tokenItemViewModel.tokenItem
         let alertBuilder = HideTokenAlertBuilder()
         let actionFactory = HideTokenActionFactory(userWalletModel: userWalletModel)
-        let walletModel = findWalletModel(with: tokenItemViewModel.id)
 
         do {
-            let hideAction = try actionFactory.makeAction(tokenItem: tokenItem, walletModel: walletModel)
+            let hideAction = try actionFactory.makeAction(for: tokenItem)
             error = alertBuilder.hideTokenAlert(tokenItem: tokenItem, hideAction: hideAction)
         } catch {
             AppLogger.error("Can't hide token due to error:", error: error)
