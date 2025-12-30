@@ -27,6 +27,7 @@ final class ExpressApproveViewModel: ObservableObject, Identifiable {
     @Published var mainButtonIsDisabled = false
     @Published var errorAlert: AlertBinder?
 
+    let tangemIconProvider: TangemIconProvider
     let feeFooterText: String
 
     // MARK: - Dependencies
@@ -55,6 +56,7 @@ final class ExpressApproveViewModel: ObservableObject, Identifiable {
         selectedAction = input.settings.selectedPolicy
         subtitle = input.settings.subtitle
         feeFooterText = input.settings.feeFooterText
+        tangemIconProvider = input.settings.tangemIconProvider
 
         menuRowViewModel = .init(
             title: Localization.givePermissionRowsAmount(input.settings.tokenItem.currencySymbol),
@@ -182,6 +184,8 @@ extension ExpressApproveViewModel {
         let feeTokenItem: TokenItem
 
         let selectedPolicy: BSDKApprovePolicy
+
+        let tangemIconProvider: TangemIconProvider
     }
 }
 

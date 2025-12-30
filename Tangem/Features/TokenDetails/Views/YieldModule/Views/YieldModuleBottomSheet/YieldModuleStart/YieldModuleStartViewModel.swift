@@ -36,6 +36,8 @@ final class YieldModuleStartViewModel: ObservableObject {
         }
     }
 
+    let tangemIconProvider: TangemIconProvider
+
     private var previousState: ViewState?
 
     // MARK: - Published
@@ -96,13 +98,15 @@ final class YieldModuleStartViewModel: ObservableObject {
         viewState: ViewState,
         coordinator: YieldModulePromoCoordinator?,
         yieldManagerInteractor: YieldManagerInteractor,
-        logger: YieldAnalyticsLogger
+        logger: YieldAnalyticsLogger,
+        tangemIconProvider: TangemIconProvider
     ) {
         self.viewState = viewState
         self.walletModel = walletModel
         self.coordinator = coordinator
         self.yieldManagerInteractor = yieldManagerInteractor
         self.logger = logger
+        self.tangemIconProvider = tangemIconProvider
 
         networkFeeState = .init(
             footerText: Localization.yieldModuleStartEarningSheetNextDepositsV2(walletModel.tokenItem.currencySymbol),
