@@ -27,6 +27,14 @@ final class ReferralViewModel: ObservableObject {
     @Published var expectedAwardsExpanded = false
     @Published private(set) var viewState: ViewState = .loading
 
+    var mainButtonIcon: MainButton.Icon? {
+        guard let model = userWalletRepository.selectedModel else {
+            return nil
+        }
+
+        return CommonTangemIconProvider(config: model.config).getMainButtonIcon()
+    }
+
     private weak var coordinator: ReferralRoutable?
     private let userWalletId: Data
     private let supportedBlockchains: Set<Blockchain>

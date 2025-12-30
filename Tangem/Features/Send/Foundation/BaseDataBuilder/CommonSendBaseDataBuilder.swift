@@ -31,19 +31,22 @@ struct CommonSendBaseDataBuilder {
     private let walletModel: any WalletModel
     private let emailDataProvider: EmailDataProvider
     private let sendReceiveTokensListBuilder: SendReceiveTokensListBuilder
+    private let tangemIconProvider: TangemIconProvider
 
     init(
         baseDataInput: SendBaseDataBuilderInput,
         approveDataInput: SendApproveDataBuilderInput,
         walletModel: any WalletModel,
         emailDataProvider: EmailDataProvider,
-        sendReceiveTokensListBuilder: SendReceiveTokensListBuilder
+        sendReceiveTokensListBuilder: SendReceiveTokensListBuilder,
+        tangemIconProvider: TangemIconProvider
     ) {
         self.baseDataInput = baseDataInput
         self.approveDataInput = approveDataInput
         self.walletModel = walletModel
         self.emailDataProvider = emailDataProvider
         self.sendReceiveTokensListBuilder = sendReceiveTokensListBuilder
+        self.tangemIconProvider = tangemIconProvider
     }
 }
 
@@ -118,7 +121,8 @@ extension CommonSendBaseDataBuilder: SendApproveViewModelInputDataBuilder {
             feeFooterText: Localization.swapGivePermissionFeeFooter,
             tokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem,
-            selectedPolicy: selectedPolicy
+            selectedPolicy: selectedPolicy,
+            tangemIconProvider: tangemIconProvider
         )
 
         let feeFormatter = CommonFeeFormatter()

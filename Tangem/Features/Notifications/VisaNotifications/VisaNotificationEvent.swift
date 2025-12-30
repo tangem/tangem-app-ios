@@ -10,11 +10,12 @@ import Foundation
 import TangemLocalization
 import TangemFoundation
 import TangemAssets
+import TangemUI
 
 enum VisaNotificationEvent {
     case error(UniversalError)
     case onboardingAccountActivationInfo
-    case missingValidRefreshToken
+    case missingValidRefreshToken(icon: MainButton.Icon?)
 }
 
 extension VisaNotificationEvent {
@@ -92,8 +93,8 @@ extension VisaNotificationEvent: NotificationEvent {
 
     var buttonAction: NotificationButtonAction? {
         switch self {
-        case .missingValidRefreshToken:
-            return .init(.unlock, withLoader: true)
+        case .missingValidRefreshToken(let icon):
+            return .init(.unlock(icon: icon), withLoader: true)
         default:
             return nil
         }

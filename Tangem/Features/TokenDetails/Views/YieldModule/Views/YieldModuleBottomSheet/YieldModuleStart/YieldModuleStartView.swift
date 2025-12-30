@@ -96,7 +96,7 @@ struct YieldModuleStartView: View {
         case .startEarning:
             .init(settings: .init(
                 title: Localization.yieldModuleStartEarning,
-                icon: .trailing(Assets.tangemIcon),
+                icon: viewModel.tangemIconProvider.getMainButtonIcon(),
                 style: .primary,
                 isLoading: viewModel.isProcessingStartRequest,
                 isDisabled: !viewModel.isButtonEnabled,
