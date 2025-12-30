@@ -14,7 +14,7 @@ import Testing
 struct SingleTaskProcessorTests {
     @Test("Coalesces concurrent calls to a single task")
     func coalescesConcurrentCalls() async throws {
-        let processor = SingleTaskProcessor<Int, Error>()
+        let processor = SingleTaskProcessor<Int, SpecificError>()
         let counters = Counters()
         let values = Values(start: 1)
 
@@ -34,7 +34,7 @@ struct SingleTaskProcessorTests {
 
     @Test("Late joiners share first result")
     func lateJoinersShareResult() async throws {
-        let processor = SingleTaskProcessor<Int, Error>()
+        let processor = SingleTaskProcessor<Int, SpecificError>()
         let counters = Counters()
         let values = Values(start: 10)
 
@@ -58,7 +58,7 @@ struct SingleTaskProcessorTests {
 
     @Test("Immediate restart creates a fresh task")
     func immediateRestartCreatesFreshTask() async throws {
-        let processor = SingleTaskProcessor<Int, Error>()
+        let processor = SingleTaskProcessor<Int, SpecificError>()
         let counters = Counters()
         let values = Values(start: 1)
 
@@ -77,7 +77,7 @@ struct SingleTaskProcessorTests {
 
     @Test("cancel() cancels current task and throws CancellationError")
     func cancelCancelsCurrentTask() async throws {
-        let processor = SingleTaskProcessor<Int, Error>()
+        let processor = SingleTaskProcessor<Int, SpecificError>()
         let counters = Counters()
         let values = Values(start: 0)
 
@@ -97,7 +97,7 @@ struct SingleTaskProcessorTests {
         do {
             _ = try await running.value
             Issue.record("Expected CancellationError from execute after cancel()")
-        } catch is CancellationError {
+        } catch SpecificError.cancel {
             // expected
         } catch {
             Issue.record("Unexpected error: \(error)")
@@ -117,23 +117,26 @@ struct SingleTaskProcessorTests {
 
     @Test("Rethrows action error and recovers")
     func errorPropagationAndRecovery() async throws {
-        enum DummyError: Error, Equatable { case boom }
-
-        let processor = SingleTaskProcessor<Int, Error>()
+        let processor = SingleTaskProcessor<Int, SpecificError>()
         let counters = Counters()
 
         // First: should throw
-        let throwing: @Sendable () async throws -> Int = {
+        let throwing = { @Sendable () async throws(SpecificError) -> Int in
             await counters.start()
-            try await Task.sleep(for: .milliseconds(30))
+            do {
+                try await Task.sleep(for: .milliseconds(30))
+            } catch {
+                throw .cancel
+            }
+
             // No finish here because the action throws
-            throw DummyError.boom
+            throw .boom
         }
 
         do {
             _ = try await processor.execute(action: throwing)
             Issue.record("Expected DummyError to be thrown")
-        } catch DummyError.boom {
+        } catch .boom {
             // expected
         } catch {
             Issue.record("Unexpected error: \(error)")
@@ -171,12 +174,22 @@ extension SingleTaskProcessorTests {
         func next() -> Int { defer { current += 1 }; return current }
     }
 
-    private func makeAction(values: Values, counters: Counters, delay milliseconds: Int) -> @Sendable () async throws -> Int {
-        return {
+    private enum SpecificError: Error {
+        case cancel
+        case boom
+    }
+
+    private func makeAction(values: Values, counters: Counters, delay milliseconds: Int) -> @Sendable () async throws(SpecificError) -> Int {
+        return { () async throws(SpecificError) -> Int in
             await counters.start()
             let nextValue = await values.next()
-            try await Task.sleep(for: .milliseconds(milliseconds))
-            try Task.checkCancellation()
+
+            do {
+                try await Task.sleep(for: .milliseconds(milliseconds))
+                try Task.checkCancellation()
+            } catch {
+                throw .cancel
+            }
 
             await counters.finish()
             return nextValue
