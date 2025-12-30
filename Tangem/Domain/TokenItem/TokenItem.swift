@@ -137,7 +137,7 @@ enum TokenItem: Hashable, Codable {
 extension TokenItem: CustomStringConvertible {
     var description: String {
         return objectDescription(
-            "TokenItem",
+            String(describing: Self.self),
             userInfo: [
                 "name": name,
                 "derivation": blockchainNetwork.derivationPath?.rawPath ?? "nil",
