@@ -46,6 +46,13 @@ public extension LoadingResult {
         }
     }
 
+    var isError: Bool {
+        switch self {
+        case .failure: true
+        case .loading, .success: false
+        }
+    }
+
     var value: Success? {
         switch self {
         case .success(let value): value
