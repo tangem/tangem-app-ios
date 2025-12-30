@@ -64,7 +64,7 @@ private final class CancellableWrapper {
     }
 
     private var innerCancellable: Cancellable?
-    private let criticalSection = Lock(isRecursive: false)
+    private let criticalSection = OSAllocatedUnfairLock()
 
     func cancel() {
         criticalSection { innerCancellable?.cancel() }
@@ -75,7 +75,7 @@ private final class CancellableWrapper {
 private final class CheckedContinuationWrapper<T, E> where E: Error {
     private var wasResumed = false
     private let continuation: CheckedContinuation<T, E>
-    private let criticalSection = Lock(isRecursive: false)
+    private let criticalSection = OSAllocatedUnfairLock()
 
     init(continuation: CheckedContinuation<T, E>) {
         self.continuation = continuation
