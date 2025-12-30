@@ -49,7 +49,8 @@ class TokenDetailsCoordinator: CoordinatorObject {
         let notificationManager = SingleTokenNotificationManager(
             userWalletId: options.userWalletInfo.id,
             walletModel: options.walletModel,
-            walletModelsManager: options.walletModelsManager
+            walletModelsManager: options.walletModelsManager,
+            tangemIconProvider: CommonTangemIconProvider(config: options.userWalletInfo.config)
         )
 
         let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()

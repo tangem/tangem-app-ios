@@ -161,7 +161,8 @@ extension StakingSingleActionFlowFactory: SendBaseBuildable {
             alertBuilder: makeStakingAlertBuilder(),
             dataBuilder: makeStakingBaseDataBuilder(input: actionModel),
             analyticsLogger: analyticsLogger,
-            blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper()
+            blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper(),
+            tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
         )
     }
 }
