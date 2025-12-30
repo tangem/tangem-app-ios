@@ -47,7 +47,7 @@ struct TangemPayPinView: View {
 
             VStack(spacing: 40) {
                 VStack(spacing: 10) {
-                    Text(Localization.tangempayCardDetailsChangePin)
+                    Text(Localization.tangempaySetPinCode)
                         .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
