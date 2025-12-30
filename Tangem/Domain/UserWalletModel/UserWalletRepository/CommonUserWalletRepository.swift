@@ -155,7 +155,6 @@ class CommonUserWalletRepository: UserWalletRepository {
             let allUserWalletIds = models.map { $0.userWalletId }
             userWalletEncryptionKeyStorage.clear(userWalletIds: allUserWalletIds)
             visaRefreshTokenRepository.clearPersistent()
-            tangemPayAuthorizationTokensRepository.clearPersistent()
             mobileWalletSdk.clearBiometrics(walletIDs: allUserWalletIds)
         }
     }
@@ -176,7 +175,6 @@ class CommonUserWalletRepository: UserWalletRepository {
 
             accessCodeRepository.clear()
             visaRefreshTokenRepository.clearPersistent()
-            tangemPayAuthorizationTokensRepository.clearPersistent()
             let userWalletIds = models.map { $0.userWalletId }
             userWalletDataStorage.clear()
             userWalletEncryptionKeyStorage.clear(userWalletIds: userWalletIds)
