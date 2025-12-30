@@ -1,5 +1,5 @@
 //
-//  TrendingNewsModelMapper.swift
+//  NewsModelMapper.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,9 +11,9 @@ import TangemLocalization
 import TangemUI
 import BlockchainSdk
 
-// MARK: - TrendingNewsModelMapper
+// MARK: - NewsModelMapper
 
-struct TrendingNewsModelMapper {
+struct NewsModelMapper {
     private static let timeFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "HH:mm"
@@ -31,7 +31,9 @@ struct TrendingNewsModelMapper {
         return formatter
     }()
 
-    func mapToNewsModel(from response: TrendingNewsResponse.Item, isRead: Bool) -> TrendingNewsModel {
+    // MARK: - Implementation
+
+    func mapToNewsModel(from response: NewsDTO.List.Item, isRead: Bool) -> TrendingNewsModel {
         TrendingNewsModel(
             id: String(response.id),
             createdAt: response.createdAt,
@@ -44,6 +46,23 @@ struct TrendingNewsModelMapper {
             title: response.title,
             isRead: isRead
         )
+    }
+
+    func mapCarouselNewsItem(
+        from response: NewsDTO.List.Response,
+        onTap: @escaping (String) -> Void
+    ) -> [CarouselNewsItem] {
+        response.items.map { item in
+            CarouselNewsItem(
+                id: String(item.id),
+                title: item.title,
+                rating: formatScore(item.score),
+                timeAgo: formatTimeAgo(from: item.createdAt),
+                tags: buildTags(categories: item.categories, tokens: item.relatedTokens),
+                isRead: false,
+                onTap: onTap
+            )
+        }
     }
 
     func toTrendingCardNewsItem(
@@ -75,7 +94,11 @@ struct TrendingNewsModelMapper {
             onTap: onTap
         )
     }
+}
 
+// MARK: - Private Implementation
+
+private extension NewsModelMapper {
     // MARK: - Private Helpers
 
     private func formatScore(_ score: Double) -> String {
@@ -111,7 +134,10 @@ struct TrendingNewsModelMapper {
         return Self.dateFormatter.string(from: date)
     }
 
-    private func buildTags(categories: [NewsCategory], tokens: [RelatedToken]) -> [InfoChipItem] {
+    private func buildTags(
+        categories: [NewsDTO.List.Category],
+        tokens: [NewsDTO.List.RelatedToken]
+    ) -> [InfoChipItem] {
         var tags: [InfoChipItem] = []
 
         tags.append(contentsOf: categories.map { category in
