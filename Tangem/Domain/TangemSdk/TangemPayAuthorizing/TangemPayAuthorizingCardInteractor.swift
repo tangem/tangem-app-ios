@@ -8,8 +8,13 @@
 
 import TangemSdk
 import TangemVisa
+import TangemLocalization
 
 final class TangemPayAuthorizingCardInteractor: TangemPayAuthorizing {
+    var syncNeededTitle: String {
+        Localization.homeButtonScan
+    }
+
     private let tangemSdk: TangemSdk
     private let filter: SessionFilter
 
