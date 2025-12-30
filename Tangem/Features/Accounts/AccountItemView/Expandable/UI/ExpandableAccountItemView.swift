@@ -18,15 +18,9 @@ struct ExpandableAccountItemView<ExpandedView>: View where ExpandedView: View {
 
     var body: some View {
         ExpandableItemView(
+            isExpanded: viewModel.isExpanded,
             initialCollapsedHeight: Constants.initialCollapsedHeight,
             initialExpandedHeight: Constants.initialExpandedHeight,
-            onExpandedChange: { isExpanded in
-                if isExpanded {
-                    Analytics.log(.mainButtonAccountShowTokens)
-                } else {
-                    Analytics.log(.mainButtonAccountHideTokens)
-                }
-            },
             collapsedView: {
                 CollapsedAccountItemHeaderView(
                     name: viewModel.name,
@@ -48,7 +42,8 @@ struct ExpandableAccountItemView<ExpandedView>: View where ExpandedView: View {
                     name: viewModel.name,
                     iconData: viewModel.iconData,
                 )
-            }
+            },
+            onExpandedChange: viewModel.onExpandedChange
         )
         .onAppear(perform: viewModel.onViewAppear)
     }
@@ -80,20 +75,39 @@ private extension ExpandableAccountItemView {
 
         VStack {
             ScrollView {
-                ExpandableAccountItemView(
-                    viewModel: ExpandableAccountItemViewModel(
-                        accountModel: CryptoAccountModelMock(
-                            isMainAccount: false,
-                            onArchive: { _ in }
-                        )
-                    ),
-                    expandedView: {
-                        ForEach(infoProvider.viewModels, id: \.tokenItem.id) { tokenViewModel in
-                            Text(tokenViewModel.name)
-                                .padding(.bottom, 8)
+                Group {
+                    ExpandableAccountItemView(
+                        viewModel: ExpandableAccountItemViewModel(
+                            accountModel: CryptoAccountModelMock(
+                                isMainAccount: true,
+                                onArchive: { _ in }
+                            ),
+                            stateStorage: ExpandableAccountItemStateStorageStub(isExpanded: true)
+                        ),
+                        expandedView: {
+                            ForEach(infoProvider.viewModels, id: \.tokenItem.id) { tokenViewModel in
+                                Text(tokenViewModel.name)
+                                    .padding(.bottom, 8)
+                            }
                         }
-                    }
-                )
+                    )
+
+                    ExpandableAccountItemView(
+                        viewModel: ExpandableAccountItemViewModel(
+                            accountModel: CryptoAccountModelMock(
+                                isMainAccount: false,
+                                onArchive: { _ in }
+                            ),
+                            stateStorage: ExpandableAccountItemStateStorageStub(isExpanded: false)
+                        ),
+                        expandedView: {
+                            ForEach(infoProvider.viewModels, id: \.tokenItem.id) { tokenViewModel in
+                                Text(tokenViewModel.name)
+                                    .padding(.bottom, 8)
+                            }
+                        }
+                    )
+                }
                 .padding(16)
 
                 Spacer()
