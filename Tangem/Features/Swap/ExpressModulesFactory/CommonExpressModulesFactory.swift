@@ -126,7 +126,8 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
                     feeFooterText: Localization.swapGivePermissionFeeFooter,
                     tokenItem: tokenItem,
                     feeTokenItem: feeTokenItem,
-                    selectedPolicy: selectedPolicy
+                    selectedPolicy: selectedPolicy,
+                    tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
                 ),
                 feeFormatter: feeFormatter,
                 approveViewModelInput: expressDependenciesFactory.expressInteractor,
