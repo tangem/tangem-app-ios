@@ -72,7 +72,7 @@ struct ExpressApproveView: View {
         VStack(spacing: 10) {
             MainButton(
                 title: Localization.commonApprove,
-                icon: .trailing(Assets.tangemIcon),
+                icon: viewModel.tangemIconProvider.getMainButtonIcon(),
                 isLoading: viewModel.isLoading,
                 isDisabled: viewModel.mainButtonIsDisabled,
                 action: viewModel.didTapApprove
