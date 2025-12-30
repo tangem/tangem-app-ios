@@ -16,23 +16,18 @@ enum OneAndOnlyAccountFinder {
     static func find(in userWalletModels: [UserWalletModel]) -> AccountSelectorCellModel? {
         let availableUserWalletModels = userWalletModels.filter { !$0.isUserWalletLocked }
 
-        guard let userWalletModel = availableUserWalletModels.singleElement else {
+        guard
+            let userWalletModel = availableUserWalletModels.singleElement,
+            let accountModel = userWalletModel.accountModelsManager.accountModels.firstStandard()
+        else {
             return nil
         }
 
-        let cryptoAccountModel: (any CryptoAccountModel)?
-        switch userWalletModel.accountModelsManager.accountModels.first {
-        case .standard(let cryptoAccounts):
-            switch cryptoAccounts {
-            case .multiple(let cryptoAccountModels):
-                cryptoAccountModel = cryptoAccountModels.singleElement
-
-            case .single(let model):
-                cryptoAccountModel = model
-            }
-
-        case nil:
-            cryptoAccountModel = nil
+        let cryptoAccountModel = switch accountModel {
+        case .standard(.multiple(let cryptoAccountModels)):
+            cryptoAccountModels.singleElement
+        case .standard(.single(let model)):
+            model
         }
 
         guard let cryptoAccountModel else {
