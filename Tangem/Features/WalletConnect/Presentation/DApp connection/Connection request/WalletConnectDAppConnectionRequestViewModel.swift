@@ -56,7 +56,7 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
 
         self.selectedUserWallet = selectedUserWallet
 
-        let selectedAccountModel = selectedUserWallet.accountModelsManager.accountModels.first
+        let selectedAccountModel = selectedUserWallet.accountModelsManager.accountModels.firstStandard()
 
         switch selectedAccountModel {
         case .standard(.single(let account)):
@@ -614,20 +614,5 @@ private extension WalletConnectWarningNotificationViewModel {
         }
 
         return nil
-    }
-}
-
-extension AccountModel {
-    func firstAvailableStandard() -> any CryptoAccountModel {
-        switch self {
-        case .standard(.single(let cryptoAccount)):
-            return cryptoAccount
-        case .standard(.multiple(let cryptoAccounts)):
-            guard let cryptoAccount = cryptoAccounts.first else {
-                preconditionFailure("Required existence of at least one account in multiple account model")
-            }
-
-            return cryptoAccount
-        }
     }
 }
