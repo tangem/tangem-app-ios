@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 import TangemLocalization
 import SwiftUI
 import TangemAssets
@@ -20,8 +21,8 @@ final class YieldAvailableNotificationViewModel: ObservableObject {
     // MARK: - Init
 
     init(apy: Decimal, onButtonTap: @escaping (Decimal) -> Void) {
-        self.onButtonTap = onButtonTap
         self.apy = apy
+        self.onButtonTap = onButtonTap
     }
 
     // MARK: - Public Implementation
