@@ -12,8 +12,8 @@ import Foundation
 /// If a task is running, new `execute` calls await the same result. When it finishes, a new task can start.
 /// Note: If the current task was cancelled, callers awaiting it will receive `CancellationError`.
 /// - Generic parameter `Result`: The value returned by the task.
-public actor SingleTaskProcessor<Result, Failure: Error> {
-    private var currentTask: Task<Result, Failure>?
+public actor SingleTaskProcessor<Success, Failure: Error> {
+    private var currentTask: Task<Result<Success, Failure>, Never>?
 
     public init() {}
 
@@ -28,44 +28,48 @@ public actor SingleTaskProcessor<Result, Failure: Error> {
 
 public extension SingleTaskProcessor where Failure == Never {
     /// Execute the action, ensuring only one task runs at a time. Concurrent callers await the same result.
-    func execute(action: @escaping @Sendable () async -> Result) async -> Result {
+    func execute(action: @escaping @Sendable () async -> Success) async -> Success {
         if let task = currentTask {
             let currentResult = await task.value
-            return currentResult
+            return currentResult.get()
         }
 
-        let task = Task {
+        let task = Task<Result<Success, Failure>, Never> {
             // Clear the reference after completion so future calls can start a new task
             defer { currentTask = nil }
 
-            let result = await action()
-            return result
+            let success = await action()
+            return .success(success)
         }
 
         currentTask = task
-        return await task.value
+        return await task.value.get()
     }
 }
 
 // MARK: - Throwable
 
-public extension SingleTaskProcessor where Failure == Error {
+public extension SingleTaskProcessor {
     /// Execute the throwing action with single-flight behavior. Concurrent callers await the same result.
-    func execute(action: @escaping @Sendable () async throws -> Result) async throws -> Result {
+    func execute(action: @escaping @Sendable () async throws(Failure) -> Success) async throws(Failure) -> Success {
         if let task = currentTask {
-            let currentResult = try await task.value
+            let currentResult = try await task.value.get()
             return currentResult
         }
 
-        let task = Task {
+        let task = Task<Result<Success, Failure>, Never> {
             // Clear the reference after completion so future calls can start a new task
             defer { currentTask = nil }
 
-            let result = try await action()
-            return result
+            do throws(Failure) {
+                let success = try await action()
+                return .success(success)
+            } catch {
+                return .failure(error)
+            }
         }
 
         currentTask = task
-        return try await task.value
+        return try await task.value.get()
     }
 }
