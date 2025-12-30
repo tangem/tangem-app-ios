@@ -67,7 +67,7 @@ struct TransactionDispatcherFactory {
             walletModelUpdater: walletModel,
             transactionsSender: transactionsSender,
             transactionSigner: signer,
-            logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem)
+            logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId)
         )
     }
 }
