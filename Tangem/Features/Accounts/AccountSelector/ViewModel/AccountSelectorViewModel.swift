@@ -116,7 +116,9 @@ final class AccountSelectorViewModel: ObservableObject {
     private func bind() {
         userWalletModels
             .forEach { userWallet in
-                userWallet.accountModelsManager.accountModelsPublisher
+                userWallet
+                    .accountModelsManager
+                    .accountModelsPublisher
                     .receiveOnMain()
                     .withWeakCaptureOf(self)
                     .sink { viewModel, accountModels in
