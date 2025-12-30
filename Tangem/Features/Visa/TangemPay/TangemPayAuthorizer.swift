@@ -23,6 +23,10 @@ final class TangemPayAuthorizer {
         stateSubject.eraseToAnyPublisher()
     }
 
+    var syncNeededTitle: String {
+        interactor.syncNeededTitle
+    }
+
     private let interactor: TangemPayAuthorizing
     private let stateSubject: CurrentValueSubject<State, Never>
 
