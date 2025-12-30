@@ -34,7 +34,7 @@ struct TangemPayPinCheckView: View {
                     Group {
                         switch viewModel.state {
                         case .loading:
-                            ActivityIndicatorView()
+                            ActivityIndicatorView(color: UIColor(Color.Tangem.Graphic.Neutral.tertiary))
 
                         case .loaded(let pin):
                             OnboardingPinStackView(
@@ -42,8 +42,7 @@ struct TangemPayPinCheckView: View {
                                 isDisabled: true,
                                 pinText: .constant(pin)
                             )
-                            .screenCaptureProtection()
-                            .fixedSize()
+                            .pinStackDigitBackground(Colors.Background.action)
                         }
                     }
                 }
@@ -56,11 +55,20 @@ struct TangemPayPinCheckView: View {
         .padding(.horizontal, 12)
         .padding(.bottom, 12)
         .overlay(alignment: .topTrailing) {
-            CircleButton
-                .close(action: viewModel.close)
-                .size(.small)
-                .padding(.top, 8)
-                .padding(.trailing, 16)
+            Button(action: viewModel.close, label: {
+                Assets.Glyphs.cross20ButtonNew.image
+                    .resizable()
+                    .renderingMode(.template)
+                    .frame(width: 24, height: 24)
+                    .padding(4)
+                    .foregroundStyle(Color.Tangem.Fill.Neutral.secondary)
+                    .background {
+                        Capsule()
+                            .fill(Colors.Button.secondary)
+                    }
+            })
+            .padding(.top, 8)
+            .padding(.trailing, 16)
         }
         .overlay(alignment: .bottom) {
             switch viewModel.state {
@@ -70,11 +78,13 @@ struct TangemPayPinCheckView: View {
             case .loaded:
                 MainButton(
                     title: Localization.tangempayChangePinCode,
+                    style: .secondary,
                     action: viewModel.changePin
                 )
                 .padding(.bottom, 16)
                 .padding(.horizontal, 16)
             }
         }
+        .background(Color.Tangem.Surface.level3)
     }
 }
