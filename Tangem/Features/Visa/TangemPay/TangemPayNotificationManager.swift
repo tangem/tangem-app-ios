@@ -15,11 +15,12 @@ final class TangemPayNotificationManager {
     private var cancellable: Cancellable?
 
     init(
+        syncNeededTitle: String,
         tangemPayAuthorizerStatePublisher: AnyPublisher<TangemPayAuthorizer.State, Never>,
         tangemPayAccountStatusPublisher: AnyPublisher<TangemPayStatus, Never>
     ) {
         cancellable = Publishers.Merge(
-            tangemPayAuthorizerStatePublisher.map(\.notificationEvent),
+            tangemPayAuthorizerStatePublisher.map { $0.asNotificationEvent(syncNeededTitle) },
             tangemPayAccountStatusPublisher.map(\.notificationEvent)
         )
         .withWeakCaptureOf(self)
@@ -69,16 +70,16 @@ extension TangemPayNotificationManager: NotificationManager {
 // MARK: - TangemPayAuthorizer.State+notificationEvent
 
 private extension TangemPayAuthorizer.State {
-    var notificationEvent: TangemPayNotificationEvent? {
+    func asNotificationEvent(_ syncNeededTitle: String) -> TangemPayNotificationEvent? {
         switch self {
         case .authorized:
-            nil
+            return nil
 
         case .syncNeeded:
-            .syncNeeded
+            return .syncNeeded(syncNeededTitle)
 
         case .unavailable:
-            .unavailable
+            return .unavailable
         }
     }
 }
