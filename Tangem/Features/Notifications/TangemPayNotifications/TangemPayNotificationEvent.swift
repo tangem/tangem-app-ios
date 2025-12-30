@@ -12,7 +12,7 @@ import TangemFoundation
 import TangemAssets
 
 enum TangemPayNotificationEvent: Equatable, Hashable {
-    case syncNeeded
+    case syncNeeded(String)
     case unavailable
     case tangemPayIsNowBeta
 }
@@ -68,9 +68,9 @@ extension TangemPayNotificationEvent: NotificationEvent {
 
     var buttonAction: NotificationButtonAction? {
         switch self {
-        case .syncNeeded:
+        case .syncNeeded(let title):
             NotificationButtonAction(
-                .tangemPaySync,
+                .tangemPaySync(title: title),
                 withLoader: true,
                 isDisabled: false
             )
