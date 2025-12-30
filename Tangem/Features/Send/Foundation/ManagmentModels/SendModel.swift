@@ -49,7 +49,7 @@ class SendModel {
 
     // MARK: - Private injections
 
-    private let transactionSigner: TransactionSigner
+    private let transactionSigner: TangemSigner
     private let feeIncludedCalculator: FeeIncludedCalculator
     private let analyticsLogger: SendAnalyticsLogger
     private let sendReceiveTokenBuilder: SendReceiveTokenBuilder
@@ -65,7 +65,7 @@ class SendModel {
 
     init(
         userToken: SendSourceToken,
-        transactionSigner: TransactionSigner,
+        transactionSigner: TangemSigner,
         feeIncludedCalculator: FeeIncludedCalculator,
         analyticsLogger: SendAnalyticsLogger,
         sendReceiveTokenBuilder: SendReceiveTokenBuilder,
@@ -262,7 +262,10 @@ private extension SendModel {
     /// 2. Second we check the high price impact warning
     private func sendIfHighPriceImpactWarningChecking() async throws -> TransactionDispatcherResult {
         if let highPriceImpact = await highPriceImpact, highPriceImpact.isHighPriceImpact {
-            let viewModel = HighPriceImpactWarningSheetViewModel(highPriceImpact: highPriceImpact)
+            let viewModel = HighPriceImpactWarningSheetViewModel(
+                highPriceImpact: highPriceImpact,
+                tangemIconProvider: CommonTangemIconProvider(signer: transactionSigner)
+            )
             router?.openHighPriceImpactWarningSheetViewModel(viewModel: viewModel)
 
             return try await viewModel.process(send: send)
