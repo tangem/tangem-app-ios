@@ -544,9 +544,9 @@ private extension UserWalletSettingsViewModel {
         }
 
         // accounts_fixes_needed_none
-        let workMode: ReferralViewModel.WorkMode = FeatureProvider.isAvailable(.accounts) ?
-            .accounts(userWalletModel.accountModelsManager) :
-            .plainUserTokensManager(userWalletModel.userTokensManager)
+        let workMode: ReferralViewModel.WorkMode = FeatureProvider.isAvailable(.accounts)
+            ? .accounts(userWalletModel.accountModelsManager)
+            : .plainUserTokensManager(userWalletModel.userTokensManager)
 
         let input = ReferralInputModel(
             userWalletId: userWalletModel.userWalletId.value,
@@ -665,7 +665,8 @@ private extension UserWalletSettingsViewModel {
 
         private func setupDependencies() {
             if FeatureProvider.isAvailable(.accounts) {
-                userWalletModel.accountModelsManager
+                userWalletModel
+                    .accountModelsManager
                     .accountModelsPublisher
                     .receiveOnMain()
                     .sink { [weak self] accountModels in
@@ -682,7 +683,7 @@ private extension UserWalletSettingsViewModel {
         }
 
         private func updateManagersForAccountMode(accountModels: [AccountModel]) {
-            guard let accountModel = accountModels.first else {
+            guard let accountModel = accountModels.firstStandard() else {
                 updateManagers(walletModelsManager: nil, userTokensManager: nil)
                 return
             }
