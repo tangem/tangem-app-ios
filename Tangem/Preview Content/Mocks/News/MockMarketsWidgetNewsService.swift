@@ -29,7 +29,14 @@ final class MockMarketsWidgetNewsService: MarketsWidgetNewsProvider {
         return .just(output: ())
     }
 
-    private let mapper = TrendingNewsModelMapper()
+    lazy var trendingNewsDecoder: JSONDecoder = {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601WithFractionalSeconds
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        return decoder
+    }()
+
+    private let mapper = NewsModelMapper()
 
     func fetch() {
         newsResultValueSubject.value = .loading
@@ -69,7 +76,7 @@ final class MockMarketsWidgetNewsService: MarketsWidgetNewsProvider {
                 }
 
                 let data = try Data(contentsOf: url)
-                let decoder = JSONDecoder.trendingNewsDecoder
+                let decoder = trendingNewsDecoder
                 let response = try decoder.decode(TrendingNewsResponse.self, from: data)
                 let success = response.items.map { mapper.mapToNewsModel(from: $0, isRead: Bool.random()) }
 
