@@ -33,7 +33,7 @@ extension CryptoAccounts {
 }
 
 extension Array where Element == AccountModel {
-    func standard() -> AccountModel? {
+    func firstStandard() -> AccountModel? {
         first { account in
             if case .standard = account {
                 return true
