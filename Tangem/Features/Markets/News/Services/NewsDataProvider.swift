@@ -67,20 +67,14 @@ final class NewsDataProvider {
     }
 
     func fetch(categoryIds: [Int]? = nil) {
-        print("📰 [NewsDataProvider] fetch called with categoryIds: \(String(describing: categoryIds))")
-
         _eventSubject.send(.loading)
         isLoading = true
 
         if lastCategoryIds != categoryIds {
-            print("📰 [NewsDataProvider] categoryIds changed, clearing items")
             clearItems()
         }
 
-        guard scheduledFetchTask == nil else {
-            print("📰 [NewsDataProvider] scheduledFetchTask exists, skipping fetch")
-            return
-        }
+        guard scheduledFetchTask == nil else { return }
 
         lastCategoryIds = categoryIds
 
@@ -89,12 +83,9 @@ final class NewsDataProvider {
             guard let self else { return }
 
             do {
-                print("📰 [NewsDataProvider] starting API request...")
                 let response = try await loadItems(categoryIds: categoryIds)
-                print("📰 [NewsDataProvider] API success, got \(response.items.count) items")
                 handleFetchResult(.success(response))
             } catch {
-                print("📰 [NewsDataProvider] API error: \(error)")
                 handleFetchResult(.failure(error))
             }
         }.eraseToAnyCancellable()
@@ -148,17 +139,12 @@ final class NewsDataProvider {
     }
 
     private func handleFetchResult(_ result: Result<NewsDTO.List.Response, Error>) {
-        print("📰 [NewsDataProvider] handleFetchResult called")
-
         do {
             let response = try result.get()
-
-            print("📰 [NewsDataProvider] response meta - page: \(response.meta.page), hasNext: \(response.meta.hasNext), total: \(response.meta.total)")
 
             currentPage = response.meta.page + 1
             hasNext = response.meta.hasNext
 
-            // Store asOf from first request to keep pagination stable
             if currentAsOf == nil {
                 currentAsOf = response.meta.asOf
             }
@@ -166,7 +152,6 @@ final class NewsDataProvider {
             isLoading = false
             hasLoadedItems = true
 
-            print("📰 [NewsDataProvider] sending .appendedItems event with \(response.items.count) items")
             _eventSubject.send(.appendedItems(items: response.items, lastPage: !response.meta.hasNext))
         } catch {
             if error.isCancellationError {
