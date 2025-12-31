@@ -22,7 +22,8 @@ struct SendBaseDataBuilderFactory {
             approveDataInput: approveDataInput,
             walletModel: walletModel,
             emailDataProvider: userWalletInfo.emailDataProvider,
-            sendReceiveTokensListBuilder: sendReceiveTokensListBuilder
+            sendReceiveTokensListBuilder: sendReceiveTokensListBuilder,
+            tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
         )
     }
 
@@ -32,7 +33,8 @@ struct SendBaseDataBuilderFactory {
         CommonStakingBaseDataBuilder(
             input: input,
             walletModel: walletModel,
-            emailDataProvider: userWalletInfo.emailDataProvider
+            emailDataProvider: userWalletInfo.emailDataProvider,
+            tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
         )
     }
 

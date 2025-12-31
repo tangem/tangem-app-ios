@@ -49,7 +49,7 @@ class SendModel {
 
     // MARK: - Private injections
 
-    private let transactionSigner: TransactionSigner
+    private let transactionSigner: TangemSigner
     private let feeIncludedCalculator: FeeIncludedCalculator
     private let analyticsLogger: SendAnalyticsLogger
     private let sendReceiveTokenBuilder: SendReceiveTokenBuilder
@@ -58,13 +58,14 @@ class SendModel {
 
     private let balanceConverter = BalanceConverter()
 
+    private var destinationAccountAnalyticsProvider: (any AccountModelAnalyticsProviding)?
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Public interface
 
     init(
         userToken: SendSourceToken,
-        transactionSigner: TransactionSigner,
+        transactionSigner: TangemSigner,
         feeIncludedCalculator: FeeIncludedCalculator,
         analyticsLogger: SendAnalyticsLogger,
         sendReceiveTokenBuilder: SendReceiveTokenBuilder,
@@ -153,7 +154,8 @@ private extension SendModel {
             .sink {
                 $0.swapManager.update(
                     destination: $1.0.receiveToken?.tokenItem,
-                    address: $1.1?.value.transactionAddress
+                    address: $1.1?.value.transactionAddress,
+                    accountModelAnalyticsProvider: $0.destinationAccountAnalyticsProvider
                 )
             }
             .store(in: &bag)
@@ -260,7 +262,10 @@ private extension SendModel {
     /// 2. Second we check the high price impact warning
     private func sendIfHighPriceImpactWarningChecking() async throws -> TransactionDispatcherResult {
         if let highPriceImpact = await highPriceImpact, highPriceImpact.isHighPriceImpact {
-            let viewModel = HighPriceImpactWarningSheetViewModel(highPriceImpact: highPriceImpact)
+            let viewModel = HighPriceImpactWarningSheetViewModel(
+                highPriceImpact: highPriceImpact,
+                tangemIconProvider: CommonTangemIconProvider(signer: transactionSigner)
+            )
             router?.openHighPriceImpactWarningSheetViewModel(viewModel: viewModel)
 
             return try await viewModel.process(send: send)
@@ -876,6 +881,15 @@ extension SendModel: SendBaseDataBuilderInput {
 
     var isFeeIncluded: Bool {
         _isFeeIncluded.value
+    }
+}
+
+// MARK: - SendDestinationAccountOutput
+
+extension SendModel: SendDestinationAccountOutput {
+    func setDestinationAccountAnalyticsProvider(_ provider: (any AccountModelAnalyticsProviding)?) {
+        destinationAccountAnalyticsProvider = provider
+        analyticsLogger.setDestinationAnalyticsProvider(provider)
     }
 }
 

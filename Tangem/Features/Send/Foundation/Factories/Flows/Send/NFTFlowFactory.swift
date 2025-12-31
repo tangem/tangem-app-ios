@@ -13,6 +13,7 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
     let tokenIconInfo: TokenIconInfo
+    let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
     let nftAssetStepBuilder: NFTAssetStepBuilder
     let tokenHeaderProvider: SendGenericTokenHeaderProvider
 
@@ -29,8 +30,9 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
     let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let expressDependenciesFactory: ExpressDependenciesFactory
 
+    let analyticsLogger: SendAnalyticsLogger
+
     lazy var swapManager = makeSwapManager()
-    lazy var analyticsLogger = makeSendAnalyticsLogger(sendType: .nft)
     lazy var sendModel = makeSendWithSwapModel(
         swapManager: swapManager,
         analyticsLogger: analyticsLogger,
@@ -66,11 +68,13 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
             from: walletModel.tokenItem,
             isCustom: walletModel.isCustom
         )
+        accountModelAnalyticsProvider = walletModel.account
         walletAddresses = walletModel.addresses.map(\.value)
-        suggestedWallets = SendSuggestedWalletsFactory().makeSuggestedWallets(
-            walletModel: walletModel
-        )
         shouldShowFeeSelector = walletModel.shouldShowFeeSelector
+
+        suggestedWallets = SendSuggestedWalletsFactory().makeSuggestedWallets(walletModel: walletModel)
+        analyticsLogger = Self.makeSendAnalyticsLogger(walletModel: walletModel, sendType: .nft)
+
         walletModelHistoryUpdater = walletModel
         walletModelFeeProvider = walletModel
         walletModelDependenciesProvider = walletModel
@@ -190,7 +194,8 @@ extension NFTFlowFactory: SendBaseBuildable {
                 )
             ),
             analyticsLogger: analyticsLogger,
-            blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper()
+            blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper(),
+            tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
         )
     }
 }
@@ -199,7 +204,12 @@ extension NFTFlowFactory: SendBaseBuildable {
 
 extension NFTFlowFactory: SendDestinationStepBuildable {
     var destinationIO: SendDestinationStepBuilder.IO {
-        SendDestinationStepBuilder.IO(input: sendModel, output: sendModel, receiveTokenInput: sendModel)
+        SendDestinationStepBuilder.IO(
+            input: sendModel,
+            output: sendModel,
+            receiveTokenInput: sendModel,
+            destinationAccountOutput: sendModel
+        )
     }
 
     var destinationDependencies: SendDestinationStepBuilder.Dependencies {

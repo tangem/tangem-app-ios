@@ -14,6 +14,7 @@ class SellFlowFactory: SendFlowBaseDependenciesFactory {
     let tokenIconInfo: TokenIconInfo
     let userWalletInfo: UserWalletInfo
     let sellParameters: PredefinedSellParameters
+    let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
 
     let tokenHeaderProvider: SendGenericTokenHeaderProvider
     let shouldShowFeeSelector: Bool
@@ -25,9 +26,9 @@ class SellFlowFactory: SendFlowBaseDependenciesFactory {
     let transactionDispatcherFactory: TransactionDispatcherFactory
     let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let expressDependenciesFactory: any ExpressDependenciesFactory
+    let analyticsLogger: SendAnalyticsLogger
 
     lazy var swapManager = makeSwapManager()
-    lazy var analyticsLogger = makeSendAnalyticsLogger(sendType: .sell)
     lazy var sendModel = makeSendWithSwapModel(
         swapManager: swapManager,
         analyticsLogger: analyticsLogger,
@@ -61,6 +62,7 @@ class SellFlowFactory: SendFlowBaseDependenciesFactory {
             from: walletModel.tokenItem,
             isCustom: walletModel.isCustom
         )
+        accountModelAnalyticsProvider = walletModel.account
 
         shouldShowFeeSelector = walletModel.shouldShowFeeSelector
         walletModelFeeProvider = walletModel
@@ -89,6 +91,8 @@ class SellFlowFactory: SendFlowBaseDependenciesFactory {
         )
 
         expressDependenciesFactory = CommonExpressDependenciesFactory(input: expressDependenciesInput)
+
+        analyticsLogger = Self.makeSendAnalyticsLogger(walletModel: walletModel, sendType: .sell)
     }
 
     private func mapToPredefinedValues(sellParameters: PredefinedSellParameters?) -> SendModel.PredefinedValues {
@@ -224,7 +228,8 @@ extension SellFlowFactory: SendBaseBuildable {
                 )
             ),
             analyticsLogger: analyticsLogger,
-            blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper()
+            blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper(),
+            tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
         )
     }
 }

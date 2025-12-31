@@ -13,6 +13,7 @@ import BlockchainSdk
 import TangemFoundation
 
 /// Legacy VM w/o accounts supports, use `MarketsAccountsAwarePortfolioContainerViewModel` instead when accounts are available.
+@available(iOS, deprecated: 100000.0, message: "Only used when accounts are disabled, will be removed in the future ([REDACTED_INFO])")
 final class MarketsPortfolioContainerViewModel: ObservableObject {
     // MARK: - Published Properties
 
@@ -311,6 +312,11 @@ extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsDele
             Analytics.log(event: .marketsChartButtonStake, params: analyticsParams)
             if let stakingManager = walletModel.stakingManager {
                 coordinator.openStaking(input: sendInput, stakingManager: stakingManager)
+            }
+        case .yield:
+            Analytics.log(event: .marketsChartButtonYieldMode, params: analyticsParams)
+            if let yieldModuleManager = walletModel.yieldModuleManager {
+                coordinator.openYield(input: sendInput, yieldModuleManager: yieldModuleManager)
             }
         case .hide, .marketsDetails, .send, .sell, .copyAddress:
             // An empty value because it is not available
