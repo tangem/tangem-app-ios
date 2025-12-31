@@ -84,7 +84,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
         // Resetting drag-and-drop actions cache for grouped sections
         // when the structure of the underlying model has changed
         organizedTokensSectionsPublisher
-            .withLatestFrom(optionsProviding.groupingOption) { ($0, $1) }
+            .withLatestFrom(optionsProviding.groupingOptionPublisher) { ($0, $1) }
             .filter { $0.1.isGrouped }
             .map(\.0)
             .pairwise()
@@ -94,7 +94,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
         // Resetting drag-and-drop actions cache for plain (non-grouped) sections
         // when the structure of the underlying model has changed
         organizedTokensSectionsPublisher
-            .withLatestFrom(optionsProviding.groupingOption) { ($0, $1) }
+            .withLatestFrom(optionsProviding.groupingOptionPublisher) { ($0, $1) }
             .filter { !$0.1.isGrouped }
             .map(\.0)
             .pairwise()
@@ -103,15 +103,15 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
 
         // Resetting drag-and-drop actions cache unconditionally when sort option is changed
         optionsProviding
-            .sortingOption
+            .sortingOptionPublisher
             .removeDuplicates()
             .sink { _ in cache.reset() }
             .store(in: &bag)
 
         organizedTokensSectionsPublisher
             .withLatestFrom(
-                optionsProviding.sortingOption,
-                optionsProviding.groupingOption
+                optionsProviding.sortingOptionPublisher,
+                optionsProviding.groupingOptionPublisher
             ) { ($0, $1.0, $1.1, cache) }
             .map(Self.map)
             .receive(on: DispatchQueue.main)
@@ -142,8 +142,8 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
 
         onSavePublisher
             .withLatestFrom(
-                optionsProviding.sortingOption,
-                optionsProviding.groupingOption
+                optionsProviding.sortingOptionPublisher,
+                optionsProviding.groupingOptionPublisher
             )
             .withWeakCaptureOf(self)
             .sink { input in

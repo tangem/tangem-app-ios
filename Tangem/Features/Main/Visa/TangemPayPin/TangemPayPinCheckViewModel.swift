@@ -55,9 +55,6 @@ final class TangemPayPinCheckViewModel: ObservableObject, Identifiable {
     private func revealPin() {
         runTask(in: self) { viewModel in
             do {
-                guard let cardId = viewModel.tangemPayAccount.cardId else {
-                    return
-                }
                 let service = viewModel.tangemPayAccount
                     .customerInfoManagementService
 
@@ -71,11 +68,10 @@ final class TangemPayPinCheckViewModel: ObservableObject, Identifiable {
                         publicKey: publicKey
                     )
                 let response = try await service.getPin(
-                    cardId: cardId,
                     sessionId: sessionId
                 )
                 let decryptedBlock = try RainCryptoUtilities.decryptSecret(
-                    base64Secret: response.encryptedPin,
+                    base64Secret: response.secret,
                     base64Iv: response.iv,
                     secretKey: secretKey
                 )
@@ -83,7 +79,9 @@ final class TangemPayPinCheckViewModel: ObservableObject, Identifiable {
                     encryptedBlock: decryptedBlock
                 )
 
-                viewModel.state = .loaded(PIN: decryptedPin)
+                Task { @MainActor in
+                    viewModel.state = .loaded(PIN: decryptedPin)
+                }
             } catch {
                 viewModel.onError()
             }

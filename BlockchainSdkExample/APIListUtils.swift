@@ -55,6 +55,7 @@ struct ConfigUtils {
                 quickNodeBscCredentials: .init(apiKey: keys.bscQuiknodeApiKey, subdomain: keys.bscQuiknodeSubdomain),
                 quickNodePlasmaCredentials: .init(apiKey: keys.quiknodePlasmaApiKey, subdomain: keys.quiknodePlasmaSubdomain),
                 bittensorDwellirKey: keys.bittensorDwellirKey,
+                dwellirApiKey: keys.dwellirApiKey,
                 bittensorOnfinalityKey: keys.bittensorOnfinalityKey,
                 tangemAlephiumApiKey: keys.alephiumTangemApiKey,
                 blinkApiKey: keys.blinkApiKey,
@@ -80,6 +81,7 @@ struct ConfigUtils {
                 quickNodeBscCredentials: .init(apiKey: "", subdomain: ""),
                 quickNodePlasmaCredentials: .init(apiKey: "", subdomain: ""),
                 bittensorDwellirKey: "",
+                dwellirApiKey: "",
                 bittensorOnfinalityKey: "",
                 tangemAlephiumApiKey: "",
                 blinkApiKey: "",
@@ -210,6 +212,7 @@ struct Keys: Decodable {
     let etherscanApiKey: String
     let koinosProApiKey: String
     let bittensorDwellirKey: String
+    let dwellirApiKey: String
     let bittensorOnfinalityKey: String
     let alephiumTangemApiKey: String
     let blinkApiKey: String

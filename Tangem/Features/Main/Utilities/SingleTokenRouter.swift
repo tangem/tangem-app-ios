@@ -27,6 +27,7 @@ protocol SingleTokenRoutable {
         tokenItem: TokenItem,
         pendingTransactionsManager: PendingExpressTransactionsManager
     )
+    func openYieldModule(walletModel: any WalletModel)
 }
 
 final class SingleTokenRouter: SingleTokenRoutable {
@@ -142,6 +143,7 @@ final class SingleTokenRouter: SingleTokenRoutable {
             currentPrice: quoteData?.price,
             priceChangePercentage: MarketsTokenQuoteHelper().makePriceChangeIntervalsDictionary(from: quoteData) ?? [:],
             marketRating: nil,
+            maxYieldApy: nil,
             marketCap: nil,
             isUnderMarketCapLimit: nil,
             stakingOpportunities: nil
@@ -162,6 +164,8 @@ final class SingleTokenRouter: SingleTokenRoutable {
             pendingTransactionsManager: pendingTransactionsManager
         )
     }
+
+    func openYieldModule(walletModel: any WalletModel) {}
 
     private func getTokenItemId(for tokenItem: TokenItem) -> TokenItemId? {
         guard tokenItem.isBlockchain, tokenItem.blockchain.isL2EthereumNetwork else {
