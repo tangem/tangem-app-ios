@@ -37,9 +37,13 @@ public struct PageIndicatorView: View {
 
     private func dot(for index: Int) -> some View {
         let size = dotSize(for: index)
+        let isActive = index == currentIndex
+        let color = isActive
+            ? Color.Tangem.Graphic.Neutral.primaryInvertedConstant
+            : Color.Tangem.Text.Neutral.tertiary
 
         return RoundedRectangle(cornerRadius: size.height / 2, style: .continuous)
-            .fill(Color.Tangem.Text.Neutral.primaryInvertedConstant)
+            .fill(color)
             .frame(width: size.width, height: size.height)
     }
 

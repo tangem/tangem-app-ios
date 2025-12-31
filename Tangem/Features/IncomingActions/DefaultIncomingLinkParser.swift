@@ -46,6 +46,58 @@ struct DefaultIncomingLinkParser {
         IncomingActionConstants.DeeplinkDestination(rawValue: host)
     }
 
+    /// Parses news Universal Link
+    /// Format: https://tangem.com/news/{category}/{id}-{slug}
+    /// Example: https://tangem.com/news/markets/190801-polygon-protiv-ethereum
+    private func parseNewsUniversalLink(_ url: URL) -> IncomingAction? {
+        let components = url.pathComponents
+        // pathComponents: ["/", "news", "markets", "190801-polygon-slug"]
+        guard components.count >= 4,
+              components[1].lowercased() == "news"
+        else {
+            return nil
+        }
+
+        // Extract id from "{id}-{slug}" format
+        let idSlugComponent = components[3]
+        let idString: String
+        if let dashIndex = idSlugComponent.firstIndex(of: "-") {
+            idString = String(idSlugComponent[..<dashIndex])
+        } else {
+            idString = idSlugComponent
+        }
+
+        guard !idString.isEmpty, Int(idString) != nil else {
+            return nil
+        }
+
+        let params = DeeplinkParams(
+            type: nil,
+            name: nil,
+            tokenId: nil,
+            networkId: nil,
+            userWalletId: nil,
+            derivationPath: nil,
+            transactionId: nil,
+            promoCode: nil,
+            url: nil,
+            entry: nil,
+            id: idString
+        )
+
+        let deeplinkNavAction = DeeplinkNavigationAction(
+            destination: .news,
+            params: params,
+            deeplinkString: url.absoluteString
+        )
+
+        guard deeplinkValidator.hasMinimumDataForHandling(deeplink: deeplinkNavAction) else {
+            return nil
+        }
+
+        return .navigation(deeplinkNavAction)
+    }
+
     private func parseExternalLink(_ url: URL) -> IncomingAction? {
         if url.pathComponents.contains(IncomingActionConstants.ndefPath) {
             return .start
@@ -65,6 +117,11 @@ struct DefaultIncomingLinkParser {
             } else {
                 return nil
             }
+        }
+
+        // Handle /news/{category}/{id}-{slug} path for Universal Links
+        if let newsAction = parseNewsUniversalLink(url) {
+            return newsAction
         }
 
         let navAction = DeeplinkNavigationAction(
@@ -95,6 +152,56 @@ struct DefaultIncomingLinkParser {
 
         return .navigation(deeplinkNavAction)
     }
+
+    /// Parses news subdomain Universal Link
+    /// Format: https://news.tangem.com/{category}/{id}-{slug}
+    /// Example: https://news.tangem.com/markets/190801-polygon-protiv-ethereum
+    private func parseNewsSubdomainLink(_ url: URL) -> IncomingAction? {
+        let components = url.pathComponents
+        // pathComponents: ["/", "markets", "190801-polygon-slug"]
+        guard components.count >= 3 else {
+            return nil
+        }
+
+        // Extract id from "{id}-{slug}" format (component at index 2)
+        let idSlugComponent = components[2]
+        let idString: String
+        if let dashIndex = idSlugComponent.firstIndex(of: "-") {
+            idString = String(idSlugComponent[..<dashIndex])
+        } else {
+            idString = idSlugComponent
+        }
+
+        guard !idString.isEmpty, Int(idString) != nil else {
+            return nil
+        }
+
+        let params = DeeplinkParams(
+            type: nil,
+            name: nil,
+            tokenId: nil,
+            networkId: nil,
+            userWalletId: nil,
+            derivationPath: nil,
+            transactionId: nil,
+            promoCode: nil,
+            url: nil,
+            entry: nil,
+            id: idString
+        )
+
+        let deeplinkNavAction = DeeplinkNavigationAction(
+            destination: .news,
+            params: params,
+            deeplinkString: url.absoluteString
+        )
+
+        guard deeplinkValidator.hasMinimumDataForHandling(deeplink: deeplinkNavAction) else {
+            return nil
+        }
+
+        return .navigation(deeplinkNavAction)
+    }
 }
 
 // MARK: - IncomingActionURLParser
@@ -102,6 +209,12 @@ struct DefaultIncomingLinkParser {
 extension DefaultIncomingLinkParser: IncomingActionURLParser {
     func parse(_ url: URL) -> IncomingAction? {
         let urlString = url.absoluteString
+
+        // Handle news.tangem.com subdomain
+        // Format: https://news.tangem.com/{category}/{id}-{slug}
+        if urlString.starts(with: IncomingActionConstants.newsTangemDomain) {
+            return parseNewsSubdomainLink(url)
+        }
 
         if urlString.starts(with: IncomingActionConstants.tangemDomain) || urlString.starts(with: IncomingActionConstants.appTangemDomain) {
             return parseExternalLink(url)

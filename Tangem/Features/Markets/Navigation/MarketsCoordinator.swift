@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import UIKit
+import SafariServices
 
 class MarketsCoordinator: CoordinatorObject {
     // MARK: - Dependencies
@@ -26,6 +27,7 @@ class MarketsCoordinator: CoordinatorObject {
     @Published var tokenDetailsCoordinator: MarketsTokenDetailsCoordinator?
     @Published var marketsSearchCoordinator: MarketsSearchCoordinator?
     @Published var newsListCoordinator: NewsListCoordinator?
+    @Published var newsPagerViewModel: NewsPagerViewModel?
 
     // MARK: - Child ViewModels
 
@@ -110,26 +112,77 @@ extension MarketsCoordinator: MarketsMainRoutable {
 
             self.marketsSearchCoordinator = marketsSearchCoordinator
         case .news:
-            let coordinator = NewsListCoordinator(
-                dismissAction: { [weak self] in
-                    self?.newsListCoordinator = nil
-                }
-            )
-
-            coordinator.start(with: .init())
-
-            newsListCoordinator = coordinator
+            openNewsList()
         case .earn:
             // [REDACTED_TODO_COMMENT]
             break
         }
     }
 
-    func openNews(by id: NewsId) {
-        // [REDACTED_TODO_COMMENT]
+    func openNewsDetails(newsIds: [Int], selectedIndex: Int) {
+        let viewModel = NewsPagerViewModel(
+            newsIds: newsIds,
+            initialIndex: selectedIndex,
+            dateFormatter: NewsDateFormatter(),
+            coordinator: self
+        )
+        newsPagerViewModel = viewModel
     }
 
-    func openAllNews() {
-        // [REDACTED_TODO_COMMENT]
+    func openNewsList() {
+        let coordinator = NewsListCoordinator(
+            dismissAction: { [weak self] in
+                self?.newsListCoordinator = nil
+            }
+        )
+
+        coordinator.start(with: .init())
+
+        newsListCoordinator = coordinator
+    }
+}
+
+// MARK: - NewsDetailsRoutable (for widget pager)
+
+extension MarketsCoordinator: NewsDetailsRoutable {
+    var hasMoreNews: Bool { false }
+
+    func dismissNewsDetails() {
+        newsPagerViewModel = nil
+    }
+
+    func share(url: String) {
+        guard let url = URL(string: url) else { return }
+        let activityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let rootVC = windowScene.windows.first?.rootViewController {
+            var topController = rootVC
+            while let presented = topController.presentedViewController {
+                topController = presented
+            }
+            topController.present(activityVC, animated: true)
+        }
+    }
+
+    func openURL(_ url: URL) {
+        let safariVC = SFSafariViewController(url: url)
+
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let rootVC = windowScene.windows.first?.rootViewController {
+            var topController = rootVC
+            while let presented = topController.presentedViewController {
+                topController = presented
+            }
+            topController.present(safariVC, animated: true)
+        }
+    }
+
+    func openTokenDetails(_ token: MarketsTokenModel) {
+        openMarketsTokenDetails(for: token)
+    }
+
+    func loadMoreNews() async -> [Int] {
+        []
     }
 }

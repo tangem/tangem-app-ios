@@ -47,7 +47,9 @@ protocol TangemApiService: AnyObject {
     // MARK: - News
 
     func loadNewsList(requestModel: NewsDTO.List.Request) async throws -> NewsDTO.List.Response
+    func loadNewsDetails(requestModel: NewsDTO.Details.Request) async throws -> NewsDTO.Details.Response
     func loadNewsCategories() async throws -> NewsDTO.Categories.Response
+    func likeNews(requestModel: NewsDTO.Like.Request) async throws -> NewsDTO.Like.Response
 
     // MARK: - User token list management
 

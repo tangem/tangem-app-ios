@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUI
 
 struct NewsListView: View {
@@ -17,7 +18,8 @@ struct NewsListView: View {
         VStack(spacing: 12) {
             // Header
             NavigationBar(
-                title: "News",
+                title: Localization.commonNews,
+                settings: .init(backgroundColor: Color.Tangem.Surface.level3),
                 leftButtons: {
                     BackButton(
                         height: 44.0,
@@ -62,6 +64,9 @@ struct NewsListView: View {
             LazyVStack(spacing: 12) {
                 ForEach(viewModel.newsItems) { item in
                     NewsItemView(viewModel: item)
+                        .onTapGesture {
+                            viewModel.handleViewAction(.onNewsSelected(item.id))
+                        }
                 }
 
                 paginationFooter
@@ -131,7 +136,7 @@ struct NewsListView: View {
 
     private var noResultsView: some View {
         Text("No news found")
-            .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
+            .style(Fonts.Bold.caption1, color: Color.Tangem.Text.Neutral.tertiary)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(.horizontal, 16)
     }
@@ -169,7 +174,7 @@ private struct NewsSkeletonItemView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
-        .background(Colors.Background.action)
+        .background(Color.Tangem.Surface.level4)
         .cornerRadius(14)
     }
 }
