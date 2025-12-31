@@ -19,16 +19,16 @@ struct NewsItemView: View {
             HStack(spacing: 4) {
                 scoreBadge
 
-                Text("·")
-                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                Text(AppConstants.dotSign)
+                    .style(Fonts.Bold.footnote, color: Color.Tangem.Text.Neutral.tertiary)
 
                 Text(viewModel.relativeTime)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.footnote, color: Color.Tangem.Text.Neutral.tertiary)
             }
 
             // Title (max 2 lines)
             Text(viewModel.title)
-                .style(Fonts.Bold.title3, color: Colors.Text.primary1)
+                .style(Fonts.Bold.title3, color: Color.Tangem.Text.Neutral.primary)
                 .lineLimit(2)
                 .multilineTextAlignment(.leading)
                 .padding(.bottom, 12)
@@ -57,46 +57,21 @@ struct NewsItemView: View {
             }
 
             Text(viewModel.score)
-                .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
+                .style(Fonts.Bold.footnote, color: Color.Tangem.Text.Neutral.primary)
         }
     }
 
     private var tagsChips: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 4) {
-                // Category chip
-                if !viewModel.category.isEmpty {
-                    NewsTagChipView(title: viewModel.category)
-                }
+        var chips: [InfoChipItem] = []
 
-                // Related tokens chips with icons
-                ForEach(viewModel.relatedTokens) { token in
-                    NewsTagChipView(title: token.symbol, iconURL: token.iconURL)
-                }
-            }
+        if !viewModel.category.isEmpty {
+            chips.append(InfoChipItem(title: viewModel.category))
         }
-    }
-}
 
-// MARK: - NewsTagChipView
-
-private struct NewsTagChipView: View {
-    let title: String
-    var iconURL: URL?
-
-    var body: some View {
-        HStack(spacing: 4) {
-            if let iconURL {
-                IconView(url: iconURL, size: CGSize(bothDimensions: 16), forceKingfisher: true)
-            }
-
-            Text(title)
-                .style(Fonts.Bold.caption1, color: Colors.Text.secondary)
-                .lineLimit(1)
+        chips += viewModel.relatedTokens.map {
+            InfoChipItem(id: $0.id, title: $0.symbol, leadingIcon: .url($0.iconURL))
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 4)
-        .background(Colors.Control.unchecked)
-        .cornerRadius(16)
+
+        return InfoChipsView(chips: chips, alignment: .leading)
     }
 }

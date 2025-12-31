@@ -10,7 +10,9 @@ import Foundation
 
 enum NewsDTO {
     enum List {}
+    enum Details {}
     enum Categories {}
+    enum Like {}
 }
 
 // MARK: - List
@@ -91,15 +93,54 @@ extension NewsDTO.List {
         let newsUrl: String
     }
 
-    struct Category: Decodable, Identifiable {
+    struct Category: Decodable, Identifiable, Hashable {
         let id: Int
         let name: String
     }
 
-    struct RelatedToken: Decodable {
+    struct RelatedToken: Decodable, Hashable {
         let id: String
         let symbol: String
         let name: String
+    }
+}
+
+// MARK: - Details
+
+extension NewsDTO.Details {
+    struct Request {
+        let newsId: Int
+        let lang: String?
+
+        init(newsId: Int, lang: String? = nil) {
+            self.newsId = newsId
+            self.lang = lang
+        }
+    }
+
+    struct Response: Decodable {
+        let id: Int
+        let createdAt: String
+        let score: Double
+        let language: String
+        let isTrending: Bool
+        let categories: [NewsDTO.List.Category]
+        let relatedTokens: [NewsDTO.List.RelatedToken]
+        let title: String
+        let newsUrl: String
+        let shortContent: String
+        let content: String
+        let originalArticles: [OriginalArticle]
+    }
+
+    struct OriginalArticle: Decodable, Identifiable {
+        let id: Int
+        let title: String?
+        let sourceName: String?
+        let language: String?
+        let publishedAt: String?
+        let url: String?
+        let imageUrl: String?
     }
 }
 
@@ -114,4 +155,27 @@ extension NewsDTO.Categories {
         let id: Int
         let name: String
     }
+}
+
+// MARK: - Like
+
+extension NewsDTO.Like {
+    struct Request: Encodable {
+        let newsId: Int
+        let isLiked: Bool
+
+        enum CodingKeys: String, CodingKey {
+            case isLiked
+        }
+    }
+
+    struct Response: Decodable {
+        let isLiked: Bool
+    }
+}
+
+// MARK: - Trending
+
+struct TrendingNewsResponse: Decodable {
+    let items: [NewsDTO.List.Item]
 }

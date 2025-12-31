@@ -60,5 +60,8 @@ struct MarketsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.newsListCoordinator) {
                 NewsListCoordinatorView(coordinator: $0)
             }
+            .navigation(item: $coordinator.newsPagerViewModel) {
+                NewsPagerView(viewModel: $0)
+            }
     }
 }

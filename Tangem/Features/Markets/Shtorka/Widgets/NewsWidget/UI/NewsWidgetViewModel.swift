@@ -40,6 +40,7 @@ final class NewsWidgetViewModel: ObservableObject {
     ) {
         self.widgetType = widgetType
         self.widgetsUpdateHandler = widgetsUpdateHandler
+        self.coordinator = coordinator
 
         bind()
         update()
@@ -57,12 +58,36 @@ final class NewsWidgetViewModel: ObservableObject {
 
     @MainActor
     func handleAllNewsTap() {
-        coordinator?.openAllNews()
+        coordinator?.openNewsList()
     }
 
     @MainActor
     private func handleTap(newsId: String) {
-        coordinator?.openNews(by: newsId)
+        guard let newsIdInt = Int(newsId) else { return }
+
+        let visibleNewsIds = getVisibleNewsIds()
+        guard let selectedIndex = visibleNewsIds.firstIndex(of: newsIdInt) else { return }
+
+        coordinator?.openNewsDetails(newsIds: visibleNewsIds, selectedIndex: selectedIndex)
+    }
+
+    // MARK: - Private Helpers
+
+    /// Returns only the news IDs that are visible in the widget (1 trending + up to 5 carousel)
+    private func getVisibleNewsIds() -> [Int] {
+        let items = sortItems(newsProvider.newsResult.value ?? [])
+        var result: [Int] = []
+
+        // Add trending (last one in sorted list, matching viewStateForLoadedItems behavior)
+        if let trending = items.last(where: { $0.isTrending }), let id = Int(trending.id) {
+            result.append(id)
+        }
+
+        // Add up to 5 non-trending (carousel items)
+        let carouselItems = items.filter { !$0.isTrending }.prefix(5)
+        result.append(contentsOf: carouselItems.compactMap { Int($0.id) })
+
+        return result
     }
 }
 
