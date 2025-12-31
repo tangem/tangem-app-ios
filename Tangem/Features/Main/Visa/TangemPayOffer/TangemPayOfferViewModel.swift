@@ -10,11 +10,25 @@ import Combine
 import TangemVisa
 import TangemFoundation
 import TangemSdk
+import TangemUI
 
 final class TangemPayOfferViewModel: ObservableObject {
+    @Injected(\.tangemPayAvailabilityRepository)
+    private var tangemPayAvailabilityRepository: TangemPayAvailabilityRepository
+
+    @Injected(\.userWalletRepository)
+    private var userWalletRepository: UserWalletRepository
+
     @Published private(set) var isLoading = false
     @Published var termsFeesAndLimitsViewModel: WebViewContainerViewModel?
-    @Published var walletSelectorViewModel: TangemPayWalletSelectorViewModel?
+
+    var getCardButtonIcon: MainButton.Icon? {
+        if let model = userWalletRepository.models.first, userWalletRepository.models.count == 1 {
+            return CommonTangemIconProvider(config: model.config).getMainButtonIcon()
+        }
+
+        return nil
+    }
 
     private weak var coordinator: TangemPayOnboardingRoutable?
     private let closeOfferScreen: @MainActor () -> Void
@@ -34,8 +48,13 @@ final class TangemPayOfferViewModel: ObservableObject {
     func getCard() {
         Analytics.log(.visaOnboardingButtonVisaGetCard)
 
-        coordinator?.openWalletSelector { [weak self] walletModel in
-            self?.acceptOffer(on: walletModel)
+        if tangemPayAvailabilityRepository.availableUserWalletModels.count == 1,
+           let userWalletModel = tangemPayAvailabilityRepository.availableUserWalletModels.first {
+            acceptOffer(on: userWalletModel)
+        } else {
+            coordinator?.openWalletSelector { [weak self] walletModel in
+                self?.acceptOffer(on: walletModel)
+            }
         }
     }
 

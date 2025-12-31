@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 import TangemLocalization
 import SwiftUI
 import TangemAssets
@@ -20,8 +21,8 @@ final class YieldAvailableNotificationViewModel: ObservableObject {
     // MARK: - Init
 
     init(apy: Decimal, onButtonTap: @escaping (Decimal) -> Void) {
-        self.onButtonTap = onButtonTap
         self.apy = apy
+        self.onButtonTap = onButtonTap
     }
 
     // MARK: - Public Implementation
@@ -33,7 +34,7 @@ final class YieldAvailableNotificationViewModel: ObservableObject {
     func makeTitleText() -> AttributedString {
         let space = AttributedString(" ")
 
-        var title = AttributedString(Localization.yieldModuleTokenDetailsEarnNotificationTitle)
+        var title = AttributedString(Localization.commonYieldMode)
         title.foregroundColor = Colors.Text.primary1
         title.font = Fonts.Bold.subheadline
 

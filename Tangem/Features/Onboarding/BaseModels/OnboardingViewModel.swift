@@ -476,6 +476,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         )
     }
 
+    @available(iOS, deprecated: 100000.0, message: "Only used when accounts are disabled, will be removed in the future ([REDACTED_INFO])")
     private func makeLegacyContext(for userWalletModel: UserWalletModel) -> ManageTokensContext {
         LegacyManageTokensContext(
             // accounts_fixes_needed_none

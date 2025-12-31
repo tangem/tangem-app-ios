@@ -90,7 +90,8 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
                     feeFooterText: Localization.swapGivePermissionFeeFooter,
                     tokenItem: .token(.tetherMock, .init(.ethereum(testnet: false), derivationPath: .none)),
                     feeTokenItem: .blockchain(.init(.ethereum(testnet: false), derivationPath: .none)),
-                    selectedPolicy: selectedPolicy
+                    selectedPolicy: selectedPolicy,
+                    tangemIconProvider: CommonTangemIconProvider(config: userWalletModel.config)
                 ),
                 feeFormatter: feeFormatter,
                 approveViewModelInput: expressInteractor,
