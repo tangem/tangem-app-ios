@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemLocalization
 import TangemUI
 
 struct NewsCategoryChipsView: View {
@@ -14,7 +15,7 @@ struct NewsCategoryChipsView: View {
     @Binding var selectedCategoryId: Int?
 
     private var chips: [Chip] {
-        var result: [Chip] = [Chip(id: "all", title: "All News")]
+        var result: [Chip] = [Chip(id: "all", title: Localization.newsAllNews)]
         result.append(contentsOf: categories.map { Chip(id: String($0.id), title: $0.name) })
         return result
     }

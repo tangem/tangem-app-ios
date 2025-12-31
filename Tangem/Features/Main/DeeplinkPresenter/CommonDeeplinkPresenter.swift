@@ -123,6 +123,9 @@ private extension CommonDeeplinkPresenter {
         case .promo(let promoCode):
             return constructPromoViewController(promoCode: promoCode)
 
+        case .newsDetails(let newsId):
+            return constructNewsDetailsViewController(newsId: newsId)
+
         case .externalLink, .market:
             return nil
         }
@@ -300,6 +303,22 @@ private extension CommonDeeplinkPresenter {
             },
             embedInNavigationStack: false,
             modalPresentationStyle: .overFullScreen
+        )
+    }
+
+    private func constructNewsDetailsViewController(newsId: Int) -> UIViewController {
+        var windowSize: CGSize?
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first {
+            windowSize = window.screen.bounds.size
+        }
+
+        return makeDeeplinkViewController(
+            view: {
+                NewsDeeplinkContainerView(newsId: newsId)
+                    .environment(\.mainWindowSize, windowSize ?? .zero)
+            },
+            embedInNavigationStack: true
         )
     }
 }
