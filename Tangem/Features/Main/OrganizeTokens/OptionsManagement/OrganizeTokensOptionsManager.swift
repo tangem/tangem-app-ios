@@ -20,14 +20,14 @@ final class OrganizeTokensOptionsManager {
     private var groupingOptionToSave: AnyPublisher<OptionChange<UserTokensReorderingOptions.Grouping>, Never> {
         return editedGroupingOption
             .prepend(nil)
-            .withLatestFrom(userTokensReorderer.groupingOption) { (currentValue: $1, newValue: $0) }
+            .withLatestFrom(userTokensReorderer.groupingOptionPublisher) { (currentValue: $1, newValue: $0) }
             .eraseToAnyPublisher()
     }
 
     private var sortingOptionToSave: AnyPublisher<OptionChange<UserTokensReorderingOptions.Sorting>, Never> {
         return editedSortingOption
             .prepend(nil)
-            .withLatestFrom(userTokensReorderer.sortingOption) { (currentValue: $1, newValue: $0) }
+            .withLatestFrom(userTokensReorderer.sortingOptionPublisher) { (currentValue: $1, newValue: $0) }
             .eraseToAnyPublisher()
     }
 
@@ -45,14 +45,22 @@ final class OrganizeTokensOptionsManager {
 // MARK: - OrganizeTokensOptionsProviding protocol conformance
 
 extension OrganizeTokensOptionsManager: OrganizeTokensOptionsProviding {
-    var groupingOption: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> {
+    var groupingOption: UserTokensReorderingOptions.Grouping {
+        return userTokensReorderer.groupingOption
+    }
+
+    var sortingOption: UserTokensReorderingOptions.Sorting {
+        return userTokensReorderer.sortingOption
+    }
+
+    var groupingOptionPublisher: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> {
         let editedGroupingOption = editedGroupingOption
             .compactMap { $0 }
             .removeDuplicates()
             .eraseToAnyPublisher()
 
         let currentGroupingOption = userTokensReorderer
-            .groupingOption
+            .groupingOptionPublisher
             .prefix(untilOutputFrom: editedGroupingOption)
             .eraseToAnyPublisher()
 
@@ -62,14 +70,14 @@ extension OrganizeTokensOptionsManager: OrganizeTokensOptionsProviding {
         ].merge()
     }
 
-    var sortingOption: AnyPublisher<UserTokensReorderingOptions.Sorting, Never> {
+    var sortingOptionPublisher: AnyPublisher<UserTokensReorderingOptions.Sorting, Never> {
         let editedSortingOption = editedSortingOption
             .compactMap { $0 }
             .removeDuplicates()
             .eraseToAnyPublisher()
 
         let currentSortingOption = userTokensReorderer
-            .sortingOption
+            .sortingOptionPublisher
             .prefix(untilOutputFrom: editedSortingOption)
             .eraseToAnyPublisher()
 
