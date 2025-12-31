@@ -11,8 +11,10 @@ import Foundation
 enum IncomingActionConstants {
     static let tangemHost = "tangem.com"
     static let appTangemHost = "app.tangem.com"
+    static let newsTangemHost = "news.tangem.com"
     static let appTangemDomain = "https://app.tangem.com"
     static let tangemDomain = "https://tangem.com"
+    static let newsTangemDomain = "https://news.tangem.com"
     static let universalLinkScheme = "tangem://"
     static let ndefPath = "ndef"
     static let externalRedirectURL = "\(tangemDomain)/redirect"
@@ -47,6 +49,7 @@ enum IncomingActionConstants {
         case onboardVisa = "onboard-visa"
         case promo
         case payApp = "pay-app"
+        case news
     }
 
     enum DeeplinkType: String {

@@ -66,22 +66,16 @@ final class NewsListViewModel: ObservableObject {
     }
 
     private func handleEvent(_ event: NewsDataProvider.Event) {
-        print("📰 [NewsListViewModel] handleEvent: \(event)")
-
         switch event {
         case .loading:
-            // If we already have items, it's pagination loading
             loadingState = newsItems.isEmpty ? .loading : .paginationLoading
         case .idle:
             loadingState = .idle
         case .failedToFetchData:
-            // If we already have items, it's pagination error
             loadingState = newsItems.isEmpty ? .error : .paginationError
         case .appendedItems(let items, let lastPage):
-            print("📰 [NewsListViewModel] appending \(items.count) items, current count: \(newsItems.count)")
             let newViewModels = items.map { NewsItemViewModel(from: $0, dateFormatter: dateFormatter) }
             newsItems.append(contentsOf: newViewModels)
-            print("📰 [NewsListViewModel] new count: \(newsItems.count)")
 
             if newsItems.isEmpty {
                 loadingState = .noResults
@@ -89,7 +83,6 @@ final class NewsListViewModel: ObservableObject {
                 loadingState = lastPage ? .allDataLoaded : .loaded
             }
         case .startInitialFetch:
-            print("📰 [NewsListViewModel] startInitialFetch - clearing newsItems")
             newsItems = []
             loadingState = .loading
         case .cleared:
@@ -113,8 +106,10 @@ extension NewsListViewModel {
             onCategorySelected(categoryId)
         case .loadMore:
             dataProvider.fetchMore()
-        case .onNewsSelected:
-            break // [REDACTED_TODO_COMMENT]
+        case .onNewsSelected(let newsId):
+            let allNewsIds = newsItems.map(\.id)
+            guard let selectedIndex = allNewsIds.firstIndex(of: newsId) else { return }
+            coordinator?.openNewsDetails(newsIds: allNewsIds, selectedIndex: selectedIndex)
         case .back:
             coordinator?.dismiss()
         }
@@ -155,5 +150,5 @@ extension NewsListViewModel {
 
 protocol NewsListRoutable: AnyObject {
     func dismiss()
-    func openNewsDetails(newsId: Int)
+    func openNewsDetails(newsIds: [Int], selectedIndex: Int)
 }

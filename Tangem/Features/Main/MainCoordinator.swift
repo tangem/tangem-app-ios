@@ -807,6 +807,7 @@ extension MainCoordinator {
         case market
         case onboardVisa(deeplinkString: String)
         case promo(code: String)
+        case newsDetails(newsId: Int)
     }
 }
 

@@ -77,7 +77,23 @@ extension MainCoordinator {
 
             case .promo:
                 return routePromoAction(params: navigationAction.params)
+
+            case .news:
+                return routeNewsAction(params: navigationAction.params)
             }
+        }
+
+        private func routeNewsAction(params: DeeplinkNavigationAction.Params) -> Bool {
+            guard let coordinator,
+                  let idString = params.id,
+                  let newsId = Int(idString)
+            else {
+                incomingActionManager.discardIncomingAction()
+                return false
+            }
+
+            coordinator.openDeepLink(.newsDetails(newsId: newsId))
+            return true
         }
 
         private func routePromoAction(params: DeeplinkNavigationAction.Params) -> Bool {

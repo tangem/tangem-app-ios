@@ -227,7 +227,15 @@ final class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
+    func loadNewsDetails(requestModel: NewsDTO.Details.Request) async throws -> NewsDTO.Details.Response {
+        throw "Not implemented"
+    }
+
     func loadNewsCategories() async throws -> NewsDTO.Categories.Response {
+        throw "Not implemented"
+    }
+
+    func likeNews(requestModel: NewsDTO.Like.Request) async throws -> NewsDTO.Like.Response {
         throw "Not implemented"
     }
 }
