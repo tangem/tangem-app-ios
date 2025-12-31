@@ -250,11 +250,20 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .store(in: &bag)
 
         tokenItemPromoProvider.promoWalletModelPublisher
+            .removeDuplicates()
+            .handleEvents(receiveOutput: { [weak self] params in
+                guard let params, let walletModel = self?.findWalletModel(with: params.walletModelId) else {
+                    return
+                }
+
+                let logger = CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId)
+                logger.logYieldNoticeShown()
+            })
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .map { viewModel, params in
                 guard let params else { return nil }
-                return viewModel.makeTokenItemPromoVieModel(from: params)
+                return viewModel.makeTokenItemPromoViewModel(from: params)
             }
             .assign(to: \.tokenItemPromoBubbleViewModel, on: self, ownership: .weak)
             .store(in: &bag)
@@ -310,17 +319,9 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             return
         }
 
-        let userWalletId = userWalletModel.userWalletId.stringValue
-        let isTangemPayHidden = tangemPayAvailabilityRepository
-            .isTangemPayHiddenPublisher(for: userWalletId)
-
-        Publishers
-            .CombineLatest(
-                userWalletModel.tangemPayAccountPublisher.compactMap(\.self),
-                isTangemPayHidden
-            )
-            .flatMapLatest { tangemPayAccount, isHidden in
-                guard !isHidden else {
+        userWalletModel.tangemPayAccountPublisher
+            .flatMapLatest { tangemPayAccount in
+                guard let tangemPayAccount else {
                     return Just([NotificationViewInput]())
                         .eraseToAnyPublisher()
                 }
@@ -332,13 +333,9 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .receiveOnMain()
             .assign(to: &$tangemPayNotificationInputs)
 
-        Publishers
-            .CombineLatest(
-                userWalletModel.tangemPayAccountPublisher.compactMap(\.self),
-                isTangemPayHidden
-            )
-            .flatMapLatest { tangemPayAccount, isHidden in
-                guard !isHidden else {
+        userWalletModel.tangemPayAccountPublisher
+            .flatMapLatest { tangemPayAccount in
+                guard let tangemPayAccount else {
                     return Just(false)
                         .eraseToAnyPublisher()
                 }
@@ -349,21 +346,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .receiveOnMain()
             .assign(to: &$tangemPaySyncInProgress)
 
-        Publishers
-            .CombineLatest(
-                userWalletModel
-                    .tangemPayAccountPublisher.compactMap(\.self),
-                tangemPayAvailabilityRepository
-                    .isTangemPayHiddenPublisher(for: userWalletId)
-            )
+        userWalletModel.tangemPayAccountPublisher
             .withWeakCaptureOf(self)
-            .map { viewModel, args in
-                let (tangemPayAccount, isAccountHidden) = args
-
-                if isAccountHidden {
-                    return nil
-                }
-
+            .map { viewModel, tangemPayAccount in
+                guard let tangemPayAccount else { return nil }
                 return TangemPayAccountViewModel(tangemPayAccount: tangemPayAccount, router: viewModel)
             }
             .receiveOnMain()
@@ -398,7 +384,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             throw "NFTEntrypointViewModel already created"
         }
 
-        let accountForNFTCollectionsProvider = AccountForNFTCollectionProvider(userWalletModel: userWalletModel)
+        let accountForNFTCollectionsProvider = AccountForNFTCollectionsProvider(userWalletModel: userWalletModel)
 
         // [REDACTED_TODO_COMMENT]
         let navigationInput = NFTNavigationInput(
@@ -515,7 +501,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     private func handleYieldApyBadgeTapped(walletModel: any WalletModel, factory: YieldModuleFlowFactory, yieldManager: YieldModuleManager) {
-        let logger = CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem)
+        let logger = CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId)
 
         func openActiveYield() {
             logger.logEarningApyClicked(state: .enabled)
@@ -601,7 +587,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         )
     }
 
-    private func makeTokenItemPromoVieModel(from params: TokenItemPromoParams) -> TokenItemPromoBubbleViewModel? {
+    private func makeTokenItemPromoViewModel(from params: TokenItemPromoParams) -> TokenItemPromoBubbleViewModel? {
         TokenItemPromoBubbleViewModel(
             id: params.walletModelId,
             leadingImage: params.icon,
@@ -619,6 +605,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                     return
                 }
 
+                let logger = CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: userWalletModel.userWalletId)
+                logger.logYieldNoticeClicked()
                 let navAction = self?.makeYieldApyBadgeTapAction(walletModel: walletModel)
                 navAction?(walletModel.tokenItem)
             }
@@ -642,10 +630,9 @@ private extension MultiWalletMainContentViewModel {
         let tokenItem = tokenItemViewModel.tokenItem
         let alertBuilder = HideTokenAlertBuilder()
         let actionFactory = HideTokenActionFactory(userWalletModel: userWalletModel)
-        let walletModel = findWalletModel(with: tokenItemViewModel.id)
 
         do {
-            let hideAction = try actionFactory.makeAction(tokenItem: tokenItem, walletModel: walletModel)
+            let hideAction = try actionFactory.makeAction(for: tokenItem)
             error = alertBuilder.hideTokenAlert(tokenItem: tokenItem, hideAction: hideAction)
         } catch {
             AppLogger.error("Can't hide token due to error:", error: error)
@@ -887,6 +874,8 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
             tokenRouter.openExchange(walletModel: walletModel)
         case .stake:
             tokenRouter.openStaking(walletModel: walletModel)
+        case .yield:
+            tokenRouter.openYieldModule(walletModel: walletModel)
         case .marketsDetails, .hide:
             return
         }

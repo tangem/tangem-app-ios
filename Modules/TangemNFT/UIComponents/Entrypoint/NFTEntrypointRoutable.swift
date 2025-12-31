@@ -9,7 +9,7 @@
 public protocol NFTEntrypointRoutable: AnyObject {
     func openCollections(
         nftManager: NFTManager,
-        accounForNFTCollectionsProvider: any AccountForNFTCollectionProviding,
+        accountForNFTCollectionsProvider: any AccountForNFTCollectionsProviding,
         navigationContext: NFTNavigationContext
     )
 }

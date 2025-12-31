@@ -10,14 +10,26 @@ import SwiftUI
 import TangemUI
 import TangemAssets
 import TangemLocalization
+import TangemFoundation
 
 struct AccountsAwareActionButtonsBuyView: View {
     @ObservedObject var viewModel: AccountsAwareActionButtonsBuyViewModel
 
     var body: some View {
-        AccountsAwareTokenSelectorView(viewModel: viewModel.tokenSelectorViewModel) {
-            AccountsAwareTokenSelectorEmptyContentView(message: Localization.actionButtonsBuyEmptySearchMessage)
-        }
+        AccountsAwareTokenSelectorView(
+            viewModel: viewModel.tokenSelectorViewModel,
+            emptyContentView: {
+                AccountsAwareTokenSelectorEmptyContentView(message: Localization.actionButtonsBuyEmptySearchMessage)
+            },
+            additionalContent: {
+                if viewModel.hotCryptoItems.isNotEmpty {
+                    HotCryptoView(
+                        items: viewModel.hotCryptoItems,
+                        action: viewModel.userDidTapHotCryptoToken
+                    )
+                }
+            }
+        )
         .searchType(.native)
         .background(Colors.Background.tertiary.ignoresSafeArea())
         .navigationTitle(Localization.commonBuy)
