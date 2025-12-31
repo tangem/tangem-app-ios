@@ -113,8 +113,12 @@ class CommonUserWalletRepository: UserWalletRepository {
             throw UserWalletRepositoryError.duplicateWalletAdded
         }
 
+        let shouldShowInsertedEvent = models.isNotEmpty
         models.append(userWalletModel)
-        sendEvent(.inserted(userWalletId: userWalletModel.userWalletId))
+        if shouldShowInsertedEvent {
+            sendEvent(.inserted(userWalletId: userWalletModel.userWalletId))
+        }
+
         select(userWalletId: userWalletModel.userWalletId)
         save(userWalletModel: userWalletModel)
 
@@ -151,7 +155,6 @@ class CommonUserWalletRepository: UserWalletRepository {
             let allUserWalletIds = models.map { $0.userWalletId }
             userWalletEncryptionKeyStorage.clear(userWalletIds: allUserWalletIds)
             visaRefreshTokenRepository.clearPersistent()
-            tangemPayAuthorizationTokensRepository.clearPersistent()
             mobileWalletSdk.clearBiometrics(walletIDs: allUserWalletIds)
         }
     }
@@ -172,7 +175,6 @@ class CommonUserWalletRepository: UserWalletRepository {
 
             accessCodeRepository.clear()
             visaRefreshTokenRepository.clearPersistent()
-            tangemPayAuthorizationTokensRepository.clearPersistent()
             let userWalletIds = models.map { $0.userWalletId }
             userWalletDataStorage.clear()
             userWalletEncryptionKeyStorage.clear(userWalletIds: userWalletIds)
@@ -236,7 +238,6 @@ class CommonUserWalletRepository: UserWalletRepository {
         try? mobileWalletSdk.delete(walletIDs: [userWalletId])
 
         if models.isEmpty {
-            AppSettings.shared.startWalletUsageDate = nil
             lockInternal()
         } else {
             sendEvent(.deleted(userWalletIds: [userWalletId]))
@@ -252,16 +253,6 @@ class CommonUserWalletRepository: UserWalletRepository {
                 userWalletId: userWalletModel.userWalletId,
                 encryptionKey: encryptionKey
             )
-        }
-    }
-
-    private func setStartWalletUsageDateIfNeeded() {
-        guard selectedModel != nil else {
-            return
-        }
-
-        if AppSettings.shared.startWalletUsageDate == nil {
-            AppSettings.shared.startWalletUsageDate = Date()
         }
     }
 
@@ -400,7 +391,6 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private func unlockInternal() {
-        setStartWalletUsageDateIfNeeded()
         _locked = false
         sendEvent(.unlocked)
     }

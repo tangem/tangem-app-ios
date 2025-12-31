@@ -12,6 +12,7 @@ import Combine
 import CombineExt
 import Kingfisher
 import TangemLocalization
+import TangemFoundation
 
 final class MarketsMainViewModel: MarketsBaseViewModel {
     private typealias SearchInput = MainBottomSheetHeaderViewModel.SearchInput
@@ -19,9 +20,10 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
     // MARK: - Injected & Published Properties
 
     @Published private(set) var isSearching: Bool = false
+    @Published private(set) var widgetsViewState: WidgetsViewState = .present([])
+
     @Published private(set) var headerViewModel: MainBottomSheetHeaderViewModel
     @Published private(set) var tokenListViewModel: MarketsTokenListViewModel
-    @Published private(set) var widgetItems: [WidgetStateItem] = []
 
     @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
     @Injected(\.viewHierarchySnapshotter) private var viewHierarchySnapshotter: ViewHierarchySnapshotting
@@ -92,7 +94,7 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
         searchTextBind(publisher: headerViewModel.enteredSearchInputPublisher)
         bindToWidgetsProvider()
 
-        widgetsProvider.initializationWidgets()
+        widgetsProvider.reloadWidgets()
     }
 
     deinit {
@@ -124,8 +126,8 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
 
     // MARK: - Actions
 
-    func onHeaderActionButtonTap(for widgetType: MarketsWidgetType) {
-        // [REDACTED_TODO_COMMENT]
+    func onTryLoadAgain() {
+        widgetsProvider.reloadWidgets()
     }
 }
 
@@ -180,21 +182,25 @@ private extension MarketsMainViewModel {
             .dropFirst()
             .withWeakCaptureOf(self)
             .sink { viewModel, widgets in
-                viewModel.widgetItems = widgets
+                let widgetItems = widgets
                     .filter(\.isEnabled)
                     .sorted(by: \.order)
                     .compactMap {
                         viewModel.mapToWidgetItem(widgetModel: $0)
                     }
+
+                viewModel.widgetsViewState = .present(widgetItems)
             }
             .store(in: &bag)
 
-        widgetsProvider
+        widgetsUpdateHandler
             .widgetsUpdateStateEventPublisher
-            .receive(on: DispatchQueue.main)
+            .receiveOnMain()
             .withWeakCaptureOf(self)
-            .sink { viewModel, _ in
-                // [REDACTED_TODO_COMMENT]
+            .sink { viewModel, state in
+                if case .allWidgetsWithError = state {
+                    viewModel.widgetsViewState = .error
+                }
             }
             .store(in: &bag)
     }
@@ -237,7 +243,12 @@ private extension MarketsMainViewModel {
             )
             contentItem = .top(viewModel)
         case .news:
-            return nil
+            let viewModel = NewsWidgetViewModel(
+                widgetType: widgetModel.type,
+                widgetsUpdateHandler: widgetsUpdateHandler,
+                coordinator: coordinator
+            )
+            contentItem = .news(viewModel)
         case .earn:
             return nil
         case .pulse:
@@ -251,10 +262,7 @@ private extension MarketsMainViewModel {
             contentItem = .pulse(viewModel)
         }
 
-        return WidgetStateItem(
-            type: widgetModel.type,
-            content: contentItem
-        )
+        return WidgetStateItem(type: widgetModel.type, content: contentItem)
     }
 }
 
@@ -265,6 +273,11 @@ extension MarketsMainViewModel: MainBottomSheetHeaderViewModelDelegate {
 }
 
 extension MarketsMainViewModel {
+    enum WidgetsViewState: Hashable {
+        case present([WidgetStateItem])
+        case error
+    }
+
     struct WidgetStateItem: Identifiable, Hashable {
         var id: MarketsWidgetType.ID {
             type.id
@@ -277,6 +290,7 @@ extension MarketsMainViewModel {
     enum WidgetContentItem: Identifiable, Hashable {
         case top(TopMarketWidgetViewModel)
         case pulse(PulseMarketWidgetViewModel)
+        case news(NewsWidgetViewModel)
 
         var id: MarketsWidgetType {
             switch self {
@@ -284,6 +298,8 @@ extension MarketsMainViewModel {
                 return .market
             case .pulse:
                 return .pulse
+            case .news:
+                return .news
             }
         }
 

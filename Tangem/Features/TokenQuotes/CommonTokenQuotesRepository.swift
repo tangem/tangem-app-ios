@@ -19,7 +19,7 @@ class CommonTokenQuotesRepository {
     private var loadingQueue = PassthroughSubject<QueueItem, Never>()
     private var bag: Set<AnyCancellable> = []
     private let storage = CachesDirectoryStorage(file: .cachedQuotes)
-    private let lock = Lock(isRecursive: false)
+    private let lock = OSAllocatedUnfairLock()
 
     init() {
         bind()

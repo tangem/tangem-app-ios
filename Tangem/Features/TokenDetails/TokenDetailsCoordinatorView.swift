@@ -60,12 +60,6 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
                 YieldModuleActiveCoordinatorView(coordinator: $0)
             }
             .bottomSheet(
-                item: $coordinator.receiveBottomSheetViewModel,
-                settings: .init(backgroundColor: Colors.Background.primary, contentScrollsHorizontally: true)
-            ) {
-                ReceiveBottomSheetView(viewModel: $0)
-            }
-            .bottomSheet(
                 item: $coordinator.pendingExpressTxStatusBottomSheetViewModel,
                 backgroundColor: Colors.Background.tertiary
             ) {

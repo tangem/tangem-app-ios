@@ -154,6 +154,18 @@ protocol TangemApiService: AnyObject {
 
     /// - Returns: The list of archived accounts.
     func getArchivedUserAccounts(userWalletId: String) async throws -> AccountsDTO.Response.ArchivedAccounts
+
+    // MARK: - News
+
+    /// Retrieves the list of trending news for the main page.
+    /// Corresponds to GET https://api.tangem.com/api/v1/news/trending
+    ///
+    /// - Description:
+    ///   Returns a list of **trending news** for the main page.
+    ///   If there is a news item with `isTrending = true`, it appears first.
+    ///   The remaining items are sorted by `score DESC`.
+    ///   If there are fewer than 10 publications for the current day, the list is filled with news having the highest `score` from the previous day.
+    func loadTrendingNews(limit: Int?, lang: String?) async throws -> TrendingNewsResponse
 }
 
 private struct TangemApiServiceKey: InjectionKey {

@@ -182,7 +182,9 @@ final class AccountsAwareUserTokensManager {
 
     private func handleUserTokensSync() {
         loadSwapAvailabilityStateIfNeeded(forceReload: true)
-        walletModelsManager?.updateAll(silent: false) { [weak self] in
+
+        Task { [weak self] in
+            await self?.walletModelsManager?.updateAll(silent: false)
             self?.handleWalletModelsUpdate()
         }
     }
@@ -454,7 +456,17 @@ extension AccountsAwareUserTokensManager: UserTokensReordering {
             .eraseToAnyPublisher()
     }
 
-    var groupingOption: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> {
+    var groupingOption: UserTokensReorderingOptions.Grouping {
+        let converter = UserTokensReorderingOptionsConverter()
+        return converter.convert(userTokensRepository.cryptoAccount.grouping)
+    }
+
+    var sortingOption: UserTokensReorderingOptions.Sorting {
+        let converter = UserTokensReorderingOptionsConverter()
+        return converter.convert(userTokensRepository.cryptoAccount.sorting)
+    }
+
+    var groupingOptionPublisher: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> {
         let converter = UserTokensReorderingOptionsConverter()
         return userTokensRepository
             .cryptoAccountPublisher
@@ -462,7 +474,7 @@ extension AccountsAwareUserTokensManager: UserTokensReordering {
             .eraseToAnyPublisher()
     }
 
-    var sortingOption: AnyPublisher<UserTokensReorderingOptions.Sorting, Never> {
+    var sortingOptionPublisher: AnyPublisher<UserTokensReorderingOptions.Sorting, Never> {
         let converter = UserTokensReorderingOptionsConverter()
         return userTokensRepository
             .cryptoAccountPublisher

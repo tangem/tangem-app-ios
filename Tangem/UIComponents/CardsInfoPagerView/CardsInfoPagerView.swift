@@ -144,11 +144,6 @@ struct CardsInfoPagerView<
             ZStack(alignment: .bottom) {
                 makeScrollView(with: proxy)
                     .onAppear {
-                        // `DispatchQueue.main.async` used here to allow publishing changes during view updates
-                        DispatchQueue.main.async {
-                            // Applying initial view's state based on the initial value of `selectedIndex`
-                            cumulativeHorizontalTranslation = -CGFloat(selectedIndex) * proxy.size.width
-                        }
                         scrollDetector.startDetectingScroll()
                         scrollState.onViewAppear()
                     }
@@ -176,6 +171,10 @@ struct CardsInfoPagerView<
                     .layoutPriority(1.0)
 
                 makeBottomOverlay()
+            }
+            .onChange(of: proxy.size.width) { newWidth in
+                guard !isDraggingHorizontally else { return }
+                syncCumulativeHorizontalTranslation(for: newWidth)
             }
             .ignoresSafeArea(edges: .bottom)
         }
@@ -607,6 +606,11 @@ struct CardsInfoPagerView<
         if contentSelectedIndex != selectedIndex {
             contentSelectedIndex = selectedIndex
         }
+    }
+
+    private func syncCumulativeHorizontalTranslation(for width: CGFloat) {
+        guard width > 0 else { return }
+        cumulativeHorizontalTranslation = -CGFloat(selectedIndex) * width
     }
 }
 

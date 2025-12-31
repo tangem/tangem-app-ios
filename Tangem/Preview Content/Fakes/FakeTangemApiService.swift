@@ -219,6 +219,10 @@ final class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
+    func loadTrendingNews(limit: Int?, lang: String?) async throws -> TrendingNewsResponse {
+        throw "Not implemented"
+    }
+
     func loadNewsList(requestModel: NewsDTO.List.Request) async throws -> NewsDTO.List.Response {
         throw "Not implemented"
     }

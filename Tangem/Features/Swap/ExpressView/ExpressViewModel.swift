@@ -44,6 +44,8 @@ final class ExpressViewModel: ObservableObject {
     @Published var mainButtonState: MainButtonState = .swap
     @Published var alert: AlertBinder?
 
+    let tangemIconProvider: TangemIconProvider
+
     @Published var legalText: AttributedString?
 
     // MARK: - Dependencies
@@ -84,6 +86,7 @@ final class ExpressViewModel: ObservableObject {
         self.expressRepository = expressRepository
         self.interactor = interactor
         self.coordinator = coordinator
+        tangemIconProvider = CommonTangemIconProvider(config: userWalletInfo.config)
 
         Analytics.log(event: .swapScreenOpenedSwap, params: [.token: initialTokenItem.currencySymbol])
         setupView()
@@ -849,10 +852,10 @@ extension ExpressViewModel {
             }
         }
 
-        var icon: MainButton.Icon? {
+        func getIcon(tangemIconProvider: TangemIconProvider) -> MainButton.Icon? {
             switch self {
             case .swap, .permitAndSwap:
-                return .trailing(Assets.tangemIcon)
+                return tangemIconProvider.getMainButtonIcon()
             case .insufficientFunds:
                 return .none
             }
