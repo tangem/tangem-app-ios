@@ -50,22 +50,24 @@ enum SendNewFeeStepBuilder {
             input: io.input,
             output: io.output,
             provider: dependencies.feeProvider,
-            customFeeService: dependencies.customFeeService
+            customFeeProvider: dependencies.customFeeService as? FeeSelectorCustomFeeProvider
         )
 
         let feeSelector = FeeSelectorContentViewModel(
-            input: interactor,
+            provider: interactor.feeSelectorInteractor,
             output: interactor,
+            mapper: CommonFeeSelectorContentViewModelMapper(
+                feeTokenItem: types.feeTokenItem,
+                feeFormatter: CommonFeeFormatter(),
+                customFieldsBuilder: dependencies.customFeeService as? FeeSelectorCustomFeeFieldsBuilder
+            ),
+            customFeeAvailabilityProvider: dependencies.customFeeService as? FeeSelectorCustomFeeAvailabilityProvider,
             analytics: dependencies.analyticsLogger,
-            customFieldsBuilder: dependencies.customFeeService as? FeeSelectorCustomFeeFieldsBuilder,
-            feeTokenItem: types.feeTokenItem,
-            savingType: .autosave
+            router: interactor
         )
 
         let compact = SendNewFeeCompactViewModel(feeTokenItem: types.feeTokenItem, isFeeApproximate: types.isFeeApproximate)
         let finish = SendFeeFinishViewModel(feeTokenItem: types.feeTokenItem, isFeeApproximate: types.isFeeApproximate)
-
-        dependencies.customFeeService?.setup(output: interactor)
 
         return (feeSelector: feeSelector, compact: compact, finish: finish)
     }
