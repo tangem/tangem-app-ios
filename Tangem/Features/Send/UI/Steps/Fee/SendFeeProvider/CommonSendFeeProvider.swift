@@ -13,24 +13,24 @@ import TangemFoundation
 final class CommonSendFeeProvider {
     private weak var input: SendFeeProviderInput?
 
-    private let feeLoader: SendFeeLoader
+    private let feeProvider: TokenFeeProvider
     private let defaultFeeOptions: [FeeOption]
 
     private let _cryptoAmount: CurrentValueSubject<Decimal?, Never> = .init(nil)
     private let _destination: CurrentValueSubject<String?, Never> = .init(nil)
     private let _fees: CurrentValueSubject<LoadingResult<[SendFee], Error>, Never> = .init(.loading)
 
-    private var feeLoadingSubscription: AnyCancellable?
+    private var feeLoadingTask: Task<Void, Never>?
     private var cryptoAmountSubscription: AnyCancellable?
     private var destinationAddressSubscription: AnyCancellable?
 
     init(
         input: any SendFeeProviderInput,
-        feeLoader: SendFeeLoader,
+        feeProvider: TokenFeeProvider,
         defaultFeeOptions: [FeeOption]
     ) {
         self.input = input
-        self.feeLoader = feeLoader
+        self.feeProvider = feeProvider
         self.defaultFeeOptions = defaultFeeOptions
 
         bind(input: input)
@@ -62,20 +62,18 @@ extension CommonSendFeeProvider: SendFeeProvider {
             _fees.send(.loading)
         }
 
-        feeLoadingSubscription = feeLoader
-            .getFee(amount: amount, destination: destination)
-            .mapToResult()
-            .withWeakCaptureOf(self)
-            .sink { provider, result in
-                switch result {
-                case .success(let fees):
-                    let fees = provider.mapToDefaultFees(fees: fees)
-                    provider._fees.send(.success(fees))
-                case .failure(let error):
-                    AppLogger.error("SendFeeProvider fee loading error", error: error)
-                    provider._fees.send(.failure(error))
-                }
+        feeLoadingTask?.cancel()
+        feeLoadingTask = Task {
+            do {
+                let loadedFees = try await feeProvider.getFee(dataType: .plain(amount: amount, destination: destination))
+                try Task.checkCancellation()
+                let fees = mapToDefaultFees(fees: loadedFees)
+                _fees.send(.success(fees))
+            } catch {
+                AppLogger.error("SendFeeProvider fee loading error", error: error)
+                _fees.send(.failure(error))
             }
+        }
     }
 }
 
