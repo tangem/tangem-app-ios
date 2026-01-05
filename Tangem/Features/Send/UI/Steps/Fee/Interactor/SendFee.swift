@@ -10,12 +10,10 @@ import TangemFoundation
 
 struct SendFee: Hashable {
     let option: FeeOption
-    let tokenItem: TokenItem
     let value: LoadingResult<BSDKFee, any Error>
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(option)
-        hasher.combine(tokenItem)
 
         switch value {
         case .loading:
