@@ -104,6 +104,6 @@ private extension CommonFeeSelectorInteractor {
     }
 
     func mapToFeeSelectorFee(fee: SendFee) -> FeeSelectorFee {
-        return FeeSelectorFee(option: fee.option, value: fee.value)
+        return FeeSelectorFee(option: fee.option, tokenItem: fee.tokenItem, value: fee.value)
     }
 }
