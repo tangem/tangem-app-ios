@@ -185,7 +185,7 @@ struct WCTransactionView: View {
         )
     }
 
-    private func feeSelectorFooter(_ viewModel: FeeSelectorContentViewModel) -> some View {
+    private func feeSelectorFooter(_ viewModel: WCFeeSelectorContentViewModel) -> some View {
         MainButton(title: Localization.commonDone, action: viewModel.done)
     }
 
