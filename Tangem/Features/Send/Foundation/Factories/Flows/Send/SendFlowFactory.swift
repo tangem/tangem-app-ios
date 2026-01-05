@@ -20,7 +20,7 @@ class SendFlowFactory: SendFlowBaseDependenciesFactory {
     let tokenHeaderProvider: SendGenericTokenHeaderProvider
 
     let walletModelHistoryUpdater: any WalletModelHistoryUpdater
-    let walletModelFeeProvider: any WalletModelFeeProvider
+    let tokenFeeProvider: any TokenFeeProvider
     let walletModelDependenciesProvider: WalletModelDependenciesProvider
     let availableBalanceProvider: any TokenBalanceProvider
     let fiatAvailableBalanceProvider: any TokenBalanceProvider
@@ -63,7 +63,7 @@ class SendFlowFactory: SendFlowBaseDependenciesFactory {
         analyticsLogger = Self.makeSendAnalyticsLogger(walletModel: walletModel, sendType: .send)
 
         walletModelHistoryUpdater = walletModel
-        walletModelFeeProvider = walletModel
+        tokenFeeProvider = walletModel.tokenFeeProvider
         walletModelDependenciesProvider = walletModel
         availableBalanceProvider = walletModel.availableBalanceProvider
         fiatAvailableBalanceProvider = walletModel.fiatAvailableBalanceProvider
