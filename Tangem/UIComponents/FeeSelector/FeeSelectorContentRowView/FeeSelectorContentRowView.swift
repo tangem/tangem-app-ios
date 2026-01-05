@@ -15,7 +15,7 @@ struct FeeSelectorContentRowView: SelectableSectionRow {
     @Binding var isSelected: Bool
 
     var shouldShowCustomFeeFields: Bool {
-        viewModel.feeOption == .custom && isSelected
+        viewModel.fee.option == .custom && isSelected
     }
 
     init(viewModel: FeeSelectorContentRowViewModel, isSelected: Binding<Bool>) {
@@ -43,7 +43,7 @@ struct FeeSelectorContentRowView: SelectableSectionRow {
             .padding(.vertical, 16)
             .padding(.horizontal, 14)
         }
-        .accessibilityIdentifier(viewModel.feeOption.accessibilityIdentifier)
+        .accessibilityIdentifier(viewModel.fee.option.accessibilityIdentifier)
     }
 
     private var icon: some View {
@@ -52,7 +52,7 @@ struct FeeSelectorContentRowView: SelectableSectionRow {
                 .fill(isSelected ? Colors.Icon.accent.opacity(0.1) : Colors.Background.tertiary)
                 .frame(width: 36, height: 36)
 
-            viewModel.feeOption.icon.image
+            viewModel.fee.option.icon.image
                 .resizable()
                 .renderingMode(.template)
                 .foregroundStyle(isSelected ? Colors.Icon.accent : Colors.Text.tertiary)
@@ -62,7 +62,7 @@ struct FeeSelectorContentRowView: SelectableSectionRow {
 
     private var content: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(viewModel.feeOption.title)
+            Text(viewModel.fee.option.title)
                 .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
                 .multilineTextAlignment(.leading)
 
