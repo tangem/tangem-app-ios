@@ -33,8 +33,8 @@ final class WCFeeSelectorFactory {
         customFeeService: WCCustomEvmFeeService,
         walletModel: any WalletModel,
         feeInteractor: WCFeeInteractor
-    ) -> FeeSelectorContentViewModel {
-        FeeSelectorContentViewModel(
+    ) -> WCFeeSelectorContentViewModel {
+        WCFeeSelectorContentViewModel(
             input: feeInteractor,
             output: feeInteractor,
             analytics: SimpleAnalytics(),
