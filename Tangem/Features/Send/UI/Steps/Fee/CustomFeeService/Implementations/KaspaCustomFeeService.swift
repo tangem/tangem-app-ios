@@ -17,7 +17,7 @@ class KaspaCustomFeeService {
 
     private lazy var customFeeTextField = DecimalNumberTextFieldViewModel(maximumFractionDigits: feeTokenItem.decimalCount)
 
-    private let customFee = CurrentValueSubject<Fee?, Never>(nil)
+    private let _customFee = CurrentValueSubject<Fee?, Never>(nil)
 
     private var cachedCustomFee: Fee?
     private var initialCustomFee: Fee
@@ -40,7 +40,7 @@ class KaspaCustomFeeService {
     }
 
     private func bind(output: CustomFeeServiceOutput) {
-        customFee
+        _customFee
             .compactMap { $0 }
             .dropFirst()
             .sink { [weak output] fee in
@@ -67,7 +67,7 @@ class KaspaCustomFeeService {
 
     private func onFieldChange(decimalValue: Decimal?) {
         guard let decimalValue, decimalValue > 0 else {
-            customFee.send(zeroFee)
+            _customFee.send(zeroFee)
             return
         }
 
@@ -78,14 +78,14 @@ class KaspaCustomFeeService {
             customFeeEnricher.enrichCustomFeeIfNeeded(&fee)
         }
 
-        customFee.send(fee)
+        _customFee.send(fee)
     }
 
     private func onFocusChanged(isSelected: Bool) {
         guard
             !isSelected,
             tokenItem.isToken,
-            let currentCustomFee = customFee.value,
+            let currentCustomFee = _customFee.value,
             currentCustomFee.amount < initialCustomFee.amount
         else {
             return
@@ -93,15 +93,29 @@ class KaspaCustomFeeService {
 
         // Reset a value in the input
         customFeeTextField.update(value: initialCustomFee.amount.value)
-        customFee.send(initialCustomFee)
+        _customFee.send(initialCustomFee)
     }
 }
 
-// MARK: - KaspaCustomFeeService+CustomFeeService
+// MARK: - CustomFeeService
 
 extension KaspaCustomFeeService: CustomFeeService {
     func setup(output: any CustomFeeServiceOutput) {
         bind(output: output)
+    }
+}
+
+// MARK: - FeeSelectorCustomFeeProvider
+
+extension KaspaCustomFeeService: FeeSelectorCustomFeeProvider {
+    var customFee: SendFee {
+        SendFee(option: .custom, value: _customFee.value.map { .success($0) } ?? .loading)
+    }
+
+    var customFeePublisher: AnyPublisher<SendFee, Never> {
+        _customFee
+            .map { SendFee(option: .custom, value: $0.map { .success($0) } ?? .loading) }
+            .eraseToAnyPublisher()
     }
 
     func initialSetupCustomFee(_ fee: Fee) {
@@ -111,16 +125,33 @@ extension KaspaCustomFeeService: CustomFeeService {
     }
 }
 
-// MARK: - FeeSelectorCustomFeeFieldsBuilder
+// MARK: - FeeSelectorCustomFeeAvailabilityProvider
 
-extension KaspaCustomFeeService: FeeSelectorCustomFeeFieldsBuilder {
+extension KaspaCustomFeeService: FeeSelectorCustomFeeAvailabilityProvider {
+    var customFeeIsValid: Bool { _customFee.value != initialCustomFee }
+
     var customFeeIsValidPublisher: AnyPublisher<Bool, Never> {
-        customFee
+        _customFee
             .withWeakCaptureOf(self)
             .map { $0.initialCustomFee != $1 }
             .eraseToAnyPublisher()
     }
 
+    func captureCustomFeeFieldsValue() {
+        cachedCustomFee = _customFee.value ?? initialCustomFee
+    }
+
+    func resetCustomFeeFieldsValue() {
+        if let cachedCustomFee {
+            _customFee.send(cachedCustomFee)
+            customFeeTextField.update(value: cachedCustomFee.amount.value)
+        }
+    }
+}
+
+// MARK: - FeeSelectorCustomFeeFieldsBuilder
+
+extension KaspaCustomFeeService: FeeSelectorCustomFeeFieldsBuilder {
     func buildCustomFeeFields() -> [FeeSelectorCustomFeeRowViewModel] {
         return [
             FeeSelectorCustomFeeRowViewModel(
@@ -129,7 +160,7 @@ extension KaspaCustomFeeService: FeeSelectorCustomFeeFieldsBuilder {
                 suffix: feeTokenItem.currencySymbol,
                 isEditable: true,
                 textFieldViewModel: customFeeTextField,
-                amountAlternativePublisher: customFee
+                amountAlternativePublisher: _customFee
                     .compactMap { $0 }
                     .withWeakCaptureOf(self)
                     .map { $0.formatToFiat(value: $1.amount.value) }
@@ -138,16 +169,5 @@ extension KaspaCustomFeeService: FeeSelectorCustomFeeFieldsBuilder {
                 self?.onFocusChanged(isSelected: focused)
             },
         ]
-    }
-
-    func captureCustomFeeFieldsValue() {
-        cachedCustomFee = customFee.value ?? initialCustomFee
-    }
-
-    func resetCustomFeeFieldsValue() {
-        if let cachedCustomFee {
-            customFee.send(cachedCustomFee)
-            customFeeTextField.update(value: cachedCustomFee.amount.value)
-        }
     }
 }
