@@ -1,51 +1,43 @@
 //
-//  FeeSelectorView.swift
+//  FeeSelectorContentView.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2025 Tangem AG. All rights reserved.
+//  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
 import SwiftUI
 import TangemUI
-import TangemUIUtils
-import TangemLocalization
 import TangemAssets
+import TangemLocalization
 import TangemAccessibilityIdentifiers
 
 struct FeeSelectorContentView: View {
     @ObservedObject var viewModel: FeeSelectorContentViewModel
 
+    let headerSettings: HeaderSettings?
+    let customFeeManualSaveButtonSettings: CustomFeeManualSaveButtonSettings?
+
+    init(
+        viewModel: FeeSelectorContentViewModel,
+        headerSettings: HeaderSettings? = .init(),
+        customFeeManualSaveButtonSettings: CustomFeeManualSaveButtonSettings? = .init()
+    ) {
+        self.viewModel = viewModel
+        self.headerSettings = headerSettings
+        self.customFeeManualSaveButtonSettings = customFeeManualSaveButtonSettings
+    }
+
     var body: some View {
         VStack(spacing: .zero) {
-            BottomSheetHeaderView(
-                title: Localization.commonNetworkFeeTitle,
-                leading: backButton,
-                trailing: closeButton
-            )
-            .padding(.vertical, 4)
-            .padding(.horizontal, 16)
-
-            ScrollView {
-                SelectableSection(viewModel.feesRowData) { data in
-                    FeeSelectorContentRowView(viewModel: data, isSelected: viewModel.isSelected(data.feeOption).asBinding)
-                }
-                // Should start where title starts (14 + 36 + 12)
-                .separatorPadding(.init(leading: 62, trailing: 14))
-                .padding(.horizontal, 14)
+            if let headerSettings {
+                header(settings: headerSettings)
             }
-            .scrollBounceBehavior(.basedOnSize)
-            .padding(.bottom, 16)
 
-            if viewModel.showDoneButton {
-                MainButton(
-                    title: Localization.commonDone,
-                    isDisabled: viewModel.doneButtonIsDisabled,
-                    action: viewModel.done
-                )
-                .padding(.bottom, 16)
-                .padding(.horizontal, 16)
-                .accessibilityIdentifier(FeeAccessibilityIdentifiers.feeSelectorDoneButton)
+            content
+
+            if let customFeeManualSaveButtonSettings, viewModel.customFeeManualSaveIsRequired {
+                footer(settings: customFeeManualSaveButtonSettings)
             }
         }
         .onAppear(perform: viewModel.onAppear)
@@ -56,17 +48,72 @@ struct FeeSelectorContentView: View {
         }
     }
 
-    @ViewBuilder
-    private func backButton() -> some View {
-        if case .back = viewModel.dismissButtonType {
-            CircleButton.back(action: viewModel.dismiss)
+    var content: some View {
+        ScrollView {
+            SelectableSection(viewModel.rowViewModels) { data in
+                FeeSelectorContentRowView(
+                    viewModel: data,
+                    isSelected: viewModel.isSelected(data.fee).asBinding
+                )
+            }
+            // Should start where title starts (14 + 36 + 12)
+            .separatorPadding(.init(leading: 62, trailing: 14))
+            .padding(.horizontal, 14)
+        }
+        .scrollBounceBehavior(.basedOnSize)
+        .scrollIndicators(.hidden)
+        .padding(.bottom, 16)
+    }
+
+    func header(settings: HeaderSettings) -> some View {
+        BottomSheetHeaderView(
+            title: settings.title,
+            leading: {
+                if case .back = settings.dismissType {
+                    CircleButton.back(action: viewModel.userDidTapDismissButton)
+                }
+            },
+            trailing: {
+                if case .close = settings.dismissType {
+                    CircleButton.close(action: viewModel.userDidTapDismissButton)
+                }
+            }
+        )
+        .padding(.vertical, 4)
+        .padding(.horizontal, 16)
+    }
+
+    func footer(settings: CustomFeeManualSaveButtonSettings) -> some View {
+        MainButton(
+            title: settings.title,
+            isDisabled: !viewModel.customFeeManualSaveIsAvailable,
+            action: viewModel.userDidTapCustomFeeManualSaveButton
+        )
+        .padding(.bottom, 16)
+        .padding(.horizontal, 16)
+        .accessibilityIdentifier(FeeAccessibilityIdentifiers.feeSelectorDoneButton)
+    }
+}
+
+extension FeeSelectorContentView {
+    struct HeaderSettings {
+        let title: String
+        let dismissType: FeeSelectorDismissButtonType
+
+        init(
+            title: String = Localization.commonNetworkFeeTitle,
+            dismissType: FeeSelectorDismissButtonType = .close
+        ) {
+            self.title = title
+            self.dismissType = dismissType
         }
     }
 
-    @ViewBuilder
-    private func closeButton() -> some View {
-        if case .close = viewModel.dismissButtonType {
-            CircleButton.close(action: viewModel.dismiss)
+    struct CustomFeeManualSaveButtonSettings {
+        let title: String
+
+        init(title: String = Localization.commonDone) {
+            self.title = title
         }
     }
 }
