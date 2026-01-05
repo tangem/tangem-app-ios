@@ -3,162 +3,130 @@
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2025 Tangem AG. All rights reserved.
+//  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
 import Combine
 import TangemUI
-import SwiftUI
 import TangemFoundation
 
+protocol FeeSelectorFeesDataProvider {
+    var selectedSelectorFee: FeeSelectorFee { get }
+    var selectedSelectorFeePublisher: AnyPublisher<FeeSelectorFee, Never> { get }
+
+    var selectorFees: [FeeSelectorFee] { get }
+    var selectorFeesPublisher: AnyPublisher<[FeeSelectorFee], Never> { get }
+}
+
 final class FeeSelectorContentViewModel: ObservableObject, FloatingSheetContentViewModel {
-    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_USERNAME] private(set) var feesTokenItems: [FeeSelectorContentRowViewModel] = []
 
-    @Published var selectedFeeOption: FeeOption = .market
-    @Published private(set) var feesRowData: [FeeSelectorContentRowViewModel] = []
-    @Published private(set) var doneButtonIsDisabled: Bool = false
+    @Published private(set) var rowViewModels: [FeeSelectorContentRowViewModel]
 
-    var showDoneButton: Bool {
-        switch (savingType, selectedFeeOption) {
-        case (.doneButton, _), (.autosave, .custom): true
-        case (.autosave, _): false
-        }
-    }
+    @Published private(set) var selectedFee: FeeSelectorFee
 
-    let dismissButtonType: FeeSelectorDismissButtonType
+    @Published private(set) var customFeeManualSaveIsRequired: Bool
+    @Published private(set) var customFeeManualSaveIsAvailable: Bool
 
-    private let input: FeeSelectorContentViewModelInput
+    private let provider: FeeSelectorFeesDataProvider
     private let output: FeeSelectorContentViewModelOutput
-    private let analytics: FeeSelectorContentViewModelAnalytics
-    private let customFieldsBuilder: FeeSelectorCustomFeeFieldsBuilder?
-    private let feeTokenItem: TokenItem
-    private let savingType: FeeSelectorSavingType
 
-    private let feeFormatter: FeeFormatter = CommonFeeFormatter(
-        balanceFormatter: .init(),
-        balanceConverter: .init()
-    )
+    private let mapper: FeeSelectorContentViewModelMapper
+    private let customFeeAvailabilityProvider: FeeSelectorCustomFeeAvailabilityProvider?
+    private let analytics: FeeSelectorContentViewModelAnalytics
+
+    private weak var router: FeeSelectorContentViewModelRoutable?
 
     init(
-        input: FeeSelectorContentViewModelInput,
+        provider: FeeSelectorFeesDataProvider,
         output: FeeSelectorContentViewModelOutput,
+        mapper: FeeSelectorContentViewModelMapper,
+        customFeeAvailabilityProvider: FeeSelectorCustomFeeAvailabilityProvider?,
         analytics: FeeSelectorContentViewModelAnalytics,
-        customFieldsBuilder: FeeSelectorCustomFeeFieldsBuilder?,
-        feeTokenItem: TokenItem,
-        dismissButtonType: FeeSelectorDismissButtonType = .close,
-        savingType: FeeSelectorSavingType
+        router: FeeSelectorContentViewModelRoutable
     ) {
-        self.input = input
+        self.provider = provider
         self.output = output
+        self.mapper = mapper
+        self.customFeeAvailabilityProvider = customFeeAvailabilityProvider
         self.analytics = analytics
-        self.customFieldsBuilder = customFieldsBuilder
-        self.feeTokenItem = feeTokenItem
-        self.dismissButtonType = dismissButtonType
-        self.savingType = savingType
+        self.router = router
+
+        selectedFee = provider.selectedSelectorFee
+        rowViewModels = mapper.mapToFeeSelectorContentRowViewModels(values: provider.selectorFees)
+
+        customFeeManualSaveIsRequired = provider.selectedSelectorFee.option == .custom
+        customFeeManualSaveIsAvailable = customFeeAvailabilityProvider?.customFeeIsValid == true
 
         bind()
-        bind(input: input)
     }
 
-    func isSelected(_ option: FeeOption) -> BindingValue<Bool> {
+    func isSelected(_ fee: FeeSelectorFee) -> BindingValue<Bool> {
         .init(root: self, default: false) { root in
-            return root.selectedFeeOption == option
+            root.selectedFee.option == fee.option
         } set: { root, isSelected in
             if isSelected {
-                root.userDidSelect(option)
+                root.userDidSelect(fee: fee)
             }
         }
     }
 
     func onAppear() {
         analytics.logFeeStepOpened()
-        customFieldsBuilder?.captureCustomFeeFieldsValue()
+        customFeeAvailabilityProvider?.captureCustomFeeFieldsValue()
 
-        if let currentSelectedFee = input.selectedSelectorFee,
-           currentSelectedFee.option != selectedFeeOption {
-            selectedFeeOption = currentSelectedFee.option
+        if selectedFee.option != provider.selectedSelectorFee.option {
+            selectedFee = provider.selectedSelectorFee
         }
     }
 
-    func dismiss() {
-        output.dismissFeeSelector()
-        customFieldsBuilder?.resetCustomFeeFieldsValue()
+    func userDidTapDismissButton() {
+        router?.dismissFeeSelector()
+        customFeeAvailabilityProvider?.resetCustomFeeFieldsValue()
     }
 
-    func done() {
-        updateFeeInOutput()
-        output.completeFeeSelection()
+    func userDidTapCustomFeeManualSaveButton() {
+        done()
     }
 }
 
 // MARK: - Private
 
 private extension FeeSelectorContentViewModel {
-    func userDidSelect(_ option: FeeOption) {
-        selectedFeeOption = option
-        analytics.logSendFeeSelected(option)
-
-        guard savingType == .autosave, option != .custom else {
-            return
-        }
-
-        done()
-    }
-
-    func updateFeeInOutput() {
-        output.update(selectedFeeOption: selectedFeeOption)
-    }
-
     func bind() {
-        guard let customFieldsBuilder else {
-            return
-        }
-
-        Publishers
-            .CombineLatest($selectedFeeOption, customFieldsBuilder.customFeeIsValidPublisher)
-            .map { option, isValid in
-                switch option {
-                case .custom: !isValid
-                default: false
-                }
-            }
-            .assign(to: &$doneButtonIsDisabled)
-    }
-
-    func bind(input: FeeSelectorContentViewModelInput) {
-        input.selectorFeesPublisher
-            // Skip a different loading states when fees is empty
-            .compactMap { $0.value }
-            .withWeakCaptureOf(self)
-            .map { $0.mapToFeeSelectorContentRowViewModels(values: $1) }
+        provider.selectedSelectorFeePublisher
             .receiveOnMain()
-            .assign(to: &$feesRowData)
+            .assign(to: &$selectedFee)
+
+        provider.selectorFeesPublisher
+            .withWeakCaptureOf(self)
+            .map { $0.mapper.mapToFeeSelectorContentRowViewModels(values: $1) }
+            .receiveOnMain()
+            .assign(to: &$rowViewModels)
+
+        $selectedFee
+            .map { $0.option == .custom }
+            .receiveOnMain()
+            .assign(to: &$customFeeManualSaveIsRequired)
+
+        customFeeAvailabilityProvider?
+            .customFeeIsValidPublisher
+            .receiveOnMain()
+            .assign(to: &$customFeeManualSaveIsAvailable)
     }
 
-    func mapToFeeSelectorContentRowViewModels(values: [FeeSelectorFee]) -> [FeeSelectorContentRowViewModel] {
-        values
-            .sorted(by: \.option)
-            .map { mapToFeeRowViewModel(fee: $0) }
+    func userDidSelect(fee: FeeSelectorFee) {
+        selectedFee = fee
+        analytics.logSendFeeSelected(fee.option)
+
+        if fee.option != .custom {
+            done()
+        }
     }
 
-    func mapToFeeRowViewModel(fee: FeeSelectorFee) -> FeeSelectorContentRowViewModel {
-        let feeComponents = feeFormatter.formattedFeeComponents(
-            fee: fee.value,
-            tokenItem: feeTokenItem,
-            formattingOptions: .sendCryptoFeeFormattingOptions
-        )
-
-        // We will create the custom fields only for the `.custom` option
-        let customFields = fee.option == .custom ? customFields() : []
-
-        return FeeSelectorContentRowViewModel(
-            feeOption: fee.option,
-            feeComponents: feeComponents,
-            customFields: customFields
-        )
-    }
-
-    func customFields() -> [FeeSelectorCustomFeeRowViewModel] {
-        customFieldsBuilder?.buildCustomFeeFields() ?? []
+    func done() {
+        output.userDidSelect(selectedFee: selectedFee)
+        router?.completeFeeSelection()
     }
 }

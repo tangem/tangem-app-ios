@@ -21,21 +21,24 @@ enum FeeSelectorSavingType {
     case doneButton
 }
 
-struct FeeSelectorFee {
+struct WCFeeSelectorFee {
     let option: FeeOption
     let value: Decimal
 }
 
-protocol FeeSelectorContentViewModelInput: AnyObject {
-    var selectedSelectorFee: FeeSelectorFee? { get }
-    var selectedSelectorFeePublisher: AnyPublisher<FeeSelectorFee, Never> { get }
+protocol WCFeeSelectorContentViewModelInput: AnyObject {
+    var selectedSelectorFee: WCFeeSelectorFee? { get }
+    var selectedSelectorFeePublisher: AnyPublisher<WCFeeSelectorFee, Never> { get }
 
-    var selectorFees: [FeeSelectorFee] { get }
-    var selectorFeesPublisher: AnyPublisher<LoadingResult<[FeeSelectorFee], Never>, Never> { get }
+    var selectorFees: [WCFeeSelectorFee] { get }
+    var selectorFeesPublisher: AnyPublisher<LoadingResult<[WCFeeSelectorFee], Never>, Never> { get }
 }
 
 protocol FeeSelectorContentViewModelOutput: AnyObject {
-    func update(selectedFeeOption: FeeOption)
+    func userDidSelect(selectedFee: FeeSelectorFee)
+}
+
+protocol FeeSelectorContentViewModelRoutable: AnyObject {
     func dismissFeeSelector()
     func completeFeeSelection()
 }
@@ -51,4 +54,20 @@ protocol FeeSelectorCustomFeeFieldsBuilder {
     func buildCustomFeeFields() -> [FeeSelectorCustomFeeRowViewModel]
     func captureCustomFeeFieldsValue()
     func resetCustomFeeFieldsValue()
+}
+
+protocol FeeSelectorCustomFeeAvailabilityProvider {
+    var customFeeIsValid: Bool { get }
+    var customFeeIsValidPublisher: AnyPublisher<Bool, Never> { get }
+
+    func captureCustomFeeFieldsValue()
+    func resetCustomFeeFieldsValue()
+}
+
+// MAKR: Legacy
+
+protocol WCFeeSelectorContentViewModelOutput: AnyObject {
+    func update(selectedFeeOption: FeeOption)
+    func dismissFeeSelector()
+    func completeFeeSelection()
 }
