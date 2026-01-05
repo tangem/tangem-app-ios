@@ -10,18 +10,18 @@ import Foundation
 import Combine
 
 class FeeSelectorContentRowViewModel: ObservableObject, Identifiable {
-    var id: String { feeOption.title }
+    var id: String { fee.option.title }
 
-    let feeOption: FeeOption
+    let fee: FeeSelectorFee
     let feeComponents: FormattedFeeComponents
     let customFields: [FeeSelectorCustomFeeRowViewModel]
 
     init(
-        feeOption: FeeOption,
+        fee: FeeSelectorFee,
         feeComponents: FormattedFeeComponents,
         customFields: [FeeSelectorCustomFeeRowViewModel] = []
     ) {
-        self.feeOption = feeOption
+        self.fee = fee
         self.feeComponents = feeComponents
         self.customFields = customFields
     }
