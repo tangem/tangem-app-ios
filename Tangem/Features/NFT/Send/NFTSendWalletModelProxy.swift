@@ -232,12 +232,8 @@ extension NFTSendWalletModelProxy: WalletModel {
         mainTokenWalletModel.fulfillRequirements(signer: signer)
     }
 
-    func estimatedFee(amount: Amount) -> AnyPublisher<[Fee], Error> {
-        mainTokenWalletModel.estimatedFee(amount: amount)
-    }
-
-    func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> {
-        mainTokenWalletModel.getFee(amount: amount, destination: destination)
+    var tokenFeeProvider: any TokenFeeProvider {
+        mainTokenWalletModel.tokenFeeProvider
     }
 
     func hasFeeCurrency() -> Bool {
@@ -246,10 +242,6 @@ extension NFTSendWalletModelProxy: WalletModel {
 
     func getFeeCurrencyBalance() -> Decimal {
         mainTokenWalletModel.getFeeCurrencyBalance()
-    }
-
-    func getFee(compiledTransaction data: Data) async throws -> [Fee] {
-        try await mainTokenWalletModel.getFee(compiledTransaction: data)
     }
 
     var blockchainDataProvider: BlockchainDataProvider {
