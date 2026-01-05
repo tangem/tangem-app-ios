@@ -10,7 +10,10 @@ import SwiftUI
 import Combine
 
 final class SendFeeInputOutputMock: SendFeeInput, SendFeeOutput {
-    var selectedFee: SendFee { SendFee(option: .market, value: .success(.init(.init(with: .polygon(testnet: false), value: 0.1)))) }
+    var selectedFee: SendFee {
+        SendFee(option: .market, value: .success(.init(.init(with: .polygon(testnet: false), value: 0.1))))
+    }
+
     var selectedFeePublisher: AnyPublisher<SendFee, Never> { .just(output: selectedFee) }
     var canChooseFeeOption: AnyPublisher<Bool, Never> { .just(output: false) }
     var cryptoAmountPublisher: AnyPublisher<Decimal, Never> { .just(output: 1) }
