@@ -33,12 +33,13 @@ final class WCFeeSelectorFactory {
         customFeeService: WCCustomEvmFeeService,
         walletModel: any WalletModel,
         feeInteractor: WCFeeInteractor
-    ) -> FeeSelectorContentViewModel {
-        FeeSelectorContentViewModel(
+    ) -> WCFeeSelectorContentViewModel {
+        WCFeeSelectorContentViewModel(
             input: feeInteractor,
             output: feeInteractor,
             analytics: SimpleAnalytics(),
             customFieldsBuilder: customFeeService,
+            customAvailabilityProvider: customFeeService,
             feeTokenItem: walletModel.feeTokenItem,
             dismissButtonType: .back,
             savingType: .doneButton
