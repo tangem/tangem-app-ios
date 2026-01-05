@@ -50,6 +50,7 @@ enum SendNewFeeStepBuilder {
             input: io.input,
             output: io.output,
             provider: dependencies.feeProvider,
+            feeTokenItem: types.feeTokenItem,
             customFeeService: dependencies.customFeeService
         )
 
@@ -57,7 +58,6 @@ enum SendNewFeeStepBuilder {
             provider: interactor.feeSelectorInteractor,
             output: interactor,
             mapper: CommonFeeSelectorContentViewModelMapper(
-                feeTokenItem: types.feeTokenItem,
                 feeFormatter: CommonFeeFormatter(),
                 customFieldsBuilder: dependencies.customFeeService as? FeeSelectorCustomFeeFieldsBuilder
             ),
