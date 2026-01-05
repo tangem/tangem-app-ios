@@ -20,7 +20,6 @@ final class CommonSendFeeInteractor {
     private weak var output: SendFeeOutput?
 
     private let provider: SendFeeProvider
-    private let feeTokenItem: TokenItem
     private let customFeeService: CustomFeeService?
     private let _customFee: CurrentValueSubject<BSDKFee?, Never> = .init(.none)
 
@@ -37,13 +36,11 @@ final class CommonSendFeeInteractor {
         input: SendFeeInput,
         output: SendFeeOutput,
         provider: SendFeeProvider,
-        feeTokenItem: TokenItem,
         customFeeService: CustomFeeService?
     ) {
         self.input = input
         self.output = output
         self.provider = provider
-        self.feeTokenItem = feeTokenItem
         self.customFeeService = customFeeService
 
         bind()
@@ -61,7 +58,7 @@ final class CommonSendFeeInteractor {
 
 extension CommonSendFeeInteractor: FeeSelectorInteractorInput {
     var selectedFee: SendFee {
-        input?.selectedFee ?? .init(option: .market, tokenItem: feeTokenItem, value: .loading)
+        input?.selectedFee ?? .init(option: .market, value: .loading)
     }
 
     var selectedFeePublisher: AnyPublisher<SendFee, Never> {
@@ -113,7 +110,7 @@ extension CommonSendFeeInteractor: FeeSelectorCustomFeeProvider {
 
 extension CommonSendFeeInteractor: FeeSelectorContentViewModelOutput {
     func userDidSelect(selectedFee: FeeSelectorFee) {
-        output?.feeDidChanged(fee: .init(option: selectedFee.option, tokenItem: selectedFee.tokenItem, value: selectedFee.value))
+        output?.feeDidChanged(fee: .init(option: selectedFee.option, value: selectedFee.value))
     }
 }
 
@@ -147,11 +144,11 @@ private extension CommonSendFeeInteractor {
     func mapToSendFees(feesValue: LoadingResult<[SendFee], Error>) -> [SendFee] {
         switch feesValue {
         case .loading:
-            return provider.feeOptions.map { SendFee(option: $0, tokenItem: feeTokenItem, value: .loading) }
+            return provider.feeOptions.map { SendFee(option: $0, value: .loading) }
         case .success(let fees):
             return fees.filter { provider.feeOptions.contains($0.option) }
         case .failure(let error):
-            return provider.feeOptions.map { SendFee(option: $0, tokenItem: feeTokenItem, value: .failure(error)) }
+            return provider.feeOptions.map { SendFee(option: $0, value: .failure(error)) }
         }
     }
 
@@ -169,10 +166,6 @@ private extension CommonSendFeeInteractor {
             return .loading
         }()
 
-        return SendFee(
-            option: .custom,
-            tokenItem: feeTokenItem,
-            value: customFeeValue,
-        )
+        return SendFee(option: .custom, value: customFeeValue)
     }
 }

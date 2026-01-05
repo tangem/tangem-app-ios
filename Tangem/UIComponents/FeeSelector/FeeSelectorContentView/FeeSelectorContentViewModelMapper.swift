@@ -13,10 +13,16 @@ protocol FeeSelectorContentViewModelMapper {
 }
 
 struct CommonFeeSelectorContentViewModelMapper {
+    private let feeTokenItem: TokenItem
     private let feeFormatter: FeeFormatter
     private let customFieldsBuilder: FeeSelectorCustomFeeFieldsBuilder?
 
-    init(feeFormatter: FeeFormatter, customFieldsBuilder: FeeSelectorCustomFeeFieldsBuilder?) {
+    init(
+        feeTokenItem: TokenItem,
+        feeFormatter: FeeFormatter,
+        customFieldsBuilder: FeeSelectorCustomFeeFieldsBuilder?
+    ) {
+        self.feeTokenItem = feeTokenItem
         self.feeFormatter = feeFormatter
         self.customFieldsBuilder = customFieldsBuilder
     }
@@ -43,7 +49,7 @@ private extension CommonFeeSelectorContentViewModelMapper {
 
         case .success(let feeValue): feeFormatter.formattedFeeComponents(
                 fee: feeValue.amount.value,
-                tokenItem: fee.tokenItem,
+                tokenItem: feeTokenItem,
                 formattingOptions: .sendCryptoFeeFormattingOptions
             )
         }
