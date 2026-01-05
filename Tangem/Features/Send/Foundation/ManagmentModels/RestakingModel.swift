@@ -178,13 +178,13 @@ private extension RestakingModel {
     func mapToSendFee(_ state: State) -> SendFee {
         switch state {
         case .loading:
-            return SendFee(option: .market, tokenItem: feeTokenItem, value: .loading)
+            return SendFee(option: .market, value: .loading)
         case .networkError(let error):
-            return SendFee(option: .market, tokenItem: feeTokenItem, value: .failure(error))
+            return SendFee(option: .market, value: .failure(error))
         case .stakingValidationError(let error):
-            return SendFee(option: .market, tokenItem: feeTokenItem, value: .failure(error))
+            return SendFee(option: .market, value: .failure(error))
         case .validationError(_, let fee), .ready(let fee):
-            return SendFee(option: .market, tokenItem: feeTokenItem, value: .success(makeFee(value: fee)))
+            return SendFee(option: .market, value: .success(makeFee(value: fee)))
         }
     }
 }
