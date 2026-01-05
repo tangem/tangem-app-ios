@@ -544,42 +544,27 @@ extension CommonWalletModel: WalletModelHelpers {
     }
 }
 
+// MARK: - WalletModelFeesProvider
+
+extension CommonWalletModel: WalletModelFeesProvider {
+    var tokenFeeProvider: any TokenFeeProvider {
+        if isDemo {
+            return DemoTokenFeeProvider(tokenItem: tokenItem)
+        }
+
+        return CommonTokenFeeProvider(tokenItem: tokenItem, walletManager: walletManager)
+    }
+}
+
 // MARK: - WalletModelFeeProvider
 
 extension CommonWalletModel: WalletModelFeeProvider {
-    func estimatedFee(amount: Amount) -> AnyPublisher<[Fee], Error> {
-        if isDemo {
-            let demoFees = DemoUtil().getDemoFee(for: walletManager.wallet.blockchain)
-            return .justWithError(output: demoFees)
-        }
-
-        return walletManager.estimatedFee(amount: amount)
-    }
-
-    func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> {
-        if isDemo {
-            let demoFees = DemoUtil().getDemoFee(for: walletManager.wallet.blockchain)
-            return .justWithError(output: demoFees)
-        }
-
-        return walletManager.getFee(amount: amount, destination: destination)
-    }
-
     func getFeeCurrencyBalance() -> Decimal {
         wallet.feeCurrencyBalance(amountType: tokenItem.amountType)
     }
 
     func hasFeeCurrency() -> Bool {
         wallet.hasFeeCurrency(amountType: tokenItem.amountType)
-    }
-
-    func getFee(compiledTransaction data: Data) async throws -> [Fee] {
-        if isDemo {
-            let demoFees = DemoUtil().getDemoFee(for: walletManager.wallet.blockchain)
-            return demoFees
-        }
-
-        return try await compiledTransactionFeeProvider?.getFee(compiledTransaction: data) ?? []
     }
 }
 
