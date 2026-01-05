@@ -153,25 +153,19 @@ extension VisaWalletModel: WalletModelHelpers {
     }
 }
 
+extension VisaWalletModel: WalletModelFeesProvider {
+    var tokenFeeProvider: any TokenFeeProvider {
+        DemoTokenFeeProvider(tokenItem: tokenItem)
+    }
+}
+
 extension VisaWalletModel: WalletModelFeeProvider {
-    func estimatedFee(amount: Amount) -> AnyPublisher<[Fee], any Error> {
-        return .justWithError(output: [])
-    }
-
-    func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], any Error> {
-        return .justWithError(output: [])
-    }
-
     func getFeeCurrencyBalance() -> Decimal {
         return 0
     }
 
     func hasFeeCurrency() -> Bool {
         return false
-    }
-
-    func getFee(compiledTransaction data: Data) async throws -> [Fee] {
-        return []
     }
 }
 
