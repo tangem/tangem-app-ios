@@ -14,13 +14,13 @@ import BigInt
 struct CommonExpressFeeProvider {
     private let tokenItem: TokenItem
     private let feeTokenItem: TokenItem
-    private let feeProvider: any WalletModelFeeProvider
+    private let feeProvider: any TokenFeeProvider
     private let ethereumNetworkProvider: (any EthereumNetworkProvider)?
 
     init(
         tokenItem: TokenItem,
         feeTokenItem: TokenItem,
-        feeProvider: any WalletModelFeeProvider,
+        feeProvider: any TokenFeeProvider,
         ethereumNetworkProvider: (any EthereumNetworkProvider)?
     ) {
         self.tokenItem = tokenItem
@@ -34,8 +34,7 @@ struct CommonExpressFeeProvider {
 
 extension CommonExpressFeeProvider: ExpressFeeProvider {
     func estimatedFee(amount: Decimal) async throws -> ExpressFee.Variants {
-        let amount = makeAmount(amount: amount, item: tokenItem)
-        let fees = try await feeProvider.estimatedFee(amount: amount).async()
+        let fees = try await feeProvider.estimatedFee(amount: amount)
         return try mapToExpressFee(fees: fees)
     }
 
@@ -56,15 +55,14 @@ extension CommonExpressFeeProvider: ExpressFeeProvider {
     func getFee(amount: ExpressAmount, destination: String) async throws -> ExpressFee.Variants {
         switch (amount, tokenItem.blockchain) {
         case (.transfer(let amount), _):
-            let amount = makeAmount(amount: amount, item: tokenItem)
-            let fees = try await feeProvider.getFee(amount: amount, destination: destination).async()
+            let fees = try await feeProvider.getFee(dataType: .plain(amount: amount, destination: destination))
             return try mapToExpressFee(fees: fees)
         case (.dex(_, _, let txData), .solana):
             guard let txData, let transactionData = Data(base64Encoded: txData) else {
                 throw ExpressProviderError.transactionDataNotFound
             }
 
-            let fees = try await feeProvider.getFee(compiledTransaction: transactionData)
+            let fees = try await feeProvider.getFee(dataType: .compiledTransaction(data: transactionData))
             return try mapToExpressFee(fees: fees)
         case (.dex(_, let txValue, let txData), _):
             guard let txData = txData.map(Data.init(hexString:)) else {
