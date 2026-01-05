@@ -1,24 +1,24 @@
 //
-//  FeeSelectorContentRowView.swift
+//  WCFeeSelectorContentRowView.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2025 Tangem AG. All rights reserved.
+//  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
 import SwiftUI
 import TangemUI
 import TangemAssets
 
-struct FeeSelectorContentRowView: SelectableSectionRow {
-    private let viewModel: FeeSelectorContentRowViewModel
+struct WCFeeSelectorContentRowView: SelectableSectionRow {
+    private let viewModel: WCFeeSelectorContentRowViewModel
     @Binding var isSelected: Bool
 
     var shouldShowCustomFeeFields: Bool {
-        viewModel.fee.option == .custom && isSelected
+        viewModel.feeOption == .custom && isSelected
     }
 
-    init(viewModel: FeeSelectorContentRowViewModel, isSelected: Binding<Bool>) {
+    init(viewModel: WCFeeSelectorContentRowViewModel, isSelected: Binding<Bool>) {
         self.viewModel = viewModel
         _isSelected = isSelected
     }
@@ -43,7 +43,7 @@ struct FeeSelectorContentRowView: SelectableSectionRow {
             .padding(.vertical, 16)
             .padding(.horizontal, 14)
         }
-        .accessibilityIdentifier(viewModel.fee.option.accessibilityIdentifier)
+        .accessibilityIdentifier(viewModel.feeOption.accessibilityIdentifier)
     }
 
     private var icon: some View {
@@ -52,7 +52,7 @@ struct FeeSelectorContentRowView: SelectableSectionRow {
                 .fill(isSelected ? Colors.Icon.accent.opacity(0.1) : Colors.Background.tertiary)
                 .frame(width: 36, height: 36)
 
-            viewModel.fee.option.icon.image
+            viewModel.feeOption.icon.image
                 .resizable()
                 .renderingMode(.template)
                 .foregroundStyle(isSelected ? Colors.Icon.accent : Colors.Text.tertiary)
@@ -62,7 +62,7 @@ struct FeeSelectorContentRowView: SelectableSectionRow {
 
     private var content: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(viewModel.fee.option.title)
+            Text(viewModel.feeOption.title)
                 .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
                 .multilineTextAlignment(.leading)
 
