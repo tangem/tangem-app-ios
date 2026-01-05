@@ -19,7 +19,7 @@ class SellFlowFactory: SendFlowBaseDependenciesFactory {
     let tokenHeaderProvider: SendGenericTokenHeaderProvider
     let shouldShowFeeSelector: Bool
 
-    let walletModelFeeProvider: any WalletModelFeeProvider
+    let tokenFeeProvider: any TokenFeeProvider
     let walletModelDependenciesProvider: any WalletModelDependenciesProvider
     let availableBalanceProvider: any TokenBalanceProvider
     let fiatAvailableBalanceProvider: any TokenBalanceProvider
@@ -65,7 +65,7 @@ class SellFlowFactory: SendFlowBaseDependenciesFactory {
         accountModelAnalyticsProvider = walletModel.account
 
         shouldShowFeeSelector = walletModel.shouldShowFeeSelector
-        walletModelFeeProvider = walletModel
+        tokenFeeProvider = walletModel.tokenFeeProvider
         walletModelDependenciesProvider = walletModel
         availableBalanceProvider = walletModel.availableBalanceProvider
         fiatAvailableBalanceProvider = walletModel.fiatAvailableBalanceProvider
