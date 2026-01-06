@@ -13,6 +13,9 @@ import TangemFoundation
 final class SwapFeeProvider {
     private let swapManager: SwapManager
 
+    private var feeOptions: [FeeOption] { [.market, .fast] }
+    private var feeTokenItem: TokenItem { swapManager.swappingPair.sender.value!.feeTokenItem }
+
     init(swapManager: SwapManager) {
         self.swapManager = swapManager
     }
@@ -21,18 +24,14 @@ final class SwapFeeProvider {
 // MARK: - Private
 
 private extension SwapFeeProvider {
-    func mapToFees(state: SwapManagerState) -> LoadingResult<[SendFee], any Error> {
+    func mapToFees(state: SwapManagerState) -> [SendFee] {
         switch swapManager.state {
         case .loading:
-            return .loading
+            return SendFeeConverter.mapToLoadingSendFees(options: feeOptions, feeTokenItem: feeTokenItem)
         case .restriction(.requiredRefresh(let occurredError), _):
-            return .failure(occurredError)
+            return SendFeeConverter.mapToFailureSendFees(options: feeOptions, feeTokenItem: feeTokenItem, error: occurredError)
         case let state:
-            let fees = state.fees.fees.map { option, fee in
-                SendFee(option: option, tokenItem: swapManager.swappingPair.sender.value!.feeTokenItem, value: .success(fee))
-            }
-
-            return .success(fees)
+            return SendFeeConverter.mapToSendFees(options: feeOptions, feeTokenItem: feeTokenItem, fees: state.fees.fees.map(\.value))
         }
     }
 }
@@ -40,15 +39,11 @@ private extension SwapFeeProvider {
 // MARK: - SendFeeProvider
 
 extension SwapFeeProvider: SendFeeProvider {
-    var feeOptions: [FeeOption] {
-        [.market, .fast]
-    }
-
-    var fees: LoadingResult<[SendFee], any Error> {
+    var fees: LoadableFees {
         mapToFees(state: swapManager.state)
     }
 
-    var feesPublisher: AnyPublisher<LoadingResult<[SendFee], any Error>, Never> {
+    var feesPublisher: AnyPublisher<LoadableFees, Never> {
         swapManager.statePublisher
             .withWeakCaptureOf(self)
             .map { $0.mapToFees(state: $1) }
