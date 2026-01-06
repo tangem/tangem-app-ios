@@ -185,20 +185,20 @@ private extension StakingModel {
     func mapToSendFee(_ state: State?) -> SendFee {
         switch state {
         case .none, .loading:
-            return SendFee(option: .market, value: .loading)
+            return SendFee(option: .market, tokenItem: feeTokenItem, value: .loading)
         case .readyToApprove(let approveData):
-            return SendFee(option: .market, value: .success(approveData.fee))
+            return SendFee(option: .market, tokenItem: feeTokenItem, value: .success(approveData.fee))
         case .readyToStake(let readyToStake):
-            return SendFee(option: .market, value: .success(makeFee(value: readyToStake.fee)))
+            return SendFee(option: .market, tokenItem: feeTokenItem, value: .success(makeFee(value: readyToStake.fee)))
         case .approveTransactionInProgress(let fee),
              .validationError(_, let fee):
-            return SendFee(option: .market, value: .success(makeFee(value: fee)))
+            return SendFee(option: .market, tokenItem: feeTokenItem, value: .success(makeFee(value: fee)))
         case .networkError(let error):
-            return SendFee(option: .market, value: .failure(error))
+            return SendFee(option: .market, tokenItem: feeTokenItem, value: .failure(error))
         case .blockchainAccountInitializationRequired(_, let transactionFee):
-            return SendFee(option: .market, value: .success(transactionFee))
+            return SendFee(option: .market, tokenItem: feeTokenItem, value: .success(transactionFee))
         case .blockchainAccountInitializationInProgress:
-            return SendFee(option: .market, value: .failure(StakingModelError.accountIsNotInitialized))
+            return SendFee(option: .market, tokenItem: feeTokenItem, value: .failure(StakingModelError.accountIsNotInitialized))
         }
     }
 
