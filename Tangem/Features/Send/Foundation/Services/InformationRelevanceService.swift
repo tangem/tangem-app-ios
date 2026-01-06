@@ -84,7 +84,7 @@ extension CommonInformationRelevanceService: InformationRelevanceService {
             .dropFirst()
             .withWeakCaptureOf(self)
             .tryMap { service, fees in
-                if let error = fees.wrapToLoadingResult().error {
+                if let error = fees.eraseToLoadingResult().error {
                     throw error
                 }
 

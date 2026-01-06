@@ -25,7 +25,7 @@ protocol SendFeeProvider {
 extension SendFeeProvider {
     var feesHasVariants: AnyPublisher<Bool, Never> {
         feesPublisher
-            .filter { !$0.wrapToLoadingResult().isLoading }
+            .filter { !$0.eraseToLoadingResult().isLoading }
             .map { fees in
                 fees.hasMultipleFeeOptions
             }
