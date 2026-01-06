@@ -76,22 +76,22 @@ extension CommonFeeSelectorInteractor: FeeSelectorInteractor {
 // MARK: - FeeSelectorFeesDataProvider
 
 extension CommonFeeSelectorInteractor: FeeSelectorFeesDataProvider {
-    var selectedSelectorFee: FeeSelectorFee {
+    var selectedSelectorFee: TokenFee {
         mapToFeeSelectorFee(fee: selectedFee)
     }
 
-    var selectedSelectorFeePublisher: AnyPublisher<FeeSelectorFee, Never> {
+    var selectedSelectorFeePublisher: AnyPublisher<TokenFee, Never> {
         selectedFeePublisher
             .withWeakCaptureOf(self)
             .map { $0.mapToFeeSelectorFee(fee: $1) }
             .eraseToAnyPublisher()
     }
 
-    var selectorFees: [FeeSelectorFee] {
+    var selectorFees: [TokenFee] {
         fees.map { mapToFeeSelectorFee(fee: $0) }
     }
 
-    var selectorFeesPublisher: AnyPublisher<[FeeSelectorFee], Never> {
+    var selectorFeesPublisher: AnyPublisher<[TokenFee], Never> {
         feesPublisher
             .withWeakCaptureOf(self)
             .map { $0.mapToFeeSelectorFees(fees: $1) }
@@ -122,11 +122,11 @@ extension CommonFeeSelectorInteractor: FeeSelectorTokensDataProvider {
 // MARK: - Private
 
 private extension CommonFeeSelectorInteractor {
-    func mapToFeeSelectorFees(fees: [SendFee]) -> [FeeSelectorFee] {
+    func mapToFeeSelectorFees(fees: [SendFee]) -> [TokenFee] {
         fees.map(mapToFeeSelectorFee)
     }
 
-    func mapToFeeSelectorFee(fee: SendFee) -> FeeSelectorFee {
-        return FeeSelectorFee(option: fee.option, tokenItem: fee.tokenItem, value: fee.value)
+    func mapToFeeSelectorFee(fee: SendFee) -> TokenFee {
+        return TokenFee(option: fee.option, tokenItem: fee.tokenItem, value: fee.value)
     }
 }

@@ -19,7 +19,7 @@ final class CommonSendFeeProvider {
 
     private let _cryptoAmount: CurrentValueSubject<Decimal?, Never> = .init(nil)
     private let _destination: CurrentValueSubject<String?, Never> = .init(nil)
-    private let _fees: CurrentValueSubject<LoadingResult<[SendFee], Error>, Never> = .init(.loading)
+    private let _fees: CurrentValueSubject<LoadingResult<[TokenFee], Error>, Never> = .init(.loading)
 
     private var feeLoadingTask: Task<Void, Never>?
     private var cryptoAmountSubscription: AnyCancellable?
@@ -47,11 +47,11 @@ extension CommonSendFeeProvider: SendFeeProvider {
         defaultFeeOptions
     }
 
-    var fees: LoadingResult<[SendFee], any Error> {
+    var fees: LoadingResult<[TokenFee], any Error> {
         _fees.value
     }
 
-    var feesPublisher: AnyPublisher<LoadingResult<[SendFee], any Error>, Never> {
+    var feesPublisher: AnyPublisher<LoadingResult<[TokenFee], any Error>, Never> {
         _fees.eraseToAnyPublisher()
     }
 
@@ -68,9 +68,8 @@ extension CommonSendFeeProvider: SendFeeProvider {
         feeLoadingTask?.cancel()
         feeLoadingTask = Task {
             do {
-                let loadedFees = try await feeProvider.getFee(dataType: .plain(amount: amount, destination: destination))
+                let fees = try await feeProvider.getFee(dataType: .plain(amount: amount, destination: destination))
                 try Task.checkCancellation()
-                let fees = mapToDefaultFees(fees: loadedFees)
                 _fees.send(.success(fees))
             } catch {
                 AppLogger.error("SendFeeProvider fee loading error", error: error)

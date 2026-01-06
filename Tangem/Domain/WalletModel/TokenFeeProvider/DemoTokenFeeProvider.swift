@@ -9,19 +9,19 @@
 import Foundation
 
 struct DemoTokenFeeProvider {
-    let tokenItem: TokenItem
+    let feeTokenItem: TokenItem
 }
 
 // MARK: - TokenFeeProvider
 
 extension DemoTokenFeeProvider: TokenFeeProvider {
-    func estimatedFee(amount: Decimal) async throws -> [BSDKFee] {
-        let fees = DemoUtil().getDemoFee(for: tokenItem.blockchain)
-        return fees
+    func estimatedFee(amount: Decimal) async throws -> [TokenFee] {
+        let fees = DemoUtil().getDemoFee(for: feeTokenItem.blockchain)
+        return SendFeeConverter.mapToTokenFees(fees: fees, feeTokenItem: feeTokenItem)
     }
 
-    func getFee(dataType: TokenFeeProviderDataType) async throws -> [BSDKFee] {
-        let fees = DemoUtil().getDemoFee(for: tokenItem.blockchain)
-        return fees
+    func getFee(dataType: TokenFeeProviderDataType) async throws -> [TokenFee] {
+        let fees = DemoUtil().getDemoFee(for: feeTokenItem.blockchain)
+        return SendFeeConverter.mapToTokenFees(fees: fees, feeTokenItem: feeTokenItem)
     }
 }
