@@ -104,7 +104,7 @@ extension CommonSendFeeInteractor: FeeSelectorFeeTokenItemsProvider {
 // MARK: - FeeSelectorOutput
 
 extension CommonSendFeeInteractor: FeeSelectorOutput {
-    func userDidSelect(selectedFee: FeeSelectorFee) {
+    func userDidSelect(selectedFee: TokenFee) {
         output?.feeDidChanged(fee: .init(option: selectedFee.option, tokenItem: selectedFee.tokenItem, value: selectedFee.value))
     }
 }

@@ -9,25 +9,25 @@
 import BlockchainSdk
 
 struct CommonTokenFeeProvider {
-    let tokenItem: TokenItem
+    let feeTokenItem: TokenItem
     let walletManager: any WalletManager
 }
 
 // MARK: - TokenFeeProvider
 
 extension CommonTokenFeeProvider: TokenFeeProvider {
-    func estimatedFee(amount: Decimal) async throws -> [BSDKFee] {
+    func estimatedFee(amount: Decimal) async throws -> [TokenFee] {
         let amount = makeAmount(amount: amount)
         let fees = try await walletManager.estimatedFee(amount: amount).async()
-        return fees
+        return SendFeeConverter.mapToTokenFees(fees: fees, feeTokenItem: feeTokenItem)
     }
 
-    func getFee(dataType: TokenFeeProviderDataType) async throws -> [BSDKFee] {
+    func getFee(dataType: TokenFeeProviderDataType) async throws -> [TokenFee] {
         switch dataType {
         case .plain(let amount, let destination):
             let amount = makeAmount(amount: amount)
             let fees = try await walletManager.getFee(amount: amount, destination: destination).async()
-            return fees
+            return SendFeeConverter.mapToTokenFees(fees: fees, feeTokenItem: feeTokenItem)
 
         case .compiledTransaction(let data):
             guard let walletManager = walletManager as? CompiledTransactionFeeProvider else {
@@ -55,6 +55,6 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
 
 private extension CommonTokenFeeProvider {
     func makeAmount(amount: Decimal) -> BSDKAmount {
-        BSDKAmount(with: tokenItem.blockchain, type: tokenItem.amountType, value: amount)
+        BSDKAmount(with: feeTokenItem.blockchain, type: feeTokenItem.amountType, value: amount)
     }
 }
