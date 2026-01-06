@@ -10,5 +10,6 @@ import TangemFoundation
 
 struct FeeSelectorFee {
     let option: FeeOption
+    let tokenItem: TokenItem
     let value: LoadingResult<BSDKFee, any Error>
 }

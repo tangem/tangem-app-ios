@@ -29,7 +29,7 @@ class SendModel {
     private let _destination: CurrentValueSubject<SendDestination?, Never>
     private let _destinationAdditionalField: CurrentValueSubject<SendDestinationAdditionalField, Never>
     private let _amount: CurrentValueSubject<SendAmount?, Never>
-    private let _selectedFee = CurrentValueSubject<SendFee, Never>(.init(option: .market, value: .loading))
+    private let _selectedFee: CurrentValueSubject<SendFee, Never>
     private let _isFeeIncluded = CurrentValueSubject<Bool, Never>(false)
 
     private let _transaction = CurrentValueSubject<Result<BSDKTransaction, Error>?, Never>(nil)
@@ -85,6 +85,7 @@ class SendModel {
         _destination = .init(predefinedValues.destination)
         _destinationAdditionalField = .init(predefinedValues.tag)
         _amount = .init(predefinedValues.amount)
+        _selectedFee = .init(.init(option: .market, tokenItem: _sendingToken.value.tokenItem, value: .loading))
 
         bind()
     }
@@ -612,15 +613,15 @@ extension SendModel: SendFeeInput {
     private func mapToSendFee(state: SwapManagerState) -> SendFee {
         switch state {
         case .loading:
-            return .init(option: state.fees.selected, value: .loading)
+            return .init(option: state.fees.selected, tokenItem: sourceToken.feeTokenItem, value: .loading)
         case .restriction(.requiredRefresh(let occurredError), _):
-            return .init(option: state.fees.selected, value: .failure(occurredError))
+            return .init(option: state.fees.selected, tokenItem: sourceToken.feeTokenItem, value: .failure(occurredError))
         case let state:
             do {
                 let fee = try state.fees.selectedFee()
-                return .init(option: state.fees.selected, value: .success(fee))
+                return .init(option: state.fees.selected, tokenItem: sourceToken.feeTokenItem, value: .success(fee))
             } catch {
-                return .init(option: state.fees.selected, value: .failure(error))
+                return .init(option: state.fees.selected, tokenItem: sourceToken.feeTokenItem, value: .failure(error))
             }
         }
     }
