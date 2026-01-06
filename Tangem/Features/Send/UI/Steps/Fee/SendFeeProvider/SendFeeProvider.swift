@@ -16,11 +16,12 @@ protocol SendFeeProviderInput: AnyObject {
 }
 
 protocol SendFeeProvider {
-    /// Default supported fee options from provider
-    var feeOptions: [FeeOption] { get }
+    // Default supported fee options from provider
+    // var feeOptions: [FeeOption] { get }
+    // var feeTokenItem: TokenItem { get }
 
-    var fees: LoadingResult<[TokenFee], Error> { get }
-    var feesPublisher: AnyPublisher<LoadingResult<[TokenFee], Error>, Never> { get }
+    var fees: LoadableFees { get }
+    var feesPublisher: AnyPublisher<LoadableFees, Never> { get }
 
     func updateFees()
 }
@@ -28,13 +29,44 @@ protocol SendFeeProvider {
 extension SendFeeProvider {
     var feesHasVariants: AnyPublisher<Bool, Never> {
         feesPublisher
-            .filter { !$0.isLoading }
+            .filter { !$0.wrapToLoadingResult().isLoading }
             .map { fees in
-                switch fees {
-                case .success(let fees): fees.hasMultipleFeeOptions
-                case .loading, .failure: false
-                }
+                fees.hasMultipleFeeOptions
             }
             .eraseToAnyPublisher()
     }
+
+//    func mapToMarketSendFee(fee: LoadingResult<BSDKFee, any Error>) -> SendFee {
+//        switch fee {
+//        case .success(let fee):
+//            return SendFee(option: .market, tokenItem: feeTokenItem, value: .success(fee))
+//        case .loading:
+//            return SendFee(option: .market, tokenItem: feeTokenItem, value: .loading)
+//        case .failure(let error):
+//            return SendFee(option: .market, tokenItem: feeTokenItem, value: .failure(error))
+//        }
+//    }
+//
+//    func mapToSendFees(fees: LoadingResult<[BSDKFee], any Error>) -> [SendFee] {
+//        switch fees {
+//        case .success(let fees):
+//            return loadedFees(fees: fees)
+//        case .loading:
+//            return loadingFees()
+//        case .failure(let error):
+//            return failureFees(error: error)
+//        }
+//    }
+//
+//    func loadingFees() -> [SendFee] {
+//        SendFeeConverter.mapToLoadingSendFees(options: feeOptions, feeTokenItem: feeTokenItem)
+//    }
+//
+//    func failureFees(error: any Error) -> [SendFee] {
+//        SendFeeConverter.mapToFailureSendFees(options: feeOptions, feeTokenItem: feeTokenItem, error: error)
+//    }
+//
+//    func loadedFees(fees: [BSDKFee]) -> [SendFee] {
+//        SendFeeConverter.mapToSendFees(fees: fees, feeTokenItem: feeTokenItem)
+//    }
 }

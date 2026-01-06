@@ -30,21 +30,21 @@ class SendWithSwapFeeProvider {
 // MARK: - SendFeeProvider
 
 extension SendWithSwapFeeProvider: SendFeeProvider {
-    var feeOptions: [FeeOption] {
-        switch receiveTokenInput?.receiveToken {
-        case .none, .same: sendFeeProvider.feeOptions
-        case .swap: swapFeeProvider.feeOptions
-        }
-    }
+//    var feeOptions: [FeeOption] {
+//        switch receiveTokenInput?.receiveToken {
+//        case .none, .same: sendFeeProvider.feeOptions
+//        case .swap: swapFeeProvider.feeOptions
+//        }
+//    }
 
-    var fees: LoadingResult<[SendFee], any Error> {
+    var fees: [SendFee] {
         switch receiveTokenInput?.receiveToken {
         case .none, .same: sendFeeProvider.fees
         case .swap: swapFeeProvider.fees
         }
     }
 
-    var feesPublisher: AnyPublisher<LoadingResult<[SendFee], any Error>, Never> {
+    var feesPublisher: AnyPublisher<[SendFee], Never> {
         guard let receiveTokenInput else {
             assertionFailure("ReceiveTokenInput not found")
             return Empty().eraseToAnyPublisher()
