@@ -11,7 +11,7 @@ import TangemFoundation
 extension [SendFee] {
     var hasMultipleFeeOptions: Bool { unique(by: \.option).count > 1 }
 
-    func wrapToLoadingResult() -> LoadingResult<[BSDKFee], any Error> {
+    func eraseToLoadingResult() -> LoadingResult<[BSDKFee], any Error> {
         if contains(where: { $0.value.isLoading }) {
             return .loading
         }
