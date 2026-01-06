@@ -22,6 +22,7 @@ final class MainViewModel: ObservableObject {
     @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
     @Injected(\.wcService) private var wcService: WCService
     @Injected(\.yieldModuleNetworkManager) private var yieldModuleNetworkManager: YieldModuleNetworkManager
+    @Injected(\.gaslessTransactionsNetworkManager) private var gaslessTransactionsNetworkManager: GaslessTransactionsNetworkManager
 
     // MARK: - ViewState
 
@@ -117,6 +118,7 @@ final class MainViewModel: ObservableObject {
         logMainScreenOpenedAnalytics()
 
         updateYieldMarkets()
+        updateAvailableFeeTokens()
 
         swipeDiscoveryHelper.scheduleSwipeDiscoveryIfNeeded()
         openPushNotificationsAuthorizationIfNeeded()
@@ -471,6 +473,7 @@ final class MainViewModel: ObservableObject {
         }
 
         updateYieldMarkets(force: true)
+        updateAvailableFeeTokens()
     }
 }
 
@@ -560,6 +563,14 @@ extension MainViewModel {
         if force || yieldModuleNetworkManager.markets.isEmpty {
             yieldModuleNetworkManager.updateMarkets()
         }
+    }
+}
+
+// MARK: - Gasless Transactions
+
+extension MainViewModel {
+    func updateAvailableFeeTokens() {
+        gaslessTransactionsNetworkManager.updateAvailableTokens()
     }
 }
 

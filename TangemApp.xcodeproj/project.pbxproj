@@ -3687,6 +3687,16 @@
 		EA29AEAF2DF97B5F00355B2E /* Fact0rnTransactionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA29AEAE2DF97B5F00355B2E /* Fact0rnTransactionTests.swift */; };
 		EA2FA5B82E827077006C14EF /* YieldNoticeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2FA5B52E827077006C14EF /* YieldNoticeViewModel.swift */; };
 		EA2FA5B92E827077006C14EF /* YieldNoticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2FA5B62E827077006C14EF /* YieldNoticeView.swift */; };
+		EA31CB152F0BE4E10016AABC /* GaslessTransactionsNetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA31CB142F0BE4E10016AABC /* GaslessTransactionsNetworkManager.swift */; };
+		EA31CB1A2F0BE6230016AABC /* GaslessTransactionsAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA31CB192F0BE6230016AABC /* GaslessTransactionsAPIService.swift */; };
+		EA31CB1C2F0BF9890016AABC /* GaslessTransactionsAPITarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA31CB1B2F0BF9890016AABC /* GaslessTransactionsAPITarget.swift */; };
+		EA31CB202F0C01610016AABC /* GaslessTransactionsDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA31CB1F2F0C01610016AABC /* GaslessTransactionsDTO.swift */; };
+		EA31CB222F0C035B0016AABC /* GaslessTransactionsDTO+GaslessFeeTokensResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA31CB212F0C035B0016AABC /* GaslessTransactionsDTO+GaslessFeeTokensResult.swift */; };
+		EA31CB242F0C05220016AABC /* GaslessTransactionsDTO+MetaTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA31CB232F0C05220016AABC /* GaslessTransactionsDTO+MetaTransaction.swift */; };
+		EA31CB262F0C05C40016AABC /* GaslessTransactionsDTO+SignResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA31CB252F0C05C40016AABC /* GaslessTransactionsDTO+SignResponse.swift */; };
+		EA31CB282F0C08FA0016AABC /* GaslessTransactionsAPIType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA31CB272F0C08FA0016AABC /* GaslessTransactionsAPIType.swift */; };
+		EA31CB2A2F0C12EC0016AABC /* GaslessTransactionsAPIKeyProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA31CB292F0C12EC0016AABC /* GaslessTransactionsAPIKeyProvider.swift */; };
+		EA31CB2C2F0C14490016AABC /* GaslessTransactionsAuthorizationPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA31CB2B2F0C14490016AABC /* GaslessTransactionsAuthorizationPlugin.swift */; };
 		EA39992D2E76D66D008E4932 /* YieldModuleStartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA39992B2E76D66D008E4932 /* YieldModuleStartView.swift */; };
 		EA3999332E76D853008E4932 /* YieldModuleBottomSheetContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA3999312E76D853008E4932 /* YieldModuleBottomSheetContainerView.swift */; };
 		EA3999352E76D884008E4932 /* YieldModuleStartViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA3999342E76D884008E4932 /* YieldModuleStartViewModel.swift */; };
@@ -8427,6 +8437,16 @@
 		EA29AEAE2DF97B5F00355B2E /* Fact0rnTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fact0rnTransactionTests.swift; sourceTree = "<group>"; };
 		EA2FA5B52E827077006C14EF /* YieldNoticeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldNoticeViewModel.swift; sourceTree = "<group>"; };
 		EA2FA5B62E827077006C14EF /* YieldNoticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldNoticeView.swift; sourceTree = "<group>"; };
+		EA31CB142F0BE4E10016AABC /* GaslessTransactionsNetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GaslessTransactionsNetworkManager.swift; sourceTree = "<group>"; };
+		EA31CB192F0BE6230016AABC /* GaslessTransactionsAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GaslessTransactionsAPIService.swift; sourceTree = "<group>"; };
+		EA31CB1B2F0BF9890016AABC /* GaslessTransactionsAPITarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GaslessTransactionsAPITarget.swift; sourceTree = "<group>"; };
+		EA31CB1F2F0C01610016AABC /* GaslessTransactionsDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GaslessTransactionsDTO.swift; sourceTree = "<group>"; };
+		EA31CB212F0C035B0016AABC /* GaslessTransactionsDTO+GaslessFeeTokensResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GaslessTransactionsDTO+GaslessFeeTokensResult.swift"; sourceTree = "<group>"; };
+		EA31CB232F0C05220016AABC /* GaslessTransactionsDTO+MetaTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GaslessTransactionsDTO+MetaTransaction.swift"; sourceTree = "<group>"; };
+		EA31CB252F0C05C40016AABC /* GaslessTransactionsDTO+SignResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GaslessTransactionsDTO+SignResponse.swift"; sourceTree = "<group>"; };
+		EA31CB272F0C08FA0016AABC /* GaslessTransactionsAPIType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GaslessTransactionsAPIType.swift; sourceTree = "<group>"; };
+		EA31CB292F0C12EC0016AABC /* GaslessTransactionsAPIKeyProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GaslessTransactionsAPIKeyProvider.swift; sourceTree = "<group>"; };
+		EA31CB2B2F0C14490016AABC /* GaslessTransactionsAuthorizationPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GaslessTransactionsAuthorizationPlugin.swift; sourceTree = "<group>"; };
 		EA39992B2E76D66D008E4932 /* YieldModuleStartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleStartView.swift; sourceTree = "<group>"; };
 		EA3999312E76D853008E4932 /* YieldModuleBottomSheetContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleBottomSheetContainerView.swift; sourceTree = "<group>"; };
 		EA3999342E76D884008E4932 /* YieldModuleStartViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleStartViewModel.swift; sourceTree = "<group>"; };
@@ -20723,6 +20743,7 @@
 				B043FA1826B16B1D00D77729 /* Email */,
 				DC8C22F42D8AD966005159FE /* Express */,
 				DC0A582428252CFC0031BECC /* FailedScanTracker */,
+				EA31CB132F0BE4C00016AABC /* GaslessTransactions */,
 				EF9156162D3E8CAC0037521D /* GeoDefiner */,
 				EF6EDD7B296C0D40001B21A3 /* IncomingActions */,
 				B09E51882981044D0042998A /* IOSDeprecation */,
@@ -21810,6 +21831,39 @@
 				EA2FA5B62E827077006C14EF /* YieldNoticeView.swift */,
 			);
 			path = YieldNoticeView;
+			sourceTree = "<group>";
+		};
+		EA31CB132F0BE4C00016AABC /* GaslessTransactions */ = {
+			isa = PBXGroup;
+			children = (
+				EA31CB1E2F0C01540016AABC /* DTO */,
+				EA31CB172F0BE5160016AABC /* APIService */,
+				EA31CB142F0BE4E10016AABC /* GaslessTransactionsNetworkManager.swift */,
+			);
+			path = GaslessTransactions;
+			sourceTree = "<group>";
+		};
+		EA31CB172F0BE5160016AABC /* APIService */ = {
+			isa = PBXGroup;
+			children = (
+				EA31CB2B2F0C14490016AABC /* GaslessTransactionsAuthorizationPlugin.swift */,
+				EA31CB292F0C12EC0016AABC /* GaslessTransactionsAPIKeyProvider.swift */,
+				EA31CB192F0BE6230016AABC /* GaslessTransactionsAPIService.swift */,
+				EA31CB1B2F0BF9890016AABC /* GaslessTransactionsAPITarget.swift */,
+				EA31CB272F0C08FA0016AABC /* GaslessTransactionsAPIType.swift */,
+			);
+			path = APIService;
+			sourceTree = "<group>";
+		};
+		EA31CB1E2F0C01540016AABC /* DTO */ = {
+			isa = PBXGroup;
+			children = (
+				EA31CB1F2F0C01610016AABC /* GaslessTransactionsDTO.swift */,
+				EA31CB252F0C05C40016AABC /* GaslessTransactionsDTO+SignResponse.swift */,
+				EA31CB212F0C035B0016AABC /* GaslessTransactionsDTO+GaslessFeeTokensResult.swift */,
+				EA31CB232F0C05220016AABC /* GaslessTransactionsDTO+MetaTransaction.swift */,
+			);
+			path = DTO;
 			sourceTree = "<group>";
 		};
 		EA39992C2E76D66D008E4932 /* YieldModuleBottomSheet */ = {
@@ -26345,6 +26399,7 @@
 				DA7BB0092E991F8E001116F2 /* TangemPayAccountViewModel.swift in Sources */,
 				EF700D6E2DF9C9E000C95113 /* SendReceiveTokenBuilder.swift in Sources */,
 				B012A11C2AA617000079BAB4 /* NotificationManager.swift in Sources */,
+				EA31CB152F0BE4E10016AABC /* GaslessTransactionsNetworkManager.swift in Sources */,
 				B6B3BB5D2D70D385002EBB56 /* NFTAvailabilityProvider.swift in Sources */,
 				EFB932032C3EAF7900C999E9 /* SendStepType.swift in Sources */,
 				EF8C09CE2E95740F00C5A02A /* AccountsAwareTokenSelectorEmptyContentView.swift in Sources */,
@@ -26913,6 +26968,7 @@
 				EFD143852CC5517E00B5BA57 /* CommonSendBaseDataBuilder.swift in Sources */,
 				DC8F84F92E315916003F5A4E /* TwinKey.swift in Sources */,
 				DAD212BE2E822F7800097D16 /* TangemPayCardDetailsState.swift in Sources */,
+				EA31CB1A2F0BE6230016AABC /* GaslessTransactionsAPIService.swift in Sources */,
 				EAB55F5F2DF07C8D0016BF78 /* DefaultIncomingLinkParser.swift in Sources */,
 				B6AA13662A2A372500B53937 /* CardsInfoPagerPreviewProvider.swift in Sources */,
 				B03430FC2D4382AC00087D16 /* VisaRefreshTokenRepository.swift in Sources */,
@@ -27011,6 +27067,7 @@
 				DAC4F9F02AC314E100BEBCF8 /* SingleWalletMainContentDelegate.swift in Sources */,
 				B05A3DE62D004E7900595A1E /* VisaOnboardingTangemWalletDeployApproveViewModel.swift in Sources */,
 				0F8414B12E96A95C00D03FB6 /* AddWalletSelectorRoutable.swift in Sources */,
+				EA31CB1C2F0BF9890016AABC /* GaslessTransactionsAPITarget.swift in Sources */,
 				B0C616642AFBA56E00ABADF0 /* ThemeSelectionViewModel.swift in Sources */,
 				B05919022A0BCD0800EB8005 /* MainHeaderView.swift in Sources */,
 				DC3549E42E2E034700641727 /* WCTransactionValidationService.swift in Sources */,
@@ -27215,6 +27272,7 @@
 				EFFA435D2E02E895001E0E54 /* SendReceiveTokenNetworkSelectorView.swift in Sources */,
 				B002654C2CE1F50000D969E0 /* OnboardingPinStackView.swift in Sources */,
 				B62E1C262DDC0FD400CE8049 /* NFTPriceFormatter.swift in Sources */,
+				EA31CB242F0C05220016AABC /* GaslessTransactionsDTO+MetaTransaction.swift in Sources */,
 				B0B86CFF2A1B594000AB1475 /* MainHeaderSupplementInfoProvider.swift in Sources */,
 				30B8D7E02E81946000270458 /* UserSettingsAccountsSectionView.swift in Sources */,
 				2D5C19CE2F03C4E8007BC52C /* NewsId.swift in Sources */,
@@ -27369,6 +27427,7 @@
 				EF82F8162EAFAD77006A46BB /* OnrampSummaryRoutable.swift in Sources */,
 				DCF8972D28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift in Sources */,
 				EAE484372EB0F59000086EBD /* YieldModuleTransactionView.swift in Sources */,
+				EA31CB202F0C01610016AABC /* GaslessTransactionsDTO.swift in Sources */,
 				0F2511312EA782FB009D78EE /* MobileBackupToUpgradeNeededViewModel.swift in Sources */,
 				EF41A3CC2D38089B00FA7020 /* TokenBalancesStorage.swift in Sources */,
 				B020FFB425DE7F9300EF422C /* DataCollectors.swift in Sources */,
@@ -27509,6 +27568,7 @@
 				EF40414C2DE4E098002F996A /* SendAmountCompactViewSeparator.swift in Sources */,
 				B0C87B482566492000F861DE /* TwinData.swift in Sources */,
 				2DE0BA992CA93100002C09D9 /* BlockHeaderTitleButtonView.swift in Sources */,
+				EA31CB222F0C035B0016AABC /* GaslessTransactionsDTO+GaslessFeeTokensResult.swift in Sources */,
 				EF9302812EA7C8C100F6389D /* AccountsAwareActionButtonsSellViewModel.swift in Sources */,
 				EFF2A52D2C60BA0F007DB0C1 /* StakingNotificationEvent.swift in Sources */,
 				0FA453D92E1E9F330055B5BB /* NewAuthRoutable.swift in Sources */,
@@ -27646,6 +27706,7 @@
 				EF5E08392DBBB5D200B553CC /* PendingExpressTxIdCopyButtonView.swift in Sources */,
 				0F2786352E2B86EA00742D0F /* MobileOnboardingPushNotificationsStep.swift in Sources */,
 				0A3E3E402DF86F17008143E1 /* KeysDerivingMobileWalletInteractor.swift in Sources */,
+				EA31CB262F0C05C40016AABC /* GaslessTransactionsDTO+SignResponse.swift in Sources */,
 				EF4B70C02B5FBF4E00B18BF4 /* BottomSheetSearchableHeaderView.swift in Sources */,
 				5DBAFD1E27E2471D0008B882 /* CoinModel.swift in Sources */,
 				3027D33D2E82DE89001E15FB /* AccountDetailsViewModel.swift in Sources */,
@@ -27708,6 +27769,7 @@
 				DC261CA8292CF56600875E64 /* AuthCoordinator.swift in Sources */,
 				2DE66F0E2E7F3AB700CCE029 /* PushPermissionNotificationManager.swift in Sources */,
 				B60263872EC7F0C0001A4614 /* CollapsedAccountItemHeaderView.swift in Sources */,
+				EA31CB2C2F0C14490016AABC /* GaslessTransactionsAuthorizationPlugin.swift in Sources */,
 				EFC84B262C37FBB300546882 /* SendStep.swift in Sources */,
 				DC66BBE92859A8CC00CDF765 /* MailViewModel.swift in Sources */,
 				DA67AF372CEDC426008B05D3 /* SentOnrampTransactionData.swift in Sources */,
@@ -28555,6 +28617,7 @@
 				B0B335D229FA89EE00E2082E /* BalanceFormatter.swift in Sources */,
 				DCFEFE4A2CF081DD002DFE58 /* ActionButtonsSwapCoordinatorView.swift in Sources */,
 				EF82F8132EAFA734006A46BB /* FiatPresetService.swift in Sources */,
+				EA31CB282F0C08FA0016AABC /* GaslessTransactionsAPIType.swift in Sources */,
 				DAD212B72E822F4100097D16 /* TangemPayCardDetailsView.swift in Sources */,
 				B60C49032E9DB34C00CC87E4 /* UserTokensRepositoryUpdateRequest.swift in Sources */,
 				B60241402EB13A9D007315C5 /* StoredEntryConverter.swift in Sources */,
@@ -28902,6 +28965,7 @@
 				2D245DDD2E97E9BD006AD2DC /* MarketsTokenDetailsModel.swift in Sources */,
 				2D245DDE2E97E9BD006AD2DC /* MarketsTokenDetailsMapper.swift in Sources */,
 				2D245DDF2E97E9BD006AD2DC /* MarketsChartModel.swift in Sources */,
+				EA31CB2A2F0C12EC0016AABC /* GaslessTransactionsAPIKeyProvider.swift in Sources */,
 				2D245DE02E97E9BD006AD2DC /* MarketsTokenDetailsMetrics.swift in Sources */,
 				2D245DE12E97E9BD006AD2DC /* MarketsTokensSummary.swift in Sources */,
 				2D245DE22E97E9BD006AD2DC /* MarketsListOrderType.swift in Sources */,

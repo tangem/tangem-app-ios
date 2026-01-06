@@ -61,6 +61,7 @@ extension CommonKeysManager: KeysManager {
             blinkApiKey: keys.blinkApiKey,
             tatumApiKey: keys.tatumApiKey,
             yieldModuleApiKey: keys.yieldModuleApiKey,
+            gaslessTransactionsApiKey: keys.gaslessTransactionsApiKey
         )
     }
 
@@ -135,6 +136,14 @@ extension CommonKeysManager: KeysManager {
     var bffStaticToken: String {
         keys.bffStaticToken
     }
+
+    var gaslessTransactionsApiKey: String {
+        keys.gaslessTransactionsApiKey
+    }
+
+    var gaslessTransactionsApiKeyDev: String {
+        keys.gaslessTransactionsApiKeyDev
+    }
 }
 
 extension CommonKeysManager {
@@ -184,5 +193,8 @@ extension CommonKeysManager {
         let yieldModuleApiKeyDev: String
         let p2pApiKey: P2PAPIKeys
         let bffStaticToken: String
+        // [REDACTED_TODO_COMMENT]
+        let gaslessTransactionsApiKey: String = ""
+        let gaslessTransactionsApiKeyDev: String = ""
     }
 }

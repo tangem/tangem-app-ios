@@ -61,6 +61,7 @@ struct ConfigUtils {
                 blinkApiKey: keys.blinkApiKey,
                 tatumApiKey: keys.tatumApiKey,
                 yieldModuleApiKey: keys.yieldModuleApiKey,
+                gaslessTransactionsApiKey: keys.gaslessTransactionsApiKey,
             )
         } catch {
             return .init(
@@ -87,6 +88,7 @@ struct ConfigUtils {
                 blinkApiKey: "",
                 tatumApiKey: "",
                 yieldModuleApiKey: "",
+                gaslessTransactionsApiKey: "",
             )
         }
     }
@@ -218,6 +220,7 @@ struct Keys: Decodable {
     let blinkApiKey: String
     let tatumApiKey: String
     let yieldModuleApiKey: String
+    let gaslessTransactionsApiKey: String
 }
 
 struct TonCenterApiKeys: Decodable {
