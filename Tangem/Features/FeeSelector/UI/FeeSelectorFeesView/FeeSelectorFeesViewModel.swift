@@ -1,5 +1,5 @@
 //
-//  FeeSelectorContentViewModel.swift
+//  FeeSelectorFeesViewModel.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -18,48 +18,46 @@ protocol FeeSelectorFeesDataProvider {
     var selectorFeesPublisher: AnyPublisher<[FeeSelectorFee], Never> { get }
 }
 
-final class FeeSelectorContentViewModel: ObservableObject, FloatingSheetContentViewModel {
-    // [REDACTED_TODO_COMMENT]
-    // [REDACTED_USERNAME] private(set) var feesTokenItems: [FeeSelectorContentRowViewModel] = []
+protocol FeeSelectorFeesRoutable: AnyObject {
+    func userDidTapConfirmSelection(selectedFee: FeeSelectorFee)
+}
 
-    @Published private(set) var rowViewModels: [FeeSelectorContentRowViewModel]
-
+final class FeeSelectorFeesViewModel: ObservableObject {
+    @Published private(set) var rowViewModels: [FeeSelectorFeesRowViewModel]
     @Published private(set) var selectedFee: FeeSelectorFee
 
     @Published private(set) var customFeeManualSaveIsRequired: Bool
     @Published private(set) var customFeeManualSaveIsAvailable: Bool
 
     private let provider: FeeSelectorFeesDataProvider
-    private let output: FeeSelectorContentViewModelOutput
-
-    private let mapper: FeeSelectorContentViewModelMapper
+    private let mapper: FeeSelectorFeesViewModelMapper
     private let customFeeAvailabilityProvider: FeeSelectorCustomFeeAvailabilityProvider?
-    private let analytics: FeeSelectorContentViewModelAnalytics
+    private let analytics: FeeSelectorAnalytics
 
-    private weak var router: FeeSelectorContentViewModelRoutable?
+    private weak var router: FeeSelectorFeesRoutable?
 
     init(
         provider: FeeSelectorFeesDataProvider,
-        output: FeeSelectorContentViewModelOutput,
-        mapper: FeeSelectorContentViewModelMapper,
+        mapper: FeeSelectorFeesViewModelMapper,
         customFeeAvailabilityProvider: FeeSelectorCustomFeeAvailabilityProvider?,
-        analytics: FeeSelectorContentViewModelAnalytics,
-        router: FeeSelectorContentViewModelRoutable
+        analytics: FeeSelectorAnalytics,
     ) {
         self.provider = provider
-        self.output = output
         self.mapper = mapper
         self.customFeeAvailabilityProvider = customFeeAvailabilityProvider
         self.analytics = analytics
-        self.router = router
 
         selectedFee = provider.selectedSelectorFee
-        rowViewModels = mapper.mapToFeeSelectorContentRowViewModels(values: provider.selectorFees)
+        rowViewModels = mapper.mapToFeeSelectorFeesRowViewModels(values: provider.selectorFees)
 
         customFeeManualSaveIsRequired = provider.selectedSelectorFee.option == .custom
         customFeeManualSaveIsAvailable = customFeeAvailabilityProvider?.customFeeIsValid == true
 
         bind()
+    }
+
+    func setup(router: FeeSelectorFeesRoutable) {
+        self.router = router
     }
 
     func isSelected(_ fee: FeeSelectorFee) -> BindingValue<Bool> {
@@ -81,19 +79,18 @@ final class FeeSelectorContentViewModel: ObservableObject, FloatingSheetContentV
         }
     }
 
-    func userDidTapDismissButton() {
-        router?.dismissFeeSelector()
+    func userDidRequestRevertCustomFeeValues() {
         customFeeAvailabilityProvider?.resetCustomFeeFieldsValue()
     }
 
     func userDidTapCustomFeeManualSaveButton() {
-        done()
+        router?.userDidTapConfirmSelection(selectedFee: selectedFee)
     }
 }
 
 // MARK: - Private
 
-private extension FeeSelectorContentViewModel {
+private extension FeeSelectorFeesViewModel {
     func bind() {
         provider.selectedSelectorFeePublisher
             .receiveOnMain()
@@ -101,7 +98,7 @@ private extension FeeSelectorContentViewModel {
 
         provider.selectorFeesPublisher
             .withWeakCaptureOf(self)
-            .map { $0.mapper.mapToFeeSelectorContentRowViewModels(values: $1) }
+            .map { $0.mapper.mapToFeeSelectorFeesRowViewModels(values: $1) }
             .receiveOnMain()
             .assign(to: &$rowViewModels)
 
@@ -123,12 +120,7 @@ private extension FeeSelectorContentViewModel {
         analytics.logSendFeeSelected(fee.option)
 
         if fee.option != .custom {
-            done()
+            router?.userDidTapConfirmSelection(selectedFee: selectedFee)
         }
-    }
-
-    func done() {
-        output.userDidSelect(selectedFee: selectedFee)
-        router?.completeFeeSelection()
     }
 }
