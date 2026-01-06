@@ -14,6 +14,7 @@ final class CommonSendFeeProvider {
     private weak var input: SendFeeProviderInput?
 
     private let feeProvider: TokenFeeProvider
+    private let feeTokenItem: TokenItem
     private let defaultFeeOptions: [FeeOption]
 
     private let _cryptoAmount: CurrentValueSubject<Decimal?, Never> = .init(nil)
@@ -27,10 +28,12 @@ final class CommonSendFeeProvider {
     init(
         input: any SendFeeProviderInput,
         feeProvider: TokenFeeProvider,
+        feeTokenItem: TokenItem,
         defaultFeeOptions: [FeeOption]
     ) {
         self.input = input
         self.feeProvider = feeProvider
+        self.feeTokenItem = feeTokenItem
         self.defaultFeeOptions = defaultFeeOptions
 
         bind(input: input)
@@ -98,19 +101,19 @@ private extension CommonSendFeeProvider {
         switch fees.count {
         case 1:
             return [
-                SendFee(option: .market, value: .success(fees[0])),
+                SendFee(option: .market, tokenItem: feeTokenItem, value: .success(fees[0])),
             ]
         // Express estimated fee case
         case 2:
             return [
-                SendFee(option: .market, value: .success(fees[0])),
-                SendFee(option: .fast, value: .success(fees[1])),
+                SendFee(option: .market, tokenItem: feeTokenItem, value: .success(fees[0])),
+                SendFee(option: .fast, tokenItem: feeTokenItem, value: .success(fees[1])),
             ]
         case 3:
             return [
-                SendFee(option: .slow, value: .success(fees[0])),
-                SendFee(option: .market, value: .success(fees[1])),
-                SendFee(option: .fast, value: .success(fees[2])),
+                SendFee(option: .slow, tokenItem: feeTokenItem, value: .success(fees[0])),
+                SendFee(option: .market, tokenItem: feeTokenItem, value: .success(fees[1])),
+                SendFee(option: .fast, tokenItem: feeTokenItem, value: .success(fees[2])),
             ]
         default:
             assertionFailure("Wrong count of fees")
