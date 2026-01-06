@@ -148,11 +148,11 @@ private extension UnstakingModel {
     func mapToSendFee(_ state: State) -> SendFee {
         switch state {
         case .loading:
-            return SendFee(option: .market, value: .loading)
+            return SendFee(option: .market, tokenItem: feeTokenItem, value: .loading)
         case .networkError(let error):
-            return SendFee(option: .market, value: .failure(error))
+            return SendFee(option: .market, tokenItem: feeTokenItem, value: .failure(error))
         case .validationError(_, let fee), .ready(let fee, _):
-            return SendFee(option: .market, value: .success(makeFee(value: fee)))
+            return SendFee(option: .market, tokenItem: feeTokenItem, value: .success(makeFee(value: fee)))
         }
     }
 }

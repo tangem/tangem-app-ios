@@ -162,7 +162,7 @@ extension SendCoordinator: SendRoutable {
         expressApproveViewModel = .init(input: expressApproveViewModelInput, coordinator: self)
     }
 
-    func openFeeSelector(viewModel: FeeSelectorContentViewModel) {
+    func openFeeSelector(viewModel: SendFeeSelectorViewModel) {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
