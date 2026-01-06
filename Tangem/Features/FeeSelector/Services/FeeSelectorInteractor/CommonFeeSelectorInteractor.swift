@@ -11,6 +11,7 @@ import TangemFoundation
 
 final class CommonFeeSelectorInteractor {
     private let input: any FeeSelectorInteractorInput
+    private let feeTokenItemsProvider: any FeeSelectorFeeTokenItemsProvider
     private let feesProvider: any FeeSelectorFeesProvider
     private let suggestedFeeProvider: (any FeeSelectorSuggestedFeeProvider)?
     private let customFeeProvider: (any FeeSelectorCustomFeeProvider)?
@@ -19,11 +20,13 @@ final class CommonFeeSelectorInteractor {
 
     init(
         input: any FeeSelectorInteractorInput,
+        feeTokenItemsProvider: any FeeSelectorFeeTokenItemsProvider,
         feesProvider: any FeeSelectorFeesProvider,
         suggestedFeeProvider: (any FeeSelectorSuggestedFeeProvider)?,
         customFeeProvider: (any FeeSelectorCustomFeeProvider)?
     ) {
         self.input = input
+        self.feeTokenItemsProvider = feeTokenItemsProvider
         self.feesProvider = feesProvider
         self.suggestedFeeProvider = suggestedFeeProvider
         self.customFeeProvider = customFeeProvider
@@ -32,7 +35,7 @@ final class CommonFeeSelectorInteractor {
     }
 }
 
-// MARK: - FeeSelectorFeesDataProvider
+// MARK: - FeeSelectorInteractor
 
 extension CommonFeeSelectorInteractor: FeeSelectorInteractor {
     var selectedFee: SendFee {
@@ -96,6 +99,26 @@ extension CommonFeeSelectorInteractor: FeeSelectorFeesDataProvider {
     }
 }
 
+// MARK: - FeeSelectorTokensDataProvider
+
+extension CommonFeeSelectorInteractor: FeeSelectorTokensDataProvider {
+    var selectedFeeTokenItem: TokenItem {
+        selectedFee.tokenItem
+    }
+
+    var selectedFeeTokenItemPublisher: AnyPublisher<TokenItem, Never> {
+        selectedFeePublisher.map(\.tokenItem).eraseToAnyPublisher()
+    }
+
+    var feeTokenItems: [TokenItem] {
+        feeTokenItemsProvider.tokenItems
+    }
+
+    var feeTokenItemsPublisher: AnyPublisher<[TokenItem], Never> {
+        feeTokenItemsProvider.tokenItemsPublisher
+    }
+}
+
 // MARK: - Private
 
 private extension CommonFeeSelectorInteractor {
@@ -104,6 +127,6 @@ private extension CommonFeeSelectorInteractor {
     }
 
     func mapToFeeSelectorFee(fee: SendFee) -> FeeSelectorFee {
-        return FeeSelectorFee(option: fee.option, value: fee.value)
+        return FeeSelectorFee(option: fee.option, tokenItem: fee.tokenItem, value: fee.value)
     }
 }

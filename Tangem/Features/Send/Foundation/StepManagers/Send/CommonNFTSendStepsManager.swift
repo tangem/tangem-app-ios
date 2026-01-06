@@ -11,7 +11,7 @@ import TangemLocalization
 
 final class CommonNFTSendStepsManager {
     private let destinationStep: SendDestinationStep
-    private let feeSelector: FeeSelectorContentViewModel
+    private let feeSelector: SendFeeSelectorViewModel
     private let summaryStep: SendSummaryStep
     private let finishStep: SendFinishStep
     private let summaryTitleProvider: SendSummaryTitleProvider
@@ -26,7 +26,7 @@ final class CommonNFTSendStepsManager {
 
     init(
         destinationStep: SendDestinationStep,
-        feeSelector: FeeSelectorContentViewModel,
+        feeSelector: SendFeeSelectorViewModel,
         summaryStep: SendSummaryStep,
         finishStep: SendFinishStep,
         summaryTitleProvider: SendSummaryTitleProvider,

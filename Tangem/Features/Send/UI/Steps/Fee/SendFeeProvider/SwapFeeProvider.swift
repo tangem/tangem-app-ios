@@ -29,7 +29,7 @@ private extension SwapFeeProvider {
             return .failure(occurredError)
         case let state:
             let fees = state.fees.fees.map { option, fee in
-                SendFee(option: option, value: .success(fee))
+                SendFee(option: option, tokenItem: swapManager.swappingPair.sender.value!.feeTokenItem, value: .success(fee))
             }
 
             return .success(fees)
