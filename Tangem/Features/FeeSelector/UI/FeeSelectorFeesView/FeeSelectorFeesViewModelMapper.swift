@@ -1,5 +1,5 @@
 //
-//  FeeSelectorContentViewModelMapper.swift
+//  FeeSelectorFeesViewModelMapper.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,40 +8,34 @@
 
 import TangemFoundation
 
-protocol FeeSelectorContentViewModelMapper {
-    func mapToFeeSelectorContentRowViewModels(values: [FeeSelectorFee]) -> [FeeSelectorContentRowViewModel]
+protocol FeeSelectorFeesViewModelMapper {
+    func mapToFeeSelectorFeesRowViewModels(values: [FeeSelectorFee]) -> [FeeSelectorFeesRowViewModel]
 }
 
-struct CommonFeeSelectorContentViewModelMapper {
-    private let feeTokenItem: TokenItem
+struct CommonFeeSelectorFeesViewModelMapper {
     private let feeFormatter: FeeFormatter
     private let customFieldsBuilder: FeeSelectorCustomFeeFieldsBuilder?
 
-    init(
-        feeTokenItem: TokenItem,
-        feeFormatter: FeeFormatter,
-        customFieldsBuilder: FeeSelectorCustomFeeFieldsBuilder?
-    ) {
-        self.feeTokenItem = feeTokenItem
+    init(feeFormatter: FeeFormatter, customFieldsBuilder: FeeSelectorCustomFeeFieldsBuilder?) {
         self.feeFormatter = feeFormatter
         self.customFieldsBuilder = customFieldsBuilder
     }
 }
 
-// MARK: - FeeSelectorContentViewModelMapper
+// MARK: - FeeSelectorFeesViewModelMapper
 
-extension CommonFeeSelectorContentViewModelMapper: FeeSelectorContentViewModelMapper {
-    func mapToFeeSelectorContentRowViewModels(values: [FeeSelectorFee]) -> [FeeSelectorContentRowViewModel] {
+extension CommonFeeSelectorFeesViewModelMapper: FeeSelectorFeesViewModelMapper {
+    func mapToFeeSelectorFeesRowViewModels(values: [FeeSelectorFee]) -> [FeeSelectorFeesRowViewModel] {
         values
             .sorted(by: \.option)
-            .map { mapToFeeSelectorContentRowViewModel(fee: $0) }
+            .map { mapToFeeSelectorFeesRowViewModel(fee: $0) }
     }
 }
 
 // MARK: - Private
 
-private extension CommonFeeSelectorContentViewModelMapper {
-    func mapToFeeSelectorContentRowViewModel(fee: FeeSelectorFee) -> FeeSelectorContentRowViewModel {
+private extension CommonFeeSelectorFeesViewModelMapper {
+    func mapToFeeSelectorFeesRowViewModel(fee: FeeSelectorFee) -> FeeSelectorFeesRowViewModel {
         let feeComponents = switch fee.value {
         // [REDACTED_TODO_COMMENT]
         case .loading, .failure:
@@ -49,7 +43,7 @@ private extension CommonFeeSelectorContentViewModelMapper {
 
         case .success(let feeValue): feeFormatter.formattedFeeComponents(
                 fee: feeValue.amount.value,
-                tokenItem: feeTokenItem,
+                tokenItem: fee.tokenItem,
                 formattingOptions: .sendCryptoFeeFormattingOptions
             )
         }
@@ -57,7 +51,7 @@ private extension CommonFeeSelectorContentViewModelMapper {
         // We will create the custom fields only for the `.custom` option
         let customFields = fee.option == .custom ? customFields() : []
 
-        return FeeSelectorContentRowViewModel(
+        return FeeSelectorFeesRowViewModel(
             fee: fee,
             feeComponents: feeComponents,
             customFields: customFields
