@@ -109,12 +109,13 @@ extension KaspaCustomFeeService: CustomFeeService {
 
 extension KaspaCustomFeeService: FeeSelectorCustomFeeProvider {
     var customFee: SendFee {
-        SendFee(option: .custom, value: _customFee.value.map { .success($0) } ?? .loading)
+        SendFee(option: .custom, tokenItem: feeTokenItem, value: _customFee.value.map { .success($0) } ?? .loading)
     }
 
     var customFeePublisher: AnyPublisher<SendFee, Never> {
         _customFee
-            .map { SendFee(option: .custom, value: $0.map { .success($0) } ?? .loading) }
+            .withWeakCaptureOf(self)
+            .map { SendFee(option: .custom, tokenItem: $0.feeTokenItem, value: $1.map { .success($0) } ?? .loading) }
             .eraseToAnyPublisher()
     }
 

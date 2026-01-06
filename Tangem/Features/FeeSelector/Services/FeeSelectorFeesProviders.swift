@@ -8,6 +8,11 @@
 
 import Combine
 
+protocol FeeSelectorFeeTokenItemsProvider {
+    var tokenItems: [TokenItem] { get }
+    var tokenItemsPublisher: AnyPublisher<[TokenItem], Never> { get }
+}
+
 protocol FeeSelectorFeesProvider {
     var fees: [SendFee] { get }
     var feesPublisher: AnyPublisher<[SendFee], Never> { get }
