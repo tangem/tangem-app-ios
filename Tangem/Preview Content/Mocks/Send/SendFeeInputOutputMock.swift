@@ -11,7 +11,11 @@ import Combine
 
 final class SendFeeInputOutputMock: SendFeeInput, SendFeeOutput {
     var selectedFee: SendFee {
-        SendFee(option: .market, value: .success(.init(.init(with: .polygon(testnet: false), value: 0.1))))
+        SendFee(
+            option: .market,
+            tokenItem: .blockchain(.init(.ethereum(testnet: false), derivationPath: .none)),
+            value: .success(.init(.init(with: .polygon(testnet: false), value: 0.1)))
+        )
     }
 
     var selectedFeePublisher: AnyPublisher<SendFee, Never> { .just(output: selectedFee) }

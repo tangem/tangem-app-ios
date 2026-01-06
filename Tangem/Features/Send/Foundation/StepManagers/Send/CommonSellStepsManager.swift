@@ -10,7 +10,7 @@ import Foundation
 import TangemLocalization
 
 class CommonSellStepsManager {
-    private let feeSelector: FeeSelectorContentViewModel
+    private let feeSelector: SendFeeSelectorViewModel
     private let summaryStep: SendSummaryStep
     private let finishStep: SendFinishStep
 
@@ -19,7 +19,7 @@ class CommonSellStepsManager {
     weak var router: SendRoutable?
 
     init(
-        feeSelector: FeeSelectorContentViewModel,
+        feeSelector: SendFeeSelectorViewModel,
         summaryStep: SendSummaryStep,
         finishStep: SendFinishStep
     ) {
