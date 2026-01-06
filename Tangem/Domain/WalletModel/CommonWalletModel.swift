@@ -549,10 +549,10 @@ extension CommonWalletModel: WalletModelHelpers {
 extension CommonWalletModel: WalletModelFeesProvider {
     var tokenFeeProvider: any TokenFeeProvider {
         if isDemo {
-            return DemoTokenFeeProvider(tokenItem: tokenItem)
+            return DemoTokenFeeProvider(feeTokenItem: feeTokenItem)
         }
 
-        return CommonTokenFeeProvider(tokenItem: tokenItem, walletManager: walletManager)
+        return CommonTokenFeeProvider(feeTokenItem: feeTokenItem, walletManager: walletManager)
     }
 }
 
