@@ -16,18 +16,18 @@ struct CommonTokenFeeProvider {
 // MARK: - TokenFeeProvider
 
 extension CommonTokenFeeProvider: TokenFeeProvider {
-    func estimatedFee(amount: Decimal) async throws -> [TokenFee] {
+    func estimatedFee(amount: Decimal) async throws -> [BSDKFee] {
         let amount = makeAmount(amount: amount)
         let fees = try await walletManager.estimatedFee(amount: amount).async()
-        return SendFeeConverter.mapToTokenFees(fees: fees, feeTokenItem: feeTokenItem)
+        return fees // SendFeeConverter.mapToTokenFees(fees: fees, feeTokenItem: feeTokenItem)
     }
 
-    func getFee(dataType: TokenFeeProviderDataType) async throws -> [TokenFee] {
+    func getFee(dataType: TokenFeeProviderDataType) async throws -> [BSDKFee] {
         switch dataType {
         case .plain(let amount, let destination):
             let amount = makeAmount(amount: amount)
             let fees = try await walletManager.getFee(amount: amount, destination: destination).async()
-            return SendFeeConverter.mapToTokenFees(fees: fees, feeTokenItem: feeTokenItem)
+            return fees // SendFeeConverter.mapToTokenFees(fees: fees, feeTokenItem: feeTokenItem)
 
         case .compiledTransaction(let data):
             guard let walletManager = walletManager as? CompiledTransactionFeeProvider else {
