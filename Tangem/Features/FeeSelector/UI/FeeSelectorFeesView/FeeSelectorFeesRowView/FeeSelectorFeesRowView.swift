@@ -1,5 +1,5 @@
 //
-//  FeeSelectorContentRowView.swift
+//  FeeSelectorFeesRowView.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,15 +10,15 @@ import SwiftUI
 import TangemUI
 import TangemAssets
 
-struct FeeSelectorContentRowView: SelectableSectionRow {
-    private let viewModel: FeeSelectorContentRowViewModel
+struct FeeSelectorFeesRowView: SelectableSectionRow {
+    private let viewModel: FeeSelectorFeesRowViewModel
     @Binding var isSelected: Bool
 
     var shouldShowCustomFeeFields: Bool {
         viewModel.fee.option == .custom && isSelected
     }
 
-    init(viewModel: FeeSelectorContentRowViewModel, isSelected: Binding<Bool>) {
+    init(viewModel: FeeSelectorFeesRowViewModel, isSelected: Binding<Bool>) {
         self.viewModel = viewModel
         _isSelected = isSelected
     }

@@ -20,7 +20,7 @@ protocol SendRoutable: SendDestinationRoutable, OnrampRoutable, AnyObject {
     func openExplorer(url: URL)
     func openShareSheet(url: URL)
     func openApproveView(expressApproveViewModelInput: ExpressApproveViewModel.Input)
-    func openFeeSelector(viewModel: FeeSelectorContentViewModel)
+    func openFeeSelector(viewModel: SendFeeSelectorViewModel)
     func openSwapProvidersSelector(viewModel: SendSwapProvidersSelectorViewModel)
     func openReceiveTokensList(tokensListBuilder: SendReceiveTokensListBuilder)
     func openHighPriceImpactWarningSheetViewModel(viewModel: HighPriceImpactWarningSheetViewModel)

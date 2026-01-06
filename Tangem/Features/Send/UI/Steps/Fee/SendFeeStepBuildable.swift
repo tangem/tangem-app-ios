@@ -31,12 +31,12 @@ enum SendNewFeeStepBuilder {
 
     struct Dependencies {
         let feeProvider: SendFeeProvider
-        let analyticsLogger: any FeeSelectorContentViewModelAnalytics
+        let analyticsLogger: any FeeSelectorAnalytics
         let customFeeService: (any CustomFeeService)?
     }
 
     typealias ReturnValue = (
-        feeSelector: FeeSelectorContentViewModel,
+        feeSelector: SendFeeSelectorViewModel,
         compact: SendNewFeeCompactViewModel,
         finish: SendFeeFinishViewModel
     )
@@ -50,22 +50,24 @@ enum SendNewFeeStepBuilder {
             input: io.input,
             output: io.output,
             provider: dependencies.feeProvider,
+            feeTokenItem: types.feeTokenItem,
             customFeeProvider: dependencies.customFeeService as? FeeSelectorCustomFeeProvider
         )
 
-        let feeSelector = FeeSelectorContentViewModel(
-            provider: interactor.feeSelectorInteractor,
-            output: interactor,
-            mapper: CommonFeeSelectorContentViewModelMapper(
-                feeTokenItem: types.feeTokenItem,
+        let feeSelectorViewModel = FeeSelectorBuilder().makeFeeSelectorViewModel(
+            tokensDataProvider: interactor.feeSelectorInteractor,
+            feesDataProvider: interactor.feeSelectorInteractor,
+            customFeeService: dependencies.customFeeService,
+            mapper: CommonFeeSelectorFeesViewModelMapper(
                 feeFormatter: CommonFeeFormatter(),
                 customFieldsBuilder: dependencies.customFeeService as? FeeSelectorCustomFeeFieldsBuilder
             ),
-            customFeeAvailabilityProvider: dependencies.customFeeService as? FeeSelectorCustomFeeAvailabilityProvider,
             analytics: dependencies.analyticsLogger,
-            router: interactor
+            output: interactor,
+            router: interactor // [REDACTED_TODO_COMMENT]
         )
 
+        let feeSelector = SendFeeSelectorViewModel(feeSelectorViewModel: feeSelectorViewModel)
         let compact = SendNewFeeCompactViewModel(feeTokenItem: types.feeTokenItem, isFeeApproximate: types.isFeeApproximate)
         let finish = SendFeeFinishViewModel(feeTokenItem: types.feeTokenItem, isFeeApproximate: types.isFeeApproximate)
 
