@@ -1,5 +1,5 @@
 //
-//  FeeSelectorContentRowData.swift
+//  FeeSelectorFeesRowData.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-class FeeSelectorContentRowViewModel: ObservableObject, Identifiable {
+class FeeSelectorFeesRowViewModel: ObservableObject, Identifiable {
     var id: String { fee.option.title }
 
     let fee: FeeSelectorFee
