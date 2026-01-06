@@ -10,7 +10,7 @@ import Foundation
 import BlockchainSdk
 import TangemFoundation
 
-struct SimpleAnalytics: FeeSelectorContentViewModelAnalytics {
+struct SimpleAnalytics: FeeSelectorAnalytics {
     func logFeeStepOpened() {
         // [REDACTED_TODO_COMMENT]
         // [REDACTED_INFO]
