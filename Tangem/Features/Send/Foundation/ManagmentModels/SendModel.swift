@@ -85,7 +85,7 @@ class SendModel {
         _destination = .init(predefinedValues.destination)
         _destinationAdditionalField = .init(predefinedValues.tag)
         _amount = .init(predefinedValues.amount)
-        _selectedFee = .init(.init(option: .market, tokenItem: _sendingToken.value.tokenItem, value: .loading))
+        _selectedFee = .init(.init(option: .market, tokenItem: _sendingToken.value.feeTokenItem, value: .loading))
 
         bind()
     }
@@ -617,12 +617,8 @@ extension SendModel: SendFeeInput {
         case .restriction(.requiredRefresh(let occurredError), _):
             return .init(option: state.fees.selected, tokenItem: sourceToken.feeTokenItem, value: .failure(occurredError))
         case let state:
-            do {
-                let fee = try state.fees.selectedFee()
-                return .init(option: state.fees.selected, tokenItem: sourceToken.feeTokenItem, value: .success(fee))
-            } catch {
-                return .init(option: state.fees.selected, tokenItem: sourceToken.feeTokenItem, value: .failure(error))
-            }
+            let fee = Result { try state.fees.selectedFee() }
+            return .init(option: state.fees.selected, tokenItem: sourceToken.feeTokenItem, value: .result(fee))
         }
     }
 }
@@ -771,10 +767,7 @@ extension SendModel: SendBaseInput, SendBaseOutput {
 
 extension SendModel: SendNotificationManagerInput {
     var feeValues: AnyPublisher<[SendFee], Never> {
-        sendFeeProvider
-            .feesPublisher
-            .compactMap { $0.value }
-            .eraseToAnyPublisher()
+        sendFeeProvider.feesPublisher.eraseToAnyPublisher()
     }
 
     var isFeeIncludedPublisher: AnyPublisher<Bool, Never> {

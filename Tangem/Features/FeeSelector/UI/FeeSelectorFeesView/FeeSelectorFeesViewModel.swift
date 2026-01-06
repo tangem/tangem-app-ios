@@ -11,20 +11,20 @@ import TangemUI
 import TangemFoundation
 
 protocol FeeSelectorFeesDataProvider {
-    var selectedSelectorFee: TokenFee { get }
-    var selectedSelectorFeePublisher: AnyPublisher<TokenFee, Never> { get }
+    var selectedSelectorFee: SendFee { get }
+    var selectedSelectorFeePublisher: AnyPublisher<SendFee, Never> { get }
 
-    var selectorFees: [TokenFee] { get }
-    var selectorFeesPublisher: AnyPublisher<[TokenFee], Never> { get }
+    var selectorFees: [SendFee] { get }
+    var selectorFeesPublisher: AnyPublisher<[SendFee], Never> { get }
 }
 
 protocol FeeSelectorFeesRoutable: AnyObject {
-    func userDidTapConfirmSelection(selectedFee: TokenFee)
+    func userDidTapConfirmSelection(selectedFee: SendFee)
 }
 
 final class FeeSelectorFeesViewModel: ObservableObject {
     @Published private(set) var rowViewModels: [FeeSelectorFeesRowViewModel]
-    @Published private(set) var selectedFee: TokenFee
+    @Published private(set) var selectedFee: SendFee
 
     @Published private(set) var customFeeManualSaveIsRequired: Bool
     @Published private(set) var customFeeManualSaveIsAvailable: Bool
@@ -60,7 +60,7 @@ final class FeeSelectorFeesViewModel: ObservableObject {
         self.router = router
     }
 
-    func isSelected(_ fee: TokenFee) -> BindingValue<Bool> {
+    func isSelected(_ fee: SendFee) -> BindingValue<Bool> {
         .init(root: self, default: false) { root in
             root.selectedFee.option == fee.option
         } set: { root, isSelected in
@@ -115,7 +115,7 @@ private extension FeeSelectorFeesViewModel {
             .assign(to: &$customFeeManualSaveIsAvailable)
     }
 
-    func userDidSelect(fee: TokenFee) {
+    func userDidSelect(fee: SendFee) {
         selectedFee = fee
         analytics.logSendFeeSelected(fee.option)
 

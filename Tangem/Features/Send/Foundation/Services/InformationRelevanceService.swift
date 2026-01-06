@@ -84,12 +84,12 @@ extension CommonInformationRelevanceService: InformationRelevanceService {
             .dropFirst()
             .withWeakCaptureOf(self)
             .tryMap { service, fees in
-                if let error = fees.error {
+                if let error = fees.wrapToLoadingResult().error {
                     throw error
                 }
 
                 service.informationDidUpdated()
-                return service.compare(selected: oldFee, fees: fees.value ?? [])
+                return service.compare(selected: oldFee, fees: fees)
             }
             .eraseToAnyPublisher()
     }

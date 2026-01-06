@@ -9,8 +9,8 @@
 import Foundation
 
 protocol TokenFeeProvider {
-    func estimatedFee(amount: Decimal) async throws -> [TokenFee]
-    func getFee(dataType: TokenFeeProviderDataType) async throws -> [TokenFee]
+    func estimatedFee(amount: Decimal) async throws -> [BSDKFee]
+    func getFee(dataType: TokenFeeProviderDataType) async throws -> [BSDKFee]
 }
 
 enum TokenFeeProviderDataType {

@@ -78,14 +78,14 @@ extension CommonSendFeeInteractor: FeeSelectorInteractorInput {
 
 extension CommonSendFeeInteractor: FeeSelectorFeesProvider {
     var fees: [SendFee] {
-        mapToSendFees(feesValue: provider.fees)
+        provider.fees
     }
 
     var feesPublisher: AnyPublisher<[SendFee], Never> {
-        provider.feesPublisher
-            .withWeakCaptureOf(self)
-            .map { $0.mapToSendFees(feesValue: $1) }
-            .eraseToAnyPublisher()
+        provider.feesPublisher.eraseToAnyPublisher()
+//            .withWeakCaptureOf(self)
+//            .map { $0.mapToSendFees(feesValue: $1) }
+//            .eraseToAnyPublisher()
     }
 }
 
@@ -104,8 +104,8 @@ extension CommonSendFeeInteractor: FeeSelectorFeeTokenItemsProvider {
 // MARK: - FeeSelectorOutput
 
 extension CommonSendFeeInteractor: FeeSelectorOutput {
-    func userDidSelect(selectedFee: TokenFee) {
-        output?.feeDidChanged(fee: .init(option: selectedFee.option, tokenItem: selectedFee.tokenItem, value: selectedFee.value))
+    func userDidSelect(selectedFee: SendFee) {
+        output?.feeDidChanged(fee: selectedFee)
     }
 }
 
@@ -127,36 +127,15 @@ extension CommonSendFeeInteractor: FeeSelectorRoutable {
 
 // MARK: - Private
 
-private extension CommonSendFeeInteractor {
-    func mapToSendFees(feesValue: LoadingResult<[SendFee], Error>) -> [SendFee] {
-        switch feesValue {
-        case .loading:
-            return provider.feeOptions.map { SendFee(option: $0, tokenItem: feeTokenItem, value: .loading) }
-        case .success(let fees):
-            return fees.filter { provider.feeOptions.contains($0.option) }
-        case .failure(let error):
-            return provider.feeOptions.map { SendFee(option: $0, tokenItem: feeTokenItem, value: .failure(error)) }
-        }
-    }
-
-    func mapToCustomFee(customFee: BSDKFee?) -> SendFee {
-        let customFeeValue: LoadingResult<BSDKFee, any Error> = {
-            if let customFee {
-                return .success(customFee)
-            }
-
-            if let marketFee = fees.first(where: { $0.option == .market })?.value {
-                return marketFee
-            }
-
-            assertionFailure("Market fee is not found. Return endless .loading state")
-            return .loading
-        }()
-
-        return SendFee(
-            option: .custom,
-            tokenItem: feeTokenItem,
-            value: customFeeValue,
-        )
-    }
-}
+// private extension CommonSendFeeInteractor {
+//    func mapToSendFees(feesValue: LoadingResult<[SendFee], Error>) -> [SendFee] {
+//        switch feesValue {
+//        case .loading:
+//            return provider.feeOptions.map { SendFee(option: $0, tokenItem: feeTokenItem, value: .loading) }
+//        case .success(let fees):
+//            return fees.filter { provider.feeOptions.contains($0.option) }
+//        case .failure(let error):
+//            return provider.feeOptions.map { SendFee(option: $0, tokenItem: feeTokenItem, value: .failure(error)) }
+//        }
+//    }
+// }

@@ -246,16 +246,14 @@ private extension RestakingModel {
 // MARK: - SendFeeProvider
 
 extension RestakingModel: SendFeeProvider {
-    var feeOptions: [FeeOption] { [.market] }
-
-    var fees: TangemFoundation.LoadingResult<[SendFee], any Error> {
-        .success([mapToSendFee(_state.value)])
+    var fees: [SendFee] {
+        [mapToSendFee(_state.value)]
     }
 
-    var feesPublisher: AnyPublisher<TangemFoundation.LoadingResult<[SendFee], any Error>, Never> {
+    var feesPublisher: AnyPublisher<[SendFee], Never> {
         _state
             .withWeakCaptureOf(self)
-            .map { .success([$0.mapToSendFee($1)]) }
+            .map { [$0.mapToSendFee($1)] }
             .eraseToAnyPublisher()
     }
 

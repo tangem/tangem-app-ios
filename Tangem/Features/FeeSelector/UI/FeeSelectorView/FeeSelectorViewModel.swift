@@ -73,7 +73,7 @@ extension FeeSelectorViewModel: FeeSelectorTokensRoutable {
 // MARK: - FeeSelectorFeesRoutable
 
 extension FeeSelectorViewModel: FeeSelectorFeesRoutable {
-    func userDidTapConfirmSelection(selectedFee: TokenFee) {
+    func userDidTapConfirmSelection(selectedFee: SendFee) {
         output?.userDidSelect(selectedFee: selectedFee)
         router?.completeFeeSelection()
 

@@ -15,13 +15,13 @@ struct DemoTokenFeeProvider {
 // MARK: - TokenFeeProvider
 
 extension DemoTokenFeeProvider: TokenFeeProvider {
-    func estimatedFee(amount: Decimal) async throws -> [TokenFee] {
+    func estimatedFee(amount: Decimal) async throws -> [BSDKFee] {
         let fees = DemoUtil().getDemoFee(for: feeTokenItem.blockchain)
-        return SendFeeConverter.mapToTokenFees(fees: fees, feeTokenItem: feeTokenItem)
+        return fees // SendFeeConverter.mapToTokenFees(fees: fees, feeTokenItem: feeTokenItem)
     }
 
-    func getFee(dataType: TokenFeeProviderDataType) async throws -> [TokenFee] {
+    func getFee(dataType: TokenFeeProviderDataType) async throws -> [BSDKFee] {
         let fees = DemoUtil().getDemoFee(for: feeTokenItem.blockchain)
-        return SendFeeConverter.mapToTokenFees(fees: fees, feeTokenItem: feeTokenItem)
+        return fees // SendFeeConverter.mapToTokenFees(fees: fees, feeTokenItem: feeTokenItem)
     }
 }
