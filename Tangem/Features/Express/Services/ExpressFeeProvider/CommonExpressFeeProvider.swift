@@ -90,7 +90,8 @@ extension CommonExpressFeeProvider: ExpressFeeProvider {
                 )
             }
 
-            return try mapToExpressFee(fees: fees)
+            let sendFees = SendFeeConverter.mapToTokenFees(fees: fees, feeTokenItem: feeTokenItem)
+            return try mapToExpressFee(fees: sendFees)
         }
     }
 }
@@ -102,14 +103,14 @@ private extension CommonExpressFeeProvider {
         Amount(with: item.blockchain, type: item.amountType, value: amount)
     }
 
-    func mapToExpressFee(fees: [Fee]) throws -> ExpressFee.Variants {
+    func mapToExpressFee(fees: [SendFee]) throws -> ExpressFee.Variants {
         switch fees.count {
         case 1:
-            return .single(fees[0])
+            return try .single(fees[0].value.get())
         case 3 where tokenItem.blockchain.isUTXO:
-            return .single(fees[1])
+            return try .single(fees[1].value.get())
         case 3:
-            return .double(market: fees[1], fast: fees[2])
+            return try .double(market: fees[1].value.get(), fast: fees[2].value.get())
         default:
             throw ExpressFeeProviderError.feeNotFound
         }

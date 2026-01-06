@@ -8,6 +8,13 @@
 
 import TangemFoundation
 
+/// Generic fee type on the `TangemApp` layer
+typealias TokenFee = SendFee
+
+extension [TokenFee] {
+    var hasMultipleFeeOptions: Bool { unique(by: \.option).count > 1 }
+}
+
 struct SendFee: Hashable {
     let option: FeeOption
     let tokenItem: TokenItem
