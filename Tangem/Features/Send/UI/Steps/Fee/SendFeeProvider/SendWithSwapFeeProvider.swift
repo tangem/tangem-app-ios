@@ -30,13 +30,6 @@ class SendWithSwapFeeProvider {
 // MARK: - SendFeeProvider
 
 extension SendWithSwapFeeProvider: SendFeeProvider {
-//    var feeOptions: [FeeOption] {
-//        switch receiveTokenInput?.receiveToken {
-//        case .none, .same: sendFeeProvider.feeOptions
-//        case .swap: swapFeeProvider.feeOptions
-//        }
-//    }
-
     var fees: [SendFee] {
         switch receiveTokenInput?.receiveToken {
         case .none, .same: sendFeeProvider.fees

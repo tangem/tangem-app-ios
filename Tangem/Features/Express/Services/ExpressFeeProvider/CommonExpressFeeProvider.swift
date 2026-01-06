@@ -90,7 +90,6 @@ extension CommonExpressFeeProvider: ExpressFeeProvider {
                 )
             }
 
-            // let sendFees = SendFeeConverter.mapToTokenFees(fees: fees, feeTokenItem: feeTokenItem)
             return try mapToExpressFee(fees: fees)
         }
     }
