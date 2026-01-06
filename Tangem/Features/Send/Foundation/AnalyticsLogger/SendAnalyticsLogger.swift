@@ -16,7 +16,7 @@ protocol SendAnalyticsLogger: SendManagementModelAnalyticsLogger,
     SendReceiveTokensListAnalyticsLogger,
     SendDestinationAnalyticsLogger,
     SendFeeAnalyticsLogger,
-    FeeSelectorContentViewModelAnalytics,
+    FeeSelectorAnalytics,
     SendSwapProvidersAnalyticsLogger,
     SendSummaryAnalyticsLogger,
     SendFinishAnalyticsLogger {

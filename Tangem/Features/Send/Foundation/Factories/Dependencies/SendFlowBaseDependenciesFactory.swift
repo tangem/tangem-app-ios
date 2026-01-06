@@ -74,7 +74,7 @@ extension SendFlowBaseDependenciesFactory {
         case (false, false): [.market]
         }
 
-        return CommonSendFeeProvider(input: input, feeProvider: tokenFeeProvider, defaultFeeOptions: options)
+        return CommonSendFeeProvider(input: input, feeProvider: tokenFeeProvider, feeTokenItem: feeTokenItem, defaultFeeOptions: options)
     }
 
     func makeSwapFeeProvider(swapManager: SwapManager) -> SendFeeProvider {
