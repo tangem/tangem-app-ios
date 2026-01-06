@@ -29,7 +29,7 @@ final class WCFeeSelectorContentViewModel: ObservableObject, FloatingSheetConten
 
     private let input: WCFeeSelectorContentViewModelInput
     private let output: WCFeeSelectorContentViewModelOutput
-    private let analytics: FeeSelectorContentViewModelAnalytics
+    private let analytics: FeeSelectorAnalytics
     private let customFieldsBuilder: FeeSelectorCustomFeeFieldsBuilder?
     private let customAvailabilityProvider: FeeSelectorCustomFeeAvailabilityProvider?
     private let feeTokenItem: TokenItem
@@ -43,7 +43,7 @@ final class WCFeeSelectorContentViewModel: ObservableObject, FloatingSheetConten
     init(
         input: WCFeeSelectorContentViewModelInput,
         output: WCFeeSelectorContentViewModelOutput,
-        analytics: FeeSelectorContentViewModelAnalytics,
+        analytics: FeeSelectorAnalytics,
         customFieldsBuilder: FeeSelectorCustomFeeFieldsBuilder?,
         customAvailabilityProvider: FeeSelectorCustomFeeAvailabilityProvider?,
         feeTokenItem: TokenItem,
@@ -133,12 +133,12 @@ private extension WCFeeSelectorContentViewModel {
             // Skip a different loading states when fees is empty
             .compactMap { $0.value }
             .withWeakCaptureOf(self)
-            .map { $0.mapToFeeSelectorContentRowViewModels(values: $1) }
+            .map { $0.mapToFeeSelectorFeesRowViewModels(values: $1) }
             .receiveOnMain()
             .assign(to: &$feesRowData)
     }
 
-    func mapToFeeSelectorContentRowViewModels(values: [WCFeeSelectorFee]) -> [WCFeeSelectorContentRowViewModel] {
+    func mapToFeeSelectorFeesRowViewModels(values: [WCFeeSelectorFee]) -> [WCFeeSelectorContentRowViewModel] {
         values
             .sorted(by: \.option)
             .map { mapToFeeRowViewModel(fee: $0) }
