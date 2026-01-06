@@ -1,5 +1,5 @@
 //
-//  FeeSelectorContentViewModelOutput.swift
+//  FeeSelectorOutput.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,19 +8,21 @@
 
 import Combine
 
-protocol FeeSelectorContentViewModelOutput: AnyObject {
+protocol FeeSelectorOutput: AnyObject {
     func userDidSelect(selectedFee: FeeSelectorFee)
 }
 
-protocol FeeSelectorContentViewModelRoutable: AnyObject {
+protocol FeeSelectorRoutable: AnyObject {
     func dismissFeeSelector()
     func completeFeeSelection()
 }
 
-protocol FeeSelectorContentViewModelAnalytics {
+protocol FeeSelectorAnalytics {
     func logFeeStepOpened()
     func logSendFeeSelected(_ feeOption: FeeOption)
 }
+
+// MARK: - Custom fee
 
 protocol FeeSelectorCustomFeeFieldsBuilder {
     func buildCustomFeeFields() -> [FeeSelectorCustomFeeRowViewModel]
