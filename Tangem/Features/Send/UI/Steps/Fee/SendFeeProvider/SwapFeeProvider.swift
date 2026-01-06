@@ -39,11 +39,11 @@ private extension SwapFeeProvider {
 // MARK: - SendFeeProvider
 
 extension SwapFeeProvider: SendFeeProvider {
-    var fees: LoadableFees {
+    var fees: [SendFee] {
         mapToFees(state: swapManager.state)
     }
 
-    var feesPublisher: AnyPublisher<LoadableFees, Never> {
+    var feesPublisher: AnyPublisher<[SendFee], Never> {
         swapManager.statePublisher
             .withWeakCaptureOf(self)
             .map { $0.mapToFees(state: $1) }
