@@ -19,7 +19,7 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
     func estimatedFee(amount: Decimal) async throws -> [BSDKFee] {
         let amount = makeAmount(amount: amount)
         let fees = try await walletManager.estimatedFee(amount: amount).async()
-        return fees // SendFeeConverter.mapToTokenFees(fees: fees, feeTokenItem: feeTokenItem)
+        return fees
     }
 
     func getFee(dataType: TokenFeeProviderDataType) async throws -> [BSDKFee] {
@@ -27,7 +27,7 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
         case .plain(let amount, let destination):
             let amount = makeAmount(amount: amount)
             let fees = try await walletManager.getFee(amount: amount, destination: destination).async()
-            return fees // SendFeeConverter.mapToTokenFees(fees: fees, feeTokenItem: feeTokenItem)
+            return fees
 
         case .compiledTransaction(let data):
             guard let walletManager = walletManager as? CompiledTransactionFeeProvider else {

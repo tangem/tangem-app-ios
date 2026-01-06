@@ -83,9 +83,6 @@ extension CommonSendFeeInteractor: FeeSelectorFeesProvider {
 
     var feesPublisher: AnyPublisher<[SendFee], Never> {
         provider.feesPublisher.eraseToAnyPublisher()
-//            .withWeakCaptureOf(self)
-//            .map { $0.mapToSendFees(feesValue: $1) }
-//            .eraseToAnyPublisher()
     }
 }
 
@@ -124,18 +121,3 @@ extension CommonSendFeeInteractor: FeeSelectorRoutable {
         }
     }
 }
-
-// MARK: - Private
-
-// private extension CommonSendFeeInteractor {
-//    func mapToSendFees(feesValue: LoadingResult<[SendFee], Error>) -> [SendFee] {
-//        switch feesValue {
-//        case .loading:
-//            return provider.feeOptions.map { SendFee(option: $0, tokenItem: feeTokenItem, value: .loading) }
-//        case .success(let fees):
-//            return fees.filter { provider.feeOptions.contains($0.option) }
-//        case .failure(let error):
-//            return provider.feeOptions.map { SendFee(option: $0, tokenItem: feeTokenItem, value: .failure(error)) }
-//        }
-//    }
-// }
