@@ -16,14 +16,18 @@ final class CommonFeeSelectorInteractor {
     private let suggestedFeeProvider: (any FeeSelectorSuggestedFeeProvider)?
     private let customFeeProvider: (any FeeSelectorCustomFeeProvider)?
 
+    private weak var output: (any FeeSelectorOutput)?
+
     private var customFeeProviderInitialSetupCancellable: AnyCancellable?
+    private var autoupdatedSuggestedFeeCancellable: AnyCancellable?
 
     init(
         input: any FeeSelectorInteractorInput,
         feeTokenItemsProvider: any FeeSelectorFeeTokenItemsProvider,
         feesProvider: any FeeSelectorFeesProvider,
         suggestedFeeProvider: (any FeeSelectorSuggestedFeeProvider)?,
-        customFeeProvider: (any FeeSelectorCustomFeeProvider)?
+        customFeeProvider: (any FeeSelectorCustomFeeProvider)?,
+        output: any FeeSelectorOutput
     ) {
         self.input = input
         self.feeTokenItemsProvider = feeTokenItemsProvider
@@ -32,6 +36,9 @@ final class CommonFeeSelectorInteractor {
         self.customFeeProvider = customFeeProvider
 
         customFeeProviderInitialSetupCancellable = customFeeProvider?.subscribeToInitialSetup(feeProviders: feesProvider)
+        autoupdatedSuggestedFeeCancellable = autoupdatedSuggestedFee
+            .withWeakCaptureOf(self)
+            .sink { $0.output?.userDidSelect(selectedFee: $1) }
     }
 }
 
