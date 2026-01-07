@@ -3831,6 +3831,7 @@
 		EF110A662F0D369D006C7B67 /* TokenFeeConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF110A652F0D369D006C7B67 /* TokenFeeConverter.swift */; };
 		EF110A692F0EA819006C7B67 /* TokenFeeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF110A682F0EA819006C7B67 /* TokenFeeProvider.swift */; };
 		EF110A6C2F0EA873006C7B67 /* TokenFeesList.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF110A6B2F0EA873006C7B67 /* TokenFeesList.swift */; };
+		EF110A6E2F0EAEFE006C7B67 /* SendFeeProviderInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF110A6D2F0EAEFE006C7B67 /* SendFeeProviderInput.swift */; };
 		EF1214652DDB54110097D5C9 /* SendDestinationAdditionalFieldViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1214642DDB54110097D5C9 /* SendDestinationAdditionalFieldViewModel.swift */; };
 		EF12DBC22ED4707B0090E279 /* TangemPayWithdrawTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF12DBC12ED4707B0090E279 /* TangemPayWithdrawTransaction.swift */; };
 		EF12DBC62ED479E20090E279 /* TangemPayWithdrawTransactionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF12DBC52ED479E20090E279 /* TangemPayWithdrawTransactionService.swift */; };
@@ -8594,6 +8595,7 @@
 		EF110A652F0D369D006C7B67 /* TokenFeeConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenFeeConverter.swift; sourceTree = "<group>"; };
 		EF110A682F0EA819006C7B67 /* TokenFeeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenFeeProvider.swift; sourceTree = "<group>"; };
 		EF110A6B2F0EA873006C7B67 /* TokenFeesList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenFeesList.swift; sourceTree = "<group>"; };
+		EF110A6D2F0EAEFE006C7B67 /* SendFeeProviderInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFeeProviderInput.swift; sourceTree = "<group>"; };
 		EF1214642DDB54110097D5C9 /* SendDestinationAdditionalFieldViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDestinationAdditionalFieldViewModel.swift; sourceTree = "<group>"; };
 		EF12DBC12ED4707B0090E279 /* TangemPayWithdrawTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayWithdrawTransaction.swift; sourceTree = "<group>"; };
 		EF12DBC52ED479E20090E279 /* TangemPayWithdrawTransactionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayWithdrawTransactionService.swift; sourceTree = "<group>"; };
@@ -25377,6 +25379,7 @@
 			isa = PBXGroup;
 			children = (
 				EF77CB242E093D50009246A1 /* SendFeeProvider.swift */,
+				EF110A6D2F0EAEFE006C7B67 /* SendFeeProviderInput.swift */,
 				EFADE7A52E12BD6F00CA7916 /* SwapFeeProvider.swift */,
 				EFADE7A72E12BD8D00CA7916 /* SendWithSwapFeeProvider.swift */,
 			);
@@ -28594,6 +28597,7 @@
 				2D245E492E97EB56006AD2DC /* MarketsHistoryChartXAxisValueFormatter.swift in Sources */,
 				2D245E4A2E97EB56006AD2DC /* MarketsTokenDetailsView.swift in Sources */,
 				2D245E4B2E97EB56006AD2DC /* MarketsTokenDetailsExchangesListView+Skeletons.swift in Sources */,
+				EF110A6E2F0EAEFE006C7B67 /* SendFeeProviderInput.swift in Sources */,
 				2D245E4C2E97EB56006AD2DC /* MarketsTokenDetailsMetricsView.swift in Sources */,
 				2D245E4D2E97EB56006AD2DC /* MarketsPortfolioTokenItemFactory.swift in Sources */,
 				2D245E4E2E97EB56006AD2DC /* MarketsPortfolioTokenItemViewModel.swift in Sources */,
