@@ -9,27 +9,6 @@
 import Combine
 import TangemFoundation
 
-struct FeeSelectorInteractorBuilder {
-    func makeFeeSelectorInteractor(
-        tokenItem: TokenItem,
-        input: any FeeSelectorInteractorInput, // Where selected fee is used
-        output: any FeeSelectorOutput, // Where to handle user choose
-        feesProvider: any FeeSelectorFeesProvider,
-        feeTokenItemsProvider: (any FeeSelectorFeeTokenItemsProvider)? = .none,
-        suggestedFeeProvider: (any FeeSelectorSuggestedFeeProvider)? = .none,
-        customFeeProvider: (any FeeSelectorCustomFeeProvider)? = .none,
-    ) -> FeeSelectorInteractor {
-        CommonFeeSelectorInteractor(
-            input: input,
-            output: output,
-            feesProvider: feesProvider,
-            feeTokenItemsProvider: feeTokenItemsProvider,
-            suggestedFeeProvider: suggestedFeeProvider,
-            customFeeProvider: customFeeProvider,
-        )
-    }
-}
-
 final class CommonFeeSelectorInteractor {
     private weak var input: (any FeeSelectorInteractorInput)?
     private weak var output: (any FeeSelectorOutput)?
@@ -47,9 +26,9 @@ final class CommonFeeSelectorInteractor {
         input: any FeeSelectorInteractorInput,
         output: any FeeSelectorOutput,
         feesProvider: any FeeSelectorFeesProvider,
-        feeTokenItemsProvider: (any FeeSelectorFeeTokenItemsProvider)?,
-        suggestedFeeProvider: (any FeeSelectorSuggestedFeeProvider)?,
-        customFeeProvider: (any FeeSelectorCustomFeeProvider)?,
+        feeTokenItemsProvider: (any FeeSelectorFeeTokenItemsProvider)? = nil,
+        suggestedFeeProvider: (any FeeSelectorSuggestedFeeProvider)? = nil,
+        customFeeProvider: (any FeeSelectorCustomFeeProvider)? = nil,
     ) {
         self.input = input
         self.output = output
@@ -67,6 +46,7 @@ final class CommonFeeSelectorInteractor {
         )
 
         autoupdatedSuggestedFeeCancellable = autoupdatedSuggestedFee
+            .print("->> autoupdatedSuggestedFee \(output)")
             .withWeakCaptureOf(self)
             .sink { $0.output?.userDidSelect(selectedFee: $1) }
     }
@@ -109,48 +89,16 @@ extension CommonFeeSelectorInteractor: FeeSelectorInteractor {
         .eraseToAnyPublisher()
     }
 
-    func userDidSelect(selectedFee: TokenFee) {
-        output?.userDidSelect(selectedFee: selectedFee)
-    }
-}
-
-// MARK: - FeeSelectorFeesDataProvider
-
-extension CommonFeeSelectorInteractor: FeeSelectorFeesDataProvider {
-    var selectedSelectorFee: TokenFee? {
-        selectedFee
-    }
-
-    var selectedSelectorFeePublisher: AnyPublisher<TokenFee?, Never> {
-        selectedFeePublisher.eraseToAnyPublisher()
-    }
-
-    var selectorFees: [TokenFee] {
-        fees
-    }
-
-    var selectorFeesPublisher: AnyPublisher<[TokenFee], Never> {
-        feesPublisher.eraseToAnyPublisher()
-    }
-}
-
-// MARK: - FeeSelectorTokensDataProvider
-
-extension CommonFeeSelectorInteractor: FeeSelectorTokensDataProvider {
-    var selectedFeeTokenItem: TokenItem? {
-        selectedFee?.tokenItem
-    }
-
-    var selectedFeeTokenItemPublisher: AnyPublisher<TokenItem?, Never> {
-        selectedFeePublisher.map { $0?.tokenItem }.eraseToAnyPublisher()
-    }
-
     var feeTokenItems: [TokenItem] {
         feeTokenItemsProvider?.tokenItems ?? []
     }
 
     var feeTokenItemsPublisher: AnyPublisher<[TokenItem], Never> {
         feeTokenItemsProvider?.tokenItemsPublisher ?? .just(output: [])
+    }
+
+    func userDidSelect(selectedFee: TokenFee) {
+        output?.userDidSelect(selectedFee: selectedFee)
     }
 }
 
