@@ -37,7 +37,7 @@ class SendFlowFactory: SendFlowBaseDependenciesFactory {
     lazy var customFeeService = makeCustomFeeService(input: sendModel)
     lazy var sendFeeProvider = makeSendWithSwapFeeProvider(
         receiveTokenInput: sendModel,
-        sendFeeProvider: makeSendFeeProvider(input: sendModel, hasCustomFeeService: customFeeService != nil),
+        sendFeeProvider: makeSendFeeProvider(input: sendModel),
         swapFeeProvider: makeSwapFeeProvider(swapManager: swapManager)
     )
 
@@ -278,7 +278,7 @@ extension SendFlowFactory: SendFeeStepBuildable {
         SendNewFeeStepBuilder.Dependencies(
             feeProvider: sendFeeProvider,
             analyticsLogger: analyticsLogger,
-            customFeeService: customFeeService
+            customFeeProvider: customFeeService
         )
     }
 }

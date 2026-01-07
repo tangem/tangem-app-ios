@@ -66,29 +66,25 @@ extension SendFlowBaseDependenciesFactory {
         )
     }
 
-    func makeSendFeeProvider(input: any SendFeeProviderInput, hasCustomFeeService: Bool) -> SendFeeProvider {
-        let options: [FeeOption] = switch (shouldShowFeeSelector, hasCustomFeeService) {
-        case (true, true): [.slow, .market, .fast, .custom]
-        case (true, false): [.slow, .market, .fast]
-        case (false, true): [.market, .custom]
-        case (false, false): [.market]
-        }
-
-        return CommonSendFeeProvider(input: input, feeProvider: tokenFeeProvider, tokenItem: feeTokenItem, defaultFeeOptions: options)
+    func makeSendFeeProvider(input: any SendFeeProviderInput) -> SendFeeProvider {
+        return CommonSendFeeProvider(input: input, feeProvider: tokenFeeProvider, tokenItem: feeTokenItem)
     }
 
     func makeSwapFeeProvider(swapManager: SwapManager) -> SendFeeProvider {
         SwapFeeProvider(swapManager: swapManager)
     }
 
-    func makeCustomFeeService(input: CustomFeeServiceInput) -> CustomFeeService? {
+    func makeCustomFeeService(input: CustomFeeServiceInput) -> FeeSelectorCustomFeeProvider? {
         let factory = CustomFeeServiceFactory(
             tokenItem: tokenItem,
             feeTokenItem: feeTokenItem,
             bitcoinTransactionFeeCalculator: walletModelDependenciesProvider.bitcoinTransactionFeeCalculator
         )
 
-        return factory.makeService(input: input)
+        let service = factory.makeService()
+        (service as? SendCustomFeeService)?.setup(input: input)
+
+        return service
     }
 
     // MARK: - Notifications
