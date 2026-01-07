@@ -191,14 +191,6 @@ class EVMCustomFeeService {
     }
 }
 
-// MARK: - CustomFeeService
-
-extension EVMCustomFeeService: CustomFeeService {
-    func setup(output: any CustomFeeServiceOutput) {
-        self.output = output
-    }
-}
-
 // MARK: - FeeSelectorCustomFeeProvider
 
 extension EVMCustomFeeService: FeeSelectorCustomFeeProvider {
