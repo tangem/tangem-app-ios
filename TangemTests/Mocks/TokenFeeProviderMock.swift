@@ -13,3 +13,9 @@ struct TokenFeeLoaderMock: TokenFeeLoader {
     func estimatedFee(amount: Decimal) async throws -> [BSDKFee] { [] }
     func getFee(dataType: TokenFeeLoaderDataType) async throws -> [BSDKFee] { [] }
 }
+
+struct TokenFeeProviderMock: TokenFeeProvider {
+    var fees: [TokenFee] { [] }
+    var feesPublisher: AnyPublisher<[TokenFee], Never> { .just(output: fees) }
+    func reloadFees(request: TokenFeeProviderFeeRequest) {}
+}
