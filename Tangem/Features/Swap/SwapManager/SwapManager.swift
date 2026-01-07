@@ -13,7 +13,7 @@ import TangemFoundation
 typealias SwapManagerState = ExpressInteractor.State
 typealias SwapManagerSwappingPair = ExpressInteractor.SwappingPair
 
-protocol SwapManager: SendApproveDataBuilderInput, SendFeeProvider {
+protocol SwapManager: SendApproveDataBuilderInput {
     var isSwapAvailable: Bool { get }
 
     var swappingPair: SwapManagerSwappingPair { get }
