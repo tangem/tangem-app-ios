@@ -16,6 +16,7 @@ protocol TokenFeeProvider {
 enum TokenFeeProviderDataType {
     case plain(amount: Decimal, destination: String)
     case compiledTransaction(data: Data)
+    case gaslessTransaction(feeToken: TokenItem, originalAmount: Decimal, originalDestination: String)
 }
 
 enum TokenFeeProviderError: LocalizedError {
