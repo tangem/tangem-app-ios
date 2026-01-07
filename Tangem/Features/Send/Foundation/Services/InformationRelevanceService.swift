@@ -54,7 +54,7 @@ class CommonInformationRelevanceService {
             return .ok
         }
 
-        output?.feeDidChanged(fee: newFee)
+        output?.userDidSelect(selectedFee: newFee)
         return .feeWasIncreased
     }
 }

@@ -98,7 +98,7 @@ extension SendFlowFactory: SendGenericFlowFactory {
     func make(router: any SendRoutable) -> SendViewModel {
         let amount = makeSendAmountStep()
         let destination = makeSendDestinationStep(router: router)
-        let fee = makeSendFeeStep()
+        let fee = makeSendFeeStep(router: router)
         let providers = makeSwapProviders()
 
         let summary = makeSendSummaryStep(

@@ -10,7 +10,7 @@ struct FeeSelectorBuilder {
     func makeFeeSelectorViewModel(
         tokensDataProvider: any FeeSelectorTokensDataProvider,
         feesDataProvider: any FeeSelectorFeesDataProvider,
-        customFeeService: (any CustomFeeService)?,
+        customFeeAvailabilityProvider: (any FeeSelectorCustomFeeAvailabilityProvider)?,
         mapper: any FeeSelectorFeesViewModelMapper,
         analytics: any FeeSelectorAnalytics,
         output: any FeeSelectorOutput,
@@ -25,7 +25,7 @@ struct FeeSelectorBuilder {
             feesViewModel: FeeSelectorFeesViewModel(
                 provider: feesDataProvider,
                 mapper: mapper,
-                customFeeAvailabilityProvider: customFeeService as? FeeSelectorCustomFeeAvailabilityProvider,
+                customFeeAvailabilityProvider: customFeeAvailabilityProvider,
                 analytics: analytics
             ),
             output: output,
