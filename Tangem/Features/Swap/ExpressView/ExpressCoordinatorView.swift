@@ -32,8 +32,14 @@ struct ExpressCoordinatorView: CoordinatorView {
             .iOS16UIKitSheet(item: $coordinator.expressTokensListViewModel) {
                 ExpressTokensListView(viewModel: $0)
             }
+            .sheet(item: $coordinator.swappingSuccessCoordinator) {
+                SwappingSuccessCoordinatorView(coordinator: $0)
+            }
             .sheet(item: $coordinator.swapTokenSelectorViewModel) {
                 SwapTokenSelectorView(viewModel: $0)
+            }
+            .floatingSheetContent(for: SendFeeSelectorViewModel.self) {
+                SendFeeSelectorView(viewModel: $0)
             }
             .bottomSheet(
                 item: $coordinator.expressApproveViewModel,
@@ -52,11 +58,6 @@ struct ExpressCoordinatorView: CoordinatorView {
                 backgroundColor: Colors.Background.tertiary
             ) {
                 ExpressProvidersSelectorView(viewModel: $0)
-            }
-
-        NavHolder()
-            .sheet(item: $coordinator.swappingSuccessCoordinator) {
-                SwappingSuccessCoordinatorView(coordinator: $0)
             }
     }
 }
