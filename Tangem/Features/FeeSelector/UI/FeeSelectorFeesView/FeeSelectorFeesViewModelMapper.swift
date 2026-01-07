@@ -16,7 +16,7 @@ struct CommonFeeSelectorFeesViewModelMapper {
     private let feeFormatter: FeeFormatter
     private let customFieldsBuilder: FeeSelectorCustomFeeFieldsBuilder?
 
-    init(feeFormatter: FeeFormatter, customFieldsBuilder: FeeSelectorCustomFeeFieldsBuilder?) {
+    init(feeFormatter: FeeFormatter, customFieldsBuilder: FeeSelectorCustomFeeFieldsBuilder? = nil) {
         self.feeFormatter = feeFormatter
         self.customFieldsBuilder = customFieldsBuilder
     }

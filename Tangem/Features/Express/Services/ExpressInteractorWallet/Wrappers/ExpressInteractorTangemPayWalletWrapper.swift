@@ -32,9 +32,11 @@ struct ExpressInteractorTangemPayWalletWrapper: ExpressInteractorTangemPayWallet
     let withdrawalNotificationProvider: (any WithdrawalNotificationProvider)? = nil
     let interactorAnalyticsLogger: any ExpressInteractorAnalyticsLogger
 
+    var tokenFeeProvider: any TokenFeeProvider { _tangemPayFeeProvider }
+
     private let _cexTransactionProcessor: any ExpressCEXTransactionProcessor
     private var _balanceProvider: any ExpressBalanceProvider
-    private var _feeProvider: any ExpressFeeProvider
+    private var _tangemPayFeeProvider: TangemPayWithdrawExpressFeeProvider
 
     init(
         tokenItem: TokenItem,
@@ -62,7 +64,7 @@ struct ExpressInteractorTangemPayWalletWrapper: ExpressInteractorTangemPayWallet
             availableBalanceProvider: availableBalanceProvider,
         )
 
-        _feeProvider = TangemPayWithdrawExpressFeeProvider(
+        _tangemPayFeeProvider = TangemPayWithdrawExpressFeeProvider(
             feeTokenItem: feeTokenItem
         )
     }
@@ -81,7 +83,7 @@ extension ExpressInteractorTangemPayWalletWrapper {
 // MARK: - ExpressSourceWallet, ExpressDestinationWallet
 
 extension ExpressInteractorTangemPayWalletWrapper {
-    var feeProvider: ExpressFeeProvider { _feeProvider }
+    var feeProvider: ExpressFeeProvider { _tangemPayFeeProvider }
 
     var balanceProvider: ExpressBalanceProvider { _balanceProvider }
 

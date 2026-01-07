@@ -88,7 +88,7 @@ private extension CEXExpressProviderManager {
 
             let previewDataRequest = try makeSwappingPairRequest(request: request, subtractFee: subtractFee)
             let quote = try await loadQuote(request: previewDataRequest)
-            let fee = ExpressFee(option: request.feeOption, variants: estimatedFee)
+            let fee = ExpressFee(option: request.feeOption, fee: estimatedFee)
             return .preview(.init(fee: fee, subtractFee: subtractFee, quote: quote))
 
         } catch let error as ExpressAPIError {
@@ -148,14 +148,14 @@ private extension CEXExpressProviderManager {
         return isNotEnoughBalanceForSwapping
     }
 
-    func subtractFee(request: ExpressManagerSwappingPairRequest, estimatedFee: ExpressFee.Variants) throws -> Decimal {
+    func subtractFee(request: ExpressManagerSwappingPairRequest, estimatedFee: Fee) throws -> Decimal {
         // The fee's subtraction needed only for fee currency
         guard request.pair.source.isFeeCurrency else {
             return 0
         }
 
         let balance = try request.pair.source.balanceProvider.getBalance()
-        let fee = estimatedFee.fee(option: request.feeOption).amount.value
+        let fee = estimatedFee.amount.value
         let fullAmount = request.amount + fee
 
         // If we don't have enough balance
