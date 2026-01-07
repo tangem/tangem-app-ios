@@ -9,23 +9,21 @@
 struct FeeSelectorBuilder {
     func makeFeeSelectorViewModel(
         feeSelectorInteractor: any FeeSelectorInteractor,
-        customFeeAvailabilityProvider: (any FeeSelectorCustomFeeAvailabilityProvider)?,
+        customFeeAvailabilityProvider: (any FeeSelectorCustomFeeAvailabilityProvider)? = nil,
         mapper: any FeeSelectorFeesViewModelMapper,
         analytics: any FeeSelectorAnalytics,
-        output: any FeeSelectorOutput,
         router: any FeeSelectorRoutable
     ) -> FeeSelectorViewModel {
         FeeSelectorViewModel(
             interactor: feeSelectorInteractor,
             summaryViewModel: FeeSelectorSummaryViewModel(
-                tokensDataProvider: feeSelectorInteractor,
-                feesDataProvider: feeSelectorInteractor
+                interactor: feeSelectorInteractor,
             ),
             tokensViewModel: FeeSelectorTokensViewModel(
-                tokensDataProvider: feeSelectorInteractor
+                interactor: feeSelectorInteractor
             ),
             feesViewModel: FeeSelectorFeesViewModel(
-                provider: feeSelectorInteractor,
+                interactor: feeSelectorInteractor,
                 mapper: mapper,
                 customFeeAvailabilityProvider: customFeeAvailabilityProvider,
                 analytics: analytics

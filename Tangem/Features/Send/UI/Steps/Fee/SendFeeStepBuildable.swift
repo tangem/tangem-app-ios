@@ -51,8 +51,6 @@ enum SendNewFeeStepBuilder {
             input: io.input,
             output: io.output,
             feesProvider: dependencies.feeProvider,
-            feeTokenItemsProvider: nil,
-            suggestedFeeProvider: nil,
             customFeeProvider: dependencies.customFeeProvider,
         )
 
@@ -64,7 +62,6 @@ enum SendNewFeeStepBuilder {
                 customFieldsBuilder: dependencies.customFeeProvider as? FeeSelectorCustomFeeFieldsBuilder
             ),
             analytics: dependencies.analyticsLogger,
-            output: io.output,
             router: router
         )
 

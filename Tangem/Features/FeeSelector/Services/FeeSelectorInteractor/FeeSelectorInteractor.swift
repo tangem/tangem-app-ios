@@ -14,13 +14,16 @@ protocol FeeSelectorInteractorInput: AnyObject {
     var selectedFeePublisher: AnyPublisher<TokenFee, Never> { get }
 }
 
-protocol FeeSelectorInteractor: FeeSelectorTokensDataProvider, FeeSelectorFeesDataProvider {
+protocol FeeSelectorInteractor {
     var selectedFee: TokenFee? { get }
     var selectedFeePublisher: AnyPublisher<TokenFee?, Never> { get }
 
     // Has to contains all supported fee. E.g .custom or suggested
     var fees: [TokenFee] { get }
     var feesPublisher: AnyPublisher<[TokenFee], Never> { get }
+
+    var feeTokenItems: [TokenItem] { get }
+    var feeTokenItemsPublisher: AnyPublisher<[TokenItem], Never> { get }
 
     func userDidSelect(selectedFee: TokenFee)
 }
