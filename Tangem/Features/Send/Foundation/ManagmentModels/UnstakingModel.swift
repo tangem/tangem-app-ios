@@ -384,7 +384,7 @@ extension UnstakingModel: NotificationTapDelegate {
 extension UnstakingModel: StakingBaseDataBuilderInput {
     var bsdkAmount: BSDKAmount? { _amount.value?.crypto.flatMap { makeAmount(value: $0) } }
 
-    var bsdkFee: BlockchainSdk.Fee? { selectedFee.value.value }
+    var bsdkFee: BSDKFee? { selectedFee.value.value }
 
     var isFeeIncluded: Bool { false }
 

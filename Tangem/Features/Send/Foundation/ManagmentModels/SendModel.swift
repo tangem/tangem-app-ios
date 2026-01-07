@@ -869,7 +869,7 @@ extension SendModel: SendBaseDataBuilderInput {
         _amount.value?.crypto.map { makeAmount(decimal: $0) }
     }
 
-    var bsdkFee: BlockchainSdk.Fee? {
+    var bsdkFee: BSDKFee? {
         selectedFee.value.value
     }
 
