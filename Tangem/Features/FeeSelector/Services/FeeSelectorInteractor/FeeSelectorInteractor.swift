@@ -9,7 +9,7 @@
 import Combine
 import TangemFoundation
 
-protocol FeeSelectorInteractorInput {
+protocol FeeSelectorInteractorInput: AnyObject {
     var selectedFee: SendFee { get }
     var selectedFeePublisher: AnyPublisher<SendFee, Never> { get }
 }

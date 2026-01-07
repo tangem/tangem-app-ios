@@ -31,7 +31,7 @@ final class CommonFeeSelectorInteractor {
         self.suggestedFeeProvider = suggestedFeeProvider
         self.customFeeProvider = customFeeProvider
 
-        customFeeProviderInitialSetupCancellable = customFeeProvider?.subscribeToInitialSetup(feeProvider: self)
+        customFeeProviderInitialSetupCancellable = customFeeProvider?.subscribeToInitialSetup(feeProviders: feesProvider)
     }
 }
 
@@ -77,25 +77,19 @@ extension CommonFeeSelectorInteractor: FeeSelectorInteractor {
 
 extension CommonFeeSelectorInteractor: FeeSelectorFeesDataProvider {
     var selectedSelectorFee: SendFee {
-        mapToFeeSelectorFee(fee: selectedFee)
+        selectedFee
     }
 
     var selectedSelectorFeePublisher: AnyPublisher<SendFee, Never> {
-        selectedFeePublisher
-            .withWeakCaptureOf(self)
-            .map { $0.mapToFeeSelectorFee(fee: $1) }
-            .eraseToAnyPublisher()
+        selectedFeePublisher.eraseToAnyPublisher()
     }
 
     var selectorFees: [SendFee] {
-        fees.map { mapToFeeSelectorFee(fee: $0) }
+        fees
     }
 
     var selectorFeesPublisher: AnyPublisher<[SendFee], Never> {
-        feesPublisher
-            .withWeakCaptureOf(self)
-            .map { $0.mapToFeeSelectorFees(fees: $1) }
-            .eraseToAnyPublisher()
+        feesPublisher.eraseToAnyPublisher()
     }
 }
 
@@ -121,12 +115,4 @@ extension CommonFeeSelectorInteractor: FeeSelectorTokensDataProvider {
 
 // MARK: - Private
 
-private extension CommonFeeSelectorInteractor {
-    func mapToFeeSelectorFees(fees: [SendFee]) -> [SendFee] {
-        fees.map(mapToFeeSelectorFee)
-    }
-
-    func mapToFeeSelectorFee(fee: SendFee) -> SendFee {
-        return SendFee(option: fee.option, tokenItem: fee.tokenItem, value: fee.value)
-    }
-}
+private extension CommonFeeSelectorInteractor {}
