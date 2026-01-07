@@ -25,8 +25,8 @@ final class CommonSendFeeInteractor {
 
     lazy var feeSelectorInteractor = CommonFeeSelectorInteractor(
         input: self,
-        feeTokenItemsProvider: self,
-        feesProvider: self,
+        feeTokenItemsProvider: provider,
+        feesProvider: provider,
         suggestedFeeProvider: nil,
         customFeeProvider: customFeeProvider
     )
@@ -90,11 +90,11 @@ extension CommonSendFeeInteractor: FeeSelectorFeesProvider {
 
 extension CommonSendFeeInteractor: FeeSelectorFeeTokenItemsProvider {
     var tokenItems: [TokenItem] {
-        fees.map(\.tokenItem).unique()
+        provider.fees.map(\.tokenItem).unique()
     }
 
     var tokenItemsPublisher: AnyPublisher<[TokenItem], Never> {
-        feesPublisher.map { $0.map(\.tokenItem).unique() }.eraseToAnyPublisher()
+        provider.feesPublisher.map { $0.map(\.tokenItem).unique() }.eraseToAnyPublisher()
     }
 }
 
