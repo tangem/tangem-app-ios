@@ -45,7 +45,10 @@ extension CEXExpressProviderManager: ExpressProviderManager {
     }
 
     func sendData(request: ExpressManagerSwappingPairRequest) async throws -> ExpressTransactionData {
-        let estimatedFee = try await request.pair.source.feeProvider.estimatedFee(amount: request.amount)
+        let estimatedFee = try await request.pair.source.feeProvider.estimatedFee(
+            amount: request.amount,
+            option: request.feeOption
+        )
         try Task.checkCancellation()
 
         let subtractFee = try subtractFee(request: request, estimatedFee: estimatedFee)
@@ -75,7 +78,10 @@ private extension CEXExpressProviderManager {
                 return .restriction(.feeCurrencyHasZeroBalance, quote: quote)
             }
 
-            let estimatedFee = try await request.pair.source.feeProvider.estimatedFee(amount: request.amount)
+            let estimatedFee = try await request.pair.source.feeProvider.estimatedFee(
+                amount: request.amount,
+                option: request.feeOption
+            )
             try Task.checkCancellation()
 
             let subtractFee = try subtractFee(request: request, estimatedFee: estimatedFee)

@@ -20,7 +20,7 @@ class SendFlowFactory: SendFlowBaseDependenciesFactory {
     let tokenHeaderProvider: SendGenericTokenHeaderProvider
 
     let walletModelHistoryUpdater: any WalletModelHistoryUpdater
-    let tokenFeeProvider: any TokenFeeProvider
+    let tokenFeeLoader: any TokenFeeLoader
     let walletModelDependenciesProvider: WalletModelDependenciesProvider
     let availableBalanceProvider: any TokenBalanceProvider
     let fiatAvailableBalanceProvider: any TokenBalanceProvider
@@ -37,7 +37,7 @@ class SendFlowFactory: SendFlowBaseDependenciesFactory {
     lazy var customFeeService = makeCustomFeeService(input: sendModel)
     lazy var sendFeeProvider = makeSendWithSwapFeeProvider(
         receiveTokenInput: sendModel,
-        sendFeeProvider: makeSendFeeProvider(input: sendModel),
+        sendFeeProvider: makeSendFeeProvider(input: sendModel, customFeeProvider: customFeeService),
         swapFeeProvider: makeSwapFeeProvider(swapManager: swapManager)
     )
 
@@ -63,7 +63,7 @@ class SendFlowFactory: SendFlowBaseDependenciesFactory {
         analyticsLogger = Self.makeSendAnalyticsLogger(walletModel: walletModel, sendType: .send)
 
         walletModelHistoryUpdater = walletModel
-        tokenFeeProvider = walletModel.tokenFeeProvider
+        tokenFeeLoader = walletModel.tokenFeeLoader
         walletModelDependenciesProvider = walletModel
         availableBalanceProvider = walletModel.availableBalanceProvider
         fiatAvailableBalanceProvider = walletModel.fiatAvailableBalanceProvider
