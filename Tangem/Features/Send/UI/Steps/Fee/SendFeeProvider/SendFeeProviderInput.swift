@@ -12,7 +12,6 @@ import Foundation
 final class CommonSendFeeProvider {
     private let feeProvider: TokenFeeProvider
     private let tokenItem: TokenItem
-    private let defaultFeeOptions: [FeeOption]
 
     private let _cryptoAmount: CurrentValueSubject<Decimal?, Never> = .init(nil)
     private let _destination: CurrentValueSubject<String?, Never> = .init(nil)
@@ -24,11 +23,9 @@ final class CommonSendFeeProvider {
         input: any SendFeeProviderInput,
         feeProvider: TokenFeeProvider,
         tokenItem: TokenItem,
-        defaultFeeOptions: [FeeOption]
     ) {
         self.feeProvider = feeProvider
         self.tokenItem = tokenItem
-        self.defaultFeeOptions = defaultFeeOptions
 
         bind(input: input)
     }
