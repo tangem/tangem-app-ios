@@ -33,8 +33,9 @@ protocol KeysManager {
     var yieldModuleApiKeyDev: String { get }
     var p2pApiKeys: P2PAPIKeys { get }
     var bffStaticToken: String { get }
-    var gaslessTransactionsApiKey: String { get }
-    var gaslessTransactionsApiKeyDev: String { get }
+    // [REDACTED_TODO_COMMENT]
+//    var gaslessTransactionsApiKey: String { get }
+//    var gaslessTransactionsApiKeyDev: String { get }
 }
 
 private struct KeysManagerKey: InjectionKey {
