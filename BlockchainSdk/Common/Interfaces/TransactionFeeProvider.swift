@@ -32,3 +32,11 @@ public extension TransactionFeeProvider where Self: WalletProvider {
 public protocol CompiledTransactionFeeProvider {
     func getFee(compiledTransaction data: Data) async throws -> [Fee]
 }
+
+public protocol GaslessTransactionFeeProvider {
+    func getGaslessFee(
+        feeToken: Token,
+        originalAmount: Amount,
+        originalDestination: String
+    ) async throws -> Fee
+}
