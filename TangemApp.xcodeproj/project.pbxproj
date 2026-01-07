@@ -3774,9 +3774,9 @@
 		EAFED52D2EAA88B80048E6FB /* YieldModuleNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAFED52C2EAA88B80048E6FB /* YieldModuleNotificationManager.swift */; };
 		EF0176532EAF851700A17D88 /* OnrampProvidersInputOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0176522EAF851700A17D88 /* OnrampProvidersInputOutput.swift */; };
 		EF0176552EAF925F00A17D88 /* SendAmountConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0176542EAF925F00A17D88 /* SendAmountConverter.swift */; };
-		EF019A922F0298BC00BD3802 /* TokenFeeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF019A912F0298BC00BD3802 /* TokenFeeProvider.swift */; };
-		EF019A942F02994D00BD3802 /* CommonTokenFeeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF019A932F02994D00BD3802 /* CommonTokenFeeProvider.swift */; };
-		EF019A962F029B2F00BD3802 /* DemoTokenFeeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF019A952F029B2F00BD3802 /* DemoTokenFeeProvider.swift */; };
+		EF019A922F0298BC00BD3802 /* TokenFeeLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF019A912F0298BC00BD3802 /* TokenFeeLoader.swift */; };
+		EF019A942F02994D00BD3802 /* CommonTokenFeeLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF019A932F02994D00BD3802 /* CommonTokenFeeLoader.swift */; };
+		EF019A962F029B2F00BD3802 /* DemoTokenFeeLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF019A952F029B2F00BD3802 /* DemoTokenFeeLoader.swift */; };
 		EF019ADC2F08803D00BD3802 /* FeeSelectorFeesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF019ADB2F08803D00BD3802 /* FeeSelectorFeesViewModel.swift */; };
 		EF019ADE2F08804A00BD3802 /* FeeSelectorFeesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF019ADD2F08804A00BD3802 /* FeeSelectorFeesView.swift */; };
 		EF019AE12F08869B00BD3802 /* FeeSelectorFeesViewModelMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF019AE02F08869B00BD3802 /* FeeSelectorFeesViewModelMapper.swift */; };
@@ -3829,6 +3829,8 @@
 		EF0FF8712866021B00B7CEAF /* AppEnvironment+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0FF8702866021B00B7CEAF /* AppEnvironment+.swift */; };
 		EF1035A92EBBCB290075A305 /* ExpressInteractorTangemPayWalletWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1035A82EBBCB290075A305 /* ExpressInteractorTangemPayWalletWrapper.swift */; };
 		EF110A662F0D369D006C7B67 /* TokenFeeConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF110A652F0D369D006C7B67 /* TokenFeeConverter.swift */; };
+		EF110A692F0EA819006C7B67 /* TokenFeeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF110A682F0EA819006C7B67 /* TokenFeeProvider.swift */; };
+		EF110A6C2F0EA873006C7B67 /* TokenFeesList.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF110A6B2F0EA873006C7B67 /* TokenFeesList.swift */; };
 		EF1214652DDB54110097D5C9 /* SendDestinationAdditionalFieldViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1214642DDB54110097D5C9 /* SendDestinationAdditionalFieldViewModel.swift */; };
 		EF12DBC22ED4707B0090E279 /* TangemPayWithdrawTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF12DBC12ED4707B0090E279 /* TangemPayWithdrawTransaction.swift */; };
 		EF12DBC62ED479E20090E279 /* TangemPayWithdrawTransactionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF12DBC52ED479E20090E279 /* TangemPayWithdrawTransactionService.swift */; };
@@ -3904,7 +3906,7 @@
 		EF3138B12E43B65D0060FEE6 /* CommonNFTSendStepsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3138B02E43B65D0060FEE6 /* CommonNFTSendStepsManager.swift */; };
 		EF313CA12EC36D7100145849 /* TransactionViewIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF313CA02EC36D7100145849 /* TransactionViewIconView.swift */; };
 		EF313CA32EC36D7C00145849 /* TransactionViewIconViewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF313CA22EC36D7C00145849 /* TransactionViewIconViewData.swift */; };
-		EF339E4F2C21FC9500B5CDC9 /* SendFee.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF339E4E2C21FC9500B5CDC9 /* SendFee.swift */; };
+		EF339E4F2C21FC9500B5CDC9 /* TokenFee.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF339E4E2C21FC9500B5CDC9 /* TokenFee.swift */; };
 		EF339E542C22DABD00B5CDC9 /* FeeIncludedCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF339E532C22DABD00B5CDC9 /* FeeIncludedCalculator.swift */; };
 		EF339E562C22DADC00B5CDC9 /* SendDestinationAdditionalField.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF339E552C22DADC00B5CDC9 /* SendDestinationAdditionalField.swift */; };
 		EF341C772ECCE710000F8C35 /* EVMExpressDEXTransactionProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF341C762ECCE710000F8C35 /* EVMExpressDEXTransactionProcessor.swift */; };
@@ -4517,7 +4519,7 @@
 		EFD68F3B2CC3D7E600693C97 /* ExpressDTO+Onramp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD68F3A2CC3D7E300693C97 /* ExpressDTO+Onramp.swift */; };
 		EFD68F3F2CC3E5C700693C97 /* OnrampRedirectSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD68F3E2CC3E5C600693C97 /* OnrampRedirectSettings.swift */; };
 		EFDD6EDD2CBCF3EA00804205 /* ExpressProviderUpdateSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFDD6EDC2CBCF3EA00804205 /* ExpressProviderUpdateSource.swift */; };
-		EFE0D5D82E095D5B00936D4F /* CommonSendFeeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE0D5D72E095D5B00936D4F /* CommonSendFeeProvider.swift */; };
+		EFE0D5D82E095D5B00936D4F /* CommonTokenFeeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE0D5D72E095D5B00936D4F /* CommonTokenFeeProvider.swift */; };
 		EFE1812B292E30C00072D80C /* SupportChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9FCB92869CC3E00FDE63E /* SupportChatViewModel.swift */; };
 		EFE1812C292E30DF0072D80C /* OnboardingCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1565126B97F8C005B33E4 /* OnboardingCardView.swift */; };
 		EFE242852F0BE580003F3CD5 /* FeeSelectorFeesProviders.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE242842F0BE580003F3CD5 /* FeeSelectorFeesProviders.swift */; };
@@ -8533,9 +8535,9 @@
 		EAFED52C2EAA88B80048E6FB /* YieldModuleNotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleNotificationManager.swift; sourceTree = "<group>"; };
 		EF0176522EAF851700A17D88 /* OnrampProvidersInputOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampProvidersInputOutput.swift; sourceTree = "<group>"; };
 		EF0176542EAF925F00A17D88 /* SendAmountConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAmountConverter.swift; sourceTree = "<group>"; };
-		EF019A912F0298BC00BD3802 /* TokenFeeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenFeeProvider.swift; sourceTree = "<group>"; };
-		EF019A932F02994D00BD3802 /* CommonTokenFeeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonTokenFeeProvider.swift; sourceTree = "<group>"; };
-		EF019A952F029B2F00BD3802 /* DemoTokenFeeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoTokenFeeProvider.swift; sourceTree = "<group>"; };
+		EF019A912F0298BC00BD3802 /* TokenFeeLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenFeeLoader.swift; sourceTree = "<group>"; };
+		EF019A932F02994D00BD3802 /* CommonTokenFeeLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonTokenFeeLoader.swift; sourceTree = "<group>"; };
+		EF019A952F029B2F00BD3802 /* DemoTokenFeeLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoTokenFeeLoader.swift; sourceTree = "<group>"; };
 		EF019ADB2F08803D00BD3802 /* FeeSelectorFeesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeSelectorFeesViewModel.swift; sourceTree = "<group>"; };
 		EF019ADD2F08804A00BD3802 /* FeeSelectorFeesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeSelectorFeesView.swift; sourceTree = "<group>"; };
 		EF019AE02F08869B00BD3802 /* FeeSelectorFeesViewModelMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeSelectorFeesViewModelMapper.swift; sourceTree = "<group>"; };
@@ -8590,6 +8592,8 @@
 		EF0FF8702866021B00B7CEAF /* AppEnvironment+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppEnvironment+.swift"; sourceTree = "<group>"; };
 		EF1035A82EBBCB290075A305 /* ExpressInteractorTangemPayWalletWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressInteractorTangemPayWalletWrapper.swift; sourceTree = "<group>"; };
 		EF110A652F0D369D006C7B67 /* TokenFeeConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenFeeConverter.swift; sourceTree = "<group>"; };
+		EF110A682F0EA819006C7B67 /* TokenFeeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenFeeProvider.swift; sourceTree = "<group>"; };
+		EF110A6B2F0EA873006C7B67 /* TokenFeesList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenFeesList.swift; sourceTree = "<group>"; };
 		EF1214642DDB54110097D5C9 /* SendDestinationAdditionalFieldViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDestinationAdditionalFieldViewModel.swift; sourceTree = "<group>"; };
 		EF12DBC12ED4707B0090E279 /* TangemPayWithdrawTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayWithdrawTransaction.swift; sourceTree = "<group>"; };
 		EF12DBC52ED479E20090E279 /* TangemPayWithdrawTransactionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayWithdrawTransactionService.swift; sourceTree = "<group>"; };
@@ -8668,7 +8672,7 @@
 		EF3138B02E43B65D0060FEE6 /* CommonNFTSendStepsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonNFTSendStepsManager.swift; sourceTree = "<group>"; };
 		EF313CA02EC36D7100145849 /* TransactionViewIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionViewIconView.swift; sourceTree = "<group>"; };
 		EF313CA22EC36D7C00145849 /* TransactionViewIconViewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionViewIconViewData.swift; sourceTree = "<group>"; };
-		EF339E4E2C21FC9500B5CDC9 /* SendFee.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFee.swift; sourceTree = "<group>"; };
+		EF339E4E2C21FC9500B5CDC9 /* TokenFee.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenFee.swift; sourceTree = "<group>"; };
 		EF339E532C22DABD00B5CDC9 /* FeeIncludedCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeIncludedCalculator.swift; sourceTree = "<group>"; };
 		EF339E552C22DADC00B5CDC9 /* SendDestinationAdditionalField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDestinationAdditionalField.swift; sourceTree = "<group>"; };
 		EF341C762ECCE710000F8C35 /* EVMExpressDEXTransactionProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EVMExpressDEXTransactionProcessor.swift; sourceTree = "<group>"; };
@@ -9288,7 +9292,7 @@
 		EFD68F3A2CC3D7E300693C97 /* ExpressDTO+Onramp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ExpressDTO+Onramp.swift"; sourceTree = "<group>"; };
 		EFD68F3E2CC3E5C600693C97 /* OnrampRedirectSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampRedirectSettings.swift; sourceTree = "<group>"; };
 		EFDD6EDC2CBCF3EA00804205 /* ExpressProviderUpdateSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressProviderUpdateSource.swift; sourceTree = "<group>"; };
-		EFE0D5D72E095D5B00936D4F /* CommonSendFeeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonSendFeeProvider.swift; sourceTree = "<group>"; };
+		EFE0D5D72E095D5B00936D4F /* CommonTokenFeeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonTokenFeeProvider.swift; sourceTree = "<group>"; };
 		EFE242842F0BE580003F3CD5 /* FeeSelectorFeesProviders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeSelectorFeesProviders.swift; sourceTree = "<group>"; };
 		EFE242862F0BE5BC003F3CD5 /* CommonFeeSelectorInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonFeeSelectorInteractor.swift; sourceTree = "<group>"; };
 		EFE242A62F0BE6CF003F3CD5 /* TokenFeeProviderMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenFeeProviderMock.swift; sourceTree = "<group>"; };
@@ -12712,7 +12716,6 @@
 				EFEB07C02C7CDFBC00E88352 /* WalletModelRate.swift */,
 				B6116E402E8E7C7B00D9121A /* RateValue.swift */,
 				DC3DCAD62A40AA4B00F72554 /* WalletModelsFactory.swift */,
-				EF019A902F000F7600BD3802 /* TokenFeeProvider */,
 				DC9113642D6FAE95002E17C5 /* AssetRequirements */,
 				EF4EB4F82EDDFF1E00A32D25 /* FiatBalanceProvider */,
 				EF42D7842D1D65D90065AFD1 /* BalanceProvider */,
@@ -20897,6 +20900,7 @@
 				DCBF4D3C2D8B52C7002C2B8E /* UserTokens */,
 				DC8C22F02D8A10BF005159FE /* UserWalletModel */,
 				B012A10D2AA5A6E50079BAB4 /* WalletModel */,
+				EF110A6A2F0EA82C006C7B67 /* Fee */,
 				B67385CE2E3BAC9E00482021 /* Accounts */,
 			);
 			path = Domain;
@@ -22159,15 +22163,15 @@
 			path = YieldModuleNotifications;
 			sourceTree = "<group>";
 		};
-		EF019A902F000F7600BD3802 /* TokenFeeProvider */ = {
+		EF019A902F000F7600BD3802 /* TokenFeeLoader */ = {
 			isa = PBXGroup;
 			children = (
-				EF019A912F0298BC00BD3802 /* TokenFeeProvider.swift */,
-				EF019A932F02994D00BD3802 /* CommonTokenFeeProvider.swift */,
-				EF019A952F029B2F00BD3802 /* DemoTokenFeeProvider.swift */,
+				EF019A912F0298BC00BD3802 /* TokenFeeLoader.swift */,
+				EF019A932F02994D00BD3802 /* CommonTokenFeeLoader.swift */,
+				EF019A952F029B2F00BD3802 /* DemoTokenFeeLoader.swift */,
 				EF110A652F0D369D006C7B67 /* TokenFeeConverter.swift */,
 			);
-			path = TokenFeeProvider;
+			path = TokenFeeLoader;
 			sourceTree = "<group>";
 		};
 		EF019ADF2F08805300BD3802 /* FeeSelectorFeesView */ = {
@@ -22343,6 +22347,26 @@
 				EF0FBB762C53BE630095A6BD /* SendFeeCompactViewModel.swift */,
 			);
 			path = SendFeeCompactView;
+			sourceTree = "<group>";
+		};
+		EF110A672F0EA7FD006C7B67 /* TokenFeeProvider */ = {
+			isa = PBXGroup;
+			children = (
+				EF110A682F0EA819006C7B67 /* TokenFeeProvider.swift */,
+				EF339E4E2C21FC9500B5CDC9 /* TokenFee.swift */,
+				EF110A6B2F0EA873006C7B67 /* TokenFeesList.swift */,
+				EFE0D5D72E095D5B00936D4F /* CommonTokenFeeProvider.swift */,
+			);
+			path = TokenFeeProvider;
+			sourceTree = "<group>";
+		};
+		EF110A6A2F0EA82C006C7B67 /* Fee */ = {
+			isa = PBXGroup;
+			children = (
+				EF019A902F000F7600BD3802 /* TokenFeeLoader */,
+				EF110A672F0EA7FD006C7B67 /* TokenFeeProvider */,
+			);
+			path = Fee;
 			sourceTree = "<group>";
 		};
 		EF12DBC02ED470730090E279 /* TangemPayWithdrawTransaction */ = {
@@ -24121,7 +24145,6 @@
 		EF8F56E82F0C81A8000F6FD0 /* Types */ = {
 			isa = PBXGroup;
 			children = (
-				EF339E4E2C21FC9500B5CDC9 /* SendFee.swift */,
 				EF8F56E62F0C81A1000F6FD0 /* FeeSelectorFeeTokenItem.swift */,
 			);
 			path = Types;
@@ -25354,7 +25377,6 @@
 			isa = PBXGroup;
 			children = (
 				EF77CB242E093D50009246A1 /* SendFeeProvider.swift */,
-				EFE0D5D72E095D5B00936D4F /* CommonSendFeeProvider.swift */,
 				EFADE7A52E12BD6F00CA7916 /* SwapFeeProvider.swift */,
 				EFADE7A72E12BD8D00CA7916 /* SendWithSwapFeeProvider.swift */,
 			);
@@ -26587,7 +26609,7 @@
 				DCB14AE62DC615C60075F340 /* WalletConnectCoordinator.swift in Sources */,
 				C2F1B33E2DE9F76600EDA3E1 /* WalletConnectHapticFeedbackGenerator.swift in Sources */,
 				B6BB46482ECDF1F700EC1F5D /* AccountsAwareDerivationManager.swift in Sources */,
-				EFE0D5D82E095D5B00936D4F /* CommonSendFeeProvider.swift in Sources */,
+				EFE0D5D82E095D5B00936D4F /* CommonTokenFeeProvider.swift in Sources */,
 				0FFA350E2E058FD400ACB48F /* MobileOnboardingAccessCodeDelegate.swift in Sources */,
 				0FFA350F2E058FD400ACB48F /* MobileOnboardingAccessCodeViewModel.swift in Sources */,
 				0FFA35102E058FD400ACB48F /* MobileOnboardingAccessCodeView.swift in Sources */,
@@ -27254,6 +27276,7 @@
 				0FE9420C2ECC73710080CA53 /* MobileWalletFeatureProvider.swift in Sources */,
 				2D30234A2DF093B600B4FFE6 /* PushNotificationsService.swift in Sources */,
 				2D30234B2DF093B600B4FFE6 /* ApplicationWalletEntry.swift in Sources */,
+				EF110A6C2F0EA873006C7B67 /* TokenFeesList.swift in Sources */,
 				0AF62CDF2EA286BF0009737E /* YieldAllowanceUtil.swift in Sources */,
 				B61175C42EFF4C93002F704E /* ExpandableAccountItemStateStorageKeyHelper.swift in Sources */,
 				EF175D722E8BF93500B69415 /* StakingTargetRewardRateFormatter.swift in Sources */,
@@ -28468,7 +28491,7 @@
 				B0F79C6A2689AC56008C9B30 /* FileEncryptionUtility.swift in Sources */,
 				B6FECF512C4032930030A8A9 /* PushNotificationsAvailabilityProviderStub.swift in Sources */,
 				EFA265A92EE9DBAF00F02EC7 /* UnstakingBalanceProvider.swift in Sources */,
-				EF019A922F0298BC00BD3802 /* TokenFeeProvider.swift in Sources */,
+				EF019A922F0298BC00BD3802 /* TokenFeeLoader.swift in Sources */,
 				0A24C3F32EF2D7AF004125EF /* YieldModuleDustFilter.swift in Sources */,
 				DC7796072E17CC09000E3213 /* WCTransactionSecurityAlertInput.swift in Sources */,
 				DC2AB6E72C08D9F80050796C /* WelcomeOnboardingTOSViewModel.swift in Sources */,
@@ -28502,6 +28525,7 @@
 				B00371C02A8A5ECE00D77A4B /* FakeTangemApiService.swift in Sources */,
 				EFD39C932A6A8AD60055D215 /* SupportedBlockchainsPreferencesViewModel.swift in Sources */,
 				B6ED082E2A7D9EB90090E51F /* OrganizeTokensOptionsProviding.swift in Sources */,
+				EF110A692F0EA819006C7B67 /* TokenFeeProvider.swift in Sources */,
 				EFB5925C2E3FE2B80099A8E0 /* HighPriceImpactWarningSheetView.swift in Sources */,
 				EFFA43582E02D7C9001E0E54 /* SendReceiveTokenCoordinator.swift in Sources */,
 				EF3138AF2E43B58F0060FEE6 /* NewNFTSendAmountStepBuilder.swift in Sources */,
@@ -28677,7 +28701,7 @@
 				EF12DBC62ED479E20090E279 /* TangemPayWithdrawTransactionService.swift in Sources */,
 				C2300ED52D67894700EBEA64 /* Analytics+Stories.swift in Sources */,
 				EF7672F32E0D748700A8900E /* SendSwapProvidersSelectorProviderViewData.swift in Sources */,
-				EF019A942F02994D00BD3802 /* CommonTokenFeeProvider.swift in Sources */,
+				EF019A942F02994D00BD3802 /* CommonTokenFeeLoader.swift in Sources */,
 				C25E104F2E0007AC0050BC26 /* WalletConnectDisconnectDAppUseCase.swift in Sources */,
 				B097B9262D0B23A4008A074F /* ActivatedVisaCardDummyManager.swift in Sources */,
 				EF661E3228C0ACD1005769E5 /* ScanCardWarningView.swift in Sources */,
@@ -28965,7 +28989,7 @@
 				EF9F907F299CFCC7006F638F /* WebViewContainerViewModel.swift in Sources */,
 				EF5D83D92B0B7A2B00516B5F /* ExpressSuccessSentView.swift in Sources */,
 				DAFD69432ED9D9B6007FAF9B /* TangemPayFailedToIssueCardSheetView.swift in Sources */,
-				EF339E4F2C21FC9500B5CDC9 /* SendFee.swift in Sources */,
+				EF339E4F2C21FC9500B5CDC9 /* TokenFee.swift in Sources */,
 				0ABCFCEB2DCA35F400C9F901 /* MarketsYieldModeNotificationView.swift in Sources */,
 				5D9DCB0C255199AA0059799C /* SecurityModeViewModel.swift in Sources */,
 				B6FE066D2CFFF35300B5EB22 /* RestakingModel.swift in Sources */,
@@ -29006,7 +29030,7 @@
 				DAA5E31228D2137C003C0E80 /* UserWalletEncryptionKeyStorage.swift in Sources */,
 				5DF612A224E6E0ED001BF301 /* AddressFormatter.swift in Sources */,
 				DA9C94912E3BD3DA0052CCEE /* TangemPayOfferViewModel.swift in Sources */,
-				EF019A962F029B2F00BD3802 /* DemoTokenFeeProvider.swift in Sources */,
+				EF019A962F029B2F00BD3802 /* DemoTokenFeeLoader.swift in Sources */,
 				DC76175A2E41304800B786D7 /* ScannedCardWalletUnlocker.swift in Sources */,
 				C25E10542E000C6E0050BC26 /* ReownWalletConnectDisconnectDAppService.swift in Sources */,
 				EFA6164E2B62A96B0013A129 /* TransactionSendAvailabilityProvider.swift in Sources */,

@@ -11,8 +11,8 @@ import Combine
 import struct BlockchainSdk.Amount
 
 protocol SendFeeInput: AnyObject, FeeSelectorInteractorInput {
-    var selectedFee: SendFee { get }
-    var selectedFeePublisher: AnyPublisher<SendFee, Never> { get }
+    var selectedFee: TokenFee { get }
+    var selectedFeePublisher: AnyPublisher<TokenFee, Never> { get }
 
     var canChooseFeeOption: AnyPublisher<Bool, Never> { get }
 }
