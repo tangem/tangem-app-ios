@@ -11,8 +11,8 @@ import TangemUI
 import TangemFoundation
 
 protocol FeeSelectorFeesDataProvider {
-    var selectedSelectorFee: SendFee { get }
-    var selectedSelectorFeePublisher: AnyPublisher<SendFee, Never> { get }
+    var selectedSelectorFee: SendFee? { get }
+    var selectedSelectorFeePublisher: AnyPublisher<SendFee?, Never> { get }
 
     var selectorFees: [SendFee] { get }
     var selectorFeesPublisher: AnyPublisher<[SendFee], Never> { get }
@@ -24,7 +24,7 @@ protocol FeeSelectorFeesRoutable: AnyObject {
 
 final class FeeSelectorFeesViewModel: ObservableObject {
     @Published private(set) var rowViewModels: [FeeSelectorFeesRowViewModel]
-    @Published private(set) var selectedFee: SendFee
+    @Published private(set) var selectedFee: SendFee?
 
     @Published private(set) var customFeeManualSaveIsRequired: Bool
     @Published private(set) var customFeeManualSaveIsAvailable: Bool
@@ -50,7 +50,7 @@ final class FeeSelectorFeesViewModel: ObservableObject {
         selectedFee = provider.selectedSelectorFee
         rowViewModels = mapper.mapToFeeSelectorFeesRowViewModels(values: provider.selectorFees)
 
-        customFeeManualSaveIsRequired = provider.selectedSelectorFee.option == .custom
+        customFeeManualSaveIsRequired = provider.selectedSelectorFee?.option == .custom
         customFeeManualSaveIsAvailable = customFeeAvailabilityProvider?.customFeeIsValid == true
 
         bind()
@@ -62,7 +62,7 @@ final class FeeSelectorFeesViewModel: ObservableObject {
 
     func isSelected(_ fee: SendFee) -> BindingValue<Bool> {
         .init(root: self, default: false) { root in
-            root.selectedFee.option == fee.option
+            root.selectedFee?.option == fee.option
         } set: { root, isSelected in
             if isSelected {
                 root.userDidSelect(fee: fee)
@@ -74,7 +74,7 @@ final class FeeSelectorFeesViewModel: ObservableObject {
         analytics.logFeeStepOpened()
         customFeeAvailabilityProvider?.captureCustomFeeFieldsValue()
 
-        if selectedFee.option != provider.selectedSelectorFee.option {
+        if selectedFee?.option != provider.selectedSelectorFee?.option {
             selectedFee = provider.selectedSelectorFee
         }
     }
@@ -84,6 +84,8 @@ final class FeeSelectorFeesViewModel: ObservableObject {
     }
 
     func userDidTapCustomFeeManualSaveButton() {
+        guard let selectedFee else { return }
+
         router?.userDidTapConfirmSelection(selectedFee: selectedFee)
     }
 }
@@ -103,7 +105,7 @@ private extension FeeSelectorFeesViewModel {
             .assign(to: &$rowViewModels)
 
         $selectedFee
-            .map { $0.option == .custom }
+            .map { $0?.option == .custom }
             .removeDuplicates()
             .receiveOnMain()
             .assign(to: &$customFeeManualSaveIsRequired)
@@ -120,7 +122,7 @@ private extension FeeSelectorFeesViewModel {
         analytics.logSendFeeSelected(fee.option)
 
         if fee.option != .custom {
-            router?.userDidTapConfirmSelection(selectedFee: selectedFee)
+            router?.userDidTapConfirmSelection(selectedFee: fee)
         }
     }
 }

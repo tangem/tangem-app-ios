@@ -15,7 +15,7 @@ protocol SendFeeProviderInput: AnyObject {
     var destinationAddressPublisher: AnyPublisher<String, Never> { get }
 }
 
-protocol SendFeeProvider: FeeSelectorFeesProvider, FeeSelectorFeeTokenItemsProvider {
+protocol SendFeeProvider: FeeSelectorFeesProvider {
     func updateFees()
 }
 
