@@ -556,7 +556,23 @@ extension CommonWalletModel: WalletModelFeesProvider {
     }
 
     var tokenFeeProvider: any TokenFeeProvider {
-        CommonTokenFeeProvider(feeLoader: tokenFeeLoader, feeTokenItem: feeTokenItem, defaultFeeOptions: [])
+        let options: [FeeOption] = switch (shouldShowFeeSelector, customFeeProvider != nil) {
+        case (true, true): [.slow, .market, .fast, .custom]
+        case (true, false): [.slow, .market, .fast]
+        case (false, true): [.market, .custom]
+        case (false, false): [.market]
+        }
+
+        return CommonTokenFeeProvider(feeLoader: tokenFeeLoader, feeTokenItem: feeTokenItem, defaultFeeOptions: options)
+    }
+
+    var customFeeProvider: (any FeeSelectorCustomFeeProvider)? {
+        CustomFeeServiceFactory(
+            tokenItem: tokenItem,
+            feeTokenItem: feeTokenItem,
+            bitcoinTransactionFeeCalculator: bitcoinTransactionFeeCalculator
+        )
+        .makeService()
     }
 }
 

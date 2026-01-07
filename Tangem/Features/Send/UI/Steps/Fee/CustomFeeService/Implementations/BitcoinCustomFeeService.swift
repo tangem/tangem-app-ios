@@ -14,8 +14,6 @@ import TangemFoundation
 import TangemAccessibilityIdentifiers
 
 class BitcoinCustomFeeService {
-    private weak var output: CustomFeeServiceOutput?
-
     private let tokenItem: TokenItem
     private let feeTokenItem: TokenItem
     private let bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator
@@ -32,7 +30,6 @@ class BitcoinCustomFeeService {
     }
 
     init(
-        input: CustomFeeServiceInput,
         tokenItem: TokenItem,
         feeTokenItem: TokenItem,
         bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator,
@@ -40,8 +37,6 @@ class BitcoinCustomFeeService {
         self.tokenItem = tokenItem
         self.feeTokenItem = feeTokenItem
         self.bitcoinTransactionFeeCalculator = bitcoinTransactionFeeCalculator
-
-        bind(input: input)
     }
 
     private func bind(input: CustomFeeServiceInput) {
@@ -74,7 +69,6 @@ class BitcoinCustomFeeService {
             .withWeakCaptureOf(self)
             .sink { service, _customFee in
                 service.customFeeTextField.update(value: _customFee.amount.value)
-                service.output?.customFeeDidChanged(_customFee)
             }
             .store(in: &bag)
     }
@@ -120,9 +114,9 @@ class BitcoinCustomFeeService {
 
 // MARK: - CustomFeeService
 
-extension BitcoinCustomFeeService: CustomFeeService {
-    func setup(output: any CustomFeeServiceOutput) {
-        self.output = output
+extension BitcoinCustomFeeService: SendCustomFeeService {
+    func setup(input: any SendFeeProviderInput) {
+        bind(input: input)
     }
 }
 
