@@ -10,7 +10,7 @@ import Foundation
 import Combine
 import struct BlockchainSdk.Amount
 
-protocol SendFeeInput: AnyObject {
+protocol SendFeeInput: AnyObject, FeeSelectorInteractorInput {
     var selectedFee: SendFee { get }
     var selectedFeePublisher: AnyPublisher<SendFee, Never> { get }
 
@@ -22,6 +22,4 @@ extension SendFeeInput where Self: SendFeeProvider {
     var canChooseFeeOption: AnyPublisher<Bool, Never> { feesHasVariants }
 }
 
-protocol SendFeeOutput: AnyObject {
-    func feeDidChanged(fee: SendFee)
-}
+typealias SendFeeOutput = FeeSelectorOutput
