@@ -154,10 +154,6 @@ extension VisaWalletModel: WalletModelHelpers {
 }
 
 extension VisaWalletModel: WalletModelFeesProvider {
-    var tokenFeeProvider: any TokenFeeProvider {
-        CommonTokenFeeProvider(feeLoader: tokenFeeLoader, feeTokenItem: feeTokenItem, defaultFeeOptions: [.market])
-    }
-
     var tokenFeeLoader: any TokenFeeLoader {
         DemoTokenFeeLoader(feeTokenItem: feeTokenItem)
     }

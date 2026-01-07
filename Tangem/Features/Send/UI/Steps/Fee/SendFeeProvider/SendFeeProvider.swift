@@ -15,9 +15,9 @@ protocol SendFeeProviderInput: AnyObject {
     var destinationAddressPublisher: AnyPublisher<String, Never> { get }
 }
 
-//protocol SendFeeProvider: FeeSelectorFeesProvider {
+// protocol SendFeeProvider: FeeSelectorFeesProvider {
 //    func updateFees()
-//}
+// }
 
 extension SendFeeProvider {
     var feesHasVariants: AnyPublisher<Bool, Never> {
