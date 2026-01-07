@@ -23,5 +23,5 @@ final class SendFeeInputOutputMock: SendFeeInput, SendFeeOutput {
     var cryptoAmountPublisher: AnyPublisher<Decimal, Never> { .just(output: 1) }
     var destinationAddressPublisher: AnyPublisher<String?, Never> { .just(output: "0x") }
 
-    func feeDidChanged(fee: SendFee) {}
+    func userDidSelect(selectedFee fee: SendFee) {}
 }

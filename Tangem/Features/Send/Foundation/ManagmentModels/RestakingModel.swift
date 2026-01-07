@@ -341,7 +341,7 @@ extension RestakingModel: SendFeeInput {
 // MARK: - SendFeeOutput
 
 extension RestakingModel: SendFeeOutput {
-    func feeDidChanged(fee: SendFee) {
+    func userDidSelect(selectedFee fee: SendFee) {
         assertionFailure("We can not change fee in staking")
     }
 }

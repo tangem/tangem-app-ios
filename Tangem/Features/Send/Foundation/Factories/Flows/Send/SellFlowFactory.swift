@@ -147,7 +147,7 @@ extension SellFlowFactory: SendGenericFlowFactory {
             swapProvidersInput: sendModel
         )
 
-        let fee = makeSendFeeStep()
+        let fee = makeSendFeeStep(router: router)
 
         // Destination .disable
         // Amount .disable
