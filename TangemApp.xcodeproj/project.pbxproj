@@ -3904,7 +3904,6 @@
 		EF3138B12E43B65D0060FEE6 /* CommonNFTSendStepsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3138B02E43B65D0060FEE6 /* CommonNFTSendStepsManager.swift */; };
 		EF313CA12EC36D7100145849 /* TransactionViewIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF313CA02EC36D7100145849 /* TransactionViewIconView.swift */; };
 		EF313CA32EC36D7C00145849 /* TransactionViewIconViewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF313CA22EC36D7C00145849 /* TransactionViewIconViewData.swift */; };
-		EF339E492C21FBEC00B5CDC9 /* SendFeeInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF339E482C21FBEC00B5CDC9 /* SendFeeInteractor.swift */; };
 		EF339E4F2C21FC9500B5CDC9 /* SendFee.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF339E4E2C21FC9500B5CDC9 /* SendFee.swift */; };
 		EF339E542C22DABD00B5CDC9 /* FeeIncludedCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF339E532C22DABD00B5CDC9 /* FeeIncludedCalculator.swift */; };
 		EF339E562C22DADC00B5CDC9 /* SendDestinationAdditionalField.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF339E552C22DADC00B5CDC9 /* SendDestinationAdditionalField.swift */; };
@@ -8669,7 +8668,6 @@
 		EF3138B02E43B65D0060FEE6 /* CommonNFTSendStepsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonNFTSendStepsManager.swift; sourceTree = "<group>"; };
 		EF313CA02EC36D7100145849 /* TransactionViewIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionViewIconView.swift; sourceTree = "<group>"; };
 		EF313CA22EC36D7C00145849 /* TransactionViewIconViewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionViewIconViewData.swift; sourceTree = "<group>"; };
-		EF339E482C21FBEC00B5CDC9 /* SendFeeInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFeeInteractor.swift; sourceTree = "<group>"; };
 		EF339E4E2C21FC9500B5CDC9 /* SendFee.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFee.swift; sourceTree = "<group>"; };
 		EF339E532C22DABD00B5CDC9 /* FeeIncludedCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeIncludedCalculator.swift; sourceTree = "<group>"; };
 		EF339E552C22DADC00B5CDC9 /* SendDestinationAdditionalField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDestinationAdditionalField.swift; sourceTree = "<group>"; };
@@ -18875,7 +18873,6 @@
 				EF4C045F2DEF2ACC0059D7AA /* SendNewFeeCompactView */,
 				EF066AA72E4C8C380026CEF8 /* SendFeeFinishView */,
 				EFE0D5D62E095D4500936D4F /* SendFeeProvider */,
-				EF339E472C21FBE000B5CDC9 /* Interactor */,
 				DADBECD92BBE910C007E7885 /* CustomFeeService */,
 			);
 			path = Fee;
@@ -22616,15 +22613,6 @@
 			path = TransactionViewIconView;
 			sourceTree = "<group>";
 		};
-		EF339E472C21FBE000B5CDC9 /* Interactor */ = {
-			isa = PBXGroup;
-			children = (
-				EF339E482C21FBEC00B5CDC9 /* SendFeeInteractor.swift */,
-				EF339E4E2C21FC9500B5CDC9 /* SendFee.swift */,
-			);
-			path = Interactor;
-			sourceTree = "<group>";
-		};
 		EF341C752ECCE32C000F8C35 /* ExpressDEXTransactionProcessor */ = {
 			isa = PBXGroup;
 			children = (
@@ -24133,6 +24121,7 @@
 		EF8F56E82F0C81A8000F6FD0 /* Types */ = {
 			isa = PBXGroup;
 			children = (
+				EF339E4E2C21FC9500B5CDC9 /* SendFee.swift */,
 				EF8F56E62F0C81A1000F6FD0 /* FeeSelectorFeeTokenItem.swift */,
 			);
 			path = Types;
@@ -27550,7 +27539,6 @@
 				DADD18F82AA7516B0044AA66 /* UITraitCollection+.swift in Sources */,
 				2D22765E2C0F0A4F006BB6A1 /* MarketsListOrderBottonSheetView.swift in Sources */,
 				EAA7DBFD2E8D1340003F9885 /* YieldModuleStartFlowFactory.swift in Sources */,
-				EF339E492C21FBEC00B5CDC9 /* SendFeeInteractor.swift in Sources */,
 				C24DDCC82E0DAE820027445B /* WalletConnect+FloatingSheetView.swift in Sources */,
 				0AB5A4732C5267CB00491764 /* SegmentedPicker.swift in Sources */,
 				B6F773BE2E74812100F39290 /* CryptoAccountsNetworkMapper.swift in Sources */,
