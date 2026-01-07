@@ -469,6 +469,69 @@ extension EthereumWalletManager: TransactionFeeProvider {
     }
 }
 
+extension EthereumWalletManager: GaslessTransactionFeeProvider {
+    func getGaslessFee(
+        feeToken: Token,
+        originalAmount: Amount,
+        originalDestination: String
+    ) async throws -> Fee {
+        // Addresses
+        // [REDACTED_TODO_COMMENT]
+        let gaslessTokenCollectorAddress = ""
+        let ourAddress = wallet.defaultAddress.value
+        let convertedGaslessTokenCollectorAddress = try addressConverter.convertToETHAddress(gaslessTokenCollectorAddress)
+        let convertedOurAddress = try addressConverter.convertToETHAddress(ourAddress)
+
+        // Fixed fee token amount (10000 minimal units)
+        let baseTokenValueInMinimalUnits = EthereumFeeParametersConstants.gaslessMinTokenAmount / wallet.blockchain.decimalValue
+
+        guard let baseTokenAmount = Amount(with: feeToken, value: baseTokenValueInMinimalUnits).bigUIntValue else {
+            throw BlockchainSdkError.failedToGetFee
+        }
+
+        let sanitizedAmount = Self.sanitizeAmount(originalAmount, wallet: wallet)
+
+        // 1) Build calldata for transferring fixed fee token amount to Gasless collector
+        let tokenTransferData = TransferERC20TokenMethod(destination: convertedGaslessTokenCollectorAddress, amount: baseTokenAmount).encodedData
+
+        // 2) Estimate gas limit for fee token transfer
+        let feeTransferGasLimit = try await getGasLimit(
+            to: convertedGaslessTokenCollectorAddress,
+            from: convertedOurAddress,
+            value: nil,
+            data: tokenTransferData
+        ).async()
+
+        // 3) Add 10% buffer to fee token transfer gas limit (multiply by 1.1 using integer math)
+        let feeTransferGasLimitBuffered = feeTransferGasLimit * BigUInt(11) / BigUInt(10)
+
+        // 4) Get gas limit of the original transaction
+        let originalFee = try await getFee(amount: sanitizedAmount, destination: originalDestination).async()
+
+        // Pick the market fee (index 1) from the fees array.
+        guard let params = originalFee[safe: 1]?.parameters as? EthereumEIP1559FeeParameters,
+              let maximumFeePerGas = params.maximumFeePerGas
+        else {
+            throw BlockchainSdkError.failedToGetFee
+        }
+
+        let originalGasLimit = params.gasLimit
+
+        // 5) Combine gas limits and add BASE_GAS buffer (100_000)
+        let newGasLimit = originalGasLimit + feeTransferGasLimitBuffered + EthereumFeeParametersConstants.gaslessBaseGasBuffer
+
+        // 6) Calculate maximum fee per gas (gasLimit * 2 * maxFeePerGas)
+        let doubledMaxFeePerGas = maximumFeePerGas * EthereumFeeParametersConstants.gaslessMaxFeePerGasMultiplier
+
+        // 7) Create updated fee params and compute fee amount
+        let newParams = EthereumEIP1559FeeParameters(gasLimit: newGasLimit, maxFeePerGas: doubledMaxFeePerGas, priorityFee: params.priorityFee)
+        let fee = newParams.calculateFee(decimalValue: wallet.blockchain.decimalValue)
+
+        // 8) Return Fee with updated params and computed amount
+        return Fee(.init(with: wallet.blockchain, value: fee), parameters: newParams)
+    }
+}
+
 // MARK: - TransactionSender
 
 extension EthereumWalletManager: TransactionSender {
