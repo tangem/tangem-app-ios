@@ -60,8 +60,9 @@ struct ConfigUtils {
                 tangemAlephiumApiKey: keys.alephiumTangemApiKey,
                 blinkApiKey: keys.blinkApiKey,
                 tatumApiKey: keys.tatumApiKey,
-                yieldModuleApiKey: keys.yieldModuleApiKey,
-                gaslessTransactionsApiKey: keys.gaslessTransactionsApiKey,
+                yieldModuleApiKey: keys.yieldModuleApiKey
+                // [REDACTED_TODO_COMMENT]
+//                gaslessTransactionsApiKey: keys.gaslessTransactionsApiKey,
             )
         } catch {
             return .init(
@@ -87,8 +88,9 @@ struct ConfigUtils {
                 tangemAlephiumApiKey: "",
                 blinkApiKey: "",
                 tatumApiKey: "",
-                yieldModuleApiKey: "",
-                gaslessTransactionsApiKey: "",
+                yieldModuleApiKey: ""
+                // [REDACTED_TODO_COMMENT]
+//                gaslessTransactionsApiKey: "",
             )
         }
     }
@@ -220,7 +222,8 @@ struct Keys: Decodable {
     let blinkApiKey: String
     let tatumApiKey: String
     let yieldModuleApiKey: String
-    let gaslessTransactionsApiKey: String
+    // [REDACTED_TODO_COMMENT]
+//    let gaslessTransactionsApiKey: String
 }
 
 struct TonCenterApiKeys: Decodable {
