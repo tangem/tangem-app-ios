@@ -24,7 +24,7 @@ protocol FeeSelectorFeesRoutable: AnyObject {
 
 final class FeeSelectorFeesViewModel: ObservableObject {
     @Published private(set) var rowViewModels: [FeeSelectorFeesRowViewModel]
-    @Published private(set) var selectedFee: TokenFee?
+    @Published private(set) var selectedFeeOption: FeeOption?
 
     @Published private(set) var customFeeManualSaveIsRequired: Bool
     @Published private(set) var customFeeManualSaveIsAvailable: Bool
@@ -35,6 +35,10 @@ final class FeeSelectorFeesViewModel: ObservableObject {
     private let analytics: FeeSelectorAnalytics
 
     private weak var router: FeeSelectorFeesRoutable?
+
+    private var selectedFee: TokenFee? {
+        provider.selectorFees.first(where: { $0.option == selectedFeeOption })
+    }
 
     init(
         provider: FeeSelectorFeesDataProvider,
@@ -47,7 +51,7 @@ final class FeeSelectorFeesViewModel: ObservableObject {
         self.customFeeAvailabilityProvider = customFeeAvailabilityProvider
         self.analytics = analytics
 
-        selectedFee = provider.selectedSelectorFee
+        selectedFeeOption = provider.selectedSelectorFee?.option
         rowViewModels = mapper.mapToFeeSelectorFeesRowViewModels(values: provider.selectorFees)
 
         customFeeManualSaveIsRequired = provider.selectedSelectorFee?.option == .custom
@@ -62,7 +66,7 @@ final class FeeSelectorFeesViewModel: ObservableObject {
 
     func isSelected(_ fee: TokenFee) -> BindingValue<Bool> {
         .init(root: self, default: false) { root in
-            root.selectedFee?.option == fee.option
+            root.selectedFeeOption == fee.option
         } set: { root, isSelected in
             if isSelected {
                 root.userDidSelect(fee: fee)
@@ -74,8 +78,8 @@ final class FeeSelectorFeesViewModel: ObservableObject {
         analytics.logFeeStepOpened()
         customFeeAvailabilityProvider?.captureCustomFeeFieldsValue()
 
-        if selectedFee?.option != provider.selectedSelectorFee?.option {
-            selectedFee = provider.selectedSelectorFee
+        if selectedFeeOption != provider.selectedSelectorFee?.option {
+            selectedFeeOption = provider.selectedSelectorFee?.option
         }
     }
 
@@ -95,8 +99,9 @@ final class FeeSelectorFeesViewModel: ObservableObject {
 private extension FeeSelectorFeesViewModel {
     func bind() {
         provider.selectedSelectorFeePublisher
+            .map { $0?.option }
             .receiveOnMain()
-            .assign(to: &$selectedFee)
+            .assign(to: &$selectedFeeOption)
 
         provider.selectorFeesPublisher
             .withWeakCaptureOf(self)
@@ -104,8 +109,8 @@ private extension FeeSelectorFeesViewModel {
             .receiveOnMain()
             .assign(to: &$rowViewModels)
 
-        $selectedFee
-            .map { $0?.option == .custom }
+        $selectedFeeOption
+            .map { $0 == .custom }
             .removeDuplicates()
             .receiveOnMain()
             .assign(to: &$customFeeManualSaveIsRequired)
@@ -118,7 +123,7 @@ private extension FeeSelectorFeesViewModel {
     }
 
     func userDidSelect(fee: TokenFee) {
-        selectedFee = fee
+        selectedFeeOption = fee.option
         analytics.logSendFeeSelected(fee.option)
 
         if fee.option != .custom {
