@@ -232,7 +232,7 @@ extension NFTSendWalletModelProxy: WalletModel {
         mainTokenWalletModel.fulfillRequirements(signer: signer)
     }
 
-    var tokenFeeProvider: any TokenFeeProvider {
+    var tokenFeeProvider: any TokenFeeLoader {
         mainTokenWalletModel.tokenFeeProvider
     }
 
