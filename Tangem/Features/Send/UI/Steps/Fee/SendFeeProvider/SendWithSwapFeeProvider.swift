@@ -30,14 +30,14 @@ class SendWithSwapFeeProvider {
 // MARK: - SendFeeProvider
 
 extension SendWithSwapFeeProvider: SendFeeProvider {
-    var fees: [SendFee] {
+    var fees: [TokenFee] {
         switch receiveTokenInput?.receiveToken {
         case .none, .same: sendFeeProvider.fees
         case .swap: swapFeeProvider.fees
         }
     }
 
-    var feesPublisher: AnyPublisher<[SendFee], Never> {
+    var feesPublisher: AnyPublisher<[TokenFee], Never> {
         guard let receiveTokenInput else {
             assertionFailure("ReceiveTokenInput not found")
             return Empty().eraseToAnyPublisher()
