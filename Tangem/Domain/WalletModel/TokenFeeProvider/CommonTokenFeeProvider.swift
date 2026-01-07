@@ -36,6 +36,17 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
 
             let fees = try await walletManager.getFee(compiledTransaction: data)
             return fees
+
+        case .gaslessTransaction(let feeToken, let amount, let destination):
+            guard let walletManager = walletManager as? GaslessTransactionFeeProvider,
+                  let token = feeToken.token
+            else {
+                throw TokenFeeProviderError.tokenFeeProviderDataTypeNotSupported
+            }
+
+            let bsdkAmount = makeAmount(amount: amount)
+            let fee = try await walletManager.getGaslessFee(feeToken: token, originalAmount: bsdkAmount, originalDestination: destination)
+            return [fee]
         }
     }
 }
