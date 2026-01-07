@@ -10,22 +10,13 @@ import Foundation
 import Combine
 import TangemFoundation
 
-protocol SendFeeProviderInput: AnyObject {
-    var cryptoAmountPublisher: AnyPublisher<Decimal, Never> { get }
-    var destinationAddressPublisher: AnyPublisher<String, Never> { get }
-}
-
-protocol SendFeeProvider: FeeSelectorFeesProvider {
-    func updateFees()
-}
+typealias SendFeeProvider = TokenFeeProvider
 
 extension SendFeeProvider {
     var feesHasVariants: AnyPublisher<Bool, Never> {
         feesPublisher
             .filter { !$0.eraseToLoadingResult().isLoading }
-            .map { fees in
-                fees.hasMultipleFeeOptions
-            }
+            .map { $0.hasMultipleFeeOptions }
             .eraseToAnyPublisher()
     }
 }

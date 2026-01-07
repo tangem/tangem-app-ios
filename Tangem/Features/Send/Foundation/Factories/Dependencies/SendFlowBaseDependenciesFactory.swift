@@ -66,7 +66,7 @@ extension SendFlowBaseDependenciesFactory {
         )
     }
 
-    func makeSendFeeProvider(input: any SendFeeProviderInput, hasCustomFeeService: Bool) -> SendFeeProvider {
+    func makeSendFeeProvider(input: any TokenFeeProviderInput, hasCustomFeeService: Bool) -> SendFeeProvider {
         let options: [FeeOption] = switch (shouldShowFeeSelector, hasCustomFeeService) {
         case (true, true): [.slow, .market, .fast, .custom]
         case (true, false): [.slow, .market, .fast]
@@ -74,7 +74,7 @@ extension SendFlowBaseDependenciesFactory {
         case (false, false): [.market]
         }
 
-        return CommonSendFeeProvider(input: input, feeProvider: tokenFeeProvider, feeTokenItem: feeTokenItem, defaultFeeOptions: options)
+        return CommonTokenFeeProvider(input: input, feeProvider: tokenFeeProvider, feeTokenItem: feeTokenItem, defaultFeeOptions: options)
     }
 
     func makeSwapFeeProvider(swapManager: SwapManager) -> SendFeeProvider {

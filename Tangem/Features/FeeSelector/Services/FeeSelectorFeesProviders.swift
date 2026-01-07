@@ -11,8 +11,8 @@ import Combine
 // MARK: - Main fees
 
 protocol FeeSelectorFeesProvider {
-    var fees: [SendFee] { get }
-    var feesPublisher: AnyPublisher<[SendFee], Never> { get }
+    var fees: [TokenFee] { get }
+    var feesPublisher: AnyPublisher<[TokenFee], Never> { get }
 }
 
 protocol FeeSelectorFeeTokenItemsProvider {
@@ -35,13 +35,13 @@ extension FeeSelectorFeeTokenItemsProvider where Self: FeeSelectorFeesProvider {
 // MARK: - Custom fees
 
 protocol FeeSelectorSuggestedFeeProvider {
-    var suggestedFee: SendFee { get }
-    var suggestedFeePublisher: AnyPublisher<SendFee, Never> { get }
+    var suggestedFee: TokenFee { get }
+    var suggestedFeePublisher: AnyPublisher<TokenFee, Never> { get }
 }
 
 protocol FeeSelectorCustomFeeProvider {
-    var customFee: SendFee { get }
-    var customFeePublisher: AnyPublisher<SendFee, Never> { get }
+    var customFee: TokenFee { get }
+    var customFeePublisher: AnyPublisher<TokenFee, Never> { get }
 
     func initialSetupCustomFee(_ fee: BSDKFee)
 }

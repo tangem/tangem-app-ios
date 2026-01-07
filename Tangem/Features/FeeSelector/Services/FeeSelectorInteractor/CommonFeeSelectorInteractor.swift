@@ -75,15 +75,15 @@ final class CommonFeeSelectorInteractor {
 // MARK: - FeeSelectorInteractor
 
 extension CommonFeeSelectorInteractor: FeeSelectorInteractor {
-    var selectedFee: SendFee? {
+    var selectedFee: TokenFee? {
         input?.selectedFee
     }
 
-    var selectedFeePublisher: AnyPublisher<SendFee?, Never> {
+    var selectedFeePublisher: AnyPublisher<TokenFee?, Never> {
         input?.selectedFeePublisher.eraseToOptional().eraseToAnyPublisher() ?? .just(output: .none)
     }
 
-    var fees: [SendFee] {
+    var fees: [TokenFee] {
         var fees = feesProvider.fees
 
         if let suggestedFee = suggestedFeeProvider?.suggestedFee {
@@ -97,7 +97,7 @@ extension CommonFeeSelectorInteractor: FeeSelectorInteractor {
         return fees
     }
 
-    var feesPublisher: AnyPublisher<[SendFee], Never> {
+    var feesPublisher: AnyPublisher<[TokenFee], Never> {
         [
             feesProvider.feesPublisher.eraseToAnyPublisher(),
             suggestedFeeProvider?.suggestedFeePublisher.map { [$0] }.eraseToAnyPublisher(),
@@ -109,7 +109,7 @@ extension CommonFeeSelectorInteractor: FeeSelectorInteractor {
         .eraseToAnyPublisher()
     }
 
-    func userDidSelect(selectedFee: SendFee) {
+    func userDidSelect(selectedFee: TokenFee) {
         output?.userDidSelect(selectedFee: selectedFee)
     }
 }
@@ -117,19 +117,19 @@ extension CommonFeeSelectorInteractor: FeeSelectorInteractor {
 // MARK: - FeeSelectorFeesDataProvider
 
 extension CommonFeeSelectorInteractor: FeeSelectorFeesDataProvider {
-    var selectedSelectorFee: SendFee? {
+    var selectedSelectorFee: TokenFee? {
         selectedFee
     }
 
-    var selectedSelectorFeePublisher: AnyPublisher<SendFee?, Never> {
+    var selectedSelectorFeePublisher: AnyPublisher<TokenFee?, Never> {
         selectedFeePublisher.eraseToAnyPublisher()
     }
 
-    var selectorFees: [SendFee] {
+    var selectorFees: [TokenFee] {
         fees
     }
 
-    var selectorFeesPublisher: AnyPublisher<[SendFee], Never> {
+    var selectorFeesPublisher: AnyPublisher<[TokenFee], Never> {
         feesPublisher.eraseToAnyPublisher()
     }
 }
