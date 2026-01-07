@@ -26,7 +26,7 @@ final class SwapFeeProvider {
 private extension SwapFeeProvider {
     func mapToFees(state: SwapManagerState) -> [TokenFee] {
         switch swapManager.state {
-        case .loading:
+        case .idle, .loading:
             return SendFeeConverter.mapToLoadingSendFees(options: feeOptions, feeTokenItem: feeTokenItem)
         case .restriction(.requiredRefresh(let occurredError), _):
             return SendFeeConverter.mapToFailureSendFees(options: feeOptions, feeTokenItem: feeTokenItem, error: occurredError)
