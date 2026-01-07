@@ -24,7 +24,7 @@ final class SwapFeeProvider {
 // MARK: - Private
 
 private extension SwapFeeProvider {
-    func mapToFees(state: SwapManagerState) -> [SendFee] {
+    func mapToFees(state: SwapManagerState) -> [TokenFee] {
         switch swapManager.state {
         case .loading:
             return SendFeeConverter.mapToLoadingSendFees(options: feeOptions, feeTokenItem: feeTokenItem)
@@ -39,11 +39,11 @@ private extension SwapFeeProvider {
 // MARK: - SendFeeProvider
 
 extension SwapFeeProvider: SendFeeProvider {
-    var fees: [SendFee] {
+    var fees: [TokenFee] {
         mapToFees(state: swapManager.state)
     }
 
-    var feesPublisher: AnyPublisher<[SendFee], Never> {
+    var feesPublisher: AnyPublisher<[TokenFee], Never> {
         swapManager.statePublisher
             .withWeakCaptureOf(self)
             .map { $0.mapToFees(state: $1) }

@@ -29,7 +29,7 @@ class SendModel {
     private let _destination: CurrentValueSubject<SendDestination?, Never>
     private let _destinationAdditionalField: CurrentValueSubject<SendDestinationAdditionalField, Never>
     private let _amount: CurrentValueSubject<SendAmount?, Never>
-    private let _selectedFee: CurrentValueSubject<SendFee, Never>
+    private let _selectedFee: CurrentValueSubject<TokenFee, Never>
     private let _isFeeIncluded = CurrentValueSubject<Bool, Never>(false)
 
     private let _transaction = CurrentValueSubject<Result<BSDKTransaction, Error>?, Never>(nil)
@@ -582,14 +582,14 @@ extension SendModel: SendSwapProvidersOutput {
 // MARK: - SendFeeInput
 
 extension SendModel: SendFeeInput {
-    var selectedFee: SendFee {
+    var selectedFee: TokenFee {
         switch receiveToken {
         case .same: _selectedFee.value
         case .swap: mapToSendFee(state: swapManager.state)
         }
     }
 
-    var selectedFeePublisher: AnyPublisher<SendFee, Never> {
+    var selectedFeePublisher: AnyPublisher<TokenFee, Never> {
         receiveTokenPublisher
             .withWeakCaptureOf(self)
             .flatMapLatest { model, receiveToken in
@@ -610,7 +610,7 @@ extension SendModel: SendFeeInput {
         sendFeeProvider.feesHasVariants
     }
 
-    private func mapToSendFee(state: SwapManagerState) -> SendFee {
+    private func mapToSendFee(state: SwapManagerState) -> TokenFee {
         switch state {
         case .loading:
             return .init(option: state.fees.selected, tokenItem: sourceToken.feeTokenItem, value: .loading)
@@ -623,9 +623,9 @@ extension SendModel: SendFeeInput {
     }
 }
 
-// MARK: - SendFeeProviderInput
+// MARK: - TokenFeeProviderInput
 
-extension SendModel: SendFeeProviderInput {
+extension SendModel: TokenFeeProviderInput {
     var cryptoAmountPublisher: AnyPublisher<Decimal, Never> {
         _amount.compactMap { $0?.crypto }.eraseToAnyPublisher()
     }
@@ -638,7 +638,7 @@ extension SendModel: SendFeeProviderInput {
 // MARK: - SendFeeOutput
 
 extension SendModel: SendFeeOutput {
-    func userDidSelect(selectedFee fee: SendFee) {
+    func userDidSelect(selectedFee fee: TokenFee) {
         _selectedFee.send(fee)
     }
 }
@@ -766,7 +766,7 @@ extension SendModel: SendBaseInput, SendBaseOutput {
 // MARK: - SendNotificationManagerInput
 
 extension SendModel: SendNotificationManagerInput {
-    var feeValues: AnyPublisher<[SendFee], Never> {
+    var feeValues: AnyPublisher<[TokenFee], Never> {
         sendFeeProvider.feesPublisher.eraseToAnyPublisher()
     }
 
