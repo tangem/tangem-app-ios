@@ -49,6 +49,7 @@ protocol FeeSelectorCustomFeeProvider {
 extension FeeSelectorCustomFeeProvider {
     func subscribeToInitialSetup(feeProviders: any FeeSelectorFeesProvider) -> AnyCancellable {
         feeProviders.feesPublisher
+            .print("->> feesPublisher")
             .compactMap { $0.first(where: { $0.option == .market })?.value.value }
             .first()
             .sink { initialSetupCustomFee($0) }

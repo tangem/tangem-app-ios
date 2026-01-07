@@ -37,7 +37,7 @@ extension SendFlowBaseDependenciesFactory {
         )
     }
 
-    func makeSwapManager() -> CommonSwapManager {
+    func makeSwapManager() -> any SwapManager {
         CommonSwapManager(
             userWalletConfig: userWalletInfo.config,
             interactor: expressDependenciesFactory.expressInteractor
@@ -71,7 +71,7 @@ extension SendFlowBaseDependenciesFactory {
     }
 
     func makeSwapFeeProvider(swapManager: SwapManager) -> SendFeeProvider {
-        SwapFeeProvider(swapManager: swapManager)
+        swapManager // SwapFeeProvider(swapManager: swapManager)
     }
 
     func makeCustomFeeService(input: CustomFeeServiceInput) -> FeeSelectorCustomFeeProvider? {

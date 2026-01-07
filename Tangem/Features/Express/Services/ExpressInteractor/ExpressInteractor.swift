@@ -23,6 +23,8 @@ class ExpressInteractor {
         _swappingPair.eraseToAnyPublisher()
     }
 
+    lazy var feeSelectorInteractor = ExpressFeeSelectorInteractor(expressInteractor: self)
+
     // MARK: - Dependencies
 
     private let userWalletInfo: UserWalletInfo
@@ -210,16 +212,12 @@ extension ExpressInteractor: ApproveViewModelInput {
 
     private func mapToApproveFeeLoadingValue(state: ExpressInteractor.State) -> LoadingResult<BSDKFee, any Error>? {
         switch state {
-        case .permissionRequired(let state, _):
-            guard let fee = try? state.fees.selectedFee() else {
-                return .failure(ExpressInteractorError.feeNotFound)
-            }
-
-            return .success(fee)
         case .loading:
             return .loading
         case .restriction(.requiredRefresh(let error), _):
             return .failure(error)
+        case .permissionRequired(let state, _):
+            return .result(Result { try state.fees.selectedFee() })
         default:
             return nil
         }
@@ -276,7 +274,7 @@ extension ExpressInteractor {
             source: source,
             destination: destination,
             fee: result.fee.amount.value,
-            feeOption: getState().fees.selected,
+            feeOption: .market, // [REDACTED_TODO_COMMENT]
             provider: result.provider,
             date: Date(),
             expressTransactionData: result.data
@@ -436,7 +434,7 @@ private extension ExpressInteractor {
 
     func map(permissionRequired: ExpressManagerState.PermissionRequired) async throws -> State {
         let sender = try getSourceWallet()
-        let fees = mapToFees(fee: .init(option: .market, variants: .single(permissionRequired.data.fee)))
+        let fees = mapToFees(fee: .init(option: .market, fee: permissionRequired.data.fee))
         let amount = makeAmount(value: permissionRequired.quote.fromAmount, tokenItem: sender.tokenItem)
         let fee = try fees.selectedFee()
         let quote = try await map(quote: permissionRequired.quote)
@@ -700,12 +698,7 @@ private extension ExpressInteractor {
         case .market: .market
         }
 
-        switch fee.variants {
-        case .single(let fee):
-            return Fees(selected: selected, fees: [.market: fee])
-        case .double(let market, let priority):
-            return Fees(selected: selected, fees: [.market: market, .fast: priority])
-        }
+        return Fees(selected: selected, fee: .success(fee.fee))
     }
 
     func makeAmount(value: Decimal, tokenItem: TokenItem) -> Amount {
@@ -770,7 +763,7 @@ private extension ExpressInteractor {
 
     func logTransactionSentAnalyticsEvent(data: SentExpressTransactionData, signerType: String) {
         let analyticsFeeType: Analytics.ParameterValue = {
-            if getState().fees.isFixed {
+            if getSource().value?.tokenFeeProvider.fees.hasMultipleFeeOptions == false {
                 return .transactionFeeFixed
             }
 
@@ -839,7 +832,7 @@ extension ExpressInteractor {
             case .readyToSwap(let state, _):
                 return state.fees
             case .idle, .loading, .restriction:
-                return Fees(selected: .market, fees: [:])
+                return Fees(selected: .market, fee: .loading)
             }
         }
 
@@ -920,7 +913,7 @@ extension ExpressInteractor {
 
     struct Fees {
         let selected: FeeOption
-        let fees: [FeeOption: Fee]
+        let fee: LoadingResult<BSDKFee, any Error>
     }
 
     // Manager models
@@ -944,15 +937,11 @@ extension ExpressInteractor {
 // MARK: - Fees+
 
 extension ExpressInteractor.Fees {
-    var isFixed: Bool { fees.count == 1 }
+    // var isFixed: Bool { fees.count == 1 }
 
-    var isEmpty: Bool { fees.isEmpty }
+    // var isEmpty: Bool { fee == nil }
 
     func selectedFee() throws -> Fee {
-        guard let fee = fees[selected] else {
-            throw ExpressInteractorError.feeNotFound
-        }
-
-        return fee
+        try fee.get()
     }
 }
