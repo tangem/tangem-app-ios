@@ -605,7 +605,7 @@ extension StakingModel: ApproveViewModelInput {
 extension StakingModel: StakingBaseDataBuilderInput {
     var bsdkAmount: BSDKAmount? { _amount.value?.crypto.map { makeAmount(value: $0) } }
 
-    var bsdkFee: BlockchainSdk.Fee? { selectedFee.value.value }
+    var bsdkFee: BSDKFee? { selectedFee.value.value }
 
     var isFeeIncluded: Bool { _isFeeIncluded.value }
 

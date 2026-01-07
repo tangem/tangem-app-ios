@@ -140,7 +140,7 @@ extension BitcoinCustomFeeService: FeeSelectorCustomFeeProvider {
             .eraseToAnyPublisher()
     }
 
-    func initialSetupCustomFee(_ fee: BlockchainSdk.Fee) {
+    func initialSetupCustomFee(_ fee: BSDKFee) {
         assert(_customFee.value == nil, "Duplicate initial setup")
 
         _customFee.send(fee)
