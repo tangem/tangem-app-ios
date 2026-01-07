@@ -421,7 +421,7 @@ extension RestakingModel: NotificationTapDelegate {
 extension RestakingModel: StakingBaseDataBuilderInput {
     var bsdkAmount: BSDKAmount? { makeAmount(value: action.amount) }
 
-    var bsdkFee: BlockchainSdk.Fee? { selectedFee.value.value }
+    var bsdkFee: BSDKFee? { selectedFee.value.value }
 
     var isFeeIncluded: Bool { false }
 
