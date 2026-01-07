@@ -9,9 +9,7 @@
 import TangemUI
 
 protocol SendFlowBaseDependenciesFactory: SendGenericFlowBaseDependenciesFactory {
-    var shouldShowFeeSelector: Bool { get }
-
-    var tokenFeeProvider: any TokenFeeProvider { get }
+    var tokenFeeLoader: any TokenFeeLoader { get }
     var expressDependenciesFactory: ExpressDependenciesFactory { get }
 }
 
@@ -66,15 +64,22 @@ extension SendFlowBaseDependenciesFactory {
         )
     }
 
-    func makeSendFeeProvider(input: any SendFeeProviderInput) -> SendFeeProvider {
-        return CommonSendFeeProvider(input: input, feeProvider: tokenFeeProvider, tokenItem: feeTokenItem)
+    func makeSendFeeProvider(input: any SendFeeProviderInput, customFeeProvider: (any CustomFeeProvider)?) -> SendFeeProvider {
+        let feeProvider = CommonSendFeeProvider(
+            feeLoader: tokenFeeLoader,
+            customFeeProvider: customFeeProvider,
+            initialTokenItem: feeTokenItem
+        )
+
+        feeProvider.setup(input: input)
+        return feeProvider
     }
 
     func makeSwapFeeProvider(swapManager: SwapManager) -> SendFeeProvider {
         swapManager // SwapFeeProvider(swapManager: swapManager)
     }
 
-    func makeCustomFeeService(input: CustomFeeServiceInput) -> FeeSelectorCustomFeeProvider? {
+    func makeCustomFeeService(input: SendFeeProviderInput) -> CustomFeeProvider? {
         let factory = CustomFeeServiceFactory(
             tokenItem: tokenItem,
             feeTokenItem: feeTokenItem,

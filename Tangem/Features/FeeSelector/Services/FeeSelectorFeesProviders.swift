@@ -10,10 +10,11 @@ import Combine
 
 // MARK: - Main fees
 
-protocol FeeSelectorFeesProvider {
-    var fees: [TokenFee] { get }
-    var feesPublisher: AnyPublisher<[TokenFee], Never> { get }
-}
+typealias FeeSelectorFeesProvider = TokenFeeProvider
+// protocol FeeSelectorFeesProvider {
+//    var fees: [TokenFee] { get }
+//    var feesPublisher: AnyPublisher<[TokenFee], Never> { get }
+// }
 
 protocol FeeSelectorFeeTokenItemsProvider {
     var tokenItems: [TokenItem] { get }
@@ -38,6 +39,8 @@ protocol FeeSelectorSuggestedFeeProvider {
     var suggestedFee: TokenFee { get }
     var suggestedFeePublisher: AnyPublisher<TokenFee, Never> { get }
 }
+
+typealias CustomFeeProvider = FeeSelectorCustomFeeProvider & FeeSelectorCustomFeeAvailabilityProvider & FeeSelectorCustomFeeFieldsBuilder
 
 protocol FeeSelectorCustomFeeProvider {
     var customFee: TokenFee { get }
