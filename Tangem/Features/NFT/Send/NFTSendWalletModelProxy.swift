@@ -240,6 +240,10 @@ extension NFTSendWalletModelProxy: WalletModel {
         mainTokenWalletModel.tokenFeeProvider
     }
 
+    var customFeeProvider: (any FeeSelectorCustomFeeProvider)? {
+        mainTokenWalletModel.customFeeProvider
+    }
+
     func hasFeeCurrency() -> Bool {
         mainTokenWalletModel.hasFeeCurrency()
     }
