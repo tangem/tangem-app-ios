@@ -76,7 +76,7 @@ extension SendFlowBaseDependenciesFactory {
     }
 
     func makeSwapFeeProvider(swapManager: SwapManager) -> SendFeeProvider {
-        swapManager // SwapFeeProvider(swapManager: swapManager)
+        SwapFeeProvider(swapManager: swapManager)
     }
 
     func makeCustomFeeService(input: SendFeeProviderInput) -> CustomFeeProvider? {
