@@ -14,13 +14,13 @@ import BigInt
 struct CommonExpressFeeProvider {
     private let tokenItem: TokenItem
     private let feeTokenItem: TokenItem
-    private let feeProvider: any TokenFeeProvider
+    private let feeProvider: any TokenFeeLoader
     private let ethereumNetworkProvider: (any EthereumNetworkProvider)?
 
     init(
         tokenItem: TokenItem,
         feeTokenItem: TokenItem,
-        feeProvider: any TokenFeeProvider,
+        feeProvider: any TokenFeeLoader,
         ethereumNetworkProvider: (any EthereumNetworkProvider)?
     ) {
         self.tokenItem = tokenItem
