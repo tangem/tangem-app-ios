@@ -20,11 +20,11 @@ enum TokenFeeLoaderDataType {
 }
 
 enum TokenFeeLoaderError: LocalizedError {
-    case tokenFeeProviderDataTypeNotSupported
+    case tokenFeeLoaderDataTypeNotSupported
 
     var errorDescription: String? {
         switch self {
-        case .tokenFeeProviderDataTypeNotSupported: "TokenFeeLoaderDataTypeNotSupported"
+        case .tokenFeeLoaderDataTypeNotSupported: "TokenFeeLoaderDataTypeNotSupported"
         }
     }
 }
