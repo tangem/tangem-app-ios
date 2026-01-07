@@ -49,16 +49,15 @@ enum SendNewFeeStepBuilder {
     ) -> ReturnValue {
         let feeSelectorInteractor = CommonFeeSelectorInteractor(
             input: io.input,
-            feeTokenItemsProvider: dependencies.feeProvider,
+            output: io.output,
             feesProvider: dependencies.feeProvider,
+            feeTokenItemsProvider: nil,
             suggestedFeeProvider: nil,
             customFeeProvider: dependencies.customFeeService as? FeeSelectorCustomFeeProvider,
-            output: io.output
         )
 
         let feeSelectorViewModel = FeeSelectorBuilder().makeFeeSelectorViewModel(
-            tokensDataProvider: feeSelectorInteractor,
-            feesDataProvider: feeSelectorInteractor,
+            feeSelectorInteractor: feeSelectorInteractor,
             customFeeAvailabilityProvider: dependencies.customFeeService as? FeeSelectorCustomFeeAvailabilityProvider,
             mapper: CommonFeeSelectorFeesViewModelMapper(
                 feeFormatter: CommonFeeFormatter(),

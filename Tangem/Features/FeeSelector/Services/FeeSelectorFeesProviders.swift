@@ -18,6 +18,8 @@ protocol FeeSelectorFeesProvider {
 protocol FeeSelectorFeeTokenItemsProvider {
     var tokenItems: [TokenItem] { get }
     var tokenItemsPublisher: AnyPublisher<[TokenItem], Never> { get }
+
+    func userDidSelectTokenItem(_ tokenItem: TokenItem)
 }
 
 extension FeeSelectorFeeTokenItemsProvider where Self: FeeSelectorFeesProvider {
