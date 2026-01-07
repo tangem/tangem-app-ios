@@ -14,13 +14,15 @@ protocol FeeSelectorInteractorInput: AnyObject {
     var selectedFeePublisher: AnyPublisher<SendFee, Never> { get }
 }
 
-protocol FeeSelectorInteractor {
-    var selectedFee: SendFee { get }
-    var selectedFeePublisher: AnyPublisher<SendFee, Never> { get }
+protocol FeeSelectorInteractor: FeeSelectorTokensDataProvider, FeeSelectorFeesDataProvider {
+    var selectedFee: SendFee? { get }
+    var selectedFeePublisher: AnyPublisher<SendFee?, Never> { get }
 
     // Has to contains all supported fee. E.g .custom or suggested
     var fees: [SendFee] { get }
     var feesPublisher: AnyPublisher<[SendFee], Never> { get }
+
+    func userDidSelect(selectedFee: SendFee)
 }
 
 extension FeeSelectorInteractor {
@@ -34,14 +36,14 @@ extension FeeSelectorInteractor {
                 return failureFee
             }
 
-            let hasSelected = selectedFee.value.value == nil
+            let hasSelected = selectedFee?.value.value == nil
 
             // Have loading and non selected
             if let loadingFee = fees.first(where: { $0.value.isLoading }), !hasSelected {
                 return loadingFee
             }
 
-            let selectedFeeOption = hasSelected ? selectedFee.option : .market
+            let selectedFeeOption = hasSelected ? selectedFee?.option : .market
 
             // All good. Fee just updated
             if let successFee = fees.first(where: { $0.option == selectedFeeOption }) {
