@@ -146,6 +146,25 @@ extension CommonSwapManager: SendApproveDataBuilderInput {
     }
 }
 
+// MARK: - SendFeeProvider
+
+extension CommonSwapManager: SendFeeProvider {
+    var fees: [TokenFee] {
+        interactor.getSource().value?.tokenFeeProvider.fees ?? []
+    }
+
+    var feesPublisher: AnyPublisher<[TokenFee], Never> {
+        interactor.swappingPair
+            .compactMap { $0.sender.value }
+            .flatMapLatest { $0.tokenFeeProvider.feesPublisher }
+            .eraseToAnyPublisher()
+    }
+
+    func updateFees() {
+        interactor.refresh(type: .fee)
+    }
+}
+
 // MARK: - Private
 
 private extension CommonSwapManager {
