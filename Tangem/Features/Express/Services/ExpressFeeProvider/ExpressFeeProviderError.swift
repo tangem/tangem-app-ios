@@ -11,4 +11,7 @@ import Foundation
 enum ExpressFeeProviderError: Error {
     case feeNotFound
     case ethereumNetworkProviderNotFound
+
+    case ethereumTokenFeeLoaderNotFound
+    case solanaTokenFeeLoaderNotFound
 }
