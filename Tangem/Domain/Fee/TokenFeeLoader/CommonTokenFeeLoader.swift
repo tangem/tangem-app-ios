@@ -31,7 +31,7 @@ extension CommonTokenFeeLoader: TokenFeeLoader {
 
         case .compiledTransaction(let data):
             guard let walletManager = walletManager as? CompiledTransactionFeeProvider else {
-                throw TokenFeeLoaderError.tokenFeeProviderDataTypeNotSupported
+                throw TokenFeeLoaderError.tokenFeeLoaderDataTypeNotSupported
             }
 
             let fees = try await walletManager.getFee(compiledTransaction: data)
@@ -39,9 +39,8 @@ extension CommonTokenFeeLoader: TokenFeeLoader {
 
         case .gaslessTransaction(let feeToken, let amount, let destination):
             guard let walletManager = walletManager as? GaslessTransactionFeeProvider,
-                  let token = feeToken.token
-            else {
-                throw TokenFeeProviderError.tokenFeeProviderDataTypeNotSupported
+                  let token = feeToken.token else {
+                throw TokenFeeLoaderError.tokenFeeLoaderDataTypeNotSupported
             }
 
             let bsdkAmount = makeAmount(amount: amount)
