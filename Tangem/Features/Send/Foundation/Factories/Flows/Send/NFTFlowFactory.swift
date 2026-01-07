@@ -112,7 +112,7 @@ extension NFTFlowFactory: SendGenericFlowFactory {
         let header = tokenHeaderProvider.makeSendTokenHeader()
         let nftAssetCompactViewModel = nftAssetStepBuilder.makeNFTAssetCompactViewModel(header: header)
         let destination = makeSendDestinationStep(router: router)
-        let fee = makeSendFeeStep()
+        let fee = makeSendFeeStep(router: router)
 
         // Destination editable
         // Amount noEditable

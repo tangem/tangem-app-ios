@@ -638,7 +638,7 @@ extension SendModel: SendFeeProviderInput {
 // MARK: - SendFeeOutput
 
 extension SendModel: SendFeeOutput {
-    func feeDidChanged(fee: SendFee) {
+    func userDidSelect(selectedFee fee: SendFee) {
         _selectedFee.send(fee)
     }
 }

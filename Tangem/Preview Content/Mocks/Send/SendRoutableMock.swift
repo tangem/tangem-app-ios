@@ -40,4 +40,6 @@ class SendRoutableMock: SendRoutable {
     func openReceiveTokensList(tokensListBuilder: SendReceiveTokensListBuilder) {}
     func openHighPriceImpactWarningSheetViewModel(viewModel: HighPriceImpactWarningSheetViewModel) {}
     func openAccountInitializationFlow(viewModel: BlockchainAccountInitializationViewModel) {}
+    func dismissFeeSelector() {}
+    func completeFeeSelection() {}
 }
