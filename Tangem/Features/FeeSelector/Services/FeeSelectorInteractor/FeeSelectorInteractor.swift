@@ -25,6 +25,7 @@ protocol FeeSelectorInteractor {
     var feeTokenItems: [TokenItem] { get }
     var feeTokenItemsPublisher: AnyPublisher<[TokenItem], Never> { get }
 
+    func userDidSelect(feeTokenItem: TokenItem)
     func userDidSelect(selectedFee: TokenFee)
 }
 

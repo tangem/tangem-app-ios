@@ -32,7 +32,7 @@ enum SendNewFeeStepBuilder {
     struct Dependencies {
         let feeProvider: SendFeeProvider
         let analyticsLogger: any FeeSelectorAnalytics
-        let customFeeProvider: (any FeeSelectorCustomFeeProvider)?
+        let customFeeProvider: (any CustomFeeProvider)?
     }
 
     typealias ReturnValue = (
@@ -51,15 +51,14 @@ enum SendNewFeeStepBuilder {
             input: io.input,
             output: io.output,
             feesProvider: dependencies.feeProvider,
-            customFeeProvider: dependencies.customFeeProvider,
         )
 
         let feeSelectorViewModel = FeeSelectorBuilder().makeFeeSelectorViewModel(
             feeSelectorInteractor: feeSelectorInteractor,
-            customFeeAvailabilityProvider: dependencies.customFeeProvider as? FeeSelectorCustomFeeAvailabilityProvider,
+            customFeeAvailabilityProvider: dependencies.customFeeProvider,
             mapper: CommonFeeSelectorFeesViewModelMapper(
                 feeFormatter: CommonFeeFormatter(),
-                customFieldsBuilder: dependencies.customFeeProvider as? FeeSelectorCustomFeeFieldsBuilder
+                customFieldsBuilder: dependencies.customFeeProvider
             ),
             analytics: dependencies.analyticsLogger,
             router: router
