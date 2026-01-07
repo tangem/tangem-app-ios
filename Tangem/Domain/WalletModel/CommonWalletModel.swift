@@ -547,12 +547,10 @@ extension CommonWalletModel: WalletModelHelpers {
 // MARK: - WalletModelFeesProvider
 
 extension CommonWalletModel: WalletModelFeesProvider {
-    var tokenFeeProvider: any TokenFeeProvider {
-        if isDemo {
-            return DemoTokenFeeProvider(tokenItem: tokenItem)
-        }
+    var tokenFeeLoader: any TokenFeeLoader {
+        TokenFeeLoaderBuilder().makeTokenFeeLoader(walletModel: self, walletManager: walletManager)
+    }
 
-        return CommonTokenFeeProvider(tokenItem: tokenItem, walletManager: walletManager)
     }
 }
 

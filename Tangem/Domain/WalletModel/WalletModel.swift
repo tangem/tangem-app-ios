@@ -138,7 +138,7 @@ protocol WalletModelHelpers {
 // MARK: - Fee
 
 protocol WalletModelFeesProvider {
-    var tokenFeeProvider: any TokenFeeProvider { get }
+    var tokenFeeLoader: any TokenFeeLoader { get }
 }
 
 protocol WalletModelFeeProvider {

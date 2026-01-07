@@ -34,8 +34,6 @@ extension ExpressFeeProviderError: UniversalError {
         switch self {
         case .feeNotFound:
             103001000
-        case .ethereumNetworkProviderNotFound:
-            103001001
         }
     }
 }
