@@ -13,7 +13,7 @@ import TangemFoundation
 final class CommonSendFeeProvider {
     private weak var input: SendFeeProviderInput?
 
-    private let feeProvider: TokenFeeProvider
+    private let feeProvider: TokenFeeLoader
     private let feeTokenItem: TokenItem
     private let defaultFeeOptions: [FeeOption]
 
@@ -27,7 +27,7 @@ final class CommonSendFeeProvider {
 
     init(
         input: any SendFeeProviderInput,
-        feeProvider: TokenFeeProvider,
+        feeProvider: TokenFeeLoader,
         feeTokenItem: TokenItem,
         defaultFeeOptions: [FeeOption]
     ) {

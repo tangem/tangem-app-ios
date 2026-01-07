@@ -1,5 +1,5 @@
 //
-//  TokenFeeProvider.swift
+//  TokenFeeLoader.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,23 +8,23 @@
 
 import Foundation
 
-protocol TokenFeeProvider {
+protocol TokenFeeLoader {
     func estimatedFee(amount: Decimal) async throws -> [BSDKFee]
-    func getFee(dataType: TokenFeeProviderDataType) async throws -> [BSDKFee]
+    func getFee(dataType: TokenFeeLoaderDataType) async throws -> [BSDKFee]
 }
 
-enum TokenFeeProviderDataType {
+enum TokenFeeLoaderDataType {
     case plain(amount: Decimal, destination: String)
     case compiledTransaction(data: Data)
     case gaslessTransaction(feeToken: TokenItem, originalAmount: Decimal, originalDestination: String)
 }
 
-enum TokenFeeProviderError: LocalizedError {
+enum TokenFeeLoaderError: LocalizedError {
     case tokenFeeProviderDataTypeNotSupported
 
     var errorDescription: String? {
         switch self {
-        case .tokenFeeProviderDataTypeNotSupported: "TokenFeeProviderDataTypeNotSupported"
+        case .tokenFeeProviderDataTypeNotSupported: "TokenFeeLoaderDataTypeNotSupported"
         }
     }
 }
