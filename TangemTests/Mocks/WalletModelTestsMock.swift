@@ -101,7 +101,7 @@ final class WalletModelTestsMock: WalletModel {
 
     // MARK: - WalletModelFeesProvider
 
-    var tokenFeeProvider: any TokenFeeProvider { TokenFeeProviderMock() }
+    var tokenFeeProvider: any TokenFeeLoader { TokenFeeLoaderMock() }
 
     // MARK: - TransactionHistoryFetcher
 

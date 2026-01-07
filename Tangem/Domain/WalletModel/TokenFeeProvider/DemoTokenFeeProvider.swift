@@ -1,5 +1,5 @@
 //
-//  DemoTokenFeeProvider.swift
+//  DemoTokenFeeLoader.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,19 +8,19 @@
 
 import Foundation
 
-struct DemoTokenFeeProvider {
+struct DemoTokenFeeLoader {
     let feeTokenItem: TokenItem
 }
 
-// MARK: - TokenFeeProvider
+// MARK: - TokenFeeLoader
 
-extension DemoTokenFeeProvider: TokenFeeProvider {
+extension DemoTokenFeeLoader: TokenFeeLoader {
     func estimatedFee(amount: Decimal) async throws -> [BSDKFee] {
         let fees = DemoUtil().getDemoFee(for: feeTokenItem.blockchain)
         return fees
     }
 
-    func getFee(dataType: TokenFeeProviderDataType) async throws -> [BSDKFee] {
+    func getFee(dataType: TokenFeeLoaderDataType) async throws -> [BSDKFee] {
         let fees = DemoUtil().getDemoFee(for: feeTokenItem.blockchain)
         return fees
     }
