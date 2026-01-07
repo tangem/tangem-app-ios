@@ -170,33 +170,34 @@ private extension DEXExpressProviderManager {
     }
 
     func ready(request: ExpressManagerSwappingPairRequest, quote: ExpressQuote, data: ExpressTransactionData) async throws -> ExpressManagerState.Ready {
-        var variants = try await request.pair.source.feeProvider.getFee(
+        var fee = try await request.pair.source.feeProvider.getFee(
             amount: .dex(fromAmount: request.amount, txValue: data.txValue, txData: data.txData),
             destination: data.destinationAddress
         )
 
         try Task.checkCancellation()
         if let otherNativeFee = data.otherNativeFee {
-            variants = include(otherNativeFee: otherNativeFee, in: variants)
+            fee = include(otherNativeFee: otherNativeFee, in: fee)
             ExpressLogger.info(self, "The fee was increased by otherNativeFee \(otherNativeFee)")
         }
 
         // better to make the quote from the data
         let quoteData = ExpressQuote(fromAmount: data.fromAmount, expectAmount: data.toAmount, allowanceContract: quote.allowanceContract)
-        let fee = ExpressFee(option: request.feeOption, variants: variants)
-        return .init(fee: fee, data: data, quote: quoteData)
+        let expressFee = ExpressFee(option: request.feeOption, fee: fee)
+        return .init(fee: expressFee, data: data, quote: quoteData)
     }
 
-    func include(otherNativeFee: Decimal, in variants: ExpressFee.Variants) -> ExpressFee.Variants {
-        switch variants {
-        case .single(let fee):
-            return .single(add(value: otherNativeFee, to: fee))
-        case .double(let market, let fast):
-            return .double(
-                market: add(value: otherNativeFee, to: market),
-                fast: add(value: otherNativeFee, to: fast)
-            )
-        }
+    func include(otherNativeFee: Decimal, in fee: Fee) -> Fee {
+        add(value: otherNativeFee, to: fee)
+//        switch variants {
+//        case .single(let fee):
+//            return .single(add(value: otherNativeFee, to: fee))
+//        case .double(let market, let fast):
+//            return .double(
+//                market: add(value: otherNativeFee, to: market),
+//                fast: add(value: otherNativeFee, to: fast)
+//            )
+//        }
     }
 
     func add(value: Decimal, to fee: Fee) -> Fee {

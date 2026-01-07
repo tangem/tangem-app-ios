@@ -9,7 +9,7 @@
 import Combine
 import TangemUI
 
-final class FeeSelectorViewModel: ObservableObject, FloatingSheetContentViewModel {
+final class FeeSelectorViewModel: ObservableObject {
     @Published private(set) var viewState: ViewState
 
     private let interactor: any FeeSelectorInteractor

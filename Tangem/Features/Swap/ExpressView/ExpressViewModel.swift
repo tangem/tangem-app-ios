@@ -194,15 +194,6 @@ private extension ExpressViewModel {
         }
     }
 
-    func openFeeSelectorView() {
-        // If we have fees for choosing
-        guard !interactor.getState().fees.isEmpty else {
-            return
-        }
-
-        coordinator?.presentFeeSelectorView()
-    }
-
     func presentProviderSelectorView() {
         Analytics.log(.swapProviderClicked)
         coordinator?.presentProviderSelectorView()
@@ -478,16 +469,16 @@ private extension ExpressViewModel {
         switch state {
         case .restriction(.notEnoughAmountForTxValue, _):
             // Single estimated fee just for UI
-            updateExpressFeeRowViewModel(fees: .loading)
+            updateExpressFeeRowViewModel(fees: state.fees)
         case .restriction(.notEnoughAmountForFee(let state), _):
-            updateExpressFeeRowViewModel(fees: .success(state.fees))
+            updateExpressFeeRowViewModel(fees: state.fees)
         case .previewCEX(let state, _) where state.isExemptFee:
             // Don't show fee row if transaction has fee exemption
             expressFeeRowViewModel = nil
         case .previewCEX(let state, _):
-            updateExpressFeeRowViewModel(fees: .success(state.fees))
+            updateExpressFeeRowViewModel(fees: state.fees)
         case .readyToSwap(let state, _):
-            updateExpressFeeRowViewModel(fees: .success(state.fees))
+            updateExpressFeeRowViewModel(fees: state.fees)
         case .loading(.fee):
             updateExpressFeeRowViewModel(fee: .loading, action: nil)
         case .idle, .restriction, .loading(.full), .permissionRequired:
@@ -498,25 +489,27 @@ private extension ExpressViewModel {
         }
     }
 
-    func updateExpressFeeRowViewModel(fees: LoadingResult<ExpressInteractor.Fees, Never>) {
-        switch fees {
+    func updateExpressFeeRowViewModel(fees: ExpressInteractor.Fees) {
+        switch fees.fee {
         case .loading:
             updateExpressFeeRowViewModel(fee: .loading, action: nil)
-        case .success(let fees):
-            guard let fee = try? fees.selectedFee().amount.value else {
-                expressFeeRowViewModel = nil
-                return
-            }
+        case .failure:
+            expressFeeRowViewModel = nil
+        case .success(let fee):
+            let action: (() -> Void)? = {
+                // If fee is one option then don't open selector
+                guard interactor.feeSelectorInteractor.hasMultipleFeeOptions else {
+                    return nil
+                }
 
-            var action: (() -> Void)?
-            // If fee is one option then don't open selector
-            if !fees.isFixed {
-                action = weakify(self, forFunction: ExpressViewModel.openFeeSelectorView)
-            }
+                return { [weak self] in
+                    self?.coordinator?.presentFeeSelectorView()
+                }
+            }()
 
             do {
                 let sender = try interactor.getSourceWallet()
-                let formattedFee = feeFormatter.format(fee: fee, tokenItem: sender.feeTokenItem)
+                let formattedFee = feeFormatter.format(fee: fee.amount.value, tokenItem: sender.feeTokenItem)
                 updateExpressFeeRowViewModel(fee: .loaded(text: formattedFee), action: action)
             } catch {
                 updateExpressFeeRowViewModel(fee: .noData, action: action)

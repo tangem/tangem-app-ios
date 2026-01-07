@@ -8,14 +8,6 @@
 
 import Combine
 
-protocol FeeSelectorTokensDataProvider {
-    var selectedFeeTokenItem: TokenItem? { get }
-    var selectedFeeTokenItemPublisher: AnyPublisher<TokenItem?, Never> { get }
-
-    var feeTokenItems: [TokenItem] { get }
-    var feeTokenItemsPublisher: AnyPublisher<[TokenItem], Never> { get }
-}
-
 protocol FeeSelectorTokensRoutable: AnyObject {
     func userDidSelectFeeToken()
 }
@@ -23,12 +15,12 @@ protocol FeeSelectorTokensRoutable: AnyObject {
 final class FeeSelectorTokensViewModel: ObservableObject {
     // Some views
 
-    private let tokensDataProvider: FeeSelectorTokensDataProvider
+    private let interactor: FeeSelectorInteractor
 
     private weak var router: FeeSelectorTokensRoutable?
 
-    init(tokensDataProvider: FeeSelectorTokensDataProvider) {
-        self.tokensDataProvider = tokensDataProvider
+    init(interactor: FeeSelectorInteractor) {
+        self.interactor = interactor
     }
 
     func setup(router: FeeSelectorTokensRoutable?) {

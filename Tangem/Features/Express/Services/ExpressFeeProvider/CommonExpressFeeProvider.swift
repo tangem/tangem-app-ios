@@ -6,16 +6,24 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
+import Combine
 import Foundation
+import TangemFoundation
 import TangemExpress
 import BlockchainSdk
 import BigInt
 
 struct CommonExpressFeeProvider {
+    typealias FeesState = LoadingResult<[BSDKFee], any Error>
+
     private let tokenItem: TokenItem
     private let feeTokenItem: TokenItem
+    private let defaultFeeOptions: [FeeOption] = [.market, .fast]
+
     private let feeLoader: any TokenFeeLoader
     private let ethereumNetworkProvider: (any EthereumNetworkProvider)?
+
+    private let _fees: CurrentValueSubject<FeesState, Never> = .init(.loading)
 
     init(
         tokenItem: TokenItem,
@@ -30,11 +38,42 @@ struct CommonExpressFeeProvider {
     }
 }
 
+// MARK: - TokenFeeProvider
+
+extension CommonExpressFeeProvider: TokenFeeProvider {
+    var fees: [TokenFee] {
+        mapToFees(state: _fees.value)
+    }
+
+    var feesPublisher: AnyPublisher<[TokenFee], Never> {
+        _fees
+            .map { mapToFees(state: $0) }
+            .eraseToAnyPublisher()
+    }
+
+    func mapToFees(state: LoadingResult<[BSDKFee], any Error>) -> [TokenFee] {
+        switch state {
+        case .loading:
+            SendFeeConverter.mapToLoadingSendFees(options: defaultFeeOptions, feeTokenItem: feeTokenItem)
+        case .failure(let error):
+            SendFeeConverter.mapToFailureSendFees(options: defaultFeeOptions, feeTokenItem: feeTokenItem, error: error)
+        case .success(let loadedFees):
+            SendFeeConverter
+                .mapToSendFees(fees: loadedFees, feeTokenItem: feeTokenItem)
+                .filter { defaultFeeOptions.contains($0.option) }
+        }
+    }
+}
+
 // MARK: - ExpressFeeProvider
 
 extension CommonExpressFeeProvider: ExpressFeeProvider {
-    func estimatedFee(amount: Decimal) async throws -> ExpressFee.Variants {
+    func estimatedFee(amount: Decimal) async throws -> Fee {
+        _fees.send(.loading)
+
         let fees = try await feeLoader.estimatedFee(amount: amount)
+        _fees.send(.success(fees))
+
         return try mapToExpressFee(fees: fees)
     }
 
@@ -52,17 +91,20 @@ extension CommonExpressFeeProvider: ExpressFeeProvider {
         return Fee(makeAmount(amount: amount, item: tokenItem))
     }
 
-    func getFee(amount: ExpressAmount, destination: String) async throws -> ExpressFee.Variants {
+    func getFee(amount: ExpressAmount, destination: String) async throws -> Fee {
         switch (amount, tokenItem.blockchain) {
         case (.transfer(let amount), _):
+            _fees.send(.loading)
             let fees = try await feeLoader.getFee(dataType: .plain(amount: amount, destination: destination))
+            _fees.send(.success(fees))
             return try mapToExpressFee(fees: fees)
         case (.dex(_, _, let txData), .solana):
             guard let txData, let transactionData = Data(base64Encoded: txData) else {
                 throw ExpressProviderError.transactionDataNotFound
             }
-
+            _fees.send(.loading)
             let fees = try await feeLoader.getFee(dataType: .compiledTransaction(data: transactionData))
+            _fees.send(.success(fees))
             return try mapToExpressFee(fees: fees)
         case (.dex(_, let txValue, let txData), _):
             guard let txData = txData.map(Data.init(hexString:)) else {
@@ -74,6 +116,7 @@ extension CommonExpressFeeProvider: ExpressFeeProvider {
                 throw ExpressFeeProviderError.ethereumNetworkProviderNotFound
             }
 
+            _fees.send(.loading)
             let amount = makeAmount(amount: txValue, item: feeTokenItem)
             var fees = try await ethereumNetworkProvider.getFee(
                 destination: destination,
@@ -90,6 +133,7 @@ extension CommonExpressFeeProvider: ExpressFeeProvider {
                 )
             }
 
+            _fees.send(.success(fees))
             return try mapToExpressFee(fees: fees)
         }
     }
@@ -102,14 +146,14 @@ private extension CommonExpressFeeProvider {
         Amount(with: item.blockchain, type: item.amountType, value: amount)
     }
 
-    func mapToExpressFee(fees: [BSDKFee]) throws -> ExpressFee.Variants {
+    func mapToExpressFee(fees: [BSDKFee]) throws -> BSDKFee {
         switch fees.count {
         case 1:
-            return .single(fees[0])
+            return fees[0]
         case 3 where tokenItem.blockchain.isUTXO:
-            return .single(fees[1])
+            return fees[1]
         case 3:
-            return .double(market: fees[1], fast: fees[2])
+            return fees[1]
         default:
             throw ExpressFeeProviderError.feeNotFound
         }
