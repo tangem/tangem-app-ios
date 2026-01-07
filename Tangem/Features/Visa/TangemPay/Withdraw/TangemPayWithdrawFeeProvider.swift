@@ -30,15 +30,15 @@ struct TangemPayWithdrawExpressFeeProvider {
 // MARK: - ExpressFeeProvider
 
 extension TangemPayWithdrawExpressFeeProvider: ExpressFeeProvider {
-    func estimatedFee(amount: Decimal) async throws -> Fee {
+    func estimatedFee(amount: Decimal, option: ExpressFee.Option) async throws -> Fee {
         constantFee
     }
 
-    func estimatedFee(estimatedGasLimit: Int) async throws -> Fee {
+    func estimatedFee(estimatedGasLimit: Int, option: ExpressFee.Option) async throws -> Fee {
         constantFee
     }
 
-    func getFee(amount: ExpressAmount, destination: String) async throws -> Fee {
+    func getFee(amount: ExpressAmount, destination: String, option: ExpressFee.Option) async throws -> Fee {
         constantFee
     }
 }
@@ -46,8 +46,6 @@ extension TangemPayWithdrawExpressFeeProvider: ExpressFeeProvider {
 // MARK: - TokenFeeProvider
 
 extension TangemPayWithdrawExpressFeeProvider: TokenFeeProvider {
-    func reloadFees(request: TokenFeeProviderFeeRequest) {}
-
     var fees: [TokenFee] { [constantTokenFee] }
 
     var feesPublisher: AnyPublisher<[TokenFee], Never> {
