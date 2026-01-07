@@ -55,6 +55,8 @@ extension ExpressFeeSelectorInteractor: FeeSelectorInteractor {
         feesProvider?.feesPublisher.prepend([]).eraseToAnyPublisher() ?? .just(output: [])
     }
 
+    func userDidSelect(feeTokenItem: TokenItem) {}
+
     func userDidSelect(selectedFee: TokenFee) {
         expressInteractor.updateFeeOption(option: selectedFee.option)
     }

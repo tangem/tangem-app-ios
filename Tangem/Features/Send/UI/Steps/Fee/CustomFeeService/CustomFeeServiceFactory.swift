@@ -20,7 +20,7 @@ struct CustomFeeServiceFactory {
         self.bitcoinTransactionFeeCalculator = bitcoinTransactionFeeCalculator
     }
 
-    func makeService() -> FeeSelectorCustomFeeProvider? {
+    func makeService() -> CustomFeeProvider? {
         switch tokenItem.blockchain {
         case .bitcoin where bitcoinTransactionFeeCalculator != nil:
             return BitcoinCustomFeeService(
