@@ -11,7 +11,7 @@ import TangemUI
 protocol SendFlowBaseDependenciesFactory: SendGenericFlowBaseDependenciesFactory {
     var shouldShowFeeSelector: Bool { get }
 
-    var tokenFeeProvider: any TokenFeeLoader { get }
+    var tokenFeeProvider: any TokenFeeProvider { get }
     var expressDependenciesFactory: ExpressDependenciesFactory { get }
 }
 
@@ -66,7 +66,7 @@ extension SendFlowBaseDependenciesFactory {
         )
     }
 
-    func makeSendFeeProvider(input: any TokenFeeProviderInput, hasCustomFeeService: Bool) -> SendFeeProvider {
+    func makeSendFeeProvider(input: any SendFeeProviderInput, hasCustomFeeService: Bool) -> SendFeeProvider {
         let options: [FeeOption] = switch (shouldShowFeeSelector, hasCustomFeeService) {
         case (true, true): [.slow, .market, .fast, .custom]
         case (true, false): [.slow, .market, .fast]
@@ -74,7 +74,7 @@ extension SendFlowBaseDependenciesFactory {
         case (false, false): [.market]
         }
 
-        return CommonTokenFeeProvider(input: input, feeProvider: tokenFeeProvider, feeTokenItem: feeTokenItem, defaultFeeOptions: options)
+        return CommonSendFeeProvider(input: input, feeProvider: tokenFeeProvider, tokenItem: feeTokenItem, defaultFeeOptions: options)
     }
 
     func makeSwapFeeProvider(swapManager: SwapManager) -> SendFeeProvider {

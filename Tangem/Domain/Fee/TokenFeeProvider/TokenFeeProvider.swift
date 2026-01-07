@@ -10,10 +10,12 @@ import Combine
 import Foundation
 
 protocol TokenFeeProvider: FeeSelectorFeesProvider {
-    func updateFees()
+    func reloadFees(request: TokenFeeProviderFeeRequest)
 }
 
-protocol TokenFeeProviderInput: AnyObject {
-    var cryptoAmountPublisher: AnyPublisher<Decimal, Never> { get }
-    var destinationAddressPublisher: AnyPublisher<String, Never> { get }
+struct TokenFeeProviderFeeRequest {
+    let amount: Decimal
+    let destination: String
+    /// Sending token item
+    let tokenItem: TokenItem
 }
