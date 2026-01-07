@@ -10,24 +10,24 @@ import Combine
 import TangemFoundation
 
 protocol FeeSelectorInteractorInput: AnyObject {
-    var selectedFee: SendFee { get }
-    var selectedFeePublisher: AnyPublisher<SendFee, Never> { get }
+    var selectedFee: TokenFee { get }
+    var selectedFeePublisher: AnyPublisher<TokenFee, Never> { get }
 }
 
 protocol FeeSelectorInteractor: FeeSelectorTokensDataProvider, FeeSelectorFeesDataProvider {
-    var selectedFee: SendFee? { get }
-    var selectedFeePublisher: AnyPublisher<SendFee?, Never> { get }
+    var selectedFee: TokenFee? { get }
+    var selectedFeePublisher: AnyPublisher<TokenFee?, Never> { get }
 
     // Has to contains all supported fee. E.g .custom or suggested
-    var fees: [SendFee] { get }
-    var feesPublisher: AnyPublisher<[SendFee], Never> { get }
+    var fees: [TokenFee] { get }
+    var feesPublisher: AnyPublisher<[TokenFee], Never> { get }
 
-    func userDidSelect(selectedFee: SendFee)
+    func userDidSelect(selectedFee: TokenFee)
 }
 
 extension FeeSelectorInteractor {
-    var autoupdatedSuggestedFee: AnyPublisher<SendFee, Never> {
-        feesPublisher.compactMap { fees -> SendFee? in
+    var autoupdatedSuggestedFee: AnyPublisher<TokenFee, Never> {
+        feesPublisher.compactMap { fees -> TokenFee? in
             // Custom don't support autoupdate
             let fees = fees.filter { $0.option != .custom }
 

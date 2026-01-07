@@ -1,5 +1,5 @@
 //
-//  SendFee.swift
+//  TokenFee.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,26 +8,7 @@
 
 import TangemFoundation
 
-extension [SendFee] {
-    var hasMultipleFeeOptions: Bool { unique(by: \.option).count > 1 }
-
-    func eraseToLoadingResult() -> LoadingResult<[BSDKFee], any Error> {
-        if contains(where: { $0.value.isLoading }) {
-            return .loading
-        }
-
-        if let error = first(where: { $0.value.isFailure })?.value.error {
-            return .failure(error)
-        }
-
-        let fees = compactMap { $0.value.value }
-
-        assert(count == fees.count, "Some SendFee doesn't have fee value")
-        return .success(fees)
-    }
-}
-
-struct SendFee: Hashable {
+struct TokenFee: Hashable {
     let option: FeeOption
     let tokenItem: TokenItem
     let value: LoadingResult<BSDKFee, any Error>
@@ -46,7 +27,7 @@ struct SendFee: Hashable {
         }
     }
 
-    static func == (lhs: SendFee, rhs: SendFee) -> Bool {
+    static func == (lhs: TokenFee, rhs: TokenFee) -> Bool {
         guard lhs.option == rhs.option else { return false }
 
         switch (lhs.value, rhs.value) {
