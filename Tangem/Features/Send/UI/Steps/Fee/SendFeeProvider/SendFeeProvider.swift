@@ -10,7 +10,14 @@ import Foundation
 import Combine
 import TangemFoundation
 
-typealias SendFeeProvider = TokenFeeProvider
+protocol SendFeeProviderInput: AnyObject {
+    var cryptoAmountPublisher: AnyPublisher<Decimal, Never> { get }
+    var destinationAddressPublisher: AnyPublisher<String, Never> { get }
+}
+
+protocol SendFeeProvider: FeeSelectorFeesProvider {
+    func updateFees()
+}
 
 extension SendFeeProvider {
     var feesHasVariants: AnyPublisher<Bool, Never> {

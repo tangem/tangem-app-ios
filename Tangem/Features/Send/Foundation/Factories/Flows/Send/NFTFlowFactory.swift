@@ -22,7 +22,7 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
     let shouldShowFeeSelector: Bool
 
     let walletModelHistoryUpdater: any WalletModelHistoryUpdater
-    let tokenFeeProvider: any TokenFeeLoader
+    let tokenFeeProvider: any TokenFeeProvider
     let walletModelDependenciesProvider: WalletModelDependenciesProvider
     let availableBalanceProvider: any TokenBalanceProvider
     let fiatAvailableBalanceProvider: any TokenBalanceProvider

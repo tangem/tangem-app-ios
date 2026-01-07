@@ -623,9 +623,9 @@ extension SendModel: SendFeeInput {
     }
 }
 
-// MARK: - TokenFeeProviderInput
+// MARK: - SendFeeProviderInput
 
-extension SendModel: TokenFeeProviderInput {
+extension SendModel: SendFeeProviderInput {
     var cryptoAmountPublisher: AnyPublisher<Decimal, Never> {
         _amount.compactMap { $0?.crypto }.eraseToAnyPublisher()
     }
