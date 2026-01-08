@@ -20,7 +20,7 @@ class SendFlowFactory: SendFlowBaseDependenciesFactory {
     let tokenHeaderProvider: SendGenericTokenHeaderProvider
 
     let walletModelHistoryUpdater: any WalletModelHistoryUpdater
-    let tokenFeeProvider: any TokenFeeProvider
+    let tokenFeeLoader: any TokenFeeLoader
     let walletModelDependenciesProvider: WalletModelDependenciesProvider
     let availableBalanceProvider: any TokenBalanceProvider
     let fiatAvailableBalanceProvider: any TokenBalanceProvider
@@ -63,7 +63,7 @@ class SendFlowFactory: SendFlowBaseDependenciesFactory {
         analyticsLogger = Self.makeSendAnalyticsLogger(walletModel: walletModel, sendType: .send)
 
         walletModelHistoryUpdater = walletModel
-        tokenFeeProvider = walletModel.tokenFeeProvider
+        tokenFeeLoader = walletModel.tokenFeeLoader
         walletModelDependenciesProvider = walletModel
         availableBalanceProvider = walletModel.availableBalanceProvider
         fiatAvailableBalanceProvider = walletModel.fiatAvailableBalanceProvider
@@ -98,7 +98,7 @@ extension SendFlowFactory: SendGenericFlowFactory {
     func make(router: any SendRoutable) -> SendViewModel {
         let amount = makeSendAmountStep()
         let destination = makeSendDestinationStep(router: router)
-        let fee = makeSendFeeStep()
+        let fee = makeSendFeeStep(router: router)
         let providers = makeSwapProviders()
 
         let summary = makeSendSummaryStep(
@@ -278,7 +278,7 @@ extension SendFlowFactory: SendFeeStepBuildable {
         SendNewFeeStepBuilder.Dependencies(
             feeProvider: sendFeeProvider,
             analyticsLogger: analyticsLogger,
-            customFeeService: customFeeService
+            customFeeProvider: customFeeService
         )
     }
 }
