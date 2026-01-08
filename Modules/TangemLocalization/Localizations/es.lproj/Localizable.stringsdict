@@ -13,9 +13,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li card</string>
+        <string>%li tarjeta</string>
         <key>other</key>
-        <string>%li cards</string>
+        <string>%li tarjetas</string>
       </dict>
     </dict>
     <key>card_label_card_count</key>
@@ -157,9 +157,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%lih ago</string>
+        <string>Hace %lih</string>
         <key>other</key>
-        <string>%lih ago</string>
+        <string>Hace %lih</string>
       </dict>
     </dict>
     <key>news_published_minutes_ago</key>
@@ -173,9 +173,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li minute ago</string>
+        <string>Hace %li minuto</string>
         <key>other</key>
-        <string>%li minutes ago</string>
+        <string>Hace %li minutos</string>
       </dict>
     </dict>
     <key>nft_collections_count</key>
@@ -264,9 +264,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li provider</string>
+        <string>%li proveedor</string>
         <key>other</key>
-        <string>%li providers</string>
+        <string>%li proveedores</string>
       </dict>
     </dict>
     <key>onramp_timing_days</key>
@@ -280,9 +280,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>up to %li day</string>
+        <string>hasta %li día</string>
         <key>other</key>
-        <string>up to %li days</string>
+        <string>hasta %li días</string>
       </dict>
     </dict>
     <key>referral_number_of_wallets</key>
@@ -328,9 +328,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>available for %li day</string>
+        <string>disponible por %li día</string>
         <key>other</key>
-        <string>available for %li days</string>
+        <string>disponible por %li días</string>
       </dict>
     </dict>
     <key>warning_missing_derivation_message</key>
