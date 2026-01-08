@@ -16,7 +16,7 @@ protocol CustomFeeService: AnyObject {
     func setup(output: CustomFeeServiceOutput)
 }
 
-typealias CustomFeeServiceInput = SendFeeProviderInput
+typealias CustomFeeServiceInput = TokenFeeProviderInput
 
 protocol CustomFeeServiceOutput: AnyObject {
     /// There is no way to push the nil fee. It causes to deselect the `selected fee`
@@ -24,5 +24,5 @@ protocol CustomFeeServiceOutput: AnyObject {
 }
 
 protocol SendCustomFeeService: FeeSelectorCustomFeeProvider {
-    func setup(input: SendFeeProviderInput)
+    func setup(input: TokenFeeProviderInput)
 }
