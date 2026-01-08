@@ -33,7 +33,7 @@ final class SendFeeFinishViewModel: ObservableObject, Identifiable {
             .assign(to: &$selectedFeeRowViewModel)
     }
 
-    private func mapToFeeRowViewModel(fee: SendFee) -> FeeRowViewModel? {
+    private func mapToFeeRowViewModel(fee: TokenFee) -> FeeRowViewModel? {
         switch fee.value {
         case .failure, .loading:
             // Do nothing to avoid incorrect UI
