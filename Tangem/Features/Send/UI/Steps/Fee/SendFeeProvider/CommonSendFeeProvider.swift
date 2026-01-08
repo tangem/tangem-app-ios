@@ -71,7 +71,7 @@ extension CommonSendFeeProvider: SendFeeProvider {
         feeLoadingTask?.cancel()
         feeLoadingTask = Task {
             do {
-                let loadedFees = try await feeProvider.getFee(dataType: .plain(amount: amount, destination: destination))
+                let loadedFees = try await feeProvider.getFee(amount: amount, destination: destination)
                 try Task.checkCancellation()
                 _fees.send(.success(loadedFees))
             } catch {
