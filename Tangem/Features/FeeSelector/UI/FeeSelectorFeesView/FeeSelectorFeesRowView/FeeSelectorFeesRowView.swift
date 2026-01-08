@@ -29,6 +29,7 @@ struct FeeSelectorFeesRowView: SelectableSectionRow {
 
             customFeeFields
         }
+        .background(backgroundView)
     }
 
     private var mainContent: some View {
@@ -87,5 +88,10 @@ struct FeeSelectorFeesRowView: SelectableSectionRow {
             .padding(.vertical, 12)
             .transition(.opacity.animation(.default))
         }
+    }
+
+    private var backgroundView: some View {
+        RoundedRectangle(cornerRadius: 14, style: .continuous)
+            .fill(Colors.Background.action)
     }
 }
