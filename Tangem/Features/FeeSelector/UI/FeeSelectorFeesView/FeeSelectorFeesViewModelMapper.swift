@@ -9,14 +9,14 @@
 import TangemFoundation
 
 protocol FeeSelectorFeesViewModelMapper {
-    func mapToFeeSelectorFeesRowViewModels(values: [FeeSelectorFee]) -> [FeeSelectorFeesRowViewModel]
+    func mapToFeeSelectorFeesRowViewModels(values: [TokenFee]) -> [FeeSelectorFeesRowViewModel]
 }
 
 struct CommonFeeSelectorFeesViewModelMapper {
     private let feeFormatter: FeeFormatter
     private let customFieldsBuilder: FeeSelectorCustomFeeFieldsBuilder?
 
-    init(feeFormatter: FeeFormatter, customFieldsBuilder: FeeSelectorCustomFeeFieldsBuilder?) {
+    init(feeFormatter: FeeFormatter, customFieldsBuilder: FeeSelectorCustomFeeFieldsBuilder? = nil) {
         self.feeFormatter = feeFormatter
         self.customFieldsBuilder = customFieldsBuilder
     }
@@ -25,7 +25,7 @@ struct CommonFeeSelectorFeesViewModelMapper {
 // MARK: - FeeSelectorFeesViewModelMapper
 
 extension CommonFeeSelectorFeesViewModelMapper: FeeSelectorFeesViewModelMapper {
-    func mapToFeeSelectorFeesRowViewModels(values: [FeeSelectorFee]) -> [FeeSelectorFeesRowViewModel] {
+    func mapToFeeSelectorFeesRowViewModels(values: [TokenFee]) -> [FeeSelectorFeesRowViewModel] {
         values
             .sorted(by: \.option)
             .map { mapToFeeSelectorFeesRowViewModel(fee: $0) }
@@ -35,7 +35,7 @@ extension CommonFeeSelectorFeesViewModelMapper: FeeSelectorFeesViewModelMapper {
 // MARK: - Private
 
 private extension CommonFeeSelectorFeesViewModelMapper {
-    func mapToFeeSelectorFeesRowViewModel(fee: FeeSelectorFee) -> FeeSelectorFeesRowViewModel {
+    func mapToFeeSelectorFeesRowViewModel(fee: TokenFee) -> FeeSelectorFeesRowViewModel {
         let feeComponents = switch fee.value {
         // [REDACTED_TODO_COMMENT]
         case .loading, .failure:
