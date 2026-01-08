@@ -17,6 +17,11 @@ protocol SendFeeInput: AnyObject, FeeSelectorInteractorInput {
     var canChooseFeeOption: AnyPublisher<Bool, Never> { get }
 }
 
+extension SendFeeInput {
+    var selectedFee: TokenFee? { .some(selectedFee) }
+    var selectedFeePublisher: AnyPublisher<TokenFee?, Never> { selectedFeePublisher.eraseToOptional().eraseToAnyPublisher() }
+}
+
 extension SendFeeInput where Self: SendFeeProvider {
     /// Convenient extension when the object support `SendFeeInput` and `SendFeeProvider`. E.g. `StakingModel`
     var canChooseFeeOption: AnyPublisher<Bool, Never> { feesHasVariants }
