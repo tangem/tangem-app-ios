@@ -548,11 +548,7 @@ extension CommonWalletModel: WalletModelHelpers {
 
 extension CommonWalletModel: WalletModelFeesProvider {
     var tokenFeeLoader: any TokenFeeLoader {
-        if isDemo {
-            return DemoTokenFeeLoader(feeTokenItem: feeTokenItem)
-        }
-
-        return CommonTokenFeeLoader(feeTokenItem: feeTokenItem, walletManager: walletManager)
+        TokenFeeLoaderBuilder().makeTokenFeeLoader(walletModel: self, walletManager: walletManager)
     }
 
     var customFeeProvider: (any FeeSelectorCustomFeeProvider)? {
