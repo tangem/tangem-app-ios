@@ -97,25 +97,17 @@ class KaspaCustomFeeService {
     }
 }
 
-// MARK: - CustomFeeService
-
-extension KaspaCustomFeeService: CustomFeeService {
-    func setup(output: any CustomFeeServiceOutput) {
-        bind(output: output)
-    }
-}
-
 // MARK: - FeeSelectorCustomFeeProvider
 
 extension KaspaCustomFeeService: FeeSelectorCustomFeeProvider {
-    var customFee: SendFee {
-        SendFee(option: .custom, tokenItem: feeTokenItem, value: _customFee.value.map { .success($0) } ?? .loading)
+    var customFee: TokenFee {
+        TokenFee(option: .custom, tokenItem: feeTokenItem, value: _customFee.value.map { .success($0) } ?? .loading)
     }
 
-    var customFeePublisher: AnyPublisher<SendFee, Never> {
+    var customFeePublisher: AnyPublisher<TokenFee, Never> {
         _customFee
             .withWeakCaptureOf(self)
-            .map { SendFee(option: .custom, tokenItem: $0.feeTokenItem, value: $1.map { .success($0) } ?? .loading) }
+            .map { TokenFee(option: .custom, tokenItem: $0.feeTokenItem, value: $1.map { .success($0) } ?? .loading) }
             .eraseToAnyPublisher()
     }
 

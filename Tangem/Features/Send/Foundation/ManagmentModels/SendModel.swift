@@ -29,7 +29,7 @@ class SendModel {
     private let _destination: CurrentValueSubject<SendDestination?, Never>
     private let _destinationAdditionalField: CurrentValueSubject<SendDestinationAdditionalField, Never>
     private let _amount: CurrentValueSubject<SendAmount?, Never>
-    private let _selectedFee: CurrentValueSubject<SendFee, Never>
+    private let _selectedFee: CurrentValueSubject<TokenFee, Never>
     private let _isFeeIncluded = CurrentValueSubject<Bool, Never>(false)
 
     private let _transaction = CurrentValueSubject<Result<BSDKTransaction, Error>?, Never>(nil)
@@ -85,7 +85,7 @@ class SendModel {
         _destination = .init(predefinedValues.destination)
         _destinationAdditionalField = .init(predefinedValues.tag)
         _amount = .init(predefinedValues.amount)
-        _selectedFee = .init(.init(option: .market, tokenItem: _sendingToken.value.tokenItem, value: .loading))
+        _selectedFee = .init(.init(option: .market, tokenItem: _sendingToken.value.feeTokenItem, value: .loading))
 
         bind()
     }
@@ -582,14 +582,14 @@ extension SendModel: SendSwapProvidersOutput {
 // MARK: - SendFeeInput
 
 extension SendModel: SendFeeInput {
-    var selectedFee: SendFee {
+    var selectedFee: TokenFee {
         switch receiveToken {
         case .same: _selectedFee.value
         case .swap: mapToSendFee(state: swapManager.state)
         }
     }
 
-    var selectedFeePublisher: AnyPublisher<SendFee, Never> {
+    var selectedFeePublisher: AnyPublisher<TokenFee, Never> {
         receiveTokenPublisher
             .withWeakCaptureOf(self)
             .flatMapLatest { model, receiveToken in
@@ -610,19 +610,15 @@ extension SendModel: SendFeeInput {
         sendFeeProvider.feesHasVariants
     }
 
-    private func mapToSendFee(state: SwapManagerState) -> SendFee {
+    private func mapToSendFee(state: SwapManagerState) -> TokenFee {
         switch state {
         case .loading:
             return .init(option: state.fees.selected, tokenItem: sourceToken.feeTokenItem, value: .loading)
         case .restriction(.requiredRefresh(let occurredError), _):
             return .init(option: state.fees.selected, tokenItem: sourceToken.feeTokenItem, value: .failure(occurredError))
         case let state:
-            do {
-                let fee = try state.fees.selectedFee()
-                return .init(option: state.fees.selected, tokenItem: sourceToken.feeTokenItem, value: .success(fee))
-            } catch {
-                return .init(option: state.fees.selected, tokenItem: sourceToken.feeTokenItem, value: .failure(error))
-            }
+            let fee = Result { try state.fees.selectedFee() }
+            return .init(option: state.fees.selected, tokenItem: sourceToken.feeTokenItem, value: .result(fee))
         }
     }
 }
@@ -642,7 +638,7 @@ extension SendModel: SendFeeProviderInput {
 // MARK: - SendFeeOutput
 
 extension SendModel: SendFeeOutput {
-    func feeDidChanged(fee: SendFee) {
+    func userDidSelect(selectedFee fee: TokenFee) {
         _selectedFee.send(fee)
     }
 }
@@ -770,11 +766,8 @@ extension SendModel: SendBaseInput, SendBaseOutput {
 // MARK: - SendNotificationManagerInput
 
 extension SendModel: SendNotificationManagerInput {
-    var feeValues: AnyPublisher<[SendFee], Never> {
-        sendFeeProvider
-            .feesPublisher
-            .compactMap { $0.value }
-            .eraseToAnyPublisher()
+    var feeValues: AnyPublisher<[TokenFee], Never> {
+        sendFeeProvider.feesPublisher.eraseToAnyPublisher()
     }
 
     var isFeeIncludedPublisher: AnyPublisher<Bool, Never> {
@@ -876,7 +869,7 @@ extension SendModel: SendBaseDataBuilderInput {
         _amount.value?.crypto.map { makeAmount(decimal: $0) }
     }
 
-    var bsdkFee: BlockchainSdk.Fee? {
+    var bsdkFee: BSDKFee? {
         selectedFee.value.value
     }
 
