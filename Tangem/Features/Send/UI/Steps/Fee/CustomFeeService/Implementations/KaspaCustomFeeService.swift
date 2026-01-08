@@ -97,14 +97,6 @@ class KaspaCustomFeeService {
     }
 }
 
-// MARK: - CustomFeeService
-
-extension KaspaCustomFeeService: CustomFeeService {
-    func setup(output: any CustomFeeServiceOutput) {
-        bind(output: output)
-    }
-}
-
 // MARK: - FeeSelectorCustomFeeProvider
 
 extension KaspaCustomFeeService: FeeSelectorCustomFeeProvider {
