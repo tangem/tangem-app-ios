@@ -78,11 +78,10 @@ struct ExpressInteractorWalletModelWrapper {
 
         _allowanceService = allowanceServiceFactory.makeAllowanceService()
 
-        _feeProvider = CommonExpressFeeProvider(
+        _feeProvider = CommonExpressFeeLoader(
             tokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem,
-            feeLoader: walletModel.tokenFeeLoader,
-            ethereumNetworkProvider: walletModel.ethereumNetworkProvider
+            feeLoader: walletModel.tokenFeeLoader
         )
 
         _balanceProvider = CommonExpressBalanceProvider(
