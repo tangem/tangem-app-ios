@@ -1,5 +1,5 @@
 //
-//  TokenFeeProviderMock.swift
+//  TokenFeeLoaderMock.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 @testable import Tangem
 
-struct TokenFeeProviderMock: TokenFeeProvider {
+struct TokenFeeLoaderMock: TokenFeeLoader {
     func estimatedFee(amount: Decimal) async throws -> [BSDKFee] { [] }
-    func getFee(dataType: TokenFeeProviderDataType) async throws -> [BSDKFee] { [] }
+    func getFee(dataType: TokenFeeLoaderDataType) async throws -> [BSDKFee] { [] }
 }

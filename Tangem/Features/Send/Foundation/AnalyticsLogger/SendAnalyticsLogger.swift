@@ -55,18 +55,18 @@ protocol SendManagementModelAnalyticsLogger {
     func logTransactionSent(
         amount: SendAmount?,
         additionalField: SendDestinationAdditionalField?,
-        fee: SendFee,
+        fee: TokenFee,
         signerType: String,
         currentProviderHost: String
     )
 }
 
 extension SendManagementModelAnalyticsLogger {
-    func logTransactionSent(amount: SendAmount?, fee: SendFee, signerType: String, currentProviderHost: String) {
+    func logTransactionSent(amount: SendAmount?, fee: TokenFee, signerType: String, currentProviderHost: String) {
         logTransactionSent(amount: amount, additionalField: .none, fee: fee, signerType: signerType, currentProviderHost: currentProviderHost)
     }
 
-    func logTransactionSent(fee: SendFee, signerType: String, currentProviderHost: String) {
+    func logTransactionSent(fee: TokenFee, signerType: String, currentProviderHost: String) {
         logTransactionSent(amount: .none, additionalField: .none, fee: fee, signerType: signerType, currentProviderHost: currentProviderHost)
     }
 }
