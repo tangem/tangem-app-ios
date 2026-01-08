@@ -427,7 +427,7 @@ private extension ExpressInteractor {
             return .restriction(.notEnoughBalanceForSwapping(requiredAmount: requiredAmount), quote: quote)
 
         case .feeCurrencyHasZeroBalance:
-            return .restriction(.notEnoughAmountForFee(.idle), quote: quote)
+            return .restriction(.notEnoughAmountForFee, quote: quote)
 
         case .feeCurrencyInsufficientBalanceForTxValue(let fee):
             return .restriction(.notEnoughAmountForTxValue(fee), quote: quote)
@@ -502,7 +502,7 @@ private extension ExpressInteractor {
         } catch ValidationError.totalExceedsBalance, ValidationError.amountExceedsBalance {
             return .restriction(.notEnoughBalanceForSwapping(requiredAmount: amount.value), quote: correctState.quote)
         } catch ValidationError.feeExceedsBalance {
-            return .restriction(.notEnoughAmountForFee(correctState), quote: correctState.quote)
+            return .restriction(.notEnoughAmountForFee, quote: correctState.quote)
         } catch let error as ValidationError {
             let context = ValidationErrorContext(isFeeCurrency: fee.amount.type == amount.type, feeValue: fee.amount.value)
             return .restriction(.validationError(error: error, context: context), quote: correctState.quote)
@@ -816,7 +816,7 @@ enum ExpressInteractorError: String, LocalizedError {
 // MARK: - State
 
 extension ExpressInteractor {
-    indirect enum State {
+    enum State {
         case idle
         case loading(type: RefreshType)
         case restriction(RestrictionType, quote: Quote?)
@@ -826,12 +826,6 @@ extension ExpressInteractor {
 
         var fees: Fees {
             switch self {
-            case .restriction(.notEnoughAmountForFee(.previewCEX(let state, _)), _):
-                return state.fees
-            case .restriction(.notEnoughAmountForFee(.readyToSwap(let state, _)), _):
-                return state.fees
-            case .restriction(.notEnoughAmountForFee(.permissionRequired(let state, _)), _):
-                return state.fees
             case .permissionRequired(let state, _):
                 return state.fees
             case .previewCEX(let state, _):
@@ -885,7 +879,7 @@ extension ExpressInteractor {
         case hasPendingTransaction
         case hasPendingApproveTransaction
         case notEnoughBalanceForSwapping(requiredAmount: Decimal)
-        case notEnoughAmountForFee(_ returnState: State)
+        case notEnoughAmountForFee
         case notEnoughAmountForTxValue(_ estimatedTxValue: Decimal)
         case requiredRefresh(occurredError: Error)
         case noSourceTokens(destination: TokenItem)
