@@ -44,7 +44,7 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
     lazy var customFeeService = makeCustomFeeService(input: sendModel)
     lazy var sendFeeProvider = makeSendWithSwapFeeProvider(
         receiveTokenInput: sendModel,
-        sendFeeProvider: makeSendFeeProvider(input: sendModel, customFeeProvider: customFeeService),
+        sendFeeProvider: makeSendFeeProvider(input: sendModel, output: sendModel, feeProviderInput: sendModel, customFeeProvider: customFeeService),
         swapFeeProvider: makeSwapFeeProvider(swapManager: swapManager)
     )
 
