@@ -14,8 +14,6 @@ import TangemFoundation
 import TangemAccessibilityIdentifiers
 
 class BitcoinCustomFeeService {
-    private weak var output: CustomFeeServiceOutput?
-
     private let tokenItem: TokenItem
     private let feeTokenItem: TokenItem
     private let bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator
@@ -32,7 +30,6 @@ class BitcoinCustomFeeService {
     }
 
     init(
-        input: CustomFeeServiceInput,
         tokenItem: TokenItem,
         feeTokenItem: TokenItem,
         bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator,
@@ -40,8 +37,6 @@ class BitcoinCustomFeeService {
         self.tokenItem = tokenItem
         self.feeTokenItem = feeTokenItem
         self.bitcoinTransactionFeeCalculator = bitcoinTransactionFeeCalculator
-
-        bind(input: input)
     }
 
     private func bind(input: CustomFeeServiceInput) {
@@ -74,7 +69,6 @@ class BitcoinCustomFeeService {
             .withWeakCaptureOf(self)
             .sink { service, _customFee in
                 service.customFeeTextField.update(value: _customFee.amount.value)
-                service.output?.customFeeDidChanged(_customFee)
             }
             .store(in: &bag)
     }
@@ -120,27 +114,27 @@ class BitcoinCustomFeeService {
 
 // MARK: - CustomFeeService
 
-extension BitcoinCustomFeeService: CustomFeeService {
-    func setup(output: any CustomFeeServiceOutput) {
-        self.output = output
+extension BitcoinCustomFeeService: SendCustomFeeService {
+    func setup(input: any SendFeeProviderInput) {
+        bind(input: input)
     }
 }
 
 // MARK: - FeeSelectorCustomFeeProvider
 
 extension BitcoinCustomFeeService: FeeSelectorCustomFeeProvider {
-    var customFee: SendFee {
-        SendFee(option: .custom, tokenItem: feeTokenItem, value: _customFee.value.map { .success($0) } ?? .loading)
+    var customFee: TokenFee {
+        TokenFee(option: .custom, tokenItem: feeTokenItem, value: _customFee.value.map { .success($0) } ?? .loading)
     }
 
-    var customFeePublisher: AnyPublisher<SendFee, Never> {
+    var customFeePublisher: AnyPublisher<TokenFee, Never> {
         _customFee
             .withWeakCaptureOf(self)
-            .map { SendFee(option: .custom, tokenItem: $0.feeTokenItem, value: $1.map { .success($0) } ?? .loading) }
+            .map { TokenFee(option: .custom, tokenItem: $0.feeTokenItem, value: $1.map { .success($0) } ?? .loading) }
             .eraseToAnyPublisher()
     }
 
-    func initialSetupCustomFee(_ fee: BlockchainSdk.Fee) {
+    func initialSetupCustomFee(_ fee: BSDKFee) {
         assert(_customFee.value == nil, "Duplicate initial setup")
 
         _customFee.send(fee)
