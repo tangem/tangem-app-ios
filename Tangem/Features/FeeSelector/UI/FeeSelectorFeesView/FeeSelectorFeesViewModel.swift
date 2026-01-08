@@ -10,14 +10,6 @@ import Combine
 import TangemUI
 import TangemFoundation
 
-// protocol FeeSelectorFeesDataProvider {
-//    var selectedSelectorFee: TokenFee? { get }
-//    var selectedSelectorFeePublisher: AnyPublisher<TokenFee?, Never> { get }
-//
-//    var selectorFees: [TokenFee] { get }
-//    var selectorFeesPublisher: AnyPublisher<[TokenFee], Never> { get }
-// }
-
 protocol FeeSelectorFeesRoutable: AnyObject {
     func userDidTapConfirmSelection(selectedFee: TokenFee)
 }
