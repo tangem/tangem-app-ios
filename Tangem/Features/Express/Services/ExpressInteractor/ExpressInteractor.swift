@@ -32,6 +32,8 @@ class ExpressInteractor {
     private let expressDestinationService: ExpressDestinationService
     private let expressAPIProvider: ExpressAPIProvider
 
+    lazy var swapFeeProvider = SwapFeeProvider(input: self)
+
     // MARK: - Options
 
     private let _state: CurrentValueSubject<State, Never> = .init(.idle)
@@ -189,6 +191,32 @@ extension ExpressInteractor {
             let state = try await interactor.expressManager.update(feeOption: feeOption)
             return try await interactor.mapState(state: state)
         }
+    }
+}
+
+// MARK: - SwapFeeProviderInput
+
+extension ExpressInteractor: SwapFeeProviderInput {
+    var swapManagerState: SwapManagerState { getState() }
+
+    var swapManagerStatePublisher: AnyPublisher<SwapManagerState, Never> {
+        state.eraseToAnyPublisher()
+    }
+
+    func selectedFeeTokenItem() -> TokenItem? {
+        getSource().value?.feeTokenItem
+    }
+
+    func updateFees() {
+        refresh(type: .fee)
+    }
+}
+
+// MARK: - FeeSelectorOutput
+
+extension ExpressInteractor: FeeSelectorOutput {
+    func userDidSelect(selectedFee: TokenFee) {
+        updateFeeOption(option: selectedFee.option)
     }
 }
 

@@ -110,10 +110,6 @@ extension CommonSwapManager: SwapManager {
         interactor.refresh(type: .full)
     }
 
-    func updateFees() {
-        interactor.refresh(type: .fee)
-    }
-
     func send() async throws -> TransactionDispatcherResult {
         do {
             // Stop timer while sending
@@ -130,7 +126,7 @@ extension CommonSwapManager: SwapManager {
     }
 }
 
-// MARK: - SwapManager
+// MARK: - SendApproveDataBuilderInput
 
 extension CommonSwapManager: SendApproveDataBuilderInput {
     var selectedExpressProvider: ExpressProvider? {
@@ -147,6 +143,22 @@ extension CommonSwapManager: SendApproveDataBuilderInput {
         }
 
         return permissionRequired.policy
+    }
+}
+
+// MARK: - SendFeeProvider
+
+extension CommonSwapManager: SendFeeProvider {
+    var fees: [TokenFee] {
+        interactor.swapFeeProvider.fees
+    }
+
+    var feesPublisher: AnyPublisher<[TokenFee], Never> {
+        interactor.swapFeeProvider.feesPublisher
+    }
+
+    func updateFees() {
+        interactor.swapFeeProvider.updateFees()
     }
 }
 

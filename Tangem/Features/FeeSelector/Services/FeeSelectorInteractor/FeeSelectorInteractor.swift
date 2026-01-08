@@ -10,8 +10,8 @@ import Combine
 import TangemFoundation
 
 protocol FeeSelectorInteractorInput: AnyObject {
-    var selectedFee: TokenFee { get }
-    var selectedFeePublisher: AnyPublisher<TokenFee, Never> { get }
+    var selectedFee: TokenFee? { get }
+    var selectedFeePublisher: AnyPublisher<TokenFee?, Never> { get }
 }
 
 protocol FeeSelectorInteractor {
