@@ -26,7 +26,7 @@ protocol ExpressModulesFactory {
     ) -> ExpressFeeSelectorViewModel
 
     func makeFeeSelectorViewModel(
-        coordinator: FeeSelectorRoutable
+        coordinator: SendFeeSelectorRoutable
     ) -> SendFeeSelectorViewModel
 
     func makeExpressApproveViewModel(

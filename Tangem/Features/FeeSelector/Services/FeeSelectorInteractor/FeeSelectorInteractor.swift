@@ -30,6 +30,16 @@ protocol FeeSelectorInteractor {
 }
 
 extension FeeSelectorInteractor {
+    var selectedFeeTokenItem: TokenFeeItem? {
+        selectedFee?.tokenItem
+    }
+
+    var selectedFeeTokenItemPublisher: AnyPublisher<TokenFeeItem?, Never> {
+        selectedFeePublisher.map { $0?.tokenItem }.eraseToAnyPublisher()
+    }
+}
+
+extension FeeSelectorInteractor {
     var autoupdatedSuggestedFee: AnyPublisher<TokenFee, Never> {
         feesPublisher.compactMap { fees -> TokenFee? in
             // Custom don't support autoupdate
