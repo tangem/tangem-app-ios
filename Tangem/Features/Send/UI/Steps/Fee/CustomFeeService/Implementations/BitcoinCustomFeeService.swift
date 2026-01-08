@@ -115,7 +115,7 @@ class BitcoinCustomFeeService {
 // MARK: - CustomFeeService
 
 extension BitcoinCustomFeeService: SendCustomFeeService {
-    func setup(input: any SendFeeProviderInput) {
+    func setup(input: any TokenFeeProviderInput) {
         bind(input: input)
     }
 }
