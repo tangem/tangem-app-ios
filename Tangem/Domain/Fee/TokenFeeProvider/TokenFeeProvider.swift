@@ -35,10 +35,10 @@ extension StatableTokenFeeProvider {
 
 /// Wrappers
 /// 1. ExpressFeeProvider (add autoselect to as ExpressFee to use it in transaction)
-/// 2. SendFeeProvider (add autoupdate fee and push to output - SendModel)
+/// 2. TokenFeeProvider (add autoupdate fee and push to output - SendModel)
 /// 3. SendWithSwapFeeProvider (Has switcher to select between two providers)
 /// 4. StakingFeeProvider (Basically don't support update. Can be simple provider. Without external changes)
-/// 5. Sell, NFT (Can be use only only SendFeeProvider if possible)
+/// 5. Sell, NFT (Can be use only only TokenFeeProvider if possible)
 extension TokenFeeProvider where Self: StatableTokenFeeProvider {
     var fees: [TokenFee] {
         mapToFees(loadingFees: loadingFees)
@@ -57,9 +57,7 @@ extension TokenFeeProvider where Self: StatableTokenFeeProvider {
 protocol TokenFeeProvider {
     var fees: [TokenFee] { get }
     var feesPublisher: AnyPublisher<[TokenFee], Never> { get }
-}
 
-protocol SendFeeProvider: TokenFeeProvider {
     func updateFees()
 }
 

@@ -41,7 +41,7 @@ class SendModel {
 
     var externalAmountUpdater: SendAmountExternalUpdater!
     var externalDestinationUpdater: SendDestinationExternalUpdater!
-    var sendFeeProvider: SendFeeProvider!
+    var sendFeeProvider: TokenFeeProvider!
     var informationRelevanceService: InformationRelevanceService!
 
     weak var router: SendModelRoutable?
@@ -611,9 +611,9 @@ extension SendModel: SendFeeInput {
     }
 }
 
-// MARK: - SendFeeProviderInput
+// MARK: - TokenFeeProviderInput
 
-extension SendModel: SendFeeProviderInput {
+extension SendModel: TokenFeeProviderInput {
     var cryptoAmountPublisher: AnyPublisher<Decimal, Never> {
         _amount.compactMap { $0?.crypto }.eraseToAnyPublisher()
     }

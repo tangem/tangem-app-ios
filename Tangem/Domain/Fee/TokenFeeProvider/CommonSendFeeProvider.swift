@@ -1,5 +1,5 @@
 //
-//  CommonSendFeeProvider.swift
+//  CommonTokenFeeProvider.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import Foundation
 import Combine
 import TangemFoundation
 
-final class CommonSendFeeProvider {
+final class CommonTokenFeeProvider {
     private weak var input: SendFeeInput?
     private weak var output: SendFeeOutput?
 
@@ -33,7 +33,7 @@ final class CommonSendFeeProvider {
     init(
         input: SendFeeInput,
         output: SendFeeOutput,
-        feeProviderInput: any SendFeeProviderInput,
+        feeProviderInput: any TokenFeeProviderInput,
         feeLoader: TokenFeeLoader,
         customFeeProvider: (any FeeSelectorCustomFeeProvider)?,
         initialTokenItem: TokenItem,
@@ -47,7 +47,7 @@ final class CommonSendFeeProvider {
         bind(feeProviderInput: feeProviderInput)
     }
 
-    private func bind(feeProviderInput: any SendFeeProviderInput) {
+    private func bind(feeProviderInput: any TokenFeeProviderInput) {
         cryptoAmountSubscription = feeProviderInput.cryptoAmountPublisher
             .eraseToOptional()
             .assign(to: \._cryptoAmount.value, on: self, ownership: .weak)
@@ -70,7 +70,7 @@ final class CommonSendFeeProvider {
 
 // MARK: - StatableTokenFeeProvider
 
-extension CommonSendFeeProvider: StatableTokenFeeProvider {
+extension CommonTokenFeeProvider: StatableTokenFeeProvider {
     var supportingFeeOption: [FeeOption] {
         feeLoader.allowsFeeSelection ? [.slow, .market, .fast] : [.market]
     }
@@ -88,7 +88,7 @@ extension CommonSendFeeProvider: StatableTokenFeeProvider {
 
 // MARK: - TokenFeeProvider
 
-extension CommonSendFeeProvider: TokenFeeProvider {
+extension CommonTokenFeeProvider: TokenFeeProvider {
     var fees: [TokenFee] {
         var fees = mapToFees(loadingFees: loadingFees)
 
@@ -115,14 +115,10 @@ extension CommonSendFeeProvider: TokenFeeProvider {
         .map { $0.flattened().unique() }
         .eraseToAnyPublisher()
     }
-}
 
-// MARK: - SendFeeProvider
-
-extension CommonSendFeeProvider: SendFeeProvider {
     func updateFees() {
         guard let amount = _cryptoAmount.value, let destination = _destination.value else {
-            assertionFailure("SendFeeProvider is not ready to update fees")
+            assertionFailure("TokenFeeProvider is not ready to update fees")
             return
         }
 
@@ -137,7 +133,7 @@ extension CommonSendFeeProvider: SendFeeProvider {
                 try Task.checkCancellation()
                 feesValueSubject.send(.success(fees))
             } catch {
-                AppLogger.error("SendFeeProvider fee loading error", error: error)
+                AppLogger.error("TokenFeeProvider fee loading error", error: error)
                 feesValueSubject.send(.failure(error))
             }
         }
@@ -146,7 +142,7 @@ extension CommonSendFeeProvider: SendFeeProvider {
 
 // MARK: - Private
 
-private extension CommonSendFeeProvider {
+private extension CommonTokenFeeProvider {
     var autoupdatedSuggestedFee: AnyPublisher<TokenFee, Never> {
         feesPublisher
             .withWeakCaptureOf(self)
