@@ -3832,7 +3832,7 @@
 		EF110A662F0D369D006C7B67 /* TokenFeeConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF110A652F0D369D006C7B67 /* TokenFeeConverter.swift */; };
 		EF110A692F0EA819006C7B67 /* TokenFeeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF110A682F0EA819006C7B67 /* TokenFeeProvider.swift */; };
 		EF110A6C2F0EA873006C7B67 /* TokenFeesList.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF110A6B2F0EA873006C7B67 /* TokenFeesList.swift */; };
-		EF110A6E2F0EAEFE006C7B67 /* CommonSendFeeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF110A6D2F0EAEFE006C7B67 /* CommonSendFeeProvider.swift */; };
+		EF110A6E2F0EAEFE006C7B67 /* CommonTokenFeeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF110A6D2F0EAEFE006C7B67 /* CommonTokenFeeProvider.swift */; };
 		EF1214652DDB54110097D5C9 /* SendDestinationAdditionalFieldViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF1214642DDB54110097D5C9 /* SendDestinationAdditionalFieldViewModel.swift */; };
 		EF12DBC22ED4707B0090E279 /* TangemPayWithdrawTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF12DBC12ED4707B0090E279 /* TangemPayWithdrawTransaction.swift */; };
 		EF12DBC62ED479E20090E279 /* TangemPayWithdrawTransactionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF12DBC52ED479E20090E279 /* TangemPayWithdrawTransactionService.swift */; };
@@ -4149,6 +4149,8 @@
 		EF7672F32E0D748700A8900E /* SendSwapProvidersSelectorProviderViewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7672F22E0D748700A8900E /* SendSwapProvidersSelectorProviderViewData.swift */; };
 		EF7673402B0FD6840027D8E0 /* SentExpressTransactionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF76733F2B0FD6840027D8E0 /* SentExpressTransactionData.swift */; };
 		EF77075F2F1019F100547648 /* TokenFeeItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF77075E2F1019F100547648 /* TokenFeeItem.swift */; };
+		EF77077E2F1053C300547648 /* GeneralFeeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF77077D2F1053C300547648 /* GeneralFeeProvider.swift */; };
+		EF7707802F1053E600547648 /* GeneralFeeProviderFeesLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF77077F2F1053E600547648 /* GeneralFeeProviderFeesLoader.swift */; };
 		EF77CB252E093D50009246A1 /* SendFeeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF77CB242E093D50009246A1 /* SendFeeProvider.swift */; };
 		EF790ECF2D8C5879000AF87B /* KaspaAddressLockingScriptBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF790ECE2D8C5879000AF87B /* KaspaAddressLockingScriptBuilder.swift */; };
 		EF790ED12D8C5BDF000AF87B /* KaspaNetworkParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF790ED02D8C5BD6000AF87B /* KaspaNetworkParams.swift */; };
@@ -8601,7 +8603,7 @@
 		EF110A652F0D369D006C7B67 /* TokenFeeConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenFeeConverter.swift; sourceTree = "<group>"; };
 		EF110A682F0EA819006C7B67 /* TokenFeeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenFeeProvider.swift; sourceTree = "<group>"; };
 		EF110A6B2F0EA873006C7B67 /* TokenFeesList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenFeesList.swift; sourceTree = "<group>"; };
-		EF110A6D2F0EAEFE006C7B67 /* CommonSendFeeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonSendFeeProvider.swift; sourceTree = "<group>"; };
+		EF110A6D2F0EAEFE006C7B67 /* CommonTokenFeeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonTokenFeeProvider.swift; sourceTree = "<group>"; };
 		EF1214642DDB54110097D5C9 /* SendDestinationAdditionalFieldViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDestinationAdditionalFieldViewModel.swift; sourceTree = "<group>"; };
 		EF12DBC12ED4707B0090E279 /* TangemPayWithdrawTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayWithdrawTransaction.swift; sourceTree = "<group>"; };
 		EF12DBC52ED479E20090E279 /* TangemPayWithdrawTransactionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayWithdrawTransactionService.swift; sourceTree = "<group>"; };
@@ -8928,6 +8930,8 @@
 		EF7672F22E0D748700A8900E /* SendSwapProvidersSelectorProviderViewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendSwapProvidersSelectorProviderViewData.swift; sourceTree = "<group>"; };
 		EF76733F2B0FD6840027D8E0 /* SentExpressTransactionData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentExpressTransactionData.swift; sourceTree = "<group>"; };
 		EF77075E2F1019F100547648 /* TokenFeeItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenFeeItem.swift; sourceTree = "<group>"; };
+		EF77077D2F1053C300547648 /* GeneralFeeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralFeeProvider.swift; sourceTree = "<group>"; };
+		EF77077F2F1053E600547648 /* GeneralFeeProviderFeesLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralFeeProviderFeesLoader.swift; sourceTree = "<group>"; };
 		EF77CB242E093D50009246A1 /* SendFeeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFeeProvider.swift; sourceTree = "<group>"; };
 		EF790ECE2D8C5879000AF87B /* KaspaAddressLockingScriptBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaAddressLockingScriptBuilder.swift; sourceTree = "<group>"; };
 		EF790ED02D8C5BD6000AF87B /* KaspaNetworkParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaNetworkParams.swift; sourceTree = "<group>"; };
@@ -22382,9 +22386,11 @@
 			children = (
 				EF77075E2F1019F100547648 /* TokenFeeItem.swift */,
 				EF110A682F0EA819006C7B67 /* TokenFeeProvider.swift */,
+				EF77077D2F1053C300547648 /* GeneralFeeProvider.swift */,
+				EF77077F2F1053E600547648 /* GeneralFeeProviderFeesLoader.swift */,
 				EF339E4E2C21FC9500B5CDC9 /* TokenFee.swift */,
 				EF110A6B2F0EA873006C7B67 /* TokenFeesList.swift */,
-				EF110A6D2F0EAEFE006C7B67 /* CommonSendFeeProvider.swift */,
+				EF110A6D2F0EAEFE006C7B67 /* CommonTokenFeeProvider.swift */,
 				EF6A8AFF2B2786F900CA3535 /* CommonExpressFeeLoader.swift */,
 			);
 			path = TokenFeeProvider;
@@ -26891,6 +26897,7 @@
 				DCBF4D322D8B497F002C2B8E /* CommonXPUBGenerator.swift in Sources */,
 				B6116E372E8E7BB000D9121A /* BalanceProvidingAccountModel.swift in Sources */,
 				DCBF4D332D8B497F002C2B8E /* AnyWalletManagerFactory.swift in Sources */,
+				EF7707802F1053E600547648 /* GeneralFeeProviderFeesLoader.swift in Sources */,
 				DCBF4D342D8B497F002C2B8E /* SimpleWalletManagerFactory.swift in Sources */,
 				0A9275D72EA6482E002B56F4 /* YieldModuleAPIKeyProvider.swift in Sources */,
 				B07E07AF2CD8E3CC007DEDA6 /* VisaOnboardingWelcomeView.swift in Sources */,
@@ -27927,6 +27934,7 @@
 				EFD6491D2E337106008468BF /* SendReceiveTokensListNotification.swift in Sources */,
 				2DC567662B0DFFAF00B0244F /* MarketsView.swift in Sources */,
 				EFC6846D2A0FA3C600660690 /* BindingValue.swift in Sources */,
+				EF77077E2F1053C300547648 /* GeneralFeeProvider.swift in Sources */,
 				EFA6B045295334AF0090A92F /* ResetToFactoryViewModel.swift in Sources */,
 				B07FDD402C23139200CBEFDE /* CustomTokenItemView.swift in Sources */,
 				EFC7B5EF2EF1CF4600E45DF4 /* ExpressInteractorAnalyticsLogger.swift in Sources */,
@@ -28639,7 +28647,7 @@
 				2D245E492E97EB56006AD2DC /* MarketsHistoryChartXAxisValueFormatter.swift in Sources */,
 				2D245E4A2E97EB56006AD2DC /* MarketsTokenDetailsView.swift in Sources */,
 				2D245E4B2E97EB56006AD2DC /* MarketsTokenDetailsExchangesListView+Skeletons.swift in Sources */,
-				EF110A6E2F0EAEFE006C7B67 /* CommonSendFeeProvider.swift in Sources */,
+				EF110A6E2F0EAEFE006C7B67 /* CommonTokenFeeProvider.swift in Sources */,
 				2D245E4C2E97EB56006AD2DC /* MarketsTokenDetailsMetricsView.swift in Sources */,
 				2D245E4D2E97EB56006AD2DC /* MarketsPortfolioTokenItemFactory.swift in Sources */,
 				2D245E4E2E97EB56006AD2DC /* MarketsPortfolioTokenItemViewModel.swift in Sources */,
