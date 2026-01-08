@@ -81,7 +81,7 @@ struct ExpressInteractorWalletModelWrapper {
         _feeProvider = CommonExpressFeeProvider(
             tokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem,
-            feeProvider: walletModel.tokenFeeProvider,
+            feeLoader: walletModel.tokenFeeLoader,
             ethereumNetworkProvider: walletModel.ethereumNetworkProvider
         )
 
