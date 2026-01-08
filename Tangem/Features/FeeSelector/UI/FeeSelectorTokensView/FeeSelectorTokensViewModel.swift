@@ -9,8 +9,8 @@
 import Combine
 
 protocol FeeSelectorTokensDataProvider {
-    var selectedFeeTokenItem: TokenItem { get }
-    var selectedFeeTokenItemPublisher: AnyPublisher<TokenItem, Never> { get }
+    var selectedFeeTokenItem: TokenItem? { get }
+    var selectedFeeTokenItemPublisher: AnyPublisher<TokenItem?, Never> { get }
 
     var feeTokenItems: [TokenItem] { get }
     var feeTokenItemsPublisher: AnyPublisher<[TokenItem], Never> { get }
