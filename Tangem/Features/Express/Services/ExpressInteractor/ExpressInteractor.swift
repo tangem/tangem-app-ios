@@ -58,6 +58,10 @@ class ExpressInteractor {
         _swappingPair = .init(swappingPair)
         initialLoading(source: swappingPair.sender, destination: swappingPair.destination)
     }
+
+    deinit {
+        AppLogger.debug(self, "deinit")
+    }
 }
 
 // MARK: - Getters
