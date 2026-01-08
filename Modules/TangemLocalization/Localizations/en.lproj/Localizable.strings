@@ -500,6 +500,10 @@
 "express_token_list_empty_search" = "No tokens found. Please try another request";
 "express_transaction_id_copied" = "Transaction ID copied";
 "express_transaction_id" = "ID: %@";
+"fee_selector_choose_speed_description" = "Higher speed means faster confirmation\nand a higher network fee. %@";
+"fee_selector_choose_speed_title" = "Choose speed";
+"fee_selector_choose_token_description" = "Choose which token to use to pay\nthe network fee. %@";
+"fee_selector_choose_token_title" = "Choose token";
 "feed_market_and_news" = "Market & News";
 "feed_tangem_ai" = "Tangem AI";
 "feed_trending_now" = "Trending Now";
