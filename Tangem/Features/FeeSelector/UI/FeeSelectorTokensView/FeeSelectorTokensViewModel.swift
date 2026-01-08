@@ -23,12 +23,11 @@ final class FeeSelectorTokensViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let interactor: FeeSelectorInteractor
-
     private weak var router: FeeSelectorTokensRoutable?
 
     init(interactor: FeeSelectorInteractor) {
         self.interactor = interactor
-        
+
         bind()
     }
 
@@ -46,8 +45,8 @@ final class FeeSelectorTokensViewModel: ObservableObject {
 
     private func bind() {
         Publishers.CombineLatest(
-            tokensDataProvider.feeTokenItemsPublisher,
-            tokensDataProvider.selectedFeeTokenItemPublisher
+            interactor.feeTokenItemsPublisher,
+            interactor.selectedFeeTokenItemPublisher
         )
         .receiveOnMain()
         .withWeakCaptureOf(self)
@@ -58,8 +57,7 @@ final class FeeSelectorTokensViewModel: ObservableObject {
                 viewModel.mapTokenItemToRowViewModel(token: token, isSelected: selectedId == token.id)
             }
         }
-        .assign(to: \.feeCurrencyTokens, on: self, ownership: .weak)
-        .store(in: &bag)
+        .assign(to: &$feeCurrencyTokens)
     }
 
     private func mapTokenItemToRowViewModel(token: TokenItem, isSelected: Bool) -> FeeSelectorRowViewModel {
