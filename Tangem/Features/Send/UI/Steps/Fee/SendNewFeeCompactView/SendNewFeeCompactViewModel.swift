@@ -59,7 +59,7 @@ class SendNewFeeCompactViewModel: ObservableObject, Identifiable {
             .assign(to: \.canEditFee, on: self, ownership: .weak)
     }
 
-    private func updateView(fee: SendFee) {
+    private func updateView(fee: TokenFee) {
         switch fee.value {
         case .loading:
             selectedFeeComponents = .loading
