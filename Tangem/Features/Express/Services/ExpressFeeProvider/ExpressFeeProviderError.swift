@@ -1,5 +1,5 @@
 //
-//  ExpressFeeProviderError.swift
+//  ExpressFeeLoaderError.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,6 @@
 
 import Foundation
 
-enum ExpressFeeProviderError: Error {
+enum ExpressFeeLoaderError: Error {
     case feeNotFound
-    case ethereumNetworkProviderNotFound
 }
