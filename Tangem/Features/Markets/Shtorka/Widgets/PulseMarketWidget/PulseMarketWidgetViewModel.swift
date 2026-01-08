@@ -20,7 +20,7 @@ final class PulseMarketWidgetViewModel: ObservableObject {
     @Published private(set) var tokenViewModelsState: LoadingResult<[MarketTokenItemViewModel], Error> = .loading
 
     var isNeedDisplayFilter: Bool {
-        !isFirstLoading && !tokenViewModelsState.isError
+        !isFirstLoading && !tokenViewModelsState.isFailure
     }
 
     var availabilityToSelectionOrderType: [MarketsListOrderType] {
