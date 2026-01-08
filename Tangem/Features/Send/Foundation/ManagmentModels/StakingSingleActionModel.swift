@@ -188,7 +188,7 @@ private extension StakingSingleActionModel {
 
 // MARK: - SendFeeLoader
 
-extension StakingSingleActionModel: SendFeeProvider {
+extension StakingSingleActionModel: TokenFeeProvider {
     var feeOptions: [FeeOption] { [.market] }
 
     var fees: [TokenFee] {
