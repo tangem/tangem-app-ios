@@ -11,7 +11,7 @@ import TangemExpress
 
 // `Subsystems`:
 // `000` - ExpressRepositoryError
-// `001` - ExpressFeeProviderError
+// `001` - ExpressFeeLoaderError
 // `002` - ExpressPendingTransactionRecordError.MigrationError
 // `003` - ExpressDestinationServiceError
 // `004` - CommonExpressAvailabilityProvider.Error
@@ -29,13 +29,11 @@ extension ExpressRepositoryError: UniversalError {
     }
 }
 
-extension ExpressFeeProviderError: UniversalError {
+extension ExpressFeeLoaderError: UniversalError {
     var errorCode: Int {
         switch self {
         case .feeNotFound:
             103001000
-        case .ethereumNetworkProviderNotFound:
-            103001001
         }
     }
 }
