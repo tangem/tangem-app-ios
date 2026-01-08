@@ -9,7 +9,7 @@
 import Combine
 
 protocol FeeSelectorOutput: AnyObject {
-    func userDidSelect(selectedFee: FeeSelectorFee)
+    func userDidSelect(selectedFee: TokenFee)
 }
 
 protocol FeeSelectorRoutable: AnyObject {
