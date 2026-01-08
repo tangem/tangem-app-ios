@@ -12,7 +12,7 @@ import TangemExpress
 import TangemFoundation
 import struct TangemUIUtils.AlertBinder
 
-protocol SendRoutable: SendDestinationRoutable, OnrampRoutable, FeeSelectorRoutable, AnyObject {
+protocol SendRoutable: SendDestinationRoutable, OnrampRoutable, SendFeeSelectorRoutable, AnyObject {
     func dismiss(reason: SendDismissReason)
     func openMail(with dataCollector: EmailDataCollector, recipient: String)
     func openQRScanner(with codeBinding: Binding<String>, networkName: String)
@@ -25,4 +25,5 @@ protocol SendRoutable: SendDestinationRoutable, OnrampRoutable, FeeSelectorRouta
     func openReceiveTokensList(tokensListBuilder: SendReceiveTokensListBuilder)
     func openHighPriceImpactWarningSheetViewModel(viewModel: HighPriceImpactWarningSheetViewModel)
     func openAccountInitializationFlow(viewModel: BlockchainAccountInitializationViewModel)
+    func openFeeSelectorLearnMoreURL(_ url: URL)
 }
