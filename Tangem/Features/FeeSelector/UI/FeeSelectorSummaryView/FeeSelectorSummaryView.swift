@@ -7,26 +7,47 @@
 //
 
 import SwiftUI
+import TangemUI
+import TangemLocalization
+import TangemAssets
 
 struct FeeSelectorSummaryView: View {
     @ObservedObject var viewModel: FeeSelectorSummaryViewModel
 
-    // [REDACTED_TODO_COMMENT]
-    var body: some View {
-        VStack {
-            Button {
-                viewModel.userDidTapToken()
-            } label: {
-                Text("Select token")
-            }
-            .padding()
+    // MARK: - View Body
 
-            Button {
-                viewModel.userDidTapFee()
-            } label: {
-                Text("Select fee")
+    var body: some View {
+        VStack(spacing: 24) {
+            VStack(spacing: 8) {
+                suggestedFeeCurrency
+                suggestedFee
             }
-            .padding()
+
+            if viewModel.shouldShowBottomButton {
+                button
+            }
         }
+        .padding(.horizontal, 16)
+        .padding(.bottom, 16)
+    }
+
+    // MARK: - Sub Views
+
+    @ViewBuilder
+    private var suggestedFeeCurrency: some View {
+        if let model = viewModel.suggestedFeeCurrency {
+            FeeSelectorRowView(viewModel: model)
+        }
+    }
+
+    @ViewBuilder
+    private var suggestedFee: some View {
+        if let model = viewModel.suggestedFee {
+            FeeSelectorRowView(viewModel: model)
+        }
+    }
+
+    private var button: some View {
+        MainButton(settings: .init(title: Localization.commonConfirm, style: .primary, action: viewModel.userDidTapConfirm))
     }
 }
