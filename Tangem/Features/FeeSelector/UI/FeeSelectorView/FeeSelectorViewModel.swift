@@ -9,19 +9,8 @@
 import Combine
 import TangemUI
 
-final class FeeSelectorViewModel: ObservableObject, FloatingSheetContentViewModel {
-    // MARK: - Published
-
-    @Published
-    private(set) var viewState: ViewState {
-        didSet {
-            previousState = oldValue
-        }
-    }
-
-    // MARK: - Properties
-
-    private var previousState: ViewState?
+final class FeeSelectorViewModel: ObservableObject {
+    @Published private(set) var viewState: ViewState
 
     private let interactor: any FeeSelectorInteractor
 
