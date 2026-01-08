@@ -4148,6 +4148,7 @@
 		EF7672F12E0D747900A8900E /* SendSwapProvidersSelectorProviderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7672F02E0D747900A8900E /* SendSwapProvidersSelectorProviderView.swift */; };
 		EF7672F32E0D748700A8900E /* SendSwapProvidersSelectorProviderViewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7672F22E0D748700A8900E /* SendSwapProvidersSelectorProviderViewData.swift */; };
 		EF7673402B0FD6840027D8E0 /* SentExpressTransactionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF76733F2B0FD6840027D8E0 /* SentExpressTransactionData.swift */; };
+		EF77075F2F1019F100547648 /* TokenFeeItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF77075E2F1019F100547648 /* TokenFeeItem.swift */; };
 		EF77CB252E093D50009246A1 /* SendFeeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF77CB242E093D50009246A1 /* SendFeeProvider.swift */; };
 		EF790ECF2D8C5879000AF87B /* KaspaAddressLockingScriptBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF790ECE2D8C5879000AF87B /* KaspaAddressLockingScriptBuilder.swift */; };
 		EF790ED12D8C5BDF000AF87B /* KaspaNetworkParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF790ED02D8C5BD6000AF87B /* KaspaNetworkParams.swift */; };
@@ -8926,6 +8927,7 @@
 		EF7672F02E0D747900A8900E /* SendSwapProvidersSelectorProviderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendSwapProvidersSelectorProviderView.swift; sourceTree = "<group>"; };
 		EF7672F22E0D748700A8900E /* SendSwapProvidersSelectorProviderViewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendSwapProvidersSelectorProviderViewData.swift; sourceTree = "<group>"; };
 		EF76733F2B0FD6840027D8E0 /* SentExpressTransactionData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentExpressTransactionData.swift; sourceTree = "<group>"; };
+		EF77075E2F1019F100547648 /* TokenFeeItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenFeeItem.swift; sourceTree = "<group>"; };
 		EF77CB242E093D50009246A1 /* SendFeeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFeeProvider.swift; sourceTree = "<group>"; };
 		EF790ECE2D8C5879000AF87B /* KaspaAddressLockingScriptBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaAddressLockingScriptBuilder.swift; sourceTree = "<group>"; };
 		EF790ED02D8C5BD6000AF87B /* KaspaNetworkParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaNetworkParams.swift; sourceTree = "<group>"; };
@@ -22378,6 +22380,7 @@
 		EF110A672F0EA7FD006C7B67 /* TokenFeeProvider */ = {
 			isa = PBXGroup;
 			children = (
+				EF77075E2F1019F100547648 /* TokenFeeItem.swift */,
 				EF110A682F0EA819006C7B67 /* TokenFeeProvider.swift */,
 				EF339E4E2C21FC9500B5CDC9 /* TokenFee.swift */,
 				EF110A6B2F0EA873006C7B67 /* TokenFeesList.swift */,
@@ -22601,9 +22604,9 @@
 		EF2C5A652F0C34A0009F1B96 /* FeeSelectorSummaryView */ = {
 			isa = PBXGroup;
 			children = (
-				EA31CC3B2F0D736B0016AABC /* FeeSelectorSummaryRowView */,
 				EF2C5A632F0C341A009F1B96 /* FeeSelectorSummaryView.swift */,
 				EF2C5A5F2F0C27B0009F1B96 /* FeeSelectorSummaryViewModel.swift */,
+				EA31CC3B2F0D736B0016AABC /* FeeSelectorSummaryRowView */,
 			);
 			path = FeeSelectorSummaryView;
 			sourceTree = "<group>";
@@ -26946,6 +26949,7 @@
 				DA6C7522292224E00070EEFD /* UserWalletEncryptionKey.swift in Sources */,
 				EF5A93852E16715600570ABE /* SendAmountFinishView.swift in Sources */,
 				DCE940BA2C3ECC2500B67398 /* StakingFeatureProvider.swift in Sources */,
+				EF77075F2F1019F100547648 /* TokenFeeItem.swift in Sources */,
 				DC28916B2CD4B31100F57F59 /* TokenSelectorViewModel.swift in Sources */,
 				EF9E38022B73FCBD004B694C /* BannerNotificationEvent.swift in Sources */,
 				DA559C4F2B02622600F59584 /* SendSummaryRoutableMock.swift in Sources */,
