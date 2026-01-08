@@ -22,8 +22,8 @@ extension SendFeeInput {
     var selectedFeePublisher: AnyPublisher<TokenFee?, Never> { selectedFeePublisher.eraseToOptional().eraseToAnyPublisher() }
 }
 
-extension SendFeeInput where Self: SendFeeProvider {
-    /// Convenient extension when the object support `SendFeeInput` and `SendFeeProvider`. E.g. `StakingModel`
+extension SendFeeInput where Self: TokenFeeProvider {
+    /// Convenient extension when the object support `SendFeeInput` and `TokenFeeProvider`. E.g. `StakingModel`
     var canChooseFeeOption: AnyPublisher<Bool, Never> { feesHasVariants }
 }
 

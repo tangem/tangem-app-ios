@@ -30,7 +30,7 @@ enum SendNewFeeStepBuilder {
     }
 
     struct Dependencies {
-        let feeProvider: SendFeeProvider
+        let feeProvider: TokenFeeProvider
         let analyticsLogger: any FeeSelectorAnalytics
         let customFeeProvider: (any CustomFeeProvider)?
     }

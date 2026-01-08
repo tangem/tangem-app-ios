@@ -37,7 +37,7 @@ enum StakingTargetsStepBuilder {
 
     struct Dependencies {
         let manager: any StakingManager
-        let sendFeeProvider: any SendFeeProvider
+        let sendFeeProvider: any TokenFeeProvider
         let analyticsLogger: any SendTargetsAnalyticsLogger
     }
 

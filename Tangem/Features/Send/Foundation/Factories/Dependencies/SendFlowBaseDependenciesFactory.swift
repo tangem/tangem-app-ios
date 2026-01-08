@@ -54,9 +54,9 @@ extension SendFlowBaseDependenciesFactory {
 
     func makeSendWithSwapFeeProvider(
         receiveTokenInput: SendReceiveTokenInput,
-        sendFeeProvider: SendFeeProvider,
-        swapFeeProvider: SendFeeProvider
-    ) -> SendFeeProvider {
+        sendFeeProvider: TokenFeeProvider,
+        swapFeeProvider: TokenFeeProvider
+    ) -> TokenFeeProvider {
         SendWithSwapFeeProvider(
             receiveTokenInput: receiveTokenInput,
             sendFeeProvider: sendFeeProvider,
@@ -64,13 +64,13 @@ extension SendFlowBaseDependenciesFactory {
         )
     }
 
-    func makeSendFeeProvider(
+    func makeTokenFeeProvider(
         input: SendFeeInput,
         output: SendFeeOutput,
-        feeProviderInput: any SendFeeProviderInput,
+        feeProviderInput: any TokenFeeProviderInput,
         customFeeProvider: (any CustomFeeProvider)?
-    ) -> SendFeeProvider {
-        CommonSendFeeProvider(
+    ) -> TokenFeeProvider {
+        CommonTokenFeeProvider(
             input: input,
             output: output,
             feeProviderInput: feeProviderInput,
@@ -80,11 +80,11 @@ extension SendFlowBaseDependenciesFactory {
         )
     }
 
-    func makeSwapFeeProvider(swapManager: SwapManager) -> SendFeeProvider {
+    func makeSwapFeeProvider(swapManager: SwapManager) -> TokenFeeProvider {
         swapManager // SwapFeeProvider(swapManager: swapManager)
     }
 
-    func makeCustomFeeService(input: SendFeeProviderInput) -> CustomFeeProvider? {
+    func makeCustomFeeService(input: TokenFeeProviderInput) -> CustomFeeProvider? {
         let factory = CustomFeeServiceFactory(
             tokenItem: tokenItem,
             feeTokenItem: feeTokenItem,
