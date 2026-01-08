@@ -8,31 +8,47 @@
 
 import Combine
 
+// MARK: - Main fees
+
+protocol FeeSelectorFeesProvider {
+    var fees: [TokenFee] { get }
+    var feesPublisher: AnyPublisher<[TokenFee], Never> { get }
+}
+
 protocol FeeSelectorFeeTokenItemsProvider {
     var tokenItems: [TokenItem] { get }
     var tokenItemsPublisher: AnyPublisher<[TokenItem], Never> { get }
+
+    func userDidSelectTokenItem(_ tokenItem: TokenItem)
 }
 
-protocol FeeSelectorFeesProvider {
-    var fees: [SendFee] { get }
-    var feesPublisher: AnyPublisher<[SendFee], Never> { get }
+extension FeeSelectorFeeTokenItemsProvider where Self: FeeSelectorFeesProvider {
+    var tokenItems: [TokenItem] {
+        fees.map(\.tokenItem).unique()
+    }
+
+    var tokenItemsPublisher: AnyPublisher<[TokenItem], Never> {
+        feesPublisher.map { $0.map(\.tokenItem).unique() }.eraseToAnyPublisher()
+    }
 }
+
+// MARK: - Custom fees
 
 protocol FeeSelectorSuggestedFeeProvider {
-    var suggestedFee: SendFee { get }
-    var suggestedFeePublisher: AnyPublisher<SendFee, Never> { get }
+    var suggestedFee: TokenFee { get }
+    var suggestedFeePublisher: AnyPublisher<TokenFee, Never> { get }
 }
 
 protocol FeeSelectorCustomFeeProvider {
-    var customFee: SendFee { get }
-    var customFeePublisher: AnyPublisher<SendFee, Never> { get }
+    var customFee: TokenFee { get }
+    var customFeePublisher: AnyPublisher<TokenFee, Never> { get }
 
     func initialSetupCustomFee(_ fee: BSDKFee)
 }
 
 extension FeeSelectorCustomFeeProvider {
-    func subscribeToInitialSetup(feeProvider: any FeeSelectorInteractor) -> AnyCancellable {
-        feeProvider.feesPublisher
+    func subscribeToInitialSetup(feeProviders: any FeeSelectorFeesProvider) -> AnyCancellable {
+        feeProviders.feesPublisher
             .compactMap { $0.first(where: { $0.option == .market })?.value.value }
             .first()
             .sink { initialSetupCustomFee($0) }
