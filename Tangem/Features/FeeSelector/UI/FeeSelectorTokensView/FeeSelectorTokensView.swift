@@ -11,13 +11,18 @@ import SwiftUI
 struct FeeSelectorTokensView: View {
     @ObservedObject var viewModel: FeeSelectorTokensViewModel
 
-    // [REDACTED_TODO_COMMENT]
+    // MARK: - View Body
+
     var body: some View {
-        Button {
-            viewModel.userDidSelectFeeToken()
-        } label: {
-            Text("Some token")
+        ScrollView {
+            VStack(spacing: 8) {
+                ForEach(viewModel.feeCurrencyTokens, id: \.self) {
+                    FeeSelectorRowView(viewModel: $0)
+                }
+            }
+            .padding(.horizontal, 16)
         }
-        .padding()
+        .scrollIndicators(.hidden)
+        .scrollBounceBehavior(.basedOnSize)
     }
 }
