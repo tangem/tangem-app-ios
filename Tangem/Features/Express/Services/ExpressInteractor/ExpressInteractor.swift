@@ -199,7 +199,7 @@ extension ExpressInteractor: ApproveViewModelInput {
         mapToApproveFeeLoadingValue(state: getState()) ?? .failure(CommonError.noData)
     }
 
-    var approveFeeValuePublisher: AnyPublisher<LoadingResult<BlockchainSdk.Fee, any Error>, Never> {
+    var approveFeeValuePublisher: AnyPublisher<LoadingResult<BSDKFee, any Error>, Never> {
         state
             .withWeakCaptureOf(self)
             .compactMap { interactor, state in
@@ -208,7 +208,7 @@ extension ExpressInteractor: ApproveViewModelInput {
             .eraseToAnyPublisher()
     }
 
-    private func mapToApproveFeeLoadingValue(state: ExpressInteractor.State) -> LoadingResult<BlockchainSdk.Fee, any Error>? {
+    private func mapToApproveFeeLoadingValue(state: ExpressInteractor.State) -> LoadingResult<BSDKFee, any Error>? {
         switch state {
         case .permissionRequired(let state, _):
             guard let fee = try? state.fees.selectedFee() else {
