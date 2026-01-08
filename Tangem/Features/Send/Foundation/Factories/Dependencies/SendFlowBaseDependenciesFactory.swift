@@ -9,8 +9,6 @@
 import TangemUI
 
 protocol SendFlowBaseDependenciesFactory: SendGenericFlowBaseDependenciesFactory {
-    var shouldShowFeeSelector: Bool { get }
-
     var tokenFeeLoader: any TokenFeeLoader { get }
     var expressDependenciesFactory: ExpressDependenciesFactory { get }
 }
@@ -37,7 +35,7 @@ extension SendFlowBaseDependenciesFactory {
         )
     }
 
-    func makeSwapManager() -> CommonSwapManager {
+    func makeSwapManager() -> any SwapManager {
         CommonSwapManager(
             userWalletConfig: userWalletInfo.config,
             interactor: expressDependenciesFactory.expressInteractor
@@ -66,22 +64,27 @@ extension SendFlowBaseDependenciesFactory {
         )
     }
 
-    func makeSendFeeProvider(input: any SendFeeProviderInput, hasCustomFeeService: Bool) -> SendFeeProvider {
-        let options: [FeeOption] = switch (shouldShowFeeSelector, hasCustomFeeService) {
-        case (true, true): [.slow, .market, .fast, .custom]
-        case (true, false): [.slow, .market, .fast]
-        case (false, true): [.market, .custom]
-        case (false, false): [.market]
-        }
-
-        return CommonSendFeeProvider(input: input, feeProvider: tokenFeeLoader, feeTokenItem: feeTokenItem, defaultFeeOptions: options)
+    func makeSendFeeProvider(
+        input: SendFeeInput,
+        output: SendFeeOutput,
+        feeProviderInput: any SendFeeProviderInput,
+        customFeeProvider: (any CustomFeeProvider)?
+    ) -> SendFeeProvider {
+        CommonSendFeeProvider(
+            input: input,
+            output: output,
+            feeProviderInput: feeProviderInput,
+            feeLoader: tokenFeeLoader,
+            customFeeProvider: customFeeProvider,
+            initialTokenItem: feeTokenItem
+        )
     }
 
     func makeSwapFeeProvider(swapManager: SwapManager) -> SendFeeProvider {
-        SwapFeeProvider(swapManager: swapManager)
+        swapManager // SwapFeeProvider(swapManager: swapManager)
     }
 
-    func makeCustomFeeService(input: CustomFeeServiceInput) -> FeeSelectorCustomFeeProvider? {
+    func makeCustomFeeService(input: SendFeeProviderInput) -> CustomFeeProvider? {
         let factory = CustomFeeServiceFactory(
             tokenItem: tokenItem,
             feeTokenItem: feeTokenItem,

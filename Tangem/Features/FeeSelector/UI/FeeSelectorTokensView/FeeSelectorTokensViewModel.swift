@@ -10,14 +10,6 @@ import Combine
 import TangemAccessibilityIdentifiers
 import TangemUIUtils
 
-protocol FeeSelectorTokensDataProvider {
-    var selectedFeeTokenItem: TokenItem? { get }
-    var selectedFeeTokenItemPublisher: AnyPublisher<TokenItem?, Never> { get }
-
-    var feeTokenItems: [TokenItem] { get }
-    var feeTokenItemsPublisher: AnyPublisher<[TokenItem], Never> { get }
-}
-
 protocol FeeSelectorTokensRoutable: AnyObject {
     func userDidSelectFeeToken()
 }
@@ -30,17 +22,13 @@ final class FeeSelectorTokensViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private let tokensDataProvider: FeeSelectorTokensDataProvider
+    private let interactor: FeeSelectorInteractor
+
     private weak var router: FeeSelectorTokensRoutable?
 
-    // MARK: - Properties
-
-    private var bag: Set<AnyCancellable> = []
-
-    // MARK: - Init
-
-    init(tokensDataProvider: FeeSelectorTokensDataProvider) {
-        self.tokensDataProvider = tokensDataProvider
+    init(interactor: FeeSelectorInteractor) {
+        self.interactor = interactor
+        
         bind()
     }
 
