@@ -27,6 +27,7 @@ class SendFlowFactory: SendFlowBaseDependenciesFactory {
     let transactionDispatcherFactory: TransactionDispatcherFactory
     let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let expressDependenciesFactory: ExpressDependenciesFactory
+    let generalFeeProviderBuilder: GeneralFeeProviderBuilder
 
     let suggestedWallets: [SendDestinationSuggestedWallet]
     let analyticsLogger: SendAnalyticsLogger
@@ -35,10 +36,18 @@ class SendFlowFactory: SendFlowBaseDependenciesFactory {
     lazy var sendModel = makeSendWithSwapModel(swapManager: swapManager, analyticsLogger: analyticsLogger, predefinedValues: .init())
     lazy var notificationManager = makeSendWithSwapNotificationManager(receiveTokenInput: sendModel)
     lazy var customFeeService = makeCustomFeeService(input: sendModel)
+    lazy var generalFeeProviders = makeGeneralFeeProviders(feeProviderInput: sendModel)
     lazy var sendFeeProvider = makeSendWithSwapFeeProvider(
         receiveTokenInput: sendModel,
-        sendFeeProvider: makeSendFeeProvider(input: sendModel, hasCustomFeeService: customFeeService != nil),
+        sendFeeProvider: makeTokenFeeProvider(input: sendModel, output: sendModel, feeProviderInput: sendModel),
         swapFeeProvider: makeSwapFeeProvider(swapManager: swapManager)
+    )
+
+    lazy var feeSelectorInteractor = MultiProvidersFeeSelectorInteractor(
+        input: sendModel,
+        output: sendModel,
+        feeProviders: generalFeeProviders,
+        initialSelectedFeeItem: feeTokenItem
     )
 
     init(userWalletInfo: UserWalletInfo, walletModel: any WalletModel) {
@@ -89,6 +98,7 @@ class SendFlowFactory: SendFlowBaseDependenciesFactory {
         )
 
         expressDependenciesFactory = CommonExpressDependenciesFactory(input: expressDependenciesInput)
+        generalFeeProviderBuilder = walletModel.generalFeeProviderBuilder()
     }
 }
 
@@ -276,9 +286,8 @@ extension SendFlowFactory: SendFeeStepBuildable {
 
     var feeDependencies: SendNewFeeStepBuilder.Dependencies {
         SendNewFeeStepBuilder.Dependencies(
-            feeProvider: sendFeeProvider,
+            feeSelectorInteractor: feeSelectorInteractor,
             analyticsLogger: analyticsLogger,
-            customFeeProvider: customFeeService
         )
     }
 }
