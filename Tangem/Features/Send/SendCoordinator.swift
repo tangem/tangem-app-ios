@@ -281,6 +281,22 @@ extension SendCoordinator: ExpressApproveRoutable {
     }
 }
 
+// MARK: - FeeSelectorRoutable
+
+extension SendCoordinator: FeeSelectorRoutable {
+    func dismissFeeSelector() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+
+    func completeFeeSelection() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
 // MARK: - OnrampCountrySelectorRoutable
 
 extension SendCoordinator: OnrampCountrySelectorRoutable {

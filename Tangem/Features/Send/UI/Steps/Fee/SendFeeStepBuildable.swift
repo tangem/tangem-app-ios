@@ -13,8 +13,8 @@ protocol SendFeeStepBuildable {
 }
 
 extension SendFeeStepBuildable {
-    func makeSendFeeStep() -> SendNewFeeStepBuilder.ReturnValue {
-        SendNewFeeStepBuilder.make(io: feeIO, types: feeTypes, dependencies: feeDependencies)
+    func makeSendFeeStep(router: any FeeSelectorRoutable) -> SendNewFeeStepBuilder.ReturnValue {
+        SendNewFeeStepBuilder.make(io: feeIO, types: feeTypes, dependencies: feeDependencies, router: router)
     }
 }
 
@@ -32,7 +32,7 @@ enum SendNewFeeStepBuilder {
     struct Dependencies {
         let feeProvider: SendFeeProvider
         let analyticsLogger: any FeeSelectorAnalytics
-        let customFeeService: (any CustomFeeService)?
+        let customFeeProvider: (any CustomFeeProvider)?
     }
 
     typealias ReturnValue = (
@@ -44,27 +44,24 @@ enum SendNewFeeStepBuilder {
     static func make(
         io: IO,
         types: Types,
-        dependencies: Dependencies
+        dependencies: Dependencies,
+        router: any FeeSelectorRoutable
     ) -> ReturnValue {
-        let interactor = CommonSendFeeInteractor(
+        let feeSelectorInteractor = CommonFeeSelectorInteractor(
             input: io.input,
             output: io.output,
-            provider: dependencies.feeProvider,
-            feeTokenItem: types.feeTokenItem,
-            customFeeProvider: dependencies.customFeeService as? FeeSelectorCustomFeeProvider
+            feesProvider: dependencies.feeProvider,
         )
 
         let feeSelectorViewModel = FeeSelectorBuilder().makeFeeSelectorViewModel(
-            tokensDataProvider: interactor.feeSelectorInteractor,
-            feesDataProvider: interactor.feeSelectorInteractor,
-            customFeeService: dependencies.customFeeService,
+            feeSelectorInteractor: feeSelectorInteractor,
+            customFeeAvailabilityProvider: dependencies.customFeeProvider,
             mapper: CommonFeeSelectorFeesViewModelMapper(
                 feeFormatter: CommonFeeFormatter(),
-                customFieldsBuilder: dependencies.customFeeService as? FeeSelectorCustomFeeFieldsBuilder
+                customFieldsBuilder: dependencies.customFeeProvider
             ),
             analytics: dependencies.analyticsLogger,
-            output: interactor,
-            router: interactor // [REDACTED_TODO_COMMENT]
+            router: router
         )
 
         let feeSelector = SendFeeSelectorViewModel(feeSelectorViewModel: feeSelectorViewModel)

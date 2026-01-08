@@ -24,7 +24,6 @@ struct ExpressInteractorWalletModelWrapper {
     let transactionValidator: any ExpressTransactionValidator
     let withdrawalNotificationProvider: (any WithdrawalNotificationProvider)?
     let interactorAnalyticsLogger: any ExpressInteractorAnalyticsLogger
-    var tokenFeeProvider: any TokenFeeProvider { _feeProvider }
 
     private let walletModel: any WalletModel
     private let expressOperationType: ExpressOperationType
@@ -33,7 +32,7 @@ struct ExpressInteractorWalletModelWrapper {
     private let allowanceServiceFactory: AllowanceServiceFactory
 
     private let _allowanceService: (any AllowanceService)?
-    private let _feeProvider: CommonExpressFeeProvider
+    private let _feeProvider: ExpressFeeProvider
     private let _balanceProvider: any ExpressBalanceProvider
 
     init(

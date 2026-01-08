@@ -18,14 +18,12 @@ protocol FeeSelectorSummaryRoutable: AnyObject {
 final class FeeSelectorSummaryViewModel: ObservableObject {
     // Some views
 
-    private let tokensDataProvider: FeeSelectorTokensDataProvider
-    private let feesDataProvider: FeeSelectorFeesDataProvider
+    private let interactor: FeeSelectorInteractor
 
     private weak var router: FeeSelectorSummaryRoutable?
 
-    init(tokensDataProvider: FeeSelectorTokensDataProvider, feesDataProvider: FeeSelectorFeesDataProvider) {
-        self.tokensDataProvider = tokensDataProvider
-        self.feesDataProvider = feesDataProvider
+    init(interactor: FeeSelectorInteractor) {
+        self.interactor = interactor
     }
 
     func setup(router: FeeSelectorSummaryRoutable?) {
