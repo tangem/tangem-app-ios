@@ -194,15 +194,6 @@ private extension ExpressViewModel {
         }
     }
 
-    func openFeeSelectorView() {
-        // If we have fees for choosing
-        guard !interactor.getState().fees.isEmpty else {
-            return
-        }
-
-        coordinator?.presentFeeSelectorView()
-    }
-
     func presentProviderSelectorView() {
         Analytics.log(.swapProviderClicked)
         coordinator?.presentProviderSelectorView()
@@ -502,21 +493,24 @@ private extension ExpressViewModel {
         switch fees {
         case .loading:
             updateExpressFeeRowViewModel(fee: .loading, action: nil)
+        case .failure:
+            expressFeeRowViewModel = nil
         case .success(let fees):
-            guard let fee = try? fees.selectedFee().amount.value else {
-                expressFeeRowViewModel = nil
-                return
-            }
+            let action: (() -> Void)? = {
+                // If fee is one option then don't open selector
+                guard interactor.swapFeeProvider.fees.hasMultipleFeeOptions else {
+                    return nil
+                }
 
-            var action: (() -> Void)?
-            // If fee is one option then don't open selector
-            if !fees.isFixed {
-                action = weakify(self, forFunction: ExpressViewModel.openFeeSelectorView)
-            }
+                return { [weak self] in
+                    self?.coordinator?.presentFeeSelectorView()
+                }
+            }()
 
             do {
                 let sender = try interactor.getSourceWallet()
-                let formattedFee = feeFormatter.format(fee: fee, tokenItem: sender.feeTokenItem)
+                let selectedFee = try fees.selectedFee()
+                let formattedFee = feeFormatter.format(fee: selectedFee.amount.value, tokenItem: sender.feeTokenItem)
                 updateExpressFeeRowViewModel(fee: .loaded(text: formattedFee), action: action)
             } catch {
                 updateExpressFeeRowViewModel(fee: .noData, action: action)
