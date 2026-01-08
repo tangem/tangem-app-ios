@@ -18,7 +18,7 @@ class CommonExpressFeeProvider {
     private let sendingTokenItem: TokenItem
     private let sendingFeeTokenItem: TokenItem
 
-    private let feesValueSubject: CurrentValueSubject<LoadingResult<[BSDKFee], any Error>, Never> = .init(.loading)
+//    private let feesValueSubject: CurrentValueSubject<LoadingResult<[BSDKFee], any Error>, Never> = .init(.loading)
 
     private var feeLoadingTask: Task<Void, Never>?
 
@@ -35,68 +35,62 @@ class CommonExpressFeeProvider {
 
 // MARK: - StatableTokenFeeProvider
 
-extension CommonExpressFeeProvider: StatableTokenFeeProvider {
-    var supportingFeeOption: [FeeOption] {
-        feeLoader.allowsFeeSelection ? [.market, .fast] : [.market]
-    }
-
-    var feeTokenItem: TokenItem { sendingFeeTokenItem }
-
-    var loadingFees: LoadingResult<[BSDKFee], any Error> {
-        feesValueSubject.value
-    }
-
-    var loadingFeesPublisher: AnyPublisher<LoadingResult<[BSDKFee], any Error>, Never> {
-        feesValueSubject.eraseToAnyPublisher()
-    }
-}
+// extension CommonExpressFeeProvider: StatableTokenFeeProvider {
+//    var supportingFeeOption: [FeeOption] {
+//        feeLoader.allowsFeeSelection ? [.market, .fast] : [.market]
+//    }
+//
+//    var feeTokenItem: TokenItem { sendingFeeTokenItem }
+//
+//    var loadingFees: LoadingResult<[BSDKFee], any Error> {
+//        feesValueSubject.value
+//    }
+//
+//    var loadingFeesPublisher: AnyPublisher<LoadingResult<[BSDKFee], any Error>, Never> {
+//        feesValueSubject.eraseToAnyPublisher()
+//    }
+// }
 
 // MARK: - TokenFeeProvider
 
-extension CommonExpressFeeProvider: TokenFeeProvider {}
+// extension CommonExpressFeeProvider: TokenFeeProvider {}
 
 // MARK: - ExpressFeeProvider
 
 extension CommonExpressFeeProvider: ExpressFeeProvider {
-    func estimatedFee(amount: Decimal, option: ExpressFee.Option) async throws -> BSDKFee {
-        try await loadTargetFee(targetOption: option) {
-            try await feeLoader.estimatedFee(amount: amount)
-        }
+    func estimatedFee(amount: Decimal) async throws -> ExpressFee.Variants {
+        let fees = try await feeLoader.estimatedFee(amount: amount)
+        return try mapToExpressFee(fees: fees)
     }
 
-    func estimatedFee(estimatedGasLimit: Int, option: ExpressFee.Option) async throws -> BSDKFee {
-        try await loadTargetFee(targetOption: option) {
-            let estimatedFee = try await feeLoader.asEthereumTokenFeeLoader().estimatedFee(estimatedGasLimit: estimatedGasLimit)
-            return [estimatedFee]
-        }
+    func estimatedFee(estimatedGasLimit: Int) async throws -> BSDKFee {
+        let estimatedFee = try await feeLoader.asEthereumTokenFeeLoader().estimatedFee(estimatedGasLimit: estimatedGasLimit)
+        return estimatedFee
     }
 
-    func getFee(amount: ExpressAmount, destination: String, option: ExpressFee.Option) async throws -> BSDKFee {
+    func getFee(amount: ExpressAmount, destination: String) async throws -> ExpressFee.Variants {
         switch (amount, sendingTokenItem.blockchain) {
         case (.transfer(let amount), _):
-            return try await loadTargetFee(targetOption: option) {
-                try await feeLoader.getFee(amount: amount, destination: destination)
-            }
+            let fees = try await feeLoader.getFee(amount: amount, destination: destination)
+            return try mapToExpressFee(fees: fees)
 
         case (.dex(_, _, let txData), .solana):
             guard let txData, let transactionData = Data(base64Encoded: txData) else {
                 throw ExpressProviderError.transactionDataNotFound
             }
 
-            return try await loadTargetFee(targetOption: option) {
-                try await feeLoader.asSolanaTokenFeeLoader().getFee(compiledTransaction: transactionData)
-            }
+            let fees = try await feeLoader.asSolanaTokenFeeLoader().getFee(compiledTransaction: transactionData)
+            return try mapToExpressFee(fees: fees)
 
         case (.dex(_, let txValue, let txData), _):
             guard let txData = txData.map(Data.init(hexString:)) else {
                 throw ExpressProviderError.transactionDataNotFound
             }
 
-            let amount = makeAmount(amount: txValue, item: feeTokenItem)
+            let amount = makeAmount(amount: txValue, item: sendingFeeTokenItem)
+            let fees = try await feeLoader.asEthereumTokenFeeLoader().getFee(amount: amount, destination: destination, txData: txData)
 
-            return try await loadTargetFee(targetOption: option) {
-                try await feeLoader.asEthereumTokenFeeLoader().getFee(amount: amount, destination: destination, txData: txData)
-            }
+            return try mapToExpressFee(fees: fees)
         }
     }
 }
@@ -108,28 +102,17 @@ extension CommonExpressFeeProvider {
         Amount(with: item.blockchain, type: item.amountType, value: amount)
     }
 
-    func loadTargetFee(targetOption: ExpressFee.Option, action: () async throws -> [BSDKFee]) async throws -> BSDKFee {
-        if feesValueSubject.value.isFailure {
-            feesValueSubject.send(.loading)
-        }
-
-        do {
-            let loadedFees = try await action()
-            feesValueSubject.send(.success(loadedFees))
-        } catch {
-            feesValueSubject.send(.failure(error))
-        }
-
-        let feeOption: FeeOption = switch targetOption {
-        case .market: .market
-        case .fast: .fast
-        }
-
-        guard let tokenFee = fees[feeOption] else {
+    func mapToExpressFee(fees: [BSDKFee]) throws -> ExpressFee.Variants {
+        switch fees.count {
+        case 1:
+            return .single(fees[0])
+        case 3 where sendingTokenItem.blockchain.isUTXO:
+            return .single(fees[1])
+        case 3:
+            return .double(market: fees[1], fast: fees[2])
+        default:
             throw ExpressFeeProviderError.feeNotFound
         }
-
-        return try tokenFee.value.get()
     }
 }
 

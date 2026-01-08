@@ -14,6 +14,7 @@ import class UIKit.UIApplication
 
 final class ExpressCoordinator: CoordinatorObject {
     @Injected(\.safariManager) private var safariManager: SafariManager
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
 
     let dismissAction: DismissAction
     let popToRootAction: Action<PopToRootOptions>
@@ -76,7 +77,8 @@ extension ExpressCoordinator: ExpressRoutable {
     }
 
     func presentFeeSelectorView() {
-        expressFeeSelectorViewModel = factory.makeExpressFeeSelectorViewModel(coordinator: self)
+        let feeSelectorViewModel = factory.makeFeeSelectorViewModel(coordinator: self)
+        Task { @MainActor in floatingSheetPresenter.enqueue(sheet: feeSelectorViewModel) }
     }
 
     func presentApproveView(source: any ExpressInteractorSourceWallet, provider: ExpressProvider, selectedPolicy: BSDKApprovePolicy) {
@@ -117,6 +119,18 @@ extension ExpressCoordinator: ExpressRoutable {
 
     func closeSwappingView() {
         dismiss(with: .none)
+    }
+}
+
+// MARK: - FeeSelectorRoutable
+
+extension ExpressCoordinator: FeeSelectorRoutable {
+    func dismissFeeSelector() {
+        Task { @MainActor in floatingSheetPresenter.removeActiveSheet() }
+    }
+
+    func completeFeeSelection() {
+        Task { @MainActor in floatingSheetPresenter.removeActiveSheet() }
     }
 }
 
