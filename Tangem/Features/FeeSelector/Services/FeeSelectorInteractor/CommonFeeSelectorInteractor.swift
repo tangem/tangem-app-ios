@@ -13,41 +13,16 @@ final class CommonFeeSelectorInteractor {
     private weak var input: (any FeeSelectorInteractorInput)?
     private weak var output: (any FeeSelectorOutput)?
 
-    private let feesProvider: any FeeSelectorFeesProvider
-
-    private let feeTokenItemsProvider: (any FeeSelectorFeeTokenItemsProvider)?
-    private let suggestedFeeProvider: (any FeeSelectorSuggestedFeeProvider)?
-    private let customFeeProvider: (any FeeSelectorCustomFeeProvider)?
-
-    private var customFeeProviderInitialSetupCancellable: AnyCancellable?
-    private var autoupdatedSuggestedFeeCancellable: AnyCancellable?
+    private let feesProvider: any TokenFeeProvider
 
     init(
         input: any FeeSelectorInteractorInput,
         output: any FeeSelectorOutput,
-        feesProvider: any FeeSelectorFeesProvider,
-        feeTokenItemsProvider: (any FeeSelectorFeeTokenItemsProvider)?,
-        suggestedFeeProvider: (any FeeSelectorSuggestedFeeProvider)?,
-        customFeeProvider: (any FeeSelectorCustomFeeProvider)?,
+        feesProvider: any TokenFeeProvider,
     ) {
         self.input = input
         self.output = output
         self.feesProvider = feesProvider
-        self.feeTokenItemsProvider = feeTokenItemsProvider
-        self.suggestedFeeProvider = suggestedFeeProvider
-        self.customFeeProvider = customFeeProvider
-
-        bind()
-    }
-
-    private func bind() {
-        customFeeProviderInitialSetupCancellable = customFeeProvider?.subscribeToInitialSetup(
-            feeProviders: feesProvider
-        )
-
-        autoupdatedSuggestedFeeCancellable = autoupdatedSuggestedFee
-            .withWeakCaptureOf(self)
-            .sink { $0.output?.userDidSelect(selectedFee: $1) }
     }
 }
 
@@ -59,77 +34,39 @@ extension CommonFeeSelectorInteractor: FeeSelectorInteractor {
     }
 
     var selectedFeePublisher: AnyPublisher<TokenFee?, Never> {
-        input?.selectedFeePublisher.eraseToOptional().eraseToAnyPublisher() ?? .just(output: .none)
+        input?.selectedFeePublisher.eraseToAnyPublisher() ?? .just(output: .none)
     }
 
     var fees: [TokenFee] {
-        var fees = feesProvider.fees
-
-        if let suggestedFee = suggestedFeeProvider?.suggestedFee {
-            fees.append(suggestedFee)
-        }
-
-        if let customFee = customFeeProvider?.customFee {
-            fees.append(customFee)
-        }
-
-        return fees
+        feesProvider.fees
     }
 
     var feesPublisher: AnyPublisher<[TokenFee], Never> {
-        [
-            feesProvider.feesPublisher.eraseToAnyPublisher(),
-            suggestedFeeProvider?.suggestedFeePublisher.map { [$0] }.eraseToAnyPublisher(),
-            customFeeProvider?.customFeePublisher.map { [$0] }.eraseToAnyPublisher(),
-        ]
-        .compactMap(\.self)
-        .combineLatest()
-        .map { $0.flattened().unique() }
-        .eraseToAnyPublisher()
+        feesProvider.feesPublisher
     }
 
-    func userDidSelect(selectedFee: TokenFee) {
-        output?.userDidSelect(selectedFee: selectedFee)
-    }
-}
-
-// MARK: - FeeSelectorFeesDataProvider
-
-extension CommonFeeSelectorInteractor: FeeSelectorFeesDataProvider {
-    var selectedSelectorFee: TokenFee? {
-        selectedFee
-    }
-
-    var selectedSelectorFeePublisher: AnyPublisher<TokenFee?, Never> {
-        selectedFeePublisher.eraseToAnyPublisher()
-    }
-
-    var selectorFees: [TokenFee] {
-        fees
-    }
-
-    var selectorFeesPublisher: AnyPublisher<[TokenFee], Never> {
-        feesPublisher.eraseToAnyPublisher()
-    }
-}
-
-// MARK: - FeeSelectorTokensDataProvider
-
-extension CommonFeeSelectorInteractor: FeeSelectorTokensDataProvider {
-    var selectedFeeTokenItem: TokenItem? {
+    var selectedFeeTokenItem: TokenFeeItem? {
         selectedFee?.tokenItem
     }
 
-    var selectedFeeTokenItemPublisher: AnyPublisher<TokenItem?, Never> {
+    var selectedFeeTokenItemPublisher: AnyPublisher<TokenFeeItem?, Never> {
         selectedFeePublisher.map { $0?.tokenItem }.eraseToAnyPublisher()
     }
 
     var feeTokenItems: [TokenItem] {
-        feeTokenItemsProvider?.tokenItems ?? []
+        (feesProvider as? UpdatableSimpleTokenFeeProvider)?.tokenItems ?? []
     }
 
     var feeTokenItemsPublisher: AnyPublisher<[TokenItem], Never> {
-        feeTokenItemsProvider?.tokenItemsPublisher ?? .just(output: [])
+        (feesProvider as? UpdatableSimpleTokenFeeProvider)?.tokenItemsPublisher ?? .just(output: [])
+    }
+
+    func userDidSelect(feeTokenItem: TokenItem) {
+        (feesProvider as? UpdatableSimpleTokenFeeProvider)?.userDidSelectTokenItem(feeTokenItem)
+    }
+
+    func userDidSelect(selectedFee: TokenFee) {
+        output?.userDidSelect(selectedFee: selectedFee)
     }
 }
 
