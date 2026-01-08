@@ -11,8 +11,8 @@ import BlockchainSdk
 import TangemFoundation
 
 protocol SendNotificationManagerInput {
-    var feeValues: AnyPublisher<[SendFee], Never> { get }
-    var selectedFeePublisher: AnyPublisher<SendFee, Never> { get }
+    var feeValues: AnyPublisher<[TokenFee], Never> { get }
+    var selectedFeePublisher: AnyPublisher<TokenFee, Never> { get }
     var isFeeIncludedPublisher: AnyPublisher<Bool, Never> { get }
 
     var bsdkTransactionPublisher: AnyPublisher<BSDKTransaction?, Never> { get }
@@ -126,7 +126,7 @@ private extension CommonSendNotificationManager {
         }
     }
 
-    func updateCustomFee(selectedFee: SendFee, feeValues: [SendFee]) {
+    func updateCustomFee(selectedFee: TokenFee, feeValues: [TokenFee]) {
         switch (selectedFee.option, selectedFee.value) {
         case (.custom, .success(let customFee)):
             updateCustomFeeTooLow(
