@@ -224,6 +224,10 @@ extension ExpressInteractor: TokenFeeProvider {
             .map { $0.fees.fees }
             .eraseToAnyPublisher()
     }
+
+    func updateFees() {
+        refresh(type: .fee)
+    }
 }
 
 // MARK: - FeeSelectorOutput

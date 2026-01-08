@@ -10,6 +10,7 @@ import TangemUI
 
 protocol SendFlowBaseDependenciesFactory: SendGenericFlowBaseDependenciesFactory {
     var tokenFeeLoader: any TokenFeeLoader { get }
+    var generalFeeProviderBuilder: GeneralFeeProviderBuilder { get }
     var expressDependenciesFactory: ExpressDependenciesFactory { get }
 }
 
@@ -64,19 +65,25 @@ extension SendFlowBaseDependenciesFactory {
         )
     }
 
+    func makeGeneralFeeProviders(
+        feeProviderInput: any TokenFeeProviderInput
+    ) -> [GeneralFeeProvider] {
+        let generalFeeProviders = generalFeeProviderBuilder.makeGeneralFeeProviders()
+        return generalFeeProviders
+    }
+
     func makeTokenFeeProvider(
         input: SendFeeInput,
         output: SendFeeOutput,
-        feeProviderInput: any TokenFeeProviderInput,
-        customFeeProvider: (any CustomFeeProvider)?
+        feeProviderInput: any TokenFeeProviderInput
     ) -> TokenFeeProvider {
-        CommonTokenFeeProvider(
+        let generalFeeProviders = generalFeeProviderBuilder.makeGeneralFeeProviders()
+
+        return CommonSendFeeProvider(
             input: input,
             output: output,
             feeProviderInput: feeProviderInput,
-            feeLoader: tokenFeeLoader,
-            customFeeProvider: customFeeProvider,
-            initialTokenItem: feeTokenItem
+            feesProviderFeesLoaders: generalFeeProviders
         )
     }
 

@@ -14,6 +14,11 @@ protocol FeeSelectorInteractorInput: AnyObject {
     var selectedFeePublisher: AnyPublisher<TokenFee?, Never> { get }
 }
 
+struct SimpleFee {
+    let option: FeeOption
+    let value: LoadingResult<BSDKFee, any Error>
+}
+
 protocol FeeSelectorInteractor {
     var selectedFee: TokenFee? { get }
     var selectedFeePublisher: AnyPublisher<TokenFee?, Never> { get }
@@ -22,21 +27,14 @@ protocol FeeSelectorInteractor {
     var fees: [TokenFee] { get }
     var feesPublisher: AnyPublisher<[TokenFee], Never> { get }
 
+    var selectedFeeTokenItem: TokenItem? { get }
+    var selectedFeeTokenItemPublisher: AnyPublisher<TokenItem?, Never> { get }
+
     var feeTokenItems: [TokenItem] { get }
     var feeTokenItemsPublisher: AnyPublisher<[TokenItem], Never> { get }
 
     func userDidSelect(feeTokenItem: TokenItem)
     func userDidSelect(selectedFee: TokenFee)
-}
-
-extension FeeSelectorInteractor {
-    var selectedFeeTokenItem: TokenFeeItem? {
-        selectedFee?.tokenItem
-    }
-
-    var selectedFeeTokenItemPublisher: AnyPublisher<TokenFeeItem?, Never> {
-        selectedFeePublisher.map { $0?.tokenItem }.eraseToAnyPublisher()
-    }
 }
 
 extension FeeSelectorInteractor {

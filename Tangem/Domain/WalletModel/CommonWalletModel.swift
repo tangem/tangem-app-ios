@@ -551,7 +551,7 @@ extension CommonWalletModel: WalletModelFeesProvider {
         TokenFeeLoaderBuilder().makeTokenFeeLoader(walletModel: self, walletManager: walletManager)
     }
 
-    var customFeeProvider: (any FeeSelectorCustomFeeProvider)? {
+    var customFeeProvider: (any CustomFeeProvider)? {
         CustomFeeServiceFactory(
             tokenItem: tokenItem,
             feeTokenItem: feeTokenItem,
