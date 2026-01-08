@@ -146,9 +146,9 @@ extension CommonSwapManager: SendApproveDataBuilderInput {
     }
 }
 
-// MARK: - SendFeeProvider
+// MARK: - TokenFeeProvider
 
-extension CommonSwapManager: SendFeeProvider {
+extension CommonSwapManager: TokenFeeProvider {
     var fees: [TokenFee] {
         interactor.fees
     }
