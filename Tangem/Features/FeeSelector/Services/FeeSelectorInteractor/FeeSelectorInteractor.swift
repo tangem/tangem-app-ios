@@ -10,11 +10,16 @@ import Combine
 import TangemFoundation
 
 protocol FeeSelectorInteractorInput: AnyObject {
-    var selectedFee: TokenFee { get }
-    var selectedFeePublisher: AnyPublisher<TokenFee, Never> { get }
+    var selectedFee: TokenFee? { get }
+    var selectedFeePublisher: AnyPublisher<TokenFee?, Never> { get }
 }
 
-protocol FeeSelectorInteractor: FeeSelectorTokensDataProvider, FeeSelectorFeesDataProvider {
+struct SimpleFee {
+    let option: FeeOption
+    let value: LoadingResult<BSDKFee, any Error>
+}
+
+protocol FeeSelectorInteractor {
     var selectedFee: TokenFee? { get }
     var selectedFeePublisher: AnyPublisher<TokenFee?, Never> { get }
 
@@ -22,6 +27,13 @@ protocol FeeSelectorInteractor: FeeSelectorTokensDataProvider, FeeSelectorFeesDa
     var fees: [TokenFee] { get }
     var feesPublisher: AnyPublisher<[TokenFee], Never> { get }
 
+    var selectedFeeTokenItem: TokenItem? { get }
+    var selectedFeeTokenItemPublisher: AnyPublisher<TokenItem?, Never> { get }
+
+    var feeTokenItems: [TokenItem] { get }
+    var feeTokenItemsPublisher: AnyPublisher<[TokenItem], Never> { get }
+
+    func userDidSelect(feeTokenItem: TokenItem)
     func userDidSelect(selectedFee: TokenFee)
 }
 

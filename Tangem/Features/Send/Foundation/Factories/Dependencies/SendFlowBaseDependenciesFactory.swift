@@ -9,9 +9,8 @@
 import TangemUI
 
 protocol SendFlowBaseDependenciesFactory: SendGenericFlowBaseDependenciesFactory {
-    var shouldShowFeeSelector: Bool { get }
-
     var tokenFeeLoader: any TokenFeeLoader { get }
+    var generalFeeProviderBuilder: GeneralFeeProviderBuilder { get }
     var expressDependenciesFactory: ExpressDependenciesFactory { get }
 }
 
@@ -37,7 +36,7 @@ extension SendFlowBaseDependenciesFactory {
         )
     }
 
-    func makeSwapManager() -> CommonSwapManager {
+    func makeSwapManager() -> any SwapManager {
         CommonSwapManager(
             userWalletConfig: userWalletInfo.config,
             interactor: expressDependenciesFactory.expressInteractor
@@ -56,9 +55,9 @@ extension SendFlowBaseDependenciesFactory {
 
     func makeSendWithSwapFeeProvider(
         receiveTokenInput: SendReceiveTokenInput,
-        sendFeeProvider: SendFeeProvider,
-        swapFeeProvider: SendFeeProvider
-    ) -> SendFeeProvider {
+        sendFeeProvider: TokenFeeProvider,
+        swapFeeProvider: TokenFeeProvider
+    ) -> TokenFeeProvider {
         SendWithSwapFeeProvider(
             receiveTokenInput: receiveTokenInput,
             sendFeeProvider: sendFeeProvider,
@@ -66,22 +65,33 @@ extension SendFlowBaseDependenciesFactory {
         )
     }
 
-    func makeSendFeeProvider(input: any SendFeeProviderInput, hasCustomFeeService: Bool) -> SendFeeProvider {
-        let options: [FeeOption] = switch (shouldShowFeeSelector, hasCustomFeeService) {
-        case (true, true): [.slow, .market, .fast, .custom]
-        case (true, false): [.slow, .market, .fast]
-        case (false, true): [.market, .custom]
-        case (false, false): [.market]
-        }
-
-        return CommonSendFeeProvider(input: input, feeProvider: tokenFeeLoader, feeTokenItem: feeTokenItem, defaultFeeOptions: options)
+    func makeGeneralFeeProviders(
+        feeProviderInput: any TokenFeeProviderInput
+    ) -> [TokenFeeProvider] {
+        let generalFeeProviders = generalFeeProviderBuilder.makeGeneralFeeProviders()
+        return generalFeeProviders
     }
 
-    func makeSwapFeeProvider(swapManager: SwapManager) -> SendFeeProvider {
-        SwapFeeProvider(swapManager: swapManager)
+    func makeTokenFeeProvider(
+        input: SendFeeInput,
+        output: SendFeeOutput,
+        feeProviderInput: any TokenFeeProviderInput
+    ) -> TokenFeeProvider {
+        let generalFeeProviders = generalFeeProviderBuilder.makeGeneralFeeProviders()
+
+        return CommonSendFeeProvider(
+            input: input,
+            output: output,
+            feeProviderInput: feeProviderInput,
+            feesProviderFeesLoaders: generalFeeProviders
+        )
     }
 
-    func makeCustomFeeService(input: CustomFeeServiceInput) -> FeeSelectorCustomFeeProvider? {
+    func makeSwapFeeProvider(swapManager: SwapManager) -> TokenFeeProvider {
+        swapManager // SwapFeeProvider(swapManager: swapManager)
+    }
+
+    func makeCustomFeeService(input: TokenFeeProviderInput) -> CustomFeeProvider? {
         let factory = CustomFeeServiceFactory(
             tokenItem: tokenItem,
             feeTokenItem: feeTokenItem,
