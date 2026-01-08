@@ -341,9 +341,9 @@ private extension StakingModel {
     }
 }
 
-// MARK: - SendFeeProvider
+// MARK: - TokenFeeProvider
 
-extension StakingModel: SendFeeProvider {
+extension StakingModel: TokenFeeProvider {
     var feeOptions: [FeeOption] { [.market] }
 
     var fees: [TokenFee] {
