@@ -7,8 +7,8 @@
 "access_code_alert_validation_title" = "Код доступа может быть легко угадан";
 "access_code_check_title" = "Введите код доступа";
 "access_code_check_warining_delete" = "Неверный код доступа. Ваш мобильный кошелёк будет удалён после ещё %@ неверных попыток.";
-"access_code_check_warining_lock" = "Wrong access code. The app will be locked after %@ more failed attempts";
-"access_code_check_warining_wait" = "Wrong access code.\nPlease wait %@ seconds and try again.";
+"access_code_check_warining_lock" = "Неверный код доступа. Приложение будет заблокировано после ещё %@ неудачных попыток.";
+"access_code_check_warining_wait" = "Неверный код доступа.\nПожалуйста, подождите %@ секунд и попробуйте снова.";
 "access_code_confirm_description" = "Подтвердите ваш код доступа, чтобы продолжить.";
 "access_code_confirm_title" = "Повторите код доступа";
 "access_code_create_description" = "Установите %@-значный код доступа для разблокировки кошелька.";
@@ -500,6 +500,10 @@
 "express_token_list_empty_search" = "Токены не найдены. Пожалуйста, попробуйте другой запрос";
 "express_transaction_id_copied" = "ID транзакции скопирован";
 "express_transaction_id" = "ID: %@";
+"fee_selector_choose_speed_description" = "Higher speed means faster confirmation\nand a higher network fee. %@";
+"fee_selector_choose_speed_title" = "Choose speed";
+"fee_selector_choose_token_description" = "Choose which token to use to pay\nthe network fee. %@";
+"fee_selector_choose_token_title" = "Выбрать токен";
 "feed_market_and_news" = "Рынок и Новости";
 "feed_tangem_ai" = "Tangem AI";
 "feed_trending_now" = "В тренде";
@@ -608,7 +612,7 @@
 "hw_upgrade_title" = "Обновиться до аппаратного кошелька";
 "hw_upgrade_to_cold_banner_description" = "Храните свою криптовалюту в безопасности с помощью первоклассного аппаратного кошелька Tangem.";
 "hw_upgrade_to_cold_banner_title" = "Сделать апгрейд кошелька до аппаратной версии.";
-"hw_upgrade" = "Upgrade";
+"hw_upgrade" = "Апгрейд";
 "information_generated_with_ai" = "Эта информация была сгенерирована ИИ.\nНажмите здесь, если обнаружили ошибку.";
 "initial_message_change_access_code_body" = "Чтобы изменить код доступа, приложите карту или кольцо как показано выше и не убирайте до окончания операции";
 "initial_message_change_passcode_body" = "Чтобы изменить пароль, приложите карту как показано выше и не убирайте до окончания операции";
@@ -750,11 +754,11 @@
 "mobile_wallet_requires_min_os_warning_body" = "Обновитесь до версии %1$@, чтобы создать мобильный кошелёк";
 "mobile_wallet_requires_min_os_warning_title" = "Мобильный кошелек требует %1$@ или новее.";
 "news_all_news" = "Все новости";
-"news_like" = "Like";
-"news_quick_recap" = "Quick recap";
-"news_related_news" = "Related News";
-"news_related_tokens" = "Related tokens";
-"news_sources" = "Sources";
+"news_like" = "Нравится";
+"news_quick_recap" = "Резюме";
+"news_related_news" = "Связанные новости";
+"news_related_tokens" = "Связанные токены";
+"news_sources" = "Источники";
 "news_stay_in_the_loop" = "Будьте в курсе";
 "nft_about_title" = "О NFT";
 "nft_asset" = "NFT";
@@ -1550,7 +1554,7 @@
 "visa_onboarding_welcome_description" = "Follow the steps to set up your account.";
 "visa_onboarding_welcome_title" = "Welcome!";
 "visa_transaction_details_blockchain_amount" = "Blockchain amount";
-"visa_transaction_details_currency_code" = "Currency code";
+"visa_transaction_details_currency_code" = "Код валюты";
 "visa_transaction_details_date" = "Date";
 "visa_transaction_details_error_code" = "Error code";
 "visa_transaction_details_header" = "Transaction details";
@@ -1568,7 +1572,7 @@
 "visa_transaction_details_type" = "Type";
 "visa_tx_dispute_button" = "Dispute this transaction";
 "visa_unlock_notification_button" = "Разблокировать";
-"visa_unlock_notification_subtitle" = "Scan your card to unlock access";
+"visa_unlock_notification_subtitle" = "Отсканируйте свою карту, чтобы разблокировать доступ";
 "visa_unlock_notification_title" = "Needed unlock";
 "voice_over_open_card_details" = "Открыть детали устройства";
 "voice_over_open_new_wallet_connect_session" = "Отсканируйте QR-код, чтобы открыть новую сессию WalletConnect";
@@ -1661,7 +1665,7 @@
 "warning_express_pair_unavailable_message" = "Это может произойти из-за того, что провайдер временно не предоставляет обмен выбранной вами пары. Пожалуйста, подождите некоторое время и попробуйте снова. (Код %@)";
 "warning_express_pair_unavailable_title" = "Выбранная пара временно недоступна";
 "warning_express_providers_fca_warning_description" = "Some providers are not authorized by the UK Financial Conduct Authority. You should avoid dealing with them.";
-"warning_express_providers_fca_warning_title" = "FCA Warning List";
+"warning_express_providers_fca_warning_title" = "Предупреждающий список FCA";
 "warning_express_refresh_required_title" = "Сервис временно недоступен";
 "warning_express_too_maximum_amount_title" = "Сумма для обмена должна быть не более %@";
 "warning_express_too_minimal_amount_title" = "Сумма для обмена должна быть не менее %@";
