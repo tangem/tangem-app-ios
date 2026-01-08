@@ -175,16 +175,16 @@ private extension RestakingModel {
         Fee(.init(with: feeTokenItem.blockchain, type: feeTokenItem.amountType, value: value))
     }
 
-    func mapToSendFee(_ state: State) -> SendFee {
+    func mapToSendFee(_ state: State) -> TokenFee {
         switch state {
         case .loading:
-            return SendFee(option: .market, tokenItem: feeTokenItem, value: .loading)
+            return TokenFee(option: .market, tokenItem: feeTokenItem, value: .loading)
         case .networkError(let error):
-            return SendFee(option: .market, tokenItem: feeTokenItem, value: .failure(error))
+            return TokenFee(option: .market, tokenItem: feeTokenItem, value: .failure(error))
         case .stakingValidationError(let error):
-            return SendFee(option: .market, tokenItem: feeTokenItem, value: .failure(error))
+            return TokenFee(option: .market, tokenItem: feeTokenItem, value: .failure(error))
         case .validationError(_, let fee), .ready(let fee):
-            return SendFee(option: .market, tokenItem: feeTokenItem, value: .success(makeFee(value: fee)))
+            return TokenFee(option: .market, tokenItem: feeTokenItem, value: .success(makeFee(value: fee)))
         }
     }
 }
@@ -246,16 +246,14 @@ private extension RestakingModel {
 // MARK: - SendFeeProvider
 
 extension RestakingModel: SendFeeProvider {
-    var feeOptions: [FeeOption] { [.market] }
-
-    var fees: TangemFoundation.LoadingResult<[SendFee], any Error> {
-        .success([mapToSendFee(_state.value)])
+    var fees: [TokenFee] {
+        [mapToSendFee(_state.value)]
     }
 
-    var feesPublisher: AnyPublisher<TangemFoundation.LoadingResult<[SendFee], any Error>, Never> {
+    var feesPublisher: AnyPublisher<[TokenFee], Never> {
         _state
             .withWeakCaptureOf(self)
-            .map { .success([$0.mapToSendFee($1)]) }
+            .map { [$0.mapToSendFee($1)] }
             .eraseToAnyPublisher()
     }
 
@@ -326,11 +324,11 @@ extension RestakingModel: StakingTargetsOutput {
 // MARK: - SendFeeInput
 
 extension RestakingModel: SendFeeInput {
-    var selectedFee: SendFee {
+    var selectedFee: TokenFee {
         mapToSendFee(_state.value)
     }
 
-    var selectedFeePublisher: AnyPublisher<SendFee, Never> {
+    var selectedFeePublisher: AnyPublisher<TokenFee, Never> {
         _state
             .withWeakCaptureOf(self)
             .map { model, fee in
@@ -343,7 +341,7 @@ extension RestakingModel: SendFeeInput {
 // MARK: - SendFeeOutput
 
 extension RestakingModel: SendFeeOutput {
-    func feeDidChanged(fee: SendFee) {
+    func userDidSelect(selectedFee fee: TokenFee) {
         assertionFailure("We can not change fee in staking")
     }
 }
@@ -423,7 +421,7 @@ extension RestakingModel: NotificationTapDelegate {
 extension RestakingModel: StakingBaseDataBuilderInput {
     var bsdkAmount: BSDKAmount? { makeAmount(value: action.amount) }
 
-    var bsdkFee: BlockchainSdk.Fee? { selectedFee.value.value }
+    var bsdkFee: BSDKFee? { selectedFee.value.value }
 
     var isFeeIncluded: Bool { false }
 
