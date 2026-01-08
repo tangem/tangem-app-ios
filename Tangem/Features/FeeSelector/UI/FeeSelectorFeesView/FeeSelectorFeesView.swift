@@ -45,6 +45,7 @@ struct FeeSelectorFeesView: View {
             }
             // Should start where title starts (14 + 36 + 12)
             .separatorPadding(.init(leading: 62, trailing: 14))
+            .enableSeparators(false)
             .padding(.horizontal, 14)
         }
         .scrollBounceBehavior(.basedOnSize)
