@@ -1,5 +1,5 @@
 //
-//  SendFeeProvider.swift
+//  TokenFeeProvider.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,16 +10,12 @@ import Foundation
 import Combine
 import TangemFoundation
 
-protocol SendFeeProviderInput: AnyObject {
+protocol TokenFeeProviderInput: AnyObject {
     var cryptoAmountPublisher: AnyPublisher<Decimal, Never> { get }
     var destinationAddressPublisher: AnyPublisher<String, Never> { get }
 }
 
-protocol SendFeeProvider: FeeSelectorFeesProvider {
-    func updateFees()
-}
-
-extension SendFeeProvider {
+extension TokenFeeProvider {
     var feesHasVariants: AnyPublisher<Bool, Never> {
         feesPublisher
             .filter { !$0.eraseToLoadingResult().isLoading }

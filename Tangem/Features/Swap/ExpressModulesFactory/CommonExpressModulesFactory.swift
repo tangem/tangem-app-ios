@@ -11,6 +11,12 @@ import TangemLocalization
 import TangemExpress
 import BlockchainSdk
 
+struct ExpressFeeSelectorAnalytics: FeeSelectorAnalytics {
+    func logFeeStepOpened() {}
+
+    func logSendFeeSelected(_ feeOption: FeeOption) {}
+}
+
 class CommonExpressModulesFactory {
     @Injected(\.expressPendingTransactionsRepository)
     private var pendingTransactionRepository: ExpressPendingTransactionRepository
@@ -108,6 +114,23 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
             expressInteractor: expressDependenciesFactory.expressInteractor,
             coordinator: coordinator
         )
+    }
+
+    func makeFeeSelectorViewModel(coordinator: any SendFeeSelectorRoutable) -> SendFeeSelectorViewModel {
+        let feeSelectorInteractor = CommonFeeSelectorInteractor(
+            input: expressDependenciesFactory.expressInteractor,
+            output: expressDependenciesFactory.expressInteractor,
+            feesProvider: expressDependenciesFactory.expressInteractor
+        )
+
+        let feeSelectorViewModel = FeeSelectorBuilder().makeFeeSelectorViewModel(
+            feeSelectorInteractor: feeSelectorInteractor,
+            mapper: CommonFeeSelectorFeesViewModelMapper(feeFormatter: CommonFeeFormatter()),
+            analytics: ExpressFeeSelectorAnalytics(),
+            router: coordinator
+        )
+
+        return SendFeeSelectorViewModel(feeSelectorViewModel: feeSelectorViewModel, router: coordinator)
     }
 
     func makeExpressApproveViewModel(

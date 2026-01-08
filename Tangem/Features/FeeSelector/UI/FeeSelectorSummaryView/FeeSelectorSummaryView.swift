@@ -13,6 +13,12 @@ import TangemAssets
 
 struct FeeSelectorSummaryView: View {
     @ObservedObject var viewModel: FeeSelectorSummaryViewModel
+    let shouldShowBottomButton: Bool
+
+    init(viewModel: FeeSelectorSummaryViewModel, shouldShowBottomButton: Bool = true) {
+        self.viewModel = viewModel
+        self.shouldShowBottomButton = shouldShowBottomButton
+    }
 
     // MARK: - View Body
 
@@ -23,7 +29,7 @@ struct FeeSelectorSummaryView: View {
                 suggestedFee
             }
 
-            if viewModel.shouldShowBottomButton {
+            if shouldShowBottomButton {
                 button
             }
         }
