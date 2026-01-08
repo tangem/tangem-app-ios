@@ -9,23 +9,25 @@
 import Combine
 import TangemFoundation
 
-protocol FeeSelectorInteractorInput {
-    var selectedFee: SendFee { get }
-    var selectedFeePublisher: AnyPublisher<SendFee, Never> { get }
+protocol FeeSelectorInteractorInput: AnyObject {
+    var selectedFee: TokenFee { get }
+    var selectedFeePublisher: AnyPublisher<TokenFee, Never> { get }
 }
 
-protocol FeeSelectorInteractor {
-    var selectedFee: SendFee { get }
-    var selectedFeePublisher: AnyPublisher<SendFee, Never> { get }
+protocol FeeSelectorInteractor: FeeSelectorTokensDataProvider, FeeSelectorFeesDataProvider {
+    var selectedFee: TokenFee? { get }
+    var selectedFeePublisher: AnyPublisher<TokenFee?, Never> { get }
 
     // Has to contains all supported fee. E.g .custom or suggested
-    var fees: [SendFee] { get }
-    var feesPublisher: AnyPublisher<[SendFee], Never> { get }
+    var fees: [TokenFee] { get }
+    var feesPublisher: AnyPublisher<[TokenFee], Never> { get }
+
+    func userDidSelect(selectedFee: TokenFee)
 }
 
 extension FeeSelectorInteractor {
-    var autoupdatedSuggestedFee: AnyPublisher<SendFee, Never> {
-        feesPublisher.compactMap { fees -> SendFee? in
+    var autoupdatedSuggestedFee: AnyPublisher<TokenFee, Never> {
+        feesPublisher.compactMap { fees -> TokenFee? in
             // Custom don't support autoupdate
             let fees = fees.filter { $0.option != .custom }
 
@@ -34,14 +36,14 @@ extension FeeSelectorInteractor {
                 return failureFee
             }
 
-            let hasSelected = selectedFee.value.value == nil
+            let hasSelected = selectedFee?.value.value == nil
 
             // Have loading and non selected
             if let loadingFee = fees.first(where: { $0.value.isLoading }), !hasSelected {
                 return loadingFee
             }
 
-            let selectedFeeOption = hasSelected ? selectedFee.option : .market
+            let selectedFeeOption = hasSelected ? selectedFee?.option : .market
 
             // All good. Fee just updated
             if let successFee = fees.first(where: { $0.option == selectedFeeOption }) {

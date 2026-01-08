@@ -214,7 +214,7 @@ extension CommonStakingSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
     func logTransactionSent(
         amount: SendAmount?,
         additionalField: SendDestinationAdditionalField?,
-        fee: SendFee,
+        fee: TokenFee,
         signerType: String,
         currentProviderHost: String
     ) {
