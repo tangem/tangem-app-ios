@@ -7,6 +7,7 @@
 //
 
 import Combine
+import Foundation
 
 protocol FeeSelectorOutput: AnyObject {
     func userDidSelect(selectedFee: TokenFee)

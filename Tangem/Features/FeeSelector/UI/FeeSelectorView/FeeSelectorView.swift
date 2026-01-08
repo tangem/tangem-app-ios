@@ -64,3 +64,10 @@ extension FeeSelectorView {
         }
     }
 }
+
+private extension AnyTransition {
+    static let content = AnyTransition.asymmetric(
+        insertion: .opacity.animation(.curve(.easeInOutRefined, duration: 0.3).delay(0.2)),
+        removal: .opacity.animation(.curve(.easeInOutRefined, duration: 0.3))
+    )
+}
