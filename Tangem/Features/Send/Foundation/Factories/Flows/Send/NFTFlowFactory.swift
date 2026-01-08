@@ -28,6 +28,7 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
     let transactionDispatcherFactory: TransactionDispatcherFactory
     let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let expressDependenciesFactory: ExpressDependenciesFactory
+    let generalFeeProviderBuilder: GeneralFeeProviderBuilder
 
     let analyticsLogger: SendAnalyticsLogger
 
@@ -42,9 +43,10 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
 
     lazy var notificationManager = makeSendWithSwapNotificationManager(receiveTokenInput: sendModel)
     lazy var customFeeService = makeCustomFeeService(input: sendModel)
+    lazy var generalFeeProviders = makeGeneralFeeProviders(feeProviderInput: sendModel)
     lazy var sendFeeProvider = makeSendWithSwapFeeProvider(
         receiveTokenInput: sendModel,
-        sendFeeProvider: makeTokenFeeProvider(input: sendModel, output: sendModel, feeProviderInput: sendModel, customFeeProvider: customFeeService),
+        sendFeeProvider: makeTokenFeeProvider(input: sendModel, output: sendModel, feeProviderInput: sendModel),
         swapFeeProvider: makeSwapFeeProvider(swapManager: swapManager)
     )
 
@@ -100,6 +102,7 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
         )
 
         expressDependenciesFactory = CommonExpressDependenciesFactory(input: expressDependenciesInput)
+        generalFeeProviderBuilder = walletModel.generalFeeProviderBuilder()
     }
 }
 
@@ -261,9 +264,8 @@ extension NFTFlowFactory: SendFeeStepBuildable {
 
     var feeDependencies: SendNewFeeStepBuilder.Dependencies {
         SendNewFeeStepBuilder.Dependencies(
-            feeProvider: sendFeeProvider,
+            feeProviders: generalFeeProviders,
             analyticsLogger: analyticsLogger,
-            customFeeProvider: customFeeService
         )
     }
 }

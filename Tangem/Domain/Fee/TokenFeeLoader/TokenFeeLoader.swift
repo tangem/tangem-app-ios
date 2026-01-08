@@ -15,6 +15,12 @@ protocol TokenFeeLoader {
     func getFee(amount: Decimal, destination: String) async throws -> [BSDKFee]
 }
 
+extension TokenFeeLoader {
+    var supportingFeeOption: [FeeOption] {
+        allowsFeeSelection ? [.slow, .market, .fast] : [.market]
+    }
+}
+
 // MARK: - Custom TokenFeeLoaders
 
 protocol EthereumTokenFeeLoader: TokenFeeLoader {
