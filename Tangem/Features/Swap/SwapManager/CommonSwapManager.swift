@@ -195,7 +195,7 @@ private extension CommonSwapManager {
 
         refreshDataTask?.cancel()
         refreshDataTask = runTask(in: self) {
-            try await Task.sleep(for: .seconds(10))
+            try await Task.sleep(for: .seconds(100))
             try Task.checkCancellation()
 
             AppLogger.info("Timer call autoupdate")

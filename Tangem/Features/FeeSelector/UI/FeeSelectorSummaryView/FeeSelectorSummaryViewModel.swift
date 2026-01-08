@@ -31,8 +31,8 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let feeFormatter: FeeFormatter
-    private let tokensDataProvider: FeeSelectorTokensDataProvider
-    private let feesDataProvider: FeeSelectorFeesDataProvider
+    private let interactor: FeeSelectorInteractor
+
     private weak var router: FeeSelectorSummaryRoutable?
 
     // MARK: - Bag
@@ -41,14 +41,8 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
 
     // MARK: - Init
 
-    init(
-        tokensDataProvider: FeeSelectorTokensDataProvider,
-        feesDataProvider: FeeSelectorFeesDataProvider,
-        shouldShowBottomButton: Bool
-    ) {
-        self.tokensDataProvider = tokensDataProvider
-        self.feesDataProvider = feesDataProvider
-        self.shouldShowBottomButton = shouldShowBottomButton
+    init(interactor: FeeSelectorInteractor) {
+        self.interactor = interactor
 
         feeFormatter = CommonFeeFormatter()
         bind()
