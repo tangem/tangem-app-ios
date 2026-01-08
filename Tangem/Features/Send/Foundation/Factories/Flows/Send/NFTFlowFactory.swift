@@ -19,7 +19,6 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
 
     let walletAddresses: [String]
     let suggestedWallets: [SendDestinationSuggestedWallet]
-    let shouldShowFeeSelector: Bool
 
     let walletModelHistoryUpdater: any WalletModelHistoryUpdater
     let tokenFeeLoader: any TokenFeeLoader
@@ -45,7 +44,7 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
     lazy var customFeeService = makeCustomFeeService(input: sendModel)
     lazy var sendFeeProvider = makeSendWithSwapFeeProvider(
         receiveTokenInput: sendModel,
-        sendFeeProvider: makeSendFeeProvider(input: sendModel, hasCustomFeeService: customFeeService != nil),
+        sendFeeProvider: makeSendFeeProvider(input: sendModel, customFeeProvider: customFeeService),
         swapFeeProvider: makeSwapFeeProvider(swapManager: swapManager)
     )
 
@@ -70,7 +69,6 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
         )
         accountModelAnalyticsProvider = walletModel.account
         walletAddresses = walletModel.addresses.map(\.value)
-        shouldShowFeeSelector = walletModel.shouldShowFeeSelector
 
         suggestedWallets = SendSuggestedWalletsFactory().makeSuggestedWallets(walletModel: walletModel)
         analyticsLogger = Self.makeSendAnalyticsLogger(walletModel: walletModel, sendType: .nft)
