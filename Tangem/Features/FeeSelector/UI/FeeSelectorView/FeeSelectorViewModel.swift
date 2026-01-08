@@ -12,24 +12,25 @@ import TangemUI
 final class FeeSelectorViewModel: ObservableObject, FloatingSheetContentViewModel {
     @Published private(set) var viewState: ViewState
 
+    private let interactor: any FeeSelectorInteractor
+
     private let summaryViewModel: FeeSelectorSummaryViewModel
     private let tokensViewModel: FeeSelectorTokensViewModel
     private let feesViewModel: FeeSelectorFeesViewModel
 
-    private weak var output: FeeSelectorOutput?
     private weak var router: FeeSelectorRoutable?
 
     init(
+        interactor: any FeeSelectorInteractor,
         summaryViewModel: FeeSelectorSummaryViewModel,
         tokensViewModel: FeeSelectorTokensViewModel,
         feesViewModel: FeeSelectorFeesViewModel,
-        output: FeeSelectorOutput,
         router: FeeSelectorRoutable
     ) {
+        self.interactor = interactor
         self.summaryViewModel = summaryViewModel
         self.tokensViewModel = tokensViewModel
         self.feesViewModel = feesViewModel
-        self.output = output
         self.router = router
 
         // [REDACTED_TODO_COMMENT]
@@ -73,8 +74,8 @@ extension FeeSelectorViewModel: FeeSelectorTokensRoutable {
 // MARK: - FeeSelectorFeesRoutable
 
 extension FeeSelectorViewModel: FeeSelectorFeesRoutable {
-    func userDidTapConfirmSelection(selectedFee: FeeSelectorFee) {
-        output?.userDidSelect(selectedFee: selectedFee)
+    func userDidTapConfirmSelection(selectedFee: TokenFee) {
+        interactor.userDidSelect(selectedFee: selectedFee)
         router?.completeFeeSelection()
 
         // [REDACTED_TODO_COMMENT]
