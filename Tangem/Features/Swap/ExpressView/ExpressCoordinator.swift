@@ -37,6 +37,7 @@ final class ExpressCoordinator: CoordinatorObject {
 
     // MARK: - Properties
 
+    private var safariHandle: SafariHandle?
     private let factory: ExpressModulesFactory
 
     required init(
@@ -124,13 +125,25 @@ extension ExpressCoordinator: ExpressRoutable {
 
 // MARK: - FeeSelectorRoutable
 
-extension ExpressCoordinator: FeeSelectorRoutable {
+extension ExpressCoordinator: SendFeeSelectorRoutable {
     func dismissFeeSelector() {
         Task { @MainActor in floatingSheetPresenter.removeActiveSheet() }
     }
 
     func completeFeeSelection() {
         Task { @MainActor in floatingSheetPresenter.removeActiveSheet() }
+    }
+
+    func openFeeSelectorLearnMoreURL(_ url: URL) {
+        Task { @MainActor in
+            floatingSheetPresenter.pauseSheetsDisplaying()
+
+            safariHandle = safariManager.openURL(
+                url, configuration: .init(),
+                onDismiss: { [weak self] in self?.floatingSheetPresenter.resumeSheetsDisplaying() },
+                onSuccess: { [weak self] _ in self?.floatingSheetPresenter.resumeSheetsDisplaying() }
+            )
+        }
     }
 }
 
