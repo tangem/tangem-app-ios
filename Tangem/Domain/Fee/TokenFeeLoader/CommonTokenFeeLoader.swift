@@ -1,5 +1,5 @@
 //
-//  CommonTokenFeeProvider.swift
+//  CommonTokenFeeLoader.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,21 +8,21 @@
 
 import BlockchainSdk
 
-struct CommonTokenFeeProvider {
-    let tokenItem: TokenItem
+struct CommonTokenFeeLoader {
+    let feeTokenItem: TokenItem
     let walletManager: any WalletManager
 }
 
-// MARK: - TokenFeeProvider
+// MARK: - TokenFeeLoader
 
-extension CommonTokenFeeProvider: TokenFeeProvider {
+extension CommonTokenFeeLoader: TokenFeeLoader {
     func estimatedFee(amount: Decimal) async throws -> [BSDKFee] {
         let amount = makeAmount(amount: amount)
         let fees = try await walletManager.estimatedFee(amount: amount).async()
         return fees
     }
 
-    func getFee(dataType: TokenFeeProviderDataType) async throws -> [BSDKFee] {
+    func getFee(dataType: TokenFeeLoaderDataType) async throws -> [BSDKFee] {
         switch dataType {
         case .plain(let amount, let destination):
             let amount = makeAmount(amount: amount)
@@ -31,7 +31,7 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
 
         case .compiledTransaction(let data):
             guard let walletManager = walletManager as? CompiledTransactionFeeProvider else {
-                throw TokenFeeProviderError.tokenFeeProviderDataTypeNotSupported
+                throw TokenFeeLoaderError.tokenFeeLoaderDataTypeNotSupported
             }
 
             let fees = try await walletManager.getFee(compiledTransaction: data)
@@ -39,9 +39,8 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
 
         case .gaslessTransaction(let feeToken, let amount, let destination):
             guard let walletManager = walletManager as? GaslessTransactionFeeProvider,
-                  let token = feeToken.token
-            else {
-                throw TokenFeeProviderError.tokenFeeProviderDataTypeNotSupported
+                  let token = feeToken.token else {
+                throw TokenFeeLoaderError.tokenFeeLoaderDataTypeNotSupported
             }
 
             let bsdkAmount = makeAmount(amount: amount)
@@ -53,8 +52,8 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
 
 // MARK: - Private
 
-private extension CommonTokenFeeProvider {
+private extension CommonTokenFeeLoader {
     func makeAmount(amount: Decimal) -> BSDKAmount {
-        BSDKAmount(with: tokenItem.blockchain, type: tokenItem.amountType, value: amount)
+        BSDKAmount(with: feeTokenItem.blockchain, type: feeTokenItem.amountType, value: amount)
     }
 }
