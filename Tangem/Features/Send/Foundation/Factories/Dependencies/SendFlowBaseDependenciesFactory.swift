@@ -74,17 +74,8 @@ extension SendFlowBaseDependenciesFactory {
         SwapFeeProvider(swapManager: swapManager)
     }
 
-    func makeCustomFeeService(input: CustomFeeServiceInput) -> FeeSelectorCustomFeeProvider? {
-        let factory = CustomFeeServiceFactory(
-            tokenItem: tokenItem,
-            feeTokenItem: feeTokenItem,
-            bitcoinTransactionFeeCalculator: walletModelDependenciesProvider.bitcoinTransactionFeeCalculator
-        )
-
-        let service = factory.makeService()
-        (service as? SendCustomFeeService)?.setup(input: input)
-
-        return service
+    func makeCustomFeeService(input: CustomFeeServiceInput) -> CustomFeeProvider? {
+        return nil
     }
 
     // MARK: - Notifications
