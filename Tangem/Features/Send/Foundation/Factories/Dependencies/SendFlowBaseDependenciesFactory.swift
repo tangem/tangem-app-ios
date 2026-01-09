@@ -54,6 +54,10 @@ extension SendFlowBaseDependenciesFactory {
 
     // MARK: - Fee
 
+    func makeSendWithSwapFeeProvider() -> FeeSelectorFeesDataProvider {
+        
+    }
+
     func makeSendWithSwapFeeProvider(
         receiveTokenInput: SendReceiveTokenInput,
         sendFeeProvider: SendFeeProvider,
