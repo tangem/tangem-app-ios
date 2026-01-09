@@ -32,7 +32,7 @@ enum SendNewFeeStepBuilder {
     struct Dependencies {
         let feeSelectorInteractor: FeeSelectorInteractor
         let analyticsLogger: any FeeSelectorAnalytics
-        let customFeeProvider: (any FeeSelectorCustomFeeProvider)?
+        let customFeeProvider: (any CustomFeeProvider)?
     }
 
     typealias ReturnValue = (

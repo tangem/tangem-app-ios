@@ -97,9 +97,9 @@ class KaspaCustomFeeService {
     }
 }
 
-// MARK: - FeeSelectorCustomFeeProvider
+// MARK: - CustomFeeProvider
 
-extension KaspaCustomFeeService: FeeSelectorCustomFeeProvider {
+extension KaspaCustomFeeService: CustomFeeProvider {
     var customFee: TokenFee {
         TokenFee(option: .custom, tokenItem: feeTokenItem, value: _customFee.value.map { .success($0) } ?? .loading)
     }
