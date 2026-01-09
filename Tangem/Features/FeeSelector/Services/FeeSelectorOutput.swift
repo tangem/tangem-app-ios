@@ -25,6 +25,15 @@ protocol FeeSelectorAnalytics {
 
 // MARK: - Custom fee
 
+typealias CustomFeeProvider = FeeSelectorCustomFeeProvider & FeeSelectorCustomFeeFieldsBuilder & FeeSelectorCustomFeeAvailabilityProvider
+
+protocol FeeSelectorCustomFeeProvider {
+    var customFee: TokenFee { get }
+    var customFeePublisher: AnyPublisher<TokenFee, Never> { get }
+
+    func initialSetupCustomFee(_ fee: BSDKFee)
+}
+
 protocol FeeSelectorCustomFeeFieldsBuilder {
     func buildCustomFeeFields() -> [FeeSelectorCustomFeeRowViewModel]
 }
