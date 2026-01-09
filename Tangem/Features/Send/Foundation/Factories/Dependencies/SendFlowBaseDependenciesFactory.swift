@@ -67,7 +67,7 @@ extension SendFlowBaseDependenciesFactory {
 
     func makeGeneralFeeProviders(
         feeProviderInput: any TokenFeeProviderInput
-    ) -> [GeneralFeeProvider] {
+    ) -> [TokenFeeProvider] {
         let generalFeeProviders = generalFeeProviderBuilder.makeGeneralFeeProviders()
         return generalFeeProviders
     }

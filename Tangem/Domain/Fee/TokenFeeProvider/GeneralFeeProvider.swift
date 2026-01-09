@@ -1,5 +1,5 @@
 //
-//  GeneralFeeProvider.swift
+//  TokenFeeProvider.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,54 +10,10 @@ import Combine
 import Foundation
 import TangemFoundation
 
-extension WalletModel {
-    func generalFeeProviderBuilder() -> GeneralFeeProviderBuilder {
-        .init(walletModel: self)
-    }
-}
-
-struct GeneralFeeProviderBuilder {
-    let walletModel: any WalletModel
-
-    func makeGeneralFeeProviders() -> [SendGeneralFeeProvider] {
-        let supportedFeeTokenItems = [walletModel] // [REDACTED_TODO_COMMENT]
-
-        return supportedFeeTokenItems.map { walletModel in
-            CommonGeneralFeeProvider(
-                feeTokenItem: walletModel.feeTokenItem,
-                tokenFeeLoader: walletModel.tokenFeeLoader,
-                customFeeProvider: walletModel.customFeeProvider,
-            )
-        }
-    }
-}
-
-protocol GeneralFeeProvider {
-    var feeItem: TokenFeeItem { get }
-
-    var fees: [TokenFee] { get }
-    var feesPublisher: AnyPublisher<[TokenFee], Never> { get }
-
-    func reloadFees()
-}
-
-protocol SendGeneralFeeProvider: GeneralFeeProvider {
-    func updateData(amount: Decimal, destination: String)
-}
-
-// extension GeneralFeeProvider {
-//    func startUpdateFees() {
-//        Task { await updateFees() }
-//    }
-// }
-
-final class CommonGeneralFeeProvider {
-    private let feeTokenItem: TokenFeeItem
+final class CommonTokenFeeProvider {
+    let feeTokenItem: TokenFeeItem
     private let tokenFeeLoader: any TokenFeeLoader
     private let customFeeProvider: (any CustomFeeProvider)?
-
-    private var cryptoAmount: Decimal?
-    private var destination: String?
 
     private let feesValueSubject: CurrentValueSubject<LoadingResult<[BSDKFee], any Error>, Never> = .init(.loading)
     private var feesLoadingTask: Task<Void, Never>?
@@ -83,11 +39,9 @@ final class CommonGeneralFeeProvider {
     }
 }
 
-// MARK: - GeneralFeeProvider
+// MARK: - TokenFeeProvider
 
-extension CommonGeneralFeeProvider: GeneralFeeProvider {
-    var feeItem: TokenFeeItem { feeTokenItem }
-
+extension CommonTokenFeeProvider: TokenFeeProvider {
     var fees: [TokenFee] {
         mapToFees(loadingFees: feesValueSubject.value)
     }
@@ -99,9 +53,10 @@ extension CommonGeneralFeeProvider: GeneralFeeProvider {
             .eraseToAnyPublisher()
     }
 
-    func reloadFees() {
+    func updateFees() {
         feesLoadingTask?.cancel()
         feesLoadingTask = Task {
+            /*
             do {
                 guard let cryptoAmount, let destination else {
                     throw GeneralFeeProviderError.feesLoaderReqiredDataNotFound
@@ -114,22 +69,14 @@ extension CommonGeneralFeeProvider: GeneralFeeProvider {
             } catch {
                 feesValueSubject.send(.failure(error))
             }
+             */
         }
-    }
-}
-
-// MARK: - SendGeneralFeeProvider
-
-extension CommonGeneralFeeProvider: SendGeneralFeeProvider {
-    func updateData(amount: Decimal, destination: String) {
-        self.cryptoAmount = amount
-        self.destination = destination
     }
 }
 
 // MARK: - Private
 
-private extension CommonGeneralFeeProvider {
+private extension CommonTokenFeeProvider {
     func mapToFees(loadingFees fees: LoadingResult<[BSDKFee], any Error>) -> [TokenFee] {
         switch fees {
         case .loading:
