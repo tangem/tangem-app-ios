@@ -299,9 +299,9 @@ extension SendCoordinator: ExpressApproveRoutable {
     }
 }
 
-// MARK: - SendFeeSelectorRoutable
+// MARK: - FeeSelectorRoutable
 
-extension SendCoordinator: SendFeeSelectorRoutable {
+extension SendCoordinator: FeeSelectorRoutable {
     func dismissFeeSelector() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()

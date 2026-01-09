@@ -10,6 +10,14 @@ import Combine
 import TangemUI
 import TangemFoundation
 
+protocol FeeSelectorFeesDataProvider {
+    var selectedSelectorFee: TokenFee? { get }
+    var selectedSelectorFeePublisher: AnyPublisher<TokenFee?, Never> { get }
+
+    var selectorFees: [TokenFee] { get }
+    var selectorFeesPublisher: AnyPublisher<[TokenFee], Never> { get }
+}
+
 protocol FeeSelectorFeesRoutable: AnyObject {
     func userDidTapConfirmSelection(selectedFee: TokenFee)
 }
@@ -21,7 +29,7 @@ final class FeeSelectorFeesViewModel: ObservableObject {
     @Published private(set) var customFeeManualSaveIsRequired: Bool
     @Published private(set) var customFeeManualSaveIsAvailable: Bool
 
-    private let interactor: FeeSelectorInteractor
+    private let provider: FeeSelectorFeesDataProvider
     private let mapper: FeeSelectorFeesViewModelMapper
     private let customFeeAvailabilityProvider: FeeSelectorCustomFeeAvailabilityProvider?
     private let analytics: FeeSelectorAnalytics
@@ -29,24 +37,24 @@ final class FeeSelectorFeesViewModel: ObservableObject {
     private weak var router: FeeSelectorFeesRoutable?
 
     private var selectedFee: TokenFee? {
-        interactor.fees.first(where: { $0.option == selectedFeeOption })
+        provider.selectorFees.first(where: { $0.option == selectedFeeOption })
     }
 
     init(
-        interactor: FeeSelectorInteractor,
+        provider: FeeSelectorFeesDataProvider,
         mapper: FeeSelectorFeesViewModelMapper,
         customFeeAvailabilityProvider: FeeSelectorCustomFeeAvailabilityProvider?,
         analytics: FeeSelectorAnalytics,
     ) {
-        self.interactor = interactor
+        self.provider = provider
         self.mapper = mapper
         self.customFeeAvailabilityProvider = customFeeAvailabilityProvider
         self.analytics = analytics
 
-        selectedFeeOption = interactor.selectedFee?.option
-        rowViewModels = mapper.mapToFeeSelectorFeesRowViewModels(values: interactor.fees)
+        selectedFeeOption = provider.selectedSelectorFee?.option
+        rowViewModels = mapper.mapToFeeSelectorFeesRowViewModels(values: provider.selectorFees)
 
-        customFeeManualSaveIsRequired = interactor.selectedFee?.option == .custom
+        customFeeManualSaveIsRequired = provider.selectedSelectorFee?.option == .custom
         customFeeManualSaveIsAvailable = customFeeAvailabilityProvider?.customFeeIsValid == true
 
         bind()
@@ -70,8 +78,8 @@ final class FeeSelectorFeesViewModel: ObservableObject {
         analytics.logFeeStepOpened()
         customFeeAvailabilityProvider?.captureCustomFeeFieldsValue()
 
-        if selectedFeeOption != interactor.selectedFee?.option {
-            selectedFeeOption = interactor.selectedFee?.option
+        if selectedFeeOption != provider.selectedSelectorFee?.option {
+            selectedFeeOption = provider.selectedSelectorFee?.option
         }
     }
 
@@ -90,12 +98,12 @@ final class FeeSelectorFeesViewModel: ObservableObject {
 
 private extension FeeSelectorFeesViewModel {
     func bind() {
-        interactor.selectedFeePublisher
+        provider.selectedSelectorFeePublisher
             .map { $0?.option }
             .receiveOnMain()
             .assign(to: &$selectedFeeOption)
 
-        interactor.feesPublisher
+        provider.selectorFeesPublisher
             .withWeakCaptureOf(self)
             .map { $0.mapper.mapToFeeSelectorFeesRowViewModels(values: $1) }
             .receiveOnMain()

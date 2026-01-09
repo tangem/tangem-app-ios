@@ -8,16 +8,6 @@
 
 import BlockchainSdk
 
-struct TokenFeeProviderBuilder {
-    func makeTokenFeeProviders(walletModel: any WalletModel) -> [TokenFeeProvider] {
-        var supportedFeeItems = [walletModel]
-
-        return supportedFeeItems.map { walletModel in
-            
-        }
-    }
-}
-
 struct TokenFeeLoaderBuilder {
     func makeTokenFeeLoader(walletModel: any WalletModel, walletManager: any WalletManager) -> TokenFeeLoader {
         if walletModel.isDemo {

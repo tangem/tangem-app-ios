@@ -26,7 +26,6 @@ class SellFlowFactory: SendFlowBaseDependenciesFactory {
     let transactionDispatcherFactory: TransactionDispatcherFactory
     let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let expressDependenciesFactory: any ExpressDependenciesFactory
-    let generalFeeProviderBuilder: GeneralFeeProviderBuilder
     let analyticsLogger: SendAnalyticsLogger
 
     lazy var swapManager = makeSwapManager()
@@ -38,10 +37,9 @@ class SellFlowFactory: SendFlowBaseDependenciesFactory {
 
     lazy var notificationManager = makeSendWithSwapNotificationManager(receiveTokenInput: sendModel)
     lazy var customFeeService = makeCustomFeeService(input: sendModel)
-    lazy var generalFeeProviders = makeGeneralFeeProviders(feeProviderInput: sendModel)
     lazy var sendFeeProvider = makeSendWithSwapFeeProvider(
         receiveTokenInput: sendModel,
-        sendFeeProvider: makeTokenFeeProvider(input: sendModel, output: sendModel, feeProviderInput: sendModel),
+        sendFeeProvider: makeSendFeeProvider(input: sendModel, hasCustomFeeService: customFeeService != nil),
         swapFeeProvider: makeSwapFeeProvider(swapManager: swapManager)
     )
 
@@ -93,7 +91,7 @@ class SellFlowFactory: SendFlowBaseDependenciesFactory {
         )
 
         expressDependenciesFactory = CommonExpressDependenciesFactory(input: expressDependenciesInput)
-        generalFeeProviderBuilder = walletModel.generalFeeProviderBuilder()
+
         analyticsLogger = Self.makeSendAnalyticsLogger(walletModel: walletModel, sendType: .sell)
     }
 
@@ -252,8 +250,9 @@ extension SellFlowFactory: SendFeeStepBuildable {
 
     var feeDependencies: SendNewFeeStepBuilder.Dependencies {
         SendNewFeeStepBuilder.Dependencies(
-            feeProviders: generalFeeProviders,
+            feeProvider: sendFeeProvider,
             analyticsLogger: analyticsLogger,
+            customFeeProvider: customFeeService
         )
     }
 }

@@ -209,9 +209,9 @@ private extension UnstakingModel {
     }
 }
 
-// MARK: - TokenFeeProvider
+// MARK: - SendFeeProvider
 
-extension UnstakingModel: TokenFeeProvider {
+extension UnstakingModel: SendFeeProvider {
     var fees: [TokenFee] {
         [mapToSendFee(_state.value)]
     }
