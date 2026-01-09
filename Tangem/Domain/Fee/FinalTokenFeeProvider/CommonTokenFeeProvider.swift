@@ -11,12 +11,24 @@ import Foundation
 
 class CommonTokenFeeProvider {
     let feeTokenItem: TokenItem
-    let tokenFeeLoader: any TokenFeeLoader
-    let stateSubject: CurrentValueSubject<TokenFeeProviderState, Never> = .init(.idle)
+    private let tokenFeeLoader: any TokenFeeLoader
+    private let customFeeProvider: (any CustomFeeProvider)?
 
-    init(feeTokenItem: TokenItem, tokenFeeLoader: any TokenFeeLoader) {
+    private let stateSubject: CurrentValueSubject<TokenFeeProviderState, Never> = .init(.idle)
+    private var supportingFeeOption: [FeeOption] {
+        var supportingFeeOption = tokenFeeLoader.supportingFeeOption
+
+        if customFeeProvider != nil {
+            supportingFeeOption.append(.custom)
+        }
+
+        return supportingFeeOption
+    }
+
+    init(feeTokenItem: TokenItem, tokenFeeLoader: any TokenFeeLoader, customFeeProvider: (any CustomFeeProvider)?) {
         self.tokenFeeLoader = tokenFeeLoader
         self.feeTokenItem = feeTokenItem
+        self.customFeeProvider = customFeeProvider
     }
 }
 
@@ -25,6 +37,38 @@ class CommonTokenFeeProvider {
 extension CommonTokenFeeProvider: TokenFeeProvider {
     var state: TokenFeeProviderState { stateSubject.value }
     var statePublisher: AnyPublisher<TokenFeeProviderState, Never> { stateSubject.eraseToAnyPublisher() }
+
+    var fees: [TokenFee] {
+        var fees = mapToTokenFees(state: state)
+
+        if let customFee = customFeeProvider?.customFee {
+            fees.append(customFee)
+        }
+
+        return fees
+    }
+
+    var feesPublisher: AnyPublisher<[TokenFee], Never> {
+        let feesPublisher = statePublisher.withWeakCaptureOf(self).map { $0.mapToTokenFees(state: $1) }
+        let customFeePublisher = customFeeProvider?.customFeePublisher.map { [$0] }.eraseToAnyPublisher() ?? Just([]).eraseToAnyPublisher()
+
+        return Publishers
+            .CombineLatest(feesPublisher, customFeePublisher)
+            .map(+)
+            .eraseToAnyPublisher()
+    }
+
+    private func mapToTokenFees(state: TokenFeeProviderState) -> [TokenFee] {
+        switch state {
+        case .idle, .unavailable: []
+        case .loading:
+            TokenFeeConverter.mapToLoadingSendFees(options: supportingFeeOption, feeTokenItem: feeTokenItem)
+        case .error(let error):
+            TokenFeeConverter.mapToFailureSendFees(options: supportingFeeOption, feeTokenItem: feeTokenItem, error: error)
+        case .available(let fees):
+            TokenFeeConverter.mapToSendFees(fees: fees, feeTokenItem: feeTokenItem)
+        }
+    }
 }
 
 // MARK: - SimpleTokenFeeProvider
