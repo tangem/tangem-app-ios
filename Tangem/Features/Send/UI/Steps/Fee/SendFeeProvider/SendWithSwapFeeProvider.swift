@@ -13,13 +13,13 @@ import TangemFoundation
 class SendWithSwapFeeProvider {
     private weak var receiveTokenInput: SendReceiveTokenInput?
 
-    private let sendFeeProvider: TokenFeeProvider
-    private let swapFeeProvider: TokenFeeProvider
+    private let sendFeeProvider: SendFeeProvider
+    private let swapFeeProvider: SendFeeProvider
 
     init(
         receiveTokenInput: SendReceiveTokenInput,
-        sendFeeProvider: TokenFeeProvider,
-        swapFeeProvider: TokenFeeProvider
+        sendFeeProvider: SendFeeProvider,
+        swapFeeProvider: SendFeeProvider
     ) {
         self.receiveTokenInput = receiveTokenInput
         self.sendFeeProvider = sendFeeProvider
@@ -27,9 +27,9 @@ class SendWithSwapFeeProvider {
     }
 }
 
-// MARK: - TokenFeeProvider
+// MARK: - SendFeeProvider
 
-extension SendWithSwapFeeProvider: TokenFeeProvider {
+extension SendWithSwapFeeProvider: SendFeeProvider {
     var fees: [TokenFee] {
         switch receiveTokenInput?.receiveToken {
         case .none, .same: sendFeeProvider.fees

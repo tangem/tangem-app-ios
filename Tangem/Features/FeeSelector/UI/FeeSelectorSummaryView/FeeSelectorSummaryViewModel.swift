@@ -25,17 +25,30 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
     @Published
     private(set) var suggestedFee: FeeSelectorRowViewModel?
 
+    @Published
+    private(set) var shouldShowBottomButton: Bool
+
     // MARK: - Dependencies
 
     private let feeFormatter: FeeFormatter
-    private let interactor: FeeSelectorInteractor
-
+    private let tokensDataProvider: FeeSelectorTokensDataProvider
+    private let feesDataProvider: FeeSelectorFeesDataProvider
     private weak var router: FeeSelectorSummaryRoutable?
+
+    // MARK: - Bag
+
+    private var bag = Set<AnyCancellable>()
 
     // MARK: - Init
 
-    init(interactor: FeeSelectorInteractor) {
-        self.interactor = interactor
+    init(
+        tokensDataProvider: FeeSelectorTokensDataProvider,
+        feesDataProvider: FeeSelectorFeesDataProvider,
+        shouldShowBottomButton: Bool
+    ) {
+        self.tokensDataProvider = tokensDataProvider
+        self.feesDataProvider = feesDataProvider
+        self.shouldShowBottomButton = shouldShowBottomButton
 
         feeFormatter = CommonFeeFormatter()
         bind()
@@ -61,8 +74,8 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
 
     private func bind() {
         Publishers.CombineLatest(
-            interactor.selectedFeePublisher.map(\.?.tokenItem),
-            interactor.feeTokenItemsPublisher.map { $0.hasMultipleTokens }
+            tokensDataProvider.selectedFeeTokenItemPublisher,
+            tokensDataProvider.feeTokenItemsPublisher.map { $0.count > 1 ? true : false }
         )
         .receiveOnMain()
         .withWeakCaptureOf(self)
@@ -71,11 +84,12 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
             guard let token = selectedToken else { return nil }
             return viewModel.mapTokenItemToRowViewModel(token: token, canExpand: canExpand)
         }
-        .assign(to: &$suggestedFeeCurrency)
+        .assign(to: \.suggestedFeeCurrency, on: self, ownership: .weak)
+        .store(in: &bag)
 
         Publishers.CombineLatest(
-            interactor.selectedFeePublisher,
-            interactor.feesPublisher.map { $0.hasMultipleFeeOptions }
+            feesDataProvider.selectedSelectorFeePublisher,
+            feesDataProvider.selectorFeesPublisher.map { $0.count > 1 ? true : false }
         )
         .receiveOnMain()
         .withWeakCaptureOf(self)
@@ -84,7 +98,8 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
             guard let fee = selectedFee else { return nil }
             return viewModel.mapFeeToRowViewModel(fee: fee, canExpand: canExpand)
         }
-        .assign(to: &$suggestedFee)
+        .assign(to: \.suggestedFee, on: self, ownership: .weak)
+        .store(in: &bag)
     }
 
     private func mapTokenItemToRowViewModel(token: TokenItem, canExpand: Bool) -> FeeSelectorRowViewModel {

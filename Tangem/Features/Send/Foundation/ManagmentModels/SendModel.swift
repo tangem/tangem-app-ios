@@ -41,7 +41,7 @@ class SendModel {
 
     var externalAmountUpdater: SendAmountExternalUpdater!
     var externalDestinationUpdater: SendDestinationExternalUpdater!
-    var sendFeeProvider: TokenFeeProvider!
+    var sendFeeProvider: SendFeeProvider!
     var informationRelevanceService: InformationRelevanceService!
 
     weak var router: SendModelRoutable?
@@ -141,7 +141,7 @@ private extension SendModel {
             .removeDuplicates()
             .withWeakCaptureOf(self)
             // Filter that SwapManager has different option
-            .filter { $0.swapManager.state.fees.selected != $1 }
+            .filter { $0.mapToSendFee(state: $0.swapManager.state).option != $1 }
             .sink { $0.swapManager.update(feeOption: $1) }
             .store(in: &bag)
 
@@ -585,7 +585,7 @@ extension SendModel: SendFeeInput {
     var selectedFee: TokenFee {
         switch receiveToken {
         case .same: _selectedFee.value
-        case .swap: (try? swapManager.state.fees.selectedTokenFee()) ?? _selectedFee.value
+        case .swap: mapToSendFee(state: swapManager.state)
         }
     }
 
@@ -599,7 +599,7 @@ extension SendModel: SendFeeInput {
                 case .swap:
                     return model.swapManager.statePublisher
                         .filter { !$0.isRefreshRates }
-                        .compactMap { try? $0.fees.selectedTokenFee() }
+                        .map { model.mapToSendFee(state: $0) }
                         .eraseToAnyPublisher()
                 }
             }
@@ -609,11 +609,23 @@ extension SendModel: SendFeeInput {
     var canChooseFeeOption: AnyPublisher<Bool, Never> {
         sendFeeProvider.feesHasVariants
     }
+
+    private func mapToSendFee(state: SwapManagerState) -> TokenFee {
+        switch state {
+        case .loading:
+            return .init(option: state.fees.selected, tokenItem: sourceToken.feeTokenItem, value: .loading)
+        case .restriction(.requiredRefresh(let occurredError), _):
+            return .init(option: state.fees.selected, tokenItem: sourceToken.feeTokenItem, value: .failure(occurredError))
+        case let state:
+            let fee = Result { try state.fees.selectedFee() }
+            return .init(option: state.fees.selected, tokenItem: sourceToken.feeTokenItem, value: .result(fee))
+        }
+    }
 }
 
-// MARK: - TokenFeeProviderInput
+// MARK: - SendFeeProviderInput
 
-extension SendModel: TokenFeeProviderInput {
+extension SendModel: SendFeeProviderInput {
     var cryptoAmountPublisher: AnyPublisher<Decimal, Never> {
         _amount.compactMap { $0?.crypto }.eraseToAnyPublisher()
     }

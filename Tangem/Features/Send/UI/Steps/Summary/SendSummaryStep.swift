@@ -14,13 +14,13 @@ class SendSummaryStep {
     private let viewModel: SendSummaryViewModel
     private let interactor: SendSummaryInteractor
     private let analyticsLogger: SendSummaryAnalyticsLogger
-    private let sendFeeProvider: TokenFeeProvider
+    private let sendFeeProvider: SendFeeProvider
 
     init(
         viewModel: SendSummaryViewModel,
         interactor: SendSummaryInteractor,
         analyticsLogger: SendSummaryAnalyticsLogger,
-        sendFeeProvider: TokenFeeProvider
+        sendFeeProvider: SendFeeProvider
     ) {
         self.viewModel = viewModel
         self.interactor = interactor
