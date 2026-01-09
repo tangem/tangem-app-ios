@@ -38,18 +38,25 @@ extension TokenFeeManager {
     var selectedFeeProviderPublisher: AnyPublisher<any TokenFeeProvider, Never> {
         selectedProviderSubject.eraseToAnyPublisher()
     }
-}
 
-// MARK: - FeeSelectorTokensDataProvider
-
-extension TokenFeeManager: FeeSelectorTokensDataProvider {
-    var selectedSelectorFeeTokenItem: TokenItem? { selectedFeeProvider.feeTokenItem }
-    var selectedSelectorFeeTokenItemPublisher: AnyPublisher<TokenItem?, Never> {
-        selectedProviderSubject.map { $0.feeTokenItem }.eraseToAnyPublisher()
+    var selectedFeeProviderFees: [TokenFee] { selectedFeeProvider.fees }
+    var selectedFeeProviderFeesPublisher: AnyPublisher<[TokenFee], Never> {
+        selectedFeeProviderPublisher.flatMapLatest(\.feesPublisher).eraseToAnyPublisher()
     }
 
-    var selectorFeeTokenItems: [TokenItem] { feeProviders.map(\.feeTokenItem) }
-    var selectorFeeTokenItemsPublisher: AnyPublisher<[TokenItem], Never> { .just(output: selectorFeeTokenItems) }
+    var selectedFeeProviderFeeTokenItems: [TokenItem] { feeProviders.map(\.feeTokenItem) }
+    var selectedFeeProviderFeeTokenItemsPublisher: AnyPublisher<[TokenItem], Never> {
+        .just(output: selectedFeeProviderFeeTokenItems)
+    }
+
+    func updateSelectedFeeProvider(tokenItem: TokenItem) {
+        guard let feeProvider = feeProviders[tokenItem] else {
+            assertionFailure("Fee provider for token item \(tokenItem) not found")
+            return
+        }
+
+        selectedProviderSubject.send(feeProvider)
+    }
 }
 
 // MARK: - TokenFeeProvider

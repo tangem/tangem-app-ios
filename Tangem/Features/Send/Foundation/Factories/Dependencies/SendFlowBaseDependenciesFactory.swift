@@ -11,7 +11,7 @@ import TangemUI
 protocol SendFlowBaseDependenciesFactory: SendGenericFlowBaseDependenciesFactory {
     var shouldShowFeeSelector: Bool { get }
 
-    var tokenFeeLoader: any TokenFeeLoader { get }
+    var tokenFeeManager: TokenFeeManager { get }
     var expressDependenciesFactory: ExpressDependenciesFactory { get }
 }
 
@@ -54,10 +54,6 @@ extension SendFlowBaseDependenciesFactory {
 
     // MARK: - Fee
 
-    func makeSendWithSwapFeeProvider() -> FeeSelectorFeesDataProvider {
-        
-    }
-
     func makeSendWithSwapFeeProvider(
         receiveTokenInput: SendReceiveTokenInput,
         sendFeeProvider: SendFeeProvider,
@@ -70,15 +66,8 @@ extension SendFlowBaseDependenciesFactory {
         )
     }
 
-    func makeSendFeeProvider(input: any SendFeeProviderInput, hasCustomFeeService: Bool) -> SendFeeProvider {
-        let options: [FeeOption] = switch (shouldShowFeeSelector, hasCustomFeeService) {
-        case (true, true): [.slow, .market, .fast, .custom]
-        case (true, false): [.slow, .market, .fast]
-        case (false, true): [.market, .custom]
-        case (false, false): [.market]
-        }
-
-        return CommonSendFeeProvider(input: input, feeProvider: tokenFeeLoader, feeTokenItem: feeTokenItem, defaultFeeOptions: options)
+    func makeSendFeeProvider(input: SendFeeInput, output: SendFeeOutput, dataInput: SendFeeProviderInput) -> SendFeeProvider {
+        CommonSendFeeProvider(input: input, output: output, dataInput: dataInput, tokenFeeManager: tokenFeeManager)
     }
 
     func makeSwapFeeProvider(swapManager: SwapManager) -> SendFeeProvider {
