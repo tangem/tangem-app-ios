@@ -1,0 +1,112 @@
+//
+//  CommonSendFeeProvider.swift
+//  TangemApp
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2025 Tangem AG. All rights reserved.
+//
+
+import Foundation
+import Combine
+import TangemFoundation
+
+final class CommonSendFeeProvider {
+    private weak var input: SendFeeProviderInput?
+
+    private let feeProvider: TokenFeeLoader
+    private let feeTokenItem: TokenItem
+    private let defaultFeeOptions: [FeeOption]
+
+    private let _cryptoAmount: CurrentValueSubject<Decimal?, Never> = .init(nil)
+    private let _destination: CurrentValueSubject<String?, Never> = .init(nil)
+    private let _fees: CurrentValueSubject<LoadingResult<[BSDKFee], Error>, Never> = .init(.loading)
+
+    private var feeLoadingTask: Task<Void, Never>?
+    private var cryptoAmountSubscription: AnyCancellable?
+    private var destinationAddressSubscription: AnyCancellable?
+
+    init(
+        input: any SendFeeProviderInput,
+        feeProvider: TokenFeeLoader,
+        feeTokenItem: TokenItem,
+        defaultFeeOptions: [FeeOption]
+    ) {
+        self.input = input
+        self.feeProvider = feeProvider
+        self.feeTokenItem = feeTokenItem
+        self.defaultFeeOptions = defaultFeeOptions
+
+        bind(input: input)
+    }
+}
+
+// MARK: - SendFeeProvider
+
+extension CommonSendFeeProvider: SendFeeProvider {
+    var feeOptions: [FeeOption] {
+        defaultFeeOptions
+    }
+
+    var fees: [TokenFee] {
+        mapToTokenFee(fees: _fees.value)
+    }
+
+    var feesPublisher: AnyPublisher<[TokenFee], Never> {
+        _fees
+            .withWeakCaptureOf(self)
+            .map { $0.mapToTokenFee(fees: $1) }
+            .eraseToAnyPublisher()
+    }
+
+    func updateFees() {
+        guard let amount = _cryptoAmount.value, let destination = _destination.value else {
+            assertionFailure("SendFeeProvider is not ready to update fees")
+            return
+        }
+
+        if _fees.value.error != nil {
+            _fees.send(.loading)
+        }
+
+        feeLoadingTask?.cancel()
+        feeLoadingTask = Task {
+            do {
+                let loadedFees = try await feeProvider.getFee(amount: amount, destination: destination)
+                try Task.checkCancellation()
+                _fees.send(.success(loadedFees))
+            } catch {
+                AppLogger.error("SendFeeProvider fee loading error", error: error)
+                _fees.send(.failure(error))
+            }
+        }
+    }
+}
+
+// MARK: - Private
+
+private extension CommonSendFeeProvider {
+    func bind(input: any SendFeeProviderInput) {
+        cryptoAmountSubscription = input.cryptoAmountPublisher
+            .withWeakCaptureOf(self)
+            .sink { provider, amount in
+                provider._cryptoAmount.send(amount)
+            }
+
+        destinationAddressSubscription = input.destinationAddressPublisher
+            .withWeakCaptureOf(self)
+            .sink { provider, destination in
+                provider._destination.send(destination)
+            }
+    }
+
+    func mapToTokenFee(fees: LoadingResult<[BSDKFee], any Error>) -> [TokenFee] {
+        switch fees {
+        case .loading:
+            TokenFeeConverter.mapToLoadingSendFees(options: defaultFeeOptions, feeTokenItem: feeTokenItem)
+        case .failure(let error):
+            TokenFeeConverter.mapToFailureSendFees(options: defaultFeeOptions, feeTokenItem: feeTokenItem, error: error)
+        case .success(let fees):
+            TokenFeeConverter.mapToSendFees(options: defaultFeeOptions, feeTokenItem: feeTokenItem, fees: fees)
+        }
+    }
+}

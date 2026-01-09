@@ -42,7 +42,7 @@ final class ExpressFeeSelectorViewModel: ObservableObject, Identifiable {
         expressInteractor.state
             // Don't update the view when reloading
             // Because fees can be empty
-//            .filter { !$0.fees.isEmpty }
+            .filter { !$0.fees.isEmpty }
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
             .sink { viewModel, state in
@@ -56,7 +56,7 @@ final class ExpressFeeSelectorViewModel: ObservableObject, Identifiable {
 
         // Should use the option's array for the correct order
         feeRowViewModels = [FeeOption.market, .fast].compactMap { option in
-            guard let fee = try? fees.selectedFee() else {
+            guard let fee = fees.fees[option] else {
                 return nil
             }
 

@@ -110,6 +110,10 @@ extension CommonSwapManager: SwapManager {
         interactor.refresh(type: .full)
     }
 
+    func updateFees() {
+        interactor.refresh(type: .fee)
+    }
+
     func send() async throws -> TransactionDispatcherResult {
         do {
             // Stop timer while sending
@@ -126,7 +130,7 @@ extension CommonSwapManager: SwapManager {
     }
 }
 
-// MARK: - SendApproveDataBuilderInput
+// MARK: - SwapManager
 
 extension CommonSwapManager: SendApproveDataBuilderInput {
     var selectedExpressProvider: ExpressProvider? {
@@ -143,22 +147,6 @@ extension CommonSwapManager: SendApproveDataBuilderInput {
         }
 
         return permissionRequired.policy
-    }
-}
-
-// MARK: - TokenFeeProvider
-
-extension CommonSwapManager: TokenFeeProvider {
-    var fees: [TokenFee] {
-        interactor.fees
-    }
-
-    var feesPublisher: AnyPublisher<[TokenFee], Never> {
-        interactor.feesPublisher
-    }
-
-    func updateFees() {
-        interactor.refresh(type: .fee)
     }
 }
 
@@ -195,7 +183,7 @@ private extension CommonSwapManager {
 
         refreshDataTask?.cancel()
         refreshDataTask = runTask(in: self) {
-            try await Task.sleep(for: .seconds(100))
+            try await Task.sleep(for: .seconds(10))
             try Task.checkCancellation()
 
             AppLogger.info("Timer call autoupdate")
