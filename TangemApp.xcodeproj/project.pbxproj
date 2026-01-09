@@ -4172,6 +4172,7 @@
 		EF7C4B3F2C9341EB005F9360 /* StakingPendingActionType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7C4B3E2C9341E8005F9360 /* StakingPendingActionType.swift */; };
 		EF7C4B412C936200005F9360 /* StakingTargetType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7C4B402C936200005F9360 /* StakingTargetType.swift */; };
 		EF7E9CA52D9D39E6003A4AA9 /* KaspaUnspentOutputManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7E9CA42D9D39E5003A4AA9 /* KaspaUnspentOutputManager.swift */; };
+		EF800D752F11C36B009289B5 /* CustomFeeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF800D742F11C36B009289B5 /* CustomFeeProvider.swift */; };
 		EF808445293F6B76000D91EA /* TokenURLIconSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF808444293F6B76000D91EA /* TokenURLIconSize.swift */; };
 		EF811A812ECCCB2200642432 /* TangemPayMainHeaderBalanceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF811A802ECCCB2200642432 /* TangemPayMainHeaderBalanceProvider.swift */; };
 		EF811A852ECCCE2800642432 /* TangemPayTokenBalanceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF811A842ECCCE2800642432 /* TangemPayTokenBalanceProvider.swift */; };
@@ -8953,6 +8954,7 @@
 		EF7C4B3E2C9341E8005F9360 /* StakingPendingActionType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPendingActionType.swift; sourceTree = "<group>"; };
 		EF7C4B402C936200005F9360 /* StakingTargetType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingTargetType.swift; sourceTree = "<group>"; };
 		EF7E9CA42D9D39E5003A4AA9 /* KaspaUnspentOutputManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaUnspentOutputManager.swift; sourceTree = "<group>"; };
+		EF800D742F11C36B009289B5 /* CustomFeeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomFeeProvider.swift; sourceTree = "<group>"; };
 		EF808444293F6B76000D91EA /* TokenURLIconSize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenURLIconSize.swift; sourceTree = "<group>"; };
 		EF811A802ECCCB2200642432 /* TangemPayMainHeaderBalanceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayMainHeaderBalanceProvider.swift; sourceTree = "<group>"; };
 		EF811A842ECCCE2800642432 /* TangemPayTokenBalanceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayTokenBalanceProvider.swift; sourceTree = "<group>"; };
@@ -18890,7 +18892,6 @@
 				EF4C045F2DEF2ACC0059D7AA /* SendNewFeeCompactView */,
 				EF066AA72E4C8C380026CEF8 /* SendFeeFinishView */,
 				EFE0D5D62E095D4500936D4F /* SendFeeProvider */,
-				DADBECD92BBE910C007E7885 /* CustomFeeService */,
 			);
 			path = Fee;
 			sourceTree = "<group>";
@@ -19268,6 +19269,7 @@
 			children = (
 				DADBECDC2BBE910C007E7885 /* CustomFeeServiceFactory.swift */,
 				DADBECDA2BBE910C007E7885 /* CustomFeeService.swift */,
+				EF800D742F11C36B009289B5 /* CustomFeeProvider.swift */,
 				EF414FEC2E81E9C3005209DB /* Implementations */,
 			);
 			path = CustomFeeService;
@@ -22395,6 +22397,7 @@
 				EFD114D22F116A890099301F /* FinalTokenFeeProvider */,
 				EFD114D52F116A890099301F /* TokenFeeManager */,
 				EF019A902F000F7600BD3802 /* TokenFeeLoader */,
+				DADBECD92BBE910C007E7885 /* CustomFeeService */,
 				EF110A672F0EA7FD006C7B67 /* TokenFeeProvider */,
 			);
 			path = Fee;
@@ -27150,6 +27153,7 @@
 				DC2AB6D82C08CF6C0050796C /* WelcomeOnboardingCoordinator.swift in Sources */,
 				DC2AB6D92C08CF6C0050796C /* WelcomeOnboardingCoordinatorView.swift in Sources */,
 				DC8E03252DE1893D008967D8 /* WCRequestDetailsBuilder.swift in Sources */,
+				EF800D752F11C36B009289B5 /* CustomFeeProvider.swift in Sources */,
 				DC2AB6DA2C08CF6C0050796C /* WelcomeOnboardingView.swift in Sources */,
 				EAA877172E8C0FE5003AF427 /* YieldManagerInteractor.swift in Sources */,
 				DC2AB6DB2C08CF6C0050796C /* WelcomeOnboardingViewModel.swift in Sources */,
