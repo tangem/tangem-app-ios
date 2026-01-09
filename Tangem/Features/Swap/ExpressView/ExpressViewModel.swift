@@ -93,10 +93,6 @@ final class ExpressViewModel: ObservableObject {
         bind()
     }
 
-    deinit {
-        AppLogger.debug("ExpressViewModel deinit")
-    }
-
     func userDidTapMaxAmount() {
         guard let provider = interactor.getSource().value?.availableBalanceProvider,
               let sourceBalance = provider.balanceType.value else {
@@ -200,7 +196,7 @@ private extension ExpressViewModel {
 
     func openFeeSelectorView() {
         // If we have fees for choosing
-        guard interactor.fees.hasMultipleFeeOptions else {
+        guard !interactor.getState().fees.isEmpty else {
             return
         }
 
@@ -506,24 +502,21 @@ private extension ExpressViewModel {
         switch fees {
         case .loading:
             updateExpressFeeRowViewModel(fee: .loading, action: nil)
-        case .failure:
-            expressFeeRowViewModel = nil
         case .success(let fees):
-            let action: (() -> Void)? = {
-                // If fee is one option then don't open selector
-                guard interactor.fees.hasMultipleFeeOptions else {
-                    return nil
-                }
+            guard let fee = try? fees.selectedFee().amount.value else {
+                expressFeeRowViewModel = nil
+                return
+            }
 
-                return { [weak self] in
-                    self?.openFeeSelectorView()
-                }
-            }()
+            var action: (() -> Void)?
+            // If fee is one option then don't open selector
+            if !fees.isFixed {
+                action = weakify(self, forFunction: ExpressViewModel.openFeeSelectorView)
+            }
 
             do {
                 let sender = try interactor.getSourceWallet()
-                let selectedFee = try fees.selectedFee()
-                let formattedFee = feeFormatter.format(fee: selectedFee.amount.value, tokenItem: sender.feeTokenItem)
+                let formattedFee = feeFormatter.format(fee: fee, tokenItem: sender.feeTokenItem)
                 updateExpressFeeRowViewModel(fee: .loaded(text: formattedFee), action: action)
             } catch {
                 updateExpressFeeRowViewModel(fee: .noData, action: action)

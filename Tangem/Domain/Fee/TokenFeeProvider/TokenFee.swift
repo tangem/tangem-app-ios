@@ -10,7 +10,7 @@ import TangemFoundation
 
 struct TokenFee: Hashable {
     let option: FeeOption
-    let tokenItem: TokenFeeItem
+    let tokenItem: TokenItem
     let value: LoadingResult<BSDKFee, any Error>
 
     func hash(into hasher: inout Hasher) {

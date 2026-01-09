@@ -58,10 +58,6 @@ class ExpressInteractor {
         _swappingPair = .init(swappingPair)
         initialLoading(source: swappingPair.sender, destination: swappingPair.destination)
     }
-
-    deinit {
-        AppLogger.debug(self, "deinit")
-    }
 }
 
 // MARK: - Getters
@@ -193,48 +189,6 @@ extension ExpressInteractor {
             let state = try await interactor.expressManager.update(feeOption: feeOption)
             return try await interactor.mapState(state: state)
         }
-    }
-}
-
-// MARK: - SwapFeeProviderInput
-
-extension ExpressInteractor: FeeSelectorInteractorInput {
-    var selectedFee: TokenFee? {
-        try? getState().fees.selectedTokenFee()
-    }
-
-    var selectedFeePublisher: AnyPublisher<TokenFee?, Never> {
-        state
-            .filter { !$0.isRefreshRates }
-            .map { try? $0.fees.selectedTokenFee() }
-            .eraseToAnyPublisher()
-    }
-}
-
-// MARK: - TokenFeeProvider
-
-extension ExpressInteractor: TokenFeeProvider {
-    var fees: [TokenFee] {
-        getState().fees.fees
-    }
-
-    var feesPublisher: AnyPublisher<[TokenFee], Never> {
-        state
-            .filter { !$0.isRefreshRates }
-            .map { $0.fees.fees }
-            .eraseToAnyPublisher()
-    }
-
-    func updateFees() {
-        refresh(type: .fee)
-    }
-}
-
-// MARK: - FeeSelectorOutput
-
-extension ExpressInteractor: FeeSelectorOutput {
-    func userDidSelect(selectedFee: TokenFee) {
-        updateFeeOption(option: selectedFee.option)
     }
 }
 
@@ -741,11 +695,6 @@ private extension ExpressInteractor {
     }
 
     func mapToFees(fee: ExpressFee) -> Fees {
-        guard let feeTokenItem = getSource().value?.feeTokenItem else {
-            assertionFailure("FeeTokenItem is not found")
-            return Fees(selected: .market, fees: [])
-        }
-
         let selected: FeeOption = switch fee.option {
         case .fast: .fast
         case .market: .market
@@ -753,14 +702,9 @@ private extension ExpressInteractor {
 
         switch fee.variants {
         case .single(let fee):
-            let market = TokenFee(option: .market, tokenItem: feeTokenItem, value: .success(fee))
-            return Fees(selected: selected, fees: [market])
-
+            return Fees(selected: selected, fees: [.market: fee])
         case .double(let market, let priority):
-            let market = TokenFee(option: .market, tokenItem: feeTokenItem, value: .success(market))
-            let priority = TokenFee(option: .fast, tokenItem: feeTokenItem, value: .success(priority))
-
-            return Fees(selected: selected, fees: [market, priority])
+            return Fees(selected: selected, fees: [.market: market, .fast: priority])
         }
     }
 
@@ -889,7 +833,7 @@ extension ExpressInteractor {
             case .readyToSwap(let state, _):
                 return state.fees
             case .idle, .loading, .restriction:
-                return Fees(selected: .market, fees: [])
+                return Fees(selected: .market, fees: [:])
             }
         }
 
@@ -970,7 +914,7 @@ extension ExpressInteractor {
 
     struct Fees {
         let selected: FeeOption
-        let fees: TokenFeesList
+        let fees: [FeeOption: Fee]
     }
 
     // Manager models
@@ -998,19 +942,11 @@ extension ExpressInteractor.Fees {
 
     var isEmpty: Bool { fees.isEmpty }
 
-    func selectedTokenFee() throws -> TokenFee {
-        guard let fee = fees[selected] else {
-            throw ExpressInteractorError.feeNotFound
-        }
-
-        return fee
-    }
-
     func selectedFee() throws -> Fee {
         guard let fee = fees[selected] else {
             throw ExpressInteractorError.feeNotFound
         }
 
-        return try fee.value.get()
+        return fee
     }
 }
