@@ -49,6 +49,8 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
         swapFeeProvider: makeSwapFeeProvider(swapManager: swapManager)
     )
 
+    lazy var feeSelectorDataProvider: FeeSelectorFeesDataProvider 
+
     init(
         userWalletInfo: UserWalletInfo,
         nftAssetStepBuilder: NFTAssetStepBuilder,
@@ -263,7 +265,7 @@ extension NFTFlowFactory: SendFeeStepBuildable {
 
     var feeDependencies: SendNewFeeStepBuilder.Dependencies {
         SendNewFeeStepBuilder.Dependencies(
-            feeProvider: sendFeeProvider,
+            feeSelectorDataProvider: sendFeeProvider,
             analyticsLogger: analyticsLogger,
             customFeeProvider: customFeeService
         )

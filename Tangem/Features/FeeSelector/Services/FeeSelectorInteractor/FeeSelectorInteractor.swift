@@ -14,9 +14,10 @@ protocol FeeSelectorInteractorInput: AnyObject {
     var selectedFeePublisher: AnyPublisher<TokenFee, Never> { get }
 }
 
+typealias FeeSelectorInteractorDataProvider = FeeSelectorFeesDataProvider & FeeSelectorTokensDataProvider & AnyObject
 protocol FeeSelectorInteractor: FeeSelectorFeesDataProvider, FeeSelectorTokensDataProvider {}
 //
-//extension FeeSelectorInteractor {
+// extension FeeSelectorInteractor {
 //    var autoupdatedSuggestedFee: AnyPublisher<TokenFee, Never> {
 //        feesPublisher.compactMap { fees -> TokenFee? in
 //            // Custom don't support autoupdate
@@ -47,4 +48,4 @@ protocol FeeSelectorInteractor: FeeSelectorFeesDataProvider, FeeSelectorTokensDa
 //        .removeDuplicates()
 //        .eraseToAnyPublisher()
 //    }
-//}
+// }
