@@ -243,9 +243,9 @@ private extension RestakingModel {
     }
 }
 
-// MARK: - TokenFeeProvider
+// MARK: - SendFeeProvider
 
-extension RestakingModel: TokenFeeProvider {
+extension RestakingModel: SendFeeProvider {
     var fees: [TokenFee] {
         [mapToSendFee(_state.value)]
     }

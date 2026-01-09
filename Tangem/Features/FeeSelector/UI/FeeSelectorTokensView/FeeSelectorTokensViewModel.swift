@@ -10,6 +10,14 @@ import Combine
 import TangemAccessibilityIdentifiers
 import TangemUIUtils
 
+protocol FeeSelectorTokensDataProvider {
+    var selectedFeeTokenItem: TokenItem? { get }
+    var selectedFeeTokenItemPublisher: AnyPublisher<TokenItem?, Never> { get }
+
+    var feeTokenItems: [TokenItem] { get }
+    var feeTokenItemsPublisher: AnyPublisher<[TokenItem], Never> { get }
+}
+
 protocol FeeSelectorTokensRoutable: AnyObject {
     func userDidSelectFeeToken()
 }
@@ -22,12 +30,17 @@ final class FeeSelectorTokensViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private let interactor: FeeSelectorInteractor
+    private let tokensDataProvider: FeeSelectorTokensDataProvider
     private weak var router: FeeSelectorTokensRoutable?
 
-    init(interactor: FeeSelectorInteractor) {
-        self.interactor = interactor
+    // MARK: - Properties
 
+    private var bag: Set<AnyCancellable> = []
+
+    // MARK: - Init
+
+    init(tokensDataProvider: FeeSelectorTokensDataProvider) {
+        self.tokensDataProvider = tokensDataProvider
         bind()
     }
 
@@ -45,8 +58,8 @@ final class FeeSelectorTokensViewModel: ObservableObject {
 
     private func bind() {
         Publishers.CombineLatest(
-            interactor.feeTokenItemsPublisher,
-            interactor.selectedFeeTokenItemPublisher
+            tokensDataProvider.feeTokenItemsPublisher,
+            tokensDataProvider.selectedFeeTokenItemPublisher
         )
         .receiveOnMain()
         .withWeakCaptureOf(self)
@@ -57,7 +70,8 @@ final class FeeSelectorTokensViewModel: ObservableObject {
                 viewModel.mapTokenItemToRowViewModel(token: token, isSelected: selectedId == token.id)
             }
         }
-        .assign(to: &$feeCurrencyTokens)
+        .assign(to: \.feeCurrencyTokens, on: self, ownership: .weak)
+        .store(in: &bag)
     }
 
     private func mapTokenItemToRowViewModel(token: TokenItem, isSelected: Bool) -> FeeSelectorRowViewModel {
