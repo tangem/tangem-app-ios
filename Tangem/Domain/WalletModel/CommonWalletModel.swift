@@ -547,15 +547,11 @@ extension CommonWalletModel: WalletModelHelpers {
 // MARK: - WalletModelFeesProvider
 
 extension CommonWalletModel: WalletModelFeesProvider {
-    var tokenFeeProviders: [any TokenFeeProvider] {
-        TokenFeeProviderBuilder().makeTokenFeeProviders(walletModel: self)
-    }
-
     var tokenFeeLoader: any TokenFeeLoader {
         TokenFeeLoaderBuilder().makeTokenFeeLoader(walletModel: self, walletManager: walletManager)
     }
 
-    var customFeeProvider: (any CustomFeeProvider)? {
+    var customFeeProvider: (any FeeSelectorCustomFeeProvider)? {
         CustomFeeServiceFactory(
             tokenItem: tokenItem,
             feeTokenItem: feeTokenItem,

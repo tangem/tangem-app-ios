@@ -14,12 +14,12 @@ import SwiftUI
 class StakingTargetsStep {
     private let viewModel: StakingTargetsViewModel
     private let interactor: StakingTargetsInteractor
-    private let sendFeeProvider: TokenFeeProvider
+    private let sendFeeProvider: SendFeeProvider
 
     init(
         viewModel: StakingTargetsViewModel,
         interactor: StakingTargetsInteractor,
-        sendFeeProvider: TokenFeeProvider
+        sendFeeProvider: SendFeeProvider
     ) {
         self.viewModel = viewModel
         self.interactor = interactor

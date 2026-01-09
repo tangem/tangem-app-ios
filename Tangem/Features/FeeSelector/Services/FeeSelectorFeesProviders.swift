@@ -10,11 +10,10 @@ import Combine
 
 // MARK: - Main fees
 
-typealias FeeSelectorFeesProvider = TokenFeeProvider
-// protocol FeeSelectorFeesProvider {
-//    var fees: [TokenFee] { get }
-//    var feesPublisher: AnyPublisher<[TokenFee], Never> { get }
-// }
+protocol FeeSelectorFeesProvider {
+    var fees: [TokenFee] { get }
+    var feesPublisher: AnyPublisher<[TokenFee], Never> { get }
+}
 
 protocol FeeSelectorFeeTokenItemsProvider {
     var tokenItems: [TokenItem] { get }
@@ -40,8 +39,6 @@ protocol FeeSelectorSuggestedFeeProvider {
     var suggestedFeePublisher: AnyPublisher<TokenFee, Never> { get }
 }
 
-typealias CustomFeeProvider = FeeSelectorCustomFeeProvider & FeeSelectorCustomFeeAvailabilityProvider & FeeSelectorCustomFeeFieldsBuilder
-
 protocol FeeSelectorCustomFeeProvider {
     var customFee: TokenFee { get }
     var customFeePublisher: AnyPublisher<TokenFee, Never> { get }
@@ -52,7 +49,6 @@ protocol FeeSelectorCustomFeeProvider {
 extension FeeSelectorCustomFeeProvider {
     func subscribeToInitialSetup(feeProviders: any FeeSelectorFeesProvider) -> AnyCancellable {
         feeProviders.feesPublisher
-            .print("->> feesPublisher")
             .compactMap { $0.first(where: { $0.option == .market })?.value.value }
             .first()
             .sink { initialSetupCustomFee($0) }

@@ -77,10 +77,6 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
         )
     }
 
-    func makeFeeSelectorViewModel(coordinator: any SendFeeSelectorRoutable) -> SendFeeSelectorViewModel {
-        fatalError()
-    }
-
     func makeExpressApproveViewModel(
         source: any ExpressInteractorSourceWallet,
         providerName: String,

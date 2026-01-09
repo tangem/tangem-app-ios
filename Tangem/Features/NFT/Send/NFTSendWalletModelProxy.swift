@@ -236,7 +236,7 @@ extension NFTSendWalletModelProxy: WalletModel {
         mainTokenWalletModel.tokenFeeLoader
     }
 
-    var customFeeProvider: (any CustomFeeProvider)? {
+    var customFeeProvider: (any FeeSelectorCustomFeeProvider)? {
         mainTokenWalletModel.customFeeProvider
     }
 

@@ -14,7 +14,6 @@ import class UIKit.UIApplication
 
 final class ExpressCoordinator: CoordinatorObject {
     @Injected(\.safariManager) private var safariManager: SafariManager
-    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
 
     let dismissAction: DismissAction
     let popToRootAction: Action<PopToRootOptions>
@@ -37,7 +36,6 @@ final class ExpressCoordinator: CoordinatorObject {
 
     // MARK: - Properties
 
-    private var safariHandle: SafariHandle?
     private let factory: ExpressModulesFactory
 
     required init(
@@ -78,8 +76,7 @@ extension ExpressCoordinator: ExpressRoutable {
     }
 
     func presentFeeSelectorView() {
-        let feeSelectorViewModel = factory.makeFeeSelectorViewModel(coordinator: self)
-        Task { @MainActor in floatingSheetPresenter.enqueue(sheet: feeSelectorViewModel) }
+        expressFeeSelectorViewModel = factory.makeExpressFeeSelectorViewModel(coordinator: self)
     }
 
     func presentApproveView(source: any ExpressInteractorSourceWallet, provider: ExpressProvider, selectedPolicy: BSDKApprovePolicy) {
@@ -120,30 +117,6 @@ extension ExpressCoordinator: ExpressRoutable {
 
     func closeSwappingView() {
         dismiss(with: .none)
-    }
-}
-
-// MARK: - FeeSelectorRoutable
-
-extension ExpressCoordinator: SendFeeSelectorRoutable {
-    func dismissFeeSelector() {
-        Task { @MainActor in floatingSheetPresenter.removeActiveSheet() }
-    }
-
-    func completeFeeSelection() {
-        Task { @MainActor in floatingSheetPresenter.removeActiveSheet() }
-    }
-
-    func openFeeSelectorLearnMoreURL(_ url: URL) {
-        Task { @MainActor in
-            floatingSheetPresenter.pauseSheetsDisplaying()
-
-            safariHandle = safariManager.openURL(
-                url, configuration: .init(),
-                onDismiss: { [weak self] in self?.floatingSheetPresenter.resumeSheetsDisplaying() },
-                onSuccess: { [weak self] _ in self?.floatingSheetPresenter.resumeSheetsDisplaying() }
-            )
-        }
     }
 }
 

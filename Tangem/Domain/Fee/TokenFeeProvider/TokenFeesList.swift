@@ -28,9 +28,3 @@ extension TokenFeesList {
         return .success(fees)
     }
 }
-
-extension TokenFeesList {
-    subscript(option: FeeOption) -> TokenFee? {
-        first(where: { $0.option == option })
-    }
-}
