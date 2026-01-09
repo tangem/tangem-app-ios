@@ -4231,7 +4231,6 @@
 		EF8E9AAF2ECE7BD700FFA134 /* ExpressInteractorTokenHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8E9AAE2ECE7BD700FFA134 /* ExpressInteractorTokenHeader.swift */; };
 		EF8EF52F2A0668D6007B52C4 /* SwappingApproveRoutableMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8EF52E2A0668D6007B52C4 /* SwappingApproveRoutableMock.swift */; };
 		EF8F56E32F0C7AD3000F6FD0 /* FeeSelectorBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8F56E22F0C7AD3000F6FD0 /* FeeSelectorBuilder.swift */; };
-		EF8F56E72F0C81A1000F6FD0 /* FeeSelectorFeeTokenItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8F56E62F0C81A1000F6FD0 /* FeeSelectorFeeTokenItem.swift */; };
 		EF8F7FCE2E0E988B00DFC994 /* SendSwapProviderFinishViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8F7FCD2E0E988B00DFC994 /* SendSwapProviderFinishViewModel.swift */; };
 		EF8F7FD02E0E989500DFC994 /* SendSwapProviderFinishView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8F7FCF2E0E989500DFC994 /* SendSwapProviderFinishView.swift */; };
 		EF90AD862ED8A13500572684 /* TangemPayWithdrawRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF90AD852ED8A13500572684 /* TangemPayWithdrawRequest.swift */; };
@@ -4532,7 +4531,6 @@
 		EFE1812B292E30C00072D80C /* SupportChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9FCB92869CC3E00FDE63E /* SupportChatViewModel.swift */; };
 		EFE1812C292E30DF0072D80C /* OnboardingCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1565126B97F8C005B33E4 /* OnboardingCardView.swift */; };
 		EFE242852F0BE580003F3CD5 /* FeeSelectorFeesProviders.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE242842F0BE580003F3CD5 /* FeeSelectorFeesProviders.swift */; };
-		EFE242872F0BE5BC003F3CD5 /* CommonFeeSelectorInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE242862F0BE5BC003F3CD5 /* CommonFeeSelectorInteractor.swift */; };
 		EFE242A72F0BE6CF003F3CD5 /* TokenFeeProviderMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE242A62F0BE6CF003F3CD5 /* TokenFeeProviderMock.swift */; };
 		EFE255FA2C3D8C7C00B17DAC /* SendQRCodeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE255F92C3D8C7C00B17DAC /* SendQRCodeService.swift */; };
 		EFE54CCF2D09D09600D803EB /* OnrampStatusInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE54CCE2D09D09600D803EB /* OnrampStatusInput.swift */; };
@@ -9014,7 +9012,6 @@
 		EF8E9AAE2ECE7BD700FFA134 /* ExpressInteractorTokenHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressInteractorTokenHeader.swift; sourceTree = "<group>"; };
 		EF8EF52E2A0668D6007B52C4 /* SwappingApproveRoutableMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwappingApproveRoutableMock.swift; sourceTree = "<group>"; };
 		EF8F56E22F0C7AD3000F6FD0 /* FeeSelectorBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeSelectorBuilder.swift; sourceTree = "<group>"; };
-		EF8F56E62F0C81A1000F6FD0 /* FeeSelectorFeeTokenItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeSelectorFeeTokenItem.swift; sourceTree = "<group>"; };
 		EF8F7FCD2E0E988B00DFC994 /* SendSwapProviderFinishViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendSwapProviderFinishViewModel.swift; sourceTree = "<group>"; };
 		EF8F7FCF2E0E989500DFC994 /* SendSwapProviderFinishView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendSwapProviderFinishView.swift; sourceTree = "<group>"; };
 		EF90AD852ED8A13500572684 /* TangemPayWithdrawRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayWithdrawRequest.swift; sourceTree = "<group>"; };
@@ -9312,7 +9309,6 @@
 		EFDE599F2F0FCC1B0078136C /* DemoTokenFeeLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoTokenFeeLoader.swift; sourceTree = "<group>"; };
 		EFDE59A12F0FCC1B0078136C /* TokenFeeLoaderBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenFeeLoaderBuilder.swift; sourceTree = "<group>"; };
 		EFE242842F0BE580003F3CD5 /* FeeSelectorFeesProviders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeSelectorFeesProviders.swift; sourceTree = "<group>"; };
-		EFE242862F0BE5BC003F3CD5 /* CommonFeeSelectorInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonFeeSelectorInteractor.swift; sourceTree = "<group>"; };
 		EFE242A62F0BE6CF003F3CD5 /* TokenFeeProviderMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenFeeProviderMock.swift; sourceTree = "<group>"; };
 		EFE255F92C3D8C7C00B17DAC /* SendQRCodeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendQRCodeService.swift; sourceTree = "<group>"; };
 		EFE54CCE2D09D09600D803EB /* OnrampStatusInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampStatusInput.swift; sourceTree = "<group>"; };
@@ -21909,8 +21905,8 @@
 		EA31CC3B2F0D736B0016AABC /* FeeSelectorSummaryRowView */ = {
 			isa = PBXGroup;
 			children = (
-				EA31CC3E2F0D7A7D0016AABC /* FeeSelectorRowViewModel.swift */,
 				EA31CC3C2F0D738D0016AABC /* FeeSelectorRowView.swift */,
+				EA31CC3E2F0D7A7D0016AABC /* FeeSelectorRowViewModel.swift */,
 			);
 			path = FeeSelectorSummaryRowView;
 			sourceTree = "<group>";
@@ -22598,9 +22594,9 @@
 		EF2C5A652F0C34A0009F1B96 /* FeeSelectorSummaryView */ = {
 			isa = PBXGroup;
 			children = (
-				EA31CC3B2F0D736B0016AABC /* FeeSelectorSummaryRowView */,
 				EF2C5A632F0C341A009F1B96 /* FeeSelectorSummaryView.swift */,
 				EF2C5A5F2F0C27B0009F1B96 /* FeeSelectorSummaryViewModel.swift */,
+				EA31CC3B2F0D736B0016AABC /* FeeSelectorSummaryRowView */,
 			);
 			path = FeeSelectorSummaryView;
 			sourceTree = "<group>";
@@ -24179,14 +24175,6 @@
 			path = Builder;
 			sourceTree = "<group>";
 		};
-		EF8F56E82F0C81A8000F6FD0 /* Types */ = {
-			isa = PBXGroup;
-			children = (
-				EF8F56E62F0C81A1000F6FD0 /* FeeSelectorFeeTokenItem.swift */,
-			);
-			path = Types;
-			sourceTree = "<group>";
-		};
 		EF8F7FD12E0E990C00DFC994 /* SendSwapProviderFinishView */ = {
 			isa = PBXGroup;
 			children = (
@@ -25465,7 +25453,6 @@
 			children = (
 				EF2C59FC2F0C0D9C009F1B96 /* FeeSelectorOutput.swift */,
 				EFE242842F0BE580003F3CD5 /* FeeSelectorFeesProviders.swift */,
-				EF8F56E82F0C81A8000F6FD0 /* Types */,
 				EFE242882F0BE5C3003F3CD5 /* FeeSelectorInteractor */,
 			);
 			path = Services;
@@ -25475,7 +25462,6 @@
 			isa = PBXGroup;
 			children = (
 				EF019AE22F09BD5200BD3802 /* FeeSelectorInteractor.swift */,
-				EFE242862F0BE5BC003F3CD5 /* CommonFeeSelectorInteractor.swift */,
 			);
 			path = FeeSelectorInteractor;
 			sourceTree = "<group>";
@@ -28254,7 +28240,6 @@
 				DAD212BC2E822F6B00097D16 /* TangemPayCardDetailsViewModel.swift in Sources */,
 				2D96E9752E55D25300B69F91 /* ReceiveAddressType.swift in Sources */,
 				2D96E9762E55D25300B69F91 /* VisaReceiveAssetInfoProvider.swift in Sources */,
-				EF8F56E72F0C81A1000F6FD0 /* FeeSelectorFeeTokenItem.swift in Sources */,
 				B6F06D192E5D40C1003DB0A9 /* AccountsAwareUserTokensManager.swift in Sources */,
 				2D96E97D2E55D25300B69F91 /* ReceiveDependenciesBuilder.swift in Sources */,
 				EFF8F1EA2E85B3C500A5EF0C /* StakingTargetsStepBuildable.swift in Sources */,
@@ -29062,7 +29047,6 @@
 				B643EBC32E9BF42A00DBBFE3 /* UnarchivedCryptoAccountConditionsValidator.swift in Sources */,
 				DC7127B12897ECDF00F60F71 /* LegacyConfig.swift in Sources */,
 				DAA5E31628D213A4003C0E80 /* CardDTOv4.swift in Sources */,
-				EFE242872F0BE5BC003F3CD5 /* CommonFeeSelectorInteractor.swift in Sources */,
 				EF9F907F299CFCC7006F638F /* WebViewContainerViewModel.swift in Sources */,
 				EF5D83D92B0B7A2B00516B5F /* ExpressSuccessSentView.swift in Sources */,
 				DAFD69432ED9D9B6007FAF9B /* TangemPayFailedToIssueCardSheetView.swift in Sources */,

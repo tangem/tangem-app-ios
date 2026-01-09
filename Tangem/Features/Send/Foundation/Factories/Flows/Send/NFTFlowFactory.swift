@@ -21,8 +21,8 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
     let suggestedWallets: [SendDestinationSuggestedWallet]
     let shouldShowFeeSelector: Bool
 
+    let tokenFeeManager: TokenFeeManager
     let walletModelHistoryUpdater: any WalletModelHistoryUpdater
-    let tokenFeeLoader: any TokenFeeLoader
     let walletModelDependenciesProvider: WalletModelDependenciesProvider
     let availableBalanceProvider: any TokenBalanceProvider
     let fiatAvailableBalanceProvider: any TokenBalanceProvider
@@ -43,13 +43,12 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
 
     lazy var notificationManager = makeSendWithSwapNotificationManager(receiveTokenInput: sendModel)
     lazy var customFeeService = makeCustomFeeService(input: sendModel)
-    lazy var sendFeeProvider = makeSendWithSwapFeeProvider(
-        receiveTokenInput: sendModel,
-        sendFeeProvider: makeSendFeeProvider(input: sendModel, hasCustomFeeService: customFeeService != nil),
-        swapFeeProvider: makeSwapFeeProvider(swapManager: swapManager)
-    )
-
-    lazy var feeSelectorDataProvider: FeeSelectorFeesDataProvider 
+    lazy var sendFeeProvider = makeSendFeeProvider(input: sendModel, output: sendModel, dataInput: sendModel)
+//    lazy var sendFeeProvider = makeSendWithSwapFeeProvider(
+//        receiveTokenInput: sendModel,
+//        sendFeeProvider: makeSendFeeProvider(input: sendModel, hasCustomFeeService: customFeeService != nil),
+//        swapFeeProvider: makeSwapFeeProvider(swapManager: swapManager)
+//    )
 
     init(
         userWalletInfo: UserWalletInfo,
@@ -78,7 +77,7 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
         analyticsLogger = Self.makeSendAnalyticsLogger(walletModel: walletModel, sendType: .nft)
 
         walletModelHistoryUpdater = walletModel
-        tokenFeeLoader = walletModel.tokenFeeLoader
+        tokenFeeManager = TokenFeeManagerBuilder().makeTokenFeeManager(walletModel: walletModel)
         walletModelDependenciesProvider = walletModel
         availableBalanceProvider = walletModel.availableBalanceProvider
         fiatAvailableBalanceProvider = walletModel.fiatAvailableBalanceProvider
@@ -265,7 +264,7 @@ extension NFTFlowFactory: SendFeeStepBuildable {
 
     var feeDependencies: SendNewFeeStepBuilder.Dependencies {
         SendNewFeeStepBuilder.Dependencies(
-            feeSelectorDataProvider: sendFeeProvider,
+            feeSelectorInteractor: sendFeeProvider as! FeeSelectorInteractor,
             analyticsLogger: analyticsLogger,
             customFeeProvider: customFeeService
         )

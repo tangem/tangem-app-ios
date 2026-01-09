@@ -74,8 +74,8 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
 
     private func bind() {
         Publishers.CombineLatest(
-            tokensDataProvider.selectedFeeTokenItemPublisher,
-            tokensDataProvider.feeTokenItemsPublisher.map { $0.count > 1 ? true : false }
+            tokensDataProvider.selectedSelectorFeeTokenItemPublisher,
+            tokensDataProvider.selectorFeeTokenItemsPublisher.map { $0.count > 1 }
         )
         .receiveOnMain()
         .withWeakCaptureOf(self)

@@ -12,7 +12,6 @@ struct FeeSelectorBuilder {
         customFeeAvailabilityProvider: (any FeeSelectorCustomFeeAvailabilityProvider)?,
         mapper: any FeeSelectorFeesViewModelMapper,
         analytics: any FeeSelectorAnalytics,
-        output: any FeeSelectorOutput,
         router: any FeeSelectorRoutable,
         shouldShowSummaryBottomButton: Bool,
     ) -> FeeSelectorViewModel {
