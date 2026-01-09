@@ -607,7 +607,7 @@ extension SendModel: SendFeeInput {
     }
 
     var canChooseFeeOption: AnyPublisher<Bool, Never> {
-        .just(output: true) // sendFeeProvider.feesHasVariants
+        sendFeeProvider.feesHasVariants
     }
 }
 
