@@ -4488,6 +4488,10 @@
 		EFCC878D2D0C8496001CE862 /* ExpressMoreProvidersSoonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFCC878C2D0C8496001CE862 /* ExpressMoreProvidersSoonView.swift */; };
 		EFCCF49C2E01C30200472381 /* ExpressInteractorSourceWallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFCCF49B2E01C30200472381 /* ExpressInteractorSourceWallet.swift */; };
 		EFCCF49E2E01C30700472381 /* ExpressInteractorDestinationWallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFCCF49D2E01C30700472381 /* ExpressInteractorDestinationWallet.swift */; };
+		EFD114D62F116A890099301F /* TokenFeeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD114D32F116A890099301F /* TokenFeeManager.swift */; };
+		EFD114D72F116A890099301F /* TokenFeeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD114D12F116A890099301F /* TokenFeeProvider.swift */; };
+		EFD114D82F116A890099301F /* CommonTokenFeeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD114D02F116A890099301F /* CommonTokenFeeProvider.swift */; };
+		EFD114D92F116A890099301F /* TokenFeeManagerBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD114D42F116A890099301F /* TokenFeeManagerBuilder.swift */; };
 		EFD143832CC550C000B5BA57 /* SendBaseDataBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD143822CC550BE00B5BA57 /* SendBaseDataBuilder.swift */; };
 		EFD143852CC5517E00B5BA57 /* CommonSendBaseDataBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD143842CC5517D00B5BA57 /* CommonSendBaseDataBuilder.swift */; };
 		EFD143872CC5524000B5BA57 /* CommonStakingBaseDataBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD143862CC5523F00B5BA57 /* CommonStakingBaseDataBuilder.swift */; };
@@ -9266,6 +9270,10 @@
 		EFCC878C2D0C8496001CE862 /* ExpressMoreProvidersSoonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressMoreProvidersSoonView.swift; sourceTree = "<group>"; };
 		EFCCF49B2E01C30200472381 /* ExpressInteractorSourceWallet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressInteractorSourceWallet.swift; sourceTree = "<group>"; };
 		EFCCF49D2E01C30700472381 /* ExpressInteractorDestinationWallet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressInteractorDestinationWallet.swift; sourceTree = "<group>"; };
+		EFD114D02F116A890099301F /* CommonTokenFeeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonTokenFeeProvider.swift; sourceTree = "<group>"; };
+		EFD114D12F116A890099301F /* TokenFeeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenFeeProvider.swift; sourceTree = "<group>"; };
+		EFD114D32F116A890099301F /* TokenFeeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenFeeManager.swift; sourceTree = "<group>"; };
+		EFD114D42F116A890099301F /* TokenFeeManagerBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenFeeManagerBuilder.swift; sourceTree = "<group>"; };
 		EFD143822CC550BE00B5BA57 /* SendBaseDataBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendBaseDataBuilder.swift; sourceTree = "<group>"; };
 		EFD143842CC5517D00B5BA57 /* CommonSendBaseDataBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonSendBaseDataBuilder.swift; sourceTree = "<group>"; };
 		EFD143862CC5523F00B5BA57 /* CommonStakingBaseDataBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonStakingBaseDataBuilder.swift; sourceTree = "<group>"; };
@@ -22388,6 +22396,8 @@
 		EF110A6A2F0EA82C006C7B67 /* Fee */ = {
 			isa = PBXGroup;
 			children = (
+				EFD114D22F116A890099301F /* FinalTokenFeeProvider */,
+				EFD114D52F116A890099301F /* TokenFeeManager */,
 				EF019A902F000F7600BD3802 /* TokenFeeLoader */,
 				EF110A672F0EA7FD006C7B67 /* TokenFeeProvider */,
 			);
@@ -25328,6 +25338,24 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
+		EFD114D22F116A890099301F /* FinalTokenFeeProvider */ = {
+			isa = PBXGroup;
+			children = (
+				EFD114D12F116A890099301F /* TokenFeeProvider.swift */,
+				EFD114D02F116A890099301F /* CommonTokenFeeProvider.swift */,
+			);
+			path = FinalTokenFeeProvider;
+			sourceTree = "<group>";
+		};
+		EFD114D52F116A890099301F /* TokenFeeManager */ = {
+			isa = PBXGroup;
+			children = (
+				EFD114D42F116A890099301F /* TokenFeeManagerBuilder.swift */,
+				EFD114D32F116A890099301F /* TokenFeeManager.swift */,
+			);
+			path = TokenFeeManager;
+			sourceTree = "<group>";
+		};
 		EFD143802CC550AE00B5BA57 /* BaseDataBuilder */ = {
 			isa = PBXGroup;
 			children = (
@@ -27612,6 +27640,10 @@
 				B6F773BE2E74812100F39290 /* CryptoAccountsNetworkMapper.swift in Sources */,
 				B618A6832DDA03E3004043C9 /* NFTSendUtil.swift in Sources */,
 				5D4B8BB927EDB327002CE87C /* ArrowView.swift in Sources */,
+				EFD114D62F116A890099301F /* TokenFeeManager.swift in Sources */,
+				EFD114D72F116A890099301F /* TokenFeeProvider.swift in Sources */,
+				EFD114D82F116A890099301F /* CommonTokenFeeProvider.swift in Sources */,
+				EFD114D92F116A890099301F /* TokenFeeManagerBuilder.swift in Sources */,
 				EF0AC19C2D20706600233B81 /* MultiWalletNotificationEvent.swift in Sources */,
 				B06997D02692EC5E0014A676 /* SellService.swift in Sources */,
 				EFBBA4982E8A84BB004F48ED /* SendSuggestedWalletsFactory.swift in Sources */,

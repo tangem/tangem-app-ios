@@ -12,17 +12,16 @@ import TangemFoundation
 final class CommonFeeSelectorInteractor {
     private weak var input: (any FeeSelectorInteractorInput)?
     private weak var output: (any FeeSelectorOutput)?
-
-    private let tokenFeeManager: TokenFeeManager
+    private weak var dataProvider: (any FeeSelectorInteractorDataProvider)?
 
     init(
         input: any FeeSelectorInteractorInput,
         output: any FeeSelectorOutput,
-        tokenFeeManager: TokenFeeManager,
+        dataProvider: any FeeSelectorInteractorDataProvider,
     ) {
         self.input = input
         self.output = output
-        self.tokenFeeManager = tokenFeeManager
+        self.dataProvider = dataProvider
     }
 }
 
@@ -37,18 +36,25 @@ extension CommonFeeSelectorInteractor: FeeSelectorFeesDataProvider {
     var selectedSelectorFeePublisher: AnyPublisher<TokenFee?, Never> {
         input?.selectedFeePublisher.eraseToOptional().eraseToAnyPublisher() ?? .just(output: .none)
     }
-    var selectorFees: [TokenFee] { tokenFeeManager.fees }
-    var selectorFeesPublisher: AnyPublisher<[TokenFee], Never> { tokenFeeManager.feesPublisher }
+
+    var selectorFees: [TokenFee] { dataProvider?.selectorFees ?? [] }
+    var selectorFeesPublisher: AnyPublisher<[TokenFee], Never> {
+        dataProvider?.selectorFeesPublisher ?? .just(output: [])
+    }
 }
 
 // MARK: - FeeSelectorTokensDataProvider
 
 extension CommonFeeSelectorInteractor: FeeSelectorTokensDataProvider {
-    var selectedSelectorFeeTokenItem: TokenItem? { selectedSelectorFee?.tokenItem }
-    var selectedSelectorFeeTokenItemPublisher: AnyPublisher<TokenItem?, Never> { selectedSelectorFeePublisher.map { $0?.tokenItem }.eraseToAnyPublisher() }
+    var selectedSelectorFeeTokenItem: TokenItem? { input?.selectedFee.tokenItem }
+    var selectedSelectorFeeTokenItemPublisher: AnyPublisher<TokenItem?, Never> {
+        input?.selectedFeePublisher.map { $0.tokenItem }.eraseToOptional().eraseToAnyPublisher() ?? .just(output: .none)
+    }
 
-    var selectorFeeTokenItems: [TokenItem] { tokenFeeManager.selectorFeeTokenItems }
-    var selectorFeeTokenItemsPublisher: AnyPublisher<[TokenItem], Never> { tokenFeeManager.selectorFeeTokenItemsPublisher }
+    var selectorFeeTokenItems: [TokenItem] { dataProvider?.selectorFeeTokenItems ?? [] }
+    var selectorFeeTokenItemsPublisher: AnyPublisher<[TokenItem], Never> {
+        dataProvider?.selectorFeeTokenItemsPublisher ?? .just(output: [])
+    }
 }
 
 // MARK: - Private
