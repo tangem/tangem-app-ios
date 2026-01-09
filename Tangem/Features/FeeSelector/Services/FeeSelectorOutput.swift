@@ -24,4 +24,3 @@ protocol FeeSelectorAnalytics {
 }
 
 // MARK: - Custom fee
-

@@ -63,8 +63,14 @@ extension TokenFeeManager {
 
 extension TokenFeeManager: TokenFeeProvider {
     var feeTokenItem: TokenItem { selectedFeeProvider.feeTokenItem }
+
     var state: TokenFeeProviderState { selectedFeeProvider.state }
     var statePublisher: AnyPublisher<TokenFeeProviderState, Never> {
-        selectedProviderSubject.flatMapLatest { $0.statePublisher }.eraseToAnyPublisher()
+        selectedFeeProviderPublisher.flatMapLatest(\.statePublisher).eraseToAnyPublisher()
+    }
+
+    var fees: [TokenFee] { selectedFeeProvider.fees }
+    var feesPublisher: AnyPublisher<[TokenFee], Never> {
+        selectedFeeProviderPublisher.flatMapLatest(\.feesPublisher).eraseToAnyPublisher()
     }
 }

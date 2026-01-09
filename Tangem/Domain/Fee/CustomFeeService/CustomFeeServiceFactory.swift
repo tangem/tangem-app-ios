@@ -1,5 +1,5 @@
 //
-//  CustomFeeServiceFactory.swift
+//  CustomFeeProviderBuilder.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,31 +9,25 @@
 import Foundation
 import BlockchainSdk
 
-struct CustomFeeServiceFactory {
-    private let tokenItem: TokenItem
-    private let feeTokenItem: TokenItem
-    private let bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator?
+enum CustomFeeProviderBuilder {
+    static func makeCustomFeeProvider(walletModel: any WalletModel, walletManager: any WalletManager) -> (any CustomFeeProvider)? {
+        switch walletModel.tokenItem.blockchain {
+        case .bitcoin:
+            guard let bitcoinTransactionFeeCalculator = walletManager as? BitcoinTransactionFeeCalculator else {
+                return nil
+            }
 
-    init(tokenItem: TokenItem, feeTokenItem: TokenItem, bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator?) {
-        self.tokenItem = tokenItem
-        self.feeTokenItem = feeTokenItem
-        self.bitcoinTransactionFeeCalculator = bitcoinTransactionFeeCalculator
-    }
-
-    func makeService() -> CustomFeeProvider? {
-        switch tokenItem.blockchain {
-        case .bitcoin where bitcoinTransactionFeeCalculator != nil:
             return BitcoinCustomFeeService(
-                tokenItem: tokenItem,
-                feeTokenItem: feeTokenItem,
-                bitcoinTransactionFeeCalculator: bitcoinTransactionFeeCalculator!
+                tokenItem: walletModel.tokenItem,
+                feeTokenItem: walletModel.feeTokenItem,
+                bitcoinTransactionFeeCalculator: bitcoinTransactionFeeCalculator
             )
 
         case .kaspa:
-            return KaspaCustomFeeService(tokenItem: tokenItem, feeTokenItem: feeTokenItem)
+            return KaspaCustomFeeService(tokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem)
 
-        case _ where tokenItem.blockchain.isEvm:
-            return EVMCustomFeeService(sourceTokenItem: tokenItem, feeTokenItem: feeTokenItem)
+        case _ where walletModel.tokenItem.blockchain.isEvm:
+            return EVMCustomFeeService(sourceTokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem)
 
         default:
             return nil
