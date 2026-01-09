@@ -12,16 +12,9 @@ import TangemUI
 final class FeeSelectorViewModel: ObservableObject, FloatingSheetContentViewModel {
     // MARK: - Published
 
-    @Published
-    private(set) var viewState: ViewState {
-        didSet {
-            previousState = oldValue
-        }
-    }
+    @Published private(set) var viewState: ViewState
 
     // MARK: - Properties
-
-    private var previousState: ViewState?
 
     private let interactor: any FeeSelectorInteractor
 
@@ -85,7 +78,8 @@ extension FeeSelectorViewModel: FeeSelectorSummaryRoutable {
 // MARK: - FeeSelectorTokensRoutable
 
 extension FeeSelectorViewModel: FeeSelectorTokensRoutable {
-    func userDidSelectFeeToken() {
+    func userDidSelectFeeToken(tokenItem: TokenItem) {
+        interactor.userDidSelectTokenItem(tokenItem)
         viewState = .summary(summaryViewModel)
     }
 }
@@ -94,7 +88,7 @@ extension FeeSelectorViewModel: FeeSelectorTokensRoutable {
 
 extension FeeSelectorViewModel: FeeSelectorFeesRoutable {
     func userDidTapConfirmSelection(selectedFee: TokenFee) {
-        interactor.userDidSelect(selectedFee: selectedFee)
+        interactor.userDidSelectFee(selectedFee)
         viewState = .summary(summaryViewModel)
     }
 }
