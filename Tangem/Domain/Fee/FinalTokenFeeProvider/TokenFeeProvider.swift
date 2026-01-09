@@ -11,14 +11,22 @@ import Combine
 
 extension WalletModel {
     var tokenFeeProvider: any TokenFeeProvider {
-        CommonTokenFeeProvider(feeTokenItem: feeTokenItem, tokenFeeLoader: tokenFeeLoader)
+        CommonTokenFeeProvider(
+            feeTokenItem: feeTokenItem,
+            tokenFeeLoader: tokenFeeLoader,
+            customFeeProvider: customFeeProvider
+        )
     }
 }
 
 protocol TokenFeeProvider: AnyObject {
     var feeTokenItem: TokenItem { get }
+
     var state: TokenFeeProviderState { get }
     var statePublisher: AnyPublisher<TokenFeeProviderState, Never> { get }
+
+    var fees: [TokenFee] { get }
+    var feesPublisher: AnyPublisher<[TokenFee], Never> { get }
 }
 
 enum TokenFeeProviderState {
@@ -32,30 +40,6 @@ enum TokenFeeProviderState {
 enum TokenFeeProviderStateUnavailableReason {
     case notSupported
     case notEnoughFeeBalance
-}
-
-// MARK: - TokenFeeProvider+
-
-extension TokenFeeProvider {
-    var fees: [TokenFee] {
-        mapToTokenFees(state: state)
-    }
-
-    var feesPublisher: AnyPublisher<[TokenFee], Never> {
-        statePublisher
-            .withWeakCaptureOf(self)
-            .map { $0.mapToTokenFees(state: $1) }
-            .eraseToAnyPublisher()
-    }
-
-    private func mapToTokenFees(state: TokenFeeProviderState) -> [TokenFee] {
-        switch state {
-        case .idle, .unavailable: []
-        case .loading: [TokenFee(option: .market, tokenItem: feeTokenItem, value: .loading)]
-        case .error(let error): [TokenFee(option: .market, tokenItem: feeTokenItem, value: .failure(error))]
-        case .available(let fees): TokenFeeConverter.mapToSendFees(fees: fees, feeTokenItem: feeTokenItem)
-        }
-    }
 }
 
 // MARK: - Variants
