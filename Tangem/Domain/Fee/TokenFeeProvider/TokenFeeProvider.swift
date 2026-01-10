@@ -55,6 +55,7 @@ protocol CEXTokenFeeProvider: SimpleTokenFeeProvider {
 protocol DEXTokenFeeProvider: SimpleTokenFeeProvider {}
 
 protocol EthereumDEXTokenFeeProvider: DEXTokenFeeProvider {
+    func updateFees(estimatedGasLimit: Int) async
     func updateFees(amount: BSDKAmount, destination: String, txData: Data) async
 }
 
@@ -81,12 +82,16 @@ extension TokenFeeProvider {
         try cast(SimpleTokenFeeProvider.self)
     }
 
-    func asSolanaTokenFeeLoader() throws -> SolanaTokenFeeLoader {
-        guard let solanaTokenFeeLoader = self as? SolanaTokenFeeLoader else {
-            throw TokenFeeLoaderError.solanaTokenFeeLoaderNotFound
-        }
+    func asCEXTokenFeeProvider() throws -> CEXTokenFeeProvider {
+        try cast(CEXTokenFeeProvider.self)
+    }
 
-        return solanaTokenFeeLoader
+    func asEthereumDEXTokenFeeProvider() throws -> EthereumDEXTokenFeeProvider {
+        try cast(EthereumDEXTokenFeeProvider.self)
+    }
+
+    func asSolanaDEXTokenFeeProvider() throws -> SolanaDEXTokenFeeProvider {
+        try cast(SolanaDEXTokenFeeProvider.self)
     }
 }
 

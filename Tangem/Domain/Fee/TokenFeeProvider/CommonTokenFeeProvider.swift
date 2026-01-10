@@ -115,10 +115,29 @@ extension CommonTokenFeeProvider: CEXTokenFeeProvider {
 // MARK: - EthereumDEXTokenFeeProvider
 
 extension CommonTokenFeeProvider: EthereumDEXTokenFeeProvider {
+    func updateFees(estimatedGasLimit: Int) async {
+        do {
+            stateSubject.send(.loading)
+            let fee = try await tokenFeeLoader.asEthereumTokenFeeLoader().estimatedFee(
+                estimatedGasLimit: estimatedGasLimit
+            )
+            try Task.checkCancellation()
+            stateSubject.send(.available([fee]))
+        } catch TokenFeeLoaderError.ethereumTokenFeeLoaderNotFound {
+            stateSubject.send(.unavailable(.notSupported))
+        } catch {
+            stateSubject.send(.error(error))
+        }
+    }
+
     func updateFees(amount: BSDKAmount, destination: String, txData: Data) async {
         do {
             stateSubject.send(.loading)
-            let fees = try await tokenFeeLoader.asEthereumTokenFeeLoader().getFee(amount: amount, destination: destination, txData: txData)
+            let fees = try await tokenFeeLoader.asEthereumTokenFeeLoader().getFee(
+                amount: amount,
+                destination: destination,
+                txData: txData
+            )
             try Task.checkCancellation()
             stateSubject.send(.available(fees))
         } catch TokenFeeLoaderError.ethereumTokenFeeLoaderNotFound {
@@ -135,7 +154,9 @@ extension CommonTokenFeeProvider: SolanaDEXTokenFeeProvider {
     func updateFees(compiledTransaction data: Data) async {
         do {
             stateSubject.send(.loading)
-            let fees = try await tokenFeeLoader.asSolanaTokenFeeLoader().getFee(compiledTransaction: data)
+            let fees = try await tokenFeeLoader.asSolanaTokenFeeLoader().getFee(
+                compiledTransaction: data
+            )
             try Task.checkCancellation()
             stateSubject.send(.available(fees))
         } catch TokenFeeLoaderError.solanaTokenFeeLoaderNotFound {
