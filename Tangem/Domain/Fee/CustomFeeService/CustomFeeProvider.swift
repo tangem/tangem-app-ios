@@ -15,6 +15,15 @@ protocol CustomFeeProvider: FeeSelectorCustomFeeFieldsBuilder, FeeSelectorCustom
     func initialSetupCustomFee(_ fee: BSDKFee)
 }
 
+extension CustomFeeProvider {
+    func subscribeToInitialSetup(tokenFeeProvider: any TokenFeeProvider) -> AnyCancellable {
+        tokenFeeProvider.feesPublisher
+            .compactMap { $0.first(where: { $0.option == .market })?.value.value }
+            .first()
+            .sink { initialSetupCustomFee($0) }
+    }
+}
+
 protocol FeeSelectorCustomFeeFieldsBuilder {
     func buildCustomFeeFields() -> [FeeSelectorCustomFeeRowViewModel]
 }
