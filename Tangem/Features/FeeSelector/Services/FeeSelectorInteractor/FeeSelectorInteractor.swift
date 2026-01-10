@@ -14,7 +14,7 @@ protocol FeeSelectorInteractorInput: AnyObject {
     var selectedFeePublisher: AnyPublisher<TokenFee, Never> { get }
 }
 
-protocol FeeSelectorInteractor: FeeSelectorFeesDataProvider, FeeSelectorTokensDataProvider {
+protocol FeeSelectorInteractor: FeeSelectorTokensDataProvider, FeeSelectorFeesDataProvider, FeeSelectorCustomFeeDataProviding {
     func userDidSelectTokenItem(_ tokenItem: TokenItem)
     func userDidSelectFee(_ fee: TokenFee)
 }

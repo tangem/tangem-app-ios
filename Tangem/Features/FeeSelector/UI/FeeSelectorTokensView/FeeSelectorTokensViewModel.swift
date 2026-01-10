@@ -41,6 +41,7 @@ final class FeeSelectorTokensViewModel: ObservableObject {
 
     init(tokensDataProvider: FeeSelectorTokensDataProvider) {
         self.tokensDataProvider = tokensDataProvider
+
         bind()
     }
 
