@@ -9,12 +9,6 @@
 import Combine
 import TangemFoundation
 
-extension [any TokenFeeProvider] {
-    subscript(_ tokenItem: TokenItem) -> (any TokenFeeProvider)? {
-        first { $0.feeTokenItem == tokenItem }
-    }
-}
-
 final class TokenFeeManager {
     private let feeProviders: [any TokenFeeProvider]
     private let selectedProviderSubject: CurrentValueSubject<any TokenFeeProvider, Never>
@@ -72,5 +66,13 @@ extension TokenFeeManager: TokenFeeProvider {
     var fees: [TokenFee] { selectedFeeProvider.fees }
     var feesPublisher: AnyPublisher<[TokenFee], Never> {
         selectedFeeProviderPublisher.flatMapLatest(\.feesPublisher).eraseToAnyPublisher()
+    }
+}
+
+// MARK: - [any TokenFeeProvider]+
+
+extension [any TokenFeeProvider] {
+    subscript(_ tokenItem: TokenItem) -> (any TokenFeeProvider)? {
+        first { $0.feeTokenItem == tokenItem }
     }
 }
