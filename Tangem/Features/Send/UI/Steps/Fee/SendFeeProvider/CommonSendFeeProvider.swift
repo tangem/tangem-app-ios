@@ -128,6 +128,10 @@ extension CommonSendFeeProvider: FeeSelectorInteractor {
         tokenFeeManager.selectedFeeProviderFeeTokenItemsPublisher
     }
 
+    var customFeeProvider: (any CustomFeeProvider)? {
+        (tokenFeeManager.selectedFeeProvider as? FeeSelectorCustomFeeDataProviding)?.customFeeProvider
+    }
+
     func userDidSelectFee(_ fee: TokenFee) {
         output?.userDidSelect(selectedFee: fee)
     }

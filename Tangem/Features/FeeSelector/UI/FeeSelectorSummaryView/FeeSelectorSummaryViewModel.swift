@@ -19,20 +19,15 @@ protocol FeeSelectorSummaryRoutable: AnyObject {
 final class FeeSelectorSummaryViewModel: ObservableObject {
     // MARK: - Published
 
-    @Published
-    private(set) var suggestedFeeCurrency: FeeSelectorRowViewModel?
-
-    @Published
-    private(set) var suggestedFee: FeeSelectorRowViewModel?
-
-    @Published
-    private(set) var shouldShowBottomButton: Bool
+    @Published private(set) var suggestedFeeCurrency: FeeSelectorRowViewModel?
+    @Published private(set) var suggestedFee: FeeSelectorRowViewModel?
 
     // MARK: - Dependencies
 
-    private let feeFormatter: FeeFormatter
     private let tokensDataProvider: FeeSelectorTokensDataProvider
     private let feesDataProvider: FeeSelectorFeesDataProvider
+    private let feeFormatter: FeeFormatter
+
     private weak var router: FeeSelectorSummaryRoutable?
 
     // MARK: - Bag
@@ -44,13 +39,12 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
     init(
         tokensDataProvider: FeeSelectorTokensDataProvider,
         feesDataProvider: FeeSelectorFeesDataProvider,
-        shouldShowBottomButton: Bool
+        feeFormatter: any FeeFormatter
     ) {
         self.tokensDataProvider = tokensDataProvider
         self.feesDataProvider = feesDataProvider
-        self.shouldShowBottomButton = shouldShowBottomButton
+        self.feeFormatter = feeFormatter
 
-        feeFormatter = CommonFeeFormatter()
         bind()
     }
 
