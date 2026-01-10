@@ -12,21 +12,25 @@ import Foundation
 class CommonTokenFeeProvider {
     let feeTokenItem: TokenItem
     private let tokenFeeLoader: any TokenFeeLoader
-    private let customFeeProvider: (any CustomFeeProvider)?
+    private let _customFeeProvider: (any CustomFeeProvider)?
 
     private let stateSubject: CurrentValueSubject<TokenFeeProviderState, Never> = .init(.idle)
     private var customFeeProviderInitialSetupCancellable: AnyCancellable?
 
-    init(feeTokenItem: TokenItem, tokenFeeLoader: any TokenFeeLoader, customFeeProvider: (any CustomFeeProvider)?) {
+    init(
+        feeTokenItem: TokenItem,
+        tokenFeeLoader: any TokenFeeLoader,
+        customFeeProvider: (any CustomFeeProvider)?
+    ) {
         self.tokenFeeLoader = tokenFeeLoader
         self.feeTokenItem = feeTokenItem
-        self.customFeeProvider = customFeeProvider
+        _customFeeProvider = customFeeProvider
 
         bind()
     }
 
     private func bind() {
-        customFeeProviderInitialSetupCancellable = customFeeProvider?.subscribeToInitialSetup(
+        customFeeProviderInitialSetupCancellable = _customFeeProvider?.subscribeToInitialSetup(
             tokenFeeProvider: self
         )
     }
@@ -41,7 +45,7 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
     var fees: [TokenFee] {
         var fees = mapToTokenFees(state: state)
 
-        if let customFee = customFeeProvider?.customFee {
+        if let customFee = _customFeeProvider?.customFee {
             fees.append(customFee)
         }
 
@@ -50,7 +54,7 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
 
     var feesPublisher: AnyPublisher<[TokenFee], Never> {
         let feesPublisher = statePublisher.withWeakCaptureOf(self).map { $0.mapToTokenFees(state: $1) }
-        let customFeePublisher = customFeeProvider?.customFeePublisher.map { [$0] }.eraseToAnyPublisher() ?? Just([]).eraseToAnyPublisher()
+        let customFeePublisher = _customFeeProvider?.customFeePublisher.map { [$0] }.eraseToAnyPublisher() ?? Just([]).eraseToAnyPublisher()
 
         return Publishers
             .CombineLatest(feesPublisher, customFeePublisher)
@@ -70,6 +74,12 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
             TokenFeeConverter.mapToSendFees(fees: fees, feeTokenItem: feeTokenItem)
         }
     }
+}
+
+// MARK: - FeeSelectorCustomFeeDataProviding
+
+extension CommonTokenFeeProvider: FeeSelectorCustomFeeDataProviding {
+    var customFeeProvider: (any CustomFeeProvider)? { _customFeeProvider }
 }
 
 // MARK: - SimpleTokenFeeProvider
