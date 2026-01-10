@@ -22,5 +22,3 @@ protocol FeeSelectorAnalytics {
     func logFeeStepOpened()
     func logSendFeeSelected(_ feeOption: FeeOption)
 }
-
-// MARK: - Custom fee
