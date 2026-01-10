@@ -22384,6 +22384,8 @@
 			children = (
 				EF339E4E2C21FC9500B5CDC9 /* TokenFee.swift */,
 				EF110A6B2F0EA873006C7B67 /* TokenFeesList.swift */,
+				EFD114D12F116A890099301F /* TokenFeeProvider.swift */,
+				EFD114D02F116A890099301F /* CommonTokenFeeProvider.swift */,
 			);
 			path = TokenFeeProvider;
 			sourceTree = "<group>";
@@ -22391,11 +22393,10 @@
 		EF110A6A2F0EA82C006C7B67 /* Fee */ = {
 			isa = PBXGroup;
 			children = (
-				EFD114D22F116A890099301F /* FinalTokenFeeProvider */,
 				EFD114D52F116A890099301F /* TokenFeeManager */,
+				EF110A672F0EA7FD006C7B67 /* TokenFeeProvider */,
 				EF019A902F000F7600BD3802 /* TokenFeeLoader */,
 				DADBECD92BBE910C007E7885 /* CustomFeeService */,
-				EF110A672F0EA7FD006C7B67 /* TokenFeeProvider */,
 			);
 			path = Fee;
 			sourceTree = "<group>";
@@ -25324,15 +25325,6 @@
 				2DCDE45E2DE60F14007ECD34 /* UserWalletDTO.swift */,
 			);
 			path = Models;
-			sourceTree = "<group>";
-		};
-		EFD114D22F116A890099301F /* FinalTokenFeeProvider */ = {
-			isa = PBXGroup;
-			children = (
-				EFD114D12F116A890099301F /* TokenFeeProvider.swift */,
-				EFD114D02F116A890099301F /* CommonTokenFeeProvider.swift */,
-			);
-			path = FinalTokenFeeProvider;
 			sourceTree = "<group>";
 		};
 		EFD114D52F116A890099301F /* TokenFeeManager */ = {
