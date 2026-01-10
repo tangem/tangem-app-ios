@@ -15,20 +15,20 @@ class CommonTokenFeeProvider {
     private let customFeeProvider: (any CustomFeeProvider)?
 
     private let stateSubject: CurrentValueSubject<TokenFeeProviderState, Never> = .init(.idle)
-    private var supportingFeeOption: [FeeOption] {
-        var supportingFeeOption = tokenFeeLoader.supportingFeeOption
-
-        if customFeeProvider != nil {
-            supportingFeeOption.append(.custom)
-        }
-
-        return supportingFeeOption
-    }
+    private var customFeeProviderInitialSetupCancellable: AnyCancellable?
 
     init(feeTokenItem: TokenItem, tokenFeeLoader: any TokenFeeLoader, customFeeProvider: (any CustomFeeProvider)?) {
         self.tokenFeeLoader = tokenFeeLoader
         self.feeTokenItem = feeTokenItem
         self.customFeeProvider = customFeeProvider
+
+        bind()
+    }
+
+    private func bind() {
+        customFeeProviderInitialSetupCancellable = customFeeProvider?.subscribeToInitialSetup(
+            tokenFeeProvider: self
+        )
     }
 }
 
@@ -55,6 +55,7 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
         return Publishers
             .CombineLatest(feesPublisher, customFeePublisher)
             .map(+)
+            .logging("->> feesPublisher") { $0.map { ($0.option, $0.value) } }
             .eraseToAnyPublisher()
     }
 
@@ -62,9 +63,9 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
         switch state {
         case .idle, .unavailable: []
         case .loading:
-            TokenFeeConverter.mapToLoadingSendFees(options: supportingFeeOption, feeTokenItem: feeTokenItem)
+            TokenFeeConverter.mapToLoadingSendFees(options: tokenFeeLoader.supportingFeeOption, feeTokenItem: feeTokenItem)
         case .error(let error):
-            TokenFeeConverter.mapToFailureSendFees(options: supportingFeeOption, feeTokenItem: feeTokenItem, error: error)
+            TokenFeeConverter.mapToFailureSendFees(options: tokenFeeLoader.supportingFeeOption, feeTokenItem: feeTokenItem, error: error)
         case .available(let fees):
             TokenFeeConverter.mapToSendFees(fees: fees, feeTokenItem: feeTokenItem)
         }
