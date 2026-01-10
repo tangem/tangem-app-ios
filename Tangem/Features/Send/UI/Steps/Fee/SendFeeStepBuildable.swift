@@ -49,14 +49,9 @@ enum SendNewFeeStepBuilder {
     ) -> ReturnValue {
         let feeSelectorViewModel = FeeSelectorBuilder().makeFeeSelectorViewModel(
             feeSelectorInteractor: dependencies.feeSelectorInteractor,
-            customFeeAvailabilityProvider: dependencies.customFeeProvider as? FeeSelectorCustomFeeAvailabilityProvider,
-            mapper: CommonFeeSelectorFeesViewModelMapper(
-                feeFormatter: CommonFeeFormatter(),
-                customFieldsBuilder: dependencies.customFeeProvider as? FeeSelectorCustomFeeFieldsBuilder
-            ),
             analytics: dependencies.analyticsLogger,
-            router: router,
-            shouldShowSummaryBottomButton: true
+            feeFormatter: CommonFeeFormatter(),
+            router: router
         )
 
         let feeSelector = SendFeeSelectorViewModel(feeSelectorViewModel: feeSelectorViewModel, router: router)

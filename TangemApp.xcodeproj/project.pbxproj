@@ -3780,7 +3780,6 @@
 		EF019A922F0298BC00BD3802 /* TokenFeeLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF019A912F0298BC00BD3802 /* TokenFeeLoader.swift */; };
 		EF019ADC2F08803D00BD3802 /* FeeSelectorFeesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF019ADB2F08803D00BD3802 /* FeeSelectorFeesViewModel.swift */; };
 		EF019ADE2F08804A00BD3802 /* FeeSelectorFeesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF019ADD2F08804A00BD3802 /* FeeSelectorFeesView.swift */; };
-		EF019AE12F08869B00BD3802 /* FeeSelectorFeesViewModelMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF019AE02F08869B00BD3802 /* FeeSelectorFeesViewModelMapper.swift */; };
 		EF019AE32F09BD5200BD3802 /* FeeSelectorInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF019AE22F09BD5200BD3802 /* FeeSelectorInteractor.swift */; };
 		EF0295592A9DCDEE000B2142 /* SensitiveText.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0295582A9DCDEE000B2142 /* SensitiveText.swift */; };
 		EF032C502955C59E006C1FF3 /* DefaultSelectableRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF032C4E2955C59E006C1FF3 /* DefaultSelectableRowViewModel.swift */; };
@@ -8549,7 +8548,6 @@
 		EF019A912F0298BC00BD3802 /* TokenFeeLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenFeeLoader.swift; sourceTree = "<group>"; };
 		EF019ADB2F08803D00BD3802 /* FeeSelectorFeesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeSelectorFeesViewModel.swift; sourceTree = "<group>"; };
 		EF019ADD2F08804A00BD3802 /* FeeSelectorFeesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeSelectorFeesView.swift; sourceTree = "<group>"; };
-		EF019AE02F08869B00BD3802 /* FeeSelectorFeesViewModelMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeSelectorFeesViewModelMapper.swift; sourceTree = "<group>"; };
 		EF019AE22F09BD5200BD3802 /* FeeSelectorInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeSelectorInteractor.swift; sourceTree = "<group>"; };
 		EF0295582A9DCDEE000B2142 /* SensitiveText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensitiveText.swift; sourceTree = "<group>"; };
 		EF032C4E2955C59E006C1FF3 /* DefaultSelectableRowViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultSelectableRowViewModel.swift; sourceTree = "<group>"; };
@@ -22212,7 +22210,6 @@
 			children = (
 				EF019ADD2F08804A00BD3802 /* FeeSelectorFeesView.swift */,
 				EF019ADB2F08803D00BD3802 /* FeeSelectorFeesViewModel.swift */,
-				EF019AE02F08869B00BD3802 /* FeeSelectorFeesViewModelMapper.swift */,
 				EF4C044D2DEF2A740059D7AA /* FeeSelectorFeesRowView */,
 				EF4C04532DEF2A740059D7AA /* FeeSelectorCustomFeeRowView */,
 			);
@@ -29267,7 +29264,6 @@
 				DA559C4A2B02622600F59584 /* SendRoutableMock.swift in Sources */,
 				DC1DA9312D555422003638ED /* UIEnvironment.swift in Sources */,
 				0F2786412E2B9F3800742D0F /* MobileOnboardingAccessCodeFlowBuilder.swift in Sources */,
-				EF019AE12F08869B00BD3802 /* FeeSelectorFeesViewModelMapper.swift in Sources */,
 				DAAA28C12E66DA890002D5A1 /* TangemPayAccountView.swift in Sources */,
 				DC9632662C51434C009B250A /* CommonTokenEnricher.swift in Sources */,
 				DC1C177D2E9CD965000682A7 /* WalletConnectAccountsWalletModelProvider.swift in Sources */,
