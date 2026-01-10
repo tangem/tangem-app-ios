@@ -123,7 +123,7 @@ private extension DEXExpressProviderManager {
                     break
                 case .permissionRequired(let approveData):
                     return .permissionRequired(
-                        .init(policy: request.approvePolicy, data: approveData, quote: quote)
+                        .init(provider: provider, policy: request.approvePolicy, data: approveData, quote: quote)
                     )
                 case .approveTransactionInProgress:
                     return .restriction(.approveTransactionInProgress(spender: spender), quote: quote)
@@ -184,7 +184,7 @@ private extension DEXExpressProviderManager {
         // better to make the quote from the data
         let quoteData = ExpressQuote(fromAmount: data.fromAmount, expectAmount: data.toAmount, allowanceContract: quote.allowanceContract)
         let fee = ExpressFee(option: request.feeOption, variants: variants)
-        return .init(fee: fee, data: data, quote: quoteData)
+        return .init(provider: provider, fee: fee, data: data, quote: quoteData)
     }
 
     func include(otherNativeFee: Decimal, in variants: ExpressFee.Variants) -> ExpressFee.Variants {
