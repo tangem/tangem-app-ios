@@ -30,7 +30,7 @@ struct FeeSelectorView: View {
     var body: some View {
         switch viewModel.viewState {
         case .summary(let feeSelectorSummaryViewModel):
-            FeeSelectorSummaryView(viewModel: feeSelectorSummaryViewModel)
+            FeeSelectorSummaryView(viewModel: feeSelectorSummaryViewModel, shouldShowSummaryBottomButton: true)
         case .tokens(let feeSelectorTokensViewModel):
             FeeSelectorTokensView(viewModel: feeSelectorTokensViewModel)
         case .fees(let feeSelectorFeesViewModel):
