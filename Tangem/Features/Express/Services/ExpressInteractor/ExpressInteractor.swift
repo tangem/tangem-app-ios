@@ -442,6 +442,7 @@ private extension ExpressInteractor {
         let quote = try await map(quote: permissionRequired.quote)
 
         let permissionRequiredState = PermissionRequiredState(
+            provider: permissionRequired.provider,
             policy: permissionRequired.policy,
             data: permissionRequired.data,
             fees: fees
@@ -458,7 +459,7 @@ private extension ExpressInteractor {
         let amount = makeAmount(value: ready.quote.fromAmount, tokenItem: sender.tokenItem)
         let quote = try await map(quote: ready.quote)
 
-        let readyToSwapState = ReadyToSwapState(data: ready.data, fees: fees)
+        let readyToSwapState = ReadyToSwapState(provider: ready.provider, data: ready.data, fees: fees)
         let correctState: State = .readyToSwap(readyToSwapState, quote: quote)
 
         return validate(amount: amount, fee: fee, correctState: correctState)
@@ -485,6 +486,7 @@ private extension ExpressInteractor {
         }
 
         let previewCEXState = PreviewCEXState(
+            provider: previewCEX.provider,
             subtractFee: previewCEX.subtractFee,
             fees: fees,
             isExemptFee: sender.isExemptFee,
@@ -824,6 +826,19 @@ extension ExpressInteractor {
         case previewCEX(PreviewCEXState, quote: Quote)
         case readyToSwap(ReadyToSwapState, quote: Quote)
 
+        var provider: ExpressProvider? {
+            switch self {
+            case .idle, .loading, .restriction:
+                return nil
+            case .permissionRequired(let state, _):
+                return state.provider
+            case .previewCEX(let state, _):
+                return state.provider
+            case .readyToSwap(let state, _):
+                return state.provider
+            }
+        }
+
         var fees: Fees {
             switch self {
             case .permissionRequired(let state, _):
@@ -895,12 +910,14 @@ extension ExpressInteractor {
     }
 
     struct PermissionRequiredState {
+        let provider: ExpressProvider
         let policy: BSDKApprovePolicy
         let data: ApproveTransactionData
         let fees: Fees
     }
 
     struct PreviewCEXState {
+        let provider: ExpressProvider
         let subtractFee: Decimal
         let fees: Fees
         let isExemptFee: Bool
@@ -908,6 +925,7 @@ extension ExpressInteractor {
     }
 
     struct ReadyToSwapState {
+        let provider: ExpressProvider
         let data: ExpressTransactionData
         let fees: Fees
     }
