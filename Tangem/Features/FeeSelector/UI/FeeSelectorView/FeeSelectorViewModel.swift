@@ -39,9 +39,7 @@ final class FeeSelectorViewModel: ObservableObject, FloatingSheetContentViewMode
         self.feesViewModel = feesViewModel
         self.router = router
 
-        // [REDACTED_TODO_COMMENT]
-//        viewState = .fees(feesViewModel)
-        viewState = .summary(summaryViewModel)
+        viewState = interactor.selectorFeeTokenItems.hasMultipleFeeItemOptions ? .summary(summaryViewModel) : .fees(feesViewModel)
 
         summaryViewModel.setup(router: self)
         tokensViewModel.setup(router: self)
@@ -55,6 +53,7 @@ final class FeeSelectorViewModel: ObservableObject, FloatingSheetContentViewMode
     }
 
     func userDidTapBackButton() {
+        feesViewModel.userDidRequestRevertCustomFeeValues()
         viewState = .summary(summaryViewModel)
     }
 }
@@ -89,7 +88,12 @@ extension FeeSelectorViewModel: FeeSelectorTokensRoutable {
 extension FeeSelectorViewModel: FeeSelectorFeesRoutable {
     func userDidTapConfirmSelection(selectedFee: TokenFee) {
         interactor.userDidSelectFee(selectedFee)
-        viewState = .summary(summaryViewModel)
+
+        if interactor.selectorFeeTokenItems.hasMultipleFeeItemOptions {
+            viewState = .summary(summaryViewModel)
+        } else {
+            router?.completeFeeSelection()
+        }
     }
 }
 
@@ -108,4 +112,8 @@ extension FeeSelectorViewModel {
             }
         }
     }
+}
+
+private extension [TokenItem] {
+    var hasMultipleFeeItemOptions: Bool { count > 1 }
 }
