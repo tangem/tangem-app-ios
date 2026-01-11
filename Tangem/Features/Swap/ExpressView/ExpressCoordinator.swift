@@ -14,6 +14,7 @@ import class UIKit.UIApplication
 
 final class ExpressCoordinator: CoordinatorObject {
     @Injected(\.safariManager) private var safariManager: SafariManager
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
 
     let dismissAction: DismissAction
     let popToRootAction: Action<PopToRootOptions>
@@ -75,8 +76,9 @@ extension ExpressCoordinator: ExpressRoutable {
         swapTokenSelectorViewModel = factory.makeSwapTokenSelectorViewModel(swapDirection: swapDirection, coordinator: self)
     }
 
-    func presentFeeSelectorView() {
-        expressFeeSelectorViewModel = factory.makeExpressFeeSelectorViewModel(coordinator: self)
+    func presentFeeSelectorView(source: any ExpressInteractorSourceWallet) {
+        let feeSelectorViewModel = factory.makeFeeSelectorViewModel(source: source, coordinator: self)
+        Task { @MainActor in floatingSheetPresenter.enqueue(sheet: feeSelectorViewModel) }
     }
 
     func presentApproveView(source: any ExpressInteractorSourceWallet, provider: ExpressProvider, selectedPolicy: BSDKApprovePolicy) {
@@ -117,6 +119,30 @@ extension ExpressCoordinator: ExpressRoutable {
 
     func closeSwappingView() {
         dismiss(with: .none)
+    }
+}
+
+// MARK: - FeeSelectorRoutable
+
+extension ExpressCoordinator: SendFeeSelectorRoutable {
+    func dismissFeeSelector() {
+        Task { @MainActor in floatingSheetPresenter.removeActiveSheet() }
+    }
+
+    func completeFeeSelection() {
+        Task { @MainActor in floatingSheetPresenter.removeActiveSheet() }
+    }
+
+    func openFeeSelectorLearnMoreURL(_ url: URL) {
+        Task { @MainActor in
+            floatingSheetPresenter.pauseSheetsDisplaying()
+            _ = safariManager.openURL(
+                url,
+                configuration: .init(),
+                onDismiss: { [weak self] in self?.floatingSheetPresenter.resumeSheetsDisplaying() },
+                onSuccess: { [weak self] _ in self?.floatingSheetPresenter.resumeSheetsDisplaying() },
+            )
+        }
     }
 }
 
