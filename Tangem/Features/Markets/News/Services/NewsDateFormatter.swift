@@ -15,7 +15,7 @@ final class NewsDateFormatter {
     private lazy var relativeFormatter: RelativeDateTimeFormatter = {
         let formatter = RelativeDateTimeFormatter()
         formatter.locale = locale
-        formatter.unitsStyle = .abbreviated
+        formatter.unitsStyle = .full
         formatter.dateTimeStyle = .named
         return formatter
     }()
@@ -27,7 +27,6 @@ final class NewsDateFormatter {
         return formatter
     }()
 
-    /// Uses system relative date formatting ("Today", "Сегодня", etc.)
     private lazy var relativeDateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.locale = locale
@@ -37,7 +36,6 @@ final class NewsDateFormatter {
         return formatter
     }()
 
-    /// Date + time formatter using localized template
     private lazy var dateTimeFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.locale = locale
@@ -45,7 +43,6 @@ final class NewsDateFormatter {
         return formatter
     }()
 
-    /// Full date + time formatter for detail view
     private lazy var detailDateTimeFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.locale = locale
@@ -74,11 +71,6 @@ final class NewsDateFormatter {
         iso8601Formatter.date(from: string) ?? iso8601FormatterNoFraction.date(from: string)
     }
 
-    /// Formats date string for news list (carousel) using relative time
-    /// - < 60 min: system relative format ("5m ago", "5 мин. назад")
-    /// - >= 1h < 12h: system relative format ("2h ago", "2 ч. назад")
-    /// - >= 12h (same day): "Today, HH:mm" (system localized)
-    /// - >= 24h or different day: localized date format
     func formatRelativeTime(from dateString: String, relativeTo now: Date = Date()) -> String {
         guard let date = parseDate(from: dateString) else {
             return dateString
@@ -86,32 +78,15 @@ final class NewsDateFormatter {
         return formatRelativeTime(from: date, relativeTo: now)
     }
 
-    /// Formats date for news list with relative time
     func formatRelativeTime(from date: Date, relativeTo now: Date = Date()) -> String {
-        let components = calendar.dateComponents([.minute, .hour], from: date, to: now)
-
-        let minutes = components.minute ?? 0
-        let hours = components.hour ?? 0
-        let totalMinutes = hours * 60 + minutes
-
-        if totalMinutes < 60 {
-            // Less than 60 minutes: use system relative formatter
+        let hoursAgo = now.timeIntervalSince(date) / 3600
+        if hoursAgo < 24 {
             return relativeFormatter.localizedString(for: date, relativeTo: now)
-        } else if totalMinutes < 12 * 60 {
-            // 1h to 12h: use system relative formatter
-            return relativeFormatter.localizedString(for: date, relativeTo: now)
-        } else if calendar.isDateInToday(date) {
-            // 12h to 24h (same day): "Today, HH:mm" using system localization
-            return formatTodayTime(date)
         } else {
-            // More than 24h or different day: localized date format
             return dateTimeFormatter.string(from: date)
         }
     }
 
-    /// Formats date for news detail card
-    /// - Today: "Today, HH:mm" (system localized)
-    /// - Not today: localized date format
     func formatDetailDate(from dateString: String, relativeTo now: Date = Date()) -> String {
         guard let date = parseDate(from: dateString) else {
             return dateString

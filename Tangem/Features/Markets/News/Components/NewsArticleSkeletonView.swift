@@ -10,61 +10,50 @@ import SwiftUI
 import TangemUI
 
 struct NewsArticleSkeletonView: View {
+    private let contentLineWidths: [CGFloat] = [1.0, 0.78, 0.85, 0.68, 0.80, 1.0]
+
     var body: some View {
-        ScrollView(showsIndicators: false) {
-            VStack(alignment: .leading, spacing: 12) {
-                // Header skeleton
-                HStack(spacing: 4) {
+        GeometryReader { geometry in
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 0) {
+                    // Date skeleton
                     SkeletonView()
-                        .frame(width: 50, height: 14)
+                        .frame(width: 150, height: 16)
                         .cornerRadius(4)
-                    SkeletonView()
-                        .frame(width: 60, height: 14)
-                        .cornerRadius(4)
-                }
 
-                // Title skeleton
-                SkeletonView()
-                    .frame(height: 24)
-                    .cornerRadius(4)
-                SkeletonView()
-                    .frame(width: 200, height: 24)
-                    .cornerRadius(4)
+                    // Title skeleton (2 lines)
+                    SkeletonView()
+                        .frame(width: geometry.size.width * 0.9 - 32, height: 24)
+                        .cornerRadius(6)
+                        .padding(.top, 12)
 
-                // Tags skeleton
-                HStack(spacing: 4) {
                     SkeletonView()
-                        .frame(width: 80, height: 28)
-                        .cornerRadius(14)
-                    SkeletonView()
-                        .frame(width: 60, height: 28)
-                        .cornerRadius(14)
-                }
-                .padding(.top, 8)
+                        .frame(width: geometry.size.width * 0.55 - 32, height: 24)
+                        .cornerRadius(6)
+                        .padding(.top, 8)
 
-                // Quick recap skeleton
-                VStack(alignment: .leading, spacing: 12) {
+                    // Tag skeleton (pill shape)
                     SkeletonView()
-                        .frame(width: 100, height: 16)
-                        .cornerRadius(4)
-                    SkeletonView()
-                        .frame(height: 60)
-                        .cornerRadius(4)
-                }
-                .padding(.top, 20)
+                        .frame(width: 100, height: 32)
+                        .cornerRadius(16)
+                        .padding(.top, 16)
 
-                // Content skeleton
-                VStack(alignment: .leading, spacing: 8) {
-                    ForEach(0 ..< 8, id: \.self) { _ in
-                        SkeletonView()
-                            .frame(height: 16)
-                            .cornerRadius(4)
+                    // Content skeleton lines
+                    VStack(alignment: .leading, spacing: 8) {
+                        ForEach(0 ..< contentLineWidths.count, id: \.self) { index in
+                            SkeletonView()
+                                .frame(
+                                    width: (geometry.size.width - 32) * contentLineWidths[index],
+                                    height: 16
+                                )
+                                .cornerRadius(4)
+                        }
                     }
+                    .padding(.top, 32)
                 }
+                .padding(.horizontal, 16)
                 .padding(.top, 16)
             }
-            .padding(.horizontal, 16)
-            .padding(.top, 16)
         }
     }
 }
