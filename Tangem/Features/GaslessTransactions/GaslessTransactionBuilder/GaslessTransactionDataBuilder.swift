@@ -36,7 +36,7 @@ extension GaslessTransactionDataBuilder {
         struct SignedGaslessData {
             let eip712Signature: String
             let eip7702Auth: Eip7702Authorization
-            
+
             struct Eip7702Authorization {
                 let chainId: BigUInt
                 let address: String
@@ -75,11 +75,11 @@ struct GaslessTransactionDataBuilder {
 
         // 3) get fee
         let feeData = try await makeGaslessTransactionFee(tokenFee: tokenFee)
-        
+
         // 4) get smart contract nonce
-        
+
         let smartContractNonce = try await getSmartContractNonce()
-        
+
         // 4) sign
         let signedData = try await makeSignedGaslessData(
             transaction: transactionData,
@@ -87,7 +87,7 @@ struct GaslessTransactionDataBuilder {
             chainId: chainId,
             smartContractNonce: smartContractNonce
         )
-        
+
         return GaslessTransactionData.GaslessTransaction(
             transaction: transactionData,
             fee: feeData,
@@ -97,8 +97,7 @@ struct GaslessTransactionDataBuilder {
     }
 
     // MARK: - Private Implementation
-    
-    
+
     private func makeSignedGaslessData(
         transaction: GaslessTransactionData.Transaction,
         fee: GaslessTransactionData.Fee,
@@ -145,14 +144,14 @@ struct GaslessTransactionDataBuilder {
             )
         )
     }
-    
+
     private func makeTransaction(from bsdkTransaction: BSDKTransaction) throws -> GaslessTransactionData.Transaction {
         guard let ethParams = bsdkTransaction.params as? EthereumTransactionParams,
               let callData = ethParams.data
         else {
             throw GaslessTransactionDataBuilderError.failedToBuildTransactionData
         }
-        
+
         return GaslessTransactionData.Transaction(
             address: bsdkTransaction.destinationAddress,
             value: "0",
@@ -240,15 +239,15 @@ struct GaslessTransactionDataBuilder {
 
         return try await networkProvider.getSmartContractNonce()
     }
-    
+
     private func getExecutorContractAddress() throws -> String {
         guard let provider = walletModel.ethereumGaslessDataProvider else {
             throw GaslessTransactionDataBuilderError.failedToBuildMetaTransaction
         }
-        
+
         return try provider.getGaslessExecutorContractAddress()
     }
-    
+
     private func getNonceLatest() async throws -> String {
         guard let networkProvider = walletModel.ethereumNetworkProvider else {
             throw GaslessTransactionDataBuilderError.failedToBuildMetaTransaction
@@ -265,7 +264,6 @@ extension GaslessTransactionDataBuilder {
         static let baseGas = "100000"
     }
 }
-
 
 // MARK: - Pretty print helpers for GaslessTransactionData
 
