@@ -21,4 +21,5 @@ public protocol EthereumNetworkProvider {
     func getBalance(_ address: String) -> AnyPublisher<Decimal, Error>
     func getTxCount(_ address: String) -> AnyPublisher<Int, Error>
     func getPendingTxCount(_ address: String) -> AnyPublisher<Int, Error>
+    func getSmartContractNonce() async throws -> BigUInt
 }
