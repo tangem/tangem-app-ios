@@ -13,13 +13,15 @@ struct FeeSelectorBuilder {
         mapper: any FeeSelectorFeesViewModelMapper,
         analytics: any FeeSelectorAnalytics,
         output: any FeeSelectorOutput,
-        router: any FeeSelectorRoutable
+        router: any FeeSelectorRoutable,
+        shouldShowSummaryBottomButton: Bool,
     ) -> FeeSelectorViewModel {
         FeeSelectorViewModel(
             interactor: feeSelectorInteractor,
             summaryViewModel: FeeSelectorSummaryViewModel(
                 tokensDataProvider: feeSelectorInteractor,
-                feesDataProvider: feeSelectorInteractor
+                feesDataProvider: feeSelectorInteractor,
+                shouldShowBottomButton: shouldShowSummaryBottomButton
             ),
             tokensViewModel: FeeSelectorTokensViewModel(
                 tokensDataProvider: feeSelectorInteractor

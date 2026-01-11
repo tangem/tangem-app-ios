@@ -11,14 +11,14 @@ import TangemSdk
 import BlockchainSdk
 import BigInt
 
-struct UnmarshalUtil {
+enum UnmarshalUtil {
     struct UnmarshalledSignature {
         let r: Data
         let s: Data
         let yParity: BigUInt
         let extended: Data
     }
-    
+
     enum UnmarshalUtilError: Error {
         case incorrectSignatureLength
         case failedToExtractYParity
