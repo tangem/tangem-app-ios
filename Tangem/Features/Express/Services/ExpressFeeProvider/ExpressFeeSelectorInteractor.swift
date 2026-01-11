@@ -19,53 +19,60 @@ class ExpressFeeSelectorInteractor {
     }
 }
 
+// MARK: - FeeSelectorInteractor
+
 extension ExpressFeeSelectorInteractor: FeeSelectorInteractor {
     var selectedSelectorFee: TokenFee? {
-        let state = expressInteractor.getState()
-        return sourceTokenFeeManager.fees(state: state)[state.fees.selected]
+        expressInteractor.getState().fees.selectedTokenFee()
     }
 
     var selectedSelectorFeePublisher: AnyPublisher<TokenFee?, Never> {
-        expressInteractor.state
-            .withWeakCaptureOf(self)
-            .map { $0.sourceTokenFeeManager.fees(state: $1)[$1.fees.selected] }
-            .eraseToAnyPublisher()
+        expressInteractor.state.map { $0.fees.selectedTokenFee() }.eraseToAnyPublisher()
     }
 
-    var selectorFees: [TokenFee] { sourceTokenFeeManager.fees(state: expressInteractor.getState()) }
+    var selectorFees: [TokenFee] {
+        expressInteractor.getState().fees.fees
+    }
+
     var selectorFeesPublisher: AnyPublisher<[TokenFee], Never> {
-        expressInteractor.state
-            .withWeakCaptureOf(self)
-            .map { $0.sourceTokenFeeManager.fees(state: $1) }
-            .eraseToAnyPublisher()
+        expressInteractor.state.map { $0.fees.fees }.eraseToAnyPublisher()
     }
 
     var selectedSelectorFeeTokenItem: TokenItem? {
-        selectedSelectorFee?.tokenItem
+        expressInteractor.getState().fees.selectedTokenFee()?.tokenItem
     }
 
     var selectedSelectorFeeTokenItemPublisher: AnyPublisher<TokenItem?, Never> {
-        selectedSelectorFeePublisher
-            .map { $0?.tokenItem }
-            .eraseToAnyPublisher()
+        expressInteractor.state.map { $0.fees.selectedTokenFee()?.tokenItem }.eraseToAnyPublisher()
     }
 
     var selectorFeeTokenItems: [TokenItem] {
-        let state = expressInteractor.getState()
-        return sourceTokenFeeManager.feeTokenItems(state: state)
+        guard let providerId = expressInteractor.getState().provider?.id else {
+            return []
+        }
+
+        return sourceTokenFeeManager.feeTokenItems(providerId: providerId)
     }
 
     var selectorFeeTokenItemsPublisher: AnyPublisher<[TokenItem], Never> {
         expressInteractor.state
             .withWeakCaptureOf(self)
-            .map { $0.sourceTokenFeeManager.feeTokenItems(state: $1) }
+            .map { interactor, state in
+                guard let providerId = state.provider?.id else {
+                    return []
+                }
+
+                return interactor.sourceTokenFeeManager.feeTokenItems(providerId: providerId)
+            }
             .eraseToAnyPublisher()
     }
 
     var customFeeProvider: (any CustomFeeProvider)? {
-        let state = expressInteractor.getState()
-        let selectedFeeProvider = sourceTokenFeeManager.selectedFeeProvider(state: state)
+        guard let providerId = expressInteractor.getState().provider?.id else {
+            return nil
+        }
 
+        let selectedFeeProvider = sourceTokenFeeManager.selectedFeeProvider(providerId: providerId)
         return (selectedFeeProvider as? FeeSelectorCustomFeeDataProviding)?.customFeeProvider
     }
 
@@ -74,8 +81,11 @@ extension ExpressFeeSelectorInteractor: FeeSelectorInteractor {
     }
 
     func userDidSelectTokenItem(_ tokenItem: TokenItem) {
-        let state = expressInteractor.getState()
-        let tokenFeeManager = sourceTokenFeeManager.tokenFeeManager(state: state)
+        guard let providerId = expressInteractor.getState().provider?.id else {
+            return
+        }
+
+        let tokenFeeManager = sourceTokenFeeManager.tokenFeeManager(providerId: providerId)
         tokenFeeManager?.updateSelectedFeeProvider(tokenItem: tokenItem)
     }
 }

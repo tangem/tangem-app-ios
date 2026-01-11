@@ -38,11 +38,6 @@ class SellFlowFactory: SendFlowBaseDependenciesFactory {
     lazy var notificationManager = makeSendWithSwapNotificationManager(receiveTokenInput: sendModel)
     lazy var customFeeService = makeCustomFeeService(input: sendModel)
     lazy var sendFeeProvider = makeSendFeeProvider(input: sendModel, output: sendModel, dataInput: sendModel)
-//    lazy var sendFeeProvider = makeSendWithSwapFeeProvider(
-//        receiveTokenInput: sendModel,
-//        sendFeeProvider: makeSendFeeProvider(input: sendModel, hasCustomFeeService: customFeeService != nil),
-//        swapFeeProvider: makeSwapFeeProvider(swapManager: swapManager)
-//    )
 
     init(
         userWalletInfo: UserWalletInfo,
@@ -251,7 +246,7 @@ extension SellFlowFactory: SendFeeStepBuildable {
 
     var feeDependencies: SendNewFeeStepBuilder.Dependencies {
         SendNewFeeStepBuilder.Dependencies(
-            feeSelectorInteractor: sendFeeProvider as! FeeSelectorInteractor,
+            feeSelectorInteractor: sendFeeProvider,
             analyticsLogger: analyticsLogger,
             customFeeProvider: customFeeService
         )
