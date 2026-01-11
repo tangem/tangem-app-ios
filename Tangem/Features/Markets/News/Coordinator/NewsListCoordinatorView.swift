@@ -28,11 +28,15 @@ struct NewsListCoordinatorView: CoordinatorView {
         NavHolder()
             .navigation(item: pagerBinding) { viewModel in
                 NewsPagerView(viewModel: viewModel)
-                    .navigationBarHidden(true)
-                    .navigation(item: tokenDetailsBinding) { tokenCoordinator in
-                        MarketsTokenDetailsCoordinatorView(coordinator: tokenCoordinator)
-                            .navigationBarHidden(true)
-                    }
+                    .navigationLinks(tokenDetailsLinks)
+            }
+    }
+
+    private var tokenDetailsLinks: some View {
+        NavHolder()
+            .navigation(item: tokenDetailsBinding) { tokenCoordinator in
+                MarketsTokenDetailsCoordinatorView(coordinator: tokenCoordinator)
+                    .ignoresSafeArea(.container, edges: .top)
             }
     }
 

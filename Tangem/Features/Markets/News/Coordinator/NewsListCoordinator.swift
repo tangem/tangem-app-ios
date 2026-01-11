@@ -9,12 +9,15 @@
 import Foundation
 import UIKit
 import Combine
-import SafariServices
 import struct TangemUIUtils.AlertBinder
 
 final class NewsListCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
+
+    // MARK: - Dependencies
+
+    @Injected(\.safariManager) private var safariManager: SafariManager
 
     // MARK: - Navigation Path
 
@@ -146,29 +149,11 @@ extension NewsListCoordinator: NewsDetailsRoutable {
 
     func share(url: String) {
         guard let url = URL(string: url) else { return }
-        let activityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
-
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let rootVC = windowScene.windows.first?.rootViewController {
-            var topController = rootVC
-            while let presented = topController.presentedViewController {
-                topController = presented
-            }
-            topController.present(activityVC, animated: true)
-        }
+        AppPresenter.shared.show(UIActivityViewController(activityItems: [url], applicationActivities: nil))
     }
 
     func openURL(_ url: URL) {
-        let safariVC = SFSafariViewController(url: url)
-
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let rootVC = windowScene.windows.first?.rootViewController {
-            var topController = rootVC
-            while let presented = topController.presentedViewController {
-                topController = presented
-            }
-            topController.present(safariVC, animated: true)
-        }
+        safariManager.openURL(url)
     }
 
     func openTokenDetails(_ token: MarketsTokenModel) {

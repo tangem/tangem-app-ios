@@ -9,10 +9,11 @@
 import Foundation
 import Combine
 import UIKit
-import SafariServices
 
 class MarketsCoordinator: CoordinatorObject {
     // MARK: - Dependencies
+
+    @Injected(\.safariManager) private var safariManager: SafariManager
 
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
@@ -28,6 +29,7 @@ class MarketsCoordinator: CoordinatorObject {
     @Published var marketsSearchCoordinator: MarketsSearchCoordinator?
     @Published var newsListCoordinator: NewsListCoordinator?
     @Published var newsPagerViewModel: NewsPagerViewModel?
+    @Published var newsPagerTokenDetailsCoordinator: MarketsTokenDetailsCoordinator?
 
     // MARK: - Child ViewModels
 
@@ -153,33 +155,21 @@ extension MarketsCoordinator: NewsDetailsRoutable {
 
     func share(url: String) {
         guard let url = URL(string: url) else { return }
-        let activityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
-
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let rootVC = windowScene.windows.first?.rootViewController {
-            var topController = rootVC
-            while let presented = topController.presentedViewController {
-                topController = presented
-            }
-            topController.present(activityVC, animated: true)
-        }
+        AppPresenter.shared.show(UIActivityViewController(activityItems: [url], applicationActivities: nil))
     }
 
     func openURL(_ url: URL) {
-        let safariVC = SFSafariViewController(url: url)
-
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let rootVC = windowScene.windows.first?.rootViewController {
-            var topController = rootVC
-            while let presented = topController.presentedViewController {
-                topController = presented
-            }
-            topController.present(safariVC, animated: true)
-        }
+        safariManager.openURL(url)
     }
 
     func openTokenDetails(_ token: MarketsTokenModel) {
-        openMarketsTokenDetails(for: token)
+        let coordinator = MarketsTokenDetailsCoordinator(
+            dismissAction: { [weak self] in
+                self?.newsPagerTokenDetailsCoordinator = nil
+            }
+        )
+        coordinator.start(with: .init(info: token, style: .marketsSheet))
+        newsPagerTokenDetailsCoordinator = coordinator
     }
 
     func loadMoreNews() async -> [Int] {

@@ -11,9 +11,29 @@ import TangemAssets
 import TangemUI
 
 struct NewsItemView: View {
-    let viewModel: NewsItemViewModel
+    @ObservedObject var viewModel: NewsItemViewModel
+    let onTap: () -> Void
+
+    private var titleColor: Color {
+        viewModel.isRead
+            ? Color.Tangem.Text.Neutral.tertiary
+            : Color.Tangem.Text.Neutral.primary
+    }
+
+    private var scoreColor: Color {
+        viewModel.isRead
+            ? Color.Tangem.Text.Neutral.tertiary
+            : Color.Tangem.Text.Neutral.primary
+    }
 
     var body: some View {
+        Button(action: onTap) {
+            content
+        }
+        .buttonStyle(.scaled())
+    }
+
+    private var content: some View {
         VStack(alignment: .leading, spacing: 8) {
             // Score badge + Time
             HStack(spacing: 4) {
@@ -26,10 +46,10 @@ struct NewsItemView: View {
                     .style(Fonts.Regular.footnote, color: Color.Tangem.Text.Neutral.tertiary)
             }
 
-            // Title (max 2 lines)
+            // Title
             Text(viewModel.title)
-                .style(Fonts.Bold.title3, color: Color.Tangem.Text.Neutral.primary)
-                .lineLimit(2)
+                .style(Fonts.Bold.title3, color: titleColor)
+                .lineLimit(nil)
                 .multilineTextAlignment(.leading)
                 .padding(.bottom, 12)
 
@@ -57,7 +77,7 @@ struct NewsItemView: View {
             }
 
             Text(viewModel.score)
-                .style(Fonts.Bold.footnote, color: Color.Tangem.Text.Neutral.primary)
+                .style(Fonts.Bold.footnote, color: scoreColor)
         }
     }
 
