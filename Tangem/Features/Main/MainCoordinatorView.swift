@@ -85,7 +85,7 @@ struct MainCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
             }
-            .iOS16UIKitSheet(item: $coordinator.expressCoordinator) { coordinator in
+            .sheet(item: $coordinator.expressCoordinator) { coordinator in
                 ExpressCoordinatorView(coordinator: coordinator)
             }
             .sheet(item: $coordinator.modalOnboardingCoordinator) {
