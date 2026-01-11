@@ -35,12 +35,12 @@ class SendFlowFactory: SendFlowBaseDependenciesFactory {
     lazy var sendModel = makeSendWithSwapModel(swapManager: swapManager, analyticsLogger: analyticsLogger, predefinedValues: .init())
     lazy var notificationManager = makeSendWithSwapNotificationManager(receiveTokenInput: sendModel)
     lazy var customFeeService = makeCustomFeeService(input: sendModel)
-    lazy var sendFeeProvider = makeSendFeeProvider(input: sendModel, output: sendModel, dataInput: sendModel)
-//    lazy var sendFeeProvider = makeSendWithSwapFeeProvider(
-//        receiveTokenInput: sendModel,
-//        sendFeeProvider: makeSendFeeProvider(input: sendModel, output: sendModel, dataInput: sendModel),
-//        swapFeeProvider: makeSwapFeeProvider(swapManager: swapManager)
-//    )
+    lazy var sendFeeSelectorInteractor = makeSendFeeProvider(input: sendModel, output: sendModel, dataInput: sendModel)
+    lazy var sendWithSwapFeeSelectorInteractor = makeSendWithSwapFeeSelectorInteractor(
+        receiveTokenInput: sendModel,
+        sendFeeSelectorInteractor: sendFeeSelectorInteractor,
+        swapFeeSelectorInteractor: makeSwapFeeProvider(swapManager: swapManager)
+    )
 
     init(userWalletInfo: UserWalletInfo, walletModel: any WalletModel) {
         self.userWalletInfo = userWalletInfo
@@ -119,9 +119,9 @@ extension SendFlowFactory: SendGenericFlowFactory {
         // We have to set dependencies here after all setups is completed
         sendModel.externalAmountUpdater = amount.amountUpdater
         sendModel.externalDestinationUpdater = destination.externalUpdater
-        sendModel.sendFeeProvider = sendFeeProvider
+        sendModel.sendFeeProvider = sendFeeSelectorInteractor
         sendModel.informationRelevanceService = CommonInformationRelevanceService(
-            input: sendModel, output: sendModel, provider: sendFeeProvider
+            input: sendModel, output: sendModel, provider: sendFeeSelectorInteractor
         )
 
         // Steps setup
@@ -277,7 +277,7 @@ extension SendFlowFactory: SendFeeStepBuildable {
 
     var feeDependencies: SendNewFeeStepBuilder.Dependencies {
         SendNewFeeStepBuilder.Dependencies(
-            feeSelectorInteractor: sendFeeProvider as! FeeSelectorInteractor,
+            feeSelectorInteractor: sendWithSwapFeeSelectorInteractor,
             analyticsLogger: analyticsLogger,
             customFeeProvider: customFeeService
         )
@@ -317,7 +317,7 @@ extension SendFlowFactory: SendSummaryStepBuildable {
 
     var summaryDependencies: SendSummaryStepBuilder.Dependencies {
         SendSummaryStepBuilder.Dependencies(
-            sendFeeProvider: sendFeeProvider,
+            sendFeeProvider: sendWithSwapFeeSelectorInteractor,
             notificationManager: notificationManager,
             analyticsLogger: analyticsLogger,
             sendDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder(),

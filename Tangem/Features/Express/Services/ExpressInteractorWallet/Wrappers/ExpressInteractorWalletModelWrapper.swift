@@ -33,7 +33,6 @@ struct ExpressInteractorWalletModelWrapper {
     private let allowanceServiceFactory: AllowanceServiceFactory
 
     private let _allowanceService: (any AllowanceService)?
-    private let _feeProvider: any ExpressFeeProvider
     private let _balanceProvider: any ExpressBalanceProvider
 
     init(
@@ -82,12 +81,6 @@ struct ExpressInteractorWalletModelWrapper {
         )
 
         _allowanceService = allowanceServiceFactory.makeAllowanceService()
-
-        _feeProvider = CommonExpressFeeLoader(
-            tokenItem: walletModel.tokenItem,
-            feeTokenItem: walletModel.feeTokenItem,
-            feeLoader: walletModel.tokenFeeLoader
-        )
 
         _balanceProvider = CommonExpressBalanceProvider(
             availableBalanceProvider: walletModel.availableBalanceProvider,
@@ -145,7 +138,7 @@ extension ExpressInteractorWalletModelWrapper: ExpressInteractorSourceWallet {
 // MARK: - ExpressSourceWallet
 
 extension ExpressInteractorWalletModelWrapper {
-    var feeProvider: any ExpressFeeProvider { _feeProvider }
+    var feeProvider: any ExpressFeeProvider { expressTokenFeeManager }
     var balanceProvider: any ExpressBalanceProvider { _balanceProvider }
     var operationType: ExpressOperationType { expressOperationType }
 }
