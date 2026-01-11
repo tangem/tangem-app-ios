@@ -3739,6 +3739,8 @@
 		EA87D9EE2F1281EC006519B9 /* RLPEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA87D9ED2F1281EC006519B9 /* RLPEncoder.swift */; };
 		EA87D9EF2F1281EC006519B9 /* RLPEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA87D9ED2F1281EC006519B9 /* RLPEncoder.swift */; };
 		EA87D9F12F128261006519B9 /* GaslessTransactionAddressFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA87D9F02F128261006519B9 /* GaslessTransactionAddressFactory.swift */; };
+		EA87DA162F139C15006519B9 /* GaslessTransactionsEIP712Util.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA87DA152F139C15006519B9 /* GaslessTransactionsEIP712Util.swift */; };
+		EA87DA182F139C3A006519B9 /* UnmarshalUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA87DA172F139C3A006519B9 /* UnmarshalUtil.swift */; };
 		EA93432E2E24F9BF0082FA71 /* XRPAssetIdParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA93432D2E24F9BF0082FA71 /* XRPAssetIdParser.swift */; };
 		EA95AB4B2ED9821C003C7F1C /* RefreshStatusProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA95AB4A2ED9821C003C7F1C /* RefreshStatusProvider.swift */; };
 		EA96F3E02E5734460046786E /* PromocodeActivationError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA96F3DF2E5734460046786E /* PromocodeActivationError.swift */; };
@@ -8506,6 +8508,8 @@
 		EA87D9EA2F1281E3006519B9 /* EthEip7702Util.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthEip7702Util.swift; sourceTree = "<group>"; };
 		EA87D9ED2F1281EC006519B9 /* RLPEncoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RLPEncoder.swift; sourceTree = "<group>"; };
 		EA87D9F02F128261006519B9 /* GaslessTransactionAddressFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GaslessTransactionAddressFactory.swift; sourceTree = "<group>"; };
+		EA87DA152F139C15006519B9 /* GaslessTransactionsEIP712Util.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GaslessTransactionsEIP712Util.swift; sourceTree = "<group>"; };
+		EA87DA172F139C3A006519B9 /* UnmarshalUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnmarshalUtil.swift; sourceTree = "<group>"; };
 		EA93432D2E24F9BF0082FA71 /* XRPAssetIdParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XRPAssetIdParser.swift; sourceTree = "<group>"; };
 		EA95AB4A2ED9821C003C7F1C /* RefreshStatusProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshStatusProvider.swift; sourceTree = "<group>"; };
 		EA96F3DF2E5734460046786E /* PromocodeActivationError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromocodeActivationError.swift; sourceTree = "<group>"; };
@@ -21874,12 +21878,12 @@
 		EA31CB132F0BE4C00016AABC /* GaslessTransactions */ = {
 			isa = PBXGroup;
 			children = (
+				EA87DA142F139C03006519B9 /* GaslessTransactionBuilder */,
 				EA87DA122F13852D006519B9 /* TypedData */,
 				EA87D9E92F127E34006519B9 /* Factories */,
 				EA31CB1E2F0C01540016AABC /* DTO */,
 				EA31CB172F0BE5160016AABC /* APIService */,
 				EA31CB142F0BE4E10016AABC /* GaslessTransactionsNetworkManager.swift */,
-				EA87D9DC2F127C45006519B9 /* GaslessTransactionDataBuilder.swift */,
 			);
 			path = GaslessTransactions;
 			sourceTree = "<group>";
@@ -22064,6 +22068,16 @@
 			children = (
 			);
 			path = TypedData;
+			sourceTree = "<group>";
+		};
+		EA87DA142F139C03006519B9 /* GaslessTransactionBuilder */ = {
+			isa = PBXGroup;
+			children = (
+				EA87DA172F139C3A006519B9 /* UnmarshalUtil.swift */,
+				EA87DA152F139C15006519B9 /* GaslessTransactionsEIP712Util.swift */,
+				EA87D9DC2F127C45006519B9 /* GaslessTransactionDataBuilder.swift */,
+			);
+			path = GaslessTransactionBuilder;
 			sourceTree = "<group>";
 		};
 		EA9B03A12E9430AE00F4B40D /* YieldAvailableNotification */ = {
@@ -27158,6 +27172,7 @@
 				EF8E9AAD2ECE79A500FFA134 /* ExpressInteractorTokenHeaderProvider.swift in Sources */,
 				C27672D32DE714B50037F1FC /* WalletConnectDAppDomainVerificationViewState.swift in Sources */,
 				B67DC1EA2B7C4C48008ACB0E /* BlockchainAccountCreatorStub.swift in Sources */,
+				EA87DA162F139C15006519B9 /* GaslessTransactionsEIP712Util.swift in Sources */,
 				B6BFDB6E2E43C4C600021D8D /* CryptoAccountModelMock.swift in Sources */,
 				DC13D04029DF2D470003895C /* BackupServiceFactory.swift in Sources */,
 				DC96325F2C5140CE009B250A /* ExpressRefundedTokenHandler.swift in Sources */,
@@ -28098,6 +28113,7 @@
 				2D3E1DC32C99CCEE006AF975 /* MainBottomSheetHintView.swift in Sources */,
 				EAB55F632DF0C3990016BF78 /* MainCoordinatorChildFactory.swift in Sources */,
 				2DFC27942C78E833009B247E /* TokenItemType.swift in Sources */,
+				EA87DA182F139C3A006519B9 /* UnmarshalUtil.swift in Sources */,
 				EF2C5A622F0C2A05009F1B96 /* FeeSelectorTokensViewModel.swift in Sources */,
 				0FA453E62E21538F0055B5BB /* CommonMobileAccessCodeManager.swift in Sources */,
 				B6E972202AA0266C00D2B1D1 /* TokenSectionView.swift in Sources */,
