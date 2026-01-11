@@ -338,6 +338,10 @@ extension VisaWalletModel: WalletModel {
         let addressInfos = ReceiveAddressInfoUtils().makeAddressInfos(from: addresses)
         return addressInfos.map { .address($0) }
     }
+
+    var ethereumGaslessDataProvider: (any EthereumGaslessDataProvider)? {
+        nil
+    }
 }
 
 extension VisaWalletModel: Equatable {

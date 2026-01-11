@@ -47,3 +47,10 @@ public struct EthereumFeeHistory {
     public let marketPriorityFee: BigUInt
     public let fastPriorityFee: BigUInt
 }
+
+public struct EIP7702AuthorizationData {
+    public let chainId: BigUInt
+    public let address: String
+    public let nonce: BigUInt
+    public let data: Data
+}

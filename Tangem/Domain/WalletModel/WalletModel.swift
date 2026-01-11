@@ -63,6 +63,10 @@ protocol WalletModel:
 
     // [REDACTED_TODO_COMMENT]
     var yieldModuleManager: YieldModuleManager? { get }
+
+    // MARK: - Gasless Transactions
+
+    var ethereumGaslessDataProvider: (any EthereumGaslessDataProvider)? { get }
 }
 
 extension WalletModel {
