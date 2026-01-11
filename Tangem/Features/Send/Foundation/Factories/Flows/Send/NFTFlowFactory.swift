@@ -264,7 +264,7 @@ extension NFTFlowFactory: SendFeeStepBuildable {
 
     var feeDependencies: SendNewFeeStepBuilder.Dependencies {
         SendNewFeeStepBuilder.Dependencies(
-            feeSelectorInteractor: sendFeeProvider as! FeeSelectorInteractor,
+            feeSelectorInteractor: sendFeeProvider,
             analyticsLogger: analyticsLogger,
             customFeeProvider: customFeeService
         )
