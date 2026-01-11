@@ -31,7 +31,6 @@ final class ExpressCoordinator: CoordinatorObject {
 
     @Published var expressTokensListViewModel: ExpressTokensListViewModel?
     @Published var swapTokenSelectorViewModel: SwapTokenSelectorViewModel?
-    @Published var expressFeeSelectorViewModel: ExpressFeeSelectorViewModel?
     @Published var expressProvidersSelectorViewModel: ExpressProvidersSelectorViewModel?
     @Published var expressApproveViewModel: ExpressApproveViewModel?
 
@@ -159,15 +158,6 @@ extension ExpressCoordinator: ExpressTokensListRoutable {
 extension ExpressCoordinator: SwapTokenSelectorRoutable {
     func closeSwapTokenSelector() {
         swapTokenSelectorViewModel = nil
-    }
-}
-
-// MARK: - ExpressRoutable
-
-extension ExpressCoordinator: ExpressFeeSelectorRoutable {
-    func closeExpressFeeSelector() {
-        expressFeeSelectorViewModel = nil
-        rootViewModel?.didCloseFeeSelectorSheet()
     }
 }
 

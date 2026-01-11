@@ -8,12 +8,13 @@
 
 import TangemExpress
 import Combine
+import TangemFoundation
 
 class ExpressSourceTokenFeeManager {
     private let tokenItem: TokenItem
     private let tokenFeeManagerBuilder: TokenFeeManagerBuilder
 
-    private var managers: [ExpressProvider.Id: TokenFeeManager] = [:]
+    private let managers: ThreadSafeContainer<[ExpressProvider.Id: TokenFeeManager]> = [:]
 
     init(tokenItem: TokenItem, tokenFeeManagerBuilder: TokenFeeManagerBuilder) {
         self.tokenItem = tokenItem
@@ -26,7 +27,7 @@ class ExpressSourceTokenFeeManager {
         }
 
         let feeManager = tokenFeeManagerBuilder.makeTokenFeeManager()
-        managers[provider.id] = feeManager
+        managers.mutate { $0[provider.id] = feeManager }
 
         return feeManager
     }
