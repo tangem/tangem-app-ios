@@ -77,7 +77,7 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
         analyticsLogger = Self.makeSendAnalyticsLogger(walletModel: walletModel, sendType: .nft)
 
         walletModelHistoryUpdater = walletModel
-        tokenFeeManager = TokenFeeManagerBuilder().makeTokenFeeManager(walletModel: walletModel)
+        tokenFeeManager = TokenFeeManagerBuilder(walletModel: walletModel).makeTokenFeeManager()
         walletModelDependenciesProvider = walletModel
         availableBalanceProvider = walletModel.availableBalanceProvider
         fiatAvailableBalanceProvider = walletModel.fiatAvailableBalanceProvider
