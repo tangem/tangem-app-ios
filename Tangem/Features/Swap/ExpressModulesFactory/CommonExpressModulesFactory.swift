@@ -11,12 +11,6 @@ import TangemLocalization
 import TangemExpress
 import BlockchainSdk
 
-struct ExpressFeeSelectorAnalytics: FeeSelectorAnalytics {
-    func logFeeStepOpened() {}
-
-    func logSendFeeSelected(_ feeOption: FeeOption) {}
-}
-
 class CommonExpressModulesFactory {
     @Injected(\.expressPendingTransactionsRepository)
     private var pendingTransactionRepository: ExpressPendingTransactionRepository

@@ -6,9 +6,11 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import TangemExpress
+
 protocol ExpressInteractorTokenFeeProvider {
-    func tokenFeeManager(state: ExpressInteractor.State) -> TokenFeeManager?
-    func selectedFeeProvider(state: ExpressInteractor.State) -> TokenFeeProvider?
-    func feeTokenItems(state: ExpressInteractor.State) -> [TokenItem]
-    func fees(state: ExpressInteractor.State) -> [TokenFee]
+    func tokenFeeManager(providerId: ExpressProvider.Id) -> TokenFeeManager?
+    func selectedFeeProvider(providerId: ExpressProvider.Id) -> TokenFeeProvider?
+    func feeTokenItems(providerId: ExpressProvider.Id) -> [TokenItem]
+    func fees(providerId: ExpressProvider.Id) -> [TokenFee]
 }
