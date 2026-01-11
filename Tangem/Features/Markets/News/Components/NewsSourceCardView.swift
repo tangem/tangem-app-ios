@@ -28,7 +28,7 @@ struct NewsSourceCardView: View {
                         .foregroundStyle(Color.Tangem.Fill.Neutral.tertiaryConstant)
 
                     Text(source.sourceName)
-                        .style(Fonts.Bold.subheadline, color: Color.Tangem.Text.Neutral.primary)
+                        .style(Fonts.Bold.footnote, color: Color.Tangem.Text.Neutral.tertiary)
                         .lineLimit(1)
                 }
                 .padding(.bottom, 4)
