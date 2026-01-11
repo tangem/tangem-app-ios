@@ -30,19 +30,19 @@ struct CommonExpressFeeLoader {
 // MARK: - ExpressFeeProvider
 
 extension CommonExpressFeeLoader: ExpressFeeProvider {
-    func estimatedFee(amount: Decimal) async throws -> ExpressFee.Variants {
+    func estimatedFee(provider: ExpressProvider, amount: Decimal) async throws -> ExpressFee.Variants {
         let fees = try await feeLoader.estimatedFee(amount: amount)
         return try mapToExpressFee(fees: fees)
     }
 
-    func estimatedFee(estimatedGasLimit: Int) async throws -> Fee {
+    func estimatedFee(provider: ExpressProvider, estimatedGasLimit: Int) async throws -> Fee {
         let fee = try await feeLoader.asEthereumTokenFeeLoader().estimatedFee(
             estimatedGasLimit: estimatedGasLimit
         )
         return fee
     }
 
-    func getFee(amount: ExpressAmount, destination: String) async throws -> ExpressFee.Variants {
+    func getFee(provider: ExpressProvider, amount: ExpressAmount, destination: String) async throws -> ExpressFee.Variants {
         switch (amount, tokenItem.blockchain) {
         case (.transfer(let amount), _):
             let fees = try await feeLoader.getFee(amount: amount, destination: destination)

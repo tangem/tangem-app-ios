@@ -159,7 +159,7 @@ private extension DEXExpressProviderManager {
         let otherNativeFee = data.otherNativeFee ?? 0
 
         if let estimatedGasLimit = data.estimatedGasLimit {
-            let estimateFee = try await request.pair.source.feeProvider.estimatedFee(estimatedGasLimit: estimatedGasLimit)
+            let estimateFee = try await request.pair.source.feeProvider.estimatedFee(provider: provider, estimatedGasLimit: estimatedGasLimit)
             let estimateTxValue = otherNativeFee + estimateFee.amount.value
 
             return .feeCurrencyInsufficientBalanceForTxValue(estimateTxValue)
@@ -171,6 +171,7 @@ private extension DEXExpressProviderManager {
 
     func ready(request: ExpressManagerSwappingPairRequest, quote: ExpressQuote, data: ExpressTransactionData) async throws -> ExpressManagerState.Ready {
         var variants = try await request.pair.source.feeProvider.getFee(
+            provider: provider,
             amount: .dex(fromAmount: request.amount, txValue: data.txValue, txData: data.txData),
             destination: data.destinationAddress
         )

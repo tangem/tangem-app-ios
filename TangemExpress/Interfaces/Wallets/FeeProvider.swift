@@ -11,7 +11,7 @@ import Foundation
 public typealias ExpressFeeProvider = FeeProvider
 
 public protocol FeeProvider {
-    func estimatedFee(amount: Decimal) async throws -> ExpressFee.Variants
-    func estimatedFee(estimatedGasLimit: Int) async throws -> Fee
-    func getFee(amount: ExpressAmount, destination: String) async throws -> ExpressFee.Variants
+    func estimatedFee(provider: ExpressProvider, amount: Decimal) async throws -> ExpressFee.Variants
+    func estimatedFee(provider: ExpressProvider, estimatedGasLimit: Int) async throws -> Fee
+    func getFee(provider: ExpressProvider, amount: ExpressAmount, destination: String) async throws -> ExpressFee.Variants
 }
