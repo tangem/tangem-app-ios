@@ -4119,9 +4119,6 @@
 		EF6EDD8C296D6B51001B21A3 /* SendDecimalNumberTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6EDD8B296D6B51001B21A3 /* SendDecimalNumberTextField.swift */; };
 		EF700D6E2DF9C9E000C95113 /* SendReceiveTokenBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF700D6D2DF9C9E000C95113 /* SendReceiveTokenBuilder.swift */; };
 		EF70A4082C1714A100805D9F /* SendDestinationValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF70A4072C1714A100805D9F /* SendDestinationValidator.swift */; };
-		EF729B492AF1091900D80205 /* ExpressFeeSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B442AF1091900D80205 /* ExpressFeeSelectorView.swift */; };
-		EF729B4A2AF1091900D80205 /* ExpressFeeSelectorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B452AF1091900D80205 /* ExpressFeeSelectorViewModel.swift */; };
-		EF729B4B2AF1091900D80205 /* ExpressFeeSelectorRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B462AF1091900D80205 /* ExpressFeeSelectorRoutable.swift */; };
 		EF729B4F2AF10DD900D80205 /* FeeRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B4E2AF10DD900D80205 /* FeeRowView.swift */; };
 		EF729B512AF1248400D80205 /* FeeRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B502AF1248400D80205 /* FeeRowViewModel.swift */; };
 		EF729B562AF12B8300D80205 /* FeeOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF729B552AF12B8300D80205 /* FeeOption.swift */; };
@@ -8901,9 +8898,6 @@
 		EF6EDD8B296D6B51001B21A3 /* SendDecimalNumberTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDecimalNumberTextField.swift; sourceTree = "<group>"; };
 		EF700D6D2DF9C9E000C95113 /* SendReceiveTokenBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendReceiveTokenBuilder.swift; sourceTree = "<group>"; };
 		EF70A4072C1714A100805D9F /* SendDestinationValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDestinationValidator.swift; sourceTree = "<group>"; };
-		EF729B442AF1091900D80205 /* ExpressFeeSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressFeeSelectorView.swift; sourceTree = "<group>"; };
-		EF729B452AF1091900D80205 /* ExpressFeeSelectorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressFeeSelectorViewModel.swift; sourceTree = "<group>"; };
-		EF729B462AF1091900D80205 /* ExpressFeeSelectorRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressFeeSelectorRoutable.swift; sourceTree = "<group>"; };
 		EF729B4E2AF10DD900D80205 /* FeeRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeRowView.swift; sourceTree = "<group>"; };
 		EF729B502AF1248400D80205 /* FeeRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeRowViewModel.swift; sourceTree = "<group>"; };
 		EF729B552AF12B8300D80205 /* FeeOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeOption.swift; sourceTree = "<group>"; };
@@ -20861,7 +20855,6 @@
 				EF842DE22AFA58A5006E472E /* ExpressTokensList */,
 				EF48E6CC2B023EC900FE0072 /* ExpressView */,
 				EF729B672AF3E82C00D80205 /* ExpressProvidersSelectorView */,
-				EF729B412AF108E200D80205 /* ExpressFeeSelector */,
 				B0AF2DF22B1DF282001A8696 /* PendingTransaction */,
 				EF6961692CEE17D6001EC00A /* ExpressAPIError+Localization.swift */,
 				EFFA43722E03F5A6001E0E54 /* ExpressDependenciesFactory */,
@@ -23605,16 +23598,6 @@
 				DA6445252BB17C8100865F7B /* SendDecimalNumberTextFieldPrefixSuffixOptions.swift */,
 			);
 			path = SendDecimalNumberTextField;
-			sourceTree = "<group>";
-		};
-		EF729B412AF108E200D80205 /* ExpressFeeSelector */ = {
-			isa = PBXGroup;
-			children = (
-				EF729B442AF1091900D80205 /* ExpressFeeSelectorView.swift */,
-				EF729B452AF1091900D80205 /* ExpressFeeSelectorViewModel.swift */,
-				EF729B462AF1091900D80205 /* ExpressFeeSelectorRoutable.swift */,
-			);
-			path = ExpressFeeSelector;
 			sourceTree = "<group>";
 		};
 		EF729B4D2AF10DCF00D80205 /* FeeRowView */ = {
@@ -27511,7 +27494,6 @@
 				EF29E89E2DF99D5200859AC7 /* SendAmountCompactView.swift in Sources */,
 				DA7FCCA42E9D15D9008E63F0 /* TangemPayTransactionHistoryMapper.swift in Sources */,
 				5D39514D2556CDDF002CC452 /* MoonPayService.swift in Sources */,
-				EF729B4A2AF1091900D80205 /* ExpressFeeSelectorViewModel.swift in Sources */,
 				EFAD40AC2A976E7500364D65 /* TransactionListItem.swift in Sources */,
 				0FF8F96B2EA9384500251C53 /* NewAuthWalletView+EnvironmentValues.swift in Sources */,
 				EA0A284E2E04519200A8353B /* PendingTransactionDetails.swift in Sources */,
@@ -28333,7 +28315,6 @@
 				306E1B432E9FBB8000C7D607 /* MarketsAccountsAwarePortfolioContainerViewModel.swift in Sources */,
 				0FB93CE22E57671900DAB673 /* MobileUpgradeRoutable.swift in Sources */,
 				B002654E2CE1F62F00D969E0 /* VisaOnboardingPinViewModel.swift in Sources */,
-				EF729B4B2AF1091900D80205 /* ExpressFeeSelectorRoutable.swift in Sources */,
 				DA4371A02A7D1937006215CA /* ListDataLoader.swift in Sources */,
 				DC2891B82CDB09DE00F57F59 /* ActionButtonsSellFlowRoutable.swift in Sources */,
 				0F84C1202E1515A900DC7FB1 /* MobileOnboardingSuccessViewModel.swift in Sources */,
@@ -28871,7 +28852,6 @@
 				C2E921382DD7ACC800ACE654 /* BlockaidWalletConnectDAppVerificationService.swift in Sources */,
 				0A2843BB2E4CDD7800BDE2D2 /* Analytics+SignInType.swift in Sources */,
 				0F84C10F2E129ADE00DC7FB1 /* MobileBackupTypesRoutable.swift in Sources */,
-				EF729B492AF1091900D80205 /* ExpressFeeSelectorView.swift in Sources */,
 				0A71BE082EBF2E9C005111DB /* BalancesView.swift in Sources */,
 				EFE54CD22D09DD1C00D803EB /* FakePendingExpressTransactionsManager.swift in Sources */,
 				DAF59CC42ACC4D8C004FCA86 /* AddCustomTokenDerivationPathSelectorDelegate.swift in Sources */,

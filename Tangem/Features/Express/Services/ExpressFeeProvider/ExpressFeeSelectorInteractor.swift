@@ -13,6 +13,11 @@ class ExpressFeeSelectorInteractor {
     let sourceTokenFeeManager: ExpressSourceTokenFeeManager
     let expressInteractor: ExpressInteractor
 
+    private var state: ExpressInteractor.State { expressInteractor.getState() }
+    private var statePublisher: AnyPublisher<ExpressInteractor.State, Never> {
+        expressInteractor.state.filter { !$0.isRefreshRates }.eraseToAnyPublisher()
+    }
+
     init(sourceTokenFeeManager: ExpressSourceTokenFeeManager, expressInteractor: ExpressInteractor) {
         self.sourceTokenFeeManager = sourceTokenFeeManager
         self.expressInteractor = expressInteractor
@@ -23,31 +28,31 @@ class ExpressFeeSelectorInteractor {
 
 extension ExpressFeeSelectorInteractor: FeeSelectorInteractor {
     var selectedSelectorFee: TokenFee? {
-        expressInteractor.getState().fees.selectedTokenFee()
+        state.fees.selectedTokenFee()
     }
 
     var selectedSelectorFeePublisher: AnyPublisher<TokenFee?, Never> {
-        expressInteractor.state.map { $0.fees.selectedTokenFee() }.eraseToAnyPublisher()
+        statePublisher.map { $0.fees.selectedTokenFee() }.eraseToAnyPublisher()
     }
 
     var selectorFees: [TokenFee] {
-        expressInteractor.getState().fees.fees
+        state.fees.fees
     }
 
     var selectorFeesPublisher: AnyPublisher<[TokenFee], Never> {
-        expressInteractor.state.map { $0.fees.fees }.eraseToAnyPublisher()
+        statePublisher.filter { !$0.isRefreshRates }.map { $0.fees.fees }.eraseToAnyPublisher()
     }
 
     var selectedSelectorFeeTokenItem: TokenItem? {
-        expressInteractor.getState().fees.selectedTokenFee()?.tokenItem
+        state.fees.selectedTokenFee()?.tokenItem
     }
 
     var selectedSelectorFeeTokenItemPublisher: AnyPublisher<TokenItem?, Never> {
-        expressInteractor.state.map { $0.fees.selectedTokenFee()?.tokenItem }.eraseToAnyPublisher()
+        statePublisher.map { $0.fees.selectedTokenFee()?.tokenItem }.eraseToAnyPublisher()
     }
 
     var selectorFeeTokenItems: [TokenItem] {
-        guard let providerId = expressInteractor.getState().provider?.id else {
+        guard let providerId = state.provider?.id else {
             return []
         }
 
@@ -55,7 +60,7 @@ extension ExpressFeeSelectorInteractor: FeeSelectorInteractor {
     }
 
     var selectorFeeTokenItemsPublisher: AnyPublisher<[TokenItem], Never> {
-        expressInteractor.state
+        statePublisher
             .withWeakCaptureOf(self)
             .map { interactor, state in
                 guard let providerId = state.provider?.id else {
@@ -68,7 +73,7 @@ extension ExpressFeeSelectorInteractor: FeeSelectorInteractor {
     }
 
     var customFeeProvider: (any CustomFeeProvider)? {
-        guard let providerId = expressInteractor.getState().provider?.id else {
+        guard let providerId = state.provider?.id else {
             return nil
         }
 
@@ -81,7 +86,7 @@ extension ExpressFeeSelectorInteractor: FeeSelectorInteractor {
     }
 
     func userDidSelectTokenItem(_ tokenItem: TokenItem) {
-        guard let providerId = expressInteractor.getState().provider?.id else {
+        guard let providerId = state.provider?.id else {
             return
         }
 

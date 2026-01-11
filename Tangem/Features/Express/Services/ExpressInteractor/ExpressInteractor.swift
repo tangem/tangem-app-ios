@@ -942,6 +942,11 @@ extension ExpressInteractor {
     struct Fees {
         let selected: FeeOption
         let fees: TokenFeesList
+
+        init(selected: FeeOption, fees: TokenFeesList) {
+            self.selected = selected
+            self.fees = fees.filter { $0.option == .market || $0.option == .fast }
+        }
     }
 
     // Manager models

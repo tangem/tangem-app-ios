@@ -59,7 +59,6 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
         return Publishers
             .CombineLatest(feesPublisher, customFeePublisher)
             .map(+)
-            .logging("->> feesPublisher") { $0.map { ($0.option, $0.value) } }
             .eraseToAnyPublisher()
     }
 

@@ -35,10 +35,9 @@ class SendFlowFactory: SendFlowBaseDependenciesFactory {
     lazy var sendModel = makeSendWithSwapModel(swapManager: swapManager, analyticsLogger: analyticsLogger, predefinedValues: .init())
     lazy var notificationManager = makeSendWithSwapNotificationManager(receiveTokenInput: sendModel)
     lazy var customFeeService = makeCustomFeeService(input: sendModel)
-    lazy var sendFeeSelectorInteractor = makeSendFeeProvider(input: sendModel, output: sendModel, dataInput: sendModel)
     lazy var sendWithSwapFeeSelectorInteractor = makeSendWithSwapFeeSelectorInteractor(
         receiveTokenInput: sendModel,
-        sendFeeSelectorInteractor: sendFeeSelectorInteractor,
+        sendFeeSelectorInteractor: makeSendFeeProvider(input: sendModel, output: sendModel, dataInput: sendModel),
         swapFeeSelectorInteractor: makeSwapFeeProvider(swapManager: swapManager)
     )
 
@@ -119,9 +118,9 @@ extension SendFlowFactory: SendGenericFlowFactory {
         // We have to set dependencies here after all setups is completed
         sendModel.externalAmountUpdater = amount.amountUpdater
         sendModel.externalDestinationUpdater = destination.externalUpdater
-        sendModel.sendFeeProvider = sendFeeSelectorInteractor
+        sendModel.sendFeeProvider = sendWithSwapFeeSelectorInteractor
         sendModel.informationRelevanceService = CommonInformationRelevanceService(
-            input: sendModel, output: sendModel, provider: sendFeeSelectorInteractor
+            input: sendModel, output: sendModel, provider: sendWithSwapFeeSelectorInteractor
         )
 
         // Steps setup
