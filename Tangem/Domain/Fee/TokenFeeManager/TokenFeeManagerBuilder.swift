@@ -7,7 +7,9 @@
 //
 
 struct TokenFeeManagerBuilder {
-    func makeTokenFeeManager(walletModel: any WalletModel) -> TokenFeeManager {
+    let walletModel: any WalletModel
+
+    func makeTokenFeeManager() -> TokenFeeManager {
         var feeProviders = [walletModel.tokenFeeProvider] // Main
 
         // [REDACTED_TODO_COMMENT]

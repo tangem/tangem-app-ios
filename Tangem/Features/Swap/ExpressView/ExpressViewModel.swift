@@ -200,7 +200,11 @@ private extension ExpressViewModel {
             return
         }
 
-        coordinator?.presentFeeSelectorView()
+        guard let source = interactor.getSource().value else {
+            return
+        }
+
+        coordinator?.presentFeeSelectorView(source: source)
     }
 
     func presentProviderSelectorView() {
