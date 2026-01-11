@@ -69,14 +69,6 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
         )
     }
 
-    func makeExpressFeeSelectorViewModel(coordinator: ExpressFeeSelectorRoutable) -> ExpressFeeSelectorViewModel {
-        ExpressFeeSelectorViewModel(
-            feeFormatter: feeFormatter,
-            expressInteractor: expressInteractor,
-            coordinator: coordinator
-        )
-    }
-
     func makeFeeSelectorViewModel(
         source: ExpressInteractorSourceWallet,
         coordinator: SendFeeSelectorRoutable

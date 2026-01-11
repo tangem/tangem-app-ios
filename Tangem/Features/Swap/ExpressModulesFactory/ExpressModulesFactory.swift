@@ -26,10 +26,6 @@ protocol ExpressModulesFactory {
         coordinator: SendFeeSelectorRoutable
     ) -> SendFeeSelectorViewModel
 
-    func makeExpressFeeSelectorViewModel(
-        coordinator: ExpressFeeSelectorRoutable
-    ) -> ExpressFeeSelectorViewModel
-
     func makeExpressApproveViewModel(
         source: any ExpressInteractorSourceWallet,
         providerName: String,

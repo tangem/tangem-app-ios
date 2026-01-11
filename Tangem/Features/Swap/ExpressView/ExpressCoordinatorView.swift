@@ -42,12 +42,6 @@ struct ExpressCoordinatorView: CoordinatorView {
                 ExpressApproveView(viewModel: $0)
             }
             .bottomSheet(
-                item: $coordinator.expressFeeSelectorViewModel,
-                backgroundColor: Colors.Background.tertiary
-            ) {
-                ExpressFeeSelectorView(viewModel: $0)
-            }
-            .bottomSheet(
                 item: $coordinator.expressProvidersSelectorViewModel,
                 backgroundColor: Colors.Background.tertiary
             ) {
