@@ -25,15 +25,15 @@ struct TangemPayWithdrawExpressFeeProvider {
 // MARK: - ExpressFeeProvider
 
 extension TangemPayWithdrawExpressFeeProvider: ExpressFeeProvider {
-    func estimatedFee(amount: Decimal) async throws -> ExpressFee.Variants {
+    func estimatedFee(provider: ExpressProvider, amount: Decimal) async throws -> ExpressFee.Variants {
         .single(constantFee)
     }
 
-    func estimatedFee(estimatedGasLimit: Int) async throws -> Fee {
+    func estimatedFee(provider: ExpressProvider, estimatedGasLimit: Int) async throws -> Fee {
         constantFee
     }
 
-    func getFee(amount: ExpressAmount, destination: String) async throws -> ExpressFee.Variants {
+    func getFee(provider: ExpressProvider, amount: ExpressAmount, destination: String) async throws -> ExpressFee.Variants {
         .single(constantFee)
     }
 }
