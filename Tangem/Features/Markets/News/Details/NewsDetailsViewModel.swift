@@ -229,11 +229,13 @@ extension NewsDetailsViewModel {
 
 // MARK: - NewsDetailsRoutable
 
+@MainActor
 protocol NewsDetailsRoutable: AnyObject {
     func dismissNewsDetails()
     func share(url: String)
     func openURL(_ url: URL)
     func openTokenDetails(_ token: MarketsTokenModel)
     func loadMoreNews() async -> [Int]
+
     @MainActor var hasMoreNews: Bool { get }
 }

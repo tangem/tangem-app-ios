@@ -136,11 +136,20 @@ extension NewsDTO.Details {
     struct OriginalArticle: Decodable, Identifiable {
         let id: Int
         let title: String?
-        let sourceName: String?
+        let source: Source?
         let language: String?
         let publishedAt: String?
         let url: String?
         let imageUrl: String?
+
+        var sourceName: String? {
+            source?.name
+        }
+    }
+
+    struct Source: Decodable {
+        let id: Int
+        let name: String
     }
 }
 

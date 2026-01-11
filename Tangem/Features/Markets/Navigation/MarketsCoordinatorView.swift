@@ -52,7 +52,7 @@ struct MarketsCoordinatorView: CoordinatorView {
         NavHolder()
             .navigation(item: $coordinator.tokenDetailsCoordinator) {
                 MarketsTokenDetailsCoordinatorView(coordinator: $0)
-                    .ignoresSafeArea(.container, edges: .top) // Without it, the content won't go into the safe area top zone on over-scroll
+                    .ignoresSafeArea(.container, edges: .top)
             }
             .navigation(item: $coordinator.marketsSearchCoordinator) {
                 MarketsSearchCoordinatorView(coordinator: $0)
@@ -62,6 +62,15 @@ struct MarketsCoordinatorView: CoordinatorView {
             }
             .navigation(item: $coordinator.newsPagerViewModel) {
                 NewsPagerView(viewModel: $0)
+                    .navigationLinks(newsPagerTokenDetailsLink)
+            }
+    }
+
+    private var newsPagerTokenDetailsLink: some View {
+        NavHolder()
+            .navigation(item: $coordinator.newsPagerTokenDetailsCoordinator) {
+                MarketsTokenDetailsCoordinatorView(coordinator: $0)
+                    .ignoresSafeArea(.container, edges: .top)
             }
     }
 }

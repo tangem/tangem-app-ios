@@ -499,7 +499,7 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .tokenMarketsDetails,
              .tokenExchangesList,
 //             .newsList,
-             .newsDetails,
+//             .newsDetails,
              .newsCategories,
              .newsLike,
              .story,
@@ -537,7 +537,7 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .getArchivedUserAccounts,
              .activatePromoCode,
              .trendingNews,
-             .newsList:
+             .newsList, .newsDetails:
             return true
         }
     }

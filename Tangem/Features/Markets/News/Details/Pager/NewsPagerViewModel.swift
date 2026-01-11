@@ -28,8 +28,8 @@ final class NewsPagerViewModel: ObservableObject, Identifiable, Hashable {
 
     @Published var currentIndex: Int
     @Published private(set) var articles: [Int: ArticleState] = [:]
-    @Published private(set) var newsIds: [Int]
     @Published private(set) var likeStates: [Int: LikeState] = [:]
+    @Published private(set) var newsIds: [Int]
 
     // MARK: - Public Properties
 
@@ -46,6 +46,11 @@ final class NewsPagerViewModel: ObservableObject, Identifiable, Hashable {
             return nil
         }
         return article
+    }
+
+    var isCurrentArticleLoading: Bool {
+        guard let newsId = currentNewsId else { return true }
+        return articles[newsId] == .loading || articles[newsId] == nil
     }
 
     var canGoBack: Bool {
