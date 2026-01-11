@@ -29,7 +29,7 @@ struct ExpressCoordinatorView: CoordinatorView {
     @ViewBuilder
     private var sheets: some View {
         NavHolder()
-            .iOS16UIKitSheet(item: $coordinator.expressTokensListViewModel) {
+            .sheet(item: $coordinator.expressTokensListViewModel) {
                 ExpressTokensListView(viewModel: $0)
             }
             .sheet(item: $coordinator.swapTokenSelectorViewModel) {
