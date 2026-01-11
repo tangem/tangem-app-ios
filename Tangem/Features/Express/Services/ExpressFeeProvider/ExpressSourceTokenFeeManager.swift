@@ -52,28 +52,24 @@ class ExpressSourceTokenFeeManager {
 // MARK: - ExpressInteractorTokenFeeProvider
 
 extension ExpressSourceTokenFeeManager: ExpressInteractorTokenFeeProvider {
-    func tokenFeeManager(state: ExpressInteractor.State) -> TokenFeeManager? {
-        guard let provider = state.provider else {
-            return nil
-        }
-
-        guard let manager = managers[provider.id] else {
+    func tokenFeeManager(providerId: ExpressProvider.Id) -> TokenFeeManager? {
+        guard let manager = managers[providerId] else {
             return nil
         }
 
         return manager
     }
 
-    func selectedFeeProvider(state: ExpressInteractor.State) -> (any TokenFeeProvider)? {
-        tokenFeeManager(state: state)?.selectedFeeProvider
+    func selectedFeeProvider(providerId: ExpressProvider.Id) -> (any TokenFeeProvider)? {
+        tokenFeeManager(providerId: providerId)?.selectedFeeProvider
     }
 
-    func fees(state: ExpressInteractor.State) -> [TokenFee] {
-        tokenFeeManager(state: state)?.fees ?? []
+    func fees(providerId: ExpressProvider.Id) -> TokenFeesList {
+        tokenFeeManager(providerId: providerId)?.fees ?? []
     }
 
-    func feeTokenItems(state: ExpressInteractor.State) -> [TokenItem] {
-        tokenFeeManager(state: state)?.selectedFeeProviderFeeTokenItems ?? []
+    func feeTokenItems(providerId: ExpressProvider.Id) -> [TokenItem] {
+        tokenFeeManager(providerId: providerId)?.selectedFeeProviderFeeTokenItems ?? []
     }
 }
 
@@ -134,4 +130,3 @@ extension ExpressFee.Variants {
         }
     }
 }
-
