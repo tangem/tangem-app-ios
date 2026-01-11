@@ -20,6 +20,7 @@ struct ExpressInteractorWalletModelWrapper {
     let feeTokenItem: TokenItem
     let defaultAddressString: String
 
+    let expressTokenFeeManager: ExpressSourceTokenFeeManager
     let availableBalanceProvider: any TokenBalanceProvider
     let transactionValidator: any ExpressTransactionValidator
     let withdrawalNotificationProvider: (any WithdrawalNotificationProvider)?
@@ -56,6 +57,10 @@ struct ExpressInteractorWalletModelWrapper {
         feeTokenItem = walletModel.feeTokenItem
         defaultAddressString = walletModel.defaultAddressString
 
+        expressTokenFeeManager = ExpressSourceTokenFeeManager(
+            tokenItem: tokenItem,
+            tokenFeeManagerBuilder: TokenFeeManagerBuilder(walletModel: walletModel)
+        )
         availableBalanceProvider = walletModel.availableBalanceProvider
         transactionValidator = BSDKExpressTransactionValidator(transactionValidator: walletModel.transactionValidator)
         withdrawalNotificationProvider = walletModel.withdrawalNotificationProvider

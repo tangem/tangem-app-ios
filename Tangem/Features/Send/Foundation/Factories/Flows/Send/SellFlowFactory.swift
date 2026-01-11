@@ -66,7 +66,7 @@ class SellFlowFactory: SendFlowBaseDependenciesFactory {
         accountModelAnalyticsProvider = walletModel.account
 
         shouldShowFeeSelector = walletModel.shouldShowFeeSelector
-        tokenFeeManager = TokenFeeManagerBuilder().makeTokenFeeManager(walletModel: walletModel)
+        tokenFeeManager = TokenFeeManagerBuilder(walletModel: walletModel).makeTokenFeeManager()
         walletModelDependenciesProvider = walletModel
         availableBalanceProvider = walletModel.availableBalanceProvider
         fiatAvailableBalanceProvider = walletModel.fiatAvailableBalanceProvider
