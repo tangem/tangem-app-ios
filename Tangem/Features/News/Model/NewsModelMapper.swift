@@ -14,20 +14,20 @@ import BlockchainSdk
 // MARK: - NewsModelMapper
 
 struct NewsModelMapper {
-    private static let timeFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm"
+    private let iconBuilder: IconURLBuilder = .init()
+
+    private static let relativeFormatter: RelativeDateTimeFormatter = {
+        let formatter = RelativeDateTimeFormatter()
         formatter.locale = Locale.current
+        formatter.unitsStyle = .full
+        formatter.dateTimeStyle = .named
         return formatter
     }()
 
-    private let iconBuilder: IconURLBuilder = .init()
-
-    private static let dateFormatter: DateFormatter = {
+    private static let dateTimeFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .none
         formatter.locale = Locale.current
+        formatter.setLocalizedDateFormatFromTemplate("d MMM HH:mm")
         return formatter
     }()
 
@@ -107,31 +107,12 @@ private extension NewsModelMapper {
 
     private func formatTimeAgo(from date: Date) -> String {
         let now = Date()
-        let calendar = Calendar.current
-        let isToday = calendar.isDateInToday(date)
-
-        let diffInSeconds = now.timeIntervalSince(date)
-        let diffInMinutes = Int(diffInSeconds / 60)
-        let diffInHours = Int(diffInSeconds / 3600)
-
-        if diffInMinutes < 1 {
-            return Localization.newsPublishedMinutesAgo(1)
+        let hoursAgo = now.timeIntervalSince(date) / 3600
+        if hoursAgo < 24 {
+            return Self.relativeFormatter.localizedString(for: date, relativeTo: now)
+        } else {
+            return Self.dateTimeFormatter.string(from: date)
         }
-
-        if diffInMinutes < 60 {
-            return Localization.newsPublishedMinutesAgo(diffInMinutes)
-        }
-
-        if diffInHours < 12, isToday {
-            return Localization.newsPublishedHoursAgo(diffInHours)
-        }
-
-        if isToday {
-            let timeString = Self.timeFormatter.string(from: date)
-            return String(format: "%@, %@", Localization.commonToday, timeString)
-        }
-
-        return Self.dateFormatter.string(from: date)
     }
 
     private func buildTags(

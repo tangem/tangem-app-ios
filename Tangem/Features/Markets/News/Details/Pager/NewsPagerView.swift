@@ -27,13 +27,13 @@ struct NewsPagerView: View {
                 if !isDeeplinkMode {
                     navigationBar
                 }
+
                 pagerContent
             }
 
             if !isDeeplinkMode, viewModel.newsIds.count > 1 {
                 pageIndicatorOverlay
                     .ignoresSafeArea(.container, edges: .bottom)
-
                 PageIndicatorView(
                     totalPages: viewModel.newsIds.count,
                     currentIndex: viewModel.currentIndex
@@ -48,8 +48,9 @@ struct NewsPagerView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: { viewModel.handleViewAction(.share) }) {
                         Assets.Glyphs.moreVertical.image
-                            .foregroundColor(Color.Tangem.Graphic.Neutral.primary)
+                            .foregroundColor(shareButtonColor)
                     }
+                    .disabled(viewModel.isCurrentArticleLoading)
                 }
             }
         }
@@ -76,6 +77,12 @@ struct NewsPagerView: View {
 
     // MARK: - Navigation Bar
 
+    private var shareButtonColor: Color {
+        viewModel.isCurrentArticleLoading
+            ? Color.Tangem.Graphic.Neutral.tertiary
+            : Color.Tangem.Graphic.Neutral.primary
+    }
+
     private var navigationBar: some View {
         NavigationBar(
             title: "",
@@ -92,9 +99,10 @@ struct NewsPagerView: View {
             rightButtons: {
                 Button(action: { viewModel.handleViewAction(.share) }) {
                     Assets.Glyphs.moreVertical.image
-                        .foregroundColor(Color.Tangem.Graphic.Neutral.primary)
+                        .foregroundColor(shareButtonColor)
                         .padding(.trailing, 16)
                 }
+                .disabled(viewModel.isCurrentArticleLoading)
             }
         )
         .padding(.top, 12)
@@ -158,7 +166,10 @@ private struct NewsPageContentView: View {
         ZStack {
             articleContentView(article)
                 .allowsHitTesting(!isLoading && !isError)
-                .skeletonable(isShown: isLoading, radius: 14)
+                .hidden(isLoading)
+
+            NewsArticleSkeletonView()
+                .hidden(!isLoading)
 
             // Error overlay - use hidden() to maintain structural identity
             UnableToLoadDataView(

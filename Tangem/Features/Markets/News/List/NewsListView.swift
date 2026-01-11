@@ -63,10 +63,9 @@ struct NewsListView: View {
         ScrollView(showsIndicators: false) {
             LazyVStack(spacing: 12) {
                 ForEach(viewModel.newsItems) { item in
-                    NewsItemView(viewModel: item)
-                        .onTapGesture {
-                            viewModel.handleViewAction(.onNewsSelected(item.id))
-                        }
+                    NewsItemView(viewModel: item) {
+                        viewModel.handleViewAction(.onNewsSelected(item.id))
+                    }
                 }
 
                 paginationFooter

@@ -24,6 +24,7 @@ struct NewsSourcesSectionView: View {
                 Text("\(sources.count)")
                     .style(Fonts.Bold.title3, color: Color.Tangem.Text.Neutral.tertiary)
             }
+            .padding(.horizontal, 16)
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
@@ -31,6 +32,7 @@ struct NewsSourcesSectionView: View {
                         NewsSourceCardView(source: source, onTap: onSourceTap)
                     }
                 }
+                .padding(.horizontal, 16)
             }
         }
     }

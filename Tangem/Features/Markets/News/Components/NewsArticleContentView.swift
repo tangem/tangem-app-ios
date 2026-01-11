@@ -36,24 +36,27 @@ struct NewsArticleContentView<AdditionalContent: View>: View {
             VStack(alignment: .leading, spacing: 0) {
                 NewsArticleHeaderView(article: article, onShareTap: onShareTap)
                     .padding(.top, 16)
+                    .padding(.horizontal, 16)
 
                 if !article.shortContent.isEmpty {
                     NewsQuickRecapView(content: article.shortContent)
                         .padding(.top, 32)
+                        .padding(.horizontal, 16)
                 }
 
                 Text(article.content)
                     .style(Fonts.Regular.body, color: Color.Tangem.Text.Neutral.primary)
                     .padding(.top, 16)
+                    .padding(.horizontal, 16)
 
                 additionalContent()
+                    .padding(.horizontal, 16)
 
                 if !article.sources.isEmpty {
                     NewsSourcesSectionView(sources: article.sources, onSourceTap: onSourceTap)
                         .padding(.top, 32)
                 }
             }
-            .padding(.horizontal, 16)
             .padding(.bottom, bottomPadding)
         }
     }
