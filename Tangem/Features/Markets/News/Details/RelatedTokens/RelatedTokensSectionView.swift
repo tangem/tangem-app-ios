@@ -53,8 +53,18 @@ struct RelatedTokensSectionView: View {
                 }
             }
         case .error:
-            EmptyView()
+            errorView
         }
+    }
+
+    // MARK: - Error View
+
+    private var errorView: some View {
+        UnableToLoadDataView(
+            isButtonBusy: false,
+            retryButtonAction: { viewModel.retry() }
+        )
+        .padding(.vertical, 16)
     }
 
     // MARK: - Loading Skeletons
