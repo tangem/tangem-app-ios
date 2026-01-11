@@ -13,7 +13,7 @@ protocol SendFeeStepBuildable {
 }
 
 extension SendFeeStepBuildable {
-    func makeSendFeeStep(router: any FeeSelectorRoutable) -> SendNewFeeStepBuilder.ReturnValue {
+    func makeSendFeeStep(router: any SendFeeSelectorRoutable) -> SendNewFeeStepBuilder.ReturnValue {
         SendNewFeeStepBuilder.make(io: feeIO, types: feeTypes, dependencies: feeDependencies, router: router)
     }
 }
@@ -45,7 +45,7 @@ enum SendNewFeeStepBuilder {
         io: IO,
         types: Types,
         dependencies: Dependencies,
-        router: any FeeSelectorRoutable
+        router: SendFeeSelectorRoutable
     ) -> ReturnValue {
         let feeSelectorInteractor = CommonFeeSelectorInteractor(
             input: io.input,
@@ -65,10 +65,11 @@ enum SendNewFeeStepBuilder {
             ),
             analytics: dependencies.analyticsLogger,
             output: io.output,
-            router: router
+            router: router,
+            shouldShowSummaryBottomButton: true
         )
 
-        let feeSelector = SendFeeSelectorViewModel(feeSelectorViewModel: feeSelectorViewModel)
+        let feeSelector = SendFeeSelectorViewModel(feeSelectorViewModel: feeSelectorViewModel, router: router)
         let compact = SendNewFeeCompactViewModel(feeTokenItem: types.feeTokenItem, isFeeApproximate: types.isFeeApproximate)
         let finish = SendFeeFinishViewModel(feeTokenItem: types.feeTokenItem, isFeeApproximate: types.isFeeApproximate)
 

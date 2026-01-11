@@ -7,6 +7,7 @@
 //
 
 import Combine
+import TangemAccessibilityIdentifiers
 
 protocol FeeSelectorSummaryRoutable: AnyObject {
     func userDidRequestTokenSelector()
@@ -16,16 +17,41 @@ protocol FeeSelectorSummaryRoutable: AnyObject {
 }
 
 final class FeeSelectorSummaryViewModel: ObservableObject {
-    // Some views
+    // MARK: - Published
 
+    @Published
+    private(set) var suggestedFeeCurrency: FeeSelectorRowViewModel?
+
+    @Published
+    private(set) var suggestedFee: FeeSelectorRowViewModel?
+
+    @Published
+    private(set) var shouldShowBottomButton: Bool
+
+    // MARK: - Dependencies
+
+    private let feeFormatter: FeeFormatter
     private let tokensDataProvider: FeeSelectorTokensDataProvider
     private let feesDataProvider: FeeSelectorFeesDataProvider
-
     private weak var router: FeeSelectorSummaryRoutable?
 
-    init(tokensDataProvider: FeeSelectorTokensDataProvider, feesDataProvider: FeeSelectorFeesDataProvider) {
+    // MARK: - Bag
+
+    private var bag = Set<AnyCancellable>()
+
+    // MARK: - Init
+
+    init(
+        tokensDataProvider: FeeSelectorTokensDataProvider,
+        feesDataProvider: FeeSelectorFeesDataProvider,
+        shouldShowBottomButton: Bool
+    ) {
         self.tokensDataProvider = tokensDataProvider
         self.feesDataProvider = feesDataProvider
+        self.shouldShowBottomButton = shouldShowBottomButton
+
+        feeFormatter = CommonFeeFormatter()
+        bind()
     }
 
     func setup(router: FeeSelectorSummaryRoutable?) {
@@ -38,5 +64,81 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
 
     func userDidTapFee() {
         router?.userDidRequestFeeSelector()
+    }
+
+    func userDidTapConfirm() {
+        router?.userDidTapConfirmButton()
+    }
+
+    // MARK: - Private Implementation
+
+    private func bind() {
+        Publishers.CombineLatest(
+            tokensDataProvider.selectedFeeTokenItemPublisher,
+            tokensDataProvider.feeTokenItemsPublisher.map { $0.count > 1 ? true : false }
+        )
+        .receiveOnMain()
+        .withWeakCaptureOf(self)
+        .compactMap { viewModel, output in
+            let (selectedToken, canExpand) = output
+            guard let token = selectedToken else { return nil }
+            return viewModel.mapTokenItemToRowViewModel(token: token, canExpand: canExpand)
+        }
+        .assign(to: \.suggestedFeeCurrency, on: self, ownership: .weak)
+        .store(in: &bag)
+
+        Publishers.CombineLatest(
+            feesDataProvider.selectedSelectorFeePublisher,
+            feesDataProvider.selectorFeesPublisher.map { $0.count > 1 ? true : false }
+        )
+        .receiveOnMain()
+        .withWeakCaptureOf(self)
+        .compactMap { viewModel, output in
+            let (selectedFee, canExpand) = output
+            guard let fee = selectedFee else { return nil }
+            return viewModel.mapFeeToRowViewModel(fee: fee, canExpand: canExpand)
+        }
+        .assign(to: \.suggestedFee, on: self, ownership: .weak)
+        .store(in: &bag)
+    }
+
+    private func mapTokenItemToRowViewModel(token: TokenItem, canExpand: Bool) -> FeeSelectorRowViewModel {
+        let subtitleState: LoadableTextView.State = .loading
+
+        return FeeSelectorRowViewModel(
+            rowType: .token(tokenIconInfo: TokenIconInfoBuilder().build(from: token, isCustom: false)),
+            title: token.name,
+            subtitle: subtitleState,
+            accessibilityIdentifier: FeeAccessibilityIdentifiers.suggestedFeeCurrency,
+            expandAction: canExpand ? userDidTapToken : nil
+        )
+    }
+
+    private func mapFeeToRowViewModel(fee: TokenFee, canExpand: Bool) -> FeeSelectorRowViewModel {
+        let subtitleState: LoadableTextView.State = {
+            switch fee.value {
+            case .loading:
+                return .loading
+            case .failure:
+                return .noData
+            case .success(let feeValue):
+                let formatted = feeFormatter
+                    .formattedFeeComponents(
+                        fee: feeValue.amount.value,
+                        tokenItem: fee.tokenItem,
+                        formattingOptions: .sendCryptoFeeFormattingOptions
+                    )
+                    .formatted
+                return .loaded(text: formatted)
+            }
+        }()
+
+        return FeeSelectorRowViewModel(
+            rowType: .fee(image: fee.option.icon.image),
+            title: fee.option.title,
+            subtitle: subtitleState,
+            accessibilityIdentifier: FeeAccessibilityIdentifiers.suggestedFeeCurrency,
+            expandAction: canExpand ? userDidTapFee : nil
+        )
     }
 }

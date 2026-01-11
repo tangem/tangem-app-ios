@@ -58,7 +58,7 @@ extension GaslessTransactionDataBuilder {
                 "transaction": .object([
                     "to": .string(transaction.address),
                     "value": .string(transaction.value),
-                    "data": .string(transaction.data.hexString.addHexPrefix()),
+                    "data": .string(transaction.data),
                 ]),
                 "fee": .object([
                     "feeToken": .string(fee.feeToken),

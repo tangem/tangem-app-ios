@@ -69,6 +69,11 @@ final class SendCoordinator: CoordinatorObject {
             return nil
         }
     }
+
+    @MainActor
+    private func resumeBottomSheet() {
+        floatingSheetPresenter.resumeSheetsDisplaying()
+    }
 }
 
 // MARK: - Options
@@ -195,6 +200,19 @@ extension SendCoordinator: SendRoutable {
     func openAccountInitializationFlow(viewModel: BlockchainAccountInitializationViewModel) {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func openFeeSelectorLearnMoreURL(_ url: URL) {
+        Task { @MainActor in
+            floatingSheetPresenter.pauseSheetsDisplaying()
+            safariHandle = safariManager.openURL(
+                url, configuration: .init(),
+                onDismiss: resumeBottomSheet,
+                onSuccess: { [weak self] _ in
+                    self?.resumeBottomSheet()
+                }
+            )
         }
     }
 }
