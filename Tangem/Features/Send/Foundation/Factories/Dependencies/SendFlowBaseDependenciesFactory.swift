@@ -54,24 +54,31 @@ extension SendFlowBaseDependenciesFactory {
 
     // MARK: - Fee
 
-    func makeSendWithSwapFeeProvider(
+    func makeSendWithSwapFeeSelectorInteractor(
         receiveTokenInput: SendReceiveTokenInput,
-        sendFeeProvider: SendFeeProvider,
-        swapFeeProvider: SendFeeProvider
-    ) -> SendFeeProvider {
-        SendWithSwapFeeProvider(
+        sendFeeSelectorInteractor: SendFlowTokenFeeProvider,
+        swapFeeSelectorInteractor: SendFlowTokenFeeProvider
+    ) -> SendWithSwapFeeSelectorInteractor {
+        SendWithSwapFeeSelectorInteractor(
             receiveTokenInput: receiveTokenInput,
-            sendFeeProvider: sendFeeProvider,
-            swapFeeProvider: swapFeeProvider
+            sendFeeSelectorInteractor: sendFeeSelectorInteractor,
+            swapFeeSelectorInteractor: swapFeeSelectorInteractor
         )
     }
 
-    func makeSendFeeProvider(input: SendFeeInput, output: SendFeeOutput, dataInput: SendFeeProviderInput) -> SendFeeProvider {
-        CommonSendFeeProvider(input: input, output: output, dataInput: dataInput, tokenFeeManager: tokenFeeManager)
+    func makeSendFeeProvider(input: SendFeeInput, output: SendFeeOutput, dataInput: SendFeeProviderInput) -> SendFlowTokenFeeProvider {
+        CommonSendFeeProvider(
+            input: input,
+            output: output,
+            dataInput: dataInput,
+            tokenFeeManager: tokenFeeManager
+        )
     }
 
-    func makeSwapFeeProvider(swapManager: SwapManager) -> SendFeeProvider {
-        SwapFeeProvider(swapManager: swapManager)
+    func makeSwapFeeProvider(swapManager: SwapManager) -> SendFlowTokenFeeProvider {
+        CommonSwapFeeProvider(
+            expressInteractor: expressDependenciesFactory.expressInteractor
+        )
     }
 
     func makeCustomFeeService(input: CustomFeeServiceInput) -> CustomFeeProvider? {

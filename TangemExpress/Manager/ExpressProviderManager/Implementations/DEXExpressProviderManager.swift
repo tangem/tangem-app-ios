@@ -184,8 +184,8 @@ private extension DEXExpressProviderManager {
 
         // better to make the quote from the data
         let quoteData = ExpressQuote(fromAmount: data.fromAmount, expectAmount: data.toAmount, allowanceContract: quote.allowanceContract)
-        let fee = ExpressFee(option: request.feeOption, variants: variants)
-        return .init(provider: provider, fee: fee, data: data, quote: quoteData)
+        // let fee = ExpressFee(option: request.feeOption, variants: variants)
+        return .init(provider: provider, feeOption: request.feeOption, data: data, quote: quoteData)
     }
 
     func include(otherNativeFee: Decimal, in variants: ExpressFee.Variants) -> ExpressFee.Variants {
