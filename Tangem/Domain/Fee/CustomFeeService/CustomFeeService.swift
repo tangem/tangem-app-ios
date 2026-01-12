@@ -23,6 +23,6 @@ protocol CustomFeeServiceOutput: AnyObject {
     func customFeeDidChanged(_ customFee: Fee)
 }
 
-protocol SendCustomFeeService: FeeSelectorCustomFeeProvider {
+protocol SendCustomFeeService: CustomFeeProvider {
     func setup(input: SendFeeProviderInput)
 }
