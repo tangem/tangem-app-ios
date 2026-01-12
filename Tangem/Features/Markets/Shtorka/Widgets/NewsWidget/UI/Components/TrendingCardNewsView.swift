@@ -67,6 +67,7 @@ struct TrendingCardNewsView: View {
     private func contentView(for item: TrendingCardNewsItem) -> some View {
         VStack(spacing: Layout.MainCard.verticalSpacing) {
             trendingBadge
+                .skeletonable(isShown: itemState.isLoading, radius: Layout.TrendingBadge.cornerRadius)
 
             FixedSpacer(height: Layout.Spacing.afterTrendingBadge)
 
@@ -74,14 +75,17 @@ struct TrendingCardNewsView: View {
                 .lineLimit(2)
                 .multilineTextAlignment(.center)
                 .style(Fonts.Bold.title3, color: Colors.Text.primary1)
+                .skeletonable(isShown: itemState.isLoading, radius: Layout.Skeleton.cornerRadius)
 
             FixedSpacer(height: Layout.Spacing.afterTitle)
 
             NewsRatingView(rating: item.rating, timeAgo: item.timeAgo)
+                .skeletonable(isShown: itemState.isLoading, radius: Layout.Skeleton.cornerRadius)
 
             FixedSpacer(height: Layout.Spacing.afterRating)
 
             InfoChipsView(chips: item.tags)
+                .skeletonable(isShown: itemState.isLoading, radius: Layout.Skeleton.cornerRadius)
         }
         .infinityFrame(axis: .horizontal, alignment: .center)
         .defaultRoundedBackground(
@@ -103,13 +107,7 @@ struct TrendingCardNewsView: View {
                  .allowsHitTesting(false)
               */
         }
-        .shadow(
-            color: Colors.Icon.secondary.opacity(Layout.Shadow.colorOpacity),
-            radius: Layout.Shadow.radius,
-            y: Layout.Shadow.yOffset
-        )
         .opacity(opacity(for: item))
-        .skeletonable(isShown: itemState.isLoading, radius: Layout.MainCard.cornerRadius)
         .padding(.horizontal, Layout.MainCard.defaultHorizontalInset)
     }
 
@@ -139,7 +137,7 @@ private extension TrendingCardNewsView {
             static let verticalSpacing: CGFloat = .zero
             static let defaultHorizontalInset: CGFloat = 16
             static let padding: CGFloat = 24
-            static let cornerRadius: CGFloat = 22
+            static let cornerRadius: CGFloat = 14
         }
 
         enum Spacing {
@@ -164,6 +162,10 @@ private extension TrendingCardNewsView {
         enum ReadState {
             static let opacity: Double = 0.6
         }
+
+        enum Skeleton {
+            static let cornerRadius: CGFloat = 4
+        }
     }
 }
 
@@ -172,10 +174,13 @@ private extension TrendingCardNewsView {
 private extension TrendingCardNewsItem {
     static let placeholder: TrendingCardNewsItem = .init(
         id: UUID().uuidString,
-        title: "",
-        rating: "",
-        timeAgo: "",
-        tags: [],
+        title: "-------------------------",
+        rating: "-----",
+        timeAgo: "-----",
+        tags: [
+            .init(title: "--------"),
+            .init(title: "----------"),
+        ],
         isRead: false,
         onTap: { _ in }
     )
@@ -197,9 +202,7 @@ private extension TrendingCardNewsItem {
                     timeAgo: "Time",
                     tags: [
                         InfoChipItem(title: "Tag"),
-                        InfoChipItem(title: "Tag", leadingIcon: .image(Image(systemName: "bitcoinsign.circle.fill"))),
                         InfoChipItem(title: "Tag"),
-                        InfoChipItem(title: "Tag", leadingIcon: .image(Image(systemName: "bitcoinsign.circle.fill"))),
                         InfoChipItem(title: "Tag"),
                         InfoChipItem(title: "+3"),
                     ],
@@ -219,11 +222,13 @@ private extension TrendingCardNewsItem {
                     timeAgo: "Time",
                     tags: [
                         InfoChipItem(title: "Tag"),
-                        InfoChipItem(title: "Tag", leadingIcon: .image(Image(systemName: "bitcoinsign.circle.fill"))),
                         InfoChipItem(title: "Tag"),
-                        InfoChipItem(title: "Tag", leadingIcon: .image(Image(systemName: "bitcoinsign.circle.fill"))),
                         InfoChipItem(title: "Tag"),
-                        InfoChipItem(title: "+3"),
+                        InfoChipItem(title: "Tag"),
+                        InfoChipItem(title: "Tag"),
+                        InfoChipItem(title: "Tag"),
+                        InfoChipItem(title: "Tag"),
+                        InfoChipItem(title: "Tag"),
                     ],
                     isRead: true,
                     onTap: { _ in }
