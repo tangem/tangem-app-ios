@@ -32,6 +32,11 @@ struct CarouselNewsView: View {
         }
     }
 
+    init(itemsState: LoadingResult<[CarouselNewsItem], Never>, onAllNewsTap: (() -> Void)? = nil) {
+        self.itemsState = itemsState
+        self.onAllNewsTap = onAllNewsTap
+    }
+
     // MARK: - Computed Properties
 
     private var displayItems: [CarouselNewsItem] {

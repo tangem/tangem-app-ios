@@ -121,6 +121,10 @@ struct TangemApiTarget: TargetType {
             return "/wallets/\(userWalletId)/accounts/archived"
 
         // MARK: - News
+        case .newsList:
+            return "/news"
+        case .newsCategories:
+            return "/news/categories"
         case .trendingNews:
             return "/news/trending"
         }
@@ -152,6 +156,8 @@ struct TangemApiTarget: TargetType {
              .getArchivedUserAccounts,
              .getUserWallets,
              .getUserWallet,
+             .newsList,
+             .newsCategories,
              .trendingNews:
             return .get
         case .saveUserWalletTokensLegacy,
@@ -289,6 +295,10 @@ struct TangemApiTarget: TargetType {
             return .requestPlain
 
         // MARK: - News
+        case .newsList(let requestModel):
+            return .requestParameters(parameters: requestModel.parameters, encoding: URLEncoding.default)
+        case .newsCategories:
+            return .requestPlain
         case .trendingNews(let limit, let lang):
             var parameters = [String: Any]()
             if let lang {
@@ -353,7 +363,9 @@ struct TangemApiTarget: TargetType {
              .getUserAccounts,
              .getArchivedUserAccounts,
              .createWallet,
-             .trendingNews:
+             .trendingNews,
+             .newsList,
+             .newsCategories:
             return nil
         }
     }
@@ -430,6 +442,8 @@ extension TangemApiTarget {
         // MARK: - News
 
         case trendingNews(limit: Int?, lang: String?)
+        case newsList(_ requestModel: NewsDTO.List.Request)
+        case newsCategories
     }
 }
 
@@ -469,7 +483,10 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .getUserWallet,
              .updateWallet,
              .connectUserWallets,
-             .createWallet:
+             .createWallet,
+             .newsList,
+             .newsCategories,
+             .trendingNews:
             return false
         case .geo,
              .features,
@@ -493,8 +510,7 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .getUserAccounts,
              .saveUserAccounts,
              .getArchivedUserAccounts,
-             .activatePromoCode,
-             .trendingNews:
+             .activatePromoCode:
             return true
         }
     }
