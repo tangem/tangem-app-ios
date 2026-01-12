@@ -52,9 +52,7 @@ struct NewsListView: View {
             loadingSkeletons
         case .error:
             errorView
-        case .noResults:
-            noResultsView
-        case .loaded, .paginationLoading, .paginationError, .allDataLoaded, .idle:
+        case .loaded, .paginationLoading, .paginationError, .allDataLoaded, .idle, .noResults:
             newsList
         }
     }
@@ -131,13 +129,6 @@ struct NewsListView: View {
         )
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(.horizontal, 16)
-    }
-
-    private var noResultsView: some View {
-        Text("No news found")
-            .style(Fonts.Bold.caption1, color: Color.Tangem.Text.Neutral.tertiary)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding(.horizontal, 16)
     }
 }
 
