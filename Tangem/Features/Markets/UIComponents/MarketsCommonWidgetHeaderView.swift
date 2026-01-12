@@ -45,6 +45,7 @@ struct MarketsCommonWidgetHeaderView: View {
                     buttonView
                 }
             }
+            .padding(.horizontal, Layout.Content.horizontalPadding)
         }
         .padding(.vertical, Layout.Container.verticalPadding)
         .padding(.horizontal, Layout.Container.horizontalPadding)
@@ -73,6 +74,10 @@ extension MarketsCommonWidgetHeaderView {
         enum Container {
             static let horizontalPadding: CGFloat = 16.0
             static let verticalPadding: CGFloat = 2.0
+        }
+
+        enum Content {
+            static let horizontalPadding: CGFloat = 8.0
         }
 
         enum HeaderImage {
