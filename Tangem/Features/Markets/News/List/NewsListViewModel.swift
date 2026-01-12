@@ -21,7 +21,7 @@ final class NewsListViewModel: ObservableObject {
     // MARK: - Private Properties
 
     private let dataProvider: NewsDataProvider
-    private let dateFormatter: NewsDateFormatter
+    private let mapper = NewsModelMapper()
     private weak var coordinator: NewsListRoutable?
 
     private var bag = Set<AnyCancellable>()
@@ -30,11 +30,9 @@ final class NewsListViewModel: ObservableObject {
 
     init(
         dataProvider: NewsDataProvider,
-        dateFormatter: NewsDateFormatter = NewsDateFormatter(),
         coordinator: NewsListRoutable? = nil
     ) {
         self.dataProvider = dataProvider
-        self.dateFormatter = dateFormatter
         self.coordinator = coordinator
 
         bind()
@@ -66,7 +64,7 @@ final class NewsListViewModel: ObservableObject {
     }
 
     private func handleEvent(_ event: NewsDataProvider.Event) {
-        print("📰 [NewsListViewModel] handleEvent: \(event)")
+        AppLogger.debug("📰 [NewsListViewModel] handleEvent: \(event)")
 
         switch event {
         case .loading:
@@ -78,10 +76,10 @@ final class NewsListViewModel: ObservableObject {
             // If we already have items, it's pagination error
             loadingState = newsItems.isEmpty ? .error : .paginationError
         case .appendedItems(let items, let lastPage):
-            print("📰 [NewsListViewModel] appending \(items.count) items, current count: \(newsItems.count)")
-            let newViewModels = items.map { NewsItemViewModel(from: $0, dateFormatter: dateFormatter) }
+            AppLogger.debug("📰 [NewsListViewModel] appending \(items.count) items, current count: \(newsItems.count)")
+            let newViewModels = items.map { mapper.toNewsItemViewModel(from: $0) }
             newsItems.append(contentsOf: newViewModels)
-            print("📰 [NewsListViewModel] new count: \(newsItems.count)")
+            AppLogger.debug("📰 [NewsListViewModel] new count: \(newsItems.count)")
 
             if newsItems.isEmpty {
                 loadingState = .noResults
@@ -89,7 +87,7 @@ final class NewsListViewModel: ObservableObject {
                 loadingState = lastPage ? .allDataLoaded : .loaded
             }
         case .startInitialFetch:
-            print("📰 [NewsListViewModel] startInitialFetch - clearing newsItems")
+            AppLogger.debug("📰 [NewsListViewModel] startInitialFetch - clearing newsItems")
             newsItems = []
             loadingState = .loading
         case .cleared:
