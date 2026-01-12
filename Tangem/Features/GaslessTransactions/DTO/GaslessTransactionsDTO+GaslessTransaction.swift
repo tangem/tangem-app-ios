@@ -1,5 +1,5 @@
 //
-//  GaslessTransactionsDTO+MetaTransaction.swift
+//  GaslessTransactionsDTO+GaslessTransaction.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -7,14 +7,13 @@
 //
 
 import Foundation
-import BigInt
 
 extension GaslessTransactionsDTO.Request {
-    struct MetaTransaction: Encodable, Equatable {
+    struct GaslessTransaction: Encodable, Equatable {
         let transactionData: TransactionData
         let signature: String
         let userAddress: String
-        let chainId: BigUInt
+        let chainId: Int
         let eip7702auth: EIP7702Auth
 
         struct TransactionData: Encodable, Equatable {
@@ -38,10 +37,10 @@ extension GaslessTransactionsDTO.Request {
         }
 
         struct EIP7702Auth: Encodable, Equatable {
-            let chainId: BigUInt
+            let chainId: Int
             let address: String
             let nonce: String
-            let yParity: BigUInt
+            let yParity: Int
             let r: String
             let s: String
         }
@@ -50,7 +49,7 @@ extension GaslessTransactionsDTO.Request {
 
 // MARK: - Pretty Printed Debug JSON
 
-extension GaslessTransactionsDTO.Request.MetaTransaction {
+extension GaslessTransactionsDTO.Request.GaslessTransaction {
     func prettyPrinted() -> String {
         """
         GASLESSDEBUG
@@ -67,7 +66,7 @@ extension GaslessTransactionsDTO.Request.MetaTransaction {
     }
 }
 
-extension GaslessTransactionsDTO.Request.MetaTransaction.TransactionData {
+extension GaslessTransactionsDTO.Request.GaslessTransaction.TransactionData {
     var prettyPrinted: String {
         """
         {
@@ -79,7 +78,7 @@ extension GaslessTransactionsDTO.Request.MetaTransaction.TransactionData {
     }
 }
 
-extension GaslessTransactionsDTO.Request.MetaTransaction.TransactionData.Transaction {
+extension GaslessTransactionsDTO.Request.GaslessTransaction.TransactionData.Transaction {
     var prettyPrinted: String {
         """
         {
@@ -91,7 +90,7 @@ extension GaslessTransactionsDTO.Request.MetaTransaction.TransactionData.Transac
     }
 }
 
-extension GaslessTransactionsDTO.Request.MetaTransaction.TransactionData.Fee {
+extension GaslessTransactionsDTO.Request.GaslessTransaction.TransactionData.Fee {
     var prettyPrinted: String {
         """
         {
@@ -105,7 +104,7 @@ extension GaslessTransactionsDTO.Request.MetaTransaction.TransactionData.Fee {
     }
 }
 
-extension GaslessTransactionsDTO.Request.MetaTransaction.EIP7702Auth {
+extension GaslessTransactionsDTO.Request.GaslessTransaction.EIP7702Auth {
     var prettyPrinted: String {
         """
         {
