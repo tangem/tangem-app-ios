@@ -86,17 +86,11 @@ final class AccountDetailsViewModel: ObservableObject {
         archiveAccountTask?.cancel()
 
         archiveAccountTask = Task { [weak self] in
-            do throws(AccountArchivationError) {
-                // [REDACTED_TODO_COMMENT]
-                guard let cryptoAccount = self?.account as? any CryptoAccountModel else {
-                    return
-                }
-
-                try await cryptoAccount.archive()
-                await self?.handleAccountArchivingSuccess()
-            } catch {
-                await self?.handleAccountArchivingFailure(error: error)
+            guard let self, let resolvable = self.account as? any AccountModelResolvable else {
+                return
             }
+            
+            await resolvable.resolve(using: ArchiveAccountResolver(viewModel: self))
         }
     }
 
@@ -217,5 +211,30 @@ extension AccountDetailsViewModel {
     enum ArchivingState {
         case readyToBeArchived
         case archivingInProgress
+    }
+}
+
+// MARK: - ArchiveAccountResolver
+
+extension AccountDetailsViewModel {
+    private struct ArchiveAccountResolver: AccountModelResolving {
+        weak var viewModel: AccountDetailsViewModel?
+        
+        func resolve(accountModel: any CryptoAccountModel) async -> Void {
+            do throws(AccountArchivationError) {
+                try await accountModel.archive()
+                await viewModel?.handleAccountArchivingSuccess()
+            } catch {
+                await viewModel?.handleAccountArchivingFailure(error: error)
+            }
+        }
+        
+        func resolve(accountModel: any SmartAccountModel) async -> Void {
+            // No archiving action for SmartAccountModel
+        }
+        
+        func resolve(accountModel: any VisaAccountModel) async -> Void {
+            // No archiving action for VisaAccountModel
+        }
     }
 }
