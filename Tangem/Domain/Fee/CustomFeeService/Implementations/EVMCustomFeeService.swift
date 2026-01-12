@@ -191,9 +191,9 @@ class EVMCustomFeeService {
     }
 }
 
-// MARK: - FeeSelectorCustomFeeProvider
+// MARK: - CustomFeeProvider
 
-extension EVMCustomFeeService: FeeSelectorCustomFeeProvider {
+extension EVMCustomFeeService: CustomFeeProvider {
     var customFee: TokenFee {
         TokenFee(option: .custom, tokenItem: feeTokenItem, value: _customFee.value.map { .success($0) } ?? .loading)
     }
