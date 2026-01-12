@@ -61,20 +61,17 @@ struct GaslessTransactionDataBuilder {
     let signer: TangemSigner
     let balanceConverter = BalanceConverter()
 
-    func buildMetaTransaction(
-        bsdkTransaction: BSDKTransaction,
-        tokenFee: TokenFee
-    ) async throws -> GaslessTransactionData.GaslessTransaction {
+    func buildMetaTransaction(bsdkTransaction: BSDKTransaction) async throws -> GaslessTransactionData.GaslessTransaction {
         // 1) get chainId
-        guard let chainId = tokenFee.tokenItem.blockchain.chainId else {
+        guard let chainId = walletModel.tokenItem.blockchain.chainId else {
             throw GaslessTransactionDataBuilderError.failedToBuildMetaTransaction
         }
 
         // 2) get transaction
-        let transactionData = try makeTransaction(from: bsdkTransaction)
+        let transactionData = try await makeTransaction(from: bsdkTransaction)
 
         // 3) get fee
-        let feeData = try await makeGaslessTransactionFee(tokenFee: tokenFee)
+        let feeData = try await makeGaslessTransactionFee(bsdkFee: bsdkTransaction.fee)
 
         // 4) get smart contract nonce
 
@@ -115,20 +112,19 @@ struct GaslessTransactionDataBuilder {
 
         let signedHashes = try await signer
             .sign(hashes: [eip7702Data.data, eip712Hash], walletPublicKey: walletModel.publicKey)
-            .mapToResult()
             .async()
 
-        guard case .success(let signatures) = signedHashes, signatures.count == 2 else {
+        guard signedHashes.count == 2 else {
             throw GaslessTransactionDataBuilderError.failedToSignTransactions
         }
 
         let eip7702Unmarshalled = try UnmarshalUtil.unmarshalSignature(
-            signatureInfo: signatures[0],
+            signatureInfo: signedHashes[0],
             publicKey: walletModel.publicKey.blockchainKey
         )
 
         let eip712Unmarshalled = try UnmarshalUtil.unmarshalSignature(
-            signatureInfo: signatures[1],
+            signatureInfo: signedHashes[1],
             publicKey: walletModel.publicKey.blockchainKey
         )
 
@@ -145,17 +141,23 @@ struct GaslessTransactionDataBuilder {
         )
     }
 
-    private func makeTransaction(from bsdkTransaction: BSDKTransaction) throws -> GaslessTransactionData.Transaction {
-        guard let ethParams = bsdkTransaction.params as? EthereumTransactionParams,
-              let callData = ethParams.data
-        else {
+    private func makeTransaction(from bsdkTransaction: BSDKTransaction) async throws -> GaslessTransactionData.Transaction {
+//        guard let ethParams = bsdkTransaction.params as? EthereumTransactionParams,
+//              let callData = ethParams.data
+//        else {
+//            throw GaslessTransactionDataBuilderError.failedToBuildTransactionData
+//        }
+
+        guard let builder = walletModel.ethereumTransactionDataBuilder else {
             throw GaslessTransactionDataBuilderError.failedToBuildTransactionData
         }
+
+        let data = try await builder.buildTransactionDataFor(transaction: bsdkTransaction)
 
         return GaslessTransactionData.Transaction(
             address: bsdkTransaction.destinationAddress,
             value: "0",
-            data: callData.hexString.addHexPrefix()
+            data: data.hexString.addHexPrefix()
         )
     }
 
@@ -182,15 +184,15 @@ struct GaslessTransactionDataBuilder {
         return typedData.signHash
     }
 
-    private func makeGaslessTransactionFee(tokenFee: TokenFee) async throws -> GaslessTransactionData.Fee {
-        guard case .success(let bsdkFee) = tokenFee.value,
-              let parameters = bsdkFee.parameters as? EthereumEIP1559FeeParameters,
-              let tokenId = tokenFee.tokenItem.id,
-              let contractAddress = tokenFee.tokenItem.contractAddress
+    private func makeGaslessTransactionFee(bsdkFee: BSDKFee) async throws -> GaslessTransactionData.Fee {
+        guard let parameters = bsdkFee.parameters as? EthereumEIP1559FeeParameters,
+              case .token(let token) = bsdkFee.amount.type,
+              let tokenId = token.id
         else {
             throw GaslessTransactionDataBuilderError.failedToBuildMetaTransaction
         }
 
+        let contractAddress = token.contractAddress
         let feeTransferGasLimit = parameters.gasLimit
         let feeInCoin = bsdkFee.amount.value
         let coinPriceInToken = try await calculateCoinPriceInToken(tokenId: tokenId)
