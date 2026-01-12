@@ -102,10 +102,6 @@ extension CommonSwapManager: SwapManager {
         interactor.updateProvider(provider: provider)
     }
 
-    func update(feeOption: FeeOption) {
-        interactor.updateFeeOption(option: feeOption)
-    }
-
     func update() {
         interactor.refresh(type: .full)
     }
