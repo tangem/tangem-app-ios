@@ -18,20 +18,24 @@ protocol FeeSelectorFeesDataProvider {
     var selectorFeesPublisher: AnyPublisher<[TokenFee], Never> { get }
 }
 
+protocol FeeSelectorCustomFeeDataProviding {
+    var customFeeProvider: (any CustomFeeProvider)? { get }
+}
+
 protocol FeeSelectorFeesRoutable: AnyObject {
     func userDidTapConfirmSelection(selectedFee: TokenFee)
 }
 
 final class FeeSelectorFeesViewModel: ObservableObject {
-    @Published private(set) var rowViewModels: [FeeSelectorFeesRowViewModel]
+    @Published private(set) var rowViewModels: [FeeSelectorFeesRowViewModel] = []
     @Published private(set) var selectedFeeOption: FeeOption?
 
     @Published private(set) var customFeeManualSaveIsRequired: Bool
     @Published private(set) var customFeeManualSaveIsAvailable: Bool
 
     private let provider: FeeSelectorFeesDataProvider
-    private let mapper: FeeSelectorFeesViewModelMapper
-    private let customFeeAvailabilityProvider: FeeSelectorCustomFeeAvailabilityProvider?
+    private let customFeeDataProvider: FeeSelectorCustomFeeDataProviding
+    private let feeFormatter: FeeFormatter
     private let analytics: FeeSelectorAnalytics
 
     private weak var router: FeeSelectorFeesRoutable?
@@ -42,20 +46,20 @@ final class FeeSelectorFeesViewModel: ObservableObject {
 
     init(
         provider: FeeSelectorFeesDataProvider,
-        mapper: FeeSelectorFeesViewModelMapper,
-        customFeeAvailabilityProvider: FeeSelectorCustomFeeAvailabilityProvider?,
+        customFeeDataProvider: FeeSelectorCustomFeeDataProviding,
+        feeFormatter: FeeFormatter,
         analytics: FeeSelectorAnalytics,
     ) {
         self.provider = provider
-        self.mapper = mapper
-        self.customFeeAvailabilityProvider = customFeeAvailabilityProvider
+        self.customFeeDataProvider = customFeeDataProvider
+        self.feeFormatter = feeFormatter
         self.analytics = analytics
 
         selectedFeeOption = provider.selectedSelectorFee?.option
-        rowViewModels = mapper.mapToFeeSelectorFeesRowViewModels(values: provider.selectorFees)
-
         customFeeManualSaveIsRequired = provider.selectedSelectorFee?.option == .custom
-        customFeeManualSaveIsAvailable = customFeeAvailabilityProvider?.customFeeIsValid == true
+        customFeeManualSaveIsAvailable = customFeeDataProvider.customFeeProvider?.customFeeIsValid == true
+
+        rowViewModels = mapToFeeSelectorFeesRowViewModels(values: provider.selectorFees)
 
         bind()
     }
@@ -76,7 +80,13 @@ final class FeeSelectorFeesViewModel: ObservableObject {
 
     func onAppear() {
         analytics.logFeeStepOpened()
-        customFeeAvailabilityProvider?.captureCustomFeeFieldsValue()
+
+        customFeeDataProvider.customFeeProvider?.captureCustomFeeFieldsValue()
+        customFeeDataProvider.customFeeProvider?
+            .customFeeIsValidPublisher
+            .removeDuplicates()
+            .receiveOnMain()
+            .assign(to: &$customFeeManualSaveIsAvailable)
 
         if selectedFeeOption != provider.selectedSelectorFee?.option {
             selectedFeeOption = provider.selectedSelectorFee?.option
@@ -84,11 +94,14 @@ final class FeeSelectorFeesViewModel: ObservableObject {
     }
 
     func userDidRequestRevertCustomFeeValues() {
-        customFeeAvailabilityProvider?.resetCustomFeeFieldsValue()
+        customFeeDataProvider.customFeeProvider?.resetCustomFeeFieldsValue()
     }
 
     func userDidTapCustomFeeManualSaveButton() {
-        guard let selectedFee else { return }
+        guard let selectedFee else {
+            assertionFailure("Selected fee should not be nil")
+            return
+        }
 
         router?.userDidTapConfirmSelection(selectedFee: selectedFee)
     }
@@ -105,7 +118,7 @@ private extension FeeSelectorFeesViewModel {
 
         provider.selectorFeesPublisher
             .withWeakCaptureOf(self)
-            .map { $0.mapper.mapToFeeSelectorFeesRowViewModels(values: $1) }
+            .map { $0.mapToFeeSelectorFeesRowViewModels(values: $1) }
             .receiveOnMain()
             .assign(to: &$rowViewModels)
 
@@ -114,12 +127,6 @@ private extension FeeSelectorFeesViewModel {
             .removeDuplicates()
             .receiveOnMain()
             .assign(to: &$customFeeManualSaveIsRequired)
-
-        customFeeAvailabilityProvider?
-            .customFeeIsValidPublisher
-            .removeDuplicates()
-            .receiveOnMain()
-            .assign(to: &$customFeeManualSaveIsAvailable)
     }
 
     func userDidSelect(fee: TokenFee) {
@@ -129,5 +136,42 @@ private extension FeeSelectorFeesViewModel {
         if fee.option != .custom {
             router?.userDidTapConfirmSelection(selectedFee: fee)
         }
+    }
+}
+
+// MARK: - Mapping
+
+private extension FeeSelectorFeesViewModel {
+    func mapToFeeSelectorFeesRowViewModels(values: [TokenFee]) -> [FeeSelectorFeesRowViewModel] {
+        values
+            .sorted(by: \.option)
+            .map { mapToFeeSelectorFeesRowViewModel(fee: $0) }
+    }
+
+    func mapToFeeSelectorFeesRowViewModel(fee: TokenFee) -> FeeSelectorFeesRowViewModel {
+        let feeComponents = switch fee.value {
+        // [REDACTED_TODO_COMMENT]
+        case .loading, .failure:
+            FormattedFeeComponents(cryptoFee: "-", fiatFee: .none)
+
+        case .success(let feeValue): feeFormatter.formattedFeeComponents(
+                fee: feeValue.amount.value,
+                tokenItem: fee.tokenItem,
+                formattingOptions: .sendCryptoFeeFormattingOptions
+            )
+        }
+
+        // We will create the custom fields only for the `.custom` option
+        let customFields = fee.option == .custom ? customFields() : []
+
+        return FeeSelectorFeesRowViewModel(
+            fee: fee,
+            feeComponents: feeComponents,
+            customFields: customFields
+        )
+    }
+
+    func customFields() -> [FeeSelectorCustomFeeRowViewModel] {
+        customFeeDataProvider.customFeeProvider?.buildCustomFeeFields() ?? []
     }
 }
