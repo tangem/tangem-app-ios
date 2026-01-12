@@ -69,8 +69,7 @@ extension ArchivedCryptoAccountInfo: CustomStringConvertible {
 extension ArchivedCryptoAccountInfo: BaseAccountModel {
     @discardableResult
     func edit(with editor: Editor) async throws(AccountEditError) -> Self {
-        assertionFailure("Should never be called")
-        return self
+        preconditionFailure("Should never be called")
     }
 
     var didChangePublisher: AnyPublisher<Void, Never> {
@@ -78,8 +77,11 @@ extension ArchivedCryptoAccountInfo: BaseAccountModel {
     }
 
     func analyticsParameters(with builder: any AccountsAnalyticsBuilder) -> [Analytics.ParameterKey: String] {
-        assertionFailure("Should never be called")
-        return [:]
+        preconditionFailure("Should never be called")
+    }
+
+    func resolve<R>(using resolver: R) -> R.Result where R: AccountModelResolving {
+        preconditionFailure("Should never be called")
     }
 }
 
