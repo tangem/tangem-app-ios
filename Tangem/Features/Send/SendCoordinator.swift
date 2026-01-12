@@ -69,11 +69,6 @@ final class SendCoordinator: CoordinatorObject {
             return nil
         }
     }
-
-    @MainActor
-    private func resumeBottomSheet() {
-        floatingSheetPresenter.resumeSheetsDisplaying()
-    }
 }
 
 // MARK: - Options
@@ -207,11 +202,10 @@ extension SendCoordinator: SendRoutable {
         Task { @MainActor in
             floatingSheetPresenter.pauseSheetsDisplaying()
             safariHandle = safariManager.openURL(
-                url, configuration: .init(),
-                onDismiss: resumeBottomSheet,
-                onSuccess: { [weak self] _ in
-                    self?.resumeBottomSheet()
-                }
+                url,
+                configuration: .init(),
+                onDismiss: { [weak self] in self?.floatingSheetPresenter.resumeSheetsDisplaying() },
+                onSuccess: { [weak self] _ in self?.floatingSheetPresenter.resumeSheetsDisplaying() },
             )
         }
     }

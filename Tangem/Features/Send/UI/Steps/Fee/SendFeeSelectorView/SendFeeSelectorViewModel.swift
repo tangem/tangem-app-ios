@@ -97,7 +97,7 @@ extension SendFeeSelectorViewModel {
                 title = Localization.feeSelectorChooseSpeedTitle
                 let text = Localization.feeSelectorChooseSpeedDescription(Localization.commonLearnMore)
                 description = ViewState.makeDescription(text: text)
-                headerButtonAction = .back
+                headerButtonAction = .close // [REDACTED_TODO_COMMENT]
                 learnMoreURL = URL(string: "https://tangem.com/en/blog/post/yield-mode")!
             }
         }
