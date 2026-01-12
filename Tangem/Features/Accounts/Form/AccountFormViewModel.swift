@@ -34,10 +34,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
     var description: String? {
         switch flowType {
         case .edit(let account):
-            guard let resolvable = account as? any AccountModelResolvable else {
-                return nil
-            }
-            return resolvable.resolve(using: DescriptionResolver())
+            return account.resolve(using: DescriptionResolver())
 
         case .create:
             return Localization.accountFormAccountIndex(totalAccountsCount)

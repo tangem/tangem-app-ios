@@ -9,7 +9,7 @@
 import Foundation
 
 @available(*, unavailable, message: "This account type is not implemented yet")
-protocol SmartAccountModel: BaseAccountModel, AccountModelResolvable {}
+protocol SmartAccountModel: BaseAccountModel {}
 
 // MARK: - AccountModelResolvable protocol conformance
 
