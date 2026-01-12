@@ -47,7 +47,7 @@ class SendFeeCompactViewModel: ObservableObject, Identifiable {
             .assign(to: \.canEditFee, on: self, ownership: .weak)
     }
 
-    private func mapToFeeRowViewModel(fee: SendFee) -> FeeRowViewModel {
+    private func mapToFeeRowViewModel(fee: TokenFee) -> FeeRowViewModel {
         let feeComponents = fee.value.mapValue {
             feeFormatter.formattedFeeComponents(
                 fee: $0.amount.value,

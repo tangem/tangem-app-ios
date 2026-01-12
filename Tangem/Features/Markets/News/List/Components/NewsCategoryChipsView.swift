@@ -15,34 +15,45 @@ struct NewsCategoryChipsView: View {
     @Binding var selectedCategoryId: Int?
 
     private var chips: [Chip] {
-        var result: [Chip] = [Chip(id: "all", title: Localization.newsAllNews)]
+        var result: [Chip] = [Chip(id: Constants.allCategoryId, title: Localization.commonAll)]
         result.append(contentsOf: categories.map { Chip(id: String($0.id), title: $0.name) })
         return result
     }
 
-    @State private var selectedId: String? = "all"
+    @State private var selectedId: String? = Constants.allCategoryId
 
     var body: some View {
-        HorizontalChipsView(chips: chips, selectedId: $selectedId)
-            .onChange(of: selectedId) { newValue in
-                let newCategoryId: Int? = if newValue == "all" {
-                    nil
-                } else if let newValue {
-                    Int(newValue)
-                } else {
-                    nil
-                }
-
-                // Avoid triggering update if value is the same
-                guard selectedCategoryId != newCategoryId else { return }
-                selectedCategoryId = newCategoryId
+        HorizontalChipsView(
+            chips: chips,
+            selectedId: $selectedId,
+            horizontalInset: Constants.horizontalChipsViewInset
+        )
+        .onChange(of: selectedId) { newValue in
+            let newCategoryId: Int? = if newValue == Constants.allCategoryId {
+                nil
+            } else if let newValue {
+                Int(newValue)
+            } else {
+                nil
             }
-            .onChange(of: selectedCategoryId) { newValue in
-                let expectedSelectedId = newValue.map { String($0) } ?? "all"
 
-                // Avoid triggering update if value is the same
-                guard selectedId != expectedSelectedId else { return }
-                selectedId = expectedSelectedId
-            }
+            // Avoid triggering update if value is the same
+            guard selectedCategoryId != newCategoryId else { return }
+            selectedCategoryId = newCategoryId
+        }
+        .onChange(of: selectedCategoryId) { newValue in
+            let expectedSelectedId = newValue.map { String($0) } ?? Constants.allCategoryId
+
+            // Avoid triggering update if value is the same
+            guard selectedId != expectedSelectedId else { return }
+            selectedId = expectedSelectedId
+        }
+    }
+}
+
+extension NewsCategoryChipsView {
+    enum Constants {
+        static let allCategoryId = Localization.commonAll
+        static let horizontalChipsViewInset: CGFloat = 16
     }
 }

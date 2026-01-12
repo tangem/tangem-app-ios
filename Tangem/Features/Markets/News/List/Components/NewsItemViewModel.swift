@@ -23,15 +23,15 @@ final class NewsItemViewModel: Identifiable, ObservableObject {
 
     // MARK: - Init
 
-    init(from item: NewsDTO.List.Item, dateFormatter: NewsDateFormatter, isRead: Bool = false) {
-        id = item.id
-        score = String(format: "%.1f", item.score)
-        category = item.categories.first?.name ?? ""
-        relatedTokens = item.relatedTokens.map { RelatedToken(id: $0.id, symbol: $0.symbol) }
-        title = item.title
-        relativeTime = dateFormatter.formatRelativeTime(from: item.createdAt)
-        isTrending = item.isTrending
-        newsUrl = item.newsUrl
+    init(id: Int, score: String, category: String, relatedTokens: [RelatedToken], title: String, relativeTime: String, isTrending: Bool, newsUrl: String, isRead: Bool) {
+        self.id = id
+        self.score = score
+        self.category = category
+        self.relatedTokens = relatedTokens
+        self.title = title
+        self.relativeTime = relativeTime
+        self.isTrending = isTrending
+        self.newsUrl = newsUrl
         self.isRead = isRead
     }
 
@@ -40,9 +40,6 @@ final class NewsItemViewModel: Identifiable, ObservableObject {
     struct RelatedToken: Identifiable {
         let id: String
         let symbol: String
-
-        var iconURL: URL {
-            IconURLBuilder().tokenIconURL(id: id, size: .small)
-        }
+        let iconURL: URL
     }
 }
