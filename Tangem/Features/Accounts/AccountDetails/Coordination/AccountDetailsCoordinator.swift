@@ -93,12 +93,10 @@ extension AccountDetailsCoordinator: CryptoAccountDetailsRoutable {
 
 extension AccountDetailsCoordinator {
     private struct ManageTokensResolver: AccountModelResolving {
-        weak var coordinator: AccountDetailsCoordinator?
+        let coordinator: AccountDetailsCoordinator
         let options: Options
         
         func resolve(accountModel: any CryptoAccountModel) -> Void {
-            guard let coordinator else { return }
-            
             let manageTokensCoordinator = ManageTokensCoordinator(
                 dismissAction: { [weak coordinator] in
                     coordinator?.manageTokensCoordinator = nil
