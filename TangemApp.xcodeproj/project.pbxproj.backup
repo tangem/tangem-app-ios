@@ -1471,8 +1471,6 @@
 		B60F98C02E3BC72800141CA5 /* AccountModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B60F98BF2E3BC72800141CA5 /* AccountModel.swift */; };
 		B60F98C42E3BC76800141CA5 /* SmartAccountModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B60F98C32E3BC76800141CA5 /* SmartAccountModel.swift */; };
 		B60F98CC2E3BC82D00141CA5 /* CryptoAccountModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B60F98CB2E3BC82D00141CA5 /* CryptoAccountModel.swift */; };
-		13C86474A069B410EF9 /* AccountModelResolvable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BC4F6321F76C4310F9B /* AccountModelResolvable.swift */; };
-		BCC113A7CCB3068FD04 /* AccountModelResolving.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ADCF1BD53A99863069 /* AccountModelResolving.swift */; };
 		B60F98CE2E3BC84C00141CA5 /* CommonCryptoAccountModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B60F98CD2E3BC84C00141CA5 /* CommonCryptoAccountModel.swift */; };
 		B60F98D22E3BCA0D00141CA5 /* VisaAccountModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B60F98D12E3BCA0D00141CA5 /* VisaAccountModel.swift */; };
 		B610C0D42ECC8B3100D47CCC /* MultiWalletMainContentUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = B610C0D32ECC8B3100D47CCC /* MultiWalletMainContentUpdater.swift */; };
@@ -6290,8 +6288,6 @@
 		B60F98BF2E3BC72800141CA5 /* AccountModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountModel.swift; sourceTree = "<group>"; };
 		B60F98C32E3BC76800141CA5 /* SmartAccountModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartAccountModel.swift; sourceTree = "<group>"; };
 		B60F98CB2E3BC82D00141CA5 /* CryptoAccountModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoAccountModel.swift; sourceTree = "<group>"; };
-		8BC4F6321F76C4310F9B /* AccountModelResolvable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountModelResolvable.swift; sourceTree = "<group>"; };
-		0ADCF1BD53A99863069 /* AccountModelResolving.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountModelResolving.swift; sourceTree = "<group>"; };
 		B60F98CD2E3BC84C00141CA5 /* CommonCryptoAccountModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonCryptoAccountModel.swift; sourceTree = "<group>"; };
 		B60F98D12E3BCA0D00141CA5 /* VisaAccountModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaAccountModel.swift; sourceTree = "<group>"; };
 		B610C0D32ECC8B3100D47CCC /* MultiWalletMainContentUpdater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiWalletMainContentUpdater.swift; sourceTree = "<group>"; };
@@ -14714,15 +14710,6 @@
 			path = Crypto;
 			sourceTree = "<group>";
 		};
-		DC2F57D7BFC5DCA614D /* DoubleDispatch */ = {
-			isa = PBXGroup;
-			children = (
-				8BC4F6321F76C4310F9B /* AccountModelResolvable.swift */,
-				0ADCF1BD53A99863069 /* AccountModelResolving.swift */,
-			);
-			path = DoubleDispatch;
-			sourceTree = "<group>";
-		};
 		B60F98C92E3BC81300141CA5 /* Smart */ = {
 			isa = PBXGroup;
 			children = (
@@ -17792,7 +17779,6 @@
 			isa = PBXGroup;
 			children = (
 				B60F98CA2E3BC81300141CA5 /* Common */,
-				DC2F57D7BFC5DCA614D /* DoubleDispatch */,
 				B60F98C82E3BC81300141CA5 /* Crypto */,
 				B60F98C92E3BC81300141CA5 /* Smart */,
 				B60F98D02E3BC9F700141CA5 /* Visa */,
@@ -28636,8 +28622,6 @@
 				C2BB90B12DE8C6BB00793F94 /* WCDappTitleView.swift in Sources */,
 				DC8D72142BB1967D0077F241 /* Analytics+EventLimit.swift in Sources */,
 				B60F98CC2E3BC82D00141CA5 /* CryptoAccountModel.swift in Sources */,
-				13C86474A069B410EF9 /* AccountModelResolvable.swift in Sources */,
-				BCC113A7CCB3068FD04 /* AccountModelResolving.swift in Sources */,
 				C2DB419F2DCABE8D0028E6B0 /* WalletConnectErrorView.swift in Sources */,
 				0F291C322E9CF6B2002A4869 /* MobileRemoveWalletView.swift in Sources */,
 				B030B4DB2A8CE1DA0023DB8B /* LockedWalletMainContentView.swift in Sources */,
