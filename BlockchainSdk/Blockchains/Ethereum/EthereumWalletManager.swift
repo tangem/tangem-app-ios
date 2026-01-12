@@ -682,6 +682,29 @@ extension EthereumWalletManager: EthereumTransactionDataBuilder {
         let destination = try addressConverter.convertToETHAddress(destination)
         return try txBuilder.buildForTokenTransfer(destination: destination, amount: amount)
     }
+
+    /// Builds and returns encoded transaction data.
+    /// Throws an error if the transaction already contains parameters.
+    func buildTransactionDataFor(transaction: Transaction) async throws -> Data {
+        guard transaction.params == nil,
+              let feeParams = transaction.fee.parameters as? EthereumFeeParameters
+        else {
+            throw EthereumTransactionBuilderError.transactionHasParams
+        }
+
+        let nonce: Int = if let providedNonce = feeParams.nonce {
+            providedNonce
+        } else {
+            try await networkService.getPendingTxCount(transaction.sourceAddress).async()
+        }
+
+        let paramsWithNonce = EthereumTransactionParams(nonce: nonce)
+        var modifiedTransaction = transaction
+        modifiedTransaction.params = paramsWithNonce
+
+        let data = try txBuilder.buildTransactionDataFor(transaction: modifiedTransaction)
+        return data
+    }
 }
 
 // MARK: - StakeKitTransactionSender, StakeKitTransactionSenderProvider

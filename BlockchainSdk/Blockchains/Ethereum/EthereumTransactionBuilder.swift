@@ -23,6 +23,7 @@ protocol EthereumTransactionBuilder {
     func buildSigningInput(transaction: Transaction) throws -> EthereumSigningInput
     func buildForTokenTransfer(destination: String, amount: Amount) throws -> Data
     func buildForApprove(spender: String, amount: Decimal) -> Data
+    func buildTransactionDataFor(transaction: Transaction) throws -> Data
 }
 
 enum EthereumTransactionBuilderError: LocalizedError, Equatable {
@@ -36,6 +37,7 @@ enum EthereumTransactionBuilderError: LocalizedError, Equatable {
     case invalidStakingTransaction
     case unsupportedContractType
     case noChainId
+    case transactionHasParams
 
     var errorDescription: String? {
         switch self {
@@ -59,6 +61,8 @@ enum EthereumTransactionBuilderError: LocalizedError, Equatable {
             return "unsupportedContractType"
         case .noChainId:
             return "noChainId"
+        case .transactionHasParams:
+            return "transactionHasParams"
         }
     }
 }
