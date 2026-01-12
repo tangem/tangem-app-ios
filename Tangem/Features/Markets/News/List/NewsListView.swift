@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemLocalization
 
 struct NewsListView: View {
     @ObservedObject var viewModel: NewsListViewModel
@@ -17,7 +18,7 @@ struct NewsListView: View {
         VStack(spacing: 12) {
             // Header
             NavigationBar(
-                title: "News",
+                title: Localization.commonNews,
                 leftButtons: {
                     BackButton(
                         height: 44.0,
@@ -50,9 +51,7 @@ struct NewsListView: View {
             loadingSkeletons
         case .error:
             errorView
-        case .noResults:
-            noResultsView
-        case .loaded, .paginationLoading, .paginationError, .allDataLoaded, .idle:
+        case .loaded, .paginationLoading, .paginationError, .allDataLoaded, .idle, .noResults:
             newsList
         }
     }
@@ -127,13 +126,6 @@ struct NewsListView: View {
         )
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(.horizontal, 16)
-    }
-
-    private var noResultsView: some View {
-        Text("No news found")
-            .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding(.horizontal, 16)
     }
 }
 
