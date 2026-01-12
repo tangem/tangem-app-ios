@@ -23,6 +23,11 @@ struct SendFeeSelectorView: View {
     var body: some View {
         content
             .animation(.contentFrameUpdate, value: viewModel.state)
+            .floatingSheetConfiguration { configuration in
+                configuration.sheetBackgroundColor = Colors.Background.tertiary
+                configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
+                configuration.backgroundInteractionBehavior = .consumeTouches
+            }
     }
 
     // MARK: - Sub Views
@@ -36,11 +41,6 @@ struct SendFeeSelectorView: View {
 
             FeeSelectorView(viewModel: viewModel.feeSelectorViewModel)
                 .transition(.content)
-        }
-        .floatingSheetConfiguration { configuration in
-            configuration.sheetBackgroundColor = Colors.Background.tertiary
-            configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
-            configuration.backgroundInteractionBehavior = .consumeTouches
         }
     }
 
