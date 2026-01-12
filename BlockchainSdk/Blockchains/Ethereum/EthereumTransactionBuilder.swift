@@ -36,7 +36,7 @@ enum EthereumTransactionBuilderError: LocalizedError, Equatable {
     case walletCoreError(message: String)
     case invalidStakingTransaction
     case unsupportedContractType
-    case noChainId
+    case missingChainId
     case transactionHasParams
 
     var errorDescription: String? {
@@ -59,8 +59,8 @@ enum EthereumTransactionBuilderError: LocalizedError, Equatable {
             return "invalidStakingTransaction"
         case .unsupportedContractType:
             return "unsupportedContractType"
-        case .noChainId:
-            return "noChainId"
+        case .missingChainId:
+            return "missingChainId"
         case .transactionHasParams:
             return "transactionHasParams"
         }

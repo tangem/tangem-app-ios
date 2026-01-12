@@ -56,7 +56,7 @@ extension GaslessTransactionBuilder {
 
             let message: JSON = .object([
                 "transaction": .object([
-                    "to": .string(transaction.address),
+                    "to": .string(transaction.to),
                     "value": .string(transaction.value),
                     "data": .string(transaction.data),
                 ]),
