@@ -41,49 +41,59 @@ struct CarouselNewsItem: Identifiable, Equatable {
 }
 
 struct CarouselNewsCardView: View {
-    private let item: CarouselNewsItem
-
-    init(item: CarouselNewsItem) {
-        self.item = item
-    }
+    let item: CarouselNewsItem
+    let isLoading: Bool
 
     var body: some View {
         Button(action: {
             item.onTap(item.id)
         }) {
-            VStack(spacing: Layout.MainCard.verticalSpacing) {
-                HStack {
-                    NewsRatingView(rating: item.rating, timeAgo: item.timeAgo)
-
-                    Spacer()
-                }
-
-                FixedSpacer(height: Layout.Spacing.afterRating)
-
-                Text(item.title)
-                    .lineLimit(3)
-                    .multilineTextAlignment(.leading)
-                    .style(Fonts.Bold.body, color: Colors.Text.primary1)
-
-                Spacer(minLength: .zero)
-
-                InfoChipsView(chips: item.tags, alignment: .leading)
-            }
-            .frame(width: Layout.MainCard.width, height: Layout.MainCard.height)
-            .defaultRoundedBackground(
-                with: Colors.Background.action,
-                verticalPadding: Layout.MainCard.padding,
-                horizontalPadding: Layout.MainCard.padding,
-                cornerRadius: Layout.MainCard.cornerRadius
-            )
-            .shadow(
-                color: Colors.Icon.secondary.opacity(Layout.Shadow.colorOpacity),
-                radius: Layout.Shadow.radius,
-                y: Layout.Shadow.yOffset
-            )
-            .opacity(item.isRead ? Layout.ReadState.opacity : 1.0)
+            contentView(for: item)
+                .frame(width: Layout.MainCard.width, height: Layout.MainCard.height)
+                .defaultRoundedBackground(
+                    with: Colors.Background.action,
+                    verticalPadding: Layout.MainCard.padding,
+                    horizontalPadding: Layout.MainCard.padding,
+                    cornerRadius: Layout.MainCard.cornerRadius
+                )
+                .opacity(opacity())
         }
         .buttonStyle(.plain)
+        .allowsHitTesting(!isLoading)
+    }
+
+    // MARK: - Content View
+
+    private func contentView(for item: CarouselNewsItem) -> some View {
+        VStack(spacing: Layout.MainCard.verticalSpacing) {
+            HStack {
+                NewsRatingView(rating: item.rating, timeAgo: item.timeAgo)
+                    .skeletonable(isShown: isLoading, radius: Layout.Skeleton.cornerRadius)
+
+                Spacer()
+            }
+
+            FixedSpacer(height: Layout.Spacing.afterRating)
+
+            Text(item.title)
+                .multilineTextAlignment(.leading)
+                .style(Fonts.Bold.body, color: Colors.Text.primary1)
+                .infinityFrame(axis: .horizontal, alignment: .leading)
+                .skeletonable(isShown: isLoading, radius: Layout.Skeleton.cornerRadius)
+
+            Spacer(minLength: .zero)
+
+            InfoChipsView(chips: item.tags, alignment: .leading)
+                .skeletonable(isShown: isLoading, radius: Layout.Skeleton.cornerRadius)
+        }
+    }
+
+    private func opacity() -> Double {
+        if isLoading {
+            return 1.0
+        } else {
+            return item.isRead ? Layout.ReadState.opacity : 1.0
+        }
     }
 }
 
@@ -92,7 +102,7 @@ extension CarouselNewsCardView {
         enum MainCard {
             static let verticalSpacing: CGFloat = .zero
             static let padding: CGFloat = 14
-            static let cornerRadius: CGFloat = 22
+            static let cornerRadius: CGFloat = 14
             static let width: CGFloat = 228
             static let height: CGFloat = 136
         }
@@ -111,12 +121,41 @@ extension CarouselNewsCardView {
         enum ReadState {
             static let opacity: Double = 0.6
         }
+
+        enum Skeleton {
+            static let cornerRadius: CGFloat = 8
+        }
     }
+}
+
+// MARK: - CarouselNewsItem Placeholder
+
+private extension CarouselNewsItem {
+    static let placeholder: CarouselNewsItem = .init(
+        id: UUID().uuidString,
+        title: "-------------------------",
+        rating: "-----",
+        timeAgo: "-----",
+        tags: [
+            .init(title: "--------"),
+            .init(title: "----------"),
+        ],
+        isRead: false,
+        onTap: { _ in }
+    )
 }
 
 #if DEBUG
 #Preview {
     VStack(alignment: .center, spacing: 16) {
+        // Loading state
+        HStack {
+            CarouselNewsCardView(item: .placeholder, isLoading: true)
+
+            Spacer(minLength: .zero)
+        }
+
+        // Success state
         HStack {
             CarouselNewsCardView(
                 item: CarouselNewsItem(
@@ -125,17 +164,18 @@ extension CarouselNewsCardView {
                     timeAgo: "1h ago",
                     tags: [
                         InfoChipItem(title: "Regulation"),
-                        InfoChipItem(title: "XRP", leadingIcon: .image(Image(systemName: "bitcoinsign.circle.fill"))),
                         InfoChipItem(title: "+2"),
                     ],
                     isRead: false,
                     onTap: { _ in }
-                )
+                ),
+                isLoading: false
             )
 
             Spacer(minLength: .zero)
         }
 
+        // Read state
         HStack {
             CarouselNewsCardView(
                 item: CarouselNewsItem(
@@ -144,12 +184,12 @@ extension CarouselNewsCardView {
                     timeAgo: "1h ago",
                     tags: [
                         InfoChipItem(title: "Regulation"),
-                        InfoChipItem(title: "XRP", leadingIcon: .image(Image(systemName: "bitcoinsign.circle.fill"))),
                         InfoChipItem(title: "+2"),
                     ],
                     isRead: true,
                     onTap: { _ in }
-                )
+                ),
+                isLoading: false
             )
 
             Spacer(minLength: .zero)
