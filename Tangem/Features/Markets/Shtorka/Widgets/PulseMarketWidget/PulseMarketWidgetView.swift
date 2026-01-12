@@ -72,7 +72,8 @@ struct PulseMarketWidgetView: View {
     private var filter: some View {
         HorizontalChipsView(
             chips: viewModel.availabilityToSelectionOrderType.map { Chip(id: $0.rawValue, title: $0.description) },
-            selectedId: $viewModel.filterSelectedId
+            selectedId: $viewModel.filterSelectedId,
+            horizontalInset: MarketsWidgetLayout.Item.horizontalPadding + 4
         )
     }
 }
