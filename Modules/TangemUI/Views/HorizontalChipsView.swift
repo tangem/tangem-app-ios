@@ -22,13 +22,16 @@ public struct Chip: Identifiable, Hashable {
 public struct HorizontalChipsView: View {
     private let chips: [Chip]
     @Binding private var selectedId: Chip.ID?
+    private let horizontalInset: CGFloat
 
     public init(
         chips: [Chip],
-        selectedId: Binding<Chip.ID?>
+        selectedId: Binding<Chip.ID?>,
+        horizontalInset: CGFloat = 0
     ) {
         self.chips = chips
         _selectedId = selectedId
+        self.horizontalInset = horizontalInset
     }
 
     public var body: some View {
@@ -43,7 +46,7 @@ public struct HorizontalChipsView: View {
                     }
                 }
             }
-            .padding(.horizontal, Constants.horizontalContentPadding)
+            .padding(.horizontal, horizontalInset)
         }
         .frame(height: Constants.chipHeight)
         .onAppear(perform: ensureDefaultSelectionIfNeeded)
@@ -64,7 +67,6 @@ extension HorizontalChipsView {
         static let chipHeight: CGFloat = 36
         static let chipCornerRadius: CGFloat = 24
         static let horizontalContentSpacing: CGFloat = 8
-        static let horizontalContentPadding: CGFloat = 16
         static let horizontalChipPadding: CGFloat = 16
         static let verticalChipPadding: CGFloat = 8
     }

@@ -33,6 +33,7 @@ public struct BlockchainSdkKeysConfig {
     let blinkApiKey: String
     let tatumApiKey: String
     let yieldModuleApiKey: String
+    let gaslessTxApiKey: String
 
     public init(
         blockchairApiKeys: [String],
@@ -58,6 +59,7 @@ public struct BlockchainSdkKeysConfig {
         blinkApiKey: String,
         tatumApiKey: String,
         yieldModuleApiKey: String,
+        gaslessTxApiKey: String
     ) {
         self.blockchairApiKeys = blockchairApiKeys
         self.blockcypherTokens = blockcypherTokens
@@ -82,6 +84,7 @@ public struct BlockchainSdkKeysConfig {
         self.blinkApiKey = blinkApiKey
         self.tatumApiKey = tatumApiKey
         self.yieldModuleApiKey = yieldModuleApiKey
+        self.gaslessTxApiKey = gaslessTxApiKey
     }
 }
 

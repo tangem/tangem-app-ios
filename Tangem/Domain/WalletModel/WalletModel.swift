@@ -16,7 +16,7 @@ import TangemFoundation
 protocol WalletModel:
     AnyObject, Identifiable, Hashable, CustomStringConvertible,
     AvailableTokenBalanceProviderInput, WalletModelBalancesProvider,
-    WalletModelHelpers, WalletModelFeeProvider, WalletModelDependenciesProvider,
+    WalletModelHelpers, WalletModelFeesProvider, WalletModelFeeProvider, WalletModelDependenciesProvider,
     WalletModelRentProvider, WalletModelHistoryUpdater, TransactionHistoryFetcher,
     StakingTokenBalanceProviderInput, FiatTokenBalanceProviderInput, ExistentialDepositInfoProvider,
     ReceiveAddressTypesProvider, WalletModelResolvable {
@@ -137,11 +137,12 @@ protocol WalletModelHelpers {
 
 // MARK: - Fee
 
-protocol WalletModelFeeProvider {
-    func estimatedFee(amount: Amount) -> AnyPublisher<[Fee], Error>
-    func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error>
-    func getFee(compiledTransaction data: Data) async throws -> [Fee]
+protocol WalletModelFeesProvider {
+    var tokenFeeLoader: any TokenFeeLoader { get }
+    var customFeeProvider: (any FeeSelectorCustomFeeProvider)? { get }
+}
 
+protocol WalletModelFeeProvider {
     func getFeeCurrencyBalance() -> Decimal
     func hasFeeCurrency() -> Bool
 }
