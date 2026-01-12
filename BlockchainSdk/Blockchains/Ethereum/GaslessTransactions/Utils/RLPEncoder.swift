@@ -10,7 +10,7 @@ import Foundation
 
 /// https://github.com/alephao/swift-rlp
 struct RLPEncoder: Sendable {
-    // MARK: - Prooerties
+    // MARK: - Properties
 
     private let encoding: String.Encoding = .utf8
 
