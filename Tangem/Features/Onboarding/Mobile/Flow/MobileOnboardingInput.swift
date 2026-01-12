@@ -8,4 +8,10 @@
 
 struct MobileOnboardingInput {
     let flow: MobileOnboardingFlow
+    let shouldLogOnboardingStartedAnalytics: Bool
+
+    init(flow: MobileOnboardingFlow, shouldLogOnboardingStartedAnalytics: Bool = true) {
+        self.flow = flow
+        self.shouldLogOnboardingStartedAnalytics = shouldLogOnboardingStartedAnalytics
+    }
 }
