@@ -15,11 +15,6 @@ import struct TangemUIUtils.AlertBinder
 final class MarketsSearchViewModel: MarketsBaseViewModel {
     private typealias SearchInput = MainBottomSheetHeaderViewModel.SearchInput
 
-    // MARK: - Injected Properties
-
-    @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
-    @Injected(\.viewHierarchySnapshotter) private var viewHierarchySnapshotter: ViewHierarchySnapshotting
-
     // MARK: - Published Properties
 
     @Published private(set) var headerViewModel: MainBottomSheetHeaderViewModel
@@ -98,8 +93,6 @@ final class MarketsSearchViewModel: MarketsBaseViewModel {
         searchFilterBind(filterPublisher: filterProvider.filterPublisher)
 
         yieldModeNotificationBind(filterProvider.filterPublisher)
-
-        bindToMainBottomSheetUIManager()
     }
 
     deinit {
@@ -160,36 +153,11 @@ final class MarketsSearchViewModel: MarketsBaseViewModel {
 // MARK: - Private Implementation
 
 private extension MarketsSearchViewModel {
-    func updateFooterSnapshot() {
-        let lightAppearanceSnapshotImage = viewHierarchySnapshotter.makeSnapshotViewImage(
-            afterScreenUpdates: true,
-            isOpaque: true,
-            overrideUserInterfaceStyle: .light
-        )
-        let darkAppearanceSnapshotImage = viewHierarchySnapshotter.makeSnapshotViewImage(
-            afterScreenUpdates: true,
-            isOpaque: true,
-            overrideUserInterfaceStyle: .dark
-        )
-
-        mainBottomSheetUIManager.setFooterSnapshots(
-            lightAppearanceSnapshotImage: lightAppearanceSnapshotImage,
-            darkAppearanceSnapshotImage: darkAppearanceSnapshotImage
-        )
-    }
-
     func bindChildViewModels() {
         tokenListViewModel.objectWillChange
             .sink { [weak self] _ in
                 self?.objectWillChange.send()
             }
-            .store(in: &bag)
-    }
-
-    func bindToMainBottomSheetUIManager() {
-        mainBottomSheetUIManager
-            .footerSnapshotUpdateTriggerPublisher
-            .sink(receiveValue: weakify(self, forFunction: MarketsSearchViewModel.updateFooterSnapshot))
             .store(in: &bag)
     }
 
@@ -216,7 +184,14 @@ private extension MarketsSearchViewModel {
             .debounce(for: 0.5, scheduler: DispatchQueue.main)
             // Ensure that clear and cancel input events will be delivered immediately
             .merge(with: publisher.filter { $0 == .clearInput || $0 == .cancelInput })
-            .removeDuplicates()
+            .removeDuplicates { lhs, rhs in
+                switch (lhs, rhs) {
+                case (.textInput(let lhsValue), .textInput(let rhsValue)):
+                    return lhsValue == rhsValue
+                default:
+                    return false
+                }
+            }
             .withWeakCaptureOf(self)
             .sink { viewModel, searchInput in
                 switch searchInput {

@@ -99,6 +99,11 @@ final class WalletModelTestsMock: WalletModel {
         Just(nil).eraseToAnyPublisher()
     }
 
+    // MARK: - WalletModelFeesProvider
+
+    var tokenFeeLoader: any TokenFeeLoader { TokenFeeLoaderMock() }
+    var customFeeProvider: (any CustomFeeProvider)? { .none }
+
     // MARK: - TransactionHistoryFetcher
 
     var canFetchHistory: Bool { false }

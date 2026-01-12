@@ -56,7 +56,6 @@ final class NewsListCoordinator: CoordinatorObject {
 
             rootViewModel = NewsListViewModel(
                 dataProvider: provider,
-                dateFormatter: NewsDateFormatter(),
                 coordinator: self
             )
         }

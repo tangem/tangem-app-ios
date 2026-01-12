@@ -39,17 +39,17 @@ public extension LoadingResult {
         }
     }
 
+    var isFailure: Bool {
+        switch self {
+        case .failure: true
+        case .loading, .success: false
+        }
+    }
+
     var isSuccess: Bool {
         switch self {
         case .success: true
         case .loading, .failure: false
-        }
-    }
-
-    var isError: Bool {
-        switch self {
-        case .failure: true
-        case .loading, .success: false
         }
     }
 

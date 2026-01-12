@@ -19,7 +19,7 @@ class SellFlowFactory: SendFlowBaseDependenciesFactory {
     let tokenHeaderProvider: SendGenericTokenHeaderProvider
     let shouldShowFeeSelector: Bool
 
-    let walletModelFeeProvider: any WalletModelFeeProvider
+    let tokenFeeManager: TokenFeeManager
     let walletModelDependenciesProvider: any WalletModelDependenciesProvider
     let availableBalanceProvider: any TokenBalanceProvider
     let fiatAvailableBalanceProvider: any TokenBalanceProvider
@@ -37,11 +37,7 @@ class SellFlowFactory: SendFlowBaseDependenciesFactory {
 
     lazy var notificationManager = makeSendWithSwapNotificationManager(receiveTokenInput: sendModel)
     lazy var customFeeService = makeCustomFeeService(input: sendModel)
-    lazy var sendFeeProvider = makeSendWithSwapFeeProvider(
-        receiveTokenInput: sendModel,
-        sendFeeProvider: makeSendFeeProvider(input: sendModel, hasCustomFeeService: customFeeService != nil),
-        swapFeeProvider: makeSwapFeeProvider(swapManager: swapManager)
-    )
+    lazy var sendFeeProvider = makeSendFeeProvider(input: sendModel, output: sendModel, dataInput: sendModel)
 
     init(
         userWalletInfo: UserWalletInfo,
@@ -65,7 +61,7 @@ class SellFlowFactory: SendFlowBaseDependenciesFactory {
         accountModelAnalyticsProvider = walletModel.account
 
         shouldShowFeeSelector = walletModel.shouldShowFeeSelector
-        walletModelFeeProvider = walletModel
+        tokenFeeManager = TokenFeeManagerBuilder(walletModel: walletModel).makeTokenFeeManager()
         walletModelDependenciesProvider = walletModel
         availableBalanceProvider = walletModel.availableBalanceProvider
         fiatAvailableBalanceProvider = walletModel.fiatAvailableBalanceProvider
@@ -147,7 +143,7 @@ extension SellFlowFactory: SendGenericFlowFactory {
             swapProvidersInput: sendModel
         )
 
-        let fee = makeSendFeeStep()
+        let fee = makeSendFeeStep(router: router)
 
         // Destination .disable
         // Amount .disable
@@ -250,9 +246,9 @@ extension SellFlowFactory: SendFeeStepBuildable {
 
     var feeDependencies: SendNewFeeStepBuilder.Dependencies {
         SendNewFeeStepBuilder.Dependencies(
-            feeProvider: sendFeeProvider,
+            feeSelectorInteractor: sendFeeProvider,
             analyticsLogger: analyticsLogger,
-            customFeeService: customFeeService
+            customFeeProvider: customFeeService
         )
     }
 }
