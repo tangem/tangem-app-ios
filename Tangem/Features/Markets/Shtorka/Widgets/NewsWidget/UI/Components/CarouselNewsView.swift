@@ -15,23 +15,20 @@ import TangemLocalization
 
 struct CarouselNewsView: View {
     let itemsState: LoadingResult<[CarouselNewsItem], Never>
-    let onAllNewsTap: () -> Void
+    let onAllNewsTap: (() -> Void)?
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: Layout.cardSpacing) {
                 ForEach(displayItems, id: \.id) { item in
-                    CarouselNewsCardView(item: item)
-                        .skeletonable(isShown: itemsState.isLoading, radius: Layout.MainCard.cornerRadius)
-                        .allowsHitTesting(!itemsState.isLoading)
+                    CarouselNewsCardView(item: item, isLoading: itemsState.isLoading)
                 }
 
-                if !itemsState.isLoading {
+                if !itemsState.isLoading, onAllNewsTap != nil {
                     allNewsCard
                 }
             }
             .padding(.horizontal, Layout.defaultHorizontalInset)
-            .padding(.bottom, Layout.verticalPadding)
         }
     }
 
@@ -50,7 +47,9 @@ struct CarouselNewsView: View {
     // MARK: - Components
 
     private var allNewsCard: some View {
-        Button(action: onAllNewsTap) {
+        Button(action: {
+            onAllNewsTap?()
+        }) {
             VStack(spacing: Layout.AllNewsCard.verticalSpacing) {
                 iconView
 
@@ -71,12 +70,8 @@ struct CarouselNewsView: View {
                 horizontalPadding: Layout.MainCard.padding,
                 cornerRadius: Layout.MainCard.cornerRadius
             )
-            .shadow(
-                color: Colors.Icon.secondary.opacity(Layout.Shadow.colorOpacity),
-                radius: Layout.Shadow.radius,
-                y: Layout.Shadow.yOffset
-            )
         }
+        .buttonStyle(.plain)
     }
 
     private var iconView: some View {
@@ -93,19 +88,12 @@ private extension CarouselNewsView {
         static let maxCardsCount: Int = 5
         static let cardSpacing: CGFloat = 8
         static let defaultHorizontalInset: CGFloat = 16
-        static let verticalPadding: CGFloat = Shadow.radius + Shadow.yOffset
 
         enum MainCard {
             static let width: CGFloat = 228
             static let height: CGFloat = 136
             static let padding: CGFloat = 14
-            static let cornerRadius: CGFloat = 22
-        }
-
-        enum Shadow {
-            static let colorOpacity: Double = 0.12
-            static let radius: CGFloat = 16
-            static let yOffset: CGFloat = 8
+            static let cornerRadius: CGFloat = 14
         }
 
         enum AllNewsCard {
@@ -126,9 +114,9 @@ private extension CarouselNewsItem {
     static let dummyItems: [CarouselNewsItem] = (0 ..< 5).map { index in
         CarouselNewsItem(
             id: "dummy-\(index)",
-            title: "",
-            rating: "",
-            timeAgo: "",
+            title: "-------------",
+            rating: "----",
+            timeAgo: "----",
             tags: [],
             isRead: false,
             onTap: { _ in }
