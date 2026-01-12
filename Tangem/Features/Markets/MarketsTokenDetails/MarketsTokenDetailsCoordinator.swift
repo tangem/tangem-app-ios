@@ -239,6 +239,11 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
             break
         }
     }
+
+    func openNews(by id: NewsId) {
+        // [REDACTED_TODO_COMMENT]
+        // when the Markets News feature and corresponding coordinator/flow are available.
+    }
 }
 
 // MARK: - MarketsPortfolioContainerRoutable
