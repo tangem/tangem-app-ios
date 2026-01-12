@@ -120,9 +120,9 @@ extension BitcoinCustomFeeService: SendCustomFeeService {
     }
 }
 
-// MARK: - FeeSelectorCustomFeeProvider
+// MARK: - CustomFeeProvider
 
-extension BitcoinCustomFeeService: FeeSelectorCustomFeeProvider {
+extension BitcoinCustomFeeService: CustomFeeProvider {
     var customFee: TokenFee {
         TokenFee(option: .custom, tokenItem: feeTokenItem, value: _customFee.value.map { .success($0) } ?? .loading)
     }
