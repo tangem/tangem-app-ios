@@ -86,11 +86,11 @@ final class AccountDetailsViewModel: ObservableObject {
         archiveAccountTask?.cancel()
 
         archiveAccountTask = Task { [weak self] in
-            guard let self, let resolvable = self.account as? any AccountModelResolvable else {
+            guard let self else {
                 return
             }
             
-            await resolvable.resolve(using: ArchiveAccountResolver(viewModel: self))
+            await self.account.resolve(using: ArchiveAccountResolver(viewModel: self))
         }
     }
 

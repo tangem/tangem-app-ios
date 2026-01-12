@@ -9,7 +9,7 @@
 import Foundation
 
 @available(*, unavailable, message: "This account type is not implemented yet")
-protocol VisaAccountModel: BaseAccountModel, AccountModelResolvable {}
+protocol VisaAccountModel: BaseAccountModel {}
 
 // MARK: - AccountModelResolvable protocol conformance
 
