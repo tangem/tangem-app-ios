@@ -32,7 +32,7 @@ struct MainBottomSheetHeaderInputView: View {
             searchText: $searchText,
             placeholder: Localization.marketsSearchHeaderTitle,
             keyboardType: .alphabet,
-            style: .translucent,
+            style: customSearchBarStyle,
             clearButtonAction: clearButtonAction,
             cancelButtonAction: cancelButtonAction
         )
@@ -42,6 +42,10 @@ struct MainBottomSheetHeaderInputView: View {
         .allowsHitTesting(allowsHitTestingForTextField)
         .padding(.top, Constants.topInset)
         .padding(.bottom, Constants.bottomInset)
+    }
+
+    private var customSearchBarStyle: CustomSearchBar.Style {
+        FeatureProvider.isAvailable(.marketsAndNews) ? .focused : .translucent
     }
 }
 
