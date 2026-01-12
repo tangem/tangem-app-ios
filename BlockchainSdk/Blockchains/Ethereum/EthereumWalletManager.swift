@@ -733,7 +733,7 @@ extension EthereumWalletManager: EthereumGaslessDataProvider {
         let nonce = BigUInt(try await networkService.getTxCount(wallet.address).async())
 
         guard let chainId = wallet.blockchain.chainId else {
-            throw EthereumTransactionBuilderError.invalidSignatureCount
+            throw EthereumTransactionBuilderError.missingChainId
         }
 
         let contractAddress = try GaslessTransactionAddressFactory.gaslessExecutorContractAddress(blockchain: wallet.blockchain)
