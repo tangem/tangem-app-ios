@@ -81,30 +81,52 @@ extension AccountDetailsCoordinator: BaseAccountDetailsRoutable {
 
 extension AccountDetailsCoordinator: CryptoAccountDetailsRoutable {
     func manageTokens() {
-        // [REDACTED_TODO_COMMENT]
-        guard let options, let cryptoAccount = options.account as? any CryptoAccountModel else {
+        guard let options, let resolvable = options.account as? any AccountModelResolvable else {
             return
         }
+        
+        resolvable.resolve(using: ManageTokensResolver(coordinator: self, options: options))
+    }
+}
 
-        let coordinator = ManageTokensCoordinator(
-            dismissAction: { [weak self] in
-                self?.manageTokensCoordinator = nil
-            },
-            popToRootAction: popToRootAction
-        )
+// MARK: - ManageTokensResolver
 
-        let context = AccountsAwareManageTokensContext(
-            accountModelsManager: options.accountModelsManager,
-            currentAccount: cryptoAccount
-        )
-
-        coordinator.start(
-            with: ManageTokensCoordinator.Options(
-                context: context,
-                userWalletConfig: options.userWalletConfig
+extension AccountDetailsCoordinator {
+    private struct ManageTokensResolver: AccountModelResolving {
+        weak var coordinator: AccountDetailsCoordinator?
+        let options: Options
+        
+        func resolve(accountModel: any CryptoAccountModel) -> Void {
+            guard let coordinator else { return }
+            
+            let manageTokensCoordinator = ManageTokensCoordinator(
+                dismissAction: { [weak coordinator] in
+                    coordinator?.manageTokensCoordinator = nil
+                },
+                popToRootAction: coordinator.popToRootAction
             )
-        )
-
-        manageTokensCoordinator = coordinator
+            
+            let context = AccountsAwareManageTokensContext(
+                accountModelsManager: options.accountModelsManager,
+                currentAccount: accountModel
+            )
+            
+            manageTokensCoordinator.start(
+                with: ManageTokensCoordinator.Options(
+                    context: context,
+                    userWalletConfig: options.userWalletConfig
+                )
+            )
+            
+            coordinator.manageTokensCoordinator = manageTokensCoordinator
+        }
+        
+        func resolve(accountModel: any SmartAccountModel) -> Void {
+            // No manage tokens action for SmartAccountModel
+        }
+        
+        func resolve(accountModel: any VisaAccountModel) -> Void {
+            // No manage tokens action for VisaAccountModel
+        }
     }
 }
