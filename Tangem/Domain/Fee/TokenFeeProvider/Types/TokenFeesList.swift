@@ -28,3 +28,11 @@ extension TokenFeesList {
         return .success(fees)
     }
 }
+
+// MARK: - TokenFeesList+
+
+extension TokenFeesList {
+    subscript(_ option: FeeOption) -> TokenFee? {
+        first { $0.option == option }
+    }
+}

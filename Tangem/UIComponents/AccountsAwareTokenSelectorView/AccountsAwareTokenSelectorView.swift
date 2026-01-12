@@ -53,7 +53,7 @@ struct AccountsAwareTokenSelectorView<EmptyContentView: View, AdditionalContentV
     }
 
     private func scrollView(@ViewBuilder content: @escaping () -> some View) -> some View {
-        GroupedScrollView(contentType: .plain(spacing: 8)) {
+        GroupedScrollView(contentType: .lazy(spacing: 8)) {
             content()
                 .animation(.easeInOut, value: viewModel.contentVisibility)
         }
