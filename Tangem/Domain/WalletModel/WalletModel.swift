@@ -139,7 +139,7 @@ protocol WalletModelHelpers {
 
 protocol WalletModelFeesProvider {
     var tokenFeeLoader: any TokenFeeLoader { get }
-    var customFeeProvider: (any FeeSelectorCustomFeeProvider)? { get }
+    var customFeeProvider: (any CustomFeeProvider)? { get }
 }
 
 protocol WalletModelFeeProvider {
