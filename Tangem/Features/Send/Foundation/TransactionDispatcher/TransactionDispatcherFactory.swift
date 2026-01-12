@@ -13,9 +13,7 @@ import TangemStaking
 struct TransactionDispatcherFactory {
     let walletModel: any WalletModel
     let signer: TangemSigner
-
-//    func makeGaslessTransactionDispatcher() -> TransactionDispatcher {}
-
+    
     func makeSendDispatcher() -> TransactionDispatcher {
         if walletModel.isDemo {
             return DemoSendTransactionDispatcher(walletModel: walletModel, transactionSigner: signer)
