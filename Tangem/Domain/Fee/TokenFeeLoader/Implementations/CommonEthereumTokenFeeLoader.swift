@@ -6,6 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import TangemExpress
 import BlockchainSdk
 import BigInt
 
@@ -20,19 +21,24 @@ struct CommonEthereumTokenFeeLoader {
 // MARK: - TokenFeeLoader
 
 extension CommonEthereumTokenFeeLoader: EthereumTokenFeeLoader {
-    func estimatedFee(estimatedGasLimit: Int) async throws -> BSDKFee {
+    func estimatedFee(estimatedGasLimit: Int, otherNativeFee: Decimal?) async throws -> BSDKFee {
         let parameters = try await ethereumNetworkProvider.getFee(
             gasLimit: BigUInt(estimatedGasLimit),
             supportsEIP1559: tokenItem.blockchain.supportsEIP1559
         )
 
-        let amount = parameters.calculateFee(decimalValue: tokenItem.blockchain.decimalValue)
-        let feeAmount = BSDKAmount(with: tokenItem.blockchain, type: .coin, value: amount)
+        var feeAmount = parameters.calculateFee(decimalValue: tokenItem.blockchain.decimalValue)
 
-        return Fee(feeAmount)
+        // Increase fee value for native value. Will be spend similar like fee. Applicable to DEX-Bridge
+        if let otherNativeFee {
+            ExpressLogger.info("The estimatedFee was increased by otherNativeFee \(otherNativeFee)")
+            feeAmount += otherNativeFee
+        }
+
+        return Fee(BSDKAmount(with: tokenItem.blockchain, type: .coin, value: feeAmount), parameters: parameters)
     }
 
-    func getFee(amount: BSDKAmount, destination: String, txData: Data) async throws -> [BSDKFee] {
+    func getFee(amount: BSDKAmount, destination: String, txData: Data, otherNativeFee: Decimal?) async throws -> [BSDKFee] {
         var fees = try await ethereumNetworkProvider
             .getFee(destination: destination, value: amount.encodedForSend, data: txData)
             .async()
@@ -46,10 +52,18 @@ extension CommonEthereumTokenFeeLoader: EthereumTokenFeeLoader {
             )
         }
 
+        // Increase fee value for native value. Will be spend similar like fee. Applicable to DEX-Bridge
+        if let otherNativeFee {
+            ExpressLogger.info("The fee was increased by otherNativeFee \(otherNativeFee)")
+            fees = fees.map { fee in
+                BSDKFee(.init(with: fee.amount, value: fee.amount.value + otherNativeFee), parameters: fee.parameters)
+            }
+        }
+
         return fees
     }
 
-    func getGaslessFee(amount: BSDKAmount, destination: String, txData: Data, feeToken: BSDKToken) async throws -> [BSDKFee] {
+    func getGaslessFee(amount: BSDKAmount, destination: String, txData: Data, feeToken: BSDKToken, otherNativeFee: Decimal?) async throws -> [BSDKFee] {
         // [REDACTED_TODO_COMMENT]
 
         let fee = try await gaslessTransactionFeeProvider
