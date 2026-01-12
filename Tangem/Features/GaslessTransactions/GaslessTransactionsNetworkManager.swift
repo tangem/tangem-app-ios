@@ -13,14 +13,14 @@ import TangemNetworkUtils
 
 protocol GaslessTransactionsNetworkManager {
     typealias FeeToken = GaslessTransactionsDTO.Response.FeeToken
-    typealias MetaTransaction = GaslessTransactionsDTO.Request.MetaTransaction
+    typealias MetaTransaction = GaslessTransactionsDTO.Request.GaslessTransaction
     typealias SignResult = GaslessTransactionsDTO.Response.SignResponse.Result
 
     var availableFeeTokens: [FeeToken] { get }
     var availableFeeTokensPublisher: AnyPublisher<[FeeToken], Never> { get }
 
     func updateAvailableTokens()
-    func signMetaTransaction(_ transaction: MetaTransaction) async throws -> SignResult
+    func signGaslessTransaction(_ transaction: MetaTransaction) async throws -> SignResult
 }
 
 final class CommonGaslessTransactionsNetworkManager {
@@ -66,8 +66,8 @@ extension CommonGaslessTransactionsNetworkManager: GaslessTransactionsNetworkMan
         self.fetchFeeTokensTask = fetchFeeTokensTask
     }
 
-    func signMetaTransaction(_ transaction: MetaTransaction) async throws -> SignResult {
-        try await apiService.signMetaTransaction(transaction)
+    func signGaslessTransaction(_ transaction: MetaTransaction) async throws -> SignResult {
+        try await apiService.signGaslessTransaction(transaction)
     }
 }
 

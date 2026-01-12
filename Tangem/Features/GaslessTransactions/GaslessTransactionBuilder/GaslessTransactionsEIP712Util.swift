@@ -15,8 +15,8 @@ extension GaslessTransactionBuilder {
         // MARK: - Public Implementation
 
         func makeGaslessTypedData(
-            transaction: GaslessTransactionsDTO.Request.MetaTransaction.TransactionData.Transaction,
-            fee: GaslessTransactionsDTO.Request.MetaTransaction.TransactionData.Fee,
+            transaction: GaslessTransactionsDTO.Request.GaslessTransaction.TransactionData.Transaction,
+            fee: GaslessTransactionsDTO.Request.GaslessTransaction.TransactionData.Fee,
             nonce: String,
             chainId: String,
             verifyingContract: String

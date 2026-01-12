@@ -220,22 +220,26 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
 // MARK: - EthereumNetworkProvider
 
 extension EthereumWalletManager: EthereumNetworkProvider {
-    func getSmartContractNonce(smartContractAddress: String) async throws -> BigUInt {
-        let convertedOurAddress = try addressConverter.convertToETHAddress(wallet.address)
+    /// Calls `nonce()` on the user `address` via `eth_call` to check whether a smart contract
+    /// is attached to the EOA and to read its current nonce.
+    /// If no contract is attached, the call returns `0x`, which is interpreted as nonce = 0.
+    func getSmartContractNonce(for address: String) -> AnyPublisher<Int, Error> {
+        addressConverter.convertToETHAddressPublisher(address)
+            .withWeakCaptureOf(self)
+            .flatMap { walletManager, convertedAddress -> AnyPublisher<String, Error> in
+                let nonceRequest = GaslessContractNonceRequest(contractAddress: convertedAddress)
+                return walletManager.networkService.ethCall(request: nonceRequest)
+            }
+            .tryMap { nonceResponse -> Int in
+                let stringNonce = (nonceResponse == "0x" ? "0" : nonceResponse)
 
-        let nonceRequest = GaslessTransactionNonceContractRequest(
-            contractAddress: convertedOurAddress,
-            encodedData: smartContractAddress
-        )
+                guard let nonce = Int(stringNonce) else {
+                    throw EthereumTransactionBuilderError.invalidNonce
+                }
 
-        let nonceResponse = try await networkService.ethCall(request: nonceRequest).async()
-        let stringNonce = (nonceResponse == "0x" ? "0" : nonceResponse)
-
-        guard let nonce = BigUInt(stringNonce) else {
-            throw EthereumTransactionBuilderError.invalidNonce
-        }
-
-        return nonce
+                return nonce
+            }
+            .eraseToAnyPublisher()
     }
 
     func getAllowance(owner: String, spender: String, contractAddress: String) -> AnyPublisher<Decimal, Error> {
@@ -640,24 +644,15 @@ extension EthereumWalletManager: EthereumTransactionDataBuilder {
     /// Builds and returns encoded transaction data.
     /// Throws an error if the transaction already contains parameters.
     func buildTransactionDataFor(transaction: Transaction) async throws -> Data {
-        guard transaction.params == nil,
-              let feeParams = transaction.fee.parameters as? EthereumFeeParameters
-        else {
-            throw EthereumTransactionBuilderError.transactionHasParams
+        var tx = transaction
+        let params = (tx.params as? EthereumTransactionParams) ?? EthereumTransactionParams()
+
+        if params.nonce == nil {
+            let nonce = try await networkService.getPendingTxCount(tx.sourceAddress).async()
+            tx.params = params.with(nonce: nonce)
         }
 
-        let nonce: Int = if let providedNonce = feeParams.nonce {
-            providedNonce
-        } else {
-            try await networkService.getPendingTxCount(transaction.sourceAddress).async()
-        }
-
-        let paramsWithNonce = EthereumTransactionParams(nonce: nonce)
-        var modifiedTransaction = transaction
-        modifiedTransaction.params = paramsWithNonce
-
-        let data = try txBuilder.buildTransactionDataFor(transaction: modifiedTransaction)
-        return data
+        return try txBuilder.buildTransactionDataFor(transaction: tx)
     }
 }
 
@@ -729,7 +724,7 @@ extension EthereumWalletManager: YieldSupplyServiceProvider {}
 
 extension EthereumWalletManager: EthereumGaslessDataProvider {
     func prepareEIP7702AuthorizationData() async throws -> EIP7702AuthorizationData {
-        let nonce = BigUInt(try await networkService.getTxCount(wallet.address).async())
+        let nonce = try await networkService.getTxCount(wallet.address).async()
 
         guard let chainId = wallet.blockchain.chainId else {
             throw EthereumTransactionBuilderError.missingChainId
@@ -740,10 +735,10 @@ extension EthereumWalletManager: EthereumGaslessDataProvider {
         let data = try EthEip7702Util().encodeAuthorizationForSigning(
             chainId: BigUInt(chainId),
             contractAddress: contractAddress,
-            nonce: nonce
+            nonce: BigUInt(nonce)
         )
 
-        return EIP7702AuthorizationData(chainId: BigUInt(chainId), address: contractAddress, nonce: nonce, data: data)
+        return EIP7702AuthorizationData(chainId: chainId, address: contractAddress, nonce: nonce, data: data)
     }
 
     func getGaslessExecutorContractAddress() throws -> String {
