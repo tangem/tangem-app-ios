@@ -218,14 +218,18 @@ extension AccountDetailsViewModel {
 
 extension AccountDetailsViewModel {
     private struct ArchiveAccountResolver: AccountModelResolving {
+        typealias Result = Task<Void, Never>
+
         let viewModel: AccountDetailsViewModel
-        
-        func resolve(accountModel: any CryptoAccountModel) async -> Void {
-            do throws(AccountArchivationError) {
-                try await accountModel.archive()
-                await viewModel.handleAccountArchivingSuccess()
-            } catch {
-                await viewModel.handleAccountArchivingFailure(error: error)
+
+        func resolve(accountModel: any CryptoAccountModel) -> Result {
+            Task {
+                do throws(AccountArchivationError) {
+                    try await accountModel.archive()
+                    await viewModel.handleAccountArchivingSuccess()
+                } catch {
+                    await viewModel.handleAccountArchivingFailure(error: error)
+                }
             }
         }
     }

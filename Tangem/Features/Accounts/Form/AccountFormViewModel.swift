@@ -401,7 +401,9 @@ extension AccountFormViewModel {
 
 extension AccountFormViewModel {
     private struct DescriptionResolver: AccountModelResolving {
-        func resolve(accountModel: any CryptoAccountModel) -> String? {
+        typealias Result = String?
+
+        func resolve(accountModel: any CryptoAccountModel) -> Result {
             accountModel.descriptionString
         }
     }
