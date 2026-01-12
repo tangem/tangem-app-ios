@@ -81,11 +81,11 @@ extension AccountDetailsCoordinator: BaseAccountDetailsRoutable {
 
 extension AccountDetailsCoordinator: CryptoAccountDetailsRoutable {
     func manageTokens() {
-        guard let options, let resolvable = options.account as? any AccountModelResolvable else {
+        guard let options else {
             return
         }
         
-        resolvable.resolve(using: ManageTokensResolver(coordinator: self, options: options))
+        options.account.resolve(using: ManageTokensResolver(coordinator: self, options: options))
     }
 }
 
