@@ -98,7 +98,7 @@ struct GaslessTransactionBuilder {
 
         return SignedData(
             eip712Signature: eip712Unmarshalled.extended.data.hexString.addHexPrefix(),
-            eip7702Auth: SignedData.EIP7702Authorization(
+            eip7702Auth: SignedData.EIP7702Auth(
                 chainId: eip7702Data.chainId,
                 address: eip7702Data.address,
                 nonce: eip7702Data.nonce.description,
@@ -117,7 +117,7 @@ struct GaslessTransactionBuilder {
         let data = try await builder.buildTransactionDataFor(transaction: bsdkTransaction)
 
         return TransactionData.Transaction(
-            address: bsdkTransaction.destinationAddress,
+            to: bsdkTransaction.destinationAddress,
             value: "0",
             data: data.hexString.addHexPrefix()
         )
@@ -228,9 +228,9 @@ extension GaslessTransactionBuilder {
 extension GaslessTransactionBuilder {
     struct SignedData {
         let eip712Signature: String
-        let eip7702Auth: EIP7702Authorization
+        let eip7702Auth: EIP7702Auth
 
-        struct EIP7702Authorization {
+        struct EIP7702Auth {
             let chainId: BigUInt
             let address: String
             let nonce: String
