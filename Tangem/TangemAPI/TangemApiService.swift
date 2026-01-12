@@ -161,6 +161,9 @@ protocol TangemApiService: AnyObject {
     ///   The remaining items are sorted by `score DESC`.
     ///   If there are fewer than 10 publications for the current day, the list is filled with news having the highest `score` from the previous day.
     func loadTrendingNews(limit: Int?, lang: String?) async throws -> TrendingNewsResponse
+
+    func loadNewsList(requestModel: NewsDTO.List.Request) async throws -> NewsDTO.List.Response
+    func loadNewsCategories() async throws -> NewsDTO.Categories.Response
 }
 
 private struct TangemApiServiceKey: InjectionKey {
