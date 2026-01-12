@@ -1,5 +1,5 @@
 //
-//  ExpressAmount.swift
+//  ExpressTransactionDataType.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,10 +8,10 @@
 
 import Foundation
 
-public enum ExpressAmount {
+public enum ExpressTransactionDataType {
     /// Usual transfer for CEX
-    case transfer(amount: Decimal)
+    case cex(data: ExpressTransactionData)
 
     /// For `DEX` / `DEX/Bridge` operations
-    case dex(fromAmount: Decimal, txValue: Decimal, txData: String?)
+    case dex(data: ExpressTransactionData)
 }
