@@ -3362,7 +3362,6 @@
 		DC37C1962EF7820C009FEDF8 /* NewsListCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC37C1802EF7820C009FEDF8 /* NewsListCoordinator.swift */; };
 		DC37C1972EF7820C009FEDF8 /* NewsDateFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC37C18E2EF7820C009FEDF8 /* NewsDateFormatter.swift */; };
 		DC37C1982EF7820C009FEDF8 /* NewsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC37C1882EF7820C009FEDF8 /* NewsListView.swift */; };
-		DC37C1992EF7820C009FEDF8 /* NewsDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC37C18B2EF7820C009FEDF8 /* NewsDTO.swift */; };
 		DC37C19A2EF7820C009FEDF8 /* NewsListCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC37C1812EF7820C009FEDF8 /* NewsListCoordinatorView.swift */; };
 		DC37C19B2EF7820C009FEDF8 /* NewsPagingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC37C1862EF7820C009FEDF8 /* NewsPagingView.swift */; };
 		DC39CBEA2E8E808500C1B70D /* AccountSelectorWalletCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC39CBE92E8E808500C1B70D /* AccountSelectorWalletCellView.swift */; };
@@ -8141,7 +8140,6 @@
 		DC37C1862EF7820C009FEDF8 /* NewsPagingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsPagingView.swift; sourceTree = "<group>"; };
 		DC37C1882EF7820C009FEDF8 /* NewsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsListView.swift; sourceTree = "<group>"; };
 		DC37C1892EF7820C009FEDF8 /* NewsListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsListViewModel.swift; sourceTree = "<group>"; };
-		DC37C18B2EF7820C009FEDF8 /* NewsDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsDTO.swift; sourceTree = "<group>"; };
 		DC37C18D2EF7820C009FEDF8 /* NewsDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsDataProvider.swift; sourceTree = "<group>"; };
 		DC37C18E2EF7820C009FEDF8 /* NewsDateFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsDateFormatter.swift; sourceTree = "<group>"; };
 		DC39CBE92E8E808500C1B70D /* AccountSelectorWalletCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountSelectorWalletCellView.swift; sourceTree = "<group>"; };
@@ -10830,14 +10828,6 @@
 				2D5C19CB2F03C4E8007BC52C /* NewsModelMapper.swift */,
 			);
 			path = Model;
-			sourceTree = "<group>";
-		};
-		2D5C19CD2F03C4E8007BC52C /* News */ = {
-			isa = PBXGroup;
-			children = (
-				2D5C19CC2F03C4E8007BC52C /* Model */,
-			);
-			path = News;
 			sourceTree = "<group>";
 		};
 		2D5DCC2B2C3309F1000EE379 /* TokensNetworkSelector */ = {
@@ -19258,13 +19248,12 @@
 		DAD98A752AB2E3240051CFBE /* Markets */ = {
 			isa = PBXGroup;
 			children = (
-				DC37C1902EF7820C009FEDF8 /* News */,
-				2D0639872EF024DA00BE0499 /* Shtorka */,
-				30F6A8B12EA4D303009D4C6D /* AccountWithNetworkSelector */,
+				751F5921F99B18F2F97F3EEE /* AccountWithNetworkSelector */,
 				B690FC662C91CE8800D8683B /* Common */,
 				2D245E322E97EB56006AD2DC /* MarketsTokenDetails */,
 				2D245DD92E97E9BD006AD2DC /* Models */,
 				2DC5675F2B0DFFAF00B0244F /* Navigation */,
+				DC37C1902EF7820C009FEDF8 /* News */,
 				0AEB1FCF2DBF75A5009EA212 /* Notifications */,
 				2D1BB3752C07501C008392F7 /* Providers */,
 				2D0639872EF024DA00BE0499 /* Shtorka */,
@@ -19272,7 +19261,6 @@
 				2D5DCC2B2C3309F1000EE379 /* TokensNetworkSelector */,
 				2DB648812C35877000DA100D /* UIComponents */,
 				B0A7DB4C2C58E29A00986D95 /* Utilities */,
-				751F5921F99B18F2F97F3EEE /* AccountWithNetworkSelector */,
 			);
 			path = Markets;
 			sourceTree = "<group>";
@@ -20428,14 +20416,6 @@
 			path = List;
 			sourceTree = "<group>";
 		};
-		DC37C18C2EF7820C009FEDF8 /* Models */ = {
-			isa = PBXGroup;
-			children = (
-				DC37C18B2EF7820C009FEDF8 /* NewsDTO.swift */,
-			);
-			path = Models;
-			sourceTree = "<group>";
-		};
 		DC37C18F2EF7820C009FEDF8 /* Services */ = {
 			isa = PBXGroup;
 			children = (
@@ -20450,7 +20430,7 @@
 			children = (
 				DC37C1822EF7820C009FEDF8 /* Coordinator */,
 				DC37C18A2EF7820C009FEDF8 /* List */,
-				DC37C18C2EF7820C009FEDF8 /* Models */,
+				2D5C19CC2F03C4E8007BC52C /* Model */,
 				DC37C18F2EF7820C009FEDF8 /* Services */,
 			);
 			path = News;
@@ -20880,7 +20860,6 @@
 				B0B3FF6C2C0757B900B61EF7 /* ManageTokens */,
 				DAD98A752AB2E3240051CFBE /* Markets */,
 				0A4C217D2DF1AFA300B8B1BD /* MobileWallet */,
-				2D5C19CD2F03C4E8007BC52C /* News */,
 				B61EBDE32D70D058008BA0A7 /* NFT */,
 				B02FF9992A9A05A80073D93C /* Notifications */,
 				B0E1564926B9417E005B33E4 /* Onboarding */,
@@ -28782,7 +28761,6 @@
 				DC37C1962EF7820C009FEDF8 /* NewsListCoordinator.swift in Sources */,
 				DC37C1972EF7820C009FEDF8 /* NewsDateFormatter.swift in Sources */,
 				DC37C1982EF7820C009FEDF8 /* NewsListView.swift in Sources */,
-				DC37C1992EF7820C009FEDF8 /* NewsDTO.swift in Sources */,
 				DC37C19A2EF7820C009FEDF8 /* NewsListCoordinatorView.swift in Sources */,
 				DC37C19B2EF7820C009FEDF8 /* NewsPagingView.swift in Sources */,
 				B0B2DF6026E1FD5400BC0934 /* AnimatedView.swift in Sources */,
