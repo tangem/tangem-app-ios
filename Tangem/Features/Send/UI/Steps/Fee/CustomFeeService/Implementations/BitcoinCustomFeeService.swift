@@ -14,8 +14,6 @@ import TangemFoundation
 import TangemAccessibilityIdentifiers
 
 class BitcoinCustomFeeService {
-    private weak var output: CustomFeeServiceOutput?
-
     private let tokenItem: TokenItem
     private let feeTokenItem: TokenItem
     private let bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator
@@ -23,7 +21,7 @@ class BitcoinCustomFeeService {
     private lazy var customFeeTextField = DecimalNumberTextFieldViewModel(maximumFractionDigits: feeTokenItem.decimalCount)
     private lazy var satoshiPerByteTextField = DecimalNumberTextFieldViewModel(maximumFractionDigits: 0)
 
-    private let customFee: CurrentValueSubject<Fee?, Never> = .init(.none)
+    private let _customFee: CurrentValueSubject<Fee?, Never> = .init(.none)
     private var cachedCustomFee: Fee?
     private var bag: Set<AnyCancellable> = []
 
@@ -32,7 +30,6 @@ class BitcoinCustomFeeService {
     }
 
     init(
-        input: CustomFeeServiceInput,
         tokenItem: TokenItem,
         feeTokenItem: TokenItem,
         bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator,
@@ -40,8 +37,6 @@ class BitcoinCustomFeeService {
         self.tokenItem = tokenItem
         self.feeTokenItem = feeTokenItem
         self.bitcoinTransactionFeeCalculator = bitcoinTransactionFeeCalculator
-
-        bind(input: input)
     }
 
     private func bind(input: CustomFeeServiceInput) {
@@ -63,18 +58,17 @@ class BitcoinCustomFeeService {
         .withWeakCaptureOf(self)
         .receiveOnMain()
         .sink { service, fee in
-            service.customFee.send(fee)
+            service._customFee.send(fee)
         }
         .store(in: &bag)
 
-        customFee
+        _customFee
             .compactMap { $0 }
             // Skip the initial value
             .dropFirst()
             .withWeakCaptureOf(self)
-            .sink { service, customFee in
-                service.customFeeTextField.update(value: customFee.amount.value)
-                service.output?.customFeeDidChanged(customFee)
+            .sink { service, _customFee in
+                service.customFeeTextField.update(value: _customFee.amount.value)
             }
             .store(in: &bag)
     }
@@ -118,29 +112,63 @@ class BitcoinCustomFeeService {
     }
 }
 
-extension BitcoinCustomFeeService: CustomFeeService {
-    func setup(output: any CustomFeeServiceOutput) {
-        self.output = output
+// MARK: - CustomFeeService
+
+extension BitcoinCustomFeeService: SendCustomFeeService {
+    func setup(input: any SendFeeProviderInput) {
+        bind(input: input)
+    }
+}
+
+// MARK: - FeeSelectorCustomFeeProvider
+
+extension BitcoinCustomFeeService: FeeSelectorCustomFeeProvider {
+    var customFee: TokenFee {
+        TokenFee(option: .custom, tokenItem: feeTokenItem, value: _customFee.value.map { .success($0) } ?? .loading)
     }
 
-    func initialSetupCustomFee(_ fee: BlockchainSdk.Fee) {
-        assert(customFee.value == nil, "Duplicate initial setup")
+    var customFeePublisher: AnyPublisher<TokenFee, Never> {
+        _customFee
+            .withWeakCaptureOf(self)
+            .map { TokenFee(option: .custom, tokenItem: $0.feeTokenItem, value: $1.map { .success($0) } ?? .loading) }
+            .eraseToAnyPublisher()
+    }
 
-        customFee.send(fee)
+    func initialSetupCustomFee(_ fee: BSDKFee) {
+        assert(_customFee.value == nil, "Duplicate initial setup")
+
+        _customFee.send(fee)
         updateView(fee: fee)
+    }
+}
+
+// MARK: - FeeSelectorCustomFeeAvailabilityProvider
+
+extension BitcoinCustomFeeService: FeeSelectorCustomFeeAvailabilityProvider {
+    var customFeeIsValid: Bool { _customFee.value != zeroFee }
+
+    var customFeeIsValidPublisher: AnyPublisher<Bool, Never> {
+        _customFee
+            .withWeakCaptureOf(self)
+            .map { $0.zeroFee != $1 }
+            .eraseToAnyPublisher()
+    }
+
+    func captureCustomFeeFieldsValue() {
+        cachedCustomFee = _customFee.value
+    }
+
+    func resetCustomFeeFieldsValue() {
+        if let cachedCustomFee {
+            _customFee.send(cachedCustomFee)
+            updateView(fee: cachedCustomFee)
+        }
     }
 }
 
 // MARK: - FeeSelectorCustomFeeFieldsBuilder
 
 extension BitcoinCustomFeeService: FeeSelectorCustomFeeFieldsBuilder {
-    var customFeeIsValidPublisher: AnyPublisher<Bool, Never> {
-        customFee
-            .withWeakCaptureOf(self)
-            .map { $0.zeroFee != $1 }
-            .eraseToAnyPublisher()
-    }
-
     func buildCustomFeeFields() -> [FeeSelectorCustomFeeRowViewModel] {
         let customFeeRowViewModel = FeeSelectorCustomFeeRowViewModel(
             title: Localization.sendMaxFee,
@@ -148,7 +176,7 @@ extension BitcoinCustomFeeService: FeeSelectorCustomFeeFieldsBuilder {
             suffix: feeTokenItem.currencySymbol,
             isEditable: false,
             textFieldViewModel: customFeeTextField,
-            amountAlternativePublisher: customFee
+            amountAlternativePublisher: _customFee
                 .compactMap { $0 }
                 .withWeakCaptureOf(self)
                 .map { $0.formatToFiat(value: $1.amount.value) }
@@ -168,16 +196,5 @@ extension BitcoinCustomFeeService: FeeSelectorCustomFeeFieldsBuilder {
         )
 
         return [customFeeRowViewModel, satoshiPerByteRowViewModel]
-    }
-
-    func captureCustomFeeFieldsValue() {
-        cachedCustomFee = customFee.value
-    }
-
-    func resetCustomFeeFieldsValue() {
-        if let cachedCustomFee {
-            customFee.send(cachedCustomFee)
-            updateView(fee: cachedCustomFee)
-        }
     }
 }

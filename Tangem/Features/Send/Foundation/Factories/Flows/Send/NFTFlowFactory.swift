@@ -22,7 +22,7 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
     let shouldShowFeeSelector: Bool
 
     let walletModelHistoryUpdater: any WalletModelHistoryUpdater
-    let walletModelFeeProvider: any WalletModelFeeProvider
+    let tokenFeeLoader: any TokenFeeLoader
     let walletModelDependenciesProvider: WalletModelDependenciesProvider
     let availableBalanceProvider: any TokenBalanceProvider
     let fiatAvailableBalanceProvider: any TokenBalanceProvider
@@ -76,7 +76,7 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
         analyticsLogger = Self.makeSendAnalyticsLogger(walletModel: walletModel, sendType: .nft)
 
         walletModelHistoryUpdater = walletModel
-        walletModelFeeProvider = walletModel
+        tokenFeeLoader = walletModel.tokenFeeLoader
         walletModelDependenciesProvider = walletModel
         availableBalanceProvider = walletModel.availableBalanceProvider
         fiatAvailableBalanceProvider = walletModel.fiatAvailableBalanceProvider
@@ -112,7 +112,7 @@ extension NFTFlowFactory: SendGenericFlowFactory {
         let header = tokenHeaderProvider.makeSendTokenHeader()
         let nftAssetCompactViewModel = nftAssetStepBuilder.makeNFTAssetCompactViewModel(header: header)
         let destination = makeSendDestinationStep(router: router)
-        let fee = makeSendFeeStep()
+        let fee = makeSendFeeStep(router: router)
 
         // Destination editable
         // Amount noEditable
@@ -265,7 +265,7 @@ extension NFTFlowFactory: SendFeeStepBuildable {
         SendNewFeeStepBuilder.Dependencies(
             feeProvider: sendFeeProvider,
             analyticsLogger: analyticsLogger,
-            customFeeService: customFeeService
+            customFeeProvider: customFeeService
         )
     }
 }
