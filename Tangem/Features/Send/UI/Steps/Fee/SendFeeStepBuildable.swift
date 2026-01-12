@@ -30,9 +30,9 @@ enum SendNewFeeStepBuilder {
     }
 
     struct Dependencies {
-        let feeProvider: SendFeeProvider
+        let feeSelectorInteractor: FeeSelectorInteractor
         let analyticsLogger: any FeeSelectorAnalytics
-        let customFeeProvider: (any FeeSelectorCustomFeeProvider)?
+        let customFeeProvider: (any CustomFeeProvider)?
     }
 
     typealias ReturnValue = (
@@ -47,26 +47,11 @@ enum SendNewFeeStepBuilder {
         dependencies: Dependencies,
         router: SendFeeSelectorRoutable
     ) -> ReturnValue {
-        let feeSelectorInteractor = CommonFeeSelectorInteractor(
-            input: io.input,
-            output: io.output,
-            feesProvider: dependencies.feeProvider,
-            feeTokenItemsProvider: nil,
-            suggestedFeeProvider: nil,
-            customFeeProvider: dependencies.customFeeProvider,
-        )
-
         let feeSelectorViewModel = FeeSelectorBuilder().makeFeeSelectorViewModel(
-            feeSelectorInteractor: feeSelectorInteractor,
-            customFeeAvailabilityProvider: dependencies.customFeeProvider as? FeeSelectorCustomFeeAvailabilityProvider,
-            mapper: CommonFeeSelectorFeesViewModelMapper(
-                feeFormatter: CommonFeeFormatter(),
-                customFieldsBuilder: dependencies.customFeeProvider as? FeeSelectorCustomFeeFieldsBuilder
-            ),
+            feeSelectorInteractor: dependencies.feeSelectorInteractor,
             analytics: dependencies.analyticsLogger,
-            output: io.output,
-            router: router,
-            shouldShowSummaryBottomButton: true
+            feeFormatter: CommonFeeFormatter(),
+            router: router
         )
 
         let feeSelector = SendFeeSelectorViewModel(feeSelectorViewModel: feeSelectorViewModel, router: router)
