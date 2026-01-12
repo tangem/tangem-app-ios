@@ -232,11 +232,11 @@ extension EthereumWalletManager: EthereumNetworkProvider {
         let nonceResponse = try await networkService.ethCall(request: nonceRequest).async()
         let stringNonce = (nonceResponse == "0x" ? "0" : nonceResponse)
 
-        guard let intNonce = Int(stringNonce) else {
+        guard let nonce = BigUInt(stringNonce) else {
             throw EthereumTransactionBuilderError.invalidNonce
         }
 
-        return BigUInt(intNonce)
+        return nonce
     }
 
     func getAllowance(owner: String, spender: String, contractAddress: String) -> AnyPublisher<Decimal, Error> {
