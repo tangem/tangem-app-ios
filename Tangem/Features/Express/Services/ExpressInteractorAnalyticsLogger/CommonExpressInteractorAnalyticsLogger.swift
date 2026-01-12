@@ -22,6 +22,10 @@ struct CommonExpressInteractorAnalyticsLogger {
 // MARK: - ExpressAnalyticsLogger
 
 extension CommonExpressInteractorAnalyticsLogger: ExpressInteractorAnalyticsLogger {
+    func logFeeStepOpened() {}
+
+    func logSendFeeSelected(_ feeOption: FeeOption) {}
+
     func logExpressError(_ error: Error, provider: ExpressProvider?) {
         var parameters: [Analytics.ParameterKey: String] = [
             .token: tokenItem.currencySymbol,
