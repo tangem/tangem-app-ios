@@ -23,7 +23,7 @@ extension GaslessTransactionsDTO.Request {
             let nonce: String
 
             struct Transaction: Encodable, Equatable {
-                let address: String
+                let to: String
                 let value: String
                 let data: String
             }
@@ -83,7 +83,7 @@ extension GaslessTransactionsDTO.Request.MetaTransaction.TransactionData.Transac
     var prettyPrinted: String {
         """
         {
-          "to": "\(address)",
+          "to": "\(to)",
           "value": "\(value)",
           "data": "\(data)"
         }
