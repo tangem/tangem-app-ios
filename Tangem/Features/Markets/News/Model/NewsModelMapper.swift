@@ -94,6 +94,21 @@ struct NewsModelMapper {
             onTap: onTap
         )
     }
+
+    func toNewsItemViewModel(from item: NewsDTO.List.Item) -> NewsItemViewModel {
+        NewsItemViewModel(
+            id: item.id,
+            score: formatScore(item.score),
+            category: item.categories.first?.name ?? "",
+            relatedTokens: item.relatedTokens.map { token in
+                NewsItemViewModel.RelatedToken(id: token.id, symbol: token.symbol)
+            },
+            title: truncateTitle(item.title, maxLength: 70),
+            relativeTime: formatTimeAgo(from: item.createdAt),
+            isTrending: item.isTrending,
+            newsUrl: item.newsUrl
+        )
+    }
 }
 
 // MARK: - Private Implementation
@@ -152,5 +167,11 @@ private extension NewsModelMapper {
         })
 
         return tags
+    }
+
+    private func truncateTitle(_ title: String, maxLength: Int) -> String {
+        guard title.count > maxLength else { return title }
+        let index = title.index(title.startIndex, offsetBy: maxLength - 3)
+        return String(title[..<index]) + "..."
     }
 }

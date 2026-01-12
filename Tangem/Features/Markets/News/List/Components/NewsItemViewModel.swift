@@ -22,15 +22,24 @@ final class NewsItemViewModel: Identifiable, ObservableObject {
 
     // MARK: - Init
 
-    init(from item: NewsDTO.List.Item, dateFormatter: NewsDateFormatter) {
-        id = item.id
-        score = String(format: "%.1f", item.score)
-        category = item.categories.first?.name ?? ""
-        relatedTokens = item.relatedTokens.map { RelatedToken(id: $0.id, symbol: $0.symbol) }
-        title = Self.truncateTitle(item.title, maxLength: 70)
-        relativeTime = dateFormatter.formatRelativeTime(from: item.createdAt)
-        isTrending = item.isTrending
-        newsUrl = item.newsUrl
+    init(
+        id: Int,
+        score: String,
+        category: String,
+        relatedTokens: [RelatedToken],
+        title: String,
+        relativeTime: String,
+        isTrending: Bool,
+        newsUrl: String
+    ) {
+        self.id = id
+        self.score = score
+        self.category = category
+        self.relatedTokens = relatedTokens
+        self.title = title
+        self.relativeTime = relativeTime
+        self.isTrending = isTrending
+        self.newsUrl = newsUrl
     }
 
     // MARK: - Nested Types
@@ -42,13 +51,5 @@ final class NewsItemViewModel: Identifiable, ObservableObject {
         var iconURL: URL {
             IconURLBuilder().tokenIconURL(id: id, size: .small)
         }
-    }
-
-    // MARK: - Private Methods
-
-    private static func truncateTitle(_ title: String, maxLength: Int) -> String {
-        guard title.count > maxLength else { return title }
-        let index = title.index(title.startIndex, offsetBy: maxLength - 3)
-        return String(title[..<index]) + "..."
     }
 }

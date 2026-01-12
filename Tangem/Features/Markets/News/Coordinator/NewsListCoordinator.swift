@@ -32,7 +32,6 @@ final class NewsListCoordinator: CoordinatorObject {
         Task { @MainActor in
             rootViewModel = NewsListViewModel(
                 dataProvider: NewsDataProvider(),
-                dateFormatter: NewsDateFormatter(),
                 coordinator: self
             )
         }
