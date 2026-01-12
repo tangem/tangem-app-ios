@@ -136,15 +136,6 @@ private extension SendModel {
             .sink { $0.swapManager.update(amount: $1?.crypto) }
             .store(in: &bag)
 
-        _selectedFee
-            .map { $0.option }
-            .removeDuplicates()
-            .withWeakCaptureOf(self)
-            // Filter that SwapManager has different option
-            .filter { $0.mapToSendFee(state: $0.swapManager.state).option != $1 }
-            .sink { $0.swapManager.update(feeOption: $1) }
-            .store(in: &bag)
-
         Publishers
             .CombineLatest(
                 _receivedToken.removeDuplicates(),
