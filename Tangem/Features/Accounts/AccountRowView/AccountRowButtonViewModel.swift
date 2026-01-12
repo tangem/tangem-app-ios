@@ -130,13 +130,5 @@ extension AccountRowButtonViewModel {
             }
             .store(in: &viewModel.bag)
         }
-        
-        func resolve(accountModel: any SmartAccountModel) -> Void {
-            // No binding needed for SmartAccountModel
-        }
-        
-        func resolve(accountModel: any VisaAccountModel) -> Void {
-            // No binding needed for VisaAccountModel
-        }
     }
 }
