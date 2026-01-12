@@ -69,21 +69,8 @@ final class AccountRowButtonViewModel: Identifiable, ObservableObject {
             }
             .store(in: &bag)
 
-        // [REDACTED_TODO_COMMENT]
-        guard let cryptoAccount = accountModel as? any CryptoAccountModel else { return }
-
-        Publishers.CombineLatest(
-            cryptoAccount.userTokensManager.userTokensPublisher
-                .map { Localization.commonTokensCount($0.count) },
-            cryptoAccount.fiatTotalBalanceProvider.totalFiatBalancePublisher
-        )
-        .receiveOnMain()
-        .withWeakCaptureOf(self)
-        .sink { viewModel, tuple in
-            let (description, balanceState) = tuple
-            viewModel.updateSubtitleState(description: description, balanceState: balanceState)
-        }
-        .store(in: &bag)
+        guard let resolvable = accountModel as? any AccountModelResolvable else { return }
+        resolvable.resolve(using: BindingResolver(viewModel: self))
     }
 
     private func onAccountModelDidChange() {
@@ -121,5 +108,38 @@ extension AccountRowButtonViewModel {
         case balanceOnly(LoadableTokenBalanceView.State)
         case unavailableWithReason(String)
         case none
+    }
+}
+
+// MARK: - BindingResolver
+
+extension AccountRowButtonViewModel {
+    private struct BindingResolver: AccountModelResolving {
+        weak var viewModel: AccountRowButtonViewModel?
+        
+        func resolve(accountModel: any CryptoAccountModel) -> Void {
+            guard let viewModel else { return }
+            
+            Publishers.CombineLatest(
+                accountModel.userTokensManager.userTokensPublisher
+                    .map { Localization.commonTokensCount($0.count) },
+                accountModel.fiatTotalBalanceProvider.totalFiatBalancePublisher
+            )
+            .receiveOnMain()
+            .withWeakCaptureOf(viewModel)
+            .sink { vm, tuple in
+                let (description, balanceState) = tuple
+                vm.updateSubtitleState(description: description, balanceState: balanceState)
+            }
+            .store(in: &viewModel.bag)
+        }
+        
+        func resolve(accountModel: any SmartAccountModel) -> Void {
+            // No binding needed for SmartAccountModel
+        }
+        
+        func resolve(accountModel: any VisaAccountModel) -> Void {
+            // No binding needed for VisaAccountModel
+        }
     }
 }
