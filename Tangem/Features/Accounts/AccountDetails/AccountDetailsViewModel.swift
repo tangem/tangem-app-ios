@@ -89,8 +89,8 @@ final class AccountDetailsViewModel: ObservableObject {
             guard let self else {
                 return
             }
-            
-            await self.account.resolve(using: ArchiveAccountResolver(viewModel: self))
+
+            await account.resolve(using: ArchiveAccountResolver(viewModel: self))
         }
     }
 
