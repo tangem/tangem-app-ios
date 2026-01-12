@@ -201,6 +201,10 @@ class CommonEthereumTransactionBuilder: EthereumTransactionBuilder {
         return output
     }
 
+    func buildTransactionDataFor(transaction: Transaction) throws -> Data {
+        try buildSigningInput(transaction: transaction).transaction.contractGeneric.data
+    }
+
     func buildSigningInput(transaction: Transaction) throws -> EthereumSigningInput {
         guard let amountValue = transaction.amount.bigUIntValue else {
             throw EthereumTransactionBuilderError.invalidAmount
