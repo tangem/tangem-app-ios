@@ -53,6 +53,8 @@ extension GaslessTransactionsDTO.Request {
 extension GaslessTransactionsDTO.Request.MetaTransaction {
     func prettyPrinted() -> String {
         """
+        GASLESSDEBUG
+        ========================================================
         {
           "gaslessTransaction": \(transactionData.prettyPrinted),
           "signature": "\(signature)",
@@ -60,6 +62,7 @@ extension GaslessTransactionsDTO.Request.MetaTransaction {
           "chainId": \(chainId),
           "eip7702auth": \(eip7702auth.prettyPrinted)
         }
+        ========================================================
         """
     }
 }
