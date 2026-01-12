@@ -30,7 +30,7 @@ struct FeeSelectorView: View {
     var body: some View {
         switch viewModel.viewState {
         case .summary(let feeSelectorSummaryViewModel):
-            FeeSelectorSummaryView(viewModel: feeSelectorSummaryViewModel)
+            FeeSelectorSummaryView(viewModel: feeSelectorSummaryViewModel, shouldShowSummaryBottomButton: true)
         case .tokens(let feeSelectorTokensViewModel):
             FeeSelectorTokensView(viewModel: feeSelectorTokensViewModel)
         case .fees(let feeSelectorFeesViewModel):
@@ -63,11 +63,4 @@ extension FeeSelectorView {
             self.title = title
         }
     }
-}
-
-private extension AnyTransition {
-    static let content = AnyTransition.asymmetric(
-        insertion: .opacity.animation(.curve(.easeInOutRefined, duration: 0.3).delay(0.2)),
-        removal: .opacity.animation(.curve(.easeInOutRefined, duration: 0.3))
-    )
 }
