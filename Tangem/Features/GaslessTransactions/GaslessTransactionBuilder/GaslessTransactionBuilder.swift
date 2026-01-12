@@ -77,6 +77,7 @@ struct GaslessTransactionBuilder {
             chainId: chainId.description
         )
 
+        // Both eip7702Data.data and eip712Hash are 32-byte digests to be signed
         let signedHashes = try await signer
             .sign(hashes: [eip7702Data.data, eip712Hash], walletPublicKey: walletModel.publicKey)
             .async()
@@ -97,7 +98,7 @@ struct GaslessTransactionBuilder {
 
         return SignedData(
             eip712Signature: eip712Unmarshalled.extended.data.hexString.addHexPrefix(),
-            eip7702Auth: .init(
+            eip7702Auth: SignedData.EIP7702Authorization(
                 chainId: eip7702Data.chainId,
                 address: eip7702Data.address,
                 nonce: eip7702Data.nonce.description,
@@ -156,6 +157,10 @@ struct GaslessTransactionBuilder {
             throw GaslessTransactionBuilderError.missingTokenId
         }
 
+        guard parameters.gasLimit > 0 else {
+            throw GaslessTransactionBuilderError.invalidFeeParameters
+        }
+
         let contractAddress = token.contractAddress
         let feeTransferGasLimit = parameters.gasLimit
         let feeInCoin = bsdkFee.amount.value
@@ -171,11 +176,16 @@ struct GaslessTransactionBuilder {
         )
     }
 
+    /// Returns the coin price in token base units (integer) with 1% buffer and rounded up.
     private func calculateCoinPriceInToken(tokenId: String) async throws -> Decimal {
         let coinId = walletModel.tokenItem.blockchain.coinId
 
         let coinInFiat = try await balanceConverter.convertToFiat(1, currencyId: coinId)
         let tokenInFiat = try await balanceConverter.convertToFiat(1, currencyId: tokenId)
+
+        guard coinInFiat > 0, tokenInFiat > 0 else {
+            throw GaslessTransactionBuilderError.invalidPricing
+        }
 
         var coinPriceInToken = coinInFiat / tokenInFiat
 
@@ -205,22 +215,6 @@ struct GaslessTransactionBuilder {
 
         return try await networkProvider.getSmartContractNonce().description
     }
-
-    private func getExecutorContractAddress() throws -> String {
-        guard let provider = walletModel.ethereumGaslessDataProvider else {
-            throw GaslessTransactionBuilderError.missingGaslessDataProvider
-        }
-
-        return try provider.getGaslessExecutorContractAddress()
-    }
-
-    private func getNonceLatest() async throws -> String {
-        guard let networkProvider = walletModel.ethereumNetworkProvider else {
-            throw GaslessTransactionBuilderError.missingNetworkProvider
-        }
-
-        return try await networkProvider.getTxCount(walletModel.defaultAddress.value).async().description
-    }
 }
 
 // MARK: - Constants
@@ -234,9 +228,9 @@ extension GaslessTransactionBuilder {
 extension GaslessTransactionBuilder {
     struct SignedData {
         let eip712Signature: String
-        let eip7702Auth: Eip7702Authorization
+        let eip7702Auth: EIP7702Authorization
 
-        struct Eip7702Authorization {
+        struct EIP7702Authorization {
             let chainId: BigUInt
             let address: String
             let nonce: String
@@ -263,6 +257,7 @@ extension GaslessTransactionBuilder {
         case invalidFeeParameters
         case unsupportedFeeToken
         case missingTokenId
+        case invalidPricing
 
         // Signing
         case failedToSignTransactions
