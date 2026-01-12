@@ -67,18 +67,18 @@ final class NewsDataProvider {
     }
 
     func fetch(categoryIds: [Int]? = nil) {
-        print("📰 [NewsDataProvider] fetch called with categoryIds: \(String(describing: categoryIds))")
+        AppLogger.debug("📰 [NewsDataProvider] fetch called with categoryIds: \(String(describing: categoryIds))")
 
         _eventSubject.send(.loading)
         isLoading = true
 
         if lastCategoryIds != categoryIds {
-            print("📰 [NewsDataProvider] categoryIds changed, clearing items")
+            AppLogger.debug("📰 [NewsDataProvider] categoryIds changed, clearing items")
             clearItems()
         }
 
         guard scheduledFetchTask == nil else {
-            print("📰 [NewsDataProvider] scheduledFetchTask exists, skipping fetch")
+            AppLogger.debug("📰 [NewsDataProvider] scheduledFetchTask exists, skipping fetch")
             return
         }
 
@@ -89,12 +89,12 @@ final class NewsDataProvider {
             guard let self else { return }
 
             do {
-                print("📰 [NewsDataProvider] starting API request...")
+                AppLogger.debug("📰 [NewsDataProvider] starting API request...")
                 let response = try await loadItems(categoryIds: categoryIds)
-                print("📰 [NewsDataProvider] API success, got \(response.items.count) items")
+                AppLogger.debug("📰 [NewsDataProvider] API success, got \(response.items.count) items")
                 handleFetchResult(.success(response))
             } catch {
-                print("📰 [NewsDataProvider] API error: \(error)")
+                AppLogger.debug("📰 [NewsDataProvider] API error: \(error)")
                 handleFetchResult(.failure(error))
             }
         }.eraseToAnyCancellable()
@@ -148,12 +148,12 @@ final class NewsDataProvider {
     }
 
     private func handleFetchResult(_ result: Result<NewsDTO.List.Response, Error>) {
-        print("📰 [NewsDataProvider] handleFetchResult called")
+        AppLogger.debug("📰 [NewsDataProvider] handleFetchResult called")
 
         do {
             let response = try result.get()
 
-            print("📰 [NewsDataProvider] response meta - page: \(response.meta.page), hasNext: \(response.meta.hasNext), total: \(response.meta.total)")
+            AppLogger.debug("📰 [NewsDataProvider] response meta - page: \(response.meta.page), hasNext: \(response.meta.hasNext), total: \(response.meta.total)")
 
             currentPage = response.meta.page + 1
             hasNext = response.meta.hasNext
@@ -166,7 +166,7 @@ final class NewsDataProvider {
             isLoading = false
             hasLoadedItems = true
 
-            print("📰 [NewsDataProvider] sending .appendedItems event with \(response.items.count) items")
+            AppLogger.debug("📰 [NewsDataProvider] sending .appendedItems event with \(response.items.count) items")
             _eventSubject.send(.appendedItems(items: response.items, lastPage: !response.meta.hasNext))
         } catch {
             if error.isCancellationError {
