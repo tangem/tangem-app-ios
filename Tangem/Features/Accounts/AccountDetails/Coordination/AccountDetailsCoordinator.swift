@@ -118,13 +118,5 @@ extension AccountDetailsCoordinator {
             
             coordinator.manageTokensCoordinator = manageTokensCoordinator
         }
-        
-        func resolve(accountModel: any SmartAccountModel) -> Void {
-            // No manage tokens action for SmartAccountModel
-        }
-        
-        func resolve(accountModel: any VisaAccountModel) -> Void {
-            // No manage tokens action for VisaAccountModel
-        }
     }
 }
