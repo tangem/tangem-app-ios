@@ -19,8 +19,8 @@ class SendFlowFactory: SendFlowBaseDependenciesFactory {
     let shouldShowFeeSelector: Bool
     let tokenHeaderProvider: SendGenericTokenHeaderProvider
 
+    let tokenFeeManager: TokenFeeManager
     let walletModelHistoryUpdater: any WalletModelHistoryUpdater
-    let tokenFeeLoader: any TokenFeeLoader
     let walletModelDependenciesProvider: WalletModelDependenciesProvider
     let availableBalanceProvider: any TokenBalanceProvider
     let fiatAvailableBalanceProvider: any TokenBalanceProvider
@@ -35,10 +35,10 @@ class SendFlowFactory: SendFlowBaseDependenciesFactory {
     lazy var sendModel = makeSendWithSwapModel(swapManager: swapManager, analyticsLogger: analyticsLogger, predefinedValues: .init())
     lazy var notificationManager = makeSendWithSwapNotificationManager(receiveTokenInput: sendModel)
     lazy var customFeeService = makeCustomFeeService(input: sendModel)
-    lazy var sendFeeProvider = makeSendWithSwapFeeProvider(
+    lazy var sendWithSwapFeeSelectorInteractor = makeSendWithSwapFeeSelectorInteractor(
         receiveTokenInput: sendModel,
-        sendFeeProvider: makeSendFeeProvider(input: sendModel, hasCustomFeeService: customFeeService != nil),
-        swapFeeProvider: makeSwapFeeProvider(swapManager: swapManager)
+        sendFeeSelectorInteractor: makeSendFeeProvider(input: sendModel, output: sendModel, dataInput: sendModel),
+        swapFeeSelectorInteractor: makeSwapFeeProvider(swapManager: swapManager)
     )
 
     init(userWalletInfo: UserWalletInfo, walletModel: any WalletModel) {
@@ -63,7 +63,7 @@ class SendFlowFactory: SendFlowBaseDependenciesFactory {
         analyticsLogger = Self.makeSendAnalyticsLogger(walletModel: walletModel, sendType: .send)
 
         walletModelHistoryUpdater = walletModel
-        tokenFeeLoader = walletModel.tokenFeeLoader
+        tokenFeeManager = TokenFeeManagerBuilder(walletModel: walletModel).makeTokenFeeManager()
         walletModelDependenciesProvider = walletModel
         availableBalanceProvider = walletModel.availableBalanceProvider
         fiatAvailableBalanceProvider = walletModel.fiatAvailableBalanceProvider
@@ -118,9 +118,9 @@ extension SendFlowFactory: SendGenericFlowFactory {
         // We have to set dependencies here after all setups is completed
         sendModel.externalAmountUpdater = amount.amountUpdater
         sendModel.externalDestinationUpdater = destination.externalUpdater
-        sendModel.sendFeeProvider = sendFeeProvider
+        sendModel.sendFeeProvider = sendWithSwapFeeSelectorInteractor
         sendModel.informationRelevanceService = CommonInformationRelevanceService(
-            input: sendModel, output: sendModel, provider: sendFeeProvider
+            input: sendModel, output: sendModel, provider: sendWithSwapFeeSelectorInteractor
         )
 
         // Steps setup
@@ -276,7 +276,7 @@ extension SendFlowFactory: SendFeeStepBuildable {
 
     var feeDependencies: SendNewFeeStepBuilder.Dependencies {
         SendNewFeeStepBuilder.Dependencies(
-            feeProvider: sendFeeProvider,
+            feeSelectorInteractor: sendWithSwapFeeSelectorInteractor,
             analyticsLogger: analyticsLogger,
             customFeeProvider: customFeeService
         )
@@ -316,7 +316,7 @@ extension SendFlowFactory: SendSummaryStepBuildable {
 
     var summaryDependencies: SendSummaryStepBuilder.Dependencies {
         SendSummaryStepBuilder.Dependencies(
-            sendFeeProvider: sendFeeProvider,
+            sendFeeProvider: sendWithSwapFeeSelectorInteractor,
             notificationManager: notificationManager,
             analyticsLogger: analyticsLogger,
             sendDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder(),

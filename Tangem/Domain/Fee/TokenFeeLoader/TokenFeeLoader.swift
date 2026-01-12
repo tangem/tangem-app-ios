@@ -15,12 +15,18 @@ protocol TokenFeeLoader {
     func getFee(amount: Decimal, destination: String) async throws -> [BSDKFee]
 }
 
+extension TokenFeeLoader {
+    var supportingFeeOptions: [FeeOption] {
+        allowsFeeSelection ? [.slow, .market, .fast] : [.market]
+    }
+}
+
 // MARK: - Custom TokenFeeLoaders
 
 protocol EthereumTokenFeeLoader: TokenFeeLoader {
-    func estimatedFee(estimatedGasLimit: Int) async throws -> BSDKFee
-    func getFee(amount: BSDKAmount, destination: String, txData: Data) async throws -> [BSDKFee]
-    func getGaslessFee(amount: BSDKAmount, destination: String, txData: Data, feeToken: BSDKToken) async throws -> [BSDKFee]
+    func estimatedFee(estimatedGasLimit: Int, otherNativeFee: Decimal?) async throws -> BSDKFee
+    func getFee(amount: BSDKAmount, destination: String, txData: Data, otherNativeFee: Decimal?) async throws -> [BSDKFee]
+    func getGaslessFee(amount: BSDKAmount, destination: String, txData: Data, feeToken: BSDKToken, otherNativeFee: Decimal?) async throws -> [BSDKFee]
 }
 
 protocol SolanaTokenFeeLoader: TokenFeeLoader {
