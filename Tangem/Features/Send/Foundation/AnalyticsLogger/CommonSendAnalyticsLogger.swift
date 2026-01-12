@@ -104,9 +104,9 @@ extension CommonSendAnalyticsLogger: SendDestinationAnalyticsLogger {
     }
 }
 
-// MARK: - SendAnalyticsLogger, FeeSelectorContentViewModelAnalytics
+// MARK: - SendAnalyticsLogger, FeeSelectorAnalytics
 
-extension CommonSendAnalyticsLogger: SendFeeAnalyticsLogger, FeeSelectorContentViewModelAnalytics {
+extension CommonSendAnalyticsLogger: SendFeeAnalyticsLogger, FeeSelectorAnalytics {
     func logFeeStepOpened() {
         switch tokenItem.token?.metadata.kind {
         case .fungible, .none:
@@ -407,7 +407,7 @@ extension CommonSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
     func logTransactionSent(
         amount: SendAmount?,
         additionalField: SendDestinationAdditionalField?,
-        fee: SendFee,
+        fee: TokenFee,
         signerType: String,
         currentProviderHost: String
     ) {

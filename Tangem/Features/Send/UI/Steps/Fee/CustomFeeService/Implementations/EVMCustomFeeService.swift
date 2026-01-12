@@ -48,7 +48,7 @@ class EVMCustomFeeService {
 
     private var nonce: Int? { nonceTextField.value?.intValue() }
 
-    private let customFee: CurrentValueSubject<Fee?, Never> = .init(.none)
+    private let _customFee: CurrentValueSubject<Fee?, Never> = .init(.none)
     private var customFeeBeforeEditing: Fee?
     private var customMaxFeePerGasBeforeEditing: BigUInt?
     private var customPriorityFeeBeforeEditing: BigUInt?
@@ -71,7 +71,7 @@ class EVMCustomFeeService {
     }
 
     private func bind() {
-        customFee
+        _customFee
             .compactMap { $0 }
             .dropFirst()
             .withWeakCaptureOf(self)
@@ -83,7 +83,7 @@ class EVMCustomFeeService {
 
         customFeeTextField.valuePublisher
             .withWeakCaptureOf(self)
-            .sink(receiveValue: { $0.customFee.send($0.calculateFee(for: $1)) })
+            .sink(receiveValue: { $0._customFee.send($0.calculateFee(for: $1)) })
             .store(in: &bag)
 
         Publishers.MergeMany(
@@ -94,7 +94,7 @@ class EVMCustomFeeService {
             nonceTextField.valuePublisher.removeDuplicates(),
         )
         .withWeakCaptureOf(self)
-        .sink(receiveValue: { $0.0.customFee.send($0.0.recalculateFee()) })
+        .sink(receiveValue: { $0.0._customFee.send($0.0.recalculateFee()) })
         .store(in: &bag)
     }
 
@@ -191,31 +191,57 @@ class EVMCustomFeeService {
     }
 }
 
-// MARK: - EditableCustomFeeService
+// MARK: - FeeSelectorCustomFeeProvider
 
-extension EVMCustomFeeService: CustomFeeService {
-    func setup(output: any CustomFeeServiceOutput) {
-        self.output = output
+extension EVMCustomFeeService: FeeSelectorCustomFeeProvider {
+    var customFee: TokenFee {
+        TokenFee(option: .custom, tokenItem: feeTokenItem, value: _customFee.value.map { .success($0) } ?? .loading)
     }
 
-    func initialSetupCustomFee(_ fee: Fee) {
-        assert(customFee.value == nil, "Duplicate initial setup")
+    var customFeePublisher: AnyPublisher<TokenFee, Never> {
+        _customFee
+            .withWeakCaptureOf(self)
+            .map { TokenFee(option: .custom, tokenItem: $0.feeTokenItem, value: $1.map { .success($0) } ?? .loading) }
+            .eraseToAnyPublisher()
+    }
 
-        customFee.send(fee)
+    func initialSetupCustomFee(_ fee: BSDKFee) {
+        assert(_customFee.value == nil, "Duplicate initial setup")
+
+        _customFee.send(fee)
         updateView(fee: fee)
     }
 }
 
 // MARK: - FeeSelectorCustomFeeFieldsBuilder
 
-extension EVMCustomFeeService: FeeSelectorCustomFeeFieldsBuilder {
+extension EVMCustomFeeService: FeeSelectorCustomFeeAvailabilityProvider {
+    var customFeeIsValid: Bool {
+        _customFee.value != zeroFee
+    }
+
     var customFeeIsValidPublisher: AnyPublisher<Bool, Never> {
-        customFee
+        _customFee
             .withWeakCaptureOf(self)
             .map { $0.zeroFee != $1 }
             .eraseToAnyPublisher()
     }
 
+    func captureCustomFeeFieldsValue() {
+        cachedCustomFee = _customFee.value
+    }
+
+    func resetCustomFeeFieldsValue() {
+        if let cachedCustomFee {
+            _customFee.send(cachedCustomFee)
+            updateView(fee: cachedCustomFee)
+        }
+    }
+}
+
+// MARK: - FeeSelectorCustomFeeFieldsBuilder
+
+extension EVMCustomFeeService: FeeSelectorCustomFeeFieldsBuilder {
     func buildCustomFeeFields() -> [FeeSelectorCustomFeeRowViewModel] {
         let customFeeRowViewModel = FeeSelectorCustomFeeRowViewModel(
             title: Localization.sendMaxFee,
@@ -223,7 +249,7 @@ extension EVMCustomFeeService: FeeSelectorCustomFeeFieldsBuilder {
             suffix: feeTokenItem.currencySymbol,
             isEditable: true,
             textFieldViewModel: customFeeTextField,
-            amountAlternativePublisher: customFee
+            amountAlternativePublisher: _customFee
                 .compactMap { $0 }
                 .withWeakCaptureOf(self)
                 .map { $0.formatToFiat(value: $1.amount.value) }
@@ -309,17 +335,6 @@ extension EVMCustomFeeService: FeeSelectorCustomFeeFieldsBuilder {
             ]
         }
     }
-
-    func captureCustomFeeFieldsValue() {
-        cachedCustomFee = customFee.value
-    }
-
-    func resetCustomFeeFieldsValue() {
-        if let cachedCustomFee {
-            customFee.send(cachedCustomFee)
-            updateView(fee: cachedCustomFee)
-        }
-    }
 }
 
 // MARK: - Analytics
@@ -327,9 +342,9 @@ extension EVMCustomFeeService: FeeSelectorCustomFeeFieldsBuilder {
 private extension EVMCustomFeeService {
     private func onCustomFeeChanged(_ focused: Bool) {
         if focused {
-            customFeeBeforeEditing = customFee.value
+            customFeeBeforeEditing = _customFee.value
         } else {
-            if customFee.value != customFeeBeforeEditing {
+            if _customFee.value != customFeeBeforeEditing {
                 Analytics.log(.sendCustomFeeInserted)
             }
         }

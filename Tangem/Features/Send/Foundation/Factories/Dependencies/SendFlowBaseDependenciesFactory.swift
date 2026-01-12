@@ -11,7 +11,7 @@ import TangemUI
 protocol SendFlowBaseDependenciesFactory: SendGenericFlowBaseDependenciesFactory {
     var shouldShowFeeSelector: Bool { get }
 
-    var walletModelFeeProvider: WalletModelFeeProvider { get }
+    var tokenFeeLoader: any TokenFeeLoader { get }
     var expressDependenciesFactory: ExpressDependenciesFactory { get }
 }
 
@@ -74,25 +74,24 @@ extension SendFlowBaseDependenciesFactory {
         case (false, false): [.market]
         }
 
-        return CommonSendFeeProvider(
-            input: input,
-            feeLoader: CommonSendFeeLoader(tokenItem: tokenItem, walletModelFeeProvider: walletModelFeeProvider),
-            defaultFeeOptions: options
-        )
+        return CommonSendFeeProvider(input: input, feeProvider: tokenFeeLoader, feeTokenItem: feeTokenItem, defaultFeeOptions: options)
     }
 
     func makeSwapFeeProvider(swapManager: SwapManager) -> SendFeeProvider {
         SwapFeeProvider(swapManager: swapManager)
     }
 
-    func makeCustomFeeService(input: CustomFeeServiceInput) -> CustomFeeService? {
+    func makeCustomFeeService(input: CustomFeeServiceInput) -> FeeSelectorCustomFeeProvider? {
         let factory = CustomFeeServiceFactory(
             tokenItem: tokenItem,
             feeTokenItem: feeTokenItem,
             bitcoinTransactionFeeCalculator: walletModelDependenciesProvider.bitcoinTransactionFeeCalculator
         )
 
-        return factory.makeService(input: input)
+        let service = factory.makeService()
+        (service as? SendCustomFeeService)?.setup(input: input)
+
+        return service
     }
 
     // MARK: - Notifications
