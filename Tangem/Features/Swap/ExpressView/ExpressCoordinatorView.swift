@@ -35,17 +35,14 @@ struct ExpressCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.swapTokenSelectorViewModel) {
                 SwapTokenSelectorView(viewModel: $0)
             }
+            .floatingSheetContent(for: SendFeeSelectorViewModel.self) {
+                SendFeeSelectorView(viewModel: $0)
+            }
             .bottomSheet(
                 item: $coordinator.expressApproveViewModel,
                 backgroundColor: Colors.Background.tertiary
             ) {
                 ExpressApproveView(viewModel: $0)
-            }
-            .bottomSheet(
-                item: $coordinator.expressFeeSelectorViewModel,
-                backgroundColor: Colors.Background.tertiary
-            ) {
-                ExpressFeeSelectorView(viewModel: $0)
             }
             .bottomSheet(
                 item: $coordinator.expressProvidersSelectorViewModel,
