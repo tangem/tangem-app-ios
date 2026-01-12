@@ -93,6 +93,7 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
 
         searchTextBind(publisher: headerViewModel.enteredSearchInputPublisher)
         bindToWidgetsProvider()
+        bindToMainBottomSheetUIManager()
 
         widgetsProvider.reloadWidgets()
     }
