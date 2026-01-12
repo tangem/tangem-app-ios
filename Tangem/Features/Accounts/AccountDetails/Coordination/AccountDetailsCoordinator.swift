@@ -84,7 +84,7 @@ extension AccountDetailsCoordinator: CryptoAccountDetailsRoutable {
         guard let options else {
             return
         }
-        
+
         options.account.resolve(using: ManageTokensResolver(coordinator: self, options: options))
     }
 }
@@ -95,27 +95,27 @@ extension AccountDetailsCoordinator {
     private struct ManageTokensResolver: AccountModelResolving {
         let coordinator: AccountDetailsCoordinator
         let options: Options
-        
-        func resolve(accountModel: any CryptoAccountModel) -> Void {
+
+        func resolve(accountModel: any CryptoAccountModel) {
             let manageTokensCoordinator = ManageTokensCoordinator(
                 dismissAction: { [weak coordinator] in
                     coordinator?.manageTokensCoordinator = nil
                 },
                 popToRootAction: coordinator.popToRootAction
             )
-            
+
             let context = AccountsAwareManageTokensContext(
                 accountModelsManager: options.accountModelsManager,
                 currentAccount: accountModel
             )
-            
+
             manageTokensCoordinator.start(
                 with: ManageTokensCoordinator.Options(
                     context: context,
                     userWalletConfig: options.userWalletConfig
                 )
             )
-            
+
             coordinator.manageTokensCoordinator = manageTokensCoordinator
         }
     }

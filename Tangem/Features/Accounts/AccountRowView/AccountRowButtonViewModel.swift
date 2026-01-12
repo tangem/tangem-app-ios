@@ -115,8 +115,8 @@ extension AccountRowButtonViewModel {
 extension AccountRowButtonViewModel {
     private struct BindingResolver: AccountModelResolving {
         let viewModel: AccountRowButtonViewModel
-        
-        func resolve(accountModel: any CryptoAccountModel) -> Void {
+
+        func resolve(accountModel: any CryptoAccountModel) {
             Publishers.CombineLatest(
                 accountModel.userTokensManager.userTokensPublisher
                     .map { Localization.commonTokensCount($0.count) },
