@@ -128,7 +128,7 @@ private extension ExpressApproveViewModel {
             .store(in: &bag)
     }
 
-    func updateView(state: LoadingResult<Fee, any Error>) {
+    func updateView(state: LoadingResult<BSDKFee, any Error>) {
         switch state {
         case .success(let fee):
             updateFeeAmount(fee: fee)
@@ -145,7 +145,7 @@ private extension ExpressApproveViewModel {
         }
     }
 
-    func updateFeeAmount(fee: Fee) {
+    func updateFeeAmount(fee: BSDKFee) {
         let formatted = feeFormatter.format(fee: fee.amount.value, tokenItem: feeTokenItem)
         feeRowViewModel?.update(detailsType: .text(formatted))
     }
