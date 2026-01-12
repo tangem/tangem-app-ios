@@ -27,17 +27,14 @@ public struct EthereumCalculateSignatureUtil {
     /// Extracts the ECDSA recovery bit (yParity) from the signature `v` value.
     /// In modern typed EVM transactions (EIP-1559 / EIP-7702), `v` already equals the y-coordinate parity of the public key (0 or 1).
     /// In legacy signatures, `v` is encoded as 27 or 28 and must be normalized.
-    /// Returns `nil` if the value cannot be interpreted as a valid recovery bit.
-    public func extractYParity(from vData: Data) -> Int? {
+    public func extractYParity(from vData: Data) -> Int {
         let v = Int(BigUInt(vData))
-
+    
         switch v {
         case 0, 1:
             return v
-        case 27, 28:
-            return v - 27
         default:
-            return nil
+            return v - 27
         }
     }
 }

@@ -220,8 +220,7 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
 // MARK: - EthereumNetworkProvider
 
 extension EthereumWalletManager: EthereumNetworkProvider {
-    func getSmartContractNonce() async throws -> BigUInt {
-        let smartContractAddress = try GaslessTransactionAddressFactory.gaslessExecutorContractAddress(blockchain: wallet.blockchain)
+    func getSmartContractNonce(smartContractAddress: String) async throws -> BigUInt {
         let convertedOurAddress = try addressConverter.convertToETHAddress(wallet.address)
 
         let nonceRequest = GaslessTransactionNonceContractRequest(
