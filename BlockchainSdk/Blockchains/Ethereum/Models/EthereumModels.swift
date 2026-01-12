@@ -49,8 +49,8 @@ public struct EthereumFeeHistory {
 }
 
 public struct EIP7702AuthorizationData {
-    public let chainId: BigUInt
+    public let chainId: Int
     public let address: String
-    public let nonce: BigUInt
+    public let nonce: Int
     public let data: Data
 }

@@ -15,7 +15,7 @@ struct GaslessTransactionsAPITarget: TargetType {
 
     enum TargetType: Equatable {
         case availableTokens
-        case signMetaTransaction(transaction: GaslessTransactionsDTO.Request.MetaTransaction)
+        case signGaslessTransaction(transaction: GaslessTransactionsDTO.Request.GaslessTransaction)
     }
 
     // [REDACTED_TODO_COMMENT]
@@ -34,7 +34,7 @@ struct GaslessTransactionsAPITarget: TargetType {
         switch target {
         case .availableTokens:
             "/tokens"
-        case .signMetaTransaction:
+        case .signGaslessTransaction:
             "/sign"
         }
     }
@@ -43,14 +43,14 @@ struct GaslessTransactionsAPITarget: TargetType {
         switch target {
         case .availableTokens:
             return .get
-        case .signMetaTransaction:
+        case .signGaslessTransaction:
             return .post
         }
     }
 
     var task: Moya.Task {
         switch target {
-        case .signMetaTransaction(let transaction):
+        case .signGaslessTransaction(let transaction):
             return .requestJSONEncodable(transaction)
         case .availableTokens:
             return .requestPlain

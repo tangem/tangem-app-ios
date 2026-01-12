@@ -29,7 +29,7 @@ public struct EthereumCalculateSignatureUtil {
     /// In legacy signatures, `v` is encoded as 27 or 28 and must be normalized.
     public func extractYParity(from vData: Data) -> Int {
         let v = Int(BigUInt(vData))
-    
+
         switch v {
         case 0, 1:
             return v
