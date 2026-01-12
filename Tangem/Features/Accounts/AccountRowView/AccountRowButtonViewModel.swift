@@ -114,11 +114,9 @@ extension AccountRowButtonViewModel {
 
 extension AccountRowButtonViewModel {
     private struct BindingResolver: AccountModelResolving {
-        weak var viewModel: AccountRowButtonViewModel?
+        let viewModel: AccountRowButtonViewModel
         
         func resolve(accountModel: any CryptoAccountModel) -> Void {
-            guard let viewModel else { return }
-            
             Publishers.CombineLatest(
                 accountModel.userTokensManager.userTokensPublisher
                     .map { Localization.commonTokensCount($0.count) },
