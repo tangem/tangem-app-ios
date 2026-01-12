@@ -222,6 +222,14 @@ final class FakeTangemApiService: TangemApiService {
     func loadTrendingNews(limit: Int?, lang: String?) async throws -> TrendingNewsResponse {
         throw "Not implemented"
     }
+
+    func loadNewsList(requestModel: NewsDTO.List.Request) async throws -> NewsDTO.List.Response {
+        throw "Not implemented"
+    }
+
+    func loadNewsCategories() async throws -> NewsDTO.Categories.Response {
+        throw "Not implemented"
+    }
 }
 
 private struct FakeCoinListProvider {
