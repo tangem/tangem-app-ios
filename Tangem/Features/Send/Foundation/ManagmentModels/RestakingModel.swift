@@ -43,7 +43,7 @@ final class RestakingModel {
 
     private var transactionValidator: TransactionValidator { sendSourceToken.transactionValidator }
     private var tokenItem: TokenItem { sendSourceToken.tokenItem }
-    private var feeTokenItem: TokenItem { sendSourceToken.feeTokenItem }
+    var feeTokenItem: TokenItem { sendSourceToken.feeTokenItem }
 
     private var estimatedFeeTask: Task<Void, Never>?
     private var bag: Set<AnyCancellable> = []
