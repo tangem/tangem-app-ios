@@ -404,13 +404,5 @@ extension AccountFormViewModel {
         func resolve(accountModel: any CryptoAccountModel) -> String? {
             accountModel.descriptionString
         }
-        
-        func resolve(accountModel: any SmartAccountModel) -> String? {
-            nil
-        }
-        
-        func resolve(accountModel: any VisaAccountModel) -> String? {
-            nil
-        }
     }
 }

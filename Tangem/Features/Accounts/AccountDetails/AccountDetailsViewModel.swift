@@ -228,13 +228,5 @@ extension AccountDetailsViewModel {
                 await viewModel.handleAccountArchivingFailure(error: error)
             }
         }
-        
-        func resolve(accountModel: any SmartAccountModel) async -> Void {
-            // No archiving action for SmartAccountModel
-        }
-        
-        func resolve(accountModel: any VisaAccountModel) async -> Void {
-            // No archiving action for VisaAccountModel
-        }
     }
 }
