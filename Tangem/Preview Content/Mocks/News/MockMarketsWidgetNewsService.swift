@@ -15,6 +15,13 @@ import TangemFoundation
 final class MockMarketsWidgetNewsService: MarketsWidgetNewsProvider {
     // MARK: - Private Properties
 
+    private lazy var decoder: JSONDecoder = {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601WithFractionalSeconds
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        return decoder
+    }()
+
     private let newsResultValueSubject: CurrentValueSubject<LoadingResult<[TrendingNewsModel], Error>, Never> = .init(.loading)
 
     var newsResultPublisher: AnyPublisher<LoadingResult<[TrendingNewsModel], Error>, Never> {
@@ -28,13 +35,6 @@ final class MockMarketsWidgetNewsService: MarketsWidgetNewsProvider {
     var newsReadStatusDidUpdate: AnyPublisher<Void, Never> {
         return .just(output: ())
     }
-
-    lazy var trendingNewsDecoder: JSONDecoder = {
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601WithFractionalSeconds
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
-        return decoder
-    }()
 
     private let mapper = NewsModelMapper()
 
@@ -76,7 +76,6 @@ final class MockMarketsWidgetNewsService: MarketsWidgetNewsProvider {
                 }
 
                 let data = try Data(contentsOf: url)
-                let decoder = trendingNewsDecoder
                 let response = try decoder.decode(TrendingNewsResponse.self, from: data)
                 let success = response.items.map { mapper.mapToNewsModel(from: $0, isRead: Bool.random()) }
 
