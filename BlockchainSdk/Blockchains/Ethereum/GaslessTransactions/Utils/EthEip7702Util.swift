@@ -9,6 +9,7 @@
 import Foundation
 import BigInt
 import CryptoSwift
+import WalletCore
 
 /// Utility for building EIP-7702 authorization payloads.
 ///
@@ -23,12 +24,6 @@ public struct EthEip7702Util {
     /// Magic prefix byte used to domain-separate EIP-7702 authorization data.
     private let magicByte: UInt8 = 0x05
 
-    /// Builds the hash that must be signed by the EOA.
-    /// - Parameters:
-    ///   - chainId: EVM chain identifier (e.g. 1 for mainnet).
-    ///   - contractAddress: Contract address to authorize (hex string).
-    ///   - nonce: Replay-protection nonce.
-    /// - Returns: keccak256 hash to be signed.
     func encodeAuthorizationForSigning(chainId: BigUInt, contractAddress: String, nonce: BigUInt) throws -> Data {
         let addressBytes = Data(hex: contractAddress)
 
@@ -36,45 +31,22 @@ public struct EthEip7702Util {
             throw Eip7702Error.invalidAddressLength
         }
 
-        let payload = try encodeAuthorizationData(chainId: chainId, address: addressBytes, nonce: nonce)
-        return payload.sha3(.keccak256)
-    }
+        let serializedChainId = chainId.serialize()
+        let serializedNonce = nonce.serialize()
 
-    /// Encodes the EIP-7702 authorization payload using RLP.
-    ///
-    /// Important notes:
-    /// - All values are encoded as raw byte strings, never as UTF-8 strings.
-    /// - Integers are encoded as unsigned big-endian bytes with no leading zeros.
-    /// - `nonce == 0` is encoded as an empty byte string, per RLP rules.
-    ///
-    /// - Returns: `MAGIC || rlp([chainId, address, nonce])`
-    func encodeAuthorizationData(chainId: BigUInt, address: Data, nonce: BigUInt) throws -> Data {
-        guard address.count == addressSizeInBytes else {
-            throw Eip7702Error.invalidAddressLength
+        let rlpList = EthereumRlpRlpList.with {
+            $0.items = [
+                EthereumRlpRlpItem.with { $0.numberU256 = serializedChainId },
+                EthereumRlpRlpItem.with { $0.address = contractAddress },
+                EthereumRlpRlpItem.with { $0.numberU256 = serializedNonce },
+            ]
         }
 
-        // Chain ID must be non-negative; RLP does not support signed integers.
-        guard chainId >= 0 else {
-            throw Eip7702Error.invalidChainId
-        }
-
-        let encoder = RLPEncoder()
-
-        // Encode chainId as unsigned big-endian bytes.
-        let chainIdRlp = RLPValue.bytes(chainId.serialize())
-
-        // Address is already raw 20-byte data.
-        let addressRlp = RLPValue.bytes(address)
-
-        // Nonce is encoded as big-endian bytes; zero becomes empty Data().
-        let nonceRlp = RLPValue.bytes(nonce.serialize())
-
-        // RLP list: [chainId, address, nonce]
-        let list = RLPValue.array([chainIdRlp, addressRlp, nonceRlp])
-
-        // Prefix the RLP payload with the magic byte.
-        let encoded = try encoder.encode(list)
-        return Data([magicByte]) + encoded
+        let encodingInput = EthereumRlpEncodingInput.with { $0.item.list = rlpList }
+        let inputData = try encodingInput.serializedData()
+        let outputData = EthereumRlp.encode(coin: .ethereum, input: inputData)
+        let rlpEncodedData = try EthereumRlpEncodingOutput(serializedData: outputData).encoded
+        return (Data([magicByte]) + rlpEncodedData).sha3(.keccak256)
     }
 }
 

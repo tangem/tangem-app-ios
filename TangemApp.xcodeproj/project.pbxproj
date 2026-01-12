@@ -3738,8 +3738,6 @@
 		EA87D9DD2F127C45006519B9 /* GaslessTransactionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA87D9DC2F127C45006519B9 /* GaslessTransactionBuilder.swift */; };
 		EA87D9EB2F1281E3006519B9 /* EthEip7702Util.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA87D9EA2F1281E3006519B9 /* EthEip7702Util.swift */; };
 		EA87D9EC2F1281E3006519B9 /* EthEip7702Util.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA87D9EA2F1281E3006519B9 /* EthEip7702Util.swift */; };
-		EA87D9EE2F1281EC006519B9 /* RLPEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA87D9ED2F1281EC006519B9 /* RLPEncoder.swift */; };
-		EA87D9EF2F1281EC006519B9 /* RLPEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA87D9ED2F1281EC006519B9 /* RLPEncoder.swift */; };
 		EA87D9F12F128261006519B9 /* GaslessTransactionAddressFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA87D9F02F128261006519B9 /* GaslessTransactionAddressFactory.swift */; };
 		EA87DA162F139C15006519B9 /* GaslessTransactionsEIP712Util.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA87DA152F139C15006519B9 /* GaslessTransactionsEIP712Util.swift */; };
 		EA87DA182F139C3A006519B9 /* UnmarshalUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA87DA172F139C3A006519B9 /* UnmarshalUtil.swift */; };
@@ -8512,7 +8510,6 @@
 		EA87D9C42F124307006519B9 /* EthereumGaslessDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumGaslessDataProvider.swift; sourceTree = "<group>"; };
 		EA87D9DC2F127C45006519B9 /* GaslessTransactionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GaslessTransactionBuilder.swift; sourceTree = "<group>"; };
 		EA87D9EA2F1281E3006519B9 /* EthEip7702Util.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthEip7702Util.swift; sourceTree = "<group>"; };
-		EA87D9ED2F1281EC006519B9 /* RLPEncoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RLPEncoder.swift; sourceTree = "<group>"; };
 		EA87D9F02F128261006519B9 /* GaslessTransactionAddressFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GaslessTransactionAddressFactory.swift; sourceTree = "<group>"; };
 		EA87DA152F139C15006519B9 /* GaslessTransactionsEIP712Util.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GaslessTransactionsEIP712Util.swift; sourceTree = "<group>"; };
 		EA87DA172F139C3A006519B9 /* UnmarshalUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnmarshalUtil.swift; sourceTree = "<group>"; };
@@ -22075,7 +22072,6 @@
 			isa = PBXGroup;
 			children = (
 				EA87D9EA2F1281E3006519B9 /* EthEip7702Util.swift */,
-				EA87D9ED2F1281EC006519B9 /* RLPEncoder.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -28425,7 +28421,6 @@
 				DCE6BE9E2E140EDA001DB530 /* WC+UniversalError.swift in Sources */,
 				B0AA865226DC90E600287F80 /* WelcomeView.swift in Sources */,
 				EFD68F302CC2D02500693C97 /* OnrampCountryDetectionView.swift in Sources */,
-				EA87D9EE2F1281EC006519B9 /* RLPEncoder.swift in Sources */,
 				EFF9CB7F2EC3614900A7C44C /* TangemPayTransactionDetailsViewModel.swift in Sources */,
 				EFF9CB812EC3614900A7C44C /* TangemPayTransactionDetailsRoutable.swift in Sources */,
 				EFF9CB832EC3614900A7C44C /* TangemPayTransactionDetailsView.swift in Sources */,
@@ -30665,7 +30660,6 @@
 				B62D41D32CBC79DB00C2460E /* Tron.pb.swift in Sources */,
 				EFBAC3192D8AF90900024E38 /* OpCodeUtils.swift in Sources */,
 				B62D40F72CBC79DA00C2460E /* ICPNetworkProvider.swift in Sources */,
-				EA87D9EF2F1281EC006519B9 /* RLPEncoder.swift in Sources */,
 				B62D3FB42CBC79DA00C2460E /* AptosExternalLinkProvider.swift in Sources */,
 				B62D415A2CBC79DA00C2460E /* AzeroExternalLinkProvider.swift in Sources */,
 				B62D41412CBC79DA00C2460E /* NEARNetworkProvider.swift in Sources */,
