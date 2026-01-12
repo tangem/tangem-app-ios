@@ -6,7 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-extension GaslessTransactionDataBuilder {
+extension GaslessTransactionBuilder {
     struct GaslessTransactionsEIP712Util {
         let domainName = "Tangem7702GaslessExecutor"
         let domainVersion = "1"
@@ -15,8 +15,8 @@ extension GaslessTransactionDataBuilder {
         // MARK: - Public Implementation
 
         func makeGaslessTypedData(
-            transaction: GaslessTransactionData.Transaction,
-            fee: GaslessTransactionData.Fee,
+            transaction: GaslessTransactionsDTO.Request.MetaTransaction.TransactionData.Transaction,
+            fee: GaslessTransactionsDTO.Request.MetaTransaction.TransactionData.Fee,
             nonce: String,
             chainId: String,
             verifyingContract: String
