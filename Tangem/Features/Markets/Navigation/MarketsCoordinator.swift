@@ -125,11 +125,9 @@ extension MarketsCoordinator: MarketsMainRoutable {
         }
     }
 
-    func openNews(by id: NewsId) {
-        // [REDACTED_TODO_COMMENT]
-    }
+    func openNews(by id: NewsId) {}
 
     func openAllNews() {
-        // [REDACTED_TODO_COMMENT]
+        openSeeAll(with: .news)
     }
 }
