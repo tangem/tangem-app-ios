@@ -69,8 +69,7 @@ final class AccountRowButtonViewModel: Identifiable, ObservableObject {
             }
             .store(in: &bag)
 
-        guard let resolvable = accountModel as? any AccountModelResolvable else { return }
-        resolvable.resolve(using: BindingResolver(viewModel: self))
+        accountModel.resolve(using: BindingResolver(viewModel: self))
     }
 
     private func onAccountModelDidChange() {
