@@ -8,8 +8,8 @@
 
 import BlockchainSdk
 
-struct TokenFeeLoaderBuilder {
-    func makeTokenFeeLoader(walletModel: any WalletModel, walletManager: any WalletManager) -> TokenFeeLoader {
+enum TokenFeeLoaderBuilder {
+    static func makeTokenFeeLoader(walletModel: any WalletModel, walletManager: any WalletManager) -> TokenFeeLoader {
         if walletModel.isDemo {
             return DemoTokenFeeLoader(tokenItem: walletModel.tokenItem)
         }
