@@ -13,24 +13,27 @@ import TangemFoundation
 final class CommonSendFeeProvider {
     private weak var input: SendFeeProviderInput?
 
-    private let feeLoader: SendFeeLoader
+    private let feeProvider: TokenFeeLoader
+    private let feeTokenItem: TokenItem
     private let defaultFeeOptions: [FeeOption]
 
     private let _cryptoAmount: CurrentValueSubject<Decimal?, Never> = .init(nil)
     private let _destination: CurrentValueSubject<String?, Never> = .init(nil)
-    private let _fees: CurrentValueSubject<LoadingResult<[SendFee], Error>, Never> = .init(.loading)
+    private let _fees: CurrentValueSubject<LoadingResult<[BSDKFee], Error>, Never> = .init(.loading)
 
-    private var feeLoadingSubscription: AnyCancellable?
+    private var feeLoadingTask: Task<Void, Never>?
     private var cryptoAmountSubscription: AnyCancellable?
     private var destinationAddressSubscription: AnyCancellable?
 
     init(
         input: any SendFeeProviderInput,
-        feeLoader: SendFeeLoader,
+        feeProvider: TokenFeeLoader,
+        feeTokenItem: TokenItem,
         defaultFeeOptions: [FeeOption]
     ) {
         self.input = input
-        self.feeLoader = feeLoader
+        self.feeProvider = feeProvider
+        self.feeTokenItem = feeTokenItem
         self.defaultFeeOptions = defaultFeeOptions
 
         bind(input: input)
@@ -44,12 +47,15 @@ extension CommonSendFeeProvider: SendFeeProvider {
         defaultFeeOptions
     }
 
-    var fees: LoadingResult<[SendFee], any Error> {
-        _fees.value
+    var fees: [TokenFee] {
+        mapToTokenFee(fees: _fees.value)
     }
 
-    var feesPublisher: AnyPublisher<LoadingResult<[SendFee], any Error>, Never> {
-        _fees.eraseToAnyPublisher()
+    var feesPublisher: AnyPublisher<[TokenFee], Never> {
+        _fees
+            .withWeakCaptureOf(self)
+            .map { $0.mapToTokenFee(fees: $1) }
+            .eraseToAnyPublisher()
     }
 
     func updateFees() {
@@ -62,20 +68,17 @@ extension CommonSendFeeProvider: SendFeeProvider {
             _fees.send(.loading)
         }
 
-        feeLoadingSubscription = feeLoader
-            .getFee(amount: amount, destination: destination)
-            .mapToResult()
-            .withWeakCaptureOf(self)
-            .sink { provider, result in
-                switch result {
-                case .success(let fees):
-                    let fees = provider.mapToDefaultFees(fees: fees)
-                    provider._fees.send(.success(fees))
-                case .failure(let error):
-                    AppLogger.error("SendFeeProvider fee loading error", error: error)
-                    provider._fees.send(.failure(error))
-                }
+        feeLoadingTask?.cancel()
+        feeLoadingTask = Task {
+            do {
+                let loadedFees = try await feeProvider.getFee(amount: amount, destination: destination)
+                try Task.checkCancellation()
+                _fees.send(.success(loadedFees))
+            } catch {
+                AppLogger.error("SendFeeProvider fee loading error", error: error)
+                _fees.send(.failure(error))
             }
+        }
     }
 }
 
@@ -96,27 +99,14 @@ private extension CommonSendFeeProvider {
             }
     }
 
-    func mapToDefaultFees(fees: [BSDKFee]) -> [SendFee] {
-        switch fees.count {
-        case 1:
-            return [
-                SendFee(option: .market, value: .success(fees[0])),
-            ]
-        // Express estimated fee case
-        case 2:
-            return [
-                SendFee(option: .market, value: .success(fees[0])),
-                SendFee(option: .fast, value: .success(fees[1])),
-            ]
-        case 3:
-            return [
-                SendFee(option: .slow, value: .success(fees[0])),
-                SendFee(option: .market, value: .success(fees[1])),
-                SendFee(option: .fast, value: .success(fees[2])),
-            ]
-        default:
-            assertionFailure("Wrong count of fees")
-            return []
+    func mapToTokenFee(fees: LoadingResult<[BSDKFee], any Error>) -> [TokenFee] {
+        switch fees {
+        case .loading:
+            TokenFeeConverter.mapToLoadingSendFees(options: defaultFeeOptions, feeTokenItem: feeTokenItem)
+        case .failure(let error):
+            TokenFeeConverter.mapToFailureSendFees(options: defaultFeeOptions, feeTokenItem: feeTokenItem, error: error)
+        case .success(let fees):
+            TokenFeeConverter.mapToSendFees(options: defaultFeeOptions, feeTokenItem: feeTokenItem, fees: fees)
         }
     }
 }
