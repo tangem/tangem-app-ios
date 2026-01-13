@@ -9,8 +9,22 @@
 import Foundation
 
 extension GaslessTransactionsDTO.Response {
-    struct GaslessFeeTokensResult: Decodable {
+    struct FeeTokens: Decodable {
         let tokens: [FeeToken]
+
+        private enum CodingKeys: String, CodingKey {
+            case result
+        }
+
+        private enum ResultKeys: String, CodingKey {
+            case tokens
+        }
+
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            let result = try container.nestedContainer(keyedBy: ResultKeys.self, forKey: .result)
+            tokens = try result.decode([FeeToken].self, forKey: .tokens)
+        }
     }
 
     struct FeeToken: Decodable {
