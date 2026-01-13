@@ -77,7 +77,7 @@ final class CommonCustomerInfoManagementService {
 }
 
 extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
-    func cancelKYC() async throws(TangemPayAPIServiceError) -> TangemPayCancelKYCResponse {
+    func cancelKYC() async throws(TangemPayAPIServiceError) -> TangemPaySetPayEnabledResponse {
         try await request(for: .setPayEnabled)
     }
 
