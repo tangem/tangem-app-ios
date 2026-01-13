@@ -11,6 +11,7 @@ import BlockchainSdk
 import TangemVisa
 import TangemExpress
 import TangemFoundation
+import TangemPay
 
 protocol TangemPayWithdrawTransactionService {
     func sendWithdrawTransaction(amount: Decimal, destination: String, walletPublicKey: Wallet.PublicKey) async throws -> TangemPayWithdrawTransactionResult
@@ -19,18 +20,18 @@ protocol TangemPayWithdrawTransactionService {
 }
 
 class CommonTangemPayWithdrawTransactionService {
-    private let customerInfoManagementService: any CustomerInfoManagementService
+    private let customerService: any TangemPayCustomerService
     private let fiatItem: FiatItem
     private let signer: any TangemSigner
 
     private let activeWithdrawOrderID: ThreadSafeContainer<String?> = .init(nil)
 
     init(
-        customerInfoManagementService: any CustomerInfoManagementService,
+        customerService: any TangemPayCustomerService,
         fiatItem: FiatItem,
         signer: any TangemSigner,
     ) {
-        self.customerInfoManagementService = customerInfoManagementService
+        self.customerService = customerService
         self.fiatItem = fiatItem
         self.signer = signer
     }
@@ -47,7 +48,7 @@ extension CommonTangemPayWithdrawTransactionService: TangemPayWithdrawTransactio
         let amountInCents = fiatItem.convertToCents(value: amount).description
         let request = TangemPayWithdrawRequest(amount: amount, amountInCents: amountInCents, destination: destination)
 
-        let preSignature = try await customerInfoManagementService
+        let preSignature = try await customerService
             .getWithdrawPreSignatureInfo(request: request)
 
         let signatureInfo = try await signer
@@ -62,7 +63,7 @@ extension CommonTangemPayWithdrawTransactionService: TangemPayWithdrawTransactio
             salt: preSignature.salt
         )
 
-        let response = try await customerInfoManagementService
+        let response = try await customerService
             .sendWithdrawTransaction(request: request, signature: signature)
 
         activeWithdrawOrderID.mutate { $0 = response.orderID }
@@ -74,7 +75,7 @@ extension CommonTangemPayWithdrawTransactionService: TangemPayWithdrawTransactio
             return false
         }
 
-        let order = try await customerInfoManagementService.getOrder(orderId: orderId)
+        let order = try await customerService.getOrder(orderId: orderId)
         switch order.status {
         case .new, .processing:
             return true

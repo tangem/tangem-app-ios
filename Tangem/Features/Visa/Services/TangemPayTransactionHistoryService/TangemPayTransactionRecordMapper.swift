@@ -9,6 +9,7 @@
 import BlockchainSdk
 import TangemLocalization
 import TangemVisa
+import TangemPay
 
 struct TangemPayTransactionRecordMapper {
     private let transaction: TangemPayTransactionRecord

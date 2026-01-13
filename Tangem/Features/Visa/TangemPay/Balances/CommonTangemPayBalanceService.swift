@@ -9,6 +9,7 @@
 import Combine
 import TangemVisa
 import TangemFoundation
+import TangemPay
 
 final class CommonTangemPayBalanceService: TangemPayBalancesService {
     // MARK: - TangemPayBalancesProvider
@@ -36,7 +37,7 @@ final class CommonTangemPayBalanceService: TangemPayBalancesService {
         cryptoBalanceProvider: totalTokenBalanceProvider
     )
 
-    private let customerInfoManagementService: any CustomerInfoManagementService
+    private let customerService: any TangemPayCustomerService
     private let tokenBalancesRepository: any TokenBalancesRepository
 
     private let tokenItem = TangemPayUtilities.usdcTokenItem
@@ -48,10 +49,10 @@ final class CommonTangemPayBalanceService: TangemPayBalancesService {
     )
 
     init(
-        customerInfoManagementService: any CustomerInfoManagementService,
+        customerService: any TangemPayCustomerService,
         tokenBalancesRepository: any TokenBalancesRepository
     ) {
-        self.customerInfoManagementService = customerInfoManagementService
+        self.customerService = customerService
         self.tokenBalancesRepository = tokenBalancesRepository
     }
 }
@@ -62,7 +63,7 @@ extension CommonTangemPayBalanceService {
     func loadBalance() async {
         do {
             balanceSubject.send(.loading)
-            let balance = try await customerInfoManagementService.getBalance()
+            let balance = try await customerService.getBalance()
             balanceSubject.send(.success(balance))
 
             fiatRateProvider.updateRate()
