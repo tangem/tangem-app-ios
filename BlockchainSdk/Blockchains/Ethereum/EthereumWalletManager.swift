@@ -51,7 +51,16 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
                 tokens: cardTokens
             ).async()
 
-            try await updateWallet(with: infoAndTokens, yieldTokensBalances: yieldBalances)
+            async let pendingTransactionsInfo = networkService.getPendingTransactionsInfo(
+                address: convertedAddress,
+                pendingTransactionHashes: wallet.pendingTransactions.filter { !$0.isDummy }.map(\.hash)
+            ).async()
+
+            try await updateWallet(
+                with: infoAndTokens,
+                yieldTokensBalances: yieldBalances,
+                pendingTransactionsInfo: pendingTransactionsInfo
+            )
         } catch {
             wallet.clearAmounts()
             throw error
@@ -393,10 +402,22 @@ private extension EthereumWalletManager {
         .eraseToAnyPublisher()
     }
 
-    func updateWallet(with response: EthereumInfoResponse, yieldTokensBalances: [Token: Result<Amount, Error>]) {
+    func updateWallet(
+        with response: EthereumInfoResponse,
+        yieldTokensBalances: [Token: Result<Amount, Error>],
+        pendingTransactionsInfo: EthereumPendingTransactionsInfo,
+    ) {
         wallet.add(coinValue: response.balance)
 
-        for tokenBalance in response.tokenBalances {
+        updateTokensBalances(tokensBalances: response.tokenBalances, yieldTokensBalances: yieldTokensBalances)
+        updatePendingTransactions(pendingTransactionsInfo: pendingTransactionsInfo)
+    }
+
+    func updateTokensBalances(
+        tokensBalances: [Token: Result<Decimal, Error>],
+        yieldTokensBalances: [Token: Result<Amount, Error>]
+    ) {
+        for tokenBalance in tokensBalances {
             switch (yieldTokensBalances[tokenBalance.key], tokenBalance.value) {
             case (.success(let yieldAmount), _):
                 wallet.add(amount: yieldAmount)
@@ -406,21 +427,26 @@ private extension EthereumWalletManager {
                 wallet.add(tokenValue: value, for: tokenBalance.key)
             }
         }
+    }
 
-        if response.txCount == response.pendingTxCount {
-            wallet.clearPendingTransaction()
-        } else if response.pendingTxs.isEmpty {
-            if wallet.pendingTransactions.isEmpty {
-                wallet.addDummyPendingTransaction()
-            }
-        } else {
-            wallet.clearPendingTransaction()
-            response.pendingTxs.forEach {
-                let mapper = PendingTransactionRecordMapper()
-                let transaction = mapper.mapToPendingTransactionRecord($0, blockchain: wallet.blockchain)
-                wallet.addPendingTransaction(transaction)
-            }
+    func updatePendingTransactions(pendingTransactionsInfo: EthereumPendingTransactionsInfo) {
+        // keep only those that are still pending.
+        var pendingTransactions = wallet.pendingTransactions.filter { transaction in
+            pendingTransactionsInfo.statuses[transaction.hash]?.isPending == true
         }
+
+        let localPendingCount = pendingTransactions.count
+
+        // detect unknown/external pending transactions (pendingTransactionCount - transactionsCount)
+        let nodePendingCount = max(0, pendingTransactionsInfo.pendingTransactionCount - pendingTransactionsInfo.transactionCount)
+
+        // add dummy pending records for unknown pending transactions
+        if nodePendingCount > localPendingCount {
+            let dummy = PendingTransactionRecordMapper().makeDummy(blockchain: wallet.blockchain)
+            pendingTransactions.append(dummy)
+        }
+
+        wallet.updatePendingTransaction(pendingTransactions)
     }
 }
 
