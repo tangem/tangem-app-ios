@@ -111,14 +111,13 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 return BannerNotificationManager(userWalletInfo: model.userWalletInfo, placement: .main)
             }()
 
-            let sectionsProvider = makeMultiWalletMainContentViewSectionsProvider(userWalletModel: model)
-
             let tokenItemPromoProvider = YieldTokenItemPromoProvider(
                 userWalletModel: model,
-                sectionsProvider: sectionsProvider,
                 yieldModuleMarketsRepository: CommonYieldModuleMarketsRepository(),
                 tokenItemPromoBubbleVisibilityInteractor: TokenItemPromoBubbleVisibilityInteractor()
             )
+
+            let sectionsProvider = makeMultiWalletMainContentViewSectionsProvider(userWalletModel: model)
 
             let viewModel = MultiWalletMainContentViewModel(
                 userWalletModel: model,
