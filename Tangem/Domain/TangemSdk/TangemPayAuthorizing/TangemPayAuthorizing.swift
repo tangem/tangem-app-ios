@@ -8,6 +8,7 @@
 
 import TangemSdk
 import TangemVisa
+import TangemPay
 
 protocol TangemPayAuthorizing: TangemPayAuthorizerSyncNeededTitleProvider {
     func authorize(

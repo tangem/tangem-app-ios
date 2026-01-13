@@ -33,7 +33,7 @@ class VisaWalletModel {
     let tokenItem: TokenItem
     private let stateSubject = CurrentValueSubject<WalletModelState, Never>(.created)
     private lazy var rateSubject = CurrentValueSubject<WalletModelRate, Never>(.loading(cached: quotesRepository.quote(for: tokenItem)))
-    private let transactionDependency = VisaDummyTransactionDependencies(isTestnet: FeatureStorage.instance.visaAPIType.isTestnet)
+    private let transactionDependency = VisaDummyTransactionDependencies(isTestnet: FeatureStorage.instance.tangemPayAPIType.isTestnet)
     private let tokenBalancesRepository: TokenBalancesRepository
     private let transactionSendAvailabilityProvider: TransactionSendAvailabilityProvider
 

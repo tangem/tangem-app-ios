@@ -158,15 +158,7 @@ class VisaOnboardingViewModel: ObservableObject {
     }
 
     func openSupport() {
-        guard FeatureStorage.instance.isVisaAPIMocksEnabled else {
-            openSupportSheet()
-            return
-        }
-
-        VisaMocksManager.instance.showMocksMenu(
-            openSupportAction: weakify(self, forFunction: VisaOnboardingViewModel.openSupportSheet),
-            presenter: self
-        )
+        openSupportSheet()
     }
 
     func finishOnboarding() {
@@ -487,7 +479,7 @@ private extension VisaOnboardingViewModel {
             return
         }
 
-        let searchUtility = VisaApprovePairSearchUtility(isTestnet: FeatureStorage.instance.visaAPIType.isTestnet)
+        let searchUtility = VisaApprovePairSearchUtility(isTestnet: FeatureStorage.instance.tangemPayAPIType.isTestnet)
 
         guard
             let approvePair = searchUtility.findApprovePair(
@@ -595,12 +587,6 @@ extension VisaOnboardingViewModel {
 
 // [REDACTED_TODO_COMMENT]
 
-extension VisaOnboardingViewModel: VisaMockMenuPresenter {
-    func modalFromTop(_ vc: UIViewController) {
-        UIApplication.modalFromTop(vc)
-    }
-}
-
 #if DEBUG
 extension VisaOnboardingViewModel {
     static let coordinator = OnboardingCoordinator()
@@ -623,7 +609,7 @@ extension VisaOnboardingViewModel {
 
         return .init(
             input: cardInput,
-            visaActivationManager: VisaActivationManagerFactory(apiType: .dev, isTestnet: false, isMockedAPIEnabled: true).make(
+            visaActivationManager: VisaActivationManagerFactory(apiType: .dev, isTestnet: false).make(
                 cardId: cardInput.primaryCardId,
                 initialActivationStatus: activationStatus,
                 tangemSdk: TangemSdkDefaultFactory().makeTangemSdk(),

@@ -10,6 +10,7 @@ import Combine
 import TangemFoundation
 import TangemVisa
 import TangemLocalization
+import TangemPay
 
 protocol TangemPayAccountRoutable: AnyObject {
     func openTangemPayIssuingYourCardPopup()
@@ -96,7 +97,7 @@ private extension TangemPayAccountViewModel {
     static func mapToState(
         state: TangemPayAuthorizer.State,
         status: TangemPayStatus?,
-        card: VisaCustomerInfoResponse.Card?,
+        card: TangemPayCustomer.Card?,
         balanceType: FormattedTokenBalanceType
     ) -> ViewState {
         guard !RTCUtil().checkStatus().hasIssues else {
