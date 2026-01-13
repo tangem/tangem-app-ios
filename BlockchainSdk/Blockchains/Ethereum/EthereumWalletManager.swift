@@ -499,13 +499,12 @@ extension EthereumWalletManager: GaslessTransactionFeeProvider {
     func getGaslessFee(
         feeToken: Token,
         amount originalAmount: Amount,
-        destination originalDestination: String
+        destination originalDestination: String,
+        feeRecipientAddress: String
     ) async throws -> Fee {
         // Addresses
-        // [REDACTED_TODO_COMMENT]
-        let gaslessTokenCollectorAddress = ""
         let ourAddress = wallet.defaultAddress.value
-        let convertedGaslessTokenCollectorAddress = try addressConverter.convertToETHAddress(gaslessTokenCollectorAddress)
+        let convertedGaslessTokenCollectorAddress = try addressConverter.convertToETHAddress(feeRecipientAddress)
         let convertedOurAddress = try addressConverter.convertToETHAddress(ourAddress)
 
         // Fixed fee token amount (10000 minimal units)
