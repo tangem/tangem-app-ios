@@ -36,6 +36,7 @@ let package = Package(
         .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", .upToNextMajor(from: "4.0.1")),
         .package(url: "https://github.com/swiftlang/swift-syntax.git", .upToNextMajor(from: "602.0.0")),
         .package(url: "https://github.com/SumSubstance/IdensicMobileSDK-iOS.git", .upToNextMajor(from: "1.39.0")),
+        .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", exact: "1.9.0"),
     ],
     targets: [modulesWrapperLibrary] + serviceModules + featureModules + unitTestsModules
 )
@@ -228,6 +229,7 @@ var featureModules: [PackageDescription.Target] {
                 "TangemFoundation",
                 "TangemNetworkUtils",
                 "TangemAssets",
+                "CryptoSwift",
                 .product(name: "IdensicMobileSDK", package: "IdensicMobileSDK-iOS"),
             ],
             swiftSettings: [

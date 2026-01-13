@@ -9,7 +9,7 @@
 import Foundation
 import TangemPay
 
-class VisaConfigProvider {
+public class VisaConfigProvider {
     private static var instance: VisaConfigProvider?
 
     private let fileName = "visa_config"
@@ -23,7 +23,7 @@ class VisaConfigProvider {
         config = try JSONDecoder().decode(VisaConfig.self, from: Data(contentsOf: path))
     }
 
-    static func shared() throws -> VisaConfigProvider {
+    public static func shared() throws -> VisaConfigProvider {
         guard let instance else {
             let instance = try VisaConfigProvider()
             Self.instance = instance
@@ -33,15 +33,15 @@ class VisaConfigProvider {
         return instance
     }
 
-    func getRegistryAddress(isTestnet: Bool) -> String {
+    public func getRegistryAddress(isTestnet: Bool) -> String {
         return isTestnet ? config.testnet.paymentAccountRegistry : config.mainnet.paymentAccountRegistry
     }
 
-    func getTxHistoryAPIAdditionalHeaders() -> [String: String] {
+    public func getTxHistoryAPIAdditionalHeaders() -> [String: String] {
         config.txHistoryAPIAdditionalHeaders
     }
 
-    func getRSAPublicKey(apiType: TangemPayAPIType) -> String {
+    public func getRSAPublicKey(apiType: TangemPayAPIType) -> String {
         switch apiType {
         case .prod:
             return config.rsaPublicKey.prod
@@ -50,7 +50,7 @@ class VisaConfigProvider {
         }
     }
 
-    func getRainRSAPublicKey(apiType: TangemPayAPIType) -> String {
+    public func getRainRSAPublicKey(apiType: TangemPayAPIType) -> String {
         switch apiType {
         case .prod:
             return config.rainRSAPublicKey.prod

@@ -25,7 +25,7 @@ final class TangemPayManager {
     private let customerWalletId: String
     private let authorizingInteractor: TangemPayAuthorizing
     private let authorizationService: TangemPayAuthorizationService
-    private let customerInfoManagementService: CustomerInfoManagementService
+    private let customerService: TangemPayCustomerService
     private let enrollmentStateFetcher: TangemPayEnrollmentStateFetcher
     private let orderStatusPollingService: TangemPayOrderStatusPollingService
 
@@ -39,7 +39,7 @@ final class TangemPayManager {
         customerWalletId: String,
         authorizingInteractor: TangemPayAuthorizing,
         authorizationService: TangemPayAuthorizationService,
-        customerInfoManagementService: CustomerInfoManagementService,
+        customerService: TangemPayCustomerService,
         enrollmentStateFetcher: TangemPayEnrollmentStateFetcher,
         orderStatusPollingService: TangemPayOrderStatusPollingService,
         tangemPayBuilder: TangemPayBuilder
@@ -47,7 +47,7 @@ final class TangemPayManager {
         self.customerWalletId = customerWalletId
         self.authorizingInteractor = authorizingInteractor
         self.authorizationService = authorizationService
-        self.customerInfoManagementService = customerInfoManagementService
+        self.customerService = customerService
         self.enrollmentStateFetcher = enrollmentStateFetcher
         self.orderStatusPollingService = orderStatusPollingService
         self.tangemPayBuilder = tangemPayBuilder
@@ -81,7 +81,7 @@ final class TangemPayManager {
 
     func launchKYC(onDidDismiss: @escaping () -> Void) async throws {
         try await TangemPayKYCService.start(
-            getToken: customerInfoManagementService.loadKYCAccessToken,
+            getToken: customerService.loadKYCAccessToken,
             onDidDismiss: onDidDismiss
         )
         Analytics.log(.visaOnboardingVisaKYCFlowOpened)
@@ -90,7 +90,7 @@ final class TangemPayManager {
     func cancelKYC(onFinish: @escaping (Bool) -> Void) {
         runTask { [self] in
             do {
-                try await customerInfoManagementService.cancelKYC()
+                try await customerService.cancelKYC()
                 await MainActor.run {
                     AppSettings.shared.tangemPayIsKYCHiddenForCustomerWalletId[customerWalletId] = true
                 }
@@ -144,7 +144,7 @@ final class TangemPayManager {
         if let cardIssuingOrderId = TangemPayOrderIdStorage.cardIssuingOrderId(customerWalletId: customerWalletId) {
             orderId = cardIssuingOrderId
         } else {
-            orderId = try await customerInfoManagementService.placeOrder(customerWalletAddress: customerWalletAddress).id
+            orderId = try await customerService.placeOrder(customerWalletAddress: customerWalletAddress).id
             TangemPayOrderIdStorage.saveCardIssuingOrderId(orderId, customerWalletId: customerWalletId)
         }
 

@@ -11,6 +11,7 @@ import TangemAssets
 import TangemUI
 import TangemLocalization
 import TangemVisa
+import TangemPay
 
 struct TangemPayAccountView: View {
     @ObservedObject var viewModel: TangemPayAccountViewModel
