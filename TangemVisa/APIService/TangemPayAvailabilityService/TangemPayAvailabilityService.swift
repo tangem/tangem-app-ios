@@ -6,6 +6,8 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import TangemPay
+
 public protocol TangemPayAvailabilityService {
     func loadEligibility() async throws -> TangemPayAvailabilityResponse
     func validateDeeplink(deeplinkString: String) async throws -> ValidateDeeplinkResponse
@@ -32,7 +34,7 @@ extension CommonTangemPayAvailabilityService: TangemPayAvailabilityService {
     func loadEligibility() async throws -> TangemPayAvailabilityResponse {
         try await apiService.request(
             .init(target: .getEligibility, apiType: apiType),
-            wrapped: true
+            format: .wrapped
         )
     }
 
@@ -42,7 +44,7 @@ extension CommonTangemPayAvailabilityService: TangemPayAvailabilityService {
                 target: .validateDeeplink(deeplinkString: deeplinkString),
                 apiType: apiType
             ),
-            wrapped: true
+            format: .wrapped
         )
     }
 
@@ -55,7 +57,7 @@ extension CommonTangemPayAvailabilityService: TangemPayAvailabilityService {
                 ),
                 apiType: apiType
             ),
-            wrapped: true
+            format: .wrapped
         )
     }
 }

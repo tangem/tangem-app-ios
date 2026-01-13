@@ -8,6 +8,7 @@
 
 import Combine
 import TangemFoundation
+import TangemPay
 import TangemSdk
 
 final class CommonTangemPayAuthorizationService {
@@ -63,7 +64,7 @@ extension CommonTangemPayAuthorizationService: TangemPayAuthorizationService {
                 )),
                 apiType: apiType
             ),
-            wrapped: false
+            format: .plain
         )
     }
 
@@ -82,7 +83,7 @@ extension CommonTangemPayAuthorizationService: TangemPayAuthorizationService {
                     )),
                 apiType: apiType
             ),
-            wrapped: false
+            format: .plain
         )
     }
 
@@ -92,7 +93,7 @@ extension CommonTangemPayAuthorizationService: TangemPayAuthorizationService {
                 target: .refreshTokens(.init(refreshToken: refreshToken)),
                 apiType: apiType
             ),
-            wrapped: false
+            format: .plain
         )
     }
 }
