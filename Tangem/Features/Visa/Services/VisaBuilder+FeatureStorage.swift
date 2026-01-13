@@ -12,8 +12,7 @@ import TangemVisa
 extension VisaCardScanHandlerBuilder {
     init() {
         self = VisaCardScanHandlerBuilder(
-            apiType: FeatureStorage.instance.visaAPIType,
-            isMockedAPIEnabled: FeatureStorage.instance.isVisaAPIMocksEnabled
+            apiType: FeatureStorage.instance.tangemPayAPIType
         )
     }
 }
@@ -21,8 +20,7 @@ extension VisaCardScanHandlerBuilder {
 extension VisaAPIServiceBuilder {
     init() {
         self = VisaAPIServiceBuilder(
-            apiType: FeatureStorage.instance.visaAPIType,
-            isMockedAPIEnabled: FeatureStorage.instance.isVisaAPIMocksEnabled
+            apiType: FeatureStorage.instance.tangemPayAPIType
         )
     }
 }
@@ -30,8 +28,7 @@ extension VisaAPIServiceBuilder {
 extension VisaAuthorizationTokensHandlerBuilder {
     init() {
         self = VisaAuthorizationTokensHandlerBuilder(
-            apiType: FeatureStorage.instance.visaAPIType,
-            isMockedAPIEnabled: FeatureStorage.instance.isVisaAPIMocksEnabled
+            apiType: FeatureStorage.instance.tangemPayAPIType
         )
     }
 }
@@ -39,8 +36,7 @@ extension VisaAuthorizationTokensHandlerBuilder {
 extension VisaCustomerCardInfoProviderBuilder {
     init() {
         self = VisaCustomerCardInfoProviderBuilder(
-            apiType: FeatureStorage.instance.visaAPIType,
-            isMockedAPIEnabled: FeatureStorage.instance.isVisaAPIMocksEnabled
+            apiType: FeatureStorage.instance.tangemPayAPIType
         )
     }
 }
@@ -48,8 +44,7 @@ extension VisaCustomerCardInfoProviderBuilder {
 extension VisaCardActivationStatusServiceBuilder {
     init() {
         self = VisaCardActivationStatusServiceBuilder(
-            apiType: FeatureStorage.instance.visaAPIType,
-            isMockedAPIEnabled: FeatureStorage.instance.isVisaAPIMocksEnabled
+            apiType: FeatureStorage.instance.tangemPayAPIType
         )
     }
 }
@@ -57,41 +52,8 @@ extension VisaCardActivationStatusServiceBuilder {
 extension VisaPaymentAccountInteractorBuilder {
     init(evmSmartContractInteractor: EVMSmartContractInteractor) {
         self = VisaPaymentAccountInteractorBuilder(
-            isTestnet: FeatureStorage.instance.visaAPIType.isTestnet,
-            evmSmartContractInteractor: evmSmartContractInteractor,
-            isMockedAPIEnabled: FeatureStorage.instance.isVisaAPIMocksEnabled
-        )
-    }
-}
-
-extension TangemPayAPIServiceBuilder {
-    @Injected(\.keysManager)
-    private static var keysManager: KeysManager
-
-    init() {
-        self = TangemPayAPIServiceBuilder(
-            apiType: FeatureStorage.instance.visaAPIType,
-            bffStaticToken: Self.keysManager.bffStaticToken
-        )
-    }
-}
-
-extension TangemPayAuthorizationTokensHandlerBuilder {
-    @Injected(\.keysManager)
-    private static var keysManager: KeysManager
-
-    init() {
-        self = TangemPayAuthorizationTokensHandlerBuilder(
-            apiType: FeatureStorage.instance.visaAPIType,
-            bffStaticToken: Self.keysManager.bffStaticToken
-        )
-    }
-}
-
-extension TangemPayCustomerInfoManagementServiceBuilder {
-    init() {
-        self = TangemPayCustomerInfoManagementServiceBuilder(
-            apiType: FeatureStorage.instance.visaAPIType
+            isTestnet: true,
+            evmSmartContractInteractor: evmSmartContractInteractor
         )
     }
 }

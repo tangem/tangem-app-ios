@@ -8,6 +8,7 @@
 
 import Foundation
 import BlockchainSdk
+import TangemPay
 
 public protocol VisaCustomerCardInfoProvider {
     func loadPaymentAccount(cardWalletAddress: String) async throws -> VisaCustomerCardInfo
@@ -23,12 +24,12 @@ public extension VisaCustomerCardInfoProvider {
 
 struct CommonCustomerCardInfoProvider {
     private let isTestnet: Bool
-    private let customerInfoManagementService: CustomerInfoManagementService?
+    private let customerInfoManagementService: TangemPayCustomerService?
     private let evmSmartContractInteractor: EVMSmartContractInteractor
 
     init(
         isTestnet: Bool,
-        customerInfoManagementService: CustomerInfoManagementService?,
+        customerInfoManagementService: TangemPayCustomerService?,
         evmSmartContractInteractor: EVMSmartContractInteractor
     ) {
         self.isTestnet = isTestnet

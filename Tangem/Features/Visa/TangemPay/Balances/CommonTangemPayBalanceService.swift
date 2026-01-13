@@ -9,6 +9,7 @@
 import Combine
 import TangemVisa
 import TangemFoundation
+import TangemPay
 
 final class CommonTangemPayBalanceService: TangemPayBalancesService {
     // MARK: - TangemPayBalancesProvider
@@ -36,7 +37,7 @@ final class CommonTangemPayBalanceService: TangemPayBalancesService {
         cryptoBalanceProvider: totalTokenBalanceProvider
     )
 
-    private let customerInfoManagementService: any CustomerInfoManagementService
+    private let customerInfoManagementService: any TangemPayCustomerService
     private let tokenBalancesRepository: any TokenBalancesRepository
 
     private let tokenItem = TangemPayUtilities.usdcTokenItem
@@ -48,7 +49,7 @@ final class CommonTangemPayBalanceService: TangemPayBalancesService {
     )
 
     init(
-        customerInfoManagementService: any CustomerInfoManagementService,
+        customerInfoManagementService: any TangemPayCustomerService,
         tokenBalancesRepository: any TokenBalancesRepository
     ) {
         self.customerInfoManagementService = customerInfoManagementService

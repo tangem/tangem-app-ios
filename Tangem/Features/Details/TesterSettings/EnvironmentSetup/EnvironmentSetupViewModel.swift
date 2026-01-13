@@ -14,6 +14,7 @@ import TangemVisa
 import struct TangemUIUtils.AlertBinder
 import TangemStaking
 import TangemAccessibilityIdentifiers
+import TangemPay
 
 final class EnvironmentSetupViewModel: ObservableObject {
     @Injected(\.promotionService) var promotionService: PromotionServiceProtocol
@@ -81,15 +82,6 @@ final class EnvironmentSetupViewModel: ObservableObject {
                     set: { $0.isMockedCardScannerEnabled = $1 }
                 )
             ),
-            DefaultToggleRowViewModel(
-                title: "Visa API Mocks",
-                isOn: BindingValue<Bool>(
-                    root: featureStorage,
-                    default: false,
-                    get: { $0.isVisaAPIMocksEnabled },
-                    set: { $0.isVisaAPIMocksEnabled = $1 }
-                )
-            ),
         ]
 
         pickerViewModels = [
@@ -116,13 +108,13 @@ final class EnvironmentSetupViewModel: ObservableObject {
                 pickerStyle: .menu
             ),
             DefaultPickerRowViewModel(
-                title: "Visa API type",
-                options: VisaAPIType.allCases.map { $0.rawValue },
+                title: "Tangem Pay API type",
+                options: TangemPayAPIType.allCases.map { $0.rawValue },
                 selection: BindingValue<String>(
                     root: featureStorage,
-                    default: VisaAPIType.prod.rawValue,
-                    get: { $0.visaAPIType.rawValue },
-                    set: { $0.visaAPIType = VisaAPIType(rawValue: $1) ?? .prod }
+                    default: TangemPayAPIType.prod.rawValue,
+                    get: { $0.tangemPayAPIType.rawValue },
+                    set: { $0.tangemPayAPIType = TangemPayAPIType(rawValue: $1) ?? .prod }
                 )
             ),
             DefaultPickerRowViewModel(

@@ -6,6 +6,8 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import TangemPay
+
 private struct TangemPayAuthorizationTokensRepositoryKey: InjectionKey {
     static var currentValue: TangemPayAuthorizationTokensRepository = CommonTangemPayAuthorizationTokensRepository()
 }
