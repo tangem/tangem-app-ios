@@ -1,6 +1,6 @@
 //
 //  TangemPayProviderBuilder.swift
-//  TangemVisa
+//  TangemPay
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2024 Tangem AG. All rights reserved.
@@ -9,10 +9,11 @@
 import Foundation
 import Moya
 import TangemNetworkUtils
-import TangemPay
 
-struct TangemPayProviderBuilder {
-    func buildProvider<T: TargetType>(
+public struct TangemPayProviderBuilder {
+    public init() {}
+
+    public func buildProvider<T: TargetType>(
         configuration: URLSessionConfiguration,
         authorizationTokensHandler: TangemPayAuthorizationTokensHandler?
     ) -> TangemProvider<T> {
@@ -36,7 +37,7 @@ struct TangemPayAuthorizationPlugin: PluginType {
         var request = request
 
         if let authorizationToken = authorizationTokensHandler.authorizationHeader {
-            request.headers.add(name: VisaConstants.authorizationHeaderKey, value: authorizationToken)
+            request.headers.add(name: "Authorization", value: authorizationToken)
         }
 
         return request
