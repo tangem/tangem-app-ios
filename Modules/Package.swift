@@ -221,6 +221,17 @@ var featureModules: [PackageDescription.Target] {
                 .swiftLanguageMode(.v5),
             ]
         ),
+        .tangemTarget(
+            name: "TangemPay",
+            dependencies: [
+                "TangemFoundation",
+                "TangemNetworkUtils",
+            ],
+            swiftSettings: [
+                // [REDACTED_TODO_COMMENT]
+                .swiftLanguageMode(.v5),
+            ]
+        ),
     ]
 }
 

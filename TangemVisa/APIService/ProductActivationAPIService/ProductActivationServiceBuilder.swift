@@ -9,20 +9,14 @@
 import Foundation
 
 struct ProductActivationServiceBuilder {
-    private let isMockedAPIEnabled: Bool
     private let apiType: VisaAPIType
 
-    init(apiType: VisaAPIType, isMockedAPIEnabled: Bool) {
+    init(apiType: VisaAPIType) {
         self.apiType = apiType
-        self.isMockedAPIEnabled = isMockedAPIEnabled
     }
 
     func build(urlSessionConfiguration: URLSessionConfiguration, authorizationTokensHandler: VisaAuthorizationTokensHandler) -> ProductActivationService {
-        if isMockedAPIEnabled {
-            return ProductActivationServiceMock()
-        }
-
-        return CommonProductActivationService(
+        CommonProductActivationService(
             apiType: apiType,
             apiService: .init(
                 provider: TangemPayProviderBuilder().buildProvider(

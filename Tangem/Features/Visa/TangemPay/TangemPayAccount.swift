@@ -9,6 +9,7 @@
 import BlockchainSdk
 import Combine
 import Foundation
+import TangemPay
 import TangemVisa
 import TangemSdk
 import TangemFoundation

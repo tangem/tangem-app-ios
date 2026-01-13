@@ -9,12 +9,10 @@
 import Foundation
 
 struct CardActivationOrderProviderBuilder {
-    private let isMockedAPIEnabled: Bool
     private let apiType: VisaAPIType
 
-    init(apiType: VisaAPIType, isMockedAPIEnabled: Bool) {
+    init(apiType: VisaAPIType) {
         self.apiType = apiType
-        self.isMockedAPIEnabled = isMockedAPIEnabled
     }
 
     func build(
@@ -22,13 +20,8 @@ struct CardActivationOrderProviderBuilder {
         tokensHandler: VisaAuthorizationTokensHandler,
         cardActivationStatusService: VisaCardActivationStatusService?
     ) -> CardActivationOrderProvider {
-        if isMockedAPIEnabled {
-            return CardActivationTaskOrderProviderMock()
-        }
-
-        let cardActivationStatusService = cardActivationStatusService ?? VisaCardActivationStatusServiceBuilder(
-            apiType: apiType, isMockedAPIEnabled: isMockedAPIEnabled
-        ).build(urlSessionConfiguration: urlSessionConfiguration)
+        let cardActivationStatusService = cardActivationStatusService
+            ?? VisaCardActivationStatusServiceBuilder(apiType: apiType).build(urlSessionConfiguration: urlSessionConfiguration)
 
         let productActivationService = CommonProductActivationService(
             apiType: apiType,
