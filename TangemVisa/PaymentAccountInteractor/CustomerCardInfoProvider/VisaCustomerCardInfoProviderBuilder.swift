@@ -6,14 +6,15 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import BlockchainSdk
+import Foundation
 import TangemNetworkUtils
+import TangemPay
 
 public struct VisaCustomerCardInfoProviderBuilder {
-    private let apiType: VisaAPIType
+    private let apiType: TangemPayAPIType
 
-    public init(apiType: VisaAPIType) {
+    public init(apiType: TangemPayAPIType) {
         self.apiType = apiType
     }
 

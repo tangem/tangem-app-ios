@@ -1,6 +1,6 @@
 //
-//  VisaAPIType.swift
-//  TangemVisa
+//  TangemPayAPIType.swift
+//  TangemPay
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum VisaAPIType: String, CaseIterable, Codable {
+public enum TangemPayAPIType: String, CaseIterable, Codable {
     case prod
     case dev
 
@@ -21,7 +21,7 @@ public enum VisaAPIType: String, CaseIterable, Codable {
         }
     }
 
-    var baseURL: URL {
+    public var baseURL: URL {
         switch self {
         case .dev:
             URL(string: "https://api.dev.us.paera.com")!
@@ -30,7 +30,7 @@ public enum VisaAPIType: String, CaseIterable, Codable {
         }
     }
 
-    var bffBaseURL: URL {
+    public var bffBaseURL: URL {
         baseURL
             .appendingPathComponent("bff-v2")
             .appendingPathComponent("v1")

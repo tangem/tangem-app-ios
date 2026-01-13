@@ -7,11 +7,12 @@
 //
 
 import Foundation
+import TangemPay
 
 public struct VisaCardActivationStatusServiceBuilder {
-    private let apiType: VisaAPIType
+    private let apiType: TangemPayAPIType
 
-    public init(apiType: VisaAPIType) {
+    public init(apiType: TangemPayAPIType) {
         self.apiType = apiType
     }
 
