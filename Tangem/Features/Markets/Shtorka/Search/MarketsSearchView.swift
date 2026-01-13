@@ -81,7 +81,11 @@ struct MarketsSearchView: View {
     private var rootView: some View {
         ZStack {
             Group {
-                defaultMarketsView
+                if showSearchResult {
+                    searchResultView
+                } else {
+                    defaultMarketsView
+                }
             }
             .opacity(viewModel.overlayContentHidingProgress) // Hides list content on bottom sheet minimizing
             .scrollDismissesKeyboard(.immediately)
