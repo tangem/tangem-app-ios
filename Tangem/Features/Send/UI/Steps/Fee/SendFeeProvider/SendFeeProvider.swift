@@ -18,12 +18,13 @@ protocol SendFeeProviderInput: AnyObject {
 protocol SendFeeProvider {
     var fees: [TokenFee] { get }
     var feesPublisher: AnyPublisher<[TokenFee], Never> { get }
+    var feesHasMultipleFeeOptions: AnyPublisher<Bool, Never> { get }
 
     func updateFees()
 }
 
 extension SendFeeProvider {
-    var feesHasVariants: AnyPublisher<Bool, Never> {
+    var feesHasMultipleFeeOptions: AnyPublisher<Bool, Never> {
         feesPublisher
             .filter { !$0.eraseToLoadingResult().isLoading }
             .map { $0.hasMultipleFeeOptions }
