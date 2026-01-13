@@ -33,7 +33,6 @@ struct WordsCaptureProtectionView: View {
                         .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
 
                     wordView
-                        .screenCaptureProtection()
                         .fixedSize()
 
                     Spacer()
