@@ -155,6 +155,8 @@ final class AppSettings {
     }
 }
 
+import TangemPay
+
 extension AppSettings: TangemPayOrderIdStorage {
     func cardIssuingOrderId(customerWalletId: String) -> String? {
         tangemPayCardIssuingOrderIdForCustomerWalletId[customerWalletId]
@@ -166,5 +168,19 @@ extension AppSettings: TangemPayOrderIdStorage {
 
     func deleteCardIssuingOrderId(customerWalletId: String) {
         tangemPayCardIssuingOrderIdForCustomerWalletId[customerWalletId] = nil
+    }
+}
+
+extension AppSettings: TangemPayPaeraCustomerFlagRepository {
+    func isPaeraCustomer(customerWalletId: String) -> Bool {
+        tangemPayIsPaeraCustomer[customerWalletId, default: false]
+    }
+
+    func setIsPaeraCustomer(for customerWalletId: String) {
+        tangemPayIsPaeraCustomer[customerWalletId] = true
+    }
+
+    func setIsKYCHidden(_ value: Bool, for customerWalletId: String) {
+        tangemPayIsKYCHiddenForCustomerWalletId[customerWalletId] = value
     }
 }
