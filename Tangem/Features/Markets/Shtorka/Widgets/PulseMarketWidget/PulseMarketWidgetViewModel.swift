@@ -24,13 +24,16 @@ final class PulseMarketWidgetViewModel: ObservableObject {
     }
 
     var availabilityToSelectionOrderType: [MarketsListOrderType] {
-        MarketsListOrderType.allCases.filter {
-            if case .rating = $0 {
-                return false
+        MarketsListOrderType
+            .allCases
+            .filter {
+                switch $0 {
+                case .rating, .staking, .yield:
+                    return false
+                default:
+                    return true
+                }
             }
-
-            return true
-        }
     }
 
     // MARK: - Properties
