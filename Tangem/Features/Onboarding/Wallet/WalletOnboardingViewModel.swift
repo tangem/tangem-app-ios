@@ -242,7 +242,11 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
         return true
     }
 
-    lazy var importSeedPhraseModel: OnboardingSeedPhraseImportViewModel? = .init(inputProcessor: SeedPhraseInputProcessor(), delegate: self)
+    lazy var importSeedPhraseModel: OnboardingSeedPhraseImportViewModel? = .init(
+        inputProcessor: SeedPhraseInputProcessor(),
+        shouldShowTangemIcon: true,
+        delegate: self
+    )
     var generateSeedPhraseModel: OnboardingSeedPhraseGenerateViewModel?
     var validationUserSeedPhraseModel: OnboardingSeedPhraseUserValidationViewModel?
 
