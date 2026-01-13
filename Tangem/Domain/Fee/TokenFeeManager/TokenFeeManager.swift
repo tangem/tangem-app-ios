@@ -13,6 +13,8 @@ final class TokenFeeManager {
     private let feeProviders: [any TokenFeeProvider]
     private let selectedProviderSubject: CurrentValueSubject<any TokenFeeProvider, Never>
 
+    private var updatingFeeTask: Task<Void, Never>?
+
     init(
         feeProviders: [any TokenFeeProvider],
         initialSelectedProvider: any TokenFeeProvider
@@ -51,6 +53,19 @@ extension TokenFeeManager {
 
         selectedProviderSubject.send(feeProvider)
     }
+
+    func setupFeeProviders(input: TokenFeeProviderInputData) {
+        feeProviders.forEach { feeProvider in
+            feeProvider.setup(input: input)
+        }
+    }
+
+    func updateSelectedFeeProviderFees() {
+        updatingFeeTask?.cancel()
+        updatingFeeTask = Task {
+            await selectedFeeProvider.updateFees()
+        }
+    }
 }
 
 // MARK: - TokenFeeProvider
@@ -66,6 +81,24 @@ extension TokenFeeManager: TokenFeeProvider {
     var fees: [TokenFee] { selectedFeeProvider.fees }
     var feesPublisher: AnyPublisher<[TokenFee], Never> {
         selectedFeeProviderPublisher.flatMapLatest(\.feesPublisher).eraseToAnyPublisher()
+    }
+
+    var feesHasMultipleFeeOptions: AnyPublisher<Bool, Never> {
+        [
+            feesPublisher.map { $0.hasMultipleFeeOptions }.eraseToAnyPublisher(),
+            selectedFeeProviderFeeTokenItemsPublisher.map { $0.count > 1 }.eraseToAnyPublisher(),
+        ]
+        .combineLatest()
+        .map { $0.contains(true) }
+        .eraseToAnyPublisher()
+    }
+
+    func setup(input: TokenFeeProviderInputData) {
+        selectedFeeProvider.setup(input: input)
+    }
+
+    func updateFees() async {
+        await selectedFeeProvider.updateFees()
     }
 }
 
