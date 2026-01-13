@@ -137,6 +137,7 @@ private extension NewAuthView {
                 .background(Colors.Button.secondary)
                 .cornerRadius(14, corners: .allCorners)
         }
+        .colorScheme(.dark)
         .accessibilityIdentifier(AuthAccessibilityIdentifiers.biometricsUnlockButton)
     }
 }
