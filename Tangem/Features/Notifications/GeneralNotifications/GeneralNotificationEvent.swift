@@ -242,12 +242,12 @@ extension GeneralNotificationEvent: NotificationEvent {
              .backupErrors,
              .seedSupport,
              .seedSupport2,
+             .mobileUpgrade,
              .mobileFinishActivation:
             return false
         case .numberOfSignedHashesIncorrect,
              .systemDeprecationTemporary,
              .rateApp,
-             .mobileUpgrade,
              .pushNotificationsPermissionRequest:
             return true
         }
