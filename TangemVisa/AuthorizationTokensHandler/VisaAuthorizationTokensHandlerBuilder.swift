@@ -12,11 +12,8 @@ import TangemNetworkUtils
 public struct VisaAuthorizationTokensHandlerBuilder {
     private let apiServiceBuilder: VisaAPIServiceBuilder
 
-    public init(apiType: VisaAPIType, isMockedAPIEnabled: Bool) {
-        apiServiceBuilder = VisaAPIServiceBuilder(
-            apiType: apiType,
-            isMockedAPIEnabled: isMockedAPIEnabled
-        )
+    public init(apiType: VisaAPIType) {
+        apiServiceBuilder = VisaAPIServiceBuilder(apiType: apiType)
     }
 
     public func build(

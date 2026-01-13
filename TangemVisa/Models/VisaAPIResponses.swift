@@ -1,5 +1,5 @@
 //
-//  VisaAPIError.swift
+//  VisaAPIResponses.swift
 //  TangemVisa
 //
 //  Created by [REDACTED_AUTHOR]
@@ -16,7 +16,7 @@ struct VisaAPIErrorResponse: Decodable {
     let error: VisaAPIError
 }
 
-public struct VisaAPIError: Error, Decodable {
+public struct VisaAPIError: Error, Decodable, Sendable {
     public let code: Int
     public let name: String
     public let message: String
