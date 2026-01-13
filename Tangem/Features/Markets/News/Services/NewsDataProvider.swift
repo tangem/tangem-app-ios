@@ -49,12 +49,18 @@ final class NewsDataProvider {
     private var hasLoadedItems: Bool = false
     private var lastCategoryIds: [Int]?
 
-    private let limitPerPage: Int = 20
+    private let limitPerPage: Int
     private let repeatRequestDelayInSeconds: TimeInterval = 10
 
     private var taskCancellable: AnyCancellable?
     private var categoriesCancellable: AnyCancellable?
     private var scheduledFetchTask: AnyCancellable?
+
+    // MARK: - Init
+
+    init(limitPerPage: Int = 20) {
+        self.limitPerPage = limitPerPage
+    }
 
     // MARK: - Public Methods
 
