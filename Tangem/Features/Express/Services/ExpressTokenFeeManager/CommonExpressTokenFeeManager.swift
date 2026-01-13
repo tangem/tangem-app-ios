@@ -76,9 +76,10 @@ extension CommonExpressTokenFeeManager: ExpressTokenFeeManager {
         tokenFeeManager(providerId: providerId)?.selectedFeeProviderFeeTokenItems ?? []
     }
 
-    func updateSelectedFeeTokenItem(tokenItem: TokenItem) {
+    func updateSelectedFeeTokenItemInAllManagers(tokenItem: TokenItem) {
         managers.values.forEach { tokenFeeManager in
             tokenFeeManager.updateSelectedFeeProvider(tokenItem: tokenItem)
+            tokenFeeManager.updateSelectedFeeProviderFees()
         }
     }
 }
@@ -87,42 +88,43 @@ extension CommonExpressTokenFeeManager: ExpressTokenFeeManager {
 
 extension CommonExpressTokenFeeManager: ExpressFeeProvider {
     func estimatedFee(request: FeeRequest, amount: Decimal) async throws -> BSDKFee {
-        let cexTokenFeeProvider = try feeManager(request.provider).selectedFeeProvider.asCEXTokenFeeProvider()
-        await cexTokenFeeProvider.updateFees(amount: amount)
+        let feeManager = feeManager(request.provider)
+        feeManager.setup(input: .cexEstimate(amount: amount))
+        await feeManager.updateFees()
 
-        return try mapToExpressFee(request: request, tokenFeeProvider: cexTokenFeeProvider)
+        let tokenFeeProvider = feeManager.selectedFeeProvider
+        return try mapToExpressFee(request: request, tokenFeeProvider: tokenFeeProvider)
     }
 
     func estimatedFee(request: FeeRequest, estimatedGasLimit: Int, otherNativeFee: Decimal?) async throws -> BSDKFee {
-        let ethereumDEXTokenFeeProvider = try feeManager(request.provider).selectedFeeProvider.asEthereumDEXTokenFeeProvider()
-        await ethereumDEXTokenFeeProvider.updateFees(estimatedGasLimit: estimatedGasLimit, otherNativeFee: otherNativeFee)
+        let feeManager = feeManager(request.provider)
+        feeManager.setup(input: .dexEthereumEstimate(estimatedGasLimit: estimatedGasLimit, otherNativeFee: otherNativeFee))
+        await feeManager.updateFees()
 
-        let expressFee = try mapToExpressFee(request: request, tokenFeeProvider: ethereumDEXTokenFeeProvider)
-        return expressFee
+        let tokenFeeProvider = feeManager.selectedFeeProvider
+        return try mapToExpressFee(request: request, tokenFeeProvider: tokenFeeProvider)
     }
 
     func transactionFee(request: FeeRequest, data: ExpressTransactionDataType) async throws -> BSDKFee {
+        let feeManager = feeManager(request.provider)
+        let tokenFeeProvider = feeManager.selectedFeeProvider
+
         switch (data, tokenItem.blockchain) {
         case (.cex(let data), _):
-            let cexTokenFeeProvider = try feeManager(request.provider).selectedFeeProvider.asSimpleTokenFeeProvider()
-            await cexTokenFeeProvider.updateFees(
-                amount: data.fromAmount,
-                destination: data.destinationAddress
-            )
+            feeManager.setup(input: .common(amount: data.fromAmount, destination: data.destinationAddress))
+            await feeManager.updateFees()
 
-            return try mapToExpressFee(request: request, tokenFeeProvider: cexTokenFeeProvider)
+            return try mapToExpressFee(request: request, tokenFeeProvider: tokenFeeProvider)
 
         case (.dex(let data), .solana):
             guard let txData = data.txData, let transactionData = Data(base64Encoded: txData) else {
                 throw ExpressProviderError.transactionDataNotFound
             }
 
-            let solanaDEXTokenFeeProvider = try feeManager(request.provider).selectedFeeProvider.asSolanaDEXTokenFeeProvider()
-            await solanaDEXTokenFeeProvider.updateFees(
-                compiledTransaction: transactionData
-            )
+            feeManager.setup(input: .dexSolana(compiledTransaction: transactionData))
+            await feeManager.updateFees()
 
-            return try mapToExpressFee(request: request, tokenFeeProvider: solanaDEXTokenFeeProvider)
+            return try mapToExpressFee(request: request, tokenFeeProvider: tokenFeeProvider)
 
         case (.dex(let data), _):
             guard let txData = data.txData.map(Data.init(hexString:)) else {
@@ -131,16 +133,16 @@ extension CommonExpressTokenFeeManager: ExpressFeeProvider {
 
             // The `txValue` is always is coin
             let amount = BSDKAmount(with: tokenItem.blockchain, type: .coin, value: data.txValue)
-
-            let ethereumDEXTokenFeeProvider = try feeManager(request.provider).selectedFeeProvider.asEthereumDEXTokenFeeProvider()
-            await ethereumDEXTokenFeeProvider.updateFees(
-                amount: amount,
-                destination: data.destinationAddress,
-                txData: txData,
-                otherNativeFee: data.otherNativeFee
+            feeManager.setup(
+                input: .dexEthereum(
+                    amount: amount,
+                    destination: data.destinationAddress,
+                    txData: txData,
+                    otherNativeFee: data.otherNativeFee
+                )
             )
-
-            return try mapToExpressFee(request: request, tokenFeeProvider: ethereumDEXTokenFeeProvider)
+            await feeManager.updateFees()
+            return try mapToExpressFee(request: request, tokenFeeProvider: tokenFeeProvider)
         }
     }
 }
