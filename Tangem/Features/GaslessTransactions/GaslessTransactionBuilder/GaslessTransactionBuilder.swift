@@ -22,7 +22,7 @@ struct GaslessTransactionBuilder {
 
     // MARK: - Public Implementation
 
-    func buildMetaTransaction(bsdkTransaction: BSDKTransaction) async throws -> GaslessTransaction {
+    func builGaslessTransaction(bsdkTransaction: BSDKTransaction) async throws -> GaslessTransaction {
         guard let chainId = walletModel.tokenItem.blockchain.chainId else {
             throw GaslessTransactionBuilderError.missingChainId
         }
@@ -109,12 +109,16 @@ struct GaslessTransactionBuilder {
             throw GaslessTransactionBuilderError.missingEthereumTransactionBuilder
         }
 
-        let data = try await builder.buildTransactionDataFor(transaction: bsdkTransaction)
+        let payload = try await builder.buildTransactionPayload(transaction: bsdkTransaction)
+
+        guard payload.coinAmount.isZero else {
+            throw GaslessTransactionBuilderError.transactionValueIsNotZero
+        }
 
         return TransactionData.Transaction(
-            to: bsdkTransaction.destinationAddress,
-            value: "0",
-            data: data.hexString.addHexPrefix()
+            to: payload.destinationAddress,
+            value: payload.coinAmount.description,
+            data: payload.data.hexString.addHexPrefix()
         )
     }
 
@@ -128,21 +132,19 @@ struct GaslessTransactionBuilder {
             throw GaslessTransactionBuilderError.missingGaslessDataProvider
         }
 
-        let verifyingContract = try provider.getGaslessExecutorContractAddress()
-
         let typedData = GaslessTransactionsEIP712Util().makeGaslessTypedData(
             transaction: transaction,
             fee: fee,
             nonce: nonce,
             chainId: chainId,
-            verifyingContract: verifyingContract
+            verifyingContract: walletModel.defaultAddress.value
         )
 
         return typedData.signHash
     }
 
     private func makeGaslessTransactionFee(bsdkFee: BSDKFee) async throws -> GaslessTransactionFee {
-        guard let parameters = bsdkFee.parameters as? EthereumEIP1559FeeParameters else {
+        guard let parameters = bsdkFee.parameters as? EthereumGaslessTransactionFeeParameters else {
             throw GaslessTransactionBuilderError.invalidFeeParameters
         }
         guard case .token(let token) = bsdkFee.amount.type else {
@@ -151,7 +153,6 @@ struct GaslessTransactionBuilder {
         guard let tokenId = token.id else {
             throw GaslessTransactionBuilderError.missingTokenId
         }
-
         guard parameters.gasLimit > 0 else {
             throw GaslessTransactionBuilderError.invalidFeeParameters
         }
@@ -257,5 +258,8 @@ extension GaslessTransactionBuilder {
         // Signing
         case failedToSignTransactions
         case invalidSignaturesCount
+
+        /// Value
+        case transactionValueIsNotZero
     }
 }

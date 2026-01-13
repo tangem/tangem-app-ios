@@ -641,9 +641,9 @@ extension EthereumWalletManager: EthereumTransactionDataBuilder {
         return try txBuilder.buildForTokenTransfer(destination: destination, amount: amount)
     }
 
-    /// Builds and returns encoded transaction data.
-    /// Throws an error if the transaction already contains parameters.
-    func buildTransactionDataFor(transaction: Transaction) async throws -> Data {
+    /// Builds and returns a minimal transaction payload that is fully prepared for signing.
+    /// The payload contains only the essential on-chain fields (destination, data, value)
+    func buildTransactionPayload(transaction: Transaction) async throws -> TransactionPayload {
         var tx = transaction
         let params = (tx.params as? EthereumTransactionParams) ?? EthereumTransactionParams()
 
@@ -652,7 +652,7 @@ extension EthereumWalletManager: EthereumTransactionDataBuilder {
             tx.params = params.with(nonce: nonce)
         }
 
-        return try txBuilder.buildTransactionDataFor(transaction: tx)
+        return try txBuilder.buildTransactionPayload(transaction: tx)
     }
 }
 
