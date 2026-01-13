@@ -14,13 +14,11 @@ import TangemUIUtils
 import TangemLocalization
 
 final class MobileRemoveWalletViewModel: ObservableObject {
-    @Published var isRemoveChecked = false
     @Published var isBackupChecked = false
     @Published var isActionEnabled = false
     @Published var confirmationDialog: ConfirmationDialogViewModel?
 
     let navigationTitle = Localization.hwRemoveWalletNavTitle
-    let removeInfo = Localization.hwRemoveWalletWarningDevice
     let backupInfo = Localization.hwRemoveWalletWarningAccess
 
     lazy var attentionItem: AttentionItem = makeAttentionItem()
@@ -42,11 +40,7 @@ final class MobileRemoveWalletViewModel: ObservableObject {
 
 private extension MobileRemoveWalletViewModel {
     func bind() {
-        $isRemoveChecked
-            .combineLatest($isBackupChecked)
-            .map { isRemoveChecked, isBackupChecked in
-                isRemoveChecked && isBackupChecked
-            }
+        $isBackupChecked
             .assign(to: &$isActionEnabled)
     }
 
