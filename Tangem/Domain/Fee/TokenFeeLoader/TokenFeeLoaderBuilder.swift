@@ -19,23 +19,32 @@ enum TokenFeeLoaderBuilder {
             transactionFeeProvider: walletManager
         )
 
-        if let compiledTransactionFeeProvider = walletManager as? CompiledTransactionFeeProvider {
+        switch walletManager {
+        case let walletManager as CompiledTransactionFeeProvider:
             return CommonSolanaTokenFeeLoader(
                 tokenFeeLoader: tokenFeeLoader,
-                compiledTransactionFeeProvider: compiledTransactionFeeProvider
+                compiledTransactionFeeProvider: walletManager
             )
-        }
-
-        if let ethereumNetworkProvider = walletManager as? EthereumNetworkProvider,
-           let gaslessTransactionFeeProvider = walletManager as? GaslessTransactionFeeProvider {
+        case let walletManager as EthereumNetworkProvider:
             return CommonEthereumTokenFeeLoader(
-                tokenItem: walletModel.tokenItem,
+                feeBlockchain: walletModel.feeTokenItem.blockchain,
                 tokenFeeLoader: tokenFeeLoader,
-                ethereumNetworkProvider: ethereumNetworkProvider,
-                gaslessTransactionFeeProvider: gaslessTransactionFeeProvider
+                ethereumNetworkProvider: walletManager
             )
+        default:
+            return tokenFeeLoader
+        }
+    }
+
+    static func makeGaslessTokenFeeLoader(walletModel: any WalletModel, feeWalletModel: any WalletModel) -> TokenFeeLoader {
+        guard let gaslessTransactionFeeProvider = feeWalletModel.ethereumGaslessTransactionFeeProvider else {
+            return walletModel.tokenFeeLoader
         }
 
-        return tokenFeeLoader
+        return CommonGaslessTokenFeeLoader(
+            tokenItem: walletModel.tokenItem,
+            feeToken: feeWalletModel.tokenItem.token,
+            gaslessTransactionFeeProvider: gaslessTransactionFeeProvider
+        )
     }
 }
