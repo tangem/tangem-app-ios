@@ -27,8 +27,8 @@ final class QuaiTransactionBuilder {
 // MARK: - EthereumTransactionBuilder
 
 extension QuaiTransactionBuilder: EthereumTransactionBuilder {
-    func buildTransactionDataFor(transaction: Transaction) throws -> Data {
-        try ethereumTransactionBuilder.buildTransactionDataFor(transaction: transaction)
+    func buildTransactionPayload(transaction: Transaction) throws -> TransactionPayload {
+        try ethereumTransactionBuilder.buildTransactionPayload(transaction: transaction)
     }
 
     func buildForSign(transaction: Transaction) throws -> Data {
