@@ -1518,6 +1518,8 @@
 		B620D18E2ECE87F2000F7620 /* UserWalletInfoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B620D18B2ECE87F2000F7620 /* UserWalletInfoProvider.swift */; };
 		B620D1902ECE8881000F7620 /* UserWalletModel+UserWalletInfoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B620D18F2ECE8881000F7620 /* UserWalletModel+UserWalletInfoProvider.swift */; };
 		B6210DEF2A94708700F885D5 /* OrganizeTokensListFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6210DEE2A94708700F885D5 /* OrganizeTokensListFactory.swift */; };
+		B6293B1A2F15478F00B44807 /* TokenItemPromoProviderInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6293B192F15478F00B44807 /* TokenItemPromoProviderInput.swift */; };
+		B6293B1C2F15479500B44807 /* TokenItemPromoProviderOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6293B1B2F15479500B44807 /* TokenItemPromoProviderOutput.swift */; };
 		B62984A22D0702E6006A9D40 /* KaspaKRC20FeeParametersEnricher.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62984A12D0702E6006A9D40 /* KaspaKRC20FeeParametersEnricher.swift */; };
 		B62A28F62DD15C1300E5BC37 /* NFTSendTransactionSummaryDescriptionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62A28F52DD15C1300E5BC37 /* NFTSendTransactionSummaryDescriptionBuilder.swift */; };
 		B62AE31E2DCABD370037CEDB /* TransferERC721TokenMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = B62AE31D2DCABD370037CEDB /* TransferERC721TokenMethod.swift */; };
@@ -6336,6 +6338,8 @@
 		B620D18B2ECE87F2000F7620 /* UserWalletInfoProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletInfoProvider.swift; sourceTree = "<group>"; };
 		B620D18F2ECE8881000F7620 /* UserWalletModel+UserWalletInfoProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserWalletModel+UserWalletInfoProvider.swift"; sourceTree = "<group>"; };
 		B6210DEE2A94708700F885D5 /* OrganizeTokensListFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensListFactory.swift; sourceTree = "<group>"; };
+		B6293B192F15478F00B44807 /* TokenItemPromoProviderInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenItemPromoProviderInput.swift; sourceTree = "<group>"; };
+		B6293B1B2F15479500B44807 /* TokenItemPromoProviderOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenItemPromoProviderOutput.swift; sourceTree = "<group>"; };
 		B62984A12D0702E6006A9D40 /* KaspaKRC20FeeParametersEnricher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaKRC20FeeParametersEnricher.swift; sourceTree = "<group>"; };
 		B62A28F52DD15C1300E5BC37 /* NFTSendTransactionSummaryDescriptionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTSendTransactionSummaryDescriptionBuilder.swift; sourceTree = "<group>"; };
 		B62AE31D2DCABD370037CEDB /* TransferERC721TokenMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferERC721TokenMethod.swift; sourceTree = "<group>"; };
@@ -13482,6 +13486,8 @@
 				B0CAE5AA2AAB275C00670C2B /* MultiWalletMainContentDelegate.swift */,
 				EA740F2D2EE02F2900D73833 /* YieldTokenItemPromoProvider.swift */,
 				EA5132BC2EE2BE48001F11E5 /* TokenItemPromoProvider.swift */,
+				B6293B192F15478F00B44807 /* TokenItemPromoProviderInput.swift */,
+				B6293B1B2F15479500B44807 /* TokenItemPromoProviderOutput.swift */,
 				EA5132C02EE2BF08001F11E5 /* TokenItemPromoBubbleVisibilityInteractor.swift */,
 			);
 			path = MultiWalletMainContent;
@@ -27644,6 +27650,7 @@
 				EA4032592E55F02E00573568 /* PromoCodeActivationDTO.swift in Sources */,
 				EF0423682E9933EA00D80B0B /* HotCryptoAddToPortfolioBottomSheetViewModel.swift in Sources */,
 				B6E301992EC54F6F00D92416 /* AccountModel+.swift in Sources */,
+				B6293B1A2F15478F00B44807 /* TokenItemPromoProviderInput.swift in Sources */,
 				B0431B412919538700F84DEF /* IconWithBackground.swift in Sources */,
 				EFF8F1EC2E85B53D00A5EF0C /* RestakingFlowFactory.swift in Sources */,
 				2DC46BA02C945C4400749F7C /* BasicTooltipView.swift in Sources */,
@@ -28317,6 +28324,7 @@
 				DC7DA81E2844F27800AD6DBD /* WelcomeCoordinatorView.swift in Sources */,
 				EF977CB92C774B8E006BB27C /* MultipleRewardsCoordinator.swift in Sources */,
 				DC02EE822ECB936200A4BD67 /* TangemPayAuthorizingProvider.swift in Sources */,
+				B6293B1C2F15479500B44807 /* TokenItemPromoProviderOutput.swift in Sources */,
 				B620D18D2ECE87F2000F7620 /* UserWalletInfo.swift in Sources */,
 				B65F595C2ECF5E9A00034F94 /* StoredCryptoAccountsCustomTokensMigrator.swift in Sources */,
 				B620D18E2ECE87F2000F7620 /* UserWalletInfoProvider.swift in Sources */,
