@@ -27,6 +27,8 @@ final class TangemPayBuilder {
         )?.tokens
     }
 
+    private lazy var availabilityService = TangemPayAvailabilityServiceBuilder().build()
+
     private lazy var authorizationService = TangemPayAuthorizationServiceBuilder().build(
         customerWalletId: customerWalletId,
         tokens: tokens
@@ -37,7 +39,9 @@ final class TangemPayBuilder {
 
     private lazy var enrollmentStateFetcher = TangemPayEnrollmentStateFetcher(
         customerWalletId: customerWalletId,
-        keysRepository: keysRepository,
+        customerWalletAddressAndAuthorizationTokensProvider: keysRepository,
+        paeraCustomerFlagRepository: AppSettings.shared,
+        availabilityService: availabilityService,
         customerService: customerService
     )
 
