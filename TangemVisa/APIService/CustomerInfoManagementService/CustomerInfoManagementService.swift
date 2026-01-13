@@ -10,6 +10,7 @@ import Combine
 import Foundation
 import Moya
 import TangemFoundation
+import TangemPay
 
 public protocol CustomerInfoManagementService: AnyObject {
     func loadCustomerInfo() async throws(TangemPayAPIServiceError) -> VisaCustomerInfoResponse
@@ -70,7 +71,7 @@ final class CommonCustomerInfoManagementService {
                 apiType: apiType,
                 encoder: encoder
             ),
-            wrapped: true
+            format: .wrapped
         )
     }
 }

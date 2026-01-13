@@ -14,16 +14,10 @@ public struct VisaCardScanHandlerBuilder {
     private let apiServiceBuilder: VisaAPIServiceBuilder
     private let cardActivationStatusServiceBuilder: VisaCardActivationStatusServiceBuilder
 
-    public init(apiType: VisaAPIType, isMockedAPIEnabled: Bool) {
+    public init(apiType: VisaAPIType) {
         isTestnet = apiType.isTestnet
-        apiServiceBuilder = VisaAPIServiceBuilder(
-            apiType: apiType,
-            isMockedAPIEnabled: isMockedAPIEnabled
-        )
-        cardActivationStatusServiceBuilder = VisaCardActivationStatusServiceBuilder(
-            apiType: apiType,
-            isMockedAPIEnabled: isMockedAPIEnabled
-        )
+        apiServiceBuilder = VisaAPIServiceBuilder(apiType: apiType)
+        cardActivationStatusServiceBuilder = VisaCardActivationStatusServiceBuilder(apiType: apiType)
     }
 
     public func build(

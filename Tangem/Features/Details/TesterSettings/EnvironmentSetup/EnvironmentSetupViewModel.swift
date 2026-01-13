@@ -80,15 +80,6 @@ final class EnvironmentSetupViewModel: ObservableObject {
                     set: { $0.isMockedCardScannerEnabled = $1 }
                 )
             ),
-            DefaultToggleRowViewModel(
-                title: "Visa API Mocks",
-                isOn: BindingValue<Bool>(
-                    root: featureStorage,
-                    default: false,
-                    get: { $0.isVisaAPIMocksEnabled },
-                    set: { $0.isVisaAPIMocksEnabled = $1 }
-                )
-            ),
         ]
 
         pickerViewModels = [

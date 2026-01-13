@@ -7,6 +7,7 @@
 //
 
 import Combine
+import TangemPay
 
 public protocol TangemPayAuthorizationTokensHandler: AnyObject {
     var refreshTokenExpired: Bool { get }
