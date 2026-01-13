@@ -15,6 +15,7 @@ enum TokenFeeProviderState {
 }
 
 enum TokenFeeProviderStateUnavailableReason {
+    case inputDataNotSet
     case notSupported
     case notEnoughFeeBalance
 }
