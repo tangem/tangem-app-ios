@@ -24,9 +24,12 @@ public struct EthEip7702Util {
     /// Magic prefix byte used to domain-separate EIP-7702 authorization data.
     private let magicByte: UInt8 = 0x05
 
-    func encodeAuthorizationForSigning(chainId: BigUInt, contractAddress: String, nonce: BigUInt) throws -> Data {
+    func encodeAuthorizationForSigning(
+        chainId: BigUInt,
+        contractAddress: String,
+        nonce: BigUInt
+    ) throws -> Data {
         let addressBytes = Data(hex: contractAddress)
-
         guard addressBytes.count == addressSizeInBytes else {
             throw Eip7702Error.invalidAddressLength
         }
