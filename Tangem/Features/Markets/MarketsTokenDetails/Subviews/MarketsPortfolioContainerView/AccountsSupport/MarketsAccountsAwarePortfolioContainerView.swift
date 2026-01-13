@@ -169,15 +169,9 @@ struct MarketsAccountsAwarePortfolioContainerView: View {
     }
 
     private func accountHeader(accountData: AccountData) -> some View {
-        HStack(spacing: 8) {
-            AccountIconView(data: accountData.iconInfo)
-                .settings(.extraSmallSized)
-
-            Text(accountData.name)
-                .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
-
-            Spacer()
-        }
+        AccountInlineHeaderView(iconData: accountData.iconInfo, name: accountData.name)
+            .font(Fonts.Bold.subheadline)
+            .expandsHorizontally(true)
     }
 
     // MARK: - Empty States
