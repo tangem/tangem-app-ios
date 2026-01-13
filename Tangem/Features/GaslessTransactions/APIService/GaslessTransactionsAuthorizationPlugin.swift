@@ -20,8 +20,7 @@ struct GaslessTransactionsAuthorizationPlugin: PluginType {
             return request
         }
 
-        // [REDACTED_TODO_COMMENT]
-        // assertionFailure("Gasless Transactions API key is empty — header not added")
+        assertionFailure("Gasless Transactions API key is empty — header not added")
         return request
     }
 }
