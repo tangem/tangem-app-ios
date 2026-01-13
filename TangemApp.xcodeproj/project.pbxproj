@@ -1162,7 +1162,6 @@
 		B06F03442B5A993800F04F0E /* VisaUserWalletModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06F03432B5A993700F04F0E /* VisaUserWalletModel.swift */; };
 		B07232452D101B5D00E30614 /* VisaCardActivationStatusService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B07232442D101B5D00E30614 /* VisaCardActivationStatusService.swift */; };
 		B07232472D10216500E30614 /* VisaConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = B07232462D10216500E30614 /* VisaConstants.swift */; };
-		B072324B2D11B70500E30614 /* TangemPayProviderBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B072324A2D11B70500E30614 /* TangemPayProviderBuilder.swift */; };
 		B072E12E2B18B26000B0AB27 /* PendingExpressTxStatusBottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B072E12D2B18B26000B0AB27 /* PendingExpressTxStatusBottomSheetView.swift */; };
 		B0731E372D6470CD00816DD5 /* EthereumDataParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0731E362D6470CD00816DD5 /* EthereumDataParser.swift */; };
 		B074AF872B06778800E9CEA3 /* AnalyticsContextDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B074AF862B06778800E9CEA3 /* AnalyticsContextDataProvider.swift */; };
@@ -5875,7 +5874,6 @@
 		B06F03432B5A993700F04F0E /* VisaUserWalletModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VisaUserWalletModel.swift; sourceTree = "<group>"; };
 		B07232442D101B5D00E30614 /* VisaCardActivationStatusService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaCardActivationStatusService.swift; sourceTree = "<group>"; };
 		B07232462D10216500E30614 /* VisaConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaConstants.swift; sourceTree = "<group>"; };
-		B072324A2D11B70500E30614 /* TangemPayProviderBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayProviderBuilder.swift; sourceTree = "<group>"; };
 		B072E12D2B18B26000B0AB27 /* PendingExpressTxStatusBottomSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingExpressTxStatusBottomSheetView.swift; sourceTree = "<group>"; };
 		B0731E362D6470CD00816DD5 /* EthereumDataParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumDataParser.swift; sourceTree = "<group>"; };
 		B074AF862B06778800E9CEA3 /* AnalyticsContextDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsContextDataProvider.swift; sourceTree = "<group>"; };
@@ -12851,7 +12849,6 @@
 				B0569C652CFD97D700CCD55F /* JWTTokenHelper.swift */,
 				B07232462D10216500E30614 /* VisaConstants.swift */,
 				DFF3E7A72EEA8E6400BA5E15 /* DefaultMissing.swift */,
-				B072324A2D11B70500E30614 /* TangemPayProviderBuilder.swift */,
 				B0ECB40C2D50B87D007C59BE /* VisaActivationUtilities.swift */,
 				B063D5CF2D56114100ED8EC1 /* PINCodeProcessor.swift */,
 				B0731E362D6470CD00816DD5 /* EthereumDataParser.swift */,
@@ -28847,7 +28844,6 @@
 				B0B1E97E2DB0F8480027521C /* VisaCardScanHandler.swift in Sources */,
 				B06C6D2A2CE48A1900B30325 /* VisaAuthorizationTokensHandler.swift in Sources */,
 				DF7F04452EF5706900E23554 /* TangemPayCancelKYCResponse.swift in Sources */,
-				B072324B2D11B70500E30614 /* TangemPayProviderBuilder.swift in Sources */,
 				B05145062B5933E000EDAD1E /* VisaUtilities.swift in Sources */,
 				DA99CA7E2E16E12000A0A73B /* UIViewController+swizzling.swift in Sources */,
 				B0A359AA2CE6FCA10001499E /* VisaAuthorizationTokensHandlerError.swift in Sources */,
