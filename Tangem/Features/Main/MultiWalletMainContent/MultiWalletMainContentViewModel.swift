@@ -249,10 +249,17 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .assign(to: \.accountSections, on: self, ownership: .weak)
             .store(in: &bag)
 
-        tokenItemPromoProvider.promoWalletModelPublisher
+        let tokenItemPromoInputPublisher = plainSectionsPublisher
+            .eraseToAnyPublisher()
+            .map { $0.flatMap(\.items) }
+            .mapMany { TokenItemPromoProviderInput(id: $0.id, tokenItem: $0.tokenItem) }
+
+        tokenItemPromoProvider
+            .makePromoOutputPublisher(using: tokenItemPromoInputPublisher)
+            .eraseToAnyPublisher()
             .removeDuplicates()
-            .handleEvents(receiveOutput: { [weak self] params in
-                guard let params, let walletModel = self?.findWalletModel(with: params.walletModelId) else {
+            .handleEvents(receiveOutput: { [weak self] output in
+                guard let output, let walletModel = self?.findWalletModel(with: output.walletModelId) else {
                     return
                 }
 
@@ -261,9 +268,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             })
             .receiveOnMain()
             .withWeakCaptureOf(self)
-            .map { viewModel, params in
-                guard let params else { return nil }
-                return viewModel.makeTokenItemPromoViewModel(from: params)
+            .map { viewModel, output in
+                output.flatMap(viewModel.makeTokenItemPromoViewModel(from:))
             }
             .assign(to: \.tokenItemPromoBubbleViewModel, on: self, ownership: .weak)
             .store(in: &bag)
@@ -589,11 +595,11 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         )
     }
 
-    private func makeTokenItemPromoViewModel(from params: TokenItemPromoParams) -> TokenItemPromoBubbleViewModel? {
+    private func makeTokenItemPromoViewModel(from output: TokenItemPromoProviderOutput) -> TokenItemPromoBubbleViewModel? {
         TokenItemPromoBubbleViewModel(
-            id: params.walletModelId,
-            leadingImage: params.icon,
-            message: params.message,
+            id: output.walletModelId,
+            leadingImage: output.icon,
+            message: output.message,
             onDismiss: { [weak self] in
                 self?.tokenItemPromoProvider.hidePromoBubble()
                 self?.tokenItemPromoBubbleViewModel = nil
@@ -602,7 +608,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                 guard let userWalletModel = self?.userWalletModel,
                       let walletModel = AccountsFeatureAwareWalletModelsResolver
                       .walletModels(for: userWalletModel)
-                      .first(where: { model in model.id == params.walletModelId })
+                      .first(where: { model in model.id == output.walletModelId })
                 else {
                     return
                 }
