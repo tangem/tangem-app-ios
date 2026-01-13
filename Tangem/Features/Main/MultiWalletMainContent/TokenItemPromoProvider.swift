@@ -7,16 +7,11 @@
 //
 
 import Combine
-import SwiftUI
 
 protocol TokenItemPromoProvider {
-    var promoWalletModelPublisher: AnyPublisher<TokenItemPromoParams?, Never> { get }
-    func hidePromoBubble()
-}
+    func makePromoOutputPublisher(
+        using promoInputPublisher: some Publisher<[TokenItemPromoProviderInput], Never>
+    ) -> AnyPublisher<TokenItemPromoProviderOutput?, Never>
 
-struct TokenItemPromoParams: Equatable {
-    let walletModelId: WalletModelId
-    let message: String
-    let icon: Image
-    let appStorageKey: String
+    func hidePromoBubble()
 }
