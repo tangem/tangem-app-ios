@@ -89,6 +89,6 @@ extension ExpressFeeSelectorInteractor: FeeSelectorInteractor {
     }
 
     func userDidSelectTokenItem(_ tokenItem: TokenItem) {
-        sourceTokenFeeManager.updateSelectedFeeTokenItem(tokenItem: tokenItem)
+        sourceTokenFeeManager.updateSelectedFeeTokenItemInAllManagers(tokenItem: tokenItem)
     }
 }

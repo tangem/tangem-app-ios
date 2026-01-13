@@ -42,7 +42,7 @@ class SendFeeCompactViewModel: ObservableObject, Identifiable {
             }
 
         canEditFeeSubscription = input
-            .canChooseFeeOption
+            .feesHasMultipleFeeOptions
             .receiveOnMain()
             .assign(to: \.canEditFee, on: self, ownership: .weak)
     }

@@ -267,7 +267,7 @@ extension StakingSingleActionModel: SendFeeInput {
 // MARK: - SendFeeOutput
 
 extension StakingSingleActionModel: SendFeeOutput {
-    func userDidSelect(selectedFee fee: TokenFee) {
+    func feeDidChanged(fee: TokenFee) {
         assertionFailure("We can not change fee in staking")
     }
 }
