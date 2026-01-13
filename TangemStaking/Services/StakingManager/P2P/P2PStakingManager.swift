@@ -11,8 +11,10 @@ import Combine
 import TangemFoundation
 
 final class P2PStakingManager {
+    private let integrationId: String
     private let wallet: StakingWallet
-    private let provider: P2PAPIProvider
+    private let apiProvider: P2PAPIProvider
+    private let yieldInfoProvider: StakingYieldInfoProvider
     private let analyticsLogger: StakingAnalyticsLogger
     private let stateRepository: StakingManagerStateRepository
 
@@ -20,13 +22,17 @@ final class P2PStakingManager {
     private var previousFee: Decimal?
 
     init(
+        integrationId: String,
         wallet: StakingWallet,
-        provider: P2PAPIProvider,
+        apiProvider: P2PAPIProvider,
+        yieldInfoProvider: StakingYieldInfoProvider,
         stateRepository: StakingManagerStateRepository,
         analyticsLogger: StakingAnalyticsLogger
     ) {
+        self.integrationId = integrationId
         self.wallet = wallet
-        self.provider = provider
+        self.apiProvider = apiProvider
+        self.yieldInfoProvider = yieldInfoProvider
         self.stateRepository = stateRepository
         self.analyticsLogger = analyticsLogger
 
@@ -41,14 +47,14 @@ extension P2PStakingManager: StakingManager {
         updateState(.loading(cached: stateRepository.state()))
 
         do {
-            let yield = try await provider.yield()
+            let yield = try await yieldInfoProvider.yieldInfo(for: integrationId)
 
             guard !yield.preferredTargets.isEmpty else {
                 updateState(.notEnabled)
                 return
             }
 
-            let balances = try await provider.balances(
+            let balances = try await apiProvider.balances(
                 walletAddress: wallet.address,
                 vaults: yield.preferredTargets.map(\.address)
             )
@@ -149,19 +155,19 @@ private extension P2PStakingManager {
             try await waitForLoadingCompletion()
             result = try await transactionInfo(action: action)
         case (.availableToStake, .stake), (.staked, .stake):
-            result = try await provider.stakeTransaction(
+            result = try await apiProvider.stakeTransaction(
                 walletAddress: wallet.address,
                 vault: vaultAddress,
                 amount: action.amount
             )
         case (.staked, .unstake):
-            result = try await provider.unstakeTransaction(
+            result = try await apiProvider.unstakeTransaction(
                 walletAddress: wallet.address,
                 vault: vaultAddress,
                 amount: action.amount
             )
         case (.staked, .pending):
-            result = try await provider.withdrawTransaction(
+            result = try await apiProvider.withdrawTransaction(
                 walletAddress: wallet.address,
                 vault: vaultAddress,
                 amount: action.amount
