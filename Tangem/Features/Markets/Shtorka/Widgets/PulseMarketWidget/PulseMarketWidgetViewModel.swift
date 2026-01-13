@@ -24,13 +24,16 @@ final class PulseMarketWidgetViewModel: ObservableObject {
     }
 
     var availabilityToSelectionOrderType: [MarketsListOrderType] {
-        MarketsListOrderType.allCases.filter {
-            if case .rating = $0 {
-                return false
+        MarketsListOrderType
+            .allCases
+            .filter {
+                switch $0 {
+                case .rating, .staking, .yield:
+                    return false
+                default:
+                    return true
+                }
             }
-
-            return true
-        }
     }
 
     // MARK: - Properties
@@ -121,14 +124,19 @@ private extension PulseMarketWidgetViewModel {
         // Map selected chip id to MarketsListOrderType and update provider
         $filterSelectedId
             .dropFirst()
-            .receiveOnMain()
+            .removeDuplicates()
+            // Wait a few milliseconds for smoother performance
+            .debounce(for: 0.3, scheduler: DispatchQueue.main)
             .compactMap { [weak self] id -> MarketsListOrderType? in
                 guard let self, let id else { return nil }
                 return availabilityToSelectionOrderType.first(where: { $0.rawValue == id })
             }
-            .removeDuplicates()
             .withWeakCaptureOf(self)
             .sink { viewModel, order in
+                guard viewModel.filterProvider.currentFilterValue.order != order else {
+                    return
+                }
+
                 viewModel.filterProvider.didSelectMarketOrder(order)
             }
             .store(in: &bag)
@@ -209,7 +217,11 @@ private extension PulseMarketWidgetViewModel {
             .receiveOnMain()
             .sink { viewModel, _ in
                 viewModel.widgetsUpdateHandler.performUpdateLoading(state: .loaded, for: viewModel.widgetType)
-                viewModel.isFirstLoading = false
+
+                // Remove duplicate publishing property
+                if viewModel.isFirstLoading {
+                    viewModel.isFirstLoading = false
+                }
             }
             .store(in: &bag)
 
