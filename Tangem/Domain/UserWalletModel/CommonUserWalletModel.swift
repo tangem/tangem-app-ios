@@ -27,7 +27,7 @@ class CommonUserWalletModel {
     let nftManager: NFTManager
     let keysRepository: KeysRepository
     let totalBalanceProvider: TotalBalanceProvider
-    let tangemPayAccountProvider: TangemPayAccountProvider
+    let tangemPayAccountProvider: TangemPayAccountProviderSetupable
 
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
     let accountModelsManager: AccountModelsManager
@@ -76,10 +76,6 @@ class CommonUserWalletModel {
         self.accountModelsManager = accountModelsManager
 
         _cardHeaderImagePublisher = .init(config.cardHeaderImage)
-
-        if FeatureProvider.isAvailable(.visa) {
-            tangemPayAccountProvider.setup(for: self)
-        }
     }
 
     deinit {
@@ -94,6 +90,9 @@ class CommonUserWalletModel {
             keysRepository.update(keys: walletInfo.keys)
         }
         _updatePublisher.send(.configurationChanged(model: self))
+        if FeatureProvider.isAvailable(.visa) {
+            tangemPayAccountProvider.setup(for: self)
+        }
     }
 
     private func syncRemoteAfterUpgrade() {
