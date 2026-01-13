@@ -10,7 +10,6 @@ import Combine
 import SwiftUI
 import TangemAssets
 import IdensicMobileSDK
-import TangemVisa
 
 public final class TangemPayKYCService {
     private let sdk: SNSMobileSDK
@@ -18,7 +17,7 @@ public final class TangemPayKYCService {
     @MainActor
     @discardableResult
     private init(
-        getToken: @escaping () async throws -> VisaKYCAccessTokenResponse,
+        getToken: @escaping () async throws -> TangemPayKYCAccessTokenResponse,
         onDidDismiss: @escaping () -> Void
     ) async throws {
         guard Self.shared == nil else {
@@ -113,7 +112,7 @@ extension TangemPayKYCService {
 
 public extension TangemPayKYCService {
     static func start(
-        getToken: @escaping () async throws -> VisaKYCAccessTokenResponse,
+        getToken: @escaping () async throws -> TangemPayKYCAccessTokenResponse,
         onDidDismiss: @escaping () -> Void
     ) async throws {
         try await TangemPayKYCService(
