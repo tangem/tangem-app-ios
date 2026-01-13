@@ -27,7 +27,7 @@ final class TangemPayCardDetailsRepository {
             throw Error.customerServiceNotFound
         }
 
-        let publicKey = try await TangemPayUtilities.getRainRSAPublicKey()
+        let publicKey = try TangemPayUtilities.getRainRSAPublicKey()
 
         let (secretKey, sessionId) = try RainCryptoUtilities
             .generateSecretKeyAndSessionId(

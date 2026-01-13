@@ -64,7 +64,7 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
 
         runTask(in: self) { [pin] viewModel in
             do {
-                let publicKey = try await TangemPayUtilities.getRainRSAPublicKey()
+                let publicKey = try TangemPayUtilities.getRainRSAPublicKey()
                 let (secretKey, sessionId) = try RainCryptoUtilities.generateSecretKeyAndSessionId(publicKey: publicKey)
                 let (encryptedPin, iv) = try RainCryptoUtilities.encryptPin(pin: pin, secretKey: secretKey)
 
