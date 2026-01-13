@@ -92,6 +92,8 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
         headerViewModel.delegate = self
 
         searchTextBind(publisher: headerViewModel.enteredSearchInputPublisher)
+
+        bindChildViewModels()
         bindToWidgetsProvider()
         bindToMainBottomSheetUIManager()
 
@@ -173,6 +175,14 @@ private extension MarketsMainViewModel {
                     viewModel.currentSearchValue = ""
                     viewModel.tokenListViewModel.onFetch(with: "", by: viewModel.filterProvider.currentFilterValue)
                 }
+            }
+            .store(in: &bag)
+    }
+
+    func bindChildViewModels() {
+        tokenListViewModel.objectWillChange
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
             }
             .store(in: &bag)
     }
