@@ -1,6 +1,6 @@
 //
 //  UIViewController+swizzling.swift
-//  TangemVisa
+//  TangemPay
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
@@ -42,7 +42,7 @@ private extension UIViewController {
     func swizzled_viewWillAppear() {
         swizzled_viewWillAppear()
 
-        guard let service = KYCService.shared,
+        guard let service = TangemPayKYCService.shared,
               let navigationController = self as? UINavigationController ?? navigationController,
               navigationController.modalPresentationStyle != .formSheet
         else {
@@ -68,7 +68,7 @@ private extension UIViewController {
             image: closeIcon,
             style: .plain,
             target: service,
-            action: #selector(KYCService.dismiss)
+            action: #selector(TangemPayKYCService.dismiss)
         )
         navigationItem.setLeftBarButton(closeButton, animated: false)
     }
@@ -81,10 +81,10 @@ private extension UIViewController {
         }
 
         // Skip any changes made to viewControllerToPresent if:
-        // 1. There is no shared KYCService set
+        // 1. There is no shared TangemPayKYCService set
         // 2. viewControllerToPresent is alert
         // 3. viewControllerToPresent won't be shown as a full screen
-        guard KYCService.shared != nil,
+        guard TangemPayKYCService.shared != nil,
               !(viewControllerToPresent is UIAlertController),
               [.fullScreen, .overFullScreen].contains(viewControllerToPresent.modalPresentationStyle)
         else {
