@@ -77,6 +77,8 @@ private extension EthereumTarget {
         case .feeHistory:
             // Get fee history for 5 blocks (around a minute) with 25,50,75 percentiles (selected empirically)
             return AnyEncodable([AnyEncodable(5), AnyEncodable("latest"), AnyEncodable([25, 50, 75])])
+        case .getTransactionByHash(let hash):
+            return AnyEncodable([AnyEncodable(hash)])
         }
     }
 }
@@ -91,6 +93,7 @@ extension EthereumTarget {
         case gasPrice
         case call(params: CallParams)
         case priorityFee
+        case getTransactionByHash(_ hash: String)
 
         /// https://www.quicknode.com/docs/ethereum/eth_feeHistory
         case feeHistory
@@ -115,6 +118,8 @@ extension EthereumTarget {
                 return "call"
             case .feeHistory:
                 return "feeHistory"
+            case .getTransactionByHash:
+                return "getTransactionByHash"
             }
         }
     }
