@@ -212,7 +212,6 @@ struct MultiWalletMainContentView: View {
 
         let tokenItemPromoProvider = YieldTokenItemPromoProvider(
             userWalletModel: userWalletModel,
-            sectionsProvider: sectionsProvider,
             yieldModuleMarketsRepository: CommonYieldModuleMarketsRepository(),
             tokenItemPromoBubbleVisibilityInteractor: TokenItemPromoBubbleVisibilityInteractor()
         )
