@@ -77,7 +77,7 @@ extension CommonMarketsWidgetNewsService {
 
 private extension CommonMarketsWidgetNewsService {
     enum Constants {
-        static let newsLimit = 5
+        static let newsLimit = 10
         static let language = Locale.appLanguageCode
     }
 }
