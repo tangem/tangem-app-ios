@@ -201,8 +201,29 @@ class CommonEthereumTransactionBuilder: EthereumTransactionBuilder {
         return output
     }
 
-    func buildTransactionDataFor(transaction: Transaction) throws -> Data {
-        try buildSigningInput(transaction: transaction).transaction.contractGeneric.data
+    func buildTransactionPayload(transaction: Transaction) throws -> TransactionPayload {
+        guard let amountValue = transaction.amount.bigUIntValue else {
+            throw EthereumTransactionBuilderError.failedToBuildTxPayload
+        }
+
+        let signingInput = try buildSigningInput(transaction: transaction)
+
+        // Duplicates part of the amount resolution logic from `buildSigningInput`,
+        // as the native coin amount is not exposed by `EthereumSigningInput`
+        let amount: BigUInt = switch transaction.amount.type {
+        case .coin:
+            amountValue
+        case .token:
+            .zero
+        case .reserve, .feeResource:
+            throw EthereumTransactionBuilderError.failedToBuildTxPayload
+        }
+
+        return TransactionPayload(
+            destinationAddress: signingInput.toAddress,
+            data: signingInput.transaction.contractGeneric.data,
+            coinAmount: amount
+        )
     }
 
     func buildSigningInput(transaction: Transaction) throws -> EthereumSigningInput {
