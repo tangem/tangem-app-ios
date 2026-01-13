@@ -173,6 +173,12 @@ private extension DEXExpressProviderManager {
     }
 
     func ready(request: ExpressManagerSwappingPairRequest, quote: ExpressQuote, data: ExpressTransactionData) async throws -> ExpressManagerState.Ready {
+        let feeRequest = ExpressFeeRequest(provider: provider, option: request.feeOption)
+        _ = try await request.pair.source.feeProvider.transactionFee(
+            request: feeRequest,
+            data: .dex(data: data)
+        )
+
         try Task.checkCancellation()
 
         // better to make the quote from the data
