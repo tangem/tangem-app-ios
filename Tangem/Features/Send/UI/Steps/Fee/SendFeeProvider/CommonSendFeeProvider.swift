@@ -74,7 +74,7 @@ final class CommonSendFeeProvider {
             }
             .removeDuplicates()
             .withWeakCaptureOf(self)
-            .sink { $0.output?.userDidSelect(selectedFee: $1) }
+            .sink { $0.output?.feeDidChanged(fee: $1) }
     }
 }
 
@@ -83,6 +83,10 @@ final class CommonSendFeeProvider {
 extension CommonSendFeeProvider: SendFeeProvider {
     var fees: [TokenFee] { tokenFeeManager.fees }
     var feesPublisher: AnyPublisher<[TokenFee], Never> { tokenFeeManager.feesPublisher }
+
+    var feesHasMultipleFeeOptions: AnyPublisher<Bool, Never> {
+        tokenFeeManager.feesHasMultipleFeeOptions
+    }
 
     func updateFees() {
         feeLoadingTask?.cancel()
@@ -93,10 +97,8 @@ extension CommonSendFeeProvider: SendFeeProvider {
                     throw CommonError.noData
                 }
 
-                try await tokenFeeManager
-                    .selectedFeeProvider
-                    .asSimpleTokenFeeProvider()
-                    .updateFees(amount: amount, destination: destination)
+                tokenFeeManager.setup(input: .common(amount: amount, destination: destination))
+                await tokenFeeManager.updateFees()
             } catch {
                 AppLogger.error("SendFeeProvider fee loading error", error: error)
             }
@@ -117,9 +119,9 @@ extension CommonSendFeeProvider: FeeSelectorInteractor {
         tokenFeeManager.selectedFeeProviderFeesPublisher
     }
 
-    var selectedSelectorFeeTokenItem: TokenItem? { input?.selectedFee.tokenItem }
+    var selectedSelectorFeeTokenItem: TokenItem? { tokenFeeManager.selectedFeeProvider.feeTokenItem }
     var selectedSelectorFeeTokenItemPublisher: AnyPublisher<TokenItem?, Never> {
-        input?.selectedFeePublisher.map { $0.tokenItem }.eraseToOptional().eraseToAnyPublisher() ?? .just(output: .none)
+        tokenFeeManager.selectedFeeProviderPublisher.map { $0.feeTokenItem }.eraseToAnyPublisher()
     }
 
     var selectorFeeTokenItems: [TokenItem] { tokenFeeManager.selectedFeeProviderFeeTokenItems }
@@ -132,10 +134,11 @@ extension CommonSendFeeProvider: FeeSelectorInteractor {
     }
 
     func userDidSelectFee(_ fee: TokenFee) {
-        output?.userDidSelect(selectedFee: fee)
+        output?.feeDidChanged(fee: fee)
     }
 
     func userDidSelectTokenItem(_ tokenItem: TokenItem) {
         tokenFeeManager.updateSelectedFeeProvider(tokenItem: tokenItem)
+        tokenFeeManager.updateSelectedFeeProviderFees()
     }
 }
