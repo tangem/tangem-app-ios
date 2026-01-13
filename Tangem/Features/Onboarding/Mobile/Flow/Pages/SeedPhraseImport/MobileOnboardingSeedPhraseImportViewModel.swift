@@ -83,13 +83,15 @@ extension MobileOnboardingSeedPhraseImportViewModel: SeedPhraseImportDelegate {
                 }
 
                 if let userWalletId {
-                    let walletCreationHelper = WalletCreationHelper(
-                        userWalletId: userWalletId,
-                        userWalletName: nil,
-                        userWalletConfig: userWalletConfig
-                    )
+                    Task.detached {
+                        let walletCreationHelper = WalletCreationHelper(
+                            userWalletId: userWalletId,
+                            userWalletName: nil,
+                            userWalletConfig: userWalletConfig
+                        )
 
-                    try? await walletCreationHelper.createWallet()
+                        try? await walletCreationHelper.createWallet()
+                    }
                 }
 
                 guard let userWalletModel = CommonUserWalletModelFactory().makeModel(
