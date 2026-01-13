@@ -1,15 +1,12 @@
 //
 //  TangemPayEnrollmentState.swift
-//  TangemApp
+//  TangemPay
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import TangemVisa
-import TangemPay
-
-enum TangemPayEnrollmentState {
+public enum TangemPayEnrollmentState {
     case notEnrolled
     case kyc
     case issuingCard(customerWalletAddress: String)
