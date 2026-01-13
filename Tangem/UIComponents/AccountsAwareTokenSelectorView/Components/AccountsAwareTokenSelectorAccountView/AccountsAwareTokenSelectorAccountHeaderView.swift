@@ -23,13 +23,7 @@ struct AccountsAwareTokenSelectorAccountHeaderView: View {
     var content: some View {
         switch header {
         case .account(let icon, let name):
-            HStack(spacing: 6) {
-                AccountIconView(data: icon)
-                    .settings(.extraSmallSized)
-
-                Text(name)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
-            }
+            AccountInlineHeaderView(iconData: icon, name: name)
         case .wallet(let name):
             Text(name)
                 .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
