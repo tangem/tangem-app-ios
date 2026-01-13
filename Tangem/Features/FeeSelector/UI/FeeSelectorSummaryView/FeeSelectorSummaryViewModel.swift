@@ -60,10 +60,6 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
         router?.userDidRequestFeeSelector()
     }
 
-    func userDidTapConfirm() {
-        router?.userDidTapConfirmButton()
-    }
-
     // MARK: - Private Implementation
 
     private func bind() {
