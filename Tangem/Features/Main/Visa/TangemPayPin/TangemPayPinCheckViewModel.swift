@@ -59,7 +59,7 @@ final class TangemPayPinCheckViewModel: ObservableObject, Identifiable {
                 let service = viewModel.tangemPayAccount
                     .customerInfoManagementService
 
-                let publicKey = try await TangemPayUtilities.getRainRSAPublicKey()
+                let publicKey = try TangemPayUtilities.getRainRSAPublicKey()
 
                 let (secretKey, sessionId) = try RainCryptoUtilities
                     .generateSecretKeyAndSessionId(
