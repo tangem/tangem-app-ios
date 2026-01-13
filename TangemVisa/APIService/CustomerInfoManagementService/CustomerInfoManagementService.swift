@@ -14,7 +14,7 @@ import TangemPay
 
 public protocol CustomerInfoManagementService: AnyObject {
     func loadCustomerInfo() async throws(TangemPayAPIServiceError) -> VisaCustomerInfoResponse
-    func loadKYCAccessToken() async throws(TangemPayAPIServiceError) -> VisaKYCAccessTokenResponse
+    func loadKYCAccessToken() async throws(TangemPayAPIServiceError) -> TangemPayKYCAccessTokenResponse
 
     func getBalance() async throws(TangemPayAPIServiceError) -> TangemPayBalance
     func getCardDetails(sessionId: String) async throws(TangemPayAPIServiceError) -> TangemPayCardDetailsResponse
@@ -85,7 +85,7 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
         try await request(for: .getCustomerInfo)
     }
 
-    func loadKYCAccessToken() async throws(TangemPayAPIServiceError) -> VisaKYCAccessTokenResponse {
+    func loadKYCAccessToken() async throws(TangemPayAPIServiceError) -> TangemPayKYCAccessTokenResponse {
         try await request(for: .getKYCAccessToken)
     }
 
