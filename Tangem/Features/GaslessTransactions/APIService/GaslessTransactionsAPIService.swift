@@ -30,7 +30,7 @@ final class CommonGaslessTransactionAPIService {
 
 extension CommonGaslessTransactionAPIService: GaslessTransactionsAPIService {
     func getAvailableTokens() async throws -> [FeeToken] {
-        let response: GaslessTransactionsDTO.Response.GaslessFeeTokensResult = try await request(for: .availableTokens)
+        let response: GaslessTransactionsDTO.Response.FeeTokens = try await request(for: .availableTokens)
         return response.tokens
     }
 
