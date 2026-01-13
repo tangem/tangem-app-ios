@@ -28,6 +28,7 @@ final class TangemPayManager {
     private let customerService: TangemPayCustomerService
     private let enrollmentStateFetcher: TangemPayEnrollmentStateFetcher
     private let orderStatusPollingService: TangemPayOrderStatusPollingService
+    private let orderIdStorage: TangemPayOrderIdStorage
 
     private let tangemPayBuilder: TangemPayBuilder
 
@@ -42,6 +43,7 @@ final class TangemPayManager {
         customerService: TangemPayCustomerService,
         enrollmentStateFetcher: TangemPayEnrollmentStateFetcher,
         orderStatusPollingService: TangemPayOrderStatusPollingService,
+        orderIdStorage: TangemPayOrderIdStorage,
         tangemPayBuilder: TangemPayBuilder
     ) {
         self.customerWalletId = customerWalletId
@@ -50,6 +52,7 @@ final class TangemPayManager {
         self.customerService = customerService
         self.enrollmentStateFetcher = enrollmentStateFetcher
         self.orderStatusPollingService = orderStatusPollingService
+        self.orderIdStorage = orderIdStorage
         self.tangemPayBuilder = tangemPayBuilder
 
         tangemPayNotificationManager = TangemPayNotificationManager(
@@ -128,7 +131,7 @@ final class TangemPayManager {
 
         case .enrolled(let customerInfo, let productInstance):
             orderStatusPollingService.cancel()
-            TangemPayOrderIdStorage.deleteCardIssuingOrderId(customerWalletId: customerWalletId)
+            orderIdStorage.deleteCardIssuingOrderId(customerWalletId: customerWalletId)
             stateSubject.value = .tangemPayAccount(
                 tangemPayBuilder.buildTangemPayAccount(customerInfo: customerInfo, productInstance: productInstance)
             )
@@ -141,11 +144,11 @@ final class TangemPayManager {
     private func issueCardIfNeededAndStartStatusPolling(customerWalletAddress: String) async throws {
         let orderId: String
 
-        if let cardIssuingOrderId = TangemPayOrderIdStorage.cardIssuingOrderId(customerWalletId: customerWalletId) {
+        if let cardIssuingOrderId = orderIdStorage.cardIssuingOrderId(customerWalletId: customerWalletId) {
             orderId = cardIssuingOrderId
         } else {
             orderId = try await customerService.placeOrder(customerWalletAddress: customerWalletAddress).id
-            TangemPayOrderIdStorage.saveCardIssuingOrderId(orderId, customerWalletId: customerWalletId)
+            orderIdStorage.saveCardIssuingOrderId(orderId, customerWalletId: customerWalletId)
         }
 
         orderStatusPollingService.startOrderStatusPolling(
