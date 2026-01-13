@@ -10,6 +10,8 @@ import TangemExpress
 import BlockchainSdk
 
 struct CommonGaslessTokenFeeLoader {
+    @Injected(\.gaslessTransactionsNetworkManager) var networkManager: GaslessTransactionsNetworkManager
+
     let tokenItem: TokenItem
     let feeToken: Token?
     let gaslessTransactionFeeProvider: any GaslessTransactionFeeProvider
@@ -26,9 +28,12 @@ extension CommonGaslessTokenFeeLoader: TokenFeeLoader {
         }
 
         let amount = makeAmount(amount: amount)
+        let feeRecipientAddress = try await networkManager.getFeeRecipientAddress()
+
         let fee = try await gaslessTransactionFeeProvider.getEstimatedGaslessFee(
             feeToken: feeToken,
-            amount: amount
+            amount: amount,
+            feeRecipientAddress: feeRecipientAddress
         )
 
         return [fee]
@@ -39,11 +44,14 @@ extension CommonGaslessTokenFeeLoader: TokenFeeLoader {
             throw TokenFeeLoaderError.gaslessEthereumTokenFeeSupportOnlyTokenAsFeeTokenItem
         }
 
+        let feeRecipientAddress = try await networkManager.getFeeRecipientAddress()
+
         let amount = makeAmount(amount: amount)
         let fee = try await gaslessTransactionFeeProvider.getGaslessFee(
             feeToken: feeToken,
             amount: amount,
-            destination: destination
+            destination: destination,
+            feeRecipientAddress: feeRecipientAddress
         )
 
         return [fee]
