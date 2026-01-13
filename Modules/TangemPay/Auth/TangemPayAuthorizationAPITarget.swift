@@ -10,15 +10,15 @@ import Foundation
 import Moya
 import TangemNetworkUtils
 
-public struct TangemPayAuthorizationAPITarget: TargetType {
+struct TangemPayAuthorizationAPITarget: TargetType {
     let target: Target
     let apiType: TangemPayAPIType
 
-    public var baseURL: URL {
+    var baseURL: URL {
         apiType.baseURL.appendingPathComponent("auth")
     }
 
-    public var path: String {
+    var path: String {
         switch target {
         case .getChallenge:
             return "challenge"
@@ -29,7 +29,7 @@ public struct TangemPayAuthorizationAPITarget: TargetType {
         }
     }
 
-    public var method: Moya.Method {
+    var method: Moya.Method {
         switch target {
         case .getChallenge,
              .getTokens,
@@ -38,7 +38,7 @@ public struct TangemPayAuthorizationAPITarget: TargetType {
         }
     }
 
-    public var task: Moya.Task {
+    var task: Moya.Task {
         let jsonEncoder = JSONEncoder()
         jsonEncoder.keyEncodingStrategy = .convertToSnakeCase
         let encodable: Encodable
@@ -53,8 +53,8 @@ public struct TangemPayAuthorizationAPITarget: TargetType {
         return .requestCustomJSONEncodable(encodable, encoder: jsonEncoder)
     }
 
-    public var headers: [String: String]? {
-        ["Content-Type": "application/json"]
+    var headers: [String: String]? {
+        nil
     }
 }
 
@@ -67,11 +67,11 @@ extension TangemPayAuthorizationAPITarget {
 }
 
 extension TangemPayAuthorizationAPITarget: TargetTypeLogConvertible {
-    public var requestDescription: String {
+    var requestDescription: String {
         path
     }
 
-    public var shouldLogResponseBody: Bool {
+    var shouldLogResponseBody: Bool {
         false
     }
 }
