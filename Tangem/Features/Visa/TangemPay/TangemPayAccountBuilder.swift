@@ -92,6 +92,7 @@ final class TangemPayBuilder {
             customerService: customerService,
             enrollmentStateFetcher: enrollmentStateFetcher,
             orderStatusPollingService: orderStatusPollingService,
+            orderIdStorage: AppSettings.shared,
             tangemPayBuilder: self
         )
     }

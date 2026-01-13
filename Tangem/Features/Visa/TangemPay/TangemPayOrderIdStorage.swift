@@ -9,16 +9,8 @@
 import Combine
 import Foundation
 
-enum TangemPayOrderIdStorage {
-    static func cardIssuingOrderId(customerWalletId: String) -> String? {
-        AppSettings.shared.tangemPayCardIssuingOrderIdForCustomerWalletId[customerWalletId]
-    }
-
-    static func saveCardIssuingOrderId(_ orderId: String, customerWalletId: String) {
-        AppSettings.shared.tangemPayCardIssuingOrderIdForCustomerWalletId[customerWalletId] = orderId
-    }
-
-    static func deleteCardIssuingOrderId(customerWalletId: String) {
-        AppSettings.shared.tangemPayCardIssuingOrderIdForCustomerWalletId[customerWalletId] = nil
-    }
+protocol TangemPayOrderIdStorage {
+    func cardIssuingOrderId(customerWalletId: String) -> String?
+    func saveCardIssuingOrderId(_ orderId: String, customerWalletId: String)
+    func deleteCardIssuingOrderId(customerWalletId: String)
 }
