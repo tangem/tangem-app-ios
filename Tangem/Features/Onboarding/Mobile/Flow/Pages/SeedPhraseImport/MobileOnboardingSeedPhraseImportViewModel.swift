@@ -20,6 +20,7 @@ final class MobileOnboardingSeedPhraseImportViewModel: ObservableObject {
 
     lazy var importViewModel = OnboardingSeedPhraseImportViewModel(
         inputProcessor: SeedPhraseInputProcessor(),
+        shouldShowTangemIcon: false,
         delegate: self
     )
 
