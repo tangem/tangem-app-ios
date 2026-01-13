@@ -18,18 +18,11 @@ struct FeeSelectorSummaryView: View {
     // MARK: - View Body
 
     var body: some View {
-        VStack(spacing: 24) {
-            VStack(spacing: 8) {
-                suggestedFeeCurrency
-                suggestedFee
-            }
-
-            if shouldShowSummaryBottomButton {
-                button
-            }
+        VStack(spacing: 8) {
+            suggestedFeeCurrency
+            suggestedFee
         }
         .padding(.horizontal, 16)
-        .padding(.bottom, 16)
     }
 
     // MARK: - Sub Views
@@ -46,9 +39,5 @@ struct FeeSelectorSummaryView: View {
         if let model = viewModel.suggestedFee {
             FeeSelectorRowView(viewModel: model)
         }
-    }
-
-    private var button: some View {
-        MainButton(settings: .init(title: Localization.commonConfirm, style: .primary, action: viewModel.userDidTapConfirm))
     }
 }
