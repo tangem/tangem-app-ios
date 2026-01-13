@@ -238,7 +238,7 @@ struct MarketsSearchView: View {
                             MarketsTokensUnderCapView(onShowUnderCapAction: viewModel.tokenListViewModel.onShowUnderCapAction)
                         }
                     }
-                    .onReceive(viewModel.resetScrollPositionPublisher) { _ in
+                    .onReceive(viewModel.tokenListViewModel.resetScrollPositionPublisher) { _ in
                         proxy.scrollTo(scrollTopAnchorId)
                     }
                 }
