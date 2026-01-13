@@ -498,8 +498,8 @@ extension EthereumWalletManager: TransactionFeeProvider {
 extension EthereumWalletManager: GaslessTransactionFeeProvider {
     func getGaslessFee(
         feeToken: Token,
-        originalAmount: Amount,
-        originalDestination: String
+        amount originalAmount: Amount,
+        destination originalDestination: String
     ) async throws -> Fee {
         // Addresses
         // [REDACTED_TODO_COMMENT]
@@ -509,12 +509,7 @@ extension EthereumWalletManager: GaslessTransactionFeeProvider {
         let convertedOurAddress = try addressConverter.convertToETHAddress(ourAddress)
 
         // Fixed fee token amount (10000 minimal units)
-        let baseTokenValueInMinimalUnits = EthereumFeeParametersConstants.gaslessMinTokenAmount / wallet.blockchain.decimalValue
-
-        guard let baseTokenAmount = Amount(with: feeToken, value: baseTokenValueInMinimalUnits).bigUIntValue else {
-            throw BlockchainSdkError.failedToGetFee
-        }
-
+        let baseTokenAmount = EthereumFeeParametersConstants.gaslessMinTokenAmount
         let sanitizedAmount = Self.sanitizeAmount(originalAmount, wallet: wallet)
 
         // 1) Build calldata for transferring fixed fee token amount to Gasless collector
