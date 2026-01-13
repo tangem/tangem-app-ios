@@ -80,7 +80,7 @@ final class TangemPayManager {
     }
 
     func launchKYC(onDidDismiss: @escaping () -> Void) async throws {
-        try await KYCService.start(
+        try await TangemPayKYCService.start(
             getToken: customerInfoManagementService.loadKYCAccessToken,
             onDidDismiss: onDidDismiss
         )
