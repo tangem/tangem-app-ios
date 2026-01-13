@@ -65,10 +65,7 @@ private extension MobileRemoveWalletView {
     }
 
     var marks: some View {
-        VStack(spacing: 24) {
-            CheckableButton(title: viewModel.removeInfo, isChecked: $viewModel.isRemoveChecked)
-            CheckableButton(title: viewModel.backupInfo, isChecked: $viewModel.isBackupChecked)
-        }
+        CheckableButton(title: viewModel.backupInfo, isChecked: $viewModel.isBackupChecked)
     }
 
     func action(item: ViewModel.ActionItem) -> some View {
