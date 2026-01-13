@@ -27,8 +27,9 @@ public extension TangemPayCustomerInfoManagementServiceBuilder {
             authorizationTokenHandler: authorizationTokensHandler,
             apiService: .init(
                 provider: TangemPayProviderBuilder().buildProvider(
-                    configuration: urlSessionConfiguration,
-                    authorizationTokensHandler: authorizationTokensHandler
+                    bffStaticToken: "",
+                    authorizationTokensHandler: nil,
+                    configuration: urlSessionConfiguration
                 ),
                 decoder: JSONDecoderFactory().makeCIMDecoder()
             )

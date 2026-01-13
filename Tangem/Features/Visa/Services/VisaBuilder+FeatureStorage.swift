@@ -49,18 +49,30 @@ extension VisaPaymentAccountInteractorBuilder {
     }
 }
 
-extension TangemPayAPIServiceBuilder {
+extension TangemPayAvailabilityServiceBuilder {
     @Injected(\.keysManager)
     private static var keysManager: KeysManager
 
+    init() {
+        self = TangemPayAvailabilityServiceBuilder(
+            apiType: FeatureStorage.instance.visaAPIType,
+            bffStaticToken: Self.keysManager.bffStaticToken
+        )
+    }
+}
+
+extension TangemPayAuthorizationServiceBuilder {
     @Injected(\.tangemPayAuthorizationTokensRepository)
     private static var tangemPayAuthorizationTokensRepository: TangemPayAuthorizationTokensRepository
 
+    @Injected(\.keysManager)
+    private static var keysManager: KeysManager
+
     init() {
-        self = TangemPayAPIServiceBuilder(
+        self = TangemPayAuthorizationServiceBuilder(
             apiType: FeatureStorage.instance.visaAPIType,
-            bffStaticToken: Self.keysManager.bffStaticToken,
-            authorizationTokensRepository: Self.tangemPayAuthorizationTokensRepository
+            authorizationTokensRepository: Self.tangemPayAuthorizationTokensRepository,
+            bffStaticToken: Self.keysManager.bffStaticToken
         )
     }
 }
