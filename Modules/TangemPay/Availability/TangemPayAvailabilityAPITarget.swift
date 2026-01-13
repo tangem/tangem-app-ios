@@ -10,15 +10,15 @@ import Foundation
 import Moya
 import TangemNetworkUtils
 
-public struct TangemPayAvailabilityAPITarget: TargetType {
+struct TangemPayAvailabilityAPITarget: TargetType {
     let target: Target
     let apiType: TangemPayAPIType
 
-    public var baseURL: URL {
+    var baseURL: URL {
         apiType.bffBaseURL
     }
 
-    public var path: String {
+    var path: String {
         switch target {
         case .getEligibility:
             return "customer/eligibility"
@@ -29,7 +29,7 @@ public struct TangemPayAvailabilityAPITarget: TargetType {
         }
     }
 
-    public var method: Moya.Method {
+    var method: Moya.Method {
         switch target {
         case .getEligibility, .isPaeraCustomer:
             return .get
@@ -38,7 +38,7 @@ public struct TangemPayAvailabilityAPITarget: TargetType {
         }
     }
 
-    public var task: Moya.Task {
+    var task: Moya.Task {
         switch target {
         case .getEligibility, .isPaeraCustomer:
             return .requestPlain
@@ -48,12 +48,12 @@ public struct TangemPayAvailabilityAPITarget: TargetType {
         }
     }
 
-    public var headers: [String: String]? {
+    var headers: [String: String]? {
         nil
     }
 }
 
-public extension TangemPayAvailabilityAPITarget {
+extension TangemPayAvailabilityAPITarget {
     enum Target {
         /// Checks Tangem Pay offer availability for user
         case getEligibility
@@ -63,11 +63,11 @@ public extension TangemPayAvailabilityAPITarget {
 }
 
 extension TangemPayAvailabilityAPITarget: TargetTypeLogConvertible {
-    public var requestDescription: String {
+    var requestDescription: String {
         path
     }
 
-    public var shouldLogResponseBody: Bool {
+    var shouldLogResponseBody: Bool {
         false
     }
 }
