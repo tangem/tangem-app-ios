@@ -18,7 +18,7 @@ extension GaslessTransactionBuilder {
             transaction: GaslessTransactionsDTO.Request.GaslessTransaction.TransactionData.Transaction,
             fee: GaslessTransactionsDTO.Request.GaslessTransaction.TransactionData.Fee,
             nonce: String,
-            chainId: String,
+            chainId: Int,
             verifyingContract: String
         ) -> EIP712TypedData {
             let types: [String: [EIP712Type]] = [
@@ -50,7 +50,7 @@ extension GaslessTransactionBuilder {
             let domain: JSON = .object([
                 "name": .string(domainName),
                 "version": .string(domainVersion),
-                "chainId": .string(chainId),
+                "chainId": .number(chainId),
                 "verifyingContract": .string(verifyingContract),
             ])
 
