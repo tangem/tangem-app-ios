@@ -10,22 +10,22 @@ import Foundation
 import Moya
 import TangemNetworkUtils
 
-public struct TangemPayCustomerAPITarget: TargetType {
-    public let target: Target
-    public let apiType: TangemPayAPIType
-    public let encoder: JSONEncoder
+struct TangemPayCustomerAPITarget: TargetType {
+    let target: Target
+    let apiType: TangemPayAPIType
+    let encoder: JSONEncoder
 
-    public init(target: Target, apiType: TangemPayAPIType, encoder: JSONEncoder) {
+    init(target: Target, apiType: TangemPayAPIType, encoder: JSONEncoder) {
         self.target = target
         self.apiType = apiType
         self.encoder = encoder
     }
 
-    public var baseURL: URL {
+    var baseURL: URL {
         apiType.bffBaseURL
     }
 
-    public var path: String {
+    var path: String {
         switch target {
         case .getCustomerInfo:
             "customer/me"
@@ -58,7 +58,7 @@ public struct TangemPayCustomerAPITarget: TargetType {
         }
     }
 
-    public var method: Moya.Method {
+    var method: Moya.Method {
         switch target {
         case .getCustomerInfo,
              .getKYCAccessToken,
@@ -84,7 +84,7 @@ public struct TangemPayCustomerAPITarget: TargetType {
         }
     }
 
-    public var task: Moya.Task {
+    var task: Moya.Task {
         switch target {
         case .getCustomerInfo,
              .getKYCAccessToken,
@@ -130,7 +130,7 @@ public struct TangemPayCustomerAPITarget: TargetType {
         }
     }
 
-    public var headers: [String: String]? {
+    var headers: [String: String]? {
         switch target {
         case .getPin(let sessionId):
             ["X-Session-Id": "\(sessionId)"]
@@ -140,7 +140,7 @@ public struct TangemPayCustomerAPITarget: TargetType {
     }
 }
 
-public extension TangemPayCustomerAPITarget {
+extension TangemPayCustomerAPITarget {
     enum Target {
         /// Load all available customer info. Can be used for loading data about payment account address
         /// Will be updated later, not fully implemented on BFF
@@ -167,11 +167,11 @@ public extension TangemPayCustomerAPITarget {
 }
 
 extension TangemPayCustomerAPITarget: TargetTypeLogConvertible {
-    public var requestDescription: String {
+    var requestDescription: String {
         path
     }
 
-    public var shouldLogResponseBody: Bool {
+    var shouldLogResponseBody: Bool {
         false
     }
 }
