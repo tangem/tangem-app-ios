@@ -73,7 +73,7 @@ struct GaslessTransactionBuilder {
             transaction: transaction,
             fee: fee,
             nonce: smartContractNonce,
-            chainId: chainId.description
+            chainId: chainId
         )
 
         // Both eip7702Data.data and eip712Hash are 32-byte digests to be signed
@@ -112,7 +112,7 @@ struct GaslessTransactionBuilder {
         let data = try await builder.buildTransactionDataFor(transaction: bsdkTransaction)
 
         return TransactionData.Transaction(
-            to: bsdkTransaction.destinationAddress, // адрес смарт контракта, а не получателя
+            to: bsdkTransaction.destinationAddress,
             value: "0",
             data: data.hexString.addHexPrefix()
         )
@@ -122,7 +122,7 @@ struct GaslessTransactionBuilder {
         transaction: TransactionData.Transaction,
         fee: GaslessTransactionFee,
         nonce: String,
-        chainId: String
+        chainId: Int
     ) async throws -> Data {
         guard let provider = walletModel.ethereumGaslessDataProvider else {
             throw GaslessTransactionBuilderError.missingGaslessDataProvider
