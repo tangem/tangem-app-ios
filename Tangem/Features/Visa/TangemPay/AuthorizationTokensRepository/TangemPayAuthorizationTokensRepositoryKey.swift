@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import TangemPay
 import TangemVisa
 
 private struct TangemPayAuthorizationTokensRepositoryKey: InjectionKey {

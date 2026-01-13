@@ -7,11 +7,12 @@
 //
 
 import Moya
+import TangemPay
 
 struct AuthorizationServiceBuilder {
-    private let apiType: VisaAPIType
+    private let apiType: TangemPayAPIType
 
-    init(apiType: VisaAPIType) {
+    init(apiType: TangemPayAPIType) {
         self.apiType = apiType
     }
 

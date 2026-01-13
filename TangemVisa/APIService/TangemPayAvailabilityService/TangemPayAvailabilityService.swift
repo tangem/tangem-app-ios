@@ -16,11 +16,11 @@ public protocol TangemPayAvailabilityService {
 
 class CommonTangemPayAvailabilityService {
     private let apiService: TangemPayAPIService<TangemPayAvailabilityAPITarget>
-    private let apiType: VisaAPIType
+    private let apiType: TangemPayAPIType
     private let bffStaticToken: String
 
     init(
-        apiType: VisaAPIType,
+        apiType: TangemPayAPIType,
         apiService: TangemPayAPIService<TangemPayAvailabilityAPITarget>,
         bffStaticToken: String
     ) {

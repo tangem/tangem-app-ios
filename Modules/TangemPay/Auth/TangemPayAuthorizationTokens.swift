@@ -1,10 +1,12 @@
 //
 //  TangemPayAuthorizationTokens.swift
-//  TangemApp
+//  TangemPay
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
+
+import Foundation
 
 public struct TangemPayAuthorizationTokens: Codable, Equatable {
     public let accessToken: String
@@ -23,10 +25,10 @@ public struct TangemPayAuthorizationTokens: Codable, Equatable {
 
 public extension TangemPayAuthorizationTokens {
     var accessTokenExpired: Bool {
-        Date().isAfterDate(expiresAt, granularity: .second)
+        Date().timeIntervalSince1970 > expiresAt.timeIntervalSince1970
     }
 
     var refreshTokenExpired: Bool {
-        Date().isAfterDate(refreshExpiresAt, granularity: .second)
+        Date().timeIntervalSince1970 > refreshExpiresAt.timeIntervalSince1970
     }
 }
