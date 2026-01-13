@@ -22,7 +22,6 @@ struct SendFeeSelectorView: View {
 
     var body: some View {
         content
-            .animation(.contentFrameUpdate, value: viewModel.state)
             .floatingSheetConfiguration { configuration in
                 configuration.sheetBackgroundColor = Colors.Background.tertiary
                 configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
@@ -33,53 +32,51 @@ struct SendFeeSelectorView: View {
     // MARK: - Sub Views
 
     private var content: some View {
-        VStack(spacing: .zero) {
-            header
+        FeeSelectorBottomSheetContainerView(
+            state: viewModel.state.hashValue,
+            button: button,
+            headerContent: { header },
+            descriptionContent: { description },
+            mainContent: { FeeSelectorView(viewModel: viewModel.feeSelectorViewModel) }
+        )
+    }
 
-            topContent
-                .padding(.bottom, 16)
-
-            FeeSelectorView(viewModel: viewModel.feeSelectorViewModel)
-                .transition(.content)
+    private var button: MainButton? {
+        if case .summary = viewModel.state {
+            return MainButton(settings: .init(title: Localization.commonConfirm, style: .primary, action: viewModel.userDidTapConfirmButton))
         }
+
+        return nil
     }
 
     private var header: some View {
         BottomSheetHeaderView(
-            title: viewModel.state.title,
+            title: viewModel.state.content.title,
             leading: { leadingHeaderButton },
             trailing: { trailingHeaderButton }
         )
-        .padding(.vertical, 4)
-        .padding(.horizontal, 16)
-        .transition(.content)
     }
 
     @ViewBuilder
-    private var topContent: some View {
-        if !viewModel.state.description.characters.isEmpty {
-            Text(viewModel.state.description)
+    private var description: some View {
+        if let descripton = viewModel.state.description {
+            Text(descripton)
                 .environment(\.openURL, OpenURLAction { _ in
                     viewModel.openURL()
                     return .handled
                 })
                 .multilineTextAlignment(.center)
-                .transition(.opacity)
         }
     }
 
-    @ViewBuilder
     private var leadingHeaderButton: some View {
-        if viewModel.state.headerButtonAction.isBack {
-            CircleButton.back(action: viewModel.userDidTapBackButton)
-        }
+        CircleButton.back(action: viewModel.userDidTapBackButton)
+            .opacity(viewModel.state.content.headerButtonAction.isBack ? 1 : 0)
     }
 
-    @ViewBuilder
     private var trailingHeaderButton: some View {
-        if viewModel.state.headerButtonAction.isClose {
-            CircleButton.close(action: viewModel.userDidTapDismissButton)
-        }
+        CircleButton.close(action: viewModel.userDidTapDismissButton)
+            .opacity(viewModel.state.content.headerButtonAction.isClose ? 1 : 0)
     }
 }
 
@@ -89,9 +86,6 @@ private extension Animation {
     static let contentFrameUpdate = Animation.curve(.easeInOutRefined, duration: 0.5)
 }
 
-private extension AnyTransition {
-    static let content = AnyTransition.asymmetric(
-        insertion: .opacity.animation(.curve(.easeInOutRefined, duration: 0.3).delay(0.2)),
-        removal: .opacity.animation(.curve(.easeInOutRefined, duration: 0.3))
-    )
+private extension Animation {
+    static let headerOpacity = Animation.curve(.easeOutStandard, duration: 0.2)
 }
