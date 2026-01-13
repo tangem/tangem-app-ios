@@ -164,6 +164,7 @@ final class WalletModelTestsMock: WalletModel {
     var bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator? { nil }
     var accountInitializationService: BlockchainAccountInitializationService? { nil }
     var minimalBalanceProvider: MinimalBalanceProvider? { nil }
+    var ethereumGaslessTransactionFeeProvider: (any GaslessTransactionFeeProvider)? { nil }
     var isSupportedTransactionHistory: Bool { false }
     var hasPendingTransactions: Bool { false }
     var hasAnyPendingTransactions: Bool { false }
