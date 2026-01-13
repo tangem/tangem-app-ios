@@ -1,25 +1,24 @@
 //
 //  TangemPayOrderStatusPollingService.swift
-//  TangemApp
+//  TangemPay
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import TangemFoundation
-import TangemVisa
-import TangemPay
 
-final class TangemPayOrderStatusPollingService {
+public final class TangemPayOrderStatusPollingService {
     private let customerService: TangemPayCustomerService
 
     private var orderStatusPollingTask: Task<Void, Never>?
 
-    init(customerService: TangemPayCustomerService) {
+    public init(customerService: TangemPayCustomerService) {
         self.customerService = customerService
     }
 
-    func startOrderStatusPolling(
+    public func startOrderStatusPolling(
         orderId: String,
         interval: TimeInterval,
         onCompleted: @escaping () -> Void,
@@ -60,7 +59,7 @@ final class TangemPayOrderStatusPollingService {
         }
     }
 
-    func cancel() {
+    public func cancel() {
         orderStatusPollingTask?.cancel()
     }
 

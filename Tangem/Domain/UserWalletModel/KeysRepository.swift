@@ -9,10 +9,20 @@
 import Foundation
 import Combine
 import TangemFoundation
+import TangemPay
 
-protocol KeysRepository: AnyObject, KeysProvider {
+protocol KeysRepository: AnyObject, KeysProvider, TangemPayCustomerWalletAddressAndAuthorizationTokensProvider {
     func update(derivations: DerivationResult)
     func update(keys: WalletKeys)
+}
+
+extension KeysRepository {
+    func get(customerWalletId: String) -> (customerWalletAddress: String, tokens: TangemPayAuthorizationTokens)? {
+        TangemPayUtilities.getCustomerWalletAddressAndAuthorizationTokens(
+            customerWalletId: customerWalletId,
+            keysRepository: self
+        )
+    }
 }
 
 protocol KeysProvider {
