@@ -27,7 +27,7 @@ final class TangemPayBuilder {
         )?.tokens
     }
 
-    private lazy var authorizationService = TangemPayAPIServiceBuilder().buildTangemPayAuthorizationService(
+    private lazy var authorizationService = TangemPayAuthorizationServiceBuilder().build(
         customerWalletId: customerWalletId,
         tokens: tokens
     )

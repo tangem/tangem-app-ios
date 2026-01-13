@@ -6,16 +6,6 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import Combine
-
-public protocol TangemPayAuthorizationTokensHandler: AnyObject {
-    var refreshTokenExpired: Bool { get }
-    var authorizationHeader: String? { get }
-
-    func saveTokens(tokens: TangemPayAuthorizationTokens) throws
-    func prepare() async throws(TangemPayAPIServiceError)
-}
-
 public protocol TangemPayAuthorizationService: TangemPayAuthorizationTokensHandler {
     func getChallenge(
         customerWalletAddress: String,

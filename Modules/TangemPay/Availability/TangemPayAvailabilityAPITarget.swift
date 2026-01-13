@@ -1,6 +1,6 @@
 //
 //  TangemPayAvailabilityAPITarget.swift
-//  TangemApp
+//  TangemPay
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
@@ -9,28 +9,27 @@
 import Foundation
 import Moya
 import TangemNetworkUtils
-import TangemPay
 
-struct TangemPayAvailabilityAPITarget: TargetType {
+public struct TangemPayAvailabilityAPITarget: TargetType {
     let target: Target
     let apiType: TangemPayAPIType
 
-    var baseURL: URL {
+    public var baseURL: URL {
         apiType.bffBaseURL
     }
 
-    var path: String {
+    public var path: String {
         switch target {
         case .getEligibility:
             return "customer/eligibility"
         case .validateDeeplink:
             return "deeplink/validate"
-        case .isPaeraCustomer(let customerWalletId, _):
+        case .isPaeraCustomer(let customerWalletId):
             return "customer/wallets/\(customerWalletId)"
         }
     }
 
-    var method: Moya.Method {
+    public var method: Moya.Method {
         switch target {
         case .getEligibility, .isPaeraCustomer:
             return .get
@@ -39,45 +38,36 @@ struct TangemPayAvailabilityAPITarget: TargetType {
         }
     }
 
-    var task: Moya.Task {
+    public var task: Moya.Task {
         switch target {
         case .getEligibility, .isPaeraCustomer:
             return .requestPlain
         case .validateDeeplink(let deeplinkString):
-            let requestData = ValidateDeeplinkRequest(link: deeplinkString)
+            let requestData = TangemPayValidateDeeplinkRequest(link: deeplinkString)
             return .requestJSONEncodable(requestData)
         }
     }
 
-    var headers: [String: String]? {
-        switch target {
-        case .isPaeraCustomer(_, let bffStaticToken):
-            [Constants.apiKeyHeaderName: bffStaticToken]
-        case .getEligibility, .validateDeeplink:
-            nil
-        }
+    public var headers: [String: String]? {
+        nil
     }
 }
 
-extension TangemPayAvailabilityAPITarget {
+public extension TangemPayAvailabilityAPITarget {
     enum Target {
         /// Checks Tangem Pay offer availability for user
         case getEligibility
         case validateDeeplink(deeplinkString: String)
-        case isPaeraCustomer(customerWalletId: String, bffStaticToken: String)
-    }
-
-    enum Constants {
-        static let apiKeyHeaderName = "X-API-KEY"
+        case isPaeraCustomer(customerWalletId: String)
     }
 }
 
 extension TangemPayAvailabilityAPITarget: TargetTypeLogConvertible {
-    var requestDescription: String {
+    public var requestDescription: String {
         path
     }
 
-    var shouldLogResponseBody: Bool {
+    public var shouldLogResponseBody: Bool {
         false
     }
 }
