@@ -9,10 +9,11 @@
 import Foundation
 import TangemNetworkUtils
 import Moya
+import TangemPay
 
 struct ProductActivationAPITarget: TargetType {
     let target: Target
-    let apiType: VisaAPIType
+    let apiType: TangemPayAPIType
 
     var baseURL: URL {
         apiType.bffBaseURL.appendingPathComponent("activation")

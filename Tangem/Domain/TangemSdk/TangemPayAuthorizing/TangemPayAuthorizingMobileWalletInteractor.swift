@@ -13,6 +13,7 @@ import BlockchainSdk
 import TangemMobileWalletSdk
 import TangemVisa
 import TangemLocalization
+import TangemPay
 
 class TangemPayAuthorizingMobileWalletInteractor {
     private let userWalletId: UserWalletId

@@ -7,6 +7,7 @@
 //
 
 import TangemVisa
+import TangemPay
 
 enum TangemPayOnboardingSource {
     case deeplink(String)
@@ -33,7 +34,7 @@ final class TangemPayOnboardingViewModel: ObservableObject {
         self.coordinator = coordinator
         self.closeOfferScreen = closeOfferScreen
 
-        availabilityService = TangemPayAPIServiceBuilder().buildTangemPayAvailabilityService()
+        availabilityService = TangemPayAvailabilityServiceBuilder().build()
     }
 
     func onAppear() {

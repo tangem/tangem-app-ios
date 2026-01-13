@@ -11,6 +11,7 @@ import TangemVisa
 import TangemFoundation
 import TangemLocalization
 import TangemUI
+import TangemPay
 
 protocol TangemPayPinCheckRoutable: AnyObject {
     func openTangemPaySetPin(tangemPayAccount: TangemPayAccount)
@@ -58,10 +59,7 @@ final class TangemPayPinCheckViewModel: ObservableObject, Identifiable {
                 let service = viewModel.tangemPayAccount
                     .customerInfoManagementService
 
-                let publicKey = try await RainCryptoUtilities
-                    .getRainRSAPublicKey(
-                        for: FeatureStorage.instance.visaAPIType
-                    )
+                let publicKey = try await TangemPayUtilities.getRainRSAPublicKey()
 
                 let (secretKey, sessionId) = try RainCryptoUtilities
                     .generateSecretKeyAndSessionId(
