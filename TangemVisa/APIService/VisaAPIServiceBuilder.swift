@@ -9,32 +9,23 @@
 import Foundation
 import Moya
 import TangemNetworkUtils
+import TangemPay
 
 public struct VisaAPIServiceBuilder {
-    private let isMockedAPIEnabled: Bool
-    private let apiType: VisaAPIType
+    private let apiType: TangemPayAPIType
 
-    public init(apiType: VisaAPIType, isMockedAPIEnabled: Bool) {
+    public init(apiType: TangemPayAPIType) {
         self.apiType = apiType
-        self.isMockedAPIEnabled = isMockedAPIEnabled
     }
 
     /// Requirements are changed so this function will be also changed, but for now it is used for testing purposes
     public func buildAuthorizationService(
         urlSessionConfiguration: URLSessionConfiguration = .visaConfiguration
     ) -> VisaAuthorizationService {
-        if isMockedAPIEnabled {
-            return AuthorizationServiceMock()
-        }
-
-        return AuthorizationServiceBuilder(apiType: apiType).build(urlSessionConfiguration: urlSessionConfiguration)
+        AuthorizationServiceBuilder(apiType: apiType).build(urlSessionConfiguration: urlSessionConfiguration)
     }
 
     public func buildAuthorizationTokenRefreshService(urlSessionConfiguration: URLSessionConfiguration) -> VisaAuthorizationTokenRefreshService {
-        if isMockedAPIEnabled {
-            return AuthorizationServiceMock()
-        }
-
-        return AuthorizationServiceBuilder(apiType: apiType).build(urlSessionConfiguration: urlSessionConfiguration)
+        AuthorizationServiceBuilder(apiType: apiType).build(urlSessionConfiguration: urlSessionConfiguration)
     }
 }

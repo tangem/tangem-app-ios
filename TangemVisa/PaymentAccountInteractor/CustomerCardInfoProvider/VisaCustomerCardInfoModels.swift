@@ -7,11 +7,12 @@
 //
 
 import Foundation
+import TangemPay
 
 public struct VisaCustomerCardInfo {
     public let paymentAccount: String
     public let cardWalletAddress: String
-    public let customerInfo: VisaCustomerInfoResponse?
+    public let customerInfo: TangemPayCustomer?
 }
 
 public enum VisaPaymentAccountAddressProviderError: LocalizedError {
