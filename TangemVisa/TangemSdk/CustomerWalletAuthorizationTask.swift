@@ -8,6 +8,7 @@
 
 import BlockchainSdk
 import TangemFoundation
+import TangemPay
 import TangemSdk
 
 public final class CustomerWalletAuthorizationTask: CardSessionRunnable {

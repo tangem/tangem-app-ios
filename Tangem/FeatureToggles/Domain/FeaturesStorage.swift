@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import TangemVisa
+import TangemPay
 import TangemStaking
 
 // MARK: - Provider
@@ -40,7 +40,7 @@ class FeatureStorage {
     var isMockedCardScannerEnabled = true
 
     @AppStorageCompat(FeatureStorageKeys.visaAPIType)
-    var visaAPIType = VisaAPIType.prod
+    var visaAPIType = TangemPayAPIType.prod
 
     @AppStorageCompat(FeatureStorageKeys.tangemAPIType)
     var tangemAPIType = TangemAPIType.prod

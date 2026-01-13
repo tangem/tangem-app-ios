@@ -7,11 +7,12 @@
 //
 
 import TangemNetworkUtils
+import TangemPay
 
 public struct TangemPayCustomerInfoManagementServiceBuilder {
-    private let apiType: VisaAPIType
+    private let apiType: TangemPayAPIType
 
-    public init(apiType: VisaAPIType) {
+    public init(apiType: TangemPayAPIType) {
         self.apiType = apiType
     }
 }

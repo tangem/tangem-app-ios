@@ -8,6 +8,7 @@
 
 import Combine
 import TangemFoundation
+import TangemPay
 import TangemVisa
 
 final class TangemPayManager {

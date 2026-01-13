@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemPay
 
 class VisaConfigProvider {
     private static var instance: VisaConfigProvider?
@@ -40,7 +41,7 @@ class VisaConfigProvider {
         config.txHistoryAPIAdditionalHeaders
     }
 
-    func getRSAPublicKey(apiType: VisaAPIType) -> String {
+    func getRSAPublicKey(apiType: TangemPayAPIType) -> String {
         switch apiType {
         case .prod:
             return config.rsaPublicKey.prod
@@ -49,7 +50,7 @@ class VisaConfigProvider {
         }
     }
 
-    func getRainRSAPublicKey(apiType: VisaAPIType) -> String {
+    func getRainRSAPublicKey(apiType: TangemPayAPIType) -> String {
         switch apiType {
         case .prod:
             return config.rainRSAPublicKey.prod

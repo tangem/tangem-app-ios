@@ -1,6 +1,6 @@
 //
 //  CommonTangemPayAuthorizationService.swift
-//  TangemApp
+//  TangemPay
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
@@ -8,14 +8,12 @@
 
 import Combine
 import TangemFoundation
-import TangemPay
-import TangemSdk
 
-final class CommonTangemPayAuthorizationService {
+public final class CommonTangemPayAuthorizationService {
     private let customerWalletId: String
     private let authorizationTokensRepository: TangemPayAuthorizationTokensRepository
 
-    private let apiType: VisaAPIType
+    private let apiType: TangemPayAPIType
     private let apiService: TangemPayAPIService<TangemPayAuthorizationAPITarget>
 
     private let authorizationTokensHolder: ThreadSafeContainer<TangemPayAuthorizationTokens?>
@@ -25,10 +23,10 @@ final class CommonTangemPayAuthorizationService {
         authorizationTokensHolder.read()
     }
 
-    init(
+    public init(
         customerWalletId: String,
         authorizationTokensRepository: TangemPayAuthorizationTokensRepository,
-        apiType: VisaAPIType,
+        apiType: TangemPayAPIType,
         apiService: TangemPayAPIService<TangemPayAuthorizationAPITarget>,
         tokens: TangemPayAuthorizationTokens?
     ) {
@@ -52,7 +50,7 @@ final class CommonTangemPayAuthorizationService {
 }
 
 extension CommonTangemPayAuthorizationService: TangemPayAuthorizationService {
-    func getChallenge(
+    public func getChallenge(
         customerWalletAddress: String,
         customerWalletId: String
     ) async throws -> TangemPayGetChallengeResponse {
@@ -68,7 +66,7 @@ extension CommonTangemPayAuthorizationService: TangemPayAuthorizationService {
         )
     }
 
-    func getTokens(
+    public func getTokens(
         sessionId: String,
         signedChallenge: String,
         messageFormat: String
@@ -87,7 +85,7 @@ extension CommonTangemPayAuthorizationService: TangemPayAuthorizationService {
         )
     }
 
-    func refreshTokens(refreshToken: String) async throws(TangemPayAPIServiceError) -> TangemPayAuthorizationTokens {
+    public func refreshTokens(refreshToken: String) async throws(TangemPayAPIServiceError) -> TangemPayAuthorizationTokens {
         try await apiService.request(
             .init(
                 target: .refreshTokens(.init(refreshToken: refreshToken)),
@@ -99,18 +97,18 @@ extension CommonTangemPayAuthorizationService: TangemPayAuthorizationService {
 }
 
 extension CommonTangemPayAuthorizationService: TangemPayAuthorizationTokensHandler {
-    var refreshTokenExpired: Bool {
+    public var refreshTokenExpired: Bool {
         tokens?.refreshTokenExpired ?? true
     }
 
-    var authorizationHeader: String? {
+    public var authorizationHeader: String? {
         guard let tokens else {
             return nil
         }
-        return AuthorizationTokensUtility.getAuthorizationHeader(from: tokens)
+        return "Bearer " + tokens.accessToken
     }
 
-    func saveTokens(tokens: TangemPayAuthorizationTokens) throws {
+    public func saveTokens(tokens: TangemPayAuthorizationTokens) throws {
         authorizationTokensHolder.mutate {
             $0 = tokens
         }
@@ -118,7 +116,7 @@ extension CommonTangemPayAuthorizationService: TangemPayAuthorizationTokensHandl
         try authorizationTokensRepository.save(tokens: tokens, customerWalletId: customerWalletId)
     }
 
-    func prepare() async throws(TangemPayAPIServiceError) {
+    public func prepare() async throws(TangemPayAPIServiceError) {
         try await taskProcessor.execute { [weak self] () async throws(TangemPayAPIServiceError) in
             try await self?.refreshTokenIfNeeded()
         }

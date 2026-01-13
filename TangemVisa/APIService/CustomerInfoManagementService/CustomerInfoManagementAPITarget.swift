@@ -7,12 +7,13 @@
 //
 
 import Foundation
-import TangemNetworkUtils
 import Moya
+import TangemNetworkUtils
+import TangemPay
 
 struct CustomerInfoManagementAPITarget: TargetType {
     let target: Target
-    let apiType: VisaAPIType
+    let apiType: TangemPayAPIType
     let encoder: JSONEncoder
 
     var baseURL: URL {
