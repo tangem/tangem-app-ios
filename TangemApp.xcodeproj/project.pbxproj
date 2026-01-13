@@ -2939,8 +2939,6 @@
 		DA6C752429225F9B0070EEFD /* MinimizedAppTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA6C752329225F9B0070EEFD /* MinimizedAppTimer.swift */; };
 		DA6C752C292909B20070EEFD /* UserWalletDataStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA6C752B292909B20070EEFD /* UserWalletDataStorage.swift */; };
 		DA7046172AAA180A00808FA8 /* LineChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7046162AAA180900808FA8 /* LineChartView.swift */; };
-		DA709FF82E167E2A006B9774 /* IdensicMobileSDK in Frameworks */ = {isa = PBXBuildFile; productRef = DA709FF72E167E2A006B9774 /* IdensicMobileSDK */; };
-		DA709FFA2E167E36006B9774 /* IdensicMobileSDK in Frameworks */ = {isa = PBXBuildFile; productRef = DA709FF92E167E36006B9774 /* IdensicMobileSDK */; };
 		DA71FCA62A20D08500C8D1F7 /* LearnAndEarnStoryPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA71FCA52A20D08500C8D1F7 /* LearnAndEarnStoryPage.swift */; };
 		DA72BEB92EC33B0800F06EB5 /* TangemPayFreezingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA72BEB82EC33B0800F06EB5 /* TangemPayFreezingState.swift */; };
 		DA72BEBC2EC33E6E00F06EB5 /* TangemPayFreezeUnfreezeRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA72BEBB2EC33E6E00F06EB5 /* TangemPayFreezeUnfreezeRequest.swift */; };
@@ -9242,7 +9240,6 @@
 				DCED46532EF04FD20021AC0D /* CryptoSwift in Frameworks */,
 				0ABC61152C410AFD00065EBA /* TweetNacl in Frameworks */,
 				B608020F2ECEA1E600CC5F4E /* AnyCodable in Frameworks */,
-				DA709FFA2E167E36006B9774 /* IdensicMobileSDK in Frameworks */,
 				B62C248B2CF48327003377F1 /* FirebaseMessaging in Frameworks */,
 				DCB616E72CB3A63800BE4481 /* ReownWalletKit in Frameworks */,
 				B660E23D2E1431060069A5E8 /* ZIPFoundation in Frameworks */,
@@ -9277,7 +9274,6 @@
 				B62D34102CBC4C5800C2460E /* BlockchainSdk.framework in Frameworks */,
 				B0D70D482CE5FB6800A8A0F1 /* JWTDecode in Frameworks */,
 				B67E38BB2CC7179000D660EB /* TangemSdk in Frameworks */,
-				DA709FF82E167E2A006B9774 /* IdensicMobileSDK in Frameworks */,
 				B6C0D3FB2CBDC6DD001113ED /* Moya in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -25214,7 +25210,6 @@
 				B6C144062DFD1BF8008E9478 /* DGCharts */,
 				B6E27FA42DFD1CAC00B29813 /* TangemModules */,
 				B660E23C2E1431060069A5E8 /* ZIPFoundation */,
-				DA709FF92E167E36006B9774 /* IdensicMobileSDK */,
 				C28E016A2E79A6FA00B47571 /* AppsFlyerLib-Strict */,
 				2D67256A2EB0A6490035A4BC /* Experiment */,
 				B608020E2ECEA1E600CC5F4E /* AnyCodable */,
@@ -25285,7 +25280,6 @@
 				B67E38BA2CC7179000D660EB /* TangemSdk */,
 				B0D70D472CE5FB6800A8A0F1 /* JWTDecode */,
 				F92DB9C82CD4C2F400C16530 /* TangemModules */,
-				DA709FF72E167E2A006B9774 /* IdensicMobileSDK */,
 				DCED46542EF04FDB0021AC0D /* CryptoSwift */,
 			);
 			productName = TangemVisa;
@@ -25592,7 +25586,6 @@
 				3075F0CE2DCA6B3A0094B4C7 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				3076C5332E0D9F1E00F6E835 /* XCRemoteSwiftPackageReference "ton-swift" */,
 				B6DB40D22E142F260023A90A /* XCRemoteSwiftPackageReference "grpc-swift" */,
-				DA709FF62E167E2A006B9774 /* XCRemoteSwiftPackageReference "IdensicMobileSDK-iOS" */,
 				0AE2C97E2E58838000D3B9EB /* XCRemoteSwiftPackageReference "swift-collections" */,
 				C28E01692E79A6FA00B47571 /* XCRemoteSwiftPackageReference "AppsFlyerFramework-Strict" */,
 				2D26855E2EB09D3A000E472A /* XCRemoteSwiftPackageReference "experiment-ios-client" */,
@@ -36348,14 +36341,6 @@
 				version = 6.17.2;
 			};
 		};
-		DA709FF62E167E2A006B9774 /* XCRemoteSwiftPackageReference "IdensicMobileSDK-iOS" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/SumSubstance/IdensicMobileSDK-iOS.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.39.0;
-			};
-		};
 		DCB616E32CB39A8100BE4481 /* XCRemoteSwiftPackageReference "reown-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/reown-com/reown-swift.git";
@@ -36675,16 +36660,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = C28E01692E79A6FA00B47571 /* XCRemoteSwiftPackageReference "AppsFlyerFramework-Strict" */;
 			productName = "AppsFlyerLib-Strict";
-		};
-		DA709FF72E167E2A006B9774 /* IdensicMobileSDK */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = DA709FF62E167E2A006B9774 /* XCRemoteSwiftPackageReference "IdensicMobileSDK-iOS" */;
-			productName = IdensicMobileSDK;
-		};
-		DA709FF92E167E36006B9774 /* IdensicMobileSDK */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = DA709FF62E167E2A006B9774 /* XCRemoteSwiftPackageReference "IdensicMobileSDK-iOS" */;
-			productName = IdensicMobileSDK;
 		};
 		DC2CA0DC2EF069BC00C10344 /* CryptoSwift */ = {
 			isa = XCSwiftPackageProductDependency;
