@@ -23,8 +23,6 @@ final class MarketsSearchViewModel: MarketsBaseViewModel {
     @Published private(set) var isSearching: Bool = false
     @Published private(set) var yieldModeNotificationVisible = false
 
-    let resetScrollPositionPublisher = PassthroughSubject<Void, Never>()
-
     override var overlayContentHidingProgress: CGFloat {
         // Prevents unwanted content hiding (see [REDACTED_INFO]
         isViewVisible ? super.overlayContentHidingProgress : 1.0
