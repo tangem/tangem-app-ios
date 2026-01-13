@@ -170,6 +170,10 @@ protocol WalletModelDependenciesProvider {
 
     var accountInitializationService: BlockchainAccountInitializationService? { get }
     var minimalBalanceProvider: MinimalBalanceProvider? { get }
+
+    // MARK: - Gasless Transactions
+
+    var ethereumGaslessTransactionFeeProvider: (any GaslessTransactionFeeProvider)? { get }
 }
 
 // MARK: - Tx history
