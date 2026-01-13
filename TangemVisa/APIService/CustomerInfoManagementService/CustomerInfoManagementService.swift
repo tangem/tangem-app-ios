@@ -38,7 +38,7 @@ public protocol CustomerInfoManagementService: AnyObject {
     func getOrder(orderId: String) async throws -> TangemPayOrderResponse
 
     @discardableResult
-    func cancelKYC() async throws -> TangemPayCancelKYCResponse
+    func cancelKYC() async throws -> TangemPaySetPayEnabledResponse
 }
 
 final class CommonCustomerInfoManagementService {
