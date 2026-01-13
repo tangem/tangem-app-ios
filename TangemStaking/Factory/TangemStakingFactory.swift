@@ -17,27 +17,33 @@ public struct TangemStakingFactory {
         integrationId: String,
         wallet: StakingWallet,
         provider: StakeKitAPIProvider,
+        yieldInfoProvider: StakingYieldInfoProvider,
         stateRepository: StakingManagerStateRepository,
         analyticsLogger: StakingAnalyticsLogger
     ) -> StakingManager {
         StakeKitStakingManager(
             integrationId: integrationId,
             wallet: wallet,
-            provider: provider,
+            apiProvider: provider,
+            yieldInfoProvider: yieldInfoProvider,
             stateRepository: stateRepository,
             analyticsLogger: analyticsLogger
         )
     }
 
     public func makeP2PStakingManager(
+        integrationId: String,
         wallet: StakingWallet,
         provider: P2PAPIProvider,
+        yieldInfoProvider: StakingYieldInfoProvider,
         stateRepository: StakingManagerStateRepository,
         analyticsLogger: StakingAnalyticsLogger
     ) -> StakingManager {
         P2PStakingManager(
+            integrationId: integrationId,
             wallet: wallet,
-            provider: provider,
+            apiProvider: provider,
+            yieldInfoProvider: yieldInfoProvider,
             stateRepository: stateRepository,
             analyticsLogger: analyticsLogger
         )
