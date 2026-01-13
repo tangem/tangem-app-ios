@@ -1,23 +1,24 @@
 //
 //  TangemPayAuthorizationAPITarget.swift
-//  TangemApp
+//  TangemPay
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import Moya
 import TangemNetworkUtils
 
-struct TangemPayAuthorizationAPITarget: TargetType {
+public struct TangemPayAuthorizationAPITarget: TargetType {
     let target: Target
-    let apiType: VisaAPIType
+    let apiType: TangemPayAPIType
 
-    var baseURL: URL {
+    public var baseURL: URL {
         apiType.baseURL.appendingPathComponent("auth")
     }
 
-    var path: String {
+    public var path: String {
         switch target {
         case .getChallenge:
             return "challenge"
@@ -28,7 +29,7 @@ struct TangemPayAuthorizationAPITarget: TargetType {
         }
     }
 
-    var method: Moya.Method {
+    public var method: Moya.Method {
         switch target {
         case .getChallenge,
              .getTokens,
@@ -37,7 +38,7 @@ struct TangemPayAuthorizationAPITarget: TargetType {
         }
     }
 
-    var task: Moya.Task {
+    public var task: Moya.Task {
         let jsonEncoder = JSONEncoder()
         jsonEncoder.keyEncodingStrategy = .convertToSnakeCase
         let encodable: Encodable
@@ -52,7 +53,7 @@ struct TangemPayAuthorizationAPITarget: TargetType {
         return .requestCustomJSONEncodable(encodable, encoder: jsonEncoder)
     }
 
-    var headers: [String: String]? {
+    public var headers: [String: String]? {
         ["Content-Type": "application/json"]
     }
 }
@@ -66,11 +67,11 @@ extension TangemPayAuthorizationAPITarget {
 }
 
 extension TangemPayAuthorizationAPITarget: TargetTypeLogConvertible {
-    var requestDescription: String {
+    public var requestDescription: String {
         path
     }
 
-    var shouldLogResponseBody: Bool {
+    public var shouldLogResponseBody: Bool {
         false
     }
 }

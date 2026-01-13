@@ -1,13 +1,12 @@
 //
 //  TangemPayAuthorizationService.swift
-//  TangemApp
+//  TangemPay
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
 import Combine
-import TangemPay
 
 public protocol TangemPayAuthorizationTokensHandler: AnyObject {
     var refreshTokenExpired: Bool { get }

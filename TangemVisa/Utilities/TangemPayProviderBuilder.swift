@@ -9,6 +9,7 @@
 import Foundation
 import Moya
 import TangemNetworkUtils
+import TangemPay
 
 struct TangemPayProviderBuilder {
     func buildProvider<T: TargetType>(

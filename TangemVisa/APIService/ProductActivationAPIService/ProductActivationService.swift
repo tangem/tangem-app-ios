@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemPay
 
 protocol ProductActivationService {
     func getVisaCardDeployAcceptance(
@@ -45,10 +46,10 @@ struct CommonProductActivationService {
     typealias ActivationAPIService = APIService<ProductActivationAPITarget>
     private let apiService: ActivationAPIService
 
-    private let apiType: VisaAPIType
+    private let apiType: TangemPayAPIType
 
     init(
-        apiType: VisaAPIType,
+        apiType: TangemPayAPIType,
         apiService: ActivationAPIService
     ) {
         self.apiType = apiType
