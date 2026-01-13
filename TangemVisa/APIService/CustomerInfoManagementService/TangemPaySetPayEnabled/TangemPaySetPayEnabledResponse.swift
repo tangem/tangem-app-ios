@@ -1,5 +1,5 @@
 //
-//  TangemPayCancelKYCResponse.swift
+//  TangemPaySetPayEnabledResponse.swift
 //  TangemVisa
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,6 +8,6 @@
 
 import Foundation
 
-public struct TangemPayCancelKYCResponse: Decodable {
+public struct TangemPaySetPayEnabledResponse: Decodable {
     public init() {}
 }
