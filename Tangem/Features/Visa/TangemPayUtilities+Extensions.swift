@@ -7,6 +7,8 @@
 //
 
 import BlockchainSdk
+import TangemPay
+import TangemSdk
 import TangemVisa
 
 extension TangemPayUtilities {
@@ -38,6 +40,29 @@ extension TangemPayUtilities {
             currencyCode: "USD",
             fractionDigits: 2
         )
+    }
+
+    static var mandatoryCurve: EllipticCurve {
+        .secp256k1
+    }
+
+    static var blockchain: Blockchain {
+        .polygon(testnet: false)
+    }
+
+    static var derivationPath: DerivationPath {
+        try! DerivationPath(rawPath: "m/44'/60'/999999'/0/0")
+    }
+
+    static func makeAddress(using walletPublicKey: Wallet.PublicKey) throws -> String {
+        try AddressServiceFactory(blockchain: TangemPayUtilities.blockchain)
+            .makeAddressService()
+            .makeAddress(for: walletPublicKey, with: .default)
+            .value
+    }
+
+    static func getRainRSAPublicKey() throws -> String {
+        try VisaConfigProvider.shared().getRainRSAPublicKey(apiType: FeatureStorage.instance.tangemPayAPIType)
     }
 
     static func getKey(from repository: KeysRepository) -> Wallet.PublicKey? {
