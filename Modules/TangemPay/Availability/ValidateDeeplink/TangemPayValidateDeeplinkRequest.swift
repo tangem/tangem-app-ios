@@ -1,11 +1,11 @@
 //
-//  ValidateDeeplinkRequest.swift
-//  TangemApp
+//  TangemPayValidateDeeplinkRequest.swift
+//  TangemPay
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-struct ValidateDeeplinkRequest: Encodable {
+struct TangemPayValidateDeeplinkRequest: Encodable {
     let link: String
 }

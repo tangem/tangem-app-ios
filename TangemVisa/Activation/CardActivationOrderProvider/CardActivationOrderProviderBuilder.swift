@@ -28,8 +28,9 @@ struct CardActivationOrderProviderBuilder {
             apiType: apiType,
             apiService: .init(
                 provider: TangemPayProviderBuilder().buildProvider(
+                    bffStaticToken: "",
+                    authorizationTokensHandler: nil,
                     configuration: urlSessionConfiguration,
-                    authorizationTokensHandler: nil
                 ),
                 decoder: JSONDecoderFactory().makePayAPIDecoder()
             )
