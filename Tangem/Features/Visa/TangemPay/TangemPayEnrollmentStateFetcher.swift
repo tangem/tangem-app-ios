@@ -50,7 +50,7 @@ struct TangemPayEnrollmentStateFetcher {
             return true
         }
 
-        let availabilityService = TangemPayAPIServiceBuilder().buildTangemPayAvailabilityService()
+        let availabilityService = TangemPayAvailabilityServiceBuilder().build()
         guard let isPaeraCustomerResponse = try? await availabilityService.isPaeraCustomer(customerWalletId: customerWalletId) else {
             return false
         }
