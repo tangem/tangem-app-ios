@@ -141,7 +141,7 @@ struct OnboardingSeedPhraseImportView: View {
 struct OnboardingSeedPhraseImportView_Previews: PreviewProvider {
     private static let viewModel = OnboardingSeedPhraseImportViewModel(
         inputProcessor: SeedPhraseInputProcessor(),
-        shouldShowTangemIcon: true,
+        tangemIconProvider: CommonTangemIconProvider(hasNFCInteraction: true),
         delegate: nil
     )
 
