@@ -77,12 +77,7 @@ final class MobileOnboardingAccessCodeViewModel: ObservableObject {
     }
 
     var isPinSecured: Bool {
-        switch state {
-        case .accessCode:
-            false
-        case .confirmAccessCode:
-            true
-        }
+        true
     }
 
     var pinColor: Color {
