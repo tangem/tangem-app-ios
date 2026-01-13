@@ -7,25 +7,24 @@
 //
 
 import Foundation
+import TangemPay
 
 public struct VisaCardActivationStatusServiceBuilder {
-    private let isMockedAPIEnabled: Bool
-    private let apiType: VisaAPIType
+    private let apiType: TangemPayAPIType
 
-    public init(apiType: VisaAPIType, isMockedAPIEnabled: Bool) {
+    public init(apiType: TangemPayAPIType) {
         self.apiType = apiType
-        self.isMockedAPIEnabled = isMockedAPIEnabled
     }
 
     public func build(urlSessionConfiguration: URLSessionConfiguration) -> VisaCardActivationStatusService {
-        if isMockedAPIEnabled {
-            return CardActivationStatusServiceMock()
-        }
-
-        return CommonCardActivationStatusService(
+        CommonCardActivationStatusService(
             apiType: apiType,
             apiService: .init(
-                provider: TangemPayProviderBuilder().buildProvider(configuration: urlSessionConfiguration, authorizationTokensHandler: nil),
+                provider: TangemPayProviderBuilder().buildProvider(
+                    bffStaticToken: "",
+                    authorizationTokensHandler: nil,
+                    configuration: urlSessionConfiguration
+                ),
                 decoder: JSONDecoderFactory().makePayAPIDecoder()
             )
         )

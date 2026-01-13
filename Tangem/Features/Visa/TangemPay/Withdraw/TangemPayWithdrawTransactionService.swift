@@ -11,6 +11,7 @@ import BlockchainSdk
 import TangemVisa
 import TangemExpress
 import TangemFoundation
+import TangemPay
 
 protocol TangemPayWithdrawTransactionServiceOutput: AnyObject {
     func withdrawTransactionDidSent()
@@ -24,7 +25,7 @@ protocol TangemPayWithdrawTransactionService {
 }
 
 class CommonTangemPayWithdrawTransactionService {
-    private let customerInfoManagementService: any CustomerInfoManagementService
+    private let customerInfoManagementService: any TangemPayCustomerService
     private let fiatItem: FiatItem
     private let signer: any TangemSigner
 
@@ -32,7 +33,7 @@ class CommonTangemPayWithdrawTransactionService {
     private weak var output: TangemPayWithdrawTransactionServiceOutput?
 
     init(
-        customerInfoManagementService: any CustomerInfoManagementService,
+        customerInfoManagementService: any TangemPayCustomerService,
         fiatItem: FiatItem,
         signer: any TangemSigner,
     ) {

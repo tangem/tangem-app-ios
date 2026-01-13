@@ -14,6 +14,7 @@ import TangemVisa
 import TangemUIUtils
 import TangemFoundation
 import TangemLocalization
+import TangemPay
 
 final class TangemPayMainViewModel: ObservableObject {
     let tangemPayCardDetailsViewModel: TangemPayCardDetailsViewModel

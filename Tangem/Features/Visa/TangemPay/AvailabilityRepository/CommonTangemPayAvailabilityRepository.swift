@@ -9,6 +9,7 @@
 import Combine
 import TangemFoundation
 import TangemVisa
+import TangemPay
 
 final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityRepository {
     @Injected(\.userWalletRepository)
@@ -86,8 +87,7 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
             .eraseToAnyPublisher()
     }
 
-    private let availabilityService = TangemPayAPIServiceBuilder()
-        .buildTangemPayAvailabilityService()
+    private let availabilityService = TangemPayAvailabilityServiceBuilder().build()
 
     private var bag = Set<AnyCancellable>()
 
@@ -100,7 +100,7 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
         runTask(in: self) { repository in
             do {
                 let isTangemPayAvailable = try await repository.availabilityService
-                    .loadEligibility()
+                    .eligibility()
                     .isTangemPayAvailable
 
                 repository._isTangemPayAvailable.send(isTangemPayAvailable)

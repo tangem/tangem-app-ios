@@ -7,6 +7,7 @@
 //
 
 import TangemVisa
+import TangemPay
 
 struct TangemPayAccountBuilder {
     func makeTangemPayAccount(authorizerType: AuthorizerType, userWalletModel: UserWalletModel) async throws -> TangemPayAccount {
@@ -31,7 +32,7 @@ private extension TangemPayAccountBuilder {
     /// Uses in `CommonUserWalletModel`
     func makeTangemPayAuthorizerViaAvailabilityService(userWalletModel: UserWalletModel) async -> TangemPayAuthorizer? {
         let customerWalletId = userWalletModel.userWalletId.stringValue
-        let availabilityService = TangemPayAPIServiceBuilder().buildTangemPayAvailabilityService()
+        let availabilityService = TangemPayAvailabilityServiceBuilder().build()
 
         let state: TangemPayAuthorizer.State? = await {
             do {
@@ -100,16 +101,9 @@ private extension TangemPayAccountBuilder {
     }
 
     func makeTangemPayAccount(authorizer: TangemPayAuthorizer, userWalletModel: UserWalletModel) -> TangemPayAccount {
-        let authorizationTokensHandler = TangemPayAuthorizationTokensHandlerBuilder()
-            .buildTangemPayAuthorizationTokensHandler(
-                customerWalletId: authorizer.customerWalletId,
-                authorizationService: authorizer.authorizationService,
-                setSyncNeeded: authorizer.setSyncNeeded,
-                setUnavailable: authorizer.setUnavailable
-            )
+        let authorizationTokensHandler = authorizer.authorizationService
 
-        let customerInfoManagementService = TangemPayCustomerInfoManagementServiceBuilder()
-            .buildCustomerInfoManagementService(authorizationTokensHandler: authorizationTokensHandler)
+        let customerInfoManagementService = TangemPayCustomerServiceBuilder().build(authorizationTokensHandler: authorizationTokensHandler)
 
         let tokenBalancesRepository = CommonTokenBalancesRepository(
             userWalletId: userWalletModel.userWalletId

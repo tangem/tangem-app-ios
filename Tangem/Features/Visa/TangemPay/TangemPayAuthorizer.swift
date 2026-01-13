@@ -9,6 +9,7 @@
 import BlockchainSdk
 import Combine
 import TangemVisa
+import TangemPay
 
 final class TangemPayAuthorizer {
     let customerWalletId: String
@@ -35,10 +36,10 @@ final class TangemPayAuthorizer {
         interactor: TangemPayAuthorizing,
         keysRepository: KeysRepository,
         state: State,
-        authorizationService: TangemPayAuthorizationService = TangemPayAPIServiceBuilder().buildTangemPayAuthorizationService()
+        authorizationService: TangemPayAuthorizationService? = nil
     ) {
         self.customerWalletId = customerWalletId
-        self.authorizationService = authorizationService
+        self.authorizationService = authorizationService ?? TangemPayAuthorizationServiceBuilder().build(customerWalletId: customerWalletId, tokens: nil)
         self.interactor = interactor
         self.keysRepository = keysRepository
 

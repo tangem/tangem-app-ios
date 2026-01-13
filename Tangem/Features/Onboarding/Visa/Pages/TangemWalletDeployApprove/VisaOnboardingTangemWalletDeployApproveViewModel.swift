@@ -117,7 +117,7 @@ private extension VisaOnboardingTangemWalletDeployApproveViewModel {
         let task = await VisaCustomerWalletApproveTask(
             targetAddress: targetWalletAddress,
             approveData: dataToSign,
-            isTestnet: FeatureStorage.instance.visaAPIType.isTestnet
+            isTestnet: FeatureStorage.instance.tangemPayAPIType.isTestnet
         )
         let tangemSdk = TangemSdkDefaultFactory().makeTangemSdk()
         let signResponse: VisaSignedApproveResponse = try await withCheckedThrowingContinuation { continuation in
