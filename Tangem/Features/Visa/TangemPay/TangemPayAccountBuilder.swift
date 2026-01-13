@@ -7,6 +7,7 @@
 //
 
 import TangemFoundation
+import TangemPay
 import TangemVisa
 
 final class TangemPayBuilder {

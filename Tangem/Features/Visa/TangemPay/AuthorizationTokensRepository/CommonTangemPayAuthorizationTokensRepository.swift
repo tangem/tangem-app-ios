@@ -7,6 +7,7 @@
 //
 
 import LocalAuthentication
+import TangemPay
 import TangemSdk
 import TangemVisa
 

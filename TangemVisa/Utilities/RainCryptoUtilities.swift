@@ -7,6 +7,7 @@
 //
 
 import CryptoKit
+import TangemPay
 import TangemSdk
 
 public enum RainCryptoUtilities {
@@ -20,7 +21,7 @@ public enum RainCryptoUtilities {
         return keyAttributes as CFDictionary
     }
 
-    public static func getRainRSAPublicKey(for apiType: VisaAPIType) throws -> String {
+    public static func getRainRSAPublicKey(for apiType: TangemPayAPIType) throws -> String {
         try VisaConfigProvider.shared().getRainRSAPublicKey(apiType: apiType)
     }
 

@@ -6,15 +6,16 @@
 //  Copyright © 2020 Tangem AG. All rights reserved.
 //
 
-import Foundation
-import LocalAuthentication
 import Combine
 import CryptoKit
+import Foundation
+import LocalAuthentication
+import TangemFoundation
+import TangemLocalization
+import TangemMobileWalletSdk
+import TangemPay
 import TangemSdk
 import TangemVisa
-import TangemLocalization
-import TangemFoundation
-import TangemMobileWalletSdk
 
 class CommonUserWalletRepository: UserWalletRepository {
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository

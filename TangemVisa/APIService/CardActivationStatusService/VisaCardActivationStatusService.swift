@@ -8,6 +8,7 @@
 
 import Foundation
 import Moya
+import TangemPay
 
 public protocol VisaCardActivationStatusService {
     func getCardActivationStatus(
@@ -20,9 +21,9 @@ struct CommonCardActivationStatusService {
     typealias ActivationStatusService = APIService<ProductActivationAPITarget>
     private let apiService: ActivationStatusService
 
-    private let apiType: VisaAPIType
+    private let apiType: TangemPayAPIType
 
-    init(apiType: VisaAPIType, apiService: ActivationStatusService) {
+    init(apiType: TangemPayAPIType, apiService: ActivationStatusService) {
         self.apiType = apiType
         self.apiService = apiService
     }

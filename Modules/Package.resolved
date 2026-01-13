@@ -1,5 +1,5 @@
 {
-  "originHash" : "7fc76098da54363fd94070f3dd86def07ed73746b266db8fd0804778b34bded0",
+  "originHash" : "9c7e3a81e519fb703cc4b89eb10c3c9f32362f2428d0ad9d5476bf09e6339637",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -89,6 +89,15 @@
       "state" : {
         "revision" : "4799286537280063c85a32f09884cfbca301b1a1",
         "version" : "602.0.0"
+      }
+    },
+    {
+      "identity" : "swiftdate",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/malcommac/SwiftDate",
+      "state" : {
+        "revision" : "5d943224c3bb173e6ecf27295611615eba90c80e",
+        "version" : "7.0.0"
       }
     },
     {

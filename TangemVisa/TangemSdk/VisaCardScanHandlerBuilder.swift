@@ -8,13 +8,14 @@
 
 import Foundation
 import TangemNetworkUtils
+import TangemPay
 
 public struct VisaCardScanHandlerBuilder {
     private let isTestnet: Bool
     private let apiServiceBuilder: VisaAPIServiceBuilder
     private let cardActivationStatusServiceBuilder: VisaCardActivationStatusServiceBuilder
 
-    public init(apiType: VisaAPIType) {
+    public init(apiType: TangemPayAPIType) {
         isTestnet = apiType.isTestnet
         apiServiceBuilder = VisaAPIServiceBuilder(apiType: apiType)
         cardActivationStatusServiceBuilder = VisaCardActivationStatusServiceBuilder(apiType: apiType)

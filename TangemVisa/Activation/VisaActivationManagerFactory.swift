@@ -7,14 +7,15 @@
 //
 
 import Foundation
-import TangemSdk
 import Moya
+import TangemPay
+import TangemSdk
 
 public struct VisaActivationManagerFactory {
-    private let apiType: VisaAPIType
+    private let apiType: TangemPayAPIType
     private let isTestnet: Bool
 
-    public init(apiType: VisaAPIType, isTestnet: Bool) {
+    public init(apiType: TangemPayAPIType, isTestnet: Bool) {
         self.apiType = apiType
         self.isTestnet = isTestnet
     }
