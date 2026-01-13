@@ -186,6 +186,8 @@ extension VisaAPIError: VisaError {
     }
 }
 
+// [REDACTED_TODO_COMMENT]
+// [REDACTED_INFO]
 extension TangemPayKYCService.TangemPayKYCServiceError: @retroactive UniversalError, @retroactive LocalizedError, VisaError {
     public var errorCode: Int {
         switch self {
@@ -197,6 +199,8 @@ extension TangemPayKYCService.TangemPayKYCServiceError: @retroactive UniversalEr
     }
 }
 
+// [REDACTED_TODO_COMMENT]
+// [REDACTED_INFO]
 extension RainCryptoUtilities.RainCryptoUtilitiesError: @retroactive UniversalError, @retroactive LocalizedError, VisaError {
     public var errorCode: Int {
         switch self {
