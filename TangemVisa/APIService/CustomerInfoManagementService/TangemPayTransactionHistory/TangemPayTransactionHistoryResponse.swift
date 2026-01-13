@@ -75,14 +75,14 @@ public extension TangemPayTransactionHistoryResponse {
         public let enrichedMerchantCategory: String?
         public let cardId: String
         public let cardType: String
-        public let status: String
+        public let status: PaymentStatus
         public let declinedReason: String?
         public let authorizedAt: Date
         public let postedAt: Date?
 
         // [REDACTED_TODO_COMMENT]
         public var isDeclined: Bool {
-            status == "declined"
+            status == .declined
         }
     }
 
@@ -110,6 +110,7 @@ public extension TangemPayTransactionHistoryResponse {
     enum PaymentStatus: String, Codable, Equatable {
         case pending
         case completed
+        case declined
     }
 
     struct Fee: Codable, Equatable {
