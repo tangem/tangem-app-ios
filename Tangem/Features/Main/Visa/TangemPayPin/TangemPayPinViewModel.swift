@@ -12,6 +12,7 @@ import TangemVisa
 import TangemFoundation
 import UIKit
 import TangemLocalization
+import TangemPay
 
 protocol TangemPayPinRoutable: AnyObject {
     func closeTangemPayPin()
@@ -56,11 +57,11 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
 
         runTask(in: self) { [pin] viewModel in
             do {
-                let publicKey = try await RainCryptoUtilities.getRainRSAPublicKey(for: FeatureStorage.instance.visaAPIType)
+                let publicKey = try await TangemPayUtilities.getRainRSAPublicKey(for: FeatureStorage.instance.visaAPIType)
                 let (secretKey, sessionId) = try RainCryptoUtilities.generateSecretKeyAndSessionId(publicKey: publicKey)
                 let (encryptedPin, iv) = try RainCryptoUtilities.encryptPin(pin: pin, secretKey: secretKey)
 
-                let response = try await viewModel.tangemPayAccount.customerInfoManagementService.setPin(
+                let response = try await viewModel.tangemPayAccount.customerService.setPin(
                     pin: encryptedPin,
                     sessionId: sessionId,
                     iv: iv

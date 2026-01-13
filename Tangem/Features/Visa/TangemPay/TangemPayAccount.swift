@@ -17,17 +17,17 @@ import TangemAssets
 import TangemLocalization
 
 final class TangemPayAccount {
-    var statusPublisher: AnyPublisher<VisaCustomerInfoResponse.ProductStatus, Never> {
+    var statusPublisher: AnyPublisher<TangemPayCustomer.ProductStatus, Never> {
         customerInfoSubject
             .map(\.productInstance.status)
             .eraseToAnyPublisher()
     }
 
-    var card: VisaCustomerInfoResponse.Card? {
+    var card: TangemPayCustomer.Card? {
         customerInfoSubject.value.customerInfo.cardIfActiveOrBlocked
     }
 
-    var cardPublisher: AnyPublisher<VisaCustomerInfoResponse.Card?, Never> {
+    var cardPublisher: AnyPublisher<TangemPayCustomer.Card?, Never> {
         customerInfoSubject
             .map(\.customerInfo.cardIfActiveOrBlocked)
             .eraseToAnyPublisher()
@@ -44,7 +44,7 @@ final class TangemPayAccount {
 
     var balancesProvider: TangemPayBalancesProvider { balancesService }
 
-    let customerInfoManagementService: any CustomerInfoManagementService
+    let customerService: any TangemPayCustomerService
     let withdrawTransactionService: any TangemPayWithdrawTransactionService
 
     private let orderStatusPollingService: TangemPayOrderStatusPollingService
@@ -59,12 +59,12 @@ final class TangemPayAccount {
 
     private let balancesService: any TangemPayBalancesService
 
-    private let customerInfoSubject: CurrentValueSubject<(customerInfo: VisaCustomerInfoResponse, productInstance: VisaCustomerInfoResponse.ProductInstance), Never>
+    private let customerInfoSubject: CurrentValueSubject<(customerInfo: TangemPayCustomer, productInstance: TangemPayCustomer.ProductInstance), Never>
 
     init(
-        customerInfo: VisaCustomerInfoResponse,
-        productInstance: VisaCustomerInfoResponse.ProductInstance,
-        customerInfoManagementService: any CustomerInfoManagementService,
+        customerInfo: TangemPayCustomer,
+        productInstance: TangemPayCustomer.ProductInstance,
+        customerService: any TangemPayCustomerService,
         balancesService: any TangemPayBalancesService,
         withdrawTransactionService: any TangemPayWithdrawTransactionService,
         expressCEXTransactionProcessor: ExpressCEXTransactionProcessor,
@@ -73,7 +73,7 @@ final class TangemPayAccount {
         mainHeaderBalanceProvider: MainHeaderBalanceProvider
     ) {
         customerInfoSubject = CurrentValueSubject((customerInfo, productInstance))
-        self.customerInfoManagementService = customerInfoManagementService
+        self.customerService = customerService
         self.balancesService = balancesService
         self.withdrawTransactionService = withdrawTransactionService
 
@@ -91,7 +91,7 @@ final class TangemPayAccount {
     func loadCustomerInfo() async {
         runTask { [self] in
             do throws(TangemPayAPIServiceError) {
-                let customerInfo = try await customerInfoManagementService.loadCustomerInfo()
+                let customerInfo = try await customerService.loadCustomerInfo()
 
                 guard let productInstance = customerInfo.productInstance else {
                     // [REDACTED_TODO_COMMENT]
@@ -119,7 +119,7 @@ final class TangemPayAccount {
     }
 
     func getPin() async throws -> String {
-        let publicKey = try await RainCryptoUtilities
+        let publicKey = try await TangemPayUtilities
             .getRainRSAPublicKey(
                 for: FeatureStorage.instance.visaAPIType
             )
@@ -128,7 +128,7 @@ final class TangemPayAccount {
             .generateSecretKeyAndSessionId(
                 publicKey: publicKey
             )
-        let response = try await customerInfoManagementService.getPin(
+        let response = try await customerService.getPin(
             cardId: cardId,
             sessionId: sessionId
         )
@@ -144,7 +144,7 @@ final class TangemPayAccount {
     }
 
     func freeze() async throws {
-        let response = try await customerInfoManagementService.freeze(cardId: cardId)
+        let response = try await customerService.freeze(cardId: cardId)
         switch response.status {
         case .completed, .canceled:
             await loadCustomerInfo()
@@ -154,7 +154,7 @@ final class TangemPayAccount {
     }
 
     func unfreeze() async throws {
-        let response = try await customerInfoManagementService.unfreeze(cardId: cardId)
+        let response = try await customerService.unfreeze(cardId: cardId)
         switch response.status {
         case .completed, .canceled:
             await loadCustomerInfo()
@@ -182,8 +182,8 @@ final class TangemPayAccount {
     }
 }
 
-private extension VisaCustomerInfoResponse {
-    var cardIfActiveOrBlocked: VisaCustomerInfoResponse.Card? {
+private extension TangemPayCustomer {
+    var cardIfActiveOrBlocked: TangemPayCustomer.Card? {
         [.active, .blocked].contains(productInstance?.status)
             ? card
             : nil
