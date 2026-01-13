@@ -6,10 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import Combine
 import SwiftUI
-import TangemUI
-import TangemAssets
 import TangemLocalization
 
 struct FeeSelectorView: View {
@@ -33,7 +30,7 @@ struct FeeSelectorView: View {
             FeeSelectorSummaryView(viewModel: feeSelectorSummaryViewModel, shouldShowSummaryBottomButton: true)
         case .tokens(let feeSelectorTokensViewModel):
             FeeSelectorTokensView(viewModel: feeSelectorTokensViewModel)
-        case .fees(let feeSelectorFeesViewModel):
+        case .fees(let feeSelectorFeesViewModel, _):
             FeeSelectorFeesView(
                 viewModel: feeSelectorFeesViewModel,
                 customFeeManualSaveButtonSettings: customFeeManualSaveButtonSettings
