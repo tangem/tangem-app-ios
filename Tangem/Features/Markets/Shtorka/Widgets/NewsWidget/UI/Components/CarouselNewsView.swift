@@ -90,7 +90,7 @@ struct CarouselNewsView: View {
 
 private extension CarouselNewsView {
     enum Layout {
-        static let maxCardsCount: Int = 5
+        static let maxCardsCount: Int = 10
         static let cardSpacing: CGFloat = 8
         static let defaultHorizontalInset: CGFloat = 16
 
@@ -116,7 +116,7 @@ private extension CarouselNewsView {
 // MARK: - CarouselNewsItem Dummy Items
 
 private extension CarouselNewsItem {
-    static let dummyItems: [CarouselNewsItem] = (0 ..< 5).map { index in
+    static let dummyItems: [CarouselNewsItem] = (0 ..< 10).map { index in
         CarouselNewsItem(
             id: "dummy-\(index)",
             title: "-------------",
