@@ -10,12 +10,12 @@ import TangemNetworkUtils
 import TangemPay
 
 public struct TangemPayAPIServiceBuilder {
-    private let apiType: VisaAPIType
+    private let apiType: TangemPayAPIType
     private let bffStaticToken: String
     private let authorizationTokensRepository: TangemPayAuthorizationTokensRepository
 
     public init(
-        apiType: VisaAPIType,
+        apiType: TangemPayAPIType,
         bffStaticToken: String,
         authorizationTokensRepository: TangemPayAuthorizationTokensRepository
     ) {

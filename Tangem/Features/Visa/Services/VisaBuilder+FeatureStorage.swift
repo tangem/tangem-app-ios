@@ -7,6 +7,7 @@
 //
 
 import BlockchainSdk
+import TangemPay
 import TangemVisa
 
 extension VisaCardScanHandlerBuilder {

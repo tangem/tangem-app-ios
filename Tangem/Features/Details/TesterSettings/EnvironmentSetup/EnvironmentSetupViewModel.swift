@@ -10,7 +10,7 @@ import Combine
 import SwiftUI
 import TangemExpress
 import FirebaseMessaging
-import TangemVisa
+import TangemPay
 import struct TangemUIUtils.AlertBinder
 import TangemStaking
 
@@ -107,12 +107,12 @@ final class EnvironmentSetupViewModel: ObservableObject {
             ),
             DefaultPickerRowViewModel(
                 title: "Visa API type",
-                options: VisaAPIType.allCases.map { $0.rawValue },
+                options: TangemPayAPIType.allCases.map { $0.rawValue },
                 selection: BindingValue<String>(
                     root: featureStorage,
-                    default: VisaAPIType.prod.rawValue,
+                    default: TangemPayAPIType.prod.rawValue,
                     get: { $0.visaAPIType.rawValue },
-                    set: { $0.visaAPIType = VisaAPIType(rawValue: $1) ?? .prod }
+                    set: { $0.visaAPIType = TangemPayAPIType(rawValue: $1) ?? .prod }
                 )
             ),
             DefaultPickerRowViewModel(

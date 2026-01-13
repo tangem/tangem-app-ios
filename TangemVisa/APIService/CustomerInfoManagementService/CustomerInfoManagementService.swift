@@ -45,7 +45,7 @@ final class CommonCustomerInfoManagementService {
     private let authorizationTokenHandler: TangemPayAuthorizationTokensHandler
     private let apiService: TangemPayAPIService<CustomerInfoManagementAPITarget>
 
-    private let apiType: VisaAPIType
+    private let apiType: TangemPayAPIType
     private let encoder: JSONEncoder = {
         let encoder = JSONEncoder()
         encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -53,7 +53,7 @@ final class CommonCustomerInfoManagementService {
     }()
 
     init(
-        apiType: VisaAPIType,
+        apiType: TangemPayAPIType,
         authorizationTokenHandler: TangemPayAuthorizationTokensHandler,
         apiService: TangemPayAPIService<CustomerInfoManagementAPITarget>
     ) {

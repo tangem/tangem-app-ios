@@ -8,6 +8,7 @@
 
 import LocalAuthentication
 import TangemLocalization
+import TangemPay
 import TangemSdk
 import TangemVisa
 
