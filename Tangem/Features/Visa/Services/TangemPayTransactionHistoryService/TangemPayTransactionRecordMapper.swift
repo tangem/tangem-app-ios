@@ -60,11 +60,16 @@ struct TangemPayTransactionRecordMapper {
     /// `TangemPayTransactionDetailsStateView.TransactionState` will use in `TangemPayTransactionDetailsView`
     func state() -> TangemPayTransactionDetailsStateView.TransactionState? {
         switch transaction.record {
-        case .spend(let spend): spend.isDeclined ? .declined : .completed
+        case .spend(let spend): switch spend.status {
+            case .completed: .completed
+            case .declined: .declined
+            case .pending: .pending
+            }
         case .collateral: .none
         case .payment(let payment): switch payment.status {
             case .pending: .pending
             case .completed: .completed
+            case .declined: .declined
             }
         case .fee: .none
         }
@@ -119,6 +124,7 @@ struct TangemPayTransactionRecordMapper {
         case .payment(let payment): switch payment.status {
             case .pending: return .inProgress
             case .completed: return .confirmed
+            case .declined: return .failed
             }
         case .fee: return .confirmed
         }
