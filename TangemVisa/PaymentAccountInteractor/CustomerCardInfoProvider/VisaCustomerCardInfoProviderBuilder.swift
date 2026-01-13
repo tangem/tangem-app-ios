@@ -25,7 +25,7 @@ public struct VisaCustomerCardInfoProviderBuilder {
     ) -> VisaCustomerCardInfoProvider {
         CommonCustomerCardInfoProvider(
             isTestnet: apiType.isTestnet,
-            customerInfoManagementService: nil,
+            customerService: nil,
             evmSmartContractInteractor: evmSmartContractInteractor
         )
     }

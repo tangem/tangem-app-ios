@@ -8,14 +8,15 @@
 
 import TangemFoundation
 import TangemVisa
+import TangemPay
 
 final class TangemPayOrderStatusPollingService {
-    private let customerInfoManagementService: CustomerInfoManagementService
+    private let customerService: TangemPayCustomerService
 
     private var orderStatusPollingTask: Task<Void, Never>?
 
-    init(customerInfoManagementService: CustomerInfoManagementService) {
-        self.customerInfoManagementService = customerInfoManagementService
+    init(customerService: TangemPayCustomerService) {
+        self.customerService = customerService
     }
 
     func startOrderStatusPolling(
@@ -29,8 +30,8 @@ final class TangemPayOrderStatusPollingService {
 
         let polling = PollingSequence(
             interval: interval,
-            request: { [customerInfoManagementService] in
-                try await customerInfoManagementService.getOrder(orderId: orderId)
+            request: { [customerService] in
+                try await customerService.getOrder(orderId: orderId)
             }
         )
 

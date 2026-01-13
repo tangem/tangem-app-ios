@@ -8,6 +8,7 @@
 
 import Foundation
 import BlockchainSdk
+import TangemPay
 
 public protocol VisaCustomerCardInfoProvider {
     func loadPaymentAccount(cardWalletAddress: String) async throws -> VisaCustomerCardInfo
@@ -23,16 +24,16 @@ public extension VisaCustomerCardInfoProvider {
 
 struct CommonCustomerCardInfoProvider {
     private let isTestnet: Bool
-    private let customerInfoManagementService: CustomerInfoManagementService?
+    private let customerService: TangemPayCustomerService?
     private let evmSmartContractInteractor: EVMSmartContractInteractor
 
     init(
         isTestnet: Bool,
-        customerInfoManagementService: CustomerInfoManagementService?,
+        customerService: TangemPayCustomerService?,
         evmSmartContractInteractor: EVMSmartContractInteractor
     ) {
         self.isTestnet = isTestnet
-        self.customerInfoManagementService = customerInfoManagementService
+        self.customerService = customerService
         self.evmSmartContractInteractor = evmSmartContractInteractor
     }
 }
@@ -59,11 +60,11 @@ extension CommonCustomerCardInfoProvider: VisaCustomerCardInfoProvider {
     }
 
     private func loadPaymentAccountFromCIM(cardWalletAddress: String) async throws -> VisaCustomerCardInfo {
-        guard let customerInfoManagementService else {
+        guard let customerService else {
             throw VisaPaymentAccountAddressProviderError.bffIsNotAvailable
         }
 
-        let customerInfo = try await customerInfoManagementService.loadCustomerInfo()
+        let customerInfo = try await customerService.loadCustomerInfo()
 
         guard let paymentAccount = customerInfo.paymentAccount else {
             throw VisaPaymentAccountAddressProviderError.missingPaymentAccountForCard
