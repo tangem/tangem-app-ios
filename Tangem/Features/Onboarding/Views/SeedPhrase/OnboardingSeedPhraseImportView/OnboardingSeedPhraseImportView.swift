@@ -62,7 +62,7 @@ struct OnboardingSeedPhraseImportView: View {
 
                     MainButton(
                         title: Localization.commonImport,
-                        icon: .trailing(Assets.tangemIcon),
+                        icon: viewModel.mainButtonIcon,
                         style: .primary,
                         isLoading: false,
                         isDisabled: !viewModel.isSeedPhraseValid,
@@ -138,6 +138,7 @@ struct OnboardingSeedPhraseImportView: View {
 struct OnboardingSeedPhraseImportView_Previews: PreviewProvider {
     private static let viewModel = OnboardingSeedPhraseImportViewModel(
         inputProcessor: SeedPhraseInputProcessor(),
+        shouldShowTangemIcon: true,
         delegate: nil
     )
 
