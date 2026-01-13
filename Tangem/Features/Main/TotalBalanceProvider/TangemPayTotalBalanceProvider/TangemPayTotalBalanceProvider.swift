@@ -8,6 +8,7 @@
 
 import Combine
 import TangemVisa
+import TangemPay
 
 final class TangemPayTotalBalanceProvider {
     private let tangemPayManager: TangemPayManager

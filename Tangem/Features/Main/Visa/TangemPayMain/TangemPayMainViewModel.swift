@@ -14,6 +14,7 @@ import TangemVisa
 import TangemUIUtils
 import TangemFoundation
 import TangemLocalization
+import TangemPay
 
 final class TangemPayMainViewModel: ObservableObject {
     let tangemPayCardDetailsViewModel: TangemPayCardDetailsViewModel
@@ -70,13 +71,13 @@ final class TangemPayMainViewModel: ObservableObject {
 
         cardDetailsRepository = .init(
             lastFourDigits: tangemPayAccount.card?.cardNumberEnd ?? "",
-            customerService: tangemPayAccount.customerInfoManagementService
+            customerService: tangemPayAccount.customerService
         )
 
         balance = tangemPayAccount.mainHeaderBalanceProvider.balance
 
         transactionHistoryService = TangemPayTransactionHistoryService(
-            apiService: tangemPayAccount.customerInfoManagementService
+            apiService: tangemPayAccount.customerService
         )
 
         pendingExpressTransactionsManager = ExpressPendingTransactionsFactory(

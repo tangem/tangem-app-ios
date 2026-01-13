@@ -12,7 +12,7 @@ import TangemVisa
 struct TangemPayEnrollmentStateFetcher {
     let customerWalletId: String
     let keysRepository: KeysRepository
-    let customerInfoManagementService: CustomerInfoManagementService
+    let customerService: TangemPayCustomerService
 
     func getEnrollmentState() async throws(TangemPayAPIServiceError) -> TangemPayEnrollmentState {
         guard let (customerWalletAddress, _) = TangemPayUtilities.getCustomerWalletAddressAndAuthorizationTokens(
@@ -26,7 +26,7 @@ struct TangemPayEnrollmentStateFetcher {
             return .notEnrolled
         }
 
-        let customerInfo = try await customerInfoManagementService.loadCustomerInfo()
+        let customerInfo = try await customerService.loadCustomerInfo()
 
         if let productInstance = customerInfo.productInstance {
             switch productInstance.status {
