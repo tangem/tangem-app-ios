@@ -32,28 +32,28 @@ final class TangemPayBuilder {
         tokens: tokens
     )
 
-    private lazy var customerInfoManagementService = TangemPayCustomerInfoManagementServiceBuilder()
-        .buildCustomerInfoManagementService(authorizationTokensHandler: authorizationService)
+    private lazy var customerService = TangemPayCustomerServiceBuilder()
+        .build(authorizationTokensHandler: authorizationService)
 
     private lazy var enrollmentStateFetcher = TangemPayEnrollmentStateFetcher(
         customerWalletId: customerWalletId,
         keysRepository: keysRepository,
-        customerInfoManagementService: customerInfoManagementService
+        customerService: customerService
     )
 
     private lazy var orderStatusPollingService = TangemPayOrderStatusPollingService(
-        customerInfoManagementService: customerInfoManagementService
+        customerService: customerService
     )
 
     private lazy var tokenBalancesRepository = CommonTokenBalancesRepository(userWalletId: userWalletId)
 
     private lazy var balancesService = CommonTangemPayBalanceService(
-        customerInfoManagementService: customerInfoManagementService,
+        customerService: customerService,
         tokenBalancesRepository: tokenBalancesRepository
     )
 
     private lazy var withdrawTransactionService = CommonTangemPayWithdrawTransactionService(
-        customerInfoManagementService: customerInfoManagementService,
+        customerService: customerService,
         fiatItem: TangemPayUtilities.fiatItem,
         signer: signer
     )
@@ -89,7 +89,7 @@ final class TangemPayBuilder {
             customerWalletId: customerWalletId,
             authorizingInteractor: authorizingInteractor,
             authorizationService: authorizationService,
-            customerInfoManagementService: customerInfoManagementService,
+            customerService: customerService,
             enrollmentStateFetcher: enrollmentStateFetcher,
             orderStatusPollingService: orderStatusPollingService,
             tangemPayBuilder: self
@@ -97,13 +97,13 @@ final class TangemPayBuilder {
     }
 
     func buildTangemPayAccount(
-        customerInfo: VisaCustomerInfoResponse,
-        productInstance: VisaCustomerInfoResponse.ProductInstance
+        customerInfo: TangemPayCustomer,
+        productInstance: TangemPayCustomer.ProductInstance
     ) -> TangemPayAccount {
         TangemPayAccount(
             customerInfo: customerInfo,
             productInstance: productInstance,
-            customerInfoManagementService: customerInfoManagementService,
+            customerService: customerService,
             balancesService: balancesService,
             withdrawTransactionService: withdrawTransactionService,
             expressCEXTransactionProcessor: expressCEXTransactionProcessor,

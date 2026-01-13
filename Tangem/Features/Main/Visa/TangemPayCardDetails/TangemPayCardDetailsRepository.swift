@@ -8,14 +8,15 @@
 
 import Foundation
 import TangemVisa
+import TangemPay
 
 final class TangemPayCardDetailsRepository {
     let lastFourDigits: String
-    private weak var customerService: CustomerInfoManagementService?
+    private weak var customerService: TangemPayCustomerService?
 
     init(
         lastFourDigits: String,
-        customerService: CustomerInfoManagementService
+        customerService: TangemPayCustomerService
     ) {
         self.lastFourDigits = lastFourDigits
         self.customerService = customerService
@@ -26,7 +27,7 @@ final class TangemPayCardDetailsRepository {
             throw Error.customerServiceNotFound
         }
 
-        let publicKey = try await RainCryptoUtilities
+        let publicKey = try await TangemPayUtilities
             .getRainRSAPublicKey(
                 for: FeatureStorage.instance.visaAPIType
             )
