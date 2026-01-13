@@ -8,6 +8,7 @@
 
 import TangemFoundation
 import TangemSdk
+import TangemPay
 
 /// Each error code must follow this format: xxxyyyzzz where
 /// xxx - Feature code
@@ -182,17 +183,6 @@ extension VisaAPIError: VisaError {
         }
 
         return 104_000_000 + code
-    }
-}
-
-extension KYCService.KYCServiceError: VisaError {
-    public var errorCode: Int {
-        switch self {
-        case .sdkIsNotReady:
-            104013000
-        case .alreadyPresent:
-            104013001
-        }
     }
 }
 
