@@ -1,6 +1,6 @@
 //
-//  KYCService.swift
-//  TangemVisa
+//  TangemPayKYCService.swift
+//  TangemPay
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2025 Tangem AG. All rights reserved.
@@ -10,8 +10,9 @@ import Combine
 import SwiftUI
 import TangemAssets
 import IdensicMobileSDK
+import TangemVisa
 
-public final class KYCService {
+public final class TangemPayKYCService {
     private let sdk: SNSMobileSDK
 
     @MainActor
@@ -21,7 +22,7 @@ public final class KYCService {
         onDidDismiss: @escaping () -> Void
     ) async throws {
         guard Self.shared == nil else {
-            throw KYCServiceError.alreadyPresent
+            throw TangemPayKYCServiceError.alreadyPresent
         }
 
         let kycResponse = try await getToken()
@@ -32,7 +33,7 @@ public final class KYCService {
         sdk.locale = kycResponse.locale
 
         guard sdk.isReady else {
-            throw KYCServiceError.sdkIsNotReady
+            throw TangemPayKYCServiceError.sdkIsNotReady
         }
 
         // Holds a reference to itself to manage it's own lifecycle.
@@ -101,8 +102,8 @@ public final class KYCService {
     }
 }
 
-extension KYCService {
-    private(set) static var shared: KYCService?
+extension TangemPayKYCService {
+    public private(set) static var shared: TangemPayKYCService?
 
     @objc
     func dismiss() {
@@ -110,20 +111,20 @@ extension KYCService {
     }
 }
 
-public extension KYCService {
+public extension TangemPayKYCService {
     static func start(
         getToken: @escaping () async throws -> VisaKYCAccessTokenResponse,
         onDidDismiss: @escaping () -> Void
     ) async throws {
-        try await KYCService(
+        try await TangemPayKYCService(
             getToken: getToken,
             onDidDismiss: onDidDismiss
         )
     }
 }
 
-public extension KYCService {
-    enum KYCServiceError: Error {
+public extension TangemPayKYCService {
+    enum TangemPayKYCServiceError: Error {
         case sdkIsNotReady
         case alreadyPresent
     }
