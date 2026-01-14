@@ -11,7 +11,6 @@ import Foundation
 enum NewsDTO {
     enum List {}
     enum Categories {}
-    enum Trending {}
 }
 
 // MARK: - List
