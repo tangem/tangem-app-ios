@@ -40,12 +40,8 @@ struct BalanceConverter {
         return fiatToTarget
     }
 
-    /// Returns exchange rate between two crypto assets via fiat price.
-    /// 1 unit of `from` equals X units of `to`.
-    func cryptoToCryptoRate(from sourceAssetId: String, to targetAssetId: String) async throws -> Decimal {
-        if sourceAssetId == targetAssetId {
-            return 1
-        }
+    func cryptoToCryptoRate(from sourceAssetId: String, to targetAssetId: String, options: RateAdjustment = .none) async throws -> Decimal {
+        if sourceAssetId == targetAssetId { return 1 }
 
         let sourceInFiat = try await convertToFiat(1, currencyId: sourceAssetId)
         let targetInFiat = try await convertToFiat(1, currencyId: targetAssetId)
@@ -54,7 +50,21 @@ struct BalanceConverter {
             throw BalanceConverterError.invalidTargetPrice
         }
 
-        return sourceInFiat / targetInFiat
+        var rate = sourceInFiat / targetInFiat
+
+        if let scale = options.scale {
+            rate *= scale
+        }
+
+        if let markup = options.markup {
+            rate *= (1 + markup)
+        }
+
+        if let rounding = options.rounding {
+            rate = rate.rounded(roundingMode: rounding)
+        }
+
+        return rate
     }
 
     func convertToFiat(_ value: Decimal, currencyId: String) -> Decimal? {
@@ -85,5 +95,18 @@ extension BalanceConverter {
     enum BalanceConverterError: Error {
         case cannotConvertToCrypto(currencyId: String)
         case invalidTargetPrice
+    }
+}
+
+extension BalanceConverter {
+    struct RateAdjustment: Sendable {
+        /// Multiply by token decimals scale (e.g. 10^6 for USDC)
+        var scale: Decimal? = nil
+        /// Add markup, e.g. 0.01 = +1%
+        var markup: Decimal? = nil
+        /// Apply rounding at the end
+        var rounding: Decimal.RoundingMode? = nil
+
+        static let none = RateAdjustment()
     }
 }
