@@ -14,7 +14,7 @@ import TangemFoundation
 struct FeeSelectorRowViewModel: Hashable {
     let rowType: RowType
     let title: String
-    let subtitle: LoadableTextView.State
+    let subtitle: SubtitleType
     let accessibilityIdentifier: String
 
     // MARK: - Expansion
@@ -34,7 +34,7 @@ struct FeeSelectorRowViewModel: Hashable {
 
 extension FeeSelectorRowViewModel {
     /// Plain (no selection and no expansion)
-    init(rowType: RowType, title: String, subtitle: LoadableTextView.State, accessibilityIdentifier: String) {
+    init(rowType: RowType, title: String, subtitle: SubtitleType, accessibilityIdentifier: String) {
         self.rowType = rowType
         self.title = title
         self.subtitle = subtitle
@@ -47,7 +47,7 @@ extension FeeSelectorRowViewModel {
     }
 
     /// Optional expansion-only configuration: provides expandAction, disables selection
-    init(rowType: RowType, title: String, subtitle: LoadableTextView.State, accessibilityIdentifier: String, expandAction: (() -> Void)?) {
+    init(rowType: RowType, title: String, subtitle: SubtitleType, accessibilityIdentifier: String, expandAction: (() -> Void)?) {
         self.rowType = rowType
         self.title = title
         self.subtitle = subtitle
@@ -63,7 +63,7 @@ extension FeeSelectorRowViewModel {
     init(
         rowType: RowType,
         title: String,
-        subtitle: LoadableTextView.State,
+        subtitle: SubtitleType,
         accessibilityIdentifier: String,
         isSelected: Bool,
         selectAction: @escaping () -> Void
@@ -86,6 +86,11 @@ extension FeeSelectorRowViewModel {
     enum RowType {
         case fee(image: Image)
         case token(tokenIconInfo: TokenIconInfo)
+    }
+
+    enum SubtitleType: Hashable {
+        case fee(LoadableTextView.State)
+        case balance(LoadableTokenBalanceView.State)
     }
 }
 
