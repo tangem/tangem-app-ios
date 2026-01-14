@@ -15,7 +15,8 @@ protocol GaslessTransactionsAPIService {
     typealias SignResult = GaslessTransactionsDTO.Response.SignResponse.Result
 
     func getAvailableTokens() async throws -> [FeeToken]
-    func signMetaTransaction(_ transaction: GaslessTransactionsDTO.Request.MetaTransaction) async throws -> SignResult
+    func signGaslessTransaction(_ transaction: GaslessTransactionsDTO.Request.MetaTransaction) async throws -> SignResult
+    func getFeeRecipientAddress() async throws -> String
 }
 
 final class CommonGaslessTransactionAPIService {
@@ -30,13 +31,18 @@ final class CommonGaslessTransactionAPIService {
 
 extension CommonGaslessTransactionAPIService: GaslessTransactionsAPIService {
     func getAvailableTokens() async throws -> [FeeToken] {
-        let response: GaslessTransactionsDTO.Response.GaslessFeeTokensResult = try await request(for: .availableTokens)
+        let response: GaslessTransactionsDTO.Response.FeeTokens = try await request(for: .availableTokens)
         return response.tokens
     }
 
-    func signMetaTransaction(_ transaction: MetaTransaction) async throws -> SignResult {
-        let response: GaslessTransactionsDTO.Response.SignResponse = try await request(for: .signMetaTransaction(transaction: transaction))
+    func signGaslessTransaction(_ transaction: MetaTransaction) async throws -> SignResult {
+        let response: GaslessTransactionsDTO.Response.SignResponse = try await request(for: .signGaslessTransaction(transaction: transaction))
         return response.result
+    }
+
+    func getFeeRecipientAddress() async throws -> String {
+        let response: GaslessTransactionsDTO.Response.FeeRecipientResponse = try await request(for: .feeRecipient)
+        return response.feeRecipientAddress
     }
 }
 
