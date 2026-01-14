@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct MobileCreateWalletView: View {
     typealias ViewModel = MobileCreateWalletViewModel
@@ -98,6 +99,7 @@ private extension MobileCreateWalletView {
                 style: .secondary,
                 action: viewModel.onImportTap
             )
+            .accessibilityIdentifier(OnboardingAccessibilityIdentifiers.mobileCreateWalletImportButton)
 
             MainButton(
                 title: viewModel.createButtonTitle,
@@ -105,6 +107,7 @@ private extension MobileCreateWalletView {
                 isLoading: viewModel.isCreating,
                 action: viewModel.onCreateTap
             )
+            .accessibilityIdentifier(OnboardingAccessibilityIdentifiers.mobileCreateWalletCreateButton)
         }
     }
 }
