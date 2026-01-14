@@ -215,7 +215,7 @@ private extension StakeKitStakingManager {
         try await Task.sleep(nanoseconds: Constants.delay)
 
         let transactions = try await action.transactions.asyncMap { transaction in
-            try await execute(try await provider.patchTransaction(id: transaction.id))
+            try await self.execute(try await self.provider.patchTransaction(id: transaction.id))
         }
 
         return mapToStakingTransactionAction(
@@ -306,7 +306,7 @@ private extension StakeKitStakingManager {
         try await Task.sleep(nanoseconds: Constants.delay)
 
         let transactions = try await action.transactions.asyncMap { transaction in
-            try await execute(try await provider.patchTransaction(id: transaction.id))
+            try await self.execute(try await self.provider.patchTransaction(id: transaction.id))
         }
 
         return mapToStakingTransactionAction(
@@ -330,7 +330,7 @@ private extension StakeKitStakingManager {
         case .withdraw(let passthroughs), .claimUnstaked(let passthroughs):
             let fees = try await passthroughs.asyncMap { passthrough in
                 let request = PendingActionRequest(request: request, passthrough: passthrough, type: type)
-                return try await execute(try await provider.estimatePendingFee(request: request))
+                return try await self.execute(try await self.provider.estimatePendingFee(request: request))
             }
 
             return fees.reduce(0, +)
