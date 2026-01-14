@@ -20,6 +20,13 @@ extension FeeSelectorMockUIUtils {
         )
     }
 
+    static func mockBSDKFee() -> BSDKFee {
+        BSDKFee(
+            .zeroToken(token: FeeSelectorMockUIUtils.mockToken),
+            parameters: EthereumEIP1559FeeParameters(gasLimit: 100000, baseFee: 10000, priorityFee: 10000)
+        )
+    }
+
     static var mockSelectorFeess: [TokenFee] {
         if Bool.random() {
             return [mockFeeSelectorFee(feeOption: .market)]
