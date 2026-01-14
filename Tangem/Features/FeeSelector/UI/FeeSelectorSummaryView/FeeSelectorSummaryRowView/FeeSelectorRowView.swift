@@ -51,13 +51,22 @@ struct FeeSelectorRowView: View {
                 .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
                 .multilineTextAlignment(.leading)
 
-            LoadableTextView(
-                state: viewModel.subtitle,
-                font: Fonts.Regular.caption1,
-                textColor: Colors.Text.tertiary,
-                loaderSize: CGSize(width: 100, height: 16),
-                isSensitiveText: viewModel.rowType.isToken
-            )
+            switch viewModel.subtitle {
+            case .balance(let state):
+                LoadableTokenBalanceView(
+                    state: state,
+                    style: .init(font: Fonts.Regular.caption1, textColor: Colors.Text.tertiary),
+                    loader: .init(size: CGSize(width: 100, height: 16))
+                )
+            case .fee(let state):
+                LoadableTextView(
+                    state: state,
+                    font: Fonts.Regular.caption1,
+                    textColor: Colors.Text.tertiary,
+                    loaderSize: CGSize(width: 100, height: 16),
+                    isSensitiveText: viewModel.rowType.isToken
+                )
+            }
         }
     }
 
@@ -144,7 +153,7 @@ struct FeeSelectorRowView: View {
                     viewModel: FeeSelectorRowViewModel(
                         rowType: .fee(image: Assets.FeeOptions.marketFeeIcon.image),
                         title: "Network Fee",
-                        subtitle: .loaded(text: "~ 0.0012 ETH ($3.45)"),
+                        subtitle: .fee(.loaded(text: "~ 0.0012 ETH ($3.45)")),
                         accessibilityIdentifier: "fee_selector_summary_fee",
                         expandAction: {}
                     )
@@ -154,7 +163,7 @@ struct FeeSelectorRowView: View {
                     viewModel: FeeSelectorRowViewModel(
                         rowType: .fee(image: Assets.FeeOptions.marketFeeIcon.image),
                         title: "Tether",
-                        subtitle: .loaded(text: "Balance: $573.07"),
+                        subtitle: .balance(.loaded(text: "Balance: $573.07")),
                         accessibilityIdentifier: "fee_selector_summary_token",
                         expandAction: nil
                     )
@@ -164,7 +173,7 @@ struct FeeSelectorRowView: View {
                     viewModel: FeeSelectorRowViewModel(
                         rowType: .fee(image: Assets.FeeOptions.marketFeeIcon.image),
                         title: "Tether",
-                        subtitle: .loading,
+                        subtitle: .fee(.loading),
                         accessibilityIdentifier: "fee_selector_summary_token",
                         expandAction: nil
                     )
@@ -174,7 +183,7 @@ struct FeeSelectorRowView: View {
                     viewModel: FeeSelectorRowViewModel(
                         rowType: .token(tokenIconInfo: TokenIconInfoBuilder().build(from: "ETH")),
                         title: "Tether",
-                        subtitle: .noData,
+                        subtitle: .fee(.noData),
                         accessibilityIdentifier: "fee_selector_summary_token",
                         expandAction: nil
                     )
@@ -184,7 +193,7 @@ struct FeeSelectorRowView: View {
                     viewModel: FeeSelectorRowViewModel(
                         rowType: .token(tokenIconInfo: TokenIconInfoBuilder().build(from: "ETH")),
                         title: "Tether",
-                        subtitle: .noData,
+                        subtitle: .fee(.noData),
                         accessibilityIdentifier: "fee_selector_summary_token",
                         isSelected: true,
                         selectAction: {}
@@ -195,7 +204,7 @@ struct FeeSelectorRowView: View {
                     viewModel: FeeSelectorRowViewModel(
                         rowType: .fee(image: Assets.FeeOptions.marketFeeIcon.image),
                         title: "Tether",
-                        subtitle: .noData,
+                        subtitle: .fee(.noData),
                         accessibilityIdentifier: "fee_selector_summary_token",
                         isSelected: true,
                         selectAction: {}
@@ -206,7 +215,7 @@ struct FeeSelectorRowView: View {
                     viewModel: FeeSelectorRowViewModel(
                         rowType: .fee(image: Assets.FeeOptions.marketFeeIcon.image),
                         title: "Tether",
-                        subtitle: .noData,
+                        subtitle: .fee(.noData),
                         accessibilityIdentifier: "fee_selector_summary_token",
                         isSelected: false,
                         selectAction: {}
@@ -217,7 +226,7 @@ struct FeeSelectorRowView: View {
                     viewModel: FeeSelectorRowViewModel(
                         rowType: .fee(image: Assets.FeeOptions.marketFeeIcon.image),
                         title: "Tether",
-                        subtitle: .noData,
+                        subtitle: .fee(.noData),
                         accessibilityIdentifier: "fee_selector_summary_token"
                     )
                 )
