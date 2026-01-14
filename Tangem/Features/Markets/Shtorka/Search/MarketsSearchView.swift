@@ -81,7 +81,11 @@ struct MarketsSearchView: View {
     private var rootView: some View {
         ZStack {
             Group {
-                defaultMarketsView
+                if showSearchResult {
+                    searchResultView
+                } else {
+                    defaultMarketsView
+                }
             }
             .opacity(viewModel.overlayContentHidingProgress) // Hides list content on bottom sheet minimizing
             .scrollDismissesKeyboard(.immediately)
@@ -234,7 +238,7 @@ struct MarketsSearchView: View {
                             MarketsTokensUnderCapView(onShowUnderCapAction: viewModel.tokenListViewModel.onShowUnderCapAction)
                         }
                     }
-                    .onReceive(viewModel.resetScrollPositionPublisher) { _ in
+                    .onReceive(viewModel.tokenListViewModel.resetScrollPositionPublisher) { _ in
                         proxy.scrollTo(scrollTopAnchorId)
                     }
                 }

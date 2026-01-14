@@ -34,9 +34,19 @@ public protocol CompiledTransactionFeeProvider {
 }
 
 public protocol GaslessTransactionFeeProvider {
-    func getGaslessFee(
-        feeToken: Token,
-        originalAmount: Amount,
-        originalDestination: String
-    ) async throws -> Fee
+    func getGaslessFee(feeToken: Token, amount: Amount, destination: String, feeRecipientAddress: String) async throws -> Fee
+    func getEstimatedGaslessFee(feeToken: Token, amount: Amount, feeRecipientAddress: String) async throws -> Fee
+}
+
+public extension GaslessTransactionFeeProvider where Self: WalletProvider {
+    func getEstimatedGaslessFee(feeToken: Token, amount: Amount, feeRecipientAddress: String) async throws -> Fee {
+        let estimationFeeAddress = try EstimationFeeAddressFactory().makeAddress(for: wallet.blockchain)
+        let fee = try await getGaslessFee(
+            feeToken: feeToken,
+            amount: amount,
+            destination: estimationFeeAddress,
+            feeRecipientAddress: feeRecipientAddress
+        )
+        return fee
+    }
 }

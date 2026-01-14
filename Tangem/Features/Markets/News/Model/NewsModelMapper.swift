@@ -93,11 +93,11 @@ struct NewsModelMapper {
                     iconURL: iconBuilder.tokenIconURL(id: token.id, size: .small)
                 )
             },
-            title: truncateTitle(item.title, maxLength: 70),
+            title: truncateTitle(item.title, maxLength: Constants.maxTitleLength),
             relativeTime: dateFormatter.formatRelativeTime(from: item.createdAt),
             isTrending: item.isTrending,
             newsUrl: item.newsUrl,
-            isRead: false
+            isRead: false // [REDACTED_TODO_COMMENT]
         )
     }
 }
@@ -133,7 +133,14 @@ private extension NewsModelMapper {
 
     private func truncateTitle(_ title: String, maxLength: Int) -> String {
         guard title.count > maxLength else { return title }
-        let index = title.index(title.startIndex, offsetBy: maxLength - 3)
-        return String(title[..<index]) + "..."
+        return String(title.prefix(maxLength - 3)) + "..."
+    }
+}
+
+// MARK: - Constants
+
+private extension NewsModelMapper {
+    enum Constants {
+        static let maxTitleLength = 70
     }
 }
