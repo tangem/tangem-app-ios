@@ -95,7 +95,7 @@ extension ExpressProvidersSelectorViewModel {
         await providers
             .showableProviders(selectedProviderId: selectedProvider?.provider.id)
             .sortedByPriorityAndQuotes()
-            .asyncMap { await mapToProviderRowViewModel(provider: $0, selectedProvider: selectedProvider) }
+            .asyncMap { await self.mapToProviderRowViewModel(provider: $0, selectedProvider: selectedProvider) }
     }
 
     func mapToProviderRowViewModel(
