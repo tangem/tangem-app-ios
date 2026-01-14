@@ -82,10 +82,12 @@ extension MobileCreateWalletViewModel {
                 Task.detached {
                     let userWalletConfig = MobileUserWalletConfig(mobileWalletInfo: walletInfo)
                     if let userWalletId = UserWalletId(config: userWalletConfig) {
+                        let walletsNetworkService = CommonWalletsNetworkService(userWalletId: userWalletId)
                         let walletCreationHelper = WalletCreationHelper(
                             userWalletId: userWalletId,
                             userWalletName: nil,
-                            userWalletConfig: userWalletConfig
+                            userWalletConfig: userWalletConfig,
+                            networkService: walletsNetworkService
                         )
 
                         try? await walletCreationHelper.createWallet()
