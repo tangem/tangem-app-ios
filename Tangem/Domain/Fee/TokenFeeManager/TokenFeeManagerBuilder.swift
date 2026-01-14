@@ -14,9 +14,6 @@ struct TokenFeeManagerBuilder {
     private var userWalletRepository: UserWalletRepository
 
     let walletModel: any WalletModel
-    private var currentUserWalletModel: (any UserWalletModel)? {
-        userWalletRepository.models.first(where: { $0.userWalletId == walletModel.userWalletId })
-    }
 
     init(walletModel: any WalletModel) {
         self.walletModel = walletModel
@@ -26,7 +23,8 @@ struct TokenFeeManagerBuilder {
         let coinTokenFeeProvider = makeMainTokenFeeProvider()
         var feeProviders = [coinTokenFeeProvider]
 
-        if FeatureProvider.isAvailable(.gaslessTransactions) {
+        // Only a token sending support gasless fee
+        if FeatureProvider.isAvailable(.gaslessTransactions), walletModel.tokenItem.isToken {
             let gaslessTokenFeeProviders = makeGaslessTokenFeeProviders()
             feeProviders.append(contentsOf: gaslessTokenFeeProviders)
         }
@@ -39,11 +37,6 @@ struct TokenFeeManagerBuilder {
 
 private extension TokenFeeManagerBuilder {
     private func makeMainTokenFeeProvider() -> any TokenFeeProvider {
-        guard let currentUserWalletModel else {
-            assertionFailure("User wallet not found")
-            return .empty(feeTokenItem: walletModel.feeTokenItem)
-        }
-
         let feeWalletModelResult = try? WalletModelFinder.findWalletModel(
             userWalletId: walletModel.userWalletId,
             tokenItem: walletModel.feeTokenItem
@@ -71,7 +64,7 @@ private extension TokenFeeManagerBuilder {
             return []
         }
 
-        guard let currentUserWalletModel else {
+        guard let currentUserWalletModel = userWalletRepository.models.first(where: { $0.userWalletId == walletModel.userWalletId }) else {
             assertionFailure("User wallet not found")
             return []
         }
