@@ -16,12 +16,10 @@ struct ExpandedAccountItemHeaderView: View {
     let iconData: AccountIconView.ViewData
 
     var body: some View {
-        HStack(spacing: 6) {
-            AccountIconView(data: iconData)
-                .settings(.smallSized)
-
-            Text(name)
-                .style(Fonts.BoldStatic.caption1, color: Colors.Text.primary1)
+        HStack(spacing: .zero) {
+            AccountInlineHeaderView(iconData: iconData, name: name)
+                .iconSettings(.smallSized)
+                .font(Fonts.BoldStatic.caption1)
 
             Spacer()
 
