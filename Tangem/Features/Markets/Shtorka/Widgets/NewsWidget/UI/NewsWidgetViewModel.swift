@@ -40,6 +40,7 @@ final class NewsWidgetViewModel: ObservableObject {
     ) {
         self.widgetType = widgetType
         self.widgetsUpdateHandler = widgetsUpdateHandler
+        self.coordinator = coordinator
 
         bind()
         update()
