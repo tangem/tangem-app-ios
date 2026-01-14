@@ -75,17 +75,23 @@ extension CommonSwapFeeProvider: FeeSelectorInteractor {
             .eraseToAnyPublisher()
     }
 
-    var selectedSelectorFeeTokenItem: TokenItem? { expressFeeSelectorInteractor?.selectedSelectorFeeTokenItem }
-    var selectedSelectorFeeTokenItemPublisher: AnyPublisher<TokenItem?, Never> {
+    var selectedSelectorTokenFeeProvider: (any TokenFeeProvider)? {
+        expressFeeSelectorInteractor?.selectedSelectorTokenFeeProvider
+    }
+
+    var selectedSelectorTokenFeeProviderPublisher: AnyPublisher<(any TokenFeeProvider)?, Never> {
         expressFeeSelectorInteractorPublisher
-            .flatMapLatest { $0.selectedSelectorFeeTokenItemPublisher }
+            .flatMapLatest { $0.selectedSelectorTokenFeeProviderPublisher }
             .eraseToAnyPublisher()
     }
 
-    var selectorFeeTokenItems: [TokenItem] { expressFeeSelectorInteractor?.selectorFeeTokenItems ?? [] }
-    var selectorFeeTokenItemsPublisher: AnyPublisher<[TokenItem], Never> {
+    var selectorTokenFeeProviders: [any TokenFeeProvider] {
+        expressFeeSelectorInteractor?.selectorTokenFeeProviders ?? []
+    }
+
+    var selectorTokenFeeProvidersPublisher: AnyPublisher<[any TokenFeeProvider], Never> {
         expressFeeSelectorInteractorPublisher
-            .flatMapLatest { $0.selectorFeeTokenItemsPublisher }
+            .flatMapLatest { $0.selectorTokenFeeProvidersPublisher }
             .eraseToAnyPublisher()
     }
 
@@ -97,7 +103,7 @@ extension CommonSwapFeeProvider: FeeSelectorInteractor {
         expressFeeSelectorInteractor?.userDidSelectFee(fee)
     }
 
-    func userDidSelectTokenItem(_ tokenItem: TokenItem) {
-        expressFeeSelectorInteractor?.userDidSelectTokenItem(tokenItem)
+    func userDidSelect(tokenFeeProvider: any TokenFeeProvider) {
+        expressFeeSelectorInteractor?.userDidSelect(tokenFeeProvider: tokenFeeProvider)
     }
 }
