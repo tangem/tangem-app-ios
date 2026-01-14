@@ -69,12 +69,11 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
         )
     }
 
-    func makeExpressFeeSelectorViewModel(coordinator: ExpressFeeSelectorRoutable) -> ExpressFeeSelectorViewModel {
-        ExpressFeeSelectorViewModel(
-            feeFormatter: feeFormatter,
-            expressInteractor: expressInteractor,
-            coordinator: coordinator
-        )
+    func makeFeeSelectorViewModel(
+        source: ExpressInteractorSourceWallet,
+        coordinator: SendFeeSelectorRoutable
+    ) -> SendFeeSelectorViewModel {
+        fatalError()
     }
 
     func makeExpressApproveViewModel(
@@ -90,7 +89,8 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
                     feeFooterText: Localization.swapGivePermissionFeeFooter,
                     tokenItem: .token(.tetherMock, .init(.ethereum(testnet: false), derivationPath: .none)),
                     feeTokenItem: .blockchain(.init(.ethereum(testnet: false), derivationPath: .none)),
-                    selectedPolicy: selectedPolicy
+                    selectedPolicy: selectedPolicy,
+                    tangemIconProvider: CommonTangemIconProvider(config: userWalletModel.config)
                 ),
                 feeFormatter: feeFormatter,
                 approveViewModelInput: expressInteractor,

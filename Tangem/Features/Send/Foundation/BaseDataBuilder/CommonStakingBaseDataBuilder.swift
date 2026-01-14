@@ -24,15 +24,18 @@ struct CommonStakingBaseDataBuilder {
     private let input: StakingBaseDataBuilderInput
     private let walletModel: any WalletModel
     private let emailDataProvider: EmailDataProvider
+    private let tangemIconProvider: TangemIconProvider
 
     init(
         input: StakingBaseDataBuilderInput,
         walletModel: any WalletModel,
-        emailDataProvider: EmailDataProvider
+        emailDataProvider: EmailDataProvider,
+        tangemIconProvider: TangemIconProvider
     ) {
         self.input = input
         self.walletModel = walletModel
         self.emailDataProvider = emailDataProvider
+        self.tangemIconProvider = tangemIconProvider
     }
 }
 
@@ -113,7 +116,8 @@ extension CommonStakingBaseDataBuilder: SendApproveViewModelInputDataBuilder {
             feeFooterText: Localization.stakingGivePermissionFeeFooter,
             tokenItem: walletModel.tokenItem,
             feeTokenItem: walletModel.feeTokenItem,
-            selectedPolicy: selectedPolicy
+            selectedPolicy: selectedPolicy,
+            tangemIconProvider: tangemIconProvider
         )
 
         let feeFormatter = CommonFeeFormatter()

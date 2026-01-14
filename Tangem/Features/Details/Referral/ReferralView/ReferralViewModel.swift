@@ -27,6 +27,14 @@ final class ReferralViewModel: ObservableObject {
     @Published var expectedAwardsExpanded = false
     @Published private(set) var viewState: ViewState = .loading
 
+    var mainButtonIcon: MainButton.Icon? {
+        guard let model = userWalletRepository.selectedModel else {
+            return nil
+        }
+
+        return CommonTangemIconProvider(config: model.config).getMainButtonIcon()
+    }
+
     private weak var coordinator: ReferralRoutable?
     private let userWalletId: Data
     private let supportedBlockchains: Set<Blockchain>
@@ -230,7 +238,7 @@ final class ReferralViewModel: ObservableObject {
 
     private func loadAccountModel(with accountModelsManager: AccountModelsManager) async -> AccountModel? {
         do {
-            return try await accountModelsManager.accountModelsPublisher.async().first
+            return try await accountModelsManager.accountModelsPublisher.async().firstStandard()
         } catch {
             processReferralError(.accountFetchError)
             return nil
@@ -247,11 +255,12 @@ final class ReferralViewModel: ObservableObject {
     }
 
     private func bindAccountModelsUpdates(_ accountModelsManager: AccountModelsManager) {
-        accountModelsManager.accountModelsPublisher
+        accountModelsManager
+            .accountModelsPublisher
             .withWeakCaptureOf(self)
             .receiveOnMain()
             .sink { viewModel, accountModels in
-                viewModel.updateViewState(accountModel: accountModels.first)
+                viewModel.updateViewState(accountModel: accountModels.firstStandard())
             }
             .store(in: &bag)
     }

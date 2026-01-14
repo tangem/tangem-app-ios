@@ -129,6 +129,7 @@ extension MarketsTokenListViewModel {
     }
 
     func onFetch(with searchText: String = "", by filter: MarketsListDataProvider.Filter) {
+        currentSearchValue = searchText
         dataProvider.fetch(searchText, with: filter)
     }
 

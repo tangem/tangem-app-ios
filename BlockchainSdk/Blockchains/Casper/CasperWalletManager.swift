@@ -37,25 +37,14 @@ class CasperWalletManager: BaseManager, WalletManager {
         super.init(wallet: wallet)
     }
 
-    // MARK: - Manager Implementation
-
-    override func update(completion: @escaping (Result<Void, any Error>) -> Void) {
-        let balanceInfoPublisher = networkService
-            .getBalance(address: wallet.address)
-
-        cancellable = balanceInfoPublisher
-            .withWeakCaptureOf(self)
-            .sink(receiveCompletion: { [weak self] result in
-                switch result {
-                case .failure(let error):
-                    self?.wallet.clearAmounts()
-                    completion(.failure(error))
-                case .finished:
-                    completion(.success(()))
-                }
-            }, receiveValue: { walletManager, balanceInfo in
-                walletManager.updateWallet(balanceInfo: balanceInfo)
-            })
+    override func updateWalletManager() async throws {
+        do {
+            let balanceInfo = try await networkService.getBalance(address: wallet.address).async()
+            updateWallet(balanceInfo: balanceInfo)
+        } catch {
+            wallet.clearAmounts()
+            throw error
+        }
     }
 
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], any Error> {

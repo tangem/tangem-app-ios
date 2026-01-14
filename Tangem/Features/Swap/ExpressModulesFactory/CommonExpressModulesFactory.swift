@@ -102,12 +102,20 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
         )
     }
 
-    func makeExpressFeeSelectorViewModel(coordinator: ExpressFeeSelectorRoutable) -> ExpressFeeSelectorViewModel {
-        ExpressFeeSelectorViewModel(
-            feeFormatter: feeFormatter,
-            expressInteractor: expressDependenciesFactory.expressInteractor,
-            coordinator: coordinator
+    func makeFeeSelectorViewModel(source: ExpressInteractorSourceWallet, coordinator: SendFeeSelectorRoutable) -> SendFeeSelectorViewModel {
+        let feeSelectorInteractor = ExpressFeeSelectorInteractor(
+            sourceTokenFeeManager: source.expressTokenFeeManager,
+            expressInteractor: expressDependenciesFactory.expressInteractor
         )
+
+        let feeSelectorViewModel = FeeSelectorBuilder().makeFeeSelectorViewModel(
+            feeSelectorInteractor: feeSelectorInteractor,
+            analytics: source.interactorAnalyticsLogger,
+            feeFormatter: CommonFeeFormatter(),
+            router: coordinator
+        )
+
+        return SendFeeSelectorViewModel(feeSelectorViewModel: feeSelectorViewModel, router: coordinator)
     }
 
     func makeExpressApproveViewModel(
@@ -126,7 +134,8 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
                     feeFooterText: Localization.swapGivePermissionFeeFooter,
                     tokenItem: tokenItem,
                     feeTokenItem: feeTokenItem,
-                    selectedPolicy: selectedPolicy
+                    selectedPolicy: selectedPolicy,
+                    tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
                 ),
                 feeFormatter: feeFormatter,
                 approveViewModelInput: expressDependenciesFactory.expressInteractor,
