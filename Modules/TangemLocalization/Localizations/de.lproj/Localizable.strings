@@ -2,7 +2,7 @@
 "access_code_alert_skip_ok" = "Trotzdem überspringen";
 "access_code_alert_skip_title" = "Zugangscode nicht festgelegt";
 "access_code_alert_validation_cancel" = "Code ändern";
-"access_code_alert_validation_description" = "Dein Zugangscode dient zum Entsperren Deiner Wallet und zum Schutz des Zugriffs auf Deine Vermögenswerte.";
+"access_code_alert_validation_description" = "Dein Zugangscode entsperrt und schützt den Zugriff auf Deine Geldbörse.";
 "access_code_alert_validation_ok" = "Trotzdem verwenden";
 "access_code_alert_validation_title" = "Dieser Zugangscode kann leicht erraten werden";
 "access_code_check_title" = "Zugangscode eingeben";
@@ -44,7 +44,7 @@
 "account_form_placeholder_new_account" = "Neues Konto";
 "account_form_title_create" = "Konto hinzufügen";
 "account_form_title_edit" = "Konto bearbeiten";
-"account_generic_error_dialog_message" = "Please try again later. If the problem persists, contact support and we’ll help you resolve it.";
+"account_generic_error_dialog_message" = "Bitte versuche es später erneut. Sollte das Problem weiterhin bestehen, kontaktiere bitte unseren Support. Wir helfen Dir gerne bei der Lösung.";
 "account_label_tokens_info" = "%1$@ in %2$@";
 "account_main_account_title" = "Hauptkonto";
 "account_recover_limit_dialog_description" = "Du hast das Limit von %1$@ aktiven Konten bereits überschritten. Archiviere eines zur Wiederherstellung";
@@ -55,8 +55,8 @@
 "account_unsaved_dialog_message_create" = "Bist Du sicher, dass Du das neue Konto verwerfen willst?";
 "account_unsaved_dialog_message_edit" = "Bist Du sicher, dass Du die Bearbeitungen verwerfen willst?";
 "account_unsaved_dialog_title" = "Nicht gespeicherte Änderungen";
-"accounts_migration_alert_message" = "Einige benutzerdefinierte Token wurden von “%1$@” Zu “%2$@” da ihre Herleitung zu diesem Konto gehört.";
-"accounts_migration_alert_title" = "Einige benutzerdefinierte Token wurden verschoben.";
+"accounts_migration_alert_message" = "Einige benutzerdefinierte Token werden automatisch von „%1$@\" Zu \"%2$@da ihre Herleitung zu diesem Konto gehört.";
+"accounts_migration_alert_title" = "Einige benutzerdefinierte Token werden automatisch verschoben.";
 "action_buttons_buy_empty_search_message" = "Du kannst Deinen Token nicht finden? Gehe zum Bereich „Markt“ auf der Hauptseite und fügen diesen zum kaufen im Portfolio hinzu.";
 "action_buttons_buy_navigation_bar_title" = "Kaufen";
 "action_buttons_sell_empty_search_message" = "Du kannst Deinen Token nicht finden? Gehe zum Bereich „Markt“ auf der Hauptseite und fügen diesen zum verkaufen im Portfolio hinzu.";
@@ -95,7 +95,7 @@
 "alert_negative_app_rate_sent_title" = "Deine Vorschläge wurden übermittelt";
 "alert_troubleshooting_scan_card_message" = "Bitte versuche, die Karte oder Ring genau wie in der Animation gezeigt anzutippen, oder lese unsere einfache Anleitung, oder forder Support an. Wenn das Problem weiterhin besteht, wende dich bitte an den Support.";
 "alert_troubleshooting_scan_card_title" = "Hast du Probleme beim Scannen deiner Karte oder Ring?";
-"app_settings_access_code_warning" = "Lege zunächst einen Zugangscode fest, um die Biometrie zu aktivieren.";
+"app_settings_access_code_warning" = "Lege einen Zugangscode fest, um die Biometrie zu aktivieren.";
 "app_settings_biometrics_footer" = "Verwende die %1$@ um Deine Wallet zu entsperren und sensible Aktionen wie das Signieren von Transaktionen zu bestätigen. Bei Hardware-Wallets ist zum Signieren weiterhin eine Karte oder ein Ring erforderlich.";
 "app_settings_default_fee_footer" = "Aktiviere die Option Standardgebühr, um die Transaktionsgebühren automatisch festzulegen und die Gebührenseite beim Senden von Geldern zu überspringen. Du kannst bei Bedarf jederzeit zu dieser Seite zurückkehren.";
 "app_settings_default_fee" = "Standardgebühr";
@@ -160,8 +160,8 @@
 "card_reset_alert_finish_message" = "Alle Tangem-Geräte wurden zurückgesetzt. Du kannst nun mit dem Upgrade Deiner Wallet fortfahren.";
 "card_reset_alert_finish_ok_button" = "Erneut aktualisieren";
 "card_reset_alert_finish_title" = "Zurücksetzen abgeschlossen";
-"card_reset_alert_incomplete_message" = "Du hast nicht all Deine Tangem-Geräte zurückgesetzt.";
-"card_reset_alert_incomplete_title" = "Du hast nicht alle Deine Tangem-Geräte zurückgesetzt.";
+"card_reset_alert_incomplete_message" = "Wir empfehlen, den Reset-Prozess für alle Tangem-Geräte in dieser Wallet abzuschließen.";
+"card_reset_alert_incomplete_title" = "Einige Tangem-Geräte müssen noch zurückgesetzt werden.";
 "card_settings_access_code_recovery_disabled_description" = "Deaktiviere diese Option, wenn du nicht möchtest, dass diese Karte oder Ring zum Zurücksetzen von Zugangscodes auf anderen Karten oder Ringe in dieser Wallets verwendet wird. Bitte beachte, dass du dann auch den Zugangscode auf dieser Karte oder Ring nicht zurücksetzen kannst.";
 "card_settings_access_code_recovery_enabled_description" = "Ermöglicht die Verwendung dieser Karte oder Ring zum Zurücksetzen des Zugangscodes auf anderen Karten oder Ringe in dieser Brieftasche";
 "card_settings_access_code_recovery_footer" = "Deaktiviere die Möglichkeit, den Zugangscode auf dieser Karte oder Ring oder anderen Karten oder Ringe in dieser Wallets zurückzusetzen";
@@ -247,7 +247,7 @@
 "common_enable" = "Aktivieren";
 "common_enabled" = "Aktiviert";
 "common_error" = "Fehler";
-"common_estimated_fee" = "Geschätzte Gebühr";
+"common_estimated_fee" = "Aufladegebühr";
 "common_exchange" = "Umtausch";
 "common_explore_transaction_history" = "Transaktionsverlauf einsehen";
 "common_explore" = "Erkunden";
@@ -275,7 +275,7 @@
 "common_in_progress" = "In Arbeit";
 "common_later" = "Später";
 "common_learn_and_earn" = "Lernen und verdienen";
-"common_learn_more" = "Mehr erfahren";
+"common_learn_more" = "Mehr erfahren";
 "common_left" = "%1$@ übrig";
 "common_legacy_bitcoin_address" = "Legacy Bitcoin";
 "common_locked_wallets" = "Gesperrte Wallet";
@@ -343,7 +343,7 @@
 "common_tangem" = "Tangem";
 "common_terms_and_conditions" = "Allgemeine Geschäftsbedingungen";
 "common_terms_of_use" = "Nutzungsbedingungen";
-"common_to_wallet_name" = "To %@";
+"common_to_wallet_name" = "Zu %@";
 "common_to" = "An";
 "common_today" = "Heute";
 "common_transaction_failed" = "Transaktion fehlgeschlagen";
@@ -351,7 +351,7 @@
 "common_transactions" = "Transaktionen";
 "common_transfer" = "Überweisung";
 "common_unable_to_load" = "Die Daten konnten nicht geladen werden…";
-"common_understand_continue" = "I understand, continue";
+"common_understand_continue" = "Ich verstehe, fahre bitte fort.";
 "common_understand" = "Ich verstehe";
 "common_unknown_error" = "Es ist ein Fehler aufgetreten. Bitte versuche es erneut.";
 "common_unreachable" = "Nicht erreichbar";
@@ -367,7 +367,7 @@
 "currency_subtitle_expanded" = "Verfügbare Netzwerke";
 "custom_token_another_account_dialog_description" = "Die Ableitung Deines Tokens entspricht der Ableitung von %1$@. Dein Token wird diesem Konto gutgeschrieben.";
 "custom_token_another_account_dialog_title" = "Die Herleitung stammt aus einem anderen Bericht.";
-"custom_token_another_account_snackbar_text" = "Token added to %1$@ account";
+"custom_token_another_account_snackbar_text" = "Token hinzugefügt %1$@ Konto";
 "custom_token_contract_address_input_title" = "Vertragsadresse";
 "custom_token_creation_error_empty_fields" = "Bitte fülle alle Felder aus";
 "custom_token_creation_error_invalid_contract_address" = "Vertragsadresse ist ungültig";
@@ -500,6 +500,10 @@
 "express_token_list_empty_search" = "Keine Token gefunden. Bitte versuche eine andere Anfrage";
 "express_transaction_id_copied" = "Transaktions-ID kopiert";
 "express_transaction_id" = "ID: %@";
+"fee_selector_choose_speed_description" = "Eine höhere Geschwindigkeit bedeutet eine schnellere Bestätigung und eine höhere Netzgebühr. %@";
+"fee_selector_choose_speed_title" = "Geschwindigkeit wählen";
+"fee_selector_choose_token_description" = "Wähle aus, mit welchem Token Du die Netzgebühr bezahlen möchtest. %@";
+"fee_selector_choose_token_title" = "Token auswählen";
 "feed_market_and_news" = "Markt & Nachrichten";
 "feed_tangem_ai" = "Tangem AI";
 "feed_trending_now" = "Aktuelle Trends";
@@ -585,9 +589,9 @@
 "hw_remove_wallet_notification_action_backup_view" = "Backup anzeigen";
 "hw_remove_wallet_notification_action_forget_anyway" = "Trotzdem entfernen!";
 "hw_remove_wallet_notification_action_forget" = "Entferne Deine Wallet für immer!";
-"hw_remove_wallet_notification_description_has_backup" = "Für diese Wallet existiert ein Backup. Überprüfe dieses bitte, bevor Du sie entfernst, um sicherzustellen, dass Du sie später wiederherstellen kannst.";
-"hw_remove_wallet_notification_description_without_backup" = "Wenn Du diese Wallet ohne Backup entfernst, verlierst Du dauerhaft den Zugriff auf Deine Assets.";
-"hw_remove_wallet_notification_title" = "Diese Wallet dauerhaft entfernen?";
+"hw_remove_wallet_notification_description_has_backup" = "Diese Wallet verfügt über ein Backup. Stelle sicher, dass Du es wiederherstellen kannst, bevor die Wallet resettet wird.";
+"hw_remove_wallet_notification_description_without_backup" = "Wenn Du diese Wallet ohne Backup löschst, verlierst Du dauerhaft den Zugriff auf Dein Guthaben.";
+"hw_remove_wallet_notification_title" = "Bist du sicher, dass du diese Wallet vergessen willst?";
 "hw_remove_wallet_warning_access" = "Mir ist bewusst, dass ich den Zugriff auf meine Wallet verlieren kann, wenn ich sie vor der Entfernung nicht gesichert habe.";
 "hw_remove_wallet_warning_device" = "Mir ist bewusst, dass durch das Entfernen meiner Wallet diese nicht gelöscht, sondern lediglich von meinem Gerät entfernt wird.";
 "hw_upgrade_backup_description" = "Es wird keine Seed-Phrase mehr benötigt – Deine Tangem-Karte oder Dein Tangem-Ring wird zu Deinem sicheren Backup.";
@@ -683,7 +687,7 @@
 "markets_sort_by_top_gainers_title" = "Top-Gewinner";
 "markets_sort_by_top_losers_title" = "Top-Verlierer";
 "markets_sort_by_trending_title" = "Beliebt";
-"markets_sort_by_yield_mode_title" = "Yield Mode";
+"markets_sort_by_yield_mode_title" = "Ertragsmodus";
 "markets_staking_banner_description_placeholder" = "Staking ist der einfachste Weg, um Belohnungen für Deine Kryptowährung zu erhalten. %@";
 "markets_staking_banner_title" = "Verdiene bis zu %@ APY";
 "markets_token_added" = "Token hinzugefügt";
@@ -753,7 +757,7 @@
 "news_like" = "Gefällt mir";
 "news_quick_recap" = "Kurze Zusammenfassung";
 "news_related_news" = "Verwandte Nachrichten";
-"news_related_tokens" = "Related tokens";
+"news_related_tokens" = "Verwandte Token";
 "news_sources" = "Quellen";
 "news_stay_in_the_loop" = "Auf dem Laufenden bleiben";
 "nft_about_title" = "Über NFT";
@@ -865,7 +869,7 @@
 "onboarding_seed_mnemonic_invalid_checksum" = "Ungültige Seed-Phrase. Bitte überprüfe die Wortreihenfolge.";
 "onboarding_seed_mnemonic_wrong_words" = "Ungültige Seed-Phrase. Bitte überprüfe die Rechtschreibung.";
 "onboarding_seed_phrase_intro_legacy" = "Veralteter Standard";
-"onboarding_seed_screenshot_alert" = "Wir raten davon ab, die Seed-Phrase als Screenshot zu speichern, da das Risiko eines Verlusts oder eines Hackerangriffs sehr hoch ist!";
+"onboarding_seed_screenshot_alert" = "Aus Sicherheitsgründen ist das Erstellen von Screenshots Deiner Seed-Phrase deaktiviert. Deine Seed-Phrase ist verborgen, um sie vor Verlust oder unbefugtem Zugriff zu schützen.";
 "onboarding_seed_user_validation_message" = "Um zu überprüfen, ob du deine Seed-Phrase richtig aufgeschrieben hast, gib bitte das 2., 7. und 11 Wort ein.";
 "onboarding_seed_user_validation_title" = "Eine letzte Prüfung!";
 "onboarding_subtitle_no_backup_cards" = "Um den Sicherungsvorgang zu starten, füge bis zu zwei Sicherungskarten oder Ring hinzu.";
@@ -903,7 +907,7 @@
 "onramp_currency_other" = "Andere Währungen";
 "onramp_currency_popular" = "Beliebte Fiats";
 "onramp_currency_search" = "Suche nach Währung";
-"onramp_error_transaction_already_processed" = "This transaction has already been processed. No further action is required.";
+"onramp_error_transaction_already_processed" = "Diese Transaktion wurde bereits verarbeitet. Es sind keine weiteren Maßnahmen erforderlich.";
 "onramp_fetching_best_rates" = "Die besten Preise erzielen...";
 "onramp_instant_status" = "Sofort";
 "onramp_legal_text" = "Der Service wird von einem externen Anbieter bereitgestellt. \n Tangem übernimmt keine Verantwortung.";
@@ -985,7 +989,7 @@
 "reset_card_to_factory_button_title" = "Karte oder Ring zurücksetzen";
 "reset_card_to_factory_condition_1" = "Mir ist bewusst, dass ich nach der Durchführung dieser Aktion keinen Zugriff mehr auf die aktuelle Wallet habe.";
 "reset_card_to_factory_condition_2" = "Mir ist klar, dass ich diese Karte oder Ring nicht verwenden kann, um meinen Zugangscode auf den anderen Karten oder Ringe der aktuellen Wallet wiederherzustellen";
-"reset_card_to_factory_condition_3" = "I understand that I will completely lose access to my Tangem Pay Card and all funds on it without the possibility of recovery";
+"reset_card_to_factory_condition_3" = "Mir ist bewusst, dass ich den Zugang zu meiner Tangem Pay Karte und allen darauf befindlichen Geldern vollständig verliere, ohne die Möglichkeit der Wiederherstellung";
 "reset_card_with_backup_to_factory_message" = "Durch das Zurücksetzen auf Werkseinstellungen wird die Wallet vollständig von der ausgewählten Karte oder Ring gelöscht. Du kannst die aktuelle Wallet nicht wiederherstellen oder die Karte oder Ring verwenden, um den Zugangscode wiederherzustellen.";
 "reset_card_without_backup_to_factory_message" = "Beim Zurücksetzen auf die Werkseinstellungen wird die Wallet der ausgewählten Karte oder Ring vollständig gelöscht und aus der App entfernt. Es ist nicht möglich, die aktuelle Wallet wiederherzustellen.";
 "reset_cards_dialog_complete_description" = "Alle Tangem-Geräte wurden zurückgesetzt.";
@@ -1124,8 +1128,8 @@
 "staking_account_initialization_title" = "Kontoaktivierung";
 "staking_active_footer" = "Um deine Vermögenswerte freizugeben, tippe auf den Block oben";
 "staking_active" = "Aktiv";
-"staking_alert_network_fee_updated_message" = "The network fee has changed. Please review the new amount before proceeding.";
-"staking_alert_network_fee_updated_title" = "Network fee updated";
+"staking_alert_network_fee_updated_message" = "Die Netzwerkgebühr hat sich geändert. Bitte überprüfe den neuen Betrag, bevor Du fortfährst.";
+"staking_alert_network_fee_updated_title" = "Netzwerkgebühr aktualisiert";
 "staking_amount_requirement_error" = "Die Anzahl der zu stakenden Krypros muss mindesten %@ betragen";
 "staking_amount_tron_integer_error_unstaking" = "Der Betrag der unstaked wird, wird aufgrund der Netzwerkregeln auf %1$@ TRX gerundet.";
 "staking_amount_tron_integer_error" = "Der Stakingbetrag wird aufgrund der Netzwerkregeln auf %1$@ TRX aufgerundet.";
@@ -1140,6 +1144,7 @@
 "staking_details_apr" = "Effektiver Jahreszins";
 "staking_details_apy" = "APY";
 "staking_details_auto_claiming_rewards_daily_text" = "Belohnungen sammeln sich täglich automatisch in deinem Staking-Konto an.";
+"staking_details_autocompound_rewards_earned" = "Rewards are compounded to your staking balance. Funds earned: %@";
 "staking_details_available" = "Verfügbar";
 "staking_details_average_reward_rate" = "Durchschnittliche Belohnungsquote";
 "staking_details_banner_text" = "Wie funktioniert Staking?";
@@ -1165,7 +1170,7 @@
 "staking_give_permission_fee_footer" = "Das Netzwerk erhebt eine Token-Genehmigungsgebühr, um zu überprüfen, ob Du die Verwendung Deines Tokens für das Staking genehmigst.";
 "staking_legal" = "Indem Du die Staking-Funktionalität nutzt, stimmst Du den %1$@ und %2$@ des Anbieters zu.";
 "staking_locked" = "Gesperrt";
-"staking_max_amount_requirement_error" = "Maximum amount: %@";
+"staking_max_amount_requirement_error" = "Höchstbetrag: %@";
 "staking_migrate" = "Migrieren";
 "staking_native" = "Natives Staking";
 "staking_no_validators_error_message" = "Derzeit sind keine aktiven Validatoren für das Staking verfügbar. Bitte versuchen Sie es später erneut.";
@@ -1314,7 +1319,7 @@
 "tangem_pay_freeze_card_success" = "Ihre Karte ist eingefroren.";
 "tangem_pay_get_help" = "Hilfe erhalten";
 "tangem_pay_other" = "Andere";
-"tangem_pay_rooted_device_subtitle" = "Unable to use on rooted devices";
+"tangem_pay_rooted_device_subtitle" = "Nicht nutzbar auf gerooteten Geräten";
 "tangem_pay_status_completed" = "Abgeschlossen";
 "tangem_pay_status_declined" = "Abgelehnt";
 "tangem_pay_status_pending" = "Ausstehend";
@@ -1327,7 +1332,7 @@
 "tangem_pay_unfreeze_card_failed" = "Entsperren der Karte fehlgeschlagen. Versuchen Sie es später erneut.";
 "tangem_pay_unfreeze_card_success" = "Ihre Karte ist entsperrt.";
 "tangem_pay_withdrawal" = "Abhebung";
-"tangempay_account_unable_to_use_rooted" = "Unable to use on rooted device";
+"tangempay_account_unable_to_use_rooted" = "Auf gerooteten Geräten nicht nutzbar.";
 "tangempay_cancel_kyc" = "KYC abbrechen";
 "tangempay_card_details_add_funds_subtitle" = "Aufladeoptionen";
 "tangempay_card_details_add_funds" = "Guthaben hinzufügen";
@@ -1352,7 +1357,7 @@
 "tangempay_card_details_open_wallet_step_2_apple" = "Tippen Sie auf „Debit- oder Kreditkarte“";
 "tangempay_card_details_open_wallet_step_2" = "Tippe auf „Karte hinzufügen“.";
 "tangempay_card_details_open_wallet_step_3" = "Gebe die Kartendaten manuell ein";
-"tangempay_card_details_open_wallet_step_4" = "Verifiziere die Karte mit dem Einmalpasswort (OPT), das an Dein Gerät gesendet wird.";
+"tangempay_card_details_open_wallet_step_4" = "Verifiziere Deine Karte mithilfe des an Dein Gerät gesendeten OTP.";
 "tangempay_card_details_open_wallet_step_5" = "Alles erledigt! Deine Karte ist einsatzbereit.";
 "tangempay_card_details_open_wallet_title_apple" = "Karte zu Apple Pay hinzufügen";
 "tangempay_card_details_open_wallet_title" = "Karte zu Google Pay hinzufügen";
@@ -1365,7 +1370,7 @@
 "tangempay_card_details_swap_description" = "Tausche beliebige Vermögenswerte in Deinem Portfolio gegen eine Karte.";
 "tangempay_card_details_title" = "Kartendetails";
 "tangempay_card_details_unfreeze_card" = "Karte entsperren";
-"tangempay_card_details_view_pin_code_description" = "Come back to the app if you forget it.";
+"tangempay_card_details_view_pin_code_description" = "Komm zurück zur App, falls du es vergisst.";
 "tangempay_card_details_view_pin_code_title" = "Dein PIN-Code";
 "tangempay_card_details_withdraw_error_title" = "Auszahlung derzeit nicht möglich";
 "tangempay_card_details_withdraw_in_progress_description" = "Sie können keinen Tausch oder eine neue Auszahlung starten, bis die aktuelle abgeschlossen ist.";
@@ -1373,7 +1378,7 @@
 "tangempay_card_details_withdraw" = "Auszahlung";
 "tangempay_change_pin_code" = "PIN-Code ändern";
 "tangempay_come_back_if_forget_pin" = "Kehren Sie zur App zurück, falls Sie ihn vergessen.";
-"tangempay_factory_settings_warning_title" = "I understand that I will completely lose access to my Tangem Pay Card and all funds on it without the possibility of recovery";
+"tangempay_factory_settings_warning_title" = "Mir ist bewusst, dass ich den Zugriff auf meine Tangem Pay Card und alle darauf befindlichen Guthaben vollständig und ohne Möglichkeit der Wiederherstellung verliere.";
 "tangempay_failed_to_issue_card_retry_description" = "Ein technischer Fehler ist aufgetreten, bitte versuchen Sie es erneut, indem Sie auf die Schaltfläche unten klicken";
 "tangempay_failed_to_issue_card_support_description" = "Ein technischer Fehler ist aufgetreten, bitte kontaktieren Sie den Support";
 "tangempay_failed_to_issue_card" = "Kartenausstellung fehlgeschlagen";
@@ -1389,10 +1394,15 @@
 "tangempay_kyc_confirm_cancellation_description" = "Möchtest Du den KYC wirklich abbrechen? Du kannst später jederzeit weiter machen.";
 "tangempay_kyc_failed_description" = "Wir konnten Ihr Profil nicht verifizieren. Bei Fragen wenden Sie sich bitte an den Support.";
 "tangempay_kyc_failed_title" = "Leider konnten wir Ihre Identität nicht verifizieren";
+"tangempay_kyc_has_failed" = "KYC has failed";
 "tangempay_kyc_in_progress_notification_button" = "Status anzeigen";
 "tangempay_kyc_in_progress_notification_title" = "KYC für Tangem Pay in Arbeit";
-"tangempay_kyc_in_progress_popup_description" = "Use the buttons below to view your current KYC status or cancel it.";
+"tangempay_kyc_in_progress_popup_description" = "Über die Schaltflächen unten kannst Du Deinen aktuellen KYC-Status einsehen oder ihn abbrechen.";
 "tangempay_kyc_in_progress" = "KYC in Bearbeitung";
+"tangempay_kyc_rejected_button_text" = "Hide KYC block";
+"tangempay_kyc_rejected_description_span" = "your profile.";
+"tangempay_kyc_rejected_description" = "Sorry, we couldn't verify";
+"tangempay_kyc_rejected" = "KYC rejected";
 "tangempay_onboarding_banner_description" = "Holen Sie sich Ihre kostenlose virtuelle Tangem Visa-Karte";
 "tangempay_onboarding_banner_title" = "Nutzen Sie USDC für alltägliche Zahlungen";
 "tangempay_onboarding_get_card_button_text" = "Karte erhalten";
@@ -1409,11 +1419,11 @@
 "tangempay_service_unavailable_description" = "Wir beheben ein technisches Problem. Bitte versuchen Sie es später erneut.";
 "tangempay_service_unavailable_title" = "Service vorübergehend nicht verfügbar";
 "tangempay_service_unreachable_try_later" = "Daten können derzeit nicht angezeigt werden, Kartenzahlungen funktionieren jedoch weiterhin.";
-"tangempay_set_pin_code" = "Set \nPIN code";
-"tangempay_sync_needed_restore_access" = "Restore access";
-"tangempay_sync_needed" = "Synchronisation erforderlich";
+"tangempay_set_pin_code" = "Satz \nPIN-Code";
+"tangempay_sync_needed_restore_access" = "Zugang wiederherstellen";
+"tangempay_sync_needed" = "Nicht synchronisiert";
 "tangempay_tangem_visa_card" = "Nutzen Sie USDC für alltägliche Zahlungen";
-"tangempay_temporarily_unavailable" = "Tangem Pay ist vorübergehend nicht verfügbar";
+"tangempay_temporarily_unavailable" = "Tangem Pay ist vorübergehend nicht erreichbar.";
 "tangempay_title" = "Tangem Pay";
 "tangempay_use_tangem_device_to_restore_payment_account" = "Klicken Sie auf die Schaltfläche unten, um den Zugriff wiederherzustellen";
 "tangempay_your_pin_code" = "Ihr PIN-Code";
@@ -1852,7 +1862,7 @@
 "xtz_withdrawal_message_warning" = "Damit Sie beim nächsten Aufladen Ihrer Brieftasche keine erhöhte Provision zahlen, soll der Betrag um %@ XTZ reduziert werden";
 "yield_module_alert_description" = "Wenn der Yield-Modus aktiviert ist, gehen alle zukünftigen Einzahlungen an diese Adresse an Aave. Du kannst über Dein Guthaben weiterhin frei verfügen.";
 "yield_module_alert_title" = "Deine %@ wird an Aave übermittelt";
-"yield_module_amount_not_transfered_to_aave_title" = "Die Lieferung von %1$@ %2$@ an Aave steht noch aus.";
+"yield_module_amount_not_transfered_to_aave_title" = "Lieferung %1$@ %2$@ nach Aave";
 "yield_module_approve_needed_notification_cta" = "Genehmigen";
 "yield_module_approve_needed_notification_description" = "Die Genehmigung Deines Tokens wurde widerrufen. Erteilen diese erneut, um die Servicefunktionalität fortzusetzen.";
 "yield_module_approve_needed_notification_title" = "Genehmigung erforderlich";
@@ -1862,7 +1872,7 @@
 "yield_module_balance_info_sheet_subtitle" = "Deine Gelder werden derzeit dem Aave-Protokoll bereitgestellt, Du kannst sie jedoch jederzeit verwalten.";
 "yield_module_balance_info_sheet_title" = "Deine%@ ist in Aave hinterlegt";
 "yield_module_chart_loading_error" = "Chart konnte nicht geladen werden...";
-"yield_module_deposit_error_notification_title" = "Das Bereitstellen von %1$@ %2$@ bei Aave steht aus.";
+"yield_module_deposit_error_notification_title" = "Lieferung %1$@ %2$@ nach Aave.";
 "yield_module_disable_button" = "Deaktiviere den Yield-Modus";
 "yield_module_earn_badge" = "APY %1$@%%";
 "yield_module_earn_sheet_available_title" = "Verfügbar";
@@ -1927,12 +1937,12 @@
 "yield_module_supply_apr" = "Effektiver Jahreszins für Versorgung";
 "yield_module_supply" = "Angebot";
 "yield_module_token_details_earn_notification_apy" = "Effektiver Jahreszins";
-"yield_module_token_details_earn_notification_description" = "Die Zinsen fallen automatisch an.";
+"yield_module_token_details_earn_notification_description" = "Zinsen fallen automatisch an.";
 "yield_module_token_details_earn_notification_earning_on_your_balance_subtitle" = "Zinsen fallen automatisch an";
 "yield_module_token_details_earn_notification_earning_on_your_balance_title" = "Ertragsmodus";
 "yield_module_token_details_earn_notification_processing" = "Bearbeitung Deiner Einzahlung";
 "yield_module_token_details_earn_notification_title" = "Ertragsmodus";
-"yield_module_transaction_deploy_contract" = "Yield Mode contract deploy";
+"yield_module_transaction_deploy_contract" = "Yield-Mode-Vertragsbereitstellung";
 "yield_module_transaction_enter_subtitle" = "%1$@ geliefert an Aave";
 "yield_module_transaction_enter" = "Ertragsmodus aktivieren";
 "yield_module_transaction_exit_subtitle" = "%1$@ aus Aave zurücküberwiesen";
