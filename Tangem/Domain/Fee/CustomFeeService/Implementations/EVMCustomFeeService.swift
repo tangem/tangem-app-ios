@@ -187,6 +187,11 @@ class EVMCustomFeeService {
             gasLimitTextField.update(value: legacyParameters.gasLimit.decimal)
             gasPriceTextField.update(value: legacyParameters.gasPrice.decimal?.shiftOrder(magnitude: -Constants.gweiDigits))
             nonceTextField.update(value: legacyParameters.nonce.map { Decimal($0) })
+        case .gasless(let gaslessParams):
+            gasLimitTextField.update(value: gaslessParams.gasLimit.decimal)
+            maxFeePerGasTextField.update(value: gaslessParams.maxFeePerGas.decimal?.shiftOrder(magnitude: -Constants.gweiDigits))
+            priorityFeeTextField.update(value: gaslessParams.priorityFee.decimal?.shiftOrder(magnitude: -Constants.gweiDigits))
+            nonceTextField.update(value: gaslessParams.nonce.map { Decimal($0) })
         }
     }
 }
