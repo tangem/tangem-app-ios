@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 extension InjectedValues {
     var walletsNetworkServiceFactory: WalletsNetworkServiceFactory {
