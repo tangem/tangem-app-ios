@@ -38,6 +38,17 @@ class SendWithSwapFeeSelectorInteractor {
 extension SendWithSwapFeeSelectorInteractor: SendFeeProvider {
     var fees: [TokenFee] { selectorFees }
     var feesPublisher: AnyPublisher<[TokenFee], Never> { selectorFeesPublisher }
+    var feesHasMultipleFeeOptions: AnyPublisher<Bool, Never> {
+        receiveTokenPublisher
+            .withWeakCaptureOf(self)
+            .flatMapLatest { interactor, receiveToken in
+                switch receiveToken {
+                case .same: interactor.sendFeeSelectorInteractor.feesHasMultipleFeeOptions
+                case .swap: interactor.swapFeeSelectorInteractor.feesHasMultipleFeeOptions
+                }
+            }
+            .eraseToAnyPublisher()
+    }
 
     func updateFees() {
         switch receiveTokenInput?.receiveToken {
@@ -50,44 +61,6 @@ extension SendWithSwapFeeSelectorInteractor: SendFeeProvider {
 // MARK: - FeeSelectorInteractor
 
 extension SendWithSwapFeeSelectorInteractor: FeeSelectorInteractor {
-    var selectedSelectorFeeTokenItem: TokenItem? {
-        switch receiveTokenInput?.receiveToken {
-        case .none, .same: sendFeeSelectorInteractor.selectedSelectorFeeTokenItem
-        case .swap: swapFeeSelectorInteractor.selectedSelectorFeeTokenItem
-        }
-    }
-
-    var selectedSelectorFeeTokenItemPublisher: AnyPublisher<TokenItem?, Never> {
-        receiveTokenPublisher
-            .withWeakCaptureOf(self)
-            .flatMapLatest { interactor, receiveToken in
-                switch receiveToken {
-                case .same: interactor.sendFeeSelectorInteractor.selectedSelectorFeeTokenItemPublisher
-                case .swap: interactor.swapFeeSelectorInteractor.selectedSelectorFeeTokenItemPublisher
-                }
-            }
-            .eraseToAnyPublisher()
-    }
-
-    var selectorFeeTokenItems: [TokenItem] {
-        switch receiveTokenInput?.receiveToken {
-        case .none, .same: sendFeeSelectorInteractor.selectorFeeTokenItems
-        case .swap: swapFeeSelectorInteractor.selectorFeeTokenItems
-        }
-    }
-
-    var selectorFeeTokenItemsPublisher: AnyPublisher<[TokenItem], Never> {
-        receiveTokenPublisher
-            .withWeakCaptureOf(self)
-            .flatMapLatest { interactor, receiveToken in
-                switch receiveToken {
-                case .same: interactor.sendFeeSelectorInteractor.selectorFeeTokenItemsPublisher
-                case .swap: interactor.swapFeeSelectorInteractor.selectorFeeTokenItemsPublisher
-                }
-            }
-            .eraseToAnyPublisher()
-    }
-
     var selectedSelectorFee: TokenFee? {
         switch receiveTokenInput?.receiveToken {
         case .none, .same: sendFeeSelectorInteractor.selectedSelectorFee
@@ -126,6 +99,44 @@ extension SendWithSwapFeeSelectorInteractor: FeeSelectorInteractor {
             .eraseToAnyPublisher()
     }
 
+    var selectedSelectorTokenFeeProvider: (any TokenFeeProvider)? {
+        switch receiveTokenInput?.receiveToken {
+        case .none, .same: sendFeeSelectorInteractor.selectedSelectorTokenFeeProvider
+        case .swap: swapFeeSelectorInteractor.selectedSelectorTokenFeeProvider
+        }
+    }
+
+    var selectedSelectorTokenFeeProviderPublisher: AnyPublisher<(any TokenFeeProvider)?, Never> {
+        receiveTokenPublisher
+            .withWeakCaptureOf(self)
+            .flatMapLatest { interactor, receiveToken in
+                switch receiveToken {
+                case .same: interactor.sendFeeSelectorInteractor.selectedSelectorTokenFeeProviderPublisher
+                case .swap: interactor.swapFeeSelectorInteractor.selectedSelectorTokenFeeProviderPublisher
+                }
+            }
+            .eraseToAnyPublisher()
+    }
+
+    var selectorTokenFeeProviders: [any TokenFeeProvider] {
+        switch receiveTokenInput?.receiveToken {
+        case .none, .same: sendFeeSelectorInteractor.selectorTokenFeeProviders
+        case .swap: swapFeeSelectorInteractor.selectorTokenFeeProviders
+        }
+    }
+
+    var selectorTokenFeeProvidersPublisher: AnyPublisher<[any TokenFeeProvider], Never> {
+        receiveTokenPublisher
+            .withWeakCaptureOf(self)
+            .flatMapLatest { interactor, receiveToken in
+                switch receiveToken {
+                case .same: interactor.sendFeeSelectorInteractor.selectorTokenFeeProvidersPublisher
+                case .swap: interactor.swapFeeSelectorInteractor.selectorTokenFeeProvidersPublisher
+                }
+            }
+            .eraseToAnyPublisher()
+    }
+
     var customFeeProvider: (any CustomFeeProvider)? {
         switch receiveTokenInput?.receiveToken {
         case .none, .same: sendFeeSelectorInteractor.customFeeProvider
@@ -133,10 +144,10 @@ extension SendWithSwapFeeSelectorInteractor: FeeSelectorInteractor {
         }
     }
 
-    func userDidSelectTokenItem(_ tokenItem: TokenItem) {
+    func userDidSelect(tokenFeeProvider: any TokenFeeProvider) {
         switch receiveTokenInput?.receiveToken {
-        case .none, .same: sendFeeSelectorInteractor.userDidSelectTokenItem(tokenItem)
-        case .swap: swapFeeSelectorInteractor.userDidSelectTokenItem(tokenItem)
+        case .none, .same: sendFeeSelectorInteractor.userDidSelect(tokenFeeProvider: tokenFeeProvider)
+        case .swap: swapFeeSelectorInteractor.userDidSelect(tokenFeeProvider: tokenFeeProvider)
         }
     }
 
