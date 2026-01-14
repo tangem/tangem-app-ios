@@ -175,22 +175,22 @@ public struct EthereumGaslessTransactionFeeParameters: FeeParameters {
     /// Conversion rate from native coin to token.
     /// Represents how many token units correspond to 1 unit of native coin
     /// (e.g. 1 ETH = 1500 USDC → coinToTokenRate = 1500).
-    public let coinToTokenRate: Decimal
+    public let nativeToFeeTokenRate: Decimal
 
-    public init(gasLimit: BigUInt, baseFee: BigUInt, priorityFee: BigUInt, nonce: Int? = nil, coinToTokenRate: Decimal) {
+    public init(gasLimit: BigUInt, baseFee: BigUInt, priorityFee: BigUInt, nonce: Int? = nil, nativeToFeeTokenRate: Decimal) {
         self.gasLimit = gasLimit
         maxFeePerGas = baseFee + priorityFee
         self.priorityFee = priorityFee
         self.nonce = nonce
-        self.coinToTokenRate = coinToTokenRate
+        self.nativeToFeeTokenRate = nativeToFeeTokenRate
     }
 
-    public init(gasLimit: BigUInt, maxFeePerGas: BigUInt, priorityFee: BigUInt, nonce: Int? = nil, coinToTokenRate: Decimal) {
+    public init(gasLimit: BigUInt, maxFeePerGas: BigUInt, priorityFee: BigUInt, nonce: Int? = nil, nativeToFeeTokenRate: Decimal) {
         self.gasLimit = gasLimit
         self.maxFeePerGas = maxFeePerGas
         self.priorityFee = priorityFee
         self.nonce = nonce
-        self.coinToTokenRate = coinToTokenRate
+        self.nativeToFeeTokenRate = nativeToFeeTokenRate
     }
 }
 
@@ -206,7 +206,7 @@ extension EthereumGaslessTransactionFeeParameters: EthereumFeeParameters {
     ///    feeWEI = gasLimit × maxFeePerGas
     /// 2. Converts the fee from wei to native coin using `decimalValue` (e.g. 1e18 for ETH):
     ///    feeInCoin = feeWEI / decimalValue
-    /// 3. Converts the fee from native coin to token using `coinToTokenRate`:
+    /// 3. Converts the fee from native coin to token using `nativeToFeeTokenRate`:
     ///    feeInToken = feeInCoin × coinToTokenRate
     ///
     /// Example:
@@ -221,7 +221,7 @@ extension EthereumGaslessTransactionFeeParameters: EthereumFeeParameters {
         let feeWEI = gasLimit * maxFeePerGas
         let feeValue = feeWEI.decimal ?? Decimal(UInt64(feeWEI))
         let feeInCoin = feeValue / decimalValue
-        let feeInToken = feeInCoin * coinToTokenRate
+        let feeInToken = feeInCoin * nativeToFeeTokenRate
         return feeInToken
     }
 
@@ -231,7 +231,7 @@ extension EthereumGaslessTransactionFeeParameters: EthereumFeeParameters {
             maxFeePerGas: maxFeePerGas,
             priorityFee: priorityFee,
             nonce: nonce,
-            coinToTokenRate: coinToTokenRate
+            nativeToFeeTokenRate: nativeToFeeTokenRate
         )
     }
 }

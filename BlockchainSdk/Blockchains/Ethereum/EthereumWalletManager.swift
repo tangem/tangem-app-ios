@@ -522,11 +522,12 @@ extension EthereumWalletManager: GaslessTransactionFeeProvider {
         feeToken: Token,
         amount originalAmount: Amount,
         destination originalDestination: String,
-        feeRecipientAddress: String
+        feeRecipientAddress: String,
+        nativeToFeeTokenRate: Decimal
     ) async throws -> Fee {
         // Addresses
         let ourAddress = wallet.defaultAddress.value
-        let convertedGaslessTokenCollectorAddress = try addressConverter.convertToETHAddress(feeRecipientAddress)
+        let convertedFeeRecepientAddress = try addressConverter.convertToETHAddress(feeRecipientAddress)
         let convertedOurAddress = try addressConverter.convertToETHAddress(ourAddress)
 
         // Fixed fee token amount (10000 minimal units)
@@ -534,11 +535,11 @@ extension EthereumWalletManager: GaslessTransactionFeeProvider {
         let sanitizedAmount = Self.sanitizeAmount(originalAmount, wallet: wallet)
 
         // 1) Build calldata for transferring fixed fee token amount to Gasless collector
-        let tokenTransferData = TransferERC20TokenMethod(destination: convertedGaslessTokenCollectorAddress, amount: baseTokenAmount).encodedData
+        let tokenTransferData = TransferERC20TokenMethod(destination: convertedFeeRecepientAddress, amount: baseTokenAmount).encodedData
 
         // 2) Estimate gas limit for fee token transfer
         let feeTransferGasLimit = try await getGasLimit(
-            to: convertedGaslessTokenCollectorAddress,
+            to: convertedFeeRecepientAddress,
             from: convertedOurAddress,
             value: nil,
             data: tokenTransferData
@@ -566,11 +567,18 @@ extension EthereumWalletManager: GaslessTransactionFeeProvider {
         let doubledMaxFeePerGas = maximumFeePerGas * EthereumFeeParametersConstants.gaslessMaxFeePerGasMultiplier
 
         // 7) Create updated fee params and compute fee amount
-        let newParams = EthereumEIP1559FeeParameters(gasLimit: newGasLimit, maxFeePerGas: doubledMaxFeePerGas, priorityFee: params.priorityFee)
+        let newParams = EthereumGaslessTransactionFeeParameters(
+            gasLimit: newGasLimit,
+            maxFeePerGas: doubledMaxFeePerGas,
+            priorityFee: params.priorityFee,
+            nativeToFeeTokenRate: nativeToFeeTokenRate
+        )
+
+        // 8) IMPORTANT: The fee is calculated in TOKEN using the provided nativeToFeeTokenRate
         let fee = newParams.calculateFee(decimalValue: wallet.blockchain.decimalValue)
 
-        // 8) Return Fee with updated params and computed amount
-        return Fee(.init(with: wallet.blockchain, value: fee), parameters: newParams)
+        // 9) Return Fee with updated params and computed amount
+        return Fee(.init(with: feeToken, value: fee), parameters: newParams)
     }
 }
 
