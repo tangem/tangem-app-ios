@@ -38,6 +38,17 @@ class SendWithSwapFeeSelectorInteractor {
 extension SendWithSwapFeeSelectorInteractor: SendFeeProvider {
     var fees: [TokenFee] { selectorFees }
     var feesPublisher: AnyPublisher<[TokenFee], Never> { selectorFeesPublisher }
+    var feesHasMultipleFeeOptions: AnyPublisher<Bool, Never> {
+        receiveTokenPublisher
+            .withWeakCaptureOf(self)
+            .flatMapLatest { interactor, receiveToken in
+                switch receiveToken {
+                case .same: interactor.sendFeeSelectorInteractor.feesHasMultipleFeeOptions
+                case .swap: interactor.swapFeeSelectorInteractor.feesHasMultipleFeeOptions
+                }
+            }
+            .eraseToAnyPublisher()
+    }
 
     func updateFees() {
         switch receiveTokenInput?.receiveToken {

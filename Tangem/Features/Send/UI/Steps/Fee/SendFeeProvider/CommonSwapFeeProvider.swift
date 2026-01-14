@@ -47,6 +47,11 @@ final class CommonSwapFeeProvider {
 extension CommonSwapFeeProvider: SendFeeProvider {
     var fees: [TokenFee] { selectorFees }
     var feesPublisher: AnyPublisher<[TokenFee], Never> { selectorFeesPublisher }
+    var feesHasMultipleFeeOptions: AnyPublisher<Bool, Never> {
+        expressFeeSelectorInteractorPublisher
+            .flatMapLatest { $0.selectorHasMultipleFeeOptions }
+            .eraseToAnyPublisher()
+    }
 
     func updateFees() {
         expressInteractor.refresh(type: .fee)
