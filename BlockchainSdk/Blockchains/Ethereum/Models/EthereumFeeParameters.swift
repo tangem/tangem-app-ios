@@ -177,20 +177,38 @@ public struct EthereumGaslessTransactionFeeParameters: FeeParameters {
     /// (e.g. 1 ETH = 1500 USDC → coinToTokenRate = 1500).
     public let nativeToFeeTokenRate: Decimal
 
-    public init(gasLimit: BigUInt, baseFee: BigUInt, priorityFee: BigUInt, nonce: Int? = nil, nativeToFeeTokenRate: Decimal) {
+    public let feeTokenTransferGasLimit: BigUInt
+
+    public init(
+        gasLimit: BigUInt,
+        baseFee: BigUInt,
+        priorityFee: BigUInt,
+        nonce: Int? = nil,
+        nativeToFeeTokenRate: Decimal,
+        feeTokenTransferGasLimit: BigUInt
+    ) {
         self.gasLimit = gasLimit
         maxFeePerGas = baseFee + priorityFee
         self.priorityFee = priorityFee
         self.nonce = nonce
         self.nativeToFeeTokenRate = nativeToFeeTokenRate
+        self.feeTokenTransferGasLimit = feeTokenTransferGasLimit
     }
 
-    public init(gasLimit: BigUInt, maxFeePerGas: BigUInt, priorityFee: BigUInt, nonce: Int? = nil, nativeToFeeTokenRate: Decimal) {
+    public init(
+        gasLimit: BigUInt,
+        maxFeePerGas: BigUInt,
+        priorityFee: BigUInt,
+        nonce: Int? = nil,
+        nativeToFeeTokenRate: Decimal,
+        feeTokenTransferGasLimit: BigUInt
+    ) {
         self.gasLimit = gasLimit
         self.maxFeePerGas = maxFeePerGas
         self.priorityFee = priorityFee
         self.nonce = nonce
         self.nativeToFeeTokenRate = nativeToFeeTokenRate
+        self.feeTokenTransferGasLimit = feeTokenTransferGasLimit
     }
 }
 
@@ -231,7 +249,8 @@ extension EthereumGaslessTransactionFeeParameters: EthereumFeeParameters {
             maxFeePerGas: maxFeePerGas,
             priorityFee: priorityFee,
             nonce: nonce,
-            nativeToFeeTokenRate: nativeToFeeTokenRate
+            nativeToFeeTokenRate: nativeToFeeTokenRate,
+            feeTokenTransferGasLimit: feeTokenTransferGasLimit
         )
     }
 }
