@@ -40,6 +40,20 @@ struct BalanceConverter {
         return fiatToTarget
     }
 
+    func cryptoToCryptoRate(from sourceAssetId: String, to targetAssetId: String) async throws -> Decimal {
+        if sourceAssetId == targetAssetId { return 1 }
+
+        let sourceInFiat = try await convertToFiat(1, currencyId: sourceAssetId)
+        let targetInFiat = try await convertToFiat(1, currencyId: targetAssetId)
+
+        guard targetInFiat != 0 else {
+            throw BalanceConverterError.invalidTargetPrice
+        }
+
+        let rate = sourceInFiat / targetInFiat
+        return rate
+    }
+
     func convertToFiat(_ value: Decimal, currencyId: String) -> Decimal? {
         guard let rate = quotesRepository.quotes[currencyId]?.price else {
             return nil
@@ -67,5 +81,6 @@ struct BalanceConverter {
 extension BalanceConverter {
     enum BalanceConverterError: Error {
         case cannotConvertToCrypto(currencyId: String)
+        case invalidTargetPrice
     }
 }

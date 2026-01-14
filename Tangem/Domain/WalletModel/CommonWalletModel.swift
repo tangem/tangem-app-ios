@@ -346,6 +346,10 @@ extension CommonWalletModel: WalletModel {
     var minimalBalanceProvider: (any MinimalBalanceProvider)? {
         walletManager as? MinimalBalanceProvider
     }
+
+    var ethereumGaslessDataProvider: (any EthereumGaslessDataProvider)? {
+        walletManager as? EthereumGaslessDataProvider
+    }
 }
 
 // MARK: - WalletModelUpdater
