@@ -42,8 +42,9 @@ public struct HorizontalChipsView: View {
                         title: chip.title,
                         isSelected: selectedId == chip.id
                     ) {
-                        guard selectedId != chip.id else { return }
-                        selectedId = chip.id
+                        if selectedId != chip.id {
+                            selectedId = chip.id
+                        }
                     }
                 }
             }

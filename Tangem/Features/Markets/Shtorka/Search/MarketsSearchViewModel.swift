@@ -23,8 +23,6 @@ final class MarketsSearchViewModel: MarketsBaseViewModel {
     @Published private(set) var isSearching: Bool = false
     @Published private(set) var yieldModeNotificationVisible = false
 
-    let resetScrollPositionPublisher = PassthroughSubject<Void, Never>()
-
     override var overlayContentHidingProgress: CGFloat {
         // Prevents unwanted content hiding (see [REDACTED_INFO]
         isViewVisible ? super.overlayContentHidingProgress : 1.0
@@ -34,7 +32,7 @@ final class MarketsSearchViewModel: MarketsBaseViewModel {
 
     private weak var coordinator: MarketsRoutable?
 
-    private let filterProvider = MarketsListDataFilterProvider()
+    private let filterProvider: MarketsListDataFilterProvider
     private let dataProvider = MarketsListDataProvider()
     private let chartsHistoryProvider = MarketsListChartsHistoryProvider()
     private let quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper
@@ -56,12 +54,14 @@ final class MarketsSearchViewModel: MarketsBaseViewModel {
     // MARK: - Init
 
     init(
+        initialOrderType: MarketsListOrderType?,
         quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper,
         coordinator: MarketsRoutable
     ) {
         self.quotesRepositoryUpdateHelper = quotesRepositoryUpdateHelper
         self.coordinator = coordinator
 
+        filterProvider = MarketsListDataFilterProvider(initialOrderType: initialOrderType)
         marketsNotificationsManager = MarketsNotificationsManager(dataProvider: dataProvider)
 
         marketCapFormatter = .init(

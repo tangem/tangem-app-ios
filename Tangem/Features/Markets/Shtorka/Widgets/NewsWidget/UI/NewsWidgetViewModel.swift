@@ -58,7 +58,7 @@ final class NewsWidgetViewModel: ObservableObject {
 
     @MainActor
     func handleAllNewsTap() {
-        coordinator?.openNewsList()
+        coordinator?.openSeeAllNewsWidget()
     }
 
     @MainActor
@@ -137,9 +137,16 @@ private extension NewsWidgetViewModel {
     func viewStateForLoadedItems() -> ResultState {
         var trendingCardNewsItem: TrendingCardNewsItem?
         var carouselNewsItems: [CarouselNewsItem] = []
+        var processedNewsIds = Set<String>()
 
         sortItems(newsProvider.newsResult.value ?? []).forEach { item in
-            if item.isTrending {
+            // Deduplication by ID
+            guard !processedNewsIds.contains(item.id) else {
+                return
+            }
+            processedNewsIds.insert(item.id)
+
+            if item.isTrending, trendingCardNewsItem == nil {
                 trendingCardNewsItem = mapper.toTrendingCardNewsItem(
                     from: item,
                     onTap: weakify(self, forFunction: NewsWidgetViewModel.handleTap)

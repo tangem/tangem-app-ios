@@ -21,13 +21,14 @@ extension TokenFeeLoader {
     }
 }
 
-// MARK: - Custom TokenFeeLoaders
+// MARK: - EthereumTokenFeeLoader
 
 protocol EthereumTokenFeeLoader: TokenFeeLoader {
     func estimatedFee(estimatedGasLimit: Int, otherNativeFee: Decimal?) async throws -> BSDKFee
     func getFee(amount: BSDKAmount, destination: String, txData: Data, otherNativeFee: Decimal?) async throws -> [BSDKFee]
-    func getGaslessFee(amount: BSDKAmount, destination: String, txData: Data, feeToken: BSDKToken, otherNativeFee: Decimal?) async throws -> [BSDKFee]
 }
+
+// MARK: - SolanaTokenFeeLoader
 
 protocol SolanaTokenFeeLoader: TokenFeeLoader {
     func getFee(compiledTransaction data: Data) async throws -> [BSDKFee]
@@ -38,7 +39,7 @@ protocol SolanaTokenFeeLoader: TokenFeeLoader {
 extension TokenFeeLoader {
     func asEthereumTokenFeeLoader() throws -> EthereumTokenFeeLoader {
         guard let ethereumTokenFeeLoader = self as? EthereumTokenFeeLoader else {
-            throw TokenFeeLoaderError.ethereumTokenFeeLoaderNotFound
+            throw TokenFeeLoaderError.tokenFeeLoaderNotFound
         }
 
         return ethereumTokenFeeLoader
@@ -46,7 +47,7 @@ extension TokenFeeLoader {
 
     func asSolanaTokenFeeLoader() throws -> SolanaTokenFeeLoader {
         guard let solanaTokenFeeLoader = self as? SolanaTokenFeeLoader else {
-            throw TokenFeeLoaderError.solanaTokenFeeLoaderNotFound
+            throw TokenFeeLoaderError.tokenFeeLoaderNotFound
         }
 
         return solanaTokenFeeLoader
@@ -54,13 +55,13 @@ extension TokenFeeLoader {
 }
 
 enum TokenFeeLoaderError: LocalizedError {
-    case ethereumTokenFeeLoaderNotFound
-    case solanaTokenFeeLoaderNotFound
+    case tokenFeeLoaderNotFound
+    case gaslessEthereumTokenFeeSupportOnlyTokenAsFeeTokenItem
 
     var errorDescription: String? {
         switch self {
-        case .ethereumTokenFeeLoaderNotFound: "EthereumTokenFeeLoader not found"
-        case .solanaTokenFeeLoaderNotFound: "SolanaTokenFeeLoader not found"
+        case .tokenFeeLoaderNotFound: "TokenFeeLoader not found"
+        case .gaslessEthereumTokenFeeSupportOnlyTokenAsFeeTokenItem: "GaslessEthereumTokenFeeLoader supports only token as fee token item"
         }
     }
 }
