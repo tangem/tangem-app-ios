@@ -76,6 +76,10 @@ class CommonUserWalletModel {
         self.accountModelsManager = accountModelsManager
 
         _cardHeaderImagePublisher = .init(config.cardHeaderImage)
+
+        if FeatureProvider.isAvailable(.visa) {
+            tangemPayAccountProvider.setup(for: self)
+        }
     }
 
     deinit {
@@ -90,9 +94,6 @@ class CommonUserWalletModel {
             keysRepository.update(keys: walletInfo.keys)
         }
         _updatePublisher.send(.configurationChanged(model: self))
-        if FeatureProvider.isAvailable(.visa) {
-            tangemPayAccountProvider.setup(for: self)
-        }
     }
 
     private func syncRemoteAfterUpgrade() {
