@@ -82,6 +82,15 @@ extension CommonStakingSendAnalyticsLogger: StakingSendAnalyticsLogger {
             ]
         )
     }
+
+    func logNoticeNotEnoughFee() {
+        Analytics.log(
+            event: .stakingNoticeNotEnoughFee, params: [
+                .blockchain: tokenItem.blockchain.displayName,
+                .token: SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenItem),
+            ]
+        )
+    }
 }
 
 // MARK: - SendSummaryAnalyticsLogger
