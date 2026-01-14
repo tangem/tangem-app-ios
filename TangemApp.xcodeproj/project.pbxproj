@@ -21919,7 +21919,6 @@
 		EA31CB132F0BE4C00016AABC /* GaslessTransactions */ = {
 			isa = PBXGroup;
 			children = (
-				EA87DA142F139C03006519B9 /* GaslessTransactionBuilder */,
 				EA31CB1E2F0C01540016AABC /* DTO */,
 				EA31CB172F0BE5160016AABC /* APIService */,
 				EA31CB142F0BE4E10016AABC /* GaslessTransactionsNetworkManager.swift */,
@@ -22092,13 +22091,6 @@
 				EA87D7EC2F0E4D83006519B9 /* FeeSelectorMockUIUtils.swift */,
 			);
 			path = MockUIUtils;
-			sourceTree = "<group>";
-		};
-		EA87DA142F139C03006519B9 /* GaslessTransactionBuilder */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = GaslessTransactionBuilder;
 			sourceTree = "<group>";
 		};
 		EA9B03A12E9430AE00F4B40D /* YieldAvailableNotification */ = {
