@@ -70,9 +70,7 @@ private extension TangemPayAccountBuilder {
         }
 
         let authorizer = TangemPayAuthorizer(
-            customerWalletId: customerWalletId,
-            interactor: userWalletModel.tangemPayAuthorizingInteractor,
-            keysRepository: userWalletModel.keysRepository,
+            userWalletModel: userWalletModel,
             state: state
         )
 
@@ -83,9 +81,7 @@ private extension TangemPayAccountBuilder {
     func makeTangemPayAuthorizer(userWalletModel: UserWalletModel) async throws -> TangemPayAuthorizer {
         let customerWalletId = userWalletModel.userWalletId.stringValue
         let authorizer = TangemPayAuthorizer(
-            customerWalletId: customerWalletId,
-            interactor: userWalletModel.tangemPayAuthorizingInteractor,
-            keysRepository: userWalletModel.keysRepository,
+            userWalletModel: userWalletModel,
             state: .unavailable
         )
 
