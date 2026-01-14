@@ -48,10 +48,10 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
 
     private weak var coordinator: MarketsMainRoutable?
 
+    private let quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper
     private let filterProvider = MarketsListDataFilterProvider()
     private let dataProvider = MarketsListDataProvider()
     private let chartsHistoryProvider = MarketsListChartsHistoryProvider()
-    private let quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper
     private let quotesUpdatesScheduler = MarketsQuotesUpdatesScheduler()
     private let marketsNotificationsManager: MarketsNotificationsManager
 
