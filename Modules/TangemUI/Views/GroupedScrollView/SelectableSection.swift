@@ -18,6 +18,7 @@ public protocol SelectableSectionRow: View {
 public struct SelectableSection<Model: Identifiable, Content: SelectableSectionRow>: View {
     private let models: [Model]
     private let content: (Model) -> Content
+    private var areSeparatorsEnabled: Bool = true
 
     private var separatorPadding = SeparatorPadding()
 
@@ -30,7 +31,7 @@ public struct SelectableSection<Model: Identifiable, Content: SelectableSectionR
     }
 
     public var body: some View {
-        VStack(alignment: .leading, spacing: .zero) {
+        VStack(alignment: .leading, spacing: 8) {
             ForEach(models.indexed(), id: \.1.id) { index, model in
                 let nextIsSelected = models[safe: index + 1].map { content($0).isSelected } ?? false
                 let rowView = content(model)
@@ -44,7 +45,7 @@ public struct SelectableSection<Model: Identifiable, Content: SelectableSectionR
                     .overlay(alignment: .bottom) {
                         if currentIsSelected {
                             SelectionOverlay()
-                        } else if shouldShowSeparator {
+                        } else if shouldShowSeparator, areSeparatorsEnabled {
                             Separator(color: Colors.Stroke.primary)
                                 .padding(.leading, separatorPadding.leading)
                                 .padding(.trailing, separatorPadding.trailing)
@@ -60,6 +61,10 @@ public struct SelectableSection<Model: Identifiable, Content: SelectableSectionR
 extension SelectableSection: Setupable {
     public func separatorPadding(_ padding: SeparatorPadding) -> Self {
         map { $0.separatorPadding = padding }
+    }
+
+    public func enableSeparators(_ areEnabled: Bool) -> Self {
+        map { $0.areSeparatorsEnabled = areEnabled }
     }
 }
 
