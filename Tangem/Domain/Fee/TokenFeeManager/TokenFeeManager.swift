@@ -40,18 +40,13 @@ extension TokenFeeManager {
         selectedFeeProviderPublisher.flatMapLatest(\.feesPublisher).eraseToAnyPublisher()
     }
 
-    var selectedFeeProviderFeeTokenItems: [TokenItem] { feeProviders.map(\.feeTokenItem) }
-    var selectedFeeProviderFeeTokenItemsPublisher: AnyPublisher<[TokenItem], Never> {
-        .just(output: selectedFeeProviderFeeTokenItems)
+    var feeTokenProviders: [any TokenFeeProvider] { feeProviders }
+    var feeTokenProvidersPublisher: AnyPublisher<[any TokenFeeProvider], Never> {
+        .just(output: feeProviders)
     }
 
-    func updateSelectedFeeProvider(tokenItem: TokenItem) {
-        guard let feeProvider = feeProviders[tokenItem] else {
-            assertionFailure("Fee provider for token item \(tokenItem) not found")
-            return
-        }
-
-        selectedProviderSubject.send(feeProvider)
+    func updateSelectedFeeProvider(tokenFeeProvider: any TokenFeeProvider) {
+        selectedProviderSubject.send(tokenFeeProvider)
     }
 
     func setupFeeProviders(input: TokenFeeProviderInputData) {
@@ -70,29 +65,29 @@ extension TokenFeeManager {
 
 // MARK: - TokenFeeProvider
 
-extension TokenFeeManager: TokenFeeProvider {
-    var feeTokenItem: TokenItem { selectedFeeProvider.feeTokenItem }
-
-    var state: TokenFeeProviderState { selectedFeeProvider.state }
-    var statePublisher: AnyPublisher<TokenFeeProviderState, Never> {
-        selectedFeeProviderPublisher.flatMapLatest(\.statePublisher).eraseToAnyPublisher()
-    }
-
-    var fees: [TokenFee] { selectedFeeProvider.fees }
-    var feesPublisher: AnyPublisher<[TokenFee], Never> {
-        selectedFeeProviderPublisher.flatMapLatest(\.feesPublisher).eraseToAnyPublisher()
-    }
-
-    func setup(input: TokenFeeProviderInputData) {
-        feeProviders.forEach { feeProvider in
-            feeProvider.setup(input: input)
-        }
-    }
-
-    func updateFees() async {
-        await selectedFeeProvider.updateFees()
-    }
-}
+// extension TokenFeeManager: TokenFeeProvider {
+//    var feeTokenItem: TokenItem { selectedFeeProvider.feeTokenItem }
+//
+//    var state: TokenFeeProviderState { selectedFeeProvider.state }
+//    var statePublisher: AnyPublisher<TokenFeeProviderState, Never> {
+//        selectedFeeProviderPublisher.flatMapLatest(\.statePublisher).eraseToAnyPublisher()
+//    }
+//
+//    var fees: [TokenFee] { selectedFeeProvider.fees }
+//    var feesPublisher: AnyPublisher<[TokenFee], Never> {
+//        selectedFeeProviderPublisher.flatMapLatest(\.feesPublisher).eraseToAnyPublisher()
+//    }
+//
+//    func setup(input: TokenFeeProviderInputData) {
+//        feeProviders.forEach { feeProvider in
+//            feeProvider.setup(input: input)
+//        }
+//    }
+//
+//    func updateFees() async {
+//        await selectedFeeProvider.updateFees()
+//    }
+// }
 
 // MARK: - [any TokenFeeProvider]+
 

@@ -64,16 +64,12 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
 
     private func bind() {
         Publishers.CombineLatest(
-            tokensDataProvider.selectedSelectorFeeTokenItemPublisher,
-            tokensDataProvider.selectorFeeTokenItemsPublisher.map { $0.count > 1 }
+            tokensDataProvider.selectedSelectorTokenFeeProviderPublisher.compactMap { $0 },
+            tokensDataProvider.selectorTokenFeeProvidersPublisher.map { $0.count > 1 }
         )
         .receiveOnMain()
         .withWeakCaptureOf(self)
-        .compactMap { viewModel, output in
-            let (selectedToken, canExpand) = output
-            guard let token = selectedToken else { return nil }
-            return viewModel.mapTokenItemToRowViewModel(token: token, canExpand: canExpand)
-        }
+        .map { $0.mapTokenItemToRowViewModel(tokenFeeProvider: $1.0, canExpand: $1.1) }
         .assign(to: \.suggestedFeeCurrency, on: self, ownership: .weak)
         .store(in: &bag)
 
@@ -92,12 +88,18 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
         .store(in: &bag)
     }
 
-    private func mapTokenItemToRowViewModel(token: TokenItem, canExpand: Bool) -> FeeSelectorRowViewModel {
-        let subtitleState: LoadableTextView.State = .noData
+    private func mapTokenItemToRowViewModel(tokenFeeProvider: any TokenFeeProvider, canExpand: Bool) -> FeeSelectorRowViewModel {
+        let feeTokenItem = tokenFeeProvider.feeTokenItem
+
+        let subtitleState: LoadableTextView.State = switch tokenFeeProvider.state {
+        case .unavailable, .error: .noData
+        case .loading: .loading
+        case .idle, .available: .loaded(text: "Add balance")
+        }
 
         return FeeSelectorRowViewModel(
-            rowType: .token(tokenIconInfo: TokenIconInfoBuilder().build(from: token, isCustom: false)),
-            title: token.name,
+            rowType: .token(tokenIconInfo: TokenIconInfoBuilder().build(from: feeTokenItem, isCustom: false)),
+            title: feeTokenItem.name,
             subtitle: subtitleState,
             accessibilityIdentifier: FeeAccessibilityIdentifiers.suggestedFeeCurrency,
             expandAction: canExpand ? userDidTapToken : nil
