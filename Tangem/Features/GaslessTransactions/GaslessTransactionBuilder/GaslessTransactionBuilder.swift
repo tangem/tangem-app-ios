@@ -150,10 +150,13 @@ struct GaslessTransactionBuilder {
             throw GaslessTransactionBuilderError.invalidFeeParameters
         }
 
+        let maxTokenFeeInTokenUnits = (bsdkFee.amount.value * token.decimalValue).intValue(roundingMode: .up).description
+        let coinPriceInTokenUnits = (parameters.nativeToFeeTokenRate * token.decimalValue).intValue(roundingMode: .up).description
+
         return GaslessTransactionFee(
             feeToken: token.contractAddress,
-            maxTokenFee: bsdkFee.amount.value.description,
-            coinPriceInToken: parameters.nativeToFeeTokenRate.description,
+            maxTokenFee: maxTokenFeeInTokenUnits,
+            coinPriceInToken: coinPriceInTokenUnits,
             feeTransferGasLimit: parameters.gasLimit.description,
             baseGas: Constants.baseGas
         )
