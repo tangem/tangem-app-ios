@@ -188,6 +188,7 @@ extension VisaWalletModel: WalletModelDependenciesProvider {
     var accountInitializationService: (any BlockchainAccountInitializationService)? { nil }
     var minimalBalanceProvider: (any MinimalBalanceProvider)? { nil }
     var ethereumGaslessTransactionFeeProvider: (any GaslessTransactionFeeProvider)? { nil }
+    var ethereumGaslessTransactionBroadcaster: (any EthereumGaslessTransactionBroadcaster)? { nil }
 }
 
 extension VisaWalletModel: WalletModelTransactionHistoryProvider {
