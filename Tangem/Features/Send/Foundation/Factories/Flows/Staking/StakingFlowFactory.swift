@@ -32,7 +32,7 @@ class StakingFlowFactory: StakingFlowDependenciesFactory {
 
     lazy var analyticsLogger = makeStakingSendAnalyticsLogger()
     lazy var stakingModel = makeStakingModel(stakingManager: manager, analyticsLogger: analyticsLogger)
-    lazy var notificationManager = makeStakingNotificationManager()
+    lazy var notificationManager = makeStakingNotificationManager(analyticsLogger: analyticsLogger)
 
     init(
         userWalletInfo: UserWalletInfo,
