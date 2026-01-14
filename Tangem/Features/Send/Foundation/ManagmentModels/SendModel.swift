@@ -597,8 +597,8 @@ extension SendModel: SendFeeInput {
             .eraseToAnyPublisher()
     }
 
-    var canChooseFeeOption: AnyPublisher<Bool, Never> {
-        sendFeeProvider.feesHasVariants
+    var feesHasMultipleFeeOptions: AnyPublisher<Bool, Never> {
+        sendFeeProvider.feesHasMultipleFeeOptions
     }
 
     private func mapToSendFee(state: SwapManagerState) -> TokenFee {
@@ -629,7 +629,7 @@ extension SendModel: SendFeeProviderInput {
 // MARK: - SendFeeOutput
 
 extension SendModel: SendFeeOutput {
-    func userDidSelect(selectedFee fee: TokenFee) {
+    func feeDidChanged(fee: TokenFee) {
         _selectedFee.send(fee)
     }
 }
