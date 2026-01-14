@@ -552,7 +552,6 @@ extension EthereumWalletManager: GaslessTransactionFeeProvider {
         let originalFee = try await getFee(amount: sanitizedAmount, destination: originalDestination).async()
 
         // Pick the market fee (index 1) from the fees array.
-
         guard let params = originalFee[safe: 1]?.parameters as? EthereumEIP1559FeeParameters else {
             throw BlockchainSdkError.failedToGetFee
         }
