@@ -60,6 +60,12 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
 
     @Published private var tokenInsights: MarketsTokenDetailsInsights?
 
+    @Published private(set) var tokenNewsItems: [CarouselNewsItem] = []
+
+    var isAvailableNews: Bool {
+        !tokenNewsItems.isEmpty && FeatureProvider.isAvailable(.marketsAndNews)
+    }
+
     var price: String? { priceInfo?.price }
 
     var priceChangeState: TokenPriceChangeView.State? { priceInfo?.priceChangeState }
@@ -120,6 +126,7 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
 
     private lazy var priceHelper = MarketsTokenDetailsPriceInfoHelper()
     private lazy var dateHelper = MarketsTokenDetailsDateHelper(initialDate: initialDate)
+    private lazy var newsMapper = NewsModelMapper()
 
     private let defaultAmountNotationFormatter = DefaultAmountNotationFormatter()
 
@@ -131,6 +138,7 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     private let dataProvider: MarketsTokenDetailsDataProvider
     private let marketsQuotesUpdateHelper: MarketsQuotesUpdateHelper
     private let walletDataProvider = MarketsWalletDataProvider()
+    private let marketsNewsProvider = MarketsRelatedTokenNewsProvider()
 
     private var loadedInfo: MarketsTokenDetailsModel?
     private var loadingTask: AnyCancellable?
@@ -179,16 +187,19 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
         isLoading = true
         loadingTask?.cancel()
         loadingTask = runTask(in: self) { viewModel in
+            let currencyId = viewModel.tokenInfo.id
+
             do {
                 let baseCurrencyCode = await AppSettings.shared.selectedCurrencyCode
-                let currencyId = viewModel.tokenInfo.id
                 AppLogger.info(viewModel, "Attempt to load token markets data for token with id: \(currencyId)")
                 let result = try await viewModel.dataProvider.loadTokenDetails(for: currencyId, baseCurrencyCode: baseCurrencyCode)
                 viewModel.marketsQuotesUpdateHelper.updateQuote(marketToken: result, for: baseCurrencyCode)
+                await viewModel.performLoadNews(with: currencyId)
                 await viewModel.handleLoadDetailedInfo(.success(result))
             } catch {
                 await viewModel.handleLoadDetailedInfo(.failure(error))
             }
+
             viewModel.loadingTask = nil
         }.eraseToAnyCancellable()
     }
@@ -259,6 +270,24 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
 // MARK: - Details response processing
 
 private extension MarketsTokenDetailsViewModel {
+    func performLoadNews(with currencyId: String) async {
+        do {
+            let result = try await marketsNewsProvider.loadRelatedNews(for: currencyId)
+
+            await runOnMain {
+                tokenNewsItems = newsMapper.mapCarouselNewsItem(
+                    from: result,
+                    onTap: { [weak self] newsId in
+                        self?.coordinator?.openNews(by: newsId)
+                    }
+                )
+            }
+        } catch {
+            // Non blocking catch failure for response
+            AppLogger.error("Failed load news for related token with id: \(currencyId)", error: error)
+        }
+    }
+
     func handleLoadDetailedInfo(_ result: Result<MarketsTokenDetailsModel, Error>) async {
         defer {
             runTask(in: self) { viewModel in

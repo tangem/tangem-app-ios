@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import struct BlockchainSdk.Fee
 
 public enum ExpressRestriction {
     case tooSmallAmount(_ minAmount: Decimal)
