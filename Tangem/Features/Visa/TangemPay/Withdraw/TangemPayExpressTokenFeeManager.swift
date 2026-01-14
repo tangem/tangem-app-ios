@@ -17,5 +17,5 @@ struct TangemPayExpressTokenFeeManager: ExpressTokenFeeManager {
 
     func feeTokenItems(providerId: ExpressProvider.Id) -> [TokenItem] { [] }
 
-    func updateSelectedFeeTokenItem(tokenItem: TokenItem) {}
+    func updateSelectedFeeTokenItemInAllManagers(tokenItem: TokenItem) {}
 }

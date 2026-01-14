@@ -8,7 +8,7 @@
 
 import Foundation
 
-final class NewsItemViewModel: Identifiable, ObservableObject {
+final class NewsItemViewModel: Identifiable {
     // MARK: - Properties
 
     let id: Int

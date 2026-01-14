@@ -20,6 +20,7 @@ final class MobileOnboardingSeedPhraseImportViewModel: ObservableObject {
 
     lazy var importViewModel = OnboardingSeedPhraseImportViewModel(
         inputProcessor: SeedPhraseInputProcessor(),
+        tangemIconProvider: CommonTangemIconProvider(hasNFCInteraction: false),
         delegate: self
     )
 
