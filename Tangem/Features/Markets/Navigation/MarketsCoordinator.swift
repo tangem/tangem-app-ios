@@ -16,8 +16,6 @@ class MarketsCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
-    private var openFeeCurrency: OpenFeeCurrency?
-
     // MARK: - Root Published
 
     @Published private(set) var marketsViewModel: MarketsViewModel?
@@ -50,7 +48,6 @@ class MarketsCoordinator: CoordinatorObject {
     // MARK: - Implementation
 
     func start(with options: MarketsCoordinator.Options) {
-        openFeeCurrency = options.openFeeCurrency
         let quotesRepositoryUpdateHelper = CommonMarketsQuotesUpdateHelper()
 
         if FeatureProvider.isAvailable(.marketsAndNews) {
@@ -72,9 +69,7 @@ class MarketsCoordinator: CoordinatorObject {
 }
 
 extension MarketsCoordinator {
-    struct Options {
-        let openFeeCurrency: OpenFeeCurrency?
-    }
+    struct Options {}
 }
 
 extension MarketsCoordinator: MarketsRoutable {
@@ -91,7 +86,7 @@ extension MarketsCoordinator: MarketsRoutable {
             }
         )
         tokenDetailsCoordinator.start(
-            with: .init(info: tokenInfo, style: .marketsSheet, openFeeCurrency: openFeeCurrency)
+            with: .init(info: tokenInfo, style: .marketsSheet)
         )
 
         self.tokenDetailsCoordinator = tokenDetailsCoordinator
@@ -101,21 +96,40 @@ extension MarketsCoordinator: MarketsRoutable {
 // MARK: - MarketsMainRoutable
 
 extension MarketsCoordinator: MarketsMainRoutable {
-    func openSeeAll(with widgetType: MarketsWidgetType) {
-        switch widgetType {
-        case .market, .pulse:
-            let marketsSearchCoordinator = MarketsSearchCoordinator(
-                dismissAction: { [weak self] in
-                    self?.marketsSearchCoordinator = nil
-                }
+    func openSeeAllTopMarketWidget() {
+        openSeeAllMarket(with: .market)
+    }
+
+    func openSeeAllPulseMarketWidget(with orderType: MarketsListOrderType) {
+        openSeeAllMarket(with: .pulse, orderType: orderType)
+    }
+
+    // MARK: - News
+
+    func openSeeAllNewsWidget() {
+        // [REDACTED_TODO_COMMENT]
+    }
+
+    func openNews(by id: NewsId) {
+        // [REDACTED_TODO_COMMENT]
+    }
+
+    // MARK: - Private Implementation
+
+    private func openSeeAllMarket(with widgetType: MarketsWidgetType, orderType: MarketsListOrderType? = nil) {
+        let marketsSearchCoordinator = MarketsSearchCoordinator(
+            dismissAction: { [weak self] in
+                self?.marketsSearchCoordinator = nil
+            }
+        )
+
+        marketsSearchCoordinator.start(
+            with: .init(
+                initialOrderType: orderType,
+                quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper
             )
+        )
 
-            marketsSearchCoordinator.start(with: .init(quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper))
-
-            self.marketsSearchCoordinator = marketsSearchCoordinator
-        case .earn, .news:
-            // [REDACTED_TODO_COMMENT]
-            break
-        }
+        self.marketsSearchCoordinator = marketsSearchCoordinator
     }
 }

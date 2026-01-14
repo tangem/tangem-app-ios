@@ -8,10 +8,11 @@
 
 import SwiftUI
 import TangemAssets
+import TangemSdk
 
 enum BiometryLogoImage {
     static var image: Image {
-        switch BiometricAuthorizationUtils.biometryType {
+        switch BiometricsUtil.biometryType {
         case .faceID:
             return Assets.Biometry.faceId.image
         case .touchID:

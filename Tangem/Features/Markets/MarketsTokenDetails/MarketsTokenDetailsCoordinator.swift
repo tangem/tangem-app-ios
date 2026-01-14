@@ -20,6 +20,7 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
     @Injected(\.overlayContentStateController) private var bottomSheetStateController: OverlayContentStateController
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     // MARK: - Root ViewModels
 
@@ -28,7 +29,6 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
 
     // MARK: - Child ViewModels
 
-    @Published var receiveBottomSheetViewModel: ReceiveBottomSheetViewModel? = nil
     @Published var exchangesListViewModel: MarketsTokenDetailsExchangesListViewModel? = nil
 
     // MARK: - Child Coordinators
@@ -39,8 +39,7 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     @Published var stakingDetailsCoordinator: StakingDetailsCoordinator? = nil
     @Published var yieldModulePromoCoordinator: YieldModulePromoCoordinator? = nil
     @Published var yieldModuleActiveCoordinator: YieldModuleActiveCoordinator? = nil
-
-    private var openFeeCurrency: OpenFeeCurrency?
+    @Published var tokenDetailsCoordinator: TokenDetailsCoordinator? = nil
 
     private var safariHandle: SafariHandle?
     private let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
@@ -56,8 +55,6 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        openFeeCurrency = options.openFeeCurrency
-
         rootViewModel = .init(
             tokenInfo: options.info,
             presentationStyle: options.style,
@@ -72,16 +69,10 @@ extension MarketsTokenDetailsCoordinator {
     struct Options {
         let info: MarketsTokenModel
         let style: MarketsTokenDetailsPresentationStyle
-        let openFeeCurrency: OpenFeeCurrency?
 
-        init(
-            info: MarketsTokenModel,
-            style: MarketsTokenDetailsPresentationStyle,
-            openFeeCurrency: OpenFeeCurrency? = nil
-        ) {
+        init(info: MarketsTokenModel, style: MarketsTokenDetailsPresentationStyle) {
             self.info = info
             self.style = style
-            self.openFeeCurrency = openFeeCurrency
         }
     }
 }
@@ -102,9 +93,21 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
     }
 
     func openAccountsSelector(with model: MarketsTokenDetailsModel, walletDataProvider: MarketsWalletDataProvider) {
-        let viewModel = MarketsTokenAccountNetworkSelectorFlowViewModel(
-            inputData: .init(coinId: model.id, coinName: model.name, coinSymbol: model.symbol, networks: model.availableNetworks),
-            userWalletDataProvider: walletDataProvider,
+        let inputData = MarketsTokensNetworkSelectorViewModel.InputData(
+            coinId: model.id,
+            coinName: model.name,
+            coinSymbol: model.symbol,
+            networks: model.availableNetworks
+        )
+
+        let configuration = MarketsAddTokenFlowConfigurationFactory.make(
+            inputData: inputData,
+            coordinator: self
+        )
+
+        let viewModel = AccountsAwareAddTokenFlowViewModel(
+            userWalletModels: walletDataProvider.userWalletModels,
+            configuration: configuration,
             coordinator: self
         )
 
@@ -169,10 +172,7 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
     func openYieldModulePromoView(apy: Decimal, factory: YieldModuleFlowFactory) {
         let dismissAction: Action<YieldModulePromoCoordinator.DismissOptions?> = { [weak self] option in
             self?.yieldModulePromoCoordinator = nil
-            if let option {
-                self?.bottomSheetStateController.collapse()
-                self?.openFeeCurrency?(option)
-            }
+            self?.proceedFeeCurrencyNavigatingDismissOption(option: option)
         }
 
         let coordinator = factory.makeYieldPromoCoordinator(apy: apy, dismissAction: dismissAction)
@@ -180,22 +180,32 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
     }
 
     func openYieldModuleActiveInfo(factory: YieldModuleFlowFactory) {
-        let dismissAction: Action<YieldModuleActiveCoordinator.DismissOptions?> = { [weak self] option in
+        let dismissAction: Action<YieldModulePromoCoordinator.DismissOptions?> = { [weak self] option in
             self?.yieldModuleActiveCoordinator = nil
-            if let option {
-                self?.bottomSheetStateController.collapse()
-                self?.openFeeCurrency?(option)
-            }
+            self?.proceedFeeCurrencyNavigatingDismissOption(option: option)
         }
 
         let coordinator = factory.makeYieldActiveCoordinator(dismissAction: dismissAction)
         yieldModuleActiveCoordinator = coordinator
     }
 
+    private func openTokenDetails(walletModel: any WalletModel) {
+        guard let userWalletModel = userWalletRepository.selectedModel else {
+            return
+        }
+
+        let coordinator = TokenDetailsCoordinator { [weak self] in
+            self?.tokenDetailsCoordinator = nil
+        }
+
+        coordinator.start(with: .init(userWalletModel: userWalletModel, walletModel: walletModel))
+        tokenDetailsCoordinator = coordinator
+    }
+
     func openYield(input: SendInput, yieldModuleManager: any YieldModuleManager) {
         guard let factory = makeYieldModuleFlowFactory(input: input, manager: yieldModuleManager) else { return }
 
-        let logger = CommonYieldAnalyticsLogger(tokenItem: input.walletModel.tokenItem)
+        let logger = CommonYieldAnalyticsLogger(tokenItem: input.walletModel.tokenItem, userWalletId: input.walletModel.userWalletId)
 
         func openActiveYield() {
             logger.logEarningApyClicked(state: .enabled)
@@ -222,18 +232,23 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
                 break
             }
         case .processing:
-            break
+            openTokenDetails(walletModel: input.walletModel)
         case .notActive:
             openPromoYield()
         case .disabled, .failedToLoad, .loading, .none:
             break
         }
     }
+
+    func openNews(by id: NewsId) {
+        // [REDACTED_TODO_COMMENT]
+        // when the Markets News feature and corresponding coordinator/flow are available.
+    }
 }
 
 // MARK: - MarketsPortfolioContainerRoutable
 
-extension MarketsTokenDetailsCoordinator {
+extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
     func openReceive(walletModel: any WalletModel) {
         let receiveFlowFactory = AvailabilityReceiveFlowFactory(
             flow: .crypto,
@@ -243,13 +258,10 @@ extension MarketsTokenDetailsCoordinator {
             isYieldModuleActive: false
         )
 
-        switch receiveFlowFactory.makeAvailabilityReceiveFlow() {
-        case .bottomSheetReceiveFlow(let viewModel):
-            receiveBottomSheetViewModel = viewModel
-        case .domainReceiveFlow(let viewModel):
-            Task { @MainActor in
-                floatingSheetPresenter.enqueue(sheet: viewModel)
-            }
+        let viewModel = receiveFlowFactory.makeAvailabilityReceiveFlow()
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
 
@@ -259,10 +271,7 @@ extension MarketsTokenDetailsCoordinator {
 
             let dismissAction: ExpressCoordinator.DismissAction = { [weak self] option in
                 self?.expressCoordinator = nil
-                if let option {
-                    self?.bottomSheetStateController.collapse()
-                    self?.openFeeCurrency?(option)
-                }
+                self?.proceedFeeCurrencyNavigatingDismissOption(option: option)
             }
 
             let openSwapBlock = { [weak self] in
@@ -308,9 +317,9 @@ extension MarketsTokenDetailsCoordinator {
     }
 }
 
-// MARK: - MarketsTokenAccountNetworkSelectorRoutable
+// MARK: - AccountsAwareAddTokenFlowRoutable
 
-extension MarketsTokenDetailsCoordinator: MarketsTokenAccountNetworkSelectorRoutable {
+extension MarketsTokenDetailsCoordinator: AccountsAwareAddTokenFlowRoutable {
     func close() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
@@ -341,8 +350,9 @@ extension MarketsTokenDetailsCoordinator {
         safariHandle = safariManager.openURL(url) { [weak self] _ in
             self?.safariHandle = nil
 
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                walletModel.update(silent: true)
+            Task {
+                try await Task.sleep(for: .seconds(1))
+                await walletModel.update(silent: true, features: .balances)
             }
         }
     }
@@ -362,3 +372,5 @@ private extension MarketsTokenDetailsCoordinator {
         static let topPadding: CGFloat = 52
     }
 }
+
+extension MarketsTokenDetailsCoordinator: FeeCurrencyNavigating {}

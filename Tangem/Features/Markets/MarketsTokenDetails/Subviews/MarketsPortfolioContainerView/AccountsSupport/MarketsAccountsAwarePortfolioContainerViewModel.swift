@@ -95,7 +95,7 @@ final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
     }
 
     private func tokenAddedToAllNetworksInAllAccounts(availableNetworks: [NetworkModel]) -> Bool {
-        MarketsTokenNetworkChecker.isTokenAddedOnNetworksInAllAccounts(
+        TokenAdditionChecker.isTokenAddedOnNetworksInAllAccounts(
             coinId: coinId,
             availableNetworks: availableNetworks,
             userWalletModels: walletDataProvider.userWalletModels
@@ -122,7 +122,9 @@ final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
         bag.removeAll()
 
         let walletDataPublishers = userWalletModels.map { userWalletModel in
-            userWalletModel.accountModelsManager.accountModelsPublisher
+            userWalletModel
+                .accountModelsManager
+                .accountModelsPublisher
                 .flatMap { accountModels -> AnyPublisher<WalletData, Never> in
                     let cryptoAccounts = Self.extractCryptoAccountModels(from: accountModels)
 

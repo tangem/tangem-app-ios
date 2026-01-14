@@ -80,6 +80,7 @@ struct MarketsAccountsAwarePortfolioContainerView: View {
                 .loading(viewModel.isLoadingNetworks)
             }
         }
+        .padding(.horizontal, Constants.blockHeaderHorizontalPadding)
     }
 
     // MARK: - List Views
@@ -156,6 +157,7 @@ struct MarketsAccountsAwarePortfolioContainerView: View {
     private func prominentWalletHeader(walletName: String) -> some View {
         Text(walletName)
             .style(Fonts.Bold.headline, color: Colors.Text.primary1)
+            .padding(.horizontal, Constants.blockHeaderHorizontalPadding)
     }
 
     private func inlineWalletHeader(walletName: String) -> some View {
@@ -167,15 +169,9 @@ struct MarketsAccountsAwarePortfolioContainerView: View {
     }
 
     private func accountHeader(accountData: AccountData) -> some View {
-        HStack(spacing: 8) {
-            AccountIconView(data: accountData.iconInfo)
-                .settings(.extraSmallSized)
-
-            Text(accountData.name)
-                .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
-
-            Spacer()
-        }
+        AccountInlineHeaderView(iconData: accountData.iconInfo, name: accountData.name)
+            .font(Fonts.Bold.subheadline)
+            .expandsHorizontally(true)
     }
 
     // MARK: - Empty States
@@ -228,5 +224,6 @@ private extension MarketsAccountsAwarePortfolioContainerView {
         static let cardPadding: CGFloat = 14
         static let skeletonHeight: CGFloat = 15
         static let headerContentVerticalSpacing: CGFloat = 8
+        static let blockHeaderHorizontalPadding: CGFloat = 8
     }
 }
