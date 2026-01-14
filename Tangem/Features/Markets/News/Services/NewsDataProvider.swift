@@ -49,12 +49,18 @@ final class NewsDataProvider {
     private var hasLoadedItems: Bool = false
     private var lastCategoryIds: [Int]?
 
-    private let limitPerPage: Int = 20
+    private let limitPerPage: Int
     private let repeatRequestDelayInSeconds: TimeInterval = 10
 
     private var taskCancellable: AnyCancellable?
     private var categoriesCancellable: AnyCancellable?
     private var scheduledFetchTask: AnyCancellable?
+
+    // MARK: - Init
+
+    init(limitPerPage: Int = 20) {
+        self.limitPerPage = limitPerPage
+    }
 
     // MARK: - Public Methods
 
@@ -168,6 +174,9 @@ final class NewsDataProvider {
             AppLogger.debug("📰 [NewsDataProvider] sending .appendedItems event with \(response.items.count) items")
             _eventSubject.send(.appendedItems(items: response.items, lastPage: !response.meta.hasNext))
         } catch {
+            // Always set isLoading to false - retry will set it back to true when calling fetch()
+            isLoading = false
+
             if error.isCancellationError {
                 return
             }
@@ -176,8 +185,6 @@ final class NewsDataProvider {
 
             if hasLoadedItems {
                 scheduleRetryForFailedFetchRequest()
-            } else {
-                isLoading = false
             }
         }
     }

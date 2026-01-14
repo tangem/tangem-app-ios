@@ -11,6 +11,8 @@ import UIKit
 import Combine
 import CombineExt
 import TangemSdk
+import TangemUI
+import TangemAssets
 import struct TangemUIUtils.AlertBinder
 
 protocol SeedPhraseImportDelegate: AnyObject {
@@ -26,14 +28,21 @@ class OnboardingSeedPhraseImportViewModel: ObservableObject {
     @Published var isPassphraseInputResponder: Bool? = nil
     @Published var passphraseBottomSheetModel: OnboardingSeedPassphraseInfoBottomSheetModel? = nil
 
+    var mainButtonIcon: MainButton.Icon?
+
     let inputProcessor: SeedPhraseInputProcessor
     weak var delegate: SeedPhraseImportDelegate?
 
     private var bag: Set<AnyCancellable> = []
 
-    init(inputProcessor: SeedPhraseInputProcessor, delegate: SeedPhraseImportDelegate?) {
+    init(
+        inputProcessor: SeedPhraseInputProcessor,
+        tangemIconProvider: TangemIconProvider,
+        delegate: SeedPhraseImportDelegate?
+    ) {
         self.inputProcessor = inputProcessor
         self.delegate = delegate
+        mainButtonIcon = tangemIconProvider.getMainButtonIcon()
         bind()
     }
 
