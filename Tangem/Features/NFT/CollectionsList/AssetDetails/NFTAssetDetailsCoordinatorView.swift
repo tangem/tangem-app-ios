@@ -59,16 +59,5 @@ struct NFTAssetDetailsCoordinatorView: View {
                     dismissAction: coordinator.closeInfo
                 )
             }
-            .floatingSheetContent(for: AccountSelectorViewModel.self) { viewModel in
-                FloatingSheetContentWithHeader(
-                    headerConfig: .init(title: Localization.commonChooseAccount, backAction: nil, closeAction: coordinator.closeSheet),
-                    content: {
-                        AccountSelectorView(viewModel: viewModel)
-                    }
-                )
-                .floatingSheetConfiguration { config in
-                    config.backgroundInteractionBehavior = .tapToDismiss
-                }
-            }
     }
 }

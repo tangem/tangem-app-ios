@@ -21,6 +21,7 @@ final class BlockchainAccountInitializationViewModel: ObservableObject, Floating
     @Published var isLoading = false
 
     let tokenIconInfo: TokenIconInfo
+    let mainButtonIcon: MainButton.Icon?
 
     private let feeFormatter = CommonFeeFormatter(
         balanceFormatter: .init(),
@@ -61,7 +62,7 @@ final class BlockchainAccountInitializationViewModel: ObservableObject, Floating
         self.onInitialized = onInitialized
 
         feeRowViewModel = DefaultRowViewModel(title: Localization.commonNetworkFeeTitle, detailsType: .none)
-
+        mainButtonIcon = CommonTangemIconProvider(hasNFCInteraction: transactionDispatcher.hasNFCInteraction).getMainButtonIcon()
         updateView(state: .success(fee))
     }
 
