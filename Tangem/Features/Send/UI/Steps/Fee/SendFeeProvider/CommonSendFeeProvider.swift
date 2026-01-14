@@ -85,7 +85,7 @@ extension CommonSendFeeProvider: SendFeeProvider {
     var feesPublisher: AnyPublisher<[TokenFee], Never> { tokenFeeManager.feesPublisher }
 
     var feesHasMultipleFeeOptions: AnyPublisher<Bool, Never> {
-        tokenFeeManager.feesHasMultipleFeeOptions
+        selectorHasMultipleFeeOptions
     }
 
     func updateFees() {
