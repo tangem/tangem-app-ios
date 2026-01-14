@@ -24,10 +24,16 @@ class MarketsCoordinator: CoordinatorObject {
     // MARK: - Coordinators
 
     @Published var tokenDetailsCoordinator: MarketsTokenDetailsCoordinator?
+    @Published var marketsSearchCoordinator: MarketsSearchCoordinator?
+    @Published var newsListCoordinator: NewsListCoordinator?
 
     // MARK: - Child ViewModels
 
     @Published var marketsListOrderBottomSheetViewModel: MarketsListOrderBottomSheetViewModel?
+
+    // MARK: - Private Properties
+
+    private lazy var quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper = CommonMarketsQuotesUpdateHelper()
 
     // MARK: - Init
 
@@ -91,9 +97,46 @@ extension MarketsCoordinator: MarketsRoutable {
 // MARK: - MarketsMainRoutable
 
 extension MarketsCoordinator: MarketsMainRoutable {
-    func openSeeAll(with widgetType: MarketsWidgetType) {
-        // Will be implemented partially. For completed features etc. news, earn
-        // For market & pulse will be implement in:
-        // [REDACTED_TODO_COMMENT]
+    func openSeeAllTopMarketWidget() {
+        openSeeAllMarket(with: .market)
+    }
+
+    func openSeeAllPulseMarketWidget(with orderType: MarketsListOrderType) {
+        openSeeAllMarket(with: .pulse, orderType: orderType)
+    }
+
+    // MARK: - News
+
+    func openSeeAllNewsWidget() {
+        let coordinator = NewsListCoordinator(
+            dismissAction: { [weak self] in
+                self?.newsListCoordinator = nil
+            }
+        )
+
+        coordinator.start(with: .init())
+
+        newsListCoordinator = coordinator
+    }
+
+    func openNews(by id: NewsId) {}
+
+    // MARK: - Private Implementation
+
+    private func openSeeAllMarket(with widgetType: MarketsWidgetType, orderType: MarketsListOrderType? = nil) {
+        let marketsSearchCoordinator = MarketsSearchCoordinator(
+            dismissAction: { [weak self] in
+                self?.marketsSearchCoordinator = nil
+            }
+        )
+
+        marketsSearchCoordinator.start(
+            with: .init(
+                initialOrderType: orderType,
+                quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper
+            )
+        )
+
+        self.marketsSearchCoordinator = marketsSearchCoordinator
     }
 }
