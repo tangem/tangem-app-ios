@@ -604,12 +604,12 @@ extension SendModel: SendFeeInput {
     private func mapToSendFee(state: SwapManagerState) -> TokenFee {
         switch state {
         case .loading:
-            return .init(option: state.fees.selected, tokenItem: sourceToken.feeTokenItem, value: .loading)
+            return .init(option: state.expressFee?.option, tokenItem: sourceToken.feeTokenItem, value: .loading)
         case .restriction(.requiredRefresh(let occurredError), _):
-            return .init(option: state.fees.selected, tokenItem: sourceToken.feeTokenItem, value: .failure(occurredError))
+            return .init(option: state.expressFee?.option, tokenItem: sourceToken.feeTokenItem, value: .failure(occurredError))
         case let state:
             let fee = Result { try state.fees.selectedFee() }
-            return .init(option: state.fees.selected, tokenItem: sourceToken.feeTokenItem, value: .result(fee))
+            return .init(option: state.expressFee.option, tokenItem: sourceToken.feeTokenItem, value: .result(fee))
         }
     }
 }
