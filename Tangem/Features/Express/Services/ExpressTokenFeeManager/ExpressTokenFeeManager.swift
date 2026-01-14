@@ -14,7 +14,7 @@ protocol ExpressTokenFeeManager {
     func tokenFeeManager(providerId: ExpressProvider.Id) -> TokenFeeManager?
     func selectedFeeProvider(providerId: ExpressProvider.Id) -> (any TokenFeeProvider)?
     func fees(providerId: ExpressProvider.Id) -> TokenFeesList
-    func feeTokenItems(providerId: ExpressProvider.Id) -> [TokenItem]
+    func supportedFeeTokenProviders(providerId: ExpressProvider.Id) -> [any TokenFeeProvider]
 
-    func updateSelectedFeeTokenItemInAllManagers(tokenItem: TokenItem)
+    func updateSelectedFeeTokenProviderInAllManagers(tokenFeeProvider: any TokenFeeProvider)
 }
