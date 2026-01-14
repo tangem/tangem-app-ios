@@ -79,15 +79,17 @@ extension MobileCreateWalletViewModel {
 
                 let walletInfo = try await initializer.initializeWallet(mnemonic: nil, passphrase: nil)
 
-                let userWalletConfig = MobileUserWalletConfig(mobileWalletInfo: walletInfo)
-                if let userWalletId = UserWalletId(config: userWalletConfig) {
-                    let walletCreationHelper = WalletCreationHelper(
-                        userWalletId: userWalletId,
-                        userWalletName: nil,
-                        userWalletConfig: userWalletConfig
-                    )
+                Task.detached {
+                    let userWalletConfig = MobileUserWalletConfig(mobileWalletInfo: walletInfo)
+                    if let userWalletId = UserWalletId(config: userWalletConfig) {
+                        let walletCreationHelper = WalletCreationHelper(
+                            userWalletId: userWalletId,
+                            userWalletName: nil,
+                            userWalletConfig: userWalletConfig
+                        )
 
-                    try? await walletCreationHelper.createWallet()
+                        try? await walletCreationHelper.createWallet()
+                    }
                 }
 
                 guard let newUserWalletModel = CommonUserWalletModelFactory().makeModel(
@@ -132,7 +134,10 @@ extension MobileCreateWalletViewModel {
 private extension MobileCreateWalletViewModel {
     func openImportWallet() {
         let source = MobileOnboardingFlowSource.importWallet
-        let input = MobileOnboardingInput(flow: .walletImport(source: source))
+        let input = MobileOnboardingInput(
+            flow: .walletImport(source: source),
+            shouldLogOnboardingStartedAnalytics: false
+        )
         let options = OnboardingCoordinator.Options.mobileInput(input)
         coordinator?.openOnboarding(options: options)
     }

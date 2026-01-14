@@ -101,24 +101,26 @@ extension MarketsCoordinator: MarketsRoutable {
 // MARK: - MarketsMainRoutable
 
 extension MarketsCoordinator: MarketsMainRoutable {
-    func openSeeAll(with widgetType: MarketsWidgetType) {
-        switch widgetType {
-        case .market, .pulse:
-            let marketsSearchCoordinator = MarketsSearchCoordinator(
-                dismissAction: { [weak self] in
-                    self?.marketsSearchCoordinator = nil
-                }
-            )
+    func openSeeAllTopMarketWidget() {
+        openSeeAllMarket(with: .market)
+    }
 
-            marketsSearchCoordinator.start(with: .init(quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper))
+    func openSeeAllPulseMarketWidget(with orderType: MarketsListOrderType) {
+        openSeeAllMarket(with: .pulse, orderType: orderType)
+    }
 
-            self.marketsSearchCoordinator = marketsSearchCoordinator
-        case .news:
-            openNewsList()
-        case .earn:
-            // [REDACTED_TODO_COMMENT]
-            break
-        }
+    // MARK: - News
+
+    func openSeeAllNewsWidget() {
+        let coordinator = NewsListCoordinator(
+            dismissAction: { [weak self] in
+                self?.newsListCoordinator = nil
+            }
+        )
+
+        coordinator.start(with: .init())
+
+        newsListCoordinator = coordinator
     }
 
     func openNewsDetails(newsIds: [Int], selectedIndex: Int) {
@@ -131,16 +133,23 @@ extension MarketsCoordinator: MarketsMainRoutable {
         newsPagerViewModel = viewModel
     }
 
-    func openNewsList() {
-        let coordinator = NewsListCoordinator(
+    // MARK: - Private Implementation
+
+    private func openSeeAllMarket(with widgetType: MarketsWidgetType, orderType: MarketsListOrderType? = nil) {
+        let marketsSearchCoordinator = MarketsSearchCoordinator(
             dismissAction: { [weak self] in
-                self?.newsListCoordinator = nil
+                self?.marketsSearchCoordinator = nil
             }
         )
 
-        coordinator.start(with: .init())
+        marketsSearchCoordinator.start(
+            with: .init(
+                initialOrderType: orderType,
+                quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper
+            )
+        )
 
-        newsListCoordinator = coordinator
+        self.marketsSearchCoordinator = marketsSearchCoordinator
     }
 }
 

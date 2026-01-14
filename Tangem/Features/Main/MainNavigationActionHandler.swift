@@ -190,6 +190,9 @@ extension MainCoordinator {
                 return false
             }
 
+            // Trigger the update without awaiting completion
+            walletModel.startUpdateTask()
+
             if case .some(let type) = params.type, type == .onrampStatusUpdate || type == .swapStatusUpdate, let txId = params.transactionId {
                 return routeExpressTransactionStatusAction(
                     coordinator: coordinator,
@@ -199,8 +202,6 @@ extension MainCoordinator {
                     userWalletModel: userWalletModel
                 )
             } else {
-                // Trigger the update without awaiting to finished
-                walletModel.startUpdateTask()
                 coordinator.openDeepLink(.tokenDetails(walletModel: walletModel, userWalletModel: userWalletModel))
                 return true
             }
