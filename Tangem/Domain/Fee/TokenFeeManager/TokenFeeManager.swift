@@ -62,37 +62,3 @@ extension TokenFeeManager {
         }
     }
 }
-
-// MARK: - TokenFeeProvider
-
-// extension TokenFeeManager: TokenFeeProvider {
-//    var feeTokenItem: TokenItem { selectedFeeProvider.feeTokenItem }
-//
-//    var state: TokenFeeProviderState { selectedFeeProvider.state }
-//    var statePublisher: AnyPublisher<TokenFeeProviderState, Never> {
-//        selectedFeeProviderPublisher.flatMapLatest(\.statePublisher).eraseToAnyPublisher()
-//    }
-//
-//    var fees: [TokenFee] { selectedFeeProvider.fees }
-//    var feesPublisher: AnyPublisher<[TokenFee], Never> {
-//        selectedFeeProviderPublisher.flatMapLatest(\.feesPublisher).eraseToAnyPublisher()
-//    }
-//
-//    func setup(input: TokenFeeProviderInputData) {
-//        feeProviders.forEach { feeProvider in
-//            feeProvider.setup(input: input)
-//        }
-//    }
-//
-//    func updateFees() async {
-//        await selectedFeeProvider.updateFees()
-//    }
-// }
-
-// MARK: - [any TokenFeeProvider]+
-
-extension [any TokenFeeProvider] {
-    subscript(_ tokenItem: TokenItem) -> (any TokenFeeProvider)? {
-        first { $0.feeTokenItem == tokenItem }
-    }
-}
