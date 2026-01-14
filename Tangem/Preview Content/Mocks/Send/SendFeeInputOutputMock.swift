@@ -19,7 +19,7 @@ final class SendFeeInputOutputMock: SendFeeInput, SendFeeOutput {
     }
 
     var selectedFeePublisher: AnyPublisher<TokenFee, Never> { .just(output: selectedFee) }
-    var feesHasMultipleFeeOptions: AnyPublisher<Bool, Never> { .just(output: false) }
+    var hasMultipleFeeOptions: AnyPublisher<Bool, Never> { .just(output: false) }
     var cryptoAmountPublisher: AnyPublisher<Decimal, Never> { .just(output: 1) }
     var destinationAddressPublisher: AnyPublisher<String?, Never> { .just(output: "0x") }
 
