@@ -43,7 +43,7 @@ class CommonInformationRelevanceService {
             .store(in: &bag)
     }
 
-    private func compare(selected: SendFee?, fees: [SendFee]) -> InformationRelevanceServiceUpdateResult {
+    private func compare(selected: TokenFee?, fees: [TokenFee]) -> InformationRelevanceServiceUpdateResult {
         let oldFeeValue = selected?.value.value?.amount.value
         let newFee = fees.first(where: { $0.option == selected?.option })
 
@@ -84,12 +84,12 @@ extension CommonInformationRelevanceService: InformationRelevanceService {
             .dropFirst()
             .withWeakCaptureOf(self)
             .tryMap { service, fees in
-                if let error = fees.value?.first(where: { $0.value.error != nil })?.value.error {
+                if let error = fees.eraseToLoadingResult().error {
                     throw error
                 }
 
                 service.informationDidUpdated()
-                return service.compare(selected: oldFee, fees: fees.value ?? [])
+                return service.compare(selected: oldFee, fees: fees)
             }
             .eraseToAnyPublisher()
     }

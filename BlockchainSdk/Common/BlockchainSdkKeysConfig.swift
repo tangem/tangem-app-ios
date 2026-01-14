@@ -27,11 +27,13 @@ public struct BlockchainSdkKeysConfig {
     let quickNodeBscCredentials: QuickNodeCredentials
     let quickNodePlasmaCredentials: QuickNodeCredentials
     let bittensorDwellirKey: String
+    let dwellirApiKey: String
     let bittensorOnfinalityKey: String
     let tangemAlephiumApiKey: String
     let blinkApiKey: String
     let tatumApiKey: String
     let yieldModuleApiKey: String
+    let gaslessTxApiKey: String
 
     public init(
         blockchairApiKeys: [String],
@@ -51,11 +53,13 @@ public struct BlockchainSdkKeysConfig {
         quickNodeBscCredentials: QuickNodeCredentials,
         quickNodePlasmaCredentials: QuickNodeCredentials,
         bittensorDwellirKey: String,
+        dwellirApiKey: String,
         bittensorOnfinalityKey: String,
         tangemAlephiumApiKey: String,
         blinkApiKey: String,
         tatumApiKey: String,
         yieldModuleApiKey: String,
+        gaslessTxApiKey: String
     ) {
         self.blockchairApiKeys = blockchairApiKeys
         self.blockcypherTokens = blockcypherTokens
@@ -74,11 +78,13 @@ public struct BlockchainSdkKeysConfig {
         self.quickNodeBscCredentials = quickNodeBscCredentials
         self.quickNodePlasmaCredentials = quickNodePlasmaCredentials
         self.bittensorDwellirKey = bittensorDwellirKey
+        self.dwellirApiKey = dwellirApiKey
         self.bittensorOnfinalityKey = bittensorOnfinalityKey
         self.tangemAlephiumApiKey = tangemAlephiumApiKey
         self.blinkApiKey = blinkApiKey
         self.tatumApiKey = tatumApiKey
         self.yieldModuleApiKey = yieldModuleApiKey
+        self.gaslessTxApiKey = gaslessTxApiKey
     }
 }
 
