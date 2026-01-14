@@ -7,10 +7,10 @@
 //
 
 import Foundation
-import TangemUI
 import TangemFoundation
 import TangemLocalization
 import TangemAssets
+import TangemUI
 import SwiftUI
 
 final class YieldModuleTransactionViewModel: ObservableObject {
@@ -21,6 +21,10 @@ final class YieldModuleTransactionViewModel: ObservableObject {
 
     @Injected(\.userWalletRepository)
     private var userWalletRepository: any UserWalletRepository
+
+    // MARK: - ViewState
+
+    let tangemIconProvider: TangemIconProvider
 
     // MARK: - Published
 
@@ -59,7 +63,8 @@ final class YieldModuleTransactionViewModel: ObservableObject {
         feeCurrencyNavigator: (any FeeCurrencyNavigating)? = nil,
         yieldManagerInteractor: YieldManagerInteractor,
         notificationManager: YieldModuleNotificationManager,
-        logger: YieldAnalyticsLogger
+        logger: YieldAnalyticsLogger,
+        tangemIconProvider: TangemIconProvider
     ) {
         self.action = action
 
@@ -68,6 +73,7 @@ final class YieldModuleTransactionViewModel: ObservableObject {
         self.yieldManagerInteractor = yieldManagerInteractor
         self.notificationManager = notificationManager
         self.logger = logger
+        self.tangemIconProvider = tangemIconProvider
 
         start()
     }
@@ -217,7 +223,7 @@ private extension YieldModuleTransactionViewModel {
         notificationManager.createFeeUnreachableNotification {
             Task { @MainActor [weak self] in
                 self?.setNetworkFeeStateLoading()
-                _ = try? await self?.walletModel.update(silent: true).async()
+                await self?.walletModel.update(silent: true, features: .balances)
                 await self?.fetchNetworkFee(for: yieldAction)
             }
         }

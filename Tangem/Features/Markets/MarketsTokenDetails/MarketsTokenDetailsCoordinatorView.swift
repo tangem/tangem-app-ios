@@ -29,10 +29,10 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
     @ViewBuilder
     var sheets: some View {
         NavHolder()
-            .iOS16UIKitSheet(item: $coordinator.expressCoordinator) { coordinator in
+            .sheet(item: $coordinator.expressCoordinator) { coordinator in
                 ExpressCoordinatorView(coordinator: coordinator)
             }
-            .iOS16UIKitSheet(item: $coordinator.stakingDetailsCoordinator) { coordinator in
+            .sheet(item: $coordinator.stakingDetailsCoordinator) { coordinator in
                 StakingDetailsCoordinatorView(coordinator: coordinator)
                     .stakingNavigationView()
             }
@@ -50,14 +50,6 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
             }
             .floatingSheetContent(for: ReceiveMainViewModel.self) {
                 ReceiveMainView(viewModel: $0)
-            }
-
-        NavHolder()
-            .bottomSheet(
-                item: $coordinator.receiveBottomSheetViewModel,
-                settings: .init(backgroundColor: Colors.Background.primary, contentScrollsHorizontally: true)
-            ) {
-                ReceiveBottomSheetView(viewModel: $0)
             }
     }
 

@@ -162,7 +162,7 @@ struct ExpressView: View {
 
                 MainButton(
                     title: viewModel.mainButtonState.title,
-                    icon: viewModel.mainButtonState.icon,
+                    icon: viewModel.mainButtonState.getIcon(tangemIconProvider: viewModel.tangemIconProvider),
                     isLoading: viewModel.mainButtonIsLoading,
                     isDisabled: !viewModel.mainButtonIsEnabled,
                     action: viewModel.didTapMainButton

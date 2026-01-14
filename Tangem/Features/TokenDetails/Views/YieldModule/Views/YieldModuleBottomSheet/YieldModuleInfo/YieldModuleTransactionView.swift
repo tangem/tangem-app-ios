@@ -54,7 +54,7 @@ struct YieldModuleTransactionView: View {
     private var mainButton: MainButton {
         MainButton(settings: .init(
             title: viewModel.action.buttonTitle,
-            icon: .trailing(Assets.tangemIcon),
+            icon: viewModel.tangemIconProvider.getMainButtonIcon(),
             style: .primary,
             isLoading: viewModel.isProcessingRequest,
             isDisabled: !viewModel.isActionButtonAvailable,

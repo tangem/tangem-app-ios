@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import TangemSdk
 
 protocol SuccessStep {
     var successTitle: String { get }
@@ -151,7 +152,7 @@ extension TwinsOnboardingStep: OnboardingButtonsInfoProvider {
     var mainButtonTitle: String {
         switch self {
         case .saveUserWallet:
-            return BiometricAuthorizationUtils.allowButtonTitle
+            return Localization.saveUserWalletAgreementAllow(BiometricsUtil.biometryType.name)
         default:
             return ""
         }
