@@ -7,6 +7,7 @@
 //
 
 import Combine
+import TangemLocalization
 import TangemAccessibilityIdentifiers
 
 protocol FeeSelectorSummaryRoutable: AnyObject {
@@ -90,17 +91,15 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
 
     private func mapTokenItemToRowViewModel(tokenFeeProvider: any TokenFeeProvider, canExpand: Bool) -> FeeSelectorRowViewModel {
         let feeTokenItem = tokenFeeProvider.feeTokenItem
-
-        let subtitleState: LoadableTextView.State = switch tokenFeeProvider.state {
-        case .unavailable, .error: .noData
-        case .loading: .loading
-        case .idle, .available: .loaded(text: "Add balance")
-        }
+        let subtitleBalanceState = LoadableTokenBalanceViewStateBuilder().build(
+            type: tokenFeeProvider.balanceState,
+            textBuilder: Localization.commonBalance
+        )
 
         return FeeSelectorRowViewModel(
             rowType: .token(tokenIconInfo: TokenIconInfoBuilder().build(from: feeTokenItem, isCustom: false)),
             title: feeTokenItem.name,
-            subtitle: subtitleState,
+            subtitle: .balance(subtitleBalanceState),
             accessibilityIdentifier: FeeAccessibilityIdentifiers.suggestedFeeCurrency,
             expandAction: canExpand ? userDidTapToken : nil
         )
@@ -128,7 +127,7 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
         return FeeSelectorRowViewModel(
             rowType: .fee(image: fee.option.icon.image),
             title: fee.option.title,
-            subtitle: subtitleState,
+            subtitle: .fee(subtitleState),
             accessibilityIdentifier: FeeAccessibilityIdentifiers.suggestedFeeCurrency,
             expandAction: canExpand ? userDidTapFee : nil
         )

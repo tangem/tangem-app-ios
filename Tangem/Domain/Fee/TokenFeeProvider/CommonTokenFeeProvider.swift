@@ -13,6 +13,7 @@ import TangemMacro
 
 class CommonTokenFeeProvider {
     let feeTokenItem: TokenItem
+    let availableTokenBalanceProvider: TokenBalanceProvider
     let tokenFeeLoader: any TokenFeeLoader
     let customFeeProvider: (any CustomFeeProvider)?
 
@@ -23,11 +24,13 @@ class CommonTokenFeeProvider {
 
     init(
         feeTokenItem: TokenItem,
+        availableTokenBalanceProvider: TokenBalanceProvider,
         tokenFeeLoader: any TokenFeeLoader,
         customFeeProvider: (any CustomFeeProvider)?
     ) {
-        self.tokenFeeLoader = tokenFeeLoader
         self.feeTokenItem = feeTokenItem
+        self.availableTokenBalanceProvider = availableTokenBalanceProvider
+        self.tokenFeeLoader = tokenFeeLoader
         self.customFeeProvider = customFeeProvider
 
         customFeeProviderInitialSetupCancellable = customFeeProvider?.subscribeToInitialSetup(
@@ -39,8 +42,12 @@ class CommonTokenFeeProvider {
 // MARK: - TokenFeeProvider
 
 extension CommonTokenFeeProvider: TokenFeeProvider {
+    var balanceState: FormattedTokenBalanceType { availableTokenBalanceProvider.formattedBalanceType }
+
     var state: TokenFeeProviderState { stateSubject.value }
-    var statePublisher: AnyPublisher<TokenFeeProviderState, Never> { stateSubject.eraseToAnyPublisher() }
+    var statePublisher: AnyPublisher<TokenFeeProviderState, Never> {
+        stateSubject.eraseToAnyPublisher()
+    }
 
     var fees: [TokenFee] {
         var fees = mapToTokenFees(state: state)
