@@ -10,7 +10,7 @@ import Foundation
 
 extension GaslessTransactionsDTO.Request {
     struct GaslessTransaction: Encodable, Equatable {
-        let transactionData: TransactionData
+        let gaslessTransaction: TransactionData
         let signature: String
         let userAddress: String
         let chainId: Int
@@ -55,7 +55,7 @@ extension GaslessTransactionsDTO.Request.GaslessTransaction {
         GASLESSDEBUG
         ========================================================
         {
-          "gaslessTransaction": \(transactionData.prettyPrinted),
+          "gaslessTransaction": \(gaslessTransaction.prettyPrinted),
           "signature": "\(signature)",
           "userAddress": "\(userAddress)",
           "chainId": \(chainId),
