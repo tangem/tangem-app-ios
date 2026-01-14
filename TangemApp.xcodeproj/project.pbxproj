@@ -4624,6 +4624,7 @@
 		EFF7325E2DE9FEB40070A8FF /* SendStepNavigationLeadingViewType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF7325D2DE9FEB40070A8FF /* SendStepNavigationLeadingViewType.swift */; };
 		EFF763E32C4E38D200E846F4 /* SendStepNavigationTrailingViewType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF763E22C4E38D200E846F4 /* SendStepNavigationTrailingViewType.swift */; };
 		EFF7641E2C4F8B6D00E846F4 /* SendTransitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF7641D2C4F8B6D00E846F4 /* SendTransitions.swift */; };
+		EFF7C80B2F17F3410073CDCA /* GaslessTransactionBroadcastService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF7C80A2F17F3410073CDCA /* GaslessTransactionBroadcastService.swift */; };
 		EFF8F1BC2E84369300A5EF0C /* SendBaseBuildable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF8F1BB2E84369300A5EF0C /* SendBaseBuildable.swift */; };
 		EFF8F1BE2E844CEA00A5EF0C /* StakingFlowFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF8F1BD2E844CEA00A5EF0C /* StakingFlowFactory.swift */; };
 		EFF8F1C02E85608E00A5EF0C /* SendDestinationStepBuildable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF8F1BF2E85608E00A5EF0C /* SendDestinationStepBuildable.swift */; };
@@ -9431,6 +9432,7 @@
 		EFF7325D2DE9FEB40070A8FF /* SendStepNavigationLeadingViewType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendStepNavigationLeadingViewType.swift; sourceTree = "<group>"; };
 		EFF763E22C4E38D200E846F4 /* SendStepNavigationTrailingViewType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendStepNavigationTrailingViewType.swift; sourceTree = "<group>"; };
 		EFF7641D2C4F8B6D00E846F4 /* SendTransitions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendTransitions.swift; sourceTree = "<group>"; };
+		EFF7C80A2F17F3410073CDCA /* GaslessTransactionBroadcastService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GaslessTransactionBroadcastService.swift; sourceTree = "<group>"; };
 		EFF8F1BB2E84369300A5EF0C /* SendBaseBuildable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendBaseBuildable.swift; sourceTree = "<group>"; };
 		EFF8F1BD2E844CEA00A5EF0C /* StakingFlowFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingFlowFactory.swift; sourceTree = "<group>"; };
 		EFF8F1BF2E85608E00A5EF0C /* SendDestinationStepBuildable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDestinationStepBuildable.swift; sourceTree = "<group>"; };
@@ -22002,6 +22004,7 @@
 			isa = PBXGroup;
 			children = (
 				EA87DA142F139C03006519B9 /* GaslessTransactionBuilder */,
+				EFF7C80C2F17F3470073CDCA /* GaslessTransactionBroadcast */,
 				EA31CB1E2F0C01540016AABC /* DTO */,
 				EA31CB172F0BE5160016AABC /* APIService */,
 				EA31CB142F0BE4E10016AABC /* GaslessTransactionsNetworkManager.swift */,
@@ -25787,6 +25790,14 @@
 			path = SendDestinationCompactView;
 			sourceTree = "<group>";
 		};
+		EFF7C80C2F17F3470073CDCA /* GaslessTransactionBroadcast */ = {
+			isa = PBXGroup;
+			children = (
+				EFF7C80A2F17F3410073CDCA /* GaslessTransactionBroadcastService.swift */,
+			);
+			path = GaslessTransactionBroadcast;
+			sourceTree = "<group>";
+		};
 		EFF8F1CF2E8573CD00A5EF0C /* Send */ = {
 			isa = PBXGroup;
 			children = (
@@ -27521,6 +27532,7 @@
 				2D3023532DF093B600B4FFE6 /* PushNotificationsPermissionRequestFlow.swift in Sources */,
 				B6BC398E2E3D5ED70043D64E /* BaseAccountModel.swift in Sources */,
 				2D3023542DF093B600B4FFE6 /* PushNotificationsInteractor.swift in Sources */,
+				EFF7C80B2F17F3410073CDCA /* GaslessTransactionBroadcastService.swift in Sources */,
 				2D3023552DF093B600B4FFE6 /* CommonUserTokensPushNotificationsManager.swift in Sources */,
 				2D3023562DF093B600B4FFE6 /* UserTokensPushNotificationsService.swift in Sources */,
 				EF8DBCE02C060CCE009072CF /* StakingDependenciesFactory.swift in Sources */,
