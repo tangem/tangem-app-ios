@@ -42,7 +42,7 @@ final class CommonSendFeeProvider {
     }
 
     private func bind() {
-        autoupdatedSuggestedFeeCancellable = tokenFeeManager.selectedFeeProviderFeesPublisher
+        autoupdatedSuggestedFeeCancellable = feesPublisher
             .withWeakCaptureOf(self)
             .compactMap { feeProvider, fees -> TokenFee? in
                 // Custom don't support autoupdate
