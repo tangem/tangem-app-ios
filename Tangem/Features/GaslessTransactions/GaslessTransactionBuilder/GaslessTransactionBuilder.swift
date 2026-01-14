@@ -22,7 +22,7 @@ struct GaslessTransactionBuilder {
 
     // MARK: - Public Implementation
 
-    func builGaslessTransaction(bsdkTransaction: BSDKTransaction) async throws -> GaslessTransaction {
+    func buildGaslessTransaction(bsdkTransaction: BSDKTransaction) async throws -> GaslessTransaction {
         guard let chainId = walletModel.tokenItem.blockchain.chainId else {
             throw GaslessTransactionBuilderError.missingChainId
         }
