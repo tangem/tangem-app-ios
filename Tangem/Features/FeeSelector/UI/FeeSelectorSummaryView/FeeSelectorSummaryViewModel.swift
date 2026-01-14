@@ -7,6 +7,7 @@
 //
 
 import Combine
+import TangemLocalization
 import TangemAccessibilityIdentifiers
 
 protocol FeeSelectorSummaryRoutable: AnyObject {
@@ -64,16 +65,12 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
 
     private func bind() {
         Publishers.CombineLatest(
-            tokensDataProvider.selectedSelectorFeeTokenItemPublisher,
-            tokensDataProvider.selectorFeeTokenItemsPublisher.map { $0.count > 1 }
+            tokensDataProvider.selectedSelectorTokenFeeProviderPublisher.compactMap { $0 },
+            tokensDataProvider.selectorTokenFeeProvidersPublisher.map { $0.count > 1 }
         )
         .receiveOnMain()
         .withWeakCaptureOf(self)
-        .compactMap { viewModel, output in
-            let (selectedToken, canExpand) = output
-            guard let token = selectedToken else { return nil }
-            return viewModel.mapTokenItemToRowViewModel(token: token, canExpand: canExpand)
-        }
+        .map { $0.mapTokenItemToRowViewModel(tokenFeeProvider: $1.0, canExpand: $1.1) }
         .assign(to: \.suggestedFeeCurrency, on: self, ownership: .weak)
         .store(in: &bag)
 
@@ -92,13 +89,17 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
         .store(in: &bag)
     }
 
-    private func mapTokenItemToRowViewModel(token: TokenItem, canExpand: Bool) -> FeeSelectorRowViewModel {
-        let subtitleState: LoadableTextView.State = .noData
+    private func mapTokenItemToRowViewModel(tokenFeeProvider: any TokenFeeProvider, canExpand: Bool) -> FeeSelectorRowViewModel {
+        let feeTokenItem = tokenFeeProvider.feeTokenItem
+        let subtitleBalanceState = LoadableTokenBalanceViewStateBuilder().build(
+            type: tokenFeeProvider.balanceState,
+            textBuilder: Localization.commonBalance
+        )
 
         return FeeSelectorRowViewModel(
-            rowType: .token(tokenIconInfo: TokenIconInfoBuilder().build(from: token, isCustom: false)),
-            title: token.name,
-            subtitle: subtitleState,
+            rowType: .token(tokenIconInfo: TokenIconInfoBuilder().build(from: feeTokenItem, isCustom: false)),
+            title: feeTokenItem.name,
+            subtitle: .balance(subtitleBalanceState),
             accessibilityIdentifier: FeeAccessibilityIdentifiers.suggestedFeeCurrency,
             expandAction: canExpand ? userDidTapToken : nil
         )
@@ -126,7 +127,7 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
         return FeeSelectorRowViewModel(
             rowType: .fee(image: fee.option.icon.image),
             title: fee.option.title,
-            subtitle: subtitleState,
+            subtitle: .fee(subtitleState),
             accessibilityIdentifier: FeeAccessibilityIdentifiers.suggestedFeeCurrency,
             expandAction: canExpand ? userDidTapFee : nil
         )
