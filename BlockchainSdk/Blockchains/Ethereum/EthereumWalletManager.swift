@@ -548,7 +548,7 @@ extension EthereumWalletManager: GaslessTransactionFeeProvider {
         // 3) Add 10% buffer to fee token transfer gas limit (multiply by 1.1 using integer math)
         let feeTransferGasLimitBuffered = feeTransferGasLimit * BigUInt(11) / BigUInt(10)
 
-        // 4) Get gas limit of the original transaction
+        // 4) Get fee for the original transaction
         let originalFee = try await getFee(amount: sanitizedAmount, destination: originalDestination).async()
 
         // Pick the market fee (index 1) from the fees array.
