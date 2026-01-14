@@ -559,7 +559,7 @@
 "hw_backup_hardware_create_title" = "Create new wallet";
 "hw_backup_hardware_description" = "Level up your security with the superior Tangem hardware wallet.";
 "hw_backup_hardware_title" = "Hardware wallet";
-"hw_backup_hardware_upgrade_description" = "Move your current wallet into Tangem.";
+"hw_backup_hardware_upgrade_description" = "Convert your current mobile wallet into a Tangem cold wallet.";
 "hw_backup_hardware_upgrade_title" = "Upgrade current wallet";
 "hw_backup_icloud_description" = "Recover existing wallet via iCloud backup";
 "hw_backup_icloud_title" = "iCloud backup";
@@ -586,7 +586,7 @@
 "hw_remove_wallet_confirmation_title" = "Are you sure you want to do this?";
 "hw_remove_wallet_nav_title" = "Forget wallet";
 "hw_remove_wallet_notification_action_backup_go" = "Go to backup";
-"hw_remove_wallet_notification_action_backup_view" = "View backup";
+"hw_remove_wallet_notification_action_backup_view" = "View recovery phrase";
 "hw_remove_wallet_notification_action_forget_anyway" = "Forget anyway";
 "hw_remove_wallet_notification_action_forget" = "Forget wallet";
 "hw_remove_wallet_notification_description_has_backup" = "This wallet has a backup. Ensure you can recover it before forgetting the wallet.";
@@ -869,7 +869,7 @@
 "onboarding_seed_mnemonic_invalid_checksum" = "Invalid seed phrase. Please check the word order.";
 "onboarding_seed_mnemonic_wrong_words" = "Invalid seed phrase. Please check your spelling.";
 "onboarding_seed_phrase_intro_legacy" = "Legacy";
-"onboarding_seed_screenshot_alert" = "We do not recommend storing the seed phrase as a screenshot due to the high risk of loss or hacking";
+"onboarding_seed_screenshot_alert" = "For security reasons, taking screenshots of your seed phrase is disabled. The seed phrase is hidden to protect it from loss or unauthorized access.";
 "onboarding_seed_user_validation_message" = "To check whether you’ve written down your seed phrase correctly, please enter the 2nd, 7th and 11th words";
 "onboarding_seed_user_validation_title" = "So, let’s check";
 "onboarding_subtitle_no_backup_cards" = "To start the backup process, add up to two backup cards or rings.";
@@ -1144,6 +1144,7 @@
 "staking_details_apr" = "APR";
 "staking_details_apy" = "APY";
 "staking_details_auto_claiming_rewards_daily_text" = "Rewards automatically accumulate in your staking balance daily.";
+"staking_details_autocompound_rewards_earned" = "Rewards are compounded to your staking balance. Funds earned: %@";
 "staking_details_available" = "Available";
 "staking_details_average_reward_rate" = "Average Reward Rate";
 "staking_details_banner_text" = "How Staking Works?";
@@ -1393,10 +1394,15 @@
 "tangempay_kyc_confirm_cancellation_description" = "Are you sure you want to stop the KYC process? You can return to it anytime.";
 "tangempay_kyc_failed_description" = "We could not verify your profile. If you have any questions, please contact support.";
 "tangempay_kyc_failed_title" = "Unfortunately, we couldn't verify your identity ";
+"tangempay_kyc_has_failed" = "KYC has failed";
 "tangempay_kyc_in_progress_notification_button" = "View Status";
 "tangempay_kyc_in_progress_notification_title" = "KYC in progress for Tangem Pay";
 "tangempay_kyc_in_progress_popup_description" = "Use the buttons below to view your current KYC status or cancel it.";
 "tangempay_kyc_in_progress" = "KYC in progress";
+"tangempay_kyc_rejected_button_text" = "Hide KYC block";
+"tangempay_kyc_rejected_description_span" = "your profile.";
+"tangempay_kyc_rejected_description" = "Sorry, we couldn't verify";
+"tangempay_kyc_rejected" = "KYC rejected";
 "tangempay_onboarding_banner_description" = "Get your free Tangem Visa virtual card";
 "tangempay_onboarding_banner_title" = "Use USDC for everyday payments";
 "tangempay_onboarding_get_card_button_text" = "Get card";
@@ -1627,7 +1633,7 @@
 "wallet_settings_access_code_description" = "This access code protects your wallet and is used to log in and sign transactions.";
 "wallet_settings_access_code_title" = "Set/Change access code";
 "wallet_settings_change_access_code_title" = "Change access code";
-"wallet_settings_push_notifications_description" = "Stay notified on wallet incoming transactions and Tangem updates.";
+"wallet_settings_push_notifications_description" = "Get push notifications for incoming wallet transactions.";
 "wallet_settings_push_notifications_title" = "Transaction notifications";
 "wallet_settings_set_access_code_title" = "Set access code";
 "wallet_settings_title" = "Wallet settings";
