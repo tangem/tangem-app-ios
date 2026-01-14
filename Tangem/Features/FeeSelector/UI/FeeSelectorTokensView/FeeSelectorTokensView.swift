@@ -21,6 +21,7 @@ struct FeeSelectorTokensView: View {
                 }
             }
             .padding(.horizontal, 16)
+            .padding(.bottom, 16)
         }
         .scrollIndicators(.hidden)
         .scrollBounceBehavior(.basedOnSize)
