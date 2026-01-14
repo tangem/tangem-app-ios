@@ -29,6 +29,6 @@ struct GaslessTransactionsAPIKeyProvider {
             keysManager.gaslessTxApiKeyDev
         }
 
-        return TangemAPIHeadersValues.bearerPrefix + key
+        return TangemAPIHHeadersValues.bearerPrefix + key
     }
 }
