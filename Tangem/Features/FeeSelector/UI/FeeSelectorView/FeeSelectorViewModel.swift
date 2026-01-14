@@ -39,7 +39,7 @@ final class FeeSelectorViewModel: ObservableObject, FloatingSheetContentViewMode
         self.feesViewModel = feesViewModel
         self.router = router
 
-        viewState = interactor.selectorFeeTokenItems.hasMultipleFeeItemOptions ?
+        viewState = interactor.hasMultipleFeeProviders ?
             .summary(summaryViewModel) :
             .fees(feesViewModel, isFeesOnlyMode: true)
 
@@ -51,7 +51,7 @@ final class FeeSelectorViewModel: ObservableObject, FloatingSheetContentViewMode
     func userDidTapDismissButton() {
         feesViewModel.userDidRequestRevertCustomFeeValues()
         router?.dismissFeeSelector()
-        viewState = interactor.selectorFeeTokenItems.hasMultipleFeeItemOptions ?
+        viewState = interactor.hasMultipleFeeProviders ?
             .summary(summaryViewModel) :
             .fees(feesViewModel, isFeesOnlyMode: true)
     }
@@ -70,7 +70,7 @@ extension FeeSelectorViewModel: FeeSelectorSummaryRoutable {
     }
 
     func userDidRequestFeeSelector() {
-        viewState = .fees(feesViewModel, isFeesOnlyMode: !interactor.selectorFeeTokenItems.hasMultipleFeeItemOptions)
+        viewState = .fees(feesViewModel, isFeesOnlyMode: !interactor.hasMultipleFeeProviders)
     }
 
     func userDidRequestTokenSelector() {
@@ -81,8 +81,8 @@ extension FeeSelectorViewModel: FeeSelectorSummaryRoutable {
 // MARK: - FeeSelectorTokensRoutable
 
 extension FeeSelectorViewModel: FeeSelectorTokensRoutable {
-    func userDidSelectFeeToken(tokenItem: TokenItem) {
-        interactor.userDidSelectTokenItem(tokenItem)
+    func userDidSelectFeeToken(tokenFeeProvider: any TokenFeeProvider) {
+        interactor.userDidSelect(tokenFeeProvider: tokenFeeProvider)
         viewState = .summary(summaryViewModel)
     }
 }
@@ -93,7 +93,7 @@ extension FeeSelectorViewModel: FeeSelectorFeesRoutable {
     func userDidTapConfirmSelection(selectedFee: TokenFee) {
         interactor.userDidSelectFee(selectedFee)
 
-        if interactor.selectorFeeTokenItems.hasMultipleFeeItemOptions {
+        if interactor.hasMultipleFeeProviders {
             viewState = .summary(summaryViewModel)
         } else {
             router?.completeFeeSelection()
@@ -116,8 +116,4 @@ extension FeeSelectorViewModel {
             }
         }
     }
-}
-
-private extension [TokenItem] {
-    var hasMultipleFeeItemOptions: Bool { count > 1 }
 }
