@@ -76,7 +76,7 @@ final class TopMarketWidgetViewModel: ObservableObject {
 
     func onSeeAllTapAction() {
         runTask(in: self) { @MainActor viewModel in
-            viewModel.coordinator?.openSeeAll(with: viewModel.widgetType)
+            viewModel.coordinator?.openSeeAllTopMarketWidget()
         }
     }
 }
