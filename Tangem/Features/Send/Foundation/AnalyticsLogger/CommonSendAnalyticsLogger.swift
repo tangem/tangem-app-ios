@@ -22,6 +22,8 @@ class CommonSendAnalyticsLogger {
     private let feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder
     private let sendType: SendType
 
+    private var destinationAnalyticsProvider: (any AccountModelAnalyticsProviding)?
+
     private var sourceFlow: Analytics.ParameterValue {
         switch sendReceiveTokenInput?.receiveToken {
         case .same, .none: .send
@@ -39,6 +41,30 @@ class CommonSendAnalyticsLogger {
         self.feeTokenItem = feeTokenItem
         self.feeAnalyticsParameterBuilder = feeAnalyticsParameterBuilder
         self.sendType = sendType
+    }
+
+    func setDestinationAnalyticsProvider(_ analyticsProvider: (any AccountModelAnalyticsProviding)?) {
+        destinationAnalyticsProvider = analyticsProvider
+    }
+
+    private func buildAccountAnalyticsParameters() -> [Analytics.ParameterKey: String] {
+        guard FeatureProvider.isAvailable(.accounts) else {
+            return [:]
+        }
+
+        var result: [Analytics.ParameterKey: String] = [:]
+
+        if let sourceAccount = sendSourceTokenInput?.sourceToken.accountModelAnalyticsProvider {
+            let builder = PairedAccountAnalyticsBuilder(role: .source)
+            result.merge(sourceAccount.analyticsParameters(with: builder)) { $1 }
+        }
+
+        if let destinationAnalyticsProvider {
+            let builder = PairedAccountAnalyticsBuilder(role: .destination)
+            result.merge(destinationAnalyticsProvider.analyticsParameters(with: builder)) { $1 }
+        }
+
+        return result
     }
 }
 
@@ -78,9 +104,9 @@ extension CommonSendAnalyticsLogger: SendDestinationAnalyticsLogger {
     }
 }
 
-// MARK: - SendAnalyticsLogger, FeeSelectorContentViewModelAnalytics
+// MARK: - SendAnalyticsLogger, FeeSelectorAnalytics
 
-extension CommonSendAnalyticsLogger: SendFeeAnalyticsLogger, FeeSelectorContentViewModelAnalytics {
+extension CommonSendAnalyticsLogger: SendFeeAnalyticsLogger, FeeSelectorAnalytics {
     func logFeeStepOpened() {
         switch tokenItem.token?.metadata.kind {
         case .fungible, .none:
@@ -223,13 +249,38 @@ extension CommonSendAnalyticsLogger: SendSummaryAnalyticsLogger {
     func logSummaryStepOpened() {
         switch tokenItem.token?.metadata.kind {
         case .fungible, .none:
-            Analytics.log(.sendConfirmScreenOpened, params: [.source: sourceFlow])
+            logSendConfirmScreenOpened()
         case .nonFungible:
             Analytics.log(
                 event: .nftConfirmScreenOpened,
                 params: [.blockchain: tokenItem.blockchain.displayName]
             )
         }
+    }
+
+    private func logSendConfirmScreenOpened() {
+        var analyticsParameters: [Analytics.ParameterKey: String] = [.source: sourceFlow.rawValue]
+
+        switch sendReceiveTokenInput?.receiveToken {
+        case .none, .same:
+            analyticsParameters[.token] = tokenItem.currencySymbol
+            analyticsParameters[.blockchain] = tokenItem.blockchain.displayName
+
+        case .swap:
+            if let source = sendSourceTokenInput?.sourceToken {
+                analyticsParameters[.sendToken] = source.tokenItem.currencySymbol
+                analyticsParameters[.sendBlockchain] = source.tokenItem.blockchain.displayName
+            }
+
+            if let receive = sendReceiveTokenInput?.receiveToken.receiveToken {
+                analyticsParameters[.receiveToken] = receive.tokenItem.currencySymbol
+                analyticsParameters[.receiveBlockchain] = receive.tokenItem.blockchain.displayName
+            }
+        }
+
+        analyticsParameters.merge(buildAccountAnalyticsParameters()) { $1 }
+
+        Analytics.log(event: .sendConfirmScreenOpened, params: analyticsParameters)
     }
 
     func logUserDidTapOnValidator() {}
@@ -283,6 +334,9 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
             analyticsParameters[.nonce] = String(nonce)
         }
 
+        // Merge account analytics (source + destination)
+        analyticsParameters.merge(buildAccountAnalyticsParameters()) { $1 }
+
         Analytics.log(event: event, params: analyticsParameters)
     }
 
@@ -308,6 +362,9 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
             if let provider = await sendSwapProvidersInput?.selectedExpressProvider {
                 analyticsParameters[.provider] = provider.provider.name
             }
+
+            // Merge account analytics (source + destination)
+            analyticsParameters.merge(buildAccountAnalyticsParameters()) { $1 }
 
             Analytics.log(event: .sendSendWithSwapInProgressScreenOpened, params: analyticsParameters)
         }
@@ -350,7 +407,7 @@ extension CommonSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
     func logTransactionSent(
         amount: SendAmount?,
         additionalField: SendDestinationAdditionalField?,
-        fee: SendFee,
+        fee: TokenFee,
         signerType: String,
         currentProviderHost: String
     ) {
