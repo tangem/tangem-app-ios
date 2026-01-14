@@ -125,7 +125,7 @@ private extension URLSessionWebSocketTaskWrapper {
     final class CheckedContinuationWrapper<T, E> where E: Error {
         private var continuation: CheckedContinuation<T, E>?
         private let fallback: () -> Result<T, E>
-        private let criticalSection = Lock(isRecursive: false)
+        private let criticalSection = OSAllocatedUnfairLock()
 
         init(fallback: @autoclosure @escaping () -> Result<T, E>) {
             self.fallback = fallback
