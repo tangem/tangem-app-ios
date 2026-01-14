@@ -22,7 +22,7 @@ public class BitcoinPsbtSigningBuilder {
         }
     }
 
-    public enum Error: Swift.Error {
+    enum Error: Swift.Error {
         case invalidBase64
         case invalidPsbt(String)
         case unsupported(String)
