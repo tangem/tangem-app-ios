@@ -15,14 +15,20 @@ struct MobileOnboardingSeedPhraseRevealView: View {
 
     @ObservedObject var viewModel: ViewModel
 
+    @Environment(\.dismiss) private var dismiss
+
     private let wordsVerticalSpacing: CGFloat = 18
 
     var body: some View {
-        switch viewModel.state {
-        case .item(let item):
-            state(item: item)
-        case .none:
-            EmptyView()
+        content
+            .screenCaptureProtection()
+            .alert(item: $viewModel.alert) { $0.alert }
+            .onChange(of: viewModel.shouldDismiss, perform: dismissIfNeeded)
+    }
+
+    private func dismissIfNeeded(shouldDismiss: Bool) {
+        if shouldDismiss {
+            dismiss()
         }
     }
 }
@@ -30,6 +36,16 @@ struct MobileOnboardingSeedPhraseRevealView: View {
 // MARK: - Subviews
 
 private extension MobileOnboardingSeedPhraseRevealView {
+    @ViewBuilder
+    var content: some View {
+        switch viewModel.state {
+        case .item(let item):
+            state(item: item)
+        case .none:
+            Color.clear
+        }
+    }
+
     func state(item: ViewModel.StateItem) -> some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(spacing: 32) {
@@ -44,8 +60,6 @@ private extension MobileOnboardingSeedPhraseRevealView {
         }
         .padding(.top, 32)
         .padding(.horizontal, 16)
-        .screenCaptureProtection()
-        .alert(item: $viewModel.alert) { $0.alert }
     }
 
     func infoView(item: ViewModel.InfoItem) -> some View {
