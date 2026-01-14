@@ -18,6 +18,7 @@ protocol TokenFeeProvider {
     var fees: [TokenFee] { get }
     var feesPublisher: AnyPublisher<[TokenFee], Never> { get }
 
+    func updateSupportingState(input: TokenFeeProviderInputData)
     func setup(input: TokenFeeProviderInputData)
     func updateFees() async
 }
