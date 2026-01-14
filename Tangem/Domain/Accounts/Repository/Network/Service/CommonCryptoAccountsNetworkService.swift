@@ -65,7 +65,7 @@ extension CommonCryptoAccountsNetworkService: WalletsNetworkService {
             if let newRevision {
                 eTagStorage.saveETag(newRevision, for: userWalletId)
             }
-            
+
             return newRevision
         } catch let error as CryptoAccountsNetworkServiceError {
             throw error // Just re-throw an original error
