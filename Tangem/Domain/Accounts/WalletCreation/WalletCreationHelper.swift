@@ -41,12 +41,11 @@ struct WalletCreationHelper {
             .enrich(withIdentifier: identifier)
             .build()
 
-        try await networkService.createWallet(with: context)
+        _ = try await networkService.createWallet(with: context)
     }
 
     func updateWallet() async throws {
         let name = userWalletName
-        let identifier = userWalletId.stringValue
         let contextBuilder = userWalletConfig.contextBuilder
         let context = contextBuilder
             .enrich(withName: name)
