@@ -12,6 +12,7 @@ import struct SwiftUI.Image
 import TangemLocalization
 import TangemFoundation
 
+@available(iOS, deprecated: 100000.0, message: "Only used when accounts are disabled, will be removed in the future ([REDACTED_INFO])")
 @MainActor
 final class WalletConnectWalletSelectorViewModel: ObservableObject {
     private let backAction: () -> Void

@@ -9,10 +9,6 @@
 import SwiftUI
 
 enum MarketsWidgetLayout {
-    enum Header {
-        static let horizontalPadding: CGFloat = 16.0
-    }
-
     enum Item {
         static let interItemSpacing: CGFloat = 14.0
         static let horizontalPadding: CGFloat = 16.0
