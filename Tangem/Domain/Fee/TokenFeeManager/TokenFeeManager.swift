@@ -94,7 +94,7 @@ extension TokenFeeManager: TokenFeeProvider {
     }
 
     func setup(input: TokenFeeProviderInputData) {
-        selectedFeeProvider.setup(input: input)
+        setupFeeProviders(input: input)
     }
 
     func updateFees() async {
