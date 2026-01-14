@@ -13,18 +13,16 @@ struct TokenItemMapper {
     let supportedBlockchains: Set<Blockchain>
 
     func mapToTokenItem(id: String, name: String, symbol: String, network: NetworkModel) -> TokenItem? {
-        // We should find and use a exactly same blockchain that in the supportedBlockchains set
-        guard let blockchain = supportedBlockchains[network.networkId] else {
+        guard
+            NetworkSupportChecker.isNetworkSupported(network, in: supportedBlockchains),
+            let blockchain = supportedBlockchains[network.networkId]
+        else {
             return nil
         }
 
         guard let contractAddress = network.contractAddress,
               let decimalCount = network.decimalCount else {
             return .blockchain(.init(blockchain, derivationPath: nil))
-        }
-
-        guard blockchain.canHandleTokens else {
-            return nil
         }
 
         let token = Token(
