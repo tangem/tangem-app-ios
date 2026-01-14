@@ -21,4 +21,7 @@ class StakingManagerMock: StakingManager {
     func transaction(action: StakingAction) async throws -> StakingTransactionAction { .mock }
     func transactionDetails(id: String) async throws -> StakingTransactionInfo { .mock }
     func transactionDidSent(action: StakingAction) {}
+
+    var tosURL: URL { URL(string: "https://example.com")! }
+    var privacyPolicyURL: URL { URL(string: "https://example.com")! }
 }
