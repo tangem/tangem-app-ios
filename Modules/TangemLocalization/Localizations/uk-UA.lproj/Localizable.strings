@@ -1619,7 +1619,7 @@
 "wallet_import_seed_description" = "Імпортуйте існуючий гаманець за допомогою сід-фрази.";
 "wallet_import_seed_navtitle" = "Імпортувати гаманець";
 "wallet_import_seed_title" = "Введіть фразу відновлення";
-"wallet_import_success_description" = "Ви успішно створили резервну копію свого гаманця.";
+"wallet_import_success_description" = "Ви успішно імпортували свій гаманець.";
 "wallet_import_success_navtitle" = "Імпортувати гаманець";
 "wallet_import_success_title" = "Імпорт завершено";
 "wallet_import_title" = "Імпортувати гаманець";
