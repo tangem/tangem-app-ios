@@ -178,6 +178,7 @@ protocol WalletModelDependenciesProvider {
     // MARK: - Gasless Transactions
 
     var ethereumGaslessTransactionFeeProvider: (any GaslessTransactionFeeProvider)? { get }
+    var ethereumGaslessTransactionBroadcaster: (any EthereumGaslessTransactionBroadcaster)? { get }
 }
 
 // MARK: - Tx history
