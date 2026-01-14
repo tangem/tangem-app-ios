@@ -46,23 +46,36 @@ extension ExpressFeeSelectorInteractor: FeeSelectorInteractor {
             .eraseToAnyPublisher()
     }
 
-    var selectedSelectorFeeTokenItem: TokenItem? {
-        state.fees.selectedTokenFee()?.tokenItem
+    var selectedSelectorTokenFeeProvider: (any TokenFeeProvider)? {
+        guard let providerId = state.provider?.id else {
+            return nil
+        }
+
+        return sourceTokenFeeManager.selectedFeeProvider(providerId: providerId)
     }
 
-    var selectedSelectorFeeTokenItemPublisher: AnyPublisher<TokenItem?, Never> {
-        statePublisher.map { $0.fees.selectedTokenFee()?.tokenItem }.eraseToAnyPublisher()
+    var selectedSelectorTokenFeeProviderPublisher: AnyPublisher<(any TokenFeeProvider)?, Never> {
+        statePublisher
+            .withWeakCaptureOf(self)
+            .map { interactor, state in
+                guard let providerId = state.provider?.id else {
+                    return nil
+                }
+
+                return interactor.sourceTokenFeeManager.selectedFeeProvider(providerId: providerId)
+            }
+            .eraseToAnyPublisher()
     }
 
-    var selectorFeeTokenItems: [TokenItem] {
+    var selectorTokenFeeProviders: [any TokenFeeProvider] {
         guard let providerId = state.provider?.id else {
             return []
         }
 
-        return sourceTokenFeeManager.feeTokenItems(providerId: providerId)
+        return sourceTokenFeeManager.supportedFeeTokenProviders(providerId: providerId)
     }
 
-    var selectorFeeTokenItemsPublisher: AnyPublisher<[TokenItem], Never> {
+    var selectorTokenFeeProvidersPublisher: AnyPublisher<[any TokenFeeProvider], Never> {
         statePublisher
             .withWeakCaptureOf(self)
             .map { interactor, state in
@@ -70,7 +83,7 @@ extension ExpressFeeSelectorInteractor: FeeSelectorInteractor {
                     return []
                 }
 
-                return interactor.sourceTokenFeeManager.feeTokenItems(providerId: providerId)
+                return interactor.sourceTokenFeeManager.supportedFeeTokenProviders(providerId: providerId)
             }
             .eraseToAnyPublisher()
     }
@@ -88,7 +101,7 @@ extension ExpressFeeSelectorInteractor: FeeSelectorInteractor {
         expressInteractor.updateFeeOption(option: fee.option)
     }
 
-    func userDidSelectTokenItem(_ tokenItem: TokenItem) {
-        sourceTokenFeeManager.updateSelectedFeeTokenItemInAllManagers(tokenItem: tokenItem)
+    func userDidSelect(tokenFeeProvider: any TokenFeeProvider) {
+        sourceTokenFeeManager.updateSelectedFeeTokenProviderInAllManagers(tokenFeeProvider: tokenFeeProvider)
     }
 }
