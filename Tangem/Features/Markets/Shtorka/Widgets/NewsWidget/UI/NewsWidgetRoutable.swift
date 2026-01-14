@@ -10,6 +10,6 @@ import Foundation
 
 @MainActor
 protocol NewsWidgetRoutable: AnyObject {
+    func openSeeAllNewsWidget()
     func openNewsDetails(newsIds: [Int], selectedIndex: Int)
-    func openNewsList()
 }
