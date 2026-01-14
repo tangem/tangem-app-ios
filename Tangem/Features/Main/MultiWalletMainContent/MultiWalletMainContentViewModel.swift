@@ -249,12 +249,27 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .assign(to: \.accountSections, on: self, ownership: .weak)
             .store(in: &bag)
 
-        tokenItemPromoProvider.promoWalletModelPublisher
+        let tokenItemPromoInputPublisher = plainSectionsPublisher
+            .eraseToAnyPublisher()
+            .map { $0.flatMap(\.items) }
+            .mapMany { TokenItemPromoProviderInput(id: $0.id, tokenItem: $0.tokenItem) }
+
+        tokenItemPromoProvider
+            .makePromoOutputPublisher(using: tokenItemPromoInputPublisher)
+            .eraseToAnyPublisher()
+            .removeDuplicates()
+            .handleEvents(receiveOutput: { [weak self] output in
+                guard let output, let walletModel = self?.findWalletModel(with: output.walletModelId) else {
+                    return
+                }
+
+                let logger = CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId)
+                logger.logYieldNoticeShown()
+            })
             .receiveOnMain()
             .withWeakCaptureOf(self)
-            .map { viewModel, params in
-                guard let params else { return nil }
-                return viewModel.makeTokenItemPromoVieModel(from: params)
+            .map { viewModel, output in
+                output.flatMap(viewModel.makeTokenItemPromoViewModel(from:))
             }
             .assign(to: \.tokenItemPromoBubbleViewModel, on: self, ownership: .weak)
             .store(in: &bag)
@@ -375,7 +390,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             throw "NFTEntrypointViewModel already created"
         }
 
-        let accountForNFTCollectionsProvider = AccountForNFTCollectionProvider(userWalletModel: userWalletModel)
+        let accountForNFTCollectionsProvider = AccountForNFTCollectionsProvider(userWalletModel: userWalletModel)
 
         // [REDACTED_TODO_COMMENT]
         let navigationInput = NFTNavigationInput(
@@ -492,7 +507,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     private func handleYieldApyBadgeTapped(walletModel: any WalletModel, factory: YieldModuleFlowFactory, yieldManager: YieldModuleManager) {
-        let logger = CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem)
+        let logger = CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId)
 
         func openActiveYield() {
             logger.logEarningApyClicked(state: .enabled)
@@ -578,11 +593,11 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         )
     }
 
-    private func makeTokenItemPromoVieModel(from params: TokenItemPromoParams) -> TokenItemPromoBubbleViewModel? {
+    private func makeTokenItemPromoViewModel(from output: TokenItemPromoProviderOutput) -> TokenItemPromoBubbleViewModel? {
         TokenItemPromoBubbleViewModel(
-            id: params.walletModelId,
-            leadingImage: params.icon,
-            message: params.message,
+            id: output.walletModelId,
+            leadingImage: output.icon,
+            message: output.message,
             onDismiss: { [weak self] in
                 self?.tokenItemPromoProvider.hidePromoBubble()
                 self?.tokenItemPromoBubbleViewModel = nil
@@ -591,11 +606,13 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                 guard let userWalletModel = self?.userWalletModel,
                       let walletModel = AccountsFeatureAwareWalletModelsResolver
                       .walletModels(for: userWalletModel)
-                      .first(where: { model in model.id == params.walletModelId })
+                      .first(where: { model in model.id == output.walletModelId })
                 else {
                     return
                 }
 
+                let logger = CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: userWalletModel.userWalletId)
+                logger.logYieldNoticeClicked()
                 let navAction = self?.makeYieldApyBadgeTapAction(walletModel: walletModel)
                 navAction?(walletModel.tokenItem)
             }
@@ -619,10 +636,9 @@ private extension MultiWalletMainContentViewModel {
         let tokenItem = tokenItemViewModel.tokenItem
         let alertBuilder = HideTokenAlertBuilder()
         let actionFactory = HideTokenActionFactory(userWalletModel: userWalletModel)
-        let walletModel = findWalletModel(with: tokenItemViewModel.id)
 
         do {
-            let hideAction = try actionFactory.makeAction(tokenItem: tokenItem, walletModel: walletModel)
+            let hideAction = try actionFactory.makeAction(for: tokenItem)
             error = alertBuilder.hideTokenAlert(tokenItem: tokenItem, hideAction: hideAction)
         } catch {
             AppLogger.error("Can't hide token due to error:", error: error)

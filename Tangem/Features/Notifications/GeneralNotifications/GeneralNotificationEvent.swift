@@ -9,6 +9,8 @@
 import Foundation
 import TangemLocalization
 import TangemAssets
+import TangemSdk
+import TangemUI
 
 enum GeneralNotificationEvent: Equatable, Hashable {
     case numberOfSignedHashesIncorrect
@@ -23,7 +25,7 @@ enum GeneralNotificationEvent: Equatable, Hashable {
     case legacyDerivation
     case systemDeprecationTemporary
     case systemDeprecationPermanent(String)
-    case missingDerivation(numberOfNetworks: Int)
+    case missingDerivation(numberOfNetworks: Int, icon: MainButton.Icon?)
     case walletLocked
     case missingBackup
     case supportedOnlySingleCurrencyWallet
@@ -125,10 +127,10 @@ extension GeneralNotificationEvent: NotificationEvent {
         case .systemDeprecationPermanent(let dateString):
             return String(format: Localization.warningSystemDeprecationWithDateMessage(dateString))
                 .replacingOccurrences(of: "..", with: ".")
-        case .missingDerivation(let numberOfNetworks):
+        case .missingDerivation(let numberOfNetworks, _):
             return Localization.warningMissingDerivationMessage(numberOfNetworks)
         case .walletLocked:
-            return Localization.warningAccessDeniedMessage(BiometricAuthorizationUtils.biometryType.name)
+            return Localization.warningAccessDeniedMessage(BiometricsUtil.biometryType.name)
         case .missingBackup:
             return Localization.warningNoBackupMessage
         case .supportedOnlySingleCurrencyWallet:
@@ -242,12 +244,12 @@ extension GeneralNotificationEvent: NotificationEvent {
              .backupErrors,
              .seedSupport,
              .seedSupport2,
+             .mobileUpgrade,
              .mobileFinishActivation:
             return false
         case .numberOfSignedHashesIncorrect,
              .systemDeprecationTemporary,
              .rateApp,
-             .mobileUpgrade,
              .pushNotificationsPermissionRequest:
             return true
         }
@@ -277,13 +279,13 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .withButtons([
                 NotificationView.NotificationButton(action: buttonAction, actionType: .backupCard, isWithLoader: false),
             ])
-        case .missingDerivation:
+        case .missingDerivation(_, let icon):
             guard let buttonAction else {
                 break
             }
 
             return .withButtons([
-                .init(action: buttonAction, actionType: .generateAddresses, isWithLoader: true),
+                .init(action: buttonAction, actionType: .generateAddresses(icon: icon), isWithLoader: true),
             ])
         case .rateApp:
             guard let buttonAction else {

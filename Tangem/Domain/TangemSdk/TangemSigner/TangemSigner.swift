@@ -9,5 +9,6 @@ import Foundation
 import BlockchainSdk
 
 protocol TangemSigner: TransactionSigner {
+    var hasNFCInteraction: Bool { get }
     var latestSignerType: TangemSignerType? { get }
 }

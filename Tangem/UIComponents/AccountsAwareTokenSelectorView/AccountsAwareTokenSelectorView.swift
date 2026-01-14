@@ -13,18 +13,21 @@ import TangemUI
 import TangemUIUtils
 import TangemFoundation
 
-struct AccountsAwareTokenSelectorView<EmptyContentView: View>: View {
+struct AccountsAwareTokenSelectorView<EmptyContentView: View, AdditionalContentView: View>: View {
     @ObservedObject var viewModel: AccountsAwareTokenSelectorViewModel
     private let emptyContentView: EmptyContentView
+    private let additionalContent: AdditionalContentView
 
     private var searchType: SearchType?
 
     init(
         viewModel: AccountsAwareTokenSelectorViewModel,
-        @ViewBuilder emptyContentView: () -> EmptyContentView
+        @ViewBuilder emptyContentView: () -> EmptyContentView,
+        @ViewBuilder additionalContent: () -> AdditionalContentView
     ) {
         self.viewModel = viewModel
         self.emptyContentView = emptyContentView()
+        self.additionalContent = additionalContent()
     }
 
     var body: some View {
@@ -50,7 +53,7 @@ struct AccountsAwareTokenSelectorView<EmptyContentView: View>: View {
     }
 
     private func scrollView(@ViewBuilder content: @escaping () -> some View) -> some View {
-        GroupedScrollView(contentType: .plain(spacing: 8)) {
+        GroupedScrollView(contentType: .lazy(spacing: 8)) {
             content()
                 .animation(.easeInOut, value: viewModel.contentVisibility)
         }
@@ -69,6 +72,8 @@ struct AccountsAwareTokenSelectorView<EmptyContentView: View>: View {
             .transition(.opacity.animation(.easeInOut))
         }
 
+        additionalContent
+
         FixedSpacer(height: 12)
     }
 }
@@ -85,5 +90,18 @@ extension AccountsAwareTokenSelectorView {
     enum SearchType {
         case native
         case custom
+    }
+}
+
+// MARK: - Convenience init
+
+extension AccountsAwareTokenSelectorView where AdditionalContentView == EmptyView {
+    init(
+        viewModel: AccountsAwareTokenSelectorViewModel,
+        @ViewBuilder emptyContentView: () -> EmptyContentView
+    ) {
+        self.viewModel = viewModel
+        self.emptyContentView = emptyContentView()
+        additionalContent = EmptyView()
     }
 }

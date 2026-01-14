@@ -15,11 +15,6 @@ import struct TangemUIUtils.AlertBinder
 final class MarketsSearchViewModel: MarketsBaseViewModel {
     private typealias SearchInput = MainBottomSheetHeaderViewModel.SearchInput
 
-    // MARK: - Injected Properties
-
-    @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
-    @Injected(\.viewHierarchySnapshotter) private var viewHierarchySnapshotter: ViewHierarchySnapshotting
-
     // MARK: - Published Properties
 
     @Published private(set) var headerViewModel: MainBottomSheetHeaderViewModel
@@ -27,8 +22,6 @@ final class MarketsSearchViewModel: MarketsBaseViewModel {
     @Published private(set) var tokenListViewModel: MarketsTokenListViewModel
     @Published private(set) var isSearching: Bool = false
     @Published private(set) var yieldModeNotificationVisible = false
-
-    let resetScrollPositionPublisher = PassthroughSubject<Void, Never>()
 
     override var overlayContentHidingProgress: CGFloat {
         // Prevents unwanted content hiding (see [REDACTED_INFO]
@@ -39,7 +32,7 @@ final class MarketsSearchViewModel: MarketsBaseViewModel {
 
     private weak var coordinator: MarketsRoutable?
 
-    private let filterProvider = MarketsListDataFilterProvider()
+    private let filterProvider: MarketsListDataFilterProvider
     private let dataProvider = MarketsListDataProvider()
     private let chartsHistoryProvider = MarketsListChartsHistoryProvider()
     private let quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper
@@ -61,12 +54,14 @@ final class MarketsSearchViewModel: MarketsBaseViewModel {
     // MARK: - Init
 
     init(
+        initialOrderType: MarketsListOrderType?,
         quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper,
         coordinator: MarketsRoutable
     ) {
         self.quotesRepositoryUpdateHelper = quotesRepositoryUpdateHelper
         self.coordinator = coordinator
 
+        filterProvider = MarketsListDataFilterProvider(initialOrderType: initialOrderType)
         marketsNotificationsManager = MarketsNotificationsManager(dataProvider: dataProvider)
 
         marketCapFormatter = .init(
@@ -98,8 +93,6 @@ final class MarketsSearchViewModel: MarketsBaseViewModel {
         searchFilterBind(filterPublisher: filterProvider.filterPublisher)
 
         yieldModeNotificationBind(filterProvider.filterPublisher)
-
-        bindToMainBottomSheetUIManager()
     }
 
     deinit {
@@ -160,36 +153,11 @@ final class MarketsSearchViewModel: MarketsBaseViewModel {
 // MARK: - Private Implementation
 
 private extension MarketsSearchViewModel {
-    func updateFooterSnapshot() {
-        let lightAppearanceSnapshotImage = viewHierarchySnapshotter.makeSnapshotViewImage(
-            afterScreenUpdates: true,
-            isOpaque: true,
-            overrideUserInterfaceStyle: .light
-        )
-        let darkAppearanceSnapshotImage = viewHierarchySnapshotter.makeSnapshotViewImage(
-            afterScreenUpdates: true,
-            isOpaque: true,
-            overrideUserInterfaceStyle: .dark
-        )
-
-        mainBottomSheetUIManager.setFooterSnapshots(
-            lightAppearanceSnapshotImage: lightAppearanceSnapshotImage,
-            darkAppearanceSnapshotImage: darkAppearanceSnapshotImage
-        )
-    }
-
     func bindChildViewModels() {
         tokenListViewModel.objectWillChange
             .sink { [weak self] _ in
                 self?.objectWillChange.send()
             }
-            .store(in: &bag)
-    }
-
-    func bindToMainBottomSheetUIManager() {
-        mainBottomSheetUIManager
-            .footerSnapshotUpdateTriggerPublisher
-            .sink(receiveValue: weakify(self, forFunction: MarketsSearchViewModel.updateFooterSnapshot))
             .store(in: &bag)
     }
 
@@ -216,7 +184,14 @@ private extension MarketsSearchViewModel {
             .debounce(for: 0.5, scheduler: DispatchQueue.main)
             // Ensure that clear and cancel input events will be delivered immediately
             .merge(with: publisher.filter { $0 == .clearInput || $0 == .cancelInput })
-            .removeDuplicates()
+            .removeDuplicates { lhs, rhs in
+                switch (lhs, rhs) {
+                case (.textInput(let lhsValue), .textInput(let rhsValue)):
+                    return lhsValue == rhsValue
+                default:
+                    return false
+                }
+            }
             .withWeakCaptureOf(self)
             .sink { viewModel, searchInput in
                 switch searchInput {

@@ -165,7 +165,8 @@ private extension TokenDetailsView {
     let notifManager = SingleTokenNotificationManager(
         userWalletId: userWalletModel.userWalletId,
         walletModel: walletModel,
-        walletModelsManager: userWalletModel.walletModelsManager
+        walletModelsManager: userWalletModel.walletModelsManager,
+        tangemIconProvider: CommonTangemIconProvider(hasNFCInteraction: true)
     )
     let expressAPIProvider = ExpressAPIProviderFactory().makeExpressAPIProvider(
         userWalletId: userWalletModel.userWalletId,

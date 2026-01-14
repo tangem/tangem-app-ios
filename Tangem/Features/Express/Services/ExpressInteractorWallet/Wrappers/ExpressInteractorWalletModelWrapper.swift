@@ -20,6 +20,7 @@ struct ExpressInteractorWalletModelWrapper {
     let feeTokenItem: TokenItem
     let defaultAddressString: String
 
+    var expressTokenFeeManager: ExpressTokenFeeManager { _tokenFeeManager }
     let availableBalanceProvider: any TokenBalanceProvider
     let transactionValidator: any ExpressTransactionValidator
     let withdrawalNotificationProvider: (any WithdrawalNotificationProvider)?
@@ -32,8 +33,8 @@ struct ExpressInteractorWalletModelWrapper {
     private let allowanceServiceFactory: AllowanceServiceFactory
 
     private let _allowanceService: (any AllowanceService)?
-    private let _feeProvider: any ExpressFeeProvider
     private let _balanceProvider: any ExpressBalanceProvider
+    private let _tokenFeeManager: CommonExpressTokenFeeManager
 
     init(
         userWalletInfo: UserWalletInfo,
@@ -78,16 +79,14 @@ struct ExpressInteractorWalletModelWrapper {
 
         _allowanceService = allowanceServiceFactory.makeAllowanceService()
 
-        _feeProvider = CommonExpressFeeProvider(
-            tokenItem: walletModel.tokenItem,
-            feeTokenItem: walletModel.feeTokenItem,
-            feeProvider: walletModel,
-            ethereumNetworkProvider: walletModel.ethereumNetworkProvider
-        )
-
         _balanceProvider = CommonExpressBalanceProvider(
             availableBalanceProvider: walletModel.availableBalanceProvider,
             feeProvider: walletModel
+        )
+
+        _tokenFeeManager = CommonExpressTokenFeeManager(
+            tokenItem: tokenItem,
+            tokenFeeManagerBuilder: TokenFeeManagerBuilder(walletModel: walletModel)
         )
     }
 }
@@ -141,7 +140,7 @@ extension ExpressInteractorWalletModelWrapper: ExpressInteractorSourceWallet {
 // MARK: - ExpressSourceWallet
 
 extension ExpressInteractorWalletModelWrapper {
-    var feeProvider: any ExpressFeeProvider { _feeProvider }
+    var feeProvider: any ExpressFeeProvider { _tokenFeeManager }
     var balanceProvider: any ExpressBalanceProvider { _balanceProvider }
     var operationType: ExpressOperationType { expressOperationType }
 }

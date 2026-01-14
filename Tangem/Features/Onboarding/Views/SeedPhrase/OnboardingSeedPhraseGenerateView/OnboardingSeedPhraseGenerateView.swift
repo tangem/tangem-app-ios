@@ -43,6 +43,7 @@ struct OnboardingSeedPhraseGenerateView: View {
             .padding(.horizontal, 16)
             .padding(.bottom, AppConstants.isSmallScreen ? 10 : 6)
         }
+        .screenCaptureProtection()
         .animation(.default, value: viewModel.selectedLength)
         .padding(.top, 20)
     }

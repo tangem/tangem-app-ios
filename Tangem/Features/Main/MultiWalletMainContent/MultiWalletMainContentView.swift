@@ -46,14 +46,8 @@ struct MultiWalletMainContentView: View {
             }
 
             ForEach(viewModel.tangemPayNotificationInputs) { input in
-                switch input.id {
-                case TangemPayNotificationEvent.syncNeeded.id:
-                    NotificationView(input: input)
-                        .setButtonsLoadingState(to: viewModel.tangemPaySyncInProgress)
-
-                default:
-                    NotificationView(input: input)
-                }
+                NotificationView(input: input)
+                    .setButtonsLoadingState(to: viewModel.tangemPaySyncInProgress)
             }
 
             // [REDACTED_TODO_COMMENT]
@@ -218,7 +212,6 @@ struct MultiWalletMainContentView: View {
 
         let tokenItemPromoProvider = YieldTokenItemPromoProvider(
             userWalletModel: userWalletModel,
-            sectionsProvider: sectionsProvider,
             yieldModuleMarketsRepository: CommonYieldModuleMarketsRepository(),
             tokenItemPromoBubbleVisibilityInteractor: TokenItemPromoBubbleVisibilityInteractor()
         )

@@ -11,7 +11,6 @@ import TangemExpress
 import UIKit
 import TangemLocalization
 import TangemFoundation
-import struct BlockchainSdk.Fee
 import struct TangemUIUtils.AlertBinder
 
 final class ExpressApproveViewModel: ObservableObject, Identifiable {
@@ -27,6 +26,7 @@ final class ExpressApproveViewModel: ObservableObject, Identifiable {
     @Published var mainButtonIsDisabled = false
     @Published var errorAlert: AlertBinder?
 
+    let tangemIconProvider: TangemIconProvider
     let feeFooterText: String
 
     // MARK: - Dependencies
@@ -55,6 +55,7 @@ final class ExpressApproveViewModel: ObservableObject, Identifiable {
         selectedAction = input.settings.selectedPolicy
         subtitle = input.settings.subtitle
         feeFooterText = input.settings.feeFooterText
+        tangemIconProvider = input.settings.tangemIconProvider
 
         menuRowViewModel = .init(
             title: Localization.givePermissionRowsAmount(input.settings.tokenItem.currencySymbol),
@@ -127,7 +128,7 @@ private extension ExpressApproveViewModel {
             .store(in: &bag)
     }
 
-    func updateView(state: LoadingResult<Fee, any Error>) {
+    func updateView(state: LoadingResult<BSDKFee, any Error>) {
         switch state {
         case .success(let fee):
             updateFeeAmount(fee: fee)
@@ -144,7 +145,7 @@ private extension ExpressApproveViewModel {
         }
     }
 
-    func updateFeeAmount(fee: Fee) {
+    func updateFeeAmount(fee: BSDKFee) {
         let formatted = feeFormatter.format(fee: fee.amount.value, tokenItem: feeTokenItem)
         feeRowViewModel?.update(detailsType: .text(formatted))
     }
@@ -182,6 +183,8 @@ extension ExpressApproveViewModel {
         let feeTokenItem: TokenItem
 
         let selectedPolicy: BSDKApprovePolicy
+
+        let tangemIconProvider: TangemIconProvider
     }
 }
 

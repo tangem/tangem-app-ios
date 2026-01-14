@@ -186,16 +186,7 @@ class AppCoordinator: CoordinatorObject {
             dismissAction: dismissAction,
             popToRootAction: popToRootAction
         )
-        coordinator.start(
-            with: .init(openFeeCurrency: { [weak self] option in
-                switch self?.viewState {
-                case .main(let coordinator):
-                    coordinator.proceedFeeCurrencyNavigatingDismissOption(option: option)
-                default:
-                    break
-                }
-            })
-        )
+        coordinator.start(with: .init())
         marketsCoordinator = coordinator
     }
 
