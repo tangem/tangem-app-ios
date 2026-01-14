@@ -85,10 +85,12 @@ extension MobileOnboardingSeedPhraseImportViewModel: SeedPhraseImportDelegate {
 
                 if let userWalletId {
                     Task.detached {
+                        let walletsNetworkService = CommonWalletsNetworkService(userWalletId: userWalletId)
                         let walletCreationHelper = WalletCreationHelper(
                             userWalletId: userWalletId,
                             userWalletName: nil,
-                            userWalletConfig: userWalletConfig
+                            userWalletConfig: userWalletConfig,
+                            networkService: walletsNetworkService
                         )
 
                         try? await walletCreationHelper.createWallet()
