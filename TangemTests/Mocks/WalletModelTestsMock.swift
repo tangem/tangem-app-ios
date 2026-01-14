@@ -174,6 +174,7 @@ final class WalletModelTestsMock: WalletModel {
     var hasRent: Bool { false }
     var existentialDepositWarning: String? { nil }
     var ethereumGaslessDataProvider: (any EthereumGaslessDataProvider)? { nil }
+    var ethereumGaslessTransactionBroadcaster: (any EthereumGaslessTransactionBroadcaster)? { nil }
 
     // MARK: - CustomStringConvertible
 
