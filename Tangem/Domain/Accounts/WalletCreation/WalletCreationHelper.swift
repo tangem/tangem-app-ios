@@ -8,6 +8,8 @@
 import TangemFoundation
 
 struct WalletCreationHelper {
+    @Injected(\.walletsNetworkServiceFactory) private var walletsNetworkServiceFactory: WalletsNetworkServiceFactory
+
     private let userWalletConfig: UserWalletConfig
     private let userWalletId: UserWalletId
     private let userWalletName: String
@@ -22,17 +24,7 @@ struct WalletCreationHelper {
         self.userWalletConfig = userWalletConfig
         self.userWalletName = userWalletName ?? UserWalletNameIndexationHelper().suggestedName(userWalletConfig: userWalletConfig)
 
-        let remoteIdentifierBuilder = CryptoAccountsRemoteIdentifierBuilder(userWalletId: userWalletId)
-        let mapper = CryptoAccountsNetworkMapper(
-            supportedBlockchains: userWalletConfig.supportedBlockchains,
-            remoteIdentifierBuilder: remoteIdentifierBuilder.build(from:)
-        )
-        let networkService = CommonCryptoAccountsNetworkService(
-            userWalletId: userWalletId,
-            mapper: mapper
-        )
-
-        self.networkService = networkService
+        self.networkService = walletsNetworkServiceFactory.makeWalletsNetworkService(userWalletId: userWalletId)
     }
 
     init(userWalletInfo: UserWalletInfo, networkService: WalletsNetworkService) {
