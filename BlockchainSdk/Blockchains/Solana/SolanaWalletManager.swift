@@ -27,20 +27,15 @@ class SolanaWalletManager: BaseManager, WalletManager {
 
     private let transactionHelper = SolanaTransactionHelper()
 
-    override func update(completion: @escaping (Result<Void, Error>) -> Void) {
-        let tokens = cardTokens
-        cancellable = networkService.getInfo(accountId: wallet.address, tokens: tokens)
-            .sink { [weak self] in
-                switch $0 {
-                case .failure(let error):
-                    self?.wallet.clearAmounts()
-                    completion(.failure(error))
-                case .finished:
-                    completion(.success(()))
-                }
-            } receiveValue: { [weak self] info in
-                self?.updateWallet(info: info, tokens: tokens)
-            }
+    override func updateWalletManager() async throws {
+        do {
+            let tokens = cardTokens
+            let info = try await networkService.getInfo(accountId: wallet.address, tokens: tokens).async()
+            updateWallet(info: info, tokens: tokens)
+        } catch {
+            wallet.clearAmounts()
+            throw error
+        }
     }
 
     private func updateWallet(info: SolanaAccountInfoResponse, tokens: [Token]) {

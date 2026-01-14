@@ -203,9 +203,7 @@ struct ReferralView: View {
             }
             .frame(maxWidth: .infinity)
             .padding(.top, 8)
-            .padding(.bottom, 12)
-            .background(Colors.Background.primary)
-            .cornerRadius(14)
+            .defaultRoundedBackground()
 
             HStack(spacing: 12) {
                 TangemButton(
@@ -336,7 +334,7 @@ struct ReferralView: View {
     private var participateButton: some View {
         MainButton(
             title: Localization.referralButtonParticipate,
-            icon: .trailing(Assets.tangemIcon),
+            icon: viewModel.mainButtonIcon,
             style: .primary,
             action: viewModel.participateInReferralProgram
         )

@@ -12,7 +12,7 @@ import TangemFoundation
 final class NEARProtocolConfigCache {
     static let shared = NEARProtocolConfigCache()
 
-    private let lock = Lock(isRecursive: false)
+    private let lock = OSAllocatedUnfairLock()
     private var protocolConfig: NEARProtocolConfig?
 
     func get() -> NEARProtocolConfig? {
