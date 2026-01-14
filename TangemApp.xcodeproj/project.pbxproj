@@ -1508,6 +1508,8 @@
 		B61F71262E949D55002C3C66 /* CryptoAccountsNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61F71212E949D55002C3C66 /* CryptoAccountsNetworkService.swift */; };
 		B61F71292E949D55002C3C66 /* CryptoAccountsNetworkServiceError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61F711A2E949D55002C3C66 /* CryptoAccountsNetworkServiceError.swift */; };
 		B61F712A2E949D55002C3C66 /* CommonCryptoAccountsNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61F71202E949D55002C3C66 /* CommonCryptoAccountsNetworkService.swift */; };
+		C3E1F93C6260499B85FE130F /* CommonWalletsNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BA18AF095094A49867DF7FF /* CommonWalletsNetworkService.swift */; };
+		BFF01FBD578041A99C8B4E70 /* WalletsNetworkService+InjectedValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9CF5030EC154B72B7F20736 /* WalletsNetworkService+InjectedValues.swift */; };
 		B61F71302E949DFF002C3C66 /* ArchivedCryptoAccountsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61F712F2E949DFF002C3C66 /* ArchivedCryptoAccountsProvider.swift */; };
 		B61F71362E94A1CB002C3C66 /* ArchivedCryptoAccountInfo.AccountId.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61F71352E94A1CB002C3C66 /* ArchivedCryptoAccountInfo.AccountId.swift */; };
 		B61F71372E94A1CB002C3C66 /* ArchivedCryptoAccountInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61F71342E94A1CB002C3C66 /* ArchivedCryptoAccountInfo.swift */; };
@@ -6343,6 +6345,8 @@
 		B61F711A2E949D55002C3C66 /* CryptoAccountsNetworkServiceError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoAccountsNetworkServiceError.swift; sourceTree = "<group>"; };
 		B61F711B2E949D55002C3C66 /* RemoteCryptoAccountsInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteCryptoAccountsInfo.swift; sourceTree = "<group>"; };
 		B61F71202E949D55002C3C66 /* CommonCryptoAccountsNetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonCryptoAccountsNetworkService.swift; sourceTree = "<group>"; };
+		7BA18AF095094A49867DF7FF /* CommonWalletsNetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonWalletsNetworkService.swift; sourceTree = "<group>"; };
+		E9CF5030EC154B72B7F20736 /* WalletsNetworkService+InjectedValues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WalletsNetworkService+InjectedValues.swift"; sourceTree = "<group>"; };
 		B61F71212E949D55002C3C66 /* CryptoAccountsNetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoAccountsNetworkService.swift; sourceTree = "<group>"; };
 		B61F712F2E949DFF002C3C66 /* ArchivedCryptoAccountsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchivedCryptoAccountsProvider.swift; sourceTree = "<group>"; };
 		B61F71342E94A1CB002C3C66 /* ArchivedCryptoAccountInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchivedCryptoAccountInfo.swift; sourceTree = "<group>"; };
@@ -14900,6 +14904,8 @@
 			children = (
 				B61F71212E949D55002C3C66 /* CryptoAccountsNetworkService.swift */,
 				B61F71202E949D55002C3C66 /* CommonCryptoAccountsNetworkService.swift */,
+				7BA18AF095094A49867DF7FF /* CommonWalletsNetworkService.swift */,
+				E9CF5030EC154B72B7F20736 /* WalletsNetworkService+InjectedValues.swift */,
 			);
 			path = Service;
 			sourceTree = "<group>";
@@ -29044,6 +29050,8 @@
 				B61F71262E949D55002C3C66 /* CryptoAccountsNetworkService.swift in Sources */,
 				B61F71292E949D55002C3C66 /* CryptoAccountsNetworkServiceError.swift in Sources */,
 				B61F712A2E949D55002C3C66 /* CommonCryptoAccountsNetworkService.swift in Sources */,
+				C3E1F93C6260499B85FE130F /* CommonWalletsNetworkService.swift in Sources */,
+				BFF01FBD578041A99C8B4E70 /* WalletsNetworkService+InjectedValues.swift in Sources */,
 				B0C4F77126F08C4D0086D815 /* TwinsOnboardingCardLayout.swift in Sources */,
 				B0A4C4A22A271CD20060E039 /* BalanceWithButtonsViewModel.swift in Sources */,
 				2D535E722A0CB4D20081EB76 /* BottomSheetInfoView.swift in Sources */,
