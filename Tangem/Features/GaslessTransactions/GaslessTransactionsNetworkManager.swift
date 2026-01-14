@@ -21,6 +21,7 @@ protocol GaslessTransactionsNetworkManager {
 
     func updateAvailableTokens()
     func signGaslessTransaction(_ transaction: GaslessTransaction) async throws -> SignResult
+    /// Returns the address where transaction fees are collected. Use this for gas estimation.
     func getFeeRecipientAddress() async throws -> String
 }
 
@@ -71,7 +72,6 @@ extension CommonGaslessTransactionsNetworkManager: GaslessTransactionsNetworkMan
         try await apiService.signGaslessTransaction(transaction)
     }
 
-    /// Returns the address where transaction fees are collected. Use this for gas estimation.
     func getFeeRecipientAddress() async throws -> String {
         try await apiService.getFeeRecipientAddress()
     }
