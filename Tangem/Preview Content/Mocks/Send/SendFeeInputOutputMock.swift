@@ -19,9 +19,9 @@ final class SendFeeInputOutputMock: SendFeeInput, SendFeeOutput {
     }
 
     var selectedFeePublisher: AnyPublisher<TokenFee, Never> { .just(output: selectedFee) }
-    var canChooseFeeOption: AnyPublisher<Bool, Never> { .just(output: false) }
+    var feesHasMultipleFeeOptions: AnyPublisher<Bool, Never> { .just(output: false) }
     var cryptoAmountPublisher: AnyPublisher<Decimal, Never> { .just(output: 1) }
     var destinationAddressPublisher: AnyPublisher<String?, Never> { .just(output: "0x") }
 
-    func userDidSelect(selectedFee fee: TokenFee) {}
+    func feeDidChanged(fee: TokenFee) {}
 }
