@@ -240,13 +240,8 @@ extension EthereumWalletManager: EthereumNetworkProvider {
                 return walletManager.networkService.ethCall(request: nonceRequest)
             }
             .tryMap { nonceResponse -> Int in
-                let stringNonce = (nonceResponse == "0x" ? "0" : nonceResponse)
-
-                guard let nonce = Int(stringNonce) else {
-                    throw EthereumTransactionBuilderError.invalidNonce
-                }
-
-                return nonce
+                let stringNonce = (nonceResponse == "0x" ? "0x0" : nonceResponse)
+                return try EthereumMapper.mapInt(stringNonce)
             }
             .eraseToAnyPublisher()
     }
@@ -516,6 +511,25 @@ extension EthereumWalletManager: TransactionFeeProvider {
             .eraseToAnyPublisher()
     }
 }
+
+// MARK: - EthereumGaslessTransactionBroadcaster
+
+extension EthereumWalletManager: EthereumGaslessTransactionBroadcaster {
+    func broadcast(transaction: Transaction, compiledTransactionHex: String) async throws -> TransactionSendResult {
+        do {
+            let hash = try await networkService.send(transaction: compiledTransactionHex).async()
+            let mapper = PendingTransactionRecordMapper()
+            let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hash)
+            wallet.addPendingTransaction(record)
+
+            return TransactionSendResult(hash: hash, currentProviderHost: currentHost)
+        } catch {
+            throw SendTxError(error: error.toUniversalError(), tx: compiledTransactionHex)
+        }
+    }
+}
+
+// MARK: - GaslessTransactionFeeProvider
 
 extension EthereumWalletManager: GaslessTransactionFeeProvider {
     func getGaslessFee(
