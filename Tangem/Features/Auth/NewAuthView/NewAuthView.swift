@@ -19,7 +19,6 @@ struct NewAuthView: View {
 
     var body: some View {
         stateView
-            .animation(.default, value: viewModel.state)
             .allowsHitTesting(!viewModel.isUnlocking)
             .alert(item: $viewModel.alert, content: { $0.alert })
             .confirmationDialog(viewModel: $viewModel.confirmationDialog)
@@ -38,11 +37,11 @@ private extension NewAuthView {
             switch viewModel.state {
             case .locked:
                 LockView(usesNamespace: false)
-                    .transition(.opacity)
+                    .transition(.opacity.animation(.easeIn))
             case .wallets(let item):
                 walletsView(item: item)
                     .toolbar { navigationBarContent(item: item.addWallet) }
-                    .transition(.opacity)
+                    .transition(.opacity.animation(.easeIn))
             case .none:
                 EmptyView()
             }
@@ -138,6 +137,7 @@ private extension NewAuthView {
                 .background(Colors.Button.secondary)
                 .cornerRadius(14, corners: .allCorners)
         }
+        .colorScheme(.dark)
         .accessibilityIdentifier(AuthAccessibilityIdentifiers.biometricsUnlockButton)
     }
 }

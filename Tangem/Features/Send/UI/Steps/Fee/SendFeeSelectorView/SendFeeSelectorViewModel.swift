@@ -46,6 +46,10 @@ final class SendFeeSelectorViewModel: ObservableObject, FloatingSheetContentView
 
     // MARK: - Navigation
 
+    func userDidTapConfirmButton() {
+        feeSelectorViewModel.userDidTapConfirmButton()
+    }
+
     func userDidTapDismissButton() {
         feeSelectorViewModel.userDidTapDismissButton()
     }
@@ -55,7 +59,7 @@ final class SendFeeSelectorViewModel: ObservableObject, FloatingSheetContentView
     }
 
     func openURL() {
-        router?.openFeeSelectorLearnMoreURL(state.learnMoreURL)
+        router?.openFeeSelectorLearnMoreURL(state.content.learnMoreURL)
     }
 
     // MARK: - Private Implementation
@@ -72,46 +76,84 @@ final class SendFeeSelectorViewModel: ObservableObject, FloatingSheetContentView
 // MARK: - State
 
 extension SendFeeSelectorViewModel {
-    struct ViewState: Equatable {
-        let title: String
-        let description: AttributedString
-        let headerButtonAction: HeaderButtonAction
-        var learnMoreURL: URL
+    enum ViewState: Equatable, Hashable {
+        case summary(Content)
+        case tokens(Content)
+        case fees(Content)
 
         init(from feeSelectorState: FeeSelectorViewModel.ViewState) {
             switch feeSelectorState {
             case .summary:
-                title = Localization.commonNetworkFeeTitle
-                description = AttributedString("")
-                headerButtonAction = .close
-                learnMoreURL = URL(string: "https://tangem.com/en/blog/post/yield-mode")!
+                self = .summary(
+                    Content(
+                        title: Localization.commonNetworkFeeTitle,
+                        description: AttributedString(""),
+                        headerButtonAction: .close,
+                        learnMoreURL: URL(string: "https://tangem.com/en/blog/post/yield-mode")!,
+                        isSingleOptionMode: false
+                    )
+                )
 
             case .tokens:
-                title = Localization.feeSelectorChooseTokenTitle
                 let text = Localization.feeSelectorChooseTokenDescription(Localization.commonLearnMore)
-                description = ViewState.makeDescription(text: text)
-                headerButtonAction = .back
-                learnMoreURL = URL(string: "https://tangem.com/en/blog/post/yield-mode")!
+                self = .tokens(
+                    Content(
+                        title: Localization.feeSelectorChooseTokenTitle,
+                        description: Content.makeDescription(text: text),
+                        headerButtonAction: .back,
+                        learnMoreURL: URL(string: "https://tangem.com/en/blog/post/yield-mode")!,
+                        isSingleOptionMode: false
+                    )
+                )
 
-            case .fees:
-                title = Localization.feeSelectorChooseSpeedTitle
+            case .fees(_, let isFeesOnlyOption):
                 let text = Localization.feeSelectorChooseSpeedDescription(Localization.commonLearnMore)
-                description = ViewState.makeDescription(text: text)
-                headerButtonAction = .close // [REDACTED_TODO_COMMENT]
-                learnMoreURL = URL(string: "https://tangem.com/en/blog/post/yield-mode")!
+                self = .fees(
+                    Content(
+                        title: Localization.feeSelectorChooseSpeedTitle,
+                        description: Content.makeDescription(text: text),
+                        headerButtonAction: isFeesOnlyOption ? .close : .back,
+                        learnMoreURL: URL(string: "https://tangem.com/en/blog/post/yield-mode")!,
+                        isSingleOptionMode: isFeesOnlyOption
+                    )
+                )
             }
         }
 
-        private static func makeDescription(text: String) -> AttributedString {
+        var content: Content {
+            switch self {
+            case .summary(let content), .fees(let content), .tokens(let content):
+                return content
+            }
+        }
+
+        var description: AttributedString? {
+            switch self {
+            case .summary:
+                return nil
+            case .fees(let content), .tokens(let content):
+                return content.description
+            }
+        }
+    }
+}
+
+extension SendFeeSelectorViewModel {
+    struct Content: Equatable, Hashable {
+        let title: String
+        let description: AttributedString
+        let headerButtonAction: SendFeeSelectorViewModel.ViewState.HeaderButtonAction
+        let learnMoreURL: URL
+        let isSingleOptionMode: Bool
+
+        static func makeDescription(text: String) -> AttributedString {
             var attr = AttributedString(text)
             attr.font = Fonts.Regular.footnote
             attr.foregroundColor = Colors.Text.tertiary
 
             if let range = attr.range(of: Localization.commonLearnMore) {
                 attr[range].foregroundColor = Colors.Text.accent
-                if let emptyUrl = URL(string: " ") {
-                    attr[range].link = emptyUrl
-                }
+                attr[range].link = URL(string: " ")
             }
 
             return attr
@@ -119,7 +161,7 @@ extension SendFeeSelectorViewModel {
     }
 }
 
-extension SendFeeSelectorViewModel {
+extension SendFeeSelectorViewModel.ViewState {
     @CaseFlagable
     enum HeaderButtonAction {
         case close
