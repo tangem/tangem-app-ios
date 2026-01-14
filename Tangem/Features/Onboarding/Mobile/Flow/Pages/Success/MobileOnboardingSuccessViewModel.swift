@@ -67,7 +67,9 @@ private extension MobileOnboardingSuccessViewModel {
         }
 
         let description = switch type {
-        case .walletImported, .seedPhaseBackupContinue:
+        case .walletImported:
+            Localization.walletImportSuccessDescription
+        case .seedPhaseBackupContinue:
             Localization.backupCompleteDescription
         case .seedPhaseBackupFinish:
             Localization.backupCompleteSeedDescription
