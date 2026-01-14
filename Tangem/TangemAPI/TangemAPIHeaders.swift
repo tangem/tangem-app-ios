@@ -15,4 +15,9 @@ enum TangemAPIHeaders: String {
     case eTag = "ETag"
     case ifMatch = "If-Match"
     case ifNoneMatch = "If-None-Match"
+    case authorization = "Authorization"
+}
+
+enum TangemAPIHeadersValues {
+    static let bearerPrefix: String = "Bearer "
 }
