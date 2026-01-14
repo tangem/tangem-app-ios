@@ -82,12 +82,22 @@ extension MobileCreateWalletViewModel {
                 Task.detached {
                     let userWalletConfig = MobileUserWalletConfig(mobileWalletInfo: walletInfo)
                     if let userWalletId = UserWalletId(config: userWalletConfig) {
+                        let remoteIdentifierBuilder = CryptoAccountsRemoteIdentifierBuilder(userWalletId: userWalletId)
+                        let mapper = CryptoAccountsNetworkMapper(
+                            supportedBlockchains: userWalletConfig.supportedBlockchains,
+                            remoteIdentifierBuilder: remoteIdentifierBuilder.build(from:)
+                        )
                         let walletsNetworkService = CommonWalletsNetworkService(userWalletId: userWalletId)
+                        let networkService = CommonCryptoAccountsNetworkService(
+                            userWalletId: userWalletId,
+                            mapper: mapper,
+                            walletsNetworkService: walletsNetworkService
+                        )
                         let walletCreationHelper = WalletCreationHelper(
                             userWalletId: userWalletId,
                             userWalletName: nil,
                             userWalletConfig: userWalletConfig,
-                            networkService: walletsNetworkService
+                            networkService: networkService
                         )
 
                         try? await walletCreationHelper.createWallet()
