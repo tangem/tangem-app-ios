@@ -128,10 +128,6 @@ struct GaslessTransactionBuilder {
         nonce: String,
         chainId: Int
     ) async throws -> Data {
-        guard let provider = walletModel.ethereumGaslessDataProvider else {
-            throw GaslessTransactionBuilderError.missingGaslessDataProvider
-        }
-
         let typedData = GaslessTransactionsEIP712Util().makeGaslessTypedData(
             transaction: transaction,
             fee: fee,
@@ -150,50 +146,17 @@ struct GaslessTransactionBuilder {
         guard case .token(let token) = bsdkFee.amount.type else {
             throw GaslessTransactionBuilderError.unsupportedFeeToken
         }
-        guard let tokenId = token.id else {
-            throw GaslessTransactionBuilderError.missingTokenId
-        }
         guard parameters.gasLimit > 0 else {
             throw GaslessTransactionBuilderError.invalidFeeParameters
         }
 
-        let contractAddress = token.contractAddress
-        let feeTransferGasLimit = parameters.gasLimit
-        let feeInCoin = bsdkFee.amount.value
-        let coinPriceInToken = try await calculateCoinPriceInToken(tokenId: tokenId)
-        let maxTokenFee = coinPriceInToken * feeInCoin
-
         return GaslessTransactionFee(
-            feeToken: contractAddress,
-            maxTokenFee: maxTokenFee.stringValue,
-            coinPriceInToken: coinPriceInToken.stringValue,
-            feeTransferGasLimit: feeTransferGasLimit.description,
+            feeToken: token.contractAddress,
+            maxTokenFee: bsdkFee.amount.value.description,
+            coinPriceInToken: parameters.nativeToFeeTokenRate.description,
+            feeTransferGasLimit: parameters.gasLimit.description,
             baseGas: Constants.baseGas
         )
-    }
-
-    /// Returns the coin price in token base units (integer) with 1% buffer and rounded up.
-    private func calculateCoinPriceInToken(tokenId: String) async throws -> Decimal {
-        let coinId = walletModel.tokenItem.blockchain.coinId
-
-        let coinInFiat = try await balanceConverter.convertToFiat(1, currencyId: coinId)
-        let tokenInFiat = try await balanceConverter.convertToFiat(1, currencyId: tokenId)
-
-        guard coinInFiat > 0, tokenInFiat > 0 else {
-            throw GaslessTransactionBuilderError.invalidPricing
-        }
-
-        var coinPriceInToken = coinInFiat / tokenInFiat
-
-        // Shift the decimal point to the right by token decimals
-        coinPriceInToken *= walletModel.tokenItem.blockchain.decimalValue
-
-        // Add 1% on top
-        coinPriceInToken *= Decimal(1.01)
-
-        // Keep only the integer part, rounding up
-        let rounded = coinPriceInToken.rounded(roundingMode: .up)
-        return rounded
     }
 
     private func getEIP7702Data() async throws -> EIP7702AuthorizationData {

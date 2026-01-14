@@ -15,6 +15,8 @@ struct CommonGaslessTokenFeeLoader {
     let tokenItem: TokenItem
     let feeToken: Token?
     let gaslessTransactionFeeProvider: any GaslessTransactionFeeProvider
+
+    private let balanceConverter = BalanceConverter()
 }
 
 // MARK: - TokenFeeLoader
@@ -30,10 +32,26 @@ extension CommonGaslessTokenFeeLoader: TokenFeeLoader {
         let amount = makeAmount(amount: amount)
         let feeRecipientAddress = try await networkManager.getFeeRecipientAddress()
 
+        // Native coin of the network (e.g. ETH)
+        let nativeAssetId = tokenItem.blockchain.coinId
+
+        // Asset used to pay the fee
+        guard let feeAssetId = feeToken.id else {
+            throw TokenFeeLoaderError.feeTokenIdNotFound
+        }
+
+        // Calculate coin-to-token rate with adjustments: shift decimal by token decimals, add 1% buffer, round up
+        let nativeToFeeTokenRate = try await balanceConverter.cryptoToCryptoRate(
+            from: nativeAssetId,
+            to: feeAssetId,
+            options: .init(scale: feeToken.decimalValue, markup: 0.01, rounding: .up)
+        )
+
         let fee = try await gaslessTransactionFeeProvider.getEstimatedGaslessFee(
             feeToken: feeToken,
             amount: amount,
-            feeRecipientAddress: feeRecipientAddress
+            feeRecipientAddress: feeRecipientAddress,
+            nativeToFeeTokenRate: nativeToFeeTokenRate
         )
 
         return [fee]
@@ -44,14 +62,31 @@ extension CommonGaslessTokenFeeLoader: TokenFeeLoader {
             throw TokenFeeLoaderError.gaslessEthereumTokenFeeSupportOnlyTokenAsFeeTokenItem
         }
 
+        // Asset used to pay the fee (e.g. USDC)
+        guard let feeAssetId = feeToken.id else {
+            throw TokenFeeLoaderError.feeTokenIdNotFound
+        }
+
+        // Native coin of the network (e.g. ETH)
+        let nativeAssetId = tokenItem.blockchain.coinId
+
+        // Calculate coin-to-token rate with adjustments: shift decimal by token decimals, add 1% buffer, round up
+        let nativeToFeeTokenRate = try await balanceConverter.cryptoToCryptoRate(
+            from: nativeAssetId,
+            to: feeAssetId,
+            options: .init(scale: feeToken.decimalValue, markup: 0.01, rounding: .up)
+        )
+
         let feeRecipientAddress = try await networkManager.getFeeRecipientAddress()
 
         let amount = makeAmount(amount: amount)
+
         let fee = try await gaslessTransactionFeeProvider.getGaslessFee(
             feeToken: feeToken,
             amount: amount,
             destination: destination,
-            feeRecipientAddress: feeRecipientAddress
+            feeRecipientAddress: feeRecipientAddress,
+            nativeToFeeTokenRate: nativeToFeeTokenRate
         )
 
         return [fee]
