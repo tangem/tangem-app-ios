@@ -387,4 +387,8 @@ extension NFTSendWalletModelProxy: WalletModel {
     var ethereumGaslessTransactionFeeProvider: (any GaslessTransactionFeeProvider)? {
         mainTokenWalletModel.ethereumGaslessTransactionFeeProvider
     }
+
+    var ethereumGaslessDataProvider: (any BlockchainSdk.EthereumGaslessDataProvider)? {
+        mainTokenWalletModel.ethereumGaslessDataProvider
+    }
 }

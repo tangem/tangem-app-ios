@@ -137,6 +137,11 @@ class CommonEthereumTransactionBuilder: EthereumTransactionBuilder {
                 input.txMode = .legacy
                 input.gasLimit = legacyParameters.gasLimit.serialize()
                 input.gasPrice = legacyParameters.gasPrice.serialize()
+            case .gasless(let gaslessParameters):
+                input.txMode = .enveloped
+                input.gasLimit = gaslessParameters.gasLimit.serialize()
+                input.maxFeePerGas = gaslessParameters.maxFeePerGas.serialize()
+                input.maxInclusionFeePerGas = gaslessParameters.priorityFee.serialize()
             }
         }
 
@@ -199,6 +204,31 @@ class CommonEthereumTransactionBuilder: EthereumTransactionBuilder {
         }
 
         return output
+    }
+
+    func buildTransactionPayload(transaction: Transaction) throws -> TransactionPayload {
+        guard let amountValue = transaction.amount.bigUIntValue else {
+            throw EthereumTransactionBuilderError.failedToBuildTxPayload
+        }
+
+        let signingInput = try buildSigningInput(transaction: transaction)
+
+        // Duplicates part of the amount resolution logic from `buildSigningInput`,
+        // as the native coin amount is not exposed by `EthereumSigningInput`
+        let amount: BigUInt = switch transaction.amount.type {
+        case .coin:
+            amountValue
+        case .token:
+            .zero
+        case .reserve, .feeResource:
+            throw EthereumTransactionBuilderError.failedToBuildTxPayload
+        }
+
+        return TransactionPayload(
+            destinationAddress: signingInput.toAddress,
+            data: signingInput.transaction.contractGeneric.data,
+            coinAmount: amount
+        )
     }
 
     func buildSigningInput(transaction: Transaction) throws -> EthereumSigningInput {
