@@ -32,6 +32,7 @@ struct GaslessTransactionBuilder {
 
         let feeData = try await makeGaslessTransactionFee(bsdkFee: bsdkTransaction.fee)
         let transactionData = TransactionData(transaction: transaction, fee: feeData, nonce: smartContractNonce)
+
         let signedData = try await makeSignedGaslessData(
             transaction: transaction,
             fee: feeData,
@@ -40,7 +41,7 @@ struct GaslessTransactionBuilder {
         )
 
         return GaslessTransaction(
-            transactionData: transactionData,
+            gaslessTransaction: transactionData,
             signature: signedData.eip712Signature,
             userAddress: walletModel.defaultAddressString,
             chainId: chainId,
@@ -151,13 +152,15 @@ struct GaslessTransactionBuilder {
         }
 
         let maxTokenFeeInTokenUnits = (bsdkFee.amount.value * token.decimalValue).intValue(roundingMode: .up).description
-        let coinPriceInTokenUnits = (parameters.nativeToFeeTokenRate * token.decimalValue).intValue(roundingMode: .up).description
+        var coinPriceInTokenUnits = (parameters.nativeToFeeTokenRate * token.decimalValue)
+
+        coinPriceInTokenUnits *= 1.01
 
         return GaslessTransactionFee(
             feeToken: token.contractAddress,
             maxTokenFee: maxTokenFeeInTokenUnits,
-            coinPriceInToken: coinPriceInTokenUnits,
-            feeTransferGasLimit: parameters.gasLimit.description,
+            coinPriceInToken: coinPriceInTokenUnits.intValue(roundingMode: .up).description,
+            feeTransferGasLimit: parameters.feeTokenTransferGasLimit.description,
             baseGas: Constants.baseGas
         )
     }
