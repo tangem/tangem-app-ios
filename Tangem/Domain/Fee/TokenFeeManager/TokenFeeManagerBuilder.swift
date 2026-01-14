@@ -14,42 +14,75 @@ struct TokenFeeManagerBuilder {
     private var userWalletRepository: UserWalletRepository
 
     let walletModel: any WalletModel
+    private var currentUserWalletModel: (any UserWalletModel)? {
+        userWalletRepository.models.first(where: { $0.userWalletId == walletModel.userWalletId })
+    }
 
     init(walletModel: any WalletModel) {
         self.walletModel = walletModel
     }
 
     func makeTokenFeeManager() -> TokenFeeManager {
-        let coinTokenFeeProvider = TokenFeeProviderBuilder.makeTokenFeeProvider(walletModel: walletModel)
-        var feeProviders = [coinTokenFeeProvider] // Main
+        let coinTokenFeeProvider = makeMainTokenFeeProvider()
+        var feeProviders = [coinTokenFeeProvider]
 
         if FeatureProvider.isAvailable(.gaslessTransactions) {
-            let availableTokens = gaslessTransactionsNetworkManager.availableFeeTokens
-                .filter { $0.chainId == walletModel.tokenItem.blockchain.chainId }
-
-            if !availableTokens.isEmpty {
-                let gaslessTokenFeeProviders = makeGaslessTokenFeeProviders(availableTokens: availableTokens)
-                feeProviders.append(contentsOf: gaslessTokenFeeProviders)
-            }
+            let gaslessTokenFeeProviders = makeGaslessTokenFeeProviders()
+            feeProviders.append(contentsOf: gaslessTokenFeeProviders)
         }
 
         return TokenFeeManager(feeProviders: feeProviders, initialSelectedProvider: coinTokenFeeProvider)
     }
+}
 
-    private func makeGaslessTokenFeeProviders(availableTokens: [GaslessTransactionsNetworkManager.FeeToken]) -> [any TokenFeeProvider] {
-        guard let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId == walletModel.userWalletId }) else {
+// MARK: - Private
+
+private extension TokenFeeManagerBuilder {
+    private func makeMainTokenFeeProvider() -> any TokenFeeProvider {
+        guard let currentUserWalletModel else {
+            assertionFailure("User wallet not found")
+            return .empty(feeTokenItem: walletModel.feeTokenItem)
+        }
+
+        let feeWalletModelResult = try? WalletModelFinder.findWalletModel(
+            userWalletId: walletModel.userWalletId,
+            tokenItem: walletModel.feeTokenItem
+        )
+
+        guard let feeWalletModel = feeWalletModelResult?.walletModel else {
+            assertionFailure("User wallet not found")
+            return .empty(feeTokenItem: walletModel.feeTokenItem)
+        }
+
+        return .common(
+            feeTokenItem: feeWalletModel.tokenItem,
+            availableTokenBalanceProvider: feeWalletModel.availableBalanceProvider,
+            tokenFeeLoader: feeWalletModel.tokenFeeLoader,
+            customFeeProvider: feeWalletModel.customFeeProvider
+        )
+    }
+
+    private func makeGaslessTokenFeeProviders() -> [any TokenFeeProvider] {
+        let availableTokens = gaslessTransactionsNetworkManager.availableFeeTokens
+            .filter { $0.chainId == walletModel.tokenItem.blockchain.chainId }
+
+        // Gasless fee tokens is empty
+        guard !availableTokens.isEmpty else {
+            return []
+        }
+
+        guard let currentUserWalletModel else {
             assertionFailure("User wallet not found")
             return []
         }
 
-        let gaslessFeeWalletModels = AccountsFeatureAwareWalletModelsResolver
-            .walletModels(for: userWalletModel)
-            .filter { walletModel in
-                availableTokens.contains(where: { $0.tokenAddress == walletModel.tokenItem.contractAddress })
-            }
+        let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: currentUserWalletModel)
+        let gaslessFeeWalletModels = walletModels.filter { walletModel in
+            availableTokens.contains(where: { $0.tokenAddress == walletModel.tokenItem.contractAddress })
+        }
 
-        let gaslessTokenFeeProviders = gaslessFeeWalletModels.map { feeWalletModel in
-            TokenFeeProviderBuilder.makeGaslessTokenFeeProvider(walletModel: walletModel, feeWalletModel: feeWalletModel)
+        let gaslessTokenFeeProviders: [any TokenFeeProvider] = gaslessFeeWalletModels.map { feeWalletModel in
+            .gasless(walletModel: walletModel, feeWalletModel: feeWalletModel)
         }
 
         return gaslessTokenFeeProviders
