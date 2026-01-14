@@ -41,6 +41,7 @@ final class MarketsSearchCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         let marketsViewModel = MarketsSearchViewModel(
+            initialOrderType: options.initialOrderType,
             quotesRepositoryUpdateHelper: options.quotesRepositoryUpdateHelper,
             coordinator: self
         )
@@ -51,6 +52,7 @@ final class MarketsSearchCoordinator: CoordinatorObject {
 
 extension MarketsSearchCoordinator {
     struct Options {
+        let initialOrderType: MarketsListOrderType?
         let quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper
     }
 }
