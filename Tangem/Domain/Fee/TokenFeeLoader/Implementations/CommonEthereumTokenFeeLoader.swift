@@ -11,23 +11,21 @@ import BlockchainSdk
 import BigInt
 
 struct CommonEthereumTokenFeeLoader {
-    let tokenItem: TokenItem
+    let feeBlockchain: Blockchain
     let tokenFeeLoader: any TokenFeeLoader
-
     let ethereumNetworkProvider: any EthereumNetworkProvider
-    let gaslessTransactionFeeProvider: any GaslessTransactionFeeProvider
 }
 
-// MARK: - TokenFeeLoader
+// MARK: - EthereumTokenFeeLoader
 
 extension CommonEthereumTokenFeeLoader: EthereumTokenFeeLoader {
     func estimatedFee(estimatedGasLimit: Int, otherNativeFee: Decimal?) async throws -> BSDKFee {
         let parameters = try await ethereumNetworkProvider.getFee(
             gasLimit: BigUInt(estimatedGasLimit),
-            supportsEIP1559: tokenItem.blockchain.supportsEIP1559
+            supportsEIP1559: feeBlockchain.supportsEIP1559
         )
 
-        var feeAmount = parameters.calculateFee(decimalValue: tokenItem.blockchain.decimalValue)
+        var feeAmount = parameters.calculateFee(decimalValue: feeBlockchain.decimalValue)
 
         // Increase fee value for native value. Will be spend similar like fee. Applicable to DEX-Bridge
         if let otherNativeFee {
@@ -35,7 +33,7 @@ extension CommonEthereumTokenFeeLoader: EthereumTokenFeeLoader {
             feeAmount += otherNativeFee
         }
 
-        return Fee(BSDKAmount(with: tokenItem.blockchain, type: .coin, value: feeAmount), parameters: parameters)
+        return Fee(BSDKAmount(with: feeBlockchain, type: .coin, value: feeAmount), parameters: parameters)
     }
 
     func getFee(amount: BSDKAmount, destination: String, txData: Data, otherNativeFee: Decimal?) async throws -> [BSDKFee] {
@@ -47,8 +45,8 @@ extension CommonEthereumTokenFeeLoader: EthereumTokenFeeLoader {
         fees = fees.map {
             $0.increasingGasLimit(
                 byPercents: EthereumFeeParametersConstants.defaultGasLimitIncreasePercent,
-                blockchain: tokenItem.blockchain,
-                decimalValue: tokenItem.blockchain.decimalValue
+                blockchain: feeBlockchain,
+                decimalValue: feeBlockchain.decimalValue
             )
         }
 
@@ -61,15 +59,6 @@ extension CommonEthereumTokenFeeLoader: EthereumTokenFeeLoader {
         }
 
         return fees
-    }
-
-    func getGaslessFee(amount: BSDKAmount, destination: String, txData: Data, feeToken: BSDKToken, otherNativeFee: Decimal?) async throws -> [BSDKFee] {
-        // [REDACTED_TODO_COMMENT]
-
-        let fee = try await gaslessTransactionFeeProvider
-            .getGaslessFee(feeToken: feeToken, originalAmount: amount, originalDestination: destination)
-
-        return [fee]
     }
 }
 
