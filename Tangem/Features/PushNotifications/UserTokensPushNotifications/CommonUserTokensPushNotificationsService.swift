@@ -327,10 +327,12 @@ private extension CommonUserTokensPushNotificationsService {
                     return
                 }
 
+                let walletsNetworkService = CommonWalletsNetworkService(userWalletId: model.userWalletId)
                 let helper = WalletCreationHelper(
                     userWalletId: model.userWalletId,
                     userWalletName: model.name,
-                    userWalletConfig: model.config
+                    userWalletConfig: model.config,
+                    networkService: walletsNetworkService
                 )
 
                 group.addTask {
