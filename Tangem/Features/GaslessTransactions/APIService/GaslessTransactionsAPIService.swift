@@ -16,6 +16,7 @@ protocol GaslessTransactionsAPIService {
 
     func getAvailableTokens() async throws -> [FeeToken]
     func signGaslessTransaction(_ transaction: GaslessTransactionsDTO.Request.GaslessTransaction) async throws -> SignResult
+    func getFeeRecipientAddress() async throws -> String
 }
 
 final class CommonGaslessTransactionAPIService {
@@ -37,6 +38,11 @@ extension CommonGaslessTransactionAPIService: GaslessTransactionsAPIService {
     func signGaslessTransaction(_ transaction: GaslessTransaction) async throws -> SignResult {
         let response: GaslessTransactionsDTO.Response.SignResponse = try await request(for: .signGaslessTransaction(transaction: transaction))
         return response.result
+    }
+
+    func getFeeRecipientAddress() async throws -> String {
+        let response: GaslessTransactionsDTO.Response.FeeRecipientResponse = try await request(for: .feeRecipient)
+        return response.feeRecipientAddress
     }
 }
 
