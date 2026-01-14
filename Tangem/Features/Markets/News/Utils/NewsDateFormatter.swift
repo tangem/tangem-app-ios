@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 
 final class NewsDateFormatter {
     private let calendar: Calendar
@@ -40,6 +41,14 @@ final class NewsDateFormatter {
         let formatter = DateFormatter()
         formatter.locale = locale
         formatter.setLocalizedDateFormatFromTemplate("d MMM HH:mm")
+        return formatter
+    }()
+
+    private lazy var dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        formatter.locale = locale
         return formatter
     }()
 
@@ -100,6 +109,39 @@ final class NewsDateFormatter {
         } else {
             return detailDateTimeFormatter.string(from: date)
         }
+    }
+
+    /// Formats date with localized strings for minutes and hours:
+    /// - < 1 min: "1 minute ago" (localized)
+    /// - < 60 min: "X minutes ago" (localized)
+    /// - < 12h and today: "X hours ago" (localized)
+    /// - >= 12h and today: "Today, HH:mm"
+    /// - >= 24h: Medium date format (localized)
+    func formatTimeAgo(from date: Date, relativeTo now: Date = Date()) -> String {
+        let isToday = calendar.isDateInToday(date)
+
+        let diffInSeconds = now.timeIntervalSince(date)
+        let diffInMinutes = Int(diffInSeconds / 60)
+        let diffInHours = Int(diffInSeconds / 3600)
+
+        if diffInMinutes < 1 {
+            return Localization.newsPublishedMinutesAgo(1)
+        }
+
+        if diffInMinutes < 60 {
+            return Localization.newsPublishedMinutesAgo(diffInMinutes)
+        }
+
+        if diffInHours < 12, isToday {
+            return Localization.newsPublishedHoursAgo(diffInHours)
+        }
+
+        if isToday {
+            let timeString = timeFormatter.string(from: date)
+            return "\(Localization.commonToday), \(timeString)"
+        }
+
+        return dateFormatter.string(from: date)
     }
 
     // MARK: - Private Methods
