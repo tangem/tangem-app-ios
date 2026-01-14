@@ -57,7 +57,7 @@ final class NewsWidgetViewModel: ObservableObject {
 
     @MainActor
     func handleAllNewsTap() {
-        coordinator?.openAllNews()
+        coordinator?.openSeeAllNewsWidget()
     }
 
     @MainActor
