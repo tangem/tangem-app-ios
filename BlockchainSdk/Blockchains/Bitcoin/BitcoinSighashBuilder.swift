@@ -12,8 +12,8 @@ import TangemSdk
 /// Shared sighash builder for Bitcoin-style transactions (legacy + segwit v0).
 /// Extracted from `CommonUTXOTransactionSerializer` so app-level features (e.g. WalletConnect PSBT)
 /// can reuse the exact same preimage rules without duplicating Bitcoin encoding logic.
-public enum BitcoinSighashBuilder {
-    public struct Input: Sendable, Hashable {
+enum BitcoinSighashBuilder {
+    struct Input: Sendable, Hashable {
         /// 32 bytes as provided by upstream decoder (BDK/WalletCore). Must be used consistently.
         public let txid: Data
         public let vout: UInt32
@@ -26,7 +26,7 @@ public enum BitcoinSighashBuilder {
         }
     }
 
-    public struct Output: Sendable, Hashable {
+    struct Output: Sendable, Hashable {
         public let value: UInt64
         public let scriptPubKey: Data
 
@@ -38,7 +38,7 @@ public enum BitcoinSighashBuilder {
 
     /// Legacy (pre-segwit) sighash for a single input.
     /// - Note: `sighashType` is the 4-byte value appended to the preimage (little-endian), e.g. 1 for BTC SIGHASH_ALL, 0x41 for BCH ALL|FORKID.
-    public static func legacySighash(
+    static func legacySighash(
         version: UInt32,
         lockTime: UInt32,
         inputs: [Input],
@@ -83,7 +83,7 @@ public enum BitcoinSighashBuilder {
     }
 
     /// Convenience wrapper for BTC-style SIGHASH_ALL (1).
-    public static func legacySighashAll(
+    static func legacySighashAll(
         version: UInt32,
         lockTime: UInt32,
         inputs: [Input],
@@ -104,7 +104,7 @@ public enum BitcoinSighashBuilder {
 
     /// SegWit v0 (BIP143) sighash for a single input.
     /// - Note: `sighashType` is the 4-byte value appended to the preimage (little-endian).
-    public static func segwitV0Sighash(
+    static func segwitV0Sighash(
         version: UInt32,
         lockTime: UInt32,
         inputs: [Input],
@@ -153,7 +153,7 @@ public enum BitcoinSighashBuilder {
     }
 
     /// Convenience wrapper for BTC-style SIGHASH_ALL (1).
-    public static func segwitV0SighashAll(
+    static func segwitV0SighashAll(
         version: UInt32,
         lockTime: UInt32,
         inputs: [Input],
@@ -175,7 +175,7 @@ public enum BitcoinSighashBuilder {
     }
 }
 
-public extension BitcoinSighashBuilder {
+extension BitcoinSighashBuilder {
     enum Error: Swift.Error {
         case inputIndexOutOfRange
     }
