@@ -25,6 +25,7 @@ class MarketsCoordinator: CoordinatorObject {
 
     @Published var tokenDetailsCoordinator: MarketsTokenDetailsCoordinator?
     @Published var marketsSearchCoordinator: MarketsSearchCoordinator?
+    @Published var newsListCoordinator: NewsListCoordinator?
 
     // MARK: - Child ViewModels
 
@@ -96,29 +97,46 @@ extension MarketsCoordinator: MarketsRoutable {
 // MARK: - MarketsMainRoutable
 
 extension MarketsCoordinator: MarketsMainRoutable {
-    func openSeeAll(with widgetType: MarketsWidgetType) {
-        switch widgetType {
-        case .market, .pulse:
-            let marketsSearchCoordinator = MarketsSearchCoordinator(
-                dismissAction: { [weak self] in
-                    self?.marketsSearchCoordinator = nil
-                }
+    func openSeeAllTopMarketWidget() {
+        openSeeAllMarket(with: .market)
+    }
+
+    func openSeeAllPulseMarketWidget(with orderType: MarketsListOrderType) {
+        openSeeAllMarket(with: .pulse, orderType: orderType)
+    }
+
+    // MARK: - News
+
+    func openSeeAllNewsWidget() {
+        let coordinator = NewsListCoordinator(
+            dismissAction: { [weak self] in
+                self?.newsListCoordinator = nil
+            }
+        )
+
+        coordinator.start(with: .init())
+
+        newsListCoordinator = coordinator
+    }
+
+    func openNews(by id: NewsId) {}
+
+    // MARK: - Private Implementation
+
+    private func openSeeAllMarket(with widgetType: MarketsWidgetType, orderType: MarketsListOrderType? = nil) {
+        let marketsSearchCoordinator = MarketsSearchCoordinator(
+            dismissAction: { [weak self] in
+                self?.marketsSearchCoordinator = nil
+            }
+        )
+
+        marketsSearchCoordinator.start(
+            with: .init(
+                initialOrderType: orderType,
+                quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper
             )
+        )
 
-            marketsSearchCoordinator.start(with: .init(quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper))
-
-            self.marketsSearchCoordinator = marketsSearchCoordinator
-        case .earn, .news:
-            // [REDACTED_TODO_COMMENT]
-            break
-        }
-    }
-
-    func openNews(by id: NewsId) {
-        // [REDACTED_TODO_COMMENT]
-    }
-
-    func openAllNews() {
-        // [REDACTED_TODO_COMMENT]
+        self.marketsSearchCoordinator = marketsSearchCoordinator
     }
 }
