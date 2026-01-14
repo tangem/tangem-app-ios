@@ -40,12 +40,8 @@ extension CommonGaslessTokenFeeLoader: TokenFeeLoader {
             throw TokenFeeLoaderError.feeTokenIdNotFound
         }
 
-        // Calculate coin-to-token rate with adjustments: shift decimal by token decimals, add 1% buffer, round up
-        let nativeToFeeTokenRate = try await balanceConverter.cryptoToCryptoRate(
-            from: nativeAssetId,
-            to: feeAssetId,
-            options: .init(scale: feeToken.decimalValue, markup: 0.01, rounding: .up)
-        )
+        // Calculate coin-to-token rate
+        let nativeToFeeTokenRate = try await balanceConverter.cryptoToCryptoRate(from: nativeAssetId, to: feeAssetId)
 
         let fee = try await gaslessTransactionFeeProvider.getEstimatedGaslessFee(
             feeToken: feeToken,
@@ -70,11 +66,10 @@ extension CommonGaslessTokenFeeLoader: TokenFeeLoader {
         // Native coin of the network (e.g. ETH)
         let nativeAssetId = tokenItem.blockchain.coinId
 
-        // Calculate coin-to-token rate with adjustments: shift decimal by token decimals, add 1% buffer, round up
+        // Calculate coin-to-token rate
         let nativeToFeeTokenRate = try await balanceConverter.cryptoToCryptoRate(
             from: nativeAssetId,
-            to: feeAssetId,
-            options: .init(scale: feeToken.decimalValue, markup: 0.01, rounding: .up)
+            to: feeAssetId
         )
 
         let feeRecipientAddress = try await networkManager.getFeeRecipientAddress()
