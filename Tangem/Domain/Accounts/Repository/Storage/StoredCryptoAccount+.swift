@@ -36,6 +36,17 @@ extension StoredCryptoAccount {
             sorting: sorting
         )
     }
+
+    func with(sorting: StoredCryptoAccount.Sorting, grouping: StoredCryptoAccount.Grouping) -> Self {
+        return StoredCryptoAccount(
+            derivationIndex: derivationIndex,
+            name: name,
+            icon: icon,
+            tokens: tokens,
+            grouping: grouping,
+            sorting: sorting
+        )
+    }
 }
 
 extension StoredCryptoAccount.Token {

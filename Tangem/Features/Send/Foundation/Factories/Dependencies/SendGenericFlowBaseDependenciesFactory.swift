@@ -22,6 +22,8 @@ protocol SendGenericFlowBaseDependenciesFactory {
     var walletModelDependenciesProvider: WalletModelDependenciesProvider { get }
     var transactionDispatcherFactory: TransactionDispatcherFactory { get }
     var baseDataBuilderFactory: SendBaseDataBuilderFactory { get }
+
+    var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { get }
 }
 
 // MARK: - Common dependencies
@@ -39,7 +41,8 @@ extension SendGenericFlowBaseDependenciesFactory {
             fiatAvailableBalanceProvider: fiatAvailableBalanceProvider,
             transactionValidator: walletModelDependenciesProvider.transactionValidator,
             transactionCreator: walletModelDependenciesProvider.transactionCreator,
-            transactionDispatcher: transactionDispatcherFactory.makeSendDispatcher()
+            transactionDispatcher: transactionDispatcherFactory.makeSendDispatcher(),
+            accountModelAnalyticsProvider: accountModelAnalyticsProvider
         )
     }
 

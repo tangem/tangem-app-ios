@@ -53,11 +53,9 @@ final class UserWalletSettingsViewModel: ObservableObject {
     @Published private var cardSettingsViewModel: DefaultRowViewModel?
     @Published private var referralViewModel: DefaultRowViewModel?
 
-    /// Alert that needs to be shown after a modal sheet is dismissed.
-    /// Used to defer alert display until the presenting sheet (e.g., AccountFormView) closes.
-    /// The alert is stored here temporarily and shown via `showPendingAlertIfNeeded()` in the sheet's `onDismiss` callback.
+    /// Alert for account operations that needs to be shown after a modal sheet is dismissed.
     /// See `UserWalletSettingsCoordinatorView` for the trigger.
-    private var pendingAlert: AlertBinder?
+    private var accountsPendingAlert: AlertBinder?
     private let mobileSettingsUtil: MobileSettingsUtil
 
     private var isNFTEnabled: Bool {
@@ -99,7 +97,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
     }
 
     deinit {
-        assert(pendingAlert == nil, "pendingAlert was not shown before deallocation. If AccountForm is no longer a modal, update the alert display mechanism.")
+        assert(accountsPendingAlert == nil, "accountsPendingAlert was not shown before deallocation. Update the alert display mechanism.")
     }
 
     func onFirstAppear() {
@@ -141,7 +139,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
                 return
             }
 
-            pendingAlert = AlertBuilder.makeAlert(
+            accountsPendingAlert = AlertBuilder.makeAlert(
                 title: Localization.accountsMigrationAlertTitle,
                 message: Localization.accountsMigrationAlertMessage(namesPair.fromName, namesPair.toName),
                 primaryButton: .default(Text(Localization.commonGotIt))
@@ -149,11 +147,11 @@ final class UserWalletSettingsViewModel: ObservableObject {
         }
     }
 
-    func showPendingAlertIfNeeded() {
-        guard let pendingAlert else { return }
+    func showAccountsPendingAlertIfNeeded() {
+        guard let pendingAlert = accountsPendingAlert else { return }
 
         alert = pendingAlert
-        self.pendingAlert = nil
+        accountsPendingAlert = nil
     }
 
     private func loadWalletImage() {
@@ -546,9 +544,9 @@ private extension UserWalletSettingsViewModel {
         }
 
         // accounts_fixes_needed_none
-        let workMode: ReferralViewModel.WorkMode = FeatureProvider.isAvailable(.accounts) ?
-            .accounts(userWalletModel.accountModelsManager) :
-            .plainUserTokensManager(userWalletModel.userTokensManager)
+        let workMode: ReferralViewModel.WorkMode = FeatureProvider.isAvailable(.accounts)
+            ? .accounts(userWalletModel.accountModelsManager)
+            : .plainUserTokensManager(userWalletModel.userTokensManager)
 
         let input = ReferralInputModel(
             userWalletId: userWalletModel.userWalletId.value,
@@ -667,7 +665,8 @@ private extension UserWalletSettingsViewModel {
 
         private func setupDependencies() {
             if FeatureProvider.isAvailable(.accounts) {
-                userWalletModel.accountModelsManager
+                userWalletModel
+                    .accountModelsManager
                     .accountModelsPublisher
                     .receiveOnMain()
                     .sink { [weak self] accountModels in
@@ -684,7 +683,7 @@ private extension UserWalletSettingsViewModel {
         }
 
         private func updateManagersForAccountMode(accountModels: [AccountModel]) {
-            guard let accountModel = accountModels.first else {
+            guard let accountModel = accountModels.firstStandard() else {
                 updateManagers(walletModelsManager: nil, userTokensManager: nil)
                 return
             }
