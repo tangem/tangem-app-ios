@@ -193,9 +193,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%lih ago</string>
+        <string>%liч назад</string>
+        <key>few</key>
+        <string>%liч назад</string>
+        <key>many</key>
+        <string>%liч назад</string>
         <key>other</key>
-        <string>%lih ago</string>
+        <string>%liч назад</string>
       </dict>
     </dict>
     <key>news_published_minutes_ago</key>
@@ -209,9 +213,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li minute ago</string>
+        <string>%liмин назад</string>
+        <key>few</key>
+        <string>%liмин назад</string>
+        <key>many</key>
+        <string>%liмин назад</string>
         <key>other</key>
-        <string>%li minutes ago</string>
+        <string>%liмин назад</string>
       </dict>
     </dict>
     <key>nft_collections_count</key>
