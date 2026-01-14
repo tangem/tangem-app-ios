@@ -17,9 +17,11 @@ struct NewsModelMapper {
     private let iconBuilder: IconURLBuilder = .init()
     private let dateFormatter: NewsDateFormatter = .init()
 
-    // MARK: - Implementation
+    let readStatusProvider: NewsReadStatusProvider
 
-    func mapToNewsModel(from response: NewsDTO.List.Item, isRead: Bool) -> TrendingNewsModel {
+    // MARK: - Implementation Map DTO models
+
+    func mapToNewsModel(from response: NewsDTO.List.Item) -> TrendingNewsModel {
         TrendingNewsModel(
             id: String(response.id),
             createdAt: response.createdAt,
@@ -30,7 +32,7 @@ struct NewsModelMapper {
             categories: response.categories,
             relatedTokens: response.relatedTokens,
             title: response.title,
-            isRead: isRead
+            isRead: readStatusProvider.isRead(for: String(response.id))
         )
     }
 
@@ -43,7 +45,7 @@ struct NewsModelMapper {
                 id: String(item.id),
                 title: item.title,
                 rating: formatScore(item.score),
-                timeAgo: dateFormatter.formatRelativeTime(from: item.createdAt),
+                timeAgo: dateFormatter.formatTimeAgo(from: item.createdAt),
                 tags: buildTags(categories: item.categories, tokens: item.relatedTokens),
                 isRead: false,
                 onTap: onTap
@@ -51,38 +53,9 @@ struct NewsModelMapper {
         }
     }
 
-    func toTrendingCardNewsItem(
-        from item: TrendingNewsModel,
-        onTap: @escaping (String) -> Void
-    ) -> TrendingCardNewsItem {
-        TrendingCardNewsItem(
-            id: item.id,
-            title: item.title,
-            rating: formatScore(item.score),
-            timeAgo: dateFormatter.formatRelativeTime(from: item.createdAt),
-            tags: buildTags(categories: item.categories, tokens: item.relatedTokens),
-            isRead: item.isRead,
-            onTap: onTap
-        )
-    }
-
-    func toCarouselNewsItem(
-        from item: TrendingNewsModel,
-        onTap: @escaping (String) -> Void
-    ) -> CarouselNewsItem {
-        CarouselNewsItem(
-            id: item.id,
-            title: item.title,
-            rating: formatScore(item.score),
-            timeAgo: dateFormatter.formatRelativeTime(from: item.createdAt),
-            tags: buildTags(categories: item.categories, tokens: item.relatedTokens),
-            isRead: item.isRead,
-            onTap: onTap
-        )
-    }
-
+    @MainActor
     func toNewsItemViewModel(from item: NewsDTO.List.Item) -> NewsItemViewModel {
-        NewsItemViewModel(
+        return NewsItemViewModel(
             id: item.id,
             score: formatScore(item.score),
             category: item.categories.first?.name ?? "",
@@ -97,7 +70,39 @@ struct NewsModelMapper {
             relativeTime: dateFormatter.formatRelativeTime(from: item.createdAt),
             isTrending: item.isTrending,
             newsUrl: item.newsUrl,
-            isRead: false // [REDACTED_TODO_COMMENT]
+            isRead: readStatusProvider.isRead(for: String(item.id))
+        )
+    }
+
+    // MARK: - Implementation Map Domain models
+
+    func toTrendingCardNewsItem(
+        from item: TrendingNewsModel,
+        onTap: @escaping (String) -> Void
+    ) -> TrendingCardNewsItem {
+        TrendingCardNewsItem(
+            id: item.id,
+            title: item.title,
+            rating: formatScore(item.score),
+            timeAgo: dateFormatter.formatTimeAgo(from: item.createdAt),
+            tags: buildTags(categories: item.categories, tokens: item.relatedTokens),
+            isRead: item.isRead,
+            onTap: onTap
+        )
+    }
+
+    func toCarouselNewsItem(
+        from item: TrendingNewsModel,
+        onTap: @escaping (String) -> Void
+    ) -> CarouselNewsItem {
+        CarouselNewsItem(
+            id: item.id,
+            title: item.title,
+            rating: formatScore(item.score),
+            timeAgo: dateFormatter.formatTimeAgo(from: item.createdAt),
+            tags: buildTags(categories: item.categories, tokens: item.relatedTokens),
+            isRead: item.isRead,
+            onTap: onTap
         )
     }
 }
