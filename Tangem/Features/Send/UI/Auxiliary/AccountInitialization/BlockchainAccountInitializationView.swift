@@ -53,7 +53,7 @@ struct BlockchainAccountInitializationView: View {
 
                 MainButton(
                     title: Localization.commonActivate,
-                    icon: .trailing(Assets.tangemIcon),
+                    icon: viewModel.mainButtonIcon,
                     isLoading: viewModel.isLoading,
                     isDisabled: false,
                     action: viewModel.initializeAccount

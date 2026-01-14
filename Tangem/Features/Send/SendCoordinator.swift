@@ -158,19 +158,11 @@ extension SendCoordinator: SendRoutable {
         dismiss(with: .openFeeCurrency(feeCurrency: feeCurrency))
     }
 
-    func openApproveView(settings: ExpressApproveViewModel.Settings, approveViewModelInput: any ApproveViewModelInput) {
-        expressApproveViewModel = .init(
-            settings: settings,
-            feeFormatter: CommonFeeFormatter(
-                balanceFormatter: .init(),
-                balanceConverter: .init()
-            ),
-            approveViewModelInput: approveViewModelInput,
-            coordinator: self
-        )
+    func openApproveView(expressApproveViewModelInput: ExpressApproveViewModel.Input) {
+        expressApproveViewModel = .init(input: expressApproveViewModelInput, coordinator: self)
     }
 
-    func openFeeSelector(viewModel: FeeSelectorContentViewModel) {
+    func openFeeSelector(viewModel: SendFeeSelectorViewModel) {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
@@ -203,6 +195,18 @@ extension SendCoordinator: SendRoutable {
     func openAccountInitializationFlow(viewModel: BlockchainAccountInitializationViewModel) {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func openFeeSelectorLearnMoreURL(_ url: URL) {
+        Task { @MainActor in
+            floatingSheetPresenter.pauseSheetsDisplaying()
+            safariHandle = safariManager.openURL(
+                url,
+                configuration: .init(),
+                onDismiss: { [weak self] in self?.floatingSheetPresenter.resumeSheetsDisplaying() },
+                onSuccess: { [weak self] _ in self?.floatingSheetPresenter.resumeSheetsDisplaying() },
+            )
         }
     }
 }
@@ -284,7 +288,25 @@ extension SendCoordinator: ExpressApproveRoutable {
         expressApproveViewModel = nil
     }
 
-    func openLearnMore() {}
+    func openLearnMore() {
+        safariManager.openURL(TangemBlogUrlBuilder().url(post: .giveRevokePermission))
+    }
+}
+
+// MARK: - FeeSelectorRoutable
+
+extension SendCoordinator: FeeSelectorRoutable {
+    func dismissFeeSelector() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+
+    func completeFeeSelection() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
 }
 
 // MARK: - OnrampCountrySelectorRoutable

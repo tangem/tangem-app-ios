@@ -42,12 +42,12 @@ class SendFeeCompactViewModel: ObservableObject, Identifiable {
             }
 
         canEditFeeSubscription = input
-            .canChooseFeeOption
+            .feesHasMultipleFeeOptions
             .receiveOnMain()
             .assign(to: \.canEditFee, on: self, ownership: .weak)
     }
 
-    private func mapToFeeRowViewModel(fee: SendFee) -> FeeRowViewModel {
+    private func mapToFeeRowViewModel(fee: TokenFee) -> FeeRowViewModel {
         let feeComponents = fee.value.mapValue {
             feeFormatter.formattedFeeComponents(
                 fee: $0.amount.value,
