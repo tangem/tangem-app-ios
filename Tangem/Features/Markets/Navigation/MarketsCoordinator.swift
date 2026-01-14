@@ -96,29 +96,40 @@ extension MarketsCoordinator: MarketsRoutable {
 // MARK: - MarketsMainRoutable
 
 extension MarketsCoordinator: MarketsMainRoutable {
-    func openSeeAll(with widgetType: MarketsWidgetType) {
-        switch widgetType {
-        case .market, .pulse:
-            let marketsSearchCoordinator = MarketsSearchCoordinator(
-                dismissAction: { [weak self] in
-                    self?.marketsSearchCoordinator = nil
-                }
-            )
+    func openSeeAllTopMarketWidget() {
+        openSeeAllMarket(with: .market)
+    }
 
-            marketsSearchCoordinator.start(with: .init(quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper))
+    func openSeeAllPulseMarketWidget(with orderType: MarketsListOrderType) {
+        openSeeAllMarket(with: .pulse, orderType: orderType)
+    }
 
-            self.marketsSearchCoordinator = marketsSearchCoordinator
-        case .earn, .news:
-            // [REDACTED_TODO_COMMENT]
-            break
-        }
+    // MARK: - News
+
+    func openSeeAllNewsWidget() {
+        // [REDACTED_TODO_COMMENT]
     }
 
     func openNews(by id: NewsId) {
         // [REDACTED_TODO_COMMENT]
     }
 
-    func openAllNews() {
-        // [REDACTED_TODO_COMMENT]
+    // MARK: - Private Implementation
+
+    private func openSeeAllMarket(with widgetType: MarketsWidgetType, orderType: MarketsListOrderType? = nil) {
+        let marketsSearchCoordinator = MarketsSearchCoordinator(
+            dismissAction: { [weak self] in
+                self?.marketsSearchCoordinator = nil
+            }
+        )
+
+        marketsSearchCoordinator.start(
+            with: .init(
+                initialOrderType: orderType,
+                quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper
+            )
+        )
+
+        self.marketsSearchCoordinator = marketsSearchCoordinator
     }
 }
