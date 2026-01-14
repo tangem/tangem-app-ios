@@ -58,12 +58,24 @@ final class CommonCryptoAccountsNetworkService {
 // MARK: - WalletsNetworkService protocol conformance
 
 extension CommonCryptoAccountsNetworkService: WalletsNetworkService {
-    func createWallet(with context: some Encodable) async throws(CryptoAccountsNetworkServiceError) {
-        try await walletsNetworkService.createWallet(with: context)
+    func createWallet(with context: some Encodable) async throws(CryptoAccountsNetworkServiceError) -> String? {
+        do {
+            let newRevision = try await walletsNetworkService.createWallet(with: context)
+
+            if let newRevision {
+                eTagStorage.saveETag(newRevision, for: userWalletId)
+            }
+            
+            return newRevision
+        } catch let error as CryptoAccountsNetworkServiceError {
+            throw error // Just re-throw an original error
+        } catch {
+            throw .underlyingError(error)
+        }
     }
 
-    func updateWallet(userWalletId: String, context: some Encodable) async throws(CryptoAccountsNetworkServiceError) {
-        try await walletsNetworkService.updateWallet(userWalletId: userWalletId, context: context)
+    func updateWallet(context: some Encodable) async throws(CryptoAccountsNetworkServiceError) {
+        try await walletsNetworkService.updateWallet(context: context)
     }
 }
 

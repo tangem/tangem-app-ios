@@ -9,8 +9,8 @@
 import Foundation
 
 protocol WalletsNetworkService {
-    func createWallet(with context: some Encodable) async throws(CryptoAccountsNetworkServiceError)
-    func updateWallet(userWalletId: String, context: some Encodable) async throws(CryptoAccountsNetworkServiceError)
+    func createWallet(with context: some Encodable) async throws(CryptoAccountsNetworkServiceError) -> String?
+    func updateWallet(context: some Encodable) async throws(CryptoAccountsNetworkServiceError)
 }
 
 protocol CryptoAccountsNetworkService {
