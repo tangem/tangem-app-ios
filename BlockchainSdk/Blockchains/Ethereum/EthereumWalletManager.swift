@@ -552,12 +552,12 @@ extension EthereumWalletManager: GaslessTransactionFeeProvider {
         let originalFee = try await getFee(amount: sanitizedAmount, destination: originalDestination).async()
 
         // Pick the market fee (index 1) from the fees array.
-        guard let params = originalFee[safe: 1]?.parameters as? EthereumEIP1559FeeParameters,
-              let maximumFeePerGas = params.maximumFeePerGas
-        else {
+
+        guard let params = originalFee[safe: 1]?.parameters as? EthereumEIP1559FeeParameters else {
             throw BlockchainSdkError.failedToGetFee
         }
 
+        let maximumFeePerGas = params.maxFeePerGas
         let originalGasLimit = params.gasLimit
 
         // 5) Combine gas limits and add BASE_GAS buffer (100_000)
@@ -575,9 +575,12 @@ extension EthereumWalletManager: GaslessTransactionFeeProvider {
         )
 
         // 8) IMPORTANT: The fee is calculated in TOKEN using the provided nativeToFeeTokenRate
-        let fee = newParams.calculateFee(decimalValue: wallet.blockchain.decimalValue)
+        var fee = newParams.calculateFee(decimalValue: wallet.blockchain.decimalValue)
 
-        // 9) Return Fee with updated params and computed amount
+        // 9) Add markup of 1%
+        fee *= Decimal(1.01)
+
+        // 10) Return Fee with updated params and computed amount
         return Fee(.init(with: feeToken, value: fee), parameters: newParams)
     }
 }
