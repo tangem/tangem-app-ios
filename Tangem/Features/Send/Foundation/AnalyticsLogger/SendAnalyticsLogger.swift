@@ -36,6 +36,7 @@ protocol StakingSendAnalyticsLogger: StakingAnalyticsLogger,
     SendFinishAnalyticsLogger {
     func setup(stakingTargetsInput: StakingTargetsInput)
     func logNoticeUninitializedAddress()
+    func logNoticeNotEnoughFee()
 }
 
 protocol OnrampSendAnalyticsLogger: SendBaseViewAnalyticsLogger,
