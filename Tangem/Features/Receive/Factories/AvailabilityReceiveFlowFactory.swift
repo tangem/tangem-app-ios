@@ -33,40 +33,19 @@ struct AvailabilityReceiveFlowFactory {
 
     // MARK: Implementation
 
-    func makeAvailabilityReceiveFlow() -> AvailabilityViewModel {
-        if FeatureProvider.isAvailable(.receiveENS) {
-            let options = ReceiveMainViewModel.Options(
-                tokenItem: tokenItem,
-                flow: flow,
-                addressTypesProvider: addressTypesProvider,
-                // [REDACTED_TODO_COMMENT]
-                isYieldModuleActive: isYieldModuleActive
-            )
-
-            let receiveMainViewModel = ReceiveMainViewModel(options: options)
-            receiveMainViewModel.start()
-
-            return .domainReceiveFlow(receiveMainViewModel)
-        } else {
-            let receiveBottomSheetViewModel = makeBottomSheetViewModel()
-            return .bottomSheetReceiveFlow(receiveBottomSheetViewModel)
-        }
-    }
-
-    func makeBottomSheetViewModel() -> ReceiveBottomSheetViewModel {
-        let dependencies = makeDependenciesBuilder()
-        let receiveBottomSheetNotificationInputsFactory = dependencies.makeReceiveBottomSheetNotificationInputsFactory()
-        let notificationInputs = receiveBottomSheetNotificationInputsFactory.makeNotificationInputs(
-            for: tokenItem,
+    func makeAvailabilityReceiveFlow() -> ReceiveMainViewModel {
+        let options = ReceiveMainViewModel.Options(
+            tokenItem: tokenItem,
+            flow: flow,
+            addressTypesProvider: addressTypesProvider,
+            // [REDACTED_TODO_COMMENT]
             isYieldModuleActive: isYieldModuleActive
         )
 
-        return ReceiveBottomSheetViewModel(
-            flow: flow,
-            tokenItem: tokenItem,
-            notificationInputs: notificationInputs,
-            addressInfos: addressTypesProvider.receiveAddressInfos
-        )
+        let receiveMainViewModel = ReceiveMainViewModel(options: options)
+        receiveMainViewModel.start()
+
+        return receiveMainViewModel
     }
 
     // MARK: - Private Implementation
@@ -79,12 +58,5 @@ struct AvailabilityReceiveFlowFactory {
             addressTypesProvider: addressTypesProvider,
             isYieldModuleActive: isYieldModuleActive
         )
-    }
-}
-
-extension AvailabilityReceiveFlowFactory {
-    enum AvailabilityViewModel {
-        case domainReceiveFlow(ReceiveMainViewModel)
-        case bottomSheetReceiveFlow(ReceiveBottomSheetViewModel)
     }
 }

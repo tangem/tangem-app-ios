@@ -34,6 +34,26 @@ extension XCUIElement {
     }
 
     @discardableResult
+    func waitAndTapWithScroll(scrollAttempts: Int = 3, timeout: TimeInterval = .robustUIUpdate) -> Bool {
+        if isHittable {
+            return waitAndTap(timeout: timeout)
+        }
+
+        let app = XCUIApplication()
+        let shortTimeout: TimeInterval = 1.0
+
+        for _ in 0 ..< scrollAttempts {
+            app.swipeUp()
+            if isHittable {
+                return waitAndTap(timeout: timeout)
+            }
+        }
+
+        XCTFail("Element '\(self)' did not exist after \(scrollAttempts) scroll attempts and waiting \(timeout) seconds")
+        return false
+    }
+
+    @discardableResult
     func waitForState(state: NSPredicateFormat, for timeout: TimeInterval = .robustUIUpdate) -> Bool {
         let predicate = NSPredicate(format: state.rawValue)
         let expectation = XCTNSPredicateExpectation(predicate: predicate, object: self)

@@ -56,8 +56,13 @@ final class ActionButtonsSwapCoordinator: CoordinatorObject {
                 userWalletModel: userWalletModel,
                 sourceSwapTokenSelectorViewModel: makeTokenSelectorViewModel()
             ))
-        case .new:
-            viewType = .new(NewActionButtonsSwapViewModel(coordinator: self))
+        case .new(let tokenSelectorViewModel):
+            viewType = .new(
+                AccountsAwareActionButtonsSwapViewModel(
+                    tokenSelectorViewModel: tokenSelectorViewModel,
+                    coordinator: self
+                )
+            )
         }
     }
 }
@@ -67,7 +72,7 @@ final class ActionButtonsSwapCoordinator: CoordinatorObject {
 extension ActionButtonsSwapCoordinator {
     enum Options {
         case `default`
-        case new
+        case new(tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel)
     }
 }
 
@@ -124,7 +129,7 @@ private extension ActionButtonsSwapCoordinator {
 extension ActionButtonsSwapCoordinator {
     enum ViewType: Identifiable {
         case legacy(ActionButtonsSwapViewModel)
-        case new(NewActionButtonsSwapViewModel)
+        case new(AccountsAwareActionButtonsSwapViewModel)
         case express(ExpressCoordinator)
 
         var id: String {

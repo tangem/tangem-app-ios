@@ -20,7 +20,7 @@ class SendRoutableMock: SendRoutable {
     func openShareSheet(url: URL) {}
     func openQRScanner(with codeBinding: Binding<String>, networkName: String) {}
     func openFeeCurrency(feeCurrency: FeeCurrencyNavigatingDismissOption) {}
-    func openApproveView(settings: ExpressApproveViewModel.Settings, approveViewModelInput: any ApproveViewModelInput) {}
+    func openApproveView(expressApproveViewModelInput: ExpressApproveViewModel.Input) {}
     func openOnrampCountryDetection(country: OnrampCountry, repository: any OnrampRepository, dataRepository: any OnrampDataRepository) {}
     func openOnrampCountryDetection(
         country: OnrampCountry,
@@ -35,9 +35,12 @@ class SendRoutableMock: SendRoutable {
     func openOnrampOffersSelector(viewModel: OnrampOffersSelectorViewModel) {}
     func openOnrampRedirecting(onrampRedirectingBuilder: OnrampRedirectingBuilder) {}
     func openOnrampWebView(url: URL, onDismiss: @escaping () -> Void, onSuccess: @escaping (URL) -> Void) {}
-    func openFeeSelector(viewModel: FeeSelectorContentViewModel) {}
+    func openFeeSelector(viewModel: SendFeeSelectorViewModel) {}
     func openSwapProvidersSelector(viewModel: SendSwapProvidersSelectorViewModel) {}
     func openReceiveTokensList(tokensListBuilder: SendReceiveTokensListBuilder) {}
     func openHighPriceImpactWarningSheetViewModel(viewModel: HighPriceImpactWarningSheetViewModel) {}
     func openAccountInitializationFlow(viewModel: BlockchainAccountInitializationViewModel) {}
+    func dismissFeeSelector() {}
+    func completeFeeSelection() {}
+    func openFeeSelectorLearnMoreURL(_ url: URL) {}
 }

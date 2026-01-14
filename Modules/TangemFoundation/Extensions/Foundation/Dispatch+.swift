@@ -8,6 +8,7 @@
 
 import Foundation
 
+@inlinable
 @inline(__always)
 public func ensureOnMainQueue() {
     guard AppEnvironment.current.isAlphaOrBetaOrDebug else {
@@ -17,6 +18,7 @@ public func ensureOnMainQueue() {
     dispatchPrecondition(condition: .onQueue(.main))
 }
 
+@inlinable
 @inline(__always)
 public func ensureNotOnMainQueue() {
     guard AppEnvironment.current.isAlphaOrBetaOrDebug else {

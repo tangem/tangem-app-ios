@@ -16,11 +16,10 @@ enum Feature: String, Hashable, CaseIterable {
     case mobileWallet
     case wcSolanaALT
     case accounts
-    case receiveENS
-    case pushPermissionNotificationBanner
     case marketsAndNews
     case marketsEarn
     case tangemPayPermanentEntryPoint
+    case gaslessTransactions
 
     var name: String {
         switch self {
@@ -31,11 +30,10 @@ enum Feature: String, Hashable, CaseIterable {
         case .mobileWallet: return "Mobile wallet"
         case .wcSolanaALT: return "WalletConnect Solana ALT"
         case .accounts: return "Accounts"
-        case .receiveENS: return "Receive (ENS)"
-        case .pushPermissionNotificationBanner: return "Push Permission Notification Banner"
         case .marketsAndNews: return "Markets & News"
         case .marketsEarn: return "Markets Earn"
         case .tangemPayPermanentEntryPoint: return "TangemPay Permanent Entry Point"
+        case .gaslessTransactions: return "Gasless transactions"
         }
     }
 
@@ -47,12 +45,11 @@ enum Feature: String, Hashable, CaseIterable {
         case .logs: return .version("5.25")
         case .mobileWallet: return .version("5.32")
         case .wcSolanaALT: return .version("5.28")
-        case .accounts: return .unspecified
-        case .receiveENS: return .version("5.28")
-        case .pushPermissionNotificationBanner: return .version("5.30")
+        case .accounts: return .version("5.33")
         case .marketsAndNews: return .unspecified
         case .marketsEarn: return .unspecified
         case .tangemPayPermanentEntryPoint: return .unspecified
+        case .gaslessTransactions: return .unspecified
         }
     }
 }

@@ -29,9 +29,8 @@ protocol SwapManager {
     var selectedProviderPublisher: AnyPublisher<ExpressAvailableProvider?, Never> { get }
 
     func update(amount: Decimal?)
-    func update(destination: TokenItem?, address: String?)
+    func update(destination: TokenItem?, address: String?, accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?)
     func update(provider: ExpressAvailableProvider)
-    func update(feeOption: FeeOption)
 
     func update()
     func updateFees()

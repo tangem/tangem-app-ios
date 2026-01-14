@@ -54,12 +54,12 @@ class SendNewFeeCompactViewModel: ObservableObject, Identifiable {
                 viewModel.updateView(fee: selectedFee)
             }
 
-        canEditFeeSubscription = input.canChooseFeeOption
+        canEditFeeSubscription = input.feesHasMultipleFeeOptions
             .receiveOnMain()
             .assign(to: \.canEditFee, on: self, ownership: .weak)
     }
 
-    private func updateView(fee: SendFee) {
+    private func updateView(fee: TokenFee) {
         switch fee.value {
         case .loading:
             selectedFeeComponents = .loading
