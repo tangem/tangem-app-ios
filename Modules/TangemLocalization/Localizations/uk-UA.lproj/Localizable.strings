@@ -559,7 +559,7 @@
 "hw_backup_hardware_create_title" = "Створити новий гаманець";
 "hw_backup_hardware_description" = "Підвищіть рівень своєї безпеки за допомогою просунутого апаратного гаманця Tangem.";
 "hw_backup_hardware_title" = "Апаратний гаманець";
-"hw_backup_hardware_upgrade_description" = "Перенесіть свій поточний гаманець у Tangem.";
+"hw_backup_hardware_upgrade_description" = "Перетворіть поточний гаманець на холодний гаманець Tangem.";
 "hw_backup_hardware_upgrade_title" = "Оновіть поточний гаманець";
 "hw_backup_icloud_description" = "Відновлення існуючого гаманця через iCloud";
 "hw_backup_icloud_title" = "iCloud відновлення";
@@ -869,7 +869,7 @@
 "onboarding_seed_mnemonic_invalid_checksum" = "Невірна seed-фраза. Будь ласка, перевірте порядок слів.";
 "onboarding_seed_mnemonic_wrong_words" = "Невірна seed-фраза. Будь ласка, перевірте правопис.";
 "onboarding_seed_phrase_intro_legacy" = "Застаріло";
-"onboarding_seed_screenshot_alert" = "Ми не рекомендуємо зберігати seed-фразу у вигляді скріншоту через високий ризик втрати або злому";
+"onboarding_seed_screenshot_alert" = "З міркувань безпеки створення скриншотів сід-фрази вимкнено. Сід-фраза прихована, щоб захистити її від втрати або несанкціонованого доступу.";
 "onboarding_seed_user_validation_message" = "Щоб перевірити чи правильно ви записали seed-фразу, введіть 2-е, 7-е та 11-те слова";
 "onboarding_seed_user_validation_title" = "Отже, давайте перевіримо";
 "onboarding_subtitle_no_backup_cards" = "Щоб почати процес резервного копіювання, додайте одну або дві резервні картки або кільця.";
@@ -1144,6 +1144,7 @@
 "staking_details_apr" = "APR";
 "staking_details_apy" = "APY";
 "staking_details_auto_claiming_rewards_daily_text" = "Винагороди автоматично накопичуються на вашому балансі щодня.";
+"staking_details_autocompound_rewards_earned" = "Rewards are compounded to your staking balance. Funds earned: %@";
 "staking_details_available" = "Доступно";
 "staking_details_average_reward_rate" = "Середня ставка винагороди";
 "staking_details_banner_text" = "Що таке стейкінг?";
