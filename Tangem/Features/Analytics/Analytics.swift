@@ -207,7 +207,11 @@ class Analytics {
             case .appsFlyer:
                 let convertedEvent = AppsFlyerAnalyticsEventConverter.convert(event: event)
                 let convertedParams = AppsFlyerAnalyticsEventConverter.convert(params: params)
-                AppsFlyerLib.shared().logEvent(convertedEvent, withValues: convertedParams)
+                AppsFlyerLib.shared().logEvent(name: convertedEvent, values: convertedParams, completionHandler: { params, error in
+                    if let error {
+                        AnalyticsLogger.error(params, error: error)
+                    }
+                })
             }
         }
 
