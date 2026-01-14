@@ -869,7 +869,7 @@
 "onboarding_seed_mnemonic_invalid_checksum" = "Seed phrase invalide. Veuillez vérifier l'ordre des mots.";
 "onboarding_seed_mnemonic_wrong_words" = "Seed phrase invalide. Veuillez vérifier votre orthographe.";
 "onboarding_seed_phrase_intro_legacy" = "Héritage";
-"onboarding_seed_screenshot_alert" = "Nous ne recommandons pas de stocker la seed phrase sous forme de capture d'écran en raison du risque élevé de perte ou de piratage";
+"onboarding_seed_screenshot_alert" = "Pour des raisons de sécurité, la capture d'écran de votre seed phrase est désactivée. La seed phrase est masquée afin de la protéger contre toute perte ou tout accès non autorisé.";
 "onboarding_seed_user_validation_message" = "Pour vérifier si vous avez correctement noté votre seed phrase, veuillez entrer les 2ème, 7ème et 11ème mots";
 "onboarding_seed_user_validation_title" = "Alors, vérifions";
 "onboarding_subtitle_no_backup_cards" = "Pour démarrer le processus de sauvegarde, ajoutez jusqu'à deux cartes de sauvegarde.";
@@ -1144,6 +1144,7 @@
 "staking_details_apr" = "APR";
 "staking_details_apy" = "APY";
 "staking_details_auto_claiming_rewards_daily_text" = "Les récompenses s'accumulent automatiquement sur votre solde de staking quotidiennement.";
+"staking_details_autocompound_rewards_earned" = "Rewards are compounded to your staking balance. Funds earned: %@";
 "staking_details_available" = "Disponible";
 "staking_details_average_reward_rate" = "Taux de récompense moyen";
 "staking_details_banner_text" = "Qu'est-ce que le Staking ?";
@@ -1393,10 +1394,15 @@
 "tangempay_kyc_confirm_cancellation_description" = "Êtes-vous sûr de vouloir interrompre le processus KYC ? Vous pouvez y revenir à tout moment.";
 "tangempay_kyc_failed_description" = "Nous n'avons pas pu vérifier votre profil. Pour toute question, veuillez contacter le support.";
 "tangempay_kyc_failed_title" = "Malheureusement, nous n'avons pas pu vérifier votre identité";
+"tangempay_kyc_has_failed" = "KYC has failed";
 "tangempay_kyc_in_progress_notification_button" = "Voir le statut";
 "tangempay_kyc_in_progress_notification_title" = "KYC en cours pour Tangem Pay";
 "tangempay_kyc_in_progress_popup_description" = "Utilisez les boutons ci-dessous pour consulter votre statut KYC actuel ou l'annuler.";
 "tangempay_kyc_in_progress" = "KYC en cours";
+"tangempay_kyc_rejected_button_text" = "Hide KYC block";
+"tangempay_kyc_rejected_description_span" = "your profile.";
+"tangempay_kyc_rejected_description" = "Sorry, we couldn't verify";
+"tangempay_kyc_rejected" = "KYC rejected";
 "tangempay_onboarding_banner_description" = "Obtenez votre carte virtuelle Tangem Visa gratuite";
 "tangempay_onboarding_banner_title" = "Utilisez USDC pour les paiements quotidiens";
 "tangempay_onboarding_get_card_button_text" = "Obtenir la carte";
