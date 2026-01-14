@@ -14,22 +14,8 @@ import BlockchainSdk
 // MARK: - NewsModelMapper
 
 struct NewsModelMapper {
-    private static let timeFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm"
-        formatter.locale = Locale.current
-        return formatter
-    }()
-
     private let iconBuilder: IconURLBuilder = .init()
-
-    private static let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .none
-        formatter.locale = Locale.current
-        return formatter
-    }()
+    private let dateFormatter: NewsDateFormatter = .init()
 
     // MARK: - Implementation
 
@@ -57,7 +43,7 @@ struct NewsModelMapper {
                 id: String(item.id),
                 title: item.title,
                 rating: formatScore(item.score),
-                timeAgo: formatTimeAgo(from: item.createdAt),
+                timeAgo: dateFormatter.formatTimeAgo(from: item.createdAt),
                 tags: buildTags(categories: item.categories, tokens: item.relatedTokens),
                 isRead: false,
                 onTap: onTap
@@ -73,7 +59,7 @@ struct NewsModelMapper {
             id: item.id,
             title: item.title,
             rating: formatScore(item.score),
-            timeAgo: formatTimeAgo(from: item.createdAt),
+            timeAgo: dateFormatter.formatTimeAgo(from: item.createdAt),
             tags: buildTags(categories: item.categories, tokens: item.relatedTokens),
             isRead: item.isRead,
             onTap: onTap
@@ -88,10 +74,25 @@ struct NewsModelMapper {
             id: item.id,
             title: item.title,
             rating: formatScore(item.score),
-            timeAgo: formatTimeAgo(from: item.createdAt),
+            timeAgo: dateFormatter.formatTimeAgo(from: item.createdAt),
             tags: buildTags(categories: item.categories, tokens: item.relatedTokens),
             isRead: item.isRead,
             onTap: onTap
+        )
+    }
+
+    func toNewsItemViewModel(from item: NewsDTO.List.Item) -> NewsItemViewModel {
+        NewsItemViewModel(
+            id: item.id,
+            score: formatScore(item.score),
+            category: item.categories.first?.name ?? "",
+            relatedTokens: item.relatedTokens.map { token in
+                NewsItemViewModel.RelatedToken(id: token.id, symbol: token.symbol)
+            },
+            title: truncateTitle(item.title, maxLength: Constants.maxTitleLength),
+            relativeTime: dateFormatter.formatTimeAgo(from: item.createdAt),
+            isTrending: item.isTrending,
+            newsUrl: item.newsUrl
         )
     }
 }
@@ -103,35 +104,6 @@ private extension NewsModelMapper {
 
     private func formatScore(_ score: Double) -> String {
         String(format: "%.1f", score)
-    }
-
-    private func formatTimeAgo(from date: Date) -> String {
-        let now = Date()
-        let calendar = Calendar.current
-        let isToday = calendar.isDateInToday(date)
-
-        let diffInSeconds = now.timeIntervalSince(date)
-        let diffInMinutes = Int(diffInSeconds / 60)
-        let diffInHours = Int(diffInSeconds / 3600)
-
-        if diffInMinutes < 1 {
-            return Localization.newsPublishedMinutesAgo(1)
-        }
-
-        if diffInMinutes < 60 {
-            return Localization.newsPublishedMinutesAgo(diffInMinutes)
-        }
-
-        if diffInHours < 12, isToday {
-            return Localization.newsPublishedHoursAgo(diffInHours)
-        }
-
-        if isToday {
-            let timeString = Self.timeFormatter.string(from: date)
-            return String(format: "%@, %@", Localization.commonToday, timeString)
-        }
-
-        return Self.dateFormatter.string(from: date)
     }
 
     private func buildTags(
@@ -152,5 +124,18 @@ private extension NewsModelMapper {
         })
 
         return tags
+    }
+
+    private func truncateTitle(_ title: String, maxLength: Int) -> String {
+        guard title.count > maxLength else { return title }
+        return String(title.prefix(maxLength - 3)) + "..."
+    }
+}
+
+// MARK: - Constants
+
+private extension NewsModelMapper {
+    enum Constants {
+        static let maxTitleLength = 70
     }
 }
