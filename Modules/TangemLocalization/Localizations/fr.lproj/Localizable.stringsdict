@@ -13,9 +13,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li card</string>
+        <string>%li carte</string>
         <key>other</key>
-        <string>%li cards</string>
+        <string>%li cartes</string>
       </dict>
     </dict>
     <key>card_label_card_count</key>
@@ -157,9 +157,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%lih ago</string>
+        <string>Il y a %lih</string>
         <key>other</key>
-        <string>%lih ago</string>
+        <string>Il y a %lih</string>
       </dict>
     </dict>
     <key>news_published_minutes_ago</key>
@@ -173,9 +173,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li minute ago</string>
+        <string>Il y a %li minute</string>
         <key>other</key>
-        <string>%li minutes ago</string>
+        <string>Il y a %li minutes</string>
       </dict>
     </dict>
     <key>nft_collections_count</key>
@@ -232,7 +232,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string></string>
+        <string>Vide</string>
         <key>other</key>
         <string>Écrivez ces %li mots dans l'ordre indiqué ci-dessous et conservez-les dans un endroit sûr et secret.</string>
       </dict>
@@ -248,7 +248,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string></string>
+        <string>Vide</string>
         <key>other</key>
         <string>%li mots</string>
       </dict>
@@ -264,9 +264,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li provider</string>
+        <string>%li fournisseur</string>
         <key>other</key>
-        <string>%li providers</string>
+        <string>%li fournisseurs</string>
       </dict>
     </dict>
     <key>onramp_timing_days</key>
@@ -280,9 +280,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>up to %li day</string>
+        <string>jusqu'à %li jour</string>
         <key>other</key>
-        <string>up to %li days</string>
+        <string>jusqu'à %li jours</string>
       </dict>
     </dict>
     <key>referral_number_of_wallets</key>
