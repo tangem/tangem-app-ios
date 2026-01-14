@@ -83,16 +83,6 @@ extension TokenFeeManager: TokenFeeProvider {
         selectedFeeProviderPublisher.flatMapLatest(\.feesPublisher).eraseToAnyPublisher()
     }
 
-    var feesHasMultipleFeeOptions: AnyPublisher<Bool, Never> {
-        [
-            feesPublisher.map { $0.hasMultipleFeeOptions }.eraseToAnyPublisher(),
-            selectedFeeProviderFeeTokenItemsPublisher.map { $0.count > 1 }.eraseToAnyPublisher(),
-        ]
-        .combineLatest()
-        .map { $0.contains(true) }
-        .eraseToAnyPublisher()
-    }
-
     func setup(input: TokenFeeProviderInputData) {
         feeProviders.forEach { feeProvider in
             feeProvider.setup(input: input)

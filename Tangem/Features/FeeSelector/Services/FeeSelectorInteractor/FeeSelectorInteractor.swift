@@ -18,3 +18,15 @@ protocol FeeSelectorInteractor: FeeSelectorTokensDataProvider, FeeSelectorFeesDa
     func userDidSelectTokenItem(_ tokenItem: TokenItem)
     func userDidSelectFee(_ fee: TokenFee)
 }
+
+extension FeeSelectorInteractor {
+    var selectorHasMultipleFeeOptions: AnyPublisher<Bool, Never> {
+        Publishers.CombineLatest(
+            selectorFeesPublisher.map { $0.hasMultipleFeeOptions },
+            selectorFeeTokenItemsPublisher.map { $0.count > 1 }
+        )
+        .map { $0 || $1 }
+        .removeDuplicates()
+        .eraseToAnyPublisher()
+    }
+}
