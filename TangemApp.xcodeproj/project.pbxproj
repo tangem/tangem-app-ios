@@ -37404,7 +37404,7 @@
 			repositoryURL = "https://github.com/AppsFlyerSDK/AppsFlyerFramework-Strict";
 			requirement = {
 				kind = exactVersion;
-				version = 6.17.2;
+				version = 6.17.8;
 			};
 		};
 		DA709FF62E167E2A006B9774 /* XCRemoteSwiftPackageReference "IdensicMobileSDK-iOS" */ = {
