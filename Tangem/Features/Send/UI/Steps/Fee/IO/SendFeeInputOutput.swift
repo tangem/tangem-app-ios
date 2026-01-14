@@ -14,12 +14,12 @@ protocol SendFeeInput: AnyObject {
     var selectedFee: TokenFee { get }
     var selectedFeePublisher: AnyPublisher<TokenFee, Never> { get }
 
-    var feesHasMultipleFeeOptions: AnyPublisher<Bool, Never> { get }
+    var hasMultipleFeeOptions: AnyPublisher<Bool, Never> { get }
 }
 
 extension SendFeeInput where Self: SendFeeProvider {
     /// Convenient extension when the object support `SendFeeInput` and `SendFeeProvider`. E.g. `StakingModel`
-    var feesHasMultipleFeeOptions: AnyPublisher<Bool, Never> { feesHasMultipleFeeOptions }
+    var hasMultipleFeeOptions: AnyPublisher<Bool, Never> { feesHasMultipleFeeOptions }
 }
 
 protocol SendFeeOutput: AnyObject {
