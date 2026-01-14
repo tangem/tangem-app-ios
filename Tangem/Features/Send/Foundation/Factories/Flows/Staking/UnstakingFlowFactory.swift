@@ -26,6 +26,8 @@ class UnstakingFlowFactory: StakingFlowDependenciesFactory {
     let availableBalanceProvider: any TokenBalanceProvider
     let fiatAvailableBalanceProvider: any TokenBalanceProvider
     let transactionDispatcherFactory: TransactionDispatcherFactory
+    /// Staking doesn't support account-based analytics
+    let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? = nil
 
     lazy var analyticsLogger = makeStakingSendAnalyticsLogger()
     lazy var unstakingModel = makeUnstakingModel(stakingManager: manager, analyticsLogger: analyticsLogger)
@@ -174,7 +176,8 @@ extension UnstakingFlowFactory: SendBaseBuildable {
             alertBuilder: makeStakingAlertBuilder(),
             dataBuilder: makeStakingBaseDataBuilder(input: unstakingModel),
             analyticsLogger: analyticsLogger,
-            blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper()
+            blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper(),
+            tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
         )
     }
 }
