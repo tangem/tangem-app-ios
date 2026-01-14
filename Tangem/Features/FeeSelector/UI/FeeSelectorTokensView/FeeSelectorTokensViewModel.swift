@@ -11,15 +11,15 @@ import TangemAccessibilityIdentifiers
 import TangemUIUtils
 
 protocol FeeSelectorTokensDataProvider {
-    var selectedSelectorFeeTokenItem: TokenItem? { get }
-    var selectedSelectorFeeTokenItemPublisher: AnyPublisher<TokenItem?, Never> { get }
+    var selectedSelectorTokenFeeProvider: TokenFeeProvider? { get }
+    var selectedSelectorTokenFeeProviderPublisher: AnyPublisher<TokenFeeProvider?, Never> { get }
 
-    var selectorFeeTokenItems: [TokenItem] { get }
-    var selectorFeeTokenItemsPublisher: AnyPublisher<[TokenItem], Never> { get }
+    var selectorTokenFeeProviders: [any TokenFeeProvider] { get }
+    var selectorTokenFeeProvidersPublisher: AnyPublisher<[any TokenFeeProvider], Never> { get }
 }
 
 protocol FeeSelectorTokensRoutable: AnyObject {
-    func userDidSelectFeeToken(tokenItem: TokenItem)
+    func userDidSelectFeeToken(tokenFeeProvider: any TokenFeeProvider)
 }
 
 final class FeeSelectorTokensViewModel: ObservableObject {
@@ -51,41 +51,43 @@ final class FeeSelectorTokensViewModel: ObservableObject {
         self.router = router
     }
 
-    func userDidSelectFeeToken(tokenItem: TokenItem) {
-        router?.userDidSelectFeeToken(tokenItem: tokenItem)
-    }
-
     // MARK: - Private Implementation
 
     private func bind() {
         Publishers.CombineLatest(
-            tokensDataProvider.selectorFeeTokenItemsPublisher,
-            tokensDataProvider.selectedSelectorFeeTokenItemPublisher
+            tokensDataProvider.selectorTokenFeeProvidersPublisher,
+            tokensDataProvider.selectedSelectorTokenFeeProviderPublisher
         )
         .receiveOnMain()
         .withWeakCaptureOf(self)
         .map { viewModel, output in
-            let (tokens, selectedToken) = output
-            let selectedId = selectedToken?.id
-            return tokens.map { tokenItem in
-                viewModel.mapTokenItemToRowViewModel(tokenItem: tokenItem, isSelected: selectedId == tokenItem.id)
+            let (providers, selectedProvider) = output
+            let selectedId = selectedProvider?.feeTokenItem
+            return providers.map { provider in
+                viewModel.mapTokenItemToRowViewModel(tokenFeeProvider: provider, isSelected: selectedId == provider.feeTokenItem)
             }
         }
         .assign(to: \.feeCurrencyTokens, on: self, ownership: .weak)
         .store(in: &bag)
     }
 
-    private func mapTokenItemToRowViewModel(tokenItem: TokenItem, isSelected: Bool) -> FeeSelectorRowViewModel {
-        let subtitleState: LoadableTextView.State = .loading
+    private func mapTokenItemToRowViewModel(tokenFeeProvider: any TokenFeeProvider, isSelected: Bool) -> FeeSelectorRowViewModel {
+        let feeTokenItem = tokenFeeProvider.feeTokenItem
+
+        let subtitleState: LoadableTextView.State = switch tokenFeeProvider.state {
+        case .unavailable, .error: .noData
+        case .loading: .loading
+        case .idle, .available: .loaded(text: "Add balance")
+        }
 
         return FeeSelectorRowViewModel(
-            rowType: .token(tokenIconInfo: TokenIconInfoBuilder().build(from: tokenItem, isCustom: false)),
-            title: tokenItem.name,
+            rowType: .token(tokenIconInfo: TokenIconInfoBuilder().build(from: feeTokenItem, isCustom: false)),
+            title: feeTokenItem.name,
             subtitle: subtitleState,
             accessibilityIdentifier: FeeAccessibilityIdentifiers.feeCurrencyOption,
             isSelected: isSelected,
             selectAction: { [weak self] in
-                self?.userDidSelectFeeToken(tokenItem: tokenItem)
+                self?.router?.userDidSelectFeeToken(tokenFeeProvider: tokenFeeProvider)
             }
         )
     }

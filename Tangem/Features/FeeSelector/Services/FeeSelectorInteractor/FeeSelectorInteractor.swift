@@ -15,15 +15,20 @@ protocol FeeSelectorInteractorInput: AnyObject {
 }
 
 protocol FeeSelectorInteractor: FeeSelectorTokensDataProvider, FeeSelectorFeesDataProvider, FeeSelectorCustomFeeDataProviding {
-    func userDidSelectTokenItem(_ tokenItem: TokenItem)
+    func userDidSelect(tokenFeeProvider: any TokenFeeProvider)
     func userDidSelectFee(_ fee: TokenFee)
 }
 
 extension FeeSelectorInteractor {
+    var hasMultipleFeeProviders: Bool { selectorTokenFeeProviders.count > 1 }
+    var hasMultipleFeeProvidersPublisher: AnyPublisher<Bool, Never> {
+        selectorTokenFeeProvidersPublisher.map { $0.count > 1 }.eraseToAnyPublisher()
+    }
+
     var selectorHasMultipleFeeOptions: AnyPublisher<Bool, Never> {
         Publishers.CombineLatest(
             selectorFeesPublisher.map { $0.hasMultipleFeeOptions },
-            selectorFeeTokenItemsPublisher.map { $0.count > 1 }
+            hasMultipleFeeProvidersPublisher,
         )
         .map { $0 || $1 }
         .removeDuplicates()
