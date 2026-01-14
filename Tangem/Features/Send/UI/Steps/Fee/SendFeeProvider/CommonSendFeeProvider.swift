@@ -18,8 +18,6 @@ final class CommonSendFeeProvider {
     private var amount: Decimal?
     private var destination: String?
 
-    private var feeLoadingTask: Task<Void, Never>?
-
     private var autoupdatedSuggestedFeeCancellable: AnyCancellable?
     private var cryptoAmountSubscription: AnyCancellable?
     private var destinationAddressSubscription: AnyCancellable?
@@ -44,7 +42,7 @@ final class CommonSendFeeProvider {
     }
 
     private func bind() {
-        autoupdatedSuggestedFeeCancellable = tokenFeeManager.feesPublisher
+        autoupdatedSuggestedFeeCancellable = tokenFeeManager.selectedFeeProviderFeesPublisher
             .withWeakCaptureOf(self)
             .compactMap { feeProvider, fees -> TokenFee? in
                 // Custom don't support autoupdate
@@ -81,28 +79,21 @@ final class CommonSendFeeProvider {
 // MARK: - SendFeeProvider
 
 extension CommonSendFeeProvider: SendFeeProvider {
-    var fees: [TokenFee] { tokenFeeManager.fees }
-    var feesPublisher: AnyPublisher<[TokenFee], Never> { tokenFeeManager.feesPublisher }
+    var fees: [TokenFee] { tokenFeeManager.selectedFeeProviderFees }
+    var feesPublisher: AnyPublisher<[TokenFee], Never> { tokenFeeManager.selectedFeeProviderFeesPublisher }
 
     var feesHasMultipleFeeOptions: AnyPublisher<Bool, Never> {
         selectorHasMultipleFeeOptions
     }
 
     func updateFees() {
-        feeLoadingTask?.cancel()
-        feeLoadingTask = Task {
-            do {
-                guard let amount, let destination else {
-                    assertionFailure("SendFeeProvider is not ready to update fees")
-                    throw CommonError.noData
-                }
-
-                tokenFeeManager.setup(input: .common(amount: amount, destination: destination))
-                await tokenFeeManager.updateFees()
-            } catch {
-                AppLogger.error("SendFeeProvider fee loading error", error: error)
-            }
+        guard let amount, let destination else {
+            assertionFailure("SendFeeProvider is not ready to update fees")
+            return
         }
+
+        tokenFeeManager.setupFeeProviders(input: .common(amount: amount, destination: destination))
+        tokenFeeManager.updateSelectedFeeProviderFees()
     }
 }
 
@@ -119,14 +110,14 @@ extension CommonSendFeeProvider: FeeSelectorInteractor {
         tokenFeeManager.selectedFeeProviderFeesPublisher
     }
 
-    var selectedSelectorFeeTokenItem: TokenItem? { tokenFeeManager.selectedFeeProvider.feeTokenItem }
-    var selectedSelectorFeeTokenItemPublisher: AnyPublisher<TokenItem?, Never> {
-        tokenFeeManager.selectedFeeProviderPublisher.map { $0.feeTokenItem }.eraseToAnyPublisher()
+    var selectedSelectorTokenFeeProvider: (any TokenFeeProvider)? { tokenFeeManager.selectedFeeProvider }
+    var selectedSelectorTokenFeeProviderPublisher: AnyPublisher<(any TokenFeeProvider)?, Never> {
+        tokenFeeManager.selectedFeeProviderPublisher.eraseToOptional().eraseToAnyPublisher()
     }
 
-    var selectorFeeTokenItems: [TokenItem] { tokenFeeManager.selectedFeeProviderFeeTokenItems }
-    var selectorFeeTokenItemsPublisher: AnyPublisher<[TokenItem], Never> {
-        tokenFeeManager.selectedFeeProviderFeeTokenItemsPublisher
+    var selectorTokenFeeProviders: [any TokenFeeProvider] { tokenFeeManager.feeTokenProviders }
+    var selectorTokenFeeProvidersPublisher: AnyPublisher<[any TokenFeeProvider], Never> {
+        tokenFeeManager.feeTokenProvidersPublisher
     }
 
     var customFeeProvider: (any CustomFeeProvider)? {
@@ -137,8 +128,8 @@ extension CommonSendFeeProvider: FeeSelectorInteractor {
         output?.feeDidChanged(fee: fee)
     }
 
-    func userDidSelectTokenItem(_ tokenItem: TokenItem) {
-        tokenFeeManager.updateSelectedFeeProvider(tokenItem: tokenItem)
+    func userDidSelect(tokenFeeProvider: any TokenFeeProvider) {
+        tokenFeeManager.updateSelectedFeeProvider(tokenFeeProvider: tokenFeeProvider)
         tokenFeeManager.updateSelectedFeeProviderFees()
     }
 }
