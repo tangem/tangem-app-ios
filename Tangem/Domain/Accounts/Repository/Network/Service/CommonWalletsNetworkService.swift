@@ -40,6 +40,8 @@ extension CommonWalletsNetworkService: WalletsNetworkService {
     }
 
     func updateWallet(userWalletId: String, context: some Encodable) async throws(CryptoAccountsNetworkServiceError) {
+        // Note: Using the userWalletId parameter (not the instance property) as per protocol signature.
+        // This allows the caller to specify which wallet to update, providing flexibility in the API design.
         do {
             try await tangemApiService.updateWallet(by: userWalletId, context: context)
         } catch let error as CryptoAccountsNetworkServiceError {
