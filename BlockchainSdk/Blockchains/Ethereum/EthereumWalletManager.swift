@@ -38,32 +38,33 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
         super.init(wallet: wallet)
     }
 
-    override func update(completion: @escaping (Result<Void, Error>) -> Void) {
-        cancellable = addressConverter.convertToETHAddressPublisher(wallet.address)
-            .withWeakCaptureOf(self)
-            .flatMap { walletManager, convertedAddress in
-                Publishers.Zip(
-                    walletManager.networkService
-                        .getInfo(
-                            address: convertedAddress,
-                            tokens: walletManager.cardTokens,
-                        ),
-                    walletManager
-                        .getYieldBalances(
-                            address: convertedAddress,
-                            tokens: walletManager.cardTokens
-                        )
-                )
-            }
-            .sink(receiveCompletion: { [weak self] completionSubscription in
-                if case .failure(let error) = completionSubscription {
-                    self?.wallet.clearAmounts()
-                    completion(.failure(error))
-                }
-            }, receiveValue: { [weak self] response in
-                self?.updateWallet(with: response.0, yieldTokensBalances: response.1)
-                completion(.success(()))
-            })
+    override func updateWalletManager() async throws {
+        do {
+            let convertedAddress = try addressConverter.convertToETHAddress(wallet.address)
+
+            async let infoAndTokens: EthereumInfoResponse = try await networkService
+                .getInfo(address: convertedAddress, tokens: cardTokens)
+                .async()
+
+            async let yieldBalances: [Token: Result<Amount, Error>] = try await getYieldBalances(
+                address: convertedAddress,
+                tokens: cardTokens
+            ).async()
+
+            async let pendingTransactionsInfo = networkService.getPendingTransactionsInfo(
+                address: convertedAddress,
+                pendingTransactionHashes: wallet.pendingTransactions.filter { !$0.isDummy }.map(\.hash)
+            ).async()
+
+            try await updateWallet(
+                with: infoAndTokens,
+                yieldTokensBalances: yieldBalances,
+                pendingTransactionsInfo: pendingTransactionsInfo
+            )
+        } catch {
+            wallet.clearAmounts()
+            throw error
+        }
     }
 
     /// It can't be into extension because it will be overridden in the `OptimismWalletManager`
@@ -401,10 +402,22 @@ private extension EthereumWalletManager {
         .eraseToAnyPublisher()
     }
 
-    func updateWallet(with response: EthereumInfoResponse, yieldTokensBalances: [Token: Result<Amount, Error>]) {
+    func updateWallet(
+        with response: EthereumInfoResponse,
+        yieldTokensBalances: [Token: Result<Amount, Error>],
+        pendingTransactionsInfo: EthereumPendingTransactionsInfo,
+    ) {
         wallet.add(coinValue: response.balance)
 
-        for tokenBalance in response.tokenBalances {
+        updateTokensBalances(tokensBalances: response.tokenBalances, yieldTokensBalances: yieldTokensBalances)
+        updatePendingTransactions(pendingTransactionsInfo: pendingTransactionsInfo)
+    }
+
+    func updateTokensBalances(
+        tokensBalances: [Token: Result<Decimal, Error>],
+        yieldTokensBalances: [Token: Result<Amount, Error>]
+    ) {
+        for tokenBalance in tokensBalances {
             switch (yieldTokensBalances[tokenBalance.key], tokenBalance.value) {
             case (.success(let yieldAmount), _):
                 wallet.add(amount: yieldAmount)
@@ -414,21 +427,26 @@ private extension EthereumWalletManager {
                 wallet.add(tokenValue: value, for: tokenBalance.key)
             }
         }
+    }
 
-        if response.txCount == response.pendingTxCount {
-            wallet.clearPendingTransaction()
-        } else if response.pendingTxs.isEmpty {
-            if wallet.pendingTransactions.isEmpty {
-                wallet.addDummyPendingTransaction()
-            }
-        } else {
-            wallet.clearPendingTransaction()
-            response.pendingTxs.forEach {
-                let mapper = PendingTransactionRecordMapper()
-                let transaction = mapper.mapToPendingTransactionRecord($0, blockchain: wallet.blockchain)
-                wallet.addPendingTransaction(transaction)
-            }
+    func updatePendingTransactions(pendingTransactionsInfo: EthereumPendingTransactionsInfo) {
+        // keep only those that are still pending.
+        var pendingTransactions = wallet.pendingTransactions.filter { transaction in
+            pendingTransactionsInfo.statuses[transaction.hash]?.isPending == true
         }
+
+        let localPendingCount = pendingTransactions.count
+
+        // detect unknown/external pending transactions (pendingTransactionCount - transactionsCount)
+        let nodePendingCount = max(0, pendingTransactionsInfo.pendingTransactionCount - pendingTransactionsInfo.transactionCount)
+
+        // add dummy pending records for unknown pending transactions
+        if nodePendingCount > localPendingCount {
+            let dummy = PendingTransactionRecordMapper().makeDummy(blockchain: wallet.blockchain)
+            pendingTransactions.append(dummy)
+        }
+
+        wallet.updatePendingTransaction(pendingTransactions)
     }
 }
 
@@ -474,6 +492,63 @@ extension EthereumWalletManager: TransactionFeeProvider {
                 }
             }
             .eraseToAnyPublisher()
+    }
+}
+
+extension EthereumWalletManager: GaslessTransactionFeeProvider {
+    func getGaslessFee(
+        feeToken: Token,
+        amount originalAmount: Amount,
+        destination originalDestination: String,
+        feeRecipientAddress: String
+    ) async throws -> Fee {
+        // Addresses
+        let ourAddress = wallet.defaultAddress.value
+        let convertedGaslessTokenCollectorAddress = try addressConverter.convertToETHAddress(feeRecipientAddress)
+        let convertedOurAddress = try addressConverter.convertToETHAddress(ourAddress)
+
+        // Fixed fee token amount (10000 minimal units)
+        let baseTokenAmount = EthereumFeeParametersConstants.gaslessMinTokenAmount
+        let sanitizedAmount = Self.sanitizeAmount(originalAmount, wallet: wallet)
+
+        // 1) Build calldata for transferring fixed fee token amount to Gasless collector
+        let tokenTransferData = TransferERC20TokenMethod(destination: convertedGaslessTokenCollectorAddress, amount: baseTokenAmount).encodedData
+
+        // 2) Estimate gas limit for fee token transfer
+        let feeTransferGasLimit = try await getGasLimit(
+            to: convertedGaslessTokenCollectorAddress,
+            from: convertedOurAddress,
+            value: nil,
+            data: tokenTransferData
+        ).async()
+
+        // 3) Add 10% buffer to fee token transfer gas limit (multiply by 1.1 using integer math)
+        let feeTransferGasLimitBuffered = feeTransferGasLimit * BigUInt(11) / BigUInt(10)
+
+        // 4) Get gas limit of the original transaction
+        let originalFee = try await getFee(amount: sanitizedAmount, destination: originalDestination).async()
+
+        // Pick the market fee (index 1) from the fees array.
+        guard let params = originalFee[safe: 1]?.parameters as? EthereumEIP1559FeeParameters,
+              let maximumFeePerGas = params.maximumFeePerGas
+        else {
+            throw BlockchainSdkError.failedToGetFee
+        }
+
+        let originalGasLimit = params.gasLimit
+
+        // 5) Combine gas limits and add BASE_GAS buffer (100_000)
+        let newGasLimit = originalGasLimit + feeTransferGasLimitBuffered + EthereumFeeParametersConstants.gaslessBaseGasBuffer
+
+        // 6) Calculate maximum fee per gas (gasLimit * 2 * maxFeePerGas)
+        let doubledMaxFeePerGas = maximumFeePerGas * EthereumFeeParametersConstants.gaslessMaxFeePerGasMultiplier
+
+        // 7) Create updated fee params and compute fee amount
+        let newParams = EthereumEIP1559FeeParameters(gasLimit: newGasLimit, maxFeePerGas: doubledMaxFeePerGas, priorityFee: params.priorityFee)
+        let fee = newParams.calculateFee(decimalValue: wallet.blockchain.decimalValue)
+
+        // 8) Return Fee with updated params and computed amount
+        return Fee(.init(with: wallet.blockchain, value: fee), parameters: newParams)
     }
 }
 
