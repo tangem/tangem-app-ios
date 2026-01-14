@@ -210,7 +210,11 @@ private extension ExpressTokensListViewModel {
     }
 
     func userDidTap(on walletModel: any WalletModel) {
-        let expressInteractorWallet = ExpressInteractorWalletModelWrapper(userWalletInfo: userWalletInfo, walletModel: walletModel)
+        let expressInteractorWallet = ExpressInteractorWalletModelWrapper(
+            userWalletInfo: userWalletInfo,
+            walletModel: walletModel,
+            expressOperationType: .swap
+        )
 
         switch swapDirection {
         case .fromSource:

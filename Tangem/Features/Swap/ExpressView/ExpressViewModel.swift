@@ -44,6 +44,8 @@ final class ExpressViewModel: ObservableObject {
     @Published var mainButtonState: MainButtonState = .swap
     @Published var alert: AlertBinder?
 
+    let tangemIconProvider: TangemIconProvider
+
     @Published var legalText: AttributedString?
 
     // MARK: - Dependencies
@@ -84,6 +86,7 @@ final class ExpressViewModel: ObservableObject {
         self.expressRepository = expressRepository
         self.interactor = interactor
         self.coordinator = coordinator
+        tangemIconProvider = CommonTangemIconProvider(config: userWalletInfo.config)
 
         Analytics.log(event: .swapScreenOpenedSwap, params: [.token: initialTokenItem.currencySymbol])
         setupView()
@@ -197,7 +200,11 @@ private extension ExpressViewModel {
             return
         }
 
-        coordinator?.presentFeeSelectorView()
+        guard let source = interactor.getSource().value else {
+            return
+        }
+
+        coordinator?.presentFeeSelectorView(source: source)
     }
 
     func presentProviderSelectorView() {
@@ -476,7 +483,7 @@ private extension ExpressViewModel {
         case .restriction(.notEnoughAmountForTxValue, _):
             // Single estimated fee just for UI
             updateExpressFeeRowViewModel(fees: .loading)
-        case .restriction(.notEnoughAmountForFee(let state), _):
+        case .restriction(.notEnoughAmountForFee, _):
             updateExpressFeeRowViewModel(fees: .success(state.fees))
         case .previewCEX(let state, _) where state.isExemptFee:
             // Don't show fee row if transaction has fee exemption
@@ -849,10 +856,10 @@ extension ExpressViewModel {
             }
         }
 
-        var icon: MainButton.Icon? {
+        func getIcon(tangemIconProvider: TangemIconProvider) -> MainButton.Icon? {
             switch self {
             case .swap, .permitAndSwap:
-                return .trailing(Assets.tangemIcon)
+                return tangemIconProvider.getMainButtonIcon()
             case .insufficientFunds:
                 return .none
             }
