@@ -50,7 +50,8 @@ public struct EIP7702AuthorizationData {
     public let address: String
     public let nonce: Int
     public let data: Data
-    
+}
+
 public struct EthereumTransaction: Decodable {
     let blockHash: String?
     let blockNumber: String?

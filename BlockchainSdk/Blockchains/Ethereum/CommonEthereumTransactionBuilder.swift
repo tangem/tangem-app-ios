@@ -137,6 +137,11 @@ class CommonEthereumTransactionBuilder: EthereumTransactionBuilder {
                 input.txMode = .legacy
                 input.gasLimit = legacyParameters.gasLimit.serialize()
                 input.gasPrice = legacyParameters.gasPrice.serialize()
+            case .gasless(let gaslessParameters):
+                input.txMode = .enveloped
+                input.gasLimit = gaslessParameters.gasLimit.serialize()
+                input.maxFeePerGas = gaslessParameters.maxFeePerGas.serialize()
+                input.maxInclusionFeePerGas = gaslessParameters.priorityFee.serialize()
             }
         }
 

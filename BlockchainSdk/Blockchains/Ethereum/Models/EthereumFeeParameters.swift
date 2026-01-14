@@ -176,7 +176,7 @@ public struct EthereumGaslessTransactionFeeParameters: FeeParameters {
     /// Represents how many token units correspond to 1 unit of native coin
     /// (e.g. 1 ETH = 1500 USDC → coinToTokenRate = 1500).
     public let coinToTokenRate: Decimal
-    
+
     public init(gasLimit: BigUInt, baseFee: BigUInt, priorityFee: BigUInt, nonce: Int? = nil, coinToTokenRate: Decimal) {
         self.gasLimit = gasLimit
         maxFeePerGas = baseFee + priorityFee
@@ -184,7 +184,7 @@ public struct EthereumGaslessTransactionFeeParameters: FeeParameters {
         self.nonce = nonce
         self.coinToTokenRate = coinToTokenRate
     }
-    
+
     public init(gasLimit: BigUInt, maxFeePerGas: BigUInt, priorityFee: BigUInt, nonce: Int? = nil, coinToTokenRate: Decimal) {
         self.gasLimit = gasLimit
         self.maxFeePerGas = maxFeePerGas
