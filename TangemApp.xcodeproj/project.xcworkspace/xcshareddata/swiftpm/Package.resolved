@@ -78,8 +78,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/AppsFlyerSDK/AppsFlyerFramework-Strict",
       "state" : {
-        "revision" : "841ef61f5933ad5382e8b47a3b67abdf5bb501e3",
-        "version" : "6.17.2"
+        "revision" : "834538ff802c192c3f2b1eead40fbcc9401caabe",
+        "version" : "6.17.8"
       }
     },
     {
