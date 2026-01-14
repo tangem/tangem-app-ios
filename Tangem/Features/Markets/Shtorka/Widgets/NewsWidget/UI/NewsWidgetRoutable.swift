@@ -11,5 +11,5 @@ import Foundation
 @MainActor
 protocol NewsWidgetRoutable: AnyObject {
     func openNews(by id: NewsId)
-    func openAllNews()
+    func openSeeAllNewsWidget()
 }
