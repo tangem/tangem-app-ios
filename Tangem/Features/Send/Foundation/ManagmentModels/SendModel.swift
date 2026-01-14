@@ -597,7 +597,7 @@ extension SendModel: SendFeeInput {
             .eraseToAnyPublisher()
     }
 
-    var feesHasMultipleFeeOptions: AnyPublisher<Bool, Never> {
+    var hasMultipleFeeOptions: AnyPublisher<Bool, Never> {
         sendFeeProvider.feesHasMultipleFeeOptions
     }
 
