@@ -8,8 +8,6 @@
 import TangemFoundation
 
 struct WalletCreationHelper {
-    @Injected(\.walletsNetworkServiceFactory) private var walletsNetworkServiceFactory: WalletsNetworkServiceFactory
-
     private let userWalletConfig: UserWalletConfig
     private let userWalletId: UserWalletId
     private let userWalletName: String
@@ -18,13 +16,13 @@ struct WalletCreationHelper {
     init(
         userWalletId: UserWalletId,
         userWalletName: String?,
-        userWalletConfig: UserWalletConfig
+        userWalletConfig: UserWalletConfig,
+        networkService: WalletsNetworkService
     ) {
         self.userWalletId = userWalletId
         self.userWalletConfig = userWalletConfig
         self.userWalletName = userWalletName ?? UserWalletNameIndexationHelper().suggestedName(userWalletConfig: userWalletConfig)
-
-        self.networkService = walletsNetworkServiceFactory.makeWalletsNetworkService(userWalletId: userWalletId)
+        self.networkService = networkService
     }
 
     init(userWalletInfo: UserWalletInfo, networkService: WalletsNetworkService) {
@@ -54,6 +52,6 @@ struct WalletCreationHelper {
             .enrich(withName: name)
             .build()
 
-        try await networkService.updateWallet(userWalletId: identifier, context: context)
+        try await networkService.updateWallet(context: context)
     }
 }
