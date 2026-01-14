@@ -75,6 +75,7 @@ final class MainHeaderViewModel: ObservableObject {
             .store(in: &bag)
 
         balanceProvider.balancePublisher
+            .removeDuplicates()
             .receive(on: DispatchQueue.main)
             .assign(to: \.balance, on: self, ownership: .weak)
             .store(in: &bag)
