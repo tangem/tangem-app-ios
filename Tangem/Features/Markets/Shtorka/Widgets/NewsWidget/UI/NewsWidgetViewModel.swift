@@ -14,7 +14,9 @@ import TangemFoundation
 import TangemLocalization
 
 final class NewsWidgetViewModel: ObservableObject {
-    // MARK: - Injected & Published Properties
+    @Injected(\.newsReadStatusProvider) private var readStatusProvider: NewsReadStatusProvider
+
+    // MARK: - Published Properties
 
     @Published private(set) var resultState: LoadingResult<ResultState, Error> = .loading
 
@@ -24,7 +26,7 @@ final class NewsWidgetViewModel: ObservableObject {
 
     private let widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler
 
-    private let mapper = NewsModelMapper()
+    private lazy var mapper = NewsModelMapper(readStatusProvider: readStatusProvider)
     private let newsProvider = CommonMarketsWidgetNewsService()
 
     private weak var coordinator: NewsWidgetRoutable?

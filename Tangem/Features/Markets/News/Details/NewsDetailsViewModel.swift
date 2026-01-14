@@ -88,8 +88,10 @@ final class NewsDetailsViewModel: ObservableObject, Identifiable, Hashable {
                 loadingState = .loaded
             } catch {
                 if error.isCancellationError {
+                    AppLogger.debug("📰 [NewsDetailsViewModel] Request was cancelled")
                     return
                 }
+                AppLogger.error("📰 [NewsDetailsViewModel] Failed to load news details", error: error)
                 loadingState = .error
             }
         }.eraseToAnyCancellable()

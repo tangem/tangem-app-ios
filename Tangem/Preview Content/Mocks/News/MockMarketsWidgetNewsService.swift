@@ -36,7 +36,19 @@ final class MockMarketsWidgetNewsService: MarketsWidgetNewsProvider {
         return .just(output: ())
     }
 
-    private let mapper = NewsModelMapper()
+    private final class MockNewsReadStatusProvider: NewsReadStatusProvider {
+        private var readNewsIds: Set<NewsId> = []
+
+        func isRead(for newsId: NewsId) -> Bool {
+            readNewsIds.contains(newsId)
+        }
+
+        func markAsRead(newsId: NewsId) {
+            readNewsIds.insert(newsId)
+        }
+    }
+
+    private let mapper = NewsModelMapper(readStatusProvider: MockNewsReadStatusProvider())
 
     func fetch() {
         newsResultValueSubject.value = .loading
@@ -77,7 +89,7 @@ final class MockMarketsWidgetNewsService: MarketsWidgetNewsProvider {
 
                 let data = try Data(contentsOf: url)
                 let response = try decoder.decode(TrendingNewsResponse.self, from: data)
-                let success = response.items.map { mapper.mapToNewsModel(from: $0, isRead: Bool.random()) }
+                let success = response.items.map { mapper.mapToNewsModel(from: $0) }
 
                 newsResultValueSubject.value = .success(success)
             } catch {

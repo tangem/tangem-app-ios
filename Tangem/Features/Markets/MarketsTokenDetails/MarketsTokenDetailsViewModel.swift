@@ -16,6 +16,7 @@ import struct TangemUIUtils.AlertBinder
 class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
     @Injected(\.ukGeoDefiner) private var ukGeoDefiner: UKGeoDefiner
+    @Injected(\.newsReadStatusProvider) private var readStatusProvider: NewsReadStatusProvider
 
     @Published private(set) var priceChangeAnimation: ForegroundBlinkAnimationModifier.Change = .neutral
     @Published private(set) var isLoading = true
@@ -126,7 +127,7 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
 
     private lazy var priceHelper = MarketsTokenDetailsPriceInfoHelper()
     private lazy var dateHelper = MarketsTokenDetailsDateHelper(initialDate: initialDate)
-    private lazy var newsMapper = NewsModelMapper()
+    private lazy var newsMapper = NewsModelMapper(readStatusProvider: readStatusProvider)
 
     private let defaultAmountNotationFormatter = DefaultAmountNotationFormatter()
 
