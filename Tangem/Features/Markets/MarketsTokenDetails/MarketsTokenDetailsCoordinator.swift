@@ -29,7 +29,6 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
 
     // MARK: - Child ViewModels
 
-    @Published var receiveBottomSheetViewModel: ReceiveBottomSheetViewModel? = nil
     @Published var exchangesListViewModel: MarketsTokenDetailsExchangesListViewModel? = nil
 
     // MARK: - Child Coordinators
@@ -43,8 +42,6 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     @Published var tokenDetailsCoordinator: TokenDetailsCoordinator? = nil
 
     private var safariHandle: SafariHandle?
-
-    private let portfolioCoordinatorFactory = MarketsTokenDetailsPortfolioCoordinatorFactory()
     private let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
 
     // MARK: - Init
@@ -96,9 +93,21 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
     }
 
     func openAccountsSelector(with model: MarketsTokenDetailsModel, walletDataProvider: MarketsWalletDataProvider) {
-        let viewModel = MarketsTokenAccountNetworkSelectorFlowViewModel(
-            inputData: .init(coinId: model.id, coinName: model.name, coinSymbol: model.symbol, networks: model.availableNetworks),
-            userWalletDataProvider: walletDataProvider,
+        let inputData = MarketsTokensNetworkSelectorViewModel.InputData(
+            coinId: model.id,
+            coinName: model.name,
+            coinSymbol: model.symbol,
+            networks: model.availableNetworks
+        )
+
+        let configuration = MarketsAddTokenFlowConfigurationFactory.make(
+            inputData: inputData,
+            coordinator: self
+        )
+
+        let viewModel = AccountsAwareAddTokenFlowViewModel(
+            userWalletModels: walletDataProvider.userWalletModels,
+            configuration: configuration,
             coordinator: self
         )
 
@@ -230,11 +239,16 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
             break
         }
     }
+
+    func openNews(by id: NewsId) {
+        // [REDACTED_TODO_COMMENT]
+        // when the Markets News feature and corresponding coordinator/flow are available.
+    }
 }
 
 // MARK: - MarketsPortfolioContainerRoutable
 
-extension MarketsTokenDetailsCoordinator {
+extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
     func openReceive(walletModel: any WalletModel) {
         let receiveFlowFactory = AvailabilityReceiveFlowFactory(
             flow: .crypto,
@@ -244,13 +258,10 @@ extension MarketsTokenDetailsCoordinator {
             isYieldModuleActive: false
         )
 
-        switch receiveFlowFactory.makeAvailabilityReceiveFlow() {
-        case .bottomSheetReceiveFlow(let viewModel):
-            receiveBottomSheetViewModel = viewModel
-        case .domainReceiveFlow(let viewModel):
-            Task { @MainActor in
-                floatingSheetPresenter.enqueue(sheet: viewModel)
-            }
+        let viewModel = receiveFlowFactory.makeAvailabilityReceiveFlow()
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
 
@@ -306,9 +317,9 @@ extension MarketsTokenDetailsCoordinator {
     }
 }
 
-// MARK: - MarketsTokenAccountNetworkSelectorRoutable
+// MARK: - AccountsAwareAddTokenFlowRoutable
 
-extension MarketsTokenDetailsCoordinator: MarketsTokenAccountNetworkSelectorRoutable {
+extension MarketsTokenDetailsCoordinator: AccountsAwareAddTokenFlowRoutable {
     func close() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
@@ -339,8 +350,9 @@ extension MarketsTokenDetailsCoordinator {
         safariHandle = safariManager.openURL(url) { [weak self] _ in
             self?.safariHandle = nil
 
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                walletModel.update(silent: true)
+            Task {
+                try await Task.sleep(for: .seconds(1))
+                await walletModel.update(silent: true, features: .balances)
             }
         }
     }
