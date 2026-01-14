@@ -8,10 +8,12 @@
 
 import Combine
 import Foundation
+import TangemFoundation
 import TangemMacro
 
 class CommonTokenFeeProvider {
     let feeTokenItem: TokenItem
+    let availableTokenBalanceProvider: TokenBalanceProvider
     let tokenFeeLoader: any TokenFeeLoader
     let customFeeProvider: (any CustomFeeProvider)?
 
@@ -22,11 +24,13 @@ class CommonTokenFeeProvider {
 
     init(
         feeTokenItem: TokenItem,
+        availableTokenBalanceProvider: TokenBalanceProvider,
         tokenFeeLoader: any TokenFeeLoader,
         customFeeProvider: (any CustomFeeProvider)?
     ) {
-        self.tokenFeeLoader = tokenFeeLoader
         self.feeTokenItem = feeTokenItem
+        self.availableTokenBalanceProvider = availableTokenBalanceProvider
+        self.tokenFeeLoader = tokenFeeLoader
         self.customFeeProvider = customFeeProvider
 
         customFeeProviderInitialSetupCancellable = customFeeProvider?.subscribeToInitialSetup(
@@ -38,8 +42,12 @@ class CommonTokenFeeProvider {
 // MARK: - TokenFeeProvider
 
 extension CommonTokenFeeProvider: TokenFeeProvider {
+    var balanceState: FormattedTokenBalanceType { availableTokenBalanceProvider.formattedBalanceType }
+
     var state: TokenFeeProviderState { stateSubject.value }
-    var statePublisher: AnyPublisher<TokenFeeProviderState, Never> { stateSubject.eraseToAnyPublisher() }
+    var statePublisher: AnyPublisher<TokenFeeProviderState, Never> {
+        stateSubject.eraseToAnyPublisher()
+    }
 
     var fees: [TokenFee] {
         var fees = mapToTokenFees(state: state)
@@ -61,27 +69,49 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
             .eraseToAnyPublisher()
     }
 
+    func updateSupportingState(input: TokenFeeProviderInputData) {
+        let isAvailable = switch input {
+        // Always available
+        case .common, .cex: true
+        case .dex(.ethereumEstimate), .dex(.ethereum): tokenFeeLoader is EthereumTokenFeeLoader
+        case .dex(.solana): tokenFeeLoader is SolanaTokenFeeLoader
+        }
+
+        if !isAvailable {
+            stateSubject.send(.unavailable(.notSupported))
+        }
+    }
+
     func setup(input: TokenFeeProviderInputData) {
         tokenFeeProviderInputData = input
     }
 
     func updateFees() async {
         guard let input = tokenFeeProviderInputData else {
-            AppLogger.error(error: "TokenFeeProvider Didn't setup with any input data")
+            AppLogger.error(self, error: "TokenFeeProvider Didn't setup with any input data")
             stateSubject.send(.unavailable(.inputDataNotSet))
             return
         }
 
         do {
             stateSubject.send(.loading)
+            AppLogger.info(self, "Start loading")
+
             let fees = try await loadFees(input: input)
             try Task.checkCancellation()
+
             stateSubject.send(.available(fees))
+            AppLogger.info(self, "Did load fees")
+
         } catch TokenFeeLoaderError.tokenFeeLoaderNotFound {
             stateSubject.send(.unavailable(.notSupported))
+            AppLogger.warning(self, "Catch TokenFeeLoaderNotFound")
+
         } catch is CancellationError {
             stateSubject.send(.idle)
+            AppLogger.warning(self, "Catch CancellationError")
         } catch {
+            AppLogger.error(self, error: error)
             stateSubject.send(.error(error))
         }
     }
@@ -91,16 +121,16 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
         case .common(let amount, let destination):
             return try await updateFees(amount: amount, destination: destination)
 
-        case .cexEstimate(let amount):
+        case .cex(let amount):
             return try await updateFees(amount: amount)
 
-        case .dexEthereumEstimate(let estimatedGasLimit, let otherNativeFee):
+        case .dex(.ethereumEstimate(let estimatedGasLimit, let otherNativeFee)):
             return try await updateFees(estimatedGasLimit: estimatedGasLimit, otherNativeFee: otherNativeFee)
 
-        case .dexEthereum(let amount, let destination, let txData, let otherNativeFee):
+        case .dex(.ethereum(let amount, let destination, let txData, let otherNativeFee)):
             return try await updateFees(amount: amount, destination: destination, txData: txData, otherNativeFee: otherNativeFee)
 
-        case .dexSolana(let data):
+        case .dex(.solana(let data)):
             return try await updateFees(compiledTransaction: data)
         }
     }
@@ -171,5 +201,17 @@ private extension CommonTokenFeeProvider {
         let fees = try await tokenFeeLoader.asSolanaTokenFeeLoader().getFee(compiledTransaction: data)
         try Task.checkCancellation()
         return fees
+    }
+}
+
+// MARK: - CustomStringConvertible
+
+extension CommonTokenFeeProvider: CustomStringConvertible {
+    var description: String {
+        objectDescription(self, userInfo: [
+            "feeTokenItem": feeTokenItem.name,
+            "feeTokenItemBlockchain": feeTokenItem.blockchain.displayName,
+            "state": state.description,
+        ])
     }
 }
