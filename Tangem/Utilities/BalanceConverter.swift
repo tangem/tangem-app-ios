@@ -50,7 +50,7 @@ struct BalanceConverter {
             throw BalanceConverterError.invalidTargetPrice
         }
 
-        var rate = sourceInFiat / targetInFiat
+        let rate = sourceInFiat / targetInFiat
         return rate
     }
 
