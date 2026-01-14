@@ -27,12 +27,16 @@ struct BottomSheetSearchableHeaderView: View {
     var body: some View {
         VStack(spacing: .zero) {
             if isSearch {
-                CustomSearchBar(searchText: searchText, placeholder: Localization.commonSearch)
-                    .onEditingChanged { isEditing in
-                        isSearch = isEditing
-                    }
-                    .focused($isFocused)
-                    .transition(.opacity)
+                CustomSearchBar(
+                    searchText: searchText,
+                    placeholder: Localization.commonSearch,
+                    cancelButtonAction: nil
+                )
+                .onEditingChanged { isEditing in
+                    isSearch = isEditing
+                }
+                .focused($isFocused)
+                .transition(.opacity)
             } else {
                 mainView
                     .padding(.vertical, 2)

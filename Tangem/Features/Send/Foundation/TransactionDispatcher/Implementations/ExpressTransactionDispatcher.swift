@@ -32,6 +32,10 @@ final class ExpressTransactionDispatcher {
 // MARK: - TransactionDispatcher
 
 extension ExpressTransactionDispatcher: TransactionDispatcher {
+    var hasNFCInteraction: Bool {
+        transactionSigner.hasNFCInteraction
+    }
+
     func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult {
         guard case .express(let transactionTypeData) = transaction else {
             throw TransactionDispatcherResult.Error.transactionNotFound

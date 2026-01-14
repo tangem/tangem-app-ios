@@ -19,7 +19,7 @@ extension AccountsDTO.Request {
         let tokens: [Token]
         let group: GroupType
         let sort: SortType
-        let notifyStatus: Bool?
+        let notifyStatus: Bool
         let version: Int
     }
 
