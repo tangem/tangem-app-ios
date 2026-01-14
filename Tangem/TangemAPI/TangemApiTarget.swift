@@ -271,6 +271,8 @@ struct TangemApiTarget: TargetType {
             return .requestParameters(requestModel, encoding: URLEncoding.default)
         case .tokenExchangesList, .seedNotifyGetStatus, .seedNotifyGetStatusConfirmed:
             return .requestPlain
+
+        // MARK: - News tasks
         case .hotCrypto(let requestModel):
             return .requestParameters(parameters: ["currency": requestModel.currency], encoding: URLEncoding.default)
         case .pushNotificationsEligible:

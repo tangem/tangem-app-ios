@@ -8,9 +8,12 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 
 @MainActor
 final class NewsListViewModel: ObservableObject {
+    @Injected(\.newsReadStatusProvider) private var readStatusProvider: NewsReadStatusProvider
+
     // MARK: - Published Properties
 
     @Published private(set) var newsItems: [NewsItemViewModel] = []
@@ -21,7 +24,7 @@ final class NewsListViewModel: ObservableObject {
     // MARK: - Private Properties
 
     private let dataProvider: NewsDataProvider
-    private let mapper = NewsModelMapper()
+    private lazy var mapper = NewsModelMapper(readStatusProvider: readStatusProvider)
     private weak var coordinator: NewsListRoutable?
 
     private var bag = Set<AnyCancellable>()
@@ -68,10 +71,12 @@ final class NewsListViewModel: ObservableObject {
 
         switch event {
         case .loading:
+            // If we already have items, it's pagination loading
             loadingState = newsItems.isEmpty ? .loading : .paginationLoading
         case .idle:
             loadingState = .idle
         case .failedToFetchData:
+            // If we already have items, it's pagination error
             loadingState = newsItems.isEmpty ? .error : .paginationError
         case .appendedItems(let items, let lastPage):
             AppLogger.debug("📰 [NewsListViewModel] appending \(items.count) items, current count: \(newsItems.count)")
@@ -111,7 +116,9 @@ extension NewsListViewModel {
             dataProvider.fetchMore()
         case .onNewsSelected(let newsId):
             let allNewsIds = newsItems.map(\.id)
-            guard let selectedIndex = allNewsIds.firstIndex(of: newsId) else { return }
+            guard let selectedIndex = allNewsIds.firstIndex(of: newsId),
+                  selectedIndex >= 0,
+                  selectedIndex < allNewsIds.count else { return }
             coordinator?.openNewsDetails(newsIds: allNewsIds, selectedIndex: selectedIndex)
         case .back:
             coordinator?.dismiss()

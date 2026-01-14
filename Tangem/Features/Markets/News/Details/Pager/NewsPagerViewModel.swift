@@ -64,6 +64,7 @@ final class NewsPagerViewModel: ObservableObject, Identifiable, Hashable {
     // MARK: - Dependencies
 
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
+    @Injected(\.newsReadStatusProvider) private var readStatusProvider: NewsReadStatusProvider
 
     // MARK: - Private Properties
 
@@ -186,13 +187,13 @@ final class NewsPagerViewModel: ObservableObject, Identifiable, Hashable {
         }
 
         // Preload previous
-        if canGoBack {
+        if canGoBack, currentIndex > 0, currentIndex - 1 < newsIds.count {
             let prevId = newsIds[currentIndex - 1]
             loadArticleIfNeeded(newsId: prevId)
         }
 
         // Preload next
-        if canGoForward {
+        if canGoForward, currentIndex + 1 < newsIds.count {
             let nextId = newsIds[currentIndex + 1]
             loadArticleIfNeeded(newsId: nextId)
         }
@@ -230,6 +231,9 @@ final class NewsPagerViewModel: ObservableObject, Identifiable, Hashable {
                 let response = try await tangemApiService.loadNewsDetails(requestModel: request)
                 let article = NewsDetailsViewModel.ArticleViewModel(from: response, dateFormatter: dateFormatter)
                 articles[newsId] = .loaded(article)
+
+                // Mark news as read
+                readStatusProvider.markAsRead(newsId: String(newsId))
             } catch {
                 if error.isCancellationError {
                     return
