@@ -175,16 +175,12 @@ extension NFTSendWalletModelProxy: WalletModel {
         .just(output: state)
     }
 
-    func generalUpdate(silent: Bool) -> AnyPublisher<Void, Never> {
-        mainTokenWalletModel.generalUpdate(silent: silent)
+    func update(silent: Bool, features: [WalletModelUpdaterFeatureType]) async {
+        await mainTokenWalletModel.update(silent: silent, features: features)
     }
 
-    func update(silent: Bool) -> AnyPublisher<WalletModelState, Never> {
-        mainTokenWalletModel.update(silent: silent)
-    }
-
-    func updateTransactionsHistory() -> AnyPublisher<Void, Never> {
-        mainTokenWalletModel.updateTransactionsHistory()
+    func updateTransactionsHistory() async {
+        await mainTokenWalletModel.updateTransactionsHistory()
     }
 
     func updateAfterSendingTransaction() {
@@ -236,12 +232,12 @@ extension NFTSendWalletModelProxy: WalletModel {
         mainTokenWalletModel.fulfillRequirements(signer: signer)
     }
 
-    func estimatedFee(amount: Amount) -> AnyPublisher<[Fee], Error> {
-        mainTokenWalletModel.estimatedFee(amount: amount)
+    var tokenFeeLoader: any TokenFeeLoader {
+        mainTokenWalletModel.tokenFeeLoader
     }
 
-    func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> {
-        mainTokenWalletModel.getFee(amount: amount, destination: destination)
+    var customFeeProvider: (any CustomFeeProvider)? {
+        mainTokenWalletModel.customFeeProvider
     }
 
     func hasFeeCurrency() -> Bool {
@@ -250,10 +246,6 @@ extension NFTSendWalletModelProxy: WalletModel {
 
     func getFeeCurrencyBalance() -> Decimal {
         mainTokenWalletModel.getFeeCurrencyBalance()
-    }
-
-    func getFee(compiledTransaction data: Data) async throws -> [Fee] {
-        try await mainTokenWalletModel.getFee(compiledTransaction: data)
     }
 
     var blockchainDataProvider: BlockchainDataProvider {
@@ -390,5 +382,9 @@ extension NFTSendWalletModelProxy: WalletModel {
 
     func resolve<R>(using resolver: R) -> R.Result where R: WalletModelResolving {
         resolver.resolve(walletModel: self)
+    }
+
+    var ethereumGaslessTransactionFeeProvider: (any GaslessTransactionFeeProvider)? {
+        mainTokenWalletModel.ethereumGaslessTransactionFeeProvider
     }
 }
