@@ -60,10 +60,6 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
         router?.userDidRequestFeeSelector()
     }
 
-    func userDidTapConfirm() {
-        router?.userDidTapConfirmButton()
-    }
-
     // MARK: - Private Implementation
 
     private func bind() {
@@ -97,7 +93,7 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
     }
 
     private func mapTokenItemToRowViewModel(token: TokenItem, canExpand: Bool) -> FeeSelectorRowViewModel {
-        let subtitleState: LoadableTextView.State = .loading
+        let subtitleState: LoadableTextView.State = .noData
 
         return FeeSelectorRowViewModel(
             rowType: .token(tokenIconInfo: TokenIconInfoBuilder().build(from: token, isCustom: false)),

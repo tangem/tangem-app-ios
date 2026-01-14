@@ -12,21 +12,23 @@ struct GaslessTransactionsAPIKeyProvider {
     @Injected(\.keysManager) private var keysManager: KeysManager
 
     func getApiKeyHeader() -> HTTPHeader? {
-        let apiKeyValue = getApiKey()
+        let headerValue = headerValue()
 
-        guard !apiKeyValue.isEmpty else {
+        guard !headerValue.isEmpty else {
             return nil
         }
 
-        return HTTPHeader(name: TangemAPIHeaders.apiKey.rawValue, value: apiKeyValue)
+        return HTTPHeader(name: TangemAPIHeaders.authorization.rawValue, value: headerValue)
     }
 
-    private func getApiKey() -> String {
-        switch FeatureStorage.instance.gaslessTransactionsAPIType {
+    private func headerValue() -> String {
+        let key = switch FeatureStorage.instance.gaslessTransactionsAPIType {
         case .prod:
             keysManager.gaslessTxApiKey
         case .dev, .stage:
             keysManager.gaslessTxApiKeyDev
         }
+
+        return TangemAPIHeadersValues.bearerPrefix + key
     }
 }

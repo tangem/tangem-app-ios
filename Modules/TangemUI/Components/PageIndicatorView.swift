@@ -9,8 +9,8 @@ import SwiftUI
 import TangemAssets
 
 public struct PageIndicatorView: View {
-    public let totalPages: Int
-    public let currentIndex: Int
+    let totalPages: Int
+    let currentIndex: Int
 
     public init(totalPages: Int, currentIndex: Int) {
         self.totalPages = totalPages

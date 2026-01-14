@@ -175,6 +175,9 @@ final class NewsDataProvider {
             AppLogger.debug("📰 [NewsDataProvider] sending .appendedItems event with \(response.items.count) items")
             _eventSubject.send(.appendedItems(items: response.items, lastPage: !response.meta.hasNext))
         } catch {
+            // Always set isLoading to false - retry will set it back to true when calling fetch()
+            isLoading = false
+
             if error.isCancellationError {
                 return
             }
@@ -183,8 +186,6 @@ final class NewsDataProvider {
 
             if hasLoadedItems {
                 scheduleRetryForFailedFetchRequest()
-            } else {
-                isLoading = false
             }
         }
     }
