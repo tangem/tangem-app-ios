@@ -90,7 +90,9 @@ private extension CEXExpressProviderManager {
 
             let previewDataRequest = try makeSwappingPairRequest(request: request, subtractFee: subtractFee)
             let quote = try await loadQuote(request: previewDataRequest)
-            return .preview(.init(provider: provider, feeOption: request.feeOption, subtractFee: subtractFee, quote: quote))
+            let expressFee = ExpressFee(option: request.feeOption, fee: estimatedFee)
+
+            return .preview(.init(provider: provider, expressFee: expressFee, subtractFee: subtractFee, quote: quote))
 
         } catch let error as ExpressAPIError {
             guard let amount = error.value?.amount else {
