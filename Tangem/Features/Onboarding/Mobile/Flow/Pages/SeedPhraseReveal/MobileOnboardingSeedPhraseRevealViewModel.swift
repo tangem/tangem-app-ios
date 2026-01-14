@@ -18,16 +18,14 @@ final class MobileOnboardingSeedPhraseRevealViewModel: ObservableObject {
     @Published var state: State?
     @Published var alert: AlertBinder?
 
-    private let mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
+    @Published var shouldDismiss = false
 
-    private let context: MobileWalletContext
+    private let mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
 
     var bag: Set<AnyCancellable> = []
 
     init(context: MobileWalletContext) {
-        self.context = context
-        bind()
-        setup()
+        setup(with: context)
     }
 }
 
@@ -44,12 +42,13 @@ private extension MobileOnboardingSeedPhraseRevealViewModel {
             .store(in: &bag)
     }
 
-    func setup() {
+    func setup(with context: MobileWalletContext) {
         runTask(in: self) { viewModel in
             do {
-                let mnemonic = try viewModel.mobileWalletSdk.exportMnemonic(context: viewModel.context)
+                let mnemonic = try viewModel.mobileWalletSdk.exportMnemonic(context: context)
                 await viewModel.setupState(mnemonic: mnemonic)
             } catch {
+                await viewModel.setupAlert(error: error)
                 AppLogger.error("Export mnemonic to reveal failed:", error: error)
             }
         }
@@ -62,6 +61,14 @@ private extension MobileOnboardingSeedPhraseRevealViewModel {
             phrase: makePhraseItem(mnemonic: mnemonic)
         )
         state = .item(item)
+        bind()
+    }
+
+    @MainActor
+    func setupAlert(error: Error) {
+        alert = error.alertBinder(okAction: { [weak self] in
+            self?.shouldDismiss = true
+        })
     }
 
     func makeInfoItem(mnemonic: [String]) -> InfoItem {
