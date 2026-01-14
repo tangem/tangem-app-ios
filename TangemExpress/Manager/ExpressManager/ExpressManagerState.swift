@@ -44,19 +44,22 @@ public enum ExpressManagerState {
 
 public extension ExpressManagerState {
     struct PermissionRequired {
+        public let provider: ExpressProvider
         public let policy: ApprovePolicy
         public let data: ApproveTransactionData
         public let quote: ExpressQuote
     }
 
     struct PreviewCEX {
-        public let fee: ExpressFee
+        public let provider: ExpressProvider
+        public let feeOption: ExpressFee.Option
         public let subtractFee: Decimal
         public let quote: ExpressQuote
     }
 
     struct Ready {
-        public let fee: ExpressFee
+        public let provider: ExpressProvider
+        public let feeOption: ExpressFee.Option
         public let data: ExpressTransactionData
         public let quote: ExpressQuote
     }

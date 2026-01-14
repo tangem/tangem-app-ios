@@ -114,23 +114,27 @@ final class ArchivedAccountsViewModel: ObservableObject {
     private func handleAccountRecoveryFailure(accountInfo: ArchivedCryptoAccountInfo, error: AccountRecoveryError) {
         recoveringAccountId = nil
 
+        let title: String
         let message: String
         let buttonText: String
 
         switch error {
         case .tooManyAccounts:
+            title = Localization.accountArchivedRecoverErrorTitle
             message = Localization.accountRecoverLimitDialogDescription(AccountModelUtils.maxNumberOfAccounts)
             buttonText = Localization.commonGotIt
         case .duplicateAccountName:
+            title = Localization.accountFormNameAlreadyExistErrorTitle
             message = Localization.accountFormNameAlreadyExistErrorDescription
             buttonText = Localization.commonGotIt
         case .unknownError:
+            title = Localization.commonSomethingWentWrong
             message = Localization.accountGenericErrorDialogMessage
             buttonText = Localization.commonOk
         }
 
         alertBinder = AlertBuilder.makeAlertWithDefaultPrimaryButton(
-            title: Localization.commonSomethingWentWrong,
+            title: title,
             message: message,
             buttonText: buttonText
         )
