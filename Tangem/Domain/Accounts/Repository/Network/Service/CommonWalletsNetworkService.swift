@@ -13,7 +13,6 @@ import TangemFoundation
 /// Common implementation of `WalletsNetworkService` protocol.
 final class CommonWalletsNetworkService {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
-    @Injected(\.cryptoAccountsETagStorage) private var eTagStorage: CryptoAccountsETagStorage
 
     private let userWalletId: UserWalletId
 
@@ -25,13 +24,9 @@ final class CommonWalletsNetworkService {
 // MARK: - WalletsNetworkService protocol conformance
 
 extension CommonWalletsNetworkService: WalletsNetworkService {
-    func createWallet(with context: some Encodable) async throws(CryptoAccountsNetworkServiceError) {
+    func createWallet(with context: some Encodable) async throws(CryptoAccountsNetworkServiceError) -> String? {
         do {
-            let newRevision = try await tangemApiService.createWallet(with: context)
-
-            if let newRevision {
-                eTagStorage.saveETag(newRevision, for: userWalletId)
-            }
+            return try await tangemApiService.createWallet(with: context)
         } catch let error as CryptoAccountsNetworkServiceError {
             throw error // Just re-throw an original error
         } catch {
@@ -39,11 +34,9 @@ extension CommonWalletsNetworkService: WalletsNetworkService {
         }
     }
 
-    func updateWallet(userWalletId: String, context: some Encodable) async throws(CryptoAccountsNetworkServiceError) {
-        // Note: Using the userWalletId parameter (not the instance property) as per protocol signature.
-        // This allows the caller to specify which wallet to update, providing flexibility in the API design.
+    func updateWallet(context: some Encodable) async throws(CryptoAccountsNetworkServiceError) {
         do {
-            try await tangemApiService.updateWallet(by: userWalletId, context: context)
+            try await tangemApiService.updateWallet(by: userWalletId.stringValue, context: context)
         } catch let error as CryptoAccountsNetworkServiceError {
             throw error // Just re-throw an original error
         } catch {

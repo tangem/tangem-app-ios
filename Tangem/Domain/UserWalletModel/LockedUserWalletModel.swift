@@ -216,10 +216,12 @@ class LockedUserWalletModel: UserWalletModel {
 
     private func syncRemoteAfterUpgrade() {
         runTask(in: self) { model in
+            let walletsNetworkService = CommonWalletsNetworkService(userWalletId: model.userWalletId)
             let walletCreationHelper = WalletCreationHelper(
                 userWalletId: model.userWalletId,
                 userWalletName: model.name,
-                userWalletConfig: model.config
+                userWalletConfig: model.config,
+                networkService: walletsNetworkService
             )
 
             try? await walletCreationHelper.updateWallet()
