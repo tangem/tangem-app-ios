@@ -539,7 +539,7 @@ extension EthereumWalletManager: GaslessTransactionFeeProvider {
 
         // 2) Estimate gas limit for fee token transfer
         let feeTransferGasLimit = try await getGasLimit(
-            to: convertedFeeRecepientAddress,
+            to: feeToken.contractAddress,
             from: convertedOurAddress,
             value: nil,
             data: tokenTransferData
@@ -570,7 +570,8 @@ extension EthereumWalletManager: GaslessTransactionFeeProvider {
             gasLimit: newGasLimit,
             maxFeePerGas: doubledMaxFeePerGas,
             priorityFee: params.priorityFee,
-            nativeToFeeTokenRate: nativeToFeeTokenRate
+            nativeToFeeTokenRate: nativeToFeeTokenRate,
+            feeTokenTransferGasLimit: feeTransferGasLimitBuffered
         )
 
         // 8) IMPORTANT: The fee is calculated in TOKEN using the provided nativeToFeeTokenRate
