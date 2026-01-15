@@ -8,6 +8,12 @@
 
 import TangemFoundation
 
+struct TokenFee: Hashable {
+    let option: FeeOption
+    let tokenItem: TokenItem
+    let fee: BSDKFee
+}
+
 struct LoadableTokenFee: Hashable {
     let option: FeeOption
     let tokenItem: TokenItem
