@@ -13,30 +13,6 @@ import TangemFoundation
 final class CommonSwapFeeProvider {
     private let expressInteractor: ExpressInteractor
 
-    private var expressFeeSelectorInteractor: ExpressFeeSelectorInteractor? {
-        guard let sourceTokenFeeManager = expressInteractor.getSource().value?.expressTokenFeeManager else {
-            return nil
-        }
-
-        return ExpressFeeSelectorInteractor(
-            sourceTokenFeeManager: sourceTokenFeeManager,
-            expressInteractor: expressInteractor
-        )
-    }
-
-    private var expressFeeSelectorInteractorPublisher: AnyPublisher<ExpressFeeSelectorInteractor, Never> {
-        expressInteractor.swappingPair
-            .compactMap { $0.sender.value }
-            .withWeakCaptureOf(self)
-            .map { provider, sender in
-                ExpressFeeSelectorInteractor(
-                    sourceTokenFeeManager: sender.expressTokenFeeManager,
-                    expressInteractor: provider.expressInteractor
-                )
-            }
-            .eraseToAnyPublisher()
-    }
-
     init(expressInteractor: ExpressInteractor) {
         self.expressInteractor = expressInteractor
     }
@@ -48,9 +24,7 @@ extension CommonSwapFeeProvider: SendFeeProvider {
     var fees: [TokenFee] { selectorFees }
     var feesPublisher: AnyPublisher<[TokenFee], Never> { selectorFeesPublisher }
     var feesHasMultipleFeeOptions: AnyPublisher<Bool, Never> {
-        expressFeeSelectorInteractorPublisher
-            .flatMapLatest { $0.selectorHasMultipleFeeOptions }
-            .eraseToAnyPublisher()
+        expressInteractor.selectorHasMultipleFeeOptions
     }
 
     func updateFees() {
@@ -58,52 +32,44 @@ extension CommonSwapFeeProvider: SendFeeProvider {
     }
 }
 
-// MARK: - FeeSelectorInteractor
+// MARK: - FeeSelectorInteractor (ExpressInteractor Proxy)
 
 extension CommonSwapFeeProvider: FeeSelectorInteractor {
-    var selectedSelectorFee: TokenFee? { expressFeeSelectorInteractor?.selectedSelectorFee }
+    var selectedSelectorFee: TokenFee? { expressInteractor.selectedSelectorFee }
     var selectedSelectorFeePublisher: AnyPublisher<TokenFee?, Never> {
-        expressFeeSelectorInteractorPublisher
-            .flatMapLatest { $0.selectedSelectorFeePublisher }
-            .eraseToAnyPublisher()
+        expressInteractor.selectedSelectorFeePublisher
     }
 
-    var selectorFees: [TokenFee] { expressFeeSelectorInteractor?.selectorFees ?? [] }
+    var selectorFees: [TokenFee] { expressInteractor.selectorFees }
     var selectorFeesPublisher: AnyPublisher<[TokenFee], Never> {
-        expressFeeSelectorInteractorPublisher
-            .flatMapLatest { $0.selectorFeesPublisher }
-            .eraseToAnyPublisher()
+        expressInteractor.selectorFeesPublisher
     }
 
     var selectedSelectorTokenFeeProvider: (any TokenFeeProvider)? {
-        expressFeeSelectorInteractor?.selectedSelectorTokenFeeProvider
+        expressInteractor.selectedSelectorTokenFeeProvider
     }
 
     var selectedSelectorTokenFeeProviderPublisher: AnyPublisher<(any TokenFeeProvider)?, Never> {
-        expressFeeSelectorInteractorPublisher
-            .flatMapLatest { $0.selectedSelectorTokenFeeProviderPublisher }
-            .eraseToAnyPublisher()
+        expressInteractor.selectedSelectorTokenFeeProviderPublisher
     }
 
     var selectorTokenFeeProviders: [any TokenFeeProvider] {
-        expressFeeSelectorInteractor?.selectorTokenFeeProviders ?? []
+        expressInteractor.selectorTokenFeeProviders
     }
 
     var selectorTokenFeeProvidersPublisher: AnyPublisher<[any TokenFeeProvider], Never> {
-        expressFeeSelectorInteractorPublisher
-            .flatMapLatest { $0.selectorTokenFeeProvidersPublisher }
-            .eraseToAnyPublisher()
+        expressInteractor.selectorTokenFeeProvidersPublisher
     }
 
     var customFeeProvider: (any CustomFeeProvider)? {
-        expressFeeSelectorInteractor?.customFeeProvider
+        expressInteractor.customFeeProvider
     }
 
     func userDidSelectFee(_ fee: TokenFee) {
-        expressFeeSelectorInteractor?.userDidSelectFee(fee)
+        expressInteractor.userDidSelectFee(fee)
     }
 
     func userDidSelect(tokenFeeProvider: any TokenFeeProvider) {
-        expressFeeSelectorInteractor?.userDidSelect(tokenFeeProvider: tokenFeeProvider)
+        expressInteractor.userDidSelect(tokenFeeProvider: tokenFeeProvider)
     }
 }

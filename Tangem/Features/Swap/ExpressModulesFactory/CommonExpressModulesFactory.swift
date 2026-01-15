@@ -103,13 +103,8 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
     }
 
     func makeFeeSelectorViewModel(source: ExpressInteractorSourceWallet, coordinator: SendFeeSelectorRoutable) -> SendFeeSelectorViewModel {
-        let feeSelectorInteractor = ExpressFeeSelectorInteractor(
-            sourceTokenFeeManager: source.expressTokenFeeManager,
-            expressInteractor: expressDependenciesFactory.expressInteractor
-        )
-
         let feeSelectorViewModel = FeeSelectorBuilder().makeFeeSelectorViewModel(
-            feeSelectorInteractor: feeSelectorInteractor,
+            feeSelectorInteractor: expressDependenciesFactory.expressInteractor,
             analytics: source.interactorAnalyticsLogger,
             feeFormatter: CommonFeeFormatter(),
             router: coordinator

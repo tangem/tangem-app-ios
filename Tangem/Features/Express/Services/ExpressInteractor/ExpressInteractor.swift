@@ -456,7 +456,7 @@ private extension ExpressInteractor {
 
     func map(ready: ExpressManagerState.Ready) async throws -> State {
         let sender = try getSourceWallet()
-        let tokenFeesList = sender.expressTokenFeeManager.fees(providerId: ready.provider.id)
+        let tokenFeesList = sender.expressTokenFeeManager.tokenFeeManager(providerId: ready.provider.id)?.selectedFeeProviderFees ?? []
         let fees = Fees(selected: ready.feeOption.feeOption, fees: tokenFeesList)
         let fee = try fees.selectedFee()
 
@@ -471,7 +471,7 @@ private extension ExpressInteractor {
 
     func map(previewCEX: ExpressManagerState.PreviewCEX) async throws -> State {
         let sender = try getSourceWallet()
-        let tokenFeesList = sender.expressTokenFeeManager.fees(providerId: previewCEX.provider.id)
+        let tokenFeesList = sender.expressTokenFeeManager.tokenFeeManager(providerId: previewCEX.provider.id)?.selectedFeeProviderFees ?? []
         let fees = Fees(selected: previewCEX.feeOption.feeOption, fees: tokenFeesList)
         let fee = try fees.selectedFee()
         let amount = makeAmount(value: previewCEX.quote.fromAmount, tokenItem: sender.tokenItem)
@@ -586,6 +586,87 @@ private extension ExpressInteractor {
             let state = try await interactor.expressManager.update(pair: pair)
             return try await interactor.mapState(state: state)
         }
+    }
+}
+
+// MARK: - FeeSelectorInteractor
+
+extension ExpressInteractor: FeeSelectorInteractor {
+    private var statePublisher: AnyPublisher<ExpressInteractor.State, Never> {
+        state.filter { !$0.isRefreshRates }.eraseToAnyPublisher()
+    }
+
+    private var selectedTokenFeeManager: TokenFeeManager? {
+        guard let source = getSource().value, let provider = getState().provider else {
+            return nil
+        }
+
+        return source.expressTokenFeeManager.tokenFeeManager(providerId: provider.id)
+    }
+
+    private var selectedTokenFeeManagerPublisher: AnyPublisher<TokenFeeManager, Never> {
+        Publishers
+            .CombineLatest(
+                swappingPair.compactMap { $0.sender.value },
+                statePublisher.compactMap { $0.provider }
+            )
+            .compactMap { source, provider in
+                source.expressTokenFeeManager.tokenFeeManager(providerId: provider.id)
+            }
+            .eraseToAnyPublisher()
+    }
+
+    var selectedSelectorFee: TokenFee? {
+        selectorFees[getState().fees.selected]
+    }
+
+    var selectedSelectorFeePublisher: AnyPublisher<TokenFee?, Never> {
+        Publishers
+            .CombineLatest(selectorFeesPublisher, statePublisher)
+            .compactMap { $0[$1.fees.selected] }
+            .eraseToAnyPublisher()
+    }
+
+    var selectorFees: [TokenFee] {
+        selectedTokenFeeManager?.selectedFeeProvider.fees ?? []
+    }
+
+    var selectorFeesPublisher: AnyPublisher<[TokenFee], Never> {
+        selectedTokenFeeManagerPublisher
+            .flatMapLatest { $0.selectedFeeProvider.feesPublisher }
+            .eraseToAnyPublisher()
+    }
+
+    var selectedSelectorTokenFeeProvider: (any TokenFeeProvider)? { selectedTokenFeeManager?.selectedFeeProvider }
+    var selectedSelectorTokenFeeProviderPublisher: AnyPublisher<(any TokenFeeProvider)?, Never> {
+        selectedTokenFeeManagerPublisher
+            .flatMapLatest { $0.selectedFeeProviderPublisher }
+            .eraseToOptional()
+            .eraseToAnyPublisher()
+    }
+
+    var selectorTokenFeeProviders: [any TokenFeeProvider] {
+        selectedTokenFeeManager?.supportedFeeTokenProviders ?? []
+    }
+
+    var selectorTokenFeeProvidersPublisher: AnyPublisher<[any TokenFeeProvider], Never> {
+        selectedTokenFeeManagerPublisher
+            .flatMapLatest { $0.supportedFeeTokenProvidersPublisher }
+            .eraseToAnyPublisher()
+    }
+
+    /// Express doesn't support custom fee
+    var customFeeProvider: (any CustomFeeProvider)? { nil }
+
+    func userDidSelectFee(_ fee: TokenFee) {
+        updateFeeOption(option: fee.option)
+    }
+
+    func userDidSelect(tokenFeeProvider: any TokenFeeProvider) {
+        getSource().value?.expressTokenFeeManager.updateSelectedFeeTokenProviderInAllManagers(tokenFeeProvider: tokenFeeProvider)
+
+        selectedTokenFeeManager?.updateSelectedFeeProvider(tokenFeeProvider: tokenFeeProvider)
+        selectedTokenFeeManager?.updateSelectedFeeProviderFees()
     }
 }
 

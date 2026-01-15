@@ -12,9 +12,5 @@ import TangemFoundation
 
 protocol ExpressTokenFeeManager {
     func tokenFeeManager(providerId: ExpressProvider.Id) -> TokenFeeManager?
-    func selectedFeeProvider(providerId: ExpressProvider.Id) -> (any TokenFeeProvider)?
-    func fees(providerId: ExpressProvider.Id) -> TokenFeesList
-    func supportedFeeTokenProviders(providerId: ExpressProvider.Id) -> [any TokenFeeProvider]
-
     func updateSelectedFeeTokenProviderInAllManagers(tokenFeeProvider: any TokenFeeProvider)
 }
