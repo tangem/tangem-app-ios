@@ -10,18 +10,18 @@ import Foundation
 import TangemLocalization
 
 struct NFTSendTransactionSummaryDescriptionBuilder {
-    private let feeTokenItem: TokenItem
-
-    init(feeTokenItem: TokenItem) {
-        self.feeTokenItem = feeTokenItem
-    }
+    init() {}
 }
 
 // MARK: - SendTransactionSummaryDescriptionBuilder protocol conformance
 
 extension NFTSendTransactionSummaryDescriptionBuilder: SendTransactionSummaryDescriptionBuilder {
-    func makeDescription(amount _: Decimal, fee: BSDKFee) -> AttributedString? {
-        let feeInFiat = feeTokenItem.currencyId.flatMap { BalanceConverter().convertToFiat(fee.amount.value, currencyId: $0) }
+    func makeDescription(amount _: Decimal, fee: TokenFee) -> AttributedString? {
+        guard let bsdkFee = fee.value.value else {
+            return nil
+        }
+
+        let feeInFiat = fee.tokenItem.currencyId.flatMap { BalanceConverter().convertToFiat(bsdkFee.amount.value, currencyId: $0) }
         let feeFormatter = BalanceFormatter()
         let feeInFiatFormatted = feeFormatter.formatFiatBalance(feeInFiat, formattingOptions: .defaultFiatFormattingOptions)
 
