@@ -25,6 +25,20 @@ enum TokenFeeConverter {
         mapToSendFees(fees: fees, feeTokenItem: feeTokenItem).filter { options.contains($0.option) }
     }
 
+    static func mapToFeesDictionary(fees: [BSDKFee]) -> [FeeOption: BSDKFee] {
+        switch fees.count {
+        case 1:
+            return [.market: fees[0]]
+        case 2:
+            return [.market: fees[0], .fast: fees[1]]
+        case 3:
+            return [.slow: fees[0], .market: fees[1], .fast: fees[1]]
+        default:
+            assertionFailure("Wrong count of fees")
+            return [:]
+        }
+    }
+
     static func mapToSendFees(fees: [BSDKFee], feeTokenItem: TokenItem) -> [LoadableTokenFee] {
         switch fees.count {
         case 1:

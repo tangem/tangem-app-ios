@@ -14,6 +14,11 @@ protocol FeeSelectorInteractorInput: AnyObject {
     var selectedFeePublisher: AnyPublisher<LoadableTokenFee, Never> { get }
 }
 
+protocol FeeSelectorInteractorOutput: AnyObject {
+    func userDidSelect(tokenFeeProvider: any TokenFeeProvider)
+    func userDidSelectFee(_ fee: LoadableTokenFee)
+}
+
 protocol FeeSelectorInteractor: FeeSelectorTokensDataProvider, FeeSelectorFeesDataProvider, FeeSelectorCustomFeeDataProviding {
     func userDidSelect(tokenFeeProvider: any TokenFeeProvider)
     func userDidSelectFee(_ fee: LoadableTokenFee)
@@ -33,5 +38,52 @@ extension FeeSelectorInteractor {
         .map { $0 || $1 }
         .removeDuplicates()
         .eraseToAnyPublisher()
+    }
+}
+
+final class CommonFeeSelectorInteractor {
+    let tokenFeeManager: TokenFeeManager
+    let output: FeeSelectorInteractorOutput
+
+    init(tokenFeeManager: TokenFeeManager, output: FeeSelectorInteractorOutput) {
+        self.tokenFeeManager = tokenFeeManager
+        self.output = output
+    }
+}
+
+// MARK: - FeeSelectorInteractor
+
+extension CommonFeeSelectorInteractor: FeeSelectorInteractor {
+    var selectedSelectorFee: LoadableTokenFee? { tokenFeeManager.selectedLoadableFee }
+    var selectedSelectorFeePublisher: AnyPublisher<LoadableTokenFee?, Never> {
+        tokenFeeManager.selectedLoadableFeePublisher.eraseToOptional().eraseToAnyPublisher()
+    }
+
+    var selectorFees: [LoadableTokenFee] { tokenFeeManager.selectedFeeProviderFees }
+    var selectorFeesPublisher: AnyPublisher<[LoadableTokenFee], Never> {
+        tokenFeeManager.selectedFeeProviderFeesPublisher
+    }
+
+    var selectedSelectorTokenFeeProvider: (any TokenFeeProvider)? { tokenFeeManager.selectedFeeProvider }
+    var selectedSelectorTokenFeeProviderPublisher: AnyPublisher<(any TokenFeeProvider)?, Never> {
+        tokenFeeManager.selectedFeeProviderPublisher.eraseToOptional().eraseToAnyPublisher()
+    }
+
+    var selectorTokenFeeProviders: [any TokenFeeProvider] { tokenFeeManager.supportedFeeTokenProviders }
+    var selectorTokenFeeProvidersPublisher: AnyPublisher<[any TokenFeeProvider], Never> {
+        tokenFeeManager.supportedFeeTokenProvidersPublisher
+    }
+
+    var customFeeProvider: (any CustomFeeProvider)? {
+        (tokenFeeManager.selectedFeeProvider as? FeeSelectorCustomFeeDataProviding)?.customFeeProvider
+    }
+
+    func userDidSelectFee(_ fee: LoadableTokenFee) {
+        // output?.feeDidChanged(fee: fee)
+    }
+
+    func userDidSelect(tokenFeeProvider: any TokenFeeProvider) {
+        tokenFeeManager.updateSelectedFeeProvider(tokenFeeProvider: tokenFeeProvider)
+        tokenFeeManager.updateSelectedFeeProviderFees()
     }
 }
