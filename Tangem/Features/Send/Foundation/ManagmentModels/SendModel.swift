@@ -41,7 +41,7 @@ class SendModel {
 
     var externalAmountUpdater: SendAmountExternalUpdater!
     var externalDestinationUpdater: SendDestinationExternalUpdater!
-    var sendFeeProvider: SendFeeProvider!
+    var sendFeeProvider: SendFlowTokenFeeProvider!
     var informationRelevanceService: InformationRelevanceService!
 
     weak var router: SendModelRoutable?
@@ -302,7 +302,7 @@ private extension SendModel {
         analyticsLogger.logTransactionSent(
             amount: _amount.value,
             additionalField: _destinationAdditionalField.value,
-            fee: _selectedFee.value,
+            fee: _selectedFee.value.option,
             signerType: result.signerType,
             currentProviderHost: result.currentHost
         )
@@ -573,44 +573,16 @@ extension SendModel: SendSwapProvidersOutput {
 // MARK: - SendFeeInput
 
 extension SendModel: SendFeeInput {
-    var selectedFee: TokenFee {
-        switch receiveToken {
-        case .same: _selectedFee.value
-        case .swap: mapToSendFee(state: swapManager.state)
-        }
+    var selectedFee: TokenFee? {
+        sendFeeProvider.selectedSelectorFee
     }
 
-    var selectedFeePublisher: AnyPublisher<TokenFee, Never> {
-        receiveTokenPublisher
-            .withWeakCaptureOf(self)
-            .flatMapLatest { model, receiveToken in
-                switch receiveToken {
-                case .same:
-                    return model._selectedFee.eraseToAnyPublisher()
-                case .swap:
-                    return model.swapManager.statePublisher
-                        .filter { !$0.isRefreshRates }
-                        .map { model.mapToSendFee(state: $0) }
-                        .eraseToAnyPublisher()
-                }
-            }
-            .eraseToAnyPublisher()
+    var selectedFeePublisher: AnyPublisher<TokenFee?, Never> {
+        sendFeeProvider.selectedSelectorFeePublisher.eraseToAnyPublisher()
     }
 
     var hasMultipleFeeOptions: AnyPublisher<Bool, Never> {
         sendFeeProvider.feesHasMultipleFeeOptions
-    }
-
-    private func mapToSendFee(state: SwapManagerState) -> TokenFee {
-        switch state {
-        case .loading:
-            return .init(option: state.fees.selected, tokenItem: sourceToken.feeTokenItem, value: .loading)
-        case .restriction(.requiredRefresh(let occurredError), _):
-            return .init(option: state.fees.selected, tokenItem: sourceToken.feeTokenItem, value: .failure(occurredError))
-        case let state:
-            let fee = Result { try state.fees.selectedFee() }
-            return .init(option: state.fees.selected, tokenItem: sourceToken.feeTokenItem, value: .result(fee))
-        }
     }
 }
 
@@ -680,45 +652,38 @@ extension SendModel: SendSummaryInput, SendSummaryOutput {
     private func summaryTransactionData(token: SendReceiveTokenType) -> AnyPublisher<SendSummaryTransactionData?, Never> {
         switch token {
         case .same:
-            return _transaction
+            return Publishers
+                .CombineLatest(_transaction, _selectedFee)
                 .withWeakCaptureOf(self)
-                .map { model, transaction -> SendSummaryTransactionData? in
+                .map { model, args -> SendSummaryTransactionData? in
+                    let (transaction, selectedFee) = args
+
                     guard let transaction = transaction?.value else {
                         return nil
                     }
 
-                    return .send(amount: transaction.amount.value, fee: transaction.fee)
+                    return .send(amount: transaction.amount.value, fee: selectedFee)
                 }
                 .eraseToAnyPublisher()
         case .swap:
-            return Publishers.CombineLatest(
-                swapManager.statePublisher,
-                swapManager.selectedProviderPublisher
-            )
-            .withWeakCaptureOf(self)
-            .flatMap {
-                model,
-                    args -> AnyPublisher<SendSummaryTransactionData?, Never> in
-                let (state, selectedProvider) = args
-                switch state {
-                case .loading(.refreshRates), .loading(.fee):
-                    return Empty().eraseToAnyPublisher()
-                case .idle, .loading(.full):
-                    return .just(output: .none)
-                case let state:
-                    guard let provider = selectedProvider?.provider else {
+            return swapManager
+                .statePublisher
+                .withWeakCaptureOf(self)
+                .flatMap { model, state -> AnyPublisher<SendSummaryTransactionData?, Never> in
+                    switch state {
+                    case .loading(.refreshRates), .loading(.fee):
+                        return Empty().eraseToAnyPublisher()
+                    case .idle, .loading(.full), .restriction:
                         return .just(output: .none)
+                    case .permissionRequired(let state, let quote):
+                        return .just(output: .swap(amount: quote.fromAmount, fee: state.expressFee, provider: state.provider))
+                    case .previewCEX(let state, let quote):
+                        return .just(output: .swap(amount: quote.fromAmount, fee: state.expressFee, provider: state.provider))
+                    case .readyToSwap(let state, let quote):
+                        return .just(output: .swap(amount: quote.fromAmount, fee: state.expressFee, provider: state.provider))
                     }
-
-                    let amount = state.quote?.fromAmount
-                    let fee = try? state.fees.selectedFee()
-
-                    return .just(
-                        output: .swap(amount: amount, fee: fee, provider: provider)
-                    )
                 }
-            }
-            .eraseToAnyPublisher()
+                .eraseToAnyPublisher()
         }
     }
 }
@@ -759,6 +724,10 @@ extension SendModel: SendBaseInput, SendBaseOutput {
 extension SendModel: SendNotificationManagerInput {
     var feeValues: AnyPublisher<[TokenFee], Never> {
         sendFeeProvider.feesPublisher.eraseToAnyPublisher()
+    }
+
+    var selectedTokenFeePublisher: AnyPublisher<TokenFee, Never> {
+        selectedFeePublisher.compactMap { $0 }.eraseToAnyPublisher()
     }
 
     var isFeeIncludedPublisher: AnyPublisher<Bool, Never> {
@@ -827,7 +796,7 @@ extension SendModel: NotificationTapDelegate {
     private func leaveMinimalAmountOnBalance(amountToLeave amount: Decimal, balance: Decimal) {
         var newAmount = balance - amount
 
-        if let fee = selectedFee.value.value?.amount, sourceToken.tokenItem.amountType == fee.type {
+        if let fee = selectedFee?.value.value?.amount, sourceToken.tokenItem.amountType == fee.type {
             // In case when fee can be more that amount
             newAmount = max(0, newAmount - fee.value)
         }
@@ -839,7 +808,7 @@ extension SendModel: NotificationTapDelegate {
     private func reduceAmountBy(_ amount: Decimal, source: Decimal) {
         var newAmount = source - amount
 
-        if _isFeeIncluded.value, let feeValue = selectedFee.value.value?.amount.value {
+        if _isFeeIncluded.value, let feeValue = selectedFee?.value.value?.amount.value {
             newAmount = newAmount - feeValue
         }
 
@@ -861,7 +830,7 @@ extension SendModel: SendBaseDataBuilderInput {
     }
 
     var bsdkFee: BSDKFee? {
-        selectedFee.value.value
+        selectedFee?.value.value
     }
 
     var isFeeIncluded: Bool {

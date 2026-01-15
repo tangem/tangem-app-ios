@@ -322,7 +322,12 @@ private extension StakingModel {
     private func proceed(result: TransactionDispatcherResult) {
         _transactionTime.send(Date())
         _transactionURL.send(result.url)
-        analyticsLogger.logTransactionSent(amount: _amount.value, fee: selectedFee, signerType: result.signerType, currentProviderHost: result.currentHost)
+        analyticsLogger.logTransactionSent(
+            amount: _amount.value,
+            fee: selectedFee?.option ?? .market,
+            signerType: result.signerType,
+            currentProviderHost: result.currentHost
+        )
     }
 
     private func proceed(error: TransactionDispatcherResult.Error) {
@@ -428,11 +433,11 @@ extension StakingModel: StakingTargetsOutput {
 // MARK: - SendFeeInput
 
 extension StakingModel: SendFeeInput {
-    var selectedFee: TokenFee {
+    var selectedFee: TokenFee? {
         mapToSendFee(_state.value)
     }
 
-    var selectedFeePublisher: AnyPublisher<TokenFee, Never> {
+    var selectedFeePublisher: AnyPublisher<TokenFee?, Never> {
         _state
             .withWeakCaptureOf(self)
             .map { model, state in
@@ -566,7 +571,7 @@ extension StakingModel: NotificationTapDelegate {
 
 extension StakingModel: ApproveViewModelInput {
     var approveFeeValue: LoadingResult<Fee, Error> {
-        selectedFee.value
+        selectedFee?.value ?? .loading
     }
 
     var approveFeeValuePublisher: AnyPublisher<LoadingResult<Fee, Error>, Never> {
@@ -605,7 +610,7 @@ extension StakingModel: ApproveViewModelInput {
 extension StakingModel: StakingBaseDataBuilderInput {
     var bsdkAmount: BSDKAmount? { _amount.value?.crypto.map { makeAmount(value: $0) } }
 
-    var bsdkFee: BSDKFee? { selectedFee.value.value }
+    var bsdkFee: BSDKFee? { selectedFee?.value.value }
 
     var isFeeIncluded: Bool { _isFeeIncluded.value }
 

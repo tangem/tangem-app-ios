@@ -110,15 +110,8 @@ extension UnstakingFlowFactory: SendGenericFlowFactory {
         let amount = makeSendAmountStep()
         amount.amountUpdater.externalUpdate(amount: action.amount)
 
-        let sendFeeCompactViewModel = SendNewFeeCompactViewModel(
-            feeTokenItem: feeTokenItem,
-            isFeeApproximate: isFeeApproximate()
-        )
-
-        let sendFeeFinishViewModel = SendFeeFinishViewModel(
-            feeTokenItem: feeTokenItem,
-            isFeeApproximate: isFeeApproximate()
-        )
+        let sendFeeCompactViewModel = SendNewFeeCompactViewModel()
+        let sendFeeFinishViewModel = SendFeeFinishViewModel()
 
         let summary = makeSendSummaryStep(
             sendAmountCompactViewModel: amount.compact,
