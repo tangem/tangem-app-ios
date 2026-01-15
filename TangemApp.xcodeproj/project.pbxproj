@@ -1103,7 +1103,6 @@
 		B04EADEA2A80D62E009B5768 /* SingleTokenBaseRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04EADE92A80D62E009B5768 /* SingleTokenBaseRoutable.swift */; };
 		B04EADEC2A80D659009B5768 /* SingleTokenBaseViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04EADEB2A80D659009B5768 /* SingleTokenBaseViewModel.swift */; };
 		B050F4F62B60E7F400B2E53C /* VisaTransactionRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = B050F4F52B60E7F400B2E53C /* VisaTransactionRecord.swift */; };
-		B050F4FA2B60F60600B2E53C /* VisaAPIResponses.swift in Sources */ = {isa = PBXBuildFile; fileRef = B050F4F92B60F60600B2E53C /* VisaAPIResponses.swift */; };
 		B050F5002B60FCE500B2E53C /* VisaAPIServiceBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B050F4FF2B60FCE500B2E53C /* VisaAPIServiceBuilder.swift */; };
 		B050F5032B613A6F00B2E53C /* TangemPayTransactionHistoryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B050F5022B613A6F00B2E53C /* TangemPayTransactionHistoryService.swift */; };
 		B050F5082B6283CF00B2E53C /* VisaTransactionHistoryMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B050F5072B6283CF00B2E53C /* VisaTransactionHistoryMapper.swift */; };
@@ -1142,8 +1141,6 @@
 		B05D063429DEA4580031C6AB /* AccessCodeRecoverySettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05D063329DEA4580031C6AB /* AccessCodeRecoverySettingsViewModel.swift */; };
 		B05DD9652A9F12A700B24ED9 /* TokenNotificationEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05DD9642A9F12A700B24ED9 /* TokenNotificationEvent.swift */; };
 		B05E36922CDA0F2C00CE44F2 /* VisaAuthorizationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05E36912CDA0F2C00CE44F2 /* VisaAuthorizationService.swift */; };
-		B05E36D22CDA3D2200CE44F2 /* APIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05E36D12CDA3D2200CE44F2 /* APIService.swift */; };
-		B05E36D52CDA418800CE44F2 /* JSONDecoderFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05E36D42CDA418800CE44F2 /* JSONDecoderFactory.swift */; };
 		B05F19552BF3589C007E5552 /* GetTokenInfoMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05F19542BF3589C007E5552 /* GetTokenInfoMethod.swift */; };
 		B05F1E66299CB81D00E27E32 /* TransactionViewPlaceholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05F1E65299CB81D00E27E32 /* TransactionViewPlaceholder.swift */; };
 		B0606E122684A946004004ED /* BlinkingModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0606E112684A946004004ED /* BlinkingModifier.swift */; };
@@ -1227,7 +1224,6 @@
 		B08BC1BE2BF72C0B00041E95 /* VisaTokenInfoLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08BC1BD2BF72C0B00041E95 /* VisaTokenInfoLoader.swift */; };
 		B08D3C142BF6269500C83299 /* visa_config.json in Resources */ = {isa = PBXBuildFile; fileRef = B08D3C132BF6269500C83299 /* visa_config.json */; };
 		B08D3C162BF628A500C83299 /* VisaConfigProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08D3C152BF628A500C83299 /* VisaConfigProvider.swift */; };
-		B08DB6132D3A6A4A00A8B63F /* VisaAPIMocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08DB6122D3A6A4A00A8B63F /* VisaAPIMocks.swift */; };
 		B08E26AF29D5580E00346C43 /* SeedPhraseSuggestionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08E26AE29D5580E00346C43 /* SeedPhraseSuggestionsView.swift */; };
 		B08E995A2D9E709E008F367F /* Analytics+Visa.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08E99592D9E709D008F367F /* Analytics+Visa.swift */; };
 		B08E995C2D9E7BE0008F367F /* VisaError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08E995B2D9E7BE0008F367F /* VisaError.swift */; };
@@ -2924,11 +2920,6 @@
 		DA0487302EC233AF004F22C2 /* TangemPayFreezeSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA04872F2EC233AF004F22C2 /* TangemPayFreezeSheetView.swift */; };
 		DA0ABE942E13FADE00B75A2C /* VisaKYCAccessTokenResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA0ABE932E13FADE00B75A2C /* VisaKYCAccessTokenResponse.swift */; };
 		DA0B6FEB2ED464E5006B96F0 /* TangemPayCustomerInfoManagementServiceBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA0B6FEA2ED464E5006B96F0 /* TangemPayCustomerInfoManagementServiceBuilder.swift */; };
-		DA0B6FED2ED464FF006B96F0 /* TangemPayAuthorizationTokensHandlerBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA0B6FEC2ED464FF006B96F0 /* TangemPayAuthorizationTokensHandlerBuilder.swift */; };
-		DA0B6FEF2ED46516006B96F0 /* TangemPayAPIServiceBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA0B6FEE2ED46516006B96F0 /* TangemPayAPIServiceBuilder.swift */; };
-		DA0B6FF22ED465AC006B96F0 /* TangemPayAuthorizationTokensHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA0B6FF12ED465AC006B96F0 /* TangemPayAuthorizationTokensHandler.swift */; };
-		DA0B6FF42ED465B5006B96F0 /* TangemPayAuthorizationTokensSaver.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA0B6FF32ED465B5006B96F0 /* TangemPayAuthorizationTokensSaver.swift */; };
-		DA0B6FF62ED465C3006B96F0 /* CommonTangemPayAuthorizationTokensHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA0B6FF52ED465C3006B96F0 /* CommonTangemPayAuthorizationTokensHandler.swift */; };
 		DA10101D2CDA4D7F00EE0D05 /* OnrampCountryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA10101C2CDA4D7F00EE0D05 /* OnrampCountryView.swift */; };
 		DA1010202CDA4DC200EE0D05 /* OnrampCountrySkeletonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA10101F2CDA4DC200EE0D05 /* OnrampCountrySkeletonView.swift */; };
 		DA1010222CDA55D400EE0D05 /* OnrampCountryViewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1010212CDA55D400EE0D05 /* OnrampCountryViewData.swift */; };
@@ -3003,6 +2994,11 @@
 		DA72BEB92EC33B0800F06EB5 /* TangemPayFreezingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA72BEB82EC33B0800F06EB5 /* TangemPayFreezingState.swift */; };
 		DA72BEBC2EC33E6E00F06EB5 /* TangemPayFreezeUnfreezeRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA72BEBB2EC33E6E00F06EB5 /* TangemPayFreezeUnfreezeRequest.swift */; };
 		DA72BEBE2EC33E7E00F06EB5 /* TangemPayFreezeUnfreezeResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA72BEBD2EC33E7E00F06EB5 /* TangemPayFreezeUnfreezeResponse.swift */; };
+		DA732A172F179313006F8BF0 /* CommonTangemPayAvailabilityRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA732A142F179313006F8BF0 /* CommonTangemPayAvailabilityRepository.swift */; };
+		DA732A182F179313006F8BF0 /* TangemPayAvailabilityRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA732A152F179313006F8BF0 /* TangemPayAvailabilityRepository.swift */; };
+		DA732A1A2F17940D006F8BF0 /* TangemPayAuthorizationTokensHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA732A192F17940D006F8BF0 /* TangemPayAuthorizationTokensHandler.swift */; };
+		DA732A1E2F179709006F8BF0 /* TangemPayAuthorizationServiceBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA732A1D2F179709006F8BF0 /* TangemPayAuthorizationServiceBuilder.swift */; };
+		DA732A202F17972A006F8BF0 /* TangemPayAvailabilityServiceBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA732A1F2F17972A006F8BF0 /* TangemPayAvailabilityServiceBuilder.swift */; };
 		DA7444242A27889600F926A9 /* PromotionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7444222A27889600F926A9 /* PromotionService.swift */; };
 		DA7444252A27889600F926A9 /* PromotionServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7444232A27889600F926A9 /* PromotionServiceProtocol.swift */; };
 		DA76488B2E3B9A2C00F13316 /* TangemPayOfferView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA76488A2E3B9A2300F13316 /* TangemPayOfferView.swift */; };
@@ -3029,7 +3025,6 @@
 		DA7EAE772ED063310022C2AB /* TangemPayRefreshTokensRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7EAE762ED063310022C2AB /* TangemPayRefreshTokensRequest.swift */; };
 		DA7EAE7A2ED063560022C2AB /* TangemPayGetChallengeResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7EAE792ED063560022C2AB /* TangemPayGetChallengeResponse.swift */; };
 		DA7EAE7C2ED063A90022C2AB /* TangemPayAuthorizationTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7EAE7B2ED063A90022C2AB /* TangemPayAuthorizationTokens.swift */; };
-		DA7EAE7F2ED06C480022C2AB /* TangemPayAuthorizationTokensRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7EAE7E2ED06C480022C2AB /* TangemPayAuthorizationTokensRepository.swift */; };
 		DA7EAE832ED06C8F0022C2AB /* CommonTangemPayAuthorizationTokensRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7EAE822ED06C8F0022C2AB /* CommonTangemPayAuthorizationTokensRepository.swift */; };
 		DA7EAE852ED06CAF0022C2AB /* TangemPayAuthorizationTokensRepositoryKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7EAE842ED06CAF0022C2AB /* TangemPayAuthorizationTokensRepositoryKey.swift */; };
 		DA7FCCA42E9D15D9008E63F0 /* TangemPayTransactionHistoryMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA7FCCA32E9D15D9008E63F0 /* TangemPayTransactionHistoryMapper.swift */; };
@@ -5948,7 +5943,6 @@
 		B04EADE92A80D62E009B5768 /* SingleTokenBaseRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleTokenBaseRoutable.swift; sourceTree = "<group>"; };
 		B04EADEB2A80D659009B5768 /* SingleTokenBaseViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleTokenBaseViewModel.swift; sourceTree = "<group>"; };
 		B050F4F52B60E7F400B2E53C /* VisaTransactionRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaTransactionRecord.swift; sourceTree = "<group>"; };
-		B050F4F92B60F60600B2E53C /* VisaAPIResponses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaAPIResponses.swift; sourceTree = "<group>"; };
 		B050F4FF2B60FCE500B2E53C /* VisaAPIServiceBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaAPIServiceBuilder.swift; sourceTree = "<group>"; };
 		B050F5022B613A6F00B2E53C /* TangemPayTransactionHistoryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayTransactionHistoryService.swift; sourceTree = "<group>"; };
 		B050F5072B6283CF00B2E53C /* VisaTransactionHistoryMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaTransactionHistoryMapper.swift; sourceTree = "<group>"; };
@@ -5987,8 +5981,6 @@
 		B05D063329DEA4580031C6AB /* AccessCodeRecoverySettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessCodeRecoverySettingsViewModel.swift; sourceTree = "<group>"; };
 		B05DD9642A9F12A700B24ED9 /* TokenNotificationEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenNotificationEvent.swift; sourceTree = "<group>"; };
 		B05E36912CDA0F2C00CE44F2 /* VisaAuthorizationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaAuthorizationService.swift; sourceTree = "<group>"; };
-		B05E36D12CDA3D2200CE44F2 /* APIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIService.swift; sourceTree = "<group>"; };
-		B05E36D42CDA418800CE44F2 /* JSONDecoderFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONDecoderFactory.swift; sourceTree = "<group>"; };
 		B05F19542BF3589C007E5552 /* GetTokenInfoMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetTokenInfoMethod.swift; sourceTree = "<group>"; };
 		B05F1E65299CB81D00E27E32 /* TransactionViewPlaceholder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionViewPlaceholder.swift; sourceTree = "<group>"; };
 		B0606E112684A946004004ED /* BlinkingModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlinkingModifier.swift; sourceTree = "<group>"; };
@@ -6071,7 +6063,6 @@
 		B08BC1BD2BF72C0B00041E95 /* VisaTokenInfoLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaTokenInfoLoader.swift; sourceTree = "<group>"; };
 		B08D3C132BF6269500C83299 /* visa_config.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = visa_config.json; path = "tangem-app-config/visa_config.json"; sourceTree = SOURCE_ROOT; };
 		B08D3C152BF628A500C83299 /* VisaConfigProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaConfigProvider.swift; sourceTree = "<group>"; };
-		B08DB6122D3A6A4A00A8B63F /* VisaAPIMocks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaAPIMocks.swift; sourceTree = "<group>"; };
 		B08E26AE29D5580E00346C43 /* SeedPhraseSuggestionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedPhraseSuggestionsView.swift; sourceTree = "<group>"; };
 		B08E99592D9E709D008F367F /* Analytics+Visa.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Analytics+Visa.swift"; sourceTree = "<group>"; };
 		B08E995B2D9E7BE0008F367F /* VisaError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaError.swift; sourceTree = "<group>"; };
@@ -7727,11 +7718,6 @@
 		DA04872F2EC233AF004F22C2 /* TangemPayFreezeSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayFreezeSheetView.swift; sourceTree = "<group>"; };
 		DA0ABE932E13FADE00B75A2C /* VisaKYCAccessTokenResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaKYCAccessTokenResponse.swift; sourceTree = "<group>"; };
 		DA0B6FEA2ED464E5006B96F0 /* TangemPayCustomerInfoManagementServiceBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayCustomerInfoManagementServiceBuilder.swift; sourceTree = "<group>"; };
-		DA0B6FEC2ED464FF006B96F0 /* TangemPayAuthorizationTokensHandlerBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayAuthorizationTokensHandlerBuilder.swift; sourceTree = "<group>"; };
-		DA0B6FEE2ED46516006B96F0 /* TangemPayAPIServiceBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayAPIServiceBuilder.swift; sourceTree = "<group>"; };
-		DA0B6FF12ED465AC006B96F0 /* TangemPayAuthorizationTokensHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayAuthorizationTokensHandler.swift; sourceTree = "<group>"; };
-		DA0B6FF32ED465B5006B96F0 /* TangemPayAuthorizationTokensSaver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayAuthorizationTokensSaver.swift; sourceTree = "<group>"; };
-		DA0B6FF52ED465C3006B96F0 /* CommonTangemPayAuthorizationTokensHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonTangemPayAuthorizationTokensHandler.swift; sourceTree = "<group>"; };
 		DA10101C2CDA4D7F00EE0D05 /* OnrampCountryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampCountryView.swift; sourceTree = "<group>"; };
 		DA10101F2CDA4DC200EE0D05 /* OnrampCountrySkeletonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampCountrySkeletonView.swift; sourceTree = "<group>"; };
 		DA1010212CDA55D400EE0D05 /* OnrampCountryViewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampCountryViewData.swift; sourceTree = "<group>"; };
@@ -7807,6 +7793,11 @@
 		DA72BEB82EC33B0800F06EB5 /* TangemPayFreezingState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayFreezingState.swift; sourceTree = "<group>"; };
 		DA72BEBB2EC33E6E00F06EB5 /* TangemPayFreezeUnfreezeRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayFreezeUnfreezeRequest.swift; sourceTree = "<group>"; };
 		DA72BEBD2EC33E7E00F06EB5 /* TangemPayFreezeUnfreezeResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayFreezeUnfreezeResponse.swift; sourceTree = "<group>"; };
+		DA732A142F179313006F8BF0 /* CommonTangemPayAvailabilityRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonTangemPayAvailabilityRepository.swift; sourceTree = "<group>"; };
+		DA732A152F179313006F8BF0 /* TangemPayAvailabilityRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayAvailabilityRepository.swift; sourceTree = "<group>"; };
+		DA732A192F17940D006F8BF0 /* TangemPayAuthorizationTokensHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayAuthorizationTokensHandler.swift; sourceTree = "<group>"; };
+		DA732A1D2F179709006F8BF0 /* TangemPayAuthorizationServiceBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayAuthorizationServiceBuilder.swift; sourceTree = "<group>"; };
+		DA732A1F2F17972A006F8BF0 /* TangemPayAvailabilityServiceBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayAvailabilityServiceBuilder.swift; sourceTree = "<group>"; };
 		DA7444222A27889600F926A9 /* PromotionService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PromotionService.swift; sourceTree = "<group>"; };
 		DA7444232A27889600F926A9 /* PromotionServiceProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PromotionServiceProtocol.swift; sourceTree = "<group>"; };
 		DA76488A2E3B9A2300F13316 /* TangemPayOfferView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayOfferView.swift; sourceTree = "<group>"; };
@@ -7833,7 +7824,6 @@
 		DA7EAE762ED063310022C2AB /* TangemPayRefreshTokensRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayRefreshTokensRequest.swift; sourceTree = "<group>"; };
 		DA7EAE792ED063560022C2AB /* TangemPayGetChallengeResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayGetChallengeResponse.swift; sourceTree = "<group>"; };
 		DA7EAE7B2ED063A90022C2AB /* TangemPayAuthorizationTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayAuthorizationTokens.swift; sourceTree = "<group>"; };
-		DA7EAE7E2ED06C480022C2AB /* TangemPayAuthorizationTokensRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayAuthorizationTokensRepository.swift; sourceTree = "<group>"; };
 		DA7EAE822ED06C8F0022C2AB /* CommonTangemPayAuthorizationTokensRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonTangemPayAuthorizationTokensRepository.swift; sourceTree = "<group>"; };
 		DA7EAE842ED06CAF0022C2AB /* TangemPayAuthorizationTokensRepositoryKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayAuthorizationTokensRepositoryKey.swift; sourceTree = "<group>"; };
 		DA7FCCA32E9D15D9008E63F0 /* TangemPayTransactionHistoryMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayTransactionHistoryMapper.swift; sourceTree = "<group>"; };
@@ -9491,7 +9481,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		DF34D6F62EF11F6F0076C9F2 /* AvailabilityRepository */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = AvailabilityRepository; sourceTree = "<group>"; };
 		DFB0DFA52EEA7323006885A1 /* Coordinator */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Coordinator; sourceTree = "<group>"; };
 		DFF3F35F2EF43F86004E61AB /* TangemPayKYCStatusPopup */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = TangemPayKYCStatusPopup; sourceTree = "<group>"; };
 		DFFE445E2EE1A917004CAC28 /* GetTangemPay */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = GetTangemPay; sourceTree = "<group>"; };
@@ -13208,12 +13197,12 @@
 				B07232432D101B4800E30614 /* CardActivationStatusService */,
 				B01408302D0832FF00734888 /* CustomerInfoManagementService */,
 				B0DE6EE32CDCF56000254675 /* AuthorizationService */,
-				B05E36D12CDA3D2200CE44F2 /* APIService.swift */,
 				DAEE4B0D2ED48F9300550280 /* TangemPayAPIService.swift */,
 				B050F4FF2B60FCE500B2E53C /* VisaAPIServiceBuilder.swift */,
 				B0B6B8092DAE823200BCB0E6 /* VisaAPIType.swift */,
-				DA0B6FEE2ED46516006B96F0 /* TangemPayAPIServiceBuilder.swift */,
 				DF7F04442EF5706900E23554 /* TangemPayCancelKYCResponse.swift */,
+				DA732A1D2F179709006F8BF0 /* TangemPayAuthorizationServiceBuilder.swift */,
+				DA732A1F2F17972A006F8BF0 /* TangemPayAvailabilityServiceBuilder.swift */,
 			);
 			path = APIService;
 			sourceTree = "<group>";
@@ -13253,7 +13242,6 @@
 				B06F033C2B5A8C1200F04F0E /* LimitsResponseParser.swift */,
 				B03FF8A12B5E5C4500202EC0 /* VisaLogger.swift */,
 				B08D3C152BF628A500C83299 /* VisaConfigProvider.swift */,
-				B05E36D42CDA418800CE44F2 /* JSONDecoderFactory.swift */,
 				B08B7C202D031B8700EA0387 /* VisaWalletPublicKeyUtility.swift */,
 				B0569C652CFD97D700CCD55F /* JWTTokenHelper.swift */,
 				B07232462D10216500E30614 /* VisaConstants.swift */,
@@ -13274,7 +13262,6 @@
 				B051451D2B59355E00EDAD1E /* VisaLimits.swift */,
 				B06F03402B5A8C6300F04F0E /* VisaParserError.swift */,
 				B050F4F52B60E7F400B2E53C /* VisaTransactionRecord.swift */,
-				B050F4F92B60F60600B2E53C /* VisaAPIResponses.swift */,
 				B086AE0A2D51E0260042B955 /* VisaUtilitiesError.swift */,
 				B0DB1ABF2D81BF6600FDB85E /* Visa+UniversalError.swift */,
 				B08E995B2D9E7BE0008F367F /* VisaError.swift */,
@@ -13557,13 +13544,12 @@
 		B06C6D282CE48A0100B30325 /* AuthorizationTokensHandler */ = {
 			isa = PBXGroup;
 			children = (
-				DA0B6FF02ED465A6006B96F0 /* TangemPay */,
+				DA732A1C2F179444006F8BF0 /* TangemPay */,
 				B0A359AF2CE7030C0001499E /* AuthorizationTokensUtility.swift */,
 				B0A359AD2CE7021B0001499E /* AuthorizationTokensHolder.swift */,
 				B06C6D292CE48A1900B30325 /* VisaAuthorizationTokensHandler.swift */,
 				B0A359A92CE6FCA10001499E /* VisaAuthorizationTokensHandlerError.swift */,
 				B0617FB82D65B94A008A1411 /* VisaAuthorizationTokensHandlerBuilder.swift */,
-				DA0B6FEC2ED464FF006B96F0 /* TangemPayAuthorizationTokensHandlerBuilder.swift */,
 			);
 			path = AuthorizationTokensHandler;
 			sourceTree = "<group>";
@@ -13764,14 +13750,6 @@
 			path = TangemSdk;
 			sourceTree = "<group>";
 		};
-		B08DB6112D3A69B300A8B63F /* Mocks */ = {
-			isa = PBXGroup;
-			children = (
-				B08DB6122D3A6A4A00A8B63F /* VisaAPIMocks.swift */,
-			);
-			path = Mocks;
-			sourceTree = "<group>";
-		};
 		B08E995D2D9FD159008F367F /* EmailConfig */ = {
 			isa = PBXGroup;
 			children = (
@@ -13892,7 +13870,6 @@
 				B050F4F22B5FB02B00B2E53C /* APIService */,
 				B099339B2B55194900240CDB /* PaymentAccountInteractor */,
 				B051451A2B59353D00EDAD1E /* Models */,
-				B08DB6112D3A69B300A8B63F /* Mocks */,
 				B099339A2B55194000240CDB /* Settings */,
 				B05145152B5934E200EDAD1E /* Utilities */,
 			);
@@ -18848,22 +18825,12 @@
 			isa = PBXGroup;
 			children = (
 				DAEE398D2E741673006BE201 /* ValidateDeeplink */,
-				DA0364BA2E42E7A800FDBDB7 /* TangemPayAvailabilityService.swift */,
 				DA0364B82E42E74C00FDBDB7 /* TangemPayAvailabilityAPITarget.swift */,
+				DA0364BA2E42E7A800FDBDB7 /* TangemPayAvailabilityService.swift */,
 				DA0364B52E42E6D100FDBDB7 /* TangemPayAvailabilityResponse.swift */,
 				DA5181F82ED6F7430034F475 /* TangemPayIsPaeraCustomerResponse.swift */,
 			);
 			path = TangemPayAvailabilityService;
-			sourceTree = "<group>";
-		};
-		DA0B6FF02ED465A6006B96F0 /* TangemPay */ = {
-			isa = PBXGroup;
-			children = (
-				DA0B6FF32ED465B5006B96F0 /* TangemPayAuthorizationTokensSaver.swift */,
-				DA0B6FF12ED465AC006B96F0 /* TangemPayAuthorizationTokensHandler.swift */,
-				DA0B6FF52ED465C3006B96F0 /* CommonTangemPayAuthorizationTokensHandler.swift */,
-			);
-			path = TangemPay;
 			sourceTree = "<group>";
 		};
 		DA10101E2CDA4D9C00EE0D05 /* Subviews */ = {
@@ -18913,7 +18880,7 @@
 				DA1FAB342E7C652A0059FFE5 /* TangemPayNotificationManager.swift */,
 				DF42B0232ECEEF4300019970 /* TangemPayIssuingManager.swift */,
 				EFB142C42ED6384F00886D11 /* TangemPayAccountProvider.swift */,
-				DF34D6F62EF11F6F0076C9F2 /* AvailabilityRepository */,
+				DA732A162F179313006F8BF0 /* AvailabilityRepository */,
 			);
 			path = TangemPay;
 			sourceTree = "<group>";
@@ -19024,6 +18991,23 @@
 			path = TangemPayFreezeUnfreeze;
 			sourceTree = "<group>";
 		};
+		DA732A162F179313006F8BF0 /* AvailabilityRepository */ = {
+			isa = PBXGroup;
+			children = (
+				DA732A142F179313006F8BF0 /* CommonTangemPayAvailabilityRepository.swift */,
+				DA732A152F179313006F8BF0 /* TangemPayAvailabilityRepository.swift */,
+			);
+			path = AvailabilityRepository;
+			sourceTree = "<group>";
+		};
+		DA732A1C2F179444006F8BF0 /* TangemPay */ = {
+			isa = PBXGroup;
+			children = (
+				DA732A192F17940D006F8BF0 /* TangemPayAuthorizationTokensHandler.swift */,
+			);
+			path = TangemPay;
+			sourceTree = "<group>";
+		};
 		DA7444212A27889600F926A9 /* PromotionService */ = {
 			isa = PBXGroup;
 			children = (
@@ -19131,7 +19115,6 @@
 		DA7EAE7D2ED06C420022C2AB /* AuthorizationTokensRepository */ = {
 			isa = PBXGroup;
 			children = (
-				DA7EAE7E2ED06C480022C2AB /* TangemPayAuthorizationTokensRepository.swift */,
 				DA7EAE822ED06C8F0022C2AB /* CommonTangemPayAuthorizationTokensRepository.swift */,
 				DA7EAE842ED06CAF0022C2AB /* TangemPayAuthorizationTokensRepositoryKey.swift */,
 			);
@@ -26050,7 +26033,6 @@
 				B68E1F772CBC44060043E598 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				DF34D6F62EF11F6F0076C9F2 /* AvailabilityRepository */,
 				DFB0DFA52EEA7323006885A1 /* Coordinator */,
 				DFF3F35F2EF43F86004E61AB /* TangemPayKYCStatusPopup */,
 				DFFE445E2EE1A917004CAC28 /* GetTangemPay */,
@@ -28992,7 +28974,6 @@
 				DAD212B72E822F4100097D16 /* TangemPayCardDetailsView.swift in Sources */,
 				B60C49032E9DB34C00CC87E4 /* UserTokensRepositoryUpdateRequest.swift in Sources */,
 				B60241402EB13A9D007315C5 /* StoredEntryConverter.swift in Sources */,
-				DA7EAE7F2ED06C480022C2AB /* TangemPayAuthorizationTokensRepository.swift in Sources */,
 				B6FECF4F2C4032930030A8A9 /* PushNotificationsPermissionManagerStub.swift in Sources */,
 				DC7D39FB29E02000007BCD23 /* TangemSdkDefaultFactory.swift in Sources */,
 				EF9EA9632B10D39F00AC1DA1 /* ExpressTokensListAdapter.swift in Sources */,
@@ -29083,6 +29064,8 @@
 				2D8B960D2ED73A2400AA79AF /* MarketTokenItemViewModel.swift in Sources */,
 				B62FE4122EC4272E00CCBAC1 /* AccountWalletModelsAggregator.swift in Sources */,
 				DAC3D57A2B0518C900C55B4C /* TransactionSignerMock.swift in Sources */,
+				DA732A172F179313006F8BF0 /* CommonTangemPayAvailabilityRepository.swift in Sources */,
+				DA732A182F179313006F8BF0 /* TangemPayAvailabilityRepository.swift in Sources */,
 				EF7672EE2E0D6FD100A8900E /* SendSwapProvidersSelectorView.swift in Sources */,
 				EF729B562AF12B8300D80205 /* FeeOption.swift in Sources */,
 				EF0B63F62C5411C900365A50 /* UnstakingModel.swift in Sources */,
@@ -29676,6 +29659,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DFF3E7A82EEA8E6400BA5E15 /* DefaultMissing.swift in Sources */,
+				DA732A1A2F17940D006F8BF0 /* TangemPayAuthorizationTokensHandler.swift in Sources */,
 				B0A593552CF711A200C386EE /* CardActivationTask.swift in Sources */,
 				B0DE6EE92CDCFCC500254675 /* VisaAuthorizationModels.swift in Sources */,
 				B07232452D101B5D00E30614 /* VisaCardActivationStatusService.swift in Sources */,
@@ -29687,7 +29671,6 @@
 				B05F19552BF3589C007E5552 /* GetTokenInfoMethod.swift in Sources */,
 				DADA1CE02EC49B0A009329A9 /* TangemPaySetPinResponse.swift in Sources */,
 				B0ECB40D2D50B87D007C59BE /* VisaActivationUtilities.swift in Sources */,
-				B05E36D52CDA418800CE44F2 /* JSONDecoderFactory.swift in Sources */,
 				B0EC860C2CEE253F003E5B67 /* VisaActivationError.swift in Sources */,
 				B08D3C162BF628A500C83299 /* VisaConfigProvider.swift in Sources */,
 				B03C19A62CF071B500CCB4F1 /* VisaCardActivationInput.swift in Sources */,
@@ -29705,7 +29688,6 @@
 				B086AE0D2D51EA230042B955 /* ProductActivationServiceBuilder.swift in Sources */,
 				B01168BA2D4CC8AC001DCC6E /* ProductActivationAPIModels.swift in Sources */,
 				DA709FFD2E167E7F006B9774 /* KYCService.swift in Sources */,
-				DA0B6FF42ED465B5006B96F0 /* TangemPayAuthorizationTokensSaver.swift in Sources */,
 				DAEE4B0E2ED48F9300550280 /* TangemPayAPIService.swift in Sources */,
 				B0731E372D6470CD00816DD5 /* EthereumDataParser.swift in Sources */,
 				B0A2A0B42D8078BA007A90B5 /* VisaAccessCodeValidationError.swift in Sources */,
@@ -29741,12 +29723,10 @@
 				DA99CA762E16A46F00A0A73B /* KYCStep.swift in Sources */,
 				DA0364B62E42E6EF00FDBDB7 /* TangemPayAvailabilityResponse.swift in Sources */,
 				EF90AD882ED8A13F00572684 /* TangemPayWithdrawPreSignature.swift in Sources */,
-				DA0B6FED2ED464FF006B96F0 /* TangemPayAuthorizationTokensHandlerBuilder.swift in Sources */,
 				B0569C662CFD97D700CCD55F /* JWTTokenHelper.swift in Sources */,
 				B07D96782CD4CCE700A3BAF2 /* VisaActivationManager.swift in Sources */,
 				B050F5002B60FCE500B2E53C /* VisaAPIServiceBuilder.swift in Sources */,
 				DF4793B92EE935B60024ADE3 /* TangemPayGetPinRequest.swift in Sources */,
-				B050F4FA2B60F60600B2E53C /* VisaAPIResponses.swift in Sources */,
 				B06F033D2B5A8C1200F04F0E /* LimitsResponseParser.swift in Sources */,
 				DA72BEBE2EC33E7E00F06EB5 /* TangemPayFreezeUnfreezeResponse.swift in Sources */,
 				B03FF8A42B5E737600202EC0 /* CommonPaymentAccountInteractor.swift in Sources */,
@@ -29757,22 +29737,20 @@
 				DFE25D472EFA949E0028B597 /* TangemPaySetPayEnabledRequest.swift in Sources */,
 				B0B1E9742DAFCD540027521C /* VisaPaymentAccountCardSettings.swift in Sources */,
 				B086AE102D51EE0D0042B955 /* CardActivationOrderProviderBuilder.swift in Sources */,
+				DA732A1E2F179709006F8BF0 /* TangemPayAuthorizationServiceBuilder.swift in Sources */,
 				B069794A2D6367E50099C967 /* GetCardInfoMethod.swift in Sources */,
 				B01408322D0832FF00734888 /* CustomerInfoManagementService.swift in Sources */,
 				DA8BF16A2E86B23E00B63884 /* TangemPayCardDetailsResponse.swift in Sources */,
 				DA39E28E2E8400DD003FADBC /* TangemPayPlaceOrderRequest.swift in Sources */,
 				EF12DBC22ED4707B0090E279 /* TangemPayWithdrawTransaction.swift in Sources */,
 				B01356192D12B65E0028BD16 /* SignActivationOrderTask.swift in Sources */,
-				B08DB6132D3A6A4A00A8B63F /* VisaAPIMocks.swift in Sources */,
 				B01408332D0832FF00734888 /* CustomerInfoManagementAPITarget.swift in Sources */,
 				B0E826E92D66177B008182FF /* VisaCustomerCardInfoProviderBuilder.swift in Sources */,
 				B06F03412B5A8C6300F04F0E /* VisaParserError.swift in Sources */,
+				DA732A202F17972A006F8BF0 /* TangemPayAvailabilityServiceBuilder.swift in Sources */,
 				B063D5D02D56114100ED8EC1 /* PINCodeProcessor.swift in Sources */,
-				B05E36D22CDA3D2200CE44F2 /* APIService.swift in Sources */,
 				B099339D2B55196700240CDB /* VisaPaymentAccountInteractor.swift in Sources */,
-				DA0B6FEF2ED46516006B96F0 /* TangemPayAPIServiceBuilder.swift in Sources */,
 				DA72BEBC2EC33E6E00F06EB5 /* TangemPayFreezeUnfreezeRequest.swift in Sources */,
-				DA0B6FF62ED465C3006B96F0 /* CommonTangemPayAuthorizationTokensHandler.swift in Sources */,
 				B0874DA82D4A733200A5BBF0 /* ProductActivationService.swift in Sources */,
 				DA7EAE7A2ED063560022C2AB /* TangemPayGetChallengeResponse.swift in Sources */,
 				B086AE0B2D51E0260042B955 /* VisaUtilitiesError.swift in Sources */,
@@ -29795,7 +29773,6 @@
 				DA99CA7E2E16E12000A0A73B /* UIViewController+swizzling.swift in Sources */,
 				B0A359AA2CE6FCA10001499E /* VisaAuthorizationTokensHandlerError.swift in Sources */,
 				B05145122B59349100EDAD1E /* SmartContractMethodIdCreator.swift in Sources */,
-				DA0B6FF22ED465AC006B96F0 /* TangemPayAuthorizationTokensHandler.swift in Sources */,
 				B03FF8A22B5E5C4500202EC0 /* VisaLogger.swift in Sources */,
 				DAEE398C2E741613006BE201 /* ValidateDeeplinkResponse.swift in Sources */,
 				DA7EAE772ED063310022C2AB /* TangemPayRefreshTokensRequest.swift in Sources */,
