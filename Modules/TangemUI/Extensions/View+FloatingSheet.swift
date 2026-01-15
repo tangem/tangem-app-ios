@@ -18,6 +18,7 @@ public extension View {
         @ViewBuilder viewBuilder: @escaping (SheetContentViewModel) -> some View
     ) -> some View {
         background(FloatingSheetRegisterer(type: type, viewBuilder: viewBuilder))
+            .modifier(FloatingSheetVisibilityModifier(type: type))
     }
 
     func floatingSheetConfiguration(_ configurationBuilder: (_ configuration: inout FloatingSheetConfiguration) -> Void) -> some View {
