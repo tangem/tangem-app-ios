@@ -8,7 +8,7 @@
 
 import TangemFoundation
 
-typealias TokenFeesList = [TokenFee]
+typealias TokenFeesList = [LoadableTokenFee]
 
 extension TokenFeesList {
     var hasMultipleFeeOptions: Bool { unique(by: \.option).count > 1 }
@@ -24,7 +24,7 @@ extension TokenFeesList {
 
         let fees = compactMap { $0.value.value }
 
-        assert(count == fees.count, "Some TokenFee doesn't have fee value")
+        assert(count == fees.count, "Some LoadableTokenFee doesn't have fee value")
         return .success(fees)
     }
 }
@@ -32,7 +32,7 @@ extension TokenFeesList {
 // MARK: - TokenFeesList+
 
 extension TokenFeesList {
-    subscript(_ option: FeeOption) -> TokenFee? {
+    subscript(_ option: FeeOption) -> LoadableTokenFee? {
         first { $0.option == option }
     }
 }

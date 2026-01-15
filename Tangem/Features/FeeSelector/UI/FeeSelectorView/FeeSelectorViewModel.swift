@@ -98,7 +98,7 @@ extension FeeSelectorViewModel: FeeSelectorTokensRoutable {
 // MARK: - FeeSelectorFeesRoutable
 
 extension FeeSelectorViewModel: FeeSelectorFeesRoutable {
-    func userDidTapConfirmSelection(selectedFee: TokenFee) {
+    func userDidTapConfirmSelection(selectedFee: LoadableTokenFee) {
         interactor.userDidSelectFee(selectedFee)
 
         if interactor.hasMultipleFeeProviders {

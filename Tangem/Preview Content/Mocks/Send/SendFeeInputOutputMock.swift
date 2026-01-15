@@ -10,18 +10,18 @@ import SwiftUI
 import Combine
 
 final class SendFeeInputOutputMock: SendFeeInput, SendFeeOutput {
-    var selectedFee: TokenFee? {
-        TokenFee(
+    var selectedFee: LoadableTokenFee? {
+        LoadableTokenFee(
             option: .market,
             tokenItem: .blockchain(.init(.ethereum(testnet: false), derivationPath: .none)),
             value: .success(.init(.init(with: .polygon(testnet: false), value: 0.1)))
         )
     }
 
-    var selectedFeePublisher: AnyPublisher<TokenFee?, Never> { .just(output: selectedFee) }
+    var selectedFeePublisher: AnyPublisher<LoadableTokenFee?, Never> { .just(output: selectedFee) }
     var hasMultipleFeeOptions: AnyPublisher<Bool, Never> { .just(output: false) }
     var cryptoAmountPublisher: AnyPublisher<Decimal, Never> { .just(output: 1) }
     var destinationAddressPublisher: AnyPublisher<String?, Never> { .just(output: "0x") }
 
-    func feeDidChanged(fee: TokenFee) {}
+    func feeDidChanged(fee: LoadableTokenFee) {}
 }

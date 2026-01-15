@@ -182,23 +182,23 @@ private extension StakingModel {
             .allowanceState(amount: amount, spender: spender, approvePolicy: approvePolicy)
     }
 
-    func mapToSendFee(_ state: State?) -> TokenFee {
+    func mapToSendFee(_ state: State?) -> LoadableTokenFee {
         switch state {
         case .none, .loading:
-            return TokenFee(option: .market, tokenItem: feeTokenItem, value: .loading)
+            return LoadableTokenFee(option: .market, tokenItem: feeTokenItem, value: .loading)
         case .readyToApprove(let approveData):
-            return TokenFee(option: .market, tokenItem: feeTokenItem, value: .success(approveData.fee))
+            return LoadableTokenFee(option: .market, tokenItem: feeTokenItem, value: .success(approveData.fee))
         case .readyToStake(let readyToStake):
-            return TokenFee(option: .market, tokenItem: feeTokenItem, value: .success(makeFee(value: readyToStake.fee)))
+            return LoadableTokenFee(option: .market, tokenItem: feeTokenItem, value: .success(makeFee(value: readyToStake.fee)))
         case .approveTransactionInProgress(let fee),
              .validationError(_, let fee):
-            return TokenFee(option: .market, tokenItem: feeTokenItem, value: .success(makeFee(value: fee)))
+            return LoadableTokenFee(option: .market, tokenItem: feeTokenItem, value: .success(makeFee(value: fee)))
         case .networkError(let error):
-            return TokenFee(option: .market, tokenItem: feeTokenItem, value: .failure(error))
+            return LoadableTokenFee(option: .market, tokenItem: feeTokenItem, value: .failure(error))
         case .blockchainAccountInitializationRequired(_, let transactionFee):
-            return TokenFee(option: .market, tokenItem: feeTokenItem, value: .success(transactionFee))
+            return LoadableTokenFee(option: .market, tokenItem: feeTokenItem, value: .success(transactionFee))
         case .blockchainAccountInitializationInProgress:
-            return TokenFee(option: .market, tokenItem: feeTokenItem, value: .failure(StakingModelError.accountIsNotInitialized))
+            return LoadableTokenFee(option: .market, tokenItem: feeTokenItem, value: .failure(StakingModelError.accountIsNotInitialized))
         }
     }
 
@@ -351,11 +351,11 @@ private extension StakingModel {
 extension StakingModel: SendFeeProvider {
     var feeOptions: [FeeOption] { [.market] }
 
-    var fees: [TokenFee] {
+    var fees: [LoadableTokenFee] {
         [mapToSendFee(_state.value)]
     }
 
-    var feesPublisher: AnyPublisher<[TokenFee], Never> {
+    var feesPublisher: AnyPublisher<[LoadableTokenFee], Never> {
         _state
             .withWeakCaptureOf(self)
             .map { [$0.mapToSendFee($1)] }
@@ -433,11 +433,11 @@ extension StakingModel: StakingTargetsOutput {
 // MARK: - SendFeeInput
 
 extension StakingModel: SendFeeInput {
-    var selectedFee: TokenFee? {
+    var selectedFee: LoadableTokenFee? {
         mapToSendFee(_state.value)
     }
 
-    var selectedFeePublisher: AnyPublisher<TokenFee?, Never> {
+    var selectedFeePublisher: AnyPublisher<LoadableTokenFee?, Never> {
         _state
             .withWeakCaptureOf(self)
             .map { model, state in
@@ -450,7 +450,7 @@ extension StakingModel: SendFeeInput {
 // MARK: - SendFeeOutput
 
 extension StakingModel: SendFeeOutput {
-    func feeDidChanged(fee: TokenFee) {
+    func feeDidChanged(fee: LoadableTokenFee) {
         assertionFailure("We can not change fee in staking")
     }
 }
