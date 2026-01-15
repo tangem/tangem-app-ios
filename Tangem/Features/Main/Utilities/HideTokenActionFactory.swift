@@ -11,34 +11,34 @@ import Foundation
 struct HideTokenActionFactory {
     let userWalletModel: UserWalletModel
 
-    func makeAction(tokenItem: TokenItem, walletModel: (any WalletModel)?) throws(Error) -> () -> Void {
-        let userTokensManager = try getUserTokensManager(walletModel: walletModel, tokenName: tokenItem.name)
+    func makeAction(for tokenItem: TokenItem) throws(Error) -> () -> Void {
+        let userTokensManager = try getUserTokensManager(for: tokenItem)
 
         guard userTokensManager.canRemove(tokenItem) else {
             throw .conditionsNotMet(tokenItem.name)
         }
 
-        return { hideToken(tokenItem: tokenItem, using: userTokensManager) }
+        return { hideToken(tokenItem, using: userTokensManager) }
     }
 
-    private func getUserTokensManager(walletModel: (any WalletModel)?, tokenName: String) throws(Error) -> UserTokensManager {
+    private func getUserTokensManager(for tokenItem: TokenItem) throws(Error) -> UserTokensManager {
         guard FeatureProvider.isAvailable(.accounts) else {
             // accounts_fixes_needed_none
             return userWalletModel.userTokensManager
         }
 
-        guard let walletModel else {
-            throw .missingWalletModel(tokenName)
-        }
-
-        guard let cryptoAccountModel = walletModel.account else {
-            throw .missingCryptoAccount(tokenName)
+        guard let cryptoAccountModel = userWalletModel
+            .accountModelsManager
+            .cryptoAccountModels
+            .first(where: { $0.userTokensManager.contains(tokenItem, derivationInsensitive: false) })
+        else {
+            throw Error.unableToFindCryptoAccount(tokenItem.name)
         }
 
         return cryptoAccountModel.userTokensManager
     }
 
-    private func hideToken(tokenItem: TokenItem, using userTokensManager: UserTokensManager) {
+    private func hideToken(_ tokenItem: TokenItem, using userTokensManager: UserTokensManager) {
         userTokensManager.remove(tokenItem)
 
         Analytics.log(
@@ -56,7 +56,6 @@ struct HideTokenActionFactory {
 extension HideTokenActionFactory {
     enum Error: Swift.Error {
         case conditionsNotMet(String)
-        case missingWalletModel(String)
-        case missingCryptoAccount(String)
+        case unableToFindCryptoAccount(String)
     }
 }
