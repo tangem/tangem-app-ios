@@ -188,6 +188,7 @@ extension VisaWalletModel: WalletModelDependenciesProvider {
     var accountInitializationService: (any BlockchainAccountInitializationService)? { nil }
     var minimalBalanceProvider: (any MinimalBalanceProvider)? { nil }
     var ethereumGaslessTransactionFeeProvider: (any GaslessTransactionFeeProvider)? { nil }
+    var ethereumGaslessTransactionBroadcaster: (any EthereumGaslessTransactionBroadcaster)? { nil }
 }
 
 extension VisaWalletModel: WalletModelTransactionHistoryProvider {
@@ -338,6 +339,10 @@ extension VisaWalletModel: WalletModel {
         // [REDACTED_TODO_COMMENT]
         let addressInfos = ReceiveAddressInfoUtils().makeAddressInfos(from: addresses)
         return addressInfos.map { .address($0) }
+    }
+
+    var ethereumGaslessDataProvider: (any EthereumGaslessDataProvider)? {
+        nil
     }
 }
 

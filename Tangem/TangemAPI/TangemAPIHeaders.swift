@@ -18,6 +18,6 @@ enum TangemAPIHeaders: String {
     case authorization = "Authorization"
 }
 
-enum TangemAPIHeadersValues {
+enum TangemAPIHHeadersValues {
     static let bearerPrefix: String = "Bearer "
 }
