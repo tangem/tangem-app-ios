@@ -255,21 +255,6 @@ extension RestakingModel: SendFeeUpdater {
     }
 }
 
-// MARK: - SendFeeProvider
-
-extension RestakingModel: SendFeeProvider {
-    var fees: [LoadableTokenFee] {
-        [mapToSendFee(_state.value)]
-    }
-
-    var feesPublisher: AnyPublisher<[LoadableTokenFee], Never> {
-        _state
-            .withWeakCaptureOf(self)
-            .map { [$0.mapToSendFee($1)] }
-            .eraseToAnyPublisher()
-    }
-}
-
 // MARK: - SendSourceTokenInput
 
 extension RestakingModel: SendSourceTokenInput {

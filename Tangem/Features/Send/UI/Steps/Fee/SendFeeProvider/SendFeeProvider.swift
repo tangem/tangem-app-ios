@@ -18,20 +18,3 @@ protocol SendFeeProviderInput: AnyObject {
 protocol SendFeeUpdater {
     func updateFees()
 }
-
-protocol SendFeeProvider {
-    var fees: [LoadableTokenFee] { get }
-    var feesPublisher: AnyPublisher<[LoadableTokenFee], Never> { get }
-    var feesHasMultipleFeeOptions: AnyPublisher<Bool, Never> { get }
-
-    func updateFees()
-}
-
-extension SendFeeProvider {
-    var feesHasMultipleFeeOptions: AnyPublisher<Bool, Never> {
-        feesPublisher
-            .filter { !$0.eraseToLoadingResult().isLoading }
-            .map { $0.hasMultipleFeeOptions }
-            .eraseToAnyPublisher()
-    }
-}
