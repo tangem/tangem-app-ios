@@ -11,22 +11,44 @@ import TangemFoundation
 
 final class TokenFeeManager {
     private let feeProviders: [any TokenFeeProvider]
+
     private let selectedProviderSubject: CurrentValueSubject<any TokenFeeProvider, Never>
+    private let selectedFeeOptionSubject: CurrentValueSubject<FeeOption, Never>
 
     private var updatingFeeTask: Task<Void, Never>?
 
     init(
         feeProviders: [any TokenFeeProvider],
-        initialSelectedProvider: any TokenFeeProvider
+        initialSelectedProvider: any TokenFeeProvider,
+        selectedFeeOption: FeeOption = .market
     ) {
         self.feeProviders = feeProviders
+
         selectedProviderSubject = .init(initialSelectedProvider)
+        selectedFeeOptionSubject = .init(selectedFeeOption)
     }
 }
 
 // MARK: - Public
 
 extension TokenFeeManager {
+    var selectedLoadableFeePublisher: AnyPublisher<LoadableTokenFee, Never> {
+        Publishers
+            .CombineLatest(selectedFeeProviderFeesPublisher, selectedFeeOptionSubject)
+            .compactMap { $0[$1] }
+            .eraseToAnyPublisher()
+    }
+
+    var hasMultipleFeeOptions: AnyPublisher<Bool, Never> {
+        Publishers.CombineLatest(
+            selectedFeeProviderFeesPublisher.map { $0.hasMultipleFeeOptions },
+            supportedFeeTokenProvidersPublisher.map { $0.count > 1 }.eraseToAnyPublisher(),
+        )
+        .map { $0 || $1 }
+        .removeDuplicates()
+        .eraseToAnyPublisher()
+    }
+
     var selectedFeeProvider: any TokenFeeProvider {
         selectedProviderSubject.value
     }

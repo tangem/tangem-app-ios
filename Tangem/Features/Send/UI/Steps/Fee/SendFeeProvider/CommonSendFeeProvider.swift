@@ -42,7 +42,7 @@ final class CommonSendFeeProvider {
     }
 
     private func bind() {
-        autoupdatedSuggestedFeeCancellable = feesPublisher
+        autoupdatedSuggestedFeeCancellable = selectorFeesPublisher
             .withWeakCaptureOf(self)
             .compactMap { feeProvider, fees -> LoadableTokenFee? in
                 // Custom don't support autoupdate
@@ -76,16 +76,9 @@ final class CommonSendFeeProvider {
     }
 }
 
-// MARK: - SendFeeProvider
+// MARK: - SendFeeUpdater
 
-extension CommonSendFeeProvider: SendFeeProvider {
-    var fees: [LoadableTokenFee] { tokenFeeManager.selectedFeeProviderFees }
-    var feesPublisher: AnyPublisher<[LoadableTokenFee], Never> { tokenFeeManager.selectedFeeProviderFeesPublisher }
-
-    var feesHasMultipleFeeOptions: AnyPublisher<Bool, Never> {
-        selectorHasMultipleFeeOptions
-    }
-
+extension CommonSendFeeProvider: SendFeeUpdater {
     func updateFees() {
         guard let amount, let destination else {
             assertionFailure("SendFeeProvider is not ready to update fees")
