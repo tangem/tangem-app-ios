@@ -13,21 +13,21 @@ struct ResetToFactoryUtilBuilder {
     func build(backupCardsCount: Int, cardInteractor: FactorySettingsResetting) -> ResetToFactoryUtil {
         let continueAlertInfo = ResetToFactoryUtil.AlertInfo(
             title: Localization.cardSettingsContinueResetAlertTitle,
-            message: Localization.cardSettingsContinueResetAlertMessage,
+            message: Localization.resetCardsDialogNextDeviceDescription,
             primaryButtonTitle: Localization.cardSettingsActionSheetReset,
             secondaryButtonTitle: Localization.commonCancel
         )
 
         let didFinishAlertInfo = ResetToFactoryUtil.AlertInfo(
             title: Localization.cardSettingsCompletedResetAlertTitle,
-            message: Localization.cardSettingsCompletedResetAlertMessage,
-            primaryButtonTitle: Localization.commonOk,
+            message: Localization.cardResetAlertFinishMessage,
+            primaryButtonTitle: Localization.cardResetAlertFinishOkButton,
             secondaryButtonTitle: Localization.commonCancel
         )
 
         let incompleteAlertInfo = ResetToFactoryUtil.AlertInfo(
-            title: Localization.cardSettingsInterruptedResetAlertTitle,
-            message: Localization.cardSettingsInterruptedResetAlertMessage,
+            title: Localization.cardResetAlertIncompleteTitle,
+            message: Localization.cardResetAlertIncompleteMessage,
             primaryButtonTitle: Localization.cardSettingsActionSheetReset,
             secondaryButtonTitle: Localization.commonCancel
         )
@@ -45,23 +45,23 @@ struct ResetToFactoryUtilBuilder {
 
     func build(cardInteractors: [FactorySettingsResetting]) -> ResetToFactoryUtil {
         let continueAlertInfo = ResetToFactoryUtil.AlertInfo(
-            title: Localization.cardResetAlertContinueTitle,
-            message: Localization.cardResetAlertContinueMessage,
-            primaryButtonTitle: Localization.commonReset,
+            title: Localization.cardSettingsContinueResetAlertTitle,
+            message: Localization.resetCardsDialogNextDeviceDescription,
+            primaryButtonTitle: Localization.cardSettingsActionSheetReset,
             secondaryButtonTitle: Localization.commonCancel
         )
 
         let didFinishAlertInfo = ResetToFactoryUtil.AlertInfo(
-            title: Localization.cardResetAlertFinishTitle,
-            message: Localization.cardResetAlertFinishMessage,
-            primaryButtonTitle: Localization.cardResetAlertFinishOkButton,
+            title: Localization.cardSettingsCompletedResetAlertTitle,
+            message: Localization.cardSettingsCompletedResetAlertMessage,
+            primaryButtonTitle: Localization.commonDone,
             secondaryButtonTitle: Localization.commonCancel
         )
 
         let incompleteAlertInfo = ResetToFactoryUtil.AlertInfo(
             title: Localization.cardResetAlertIncompleteTitle,
             message: Localization.cardResetAlertIncompleteMessage,
-            primaryButtonTitle: Localization.commonReset,
+            primaryButtonTitle: Localization.cardSettingsActionSheetReset,
             secondaryButtonTitle: Localization.commonCancel
         )
 
