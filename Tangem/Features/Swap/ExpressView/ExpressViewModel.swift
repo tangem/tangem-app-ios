@@ -500,7 +500,7 @@ private extension ExpressViewModel {
         }
     }
 
-    func updateExpressFeeRowViewModel(tokenFee: LoadingResult<TokenFee, Never>) {
+    func updateExpressFeeRowViewModel(tokenFee: LoadingResult<LoadableTokenFee, Never>) {
         switch tokenFee {
         case .loading:
             updateExpressFeeRowViewModel(fee: .loading, action: nil)

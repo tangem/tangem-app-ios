@@ -16,8 +16,8 @@ protocol SendFeeProviderInput: AnyObject {
 }
 
 protocol SendFeeProvider {
-    var fees: [TokenFee] { get }
-    var feesPublisher: AnyPublisher<[TokenFee], Never> { get }
+    var fees: [LoadableTokenFee] { get }
+    var feesPublisher: AnyPublisher<[LoadableTokenFee], Never> { get }
     var feesHasMultipleFeeOptions: AnyPublisher<Bool, Never> { get }
 
     func updateFees()

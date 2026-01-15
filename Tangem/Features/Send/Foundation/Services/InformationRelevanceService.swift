@@ -43,7 +43,7 @@ class CommonInformationRelevanceService {
             .store(in: &bag)
     }
 
-    private func compare(selected: TokenFee?, fees: [TokenFee]) -> InformationRelevanceServiceUpdateResult {
+    private func compare(selected: LoadableTokenFee?, fees: [LoadableTokenFee]) -> InformationRelevanceServiceUpdateResult {
         let oldFeeValue = selected?.value.value?.amount.value
         let newFee = fees.first(where: { $0.option == selected?.option })
 

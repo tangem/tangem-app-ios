@@ -57,7 +57,7 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
         stateSubject.eraseToAnyPublisher()
     }
 
-    var fees: [TokenFee] {
+    var fees: [LoadableTokenFee] {
         var fees = mapToTokenFees(state: state)
 
         if let customFee = customFeeProvider?.customFee {
@@ -67,7 +67,7 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
         return fees
     }
 
-    var feesPublisher: AnyPublisher<[TokenFee], Never> {
+    var feesPublisher: AnyPublisher<[LoadableTokenFee], Never> {
         let feesPublisher = statePublisher.withWeakCaptureOf(self).map { $0.mapToTokenFees(state: $1) }
         let customFeePublisher = customFeeProvider?.customFeePublisher.map { [$0] }.eraseToAnyPublisher() ?? Just([]).eraseToAnyPublisher()
 
@@ -169,7 +169,7 @@ extension CommonTokenFeeProvider: FeeSelectorCustomFeeDataProviding {}
 // MARK: - Mapping
 
 private extension CommonTokenFeeProvider {
-    func mapToTokenFees(state: TokenFeeProviderState) -> [TokenFee] {
+    func mapToTokenFees(state: TokenFeeProviderState) -> [LoadableTokenFee] {
         switch state {
         case .idle, .unavailable: []
         case .loading:

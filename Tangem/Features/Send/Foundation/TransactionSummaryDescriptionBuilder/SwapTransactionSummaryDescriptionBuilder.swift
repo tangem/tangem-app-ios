@@ -11,7 +11,7 @@ import TangemExpress
 import TangemAssets
 
 protocol SwapTransactionSummaryDescriptionBuilder: GenericTransactionSummaryDescriptionBuilder {
-    func makeDescription(amount: Decimal?, fee: TokenFee?, provider: ExpressProvider) -> AttributedString?
+    func makeDescription(amount: Decimal?, fee: LoadableTokenFee?, provider: ExpressProvider) -> AttributedString?
 }
 
 struct CommonSwapTransactionSummaryDescriptionBuilder {
@@ -21,7 +21,7 @@ struct CommonSwapTransactionSummaryDescriptionBuilder {
 // MARK: - SendTransactionSummaryDescriptionBuilder
 
 extension CommonSwapTransactionSummaryDescriptionBuilder: SwapTransactionSummaryDescriptionBuilder {
-    func makeDescription(amount: Decimal?, fee: TokenFee?, provider: ExpressProvider) -> AttributedString? {
+    func makeDescription(amount: Decimal?, fee: LoadableTokenFee?, provider: ExpressProvider) -> AttributedString? {
         let sendDescription: AttributedString? = {
             guard let amount = amount, let fee else {
                 return nil

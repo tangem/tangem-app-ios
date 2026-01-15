@@ -12,8 +12,8 @@ import BlockchainSdk
 struct FeeSelectorMockUIUtils {}
 
 extension FeeSelectorMockUIUtils {
-    static func mockFeeSelectorFee(feeOption: FeeOption = .market) -> TokenFee {
-        return TokenFee(
+    static func mockFeeSelectorFee(feeOption: FeeOption = .market) -> LoadableTokenFee {
+        return LoadableTokenFee(
             option: feeOption,
             tokenItem: FeeSelectorMockUIUtils.mockTokenItem,
             value: .success(.init(Amount(with: FeeSelectorMockUIUtils.mockTokenItem.token!, value: Decimal(Int.random(in: 10 ... 300)))))
@@ -27,7 +27,7 @@ extension FeeSelectorMockUIUtils {
         )
     }
 
-    static var mockSelectorFeess: [TokenFee] {
+    static var mockSelectorFeess: [LoadableTokenFee] {
         if Bool.random() {
             return [mockFeeSelectorFee(feeOption: .market)]
         }
