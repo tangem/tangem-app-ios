@@ -224,12 +224,6 @@ private extension CommonYieldModuleNetworkManager {
     }
 }
 
-private extension CommonYieldModuleNetworkManager {
-    enum Constants {
-        static let temporaryDefaultMaxNetworkFee = BigUInt(1) // will be removed in the future [REDACTED_INFO]
-    }
-}
-
 private struct YieldModuleNetworkManagerKey: InjectionKey {
     static var currentValue: YieldModuleNetworkManager = {
         let apiType: YieldModuleAPIType = AppEnvironment.current.isProduction

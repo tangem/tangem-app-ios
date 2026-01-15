@@ -54,5 +54,11 @@ struct MarketsCoordinatorView: CoordinatorView {
                 MarketsTokenDetailsCoordinatorView(coordinator: $0)
                     .ignoresSafeArea(.container, edges: .top) // Without it, the content won't go into the safe area top zone on over-scroll
             }
+            .navigation(item: $coordinator.marketsSearchCoordinator) {
+                MarketsSearchCoordinatorView(coordinator: $0)
+            }
+            .navigation(item: $coordinator.newsListCoordinator) {
+                NewsListCoordinatorView(coordinator: $0)
+            }
     }
 }
