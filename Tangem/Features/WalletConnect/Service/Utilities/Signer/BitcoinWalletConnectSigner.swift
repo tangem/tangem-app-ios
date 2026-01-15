@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemSdk
+import BlockchainSdk
 
 struct BitcoinWalletConnectSigner: WalletConnectSigner {
     let signer: TangemSigner
@@ -17,29 +18,12 @@ struct BitcoinWalletConnectSigner: WalletConnectSigner {
         let pubKey = walletModel.publicKey
         let signed = try await signer.sign(hash: data, walletPublicKey: pubKey)
             .tryMap { response -> Data in
-                // Unmarshal to get r, s, v components
-                guard let extended = try? Secp256k1Signature(with: response).unmarshal(
-                    with: pubKey.blockchainKey,
-                    hash: data
-                ) else {
-                    throw WCTransactionSignError.signFailed
-                }
-
-                // Compose Bitcoin message signature: header + r + s
-                let headerBase = signatureHeaderBase(
-                    address: walletModel.defaultAddress.value,
-                    publicKey: pubKey.blockchainKey
+                try bitcoinSignature(
+                    signedHash: response,
+                    hash: data,
+                    publicKey: pubKey.blockchainKey,
+                    address: walletModel.defaultAddress.value
                 )
-
-                // v is 27..30 (27 + recId). Convert to recId.
-                let vByte = extended.v.last ?? 27
-                let recId = Int(vByte) - 27
-                guard (0 ... 3).contains(recId) else {
-                    throw WCTransactionSignError.signFailed
-                }
-
-                let header = UInt8(headerBase + recId)
-                return Data([header]) + extended.r + extended.s
             }
             .eraseToAnyPublisher()
             .async()
@@ -52,25 +36,12 @@ struct BitcoinWalletConnectSigner: WalletConnectSigner {
         let responses = try await signer.sign(hashes: hashes, walletPublicKey: pubKey)
             .tryMap { responses -> [Data] in
                 try responses.enumerated().map { index, signedHash in
-                    guard let extended = try? Secp256k1Signature(with: signedHash).unmarshal(
-                        with: pubKey.blockchainKey,
-                        hash: hashes[index]
-                    ) else {
-                        throw WCTransactionSignError.signFailed
-                    }
-
-                    let headerBase = signatureHeaderBase(
-                        address: walletModel.defaultAddress.value,
-                        publicKey: pubKey.blockchainKey
+                    try bitcoinSignature(
+                        signedHash: signedHash,
+                        hash: hashes[index],
+                        publicKey: pubKey.blockchainKey,
+                        address: walletModel.defaultAddress.value
                     )
-                    let vByte = extended.v.last ?? 27
-                    let recId = Int(vByte) - 27
-                    guard (0 ... 3).contains(recId) else {
-                        throw WCTransactionSignError.signFailed
-                    }
-
-                    let header = UInt8(headerBase + recId)
-                    return Data([header]) + extended.r + extended.s
                 }
             }
             .eraseToAnyPublisher()
@@ -83,6 +54,37 @@ struct BitcoinWalletConnectSigner: WalletConnectSigner {
 // MARK: - Helpers
 
 private extension BitcoinWalletConnectSigner {
+    func bitcoinSignature(
+        signedHash: Data,
+        hash: Data,
+        publicKey: Data,
+        address: String
+    ) throws -> Data {
+        // Unmarshal to get r, s, v components
+        guard let extended = try? Secp256k1Signature(with: signedHash).unmarshal(
+            with: publicKey,
+            hash: hash
+        ) else {
+            throw WCTransactionSignError.signFailed
+        }
+
+        // Compose Bitcoin message signature: header + r + s
+        let headerBase = signatureHeaderBase(
+            address: address,
+            publicKey: publicKey
+        )
+
+        // v is 27..30 (27 + recId). Convert to recId.
+        let vByte = extended.v.last ?? 27
+        let recId = Int(vByte) - 27
+        guard (0 ... 3).contains(recId) else {
+            throw WCTransactionSignError.signFailed
+        }
+
+        let header = UInt8(headerBase + recId)
+        return Data([header]) + extended.r + extended.s
+    }
+
     func signatureHeaderBase(address: String, publicKey: Data) -> Int {
         if isBech32(address) {
             // SegWit bech32
@@ -90,7 +92,7 @@ private extension BitcoinWalletConnectSigner {
         }
 
         // Legacy: base depends on key compression
-        let isCompressed = publicKey.count == 33
+        let isCompressed = Secp256k1Key.isCompressed(publicKey: publicKey)
         return isCompressed ? 31 : 27
     }
 
