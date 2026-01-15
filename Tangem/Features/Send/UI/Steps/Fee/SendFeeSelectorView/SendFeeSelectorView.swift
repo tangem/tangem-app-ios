@@ -22,11 +22,6 @@ struct SendFeeSelectorView: View {
 
     var body: some View {
         content
-            .floatingSheetConfiguration { configuration in
-                configuration.sheetBackgroundColor = Colors.Background.tertiary
-                configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
-                configuration.backgroundInteractionBehavior = .consumeTouches
-            }
     }
 
     // MARK: - Sub Views
