@@ -63,6 +63,11 @@ final class UserWalletSettingsCoordinator: CoordinatorObject {
 
     func start(with userWalletModel: InputOptions) {
         rootViewModel = UserWalletSettingsViewModel(userWalletModel: userWalletModel, coordinator: self)
+
+        // For testing!
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
+            self?.openMobileBackupTypes(userWalletModel: userWalletModel)
+        }
     }
 }
 

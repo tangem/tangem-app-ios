@@ -15,7 +15,33 @@ final class FloatingSheetViewModel: FloatingSheetPresenter, ObservableObject {
 
     @Published private(set) var activeSheet: (any FloatingSheetContentViewModel)?
 
-    nonisolated init() {}
+    private var bag: Set<AnyCancellable> = []
+
+    nonisolated init() {
+        Task { @MainActor in
+            bind()
+        }
+    }
+
+    private func bind() {
+        FloatingSheetVisibility.shared.$visibleSheets
+            .withWeakCaptureOf(self)
+            // custom case - need improve for cover all cases (when enqueue, paused/resume sheets and etc.)
+            .sink { viewModel, visibleSheets in
+                if let sheet = viewModel.activeSheet, !visibleSheets.contains(ObjectIdentifier(type(of: sheet))) {
+                    viewModel.activeSheet = nil
+                    viewModel.sheetsQueue.append(sheet)
+                    return
+                }
+
+                if let sheet = viewModel.sheetsQueue.first(where: { visibleSheets.contains(ObjectIdentifier(type(of: $0))) }) {
+                    viewModel.activeSheet = sheet
+                    viewModel.sheetsQueue.removeAll(where: { $0.id == sheet.id })
+                    return
+                }
+            }
+            .store(in: &bag)
+    }
 
     func enqueue(sheet: some FloatingSheetContentViewModel) {
         if activeSheet == nil, !isPaused {
