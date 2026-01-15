@@ -226,10 +226,10 @@ struct NotificationView_Previews: PreviewProvider {
             .init(
                 style: .withButtons([
                     .init(action: { _, _ in
-                    }, actionType: .generateAddresses, isWithLoader: false),
+                    }, actionType: .backupCard, isWithLoader: false),
                 ]),
                 severity: .warning,
-                settings: NotificationView.Settings(event: GeneralNotificationEvent.missingDerivation(numberOfNetworks: 1), dismissAction: { [weak self] id in
+                settings: NotificationView.Settings(event: GeneralNotificationEvent.demoCard, dismissAction: { [weak self] id in
                     self?.removeNotification(with: id)
                 })
             ),
