@@ -8,13 +8,6 @@
 
 import Foundation
 
-public extension [ExpressProviderType] {
-    static let all: [ExpressProviderType] = ExpressProviderType.allCases
-    static let swap: [ExpressProviderType] = [.dex, .cex, .dexBridge]
-    static let onramp: [ExpressProviderType] = [.onramp]
-    static let yieldActive: [ExpressProviderType] = [.cex]
-}
-
 public enum ExpressProviderType: String, Hashable, Decodable, CaseIterable {
     case dex
     case cex

@@ -82,10 +82,3 @@ struct ReceiveFlowFactory {
         )
     }
 }
-
-extension ReceiveFlowFactory {
-    enum AvailabilityViewModel {
-        case domainReceiveFlow(ReceiveMainViewModel)
-        case bottomSheetReceiveFlow(ReceiveBottomSheetViewModel)
-    }
-}
