@@ -44,7 +44,7 @@ class BaseManager {
 
     func updateWalletManager() async throws {
         assertionFailure("Has to be overridden")
-        throw InternalError.updateMethodHaveToBeOverridden
+        throw InternalError.updateMethodHasToBeOverridden
     }
 }
 
@@ -134,6 +134,6 @@ extension BaseManager {
 
 extension BaseManager {
     enum InternalError: LocalizedError {
-        case updateMethodHaveToBeOverridden
+        case updateMethodHasToBeOverridden
     }
 }
