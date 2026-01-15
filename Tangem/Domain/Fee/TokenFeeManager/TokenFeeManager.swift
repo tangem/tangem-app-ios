@@ -32,18 +32,6 @@ final class TokenFeeManager {
 // MARK: - Public
 
 extension TokenFeeManager {
-    var selectedLoadableFee: LoadableTokenFee {
-        mapToLoadableTokenFee(state: selectedFeeProvider.state, option: selectedFeeOptionSubject.value)
-    }
-
-    var selectedLoadableFeePublisher: AnyPublisher<LoadableTokenFee, Never> {
-        Publishers
-            .CombineLatest(selectedFeeProvider.statePublisher, selectedFeeOptionSubject)
-            .withWeakCaptureOf(self)
-            .map { $0.mapToLoadableTokenFee(state: $1.0, option: $1.1) }
-            .eraseToAnyPublisher()
-    }
-
     var hasMultipleFeeOptions: AnyPublisher<Bool, Never> {
         Publishers.CombineLatest(
             selectedFeeProviderFeesPublisher.map { $0.hasMultipleFeeOptions },
@@ -98,7 +86,7 @@ extension TokenFeeManager {
         }
     }
 
-    private func mapToLoadableTokenFee(state: TokenFeeProviderState, option: FeeOption) -> LoadableTokenFee {
+    private func mapToLoadableTokenFee(state: TokenFeeProviderState, selectedFeeOption: FeeOption) -> LoadableTokenFee {
         let loadableTokenFeeState: LoadingResult<BSDKFee, any Error> = {
             switch state {
             case .idle, .loading: return .loading
@@ -106,7 +94,6 @@ extension TokenFeeManager {
             case .error(let error): return .failure(error)
             case .available(let fees):
                 let fees = TokenFeeConverter.mapToFeesDictionary(fees: fees)
-                let selectedFeeOption = selectedFeeOptionSubject.value
 
                 if let selectedFeeBySelectedOption = fees[selectedFeeOption] {
                     return .success(selectedFeeBySelectedOption)
@@ -131,9 +118,19 @@ extension TokenFeeManager {
 // MARK: - FeeSelectorInteractor
 
 extension TokenFeeManager: FeeSelectorInteractor {
-    var selectedSelectorFee: LoadableTokenFee? { selectedLoadableFee }
-    var selectedSelectorFeePublisher: AnyPublisher<LoadableTokenFee?, Never> {
-        selectedLoadableFeePublisher.eraseToOptional().eraseToAnyPublisher()
+    var selectedSelectorFee: LoadableTokenFee {
+        mapToLoadableTokenFee(
+            state: selectedFeeProvider.state,
+            selectedFeeOption: selectedFeeOptionSubject.value
+        )
+    }
+
+    var selectedSelectorFeePublisher: AnyPublisher<LoadableTokenFee, Never> {
+        Publishers
+            .CombineLatest(selectedFeeProvider.statePublisher, selectedFeeOptionSubject)
+            .withWeakCaptureOf(self)
+            .map { $0.mapToLoadableTokenFee(state: $1.0, selectedFeeOption: $1.1) }
+            .eraseToAnyPublisher()
     }
 
     var selectorFees: [LoadableTokenFee] { selectedFeeProviderFees }
