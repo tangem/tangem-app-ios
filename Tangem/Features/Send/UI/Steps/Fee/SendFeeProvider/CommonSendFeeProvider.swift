@@ -11,9 +11,8 @@ import Combine
 import TangemFoundation
 
 final class CommonSendFeeProvider {
-    private weak var input: SendFeeInput?
-    private weak var output: SendFeeOutput?
-    private let tokenFeeManager: TokenFeeManager
+    private unowned var sourceTokenInput: SendSourceTokenInput
+    private unowned var sendFeeUpdater: SendFeeUpdater
 
     private var amount: Decimal?
     private var destination: String?
@@ -22,27 +21,16 @@ final class CommonSendFeeProvider {
     private var cryptoAmountSubscription: AnyCancellable?
     private var destinationAddressSubscription: AnyCancellable?
 
-    init(input: SendFeeInput, output: SendFeeOutput, dataInput: SendFeeProviderInput, tokenFeeManager: TokenFeeManager) {
-        self.input = input
-        self.output = output
-        self.tokenFeeManager = tokenFeeManager
+    init(sourceTokenInput: SendSourceTokenInput, sendFeeUpdater: SendFeeUpdater) {
+        self.sourceTokenInput = sourceTokenInput
+        self.sendFeeUpdater = sendFeeUpdater
 
-        bind(dataInput: dataInput)
         bind()
     }
 
-    private func bind(dataInput: any SendFeeProviderInput) {
-        cryptoAmountSubscription = dataInput.cryptoAmountPublisher
-            .eraseToOptional()
-            .assign(to: \.amount, on: self, ownership: .weak)
-
-        destinationAddressSubscription = dataInput.destinationAddressPublisher
-            .eraseToOptional()
-            .assign(to: \.destination, on: self, ownership: .weak)
-    }
-
     private func bind() {
-        autoupdatedSuggestedFeeCancellable = selectorFeesPublisher
+        autoupdatedSuggestedFeeCancellable = sourceTokenInput.sourceToken.tokenFeeManager
+            .selectedFeeProviderFeesPublisher
             .withWeakCaptureOf(self)
             .compactMap { feeProvider, fees -> LoadableTokenFee? in
                 // Custom don't support autoupdate
@@ -53,14 +41,15 @@ final class CommonSendFeeProvider {
                     return failureFee
                 }
 
-                let hasSelected = feeProvider.input?.selectedFee?.value.value == nil
+                let selectedFee = feeProvider.sourceTokenInput.sourceToken.tokenFeeManager.selectedLoadableFee
+                let hasSelected = selectedFee.value.value == nil
 
                 // Have loading and non selected
                 if let loadingFee = fees.first(where: { $0.value.isLoading }), !hasSelected {
                     return loadingFee
                 }
 
-                let selectedFeeOption = hasSelected ? feeProvider.input?.selectedFee?.option : .market
+                let selectedFeeOption = hasSelected ? selectedFee.option : .market
 
                 // All good. Fee just updated
                 if let successFee = fees.first(where: { $0.option == selectedFeeOption }) {
@@ -72,7 +61,9 @@ final class CommonSendFeeProvider {
             }
             .removeDuplicates()
             .withWeakCaptureOf(self)
-            .sink { $0.output?.feeDidChanged(fee: $1) }
+            .sink {
+                $0.sourceTokenInput.sourceToken.tokenFeeManager.updateSelectedFeeOption(feeOption: $1.option)
+            }
     }
 }
 
@@ -80,49 +71,43 @@ final class CommonSendFeeProvider {
 
 extension CommonSendFeeProvider: SendFeeUpdater {
     func updateFees() {
-        guard let amount, let destination else {
-            assertionFailure("SendFeeProvider is not ready to update fees")
-            return
-        }
-
-        tokenFeeManager.setupFeeProviders(input: .common(amount: amount, destination: destination))
-        tokenFeeManager.updateSelectedFeeProviderFees()
+        sendFeeUpdater.updateFees()
     }
 }
 
 // MARK: - FeeSelectorInteractor
 
 extension CommonSendFeeProvider: FeeSelectorInteractor {
-    var selectedSelectorFee: LoadableTokenFee? { input?.selectedFee }
+    var selectedSelectorFee: LoadableTokenFee? { sourceTokenInput.sourceToken.tokenFeeManager.selectedLoadableFee }
     var selectedSelectorFeePublisher: AnyPublisher<LoadableTokenFee?, Never> {
-        input?.selectedFeePublisher.eraseToAnyPublisher() ?? .just(output: .none)
+        sourceTokenInput.sourceToken.tokenFeeManager.selectedLoadableFeePublisher.eraseToOptional().eraseToAnyPublisher()
     }
 
-    var selectorFees: [LoadableTokenFee] { tokenFeeManager.selectedFeeProviderFees }
+    var selectorFees: [LoadableTokenFee] { sourceTokenInput.sourceToken.tokenFeeManager.selectedFeeProviderFees }
     var selectorFeesPublisher: AnyPublisher<[LoadableTokenFee], Never> {
-        tokenFeeManager.selectedFeeProviderFeesPublisher
+        sourceTokenInput.sourceToken.tokenFeeManager.selectedFeeProviderFeesPublisher
     }
 
-    var selectedSelectorTokenFeeProvider: (any TokenFeeProvider)? { tokenFeeManager.selectedFeeProvider }
+    var selectedSelectorTokenFeeProvider: (any TokenFeeProvider)? { sourceTokenInput.sourceToken.tokenFeeManager.selectedFeeProvider }
     var selectedSelectorTokenFeeProviderPublisher: AnyPublisher<(any TokenFeeProvider)?, Never> {
-        tokenFeeManager.selectedFeeProviderPublisher.eraseToOptional().eraseToAnyPublisher()
+        sourceTokenInput.sourceToken.tokenFeeManager.selectedFeeProviderPublisher.eraseToOptional().eraseToAnyPublisher()
     }
 
-    var selectorTokenFeeProviders: [any TokenFeeProvider] { tokenFeeManager.supportedFeeTokenProviders }
+    var selectorTokenFeeProviders: [any TokenFeeProvider] { sourceTokenInput.sourceToken.tokenFeeManager.supportedFeeTokenProviders }
     var selectorTokenFeeProvidersPublisher: AnyPublisher<[any TokenFeeProvider], Never> {
-        tokenFeeManager.supportedFeeTokenProvidersPublisher
+        sourceTokenInput.sourceToken.tokenFeeManager.supportedFeeTokenProvidersPublisher
     }
 
     var customFeeProvider: (any CustomFeeProvider)? {
-        (tokenFeeManager.selectedFeeProvider as? FeeSelectorCustomFeeDataProviding)?.customFeeProvider
+        (sourceTokenInput.sourceToken.tokenFeeManager.selectedFeeProvider as? FeeSelectorCustomFeeDataProviding)?.customFeeProvider
     }
 
     func userDidSelectFee(_ fee: LoadableTokenFee) {
-        output?.feeDidChanged(fee: fee)
+        sourceTokenInput.sourceToken.tokenFeeManager.updateSelectedFeeOption(feeOption: fee.option)
     }
 
     func userDidSelect(tokenFeeProvider: any TokenFeeProvider) {
-        tokenFeeManager.updateSelectedFeeProvider(tokenFeeProvider: tokenFeeProvider)
-        tokenFeeManager.updateSelectedFeeProviderFees()
+        sourceTokenInput.sourceToken.tokenFeeManager.updateSelectedFeeProvider(tokenFeeProvider: tokenFeeProvider)
+        sourceTokenInput.sourceToken.tokenFeeManager.updateSelectedFeeProviderFees()
     }
 }

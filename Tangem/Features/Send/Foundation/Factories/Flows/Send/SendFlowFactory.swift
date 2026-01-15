@@ -34,11 +34,10 @@ class SendFlowFactory: SendFlowBaseDependenciesFactory {
     lazy var swapManager = makeSwapManager()
     lazy var sendModel = makeSendWithSwapModel(swapManager: swapManager, analyticsLogger: analyticsLogger, predefinedValues: .init())
     lazy var notificationManager = makeSendWithSwapNotificationManager(receiveTokenInput: sendModel)
-    lazy var customFeeService = makeCustomFeeService(input: sendModel)
     lazy var sendWithSwapFeeSelectorInteractor = makeSendWithSwapFeeSelectorInteractor(
         receiveTokenInput: sendModel,
-        sendFeeSelectorInteractor: makeSendFeeProvider(input: sendModel, output: sendModel, dataInput: sendModel),
-        swapFeeSelectorInteractor: makeSwapFeeProvider(swapManager: swapManager)
+        sendFeeSelectorInteractor: sendModel,
+        swapFeeSelectorInteractor: swapManager
     )
 
     init(userWalletInfo: UserWalletInfo, walletModel: any WalletModel) {
@@ -118,9 +117,9 @@ extension SendFlowFactory: SendGenericFlowFactory {
         // We have to set dependencies here after all setups is completed
         sendModel.externalAmountUpdater = amount.amountUpdater
         sendModel.externalDestinationUpdater = destination.externalUpdater
-        sendModel.sendFeeProvider = sendWithSwapFeeSelectorInteractor
+
         sendModel.informationRelevanceService = CommonInformationRelevanceService(
-            input: sendModel, output: sendModel, provider: sendWithSwapFeeSelectorInteractor
+            input: sendModel, provider: sendModel
         )
 
         // Steps setup
@@ -263,15 +262,10 @@ extension SendFlowFactory: SendDestinationStepBuildable {
 // MARK: - SendFeeStepBuildable
 
 extension SendFlowFactory: SendFeeStepBuildable {
-    var feeIO: SendNewFeeStepBuilder.IO {
-        SendNewFeeStepBuilder.IO(input: sendModel, output: sendModel)
-    }
-
     var feeDependencies: SendNewFeeStepBuilder.Dependencies {
         SendNewFeeStepBuilder.Dependencies(
             feeSelectorInteractor: sendWithSwapFeeSelectorInteractor,
-            analyticsLogger: analyticsLogger,
-            customFeeProvider: customFeeService
+            analyticsLogger: analyticsLogger
         )
     }
 }
