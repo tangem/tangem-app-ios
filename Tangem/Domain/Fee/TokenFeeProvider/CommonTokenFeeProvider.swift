@@ -17,7 +17,10 @@ class CommonTokenFeeProvider {
     let tokenFeeLoader: any TokenFeeLoader
     let customFeeProvider: (any CustomFeeProvider)?
 
-    var tokenFeeProviderInputData: TokenFeeProviderInputData?
+    var tokenFeeProviderInputData: TokenFeeProviderInputData? {
+        didSet { updateSupportingState(input: tokenFeeProviderInputData) }
+    }
+
     let stateSubject: CurrentValueSubject<TokenFeeProviderState, Never> = .init(.idle)
 
     private var customFeeProviderInitialSetupCancellable: AnyCancellable?
@@ -69,21 +72,9 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
             .eraseToAnyPublisher()
     }
 
-    func updateSupportingState(input: TokenFeeProviderInputData) {
-        let isAvailable = switch input {
-        // Always available
-        case .common, .cex: true
-        case .dex(.ethereumEstimate), .dex(.ethereum): tokenFeeLoader is EthereumTokenFeeLoader
-        case .dex(.solana): tokenFeeLoader is SolanaTokenFeeLoader
-        }
-
-        if !isAvailable {
-            stateSubject.send(.unavailable(.notSupported))
-        }
-    }
-
     func setup(input: TokenFeeProviderInputData) {
         tokenFeeProviderInputData = input
+        updateSupportingState(input: input)
     }
 
     func updateFees() async {
@@ -132,6 +123,30 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
 
         case .dex(.solana(let data)):
             return try await updateFees(compiledTransaction: data)
+        }
+    }
+}
+
+// MARK: - Private
+
+private extension CommonTokenFeeProvider {
+    func updateSupportingState(input: TokenFeeProviderInputData?) {
+        switch input {
+        case .none:
+            stateSubject.send(.unavailable(.inputDataNotSet))
+        case .common, .cex:
+            // Always available. Do nothing
+            break
+        case .dex(.ethereumEstimate) where tokenFeeLoader is EthereumTokenFeeLoader,
+             .dex(.ethereum) where tokenFeeLoader is EthereumTokenFeeLoader:
+            // Is available. Do nothing
+            break
+        case .dex(.solana) where tokenFeeLoader is SolanaTokenFeeLoader:
+            // Is available. Do nothing
+            break
+        case .dex:
+            // DEX but tokenFeeLoader is not (EthereumTokenFeeLoader or SolanaTokenFeeLoader)
+            stateSubject.send(.unavailable(.notSupported))
         }
     }
 }

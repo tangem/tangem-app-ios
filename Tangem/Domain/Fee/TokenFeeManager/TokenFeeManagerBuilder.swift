@@ -50,7 +50,7 @@ private extension TokenFeeManagerBuilder {
         return .common(
             feeTokenItem: feeWalletModel.tokenItem,
             availableTokenBalanceProvider: feeWalletModel.availableBalanceProvider,
-            tokenFeeLoader: feeWalletModel.tokenFeeLoader,
+            tokenFeeLoader: walletModel.tokenFeeLoader,
             customFeeProvider: feeWalletModel.customFeeProvider
         )
     }
