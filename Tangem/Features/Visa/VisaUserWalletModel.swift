@@ -14,6 +14,7 @@ import TangemVisa
 import TangemFoundation
 import TangemNFT
 import struct TangemUIUtils.AlertBinder
+import TangemUI
 
 /// Model responsible for interacting with payment account and BFF
 /// Main setup logic is in `setupPaymentAccountInteractorAsync` . It setups payment account interactor which is responsible with blockchain requests
@@ -195,7 +196,7 @@ final class VisaUserWalletModel {
         do {
             try await setupAuthorizationTokensHandler()
         } catch let modelError as ModelError {
-            if modelError == .missingValidRefreshToken {
+            if case .missingValidRefreshToken = modelError {
                 showRefreshTokenExpiredNotification()
                 return
             }
@@ -272,7 +273,7 @@ final class VisaUserWalletModel {
     }
 
     private func showRefreshTokenExpiredNotification() {
-        stateSubject.send(.failedToLoad(.missingValidRefreshToken))
+        stateSubject.send(.failedToLoad(.missingValidRefreshToken(icon: CommonTangemIconProvider(config: config).getMainButtonIcon())))
     }
 
     private func loadBalancesAndLimits() async {
@@ -350,7 +351,7 @@ extension VisaUserWalletModel {
             )
 
         if authorizationTokensHandler.refreshTokenExpired {
-            throw ModelError.missingValidRefreshToken
+            throw ModelError.missingValidRefreshToken(icon: CommonTangemIconProvider(config: config).getMainButtonIcon())
         }
 
         if authorizationTokensHandler.accessTokenExpired {
@@ -480,14 +481,15 @@ extension VisaUserWalletModel {
         case missingPublicKey
         case failedToGenerateAddress
         case authorizationError
-        case missingValidRefreshToken
+        case missingValidRefreshToken(icon: MainButton.Icon?)
         case missingCardId
         case invalidConfig
         case invalidActivationState
 
         var notificationEvent: VisaNotificationEvent {
             switch self {
-            case .missingValidRefreshToken: return .missingValidRefreshToken
+            case .missingValidRefreshToken(let icon):
+                return .missingValidRefreshToken(icon: icon)
             default: return .error(self)
             }
         }
