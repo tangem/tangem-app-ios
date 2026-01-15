@@ -12,8 +12,10 @@ import CombineExt
 import TangemFoundation
 
 final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
+    private typealias EntitiesCache = ThreadSafeContainer<Cache>
+
     private let userWalletModel: UserWalletModel
-    private let cache: ThreadSafeContainer<Cache>
+    private let cache: EntitiesCache
     private let mappingQueue: DispatchQueue
 
     /// Shared source of truth for both plain and account sections publishers.
@@ -42,7 +44,8 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
             .accountModelsManager
             .accountModelsPublisher
             .map { $0.cryptoAccounts() }
-            .flatMapLatest { cryptoAccounts -> AnyPublisher<CommonSectionInput, Never> in
+            .withWeakCaptureOf(self)
+            .flatMapLatest { provider, cryptoAccounts -> AnyPublisher<CommonSectionInput, Never> in
                 let cryptoAccountModels = Self.extractCryptoAccountModels(from: cryptoAccounts)
                 let hasMultipleAccounts = cryptoAccounts.hasMultipleAccounts
 
@@ -58,7 +61,7 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
                             .makeOrGetCachedTokenSectionsAdapter(for: cryptoAccountModel, using: cache)
 
                         let tokenSectionsSourcePublisher = sourcePublisherFactory
-                            .makeSourcePublisher(for: cryptoAccountModel)
+                            .makeSourcePublisher(for: cryptoAccountModel, in: provider.userWalletModel)
 
                         let organizedTokensSectionsPublisher = tokenSectionsAdapter
                             .organizedSections(from: tokenSectionsSourcePublisher, on: mappingQueue)
@@ -72,18 +75,18 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
             }
             .share(replay: 1)
 
-        subscribeToCachePurgePublisher(publisher)
+        subscribeToPurgeCache(publisher)
 
         return publisher
     }
 
     private static func makeOrGetCachedTokenSectionsAdapter(
         for cryptoAccountModel: any CryptoAccountModel,
-        using cache: ThreadSafeContainer<Cache>
+        using cache: EntitiesCache
     ) -> TokenSectionsAdapter {
         let cacheKey = ObjectIdentifier(cryptoAccountModel)
 
-        if let cachedAdapter: TokenSectionsAdapter = cache.tokenSectionsAdapters[cacheKey] {
+        if let cachedAdapter = cache.tokenSectionsAdapters[cacheKey] {
             return cachedAdapter
         }
 
@@ -103,15 +106,21 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
 
     private static func makeOrGetCachedAccountItemViewModel(
         for cryptoAccountModel: any CryptoAccountModel,
-        using cache: ThreadSafeContainer<Cache>
+        in userWallet: UserWalletModel,
+        using cache: EntitiesCache
     ) -> ExpandableAccountItemViewModel {
         let cacheKey = ObjectIdentifier(cryptoAccountModel)
 
-        if let cachedItemViewModel: ExpandableAccountItemViewModel = cache.accountItemViewModels[cacheKey] {
+        if let cachedItemViewModel = cache.accountItemViewModels[cacheKey] {
             return cachedItemViewModel
         }
 
-        let itemViewModel = ExpandableAccountItemViewModel(accountModel: cryptoAccountModel)
+        @Injected(\.expandableAccountItemStateStorageProvider)
+        var expandableAccountItemStateStorageProvider: ExpandableAccountItemStateStorageProvider
+
+        let stateStorage = expandableAccountItemStateStorageProvider.makeStateStorage(for: userWallet.userWalletId)
+        let itemViewModel = ExpandableAccountItemViewModel(accountModel: cryptoAccountModel, stateStorage: stateStorage)
+
         cache.mutate { $0.accountItemViewModels[cacheKey] = itemViewModel }
 
         return itemViewModel
@@ -119,7 +128,7 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
 
     private func convertToSections(
         _ sections: [TokenSectionsAdapter.Section],
-        using cache: ThreadSafeContainer<Cache>
+        using cache: EntitiesCache
     ) -> [MultiWalletMainContentPlainSection] {
         if sections.count == 1, sections[0].items.isEmpty {
             return []
@@ -137,7 +146,7 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
                 switch item {
                 case .default(let walletModel):
                     let cacheKey = ObjectIdentifier(walletModel)
-                    if let cachedViewModel: TokenItemViewModel = cache.tokenItemViewModels[cacheKey] {
+                    if let cachedViewModel = cache.tokenItemViewModels[cacheKey] {
                         return cachedViewModel
                     }
                     let viewModel = itemViewModelFactory.makeTokenItemViewModel(from: item, using: sectionItemsFactory)
@@ -165,7 +174,7 @@ final class AccountsAwareMultiWalletMainContentViewSectionsProvider {
     }
 
     /// This subscription is needed for purging the cache.
-    private func subscribeToCachePurgePublisher(_ publisher: some Publisher<CommonSectionInput, Never>) {
+    private func subscribeToPurgeCache(_ publisher: some Publisher<CommonSectionInput, Never>) {
         // Clearing previous subscriptions, shouldn't happen but just in case
         purgeCacheSubscription?.cancel()
 
@@ -278,7 +287,11 @@ extension AccountsAwareMultiWalletMainContentViewSectionsProvider: MultiWalletMa
             .withWeakCaptureOf(self)
             .map { provider, input in
                 return input.map { input in
-                    let model = Self.makeOrGetCachedAccountItemViewModel(for: input.cryptoAccountModel, using: cache)
+                    let model = Self.makeOrGetCachedAccountItemViewModel(
+                        for: input.cryptoAccountModel,
+                        in: provider.userWalletModel,
+                        using: cache
+                    )
                     let items = provider.convertToSections(input.sections, using: cache)
 
                     return MultiWalletMainContentAccountSection(model: model, items: items)

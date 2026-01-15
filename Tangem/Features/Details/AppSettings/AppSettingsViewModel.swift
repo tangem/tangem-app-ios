@@ -297,7 +297,7 @@ private extension AppSettingsViewModel {
     }
 
     func updateView() {
-        isBiometryAvailable = BiometricAuthorizationUtils.getBiometricState() == .available
+        isBiometryAvailable = BiometricsUtil.isAvailable
         setupView()
     }
 }
