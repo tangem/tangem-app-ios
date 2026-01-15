@@ -146,6 +146,48 @@ extension CommonSwapManager: SendApproveDataBuilderInput {
     }
 }
 
+// MARK: - FeeSelectorInteractor (ExpressInteractor Proxy)
+
+extension CommonSwapManager: FeeSelectorInteractor {
+    var selectedSelectorFee: LoadableTokenFee? { interactor.selectedSelectorFee }
+    var selectedSelectorFeePublisher: AnyPublisher<LoadableTokenFee?, Never> {
+        interactor.selectedSelectorFeePublisher
+    }
+
+    var selectorFees: [LoadableTokenFee] { interactor.selectorFees }
+    var selectorFeesPublisher: AnyPublisher<[LoadableTokenFee], Never> {
+        interactor.selectorFeesPublisher
+    }
+
+    var selectedSelectorTokenFeeProvider: (any TokenFeeProvider)? {
+        interactor.selectedSelectorTokenFeeProvider
+    }
+
+    var selectedSelectorTokenFeeProviderPublisher: AnyPublisher<(any TokenFeeProvider)?, Never> {
+        interactor.selectedSelectorTokenFeeProviderPublisher
+    }
+
+    var selectorTokenFeeProviders: [any TokenFeeProvider] {
+        interactor.selectorTokenFeeProviders
+    }
+
+    var selectorTokenFeeProvidersPublisher: AnyPublisher<[any TokenFeeProvider], Never> {
+        interactor.selectorTokenFeeProvidersPublisher
+    }
+
+    var customFeeProvider: (any CustomFeeProvider)? {
+        interactor.customFeeProvider
+    }
+
+    func userDidSelectFee(_ fee: LoadableTokenFee) {
+        interactor.userDidSelectFee(fee)
+    }
+
+    func userDidSelect(tokenFeeProvider: any TokenFeeProvider) {
+        interactor.userDidSelect(tokenFeeProvider: tokenFeeProvider)
+    }
+}
+
 // MARK: - Private
 
 private extension CommonSwapManager {
