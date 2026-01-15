@@ -36,6 +36,7 @@ import SolanaSwift
 // `023` - SS58.Error
 // `024` - ValidationError
 // `025` - YieldModuleError
+// `026` - BTCError
 
 extension BlockchainSdkError: UniversalError {
     public var errorCode: Int {
@@ -538,6 +539,25 @@ extension YieldModuleError: UniversalError {
         case .yieldIsNotActive: 102025007
         case .maxNetworkFeeNotFound: 102025008
         case .minimalTopUpAmountNotFound: 102025009
+        }
+    }
+}
+
+extension BitcoinError: UniversalError {
+    public var errorCode: Int {
+        switch self {
+        case .invalidPsbt:
+            102026000
+        case .invalidBase64:
+            102026001
+        case .unsupported:
+            102026002
+        case .inputIndexOutOfRange:
+            102026003
+        case .missingUtxo:
+            102026004
+        case .wrongSignaturesCount:
+            102026005
         }
     }
 }

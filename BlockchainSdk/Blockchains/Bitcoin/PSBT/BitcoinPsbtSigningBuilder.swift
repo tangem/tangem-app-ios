@@ -18,7 +18,7 @@ public class BitcoinPsbtSigningBuilder {
     /// - Note: Returned hashes are double-SHA256 for BTC SIGHASH_ALL.
     public static func hashesToSign(psbtBase64: String, signInputs: [SignInput]) throws -> [Data] {
         guard Data(base64Encoded: psbtBase64) != nil else {
-            throw Error.invalidBase64
+            throw BlockchainSdk.BitcoinError.invalidBase64
         }
 
         let psbt = try Psbt(psbtBase64: psbtBase64)
@@ -55,7 +55,7 @@ public class BitcoinPsbtSigningBuilder {
         publicKey: Data
     ) throws -> String {
         guard let psbtData = Data(base64Encoded: psbtBase64) else {
-            throw Error.invalidBase64
+            throw BlockchainSdk.BitcoinError.invalidBase64
         }
 
         let bdkPsbt = try Psbt(psbtBase64: psbtBase64)
@@ -67,17 +67,17 @@ public class BitcoinPsbtSigningBuilder {
         do {
             psbtMaps = try PsbtKeyValueMap(data: psbtData, inputCount: inputCount, outputCount: outputCount)
         } catch {
-            throw Error.invalidPsbt(String(describing: error))
+            throw BlockchainSdk.BitcoinError.invalidPsbt(String(describing: error))
         }
 
         let indices = signInputs.map(\.index).sorted()
         guard indices.count == signatures.count else {
-            throw Error.wrongSignaturesCount
+            throw BlockchainSdk.BitcoinError.wrongSignaturesCount
         }
 
         for (i, inputIndex) in indices.enumerated() {
             guard inputIndex >= 0, inputIndex < inputCount else {
-                throw Error.inputIndexOutOfRange(inputIndex)
+                throw BlockchainSdk.BitcoinError.inputIndexOutOfRange(inputIndex)
             }
 
             // PSBT partial sigs expect DER signature + 1-byte sighash type.
@@ -90,8 +90,8 @@ public class BitcoinPsbtSigningBuilder {
                     publicKey: publicKey,
                     signatureWithSighash: sigWithHashType
                 )
-            } catch let error as PsbtKeyValueMap.Error {
-                throw Error.invalidPsbt(error.localizedDescription)
+            } catch let error as BlockchainSdk.BitcoinError {
+                throw BlockchainSdk.BitcoinError.invalidPsbt(error.localizedDescription)
             }
         }
 
@@ -101,7 +101,7 @@ public class BitcoinPsbtSigningBuilder {
         let finalized = bdkSigned.finalize()
 
         guard finalized.couldFinalize else {
-            throw Error.invalidPsbt("Could not finalize PSBT")
+            throw BlockchainSdk.BitcoinError.invalidPsbt("Could not finalize PSBT")
         }
 
         return finalized.psbt.serialize()
@@ -119,11 +119,11 @@ private extension BitcoinPsbtSigningBuilder {
         inputIndex: Int
     ) throws -> Data {
         guard txInputs.indices.contains(inputIndex) else {
-            throw BitcoinPsbtSigningBuilder.Error.inputIndexOutOfRange(inputIndex)
+            throw BlockchainSdk.BitcoinError.inputIndexOutOfRange(inputIndex)
         }
 
         guard psbtInputs.indices.contains(inputIndex) else {
-            throw BitcoinPsbtSigningBuilder.Error.inputIndexOutOfRange(inputIndex)
+            throw BlockchainSdk.BitcoinError.inputIndexOutOfRange(inputIndex)
         }
 
         let outpoint = txInputs[inputIndex].previousOutput
@@ -171,7 +171,7 @@ private extension BitcoinPsbtSigningBuilder {
                 value: utxo.value.toSat()
             )
         case .unsupported(let reason):
-            throw BitcoinPsbtSigningBuilder.Error.unsupported(reason)
+            throw BlockchainSdk.BitcoinError.unsupported(reason)
         }
     }
 
@@ -183,12 +183,12 @@ private extension BitcoinPsbtSigningBuilder {
         if let nonWitness = psbtInput.nonWitnessUtxo {
             let outputs = nonWitness.output()
             guard outputs.indices.contains(Int(vout)) else {
-                throw BitcoinPsbtSigningBuilder.Error.invalidPsbt("nonWitnessUtxo output index out of range")
+                throw BlockchainSdk.BitcoinError.invalidPsbt("nonWitnessUtxo output index out of range")
             }
             return outputs[Int(vout)]
         }
 
-        throw BitcoinPsbtSigningBuilder.Error.missingUtxo(Int(vout))
+        throw BlockchainSdk.BitcoinError.missingUtxo(Int(vout))
     }
 }
 
@@ -199,16 +199,5 @@ public extension BitcoinPsbtSigningBuilder {
         public init(index: Int) {
             self.index = index
         }
-    }
-}
-
-extension BitcoinPsbtSigningBuilder {
-    enum Error: Swift.Error {
-        case invalidBase64
-        case invalidPsbt(String)
-        case unsupported(String)
-        case inputIndexOutOfRange(Int)
-        case missingUtxo(Int)
-        case wrongSignaturesCount
     }
 }

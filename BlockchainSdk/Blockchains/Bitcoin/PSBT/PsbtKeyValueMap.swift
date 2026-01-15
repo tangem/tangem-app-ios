@@ -24,7 +24,7 @@ struct PsbtKeyValueMap {
         var reader = ByteReader(data)
         let magic = try reader.read(count: 5)
         guard magic == Const.magicBytes else {
-            throw Error.invalidPsbt("Invalid PSBT magic")
+            throw BitcoinError.invalidPsbt("Invalid PSBT magic")
         }
 
         globalMap = try reader.readKVMap()
@@ -52,7 +52,7 @@ struct PsbtKeyValueMap {
 
     private mutating func setInputKV(inputIndex: Int, key: Data, value: Data) throws {
         guard inputMaps.indices.contains(inputIndex) else {
-            throw Error.inputIndexOutOfRange(inputIndex)
+            throw BitcoinError.inputIndexOutOfRange(inputIndex)
         }
         setInputKVNoThrow(inputIndex: inputIndex, key: key, value: value)
     }
@@ -103,20 +103,6 @@ extension PsbtKeyValueMap {
         let key: Data
         let value: Data
     }
-
-    enum Error: LocalizedError {
-        case invalidPsbt(String)
-        case inputIndexOutOfRange(Int)
-
-        var errorDescription: String? {
-            switch self {
-            case .invalidPsbt(let message):
-                return message
-            case .inputIndexOutOfRange(let index):
-                return "PSBT input index out of range: \(index)"
-            }
-        }
-    }
 }
 
 // MARK: - Low-level readers/writers
@@ -131,7 +117,7 @@ private struct ByteReader {
 
     mutating func read(count: Int) throws -> Data {
         guard offset + count <= data.count else {
-            throw PsbtKeyValueMap.Error.invalidPsbt("Unexpected EOF")
+            throw BitcoinError.invalidPsbt("Unexpected EOF")
         }
         defer { offset += count }
         return data.subdata(in: offset ..< offset + count)
@@ -156,7 +142,7 @@ private struct ByteReader {
     /// - `0xFF`: followed by `UInt64` little-endian (9 bytes total)
     ///
     /// - Returns: Decoded unsigned integer.
-    /// - Throws: `PsbtKeyValueMap.Error.invalidPsbt("Unexpected EOF")` if there aren't enough bytes to read.
+    /// - Throws: `BitcoinError.invalidPsbt("Unexpected EOF")` if there aren't enough bytes to read.
     mutating func readVarInt() throws -> UInt64 {
         let first = try read(count: 1).first!
         switch first {
@@ -170,7 +156,7 @@ private struct ByteReader {
         case 0xFF:
             return try readUInt64LE()
         default:
-            throw PsbtKeyValueMap.Error.invalidPsbt("Invalid varint")
+            throw BitcoinError.invalidPsbt("Invalid varint")
         }
     }
 
