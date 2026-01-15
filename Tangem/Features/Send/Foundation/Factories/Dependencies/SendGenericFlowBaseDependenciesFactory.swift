@@ -72,25 +72,16 @@ extension SendGenericFlowBaseDependenciesFactory {
 
     func makeSendTransactionSummaryDescriptionBuilder() -> SendTransactionSummaryDescriptionBuilder {
         if case .nonFungible = tokenItem.token?.metadata.kind {
-            return NFTSendTransactionSummaryDescriptionBuilder(feeTokenItem: feeTokenItem)
+            return NFTSendTransactionSummaryDescriptionBuilder()
         }
 
         switch tokenItem.blockchain {
         case .koinos:
-            return KoinosSendTransactionSummaryDescriptionBuilder(
-                tokenItem: tokenItem,
-                feeTokenItem: feeTokenItem
-            )
+            return KoinosSendTransactionSummaryDescriptionBuilder(tokenItem: tokenItem)
         case .tron where tokenItem.isToken:
-            return TronSendTransactionSummaryDescriptionBuilder(
-                tokenItem: tokenItem,
-                feeTokenItem: feeTokenItem
-            )
+            return TronSendTransactionSummaryDescriptionBuilder(tokenItem: tokenItem)
         default:
-            return CommonSendTransactionSummaryDescriptionBuilder(
-                tokenItem: tokenItem,
-                feeTokenItem: feeTokenItem
-            )
+            return CommonSendTransactionSummaryDescriptionBuilder(tokenItem: tokenItem)
         }
     }
 

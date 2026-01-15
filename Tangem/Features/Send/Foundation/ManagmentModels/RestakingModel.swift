@@ -224,7 +224,11 @@ private extension RestakingModel {
     private func proceed(result: TransactionDispatcherResult) {
         _transactionTime.send(Date())
         _transactionURL.send(result.url)
-        analyticsLogger.logTransactionSent(fee: selectedFee, signerType: result.signerType, currentProviderHost: result.currentHost)
+        analyticsLogger.logTransactionSent(
+            fee: selectedFee?.option ?? .market,
+            signerType: result.signerType,
+            currentProviderHost: result.currentHost
+        )
     }
 
     private func proceed(error: TransactionDispatcherResult.Error) {
@@ -324,11 +328,11 @@ extension RestakingModel: StakingTargetsOutput {
 // MARK: - SendFeeInput
 
 extension RestakingModel: SendFeeInput {
-    var selectedFee: TokenFee {
+    var selectedFee: TokenFee? {
         mapToSendFee(_state.value)
     }
 
-    var selectedFeePublisher: AnyPublisher<TokenFee, Never> {
+    var selectedFeePublisher: AnyPublisher<TokenFee?, Never> {
         _state
             .withWeakCaptureOf(self)
             .map { model, fee in
@@ -421,7 +425,7 @@ extension RestakingModel: NotificationTapDelegate {
 extension RestakingModel: StakingBaseDataBuilderInput {
     var bsdkAmount: BSDKAmount? { makeAmount(value: action.amount) }
 
-    var bsdkFee: BSDKFee? { selectedFee.value.value }
+    var bsdkFee: BSDKFee? { selectedFee?.value.value }
 
     var isFeeIncluded: Bool { false }
 

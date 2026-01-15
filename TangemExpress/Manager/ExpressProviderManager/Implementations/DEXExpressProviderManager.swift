@@ -174,7 +174,7 @@ private extension DEXExpressProviderManager {
 
     func ready(request: ExpressManagerSwappingPairRequest, quote: ExpressQuote, data: ExpressTransactionData) async throws -> ExpressManagerState.Ready {
         let feeRequest = ExpressFeeRequest(provider: provider, option: request.feeOption)
-        _ = try await request.pair.source.feeProvider.transactionFee(
+        let fee = try await request.pair.source.feeProvider.transactionFee(
             request: feeRequest,
             data: .dex(data: data)
         )
@@ -183,7 +183,9 @@ private extension DEXExpressProviderManager {
 
         // better to make the quote from the data
         let quoteData = ExpressQuote(fromAmount: data.fromAmount, expectAmount: data.toAmount, allowanceContract: quote.allowanceContract)
-        return .init(provider: provider, feeOption: request.feeOption, data: data, quote: quoteData)
+        let expressFee = ExpressFee(option: request.feeOption, fee: fee)
+
+        return .init(provider: provider, expressFee: expressFee, data: data, quote: quoteData)
     }
 }
 
