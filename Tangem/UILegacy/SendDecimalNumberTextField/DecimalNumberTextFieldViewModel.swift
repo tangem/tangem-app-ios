@@ -76,7 +76,7 @@ extension DecimalNumberTextFieldViewModel {
             decimalValue.send(nil)
 
         case .some(let value):
-            // If the decimalValue did updated from external place
+            // If the decimalValue was updated from external place
             // We have to update the private values
             let formattedNewValue: String = decimalNumberFormatter.format(value: value)
             updateTextFieldText(with: formattedNewValue)

@@ -64,7 +64,7 @@ extension MultiNetworkProvider {
                 let beforeSwitchIfNeededHost = host
 
                 if let nextHost = switchProviderIfNeeded(for: currentHost) {
-                    // Send event if api did switched by host value
+                    // Send event if API was switched by a host value
                     if nextHost != beforeSwitchIfNeededHost {
                         NetworkLogger.info("Next host: \(nextHost)")
 
