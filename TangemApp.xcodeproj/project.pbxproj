@@ -25784,9 +25784,9 @@
 		EFF8F1CF2E8573CD00A5EF0C /* Send */ = {
 			isa = PBXGroup;
 			children = (
-				EFAF8A8C2E85F06D009C3CF9 /* NFTFlowFactory.swift */,
-				EFAF8A8E2E869D2F009C3CF9 /* SellFlowFactory.swift */,
 				EFF8F1D22E85747200A5EF0C /* SendFlowFactory.swift */,
+				EFAF8A8E2E869D2F009C3CF9 /* SellFlowFactory.swift */,
+				EFAF8A8C2E85F06D009C3CF9 /* NFTFlowFactory.swift */,
 			);
 			path = Send;
 			sourceTree = "<group>";

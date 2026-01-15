@@ -35,7 +35,7 @@ extension SendFlowBaseDependenciesFactory {
         )
     }
 
-    func makeSwapManager() -> CommonSwapManager {
+    func makeSwapManager() -> SwapManager {
         CommonSwapManager(
             userWalletConfig: userWalletInfo.config,
             interactor: expressDependenciesFactory.expressInteractor
@@ -64,23 +64,14 @@ extension SendFlowBaseDependenciesFactory {
         )
     }
 
-    func makeSendFeeProvider(input: SendFeeInput, output: SendFeeOutput, dataInput: SendFeeProviderInput) -> SendFlowTokenFeeProvider {
-        CommonSendFeeProvider(
-            input: input,
-            output: output,
-            dataInput: dataInput,
-            tokenFeeManager: tokenFeeManager
-        )
+    func makeSendFeeProvider(sourceTokenInput: SendSourceTokenInput, sendFeeUpdater: SendFeeUpdater) -> SendFlowTokenFeeProvider {
+        CommonSendFeeProvider(sourceTokenInput: sourceTokenInput, sendFeeUpdater: sendFeeUpdater)
     }
 
     func makeSwapFeeProvider(swapManager: SwapManager) -> SendFlowTokenFeeProvider {
         CommonSwapFeeProvider(
             expressInteractor: expressDependenciesFactory.expressInteractor
         )
-    }
-
-    func makeCustomFeeService(input: CustomFeeServiceInput) -> CustomFeeProvider? {
-        return nil
     }
 
     // MARK: - Notifications

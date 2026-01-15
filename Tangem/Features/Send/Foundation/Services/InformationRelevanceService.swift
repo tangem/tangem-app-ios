@@ -18,16 +18,14 @@ protocol InformationRelevanceService {
 
 class CommonInformationRelevanceService {
     private weak var input: SendSummaryFeeInput?
-    private weak var output: SendFeeOutput?
     private let provider: SendFeeUpdater
 
     private var lastUpdateStartTime = Date()
     private let informationValidityInterval: TimeInterval = 60
     private var bag: Set<AnyCancellable> = []
 
-    init(input: SendSummaryFeeInput, output: SendFeeOutput, provider: SendFeeUpdater) {
+    init(input: SendSummaryFeeInput, provider: SendFeeUpdater) {
         self.input = input
-        self.output = output
         self.provider = provider
 
         bind(input: input)
@@ -51,7 +49,6 @@ class CommonInformationRelevanceService {
             return .ok
         }
 
-        output?.feeDidChanged(fee: newFee)
         return .feeWasIncreased
     }
 }

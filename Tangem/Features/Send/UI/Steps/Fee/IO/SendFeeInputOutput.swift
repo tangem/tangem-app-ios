@@ -11,6 +11,7 @@ import Combine
 import struct BlockchainSdk.Amount
 
 protocol SendSummaryFeeInput: AnyObject {
+    var summaryFee: LoadableTokenFee { get }
     var summaryFeePublisher: AnyPublisher<LoadableTokenFee, Never> { get }
     var summaryCanEditFeePublisher: AnyPublisher<Bool, Never> { get }
 }
