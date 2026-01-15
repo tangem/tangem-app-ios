@@ -13,46 +13,37 @@ public protocol TangemPayAvailabilityService {
 }
 
 class CommonTangemPayAvailabilityService {
-    private let apiService: APIService<TangemPayAvailabilityAPITarget>
+    private let apiService: TangemPayAPIService<TangemPayAvailabilityAPITarget>
     private let apiType: VisaAPIType
-    private let bffStaticToken: String
 
     init(
         apiType: VisaAPIType,
-        apiService: APIService<TangemPayAvailabilityAPITarget>,
-        bffStaticToken: String
+        apiService: TangemPayAPIService<TangemPayAvailabilityAPITarget>,
     ) {
         self.apiType = apiType
         self.apiService = apiService
-        self.bffStaticToken = bffStaticToken
+    }
+
+    private func request<T: Decodable>(for target: TangemPayAvailabilityAPITarget.Target) async throws(TangemPayAPIServiceError) -> T {
+        try await apiService.request(
+            .init(
+                target: target,
+                apiType: apiType
+            )
+        )
     }
 }
 
 extension CommonTangemPayAvailabilityService: TangemPayAvailabilityService {
     func loadEligibility() async throws -> TangemPayAvailabilityResponse {
-        try await apiService.request(
-            .init(target: .getEligibility, apiType: apiType)
-        )
+        try await request(for: .getEligibility)
     }
 
     func validateDeeplink(deeplinkString: String) async throws -> ValidateDeeplinkResponse {
-        try await apiService.request(
-            .init(
-                target: .validateDeeplink(deeplinkString: deeplinkString),
-                apiType: apiType
-            )
-        )
+        try await request(for: .validateDeeplink(deeplinkString: deeplinkString))
     }
 
     func isPaeraCustomer(customerWalletId: String) async throws -> TangemPayIsPaeraCustomerResponse {
-        try await apiService.request(
-            .init(
-                target: .isPaeraCustomer(
-                    customerWalletId: customerWalletId,
-                    bffStaticToken: bffStaticToken
-                ),
-                apiType: apiType
-            )
-        )
+        try await request(for: .isPaeraCustomer(customerWalletId: customerWalletId))
     }
 }
