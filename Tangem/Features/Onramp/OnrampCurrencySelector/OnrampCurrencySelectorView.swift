@@ -27,6 +27,9 @@ struct OnrampCurrencySelectorView: View {
                 style: .translucent,
                 clearButtonAction: {
                     viewModel.searchText = ""
+                },
+                cancelButtonAction: {
+                    viewModel.searchText = ""
                 }
             )
             .padding(.horizontal, 16)

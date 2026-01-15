@@ -16,9 +16,9 @@ struct ActionButtonsSellCoordinatorView: View {
             NavigationStack {
                 ActionButtonsSellView(viewModel: actionButtonsSellViewModel)
             }
-        } else if let viewModel = coordinator.newActionButtonsSellViewModel {
+        } else if let viewModel = coordinator.accountsAwareActionButtonsSellViewModel {
             NavigationStack {
-                NewActionButtonsSellView(viewModel: viewModel)
+                AccountsAwareActionButtonsSellView(viewModel: viewModel)
             }
         }
     }
