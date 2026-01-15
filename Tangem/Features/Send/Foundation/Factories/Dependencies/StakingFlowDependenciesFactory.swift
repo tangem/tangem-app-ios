@@ -28,8 +28,12 @@ extension StakingFlowDependenciesFactory {
         )
     }
 
-    func makeStakingNotificationManager() -> StakingNotificationManager {
-        CommonStakingNotificationManager(tokenItem: tokenItem, feeTokenItem: feeTokenItem)
+    func makeStakingNotificationManager(analyticsLogger: StakingSendAnalyticsLogger) -> StakingNotificationManager {
+        CommonStakingNotificationManager(
+            tokenItem: tokenItem,
+            feeTokenItem: feeTokenItem,
+            analyticsLogger: analyticsLogger
+        )
     }
 
     func makeStakingAlertBuilder() -> SendAlertBuilder {

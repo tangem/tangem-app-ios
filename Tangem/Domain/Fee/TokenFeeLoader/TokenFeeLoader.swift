@@ -57,11 +57,13 @@ extension TokenFeeLoader {
 enum TokenFeeLoaderError: LocalizedError {
     case tokenFeeLoaderNotFound
     case gaslessEthereumTokenFeeSupportOnlyTokenAsFeeTokenItem
+    case feeTokenIdNotFound
 
     var errorDescription: String? {
         switch self {
         case .tokenFeeLoaderNotFound: "TokenFeeLoader not found"
         case .gaslessEthereumTokenFeeSupportOnlyTokenAsFeeTokenItem: "GaslessEthereumTokenFeeLoader supports only token as fee token item"
+        case .feeTokenIdNotFound: "Fee token id not found"
         }
     }
 }
