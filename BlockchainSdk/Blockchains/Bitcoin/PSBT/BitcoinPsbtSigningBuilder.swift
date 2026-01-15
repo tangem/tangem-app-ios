@@ -14,23 +14,6 @@ import TangemSdk
 /// - Important: BitcoinDevKit Swift bindings do not currently expose mutable PSBT maps.
 ///   We therefore insert `partial_sigs` via `PsbtKeyValueMap`, then finalize the PSBT via `BitcoinDevKit.Psbt.finalize()`.
 public class BitcoinPsbtSigningBuilder {
-    public struct SignInput: Hashable, Sendable {
-        public let index: Int
-
-        public init(index: Int) {
-            self.index = index
-        }
-    }
-
-    enum Error: Swift.Error {
-        case invalidBase64
-        case invalidPsbt(String)
-        case unsupported(String)
-        case inputIndexOutOfRange(Int)
-        case missingUtxo(Int)
-        case wrongSignaturesCount
-    }
-
     /// Build hashes that must be signed for the given PSBT inputs (sorted by index).
     /// - Note: Returned hashes are double-SHA256 for BTC SIGHASH_ALL.
     public static func hashesToSign(psbtBase64: String, signInputs: [SignInput]) throws -> [Data] {
@@ -206,5 +189,26 @@ private extension BitcoinPsbtSigningBuilder {
         }
 
         throw BitcoinPsbtSigningBuilder.Error.missingUtxo(Int(vout))
+    }
+}
+
+public extension BitcoinPsbtSigningBuilder {
+    struct SignInput: Hashable, Sendable {
+        public let index: Int
+
+        public init(index: Int) {
+            self.index = index
+        }
+    }
+}
+
+extension BitcoinPsbtSigningBuilder {
+    enum Error: Swift.Error {
+        case invalidBase64
+        case invalidPsbt(String)
+        case unsupported(String)
+        case inputIndexOutOfRange(Int)
+        case missingUtxo(Int)
+        case wrongSignaturesCount
     }
 }
