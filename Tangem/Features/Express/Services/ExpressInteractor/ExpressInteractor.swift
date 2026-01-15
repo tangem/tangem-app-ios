@@ -26,6 +26,7 @@ class ExpressInteractor {
     // MARK: - Dependencies
 
     private let userWalletInfo: UserWalletInfo
+    private let initialTokenItem: TokenItem
     private let expressManager: ExpressManager
     private let expressPairsRepository: ExpressPairsRepository
     private let expressPendingTransactionRepository: ExpressPendingTransactionRepository
@@ -41,6 +42,7 @@ class ExpressInteractor {
 
     init(
         userWalletInfo: UserWalletInfo,
+        initialTokenItem: TokenItem,
         swappingPair: SwappingPair,
         expressManager: ExpressManager,
         expressPairsRepository: ExpressPairsRepository,
@@ -49,6 +51,7 @@ class ExpressInteractor {
         expressAPIProvider: ExpressAPIProvider
     ) {
         self.userWalletInfo = userWalletInfo
+        self.initialTokenItem = initialTokenItem
         self.expressManager = expressManager
         self.expressPairsRepository = expressPairsRepository
         self.expressPendingTransactionRepository = expressPendingTransactionRepository
@@ -272,7 +275,7 @@ extension ExpressInteractor {
             source: source,
             destination: destination,
             fee: result.fee.amount.value,
-            feeOption: getState().expressFee?.option ?? .market,
+            feeOption: selectedTokenFeeManager?.selectedSelectorFee.option ?? .market,
             provider: result.provider,
             date: Date(),
             expressTransactionData: result.data
@@ -617,13 +620,17 @@ extension ExpressInteractor: FeeSelectorInteractor {
             .eraseToAnyPublisher()
     }
 
-    var selectedSelectorFee: LoadableTokenFee? {
-        getState().expressFee
+    var selectedSelectorFee: LoadableTokenFee {
+        selectedTokenFeeManager?.selectedSelectorFee ?? LoadableTokenFee(
+            option: .market,
+            tokenItem: initialTokenItem,
+            value: .failure(ExpressInteractorError.feeNotFound)
+        )
     }
 
-    var selectedSelectorFeePublisher: AnyPublisher<LoadableTokenFee?, Never> {
-        statePublisher
-            .map { $0.expressFee }
+    var selectedSelectorFeePublisher: AnyPublisher<LoadableTokenFee, Never> {
+        selectedTokenFeeManagerPublisher
+            .map { $0.selectedSelectorFee }
             .eraseToAnyPublisher()
     }
 
@@ -789,11 +796,6 @@ private extension ExpressInteractor {
     func getTokenFeeManager(providerId: ExpressProvider.Id) throws -> TokenFeeManager {
         let source = try getSourceWallet()
         let tokenFeeManager = source.expressTokenFeeManager.tokenFeeManager(providerId: providerId)
-
-        guard let tokenFeeManager else {
-            throw ExpressInteractorError.feeNotFound
-        }
-
         return tokenFeeManager
     }
 }
@@ -856,8 +858,8 @@ private extension ExpressInteractor {
     func logTransactionSentAnalyticsEvent(data: SentExpressTransactionData, signerType: String) {
         let analyticsFeeType: Analytics.ParameterValue = {
             if let provider = getState().provider,
-               let tokenFeeManager = data.source.expressTokenFeeManager.tokenFeeManager(providerId: provider.id),
-               !tokenFeeManager.selectedFeeProvider.fees.hasMultipleFeeOptions {
+               let tokenFeeManager = try? getTokenFeeManager(providerId: provider.id),
+               !tokenFeeManager.hasMultipleFeeOptions {
                 return .transactionFeeFixed
             }
 
@@ -921,19 +923,6 @@ extension ExpressInteractor {
                 return state.provider
             case .readyToSwap(let state, _):
                 return state.provider
-            }
-        }
-
-        var expressFee: LoadableTokenFee? {
-            switch self {
-            case .permissionRequired(let state, _):
-                return state.expressFee
-            case .previewCEX(let state, _):
-                return state.expressFee
-            case .readyToSwap(let state, _):
-                return state.expressFee
-            case .idle, .loading, .restriction:
-                return nil
             }
         }
 
@@ -1037,26 +1026,6 @@ extension ExpressInteractor {
         let provider: ExpressProvider
     }
 }
-
-// MARK: - Fees+
-
-// extension ExpressInteractor.Fees {
-//    var isFixed: Bool { fees.count == 1 }
-//
-//    var isEmpty: Bool { fees.isEmpty }
-//
-//    func selectedTokenFee() -> LoadableTokenFee? {
-//        fees[selected]
-//    }
-//
-//    func selectedFee() throws -> BSDKFee {
-//        guard let fee = selectedTokenFee() else {
-//            throw ExpressInteractorError.feeNotFound
-//        }
-//
-//        return try fee.value.get()
-//    }
-// }
 
 // MARK: - ExpressFee.Option+
 

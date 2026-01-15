@@ -203,6 +203,7 @@ private extension ExpressModulesFactoryMock {
 
         let interactor = ExpressInteractor(
             userWalletInfo: userWalletInfo,
+            initialTokenItem: initialWalletModel.tokenItem,
             swappingPair: .init(sender: .success(sender), destination: .loading),
             expressManager: expressManager,
             expressPairsRepository: expressPairsRepository,

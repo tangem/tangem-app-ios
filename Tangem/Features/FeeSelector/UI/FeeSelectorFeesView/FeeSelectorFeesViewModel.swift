@@ -11,8 +11,8 @@ import TangemUI
 import TangemFoundation
 
 protocol FeeSelectorFeesDataProvider {
-    var selectedSelectorFee: LoadableTokenFee? { get }
-    var selectedSelectorFeePublisher: AnyPublisher<LoadableTokenFee?, Never> { get }
+    var selectedSelectorFee: LoadableTokenFee { get }
+    var selectedSelectorFeePublisher: AnyPublisher<LoadableTokenFee, Never> { get }
 
     var selectorFees: [LoadableTokenFee] { get }
     var selectorFeesPublisher: AnyPublisher<[LoadableTokenFee], Never> { get }
@@ -55,8 +55,8 @@ final class FeeSelectorFeesViewModel: ObservableObject {
         self.feeFormatter = feeFormatter
         self.analytics = analytics
 
-        selectedFeeOption = provider.selectedSelectorFee?.option
-        customFeeManualSaveIsRequired = provider.selectedSelectorFee?.option == .custom
+        selectedFeeOption = provider.selectedSelectorFee.option
+        customFeeManualSaveIsRequired = provider.selectedSelectorFee.option == .custom
         customFeeManualSaveIsAvailable = customFeeDataProvider.customFeeProvider?.customFeeIsValid == true
 
         rowViewModels = mapToFeeSelectorFeesRowViewModels(values: provider.selectorFees)
@@ -88,8 +88,8 @@ final class FeeSelectorFeesViewModel: ObservableObject {
             .receiveOnMain()
             .assign(to: &$customFeeManualSaveIsAvailable)
 
-        if selectedFeeOption != provider.selectedSelectorFee?.option {
-            selectedFeeOption = provider.selectedSelectorFee?.option
+        if selectedFeeOption != provider.selectedSelectorFee.option {
+            selectedFeeOption = provider.selectedSelectorFee.option
         }
     }
 
@@ -112,7 +112,7 @@ final class FeeSelectorFeesViewModel: ObservableObject {
 private extension FeeSelectorFeesViewModel {
     func bind() {
         provider.selectedSelectorFeePublisher
-            .map { $0?.option }
+            .map { $0.option }
             .receiveOnMain()
             .assign(to: &$selectedFeeOption)
 
