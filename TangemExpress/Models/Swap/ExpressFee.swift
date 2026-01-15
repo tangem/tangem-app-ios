@@ -10,28 +10,15 @@ import Foundation
 
 public struct ExpressFee {
     public let option: Option
-    public let variants: Variants
+    public let fee: BSDKFee
 
-    public init(option: Option, variants: Variants) {
+    public init(option: Option, fee: BSDKFee) {
         self.option = option
-        self.variants = variants
+        self.fee = fee
     }
 }
 
 public extension ExpressFee {
-    enum Variants {
-        case single(Fee)
-        case double(market: Fee, fast: Fee)
-
-        func fee(option: Option) -> Fee {
-            switch (self, option) {
-            case (.double(_, let fast), .fast): fast
-            case (.double(let market, _), .market): market
-            case (.single(let fee), _): fee
-            }
-        }
-    }
-
     enum Option: Hashable {
         case market
         case fast
