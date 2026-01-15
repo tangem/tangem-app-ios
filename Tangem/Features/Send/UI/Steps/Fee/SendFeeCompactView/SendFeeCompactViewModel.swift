@@ -11,53 +11,45 @@ import Combine
 import BlockchainSdk
 
 class SendFeeCompactViewModel: ObservableObject, Identifiable {
-    @Published var selectedFeeRowViewModel: FeeRowViewModel?
-    @Published var canEditFee: Bool = false
+    @Published private(set) var selectedFeeRowViewModel: FeeRowViewModel?
+    @Published private(set) var canEditFee: Bool = false
 
-    private let feeTokenItem: TokenItem
-    private let isFeeApproximate: Bool
-    private var selectedFeeSubscription: AnyCancellable?
-    private var canEditFeeSubscription: AnyCancellable?
+    private let feeFormatter: FeeFormatter
 
-    private let feeFormatter: FeeFormatter = CommonFeeFormatter(
-        balanceFormatter: BalanceFormatter(),
-        balanceConverter: BalanceConverter()
-    )
+    init(input: SendFeeInput, feeFormatter: FeeFormatter = CommonFeeFormatter()) {
+        self.feeFormatter = feeFormatter
 
-    init(
-        input: SendFeeInput,
-        feeTokenItem: TokenItem,
-        isFeeApproximate: Bool
-    ) {
-        self.feeTokenItem = feeTokenItem
-        self.isFeeApproximate = isFeeApproximate
+        bind(input: input)
     }
 
     func bind(input: SendFeeInput) {
-        selectedFeeSubscription = input.selectedFeePublisher
+        input.selectedFeePublisher
             .withWeakCaptureOf(self)
-            .receive(on: DispatchQueue.main)
-            .sink { viewModel, selectedFee in
-                viewModel.selectedFeeRowViewModel = viewModel.mapToFeeRowViewModel(fee: selectedFee)
-            }
+            .map { $0.mapToFeeRowViewModel(tokenFee: $1) }
+            .receiveOnMain()
+            .assign(to: &$selectedFeeRowViewModel)
 
-        canEditFeeSubscription = input
+        input
             .hasMultipleFeeOptions
             .receiveOnMain()
-            .assign(to: \.canEditFee, on: self, ownership: .weak)
+            .assign(to: &$canEditFee)
     }
 
-    private func mapToFeeRowViewModel(fee: TokenFee) -> FeeRowViewModel {
-        let feeComponents = fee.value.mapValue {
+    private func mapToFeeRowViewModel(tokenFee: TokenFee?) -> FeeRowViewModel? {
+        guard let tokenFee else {
+            return nil
+        }
+
+        let feeComponents = tokenFee.value.mapValue {
             feeFormatter.formattedFeeComponents(
                 fee: $0.amount.value,
-                currencySymbol: feeTokenItem.currencySymbol,
-                currencyId: feeTokenItem.currencyId,
-                isFeeApproximate: isFeeApproximate,
+                currencySymbol: tokenFee.tokenItem.currencySymbol,
+                currencyId: tokenFee.tokenItem.currencyId,
+                isFeeApproximate: tokenFee.tokenItem.isFeeApproximate,
                 formattingOptions: .sendCryptoFeeFormattingOptions
             )
         }
 
-        return FeeRowViewModel(option: fee.option, components: feeComponents, style: .plain)
+        return FeeRowViewModel(option: tokenFee.option, components: feeComponents, style: .plain)
     }
 }

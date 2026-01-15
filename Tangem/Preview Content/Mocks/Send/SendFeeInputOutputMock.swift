@@ -10,7 +10,7 @@ import SwiftUI
 import Combine
 
 final class SendFeeInputOutputMock: SendFeeInput, SendFeeOutput {
-    var selectedFee: TokenFee {
+    var selectedFee: TokenFee? {
         TokenFee(
             option: .market,
             tokenItem: .blockchain(.init(.ethereum(testnet: false), derivationPath: .none)),
@@ -18,7 +18,7 @@ final class SendFeeInputOutputMock: SendFeeInput, SendFeeOutput {
         )
     }
 
-    var selectedFeePublisher: AnyPublisher<TokenFee, Never> { .just(output: selectedFee) }
+    var selectedFeePublisher: AnyPublisher<TokenFee?, Never> { .just(output: selectedFee) }
     var hasMultipleFeeOptions: AnyPublisher<Bool, Never> { .just(output: false) }
     var cryptoAmountPublisher: AnyPublisher<Decimal, Never> { .just(output: 1) }
     var destinationAddressPublisher: AnyPublisher<String?, Never> { .just(output: "0x") }

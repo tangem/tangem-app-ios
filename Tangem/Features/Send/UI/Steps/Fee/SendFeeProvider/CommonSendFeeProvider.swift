@@ -53,14 +53,14 @@ final class CommonSendFeeProvider {
                     return failureFee
                 }
 
-                let hasSelected = feeProvider.input?.selectedFee.value.value == nil
+                let hasSelected = feeProvider.input?.selectedFee?.value.value == nil
 
                 // Have loading and non selected
                 if let loadingFee = fees.first(where: { $0.value.isLoading }), !hasSelected {
                     return loadingFee
                 }
 
-                let selectedFeeOption = hasSelected ? feeProvider.input?.selectedFee.option : .market
+                let selectedFeeOption = hasSelected ? feeProvider.input?.selectedFee?.option : .market
 
                 // All good. Fee just updated
                 if let successFee = fees.first(where: { $0.option == selectedFeeOption }) {
@@ -102,7 +102,7 @@ extension CommonSendFeeProvider: SendFeeProvider {
 extension CommonSendFeeProvider: FeeSelectorInteractor {
     var selectedSelectorFee: TokenFee? { input?.selectedFee }
     var selectedSelectorFeePublisher: AnyPublisher<TokenFee?, Never> {
-        input?.selectedFeePublisher.eraseToOptional().eraseToAnyPublisher() ?? .just(output: .none)
+        input?.selectedFeePublisher.eraseToAnyPublisher() ?? .just(output: .none)
     }
 
     var selectorFees: [TokenFee] { tokenFeeManager.selectedFeeProviderFees }

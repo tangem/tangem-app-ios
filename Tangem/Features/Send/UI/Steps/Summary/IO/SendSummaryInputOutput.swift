@@ -28,7 +28,7 @@ extension SendSummaryInput {
 protocol SendSummaryOutput: AnyObject {}
 
 enum SendSummaryTransactionData {
-    case send(amount: Decimal, fee: Fee)
+    case send(amount: Decimal, fee: TokenFee)
     case staking(amount: SendAmount, schedule: RewardScheduleType)
-    case swap(amount: Decimal?, fee: Fee?, provider: ExpressProvider)
+    case swap(amount: Decimal?, fee: TokenFee?, provider: ExpressProvider)
 }
