@@ -32,10 +32,15 @@ final class TokenFeeManager {
 // MARK: - Public
 
 extension TokenFeeManager {
+    var selectedLoadableFee: LoadableTokenFee {
+        mapToLoadableTokenFee(state: selectedFeeProvider.state, option: selectedFeeOptionSubject.value)
+    }
+
     var selectedLoadableFeePublisher: AnyPublisher<LoadableTokenFee, Never> {
         Publishers
-            .CombineLatest(selectedFeeProviderFeesPublisher, selectedFeeOptionSubject)
-            .compactMap { $0[$1] }
+            .CombineLatest(selectedFeeProvider.statePublisher, selectedFeeOptionSubject)
+            .withWeakCaptureOf(self)
+            .map { $0.mapToLoadableTokenFee(state: $1.0, option: $1.1) }
             .eraseToAnyPublisher()
     }
 
@@ -47,6 +52,10 @@ extension TokenFeeManager {
         .map { $0 || $1 }
         .removeDuplicates()
         .eraseToAnyPublisher()
+    }
+
+    var selectedFeeOption: FeeOption {
+        selectedFeeOptionSubject.value
     }
 
     var selectedFeeProvider: any TokenFeeProvider {
@@ -74,10 +83,12 @@ extension TokenFeeManager {
         selectedProviderSubject.send(tokenFeeProvider)
     }
 
+    func updateSelectedFeeOption(feeOption: FeeOption) {
+        selectedFeeOptionSubject.send(feeOption)
+    }
+
     func setupFeeProviders(input: TokenFeeProviderInputData) {
-        feeProviders.forEach { feeProvider in
-            feeProvider.setup(input: input)
-        }
+        feeProviders.forEach { $0.setup(input: input) }
     }
 
     func updateSelectedFeeProviderFees() {
@@ -85,5 +96,71 @@ extension TokenFeeManager {
         updatingFeeTask = Task {
             await selectedFeeProvider.updateFees()
         }
+    }
+
+    private func mapToLoadableTokenFee(state: TokenFeeProviderState, option: FeeOption) -> LoadableTokenFee {
+        let loadableTokenFeeState: LoadingResult<BSDKFee, any Error> = {
+            switch state {
+            case .idle, .loading: return .loading
+            case .unavailable: return .failure(LoadableTokenFee.ErrorType.unsupportedByProvider)
+            case .error(let error): return .failure(error)
+            case .available(let fees):
+                let fees = TokenFeeConverter.mapToFeesDictionary(fees: fees)
+                let selectedFeeOption = selectedFeeOptionSubject.value
+
+                if let selectedFeeBySelectedOption = fees[selectedFeeOption] {
+                    return .success(selectedFeeBySelectedOption)
+                }
+
+                if let selectedFeeByMarketOption = fees[.market] {
+                    return .success(selectedFeeByMarketOption)
+                }
+
+                return .failure(LoadableTokenFee.ErrorType.feeNotFound)
+            }
+        }()
+
+        return LoadableTokenFee(
+            option: selectedFeeOptionSubject.value,
+            tokenItem: selectedFeeProvider.feeTokenItem,
+            value: loadableTokenFeeState
+        )
+    }
+}
+
+// MARK: - FeeSelectorInteractor
+
+extension TokenFeeManager: FeeSelectorInteractor {
+    var selectedSelectorFee: LoadableTokenFee? { selectedLoadableFee }
+    var selectedSelectorFeePublisher: AnyPublisher<LoadableTokenFee?, Never> {
+        selectedLoadableFeePublisher.eraseToOptional().eraseToAnyPublisher()
+    }
+
+    var selectorFees: [LoadableTokenFee] { selectedFeeProviderFees }
+    var selectorFeesPublisher: AnyPublisher<[LoadableTokenFee], Never> {
+        selectedFeeProviderFeesPublisher
+    }
+
+    var selectedSelectorTokenFeeProvider: (any TokenFeeProvider)? { selectedFeeProvider }
+    var selectedSelectorTokenFeeProviderPublisher: AnyPublisher<(any TokenFeeProvider)?, Never> {
+        selectedFeeProviderPublisher.eraseToOptional().eraseToAnyPublisher()
+    }
+
+    var selectorTokenFeeProviders: [any TokenFeeProvider] { supportedFeeTokenProviders }
+    var selectorTokenFeeProvidersPublisher: AnyPublisher<[any TokenFeeProvider], Never> {
+        supportedFeeTokenProvidersPublisher
+    }
+
+    var customFeeProvider: (any CustomFeeProvider)? {
+        (selectedFeeProvider as? FeeSelectorCustomFeeDataProviding)?.customFeeProvider
+    }
+
+    func userDidSelectFee(_ fee: LoadableTokenFee) {
+        selectedFeeOptionSubject.send(fee.option)
+    }
+
+    func userDidSelect(tokenFeeProvider: any TokenFeeProvider) {
+        updateSelectedFeeProvider(tokenFeeProvider: tokenFeeProvider)
+        updateSelectedFeeProviderFees()
     }
 }

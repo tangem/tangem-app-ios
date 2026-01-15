@@ -48,3 +48,11 @@ struct LoadableTokenFee: Hashable {
         }
     }
 }
+
+extension LoadableTokenFee {
+    enum ErrorType: Error {
+        case unsupportedByProvider
+        case feeNotFound
+        case loadingError(Error)
+    }
+}

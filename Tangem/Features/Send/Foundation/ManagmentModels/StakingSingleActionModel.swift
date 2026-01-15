@@ -243,6 +243,10 @@ extension StakingSingleActionModel: SendSourceTokenAmountOutput {
 // MARK: - SendSummaryFeeInput
 
 extension StakingSingleActionModel: SendSummaryFeeInput {
+    var summaryFee: LoadableTokenFee {
+        mapToSendFee(_state.value)
+    }
+
     var summaryFeePublisher: AnyPublisher<LoadableTokenFee, Never> {
         _state
             .withWeakCaptureOf(self)

@@ -420,6 +420,10 @@ extension StakingModel: StakingTargetsOutput {
 // MARK: - SendSummaryFeeInput
 
 extension StakingModel: SendSummaryFeeInput {
+    var summaryFee: LoadableTokenFee {
+        mapToSendFee(_state.value)
+    }
+
     var summaryFeePublisher: AnyPublisher<LoadableTokenFee, Never> {
         _state
             .withWeakCaptureOf(self)

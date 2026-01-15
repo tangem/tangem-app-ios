@@ -7,26 +7,19 @@
 //
 
 protocol SendFeeStepBuildable {
-    var feeIO: SendNewFeeStepBuilder.IO { get }
     var feeDependencies: SendNewFeeStepBuilder.Dependencies { get }
 }
 
 extension SendFeeStepBuildable {
     func makeSendFeeStep(router: any SendFeeSelectorRoutable) -> SendNewFeeStepBuilder.ReturnValue {
-        SendNewFeeStepBuilder.make(io: feeIO, dependencies: feeDependencies, router: router)
+        SendNewFeeStepBuilder.make(dependencies: feeDependencies, router: router)
     }
 }
 
 enum SendNewFeeStepBuilder {
-    struct IO {
-        let input: SendFeeInput
-        let output: SendFeeOutput
-    }
-
     struct Dependencies {
         let feeSelectorInteractor: FeeSelectorInteractor
         let analyticsLogger: any FeeSelectorAnalytics
-        let customFeeProvider: (any CustomFeeProvider)?
     }
 
     typealias ReturnValue = (
@@ -36,7 +29,6 @@ enum SendNewFeeStepBuilder {
     )
 
     static func make(
-        io: IO,
         dependencies: Dependencies,
         router: SendFeeSelectorRoutable
     ) -> ReturnValue {
