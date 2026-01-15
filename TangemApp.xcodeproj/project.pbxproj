@@ -3852,8 +3852,6 @@
 		EF0F99E128917003008B01DF /* SocialNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0F99E028917003008B01DF /* SocialNetwork.swift */; };
 		EF0FBB732C53BE4A0095A6BD /* StakingTargetsCompactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0FBB702C53BE490095A6BD /* StakingTargetsCompactView.swift */; };
 		EF0FBB742C53BE4A0095A6BD /* StakingTargetsCompactViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0FBB712C53BE490095A6BD /* StakingTargetsCompactViewModel.swift */; };
-		EF0FBB782C53BE630095A6BD /* SendFeeCompactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0FBB752C53BE630095A6BD /* SendFeeCompactView.swift */; };
-		EF0FBB792C53BE630095A6BD /* SendFeeCompactViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0FBB762C53BE630095A6BD /* SendFeeCompactViewModel.swift */; };
 		EF0FBB872C53FFAE0095A6BD /* ExitAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0FBB862C53FFAE0095A6BD /* ExitAction.swift */; };
 		EF0FBB892C53FFC10095A6BD /* ActionTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0FBB882C53FFC10095A6BD /* ActionTransaction.swift */; };
 		EF0FBB8B2C53FFCD0095A6BD /* ActionStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0FBB8A2C53FFCD0095A6BD /* ActionStatus.swift */; };
@@ -4056,8 +4054,8 @@
 		EF4C04592DEF2A740059D7AA /* FeeSelectorInterfaces.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4C04542DEF2A740059D7AA /* FeeSelectorInterfaces.swift */; };
 		EF4C045A2DEF2A740059D7AA /* FeeSelectorCustomFeeRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4C04522DEF2A740059D7AA /* FeeSelectorCustomFeeRowViewModel.swift */; };
 		EF4C045C2DEF2A740059D7AA /* FeeSelectorCustomFeeRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4C04512DEF2A740059D7AA /* FeeSelectorCustomFeeRowView.swift */; };
-		EF4C04642DEF2ACC0059D7AA /* SendNewFeeCompactViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4C045E2DEF2ACC0059D7AA /* SendNewFeeCompactViewModel.swift */; };
-		EF4C04652DEF2ACC0059D7AA /* SendNewFeeCompactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4C045D2DEF2ACC0059D7AA /* SendNewFeeCompactView.swift */; };
+		EF4C04642DEF2ACC0059D7AA /* SendFeeCompactViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4C045E2DEF2ACC0059D7AA /* SendFeeCompactViewModel.swift */; };
+		EF4C04652DEF2ACC0059D7AA /* SendFeeCompactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4C045D2DEF2ACC0059D7AA /* SendFeeCompactView.swift */; };
 		EF4C0C5B2DDB52C100AFD567 /* SendDestinationAdditionalFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4C0C5A2DDB52C100AFD567 /* SendDestinationAdditionalFieldView.swift */; };
 		EF4D38B42EE8404F004D1E44 /* CommonTangemPayBalanceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4D38B32EE8404F004D1E44 /* CommonTangemPayBalanceService.swift */; };
 		EF4D38B62EE84057004D1E44 /* TangemPayBalancesService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4D38B52EE84057004D1E44 /* TangemPayBalancesService.swift */; };
@@ -8653,8 +8651,6 @@
 		EF0F99E028917003008B01DF /* SocialNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialNetwork.swift; sourceTree = "<group>"; };
 		EF0FBB702C53BE490095A6BD /* StakingTargetsCompactView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakingTargetsCompactView.swift; sourceTree = "<group>"; };
 		EF0FBB712C53BE490095A6BD /* StakingTargetsCompactViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakingTargetsCompactViewModel.swift; sourceTree = "<group>"; };
-		EF0FBB752C53BE630095A6BD /* SendFeeCompactView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendFeeCompactView.swift; sourceTree = "<group>"; };
-		EF0FBB762C53BE630095A6BD /* SendFeeCompactViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendFeeCompactViewModel.swift; sourceTree = "<group>"; };
 		EF0FBB862C53FFAE0095A6BD /* ExitAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExitAction.swift; sourceTree = "<group>"; };
 		EF0FBB882C53FFC10095A6BD /* ActionTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionTransaction.swift; sourceTree = "<group>"; };
 		EF0FBB8A2C53FFCD0095A6BD /* ActionStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionStatus.swift; sourceTree = "<group>"; };
@@ -8865,8 +8861,8 @@
 		EF4C04512DEF2A740059D7AA /* FeeSelectorCustomFeeRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeSelectorCustomFeeRowView.swift; sourceTree = "<group>"; };
 		EF4C04522DEF2A740059D7AA /* FeeSelectorCustomFeeRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeSelectorCustomFeeRowViewModel.swift; sourceTree = "<group>"; };
 		EF4C04542DEF2A740059D7AA /* FeeSelectorInterfaces.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeSelectorInterfaces.swift; sourceTree = "<group>"; };
-		EF4C045D2DEF2ACC0059D7AA /* SendNewFeeCompactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewFeeCompactView.swift; sourceTree = "<group>"; };
-		EF4C045E2DEF2ACC0059D7AA /* SendNewFeeCompactViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendNewFeeCompactViewModel.swift; sourceTree = "<group>"; };
+		EF4C045D2DEF2ACC0059D7AA /* SendFeeCompactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFeeCompactView.swift; sourceTree = "<group>"; };
+		EF4C045E2DEF2ACC0059D7AA /* SendFeeCompactViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFeeCompactViewModel.swift; sourceTree = "<group>"; };
 		EF4C0C5A2DDB52C100AFD567 /* SendDestinationAdditionalFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDestinationAdditionalFieldView.swift; sourceTree = "<group>"; };
 		EF4D38B32EE8404F004D1E44 /* CommonTangemPayBalanceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonTangemPayBalanceService.swift; sourceTree = "<group>"; };
 		EF4D38B52EE84057004D1E44 /* TangemPayBalancesService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayBalancesService.swift; sourceTree = "<group>"; };
@@ -18966,8 +18962,7 @@
 				EFF8F1C52E8561D600A5EF0C /* SendFeeStepBuildable.swift */,
 				EF82F80F2EAFA674006A46BB /* IO */,
 				EF2C5A5E2F0C268D009F1B96 /* SendFeeSelectorView */,
-				EF0FBB772C53BE630095A6BD /* SendFeeCompactView */,
-				EF4C045F2DEF2ACC0059D7AA /* SendNewFeeCompactView */,
+				EF4C045F2DEF2ACC0059D7AA /* SendFeeCompactView */,
 				EF066AA72E4C8C380026CEF8 /* SendFeeFinishView */,
 				EFE0D5D62E095D4500936D4F /* SendFeeProvider */,
 			);
@@ -22538,15 +22533,6 @@
 			path = StakingTargetsCompactView;
 			sourceTree = "<group>";
 		};
-		EF0FBB772C53BE630095A6BD /* SendFeeCompactView */ = {
-			isa = PBXGroup;
-			children = (
-				EF0FBB752C53BE630095A6BD /* SendFeeCompactView.swift */,
-				EF0FBB762C53BE630095A6BD /* SendFeeCompactViewModel.swift */,
-			);
-			path = SendFeeCompactView;
-			sourceTree = "<group>";
-		};
 		EF110A672F0EA7FD006C7B67 /* TokenFeeProvider */ = {
 			isa = PBXGroup;
 			children = (
@@ -23329,13 +23315,13 @@
 			path = FeeSelector;
 			sourceTree = "<group>";
 		};
-		EF4C045F2DEF2ACC0059D7AA /* SendNewFeeCompactView */ = {
+		EF4C045F2DEF2ACC0059D7AA /* SendFeeCompactView */ = {
 			isa = PBXGroup;
 			children = (
-				EF4C045D2DEF2ACC0059D7AA /* SendNewFeeCompactView.swift */,
-				EF4C045E2DEF2ACC0059D7AA /* SendNewFeeCompactViewModel.swift */,
+				EF4C045D2DEF2ACC0059D7AA /* SendFeeCompactView.swift */,
+				EF4C045E2DEF2ACC0059D7AA /* SendFeeCompactViewModel.swift */,
 			);
-			path = SendNewFeeCompactView;
+			path = SendFeeCompactView;
 			sourceTree = "<group>";
 		};
 		EF4C0C5C2DDB52FA00AFD567 /* SendDestinationAdditionalFieldView */ = {
@@ -26818,7 +26804,6 @@
 				C207D5F52DE60E0200A5FB2E /* WalletConnectWalletSelectorViewState.swift in Sources */,
 				C207D5F62DE60E0200A5FB2E /* WalletConnectWalletSelectorViewModel.swift in Sources */,
 				EF9E2A592B56AA7F00418559 /* ExpressSuccessSentRoutableMock.swift in Sources */,
-				EF0FBB792C53BE630095A6BD /* SendFeeCompactViewModel.swift in Sources */,
 				0F27863B2E2B8BF900742D0F /* MobileOnboardingSeedPhraseRecoveryStep.swift in Sources */,
 				B69610982A428C9B00CF88B7 /* OrganizeTokensListInnerSectionView.swift in Sources */,
 				C214BE922E79731F00B311BB /* AppsFlyerConfigurator.swift in Sources */,
@@ -27631,8 +27616,8 @@
 				5DFCE54C274BDEE200C1B1A0 /* ResetToFactorySettingsTask.swift in Sources */,
 				B036626B2B63D77D0064E073 /* ISO4217CodeConverter.swift in Sources */,
 				2D3E1EDF2C9D6F96006AF975 /* WalletSelectorRoutable.swift in Sources */,
-				EF4C04642DEF2ACC0059D7AA /* SendNewFeeCompactViewModel.swift in Sources */,
-				EF4C04652DEF2ACC0059D7AA /* SendNewFeeCompactView.swift in Sources */,
+				EF4C04642DEF2ACC0059D7AA /* SendFeeCompactViewModel.swift in Sources */,
+				EF4C04652DEF2ACC0059D7AA /* SendFeeCompactView.swift in Sources */,
 				C25E10432DFF2DB60050BC26 /* WalletConnectDAppPersistenceError.swift in Sources */,
 				B67462D12EECDCB000F314DB /* OrganizeTokensListOuterSectionView.swift in Sources */,
 				EF729B4F2AF10DD900D80205 /* FeeRowView.swift in Sources */,
@@ -28209,7 +28194,6 @@
 				EFCC878D2D0C8496001CE862 /* ExpressMoreProvidersSoonView.swift in Sources */,
 				DC145B642E2E4BC100E04F5C /* WCTransactionDisplayModel.swift in Sources */,
 				B0E0AF5D2996488100E52F7B /* TransactionHistoryMapper.swift in Sources */,
-				EF0FBB782C53BE630095A6BD /* SendFeeCompactView.swift in Sources */,
 				B63D4CAD2B2B8C6200DB2420 /* MutableCollection+.swift in Sources */,
 				EF48E6E42B02408500FE0072 /* ExpressViewModel.swift in Sources */,
 				EF9C9E542F09DAB8009FF0D2 /* WCFeeSelectorContentRowView.swift in Sources */,

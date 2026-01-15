@@ -103,7 +103,7 @@ extension StakingFlowFactory: SendGenericFlowFactory {
         let amount = makeSendAmountStep()
         let targets = makeStakingTargetsStep()
 
-        let sendFeeCompactViewModel = SendNewFeeCompactViewModel()
+        let sendFeeCompactViewModel = SendFeeCompactViewModel()
         let sendFeeFinishViewModel = SendFeeFinishViewModel()
 
         let summary = makeSendSummaryStep(
