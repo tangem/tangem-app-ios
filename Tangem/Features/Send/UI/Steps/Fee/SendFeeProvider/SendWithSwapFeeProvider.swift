@@ -47,14 +47,14 @@ extension SendWithSwapFeeSelectorInteractor: SendFeeUpdater {
 // MARK: - FeeSelectorInteractor
 
 extension SendWithSwapFeeSelectorInteractor: FeeSelectorInteractor {
-    var selectedSelectorFee: LoadableTokenFee? {
+    var selectedSelectorFee: LoadableTokenFee {
         switch receiveTokenInput?.receiveToken {
         case .none, .same: sendFeeSelectorInteractor.selectedSelectorFee
         case .swap: swapFeeSelectorInteractor.selectedSelectorFee
         }
     }
 
-    var selectedSelectorFeePublisher: AnyPublisher<LoadableTokenFee?, Never> {
+    var selectedSelectorFeePublisher: AnyPublisher<LoadableTokenFee, Never> {
         receiveTokenPublisher
             .withWeakCaptureOf(self)
             .flatMapLatest { interactor, receiveToken in

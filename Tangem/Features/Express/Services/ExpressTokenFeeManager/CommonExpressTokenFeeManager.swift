@@ -21,17 +21,6 @@ class CommonExpressTokenFeeManager {
         self.tokenFeeManagerBuilder = tokenFeeManagerBuilder
     }
 
-    private func feeManager(_ provider: ExpressProvider) -> TokenFeeManager {
-        if let feeManager = managers[provider.id] {
-            return feeManager
-        }
-
-        let feeManager = tokenFeeManagerBuilder.makeTokenFeeManager()
-        managers.mutate { $0[provider.id] = feeManager }
-
-        return feeManager
-    }
-
     private func mapToExpressFee(request: FeeRequest, tokenFeeProvider: TokenFeeProvider) throws -> BSDKFee {
         switch tokenFeeProvider.state {
         case .idle, .unavailable, .loading:
@@ -56,24 +45,27 @@ class CommonExpressTokenFeeManager {
 // MARK: - ExpressTokenFeeManager
 
 extension CommonExpressTokenFeeManager: ExpressTokenFeeManager {
-    func tokenFeeManager(providerId: ExpressProvider.Id) -> TokenFeeManager? {
-        guard let manager = managers[providerId] else {
-            return nil
+    func tokenFeeManager(providerId: ExpressProvider.Id) -> TokenFeeManager {
+        if let feeManager = managers[providerId] {
+            return feeManager
         }
 
-        return manager
+        let feeManager = tokenFeeManagerBuilder.makeTokenFeeManager()
+        managers.mutate { $0[providerId] = feeManager }
+
+        return feeManager
     }
 
     func selectedFeeProvider(providerId: ExpressProvider.Id) -> (any TokenFeeProvider)? {
-        tokenFeeManager(providerId: providerId)?.selectedFeeProvider
+        tokenFeeManager(providerId: providerId).selectedFeeProvider
     }
 
     func fees(providerId: ExpressProvider.Id) -> TokenFeesList {
-        tokenFeeManager(providerId: providerId)?.selectedFeeProviderFees ?? []
+        tokenFeeManager(providerId: providerId).selectedFeeProviderFees
     }
 
     func supportedFeeTokenProviders(providerId: ExpressProvider.Id) -> [any TokenFeeProvider] {
-        tokenFeeManager(providerId: providerId)?.supportedFeeTokenProviders ?? []
+        tokenFeeManager(providerId: providerId).supportedFeeTokenProviders
     }
 
     func updateSelectedFeeTokenProviderInAllManagers(tokenFeeProvider: any TokenFeeProvider) {
@@ -88,7 +80,7 @@ extension CommonExpressTokenFeeManager: ExpressTokenFeeManager {
 
 extension CommonExpressTokenFeeManager: ExpressFeeProvider {
     func estimatedFee(request: FeeRequest, amount: Decimal) async throws -> BSDKFee {
-        let feeManager = feeManager(request.provider)
+        let feeManager = tokenFeeManager(providerId: request.provider.id)
         feeManager.setupFeeProviders(input: .cex(amount: amount))
         await feeManager.selectedFeeProvider.updateFees()
 
@@ -97,7 +89,7 @@ extension CommonExpressTokenFeeManager: ExpressFeeProvider {
     }
 
     func estimatedFee(request: FeeRequest, estimatedGasLimit: Int, otherNativeFee: Decimal?) async throws -> BSDKFee {
-        let feeManager = feeManager(request.provider)
+        let feeManager = tokenFeeManager(providerId: request.provider.id)
         feeManager.setupFeeProviders(input: .dex(.ethereumEstimate(estimatedGasLimit: estimatedGasLimit, otherNativeFee: otherNativeFee)))
         await feeManager.selectedFeeProvider.updateFees()
 
@@ -106,7 +98,7 @@ extension CommonExpressTokenFeeManager: ExpressFeeProvider {
     }
 
     func transactionFee(request: FeeRequest, data: ExpressTransactionDataType) async throws -> BSDKFee {
-        let feeManager = feeManager(request.provider)
+        let feeManager = tokenFeeManager(providerId: request.provider.id)
         let tokenFeeProvider = feeManager.selectedFeeProvider
 
         switch (data, tokenItem.blockchain) {

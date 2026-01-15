@@ -82,8 +82,7 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
         .withWeakCaptureOf(self)
         .compactMap { viewModel, output in
             let (selectedFee, canExpand) = output
-            guard let fee = selectedFee else { return nil }
-            return viewModel.mapFeeToRowViewModel(fee: fee, canExpand: canExpand)
+            return viewModel.mapFeeToRowViewModel(fee: selectedFee, canExpand: canExpand)
         }
         .assign(to: \.suggestedFee, on: self, ownership: .weak)
         .store(in: &bag)

@@ -9,7 +9,15 @@
 import TangemExpress
 
 struct TangemPayExpressTokenFeeManager: ExpressTokenFeeManager {
-    func tokenFeeManager(providerId: ExpressProvider.Id) -> TokenFeeManager? { nil }
+    let tokenItem: TokenItem
+
+    func tokenFeeManager(providerId: ExpressProvider.Id) -> TokenFeeManager {
+        TokenFeeManager(
+            feeProviders: [.empty(feeTokenItem: tokenItem)],
+            initialSelectedProvider: .empty(feeTokenItem: tokenItem),
+            selectedFeeOption: .market
+        )
+    }
 
     func selectedFeeProvider(providerId: ExpressProvider.Id) -> (any TokenFeeProvider)? { nil }
 

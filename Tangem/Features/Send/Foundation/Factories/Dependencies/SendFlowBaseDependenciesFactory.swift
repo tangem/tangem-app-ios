@@ -64,16 +64,6 @@ extension SendFlowBaseDependenciesFactory {
         )
     }
 
-    func makeSendFeeProvider(sourceTokenInput: SendSourceTokenInput, sendFeeUpdater: SendFeeUpdater) -> SendFlowTokenFeeProvider {
-        CommonSendFeeProvider(sourceTokenInput: sourceTokenInput, sendFeeUpdater: sendFeeUpdater)
-    }
-
-    func makeSwapFeeProvider(swapManager: SwapManager) -> SendFlowTokenFeeProvider {
-        CommonSwapFeeProvider(
-            expressInteractor: expressDependenciesFactory.expressInteractor
-        )
-    }
-
     // MARK: - Notifications
 
     func makeSendWithSwapNotificationManager(receiveTokenInput: SendReceiveTokenInput) -> SendNotificationManager {
