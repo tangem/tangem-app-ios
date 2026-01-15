@@ -1619,7 +1619,7 @@
 "wallet_import_seed_description" = "Import an existing wallet with your recovery phrase.";
 "wallet_import_seed_navtitle" = "Import wallet";
 "wallet_import_seed_title" = "Enter recovery phrase";
-"wallet_import_success_description" = "You successfully backed up your wallet.";
+"wallet_import_success_description" = "You successfully import up your wallet.";
 "wallet_import_success_navtitle" = "Import wallet";
 "wallet_import_success_title" = "Import completed";
 "wallet_import_title" = "Import wallet";

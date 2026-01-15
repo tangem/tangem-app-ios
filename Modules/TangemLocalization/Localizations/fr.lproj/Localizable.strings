@@ -1619,7 +1619,7 @@
 "wallet_import_seed_description" = "Importez un portefeuille existant à l'aide de votre seedphrase.";
 "wallet_import_seed_navtitle" = "Importer un wallet";
 "wallet_import_seed_title" = "Entrez la seedphrase";
-"wallet_import_success_description" = "Vous avez sauvegardé votre portefeuille avec succès.";
+"wallet_import_success_description" = "Vous avez importé votre portefeuille avec succès.";
 "wallet_import_success_navtitle" = "Importer un wallet";
 "wallet_import_success_title" = "Importation terminée";
 "wallet_import_title" = "Importer un portefeuille";
