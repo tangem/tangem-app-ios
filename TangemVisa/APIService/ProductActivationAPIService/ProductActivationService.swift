@@ -42,7 +42,7 @@ protocol ProductActivationService {
 }
 
 struct CommonProductActivationService {
-    typealias ActivationAPIService = APIService<ProductActivationAPITarget>
+    typealias ActivationAPIService = TangemPayAPIService<ProductActivationAPITarget>
     private let apiService: ActivationAPIService
 
     private let apiType: VisaAPIType
