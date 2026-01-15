@@ -8,13 +8,12 @@
 
 protocol SendFeeStepBuildable {
     var feeIO: SendNewFeeStepBuilder.IO { get }
-    var feeTypes: SendNewFeeStepBuilder.Types { get }
     var feeDependencies: SendNewFeeStepBuilder.Dependencies { get }
 }
 
 extension SendFeeStepBuildable {
     func makeSendFeeStep(router: any SendFeeSelectorRoutable) -> SendNewFeeStepBuilder.ReturnValue {
-        SendNewFeeStepBuilder.make(io: feeIO, types: feeTypes, dependencies: feeDependencies, router: router)
+        SendNewFeeStepBuilder.make(io: feeIO, dependencies: feeDependencies, router: router)
     }
 }
 
@@ -22,11 +21,6 @@ enum SendNewFeeStepBuilder {
     struct IO {
         let input: SendFeeInput
         let output: SendFeeOutput
-    }
-
-    struct Types {
-        let feeTokenItem: TokenItem
-        let isFeeApproximate: Bool
     }
 
     struct Dependencies {
@@ -43,7 +37,6 @@ enum SendNewFeeStepBuilder {
 
     static func make(
         io: IO,
-        types: Types,
         dependencies: Dependencies,
         router: SendFeeSelectorRoutable
     ) -> ReturnValue {
@@ -55,8 +48,8 @@ enum SendNewFeeStepBuilder {
         )
 
         let feeSelector = SendFeeSelectorViewModel(feeSelectorViewModel: feeSelectorViewModel, router: router)
-        let compact = SendNewFeeCompactViewModel(feeTokenItem: types.feeTokenItem, isFeeApproximate: types.isFeeApproximate)
-        let finish = SendFeeFinishViewModel(feeTokenItem: types.feeTokenItem, isFeeApproximate: types.isFeeApproximate)
+        let compact = SendNewFeeCompactViewModel()
+        let finish = SendFeeFinishViewModel()
 
         return (feeSelector: feeSelector, compact: compact, finish: finish)
     }

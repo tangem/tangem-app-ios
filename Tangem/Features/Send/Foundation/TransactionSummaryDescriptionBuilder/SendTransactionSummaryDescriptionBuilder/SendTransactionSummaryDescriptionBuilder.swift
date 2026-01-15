@@ -11,25 +11,27 @@ import TangemLocalization
 import TangemAssets
 
 protocol SendTransactionSummaryDescriptionBuilder: GenericTransactionSummaryDescriptionBuilder {
-    func makeDescription(amount: Decimal, fee: BSDKFee) -> AttributedString?
+    func makeDescription(amount: Decimal, fee: TokenFee) -> AttributedString?
 }
 
 struct CommonSendTransactionSummaryDescriptionBuilder {
     private let tokenItem: TokenItem
-    private let feeTokenItem: TokenItem
 
-    init(tokenItem: TokenItem, feeTokenItem: TokenItem) {
+    init(tokenItem: TokenItem) {
         self.tokenItem = tokenItem
-        self.feeTokenItem = feeTokenItem
     }
 }
 
 // MARK: - SendTransactionSummaryDescriptionBuilder
 
 extension CommonSendTransactionSummaryDescriptionBuilder: SendTransactionSummaryDescriptionBuilder {
-    func makeDescription(amount: Decimal, fee: BSDKFee) -> AttributedString? {
+    func makeDescription(amount: Decimal, fee: TokenFee) -> AttributedString? {
+        guard let bsdkFee = fee.value.value else {
+            return nil
+        }
+
         let amountInFiat = tokenItem.currencyId.flatMap { BalanceConverter().convertToFiat(amount, currencyId: $0) }
-        let feeInFiat = feeTokenItem.currencyId.flatMap { BalanceConverter().convertToFiat(fee.amount.value, currencyId: $0) }
+        let feeInFiat = fee.tokenItem.currencyId.flatMap { BalanceConverter().convertToFiat(bsdkFee.amount.value, currencyId: $0) }
 
         var totalInFiat: Decimal? = nil
 
