@@ -32,6 +32,7 @@ enum SendViewModelBuilder {
         let dataBuilder: any SendGenericBaseDataBuilder
         let analyticsLogger: any SendBaseViewAnalyticsLogger
         let blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper
+        let tangemIconProvider: TangemIconProvider
     }
 
     typealias ReturnValue = SendViewModel
@@ -51,6 +52,7 @@ enum SendViewModelBuilder {
             dataBuilder: dependencies.dataBuilder,
             analyticsLogger: dependencies.analyticsLogger,
             blockchainSDKNotificationMapper: dependencies.blockchainSDKNotificationMapper,
+            tangemIconProvider: dependencies.tangemIconProvider,
             coordinator: router
         )
 
