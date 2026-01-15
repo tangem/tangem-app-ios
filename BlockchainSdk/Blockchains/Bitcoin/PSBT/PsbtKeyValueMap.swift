@@ -87,6 +87,17 @@ struct PsbtKeyValueMap {
         data.append(0x00)
         return data
     }
+}
+
+extension PsbtKeyValueMap {
+    enum KeyType {
+        static let globalUnsignedTx: UInt8 = 0x00
+        static let inputPartialSig: UInt8 = 0x02
+    }
+
+    enum Const {
+        static let magicBytes = Data([0x70, 0x73, 0x62, 0x74, 0xff])
+    }
 
     struct KV: Hashable {
         let key: Data
@@ -105,15 +116,6 @@ struct PsbtKeyValueMap {
                 return "PSBT input index out of range: \(index)"
             }
         }
-    }
-
-    enum KeyType {
-        static let globalUnsignedTx: UInt8 = 0x00
-        static let inputPartialSig: UInt8 = 0x02
-    }
-
-    enum Const {
-        static let magicBytes = Data([0x70, 0x73, 0x62, 0x74, 0xff])
     }
 }
 
