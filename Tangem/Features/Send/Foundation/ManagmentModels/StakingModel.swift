@@ -354,23 +354,6 @@ extension StakingModel: SendFeeUpdater {
     }
 }
 
-// MARK: - SendFeeProvider
-
-extension StakingModel: SendFeeProvider {
-    var feeOptions: [FeeOption] { [.market] }
-
-    var fees: [LoadableTokenFee] {
-        [mapToSendFee(_state.value)]
-    }
-
-    var feesPublisher: AnyPublisher<[LoadableTokenFee], Never> {
-        _state
-            .withWeakCaptureOf(self)
-            .map { [$0.mapToSendFee($1)] }
-            .eraseToAnyPublisher()
-    }
-}
-
 // MARK: - SendSourceTokenInput
 
 extension StakingModel: SendSourceTokenInput {
