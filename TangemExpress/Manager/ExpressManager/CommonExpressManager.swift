@@ -18,8 +18,6 @@ actor CommonExpressManager {
     private let expressAPIProvider: ExpressAPIProvider
     private let expressProviderManagerFactory: ExpressProviderManagerFactory
     private let expressRepository: ExpressRepository
-    private let supportedProviderTypes: [ExpressProviderType]
-    private let operationType: ExpressOperationType
 
     // MARK: - State
 
@@ -38,15 +36,11 @@ actor CommonExpressManager {
     init(
         expressAPIProvider: ExpressAPIProvider,
         expressProviderManagerFactory: ExpressProviderManagerFactory,
-        expressRepository: ExpressRepository,
-        supportedProviderTypes: [ExpressProviderType],
-        operationType: ExpressOperationType
+        expressRepository: ExpressRepository
     ) {
         self.expressAPIProvider = expressAPIProvider
         self.expressProviderManagerFactory = expressProviderManagerFactory
         self.expressRepository = expressRepository
-        self.supportedProviderTypes = supportedProviderTypes
-        self.operationType = operationType
     }
 }
 
@@ -190,7 +184,8 @@ private extension CommonExpressManager {
 
         // Setup providers manager only once
         if availableProviders.isEmpty {
-            let providers = try await expressRepository.providers().filter { supportedProviderTypes.contains($0.type) }
+            let providers = try await expressRepository.providers()
+
             allProviders = providers.compactMap { provider in
                 guard let manager = expressProviderManagerFactory.makeExpressProviderManager(provider: provider) else {
                     return nil
@@ -208,7 +203,7 @@ private extension CommonExpressManager {
         allProviders.forEach { provider in
             provider.isBest = false
 
-            let isSupportedBySource = pair.source.supportedProviders.contains(provider.provider.type)
+            let isSupportedBySource = pair.source.supportedProvidersFilter.isSupported(provider: provider.provider)
             let isSupportedByExpress = availableProviderIds.contains(provider.provider.id)
             provider.isAvailable = isSupportedBySource && isSupportedByExpress
         }
@@ -325,7 +320,7 @@ private extension CommonExpressManager {
             amount: amount,
             feeOption: _feeOption,
             approvePolicy: _approvePolicy,
-            operationType: operationType
+            operationType: pair.source.operationType
         )
     }
 
@@ -339,4 +334,17 @@ private extension CommonExpressManager {
 
 extension CommonExpressManager: @preconcurrency CustomStringConvertible {
     var description: String { objectDescription(self) }
+}
+
+// MARK: - SupportedProvidersFilter+
+
+private extension SupportedProvidersFilter {
+    func isSupported(provider: ExpressProvider) -> Bool {
+        switch self {
+        case .byTypes(let types):
+            return types.contains(provider.type)
+        case .byDifferentAddressExchangeSupport:
+            return !provider.exchangeOnlyWithinSingleAddress
+        }
+    }
 }

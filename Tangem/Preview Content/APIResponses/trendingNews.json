@@ -1,0 +1,182 @@
+{
+  "items": [
+    {
+      "id": 8428,
+      "createdAt": "2025-12-17T02:31:03.359Z",
+      "title": "FTC требует возврата средств пользователям Nomad после взлома",
+      "language": "ru",
+      "newsUrl": "https://tangem.com/news/security/8428-ftc-demands-nomad-bridge-repay-users-after-186m-crypto-hack",
+      "score": 8.1,
+      "isTrending": true,
+      "categories": [
+        {
+          "id": 10,
+          "name": "Security"
+        }
+      ],
+      "relatedTokens": []
+    },
+    {
+      "id": 8450,
+      "createdAt": "2025-12-17T07:46:14.866Z",
+      "title": "Бутан инвестирует 10 000 BTC в Mindfulness City",
+      "language": "ru",
+      "newsUrl": "https://tangem.com/news/investments/8450-bhutan-bets-big-10-000-bitcoin-to-build-mindfulness-city",
+      "score": 7.6,
+      "isTrending": false,
+      "categories": [
+        {
+          "id": 1,
+          "name": "Investments"
+        }
+      ],
+      "relatedTokens": [
+        {
+          "id": "bitcoin",
+          "symbol": "BTC",
+          "name": "Bitcoin"
+        }
+      ]
+    },
+    {
+      "id": 8483,
+      "createdAt": "2025-12-17T09:46:05.725Z",
+      "title": "SAFE Crypto Act: сенаторы США объединяются против криптомошенничества",
+      "language": "ru",
+      "newsUrl": "https://tangem.com/news/regulation/8483-safe-crypto-act-us-senators-unite-to-tackle-crypto-fraud",
+      "score": 7,
+      "isTrending": false,
+      "categories": [
+        {
+          "id": 3,
+          "name": "Regulation"
+        }
+      ],
+      "relatedTokens": []
+    },
+    {
+      "id": 8417,
+      "createdAt": "2025-12-17T00:31:10.455Z",
+      "title": "Уоррен требует расследовать PancakeSwap из-за манипуляций и связей с Трампом",
+      "language": "ru",
+      "newsUrl": "https://tangem.com/news/regulation/8417-warren-demands-pancakeswap-probe-over-manipulation-and-trump-ties",
+      "score": 6.5,
+      "isTrending": false,
+      "categories": [
+        {
+          "id": 3,
+          "name": "Regulation"
+        }
+      ],
+      "relatedTokens": [
+        {
+          "id": "world-liberty-financial",
+          "symbol": "WLFI",
+          "name": "World Liberty Financial"
+        }
+      ]
+    },
+    {
+      "id": 8472,
+      "createdAt": "2025-12-17T09:01:11.195Z",
+      "title": "Shima Capital закрывается после иска SEC и ухода основателя",
+      "language": "ru",
+      "newsUrl": "https://tangem.com/news/regulation/8472-shima-capital-collapses-after-sec-fraud-lawsuit-and-founder-exit",
+      "score": 5.6,
+      "isTrending": false,
+      "categories": [
+        {
+          "id": 3,
+          "name": "Regulation"
+        }
+      ],
+      "relatedTokens": []
+    },
+    {
+      "id": 8439,
+      "createdAt": "2025-12-17T04:46:15.435Z",
+      "title": "HashKey: дебют в Гонконге, $206 млн и падение акций",
+      "language": "ru",
+      "newsUrl": "https://tangem.com/news/investments/8439-hashkey-debuta-en-hong-kong-206m-recaudados-y-caida-en-acciones",
+      "score": 5.5,
+      "isTrending": false,
+      "categories": [
+        {
+          "id": 1,
+          "name": "Investments"
+        }
+      ],
+      "relatedTokens": []
+    },
+    {
+      "id": 8494,
+      "createdAt": "2025-12-17T11:01:10.209Z",
+      "title": "Amazon планирует вложить $10 млрд+ в OpenAI для конкуренции с Nvidia",
+      "language": "ru",
+      "newsUrl": "https://tangem.com/news/investments/8494-amazon-eyes-10b-openai-deal-to-challenge-nvidia-in-ai-chips",
+      "score": 4.9,
+      "isTrending": false,
+      "categories": [
+        {
+          "id": 1,
+          "name": "Investments"
+        }
+      ],
+      "relatedTokens": []
+    },
+    {
+      "id": 8461,
+      "createdAt": "2025-12-17T08:01:06.771Z",
+      "title": "Каролина Эллисон досрочно покинула тюрьму",
+      "language": "ru",
+      "newsUrl": "https://tangem.com/news/regulation/8461-caroline-ellison-leaves-prison-early-for-community-confinement",
+      "score": 4.8,
+      "isTrending": false,
+      "categories": [
+        {
+          "id": 3,
+          "name": "Regulation"
+        }
+      ],
+      "relatedTokens": []
+    },
+    {
+      "id": 8384,
+      "createdAt": "2025-12-16T19:46:18.564Z",
+      "title": "Solana внедряет квантово-устойчивую защиту с Project Eleven",
+      "language": "ru",
+      "newsUrl": "https://tangem.com/news/tech/8384-solana-unveils-quantum-resistant-security-upgrade-with-project-eleven",
+      "score": 7.6,
+      "isTrending": false,
+      "categories": [
+        {
+          "id": 8,
+          "name": "Tech"
+        }
+      ],
+      "relatedTokens": [
+        {
+          "id": "solana",
+          "symbol": "SOL",
+          "name": "Solana"
+        }
+      ]
+    },
+    {
+      "id": 8395,
+      "createdAt": "2025-12-16T20:16:09.488Z",
+      "title": "Бразилия запускает первый аукцион недвижимости на блокчейне",
+      "language": "ru",
+      "newsUrl": "https://tangem.com/news/banking/8395-brazil-unveils-first-blockchain-real-estate-auction-to-fight-fraud",
+      "score": 7,
+      "isTrending": false,
+      "categories": [
+        {
+          "id": 5,
+          "name": "Banking"
+        }
+      ],
+      "relatedTokens": []
+    }
+  ]
+}

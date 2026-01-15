@@ -254,6 +254,7 @@ extension Analytics {
 
         case walletConnectTransactionSolanaLarge = "[Wallet Connect] Solana Large Transaction"
         case walletConnectTransactionSolanaLargeStatus = "[Wallet Connect] Solana Large Transaction Status"
+        case walletConnectButtonConnectWithAccount = "[WalletConnect - Account] Button - Connect"
 
         case chatScreenOpened = "[Chat] Chat Screen Opened"
         case settingsScreenOpened = "[Settings] Settings Screen Opened"
@@ -267,6 +268,7 @@ extension Analytics {
         case referralButtonOpenTos = "[Referral Program] Link - TaC"
         case referralParticipateSuccessfull = "[Referral Program] Participate Successfull"
         case referralError = "[Referral Program] Referral Error"
+        case referralListChooseAccount = "[Referral program - Account] List - choose account"
 
         // MARK: - Swap
 
@@ -431,6 +433,7 @@ extension Analytics {
         case stakingButtonExplore = "[Staking] Button - Explore"
         case stakingNoticeUninitializedAddress = "[Staking] Notice - Uninitialized Address"
         case stakingUninitializedAddressScreen = "[Staking] Uninitialized Address Screen"
+        case stakingNoticeNotEnoughFee = "[Staking] Notice - Not Enough Fee"
         case stakingButtonActivate = "[Staking] Button - Activate"
 
         // MARK: - Markets
@@ -462,6 +465,12 @@ extension Analytics {
         case marketsChartExchangesScreenOpened = "[Markets / Chart] Exchanges Screen Opened"
         case marketsChartSecurityScoreInfo = "[Markets / Chart] Security Score Info"
         case marketsChartSecurityScoreProviderClicked = "[Markets / Chart] Security Score Provider Clicked"
+        case marketsChartPopupChooseAccount = "[Markets / Chart] Popup to choose account"
+        case marketsChartButtonAddTokenToAnotherAccount = "[Markets / Chart] Button - Add (token not to main Account)"
+        case marketsChartPopupGetTokenButtonBuy = "[Markets / Chart] Popup Get token - Button Buy"
+        case marketsChartPopupGetTokenButtonExchange = "[Markets / Chart] Popup Get token - Button Exchange"
+        case marketsChartPopupGetTokenButtonReceive = "[Markets / Chart] Popup Get token - Button Receive"
+        case marketsChartPopupGetTokenButtonLater = "[Markets / Chart] Popup Get token - Button Later"
 
         // MARK: - Manage Tokens
 
