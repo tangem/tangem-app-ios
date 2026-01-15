@@ -495,8 +495,8 @@ private extension StakingDetailsViewModel {
         }
 
         var attributedString = makeBaseAttributedString(for: Localization.stakingLegal(tos, policy))
-        formatLink(in: &attributedString, textToSearch: tos, url: Constants.tosURL)
-        formatLink(in: &attributedString, textToSearch: policy, url: Constants.privacyPolicyURL)
+        formatLink(in: &attributedString, textToSearch: tos, url: stakingManager.tosURL)
+        formatLink(in: &attributedString, textToSearch: policy, url: stakingManager.privacyPolicyURL)
         return attributedString
     }
 }
@@ -624,12 +624,5 @@ extension DateComponentsFormatter {
         formatter.unitsStyle = .short
         formatter.allowedUnits = [.day]
         return formatter
-    }
-}
-
-extension StakingDetailsViewModel {
-    enum Constants {
-        static let tosURL = URL(string: "https://docs.yield.xyz/docs/terms-of-use#/")!
-        static let privacyPolicyURL = URL(string: "https://docs.yield.xyz/docs/privacy-policy#/")!
     }
 }

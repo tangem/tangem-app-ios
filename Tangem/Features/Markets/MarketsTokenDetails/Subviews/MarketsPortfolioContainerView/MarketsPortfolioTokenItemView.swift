@@ -140,7 +140,7 @@ struct MarketsPortfolioTokenItemView: View {
     }
 
     private func makeQuickActionItem(for actionType: TokenActionType, at index: Int) -> some View {
-        MarketsActionRowView(
+        GetTokenActionRowView(
             icon: portfolioTokenActionTypeImageType(for: actionType),
             title: actionType.title,
             subtitle: actionType.description,
