@@ -56,7 +56,7 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
 
         self.selectedUserWallet = selectedUserWallet
 
-        let selectedAccountModel = selectedUserWallet.accountModelsManager.accountModels.first
+        let selectedAccountModel = selectedUserWallet.accountModelsManager.accountModels.firstStandard()
 
         switch selectedAccountModel {
         case .standard(.single(let account)):
@@ -225,6 +225,16 @@ extension WalletConnectDAppConnectionRequestViewModel {
 extension WalletConnectDAppConnectionRequestViewModel {
     private func connectDApp(with proposal: WalletConnectDAppConnectionProposal, selectedBlockchains: [WalletConnectDAppBlockchain]) async {
         analyticsLogger.logConnectButtonTapped()
+
+        if FeatureProvider.isAvailable(.accounts), let selectedAccount {
+            var params: [Analytics.ParameterKey: String] = [
+                .walletConnectDAppName: proposal.dAppData.name,
+            ]
+            let builder = SingleAccountAnalyticsBuilderIncludingMain()
+            let accountParams = selectedAccount.analyticsParameters(with: builder)
+            params.merge(accountParams) { $1 }
+            Analytics.log(event: .walletConnectButtonConnectWithAccount, params: params)
+        }
 
         let dAppSession: WalletConnectDAppSession
 
@@ -604,20 +614,5 @@ private extension WalletConnectWarningNotificationViewModel {
         }
 
         return nil
-    }
-}
-
-extension AccountModel {
-    func firstAvailableStandard() -> any CryptoAccountModel {
-        switch self {
-        case .standard(.single(let cryptoAccount)):
-            return cryptoAccount
-        case .standard(.multiple(let cryptoAccounts)):
-            guard let cryptoAccount = cryptoAccounts.first else {
-                preconditionFailure("Required existence of at least one account in multiple account model")
-            }
-
-            return cryptoAccount
-        }
     }
 }
