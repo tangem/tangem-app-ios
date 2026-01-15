@@ -12,29 +12,47 @@ import TangemNetworkUtils
 
 struct TangemPayProviderBuilder {
     func buildProvider<T: TargetType>(
-        configuration: URLSessionConfiguration,
-        authorizationTokensHandler: TangemPayAuthorizationTokensHandler?
+        bffStaticToken: String,
+        authorizationTokensHandler: TangemPayAuthorizationTokensHandler?,
+        configuration: URLSessionConfiguration
     ) -> TangemProvider<T> {
         var plugins: [PluginType] = [
             DeviceInfoPlugin(),
             TangemNetworkLoggerPlugin(logOptions: .verbose),
         ]
 
-        if let authorizationTokensHandler {
-            plugins.append(TangemPayAuthorizationPlugin(authorizationTokensHandler: authorizationTokensHandler))
-        }
+        plugins.append(TangemPayDefaultHeadersPlugin())
+        plugins.append(
+            TangemPayAuthorizationPlugin(
+                bffStaticToken: bffStaticToken,
+                authorizationTokensHandler: authorizationTokensHandler
+            )
+        )
 
         return TangemProvider<T>(plugins: plugins, sessionConfiguration: configuration)
     }
 }
 
+struct TangemPayDefaultHeadersPlugin: PluginType {
+    func prepare(_ request: URLRequest, target: TargetType) -> URLRequest {
+        var request = request
+
+        request.headers.add(name: "Content-Type", value: "application/json")
+
+        return request
+    }
+}
+
 struct TangemPayAuthorizationPlugin: PluginType {
-    let authorizationTokensHandler: TangemPayAuthorizationTokensHandler
+    let bffStaticToken: String
+    let authorizationTokensHandler: TangemPayAuthorizationTokensHandler?
 
     func prepare(_ request: URLRequest, target: TargetType) -> URLRequest {
         var request = request
 
-        if let authorizationToken = authorizationTokensHandler.authorizationHeader {
+        request.headers.add(name: "X-API-KEY", value: bffStaticToken)
+
+        if let authorizationToken = authorizationTokensHandler?.authorizationHeader {
             request.headers.add(name: VisaConstants.authorizationHeaderKey, value: authorizationToken)
         }
 

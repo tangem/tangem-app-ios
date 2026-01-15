@@ -13,12 +13,10 @@ import Moya
 public struct VisaActivationManagerFactory {
     private let apiType: VisaAPIType
     private let isTestnet: Bool
-    private let isMockedAPIEnabled: Bool
 
-    public init(apiType: VisaAPIType, isTestnet: Bool, isMockedAPIEnabled: Bool) {
+    public init(apiType: VisaAPIType, isTestnet: Bool) {
         self.apiType = apiType
         self.isTestnet = isTestnet
-        self.isMockedAPIEnabled = isMockedAPIEnabled
     }
 
     public func make(
@@ -27,7 +25,7 @@ public struct VisaActivationManagerFactory {
         tangemSdk: TangemSdk,
         urlSessionConfiguration: URLSessionConfiguration
     ) -> VisaActivationManager {
-        let authorizationTokensHandler = VisaAuthorizationTokensHandlerBuilder(apiType: apiType, isMockedAPIEnabled: isMockedAPIEnabled)
+        let authorizationTokensHandler = VisaAuthorizationTokensHandlerBuilder(apiType: apiType)
             .build(
                 cardId: cardId,
                 cardActivationStatus: initialActivationStatus,
@@ -36,21 +34,21 @@ public struct VisaActivationManagerFactory {
                 urlSessionConfiguration: urlSessionConfiguration
             )
 
-        let authorizationService = VisaAPIServiceBuilder(apiType: apiType, isMockedAPIEnabled: isMockedAPIEnabled)
+        let authorizationService = VisaAPIServiceBuilder(apiType: apiType)
             .buildAuthorizationService(urlSessionConfiguration: urlSessionConfiguration)
 
         let authorizationProcessor = CommonCardAuthorizationProcessor(authorizationService: authorizationService)
 
-        let cardActivationStatusService = VisaCardActivationStatusServiceBuilder(apiType: apiType, isMockedAPIEnabled: isMockedAPIEnabled)
+        let cardActivationStatusService = VisaCardActivationStatusServiceBuilder(apiType: apiType)
             .build(urlSessionConfiguration: urlSessionConfiguration)
 
-        let activationOrderProvider = CardActivationOrderProviderBuilder(apiType: apiType, isMockedAPIEnabled: isMockedAPIEnabled)
+        let activationOrderProvider = CardActivationOrderProviderBuilder(apiType: apiType)
             .build(
                 urlSessionConfiguration: urlSessionConfiguration,
                 tokensHandler: authorizationTokensHandler,
                 cardActivationStatusService: cardActivationStatusService
             )
-        let productActivationService = ProductActivationServiceBuilder(apiType: apiType, isMockedAPIEnabled: isMockedAPIEnabled)
+        let productActivationService = ProductActivationServiceBuilder(apiType: apiType)
             .build(
                 urlSessionConfiguration: urlSessionConfiguration,
                 authorizationTokensHandler: authorizationTokensHandler
