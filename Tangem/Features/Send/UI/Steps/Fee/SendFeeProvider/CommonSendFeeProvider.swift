@@ -11,112 +11,125 @@ import Combine
 import TangemFoundation
 
 final class CommonSendFeeProvider {
-    private weak var input: SendFeeProviderInput?
+    private weak var input: SendFeeInput?
+    private weak var output: SendFeeOutput?
+    private let tokenFeeManager: TokenFeeManager
 
-    private let feeLoader: SendFeeLoader
-    private let defaultFeeOptions: [FeeOption]
+    private var amount: Decimal?
+    private var destination: String?
 
-    private let _cryptoAmount: CurrentValueSubject<Decimal?, Never> = .init(nil)
-    private let _destination: CurrentValueSubject<String?, Never> = .init(nil)
-    private let _fees: CurrentValueSubject<LoadingResult<[SendFee], Error>, Never> = .init(.loading)
-
-    private var feeLoadingSubscription: AnyCancellable?
+    private var autoupdatedSuggestedFeeCancellable: AnyCancellable?
     private var cryptoAmountSubscription: AnyCancellable?
     private var destinationAddressSubscription: AnyCancellable?
 
-    init(
-        input: any SendFeeProviderInput,
-        feeLoader: SendFeeLoader,
-        defaultFeeOptions: [FeeOption]
-    ) {
+    init(input: SendFeeInput, output: SendFeeOutput, dataInput: SendFeeProviderInput, tokenFeeManager: TokenFeeManager) {
         self.input = input
-        self.feeLoader = feeLoader
-        self.defaultFeeOptions = defaultFeeOptions
+        self.output = output
+        self.tokenFeeManager = tokenFeeManager
 
-        bind(input: input)
+        bind(dataInput: dataInput)
+        bind()
+    }
+
+    private func bind(dataInput: any SendFeeProviderInput) {
+        cryptoAmountSubscription = dataInput.cryptoAmountPublisher
+            .eraseToOptional()
+            .assign(to: \.amount, on: self, ownership: .weak)
+
+        destinationAddressSubscription = dataInput.destinationAddressPublisher
+            .eraseToOptional()
+            .assign(to: \.destination, on: self, ownership: .weak)
+    }
+
+    private func bind() {
+        autoupdatedSuggestedFeeCancellable = feesPublisher
+            .withWeakCaptureOf(self)
+            .compactMap { feeProvider, fees -> TokenFee? in
+                // Custom don't support autoupdate
+                let fees = fees.filter { $0.option != .custom }
+
+                // If we have one fee which is failure
+                if let failureFee = fees.first(where: { $0.value.isFailure }) {
+                    return failureFee
+                }
+
+                let hasSelected = feeProvider.input?.selectedFee.value.value == nil
+
+                // Have loading and non selected
+                if let loadingFee = fees.first(where: { $0.value.isLoading }), !hasSelected {
+                    return loadingFee
+                }
+
+                let selectedFeeOption = hasSelected ? feeProvider.input?.selectedFee.option : .market
+
+                // All good. Fee just updated
+                if let successFee = fees.first(where: { $0.option == selectedFeeOption }) {
+                    return successFee
+                }
+
+                // First to select the market fee
+                return fees.first(where: { $0.option == .market })
+            }
+            .removeDuplicates()
+            .withWeakCaptureOf(self)
+            .sink { $0.output?.feeDidChanged(fee: $1) }
     }
 }
 
 // MARK: - SendFeeProvider
 
 extension CommonSendFeeProvider: SendFeeProvider {
-    var feeOptions: [FeeOption] {
-        defaultFeeOptions
-    }
+    var fees: [TokenFee] { tokenFeeManager.selectedFeeProviderFees }
+    var feesPublisher: AnyPublisher<[TokenFee], Never> { tokenFeeManager.selectedFeeProviderFeesPublisher }
 
-    var fees: LoadingResult<[SendFee], any Error> {
-        _fees.value
-    }
-
-    var feesPublisher: AnyPublisher<LoadingResult<[SendFee], any Error>, Never> {
-        _fees.eraseToAnyPublisher()
+    var feesHasMultipleFeeOptions: AnyPublisher<Bool, Never> {
+        selectorHasMultipleFeeOptions
     }
 
     func updateFees() {
-        guard let amount = _cryptoAmount.value, let destination = _destination.value else {
+        guard let amount, let destination else {
             assertionFailure("SendFeeProvider is not ready to update fees")
             return
         }
 
-        if _fees.value.error != nil {
-            _fees.send(.loading)
-        }
-
-        feeLoadingSubscription = feeLoader
-            .getFee(amount: amount, destination: destination)
-            .mapToResult()
-            .withWeakCaptureOf(self)
-            .sink { provider, result in
-                switch result {
-                case .success(let fees):
-                    let fees = provider.mapToDefaultFees(fees: fees)
-                    provider._fees.send(.success(fees))
-                case .failure(let error):
-                    AppLogger.error("SendFeeProvider fee loading error", error: error)
-                    provider._fees.send(.failure(error))
-                }
-            }
+        tokenFeeManager.setupFeeProviders(input: .common(amount: amount, destination: destination))
+        tokenFeeManager.updateSelectedFeeProviderFees()
     }
 }
 
-// MARK: - Private
+// MARK: - FeeSelectorInteractor
 
-private extension CommonSendFeeProvider {
-    func bind(input: any SendFeeProviderInput) {
-        cryptoAmountSubscription = input.cryptoAmountPublisher
-            .withWeakCaptureOf(self)
-            .sink { provider, amount in
-                provider._cryptoAmount.send(amount)
-            }
-
-        destinationAddressSubscription = input.destinationAddressPublisher
-            .withWeakCaptureOf(self)
-            .sink { provider, destination in
-                provider._destination.send(destination)
-            }
+extension CommonSendFeeProvider: FeeSelectorInteractor {
+    var selectedSelectorFee: TokenFee? { input?.selectedFee }
+    var selectedSelectorFeePublisher: AnyPublisher<TokenFee?, Never> {
+        input?.selectedFeePublisher.eraseToOptional().eraseToAnyPublisher() ?? .just(output: .none)
     }
 
-    func mapToDefaultFees(fees: [BSDKFee]) -> [SendFee] {
-        switch fees.count {
-        case 1:
-            return [
-                SendFee(option: .market, value: .success(fees[0])),
-            ]
-        // Express estimated fee case
-        case 2:
-            return [
-                SendFee(option: .market, value: .success(fees[0])),
-                SendFee(option: .fast, value: .success(fees[1])),
-            ]
-        case 3:
-            return [
-                SendFee(option: .slow, value: .success(fees[0])),
-                SendFee(option: .market, value: .success(fees[1])),
-                SendFee(option: .fast, value: .success(fees[2])),
-            ]
-        default:
-            assertionFailure("Wrong count of fees")
-            return []
-        }
+    var selectorFees: [TokenFee] { tokenFeeManager.selectedFeeProviderFees }
+    var selectorFeesPublisher: AnyPublisher<[TokenFee], Never> {
+        tokenFeeManager.selectedFeeProviderFeesPublisher
+    }
+
+    var selectedSelectorTokenFeeProvider: (any TokenFeeProvider)? { tokenFeeManager.selectedFeeProvider }
+    var selectedSelectorTokenFeeProviderPublisher: AnyPublisher<(any TokenFeeProvider)?, Never> {
+        tokenFeeManager.selectedFeeProviderPublisher.eraseToOptional().eraseToAnyPublisher()
+    }
+
+    var selectorTokenFeeProviders: [any TokenFeeProvider] { tokenFeeManager.supportedFeeTokenProviders }
+    var selectorTokenFeeProvidersPublisher: AnyPublisher<[any TokenFeeProvider], Never> {
+        tokenFeeManager.supportedFeeTokenProvidersPublisher
+    }
+
+    var customFeeProvider: (any CustomFeeProvider)? {
+        (tokenFeeManager.selectedFeeProvider as? FeeSelectorCustomFeeDataProviding)?.customFeeProvider
+    }
+
+    func userDidSelectFee(_ fee: TokenFee) {
+        output?.feeDidChanged(fee: fee)
+    }
+
+    func userDidSelect(tokenFeeProvider: any TokenFeeProvider) {
+        tokenFeeManager.updateSelectedFeeProvider(tokenFeeProvider: tokenFeeProvider)
+        tokenFeeManager.updateSelectedFeeProviderFees()
     }
 }

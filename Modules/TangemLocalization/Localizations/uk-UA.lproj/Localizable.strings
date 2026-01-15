@@ -1394,15 +1394,10 @@
 "tangempay_kyc_confirm_cancellation_description" = "Ви впевнені, що хочете зупинити процес KYC? Ви можете повернутися до нього в будь-який момент.";
 "tangempay_kyc_failed_description" = "Не вдалося підтвердити ваш профіль. Якщо у вас є питання, зверніться у службу підтримки.";
 "tangempay_kyc_failed_title" = "На жаль, нам не вдалося підтвердити вашу особу ";
-"tangempay_kyc_has_failed" = "KYC has failed";
 "tangempay_kyc_in_progress_notification_button" = "Переглянути статус";
 "tangempay_kyc_in_progress_notification_title" = "Перевірка KYC для Tangem Pay в процесі";
 "tangempay_kyc_in_progress_popup_description" = "Ви можете переглянути поточний статус KYC або відмінити його";
 "tangempay_kyc_in_progress" = "KYC в процесі";
-"tangempay_kyc_rejected_button_text" = "Hide KYC block";
-"tangempay_kyc_rejected_description_span" = "your profile.";
-"tangempay_kyc_rejected_description" = "Sorry, we couldn't verify";
-"tangempay_kyc_rejected" = "KYC rejected";
 "tangempay_onboarding_banner_description" = "Отримайте безкоштовну віртуальну картку Tangem Visa";
 "tangempay_onboarding_banner_title" = "Використовуйте USDC для щоденних платежів";
 "tangempay_onboarding_get_card_button_text" = "Отримати картку";
@@ -1633,7 +1628,7 @@
 "wallet_settings_access_code_description" = "Цей код доступу захищає ваш гаманець і використовується для входу та підписання транзакцій.";
 "wallet_settings_access_code_title" = "Встановити/Змінити код доступу";
 "wallet_settings_change_access_code_title" = "Змінити код доступу";
-"wallet_settings_push_notifications_description" = "Отримуйте сповіщення про вхідні транзакції в гаманці.";
+"wallet_settings_push_notifications_description" = "Отримуйте сповіщення про вхідні транзакції в гаманці та оновлення Tangem.";
 "wallet_settings_push_notifications_title" = "Сповіщення про транзакції";
 "wallet_settings_set_access_code_title" = "Встановити код доступу";
 "wallet_settings_title" = "Налаштування гаманця";

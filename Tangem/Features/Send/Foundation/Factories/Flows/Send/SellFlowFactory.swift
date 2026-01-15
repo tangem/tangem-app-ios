@@ -14,20 +14,21 @@ class SellFlowFactory: SendFlowBaseDependenciesFactory {
     let tokenIconInfo: TokenIconInfo
     let userWalletInfo: UserWalletInfo
     let sellParameters: PredefinedSellParameters
+    let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
 
     let tokenHeaderProvider: SendGenericTokenHeaderProvider
     let shouldShowFeeSelector: Bool
 
-    let walletModelFeeProvider: any WalletModelFeeProvider
+    let tokenFeeManager: TokenFeeManager
     let walletModelDependenciesProvider: any WalletModelDependenciesProvider
     let availableBalanceProvider: any TokenBalanceProvider
     let fiatAvailableBalanceProvider: any TokenBalanceProvider
     let transactionDispatcherFactory: TransactionDispatcherFactory
     let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let expressDependenciesFactory: any ExpressDependenciesFactory
+    let analyticsLogger: SendAnalyticsLogger
 
     lazy var swapManager = makeSwapManager()
-    lazy var analyticsLogger = makeSendAnalyticsLogger(sendType: .sell)
     lazy var sendModel = makeSendWithSwapModel(
         swapManager: swapManager,
         analyticsLogger: analyticsLogger,
@@ -36,11 +37,7 @@ class SellFlowFactory: SendFlowBaseDependenciesFactory {
 
     lazy var notificationManager = makeSendWithSwapNotificationManager(receiveTokenInput: sendModel)
     lazy var customFeeService = makeCustomFeeService(input: sendModel)
-    lazy var sendFeeProvider = makeSendWithSwapFeeProvider(
-        receiveTokenInput: sendModel,
-        sendFeeProvider: makeSendFeeProvider(input: sendModel, hasCustomFeeService: customFeeService != nil),
-        swapFeeProvider: makeSwapFeeProvider(swapManager: swapManager)
-    )
+    lazy var sendFeeProvider = makeSendFeeProvider(input: sendModel, output: sendModel, dataInput: sendModel)
 
     init(
         userWalletInfo: UserWalletInfo,
@@ -61,9 +58,10 @@ class SellFlowFactory: SendFlowBaseDependenciesFactory {
             from: walletModel.tokenItem,
             isCustom: walletModel.isCustom
         )
+        accountModelAnalyticsProvider = walletModel.account
 
         shouldShowFeeSelector = walletModel.shouldShowFeeSelector
-        walletModelFeeProvider = walletModel
+        tokenFeeManager = TokenFeeManagerBuilder(walletModel: walletModel).makeTokenFeeManager()
         walletModelDependenciesProvider = walletModel
         availableBalanceProvider = walletModel.availableBalanceProvider
         fiatAvailableBalanceProvider = walletModel.fiatAvailableBalanceProvider
@@ -76,18 +74,21 @@ class SellFlowFactory: SendFlowBaseDependenciesFactory {
             userWalletInfo: userWalletInfo
         )
 
+        let source = ExpressInteractorWalletModelWrapper(
+            userWalletInfo: userWalletInfo,
+            walletModel: walletModel,
+            expressOperationType: .swapAndSend
+        )
+
         let expressDependenciesInput = ExpressDependenciesInput(
             userWalletInfo: userWalletInfo,
-            source: ExpressInteractorWalletModelWrapper(userWalletInfo: userWalletInfo, walletModel: walletModel),
+            source: source,
             destination: .none
         )
 
-        expressDependenciesFactory = CommonExpressDependenciesFactory(
-            input: expressDependenciesInput,
-            // We support only `CEX` in `Send With Swap` flow
-            supportedProviderTypes: [.cex],
-            operationType: .swapAndSend
-        )
+        expressDependenciesFactory = CommonExpressDependenciesFactory(input: expressDependenciesInput)
+
+        analyticsLogger = Self.makeSendAnalyticsLogger(walletModel: walletModel, sendType: .sell)
     }
 
     private func mapToPredefinedValues(sellParameters: PredefinedSellParameters?) -> SendModel.PredefinedValues {
@@ -142,7 +143,7 @@ extension SellFlowFactory: SendGenericFlowFactory {
             swapProvidersInput: sendModel
         )
 
-        let fee = makeSendFeeStep()
+        let fee = makeSendFeeStep(router: router)
 
         // Destination .disable
         // Amount .disable
@@ -212,7 +213,8 @@ extension SellFlowFactory: SendBaseBuildable {
         SendViewModelBuilder.Dependencies(
             alertBuilder: makeSendAlertBuilder(),
             dataBuilder: baseDataBuilderFactory.makeSendBaseDataBuilder(
-                input: sendModel,
+                baseDataInput: sendModel,
+                approveDataInput: swapManager,
                 sendReceiveTokensListBuilder: SendReceiveTokensListBuilder(
                     userWalletInfo: userWalletInfo,
                     sourceTokenInput: sendModel,
@@ -222,7 +224,8 @@ extension SellFlowFactory: SendBaseBuildable {
                 )
             ),
             analyticsLogger: analyticsLogger,
-            blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper()
+            blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper(),
+            tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
         )
     }
 }
@@ -243,9 +246,9 @@ extension SellFlowFactory: SendFeeStepBuildable {
 
     var feeDependencies: SendNewFeeStepBuilder.Dependencies {
         SendNewFeeStepBuilder.Dependencies(
-            feeProvider: sendFeeProvider,
+            feeSelectorInteractor: sendFeeProvider,
             analyticsLogger: analyticsLogger,
-            customFeeService: customFeeService
+            customFeeProvider: customFeeService
         )
     }
 }
