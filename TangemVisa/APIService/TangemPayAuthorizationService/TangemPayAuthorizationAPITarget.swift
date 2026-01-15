@@ -53,7 +53,7 @@ struct TangemPayAuthorizationAPITarget: TargetType {
     }
 
     var headers: [String: String]? {
-        ["Content-Type": "application/json"]
+        nil
     }
 }
 
