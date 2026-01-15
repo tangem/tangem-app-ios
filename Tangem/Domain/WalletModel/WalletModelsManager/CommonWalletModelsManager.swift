@@ -114,13 +114,20 @@ class CommonWalletModelsManager {
         }
 
         Task {
-            await updateAll(silent: false)
+            await Self.updateAllInternal(silent: false, walletModels: walletModels)
 
             if walletModels.contains(where: \.state.isBlockchainUnreachable) {
                 PerformanceTracker.endTracking(token: token, with: .failure)
             } else {
                 PerformanceTracker.endTracking(token: token, with: .success)
             }
+        }
+    }
+
+    /// Must be stateless, therefore it's static.
+    private static func updateAllInternal(silent: Bool, walletModels: [any WalletModel]) async {
+        await TaskGroup.execute(items: walletModels) {
+            await $0.update(silent: silent, features: .balances)
         }
     }
 }
@@ -154,9 +161,7 @@ extension CommonWalletModelsManager: WalletModelsManager {
     }
 
     func updateAll(silent: Bool) async {
-        await TaskGroup.execute(items: walletModels) {
-            await $0.update(silent: silent, features: .balances)
-        }
+        await Self.updateAllInternal(silent: silent, walletModels: walletModels)
     }
 }
 
