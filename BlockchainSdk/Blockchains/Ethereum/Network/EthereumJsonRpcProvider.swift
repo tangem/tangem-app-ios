@@ -63,6 +63,10 @@ final class EthereumJsonRpcProvider: HostProvider {
         requestPublisher(for: .feeHistory)
     }
 
+    func getTransactionByHash(_ hash: String) -> AnyPublisher<EthereumTransaction?, Error> {
+        requestPublisher(for: .getTransactionByHash(hash))
+    }
+
     private func requestPublisher<Result: Decodable>(for targetType: EthereumTarget.EthereumTargetType) -> AnyPublisher<Result, Error> {
         let target = EthereumTarget(targetType: targetType, node: node, networkPrefix: networkPrefix)
 

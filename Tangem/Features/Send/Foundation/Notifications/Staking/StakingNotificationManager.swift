@@ -26,6 +26,8 @@ class CommonStakingNotificationManager {
     private let tokenItem: TokenItem
     private let feeTokenItem: TokenItem
 
+    private let analyticsLogger: StakingSendAnalyticsLogger
+
     private let notificationInputsSubject = CurrentValueSubject<[NotificationViewInput], Never>([])
     private var stateSubscription: AnyCancellable?
 
@@ -38,9 +40,10 @@ class CommonStakingNotificationManager {
 
     private weak var delegate: NotificationTapDelegate?
 
-    init(tokenItem: TokenItem, feeTokenItem: TokenItem) {
+    init(tokenItem: TokenItem, feeTokenItem: TokenItem, analyticsLogger: StakingSendAnalyticsLogger) {
         self.tokenItem = tokenItem
         self.feeTokenItem = feeTokenItem
+        self.analyticsLogger = analyticsLogger
     }
 }
 
@@ -114,6 +117,9 @@ private extension CommonStakingNotificationManager {
             if case .remainingAmountIsLessThanRentExemption = validationError {
                 hideAmountRelatedNotifications()
             }
+            if case .insufficientBalanceForFee = validationErrorEvent {
+                analyticsLogger.logNoticeNotEnoughFee()
+            }
             show(error: .validationErrorEvent(validationErrorEvent))
         case .networkError:
             hideApproveInProgressNotification()
@@ -154,6 +160,10 @@ private extension CommonStakingNotificationManager {
         case (.validationError(let validationError, _), _):
             let factory = BlockchainSDKNotificationMapper(tokenItem: tokenItem, feeTokenItem: feeTokenItem)
             let validationErrorEvent = factory.mapToValidationErrorEvent(validationError)
+
+            if case .insufficientBalanceForFee = validationErrorEvent {
+                analyticsLogger.logNoticeNotEnoughFee()
+            }
 
             show(error: .validationErrorEvent(validationErrorEvent))
         case (.networkError, _):

@@ -65,9 +65,9 @@ extension ExpressProviderManagerState: CustomStringConvertible {
         case .permissionRequired(let permissionRequired):
             return "permissionRequired quote \(permissionRequired.quote)"
         case .preview(let previewCEX):
-            return "previewCEX subtractFee: \(previewCEX.subtractFee) fee: \(previewCEX.fee) quote \(previewCEX.quote)"
+            return "previewCEX subtractFee: \(previewCEX.subtractFee), quote \(previewCEX.quote)"
         case .ready(let ready):
-            return "ready fee: \(ready.fee) quote \(ready.quote)"
+            return "quote \(ready.quote)"
         }
     }
 }

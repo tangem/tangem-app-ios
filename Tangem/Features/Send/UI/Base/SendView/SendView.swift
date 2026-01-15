@@ -146,7 +146,7 @@ struct SendView: View {
         if let mainButtonType = viewModel.bottomBarSettings.action {
             MainButton(
                 title: mainButtonType.title(action: viewModel.flowActionType),
-                icon: mainButtonType.icon(action: viewModel.flowActionType),
+                icon: mainButtonType.icon(action: viewModel.flowActionType, provider: viewModel.tangemIconProvider),
                 style: .primary,
                 size: .default,
                 isLoading: viewModel.mainButtonLoading,

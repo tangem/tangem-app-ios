@@ -85,7 +85,7 @@ struct MainCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
             }
-            .iOS16UIKitSheet(item: $coordinator.expressCoordinator) { coordinator in
+            .sheet(item: $coordinator.expressCoordinator) { coordinator in
                 ExpressCoordinatorView(coordinator: coordinator)
             }
             .sheet(item: $coordinator.modalOnboardingCoordinator) {
@@ -154,12 +154,6 @@ struct MainCoordinatorView: CoordinatorView {
             }
 
         NavHolder()
-            .bottomSheet(
-                item: $coordinator.receiveBottomSheetViewModel,
-                settings: .init(backgroundColor: Colors.Background.primary, contentScrollsHorizontally: true)
-            ) {
-                ReceiveBottomSheetView(viewModel: $0)
-            }
             .bottomSheet(
                 item: $coordinator.pushNotificationsViewModel,
                 backgroundColor: Colors.Background.primary
