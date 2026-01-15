@@ -15,7 +15,7 @@ struct GaslessTransactionsAPITarget: TargetType {
 
     enum TargetType: Equatable {
         case availableTokens
-        case signGaslessTransaction(transaction: GaslessTransactionsDTO.Request.MetaTransaction)
+        case signGaslessTransaction(transaction: GaslessTransactionsDTO.Request.GaslessTransaction)
         case feeRecipient
     }
 

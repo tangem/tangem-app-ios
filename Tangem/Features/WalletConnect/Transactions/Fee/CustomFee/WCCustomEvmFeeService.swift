@@ -209,6 +209,8 @@ final class WCCustomEvmFeeService {
         case .legacy(let legacyParameters):
             gasLimitTextField.update(value: legacyParameters.gasLimit.decimal)
             gasPriceTextField.update(value: legacyParameters.gasPrice.decimal?.shiftOrder(magnitude: -Constants.gweiDigits))
+        case .gasless:
+            break
         }
     }
 

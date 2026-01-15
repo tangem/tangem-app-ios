@@ -11,11 +11,11 @@ import TangemNetworkUtils
 
 protocol GaslessTransactionsAPIService {
     typealias FeeToken = GaslessTransactionsDTO.Response.FeeToken
-    typealias MetaTransaction = GaslessTransactionsDTO.Request.MetaTransaction
+    typealias GaslessTransaction = GaslessTransactionsDTO.Request.GaslessTransaction
     typealias SignResult = GaslessTransactionsDTO.Response.SignResponse.Result
 
     func getAvailableTokens() async throws -> [FeeToken]
-    func signGaslessTransaction(_ transaction: GaslessTransactionsDTO.Request.MetaTransaction) async throws -> SignResult
+    func signGaslessTransaction(_ transaction: GaslessTransactionsDTO.Request.GaslessTransaction) async throws -> SignResult
     func getFeeRecipientAddress() async throws -> String
 }
 
@@ -35,7 +35,7 @@ extension CommonGaslessTransactionAPIService: GaslessTransactionsAPIService {
         return response.tokens
     }
 
-    func signGaslessTransaction(_ transaction: MetaTransaction) async throws -> SignResult {
+    func signGaslessTransaction(_ transaction: GaslessTransaction) async throws -> SignResult {
         let response: GaslessTransactionsDTO.Response.SignResponse = try await request(for: .signGaslessTransaction(transaction: transaction))
         return response.result
     }
