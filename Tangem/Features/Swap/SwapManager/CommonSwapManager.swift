@@ -126,7 +126,7 @@ extension CommonSwapManager: SwapManager {
     }
 }
 
-// MARK: - SwapManager
+// MARK: - SendApproveDataBuilderInput
 
 extension CommonSwapManager: SendApproveDataBuilderInput {
     var selectedExpressProvider: ExpressProvider? {
