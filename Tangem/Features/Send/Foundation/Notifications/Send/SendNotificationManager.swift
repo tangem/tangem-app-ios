@@ -12,7 +12,7 @@ import TangemFoundation
 
 protocol SendNotificationManagerInput {
     var feeValues: AnyPublisher<[TokenFee], Never> { get }
-    var selectedFeePublisher: AnyPublisher<TokenFee, Never> { get }
+    var selectedTokenFeePublisher: AnyPublisher<TokenFee, Never> { get }
     var isFeeIncludedPublisher: AnyPublisher<Bool, Never> { get }
 
     var bsdkTransactionPublisher: AnyPublisher<BSDKTransaction?, Never> { get }
@@ -59,7 +59,7 @@ private extension CommonSendNotificationManager {
             })
             .store(in: &bag)
 
-        input.selectedFeePublisher
+        input.selectedTokenFeePublisher
             .filter { !$0.value.isLoading }
             .withWeakCaptureOf(self)
             .sink { manager, fee in
@@ -68,7 +68,7 @@ private extension CommonSendNotificationManager {
             .store(in: &bag)
 
         Publishers.CombineLatest(
-            input.selectedFeePublisher,
+            input.selectedTokenFeePublisher,
             input.feeValues.filter { !$0.allConforms { $0.value.isLoading } }
         )
         .sink { [weak self] selectedFee, loadedFeeValues in
@@ -76,7 +76,7 @@ private extension CommonSendNotificationManager {
         }
         .store(in: &bag)
 
-        input.selectedFeePublisher
+        input.selectedTokenFeePublisher
             .compactMap { $0.value.value?.amount.value }
             .combineLatest(input.isFeeIncludedPublisher.removeDuplicates())
             .sink { [weak self] feeValue, isFeeIncluded in

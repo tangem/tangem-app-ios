@@ -29,21 +29,14 @@ class SendNewFeeCompactViewModel: ObservableObject, Identifiable {
         return attributed
     }
 
-    private let feeTokenItem: TokenItem
-    private let isFeeApproximate: Bool
+    private let feeFormatter: FeeFormatter
 
     private let feeExplanationUrl = TangemBlogUrlBuilder().url(post: .fee)
     private var selectedFeeSubscription: AnyCancellable?
     private var canEditFeeSubscription: AnyCancellable?
 
-    private let feeFormatter: FeeFormatter = CommonFeeFormatter(
-        balanceFormatter: BalanceFormatter(),
-        balanceConverter: BalanceConverter()
-    )
-
-    init(feeTokenItem: TokenItem, isFeeApproximate: Bool) {
-        self.feeTokenItem = feeTokenItem
-        self.isFeeApproximate = isFeeApproximate
+    init(feeFormatter: FeeFormatter = CommonFeeFormatter()) {
+        self.feeFormatter = feeFormatter
     }
 
     func bind(input: SendFeeInput) {
@@ -51,7 +44,7 @@ class SendNewFeeCompactViewModel: ObservableObject, Identifiable {
             .withWeakCaptureOf(self)
             .receiveOnMain()
             .sink { viewModel, selectedFee in
-                viewModel.updateView(fee: selectedFee)
+                viewModel.updateView(tokenFee: selectedFee)
             }
 
         canEditFeeSubscription = input.hasMultipleFeeOptions
@@ -59,17 +52,22 @@ class SendNewFeeCompactViewModel: ObservableObject, Identifiable {
             .assign(to: \.canEditFee, on: self, ownership: .weak)
     }
 
-    private func updateView(fee: TokenFee) {
-        switch fee.value {
+    private func updateView(tokenFee: TokenFee?) {
+        guard let tokenFee else {
+            selectedFeeComponents = .noData
+            return
+        }
+
+        switch tokenFee.value {
         case .loading:
             selectedFeeComponents = .loading
 
         case .success(let fee):
             let feeComponents = feeFormatter.formattedFeeComponents(
                 fee: fee.amount.value,
-                currencySymbol: feeTokenItem.currencySymbol,
-                currencyId: feeTokenItem.currencyId,
-                isFeeApproximate: isFeeApproximate,
+                currencySymbol: tokenFee.tokenItem.currencySymbol,
+                currencyId: tokenFee.tokenItem.currencyId,
+                isFeeApproximate: tokenFee.tokenItem.isFeeApproximate,
                 formattingOptions: .sendCryptoFeeFormattingOptions
             )
             selectedFeeComponents = .loaded(text: feeComponents.fiatFee ?? feeComponents.cryptoFee)

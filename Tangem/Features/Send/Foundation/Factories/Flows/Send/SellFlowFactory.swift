@@ -237,13 +237,6 @@ extension SellFlowFactory: SendFeeStepBuildable {
         SendNewFeeStepBuilder.IO(input: sendModel, output: sendModel)
     }
 
-    var feeTypes: SendNewFeeStepBuilder.Types {
-        SendNewFeeStepBuilder.Types(
-            feeTokenItem: feeTokenItem,
-            isFeeApproximate: isFeeApproximate()
-        )
-    }
-
     var feeDependencies: SendNewFeeStepBuilder.Dependencies {
         SendNewFeeStepBuilder.Dependencies(
             feeSelectorInteractor: sendFeeProvider,
