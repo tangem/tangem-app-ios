@@ -13,14 +13,15 @@ import TangemNetworkUtils
 
 protocol GaslessTransactionsNetworkManager {
     typealias FeeToken = GaslessTransactionsDTO.Response.FeeToken
-    typealias MetaTransaction = GaslessTransactionsDTO.Request.MetaTransaction
+    typealias GaslessTransaction = GaslessTransactionsDTO.Request.GaslessTransaction
     typealias SignResult = GaslessTransactionsDTO.Response.SignResponse.Result
 
     var availableFeeTokens: [FeeToken] { get }
     var availableFeeTokensPublisher: AnyPublisher<[FeeToken], Never> { get }
 
     func updateAvailableTokens()
-    func signMetaTransaction(_ transaction: MetaTransaction) async throws -> SignResult
+    func signGaslessTransaction(_ transaction: GaslessTransaction) async throws -> SignResult
+    /// Returns the address where transaction fees are collected. Use this for gas estimation.
     func getFeeRecipientAddress() async throws -> String
 }
 
@@ -67,11 +68,10 @@ extension CommonGaslessTransactionsNetworkManager: GaslessTransactionsNetworkMan
         self.fetchFeeTokensTask = fetchFeeTokensTask
     }
 
-    func signMetaTransaction(_ transaction: MetaTransaction) async throws -> SignResult {
+    func signGaslessTransaction(_ transaction: GaslessTransaction) async throws -> SignResult {
         try await apiService.signGaslessTransaction(transaction)
     }
 
-    /// Returns the address where transaction fees are collected. Use this for gas estimation.
     func getFeeRecipientAddress() async throws -> String {
         try await apiService.getFeeRecipientAddress()
     }
@@ -84,10 +84,8 @@ private struct GaslessTransactionsNetworkManagerKey: InjectionKey {
             : FeatureStorage.instance.gaslessTransactionsAPIType
 
         let provider: TangemProvider<GaslessTransactionsAPITarget> = .init(
-            configuration: .ephemeralConfiguration,
-            additionalPlugins: [
-                GaslessTransactionsAuthorizationPlugin(),
-            ]
+            plugins: [GaslessTransactionsAuthorizationPlugin()],
+            sessionConfiguration: .gaslessConfiguration
         )
 
         let manager = CommonGaslessTransactionsNetworkManager(
