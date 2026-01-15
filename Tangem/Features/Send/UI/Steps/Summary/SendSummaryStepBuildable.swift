@@ -55,7 +55,7 @@ enum SendSummaryStepBuilder {
     }
 
     struct Dependencies {
-        let sendFeeProvider: any SendFeeProvider
+        let sendFeeProvider: any SendFeeUpdater
         let notificationManager: any NotificationManager
         let analyticsLogger: any SendSummaryAnalyticsLogger
         let sendDescriptionBuilder: any SendTransactionSummaryDescriptionBuilder

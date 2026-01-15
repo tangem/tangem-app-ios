@@ -190,7 +190,15 @@ private extension StakingSingleActionModel {
     }
 }
 
-// MARK: - SendFeeLoader
+// MARK: - SendFeeUpdater
+
+extension StakingSingleActionModel: SendFeeUpdater {
+    func updateFees() {
+        updateState()
+    }
+}
+
+// MARK: - SendFeeProvider
 
 extension StakingSingleActionModel: SendFeeProvider {
     var feeOptions: [FeeOption] { [.market] }
@@ -205,8 +213,6 @@ extension StakingSingleActionModel: SendFeeProvider {
             .map { [$0.mapToSendFee($1)] }
             .eraseToAnyPublisher()
     }
-
-    func updateFees() {}
 }
 
 // MARK: - SendSourceTokenInput
@@ -248,6 +254,21 @@ extension StakingSingleActionModel: SendSourceTokenAmountInput {
 extension StakingSingleActionModel: SendSourceTokenAmountOutput {
     func sourceAmountDidChanged(amount: SendAmount?) {
         assertionFailure("We can not change amount in single action model")
+    }
+}
+
+// MARK: - SendSummaryFeeInput
+
+extension StakingSingleActionModel: SendSummaryFeeInput {
+    var summaryFeePublisher: AnyPublisher<LoadableTokenFee, Never> {
+        _state
+            .withWeakCaptureOf(self)
+            .map { $0.mapToSendFee($1) }
+            .eraseToAnyPublisher()
+    }
+
+    var summaryCanEditFeePublisher: AnyPublisher<Bool, Never> {
+        Just(false).eraseToAnyPublisher()
     }
 }
 

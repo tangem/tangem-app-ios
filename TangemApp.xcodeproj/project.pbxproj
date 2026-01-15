@@ -23581,9 +23581,9 @@
 			isa = PBXGroup;
 			children = (
 				EF9870882E0E6F1C00AD7458 /* SendModel.swift */,
-				B6FE066C2CFFF35300B5EB22 /* RestakingModel.swift */,
 				EFB23F2C2CBE7F1F005A6719 /* OnrampModel.swift */,
 				EFA4E37E2C3EEE9E008815AD /* StakingModel.swift */,
+				B6FE066C2CFFF35300B5EB22 /* RestakingModel.swift */,
 				EF0B63F52C5411C900365A50 /* UnstakingModel.swift */,
 				0AC9EFF62CAE857C005F868F /* StakingSingleActionModel.swift */,
 			);
