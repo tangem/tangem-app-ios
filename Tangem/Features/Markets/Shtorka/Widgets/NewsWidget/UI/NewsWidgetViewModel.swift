@@ -78,18 +78,16 @@ final class NewsWidgetViewModel: ObservableObject {
     /// Returns only the news IDs that are visible in the widget (1 trending + up to 5 carousel)
     private func getVisibleNewsIds() -> [Int] {
         let items = sortItems(newsProvider.newsResult.value ?? [])
-        var result: [Int] = []
+        var result: [NewsId] = []
 
-        // Add trending (last one in sorted list, matching viewStateForLoadedItems behavior)
-        if let trending = items.last(where: { $0.isTrending }), let id = Int(trending.id) {
-            result.append(id)
+        if let trending = items.last(where: { $0.isTrending }) {
+            result.append(trending.id)
         }
 
-        // Add up to 5 non-trending (carousel items)
-        let carouselItems = items.filter { !$0.isTrending }.prefix(5)
-        result.append(contentsOf: carouselItems.compactMap { Int($0.id) })
+        let carouselItems = items.filter { !$0.isTrending }
+        result.append(contentsOf: carouselItems.compactMap { $0.id })
 
-        return result
+        return result.compactMap { Int($0) }
     }
 }
 
