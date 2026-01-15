@@ -16,7 +16,7 @@ struct NFTSendTransactionSummaryDescriptionBuilder {
 // MARK: - SendTransactionSummaryDescriptionBuilder protocol conformance
 
 extension NFTSendTransactionSummaryDescriptionBuilder: SendTransactionSummaryDescriptionBuilder {
-    func makeDescription(amount _: Decimal, fee: TokenFee) -> AttributedString? {
+    func makeDescription(amount _: Decimal, fee: LoadableTokenFee) -> AttributedString? {
         guard let bsdkFee = fee.value.value else {
             return nil
         }

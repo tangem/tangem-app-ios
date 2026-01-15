@@ -130,14 +130,14 @@ private extension StakingSingleActionModel {
         Fee(.init(with: feeTokenItem.blockchain, type: feeTokenItem.amountType, value: value))
     }
 
-    func mapToSendFee(_ state: State) -> TokenFee {
+    func mapToSendFee(_ state: State) -> LoadableTokenFee {
         switch state {
         case .loading:
-            return TokenFee(option: .market, tokenItem: feeTokenItem, value: .loading)
+            return LoadableTokenFee(option: .market, tokenItem: feeTokenItem, value: .loading)
         case .networkError(let error):
-            return TokenFee(option: .market, tokenItem: feeTokenItem, value: .failure(error))
+            return LoadableTokenFee(option: .market, tokenItem: feeTokenItem, value: .failure(error))
         case .validationError(_, let fee), .ready(let fee, _):
-            return TokenFee(option: .market, tokenItem: feeTokenItem, value: .success(makeFee(value: fee)))
+            return LoadableTokenFee(option: .market, tokenItem: feeTokenItem, value: .success(makeFee(value: fee)))
         }
     }
 }
@@ -195,11 +195,11 @@ private extension StakingSingleActionModel {
 extension StakingSingleActionModel: SendFeeProvider {
     var feeOptions: [FeeOption] { [.market] }
 
-    var fees: [TokenFee] {
+    var fees: [LoadableTokenFee] {
         [mapToSendFee(_state.value)]
     }
 
-    var feesPublisher: AnyPublisher<[TokenFee], Never> {
+    var feesPublisher: AnyPublisher<[LoadableTokenFee], Never> {
         _state
             .withWeakCaptureOf(self)
             .map { [$0.mapToSendFee($1)] }
@@ -254,11 +254,11 @@ extension StakingSingleActionModel: SendSourceTokenAmountOutput {
 // MARK: - SendFeeInput
 
 extension StakingSingleActionModel: SendFeeInput {
-    var selectedFee: TokenFee? {
+    var selectedFee: LoadableTokenFee? {
         mapToSendFee(_state.value)
     }
 
-    var selectedFeePublisher: AnyPublisher<TokenFee?, Never> {
+    var selectedFeePublisher: AnyPublisher<LoadableTokenFee?, Never> {
         _state
             .withWeakCaptureOf(self)
             .map { model, fee in
@@ -271,7 +271,7 @@ extension StakingSingleActionModel: SendFeeInput {
 // MARK: - SendFeeOutput
 
 extension StakingSingleActionModel: SendFeeOutput {
-    func feeDidChanged(fee: TokenFee) {
+    func feeDidChanged(fee: LoadableTokenFee) {
         assertionFailure("We can not change fee in staking")
     }
 }

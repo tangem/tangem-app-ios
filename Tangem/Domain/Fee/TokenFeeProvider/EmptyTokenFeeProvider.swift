@@ -15,8 +15,8 @@ struct EmptyTokenFeeProvider: TokenFeeProvider {
     var state: TokenFeeProviderState { .unavailable(.notSupported) }
     var statePublisher: AnyPublisher<TokenFeeProviderState, Never> { .just(output: state) }
 
-    var fees: [TokenFee] { [] }
-    var feesPublisher: AnyPublisher<[TokenFee], Never> { .just(output: fees) }
+    var fees: [LoadableTokenFee] { [] }
+    var feesPublisher: AnyPublisher<[LoadableTokenFee], Never> { .just(output: fees) }
 
     func updateSupportingState(input: TokenFeeProviderInputData) {
         assertionFailure("Should not be called")

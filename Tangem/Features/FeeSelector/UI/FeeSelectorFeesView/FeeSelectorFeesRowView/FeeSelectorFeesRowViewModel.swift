@@ -12,12 +12,12 @@ import Combine
 class FeeSelectorFeesRowViewModel: ObservableObject, Identifiable {
     var id: String { fee.option.title }
 
-    let fee: TokenFee
+    let fee: LoadableTokenFee
     let feeComponents: FormattedFeeComponents
     let customFields: [FeeSelectorCustomFeeRowViewModel]
 
     init(
-        fee: TokenFee,
+        fee: LoadableTokenFee,
         feeComponents: FormattedFeeComponents,
         customFields: [FeeSelectorCustomFeeRowViewModel] = []
     ) {

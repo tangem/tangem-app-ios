@@ -199,14 +199,14 @@ class EVMCustomFeeService {
 // MARK: - CustomFeeProvider
 
 extension EVMCustomFeeService: CustomFeeProvider {
-    var customFee: TokenFee {
-        TokenFee(option: .custom, tokenItem: feeTokenItem, value: _customFee.value.map { .success($0) } ?? .loading)
+    var customFee: LoadableTokenFee {
+        LoadableTokenFee(option: .custom, tokenItem: feeTokenItem, value: _customFee.value.map { .success($0) } ?? .loading)
     }
 
-    var customFeePublisher: AnyPublisher<TokenFee, Never> {
+    var customFeePublisher: AnyPublisher<LoadableTokenFee, Never> {
         _customFee
             .withWeakCaptureOf(self)
-            .map { TokenFee(option: .custom, tokenItem: $0.feeTokenItem, value: $1.map { .success($0) } ?? .loading) }
+            .map { LoadableTokenFee(option: .custom, tokenItem: $0.feeTokenItem, value: $1.map { .success($0) } ?? .loading) }
             .eraseToAnyPublisher()
     }
 
