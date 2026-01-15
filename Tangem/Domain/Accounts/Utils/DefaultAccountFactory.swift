@@ -18,9 +18,9 @@ struct DefaultAccountFactory {
         self.defaultBlockchains = defaultBlockchains
     }
 
-    func makeDefaultAccount() -> StoredCryptoAccount {
+    func makeDefaultAccount(defaultTokensOverride: [StoredCryptoAccount.Token]) -> StoredCryptoAccount {
         let config = AccountModelUtils.mainAccountPersistentConfig(forUserWalletWithId: userWalletId)
-        let tokens = StoredEntryConverter.convertToStoredEntries(defaultBlockchains)
+        let tokens = defaultTokensOverride.nilIfEmpty ?? StoredEntryConverter.convertToStoredEntries(defaultBlockchains)
 
         return StoredCryptoAccount(config: config, tokenListAppearance: .default, tokens: tokens)
     }
