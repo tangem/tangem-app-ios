@@ -59,25 +59,19 @@ extension VisaPaymentAccountInteractorBuilder {
 }
 
 extension TangemPayCustomerInfoManagementServiceBuilder {
-    @Injected(\.keysManager)
-    private static var keysManager: KeysManager
-
     init() {
         self = TangemPayCustomerInfoManagementServiceBuilder(
             apiType: FeatureStorage.instance.visaAPIType,
-            bffStaticToken: Self.keysManager.bffStaticToken
+            bffStaticToken: TangemPayUtilities.getBFFStaticToken()
         )
     }
 }
 
 extension TangemPayAvailabilityServiceBuilder {
-    @Injected(\.keysManager)
-    private static var keysManager: KeysManager
-
     init() {
         self = TangemPayAvailabilityServiceBuilder(
             apiType: FeatureStorage.instance.visaAPIType,
-            bffStaticToken: Self.keysManager.bffStaticToken
+            bffStaticToken: TangemPayUtilities.getBFFStaticToken()
         )
     }
 }
@@ -86,14 +80,11 @@ extension TangemPayAuthorizationServiceBuilder {
     @Injected(\.tangemPayAuthorizationTokensRepository)
     private static var tangemPayAuthorizationTokensRepository: TangemPayAuthorizationTokensRepository
 
-    @Injected(\.keysManager)
-    private static var keysManager: KeysManager
-
     init() {
         self = TangemPayAuthorizationServiceBuilder(
             apiType: FeatureStorage.instance.visaAPIType,
             authorizationTokensRepository: Self.tangemPayAuthorizationTokensRepository,
-            bffStaticToken: Self.keysManager.bffStaticToken
+            bffStaticToken: TangemPayUtilities.getBFFStaticToken()
         )
     }
 }
