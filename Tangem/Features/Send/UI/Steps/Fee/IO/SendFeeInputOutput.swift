@@ -28,9 +28,9 @@ protocol SendFeeInput: AnyObject {
     var hasMultipleFeeOptions: AnyPublisher<Bool, Never> { get }
 }
 
-extension SendFeeInput where Self: SendFeeProvider {
+extension SendFeeInput where Self: SendSummaryFeeInput {
     /// Convenient extension when the object support `SendFeeInput` and `SendFeeProvider`. E.g. `StakingModel`
-    var hasMultipleFeeOptions: AnyPublisher<Bool, Never> { feesHasMultipleFeeOptions }
+    var hasMultipleFeeOptions: AnyPublisher<Bool, Never> { summaryCanEditFeePublisher }
 }
 
 protocol SendFeeOutput: AnyObject {
