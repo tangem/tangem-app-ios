@@ -46,16 +46,10 @@ extension CommonWalletModel {
 class EthereumWalletManagerMock: WalletManager {
     var cardTokens: [BlockchainSdk.Token] { [] }
 
-    func update() {}
-
-    func updatePublisher() -> AnyPublisher<Void, Never> {
-        Empty().eraseToAnyPublisher()
-    }
-
     func setNeedsUpdate() {}
+    func update() async {}
 
     func removeToken(_ token: BlockchainSdk.Token) {}
-
     func addToken(_ token: BlockchainSdk.Token) {}
 
     var wallet: BlockchainSdk.Wallet = .init(
