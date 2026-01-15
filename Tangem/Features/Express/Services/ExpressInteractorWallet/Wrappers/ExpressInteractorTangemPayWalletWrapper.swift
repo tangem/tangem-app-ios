@@ -57,7 +57,7 @@ struct ExpressInteractorTangemPayWalletWrapper: ExpressInteractorTangemPayWallet
             tokenItem: tokenItem
         )
 
-        expressTokenFeeManager = TangemPayExpressTokenFeeManager()
+        expressTokenFeeManager = TangemPayExpressTokenFeeManager(tokenItem: tokenItem)
         _cexTransactionProcessor = cexTransactionProcessor
 
         _balanceProvider = TangemPayExpressBalanceProvider(

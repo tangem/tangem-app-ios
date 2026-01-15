@@ -32,7 +32,7 @@ enum TokenFeeConverter {
         case 2:
             return [.market: fees[0], .fast: fees[1]]
         case 3:
-            return [.slow: fees[0], .market: fees[1], .fast: fees[1]]
+            return [.slow: fees[0], .market: fees[1], .fast: fees[2]]
         default:
             assertionFailure("Wrong count of fees")
             return [:]

@@ -508,7 +508,7 @@ private extension ExpressViewModel {
             var action: (() -> Void)?
 
             // If fee is only one option then don't open selector
-            if interactor.hasMultipleFeeProviders {
+            if interactor.selectorSupportSelection {
                 action = weakify(self, forFunction: ExpressViewModel.openFeeSelectorView)
             }
 

@@ -149,8 +149,8 @@ extension CommonSwapManager: SendApproveDataBuilderInput {
 // MARK: - FeeSelectorInteractor (ExpressInteractor Proxy)
 
 extension CommonSwapManager: FeeSelectorInteractor {
-    var selectedSelectorFee: LoadableTokenFee? { interactor.selectedSelectorFee }
-    var selectedSelectorFeePublisher: AnyPublisher<LoadableTokenFee?, Never> {
+    var selectedSelectorFee: LoadableTokenFee { interactor.selectedSelectorFee }
+    var selectedSelectorFeePublisher: AnyPublisher<LoadableTokenFee, Never> {
         interactor.selectedSelectorFeePublisher
     }
 

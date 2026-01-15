@@ -42,7 +42,6 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
     )
 
     lazy var notificationManager = makeSendWithSwapNotificationManager(receiveTokenInput: sendModel)
-    lazy var sendFeeProvider = makeSendFeeProvider(sourceTokenInput: sendModel, sendFeeUpdater: sendModel)
 
     init(
         userWalletInfo: UserWalletInfo,
@@ -127,7 +126,7 @@ extension NFTFlowFactory: SendGenericFlowFactory {
         // Model setup
         // We have to set dependencies here after all setups is completed
         sendModel.informationRelevanceService = CommonInformationRelevanceService(
-            input: sendModel, provider: sendFeeProvider
+            input: sendModel, provider: sendModel
         )
 
         // Steps setup
@@ -246,7 +245,7 @@ extension NFTFlowFactory: SendDestinationStepBuildable {
 extension NFTFlowFactory: SendFeeStepBuildable {
     var feeDependencies: SendNewFeeStepBuilder.Dependencies {
         SendNewFeeStepBuilder.Dependencies(
-            feeSelectorInteractor: sendFeeProvider,
+            feeSelectorInteractor: sendModel,
             analyticsLogger: analyticsLogger
         )
     }
@@ -265,7 +264,7 @@ extension NFTFlowFactory: SendSummaryStepBuildable {
 
     var summaryDependencies: SendSummaryStepBuilder.Dependencies {
         SendSummaryStepBuilder.Dependencies(
-            sendFeeProvider: sendFeeProvider,
+            sendFeeProvider: sendModel,
             notificationManager: notificationManager,
             analyticsLogger: analyticsLogger,
             sendDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder(),

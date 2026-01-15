@@ -98,7 +98,7 @@ private extension SendModel {
                 _amount.compactMap { $0?.crypto },
                 _destination.compactMap { $0?.value.transactionAddress },
                 _destinationAdditionalField,
-                _sendingToken.flatMapLatest { $0.tokenFeeManager.selectedLoadableFeePublisher }.compactMap { $0.value },
+                _sendingToken.flatMapLatest { $0.tokenFeeManager.selectedSelectorFeePublisher.compactMap { $0.value } },
             )
             .withWeakCaptureOf(self)
             .asyncMap { manager, args -> Result<BSDKTransaction, Error>? in
@@ -598,15 +598,34 @@ extension SendModel: SendFeeUpdater {
 
 extension SendModel: SendSummaryFeeInput {
     var summaryFee: LoadableTokenFee {
-        sourceToken.tokenFeeManager.selectedLoadableFee
+        switch receiveToken {
+        case .same: selectedSelectorFee
+        case .swap: swapManager.selectedSelectorFee
+        }
     }
 
     var summaryFeePublisher: AnyPublisher<LoadableTokenFee, Never> {
-        sourceToken.tokenFeeManager.selectedLoadableFeePublisher
+        receiveTokenPublisher
+            .withWeakCaptureOf(self)
+            .flatMapLatest { model, receiveToken in
+                switch receiveToken {
+                case .same: model.selectedSelectorFeePublisher
+                case .swap: model.swapManager.selectedSelectorFeePublisher
+                }
+            }
+            .eraseToAnyPublisher()
     }
 
     var summaryCanEditFeePublisher: AnyPublisher<Bool, Never> {
-        sourceToken.tokenFeeManager.hasMultipleFeeOptions
+        receiveTokenPublisher
+            .withWeakCaptureOf(self)
+            .flatMapLatest { model, receiveToken in
+                switch receiveToken {
+                case .same: model.selectorSupportSelectionPublisher
+                case .swap: model.swapManager.selectorSupportSelectionPublisher
+                }
+            }
+            .eraseToAnyPublisher()
     }
 }
 
@@ -732,7 +751,7 @@ extension SendModel: SendNotificationManagerInput {
     }
 
     var selectedTokenFeePublisher: AnyPublisher<LoadableTokenFee, Never> {
-        sourceToken.tokenFeeManager.selectedLoadableFeePublisher
+        sourceToken.tokenFeeManager.selectedSelectorFeePublisher
     }
 
     var isFeeIncludedPublisher: AnyPublisher<Bool, Never> {
@@ -855,9 +874,9 @@ extension SendModel: SendDestinationAccountOutput {
 // MARK: - FeeSelectorInteractor
 
 extension SendModel: FeeSelectorInteractor {
-    var selectedSelectorFee: LoadableTokenFee? { sourceToken.tokenFeeManager.selectedLoadableFee }
-    var selectedSelectorFeePublisher: AnyPublisher<LoadableTokenFee?, Never> {
-        sourceToken.tokenFeeManager.selectedLoadableFeePublisher.eraseToOptional().eraseToAnyPublisher()
+    var selectedSelectorFee: LoadableTokenFee { sourceToken.tokenFeeManager.selectedSelectorFee }
+    var selectedSelectorFeePublisher: AnyPublisher<LoadableTokenFee, Never> {
+        sourceToken.tokenFeeManager.selectedSelectorFeePublisher.eraseToAnyPublisher()
     }
 
     var selectorFees: [LoadableTokenFee] { sourceToken.tokenFeeManager.selectedFeeProviderFees }
