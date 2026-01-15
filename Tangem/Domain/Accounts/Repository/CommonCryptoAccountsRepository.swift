@@ -119,20 +119,17 @@ final class CommonCryptoAccountsRepository {
         try await walletCreationHelper.createWallet()
     }
 
-    private func addDefaultAccount(isWalletAlreadyCreated: Bool) async throws {
+    private func addDefaultAccount(isWalletAlreadyCreated: Bool, additionalTokens: [StoredCryptoAccount.Token]) async throws {
         if !isWalletAlreadyCreated {
             try await createWallet()
         }
-        let defaultAccount = defaultAccountFactory.makeDefaultAccount()
-        // If the wallet has already been created (i.e. this exact wallet has been used on previous app version,
-        // w/o accounts support) - we don't need to forcefully update the token list with
-        // `DefaultAccountFactory.defaultBlockchains` (i.e. `UserWalletConfig.defaultBlockchains`).
-        //
-        // Instead, the token list will be updated if needed using tokens from the `additionalTokens`
-        // field in the server response, distributed using `StoredCryptoAccountsTokensDistributor`
-        // in the `addAccountsInternal` method call below.
-        let tokenListUpdateOptions: TokenListUpdateOptions = isWalletAlreadyCreated ? .none : [.forceUpdate]
-        _ = try await addAccountsInternal([defaultAccount], tokenListUpdateOptions: tokenListUpdateOptions)
+
+        // In some rare edge cases, when a wallet has already been created and used on a previous app version
+        // (w/o accounts support) and this wallet has an empty token list, default tokens from
+        // `DefaultAccountFactory.defaultBlockchains` (i.e. `UserWalletConfig.defaultBlockchains`) will be added
+        // to the newly created account. We consider this behavior acceptable (mirrors the Android implementation).
+        let defaultAccount = defaultAccountFactory.makeDefaultAccount(defaultTokensOverride: additionalTokens)
+        _ = try await addAccountsInternal([defaultAccount], tokenListUpdateOptions: .forceUpdate)
     }
 
     // MARK: - Loading accounts and tokens from server
@@ -181,7 +178,7 @@ final class CommonCryptoAccountsRepository {
 
             var updatedAccounts = remoteCryptoAccountsInfo.accounts
             if updatedAccounts.isEmpty {
-                throw InternalError.migrationNeeded
+                throw InternalError.migrationNeeded(additionalTokens: remoteCryptoAccountsInfo.legacyTokens)
             }
 
             let shouldUpdateTokenListDueToTokensDistribution = StoredCryptoAccountsTokensDistributor.distributeTokens(
@@ -206,9 +203,9 @@ final class CommonCryptoAccountsRepository {
         } catch CryptoAccountsNetworkServiceError.underlyingError(let error) {
             throw error
         } catch CryptoAccountsNetworkServiceError.noAccountsCreated {
-            try await addDefaultAccount(isWalletAlreadyCreated: false)
-        } catch InternalError.migrationNeeded {
-            try await addDefaultAccount(isWalletAlreadyCreated: true)
+            try await addDefaultAccount(isWalletAlreadyCreated: false, additionalTokens: [])
+        } catch InternalError.migrationNeeded(let additionalTokens) {
+            try await addDefaultAccount(isWalletAlreadyCreated: true, additionalTokens: additionalTokens)
         }
     }
 
@@ -321,25 +318,28 @@ final class CommonCryptoAccountsRepository {
         try Task.checkCancellation()
 
         var updatedAccounts: [StoredCryptoAccount]
+        let distributionResult: StoredCryptoAccountsTokensDistributor.DistributionResult
 
         if tokenListUpdateOptions.contains(.forceUpdate) {
             try await networkService.saveTokens(from: accounts, tokenListUpdateOptions: tokenListUpdateOptions)
             try Task.checkCancellation()
-            // Overriding the remote state when token list is forcefully updated
-            // to ensure that tokens from the newly added accounts are saved
+            // Overriding the remote state when the token list is forcefully updated
+            // to ensure that tokens from the newly added accounts are always saved
             updatedAccounts = accounts
+            // Force update doesn't need tokens redistribution by definition
+            distributionResult = .none
         } else {
             updatedAccounts = remoteCryptoAccountsInfo.accounts
-        }
 
-        let distributionResult = StoredCryptoAccountsTokensDistributor.distributeTokens(
-            in: &updatedAccounts,
-            additionalTokens: remoteCryptoAccountsInfo.legacyTokens
-        )
+            distributionResult = StoredCryptoAccountsTokensDistributor.distributeTokens(
+                in: &updatedAccounts,
+                additionalTokens: remoteCryptoAccountsInfo.legacyTokens
+            )
 
-        if distributionResult.isRedistributionHappened {
-            try await networkService.saveTokens(from: updatedAccounts, tokenListUpdateOptions: tokenListUpdateOptions)
-            try Task.checkCancellation()
+            if distributionResult.isRedistributionHappened {
+                try await networkService.saveTokens(from: updatedAccounts, tokenListUpdateOptions: tokenListUpdateOptions)
+                try Task.checkCancellation()
+            }
         }
 
         // Updating local storage only after successful remote update
@@ -429,7 +429,7 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
             migrateStorage(forUserWalletWithId: userWalletId)
         } else if !hasTokenSynchronization {
             // Local-only storage initialization with a default account
-            initializeStorage(with: defaultAccountFactory.makeDefaultAccount())
+            initializeStorage(with: defaultAccountFactory.makeDefaultAccount(defaultTokensOverride: []))
         } else {
             // Last resort option: initialize storage with remote info from the server
             loadAccountsFromServer()
@@ -628,7 +628,7 @@ private extension CommonCryptoAccountsRepository {
         /// Unlike `CryptoAccountsNetworkServiceError.noAccountsCreated`, this error indicates that the wallet
         /// has been created using an older version of the app (i.e. w/o accounts support) and exists,
         /// but no accounts have been created for this wallet yet.
-        case migrationNeeded
+        case migrationNeeded(additionalTokens: [StoredCryptoAccount.Token])
         /// No `UserWalletInfoProvider` has been configured for the repository, this is most likely a programming error.
         /// Check that `configure(with:)` method has been called before using the repository.
         case noUserWalletInfoProviderSet
