@@ -11,18 +11,23 @@ import Foundation
 import TangemFoundation
 import TangemMacro
 
-class CommonTokenFeeProvider {
+let FeeLogger = AppLogger.tag("TokenFeeProvider")
+
+final class CommonTokenFeeProvider {
     let feeTokenItem: TokenItem
     let availableTokenBalanceProvider: TokenBalanceProvider
     let tokenFeeLoader: any TokenFeeLoader
     let customFeeProvider: (any CustomFeeProvider)?
 
-    var tokenFeeProviderInputData: TokenFeeProviderInputData? {
-        didSet { updateSupportingState(input: tokenFeeProviderInputData) }
+    private var tokenFeeProviderInputData: TokenFeeProviderInputData? {
+        didSet {
+            if oldValue != tokenFeeProviderInputData {
+                updateSupportingState(input: tokenFeeProviderInputData)
+            }
+        }
     }
 
-    let stateSubject: CurrentValueSubject<TokenFeeProviderState, Never> = .init(.idle)
-
+    private let stateSubject: CurrentValueSubject<TokenFeeProviderState, Never> = .init(.idle)
     private var customFeeProviderInitialSetupCancellable: AnyCancellable?
 
     init(
@@ -79,31 +84,24 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
 
     func updateFees() async {
         guard let input = tokenFeeProviderInputData else {
-            AppLogger.error(self, error: "TokenFeeProvider Didn't setup with any input data")
-            stateSubject.send(.unavailable(.inputDataNotSet))
+            FeeLogger.error(self, error: "TokenFeeProvider Didn't setup with any input data")
+            updateState(state: .unavailable(.inputDataNotSet))
             return
         }
 
         do {
-            stateSubject.send(.loading)
-            AppLogger.info(self, "Start loading")
-
+            updateState(state: .loading)
             let fees = try await loadFees(input: input)
-            try Task.checkCancellation()
 
-            stateSubject.send(.available(fees))
-            AppLogger.info(self, "Did load fees")
+            try Task.checkCancellation()
+            updateState(state: .available(fees))
 
         } catch TokenFeeLoaderError.tokenFeeLoaderNotFound {
-            stateSubject.send(.unavailable(.notSupported))
-            AppLogger.warning(self, "Catch TokenFeeLoaderNotFound")
-
+            updateState(state: .unavailable(.notSupported))
         } catch is CancellationError {
-            stateSubject.send(.idle)
-            AppLogger.warning(self, "Catch CancellationError")
+            updateState(state: .idle)
         } catch {
-            AppLogger.error(self, error: error)
-            stateSubject.send(.error(error))
+            updateState(state: .error(error))
         }
     }
 
@@ -133,7 +131,7 @@ private extension CommonTokenFeeProvider {
     func updateSupportingState(input: TokenFeeProviderInputData?) {
         switch input {
         case .none:
-            stateSubject.send(.unavailable(.inputDataNotSet))
+            updateState(state: .unavailable(.inputDataNotSet))
         case .common, .cex:
             // Always available. Do nothing
             break
@@ -146,8 +144,21 @@ private extension CommonTokenFeeProvider {
             break
         case .dex:
             // DEX but tokenFeeLoader is not (EthereumTokenFeeLoader or SolanaTokenFeeLoader)
-            stateSubject.send(.unavailable(.notSupported))
+            updateState(state: .unavailable(.notSupported))
         }
+    }
+
+    func updateState(state: TokenFeeProviderState) {
+        switch state {
+        case .idle, .available, .loading:
+            FeeLogger.info(self, "Will update state to \(state)")
+        case .unavailable:
+            FeeLogger.warning(self, "Will update state to \(state)")
+        case .error(let error):
+            FeeLogger.error(self, "Will update state", error: error)
+        }
+
+        stateSubject.send(state)
     }
 }
 
