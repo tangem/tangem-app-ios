@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-protocol BaseAccountModel: Identifiable where ID: AccountModelPersistentIdentifierConvertible {
+protocol BaseAccountModel: AccountModelAnalyticsProviding, Identifiable where ID: AccountModelPersistentIdentifierConvertible {
     typealias Editor = (_ editor: AccountModelEditor) -> Void
 
     var name: String { get }
