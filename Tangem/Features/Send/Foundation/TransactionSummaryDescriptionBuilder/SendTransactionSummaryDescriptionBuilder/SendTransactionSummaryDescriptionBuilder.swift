@@ -11,7 +11,7 @@ import TangemLocalization
 import TangemAssets
 
 protocol SendTransactionSummaryDescriptionBuilder: GenericTransactionSummaryDescriptionBuilder {
-    func makeDescription(amount: Decimal, fee: TokenFee) -> AttributedString?
+    func makeDescription(amount: Decimal, fee: LoadableTokenFee) -> AttributedString?
 }
 
 struct CommonSendTransactionSummaryDescriptionBuilder {
@@ -25,7 +25,7 @@ struct CommonSendTransactionSummaryDescriptionBuilder {
 // MARK: - SendTransactionSummaryDescriptionBuilder
 
 extension CommonSendTransactionSummaryDescriptionBuilder: SendTransactionSummaryDescriptionBuilder {
-    func makeDescription(amount: Decimal, fee: TokenFee) -> AttributedString? {
+    func makeDescription(amount: Decimal, fee: LoadableTokenFee) -> AttributedString? {
         guard let bsdkFee = fee.value.value else {
             return nil
         }

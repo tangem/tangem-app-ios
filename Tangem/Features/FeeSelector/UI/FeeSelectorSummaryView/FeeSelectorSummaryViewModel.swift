@@ -105,7 +105,7 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
         )
     }
 
-    private func mapFeeToRowViewModel(fee: TokenFee, canExpand: Bool) -> FeeSelectorRowViewModel {
+    private func mapFeeToRowViewModel(fee: LoadableTokenFee, canExpand: Bool) -> FeeSelectorRowViewModel {
         let subtitleState: LoadableTextView.State = {
             switch fee.value {
             case .loading:

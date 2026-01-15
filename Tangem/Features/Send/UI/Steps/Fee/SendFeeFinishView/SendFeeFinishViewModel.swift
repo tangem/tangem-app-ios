@@ -26,7 +26,7 @@ final class SendFeeFinishViewModel: ObservableObject, Identifiable {
             .assign(to: &$selectedFeeRowViewModel)
     }
 
-    private func mapToFeeRowViewModel(tokenFee: TokenFee?) -> FeeRowViewModel? {
+    private func mapToFeeRowViewModel(tokenFee: LoadableTokenFee?) -> FeeRowViewModel? {
         guard let tokenFee else {
             return nil
         }

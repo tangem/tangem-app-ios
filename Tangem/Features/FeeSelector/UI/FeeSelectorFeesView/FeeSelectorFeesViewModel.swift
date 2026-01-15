@@ -11,11 +11,11 @@ import TangemUI
 import TangemFoundation
 
 protocol FeeSelectorFeesDataProvider {
-    var selectedSelectorFee: TokenFee? { get }
-    var selectedSelectorFeePublisher: AnyPublisher<TokenFee?, Never> { get }
+    var selectedSelectorFee: LoadableTokenFee? { get }
+    var selectedSelectorFeePublisher: AnyPublisher<LoadableTokenFee?, Never> { get }
 
-    var selectorFees: [TokenFee] { get }
-    var selectorFeesPublisher: AnyPublisher<[TokenFee], Never> { get }
+    var selectorFees: [LoadableTokenFee] { get }
+    var selectorFeesPublisher: AnyPublisher<[LoadableTokenFee], Never> { get }
 }
 
 protocol FeeSelectorCustomFeeDataProviding {
@@ -23,7 +23,7 @@ protocol FeeSelectorCustomFeeDataProviding {
 }
 
 protocol FeeSelectorFeesRoutable: AnyObject {
-    func userDidTapConfirmSelection(selectedFee: TokenFee)
+    func userDidTapConfirmSelection(selectedFee: LoadableTokenFee)
 }
 
 final class FeeSelectorFeesViewModel: ObservableObject {
@@ -40,7 +40,7 @@ final class FeeSelectorFeesViewModel: ObservableObject {
 
     private weak var router: FeeSelectorFeesRoutable?
 
-    private var selectedFee: TokenFee? {
+    private var selectedFee: LoadableTokenFee? {
         provider.selectorFees.first(where: { $0.option == selectedFeeOption })
     }
 
@@ -68,7 +68,7 @@ final class FeeSelectorFeesViewModel: ObservableObject {
         self.router = router
     }
 
-    func isSelected(_ fee: TokenFee) -> BindingValue<Bool> {
+    func isSelected(_ fee: LoadableTokenFee) -> BindingValue<Bool> {
         .init(root: self, default: false) { root in
             root.selectedFeeOption == fee.option
         } set: { root, isSelected in
@@ -129,7 +129,7 @@ private extension FeeSelectorFeesViewModel {
             .assign(to: &$customFeeManualSaveIsRequired)
     }
 
-    func userDidSelect(fee: TokenFee) {
+    func userDidSelect(fee: LoadableTokenFee) {
         selectedFeeOption = fee.option
         analytics.logSendFeeSelected(fee.option)
 
@@ -142,13 +142,13 @@ private extension FeeSelectorFeesViewModel {
 // MARK: - Mapping
 
 private extension FeeSelectorFeesViewModel {
-    func mapToFeeSelectorFeesRowViewModels(values: [TokenFee]) -> [FeeSelectorFeesRowViewModel] {
+    func mapToFeeSelectorFeesRowViewModels(values: [LoadableTokenFee]) -> [FeeSelectorFeesRowViewModel] {
         values
             .sorted(by: \.option)
             .map { mapToFeeSelectorFeesRowViewModel(fee: $0) }
     }
 
-    func mapToFeeSelectorFeesRowViewModel(fee: TokenFee) -> FeeSelectorFeesRowViewModel {
+    func mapToFeeSelectorFeesRowViewModel(fee: LoadableTokenFee) -> FeeSelectorFeesRowViewModel {
         let feeComponents = switch fee.value {
         // [REDACTED_TODO_COMMENT]
         case .loading, .failure:

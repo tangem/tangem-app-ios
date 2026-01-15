@@ -11,8 +11,8 @@ import Combine
 import struct BlockchainSdk.Amount
 
 protocol SendFeeInput: AnyObject {
-    var selectedFee: TokenFee? { get }
-    var selectedFeePublisher: AnyPublisher<TokenFee?, Never> { get }
+    var selectedFee: LoadableTokenFee? { get }
+    var selectedFeePublisher: AnyPublisher<LoadableTokenFee?, Never> { get }
 
     var hasMultipleFeeOptions: AnyPublisher<Bool, Never> { get }
 }
@@ -23,5 +23,5 @@ extension SendFeeInput where Self: SendFeeProvider {
 }
 
 protocol SendFeeOutput: AnyObject {
-    func feeDidChanged(fee: TokenFee)
+    func feeDidChanged(fee: LoadableTokenFee)
 }
