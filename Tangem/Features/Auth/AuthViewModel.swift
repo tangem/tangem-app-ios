@@ -22,7 +22,7 @@ final class AuthViewModel: ObservableObject {
     @Published var confirmationDialog: ConfirmationDialogViewModel?
 
     var unlockWithBiometryButtonTitle: String {
-        Localization.welcomeUnlock(BiometricAuthorizationUtils.biometryType.name)
+        Localization.welcomeUnlock(BiometricsUtil.biometryType.name)
     }
 
     // MARK: - Dependencies

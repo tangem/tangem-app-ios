@@ -144,7 +144,11 @@ extension CommonExpressDestinationService {
         }
 
         var asExpressInteractorWalletModelWrapper: ExpressInteractorWalletModelWrapper {
-            ExpressInteractorWalletModelWrapper(userWalletInfo: userWalletInfo, walletModel: walletModel)
+            ExpressInteractorWalletModelWrapper(
+                userWalletInfo: userWalletInfo,
+                walletModel: walletModel,
+                expressOperationType: .swap
+            )
         }
     }
 
