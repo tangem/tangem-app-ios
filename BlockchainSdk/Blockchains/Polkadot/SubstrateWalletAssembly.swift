@@ -19,10 +19,16 @@ struct SubstrateWalletAssembly: WalletManagerAssembly {
 
         return PolkadotWalletManager(network: network, wallet: input.wallet).then { walletManager in
             let runtimeVersionProvider = SubstrateRuntimeVersionProvider(network: network)
-            let providers: [PolkadotJsonRpcProvider] = APIResolver(blockchain: blockchain, keysConfig: input.networkInput.keysConfig)
+            var providers: [PolkadotJsonRpcProvider] = APIResolver(blockchain: blockchain, keysConfig: input.networkInput.keysConfig)
                 .resolveProviders(apiInfos: input.networkInput.apiInfo) { nodeInfo, _ in
                     PolkadotJsonRpcProvider(node: nodeInfo, configuration: input.networkInput.tangemProviderConfig)
                 }
+
+            let dwellirResolver = DwellirAPIResolver(keysConfig: input.networkInput.keysConfig)
+
+            if let dwellirNodeInfo = dwellirResolver.resolve(for: blockchain) {
+                providers.append(PolkadotJsonRpcProvider(node: dwellirNodeInfo, configuration: input.networkInput.tangemProviderConfig))
+            }
 
             walletManager.networkService = PolkadotNetworkService(providers: providers, network: network)
             walletManager.txBuilder = PolkadotTransactionBuilder(

@@ -16,7 +16,7 @@ protocol SendAnalyticsLogger: SendManagementModelAnalyticsLogger,
     SendReceiveTokensListAnalyticsLogger,
     SendDestinationAnalyticsLogger,
     SendFeeAnalyticsLogger,
-    FeeSelectorContentViewModelAnalytics,
+    FeeSelectorAnalytics,
     SendSwapProvidersAnalyticsLogger,
     SendSummaryAnalyticsLogger,
     SendFinishAnalyticsLogger {
@@ -36,6 +36,7 @@ protocol StakingSendAnalyticsLogger: StakingAnalyticsLogger,
     SendFinishAnalyticsLogger {
     func setup(stakingTargetsInput: StakingTargetsInput)
     func logNoticeUninitializedAddress()
+    func logNoticeNotEnoughFee()
 }
 
 protocol OnrampSendAnalyticsLogger: SendBaseViewAnalyticsLogger,
@@ -55,18 +56,18 @@ protocol SendManagementModelAnalyticsLogger {
     func logTransactionSent(
         amount: SendAmount?,
         additionalField: SendDestinationAdditionalField?,
-        fee: SendFee,
+        fee: TokenFee,
         signerType: String,
         currentProviderHost: String
     )
 }
 
 extension SendManagementModelAnalyticsLogger {
-    func logTransactionSent(amount: SendAmount?, fee: SendFee, signerType: String, currentProviderHost: String) {
+    func logTransactionSent(amount: SendAmount?, fee: TokenFee, signerType: String, currentProviderHost: String) {
         logTransactionSent(amount: amount, additionalField: .none, fee: fee, signerType: signerType, currentProviderHost: currentProviderHost)
     }
 
-    func logTransactionSent(fee: SendFee, signerType: String, currentProviderHost: String) {
+    func logTransactionSent(fee: TokenFee, signerType: String, currentProviderHost: String) {
         logTransactionSent(amount: .none, additionalField: .none, fee: fee, signerType: signerType, currentProviderHost: currentProviderHost)
     }
 }
@@ -90,6 +91,8 @@ protocol SendDestinationAnalyticsLogger {
 
     func logDestinationStepOpened()
     func logDestinationStepReopened()
+
+    func setDestinationAnalyticsProvider(_ analyticsProvider: (any AccountModelAnalyticsProviding)?)
 }
 
 protocol SendAmountAnalyticsLogger {

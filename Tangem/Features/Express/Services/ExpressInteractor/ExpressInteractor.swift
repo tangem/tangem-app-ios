@@ -199,7 +199,7 @@ extension ExpressInteractor: ApproveViewModelInput {
         mapToApproveFeeLoadingValue(state: getState()) ?? .failure(CommonError.noData)
     }
 
-    var approveFeeValuePublisher: AnyPublisher<LoadingResult<BlockchainSdk.Fee, any Error>, Never> {
+    var approveFeeValuePublisher: AnyPublisher<LoadingResult<BSDKFee, any Error>, Never> {
         state
             .withWeakCaptureOf(self)
             .compactMap { interactor, state in
@@ -208,7 +208,7 @@ extension ExpressInteractor: ApproveViewModelInput {
             .eraseToAnyPublisher()
     }
 
-    private func mapToApproveFeeLoadingValue(state: ExpressInteractor.State) -> LoadingResult<BlockchainSdk.Fee, any Error>? {
+    private func mapToApproveFeeLoadingValue(state: ExpressInteractor.State) -> LoadingResult<BSDKFee, any Error>? {
         switch state {
         case .permissionRequired(let state, _):
             guard let fee = try? state.fees.selectedFee() else {
@@ -427,7 +427,7 @@ private extension ExpressInteractor {
             return .restriction(.notEnoughBalanceForSwapping(requiredAmount: requiredAmount), quote: quote)
 
         case .feeCurrencyHasZeroBalance:
-            return .restriction(.notEnoughAmountForFee(.idle), quote: quote)
+            return .restriction(.notEnoughAmountForFee, quote: quote)
 
         case .feeCurrencyInsufficientBalanceForTxValue(let fee):
             return .restriction(.notEnoughAmountForTxValue(fee), quote: quote)
@@ -436,12 +436,15 @@ private extension ExpressInteractor {
 
     func map(permissionRequired: ExpressManagerState.PermissionRequired) async throws -> State {
         let sender = try getSourceWallet()
-        let fees = mapToFees(fee: .init(option: .market, variants: .single(permissionRequired.data.fee)))
+        let fees = Fees(selected: .market, fees: [
+            TokenFee(option: .market, tokenItem: sender.feeTokenItem, value: .success(permissionRequired.data.fee)),
+        ])
         let amount = makeAmount(value: permissionRequired.quote.fromAmount, tokenItem: sender.tokenItem)
         let fee = try fees.selectedFee()
         let quote = try await map(quote: permissionRequired.quote)
 
         let permissionRequiredState = PermissionRequiredState(
+            provider: permissionRequired.provider,
             policy: permissionRequired.policy,
             data: permissionRequired.data,
             fees: fees
@@ -452,22 +455,25 @@ private extension ExpressInteractor {
     }
 
     func map(ready: ExpressManagerState.Ready) async throws -> State {
-        let fees = mapToFees(fee: ready.fee)
-        let fee = try fees.selectedFee()
         let sender = try getSourceWallet()
+        let tokenFeesList = sender.expressTokenFeeManager.fees(providerId: ready.provider.id)
+        let fees = Fees(selected: ready.feeOption.feeOption, fees: tokenFeesList)
+        let fee = try fees.selectedFee()
+
         let amount = makeAmount(value: ready.quote.fromAmount, tokenItem: sender.tokenItem)
         let quote = try await map(quote: ready.quote)
 
-        let readyToSwapState = ReadyToSwapState(data: ready.data, fees: fees)
+        let readyToSwapState = ReadyToSwapState(provider: ready.provider, data: ready.data, fees: fees)
         let correctState: State = .readyToSwap(readyToSwapState, quote: quote)
 
         return validate(amount: amount, fee: fee, correctState: correctState)
     }
 
     func map(previewCEX: ExpressManagerState.PreviewCEX) async throws -> State {
-        let fees = mapToFees(fee: previewCEX.fee)
-        let fee = try fees.selectedFee()
         let sender = try getSourceWallet()
+        let tokenFeesList = sender.expressTokenFeeManager.fees(providerId: previewCEX.provider.id)
+        let fees = Fees(selected: previewCEX.feeOption.feeOption, fees: tokenFeesList)
+        let fee = try fees.selectedFee()
         let amount = makeAmount(value: previewCEX.quote.fromAmount, tokenItem: sender.tokenItem)
         let quote = try await map(quote: previewCEX.quote)
 
@@ -485,6 +491,7 @@ private extension ExpressInteractor {
         }
 
         let previewCEXState = PreviewCEXState(
+            provider: previewCEX.provider,
             subtractFee: previewCEX.subtractFee,
             fees: fees,
             isExemptFee: sender.isExemptFee,
@@ -502,7 +509,7 @@ private extension ExpressInteractor {
         } catch ValidationError.totalExceedsBalance, ValidationError.amountExceedsBalance {
             return .restriction(.notEnoughBalanceForSwapping(requiredAmount: amount.value), quote: correctState.quote)
         } catch ValidationError.feeExceedsBalance {
-            return .restriction(.notEnoughAmountForFee(correctState), quote: correctState.quote)
+            return .restriction(.notEnoughAmountForFee, quote: correctState.quote)
         } catch let error as ValidationError {
             let context = ValidationErrorContext(isFeeCurrency: fee.amount.type == amount.type, feeValue: fee.amount.value)
             return .restriction(.validationError(error: error, context: context), quote: correctState.quote)
@@ -694,20 +701,6 @@ private extension ExpressInteractor {
         return nil
     }
 
-    func mapToFees(fee: ExpressFee) -> Fees {
-        let selected: FeeOption = switch fee.option {
-        case .fast: .fast
-        case .market: .market
-        }
-
-        switch fee.variants {
-        case .single(let fee):
-            return Fees(selected: selected, fees: [.market: fee])
-        case .double(let market, let priority):
-            return Fees(selected: selected, fees: [.market: market, .fast: priority])
-        }
-    }
-
     func makeAmount(value: Decimal, tokenItem: TokenItem) -> Amount {
         return Amount(with: tokenItem.blockchain, type: tokenItem.amountType, value: value)
     }
@@ -816,7 +809,7 @@ enum ExpressInteractorError: String, LocalizedError {
 // MARK: - State
 
 extension ExpressInteractor {
-    indirect enum State {
+    enum State {
         case idle
         case loading(type: RefreshType)
         case restriction(RestrictionType, quote: Quote?)
@@ -824,14 +817,21 @@ extension ExpressInteractor {
         case previewCEX(PreviewCEXState, quote: Quote)
         case readyToSwap(ReadyToSwapState, quote: Quote)
 
+        var provider: ExpressProvider? {
+            switch self {
+            case .idle, .loading, .restriction:
+                return nil
+            case .permissionRequired(let state, _):
+                return state.provider
+            case .previewCEX(let state, _):
+                return state.provider
+            case .readyToSwap(let state, _):
+                return state.provider
+            }
+        }
+
         var fees: Fees {
             switch self {
-            case .restriction(.notEnoughAmountForFee(.previewCEX(let state, _)), _):
-                return state.fees
-            case .restriction(.notEnoughAmountForFee(.readyToSwap(let state, _)), _):
-                return state.fees
-            case .restriction(.notEnoughAmountForFee(.permissionRequired(let state, _)), _):
-                return state.fees
             case .permissionRequired(let state, _):
                 return state.fees
             case .previewCEX(let state, _):
@@ -839,7 +839,7 @@ extension ExpressInteractor {
             case .readyToSwap(let state, _):
                 return state.fees
             case .idle, .loading, .restriction:
-                return Fees(selected: .market, fees: [:])
+                return Fees(selected: .market, fees: [])
             }
         }
 
@@ -885,7 +885,7 @@ extension ExpressInteractor {
         case hasPendingTransaction
         case hasPendingApproveTransaction
         case notEnoughBalanceForSwapping(requiredAmount: Decimal)
-        case notEnoughAmountForFee(_ returnState: State)
+        case notEnoughAmountForFee
         case notEnoughAmountForTxValue(_ estimatedTxValue: Decimal)
         case requiredRefresh(occurredError: Error)
         case noSourceTokens(destination: TokenItem)
@@ -901,12 +901,14 @@ extension ExpressInteractor {
     }
 
     struct PermissionRequiredState {
+        let provider: ExpressProvider
         let policy: BSDKApprovePolicy
         let data: ApproveTransactionData
         let fees: Fees
     }
 
     struct PreviewCEXState {
+        let provider: ExpressProvider
         let subtractFee: Decimal
         let fees: Fees
         let isExemptFee: Bool
@@ -914,13 +916,14 @@ extension ExpressInteractor {
     }
 
     struct ReadyToSwapState {
+        let provider: ExpressProvider
         let data: ExpressTransactionData
         let fees: Fees
     }
 
     struct Fees {
         let selected: FeeOption
-        let fees: [FeeOption: Fee]
+        let fees: TokenFeesList
     }
 
     // Manager models
@@ -948,11 +951,26 @@ extension ExpressInteractor.Fees {
 
     var isEmpty: Bool { fees.isEmpty }
 
-    func selectedFee() throws -> Fee {
-        guard let fee = fees[selected] else {
+    func selectedTokenFee() -> TokenFee? {
+        fees[selected]
+    }
+
+    func selectedFee() throws -> BSDKFee {
+        guard let fee = selectedTokenFee() else {
             throw ExpressInteractorError.feeNotFound
         }
 
-        return fee
+        return try fee.value.get()
+    }
+}
+
+// MARK: - ExpressFee.Option+
+
+extension ExpressFee.Option {
+    var feeOption: FeeOption {
+        switch self {
+        case .fast: .fast
+        case .market: .market
+        }
     }
 }
