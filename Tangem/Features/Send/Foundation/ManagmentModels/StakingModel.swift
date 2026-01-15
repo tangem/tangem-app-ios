@@ -346,6 +346,14 @@ private extension StakingModel {
     }
 }
 
+// MARK: - SendFeeUpdater
+
+extension StakingModel: SendFeeUpdater {
+    func updateFees() {
+        updateState()
+    }
+}
+
 // MARK: - SendFeeProvider
 
 extension StakingModel: SendFeeProvider {
@@ -360,10 +368,6 @@ extension StakingModel: SendFeeProvider {
             .withWeakCaptureOf(self)
             .map { [$0.mapToSendFee($1)] }
             .eraseToAnyPublisher()
-    }
-
-    func updateFees() {
-        updateState()
     }
 }
 
@@ -427,6 +431,21 @@ extension StakingModel: StakingTargetsInput {
 extension StakingModel: StakingTargetsOutput {
     func userDidSelect(target: TangemStaking.StakingTargetInfo) {
         _selectedTarget.send(.success(target))
+    }
+}
+
+// MARK: - SendSummaryFeeInput
+
+extension StakingModel: SendSummaryFeeInput {
+    var summaryFeePublisher: AnyPublisher<LoadableTokenFee, Never> {
+        _state
+            .withWeakCaptureOf(self)
+            .map { $0.mapToSendFee($1) }
+            .eraseToAnyPublisher()
+    }
+
+    var summaryCanEditFeePublisher: AnyPublisher<Bool, Never> {
+        Just(false).eraseToAnyPublisher()
     }
 }
 

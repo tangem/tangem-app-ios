@@ -18,6 +18,7 @@ class StakingFlowFactory: StakingFlowDependenciesFactory {
     let userWalletInfo: UserWalletInfo
     let manager: any StakingManager
 
+    let tokenFeeManager: TokenFeeManager
     let tokenHeaderProvider: SendGenericTokenHeaderProvider
     let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let walletModelDependenciesProvider: WalletModelDependenciesProvider
@@ -58,6 +59,7 @@ class StakingFlowFactory: StakingFlowDependenciesFactory {
             walletModel: walletModel,
             userWalletInfo: userWalletInfo
         )
+        tokenFeeManager = TokenFeeManagerBuilder(walletModel: walletModel).makeTokenFeeManager()
         walletModelDependenciesProvider = walletModel
         availableBalanceProvider = walletModel.availableBalanceProvider
         fiatAvailableBalanceProvider = walletModel.fiatAvailableBalanceProvider
@@ -205,7 +207,6 @@ extension StakingFlowFactory: StakingTargetsStepBuildable {
     var stakingTargetsDependencies: StakingTargetsStepBuilder.Dependencies {
         StakingTargetsStepBuilder.Dependencies(
             manager: manager,
-            sendFeeProvider: stakingModel,
             analyticsLogger: analyticsLogger
         )
     }

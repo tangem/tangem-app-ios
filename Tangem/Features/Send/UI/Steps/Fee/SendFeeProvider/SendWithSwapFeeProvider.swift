@@ -10,7 +10,7 @@ import Foundation
 import Combine
 import TangemFoundation
 
-typealias SendFlowTokenFeeProvider = SendFeeProvider & FeeSelectorInteractor
+typealias SendFlowTokenFeeProvider = SendFeeUpdater & FeeSelectorInteractor
 
 class SendWithSwapFeeSelectorInteractor {
     private weak var receiveTokenInput: SendReceiveTokenInput?
@@ -35,21 +35,7 @@ class SendWithSwapFeeSelectorInteractor {
 
 // MARK: - FeeSelectorInteractor
 
-extension SendWithSwapFeeSelectorInteractor: SendFeeProvider {
-    var fees: [LoadableTokenFee] { selectorFees }
-    var feesPublisher: AnyPublisher<[LoadableTokenFee], Never> { selectorFeesPublisher }
-    var feesHasMultipleFeeOptions: AnyPublisher<Bool, Never> {
-        receiveTokenPublisher
-            .withWeakCaptureOf(self)
-            .flatMapLatest { interactor, receiveToken in
-                switch receiveToken {
-                case .same: interactor.sendFeeSelectorInteractor.feesHasMultipleFeeOptions
-                case .swap: interactor.swapFeeSelectorInteractor.feesHasMultipleFeeOptions
-                }
-            }
-            .eraseToAnyPublisher()
-    }
-
+extension SendWithSwapFeeSelectorInteractor: SendFeeUpdater {
     func updateFees() {
         switch receiveTokenInput?.receiveToken {
         case .none, .same: sendFeeSelectorInteractor.updateFees()

@@ -16,6 +16,7 @@ protocol SendGenericFlowBaseDependenciesFactory {
     var userWalletInfo: UserWalletInfo { get }
 
     var tokenHeaderProvider: SendGenericTokenHeaderProvider { get }
+    var tokenFeeManager: TokenFeeManager { get }
     var availableBalanceProvider: TokenBalanceProvider { get }
     var fiatAvailableBalanceProvider: TokenBalanceProvider { get }
 
@@ -37,6 +38,7 @@ extension SendGenericFlowBaseDependenciesFactory {
             tokenIconInfo: tokenIconInfo,
             fiatItem: makeFiatItem(),
             possibleToConvertToFiat: possibleToConvertToFiat(),
+            tokenFeeManager: tokenFeeManager,
             availableBalanceProvider: availableBalanceProvider,
             fiatAvailableBalanceProvider: fiatAvailableBalanceProvider,
             transactionValidator: walletModelDependenciesProvider.transactionValidator,

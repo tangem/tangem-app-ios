@@ -18,15 +18,9 @@ final class CommonSwapFeeProvider {
     }
 }
 
-// MARK: - SendFeeProvider
+// MARK: - SendFeeUpdater
 
-extension CommonSwapFeeProvider: SendFeeProvider {
-    var fees: [LoadableTokenFee] { selectorFees }
-    var feesPublisher: AnyPublisher<[LoadableTokenFee], Never> { selectorFeesPublisher }
-    var feesHasMultipleFeeOptions: AnyPublisher<Bool, Never> {
-        expressInteractor.selectorHasMultipleFeeOptions
-    }
-
+extension CommonSwapFeeProvider: SendFeeUpdater {
     func updateFees() {
         expressInteractor.refresh(type: .fee)
     }
