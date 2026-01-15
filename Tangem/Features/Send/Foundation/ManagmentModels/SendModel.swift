@@ -570,6 +570,18 @@ extension SendModel: SendSwapProvidersOutput {
     }
 }
 
+// MARK: - SendSummaryFeeInput
+
+extension SendModel: SendSummaryFeeInput {
+    var summaryFeePublisher: AnyPublisher<LoadableTokenFee, Never> {
+        sourceToken.tokenFeeManager.selectedLoadableFeePublisher
+    }
+
+    var summaryCanEditFeePublisher: AnyPublisher<Bool, Never> {
+        sourceToken.tokenFeeManager.hasMultipleFeeOptions
+    }
+}
+
 // MARK: - SendFeeInput
 
 extension SendModel: SendFeeInput {
@@ -582,7 +594,7 @@ extension SendModel: SendFeeInput {
     }
 
     var hasMultipleFeeOptions: AnyPublisher<Bool, Never> {
-        sendFeeProvider.feesHasMultipleFeeOptions
+        sendFeeProvider.selectorHasMultipleFeeOptions
     }
 }
 
@@ -723,7 +735,7 @@ extension SendModel: SendBaseInput, SendBaseOutput {
 
 extension SendModel: SendNotificationManagerInput {
     var feeValues: AnyPublisher<[LoadableTokenFee], Never> {
-        sendFeeProvider.feesPublisher.eraseToAnyPublisher()
+        sendFeeProvider.selectorFeesPublisher.eraseToAnyPublisher()
     }
 
     var selectedTokenFeePublisher: AnyPublisher<LoadableTokenFee, Never> {
