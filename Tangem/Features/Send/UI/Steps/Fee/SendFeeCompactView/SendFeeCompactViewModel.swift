@@ -52,7 +52,7 @@ class SendFeeCompactViewModel: ObservableObject, Identifiable {
             .assign(to: \.canEditFee, on: self, ownership: .weak)
     }
 
-    private func updateView(tokenFee: TokenFee?) {
+    private func updateView(tokenFee: LoadableTokenFee?) {
         guard let tokenFee else {
             selectedFeeComponents = .noData
             return

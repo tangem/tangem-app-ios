@@ -21,8 +21,8 @@ final class CommonSwapFeeProvider {
 // MARK: - SendFeeProvider
 
 extension CommonSwapFeeProvider: SendFeeProvider {
-    var fees: [TokenFee] { selectorFees }
-    var feesPublisher: AnyPublisher<[TokenFee], Never> { selectorFeesPublisher }
+    var fees: [LoadableTokenFee] { selectorFees }
+    var feesPublisher: AnyPublisher<[LoadableTokenFee], Never> { selectorFeesPublisher }
     var feesHasMultipleFeeOptions: AnyPublisher<Bool, Never> {
         expressInteractor.selectorHasMultipleFeeOptions
     }
@@ -35,13 +35,13 @@ extension CommonSwapFeeProvider: SendFeeProvider {
 // MARK: - FeeSelectorInteractor (ExpressInteractor Proxy)
 
 extension CommonSwapFeeProvider: FeeSelectorInteractor {
-    var selectedSelectorFee: TokenFee? { expressInteractor.selectedSelectorFee }
-    var selectedSelectorFeePublisher: AnyPublisher<TokenFee?, Never> {
+    var selectedSelectorFee: LoadableTokenFee? { expressInteractor.selectedSelectorFee }
+    var selectedSelectorFeePublisher: AnyPublisher<LoadableTokenFee?, Never> {
         expressInteractor.selectedSelectorFeePublisher
     }
 
-    var selectorFees: [TokenFee] { expressInteractor.selectorFees }
-    var selectorFeesPublisher: AnyPublisher<[TokenFee], Never> {
+    var selectorFees: [LoadableTokenFee] { expressInteractor.selectorFees }
+    var selectorFeesPublisher: AnyPublisher<[LoadableTokenFee], Never> {
         expressInteractor.selectorFeesPublisher
     }
 
@@ -65,7 +65,7 @@ extension CommonSwapFeeProvider: FeeSelectorInteractor {
         expressInteractor.customFeeProvider
     }
 
-    func userDidSelectFee(_ fee: TokenFee) {
+    func userDidSelectFee(_ fee: LoadableTokenFee) {
         expressInteractor.userDidSelectFee(fee)
     }
 

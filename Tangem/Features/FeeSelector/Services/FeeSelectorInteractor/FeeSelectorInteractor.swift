@@ -10,13 +10,13 @@ import Combine
 import TangemFoundation
 
 protocol FeeSelectorInteractorInput: AnyObject {
-    var selectedFee: TokenFee { get }
-    var selectedFeePublisher: AnyPublisher<TokenFee, Never> { get }
+    var selectedFee: LoadableTokenFee { get }
+    var selectedFeePublisher: AnyPublisher<LoadableTokenFee, Never> { get }
 }
 
 protocol FeeSelectorInteractor: FeeSelectorTokensDataProvider, FeeSelectorFeesDataProvider, FeeSelectorCustomFeeDataProviding {
     func userDidSelect(tokenFeeProvider: any TokenFeeProvider)
-    func userDidSelectFee(_ fee: TokenFee)
+    func userDidSelectFee(_ fee: LoadableTokenFee)
 }
 
 extension FeeSelectorInteractor {

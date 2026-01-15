@@ -9,8 +9,8 @@
 import Combine
 
 protocol CustomFeeProvider: FeeSelectorCustomFeeFieldsBuilder, FeeSelectorCustomFeeAvailabilityProvider {
-    var customFee: TokenFee { get }
-    var customFeePublisher: AnyPublisher<TokenFee, Never> { get }
+    var customFee: LoadableTokenFee { get }
+    var customFeePublisher: AnyPublisher<LoadableTokenFee, Never> { get }
 
     func initialSetupCustomFee(_ fee: BSDKFee)
 }
