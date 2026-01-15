@@ -244,7 +244,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     lazy var importSeedPhraseModel: OnboardingSeedPhraseImportViewModel? = .init(
         inputProcessor: SeedPhraseInputProcessor(),
-        shouldShowTangemIcon: true,
+        tangemIconProvider: CommonTangemIconProvider(hasNFCInteraction: true),
         delegate: self
     )
     var generateSeedPhraseModel: OnboardingSeedPhraseGenerateViewModel?
