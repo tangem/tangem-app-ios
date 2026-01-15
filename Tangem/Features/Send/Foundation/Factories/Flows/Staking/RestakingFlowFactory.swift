@@ -106,7 +106,7 @@ extension RestakingFlowFactory: SendGenericFlowFactory {
             sourceTokenAmountInput: restakingModel,
         )
 
-        let sendFeeCompactViewModel = SendNewFeeCompactViewModel()
+        let sendFeeCompactViewModel = SendFeeCompactViewModel()
         let sendFeeFinishViewModel = SendFeeFinishViewModel()
 
         let targets = makeStakingTargetsStep()
