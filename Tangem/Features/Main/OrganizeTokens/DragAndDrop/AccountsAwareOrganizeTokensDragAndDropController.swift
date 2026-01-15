@@ -195,11 +195,11 @@ final class AccountsAwareOrganizeTokensDragAndDropController: ObservableObject {
 
         for offset in 1 ..< numberOfRowsInSection {
             // Going in the upward direction from the current destination index path until OOB
-            if !hasReachedTop, indexPath._item - offset >= 0 {
+            if !hasReachedTop, indexPath.item - offset >= 0 {
                 let destinationIndexPathCandidate = OrganizeTokensIndexPath(
                     outerSection: indexPath.outerSection,
                     innerSection: indexPath.innerSection,
-                    item: indexPath._item - offset
+                    item: indexPath.item - offset
                 )
                 if isDestinationIndexPathCandidateValid(destinationIndexPathCandidate, draggedItemFrame: draggedItemFrame) {
                     return destinationIndexPathCandidate
@@ -209,11 +209,11 @@ final class AccountsAwareOrganizeTokensDragAndDropController: ObservableObject {
             }
 
             // Going in the downward direction from the current destination index path until OOB
-            if !hasReachedBottom, indexPath._item + offset <= numberOfRowsInSection - 1 {
+            if !hasReachedBottom, indexPath.item + offset <= numberOfRowsInSection - 1 {
                 let destinationIndexPathCandidate = OrganizeTokensIndexPath(
                     outerSection: indexPath.outerSection,
                     innerSection: indexPath.innerSection,
-                    item: indexPath._item + offset
+                    item: indexPath.item + offset
                 )
                 if isDestinationIndexPathCandidateValid(destinationIndexPathCandidate, draggedItemFrame: draggedItemFrame) {
                     return destinationIndexPathCandidate
@@ -246,7 +246,7 @@ final class AccountsAwareOrganizeTokensDragAndDropController: ObservableObject {
                 let destinationIndexPathCandidate = OrganizeTokensIndexPath(
                     outerSection: indexPath.outerSection,
                     innerSection: indexPath.innerSection - offset,
-                    item: indexPath._item
+                    item: indexPath.item
                 )
                 if isDestinationIndexPathCandidateValid(destinationIndexPathCandidate, draggedItemFrame: draggedItemFrame) {
                     return destinationIndexPathCandidate
@@ -260,7 +260,7 @@ final class AccountsAwareOrganizeTokensDragAndDropController: ObservableObject {
                 let destinationIndexPathCandidate = OrganizeTokensIndexPath(
                     outerSection: indexPath.outerSection,
                     innerSection: indexPath.innerSection + offset,
-                    item: indexPath._item
+                    item: indexPath.item
                 )
                 if isDestinationIndexPathCandidateValid(destinationIndexPathCandidate, draggedItemFrame: draggedItemFrame) {
                     return destinationIndexPathCandidate
@@ -309,7 +309,7 @@ final class AccountsAwareOrganizeTokensDragAndDropController: ObservableObject {
                 numberOfRowsInInnerSection: indexPath.innerSection,
                 andOuterSection: indexPath.outerSection
             )
-            return 0 ..< numberOfRowsInSection ~= indexPath._item
+            return 0 ..< numberOfRowsInSection ~= indexPath.item
         case .cell, .sectionHeader:
             return isSectionValid
         }

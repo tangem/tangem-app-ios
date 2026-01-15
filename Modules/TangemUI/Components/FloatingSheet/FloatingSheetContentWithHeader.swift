@@ -21,7 +21,7 @@ public struct FloatingSheetContentWithHeader<Content: View>: View {
     }
 
     public var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 0) {
             BottomSheetHeaderView(
                 title: headerConfig.title,
                 leading: {
@@ -36,6 +36,8 @@ public struct FloatingSheetContentWithHeader<Content: View>: View {
                 }
             )
             .verticalPadding(8)
+            .padding(.horizontal, 16)
+            .padding(.top, 12)
 
             content
         }

@@ -19,7 +19,17 @@ struct TransactionDispatcherFactory {
             return DemoSendTransactionDispatcher(walletModel: walletModel, transactionSigner: signer)
         }
 
-        return SendTransactionDispatcher(walletModel: walletModel, transactionSigner: signer)
+        let gaslessTransactionBuilder = GaslessTransactionBuilder(walletModel: walletModel, signer: signer)
+        let gaslessTransactionBroadcastService = GaslessTransactionBroadcastService(
+            walletModel: walletModel,
+            transactionSigner: signer,
+            gaslessTransactionBuilder: gaslessTransactionBuilder
+        )
+        return SendTransactionDispatcher(
+            walletModel: walletModel,
+            transactionSigner: signer,
+            gaslessTransactionBroadcastService: gaslessTransactionBroadcastService
+        )
     }
 
     func makeExpressDispatcher() -> TransactionDispatcher {

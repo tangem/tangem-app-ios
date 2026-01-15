@@ -26,10 +26,12 @@ class StakingSingleActionFlowFactory: StakingFlowDependenciesFactory {
     let availableBalanceProvider: any TokenBalanceProvider
     let fiatAvailableBalanceProvider: any TokenBalanceProvider
     let transactionDispatcherFactory: TransactionDispatcherFactory
+    /// Staking doesn't support account-based analytics
+    let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? = nil
 
     lazy var analyticsLogger = makeStakingSendAnalyticsLogger()
     lazy var actionModel = makeStakingSingleActionModel(stakingManager: manager, analyticsLogger: analyticsLogger)
-    lazy var notificationManager = makeStakingNotificationManager()
+    lazy var notificationManager = makeStakingNotificationManager(analyticsLogger: analyticsLogger)
 
     init(
         walletModel: any WalletModel,
@@ -159,7 +161,8 @@ extension StakingSingleActionFlowFactory: SendBaseBuildable {
             alertBuilder: makeStakingAlertBuilder(),
             dataBuilder: makeStakingBaseDataBuilder(input: actionModel),
             analyticsLogger: analyticsLogger,
-            blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper()
+            blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper(),
+            tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
         )
     }
 }
