@@ -35,7 +35,6 @@ class TokenDetailsCoordinator: CoordinatorObject {
 
     // MARK: - Child view models
 
-    @Published var receiveBottomSheetViewModel: ReceiveBottomSheetViewModel? = nil
     @Published var pendingExpressTxStatusBottomSheetViewModel: PendingExpressTxStatusBottomSheetViewModel? = nil
 
     @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
@@ -50,7 +49,8 @@ class TokenDetailsCoordinator: CoordinatorObject {
         let notificationManager = SingleTokenNotificationManager(
             userWalletId: options.userWalletInfo.id,
             walletModel: options.walletModel,
-            walletModelsManager: options.walletModelsManager
+            walletModelsManager: options.walletModelsManager,
+            tangemIconProvider: CommonTangemIconProvider(config: options.userWalletInfo.config)
         )
 
         let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
@@ -213,13 +213,10 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
             isYieldModuleActive: false
         )
 
-        switch receiveFlowFactory.makeAvailabilityReceiveFlow() {
-        case .bottomSheetReceiveFlow(let viewModel):
-            receiveBottomSheetViewModel = viewModel
-        case .domainReceiveFlow(let viewModel):
-            Task { @MainActor in
-                floatingSheetPresenter.enqueue(sheet: viewModel)
-            }
+        let viewModel = receiveFlowFactory.makeAvailabilityReceiveFlow()
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
 

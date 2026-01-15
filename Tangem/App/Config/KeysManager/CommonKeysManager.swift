@@ -55,11 +55,13 @@ extension CommonKeysManager: KeysManager {
             quickNodeBscCredentials: .init(apiKey: keys.bscQuiknodeApiKey, subdomain: keys.bscQuiknodeSubdomain),
             quickNodePlasmaCredentials: .init(apiKey: keys.quiknodePlasmaApiKey, subdomain: keys.quiknodePlasmaSubdomain),
             bittensorDwellirKey: keys.bittensorDwellirKey,
+            dwellirApiKey: keys.dwellirApiKey,
             bittensorOnfinalityKey: keys.bittensorOnfinalityKey,
             tangemAlephiumApiKey: keys.alephiumTangemApiKey,
             blinkApiKey: keys.blinkApiKey,
             tatumApiKey: keys.tatumApiKey,
             yieldModuleApiKey: keys.yieldModuleApiKey,
+            gaslessTxApiKey: keys.gaslessTxApiKey
         )
     }
 
@@ -134,6 +136,14 @@ extension CommonKeysManager: KeysManager {
     var bffStaticToken: String {
         keys.bffStaticToken
     }
+
+    var gaslessTxApiKey: String {
+        keys.gaslessTxApiKey
+    }
+
+    var gaslessTxApiKeyDev: String {
+        keys.gaslessTxApiKeyDev
+    }
 }
 
 extension CommonKeysManager {
@@ -169,6 +179,7 @@ extension CommonKeysManager {
         let devExpress: ExpressKeys?
         let stakeKitApiKey: String
         let bittensorDwellirKey: String
+        let dwellirApiKey: String
         let bittensorOnfinalityKey: String
         let alephiumTangemApiKey: String
         let moralisApiKey: String
@@ -182,5 +193,7 @@ extension CommonKeysManager {
         let yieldModuleApiKeyDev: String
         let p2pApiKey: P2PAPIKeys
         let bffStaticToken: String
+        let gaslessTxApiKey: String
+        let gaslessTxApiKeyDev: String
     }
 }

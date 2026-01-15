@@ -175,21 +175,24 @@ final class AccountDetailsViewModel: ObservableObject {
             .errorDescription: String(describing: error),
         ])
 
+        let title: String
         let message: String
         let buttonText: String
 
         switch error {
         case .participatesInReferralProgram:
+            title = Localization.accountCouldNotArchiveReferralProgramTitle
             message = Localization.accountCouldNotArchiveReferralProgramMessage
             buttonText = Localization.commonGotIt
 
         case .unknownError:
+            title = Localization.commonSomethingWentWrong
             message = Localization.accountGenericErrorDialogMessage
             buttonText = Localization.commonOk
         }
 
         alert = AlertBuilder.makeAlertWithDefaultPrimaryButton(
-            title: Localization.commonSomethingWentWrong,
+            title: title,
             message: message,
             buttonText: buttonText
         )

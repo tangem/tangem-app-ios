@@ -44,6 +44,8 @@ final class CommonServicesManager {
     @Injected(\.wcService) private var wcService: any WCService
     @Injected(\.cryptoAccountsETagStorage) private var eTagStorage: CryptoAccountsETagStorage
     @Injected(\.experimentService) private var experimentService: ExperimentService
+    @Injected(\.expandableAccountItemStateStorageProvider) private var stateStorageProvider: ExpandableAccountItemStateStorageProvider
+    @Injected(\.gaslessTransactionsNetworkManager) private var gaslessTransactionsNetworkManager: GaslessTransactionsNetworkManager
 
     private var stakingPendingHashesSender: StakingPendingHashesSender?
     private let storyDataPrefetchService: StoryDataPrefetchService
@@ -183,8 +185,10 @@ extension CommonServicesManager: ServicesManager {
         wcService.initialize()
         eTagStorage.initialize()
         mobileAccessCodeCleaner.initialize()
+        stateStorageProvider.initialize()
         SendFeatureProvider.shared.loadFeaturesAvailability()
         PredefinedOnrampParametersBuilder.loadMoonpayPromotion()
+        gaslessTransactionsNetworkManager.updateAvailableTokens()
     }
 
     /// Some services should be initialized later, in SceneDelegate to bypass locked keychain during preheating
