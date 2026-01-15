@@ -16,8 +16,8 @@ protocol TokenFeeProvider {
     var state: TokenFeeProviderState { get }
     var statePublisher: AnyPublisher<TokenFeeProviderState, Never> { get }
 
-    var fees: [TokenFee] { get }
-    var feesPublisher: AnyPublisher<[TokenFee], Never> { get }
+    var fees: [LoadableTokenFee] { get }
+    var feesPublisher: AnyPublisher<[LoadableTokenFee], Never> { get }
 
     func setup(input: TokenFeeProviderInputData)
     func updateFees() async

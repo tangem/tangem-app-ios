@@ -35,8 +35,8 @@ extension TokenFeeManager {
         selectedProviderSubject.eraseToAnyPublisher()
     }
 
-    var selectedFeeProviderFees: [TokenFee] { selectedFeeProvider.fees }
-    var selectedFeeProviderFeesPublisher: AnyPublisher<[TokenFee], Never> {
+    var selectedFeeProviderFees: [LoadableTokenFee] { selectedFeeProvider.fees }
+    var selectedFeeProviderFeesPublisher: AnyPublisher<[LoadableTokenFee], Never> {
         selectedFeeProviderPublisher.flatMapLatest(\.feesPublisher).eraseToAnyPublisher()
     }
 

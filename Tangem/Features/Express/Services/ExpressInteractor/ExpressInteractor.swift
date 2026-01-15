@@ -438,7 +438,7 @@ private extension ExpressInteractor {
 
         let tokenFeeManager = try getTokenFeeManager(providerId: permissionRequired.provider.id)
         let feeTokenItem = tokenFeeManager.selectedFeeProvider.feeTokenItem
-        let tokenFee = TokenFee(option: expressFee.option.feeOption, tokenItem: feeTokenItem, value: .success(expressFee.fee))
+        let tokenFee = LoadableTokenFee(option: expressFee.option.feeOption, tokenItem: feeTokenItem, value: .success(expressFee.fee))
 
         let permissionRequiredState = PermissionRequiredState(
             provider: permissionRequired.provider,
@@ -460,7 +460,7 @@ private extension ExpressInteractor {
 
         let tokenFeeManager = try getTokenFeeManager(providerId: ready.provider.id)
         let feeTokenItem = tokenFeeManager.selectedFeeProvider.feeTokenItem
-        let tokenFee = TokenFee(option: expressFee.option.feeOption, tokenItem: feeTokenItem, value: .success(expressFee.fee))
+        let tokenFee = LoadableTokenFee(option: expressFee.option.feeOption, tokenItem: feeTokenItem, value: .success(expressFee.fee))
 
         let readyToSwapState = ReadyToSwapState(provider: ready.provider, data: ready.data, expressFee: tokenFee)
         let correctState: State = .readyToSwap(readyToSwapState, quote: quote)
@@ -489,7 +489,7 @@ private extension ExpressInteractor {
 
         let tokenFeeManager = try getTokenFeeManager(providerId: previewCEX.provider.id)
         let feeTokenItem = tokenFeeManager.selectedFeeProvider.feeTokenItem
-        let tokenFee = TokenFee(option: expressFee.option.feeOption, tokenItem: feeTokenItem, value: .success(expressFee.fee))
+        let tokenFee = LoadableTokenFee(option: expressFee.option.feeOption, tokenItem: feeTokenItem, value: .success(expressFee.fee))
 
         let previewCEXState = PreviewCEXState(
             provider: previewCEX.provider,
@@ -617,21 +617,21 @@ extension ExpressInteractor: FeeSelectorInteractor {
             .eraseToAnyPublisher()
     }
 
-    var selectedSelectorFee: TokenFee? {
+    var selectedSelectorFee: LoadableTokenFee? {
         getState().expressFee
     }
 
-    var selectedSelectorFeePublisher: AnyPublisher<TokenFee?, Never> {
+    var selectedSelectorFeePublisher: AnyPublisher<LoadableTokenFee?, Never> {
         statePublisher
             .map { $0.expressFee }
             .eraseToAnyPublisher()
     }
 
-    var selectorFees: [TokenFee] {
+    var selectorFees: [LoadableTokenFee] {
         selectedTokenFeeManager?.selectedFeeProvider.fees ?? []
     }
 
-    var selectorFeesPublisher: AnyPublisher<[TokenFee], Never> {
+    var selectorFeesPublisher: AnyPublisher<[LoadableTokenFee], Never> {
         selectedTokenFeeManagerPublisher
             .flatMapLatest { $0.selectedFeeProvider.feesPublisher }
             .eraseToAnyPublisher()
@@ -658,7 +658,7 @@ extension ExpressInteractor: FeeSelectorInteractor {
     /// Express doesn't support custom fee
     var customFeeProvider: (any CustomFeeProvider)? { nil }
 
-    func userDidSelectFee(_ fee: TokenFee) {
+    func userDidSelectFee(_ fee: LoadableTokenFee) {
         updateFeeOption(option: fee.option)
     }
 
@@ -924,7 +924,7 @@ extension ExpressInteractor {
             }
         }
 
-        var expressFee: TokenFee? {
+        var expressFee: LoadableTokenFee? {
             switch self {
             case .permissionRequired(let state, _):
                 return state.expressFee
@@ -998,13 +998,13 @@ extension ExpressInteractor {
         let provider: ExpressProvider
         let policy: BSDKApprovePolicy
         let data: ApproveTransactionData
-        let expressFee: TokenFee
+        let expressFee: LoadableTokenFee
     }
 
     struct PreviewCEXState {
         let provider: ExpressProvider
         let subtractFee: Decimal
-        let expressFee: TokenFee
+        let expressFee: LoadableTokenFee
         let isExemptFee: Bool
         let notification: WithdrawalNotification?
     }
@@ -1012,7 +1012,7 @@ extension ExpressInteractor {
     struct ReadyToSwapState {
         let provider: ExpressProvider
         let data: ExpressTransactionData
-        let expressFee: TokenFee
+        let expressFee: LoadableTokenFee
     }
 
 //    struct Fees {
@@ -1045,7 +1045,7 @@ extension ExpressInteractor {
 //
 //    var isEmpty: Bool { fees.isEmpty }
 //
-//    func selectedTokenFee() -> TokenFee? {
+//    func selectedTokenFee() -> LoadableTokenFee? {
 //        fees[selected]
 //    }
 //

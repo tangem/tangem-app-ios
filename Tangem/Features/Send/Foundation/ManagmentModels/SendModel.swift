@@ -29,7 +29,7 @@ class SendModel {
     private let _destination: CurrentValueSubject<SendDestination?, Never>
     private let _destinationAdditionalField: CurrentValueSubject<SendDestinationAdditionalField, Never>
     private let _amount: CurrentValueSubject<SendAmount?, Never>
-    private let _selectedFee: CurrentValueSubject<TokenFee, Never>
+    private let _selectedFee: CurrentValueSubject<LoadableTokenFee, Never>
     private let _isFeeIncluded = CurrentValueSubject<Bool, Never>(false)
 
     private let _transaction = CurrentValueSubject<Result<BSDKTransaction, Error>?, Never>(nil)
@@ -573,11 +573,11 @@ extension SendModel: SendSwapProvidersOutput {
 // MARK: - SendFeeInput
 
 extension SendModel: SendFeeInput {
-    var selectedFee: TokenFee? {
+    var selectedFee: LoadableTokenFee? {
         sendFeeProvider.selectedSelectorFee
     }
 
-    var selectedFeePublisher: AnyPublisher<TokenFee?, Never> {
+    var selectedFeePublisher: AnyPublisher<LoadableTokenFee?, Never> {
         sendFeeProvider.selectedSelectorFeePublisher.eraseToAnyPublisher()
     }
 
@@ -601,7 +601,7 @@ extension SendModel: SendFeeProviderInput {
 // MARK: - SendFeeOutput
 
 extension SendModel: SendFeeOutput {
-    func feeDidChanged(fee: TokenFee) {
+    func feeDidChanged(fee: LoadableTokenFee) {
         _selectedFee.send(fee)
     }
 }
@@ -722,11 +722,11 @@ extension SendModel: SendBaseInput, SendBaseOutput {
 // MARK: - SendNotificationManagerInput
 
 extension SendModel: SendNotificationManagerInput {
-    var feeValues: AnyPublisher<[TokenFee], Never> {
+    var feeValues: AnyPublisher<[LoadableTokenFee], Never> {
         sendFeeProvider.feesPublisher.eraseToAnyPublisher()
     }
 
-    var selectedTokenFeePublisher: AnyPublisher<TokenFee, Never> {
+    var selectedTokenFeePublisher: AnyPublisher<LoadableTokenFee, Never> {
         selectedFeePublisher.compactMap { $0 }.eraseToAnyPublisher()
     }
 

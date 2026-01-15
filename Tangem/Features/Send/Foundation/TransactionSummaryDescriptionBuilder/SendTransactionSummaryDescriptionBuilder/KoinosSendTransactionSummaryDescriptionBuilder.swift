@@ -20,7 +20,7 @@ struct KoinosSendTransactionSummaryDescriptionBuilder {
 // MARK: - SendTransactionSummaryDescriptionBuilder
 
 extension KoinosSendTransactionSummaryDescriptionBuilder: SendTransactionSummaryDescriptionBuilder {
-    func makeDescription(amount: Decimal, fee: TokenFee) -> AttributedString? {
+    func makeDescription(amount: Decimal, fee: LoadableTokenFee) -> AttributedString? {
         guard let bsdkFee = fee.value.value else {
             return nil
         }

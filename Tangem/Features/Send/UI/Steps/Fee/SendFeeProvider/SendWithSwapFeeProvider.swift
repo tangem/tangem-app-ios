@@ -36,8 +36,8 @@ class SendWithSwapFeeSelectorInteractor {
 // MARK: - FeeSelectorInteractor
 
 extension SendWithSwapFeeSelectorInteractor: SendFeeProvider {
-    var fees: [TokenFee] { selectorFees }
-    var feesPublisher: AnyPublisher<[TokenFee], Never> { selectorFeesPublisher }
+    var fees: [LoadableTokenFee] { selectorFees }
+    var feesPublisher: AnyPublisher<[LoadableTokenFee], Never> { selectorFeesPublisher }
     var feesHasMultipleFeeOptions: AnyPublisher<Bool, Never> {
         receiveTokenPublisher
             .withWeakCaptureOf(self)
@@ -61,14 +61,14 @@ extension SendWithSwapFeeSelectorInteractor: SendFeeProvider {
 // MARK: - FeeSelectorInteractor
 
 extension SendWithSwapFeeSelectorInteractor: FeeSelectorInteractor {
-    var selectedSelectorFee: TokenFee? {
+    var selectedSelectorFee: LoadableTokenFee? {
         switch receiveTokenInput?.receiveToken {
         case .none, .same: sendFeeSelectorInteractor.selectedSelectorFee
         case .swap: swapFeeSelectorInteractor.selectedSelectorFee
         }
     }
 
-    var selectedSelectorFeePublisher: AnyPublisher<TokenFee?, Never> {
+    var selectedSelectorFeePublisher: AnyPublisher<LoadableTokenFee?, Never> {
         receiveTokenPublisher
             .withWeakCaptureOf(self)
             .flatMapLatest { interactor, receiveToken in
@@ -80,14 +80,14 @@ extension SendWithSwapFeeSelectorInteractor: FeeSelectorInteractor {
             .eraseToAnyPublisher()
     }
 
-    var selectorFees: [TokenFee] {
+    var selectorFees: [LoadableTokenFee] {
         switch receiveTokenInput?.receiveToken {
         case .none, .same: sendFeeSelectorInteractor.selectorFees
         case .swap: swapFeeSelectorInteractor.selectorFees
         }
     }
 
-    var selectorFeesPublisher: AnyPublisher<[TokenFee], Never> {
+    var selectorFeesPublisher: AnyPublisher<[LoadableTokenFee], Never> {
         receiveTokenPublisher
             .withWeakCaptureOf(self)
             .flatMapLatest { interactor, receiveToken in
@@ -151,7 +151,7 @@ extension SendWithSwapFeeSelectorInteractor: FeeSelectorInteractor {
         }
     }
 
-    func userDidSelectFee(_ fee: TokenFee) {
+    func userDidSelectFee(_ fee: LoadableTokenFee) {
         switch receiveTokenInput?.receiveToken {
         case .none, .same: sendFeeSelectorInteractor.userDidSelectFee(fee)
         case .swap: swapFeeSelectorInteractor.userDidSelectFee(fee)

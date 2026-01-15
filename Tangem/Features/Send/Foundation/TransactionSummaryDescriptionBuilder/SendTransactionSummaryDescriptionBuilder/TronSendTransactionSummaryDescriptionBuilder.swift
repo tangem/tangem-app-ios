@@ -21,7 +21,7 @@ struct TronSendTransactionSummaryDescriptionBuilder {
 // MARK: - SendTransactionSummaryDescriptionBuilder
 
 extension TronSendTransactionSummaryDescriptionBuilder: SendTransactionSummaryDescriptionBuilder {
-    func makeDescription(amount: Decimal, fee: TokenFee) -> AttributedString? {
+    func makeDescription(amount: Decimal, fee: LoadableTokenFee) -> AttributedString? {
         guard let bsdkFee = fee.value.value, let feeParameters = bsdkFee.parameters as? TronFeeParameters else {
             AppLogger.error(error: "Fee parameters must be set for TronSendTransactionSummaryDescriptionBuilder")
             return nil

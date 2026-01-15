@@ -1,5 +1,5 @@
 //
-//  TokenFee.swift
+//  LoadableTokenFee.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import TangemFoundation
 
-struct TokenFee: Hashable {
+struct LoadableTokenFee: Hashable {
     let option: FeeOption
     let tokenItem: TokenItem
     let value: LoadingResult<BSDKFee, any Error>
@@ -27,7 +27,7 @@ struct TokenFee: Hashable {
         }
     }
 
-    static func == (lhs: TokenFee, rhs: TokenFee) -> Bool {
+    static func == (lhs: LoadableTokenFee, rhs: LoadableTokenFee) -> Bool {
         guard lhs.option == rhs.option else { return false }
 
         switch (lhs.value, rhs.value) {

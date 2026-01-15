@@ -11,6 +11,6 @@ import Combine
 // MARK: - Custom fees
 
 protocol FeeSelectorSuggestedFeeProvider {
-    var suggestedFee: TokenFee { get }
-    var suggestedFeePublisher: AnyPublisher<TokenFee, Never> { get }
+    var suggestedFee: LoadableTokenFee { get }
+    var suggestedFeePublisher: AnyPublisher<LoadableTokenFee, Never> { get }
 }

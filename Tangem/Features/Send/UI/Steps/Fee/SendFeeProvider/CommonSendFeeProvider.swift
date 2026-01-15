@@ -44,7 +44,7 @@ final class CommonSendFeeProvider {
     private func bind() {
         autoupdatedSuggestedFeeCancellable = feesPublisher
             .withWeakCaptureOf(self)
-            .compactMap { feeProvider, fees -> TokenFee? in
+            .compactMap { feeProvider, fees -> LoadableTokenFee? in
                 // Custom don't support autoupdate
                 let fees = fees.filter { $0.option != .custom }
 
@@ -79,8 +79,8 @@ final class CommonSendFeeProvider {
 // MARK: - SendFeeProvider
 
 extension CommonSendFeeProvider: SendFeeProvider {
-    var fees: [TokenFee] { tokenFeeManager.selectedFeeProviderFees }
-    var feesPublisher: AnyPublisher<[TokenFee], Never> { tokenFeeManager.selectedFeeProviderFeesPublisher }
+    var fees: [LoadableTokenFee] { tokenFeeManager.selectedFeeProviderFees }
+    var feesPublisher: AnyPublisher<[LoadableTokenFee], Never> { tokenFeeManager.selectedFeeProviderFeesPublisher }
 
     var feesHasMultipleFeeOptions: AnyPublisher<Bool, Never> {
         selectorHasMultipleFeeOptions
@@ -100,13 +100,13 @@ extension CommonSendFeeProvider: SendFeeProvider {
 // MARK: - FeeSelectorInteractor
 
 extension CommonSendFeeProvider: FeeSelectorInteractor {
-    var selectedSelectorFee: TokenFee? { input?.selectedFee }
-    var selectedSelectorFeePublisher: AnyPublisher<TokenFee?, Never> {
+    var selectedSelectorFee: LoadableTokenFee? { input?.selectedFee }
+    var selectedSelectorFeePublisher: AnyPublisher<LoadableTokenFee?, Never> {
         input?.selectedFeePublisher.eraseToAnyPublisher() ?? .just(output: .none)
     }
 
-    var selectorFees: [TokenFee] { tokenFeeManager.selectedFeeProviderFees }
-    var selectorFeesPublisher: AnyPublisher<[TokenFee], Never> {
+    var selectorFees: [LoadableTokenFee] { tokenFeeManager.selectedFeeProviderFees }
+    var selectorFeesPublisher: AnyPublisher<[LoadableTokenFee], Never> {
         tokenFeeManager.selectedFeeProviderFeesPublisher
     }
 
@@ -124,7 +124,7 @@ extension CommonSendFeeProvider: FeeSelectorInteractor {
         (tokenFeeManager.selectedFeeProvider as? FeeSelectorCustomFeeDataProviding)?.customFeeProvider
     }
 
-    func userDidSelectFee(_ fee: TokenFee) {
+    func userDidSelectFee(_ fee: LoadableTokenFee) {
         output?.feeDidChanged(fee: fee)
     }
 
