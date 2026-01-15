@@ -1003,6 +1003,7 @@
 		A71BEE5A2EFE4DCD000DAE13 /* WalletConnectBalanceObserveChains.swift in Sources */ = {isa = PBXBuildFile; fileRef = A71BEE592EFE4DCD000DAE13 /* WalletConnectBalanceObserveChains.swift */; };
 		A76141D02EDEDE90007C2833 /* WalletConnectBitcoinGetAccountAddressesHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A76141CF2EDEDE90007C2833 /* WalletConnectBitcoinGetAccountAddressesHandler.swift */; };
 		A76141D32EDEED78007C2833 /* WalletConnectBitcoinSignPsbtHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A76141D22EDEED78007C2833 /* WalletConnectBitcoinSignPsbtHandler.swift */; };
+		A786FAEB2F19072500DEA9A7 /* BitcoinError.swift in Sources */ = {isa = PBXBuildFile; fileRef = A786FAEA2F19072500DEA9A7 /* BitcoinError.swift */; };
 		A792FCB02ED740BA000DE695 /* WalletConnectSendTransferHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A792FCAF2ED740BA000DE695 /* WalletConnectSendTransferHandler.swift */; };
 		A792FCB22ED74169000DE695 /* WCBtcTransactionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = A792FCB12ED74169000DE695 /* WCBtcTransactionBuilder.swift */; };
 		A792FCB42ED84EA5000DE695 /* WalletConnectBtcTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = A792FCB32ED84EA5000DE695 /* WalletConnectBtcTransaction.swift */; };
@@ -5842,6 +5843,7 @@
 		A71BEE592EFE4DCD000DAE13 /* WalletConnectBalanceObserveChains.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectBalanceObserveChains.swift; sourceTree = "<group>"; };
 		A76141CF2EDEDE90007C2833 /* WalletConnectBitcoinGetAccountAddressesHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectBitcoinGetAccountAddressesHandler.swift; sourceTree = "<group>"; };
 		A76141D22EDEED78007C2833 /* WalletConnectBitcoinSignPsbtHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectBitcoinSignPsbtHandler.swift; sourceTree = "<group>"; };
+		A786FAEA2F19072500DEA9A7 /* BitcoinError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinError.swift; sourceTree = "<group>"; };
 		A792FCAF2ED740BA000DE695 /* WalletConnectSendTransferHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectSendTransferHandler.swift; sourceTree = "<group>"; };
 		A792FCB12ED74169000DE695 /* WCBtcTransactionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCBtcTransactionBuilder.swift; sourceTree = "<group>"; };
 		A792FCB32ED84EA5000DE695 /* WalletConnectBtcTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectBtcTransaction.swift; sourceTree = "<group>"; };
@@ -12714,6 +12716,31 @@
 			path = Tests;
 			sourceTree = "<group>";
 		};
+		8312B93BE0AB47C980D0243B /* Analytics */ = {
+			isa = PBXGroup;
+			children = (
+				A97AEC2AFB15435881BA91C6 /* AddTokenFlowAnalyticsLogger.swift */,
+				4A2CA5A5CDBF4003B4214E95 /* NoOpAddTokenFlowAnalyticsLogger.swift */,
+			);
+			path = Analytics;
+			sourceTree = "<group>";
+		};
+		87F0D1289FACCF59D1B464D2 /* Configuration */ = {
+			isa = PBXGroup;
+			children = (
+				B17D50C9C6CB2AFADC4FABF8 /* MarketsAddTokenFlowConfigurationFactory.swift */,
+			);
+			path = Configuration;
+			sourceTree = "<group>";
+		};
+		937DFC690A4A4EA89F5824A0 /* Analytics */ = {
+			isa = PBXGroup;
+			children = (
+				006C05863959479BA9205BB8 /* MarketsAddTokenFlowAnalyticsLogger.swift */,
+			);
+			path = Analytics;
+			sourceTree = "<group>";
+		};
 		A76141CE2EDEDE6D007C2833 /* GetAccountAddressesHandler */ = {
 			isa = PBXGroup;
 			children = (
@@ -12767,31 +12794,6 @@
 				A7C492792EF424E300E867BB /* VariantIntEncoder.swift */,
 			);
 			path = PSBT;
-			sourceTree = "<group>";
-		};
-		8312B93BE0AB47C980D0243B /* Analytics */ = {
-			isa = PBXGroup;
-			children = (
-				A97AEC2AFB15435881BA91C6 /* AddTokenFlowAnalyticsLogger.swift */,
-				4A2CA5A5CDBF4003B4214E95 /* NoOpAddTokenFlowAnalyticsLogger.swift */,
-			);
-			path = Analytics;
-			sourceTree = "<group>";
-		};
-		87F0D1289FACCF59D1B464D2 /* Configuration */ = {
-			isa = PBXGroup;
-			children = (
-				B17D50C9C6CB2AFADC4FABF8 /* MarketsAddTokenFlowConfigurationFactory.swift */,
-			);
-			path = Configuration;
-			sourceTree = "<group>";
-		};
-		937DFC690A4A4EA89F5824A0 /* Analytics */ = {
-			isa = PBXGroup;
-			children = (
-				006C05863959479BA9205BB8 /* MarketsAddTokenFlowAnalyticsLogger.swift */,
-			);
-			path = Analytics;
 			sourceTree = "<group>";
 		};
 		A80B006F9F4F829437E1FED1 /* Utils */ = {
@@ -15381,6 +15383,7 @@
 				EFBAC30C2D89CAFF00024E38 /* BitcoinNetworkParams.swift */,
 				A7C492482EF2B1DF00E867BB /* BitcoinSighashBuilder.swift */,
 				A71BEDE52EF57693000DAE13 /* BitcoinTransactionParams.swift */,
+				A786FAEA2F19072500DEA9A7 /* BitcoinError.swift */,
 			);
 			path = Bitcoin;
 			sourceTree = "<group>";
@@ -30605,6 +30608,7 @@
 				B62D3FE72CBC79DA00C2460E /* OP_RESERVED1.swift in Sources */,
 				2DA1001A2E55DDA700EC2257 /* ReadEthereumNameFromReverseRecordMethod.swift in Sources */,
 				B62D40562CBC79DA00C2460E /* ChiaModels.swift in Sources */,
+				A786FAEB2F19072500DEA9A7 /* BitcoinError.swift in Sources */,
 				B62D41132CBC79DA00C2460E /* KoinosMethod.swift in Sources */,
 				B62D41F42CBC79DB00C2460E /* VeChainNetworkResult.TransactionInfo.swift in Sources */,
 				B62D400D2CBC79DA00C2460E /* OP_SPLIT.swift in Sources */,
