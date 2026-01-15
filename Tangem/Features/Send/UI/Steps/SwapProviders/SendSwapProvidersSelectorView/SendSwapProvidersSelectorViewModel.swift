@@ -105,7 +105,7 @@ private extension SendSwapProvidersSelectorViewModel {
         let viewModels: [SendSwapProvidersSelectorProviderViewData] = await providers
             .showableProviders(selectedProviderId: selectedProvider?.provider.id)
             .sortedByPriorityAndQuotes()
-            .asyncMap { await mapToSendSwapProvidersSelectorProviderViewData(availableProvider: $0) }
+            .asyncMap { await self.mapToSendSwapProvidersSelectorProviderViewData(availableProvider: $0) }
 
         return viewModels
     }
