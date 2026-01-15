@@ -18,19 +18,15 @@ final class SendFeeFinishViewModel: ObservableObject, Identifiable {
         self.feeFormatter = feeFormatter
     }
 
-    func bind(input: SendFeeInput) {
-        input.selectedFeePublisher
+    func bind(input: SendSummaryFeeInput) {
+        input.summaryFeePublisher
             .withWeakCaptureOf(self)
             .receiveOnMain()
             .compactMap { $0.mapToFeeRowViewModel(tokenFee: $1) }
             .assign(to: &$selectedFeeRowViewModel)
     }
 
-    private func mapToFeeRowViewModel(tokenFee: LoadableTokenFee?) -> FeeRowViewModel? {
-        guard let tokenFee else {
-            return nil
-        }
-
+    private func mapToFeeRowViewModel(tokenFee: LoadableTokenFee) -> FeeRowViewModel? {
         switch tokenFee.value {
         case .failure, .loading:
             // Do nothing to avoid incorrect UI

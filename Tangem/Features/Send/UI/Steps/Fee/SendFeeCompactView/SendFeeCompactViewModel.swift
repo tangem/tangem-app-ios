@@ -39,25 +39,20 @@ class SendFeeCompactViewModel: ObservableObject, Identifiable {
         self.feeFormatter = feeFormatter
     }
 
-    func bind(input: SendFeeInput) {
-        selectedFeeSubscription = input.selectedFeePublisher
+    func bind(input: SendSummaryFeeInput) {
+        selectedFeeSubscription = input.summaryFeePublisher
             .withWeakCaptureOf(self)
             .receiveOnMain()
             .sink { viewModel, selectedFee in
                 viewModel.updateView(tokenFee: selectedFee)
             }
 
-        canEditFeeSubscription = input.hasMultipleFeeOptions
+        canEditFeeSubscription = input.summaryCanEditFeePublisher
             .receiveOnMain()
             .assign(to: \.canEditFee, on: self, ownership: .weak)
     }
 
-    private func updateView(tokenFee: LoadableTokenFee?) {
-        guard let tokenFee else {
-            selectedFeeComponents = .noData
-            return
-        }
-
+    private func updateView(tokenFee: LoadableTokenFee) {
         switch tokenFee.value {
         case .loading:
             selectedFeeComponents = .loading

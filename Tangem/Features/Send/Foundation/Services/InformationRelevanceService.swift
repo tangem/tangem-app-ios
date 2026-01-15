@@ -17,25 +17,25 @@ protocol InformationRelevanceService {
 }
 
 class CommonInformationRelevanceService {
-    private weak var input: SendFeeInput?
+    private weak var input: SendSummaryFeeInput?
     private weak var output: SendFeeOutput?
-    private let provider: SendFeeProvider
+    private let provider: SendFeeUpdater
 
     private var lastUpdateStartTime = Date()
     private let informationValidityInterval: TimeInterval = 60
     private var bag: Set<AnyCancellable> = []
 
-    init(input: SendFeeInput, output: SendFeeOutput, provider: SendFeeProvider) {
+    init(input: SendSummaryFeeInput, output: SendFeeOutput, provider: SendFeeUpdater) {
         self.input = input
         self.output = output
         self.provider = provider
 
-        bind()
+        bind(input: input)
     }
 
-    private func bind() {
-        input?
-            .selectedFeePublisher
+    private func bind(input: SendSummaryFeeInput) {
+        input
+            .summaryFeePublisher
             .withWeakCaptureOf(self)
             .sink { service, _ in
                 service.informationDidUpdated()
@@ -43,14 +43,11 @@ class CommonInformationRelevanceService {
             .store(in: &bag)
     }
 
-    private func compare(selected: LoadableTokenFee?, fees: [LoadableTokenFee]) -> InformationRelevanceServiceUpdateResult {
-        let oldFeeValue = selected?.value.value?.amount.value
-        let newFee = fees.first(where: { $0.option == selected?.option })
+    private func compare(oldFee: LoadableTokenFee, newFee: LoadableTokenFee) -> InformationRelevanceServiceUpdateResult {
+        let oldFeeValue = oldFee.value.value?.amount.value
+        let newFeeValue = newFee.value.value?.amount.value
 
-        guard let oldFeeValue,
-              let newFee,
-              let newFeeValue = newFee.value.value?.amount.value,
-              newFeeValue > oldFeeValue else {
+        guard let oldFeeValue, let newFeeValue, newFeeValue > oldFeeValue else {
             return .ok
         }
 
@@ -71,25 +68,26 @@ extension CommonInformationRelevanceService: InformationRelevanceService {
     }
 
     func updateInformation() -> AnyPublisher<InformationRelevanceServiceUpdateResult, any Error> {
-        defer {
-            provider.updateFees()
+        guard let input else {
+            return Empty().eraseToAnyPublisher()
         }
 
-        let oldFee = input?.selectedFee
+        defer { provider.updateFees() }
 
         // Catch the subscriptions
-        return provider
-            .feesPublisher
-            // Skip the old values
-            .dropFirst()
+        return input
+            .summaryFeePublisher
+            .pairwise()
             .withWeakCaptureOf(self)
             .tryMap { service, fees in
-                if let error = fees.eraseToLoadingResult().error {
+                let (oldFee, newFee) = fees
+
+                if let error = newFee.value.error {
                     throw error
                 }
 
                 service.informationDidUpdated()
-                return service.compare(selected: oldFee, fees: fees)
+                return service.compare(oldFee: oldFee, newFee: newFee)
             }
             .eraseToAnyPublisher()
     }

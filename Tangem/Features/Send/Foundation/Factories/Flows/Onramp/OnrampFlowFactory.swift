@@ -21,6 +21,7 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
     let tokenIconInfo: TokenIconInfo
     let defaultAddressString: String
 
+    let tokenFeeManager: TokenFeeManager
     let walletModelDependenciesProvider: WalletModelDependenciesProvider
     let availableBalanceProvider: any TokenBalanceProvider
     let fiatAvailableBalanceProvider: any TokenBalanceProvider
@@ -79,6 +80,7 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
         )
         defaultAddressString = walletModel.defaultAddressString
 
+        tokenFeeManager = TokenFeeManagerBuilder(walletModel: walletModel).makeTokenFeeManager()
         walletModelDependenciesProvider = walletModel
         availableBalanceProvider = walletModel.availableBalanceProvider
         fiatAvailableBalanceProvider = walletModel.fiatAvailableBalanceProvider

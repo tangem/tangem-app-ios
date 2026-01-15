@@ -209,6 +209,14 @@ private extension UnstakingModel {
     }
 }
 
+// MARK: - SendFeeUpdater
+
+extension UnstakingModel: SendFeeUpdater {
+    func updateFees() {
+        updateState()
+    }
+}
+
 // MARK: - SendFeeProvider
 
 extension UnstakingModel: SendFeeProvider {
@@ -221,10 +229,6 @@ extension UnstakingModel: SendFeeProvider {
             .withWeakCaptureOf(self)
             .map { [$0.mapToSendFee($1)] }
             .eraseToAnyPublisher()
-    }
-
-    func updateFees() {
-        updateState()
     }
 }
 
@@ -271,6 +275,21 @@ extension UnstakingModel: SendSourceTokenAmountInput {
 extension UnstakingModel: SendSourceTokenAmountOutput {
     func sourceAmountDidChanged(amount: SendAmount?) {
         _amount.send(amount)
+    }
+}
+
+// MARK: - SendSummaryFeeInput
+
+extension UnstakingModel: SendSummaryFeeInput {
+    var summaryFeePublisher: AnyPublisher<LoadableTokenFee, Never> {
+        _state
+            .withWeakCaptureOf(self)
+            .map { $0.mapToSendFee($1) }
+            .eraseToAnyPublisher()
+    }
+
+    var summaryCanEditFeePublisher: AnyPublisher<Bool, Never> {
+        Just(false).eraseToAnyPublisher()
     }
 }
 

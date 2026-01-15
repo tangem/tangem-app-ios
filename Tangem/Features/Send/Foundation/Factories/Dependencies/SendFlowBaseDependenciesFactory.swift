@@ -10,8 +10,6 @@ import TangemUI
 
 protocol SendFlowBaseDependenciesFactory: SendGenericFlowBaseDependenciesFactory {
     var shouldShowFeeSelector: Bool { get }
-
-    var tokenFeeManager: TokenFeeManager { get }
     var expressDependenciesFactory: ExpressDependenciesFactory { get }
 }
 

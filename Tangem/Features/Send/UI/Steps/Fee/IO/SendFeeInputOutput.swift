@@ -10,6 +10,17 @@ import Foundation
 import Combine
 import struct BlockchainSdk.Amount
 
+protocol SendSummaryFeeInput: AnyObject {
+    var summaryFeePublisher: AnyPublisher<LoadableTokenFee, Never> { get }
+    var summaryCanEditFeePublisher: AnyPublisher<Bool, Never> { get }
+}
+
+extension SendSummaryFeeInput where Self: SendFeeInput {
+    var summaryFeePublisher: AnyPublisher<LoadableTokenFee, Never> {
+        selectedFeePublisher.compactMap { $0 }.eraseToAnyPublisher()
+    }
+}
+
 protocol SendFeeInput: AnyObject {
     var selectedFee: LoadableTokenFee? { get }
     var selectedFeePublisher: AnyPublisher<LoadableTokenFee?, Never> { get }

@@ -19,6 +19,7 @@ class RestakingFlowFactory: StakingFlowDependenciesFactory {
     let action: RestakingModel.Action
     var actionType: StakingAction.ActionType { action.displayType }
 
+    let tokenFeeManager: TokenFeeManager
     let tokenHeaderProvider: SendGenericTokenHeaderProvider
     let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let walletModelDependenciesProvider: WalletModelDependenciesProvider
@@ -53,6 +54,8 @@ class RestakingFlowFactory: StakingFlowDependenciesFactory {
             from: walletModel.tokenItem,
             isCustom: walletModel.isCustom
         )
+
+        tokenFeeManager = TokenFeeManagerBuilder(walletModel: walletModel).makeTokenFeeManager()
         walletModelDependenciesProvider = walletModel
         availableBalanceProvider = walletModel.availableBalanceProvider
         fiatAvailableBalanceProvider = walletModel.fiatAvailableBalanceProvider
@@ -184,7 +187,6 @@ extension RestakingFlowFactory: StakingTargetsStepBuildable {
     var stakingTargetsDependencies: StakingTargetsStepBuilder.Dependencies {
         StakingTargetsStepBuilder.Dependencies(
             manager: manager,
-            sendFeeProvider: restakingModel,
             analyticsLogger: analyticsLogger
         )
     }
