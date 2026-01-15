@@ -11,5 +11,5 @@ import Foundation
 @MainActor
 protocol TopMarketWidgetRoutable: AnyObject {
     func openMarketsTokenDetails(for tokenInfo: MarketsTokenModel)
-    func openSeeAll(with widgetType: MarketsWidgetType)
+    func openSeeAllTopMarketWidget()
 }

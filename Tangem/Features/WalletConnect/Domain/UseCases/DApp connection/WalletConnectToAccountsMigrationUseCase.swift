@@ -107,7 +107,7 @@ final class WalletConnectToAccountsMigrationUseCase {
         let uniqueSessionAddresses = Set(sessionAddresses)
         for userWalletModel in userWalletRepository.models {
             for accountModel in userWalletModel.accountModelsManager.accountModels {
-                let cryptoAccount = accountModel.firstAvailableStandard()
+                let cryptoAccount = WCAccountFinder.firstAvailableCryptoAccountModel(from: accountModel)
                 let accountAddresses = cryptoAccount.walletModelsManager.walletModels.map(\.walletConnectAddress)
 
                 if !uniqueSessionAddresses.isDisjoint(with: Set(accountAddresses)) {
