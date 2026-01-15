@@ -58,7 +58,15 @@ final class FeeSelectorViewModel: ObservableObject, FloatingSheetContentViewMode
 
     func userDidTapBackButton() {
         feesViewModel.userDidRequestRevertCustomFeeValues()
-        viewState = .summary(summaryViewModel)
+        changeStateWithDelay(newState: .summary(summaryViewModel))
+    }
+
+    /// Delay to avoid broken animations when switching states.
+    private func changeStateWithDelay(newState: ViewState) {
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(Constants.stateChangeDelay))
+            viewState = newState
+        }
     }
 }
 
@@ -70,11 +78,11 @@ extension FeeSelectorViewModel: FeeSelectorSummaryRoutable {
     }
 
     func userDidRequestFeeSelector() {
-        viewState = .fees(feesViewModel, isFeesOnlyMode: !interactor.hasMultipleFeeProviders)
+        changeStateWithDelay(newState: .fees(feesViewModel, isFeesOnlyMode: !interactor.hasMultipleFeeProviders))
     }
 
     func userDidRequestTokenSelector() {
-        viewState = .tokens(tokensViewModel)
+        changeStateWithDelay(newState: .tokens(tokensViewModel))
     }
 }
 
@@ -83,7 +91,7 @@ extension FeeSelectorViewModel: FeeSelectorSummaryRoutable {
 extension FeeSelectorViewModel: FeeSelectorTokensRoutable {
     func userDidSelectFeeToken(tokenFeeProvider: any TokenFeeProvider) {
         interactor.userDidSelect(tokenFeeProvider: tokenFeeProvider)
-        viewState = .summary(summaryViewModel)
+        changeStateWithDelay(newState: .summary(summaryViewModel))
     }
 }
 
@@ -94,7 +102,7 @@ extension FeeSelectorViewModel: FeeSelectorFeesRoutable {
         interactor.userDidSelectFee(selectedFee)
 
         if interactor.hasMultipleFeeProviders {
-            viewState = .summary(summaryViewModel)
+            changeStateWithDelay(newState: .summary(summaryViewModel))
         } else {
             router?.completeFeeSelection()
         }
@@ -115,5 +123,11 @@ extension FeeSelectorViewModel {
                 return false
             }
         }
+    }
+}
+
+extension FeeSelectorViewModel {
+    enum Constants {
+        static let stateChangeDelay: Double = 0.15
     }
 }
