@@ -102,7 +102,7 @@ extension StakingSingleActionFlowFactory: SendGenericFlowFactory {
             sourceTokenAmountInput: actionModel
         )
 
-        let sendFeeCompactViewModel = SendNewFeeCompactViewModel()
+        let sendFeeCompactViewModel = SendFeeCompactViewModel()
         let sendFeeFinishViewModel = SendFeeFinishViewModel()
 
         let summary = makeSendSummaryStep(
