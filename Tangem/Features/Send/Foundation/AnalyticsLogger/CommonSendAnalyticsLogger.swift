@@ -12,7 +12,7 @@ import BlockchainSdk
 
 class CommonSendAnalyticsLogger {
     private weak var sendDestinationInput: SendDestinationInput?
-    private weak var sendFeeInput: SendFeeInput?
+    private weak var sendFeeInput: SendSummaryFeeInput?
     private weak var sendSourceTokenInput: SendSourceTokenInput?
     private weak var sendReceiveTokenInput: SendReceiveTokenInput?
     private weak var sendSwapProvidersInput: SendSwapProvidersInput?
@@ -319,7 +319,7 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
         }
 
         let feeTypeAnalyticsParameter = feeAnalyticsParameterBuilder.analyticsParameter(
-            selectedFee: sendFeeInput?.selectedFee?.option
+            selectedFee: sendFeeInput?.summaryFee.option
         )
 
         var analyticsParameters: [Analytics.ParameterKey: String] = [
@@ -329,7 +329,7 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
             .ensAddress: Analytics.ParameterValue.boolState(for: destinationDidResolved).rawValue,
         ]
 
-        if let parameters = sendFeeInput?.selectedFee?.value.value?.parameters as? EthereumFeeParameters,
+        if let parameters = sendFeeInput?.summaryFee.value.value?.parameters as? EthereumFeeParameters,
            let nonce = parameters.nonce {
             analyticsParameters[.nonce] = String(nonce)
         }
@@ -344,7 +344,7 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
         Task {
             var analyticsParameters: [Analytics.ParameterKey: String] = [:]
 
-            if let selectedFee = sendFeeInput?.selectedFee {
+            if let selectedFee = sendFeeInput?.summaryFee {
                 let parameter = feeAnalyticsParameterBuilder.analyticsParameter(selectedFee: selectedFee.option)
                 analyticsParameters[.feeType] = parameter.rawValue
             }
@@ -452,7 +452,7 @@ extension CommonSendAnalyticsLogger: SendAnalyticsLogger {
         self.sendDestinationInput = sendDestinationInput
     }
 
-    func setup(sendFeeInput: any SendFeeInput) {
+    func setup(sendFeeInput: any SendSummaryFeeInput) {
         self.sendFeeInput = sendFeeInput
     }
 

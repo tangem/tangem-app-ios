@@ -317,6 +317,10 @@ extension RestakingModel: StakingTargetsOutput {
 // MARK: - SendSummaryFeeInput
 
 extension RestakingModel: SendSummaryFeeInput {
+    var summaryFee: LoadableTokenFee {
+        mapToSendFee(_state.value)
+    }
+
     var summaryFeePublisher: AnyPublisher<LoadableTokenFee, Never> {
         _state
             .withWeakCaptureOf(self)
