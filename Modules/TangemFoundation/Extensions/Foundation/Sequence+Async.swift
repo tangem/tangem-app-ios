@@ -7,59 +7,130 @@
 //
 
 public extension Sequence {
-    func asyncMap<T>(_ transform: (Element) async throws -> T) async rethrows -> [T] {
-        var values = [T]()
+    /// - Warning: Do not use on sequences with large number of elements, as it may create too many sleeping tasks simultaneously.
+    /// - [REDACTED_TODO_COMMENT]
+    /// for example of batching implementation).
+    func asyncMap<T>(_ transform: @escaping (Element) async throws -> T) async rethrows -> [T] {
+        typealias IntermediateElement = (index: Int, element: T)
 
-        for element in self {
-            try await values.append(transform(element))
-        }
-
-        return values
-    }
-
-    func asyncCompactMap<T>(_ transform: (Element) async throws -> T?) async rethrows -> [T] {
-        var values = [T]()
-
-        for element in self {
-            if let value = try await transform(element) {
-                values.append(value)
-            }
-        }
-
-        return values
-    }
-
-    func asyncFlatMap<T: Sequence>(_ transform: (Element) async throws -> T) async rethrows -> [T.Element] {
-        var values = [T.Element]()
-
-        for element in self {
-            try await values.append(contentsOf: transform(element))
-        }
-
-        return values
-    }
-
-    func asyncFilter(_ isIncluded: (Element) async throws -> Bool) async rethrows -> [Element] {
-        var values: [Element] = []
-
-        for element in self where try await isIncluded(element) {
-            values.append(element)
-        }
-
-        return values
-    }
-
-    func asyncSorted<T>(sort areInIncreasingOrder: (T, T) throws -> Bool, by value: @escaping (Element) async throws -> T) async rethrows -> [Element] {
-        let values: [(element: Element, value: T)] = try await withThrowingTaskGroup(of: (Element, T).self) { group in
-            for element in self {
+        return try await withThrowingTaskGroup(of: IntermediateElement.self) { group in
+            // `Sequence` does not conform to `Collection`, so we create indices manually
+            for (index, element) in zip(0..., self) {
                 group.addTask {
-                    try await (element, value(element))
+                    return try await (index, transform(element))
                 }
             }
 
-            return try await group.reduce([]) { $0 + [$1] }
+            return try await group
+                .reduce(into: []) { $0.append($1) }
+                .sorted(by: \.index)
+                .map(\.element)
         }
+    }
 
-        return try values.sorted(by: { try areInIncreasingOrder($0.value, $1.value) }).map { $0.element }
+    /// - Warning: Do not use on sequences with large number of elements, as it may create too many sleeping tasks simultaneously.
+    /// - [REDACTED_TODO_COMMENT]
+    /// for example of batching implementation).
+    func asyncCompactMap<T>(_ transform: @escaping (Element) async throws -> T?) async rethrows -> [T] {
+        typealias IntermediateElement = (index: Int, element: T)
+
+        return try await withThrowingTaskGroup(of: IntermediateElement?.self) { group in
+            // `Sequence` does not conform to `Collection`, so we create indices manually
+            for (index, element) in zip(0..., self) {
+                group.addTask {
+                    if let value = try await transform(element) {
+                        return (index, value)
+                    }
+
+                    // Discarding nil elements early by returning nil
+                    return nil
+                }
+            }
+
+            return try await group
+                .reduce(into: [IntermediateElement]()) { partialResult, element in
+                    // Unwrapping optional elements here instead of using a separate `compactMap` step
+                    if let element {
+                        partialResult.append(element)
+                    }
+                }
+                .sorted(by: \.index)
+                .map(\.element)
+        }
+    }
+
+    /// - Warning: Do not use on sequences with large number of elements, as it may create too many sleeping tasks simultaneously.
+    /// - [REDACTED_TODO_COMMENT]
+    /// for example of batching implementation).
+    func asyncFlatMap<T: Sequence>(_ transform: @escaping (Element) async throws -> T) async rethrows -> [T.Element] {
+        typealias IntermediateElement = (index: Int, element: T)
+
+        return try await withThrowingTaskGroup(of: IntermediateElement.self) { group in
+            // `Sequence` does not conform to `Collection`, so we create indices manually
+            for (index, element) in zip(0..., self) {
+                group.addTask {
+                    return try await (index, transform(element))
+                }
+            }
+
+            return try await group
+                .reduce(into: []) { $0.append($1) }
+                .sorted(by: \.index)
+                .flatMap(\.element)
+        }
+    }
+
+    /// - Warning: Do not use on sequences with large number of elements, as it may create too many sleeping tasks simultaneously.
+    /// - [REDACTED_TODO_COMMENT]
+    /// for example of batching implementation).
+    func asyncFilter(_ isIncluded: @escaping (Element) async throws -> Bool) async rethrows -> [Element] {
+        typealias IntermediateElement = (index: Int, element: Element)
+
+        return try await withThrowingTaskGroup(of: IntermediateElement?.self) { group in
+            // `Sequence` does not conform to `Collection`, so we create indices manually
+            for (index, element) in zip(0..., self) {
+                group.addTask {
+                    if try await isIncluded(element) {
+                        return (index, element)
+                    }
+
+                    // Discarding filtered out elements early by returning nil
+                    return nil
+                }
+            }
+
+            return try await group
+                .reduce(into: [IntermediateElement]()) { partialResult, element in
+                    // Unwrapping optional elements here instead of using a separate `compactMap` step
+                    if let element {
+                        partialResult.append(element)
+                    }
+                }
+                .sorted(by: \.index)
+                .map(\.element)
+        }
+    }
+
+    /// - Warning: Do not use on sequences with large number of elements, as it may create too many sleeping tasks simultaneously.
+    /// - [REDACTED_TODO_COMMENT]
+    /// for example of batching implementation).
+    func asyncSorted<T>(
+        sort areInIncreasingOrder: (T, T) throws -> Bool,
+        by value: @escaping (Element) async throws -> T
+    ) async rethrows -> [Element] {
+        typealias IntermediateElement = (element: Element, value: T)
+
+        return try await withThrowingTaskGroup(of: IntermediateElement.self) { group in
+            for element in self {
+                group.addTask {
+                    return try await (element, value(element))
+                }
+            }
+
+            return try await group
+                .reduce(into: []) { $0.append($1) }
+                .sorted(by: { try areInIncreasingOrder($0.value, $1.value) })
+                .map(\.element)
+        }
     }
 }
