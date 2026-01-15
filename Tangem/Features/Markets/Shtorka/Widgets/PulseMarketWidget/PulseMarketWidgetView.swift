@@ -19,45 +19,46 @@ struct PulseMarketWidgetView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: MarketsWidgetLayout.Item.interItemSpacing) {
             header
-                .padding(.horizontal, MarketsWidgetLayout.Header.horizontalPadding)
 
-            filter
+            if viewModel.isNeedDisplayFilter {
+                filter
+            }
 
             list
-                .padding(.horizontal, MarketsWidgetLayout.Item.horizontalPadding)
         }
     }
 
     private var header: some View {
         MarketsCommonWidgetHeaderView(
             headerTitle: viewModel.widgetType.headerTitle ?? "",
+            headerImage: nil,
             buttonTitle: Localization.commonSeeAll,
             buttonAction: viewModel.onSeeAllTapAction,
-            isLoading: viewModel.loadingState == .idle
+            isLoading: viewModel.isFirstLoading
         )
     }
 
     private var loadingSkeletons: some View {
-        ForEach(0 ..< 5) { _ in
-            MarketsSkeletonItemView()
+        VStack(spacing: .zero) {
+            ForEach(0 ..< 5) { _ in
+                MarketsSkeletonItemView()
+            }
         }
     }
 
     private var list: some View {
         Group {
-            switch viewModel.loadingState {
-            case .loading, .idle:
+            switch viewModel.tokenViewModelsState {
+            case .loading:
                 loadingSkeletons
-            case .loaded:
+            case .success(let tokenViewModels):
                 VStack(spacing: .zero) {
-                    ForEach(viewModel.tokenViewModels) {
+                    ForEach(tokenViewModels) {
                         MarketTokenItemView(viewModel: $0, cellWidth: mainWindowSize.width)
                     }
                 }
-            case .error:
-                MarketsMainWidgetErrorView {
-                    viewModel.tryLoadAgain()
-                }
+            case .failure:
+                MarketsWidgetErrorView(tryLoadAgain: viewModel.tryLoadAgain)
             }
         }
         .defaultRoundedBackground(
@@ -65,12 +66,14 @@ struct PulseMarketWidgetView: View {
             verticalPadding: MarketsWidgetLayout.Content.innerContentPadding,
             horizontalPadding: MarketsWidgetLayout.Content.innerContentPadding
         )
+        .padding(.horizontal, MarketsWidgetLayout.Item.horizontalPadding)
     }
 
     private var filter: some View {
         HorizontalChipsView(
             chips: viewModel.availabilityToSelectionOrderType.map { Chip(id: $0.rawValue, title: $0.description) },
-            selectedId: $viewModel.filterSelectedId
+            selectedId: $viewModel.filterSelectedId,
+            horizontalInset: MarketsWidgetLayout.Item.horizontalPadding + 4
         )
     }
 }
