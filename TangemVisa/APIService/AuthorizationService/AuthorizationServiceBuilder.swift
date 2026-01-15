@@ -19,8 +19,13 @@ struct AuthorizationServiceBuilder {
         CommonVisaAuthorizationService(
             apiType: apiType,
             apiService: .init(
-                provider: TangemPayProviderBuilder().buildProvider(configuration: urlSessionConfiguration, authorizationTokensHandler: nil),
-                decoder: JSONDecoderFactory().makePayAPIDecoder()
+                provider: TangemPayProviderBuilder().buildProvider(
+                    bffStaticToken: "",
+                    authorizationTokensHandler: nil,
+                    configuration: urlSessionConfiguration
+                ),
+                decoder: JSONDecoder(),
+                responseFormat: .wrapped
             )
         )
     }
