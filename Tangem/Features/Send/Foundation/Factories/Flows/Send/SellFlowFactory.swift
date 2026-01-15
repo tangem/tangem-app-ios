@@ -36,7 +36,6 @@ class SellFlowFactory: SendFlowBaseDependenciesFactory {
     )
 
     lazy var notificationManager = makeSendWithSwapNotificationManager(receiveTokenInput: sendModel)
-    lazy var sendFeeProvider = makeSendFeeProvider(sourceTokenInput: sendModel, sendFeeUpdater: sendModel)
 
     init(
         userWalletInfo: UserWalletInfo,
@@ -162,11 +161,11 @@ extension SellFlowFactory: SendGenericFlowFactory {
         // Model setup
         // We have to set dependencies here after all setups is completed
         sendModel.informationRelevanceService = CommonInformationRelevanceService(
-            input: sendModel, provider: sendFeeProvider
+            input: sendModel, provider: sendModel
         )
 
         // Update the fees in case we in the sell flow
-        sendFeeProvider.updateFees()
+        sendModel.updateFees()
 
         // Steps setup
         fee.compact.bind(input: sendModel)
@@ -233,7 +232,7 @@ extension SellFlowFactory: SendBaseBuildable {
 extension SellFlowFactory: SendFeeStepBuildable {
     var feeDependencies: SendNewFeeStepBuilder.Dependencies {
         SendNewFeeStepBuilder.Dependencies(
-            feeSelectorInteractor: sendFeeProvider,
+            feeSelectorInteractor: sendModel,
             analyticsLogger: analyticsLogger,
         )
     }
@@ -252,7 +251,7 @@ extension SellFlowFactory: SendSummaryStepBuildable {
 
     var summaryDependencies: SendSummaryStepBuilder.Dependencies {
         SendSummaryStepBuilder.Dependencies(
-            sendFeeProvider: sendFeeProvider,
+            sendFeeProvider: sendModel,
             notificationManager: notificationManager,
             analyticsLogger: analyticsLogger,
             sendDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder(),

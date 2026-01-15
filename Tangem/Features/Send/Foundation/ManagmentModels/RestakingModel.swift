@@ -225,7 +225,7 @@ private extension RestakingModel {
         _transactionTime.send(Date())
         _transactionURL.send(result.url)
         analyticsLogger.logTransactionSent(
-            fee: selectedFee?.option ?? .market,
+            fee: summaryFee.option,
             signerType: result.signerType,
             currentProviderHost: result.currentHost
         )
@@ -333,31 +333,6 @@ extension RestakingModel: SendSummaryFeeInput {
     }
 }
 
-// MARK: - SendFeeInput
-
-extension RestakingModel: SendFeeInput {
-    var selectedFee: LoadableTokenFee? {
-        mapToSendFee(_state.value)
-    }
-
-    var selectedFeePublisher: AnyPublisher<LoadableTokenFee?, Never> {
-        _state
-            .withWeakCaptureOf(self)
-            .map { model, fee in
-                model.mapToSendFee(fee)
-            }
-            .eraseToAnyPublisher()
-    }
-}
-
-// MARK: - SendFeeOutput
-
-extension RestakingModel: SendFeeOutput {
-    func feeDidChanged(fee: LoadableTokenFee) {
-        assertionFailure("We can not change fee in staking")
-    }
-}
-
 // MARK: - SendSummaryInput, SendSummaryOutput
 
 extension RestakingModel: SendSummaryInput, SendSummaryOutput {
@@ -433,7 +408,7 @@ extension RestakingModel: NotificationTapDelegate {
 extension RestakingModel: StakingBaseDataBuilderInput {
     var bsdkAmount: BSDKAmount? { makeAmount(value: action.amount) }
 
-    var bsdkFee: BSDKFee? { selectedFee?.value.value }
+    var bsdkFee: BSDKFee? { summaryFee.value.value }
 
     var isFeeIncluded: Bool { false }
 

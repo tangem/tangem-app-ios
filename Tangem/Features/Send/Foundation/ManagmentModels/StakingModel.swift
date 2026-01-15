@@ -324,7 +324,7 @@ private extension StakingModel {
         _transactionURL.send(result.url)
         analyticsLogger.logTransactionSent(
             amount: _amount.value,
-            fee: selectedFee?.option ?? .market,
+            fee: summaryFee.option,
             signerType: result.signerType,
             currentProviderHost: result.currentHost
         )
@@ -433,31 +433,6 @@ extension StakingModel: SendSummaryFeeInput {
 
     var summaryCanEditFeePublisher: AnyPublisher<Bool, Never> {
         Just(false).eraseToAnyPublisher()
-    }
-}
-
-// MARK: - SendFeeInput
-
-extension StakingModel: SendFeeInput {
-    var selectedFee: LoadableTokenFee? {
-        mapToSendFee(_state.value)
-    }
-
-    var selectedFeePublisher: AnyPublisher<LoadableTokenFee?, Never> {
-        _state
-            .withWeakCaptureOf(self)
-            .map { model, state in
-                model.mapToSendFee(state)
-            }
-            .eraseToAnyPublisher()
-    }
-}
-
-// MARK: - SendFeeOutput
-
-extension StakingModel: SendFeeOutput {
-    func feeDidChanged(fee: LoadableTokenFee) {
-        assertionFailure("We can not change fee in staking")
     }
 }
 
@@ -577,7 +552,7 @@ extension StakingModel: NotificationTapDelegate {
 
 extension StakingModel: ApproveViewModelInput {
     var approveFeeValue: LoadingResult<Fee, Error> {
-        selectedFee?.value ?? .loading
+        summaryFee.value
     }
 
     var approveFeeValuePublisher: AnyPublisher<LoadingResult<Fee, Error>, Never> {
@@ -616,7 +591,7 @@ extension StakingModel: ApproveViewModelInput {
 extension StakingModel: StakingBaseDataBuilderInput {
     var bsdkAmount: BSDKAmount? { _amount.value?.crypto.map { makeAmount(value: $0) } }
 
-    var bsdkFee: BSDKFee? { selectedFee?.value.value }
+    var bsdkFee: BSDKFee? { summaryFee.value.value }
 
     var isFeeIncluded: Bool { _isFeeIncluded.value }
 

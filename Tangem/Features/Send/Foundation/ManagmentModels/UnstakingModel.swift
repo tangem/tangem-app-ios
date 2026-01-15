@@ -187,7 +187,7 @@ private extension UnstakingModel {
         _transactionTime.send(Date())
         _transactionURL.send(result.url)
         analyticsLogger.logTransactionSent(
-            fee: selectedFee?.option ?? .market,
+            fee: summaryFee.option,
             signerType: result.signerType,
             currentProviderHost: result.currentHost
         )
@@ -282,31 +282,6 @@ extension UnstakingModel: SendSummaryFeeInput {
     }
 }
 
-// MARK: - SendFeeInput
-
-extension UnstakingModel: SendFeeInput {
-    var selectedFee: LoadableTokenFee? {
-        mapToSendFee(_state.value)
-    }
-
-    var selectedFeePublisher: AnyPublisher<LoadableTokenFee?, Never> {
-        _state
-            .withWeakCaptureOf(self)
-            .map { model, fee in
-                model.mapToSendFee(fee)
-            }
-            .eraseToAnyPublisher()
-    }
-}
-
-// MARK: - SendFeeOutput
-
-extension UnstakingModel: SendFeeOutput {
-    func feeDidChanged(fee: LoadableTokenFee) {
-        assertionFailure("We can not change fee in staking")
-    }
-}
-
 // MARK: - SendSummaryInput, SendSummaryOutput
 
 extension UnstakingModel: SendSummaryInput, SendSummaryOutput {
@@ -392,7 +367,7 @@ extension UnstakingModel: NotificationTapDelegate {
 extension UnstakingModel: StakingBaseDataBuilderInput {
     var bsdkAmount: BSDKAmount? { _amount.value?.crypto.flatMap { makeAmount(value: $0) } }
 
-    var bsdkFee: BSDKFee? { selectedFee?.value.value }
+    var bsdkFee: BSDKFee? { summaryFee.value.value }
 
     var isFeeIncluded: Bool { false }
 
