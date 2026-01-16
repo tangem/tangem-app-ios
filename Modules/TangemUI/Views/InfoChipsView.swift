@@ -76,6 +76,7 @@ public struct InfoChipView: View {
             horizontalPadding: Layout.horizontalPadding,
             cornerRadius: Layout.cornerRadius
         )
+        .frame(height: Layout.height)
     }
 
     @ViewBuilder
@@ -91,6 +92,7 @@ public struct InfoChipView: View {
     }
 
     private enum Layout {
+        static let height: CGFloat = 24
         static let contentSpacing: CGFloat = 4
         static let horizontalPadding: CGFloat = 10
         static let verticalPadding: CGFloat = 4
@@ -110,13 +112,15 @@ private struct OverflowChip: View {
                 .fixedSize(horizontal: true, vertical: true)
         }
         .defaultRoundedBackground(
-            with: Colors.Control.checked,
+            with: Colors.Control.unchecked,
             verticalPadding: Layout.verticalPadding,
             horizontalPadding: Layout.horizontalPadding
         )
+        .frame(height: Layout.height)
     }
 
     private enum Layout {
+        static let height: CGFloat = 24
         static let contentSpacing: CGFloat = .zero
         static let horizontalPadding: CGFloat = 10
         static let verticalPadding: CGFloat = 4
@@ -142,41 +146,57 @@ public struct InfoChipsView: View {
 
     public var body: some View {
         let width = availableWidth
-        let layout = width > 0 ? layoutResult(for: width) : (visible: chips, hiddenCount: 0)
+        let layout = (width > 0 && hasMeasuredAllChips) ? layoutResult(for: width) : (visible: chips, hiddenCount: 0)
 
         HStack(spacing: Layout.defaultSpacing) {
             ForEach(layout.visible) { chip in
                 InfoChipView(item: chip)
-                    .readGeometry(\.size) { size in
-                        chipSizes[chip.id] = size
-                    }
             }
 
             if layout.hiddenCount > 0 {
                 OverflowChip(hiddenCount: layout.hiddenCount)
-                    .readGeometry(\.size) { size in
-                        overflowSize = size
-                    }
             }
         }
-        .frame(maxWidth: .infinity, alignment: alignment.swiftUIAlignment)
         .fixedSize(horizontal: false, vertical: true)
-        .background(
-            GeometryReader { proxy in
-                Color.clear
-                    .onAppear { availableWidth = proxy.size.width }
-                    .onChange(of: proxy.size.width) { availableWidth = $0 }
-            }
-        )
+        .background(measurementView)
         .infinityFrame(axis: .horizontal, alignment: alignment.swiftUIAlignment)
+        .readGeometry(\.size.width) { availableWidth = $0 }
+        .clipped()
+    }
+
+    private var hasMeasuredAllChips: Bool {
+        chips.allSatisfy { chipSizes[$0.id] != nil }
+    }
+
+    @ViewBuilder
+    private var measurementView: some View {
+        if chips.isEmpty {
+            EmptyView()
+        } else {
+            HStack(spacing: Layout.defaultSpacing) {
+                ForEach(chips) { chip in
+                    InfoChipView(item: chip)
+                        .readGeometry(\.size) { size in
+                            chipSizes[chip.id] = size
+                        }
+                }
+
+                // Measure a "worst case" overflow width (max number of digits = chips.count).
+                OverflowChip(hiddenCount: chips.count)
+                    .readGeometry(\.size, bindTo: $overflowSize)
+            }
+            .fixedSize(horizontal: true, vertical: true)
+            .opacity(0)
+            .allowsHitTesting(false)
+        }
     }
 
     private func layoutResult(for availableWidth: CGFloat) -> (visible: [InfoChipItem], hiddenCount: Int) {
-        guard availableWidth > 0, !chipSizes.isEmpty else {
+        guard availableWidth > 0, hasMeasuredAllChips else {
             return (chips, 0)
         }
 
-        var bestVisibleCount = chips.count
+        var bestVisibleCount = 0
         var usedWidth: CGFloat = 0
         let overflowWidth = overflowSize.width > 0 ? overflowSize.width : Layout.overflowDefaultWidth
 
@@ -235,23 +255,52 @@ private extension InfoChipsAlignment {
 #if DEBUG
 #Preview {
     VStack(spacing: 12) {
+        let btcIcon = Image(systemName: "bitcoinsign.circle.fill")
+        let ethIcon = Image(systemName: "e.circle.fill")
+        let regulationIcon = Image(systemName: "building.columns.fill")
+        let hackIcon = Image(systemName: "exclamationmark.shield.fill")
+
+        let cryptoNewsTitles = [
+            "BTC breaks $50K",
+            "ETH network upgrade",
+            "SEC: new rules",
+            "ETF inflows",
+            "Exchange: token delisting",
+            "Network: fees spike",
+            "DeFi: TVL up",
+            "Airdrop: snapshot",
+            "Mining: difficulty up",
+            "Hack: protocol exploited",
+            "Stablecoins: risk premium",
+        ]
+
+        let cryptoNewsChips = cryptoNewsTitles.map { title in
+            let leadingIcon: InfoChipIcon? = switch title {
+            case let title where title.hasPrefix("BTC"):
+                .image(btcIcon)
+            case let title where title.hasPrefix("ETH"):
+                .image(ethIcon)
+            case let title where title.hasPrefix("SEC"), let title where title.hasPrefix("ETF"), let title where title.hasPrefix("Stablecoins"):
+                .image(regulationIcon)
+            case let title where title.hasPrefix("Hack"):
+                .image(hackIcon)
+            default:
+                nil
+            }
+
+            return InfoChipItem(title: title, leadingIcon: leadingIcon)
+        }
+
         InfoChipsView(
-            chips: [
-                InfoChipItem(title: "Tag"),
-                InfoChipItem(title: "Tag", leadingIcon: .image(Image(systemName: "bitcoinsign.circle.fill"))),
-                InfoChipItem(title: "Tag"),
-                InfoChipItem(title: "Tag", leadingIcon: .image(Image(systemName: "bitcoinsign.circle.fill"))),
-                InfoChipItem(title: "Tag"),
-                InfoChipItem(title: "+3"),
-            ],
+            chips: cryptoNewsChips,
             alignment: .leading
         )
 
         InfoChipsView(
             chips: [
                 InfoChipItem(title: "Regulation"),
-                InfoChipItem(title: "Tag", leadingIcon: .image(Image(systemName: "bitcoinsign.circle.fill")), trailingIcon: .image(Image(systemName: "bitcoinsign.circle.fill"))),
-                InfoChipItem(title: "Tag"),
+                InfoChipItem(title: "ETF inflows", leadingIcon: .image(regulationIcon), trailingIcon: .image(regulationIcon)),
+                InfoChipItem(title: "BTC ATH?", leadingIcon: .image(btcIcon)),
             ],
             alignment: .center
         )
