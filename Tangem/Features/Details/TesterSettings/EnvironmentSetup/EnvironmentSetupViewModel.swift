@@ -136,6 +136,16 @@ final class EnvironmentSetupViewModel: ObservableObject {
                     set: { $0.yieldModuleAPIType = YieldModuleAPIType(rawValue: $1) ?? .prod }
                 )
             ),
+            DefaultPickerRowViewModel(
+                title: "Gasless Transactions API type",
+                options: GaslessTransactionsAPIType.allCases.map { $0.rawValue },
+                selection: BindingValue<String>(
+                    root: featureStorage,
+                    default: GaslessTransactionsAPIType.prod.rawValue,
+                    get: { $0.gaslessTransactionsAPIType.rawValue },
+                    set: { $0.gaslessTransactionsAPIType = GaslessTransactionsAPIType(rawValue: $1) ?? .prod }
+                )
+            ),
         ]
 
         featureStateViewModels = Feature.allCases.reversed().map { feature in
