@@ -15,6 +15,7 @@ protocol TangemPayAccountRoutable: AnyObject {
     func openTangemPayIssuingYourCardPopup()
     func openTangemPayFailedToIssueCardPopup()
     func openTangemPayKYCInProgressPopup(tangemPayAccount: TangemPayAccount)
+    func openTangemPayKYCDeclinedPopup(tangemPayAccount: TangemPayAccount)
     func openTangemPayMainView(tangemPayAccount: TangemPayAccount)
 }
 
@@ -55,6 +56,9 @@ final class TangemPayAccountViewModel: ObservableObject {
 
         case .normal:
             router?.openTangemPayMainView(tangemPayAccount: tangemPayAccount)
+
+        case .kycDeclined:
+            router?.openTangemPayKYCDeclinedPopup(tangemPayAccount: tangemPayAccount)
 
         case .syncNeeded, .unavailable, .skeleton, .rootedDevice:
             break
@@ -115,6 +119,8 @@ private extension TangemPayAccountViewModel {
         switch status {
         case .kycRequired:
             return .kycInProgress
+        case .kycDeclined:
+            return .kycDeclined
         case .readyToIssueOrIssuing:
             return .issuingYourCard
         case .failedToIssue:
@@ -140,6 +146,7 @@ extension TangemPayAccountViewModel {
     enum ViewState {
         case skeleton
         case kycInProgress
+        case kycDeclined
         case issuingYourCard
         case failedToIssueCard
         case normal(card: CardInfo, balance: LoadableTokenBalanceView.State)
@@ -163,12 +170,14 @@ extension TangemPayAccountViewModel {
                 "—"
             case .rootedDevice:
                 Localization.tangempayAccountUnableToUseRooted
+            case .kycDeclined:
+                Localization.tangempayKycHasFailed
             }
         }
 
         var isFullyVisible: Bool {
             switch self {
-            case .kycInProgress, .issuingYourCard, .failedToIssueCard, .normal, .skeleton:
+            case .kycInProgress, .issuingYourCard, .failedToIssueCard, .normal, .skeleton, .kycDeclined:
                 true
             case .syncNeeded, .unavailable, .rootedDevice:
                 false
