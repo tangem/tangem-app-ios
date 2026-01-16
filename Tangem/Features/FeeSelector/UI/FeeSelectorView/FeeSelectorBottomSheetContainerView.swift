@@ -51,6 +51,7 @@ struct FeeSelectorBottomSheetContainerView<HeaderContent: View, DescriptionConte
     private var contentView: some View {
         ScrollView {
             mainContentView
+                .padding(.top, Constants.standardSpacing)
                 .padding(.bottom, button == nil ? .zero : Constants.mainContentViewBottomPadding)
         }
         .safeAreaInset(edge: .bottom, spacing: .zero) {
@@ -60,8 +61,9 @@ struct FeeSelectorBottomSheetContainerView<HeaderContent: View, DescriptionConte
         }
         .safeAreaInset(edge: .top, spacing: .zero) {
             header
-                .padding(.bottom, Constants.headerVerticalSpacing)
+                .padding(.top, Constants.headerVerticalSpacing)
                 .padding(.horizontal, Constants.standardSpacing)
+                .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
         }
         .scrollBounceBehavior(.basedOnSize)
         .scrollIndicators(.hidden)
@@ -78,7 +80,6 @@ struct FeeSelectorBottomSheetContainerView<HeaderContent: View, DescriptionConte
 
     private var mainContentView: some View {
         VStack(spacing: Constants.standardSpacing) {
-            descriptionContent
             mainContent
         }
         .transition(.content)
@@ -87,13 +88,13 @@ struct FeeSelectorBottomSheetContainerView<HeaderContent: View, DescriptionConte
     private var header: some View {
         VStack(spacing: .zero) {
             headerContent
+            descriptionContent
         }
         .transition(.content)
         .id(state)
         .transition(.opacity)
         .transformEffect(.identity)
         .animation(.headerOpacity.delay(0.2), value: state)
-        .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
     }
 }
 
