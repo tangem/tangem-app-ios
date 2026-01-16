@@ -12,6 +12,6 @@ enum UserWalletRepositoryModeHelper {
     @Injected(\.userWalletRepository) private static var userWalletRepository: UserWalletRepository
 
     static var mode: UserWalletRepositoryMode {
-        userWalletRepository.models.allSatisfy { $0.config.hasFeature(.nfcInteraction) } ? .hardware : .mobile
+        userWalletRepository.models.allSatisfy { !$0.config.hasFeature(.nfcInteraction) } ? .mobile : .hardware
     }
 }

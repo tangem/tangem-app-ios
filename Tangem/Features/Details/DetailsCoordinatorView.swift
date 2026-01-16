@@ -58,6 +58,13 @@ struct DetailsCoordinatorView: CoordinatorView {
                         coordinator.modalOnboardingCoordinatorKeeper = value
                     })
             }
+            .sheet(item: $coordinator.mobileUpgradeCoordinator) {
+                MobileUpgradeCoordinatorView(coordinator: $0)
+                    .presentation(modal: true, onDismissalAttempt: $0.onDismissalAttempt, onDismissed: nil)
+            }
+            .floatingSheetContent(for: MobileBackupToUpgradeNeededViewModel.self) {
+                MobileBackupToUpgradeNeededView(viewModel: $0)
+            }
             .fullScreenCover(item: $coordinator.supportChatViewModel) {
                 SupportChatView(viewModel: $0)
                     .edgesIgnoringSafeArea(.vertical)

@@ -7,15 +7,17 @@
 //
 
 import Foundation
+import struct TangemMobileWalletSdk.MobileWalletContext
 
 @MainActor
 protocol DetailsRoutable: AnyObject {
     func openWalletConnect(with disabledLocalizedReason: String?)
     func openWalletSettings(options: UserWalletSettingsCoordinator.InputOptions)
 
-    func openOnboardingModal(with input: OnboardingInput)
+    func openOnboardingModal(options: OnboardingCoordinator.Options)
+    func closeOnboarding()
 
-    func openAddWallet()
+    func openAddWallet() // [REDACTED_TODO_COMMENT]
 
     func openAppSettings()
     func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType)
@@ -29,4 +31,7 @@ protocol DetailsRoutable: AnyObject {
     func openEnvironmentSetup()
     func openLogs()
     func dismiss()
+
+    func openMobileUpgradeToHardwareWallet(userWalletModel: UserWalletModel, context: MobileWalletContext)
+    func openMobileBackupToUpgradeNeeded(onBackupRequested: @escaping () -> Void)
 }

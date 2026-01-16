@@ -8,6 +8,7 @@
 
 import Foundation
 import class UIKit.UIApplication
+import struct TangemMobileWalletSdk.MobileWalletContext
 
 final class DetailsCoordinator: CoordinatorObject {
     // MARK: - Dependencies
@@ -32,6 +33,7 @@ final class DetailsCoordinator: CoordinatorObject {
     @Published var appSettingsCoordinator: AppSettingsCoordinator?
     @Published var addWalletSelectorCoordinator: AddWalletSelectorCoordinator?
     @Published var tangemPayOnboardingCoordinator: TangemPayOnboardingCoordinator?
+    @Published var mobileUpgradeCoordinator: MobileUpgradeCoordinator?
 
     // MARK: - Child view models
 
@@ -96,7 +98,7 @@ extension DetailsCoordinator: DetailsRoutable {
         userWalletSettingsCoordinator = coordinator
     }
 
-    func openOnboardingModal(with input: OnboardingInput) {
+    func openOnboardingModal(options: OnboardingCoordinator.Options) {
         let dismissAction: Action<OnboardingCoordinator.OutputOptions> = { [weak self] result in
             self?.modalOnboardingCoordinator = nil
 
@@ -106,11 +108,11 @@ extension DetailsCoordinator: DetailsRoutable {
         }
 
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
-        let options = OnboardingCoordinator.Options.input(input)
         coordinator.start(with: options)
         modalOnboardingCoordinator = coordinator
     }
 
+    // [REDACTED_TODO_COMMENT]
     func openAddWallet() {
         let dismissAction: Action<AddWalletSelectorCoordinator.OutputOptions> = { [weak self] options in
             switch options {
@@ -123,6 +125,27 @@ extension DetailsCoordinator: DetailsRoutable {
         let inputOptions = AddWalletSelectorCoordinator.InputOptions(source: .settings)
         coordinator.start(with: inputOptions)
         addWalletSelectorCoordinator = coordinator
+    }
+
+    func openMobileBackupToUpgradeNeeded(onBackupRequested: @escaping () -> Void) {
+        let sheet = MobileBackupToUpgradeNeededViewModel(coordinator: self, onBackup: onBackupRequested)
+        floatingSheetPresenter.enqueue(sheet: sheet)
+    }
+
+    func openMobileUpgradeToHardwareWallet(userWalletModel: UserWalletModel, context: MobileWalletContext) {
+        let dismissAction: Action<MobileUpgradeCoordinator.OutputOptions> = { [weak self] options in
+            switch options {
+            case .dismiss:
+                self?.mobileUpgradeCoordinator = nil
+            case .main:
+                self?.dismiss()
+            }
+        }
+
+        let coordinator = MobileUpgradeCoordinator(dismissAction: dismissAction)
+        let inputOptions = MobileUpgradeCoordinator.InputOptions(userWalletModel: userWalletModel, context: context)
+        coordinator.start(with: inputOptions)
+        mobileUpgradeCoordinator = coordinator
     }
 
     func openAppSettings() {
@@ -178,5 +201,17 @@ extension DetailsCoordinator: DetailsRoutable {
 
     func openLogs() {
         logsViewModel = .init()
+    }
+
+    func closeOnboarding() {
+        modalOnboardingCoordinator = nil
+    }
+}
+
+// MARK: - MobileBackupToUpgradeNeededRoutable
+
+extension DetailsCoordinator: MobileBackupToUpgradeNeededRoutable {
+    func dismissMobileBackupToUpgradeNeeded() {
+        floatingSheetPresenter.removeActiveSheet()
     }
 }
