@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 
 struct FeeSelectorTokensView: View {
     @ObservedObject var viewModel: FeeSelectorTokensViewModel
@@ -15,15 +16,38 @@ struct FeeSelectorTokensView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 8) {
-                ForEach(viewModel.feeCurrencyTokens, id: \.self) {
-                    FeeSelectorRowView(viewModel: $0)
-                }
+            VStack(spacing: 20) {
+                RowSection(rows: viewModel.availableFeeCurrencyTokens)
+
+                // Intentionall left commented
+//                if viewModel.unavailableFeeCurrencyTokens.isNotEmpty {
+//                    RowSection(title: "Not Available", rows: viewModel.unavailableFeeCurrencyTokens)
+//                }
             }
-            .padding(.horizontal, 16)
-            .padding(.bottom, 16)
         }
         .scrollIndicators(.hidden)
         .scrollBounceBehavior(.basedOnSize)
+    }
+}
+
+private struct RowSection: View {
+    var title: String?
+    var rows: [FeeSelectorRowViewModel]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            if let title {
+                Text(title)
+                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                    .padding(.leading, 12)
+            }
+
+            VStack(spacing: 8) {
+                ForEach(rows, id: \.self) {
+                    FeeSelectorRowView(viewModel: $0)
+                }
+            }
+        }
+        .padding(.horizontal, 16)
     }
 }

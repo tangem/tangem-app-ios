@@ -39,12 +39,12 @@ extension GaslessTransactionAddressFactory {
 
 extension GaslessTransactionAddressFactory {
     enum Constants {
-        static let ethereumAddress = "0xd8972a45616bEC62cB9687e38a99D763c0879B0d"
-        static let bscAddress = "0xd8972a45616bEC62cB9687e38a99D763c0879B0d"
-        static let baseAddress = "0xd8972a45616bEC62cB9687e38a99D763c0879B0d"
-        static let polygonAddress = "0x2Bfd00f7D053E7a665d1767f08c5a57B3F52Ec89"
-        static let arbitrumAddress = "0xd8972a45616bEC62cB9687e38a99D763c0879B0d"
-        static let xdcAddress = "0xd8972a45616bEC62cB9687e38a99D763c0879B0d"
-        static let optimismAddress = "0xd8972a45616bEC62cB9687e38a99D763c0879B0d"
+        static let ethereumAddress = "0x041760838DaC2AC9013D26C9550daa519bd29bB9"
+        static let bscAddress = "0x041760838DaC2AC9013D26C9550daa519bd29bB9"
+        static let baseAddress = "0x041760838DaC2AC9013D26C9550daa519bd29bB9"
+        static let polygonAddress = "0x041760838DaC2AC9013D26C9550daa519bd29bB9"
+        static let arbitrumAddress = "0x041760838DaC2AC9013D26C9550daa519bd29bB9"
+        static let xdcAddress = "0x041760838DaC2AC9013D26C9550daa519bd29bB9"
+        static let optimismAddress = "0x041760838DaC2AC9013D26C9550daa519bd29bB9"
     }
 }
