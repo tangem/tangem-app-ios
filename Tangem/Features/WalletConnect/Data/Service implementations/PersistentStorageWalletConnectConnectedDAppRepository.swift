@@ -39,7 +39,7 @@ actor PersistentStorageWalletConnectConnectedDAppRepository: WalletConnectConnec
 
             // Emit current snapshot immediately so new subscribers start with actual state.
             // If fetch fails, we still yield the current in-memory cache (possibly empty).
-            do { try fetchIfNeeded() } catch { /* ignore */ }
+            try? fetchIfNeeded()
             continuation.yield(inMemoryCache)
         }
     }
