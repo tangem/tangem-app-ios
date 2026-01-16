@@ -19,7 +19,7 @@ struct NewAuthView: View {
 
     var body: some View {
         stateView
-            .allowsHitTesting(!viewModel.isUnlocking)
+            .allowsHitTesting(viewModel.allowsHitTesting)
             .alert(item: $viewModel.alert, content: { $0.alert })
             .confirmationDialog(viewModel: $viewModel.confirmationDialog)
             .background(Colors.Background.secondary.ignoresSafeArea())
@@ -40,7 +40,7 @@ private extension NewAuthView {
                     .transition(.opacity.animation(.easeIn))
             case .wallets(let item):
                 walletsView(item: item)
-                    .toolbar { navigationBarContent(item: item.addWallet) }
+                    .toolbar { navigationBarContent(addWalletItem: item.addWallet) }
                     .transition(.opacity.animation(.easeIn))
             case .none:
                 EmptyView()
@@ -73,15 +73,18 @@ private extension NewAuthView {
 
 private extension NewAuthView {
     @ToolbarContentBuilder
-    func navigationBarContent(item: ViewModel.AddWalletItem) -> some ToolbarContent {
+    func navigationBarContent(addWalletItem: ViewModel.AddWalletItem?) -> some ToolbarContent {
         ToolbarItem(
             placement: .navigationBarLeading,
             content: leadingNavigationBarItem
         )
-        ToolbarItem(
-            placement: .navigationBarTrailing,
-            content: { trailingNavigationBarItem(item: item) }
-        )
+
+        addWalletItem.map { item in
+            ToolbarItem(
+                placement: .navigationBarTrailing,
+                content: { trailingNavigationBarItem(item: item) }
+            )
+        }
     }
 
     func leadingNavigationBarItem() -> some View {
@@ -98,7 +101,7 @@ private extension NewAuthView {
             Text(item.title)
                 .style(Fonts.Regular.body, color: Colors.Text.primary1)
         }
-        .allowsHitTesting(!viewModel.isUnlocking)
+        .allowsHitTesting(viewModel.allowsHitTesting)
         .accessibilityIdentifier(AuthAccessibilityIdentifiers.addWalletButton)
     }
 }

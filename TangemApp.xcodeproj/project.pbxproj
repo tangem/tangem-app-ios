@@ -290,6 +290,8 @@
 		0FBF7E6B2E7C49790076A627 /* MobileUnlock+Notification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBF7E6A2E7C49790076A627 /* MobileUnlock+Notification.swift */; };
 		0FC609152DF344FB0033B946 /* MobileCreateWalletDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC609142DF344FB0033B946 /* MobileCreateWalletDelegate.swift */; };
 		0FC9A0F12EB53DDC00C58643 /* MobileFinishActivationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC9A0F02EB53DDC00C58643 /* MobileFinishActivationManager.swift */; };
+		0FD366232F1A534B00B5B78A /* UserWalletRepositoryMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FD366222F1A534B00B5B78A /* UserWalletRepositoryMode.swift */; };
+		0FD366252F1A539800B5B78A /* UserWalletRepositoryModeHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FD366242F1A539800B5B78A /* UserWalletRepositoryModeHelper.swift */; };
 		0FD875922E957677006E6044 /* MobileCreateWalletRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FD875912E957677006E6044 /* MobileCreateWalletRoutable.swift */; };
 		0FE5884C2DEF124C00E5663E /* MobileOnboardingInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FE5884B2DEF124C00E5663E /* MobileOnboardingInput.swift */; };
 		0FE588522DEF2A1500E5663E /* MobileOnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FE588512DEF2A1500E5663E /* MobileOnboardingViewModel.swift */; };
@@ -4999,6 +5001,8 @@
 		0FBF7E6A2E7C49790076A627 /* MobileUnlock+Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MobileUnlock+Notification.swift"; sourceTree = "<group>"; };
 		0FC609142DF344FB0033B946 /* MobileCreateWalletDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileCreateWalletDelegate.swift; sourceTree = "<group>"; };
 		0FC9A0F02EB53DDC00C58643 /* MobileFinishActivationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileFinishActivationManager.swift; sourceTree = "<group>"; };
+		0FD366222F1A534B00B5B78A /* UserWalletRepositoryMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletRepositoryMode.swift; sourceTree = "<group>"; };
+		0FD366242F1A539800B5B78A /* UserWalletRepositoryModeHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletRepositoryModeHelper.swift; sourceTree = "<group>"; };
 		0FD875912E957677006E6044 /* MobileCreateWalletRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileCreateWalletRoutable.swift; sourceTree = "<group>"; };
 		0FE5884B2DEF124C00E5663E /* MobileOnboardingInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingInput.swift; sourceTree = "<group>"; };
 		0FE588512DEF2A1500E5663E /* MobileOnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingViewModel.swift; sourceTree = "<group>"; };
@@ -11772,6 +11776,7 @@
 			isa = PBXGroup;
 			children = (
 				3096BFEA2EC5DC0900D92846 /* AccountsFeatureAwareWalletModelsResolver.swift */,
+				0FD366242F1A539800B5B78A /* UserWalletRepositoryModeHelper.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -19439,6 +19444,7 @@
 				DC2293EA2E3BD2A500743C7B /* AssociatedCardIdsProvider.swift */,
 				DC26EE002E202BD50042C068 /* UserWalletBiometricsUnlocker.swift */,
 				DC0A5843282BFDFC0031BECC /* UserWalletRepository.swift */,
+				0FD366222F1A534B00B5B78A /* UserWalletRepositoryMode.swift */,
 				5D9DCAEA25517FB50059799C /* CommonUserWalletRepository.swift */,
 				DA6C752B292909B20070EEFD /* UserWalletDataStorage.swift */,
 				DAA5E30A28D2137C003C0E80 /* UserWalletEncryptionKeyStorage.swift */,
@@ -26762,6 +26768,7 @@
 				0F2786552E2CECA900742D0F /* MobileOnboardingFlowNavBarAction.swift in Sources */,
 				C2F1B3402DEA045700EDA3E1 /* WalletConnectUIFeedbackGenerator.swift in Sources */,
 				0A9246142E8EA15600656D69 /* BlockchainAccountInitializationView.swift in Sources */,
+				0FD366252F1A539800B5B78A /* UserWalletRepositoryModeHelper.swift in Sources */,
 				EF729B512AF1248400D80205 /* FeeRowViewModel.swift in Sources */,
 				DADBECDF2BBE910C007E7885 /* CustomFeeService.swift in Sources */,
 				EFFA43642E02E8E0001E0E54 /* SendReceiveTokensListViewModel.swift in Sources */,
@@ -28218,6 +28225,7 @@
 				B66913702C41958D0016B0EE /* OverlayContentContainerViewControllerAdapter.swift in Sources */,
 				B61F71252E949D55002C3C66 /* RemoteCryptoAccountsInfo.swift in Sources */,
 				B61F71262E949D55002C3C66 /* CryptoAccountsNetworkService.swift in Sources */,
+				0FD366232F1A534B00B5B78A /* UserWalletRepositoryMode.swift in Sources */,
 				B61F71292E949D55002C3C66 /* CryptoAccountsNetworkServiceError.swift in Sources */,
 				B61F712A2E949D55002C3C66 /* CommonCryptoAccountsNetworkService.swift in Sources */,
 				B0C4F77126F08C4D0086D815 /* TwinsOnboardingCardLayout.swift in Sources */,
