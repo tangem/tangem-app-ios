@@ -22,6 +22,17 @@ class CommonTokenFeeProvider {
 
     private var customFeeProviderInitialSetupCancellable: AnyCancellable?
 
+    private var tokenHasNoBalance: Bool {
+        switch availableTokenBalanceProvider.balanceType.value {
+        case .none:
+            true
+        case .some(let balance) where balance.isZero:
+            true
+        case .some:
+            false
+        }
+    }
+
     init(
         feeTokenItem: TokenItem,
         availableTokenBalanceProvider: TokenBalanceProvider,
@@ -36,6 +47,14 @@ class CommonTokenFeeProvider {
         customFeeProviderInitialSetupCancellable = customFeeProvider?.subscribeToInitialSetup(
             tokenFeeProvider: self
         )
+
+        checkTokenFeeBalance()
+    }
+
+    private func checkTokenFeeBalance() {
+        if tokenHasNoBalance {
+            stateSubject.send(.unavailable(.noTokenBalance))
+        }
     }
 }
 
@@ -99,6 +118,12 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
 
             let fees = try await loadFees(input: input)
             try Task.checkCancellation()
+
+            if tokenHasNoBalance {
+                stateSubject.send(.unavailable(.noTokenBalance))
+                AppLogger.info(self, "Token has no balance")
+                return
+            }
 
             stateSubject.send(.available(fees))
             AppLogger.info(self, "Did load fees")
