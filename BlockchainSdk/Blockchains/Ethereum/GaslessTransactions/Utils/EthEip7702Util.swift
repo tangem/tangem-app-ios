@@ -55,11 +55,6 @@ public struct EthEip7702Util {
         let outputData = EthereumRlp.encode(coin: .ethereum, input: inputData)
         let rlpEncodedData = try EthereumRlpEncodingOutput(serializedData: outputData).encoded
 
-        print("ДЕБУГ EIP772 chainId \(chainId.description)")
-        print("ДЕБУГ EIP772 contractAddress \(contractAddress)")
-        print("ДЕБУГ EIP772 nonce \(nonce.description)")
-        print("ДЕБУГ EIP772 encoded \(rlpEncodedData.hexString)")
-
         return (Data([magicByte]) + rlpEncodedData).sha3(.keccak256)
     }
 }
