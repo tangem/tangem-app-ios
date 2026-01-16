@@ -88,6 +88,10 @@ final class TangemPayAccount {
     let customerInfoManagementService: any CustomerInfoManagementService
     let withdrawTransactionService: any TangemPayWithdrawTransactionService
 
+    var customerId: String? {
+        customerInfoSubject.value?.id
+    }
+
     var depositAddress: String? {
         customerInfoSubject.value?.depositAddress
     }
@@ -419,6 +423,9 @@ private extension VisaCustomerInfoResponse {
         }
 
         guard case .approved = kyc?.status else {
+            if case .declined = kyc?.status {
+                return .kycDeclined
+            }
             return .kycRequired
         }
 
