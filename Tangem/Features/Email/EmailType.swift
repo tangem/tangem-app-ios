@@ -18,6 +18,7 @@ enum EmailType {
     case activatedCard
     case attestationFailed
     case visaFeedback(subject: VisaEmailSubject)
+    case paeraSupport(subject: PaeraEmailSubject)
     case walletConnectUntypedError(formattedErrorCode: String)
 
     var emailSubject: String {
@@ -34,6 +35,8 @@ enum EmailType {
             return "\(subject.prefix) \(Localization.feedbackSubjectSupport)"
         case .walletConnectUntypedError:
             return Localization.emailSubjectWcError
+        case .paeraSupport(subject: let subject):
+            return subject.prefix
         }
     }
 
@@ -45,7 +48,8 @@ enum EmailType {
         case .failedToPushTx: return Localization.feedbackPrefaceTxFailed
         case .appFeedback,
              .activatedCard,
-             .attestationFailed:
+             .attestationFailed,
+             .paeraSupport:
             return Localization.feedbackPrefaceSupport
         case .walletConnectUntypedError(let formattedErrorCode):
             return Localization.emailPrefaceWcError(formattedErrorCode)
