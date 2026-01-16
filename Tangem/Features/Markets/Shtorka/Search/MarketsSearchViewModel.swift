@@ -82,8 +82,10 @@ final class MarketsSearchViewModel: MarketsBaseViewModel {
             coordinator: coordinator
         )
 
-        // Our view is initially presented when the sheet is collapsed, hence the `0.0` initial value.
-        super.init(overlayContentProgressInitialValue: 0.0)
+        // `OverlayContentStateObserver` doesn't provide an initial progress/state snapshot.
+        // When this screen is pushed into a `NavigationStack`, the overlay is typically already expanded,
+        // and without a proper initial value the content would stay hidden (opacity == 0).
+        super.init(overlayContentProgressInitialValue: 1.0)
 
         headerViewModel.delegate = self
         marketsRatingHeaderViewModel.delegate = self
