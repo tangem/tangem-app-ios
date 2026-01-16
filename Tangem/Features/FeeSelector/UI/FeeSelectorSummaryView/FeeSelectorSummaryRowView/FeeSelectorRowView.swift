@@ -23,6 +23,8 @@ struct FeeSelectorRowView: View {
             content
         }
         .buttonStyle(.plain)
+        .disabled(viewModel.availability != .available)
+        .opacity(viewModel.availability.isAvailable ? 1 : 0.5)
     }
 
     // MARK: - Sub Views
@@ -53,7 +55,7 @@ struct FeeSelectorRowView: View {
                 LoadableTokenBalanceView(
                     state: state,
                     style: .init(font: Fonts.Regular.caption1, textColor: Colors.Text.tertiary),
-                    loader: .init(size: CGSize(width: 100, height: 16))
+                    loader: .init(size: CGSize(width: 100, height: 20))
                 )
             case .fee(let state):
                 LoadableTextView(
