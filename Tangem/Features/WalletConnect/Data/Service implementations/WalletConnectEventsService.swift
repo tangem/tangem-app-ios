@@ -58,19 +58,13 @@ final class WalletConnectEventsService {
             return
         }
 
-        // Gets exact bitcoin chain from connected dApps to get wcChainId further.
-        guard let wcBlockchain = dApps
-            .flatMap(\.dAppBlockchains)
-            .first(where: { dAppBlockchain in
-                if case .bitcoin = dAppBlockchain.blockchain {
-                    return true
-                } else {
-                    return false
-                }
-            })
-        else { return }
-
-        let blockchain = wcBlockchain.blockchain
+        guard let blockchain = dApps.first?.dAppBlockchains.first(where: {
+            if case .bitcoin = $0.blockchain {
+                return true
+            } else {
+                return false
+            }
+        })?.blockchain else { return }
 
         if FeatureProvider.isAvailable(.accounts) {
             let accountIds = Set(
