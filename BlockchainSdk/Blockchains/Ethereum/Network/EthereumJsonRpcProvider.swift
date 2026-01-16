@@ -17,14 +17,22 @@ final class EthereumJsonRpcProvider: HostProvider {
     private let provider: TangemProvider<EthereumTarget>
     private let networkPrefix: EthereumTarget.RPCNetworkPrefix
 
+    let networkProviderType: NetworkProviderType?
+
     var host: String {
         node.url.hostOrUnknown
     }
 
-    init(node: NodeInfo, configuration: TangemProviderConfiguration, networkPrefix: EthereumTarget.RPCNetworkPrefix) {
+    init(
+        node: NodeInfo,
+        configuration: TangemProviderConfiguration,
+        networkPrefix: EthereumTarget.RPCNetworkPrefix,
+        networkProviderType: NetworkProviderType?
+    ) {
         self.node = node
         provider = TangemProvider<EthereumTarget>(configuration: configuration)
         self.networkPrefix = networkPrefix
+        self.networkProviderType = networkProviderType
     }
 
     func call(contractAddress: String, encodedData: String) -> AnyPublisher<String, Error> {
