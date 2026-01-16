@@ -43,7 +43,6 @@ final class AccountsAwareOrganizeTokensViewModel: ObservableObject, Identifiable
     private var bag: Set<AnyCancellable> = []
     private var cryptoAccountModelsBag: Set<AnyCancellable> = []
     private var didBind = false
-    private var didBindToCryptoAccountModels = false
     private var didSave = false
 
     init(
@@ -82,6 +81,13 @@ final class AccountsAwareOrganizeTokensViewModel: ObservableObject, Identifiable
             .cryptoAccountModelsPublisher
             .share(replay: 1)
 
+        cryptoAccountModelsPublisher
+            .dropFirst()
+            .sink { cryptoAccountModels in
+                entitiesCache.mutate { $0.purge(using: cryptoAccountModels) }
+            }
+            .store(in: &bag)
+
         // Shared instance between multiple accounts, optional due to late binding
         var sharedOptionsManagerAdapter: AccountsOrganizeOptionsManagerAdapter? = nil
 
@@ -89,7 +95,6 @@ final class AccountsAwareOrganizeTokensViewModel: ObservableObject, Identifiable
             .withWeakCaptureOf(self)
             .flatMapLatest { viewModel, cryptoAccountModels -> AnyPublisher<[OrganizeTokensListOuterSection], Never> in
                 viewModel.cryptoAccountModelsBag.removeAll() // Invalidate all old subscriptions since the list of accounts may change
-                viewModel.didBindToCryptoAccountModels = false // Allow re-binding of options manager for new set of accounts
                 sharedOptionsManagerAdapter = nil // Clear old options manager reference
 
                 guard cryptoAccountModels.isNotEmpty else {
@@ -138,11 +143,9 @@ final class AccountsAwareOrganizeTokensViewModel: ObservableObject, Identifiable
                             .organizedSections(from: tokenSectionsSourcePublisher, on: viewModel.mappingQueue)
                             .share(replay: 1)
 
-                        viewModel.subscribeToCryptoAccountModelsPublisherIfNeeded(
-                            cryptoAccountModelsPublisher: cryptoAccountModelsPublisher,
+                        viewModel.subscribeToOnSavePublisherIfNeeded(
                             onSavePublisher: onSavePublisher,
-                            optionsManager: optionsManagerAdapter,
-                            entitiesCache: entitiesCache
+                            optionsManager: optionsManagerAdapter
                         )
 
                         viewModel.subscribeToOrganizedTokensSectionsPublisher(
@@ -236,15 +239,12 @@ final class AccountsAwareOrganizeTokensViewModel: ObservableObject, Identifiable
 
     /// - Note: This method creates subscriptions for the ENTIRE SET of multiple accounts,
     /// i.e., multiple accounts - one set of these subscriptions.
-    private func subscribeToCryptoAccountModelsPublisherIfNeeded(
-        cryptoAccountModelsPublisher: some Publisher<[any CryptoAccountModel], Never>,
+    private func subscribeToOnSavePublisherIfNeeded(
         onSavePublisher: some Publisher<Void, Never>,
-        optionsManager: OrganizeTokensOptionsProviding & OrganizeTokensOptionsEditing,
-        entitiesCache: EntitiesCache
+        optionsManager: OrganizeTokensOptionsProviding & OrganizeTokensOptionsEditing
     ) {
-        if didBindToCryptoAccountModels { return }
+        guard cryptoAccountModelsBag.isEmpty else { return }
 
-        didBindToCryptoAccountModels = true
         optionsEditing = optionsManager
 
         // Resetting drag-and-drop actions cache unconditionally when sort option is changed
@@ -255,14 +255,7 @@ final class AccountsAwareOrganizeTokensViewModel: ObservableObject, Identifiable
             .sink { viewModel, _ in
                 viewModel.dragAndDropActionsCache.reset()
             }
-            .store(in: &bag)
-
-        // Purge cached entities related to removed accounts when the list of accounts changes
-        cryptoAccountModelsPublisher
-            .sink { cryptoAccountModels in
-                entitiesCache.mutate { $0.purge(using: cryptoAccountModels) }
-            }
-            .store(in: &bag)
+            .store(in: &cryptoAccountModelsBag)
 
         // Analytics logging on Save button tap
         onSavePublisher
@@ -275,7 +268,7 @@ final class AccountsAwareOrganizeTokensViewModel: ObservableObject, Identifiable
                 let (viewModel, (sortingOption, groupingOption)) = input
                 viewModel.logOnSaveButtonTap(sortingOption: sortingOption, groupingOption: groupingOption)
             }
-            .store(in: &bag)
+            .store(in: &cryptoAccountModelsBag)
 
         setupHeaderViewModel(optionsProviding: optionsManager, optionsEditing: optionsManager)
     }
@@ -329,7 +322,6 @@ final class AccountsAwareOrganizeTokensViewModel: ObservableObject, Identifiable
             .withWeakCaptureOf(self)
             .sink { viewModel, _ in
                 viewModel.onSave()
-                withExtendedLifetime(optionsManagerAdapter) {}
             }
             .store(in: &cryptoAccountModelsBag)
     }
