@@ -74,7 +74,11 @@ struct MarketsSearchView: View {
                 backgroundColor
                     .ignoresSafeArea(edges: .vertical)
             }
-            .onAppear(perform: scrollOffsetHandler.onViewAppear)
+            .onAppear {
+                viewModel.onViewAppear()
+                scrollOffsetHandler.onViewAppear()
+            }
+            .onDisappear(perform: viewModel.onViewDisappear)
     }
 
     @ViewBuilder
@@ -106,6 +110,10 @@ struct MarketsSearchView: View {
             .animation(.easeInOut(duration: 0.1), value: showSearchResult)
         }
         .navigationBarTitleDisplayMode(.inline)
+        // This dummy title won't be shown in the UI, but it's required since without it UIKit may allocate
+        // another `UINavigationBar` instance for the pushed screens, which breaks our custom nav bar layout.
+        .navigationTitle("MarketsSearchView")
+        .injectMarketsNavigationControllerConfigurator()
     }
 
     // MARK: - Navigation Bar implementation
