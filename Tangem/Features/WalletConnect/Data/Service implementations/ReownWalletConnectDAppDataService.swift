@@ -48,8 +48,14 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
             )
         }
 
-        let specificSolanaCAIPReference = Self.parseSpecificSolanaCAIPReference(from: reownSessionProposal)
-        let specificBitcionCAIPReference = Self.parseSpecificBitcoinCAIPReference(from: reownSessionProposal)
+        let specificSolanaCAIPReference = Self.parseSpecificBlockchainCAIPReference(
+            blockchainCAIPNamespace: Self.solanaCAIPNamespace,
+            from: reownSessionProposal
+        )
+        let specificBitcoinCAIPReference = Self.parseSpecificBlockchainCAIPReference(
+            blockchainCAIPNamespace: Self.bitcoinCAIPNamespace,
+            from: reownSessionProposal
+        )
 
         let dAppDomain = try WalletConnectDAppSessionProposalMapper.mapDomainURL(
             from: reownSessionProposal,
@@ -70,86 +76,34 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
             initialVerificationContext: WalletConnectDAppSessionProposalMapper.mapVerificationContext(from: reownVerifyContext),
             dAppWalletConnectionRequestFactory: { [reownSessionProposal] selectedBlockchains, selectedUserWallet
                 throws(WalletConnectDAppProposalApprovalError) in
-
-                func caipReference(for domainBlockchain: BlockchainSdk.Blockchain) -> String? {
-                    switch domainBlockchain.networkId {
-                    case Self.solanaDomainNetworkID:
-                        specificSolanaCAIPReference
-                    case Self.bitcoinDomainNetworkID:
-                        specificBitcionCAIPReference
-                    default:
-                        nil
-                    }
-                }
-
-                let reownSessionNamespaces: [String: SessionNamespace]
-
-                do {
-                    reownSessionNamespaces = try AutoNamespaces.build(
-                        sessionProposal: reownSessionProposal,
-                        chains: selectedBlockchains.compactMap {
-                            WalletConnectBlockchainMapper.mapFromDomain($0, preferredCAIPReference: caipReference(for: $0))
-                        },
-                        methods: WalletConnectDAppSessionProposalMapper.mapAllMethods(from: reownSessionProposal),
-                        events: WalletConnectDAppSessionProposalMapper.mapAllEvents(from: reownSessionProposal),
-                        accounts: selectedBlockchains.flatMap {
-                            WalletConnectAccountsMapper.map(
-                                from: $0,
-                                userWalletModel: selectedUserWallet,
-                                preferredCAIPReference: caipReference(for: $0)
-                            )
-                        }
+                try self.makeConnectionRequest(
+                    reownSessionProposal: reownSessionProposal,
+                    selectedBlockchains: selectedBlockchains,
+                    specificSolanaCAIPReference: specificSolanaCAIPReference,
+                    specificBitcoinCAIPReference: specificBitcoinCAIPReference
+                ) { blockchain, caipReference in
+                    WalletConnectAccountsMapper.map(
+                        from: blockchain,
+                        userWalletModel: selectedUserWallet,
+                        preferredCAIPReference: caipReference
                     )
-                } catch {
-                    throw WalletConnectDAppProposalApprovalError.invalidConnectionRequest(error)
                 }
-
-                return WalletConnectDAppConnectionRequest(
-                    proposalID: reownSessionProposal.id,
-                    namespaces: WalletConnectSessionNamespaceMapper.mapToDomain(reownSessionNamespaces)
-                )
             },
             dAppAccountConnectionRequestFactory: { [reownSessionProposal] selectedBlockchains, selectedAccount, wcAccountsWalletModelProvider
                 throws(WalletConnectDAppProposalApprovalError) in
-
-                func caipReference(for domainBlockchain: BlockchainSdk.Blockchain) -> String? {
-                    switch domainBlockchain.networkId {
-                    case Self.solanaDomainNetworkID:
-                        specificSolanaCAIPReference
-                    case Self.bitcoinDomainNetworkID:
-                        specificBitcionCAIPReference
-                    default:
-                        nil
-                    }
-                }
-
-                let reownSessionNamespaces: [String: SessionNamespace]
-
-                do {
-                    reownSessionNamespaces = try AutoNamespaces.build(
-                        sessionProposal: reownSessionProposal,
-                        chains: selectedBlockchains.compactMap {
-                            WalletConnectBlockchainMapper.mapFromDomain($0, preferredCAIPReference: caipReference(for: $0))
-                        },
-                        methods: WalletConnectDAppSessionProposalMapper.mapAllMethods(from: reownSessionProposal),
-                        events: WalletConnectDAppSessionProposalMapper.mapAllEvents(from: reownSessionProposal),
-                        accounts: selectedBlockchains.flatMap {
-                            WalletConnectAccountsMapper.map(
-                                from: $0,
-                                wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
-                                preferredCAIPReference: caipReference(for: $0),
-                                accountId: selectedAccount.id.walletConnectIdentifierString
-                            )
-                        }
+                try self.makeConnectionRequest(
+                    reownSessionProposal: reownSessionProposal,
+                    selectedBlockchains: selectedBlockchains,
+                    specificSolanaCAIPReference: specificSolanaCAIPReference,
+                    specificBitcoinCAIPReference: specificBitcoinCAIPReference
+                ) { blockchain, caipReference in
+                    WalletConnectAccountsMapper.map(
+                        from: blockchain,
+                        wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
+                        preferredCAIPReference: caipReference,
+                        accountId: selectedAccount.id.walletConnectIdentifierString
                     )
-                } catch {
-                    throw WalletConnectDAppProposalApprovalError.invalidConnectionRequest(error)
                 }
-
-                return WalletConnectDAppConnectionRequest(
-                    proposalID: reownSessionProposal.id,
-                    namespaces: WalletConnectSessionNamespaceMapper.mapToDomain(reownSessionNamespaces)
-                )
             }
         )
 
@@ -231,36 +185,16 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
         }
     }
 
-    /// Parses specific Solana blockchain CAIP-2 reference (if any).
-    /// - Parameter reownSessionProposal: DApp session proposal that may have Solana blockchains.
-    /// - Returns: Solana CAIP-2 reference if it was one and only one occurrence. For all other cases returns `nil`.
-    private static func parseSpecificSolanaCAIPReference(from reownSessionProposal: ReownWalletKit.Session.Proposal) -> String? {
-        parseSpecificBlockchainCAIPReference(
-            blockchainCAIPNamespace: solanaCAIPNamespace,
-            from: reownSessionProposal
-        )
-    }
-
-    /// Parses specific Bitcoin blockchain CAIP-2 reference (if any).
-    /// - Parameter reownSessionProposal: DApp session proposal that may have Bitcoin blockchains.
-    /// - Returns: Bitcoin CAIP-2 reference if it was one and only one occurrence. For all other cases returns `nil`.
-    private static func parseSpecificBitcoinCAIPReference(from reownSessionProposal: ReownWalletKit.Session.Proposal) -> String? {
-        parseSpecificBlockchainCAIPReference(
-            blockchainCAIPNamespace: solanaCAIPNamespace,
-            from: reownSessionProposal
-        )
-    }
-
     private static func parseSpecificBlockchainCAIPReference(
         blockchainCAIPNamespace: String,
         from reownSessionProposal: ReownWalletKit.Session.Proposal
     ) -> String? {
         let required = Self.extractSpecificBlockchains(
-            blockchainCAIPNamesapce: blockchainCAIPNamespace,
+            blockchainCAIPNamespace: blockchainCAIPNamespace,
             from: reownSessionProposal.requiredNamespaces
         )
         let optional = Self.extractSpecificBlockchains(
-            blockchainCAIPNamesapce: blockchainCAIPNamespace,
+            blockchainCAIPNamespace: blockchainCAIPNamespace,
             from: reownSessionProposal.optionalNamespaces
         )
         let blockchains = Set(required + optional)
@@ -275,7 +209,7 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
     }
 
     private static func extractSpecificBlockchains(
-        blockchainCAIPNamesapce: String,
+        blockchainCAIPNamespace: String,
         from reownNamespaces: [String: ReownWalletKit.ProposalNamespace]?
     ) -> [ReownWalletKit.Blockchain] {
         guard let reownNamespaces else { return [] }
@@ -283,7 +217,49 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
         return reownNamespaces.values
             .compactMap(\.chains)
             .flatMap { $0 }
-            .filter { $0.namespace == blockchainCAIPNamesapce }
+            .filter { $0.namespace == blockchainCAIPNamespace }
+    }
+
+    private func makeConnectionRequest(
+        reownSessionProposal: Session.Proposal,
+        selectedBlockchains: [BlockchainSdk.Blockchain],
+        specificSolanaCAIPReference: String?,
+        specificBitcoinCAIPReference: String?,
+        accountsProvider: (BlockchainSdk.Blockchain, String?) -> [ReownWalletKit.Account]
+    ) throws(WalletConnectDAppProposalApprovalError) -> WalletConnectDAppConnectionRequest {
+        func caipReference(for domainBlockchain: BlockchainSdk.Blockchain) -> String? {
+            switch domainBlockchain.networkId {
+            case Self.solanaDomainNetworkID:
+                specificSolanaCAIPReference
+            case Self.bitcoinDomainNetworkID:
+                specificBitcoinCAIPReference
+            default:
+                nil
+            }
+        }
+
+        let reownSessionNamespaces: [String: SessionNamespace]
+
+        do {
+            reownSessionNamespaces = try AutoNamespaces.build(
+                sessionProposal: reownSessionProposal,
+                chains: selectedBlockchains.compactMap {
+                    WalletConnectBlockchainMapper.mapFromDomain($0, preferredCAIPReference: caipReference(for: $0))
+                },
+                methods: WalletConnectDAppSessionProposalMapper.mapAllMethods(from: reownSessionProposal),
+                events: WalletConnectDAppSessionProposalMapper.mapAllEvents(from: reownSessionProposal),
+                accounts: selectedBlockchains.flatMap {
+                    accountsProvider($0, caipReference(for: $0))
+                }
+            )
+        } catch {
+            throw WalletConnectDAppProposalApprovalError.invalidConnectionRequest(error)
+        }
+
+        return WalletConnectDAppConnectionRequest(
+            proposalID: reownSessionProposal.id,
+            namespaces: WalletConnectSessionNamespaceMapper.mapToDomain(reownSessionNamespaces)
+        )
     }
 }
 

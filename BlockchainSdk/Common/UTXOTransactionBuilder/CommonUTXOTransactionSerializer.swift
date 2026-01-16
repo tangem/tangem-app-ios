@@ -163,7 +163,7 @@ private extension CommonUTXOTransactionSerializer {
         }
 
         // Standard OP_RETURN relay policy historically limits data to 80 bytes.
-        if params.memo.count > 80 {
+        if params.memo.count > Constants.opReturnMaxDataSizeBytes {
             throw UTXOTransactionSerializerError.walletCoreError("UTXO memo exceeds 80 bytes")
         }
 
@@ -276,5 +276,11 @@ private extension CommonUTXOTransactionSerializer {
 extension PreImageTransaction {
     var isWitness: Bool {
         inputs.contains(where: { $0.script.type.isWitness })
+    }
+}
+
+extension CommonUTXOTransactionSerializer {
+    enum Constants {
+        static let opReturnMaxDataSizeBytes = 80
     }
 }
