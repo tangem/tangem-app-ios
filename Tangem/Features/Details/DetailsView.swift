@@ -51,18 +51,24 @@ struct DetailsView: View {
     }
 
     private var userWalletsSection: some View {
-        GroupedSection(viewModel.walletsSectionTypes) { type in
-            switch type {
-            case .wallet(let viewModel):
-                SettingsUserWalletRowView(viewModel: viewModel)
-            case .addOrScanNewUserWalletButton(let viewModel):
-                DefaultRowView(viewModel: viewModel)
-                    .appearance(.accentButton)
-            case .addNewUserWalletButton(let viewModel):
-                DefaultRowView(viewModel: viewModel)
-                    .appearance(.accentButton)
+        GroupedSection(
+            viewModel.walletsSectionTypes,
+            content: { type in
+                switch type {
+                case .wallet(let viewModel):
+                    SettingsUserWalletRowView(viewModel: viewModel)
+                case .addOrScanNewUserWalletButton(let viewModel):
+                    DefaultRowView(viewModel: viewModel)
+                        .appearance(.accentButton)
+                case .addNewUserWalletButton(let viewModel):
+                    DefaultRowView(viewModel: viewModel)
+                        .appearance(.accentButton)
+                }
+            },
+            footer: {
+                viewModel.userWalletsSectionFooterString.map { DefaultFooterView($0) }
             }
-        }
+        )
     }
 
     private var buyWalletSection: some View {

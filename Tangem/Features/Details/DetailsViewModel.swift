@@ -11,6 +11,7 @@ import SwiftUI
 import Combine
 import BlockchainSdk
 import TangemFoundation
+import TangemMobileWalletSdk
 import TangemLocalization
 import class TangemSdk.BiometricsUtil
 import struct TangemUIUtils.AlertBinder
@@ -37,6 +38,16 @@ final class DetailsViewModel: ObservableObject {
         }
 
         return viewModels
+    }
+
+    var userWalletsSectionFooterString: String? {
+        guard FeatureProvider.isAvailable(.mobileWallet) else {
+            return nil
+        }
+        switch UserWalletRepositoryModeHelper.mode {
+        case .mobile: return "You can have either one mobile wallet or hardware wallet at the same time. Upgrade you wallet or delete it from the app to start using a Tangem cold wallet."
+        case .hardware: return nil
+        }
     }
 
     @Published var getSectionViewModels: [DefaultRowViewModel] = []
@@ -141,8 +152,8 @@ extension DetailsViewModel {
         coordinator?.openWalletConnect(with: selectedUserWalletModel?.config.getDisabledLocalizedReason(for: .walletConnect))
     }
 
-    func openOnboarding(with input: OnboardingInput) {
-        coordinator?.openOnboardingModal(with: input)
+    func openOnboarding(input: OnboardingInput) {
+        coordinator?.openOnboardingModal(options: .input(input))
     }
 
     func openMail(emailConfig: EmailConfig, emailType: EmailType, models: [any UserWalletModel]) {
@@ -240,13 +251,57 @@ extension DetailsViewModel {
             params: [.source: .settings],
             contextParams: .empty
         )
-        coordinator?.openAddWallet()
+        addOrScanNewUserWallet()
+    }
+
+    func openUpgradeMobileWallet() {
+        guard let userWalletModel = userWalletRepository.models.first else {
+            return
+        }
+
+        let isBackupNeeded = userWalletModel.config.hasFeature(.mnemonicBackup) && userWalletModel.config.hasFeature(.iCloudBackup)
+        if isBackupNeeded {
+            openMobileBackupToUpgradeNeeded(userWalletModel: userWalletModel)
+        } else {
+            runTask(in: self) { viewModel in
+                await viewModel.upgradeMobileWallet(userWalletModel: userWalletModel)
+            }
+        }
+    }
+
+    func openWalletSettings(userWalletModel: UserWalletModel) {
+        coordinator?.openWalletSettings(options: userWalletModel)
+    }
+
+    func openMobileUpgradeToHardwareWallet(userWalletModel: UserWalletModel, context: MobileWalletContext) {
+        coordinator?.openMobileUpgradeToHardwareWallet(userWalletModel: userWalletModel, context: context)
+    }
+
+    func openMobileBackupToUpgradeNeeded(userWalletModel: UserWalletModel) {
+        coordinator?.openMobileBackupToUpgradeNeeded(onBackupRequested: { [weak self] in
+            self?.openBackupMobileWallet(userWalletModel: userWalletModel)
+        })
+    }
+
+    func openBackupMobileWallet(userWalletModel: UserWalletModel) {
+        let input = MobileOnboardingInput(flow: .seedPhraseBackupToUpgrade(
+            userWalletModel: userWalletModel,
+            source: .walletSettings(action: .upgrade),
+            onContinue: { [weak self] in
+                self?.onMobileBackupToUpgradeComplete(userWalletModel: userWalletModel)
+            }
+        ))
+        coordinator?.openOnboardingModal(options: .mobileInput(input))
     }
 
     func requestSupport() {
         Analytics.log(.requestSupport, params: [.source: .settings])
         failedCardScanTracker.resetCounter()
         coordinator?.openMail(with: BaseDataCollector(), recipient: EmailConfig.default.recipient, emailType: .failedToScanCard)
+    }
+
+    func closeOnboarding() {
+        coordinator?.closeOnboarding()
     }
 }
 
@@ -324,10 +379,19 @@ private extension DetailsViewModel {
         }
 
         if FeatureProvider.isAvailable(.mobileWallet) {
-            addNewUserWalletViewModel = DefaultRowViewModel(
-                title: Localization.userWalletListAddButton,
-                action: weakify(self, forFunction: DetailsViewModel.openAddWallet)
-            )
+            switch UserWalletRepositoryModeHelper.mode {
+            case .hardware:
+                addNewUserWalletViewModel = DefaultRowViewModel(
+                    title: Localization.userWalletListAddButton,
+                    detailsType: isScanning ? .loader : .none,
+                    action: isScanning ? nil : weakify(self, forFunction: DetailsViewModel.openAddWallet)
+                )
+            case .mobile:
+                addNewUserWalletViewModel = DefaultRowViewModel(
+                    title: "Upgrade to hardware wallet",
+                    action: isScanning ? nil : weakify(self, forFunction: DetailsViewModel.openUpgradeMobileWallet)
+                )
+            }
         } else {
             addOrScanNewUserWalletViewModel = DefaultRowViewModel(
                 title: AppSettings.shared.saveUserWallets ? Localization.userWalletListAddButton : Localization.scanCardSettingsButton,
@@ -338,9 +402,14 @@ private extension DetailsViewModel {
     }
 
     func updateAddOrScanNewUserWalletButton() {
-        addOrScanNewUserWalletViewModel?.update(title: AppSettings.shared.saveUserWallets ? Localization.userWalletListAddButton : Localization.scanCardSettingsButton)
-        addOrScanNewUserWalletViewModel?.update(detailsType: isScanning ? .loader : .none)
-        addOrScanNewUserWalletViewModel?.update(action: isScanning ? nil : weakify(self, forFunction: DetailsViewModel.addOrScanNewUserWallet))
+        if FeatureProvider.isAvailable(.mobileWallet) {
+            addNewUserWalletViewModel?.update(detailsType: isScanning ? .loader : .none)
+            addNewUserWalletViewModel?.update(action: isScanning ? nil : weakify(self, forFunction: DetailsViewModel.openAddWallet))
+        } else {
+            addOrScanNewUserWalletViewModel?.update(title: AppSettings.shared.saveUserWallets ? Localization.userWalletListAddButton : Localization.scanCardSettingsButton)
+            addOrScanNewUserWalletViewModel?.update(detailsType: isScanning ? .loader : .none)
+            addOrScanNewUserWalletViewModel?.update(action: isScanning ? nil : weakify(self, forFunction: DetailsViewModel.addOrScanNewUserWallet))
+        }
     }
 
     func setupGetSectionViewModels(shouldShowGetTangemPay: Bool = false) {
@@ -422,7 +491,7 @@ private extension DetailsViewModel {
                 )
 
                 viewModel.isScanning = false
-                viewModel.openOnboarding(with: input)
+                viewModel.openOnboarding(input: input)
 
             case .scanTroubleshooting:
                 Analytics.log(.cantScanTheCard, params: [.source: .settings])
@@ -475,6 +544,26 @@ private extension DetailsViewModel {
                     viewModel.alert = error.alertBinder
                 }
             }
+        }
+    }
+
+    func upgradeMobileWallet(userWalletModel: UserWalletModel) async {
+        let unlockResult = await mobileUnlock(userWalletModel: userWalletModel)
+
+        switch unlockResult {
+        case .successful(let context):
+            openMobileUpgradeToHardwareWallet(userWalletModel: userWalletModel, context: context)
+        case .canceled:
+            break
+        case .failed(let error):
+            alert = error.alertBinder
+        }
+    }
+
+    func onMobileBackupToUpgradeComplete(userWalletModel: UserWalletModel) {
+        closeOnboarding()
+        runTask(in: self) { viewModel in
+            await viewModel.upgradeMobileWallet(userWalletModel: userWalletModel)
         }
     }
 }
@@ -594,6 +683,42 @@ private extension DetailsViewModel {
     }
 }
 
+// MARK: - Mobile wallet unlocking
+
+private extension DetailsViewModel {
+    func mobileUnlock(userWalletModel: UserWalletModel) async -> MobileUnlockResult {
+        do {
+            let authUtil = MobileAuthUtil(
+                userWalletId: userWalletModel.userWalletId,
+                config: userWalletModel.config,
+                biometricsProvider: CommonUserWalletBiometricsProvider()
+            )
+            let result = try await authUtil.unlock()
+
+            switch result {
+            case .successful(let context):
+                return .successful(context: context)
+
+            case .canceled:
+                return .canceled
+
+            case .userWalletNeedsToDelete:
+                assertionFailure("Unexpected state: .userWalletNeedsToDelete should never happen.")
+                return .canceled
+            }
+
+        } catch {
+            return .failed(error: error)
+        }
+    }
+
+    enum MobileUnlockResult {
+        case successful(context: MobileWalletContext)
+        case canceled
+        case failed(error: Error)
+    }
+}
+
 // MARK: - Support
 
 private extension DetailsViewModel {
@@ -653,14 +778,6 @@ private extension DetailsViewModel {
         }
 
         return selectedUserWalletModel
-    }
-}
-
-// MARK: - Navigation
-
-private extension DetailsViewModel {
-    func openWalletSettings(userWalletModel: UserWalletModel) {
-        coordinator?.openWalletSettings(options: userWalletModel)
     }
 }
 
