@@ -717,6 +717,10 @@ extension MultiWalletMainContentViewModel: TangemPayAccountRoutable {
         )
     }
 
+    func openTangemPayKYCDeclinedPopup(tangemPayAccount: TangemPayAccount) {
+        coordinator?.openTangemPayKYCDeclinedPopup(tangemPayAccount: tangemPayAccount)
+    }
+
     func openTangemPayIssuingYourCardPopup() {
         coordinator?.openTangemPayIssuingYourCardPopup()
     }
