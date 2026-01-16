@@ -42,8 +42,10 @@ extension TokenFeeProviderState: CustomStringConvertible {
 }
 
 @RawCaseName
+@CaseFlagable
 enum TokenFeeProviderStateUnavailableReason {
     case inputDataNotSet
     case notSupported
     case notEnoughFeeBalance
+    case noTokenBalance
 }
