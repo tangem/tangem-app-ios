@@ -34,12 +34,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
     var description: String? {
         switch flowType {
         case .edit(let account):
-            // [REDACTED_TODO_COMMENT]
-            if let cryptoAccount = account as? any CryptoAccountModel {
-                return cryptoAccount.descriptionString
-            }
-
-            return nil
+            return account.resolve(using: DescriptionResolver())
 
         case .create:
             return Localization.accountFormAccountIndex(totalAccountsCount)
@@ -399,5 +394,17 @@ extension AccountFormViewModel {
         let name: String
         let color: GridItemColor<AccountModel.Icon.Color>
         let image: GridItemImage<AccountModel.Icon.Name>
+    }
+}
+
+// MARK: - DescriptionResolver
+
+private extension AccountFormViewModel {
+    struct DescriptionResolver: AccountModelResolving {
+        typealias Result = String?
+
+        func resolve(accountModel: any CryptoAccountModel) -> Result {
+            accountModel.descriptionString
+        }
     }
 }
