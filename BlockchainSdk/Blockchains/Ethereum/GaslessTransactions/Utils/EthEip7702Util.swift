@@ -35,13 +35,18 @@ public struct EthEip7702Util {
         }
 
         let serializedChainId = chainId.serialize()
-        let serializedNonce = nonce.serialize()
+
+        // Special-case nonce == 0:
+        // BigUInt.serialize() returns empty Data for zero,
+        // but here we want an explicit zero byte (00),
+        // not an empty value or RLP empty string marker.
+        let serializedNonce: Data = nonce == 0 ? Data([UInt8(0)]) : nonce.serialize()
 
         let rlpList = EthereumRlpRlpList.with {
             $0.items = [
                 EthereumRlpRlpItem.with { $0.numberU256 = serializedChainId },
                 EthereumRlpRlpItem.with { $0.address = contractAddress },
-                EthereumRlpRlpItem.with { $0.numberU256 = serializedNonce },
+                EthereumRlpRlpItem.with { $0.data = serializedNonce },
             ]
         }
 
@@ -49,6 +54,12 @@ public struct EthEip7702Util {
         let inputData = try encodingInput.serializedData()
         let outputData = EthereumRlp.encode(coin: .ethereum, input: inputData)
         let rlpEncodedData = try EthereumRlpEncodingOutput(serializedData: outputData).encoded
+
+        print("ДЕБУГ EIP772 chainId \(chainId.description)")
+        print("ДЕБУГ EIP772 contractAddress \(contractAddress)")
+        print("ДЕБУГ EIP772 nonce \(nonce.description)")
+        print("ДЕБУГ EIP772 encoded \(rlpEncodedData.hexString)")
+
         return (Data([magicByte]) + rlpEncodedData).sha3(.keccak256)
     }
 }
