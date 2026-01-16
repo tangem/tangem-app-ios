@@ -388,6 +388,16 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         }
     }
 
+    func openTangemPayKYCDeclinedPopup(tangemPayAccount: TangemPayAccount) {
+        let viewModel = TangemPayKYCDeclinedPopupViewModel(
+            tangemPayAccount: tangemPayAccount,
+            coordinator: self
+        )
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
     func openTangemPayFailedToIssueCardPopup(userWalletModel: UserWalletModel) {
         let viewModel = TangemPayFailedToIssueCardSheetViewModel(userWalletModel: userWalletModel, coordinator: self)
         Task { @MainActor in
@@ -761,6 +771,14 @@ extension MainCoordinator {
 
 extension MainCoordinator: TangemPayKYCStatusRoutable {
     func closeKYCStatusPopup() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
+extension MainCoordinator: TangemPayKYCDeclinedRoutable {
+    func closeKYCDeclinedPopup() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
         }
