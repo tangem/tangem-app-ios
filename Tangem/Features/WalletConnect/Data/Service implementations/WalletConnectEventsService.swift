@@ -74,42 +74,51 @@ final class WalletConnectEventsService {
             return
         }
 
-        for isTestnet in bitcoinNetworksInSessions {
-            let blockchain: BlockchainSdk.Blockchain = .bitcoin(testnet: isTestnet)
+        guard let wcBlockchain = dApps
+            .flatMap(\.dAppBlockchains)
+            .first(where: { dAppBlockchain in
+                if case .bitcoin = dAppBlockchain.blockchain {
+                    return true
+                } else {
+                    return false
+                }
+            })
+        else { return }
 
-            // Mirror WalletConnectBitcoinGetAccountAddressesHandler.handle() response payload shape.
-            guard let walletModel = selectedUserWalletModel.wcWalletModelProvider.getModel(with: blockchain.networkId) else {
-                WCLogger.error(error: "Failed to emit \(WCEvent.bip122AddressesChanged.rawValue). Bitcoin wallet model not found for blockchain: \(blockchain).")
-                continue
-            }
+        let blockchain = wcBlockchain.blockchain
 
-            let pathString = walletModel.tokenItem.blockchainNetwork.derivationPath?.rawPath
-
-            let responses: [WalletConnectBtcAccountAddressResponse] = walletModel.addresses.map {
-                WalletConnectBtcAccountAddressResponse(
-                    address: $0.value,
-                    path: pathString,
-                    intention: "payment"
-                )
-            }
-
-            // We need this workaround because `AnyCodable(responses)' crashes inside reown lib.
-            // That strange beaucse it works fine in WalletConnectBitcoinGetAccountAddressesHandler
-            let payload: [[String: Any]] = responses.map { response in
-                [
-                    "address": response.address,
-                    "path": response.path ?? NSNull(),
-                    "intention": response.intention,
-                ]
-            }
-
-            let event = Session.Event(
-                name: WCEvent.bip122AddressesChanged.rawValue,
-                data: AnyCodable(any: payload)
-            )
-
-            walletConnectService.emitEvent(event, on: blockchain)
+        // Mirror WalletConnectBitcoinGetAccountAddressesHandler.handle() response payload shape.
+        guard let walletModel = selectedUserWalletModel.wcWalletModelProvider.getModel(with: blockchain.networkId) else {
+            WCLogger.error(error: "Failed to emit \(WCEvent.bip122AddressesChanged.rawValue). Bitcoin wallet model not found for blockchain: \(blockchain).")
+            return
         }
+
+        let pathString = walletModel.tokenItem.blockchainNetwork.derivationPath?.rawPath
+
+        let responses: [WalletConnectBtcAccountAddressResponse] = walletModel.addresses.map {
+            WalletConnectBtcAccountAddressResponse(
+                address: $0.value,
+                path: pathString,
+                intention: "payment"
+            )
+        }
+
+        // We need this workaround because `AnyCodable(responses)' crashes inside reown lib.
+        // That strange beaucse it works fine in WalletConnectBitcoinGetAccountAddressesHandler
+        let payload: [[String: Any]] = responses.map { response in
+            [
+                "address": response.address,
+                "path": response.path ?? NSNull(),
+                "intention": response.intention,
+            ]
+        }
+
+        let event = Session.Event(
+            name: WCEvent.bip122AddressesChanged.rawValue,
+            data: AnyCodable(any: payload)
+        )
+
+        walletConnectService.emitEvent(event, on: blockchain)
     }
 }
 
