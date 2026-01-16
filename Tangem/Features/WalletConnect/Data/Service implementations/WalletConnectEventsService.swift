@@ -58,22 +58,7 @@ final class WalletConnectEventsService {
             return
         }
 
-        let bitcoinNetworksInSessions = Set(
-            dApps
-                .flatMap(\.dAppBlockchains)
-                .compactMap { dAppBlockchain -> Bool? in
-                    if case .bitcoin(let testnet) = dAppBlockchain.blockchain {
-                        return testnet
-                    }
-
-                    return nil
-                }
-        )
-
-        guard bitcoinNetworksInSessions.isNotEmpty else {
-            return
-        }
-
+        // Gets exact bitcoin chain from connected dApps to get wcChainId further.
         guard let wcBlockchain = dApps
             .flatMap(\.dAppBlockchains)
             .first(where: { dAppBlockchain in
@@ -87,12 +72,46 @@ final class WalletConnectEventsService {
 
         let blockchain = wcBlockchain.blockchain
 
-        // Mirror WalletConnectBitcoinGetAccountAddressesHandler.handle() response payload shape.
-        guard let walletModel = selectedUserWalletModel.wcWalletModelProvider.getModel(with: blockchain.networkId) else {
-            WCLogger.error(error: "Failed to emit \(WCEvent.bip122AddressesChanged.rawValue). Bitcoin wallet model not found for blockchain: \(blockchain).")
-            return
-        }
+        if FeatureProvider.isAvailable(.accounts) {
+            let accountIds = Set(
+                dApps.compactMap { dApp -> String? in
+                    guard dApp.dAppBlockchains.contains(where: { $0.blockchain.networkId == blockchain.networkId }) else {
+                        return nil
+                    }
 
+                    return dApp.accountId
+                }
+            )
+
+            guard accountIds.isNotEmpty else {
+                WCLogger.error(error: "Failed to emit \(WCEvent.bip122AddressesChanged.rawValue). Account ID not found for blockchain: \(blockchain).")
+                return
+            }
+
+            for accountId in accountIds {
+                guard let walletModel = selectedUserWalletModel.wcAccountsWalletModelProvider.getModel(
+                    with: blockchain.networkId,
+                    accountId: accountId
+                ) else {
+                    WCLogger.error(error: "Failed to emit \(WCEvent.bip122AddressesChanged.rawValue). Bitcoin wallet model not found for blockchain: \(blockchain) and accountId: \(accountId).")
+                    continue
+                }
+
+                emitAddressesChangedEvent(for: walletModel, on: blockchain)
+            }
+        } else {
+            guard let walletModel = selectedUserWalletModel.wcWalletModelProvider.getModel(with: blockchain.networkId) else {
+                WCLogger.error(error: "Failed to emit \(WCEvent.bip122AddressesChanged.rawValue). Bitcoin wallet model not found for blockchain: \(blockchain).")
+                return
+            }
+
+            emitAddressesChangedEvent(for: walletModel, on: blockchain)
+        }
+    }
+}
+
+extension WalletConnectEventsService {
+    private func emitAddressesChangedEvent(for walletModel: any WalletModel, on blockchain: BlockchainSdk.Blockchain) {
         let pathString = walletModel.tokenItem.blockchainNetwork.derivationPath?.rawPath
 
         let responses: [WalletConnectBtcAccountAddressResponse] = walletModel.addresses.map {
@@ -104,7 +123,7 @@ final class WalletConnectEventsService {
         }
 
         // We need this workaround because `AnyCodable(responses)' crashes inside reown lib.
-        // That strange beaucse it works fine in WalletConnectBitcoinGetAccountAddressesHandler
+        // That strange because it works fine in WalletConnectBitcoinGetAccountAddressesHandler
         let payload: [[String: Any]] = responses.map { response in
             [
                 "address": response.address,
