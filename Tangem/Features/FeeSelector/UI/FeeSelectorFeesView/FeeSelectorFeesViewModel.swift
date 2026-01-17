@@ -11,11 +11,25 @@ import TangemUI
 import TangemFoundation
 
 protocol FeeSelectorFeesDataProvider {
-    var selectedSelectorFee: TokenFee? { get }
-    var selectedSelectorFeePublisher: AnyPublisher<TokenFee?, Never> { get }
+    var selectedTokenFeeOption: FeeOption { get }
+    var selectedTokenFeeOptionPublisher: AnyPublisher<FeeOption, Never> { get }
 
     var selectorFees: [TokenFee] { get }
     var selectorFeesPublisher: AnyPublisher<[TokenFee], Never> { get }
+}
+
+extension FeeSelectorFeesDataProvider {
+    var selectedTokenFeePublisher: AnyPublisher<TokenFee, Never> {
+        Publishers
+            .CombineLatest(
+                selectorFeesPublisher,
+                selectedTokenFeeOptionPublisher
+            )
+            .compactMap { fees, feeOption in
+                fees.first(where: { $0.option == feeOption })
+            }
+            .eraseToAnyPublisher()
+    }
 }
 
 protocol FeeSelectorCustomFeeDataProviding {
@@ -24,11 +38,12 @@ protocol FeeSelectorCustomFeeDataProviding {
 
 protocol FeeSelectorFeesRoutable: AnyObject {
     func userDidTapConfirmSelection(selectedFee: TokenFee)
+    func userDidTapManualSaveButton()
 }
 
 final class FeeSelectorFeesViewModel: ObservableObject {
     @Published private(set) var rowViewModels: [FeeSelectorFeesRowViewModel] = []
-    @Published private(set) var selectedFeeOption: FeeOption?
+    @Published private(set) var selectedFeeOption: FeeOption
 
     @Published private(set) var customFeeManualSaveIsRequired: Bool
     @Published private(set) var customFeeManualSaveIsAvailable: Bool
@@ -40,7 +55,7 @@ final class FeeSelectorFeesViewModel: ObservableObject {
 
     private weak var router: FeeSelectorFeesRoutable?
 
-    private var selectedFee: TokenFee? {
+    var selectedFee: TokenFee? {
         provider.selectorFees.first(where: { $0.option == selectedFeeOption })
     }
 
@@ -55,8 +70,8 @@ final class FeeSelectorFeesViewModel: ObservableObject {
         self.feeFormatter = feeFormatter
         self.analytics = analytics
 
-        selectedFeeOption = provider.selectedSelectorFee?.option
-        customFeeManualSaveIsRequired = provider.selectedSelectorFee?.option == .custom
+        selectedFeeOption = provider.selectedTokenFeeOption
+        customFeeManualSaveIsRequired = provider.selectedTokenFeeOption == .custom
         customFeeManualSaveIsAvailable = customFeeDataProvider.customFeeProvider?.customFeeIsValid == true
 
         rowViewModels = mapToFeeSelectorFeesRowViewModels(values: provider.selectorFees)
@@ -88,8 +103,8 @@ final class FeeSelectorFeesViewModel: ObservableObject {
             .receiveOnMain()
             .assign(to: &$customFeeManualSaveIsAvailable)
 
-        if selectedFeeOption != provider.selectedSelectorFee?.option {
-            selectedFeeOption = provider.selectedSelectorFee?.option
+        if selectedFeeOption != provider.selectedTokenFeeOption {
+            selectedFeeOption = provider.selectedTokenFeeOption
         }
     }
 
@@ -98,12 +113,7 @@ final class FeeSelectorFeesViewModel: ObservableObject {
     }
 
     func userDidTapCustomFeeManualSaveButton() {
-        guard let selectedFee else {
-            assertionFailure("Selected fee should not be nil")
-            return
-        }
-
-        router?.userDidTapConfirmSelection(selectedFee: selectedFee)
+        router?.userDidTapManualSaveButton()
     }
 }
 
@@ -111,8 +121,8 @@ final class FeeSelectorFeesViewModel: ObservableObject {
 
 private extension FeeSelectorFeesViewModel {
     func bind() {
-        provider.selectedSelectorFeePublisher
-            .map { $0?.option }
+        provider
+            .selectedTokenFeeOptionPublisher
             .receiveOnMain()
             .assign(to: &$selectedFeeOption)
 
@@ -133,9 +143,7 @@ private extension FeeSelectorFeesViewModel {
         selectedFeeOption = fee.option
         analytics.logSendFeeSelected(fee.option)
 
-        if fee.option != .custom {
-            router?.userDidTapConfirmSelection(selectedFee: fee)
-        }
+        router?.userDidTapConfirmSelection(selectedFee: fee)
     }
 }
 

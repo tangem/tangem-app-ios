@@ -17,7 +17,7 @@ class KaspaCustomFeeService {
 
     private lazy var customFeeTextField = DecimalNumberTextFieldViewModel(maximumFractionDigits: feeTokenItem.decimalCount)
 
-    private let _customFee = CurrentValueSubject<Fee?, Never>(nil)
+    private lazy var customFeeSubject: CurrentValueSubject<Fee, Never> = .init(zeroFee)
 
     private var cachedCustomFee: Fee?
     private var initialCustomFee: Fee
@@ -40,7 +40,7 @@ class KaspaCustomFeeService {
     }
 
     private func bind(output: CustomFeeServiceOutput) {
-        _customFee
+        customFeeSubject
             .compactMap { $0 }
             .dropFirst()
             .sink { [weak output] fee in
@@ -67,7 +67,7 @@ class KaspaCustomFeeService {
 
     private func onFieldChange(decimalValue: Decimal?) {
         guard let decimalValue, decimalValue > 0 else {
-            _customFee.send(zeroFee)
+            customFeeSubject.send(zeroFee)
             return
         }
 
@@ -78,40 +78,36 @@ class KaspaCustomFeeService {
             customFeeEnricher.enrichCustomFeeIfNeeded(&fee)
         }
 
-        _customFee.send(fee)
+        customFeeSubject.send(fee)
     }
 
     private func onFocusChanged(isSelected: Bool) {
         guard
             !isSelected,
             tokenItem.isToken,
-            let currentCustomFee = _customFee.value,
-            currentCustomFee.amount < initialCustomFee.amount
+            customFeeSubject.value.amount < initialCustomFee.amount
         else {
             return
         }
 
         // Reset a value in the input
         customFeeTextField.update(value: initialCustomFee.amount.value)
-        _customFee.send(initialCustomFee)
+        customFeeSubject.send(initialCustomFee)
     }
 }
 
 // MARK: - CustomFeeProvider
 
 extension KaspaCustomFeeService: CustomFeeProvider {
-    var customFee: TokenFee {
-        TokenFee(option: .custom, tokenItem: feeTokenItem, value: _customFee.value.map { .success($0) } ?? .loading)
+    var customFee: BSDKFee {
+        customFeeSubject.value
     }
 
-    var customFeePublisher: AnyPublisher<TokenFee, Never> {
-        _customFee
-            .withWeakCaptureOf(self)
-            .map { TokenFee(option: .custom, tokenItem: $0.feeTokenItem, value: $1.map { .success($0) } ?? .loading) }
-            .eraseToAnyPublisher()
+    var customFeePublisher: AnyPublisher<BSDKFee, Never> {
+        customFeeSubject.eraseToAnyPublisher()
     }
 
-    func initialSetupCustomFee(_ fee: Fee) {
+    func initialSetupCustomFee(_ fee: BSDKFee) {
         customFeeTextField.update(value: fee.amount.value)
         initialCustomFee = fee
         customFeeEnricher = KaspaKRC20FeeParametersEnricher(existingFeeParameters: fee.parameters)
@@ -121,22 +117,22 @@ extension KaspaCustomFeeService: CustomFeeProvider {
 // MARK: - FeeSelectorCustomFeeAvailabilityProvider
 
 extension KaspaCustomFeeService: FeeSelectorCustomFeeAvailabilityProvider {
-    var customFeeIsValid: Bool { _customFee.value != initialCustomFee }
+    var customFeeIsValid: Bool { customFeeSubject.value != initialCustomFee }
 
     var customFeeIsValidPublisher: AnyPublisher<Bool, Never> {
-        _customFee
+        customFeeSubject
             .withWeakCaptureOf(self)
             .map { $0.initialCustomFee != $1 }
             .eraseToAnyPublisher()
     }
 
     func captureCustomFeeFieldsValue() {
-        cachedCustomFee = _customFee.value ?? initialCustomFee
+        cachedCustomFee = customFeeSubject.value
     }
 
     func resetCustomFeeFieldsValue() {
         if let cachedCustomFee {
-            _customFee.send(cachedCustomFee)
+            customFeeSubject.send(cachedCustomFee)
             customFeeTextField.update(value: cachedCustomFee.amount.value)
         }
     }
@@ -153,7 +149,7 @@ extension KaspaCustomFeeService: FeeSelectorCustomFeeFieldsBuilder {
                 suffix: feeTokenItem.currencySymbol,
                 isEditable: true,
                 textFieldViewModel: customFeeTextField,
-                amountAlternativePublisher: _customFee
+                amountAlternativePublisher: customFeeSubject
                     .compactMap { $0 }
                     .withWeakCaptureOf(self)
                     .map { $0.formatToFiat(value: $1.amount.value) }
