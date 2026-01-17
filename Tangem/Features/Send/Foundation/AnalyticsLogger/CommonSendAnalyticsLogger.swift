@@ -319,7 +319,7 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
         }
 
         let feeTypeAnalyticsParameter = feeAnalyticsParameterBuilder.analyticsParameter(
-            selectedFee: sendFeeInput?.selectedFee.option
+            selectedFee: sendFeeInput?.selectedFee?.option
         )
 
         var analyticsParameters: [Analytics.ParameterKey: String] = [
@@ -329,7 +329,7 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
             .ensAddress: Analytics.ParameterValue.boolState(for: destinationDidResolved).rawValue,
         ]
 
-        if let parameters = sendFeeInput?.selectedFee.value.value?.parameters as? EthereumFeeParameters,
+        if let parameters = sendFeeInput?.selectedFee?.value.value?.parameters as? EthereumFeeParameters,
            let nonce = parameters.nonce {
             analyticsParameters[.nonce] = String(nonce)
         }
@@ -407,11 +407,11 @@ extension CommonSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
     func logTransactionSent(
         amount: SendAmount?,
         additionalField: SendDestinationAdditionalField?,
-        fee: TokenFee,
+        fee: FeeOption,
         signerType: String,
         currentProviderHost: String
     ) {
-        let feeType = feeAnalyticsParameterBuilder.analyticsParameter(selectedFee: fee.option)
+        let feeType = feeAnalyticsParameterBuilder.analyticsParameter(selectedFee: fee)
 
         // If the blockchain doesn't support additional field -- return null
         // Otherwise return full / empty

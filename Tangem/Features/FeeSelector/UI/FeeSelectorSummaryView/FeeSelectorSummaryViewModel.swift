@@ -31,10 +31,6 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
 
     private weak var router: FeeSelectorSummaryRoutable?
 
-    // MARK: - Bag
-
-    private var bag = Set<AnyCancellable>()
-
     // MARK: - Init
 
     init(
@@ -65,28 +61,22 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
 
     private func bind() {
         Publishers.CombineLatest(
-            tokensDataProvider.selectedSelectorTokenFeeProviderPublisher.compactMap { $0 },
-            tokensDataProvider.selectorTokenFeeProvidersPublisher.map { $0.count > 1 }
+            tokensDataProvider.selectedTokenFeeProviderPublisher.compactMap { $0 },
+            tokensDataProvider.supportedTokenFeeProvidersPublisher.map { $0.count > 1 }
         )
-        .receiveOnMain()
         .withWeakCaptureOf(self)
         .map { $0.mapTokenItemToRowViewModel(tokenFeeProvider: $1.0, canExpand: $1.1) }
-        .assign(to: \.suggestedFeeCurrency, on: self, ownership: .weak)
-        .store(in: &bag)
+        .receiveOnMain()
+        .assign(to: &$suggestedFeeCurrency)
 
         Publishers.CombineLatest(
-            feesDataProvider.selectedSelectorFeePublisher,
-            feesDataProvider.selectorFeesPublisher.map { $0.count > 1 ? true : false }
+            feesDataProvider.selectedTokenFeePublisher,
+            feesDataProvider.selectorFeesPublisher.map { $0.count > 1 }
         )
-        .receiveOnMain()
         .withWeakCaptureOf(self)
-        .compactMap { viewModel, output in
-            let (selectedFee, canExpand) = output
-            guard let fee = selectedFee else { return nil }
-            return viewModel.mapFeeToRowViewModel(fee: fee, canExpand: canExpand)
-        }
-        .assign(to: \.suggestedFee, on: self, ownership: .weak)
-        .store(in: &bag)
+        .map { $0.mapFeeToRowViewModel(fee: $1.0, canExpand: $1.1) }
+        .receiveOnMain()
+        .assign(to: &$suggestedFee)
     }
 
     private func mapTokenItemToRowViewModel(tokenFeeProvider: any TokenFeeProvider, canExpand: Bool) -> FeeSelectorRowViewModel {
@@ -113,14 +103,13 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
             case .failure:
                 return .noData
             case .success(let feeValue):
-                let formatted = feeFormatter
-                    .formattedFeeComponents(
-                        fee: feeValue.amount.value,
-                        tokenItem: fee.tokenItem,
-                        formattingOptions: .sendCryptoFeeFormattingOptions
-                    )
-                    .formatted
-                return .loaded(text: formatted)
+                let formattedFeeComponents = feeFormatter.formattedFeeComponents(
+                    fee: feeValue.amount.value,
+                    tokenItem: fee.tokenItem,
+                    formattingOptions: .sendCryptoFeeFormattingOptions
+                )
+
+                return .loaded(text: formattedFeeComponents.formatted)
             }
         }()
 

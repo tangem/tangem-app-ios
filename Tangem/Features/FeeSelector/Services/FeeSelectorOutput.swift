@@ -10,12 +10,11 @@ import Combine
 import Foundation
 
 protocol FeeSelectorOutput: AnyObject {
-    func userDidSelect(selectedFee: TokenFee)
+    func userDidFinishSelection(feeTokenItem: TokenItem, feeOption: FeeOption)
 }
 
 protocol FeeSelectorRoutable: AnyObject {
-    func dismissFeeSelector()
-    func completeFeeSelection()
+    func closeFeeSelector()
 }
 
 protocol FeeSelectorAnalytics {

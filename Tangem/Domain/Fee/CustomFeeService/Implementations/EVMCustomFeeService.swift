@@ -48,7 +48,7 @@ class EVMCustomFeeService {
 
     private var nonce: Int? { nonceTextField.value?.intValue() }
 
-    private let _customFee: CurrentValueSubject<Fee?, Never> = .init(.none)
+    private lazy var customFeeSubject: CurrentValueSubject<Fee, Never> = .init(zeroFee)
     private var customFeeBeforeEditing: Fee?
     private var customMaxFeePerGasBeforeEditing: BigUInt?
     private var customPriorityFeeBeforeEditing: BigUInt?
@@ -71,7 +71,7 @@ class EVMCustomFeeService {
     }
 
     private func bind() {
-        _customFee
+        customFeeSubject
             .compactMap { $0 }
             .dropFirst()
             .withWeakCaptureOf(self)
@@ -83,7 +83,7 @@ class EVMCustomFeeService {
 
         customFeeTextField.valuePublisher
             .withWeakCaptureOf(self)
-            .sink(receiveValue: { $0._customFee.send($0.calculateFee(for: $1)) })
+            .sink(receiveValue: { $0.customFeeSubject.send($0.calculateFee(for: $1)) })
             .store(in: &bag)
 
         Publishers.MergeMany(
@@ -94,7 +94,7 @@ class EVMCustomFeeService {
             nonceTextField.valuePublisher.removeDuplicates(),
         )
         .withWeakCaptureOf(self)
-        .sink(receiveValue: { $0.0._customFee.send($0.0.recalculateFee()) })
+        .sink(receiveValue: { $0.0.customFeeSubject.send($0.0.recalculateFee()) })
         .store(in: &bag)
     }
 
@@ -199,21 +199,18 @@ class EVMCustomFeeService {
 // MARK: - CustomFeeProvider
 
 extension EVMCustomFeeService: CustomFeeProvider {
-    var customFee: TokenFee {
-        TokenFee(option: .custom, tokenItem: feeTokenItem, value: _customFee.value.map { .success($0) } ?? .loading)
+    var customFee: BSDKFee {
+        customFeeSubject.value
     }
 
-    var customFeePublisher: AnyPublisher<TokenFee, Never> {
-        _customFee
-            .withWeakCaptureOf(self)
-            .map { TokenFee(option: .custom, tokenItem: $0.feeTokenItem, value: $1.map { .success($0) } ?? .loading) }
-            .eraseToAnyPublisher()
+    var customFeePublisher: AnyPublisher<BSDKFee, Never> {
+        customFeeSubject.eraseToAnyPublisher()
     }
 
     func initialSetupCustomFee(_ fee: BSDKFee) {
-        assert(_customFee.value == nil, "Duplicate initial setup")
+        assert(customFeeSubject.value == zeroFee, "Duplicate initial setup")
 
-        _customFee.send(fee)
+        customFeeSubject.send(fee)
         updateView(fee: fee)
     }
 }
@@ -222,23 +219,23 @@ extension EVMCustomFeeService: CustomFeeProvider {
 
 extension EVMCustomFeeService: FeeSelectorCustomFeeAvailabilityProvider {
     var customFeeIsValid: Bool {
-        _customFee.value != zeroFee
+        customFeeSubject.value != zeroFee
     }
 
     var customFeeIsValidPublisher: AnyPublisher<Bool, Never> {
-        _customFee
+        customFeeSubject
             .withWeakCaptureOf(self)
             .map { $0.zeroFee != $1 }
             .eraseToAnyPublisher()
     }
 
     func captureCustomFeeFieldsValue() {
-        cachedCustomFee = _customFee.value
+        cachedCustomFee = customFeeSubject.value
     }
 
     func resetCustomFeeFieldsValue() {
         if let cachedCustomFee {
-            _customFee.send(cachedCustomFee)
+            customFeeSubject.send(cachedCustomFee)
             updateView(fee: cachedCustomFee)
         }
     }
@@ -254,7 +251,7 @@ extension EVMCustomFeeService: FeeSelectorCustomFeeFieldsBuilder {
             suffix: feeTokenItem.currencySymbol,
             isEditable: true,
             textFieldViewModel: customFeeTextField,
-            amountAlternativePublisher: _customFee
+            amountAlternativePublisher: customFeeSubject
                 .compactMap { $0 }
                 .withWeakCaptureOf(self)
                 .map { $0.formatToFiat(value: $1.amount.value) }
@@ -347,9 +344,9 @@ extension EVMCustomFeeService: FeeSelectorCustomFeeFieldsBuilder {
 private extension EVMCustomFeeService {
     private func onCustomFeeChanged(_ focused: Bool) {
         if focused {
-            customFeeBeforeEditing = _customFee.value
+            customFeeBeforeEditing = customFeeSubject.value
         } else {
-            if _customFee.value != customFeeBeforeEditing {
+            if customFeeSubject.value != customFeeBeforeEditing {
                 Analytics.log(.sendCustomFeeInserted)
             }
         }

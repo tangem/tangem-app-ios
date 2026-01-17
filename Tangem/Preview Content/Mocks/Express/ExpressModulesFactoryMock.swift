@@ -70,9 +70,8 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
     }
 
     func makeFeeSelectorViewModel(
-        source: ExpressInteractorSourceWallet,
         coordinator: SendFeeSelectorRoutable
-    ) -> SendFeeSelectorViewModel {
+    ) -> SendFeeSelectorViewModel? {
         fatalError()
     }
 

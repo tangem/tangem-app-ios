@@ -11,35 +11,36 @@ import Foundation
 import TangemFoundation
 import TangemMacro
 
-class CommonTokenFeeProvider {
+let FeeLogger = AppLogger.tag("TokenFeeProvider")
+
+final class CommonTokenFeeProvider {
     let feeTokenItem: TokenItem
+    let supportingOptions: TokenFeeProviderSupportingOptions
     let availableTokenBalanceProvider: TokenBalanceProvider
     let tokenFeeLoader: any TokenFeeLoader
     let customFeeProvider: (any CustomFeeProvider)?
 
-    var tokenFeeProviderInputData: TokenFeeProviderInputData?
-    let stateSubject: CurrentValueSubject<TokenFeeProviderState, Never> = .init(.idle)
+    private var tokenFeeProviderInputData: TokenFeeProviderInputData?
 
+    private let stateSubject: CurrentValueSubject<TokenFeeProviderState, Never> = .init(.idle)
+    private let selectedFeeOptionSubject: CurrentValueSubject<FeeOption, Never> = .init(.market)
+
+    private var updatingFeeTask: Task<Void, Never>?
     private var customFeeProviderInitialSetupCancellable: AnyCancellable?
 
-    private var tokenHasNoBalance: Bool {
-        switch availableTokenBalanceProvider.balanceType.value {
-        case .none:
-            true
-        case .some(let balance) where balance.isZero:
-            true
-        case .some:
-            false
-        }
+    private var tokenHasBalance: Bool {
+        availableTokenBalanceProvider.balanceType.value ?? 0 > 0
     }
 
     init(
         feeTokenItem: TokenItem,
+        supportingOptions: TokenFeeProviderSupportingOptions,
         availableTokenBalanceProvider: TokenBalanceProvider,
         tokenFeeLoader: any TokenFeeLoader,
         customFeeProvider: (any CustomFeeProvider)?
     ) {
         self.feeTokenItem = feeTokenItem
+        self.supportingOptions = supportingOptions
         self.availableTokenBalanceProvider = availableTokenBalanceProvider
         self.tokenFeeLoader = tokenFeeLoader
         self.customFeeProvider = customFeeProvider
@@ -52,7 +53,7 @@ class CommonTokenFeeProvider {
     }
 
     private func checkTokenFeeBalance() {
-        if tokenHasNoBalance {
+        if !tokenHasBalance {
             stateSubject.send(.unavailable(.noTokenBalance))
         }
     }
@@ -62,82 +63,116 @@ class CommonTokenFeeProvider {
 
 extension CommonTokenFeeProvider: TokenFeeProvider {
     var balanceState: FormattedTokenBalanceType { availableTokenBalanceProvider.formattedBalanceType }
+    var hasMultipleFeeOptions: Bool { tokenFeeLoader.supportingFeeOptions.count > 1 }
 
-    var state: TokenFeeProviderState { stateSubject.value }
-    var statePublisher: AnyPublisher<TokenFeeProviderState, Never> {
-        stateSubject.eraseToAnyPublisher()
-    }
-
-    var fees: [TokenFee] {
-        var fees = mapToTokenFees(state: state)
-
-        if let customFee = customFeeProvider?.customFee {
-            fees.append(customFee)
+    var state: TokenFeeProviderState {
+        guard let customFee = customFeeProvider?.customFee else {
+            return stateSubject.value
         }
 
-        return fees
+        guard case .available(var fees) = stateSubject.value else {
+            return stateSubject.value
+        }
+
+        fees[.custom] = customFee
+        let filtered = filterBySupportingOptions(fees: fees)
+
+        return .available(filtered)
     }
 
-    var feesPublisher: AnyPublisher<[TokenFee], Never> {
-        let feesPublisher = statePublisher.withWeakCaptureOf(self).map { $0.mapToTokenFees(state: $1) }
-        let customFeePublisher = customFeeProvider?.customFeePublisher.map { [$0] }.eraseToAnyPublisher() ?? Just([]).eraseToAnyPublisher()
+    var statePublisher: AnyPublisher<TokenFeeProviderState, Never> {
+        guard let customFeePublisher = customFeeProvider?.customFeePublisher else {
+            return stateSubject.eraseToAnyPublisher()
+        }
 
         return Publishers
-            .CombineLatest(feesPublisher, customFeePublisher)
-            .map(+)
+            .CombineLatest(stateSubject, customFeePublisher)
+            .withWeakCaptureOf(self)
+            .map { provider, args in
+                let (state, customFee) = args
+                guard case .available(var fees) = state else {
+                    return state
+                }
+
+                fees[.custom] = customFee
+                let filtered = provider.filterBySupportingOptions(fees: fees)
+
+                return .available(filtered)
+            }
             .eraseToAnyPublisher()
     }
 
-    func updateSupportingState(input: TokenFeeProviderInputData) {
-        let isAvailable = switch input {
-        // Always available
-        case .common, .cex: true
-        case .dex(.ethereumEstimate), .dex(.ethereum): tokenFeeLoader is EthereumTokenFeeLoader
-        case .dex(.solana): tokenFeeLoader is SolanaTokenFeeLoader
+    var selectedTokenFee: TokenFee {
+        mapToLoadableTokenFee(
+            state: state,
+            selectedFeeOption: selectedFeeOptionSubject.value
+        )
+    }
+
+    var selectedTokenFeePublisher: AnyPublisher<TokenFee, Never> {
+        Publishers
+            .CombineLatest(statePublisher, selectedFeeOptionSubject)
+            .withWeakCaptureOf(self)
+            .map { $0.mapToLoadableTokenFee(state: $1.0, selectedFeeOption: $1.1) }
+            .eraseToAnyPublisher()
+    }
+
+    func select(feeOption: FeeOption) {
+        let supportedByLoader = tokenFeeLoader.supportingFeeOptions.contains(feeOption)
+        let supportedByRestrictions = switch supportingOptions {
+        case .all: true
+        case .exactly(let options): options.contains(feeOption)
         }
 
-        if !isAvailable {
-            stateSubject.send(.unavailable(.notSupported))
+        if supportedByLoader || supportedByRestrictions {
+            selectedFeeOptionSubject.send(feeOption)
         }
     }
 
     func setup(input: TokenFeeProviderInputData) {
         tokenFeeProviderInputData = input
+        updateSupportingState(input: input)
     }
 
-    func updateFees() async {
+    func updateFees() -> Task<Void, Never> {
+        updatingFeeTask?.cancel()
+
+        let task = Task { await updateFees() }
+        updatingFeeTask = task
+
+        return task
+    }
+
+    private func updateFees() async {
         guard let input = tokenFeeProviderInputData else {
-            AppLogger.error(self, error: "TokenFeeProvider Didn't setup with any input data")
-            stateSubject.send(.unavailable(.inputDataNotSet))
+            FeeLogger.error(self, error: "TokenFeeProvider Didn't setup with any input data")
+            updateState(state: .unavailable(.inputDataNotSet))
+            return
+        }
+
+        guard tokenHasBalance else {
+            FeeLogger.info(self, "Token has no balance")
+            stateSubject.send(.unavailable(.noTokenBalance))
             return
         }
 
         do {
-            stateSubject.send(.loading)
-            AppLogger.info(self, "Start loading")
-
-            let fees = try await loadFees(input: input)
-            try Task.checkCancellation()
-
-            if tokenHasNoBalance {
-                stateSubject.send(.unavailable(.noTokenBalance))
-                AppLogger.info(self, "Token has no balance")
-                return
+            if state.loadedFees.isEmpty {
+                updateState(state: .loading)
             }
 
-            stateSubject.send(.available(fees))
-            AppLogger.info(self, "Did load fees")
+            let loadedFees = try await loadFees(input: input)
+            try Task.checkCancellation()
+
+            let fees = mapToFeesDictionary(fees: loadedFees)
+            updateState(state: .available(fees))
 
         } catch TokenFeeLoaderError.tokenFeeLoaderNotFound {
-            stateSubject.send(.unavailable(.notSupported))
-            AppLogger.warning(self, "Catch TokenFeeLoaderNotFound")
-
+            updateState(state: .unavailable(.notSupported))
         } catch is CancellationError {
-            stateSubject.send(.idle)
-            AppLogger.warning(self, "Catch CancellationError")
+            updateState(state: .idle)
         } catch {
-            AppLogger.error(self, error: error)
-            stateSubject.send(.error(error))
+            updateState(state: .error(error))
         }
     }
 
@@ -161,6 +196,52 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
     }
 }
 
+// MARK: - Private
+
+private extension CommonTokenFeeProvider {
+    func updateSupportingState(input: TokenFeeProviderInputData?) {
+        switch input {
+        case .none:
+            updateState(state: .unavailable(.inputDataNotSet))
+        case .common, .cex:
+            // Always available. Do nothing
+            break
+        case .dex(.ethereumEstimate) where tokenFeeLoader is EthereumTokenFeeLoader,
+             .dex(.ethereum) where tokenFeeLoader is EthereumTokenFeeLoader:
+            // Is available. Do nothing
+            break
+        case .dex(.solana) where tokenFeeLoader is SolanaTokenFeeLoader:
+            // Is available. Do nothing
+            break
+        case .dex:
+            // DEX but tokenFeeLoader is not (EthereumTokenFeeLoader or SolanaTokenFeeLoader)
+            updateState(state: .unavailable(.notSupported))
+        }
+    }
+
+    func updateState(state: TokenFeeProviderState) {
+        switch state {
+        case .idle, .available, .loading:
+            FeeLogger.info(self, "Will update state to \(state)")
+        case .unavailable:
+            FeeLogger.warning(self, "Will update state to \(state)")
+        case .error(let error):
+            FeeLogger.error(self, "Will update state", error: error)
+        }
+
+        stateSubject.send(state)
+    }
+
+    func filterBySupportingOptions(fees: [FeeOption: BSDKFee]) -> [FeeOption: BSDKFee] {
+        switch supportingOptions {
+        case .all:
+            return fees
+        case .exactly(let options):
+            return fees.filter { options.contains($0.key) }
+        }
+    }
+}
+
 // MARK: - FeeSelectorCustomFeeDataProviding
 
 extension CommonTokenFeeProvider: FeeSelectorCustomFeeDataProviding {}
@@ -168,16 +249,39 @@ extension CommonTokenFeeProvider: FeeSelectorCustomFeeDataProviding {}
 // MARK: - Mapping
 
 private extension CommonTokenFeeProvider {
-    func mapToTokenFees(state: TokenFeeProviderState) -> [TokenFee] {
-        switch state {
-        case .idle, .unavailable: []
-        case .loading:
-            TokenFeeConverter.mapToLoadingSendFees(options: tokenFeeLoader.supportingFeeOptions, feeTokenItem: feeTokenItem)
-        case .error(let error):
-            TokenFeeConverter.mapToFailureSendFees(options: tokenFeeLoader.supportingFeeOptions, feeTokenItem: feeTokenItem, error: error)
-        case .available(let fees):
-            TokenFeeConverter.mapToSendFees(fees: fees, feeTokenItem: feeTokenItem)
+    func mapToFeesDictionary(fees: [BSDKFee]) -> [FeeOption: BSDKFee] {
+        switch fees.count {
+        case 1:
+            return [.market: fees[0]]
+        case 2:
+            return [.market: fees[0], .fast: fees[1]]
+        case 3:
+            return [.slow: fees[0], .market: fees[1], .fast: fees[2]]
+        default:
+            assertionFailure("Wrong count of fees")
+            return [:]
         }
+    }
+
+    func mapToLoadableTokenFee(state: TokenFeeProviderState, selectedFeeOption: FeeOption) -> TokenFee {
+        let loadableTokenFeeState: LoadingResult<BSDKFee, any Error> = {
+            switch state {
+            case .idle, .loading:
+                return .loading
+            case .unavailable:
+                return .failure(TokenFee.ErrorType.unsupportedByProvider)
+            case .error(let error):
+                return .failure(error)
+            case .available(let fees):
+                if let selectedFeeBySelectedOption = fees[selectedFeeOption] {
+                    return .success(selectedFeeBySelectedOption)
+                }
+
+                return .failure(TokenFee.ErrorType.feeNotFound)
+            }
+        }()
+
+        return TokenFee(option: selectedFeeOption, tokenItem: feeTokenItem, value: loadableTokenFeeState)
     }
 }
 
@@ -236,6 +340,7 @@ extension CommonTokenFeeProvider: CustomStringConvertible {
         objectDescription(self, userInfo: [
             "feeTokenItem": feeTokenItem.name,
             "feeTokenItemBlockchain": feeTokenItem.blockchain.displayName,
+            "input": tokenFeeProviderInputData?.rawCaseValue ?? "",
             "state": state.description,
         ])
     }

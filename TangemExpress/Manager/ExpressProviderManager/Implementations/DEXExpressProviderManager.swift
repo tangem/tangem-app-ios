@@ -183,7 +183,7 @@ private extension DEXExpressProviderManager {
 
         // better to make the quote from the data
         let quoteData = ExpressQuote(fromAmount: data.fromAmount, expectAmount: data.toAmount, allowanceContract: quote.allowanceContract)
-        return .init(provider: provider, feeOption: request.feeOption, data: data, quote: quoteData)
+        return .init(provider: provider, data: data, quote: quoteData)
     }
 }
 
