@@ -22,9 +22,8 @@ protocol ExpressModulesFactory {
     ) -> SwapTokenSelectorViewModel
 
     func makeFeeSelectorViewModel(
-        source: ExpressInteractorSourceWallet,
         coordinator: SendFeeSelectorRoutable
-    ) -> SendFeeSelectorViewModel
+    ) -> SendFeeSelectorViewModel?
 
     func makeExpressApproveViewModel(
         source: any ExpressInteractorSourceWallet,
