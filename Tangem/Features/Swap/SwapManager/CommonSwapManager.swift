@@ -126,7 +126,7 @@ extension CommonSwapManager: SwapManager {
     }
 }
 
-// MARK: - SwapManager
+// MARK: - SendApproveDataBuilderInput
 
 extension CommonSwapManager: SendApproveDataBuilderInput {
     var selectedExpressProvider: ExpressProvider? {
@@ -143,6 +143,26 @@ extension CommonSwapManager: SendApproveDataBuilderInput {
         }
 
         return permissionRequired.policy
+    }
+}
+
+// MARK: - TokenFeeProvidersManagerProviding (ExpressInteractor Proxy)
+
+extension CommonSwapManager: TokenFeeProvidersManagerProviding {
+    var tokenFeeProvidersManager: TokenFeeProvidersManager? {
+        interactor.tokenFeeProvidersManager
+    }
+
+    var tokenFeeProvidersManagerPublisher: AnyPublisher<any TokenFeeProvidersManager, Never> {
+        interactor.tokenFeeProvidersManagerPublisher
+    }
+}
+
+// MARK: - TokenFeeProvidersManagerProviding (ExpressInteractor Proxy)
+
+extension CommonSwapManager: FeeSelectorOutput {
+    func userDidFinishSelection(feeTokenItem: TokenItem, feeOption: FeeOption) {
+        interactor.userDidFinishSelection(feeTokenItem: feeTokenItem, feeOption: feeOption)
     }
 }
 

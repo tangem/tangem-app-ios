@@ -1,63 +1,70 @@
 //
 //  SendFeeCompactViewModel.swift
-//  Tangem
+//  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2024 Tangem AG. All rights reserved.
+//  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
 import Foundation
 import Combine
-import BlockchainSdk
+import TangemAssets
+import TangemLocalization
 
 class SendFeeCompactViewModel: ObservableObject, Identifiable {
-    @Published var selectedFeeRowViewModel: FeeRowViewModel?
+    @Published var selectedFeeComponents: LoadableTextView.State = .initialized
     @Published var canEditFee: Bool = false
 
-    private let feeTokenItem: TokenItem
-    private let isFeeApproximate: Bool
-    private var selectedFeeSubscription: AnyCancellable?
-    private var canEditFeeSubscription: AnyCancellable?
+    var infoButtonString: AttributedString {
+        let readMore = Localization.commonReadMore
+        var attributed = AttributedString(Localization.commonFeeSelectorFooter(readMore))
+        attributed.foregroundColor = Colors.Text.primary2
+        attributed.font = Fonts.Regular.caption1
 
-    private let feeFormatter: FeeFormatter = CommonFeeFormatter(
-        balanceFormatter: BalanceFormatter(),
-        balanceConverter: BalanceConverter()
-    )
+        if let range = attributed.range(of: readMore) {
+            attributed[range].foregroundColor = Colors.Text.accent
+            attributed[range].link = TangemBlogUrlBuilder().url(post: .fee)
+        }
 
-    init(
-        input: SendFeeInput,
-        feeTokenItem: TokenItem,
-        isFeeApproximate: Bool
-    ) {
-        self.feeTokenItem = feeTokenItem
-        self.isFeeApproximate = isFeeApproximate
+        return attributed
+    }
+
+    private let feeFormatter: FeeFormatter
+    private let feeExplanationUrl = TangemBlogUrlBuilder().url(post: .fee)
+
+    init(feeFormatter: FeeFormatter = CommonFeeFormatter()) {
+        self.feeFormatter = feeFormatter
     }
 
     func bind(input: SendFeeInput) {
-        selectedFeeSubscription = input.selectedFeePublisher
+        input.selectedFeePublisher
             .withWeakCaptureOf(self)
-            .receive(on: DispatchQueue.main)
-            .sink { viewModel, selectedFee in
-                viewModel.selectedFeeRowViewModel = viewModel.mapToFeeRowViewModel(fee: selectedFee)
-            }
-
-        canEditFeeSubscription = input
-            .hasMultipleFeeOptions
+            .map { $0.mapToLoadableTextViewState(tokenFee: $1) }
             .receiveOnMain()
-            .assign(to: \.canEditFee, on: self, ownership: .weak)
+            .assign(to: &$selectedFeeComponents)
+
+        input.supportFeeSelectionPublisher
+            .receiveOnMain()
+            .assign(to: &$canEditFee)
     }
 
-    private func mapToFeeRowViewModel(fee: TokenFee) -> FeeRowViewModel {
-        let feeComponents = fee.value.mapValue {
-            feeFormatter.formattedFeeComponents(
-                fee: $0.amount.value,
-                currencySymbol: feeTokenItem.currencySymbol,
-                currencyId: feeTokenItem.currencyId,
-                isFeeApproximate: isFeeApproximate,
+    private func mapToLoadableTextViewState(tokenFee: TokenFee) -> LoadableTextView.State {
+        switch tokenFee.value {
+        case .loading:
+            return .loading
+
+        case .success(let fee):
+            let feeComponents = feeFormatter.formattedFeeComponents(
+                fee: fee.amount.value,
+                currencySymbol: tokenFee.tokenItem.currencySymbol,
+                currencyId: tokenFee.tokenItem.currencyId,
+                isFeeApproximate: tokenFee.tokenItem.isFeeApproximate,
                 formattingOptions: .sendCryptoFeeFormattingOptions
             )
-        }
+            return .loaded(text: feeComponents.fiatFee ?? feeComponents.cryptoFee)
 
-        return FeeRowViewModel(option: fee.option, components: feeComponents, style: .plain)
+        case .failure:
+            return .noData
+        }
     }
 }
