@@ -1,5 +1,5 @@
 //
-//  FeeSelectorFeesProviders.swift
+//  FeeSelectorSuggestedFeeProvider.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
