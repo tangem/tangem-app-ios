@@ -1,5 +1,5 @@
 //
-//  CommonExpressTokenFeeManager.swift
+//  CommonExpressTokenFeeProvidersManager.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,121 +10,92 @@ import TangemExpress
 import Combine
 import TangemFoundation
 
-class CommonExpressTokenFeeManager {
+class CommonExpressTokenFeeProvidersManager {
     private let tokenItem: TokenItem
-    private let tokenFeeManagerBuilder: TokenFeeManagerBuilder
+    private let tokenFeeManagerBuilder: TokenFeeProvidersManagerBuilder
 
-    private let managers: ThreadSafeContainer<[ExpressProvider.Id: TokenFeeManager]> = [:]
+    private let managers: ThreadSafeContainer<[ExpressProvider.Id: TokenFeeProvidersManager]> = [:]
 
-    init(tokenItem: TokenItem, tokenFeeManagerBuilder: TokenFeeManagerBuilder) {
+    init(tokenItem: TokenItem, tokenFeeManagerBuilder: TokenFeeProvidersManagerBuilder) {
         self.tokenItem = tokenItem
         self.tokenFeeManagerBuilder = tokenFeeManagerBuilder
     }
+}
 
-    private func feeManager(_ provider: ExpressProvider) -> TokenFeeManager {
-        if let feeManager = managers[provider.id] {
+// MARK: - ExpressTokenFeeProvidersManager
+
+extension CommonExpressTokenFeeProvidersManager: ExpressTokenFeeProvidersManager {
+    func tokenFeeProvidersManager(providerId: ExpressProvider.Id) -> TokenFeeProvidersManager {
+        if let feeManager = managers[providerId] {
             return feeManager
         }
 
-        let feeManager = tokenFeeManagerBuilder.makeTokenFeeManager()
-        managers.mutate { $0[provider.id] = feeManager }
+        let feeManager = tokenFeeManagerBuilder.makeTokenFeeProvidersManager()
+        managers.mutate { $0[providerId] = feeManager }
 
         return feeManager
     }
 
-    private func mapToExpressFee(request: FeeRequest, tokenFeeProvider: TokenFeeProvider) throws -> BSDKFee {
-        switch tokenFeeProvider.state {
-        case .idle, .unavailable, .loading:
-            throw ExpressSourceTokenFeeManagerError.feeNotFound
-        case .error(let error):
-            throw error
-        case .available(let fees) where fees.count == 1:
-            return fees[0]
-        case .available(let fees) where fees.count == 3 && tokenItem.blockchain.isUTXO:
-            return fees[1]
-        case .available(let fees) where fees.count == 3:
-            switch request.option {
-            case .market: return fees[1]
-            case .fast: return fees[2]
-            }
-        case .available:
-            throw ExpressSourceTokenFeeManagerError.feeNotFound
+    func updateSelectedFeeOptionInAllManagers(feeOption: FeeOption) {
+        managers.values.forEach { tokenFeeProvidersManager in
+            tokenFeeProvidersManager.updateFeeOptionInAllProviders(feeOption: feeOption)
         }
     }
-}
 
-// MARK: - ExpressTokenFeeManager
-
-extension CommonExpressTokenFeeManager: ExpressTokenFeeManager {
-    func tokenFeeManager(providerId: ExpressProvider.Id) -> TokenFeeManager? {
-        guard let manager = managers[providerId] else {
-            return nil
-        }
-
-        return manager
-    }
-
-    func selectedFeeProvider(providerId: ExpressProvider.Id) -> (any TokenFeeProvider)? {
-        tokenFeeManager(providerId: providerId)?.selectedFeeProvider
-    }
-
-    func fees(providerId: ExpressProvider.Id) -> TokenFeesList {
-        tokenFeeManager(providerId: providerId)?.selectedFeeProviderFees ?? []
-    }
-
-    func supportedFeeTokenProviders(providerId: ExpressProvider.Id) -> [any TokenFeeProvider] {
-        tokenFeeManager(providerId: providerId)?.supportedFeeTokenProviders ?? []
-    }
-
-    func updateSelectedFeeTokenProviderInAllManagers(tokenFeeProvider: any TokenFeeProvider) {
-        managers.values.forEach { tokenFeeManager in
-            tokenFeeManager.updateSelectedFeeProvider(tokenFeeProvider: tokenFeeProvider)
-            tokenFeeManager.updateSelectedFeeProviderFees()
+    func updateSelectedFeeTokenItemInAllManagers(feeTokenItem: TokenItem) {
+        managers.values.forEach { tokenFeeProvidersManager in
+            tokenFeeProvidersManager.updateSelectedFeeProvider(feeTokenItem: feeTokenItem)
+            tokenFeeProvidersManager.selectedFeeProvider.updateFees()
         }
     }
 }
 
 // MARK: - ExpressFeeProvider
 
-extension CommonExpressTokenFeeManager: ExpressFeeProvider {
+extension CommonExpressTokenFeeProvidersManager: ExpressFeeProvider {
     func estimatedFee(request: FeeRequest, amount: Decimal) async throws -> BSDKFee {
-        let feeManager = feeManager(request.provider)
-        feeManager.setupFeeProviders(input: .cex(amount: amount))
-        await feeManager.selectedFeeProvider.updateFees()
+        let feeManager = tokenFeeProvidersManager(providerId: request.provider.id)
+        feeManager.updateInputInAllProviders(input: .cex(amount: amount))
+        await feeManager.selectedFeeProvider.updateFees().value
 
-        let tokenFeeProvider = feeManager.selectedFeeProvider
-        return try mapToExpressFee(request: request, tokenFeeProvider: tokenFeeProvider)
+        let fee = try feeManager.selectedFeeProvider.selectedTokenFee.value.get()
+        return fee
     }
 
     func estimatedFee(request: FeeRequest, estimatedGasLimit: Int, otherNativeFee: Decimal?) async throws -> BSDKFee {
-        let feeManager = feeManager(request.provider)
-        feeManager.setupFeeProviders(input: .dex(.ethereumEstimate(estimatedGasLimit: estimatedGasLimit, otherNativeFee: otherNativeFee)))
-        await feeManager.selectedFeeProvider.updateFees()
+        let feeManager = tokenFeeProvidersManager(providerId: request.provider.id)
+        feeManager.updateInputInAllProviders(
+            input: .dex(.ethereumEstimate(estimatedGasLimit: estimatedGasLimit, otherNativeFee: otherNativeFee))
+        )
+        await feeManager.selectedFeeProvider.updateFees().value
 
-        let tokenFeeProvider = feeManager.selectedFeeProvider
-        return try mapToExpressFee(request: request, tokenFeeProvider: tokenFeeProvider)
+        let fee = try feeManager.selectedFeeProvider.selectedTokenFee.value.get()
+        return fee
     }
 
     func transactionFee(request: FeeRequest, data: ExpressTransactionDataType) async throws -> BSDKFee {
-        let feeManager = feeManager(request.provider)
-        let tokenFeeProvider = feeManager.selectedFeeProvider
+        let feeManager = tokenFeeProvidersManager(providerId: request.provider.id)
 
         switch (data, tokenItem.blockchain) {
         case (.cex(let data), _):
-            feeManager.setupFeeProviders(input: .common(amount: data.fromAmount, destination: data.destinationAddress))
-            await feeManager.selectedFeeProvider.updateFees()
+            feeManager.updateInputInAllProviders(
+                input: .common(amount: data.fromAmount, destination: data.destinationAddress)
+            )
+            await feeManager.selectedFeeProvider.updateFees().value
 
-            return try mapToExpressFee(request: request, tokenFeeProvider: tokenFeeProvider)
+            let fee = try feeManager.selectedFeeProvider.selectedTokenFee.value.get()
+            return fee
 
         case (.dex(let data), .solana):
             guard let txData = data.txData, let transactionData = Data(base64Encoded: txData) else {
                 throw ExpressProviderError.transactionDataNotFound
             }
 
-            feeManager.setupFeeProviders(input: .dex(.solana(compiledTransaction: transactionData)))
-            await feeManager.selectedFeeProvider.updateFees()
+            feeManager.updateInputInAllProviders(input: .dex(.solana(compiledTransaction: transactionData)))
+            await feeManager.selectedFeeProvider.updateFees().value
 
-            return try mapToExpressFee(request: request, tokenFeeProvider: tokenFeeProvider)
+            let fee = try feeManager.selectedFeeProvider.selectedTokenFee.value.get()
+            return fee
 
         case (.dex(let data), _):
             guard let txData = data.txData.map(Data.init(hexString:)) else {
@@ -133,24 +104,17 @@ extension CommonExpressTokenFeeManager: ExpressFeeProvider {
 
             // The `txValue` is always is coin
             let amount = BSDKAmount(with: tokenItem.blockchain, type: .coin, value: data.txValue)
-            feeManager.setupFeeProviders(input: .dex(.ethereum(
+            feeManager.updateInputInAllProviders(input: .dex(.ethereum(
                 amount: amount,
                 destination: data.destinationAddress,
                 txData: txData,
                 otherNativeFee: data.otherNativeFee
             )))
-            await feeManager.selectedFeeProvider.updateFees()
-            return try mapToExpressFee(request: request, tokenFeeProvider: tokenFeeProvider)
-        }
-    }
-}
 
-enum ExpressSourceTokenFeeManagerError: LocalizedError {
-    case feeNotFound
+            await feeManager.selectedFeeProvider.updateFees().value
+            let fee = try feeManager.selectedFeeProvider.selectedTokenFee.value.get()
 
-    var errorDescription: String? {
-        switch self {
-        case .feeNotFound: "Fee not found"
+            return fee
         }
     }
 }
