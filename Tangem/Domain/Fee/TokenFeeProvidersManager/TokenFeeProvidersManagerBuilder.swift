@@ -1,12 +1,12 @@
 //
-//  TokenFeeManagerBuilder.swift
+//  TokenFeeProvidersManagerBuilder.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-struct TokenFeeManagerBuilder {
+struct TokenFeeProvidersManagerBuilder {
     @Injected(\.gaslessTransactionsNetworkManager)
     private var gaslessTransactionsNetworkManager: GaslessTransactionsNetworkManager
 
@@ -14,12 +14,14 @@ struct TokenFeeManagerBuilder {
     private var userWalletRepository: UserWalletRepository
 
     let walletModel: any WalletModel
+    let supportingOptions: TokenFeeProviderSupportingOptions
 
-    init(walletModel: any WalletModel) {
+    init(walletModel: any WalletModel, supportingOptions: TokenFeeProviderSupportingOptions = .all) {
         self.walletModel = walletModel
+        self.supportingOptions = supportingOptions
     }
 
-    func makeTokenFeeManager() -> TokenFeeManager {
+    func makeTokenFeeProvidersManager() -> TokenFeeProvidersManager {
         let coinTokenFeeProvider = makeMainTokenFeeProvider()
         var feeProviders = [coinTokenFeeProvider]
 
@@ -29,13 +31,13 @@ struct TokenFeeManagerBuilder {
             feeProviders.append(contentsOf: gaslessTokenFeeProviders)
         }
 
-        return TokenFeeManager(feeProviders: feeProviders, initialSelectedProvider: coinTokenFeeProvider)
+        return CommonTokenFeeProvidersManager(feeProviders: feeProviders, initialSelectedProvider: coinTokenFeeProvider)
     }
 }
 
 // MARK: - Private
 
-private extension TokenFeeManagerBuilder {
+private extension TokenFeeProvidersManagerBuilder {
     private func makeMainTokenFeeProvider() -> any TokenFeeProvider {
         let feeWalletModelResult = try? WalletModelFinder.findWalletModel(
             userWalletId: walletModel.userWalletId,
@@ -49,8 +51,9 @@ private extension TokenFeeManagerBuilder {
 
         return .common(
             feeTokenItem: feeWalletModel.tokenItem,
+            supportingOptions: supportingOptions,
             availableTokenBalanceProvider: feeWalletModel.availableBalanceProvider,
-            tokenFeeLoader: feeWalletModel.tokenFeeLoader,
+            tokenFeeLoader: walletModel.tokenFeeLoader,
             customFeeProvider: feeWalletModel.customFeeProvider
         )
     }
@@ -75,7 +78,7 @@ private extension TokenFeeManagerBuilder {
         }
 
         let gaslessTokenFeeProviders: [any TokenFeeProvider] = gaslessFeeWalletModels.map { feeWalletModel in
-            .gasless(walletModel: walletModel, feeWalletModel: feeWalletModel)
+            .gasless(walletModel: walletModel, feeWalletModel: feeWalletModel, supportingOptions: supportingOptions)
         }
 
         return gaslessTokenFeeProviders
