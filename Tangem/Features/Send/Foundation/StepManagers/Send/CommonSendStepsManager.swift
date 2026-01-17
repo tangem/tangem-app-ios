@@ -14,7 +14,7 @@ class CommonSendStepsManager {
     private let destinationStep: SendDestinationStep
     private let summaryStep: SendSummaryStep
     private let finishStep: SendFinishStep
-    private let feeSelector: SendFeeSelectorViewModel
+    private let feeSelectorBuilder: SendFeeSelectorBuilder
     private let providersSelector: SendSwapProvidersSelectorViewModel
     private let summaryTitleProvider: SendSummaryTitleProvider
 
@@ -31,7 +31,7 @@ class CommonSendStepsManager {
         destinationStep: SendDestinationStep,
         summaryStep: SendSummaryStep,
         finishStep: SendFinishStep,
-        feeSelector: SendFeeSelectorViewModel,
+        feeSelectorBuilder: SendFeeSelectorBuilder,
         providersSelector: SendSwapProvidersSelectorViewModel,
         summaryTitleProvider: SendSummaryTitleProvider,
         router: SendRoutable
@@ -40,7 +40,7 @@ class CommonSendStepsManager {
         self.destinationStep = destinationStep
         self.summaryStep = summaryStep
         self.finishStep = finishStep
-        self.feeSelector = feeSelector
+        self.feeSelectorBuilder = feeSelectorBuilder
         self.providersSelector = providersSelector
         self.summaryTitleProvider = summaryTitleProvider
         self.router = router
@@ -205,7 +205,7 @@ extension CommonSendStepsManager: SendSummaryStepsRoutable {
             return
         }
 
-        router?.openFeeSelector(viewModel: feeSelector)
+        router?.openFeeSelector(feeSelectorBuilder: feeSelectorBuilder)
     }
 
     func summaryStepRequestEditProviders() {
