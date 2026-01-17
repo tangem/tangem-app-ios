@@ -10,8 +10,6 @@ import TangemUI
 
 protocol SendFlowBaseDependenciesFactory: SendGenericFlowBaseDependenciesFactory {
     var shouldShowFeeSelector: Bool { get }
-
-    var tokenFeeManager: TokenFeeManager { get }
     var expressDependenciesFactory: ExpressDependenciesFactory { get }
 }
 
@@ -37,7 +35,7 @@ extension SendFlowBaseDependenciesFactory {
         )
     }
 
-    func makeSwapManager() -> CommonSwapManager {
+    func makeSwapManager() -> SwapManager {
         CommonSwapManager(
             userWalletConfig: userWalletInfo.config,
             interactor: expressDependenciesFactory.expressInteractor
@@ -50,39 +48,6 @@ extension SendFlowBaseDependenciesFactory {
 
     func makeTransactionParametersBuilder() -> TransactionParamsBuilder {
         TransactionParamsBuilder(blockchain: tokenItem.blockchain)
-    }
-
-    // MARK: - Fee
-
-    func makeSendWithSwapFeeSelectorInteractor(
-        receiveTokenInput: SendReceiveTokenInput,
-        sendFeeSelectorInteractor: SendFlowTokenFeeProvider,
-        swapFeeSelectorInteractor: SendFlowTokenFeeProvider
-    ) -> SendWithSwapFeeSelectorInteractor {
-        SendWithSwapFeeSelectorInteractor(
-            receiveTokenInput: receiveTokenInput,
-            sendFeeSelectorInteractor: sendFeeSelectorInteractor,
-            swapFeeSelectorInteractor: swapFeeSelectorInteractor
-        )
-    }
-
-    func makeSendFeeProvider(input: SendFeeInput, output: SendFeeOutput, dataInput: SendFeeProviderInput) -> SendFlowTokenFeeProvider {
-        CommonSendFeeProvider(
-            input: input,
-            output: output,
-            dataInput: dataInput,
-            tokenFeeManager: tokenFeeManager
-        )
-    }
-
-    func makeSwapFeeProvider(swapManager: SwapManager) -> SendFlowTokenFeeProvider {
-        CommonSwapFeeProvider(
-            expressInteractor: expressDependenciesFactory.expressInteractor
-        )
-    }
-
-    func makeCustomFeeService(input: CustomFeeServiceInput) -> CustomFeeProvider? {
-        return nil
     }
 
     // MARK: - Notifications

@@ -11,7 +11,7 @@ import TangemLocalization
 
 final class CommonNFTSendStepsManager {
     private let destinationStep: SendDestinationStep
-    private let feeSelector: SendFeeSelectorViewModel
+    private let feeSelectorBuilder: SendFeeSelectorBuilder
     private let summaryStep: SendSummaryStep
     private let finishStep: SendFinishStep
     private let summaryTitleProvider: SendSummaryTitleProvider
@@ -26,14 +26,14 @@ final class CommonNFTSendStepsManager {
 
     init(
         destinationStep: SendDestinationStep,
-        feeSelector: SendFeeSelectorViewModel,
+        feeSelectorBuilder: SendFeeSelectorBuilder,
         summaryStep: SendSummaryStep,
         finishStep: SendFinishStep,
         summaryTitleProvider: SendSummaryTitleProvider,
         router: SendRoutable
     ) {
         self.destinationStep = destinationStep
-        self.feeSelector = feeSelector
+        self.feeSelectorBuilder = feeSelectorBuilder
         self.summaryStep = summaryStep
         self.finishStep = finishStep
         self.summaryTitleProvider = summaryTitleProvider
@@ -172,7 +172,7 @@ extension CommonNFTSendStepsManager: SendSummaryStepsRoutable {
             return
         }
 
-        router?.openFeeSelector(viewModel: feeSelector)
+        router?.openFeeSelector(feeSelectorBuilder: feeSelectorBuilder)
     }
 }
 
