@@ -9,16 +9,16 @@
 import Combine
 
 protocol CustomFeeProvider: FeeSelectorCustomFeeFieldsBuilder, FeeSelectorCustomFeeAvailabilityProvider {
-    var customFee: TokenFee { get }
-    var customFeePublisher: AnyPublisher<TokenFee, Never> { get }
+    var customFee: BSDKFee { get }
+    var customFeePublisher: AnyPublisher<BSDKFee, Never> { get }
 
     func initialSetupCustomFee(_ fee: BSDKFee)
 }
 
 extension CustomFeeProvider {
     func subscribeToInitialSetup(tokenFeeProvider: any TokenFeeProvider) -> AnyCancellable {
-        tokenFeeProvider.feesPublisher
-            .compactMap { $0.first(where: { $0.option == .market })?.value.value }
+        tokenFeeProvider.statePublisher
+            .compactMap { $0.loadedFees[.market] }
             .first()
             .sink { initialSetupCustomFee($0) }
     }
