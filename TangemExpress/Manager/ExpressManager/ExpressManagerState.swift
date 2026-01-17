@@ -52,14 +52,12 @@ public extension ExpressManagerState {
 
     struct PreviewCEX {
         public let provider: ExpressProvider
-        public let feeOption: ExpressFee.Option
         public let subtractFee: Decimal
         public let quote: ExpressQuote
     }
 
     struct Ready {
         public let provider: ExpressProvider
-        public let feeOption: ExpressFee.Option
         public let data: ExpressTransactionData
         public let quote: ExpressQuote
     }
