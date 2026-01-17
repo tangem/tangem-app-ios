@@ -7,57 +7,41 @@
 //
 
 protocol SendFeeStepBuildable {
-    var feeIO: SendNewFeeStepBuilder.IO { get }
-    var feeTypes: SendNewFeeStepBuilder.Types { get }
-    var feeDependencies: SendNewFeeStepBuilder.Dependencies { get }
+    var feeDependencies: SendFeeStepBuilder.Dependencies { get }
 }
 
 extension SendFeeStepBuildable {
-    func makeSendFeeStep(router: any SendFeeSelectorRoutable) -> SendNewFeeStepBuilder.ReturnValue {
-        SendNewFeeStepBuilder.make(io: feeIO, types: feeTypes, dependencies: feeDependencies, router: router)
+    func makeSendFeeStep(router: any SendFeeSelectorRoutable) -> SendFeeStepBuilder.ReturnValue {
+        SendFeeStepBuilder.make(dependencies: feeDependencies, router: router)
     }
 }
 
-enum SendNewFeeStepBuilder {
-    struct IO {
-        let input: SendFeeInput
-        let output: SendFeeOutput
-    }
-
-    struct Types {
-        let feeTokenItem: TokenItem
-        let isFeeApproximate: Bool
-    }
-
+enum SendFeeStepBuilder {
     struct Dependencies {
-        let feeSelectorInteractor: FeeSelectorInteractor
+        let tokenFeeManagerProviding: any TokenFeeProvidersManagerProviding
+        let feeSelectorOutput: any FeeSelectorOutput
         let analyticsLogger: any FeeSelectorAnalytics
-        let customFeeProvider: (any CustomFeeProvider)?
     }
 
     typealias ReturnValue = (
-        feeSelector: SendFeeSelectorViewModel,
-        compact: SendNewFeeCompactViewModel,
+        feeSelectorBuilder: SendFeeSelectorBuilder,
+        compact: SendFeeCompactViewModel,
         finish: SendFeeFinishViewModel
     )
 
     static func make(
-        io: IO,
-        types: Types,
         dependencies: Dependencies,
         router: SendFeeSelectorRoutable
     ) -> ReturnValue {
-        let feeSelectorViewModel = FeeSelectorBuilder().makeFeeSelectorViewModel(
-            feeSelectorInteractor: dependencies.feeSelectorInteractor,
-            analytics: dependencies.analyticsLogger,
-            feeFormatter: CommonFeeFormatter(),
-            router: router
+        let feeSelectorBuilder = SendFeeSelectorBuilder(
+            tokenFeeManagerProviding: dependencies.tokenFeeManagerProviding,
+            feeSelectorOutput: dependencies.feeSelectorOutput,
+            analyticsLogger: dependencies.analyticsLogger
         )
 
-        let feeSelector = SendFeeSelectorViewModel(feeSelectorViewModel: feeSelectorViewModel, router: router)
-        let compact = SendNewFeeCompactViewModel(feeTokenItem: types.feeTokenItem, isFeeApproximate: types.isFeeApproximate)
-        let finish = SendFeeFinishViewModel(feeTokenItem: types.feeTokenItem, isFeeApproximate: types.isFeeApproximate)
+        let compact = SendFeeCompactViewModel()
+        let finish = SendFeeFinishViewModel()
 
-        return (feeSelector: feeSelector, compact: compact, finish: finish)
+        return (feeSelectorBuilder: feeSelectorBuilder, compact: compact, finish: finish)
     }
 }

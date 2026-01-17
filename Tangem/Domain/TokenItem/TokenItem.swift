@@ -21,6 +21,10 @@ enum TokenItem: Hashable, Codable {
 
     var isToken: Bool { token != nil }
 
+    var isFeeApproximate: Bool {
+        blockchain.isFeeApproximate(for: amountType)
+    }
+
     var id: TokenItemId? {
         switch self {
         case .token(let token, _):
