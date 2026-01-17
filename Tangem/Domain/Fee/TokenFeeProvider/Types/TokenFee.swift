@@ -6,6 +6,7 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import TangemFoundation
 
 struct TokenFee: Hashable {
@@ -16,29 +17,31 @@ struct TokenFee: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(option)
         hasher.combine(tokenItem)
-
-        switch value {
-        case .loading:
-            hasher.combine("loading")
-        case .success(let value):
-            hasher.combine(value)
-        case .failure(let error):
-            hasher.combine(error.localizedDescription)
-        }
+        hasher.combine("\(value)")
     }
 
     static func == (lhs: TokenFee, rhs: TokenFee) -> Bool {
-        guard lhs.option == rhs.option else { return false }
+        lhs.hashValue == rhs.hashValue
+    }
+}
 
-        switch (lhs.value, rhs.value) {
-        case (.loading, .loading):
-            return true
-        case (.success(let lhsValue), .success(let rhsValue)):
-            return lhsValue == rhsValue
-        case (.failure(let lhsError), .failure(let rhsError)):
-            return lhsError.localizedDescription == rhsError.localizedDescription
-        default:
-            return false
+// MARK: - ErrorType
+
+extension TokenFee {
+    enum ErrorType: LocalizedError {
+        case unsupportedByProvider
+        case feeNotFound
+        case loadingError(Error)
+
+        var description: String? {
+            switch self {
+            case .unsupportedByProvider:
+                return "Unsupported by provider"
+            case .feeNotFound:
+                return "Fee not found"
+            case .loadingError(let error):
+                return "\(error)"
+            }
         }
     }
 }
