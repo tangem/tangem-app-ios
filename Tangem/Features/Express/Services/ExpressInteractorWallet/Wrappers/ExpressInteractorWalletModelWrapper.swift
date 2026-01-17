@@ -20,7 +20,7 @@ struct ExpressInteractorWalletModelWrapper {
     let feeTokenItem: TokenItem
     let defaultAddressString: String
 
-    var expressTokenFeeManager: ExpressTokenFeeManager { _tokenFeeManager }
+    var expressTokenFeeProvidersManager: ExpressTokenFeeProvidersManager { _tokenFeeManager }
     let availableBalanceProvider: any TokenBalanceProvider
     let transactionValidator: any ExpressTransactionValidator
     let withdrawalNotificationProvider: (any WithdrawalNotificationProvider)?
@@ -34,7 +34,7 @@ struct ExpressInteractorWalletModelWrapper {
 
     private let _allowanceService: (any AllowanceService)?
     private let _balanceProvider: any ExpressBalanceProvider
-    private let _tokenFeeManager: CommonExpressTokenFeeManager
+    private let _tokenFeeManager: CommonExpressTokenFeeProvidersManager
 
     init(
         userWalletInfo: UserWalletInfo,
@@ -84,9 +84,9 @@ struct ExpressInteractorWalletModelWrapper {
             feeProvider: walletModel
         )
 
-        _tokenFeeManager = CommonExpressTokenFeeManager(
+        _tokenFeeManager = CommonExpressTokenFeeProvidersManager(
             tokenItem: tokenItem,
-            tokenFeeManagerBuilder: TokenFeeManagerBuilder(walletModel: walletModel)
+            tokenFeeManagerBuilder: TokenFeeProvidersManagerBuilder(walletModel: walletModel, supportingOptions: .swap)
         )
     }
 }

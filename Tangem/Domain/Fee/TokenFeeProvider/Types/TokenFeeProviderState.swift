@@ -14,7 +14,14 @@ enum TokenFeeProviderState {
     case unavailable(TokenFeeProviderStateUnavailableReason)
     case loading
     case error(Error)
-    case available([BSDKFee])
+    case available([FeeOption: BSDKFee])
+
+    var loadedFees: [FeeOption: BSDKFee] {
+        switch self {
+        case .available(let fees): fees
+        default: [:]
+        }
+    }
 
     var isSupported: Bool {
         switch self {
@@ -36,7 +43,7 @@ extension TokenFeeProviderState: CustomStringConvertible {
         case .error(let error):
             return "error(\(String(describing: error)))"
         case .available(let fees):
-            return "available(fees: \(fees.map(\.amount.description))"
+            return "available(fees: \(fees.map(\.value.amount.description))"
         }
     }
 }
