@@ -21,7 +21,7 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
     let suggestedWallets: [SendDestinationSuggestedWallet]
     let shouldShowFeeSelector: Bool
 
-    let tokenFeeManager: TokenFeeManager
+    let tokenFeeProvidersManager: TokenFeeProvidersManager
     let walletModelHistoryUpdater: any WalletModelHistoryUpdater
     let walletModelDependenciesProvider: WalletModelDependenciesProvider
     let availableBalanceProvider: any TokenBalanceProvider
@@ -42,8 +42,6 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
     )
 
     lazy var notificationManager = makeSendWithSwapNotificationManager(receiveTokenInput: sendModel)
-    lazy var customFeeService = makeCustomFeeService(input: sendModel)
-    lazy var sendFeeProvider = makeSendFeeProvider(input: sendModel, output: sendModel, dataInput: sendModel)
 
     init(
         userWalletInfo: UserWalletInfo,
@@ -72,7 +70,7 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
         analyticsLogger = Self.makeSendAnalyticsLogger(walletModel: walletModel, sendType: .nft)
 
         walletModelHistoryUpdater = walletModel
-        tokenFeeManager = TokenFeeManagerBuilder(walletModel: walletModel).makeTokenFeeManager()
+        tokenFeeProvidersManager = TokenFeeProvidersManagerBuilder(walletModel: walletModel).makeTokenFeeProvidersManager()
         walletModelDependenciesProvider = walletModel
         availableBalanceProvider = walletModel.availableBalanceProvider
         fiatAvailableBalanceProvider = walletModel.fiatAvailableBalanceProvider
@@ -127,9 +125,8 @@ extension NFTFlowFactory: SendGenericFlowFactory {
 
         // Model setup
         // We have to set dependencies here after all setups is completed
-        sendModel.sendFeeProvider = sendFeeProvider
         sendModel.informationRelevanceService = CommonInformationRelevanceService(
-            input: sendModel, output: sendModel, provider: sendFeeProvider
+            input: sendModel, provider: sendModel
         )
 
         // Steps setup
@@ -149,7 +146,7 @@ extension NFTFlowFactory: SendGenericFlowFactory {
 
         let stepsManager = CommonNFTSendStepsManager(
             destinationStep: destination.step,
-            feeSelector: fee.feeSelector,
+            feeSelectorBuilder: fee.feeSelectorBuilder,
             summaryStep: summary,
             finishStep: finish,
             summaryTitleProvider: SendWithSwapSummaryTitleProvider(receiveTokenInput: sendModel),
@@ -246,22 +243,11 @@ extension NFTFlowFactory: SendDestinationStepBuildable {
 // MARK: - SendFeeStepBuildable
 
 extension NFTFlowFactory: SendFeeStepBuildable {
-    var feeIO: SendNewFeeStepBuilder.IO {
-        SendNewFeeStepBuilder.IO(input: sendModel, output: sendModel)
-    }
-
-    var feeTypes: SendNewFeeStepBuilder.Types {
-        SendNewFeeStepBuilder.Types(
-            feeTokenItem: feeTokenItem,
-            isFeeApproximate: isFeeApproximate()
-        )
-    }
-
-    var feeDependencies: SendNewFeeStepBuilder.Dependencies {
-        SendNewFeeStepBuilder.Dependencies(
-            feeSelectorInteractor: sendFeeProvider,
-            analyticsLogger: analyticsLogger,
-            customFeeProvider: customFeeService
+    var feeDependencies: SendFeeStepBuilder.Dependencies {
+        SendFeeStepBuilder.Dependencies(
+            tokenFeeManagerProviding: sendModel,
+            feeSelectorOutput: sendModel,
+            analyticsLogger: analyticsLogger
         )
     }
 }
@@ -279,7 +265,7 @@ extension NFTFlowFactory: SendSummaryStepBuildable {
 
     var summaryDependencies: SendSummaryStepBuilder.Dependencies {
         SendSummaryStepBuilder.Dependencies(
-            sendFeeProvider: sendFeeProvider,
+            sendFeeProvider: sendModel,
             notificationManager: notificationManager,
             analyticsLogger: analyticsLogger,
             sendDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder(),
