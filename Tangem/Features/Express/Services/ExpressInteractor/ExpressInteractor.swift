@@ -158,7 +158,7 @@ extension ExpressInteractor {
     func update(amount: Decimal?, by source: ExpressProviderUpdateSource) {
         log("Will update amount to \(amount as Any)")
 
-        updateState(.loading(type: .full))
+        updateState(.loading(type: .full, previous: getState()))
         updateTask { interactor in
             let state = try await interactor.expressManager.update(amount: amount, by: source)
             return try await interactor.mapState(state: state)
@@ -175,7 +175,7 @@ extension ExpressInteractor {
     }
 
     func updateApprovePolicy(policy: BSDKApprovePolicy) {
-        updateState(.loading(type: .refreshRates))
+        updateState(.loading(type: .refreshRates, previous: getState()))
         updateTask { interactor in
             let state = try await interactor.expressManager.update(approvePolicy: policy)
             return try await interactor.mapState(state: state)
@@ -183,7 +183,7 @@ extension ExpressInteractor {
     }
 
     func updateFeeOption(option: FeeOption) {
-        updateState(.loading(type: .fee))
+        updateState(.loading(type: .fee, previous: getState()))
         updateTask { interactor in
             let feeOption: ExpressFee.Option = option == .fast ? .fast : .market
             let state = try await interactor.expressManager.update(feeOption: feeOption)
@@ -316,7 +316,7 @@ extension ExpressInteractor {
 
         updateTask { interactor in
             interactor.log("Start refreshing task")
-            interactor.updateState(.loading(type: type))
+            interactor.updateState(.loading(type: type, previous: interactor.getState()))
 
             // The type is full we can receive only from
             // the "Refresh" button on the error notification
@@ -576,7 +576,7 @@ private extension ExpressInteractor {
 
             // If we have an amount to we will start the full update
             if let amount = await interactor.expressManager.getAmount(), amount > 0 {
-                interactor.updateState(.loading(type: .full))
+                interactor.updateState(.loading(type: .full, previous: interactor.getState()))
             }
 
             let sender = try interactor.getSourceWallet()
@@ -592,24 +592,32 @@ private extension ExpressInteractor {
 extension ExpressInteractor: TokenFeeProvidersManagerProviding {
     var tokenFeeProvidersManager: TokenFeeProvidersManager? {
         switch getState() {
-        case .idle, .loading, .permissionRequired, .restriction:
-            return nil
+        case .loading(_, previous: .previewCEX(let state, _)):
+            return state.tokenFeeProvidersManager
+        case .loading(_, previous: .readyToSwap(let state, _)):
+            return state.tokenFeeProvidersManager
         case .previewCEX(let state, _):
             return state.tokenFeeProvidersManager
         case .readyToSwap(let state, _):
             return state.tokenFeeProvidersManager
+        case .idle, .loading, .permissionRequired, .restriction:
+            return nil
         }
     }
 
     var tokenFeeProvidersManagerPublisher: AnyPublisher<any TokenFeeProvidersManager, Never> {
         state.compactMap { state in
             switch state {
-            case .idle, .loading, .permissionRequired, .restriction:
-                return nil
+            case .loading(_, previous: .previewCEX(let state, _)):
+                return state.tokenFeeProvidersManager
+            case .loading(_, previous: .readyToSwap(let state, _)):
+                return state.tokenFeeProvidersManager
             case .previewCEX(let state, _):
                 return state.tokenFeeProvidersManager
             case .readyToSwap(let state, _):
                 return state.tokenFeeProvidersManager
+            case .idle, .loading, .permissionRequired, .restriction:
+                return nil
             }
         }
         .eraseToAnyPublisher()
@@ -856,9 +864,9 @@ enum ExpressInteractorError: String, LocalizedError {
 // MARK: - State
 
 extension ExpressInteractor {
-    enum State {
+    indirect enum State {
         case idle
-        case loading(type: RefreshType)
+        case loading(type: RefreshType, previous: State)
         case restriction(RestrictionType, quote: Quote?)
         case permissionRequired(PermissionRequiredState, quote: Quote)
         case previewCEX(PreviewCEXState, quote: Quote)
@@ -886,7 +894,7 @@ extension ExpressInteractor {
 
         var isRefreshRates: Bool {
             switch self {
-            case .loading(.refreshRates): true
+            case .loading(.refreshRates, _): true
             default: false
             }
         }
