@@ -52,10 +52,10 @@ class ExpressNotificationManager {
         case .idle:
             notificationInputsSubject.value = []
 
-        case .loading(.refreshRates), .loading(.fee):
+        case .loading(.refreshRates, _), .loading(.fee, _):
             break
 
-        case .loading(.full):
+        case .loading(.full, _):
             notificationInputsSubject.value = notificationInputsSubject.value.filter {
                 guard let event = $0.settings.event as? ExpressNotificationEvent else {
                     return false
