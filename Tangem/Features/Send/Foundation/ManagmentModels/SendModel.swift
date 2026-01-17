@@ -680,9 +680,9 @@ extension SendModel: SendSummaryInput, SendSummaryOutput {
                 .withWeakCaptureOf(self)
                 .flatMap { model, state -> AnyPublisher<SendSummaryTransactionData?, Never> in
                     switch state {
-                    case .loading(.refreshRates), .loading(.fee):
+                    case .loading(.refreshRates, _), .loading(.fee, _):
                         return Empty().eraseToAnyPublisher()
-                    case .idle, .loading(.full), .restriction:
+                    case .idle, .loading(.full, _), .restriction:
                         return .just(output: .none)
                     case .permissionRequired(let state, let quote):
                         return .just(output: .swap(amount: quote.fromAmount, fee: state.expressFee, provider: state.provider))
