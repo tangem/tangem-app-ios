@@ -429,7 +429,7 @@ private extension ExpressViewModel {
             updateFiatValue(expectAmount: 0)
             receiveCurrencyViewModel?.expressCurrencyViewModel.updateHighPricePercentLabel(quote: .none)
 
-        case .loading(let type):
+        case .loading(let type, _):
             isSwapButtonLoading = true
 
             // Turn on skeletons only for full update
@@ -466,10 +466,11 @@ private extension ExpressViewModel {
         switch state {
         case .idle:
             providerState = .none
-        case .loading(let type):
-            if type == .full {
-                providerState = .loading
-            }
+        case .loading(.full, _):
+            providerState = .loading
+        case .loading:
+            // Do noting for other cases
+            break
         default:
             if let providerRowViewModel = await mapToProviderRowViewModel() {
                 providerState = .loaded(data: providerRowViewModel)
@@ -488,12 +489,12 @@ private extension ExpressViewModel {
             updateExpressFeeRowViewModel(tokenFeeProvidersManager: state.tokenFeeProvidersManager)
         case .readyToSwap(let state, _):
             updateExpressFeeRowViewModel(tokenFeeProvidersManager: state.tokenFeeProvidersManager)
-        case .loading(.fee):
+        case .loading(.fee, _):
             updateExpressFeeRowViewModel(fee: .loading, action: nil)
-        case .idle, .restriction, .loading(.full), .permissionRequired:
+        case .idle, .restriction, .loading(.full, _), .permissionRequired:
             // We have decided that will not give a choose for .permissionRequired state also
             expressFeeRowViewModel = nil
-        case .loading(.refreshRates):
+        case .loading(.refreshRates, _):
             break
         }
     }
@@ -532,12 +533,12 @@ private extension ExpressViewModel {
 
     func updateMainButton(state: ExpressInteractor.State) {
         switch state {
-        case .idle, .loading(type: .full):
+        case .idle, .loading(type: .full, _):
             mainButtonState = .swap
             mainButtonIsEnabled = false
-        case .loading(type: .fee):
+        case .loading(type: .fee, _):
             mainButtonIsEnabled = false
-        case .loading(type: .refreshRates):
+        case .loading(type: .refreshRates, _):
             // Do nothing
             break
         case .restriction(let type, _):
@@ -571,9 +572,9 @@ private extension ExpressViewModel {
     @MainActor
     func updateLegalText(state: ExpressInteractor.State) async {
         switch state {
-        case .loading(.refreshRates), .loading(.fee):
+        case .loading(.refreshRates, _), .loading(.fee, _):
             break
-        case .idle, .loading(.full):
+        case .idle, .loading(.full, _):
             legalText = nil
         case .restriction, .permissionRequired, .previewCEX, .readyToSwap:
             legalText = await interactor.getSelectedProvider()?.provider.legalText(branch: .swap)
