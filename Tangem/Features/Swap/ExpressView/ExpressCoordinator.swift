@@ -75,8 +75,11 @@ extension ExpressCoordinator: ExpressRoutable {
         swapTokenSelectorViewModel = factory.makeSwapTokenSelectorViewModel(swapDirection: swapDirection, coordinator: self)
     }
 
-    func presentFeeSelectorView(source: any ExpressInteractorSourceWallet) {
-        let feeSelectorViewModel = factory.makeFeeSelectorViewModel(source: source, coordinator: self)
+    func presentFeeSelectorView() {
+        guard let feeSelectorViewModel = factory.makeFeeSelectorViewModel(coordinator: self) else {
+            return
+        }
+
         Task { @MainActor in floatingSheetPresenter.enqueue(sheet: feeSelectorViewModel) }
     }
 
@@ -124,11 +127,7 @@ extension ExpressCoordinator: ExpressRoutable {
 // MARK: - FeeSelectorRoutable
 
 extension ExpressCoordinator: SendFeeSelectorRoutable {
-    func dismissFeeSelector() {
-        Task { @MainActor in floatingSheetPresenter.removeActiveSheet() }
-    }
-
-    func completeFeeSelection() {
+    func closeFeeSelector() {
         Task { @MainActor in floatingSheetPresenter.removeActiveSheet() }
     }
 
