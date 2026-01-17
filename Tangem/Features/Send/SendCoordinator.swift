@@ -162,10 +162,12 @@ extension SendCoordinator: SendRoutable {
         expressApproveViewModel = .init(input: expressApproveViewModelInput, coordinator: self)
     }
 
-    func openFeeSelector(viewModel: SendFeeSelectorViewModel) {
-        Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: viewModel)
+    func openFeeSelector(feeSelectorBuilder: SendFeeSelectorBuilder) {
+        guard let viewModel = feeSelectorBuilder.makeSendFeeSelector(router: self) else {
+            return
         }
+
+        Task { @MainActor in floatingSheetPresenter.enqueue(sheet: viewModel) }
     }
 
     func openSwapProvidersSelector(viewModel: SendSwapProvidersSelectorViewModel) {
@@ -296,16 +298,8 @@ extension SendCoordinator: ExpressApproveRoutable {
 // MARK: - FeeSelectorRoutable
 
 extension SendCoordinator: FeeSelectorRoutable {
-    func dismissFeeSelector() {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-        }
-    }
-
-    func completeFeeSelection() {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-        }
+    func closeFeeSelector() {
+        Task { @MainActor in floatingSheetPresenter.removeActiveSheet() }
     }
 }
 
