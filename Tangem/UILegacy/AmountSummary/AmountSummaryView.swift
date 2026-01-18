@@ -45,12 +45,15 @@ struct AmountSummaryView: View {
     }
 }
 
+// MARK: - Previews
+
+#if DEBUG
 #Preview {
     GroupedScrollView(contentType: .lazy(alignment: .leading, spacing: 14)) {
         GroupedSection(
             [
                 AmountSummaryViewData(
-                    title: Localization.commonAmount,
+                    headerType: .action(name: Localization.commonAmount),
                     amount: "100.00 USDT",
                     amountFiat: "99.98$",
                     tokenIconInfo: .init(
@@ -69,7 +72,7 @@ struct AmountSummaryView: View {
 
         GroupedSection([
             AmountSummaryViewData(
-                title: Localization.commonAmount,
+                headerType: .action(name: Localization.commonAmount),
                 amount: "100 000 000 000 000 000 000 000 000 000 000.00 SOL",
                 amountFiat: "999 999 999 999 999 999 999 999 999 999 999 999 999.98$",
                 tokenIconInfo: .init(
@@ -87,3 +90,4 @@ struct AmountSummaryView: View {
     }
     .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
 }
+#endif // DEBUG
