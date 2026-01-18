@@ -113,9 +113,16 @@ struct ExpressSuccessSentView: View {
     }
 }
 
+// MARK: - Previews
+
+#if DEBUG
 struct ExpressSuccessSentView_Preview: PreviewProvider {
     static let viewModel = ExpressModulesFactoryMock().makeExpressSuccessSentViewModel(
         data: .mock,
+        appearance: .init(
+            sourceCurrencyHeader: .action(name: Localization.swappingFromTitle),
+            destinationCurrencyHeader: .action(name: Localization.swappingToTitle)
+        ),
         coordinator: ExpressSuccessSentRoutableMock()
     )
 
@@ -126,3 +133,4 @@ struct ExpressSuccessSentView_Preview: PreviewProvider {
             }
     }
 }
+#endif // DEBUG
