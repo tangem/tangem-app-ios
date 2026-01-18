@@ -2447,6 +2447,9 @@
 		B674D6DF2A9762D400172491 /* UserTokenListConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B674D6DE2A9762D400172491 /* UserTokenListConverter.swift */; };
 		B675A1E62A1E05F700F624B6 /* CardsInfoPagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B675A1E52A1E05F700F624B6 /* CardsInfoPagerView.swift */; };
 		B6761A612DB9790600402277 /* NFTReceiveWalletModelFinder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6761A602DB9790600402277 /* NFTReceiveWalletModelFinder.swift */; };
+		B676291E2F1D516500FAAC96 /* ExpressCurrencyDefaultHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B676291D2F1D516500FAAC96 /* ExpressCurrencyDefaultHeaderView.swift */; };
+		B67629202F1D517400FAAC96 /* ExpressCurrencyErrorHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B676291F2F1D517400FAAC96 /* ExpressCurrencyErrorHeaderView.swift */; };
+		B67629212F1D518000FAAC96 /* ExpressCurrencyHeaderType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67629222F1D518000FAAC96 /* ExpressCurrencyHeaderType.swift */; };
 		B67799662EAC21C300E70DF0 /* UserTokensPushNotificationsRemoteStatusSyncing.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67799652EAC21C300E70DF0 /* UserTokensPushNotificationsRemoteStatusSyncing.swift */; };
 		B6796E7B2C65C16E005D7292 /* TouchPassthroughView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6796E7A2C65C16E005D7292 /* TouchPassthroughView.swift */; };
 		B679CAFC2DE488DF00D67364 /* CommonNFTCacheDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B679CAFA2DE488DF00D67364 /* CommonNFTCacheDelegate.swift */; };
@@ -7273,6 +7276,9 @@
 		B674D6DE2A9762D400172491 /* UserTokenListConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokenListConverter.swift; sourceTree = "<group>"; };
 		B675A1E52A1E05F700F624B6 /* CardsInfoPagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsInfoPagerView.swift; sourceTree = "<group>"; };
 		B6761A602DB9790600402277 /* NFTReceiveWalletModelFinder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTReceiveWalletModelFinder.swift; sourceTree = "<group>"; };
+		B676291D2F1D516500FAAC96 /* ExpressCurrencyDefaultHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressCurrencyDefaultHeaderView.swift; sourceTree = "<group>"; };
+		B676291F2F1D517400FAAC96 /* ExpressCurrencyErrorHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressCurrencyErrorHeaderView.swift; sourceTree = "<group>"; };
+		B67629222F1D518000FAAC96 /* ExpressCurrencyHeaderType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressCurrencyHeaderType.swift; sourceTree = "<group>"; };
 		B67799652EAC21C300E70DF0 /* UserTokensPushNotificationsRemoteStatusSyncing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokensPushNotificationsRemoteStatusSyncing.swift; sourceTree = "<group>"; };
 		B6796E7A2C65C16E005D7292 /* TouchPassthroughView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TouchPassthroughView.swift; sourceTree = "<group>"; };
 		B679CAFA2DE488DF00D67364 /* CommonNFTCacheDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonNFTCacheDelegate.swift; sourceTree = "<group>"; };
@@ -24654,8 +24660,11 @@
 		EF9E2A422B55328500418559 /* ExpressCurrencyView */ = {
 			isa = PBXGroup;
 			children = (
+				B67629222F1D518000FAAC96 /* ExpressCurrencyHeaderType.swift */,
 				EF9E2A432B55329800418559 /* ExpressCurrencyView.swift */,
 				EF9E2A462B5532A600418559 /* ExpressCurrencyViewModel.swift */,
+				B676291D2F1D516500FAAC96 /* ExpressCurrencyDefaultHeaderView.swift */,
+				B676291F2F1D517400FAAC96 /* ExpressCurrencyErrorHeaderView.swift */,
 			);
 			path = ExpressCurrencyView;
 			sourceTree = "<group>";
@@ -28701,6 +28710,8 @@
 				DA559C382B0261F400F59584 /* SendType.swift in Sources */,
 				DCDE745C2C1374AC00C19A23 /* WelcomeOnboardingTOSDelegate.swift in Sources */,
 				2DB648892C35877000DA100D /* MarketsSkeletonItemView.swift in Sources */,
+				B67629202F1D517400FAAC96 /* ExpressCurrencyErrorHeaderView.swift in Sources */,
+				B67629212F1D518000FAAC96 /* ExpressCurrencyHeaderType.swift in Sources */,
 				B69E78782A69795D007E358A /* CardInfoPagePreviewConfig.swift in Sources */,
 				C2A6B54C2E02506D00F160C0 /* WalletConnectDAppSessionsExtender.swift in Sources */,
 				DCA8CE002E055BFE00C034C3 /* WCRequestDetailsEthTransactionParser.swift in Sources */,
@@ -28807,6 +28818,7 @@
 				2D245E3A2E97EB56006AD2DC /* MarketsTokenDetailsDateFormatterRepository.swift in Sources */,
 				DF4793C32EE94E030024ADE3 /* TangemPayPinCheckView.swift in Sources */,
 				2D245E3B2E97EB56006AD2DC /* MarketsTokenDetailsExchangeItemView.swift in Sources */,
+				B676291E2F1D516500FAAC96 /* ExpressCurrencyDefaultHeaderView.swift in Sources */,
 				2D245E3C2E97EB56006AD2DC /* MarketsTokenDetailsExchangesListView.swift in Sources */,
 				2D245E3D2E97EB56006AD2DC /* MarketsTokenDetailsSecurityScoreView.swift in Sources */,
 				2D245E3E2E97EB56006AD2DC /* MarketsTokenDetailsExchangesListViewModel.swift in Sources */,
