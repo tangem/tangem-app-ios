@@ -12,12 +12,10 @@ import TangemExpress
 import TangemLocalization
 import TangemFoundation
 import struct TangemUI.TokenIconInfo
-import struct TangemAccounts.AccountIconView
-
 final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
     // Header view
     @Published private(set) var viewType: ViewType
-    @Published private(set) var headerType: HeaderType
+    @Published private(set) var headerType: ExpressCurrencyHeaderType
     @Published private(set) var errorState: ErrorState?
     @Published private(set) var balanceState: BalanceState
 
@@ -36,7 +34,7 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
 
     init(
         viewType: ViewType,
-        headerType: HeaderType,
+        headerType: ExpressCurrencyHeaderType,
         balanceState: BalanceState = .idle,
         fiatAmountState: LoadableTextView.State = .initialized,
         priceChangeState: PriceChangeState? = nil,
@@ -216,12 +214,6 @@ extension ExpressCurrencyViewModel {
             case .receive: Localization.commonTo
             }
         }
-    }
-
-    enum HeaderType: Hashable {
-        case action(name: String)
-        case wallet(name: String)
-        case account(prefix: String, name: String, icon: AccountIconView.ViewData)
     }
 
     enum ErrorState: Hashable {
