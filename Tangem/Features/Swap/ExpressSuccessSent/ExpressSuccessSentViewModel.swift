@@ -42,6 +42,7 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
     // MARK: - Dependencies
 
     private let data: SentExpressTransactionData
+    private let appearance: ExpressSuccessSentAppearance
     private let initialTokenItem: TokenItem
     private let balanceConverter: BalanceConverter
     private let balanceFormatter: BalanceFormatter
@@ -51,6 +52,7 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
 
     init(
         data: SentExpressTransactionData,
+        appearance: ExpressSuccessSentAppearance,
         initialTokenItem: TokenItem,
         balanceConverter: BalanceConverter,
         balanceFormatter: BalanceFormatter,
@@ -59,6 +61,7 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
         coordinator: ExpressSuccessSentRoutable
     ) {
         self.data = data
+        self.appearance = appearance
         self.initialTokenItem = initialTokenItem
         self.balanceConverter = balanceConverter
         self.balanceFormatter = balanceFormatter
@@ -126,7 +129,7 @@ private extension ExpressSuccessSentViewModel {
         let sourceFiatAmountFormatted = balanceFormatter.formatFiatBalance(sourceFiatAmount)
 
         sourceData = AmountSummaryViewData(
-            title: Localization.swappingFromTitle,
+            headerType: appearance.sourceCurrencyHeader,
             amount: sourceAmountFormatted,
             amountFiat: sourceFiatAmountFormatted,
             tokenIconInfo: TokenIconInfoBuilder().build(from: sourceTokenItem, isCustom: false)
@@ -137,7 +140,7 @@ private extension ExpressSuccessSentViewModel {
         let destinationFiatAmountFormatted = balanceFormatter.formatFiatBalance(destinationFiatAmount)
 
         destinationData = AmountSummaryViewData(
-            title: Localization.swappingToTitle,
+            headerType: appearance.destinationCurrencyHeader,
             amount: destinationAmountFormatted,
             amountFiat: destinationFiatAmountFormatted,
             tokenIconInfo: TokenIconInfoBuilder().build(from: destinationTokenItem, isCustom: false)
