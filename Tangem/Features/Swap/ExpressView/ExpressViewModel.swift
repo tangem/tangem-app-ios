@@ -162,7 +162,22 @@ final class ExpressViewModel: ObservableObject {
 private extension ExpressViewModel {
     @MainActor
     func openSuccessView(sentTransactionData: SentExpressTransactionData) {
-        coordinator?.presentSuccessView(data: sentTransactionData)
+        guard
+            let sourceCurrencyHeader = sendCurrencyViewModel?.expressCurrencyViewModel.headerType,
+            let destinationCurrencyHeader = receiveCurrencyViewModel?.expressCurrencyViewModel.headerType
+        else {
+            let message = "Currency headers should be available"
+            assertionFailure(message)
+            ExpressLogger.error(error: message)
+            return
+        }
+
+        let appearance = ExpressSuccessSentAppearance(
+            sourceCurrencyHeader: sourceCurrencyHeader,
+            destinationCurrencyHeader: destinationCurrencyHeader
+        )
+
+        coordinator?.presentSuccessView(data: sentTransactionData, appearance: appearance)
     }
 
     func openApproveView() {

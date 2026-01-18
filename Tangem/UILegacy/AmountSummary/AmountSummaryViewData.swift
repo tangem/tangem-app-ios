@@ -13,7 +13,7 @@ import struct TangemUI.TokenIconInfo
 struct AmountSummaryViewData: Identifiable {
     let id = UUID()
 
-    let title: String
+    let headerType: ExpressCurrencyHeaderType
     let amount: String
     let amountFiat: String
     let tokenIconInfo: TokenIconInfo
