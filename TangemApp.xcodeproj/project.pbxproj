@@ -2797,6 +2797,7 @@
 		C2FF50002DD6713600FE1D9E /* WalletConnectDAppConnectionRequestViewEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2FF4FFF2DD6712800FE1D9E /* WalletConnectDAppConnectionRequestViewEvent.swift */; };
 		D80903F32E1575DF0031E6CE /* ExpressAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = D80903F22E1575DF0031E6CE /* ExpressAPI.swift */; };
 		D80A115D2ED0A4F200DCD516 /* SendAddressXRPUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D80A115C2ED0A4F200DCD516 /* SendAddressXRPUITests.swift */; };
+		D81CE66D2EFEE69B0019144A /* MarketsSearchUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D81CE66C2EFEE69B0019144A /* MarketsSearchUITests.swift */; };
 		D81E0ED92E9E31060066E171 /* SendKaspaNotificationUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D81E0ED82E9E31060066E171 /* SendKaspaNotificationUITests.swift */; };
 		D8216C762E1FA192002CCA15 /* OrganizeTokensScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8216C752E1FA192002CCA15 /* OrganizeTokensScreen.swift */; };
 		D82234432ED483790053A574 /* SendAddressQRCodeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D82234422ED483790053A574 /* SendAddressQRCodeUITests.swift */; };
@@ -2818,6 +2819,7 @@
 		D8419D092E3C1EBB003C2866 /* StakeKitAPIType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8419D082E3C1EBB003C2866 /* StakeKitAPIType.swift */; };
 		D8419D0B2E3C1ED7003C2866 /* StakingAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8419D0A2E3C1ED7003C2866 /* StakingAPI.swift */; };
 		D847DA5E2E5DC94F004D5931 /* WalletConnectionsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D847DA5D2E5DC94F004D5931 /* WalletConnectionsScreen.swift */; };
+		D84D60872F02F361002BBEBC /* ManageTokensScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84D60862F02F361002BBEBC /* ManageTokensScreen.swift */; };
 		D852F81D2E5C86AB00C71B7F /* MainScreenUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D852F8152E5C86AB00C71B7F /* MainScreenUITests.swift */; };
 		D852F81E2E5C86AB00C71B7F /* OnrampUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D852F8162E5C86AB00C71B7F /* OnrampUITests.swift */; };
 		D852F81F2E5C86AB00C71B7F /* OrganizeTokensUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D852F8172E5C86AB00C71B7F /* OrganizeTokensUITests.swift */; };
@@ -7593,6 +7595,7 @@
 		D21B6E7F559E283261A489FC /* MarketsTokenItemsProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MarketsTokenItemsProvider.swift; sourceTree = "<group>"; };
 		D80903F22E1575DF0031E6CE /* ExpressAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAPI.swift; sourceTree = "<group>"; };
 		D80A115C2ED0A4F200DCD516 /* SendAddressXRPUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAddressXRPUITests.swift; sourceTree = "<group>"; };
+		D81CE66C2EFEE69B0019144A /* MarketsSearchUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsSearchUITests.swift; sourceTree = "<group>"; };
 		D81E0ED82E9E31060066E171 /* SendKaspaNotificationUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendKaspaNotificationUITests.swift; sourceTree = "<group>"; };
 		D8216C752E1FA192002CCA15 /* OrganizeTokensScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensScreen.swift; sourceTree = "<group>"; };
 		D82234422ED483790053A574 /* SendAddressQRCodeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAddressQRCodeUITests.swift; sourceTree = "<group>"; };
@@ -7614,6 +7617,7 @@
 		D8419D082E3C1EBB003C2866 /* StakeKitAPIType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakeKitAPIType.swift; sourceTree = "<group>"; };
 		D8419D0A2E3C1ED7003C2866 /* StakingAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAPI.swift; sourceTree = "<group>"; };
 		D847DA5D2E5DC94F004D5931 /* WalletConnectionsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectionsScreen.swift; sourceTree = "<group>"; };
+		D84D60862F02F361002BBEBC /* ManageTokensScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageTokensScreen.swift; sourceTree = "<group>"; };
 		D852F8152E5C86AB00C71B7F /* MainScreenUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainScreenUITests.swift; sourceTree = "<group>"; };
 		D852F8162E5C86AB00C71B7F /* OnrampUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampUITests.swift; sourceTree = "<group>"; };
 		D852F8172E5C86AB00C71B7F /* OrganizeTokensUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensUITests.swift; sourceTree = "<group>"; };
@@ -12643,6 +12647,7 @@
 		7982B01C2DE70E1900C41EA5 /* Screens */ = {
 			isa = PBXGroup;
 			children = (
+				D84D60862F02F361002BBEBC /* ManageTokensScreen.swift */,
 				D83EAEEF2EF45D66009B72AC /* DebugMenu */,
 				D83EAEED2EF45D31009B72AC /* SeedImport */,
 				D83EAEDE2EF413CE009B72AC /* MobileCreateWalletScreen.swift */,
@@ -18744,6 +18749,7 @@
 		D8BDC5942EEC163200709D4F /* Markets */ = {
 			isa = PBXGroup;
 			children = (
+				D81CE66C2EFEE69B0019144A /* MarketsSearchUITests.swift */,
 				D8BDC5922EEC162E00709D4F /* MarketsExchangeUITests.swift */,
 			);
 			path = Markets;
@@ -29538,6 +29544,7 @@
 				D852F8372E5C86C200C71B7F /* WireMockScenario.swift in Sources */,
 				D8BDC5992EEC3BE500709D4F /* MarketsExchangeScreen.swift in Sources */,
 				D8BDC59A2EEC3BE500709D4F /* MarketsScreen.swift in Sources */,
+				D81CE66D2EFEE69B0019144A /* MarketsSearchUITests.swift in Sources */,
 				D8CD7E3E2E9E951400CA6DF6 /* SendChiaNotificationUITests.swift in Sources */,
 				7985089F2DE99FE900388668 /* ToSScreen.swift in Sources */,
 				D89D14752EE32ED300D610CC /* WelcomeBackScreen.swift in Sources */,
@@ -29637,6 +29644,7 @@
 				D852F8452E5CBEA800C71B7F /* WalletConnectSheet.swift in Sources */,
 				D8FE50022DF84BF50017A0E3 /* PushPermissionRequestScreen.swift in Sources */,
 				7982B00B2DE70E0100C41EA5 /* TangemAPI.swift in Sources */,
+				D84D60872F02F361002BBEBC /* ManageTokensScreen.swift in Sources */,
 				D875922B2E6B5E380088BBEA /* FeedbackUITests.swift in Sources */,
 				7982B00C2DE70E0100C41EA5 /* Timeouts.swift in Sources */,
 				D8E851FC2EB0E7870085DAC3 /* MainLongTapActionButtonsUITests.swift in Sources */,
