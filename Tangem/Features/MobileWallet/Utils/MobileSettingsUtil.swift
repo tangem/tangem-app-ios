@@ -10,6 +10,7 @@ import Foundation
 import TangemLocalization
 import TangemFoundation
 import TangemMobileWalletSdk
+import TangemAssets
 
 final class MobileSettingsUtil {
     @Injected(\.userWalletDismissedNotifications)
@@ -100,6 +101,27 @@ extension MobileSettingsUtil {
 // MARK: - Upgrade notification
 
 extension MobileSettingsUtil {
+    func makeUpgradeBanner(onUpgrade: @escaping () -> Void) -> MobileSettingsUpgradeBannerItem {
+        let chips: [MobileSettingsUpgradeBannerItem.ChipItem] = [
+            .init(title: Localization.welcomeCreateWalletFeatureClass, icon: Assets.Glyphs.checkmarkShield),
+            .init(title: Localization.welcomeCreateWalletFeatureDelivery, icon: Assets.Glyphs.boldFlash),
+            .init(title: Localization.welcomeCreateWalletFeatureUse, icon: Assets.Glyphs.sparkles),
+        ]
+
+        let action = MobileSettingsUpgradeBannerItem.ActionItem(
+            title: Localization.detailsBuyWallet,
+            handler: onUpgrade
+        )
+
+        return MobileSettingsUpgradeBannerItem(
+            title: Localization.commonTangemWallet,
+            description: Localization.hwBackupBannerDescription,
+            chips: chips,
+            action: action
+        )
+    }
+
+    // [REDACTED_TODO_COMMENT]
     func makeUpgradeNotificationInput(
         onUpgrade: @escaping () -> Void,
         onDismiss: @escaping () -> Void
