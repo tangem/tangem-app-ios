@@ -462,6 +462,7 @@ private extension UserWalletSettingsViewModel {
     func makeManageTokensRowViewModel() -> DefaultRowViewModel {
         DefaultRowViewModel(
             title: Localization.mainManageTokens,
+            accessibilityIdentifier: CardSettingsAccessibilityIdentifiers.manageTokensButton,
             action: weakify(self, forFunction: UserWalletSettingsViewModel.openManageTokens)
         )
     }
