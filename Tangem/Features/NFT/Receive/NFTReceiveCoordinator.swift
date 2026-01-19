@@ -24,10 +24,6 @@ final class NFTReceiveCoordinator: CoordinatorObject {
 
     @Published private(set) var rootViewModel: NFTNetworkSelectionListViewModel?
 
-    // MARK: - Child view models
-
-    @Published var receiveBottomSheetViewModel: ReceiveBottomSheetViewModel?
-
     // MARK: - Private
 
     private var walletModelFinder: NFTReceiveWalletModelFinder?
@@ -84,13 +80,10 @@ extension NFTReceiveCoordinator: NFTNetworkSelectionListRoutable {
             addressTypesProvider: walletModel
         )
 
-        switch receiveFlowFactory.makeAvailabilityReceiveFlow() {
-        case .bottomSheetReceiveFlow(let viewModel):
-            receiveBottomSheetViewModel = viewModel
-        case .domainReceiveFlow(let viewModel):
-            Task { @MainActor in
-                floatingSheetPresenter.enqueue(sheet: viewModel)
-            }
+        let viewModel = receiveFlowFactory.makeAvailabilityReceiveFlow()
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
 }

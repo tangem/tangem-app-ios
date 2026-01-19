@@ -33,15 +33,7 @@ public struct AddListItemButton: View {
     }
 
     private var plusIcon: some View {
-        Assets.plusMini
-            .image
-            .renderingMode(.template)
-            .foregroundStyle(textAndIconColor)
-            .roundedBackground(
-                with: iconBackgroundColor,
-                padding: 8,
-                radius: 10
-            )
+        PlusIconView(textAndIconColor: textAndIconColor, isEnabled: viewData.isEnabled)
     }
 
     private var textAndIconColor: Color {
@@ -50,14 +42,6 @@ public struct AddListItemButton: View {
         }
 
         return Colors.Text.disabled
-    }
-
-    private var iconBackgroundColor: Color {
-        if viewData.isEnabled {
-            return Colors.Text.accent.opacity(0.1)
-        }
-
-        return Colors.Field.focused
     }
 }
 
