@@ -27,7 +27,7 @@ struct BittensorWalletAssembly: WalletManagerAssembly {
 
             let dwellirResolver = DwellirAPIResolver(keysConfig: input.networkInput.keysConfig)
 
-            if let dwellirNodeInfo = dwellirResolver.resolve() {
+            if let dwellirNodeInfo = dwellirResolver.resolve(for: blockchain) {
                 providers.append(PolkadotJsonRpcProvider(node: dwellirNodeInfo, configuration: input.networkInput.tangemProviderConfig))
             }
 

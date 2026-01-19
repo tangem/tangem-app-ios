@@ -154,7 +154,7 @@ struct WCTransactionView: View {
             MainButton(
                 settings: .init(
                     title: viewModel.primariActionButtonTitle,
-                    icon: .trailing(Assets.tangemIcon),
+                    icon: viewModel.tangemIconProvider.getMainButtonIcon(),
                     isLoading: viewModel.presentationState == .signing,
                     isDisabled: viewModel.isActionButtonBlocked,
                     action: { viewModel.handleViewAction(.sign) }
@@ -185,7 +185,7 @@ struct WCTransactionView: View {
         )
     }
 
-    private func feeSelectorFooter(_ viewModel: FeeSelectorContentViewModel) -> some View {
+    private func feeSelectorFooter(_ viewModel: WCFeeSelectorContentViewModel) -> some View {
         MainButton(title: Localization.commonDone, action: viewModel.done)
     }
 
@@ -198,7 +198,7 @@ struct WCTransactionView: View {
 
             makeAlertButton(
                 from: viewModel.state.secondaryButton,
-                icon: .trailing(Assets.tangemIcon),
+                icon: viewModel.state.tangemIcon,
                 action: { viewModel.handleViewAction(.secondaryButtonTapped) }
             )
         }
