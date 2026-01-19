@@ -12,4 +12,5 @@ protocol EnvironmentSetupRoutable: AnyObject {
     func openSupportedBlockchainsPreferences()
     func openStakingBlockchainsPreferences()
     func openNFTBlockchainsPreferences()
+    func openAddressesInfo()
 }

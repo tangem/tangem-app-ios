@@ -66,7 +66,7 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
             headerType = switch wallet.tokenHeader {
             case .none: .action(name: viewType.actionName())
             case .wallet(let name): .wallet(name: viewType.prefix(wallet: name))
-            case .account(let name, let icon): .account(name: name, icon: icon)
+            case .account(let name, let icon): .account(prefix: viewType.prefix(), name: name, icon: icon)
             }
 
             canChangeCurrency = wallet.id != initialWalletId
@@ -209,12 +209,19 @@ extension ExpressCurrencyViewModel {
             case .receive: Localization.commonToWalletName(wallet)
             }
         }
+
+        func prefix() -> String {
+            switch self {
+            case .send: Localization.commonFrom
+            case .receive: Localization.commonTo
+            }
+        }
     }
 
     enum HeaderType: Hashable {
         case action(name: String)
         case wallet(name: String)
-        case account(name: String, icon: AccountIconView.ViewData)
+        case account(prefix: String, name: String, icon: AccountIconView.ViewData)
     }
 
     enum ErrorState: Hashable {
