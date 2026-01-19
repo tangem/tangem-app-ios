@@ -400,6 +400,8 @@
 "details_manage_security_long_tap" = "長くタップ";
 "details_manage_security_passcode_description" = "カードの状態の変更を伴うコマンドを実行する前に、パスコードを入力する必要があります。";
 "details_manage_security_passcode" = "パスコード";
+"details_mobile_section_description" = "You can have either one mobile wallet or hardware wallet at the same time. Upgrade you wallet or delete it from the app to start using a Tangem cold wallet.";
+"details_mobile_wallet_upgrade_action_title" = "Upgrade to hardware wallet";
 "details_nft_title" = "NFT";
 "details_referral_title" = "紹介プログラム";
 "details_row_description_flip_to_hide" = "デバイスの画面を下に向けると、残高をすばやく非表示にしたり表示したりできます。";
@@ -1125,6 +1127,11 @@
 "settings_card_settings_footer" = "設定したいカードまたはリングをスキャンするために準備してください。";
 "settings_forget_wallet_footer" = "これにより、ウォレットがアプリから削除されます。ウォレットは再度追加できます。";
 "settings_forget_wallet" = "ウォレット削除";
+"settings_upgrade_banner_advantage_feature_title" = "Simple to use";
+"settings_upgrade_banner_description" = "Keeps your crypto safe and offline. Slim as a credit card, safer than a bank vault.";
+"settings_upgrade_banner_seed_phrase_feature_title" = "No seed phrase";
+"settings_upgrade_banner_superiority_feature_title" = "Best in class hardware wallet";
+"settings_upgrade_banner_title" = "Tangem Cold Wallet";
 "settings_wallet_name_title" = "名前";
 "stake_token_description" = "トークンを活用しよう";
 "staking_account_initialization_footer" = "ネットワーク手数料とは、ブロックチェーン上で取引を処理し、承認するために支払う少額の料金です。";
@@ -1391,7 +1398,7 @@
 "tangempay_go_to_support" = "サポートへ移動";
 "tangempay_issue_card_notification_description" = "通常は最大で15分ほどかかります";
 "tangempay_issue_card_notification_title" = "Tangemカードのセットアップ";
-"tangempay_issuing_your_card_description" = "カードを準備しています。少し時間がかかる場合があります。";
+"tangempay_issuing_your_card_description" = "カードは通常、5分以内に自動で発行されます。手動での審査が必要な稀な場合は、最大48時間かかることがあります。";
 "tangempay_issuing_your_card" = "カードを発行しています";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
 "tangempay_kyc_confirm_cancellation_alert_title" = "中止を確定する";
@@ -1401,7 +1408,7 @@
 "tangempay_kyc_has_failed" = "KYCの認証に失敗しました";
 "tangempay_kyc_in_progress_notification_button" = "ステータスを表示";
 "tangempay_kyc_in_progress_notification_title" = "Tangem PayのKYC手続き進行中";
-"tangempay_kyc_in_progress_popup_description" = "以下のボタンから、現在のKYCステータスを確認するか、KYCをキャンセルできます。";
+"tangempay_kyc_in_progress_popup_description" = "書類は通常、5分以内に自動で確認されます。手動での審査が必要な稀な場合は、最大48時間かかることがあります。";
 "tangempay_kyc_in_progress" = "KYC進行中";
 "tangempay_kyc_rejected_button_text" = "KYCブロックを非表示";
 "tangempay_kyc_rejected_description_span" = "あなたのプロフィール。";
