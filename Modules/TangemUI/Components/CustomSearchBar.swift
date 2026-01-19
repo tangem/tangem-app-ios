@@ -17,6 +17,8 @@ public struct CustomSearchBar: View {
     private let placeholder: String
     private let keyboardType: UIKeyboardType
     private let style: Style
+    private let accessibilityIdentifier: String?
+    private let clearButtonAccessibilityIdentifier: String?
 
     @State private var isEditing: Bool = false
     private var onEditingChanged: ((_ isEditing: Bool) -> Void)?
@@ -32,6 +34,8 @@ public struct CustomSearchBar: View {
         placeholder: String,
         keyboardType: UIKeyboardType = .default,
         style: Style = .default,
+        accessibilityIdentifier: String? = nil,
+        clearButtonAccessibilityIdentifier: String? = nil,
         clearButtonAction: (() -> Void)? = nil,
         cancelButtonAction: (() -> Void)? = nil,
     ) {
@@ -39,6 +43,8 @@ public struct CustomSearchBar: View {
         self.placeholder = placeholder
         self.keyboardType = keyboardType
         self.style = style
+        self.accessibilityIdentifier = accessibilityIdentifier
+        self.clearButtonAccessibilityIdentifier = clearButtonAccessibilityIdentifier
         self.clearButtonAction = clearButtonAction
         self.cancelButtonAction = cancelButtonAction
     }
@@ -69,6 +75,7 @@ public struct CustomSearchBar: View {
                     .keyboardType(keyboardType)
                     .autocorrectionDisabled()
                     .focused($isFocused)
+                    .accessibilityIdentifier(accessibilityIdentifier)
                     .onChange(of: isFocused, perform: { newValue in
                         isEditing = newValue
                         onEditingChanged?(newValue)
@@ -104,6 +111,7 @@ public struct CustomSearchBar: View {
                 .foregroundColor(Colors.Icon.informative)
                 .padding(.all, 4)
         }
+        .accessibilityIdentifier(clearButtonAccessibilityIdentifier)
         .hidden(searchText.isEmpty)
     }
 
