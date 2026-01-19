@@ -21,6 +21,11 @@ public enum MarketsAccessibilityIdentifiers {
     public static let exchangesListTrustScore = "marketsExchangesListTrustScore"
     public static let exchangesListTryAgainButton = "marketsExchangesListTryAgainButton"
 
+    public static let marketsListTokenCurrencyLabel = "marketsListTokenCurrencyLabel"
+    public static let marketsListTokenNameLabel = "marketsListTokenNameLabel"
+    public static let marketsTokensUnderCapExpandButton = "marketsTokensUnderCapExpandButton"
+    public static let marketsSearchNoResultsLabel = "marketsSearchNoResultsLabel"
+
     public static func marketsListTokenItem(uniqueId: String) -> String {
         return "marketsListTokenItem_\(uniqueId)"
     }
