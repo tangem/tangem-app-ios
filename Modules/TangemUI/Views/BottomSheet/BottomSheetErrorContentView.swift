@@ -40,7 +40,7 @@ public struct BottomSheetErrorContentView: View {
             content
 
             if let closeAction {
-                CircleButton.close(action: closeAction)
+                NavigationBarButton.close(action: closeAction)
                     .padding(.all, 16)
             }
         }
