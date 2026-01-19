@@ -32,20 +32,14 @@ final class TONWalletManager: BaseManager, WalletManager {
 
     // MARK: - Implementation
 
-    override func update(completion: @escaping (Result<Void, Error>) -> Void) {
-        cancellable = networkService
-            .getInfo(address: wallet.address, tokens: cardTokens)
-            .sink(
-                receiveCompletion: { [weak self] completionSubscription in
-                    if case .failure(let error) = completionSubscription {
-                        self?.wallet.clearAmounts()
-                        completion(.failure(error))
-                    }
-                },
-                receiveValue: { [weak self] info in
-                    self?.update(with: info, completion: completion)
-                }
-            )
+    override func updateWalletManager() async throws {
+        do {
+            let info = try await networkService.getInfo(address: wallet.address, tokens: cardTokens).async()
+            await update(with: info)
+        } catch {
+            wallet.clearAmounts()
+            throw error
+        }
     }
 
     func send(
@@ -161,7 +155,7 @@ extension TONWalletManager: TransactionFeeProvider {
 // MARK: - Private Implementation
 
 private extension TONWalletManager {
-    private func update(with info: TONWalletInfo, completion: @escaping (Result<Void, Error>) -> Void) {
+    private func update(with info: TONWalletInfo) async {
         if info.sequenceNumber != transactionBuilder.sequenceNumber {
             wallet.clearPendingTransaction()
         }
@@ -181,7 +175,6 @@ private extension TONWalletManager {
         }
 
         transactionBuilder.sequenceNumber = info.sequenceNumber
-        completion(.success(()))
     }
 
     private func getJettonWalletAddressIfNeeded(

@@ -17,6 +17,7 @@ struct ExpressInteractorTangemPayWalletWrapper: ExpressInteractorTangemPayWallet
     let tokenHeader: ExpressInteractorTokenHeader? = nil
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
+    let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? = nil
 
     let isCustom: Bool = false
     let isMainToken: Bool = false
@@ -25,6 +26,7 @@ struct ExpressInteractorTangemPayWalletWrapper: ExpressInteractorTangemPayWallet
     let availableBalanceProvider: any TokenBalanceProvider
     let transactionValidator: any ExpressTransactionValidator
 
+    let expressTokenFeeProvidersManager: any ExpressTokenFeeProvidersManager
     let sendingRestrictions: SendingRestrictions? = .none
     let amountToCreateAccount: Decimal = .zero
     let allowanceService: (any AllowanceService)? = nil
@@ -55,6 +57,7 @@ struct ExpressInteractorTangemPayWalletWrapper: ExpressInteractorTangemPayWallet
             tokenItem: tokenItem
         )
 
+        expressTokenFeeProvidersManager = TangemPayExpressTokenFeeProvidersManager(tokenItem: tokenItem)
         _cexTransactionProcessor = cexTransactionProcessor
 
         _balanceProvider = TangemPayExpressBalanceProvider(
@@ -84,5 +87,7 @@ extension ExpressInteractorTangemPayWalletWrapper {
 
     var balanceProvider: ExpressBalanceProvider { _balanceProvider }
 
-    var supportedProviders: [ExpressProviderType] { [.cex] }
+    var operationType: ExpressOperationType { .swap }
+
+    var supportedProvidersFilter: SupportedProvidersFilter { .cex }
 }

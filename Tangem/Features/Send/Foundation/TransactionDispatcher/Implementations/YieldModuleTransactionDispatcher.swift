@@ -34,6 +34,10 @@ class YieldModuleTransactionDispatcher {
 // MARK: - TransactionDispatcher
 
 extension YieldModuleTransactionDispatcher: TransactionDispatcher {
+    var hasNFCInteraction: Bool {
+        transactionSigner.hasNFCInteraction
+    }
+
     func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult {
         let results = try await send(transactions: [transaction])
         guard let result = results.first else {

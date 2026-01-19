@@ -11,8 +11,8 @@ import BlockchainSdk
 import TangemFoundation
 
 protocol SendNotificationManagerInput {
-    var feeValues: AnyPublisher<[SendFee], Never> { get }
-    var selectedFeePublisher: AnyPublisher<SendFee, Never> { get }
+    var feeValues: AnyPublisher<[TokenFee], Never> { get }
+    var selectedTokenFeePublisher: AnyPublisher<TokenFee, Never> { get }
     var isFeeIncludedPublisher: AnyPublisher<Bool, Never> { get }
 
     var bsdkTransactionPublisher: AnyPublisher<BSDKTransaction?, Never> { get }
@@ -59,7 +59,7 @@ private extension CommonSendNotificationManager {
             })
             .store(in: &bag)
 
-        input.selectedFeePublisher
+        input.selectedTokenFeePublisher
             .filter { !$0.value.isLoading }
             .withWeakCaptureOf(self)
             .sink { manager, fee in
@@ -68,15 +68,15 @@ private extension CommonSendNotificationManager {
             .store(in: &bag)
 
         Publishers.CombineLatest(
-            input.selectedFeePublisher,
-            input.feeValues.filter { !$0.allConforms { $0.value.isLoading } }
+            input.selectedTokenFeePublisher,
+            input.feeValues.removeDuplicates()
         )
         .sink { [weak self] selectedFee, loadedFeeValues in
             self?.updateCustomFee(selectedFee: selectedFee, feeValues: loadedFeeValues)
         }
         .store(in: &bag)
 
-        input.selectedFeePublisher
+        input.selectedTokenFeePublisher
             .compactMap { $0.value.value?.amount.value }
             .combineLatest(input.isFeeIncludedPublisher.removeDuplicates())
             .sink { [weak self] feeValue, isFeeIncluded in
@@ -126,7 +126,7 @@ private extension CommonSendNotificationManager {
         }
     }
 
-    func updateCustomFee(selectedFee: SendFee, feeValues: [SendFee]) {
+    func updateCustomFee(selectedFee: TokenFee, feeValues: [TokenFee]) {
         switch (selectedFee.option, selectedFee.value) {
         case (.custom, .success(let customFee)):
             updateCustomFeeTooLow(

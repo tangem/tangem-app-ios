@@ -101,7 +101,7 @@ private final class CancellableWrapper {
     }
 
     private var innerCancellable: Cancellable?
-    private let criticalSection = Lock(isRecursive: false)
+    private let criticalSection = OSAllocatedUnfairLock()
 
     func cancel() {
         criticalSection { innerCancellable?.cancel() }
