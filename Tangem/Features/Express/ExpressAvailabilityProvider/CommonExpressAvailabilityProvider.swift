@@ -20,7 +20,7 @@ class CommonExpressAvailabilityProvider {
     private lazy var _cache: CurrentValueSubject<Availability, Never> = .init(loadFromDiskStorage())
 
     private var loadingQueue = PassthroughSubject<QueueItem, Never>()
-    private let lock = Lock(isRecursive: false)
+    private let lock = OSAllocatedUnfairLock()
     private var bag: Set<AnyCancellable> = []
     private var apiProvider: ExpressAPIProvider?
 
