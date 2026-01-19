@@ -111,7 +111,7 @@ struct TangemPayOfferView: View {
     private var getCardButton: some View {
         MainButton(
             title: Localization.tangempayOnboardingGetCardButtonText,
-            icon: .trailing(Assets.tangemIcon),
+            icon: viewModel.getCardButtonIcon,
             style: .primary,
             action: viewModel.getCard
         )

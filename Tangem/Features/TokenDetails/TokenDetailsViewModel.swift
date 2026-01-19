@@ -536,6 +536,8 @@ extension TokenDetailsViewModel {
     }
 }
 
+// MARK: - YieldModuleStatusProvider
+
 extension TokenDetailsViewModel: YieldModuleStatusProvider {
     var yieldModuleState: AnyPublisher<YieldModuleManagerStateInfo, Never> {
         walletModel.yieldModuleManager?
@@ -547,8 +549,13 @@ extension TokenDetailsViewModel: YieldModuleStatusProvider {
     }
 }
 
+// MARK: - RefreshStatusProvider
+
 extension TokenDetailsViewModel: RefreshStatusProvider {
     var isRefreshing: AnyPublisher<Bool, Never> {
-        isRefreshingSubject.eraseToAnyPublisher()
+        refreshScrollViewStateObject
+            .statePublisher
+            .map { $0.isRefreshing }
+            .eraseToAnyPublisher()
     }
 }

@@ -20,3 +20,11 @@ protocol CryptoAccountModel: BaseAccountModel, BalanceProvidingAccountModel, Any
 
     func archive() async throws(AccountArchivationError)
 }
+
+// MARK: - AccountModelResolvable protocol conformance
+
+extension CryptoAccountModel {
+    func resolve<R>(using resolver: R) -> R.Result where R: AccountModelResolving {
+        resolver.resolve(accountModel: self)
+    }
+}

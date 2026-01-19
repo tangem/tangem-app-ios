@@ -86,17 +86,11 @@ final class AccountDetailsViewModel: ObservableObject {
         archiveAccountTask?.cancel()
 
         archiveAccountTask = Task { [weak self] in
-            do throws(AccountArchivationError) {
-                // [REDACTED_TODO_COMMENT]
-                guard let cryptoAccount = self?.account as? any CryptoAccountModel else {
-                    return
-                }
-
-                try await cryptoAccount.archive()
-                await self?.handleAccountArchivingSuccess()
-            } catch {
-                await self?.handleAccountArchivingFailure(error: error)
+            guard let self else {
+                return
             }
+
+            await account.resolve(using: ArchiveAccountResolver(viewModel: self)).value
         }
     }
 
@@ -175,21 +169,24 @@ final class AccountDetailsViewModel: ObservableObject {
             .errorDescription: String(describing: error),
         ])
 
+        let title: String
         let message: String
         let buttonText: String
 
         switch error {
         case .participatesInReferralProgram:
+            title = Localization.accountCouldNotArchiveReferralProgramTitle
             message = Localization.accountCouldNotArchiveReferralProgramMessage
             buttonText = Localization.commonGotIt
 
         case .unknownError:
+            title = Localization.commonSomethingWentWrong
             message = Localization.accountGenericErrorDialogMessage
             buttonText = Localization.commonOk
         }
 
         alert = AlertBuilder.makeAlertWithDefaultPrimaryButton(
-            title: Localization.commonSomethingWentWrong,
+            title: title,
             message: message,
             buttonText: buttonText
         )
@@ -214,5 +211,26 @@ extension AccountDetailsViewModel {
     enum ArchivingState {
         case readyToBeArchived
         case archivingInProgress
+    }
+}
+
+// MARK: - ArchiveAccountResolver
+
+private extension AccountDetailsViewModel {
+    struct ArchiveAccountResolver: AccountModelResolving {
+        typealias Result = Task<Void, Never>
+
+        let viewModel: AccountDetailsViewModel
+
+        func resolve(accountModel: any CryptoAccountModel) -> Result {
+            Task {
+                do throws(AccountArchivationError) {
+                    try await accountModel.archive()
+                    await viewModel.handleAccountArchivingSuccess()
+                } catch {
+                    await viewModel.handleAccountArchivingFailure(error: error)
+                }
+            }
+        }
     }
 }

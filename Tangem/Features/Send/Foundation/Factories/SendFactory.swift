@@ -25,7 +25,6 @@ struct SendFactory {
             NFTFlowFactory(
                 userWalletInfo: options.input.userWalletInfo,
                 nftAssetStepBuilder: NFTAssetStepBuilder(
-                    wallet: options.input.userWalletInfo.name,
                     asset: parameters.asset,
                     collection: parameters.collection
                 ),

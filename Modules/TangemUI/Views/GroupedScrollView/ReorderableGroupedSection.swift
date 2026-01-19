@@ -83,7 +83,7 @@ public struct ReorderableGroupedSection<
 
                 if let sectionFooter {
                     VStack(spacing: 0) {
-                        Separator(color: Colors.Stroke.primary)
+                        Separator(height: .minimal, color: Colors.Stroke.primary)
 
                         sectionFooter
                             .padding(.vertical, settings.innerContentPadding)

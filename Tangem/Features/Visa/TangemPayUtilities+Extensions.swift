@@ -13,6 +13,9 @@ extension TangemPayUtilities {
     @Injected(\.tangemPayAuthorizationTokensRepository)
     private static var tangemPayAuthorizationTokensRepository: TangemPayAuthorizationTokensRepository
 
+    @Injected(\.keysManager)
+    private static var keysManager: KeysManager
+
     /// Hardcoded USDC token on visa blockchain network (currently - Polygon)
     static var usdcTokenItem: TokenItem {
         TokenItem.token(
@@ -74,5 +77,14 @@ extension TangemPayUtilities {
         }
 
         return (customerWalletAddress, tokens)
+    }
+
+    static func getBFFStaticToken() -> String {
+        switch FeatureStorage.instance.visaAPIType {
+        case .dev:
+            keysManager.bffStaticTokenDev
+        case .prod:
+            keysManager.bffStaticToken
+        }
     }
 }

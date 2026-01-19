@@ -11,7 +11,6 @@ import TangemExpress
 import UIKit
 import TangemLocalization
 import TangemFoundation
-import struct BlockchainSdk.Fee
 import struct TangemUIUtils.AlertBinder
 
 final class ExpressApproveViewModel: ObservableObject, Identifiable {
@@ -27,6 +26,7 @@ final class ExpressApproveViewModel: ObservableObject, Identifiable {
     @Published var mainButtonIsDisabled = false
     @Published var errorAlert: AlertBinder?
 
+    let tangemIconProvider: TangemIconProvider
     let feeFooterText: String
 
     // MARK: - Dependencies
@@ -42,24 +42,23 @@ final class ExpressApproveViewModel: ObservableObject, Identifiable {
     private var bag: Set<AnyCancellable> = []
 
     init(
-        settings: Settings,
-        feeFormatter: FeeFormatter,
-        approveViewModelInput: ApproveViewModelInput,
+        input: Input,
         coordinator: ExpressApproveRoutable
     ) {
-        self.feeFormatter = feeFormatter
-        self.approveViewModelInput = approveViewModelInput
+        feeFormatter = input.feeFormatter
+        approveViewModelInput = input.approveViewModelInput
         self.coordinator = coordinator
 
-        tokenItem = settings.tokenItem
-        feeTokenItem = settings.feeTokenItem
+        tokenItem = input.settings.tokenItem
+        feeTokenItem = input.settings.feeTokenItem
 
-        selectedAction = settings.selectedPolicy
-        subtitle = settings.subtitle
-        feeFooterText = settings.feeFooterText
+        selectedAction = input.settings.selectedPolicy
+        subtitle = input.settings.subtitle
+        feeFooterText = input.settings.feeFooterText
+        tangemIconProvider = input.settings.tangemIconProvider
 
         menuRowViewModel = .init(
-            title: Localization.givePermissionRowsAmount(settings.tokenItem.currencySymbol),
+            title: Localization.givePermissionRowsAmount(input.settings.tokenItem.currencySymbol),
             actions: [.unlimited, .specified]
         )
 
@@ -129,7 +128,7 @@ private extension ExpressApproveViewModel {
             .store(in: &bag)
     }
 
-    func updateView(state: LoadingResult<Fee, any Error>) {
+    func updateView(state: LoadingResult<BSDKFee, any Error>) {
         switch state {
         case .success(let fee):
             updateFeeAmount(fee: fee)
@@ -146,7 +145,7 @@ private extension ExpressApproveViewModel {
         }
     }
 
-    func updateFeeAmount(fee: Fee) {
+    func updateFeeAmount(fee: BSDKFee) {
         let formatted = feeFormatter.format(fee: fee.amount.value, tokenItem: feeTokenItem)
         feeRowViewModel?.update(detailsType: .text(formatted))
     }
@@ -170,6 +169,12 @@ private extension ExpressApproveViewModel {
 }
 
 extension ExpressApproveViewModel {
+    struct Input {
+        let settings: Settings
+        let feeFormatter: FeeFormatter
+        let approveViewModelInput: ApproveViewModelInput
+    }
+
     struct Settings {
         let subtitle: String
         let feeFooterText: String
@@ -178,6 +183,8 @@ extension ExpressApproveViewModel {
         let feeTokenItem: TokenItem
 
         let selectedPolicy: BSDKApprovePolicy
+
+        let tangemIconProvider: TangemIconProvider
     }
 }
 
