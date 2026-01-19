@@ -210,11 +210,11 @@ private struct NewsPageContentView: View {
         return Button { viewModel.handleViewAction(.like(newsId)) } label: {
             HStack(spacing: 8) {
                 ZStack {
-                    Assets.Glyphs.favorite.image
+                    Assets.Glyphs.glyphsFavorite.image
                         .foregroundStyle(Color.Tangem.Text.Neutral.primary)
 
                     if likeState.isLiked {
-                        Assets.Glyphs.favouriteFill.image
+                        Assets.Glyphs.glyphsFavouriteFill.image
                             .transition(.scaleOpacity.animation(.easeInOut(duration: 0.2)))
                     }
                 }
