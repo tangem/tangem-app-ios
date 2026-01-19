@@ -95,7 +95,7 @@ class ManageTokensAdapter {
                 Analytics.log(event: .manageTokensTokenAdded, params: analyticsParams)
             }
 
-            completion(result)
+            completion(result.map { _ in })
         }
     }
 
