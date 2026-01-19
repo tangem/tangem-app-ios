@@ -63,7 +63,7 @@ struct YieldModuleTransactionView: View {
     }
 
     private var header: some View {
-        BottomSheetHeaderView(title: "", leading: { CircleButton.back { viewModel.onBackTap() } })
+        BottomSheetHeaderView(title: "", leading: { NavigationBarButton.back(action: viewModel.onBackTap) })
     }
 }
 

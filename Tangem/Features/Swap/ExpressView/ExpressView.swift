@@ -59,7 +59,7 @@ struct ExpressView: View {
         .navigationBarTitle(Text(Localization.commonSwap), displayMode: .inline)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                CloseButton(dismiss: { viewModel.didTapCloseButton() })
+                CloseTextButton(action: viewModel.didTapCloseButton)
             }
         }
         .keyboardToolbar(keyboardToolbarContent)
