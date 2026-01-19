@@ -86,8 +86,7 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
             .eraseToAnyPublisher()
     }
 
-    private let availabilityService = TangemPayAPIServiceBuilder()
-        .buildTangemPayAvailabilityService()
+    private let availabilityService = TangemPayAvailabilityServiceBuilder().build()
 
     private var bag = Set<AnyCancellable>()
 

@@ -132,9 +132,3 @@ extension VisaOnboardingView {
         case close
     }
 }
-
-#if DEBUG
-#Preview {
-    VisaOnboardingView(viewModel: .mock)
-}
-#endif // DEBUG

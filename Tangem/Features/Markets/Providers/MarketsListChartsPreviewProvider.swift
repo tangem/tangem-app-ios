@@ -14,7 +14,7 @@ final class MarketsListChartsHistoryProvider {
 
     private static let maxNumberOfItemsPerRequest = 200
 
-    private let lock = Lock(isRecursive: false)
+    private let lock = OSAllocatedUnfairLock()
     private let logger = AppLogger.tag("\(MarketsListChartsHistoryProvider.self)")
 
     private var requestedItemsDictionary: [MarketsPriceIntervalType: Set<String>] = [:]

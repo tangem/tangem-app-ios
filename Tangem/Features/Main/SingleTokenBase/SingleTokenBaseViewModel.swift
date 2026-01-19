@@ -49,11 +49,9 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     private let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
 
     private let priceChangeUtility = PriceChangeUtility()
-    private var transactionHistoryBag: AnyCancellable?
+
     private var updateTask: Task<Void, Never>?
     private var bag = Set<AnyCancellable>()
-
-    var isRefreshingSubject = PassthroughSubject<Bool, Never>()
 
     var blockchainNetwork: BlockchainNetwork { walletModel.tokenItem.blockchainNetwork }
 
@@ -155,11 +153,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         }
 
         isReloadingTransactionHistory = true
-        updateTask = runTask(in: self) { viewModel in
-            // Ignore the CancelationError() here
-            // WalletModel.generalUpdate() has not error throwing
-            try? await viewModel.walletModel.generalUpdate(silent: false).async()
-        }
+        updateTask = walletModel.startUpdateTask(silent: false)
 
         // Wait while task is finished
         await updateTask?.value
@@ -213,12 +207,10 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     }
 
     private func performLoadHistory() {
-        transactionHistoryBag = walletModel
-            .updateTransactionsHistory()
-            .receive(on: DispatchQueue.main)
-            .receiveCompletion { [weak self] _ in
-                self?.isReloadingTransactionHistory = false
-            }
+        Task {
+            await walletModel.updateTransactionsHistory()
+            await MainActor.run { isReloadingTransactionHistory = false }
+        }
     }
 
     private func fulfillRequirementsPublisher() -> AnyPublisher<AlertBinder?, Never> {
@@ -303,14 +295,6 @@ extension SingleTokenBaseViewModel {
     }
 
     private func bind() {
-        refreshScrollViewStateObject.statePublisher
-            .receiveOnMain()
-            .withWeakCaptureOf(self)
-            .sink { viewModel, state in
-                viewModel.isRefreshingSubject.send(state.isRefreshing)
-            }
-            .store(in: &bag)
-
         walletModel.isAssetRequirementsTaskInProgressPublisher
             .receiveOnMain()
             .assign(to: \.isFulfillingAssetRequirements, on: self, ownership: .weak)

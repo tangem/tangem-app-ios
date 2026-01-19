@@ -12,8 +12,11 @@ import TangemUIUtils
 import TangemFoundation
 
 struct CardsInfoPagerView<
-    Data, ID, Header, Body, BottomOverlay
->: View where Data: RandomAccessCollection, ID: Hashable, Header: View, Body: View, BottomOverlay: View, Data.Index == Int {
+    Data: RandomAccessCollection,
+    Header: View,
+    Body: View,
+    BottomOverlay: View
+>: View where Data.Element: Identifiable, Data.Index == Int {
     typealias HeaderFactory = (_ element: Data.Element) -> Header
     typealias ContentFactory = (_ element: Data.Element) -> Body
     typealias BottomOverlayFactory = (_ element: Data.Element, _ overlayParams: CardsInfoPagerBottomOverlayFactoryParams) -> BottomOverlay
@@ -22,7 +25,6 @@ struct CardsInfoPagerView<
     // MARK: - Dependencies
 
     private let data: Data
-    private let idProvider: KeyPath<(Data.Index, Data.Element), ID>
     private let headerFactory: HeaderFactory
     private let contentFactory: ContentFactory
     private let bottomOverlayFactory: BottomOverlayFactory
@@ -211,17 +213,15 @@ struct CardsInfoPagerView<
 
     init(
         data: Data,
-        id idProvider: KeyPath<(Data.Index, Data.Element), ID>,
         refreshScrollViewStateObject: RefreshScrollViewStateObject?,
         selectedIndex: Binding<Int>,
-        discoveryAnimationTrigger: CardsInfoPagerSwipeDiscoveryAnimationTrigger,
-        configStorageKey: AnyHashable,
+        discoveryAnimationTrigger: CardsInfoPagerSwipeDiscoveryAnimationTrigger = .dummy,
+        configStorageKey: AnyHashable = #fileID,
         @ViewBuilder headerFactory: @escaping HeaderFactory,
         @ViewBuilder contentFactory: @escaping ContentFactory,
         @ViewBuilder bottomOverlayFactory: @escaping BottomOverlayFactory
     ) {
         self.data = data
-        self.idProvider = idProvider
         self.refreshScrollViewStateObject = refreshScrollViewStateObject
         _selectedIndex = .init(initialValue: selectedIndex.wrappedValue)
         _previouslySelectedIndex = .init(initialValue: selectedIndex.wrappedValue)
@@ -236,11 +236,10 @@ struct CardsInfoPagerView<
 
     // MARK: - View factories
 
-    @ViewBuilder
     private func makeHeader(with proxy: GeometryProxy) -> some View {
         // [REDACTED_TODO_COMMENT]
         HStack(spacing: Constants.headerInteritemSpacing) {
-            ForEach(data.indexed(), id: idProvider) { index, element in
+            ForEach(data) { element in
                 headerFactory(element)
                     .frame(width: max(proxy.size.width - Constants.headerItemHorizontalOffset * 2.0, 0.0))
             }
@@ -256,12 +255,11 @@ struct CardsInfoPagerView<
         .infinityFrame(axis: .horizontal, alignment: .topLeading)
     }
 
-    @ViewBuilder
     private func makeScrollView(with geometryProxy: GeometryProxy) -> some View {
         ScrollViewReader { scrollViewProxy in
             Group {
                 if let refreshScrollViewStateObject {
-                    RefreshScrollView(stateObject: refreshScrollViewStateObject) {
+                    RefreshScrollView(stateObject: refreshScrollViewStateObject, contentSettings: .simpleContent) {
                         makeContent(with: geometryProxy)
                     }
                 } else {
@@ -280,7 +278,6 @@ struct CardsInfoPagerView<
         }
     }
 
-    @ViewBuilder
     private func makeContent(with geometryProxy: GeometryProxy) -> some View {
         // ScrollView inserts default spacing between its content views.
         // Wrapping content into `VStack` prevents it.
@@ -643,6 +640,11 @@ extension CardsInfoPagerView: Setupable {
 
 // MARK: - Auxiliary types
 
+enum CardsInfoPageChangeReason {
+    case byGesture
+    case programmatically
+}
+
 private extension CardsInfoPagerView {
     enum ProposedHeaderState {
         case collapsed
@@ -662,6 +664,10 @@ private extension CardsInfoPagerView {
             }
         }
     }
+}
+
+private extension CardsInfoPagerSwipeDiscoveryAnimationTrigger {
+    static let dummy: CardsInfoPagerSwipeDiscoveryAnimationTrigger = .init()
 }
 
 // MARK: - Constants

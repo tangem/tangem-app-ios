@@ -471,3 +471,25 @@ struct TangemPaySupportDataCollector: EmailDataCollector {
         return stringBuilder.data(using: .utf8)
     }
 }
+
+// MARK: - Paera
+
+struct TangemPayKYCDeclinedDataCollector: EmailDataCollector {
+    private let customerId: String?
+
+    init(customerId: String?) {
+        self.customerId = customerId
+    }
+
+    var logData: Data? {
+        var stringBuilder = DeviceInfoProvider.Subject.allCases
+            .map(\.description)
+            .joined(separator: "\n")
+
+        stringBuilder.append("\n--------\n")
+
+        stringBuilder.append("ID: \(customerId ?? "")")
+
+        return stringBuilder.data(using: .utf8)
+    }
+}
