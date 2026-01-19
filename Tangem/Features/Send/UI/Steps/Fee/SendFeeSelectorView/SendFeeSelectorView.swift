@@ -64,14 +64,18 @@ struct SendFeeSelectorView: View {
         }
     }
 
+    @ViewBuilder
     private var leadingHeaderButton: some View {
-        CircleButton.back(action: viewModel.userDidTapBackButton)
-            .opacity(viewModel.state.content.headerButtonAction.isBack ? 1 : 0)
+        if viewModel.state.content.headerButtonAction.isBack {
+            NavigationBarButton.back(action: viewModel.userDidTapBackButton)
+        }
     }
 
+    @ViewBuilder
     private var trailingHeaderButton: some View {
-        CircleButton.close(action: viewModel.userDidTapDismissButton)
-            .opacity(viewModel.state.content.headerButtonAction.isClose ? 1 : 0)
+        if viewModel.state.content.headerButtonAction.isClose {
+            NavigationBarButton.close(action: viewModel.userDidTapDismissButton)
+        }
     }
 }
 
@@ -79,8 +83,4 @@ struct SendFeeSelectorView: View {
 
 private extension Animation {
     static let contentFrameUpdate = Animation.curve(.easeInOutRefined, duration: 0.5)
-}
-
-private extension Animation {
-    static let headerOpacity = Animation.curve(.easeOutStandard, duration: 0.2)
 }

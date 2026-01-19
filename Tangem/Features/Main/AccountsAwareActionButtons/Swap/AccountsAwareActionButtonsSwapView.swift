@@ -31,9 +31,7 @@ struct AccountsAwareActionButtonsSwapView: View {
         .animation(.easeInOut, value: viewModel.notificationInput)
         .animation(.none, value: viewModel.source.id)
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                CircleButton.close(action: viewModel.close)
-            }
+            NavigationToolbarButton.close(placement: .topBarTrailing, action: viewModel.close)
         }
         .onAppear(perform: viewModel.onAppear)
     }
