@@ -47,6 +47,11 @@ final class UserWalletSettingsCoordinator: CoordinatorObject {
     // MARK: - Helpers
 
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
+    @Published var accountCreationFlowClosed: Bool = true
+
+    var noActiveCreateOrArchiveAccountFlows: Bool {
+        archivedAccountsCoordinator == nil && accountCreationFlowClosed
+    }
 
     required init(
         dismissAction: @escaping Action<OutputOptions>,
@@ -236,6 +241,8 @@ extension UserWalletSettingsCoordinator:
     // MARK: UserSettingsAccountsRoutable
 
     func addNewAccount(accountModelsManager: any AccountModelsManager) {
+        accountCreationFlowClosed = false
+
         accountFormViewModel = AccountFormViewModel(
             accountModelsManager: accountModelsManager,
             // Mikhail Andreev - in future we will support multiple types of accounts and their creation process
