@@ -291,6 +291,7 @@
 "common_no_address" = "No address";
 "common_no" = "No";
 "common_not_added" = "Not Added";
+"common_not_available" = "Not available";
 "common_not_now" = "Not now";
 "common_now" = "Now";
 "common_ok" = "OK";
@@ -520,6 +521,8 @@
 "feedback_subject_tx_failed" = "Can't send a transaction";
 "feedback_subject_tx_push_failed" = "Can't push a transaction";
 "feedback_token_description_error" = "Coin description error";
+"gasless_not_enough_funds_to_cover_token_fee" = "Not enough funds";
+"gasless_transaction_fee" = "Gasless transaction fee";
 "generic_error_code" = "An error occurred. Code: %@.";
 "generic_error" = "An error occurred";
 "generic_requires_memo_error" = "Requires memo";
@@ -758,7 +761,7 @@
 "news_quick_recap" = "Quick recap";
 "news_related_news" = "Related News";
 "news_related_tokens" = "Related tokens";
-"news_sources" = "Sources";
+"news_sources" = "Related news";
 "news_stay_in_the_loop" = "Stay in the loop";
 "nft_about_title" = "About NFT";
 "nft_asset" = "NFT asset";
@@ -899,6 +902,7 @@
 "onboarding_wallet_info_title_fourth" = "Access code restore";
 "onboarding_wallet_info_title_second" = "Identical cards";
 "onboarding_wallet_info_title_third" = "Access code";
+"only_one_mobile_wallet_explanation" = "You can have either a mobile wallet or a hardware wallet at one time. Upgrade your wallet or delete it from the app to start using a Tangem cold wallet.";
 "onramp_all_offers_button_title" = "All offers";
 "onramp_avaiable_with_payment_methods" = "Available with %@";
 "onramp_choose_provider_title_hint" = "Providers facilitate transactions";
@@ -1499,6 +1503,7 @@
 "universal_error" = "We've encountered an error. Error code: %@. Please contact our support.";
 "unlock_wallet_description_full" = "Use %@ or scan a card/ring to have access to your wallet";
 "unsupported_wc_version" = "Connection failed: This dApp uses Wallet Connect version 1.0, which is not supported. Please ensure the dApp supports Wallet Connect version 2.0 to connect successfully.";
+"upgrade_to_hardware_wallet_button_title" = "Upgrade to a hardware wallet";
 "user_push_notification_agreement_argument_one_subtitle" = "Real-time alerts for transactions, exchanges, and critical updates.";
 "user_push_notification_agreement_argument_one_title" = "Transaction Alerts";
 "user_push_notification_agreement_argument_one" = "Stay up to date with the latest features and news";
