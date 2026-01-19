@@ -32,7 +32,7 @@ struct MobileUnlockView: View {
 private extension MobileUnlockView {
     var content: some View {
         VStack(spacing: 40) {
-            CloseButton(dismiss: viewModel.onCloseTap)
+            CloseTextButton(action: viewModel.onCloseTap)
                 .padding(.leading, 16)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
