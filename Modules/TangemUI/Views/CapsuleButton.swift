@@ -1,5 +1,5 @@
 //
-//  CircleButton.swift
+//  CapsuleButton.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,10 +9,10 @@
 import SwiftUI
 import TangemAssets
 import TangemUIUtils
-import TangemAccessibilityIdentifiers
 
-public struct CircleButton: View {
-    private let content: Content
+public struct CapsuleButton: View {
+    private let icon: Icon?
+    private let title: String
     private let action: () -> Void
 
     private var disabled: Bool = false
@@ -20,26 +20,17 @@ public struct CircleButton: View {
     private var style: Style = .secondary
     private var size: Size = .small
 
-    public init(title: String, action: @escaping () -> Void) {
-        content = .title(title: title)
-        self.action = action
-    }
-
-    public init(image: ImageType, action: @escaping () -> Void) {
-        content = .icon(image)
-        self.action = action
-    }
-
-    public init(content: Content, action: @escaping () -> Void) {
-        self.content = content
+    public init(icon: Icon? = nil, title: String, action: @escaping () -> Void) {
+        self.icon = icon
+        self.title = title
         self.action = action
     }
 
     public var body: some View {
         Button(action: action) {
             contentView
-                .padding(.horizontal, size.contentPaddings(content: content).horizontal)
-                .padding(.vertical, size.contentPaddings(content: content).vertical)
+                .padding(.horizontal, size.contentPaddings.horizontal)
+                .padding(.vertical, size.contentPaddings.vertical)
                 .background {
                     Capsule()
                         .fill(style.background(isDisabled: disabled || isLoading))
@@ -48,7 +39,7 @@ public struct CircleButton: View {
         .disabled(disabled || isLoading)
     }
 
-    public var contentView: some View {
+    private var contentView: some View {
         ZStack {
             // Keep original content to maintain size
             originalContent
@@ -65,31 +56,25 @@ public struct CircleButton: View {
 
     @ViewBuilder
     private var originalContent: some View {
-        switch content {
-        case .title(.none, let string):
-            title(string: string)
+        switch icon {
+        case .none:
+            titleView
 
-        case .title(.leading(let imageType), let string):
+        case .leading(let iconAsset):
             HStack(alignment: .center, spacing: .zero) {
-                icon(imageType: imageType)
-
-                title(string: string)
+                iconView(with: iconAsset)
+                titleView
             }
 
-        case .title(.trailing(let imageType), let string):
+        case .trailing(let iconAsset):
             HStack(alignment: .center, spacing: .zero) {
-                title(string: string)
-
-                icon(imageType: imageType)
+                titleView
+                iconView(with: iconAsset)
             }
-
-        case .icon(let imageType):
-            icon(imageType: imageType)
         }
     }
 
-    @ViewBuilder
-    public func icon(imageType: ImageType) -> some View {
+    private func iconView(with imageType: ImageType) -> some View {
         imageType.image
             .resizable()
             .renderingMode(.template)
@@ -97,9 +82,8 @@ public struct CircleButton: View {
             .foregroundStyle(style.iconColor(isDisabled: disabled))
     }
 
-    @ViewBuilder
-    public func title(string: String) -> some View {
-        Text(.init(string))
+    private var titleView: some View {
+        Text(.init(title))
             .style(size.textFont, color: style.textColor(isDisabled: disabled))
             // We use the vertical padding to fit the design text container
             .padding(.vertical, size.titleVerticalPadding)
@@ -109,7 +93,7 @@ public struct CircleButton: View {
 
 // MARK: - Setupable
 
-extension CircleButton: Setupable {
+extension CapsuleButton: Setupable {
     public func disabled(_ disabled: Bool) -> Self {
         map { $0.disabled = disabled }
     }
@@ -127,13 +111,8 @@ extension CircleButton: Setupable {
     }
 }
 
-public extension CircleButton {
-    enum Content {
-        case icon(ImageType)
-        case title(icon: IconAlignment? = .none, title: String)
-    }
-
-    enum IconAlignment {
+public extension CapsuleButton {
+    enum Icon {
         case leading(ImageType)
         case trailing(ImageType)
     }
@@ -165,14 +144,11 @@ public extension CircleButton {
             }
         }
 
-        func contentPaddings(content: Content) -> (horizontal: CGFloat, vertical: CGFloat) {
-            switch (self, content) {
-            case (.small, .icon): (horizontal: 4, vertical: 4)
-            case (.medium, .icon): (horizontal: 8, vertical: 8)
-            case (.large, .icon): (horizontal: 14, vertical: 14)
-            case (.small, _): (horizontal: 6, vertical: 4)
-            case (.medium, _): (horizontal: 8, vertical: 8)
-            case (.large, _): (horizontal: 16, vertical: 14)
+        var contentPaddings: (horizontal: CGFloat, vertical: CGFloat) {
+            switch self {
+            case .small: (horizontal: 6, vertical: 4)
+            case .medium: (horizontal: 8, vertical: 8)
+            case .large: (horizontal: 16, vertical: 14)
             }
         }
     }
@@ -205,18 +181,5 @@ public extension CircleButton {
             case .secondary: isDisabled ? Colors.Button.disabled : Colors.Button.secondary
             }
         }
-    }
-}
-
-// MARK: - Types
-
-public extension CircleButton {
-    static func close(action: @escaping () -> Void) -> CircleButton {
-        CircleButton(content: .icon(Assets.Glyphs.cross20ButtonNew), action: action)
-    }
-
-    static func back(action: @escaping () -> Void) -> some View {
-        CircleButton(content: .icon(Assets.Glyphs.chevron20LeftButtonNew), action: action)
-            .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.circleButton)
     }
 }
