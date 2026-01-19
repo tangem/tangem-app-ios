@@ -292,6 +292,7 @@
 		0FC9A0F12EB53DDC00C58643 /* MobileFinishActivationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC9A0F02EB53DDC00C58643 /* MobileFinishActivationManager.swift */; };
 		0FD366232F1A534B00B5B78A /* UserWalletRepositoryMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FD366222F1A534B00B5B78A /* UserWalletRepositoryMode.swift */; };
 		0FD366252F1A539800B5B78A /* UserWalletRepositoryModeHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FD366242F1A539800B5B78A /* UserWalletRepositoryModeHelper.swift */; };
+		0FD3667F2F1E3B4900B5B78A /* MobileSettingsUpgradeBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FD3667E2F1E3B4900B5B78A /* MobileSettingsUpgradeBannerView.swift */; };
 		0FD875922E957677006E6044 /* MobileCreateWalletRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FD875912E957677006E6044 /* MobileCreateWalletRoutable.swift */; };
 		0FE5884C2DEF124C00E5663E /* MobileOnboardingInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FE5884B2DEF124C00E5663E /* MobileOnboardingInput.swift */; };
 		0FE588522DEF2A1500E5663E /* MobileOnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FE588512DEF2A1500E5663E /* MobileOnboardingViewModel.swift */; };
@@ -5003,6 +5004,7 @@
 		0FC9A0F02EB53DDC00C58643 /* MobileFinishActivationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileFinishActivationManager.swift; sourceTree = "<group>"; };
 		0FD366222F1A534B00B5B78A /* UserWalletRepositoryMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletRepositoryMode.swift; sourceTree = "<group>"; };
 		0FD366242F1A539800B5B78A /* UserWalletRepositoryModeHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletRepositoryModeHelper.swift; sourceTree = "<group>"; };
+		0FD3667E2F1E3B4900B5B78A /* MobileSettingsUpgradeBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileSettingsUpgradeBannerView.swift; sourceTree = "<group>"; };
 		0FD875912E957677006E6044 /* MobileCreateWalletRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileCreateWalletRoutable.swift; sourceTree = "<group>"; };
 		0FE5884B2DEF124C00E5663E /* MobileOnboardingInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingInput.swift; sourceTree = "<group>"; };
 		0FE588512DEF2A1500E5663E /* MobileOnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingViewModel.swift; sourceTree = "<group>"; };
@@ -10061,6 +10063,14 @@
 				0FBB13F22E01AF720086784A /* MobileOnboardingSeedPhraseIntroDelegate.swift */,
 			);
 			path = SeedPhraseIntro;
+			sourceTree = "<group>";
+		};
+		0FD3667D2F1E3B1600B5B78A /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				0FD3667E2F1E3B4900B5B78A /* MobileSettingsUpgradeBannerView.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 		0FE588552DF0385200E5663E /* Pages */ = {
@@ -24163,6 +24173,7 @@
 		EFB150572BD6B29E0023B128 /* UserWalletSettings */ = {
 			isa = PBXGroup;
 			children = (
+				0FD3667D2F1E3B1600B5B78A /* Views */,
 				EFF9A2F52BD6B45E007C63D2 /* UserWalletSettingsCoordinator.swift */,
 				EFF9A2F62BD6B45E007C63D2 /* UserWalletSettingsCoordinatorView.swift */,
 				EFF9A2F72BD6B45E007C63D2 /* UserWalletSettingsView.swift */,
@@ -27900,6 +27911,7 @@
 				0F25E1792E9E90E500C67A34 /* HardwareBackupTypesViewModel.swift in Sources */,
 				DCDBDA062A27C16C0000EBA2 /* LockedUserWalletModel.swift in Sources */,
 				30AD199F2E85595700EAE0A0 /* ArchivedAccountsView.swift in Sources */,
+				0FD3667F2F1E3B4900B5B78A /* MobileSettingsUpgradeBannerView.swift in Sources */,
 				DC13D04329DF31A60003895C /* WalletOnboardingStepsBuilder.swift in Sources */,
 				EF89FC1C2D492BFD00DF0B73 /* TangemLoggerConfigurator.swift in Sources */,
 				3087272D2E98F83F003ED7FF /* ReferralAccountFinder.swift in Sources */,

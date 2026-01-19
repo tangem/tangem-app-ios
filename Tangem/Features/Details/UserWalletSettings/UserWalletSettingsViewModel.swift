@@ -30,7 +30,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
     @Published private(set) var walletImage: Image?
 
     @Published var accountsViewModel: UserSettingsAccountsViewModel?
-    @Published var mobileUpgradeNotificationInput: NotificationViewInput?
+    @Published var mobileUpgradeBannerItem: MobileSettingsUpgradeBannerItem?
     @Published var mobileAccessCodeViewModel: DefaultRowViewModel?
     @Published var backupViewModel: DefaultRowViewModel?
 
@@ -243,7 +243,7 @@ private extension UserWalletSettingsViewModel {
         pushNotificationsViewModel = nil
         mobileAccessCodeViewModel = nil
         mobileBackupViewModel = nil
-        mobileUpgradeNotificationInput = nil
+        mobileUpgradeBannerItem = nil
     }
 
     func setupViewModels() {
@@ -353,9 +353,8 @@ private extension UserWalletSettingsViewModel {
                 )
 
             case .upgrade:
-                mobileUpgradeNotificationInput = mobileSettingsUtil.makeUpgradeNotificationInput(
-                    onUpgrade: weakify(self, forFunction: UserWalletSettingsViewModel.onMobileUpgradeNotificationUpgrade),
-                    onDismiss: weakify(self, forFunction: UserWalletSettingsViewModel.onMobileUpgradeNotificationDismiss)
+                mobileUpgradeBannerItem = mobileSettingsUtil.makeUpgradeBanner(
+                    onUpgrade: weakify(self, forFunction: UserWalletSettingsViewModel.onMobileUpgradeNotificationUpgrade)
                 )
             }
         }
@@ -394,6 +393,7 @@ private extension UserWalletSettingsViewModel {
         }
     }
 
+    // [REDACTED_TODO_COMMENT]
     func onMobileUpgradeNotificationDismiss() {
         setupView()
     }
