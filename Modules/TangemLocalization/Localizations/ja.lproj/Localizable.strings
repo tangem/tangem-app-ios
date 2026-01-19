@@ -291,6 +291,7 @@
 "common_no_address" = "アドレスがありません";
 "common_no" = "いいえ";
 "common_not_added" = "未追加";
+"common_not_available" = "利用できません";
 "common_not_now" = "今はしない";
 "common_now" = "今";
 "common_ok" = "わかりました";
@@ -520,6 +521,8 @@
 "feedback_subject_tx_failed" = "取引を送信できません";
 "feedback_subject_tx_push_failed" = "取引をプッシュできません";
 "feedback_token_description_error" = "コインの説明エラー";
+"gasless_not_enough_funds_to_cover_token_fee" = "Not enough funds";
+"gasless_transaction_fee" = "ガス代不要の取引手数料";
 "generic_error_code" = "エラーが発生しました。コード: %@ 。";
 "generic_error" = "エラーが発生しました";
 "generic_requires_memo_error" = "メモが必要";
@@ -758,7 +761,7 @@
 "news_quick_recap" = "クイックまとめ";
 "news_related_news" = "関連ニュース";
 "news_related_tokens" = "関連トークン";
-"news_sources" = "情報源";
+"news_sources" = "関連ニュース";
 "news_stay_in_the_loop" = "最新情報を入手";
 "nft_about_title" = "NFTについて";
 "nft_asset" = "NFTアセット";
@@ -899,6 +902,7 @@
 "onboarding_wallet_info_title_fourth" = "アクセスコードの復元";
 "onboarding_wallet_info_title_second" = "同一のカード";
 "onboarding_wallet_info_title_third" = "アクセスコード";
+"only_one_mobile_wallet_explanation" = "同時に利用できるのは、モバイルウォレットまたはハードウェアウォレットのいずれか一方のみです。Tangemのコールドウォレットを使用するには、ウォレットをアップグレードするか、アプリから削除してください。";
 "onramp_all_offers_button_title" = "すべてのオファー";
 "onramp_avaiable_with_payment_methods" = "%@で利用可能";
 "onramp_choose_provider_title_hint" = "プロバイダーが取引を促進します";
@@ -1499,6 +1503,7 @@
 "universal_error" = "エラーが発生しました。エラー コード：%@。サポートにお問い合わせください。";
 "unlock_wallet_description_full" = "%@を使用するか、カード / リングをスキャンしてウォレットにアクセスしてください";
 "unsupported_wc_version" = "接続に失敗しました：このdAppは、サポートされていないWallet Connectバージョン1.0を使用しています。正常に接続するには、dAppがWallet Connectバージョン2.0をサポートしていることを確認してください。";
+"upgrade_to_hardware_wallet_button_title" = "Upgrade to a hardware wallet";
 "user_push_notification_agreement_argument_one_subtitle" = "取引・スワップ・重要な更新に関するリアルタイム通知。";
 "user_push_notification_agreement_argument_one_title" = "取引アラート";
 "user_push_notification_agreement_argument_one" = "最新の機能とニュースをお届けします";
@@ -1619,7 +1624,7 @@
 "wallet_import_seed_description" = "リカバリーフレーズを使って既存のウォレットをインポートします。";
 "wallet_import_seed_navtitle" = "ウォレットをインポート";
 "wallet_import_seed_title" = "リカバリーフレーズを入力";
-"wallet_import_success_description" = "ウォレットのバックアップが正常に完了しました。";
+"wallet_import_success_description" = "ウォレットのインポートに成功しました。";
 "wallet_import_success_navtitle" = "ウォレットをインポート";
 "wallet_import_success_title" = "インポート完了";
 "wallet_import_title" = "ウォレットをインポート";
