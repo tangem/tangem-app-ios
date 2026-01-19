@@ -25,6 +25,9 @@ public protocol EthereumFeeParameters where Self: FeeParameters {
 public enum EthereumFeeParametersConstants {
     public static var defaultGasLimitIncreasePercent = BigUInt(12)
     public static var yieldModuleGasLimitIncreasePercent = BigUInt(20)
+    public static var gaslessMinTokenAmount = BigUInt(10_000)
+    public static var gaslessBaseGasBuffer = BigUInt(100_000)
+    public static var gaslessMaxFeePerGasMultiplier = BigUInt(2)
 }
 
 public extension EthereumFeeParameters {
@@ -34,6 +37,8 @@ public extension EthereumFeeParameters {
             return params.maxFeePerGas
         case .legacy:
             return nil
+        case .gasless(let params):
+            return params.maxFeePerGas
         }
     }
 
@@ -42,6 +47,8 @@ public extension EthereumFeeParameters {
         case .eip1559(let params):
             return params.gasLimit
         case .legacy(let params):
+            return params.gasLimit
+        case .gasless(let params):
             return params.gasLimit
         }
     }
@@ -52,6 +59,8 @@ public extension EthereumFeeParameters {
             return params.nonce
         case .eip1559(let params):
             return params.nonce
+        case .gasless(let params):
+            return params.nonce
         }
     }
 }
@@ -61,6 +70,7 @@ public extension EthereumFeeParameters {
 public enum EthereumFeeParametersType {
     case legacy(EthereumLegacyFeeParameters)
     case eip1559(EthereumEIP1559FeeParameters)
+    case gasless(EthereumGaslessTransactionFeeParameters)
 }
 
 // MARK: - EthereumLegacyFeeParameters
@@ -151,5 +161,96 @@ extension EthereumEIP1559FeeParameters: EthereumFeeParameters {
         )
 
         return feeParameters
+    }
+}
+
+public struct EthereumGaslessTransactionFeeParameters: FeeParameters {
+    public let gasLimit: BigUInt
+    /// Maximum fee which will be spend. Should include `priorityFee` in itself
+    public let maxFeePerGas: BigUInt
+    /// The part of `maxFeePerGas` which will be sent a mainer like a tips
+    public let priorityFee: BigUInt
+    /// Custom nonce property for resend transaction state
+    public let nonce: Int?
+    /// Conversion rate from native coin to token.
+    /// Represents how many token units correspond to 1 unit of native coin
+    /// (e.g. 1 ETH = 1500 USDC → coinToTokenRate = 1500).
+    public let nativeToFeeTokenRate: Decimal
+
+    public let feeTokenTransferGasLimit: BigUInt
+
+    public init(
+        gasLimit: BigUInt,
+        baseFee: BigUInt,
+        priorityFee: BigUInt,
+        nonce: Int? = nil,
+        nativeToFeeTokenRate: Decimal,
+        feeTokenTransferGasLimit: BigUInt
+    ) {
+        self.gasLimit = gasLimit
+        maxFeePerGas = baseFee + priorityFee
+        self.priorityFee = priorityFee
+        self.nonce = nonce
+        self.nativeToFeeTokenRate = nativeToFeeTokenRate
+        self.feeTokenTransferGasLimit = feeTokenTransferGasLimit
+    }
+
+    public init(
+        gasLimit: BigUInt,
+        maxFeePerGas: BigUInt,
+        priorityFee: BigUInt,
+        nonce: Int? = nil,
+        nativeToFeeTokenRate: Decimal,
+        feeTokenTransferGasLimit: BigUInt
+    ) {
+        self.gasLimit = gasLimit
+        self.maxFeePerGas = maxFeePerGas
+        self.priorityFee = priorityFee
+        self.nonce = nonce
+        self.nativeToFeeTokenRate = nativeToFeeTokenRate
+        self.feeTokenTransferGasLimit = feeTokenTransferGasLimit
+    }
+}
+
+extension EthereumGaslessTransactionFeeParameters: EthereumFeeParameters {
+    public var parametersType: EthereumFeeParametersType {
+        .gasless(self)
+    }
+
+    /// Calculates the transaction fee expressed in the selected token.
+    ///
+    /// Calculation steps:
+    /// 1. Computes the fee in native coin smallest units (wei):
+    ///    feeWEI = gasLimit × maxFeePerGas
+    /// 2. Converts the fee from wei to native coin using `decimalValue` (e.g. 1e18 for ETH):
+    ///    feeInCoin = feeWEI / decimalValue
+    /// 3. Converts the fee from native coin to token using `nativeToFeeTokenRate`:
+    ///    feeInToken = feeInCoin × coinToTokenRate
+    ///
+    /// Example:
+    /// - gasLimit = 21_000
+    /// - maxFeePerGas = 30 gwei = 30_000_000_000
+    /// - feeWEI = 630_000_000_000_000
+    /// - decimalValue = 1e18 (ETH decimals)
+    /// - feeInCoin = 0.00063 ETH
+    /// - coinToTokenRate = 1500 (1 ETH = 1500 USDC)
+    /// - feeInToken = 0.945 USDC
+    public func calculateFee(decimalValue: Decimal) -> Decimal {
+        let feeWEI = gasLimit * maxFeePerGas
+        let feeValue = feeWEI.decimal ?? Decimal(UInt64(feeWEI))
+        let feeInCoin = feeValue / decimalValue
+        let feeInToken = feeInCoin * nativeToFeeTokenRate
+        return feeInToken
+    }
+
+    public func changingGasLimit(to value: BigUInt) -> EthereumGaslessTransactionFeeParameters {
+        EthereumGaslessTransactionFeeParameters(
+            gasLimit: value,
+            maxFeePerGas: maxFeePerGas,
+            priorityFee: priorityFee,
+            nonce: nonce,
+            nativeToFeeTokenRate: nativeToFeeTokenRate,
+            feeTokenTransferGasLimit: feeTokenTransferGasLimit
+        )
     }
 }
