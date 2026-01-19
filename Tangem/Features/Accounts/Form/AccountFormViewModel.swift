@@ -34,12 +34,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
     var description: String? {
         switch flowType {
         case .edit(let account):
-            // [REDACTED_TODO_COMMENT]
-            if let cryptoAccount = account as? any CryptoAccountModel {
-                return cryptoAccount.descriptionString
-            }
-
-            return nil
+            return account.resolve(using: DescriptionResolver())
 
         case .create:
             return Localization.accountFormAccountIndex(totalAccountsCount)
@@ -312,14 +307,17 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
             .errorDescription: String(describing: error),
         ])
 
+        let title: String
         let message: String
         let buttonText: String
 
         switch error {
         case .tooManyAccounts:
+            title = Localization.accountAddLimitDialogTitle
             message = Localization.accountAddLimitDialogDescription(AccountModelUtils.maxNumberOfAccounts)
             buttonText = Localization.commonGotIt
         case .duplicateAccountName:
+            title = Localization.accountFormNameAlreadyExistErrorTitle
             message = Localization.accountFormNameAlreadyExistErrorDescription
             buttonText = Localization.commonGotIt
         case .accountNameTooLong,
@@ -327,12 +325,13 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
             // These two errors should never be thrown because this VM validates account name before trying to edit/create an account
             fallthrough
         case .unknownError:
+            title = Localization.commonSomethingWentWrong
             message = Localization.accountGenericErrorDialogMessage
             buttonText = Localization.commonOk
         }
 
         alert = AlertBuilder.makeAlertWithDefaultPrimaryButton(
-            title: Localization.commonSomethingWentWrong,
+            title: title,
             message: message,
             buttonText: buttonText
         )
@@ -395,5 +394,17 @@ extension AccountFormViewModel {
         let name: String
         let color: GridItemColor<AccountModel.Icon.Color>
         let image: GridItemImage<AccountModel.Icon.Name>
+    }
+}
+
+// MARK: - DescriptionResolver
+
+private extension AccountFormViewModel {
+    struct DescriptionResolver: AccountModelResolving {
+        typealias Result = String?
+
+        func resolve(accountModel: any CryptoAccountModel) -> Result {
+            accountModel.descriptionString
+        }
     }
 }

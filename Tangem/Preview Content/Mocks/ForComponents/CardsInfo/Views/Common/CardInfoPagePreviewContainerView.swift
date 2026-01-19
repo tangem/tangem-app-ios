@@ -40,7 +40,8 @@ struct CardInfoPagePreviewContainerView: View {
                     },
                     contentFactory: { pageViewModel in
                         CardInfoPagePreviewView(viewModel: pageViewModel)
-                    }
+                    },
+                    bottomOverlayFactory: { _, _ in EmptyView() },
                 )
                 .pageSwitchThreshold(0.4)
                 .contentViewVerticalOffset(64.0)

@@ -17,10 +17,13 @@ public struct CustomSearchBar: View {
     private let placeholder: String
     private let keyboardType: UIKeyboardType
     private let style: Style
+    private let accessibilityIdentifier: String?
+    private let clearButtonAccessibilityIdentifier: String?
 
     @State private var isEditing: Bool = false
     private var onEditingChanged: ((_ isEditing: Bool) -> Void)?
     private var clearButtonAction: (() -> Void)?
+    private var cancelButtonAction: (() -> Void)?
 
     @FocusState private var isFocused: Bool
 
@@ -31,13 +34,19 @@ public struct CustomSearchBar: View {
         placeholder: String,
         keyboardType: UIKeyboardType = .default,
         style: Style = .default,
-        clearButtonAction: (() -> Void)? = nil
+        accessibilityIdentifier: String? = nil,
+        clearButtonAccessibilityIdentifier: String? = nil,
+        clearButtonAction: (() -> Void)? = nil,
+        cancelButtonAction: (() -> Void)? = nil,
     ) {
         _searchText = searchText
         self.placeholder = placeholder
         self.keyboardType = keyboardType
         self.style = style
+        self.accessibilityIdentifier = accessibilityIdentifier
+        self.clearButtonAccessibilityIdentifier = clearButtonAccessibilityIdentifier
         self.clearButtonAction = clearButtonAction
+        self.cancelButtonAction = cancelButtonAction
     }
 
     public var body: some View {
@@ -66,6 +75,7 @@ public struct CustomSearchBar: View {
                     .keyboardType(keyboardType)
                     .autocorrectionDisabled()
                     .focused($isFocused)
+                    .accessibilityIdentifier(accessibilityIdentifier)
                     .onChange(of: isFocused, perform: { newValue in
                         isEditing = newValue
                         onEditingChanged?(newValue)
@@ -101,13 +111,14 @@ public struct CustomSearchBar: View {
                 .foregroundColor(Colors.Icon.informative)
                 .padding(.all, 4)
         }
+        .accessibilityIdentifier(clearButtonAccessibilityIdentifier)
         .hidden(searchText.isEmpty)
     }
 
     private var cancelButton: some View {
         Button {
-            if let clearButtonAction {
-                clearButtonAction()
+            if let cancelButtonAction {
+                cancelButtonAction()
             } else {
                 searchText = ""
             }
@@ -173,7 +184,8 @@ public extension CustomSearchBar {
         CustomSearchBar(
             searchText: text,
             placeholder: Localization.commonSearch,
-            clearButtonAction: {}
+            clearButtonAction: {},
+            cancelButtonAction: {},
         )
         .padding(.horizontal, 16)
         .padding(.top, 20)
@@ -189,7 +201,8 @@ public extension CustomSearchBar {
         CustomSearchBar(
             searchText: text,
             placeholder: Localization.commonSearch,
-            clearButtonAction: {}
+            clearButtonAction: {},
+            cancelButtonAction: {}
         )
         .padding(.horizontal, 16)
     }
