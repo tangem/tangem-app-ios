@@ -400,6 +400,8 @@
 "details_manage_security_long_tap" = "Langes Tippen";
 "details_manage_security_passcode_description" = "Bevor du einen Befehl ausführst, der eine Änderung des Kartenstatus zur Folge hat, musst du den Passcode eingeben.";
 "details_manage_security_passcode" = "Passcode";
+"details_mobile_section_description" = "You can have either one mobile wallet or hardware wallet at the same time. Upgrade you wallet or delete it from the app to start using a Tangem cold wallet.";
+"details_mobile_wallet_upgrade_action_title" = "Upgrade to hardware wallet";
 "details_nft_title" = "NFT";
 "details_referral_title" = "Empfehlungsprogramm";
 "details_row_description_flip_to_hide" = "Flippe den Bildschirm deines Geräts nach unten, um Salden schnell ein- und auszublenden";
@@ -1125,6 +1127,11 @@
 "settings_card_settings_footer" = "Bereite das Scannen der Karte oder Ring vor, die du einrichten möchtest.";
 "settings_forget_wallet_footer" = "Hiermit wird die Wallet aus der Anwendung entfernt. Die Wallet selbst kann wieder hinzugefügt werden.";
 "settings_forget_wallet" = "Entferne diese Wallet";
+"settings_upgrade_banner_advantage_feature_title" = "Simple to use";
+"settings_upgrade_banner_description" = "Keeps your crypto safe and offline. Slim as a credit card, safer than a bank vault.";
+"settings_upgrade_banner_seed_phrase_feature_title" = "No seed phrase";
+"settings_upgrade_banner_superiority_feature_title" = "Best in class hardware wallet";
+"settings_upgrade_banner_title" = "Tangem Cold Wallet";
 "settings_wallet_name_title" = "Name";
 "stake_token_description" = "Lass deinen Token für dich arbeiten";
 "staking_account_initialization_footer" = "Eine Netzwerkgebühr ist eine kleine Zahlung, die erforderlich ist, um Deine Transaktion auf der Blockchain zu verarbeiten und zu bestätigen.";
@@ -1391,7 +1398,7 @@
 "tangempay_go_to_support" = "Zum Support";
 "tangempay_issue_card_notification_description" = "Es dauert in der Regel bis zu 15 Minuten.";
 "tangempay_issue_card_notification_title" = "Einrichtung Ihrer Tangem-Karte";
-"tangempay_issuing_your_card_description" = "Wir bereiten Ihre Karte vor. Dies kann etwas dauern.";
+"tangempay_issuing_your_card_description" = "Die Karte wird in der Regel innerhalb von 5 Minuten automatisch ausgestellt. In seltenen Fällen, wenn eine manuelle Überprüfung erforderlich ist, kann die Ausstellung bis zu 48 Stunden dauern.";
 "tangempay_issuing_your_card" = "Ausstellung Deiner Karte";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
 "tangempay_kyc_confirm_cancellation_alert_title" = "Konvertierung bestätigen";
@@ -1401,7 +1408,7 @@
 "tangempay_kyc_has_failed" = "KYC has failed";
 "tangempay_kyc_in_progress_notification_button" = "Status anzeigen";
 "tangempay_kyc_in_progress_notification_title" = "KYC für Tangem Pay in Arbeit";
-"tangempay_kyc_in_progress_popup_description" = "Über die Schaltflächen unten kannst Du Deinen aktuellen KYC-Status einsehen oder ihn abbrechen.";
+"tangempay_kyc_in_progress_popup_description" = "Dokumente werden in der Regel innerhalb von 5 Minuten automatisch überprüft. In seltenen Fällen, wenn eine manuelle Überprüfung erforderlich ist, kann es bis zu 48 Stunden dauern.";
 "tangempay_kyc_in_progress" = "KYC in Bearbeitung";
 "tangempay_kyc_rejected_button_text" = "Hide KYC block";
 "tangempay_kyc_rejected_description_span" = "your profile.";
