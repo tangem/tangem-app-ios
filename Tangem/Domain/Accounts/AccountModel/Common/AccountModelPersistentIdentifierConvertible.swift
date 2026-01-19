@@ -12,7 +12,5 @@ import Foundation
 protocol AccountModelPersistentIdentifierConvertible where Self: Hashable, PersistentIdentifier: Hashable {
     associatedtype PersistentIdentifier
 
-    var isMainAccount: Bool { get }
-
     func toPersistentIdentifier() -> PersistentIdentifier
 }
