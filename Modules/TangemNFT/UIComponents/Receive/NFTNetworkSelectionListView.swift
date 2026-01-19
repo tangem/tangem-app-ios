@@ -21,7 +21,7 @@ public struct NFTNetworkSelectionListView: View {
         listContent
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    CloseButton(dismiss: viewModel.onCloseButtonTap)
+                    CloseTextButton(action: viewModel.onCloseButtonTap)
                 }
 
                 ToolbarItem(placement: .principal) {
