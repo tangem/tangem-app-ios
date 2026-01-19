@@ -35,9 +35,7 @@ struct AccountsAwareActionButtonsBuyView: View {
         .navigationTitle(Localization.commonBuy)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                CircleButton.close(action: viewModel.close)
-            }
+            NavigationToolbarButton.close(placement: .topBarTrailing, action: viewModel.close)
         }
         .onAppear(perform: viewModel.onAppear)
         .alert(item: $viewModel.alert) { $0.alert }
