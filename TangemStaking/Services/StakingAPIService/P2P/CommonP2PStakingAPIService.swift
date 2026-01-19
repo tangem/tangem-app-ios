@@ -53,17 +53,6 @@ final class CommonP2PStakingAPIService: P2PStakingAPIService {
         )
     }
 
-    // MARK: - Rewards History
-
-    func getRewardsHistory(
-        delegatorAddress: String,
-        vaultAddress: String
-    ) async throws -> P2PDTO.RewardsHistory.RewardsHistoryInfo {
-        try await response(
-            .getRewardsHistory(delegatorAddress: delegatorAddress, vaultAddress: vaultAddress)
-        )
-    }
-
     // MARK: - Prepare Deposit Transaction
 
     func prepareDepositTransaction(
