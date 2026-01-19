@@ -18,7 +18,7 @@ struct SendReceiveTokensListView: View {
     var body: some View {
         VStack(spacing: 0) {
             BottomSheetHeaderView(title: Localization.commonChooseToken, trailing: {
-                CircleButton.close(action: viewModel.dismiss)
+                NavigationBarButton.close(action: viewModel.dismiss)
             })
             .padding(.vertical, 4)
             .padding(.horizontal, 16)
