@@ -291,6 +291,7 @@
 "common_no_address" = "Нет адреса";
 "common_no" = "Нет";
 "common_not_added" = "Не добавлено";
+"common_not_available" = "Not available";
 "common_not_now" = "Не сейчас";
 "common_now" = "Сейчас";
 "common_ok" = "OK";
@@ -520,6 +521,8 @@
 "feedback_subject_tx_failed" = "Не могу отправить транзакцию";
 "feedback_subject_tx_push_failed" = "Не могу протолкнуть транзакцию";
 "feedback_token_description_error" = "Ошибка в описании монеты";
+"gasless_not_enough_funds_to_cover_token_fee" = "Not enough funds";
+"gasless_transaction_fee" = "Gasless transaction fee";
 "generic_error_code" = "Произошла ошибка. Код: %@.";
 "generic_error" = "Произошла ошибка";
 "generic_requires_memo_error" = "Требуется memo";
@@ -758,7 +761,7 @@
 "news_quick_recap" = "Резюме";
 "news_related_news" = "Связанные новости";
 "news_related_tokens" = "Связанные токены";
-"news_sources" = "Источники";
+"news_sources" = "Связанные новости";
 "news_stay_in_the_loop" = "Будьте в курсе";
 "nft_about_title" = "О NFT";
 "nft_asset" = "NFT";
@@ -899,6 +902,7 @@
 "onboarding_wallet_info_title_fourth" = "Восстановление кода доступа";
 "onboarding_wallet_info_title_second" = "Идентичные карты";
 "onboarding_wallet_info_title_third" = "Код доступа";
+"only_one_mobile_wallet_explanation" = "You can have either a mobile wallet or a hardware wallet at one time. Upgrade your wallet or delete it from the app to start using a Tangem cold wallet.";
 "onramp_all_offers_button_title" = "Все предложения";
 "onramp_avaiable_with_payment_methods" = "Доступно с %@";
 "onramp_choose_provider_title_hint" = "Tangem предоставляет доступ к покупке через сторонних провайдеров в соответствии с их правилами";
@@ -1499,6 +1503,7 @@
 "universal_error" = "Произошла ошибка. Код ошибки: %@. Попробуйте, пожалуйста, снова. Если проблема будет продолжать возникать — обратитесь в службу поддержки.";
 "unlock_wallet_description_full" = "Используйте %@ или отсканируйте карту/кольцо, чтобы получить доступ к своему кошельку";
 "unsupported_wc_version" = "Соединение не удалось: это dApp использует Wallet Connect версии 1.0, которая не поддерживается. Убедитесь, что dApp поддерживает Wallet Connect версии 2.0 для успешного подключения.";
+"upgrade_to_hardware_wallet_button_title" = "Upgrade to a hardware wallet";
 "user_push_notification_agreement_argument_one_subtitle" = "Мгновенные уведомления о транзакциях, обменах и важных обновлениях.";
 "user_push_notification_agreement_argument_one_title" = "Уведомления о транзакциях";
 "user_push_notification_agreement_argument_one" = "Будьте в курсе новых функций и новостей";
