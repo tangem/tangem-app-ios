@@ -15,9 +15,17 @@ final class SeedImportSuccessScreen: ScreenBase<SeedImportSuccessScreenElement> 
     private lazy var finishButton = button(.finishButton)
 
     @discardableResult
+    func waitForScreen() -> Self {
+        XCTContext.runActivity(named: "Wait for Seed Import Success screen") { _ in
+            waitAndAssertTrue(continueButton, timeout: .networkRequest, "Continue button should exist")
+            return self
+        }
+    }
+
+    @discardableResult
     func tapContinue() -> Self {
         XCTContext.runActivity(named: "Tap Continue button") { _ in
-            continueButton.waitAndTap()
+            continueButton.waitAndTap(timeout: .networkRequest)
             // Wait for access code screen to appear
             _ = skipButton.waitForExistence(timeout: .networkRequest)
             return self
