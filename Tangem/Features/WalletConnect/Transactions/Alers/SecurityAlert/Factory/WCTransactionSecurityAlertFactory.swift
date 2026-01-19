@@ -25,7 +25,8 @@ enum WCTransactionSecurityAlertFactory {
                     color: input.validationStatus == .malicious ? Colors.Icon.warning : Colors.Icon.attention
                 ),
                 primaryButton: .init(title: Localization.commonBack, style: .primary, isLoading: false),
-                secondaryButton: .init(title: Localization.wcSendAnyway, style: .secondary, isLoading: false)
+                secondaryButton: .init(title: Localization.wcSendAnyway, style: .secondary, isLoading: false),
+                tangemIcon: nil
             )
         case .benign:
             return nil

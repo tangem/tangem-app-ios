@@ -42,9 +42,10 @@ struct TangemApiTarget: TargetType {
         case .features:
             return "/features"
         case .getUserWalletTokens(let key),
-             .saveUserWalletTokensLegacy(let key, _),
-             .saveUserWalletTokens(let key, _):
+             .saveUserWalletTokensLegacy(let key, _):
             return "/user-tokens/\(key)"
+        case .saveUserWalletTokens(let key, _):
+            return "/wallets/\(key)/tokens"
         case .loadReferralProgramInfo(let userWalletId, _):
             return "/referral/\(userWalletId)"
         case .participateInReferralProgram:
@@ -118,6 +119,14 @@ struct TangemApiTarget: TargetType {
             return "/wallets/\(userWalletId)/accounts"
         case .getArchivedUserAccounts(let userWalletId):
             return "/wallets/\(userWalletId)/accounts/archived"
+
+        // MARK: - News
+        case .newsList:
+            return "/news"
+        case .newsCategories:
+            return "/news/categories"
+        case .trendingNews:
+            return "/news/trending"
         }
     }
 
@@ -146,7 +155,10 @@ struct TangemApiTarget: TargetType {
              .getUserAccounts,
              .getArchivedUserAccounts,
              .getUserWallets,
-             .getUserWallet:
+             .getUserWallet,
+             .newsList,
+             .newsCategories,
+             .trendingNews:
             return .get
         case .saveUserWalletTokensLegacy,
              .saveUserWalletTokens,
@@ -253,6 +265,8 @@ struct TangemApiTarget: TargetType {
             return .requestParameters(requestModel, encoding: URLEncoding.default)
         case .tokenExchangesList, .seedNotifyGetStatus, .seedNotifyGetStatusConfirmed:
             return .requestPlain
+
+        // MARK: - News tasks
         case .hotCrypto(let requestModel):
             return .requestParameters(parameters: ["currency": requestModel.currency], encoding: URLEncoding.default)
         case .pushNotificationsEligible:
@@ -281,6 +295,25 @@ struct TangemApiTarget: TargetType {
             return .requestJSONEncodable(accounts)
         case .getArchivedUserAccounts:
             return .requestPlain
+
+        // MARK: - News
+        case .newsList(let requestModel):
+            return .requestParameters(parameters: requestModel.parameters, encoding: URLEncoding.default)
+        case .newsCategories:
+            return .requestPlain
+        case .trendingNews(let limit, let lang):
+            var parameters = [String: Any]()
+            if let lang {
+                parameters["lang"] = lang
+            }
+
+            if let limit {
+                parameters["limit"] = limit
+            }
+            return .requestParameters(
+                parameters: parameters,
+                encoding: URLEncoding.default
+            )
         }
     }
 
@@ -331,7 +364,10 @@ struct TangemApiTarget: TargetType {
              .connectUserWallets,
              .getUserAccounts,
              .getArchivedUserAccounts,
-             .createWallet:
+             .createWallet,
+             .trendingNews,
+             .newsList,
+             .newsCategories:
             return nil
         }
     }
@@ -404,13 +440,19 @@ extension TangemApiTarget {
         case getUserAccounts(userWalletId: String)
         case saveUserAccounts(userWalletId: String, revision: String, accounts: AccountsDTO.Request.Accounts)
         case getArchivedUserAccounts(userWalletId: String)
+
+        // MARK: - News
+
+        case trendingNews(limit: Int?, lang: String?)
+        case newsList(_ requestModel: NewsDTO.List.Request)
+        case newsCategories
     }
 }
 
 extension TangemApiTarget: CachePolicyProvider {
     var cachePolicy: URLRequest.CachePolicy {
         switch type {
-        case .geo, .features, .apiList, .quotes, .coinsList, .tokenMarketsDetails:
+        case .geo, .features, .apiList, .quotes, .coinsList, .tokenMarketsDetails, .newsList, .newsCategories:
             return .reloadIgnoringLocalAndRemoteCacheData
         default:
             return .useProtocolCachePolicy
@@ -443,7 +485,10 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .getUserWallet,
              .updateWallet,
              .connectUserWallets,
-             .createWallet:
+             .createWallet,
+             .newsList,
+             .newsCategories,
+             .trendingNews:
             return false
         case .geo,
              .features,
