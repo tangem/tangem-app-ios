@@ -69,6 +69,10 @@ extension P2PStakingManager: StakingManager {
         _state.eraseToAnyPublisher()
     }
 
+    var updateWalletBalancesPublisher: AnyPublisher<Void, Never> {
+        Empty().eraseToAnyPublisher()
+    }
+
     var state: StakingManagerState {
         _state.value
     }
