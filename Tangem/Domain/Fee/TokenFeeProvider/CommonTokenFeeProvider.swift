@@ -62,7 +62,9 @@ final class CommonTokenFeeProvider {
 // MARK: - TokenFeeProvider
 
 extension CommonTokenFeeProvider: TokenFeeProvider {
-    var balanceState: FormattedTokenBalanceType { availableTokenBalanceProvider.formattedBalanceType }
+    var balanceFeeTokenState: TokenBalanceType { availableTokenBalanceProvider.balanceType }
+    var formattedFeeTokenBalance: FormattedTokenBalanceType { availableTokenBalanceProvider.formattedBalanceType }
+
     var hasMultipleFeeOptions: Bool { tokenFeeLoader.supportingFeeOptions.count > 1 }
 
     var state: TokenFeeProviderState {

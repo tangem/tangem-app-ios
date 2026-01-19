@@ -372,8 +372,8 @@ private extension ExpressViewModel {
         switch state {
         case .restriction(.notEnoughBalanceForSwapping, _):
             sendCurrencyViewModel?.expressCurrencyViewModel.update(errorState: .insufficientFunds)
-        case .restriction(.notEnoughAmountForTxValue, _),
-             .restriction(.notEnoughAmountForFee, _) where interactor.getSource().value?.isFeeCurrency == true:
+        case .restriction(.notEnoughAmountForTxValue(_, let isFeeCurrency), _) where isFeeCurrency,
+             .restriction(.notEnoughAmountForFee(let isFeeCurrency), _) where isFeeCurrency:
             sendCurrencyViewModel?.expressCurrencyViewModel.update(errorState: .insufficientFunds)
         case .restriction(.validationError(.minimumRestrictAmount(let minimumAmount), _), _):
             let errorText = Localization.transferMinAmountError(minimumAmount.string())
