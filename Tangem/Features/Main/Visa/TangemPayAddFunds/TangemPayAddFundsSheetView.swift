@@ -17,7 +17,7 @@ struct TangemPayAddFundsSheetView: View {
     var body: some View {
         VStack(spacing: .zero) {
             BottomSheetHeaderView(title: Localization.tangempayCardDetailsAddFunds, trailing: {
-                CircleButton.close(action: viewModel.close)
+                NavigationBarButton.close(action: viewModel.close)
             })
 
             GroupedSection(viewModel.options) { option in

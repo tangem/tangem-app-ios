@@ -182,9 +182,9 @@ private extension YieldModuleStartView {
     func makeHeader(viewState: YieldModuleStartViewModel.ViewState) -> some View {
         switch viewState {
         case .feePolicy:
-            BottomSheetHeaderView(title: "", leading: { CircleButton.back { viewModel.onBackAction() } })
+            BottomSheetHeaderView(title: "", leading: { NavigationBarButton.back(action: viewModel.onBackAction) })
         case .startEarning, .rateInfo:
-            BottomSheetHeaderView(title: "", trailing: { CircleButton.close { viewModel.onCloseTap() } })
+            BottomSheetHeaderView(title: "", trailing: { NavigationBarButton.close(action: viewModel.onCloseTap) })
         }
     }
 }

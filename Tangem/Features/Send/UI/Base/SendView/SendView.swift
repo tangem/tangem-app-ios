@@ -43,9 +43,9 @@ struct SendView: View {
         .navigationBarBackButtonHidden()
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .topBarLeading) { leadingView }
+            leadingToolbarItem
             ToolbarItem(placement: .principal) { principalView }
-            ToolbarItem(placement: .topBarTrailing) { trailingView }
+            trailingToolbarItem
         }
         .scrollDismissesKeyboard(.immediately)
         .safeAreaInset(edge: .bottom, spacing: .zero) { bottomContainer }
@@ -55,45 +55,54 @@ struct SendView: View {
         .onDisappear(perform: viewModel.onDisappear)
     }
 
-    @ViewBuilder
-    private var leadingView: some View {
+    @ToolbarContentBuilder
+    private var leadingToolbarItem: some ToolbarContent {
+        let placement = ToolbarItemPlacement.topBarLeading
+
         switch viewModel.navigationBarSettings.leadingViewType {
         case .none:
-            EmptyView()
+            ToolbarItem(placement: placement, content: EmptyView.init)
 
         case .closeButton:
-            CloseButton(dismiss: viewModel.dismiss)
-                .disabled(viewModel.closeButtonDisabled)
-                .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.closeButton)
+            ToolbarItem(placement: placement) {
+                CloseTextButton(action: viewModel.dismiss)
+                    .disabled(viewModel.closeButtonDisabled)
+                    .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.closeButton)
+            }
 
         case .backButton:
-            CircleButton.back(action: viewModel.userDidTapBackButton)
+            NavigationToolbarButton.back(placement: placement, action: viewModel.userDidTapBackButton)
         }
     }
 
-    @ViewBuilder
-    private var trailingView: some View {
+    @ToolbarContentBuilder
+    private var trailingToolbarItem: some ToolbarContent {
+        let placement = ToolbarItemPlacement.topBarTrailing
+
         switch viewModel.navigationBarSettings.trailingViewType {
         case .none:
-            EmptyView()
+            ToolbarItem(placement: placement, content: EmptyView.init)
 
         case .closeButton:
-            CircleButton.close(action: viewModel.dismiss)
-                .disabled(viewModel.closeButtonDisabled)
-                .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.closeButton)
+            NavigationToolbarButton.close(placement: placement, action: viewModel.dismiss)
+                .customizationBehavior(viewModel.closeButtonDisabled ? .disabled : .default)
 
         case .qrCodeButton(let action):
-            Button(action: action) {
-                Assets.qrCode.image
-                    .renderingMode(.template)
-                    .foregroundColor(Colors.Icon.primary1)
+            ToolbarItem(placement: placement) {
+                Button(action: action) {
+                    Assets.qrCode.image
+                        .renderingMode(.template)
+                        .foregroundColor(Colors.Icon.primary1)
+                }
             }
 
         case .dotsButton(let action):
-            Button(action: action) {
-                NavbarDotsImage()
+            ToolbarItem(placement: placement) {
+                Button(action: action) {
+                    NavbarDotsImage()
+                }
+                .accessibilityIdentifier(OnrampAccessibilityIdentifiers.settingsButton)
             }
-            .accessibilityIdentifier(OnrampAccessibilityIdentifiers.settingsButton)
         }
     }
 

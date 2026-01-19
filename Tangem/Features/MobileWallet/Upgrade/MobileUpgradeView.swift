@@ -30,7 +30,7 @@ struct MobileUpgradeView: View {
 private extension MobileUpgradeView {
     var content: some View {
         VStack(spacing: 6) {
-            CloseButton(dismiss: viewModel.onCloseTap)
+            CloseTextButton(action: viewModel.onCloseTap)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             info(item: viewModel.info)
