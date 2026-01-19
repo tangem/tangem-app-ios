@@ -22,6 +22,9 @@ struct MainBottomSheetHeaderInputView: View {
     let clearButtonAction: (() -> Void)?
     let cancelButtonAction: (() -> Void)?
 
+    var searchBarAccessibilityIdentifier: String? = MainAccessibilityIdentifiers.searchThroughMarketField
+    var searchBarClearButtonAccessibilityIdentifier: String? = MainAccessibilityIdentifiers.searchThroughMarketClearButton
+
     var body: some View {
         FocusableWrapperView(content: searchBar, isFocused: isTextFieldFocused)
     }
@@ -33,11 +36,11 @@ struct MainBottomSheetHeaderInputView: View {
             placeholder: Localization.marketsSearchHeaderTitle,
             keyboardType: .alphabet,
             style: customSearchBarStyle,
+            accessibilityIdentifier: searchBarAccessibilityIdentifier,
+            clearButtonAccessibilityIdentifier: searchBarClearButtonAccessibilityIdentifier,
             clearButtonAction: clearButtonAction,
             cancelButtonAction: cancelButtonAction
         )
-        .accessibilityIdentifier(MainAccessibilityIdentifiers.searchThroughMarketField)
-
         .padding(.horizontal, 16)
         .allowsHitTesting(allowsHitTestingForTextField)
         .padding(.top, Constants.topInset)
