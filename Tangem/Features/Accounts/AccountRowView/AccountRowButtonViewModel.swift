@@ -69,21 +69,7 @@ final class AccountRowButtonViewModel: Identifiable, ObservableObject {
             }
             .store(in: &bag)
 
-        // [REDACTED_TODO_COMMENT]
-        guard let cryptoAccount = accountModel as? any CryptoAccountModel else { return }
-
-        Publishers.CombineLatest(
-            cryptoAccount.userTokensManager.userTokensPublisher
-                .map { Localization.commonTokensCount($0.count) },
-            cryptoAccount.fiatTotalBalanceProvider.totalFiatBalancePublisher
-        )
-        .receiveOnMain()
-        .withWeakCaptureOf(self)
-        .sink { viewModel, tuple in
-            let (description, balanceState) = tuple
-            viewModel.updateSubtitleState(description: description, balanceState: balanceState)
-        }
-        .store(in: &bag)
+        accountModel.resolve(using: BindingResolver(viewModel: self))
     }
 
     private func onAccountModelDidChange() {
@@ -121,5 +107,28 @@ extension AccountRowButtonViewModel {
         case balanceOnly(LoadableTokenBalanceView.State)
         case unavailableWithReason(String)
         case none
+    }
+}
+
+// MARK: - BindingResolver
+
+private extension AccountRowButtonViewModel {
+    struct BindingResolver: AccountModelResolving {
+        let viewModel: AccountRowButtonViewModel
+
+        func resolve(accountModel: any CryptoAccountModel) {
+            Publishers.CombineLatest(
+                accountModel.userTokensManager.userTokensPublisher
+                    .map { Localization.commonTokensCount($0.count) },
+                accountModel.fiatTotalBalanceProvider.totalFiatBalancePublisher
+            )
+            .receiveOnMain()
+            .withWeakCaptureOf(viewModel)
+            .sink { vm, tuple in
+                let (description, balanceState) = tuple
+                vm.updateSubtitleState(description: description, balanceState: balanceState)
+            }
+            .store(in: &viewModel.bag)
+        }
     }
 }
