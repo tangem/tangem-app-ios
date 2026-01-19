@@ -11,14 +11,10 @@ import TangemUIUtils
 import TangemFoundation
 
 public struct RefreshScrollView<Content: View>: View {
-    // Init
-
     @ObservedObject private var stateObject: RefreshScrollViewStateObject
     private let contentSettings: ContentSettings
     private let showsIndicators: Bool
-    private let content: () -> Content
-
-    // Internal
+    private let content: Content
 
     @State private var introspectResponderChainID = UUID()
     private let coordinateSpaceName = UUID()
@@ -27,12 +23,12 @@ public struct RefreshScrollView<Content: View>: View {
         stateObject: RefreshScrollViewStateObject,
         showsIndicators: Bool = false,
         contentSettings: ContentSettings = .lazyVStack(),
-        @ViewBuilder content: @escaping () -> Content
+        @ViewBuilder content: () -> Content
     ) {
         self.stateObject = stateObject
         self.showsIndicators = showsIndicators
         self.contentSettings = contentSettings
-        self.content = content
+        self.content = content()
     }
 
     public var body: some View {
@@ -85,10 +81,11 @@ public struct RefreshScrollView<Content: View>: View {
     var scrollContent: some View {
         switch contentSettings {
         case .simpleContent:
-            content()
+            content
                 .refreshingPadding(length: stateObject.refreshingPadding)
+
         case .lazyVStack(let alignment, let spacing, let pinnedViews):
-            LazyVStack(alignment: alignment, spacing: spacing, pinnedViews: pinnedViews, content: content)
+            LazyVStack(alignment: alignment, spacing: spacing, pinnedViews: pinnedViews, content: { content })
                 .refreshingPadding(length: stateObject.refreshingPadding)
         }
     }
