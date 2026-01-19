@@ -400,6 +400,8 @@
 "details_manage_security_long_tap" = "Задержка сканирования";
 "details_manage_security_passcode_description" = "Перед выполнением любой команды, влекущей за собой изменение состояния карты, вам необходимо будет ввести пароль.";
 "details_manage_security_passcode" = "Пароль";
+"details_mobile_section_description" = "You can have either one mobile wallet or hardware wallet at the same time. Upgrade you wallet or delete it from the app to start using a Tangem cold wallet.";
+"details_mobile_wallet_upgrade_action_title" = "Upgrade to hardware wallet";
 "details_nft_title" = "NFT";
 "details_referral_title" = "Реферальная программа";
 "details_row_description_flip_to_hide" = "Переверните экран вашего устройства вниз, чтобы быстро скрыть и отобразить балансы";
@@ -1125,6 +1127,11 @@
 "settings_card_settings_footer" = "Подготовьтесь к сканированию кольца или карты, которую вы хотите настроить.";
 "settings_forget_wallet_footer" = "Это приведет к удалению кошелька из приложения. Сам кошелек можно добавить снова.";
 "settings_forget_wallet" = "Забыть кошелек";
+"settings_upgrade_banner_advantage_feature_title" = "Simple to use";
+"settings_upgrade_banner_description" = "Keeps your crypto safe and offline. Slim as a credit card, safer than a bank vault.";
+"settings_upgrade_banner_seed_phrase_feature_title" = "No seed phrase";
+"settings_upgrade_banner_superiority_feature_title" = "Best in class hardware wallet";
+"settings_upgrade_banner_title" = "Tangem Cold Wallet";
 "settings_wallet_name_title" = "Имя";
 "stake_token_description" = "Заставьте ваш токен работать";
 "staking_account_initialization_footer" = "Сетевая комиссия — это небольшая плата за обработку и подтверждение вашей транзакции в блокчейне.";
@@ -1391,7 +1398,7 @@
 "tangempay_go_to_support" = "Написать в поддержку";
 "tangempay_issue_card_notification_description" = "Обычно это занимает до 15 минут";
 "tangempay_issue_card_notification_title" = "Готовим вашу Tangem Card";
-"tangempay_issuing_your_card_description" = "Выпускаем карту, это займет немного времени.";
+"tangempay_issuing_your_card_description" = "Обычно это занимает не больше 5 минут, в редких случах при необходимости ручной проверки – до 48 часов.";
 "tangempay_issuing_your_card" = "Выпускаем карту";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
 "tangempay_kyc_confirm_cancellation_alert_title" = "Подтвердите отмену";
@@ -1401,7 +1408,7 @@
 "tangempay_kyc_has_failed" = "KYC has failed";
 "tangempay_kyc_in_progress_notification_button" = "Посмотреть статус";
 "tangempay_kyc_in_progress_notification_title" = "KYC в процессе для Tangem Pay";
-"tangempay_kyc_in_progress_popup_description" = "Вы можете посмотреть текущий статус KYC или отменить его";
+"tangempay_kyc_in_progress_popup_description" = "Обычно документы проверяются автоматически в течение 5 минут, в редких случах при необходимости ручной проверки – до 48 часов.";
 "tangempay_kyc_in_progress" = "KYC в процессе";
 "tangempay_kyc_rejected_button_text" = "Hide KYC block";
 "tangempay_kyc_rejected_description_span" = "your profile.";
