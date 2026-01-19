@@ -35,10 +35,10 @@ struct OnrampOffersSelectorView: View {
                 title: Localization.onrampAllOffersButtonTitle,
                 subtitle: subtitle,
                 leading: {
-                    CircleButton.back(action: viewModel.back).visible(backButtonVisible)
+                    NavigationBarButton.back(action: viewModel.back).visible(backButtonVisible)
                 },
                 trailing: {
-                    CircleButton.close(action: viewModel.close)
+                    NavigationBarButton.close(action: viewModel.close)
                 }
             )
             .subtitleSpacing(0)
