@@ -422,11 +422,11 @@ private extension ExpressInteractor {
         case .insufficientBalance(let requiredAmount):
             return .restriction(.notEnoughBalanceForSwapping(requiredAmount: requiredAmount), quote: quote)
 
-        case .feeCurrencyHasZeroBalance:
-            return .restriction(.notEnoughAmountForFee, quote: quote)
+        case .feeCurrencyHasZeroBalance(let isFeeCurrency):
+            return .restriction(.notEnoughAmountForFee(isFeeCurrency: isFeeCurrency), quote: quote)
 
-        case .feeCurrencyInsufficientBalanceForTxValue(let fee):
-            return .restriction(.notEnoughAmountForTxValue(fee), quote: quote)
+        case .feeCurrencyInsufficientBalanceForTxValue(let fee, let isFeeCurrency):
+            return .restriction(.notEnoughAmountForTxValue(fee, isFeeCurrency: isFeeCurrency), quote: quote)
         }
     }
 
@@ -488,10 +488,12 @@ private extension ExpressInteractor {
             )
         }
 
+        let subtractFee = SubtractFee(feeTokenItem: selectedTokenFee.tokenItem, subtractFee: previewCEX.subtractFee)
+
         let previewCEXState = PreviewCEXState(
             provider: previewCEX.provider,
             tokenFeeProvidersManager: tokenFeeProvidersManager,
-            subtractFee: previewCEX.subtractFee,
+            subtractFee: subtractFee,
             isExemptFee: sender.isExemptFee,
             notification: notification
         )
@@ -507,9 +509,11 @@ private extension ExpressInteractor {
         } catch ValidationError.totalExceedsBalance, ValidationError.amountExceedsBalance {
             return .restriction(.notEnoughBalanceForSwapping(requiredAmount: amount.value), quote: correctState.quote)
         } catch ValidationError.feeExceedsBalance {
-            return .restriction(.notEnoughAmountForFee, quote: correctState.quote)
+            let isFeeCurrency = fee.amount.type == amount.type
+            return .restriction(.notEnoughAmountForFee(isFeeCurrency: isFeeCurrency), quote: correctState.quote)
         } catch let error as ValidationError {
-            let context = ValidationErrorContext(isFeeCurrency: fee.amount.type == amount.type, feeValue: fee.amount.value)
+            let isFeeCurrency = fee.amount.type == amount.type
+            let context = ValidationErrorContext(isFeeCurrency: isFeeCurrency, feeValue: fee.amount.value)
             return .restriction(.validationError(error: error, context: context), quote: correctState.quote)
         } catch {
             return .restriction(.requiredRefresh(occurredError: error), quote: correctState.quote)
@@ -914,8 +918,8 @@ extension ExpressInteractor {
         case hasPendingTransaction
         case hasPendingApproveTransaction
         case notEnoughBalanceForSwapping(requiredAmount: Decimal)
-        case notEnoughAmountForFee
-        case notEnoughAmountForTxValue(_ estimatedTxValue: Decimal)
+        case notEnoughAmountForFee(isFeeCurrency: Bool)
+        case notEnoughAmountForTxValue(_ estimatedTxValue: Decimal, isFeeCurrency: Bool)
         case requiredRefresh(occurredError: Error)
         case noSourceTokens(destination: TokenItem)
         case noDestinationTokens(source: TokenItem)
@@ -939,9 +943,14 @@ extension ExpressInteractor {
     struct PreviewCEXState {
         let provider: ExpressProvider
         let tokenFeeProvidersManager: TokenFeeProvidersManager
-        let subtractFee: Decimal
+        let subtractFee: SubtractFee
         let isExemptFee: Bool
         let notification: WithdrawalNotification?
+    }
+
+    struct SubtractFee {
+        let feeTokenItem: TokenItem
+        let subtractFee: Decimal
     }
 
     struct ReadyToSwapState {
