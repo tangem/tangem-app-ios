@@ -74,10 +74,10 @@ extension SendMainButtonType {
         }
     }
 
-    func icon(action: SendFlowActionType) -> MainButton.Icon? {
+    func icon(action: SendFlowActionType, provider: TangemIconProvider) -> MainButton.Icon? {
         switch self {
         case .action where action == .onramp: nil
-        case .action: .trailing(Assets.tangemIcon)
+        case .action: provider.getMainButtonIcon()
         default: nil
         }
     }
