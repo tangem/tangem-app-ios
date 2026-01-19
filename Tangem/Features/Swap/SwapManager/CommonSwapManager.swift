@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import BlockchainSdk
 import TangemExpress
 import TangemFoundation
 
@@ -85,9 +86,13 @@ extension CommonSwapManager: SwapManager {
         interactor.update(amount: amount, by: .amountChange)
     }
 
-    func update(destination: TokenItem?, address: String?) {
+    func update(destination: TokenItem?, address: String?, accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?) {
         let destinationWallet = destination.map {
-            SwapDestinationWalletWrapper(tokenItem: $0, address: address)
+            SwapDestinationWalletWrapper(
+                tokenItem: $0,
+                address: address,
+                accountModelAnalyticsProvider: accountModelAnalyticsProvider
+            )
         }
 
         interactor.update(destination: destinationWallet)
@@ -95,10 +100,6 @@ extension CommonSwapManager: SwapManager {
 
     func update(provider: ExpressAvailableProvider) {
         interactor.updateProvider(provider: provider)
-    }
-
-    func update(feeOption: FeeOption) {
-        interactor.updateFeeOption(option: feeOption)
     }
 
     func update() {
@@ -122,6 +123,46 @@ extension CommonSwapManager: SwapManager {
         } catch {
             throw error
         }
+    }
+}
+
+// MARK: - SendApproveDataBuilderInput
+
+extension CommonSwapManager: SendApproveDataBuilderInput {
+    var selectedExpressProvider: ExpressProvider? {
+        get async { await selectedProvider?.provider }
+    }
+
+    var approveViewModelInput: (any ApproveViewModelInput)? {
+        interactor
+    }
+
+    var selectedPolicy: ApprovePolicy? {
+        guard case .permissionRequired(let permissionRequired, _) = interactor.getState() else {
+            return nil
+        }
+
+        return permissionRequired.policy
+    }
+}
+
+// MARK: - TokenFeeProvidersManagerProviding (ExpressInteractor Proxy)
+
+extension CommonSwapManager: TokenFeeProvidersManagerProviding {
+    var tokenFeeProvidersManager: TokenFeeProvidersManager? {
+        interactor.tokenFeeProvidersManager
+    }
+
+    var tokenFeeProvidersManagerPublisher: AnyPublisher<any TokenFeeProvidersManager, Never> {
+        interactor.tokenFeeProvidersManagerPublisher
+    }
+}
+
+// MARK: - TokenFeeProvidersManagerProviding (ExpressInteractor Proxy)
+
+extension CommonSwapManager: FeeSelectorOutput {
+    func userDidFinishSelection(feeTokenItem: TokenItem, feeOption: FeeOption) {
+        interactor.userDidFinishSelection(feeTokenItem: feeTokenItem, feeOption: feeOption)
     }
 }
 
