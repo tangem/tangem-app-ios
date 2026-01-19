@@ -18,6 +18,9 @@ public protocol StakingManager {
 
     var allowanceAddress: String? { get }
 
+    var tosURL: URL { get }
+    var privacyPolicyURL: URL { get }
+
     func updateState(loadActions: Bool) async
     func estimateFee(action: StakingAction) async throws -> Decimal
     func transaction(action: StakingAction) async throws -> StakingTransactionAction

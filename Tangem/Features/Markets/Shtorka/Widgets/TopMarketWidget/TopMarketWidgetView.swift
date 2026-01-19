@@ -19,48 +19,65 @@ struct TopMarketWidgetView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: MarketsWidgetLayout.Item.interItemSpacing) {
             header
-                .padding(.horizontal, MarketsWidgetLayout.Header.horizontalPadding)
 
-            content
-                .defaultRoundedBackground(
-                    with: Colors.Background.action,
-                    verticalPadding: MarketsWidgetLayout.Content.innerContentPadding,
-                    horizontalPadding: MarketsWidgetLayout.Content.innerContentPadding
-                )
-                .padding(.horizontal, MarketsWidgetLayout.Item.horizontalPadding)
+            list
         }
     }
 
     private var header: some View {
         MarketsCommonWidgetHeaderView(
             headerTitle: viewModel.widgetType.headerTitle ?? "",
+            headerImage: nil,
             buttonTitle: Localization.commonSeeAll,
             buttonAction: viewModel.onSeeAllTapAction,
-            isLoading: viewModel.loadingState == .idle || viewModel.loadingState == .loading
+            isLoading: viewModel.isFirstLoading
         )
     }
 
     @ViewBuilder
     private var content: some View {
-        switch viewModel.loadingState {
-        case .idle, .loading:
-            loadingSkeletons
-        case .loaded:
+        switch viewModel.tokenViewModelsState {
+        case .success(let tokenViewModels):
             VStack(spacing: .zero) {
-                ForEach(viewModel.tokenViewModels) {
+                ForEach(tokenViewModels) {
                     MarketTokenItemView(viewModel: $0, cellWidth: mainWindowSize.width)
                 }
             }
-        case .error:
-            MarketsMainWidgetErrorView {
-                viewModel.tryLoadAgain()
-            }
+        case .failure:
+            MarketsWidgetErrorView(tryLoadAgain: viewModel.tryLoadAgain)
+        case .loading:
+            loadingSkeletons
         }
     }
 
+    private var list: some View {
+        Group {
+            switch viewModel.tokenViewModelsState {
+            case .loading:
+                loadingSkeletons
+            case .success(let tokenViewModels):
+                VStack(spacing: .zero) {
+                    ForEach(tokenViewModels) {
+                        MarketTokenItemView(viewModel: $0, cellWidth: mainWindowSize.width)
+                    }
+                }
+            case .failure:
+                MarketsWidgetErrorView(tryLoadAgain: viewModel.tryLoadAgain)
+            }
+        }
+        .defaultRoundedBackground(
+            with: Colors.Background.action,
+            verticalPadding: MarketsWidgetLayout.Content.innerContentPadding,
+            horizontalPadding: MarketsWidgetLayout.Content.innerContentPadding
+        )
+        .padding(.horizontal, MarketsWidgetLayout.Item.horizontalPadding)
+    }
+
     private var loadingSkeletons: some View {
-        ForEach(0 ..< 5) { _ in
-            MarketsSkeletonItemView()
+        VStack(spacing: .zero) {
+            ForEach(0 ..< 5) { _ in
+                MarketsSkeletonItemView()
+            }
         }
     }
 }

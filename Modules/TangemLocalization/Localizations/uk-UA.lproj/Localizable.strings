@@ -291,6 +291,7 @@
 "common_no_address" = "Немає адреси";
 "common_no" = "Ні";
 "common_not_added" = "Не додано";
+"common_not_available" = "Not available";
 "common_not_now" = "Не зараз";
 "common_now" = "Зараз";
 "common_ok" = "ОК";
@@ -399,6 +400,8 @@
 "details_manage_security_long_tap" = "Затримка сканування";
 "details_manage_security_passcode_description" = "Перед виконанням будь-якої команди, що тягне за собою зміну стану картки, вам необхідно буде ввести пароль.";
 "details_manage_security_passcode" = "Пароль";
+"details_mobile_section_description" = "You can have either one mobile wallet or hardware wallet at the same time. Upgrade you wallet or delete it from the app to start using a Tangem cold wallet.";
+"details_mobile_wallet_upgrade_action_title" = "Upgrade to hardware wallet";
 "details_nft_title" = "NFT";
 "details_referral_title" = "Реферальна програма";
 "details_row_description_flip_to_hide" = "Переверніть екран пристрою вниз, щоб швидко приховати та відобразити баланси";
@@ -520,6 +523,8 @@
 "feedback_subject_tx_failed" = "Не вдається відправити транзакцію";
 "feedback_subject_tx_push_failed" = "Не можу проштовхнути транзакцію";
 "feedback_token_description_error" = "Помилка в описі монети";
+"gasless_not_enough_funds_to_cover_token_fee" = "Not enough funds";
+"gasless_transaction_fee" = "Gasless transaction fee";
 "generic_error_code" = "Виникла помилка. Код: %@.";
 "generic_error" = "Виникла помилка";
 "generic_requires_memo_error" = "Вимагається memo";
@@ -758,7 +763,7 @@
 "news_quick_recap" = "Quick recap";
 "news_related_news" = "Related News";
 "news_related_tokens" = "Пов'язані токени";
-"news_sources" = "Sources";
+"news_sources" = "Related news";
 "news_stay_in_the_loop" = "Залишайтеся в курсі подій";
 "nft_about_title" = "Про NFT";
 "nft_asset" = "NFT";
@@ -899,6 +904,7 @@
 "onboarding_wallet_info_title_fourth" = "Відновлення коду доступу";
 "onboarding_wallet_info_title_second" = "Ідентичні картки";
 "onboarding_wallet_info_title_third" = "Код доступу";
+"only_one_mobile_wallet_explanation" = "You can have either a mobile wallet or a hardware wallet at one time. Upgrade your wallet or delete it from the app to start using a Tangem cold wallet.";
 "onramp_all_offers_button_title" = "Усі пропозиції";
 "onramp_avaiable_with_payment_methods" = "Доступно з %@";
 "onramp_choose_provider_title_hint" = "Tangem забезпечує доступ к покупці через сторонніх провайдерів згідно з їхніми умовами";
@@ -1121,6 +1127,11 @@
 "settings_card_settings_footer" = "Підготуйтеся до сканування кільця або картки, яку ви хочете налаштувати.";
 "settings_forget_wallet_footer" = "Це призведе до видалення гаманця з застосунку. Сам гаманець можна додати знову.";
 "settings_forget_wallet" = "Забути гаманець";
+"settings_upgrade_banner_advantage_feature_title" = "Simple to use";
+"settings_upgrade_banner_description" = "Keeps your crypto safe and offline. Slim as a credit card, safer than a bank vault.";
+"settings_upgrade_banner_seed_phrase_feature_title" = "No seed phrase";
+"settings_upgrade_banner_superiority_feature_title" = "Best in class hardware wallet";
+"settings_upgrade_banner_title" = "Tangem Cold Wallet";
 "settings_wallet_name_title" = "Ім'я";
 "stake_token_description" = "Змусьте свій токен працювати";
 "staking_account_initialization_footer" = "Мережева комісія — це невелика оплата, необхідна для обробки та підтвердження вашої транзакції в блокчейні.";
@@ -1387,7 +1398,7 @@
 "tangempay_go_to_support" = "Написати у підтримку";
 "tangempay_issue_card_notification_description" = "Зазвичай це займає до 15 хвилин";
 "tangempay_issue_card_notification_title" = "Готуємо вашу картку Tangem";
-"tangempay_issuing_your_card_description" = "Випускаємо картку, це займе деякий час.";
+"tangempay_issuing_your_card_description" = "Карту зазвичай випускають автоматично протягом 5 хвилин. У рідкісних випадках, коли потрібна ручна перевірка, процес може тривати до 48 годин.";
 "tangempay_issuing_your_card" = "Випускаємо картку";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
 "tangempay_kyc_confirm_cancellation_alert_title" = "Підтвердити скасування";
@@ -1397,7 +1408,7 @@
 "tangempay_kyc_has_failed" = "KYC has failed";
 "tangempay_kyc_in_progress_notification_button" = "Переглянути статус";
 "tangempay_kyc_in_progress_notification_title" = "Перевірка KYC для Tangem Pay в процесі";
-"tangempay_kyc_in_progress_popup_description" = "Ви можете переглянути поточний статус KYC або відмінити його";
+"tangempay_kyc_in_progress_popup_description" = "Документи зазвичай перевіряються автоматично протягом 5 хвилин. У рідкісних випадках, коли потрібна ручна перевірка, це може зайняти до 48 годин.";
 "tangempay_kyc_in_progress" = "KYC в процесі";
 "tangempay_kyc_rejected_button_text" = "Hide KYC block";
 "tangempay_kyc_rejected_description_span" = "your profile.";
@@ -1499,6 +1510,7 @@
 "universal_error" = "Виникла помилка. Код помилки: %@. Спробуйте, будь ласка, знову. Якщо проблема знову виникає — зверніться до нашої служби підтримки.";
 "unlock_wallet_description_full" = "Використовуйте %@ або відскануйте картку/кільце, щоб отримати доступ до свого гаманця";
 "unsupported_wc_version" = "Не вдалося встановити з'єднання: Цей dApp використовує Wallet Connect версії 1.0, яка не підтримується. Будь ласка, переконайтеся, що dApp підтримує Wallet Connect версії 2.0 для успішного підключення.";
+"upgrade_to_hardware_wallet_button_title" = "Upgrade to a hardware wallet";
 "user_push_notification_agreement_argument_one_subtitle" = "Миттєві сповіщення про транзакції, обміни та важливі оновлення.";
 "user_push_notification_agreement_argument_one_title" = "Сповіщення про транзакції";
 "user_push_notification_agreement_argument_one" = "Будьте в курсі останніх функцій та новин";
