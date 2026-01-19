@@ -45,9 +45,8 @@ struct TangemPayKYCStatusPopupView: View {
             }
         }
         .overlay(alignment: .topTrailing) {
-            CircleButton
+            NavigationBarButton
                 .close(action: viewModel.dismiss)
-                .size(.small)
                 .padding(.top, 8)
         }
         .padding(.bottom, 12)

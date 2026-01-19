@@ -30,7 +30,7 @@ enum MobileOnboardingFlowNavBarAction {
                 action: handler
             )
         case .close(let handler):
-            CloseButton(dismiss: handler)
+            CloseTextButton(action: handler)
                 .padding(.leading, 16)
         case .skip(let handler):
             Button(action: handler) {
