@@ -1085,7 +1085,7 @@ enum SendScreenElement: String, UIElement {
         case .nextButton:
             return SendAccessibilityIdentifiers.sendViewNextButton
         case .backButton:
-            return CommonUIAccessibilityIdentifiers.circleButton
+            return CommonUIAccessibilityIdentifiers.backButton
         case .maxButton:
             return SendAccessibilityIdentifiers.maxAmountButton
         case .networkFeeBlock:
