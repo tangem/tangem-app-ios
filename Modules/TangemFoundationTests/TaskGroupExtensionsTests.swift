@@ -10,12 +10,15 @@ import Testing
 
 @Suite("Tests for extensions from the TaskGroup+.swift file")
 struct TaskGroupExtensionsTests {
-    @Test(arguments: [
-        [3, 1, 2, 5, 4, 2, 1],
-        [],
-        [1, 2, 3, 4],
-        [Int](repeating: Int.random(in: 0 ... 5), count: 100),
-    ])
+    @Test(
+        "Test `TaskGroup.executeKeepingOrder` helper method",
+        arguments: [
+            [3, 1, 2, 5, 4, 2, 1],
+            [],
+            [1, 2, 3, 4],
+            [Int](repeating: Int.random(in: 0 ... 5), count: 100),
+        ]
+    )
     func testExecuteKeepingOrder(numbers: [Int]) async throws {
         let expectedResult = numbers.map(String.init)
 
@@ -23,8 +26,33 @@ struct TaskGroupExtensionsTests {
         #expect(givenResult == expectedResult)
     }
 
+    @Test(
+        "Test `TaskGroup.tryExecuteKeepingOrder` helper method",
+        arguments: [
+            [3, 1, 2, 5, 4, 2, 1],
+            [],
+            [1, 2, 3, 4],
+            [Int](repeating: Int.random(in: 0 ... 5), count: 100),
+        ]
+    )
+    func testTryExecuteKeepingOrder(numbers: [Int]) async throws {
+        let expectedResult = numbers.map(String.init)
+
+        let givenResult = try await TaskGroup.tryExecuteKeepingOrder(items: numbers, action: tryProcessItem)
+        #expect(givenResult == expectedResult)
+    }
+
     private func processItem(_ item: Int) async -> String {
-        try? await Task.sleep(for: .seconds(item))
-        return "\(item)"
+        return await Task.detached {
+            try? await Task.sleep(for: .seconds(item))
+            return "\(item)"
+        }.value
+    }
+
+    private func tryProcessItem(_ item: Int) async throws -> String {
+        return try await Task.detached {
+            try await Task.sleep(for: .seconds(item))
+            return "\(item)"
+        }.value
     }
 }
