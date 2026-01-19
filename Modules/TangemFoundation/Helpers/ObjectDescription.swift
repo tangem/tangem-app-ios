@@ -37,7 +37,8 @@ public func objectDescription(
 
 private enum ObjectDescriptionFormatter {
     static func format(objectDescription: String, userInfo: KeyValuePairs<AnyHashable, Any>) -> String {
-        let description = userInfo.reduce(into: [objectDescription]) { partialResult, pair in
+        let initialResult = objectDescription.isEmpty ? [] : [objectDescription]
+        let description = userInfo.reduce(into: initialResult) { partialResult, pair in
             partialResult.append(String(describing: pair.key) + " = " + String(describing: pair.value))
         }
 
