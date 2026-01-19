@@ -594,7 +594,10 @@ extension EthereumWalletManager: GaslessTransactionFeeProvider {
         // 9) Add markup of 1%
         fee *= Decimal(1.01)
 
-        // 10) Return Fee with updated params and computed amount
+        // 10)
+        fee = fee.rounded(scale: feeToken.decimalCount)
+
+        // 11) Return Fee with updated params and computed amount
         return Fee(.init(with: feeToken, value: fee), parameters: newParams)
     }
 }

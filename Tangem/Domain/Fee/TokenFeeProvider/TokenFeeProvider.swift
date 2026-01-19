@@ -11,7 +11,8 @@ import Combine
 
 protocol TokenFeeProvider {
     var feeTokenItem: TokenItem { get }
-    var balanceState: FormattedTokenBalanceType { get }
+    var balanceFeeTokenState: TokenBalanceType { get }
+    var formattedFeeTokenBalance: FormattedTokenBalanceType { get }
     var hasMultipleFeeOptions: Bool { get }
 
     var state: TokenFeeProviderState { get }
