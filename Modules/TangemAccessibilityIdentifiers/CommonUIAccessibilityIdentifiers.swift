@@ -12,7 +12,7 @@ public enum CommonUIAccessibilityIdentifiers {
     public static let decimalNumberTextField = "commonUIDecimalNumberTextField"
     public static let grabber = "commonUIGrabber"
     public static let closeButton = "commonUICloseButton"
-    public static let circleButton = "commonUICircleButton"
+    public static let backButton = "commonUIBackButton"
 
     /// Entity summary view components
     public static let entityProviderName = "commonUIEntityProviderName"
