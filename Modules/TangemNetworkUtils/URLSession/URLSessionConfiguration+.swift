@@ -18,7 +18,7 @@ public extension URLSessionConfiguration {
 
     static let gaslessConfiguration: URLSessionConfiguration = {
         let configuration = URLSessionConfiguration.default
-        configuration.timeoutIntervalForRequest = 30
+        configuration.timeoutIntervalForRequest = 60
         configuration.timeoutIntervalForResource = 30
         return configuration
     }()

@@ -86,9 +86,9 @@ struct SendSummaryView: View {
         if let feeCompactViewModel = viewModel.sendFeeCompactViewModel {
             Group {
                 if feeCompactViewModel.canEditFee {
-                    Button(action: viewModel.userDidTapFee) { SendNewFeeCompactView(viewModel: feeCompactViewModel) }
+                    Button(action: viewModel.userDidTapFee) { SendFeeCompactView(viewModel: feeCompactViewModel) }
                 } else {
-                    SendNewFeeCompactView(viewModel: feeCompactViewModel)
+                    SendFeeCompactView(viewModel: feeCompactViewModel)
                 }
             }
             .accessibilityElement(children: .contain)

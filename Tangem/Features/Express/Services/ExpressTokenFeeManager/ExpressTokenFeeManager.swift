@@ -1,5 +1,5 @@
 //
-//  ExpressTokenFeeManager.swift
+//  ExpressTokenFeeProvidersManager.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,11 +10,9 @@ import TangemExpress
 import Combine
 import TangemFoundation
 
-protocol ExpressTokenFeeManager {
-    func tokenFeeManager(providerId: ExpressProvider.Id) -> TokenFeeManager?
-    func selectedFeeProvider(providerId: ExpressProvider.Id) -> (any TokenFeeProvider)?
-    func fees(providerId: ExpressProvider.Id) -> TokenFeesList
-    func supportedFeeTokenProviders(providerId: ExpressProvider.Id) -> [any TokenFeeProvider]
+protocol ExpressTokenFeeProvidersManager {
+    func tokenFeeProvidersManager(providerId: ExpressProvider.Id) -> TokenFeeProvidersManager
 
-    func updateSelectedFeeTokenProviderInAllManagers(tokenFeeProvider: any TokenFeeProvider)
+    func updateSelectedFeeOptionInAllManagers(feeOption: FeeOption)
+    func updateSelectedFeeTokenItemInAllManagers(feeTokenItem: TokenItem)
 }

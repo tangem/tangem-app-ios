@@ -19,14 +19,12 @@ struct FeeSelectorRowView: View {
     // MARK: - View Body
 
     var body: some View {
-        if viewModel.selectAction != nil {
-            Button(action: onSelectAction) {
-                content
-            }
-            .buttonStyle(.plain)
-        } else {
+        Button(action: action) {
             content
         }
+        .buttonStyle(.plain)
+        .disabled(viewModel.availability != .available)
+        .opacity(viewModel.availability.isAvailable ? 1 : 0.5)
     }
 
     // MARK: - Sub Views
@@ -48,6 +46,7 @@ struct FeeSelectorRowView: View {
     private var labels: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(viewModel.title)
+                .lineLimit(1)
                 .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
                 .multilineTextAlignment(.leading)
 
@@ -56,7 +55,7 @@ struct FeeSelectorRowView: View {
                 LoadableTokenBalanceView(
                     state: state,
                     style: .init(font: Fonts.Regular.caption1, textColor: Colors.Text.tertiary),
-                    loader: .init(size: CGSize(width: 100, height: 16))
+                    loader: .init(size: CGSize(width: 100, height: 20))
                 )
             case .fee(let state):
                 LoadableTextView(
@@ -134,12 +133,16 @@ struct FeeSelectorRowView: View {
 
     // MARK: - Private Implementation
 
-    private func onSelectAction() {
-        if !viewModel.isSelected {
-            FeedbackGenerator.selectionChanged()
+    private func action() {
+        if let selectAction = viewModel.selectAction {
+            if !viewModel.isSelected {
+                FeedbackGenerator.selectionChanged()
+            }
+            selectAction()
+            return
         }
 
-        viewModel.selectAction?()
+        viewModel.expandAction?()
     }
 }
 

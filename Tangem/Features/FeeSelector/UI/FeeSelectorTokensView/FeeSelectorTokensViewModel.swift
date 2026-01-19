@@ -12,11 +12,11 @@ import TangemAccessibilityIdentifiers
 import TangemUIUtils
 
 protocol FeeSelectorTokensDataProvider {
-    var selectedSelectorTokenFeeProvider: TokenFeeProvider? { get }
-    var selectedSelectorTokenFeeProviderPublisher: AnyPublisher<TokenFeeProvider?, Never> { get }
+    var selectedTokenFeeProvider: TokenFeeProvider { get }
+    var selectedTokenFeeProviderPublisher: AnyPublisher<TokenFeeProvider, Never> { get }
 
-    var selectorTokenFeeProviders: [any TokenFeeProvider] { get }
-    var selectorTokenFeeProvidersPublisher: AnyPublisher<[any TokenFeeProvider], Never> { get }
+    var supportedTokenFeeProviders: [any TokenFeeProvider] { get }
+    var supportedTokenFeeProvidersPublisher: AnyPublisher<[any TokenFeeProvider], Never> { get }
 }
 
 protocol FeeSelectorTokensRoutable: AnyObject {
@@ -27,7 +27,10 @@ final class FeeSelectorTokensViewModel: ObservableObject {
     // MARK: - Published
 
     @Published
-    private(set) var feeCurrencyTokens = [FeeSelectorRowViewModel]()
+    private(set) var availableFeeCurrencyTokens = [FeeSelectorRowViewModel]()
+
+    @Published
+    private(set) var unavailableFeeCurrencyTokens = [FeeSelectorRowViewModel]()
 
     // MARK: - Dependencies
 
@@ -56,19 +59,29 @@ final class FeeSelectorTokensViewModel: ObservableObject {
 
     private func bind() {
         Publishers.CombineLatest(
-            tokensDataProvider.selectorTokenFeeProvidersPublisher,
-            tokensDataProvider.selectedSelectorTokenFeeProviderPublisher
+            tokensDataProvider.supportedTokenFeeProvidersPublisher,
+            tokensDataProvider.selectedTokenFeeProviderPublisher
         )
         .receiveOnMain()
         .withWeakCaptureOf(self)
         .map { viewModel, output in
             let (providers, selectedProvider) = output
-            let selectedId = selectedProvider?.feeTokenItem
+
             return providers.map { provider in
-                viewModel.mapTokenItemToRowViewModel(tokenFeeProvider: provider, isSelected: selectedId == provider.feeTokenItem)
+                viewModel.mapTokenItemToRowViewModel(
+                    tokenFeeProvider: provider,
+                    isSelected: selectedProvider.feeTokenItem == provider.feeTokenItem
+                )
             }
         }
-        .assign(to: \.feeCurrencyTokens, on: self, ownership: .weak)
+        .withWeakCaptureOf(self)
+        .sink { viewModel, providers in
+            let available = providers.filter { $0.availability.isAvailable }
+            let unavailable = providers.filter { !$0.availability.isAvailable }
+
+            viewModel.availableFeeCurrencyTokens = available
+            viewModel.unavailableFeeCurrencyTokens = unavailable
+        }
         .store(in: &bag)
     }
 
@@ -79,15 +92,44 @@ final class FeeSelectorTokensViewModel: ObservableObject {
             textBuilder: Localization.commonBalance
         )
 
+        var feeTokenAvailability: FeeSelectorRowViewModel.Availability {
+            switch tokenFeeProvider.state {
+            case .available, .idle, .loading:
+                .available
+            case .unavailable(let reason):
+                reason.asAvailability
+            case .error:
+                .unavailable
+            }
+        }
+
         return FeeSelectorRowViewModel(
             rowType: .token(tokenIconInfo: TokenIconInfoBuilder().build(from: feeTokenItem, isCustom: false)),
             title: feeTokenItem.name,
             subtitle: .balance(subtitleBalanceState),
+            availability: feeTokenAvailability,
             accessibilityIdentifier: FeeAccessibilityIdentifiers.feeCurrencyOption,
             isSelected: isSelected,
             selectAction: { [weak self] in
-                self?.router?.userDidSelectFeeToken(tokenFeeProvider: tokenFeeProvider)
+                if feeTokenAvailability.isAvailable {
+                    self?.router?.userDidSelectFeeToken(tokenFeeProvider: tokenFeeProvider)
+                }
             }
         )
+    }
+}
+
+private extension TokenFeeProviderStateUnavailableReason {
+    var asAvailability: FeeSelectorRowViewModel.Availability {
+        switch self {
+        case .inputDataNotSet:
+            .unavailable
+        case .notSupported:
+            .notSupported
+        case .notEnoughFeeBalance:
+            .notEnoughBalance
+        case .noTokenBalance:
+            .noBalance
+        }
     }
 }
