@@ -160,7 +160,6 @@ private extension TopMarketWidgetViewModel {
             .receiveOnMain()
             .sink { viewModel, _ in
                 viewModel.widgetsUpdateHandler.performUpdateLoading(state: .loaded, for: viewModel.widgetType)
-                viewModel.isFirstLoading = false
             }
             .store(in: &bag)
 
@@ -170,11 +169,13 @@ private extension TopMarketWidgetViewModel {
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, state in
-                if case .readyForDisplay = state {
+                if case .readyForDisplay = state, viewModel.dataProvider.lastEvent.isAppendedItems {
                     let items = viewModel.dataProvider.items.prefix(Constants.itemsOnListWidget)
                     let tokenViewModelsToAppend = viewModel.mapToItemViewModel(Array(items), offset: 0)
                     viewModel.tokenViewModelsState = .success(tokenViewModelsToAppend)
                 }
+
+                viewModel.clearIsFirstLoadingFlag()
             }
             .store(in: &bag)
     }
@@ -200,6 +201,13 @@ private extension TopMarketWidgetViewModel {
     private func onTokenTapAction(with tokenItemModel: MarketsTokenModel) {
         runTask(in: self) { @MainActor viewModel in
             viewModel.coordinator?.openMarketsTokenDetails(for: tokenItemModel)
+        }
+    }
+
+    private func clearIsFirstLoadingFlag() {
+        // Remove duplicate publishing property
+        if isFirstLoading {
+            isFirstLoading = false
         }
     }
 }
