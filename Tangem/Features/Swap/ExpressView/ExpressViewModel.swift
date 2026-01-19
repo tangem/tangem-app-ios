@@ -44,6 +44,8 @@ final class ExpressViewModel: ObservableObject {
     @Published var mainButtonState: MainButtonState = .swap
     @Published var alert: AlertBinder?
 
+    let tangemIconProvider: TangemIconProvider
+
     @Published var legalText: AttributedString?
 
     // MARK: - Dependencies
@@ -84,6 +86,7 @@ final class ExpressViewModel: ObservableObject {
         self.expressRepository = expressRepository
         self.interactor = interactor
         self.coordinator = coordinator
+        tangemIconProvider = CommonTangemIconProvider(config: userWalletInfo.config)
 
         Analytics.log(event: .swapScreenOpenedSwap, params: [.token: initialTokenItem.currencySymbol])
         setupView()
@@ -191,9 +194,14 @@ private extension ExpressViewModel {
         }
     }
 
-    func openFeeSelectorView() {
-        // If we have fees for choosing
-        guard !interactor.getState().fees.isEmpty else {
+    func openFeeSelectorView(tokenFeeProvidersManager: TokenFeeProvidersManager) {
+        guard let tokenFeeProvidersManager = interactor.tokenFeeProvidersManager else {
+            ExpressLogger.debug("`openFeeSelectorView()` called while loading state")
+            return
+        }
+
+        guard tokenFeeProvidersManager.supportFeeSelection else {
+            ExpressLogger.debug("`openFeeSelectorView()` called while not `supportFeeSelection`")
             return
         }
 
@@ -473,18 +481,13 @@ private extension ExpressViewModel {
 
     func updateFeeValue(state: ExpressInteractor.State) {
         switch state {
-        case .restriction(.notEnoughAmountForTxValue, _):
-            // Single estimated fee just for UI
-            updateExpressFeeRowViewModel(fees: .loading)
-        case .restriction(.notEnoughAmountForFee(let state), _):
-            updateExpressFeeRowViewModel(fees: .success(state.fees))
         case .previewCEX(let state, _) where state.isExemptFee:
             // Don't show fee row if transaction has fee exemption
             expressFeeRowViewModel = nil
         case .previewCEX(let state, _):
-            updateExpressFeeRowViewModel(fees: .success(state.fees))
+            updateExpressFeeRowViewModel(tokenFeeProvidersManager: state.tokenFeeProvidersManager)
         case .readyToSwap(let state, _):
-            updateExpressFeeRowViewModel(fees: .success(state.fees))
+            updateExpressFeeRowViewModel(tokenFeeProvidersManager: state.tokenFeeProvidersManager)
         case .loading(.fee):
             updateExpressFeeRowViewModel(fee: .loading, action: nil)
         case .idle, .restriction, .loading(.full), .permissionRequired:
@@ -495,29 +498,27 @@ private extension ExpressViewModel {
         }
     }
 
-    func updateExpressFeeRowViewModel(fees: LoadingResult<ExpressInteractor.Fees, Never>) {
-        switch fees {
+    func updateExpressFeeRowViewModel(tokenFeeProvidersManager: TokenFeeProvidersManager) {
+        let selectedTokenFee = tokenFeeProvidersManager.selectedFeeProvider.selectedTokenFee
+        switch selectedTokenFee.value {
+        case .failure:
+            updateExpressFeeRowViewModel(fee: .noData, action: nil)
         case .loading:
             updateExpressFeeRowViewModel(fee: .loading, action: nil)
-        case .success(let fees):
-            guard let fee = try? fees.selectedFee().amount.value else {
-                expressFeeRowViewModel = nil
-                return
-            }
+        case .success(let fee):
+            let action: (() -> Void)? = {
+                // If fee is only one option then don't open selector
+                guard tokenFeeProvidersManager.supportFeeSelection else {
+                    return nil
+                }
 
-            var action: (() -> Void)?
-            // If fee is one option then don't open selector
-            if !fees.isFixed {
-                action = weakify(self, forFunction: ExpressViewModel.openFeeSelectorView)
-            }
+                return { [weak self] in
+                    self?.openFeeSelectorView(tokenFeeProvidersManager: tokenFeeProvidersManager)
+                }
+            }()
 
-            do {
-                let sender = try interactor.getSourceWallet()
-                let formattedFee = feeFormatter.format(fee: fee, tokenItem: sender.feeTokenItem)
-                updateExpressFeeRowViewModel(fee: .loaded(text: formattedFee), action: action)
-            } catch {
-                updateExpressFeeRowViewModel(fee: .noData, action: action)
-            }
+            let formattedFee = feeFormatter.format(fee: fee.amount.value, tokenItem: selectedTokenFee.tokenItem)
+            updateExpressFeeRowViewModel(fee: .loaded(text: formattedFee), action: action)
         }
     }
 
@@ -849,10 +850,10 @@ extension ExpressViewModel {
             }
         }
 
-        var icon: MainButton.Icon? {
+        func getIcon(tangemIconProvider: TangemIconProvider) -> MainButton.Icon? {
             switch self {
             case .swap, .permitAndSwap:
-                return .trailing(Assets.tangemIcon)
+                return tangemIconProvider.getMainButtonIcon()
             case .insufficientFunds:
                 return .none
             }

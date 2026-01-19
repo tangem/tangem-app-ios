@@ -94,7 +94,7 @@ actor YieldManagerInteractor {
         let feeNative = feeParameters.calculateFee(decimalValue: manager.blockchain.decimalValue)
         let gasInFiat = try await converter.convertToFiat(feeNative, currencyId: manager.blockchain.currencyId)
 
-        guard let gasInToken = converter.convertFromFiat(gasInFiat, currencyId: manager.tokenId) else {
+        guard let gasInToken = converter.convertToCryptoFrom(fiatValue: gasInFiat, currencyId: manager.tokenId) else {
             throw YieldModuleError.minimalTopUpAmountNotFound
         }
 
