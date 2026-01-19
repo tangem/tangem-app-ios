@@ -64,20 +64,6 @@ extension ArchivedCryptoAccountInfo: CustomStringConvertible {
     }
 }
 
-// MARK: - BaseAccountModel protocol conformance
-
-extension ArchivedCryptoAccountInfo: BaseAccountModel {
-    @discardableResult
-    func edit(with editor: Editor) async throws(AccountEditError) -> Self {
-        assertionFailure("Should never be called")
-        return self
-    }
-
-    var didChangePublisher: AnyPublisher<Void, Never> {
-        .empty
-    }
-}
-
 // MARK: - CryptoAccountPersistentConfigConvertible protocol conformance
 
 extension ArchivedCryptoAccountInfo: CryptoAccountPersistentConfigConvertible {

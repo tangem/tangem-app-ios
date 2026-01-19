@@ -234,8 +234,8 @@ private extension TransactionHistoryMapper {
         case "transfer": .transfer
         case "approve": .approve
         case "swap": .swap
-        case "buyVoucher", "buyVoucherPOL", "delegate": .stake
-        case "sellVoucher_new", "sellVoucher_newPOL", "undelegate": .unstake
+        case "buyVoucher", "buyVoucherPOL", "delegate", "stakeETH": .stake
+        case "sellVoucher_new", "sellVoucher_newPOL", "undelegate", "unstakeETH": .unstake
         case "unstakeClaimTokens_new", "unstakeClaimTokens_newPOL", "claim": .withdraw
         case "withdrawRewards", "withdrawRewardsPOL": .claimRewards
         case "redelegate": .restake

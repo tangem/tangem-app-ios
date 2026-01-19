@@ -184,12 +184,14 @@ final class ActionButtonsSwapViewModel: ObservableObject {
                         userWalletInfo: userWalletModel.userWalletInfo,
                         source: ExpressInteractorWalletModelWrapper(
                             userWalletInfo: userWalletModel.userWalletInfo,
-                            walletModel: sourceToken.walletModel
+                            walletModel: sourceToken.walletModel,
+                            expressOperationType: .swap
                         ),
                         destination: .chosen(
                             ExpressInteractorWalletModelWrapper(
                                 userWalletInfo: userWalletModel.userWalletInfo,
-                                walletModel: destinationToken.walletModel
+                                walletModel: destinationToken.walletModel,
+                                expressOperationType: .swap
                             )
                         )
                     )

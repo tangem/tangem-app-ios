@@ -78,9 +78,11 @@ private extension AccountSelectorView {
 
 private extension AccountSelectorView {
     var accountSectionsView: some View {
-        ForEach(viewModel.accountsSections) { section in
-            accountSectionContent(for: section)
-                .padding(.bottom, 24)
+        VStack(spacing: 0) {
+            ForEach(viewModel.accountsSections) { section in
+                accountSectionContent(for: section)
+                    .padding(.bottom, 24)
+            }
         }
     }
 

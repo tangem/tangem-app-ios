@@ -59,8 +59,8 @@ struct SendCoordinatorView: CoordinatorView {
             ) {
                 OnrampCountryDetectionCoordinatorView(coordinator: $0)
             }
-            .floatingSheetContent(for: FeeSelectorContentViewModel.self) {
-                FeeSelectorContentView(viewModel: $0)
+            .floatingSheetContent(for: SendFeeSelectorViewModel.self) {
+                SendFeeSelectorView(viewModel: $0)
             }
             .floatingSheetContent(for: SendSwapProvidersSelectorViewModel.self) {
                 SendSwapProvidersSelectorView(viewModel: $0)

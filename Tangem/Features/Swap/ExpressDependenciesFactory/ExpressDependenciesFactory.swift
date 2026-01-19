@@ -32,7 +32,7 @@ struct ExpressDependenciesInput {
     init(
         userWalletInfo: UserWalletInfo,
         source: any ExpressInteractorSourceWallet,
-        destination: PredefinedDestination
+        destination: PredefinedDestination = .none
     ) {
         self.userWalletInfo = userWalletInfo
         self.source = source

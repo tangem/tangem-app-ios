@@ -88,6 +88,10 @@ final class TangemPayAccount {
     let customerInfoManagementService: any CustomerInfoManagementService
     let withdrawTransactionService: any TangemPayWithdrawTransactionService
 
+    var customerId: String? {
+        customerInfoSubject.value?.id
+    }
+
     var depositAddress: String? {
         customerInfoSubject.value?.depositAddress
     }
@@ -149,7 +153,6 @@ final class TangemPayAccount {
 
         // No reference cycle here, self is stored as weak in all three entities
         tangemPayNotificationManager.setupManager(with: self)
-        authorizationTokensHandler.setupAuthorizationTokensSaver(self)
         tangemPayIssuingManager.setupDelegate(self)
         withdrawTransactionService.set(output: self)
 
@@ -219,7 +222,7 @@ final class TangemPayAccount {
         }
 
         return runTask(in: self) { tangemPayAccount in
-            do {
+            do throws(TangemPayAPIServiceError) {
                 if tangemPayAccount.authorizer.state.authorized == nil {
                     tangemPayAccount.authorizer.setAuthorized()
                     return
@@ -231,12 +234,9 @@ final class TangemPayAccount {
                 if customerInfo.tangemPayStatus.isActive {
                     await tangemPayAccount.setupBalance()
                 }
-                // [REDACTED_TODO_COMMENT]
-            } catch let error as VisaAPIError where error.code == 110101 {
+            } catch .unauthorized {
                 tangemPayAccount.authorizer.setSyncNeeded()
-                VisaLogger.error("Failed to load customer info", error: error)
-            } catch TangemPayAuthorizationTokensHandlerError.preparingFailed {
-                VisaLogger.error("Failed to load customer info", error: TangemPayAuthorizationTokensHandlerError.preparingFailed)
+                VisaLogger.error("Failed to load customer info", error: TangemPayAPIServiceError.unauthorized)
             } catch {
                 tangemPayAccount.customerInfoLoadingFailedSignalSubject.send(())
                 VisaLogger.error("Failed to load customer info", error: error)
@@ -363,14 +363,6 @@ final class TangemPayAccount {
     }
 }
 
-// MARK: - TangemPayAuthorizationTokensSaver
-
-extension TangemPayAccount: TangemPayAuthorizationTokensSaver {
-    func saveAuthorizationTokensToStorage(tokens: TangemPayAuthorizationTokens, customerWalletId: String) throws {
-        try tangemPayAuthorizationTokensRepository.save(tokens: tokens, customerWalletId: customerWalletId)
-    }
-}
-
 // MARK: - TangemPayWithdrawTransactionServiceOutput
 
 extension TangemPayAccount: TangemPayWithdrawTransactionServiceOutput {
@@ -431,6 +423,9 @@ private extension VisaCustomerInfoResponse {
         }
 
         guard case .approved = kyc?.status else {
+            if case .declined = kyc?.status {
+                return .kycDeclined
+            }
             return .kycRequired
         }
 

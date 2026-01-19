@@ -26,7 +26,7 @@ struct HighPriceImpactWarningSheetView: View {
             ),
             secondaryButton: .init(
                 title: Localization.commonSend,
-                icon: .trailing(Assets.tangemIcon),
+                icon: viewModel.mainButtonIcon,
                 style: .secondary,
                 isLoading: viewModel.isActionProcessing,
                 action: viewModel.sendAnyway

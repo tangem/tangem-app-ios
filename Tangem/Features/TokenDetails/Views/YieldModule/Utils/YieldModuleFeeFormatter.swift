@@ -51,7 +51,7 @@ struct YieldModuleFeeFormatter {
 
         let coinToFiat = try await balanceConverter.convertToFiat(maxFeeNative, currencyId: feeCurrencyId)
 
-        guard let fiatToToken = balanceConverter.convertFromFiat(coinToFiat, currencyId: tokenId) else {
+        guard let fiatToToken = balanceConverter.convertToCryptoFrom(fiatValue: coinToFiat, currencyId: tokenId) else {
             throw YieldModuleFormatterFee.cannotFormatFee
         }
 
@@ -71,7 +71,7 @@ struct YieldModuleFeeFormatter {
 
     func makeFormattedMinimalFee(from minAmountInFiat: Decimal) async throws -> YieldFormattedFee {
         guard let tokenId = token.id,
-              let minAmountInToken = balanceConverter.convertFromFiat(minAmountInFiat, currencyId: tokenId)
+              let minAmountInToken = balanceConverter.convertToCryptoFrom(fiatValue: minAmountInFiat, currencyId: tokenId)
         else {
             throw YieldModuleFormatterFee.cannotFormatFee
         }
