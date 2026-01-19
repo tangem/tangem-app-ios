@@ -36,7 +36,7 @@ struct MobileFinishActivationNeededView: View {
 
 private extension MobileFinishActivationNeededView {
     var header: some View {
-        CircleButton.close(action: viewModel.onCloseTap)
+        NavigationBarButton.close(action: viewModel.onCloseTap)
             .frame(maxWidth: .infinity, alignment: .trailing)
     }
 

@@ -86,12 +86,9 @@ struct SendAmountView: View {
                 .backgroundColor(Colors.Background.action)
                 .innerContentPadding(0)
 
-                CircleButton(
-                    content: .title(icon: .trailing(Assets.clear), title: Localization.commonConvert),
-                    action: viewModel.removeReceivedToken
-                )
-                .readGeometry(\.frame.size, bindTo: $convertButtonSize)
-                .offset(y: -(convertButtonSize.height + scrollViewSpacing) / 2)
+                CapsuleButton(icon: .trailing(Assets.clear), title: Localization.commonConvert, action: viewModel.removeReceivedToken)
+                    .readGeometry(\.frame.size, bindTo: $convertButtonSize)
+                    .offset(y: -(convertButtonSize.height + scrollViewSpacing) / 2)
             }
         }
     }
