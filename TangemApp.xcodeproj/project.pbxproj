@@ -2619,7 +2619,6 @@
 		B6E972202AA0266C00D2B1D1 /* TokenSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6E9721F2AA0266C00D2B1D1 /* TokenSectionView.swift */; };
 		B6E9A8C52A997B09005CF137 /* MainFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6E9A8C42A997B09005CF137 /* MainFooterView.swift */; };
 		B6E9A8C72A9A35B5005CF137 /* MainFooterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6E9A8C62A9A35B5005CF137 /* MainFooterViewModel.swift */; };
-		B6E9A8C92A9A410A005CF137 /* CardsInfoPagerView+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6E9A8C82A9A410A005CF137 /* CardsInfoPagerView+.swift */; };
 		B6EAA2222EBEEA0600E758E1 /* TokenEntriesDerivator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6EAA2212EBEEA0600E758E1 /* TokenEntriesDerivator.swift */; };
 		B6EAA5F92A3998A3003909F0 /* OrganizeTokensDragAndDropController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6EAA5F82A3998A3003909F0 /* OrganizeTokensDragAndDropController.swift */; };
 		B6ED082C2A7D9DCD0090E51F /* UserTokensReorderingOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6ED082B2A7D9DCD0090E51F /* UserTokensReorderingOptions.swift */; };
@@ -7420,7 +7419,6 @@
 		B6E9721F2AA0266C00D2B1D1 /* TokenSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenSectionView.swift; sourceTree = "<group>"; };
 		B6E9A8C42A997B09005CF137 /* MainFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainFooterView.swift; sourceTree = "<group>"; };
 		B6E9A8C62A9A35B5005CF137 /* MainFooterViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainFooterViewModel.swift; sourceTree = "<group>"; };
-		B6E9A8C82A9A410A005CF137 /* CardsInfoPagerView+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CardsInfoPagerView+.swift"; sourceTree = "<group>"; };
 		B6EAA2212EBEEA0600E758E1 /* TokenEntriesDerivator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenEntriesDerivator.swift; sourceTree = "<group>"; };
 		B6EAA5F82A3998A3003909F0 /* OrganizeTokensDragAndDropController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensDragAndDropController.swift; sourceTree = "<group>"; };
 		B6ED082B2A7D9DCD0090E51F /* UserTokensReorderingOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTokensReorderingOptions.swift; sourceTree = "<group>"; };
@@ -17505,7 +17503,6 @@
 				B691A8BE2AFE43A40059D182 /* Animations */,
 				B675A1E52A1E05F700F624B6 /* CardsInfoPagerView.swift */,
 				2D3E1DF42C9ACE80006AF975 /* CardsInfoPagerBottomOverlayFactoryParams.swift */,
-				B6E9A8C82A9A410A005CF137 /* CardsInfoPagerView+.swift */,
 				B63FDB172A5F09F10080240F /* CardsInfoPagerFlexibleFooterView.swift */,
 				B6C3B56D2AA1823A0017241C /* CardsInfoPagerScrollState.swift */,
 			);
@@ -28133,7 +28130,6 @@
 				EF8E3D2F2ECDE7E4001FFD86 /* CommonExpressApproveTransactionProcessor.swift in Sources */,
 				EF5A5AD028D86089002544AC /* TotalBalanceProvider.swift in Sources */,
 				B6DF90652CA317A70099FED5 /* MainBottomSheetFooterShadowView.swift in Sources */,
-				B6E9A8C92A9A410A005CF137 /* CardsInfoPagerView+.swift in Sources */,
 				0F48DC8C2E45EAE50095D3C8 /* MobileAccessCodeCleaner.swift in Sources */,
 				B0323F2C258C041D005C7CD5 /* SignerUtils.swift in Sources */,
 				5DBBAB0824D850EA00E78F1C /* CircleView.swift in Sources */,
