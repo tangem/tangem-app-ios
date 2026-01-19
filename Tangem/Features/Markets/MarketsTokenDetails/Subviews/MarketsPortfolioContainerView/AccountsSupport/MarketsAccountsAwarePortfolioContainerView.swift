@@ -72,12 +72,9 @@ struct MarketsAccountsAwarePortfolioContainerView: View {
             Spacer()
 
             if viewModel.typeView.isList {
-                CircleButton(
-                    content: .title(icon: .trailing(Assets.plus14), title: Localization.marketsAddToken),
-                    action: viewModel.onAddTapAction
-                )
-                .disabled(viewModel.isAddTokenButtonDisabled)
-                .loading(viewModel.isLoadingNetworks)
+                CapsuleButton(icon: .trailing(Assets.plus14), title: Localization.marketsAddToken, action: viewModel.onAddTapAction)
+                    .disabled(viewModel.isAddTokenButtonDisabled)
+                    .loading(viewModel.isLoadingNetworks)
             }
         }
         .padding(.horizontal, Constants.blockHeaderHorizontalPadding)
