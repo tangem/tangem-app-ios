@@ -40,7 +40,7 @@ private extension NewAuthView {
                     .transition(.opacity.animation(.easeIn))
             case .wallets(let item):
                 walletsView(item: item)
-                    .toolbar { navigationBarContent(item: item.addWallet) }
+                    .tangemLogoNavigationToolbar(trailingItem: trailingNavigationBarItem(item: item.addWallet))
                     .transition(.opacity.animation(.easeIn))
             case .none:
                 EmptyView()
@@ -72,27 +72,6 @@ private extension NewAuthView {
 // MARK: - NavigationBar
 
 private extension NewAuthView {
-    @ToolbarContentBuilder
-    func navigationBarContent(item: ViewModel.AddWalletItem) -> some ToolbarContent {
-        ToolbarItem(
-            placement: .navigationBarLeading,
-            content: leadingNavigationBarItem
-        )
-        ToolbarItem(
-            placement: .navigationBarTrailing,
-            content: { trailingNavigationBarItem(item: item) }
-        )
-    }
-
-    func leadingNavigationBarItem() -> some View {
-        Assets.newTangemLogo.image
-            .resizable()
-            .renderingMode(.template)
-            .aspectRatio(contentMode: .fit)
-            .foregroundColor(Colors.Icon.primary1)
-            .frame(width: 86, height: 18)
-    }
-
     func trailingNavigationBarItem(item: ViewModel.AddWalletItem) -> some View {
         Button(action: item.action) {
             Text(item.title)
