@@ -123,7 +123,7 @@ private extension DEXExpressProviderManager {
                     break
                 case .permissionRequired(let approveData):
                     return .permissionRequired(
-                        .init(policy: request.approvePolicy, data: approveData, quote: quote)
+                        .init(provider: provider, policy: request.approvePolicy, data: approveData, quote: quote)
                     )
                 case .approveTransactionInProgress:
                     return .restriction(.approveTransactionInProgress(spender: spender), quote: quote)
@@ -159,10 +159,13 @@ private extension DEXExpressProviderManager {
         let otherNativeFee = data.otherNativeFee ?? 0
 
         if let estimatedGasLimit = data.estimatedGasLimit {
-            let estimateFee = try await request.pair.source.feeProvider.estimatedFee(estimatedGasLimit: estimatedGasLimit)
-            let estimateTxValue = otherNativeFee + estimateFee.amount.value
-
-            return .feeCurrencyInsufficientBalanceForTxValue(estimateTxValue)
+            let feeRequest = ExpressFeeRequest(provider: provider, option: request.feeOption)
+            let estimateFee = try await request.pair.source.feeProvider.estimatedFee(
+                request: feeRequest,
+                estimatedGasLimit: estimatedGasLimit,
+                otherNativeFee: otherNativeFee
+            )
+            return .feeCurrencyInsufficientBalanceForTxValue(estimateFee.amount.value)
         }
 
         let estimatedAmount = request.amount + otherNativeFee
@@ -170,37 +173,17 @@ private extension DEXExpressProviderManager {
     }
 
     func ready(request: ExpressManagerSwappingPairRequest, quote: ExpressQuote, data: ExpressTransactionData) async throws -> ExpressManagerState.Ready {
-        var variants = try await request.pair.source.feeProvider.getFee(
-            amount: .dex(fromAmount: request.amount, txValue: data.txValue, txData: data.txData),
-            destination: data.destinationAddress
+        let feeRequest = ExpressFeeRequest(provider: provider, option: request.feeOption)
+        _ = try await request.pair.source.feeProvider.transactionFee(
+            request: feeRequest,
+            data: .dex(data: data)
         )
 
         try Task.checkCancellation()
-        if let otherNativeFee = data.otherNativeFee {
-            variants = include(otherNativeFee: otherNativeFee, in: variants)
-            ExpressLogger.info(self, "The fee was increased by otherNativeFee \(otherNativeFee)")
-        }
 
         // better to make the quote from the data
         let quoteData = ExpressQuote(fromAmount: data.fromAmount, expectAmount: data.toAmount, allowanceContract: quote.allowanceContract)
-        let fee = ExpressFee(option: request.feeOption, variants: variants)
-        return .init(fee: fee, data: data, quote: quoteData)
-    }
-
-    func include(otherNativeFee: Decimal, in variants: ExpressFee.Variants) -> ExpressFee.Variants {
-        switch variants {
-        case .single(let fee):
-            return .single(add(value: otherNativeFee, to: fee))
-        case .double(let market, let fast):
-            return .double(
-                market: add(value: otherNativeFee, to: market),
-                fast: add(value: otherNativeFee, to: fast)
-            )
-        }
-    }
-
-    func add(value: Decimal, to fee: Fee) -> Fee {
-        Fee(.init(with: fee.amount, value: fee.amount.value + value), parameters: fee.parameters)
+        return .init(provider: provider, data: data, quote: quoteData)
     }
 }
 

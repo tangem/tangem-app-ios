@@ -83,21 +83,21 @@ extension StakingFeatureProvider {
     func yieldIds(item: StakingItem) -> String? {
         switch (item.network, item.contractAddress) {
         case (.solana, .none):
-            return "solana-sol-native-multivalidator-staking"
+            return StakingIntegrationId.solana.rawValue
         case (.cosmos, .none):
-            return "cosmos-atom-native-staking"
+            return StakingIntegrationId.cosmos.rawValue
         case (.ethereum, StakingConstants.polygonContractAddress):
-            return "ethereum-matic-native-staking"
+            return StakingIntegrationId.matic.rawValue
         case (.tron, .none):
-            return "tron-trx-native-staking"
+            return StakingIntegrationId.tron.rawValue
         case (.bsc, .none):
-            return "bsc-bnb-native-staking"
+            return StakingIntegrationId.bsc.rawValue
         case (.ton, .none):
-            return "ton-ton-chorus-one-pools-staking"
+            return StakingIntegrationId.ton.rawValue
         case (.cardano, .none):
-            return "cardano-ada-native-staking"
+            return StakingIntegrationId.cardano.rawValue
         case (.ethereum, .none):
-            return "ethereum-p2p-staking" // dummy id for consistency
+            return StakingIntegrationId.ethereumP2P.rawValue // dummy id for consistency
         default:
             return nil
         }

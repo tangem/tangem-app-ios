@@ -13,6 +13,7 @@ import FirebaseMessaging
 import TangemVisa
 import struct TangemUIUtils.AlertBinder
 import TangemStaking
+import TangemAccessibilityIdentifiers
 
 final class EnvironmentSetupViewModel: ObservableObject {
     @Injected(\.promotionService) var promotionService: PromotionServiceProtocol
@@ -80,15 +81,6 @@ final class EnvironmentSetupViewModel: ObservableObject {
                     set: { $0.isMockedCardScannerEnabled = $1 }
                 )
             ),
-            DefaultToggleRowViewModel(
-                title: "Visa API Mocks",
-                isOn: BindingValue<Bool>(
-                    root: featureStorage,
-                    default: false,
-                    get: { $0.isVisaAPIMocksEnabled },
-                    set: { $0.isVisaAPIMocksEnabled = $1 }
-                )
-            ),
         ]
 
         pickerViewModels = [
@@ -144,6 +136,16 @@ final class EnvironmentSetupViewModel: ObservableObject {
                     set: { $0.yieldModuleAPIType = YieldModuleAPIType(rawValue: $1) ?? .prod }
                 )
             ),
+            DefaultPickerRowViewModel(
+                title: "Gasless Transactions API type",
+                options: GaslessTransactionsAPIType.allCases.map { $0.rawValue },
+                selection: BindingValue<String>(
+                    root: featureStorage,
+                    default: GaslessTransactionsAPIType.prod.rawValue,
+                    get: { $0.gaslessTransactionsAPIType.rawValue },
+                    set: { $0.gaslessTransactionsAPIType = GaslessTransactionsAPIType(rawValue: $1) ?? .prod }
+                )
+            ),
         ]
 
         featureStateViewModels = Feature.allCases.reversed().map { feature in
@@ -176,6 +178,13 @@ final class EnvironmentSetupViewModel: ObservableObject {
             DefaultRowViewModel(title: "NFT-enabled Blockchains", action: { [weak self] in
                 self?.coordinator?.openNFTBlockchainsPreferences()
             }),
+            DefaultRowViewModel(
+                title: "Addresses info",
+                accessibilityIdentifier: CommonUIAccessibilityIdentifiers.addressesInfoButton,
+                action: { [weak self] in
+                    self?.coordinator?.openAddressesInfo()
+                }
+            ),
         ]
 
         updateCurrentPromoCode()

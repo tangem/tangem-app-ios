@@ -37,12 +37,12 @@ class OnboardingSeedPhraseImportViewModel: ObservableObject {
 
     init(
         inputProcessor: SeedPhraseInputProcessor,
-        shouldShowTangemIcon: Bool,
+        tangemIconProvider: TangemIconProvider,
         delegate: SeedPhraseImportDelegate?
     ) {
         self.inputProcessor = inputProcessor
         self.delegate = delegate
-        mainButtonIcon = shouldShowTangemIcon ? .trailing(Assets.tangemIcon) : nil
+        mainButtonIcon = tangemIconProvider.getMainButtonIcon()
         bind()
     }
 
