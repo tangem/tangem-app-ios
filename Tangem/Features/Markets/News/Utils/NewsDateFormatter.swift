@@ -76,6 +76,13 @@ final class NewsDateFormatter {
         self.locale = locale
     }
 
+    /// Parses an ISO8601 date string into a Date object.
+    ///
+    /// Uses two formatters to handle API response variations:
+    /// - First tries `iso8601Formatter` which expects fractional seconds (e.g., "2024-12-21T10:30:45.123Z")
+    /// - Falls back to `iso8601FormatterNoFraction` for dates without fractional seconds (e.g., "2024-12-21T10:30:45Z")
+    ///
+    /// This dual-formatter approach ensures compatibility with different API response formats.
     func parseDate(from string: String) -> Date? {
         iso8601Formatter.date(from: string) ?? iso8601FormatterNoFraction.date(from: string)
     }
