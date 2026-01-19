@@ -22,6 +22,8 @@ final class StakeKitStakingManager {
     // MARK: Private
 
     private let _state = CurrentValueSubject<StakingManagerState, Never>(.loading)
+    private let _updateWalletBalancesSubject = CurrentValueSubject<Void, Never>(())
+
     private var canStakeMore: Bool {
         switch wallet.item.network {
         case .solana, .cosmos, .tron, .ethereum, .bsc, .ton: true
@@ -53,6 +55,10 @@ extension StakeKitStakingManager: StakingManager {
         _state.eraseToAnyPublisher()
     }
 
+    var updateWalletBalancesPublisher: AnyPublisher<Void, Never> {
+        _updateWalletBalancesSubject.eraseToAnyPublisher()
+    }
+
     var allowanceAddress: String? {
         switch (wallet.item.network, wallet.item.contractAddress) {
         case (.ethereum, StakingConstants.polygonContractAddress):
@@ -66,7 +72,7 @@ extension StakeKitStakingManager: StakingManager {
         await updateState(loadActions: loadActions, startUpdateDate: nil)
     }
 
-    func updateState(loadActions: Bool, startUpdateDate: Date? = nil) async {
+    func updateState(loadActions: Bool, startUpdateDate: Date? = nil, previousActions: [PendingAction]? = nil) async {
         await updateState(.loading)
         do {
             async let balances = provider.balances(wallet: wallet, integrationId: integrationId)
@@ -81,8 +87,18 @@ extension StakeKitStakingManager: StakingManager {
             if loadActions, !loadedActions.isEmpty,
                Date().timeIntervalSince(effectiveStartUpdateDate) < Constants.statusUpdateTimeout {
                 try await Task.sleep(seconds: Constants.statusUpdateInterval) // Refresh pending actions status until empty
-                await updateState(loadActions: true, startUpdateDate: effectiveStartUpdateDate)
+                await updateState(
+                    loadActions: true,
+                    startUpdateDate: effectiveStartUpdateDate,
+                    previousActions: loadedActions
+                )
+            } else if loadActions, loadedActions.isEmpty, let previousActions, !previousActions.isEmpty {
+                // there were some actions but now there're none,
+                // so staking balances are up to date now and we need to update balance from the network
+                // to keep them in sync
+                _updateWalletBalancesSubject.send(())
             }
+
         } catch is CancellationError {
             // Ignored intentionally
             return
