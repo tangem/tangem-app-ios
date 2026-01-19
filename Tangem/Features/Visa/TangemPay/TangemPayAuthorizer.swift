@@ -36,7 +36,7 @@ final class TangemPayAuthorizer {
     init(
         userWalletModel: UserWalletModel,
         state: State,
-        authorizationService: TangemPayAuthorizationService = TangemPayAPIServiceBuilder().buildTangemPayAuthorizationService()
+        authorizationService: TangemPayAuthorizationService
     ) {
         self.userWalletModel = userWalletModel
         self.authorizationService = authorizationService

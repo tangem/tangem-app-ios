@@ -19,7 +19,11 @@ extension OnrampFlowBaseDependenciesFactory {
     // MARK: - Analytics
 
     func makeOnrampSendAnalyticsLogger(source: SendCoordinator.Source) -> OnrampSendAnalyticsLogger {
-        CommonOnrampSendAnalyticsLogger(tokenItem: tokenItem, source: source)
+        CommonOnrampSendAnalyticsLogger(
+            tokenItem: tokenItem,
+            source: source,
+            accountModelAnalyticsProvider: accountModelAnalyticsProvider
+        )
     }
 
     // MARK: - OnrampDependencies

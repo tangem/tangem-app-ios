@@ -142,7 +142,7 @@ struct TransactionViewModel: Hashable, Identifiable {
         status: TransactionViewModel.Status,
         isFromYieldContract: Bool
     ) {
-        id = ViewModelId(hash: hash, index: index)
+        id = ViewModelId(hash: hash, index: index, statusRawValue: status.rawValue)
         self.hash = hash
         icon = TransactionViewIconViewData(type: transactionType, status: status, isOutgoing: isOutgoing)
         self.amount = TransactionViewAmountViewData(
@@ -167,6 +167,7 @@ extension TransactionViewModel {
     struct ViewModelId: Hashable {
         fileprivate let hash: String
         fileprivate let index: Int
+        fileprivate let statusRawValue: String
     }
 
     enum InteractionAddressType: Hashable {
@@ -224,7 +225,7 @@ extension TransactionViewModel {
         }
     }
 
-    enum Status {
+    enum Status: String {
         case inProgress
         case failed
         case confirmed
