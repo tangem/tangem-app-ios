@@ -33,7 +33,7 @@ struct ReferralCoordinatorView: CoordinatorView {
                     BottomSheetHeaderView(
                         title: Localization.commonChooseAccount,
                         trailing: {
-                            CircleButton.close(action: coordinator.closeSheet)
+                            NavigationBarButton.close(action: coordinator.closeSheet)
                         }
                     )
                     .padding(.horizontal, 16)

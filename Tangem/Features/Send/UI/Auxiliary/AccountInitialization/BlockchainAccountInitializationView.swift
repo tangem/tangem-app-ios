@@ -14,16 +14,12 @@ import TangemLocalization
 struct BlockchainAccountInitializationView: View {
     @ObservedObject var viewModel: BlockchainAccountInitializationViewModel
 
-    init(viewModel: BlockchainAccountInitializationViewModel) {
-        self.viewModel = viewModel
-    }
-
     var body: some View {
         VStack {
             BottomSheetHeaderView(
                 title: "",
                 trailing: {
-                    CircleButton.close(action: viewModel.dismiss)
+                    NavigationBarButton.close(action: viewModel.dismiss)
                 }
             )
 
