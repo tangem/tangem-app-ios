@@ -31,4 +31,17 @@ enum WCAccountFinder {
 
         return nil
     }
+
+    static func firstAvailableCryptoAccountModel(from accountModel: AccountModel) -> any CryptoAccountModel {
+        switch accountModel {
+        case .standard(.single(let cryptoAccount)):
+            return cryptoAccount
+        case .standard(.multiple(let cryptoAccounts)):
+            guard let cryptoAccount = cryptoAccounts.first else {
+                preconditionFailure("Required existence of at least one account in multiple account model")
+            }
+
+            return cryptoAccount
+        }
+    }
 }
