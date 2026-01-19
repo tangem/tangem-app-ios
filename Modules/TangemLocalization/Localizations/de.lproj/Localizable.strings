@@ -291,6 +291,7 @@
 "common_no_address" = "Keine Adresse";
 "common_no" = "Nein";
 "common_not_added" = "Nicht hinzugefügt";
+"common_not_available" = "Not available";
 "common_not_now" = "Nicht jetzt";
 "common_now" = "Jetzt";
 "common_ok" = "OK";
@@ -520,6 +521,8 @@
 "feedback_subject_tx_failed" = "Eine Transaktion kann nicht gesendet werden";
 "feedback_subject_tx_push_failed" = "Transaktion kann nicht gepusht werden";
 "feedback_token_description_error" = "Fehler in der Coinbeschreibung";
+"gasless_not_enough_funds_to_cover_token_fee" = "Not enough funds";
+"gasless_transaction_fee" = "Gasless transaction fee";
 "generic_error_code" = "Es ist ein Fehler aufgetreten. Code: %@.";
 "generic_error" = "Es ist ein Fehler aufgetreten";
 "generic_requires_memo_error" = "Memo erforderlich";
@@ -899,6 +902,7 @@
 "onboarding_wallet_info_title_fourth" = "Zugangscode wiederherstellen";
 "onboarding_wallet_info_title_second" = "Identische Karten oder Ring";
 "onboarding_wallet_info_title_third" = "Zugangscode";
+"only_one_mobile_wallet_explanation" = "You can have either a mobile wallet or a hardware wallet at one time. Upgrade your wallet or delete it from the app to start using a Tangem cold wallet.";
 "onramp_all_offers_button_title" = "Alle Angebote";
 "onramp_avaiable_with_payment_methods" = "Verfügbar mit %@";
 "onramp_choose_provider_title_hint" = "Anbieter erleichtern Transaktionen";
@@ -1499,6 +1503,7 @@
 "universal_error" = "Es ist ein Fehler aufgetreten. Fehlercode: %@. Bitte kontaktiere unseren Support.";
 "unlock_wallet_description_full" = "Verwende %@ oder scanne eine Karte oder Ring, um Zugriff auf deine Wallet zu erhalten.";
 "unsupported_wc_version" = "Verbindung fehlgeschlagen: Diese dApp verwendet Wallet Connect Version 1.0, die nicht unterstützt wird. Bitte stelle sicher, dass die dApp Wallet Connect Version 2.0 unterstützt, um eine erfolgreiche Verbindung herzustellen.";
+"upgrade_to_hardware_wallet_button_title" = "Upgrade to a hardware wallet";
 "user_push_notification_agreement_argument_one_subtitle" = "Echtzeit-Warnungen für Transaktionen, Umtausch und wichtige Aktualisierungen.";
 "user_push_notification_agreement_argument_one_title" = "Transaktionswarnungen";
 "user_push_notification_agreement_argument_one" = "Bleib auf dem Laufenden mit den neuesten Funktionen und Neuigkeiten";
