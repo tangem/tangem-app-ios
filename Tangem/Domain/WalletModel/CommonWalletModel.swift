@@ -148,6 +148,17 @@ class CommonWalletModel {
                 self?.updateQuote(quote: quote)
             }
             .store(in: &bag)
+
+        if let _stakingManager {
+            _stakingManager.updateWalletBalancesPublisher
+                .dropFirst() // drop initial value
+                .withWeakCaptureOf(self)
+                .flatMap { walletModel, _ in
+                    walletModel.generalUpdate(silent: false)
+                }
+                .sink { _ in }
+                .store(in: &bag)
+        }
     }
 
     // MARK: - State updates
