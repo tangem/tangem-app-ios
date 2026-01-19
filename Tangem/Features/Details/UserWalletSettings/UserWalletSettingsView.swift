@@ -21,9 +21,9 @@ struct UserWalletSettingsView: View {
 
     var body: some View {
         GroupedScrollView(contentType: .lazy(alignment: .leading, spacing: 24)) {
-            walletSection
-
             mobileUpgradeSection
+
+            walletSection
 
             accountsSection
 
@@ -81,8 +81,8 @@ struct UserWalletSettingsView: View {
     }
 
     private var mobileUpgradeSection: some View {
-        viewModel.mobileUpgradeNotificationInput.map {
-            NotificationView(input: $0)
+        viewModel.mobileUpgradeBannerItem.map {
+            MobileSettingsUpgradeBannerView(item: $0)
         }
     }
 
