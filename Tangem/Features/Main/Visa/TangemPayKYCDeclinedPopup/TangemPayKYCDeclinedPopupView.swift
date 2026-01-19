@@ -41,9 +41,7 @@ struct TamgemPayKYCDeclinedPopupView: View {
             }
         }
         .overlay(alignment: .topTrailing) {
-            CircleButton
-                .close(action: viewModel.dismiss)
-                .size(.small)
+            NavigationBarButton.close(action: viewModel.dismiss)
                 .padding(.top, 8)
         }
         .padding(.bottom, 12)
