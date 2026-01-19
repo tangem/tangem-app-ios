@@ -12,6 +12,7 @@ import TangemExpress
 import TangemLocalization
 import TangemFoundation
 import struct TangemUI.TokenIconInfo
+
 final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
     // Header view
     @Published private(set) var viewType: ViewType
