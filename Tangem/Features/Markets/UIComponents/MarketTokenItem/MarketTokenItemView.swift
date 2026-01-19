@@ -51,10 +51,12 @@ struct MarketTokenItemView: View {
                     .lineLimit(1)
                     .truncationMode(.middle)
                     .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                    .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenNameLabel)
 
                 Text(viewModel.symbol)
                     .lineLimit(1)
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                    .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenCurrencyLabel)
             }
             .frame(minWidth: 0.3 * textBlockWidth, maxWidth: .infinity, alignment: .leading)
 
