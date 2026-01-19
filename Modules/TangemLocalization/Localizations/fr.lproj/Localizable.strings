@@ -291,6 +291,7 @@
 "common_no_address" = "Aucune adresse";
 "common_no" = "Non";
 "common_not_added" = "Non ajouté";
+"common_not_available" = "Not available";
 "common_not_now" = "Pas maintenant";
 "common_now" = "Maintenant";
 "common_ok" = "OK";
@@ -520,6 +521,8 @@
 "feedback_subject_tx_failed" = "Impossible d'effectuer une transaction";
 "feedback_subject_tx_push_failed" = "Impossible d'effectuer une transaction";
 "feedback_token_description_error" = "Erreur de description de la pièce";
+"gasless_not_enough_funds_to_cover_token_fee" = "Not enough funds";
+"gasless_transaction_fee" = "Gasless transaction fee";
 "generic_error_code" = "Une erreur s'est produite. Code:%@";
 "generic_error" = "Une erreur s'est produite";
 "generic_requires_memo_error" = "Un mémo est requis";
@@ -899,6 +902,7 @@
 "onboarding_wallet_info_title_fourth" = "Restauration du code d'accès";
 "onboarding_wallet_info_title_second" = "Cartes identiques";
 "onboarding_wallet_info_title_third" = "Code d'accès";
+"only_one_mobile_wallet_explanation" = "You can have either a mobile wallet or a hardware wallet at one time. Upgrade your wallet or delete it from the app to start using a Tangem cold wallet.";
 "onramp_all_offers_button_title" = "Toutes les offres";
 "onramp_avaiable_with_payment_methods" = "Disponible avec %@";
 "onramp_choose_provider_title_hint" = "L'achat de crypto-monnaies sur Tangem est assuré par des fournisseurs tiers selon leurs conditions.";
@@ -1499,6 +1503,7 @@
 "universal_error" = "Nous avons rencontré une erreur. Code d'erreur : %@. Veuillez contacter notre équipe de support.";
 "unlock_wallet_description_full" = "Utilisez %@ ou scannez une carte/bague pour avoir accès à votre portefeuille";
 "unsupported_wc_version" = "Échec de la connexion : Cette dApp utilise Wallet Connect version1.0, qui n'est pas prise en charge. Veuillez vous assurer que la dApp prend en charge Wallet Connect version2.0 pour réussir la connexion.";
+"upgrade_to_hardware_wallet_button_title" = "Upgrade to a hardware wallet";
 "user_push_notification_agreement_argument_one_subtitle" = "Alertes en temps réel pour les transactions, les échanges et les mises à jour importantes.";
 "user_push_notification_agreement_argument_one_title" = "Alertes de transaction";
 "user_push_notification_agreement_argument_one" = "Restez à jour avec les dernières fonctionnalités et actualités";
