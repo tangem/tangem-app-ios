@@ -38,32 +38,33 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
         super.init(wallet: wallet)
     }
 
-    override func update(completion: @escaping (Result<Void, Error>) -> Void) {
-        cancellable = addressConverter.convertToETHAddressPublisher(wallet.address)
-            .withWeakCaptureOf(self)
-            .flatMap { walletManager, convertedAddress in
-                Publishers.Zip(
-                    walletManager.networkService
-                        .getInfo(
-                            address: convertedAddress,
-                            tokens: walletManager.cardTokens,
-                        ),
-                    walletManager
-                        .getYieldBalances(
-                            address: convertedAddress,
-                            tokens: walletManager.cardTokens
-                        )
-                )
-            }
-            .sink(receiveCompletion: { [weak self] completionSubscription in
-                if case .failure(let error) = completionSubscription {
-                    self?.wallet.clearAmounts()
-                    completion(.failure(error))
-                }
-            }, receiveValue: { [weak self] response in
-                self?.updateWallet(with: response.0, yieldTokensBalances: response.1)
-                completion(.success(()))
-            })
+    override func updateWalletManager() async throws {
+        do {
+            let convertedAddress = try addressConverter.convertToETHAddress(wallet.address)
+
+            async let infoAndTokens: EthereumInfoResponse = try await networkService
+                .getInfo(address: convertedAddress, tokens: cardTokens)
+                .async()
+
+            async let yieldBalances: [Token: Result<Amount, Error>] = try await getYieldBalances(
+                address: convertedAddress,
+                tokens: cardTokens
+            ).async()
+
+            async let pendingTransactionsInfo = networkService.getPendingTransactionsInfo(
+                address: convertedAddress,
+                pendingTransactionHashes: wallet.pendingTransactions.filter { !$0.isDummy }.map(\.hash)
+            ).async()
+
+            try await updateWallet(
+                with: infoAndTokens,
+                yieldTokensBalances: yieldBalances,
+                pendingTransactionsInfo: pendingTransactionsInfo
+            )
+        } catch {
+            wallet.clearAmounts()
+            throw error
+        }
     }
 
     /// It can't be into extension because it will be overridden in the `OptimismWalletManager`
@@ -228,6 +229,23 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
 // MARK: - EthereumNetworkProvider
 
 extension EthereumWalletManager: EthereumNetworkProvider {
+    /// Calls `nonce()` on the user `address` via `eth_call` to check whether a smart contract
+    /// is attached to the EOA and to read its current nonce.
+    /// If no contract is attached, the call returns `0x`, which is interpreted as nonce = 0.
+    func getSmartContractNonce(for address: String) -> AnyPublisher<Int, Error> {
+        addressConverter.convertToETHAddressPublisher(address)
+            .withWeakCaptureOf(self)
+            .flatMap { walletManager, convertedAddress -> AnyPublisher<String, Error> in
+                let nonceRequest = GaslessContractNonceRequest(contractAddress: convertedAddress)
+                return walletManager.networkService.ethCall(request: nonceRequest)
+            }
+            .tryMap { nonceResponse -> Int in
+                let stringNonce = (nonceResponse == "0x" ? "0x0" : nonceResponse)
+                return try EthereumMapper.mapInt(stringNonce)
+            }
+            .eraseToAnyPublisher()
+    }
+
     func getAllowance(owner: String, spender: String, contractAddress: String) -> AnyPublisher<Decimal, Error> {
         getAllowanceRaw(owner: owner, spender: spender, contractAddress: contractAddress)
             .tryMap { response in
@@ -401,10 +419,22 @@ private extension EthereumWalletManager {
         .eraseToAnyPublisher()
     }
 
-    func updateWallet(with response: EthereumInfoResponse, yieldTokensBalances: [Token: Result<Amount, Error>]) {
+    func updateWallet(
+        with response: EthereumInfoResponse,
+        yieldTokensBalances: [Token: Result<Amount, Error>],
+        pendingTransactionsInfo: EthereumPendingTransactionsInfo,
+    ) {
         wallet.add(coinValue: response.balance)
 
-        for tokenBalance in response.tokenBalances {
+        updateTokensBalances(tokensBalances: response.tokenBalances, yieldTokensBalances: yieldTokensBalances)
+        updatePendingTransactions(pendingTransactionsInfo: pendingTransactionsInfo)
+    }
+
+    func updateTokensBalances(
+        tokensBalances: [Token: Result<Decimal, Error>],
+        yieldTokensBalances: [Token: Result<Amount, Error>]
+    ) {
+        for tokenBalance in tokensBalances {
             switch (yieldTokensBalances[tokenBalance.key], tokenBalance.value) {
             case (.success(let yieldAmount), _):
                 wallet.add(amount: yieldAmount)
@@ -414,21 +444,26 @@ private extension EthereumWalletManager {
                 wallet.add(tokenValue: value, for: tokenBalance.key)
             }
         }
+    }
 
-        if response.txCount == response.pendingTxCount {
-            wallet.clearPendingTransaction()
-        } else if response.pendingTxs.isEmpty {
-            if wallet.pendingTransactions.isEmpty {
-                wallet.addDummyPendingTransaction()
-            }
-        } else {
-            wallet.clearPendingTransaction()
-            response.pendingTxs.forEach {
-                let mapper = PendingTransactionRecordMapper()
-                let transaction = mapper.mapToPendingTransactionRecord($0, blockchain: wallet.blockchain)
-                wallet.addPendingTransaction(transaction)
-            }
+    func updatePendingTransactions(pendingTransactionsInfo: EthereumPendingTransactionsInfo) {
+        // keep only those that are still pending.
+        var pendingTransactions = wallet.pendingTransactions.filter { transaction in
+            pendingTransactionsInfo.statuses[transaction.hash]?.isPending == true
         }
+
+        let localPendingCount = pendingTransactions.count
+
+        // detect unknown/external pending transactions (pendingTransactionCount - transactionsCount)
+        let nodePendingCount = max(0, pendingTransactionsInfo.pendingTransactionCount - pendingTransactionsInfo.transactionCount)
+
+        // add dummy pending records for unknown pending transactions
+        if nodePendingCount > localPendingCount {
+            let dummy = PendingTransactionRecordMapper().makeDummy(blockchain: wallet.blockchain)
+            pendingTransactions.append(dummy)
+        }
+
+        wallet.updatePendingTransaction(pendingTransactions)
     }
 }
 
@@ -474,6 +509,93 @@ extension EthereumWalletManager: TransactionFeeProvider {
                 }
             }
             .eraseToAnyPublisher()
+    }
+}
+
+// MARK: - EthereumGaslessTransactionBroadcaster
+
+extension EthereumWalletManager: EthereumGaslessTransactionBroadcaster {
+    func broadcast(transaction: Transaction, compiledTransactionHex: String) async throws -> TransactionSendResult {
+        do {
+            let hash = try await networkService.send(transaction: compiledTransactionHex).async()
+            let mapper = PendingTransactionRecordMapper()
+            let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hash)
+            wallet.addPendingTransaction(record)
+
+            return TransactionSendResult(hash: hash, currentProviderHost: currentHost)
+        } catch {
+            throw SendTxError(error: error.toUniversalError(), tx: compiledTransactionHex)
+        }
+    }
+}
+
+// MARK: - GaslessTransactionFeeProvider
+
+extension EthereumWalletManager: GaslessTransactionFeeProvider {
+    func getGaslessFee(
+        feeToken: Token,
+        amount originalAmount: Amount,
+        destination originalDestination: String,
+        feeRecipientAddress: String,
+        nativeToFeeTokenRate: Decimal
+    ) async throws -> Fee {
+        // Addresses
+        let ourAddress = wallet.defaultAddress.value
+        let convertedFeeRecepientAddress = try addressConverter.convertToETHAddress(feeRecipientAddress)
+        let convertedOurAddress = try addressConverter.convertToETHAddress(ourAddress)
+
+        // Fixed fee token amount (10000 minimal units)
+        let baseTokenAmount = EthereumFeeParametersConstants.gaslessMinTokenAmount
+        let sanitizedAmount = Self.sanitizeAmount(originalAmount, wallet: wallet)
+
+        // 1) Build calldata for transferring fixed fee token amount to Gasless collector
+        let tokenTransferData = TransferERC20TokenMethod(destination: convertedFeeRecepientAddress, amount: baseTokenAmount).encodedData
+
+        // 2) Estimate gas limit for fee token transfer
+        let feeTransferGasLimit = try await getGasLimit(
+            to: feeToken.contractAddress,
+            from: convertedOurAddress,
+            value: nil,
+            data: tokenTransferData
+        ).async()
+
+        // 3) Add 10% buffer to fee token transfer gas limit (multiply by 1.1 using integer math)
+        let feeTransferGasLimitBuffered = feeTransferGasLimit * BigUInt(11) / BigUInt(10)
+
+        // 4) Get fee for the original transaction
+        let originalFee = try await getFee(amount: sanitizedAmount, destination: originalDestination).async()
+
+        // Pick the market fee (index 1) from the fees array.
+        guard let params = originalFee[safe: 1]?.parameters as? EthereumEIP1559FeeParameters else {
+            throw BlockchainSdkError.failedToGetFee
+        }
+
+        let maximumFeePerGas = params.maxFeePerGas
+        let originalGasLimit = params.gasLimit
+
+        // 5) Combine gas limits and add BASE_GAS buffer (100_000)
+        let newGasLimit = originalGasLimit + feeTransferGasLimitBuffered + EthereumFeeParametersConstants.gaslessBaseGasBuffer
+
+        // 6) Calculate maximum fee per gas (gasLimit * 2 * maxFeePerGas)
+        let doubledMaxFeePerGas = maximumFeePerGas * EthereumFeeParametersConstants.gaslessMaxFeePerGasMultiplier
+
+        // 7) Create updated fee params and compute fee amount
+        let newParams = EthereumGaslessTransactionFeeParameters(
+            gasLimit: newGasLimit,
+            maxFeePerGas: doubledMaxFeePerGas,
+            priorityFee: params.priorityFee,
+            nativeToFeeTokenRate: nativeToFeeTokenRate,
+            feeTokenTransferGasLimit: feeTransferGasLimitBuffered
+        )
+
+        // 8) IMPORTANT: The fee is calculated in TOKEN using the provided nativeToFeeTokenRate
+        var fee = newParams.calculateFee(decimalValue: wallet.blockchain.decimalValue)
+
+        // 9) Add markup of 1%
+        fee *= Decimal(1.01)
+
+        // 10) Return Fee with updated params and computed amount
+        return Fee(.init(with: feeToken, value: fee), parameters: newParams)
     }
 }
 
@@ -563,6 +685,20 @@ extension EthereumWalletManager: EthereumTransactionDataBuilder {
         let destination = try addressConverter.convertToETHAddress(destination)
         return try txBuilder.buildForTokenTransfer(destination: destination, amount: amount)
     }
+
+    /// Builds and returns a minimal transaction payload that is fully prepared for signing.
+    /// The payload contains only the essential on-chain fields (destination, data, value)
+    func buildTransactionPayload(transaction: Transaction) async throws -> TransactionPayload {
+        var tx = transaction
+        let params = (tx.params as? EthereumTransactionParams) ?? EthereumTransactionParams()
+
+        if params.nonce == nil {
+            let nonce = try await networkService.getPendingTxCount(tx.sourceAddress).async()
+            tx.params = params.with(nonce: nonce)
+        }
+
+        return try txBuilder.buildTransactionPayload(transaction: tx)
+    }
 }
 
 // MARK: - StakeKitTransactionSender, StakeKitTransactionSenderProvider
@@ -628,3 +764,29 @@ extension EthereumWalletManager: StakeKitTransactionDataBroadcaster {
 // MARK: - YieldsServiceProvider
 
 extension EthereumWalletManager: YieldSupplyServiceProvider {}
+
+// MARK: - EthereumGaslessDataProvider
+
+extension EthereumWalletManager: EthereumGaslessDataProvider {
+    func prepareEIP7702AuthorizationData() async throws -> EIP7702AuthorizationData {
+        let nonce = try await networkService.getTxCount(wallet.address).async()
+
+        guard let chainId = wallet.blockchain.chainId else {
+            throw EthereumTransactionBuilderError.missingChainId
+        }
+
+        let contractAddress = try GaslessTransactionAddressFactory.gaslessExecutorContractAddress(blockchain: wallet.blockchain)
+
+        let data = try EthEip7702Util().encodeAuthorizationForSigning(
+            chainId: BigUInt(chainId),
+            contractAddress: contractAddress,
+            nonce: BigUInt(nonce)
+        )
+
+        return EIP7702AuthorizationData(chainId: chainId, address: contractAddress, nonce: nonce, data: data)
+    }
+
+    func getGaslessExecutorContractAddress() throws -> String {
+        try GaslessTransactionAddressFactory.gaslessExecutorContractAddress(blockchain: wallet.blockchain)
+    }
+}
