@@ -42,6 +42,10 @@ class StakeKitTransactionDispatcher {
 // MARK: - TransactionDispatcher
 
 extension StakeKitTransactionDispatcher: TransactionDispatcher {
+    var hasNFCInteraction: Bool {
+        transactionSigner.hasNFCInteraction
+    }
+
     func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult {
         guard case .staking(let action) = transaction else {
             throw TransactionDispatcherResult.Error.transactionNotFound
