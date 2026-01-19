@@ -144,6 +144,17 @@ class CommonWalletModel {
                 self?.updateQuote(quote: quote)
             }
             .store(in: &bag)
+
+        if let _stakingManager {
+            _stakingManager.updateWalletBalancesPublisher
+                .dropFirst() // drop initial value
+                .withWeakCaptureOf(self)
+                .asyncMap { walletModel, _ in
+                    await walletModel.update(silent: false, features: .balances)
+                }
+                .sink { _ in }
+                .store(in: &bag)
+        }
     }
 
     // MARK: - State updates
