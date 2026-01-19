@@ -56,7 +56,7 @@ extension StakingDetailsCoordinatorView {
                 .navigationBarTitle(Text(Localization.commonStake), displayMode: .inline)
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {
-                        CloseButton(dismiss: { coordinator.dismiss() })
+                        CloseTextButton(action: coordinator.dismiss)
                     }
                 }
         }

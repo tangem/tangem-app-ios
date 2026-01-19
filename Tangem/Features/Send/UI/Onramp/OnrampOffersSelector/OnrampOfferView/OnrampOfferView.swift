@@ -37,7 +37,7 @@ struct OnrampOfferView: View {
 
             Spacer(minLength: 8)
 
-            CircleButton(title: Localization.commonBuy, action: viewModel.buyButtonAction)
+            CapsuleButton(title: Localization.commonBuy, action: viewModel.buyButtonAction)
                 .size(.medium)
                 .style(.primary)
                 .disabled(!viewModel.isAvailable)

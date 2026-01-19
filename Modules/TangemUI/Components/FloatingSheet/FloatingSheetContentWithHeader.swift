@@ -26,12 +26,12 @@ public struct FloatingSheetContentWithHeader<Content: View>: View {
                 title: headerConfig.title,
                 leading: {
                     if let backAction = headerConfig.backAction {
-                        CircleButton.back(action: backAction)
+                        NavigationBarButton.back(action: backAction)
                     }
                 },
                 trailing: {
                     if let closeAction = headerConfig.closeAction {
-                        CircleButton.close(action: closeAction)
+                        NavigationBarButton.close(action: closeAction)
                     }
                 }
             )
