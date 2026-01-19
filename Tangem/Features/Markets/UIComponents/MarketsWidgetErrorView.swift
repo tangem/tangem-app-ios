@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemAssets
 
 struct MarketsWidgetErrorView: View {
     let tryLoadAgain: () -> Void
@@ -18,7 +19,11 @@ struct MarketsWidgetErrorView: View {
             retryButtonAction: tryLoadAgain
         )
         .infinityFrame(axis: .horizontal, alignment: .center)
-        .defaultRoundedBackground(verticalPadding: Layout.verticalPadding, horizontalPadding: Layout.horizontalPadding)
+        .defaultRoundedBackground(
+            with: Colors.Background.action,
+            verticalPadding: Layout.verticalPadding,
+            horizontalPadding: Layout.horizontalPadding
+        )
         .padding(.horizontal, Layout.defaultHorizontalInset)
     }
 }
