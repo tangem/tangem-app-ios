@@ -30,9 +30,8 @@ struct TangemPayWalletSelectorProxyView: View {
         .padding(.vertical, 16)
         .padding(.horizontal, 8)
         .overlay(alignment: .topTrailing) {
-            CircleButton
+            NavigationBarButton
                 .close(action: viewModel.onClose)
-                .size(.small)
                 .padding(.top, 8)
                 .padding(.trailing, 16)
         }
