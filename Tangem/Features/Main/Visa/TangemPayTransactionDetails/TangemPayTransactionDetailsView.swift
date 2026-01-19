@@ -18,7 +18,7 @@ struct TangemPayTransactionDetailsView: View {
     var body: some View {
         VStack(spacing: 24) {
             BottomSheetHeaderView(title: viewModel.title, trailing: {
-                CircleButton.close(action: viewModel.userDidTapClose)
+                NavigationBarButton.close(action: viewModel.userDidTapClose)
             })
             .verticalPadding(8)
 
