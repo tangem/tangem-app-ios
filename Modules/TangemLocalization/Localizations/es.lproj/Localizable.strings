@@ -291,6 +291,7 @@
 "common_no_address" = "Ninguna dirección";
 "common_no" = "No";
 "common_not_added" = "No agregadas";
+"common_not_available" = "Not available";
 "common_not_now" = "Ahora no";
 "common_now" = "Ahora";
 "common_ok" = "OK";
@@ -520,6 +521,8 @@
 "feedback_subject_tx_failed" = "No se puede completar una transacción";
 "feedback_subject_tx_push_failed" = "No se puede enviar una transacción";
 "feedback_token_description_error" = "Error de descripción de moneda";
+"gasless_not_enough_funds_to_cover_token_fee" = "Not enough funds";
+"gasless_transaction_fee" = "Gasless transaction fee";
 "generic_error_code" = "Ocurrió un error. Código: %@";
 "generic_error" = "Ocurrió un error";
 "generic_requires_memo_error" = "Requiere memo";
@@ -899,6 +902,7 @@
 "onboarding_wallet_info_title_fourth" = "Restaurar código de acceso";
 "onboarding_wallet_info_title_second" = "Tarjetas idénticas";
 "onboarding_wallet_info_title_third" = "Código de acceso";
+"only_one_mobile_wallet_explanation" = "You can have either a mobile wallet or a hardware wallet at one time. Upgrade your wallet or delete it from the app to start using a Tangem cold wallet.";
 "onramp_all_offers_button_title" = "Todas las ofertas";
 "onramp_avaiable_with_payment_methods" = "Disponible con %@";
 "onramp_choose_provider_title_hint" = "La compra de criptomonedas en Tangem se lleva a cabo utilizando proveedores externos.";
@@ -1499,6 +1503,7 @@
 "universal_error" = "Hemos encontrado un error. Código de error: %@. Póngase en contacto con nuestro servicio de soporte.";
 "unlock_wallet_description_full" = "Use %@ o escanee una tarjeta/anillo para tener acceso a su billetera";
 "unsupported_wc_version" = "Error de conexión: Esta dApp utiliza la versión 1.0 de Wallet Connect, que no es compatible. Asegúrese de que la dApp sea compatible con la versión 2.0 de Wallet Connect para conectarse correctamente.";
+"upgrade_to_hardware_wallet_button_title" = "Upgrade to a hardware wallet";
 "user_push_notification_agreement_argument_one_subtitle" = "Alertas en tiempo real de transacciones, intercambios y actualizaciones críticas.";
 "user_push_notification_agreement_argument_one_title" = "Alertas de transacciones";
 "user_push_notification_agreement_argument_one" = "Manténgase actualizado con las últimas funciones y noticias";
@@ -1619,7 +1624,7 @@
 "wallet_import_seed_description" = "Importa una billetera existente con su frase de recuperación.";
 "wallet_import_seed_navtitle" = "Importar billetera";
 "wallet_import_seed_title" = "Introduzca la frase de recuperación";
-"wallet_import_success_description" = "La copia de seguridad de su billetera se realizó con éxito.";
+"wallet_import_success_description" = "Su billetera se ha importado con éxito.";
 "wallet_import_success_navtitle" = "Importar billetera";
 "wallet_import_success_title" = "Importación completada";
 "wallet_import_title" = "Importar billetera";
