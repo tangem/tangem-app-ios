@@ -14,6 +14,7 @@ import TangemAssets
 import TangemUI
 import TangemUIUtils
 import TangemFoundation
+import TangemAccessibilityIdentifiers
 
 struct MarketsView: View {
     @ObservedObject var viewModel: MarketsViewModel
@@ -237,6 +238,7 @@ struct MarketsView: View {
                             .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
                     }
                 })
+                .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsTokensUnderCapExpandButton)
                 .roundedBackground(with: Colors.Button.secondary, verticalPadding: 8, horizontalPadding: 14, radius: 10)
             }
         }
@@ -246,6 +248,7 @@ struct MarketsView: View {
     private var noResultsStateView: some View {
         Text(Localization.marketsSearchTokenNoResultTitle)
             .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
+            .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsSearchNoResultsLabel)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(.horizontal, Constants.defaultHorizontalInset)
     }

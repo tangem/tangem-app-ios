@@ -494,7 +494,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             let startPoint = grabberView.coordinate(
                 withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
             let endPoint = startPoint.withOffset(CGVector(dx: 0, dy: -300))
-            startPoint.press(forDuration: 0.1, thenDragTo: endPoint)
+            startPoint.press(forDuration: 0.2, thenDragTo: endPoint)
 
             return MarketsScreen(app)
         }
