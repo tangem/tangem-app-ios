@@ -35,7 +35,9 @@ extension CommonIncomingURLValidator: IncomingURLValidator {
         }
 
         if scheme == "https" {
-            return host == IncomingActionConstants.tangemHost || host == IncomingActionConstants.appTangemHost
+            return host == IncomingActionConstants.tangemHost
+                || host == IncomingActionConstants.appTangemHost
+                || host == IncomingActionConstants.newsTangemHost
         }
 
         return false

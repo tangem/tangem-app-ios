@@ -28,6 +28,67 @@ class IncomingActionsTests: XCTestCase {
         XCTAssertNotNil(parser.parseIncomingURL(URL(string: "https://tangem.com/wc?uri=wc:8ad9144fec726c592b3bae26e2fa797e61b08d523fe9036ac7fe4f3c54b7b9f4@2?relay-protocol=irn&symKey=cc2f1426571a59111059b7661c6aecadc08784d299a2dce36c576844e40d6c81")!))
     }
 
+    func testNewsSubdomainUniversalLinkParsing() {
+        let url = URL(string: "https://news.tangem.com/markets/190801-polygon-protiv-ethereum")!
+
+        let parser = DefaultIncomingLinkParser()
+        let action = parser.parse(url)
+
+        guard case .navigation(let deeplink) = action else {
+            return XCTFail("Expected navigation action")
+        }
+
+        XCTAssertEqual(deeplink.destination, .news)
+        XCTAssertEqual(deeplink.params.id, "190801")
+        XCTAssertEqual(deeplink.deeplinkString, url.absoluteString)
+    }
+
+    func testNewsSubdomainUniversalLinkParsingWithoutSlug() {
+        let url = URL(string: "https://news.tangem.com/markets/190801")!
+
+        let parser = DefaultIncomingLinkParser()
+        let action = parser.parse(url)
+
+        guard case .navigation(let deeplink) = action else {
+            return XCTFail("Expected navigation action")
+        }
+
+        XCTAssertEqual(deeplink.destination, .news)
+        XCTAssertEqual(deeplink.params.id, "190801")
+    }
+
+    func testNewsSubdomainUniversalLinkParsingFailsForMissingComponents() {
+        let url = URL(string: "https://news.tangem.com/markets")!
+
+        let parser = DefaultIncomingLinkParser()
+        let action = parser.parse(url)
+
+        XCTAssertNil(action)
+    }
+
+    func testNewsSubdomainUniversalLinkParsingFailsForNonNumericId() {
+        let url = URL(string: "https://news.tangem.com/markets/abc-polygon")!
+
+        let parser = DefaultIncomingLinkParser()
+        let action = parser.parse(url)
+
+        XCTAssertNil(action)
+    }
+
+    func testIncomingActionParserParsesNewsSubdomainUniversalLink() {
+        let url = URL(string: "https://news.tangem.com/markets/190801-polygon-protiv-ethereum")!
+
+        let parser = IncomingActionParser()
+        let action = parser.parseIncomingURL(url)
+
+        guard case .navigation(let deeplink) = action else {
+            return XCTFail("Expected navigation action")
+        }
+
+        XCTAssertEqual(deeplink.destination, .news)
+        XCTAssertEqual(deeplink.params.id, "190801")
+    }
+
     func testWC1Link() throws {
         let parser = WalletConnectURLParser()
         XCTAssertThrowsError(try parser.parse(uriString: "wc:e42fe03f-1e27-4ca5-b24b-1fae23f16e79@1?bridge=https%3A%2F%2Fwalletconnect-relay.minerva.digital&key=605df78472a128f297eefe94a2c2880638394b3dd6ecf9888426a9e8cd81e748"))

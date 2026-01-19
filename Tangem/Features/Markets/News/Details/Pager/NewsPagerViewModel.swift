@@ -145,9 +145,9 @@ final class NewsPagerViewModel: ObservableObject, Identifiable, Hashable {
     }
 
     private func checkAndLoadMoreNewsIfNeeded() {
-        let remainingItems = newsIds.count - currentIndex - 1
+        let remainingItemsCount = newsIds.count - currentIndex - 1
 
-        guard remainingItems <= preloadThreshold,
+        guard remainingItemsCount <= preloadThreshold,
               !isLoadingMoreNews,
               coordinator?.hasMoreNews == true else {
             return
