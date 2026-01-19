@@ -14,9 +14,7 @@ class WalletModelsManagerMock: WalletModelsManager {
     var walletModels: [any WalletModel] { [CommonWalletModel.mockETH] }
     var walletModelsPublisher: AnyPublisher<[any WalletModel], Never> { .just(output: walletModels) }
 
-    func updateAll(silent: Bool, completion: @escaping () -> Void) {
-        completion()
-    }
+    func updateAll(silent: Bool) async {}
 
     func initialize() {
         isInitialized = true
