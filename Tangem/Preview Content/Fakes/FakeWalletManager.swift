@@ -64,18 +64,10 @@ class FakeWalletManager: WalletManager {
     }
 
     func setNeedsUpdate() {}
-
-    func update() {}
-
-    func updatePublisher() -> AnyPublisher<Void, Never> {
+    func update() async {
         AppLogger.debug("Receive update request")
-
-        return .just(output: ())
-            .delay(for: 5, scheduler: DispatchQueue.main)
-            .handleEvents(receiveOutput: { [weak self] _ in
-                self?.state = self?.nextState() ?? .initial
-            })
-            .eraseToAnyPublisher()
+        try? await Task.sleep(for: .seconds(5))
+        state = nextState()
     }
 
     func removeToken(_ token: BlockchainSdk.Token) {
@@ -130,15 +122,11 @@ class FakeWalletManager: WalletManager {
     }
 
     private func updateWalletModels() {
-        let updatePublisher = walletModels
-            .map { $0.update(silent: true) }
-            .merge()
-
-        var updateSubscription: AnyCancellable?
-        updateSubscription = updatePublisher
-            .sink { _ in
-                withExtendedLifetime(updateSubscription) {}
+        Task {
+            await TaskGroup.execute(items: walletModels) { walletModel in
+                await walletModel.update(silent: true, features: .balances)
             }
+        }
     }
 }
 

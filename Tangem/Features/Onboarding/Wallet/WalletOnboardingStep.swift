@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import TangemSdk
 
 enum WalletOnboardingStep: Equatable {
     case pushNotifications
@@ -152,7 +153,7 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
         case .createWalletSelector: return Localization.onboardingCreateWalletButtonCreateWallet
         case .backupIntro: return Localization.onboardingButtonBackupNow
         case .selectBackupCards: return Localization.onboardingButtonAddBackupCard
-        case .saveUserWallet, .mobileUpgradeBiometrics: return BiometricAuthorizationUtils.allowButtonTitle
+        case .saveUserWallet, .mobileUpgradeBiometrics: return Localization.saveUserWalletAgreementAllow(BiometricsUtil.biometryType.name)
         case .success: return Localization.onboardingButtonContinueWallet
         case .seedPhraseIntro: return Localization.onboardingSeedIntroButtonGenerate
         default: return ""
