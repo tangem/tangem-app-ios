@@ -60,10 +60,12 @@ final class MarketsExchangeScreen: ScreenBase<MarketsExchangeScreenElement> {
     @discardableResult
     func verifyExchangeTypes() -> Self {
         XCTContext.runActivity(named: "Verify exchanges list types") { _ in
-            let types = app.staticTexts.matching(
+            let typesQuery = app.staticTexts.matching(
                 identifier: MarketsAccessibilityIdentifiers.exchangesListType
-            ).allElementsBoundByIndex
+            )
+            waitAndAssertTrue(typesQuery.firstMatch, "Exchange type should exist")
 
+            let types = typesQuery.allElementsBoundByIndex
             XCTAssertFalse(types.isEmpty, "Exchange types list should not be empty")
 
             for type in types {
@@ -80,6 +82,11 @@ final class MarketsExchangeScreen: ScreenBase<MarketsExchangeScreenElement> {
     @discardableResult
     func verifyExchangeTrustScore() -> Self {
         XCTContext.runActivity(named: "Verify exchanges trust scores") { _ in
+            waitAndAssertTrue(
+                app.staticTexts[MarketsAccessibilityIdentifiers.exchangesListTrustScore].firstMatch,
+                "Trust scores should exist"
+            )
+
             let scores = app.staticTexts.matching(
                 identifier: MarketsAccessibilityIdentifiers.exchangesListTrustScore
             ).allElementsBoundByIndex
