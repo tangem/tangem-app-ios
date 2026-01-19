@@ -24,16 +24,18 @@ final class PulseMarketWidgetViewModel: ObservableObject {
     }
 
     var availabilityToSelectionOrderType: [MarketsListOrderType] {
-        MarketsListOrderType
-            .allCases
-            .filter {
-                switch $0 {
-                case .rating, .staking, .yield:
-                    return false
-                default:
-                    return true
-                }
+        let allowed = MarketsListOrderType.allCases.filter {
+            switch $0 {
+            case .rating, .staking, .yield:
+                return false
+            default:
+                return true
             }
+        }
+
+        // Required UI order: Trending -> Top Gainers -> Top Losers -> Experienced buyers
+        let ordered: [MarketsListOrderType] = [.trending, .gainers, .losers, .buyers]
+        return ordered.filter { allowed.contains($0) }
     }
 
     // MARK: - Properties
