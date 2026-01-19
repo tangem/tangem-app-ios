@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemSdk
 
 struct UserWalletStorageAgreementView: View {
     @ObservedObject private var viewModel: UserWalletStorageAgreementViewModel
@@ -40,7 +41,7 @@ struct UserWalletStorageAgreementView: View {
 
                     FixedSpacer(height: 28.0)
 
-                    Text(Localization.saveUserWalletAgreementHeader(BiometricAuthorizationUtils.biometryType.name))
+                    Text(Localization.saveUserWalletAgreementHeader(BiometricsUtil.biometryType.name))
                         .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
@@ -61,7 +62,7 @@ struct UserWalletStorageAgreementView: View {
                     OnboardingFeatureDescriptionView(
                         iconImage: Assets.lock.image,
                         title: Localization.saveUserWalletAgreementCodeTitle,
-                        description: Localization.saveUserWalletAgreementCodeDescription(BiometricAuthorizationUtils.biometryType.name)
+                        description: Localization.saveUserWalletAgreementCodeDescription(BiometricsUtil.biometryType.name)
                     )
                 }
                 .layoutPriority(100) // Higher layout priority causes spacers to collapse if there is not enough vertical space
@@ -71,7 +72,7 @@ struct UserWalletStorageAgreementView: View {
             Spacer(minLength: 8.0)
 
             VStack(spacing: 10) {
-                MainButton(title: BiometricAuthorizationUtils.allowButtonTitle, action: viewModel.accept)
+                MainButton(title: Localization.saveUserWalletAgreementAllow(BiometricsUtil.biometryType.name), action: viewModel.accept)
 
                 MainButton(
                     title: declineButtonTitle,
