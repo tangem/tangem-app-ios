@@ -24,9 +24,7 @@ struct SwapTokenSelectorView: View {
             .navigationTitle(Localization.swappingTokenListTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    CircleButton.close(action: viewModel.close)
-                }
+                NavigationToolbarButton.close(placement: .topBarTrailing, action: viewModel.close)
             }
         }
         .onDisappear(perform: viewModel.onDisappear)
