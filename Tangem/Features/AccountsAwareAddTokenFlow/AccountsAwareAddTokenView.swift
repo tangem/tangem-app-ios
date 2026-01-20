@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemUI
 import TangemAssets
+import TangemAccessibilityIdentifiers
 import TangemAccounts
 import TangemLocalization
 
@@ -42,6 +43,7 @@ struct AccountsAwareAddTokenView: View {
                 isDisabled: viewModel.isSaving,
                 action: { viewModel.handleViewEvent(.addTokenButtonTapped) }
             )
+            .accessibilityIdentifier(TokenAccessibilityIdentifiers.addTokenButton)
         }
         .padding(.horizontal, 16)
         .padding(.bottom, 16)
