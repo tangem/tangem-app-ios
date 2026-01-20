@@ -58,7 +58,6 @@ extension SendFlowBaseDependenciesFactory {
             sendNotificationManager: CommonSendNotificationManager(
                 userWalletId: userWalletInfo.id,
                 tokenItem: tokenItem,
-                feeTokenItem: feeTokenItem,
                 withdrawalNotificationProvider: walletModelDependenciesProvider.withdrawalNotificationProvider
             ),
             expressNotificationManager: ExpressNotificationManager(
