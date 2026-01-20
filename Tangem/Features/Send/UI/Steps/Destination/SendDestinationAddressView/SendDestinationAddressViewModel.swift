@@ -19,6 +19,8 @@ class SendDestinationAddressViewModel: ObservableObject, Identifiable {
     @Published private(set) var error: String?
     @Published private(set) var isValidating: Bool = false
 
+    private var shouldIgnoreClearButton: Bool = false
+
     var text: BindingValue<String> {
         .init(
             root: self, default: "",
@@ -50,12 +52,18 @@ class SendDestinationAddressViewModel: ObservableObject, Identifiable {
         self.isValidating = isValidating
     }
 
+    func update(shouldIgnoreClearButton: Bool) {
+        self.shouldIgnoreClearButton = shouldIgnoreClearButton
+    }
+
     func didTapPasteButton(string: String) {
         FeedbackGenerator.heavy()
         address = .init(string: string.trimmed(), source: .pasteButton)
     }
 
     func didTapClearButton() {
+        guard !shouldIgnoreClearButton else { return }
+
         address = .init(string: "", source: .textField)
     }
 
