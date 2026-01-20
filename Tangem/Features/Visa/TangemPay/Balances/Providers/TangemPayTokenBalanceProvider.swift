@@ -9,6 +9,7 @@
 import Combine
 import TangemVisa
 import TangemFoundation
+import TangemPay
 
 struct TangemPayTokenBalanceProvider {
     private let tokenItem: TokenItem
