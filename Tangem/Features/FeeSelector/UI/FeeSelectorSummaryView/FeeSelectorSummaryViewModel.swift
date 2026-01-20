@@ -7,6 +7,7 @@
 //
 
 import Combine
+import TangemLocalization
 import TangemAccessibilityIdentifiers
 
 protocol FeeSelectorSummaryRoutable: AnyObject {
@@ -29,10 +30,6 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
     private let feeFormatter: FeeFormatter
 
     private weak var router: FeeSelectorSummaryRoutable?
-
-    // MARK: - Bag
-
-    private var bag = Set<AnyCancellable>()
 
     // MARK: - Init
 
@@ -64,41 +61,35 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
 
     private func bind() {
         Publishers.CombineLatest(
-            tokensDataProvider.selectedSelectorFeeTokenItemPublisher,
-            tokensDataProvider.selectorFeeTokenItemsPublisher.map { $0.count > 1 }
+            tokensDataProvider.selectedTokenFeeProviderPublisher.compactMap { $0 },
+            tokensDataProvider.supportedTokenFeeProvidersPublisher.map { $0.count > 1 }
         )
-        .receiveOnMain()
         .withWeakCaptureOf(self)
-        .compactMap { viewModel, output in
-            let (selectedToken, canExpand) = output
-            guard let token = selectedToken else { return nil }
-            return viewModel.mapTokenItemToRowViewModel(token: token, canExpand: canExpand)
-        }
-        .assign(to: \.suggestedFeeCurrency, on: self, ownership: .weak)
-        .store(in: &bag)
+        .map { $0.mapTokenItemToRowViewModel(tokenFeeProvider: $1.0, canExpand: $1.1) }
+        .receiveOnMain()
+        .assign(to: &$suggestedFeeCurrency)
 
         Publishers.CombineLatest(
-            feesDataProvider.selectedSelectorFeePublisher,
-            feesDataProvider.selectorFeesPublisher.map { $0.count > 1 ? true : false }
+            feesDataProvider.selectedTokenFeePublisher,
+            feesDataProvider.selectorFeesPublisher.map { $0.count > 1 }
         )
-        .receiveOnMain()
         .withWeakCaptureOf(self)
-        .compactMap { viewModel, output in
-            let (selectedFee, canExpand) = output
-            guard let fee = selectedFee else { return nil }
-            return viewModel.mapFeeToRowViewModel(fee: fee, canExpand: canExpand)
-        }
-        .assign(to: \.suggestedFee, on: self, ownership: .weak)
-        .store(in: &bag)
+        .map { $0.mapFeeToRowViewModel(fee: $1.0, canExpand: $1.1) }
+        .receiveOnMain()
+        .assign(to: &$suggestedFee)
     }
 
-    private func mapTokenItemToRowViewModel(token: TokenItem, canExpand: Bool) -> FeeSelectorRowViewModel {
-        let subtitleState: LoadableTextView.State = .noData
+    private func mapTokenItemToRowViewModel(tokenFeeProvider: any TokenFeeProvider, canExpand: Bool) -> FeeSelectorRowViewModel {
+        let feeTokenItem = tokenFeeProvider.feeTokenItem
+        let subtitleBalanceState = LoadableTokenBalanceViewStateBuilder().build(
+            type: tokenFeeProvider.formattedFeeTokenBalance,
+            textBuilder: Localization.commonBalance
+        )
 
         return FeeSelectorRowViewModel(
-            rowType: .token(tokenIconInfo: TokenIconInfoBuilder().build(from: token, isCustom: false)),
-            title: token.name,
-            subtitle: subtitleState,
+            rowType: .token(tokenIconInfo: TokenIconInfoBuilder().build(from: feeTokenItem, isCustom: false)),
+            title: feeTokenItem.name,
+            subtitle: .balance(subtitleBalanceState),
             accessibilityIdentifier: FeeAccessibilityIdentifiers.suggestedFeeCurrency,
             expandAction: canExpand ? userDidTapToken : nil
         )
@@ -112,21 +103,20 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
             case .failure:
                 return .noData
             case .success(let feeValue):
-                let formatted = feeFormatter
-                    .formattedFeeComponents(
-                        fee: feeValue.amount.value,
-                        tokenItem: fee.tokenItem,
-                        formattingOptions: .sendCryptoFeeFormattingOptions
-                    )
-                    .formatted
-                return .loaded(text: formatted)
+                let formattedFeeComponents = feeFormatter.formattedFeeComponents(
+                    fee: feeValue.amount.value,
+                    tokenItem: fee.tokenItem,
+                    formattingOptions: .sendCryptoFeeFormattingOptions
+                )
+
+                return .loaded(text: formattedFeeComponents.formatted)
             }
         }()
 
         return FeeSelectorRowViewModel(
             rowType: .fee(image: fee.option.icon.image),
             title: fee.option.title,
-            subtitle: subtitleState,
+            subtitle: .fee(subtitleState),
             accessibilityIdentifier: FeeAccessibilityIdentifiers.suggestedFeeCurrency,
             expandAction: canExpand ? userDidTapFee : nil
         )
