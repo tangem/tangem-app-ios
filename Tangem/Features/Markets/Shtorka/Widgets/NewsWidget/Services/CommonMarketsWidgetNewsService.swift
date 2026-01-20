@@ -58,7 +58,7 @@ extension CommonMarketsWidgetNewsService {
             do {
                 let response = try await service.tangemApiService.loadTrendingNews(
                     limit: Constants.newsLimit,
-                    lang: Constants.language
+                    lang: Locale.newsLanguageCode
                 )
 
                 let result = response.items.map { service.mapper.mapToNewsModel(from: $0) }
@@ -80,6 +80,5 @@ extension CommonMarketsWidgetNewsService {
 private extension CommonMarketsWidgetNewsService {
     enum Constants {
         static let newsLimit = 10
-        static let language = Locale.appLanguageCode
     }
 }

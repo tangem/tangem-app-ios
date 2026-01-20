@@ -148,7 +148,7 @@ final class NewsDataProvider {
         let requestModel = NewsDTO.List.Request(
             page: currentPage,
             limit: limitPerPage,
-            lang: Locale.current.language.languageCode?.identifier,
+            lang: Locale.newsLanguageCode,
             asOf: currentAsOf,
             categoryIds: categoryIds
         )
