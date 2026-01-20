@@ -11,6 +11,7 @@ import TangemUI
 import TangemAssets
 import TangemLocalization
 import TangemFoundation
+import TangemAccessibilityIdentifiers
 
 struct AccountsAwareActionButtonsBuyView: View {
     @ObservedObject var viewModel: AccountsAwareActionButtonsBuyViewModel
@@ -31,6 +32,7 @@ struct AccountsAwareActionButtonsBuyView: View {
             }
         )
         .searchType(.native)
+        .accessibilityIdentifier(ActionButtonsAccessibilityIdentifiers.buyTokenSelectorTokensList)
         .background(Colors.Background.tertiary.ignoresSafeArea())
         .navigationTitle(Localization.commonBuy)
         .navigationBarTitleDisplayMode(.inline)
