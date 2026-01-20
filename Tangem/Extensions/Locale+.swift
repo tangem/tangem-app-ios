@@ -42,3 +42,10 @@ extension Locale {
         return Locale(identifier: identifier).currencySymbol
     }
 }
+
+extension Locale {
+    /// Language code used by news-related services (e.g., `NewsDataProvider`, `CommonMarketsWidgetNewsService`)
+    static var newsLanguageCode: String {
+        Locale.current.language.languageCode?.identifier(.alpha2) ?? Locale.enLanguageCode
+    }
+}
