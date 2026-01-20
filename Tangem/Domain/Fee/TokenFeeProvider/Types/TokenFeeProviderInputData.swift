@@ -10,12 +10,16 @@ import Foundation
 import TangemMacro
 
 @RawCaseName
-enum TokenFeeProviderInputData {
+enum TokenFeeProviderInputData: Hashable {
     case common(amount: Decimal, destination: String)
 
-    case cexEstimate(amount: Decimal)
+    case cex(amount: Decimal)
+    case dex(_ type: TokenFeeProviderInputDataDEXType)
+}
 
-    case dexEthereumEstimate(estimatedGasLimit: Int, otherNativeFee: Decimal?)
-    case dexEthereum(amount: BSDKAmount, destination: String, txData: Data, otherNativeFee: Decimal?)
-    case dexSolana(compiledTransaction: Data)
+enum TokenFeeProviderInputDataDEXType: Hashable {
+    case ethereum(amount: BSDKAmount, destination: String, txData: Data, otherNativeFee: Decimal?)
+    case ethereumEstimate(estimatedGasLimit: Int, otherNativeFee: Decimal?)
+
+    case solana(compiledTransaction: Data)
 }

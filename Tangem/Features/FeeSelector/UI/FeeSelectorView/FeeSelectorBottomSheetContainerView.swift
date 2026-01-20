@@ -39,54 +39,89 @@ struct FeeSelectorBottomSheetContainerView<HeaderContent: View, DescriptionConte
     // MARK: - View Body
 
     var body: some View {
+        contentView
+            .animation(.contentFrameUpdate, value: state)
+            .floatingSheetConfiguration { configuration in
+                configuration.sheetBackgroundColor = Colors.Background.tertiary
+                configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
+                configuration.backgroundInteractionBehavior = .consumeTouches
+            }
+    }
+
+    private var contentView: some View {
         ScrollView {
-            mainContent
-                .transition(.content)
+            mainContentView
+                .padding(.top, Constants.standardSpacing)
+                .padding(.bottom, button == nil ? .zero : Constants.mainContentViewBottomPadding)
+        }
+        .safeAreaInset(edge: .bottom, spacing: .zero) {
+            buttonView
+                .padding(.horizontal, Constants.standardSpacing)
+                .padding(.bottom, Constants.standardSpacing)
         }
         .safeAreaInset(edge: .top, spacing: .zero) {
             header
-        }
-        .safeAreaInset(edge: .bottom) {
-            if let button {
-                button
-                    .padding(.top, 24)
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 16)
-                    .background(ListFooterOverlayShadowView())
-            }
+                .padding(.top, Constants.headerVerticalSpacing)
+                .padding(.horizontal, Constants.standardSpacing)
+                .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
         }
         .scrollBounceBehavior(.basedOnSize)
         .scrollIndicators(.hidden)
-        .animation(.contentFrameUpdate, value: state)
     }
 
     // MARK: - Sub Views
 
+    private var buttonView: some View {
+        button
+            .background(ListFooterOverlayShadowView())
+            .transition(.footer)
+            .animation(.contentFrameUpdate, value: state)
+    }
+
+    private var mainContentView: some View {
+        VStack(spacing: Constants.standardSpacing) {
+            mainContent
+        }
+        .transition(.content)
+    }
+
     private var header: some View {
         VStack(spacing: .zero) {
             headerContent
-                .padding(.vertical, 4)
-                .padding(.horizontal, 16)
-
             descriptionContent
         }
-        .padding(.bottom, 16)
-        .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
+        .transition(.content)
         .id(state)
         .transition(.opacity)
         .transformEffect(.identity)
-        .animation(.headerOpacity.delay(0.3), value: state)
+        .animation(.headerOpacity.delay(0.2), value: state)
     }
 }
+
+// MARK: - Animations and Transitions
 
 private extension AnyTransition {
     static let content = AnyTransition.asymmetric(
         insertion: .opacity.animation(.curve(.easeInOutRefined, duration: 0.3).delay(0.2)),
-        removal: .opacity.animation(.curve(.easeInOutRefined, duration: 0.3))
+        removal: .opacity.animation(.curve(.easeInOutRefined, duration: 0.1))
+    )
+
+    static let footer = AnyTransition.asymmetric(
+        insertion: .offset(y: 200).combined(with: .opacity.animation(.footerOpacity.delay(0.2))),
+        removal: .offset(y: 200).combined(with: .opacity.animation(.footerOpacity))
     )
 }
 
 private extension Animation {
-    static let headerOpacity = Animation.curve(.easeOutStandard, duration: 0.3)
+    static let headerOpacity = Animation.curve(.easeOutStandard, duration: 0.2)
     static let contentFrameUpdate = Animation.curve(.easeInOutRefined, duration: 0.5)
+    static let footerOpacity = Animation.curve(.easeOutEmphasized, duration: 0.3)
+}
+
+// MARK: - Constants
+
+private enum Constants {
+    static let standardSpacing: CGFloat = 16
+    static let headerVerticalSpacing: CGFloat = 4
+    static let mainContentViewBottomPadding: CGFloat = 24
 }

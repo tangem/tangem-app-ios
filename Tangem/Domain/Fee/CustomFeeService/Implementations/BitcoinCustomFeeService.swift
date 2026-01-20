@@ -21,7 +21,7 @@ class BitcoinCustomFeeService {
     private lazy var customFeeTextField = DecimalNumberTextFieldViewModel(maximumFractionDigits: feeTokenItem.decimalCount)
     private lazy var satoshiPerByteTextField = DecimalNumberTextFieldViewModel(maximumFractionDigits: 0)
 
-    private let _customFee: CurrentValueSubject<Fee?, Never> = .init(.none)
+    private lazy var customFeeSubject: CurrentValueSubject<Fee, Never> = .init(zeroFee)
     private var cachedCustomFee: Fee?
     private var bag: Set<AnyCancellable> = []
 
@@ -58,17 +58,17 @@ class BitcoinCustomFeeService {
         .withWeakCaptureOf(self)
         .receiveOnMain()
         .sink { service, fee in
-            service._customFee.send(fee)
+            service.customFeeSubject.send(fee)
         }
         .store(in: &bag)
 
-        _customFee
+        customFeeSubject
             .compactMap { $0 }
             // Skip the initial value
             .dropFirst()
             .withWeakCaptureOf(self)
-            .sink { service, _customFee in
-                service.customFeeTextField.update(value: _customFee.amount.value)
+            .sink { service, customFeeSubject in
+                service.customFeeTextField.update(value: customFeeSubject.amount.value)
             }
             .store(in: &bag)
     }
@@ -115,7 +115,7 @@ class BitcoinCustomFeeService {
 // MARK: - CustomFeeService
 
 extension BitcoinCustomFeeService: SendCustomFeeService {
-    func setup(input: any SendFeeProviderInput) {
+    func setup(input: any CustomFeeServiceInput) {
         bind(input: input)
     }
 }
@@ -123,21 +123,18 @@ extension BitcoinCustomFeeService: SendCustomFeeService {
 // MARK: - CustomFeeProvider
 
 extension BitcoinCustomFeeService: CustomFeeProvider {
-    var customFee: TokenFee {
-        TokenFee(option: .custom, tokenItem: feeTokenItem, value: _customFee.value.map { .success($0) } ?? .loading)
+    var customFee: BSDKFee {
+        customFeeSubject.value
     }
 
-    var customFeePublisher: AnyPublisher<TokenFee, Never> {
-        _customFee
-            .withWeakCaptureOf(self)
-            .map { TokenFee(option: .custom, tokenItem: $0.feeTokenItem, value: $1.map { .success($0) } ?? .loading) }
-            .eraseToAnyPublisher()
+    var customFeePublisher: AnyPublisher<BSDKFee, Never> {
+        customFeeSubject.eraseToAnyPublisher()
     }
 
     func initialSetupCustomFee(_ fee: BSDKFee) {
-        assert(_customFee.value == nil, "Duplicate initial setup")
+        assert(customFeeSubject.value == zeroFee, "Duplicate initial setup")
 
-        _customFee.send(fee)
+        customFeeSubject.send(fee)
         updateView(fee: fee)
     }
 }
@@ -145,22 +142,22 @@ extension BitcoinCustomFeeService: CustomFeeProvider {
 // MARK: - FeeSelectorCustomFeeAvailabilityProvider
 
 extension BitcoinCustomFeeService: FeeSelectorCustomFeeAvailabilityProvider {
-    var customFeeIsValid: Bool { _customFee.value != zeroFee }
+    var customFeeIsValid: Bool { customFeeSubject.value != zeroFee }
 
     var customFeeIsValidPublisher: AnyPublisher<Bool, Never> {
-        _customFee
+        customFeeSubject
             .withWeakCaptureOf(self)
             .map { $0.zeroFee != $1 }
             .eraseToAnyPublisher()
     }
 
     func captureCustomFeeFieldsValue() {
-        cachedCustomFee = _customFee.value
+        cachedCustomFee = customFeeSubject.value
     }
 
     func resetCustomFeeFieldsValue() {
         if let cachedCustomFee {
-            _customFee.send(cachedCustomFee)
+            customFeeSubject.send(cachedCustomFee)
             updateView(fee: cachedCustomFee)
         }
     }
@@ -176,7 +173,7 @@ extension BitcoinCustomFeeService: FeeSelectorCustomFeeFieldsBuilder {
             suffix: feeTokenItem.currencySymbol,
             isEditable: false,
             textFieldViewModel: customFeeTextField,
-            amountAlternativePublisher: _customFee
+            amountAlternativePublisher: customFeeSubject
                 .compactMap { $0 }
                 .withWeakCaptureOf(self)
                 .map { $0.formatToFiat(value: $1.amount.value) }

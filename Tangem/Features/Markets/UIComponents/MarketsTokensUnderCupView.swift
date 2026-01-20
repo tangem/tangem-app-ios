@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 struct MarketsTokensUnderCapView: View {
     // MARK: - Properties
@@ -33,6 +34,7 @@ struct MarketsTokensUnderCapView: View {
                             .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
                     }
                 })
+                .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsTokensUnderCapExpandButton)
                 .roundedBackground(with: Colors.Button.secondary, verticalPadding: 8, horizontalPadding: 14, radius: 10)
             }
         }

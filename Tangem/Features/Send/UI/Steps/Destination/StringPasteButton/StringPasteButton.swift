@@ -55,7 +55,7 @@ struct StringPasteButton: View {
     }
 
     private var custom: some View {
-        CircleButton(title: Localization.commonPaste) {
+        CapsuleButton(title: Localization.commonPaste) {
             if let string = UIPasteboard.general.string {
                 action(string)
             }
