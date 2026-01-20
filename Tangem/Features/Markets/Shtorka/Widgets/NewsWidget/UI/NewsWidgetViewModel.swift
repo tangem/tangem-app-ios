@@ -156,13 +156,16 @@ private extension NewsWidgetViewModel {
     }
 
     func sortItems(_ items: [TrendingNewsModel]) -> [TrendingNewsModel] {
-        items.sorted {
-            if $0.isRead != $1.isRead {
-                return !$0.isRead
-            } else {
-                return $0.createdAt > $1.createdAt
+        items
+            .enumerated()
+            .sorted { lhs, rhs in
+                if lhs.element.isRead != rhs.element.isRead {
+                    return !lhs.element.isRead
+                }
+
+                return lhs.offset < rhs.offset
             }
-        }
+            .map(\.element)
     }
 }
 
