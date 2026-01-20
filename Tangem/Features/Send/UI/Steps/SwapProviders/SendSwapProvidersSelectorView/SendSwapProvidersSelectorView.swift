@@ -18,7 +18,7 @@ struct SendSwapProvidersSelectorView: View {
     var body: some View {
         VStack(spacing: .zero) {
             BottomSheetHeaderView(title: Localization.expressChooseProvider, trailing: {
-                CircleButton.close(action: viewModel.dismiss)
+                NavigationBarButton.close(action: viewModel.dismiss)
             })
             .padding(.horizontal, 16)
 

@@ -11,6 +11,7 @@ import SwiftUI
 import TangemUI
 import TangemAssets
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct SendFeeSelectorView: View {
     // MARK: - View Model
@@ -38,7 +39,7 @@ struct SendFeeSelectorView: View {
 
     private var button: MainButton? {
         if case .summary = viewModel.state {
-            return MainButton(settings: .init(title: Localization.commonConfirm, style: .primary, action: viewModel.userDidTapConfirmButton))
+            return MainButton(settings: .init(title: Localization.commonApply, style: .primary, action: viewModel.userDidTapConfirmButton))
         }
 
         return nil
@@ -47,6 +48,7 @@ struct SendFeeSelectorView: View {
     private var header: some View {
         BottomSheetHeaderView(
             title: viewModel.state.content.title,
+            titleAccessibilityIdentifier: viewModel.state.titleAccessibilityIdentifier,
             leading: { leadingHeaderButton },
             trailing: { trailingHeaderButton }
         )
@@ -64,14 +66,18 @@ struct SendFeeSelectorView: View {
         }
     }
 
+    @ViewBuilder
     private var leadingHeaderButton: some View {
-        CircleButton.back(action: viewModel.userDidTapBackButton)
-            .opacity(viewModel.state.content.headerButtonAction.isBack ? 1 : 0)
+        if viewModel.state.content.headerButtonAction.isBack {
+            NavigationBarButton.back(action: viewModel.userDidTapBackButton)
+        }
     }
 
+    @ViewBuilder
     private var trailingHeaderButton: some View {
-        CircleButton.close(action: viewModel.userDidTapDismissButton)
-            .opacity(viewModel.state.content.headerButtonAction.isClose ? 1 : 0)
+        if viewModel.state.content.headerButtonAction.isClose {
+            NavigationBarButton.close(action: viewModel.userDidTapDismissButton)
+        }
     }
 }
 
@@ -79,8 +85,4 @@ struct SendFeeSelectorView: View {
 
 private extension Animation {
     static let contentFrameUpdate = Animation.curve(.easeInOutRefined, duration: 0.5)
-}
-
-private extension Animation {
-    static let headerOpacity = Animation.curve(.easeOutStandard, duration: 0.2)
 }

@@ -25,7 +25,7 @@ struct WebViewContainer: View {
                 NavigationStack {
                     content
                         .navigationBarItems(
-                            leading: CloseButton { presentationMode.wrappedValue.dismiss() }
+                            leading: CloseTextButton { presentationMode.wrappedValue.dismiss() }
                                 .disableAnimations()
                         )
                 }
