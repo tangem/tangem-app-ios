@@ -92,7 +92,11 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
             }
         }
 
-        Analytics.log(event: .swapSwapInProgressScreenOpened, params: params)
+        Analytics.log(
+            event: .swapSwapInProgressScreenOpened,
+            params: params,
+            analyticsSystems: .all
+        )
     }
 
     func openExplore(exploreURL: URL) {
