@@ -49,7 +49,6 @@ extension CommonFeeSelectorInteractor: FeeSelectorInteractor {
         }
 
         selectedTokenFeeProviderSubject.send(tokenFeeProvider)
-
         tokenFeeProvider.updateFees()
     }
 
