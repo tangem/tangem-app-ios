@@ -134,6 +134,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         sectionsProvider.configure(with: self)
 
         bind()
+        setupActionButtons()
         setupTangemPayIfNeeded()
     }
 
@@ -310,15 +311,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             notificationsPublisher2: $tokensNotificationInputs
         )
 
-        balanceRestrictionFeatureAvailabilityProvider.isActionButtonsAvailablePublisher
-            .removeDuplicates()
-            .receiveOnMain()
-            .withWeakCaptureOf(self)
-            .sink { viewModel, isAvailable in
-                viewModel.actionButtonsViewModel = isAvailable ? viewModel.makeActionButtonsViewModel() : nil
-            }
-            .store(in: &bag)
-
         nftFeatureLifecycleHandler.startObserving()
     }
 
@@ -373,6 +365,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             }
             .receiveOnMain()
             .assign(to: &$tangemPayBannerViewModel)
+    }
+
+    private func setupActionButtons() {
+        actionButtonsViewModel = makeActionButtonsViewModel()
     }
 
     /// - Note: This method throws an opaque error if the NFT Entrypoint view model is already created and there is no need to update it.
