@@ -105,7 +105,8 @@ extension CommonStakingSendAnalyticsLogger: SendSummaryAnalyticsLogger {
                 .action: actionType.stakingAnalyticsAction?.rawValue ?? "",
                 .token: tokenItem.currencySymbol,
                 .blockchain: tokenItem.blockchain.displayName,
-            ]
+            ],
+            analyticsSystems: .all
         )
     }
 
@@ -124,7 +125,7 @@ extension CommonStakingSendAnalyticsLogger: SendFinishAnalyticsLogger {
             .validator: stakingTargetsInput?.selectedTarget?.name ?? "",
             .token: tokenItem.currencySymbol,
             .action: stakingAnalyticsAction.rawValue,
-        ])
+        ], analyticsSystems: .all)
     }
 
     func logShareButton() {
@@ -225,7 +226,7 @@ extension CommonStakingSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
             .feeType: fee.option.analyticsValue.rawValue,
             .walletForm: signerType,
             .selectedHost: currentProviderHost,
-        ])
+        ], analyticsSystems: .all)
 
         switch amount?.type {
         case .none:
