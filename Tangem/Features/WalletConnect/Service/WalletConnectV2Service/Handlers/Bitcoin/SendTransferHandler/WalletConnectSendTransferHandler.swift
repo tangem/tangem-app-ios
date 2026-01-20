@@ -40,7 +40,7 @@ class WalletConnectSendTransferHandler {
         }
 
         self.transactionBuilder = transactionBuilder
-        transactionDispatcher = SendTransactionDispatcher(walletModel: walletModel, transactionSigner: signer)
+        transactionDispatcher = TransactionDispatcherFactory(walletModel: walletModel, signer: signer).makeSendDispatcher()
         request = requestParams
     }
 }
