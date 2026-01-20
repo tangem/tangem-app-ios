@@ -32,8 +32,6 @@ final class ExpressApproveViewModel: ObservableObject, Identifiable {
     // MARK: - Dependencies
 
     private let tokenItem: TokenItem
-    private let feeTokenItem: TokenItem
-
     private let feeFormatter: FeeFormatter
     private let approveViewModelInput: ApproveViewModelInput
     private weak var coordinator: ExpressApproveRoutable?
@@ -50,7 +48,6 @@ final class ExpressApproveViewModel: ObservableObject, Identifiable {
         self.coordinator = coordinator
 
         tokenItem = input.settings.tokenItem
-        feeTokenItem = input.settings.feeTokenItem
 
         selectedAction = input.settings.selectedPolicy
         subtitle = input.settings.subtitle
@@ -128,7 +125,7 @@ private extension ExpressApproveViewModel {
             .store(in: &bag)
     }
 
-    func updateView(state: LoadingResult<BSDKFee, any Error>) {
+    func updateView(state: LoadingResult<ApproveInputFee, any Error>) {
         switch state {
         case .success(let fee):
             updateFeeAmount(fee: fee)
@@ -145,8 +142,8 @@ private extension ExpressApproveViewModel {
         }
     }
 
-    func updateFeeAmount(fee: BSDKFee) {
-        let formatted = feeFormatter.format(fee: fee.amount.value, tokenItem: feeTokenItem)
+    func updateFeeAmount(fee: ApproveInputFee) {
+        let formatted = feeFormatter.format(fee: fee.fee.amount.value, tokenItem: fee.feeTokenItem)
         feeRowViewModel?.update(detailsType: .text(formatted))
     }
 
@@ -178,12 +175,8 @@ extension ExpressApproveViewModel {
     struct Settings {
         let subtitle: String
         let feeFooterText: String
-
         let tokenItem: TokenItem
-        let feeTokenItem: TokenItem
-
         let selectedPolicy: BSDKApprovePolicy
-
         let tangemIconProvider: TangemIconProvider
     }
 }
