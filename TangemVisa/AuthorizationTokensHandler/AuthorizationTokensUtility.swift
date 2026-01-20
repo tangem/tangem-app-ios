@@ -8,6 +8,7 @@
 
 import Foundation
 import JWTDecode
+import TangemPay
 
 public struct AuthorizationTokensUtility {
     func decodeAuthTokens(_ tokens: VisaAuthorizationTokens) throws -> DecodedAuthorizationJWTTokens {

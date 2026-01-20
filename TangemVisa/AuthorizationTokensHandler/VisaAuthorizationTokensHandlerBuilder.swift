@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemNetworkUtils
+import TangemPay
 
 public struct VisaAuthorizationTokensHandlerBuilder {
     private let apiServiceBuilder: VisaAPIServiceBuilder

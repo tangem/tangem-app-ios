@@ -13,13 +13,14 @@ import BlockchainSdk
 import TangemMobileWalletSdk
 import TangemVisa
 import TangemLocalization
+import TangemPay
 
 class TangemPayAuthorizingMobileWalletInteractor {
     private let userWalletId: UserWalletId
     private let userWalletConfig: UserWalletConfig
     private let mobileWalletSdk = CommonMobileWalletSdk()
 
-    init(userWalletId: UserWalletId, userWalletConfig: UserWalletConfig,) {
+    init(userWalletId: UserWalletId, userWalletConfig: UserWalletConfig) {
         self.userWalletId = userWalletId
         self.userWalletConfig = userWalletConfig
     }

@@ -9,6 +9,7 @@
 import Foundation
 import TangemUI
 import TangemLocalization
+import TangemPay
 
 final class TangemPayKYCDeclinedPopupViewModel {
     @Injected(\.alertPresenterViewModel)
@@ -17,14 +18,14 @@ final class TangemPayKYCDeclinedPopupViewModel {
     @Injected(\.mailComposePresenter)
     private var mailPresenter: MailComposePresenter
 
-    let tangemPayAccount: TangemPayAccount
+    let tangemPayManager: TangemPayManager
     weak var coordinator: TangemPayKYCDeclinedRoutable?
 
     init(
-        tangemPayAccount: TangemPayAccount,
+        tangemPayManager: TangemPayManager,
         coordinator: TangemPayKYCDeclinedRoutable
     ) {
-        self.tangemPayAccount = tangemPayAccount
+        self.tangemPayManager = tangemPayManager
         self.coordinator = coordinator
     }
 
@@ -52,7 +53,7 @@ final class TangemPayKYCDeclinedPopupViewModel {
         dismiss()
         let logsComposer = LogsComposer(
             infoProvider: TangemPayKYCDeclinedDataCollector(
-                customerId: tangemPayAccount.customerId
+                customerId: tangemPayManager.customerId
             ),
             includeZipLogs: false
         )
@@ -68,7 +69,7 @@ final class TangemPayKYCDeclinedPopupViewModel {
     }
 
     private func hideKYC() {
-        tangemPayAccount.cancelKYC { [weak self] succeeded in
+        tangemPayManager.cancelKYC { [weak self] succeeded in
             succeeded ? self?.dismiss() : self?.showSomethingWentWrong()
         }
     }

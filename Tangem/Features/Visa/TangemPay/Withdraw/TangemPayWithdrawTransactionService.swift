@@ -11,6 +11,7 @@ import BlockchainSdk
 import TangemVisa
 import TangemExpress
 import TangemFoundation
+import TangemPay
 
 protocol TangemPayWithdrawTransactionServiceOutput: AnyObject {
     func withdrawTransactionDidSent()
