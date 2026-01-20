@@ -111,6 +111,8 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 return BannerNotificationManager(userWalletInfo: model.userWalletInfo, placement: .main)
             }()
 
+            let tangemPayNotificationManager = TangemPayNotificationManager(userWalletModel: model)
+
             let tokenItemPromoProvider = YieldTokenItemPromoProvider(
                 userWalletModel: model,
                 yieldModuleMarketsRepository: CommonYieldModuleMarketsRepository(),
@@ -125,6 +127,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 sectionsProvider: sectionsProvider,
                 tokensNotificationManager: multiWalletNotificationManager,
                 bannerNotificationManager: bannerNotificationManager,
+                tangemPayNotificationManager: tangemPayNotificationManager,
                 rateAppController: rateAppController,
                 nftFeatureLifecycleHandler: nftLifecycleHandler,
                 tokenRouter: tokenRouter,
