@@ -55,4 +55,5 @@ enum ActionButtonState: Equatable {
     case idle
     case restricted(reason: String)
     case disabled
+    case unavailable
 }
