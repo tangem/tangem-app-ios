@@ -23,7 +23,6 @@ struct MarketsMainView: View {
 
     @State private var headerHeight: CGFloat = .zero
     @State private var defaultListOverlayTotalHeight: CGFloat = .zero
-    @State private var defaultListOverlayRatingHeaderHeight: CGFloat = .zero
     @State private var searchResultListOverlayTotalHeight: CGFloat = .zero
     @State private var listOverlayVerticalOffset: CGFloat = .zero
     @State private var listOverlayTitleOpacity: CGFloat = 1.0
@@ -168,7 +167,7 @@ struct MarketsMainView: View {
             offSet = clamp(contentOffset.y, min: .zero, max: maxOffset)
         } else {
             maxOffset = max(
-                defaultListOverlayTotalHeight - defaultListOverlayRatingHeaderHeight - Layout.listOverlayBottomInset,
+                defaultListOverlayTotalHeight - Layout.listOverlayBottomInset,
                 .zero
             )
             offSet = clamp(contentOffset.y, min: .zero, max: maxOffset)
@@ -211,6 +210,7 @@ struct MarketsMainView: View {
                             }
                         }
                     }
+                    .padding(.top, Layout.Widgets.topPadding)
                     .readContentOffset(
                         inCoordinateSpace: .named(scrollViewFrameCoordinateSpaceName),
                         onChange: updateListOverlayAppearance(contentOffset:)
@@ -233,12 +233,6 @@ struct MarketsMainView: View {
         MarketsListErrorView(tryLoadAgain: tryLoadAgain)
     }
 
-    private var loadingSkeletons: some View {
-        ForEach(0 ..< 20) { _ in
-            MarketsSkeletonItemView()
-        }
-    }
-
     @ViewBuilder
     private func makeContentView(with item: MarketsMainViewModel.WidgetContentItem) -> some View {
         switch item {
@@ -257,8 +251,8 @@ struct MarketsMainView: View {
 private extension MarketsMainView {
     enum Layout {
         static let defaultHorizontalInset = 16.0
-        static let listOverlayTopInset = 10.0
-        static let listOverlayBottomInset = 12.0
+        static let listOverlayTopInset = 16.0
+        static let listOverlayBottomInset = 0.0
 
         enum Header {
             static let defaultHorizontalInset = 4.0
@@ -266,6 +260,7 @@ private extension MarketsMainView {
 
         enum Widgets {
             static let verticalContentSpacing: CGFloat = 40.0
+            static let topPadding: CGFloat = 32.0
         }
     }
 }

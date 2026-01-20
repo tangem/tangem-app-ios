@@ -88,14 +88,18 @@ private extension CommonDeeplinkPresenter {
     private func constructViewControllerForDeepLink(_ deepLink: DeepLinkDestination) -> UIViewController? {
         switch deepLink {
         case .expressTransactionStatus(let walletModel, let userWalletModel, let pendingTransactionDetails):
-            return constructTokenDetailsViewControllerWithPendingTransaction(
+            return constructTokenDetailsViewController(
                 walletModel: walletModel,
                 userWalletModel: userWalletModel,
                 pendingTransactionDetails: pendingTransactionDetails
             )
 
         case .tokenDetails(let walletModel, let userWalletModel):
-            return constructTokenDetailsViewController(walletModel: walletModel, userWalletModel: userWalletModel)
+            return constructTokenDetailsViewController(
+                walletModel: walletModel,
+                userWalletModel: userWalletModel,
+                pendingTransactionDetails: nil
+            )
 
         case .buy(let userWalletModel):
             return constructBuyViewController(userWalletModel: userWalletModel)
@@ -142,37 +146,44 @@ private extension CommonDeeplinkPresenter {
         return viewController
     }
 
-    private func constructTokenDetailsViewControllerWithPendingTransaction(
+    private func constructTokenDetailsViewController(
         walletModel: any WalletModel,
         userWalletModel: UserWalletModel,
-        pendingTransactionDetails: PendingTransactionDetails
-    ) -> UIViewController {
+        pendingTransactionDetails: PendingTransactionDetails?
+    ) -> UIViewController? {
         let coordinator = coordinatorFactory.makeTokenDetailsCoordinator(dismissAction: { UIApplication.dismissTop() })
 
-        coordinator.start(
-            with: .init(
-                userWalletModel: userWalletModel,
-                walletModel: walletModel,
-                pendingTransactionDetails: pendingTransactionDetails
+        // [REDACTED_TODO_COMMENT]
+        if FeatureProvider.isAvailable(.accounts) {
+            guard let account = walletModel.account else {
+                let message = "Inconsistent state: WalletModel '\(walletModel.name)' has no account in accounts-enabled build"
+                AppLogger.error(error: message)
+                assertionFailure(message)
+                return nil
+            }
+
+            coordinator.start(
+                with: .init(
+                    userWalletInfo: userWalletModel.userWalletInfo,
+                    keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
+                    walletModelsManager: account.walletModelsManager,
+                    userTokensManager: account.userTokensManager,
+                    walletModel: walletModel,
+                    pendingTransactionDetails: pendingTransactionDetails
+                )
             )
-        )
-
-        return makeDeeplinkViewController(
-            view: { TokenDetailsCoordinatorView(coordinator: coordinator) },
-            embedInNavigationStack: true
-        )
-    }
-
-    private func constructTokenDetailsViewController(walletModel: any WalletModel, userWalletModel: UserWalletModel) -> UIViewController {
-        let coordinator = coordinatorFactory.makeTokenDetailsCoordinator(dismissAction: { UIApplication.dismissTop() })
-
-        coordinator.start(
-            with: .init(
-                userWalletModel: userWalletModel,
-                walletModel: walletModel,
-                pendingTransactionDetails: nil
+        } else {
+            coordinator.start(
+                with: .init(
+                    userWalletInfo: userWalletModel.userWalletInfo,
+                    keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
+                    walletModelsManager: userWalletModel.walletModelsManager,
+                    userTokensManager: userWalletModel.userTokensManager,
+                    walletModel: walletModel,
+                    pendingTransactionDetails: pendingTransactionDetails
+                )
             )
-        )
+        }
 
         return makeDeeplinkViewController(
             view: { TokenDetailsCoordinatorView(coordinator: coordinator) },

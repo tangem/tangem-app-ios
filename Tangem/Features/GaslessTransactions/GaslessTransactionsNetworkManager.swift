@@ -13,21 +13,27 @@ import TangemNetworkUtils
 
 protocol GaslessTransactionsNetworkManager {
     typealias FeeToken = GaslessTransactionsDTO.Response.FeeToken
-    typealias MetaTransaction = GaslessTransactionsDTO.Request.MetaTransaction
+    typealias GaslessTransaction = GaslessTransactionsDTO.Request.GaslessTransaction
     typealias SignResult = GaslessTransactionsDTO.Response.SignResponse.Result
 
     var availableFeeTokens: [FeeToken] { get }
     var availableFeeTokensPublisher: AnyPublisher<[FeeToken], Never> { get }
 
     func updateAvailableTokens()
-    func signMetaTransaction(_ transaction: MetaTransaction) async throws -> SignResult
-    func getFeeRecipientAddress() async throws -> String
+    func signGaslessTransaction(_ transaction: GaslessTransaction) async throws -> SignResult
+    func initialize()
+
+    var feeRecipientAddress: String? { get }
+    /// Fire-and-forget variant for environments without an async context.
+    /// We need this version to kick off fetching the fee recipient address early (e.g. during app startup)
+    func preloadFeeRecipientAddress()
 }
 
 final class CommonGaslessTransactionsNetworkManager {
     private let apiService: GaslessTransactionsAPIService
     private let availableFeeTokensSubject = CurrentValueSubject<[FeeToken], Never>([])
     private var fetchFeeTokensTask: Task<Void, Never>?
+    private var _feeRecipientAddress: String?
 
     init(apiService: GaslessTransactionsAPIService) {
         self.apiService = apiService
@@ -37,12 +43,21 @@ final class CommonGaslessTransactionsNetworkManager {
 // MARK: - GaslessTransactionsNetworkManager
 
 extension CommonGaslessTransactionsNetworkManager: GaslessTransactionsNetworkManager {
+    var feeRecipientAddress: String? {
+        _feeRecipientAddress
+    }
+
     var availableFeeTokens: [FeeToken] {
         availableFeeTokensSubject.value
     }
 
     var availableFeeTokensPublisher: AnyPublisher<[FeeToken], Never> {
         availableFeeTokensSubject.eraseToAnyPublisher()
+    }
+
+    func initialize() {
+        updateAvailableTokens()
+        preloadFeeRecipientAddress()
     }
 
     func updateAvailableTokens() {
@@ -67,13 +82,14 @@ extension CommonGaslessTransactionsNetworkManager: GaslessTransactionsNetworkMan
         self.fetchFeeTokensTask = fetchFeeTokensTask
     }
 
-    func signMetaTransaction(_ transaction: MetaTransaction) async throws -> SignResult {
+    func signGaslessTransaction(_ transaction: GaslessTransaction) async throws -> SignResult {
         try await apiService.signGaslessTransaction(transaction)
     }
 
-    /// Returns the address where transaction fees are collected. Use this for gas estimation.
-    func getFeeRecipientAddress() async throws -> String {
-        try await apiService.getFeeRecipientAddress()
+    func preloadFeeRecipientAddress() {
+        Task { [weak self] in
+            self?._feeRecipientAddress = try await self?.apiService.getFeeRecipientAddress()
+        }
     }
 }
 
@@ -84,10 +100,8 @@ private struct GaslessTransactionsNetworkManagerKey: InjectionKey {
             : FeatureStorage.instance.gaslessTransactionsAPIType
 
         let provider: TangemProvider<GaslessTransactionsAPITarget> = .init(
-            configuration: .ephemeralConfiguration,
-            additionalPlugins: [
-                GaslessTransactionsAuthorizationPlugin(),
-            ]
+            plugins: [GaslessTransactionsAuthorizationPlugin()],
+            sessionConfiguration: .gaslessConfiguration
         )
 
         let manager = CommonGaslessTransactionsNetworkManager(

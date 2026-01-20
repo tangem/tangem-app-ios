@@ -152,7 +152,7 @@ extension ValidationErrorEvent {
     var icon: NotificationView.MessageIcon {
         switch self {
         case .insufficientBalanceForFee(let configuration):
-            return .init(iconType: .image(configuration.feeAmountTypeIconAsset.image))
+            return .init(iconType: .icon(configuration.feeTokenIconInfo))
         case .invalidNumber,
              .insufficientBalance,
              .dustRestriction,

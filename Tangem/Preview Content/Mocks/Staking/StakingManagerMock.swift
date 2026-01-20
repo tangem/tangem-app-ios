@@ -14,6 +14,7 @@ class StakingManagerMock: StakingManager {
     var state: StakingManagerState { .notEnabled }
     var balances: [TangemStaking.StakingBalance]? = []
     var statePublisher: AnyPublisher<StakingManagerState, Never> { .just(output: state) }
+    var updateWalletBalancesPublisher: AnyPublisher<Void, Never> { .just(output: ()) }
     var allowanceAddress: String? { nil }
 
     func updateState(loadActions: Bool) async {}

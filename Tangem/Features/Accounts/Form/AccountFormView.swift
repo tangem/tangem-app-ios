@@ -43,7 +43,7 @@ struct AccountFormView: View {
         .background(Colors.Background.tertiary)
         .navigationTitle(viewModel.title)
         .navigationBarTitleDisplayMode(.inline)
-        .withCloseButton(placement: .topBarTrailing, style: .crossImage) {
+        .withCloseButton(placement: .topBarTrailing, style: .icon) {
             viewModel.onClose()
         }
         .ignoresSafeArea(.keyboard)

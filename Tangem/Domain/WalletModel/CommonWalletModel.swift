@@ -144,6 +144,17 @@ class CommonWalletModel {
                 self?.updateQuote(quote: quote)
             }
             .store(in: &bag)
+
+        if let _stakingManager {
+            _stakingManager.updateWalletBalancesPublisher
+                .dropFirst() // drop initial value
+                .withWeakCaptureOf(self)
+                .asyncMap { walletModel, _ in
+                    await walletModel.update(silent: false, features: .balances)
+                }
+                .sink { _ in }
+                .store(in: &bag)
+        }
     }
 
     // MARK: - State updates
@@ -346,6 +357,10 @@ extension CommonWalletModel: WalletModel {
     var minimalBalanceProvider: (any MinimalBalanceProvider)? {
         walletManager as? MinimalBalanceProvider
     }
+
+    var ethereumGaslessDataProvider: (any EthereumGaslessDataProvider)? {
+        walletManager as? EthereumGaslessDataProvider
+    }
 }
 
 // MARK: - WalletModelUpdater
@@ -363,24 +378,24 @@ extension CommonWalletModel: WalletModelUpdater {
                 async let staking: ()? = _stakingManager?.updateState(loadActions: true)
 
                 _ = await (update, quotes, staking)
-                logger.debug(self, "WalletModel did updated \(walletManager.state)")
+                logger.debug(self, "WalletModel was updated to state '\(walletManager.state)'")
 
                 // There must be a delayed call, as we are waiting for the wallet manager update. Workflow for blockchains like Hedera
                 await _receiveAddressService.update(with: addresses)
-                logger.debug(self, "ReceiveAddressService did updated")
+                logger.debug(self, "ReceiveAddressService was updated")
 
                 await walletManagerDidUpdate()
-                logger.debug(self, "Update method did ended \(walletManager.state)")
+                logger.debug(self, "Update method finished with state '\(walletManager.state)'")
             }
         }()
 
         async let transactionHistoryUpdate: () = {
             if features.contains(.transactionHistory) {
                 _transactionHistoryService?.clearHistory()
-                logger.debug(self, "Clear transaction history")
+                logger.debug(self, "Transaction history was cleared")
 
                 await updateTransactionsHistory()
-                logger.debug(self, "Transaction history did updated")
+                logger.debug(self, "Transaction history was updated")
             }
         }()
 
@@ -625,6 +640,10 @@ extension CommonWalletModel: WalletModelDependenciesProvider {
 
     var ethereumGaslessTransactionFeeProvider: (any GaslessTransactionFeeProvider)? {
         walletManager as? GaslessTransactionFeeProvider
+    }
+
+    var ethereumGaslessTransactionBroadcaster: (any EthereumGaslessTransactionBroadcaster)? {
+        walletManager as? EthereumGaslessTransactionBroadcaster
     }
 }
 
