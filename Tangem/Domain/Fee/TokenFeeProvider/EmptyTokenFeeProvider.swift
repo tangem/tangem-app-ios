@@ -10,14 +10,15 @@ import Combine
 
 struct EmptyTokenFeeProvider: TokenFeeProvider {
     let feeTokenItem: TokenItem
-    var balanceState: FormattedTokenBalanceType { .failure(.empty("")) }
+    var balanceFeeTokenState: TokenBalanceType { .failure(.none) }
+    var formattedFeeTokenBalance: FormattedTokenBalanceType { .failure(.empty("")) }
     var hasMultipleFeeOptions: Bool { false }
 
     var state: TokenFeeProviderState { .unavailable(.notSupported) }
     var statePublisher: AnyPublisher<TokenFeeProviderState, Never> { .just(output: state) }
 
     var selectedTokenFee: TokenFee {
-        .init(option: .market, tokenItem: feeTokenItem, value: .failure(TokenFee.ErrorType.unsupportedByProvider))
+        .init(option: .market, tokenItem: feeTokenItem, value: .failure(TokenFeeProviderError.feeNotFound))
     }
 
     var selectedTokenFeePublisher: AnyPublisher<TokenFee, Never> {
