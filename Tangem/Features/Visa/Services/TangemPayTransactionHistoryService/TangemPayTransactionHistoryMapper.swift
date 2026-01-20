@@ -8,6 +8,7 @@
 
 import TangemLocalization
 import TangemVisa
+import TangemPay
 
 struct TangemPayTransactionHistoryMapper {
     private let calendar: Calendar = .current

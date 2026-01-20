@@ -9,6 +9,7 @@
 import LocalAuthentication
 import TangemSdk
 import TangemVisa
+import TangemPay
 
 final class CommonTangemPayAuthorizationTokensRepository: TangemPayAuthorizationTokensRepository {
     private let secureStorage = SecureStorage()
