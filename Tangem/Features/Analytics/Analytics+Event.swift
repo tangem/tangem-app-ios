@@ -642,12 +642,5 @@ extension Analytics {
         case earningNoticeAmountNotDeposited = "[Earning] Notice - Amount Not Deposited"
         case mainNoticeYieldPromo = "[Main Screen] Yield Promo"
         case mainNoticeYieldPromoClicked = "[Main Screen] Yield Promo Clicked"
-
-        // MARK: - AppsFlyer
-
-        case afWalletCreatedSuccessfully = "[Onboarding / Create Wallet] wallet_created_successfully"
-        case afWalletImported = "[Onboarding / Seed Phrase] wallet_imported"
-        case afWalletEntryScreen = "[Onboarding] wallet_entry_screen_view"
-        case afWalletFunded = "[Basic] wallet_funded"
     }
 }
