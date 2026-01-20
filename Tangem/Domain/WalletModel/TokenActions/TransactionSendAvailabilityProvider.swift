@@ -8,6 +8,7 @@
 
 import Foundation
 import BlockchainSdk
+import TangemUI
 import TangemAssets
 import TangemMacro
 
@@ -53,11 +54,16 @@ struct TransactionSendAvailabilityProvider {
 
     private func makeNotEnoughFeeConfiguration(walletModel: any WalletModel) -> SendingRestrictions.NotEnoughFeeConfiguration? {
         do {
-            let feeAmountTypeIconAsset = networkIconProvider.provide(by: walletModel.feeTokenItem.blockchain, filled: true)
             let feeWalletModelFinderResult = try WalletModelFinder.findWalletModel(tokenItem: walletModel.feeTokenItem)
             let availabilityProvider = TokenActionAvailabilityProvider(
                 userWalletConfig: feeWalletModelFinderResult.userWalletModel.config,
                 walletModel: feeWalletModelFinderResult.walletModel
+            )
+
+            let tokenIconInfo = TokenIconInfoBuilder().build(
+                for: walletModel.feeTokenItem.amountType,
+                in: walletModel.feeTokenItem.blockchain,
+                isCustom: walletModel.isCustom
             )
 
             return .init(
@@ -66,7 +72,7 @@ struct TransactionSendAvailabilityProvider {
                 transactionAmountTypeName: walletModel.tokenItem.name,
                 feeAmountTypeName: walletModel.feeTokenItem.name,
                 feeAmountTypeCurrencySymbol: walletModel.feeTokenItem.currencySymbol,
-                feeAmountTypeIconAsset: feeAmountTypeIconAsset,
+                feeTokenIconInfo: tokenIconInfo,
                 networkName: walletModel.tokenItem.networkName,
                 currencyButtonTitle: walletModel.tokenItem.blockchain.feeDisplayName,
                 isFeeCurrencyPurchaseAllowed: availabilityProvider.isBuyAvailable
@@ -98,7 +104,7 @@ enum SendingRestrictions: Hashable {
         let transactionAmountTypeName: String
         let feeAmountTypeName: String
         let feeAmountTypeCurrencySymbol: String
-        let feeAmountTypeIconAsset: ImageType
+        let feeTokenIconInfo: TokenIconInfo
         let networkName: String
         let currencyButtonTitle: String?
         let isFeeCurrencyPurchaseAllowed: Bool

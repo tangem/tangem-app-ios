@@ -71,9 +71,11 @@ private extension CEXExpressProviderManager {
                 return .restriction(.insufficientBalance(request.amount), quote: quote)
             }
 
-            guard request.pair.source.balanceProvider.feeCurrencyHasPositiveBalance else {
+            guard try request.pair.source.feeProvider.feeCurrencyHasPositiveBalance(providerId: provider.id) else {
                 let quote = try await loadQuote(request: request)
-                return .restriction(.feeCurrencyHasZeroBalance, quote: quote)
+                let isFeeCurrency = request.pair.source.isFeeCurrency(providerId: provider.id)
+
+                return .restriction(.feeCurrencyHasZeroBalance(isFeeCurrency: isFeeCurrency), quote: quote)
             }
 
             let feeRequest = ExpressFeeRequest(provider: provider, option: request.feeOption)
@@ -152,11 +154,11 @@ private extension CEXExpressProviderManager {
 
     func subtractFee(request: ExpressManagerSwappingPairRequest, estimatedFee: BSDKFee) throws -> Decimal {
         // The fee's subtraction needed only for fee currency
-        guard request.pair.source.isFeeCurrency else {
+        guard request.pair.source.isFeeCurrency(providerId: provider.id) else {
             return 0
         }
 
-        let balance = try request.pair.source.balanceProvider.getBalance()
+        let balance = try request.pair.source.feeProvider.feeCurrencyBalance(providerId: provider.id)
         let fee = estimatedFee.amount.value
         let fullAmount = request.amount + fee
 

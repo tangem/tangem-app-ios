@@ -38,7 +38,7 @@ struct SendFeeSelectorView: View {
 
     private var button: MainButton? {
         if case .summary = viewModel.state {
-            return MainButton(settings: .init(title: Localization.commonConfirm, style: .primary, action: viewModel.userDidTapConfirmButton))
+            return MainButton(settings: .init(title: Localization.commonApply, style: .primary, action: viewModel.userDidTapConfirmButton))
         }
 
         return nil
