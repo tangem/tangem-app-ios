@@ -92,7 +92,7 @@ extension CommonExpressInteractorAnalyticsLogger: ExpressInteractorAnalyticsLogg
             .permissionType: permissionType.rawValue,
             .walletForm: signerType,
             .selectedHost: currentProviderHost,
-        ])
+        ], analyticsSystems: .all)
     }
 }
 
