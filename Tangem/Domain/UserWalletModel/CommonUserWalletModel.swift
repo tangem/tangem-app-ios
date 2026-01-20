@@ -15,6 +15,7 @@ import TangemSdk
 import TangemNFT
 import TangemFoundation
 import TangemMobileWalletSdk
+import TangemPay
 
 class CommonUserWalletModel {
     // MARK: Services
@@ -27,10 +28,10 @@ class CommonUserWalletModel {
     let nftManager: NFTManager
     let keysRepository: KeysRepository
     let totalBalanceProvider: TotalBalanceProvider
-    let tangemPayAccountProvider: TangemPayAccountProviderSetupable
 
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
     let accountModelsManager: AccountModelsManager
+    let tangemPayManager: TangemPayManager
 
     var emailConfig: EmailConfig? {
         config.emailConfig
@@ -58,9 +59,9 @@ class CommonUserWalletModel {
         nftManager: NFTManager,
         keysRepository: KeysRepository,
         totalBalanceProvider: TotalBalanceProvider,
-        tangemPayAccountProvider: TangemPayAccountProviderSetupable,
         userTokensPushNotificationsManager: UserTokensPushNotificationsManager,
-        accountModelsManager: AccountModelsManager
+        accountModelsManager: AccountModelsManager,
+        tangemPayManager: TangemPayManager
     ) {
         self.walletInfo = walletInfo
         self.config = config
@@ -71,15 +72,11 @@ class CommonUserWalletModel {
         self.nftManager = nftManager
         self.keysRepository = keysRepository
         self.totalBalanceProvider = totalBalanceProvider
-        self.tangemPayAccountProvider = tangemPayAccountProvider
         self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
         self.accountModelsManager = accountModelsManager
+        self.tangemPayManager = tangemPayManager
 
         _cardHeaderImagePublisher = .init(config.cardHeaderImage)
-
-        if FeatureProvider.isAvailable(.visa) {
-            tangemPayAccountProvider.setup(for: self)
-        }
     }
 
     deinit {
@@ -270,12 +267,6 @@ extension CommonUserWalletModel: UserWalletModel {
                 mutableInfo.hasMnemonicBackup = true
                 updateConfiguration(walletInfo: .mobileWallet(mutableInfo))
             }
-
-        case .tangemPayOfferAccepted(let tangemPayAccount):
-            _updatePublisher.send(.tangemPayOfferAccepted(tangemPayAccount))
-
-        case .tangemPayKYCDeclined:
-            _updatePublisher.send(.tangemPayKYCDeclined)
         }
     }
 
@@ -341,18 +332,6 @@ extension CommonUserWalletModel: TangemPayAuthorizingProvider {
                 userWalletConfig: config
             )
         }
-    }
-}
-
-// MARK: - TangemPayAccountProvider
-
-extension CommonUserWalletModel: TangemPayAccountProvider {
-    var tangemPayAccount: TangemPayAccount? {
-        tangemPayAccountProvider.tangemPayAccount
-    }
-
-    var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount?, Never> {
-        tangemPayAccountProvider.tangemPayAccountPublisher
     }
 }
 
