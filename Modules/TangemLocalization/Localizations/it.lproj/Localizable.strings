@@ -291,6 +291,7 @@
 "common_no_address" = "No address";
 "common_no" = "No";
 "common_not_added" = "Not Added";
+"common_not_available" = "Not available";
 "common_not_now" = "Not now";
 "common_now" = "Now";
 "common_ok" = "OK";
@@ -399,6 +400,8 @@
 "details_manage_security_long_tap" = "Mantenimento della carta";
 "details_manage_security_passcode_description" = "Dovrai inserire una password prima di eseguire qualsiasi comando che modifichi lo stato della carta.";
 "details_manage_security_passcode" = "Password";
+"details_mobile_section_description" = "You can have either one mobile wallet or hardware wallet at the same time. Upgrade you wallet or delete it from the app to start using a Tangem cold wallet.";
+"details_mobile_wallet_upgrade_action_title" = "Upgrade to hardware wallet";
 "details_nft_title" = "NFT";
 "details_referral_title" = "Referral program";
 "details_row_description_flip_to_hide" = "Flip your device screen down to quickly hide and show balances";
@@ -520,6 +523,8 @@
 "feedback_subject_tx_failed" = "Can't send a transaction";
 "feedback_subject_tx_push_failed" = "Can't push a transaction";
 "feedback_token_description_error" = "Coin description error";
+"gasless_not_enough_funds_to_cover_token_fee" = "Not enough funds";
+"gasless_transaction_fee" = "Gasless transaction fee";
 "generic_error_code" = "An error occurred. Code: %@.";
 "generic_error" = "An error occurred";
 "generic_requires_memo_error" = "Notifica richiesta";
@@ -758,7 +763,7 @@
 "news_quick_recap" = "Quick recap";
 "news_related_news" = "Related News";
 "news_related_tokens" = "Related tokens";
-"news_sources" = "Sources";
+"news_sources" = "Related news";
 "news_stay_in_the_loop" = "Stay in the loop";
 "nft_about_title" = "About NFT";
 "nft_asset" = "NFT asset";
@@ -899,6 +904,7 @@
 "onboarding_wallet_info_title_fourth" = "Access code restore";
 "onboarding_wallet_info_title_second" = "Identical cards";
 "onboarding_wallet_info_title_third" = "Access code";
+"only_one_mobile_wallet_explanation" = "You can have either a mobile wallet or a hardware wallet at one time. Upgrade your wallet or delete it from the app to start using a Tangem cold wallet.";
 "onramp_all_offers_button_title" = "All offers";
 "onramp_avaiable_with_payment_methods" = "Available with %@";
 "onramp_choose_provider_title_hint" = "Providers facilitate transactions";
@@ -1121,6 +1127,11 @@
 "settings_card_settings_footer" = "Prepare to scan card or ring you want to set up.";
 "settings_forget_wallet_footer" = "This will remove the wallet from the application. The wallet itself can be added again.";
 "settings_forget_wallet" = "Forget wallet";
+"settings_upgrade_banner_advantage_feature_title" = "Simple to use";
+"settings_upgrade_banner_description" = "Keeps your crypto safe and offline. Slim as a credit card, safer than a bank vault.";
+"settings_upgrade_banner_seed_phrase_feature_title" = "No seed phrase";
+"settings_upgrade_banner_superiority_feature_title" = "Best in class hardware wallet";
+"settings_upgrade_banner_title" = "Tangem Cold Wallet";
 "settings_wallet_name_title" = "Name";
 "stake_token_description" = "Put your token to work";
 "staking_account_initialization_footer" = "A network fee is a small payment required to process and confirm your transaction on the blockchain.";
@@ -1387,7 +1398,7 @@
 "tangempay_go_to_support" = "Vai al supporto";
 "tangempay_issue_card_notification_description" = "Di solito richiede fino a 15 minuti";
 "tangempay_issue_card_notification_title" = "Configurazione della tua carta Tangem";
-"tangempay_issuing_your_card_description" = "Stiamo preparando la tua carta. Ci vorrà un po' di tempo.";
+"tangempay_issuing_your_card_description" = "La carta viene solitamente emessa automaticamente entro 5 minuti. In rari casi, se è necessaria una revisione manuale, l’emissione può richiedere fino a 48 ore.";
 "tangempay_issuing_your_card" = "Emissione della tua carta";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
 "tangempay_kyc_confirm_cancellation_alert_title" = "Confirm Cancellation";
@@ -1397,7 +1408,7 @@
 "tangempay_kyc_has_failed" = "KYC has failed";
 "tangempay_kyc_in_progress_notification_button" = "Visualizza stato";
 "tangempay_kyc_in_progress_notification_title" = "KYC in corso per Tangem Pay";
-"tangempay_kyc_in_progress_popup_description" = "Use the buttons below to view your current KYC status or cancel it.";
+"tangempay_kyc_in_progress_popup_description" = "I documenti vengono solitamente verificati automaticamente entro 5 minuti. In rari casi, se è necessaria una revisione manuale, il processo può richiedere fino a 48 ore.";
 "tangempay_kyc_in_progress" = "KYC in corso";
 "tangempay_kyc_rejected_button_text" = "Hide KYC block";
 "tangempay_kyc_rejected_description_span" = "your profile.";
@@ -1499,6 +1510,7 @@
 "universal_error" = "We've encountered an error. Error code: %@. Please contact our support.";
 "unlock_wallet_description_full" = "Use %@ or scan a card/ring to have access to your wallet";
 "unsupported_wc_version" = "Connection failed: This dApp uses Wallet Connect version 1.0, which is not supported. Please ensure the dApp supports Wallet Connect version 2.0 to connect successfully.";
+"upgrade_to_hardware_wallet_button_title" = "Upgrade to a hardware wallet";
 "user_push_notification_agreement_argument_one_subtitle" = "Real-time alerts for transactions, exchanges, and critical updates.";
 "user_push_notification_agreement_argument_one_title" = "Transaction Alerts";
 "user_push_notification_agreement_argument_one" = "Stay up to date with the latest features and news";
@@ -1619,7 +1631,7 @@
 "wallet_import_seed_description" = "Import an existing wallet with your recovery phrase.";
 "wallet_import_seed_navtitle" = "Import wallet";
 "wallet_import_seed_title" = "Enter recovery phrase";
-"wallet_import_success_description" = "You successfully backed up your wallet.";
+"wallet_import_success_description" = "You successfully import up your wallet.";
 "wallet_import_success_navtitle" = "Import wallet";
 "wallet_import_success_title" = "Import completed";
 "wallet_import_title" = "Import wallet";

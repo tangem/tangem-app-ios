@@ -14,13 +14,16 @@ import TangemFoundation
 class SendTransactionDispatcher {
     private let walletModel: any WalletModel
     private let transactionSigner: TangemSigner
+    private let gaslessTransactionBroadcastService: GaslessTransactionBroadcastService
 
     init(
         walletModel: any WalletModel,
-        transactionSigner: TangemSigner
+        transactionSigner: TangemSigner,
+        gaslessTransactionBroadcastService: GaslessTransactionBroadcastService
     ) {
         self.walletModel = walletModel
         self.transactionSigner = transactionSigner
+        self.gaslessTransactionBroadcastService = gaslessTransactionBroadcastService
     }
 }
 
@@ -39,7 +42,7 @@ extension SendTransactionDispatcher: TransactionDispatcher {
         let mapper = TransactionDispatcherResultMapper()
 
         do {
-            let hash = try await walletModel.transactionSender.send(transferTransaction, signer: transactionSigner).async()
+            let hash = try await send(transaction: transferTransaction)
             walletModel.updateAfterSendingTransaction()
 
             if walletModel.yieldModuleManager?.state?.state.isEffectivelyActive == true {
@@ -55,5 +58,13 @@ extension SendTransactionDispatcher: TransactionDispatcher {
             AppLogger.error(error: error)
             throw mapper.mapError(error.toUniversalError(), transaction: transaction)
         }
+    }
+
+    private func send(transaction: BSDKTransaction) async throws -> TransactionSendResult {
+        if walletModel.tokenItem.blockchain.isGaslessTransactionSupported, transaction.fee.amount.type.isToken {
+            return try await gaslessTransactionBroadcastService.send(transaction: transaction)
+        }
+
+        return try await walletModel.transactionSender.send(transaction, signer: transactionSigner).async()
     }
 }

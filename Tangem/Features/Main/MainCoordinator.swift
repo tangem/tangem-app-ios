@@ -282,14 +282,43 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         yieldModuleActiveCoordinator = coordinator
     }
 
-    func openTokenDetails(for model: any WalletModel, userWalletModel: UserWalletModel) {
+    func openTokenDetails(for walletModel: any WalletModel, userWalletModel: UserWalletModel) {
         mainBottomSheetUIManager.hide()
 
         let coordinator = coordinatorFactory.makeTokenDetailsCoordinator(dismissAction: { [weak self] in
             self?.tokenDetailsCoordinator = nil
         })
 
-        coordinator.start(with: .init(userWalletModel: userWalletModel, walletModel: model))
+        // [REDACTED_TODO_COMMENT]
+        if FeatureProvider.isAvailable(.accounts) {
+            guard let account = walletModel.account else {
+                let message = "Inconsistent state: WalletModel '\(walletModel.name)' has no account in accounts-enabled build"
+                AppLogger.error(error: message)
+                assertionFailure(message)
+                return
+            }
+
+            coordinator.start(
+                with: .init(
+                    userWalletInfo: userWalletModel.userWalletInfo,
+                    keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
+                    walletModelsManager: account.walletModelsManager,
+                    userTokensManager: account.userTokensManager,
+                    walletModel: walletModel
+                )
+            )
+        } else {
+            coordinator.start(
+                with: .init(
+                    userWalletInfo: userWalletModel.userWalletInfo,
+                    keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
+                    walletModelsManager: userWalletModel.walletModelsManager,
+                    userTokensManager: userWalletModel.userTokensManager,
+                    walletModel: walletModel
+                )
+            )
+        }
+
         tokenDetailsCoordinator = coordinator
     }
 
@@ -351,6 +380,16 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
 
     func openTangemPayKYCInProgressPopup(tangemPayAccount: TangemPayAccount) {
         let viewModel = TangemPayKYCStatusPopupViewModel(
+            tangemPayAccount: tangemPayAccount,
+            coordinator: self
+        )
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func openTangemPayKYCDeclinedPopup(tangemPayAccount: TangemPayAccount) {
+        let viewModel = TangemPayKYCDeclinedPopupViewModel(
             tangemPayAccount: tangemPayAccount,
             coordinator: self
         )
@@ -505,10 +544,10 @@ extension MainCoordinator: SingleTokenBaseRoutable {
 // MARK: - SendFeeCurrencyNavigating, ExpressFeeCurrencyNavigating {
 
 extension MainCoordinator: SendFeeCurrencyNavigating, ExpressFeeCurrencyNavigating {
-    func openFeeCurrency(for model: any WalletModel, userWalletModel: UserWalletModel) {
-        // We add custom implementation because we have to call
-        // `mainBottomSheetUIManager.hide()` from main
-        openTokenDetails(for: model, userWalletModel: userWalletModel)
+    func openFeeCurrency(for walletModel: any WalletModel, userWalletModel: UserWalletModel) {
+        // We use our own custom implementation instead of implementation in `ExpressFeeCurrencyNavigating` because
+        // we have to call `mainBottomSheetUIManager.hide()` when performing this navigation action from the main screen
+        openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
     }
 }
 
@@ -732,6 +771,14 @@ extension MainCoordinator {
 
 extension MainCoordinator: TangemPayKYCStatusRoutable {
     func closeKYCStatusPopup() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
+extension MainCoordinator: TangemPayKYCDeclinedRoutable {
+    func closeKYCDeclinedPopup() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
         }
