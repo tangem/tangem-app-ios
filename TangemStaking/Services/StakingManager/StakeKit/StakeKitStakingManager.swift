@@ -24,6 +24,8 @@ final class StakeKitStakingManager {
     // MARK: Private
 
     private let _state: CurrentValueSubject<StakingManagerState, Never>
+    private let _updateWalletBalancesSubject = CurrentValueSubject<Void, Never>(())
+
     private var canStakeMore: Bool {
         switch wallet.item.network {
         case .solana, .cosmos, .tron, .ethereum, .bsc, .ton: true
@@ -61,6 +63,10 @@ extension StakeKitStakingManager: StakingManager {
         _state.eraseToAnyPublisher()
     }
 
+    var updateWalletBalancesPublisher: AnyPublisher<Void, Never> {
+        _updateWalletBalancesSubject.eraseToAnyPublisher()
+    }
+
     var allowanceAddress: String? {
         switch (wallet.item.network, wallet.item.contractAddress) {
         case (.ethereum, StakingConstants.polygonContractAddress):
@@ -70,11 +76,14 @@ extension StakeKitStakingManager: StakingManager {
         }
     }
 
+    var tosURL: URL { URL(string: "https://docs.yield.xyz/docs/terms-of-use#/")! }
+    var privacyPolicyURL: URL { URL(string: "https://docs.yield.xyz/docs/privacy-policy#/")! }
+
     func updateState(loadActions: Bool) async {
         await updateState(loadActions: loadActions, startUpdateDate: nil)
     }
 
-    func updateState(loadActions: Bool, startUpdateDate: Date? = nil) async {
+    func updateState(loadActions: Bool, startUpdateDate: Date? = nil, previousActions: [PendingAction]? = nil) async {
         await updateState(.loading(cached: stateRepository.state()))
         do {
             async let balances = apiProvider.balances(wallet: wallet, integrationId: integrationId)
@@ -89,8 +98,18 @@ extension StakeKitStakingManager: StakingManager {
             if loadActions, !loadedActions.isEmpty,
                Date().timeIntervalSince(effectiveStartUpdateDate) < Constants.statusUpdateTimeout {
                 try await Task.sleep(for: .seconds(Constants.statusUpdateInterval)) // Refresh pending actions status until empty
-                await updateState(loadActions: true, startUpdateDate: effectiveStartUpdateDate)
+                await updateState(
+                    loadActions: true,
+                    startUpdateDate: effectiveStartUpdateDate,
+                    previousActions: loadedActions
+                )
+            } else if loadActions, loadedActions.isEmpty, let previousActions, !previousActions.isEmpty {
+                // there were some actions but now there're none,
+                // so staking balances are up to date now and we need to update balance from the network
+                // to keep them in sync
+                _updateWalletBalancesSubject.send(())
             }
+
         } catch is CancellationError {
             // Ignored intentionally
             return
@@ -218,7 +237,7 @@ private extension StakeKitStakingManager {
         try await Task.sleep(nanoseconds: Constants.delay)
 
         let transactions = try await action.transactions.asyncMap { transaction in
-            try await execute(try await apiProvider.patchTransaction(id: transaction.id))
+            try await self.execute(try await self.apiProvider.patchTransaction(id: transaction.id))
         }
 
         return mapToStakingTransactionAction(
@@ -309,7 +328,7 @@ private extension StakeKitStakingManager {
         try await Task.sleep(nanoseconds: Constants.delay)
 
         let transactions = try await action.transactions.asyncMap { transaction in
-            try await execute(try await apiProvider.patchTransaction(id: transaction.id))
+            try await self.execute(try await self.apiProvider.patchTransaction(id: transaction.id))
         }
 
         return mapToStakingTransactionAction(
@@ -333,7 +352,7 @@ private extension StakeKitStakingManager {
         case .withdraw(let passthroughs), .claimUnstaked(let passthroughs):
             let fees = try await passthroughs.asyncMap { passthrough in
                 let request = PendingActionRequest(request: request, passthrough: passthrough, type: type)
-                return try await execute(try await apiProvider.estimatePendingFee(request: request))
+                return try await self.execute(try await self.apiProvider.estimatePendingFee(request: request))
             }
 
             return fees.reduce(0, +)

@@ -25,6 +25,7 @@ class MarketsCoordinator: CoordinatorObject {
 
     @Published var tokenDetailsCoordinator: MarketsTokenDetailsCoordinator?
     @Published var marketsSearchCoordinator: MarketsSearchCoordinator?
+    @Published var newsListCoordinator: NewsListCoordinator?
 
     // MARK: - Child ViewModels
 
@@ -107,12 +108,18 @@ extension MarketsCoordinator: MarketsMainRoutable {
     // MARK: - News
 
     func openSeeAllNewsWidget() {
-        // [REDACTED_TODO_COMMENT]
+        let coordinator = NewsListCoordinator(
+            dismissAction: { [weak self] in
+                self?.newsListCoordinator = nil
+            }
+        )
+
+        coordinator.start(with: .init())
+
+        newsListCoordinator = coordinator
     }
 
-    func openNews(by id: NewsId) {
-        // [REDACTED_TODO_COMMENT]
-    }
+    func openNews(by id: NewsId) {}
 
     // MARK: - Private Implementation
 

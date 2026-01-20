@@ -22,7 +22,7 @@ struct ActionButtonsBuyView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    CloseButton(dismiss: { viewModel.handleViewAction(.close) })
+                    CloseTextButton(action: { viewModel.handleViewAction(.close) })
                 }
             }
             .transition(.opacity.animation(.easeInOut))

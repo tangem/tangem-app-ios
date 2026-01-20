@@ -7,26 +7,30 @@
 //
 
 import Combine
+import TangemLocalization
 import TangemAccessibilityIdentifiers
 import TangemUIUtils
 
 protocol FeeSelectorTokensDataProvider {
-    var selectedSelectorFeeTokenItem: TokenItem? { get }
-    var selectedSelectorFeeTokenItemPublisher: AnyPublisher<TokenItem?, Never> { get }
+    var selectedTokenFeeProvider: TokenFeeProvider { get }
+    var selectedTokenFeeProviderPublisher: AnyPublisher<TokenFeeProvider, Never> { get }
 
-    var selectorFeeTokenItems: [TokenItem] { get }
-    var selectorFeeTokenItemsPublisher: AnyPublisher<[TokenItem], Never> { get }
+    var supportedTokenFeeProviders: [any TokenFeeProvider] { get }
+    var supportedTokenFeeProvidersPublisher: AnyPublisher<[any TokenFeeProvider], Never> { get }
 }
 
 protocol FeeSelectorTokensRoutable: AnyObject {
-    func userDidSelectFeeToken(tokenItem: TokenItem)
+    func userDidSelectFeeToken(tokenFeeProvider: any TokenFeeProvider)
 }
 
 final class FeeSelectorTokensViewModel: ObservableObject {
     // MARK: - Published
 
     @Published
-    private(set) var feeCurrencyTokens = [FeeSelectorRowViewModel]()
+    private(set) var availableFeeCurrencyTokens = [FeeSelectorRowViewModel]()
+
+    @Published
+    private(set) var unavailableFeeCurrencyTokens = [FeeSelectorRowViewModel]()
 
     // MARK: - Dependencies
 
@@ -51,42 +55,81 @@ final class FeeSelectorTokensViewModel: ObservableObject {
         self.router = router
     }
 
-    func userDidSelectFeeToken(tokenItem: TokenItem) {
-        router?.userDidSelectFeeToken(tokenItem: tokenItem)
-    }
-
     // MARK: - Private Implementation
 
     private func bind() {
         Publishers.CombineLatest(
-            tokensDataProvider.selectorFeeTokenItemsPublisher,
-            tokensDataProvider.selectedSelectorFeeTokenItemPublisher
+            tokensDataProvider.supportedTokenFeeProvidersPublisher,
+            tokensDataProvider.selectedTokenFeeProviderPublisher
         )
         .receiveOnMain()
         .withWeakCaptureOf(self)
         .map { viewModel, output in
-            let (tokens, selectedToken) = output
-            let selectedId = selectedToken?.id
-            return tokens.map { tokenItem in
-                viewModel.mapTokenItemToRowViewModel(tokenItem: tokenItem, isSelected: selectedId == tokenItem.id)
+            let (providers, selectedProvider) = output
+
+            return providers.map { provider in
+                viewModel.mapTokenItemToRowViewModel(
+                    tokenFeeProvider: provider,
+                    isSelected: selectedProvider.feeTokenItem == provider.feeTokenItem
+                )
             }
         }
-        .assign(to: \.feeCurrencyTokens, on: self, ownership: .weak)
+        .withWeakCaptureOf(self)
+        .sink { viewModel, providers in
+            let available = providers.filter { $0.availability.isAvailable }
+            let unavailable = providers.filter { !$0.availability.isAvailable }
+
+            viewModel.availableFeeCurrencyTokens = available
+            viewModel.unavailableFeeCurrencyTokens = unavailable
+        }
         .store(in: &bag)
     }
 
-    private func mapTokenItemToRowViewModel(tokenItem: TokenItem, isSelected: Bool) -> FeeSelectorRowViewModel {
-        let subtitleState: LoadableTextView.State = .loading
+    private func mapTokenItemToRowViewModel(tokenFeeProvider: any TokenFeeProvider, isSelected: Bool) -> FeeSelectorRowViewModel {
+        let feeTokenItem = tokenFeeProvider.feeTokenItem
+        let subtitleBalanceState = LoadableTokenBalanceViewStateBuilder().build(
+            type: tokenFeeProvider.balanceState,
+            textBuilder: Localization.commonBalance
+        )
+
+        var feeTokenAvailability: FeeSelectorRowViewModel.Availability {
+            switch tokenFeeProvider.state {
+            case .available, .idle, .loading:
+                .available
+            case .unavailable(let reason):
+                reason.asAvailability
+            case .error:
+                .unavailable
+            }
+        }
 
         return FeeSelectorRowViewModel(
-            rowType: .token(tokenIconInfo: TokenIconInfoBuilder().build(from: tokenItem, isCustom: false)),
-            title: tokenItem.name,
-            subtitle: subtitleState,
+            rowType: .token(tokenIconInfo: TokenIconInfoBuilder().build(from: feeTokenItem, isCustom: false)),
+            title: feeTokenItem.name,
+            subtitle: .balance(subtitleBalanceState),
+            availability: feeTokenAvailability,
             accessibilityIdentifier: FeeAccessibilityIdentifiers.feeCurrencyOption,
             isSelected: isSelected,
             selectAction: { [weak self] in
-                self?.userDidSelectFeeToken(tokenItem: tokenItem)
+                if feeTokenAvailability.isAvailable {
+                    self?.router?.userDidSelectFeeToken(tokenFeeProvider: tokenFeeProvider)
+                }
             }
         )
+    }
+}
+
+private extension TokenFeeProviderStateUnavailableReason {
+    var asAvailability: FeeSelectorRowViewModel.Availability {
+        switch self {
+        case .inputDataNotSet:
+            .unavailable
+        case .notSupported:
+            .notSupported
+        case .notEnoughFeeBalance:
+            .notEnoughBalance
+        case .noTokenBalance:
+            .noBalance
+        }
     }
 }

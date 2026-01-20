@@ -73,11 +73,12 @@ struct NetworkProviderAssembly {
 
     func makeEthereumJsonRpcProviders(with input: Input) -> [EthereumJsonRpcProvider] {
         return APIResolver(blockchain: input.blockchain, keysConfig: input.keysConfig)
-            .resolveProviders(apiInfos: input.apiInfo) { nodeInfo, _ in
+            .resolveProviders(apiInfos: input.apiInfo) { nodeInfo, networkProviderType in
                 EthereumJsonRpcProvider(
                     node: nodeInfo,
                     configuration: input.tangemProviderConfig,
-                    networkPrefix: .init(blockchain: input.blockchain)
+                    networkPrefix: .init(blockchain: input.blockchain),
+                    networkProviderType: networkProviderType,
                 )
             }
     }

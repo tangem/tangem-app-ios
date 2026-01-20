@@ -128,6 +128,8 @@ private extension UnstakingModel {
             return nil
         } catch let error as ValidationError {
             return .validationError(error, fee: fee)
+        } catch CardanoError.feeParametersNotFound {
+            return nil
         } catch {
             return .networkError(error)
         }
@@ -187,7 +189,7 @@ private extension UnstakingModel {
         _transactionTime.send(Date())
         _transactionURL.send(result.url)
         analyticsLogger.logTransactionSent(
-            fee: selectedFee,
+            fee: .market,
             signerType: result.signerType,
             currentProviderHost: result.currentHost
         )
@@ -209,20 +211,9 @@ private extension UnstakingModel {
     }
 }
 
-// MARK: - SendFeeProvider
+// MARK: - SendFeeUpdater
 
-extension UnstakingModel: SendFeeProvider {
-    var fees: [TokenFee] {
-        [mapToSendFee(_state.value)]
-    }
-
-    var feesPublisher: AnyPublisher<[TokenFee], Never> {
-        _state
-            .withWeakCaptureOf(self)
-            .map { [$0.mapToSendFee($1)] }
-            .eraseToAnyPublisher()
-    }
-
+extension UnstakingModel: SendFeeUpdater {
     func updateFees() {
         updateState()
     }
@@ -277,25 +268,19 @@ extension UnstakingModel: SendSourceTokenAmountOutput {
 // MARK: - SendFeeInput
 
 extension UnstakingModel: SendFeeInput {
-    var selectedFee: TokenFee {
+    var selectedFee: TokenFee? {
         mapToSendFee(_state.value)
     }
 
     var selectedFeePublisher: AnyPublisher<TokenFee, Never> {
         _state
             .withWeakCaptureOf(self)
-            .map { model, fee in
-                model.mapToSendFee(fee)
-            }
+            .map { $0.mapToSendFee($1) }
             .eraseToAnyPublisher()
     }
-}
 
-// MARK: - SendFeeOutput
-
-extension UnstakingModel: SendFeeOutput {
-    func feeDidChanged(fee: TokenFee) {
-        assertionFailure("We can not change fee in staking")
+    var supportFeeSelectionPublisher: AnyPublisher<Bool, Never> {
+        Just(false).eraseToAnyPublisher()
     }
 }
 
@@ -384,7 +369,7 @@ extension UnstakingModel: NotificationTapDelegate {
 extension UnstakingModel: StakingBaseDataBuilderInput {
     var bsdkAmount: BSDKAmount? { _amount.value?.crypto.flatMap { makeAmount(value: $0) } }
 
-    var bsdkFee: BSDKFee? { selectedFee.value.value }
+    var bsdkFee: BSDKFee? { selectedFee?.value.value }
 
     var isFeeIncluded: Bool { false }
 
