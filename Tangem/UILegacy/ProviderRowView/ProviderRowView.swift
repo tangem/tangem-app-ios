@@ -28,6 +28,7 @@ struct ProviderRowView: View {
             IconView(url: viewModel.provider.iconURL, size: CGSize(bothDimensions: 36), forceKingfisher: true)
                 .saturation(viewModel.isDisabled ? 0 : 1)
                 .opacity(viewModel.isDisabled ? 0.4 : 1)
+                .padding(.vertical, 2)
 
             VStack(alignment: .leading, spacing: 4) {
                 titleView
