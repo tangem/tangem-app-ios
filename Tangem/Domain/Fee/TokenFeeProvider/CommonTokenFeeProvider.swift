@@ -155,11 +155,13 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
         }
 
         do {
-            if state.loadedFees.isEmpty {
-                updateState(state: .loading)
+            let task = runWithDelayedLoading { [weak self] in
+                self?.updateState(state: .loading)
+            } operation: { [weak self] in
+                try await self?.loadFees(input: input) ?? []
             }
 
-            let loadedFees = try await loadFees(input: input)
+            let loadedFees = try await task.value
             try Task.checkCancellation()
 
             let fees = mapToFeesDictionary(fees: loadedFees)
