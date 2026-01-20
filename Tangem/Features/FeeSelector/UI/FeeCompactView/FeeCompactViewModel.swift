@@ -1,5 +1,5 @@
 //
-//  SendFeeCompactViewModel.swift
+//  FeeCompactViewModel.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,9 +11,10 @@ import Combine
 import TangemAssets
 import TangemLocalization
 
-class SendFeeCompactViewModel: ObservableObject, Identifiable {
-    @Published var selectedFeeComponents: LoadableTextView.State = .initialized
-    @Published var canEditFee: Bool = false
+class FeeCompactViewModel: ObservableObject, Identifiable {
+    @Published var selectedFeeTokenCurrencySymbol: String?
+    @Published var selectedFeeComponents: LoadableTextView.State
+    @Published var canEditFee: Bool
 
     var infoButtonString: AttributedString {
         let readMore = Localization.commonReadMore
@@ -30,20 +31,42 @@ class SendFeeCompactViewModel: ObservableObject, Identifiable {
     }
 
     private let feeFormatter: FeeFormatter
-    private let feeExplanationUrl = TangemBlogUrlBuilder().url(post: .fee)
 
-    init(feeFormatter: FeeFormatter = CommonFeeFormatter()) {
+    init(
+        selectedFeeTokenCurrencySymbol: String? = nil,
+        selectedFeeComponents: LoadableTextView.State = .initialized,
+        canEditFee: Bool = false,
+        feeFormatter: FeeFormatter = CommonFeeFormatter()
+    ) {
+        self.selectedFeeTokenCurrencySymbol = selectedFeeTokenCurrencySymbol
+        self.selectedFeeComponents = selectedFeeComponents
+        self.canEditFee = canEditFee
         self.feeFormatter = feeFormatter
     }
 
     func bind(input: SendFeeInput) {
-        input.selectedFeePublisher
+        bind(
+            selectedFeePublisher: input.selectedFeePublisher,
+            supportFeeSelectionPublisher: input.supportFeeSelectionPublisher
+        )
+    }
+
+    func bind(
+        selectedFeePublisher: AnyPublisher<TokenFee, Never>,
+        supportFeeSelectionPublisher: AnyPublisher<Bool, Never>
+    ) {
+        selectedFeePublisher
             .withWeakCaptureOf(self)
             .map { $0.mapToLoadableTextViewState(tokenFee: $1) }
             .receiveOnMain()
             .assign(to: &$selectedFeeComponents)
 
-        input.supportFeeSelectionPublisher
+        selectedFeePublisher
+            .map { $0.tokenItem.currencySymbol }
+            .receiveOnMain()
+            .assign(to: &$selectedFeeTokenCurrencySymbol)
+
+        supportFeeSelectionPublisher
             .receiveOnMain()
             .assign(to: &$canEditFee)
     }
