@@ -15,6 +15,7 @@ import TangemVisa
 import TangemLocalization
 import TangemFoundation
 import TangemMobileWalletSdk
+import TangemPay
 
 class CommonUserWalletRepository: UserWalletRepository {
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
