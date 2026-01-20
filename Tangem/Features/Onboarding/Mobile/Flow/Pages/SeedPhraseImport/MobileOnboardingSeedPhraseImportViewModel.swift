@@ -148,13 +148,7 @@ private extension MobileOnboardingSeedPhraseImportViewModel {
         Analytics.log(
             event: .walletCreatedSuccessfully,
             params: params,
-            contextParams: analyticsContextParams
-        )
-
-        Analytics.log(
-            event: .afWalletImported,
-            params: params,
-            analyticsSystems: [.appsFlyer],
+            analyticsSystems: .all,
             contextParams: analyticsContextParams
         )
     }
