@@ -387,8 +387,8 @@ private extension ExpressViewModel {
         switch state {
         case .restriction(.notEnoughBalanceForSwapping, _):
             sendCurrencyViewModel?.expressCurrencyViewModel.update(errorState: .insufficientFunds)
-        case .restriction(.notEnoughAmountForTxValue, _),
-             .restriction(.notEnoughAmountForFee, _) where interactor.getSource().value?.isFeeCurrency == true:
+        case .restriction(.notEnoughAmountForTxValue(_, let isFeeCurrency), _) where isFeeCurrency,
+             .restriction(.notEnoughAmountForFee(let isFeeCurrency), _) where isFeeCurrency:
             sendCurrencyViewModel?.expressCurrencyViewModel.update(errorState: .insufficientFunds)
         case .restriction(.validationError(.minimumRestrictAmount(let minimumAmount), _), _):
             let errorText = Localization.transferMinAmountError(minimumAmount.string())
@@ -444,7 +444,7 @@ private extension ExpressViewModel {
             updateFiatValue(expectAmount: 0)
             receiveCurrencyViewModel?.expressCurrencyViewModel.updateHighPricePercentLabel(quote: .none)
 
-        case .loading(let type):
+        case .loading(let type, _):
             isSwapButtonLoading = true
 
             // Turn on skeletons only for full update
@@ -481,10 +481,11 @@ private extension ExpressViewModel {
         switch state {
         case .idle:
             providerState = .none
-        case .loading(let type):
-            if type == .full {
-                providerState = .loading
-            }
+        case .loading(.full, _):
+            providerState = .loading
+        case .loading:
+            // Do noting for other cases
+            break
         default:
             if let providerRowViewModel = await mapToProviderRowViewModel() {
                 providerState = .loaded(data: providerRowViewModel)
@@ -503,12 +504,12 @@ private extension ExpressViewModel {
             updateExpressFeeRowViewModel(tokenFeeProvidersManager: state.tokenFeeProvidersManager)
         case .readyToSwap(let state, _):
             updateExpressFeeRowViewModel(tokenFeeProvidersManager: state.tokenFeeProvidersManager)
-        case .loading(.fee):
+        case .loading(.fee, _):
             updateExpressFeeRowViewModel(fee: .loading, action: nil)
-        case .idle, .restriction, .loading(.full), .permissionRequired:
+        case .idle, .restriction, .loading(.full, _), .permissionRequired:
             // We have decided that will not give a choose for .permissionRequired state also
             expressFeeRowViewModel = nil
-        case .loading(.refreshRates):
+        case .loading(.refreshRates, _):
             break
         }
     }
@@ -547,12 +548,12 @@ private extension ExpressViewModel {
 
     func updateMainButton(state: ExpressInteractor.State) {
         switch state {
-        case .idle, .loading(type: .full):
+        case .idle, .loading(type: .full, _):
             mainButtonState = .swap
             mainButtonIsEnabled = false
-        case .loading(type: .fee):
+        case .loading(type: .fee, _):
             mainButtonIsEnabled = false
-        case .loading(type: .refreshRates):
+        case .loading(type: .refreshRates, _):
             // Do nothing
             break
         case .restriction(let type, _):
@@ -586,9 +587,9 @@ private extension ExpressViewModel {
     @MainActor
     func updateLegalText(state: ExpressInteractor.State) async {
         switch state {
-        case .loading(.refreshRates), .loading(.fee):
+        case .loading(.refreshRates, _), .loading(.fee, _):
             break
-        case .idle, .loading(.full):
+        case .idle, .loading(.full, _):
             legalText = nil
         case .restriction, .permissionRequired, .previewCEX, .readyToSwap:
             legalText = await interactor.getSelectedProvider()?.provider.legalText(branch: .swap)
@@ -683,11 +684,7 @@ private extension ExpressViewModel {
                 fallthrough
             }
 
-            let factory = BlockchainSDKNotificationMapper(
-                tokenItem: sender.tokenItem,
-                feeTokenItem: sender.feeTokenItem
-            )
-
+            let factory = BlockchainSDKNotificationMapper(tokenItem: sender.tokenItem)
             let validationErrorEvent = factory.mapToValidationErrorEvent(error)
             let message = validationErrorEvent.description ?? error.localizedDescription
             alert = AlertBinder(title: Localization.commonError, message: message)
