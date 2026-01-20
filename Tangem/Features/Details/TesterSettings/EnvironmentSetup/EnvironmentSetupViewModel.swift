@@ -14,6 +14,7 @@ import TangemVisa
 import struct TangemUIUtils.AlertBinder
 import TangemStaking
 import TangemAccessibilityIdentifiers
+import TangemPay
 
 final class EnvironmentSetupViewModel: ObservableObject {
     @Injected(\.promotionService) var promotionService: PromotionServiceProtocol
