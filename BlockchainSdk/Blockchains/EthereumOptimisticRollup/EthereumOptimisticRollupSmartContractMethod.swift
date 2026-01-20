@@ -1,5 +1,5 @@
 //
-//  EthereumOptimisticRollupSmartContract.swift
+//  EthereumOptimisticRollupSmartContractMethod.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,12 +8,10 @@
 
 import Foundation
 
-enum EthereumOptimisticRollupSmartContract: SmartContractTargetType {
+enum EthereumOptimisticRollupSmartContractMethod: SmartContractTargetMethodType {
     case getL1Fee(data: Data)
     case getL1GasUsed(data: Data)
     case l1BaseFee
-
-    var contactAddress: String { "0x420000000000000000000000000000000000000F" }
 
     var methodName: String {
         switch self {
