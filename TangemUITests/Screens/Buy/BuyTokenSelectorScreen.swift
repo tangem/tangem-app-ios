@@ -12,7 +12,7 @@ import TangemAccessibilityIdentifiers
 final class BuyTokenSelectorScreen: ScreenBase<BuyTokenSelectorScreenElement> {
     private lazy var titleLabel = app.navigationBars.staticTexts["Buy"]
     private lazy var closeButton = button(.closeButton)
-    private lazy var searchField = textField(.searchField)
+    private lazy var searchField = searchField(.searchField)
     private lazy var tokensList = scrollView(.tokensList)
 
     @discardableResult
@@ -21,6 +21,7 @@ final class BuyTokenSelectorScreen: ScreenBase<BuyTokenSelectorScreenElement> {
             waitAndAssertTrue(titleLabel, "Buy Token Selector screen title should exist")
             waitAndAssertTrue(closeButton, "Close button should exist")
             waitAndAssertTrue(searchField, "Search field should exist")
+            waitAndAssertTrue(tokensList, "Tokens list should exist on Buy Token Selector screen")
         }
         return self
     }
@@ -51,7 +52,7 @@ enum BuyTokenSelectorScreenElement: String, UIElement {
     var accessibilityIdentifier: String {
         switch self {
         case .closeButton:
-            return "Close"
+            return CommonUIAccessibilityIdentifiers.closeButton
         case .searchField:
             return "Search"
         case .tokensList:
