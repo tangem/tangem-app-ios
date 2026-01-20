@@ -261,5 +261,10 @@
        "info": "ERC1155",
        "source": "https://eips.ethereum.org/EIPS/eip-1155",
        "name": "unstakeETH"
+   },
+   "0xaa03b617": {
+       "info": "GaslessTransactions",
+       "source": "https://github.com/tangem-developments/tangem-gasless-service",
+       "name": "gaslessTransaction"
    }
 }
