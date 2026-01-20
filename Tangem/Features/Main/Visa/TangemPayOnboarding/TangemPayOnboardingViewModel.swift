@@ -7,6 +7,7 @@
 //
 
 import TangemVisa
+import TangemPay
 
 enum TangemPayOnboardingSource {
     case deeplink(String)
