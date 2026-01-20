@@ -11,6 +11,7 @@ import TangemUI
 import TangemAssets
 import TangemLocalization
 import TangemFoundation
+import TangemAccessibilityIdentifiers
 
 struct AccountsAwareActionButtonsBuyView: View {
     @ObservedObject var viewModel: AccountsAwareActionButtonsBuyViewModel
@@ -31,13 +32,12 @@ struct AccountsAwareActionButtonsBuyView: View {
             }
         )
         .searchType(.native)
+        .accessibilityIdentifier(ActionButtonsAccessibilityIdentifiers.buyTokenSelectorTokensList)
         .background(Colors.Background.tertiary.ignoresSafeArea())
         .navigationTitle(Localization.commonBuy)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                CircleButton.close(action: viewModel.close)
-            }
+            NavigationToolbarButton.close(placement: .topBarTrailing, action: viewModel.close)
         }
         .onAppear(perform: viewModel.onAppear)
         .alert(item: $viewModel.alert) { $0.alert }

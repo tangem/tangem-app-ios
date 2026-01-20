@@ -37,7 +37,7 @@ struct AccountsAwareNetworkSelectorItemView: View {
                 Spacer(minLength: 0)
 
                 if viewModel.isReadonly {
-                    CircleButton(title: Localization.commonAdded, action: {})
+                    CapsuleButton(title: Localization.commonAdded, action: {})
                         .tint(Colors.Control.unchecked)
                         .scaleEffect(0.8)
                         .disabled(viewModel.isReadonly)
@@ -47,6 +47,7 @@ struct AccountsAwareNetworkSelectorItemView: View {
             .padding(.vertical, 16)
             .contentShape(.rect)
         }
+        .accessibilityIdentifier(TokenAccessibilityIdentifiers.networkCell(for: viewModel.networkName))
         .buttonStyle(.plain)
         .disabled(viewModel.isReadonly)
     }

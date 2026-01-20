@@ -79,8 +79,13 @@ final class QAToolsClient {
         }
     }
 
-    func getAddresses() async throws -> [WalletInfoJSON] {
-        guard let url = URL(string: "\(baseURL)/addresses") else {
+    func getAddresses(id: String) async throws -> [WalletInfoJSON] {
+        var urlComponents = URLComponents(string: "\(baseURL)/addresses")!
+        urlComponents.queryItems = [
+            URLQueryItem(name: "id", value: id),
+        ]
+
+        guard let url = urlComponents.url else {
             throw URLError(.badURL)
         }
 
@@ -127,13 +132,13 @@ final class QAToolsClient {
         return result
     }
 
-    func getAddressesSync(timeout: TimeInterval = .networkRequest) -> [WalletInfoJSON] {
+    func getAddressesSync(id: String, timeout: TimeInterval = .networkRequest) -> [WalletInfoJSON] {
         let expectation = XCTestExpectation(description: "Get addresses")
         var result: [WalletInfoJSON] = []
 
         Task {
             do {
-                result = try await getAddresses()
+                result = try await getAddresses(id: id)
                 expectation.fulfill()
             } catch {
                 XCTFail("Failed to get addresses: \(error)")

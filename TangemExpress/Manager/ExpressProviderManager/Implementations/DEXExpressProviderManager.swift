@@ -103,8 +103,9 @@ private extension DEXExpressProviderManager {
             }
 
             // Check fee currency balance at least more then zero
-            guard request.pair.source.balanceProvider.feeCurrencyHasPositiveBalance else {
-                return .restriction(.feeCurrencyHasZeroBalance, quote: quote)
+            guard try request.pair.source.feeProvider.feeCurrencyHasPositiveBalance(providerId: provider.id) else {
+                let isFeeCurrency = request.pair.source.isFeeCurrency(providerId: provider.id)
+                return .restriction(.feeCurrencyHasZeroBalance(isFeeCurrency: isFeeCurrency), quote: quote)
             }
 
         } catch {
@@ -137,7 +138,8 @@ private extension DEXExpressProviderManager {
     }
 
     func proceed(request: ExpressManagerSwappingPairRequest, quote: ExpressQuote, data: ExpressTransactionData) async throws -> ExpressProviderManagerState {
-        if data.txValue > request.pair.source.balanceProvider.getFeeCurrencyBalance() {
+        let feeCurrencyBalance = try request.pair.source.feeProvider.feeCurrencyBalance(providerId: provider.id)
+        if data.txValue > feeCurrencyBalance {
             let estimateFee = try await estimateFee(request: request, data: data)
             return .restriction(estimateFee, quote: quote)
         }
@@ -165,7 +167,8 @@ private extension DEXExpressProviderManager {
                 estimatedGasLimit: estimatedGasLimit,
                 otherNativeFee: otherNativeFee
             )
-            return .feeCurrencyInsufficientBalanceForTxValue(estimateFee.amount.value)
+            let isFeeCurrency = request.pair.source.isFeeCurrency(providerId: provider.id)
+            return .feeCurrencyInsufficientBalanceForTxValue(estimateFee.amount.value, isFeeCurrency: isFeeCurrency)
         }
 
         let estimatedAmount = request.amount + otherNativeFee

@@ -11,7 +11,8 @@ import Combine
 
 protocol TokenFeeProvider {
     var feeTokenItem: TokenItem { get }
-    var balanceState: FormattedTokenBalanceType { get }
+    var balanceFeeTokenState: TokenBalanceType { get }
+    var formattedFeeTokenBalance: FormattedTokenBalanceType { get }
     var hasMultipleFeeOptions: Bool { get }
 
     var state: TokenFeeProviderState { get }
@@ -100,5 +101,22 @@ extension TokenFeeProvider where Self == CommonTokenFeeProvider {
             // Gasless doesn't support custom fee
             customFeeProvider: .none
         )
+    }
+}
+
+enum TokenFeeProviderError: LocalizedError {
+    case providerUnavailable
+    case unsupportedByProvider
+    case feeNotFound
+
+    var description: String? {
+        switch self {
+        case .providerUnavailable:
+            return "Token fee provider is unavailable"
+        case .unsupportedByProvider:
+            return "Unsupported by provider"
+        case .feeNotFound:
+            return "Fee not found"
+        }
     }
 }
