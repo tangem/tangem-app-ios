@@ -834,7 +834,7 @@ private extension ExpressInteractor {
             .feeType: analyticsFeeType.rawValue,
             .walletForm: signerType,
             .selectedHost: data.result.currentHost,
-        ])
+        ], analyticsSystems: .all)
     }
 }
 
