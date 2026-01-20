@@ -13,6 +13,7 @@ import BlockchainSdk
 import TangemAssets
 import TangemNFT
 import TangemFoundation
+import TangemPay
 
 class FakeUserWalletModel: UserWalletModel {
     var hasImportedWallets: Bool { false }
@@ -83,6 +84,15 @@ class FakeUserWalletModel: UserWalletModel {
 
     var accountModelsManager: AccountModelsManager {
         AccountModelsManagerMock()
+    }
+
+    var tangemPayManager: TangemPayManager {
+        TangemPayBuilder(
+            userWalletId: userWalletId,
+            keysRepository: keysRepository,
+            signer: signer
+        )
+        .buildTangemPayManager()
     }
 
     var refcodeProvider: RefcodeProvider? {
