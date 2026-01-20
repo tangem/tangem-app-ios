@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemPay
 
 protocol ProductActivationService {
     func getVisaCardDeployAcceptance(

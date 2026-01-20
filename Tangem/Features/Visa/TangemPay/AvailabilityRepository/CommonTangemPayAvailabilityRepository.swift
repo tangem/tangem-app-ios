@@ -9,6 +9,7 @@
 import Combine
 import TangemFoundation
 import TangemVisa
+import TangemPay
 
 final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityRepository {
     @Injected(\.userWalletRepository)
