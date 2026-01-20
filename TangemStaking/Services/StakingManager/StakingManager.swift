@@ -14,7 +14,12 @@ public protocol StakingManager {
     var balances: [StakingBalance]? { get }
 
     var statePublisher: AnyPublisher<StakingManagerState, Never> { get }
+    var updateWalletBalancesPublisher: AnyPublisher<Void, Never> { get }
+
     var allowanceAddress: String? { get }
+
+    var tosURL: URL { get }
+    var privacyPolicyURL: URL { get }
 
     func updateState(loadActions: Bool) async
     func estimateFee(action: StakingAction) async throws -> Decimal

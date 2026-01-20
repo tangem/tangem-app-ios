@@ -129,7 +129,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
         case .getPin(let sessionId):
             ["X-Session-Id": "\(sessionId)"]
         default:
-            ["Content-Type": "application/json"]
+            nil
         }
     }
 }

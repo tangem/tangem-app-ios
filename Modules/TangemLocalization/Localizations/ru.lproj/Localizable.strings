@@ -15,7 +15,7 @@
 "access_code_create_title" = "Создать код доступа";
 "access_code_navtitle" = "Код доступа";
 "accessibility_action_long_press" = "Долгое нажатие";
-"accessibility_hint_access_more_actions" = "Swipe up or down to access more actions";
+"accessibility_hint_access_more_actions" = "Проведите вверх или вниз, чтобы получить доступ к дополнительным действиям";
 "account_add_limit_dialog_description" = "Превышен лимит %1$@ аккаунтов. Архивируйте, чтобы создать новый.";
 "account_add_limit_dialog_title" = "Невозможно добавить новый аккаунт.";
 "account_archive_success_message" = "Аккаунт заархивирован";
@@ -34,11 +34,11 @@
 "account_details_title" = "Аккаунт";
 "account_edit_success_message" = "Аккаунт сохранен";
 "account_for_rewards" = "Аккаунт для наград";
-"account_form_account_index" = "Account #%@ — used for address derivation.";
+"account_form_account_index" = "Аккаунт #%@ — используется для генерации адреса.";
 "account_form_create_button" = "Добавить аккаунт";
 "account_form_edit_button" = "Сохранить";
-"account_form_name_already_exist_error_description" = "Имя аккаунта уже существует";
-"account_form_name_already_exist_error_title" = "Account name already in use";
+"account_form_name_already_exist_error_description" = "Аккаунт с таким названием уже существует. Пожалуйста, выберите другое название.";
+"account_form_name_already_exist_error_title" = "Название аккаунта уже используется";
 "account_form_name" = "Название аккаунта";
 "account_form_placeholder_edit_account" = "Аккаунт";
 "account_form_placeholder_new_account" = "Новый аккаунт";
@@ -229,7 +229,7 @@
 "common_confirm" = "Подтвердить";
 "common_connecting" = "Подключение";
 "common_contact_support" = "Обратиться в поддержку";
-"common_contact_tangem_support" = "Contact Tangem Support";
+"common_contact_tangem_support" = "Связаться с поддержкой";
 "common_contact_visa_support" = "Contact Visa Support";
 "common_continue" = "Продолжить";
 "common_convert" = "Конвертировать";
@@ -291,6 +291,7 @@
 "common_no_address" = "Нет адреса";
 "common_no" = "Нет";
 "common_not_added" = "Не добавлено";
+"common_not_available" = "Not available";
 "common_not_now" = "Не сейчас";
 "common_now" = "Сейчас";
 "common_ok" = "OK";
@@ -339,7 +340,7 @@
 "common_support" = "Поддержка";
 "common_supported_networks" = "Поддерживаемые сети";
 "common_swap" = "Обменять";
-"common_tangem_wallet" = "Tangem Wallet";
+"common_tangem_wallet" = "Tangem Кошелек";
 "common_tangem" = "Tangem";
 "common_terms_and_conditions" = "условия участия";
 "common_terms_of_use" = "Условиями использования";
@@ -399,6 +400,8 @@
 "details_manage_security_long_tap" = "Задержка сканирования";
 "details_manage_security_passcode_description" = "Перед выполнением любой команды, влекущей за собой изменение состояния карты, вам необходимо будет ввести пароль.";
 "details_manage_security_passcode" = "Пароль";
+"details_mobile_section_description" = "You can have either one mobile wallet or hardware wallet at the same time. Upgrade you wallet or delete it from the app to start using a Tangem cold wallet.";
+"details_mobile_wallet_upgrade_action_title" = "Upgrade to hardware wallet";
 "details_nft_title" = "NFT";
 "details_referral_title" = "Реферальная программа";
 "details_row_description_flip_to_hide" = "Переверните экран вашего устройства вниз, чтобы быстро скрыть и отобразить балансы";
@@ -500,9 +503,9 @@
 "express_token_list_empty_search" = "Токены не найдены. Пожалуйста, попробуйте другой запрос";
 "express_transaction_id_copied" = "ID транзакции скопирован";
 "express_transaction_id" = "ID: %@";
-"fee_selector_choose_speed_description" = "Higher speed means faster confirmation\nand a higher network fee. %@";
-"fee_selector_choose_speed_title" = "Choose speed";
-"fee_selector_choose_token_description" = "Choose which token to use to pay\nthe network fee. %@";
+"fee_selector_choose_speed_description" = "Более высокая скорость означает более быстрое подтверждение, но и более высокую сетевую комиссию. %@";
+"fee_selector_choose_speed_title" = "Выбрать скорость";
+"fee_selector_choose_token_description" = "Выберите какой токен будет использоваться для оплаты комиссии сети. %@";
 "fee_selector_choose_token_title" = "Выбрать токен";
 "feed_market_and_news" = "Рынок и Новости";
 "feed_tangem_ai" = "Tangem AI";
@@ -520,6 +523,8 @@
 "feedback_subject_tx_failed" = "Не могу отправить транзакцию";
 "feedback_subject_tx_push_failed" = "Не могу протолкнуть транзакцию";
 "feedback_token_description_error" = "Ошибка в описании монеты";
+"gasless_not_enough_funds_to_cover_token_fee" = "Not enough funds";
+"gasless_transaction_fee" = "Gasless transaction fee";
 "generic_error_code" = "Произошла ошибка. Код: %@.";
 "generic_error" = "Произошла ошибка";
 "generic_requires_memo_error" = "Требуется memo";
@@ -559,7 +564,7 @@
 "hw_backup_hardware_create_title" = "Создать новый кошелек";
 "hw_backup_hardware_description" = "Повысьте уровень безопасности с помощью продвинутого аппаратного кошелька Tangem.";
 "hw_backup_hardware_title" = "Аппаратный кошелёк";
-"hw_backup_hardware_upgrade_description" = "Перенести текущий кошелёк в Tangem Wallet.";
+"hw_backup_hardware_upgrade_description" = "Перенесите свой текущий кошелек в холодный кошелек Tangem.";
 "hw_backup_hardware_upgrade_title" = "Улучшить текущий кошелёк";
 "hw_backup_icloud_description" = "Восстановить текущий кошелек через iCloud";
 "hw_backup_icloud_title" = "iCloud восстановление";
@@ -586,7 +591,7 @@
 "hw_remove_wallet_confirmation_title" = "Вы уверены, что хотите выполнить эту операцию?";
 "hw_remove_wallet_nav_title" = "Забыть кошелек";
 "hw_remove_wallet_notification_action_backup_go" = "Перейти к резервному копированию";
-"hw_remove_wallet_notification_action_backup_view" = "Посмотреть резервное копирование";
+"hw_remove_wallet_notification_action_backup_view" = "Показать фразу восстановления";
 "hw_remove_wallet_notification_action_forget_anyway" = "Забыть всё равно";
 "hw_remove_wallet_notification_action_forget" = "Забыть кошелек";
 "hw_remove_wallet_notification_description_has_backup" = "Резервная копия этого кошелька существует. Проверьте её перед удалением, чтобы убедиться, что сможете восстановить кошелёк позже.";
@@ -758,7 +763,7 @@
 "news_quick_recap" = "Резюме";
 "news_related_news" = "Связанные новости";
 "news_related_tokens" = "Связанные токены";
-"news_sources" = "Источники";
+"news_sources" = "Связанные новости";
 "news_stay_in_the_loop" = "Будьте в курсе";
 "nft_about_title" = "О NFT";
 "nft_asset" = "NFT";
@@ -869,7 +874,7 @@
 "onboarding_seed_mnemonic_invalid_checksum" = "Неверная seed-фраза. Пожалуйста, проверьте порядок слов.";
 "onboarding_seed_mnemonic_wrong_words" = "Неверная seed-фраза. Пожалуйста, проверьте орфографию.";
 "onboarding_seed_phrase_intro_legacy" = "Устаревший";
-"onboarding_seed_screenshot_alert" = "Мы не рекомендуем хранить seed-фразу в виде скриншота из-за высокого риска утери или взлома";
+"onboarding_seed_screenshot_alert" = "В целях безопасности создание скриншотов seed-фразы отключено. Seed-фраза скрыта, чтобы защитить её от потери или несанкционированного доступа.";
 "onboarding_seed_user_validation_message" = "Чтобы проверить, правильно ли вы записали seed-фразу, введите 2-е, 7-е и 11-е слова";
 "onboarding_seed_user_validation_title" = "Итак, проверим";
 "onboarding_subtitle_no_backup_cards" = "Чтобы начать процесс резервного копирования, добавьте одну или две резервные карты или кольца.";
@@ -899,6 +904,7 @@
 "onboarding_wallet_info_title_fourth" = "Восстановление кода доступа";
 "onboarding_wallet_info_title_second" = "Идентичные карты";
 "onboarding_wallet_info_title_third" = "Код доступа";
+"only_one_mobile_wallet_explanation" = "You can have either a mobile wallet or a hardware wallet at one time. Upgrade your wallet or delete it from the app to start using a Tangem cold wallet.";
 "onramp_all_offers_button_title" = "Все предложения";
 "onramp_avaiable_with_payment_methods" = "Доступно с %@";
 "onramp_choose_provider_title_hint" = "Tangem предоставляет доступ к покупке через сторонних провайдеров в соответствии с их правилами";
@@ -989,7 +995,7 @@
 "reset_card_to_factory_button_title" = "Сбросить карту";
 "reset_card_to_factory_condition_1" = "Я понимаю, что после выполнения этого действия у меня больше не будет доступа к текущему кошельку";
 "reset_card_to_factory_condition_2" = "Я понимаю, что не смогу использовать эту карту для восстановления кода доступа на других картах текущего кошелька";
-"reset_card_to_factory_condition_3" = "I understand that I will completely lose access to my Tangem Pay Card and all funds on it without the possibility of recovery";
+"reset_card_to_factory_condition_3" = "Я понимаю, что полностью потеряю доступ к своей карте Tangem Pay и всем средствам на ней без возможности восстановления.";
 "reset_card_with_backup_to_factory_message" = "Сброс к заводским настройкам приведет к полному удалению кошелька с выбранной карты или кольца. Вы не сможете восстановить текущий кошелек или использовать данную карту или кольцо для восстановления кода доступа.";
 "reset_card_without_backup_to_factory_message" = "Сброс к заводским настройкам приведет к полному удалению кошелька с выбранной карты или кольца. Вы не сможете восстановить текущий кошелек.";
 "reset_cards_dialog_complete_description" = "Все Tangem девайсы были сброшены.";
@@ -1121,6 +1127,11 @@
 "settings_card_settings_footer" = "Подготовьтесь к сканированию кольца или карты, которую вы хотите настроить.";
 "settings_forget_wallet_footer" = "Это приведет к удалению кошелька из приложения. Сам кошелек можно добавить снова.";
 "settings_forget_wallet" = "Забыть кошелек";
+"settings_upgrade_banner_advantage_feature_title" = "Simple to use";
+"settings_upgrade_banner_description" = "Keeps your crypto safe and offline. Slim as a credit card, safer than a bank vault.";
+"settings_upgrade_banner_seed_phrase_feature_title" = "No seed phrase";
+"settings_upgrade_banner_superiority_feature_title" = "Best in class hardware wallet";
+"settings_upgrade_banner_title" = "Tangem Cold Wallet";
 "settings_wallet_name_title" = "Имя";
 "stake_token_description" = "Заставьте ваш токен работать";
 "staking_account_initialization_footer" = "Сетевая комиссия — это небольшая плата за обработку и подтверждение вашей транзакции в блокчейне.";
@@ -1144,6 +1155,7 @@
 "staking_details_apr" = "APR";
 "staking_details_apy" = "APY";
 "staking_details_auto_claiming_rewards_daily_text" = "Награда автоматически аккумулируется на вашем стейкинг балансе.";
+"staking_details_autocompound_rewards_earned" = "Rewards are compounded to your staking balance. Funds earned: %@";
 "staking_details_available" = "Доступно";
 "staking_details_average_reward_rate" = "Средння ставка вознаграждения";
 "staking_details_banner_text" = "Что такое Стейкинг?";
@@ -1318,7 +1330,7 @@
 "tangem_pay_freeze_card_success" = "Карта заморожена";
 "tangem_pay_get_help" = "Обратиться в поддержку";
 "tangem_pay_other" = "Другое";
-"tangem_pay_rooted_device_subtitle" = "Unable to use on rooted devices";
+"tangem_pay_rooted_device_subtitle" = "Невозможно использовать на устройствах с root-доступом.";
 "tangem_pay_status_completed" = "Успешно завершено";
 "tangem_pay_status_declined" = "Отклонено";
 "tangem_pay_status_pending" = "В процессе";
@@ -1332,7 +1344,7 @@
 "tangem_pay_unfreeze_card_success" = "Карта разморожена";
 "tangem_pay_withdrawal" = "Вывести";
 "tangempay_account_unable_to_use_rooted" = "Запрещено использовать на root-устройствах";
-"tangempay_cancel_kyc" = "Cancel KYC";
+"tangempay_cancel_kyc" = "Отменить KYC";
 "tangempay_card_details_add_funds_subtitle" = "Способы пополнения";
 "tangempay_card_details_add_funds" = "Пополнить";
 "tangempay_card_details_card_number" = "Номер";
@@ -1386,17 +1398,22 @@
 "tangempay_go_to_support" = "Написать в поддержку";
 "tangempay_issue_card_notification_description" = "Обычно это занимает до 15 минут";
 "tangempay_issue_card_notification_title" = "Готовим вашу Tangem Card";
-"tangempay_issuing_your_card_description" = "Выпускаем карту, это займет немного времени.";
+"tangempay_issuing_your_card_description" = "Обычно это занимает не больше 5 минут, в редких случах при необходимости ручной проверки – до 48 часов.";
 "tangempay_issuing_your_card" = "Выпускаем карту";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
-"tangempay_kyc_confirm_cancellation_alert_title" = "Confirm Cancellation";
-"tangempay_kyc_confirm_cancellation_description" = "Are you sure you want to stop the KYC process? You can return to it anytime.";
+"tangempay_kyc_confirm_cancellation_alert_title" = "Подтвердите отмену";
+"tangempay_kyc_confirm_cancellation_description" = "Если вы отмените KYC сейчас, вы сможете потом начать его заново";
 "tangempay_kyc_failed_description" = "Не удалось подтвердить ваш профиль. Если у вас есть вопросы, обратитесь в службу поддержки.";
 "tangempay_kyc_failed_title" = "К сожалению, нам не удалось подтвердить вашу личность";
+"tangempay_kyc_has_failed" = "KYC has failed";
 "tangempay_kyc_in_progress_notification_button" = "Посмотреть статус";
 "tangempay_kyc_in_progress_notification_title" = "KYC в процессе для Tangem Pay";
-"tangempay_kyc_in_progress_popup_description" = "Вы можете посмотреть текущий статус KYC или отменить его";
+"tangempay_kyc_in_progress_popup_description" = "Обычно документы проверяются автоматически в течение 5 минут, в редких случах при необходимости ручной проверки – до 48 часов.";
 "tangempay_kyc_in_progress" = "KYC в процессе";
+"tangempay_kyc_rejected_button_text" = "Hide KYC block";
+"tangempay_kyc_rejected_description_span" = "your profile.";
+"tangempay_kyc_rejected_description" = "Sorry, we couldn't verify";
+"tangempay_kyc_rejected" = "KYC отклонено";
 "tangempay_onboarding_banner_description" = "Откройте бесплатную виртуальную карту Tangem Visa";
 "tangempay_onboarding_banner_title" = "Оплачивайте ежедневные покупки в USDC";
 "tangempay_onboarding_get_card_button_text" = "Открыть карту";
@@ -1493,6 +1510,7 @@
 "universal_error" = "Произошла ошибка. Код ошибки: %@. Попробуйте, пожалуйста, снова. Если проблема будет продолжать возникать — обратитесь в службу поддержки.";
 "unlock_wallet_description_full" = "Используйте %@ или отсканируйте карту/кольцо, чтобы получить доступ к своему кошельку";
 "unsupported_wc_version" = "Соединение не удалось: это dApp использует Wallet Connect версии 1.0, которая не поддерживается. Убедитесь, что dApp поддерживает Wallet Connect версии 2.0 для успешного подключения.";
+"upgrade_to_hardware_wallet_button_title" = "Upgrade to a hardware wallet";
 "user_push_notification_agreement_argument_one_subtitle" = "Мгновенные уведомления о транзакциях, обменах и важных обновлениях.";
 "user_push_notification_agreement_argument_one_title" = "Уведомления о транзакциях";
 "user_push_notification_agreement_argument_one" = "Будьте в курсе новых функций и новостей";
@@ -1613,7 +1631,7 @@
 "wallet_import_seed_description" = "Импортируйте существующий кошелек через вашу фразу восстановления.";
 "wallet_import_seed_navtitle" = "Имрортировать кошелек";
 "wallet_import_seed_title" = "Ввести фразу восстановления";
-"wallet_import_success_description" = "Вы успешно сделали бэкап вашего кошелька.";
+"wallet_import_success_description" = "Вы успешно импортировали свой кошелек.";
 "wallet_import_success_navtitle" = "Импортировать кошелек";
 "wallet_import_success_title" = "Импорт завершен";
 "wallet_import_title" = "Импортировать кошелек";
@@ -1626,8 +1644,8 @@
 "wallet_promo_banner_title" = "Откройте Tangem Wallet";
 "wallet_settings_access_code_description" = "Код доступа защищает кошелёк и нужен для входа и подписания транзакций.";
 "wallet_settings_access_code_title" = "Установить/изменить код доступа";
-"wallet_settings_change_access_code_title" = "Изменить Код Доступа";
-"wallet_settings_push_notifications_description" = "Получайте уведомления о входящих транзакциях в кошельке и обновлениях Tangem.";
+"wallet_settings_change_access_code_title" = "Изменить код доступа";
+"wallet_settings_push_notifications_description" = "Получайте push-уведомления о входящих транзакциях в кошелек.";
 "wallet_settings_push_notifications_title" = "Уведомления о транзакциях";
 "wallet_settings_set_access_code_title" = "Установить Код Доступа";
 "wallet_settings_title" = "Настройки кошелька";

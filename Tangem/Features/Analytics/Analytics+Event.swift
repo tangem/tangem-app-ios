@@ -433,6 +433,7 @@ extension Analytics {
         case stakingButtonExplore = "[Staking] Button - Explore"
         case stakingNoticeUninitializedAddress = "[Staking] Notice - Uninitialized Address"
         case stakingUninitializedAddressScreen = "[Staking] Uninitialized Address Screen"
+        case stakingNoticeNotEnoughFee = "[Staking] Notice - Not Enough Fee"
         case stakingButtonActivate = "[Staking] Button - Activate"
 
         // MARK: - Markets
