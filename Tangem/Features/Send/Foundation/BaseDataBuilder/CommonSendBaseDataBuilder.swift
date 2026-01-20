@@ -120,7 +120,6 @@ extension CommonSendBaseDataBuilder: SendApproveViewModelInputDataBuilder {
             ),
             feeFooterText: Localization.swapGivePermissionFeeFooter,
             tokenItem: walletModel.tokenItem,
-            feeTokenItem: walletModel.feeTokenItem,
             selectedPolicy: selectedPolicy,
             tangemIconProvider: tangemIconProvider
         )
