@@ -243,18 +243,15 @@ extension ExpressInteractor {
                 assertionFailure("Should called sendApproveTransaction()")
                 throw ExpressInteractorError.transactionDataNotFound
             case .previewCEX(let state, _):
-                guard let provider = await expressManager.getSelectedProvider() else {
-                    throw ExpressInteractorError.providerNotFound
-                }
-                return try await sendCEXTransaction(state: state, provider: provider.provider)
+                return try await sendCEXTransaction(state: state, provider: state.provider)
             case .readyToSwap(let state, _):
-                guard let provider = await expressManager.getSelectedProvider() else {
-                    throw ExpressInteractorError.providerNotFound
-                }
-
-                return try await sendDEXTransaction(state: state, provider: provider.provider)
+                return try await sendDEXTransaction(state: state, provider: state.provider)
             }
         }()
+
+        guard let tokenFeeProvidersManager = tokenFeeProvidersManager else {
+            throw ExpressInteractorError.tokenFeeProvidersManagerNotFound
+        }
 
         let source = try getSourceWallet()
         let expressSentResult = ExpressTransactionSentResult(
@@ -272,8 +269,7 @@ extension ExpressInteractor {
             result: result.dispatcherResult,
             source: source,
             destination: destination,
-            fee: result.fee.amount.value,
-            feeOption: tokenFeeProvidersManager?.selectedFeeProvider.selectedTokenFee.option ?? .market,
+            fee: tokenFeeProvidersManager.selectedFeeProvider.selectedTokenFee,
             provider: result.provider,
             date: Date(),
             expressTransactionData: result.data
@@ -282,6 +278,7 @@ extension ExpressInteractor {
         if shouldTrackAnalytics {
             logTransactionSentAnalyticsEvent(data: sentTransactionData, signerType: result.dispatcherResult.signerType)
         }
+
         expressPendingTransactionRepository.swapTransactionDidSend(
             sentTransactionData,
             userWalletId: userWalletInfo.id.stringValue
@@ -827,7 +824,7 @@ private extension ExpressInteractor {
                 return .transactionFeeFixed
             }
 
-            return data.feeOption.analyticsValue
+            return data.fee.option.analyticsValue
         }()
 
         Analytics.log(event: .transactionSent, params: [
@@ -860,6 +857,7 @@ enum ExpressInteractorError: String, LocalizedError {
     case destinationNotFound
     case providerNotFound
     case amountNotFound
+    case tokenFeeProvidersManagerNotFound
 
     var errorDescription: String? {
         return rawValue
