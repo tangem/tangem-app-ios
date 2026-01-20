@@ -123,7 +123,6 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
         coordinator: ExpressApproveRoutable
     ) -> ExpressApproveViewModel {
         let tokenItem = source.tokenItem
-        let feeTokenItem = source.feeTokenItem
 
         return ExpressApproveViewModel(
             input: .init(
@@ -131,7 +130,6 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
                     subtitle: Localization.givePermissionSwapSubtitle(providerName, tokenItem.currencySymbol),
                     feeFooterText: Localization.swapGivePermissionFeeFooter,
                     tokenItem: tokenItem,
-                    feeTokenItem: feeTokenItem,
                     selectedPolicy: selectedPolicy,
                     tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
                 ),
