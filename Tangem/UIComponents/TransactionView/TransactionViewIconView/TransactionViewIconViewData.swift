@@ -22,7 +22,7 @@ struct TransactionViewIconViewData: Hashable {
         switch type {
         case .approve, .yieldDeploy:
             return Assets.approve.image
-        case .transfer, .swap, .operation, .unknownOperation, .tangemPay(.transfer), .yieldTopup, .yieldSend:
+        case .transfer, .swap, .operation, .unknownOperation, .tangemPay(.transfer), .yieldTopup, .yieldSend, .gaslessTransfer, .gaslessTransactionFee:
             return isOutgoing ? Assets.arrowUpMini.image : Assets.arrowDownMini.image
         case .stake, .vote, .restake:
             return Assets.TokenItemContextMenu.menuStaking.image
