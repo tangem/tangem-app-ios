@@ -58,9 +58,8 @@ struct ExpressView: View {
         }
         .navigationBarTitle(Text(Localization.commonSwap), displayMode: .inline)
         .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                CloseTextButton(action: viewModel.didTapCloseButton)
-            }
+            NavigationToolbarButton
+                .close(placement: .topBarTrailing, action: viewModel.didTapCloseButton)
         }
         .keyboardToolbar(keyboardToolbarContent)
         .onAppear { isFocused = true }
@@ -71,7 +70,6 @@ struct ExpressView: View {
         // For animate button below informationSection
         .animation(.easeInOut, value: viewModel.providerState?.id)
         .animation(.default, value: viewModel.notificationInputs)
-        .animation(.easeInOut, value: viewModel.expressFeeRowViewModel)
     }
 
     private var swappingViews: some View {
@@ -131,13 +129,13 @@ struct ExpressView: View {
         }
     }
 
+    @ViewBuilder
     private var feeSection: some View {
-        GroupedSection(viewModel.expressFeeRowViewModel) {
-            ExpressFeeRowView(viewModel: $0)
-                .accessibilityIdentifier(SwapAccessibilityIdentifiers.feeBlock)
+        if let expressFeeRowViewModel = viewModel.expressFeeRowViewModel {
+            FeeCompactView(viewModel: expressFeeRowViewModel) {
+                viewModel.userDidTapFeeRow()
+            }
         }
-        .innerContentPadding(12)
-        .backgroundColor(Colors.Background.action)
     }
 
     private var providerSection: some View {
