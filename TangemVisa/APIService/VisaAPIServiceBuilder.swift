@@ -9,6 +9,7 @@
 import Foundation
 import Moya
 import TangemNetworkUtils
+import TangemPay
 
 public struct VisaAPIServiceBuilder {
     private let apiType: VisaAPIType

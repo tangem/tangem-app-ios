@@ -9,6 +9,7 @@
 import Combine
 import TangemVisa
 import TangemFoundation
+import TangemPay
 
 final class CommonTangemPayBalanceService: TangemPayBalancesService {
     // MARK: - TangemPayBalancesProvider

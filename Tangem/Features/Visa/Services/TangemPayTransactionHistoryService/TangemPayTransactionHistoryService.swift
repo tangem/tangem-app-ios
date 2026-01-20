@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import TangemVisa
 import TangemFoundation
+import TangemPay
 
 typealias TangemPayTransactionRecord = TangemPayTransactionHistoryResponse.Transaction
 
