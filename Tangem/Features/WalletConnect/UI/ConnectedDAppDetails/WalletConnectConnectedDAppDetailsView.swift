@@ -19,6 +19,7 @@ struct WalletConnectConnectedDAppDetailsView: View {
     let kingfisherImageCache: ImageCache
 
     @State private var navigationBarBottomSeparatorIsVisible = false
+    @State private var navigationBarHeight: CGFloat = 0
 
     var body: some View {
         ScrollView(.vertical) {
@@ -101,6 +102,7 @@ struct WalletConnectConnectedDAppDetailsView: View {
         .transition(.opacity)
         .transformEffect(.identity)
         .animation(.headerOpacity.delay(0.2), value: viewModel.state.id)
+        .readGeometry(\.size.height, bindTo: $navigationBarHeight)
     }
 
     private func dAppAndWalletSection(_ viewState: WalletConnectConnectedDAppDetailsViewState.DAppDetails) -> some View {
@@ -284,14 +286,12 @@ struct WalletConnectConnectedDAppDetailsView: View {
     }
 
     private func updateNavigationBarBottomSeparatorVisibility(_ scrollViewMinY: CGFloat) {
-        navigationBarBottomSeparatorIsVisible = scrollViewMinY < Layout.navigationBarHeight - Layout.contentTopPadding
+        navigationBarBottomSeparatorIsVisible = scrollViewMinY < navigationBarHeight - Layout.contentTopPadding
     }
 }
 
 extension WalletConnectConnectedDAppDetailsView {
     private enum Layout {
-        /// 52
-        static let navigationBarHeight = FloatingSheetNavigationBarView.height
         /// 12
         static let contentTopPadding: CGFloat = 12
 

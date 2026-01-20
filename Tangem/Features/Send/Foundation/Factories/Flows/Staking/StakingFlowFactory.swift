@@ -18,6 +18,7 @@ class StakingFlowFactory: StakingFlowDependenciesFactory {
     let userWalletInfo: UserWalletInfo
     let manager: any StakingManager
 
+    let tokenFeeProvidersManager: TokenFeeProvidersManager
     let tokenHeaderProvider: SendGenericTokenHeaderProvider
     let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let walletModelDependenciesProvider: WalletModelDependenciesProvider
@@ -32,7 +33,7 @@ class StakingFlowFactory: StakingFlowDependenciesFactory {
 
     lazy var analyticsLogger = makeStakingSendAnalyticsLogger()
     lazy var stakingModel = makeStakingModel(stakingManager: manager, analyticsLogger: analyticsLogger)
-    lazy var notificationManager = makeStakingNotificationManager()
+    lazy var notificationManager = makeStakingNotificationManager(analyticsLogger: analyticsLogger)
 
     init(
         userWalletInfo: UserWalletInfo,
@@ -58,6 +59,7 @@ class StakingFlowFactory: StakingFlowDependenciesFactory {
             walletModel: walletModel,
             userWalletInfo: userWalletInfo
         )
+        tokenFeeProvidersManager = TokenFeeProvidersManagerBuilder(walletModel: walletModel).makeTokenFeeProvidersManager()
         walletModelDependenciesProvider = walletModel
         availableBalanceProvider = walletModel.availableBalanceProvider
         fiatAvailableBalanceProvider = walletModel.fiatAvailableBalanceProvider
@@ -103,15 +105,8 @@ extension StakingFlowFactory: SendGenericFlowFactory {
         let amount = makeSendAmountStep()
         let targets = makeStakingTargetsStep()
 
-        let sendFeeCompactViewModel = SendNewFeeCompactViewModel(
-            feeTokenItem: feeTokenItem,
-            isFeeApproximate: isFeeApproximate()
-        )
-
-        let sendFeeFinishViewModel = SendFeeFinishViewModel(
-            feeTokenItem: feeTokenItem,
-            isFeeApproximate: isFeeApproximate()
-        )
+        let sendFeeCompactViewModel = SendFeeCompactViewModel()
+        let sendFeeFinishViewModel = SendFeeFinishViewModel()
 
         let summary = makeSendSummaryStep(
             sendAmountCompactViewModel: amount.compact,
@@ -212,7 +207,6 @@ extension StakingFlowFactory: StakingTargetsStepBuildable {
     var stakingTargetsDependencies: StakingTargetsStepBuilder.Dependencies {
         StakingTargetsStepBuilder.Dependencies(
             manager: manager,
-            sendFeeProvider: stakingModel,
             analyticsLogger: analyticsLogger
         )
     }

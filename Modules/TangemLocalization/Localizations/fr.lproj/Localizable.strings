@@ -291,6 +291,7 @@
 "common_no_address" = "Aucune adresse";
 "common_no" = "Non";
 "common_not_added" = "Non ajouté";
+"common_not_available" = "Not available";
 "common_not_now" = "Pas maintenant";
 "common_now" = "Maintenant";
 "common_ok" = "OK";
@@ -399,6 +400,8 @@
 "details_manage_security_long_tap" = "Tenez la carte fermement";
 "details_manage_security_passcode_description" = "Avant d'exécuter une commande qui modifie l'état de la carte, vous devrez entrer un mot de passe.";
 "details_manage_security_passcode" = "Mot de passe";
+"details_mobile_section_description" = "You can have either one mobile wallet or hardware wallet at the same time. Upgrade you wallet or delete it from the app to start using a Tangem cold wallet.";
+"details_mobile_wallet_upgrade_action_title" = "Upgrade to hardware wallet";
 "details_nft_title" = "NFT";
 "details_referral_title" = "Programme de parrainage";
 "details_row_description_flip_to_hide" = "Retournez l'écran de votre appareil vers le bas pour masquer et afficher rapidement les soldes";
@@ -520,6 +523,8 @@
 "feedback_subject_tx_failed" = "Impossible d'effectuer une transaction";
 "feedback_subject_tx_push_failed" = "Impossible d'effectuer une transaction";
 "feedback_token_description_error" = "Erreur de description de la pièce";
+"gasless_not_enough_funds_to_cover_token_fee" = "Not enough funds";
+"gasless_transaction_fee" = "Gasless transaction fee";
 "generic_error_code" = "Une erreur s'est produite. Code:%@";
 "generic_error" = "Une erreur s'est produite";
 "generic_requires_memo_error" = "Un mémo est requis";
@@ -869,7 +874,7 @@
 "onboarding_seed_mnemonic_invalid_checksum" = "Seed phrase invalide. Veuillez vérifier l'ordre des mots.";
 "onboarding_seed_mnemonic_wrong_words" = "Seed phrase invalide. Veuillez vérifier votre orthographe.";
 "onboarding_seed_phrase_intro_legacy" = "Héritage";
-"onboarding_seed_screenshot_alert" = "Nous ne recommandons pas de stocker la seed phrase sous forme de capture d'écran en raison du risque élevé de perte ou de piratage";
+"onboarding_seed_screenshot_alert" = "Pour des raisons de sécurité, la capture d'écran de votre seed phrase est désactivée. La seed phrase est masquée afin de la protéger contre toute perte ou tout accès non autorisé.";
 "onboarding_seed_user_validation_message" = "Pour vérifier si vous avez correctement noté votre seed phrase, veuillez entrer les 2ème, 7ème et 11ème mots";
 "onboarding_seed_user_validation_title" = "Alors, vérifions";
 "onboarding_subtitle_no_backup_cards" = "Pour démarrer le processus de sauvegarde, ajoutez jusqu'à deux cartes de sauvegarde.";
@@ -899,6 +904,7 @@
 "onboarding_wallet_info_title_fourth" = "Restauration du code d'accès";
 "onboarding_wallet_info_title_second" = "Cartes identiques";
 "onboarding_wallet_info_title_third" = "Code d'accès";
+"only_one_mobile_wallet_explanation" = "You can have either a mobile wallet or a hardware wallet at one time. Upgrade your wallet or delete it from the app to start using a Tangem cold wallet.";
 "onramp_all_offers_button_title" = "Toutes les offres";
 "onramp_avaiable_with_payment_methods" = "Disponible avec %@";
 "onramp_choose_provider_title_hint" = "L'achat de crypto-monnaies sur Tangem est assuré par des fournisseurs tiers selon leurs conditions.";
@@ -1121,6 +1127,11 @@
 "settings_card_settings_footer" = "Scannez la carte/ bague que vous souhaitez configurer.";
 "settings_forget_wallet_footer" = "Cela supprimera le portefeuille de l'application. Le portefeuille lui-même peut être ajouté à nouveau.";
 "settings_forget_wallet" = "Oublier le portefeuille";
+"settings_upgrade_banner_advantage_feature_title" = "Simple to use";
+"settings_upgrade_banner_description" = "Keeps your crypto safe and offline. Slim as a credit card, safer than a bank vault.";
+"settings_upgrade_banner_seed_phrase_feature_title" = "No seed phrase";
+"settings_upgrade_banner_superiority_feature_title" = "Best in class hardware wallet";
+"settings_upgrade_banner_title" = "Tangem Cold Wallet";
 "settings_wallet_name_title" = "Nom";
 "stake_token_description" = "Faites travailler votre jeton pour vous";
 "staking_account_initialization_footer" = "A network fee is a small payment required to process and confirm your transaction on the blockchain.";
@@ -1144,6 +1155,7 @@
 "staking_details_apr" = "APR";
 "staking_details_apy" = "APY";
 "staking_details_auto_claiming_rewards_daily_text" = "Les récompenses s'accumulent automatiquement sur votre solde de staking quotidiennement.";
+"staking_details_autocompound_rewards_earned" = "Rewards are compounded to your staking balance. Funds earned: %@";
 "staking_details_available" = "Disponible";
 "staking_details_average_reward_rate" = "Taux de récompense moyen";
 "staking_details_banner_text" = "Qu'est-ce que le Staking ?";
@@ -1386,17 +1398,22 @@
 "tangempay_go_to_support" = "Contacter le support";
 "tangempay_issue_card_notification_description" = "Cela prend généralement jusqu'à 15 minutes";
 "tangempay_issue_card_notification_title" = "Configuration de votre carte Tangem";
-"tangempay_issuing_your_card_description" = "Nous préparons votre carte. Cela peut prendre un peu de temps.";
+"tangempay_issuing_your_card_description" = "La carte est généralement émise automatiquement en moins de 5 minutes. Dans de rares cas nécessitant une vérification manuelle, l’émission peut prendre jusqu’à 48 heures.";
 "tangempay_issuing_your_card" = "Émission de votre carte";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
 "tangempay_kyc_confirm_cancellation_alert_title" = "Confirmer l'annulation";
 "tangempay_kyc_confirm_cancellation_description" = "Êtes-vous sûr de vouloir interrompre le processus KYC ? Vous pouvez y revenir à tout moment.";
 "tangempay_kyc_failed_description" = "Nous n'avons pas pu vérifier votre profil. Pour toute question, veuillez contacter le support.";
 "tangempay_kyc_failed_title" = "Malheureusement, nous n'avons pas pu vérifier votre identité";
+"tangempay_kyc_has_failed" = "KYC has failed";
 "tangempay_kyc_in_progress_notification_button" = "Voir le statut";
 "tangempay_kyc_in_progress_notification_title" = "KYC en cours pour Tangem Pay";
-"tangempay_kyc_in_progress_popup_description" = "Utilisez les boutons ci-dessous pour consulter votre statut KYC actuel ou l'annuler.";
+"tangempay_kyc_in_progress_popup_description" = "Les documents sont généralement vérifiés automatiquement en moins de 5 minutes. Dans de rares cas nécessitant une vérification manuelle, le processus peut prendre jusqu’à 48 heures.";
 "tangempay_kyc_in_progress" = "KYC en cours";
+"tangempay_kyc_rejected_button_text" = "Hide KYC block";
+"tangempay_kyc_rejected_description_span" = "your profile.";
+"tangempay_kyc_rejected_description" = "Sorry, we couldn't verify";
+"tangempay_kyc_rejected" = "KYC rejected";
 "tangempay_onboarding_banner_description" = "Obtenez votre carte virtuelle Tangem Visa gratuite";
 "tangempay_onboarding_banner_title" = "Utilisez USDC pour les paiements quotidiens";
 "tangempay_onboarding_get_card_button_text" = "Obtenir la carte";
@@ -1493,6 +1510,7 @@
 "universal_error" = "Nous avons rencontré une erreur. Code d'erreur : %@. Veuillez contacter notre équipe de support.";
 "unlock_wallet_description_full" = "Utilisez %@ ou scannez une carte/bague pour avoir accès à votre portefeuille";
 "unsupported_wc_version" = "Échec de la connexion : Cette dApp utilise Wallet Connect version1.0, qui n'est pas prise en charge. Veuillez vous assurer que la dApp prend en charge Wallet Connect version2.0 pour réussir la connexion.";
+"upgrade_to_hardware_wallet_button_title" = "Upgrade to a hardware wallet";
 "user_push_notification_agreement_argument_one_subtitle" = "Alertes en temps réel pour les transactions, les échanges et les mises à jour importantes.";
 "user_push_notification_agreement_argument_one_title" = "Alertes de transaction";
 "user_push_notification_agreement_argument_one" = "Restez à jour avec les dernières fonctionnalités et actualités";
@@ -1613,7 +1631,7 @@
 "wallet_import_seed_description" = "Importez un portefeuille existant à l'aide de votre seedphrase.";
 "wallet_import_seed_navtitle" = "Importer un wallet";
 "wallet_import_seed_title" = "Entrez la seedphrase";
-"wallet_import_success_description" = "Vous avez sauvegardé votre portefeuille avec succès.";
+"wallet_import_success_description" = "Vous avez importé votre portefeuille avec succès.";
 "wallet_import_success_navtitle" = "Importer un wallet";
 "wallet_import_success_title" = "Importation terminée";
 "wallet_import_title" = "Importer un portefeuille";

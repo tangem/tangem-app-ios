@@ -69,6 +69,10 @@ extension P2PStakingManager: StakingManager {
         _state.eraseToAnyPublisher()
     }
 
+    var updateWalletBalancesPublisher: AnyPublisher<Void, Never> {
+        Empty().eraseToAnyPublisher()
+    }
+
     var state: StakingManagerState {
         _state.value
     }
@@ -80,6 +84,9 @@ extension P2PStakingManager: StakingManager {
     var allowanceAddress: String? {
         nil
     }
+
+    var tosURL: URL { URL(string: "https://www.p2p.org/terms-of-use/")! }
+    var privacyPolicyURL: URL { URL(string: "https://www.p2p.org/privacy-policy/")! }
 
     func estimateFee(action: StakingAction) async throws -> Decimal {
         do {

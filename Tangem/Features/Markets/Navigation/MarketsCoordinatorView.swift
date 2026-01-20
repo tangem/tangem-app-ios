@@ -56,6 +56,10 @@ struct MarketsCoordinatorView: CoordinatorView {
             }
             .navigation(item: $coordinator.marketsSearchCoordinator) {
                 MarketsSearchCoordinatorView(coordinator: $0)
+                    .ignoresSafeArea(.container, edges: .top) // Keep consistent over-scroll behavior with other pushed screens
+            }
+            .navigation(item: $coordinator.newsListCoordinator) {
+                NewsListCoordinatorView(coordinator: $0)
             }
     }
 }

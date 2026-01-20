@@ -29,7 +29,7 @@ struct TangemPayAddToAppPayGuideView: View {
             .navigationBarBackButtonHidden(true)
             .withCloseButton(
                 placement: .topBarTrailing,
-                style: .crossImage,
+                style: .icon,
                 action: viewModel.close
             )
             .safeAreaInset(edge: .bottom) {

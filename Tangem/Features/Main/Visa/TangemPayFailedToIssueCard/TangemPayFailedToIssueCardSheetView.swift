@@ -17,7 +17,7 @@ struct TangemPayFailedToIssueCardSheetView: View {
         ZStack(alignment: .topTrailing) {
             content
 
-            CircleButton.close(action: viewModel.close)
+            NavigationBarButton.close(action: viewModel.close)
                 .padding(.all, 16)
         }
         .floatingSheetConfiguration { configuration in

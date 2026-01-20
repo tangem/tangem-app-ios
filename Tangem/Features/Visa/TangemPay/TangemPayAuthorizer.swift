@@ -11,7 +11,6 @@ import Combine
 import TangemVisa
 
 final class TangemPayAuthorizer {
-    let customerWalletId: String
     let authorizationService: TangemPayAuthorizationService
     let keysRepository: KeysRepository
 
@@ -19,33 +18,39 @@ final class TangemPayAuthorizer {
         stateSubject.value
     }
 
+    var customerWalletId: String {
+        userWalletModel?.userWalletId.stringValue ?? ""
+    }
+
     var statePublisher: AnyPublisher<State, Never> {
         stateSubject.eraseToAnyPublisher()
     }
 
     var syncNeededTitle: String {
-        interactor.syncNeededTitle
+        userWalletModel?.tangemPayAuthorizingInteractor.syncNeededTitle ?? ""
     }
 
-    private let interactor: TangemPayAuthorizing
+    private weak var userWalletModel: UserWalletModel?
     private let stateSubject: CurrentValueSubject<State, Never>
 
     init(
-        customerWalletId: String,
-        interactor: TangemPayAuthorizing,
-        keysRepository: KeysRepository,
+        userWalletModel: UserWalletModel,
         state: State,
-        authorizationService: TangemPayAuthorizationService = TangemPayAPIServiceBuilder().buildTangemPayAuthorizationService()
+        authorizationService: TangemPayAuthorizationService
     ) {
-        self.customerWalletId = customerWalletId
+        self.userWalletModel = userWalletModel
         self.authorizationService = authorizationService
-        self.interactor = interactor
-        self.keysRepository = keysRepository
+        keysRepository = userWalletModel.keysRepository
 
         stateSubject = CurrentValueSubject(state)
     }
 
     func authorizeWithCustomerWallet() async throws {
+        guard
+            let interactor = userWalletModel?.tangemPayAuthorizingInteractor
+        else {
+            throw Error.interactorNotFound
+        }
         let response = try await interactor.authorize(
             customerWalletId: customerWalletId,
             authorizationService: authorizationService
@@ -93,5 +98,11 @@ extension TangemPayAuthorizer {
                 nil
             }
         }
+    }
+}
+
+private extension TangemPayAuthorizer {
+    enum Error: LocalizedError {
+        case interactorNotFound
     }
 }
