@@ -25,7 +25,7 @@ enum SendFeeStepBuilder {
 
     typealias ReturnValue = (
         feeSelectorBuilder: SendFeeSelectorBuilder,
-        compact: SendFeeCompactViewModel,
+        compact: FeeCompactViewModel,
         finish: SendFeeFinishViewModel
     )
 
@@ -39,7 +39,7 @@ enum SendFeeStepBuilder {
             analyticsLogger: dependencies.analyticsLogger
         )
 
-        let compact = SendFeeCompactViewModel()
+        let compact = FeeCompactViewModel()
         let finish = SendFeeFinishViewModel()
 
         return (feeSelectorBuilder: feeSelectorBuilder, compact: compact, finish: finish)
