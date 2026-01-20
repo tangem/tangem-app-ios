@@ -177,13 +177,7 @@ private extension MobileCreateWalletViewModel {
         Analytics.log(
             event: .onboardingCreateMobileScreenOpened,
             params: params,
-            contextParams: analyticsContextParams
-        )
-
-        Analytics.log(
-            event: .afWalletEntryScreen,
-            params: params,
-            analyticsSystems: [.appsFlyer],
+            analyticsSystems: .all,
             contextParams: analyticsContextParams
         )
     }
@@ -211,13 +205,7 @@ private extension MobileCreateWalletViewModel {
         Analytics.log(
             event: .walletCreatedSuccessfully,
             params: params,
-            contextParams: analyticsContextParams
-        )
-
-        Analytics.log(
-            event: .afWalletCreatedSuccessfully,
-            params: params,
-            analyticsSystems: [.appsFlyer],
+            analyticsSystems: .all,
             contextParams: analyticsContextParams
         )
     }
