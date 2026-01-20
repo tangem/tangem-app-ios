@@ -82,7 +82,7 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
     private func mapTokenItemToRowViewModel(tokenFeeProvider: any TokenFeeProvider, canExpand: Bool) -> FeeSelectorRowViewModel {
         let feeTokenItem = tokenFeeProvider.feeTokenItem
         let subtitleBalanceState = LoadableTokenBalanceViewStateBuilder().build(
-            type: tokenFeeProvider.balanceState,
+            type: tokenFeeProvider.formattedFeeTokenBalance,
             textBuilder: Localization.commonBalance
         )
 
