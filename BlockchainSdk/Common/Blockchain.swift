@@ -1695,7 +1695,6 @@ extension Blockchain {
              .vanar,
              .zkLinkNova,
              .hyperliquidEVM,
-             .scroll,
              .linea,
              .arbitrumNova,
              .plasma:
@@ -1706,6 +1705,8 @@ extension Blockchain {
              .cyber,
              .blast:
             return EthereumOptimisticRollupWalletAssembly()
+        case .scroll:
+            return ScrollWalletAssembly()
         case .bitcoinCash:
             return BitcoinCashWalletAssembly()
         case .binance:

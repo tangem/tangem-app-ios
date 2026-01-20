@@ -1,14 +1,14 @@
 //
-//  EthereumOptimisticRollupWalletAssembly.swift
+//  ScrollWalletAssembly.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2024 Tangem AG. All rights reserved.
+//  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
 import Foundation
 
-struct EthereumOptimisticRollupWalletAssembly: WalletManagerAssembly {
+struct ScrollWalletAssembly: WalletManagerAssembly {
     func make(with input: WalletManagerAssemblyInput) throws -> WalletManager {
         let wallet = input.wallet
 
@@ -35,8 +35,8 @@ struct EthereumOptimisticRollupWalletAssembly: WalletManagerAssembly {
 
         let addressConverter = EthereumAddressConverterFactory().makeConverter(for: wallet.blockchain)
 
-        let l1SmartContractAddress = EthereumOptimisticRollupConstants.defaultL1GasPriceOracleSmartContractAddress
-        let l1FeeMultiplier = EthereumOptimisticRollupConstants.defaultL1GasFeeMultiplier
+        let l1SmartContractAddress = EthereumOptimisticRollupConstants.scrollL1GasPriceOracleSmartContractAddress
+        let l1FeeMultiplier = EthereumOptimisticRollupConstants.scrollL1GasFeeMultiplier
 
         return EthereumOptimisticRollupWalletManager(
             wallet: wallet,
