@@ -274,6 +274,7 @@ extension WalletConnectDAppConnectionRequestViewModel {
                     connectionProposal: proposal,
                     dAppSession: dAppSession,
                     dAppBlockchains: selectedBlockchains,
+                    selectedUserWallet: selectedUserWallet,
                     selectedAccount: selectedAccount
                 )
             } else {
