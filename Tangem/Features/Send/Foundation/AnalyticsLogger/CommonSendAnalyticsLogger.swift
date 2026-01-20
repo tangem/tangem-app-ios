@@ -72,7 +72,11 @@ class CommonSendAnalyticsLogger {
 
 extension CommonSendAnalyticsLogger: SendDestinationAnalyticsLogger {
     func logDestinationStepOpened() {
-        Analytics.log(.sendAddressScreenOpened, params: [.source: sourceFlow])
+        Analytics.log(
+            .sendAddressScreenOpened,
+            params: [.source: sourceFlow],
+            analyticsSystems: .all
+        )
     }
 
     func logDestinationStepReopened() {
@@ -185,7 +189,8 @@ extension CommonSendAnalyticsLogger: SendAmountAnalyticsLogger {
     func logAmountStepOpened() {
         Analytics.log(
             .sendAmountScreenOpened,
-            params: [.source: sourceFlow]
+            params: [.source: sourceFlow],
+            analyticsSystems: .all
         )
     }
 
@@ -249,7 +254,11 @@ extension CommonSendAnalyticsLogger: SendSummaryAnalyticsLogger {
     func logSummaryStepOpened() {
         switch tokenItem.token?.metadata.kind {
         case .fungible, .none:
-            logSendConfirmScreenOpened()
+            Analytics.log(
+                .sendConfirmScreenOpened,
+                params: [.source: sourceFlow],
+                analyticsSystems: .all
+            )
         case .nonFungible:
             Analytics.log(
                 event: .nftConfirmScreenOpened,
@@ -337,7 +346,11 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
         // Merge account analytics (source + destination)
         analyticsParameters.merge(buildAccountAnalyticsParameters()) { $1 }
 
-        Analytics.log(event: event, params: analyticsParameters)
+        Analytics.log(
+            event: event,
+            params: analyticsParameters,
+            analyticsSystems: .all
+        )
     }
 
     private func logSendWithSwapFinishScreenOpened() {
@@ -366,7 +379,11 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
             // Merge account analytics (source + destination)
             analyticsParameters.merge(buildAccountAnalyticsParameters()) { $1 }
 
-            Analytics.log(event: .sendSendWithSwapInProgressScreenOpened, params: analyticsParameters)
+            Analytics.log(
+                event: .sendSendWithSwapInProgressScreenOpened,
+                params: analyticsParameters,
+                analyticsSystems: .all
+            )
         }
     }
 }
@@ -435,7 +452,7 @@ extension CommonSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
             .memo: additionalFieldAnalyticsParameter.rawValue,
             .walletForm: signerType,
             .selectedHost: currentProviderHost,
-        ])
+        ], analyticsSystems: .all)
 
         switch amount?.type {
         case .none: break
