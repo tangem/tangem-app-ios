@@ -12,6 +12,7 @@ import Foundation
 import TangemLocalization
 import TangemAssets
 import TangemMacro
+import TangemAccessibilityIdentifiers
 
 protocol SendFeeSelectorRoutable: FeeSelectorRoutable {
     func openFeeSelectorLearnMoreURL(_ url: URL)
@@ -133,6 +134,15 @@ extension SendFeeSelectorViewModel {
                 return nil
             case .fees(let content), .tokens(let content):
                 return content.description
+            }
+        }
+
+        var titleAccessibilityIdentifier: String? {
+            switch self {
+            case .fees:
+                return FeeAccessibilityIdentifiers.feeSelectorChooseSpeedTitle
+            case .summary, .tokens:
+                return nil
             }
         }
     }
