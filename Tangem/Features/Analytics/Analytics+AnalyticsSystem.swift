@@ -7,10 +7,14 @@
 //
 
 extension Analytics {
-    enum AnalyticsSystem {
+    enum AnalyticsSystem: CaseIterable {
         case firebase
         case amplitude
         case crashlytics
         case appsFlyer
     }
+}
+
+extension Array where Element == Analytics.AnalyticsSystem {
+    static let all = Element.allCases
 }
