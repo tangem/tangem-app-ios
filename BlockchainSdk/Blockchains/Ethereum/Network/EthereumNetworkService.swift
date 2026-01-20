@@ -249,11 +249,11 @@ class EthereumNetworkService: MultiNetworkProvider {
         .eraseToAnyPublisher()
     }
 
-    func read<Target: SmartContractTargetType>(target: Target) -> AnyPublisher<String, Error> {
-        let encodedData = abiEncoder.encode(method: target.methodName, parameters: target.parameters)
+    func read<Method: SmartContractTargetMethodType>(contractAddress: String, method: Method) -> AnyPublisher<String, Error> {
+        let encodedData = abiEncoder.encode(method: method.methodName, parameters: method.parameters)
 
         return providerPublisher {
-            $0.call(contractAddress: target.contactAddress, encodedData: encodedData)
+            $0.call(contractAddress: contractAddress, encodedData: encodedData)
         }
     }
 }
