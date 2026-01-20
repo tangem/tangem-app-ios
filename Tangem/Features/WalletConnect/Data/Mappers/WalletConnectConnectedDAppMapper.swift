@@ -34,16 +34,15 @@ enum WalletConnectConnectedDAppMapper {
             )
 
         case .v2(let dto):
-            return .v2(
-                WalletConnectConnectedDAppV2(
-                    session: session,
-                    accountId: dto.accountID,
-                    dAppData: dAppData,
-                    verificationStatus: mapVerificationStatus(toDomain: dto.verificationStatus),
-                    dAppBlockchains: dto.dAppBlockchains.map(mapDAppBlockchain(toDomain:)),
-                    connectionDate: dto.connectionDate
-                )
+            let wrapped = WalletConnectConnectedDAppV1(
+                session: session,
+                userWalletID: dto.identifier.userWalletID,
+                dAppData: dAppData,
+                verificationStatus: mapVerificationStatus(toDomain: dto.verificationStatus),
+                dAppBlockchains: dto.dAppBlockchains.map(mapDAppBlockchain(toDomain:)),
+                connectionDate: dto.connectionDate
             )
+            return .v2(WalletConnectConnectedDAppV2(accountId: dto.identifier.accountID, wrapped: wrapped))
         }
     }
 
@@ -66,11 +65,15 @@ enum WalletConnectConnectedDAppMapper {
             )
 
         case .v2(let dApp):
+            let identifier = WalletConnectConnectedDAppPersistentDTO.IdentifierV2(
+                userWalletID: dApp.wrapped.userWalletID,
+                accountID: dApp.accountId
+            )
             return .v2(
                 WalletConnectConnectedDAppPersistentDTOV2(
                     sessionTopic: dApp.session.topic,
                     namespaces: mapNamespaces(fromDomain: dApp.session.namespaces),
-                    accountID: dApp.accountId,
+                    identifier: identifier,
                     dAppName: dApp.dAppData.name,
                     dAppDomainURL: dApp.dAppData.domain,
                     dAppIconURL: dApp.dAppData.icon,
