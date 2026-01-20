@@ -88,7 +88,11 @@ final class ExpressViewModel: ObservableObject {
         self.coordinator = coordinator
         tangemIconProvider = CommonTangemIconProvider(config: userWalletInfo.config)
 
-        Analytics.log(event: .swapScreenOpenedSwap, params: [.token: initialTokenItem.currencySymbol])
+        Analytics.log(
+            event: .swapScreenOpenedSwap,
+            params: [.token: initialTokenItem.currencySymbol],
+            analyticsSystems: .all
+        )
         setupView()
         bind()
     }
