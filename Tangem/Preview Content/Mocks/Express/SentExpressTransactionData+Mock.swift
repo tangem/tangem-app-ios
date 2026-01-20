@@ -22,8 +22,7 @@ extension SentExpressTransactionData {
             walletModel: CommonWalletModel.mockETH,
             expressOperationType: .swap
         ),
-        fee: 0.032,
-        feeOption: .market,
+        fee: .init(option: .market, tokenItem: CommonWalletModel.mockETH.feeTokenItem, value: .loading),
         provider: ExpressProvider(
             id: "1inch",
             name: "1inch",
