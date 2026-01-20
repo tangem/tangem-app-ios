@@ -70,7 +70,8 @@ struct NewsModelMapper {
             relativeTime: dateFormatter.formatRelativeTime(from: item.createdAt),
             isTrending: item.isTrending,
             newsUrl: item.newsUrl,
-            isRead: readStatusProvider.isRead(for: String(item.id))
+            // Per spec, news cards in the list should not be marked as read.
+            isRead: false
         )
     }
 
