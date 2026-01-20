@@ -13,8 +13,9 @@ final class MarketsScreen: ScreenBase<MarketsScreenElement> {
     private lazy var searchField = textField(.searchThroughMarketField)
     private lazy var searchFieldClearButton = app.buttons[MainAccessibilityIdentifiers.searchThroughMarketClearButton]
     private lazy var addToPortfolioButton = button(.addToPortfolioButton)
-    private lazy var mainNetworkSwitch = switchElement(.mainNetworkSwitch)
     private lazy var continueButton = button(.continueButton)
+    private lazy var addTokenButton = button(.addTokenButton)
+    private lazy var getTokenLaterButton = button(.getTokenLaterButton)
     private lazy var tokensUnderCapExpandButton = button(.marketsTokensUnderCapExpandButton)
     private lazy var noResultsLabel = staticText(.marketsSearchNoResultsLabel)
 
@@ -76,15 +77,12 @@ final class MarketsScreen: ScreenBase<MarketsScreenElement> {
     }
 
     @discardableResult
-    func toggleMainNetworkSwitch() -> Self {
-        XCTContext.runActivity(named: "Toggle MAIN network switch") { _ in
-            XCTAssertTrue(
-                mainNetworkSwitch.waitForExistence(timeout: .robustUIUpdate),
-                "MAIN network switch should exist"
-            )
-            mainNetworkSwitch.waitAndTap()
-            return self
+    func selectNetwork(_ name: String) -> Self {
+        XCTContext.runActivity(named: "Select \(name) network") { _ in
+            app.buttons[TokenAccessibilityIdentifiers.networkCell(for: name)].waitAndTap()
         }
+
+        return self
     }
 
     @discardableResult
@@ -97,6 +95,24 @@ final class MarketsScreen: ScreenBase<MarketsScreenElement> {
             continueButton.waitAndTap()
             return self
         }
+    }
+
+    @discardableResult
+    func tapAddTokenButton() -> Self {
+        XCTContext.runActivity(named: "Tap Add token button") { _ in
+            addTokenButton.waitAndTap()
+        }
+
+        return self
+    }
+
+    @discardableResult
+    func tapGetTokenLaterButton() -> Self {
+        XCTContext.runActivity(named: "Tap Get token Later button") { _ in
+            getTokenLaterButton.waitAndTap()
+        }
+
+        return self
     }
 
     func tapBackButton() -> Self {
@@ -294,8 +310,9 @@ final class MarketsScreen: ScreenBase<MarketsScreenElement> {
 enum MarketsScreenElement: String, UIElement {
     case searchThroughMarketField
     case addToPortfolioButton
-    case mainNetworkSwitch
     case continueButton
+    case addTokenButton
+    case getTokenLaterButton
     case marketsTokensUnderCapExpandButton
     case marketsSearchNoResultsLabel
 
@@ -305,10 +322,12 @@ enum MarketsScreenElement: String, UIElement {
             MainAccessibilityIdentifiers.searchThroughMarketField
         case .addToPortfolioButton:
             MainAccessibilityIdentifiers.addToPortfolioButton
-        case .mainNetworkSwitch:
-            TokenAccessibilityIdentifiers.mainNetworkSwitch
         case .continueButton:
             TokenAccessibilityIdentifiers.continueButton
+        case .addTokenButton:
+            TokenAccessibilityIdentifiers.addTokenButton
+        case .getTokenLaterButton:
+            TokenAccessibilityIdentifiers.getTokenLaterButton
         case .marketsTokensUnderCapExpandButton:
             MarketsAccessibilityIdentifiers.marketsTokensUnderCapExpandButton
         case .marketsSearchNoResultsLabel:
