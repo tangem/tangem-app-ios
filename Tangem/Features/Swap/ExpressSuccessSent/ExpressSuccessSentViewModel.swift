@@ -76,7 +76,8 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
                 .receiveToken: data.destination.tokenItem.currencySymbol,
                 .sendBlockchain: data.source.tokenItem.blockchain.displayName,
                 .receiveBlockchain: data.destination.tokenItem.blockchain.displayName,
-            ]
+            ],
+            analyticsSystems: .all
         )
     }
 
