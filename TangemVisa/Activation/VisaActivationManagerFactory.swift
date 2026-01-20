@@ -9,6 +9,7 @@
 import Foundation
 import TangemSdk
 import Moya
+import TangemPay
 
 public struct VisaActivationManagerFactory {
     private let apiType: VisaAPIType
