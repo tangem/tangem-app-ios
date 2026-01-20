@@ -25,6 +25,7 @@ struct ValidatorTests {
 
     @Test
     func txValidation() {
+        let blockchain = Blockchain.bitcoin(testnet: false)
         let transactionValidator = BaseTransactionValidator(wallet: Wallet(blockchain: .bitcoin(testnet: false), addresses: [:]))
         transactionValidator.wallet.add(coinValue: 10)
 
@@ -56,7 +57,13 @@ struct ValidatorTests {
             )
         }
 
-        #expect(throws: ValidationError.feeExceedsBalance) {
+        #expect(
+            throws: ValidationError.feeExceedsBalance(
+                Fee(Amount(with: transactionValidator.wallet.amounts[.coin]!, value: 11)),
+                blockchain: blockchain,
+                isFeeCurrency: true
+            )
+        ) {
             try transactionValidator.validate(
                 amount: Amount(with: transactionValidator.wallet.amounts[.coin]!, value: 1),
                 fee: Fee(Amount(with: transactionValidator.wallet.amounts[.coin]!, value: 11))

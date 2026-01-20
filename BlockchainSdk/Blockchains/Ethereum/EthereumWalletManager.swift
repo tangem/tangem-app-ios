@@ -594,7 +594,10 @@ extension EthereumWalletManager: GaslessTransactionFeeProvider {
         // 9) Add markup of 1%
         fee *= Decimal(1.01)
 
-        // 10) Return Fee with updated params and computed amount
+        // 10)
+        fee = fee.rounded(scale: feeToken.decimalCount)
+
+        // 11) Return Fee with updated params and computed amount
         return Fee(.init(with: feeToken, value: fee), parameters: newParams)
     }
 }
@@ -652,24 +655,6 @@ extension EthereumWalletManager: MultipleTransactionsSender {
             }
             .mapSendTxError()
             .eraseToAnyPublisher()
-    }
-}
-
-// MARK: - TransactionValidator
-
-extension EthereumWalletManager: TransactionValidator {
-    func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws {
-        // This wallet manager still ignores `destination` parameter even in the custom implementation of this method
-        BSDKLogger.debug("TransactionValidator \(self) doesn't check destination. If you want it, make our own implementation")
-
-        switch amount.type.token?.metadata.kind {
-        case .fungible, .none:
-            // Just calling the default implementation for the `TransactionValidator.validate(amount:fee:)` method
-            try validateAmounts(amount: amount, fee: fee.amount)
-        case .nonFungible:
-            // We can't validate amounts for non-fungible tokens, therefore performing only the fee validation
-            try validate(fee: fee.amount)
-        }
     }
 }
 

@@ -115,7 +115,6 @@ extension CommonStakingBaseDataBuilder: SendApproveViewModelInputDataBuilder {
             subtitle: Localization.givePermissionStakingSubtitle(walletModel.tokenItem.currencySymbol),
             feeFooterText: Localization.stakingGivePermissionFeeFooter,
             tokenItem: walletModel.tokenItem,
-            feeTokenItem: walletModel.feeTokenItem,
             selectedPolicy: selectedPolicy,
             tangemIconProvider: tangemIconProvider
         )

@@ -149,7 +149,7 @@ extension TokenNotificationEvent: NotificationEvent {
         case .rentFee, .noAccount, .existentialDepositWarning, .manaLevel:
             return .init(iconType: .image(Assets.blueCircleWarning.image))
         case .notEnoughFeeForTransaction(let configuration):
-            return .init(iconType: .image(configuration.feeAmountTypeIconAsset.image))
+            return .init(iconType: .icon(configuration.feeTokenIconInfo))
         case .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation, _):
             return .init(iconType: .image(Tokens.hederaFill.image))
         case .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction, _):
