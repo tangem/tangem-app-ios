@@ -24,24 +24,3 @@ struct TokenFee: Hashable {
         lhs.hashValue == rhs.hashValue
     }
 }
-
-// MARK: - ErrorType
-
-extension TokenFee {
-    enum ErrorType: LocalizedError {
-        case unsupportedByProvider
-        case feeNotFound
-        case loadingError(Error)
-
-        var description: String? {
-            switch self {
-            case .unsupportedByProvider:
-                return "Unsupported by provider"
-            case .feeNotFound:
-                return "Fee not found"
-            case .loadingError(let error):
-                return "\(error)"
-            }
-        }
-    }
-}
