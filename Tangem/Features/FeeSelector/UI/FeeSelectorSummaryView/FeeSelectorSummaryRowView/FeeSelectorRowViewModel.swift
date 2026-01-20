@@ -14,7 +14,8 @@ import TangemFoundation
 struct FeeSelectorRowViewModel: Hashable {
     let rowType: RowType
     let title: String
-    let subtitle: LoadableTextView.State
+    let subtitle: SubtitleType
+    let availability: Availability
     let accessibilityIdentifier: String
 
     // MARK: - Expansion
@@ -34,10 +35,11 @@ struct FeeSelectorRowViewModel: Hashable {
 
 extension FeeSelectorRowViewModel {
     /// Plain (no selection and no expansion)
-    init(rowType: RowType, title: String, subtitle: LoadableTextView.State, accessibilityIdentifier: String) {
+    init(rowType: RowType, title: String, subtitle: SubtitleType, accessibilityIdentifier: String, availability: Availability = .available) {
         self.rowType = rowType
         self.title = title
         self.subtitle = subtitle
+        self.availability = availability
         self.accessibilityIdentifier = accessibilityIdentifier
 
         // expansion and selection disabled
@@ -47,10 +49,11 @@ extension FeeSelectorRowViewModel {
     }
 
     /// Optional expansion-only configuration: provides expandAction, disables selection
-    init(rowType: RowType, title: String, subtitle: LoadableTextView.State, accessibilityIdentifier: String, expandAction: (() -> Void)?) {
+    init(rowType: RowType, title: String, subtitle: SubtitleType, accessibilityIdentifier: String, availability: Availability = .available, expandAction: (() -> Void)?) {
         self.rowType = rowType
         self.title = title
         self.subtitle = subtitle
+        self.availability = availability
         self.accessibilityIdentifier = accessibilityIdentifier
         self.expandAction = expandAction
 
@@ -63,14 +66,16 @@ extension FeeSelectorRowViewModel {
     init(
         rowType: RowType,
         title: String,
-        subtitle: LoadableTextView.State,
+        subtitle: SubtitleType,
         accessibilityIdentifier: String,
+        availability: Availability = .available,
         isSelected: Bool,
         selectAction: @escaping () -> Void
     ) {
         self.rowType = rowType
         self.title = title
         self.subtitle = subtitle
+        self.availability = availability
         self.accessibilityIdentifier = accessibilityIdentifier
 
         self.isSelected = isSelected
@@ -86,6 +91,20 @@ extension FeeSelectorRowViewModel {
     enum RowType {
         case fee(image: Image)
         case token(tokenIconInfo: TokenIconInfo)
+    }
+
+    enum SubtitleType: Hashable {
+        case fee(LoadableTextView.State)
+        case balance(LoadableTokenBalanceView.State)
+    }
+
+    @CaseFlagable
+    enum Availability {
+        case available
+        case noBalance
+        case notSupported
+        case unavailable
+        case notEnoughBalance
     }
 }
 

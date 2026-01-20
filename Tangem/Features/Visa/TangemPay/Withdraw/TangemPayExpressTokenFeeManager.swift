@@ -1,5 +1,5 @@
 //
-//  TangemPayExpressTokenFeeManager.swift
+//  TangemPayExpressTokenFeeProvidersManager.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,14 +8,17 @@
 
 import TangemExpress
 
-struct TangemPayExpressTokenFeeManager: ExpressTokenFeeManager {
-    func tokenFeeManager(providerId: ExpressProvider.Id) -> TokenFeeManager? { nil }
+struct TangemPayExpressTokenFeeProvidersManager: ExpressTokenFeeProvidersManager {
+    let tokenItem: TokenItem
 
-    func selectedFeeProvider(providerId: ExpressProvider.Id) -> (any TokenFeeProvider)? { nil }
+    func tokenFeeProvidersManager(providerId: ExpressProvider.Id) -> TokenFeeProvidersManager {
+        CommonTokenFeeProvidersManager(
+            feeProviders: [.empty(feeTokenItem: tokenItem)],
+            initialSelectedProvider: .empty(feeTokenItem: tokenItem)
+        )
+    }
 
-    func fees(providerId: ExpressProvider.Id) -> TokenFeesList { [] }
+    func updateSelectedFeeOptionInAllManagers(feeOption: FeeOption) {}
 
-    func feeTokenItems(providerId: ExpressProvider.Id) -> [TokenItem] { [] }
-
-    func updateSelectedFeeTokenItemInAllManagers(tokenItem: TokenItem) {}
+    func updateSelectedFeeTokenItemInAllManagers(feeTokenItem: TokenItem) {}
 }
