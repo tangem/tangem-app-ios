@@ -8,6 +8,7 @@
 
 import Combine
 import TangemVisa
+import TangemPay
 
 /// Provider with constant USD fiat value `1:1`
 struct TangemPayFiatTokenBalanceProvider {
