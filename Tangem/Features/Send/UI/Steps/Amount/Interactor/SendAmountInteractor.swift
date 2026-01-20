@@ -123,7 +123,7 @@ class CommonSendAmountInteractor {
             return error.localizedDescription
         }
 
-        let mapper = BlockchainSDKNotificationMapper(tokenItem: source.tokenItem, feeTokenItem: source.feeTokenItem)
+        let mapper = BlockchainSDKNotificationMapper(tokenItem: source.tokenItem)
         if case .string(let title) = mapper.mapToValidationErrorEvent(validationError).title {
             return title
         }
