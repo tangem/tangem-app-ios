@@ -11,10 +11,13 @@ import TangemAssets
 import TangemLocalization
 import TangemUI
 import TangemUIUtils
+import TangemFoundation
 
 struct NewsPagerView: View {
     @ObservedObject var viewModel: NewsPagerViewModel
     let isDeeplinkMode: Bool
+
+    @Injected(\.overlayContentStateObserver) private var overlayContentStateObserver: OverlayContentStateObserver
 
     init(viewModel: NewsPagerViewModel, isDeeplinkMode: Bool = false) {
         self.viewModel = viewModel
@@ -29,20 +32,27 @@ struct NewsPagerView: View {
                 }
 
                 pagerContent
+                    .opacity(viewModel.overlayContentHidingProgress) // Hides content on bottom sheet minimizing
             }
 
             if !isDeeplinkMode, viewModel.newsIds.count > 1 {
-                pageIndicatorOverlay
-                    .ignoresSafeArea(.container, edges: .bottom)
-                PageIndicatorView(
-                    totalPages: viewModel.newsIds.count,
-                    currentIndex: viewModel.currentIndex
-                )
-                .padding(.bottom, 8)
+                Group {
+                    pageIndicatorOverlay
+                        .ignoresSafeArea(.container, edges: .bottom)
+                    PageIndicatorView(
+                        totalPages: viewModel.newsIds.count,
+                        currentIndex: viewModel.currentIndex
+                    )
+                    .padding(.bottom, 8)
+                }
+                .opacity(viewModel.overlayContentHidingProgress) // Hides content on bottom sheet minimizing
             }
         }
         .background(Color.Tangem.Surface.level3.ignoresSafeArea())
         .onAppear { viewModel.handleViewAction(.onAppear) }
+        .onOverlayContentProgressChange(overlayContentStateObserver: overlayContentStateObserver) { [weak viewModel] progress in
+            viewModel?.onOverlayContentProgressChange(progress)
+        }
         .if(isDeeplinkMode) { view in
             view.toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -54,6 +64,11 @@ struct NewsPagerView: View {
                 }
             }
         }
+        .navigationBarTitleDisplayMode(.inline)
+        // This dummy title won't be shown in the UI, but it's required since without it UIKit may allocate
+        // another `UINavigationBar` instance for the pushed screens, which breaks our custom nav bar layout.
+        .navigationTitle("NewsPagerView")
+        .injectMarketsNavigationControllerConfigurator()
     }
 
     private var pageIndicatorOverlay: some View {

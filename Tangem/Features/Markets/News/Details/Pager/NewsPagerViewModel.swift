@@ -11,7 +11,7 @@ import Combine
 import TangemFoundation
 
 @MainActor
-final class NewsPagerViewModel: ObservableObject, Identifiable, Hashable {
+final class NewsPagerViewModel: MarketsBaseViewModel, Identifiable, Hashable {
     // MARK: - Identifiable & Hashable
 
     nonisolated let id: UUID = .init()
@@ -89,6 +89,11 @@ final class NewsPagerViewModel: ObservableObject, Identifiable, Hashable {
         currentIndex = initialIndex
         self.dateFormatter = dateFormatter
         self.coordinator = coordinator
+
+        // `OverlayContentStateObserver` doesn't provide an initial progress/state snapshot.
+        // When this screen is pushed into a `NavigationStack`, the overlay is typically already expanded,
+        // and without a proper initial value the content would stay hidden (opacity == 0).
+        super.init(overlayContentProgressInitialValue: 1.0)
     }
 
     func setCoordinator(_ coordinator: NewsDetailsRoutable) {

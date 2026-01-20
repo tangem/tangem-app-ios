@@ -10,9 +10,12 @@ import SwiftUI
 import TangemAssets
 import TangemLocalization
 import TangemUI
+import TangemFoundation
 
 struct NewsListView: View {
     @ObservedObject var viewModel: NewsListViewModel
+
+    @Injected(\.overlayContentStateObserver) private var overlayContentStateObserver: OverlayContentStateObserver
 
     var body: some View {
         VStack(spacing: 12) {
@@ -32,17 +35,28 @@ struct NewsListView: View {
             )
             .padding(.top, 12)
 
-            // Category filter chips
-            NewsCategoryChipsView(
-                categories: viewModel.categories,
-                selectedCategoryId: $viewModel.selectedCategoryId
-            )
+            Group {
+                // Category filter chips
+                NewsCategoryChipsView(
+                    categories: viewModel.categories,
+                    selectedCategoryId: $viewModel.selectedCategoryId
+                )
 
-            // Content
-            contentView
+                // Content
+                contentView
+            }
+            .opacity(viewModel.overlayContentHidingProgress) // Hides content on bottom sheet minimizing
         }
-        .background(Color.Tangem.Surface.level3.ignoresSafeArea())
+        .background(Colors.Background.primary.ignoresSafeArea())
         .onAppear { viewModel.handleViewAction(.onAppear) }
+        .onOverlayContentProgressChange(overlayContentStateObserver: overlayContentStateObserver) { [weak viewModel] progress in
+            viewModel?.onOverlayContentProgressChange(progress)
+        }
+        .navigationBarTitleDisplayMode(.inline)
+        // This dummy title won't be shown in the UI, but it's required since without it UIKit may allocate
+        // another `UINavigationBar` instance for the pushed screens, which breaks our custom nav bar layout.
+        .navigationTitle("NewsListView")
+        .injectMarketsNavigationControllerConfigurator()
     }
 
     @ViewBuilder

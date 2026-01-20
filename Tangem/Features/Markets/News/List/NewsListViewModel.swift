@@ -11,7 +11,7 @@ import Combine
 import TangemFoundation
 
 @MainActor
-final class NewsListViewModel: ObservableObject {
+final class NewsListViewModel: MarketsBaseViewModel {
     @Injected(\.newsReadStatusProvider) private var readStatusProvider: NewsReadStatusProvider
 
     // MARK: - Published Properties
@@ -37,6 +37,11 @@ final class NewsListViewModel: ObservableObject {
     ) {
         self.dataProvider = dataProvider
         self.coordinator = coordinator
+
+        // `OverlayContentStateObserver` doesn't provide an initial progress/state snapshot.
+        // When this screen is pushed into a `NavigationStack`, the overlay is typically already expanded,
+        // and without a proper initial value the content would stay hidden (opacity == 0).
+        super.init(overlayContentProgressInitialValue: 1.0)
 
         bind()
     }
