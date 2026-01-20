@@ -1,5 +1,5 @@
 //
-//  SmartContractMethodType.swift
+//  SmartContractTargetMethodType.swift
 //  BlockchainSdk
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,8 +8,7 @@
 
 import Foundation
 
-protocol SmartContractTargetType {
-    var contactAddress: String { get }
+protocol SmartContractTargetMethodType {
     var methodName: String { get }
     var parameters: [SmartContractMethodParameterType] { get }
 }
