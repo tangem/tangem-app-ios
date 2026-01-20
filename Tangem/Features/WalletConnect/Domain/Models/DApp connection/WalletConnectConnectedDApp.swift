@@ -8,6 +8,7 @@
 
 import struct Foundation.Date
 
+@available(iOS, deprecated: 100000.0, message: "Deprecated entry, isn't used in Accounts, will be removed in the future ([REDACTED_INFO])")
 struct WalletConnectConnectedDAppV1: Hashable {
     let session: WalletConnectDAppSession
     let userWalletID: String
@@ -17,13 +18,16 @@ struct WalletConnectConnectedDAppV1: Hashable {
     let connectionDate: Date
 }
 
+// [REDACTED_TODO_COMMENT]
+/// Wrapper over `WalletConnectConnectedDAppV1` to add `accountId` field for WalletConnect V2.
+@dynamicMemberLookup
 struct WalletConnectConnectedDAppV2: Hashable {
-    let session: WalletConnectDAppSession
+    subscript<T>(dynamicMember keyPath: KeyPath<WalletConnectConnectedDAppV1, T>) -> T {
+        wrapped[keyPath: keyPath]
+    }
+
     let accountId: String
-    let dAppData: WalletConnectDAppData
-    let verificationStatus: WalletConnectDAppVerificationStatus
-    let dAppBlockchains: [WalletConnectDAppBlockchain]
-    let connectionDate: Date
+    let wrapped: WalletConnectConnectedDAppV1
 }
 
 enum WalletConnectConnectedDApp: Hashable {
@@ -62,13 +66,6 @@ enum WalletConnectConnectedDApp: Hashable {
         switch self {
         case .v1(let dApp): return dApp.connectionDate
         case .v2(let dApp): return dApp.connectionDate
-        }
-    }
-
-    var userWalletID: String? {
-        switch self {
-        case .v1(let dApp): return dApp.userWalletID
-        case .v2: return nil
         }
     }
 

@@ -91,16 +91,7 @@ final class WalletConnectToAccountsMigrationUseCase {
             return nil
         }
 
-        return .v2(
-            WalletConnectConnectedDAppV2(
-                session: dApp.session,
-                accountId: accountId,
-                dAppData: dApp.dAppData,
-                verificationStatus: dApp.verificationStatus,
-                dAppBlockchains: dApp.dAppBlockchains,
-                connectionDate: dApp.connectionDate
-            )
-        )
+        return .v2(WalletConnectConnectedDAppV2(accountId: accountId, wrapped: dApp))
     }
 
     private func resolveAccountId(from sessionAddresses: [String]) async -> String? {

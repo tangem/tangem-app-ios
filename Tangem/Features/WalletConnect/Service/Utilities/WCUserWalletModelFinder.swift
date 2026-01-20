@@ -11,20 +11,15 @@ enum WCUserWalletModelFinder {
         connectedDApp: WalletConnectConnectedDApp,
         userWalletModels: [any UserWalletModel]
     ) throws(WalletConnectTransactionRequestProcessingError) -> any UserWalletModel {
-        let userWalletId = connectedDApp.userWalletID
-        let accountId = connectedDApp.accountId
-
-        return switch (userWalletId, accountId) {
-        case (let userWalletId?, _):
-            try firstUserWallet(from: userWalletModels, with: { $0.userWalletId.stringValue == userWalletId })
-        case (_, let accountId?):
+        switch connectedDApp {
+        case .v1(let dAppV1):
+            try firstUserWallet(from: userWalletModels, with: { $0.userWalletId.stringValue == dAppV1.userWalletID })
+        case .v2(let dAppV2):
             try firstUserWallet(from: userWalletModels) {
-                let account = WCAccountFinder.findCryptoAccountModel(by: accountId, accountModelsManager: $0.accountModelsManager)
+                let account = WCAccountFinder.findCryptoAccountModel(by: dAppV2.accountId, accountModelsManager: $0.accountModelsManager)
 
                 return account != nil
             }
-        default:
-            throw WalletConnectTransactionRequestProcessingError.userWalletNotFound
         }
     }
 
