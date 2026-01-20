@@ -22,6 +22,8 @@ class Analytics {
         target: .global(qos: .utility)
     )
 
+    private static let defaultAnalyticsSystems: [Analytics.AnalyticsSystem] = [.firebase, .amplitude, .crashlytics]
+
     private init() {}
 
     // MARK: - Others
@@ -31,8 +33,11 @@ class Analytics {
 
         // Send only first topped up event. Do not send the event to analytics on following topup events.
         if balance > 0, hasPreviousPositiveBalance == false {
-            logEventInternal(.toppedUp, contextParams: contextParams)
-            logEventInternal(.afWalletFunded, analyticsSystems: [.appsFlyer], contextParams: contextParams)
+            logEventInternal(
+                .toppedUp,
+                analyticsSystems: .all,
+                contextParams: contextParams
+            )
             analyticsContext.set(value: true, forKey: .hasPositiveBalance, scope: .userWallet(userWalletId))
         } else if hasPreviousPositiveBalance == nil { // Do not save in a withdrawal case
             // Register the first app launch with balance.
@@ -72,6 +77,7 @@ class Analytics {
     static func log(
         _ event: Event,
         params: [ParameterKey: ParameterValue] = [:],
+        analyticsSystems: [Analytics.AnalyticsSystem] = defaultAnalyticsSystems,
         contextParams: Analytics.ContextParams = .default,
         limit: Analytics.EventLimit = .unlimited
     ) {
@@ -86,7 +92,7 @@ class Analytics {
     static func log(
         event: Event,
         params: [ParameterKey: String],
-        analyticsSystems: [Analytics.AnalyticsSystem] = [.firebase, .amplitude, .crashlytics],
+        analyticsSystems: [Analytics.AnalyticsSystem] = defaultAnalyticsSystems,
         contextParams: Analytics.ContextParams = .default,
         limit: Analytics.EventLimit = .unlimited
     ) {
@@ -161,7 +167,7 @@ class Analytics {
     private static func logEventInternal(
         _ event: Event,
         params: [ParameterKey: String] = [:],
-        analyticsSystems: [Analytics.AnalyticsSystem] = [.firebase, .amplitude, .crashlytics],
+        analyticsSystems: [Analytics.AnalyticsSystem] = defaultAnalyticsSystems,
         contextParams: Analytics.ContextParams,
         limit: Analytics.EventLimit = .unlimited
     ) {
