@@ -83,7 +83,7 @@ extension CommonOnrampSendAnalyticsLogger: SendBaseViewAnalyticsLogger {
         Analytics.log(event: .onrampBuyScreenOpened, params: [
             .source: source.analytics.rawValue,
             .token: tokenItem.currencySymbol,
-        ])
+        ], analyticsSystems: .all)
     }
 
     func logCloseButton(stepType: SendStepType, isAvailableToAction: Bool) {
@@ -180,7 +180,7 @@ extension CommonOnrampSendAnalyticsLogger: SendFinishAnalyticsLogger {
             .paymentMethod: provider.paymentMethod.name,
             .residence: request.pairItem.country.identity.name,
             .currency: request.pairItem.fiatCurrency.identity.code,
-        ])
+        ], analyticsSystems: .all)
     }
 
     func logShareButton() {}
