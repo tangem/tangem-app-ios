@@ -35,13 +35,18 @@ struct EthereumOptimisticRollupWalletAssembly: WalletManagerAssembly {
 
         let addressConverter = EthereumAddressConverterFactory().makeConverter(for: wallet.blockchain)
 
+        let l1SmartContractAddress = EthereumOptimisticRollupConstants.defaultL1GasPriceOracleSmartContractAddress
+        let l1FeeMultiplier = EthereumOptimisticRollupConstants.defaultL1GasFeeMultiplier
+
         return EthereumOptimisticRollupWalletManager(
             wallet: wallet,
             addressConverter: addressConverter,
             txBuilder: txBuilder,
             networkService: networkService,
             yieldSupplyService: yieldSupplyServiceFactory.makeProvider(networkService: networkService),
-            allowsFeeSelection: wallet.blockchain.allowsFeeSelection
+            allowsFeeSelection: wallet.blockchain.allowsFeeSelection,
+            l1SmartContractAddress: l1SmartContractAddress,
+            l1FeeMultiplier: l1FeeMultiplier
         )
     }
 }

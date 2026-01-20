@@ -11,6 +11,32 @@ import Combine
 
 /// Used by Optimism, Base, and other Ethereum L2s with optimistic rollups.
 final class EthereumOptimisticRollupWalletManager: EthereumWalletManager {
+    let l1SmartContractAddress: String
+    let l1FeeMultiplier: Decimal
+
+    init(
+        wallet: Wallet,
+        addressConverter: EthereumAddressConverter,
+        txBuilder: EthereumTransactionBuilder,
+        networkService: EthereumNetworkService,
+        yieldSupplyService: YieldSupplyService? = nil,
+        allowsFeeSelection: Bool,
+        l1SmartContractAddress: String,
+        l1FeeMultiplier: Decimal
+    ) {
+        self.l1SmartContractAddress = l1SmartContractAddress
+        self.l1FeeMultiplier = l1FeeMultiplier
+
+        super.init(
+            wallet: wallet,
+            addressConverter: addressConverter,
+            txBuilder: txBuilder,
+            networkService: networkService,
+            yieldSupplyService: yieldSupplyService,
+            allowsFeeSelection: allowsFeeSelection
+        )
+    }
+
     /// We are override this method to combine the two fee's layers in the `Optimistic-Ethereum` network.
     /// Read more:
     /// https://community.optimism.io/docs/developers/build/transaction-fees/#the-l1-data-fee
@@ -65,13 +91,14 @@ private extension EthereumOptimisticRollupWalletManager {
         do {
             let hexTransactionData = try txBuilder.buildDummyTransactionForL1(destination: destination, value: value, data: data, fee: fee)
             return networkService
-                .read(target: EthereumOptimisticRollupSmartContract.getL1Fee(data: hexTransactionData))
+                .read(contractAddress: l1SmartContractAddress, method: EthereumOptimisticRollupSmartContractMethod.getL1Fee(data: hexTransactionData))
                 .withWeakCaptureOf(self)
                 .tryMap { walletManager, response in
-                    guard let value = EthereumUtils.parseEthereumDecimal(response, decimalsCount: walletManager.wallet.blockchain.decimalCount) else {
+                    guard var value = EthereumUtils.parseEthereumDecimal(response, decimalsCount: walletManager.wallet.blockchain.decimalCount) else {
                         throw BlockchainSdkError.failedToLoadFee
                     }
 
+                    value = value * walletManager.l1FeeMultiplier
                     return value
                 }
                 // We can ignore errors so as not to block users
