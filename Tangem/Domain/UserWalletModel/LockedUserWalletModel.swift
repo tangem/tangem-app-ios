@@ -15,6 +15,7 @@ import BlockchainSdk
 import TangemVisa
 import TangemFoundation
 import TangemMobileWalletSdk
+import TangemPay
 
 class LockedUserWalletModel: UserWalletModel {
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
@@ -96,6 +97,15 @@ class LockedUserWalletModel: UserWalletModel {
         DummyCommonAccountModelsManager()
     }
 
+    var tangemPayManager: TangemPayManager {
+        TangemPayBuilder(
+            userWalletId: userWalletId,
+            keysRepository: keysRepository,
+            signer: signer
+        )
+        .buildTangemPayManager()
+    }
+
     var refcodeProvider: RefcodeProvider? {
         return nil
     }
@@ -166,10 +176,6 @@ class LockedUserWalletModel: UserWalletModel {
         case .iCloudBackupCompleted:
             break
         case .mnemonicBackupCompleted:
-            break
-        case .tangemPayOfferAccepted:
-            break
-        case .tangemPayKYCDeclined:
             break
         }
     }
