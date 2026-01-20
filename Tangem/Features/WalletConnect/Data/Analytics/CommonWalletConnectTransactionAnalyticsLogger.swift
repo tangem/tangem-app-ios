@@ -48,7 +48,7 @@ final class CommonWalletConnectTransactionAnalyticsLogger: WalletConnectTransact
             .type: simulationResult.rawValue,
         ]
 
-        Analytics.log(event: event, params: params)
+        Analytics.log(event: event, params: params, analyticsSystems: .all)
     }
 
     func logSignatureRequestFailed(transactionData: WCHandleTransactionData, error: some Error) {
