@@ -72,7 +72,14 @@ private extension TokenFeeProvidersManagerBuilder {
             return []
         }
 
-        let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: currentUserWalletModel)
+        // Exclude wallet models with active Yield mode:
+        // their token balance is deposited into the Yield smart contract, so on-chain balance checks
+        // will report insufficient funds. This breaks our fee token gas limit estimation (we probe with
+        // a small amount, e.g. 10_000 base units), causing the node to reject the estimate.
+        let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: currentUserWalletModel).filter { model in
+            model.yieldModuleManager?.state?.state.isEffectivelyActive != true
+        }
+
         let gaslessFeeWalletModels = walletModels.filter { walletModel in
             availableTokens.contains(where: { $0.tokenAddress == walletModel.tokenItem.contractAddress })
         }
