@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemNetworkUtils
+import TangemPay
 
 public struct VisaCardScanHandlerBuilder {
     private let isTestnet: Bool

@@ -7,6 +7,7 @@
 //
 
 import TangemVisa
+import TangemPay
 
 private struct TangemPayAuthorizationTokensRepositoryKey: InjectionKey {
     static var currentValue: TangemPayAuthorizationTokensRepository = CommonTangemPayAuthorizationTokensRepository()
