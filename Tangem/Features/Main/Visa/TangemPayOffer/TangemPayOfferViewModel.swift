@@ -62,22 +62,14 @@ final class TangemPayOfferViewModel: ObservableObject {
         isLoading = true
         runTask(in: self) { viewModel in
             do {
-                let tangemPayAccount = try await viewModel.makeTangemPayAccount(
-                    userWalletModel: userWalletModel
-                )
-                let tangemPayStatus = try await tangemPayAccount.getTangemPayStatus()
+                let tangemPayManager = userWalletModel.tangemPayManager
+                await tangemPayManager.authorizeWithCustomerWallet(authorizingInteractor: userWalletModel.tangemPayAuthorizingInteractor)
 
-                // [REDACTED_TODO_COMMENT]
-                // [REDACTED_INFO]
-                userWalletModel.update(
-                    type: .tangemPayOfferAccepted(tangemPayAccount)
-                )
-
-                switch tangemPayStatus {
+                switch tangemPayManager.state {
                 case .kycRequired:
-                    try await tangemPayAccount.launchKYC {
-                        tangemPayAccount.loadCustomerInfo()
+                    try await tangemPayManager.launchKYC {
                         runTask(in: viewModel) { viewModel in
+                            await tangemPayManager.refreshState()
                             await viewModel.closeOfferScreen()
                         }
                     }
@@ -98,15 +90,6 @@ final class TangemPayOfferViewModel: ObservableObject {
             title: "",
             withCloseButton: true
         )
-    }
-
-    private func makeTangemPayAccount(userWalletModel: UserWalletModel) async throws -> TangemPayAccount {
-        let builder = TangemPayAccountBuilder()
-        let tangemPayAccount = try await builder.makeTangemPayAccount(
-            authorizerType: .plain,
-            userWalletModel: userWalletModel
-        )
-        return tangemPayAccount
     }
 }
 
