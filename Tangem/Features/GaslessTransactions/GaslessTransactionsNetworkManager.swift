@@ -21,14 +21,19 @@ protocol GaslessTransactionsNetworkManager {
 
     func updateAvailableTokens()
     func signGaslessTransaction(_ transaction: GaslessTransaction) async throws -> SignResult
-    /// Returns the address where transaction fees are collected. Use this for gas estimation.
-    func getFeeRecipientAddress() async throws -> String
+    func initialize()
+
+    var feeRecipientAddress: String? { get }
+    /// Fire-and-forget variant for environments without an async context.
+    /// We need this version to kick off fetching the fee recipient address early (e.g. during app startup)
+    func preloadFeeRecipientAddress()
 }
 
 final class CommonGaslessTransactionsNetworkManager {
     private let apiService: GaslessTransactionsAPIService
     private let availableFeeTokensSubject = CurrentValueSubject<[FeeToken], Never>([])
     private var fetchFeeTokensTask: Task<Void, Never>?
+    private var _feeRecipientAddress: String?
 
     init(apiService: GaslessTransactionsAPIService) {
         self.apiService = apiService
@@ -38,12 +43,21 @@ final class CommonGaslessTransactionsNetworkManager {
 // MARK: - GaslessTransactionsNetworkManager
 
 extension CommonGaslessTransactionsNetworkManager: GaslessTransactionsNetworkManager {
+    var feeRecipientAddress: String? {
+        _feeRecipientAddress
+    }
+
     var availableFeeTokens: [FeeToken] {
         availableFeeTokensSubject.value
     }
 
     var availableFeeTokensPublisher: AnyPublisher<[FeeToken], Never> {
         availableFeeTokensSubject.eraseToAnyPublisher()
+    }
+
+    func initialize() {
+        updateAvailableTokens()
+        preloadFeeRecipientAddress()
     }
 
     func updateAvailableTokens() {
@@ -72,8 +86,10 @@ extension CommonGaslessTransactionsNetworkManager: GaslessTransactionsNetworkMan
         try await apiService.signGaslessTransaction(transaction)
     }
 
-    func getFeeRecipientAddress() async throws -> String {
-        try await apiService.getFeeRecipientAddress()
+    func preloadFeeRecipientAddress() {
+        Task { [weak self] in
+            self?._feeRecipientAddress = try await self?.apiService.getFeeRecipientAddress()
+        }
     }
 }
 
