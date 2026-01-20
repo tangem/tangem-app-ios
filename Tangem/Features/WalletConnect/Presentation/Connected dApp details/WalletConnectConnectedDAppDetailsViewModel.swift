@@ -167,9 +167,17 @@ extension WalletConnectConnectedDAppDetailsViewModel {
         var walletSection: WalletConnectConnectedDAppDetailsViewState.DAppDetails.WalletSection? = nil
         var connectionTargetSection: WalletConnectConnectedDAppDetailsViewState.DAppDetails.ConnectionTargetSection? = nil
         var walletName = ""
+        let userWalletID: String?
+
+        switch dApp {
+        case .v1(let dAppV1):
+            userWalletID = dAppV1.userWalletID
+        case .v2:
+            userWalletID = nil
+        }
 
         if let userWalletModel = userWalletRepository.models
-            .first(where: { $0.userWalletId.stringValue == dApp.userWalletID }) {
+            .first(where: { $0.userWalletId.stringValue == userWalletID }) {
             walletName = userWalletModel.name
         } else {
             logger.warning("UserWalletModel not found for \(dApp.dAppData.name) dApp")
@@ -204,7 +212,7 @@ extension WalletConnectConnectedDAppDetailsViewModel {
             walletSection = .init(walletName: walletName)
         }
 
-        let verifcationStatusIconConfig = EntitySummaryView.ViewState.TitleInfoConfig(
+        let verificationStatusIconConfig = EntitySummaryView.ViewState.TitleInfoConfig(
             imageType: Assets.Glyphs.verified,
             foregroundColor: Colors.Icon.accent,
             onTap: verifiedDomainAction
@@ -223,7 +231,7 @@ extension WalletConnectConnectedDAppDetailsViewModel {
                         title: dApp.dAppData.name,
                         subtitle: dApp.dAppData.domain.host ?? "",
                         titleInfoConfig: dApp.verificationStatus.isVerified
-                            ? verifcationStatusIconConfig
+                            ? verificationStatusIconConfig
                             : nil
                     )
                 ),
