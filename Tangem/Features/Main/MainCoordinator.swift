@@ -17,6 +17,7 @@ import TangemFoundation
 import TangemUI
 import TangemMobileWalletSdk
 import struct TangemUIUtils.AlertBinder
+import TangemPay
 
 final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     let dismissAction: Action<Void>
@@ -378,9 +379,9 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         }
     }
 
-    func openTangemPayKYCInProgressPopup(tangemPayAccount: TangemPayAccount) {
+    func openTangemPayKYCInProgressPopup(tangemPayManager: TangemPayManager) {
         let viewModel = TangemPayKYCStatusPopupViewModel(
-            tangemPayAccount: tangemPayAccount,
+            tangemPayManager: tangemPayManager,
             coordinator: self
         )
         Task { @MainActor in
@@ -388,9 +389,9 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         }
     }
 
-    func openTangemPayKYCDeclinedPopup(tangemPayAccount: TangemPayAccount) {
+    func openTangemPayKYCDeclinedPopup(tangemPayManager: TangemPayManager) {
         let viewModel = TangemPayKYCDeclinedPopupViewModel(
-            tangemPayAccount: tangemPayAccount,
+            tangemPayManager: tangemPayManager,
             coordinator: self
         )
         Task { @MainActor in
