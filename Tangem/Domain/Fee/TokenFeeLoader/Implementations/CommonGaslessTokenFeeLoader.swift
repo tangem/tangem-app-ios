@@ -29,8 +29,11 @@ extension CommonGaslessTokenFeeLoader: TokenFeeLoader {
             throw TokenFeeLoaderError.gaslessEthereumTokenFeeSupportOnlyTokenAsFeeTokenItem
         }
 
+        guard let feeRecipientAddress = networkManager.feeRecipientAddress else {
+            throw TokenFeeLoaderError.missingFeeRecipientAddress
+        }
+
         let amount = makeAmount(amount: amount)
-        let feeRecipientAddress = try await networkManager.getFeeRecipientAddress()
 
         // Native coin of the network (e.g. ETH)
         let nativeAssetId = tokenItem.blockchain.coinId
@@ -58,6 +61,10 @@ extension CommonGaslessTokenFeeLoader: TokenFeeLoader {
             throw TokenFeeLoaderError.gaslessEthereumTokenFeeSupportOnlyTokenAsFeeTokenItem
         }
 
+        guard let feeRecipientAddress = networkManager.feeRecipientAddress else {
+            throw TokenFeeLoaderError.missingFeeRecipientAddress
+        }
+
         // Asset used to pay the fee (e.g. USDC)
         guard let feeAssetId = feeToken.id else {
             throw TokenFeeLoaderError.feeTokenIdNotFound
@@ -71,8 +78,6 @@ extension CommonGaslessTokenFeeLoader: TokenFeeLoader {
             from: nativeAssetId,
             to: feeAssetId
         )
-
-        let feeRecipientAddress = try await networkManager.getFeeRecipientAddress()
 
         let amount = makeAmount(amount: amount)
 

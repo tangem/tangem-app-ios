@@ -188,7 +188,7 @@ extension CommonServicesManager: ServicesManager {
         stateStorageProvider.initialize()
         SendFeatureProvider.shared.loadFeaturesAvailability()
         PredefinedOnrampParametersBuilder.loadMoonpayPromotion()
-        gaslessTransactionsNetworkManager.updateAvailableTokens()
+        gaslessTransactionsNetworkManager.initialize()
     }
 
     /// Some services should be initialized later, in SceneDelegate to bypass locked keychain during preheating
