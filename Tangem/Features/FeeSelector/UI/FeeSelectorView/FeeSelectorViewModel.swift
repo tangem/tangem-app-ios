@@ -39,9 +39,12 @@ final class FeeSelectorViewModel: ObservableObject, FloatingSheetContentViewMode
         self.feesViewModel = feesViewModel
         self.router = router
 
-        viewState = interactor.selectorFeeTokenItems.hasMultipleFeeItemOptions ?
-            .summary(summaryViewModel) :
-            .fees(feesViewModel, isFeesOnlyMode: true)
+        switch interactor.state {
+        case .single:
+            viewState = .fees(feesViewModel, isFeesOnlyMode: true)
+        case .multiple:
+            viewState = .summary(summaryViewModel)
+        }
 
         summaryViewModel.setup(router: self)
         tokensViewModel.setup(router: self)
@@ -50,15 +53,22 @@ final class FeeSelectorViewModel: ObservableObject, FloatingSheetContentViewMode
 
     func userDidTapDismissButton() {
         feesViewModel.userDidRequestRevertCustomFeeValues()
-        router?.dismissFeeSelector()
-        viewState = interactor.selectorFeeTokenItems.hasMultipleFeeItemOptions ?
-            .summary(summaryViewModel) :
-            .fees(feesViewModel, isFeesOnlyMode: true)
+        router?.closeFeeSelector()
     }
 
     func userDidTapBackButton() {
+        assert(interactor.state == .multiple, "Supposed to be called only in .multiple state")
+
         feesViewModel.userDidRequestRevertCustomFeeValues()
-        viewState = .summary(summaryViewModel)
+        update(newState: .summary(summaryViewModel))
+    }
+
+    /// Delay to avoid broken animations when switching states.
+    private func update(newState: ViewState) {
+        Task { @MainActor in
+            try await Task.sleep(for: .seconds(Constants.stateChangeDelay))
+            viewState = newState
+        }
     }
 }
 
@@ -66,24 +76,26 @@ final class FeeSelectorViewModel: ObservableObject, FloatingSheetContentViewMode
 
 extension FeeSelectorViewModel: FeeSelectorSummaryRoutable {
     func userDidTapConfirmButton() {
-        router?.completeFeeSelection()
+        interactor.completeSelection()
+        router?.closeFeeSelector()
     }
 
     func userDidRequestFeeSelector() {
-        viewState = .fees(feesViewModel, isFeesOnlyMode: !interactor.selectorFeeTokenItems.hasMultipleFeeItemOptions)
+        update(newState: .fees(feesViewModel, isFeesOnlyMode: interactor.state == .single))
     }
 
     func userDidRequestTokenSelector() {
-        viewState = .tokens(tokensViewModel)
+        update(newState: .tokens(tokensViewModel))
     }
 }
 
 // MARK: - FeeSelectorTokensRoutable
 
 extension FeeSelectorViewModel: FeeSelectorTokensRoutable {
-    func userDidSelectFeeToken(tokenItem: TokenItem) {
-        interactor.userDidSelectTokenItem(tokenItem)
-        viewState = .summary(summaryViewModel)
+    func userDidSelectFeeToken(tokenFeeProvider: any TokenFeeProvider) {
+        interactor.userDidSelect(feeTokenItem: tokenFeeProvider.feeTokenItem)
+
+        update(newState: .summary(summaryViewModel))
     }
 }
 
@@ -91,12 +103,31 @@ extension FeeSelectorViewModel: FeeSelectorTokensRoutable {
 
 extension FeeSelectorViewModel: FeeSelectorFeesRoutable {
     func userDidTapConfirmSelection(selectedFee: TokenFee) {
-        interactor.userDidSelectFee(selectedFee)
+        interactor.userDidSelect(feeOption: selectedFee.option)
 
-        if interactor.selectorFeeTokenItems.hasMultipleFeeItemOptions {
-            viewState = .summary(summaryViewModel)
-        } else {
-            router?.completeFeeSelection()
+        if selectedFee.option == .custom {
+            // Don't do any navigation. Waiting `userDidTapManualSaveButton()`
+            return
+        }
+
+        switch interactor.state {
+        case .single:
+            interactor.completeSelection()
+            router?.closeFeeSelector()
+
+        case .multiple:
+            update(newState: .summary(summaryViewModel))
+        }
+    }
+
+    func userDidTapManualSaveButton() {
+        switch interactor.state {
+        case .single:
+            interactor.completeSelection()
+            router?.closeFeeSelector()
+
+        case .multiple:
+            update(newState: .summary(summaryViewModel))
         }
     }
 }
@@ -118,6 +149,8 @@ extension FeeSelectorViewModel {
     }
 }
 
-private extension [TokenItem] {
-    var hasMultipleFeeItemOptions: Bool { count > 1 }
+extension FeeSelectorViewModel {
+    enum Constants {
+        static let stateChangeDelay: Double = 0.15
+    }
 }

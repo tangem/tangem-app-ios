@@ -54,7 +54,7 @@ public struct OnboardingCloseButton: View {
     }
 
     public var body: some View {
-        CloseButton(dismiss: action)
+        CloseTextButton(action: action)
             .padding(.horizontal, hPadding)
     }
 }

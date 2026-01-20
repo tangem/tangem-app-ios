@@ -9,12 +9,16 @@
 import Combine
 import TangemFoundation
 
-protocol FeeSelectorInteractorInput: AnyObject {
-    var selectedFee: TokenFee { get }
-    var selectedFeePublisher: AnyPublisher<TokenFee, Never> { get }
+protocol FeeSelectorInteractor: FeeSelectorTokensDataProvider, FeeSelectorFeesDataProvider, FeeSelectorCustomFeeDataProviding {
+    var state: FeeSelectorInteractorState { get }
+
+    func userDidSelect(feeTokenItem: TokenItem)
+    func userDidSelect(feeOption: FeeOption)
+
+    func completeSelection()
 }
 
-protocol FeeSelectorInteractor: FeeSelectorTokensDataProvider, FeeSelectorFeesDataProvider, FeeSelectorCustomFeeDataProviding {
-    func userDidSelectTokenItem(_ tokenItem: TokenItem)
-    func userDidSelectFee(_ fee: TokenFee)
+enum FeeSelectorInteractorState {
+    case single
+    case multiple
 }

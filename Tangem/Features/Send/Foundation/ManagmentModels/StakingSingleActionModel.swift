@@ -113,6 +113,8 @@ private extension StakingSingleActionModel {
             return nil
         } catch let error as ValidationError {
             return .validationError(error, fee: fee)
+        } catch CardanoError.feeParametersNotFound {
+            return nil
         } catch {
             return .networkError(error)
         }
@@ -167,7 +169,11 @@ private extension StakingSingleActionModel {
     private func proceed(result: TransactionDispatcherResult) {
         _transactionTime.send(Date())
         _transactionURL.send(result.url)
-        analyticsLogger.logTransactionSent(fee: selectedFee, signerType: result.signerType, currentProviderHost: result.currentHost)
+        analyticsLogger.logTransactionSent(
+            fee: .market,
+            signerType: result.signerType,
+            currentProviderHost: result.currentHost
+        )
     }
 
     private func proceed(error: TransactionDispatcherResult.Error) {
@@ -186,23 +192,12 @@ private extension StakingSingleActionModel {
     }
 }
 
-// MARK: - SendFeeLoader
+// MARK: - SendFeeUpdater
 
-extension StakingSingleActionModel: SendFeeProvider {
-    var feeOptions: [FeeOption] { [.market] }
-
-    var fees: [TokenFee] {
-        [mapToSendFee(_state.value)]
+extension StakingSingleActionModel: SendFeeUpdater {
+    func updateFees() {
+        updateState()
     }
-
-    var feesPublisher: AnyPublisher<[TokenFee], Never> {
-        _state
-            .withWeakCaptureOf(self)
-            .map { [$0.mapToSendFee($1)] }
-            .eraseToAnyPublisher()
-    }
-
-    func updateFees() {}
 }
 
 // MARK: - SendSourceTokenInput
@@ -250,25 +245,19 @@ extension StakingSingleActionModel: SendSourceTokenAmountOutput {
 // MARK: - SendFeeInput
 
 extension StakingSingleActionModel: SendFeeInput {
-    var selectedFee: TokenFee {
+    var selectedFee: TokenFee? {
         mapToSendFee(_state.value)
     }
 
     var selectedFeePublisher: AnyPublisher<TokenFee, Never> {
         _state
             .withWeakCaptureOf(self)
-            .map { model, fee in
-                model.mapToSendFee(fee)
-            }
+            .map { $0.mapToSendFee($1) }
             .eraseToAnyPublisher()
     }
-}
 
-// MARK: - SendFeeOutput
-
-extension StakingSingleActionModel: SendFeeOutput {
-    func feeDidChanged(fee: TokenFee) {
-        assertionFailure("We can not change fee in staking")
+    var supportFeeSelectionPublisher: AnyPublisher<Bool, Never> {
+        Just(false).eraseToAnyPublisher()
     }
 }
 
@@ -357,7 +346,7 @@ extension StakingSingleActionModel: NotificationTapDelegate {
 extension StakingSingleActionModel: StakingBaseDataBuilderInput {
     var bsdkAmount: BSDKAmount? { makeAmount(value: action.amount) }
 
-    var bsdkFee: BSDKFee? { selectedFee.value.value }
+    var bsdkFee: BSDKFee? { selectedFee?.value.value }
 
     var isFeeIncluded: Bool { false }
 

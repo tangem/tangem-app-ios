@@ -15,7 +15,7 @@ struct GaslessTransactionsAPITarget: TargetType {
 
     enum TargetType: Equatable {
         case availableTokens
-        case signGaslessTransaction(transaction: GaslessTransactionsDTO.Request.MetaTransaction)
+        case signGaslessTransaction(transaction: GaslessTransactionsDTO.Request.GaslessTransaction)
         case feeRecipient
     }
 
@@ -23,7 +23,7 @@ struct GaslessTransactionsAPITarget: TargetType {
     var baseURL: URL {
         switch apiType {
         case .prod:
-            return URL(string: "https://gasless.tests-d.com/api/v1")!
+            return URL(string: "https://gasless.tangem.org/api/v1")!
         case .dev:
             return URL(string: "https://gasless.tests-d.com/api/v1")!
         case .stage:

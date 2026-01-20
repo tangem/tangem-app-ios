@@ -899,6 +899,19 @@ public indirect enum Blockchain: Equatable, Hashable {
 public extension Blockchain {
     var isEvm: Bool { chainId != nil }
 
+    var isGaslessTransactionSupported: Bool {
+        switch self {
+        case .ethereum: true
+        case .bsc: true
+        case .base: true
+        case .arbitrum: true
+        case .polygon: true
+        case .xdc: true
+        case .optimism: true
+        default: false
+        }
+    }
+
     /// Only for Ethereum compatible blockchains
     /// https://chainlist.org
     var chainId: Int? {
@@ -1682,7 +1695,6 @@ extension Blockchain {
              .vanar,
              .zkLinkNova,
              .hyperliquidEVM,
-             .scroll,
              .linea,
              .arbitrumNova,
              .plasma:
@@ -1693,6 +1705,8 @@ extension Blockchain {
              .cyber,
              .blast:
             return EthereumOptimisticRollupWalletAssembly()
+        case .scroll:
+            return ScrollWalletAssembly()
         case .bitcoinCash:
             return BitcoinCashWalletAssembly()
         case .binance:
