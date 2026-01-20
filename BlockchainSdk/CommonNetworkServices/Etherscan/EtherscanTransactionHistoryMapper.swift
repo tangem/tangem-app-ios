@@ -122,6 +122,24 @@ final class EtherscanTransactionHistoryMapper {
             return false
         }
     }
+
+    private func tokenTransfer(_ transaction: EtherscanTransactionHistoryResult.Transaction) -> [TransactionRecord.TokenTransfer] {
+        guard transaction.contractAddress != nil else {
+            // No contract address — treat as non-token (native) transfer
+            return []
+        }
+
+        let amount = Decimal(stringValue: transaction.value) ?? 0
+        return [TransactionRecord.TokenTransfer(
+            source: transaction.from,
+            destination: transaction.to,
+            amount: amount,
+            name: nil,
+            symbol: nil,
+            decimals: nil,
+            contract: nil
+        )]
+    }
 }
 
 // MARK: - TransactionHistoryMapper protocol conformance
@@ -197,6 +215,7 @@ extension EtherscanTransactionHistoryMapper: TransactionHistoryMapper {
                 isOutgoing: isOutgoing,
                 type: mapType(transaction, amountType: amountType),
                 date: Date(timeIntervalSince1970: timeStamp),
+                tokenTransfers: tokenTransfer(transaction),
                 isFromYieldContract: isFromYieldContract
             )
         }
