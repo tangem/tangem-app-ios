@@ -202,6 +202,19 @@ private extension StakingModel {
         }
     }
 
+    func mapToApproveFee(_ state: State?) -> LoadingResult<ApproveInputFee, Error> {
+        switch state {
+        case .none, .loading:
+            return .loading
+        case .networkError(let error):
+            return .failure(error)
+        case .readyToApprove(let approveData):
+            return .success(ApproveInputFee(feeTokenItem: feeTokenItem, fee: approveData.fee))
+        default:
+            return .loading
+        }
+    }
+
     func update(state: State) {
         log("update state: \(state)")
         _state.send(state)
@@ -551,16 +564,14 @@ extension StakingModel: NotificationTapDelegate {
 // MARK: - ApproveViewModelInput
 
 extension StakingModel: ApproveViewModelInput {
-    var approveFeeValue: LoadingResult<Fee, Error> {
-        selectedFee?.value ?? .loading
+    var approveFeeValue: LoadingResult<ApproveInputFee, Error> {
+        mapToApproveFee(_state.value)
     }
 
-    var approveFeeValuePublisher: AnyPublisher<LoadingResult<Fee, Error>, Never> {
+    var approveFeeValuePublisher: AnyPublisher<LoadingResult<ApproveInputFee, Error>, Never> {
         _state
             .withWeakCaptureOf(self)
-            .map { model, state in
-                model.mapToSendFee(state).value
-            }
+            .map { $0.mapToApproveFee($1) }
             .eraseToAnyPublisher()
     }
 
