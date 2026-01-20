@@ -9,6 +9,7 @@
 import Foundation
 import BlockchainSdk
 import TangemNetworkUtils
+import TangemPay
 
 public struct VisaCustomerCardInfoProviderBuilder {
     private let apiType: VisaAPIType
