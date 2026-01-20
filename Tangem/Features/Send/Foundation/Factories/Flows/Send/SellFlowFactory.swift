@@ -148,7 +148,7 @@ extension SellFlowFactory: SendGenericFlowFactory {
         let summary = makeSendSummaryStep(
             sendDestinationCompactViewModel: sendDestinationCompactViewModel,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
-            sendFeeCompactViewModel: fee.compact
+            feeCompactViewModel: fee.compact
         )
 
         let finish = makeSendFinishStep(
