@@ -15,6 +15,7 @@ import TangemFoundation
 import TangemNFT
 import struct TangemUIUtils.AlertBinder
 import TangemUI
+import TangemPay
 
 /// Model responsible for interacting with payment account and BFF
 /// Main setup logic is in `setupPaymentAccountInteractorAsync` . It setups payment account interactor which is responsible with blockchain requests
@@ -571,6 +572,10 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var accountModelsManager: AccountModelsManager {
         userWalletModel.accountModelsManager
+    }
+
+    var tangemPayManager: TangemPayManager {
+        userWalletModel.tangemPayManager
     }
 
     func validate() -> Bool { userWalletModel.validate() }
