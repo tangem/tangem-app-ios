@@ -11,9 +11,14 @@ import BlockchainSdk
 import TangemFoundation
 
 protocol ApproveViewModelInput {
-    var approveFeeValue: LoadingResult<Fee, any Error> { get }
-    var approveFeeValuePublisher: AnyPublisher<LoadingResult<Fee, any Error>, Never> { get }
+    var approveFeeValue: LoadingResult<ApproveInputFee, any Error> { get }
+    var approveFeeValuePublisher: AnyPublisher<LoadingResult<ApproveInputFee, any Error>, Never> { get }
 
     func updateApprovePolicy(policy: ApprovePolicy)
     func sendApproveTransaction() async throws
+}
+
+struct ApproveInputFee {
+    let feeTokenItem: TokenItem
+    let fee: BSDKFee
 }
