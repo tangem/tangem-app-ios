@@ -16,6 +16,9 @@ public enum FeeAccessibilityIdentifiers {
     public static let fastFeeOption = "feeOptionFast"
     public static let customFeeOption = "feeOptionCustom"
 
+    /// Fee selector title
+    public static let feeSelectorChooseSpeedTitle = "feeSelectorChooseSpeedTitle"
+
     /// Token options
     public static let suggestedFeeCurrency = "feeCurrencySuggested"
     public static let feeCurrencyOption = "feeCurrencyOption"
