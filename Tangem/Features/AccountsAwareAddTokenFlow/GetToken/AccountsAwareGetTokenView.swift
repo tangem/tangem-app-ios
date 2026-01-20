@@ -10,6 +10,7 @@ import SwiftUI
 import TangemUI
 import TangemAssets
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct AccountsAwareGetTokenView: View {
     @ObservedObject var viewModel: AccountsAwareGetTokenViewModel
@@ -50,6 +51,7 @@ struct AccountsAwareGetTokenView: View {
                 style: .secondary,
                 action: { viewModel.handleViewEvent(.laterTapped) }
             )
+            .accessibilityIdentifier(TokenAccessibilityIdentifiers.getTokenLaterButton)
         }
         .padding(.horizontal, 16)
         .padding(.bottom, 16)
