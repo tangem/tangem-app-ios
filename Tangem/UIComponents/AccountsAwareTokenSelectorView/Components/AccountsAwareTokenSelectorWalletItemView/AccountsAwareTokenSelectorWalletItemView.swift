@@ -42,7 +42,7 @@ struct AccountsAwareTokenSelectorWalletItemView: View {
 
                 Spacer(minLength: 8)
 
-                CircleButton.back(action: {})
+                NavigationBarButton.back(action: {})
                     .allowsHitTesting(false)
                     .rotationEffect(.degrees(180))
                     .rotationEffect(.degrees(viewModel.isOpen ? 90 : -90))

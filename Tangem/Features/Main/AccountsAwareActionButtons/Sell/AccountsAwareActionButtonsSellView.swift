@@ -28,9 +28,7 @@ struct AccountsAwareActionButtonsSellView: View {
         .navigationBarTitleDisplayMode(.inline)
         .animation(.easeInOut, value: viewModel.notificationInput)
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                CircleButton.close { viewModel.close() }
-            }
+            NavigationToolbarButton.close(placement: .topBarTrailing, action: viewModel.close)
         }
         .onAppear(perform: viewModel.onAppear)
     }
