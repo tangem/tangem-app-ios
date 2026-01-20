@@ -25,6 +25,10 @@ class CommonExpressTokenFeeProvidersManager {
 // MARK: - ExpressTokenFeeProvidersManager
 
 extension CommonExpressTokenFeeProvidersManager: ExpressTokenFeeProvidersManager {
+    func feeCurrency(providerId: ExpressProvider.Id) -> ExpressWalletCurrency {
+        tokenFeeProvidersManager(providerId: providerId).selectedFeeProvider.feeTokenItem.expressCurrency
+    }
+
     func tokenFeeProvidersManager(providerId: ExpressProvider.Id) -> TokenFeeProvidersManager {
         if let feeManager = managers[providerId] {
             return feeManager
@@ -53,6 +57,15 @@ extension CommonExpressTokenFeeProvidersManager: ExpressTokenFeeProvidersManager
 // MARK: - ExpressFeeProvider
 
 extension CommonExpressTokenFeeProvidersManager: ExpressFeeProvider {
+    func feeCurrencyBalance(providerId: ExpressProvider.Id) throws -> Decimal {
+        let feeManager = tokenFeeProvidersManager(providerId: providerId)
+        guard let balance = feeManager.selectedFeeProvider.balanceFeeTokenState.value else {
+            throw ExpressBalanceProviderError.balanceNotFound
+        }
+
+        return balance
+    }
+
     func estimatedFee(request: FeeRequest, amount: Decimal) async throws -> BSDKFee {
         let feeManager = tokenFeeProvidersManager(providerId: request.provider.id)
         feeManager.updateInputInAllProviders(input: .cex(amount: amount))
