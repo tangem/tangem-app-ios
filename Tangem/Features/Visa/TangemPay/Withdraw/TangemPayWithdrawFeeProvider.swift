@@ -25,6 +25,8 @@ struct TangemPayWithdrawExpressFeeProvider {
 // MARK: - ExpressFeeProvider
 
 extension TangemPayWithdrawExpressFeeProvider: ExpressFeeProvider {
+    func feeCurrency(providerId: ExpressProvider.Id) -> ExpressWalletCurrency { feeTokenItem.expressCurrency }
+    func feeCurrencyBalance(providerId: ExpressProvider.Id) throws -> Decimal { .zero }
     func estimatedFee(request: FeeRequest, amount: Decimal) async throws -> BSDKFee { constantFee }
     func estimatedFee(request: FeeRequest, estimatedGasLimit: Int, otherNativeFee: Decimal?) async throws -> BSDKFee { constantFee }
     func transactionFee(request: FeeRequest, data: ExpressTransactionDataType) async throws -> BSDKFee { constantFee }

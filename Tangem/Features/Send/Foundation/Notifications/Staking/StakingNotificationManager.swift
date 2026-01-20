@@ -112,7 +112,7 @@ private extension CommonStakingNotificationManager {
             hideErrorNotifications()
         case .validationError(let validationError, _):
             hideApproveInProgressNotification()
-            let factory = BlockchainSDKNotificationMapper(tokenItem: tokenItem, feeTokenItem: feeTokenItem)
+            let factory = BlockchainSDKNotificationMapper(tokenItem: tokenItem)
             let validationErrorEvent = factory.mapToValidationErrorEvent(validationError)
             if case .remainingAmountIsLessThanRentExemption = validationError {
                 hideAmountRelatedNotifications()
@@ -158,7 +158,7 @@ private extension CommonStakingNotificationManager {
         case (.loading, _):
             hideErrorNotifications()
         case (.validationError(let validationError, _), _):
-            let factory = BlockchainSDKNotificationMapper(tokenItem: tokenItem, feeTokenItem: feeTokenItem)
+            let factory = BlockchainSDKNotificationMapper(tokenItem: tokenItem)
             let validationErrorEvent = factory.mapToValidationErrorEvent(validationError)
 
             if case .insufficientBalanceForFee = validationErrorEvent {
@@ -193,7 +193,7 @@ private extension CommonStakingNotificationManager {
         case .networkError:
             show(error: .networkUnreachable)
         case .validationError(let validationError, _):
-            let factory = BlockchainSDKNotificationMapper(tokenItem: tokenItem, feeTokenItem: feeTokenItem)
+            let factory = BlockchainSDKNotificationMapper(tokenItem: tokenItem)
             let validationErrorEvent = factory.mapToValidationErrorEvent(validationError)
 
             show(error: .validationErrorEvent(validationErrorEvent))
