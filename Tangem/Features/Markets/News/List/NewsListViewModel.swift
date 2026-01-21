@@ -41,24 +41,31 @@ final class NewsListViewModel: ObservableObject {
     // MARK: - Private Methods
 
     private func bind() {
-        dataProvider.categoriesPublisher
-            .sink { [weak self] categories in
-                self?.categories = categories
+        dataProvider
+            .categoriesPublisher
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, categories in
+                viewModel.categories = categories
             }
             .store(in: &bag)
 
-        dataProvider.eventPublisher
-            .sink { [weak self] event in
-                self?.handleEvent(event)
+        dataProvider
+            .eventPublisher
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, event in
+                viewModel.handleEvent(event)
             }
             .store(in: &bag)
 
         $selectedCategoryId
             .dropFirst()
             .removeDuplicates()
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] categoryId in
-                self?.onCategorySelected(categoryId)
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, categoryId in
+                viewModel.onCategorySelected(categoryId)
             }
             .store(in: &bag)
     }
