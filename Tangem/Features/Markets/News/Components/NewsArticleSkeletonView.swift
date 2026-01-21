@@ -31,11 +31,11 @@ private extension NewsArticleSkeletonView {
             ScrollView {
                 VStack(alignment: .leading, spacing: .zero) {
                     dateSkeleton
-                    
+
                     titleSkeleton
-                    
+
                     tagSkeleton
-                    
+
                     contentSkeletonLines
                 }
                 .padding(.horizontal, 16)

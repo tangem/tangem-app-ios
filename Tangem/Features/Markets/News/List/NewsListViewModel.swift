@@ -166,5 +166,12 @@ extension NewsListViewModel {
 protocol NewsListRoutable: AnyObject {
     func dismiss()
     @MainActor
-    func openNewsDetails(newsIds: [Int], selectedIndex: Int)
+    func openNewsDetails(newsIds: [Int], selectedIndex: Int, hasMoreNews: Bool?)
+}
+
+extension NewsListRoutable {
+    @MainActor
+    func openNewsDetails(newsIds: [Int], selectedIndex: Int) {
+        openNewsDetails(newsIds: newsIds, selectedIndex: selectedIndex, hasMoreNews: nil)
+    }
 }

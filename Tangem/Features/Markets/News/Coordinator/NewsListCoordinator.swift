@@ -95,22 +95,7 @@ extension NewsListCoordinator: NewsListRoutable {
     }
 
     @MainActor
-    func openNewsDetails(newsIds: [Int], selectedIndex: Int) {
-        fixedNewsHasMore = nil
-        let id = UUID()
-        let viewModel = NewsPagerViewModel(
-            newsIds: newsIds,
-            initialIndex: selectedIndex,
-            dateFormatter: NewsDateFormatter(),
-            coordinator: self
-        )
-        pagerViewModels[id] = viewModel
-        path.append(.pager(id: id))
-    }
-
-    /// Opens news details with a fixed list (from widget) - no additional loading
-    @MainActor
-    func openNewsDetails(newsIds: [Int], selectedIndex: Int, hasMoreNews: Bool) {
+    func openNewsDetails(newsIds: [Int], selectedIndex: Int, hasMoreNews: Bool?) {
         fixedNewsHasMore = hasMoreNews
         let id = UUID()
         let viewModel = NewsPagerViewModel(
