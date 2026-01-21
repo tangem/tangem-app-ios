@@ -18,6 +18,17 @@ struct FeeSelectorRowViewModel: Hashable {
     let availability: Availability
     let accessibilityIdentifier: String
 
+    var isActionEnabled: Bool {
+        switch availability {
+        case .available:
+            true
+        case .noBalance, .notSupported, .unavailable:
+            false
+        case .notEnoughBalance(let hasMultipleOptions):
+            hasMultipleOptions
+        }
+    }
+
     // MARK: - Expansion
 
     @IgnoredEquatable
@@ -99,12 +110,12 @@ extension FeeSelectorRowViewModel {
     }
 
     @CaseFlagable
-    enum Availability {
+    enum Availability: Hashable {
         case available
         case noBalance
         case notSupported
         case unavailable
-        case notEnoughBalance
+        case notEnoughBalance(supportsMultipleOptions: Bool)
     }
 }
 
