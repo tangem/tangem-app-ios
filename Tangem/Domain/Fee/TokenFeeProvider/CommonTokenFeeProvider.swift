@@ -65,8 +65,8 @@ final class CommonTokenFeeProvider {
 
 extension CommonTokenFeeProvider: TokenFeeProvider {
     var balanceFeeTokenState: TokenBalanceType { availableTokenBalanceProvider.balanceType }
+    var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> { availableTokenBalanceProvider.balanceTypePublisher }
     var formattedFeeTokenBalance: FormattedTokenBalanceType { availableTokenBalanceProvider.formattedBalanceType }
-
     var hasMultipleFeeOptions: Bool { tokenFeeLoader.supportingFeeOptions.count > 1 }
 
     var state: TokenFeeProviderState {
@@ -267,8 +267,6 @@ private extension CommonTokenFeeProvider {
         let loadableTokenFeeState: LoadingResult<BSDKFee, any Error> = {
             switch state {
             case .idle, .loading:
-                return .loading
-            case .unavailable(.noTokenBalance):
                 return .loading
             case .unavailable(.notSupported):
                 return .failure(TokenFeeProviderError.unsupportedByProvider)
