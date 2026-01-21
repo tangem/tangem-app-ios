@@ -87,7 +87,7 @@ struct TransactionDispatcherFactory {
         guard let transactionsSender = walletModel.multipleTransactionsSender else { return nil }
 
         return YieldModuleTransactionDispatcher(
-            blockchain: walletModel.tokenItem.blockchain,
+            tokenItem: walletModel.tokenItem,
             walletModelUpdater: walletModel,
             transactionsSender: transactionsSender,
             transactionSigner: signer,
