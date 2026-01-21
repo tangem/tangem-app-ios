@@ -23,8 +23,7 @@ struct FeeSelectorRowView: View {
             content
         }
         .buttonStyle(.plain)
-        .disabled(viewModel.availability != .available)
-        .opacity(viewModel.availability.isAvailable ? 1 : 0.5)
+        .disabled(!viewModel.isActionEnabled)
     }
 
     // MARK: - Sub Views
@@ -61,7 +60,7 @@ struct FeeSelectorRowView: View {
                 LoadableTextView(
                     state: state,
                     font: Fonts.Regular.caption1,
-                    textColor: Colors.Text.tertiary,
+                    textColor: viewModel.availability.isNotEnoughBalance ? Colors.Text.warning : Colors.Text.tertiary,
                     loaderSize: CGSize(width: 100, height: 16),
                     isSensitiveText: viewModel.rowType.isToken
                 )
