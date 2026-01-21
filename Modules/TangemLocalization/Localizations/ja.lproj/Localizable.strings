@@ -296,6 +296,7 @@
 "common_now" = "今";
 "common_ok" = "わかりました";
 "common_open_in_browser" = "ブラウザで開く";
+"common_or" = "or";
 "common_origin_card" = "プライマリーカード";
 "common_origin_ring" = "プライマリーリング";
 "common_passphrase" = "パスフレーズ";
@@ -400,8 +401,7 @@
 "details_manage_security_long_tap" = "長くタップ";
 "details_manage_security_passcode_description" = "カードの状態の変更を伴うコマンドを実行する前に、パスコードを入力する必要があります。";
 "details_manage_security_passcode" = "パスコード";
-"details_mobile_section_description" = "You can have either one mobile wallet or hardware wallet at the same time. Upgrade you wallet or delete it from the app to start using a Tangem cold wallet.";
-"details_mobile_wallet_upgrade_action_title" = "Upgrade to hardware wallet";
+"details_mobile_wallet_upgrade_action_title" = "ハードウェアウォレットにアップグレード";
 "details_nft_title" = "NFT";
 "details_referral_title" = "紹介プログラム";
 "details_row_description_flip_to_hide" = "デバイスの画面を下に向けると、残高をすばやく非表示にしたり表示したりできます。";
@@ -417,6 +417,7 @@
 "details_security_management_warning" = "コードを忘れた場合、資金にアクセスできなくなります。コードの回復は不可能です。";
 "details_send_feedback" = "フィードバックを送信";
 "details_title" = "詳細";
+"details_wallets_section_description" = "同時に利用できるのは、モバイルウォレットまたはハードウェアウォレットのいずれか一方のみです。Tangemのコールドウォレットを利用するには、現在のウォレットをアップグレードするか、アプリから削除してください。";
 "disclaimer_title" = "利用規約";
 "domain_receive_assets_default_address" = "デフォルトアドレス";
 "domain_receive_assets_legacy_address" = "レガシー%@アドレス";
@@ -523,7 +524,7 @@
 "feedback_subject_tx_failed" = "取引を送信できません";
 "feedback_subject_tx_push_failed" = "取引をプッシュできません";
 "feedback_token_description_error" = "コインの説明エラー";
-"gasless_not_enough_funds_to_cover_token_fee" = "Not enough funds";
+"gasless_not_enough_funds_to_cover_token_fee" = "残高不足";
 "gasless_transaction_fee" = "ガス代不要の取引手数料";
 "generic_error_code" = "エラーが発生しました。コード: %@ 。";
 "generic_error" = "エラーが発生しました";
@@ -578,11 +579,15 @@
 "hw_backup_seed_title" = "リカバリーフレーズ";
 "hw_backup_to_secure_description" = "アクセスコードでウォレットを保護するには、バックアップの手続きを完了してください。";
 "hw_backup_to_upgrade_description" = "ハードウェアウォレットにアップグレードするには、バックアップの手続きを完了してください。";
+"hw_backup_upgrade_description" = "Upgrade your mobile wallet to a Tangem hardware wallet for the highest security. Import your wallet or transfer funds to a new one.";
+"hw_backup_upgrade_title" = "Upgrade to cold wallet";
 "hw_create_keys_description" = "秘密鍵は安全に暗号化され、スマートフォン上に保存されています";
 "hw_create_keys_title" = "秘密鍵はデバイス上に保持されます";
 "hw_create_seed_description" = "リカバリーフレーズを使ってウォレットを作成または復元してください。";
 "hw_create_seed_title" = "シードフレーズのバックアップ";
 "hw_create_title" = "モバイルウォレットを作成する";
+"hw_create_upgrade_description" = "Upgrade anytime with a Tangem card or ring and secure your keys on hardware.";
+"hw_create_upgrade_title" = "Upgrade to hardware wallet";
 "hw_import_existing_wallet" = "既存のウォレットをインポートする";
 "hw_import_seed_phrase_already_imported" = "このリカバリーフレーズはすでにインポートされています。";
 "hw_mobile_wallet" = "モバイルウォレット";
@@ -1127,11 +1132,11 @@
 "settings_card_settings_footer" = "設定したいカードまたはリングをスキャンするために準備してください。";
 "settings_forget_wallet_footer" = "これにより、ウォレットがアプリから削除されます。ウォレットは再度追加できます。";
 "settings_forget_wallet" = "ウォレット削除";
-"settings_upgrade_banner_advantage_feature_title" = "Simple to use";
-"settings_upgrade_banner_description" = "Keeps your crypto safe and offline. Slim as a credit card, safer than a bank vault.";
-"settings_upgrade_banner_seed_phrase_feature_title" = "No seed phrase";
-"settings_upgrade_banner_superiority_feature_title" = "Best in class hardware wallet";
-"settings_upgrade_banner_title" = "Tangem Cold Wallet";
+"settings_upgrade_banner_advantage_feature_title" = "シンプルな操作";
+"settings_upgrade_banner_description" = "暗号資産をオフラインで厳重保管。カードサイズで、金庫以上の安心を。";
+"settings_upgrade_banner_seed_phrase_feature_title" = "シードフレーズ不要";
+"settings_upgrade_banner_superiority_feature_title" = "業界最高水準のハードウェアウォレット";
+"settings_upgrade_banner_title" = "Tangemコールドウォレット";
 "settings_wallet_name_title" = "名前";
 "stake_token_description" = "トークンを活用しよう";
 "staking_account_initialization_footer" = "ネットワーク手数料とは、ブロックチェーン上で取引を処理し、承認するために支払う少額の料金です。";
@@ -1296,6 +1301,7 @@
 "swap_story_third_subtitle" = "手間がかからず直感的に操作でき、数回タップするだけでトークンを交換できます。";
 "swap_story_third_title" = "とにかく便利";
 "swap_via_provider" = "プロバイダー経由のスワップ";
+"swap_your_assets_title" = "資産";
 "swapping_alert_cex_description_with_slippage" = "金額には以下が含まれます: \n • サービス プロバイダーの手数料\n • 取引所からユーザーのアドレスに%1$@を送金するためのネットワーク手数料。 \n\nプロバイダーのスリッページは最大%2$@です";
 "swapping_alert_cex_description" = "この金額には以下が含まれます：\n- サービスプロバイダーの手数料\n- 取引所からユーザーのアドレスに%@ を送り返すためのネットワーク手数料。";
 "swapping_alert_dex_description_with_slippage" = "金額にはサービスプロバイダーの手数料が含まれます。 \n\nプロバイダーのスリッページは最大%@ です";
@@ -1310,6 +1316,7 @@
 "swapping_insufficient_funds" = "残高不足";
 "swapping_permission_header" = "許可を与える";
 "swapping_permit_and_swap" = "許可してスワップ";
+"swapping_swap_action_in_progress" = "Swapping...";
 "swapping_swap_action" = "スワップ";
 "swapping_to_title" = "受け取る";
 "swapping_token_list_title" = "トークンを選択";
@@ -1437,6 +1444,8 @@
 "tangempay_temporarily_unavailable" = "Tangem Payは現在一時的に利用できません。";
 "tangempay_title" = "Tangem Pay";
 "tangempay_use_tangem_device_to_restore_payment_account" = "下のボタンをクリックしてアクセスを復元してください";
+"tangempay_withdrawal_note_description" = "You can only withdraw USDC (Polygon) currently available on your on‑chain address balance, taking into account pending transactions. If you previously made a refund or cancelled a purchase, your crypto account balance will update within 2 business days.";
+"tangempay_withdrawal_note_title" = "Please note";
 "tangempay_your_pin_code" = "PINコード";
 "this_is_my_wallet_title" = "これは私のウォレットです";
 "toast_balances_hidden" = "残高非表示";
@@ -1510,7 +1519,7 @@
 "universal_error" = "エラーが発生しました。エラー コード：%@。サポートにお問い合わせください。";
 "unlock_wallet_description_full" = "%@を使用するか、カード / リングをスキャンしてウォレットにアクセスしてください";
 "unsupported_wc_version" = "接続に失敗しました：このdAppは、サポートされていないWallet Connectバージョン1.0を使用しています。正常に接続するには、dAppがWallet Connectバージョン2.0をサポートしていることを確認してください。";
-"upgrade_to_hardware_wallet_button_title" = "Upgrade to a hardware wallet";
+"upgrade_to_hardware_wallet_button_title" = "ハードウェアウォレットにアップグレード";
 "user_push_notification_agreement_argument_one_subtitle" = "取引・スワップ・重要な更新に関するリアルタイム通知。";
 "user_push_notification_agreement_argument_one_title" = "取引アラート";
 "user_push_notification_agreement_argument_one" = "最新の機能とニュースをお届けします";
@@ -1850,6 +1859,7 @@
 "welcome_create_wallet_feature_delivery" = "迅速な配送";
 "welcome_create_wallet_feature_one_tap" = "ワンタップで開始";
 "welcome_create_wallet_feature_seamless" = "シームレスで安全";
+"welcome_create_wallet_feature_seedphrase" = "No seed phrase";
 "welcome_create_wallet_feature_use" = "シンプルな操作";
 "welcome_create_wallet_hardware_description" = "Tangemでハードウェアウォレットを作成しよう。キャッシュカードのようにスリムで、金庫のように安全。";
 "welcome_create_wallet_mobile_description_full" = "スマートフォン上にソフトウェアウォレットを作成またはインポートする。";
