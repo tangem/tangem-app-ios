@@ -27,6 +27,9 @@ final class SendFeeSelectorViewModel: ObservableObject, FloatingSheetContentView
     @Published
     private(set) var feeSelectorViewModel: FeeSelectorViewModel
 
+    @Published
+    private(set) var isMainButtonDisabled = false
+
     // MARK: - Dependencies
 
     private weak var router: SendFeeSelectorRoutable?
@@ -69,8 +72,14 @@ final class SendFeeSelectorViewModel: ObservableObject, FloatingSheetContentView
         feeSelectorViewModel.$viewState
             .receiveOnMain()
             .map(ViewState.init)
-            .assign(to: \.state, on: self, ownership: .weak)
-            .store(in: &cancellables)
+            .assign(to: &$state)
+
+        feeSelectorViewModel
+            .interactor
+            .feeCoveragePublisher
+            .receiveOnMain()
+            .map { !$0.isCovered }
+            .assign(to: &$isMainButtonDisabled)
     }
 }
 
