@@ -15,24 +15,24 @@ struct NewsArticleContentView<AdditionalContent: View>: View {
     let onSourceTap: (URL) -> Void
     let onShareTap: (() -> Void)?
     let bottomPadding: CGFloat
-    @ViewBuilder let additionalContent: () -> AdditionalContent
+    let additionalContent: AdditionalContent
 
     init(
         article: NewsDetailsViewModel.ArticleViewModel,
         onSourceTap: @escaping (URL) -> Void,
         onShareTap: (() -> Void)? = nil,
         bottomPadding: CGFloat = 32,
-        @ViewBuilder additionalContent: @escaping () -> AdditionalContent = { EmptyView() }
+        @ViewBuilder additionalContent: () -> AdditionalContent = { EmptyView() }
     ) {
         self.article = article
         self.onSourceTap = onSourceTap
         self.onShareTap = onShareTap
         self.bottomPadding = bottomPadding
-        self.additionalContent = additionalContent
+        self.additionalContent = additionalContent()
     }
 
     var body: some View {
-        ScrollView(showsIndicators: false) {
+        ScrollView {
             VStack(alignment: .leading, spacing: 0) {
                 NewsArticleHeaderView(article: article, onShareTap: onShareTap)
                     .padding(.top, 16)
@@ -49,7 +49,7 @@ struct NewsArticleContentView<AdditionalContent: View>: View {
                     .padding(.top, 16)
                     .padding(.horizontal, 16)
 
-                additionalContent()
+                additionalContent
                     .padding(.horizontal, 16)
 
                 if !article.sources.isEmpty {
@@ -59,5 +59,6 @@ struct NewsArticleContentView<AdditionalContent: View>: View {
             }
             .padding(.bottom, bottomPadding)
         }
+        .scrollIndicators(.hidden)
     }
 }

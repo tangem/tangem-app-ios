@@ -26,7 +26,7 @@ struct NewsSourcesSectionView: View {
             }
             .padding(.horizontal, 16)
 
-            ScrollView(.horizontal, showsIndicators: false) {
+            ScrollView(.horizontal) {
                 HStack(spacing: 12) {
                     ForEach(sources) { source in
                         NewsSourceCardView(source: source, onTap: onSourceTap)
@@ -34,6 +34,7 @@ struct NewsSourcesSectionView: View {
                 }
                 .padding(.horizontal, 16)
             }
+            .scrollIndicators(.hidden)
         }
     }
 }

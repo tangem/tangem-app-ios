@@ -14,46 +14,75 @@ struct NewsArticleSkeletonView: View {
 
     var body: some View {
         GeometryReader { geometry in
-            ScrollView(showsIndicators: false) {
-                VStack(alignment: .leading, spacing: 0) {
-                    // Date skeleton
-                    SkeletonView()
-                        .frame(width: 150, height: 16)
-                        .cornerRadius(4)
+            ContentView(
+                contentWidth: geometry.size.width,
+                contentLineWidths: contentLineWidths
+            )
+        }
+    }
+}
 
-                    // Title skeleton (2 lines)
-                    SkeletonView()
-                        .frame(width: geometry.size.width * 0.9 - 32, height: 24)
-                        .cornerRadius(6)
-                        .padding(.top, 12)
+private extension NewsArticleSkeletonView {
+    struct ContentView: View {
+        let contentWidth: CGFloat
+        let contentLineWidths: [CGFloat]
 
-                    SkeletonView()
-                        .frame(width: geometry.size.width * 0.55 - 32, height: 24)
-                        .cornerRadius(6)
-                        .padding(.top, 8)
-
-                    // Tag skeleton (pill shape)
-                    SkeletonView()
-                        .frame(width: 100, height: 32)
-                        .cornerRadius(16)
-                        .padding(.top, 16)
-
-                    // Content skeleton lines
-                    VStack(alignment: .leading, spacing: 8) {
-                        ForEach(0 ..< contentLineWidths.count, id: \.self) { index in
-                            SkeletonView()
-                                .frame(
-                                    width: (geometry.size.width - 32) * contentLineWidths[index],
-                                    height: 16
-                                )
-                                .cornerRadius(4)
-                        }
-                    }
-                    .padding(.top, 32)
+        var body: some View {
+            ScrollView {
+                VStack(alignment: .leading, spacing: .zero) {
+                    dateSkeleton
+                    
+                    titleSkeleton
+                    
+                    tagSkeleton
+                    
+                    contentSkeletonLines
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 16)
             }
+            .scrollIndicators(.hidden)
+        }
+
+        private var dateSkeleton: some View {
+            SkeletonView()
+                .frame(width: 150, height: 16)
+                .cornerRadius(4)
+        }
+
+        private var titleSkeleton: some View {
+            VStack(alignment: .leading, spacing: 0) {
+                SkeletonView()
+                    .frame(width: contentWidth * 0.9 - 32, height: 24)
+                    .cornerRadius(6)
+                    .padding(.top, 12)
+
+                SkeletonView()
+                    .frame(width: contentWidth * 0.55 - 32, height: 24)
+                    .cornerRadius(6)
+                    .padding(.top, 8)
+            }
+        }
+
+        private var tagSkeleton: some View {
+            SkeletonView()
+                .frame(width: 100, height: 32)
+                .cornerRadius(16)
+                .padding(.top, 16)
+        }
+
+        private var contentSkeletonLines: some View {
+            VStack(alignment: .leading, spacing: 8) {
+                ForEach(0 ..< contentLineWidths.count, id: \.self) { index in
+                    SkeletonView()
+                        .frame(
+                            width: (contentWidth - 32) * contentLineWidths[index],
+                            height: 16
+                        )
+                        .cornerRadius(4)
+                }
+            }
+            .padding(.top, 32)
         }
     }
 }

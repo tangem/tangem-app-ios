@@ -98,10 +98,9 @@ actor CommonAccountModelsManager {
                     return nil
                 }
 
-                // Should removed after tests
                 guard let accountIcon = AccountModel.Icon(
-                    rawName: AccountModel.Icon.Name.user.rawValue,
-                    rawColor: AccountModel.Icon.Color.azure.rawValue
+                    rawName: storedCryptoAccount.icon.iconName,
+                    rawColor: storedCryptoAccount.icon.iconColor
                 ) else {
                     let message = "Invalid icon for stored crypto account: \(storedCryptoAccount)"
                     AccountsLogger.warning(message)

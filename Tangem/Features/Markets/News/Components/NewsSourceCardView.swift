@@ -50,6 +50,6 @@ struct NewsSourceCardView: View {
             .background(Color.Tangem.Surface.level4)
             .cornerRadius(12)
         }
-        .buttonStyle(PlainButtonStyle())
+        .buttonStyle(.plain)
     }
 }
