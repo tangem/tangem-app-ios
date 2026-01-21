@@ -107,7 +107,7 @@ final class FeeSelectorTokensViewModel: ObservableObject {
             rowType: .token(tokenIconInfo: TokenIconInfoBuilder().build(from: feeTokenItem, isCustom: false)),
             title: feeTokenItem.name,
             subtitle: .balance(subtitleBalanceState),
-            availability: feeTokenAvailability,
+            availability: .available,
             accessibilityIdentifier: FeeAccessibilityIdentifiers.feeCurrencyOption,
             isSelected: isSelected,
             selectAction: { [weak self] in
@@ -127,7 +127,7 @@ private extension TokenFeeProviderStateUnavailableReason {
         case .notSupported:
             .notSupported
         case .notEnoughFeeBalance:
-            .notEnoughBalance
+            .notEnoughBalance(supportsMultipleOptions: true)
         case .noTokenBalance:
             .noBalance
         }
