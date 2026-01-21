@@ -12,6 +12,7 @@ struct EmptyTokenFeeProvider: TokenFeeProvider {
     let feeTokenItem: TokenItem
     var balanceFeeTokenState: TokenBalanceType { .failure(.none) }
     var formattedFeeTokenBalance: FormattedTokenBalanceType { .failure(.empty("")) }
+    var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> { .just(output: .empty(.noData)) }
     var hasMultipleFeeOptions: Bool { false }
 
     var state: TokenFeeProviderState { .unavailable(.notSupported) }
