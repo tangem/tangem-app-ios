@@ -296,6 +296,7 @@
 "common_now" = "Maintenant";
 "common_ok" = "OK";
 "common_open_in_browser" = "Ouvrir dans le navigateur";
+"common_or" = "or";
 "common_origin_card" = "Carte principale";
 "common_origin_ring" = "Bague principale";
 "common_passphrase" = "Passphrase";
@@ -400,7 +401,6 @@
 "details_manage_security_long_tap" = "Tenez la carte fermement";
 "details_manage_security_passcode_description" = "Avant d'exécuter une commande qui modifie l'état de la carte, vous devrez entrer un mot de passe.";
 "details_manage_security_passcode" = "Mot de passe";
-"details_mobile_section_description" = "You can have either one mobile wallet or hardware wallet at the same time. Upgrade you wallet or delete it from the app to start using a Tangem cold wallet.";
 "details_mobile_wallet_upgrade_action_title" = "Upgrade to hardware wallet";
 "details_nft_title" = "NFT";
 "details_referral_title" = "Programme de parrainage";
@@ -417,6 +417,7 @@
 "details_security_management_warning" = "Si vous oubliez le code, vous perdrez l'accès à vos fonds. La récupération du code n'est pas possible.";
 "details_send_feedback" = "Envoyer un commentaire";
 "details_title" = "Détails";
+"details_wallets_section_description" = "You can have either one mobile wallet or hardware wallet at the same time. Upgrade you wallet or delete it from the app to start using a Tangem cold wallet.";
 "disclaimer_title" = "Conditions d'utilisation";
 "domain_receive_assets_default_address" = "Adresse par défaut";
 "domain_receive_assets_legacy_address" = "Legacy %@ adresse";
@@ -578,11 +579,15 @@
 "hw_backup_seed_title" = "Seed phrase";
 "hw_backup_to_secure_description" = "Pour sécuriser votre wallet avec un code d'accès, effectuez la procédure de sauvegarde.";
 "hw_backup_to_upgrade_description" = "Pour passer à un portefeuille matériel, terminez le processus de sauvegarde.";
+"hw_backup_upgrade_description" = "Upgrade your mobile wallet to a Tangem hardware wallet for the highest security. Import your wallet or transfer funds to a new one.";
+"hw_backup_upgrade_title" = "Upgrade to cold wallet";
 "hw_create_keys_description" = "Vos clés privées sont cryptées et stockées en toute sécurité sur votre téléphone.";
 "hw_create_keys_title" = "Les clés privées restent sur votre appareil";
 "hw_create_seed_description" = "Créez ou restaurez votre portefeuille à l'aide d'une seed phrase.";
 "hw_create_seed_title" = "Sauvegarde de la seed phrase";
 "hw_create_title" = "Créer un wallet mobile";
+"hw_create_upgrade_description" = "Upgrade anytime with a Tangem card or ring and secure your keys on hardware.";
+"hw_create_upgrade_title" = "Upgrade to hardware wallet";
 "hw_import_existing_wallet" = "Importer un portefeuille existant";
 "hw_import_seed_phrase_already_imported" = "Cette seed phrase a déjà été importée.";
 "hw_mobile_wallet" = "Wallet mobile";
@@ -1296,6 +1301,7 @@
 "swap_story_third_subtitle" = "Simple et intuitif, vous permettant d'échanger des jetons en quelques clics";
 "swap_story_third_title" = "Plus Simple Que Jamais";
 "swap_via_provider" = "Échange via le fournisseur";
+"swap_your_assets_title" = "Your assets";
 "swapping_alert_cex_description_with_slippage" = "Le montant comprend :\n• les frais du fournisseur de services\n• les frais de réseau pour l'envoi de %1$@ depuis l'échange vers l'adresse de l'utilisateur. \n\nLe slippage du fournisseur peut atteindre %2$@";
 "swapping_alert_cex_description" = "Le montant comprend :\n• les frais du fournisseur de services\n• les frais de réseau pour l'envoi de %@ depuis l'échange vers l'adresse de l'utilisateur.";
 "swapping_alert_dex_description_with_slippage" = "Le montant comprend les frais du fournisseur de services. \n\nLe slippage du fournisseur peut atteindre %@";
@@ -1310,6 +1316,7 @@
 "swapping_insufficient_funds" = "Fonds insuffisants";
 "swapping_permission_header" = "Donner l'autorisation";
 "swapping_permit_and_swap" = "Autoriser et Échanger";
+"swapping_swap_action_in_progress" = "Swapping...";
 "swapping_swap_action" = "Échanger";
 "swapping_to_title" = "Vous recevez";
 "swapping_token_list_title" = "Choisir le jeton";
@@ -1437,6 +1444,8 @@
 "tangempay_temporarily_unavailable" = "Tangem Pay est temporairement indisponible";
 "tangempay_title" = "Tangem Pay";
 "tangempay_use_tangem_device_to_restore_payment_account" = "Cliquez sur le bouton ci-dessous pour restaurer l'accès";
+"tangempay_withdrawal_note_description" = "You can only withdraw USDC (Polygon) currently available on your on‑chain address balance, taking into account pending transactions. If you previously made a refund or cancelled a purchase, your crypto account balance will update within 2 business days.";
+"tangempay_withdrawal_note_title" = "Please note";
 "tangempay_your_pin_code" = "Votre code PIN";
 "this_is_my_wallet_title" = "C'est mon portefeuille";
 "toast_balances_hidden" = "Soldes masqués";
@@ -1510,7 +1519,7 @@
 "universal_error" = "Nous avons rencontré une erreur. Code d'erreur : %@. Veuillez contacter notre équipe de support.";
 "unlock_wallet_description_full" = "Utilisez %@ ou scannez une carte/bague pour avoir accès à votre portefeuille";
 "unsupported_wc_version" = "Échec de la connexion : Cette dApp utilise Wallet Connect version1.0, qui n'est pas prise en charge. Veuillez vous assurer que la dApp prend en charge Wallet Connect version2.0 pour réussir la connexion.";
-"upgrade_to_hardware_wallet_button_title" = "Upgrade to a hardware wallet";
+"upgrade_to_hardware_wallet_button_title" = "Upgrade to hardware wallet";
 "user_push_notification_agreement_argument_one_subtitle" = "Alertes en temps réel pour les transactions, les échanges et les mises à jour importantes.";
 "user_push_notification_agreement_argument_one_title" = "Alertes de transaction";
 "user_push_notification_agreement_argument_one" = "Restez à jour avec les dernières fonctionnalités et actualités";
@@ -1850,6 +1859,7 @@
 "welcome_create_wallet_feature_delivery" = "Livraison rapide";
 "welcome_create_wallet_feature_one_tap" = "Commencez en un seul clic";
 "welcome_create_wallet_feature_seamless" = "Sans faille et sécurisé";
+"welcome_create_wallet_feature_seedphrase" = "No seed phrase";
 "welcome_create_wallet_feature_use" = "Facile à utiliser";
 "welcome_create_wallet_hardware_description" = "Créez un harware wallet avec Tangem. Aussi fin qu'une carte bancaire, aussi sûr qu'un coffre-fort.";
 "welcome_create_wallet_mobile_description_full" = "Créez ou importez un portefeuille logiciel sur votre téléphone.";
