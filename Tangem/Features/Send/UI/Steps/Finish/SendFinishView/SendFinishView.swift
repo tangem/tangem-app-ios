@@ -40,8 +40,8 @@ struct SendFinishView: View {
                 StakingTargetsCompactView(viewModel: stakingTargetsCompactViewModel)
             }
 
-            if let sendFeeCompactViewModel = viewModel.sendFeeFinishViewModel {
-                SendFeeFinishView(viewModel: sendFeeCompactViewModel)
+            if let feeCompactViewModel = viewModel.sendFeeFinishViewModel {
+                SendFeeFinishView(viewModel: feeCompactViewModel)
             }
 
             if let onrampStatusCompactViewModel = viewModel.onrampStatusCompactViewModel {

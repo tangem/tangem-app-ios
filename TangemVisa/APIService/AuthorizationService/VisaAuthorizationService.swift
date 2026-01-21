@@ -8,6 +8,7 @@
 
 import Foundation
 import Moya
+import TangemPay
 
 public protocol VisaAuthorizationService {
     func getCardAuthorizationChallenge(cardId: String, cardPublicKey: String) async throws -> VisaAuthChallengeResponse

@@ -36,7 +36,7 @@ final class ExpressViewModel: ObservableObject {
     @Published var providerState: ProviderState?
 
     /// Fee
-    @Published var expressFeeRowViewModel: ExpressFeeRowData?
+    @Published var expressFeeRowViewModel: FeeCompactViewModel?
 
     // Main button
     @Published var mainButtonIsLoading: Bool = false
@@ -88,7 +88,11 @@ final class ExpressViewModel: ObservableObject {
         self.coordinator = coordinator
         tangemIconProvider = CommonTangemIconProvider(config: userWalletInfo.config)
 
-        Analytics.log(event: .swapScreenOpenedSwap, params: [.token: initialTokenItem.currencySymbol])
+        Analytics.log(
+            event: .swapScreenOpenedSwap,
+            params: [.token: initialTokenItem.currencySymbol],
+            analyticsSystems: .all
+        )
         setupView()
         bind()
     }
@@ -125,6 +129,10 @@ final class ExpressViewModel: ObservableObject {
 
     func userDidTapPriceChangeInfoButton(message: String) {
         alert = .init(title: "", message: message)
+    }
+
+    func userDidTapFeeRow() {
+        openFeeSelectorView()
     }
 
     func didTapMainButton() {
@@ -194,7 +202,7 @@ private extension ExpressViewModel {
         }
     }
 
-    func openFeeSelectorView(tokenFeeProvidersManager: TokenFeeProvidersManager) {
+    func openFeeSelectorView() {
         guard let tokenFeeProvidersManager = interactor.tokenFeeProvidersManager else {
             ExpressLogger.debug("`openFeeSelectorView()` called while loading state")
             return
@@ -485,50 +493,30 @@ private extension ExpressViewModel {
         case .previewCEX(let state, _) where state.isExemptFee:
             // Don't show fee row if transaction has fee exemption
             expressFeeRowViewModel = nil
-        case .previewCEX(let state, _):
+
+        case .previewCEX(let state, _), .loading(.fee, .previewCEX(let state, _)):
             updateExpressFeeRowViewModel(tokenFeeProvidersManager: state.tokenFeeProvidersManager)
-        case .readyToSwap(let state, _):
+
+        case .readyToSwap(let state, _), .loading(.fee, .readyToSwap(let state, _)):
             updateExpressFeeRowViewModel(tokenFeeProvidersManager: state.tokenFeeProvidersManager)
-        case .loading(.fee, _):
-            updateExpressFeeRowViewModel(fee: .loading, action: nil)
-        case .idle, .restriction, .loading(.full, _), .permissionRequired:
+
+        case .idle, .restriction, .loading(.fee, _), .loading(.full, _), .permissionRequired:
             // We have decided that will not give a choose for .permissionRequired state also
             expressFeeRowViewModel = nil
+
         case .loading(.refreshRates, _):
             break
         }
     }
 
     func updateExpressFeeRowViewModel(tokenFeeProvidersManager: TokenFeeProvidersManager) {
-        let selectedTokenFee = tokenFeeProvidersManager.selectedFeeProvider.selectedTokenFee
-        switch selectedTokenFee.value {
-        case .failure:
-            updateExpressFeeRowViewModel(fee: .noData, action: nil)
-        case .loading:
-            updateExpressFeeRowViewModel(fee: .loading, action: nil)
-        case .success(let fee):
-            let action: (() -> Void)? = {
-                // If fee is only one option then don't open selector
-                guard tokenFeeProvidersManager.supportFeeSelection else {
-                    return nil
-                }
-
-                return { [weak self] in
-                    self?.openFeeSelectorView(tokenFeeProvidersManager: tokenFeeProvidersManager)
-                }
-            }()
-
-            let formattedFee = feeFormatter.format(fee: fee.amount.value, tokenItem: selectedTokenFee.tokenItem)
-            updateExpressFeeRowViewModel(fee: .loaded(text: formattedFee), action: action)
-        }
-    }
-
-    func updateExpressFeeRowViewModel(fee: LoadableTextView.State, action: (() -> Void)?) {
-        expressFeeRowViewModel = ExpressFeeRowData(
-            title: Localization.commonNetworkFeeTitle,
-            subtitle: fee,
-            action: action
+        let viewModel = FeeCompactViewModel()
+        viewModel.bind(
+            selectedFeePublisher: tokenFeeProvidersManager.selectedFeeProvider.selectedTokenFeePublisher,
+            supportFeeSelectionPublisher: tokenFeeProvidersManager.supportFeeSelectionPublisher
         )
+
+        expressFeeRowViewModel = viewModel
     }
 
     func updateMainButton(state: ExpressInteractor.State) {
