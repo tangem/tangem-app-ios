@@ -116,7 +116,9 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
         destinationAddressViewModel
             .addressPublisher()
             .dropFirst()
-            .debounce(for: interactor.willResolveAddress ? .seconds(1) : 0) { !$0.string.isEmpty }
+            .debounce(for: .seconds(1)) { [interactor] in
+                !$0.string.isEmpty && interactor.willResolve(address: $0.string)
+            }
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
             .sink { viewModel, destination in
