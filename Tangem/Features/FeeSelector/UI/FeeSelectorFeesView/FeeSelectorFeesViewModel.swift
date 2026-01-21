@@ -13,6 +13,7 @@ import TangemFoundation
 protocol FeeSelectorFeesDataProvider {
     var selectedTokenFeeOption: FeeOption { get }
     var selectedTokenFeeOptionPublisher: AnyPublisher<FeeOption, Never> { get }
+    var feeCoveragePublisher: AnyPublisher<FeeCoverage, Never> { get }
 
     var selectorFees: [TokenFee] { get }
     var selectorFeesPublisher: AnyPublisher<[TokenFee], Never> { get }
