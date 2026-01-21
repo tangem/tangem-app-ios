@@ -266,12 +266,23 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
             }
 
         case .signMessage:
-            return try WalletConnectBitcoinSignMessageHandler(
-                request: params,
-                blockchainId: blockchainNetworkID,
-                signer: BitcoinWalletConnectSigner(signer: signer),
-                walletModelProvider: walletModelProvider
-            )
+            switch connectedDApp {
+            case .v1:
+                return try WalletConnectBitcoinSignMessageHandler(
+                    request: params,
+                    blockchainId: blockchainNetworkID,
+                    signer: BitcoinWalletConnectSigner(signer: signer),
+                    walletModelProvider: walletModelProvider
+                )
+            case .v2(let walletConnectConnectedDAppV2):
+                return try WalletConnectBitcoinSignMessageHandler(
+                    request: params,
+                    blockchainId: blockchainNetworkID,
+                    signer: BitcoinWalletConnectSigner(signer: signer),
+                    wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
+                    accountId: walletConnectConnectedDAppV2.accountId
+                )
+            }
         }
     }
 
