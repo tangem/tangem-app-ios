@@ -134,7 +134,8 @@ private extension StakeKitTransactionDispatcher {
         return TransactionDispatcherResultMapper().mapResult(
             result.result,
             blockchain: walletModel.tokenItem.blockchain,
-            signer: transactionSigner.latestSignerType
+            signer: transactionSigner.latestSignerType,
+            isToken: walletModel.tokenItem.isToken
         )
     }
 }
