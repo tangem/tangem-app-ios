@@ -20,7 +20,7 @@ struct EthereumAddressResolver {
 
 extension EthereumAddressResolver: AddressResolver {
     func resolve(_ address: String) async throws -> String {
-        if !shouldResolve(address: address) {
+        guard shouldResolve(address: address) else {
             return address
         }
 
