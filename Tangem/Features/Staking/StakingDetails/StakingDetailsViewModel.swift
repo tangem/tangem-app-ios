@@ -106,7 +106,8 @@ final class StakingDetailsViewModel: ObservableObject {
             params: [
                 .validatorsCount: balances,
                 .token: tokenItem.currencySymbol,
-            ]
+            ],
+            analyticsSystems: .all
         )
     }
 }

@@ -62,7 +62,6 @@ private extension TokenFeeProvidersManagerBuilder {
         let availableTokens = gaslessTransactionsNetworkManager.availableFeeTokens
             .filter { $0.chainId == walletModel.tokenItem.blockchain.chainId }
 
-        // Gasless fee tokens is empty
         guard !availableTokens.isEmpty else {
             return []
         }
@@ -72,9 +71,21 @@ private extension TokenFeeProvidersManagerBuilder {
             return []
         }
 
-        let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: currentUserWalletModel)
-        let gaslessFeeWalletModels = walletModels.filter { walletModel in
-            availableTokens.contains(where: { $0.tokenAddress == walletModel.tokenItem.contractAddress })
+        let currentAccountWalletModels = if FeatureProvider.isAvailable(.accounts) {
+            walletModel.account?.walletModelsManager.walletModels ?? []
+        } else {
+            AccountsFeatureAwareWalletModelsResolver.walletModels(for: currentUserWalletModel)
+        }
+
+        let sourceTokenChainId = walletModel.tokenItem.blockchain.chainId
+        let availableTokenAddresses: Set<String?> = Set(availableTokens.map { $0.tokenAddress })
+
+        // Wallet models eligible for gasless fees: same chain as the source token, not in active Yield, and token address is supported
+        let gaslessFeeWalletModels: [any WalletModel] = currentAccountWalletModels.compactMap { model in
+            guard availableTokenAddresses.contains(model.tokenItem.contractAddress) else { return nil }
+            guard model.tokenItem.blockchain.chainId == sourceTokenChainId else { return nil }
+            guard !(model.yieldModuleManager?.state?.state.isEffectivelyActive ?? false) else { return nil }
+            return model
         }
 
         let gaslessTokenFeeProviders: [any TokenFeeProvider] = gaslessFeeWalletModels.map { feeWalletModel in
