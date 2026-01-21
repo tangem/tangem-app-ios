@@ -7,13 +7,21 @@
 //
 
 import Foundation
+import Combine
 import TangemFoundation
 
 final class CommonNewsReadStatusService: NewsReadStatusProvider {
     private var readNewsIds: Set<NewsId> = []
+    private let readStatusDidChangeSubject: PassthroughSubject<[NewsId], Never> = .init()
+
+    var readStatusDidChangePublisher: AnyPublisher<[NewsId], Never> {
+        readStatusDidChangeSubject.eraseToAnyPublisher()
+    }
 
     func markAsRead(newsId: NewsId) {
-        readNewsIds.insert(newsId)
+        let (inserted, _) = readNewsIds.insert(newsId)
+        guard inserted else { return }
+        readStatusDidChangeSubject.send(Array(readNewsIds))
     }
 
     func isRead(for newsId: NewsId) -> Bool {
@@ -22,6 +30,7 @@ final class CommonNewsReadStatusService: NewsReadStatusProvider {
 
     func clear() {
         readNewsIds.removeAll()
+        readStatusDidChangeSubject.send(Array(readNewsIds))
     }
 }
 

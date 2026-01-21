@@ -77,7 +77,7 @@ final class NewsWidgetViewModel: ObservableObject {
 
     /// Returns only the news IDs that are visible in the widget (1 trending + up to 5 carousel)
     private func getVisibleNewsIds() -> [Int] {
-        let items = sortItems(newsProvider.newsResult.value ?? [])
+        let items = newsProvider.newsResult.value ?? []
         var result: [NewsId] = []
 
         if let trending = items.last(where: { $0.isTrending }) {
@@ -132,6 +132,18 @@ private extension NewsWidgetViewModel {
                 viewModel.widgetsUpdateHandler.performUpdateLoading(state: widgetLoadingState, for: viewModel.widgetType)
             }
             .store(in: &bag)
+
+        // Subscription for reorder reading news.
+        // Small delay is needed so `WidgetNewsService` has time to rebuild and updated state models.
+        readStatusProvider
+            .readStatusDidChangePublisher
+            .receiveOnMain()
+            .delay(for: 0.3, scheduler: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink { viewModel, _ in
+                viewModel.updateViewState()
+            }
+            .store(in: &bag)
     }
 
     func viewStateForLoadedItems() -> ResultState {
@@ -139,7 +151,7 @@ private extension NewsWidgetViewModel {
         var carouselNewsItems: [CarouselNewsItem] = []
         var processedNewsIds = Set<String>()
 
-        sortItems(newsProvider.newsResult.value ?? []).forEach { item in
+        (newsProvider.newsResult.value ?? []).forEach { item in
             // Deduplication by ID
             guard !processedNewsIds.contains(item.id) else {
                 return
@@ -167,29 +179,10 @@ private extension NewsWidgetViewModel {
         )
     }
 
-    func updateReadState() {
-        if resultState.isSuccess {
-            resultState = .success(viewStateForLoadedItems())
-        }
-    }
-
     func updateViewState() {
         if resultState.error == nil {
             resultState = .success(viewStateForLoadedItems())
         }
-    }
-
-    func sortItems(_ items: [TrendingNewsModel]) -> [TrendingNewsModel] {
-        items
-            .enumerated()
-            .sorted { lhs, rhs in
-                if lhs.element.isRead != rhs.element.isRead {
-                    return !lhs.element.isRead
-                }
-
-                return lhs.offset < rhs.offset
-            }
-            .map(\.element)
     }
 }
 

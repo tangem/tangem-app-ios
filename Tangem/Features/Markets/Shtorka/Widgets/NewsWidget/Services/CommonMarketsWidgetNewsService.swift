@@ -20,12 +20,15 @@ final class CommonMarketsWidgetNewsService: MarketsWidgetNewsProvider {
 
     // MARK: - Private Properties
 
-    private let newsReadStatusDidUpdateSubject: PassthroughSubject<Void, Never> = .init()
     private let newsResultValueSubject: CurrentValueSubject<LoadingResult<[TrendingNewsModel], Error>, Never> = .init(.loading)
 
     private lazy var mapper: NewsModelMapper = .init(readStatusProvider: readStatusProvider)
 
-    init() {}
+    private var bag = Set<AnyCancellable>()
+
+    init() {
+        bindReadStatusUpdates()
+    }
 
     private var updateTask: AnyCancellable?
 
@@ -37,10 +40,6 @@ final class CommonMarketsWidgetNewsService: MarketsWidgetNewsProvider {
 // MARK: -
 
 extension CommonMarketsWidgetNewsService {
-    var newsReadStatusDidUpdate: AnyPublisher<Void, Never> {
-        newsReadStatusDidUpdateSubject.eraseToAnyPublisher()
-    }
-
     var newsResultPublisher: AnyPublisher<LoadingResult<[TrendingNewsModel], Error>, Never> {
         newsResultValueSubject.eraseToAnyPublisher()
     }
@@ -61,7 +60,7 @@ extension CommonMarketsWidgetNewsService {
                     lang: Locale.newsLanguageCode
                 )
 
-                let result = response.items.map { service.mapper.mapToNewsModel(from: $0) }
+                let result = service.sortItems(response.items.map { service.mapper.mapToNewsModel(from: $0) })
 
                 service.newsResultValueSubject.send(.success(result))
             } catch {
@@ -72,6 +71,55 @@ extension CommonMarketsWidgetNewsService {
                 service.newsResultValueSubject.send(.failure(error))
             }
         }.eraseToAnyCancellable()
+    }
+}
+
+// MARK: - Read status updates
+
+private extension CommonMarketsWidgetNewsService {
+    func sortItems(_ items: [TrendingNewsModel]) -> [TrendingNewsModel] {
+        items
+            .enumerated()
+            .sorted { lhs, rhs in
+                if lhs.element.isRead != rhs.element.isRead {
+                    return !lhs.element.isRead
+                }
+
+                return lhs.offset < rhs.offset
+            }
+            .map(\.element)
+    }
+
+    func bindReadStatusUpdates() {
+        readStatusProvider
+            .readStatusDidChangePublisher
+            .withWeakCaptureOf(self)
+            .sink { service, readNewsIds in
+                service.handleReadStatusDidChange(readNewsIds: readNewsIds)
+            }
+            .store(in: &bag)
+    }
+
+    func handleReadStatusDidChange(readNewsIds: [NewsId]) {
+        guard case .success(let currentModels) = newsResultValueSubject.value else { return }
+
+        let readNewsIdsSet = Set(readNewsIds)
+        let updatedModels = currentModels.map { model in
+            TrendingNewsModel(
+                id: model.id,
+                createdAt: model.createdAt,
+                score: model.score,
+                language: model.language,
+                isTrending: model.isTrending,
+                newsUrl: model.newsUrl,
+                categories: model.categories,
+                relatedTokens: model.relatedTokens,
+                title: model.title,
+                isRead: readNewsIdsSet.contains(model.id)
+            )
+        }
+
+        newsResultValueSubject.value = .success(sortItems(updatedModels))
     }
 }
 

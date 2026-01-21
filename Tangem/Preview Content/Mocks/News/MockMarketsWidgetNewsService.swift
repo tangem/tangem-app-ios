@@ -38,13 +38,20 @@ final class MockMarketsWidgetNewsService: MarketsWidgetNewsProvider {
 
     private final class MockNewsReadStatusProvider: NewsReadStatusProvider {
         private var readNewsIds: Set<NewsId> = []
+        private let readStatusDidChangeSubject: PassthroughSubject<[NewsId], Never> = .init()
+
+        var readStatusDidChangePublisher: AnyPublisher<[NewsId], Never> {
+            readStatusDidChangeSubject.eraseToAnyPublisher()
+        }
 
         func isRead(for newsId: NewsId) -> Bool {
             readNewsIds.contains(newsId)
         }
 
         func markAsRead(newsId: NewsId) {
-            readNewsIds.insert(newsId)
+            let (inserted, _) = readNewsIds.insert(newsId)
+            guard inserted else { return }
+            readStatusDidChangeSubject.send(Array(readNewsIds))
         }
     }
 

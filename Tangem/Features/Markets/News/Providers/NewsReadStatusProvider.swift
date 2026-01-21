@@ -7,8 +7,11 @@
 //
 
 import Foundation
+import Combine
 
 protocol NewsReadStatusProvider {
+    var readStatusDidChangePublisher: AnyPublisher<[NewsId], Never> { get }
+
     func isRead(for newsId: NewsId) -> Bool
     func markAsRead(newsId: NewsId)
 }

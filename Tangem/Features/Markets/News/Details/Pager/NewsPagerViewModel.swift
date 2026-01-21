@@ -37,7 +37,13 @@ final class NewsPagerViewModel: MarketsBaseViewModel, Identifiable, Hashable {
 
     var currentNewsId: Int? {
         guard currentIndex >= 0, currentIndex < newsIds.count else { return nil }
-        return newsIds[currentIndex]
+
+        let currentNewsId = newsIds[currentIndex]
+
+        // Mark news as read
+        readStatusProvider.markAsRead(newsId: String(currentNewsId))
+
+        return currentNewsId
     }
 
     var currentArticle: NewsDetailsViewModel.ArticleViewModel? {
@@ -236,9 +242,6 @@ final class NewsPagerViewModel: MarketsBaseViewModel, Identifiable, Hashable {
                 let response = try await tangemApiService.loadNewsDetails(requestModel: request)
                 let article = NewsDetailsViewModel.ArticleViewModel(from: response, dateFormatter: dateFormatter)
                 articles[newsId] = .loaded(article)
-
-                // Mark news as read
-                readStatusProvider.markAsRead(newsId: String(newsId))
             } catch {
                 if error.isCancellationError {
                     return
