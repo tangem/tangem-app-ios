@@ -330,8 +330,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/krzyzanowskim/OpenSSL",
       "state" : {
-        "revision" : "623c84da314e85363236507ca38a4bde65df21c3",
-        "version" : "3.3.3001"
+        "revision" : "e7d34385da795aaaeb2212e38c7401e5c333f792",
+        "version" : "3.6.1"
       }
     },
     {
@@ -699,8 +699,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/twilio/twilio-video-ios",
       "state" : {
-        "revision" : "a896521ecf73844731f00ed62f7d5afa487e0b3a",
-        "version" : "5.9.0"
+        "revision" : "b2c7eb4b43e48d96500d6ae14fa67ac069431acd",
+        "version" : "5.11.1"
       }
     },
     {
