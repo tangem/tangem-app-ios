@@ -107,7 +107,7 @@ final class FeeSelectorTokensViewModel: ObservableObject {
             rowType: .token(tokenIconInfo: TokenIconInfoBuilder().build(from: feeTokenItem, isCustom: false)),
             title: feeTokenItem.name,
             subtitle: .balance(subtitleBalanceState),
-            availability: .available,
+            availability: feeTokenAvailability,
             accessibilityIdentifier: FeeAccessibilityIdentifiers.feeCurrencyOption,
             isSelected: isSelected,
             selectAction: { [weak self] in
