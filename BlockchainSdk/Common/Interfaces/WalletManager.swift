@@ -122,7 +122,7 @@ public extension TransactionSigner {
 
 @available(iOS 13.0, *)
 public protocol AddressResolver {
-    func shouldResolve(address: String) -> Bool
+    func requiresResolution(address: String) -> Bool
     func resolve(_ address: String) async throws -> String
 }
 
