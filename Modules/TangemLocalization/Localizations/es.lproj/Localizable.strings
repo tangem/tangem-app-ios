@@ -291,6 +291,7 @@
 "common_no_address" = "Ninguna dirección";
 "common_no" = "No";
 "common_not_added" = "No agregadas";
+"common_not_available" = "Not available";
 "common_not_now" = "Ahora no";
 "common_now" = "Ahora";
 "common_ok" = "OK";
@@ -399,6 +400,7 @@
 "details_manage_security_long_tap" = "Sostenga la tarjeta firmemente";
 "details_manage_security_passcode_description" = "Antes de ejecutar un comando que cambie el estado de la tarjeta, deberá ingresar una contraseña.";
 "details_manage_security_passcode" = "Contraseña";
+"details_mobile_wallet_upgrade_action_title" = "Upgrade to hardware wallet";
 "details_nft_title" = "NFT";
 "details_referral_title" = "Programa de referidos";
 "details_row_description_flip_to_hide" = "Gire la pantalla de su dispositivo hacia abajo para ocultar y mostrar rápidamente los saldos";
@@ -414,6 +416,7 @@
 "details_security_management_warning" = "Si olvida el código, perderá acceso a tus fondos. La recuperación del código no es posible.";
 "details_send_feedback" = "Enviar comentarios";
 "details_title" = "Detalles";
+"details_wallets_section_description" = "You can have either one mobile wallet or hardware wallet at the same time. Upgrade you wallet or delete it from the app to start using a Tangem cold wallet.";
 "disclaimer_title" = "Condiciones de uso";
 "domain_receive_assets_default_address" = "Dirección por defecto";
 "domain_receive_assets_legacy_address" = "Dirección %@ Legacy";
@@ -520,6 +523,8 @@
 "feedback_subject_tx_failed" = "No se puede completar una transacción";
 "feedback_subject_tx_push_failed" = "No se puede enviar una transacción";
 "feedback_token_description_error" = "Error de descripción de moneda";
+"gasless_not_enough_funds_to_cover_token_fee" = "Not enough funds";
+"gasless_transaction_fee" = "Gasless transaction fee";
 "generic_error_code" = "Ocurrió un error. Código: %@";
 "generic_error" = "Ocurrió un error";
 "generic_requires_memo_error" = "Requiere memo";
@@ -899,6 +904,7 @@
 "onboarding_wallet_info_title_fourth" = "Restaurar código de acceso";
 "onboarding_wallet_info_title_second" = "Tarjetas idénticas";
 "onboarding_wallet_info_title_third" = "Código de acceso";
+"only_one_mobile_wallet_explanation" = "You can have either a mobile wallet or a hardware wallet at one time. Upgrade your wallet or delete it from the app to start using a Tangem cold wallet.";
 "onramp_all_offers_button_title" = "Todas las ofertas";
 "onramp_avaiable_with_payment_methods" = "Disponible con %@";
 "onramp_choose_provider_title_hint" = "La compra de criptomonedas en Tangem se lleva a cabo utilizando proveedores externos.";
@@ -1121,6 +1127,11 @@
 "settings_card_settings_footer" = "Escanee la tarjeta/anillo que quiere configurar";
 "settings_forget_wallet_footer" = "Esto eliminará la wallet de la aplicación. La wallet en sí puede\nañadirse de nuevo.";
 "settings_forget_wallet" = "Olvidar la billetera";
+"settings_upgrade_banner_advantage_feature_title" = "Simple to use";
+"settings_upgrade_banner_description" = "Keeps your crypto safe and offline. Slim as a credit card, safer than a bank vault.";
+"settings_upgrade_banner_seed_phrase_feature_title" = "No seed phrase";
+"settings_upgrade_banner_superiority_feature_title" = "Best in class hardware wallet";
+"settings_upgrade_banner_title" = "Tangem Cold Wallet";
 "settings_wallet_name_title" = "Nombre";
 "stake_token_description" = "Haga que su token trabaje para Ud.";
 "staking_account_initialization_footer" = "Una tarifa de red es un pequeño pago necesario para procesar y confirmar su transacción en la blockchain.";
@@ -1285,6 +1296,7 @@
 "swap_story_third_subtitle" = "Sencillo e intuitivo, permite cambiar tokens con solo unos cuantos toques";
 "swap_story_third_title" = "Simplemente cómodo";
 "swap_via_provider" = "Intercambio a través del proveedor";
+"swap_your_assets_title" = "Your assets";
 "swapping_alert_cex_description_with_slippage" = "El importe incluye:\n- comisión del proveedor de servicios\n- comisión de red por el envío de %1$@ desde el exchange de vuelta a la dirección del usuario. \n\nEl deslizamiento (slippage) del proveedor es de hasta %2$@";
 "swapping_alert_cex_description" = "La cantidad incluye:\n• Tarifas del proveedor de servicios\n• Tarifas de red por enviar %@ desde el intercambio a la dirección del usuario.";
 "swapping_alert_dex_description_with_slippage" = "El importe incluye las tarifas del proveedor de servicios. \n\nEl deslizamiento (slippage) del proveedor puede llegar a %@";
@@ -1299,6 +1311,7 @@
 "swapping_insufficient_funds" = "Fondos insuficientes";
 "swapping_permission_header" = "Dar autorización";
 "swapping_permit_and_swap" = "Autorizar e Intercambiar";
+"swapping_swap_action_in_progress" = "Swapping...";
 "swapping_swap_action" = "Intercambiar";
 "swapping_to_title" = "Usted recibe";
 "swapping_token_list_title" = "Elige token";
@@ -1387,7 +1400,7 @@
 "tangempay_go_to_support" = "Ir a Soporte";
 "tangempay_issue_card_notification_description" = "Suele tardar hasta 15 minutos";
 "tangempay_issue_card_notification_title" = "Configurando tu tarjeta Tangem";
-"tangempay_issuing_your_card_description" = "Estamos preparando tu tarjeta. Esto puede llevar un poco de tiempo.";
+"tangempay_issuing_your_card_description" = "La tarjeta suele emitirse automáticamente en menos de 5 minutos. En casos excepcionales que requieran revisión manual, la emisión puede tardar hasta 48 horas.";
 "tangempay_issuing_your_card" = "Emisión de su tarjeta";
 "tangempay_kyc_card_ready_notification_title" = "Tangem Pay";
 "tangempay_kyc_confirm_cancellation_alert_title" = "Confirmar cancelación";
@@ -1397,7 +1410,7 @@
 "tangempay_kyc_has_failed" = "KYC has failed";
 "tangempay_kyc_in_progress_notification_button" = "Ver estado";
 "tangempay_kyc_in_progress_notification_title" = "KYC en progreso para Tangem Pay";
-"tangempay_kyc_in_progress_popup_description" = "Utilice los botones a continuación para ver su estado KYC actual o cancelarlo.";
+"tangempay_kyc_in_progress_popup_description" = "Los documentos suelen verificarse automáticamente en menos de 5 minutos. En casos excepcionales que requieran revisión manual, el proceso puede tardar hasta 48 horas.";
 "tangempay_kyc_in_progress" = "KYC en curso";
 "tangempay_kyc_rejected_button_text" = "Hide KYC block";
 "tangempay_kyc_rejected_description_span" = "your profile.";
@@ -1426,6 +1439,8 @@
 "tangempay_temporarily_unavailable" = "Tangem Pay temporalmente no disponible";
 "tangempay_title" = "Tangem Pay";
 "tangempay_use_tangem_device_to_restore_payment_account" = "Haga clic en el botón de abajo para restaurar el acceso";
+"tangempay_withdrawal_note_description" = "You can only withdraw USDC (Polygon) currently available on your on‑chain address balance, taking into account pending transactions. If you previously made a refund or cancelled a purchase, your crypto account balance will update within 2 business days.";
+"tangempay_withdrawal_note_title" = "Please note";
 "tangempay_your_pin_code" = "Tu código PIN";
 "this_is_my_wallet_title" = "Esta es mi billetera";
 "toast_balances_hidden" = "Saldos ocultos";
@@ -1499,6 +1514,7 @@
 "universal_error" = "Hemos encontrado un error. Código de error: %@. Póngase en contacto con nuestro servicio de soporte.";
 "unlock_wallet_description_full" = "Use %@ o escanee una tarjeta/anillo para tener acceso a su billetera";
 "unsupported_wc_version" = "Error de conexión: Esta dApp utiliza la versión 1.0 de Wallet Connect, que no es compatible. Asegúrese de que la dApp sea compatible con la versión 2.0 de Wallet Connect para conectarse correctamente.";
+"upgrade_to_hardware_wallet_button_title" = "Upgrade to hardware wallet";
 "user_push_notification_agreement_argument_one_subtitle" = "Alertas en tiempo real de transacciones, intercambios y actualizaciones críticas.";
 "user_push_notification_agreement_argument_one_title" = "Alertas de transacciones";
 "user_push_notification_agreement_argument_one" = "Manténgase actualizado con las últimas funciones y noticias";
@@ -1619,7 +1635,7 @@
 "wallet_import_seed_description" = "Importa una billetera existente con su frase de recuperación.";
 "wallet_import_seed_navtitle" = "Importar billetera";
 "wallet_import_seed_title" = "Introduzca la frase de recuperación";
-"wallet_import_success_description" = "La copia de seguridad de su billetera se realizó con éxito.";
+"wallet_import_success_description" = "Su billetera se ha importado con éxito.";
 "wallet_import_success_navtitle" = "Importar billetera";
 "wallet_import_success_title" = "Importación completada";
 "wallet_import_title" = "Importar billetera";
