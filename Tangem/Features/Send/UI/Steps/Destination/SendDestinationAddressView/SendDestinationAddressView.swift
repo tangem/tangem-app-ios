@@ -22,7 +22,6 @@ struct SendDestinationAddressView: View {
 
             content
         }
-        .animation(.default, value: viewModel.textViewModel.height)
     }
 
     @ViewBuilder
