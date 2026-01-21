@@ -3720,6 +3720,7 @@
 		EA9B03A92E94C9ED00F4B40D /* YieldStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9B03A72E94C9ED00F4B40D /* YieldStatusView.swift */; };
 		EA9B03AB2E94C9F500F4B40D /* YieldStatusViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9B03AA2E94C9F500F4B40D /* YieldStatusViewModel.swift */; };
 		EA9B03AF2E9509B100F4B40D /* YieldModuleAvailability.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9B03AE2E9509B100F4B40D /* YieldModuleAvailability.swift */; };
+		EA9B0CA52F1FC71900C883DB /* FeeSelectorFeeCoverageState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9B0CA42F1FC71900C883DB /* FeeSelectorFeeCoverageState.swift */; };
 		EA9D0CEA2E83F91400B1A968 /* YieldModuleFeeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9D0CE82E83F91400B1A968 /* YieldModuleFeeFormatter.swift */; };
 		EA9D0CEC2E84EF5F00B1A968 /* YieldIdentificationModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9D0CEB2E84EF5F00B1A968 /* YieldIdentificationModifier.swift */; };
 		EAA7DBFD2E8D1340003F9885 /* YieldModuleStartFlowFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA7DBFC2E8D1340003F9885 /* YieldModuleStartFlowFactory.swift */; };
@@ -8459,6 +8460,7 @@
 		EA9B03A72E94C9ED00F4B40D /* YieldStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldStatusView.swift; sourceTree = "<group>"; };
 		EA9B03AA2E94C9F500F4B40D /* YieldStatusViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldStatusViewModel.swift; sourceTree = "<group>"; };
 		EA9B03AE2E9509B100F4B40D /* YieldModuleAvailability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleAvailability.swift; sourceTree = "<group>"; };
+		EA9B0CA42F1FC71900C883DB /* FeeSelectorFeeCoverageState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeSelectorFeeCoverageState.swift; sourceTree = "<group>"; };
 		EA9D0CE82E83F91400B1A968 /* YieldModuleFeeFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleFeeFormatter.swift; sourceTree = "<group>"; };
 		EA9D0CEB2E84EF5F00B1A968 /* YieldIdentificationModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldIdentificationModifier.swift; sourceTree = "<group>"; };
 		EAA7DBFC2E8D1340003F9885 /* YieldModuleStartFlowFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleStartFlowFactory.swift; sourceTree = "<group>"; };
@@ -24124,6 +24126,7 @@
 		EF991A372F146490006F93CB /* Types */ = {
 			isa = PBXGroup;
 			children = (
+				EA9B0CA42F1FC71900C883DB /* FeeSelectorFeeCoverageState.swift */,
 				EF991A352F146486006F93CB /* TokenFeeProviderState.swift */,
 				EF03B6702F165F79006AF4A3 /* TokenFeeProviderInputData.swift */,
 				EF93AF9A2F1A86410090EC3C /* TokenFeeProviderSupportingOptions.swift */,
@@ -26949,6 +26952,7 @@
 				0ABCEE672E3B954000662B9F /* WalletInitializer.swift in Sources */,
 				DCB14B142DC61C460075F340 /* WalletConnectModuleFactory.swift in Sources */,
 				B0CF5A5B2C2D492100B197D4 /* MarketsTokenDetailsDataProvider.swift in Sources */,
+				EA9B0CA52F1FC71900C883DB /* FeeSelectorFeeCoverageState.swift in Sources */,
 				B6E7451E2EBBF62700A1BF81 /* CommonUserWalletModelDependencies.swift in Sources */,
 				0F8414B52E96A96D00D03FB6 /* AddWalletSelectorViewModel.swift in Sources */,
 				EF6A8B032B278A6200CA3535 /* CommonExpressRepository.swift in Sources */,
