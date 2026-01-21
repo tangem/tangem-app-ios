@@ -18,7 +18,7 @@ final class CommonFeeSelectorInteractor {
     init(
         tokenFeeProviders: [any TokenFeeProvider],
         selectedTokenFeeProvider: any TokenFeeProvider,
-        output: FeeSelectorOutput
+        output: FeeSelectorOutput,
     ) {
         tokenFeeProvidersSubject = .init(tokenFeeProviders)
         selectedTokenFeeProviderSubject = .init(selectedTokenFeeProvider)
@@ -65,6 +65,28 @@ extension CommonFeeSelectorInteractor: FeeSelectorInteractor {
 extension CommonFeeSelectorInteractor: FeeSelectorFeesDataProvider {
     var selectedTokenFeeOption: FeeOption {
         selectedTokenFeeOptionSubject.value[selectedTokenFeeProvider.feeTokenItem, default: .market]
+    }
+
+    var feeCoveragePublisher: AnyPublisher<FeeCoverage, Never> {
+        Publishers
+            .CombineLatest(
+                selectedTokenFeePublisher,
+                selectedTokenFeeProviderPublisher.flatMapLatest { $0.balanceTypePublisher },
+            )
+            .withWeakCaptureOf(self)
+            .map { provider, output in
+                let (tokenFee, balance) = output
+                switch tokenFee.value {
+                case .success(let fee):
+                    let required = fee.amount.value
+                    let availableBalance = balance.value ?? 0
+                    let difference = availableBalance - required
+                    return difference >= 0 ? .covered(feeValue: required) : .uncovered(missingAmount: -difference)
+                case .failure, .loading:
+                    return .undefined
+                }
+            }
+            .eraseToAnyPublisher()
     }
 
     var selectedTokenFeeOptionPublisher: AnyPublisher<FeeOption, Never> {
