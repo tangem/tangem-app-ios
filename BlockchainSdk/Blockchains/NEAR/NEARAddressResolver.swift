@@ -22,7 +22,7 @@ struct NEARAddressResolver {
 extension NEARAddressResolver: AddressResolver {
     func resolve(_ address: String) async throws -> String {
         // Implicit accounts don't require any modification or verification
-        if !isNeedToResolve(address: address) {
+        if !shouldResolve(address: address) {
             return address
         }
 
@@ -56,7 +56,7 @@ extension NEARAddressResolver: AddressResolver {
         }
     }
 
-    func isNeedToResolve(address: String) -> Bool {
+    func shouldResolve(address: String) -> Bool {
         !NEARAddressUtil.isImplicitAccount(accountId: address)
     }
 }

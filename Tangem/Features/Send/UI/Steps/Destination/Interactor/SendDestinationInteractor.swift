@@ -206,7 +206,7 @@ extension CommonSendDestinationInteractor: SendDestinationInteractor {
 
     func willResolve(address: String) -> Bool {
         guard let addressResolver = dependenciesBuilder.addressResolver else { return false }
-        return addressResolver.isNeedToResolve(address: address)
+        return addressResolver.shouldResolve(address: address)
     }
 
     func update(destination address: String, source: Analytics.DestinationAddressSource) {
