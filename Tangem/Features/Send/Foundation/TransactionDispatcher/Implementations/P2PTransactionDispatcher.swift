@@ -76,7 +76,8 @@ extension P2PTransactionDispatcher: TransactionDispatcher {
                 mapper.mapResult(
                     $0,
                     blockchain: walletModel.tokenItem.blockchain,
-                    signer: transactionSigner.latestSignerType
+                    signer: transactionSigner.latestSignerType,
+                    isToken: walletModel.tokenItem.isToken
                 )
             }
 

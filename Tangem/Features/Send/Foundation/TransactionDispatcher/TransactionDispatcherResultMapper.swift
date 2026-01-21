@@ -33,11 +33,14 @@ struct TransactionDispatcherResultMapper {
     func mapResult(
         _ result: TransactionSendResult,
         blockchain: Blockchain,
-        signer: TangemSignerType?
+        signer: TangemSignerType?,
+        isToken: Bool
     ) -> TransactionDispatcherResult {
         let factory = ExternalLinkProviderFactory()
         let provider = factory.makeProvider(for: blockchain)
-        let explorerUrl = provider.url(transaction: result.hash)
+        let explorerUrl = isToken
+            ? provider.tokenUrl(transaction: result.hash)
+            : provider.url(transaction: result.hash)
 
         let signerType = signer?.analyticsParameterValue ?? Analytics.ParameterValue.unknown
         let currentHost = HostAnalyticsFormatterUtil().formattedHost(from: result.currentProviderHost)
