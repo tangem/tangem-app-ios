@@ -17,7 +17,7 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
     @Published var sourceData: AmountSummaryViewData?
     @Published var destinationData: AmountSummaryViewData?
     @Published var provider: ProviderRowViewModel?
-    @Published var expressFee: ExpressFeeRowData?
+    @Published var feeCompactViewModel: FeeCompactViewModel?
 
     var isStatusButtonVisible: Bool {
         data.expressTransactionData.externalTxUrl != nil
@@ -73,7 +73,7 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
     private func logSwapInProgressScreenOpened() {
         var params: [Analytics.ParameterKey: String] = [
             .provider: data.provider.name,
-            .commission: data.feeOption.analyticsValue.rawValue,
+            .commission: data.fee.option.analyticsValue.rawValue,
             .sendToken: data.source.tokenItem.currencySymbol,
             .receiveToken: data.destination.tokenItem.currencySymbol,
             .sendBlockchain: data.source.tokenItem.blockchain.displayName,
@@ -92,7 +92,11 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
             }
         }
 
-        Analytics.log(event: .swapSwapInProgressScreenOpened, params: params)
+        Analytics.log(
+            event: .swapSwapInProgressScreenOpened,
+            params: params,
+            analyticsSystems: .all
+        )
     }
 
     func openExplore(exploreURL: URL) {
@@ -160,9 +164,14 @@ private extension ExpressSuccessSentViewModel {
             detailsType: .none
         )
 
-        if !data.source.isExemptFee {
-            let feeFormatted = feeFormatter.format(fee: data.fee, tokenItem: data.source.feeTokenItem)
-            expressFee = ExpressFeeRowData(title: Localization.commonNetworkFeeTitle, subtitle: .loaded(text: feeFormatted))
+        if !data.source.isExemptFee, let feeValue = data.fee.value.value {
+            let feeFormatted = feeFormatter.format(fee: feeValue.amount.value, tokenItem: data.fee.tokenItem)
+            feeCompactViewModel = FeeCompactViewModel(
+                selectedFeeTokenCurrencySymbol: data.fee.tokenItem.currencySymbol,
+                selectedFeeComponents: .loaded(text: feeFormatted),
+                canEditFee: false,
+                feeFormatter: feeFormatter
+            )
         }
     }
 }

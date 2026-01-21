@@ -88,7 +88,7 @@ final class FeeSelectorTokensViewModel: ObservableObject {
     private func mapTokenItemToRowViewModel(tokenFeeProvider: any TokenFeeProvider, isSelected: Bool) -> FeeSelectorRowViewModel {
         let feeTokenItem = tokenFeeProvider.feeTokenItem
         let subtitleBalanceState = LoadableTokenBalanceViewStateBuilder().build(
-            type: tokenFeeProvider.balanceState,
+            type: tokenFeeProvider.formattedFeeTokenBalance,
             textBuilder: Localization.commonBalance
         )
 
@@ -127,7 +127,7 @@ private extension TokenFeeProviderStateUnavailableReason {
         case .notSupported:
             .notSupported
         case .notEnoughFeeBalance:
-            .notEnoughBalance
+            .notEnoughBalance(supportsMultipleOptions: true)
         case .noTokenBalance:
             .noBalance
         }

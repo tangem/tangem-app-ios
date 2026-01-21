@@ -67,7 +67,7 @@ extension SendGenericFlowBaseDependenciesFactory {
     // Services
 
     func makeBlockchainSDKNotificationMapper() -> BlockchainSDKNotificationMapper {
-        BlockchainSDKNotificationMapper(tokenItem: tokenItem, feeTokenItem: feeTokenItem)
+        BlockchainSDKNotificationMapper(tokenItem: tokenItem)
     }
 
     // TransactionSummaryDescriptionBuilders
