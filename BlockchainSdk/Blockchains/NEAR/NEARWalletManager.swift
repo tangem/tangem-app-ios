@@ -263,7 +263,7 @@ extension NEARWalletManager: WalletManager {
 extension NEARWalletManager: AddressResolver {
     func resolve(_ address: String) async throws -> String {
         // Implicit accounts don't require any modification or verification
-        guard shouldResolve(address: address) else {
+        guard requiresResolution(address: address) else {
             return address
         }
 
@@ -297,7 +297,7 @@ extension NEARWalletManager: AddressResolver {
         }
     }
 
-    func shouldResolve(address: String) -> Bool {
+    func requiresResolution(address: String) -> Bool {
         !NEARAddressUtil.isImplicitAccount(accountId: address)
     }
 }
