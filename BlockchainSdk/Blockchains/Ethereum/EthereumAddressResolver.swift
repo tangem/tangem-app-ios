@@ -20,7 +20,7 @@ struct EthereumAddressResolver {
 
 extension EthereumAddressResolver: AddressResolver {
     func resolve(_ address: String) async throws -> String {
-        if !isNeedToResolve(address: address) {
+        if !shouldResolve(address: address) {
             return address
         }
 
@@ -29,7 +29,7 @@ extension EthereumAddressResolver: AddressResolver {
         return try await networkService.resolveAddress(hash: nameHash, encode: encodedName).async()
     }
 
-    func isNeedToResolve(address: String) -> Bool {
+    func shouldResolve(address: String) -> Bool {
         !EthereumAddressUtils.isValidAddressHex(value: address)
     }
 }
