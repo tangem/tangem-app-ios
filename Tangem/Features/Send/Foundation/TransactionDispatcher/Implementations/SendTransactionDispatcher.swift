@@ -52,7 +52,8 @@ extension SendTransactionDispatcher: TransactionDispatcher {
             return mapper.mapResult(
                 hash,
                 blockchain: walletModel.tokenItem.blockchain,
-                signer: transactionSigner.latestSignerType
+                signer: transactionSigner.latestSignerType,
+                isToken: walletModel.tokenItem.isToken
             )
         } catch {
             AppLogger.error(error: error)
