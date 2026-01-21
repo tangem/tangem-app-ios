@@ -47,6 +47,7 @@ struct AccountsAwareNetworkSelectorItemView: View {
             .padding(.vertical, 16)
             .contentShape(.rect)
         }
+        .accessibilityIdentifier(TokenAccessibilityIdentifiers.networkCell(for: viewModel.networkName))
         .buttonStyle(.plain)
         .disabled(viewModel.isReadonly)
     }

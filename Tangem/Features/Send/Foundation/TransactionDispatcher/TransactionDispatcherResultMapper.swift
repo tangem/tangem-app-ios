@@ -12,6 +12,7 @@ import TangemSdk
 import BlockchainSdk
 import TangemVisa
 import TangemFoundation
+import TangemPay
 
 struct TransactionDispatcherResultMapper {
     func mapResult(

@@ -26,7 +26,9 @@ final class CommonTokenFeeProvider {
     private let selectedFeeOptionSubject: CurrentValueSubject<FeeOption, Never> = .init(.market)
 
     private var updatingFeeTask: Task<Void, Never>?
+
     private var customFeeProviderInitialSetupCancellable: AnyCancellable?
+    private var availableTokenBalanceStateCancellable: AnyCancellable?
 
     private var tokenHasBalance: Bool {
         availableTokenBalanceProvider.balanceType.value ?? 0 > 0
@@ -62,7 +64,9 @@ final class CommonTokenFeeProvider {
 // MARK: - TokenFeeProvider
 
 extension CommonTokenFeeProvider: TokenFeeProvider {
-    var balanceState: FormattedTokenBalanceType { availableTokenBalanceProvider.formattedBalanceType }
+    var balanceFeeTokenState: TokenBalanceType { availableTokenBalanceProvider.balanceType }
+    var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> { availableTokenBalanceProvider.balanceTypePublisher }
+    var formattedFeeTokenBalance: FormattedTokenBalanceType { availableTokenBalanceProvider.formattedBalanceType }
     var hasMultipleFeeOptions: Bool { tokenFeeLoader.supportingFeeOptions.count > 1 }
 
     var state: TokenFeeProviderState {
@@ -150,18 +154,14 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
             return
         }
 
-        guard tokenHasBalance else {
-            FeeLogger.info(self, "Token has no balance")
-            stateSubject.send(.unavailable(.noTokenBalance))
-            return
-        }
-
         do {
-            if state.loadedFees.isEmpty {
-                updateState(state: .loading)
+            let task = runWithDelayedLoading { [weak self] in
+                self?.updateState(state: .loading)
+            } operation: { [weak self] in
+                try await self?.loadFees(input: input) ?? []
             }
 
-            let loadedFees = try await loadFees(input: input)
+            let loadedFees = try await task.value
             try Task.checkCancellation()
 
             let fees = mapToFeesDictionary(fees: loadedFees)
@@ -268,8 +268,10 @@ private extension CommonTokenFeeProvider {
             switch state {
             case .idle, .loading:
                 return .loading
+            case .unavailable(.notSupported):
+                return .failure(TokenFeeProviderError.unsupportedByProvider)
             case .unavailable:
-                return .failure(TokenFee.ErrorType.unsupportedByProvider)
+                return .failure(TokenFeeProviderError.providerUnavailable)
             case .error(let error):
                 return .failure(error)
             case .available(let fees):
@@ -277,7 +279,7 @@ private extension CommonTokenFeeProvider {
                     return .success(selectedFeeBySelectedOption)
                 }
 
-                return .failure(TokenFee.ErrorType.feeNotFound)
+                return .failure(TokenFeeProviderError.feeNotFound)
             }
         }()
 

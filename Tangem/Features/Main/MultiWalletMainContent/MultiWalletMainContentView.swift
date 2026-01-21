@@ -222,6 +222,7 @@ struct MultiWalletMainContentView: View {
             sectionsProvider: sectionsProvider,
             tokensNotificationManager: FakeUserWalletNotificationManager(),
             bannerNotificationManager: nil,
+            tangemPayNotificationManager: FakeUserWalletNotificationManager(),
             rateAppController: RateAppControllerStub(),
             nftFeatureLifecycleHandler: NFTFeatureLifecycleHandler(),
             tokenRouter: SingleTokenRoutableMock(),

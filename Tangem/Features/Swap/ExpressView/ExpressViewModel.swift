@@ -36,7 +36,7 @@ final class ExpressViewModel: ObservableObject {
     @Published var providerState: ProviderState?
 
     /// Fee
-    @Published var expressFeeRowViewModel: ExpressFeeRowData?
+    @Published var expressFeeRowViewModel: FeeCompactViewModel?
 
     // Main button
     @Published var mainButtonIsLoading: Bool = false
@@ -88,7 +88,11 @@ final class ExpressViewModel: ObservableObject {
         self.coordinator = coordinator
         tangemIconProvider = CommonTangemIconProvider(config: userWalletInfo.config)
 
-        Analytics.log(event: .swapScreenOpenedSwap, params: [.token: initialTokenItem.currencySymbol])
+        Analytics.log(
+            event: .swapScreenOpenedSwap,
+            params: [.token: initialTokenItem.currencySymbol],
+            analyticsSystems: .all
+        )
         setupView()
         bind()
     }
@@ -125,6 +129,10 @@ final class ExpressViewModel: ObservableObject {
 
     func userDidTapPriceChangeInfoButton(message: String) {
         alert = .init(title: "", message: message)
+    }
+
+    func userDidTapFeeRow() {
+        openFeeSelectorView()
     }
 
     func didTapMainButton() {
@@ -194,7 +202,7 @@ private extension ExpressViewModel {
         }
     }
 
-    func openFeeSelectorView(tokenFeeProvidersManager: TokenFeeProvidersManager) {
+    func openFeeSelectorView() {
         guard let tokenFeeProvidersManager = interactor.tokenFeeProvidersManager else {
             ExpressLogger.debug("`openFeeSelectorView()` called while loading state")
             return
@@ -372,8 +380,8 @@ private extension ExpressViewModel {
         switch state {
         case .restriction(.notEnoughBalanceForSwapping, _):
             sendCurrencyViewModel?.expressCurrencyViewModel.update(errorState: .insufficientFunds)
-        case .restriction(.notEnoughAmountForTxValue, _),
-             .restriction(.notEnoughAmountForFee, _) where interactor.getSource().value?.isFeeCurrency == true:
+        case .restriction(.notEnoughAmountForTxValue(_, let isFeeCurrency), _) where isFeeCurrency,
+             .restriction(.notEnoughAmountForFee(let isFeeCurrency), _) where isFeeCurrency:
             sendCurrencyViewModel?.expressCurrencyViewModel.update(errorState: .insufficientFunds)
         case .restriction(.validationError(.minimumRestrictAmount(let minimumAmount), _), _):
             let errorText = Localization.transferMinAmountError(minimumAmount.string())
@@ -429,7 +437,7 @@ private extension ExpressViewModel {
             updateFiatValue(expectAmount: 0)
             receiveCurrencyViewModel?.expressCurrencyViewModel.updateHighPricePercentLabel(quote: .none)
 
-        case .loading(let type):
+        case .loading(let type, _):
             isSwapButtonLoading = true
 
             // Turn on skeletons only for full update
@@ -466,10 +474,11 @@ private extension ExpressViewModel {
         switch state {
         case .idle:
             providerState = .none
-        case .loading(let type):
-            if type == .full {
-                providerState = .loading
-            }
+        case .loading(.full, _):
+            providerState = .loading
+        case .loading:
+            // Do noting for other cases
+            break
         default:
             if let providerRowViewModel = await mapToProviderRowViewModel() {
                 providerState = .loaded(data: providerRowViewModel)
@@ -484,60 +493,40 @@ private extension ExpressViewModel {
         case .previewCEX(let state, _) where state.isExemptFee:
             // Don't show fee row if transaction has fee exemption
             expressFeeRowViewModel = nil
-        case .previewCEX(let state, _):
+
+        case .previewCEX(let state, _), .loading(.fee, .previewCEX(let state, _)):
             updateExpressFeeRowViewModel(tokenFeeProvidersManager: state.tokenFeeProvidersManager)
-        case .readyToSwap(let state, _):
+
+        case .readyToSwap(let state, _), .loading(.fee, .readyToSwap(let state, _)):
             updateExpressFeeRowViewModel(tokenFeeProvidersManager: state.tokenFeeProvidersManager)
-        case .loading(.fee):
-            updateExpressFeeRowViewModel(fee: .loading, action: nil)
-        case .idle, .restriction, .loading(.full), .permissionRequired:
+
+        case .idle, .restriction, .loading(.fee, _), .loading(.full, _), .permissionRequired:
             // We have decided that will not give a choose for .permissionRequired state also
             expressFeeRowViewModel = nil
-        case .loading(.refreshRates):
+
+        case .loading(.refreshRates, _):
             break
         }
     }
 
     func updateExpressFeeRowViewModel(tokenFeeProvidersManager: TokenFeeProvidersManager) {
-        let selectedTokenFee = tokenFeeProvidersManager.selectedFeeProvider.selectedTokenFee
-        switch selectedTokenFee.value {
-        case .failure:
-            updateExpressFeeRowViewModel(fee: .noData, action: nil)
-        case .loading:
-            updateExpressFeeRowViewModel(fee: .loading, action: nil)
-        case .success(let fee):
-            let action: (() -> Void)? = {
-                // If fee is only one option then don't open selector
-                guard tokenFeeProvidersManager.supportFeeSelection else {
-                    return nil
-                }
-
-                return { [weak self] in
-                    self?.openFeeSelectorView(tokenFeeProvidersManager: tokenFeeProvidersManager)
-                }
-            }()
-
-            let formattedFee = feeFormatter.format(fee: fee.amount.value, tokenItem: selectedTokenFee.tokenItem)
-            updateExpressFeeRowViewModel(fee: .loaded(text: formattedFee), action: action)
-        }
-    }
-
-    func updateExpressFeeRowViewModel(fee: LoadableTextView.State, action: (() -> Void)?) {
-        expressFeeRowViewModel = ExpressFeeRowData(
-            title: Localization.commonNetworkFeeTitle,
-            subtitle: fee,
-            action: action
+        let viewModel = FeeCompactViewModel()
+        viewModel.bind(
+            selectedFeePublisher: tokenFeeProvidersManager.selectedFeeProvider.selectedTokenFeePublisher,
+            supportFeeSelectionPublisher: tokenFeeProvidersManager.supportFeeSelectionPublisher
         )
+
+        expressFeeRowViewModel = viewModel
     }
 
     func updateMainButton(state: ExpressInteractor.State) {
         switch state {
-        case .idle, .loading(type: .full):
+        case .idle, .loading(type: .full, _):
             mainButtonState = .swap
             mainButtonIsEnabled = false
-        case .loading(type: .fee):
+        case .loading(type: .fee, _):
             mainButtonIsEnabled = false
-        case .loading(type: .refreshRates):
+        case .loading(type: .refreshRates, _):
             // Do nothing
             break
         case .restriction(let type, _):
@@ -571,9 +560,9 @@ private extension ExpressViewModel {
     @MainActor
     func updateLegalText(state: ExpressInteractor.State) async {
         switch state {
-        case .loading(.refreshRates), .loading(.fee):
+        case .loading(.refreshRates, _), .loading(.fee, _):
             break
-        case .idle, .loading(.full):
+        case .idle, .loading(.full, _):
             legalText = nil
         case .restriction, .permissionRequired, .previewCEX, .readyToSwap:
             legalText = await interactor.getSelectedProvider()?.provider.legalText(branch: .swap)
@@ -668,11 +657,7 @@ private extension ExpressViewModel {
                 fallthrough
             }
 
-            let factory = BlockchainSDKNotificationMapper(
-                tokenItem: sender.tokenItem,
-                feeTokenItem: sender.feeTokenItem
-            )
-
+            let factory = BlockchainSDKNotificationMapper(tokenItem: sender.tokenItem)
             let validationErrorEvent = factory.mapToValidationErrorEvent(error)
             let message = validationErrorEvent.description ?? error.localizedDescription
             alert = AlertBinder(title: Localization.commonError, message: message)
