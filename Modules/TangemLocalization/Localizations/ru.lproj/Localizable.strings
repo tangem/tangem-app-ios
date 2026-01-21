@@ -296,6 +296,7 @@
 "common_now" = "Сейчас";
 "common_ok" = "OK";
 "common_open_in_browser" = "Открыть в браузере";
+"common_or" = "or";
 "common_origin_card" = "Основная карта";
 "common_origin_ring" = "Основное кольцо";
 "common_passphrase" = "Парольная фраза";
@@ -400,7 +401,6 @@
 "details_manage_security_long_tap" = "Задержка сканирования";
 "details_manage_security_passcode_description" = "Перед выполнением любой команды, влекущей за собой изменение состояния карты, вам необходимо будет ввести пароль.";
 "details_manage_security_passcode" = "Пароль";
-"details_mobile_section_description" = "You can have either one mobile wallet or hardware wallet at the same time. Upgrade you wallet or delete it from the app to start using a Tangem cold wallet.";
 "details_mobile_wallet_upgrade_action_title" = "Upgrade to hardware wallet";
 "details_nft_title" = "NFT";
 "details_referral_title" = "Реферальная программа";
@@ -417,6 +417,7 @@
 "details_security_management_warning" = "Если вы забудете код, то потеряете доступ к своим средствам. Восстановление кода невозможно.";
 "details_send_feedback" = "Отправить отзыв";
 "details_title" = "Подробности";
+"details_wallets_section_description" = "You can have either one mobile wallet or hardware wallet at the same time. Upgrade you wallet or delete it from the app to start using a Tangem cold wallet.";
 "disclaimer_title" = "Условия использования";
 "domain_receive_assets_default_address" = "Основной адрес";
 "domain_receive_assets_legacy_address" = "Legacy %@ адрес";
@@ -578,11 +579,15 @@
 "hw_backup_seed_title" = "Фраза восстановления";
 "hw_backup_to_secure_description" = "Чтобы защитить ваш кошелёк с помощью кода доступа, сначала завершите резервное копирование.";
 "hw_backup_to_upgrade_description" = "Чтобы улучшить кошелёк до аппаратного, сначала создайте резервную копию.";
+"hw_backup_upgrade_description" = "Upgrade your mobile wallet to a Tangem hardware wallet for the highest security. Import your wallet or transfer funds to a new one.";
+"hw_backup_upgrade_title" = "Upgrade to cold wallet";
 "hw_create_keys_description" = "Ваши приватные ключи надёжно зашифрованы и хранятся на вашем телефоне";
 "hw_create_keys_title" = "Ключи хранятся в приложении";
 "hw_create_seed_description" = "Создайте или импортируйте кошелёк с помощью вашей фразы восстановления.";
 "hw_create_seed_title" = "Резервная копия";
 "hw_create_title" = "Создать мобильный кошелек";
+"hw_create_upgrade_description" = "Upgrade anytime with a Tangem card or ring and secure your keys on hardware.";
+"hw_create_upgrade_title" = "Upgrade to hardware wallet";
 "hw_import_existing_wallet" = "Импортировать существующий";
 "hw_import_seed_phrase_already_imported" = "Эта фраза восстановления уже была импортирована";
 "hw_mobile_wallet" = "Мобильный кошелек";
@@ -1296,6 +1301,7 @@
 "swap_story_third_subtitle" = "Интуитивный обмен в пару касаний — без сложностей и ожидания";
 "swap_story_third_title" = "Проще простого";
 "swap_via_provider" = "Обмен через провайдера";
+"swap_your_assets_title" = "Your assets";
 "swapping_alert_cex_description_with_slippage" = "В сумму включено: \n• комиссия провайдера сервиса\n• комиссия сети за отправку %1$@ от биржи обратно на адрес пользователя \n\nПроскальзывание провайдера составляет до %2$@";
 "swapping_alert_cex_description" = "В сумму включено: \n• комиссия провайдера сервиса\n• комиссия сети за отправку %@ от биржи обратно на адрес пользователя.";
 "swapping_alert_dex_description_with_slippage" = "В сумму включена комиссия провайдера сервиса. \n\nПроскальзывание провайдера составляет до %@";
@@ -1310,6 +1316,7 @@
 "swapping_insufficient_funds" = "Недостаточно средств";
 "swapping_permission_header" = "Дать разрешение";
 "swapping_permit_and_swap" = "Разрешить и обменять";
+"swapping_swap_action_in_progress" = "Swapping...";
 "swapping_swap_action" = "Обменять";
 "swapping_to_title" = "Вы получите";
 "swapping_token_list_title" = "Выберите токен";
@@ -1437,6 +1444,8 @@
 "tangempay_temporarily_unavailable" = "Tangem Pay временно недоступен";
 "tangempay_title" = "Tangem Pay";
 "tangempay_use_tangem_device_to_restore_payment_account" = "Нажмите на кнопку ниже, чтобы восстановить доступ";
+"tangempay_withdrawal_note_description" = "You can only withdraw USDC (Polygon) currently available on your on‑chain address balance, taking into account pending transactions. If you previously made a refund or cancelled a purchase, your crypto account balance will update within 2 business days.";
+"tangempay_withdrawal_note_title" = "Please note";
 "tangempay_your_pin_code" = "Ваш PIN-код";
 "this_is_my_wallet_title" = "Это мой кошелек";
 "toast_balances_hidden" = "Балансы скрыты";
@@ -1510,7 +1519,7 @@
 "universal_error" = "Произошла ошибка. Код ошибки: %@. Попробуйте, пожалуйста, снова. Если проблема будет продолжать возникать — обратитесь в службу поддержки.";
 "unlock_wallet_description_full" = "Используйте %@ или отсканируйте карту/кольцо, чтобы получить доступ к своему кошельку";
 "unsupported_wc_version" = "Соединение не удалось: это dApp использует Wallet Connect версии 1.0, которая не поддерживается. Убедитесь, что dApp поддерживает Wallet Connect версии 2.0 для успешного подключения.";
-"upgrade_to_hardware_wallet_button_title" = "Upgrade to a hardware wallet";
+"upgrade_to_hardware_wallet_button_title" = "Upgrade to hardware wallet";
 "user_push_notification_agreement_argument_one_subtitle" = "Мгновенные уведомления о транзакциях, обменах и важных обновлениях.";
 "user_push_notification_agreement_argument_one_title" = "Уведомления о транзакциях";
 "user_push_notification_agreement_argument_one" = "Будьте в курсе новых функций и новостей";
@@ -1850,6 +1859,7 @@
 "welcome_create_wallet_feature_delivery" = "Быстрая доставка";
 "welcome_create_wallet_feature_one_tap" = "Начните в один клик";
 "welcome_create_wallet_feature_seamless" = "Просто и надёжно";
+"welcome_create_wallet_feature_seedphrase" = "No seed phrase";
 "welcome_create_wallet_feature_use" = "Интуитивно понятный";
 "welcome_create_wallet_hardware_description" = "Создайте аппаратный кошелёк с Tangem. Тонкий, как банковская карта, безопасный, как банковский сейф.";
 "welcome_create_wallet_mobile_description_full" = "Создайте или импортируйте программный кошелёк на своём телефоне.";
