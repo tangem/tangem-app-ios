@@ -13,4 +13,13 @@ public protocol ExternalLinkProvider {
 
     func url(address: String, contractAddress: String?) -> URL?
     func url(transaction hash: String) -> URL?
+    /// Returns explorer URL for token transaction.
+    /// - Default implementation: returns same value as url(transaction: hash).
+    func tokenUrl(transaction hash: String) -> URL?
+}
+
+public extension ExternalLinkProvider {
+    func tokenUrl(transaction hash: String) -> URL? {
+        url(transaction: hash)
+    }
 }
