@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 
 struct FeeSelectorTokensView: View {
     @ObservedObject var viewModel: FeeSelectorTokensViewModel
@@ -19,10 +20,9 @@ struct FeeSelectorTokensView: View {
             VStack(spacing: 20) {
                 RowSection(rows: viewModel.availableFeeCurrencyTokens)
 
-                // Intentionall left commented
-//                if viewModel.unavailableFeeCurrencyTokens.isNotEmpty {
-//                    RowSection(title: "Not Available", rows: viewModel.unavailableFeeCurrencyTokens)
-//                }
+                if viewModel.unavailableFeeCurrencyTokens.isNotEmpty {
+                    RowSection(title: Localization.commonNotAvailable, rows: viewModel.unavailableFeeCurrencyTokens)
+                }
             }
         }
         .scrollIndicators(.hidden)
@@ -42,7 +42,7 @@ private struct RowSection: View {
                     .padding(.leading, 12)
             }
 
-            VStack(spacing: 8) {
+            VStack(spacing: 6) {
                 ForEach(rows, id: \.self) {
                     FeeSelectorRowView(viewModel: $0)
                 }
