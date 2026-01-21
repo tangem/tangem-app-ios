@@ -12,10 +12,10 @@ import Combine
 final class MarketsNotificationsManager {
     @Injected(\.ukGeoDefiner) private var ukGeoDefiner: UKGeoDefiner
 
-    private let dataProvider: MarketsListDataProvider
+    private let tokenLoadingStateProvider: AnyPublisher<MarketsView.ListLoadingState, Never>
 
-    init(dataProvider: MarketsListDataProvider) {
-        self.dataProvider = dataProvider
+    init(tokenLoadingStateProvider: AnyPublisher<MarketsView.ListLoadingState, Never>) {
+        self.tokenLoadingStateProvider = tokenLoadingStateProvider
     }
 
     func yieldNotificationVisible(
@@ -27,14 +27,21 @@ final class MarketsNotificationsManager {
             }
         }.eraseToAnyPublisher()
 
-        let showMarketsYieldModeNotification = AppSettings.shared.$showMarketsYieldModeNotification
+        let isNotificationNotDismissedPublisher = AppSettings.shared.$showMarketsYieldModeNotification
             .removeDuplicates()
 
-        return Publishers.CombineLatest3(filterPublisher, showMarketsYieldModeNotification, isUKPublisher)
-            .map { filter, show, isUK in
-                !isUK && show && filter.order != .yield
-            }
-            .removeDuplicates()
-            .eraseToAnyPublisher()
+        return Publishers.CombineLatest4(
+            filterPublisher,
+            isNotificationNotDismissedPublisher,
+            isUKPublisher,
+            tokenLoadingStateProvider
+        )
+        .map { filter, isNotificationNotDismissed, isUK, tokenLoadingState in
+            let areTokensLoaded = tokenLoadingState.isAllDataLoaded || tokenLoadingState.isIdle
+            let isYieldFilterInactive = !filter.order.isYield
+            return !isUK && isNotificationNotDismissed && isYieldFilterInactive && areTokensLoaded
+        }
+        .removeDuplicates()
+        .eraseToAnyPublisher()
     }
 }
