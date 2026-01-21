@@ -296,6 +296,7 @@
 "common_now" = "Now";
 "common_ok" = "OK";
 "common_open_in_browser" = "Open in Browser";
+"common_or" = "or";
 "common_origin_card" = "主卡片";
 "common_origin_ring" = "Primary ring";
 "common_passphrase" = "Passphrase";
@@ -400,7 +401,6 @@
 "details_manage_security_long_tap" = "長按";
 "details_manage_security_passcode_description" = "在執行任何需要更改卡狀態的命令之前，您必須輸入密碼";
 "details_manage_security_passcode" = "密碼";
-"details_mobile_section_description" = "You can have either one mobile wallet or hardware wallet at the same time. Upgrade you wallet or delete it from the app to start using a Tangem cold wallet.";
 "details_mobile_wallet_upgrade_action_title" = "Upgrade to hardware wallet";
 "details_nft_title" = "NFT";
 "details_referral_title" = "推薦計畫";
@@ -417,6 +417,7 @@
 "details_security_management_warning" = "如果您忘記密碼，您將無法使用您的資金。無法恢復代碼";
 "details_send_feedback" = "Send feedback";
 "details_title" = "更多";
+"details_wallets_section_description" = "You can have either one mobile wallet or hardware wallet at the same time. Upgrade you wallet or delete it from the app to start using a Tangem cold wallet.";
 "disclaimer_title" = "服務條款";
 "domain_receive_assets_default_address" = "Default Address";
 "domain_receive_assets_legacy_address" = "Legacy %@ Address";
@@ -578,11 +579,15 @@
 "hw_backup_seed_title" = "Recovery phrase";
 "hw_backup_to_secure_description" = "To secure your wallet with an access code, complete the backup process.";
 "hw_backup_to_upgrade_description" = "To upgrade to a hardware wallet, complete the backup process.";
+"hw_backup_upgrade_description" = "Upgrade your mobile wallet to a Tangem hardware wallet for the highest security. Import your wallet or transfer funds to a new one.";
+"hw_backup_upgrade_title" = "Upgrade to cold wallet";
 "hw_create_keys_description" = "Your private keys are securely encrypted and stored on your phone";
 "hw_create_keys_title" = "Private keys stay on your device";
 "hw_create_seed_description" = "Create or restore your wallet with a recovery phrase.";
 "hw_create_seed_title" = "Seed phrase backup";
 "hw_create_title" = "Create Mobile Wallet";
+"hw_create_upgrade_description" = "Upgrade anytime with a Tangem card or ring and secure your keys on hardware.";
+"hw_create_upgrade_title" = "Upgrade to hardware wallet";
 "hw_import_existing_wallet" = "Import existing wallet";
 "hw_import_seed_phrase_already_imported" = "This recovery phrase has already been imported";
 "hw_mobile_wallet" = "Mobile Wallet";
@@ -1296,6 +1301,7 @@
 "swap_story_third_subtitle" = "Hassle-free and intuitive, allowing you to swap tokens in just a few taps";
 "swap_story_third_title" = "Simply Convenient";
 "swap_via_provider" = "Swap via provider";
+"swap_your_assets_title" = "Your assets";
 "swapping_alert_cex_description_with_slippage" = "The amount includes:\n• service provider's fee\n• network fee for sending %1$@ from the exchange back to the user's address. \n\nProvider slippage is up to %2$@";
 "swapping_alert_cex_description" = "The amount includes:\n• service provider's fee\n• network fee for sending %@ from the exchange back to the user's address.";
 "swapping_alert_dex_description_with_slippage" = "The amount includes the service provider's fee. \n\nProvider slippage is up to %@";
@@ -1310,6 +1316,7 @@
 "swapping_insufficient_funds" = "餘額不足";
 "swapping_permission_header" = "賦予權限";
 "swapping_permit_and_swap" = "許可和交換";
+"swapping_swap_action_in_progress" = "Swapping...";
 "swapping_swap_action" = "交易";
 "swapping_to_title" = "You receive";
 "swapping_token_list_title" = "選擇代幣";
@@ -1437,6 +1444,8 @@
 "tangempay_temporarily_unavailable" = "Tangem Pay暂时不可用";
 "tangempay_title" = "Tangem Pay";
 "tangempay_use_tangem_device_to_restore_payment_account" = "點擊下方按鈕以恢復存取權限";
+"tangempay_withdrawal_note_description" = "You can only withdraw USDC (Polygon) currently available on your on‑chain address balance, taking into account pending transactions. If you previously made a refund or cancelled a purchase, your crypto account balance will update within 2 business days.";
+"tangempay_withdrawal_note_title" = "Please note";
 "tangempay_your_pin_code" = "您的PIN码";
 "this_is_my_wallet_title" = "This is my wallet";
 "toast_balances_hidden" = "Balances hidden";
@@ -1510,7 +1519,7 @@
 "universal_error" = "We've encountered an error. Error code: %@. Please contact our support.";
 "unlock_wallet_description_full" = "Use %@ or scan a card/ring to have access to your wallet";
 "unsupported_wc_version" = "Connection failed: This dApp uses Wallet Connect version 1.0, which is not supported. Please ensure the dApp supports Wallet Connect version 2.0 to connect successfully.";
-"upgrade_to_hardware_wallet_button_title" = "Upgrade to a hardware wallet";
+"upgrade_to_hardware_wallet_button_title" = "Upgrade to hardware wallet";
 "user_push_notification_agreement_argument_one_subtitle" = "Real-time alerts for transactions, exchanges, and critical updates.";
 "user_push_notification_agreement_argument_one_title" = "Transaction Alerts";
 "user_push_notification_agreement_argument_one" = "Stay up to date with the latest features and news";
@@ -1850,6 +1859,7 @@
 "welcome_create_wallet_feature_delivery" = "Fast delivery";
 "welcome_create_wallet_feature_one_tap" = "Start in one tap";
 "welcome_create_wallet_feature_seamless" = "Seamless and secure";
+"welcome_create_wallet_feature_seedphrase" = "No seed phrase";
 "welcome_create_wallet_feature_use" = "Simple to use";
 "welcome_create_wallet_hardware_description" = "Create a hardware wallet with Tangem. Slim as a bank card, secure as a bank vault.";
 "welcome_create_wallet_mobile_description_full" = "Create or import a software wallet on your phone.";
