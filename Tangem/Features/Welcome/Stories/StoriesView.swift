@@ -6,9 +6,11 @@
 //
 
 import SwiftUI
+import TangemUIUtils
 
 struct StoriesView: View {
     @ObservedObject var viewModel: StoriesViewModel
+    let scanTroubleshootingDialog: Binding<ConfirmationDialogViewModel?>
 
     var body: some View {
         ZStack {
@@ -63,7 +65,8 @@ struct StoriesView: View {
                 isScanning: viewModel.isScanning,
                 createWallet: viewModel.onCreateWallet,
                 scanCard: viewModel.onScanCard,
-                orderCard: viewModel.onOrderCard
+                orderCard: viewModel.onOrderCard,
+                scanTroubleshootingDialog: scanTroubleshootingDialog
             )
         case WelcomeStoryPage.awe:
             AweStoryPage(
@@ -71,7 +74,8 @@ struct StoriesView: View {
                 isScanning: viewModel.isScanning,
                 createWallet: viewModel.onCreateWallet,
                 scanCard: viewModel.onScanCard,
-                orderCard: viewModel.onOrderCard
+                orderCard: viewModel.onOrderCard,
+                scanTroubleshootingDialog: scanTroubleshootingDialog
             )
         case WelcomeStoryPage.backup:
             BackupStoryPage(
@@ -79,7 +83,8 @@ struct StoriesView: View {
                 isScanning: viewModel.isScanning,
                 createWallet: viewModel.onCreateWallet,
                 scanCard: viewModel.onScanCard,
-                orderCard: viewModel.onOrderCard
+                orderCard: viewModel.onOrderCard,
+                scanTroubleshootingDialog: scanTroubleshootingDialog
             )
         case WelcomeStoryPage.currencies:
             CurrenciesStoryPage(
@@ -88,23 +93,17 @@ struct StoriesView: View {
                 createWallet: viewModel.onCreateWallet,
                 scanCard: viewModel.onScanCard,
                 orderCard: viewModel.onOrderCard,
-                searchTokens: viewModel.onSearchTokens
+                searchTokens: viewModel.onSearchTokens,
+                scanTroubleshootingDialog: scanTroubleshootingDialog
             )
-//        case WelcomeStoryPage.web3:
-//            Web3StoryPage(
-//                progress: viewModel.currentProgress,
-//                isScanning: viewModel.isScanning,
-//                createWallet: viewModel.onCreateWallet,
-//                scanCard: viewModel.onScanCard,
-//                orderCard: viewModel.onOrderCard
-//            )
         case WelcomeStoryPage.finish:
             FinishStoryPage(
                 progress: viewModel.currentProgress,
                 isScanning: viewModel.isScanning,
                 createWallet: viewModel.onCreateWallet,
                 scanCard: viewModel.onScanCard,
-                orderCard: viewModel.onOrderCard
+                orderCard: viewModel.onOrderCard,
+                scanTroubleshootingDialog: scanTroubleshootingDialog
             )
         }
     }
@@ -112,6 +111,6 @@ struct StoriesView: View {
 
 struct StoriesView_Previews: PreviewProvider {
     static var previews: some View {
-        StoriesView(viewModel: StoriesViewModel())
+        StoriesView(viewModel: StoriesViewModel(), scanTroubleshootingDialog: .constant(nil))
     }
 }
