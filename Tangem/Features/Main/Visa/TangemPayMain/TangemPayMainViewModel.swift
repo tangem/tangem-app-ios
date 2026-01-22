@@ -125,6 +125,7 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func onPin() {
+        Analytics.log(.visaScreenPinCodeClicked)
         let isPinSet = tangemPayAccount.isPinSet
 
         if isPinSet {
@@ -145,6 +146,7 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func withdraw() {
+        Analytics.log(.visaScreenWithdrawClicked)
         guard let tangemPayWalletWrapper = makeExpressInteractorTangemPayWalletWrapper() else {
             coordinator?.openTangemPayNoDepositAddressSheet()
             return
@@ -179,6 +181,7 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func openAddToApplePayGuide() {
+        Analytics.log(.visaScreenAddToWalletClicked)
         coordinator?.openAddToApplePayGuide(
             viewModel: .init(repository: cardDetailsRepository)
         )
@@ -189,12 +192,14 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func showFreezePopup() {
+        Analytics.log(.visaScreenFreezeCardClicked)
         coordinator?.openTangemPayFreezeSheet { [weak self] in
             self?.freeze()
         }
     }
 
     func unfreeze() {
+        Analytics.log(.visaScreenUnfreezeCardClicked)
         guard let cardId = tangemPayAccount.cardId else {
             showFreezeUnfreezeErrorToast(freeze: false)
             return
@@ -226,6 +231,7 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func contactSupport() {
+        Analytics.log(.visaScreenGoToSupportOnBetaBannerClicked)
         let dataCollector = TangemPaySupportDataCollector(
             source: .permanentBanner,
             userWalletId: userWalletInfo.id.stringValue
@@ -278,11 +284,21 @@ final class TangemPayMainViewModel: ObservableObject {
             assertionFailure("Transaction not found")
             return
         }
-
+        Analytics.log(
+            event: .visaScreenTransactionInListClicked,
+            params: [
+                .status: transaction.record.analyticsStatus,
+                .type: transaction.transactionType.rawValue,
+            ]
+        )
         coordinator?.openTangemPayTransactionDetailsSheet(
             transaction: transaction,
             userWalletId: userWalletInfo.id.stringValue
         )
+    }
+
+    func onToolbarClicked() {
+        Analytics.log(.visaScreenCardSettingsClicked)
     }
 }
 
@@ -409,6 +425,21 @@ private extension TangemPayFreezingState {
             .hidden(isFrozen: true)
         case .unfreezingInProgress:
             .loading(isFrozen: true)
+        }
+    }
+}
+
+// MARK: - Private util
+
+private extension TangemPayTransactionHistoryResponse.Record {
+    var analyticsStatus: String {
+        switch self {
+        case .spend(let spend):
+            return spend.status.rawValue
+        case .payment(let payment):
+            return payment.status.rawValue
+        case .collateral, .fee:
+            return "unknown"
         }
     }
 }
