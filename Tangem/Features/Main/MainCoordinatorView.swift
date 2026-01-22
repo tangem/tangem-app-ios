@@ -72,6 +72,9 @@ struct MainCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.yieldModulePromoCoordinator) {
                 YieldModulePromoCoordinatorView(coordinator: $0)
             }
+            .navigation(item: $coordinator.mobileBackupTypesCoordinator) {
+                MobileBackupTypesCoordinatorView(coordinator: $0)
+            }
     }
 
     @ViewBuilder
