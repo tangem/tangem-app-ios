@@ -27,8 +27,13 @@ struct TangemPayFreezeSheetViewModel: FloatingSheetContentViewModel {
     }
 
     func freeze() {
+        Analytics.log(.visaScreenFreezeCardConfirmClicked)
         freezeAction()
         close()
+    }
+
+    func onAppear() {
+        Analytics.log(.visaScreenFreezeCardConfirmShown)
     }
 
     var primaryButtonSettings: MainButton.Settings {
