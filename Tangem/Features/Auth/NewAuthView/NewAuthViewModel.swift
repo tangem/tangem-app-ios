@@ -17,7 +17,6 @@ import class TangemSdk.BiometricsUtil
 final class NewAuthViewModel: ObservableObject {
     @Published var state: State?
     @Published var alert: AlertBinder?
-    @Published var confirmationDialog: ConfirmationDialogViewModel?
     @Published var unlockingUserWalletId: UserWalletId?
 
     var isUnlocking: Bool {
@@ -59,6 +58,10 @@ extension NewAuthViewModel {
     func onDisappear() {
         incomingActionManager.resignFirstResponder(self)
     }
+
+    func onScanTroubleshootingDialogDismiss(for userWalletID: UserWalletId) {
+        state?.hideScanTroubleshootingDialog(for: userWalletID)
+    }
 }
 
 // MARK: - States
@@ -85,33 +88,27 @@ private extension NewAuthViewModel {
     }
 
     func makeWalletsState() -> State {
-        let addWallet = AddWalletItem(
+        let addWalletButton = Button(
             title: Localization.authInfoAddWalletTitle,
             action: weakify(self, forFunction: NewAuthViewModel.openAddWallet)
         )
 
-        let info = InfoItem(
-            title: Localization.welcomeUnlockTitle,
-            description: Localization.authInfoSubtitle
-        )
-
         let wallets = userWalletRepository.models.map(makeWalletItem)
 
-        let biometricsUnlock: BiometricsUnlockItem?
+        let biometricsUnlockButton: Button?
         if isBiometricsUtilAvailable {
-            biometricsUnlock = BiometricsUnlockItem(
+            biometricsUnlockButton = Button(
                 title: Localization.userWalletListUnlockAllWith(BiometricsUtil.biometryType.name),
                 action: weakify(self, forFunction: NewAuthViewModel.onUnlockWithBiometryTap)
             )
         } else {
-            biometricsUnlock = nil
+            biometricsUnlockButton = nil
         }
 
         let stateItem = WalletsStateItem(
-            addWallet: addWallet,
-            info: info,
-            wallets: wallets,
-            biometricsUnlock: biometricsUnlock
+            addWalletButton: addWalletButton,
+            biometricsUnlockButton: biometricsUnlockButton,
+            wallets: wallets
         )
 
         return .wallets(stateItem)
@@ -127,6 +124,7 @@ private extension NewAuthViewModel {
             description: description,
             imageProvider: userWalletModel.walletImageProvider,
             isProtected: isProtected,
+            scanTroubleshootingDialog: nil,
             isUnlocking: { userWalletId in
                 userWalletModel.userWalletId == userWalletId
             },
@@ -329,7 +327,7 @@ private extension NewAuthViewModel {
             self?.openSupportRequest()
         }
 
-        confirmationDialog = ConfirmationDialogViewModel(
+        let confirmationDialog = ConfirmationDialogViewModel(
             title: Localization.alertTroubleshootingScanCardTitle,
             subtitle: Localization.alertTroubleshootingScanCardMessage,
             buttons: [
@@ -339,6 +337,8 @@ private extension NewAuthViewModel {
                 ConfirmationDialogViewModel.Button.cancel,
             ]
         )
+
+        state?.show(scanTroubleshootingDialog: confirmationDialog, for: userWalletModel.userWalletId)
     }
 
     func openScanCardManual() {
@@ -445,36 +445,50 @@ extension NewAuthViewModel {
             default: false
             }
         }
+
+        mutating func show(scanTroubleshootingDialog dialog: ConfirmationDialogViewModel, for userWalletID: UserWalletId) {
+            update(scanTroubleshootingDialog: dialog, for: userWalletID)
+        }
+
+        mutating func hideScanTroubleshootingDialog(for userWalletID: UserWalletId) {
+            update(scanTroubleshootingDialog: nil, for: userWalletID)
+        }
+
+        private mutating func update(scanTroubleshootingDialog: ConfirmationDialogViewModel?, for userWalletID: UserWalletId) {
+            guard
+                case .wallets(var walletsStateItem) = self,
+                let walletIndex = walletsStateItem.wallets.firstIndex(where: { $0.id == userWalletID })
+            else {
+                return
+            }
+
+            walletsStateItem.wallets[walletIndex].scanTroubleshootingDialog = scanTroubleshootingDialog
+            self = .wallets(walletsStateItem)
+        }
     }
 
     struct WalletsStateItem {
-        let addWallet: AddWalletItem
-        let info: InfoItem
-        let wallets: [WalletItem]
-        let biometricsUnlock: BiometricsUnlockItem?
+        let title = Localization.welcomeUnlockTitle
+        let description = Localization.authInfoSubtitle
+        let addWalletButton: Button
+        let biometricsUnlockButton: Button?
+        var wallets: [WalletItem]
     }
 
     struct WalletItem: Identifiable {
-        let id: AnyHashable
+        let id: UserWalletId
         let title: String
         let description: String
         let imageProvider: WalletImageProviding
         let isProtected: Bool
+
+        var scanTroubleshootingDialog: ConfirmationDialogViewModel?
+
         let isUnlocking: (UserWalletId?) -> Bool
         let action: () -> Void
     }
 
-    struct AddWalletItem {
-        let title: String
-        let action: () -> Void
-    }
-
-    struct InfoItem {
-        let title: String
-        let description: String
-    }
-
-    struct BiometricsUnlockItem {
+    struct Button {
         let title: String
         let action: () -> Void
     }
