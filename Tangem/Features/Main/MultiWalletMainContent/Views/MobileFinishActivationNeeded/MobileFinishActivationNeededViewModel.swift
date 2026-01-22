@@ -58,7 +58,12 @@ extension MobileFinishActivationNeededViewModel {
     func onBackupTap() {
         Analytics.log(.backupStarted)
         coordinator?.dismissMobileFinishActivationNeeded()
-        coordinator?.openMobileBackupOnboarding(userWalletModel: userWalletModel)
+
+        if isBackupNeeded {
+            coordinator?.openMobileBackup(userWalletModel: userWalletModel)
+        } else {
+            coordinator?.openMobileBackupOnboarding(userWalletModel: userWalletModel)
+        }
     }
 }
 
