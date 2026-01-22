@@ -7,24 +7,16 @@
 //
 
 import Foundation
+import BlockchainSdk
 
 public enum ExpressProviderManagerState {
     case idle
     case error(Error, quote: ExpressQuote?)
     case restriction(_ restriction: ExpressRestriction, quote: ExpressQuote?)
 
-    case permissionRequired(ExpressManagerState.PermissionRequired)
-    case preview(ExpressManagerState.PreviewCEX)
-    case ready(ExpressManagerState.Ready)
-
-    public var isError: Bool {
-        switch self {
-        case .idle, .permissionRequired, .restriction, .preview, .ready:
-            return false
-        case .error:
-            return true
-        }
-    }
+    case permissionRequired(ExpressProviderManagerState.PermissionRequired)
+    case preview(ExpressProviderManagerState.PreviewCEX)
+    case ready(ExpressProviderManagerState.Ready)
 
     public var quote: ExpressQuote? {
         switch self {
@@ -43,6 +35,15 @@ public enum ExpressProviderManagerState {
         }
     }
 
+    public var isError: Bool {
+        switch self {
+        case .idle, .permissionRequired, .restriction, .preview, .ready:
+            return false
+        case .error:
+            return true
+        }
+    }
+
     public var isPermissionRequired: Bool {
         switch self {
         case .permissionRequired:
@@ -50,6 +51,27 @@ public enum ExpressProviderManagerState {
         default:
             return false
         }
+    }
+}
+
+public extension ExpressProviderManagerState {
+    struct PermissionRequired {
+        public let provider: ExpressProvider
+        public let policy: ApprovePolicy
+        public let data: ApproveTransactionData
+        public let quote: ExpressQuote
+    }
+
+    struct PreviewCEX {
+        public let provider: ExpressProvider
+        public let subtractFee: Decimal
+        public let quote: ExpressQuote
+    }
+
+    struct Ready {
+        public let provider: ExpressProvider
+        public let data: ExpressTransactionData
+        public let quote: ExpressQuote
     }
 }
 

@@ -464,7 +464,7 @@ extension SendModel: SendReceiveTokenAmountInput {
             try? await mapToHighPriceImpactCalculatorResult(
                 sourceTokenAmount: sourceAmount.value,
                 receiveTokenAmount: receiveAmount.value,
-                provider: swapManager.selectedProvider?.provider
+                provider: swapManager.state.context?.provider
             )
         }
     }
@@ -490,13 +490,13 @@ extension SendModel: SendReceiveTokenAmountInput {
 
     private func mapToReceiveSendAmount(state: SwapManagerState) -> LoadingResult<SendAmount, any Error> {
         switch state {
-        case .restriction(.requiredRefresh(let error), _):
+        case .requiredRefresh(let error, _):
             return .failure(error)
-        case .idle, .restriction:
+        case .idle, .preloadRestriction, .restriction:
             return .failure(SendAmountError.noAmount)
         case .loading:
             return .loading
-        case .permissionRequired(_, let quote), .readyToSwap(_, let quote), .previewCEX(_, let quote):
+        case .permissionRequired(_, _, let quote), .readyToSwap(_, _, let quote), .previewCEX(_, _, let quote):
             let fiat = receiveToken.tokenItem.currencyId.flatMap { currencyId in
                 balanceConverter.convertToFiat(quote.expectAmount, currencyId: currencyId)
             }
@@ -551,7 +551,7 @@ extension SendModel: SendSwapProvidersInput {
     }
 
     var selectedExpressProvider: ExpressAvailableProvider? {
-        get async { await swapManager.selectedProvider }
+        swapManager.state.context?.availableProvider
     }
 
     var selectedExpressProviderPublisher: AnyPublisher<ExpressAvailableProvider?, Never> {
@@ -646,14 +646,7 @@ extension SendModel: SendSummaryInput, SendSummaryOutput {
             return swapManager.statePublisher
                 // Avoid button disable / non-disable state jumping
                 .filter { !$0.isRefreshRates }
-                .map { state in
-                    switch state {
-                    case .loading, .readyToSwap, .previewCEX:
-                        return true
-                    case .idle, .restriction, .permissionRequired:
-                        return false
-                    }
-                }
+                .map { $0.isAvailableToSendTransaction }
                 .eraseToAnyPublisher()
         }
     }
@@ -680,17 +673,35 @@ extension SendModel: SendSummaryInput, SendSummaryOutput {
                 .withWeakCaptureOf(self)
                 .flatMap { model, state -> AnyPublisher<SendSummaryTransactionData?, Never> in
                     switch state {
-                    case .loading(.refreshRates, _), .loading(.fee, _):
+                    case .loading(.refreshRates), .loading(.fee):
                         return Empty().eraseToAnyPublisher()
-                    case .idle, .loading(.full, _), .restriction:
+                    case .idle, .loading(.full), .preloadRestriction, .restriction, .requiredRefresh:
                         return .just(output: .none)
-                    case .permissionRequired(let state, let quote):
+                    case .permissionRequired(let state, let provider, let quote):
                         let fee = TokenFee(option: .market, tokenItem: state.fee.feeTokenItem, value: .success(state.fee.fee))
-                        return .just(output: .swap(amount: quote.fromAmount, fee: fee, provider: state.provider))
-                    case .previewCEX(let state, let quote):
-                        return .just(output: .swap(amount: quote.fromAmount, fee: state.tokenFeeProvidersManager.selectedTokenFee, provider: state.provider))
-                    case .readyToSwap(let state, let quote):
-                        return .just(output: .swap(amount: quote.fromAmount, fee: state.tokenFeeProvidersManager.selectedTokenFee, provider: state.provider))
+                        return .just(
+                            output: .swap(
+                                amount: quote.fromAmount,
+                                fee: fee,
+                                provider: provider.provider
+                            )
+                        )
+                    case .previewCEX(_, let context, let quote):
+                        return .just(
+                            output: .swap(
+                                amount: quote.fromAmount,
+                                fee: context.tokenFeeProvidersManager.selectedTokenFee,
+                                provider: context.provider
+                            )
+                        )
+                    case .readyToSwap(_, let context, let quote):
+                        return .just(
+                            output: .swap(
+                                amount: quote.fromAmount,
+                                fee: context.tokenFeeProvidersManager.selectedTokenFee,
+                                provider: context.provider
+                            )
+                        )
                     }
                 }
                 .eraseToAnyPublisher()
