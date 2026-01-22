@@ -20,7 +20,7 @@ struct TransactionDispatcherFactory {
         }
 
         let gaslessTransactionBuilder = GaslessTransactionBuilder(walletModel: walletModel, signer: signer)
-        let gaslessTransactionBroadcastService = GaslessTransactionBroadcastService(
+        let gaslessTransactionSender = GaslessTransactionSender(
             walletModel: walletModel,
             transactionSigner: signer,
             gaslessTransactionBuilder: gaslessTransactionBuilder
@@ -28,7 +28,7 @@ struct TransactionDispatcherFactory {
         return SendTransactionDispatcher(
             walletModel: walletModel,
             transactionSigner: signer,
-            gaslessTransactionBroadcastService: gaslessTransactionBroadcastService
+            gaslessTransactionSender: gaslessTransactionSender
         )
     }
 
@@ -87,7 +87,7 @@ struct TransactionDispatcherFactory {
         guard let transactionsSender = walletModel.multipleTransactionsSender else { return nil }
 
         return YieldModuleTransactionDispatcher(
-            blockchain: walletModel.tokenItem.blockchain,
+            tokenItem: walletModel.tokenItem,
             walletModelUpdater: walletModel,
             transactionsSender: transactionsSender,
             transactionSigner: signer,

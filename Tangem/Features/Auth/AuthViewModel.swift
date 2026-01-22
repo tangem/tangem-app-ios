@@ -19,7 +19,7 @@ final class AuthViewModel: ObservableObject {
 
     @Published var isScanningCard: Bool = false
     @Published var error: AlertBinder?
-    @Published var confirmationDialog: ConfirmationDialogViewModel?
+    @Published var scanTroubleshootingDialog: ConfirmationDialogViewModel?
 
     var unlockWithBiometryButtonTitle: String {
         Localization.welcomeUnlock(BiometricsUtil.biometryType.name)
@@ -232,7 +232,7 @@ extension AuthViewModel {
             self?.requestSupport()
         }
 
-        confirmationDialog = ConfirmationDialogViewModel(
+        scanTroubleshootingDialog = ConfirmationDialogViewModel(
             title: Localization.alertTroubleshootingScanCardTitle,
             subtitle: Localization.alertTroubleshootingScanCardMessage,
             buttons: [
