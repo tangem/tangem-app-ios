@@ -10,7 +10,3 @@ public protocol EthereumGaslessDataProvider {
     func prepareEIP7702AuthorizationData() async throws -> EIP7702AuthorizationData
     func getGaslessExecutorContractAddress() throws -> String
 }
-
-public protocol EthereumGaslessTransactionBroadcaster {
-    func broadcast(transaction: Transaction, compiledTransactionHex: String) async throws -> TransactionSendResult
-}
