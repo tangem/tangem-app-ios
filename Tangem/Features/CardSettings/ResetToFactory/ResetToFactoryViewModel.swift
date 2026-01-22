@@ -50,7 +50,7 @@ final class ResetToFactoryViewModel: ObservableObject {
     init(input: ResetToFactoryViewModel.Input, coordinator: ResetToFactoryViewRoutable) {
         self.input = input
         self.coordinator = coordinator
-        resetUtil = ResetToFactoryUtilBuilder().build(
+        resetUtil = ResetToFactoryUtilBuilder(flow: .reset).build(
             backupCardsCount: input.backupCardsCount,
             cardInteractor: input.cardInteractor
         )
