@@ -14,16 +14,16 @@ import TangemFoundation
 class SendTransactionDispatcher {
     private let walletModel: any WalletModel
     private let transactionSigner: TangemSigner
-    private let gaslessTransactionBroadcastService: GaslessTransactionBroadcastService
+    private let gaslessTransactionSender: GaslessTransactionSender
 
     init(
         walletModel: any WalletModel,
         transactionSigner: TangemSigner,
-        gaslessTransactionBroadcastService: GaslessTransactionBroadcastService
+        gaslessTransactionSender: GaslessTransactionSender
     ) {
         self.walletModel = walletModel
         self.transactionSigner = transactionSigner
-        self.gaslessTransactionBroadcastService = gaslessTransactionBroadcastService
+        self.gaslessTransactionSender = gaslessTransactionSender
     }
 }
 
@@ -42,30 +42,32 @@ extension SendTransactionDispatcher: TransactionDispatcher {
         let mapper = TransactionDispatcherResultMapper()
 
         do {
-            let hash = try await send(transaction: transferTransaction)
+            let result = try await send(transaction: transferTransaction)
             walletModel.updateAfterSendingTransaction()
 
             if walletModel.yieldModuleManager?.state?.state.isEffectivelyActive == true {
-                walletModel.yieldModuleManager?.sendTransactionSendEvent(transactionHash: hash.hash)
+                walletModel.yieldModuleManager?.sendTransactionSendEvent(transactionHash: result.hash)
             }
 
-            return mapper.mapResult(
-                hash,
-                blockchain: walletModel.tokenItem.blockchain,
-                signer: transactionSigner.latestSignerType,
-                isToken: walletModel.tokenItem.isToken
-            )
+            return result
         } catch {
             AppLogger.error(error: error)
             throw mapper.mapError(error.toUniversalError(), transaction: transaction)
         }
     }
 
-    private func send(transaction: BSDKTransaction) async throws -> TransactionSendResult {
+    private func send(transaction: BSDKTransaction) async throws -> TransactionDispatcherResult {
         if walletModel.tokenItem.blockchain.isGaslessTransactionSupported, transaction.fee.amount.type.isToken {
-            return try await gaslessTransactionBroadcastService.send(transaction: transaction)
+            return try await gaslessTransactionSender.send(transaction: transaction)
         }
 
-        return try await walletModel.transactionSender.send(transaction, signer: transactionSigner).async()
+        let sendResult = try await walletModel.transactionSender.send(transaction, signer: transactionSigner).async()
+        let dispatcherResult = TransactionDispatcherResultMapper().mapResult(
+            sendResult,
+            blockchain: walletModel.tokenItem.blockchain,
+            signer: transactionSigner.latestSignerType,
+            isToken: walletModel.tokenItem.isToken
+        )
+        return dispatcherResult
     }
 }
