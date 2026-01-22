@@ -96,6 +96,23 @@ final class PulseMarketWidgetViewModel: ObservableObject {
     }
 
     func onSeeAllTapAction() {
+        let currentFilter = filterProvider.currentFilterValue
+
+        Analytics.log(
+            event: .marketsTokenListOpened,
+            params: [
+                .source: Analytics.ParameterValue.marketPulse.rawValue,
+            ]
+        )
+
+        Analytics.log(
+            event: .marketsTokensSort,
+            params: [
+                .type: currentFilter.order.analyticsValue.capitalizingFirstLetter(),
+                .period: currentFilter.interval.rawValue,
+            ]
+        )
+
         runTask(in: self) { @MainActor viewModel in
             viewModel.coordinator?.openSeeAllPulseMarketWidget(with: viewModel.filterProvider.currentFilterValue.order)
         }
@@ -179,6 +196,15 @@ private extension PulseMarketWidgetViewModel {
                 case .failedToFetchData(let error):
                     if viewModel.dataProvider.items.isEmpty {
                         viewModel.quotesUpdatesScheduler.cancelUpdates()
+
+                        let analyticsParams = error.marketsAnalyticsParams
+                        Analytics.log(
+                            event: .marketsMarketsLoadError,
+                            params: [
+                                .errorCode: analyticsParams[.errorCode] ?? "",
+                                .errorMessage: analyticsParams[.errorMessage] ?? "",
+                            ]
+                        )
                     }
 
                     viewModel.tokenViewModelsState = .failure(error)
