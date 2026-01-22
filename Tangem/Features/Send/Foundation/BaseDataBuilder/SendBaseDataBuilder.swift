@@ -40,7 +40,7 @@ protocol SendFeeCurrencyProviderDataBuilder {
 }
 
 protocol SendApproveViewModelInputDataBuilder: SendGenericBaseDataBuilder {
-    func makeExpressApproveViewModelInput() async throws -> ExpressApproveViewModel.Input
+    func makeExpressApproveViewModelInput() throws -> ExpressApproveViewModel.Input
 }
 
 protocol SendGenericBaseDataBuilder {
