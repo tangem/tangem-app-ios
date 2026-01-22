@@ -19,16 +19,24 @@ final class SuiWalletManager: BaseManager, WalletManager {
         super.init(wallet: wallet)
     }
 
-    override func updateWalletManager() async throws {
-        do {
-            let result = try await networkService.getBalance(address: wallet.address, coinType: .sui, cursor: nil).async()
-            let coins = try result.get()
-            updateWallet(coins: coins, tokens: cardTokens)
-
-        } catch {
-            wallet.clearAmounts()
-            throw error
-        }
+    override func update(completion: @escaping (Result<Void, any Error>) -> Void) {
+        let tokens = cardTokens
+        cancellable = networkService.getBalance(address: wallet.address, coinType: .sui, cursor: nil)
+            .sink(receiveCompletion: { [weak self] completionSubscriptions in
+                if case .failure(let error) = completionSubscriptions {
+                    self?.wallet.clearAmounts()
+                    completion(.failure(error))
+                }
+            }, receiveValue: { [weak self] result in
+                switch result {
+                case .success(let coins):
+                    self?.updateWallet(coins: coins, tokens: tokens)
+                    completion(.success(()))
+                case .failure(let error):
+                    self?.wallet.clearAmounts()
+                    completion(.failure(error))
+                }
+            })
     }
 
     func updateWallet(coins: [SuiGetCoins.Coin], tokens: [Token]) {

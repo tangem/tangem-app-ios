@@ -24,18 +24,22 @@ class TronWalletManager: BaseManager, WalletManager {
 
     private let feeSigner = DummySigner()
 
-    override func updateWalletManager() async throws {
-        do {
-            let accountInfo = try await networkService.accountInfo(
-                for: wallet.address,
-                tokens: cardTokens,
-                transactionIDs: wallet.pendingTransactions.map { $0.hash }
-            ).async()
-
-            updateWallet(accountInfo)
-        } catch {
-            wallet.clearAmounts()
-            throw error
+    override func update(completion: @escaping (Result<Void, Error>) -> Void) {
+        cancellable = networkService.accountInfo(
+            for: wallet.address,
+            tokens: cardTokens,
+            transactionIDs: wallet.pendingTransactions.map { $0.hash }
+        )
+        .sink { [weak self] in
+            switch $0 {
+            case .failure(let error):
+                self?.wallet.clearAmounts()
+                completion(.failure(error))
+            case .finished:
+                completion(.success(()))
+            }
+        } receiveValue: { [weak self] accountInfo in
+            self?.updateWallet(accountInfo)
         }
     }
 
