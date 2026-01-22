@@ -68,7 +68,7 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
                     completion(.failure(error))
                 }
             }, receiveValue: { [weak self] response in
-                self?.updateWallet(with: response.0, yieldTokensBalances: response.1)
+                self?.updateWallet(with: response.0, yieldTokensBalances: response.1, pendingTransactions: ())
                 completion(.success(()))
             })
     }

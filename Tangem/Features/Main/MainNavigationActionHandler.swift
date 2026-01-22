@@ -175,7 +175,7 @@ extension MainCoordinator {
             }
 
             // Trigger the update without awaiting completion
-            walletModel.startUpdateTask()
+            walletModel.generalUpdate(silent: false)
 
             if case .some(let type) = params.type, type == .onrampStatusUpdate || type == .swapStatusUpdate, let txId = params.transactionId {
                 return routeExpressTransactionStatusAction(
