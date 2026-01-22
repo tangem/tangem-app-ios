@@ -17,7 +17,10 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
     let networkService: EthereumNetworkService
     let addressConverter: EthereumAddressConverter
     let yieldSupplyService: YieldSupplyService?
+    let pendingTransactionsManager: EthereumPendingTransactionsManager
     let allowsFeeSelection: Bool
+
+    private var bag = Set<AnyCancellable>()
 
     var currentHost: String { networkService.host }
 
@@ -27,15 +30,19 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
         txBuilder: EthereumTransactionBuilder,
         networkService: EthereumNetworkService,
         yieldSupplyService: YieldSupplyService? = nil,
+        pendingTransactionsManager: EthereumPendingTransactionsManager,
         allowsFeeSelection: Bool
     ) {
         self.txBuilder = txBuilder
         self.networkService = networkService
         self.addressConverter = addressConverter
         self.yieldSupplyService = yieldSupplyService
+        self.pendingTransactionsManager = pendingTransactionsManager
         self.allowsFeeSelection = allowsFeeSelection
 
         super.init(wallet: wallet)
+
+        bind()
     }
 
     override func updateWalletManager() async throws {
@@ -51,15 +58,12 @@ class EthereumWalletManager: BaseManager, WalletManager, EthereumTransactionSign
                 tokens: cardTokens
             ).async()
 
-            async let pendingTransactionsInfo = networkService.getPendingTransactionsInfo(
-                address: convertedAddress,
-                pendingTransactionHashes: wallet.pendingTransactions.filter { !$0.isDummy }.map(\.hash)
-            ).async()
+            async let pendingTransactions: () = pendingTransactionsManager.syncPendingTransactions()
 
             try await updateWallet(
                 with: infoAndTokens,
                 yieldTokensBalances: yieldBalances,
-                pendingTransactionsInfo: pendingTransactionsInfo
+                pendingTransactions: pendingTransactions
             )
         } catch {
             wallet.clearAmounts()
@@ -318,6 +322,14 @@ extension EthereumWalletManager: EthereumNetworkProvider {
 // MARK: - Private
 
 private extension EthereumWalletManager {
+    func bind() {
+        pendingTransactionsManager.pendingTransactionsPublisher
+            .sink { [weak self] pendingTransactions in
+                self?.wallet.updatePendingTransaction(pendingTransactions)
+            }
+            .store(in: &bag)
+    }
+
     func getEIP1559Fee(from: String, destination: String, value: String?, data: Data?) -> AnyPublisher<[Fee], Error> {
         networkService.getEIP1559Fee(
             to: destination,
@@ -422,12 +434,11 @@ private extension EthereumWalletManager {
     func updateWallet(
         with response: EthereumInfoResponse,
         yieldTokensBalances: [Token: Result<Amount, Error>],
-        pendingTransactionsInfo: EthereumPendingTransactionsInfo,
+        pendingTransactions: Void
     ) {
         wallet.add(coinValue: response.balance)
 
         updateTokensBalances(tokensBalances: response.tokenBalances, yieldTokensBalances: yieldTokensBalances)
-        updatePendingTransactions(pendingTransactionsInfo: pendingTransactionsInfo)
     }
 
     func updateTokensBalances(
@@ -444,26 +455,6 @@ private extension EthereumWalletManager {
                 wallet.add(tokenValue: value, for: tokenBalance.key)
             }
         }
-    }
-
-    func updatePendingTransactions(pendingTransactionsInfo: EthereumPendingTransactionsInfo) {
-        // keep only those that are still pending.
-        var pendingTransactions = wallet.pendingTransactions.filter { transaction in
-            pendingTransactionsInfo.statuses[transaction.hash]?.isPending == true
-        }
-
-        let localPendingCount = pendingTransactions.count
-
-        // detect unknown/external pending transactions (pendingTransactionCount - transactionsCount)
-        let nodePendingCount = max(0, pendingTransactionsInfo.pendingTransactionCount - pendingTransactionsInfo.transactionCount)
-
-        // add dummy pending records for unknown pending transactions
-        if nodePendingCount > localPendingCount {
-            let dummy = PendingTransactionRecordMapper().makeDummy(blockchain: wallet.blockchain)
-            pendingTransactions.append(dummy)
-        }
-
-        wallet.updatePendingTransaction(pendingTransactions)
     }
 }
 
@@ -619,10 +610,7 @@ extension EthereumWalletManager: TransactionSender {
             }
             .withWeakCaptureOf(self)
             .tryMap { walletManager, hash in
-                let mapper = PendingTransactionRecordMapper()
-                let record = mapper.mapToPendingTransactionRecord(transaction: sanitizedTransaction, hash: hash)
-                walletManager.wallet.addPendingTransaction(record)
-
+                walletManager.pendingTransactionsManager.addTransaction(transaction, hash: hash)
                 return TransactionSendResult(hash: hash, currentProviderHost: walletManager.currentHost)
             }
             .mapSendTxError()
@@ -644,9 +632,7 @@ extension EthereumWalletManager: MultipleTransactionsSender {
                         .send(transaction: rawTransaction)
                         .async()
 
-                    let mapper = PendingTransactionRecordMapper()
-                    let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hash)
-                    walletManager.wallet.addPendingTransaction(record)
+                    walletManager.pendingTransactionsManager.addTransaction(transaction, hash: hash)
 
                     results.append(TransactionSendResult(hash: hash, currentProviderHost: walletManager.currentHost))
                 }
