@@ -86,7 +86,7 @@ extension MobileUpgradeViewModel {
         )
 
         let backupTrait = TraitItem(
-            icon: Assets.Visa.securityCheck,
+            icon: Assets.Glyphs.refreshLock,
             title: Localization.hwUpgradeBackupTitle,
             subtitle: Localization.hwUpgradeBackupDescription
         )
