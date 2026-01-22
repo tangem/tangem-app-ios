@@ -20,7 +20,6 @@ import struct TangemUIUtils.AlertBinder
 
 final class ReferralViewModel: ObservableObject {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     @Published var isProcessingRequest: Bool = false
     @Published var errorAlert: AlertBinder?
@@ -28,16 +27,13 @@ final class ReferralViewModel: ObservableObject {
     @Published private(set) var viewState: ViewState = .loading
 
     var mainButtonIcon: MainButton.Icon? {
-        guard let model = userWalletRepository.selectedModel else {
-            return nil
-        }
-
-        return CommonTangemIconProvider(config: model.config).getMainButtonIcon()
+        CommonTangemIconProvider(config: userWalletModel.config).getMainButtonIcon()
     }
 
     private weak var coordinator: ReferralRoutable?
     private let userWalletId: Data
     private let supportedBlockchains: Set<Blockchain>
+    private let userWalletModel: UserWalletModel
 
     private let workMode: WorkMode
     private var accountModel: AccountModel?
@@ -54,6 +50,7 @@ final class ReferralViewModel: ObservableObject {
         self.coordinator = coordinator
         workMode = input.workMode
         tokenIconInfoBuilder = input.tokenIconInfoBuilder
+        userWalletModel = input.userWalletModel
 
         runTask(in: self) { viewModel in
             await viewModel.fetchAndMapInitialState()
@@ -91,7 +88,6 @@ final class ReferralViewModel: ObservableObject {
     func openAccountSelector() {
         guard
             let selectedCryptoAccount,
-            let selectedUserWallet = userWalletRepository.selectedModel,
             let networkId = awardToken?.networkId
         else {
             return
@@ -101,7 +97,7 @@ final class ReferralViewModel: ObservableObject {
 
         coordinator?.showAccountSelector(
             selectedAccount: selectedCryptoAccount,
-            userWalletModel: selectedUserWallet,
+            userWalletModel: userWalletModel,
             cryptoAccountModelsFilter: filter,
             onSelect: { [weak self] cryptoAccountModel in
                 guard let self else { return }
