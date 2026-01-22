@@ -23,8 +23,6 @@ struct UserWalletSettingsView: View {
         GroupedScrollView(contentType: .lazy(alignment: .leading, spacing: 24)) {
             walletSection
 
-            mobileUpgradeSection
-
             accountsSection
 
             mobileAccessCodeSection
@@ -52,6 +50,15 @@ struct UserWalletSettingsView: View {
 
     @ViewBuilder
     private var walletSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            walletRenameSubsection
+            mobileUpgradeSubsection
+        }
+        .defaultRoundedBackground()
+    }
+
+    @ViewBuilder
+    private var walletRenameSubsection: some View {
         if FeatureProvider.isAvailable(.accounts) {
             InfoRowWithAction(
                 icon: {
@@ -68,18 +75,36 @@ struct UserWalletSettingsView: View {
                 actionTitle: Localization.commonRename,
                 onAction: viewModel.onTapNameField
             )
-            .defaultRoundedBackground()
         } else {
             DefaultTextFieldRowView(
                 title: Localization.settingsWalletNameTitle,
                 text: .constant(viewModel.name),
                 isReadonly: true
             )
-            .defaultRoundedBackground()
             .onTapGesture(perform: viewModel.onTapNameField)
         }
     }
 
+    @ViewBuilder
+    private var mobileUpgradeSubsection: some View {
+        if viewModel.isMobileUpgradeAvailable {
+            VStack(alignment: .leading, spacing: 12) {
+                Separator(height: .exact(0.5), color: Colors.Stroke.primary)
+
+                DefaultRowView(viewModel: DefaultRowViewModel(
+                    title: Localization.detailsMobileWalletUpgradeActionTitle,
+                    action: viewModel.mobileUpgradeTap
+                ))
+                .appearance(.init(
+                    isChevronVisible: false,
+                    textColor: Colors.Text.accent,
+                    hasVerticalPadding: false
+                ))
+            }
+        }
+    }
+
+    // [REDACTED_TODO_COMMENT]
     private var mobileUpgradeSection: some View {
         viewModel.mobileUpgradeNotificationInput.map {
             NotificationView(input: $0)
