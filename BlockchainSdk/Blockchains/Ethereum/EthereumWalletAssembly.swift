@@ -50,12 +50,21 @@ struct EthereumWalletAssembly: WalletManagerAssembly {
 
         let addressConverter = EthereumAddressConverterFactory().makeConverter(for: blockchain)
 
+        let pendingTransactionsManager = CommonEthereumPendingTransactionsManager(
+            walletAddress: wallet.address,
+            blockchain: wallet.blockchain,
+            networkService: networkService,
+            dataStorage: input.blockchainSdkDependencies.dataStorage,
+            addressConverter: addressConverter
+        )
+
         return EthereumWalletManager(
             wallet: wallet,
             addressConverter: addressConverter,
             txBuilder: txBuilder,
             networkService: networkService,
             yieldSupplyService: yieldSupplyServiceFactory.makeProvider(networkService: networkService),
+            pendingTransactionsManager: pendingTransactionsManager,
             allowsFeeSelection: blockchain.allowsFeeSelection
         )
     }
