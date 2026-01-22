@@ -9,7 +9,6 @@
 import Foundation
 import Combine
 import TangemSdk
-import TangemFoundation
 
 class FakeWalletModelsManager: WalletModelsManager {
     private(set) var isInitialized = false
@@ -36,10 +35,19 @@ class FakeWalletModelsManager: WalletModelsManager {
         self.isDelayed = isDelayed
     }
 
-    func updateAll(silent: Bool) async {
-        await TaskGroup.execute(items: walletModels) {
-            await $0.update(silent: silent, features: .balances)
+    func updateAll(silent: Bool, completion: @escaping () -> Void) {
+        let publishers = walletModels.map {
+            $0.update(silent: silent)
         }
+
+        updateAllSubscription = Publishers
+            .MergeMany(publishers)
+            .collect(publishers.count)
+            .mapToVoid()
+            .receive(on: DispatchQueue.main)
+            .receiveCompletion { _ in
+                completion()
+            }
     }
 
     func initialize() {
