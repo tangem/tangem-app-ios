@@ -14,11 +14,6 @@ struct ResetToFactoryUtilBuilder {
 
     private let flow: Flow
 
-    enum Flow {
-        case reset
-        case upgrade
-    }
-
     init(flow: Flow) {
         self.flow = flow
     }
@@ -97,5 +92,14 @@ struct ResetToFactoryUtilBuilder {
         )
 
         return ResetToFactoryUtil(input: input)
+    }
+}
+
+// MARK: - Types
+
+extension ResetToFactoryUtilBuilder {
+    enum Flow {
+        case reset
+        case upgrade
     }
 }
