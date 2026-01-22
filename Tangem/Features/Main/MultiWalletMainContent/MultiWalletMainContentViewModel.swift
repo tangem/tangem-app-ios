@@ -687,7 +687,13 @@ extension MultiWalletMainContentViewModel {
 
     private func openMobileFinishActivation() {
         Analytics.log(.mainButtonFinalizeActivation)
-        coordinator?.openMobileBackupOnboarding(userWalletModel: userWalletModel)
+
+        let isBackupNeeded = userWalletModel.config.hasFeature(.mnemonicBackup) && userWalletModel.config.hasFeature(.iCloudBackup)
+        if isBackupNeeded {
+            coordinator?.openMobileBackup(userWalletModel: userWalletModel)
+        } else {
+            coordinator?.openMobileBackupOnboarding(userWalletModel: userWalletModel)
+        }
     }
 
     private func openMobileUpgrade() {

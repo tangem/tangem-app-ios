@@ -46,6 +46,9 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.mobileRemoveWalletViewModel) {
                 MobileRemoveWalletView(viewModel: $0)
             }
+            .navigation(item: $coordinator.hardwareBackupTypesCoordinator) {
+                HardwareBackupTypesCoordinatorView(coordinator: $0)
+            }
     }
 
     private var sheets: some View {
