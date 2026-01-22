@@ -296,6 +296,7 @@
 "common_now" = "Ahora";
 "common_ok" = "OK";
 "common_open_in_browser" = "Abrir en el navegador";
+"common_or" = "or";
 "common_origin_card" = "Tarjeta principal";
 "common_origin_ring" = "Anillo primario";
 "common_passphrase" = "Frase de contraseña";
@@ -416,7 +417,7 @@
 "details_security_management_warning" = "Si olvida el código, perderá acceso a tus fondos. La recuperación del código no es posible.";
 "details_send_feedback" = "Enviar comentarios";
 "details_title" = "Detalles";
-"details_wallets_section_description" = "You can have either one mobile wallet or hardware wallet at the same time. Upgrade you wallet or delete it from the app to start using a Tangem cold wallet.";
+"details_wallets_section_description" = "You can have only one mobile wallet at a time. It can be upgraded to a Tangem cold wallet or used alongside a new cold wallet.";
 "disclaimer_title" = "Condiciones de uso";
 "domain_receive_assets_default_address" = "Dirección por defecto";
 "domain_receive_assets_legacy_address" = "Dirección %@ Legacy";
@@ -524,7 +525,7 @@
 "feedback_subject_tx_push_failed" = "No se puede enviar una transacción";
 "feedback_token_description_error" = "Error de descripción de moneda";
 "gasless_not_enough_funds_to_cover_token_fee" = "Not enough funds";
-"gasless_transaction_fee" = "Gasless transaction fee";
+"gasless_transaction_fee" = "Transaction fee";
 "generic_error_code" = "Ocurrió un error. Código: %@";
 "generic_error" = "Ocurrió un error";
 "generic_requires_memo_error" = "Requiere memo";
@@ -574,15 +575,20 @@
 "hw_backup_need_title" = "Finalizar la copia de seguridad primero";
 "hw_backup_no_backup" = "Incompleto";
 "hw_backup_section_other_title" = "Otros métodos";
+"hw_backup_seed_code_description" = "Save your recovery phrase in a secure place and keep it private to protect your funds, and set up an access code for additional security.";
 "hw_backup_seed_description" = "Guarde su frase de recuperación en un lugar seguro y manténgala en privado para proteger sus fondos.";
 "hw_backup_seed_title" = "Frase de recuperación";
 "hw_backup_to_secure_description" = "Para proteger su billetera con un código de acceso, complete el proceso de copia de seguridad.";
 "hw_backup_to_upgrade_description" = "Para actualizar a una billetera de hardware, complete el proceso de copia de seguridad.";
+"hw_backup_upgrade_description" = "Upgrade your mobile wallet to a Tangem hardware wallet for the highest security. Import your wallet or transfer funds to a new one.";
+"hw_backup_upgrade_title" = "Upgrade to cold wallet";
 "hw_create_keys_description" = "Sus claves privadas están encriptadas de forma segura y almacenadas en su teléfono";
 "hw_create_keys_title" = "Las claves privadas permanecen en su dispositivo";
 "hw_create_seed_description" = "Cree o restaure su billetera con una frase de recuperación.";
 "hw_create_seed_title" = "Copia de seguridad de la frase semilla";
 "hw_create_title" = "Crear una billetera móvil";
+"hw_create_upgrade_description" = "Transfer your mobile wallet to a Tangem card or ring anytime, securely.";
+"hw_create_upgrade_title" = "Upgrade to hardware wallet";
 "hw_import_existing_wallet" = "Importar billetera existente";
 "hw_import_seed_phrase_already_imported" = "Esta frase de recuperación ya ha sido importada";
 "hw_mobile_wallet" = "Billetera móvil";
@@ -1854,6 +1860,7 @@
 "welcome_create_wallet_feature_delivery" = "Entrega rápida";
 "welcome_create_wallet_feature_one_tap" = "Empiece con un solo toque";
 "welcome_create_wallet_feature_seamless" = "Fácil y seguro";
+"welcome_create_wallet_feature_seedphrase" = "No seed phrase";
 "welcome_create_wallet_feature_use" = "Fácil de usar";
 "welcome_create_wallet_hardware_description" = "Cree una billetera de hardware con Tangem. Delgada como una tarjeta bancaria, segura como una bóveda.";
 "welcome_create_wallet_mobile_description_full" = "Cree o importe una billetera de software en su teléfono.";
