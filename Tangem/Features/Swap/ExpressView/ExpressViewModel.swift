@@ -13,6 +13,7 @@ import TangemExpress
 import TangemAssets
 import TangemFoundation
 import TangemUI
+import TangemMacro
 import BlockchainSdk
 import struct TangemUIUtils.AlertBinder
 import enum TangemSdk.TangemSdkError
@@ -63,7 +64,7 @@ final class ExpressViewModel: ObservableObject {
     // MARK: - Private
 
     private var sendingTransactionTask: Task<Void, Never>?
-    private var refreshDataTimer: AnyCancellable?
+    private var refreshDataTask: Task<Void, Error>?
     private var bag: Set<AnyCancellable> = []
 
     init(
@@ -95,6 +96,10 @@ final class ExpressViewModel: ObservableObject {
         )
         setupView()
         bind()
+    }
+
+    deinit {
+        ExpressLogger.debug("deinit")
     }
 
     func userDidTapMaxAmount() {
@@ -174,32 +179,28 @@ private extension ExpressViewModel {
     }
 
     func openApproveView() {
-        guard case .permissionRequired(let permissionRequired, _) = interactor.getState() else {
+        guard case .permissionRequired(let permissionRequired, let provider, _) = interactor.getState() else {
             return
         }
 
-        Task {
-            guard let source = interactor.getSource().value,
-                  let selectedProvider = await interactor.getSelectedProvider()?.provider else {
-                return
-            }
-
-            var params: [Analytics.ParameterKey: String] = [
-                .sendToken: source.tokenItem.currencySymbol,
-                .provider: selectedProvider.name,
-            ]
-
-            params[.receiveToken] = interactor.getDestination()?.tokenItem.currencySymbol
-            Analytics.log(event: .swapButtonGivePermission, params: params)
-
-            await MainActor.run {
-                coordinator?.presentApproveView(
-                    source: source,
-                    provider: selectedProvider,
-                    selectedPolicy: permissionRequired.policy
-                )
-            }
+        guard let source = interactor.getSource().value else {
+            return
         }
+
+        let selectedProvider = provider.provider
+        var params: [Analytics.ParameterKey: String] = [
+            .sendToken: source.tokenItem.currencySymbol,
+            .provider: selectedProvider.name,
+        ]
+
+        params[.receiveToken] = interactor.getDestination()?.tokenItem.currencySymbol
+        Analytics.log(event: .swapButtonGivePermission, params: params)
+
+        coordinator?.presentApproveView(
+            source: source,
+            provider: selectedProvider,
+            selectedPolicy: permissionRequired.policy
+        )
     }
 
     func openFeeSelectorView() {
@@ -258,7 +259,7 @@ private extension ExpressViewModel {
                 self?.updateSendFiatValue(amount: amount)
                 self?.stopTimer()
             })
-            .debounce(for: 1, scheduler: DispatchQueue.main)
+            .debounce(for: .seconds(1), scheduler: .main, if: { $0 != nil })
             .sink { [weak self] amount in
                 self?.interactor.update(amount: amount, by: .amountChange)
 
@@ -330,9 +331,8 @@ private extension ExpressViewModel {
                     return true
                 }
             }
-            .receive(on: DispatchQueue.main)
-            .assign(to: \.isSwapButtonDisabled, on: self, ownership: .weak)
-            .store(in: &bag)
+            .receiveOnMain()
+            .assign(to: &$isSwapButtonDisabled)
     }
 
     func updateSendDecimalValue(to value: Decimal) {
@@ -378,12 +378,12 @@ private extension ExpressViewModel {
 
     func updateSendCurrencyHeaderState(state: ExpressInteractor.State) {
         switch state {
-        case .restriction(.notEnoughBalanceForSwapping, _):
+        case .restriction(.notEnoughBalanceForSwapping, _, _):
             sendCurrencyViewModel?.expressCurrencyViewModel.update(errorState: .insufficientFunds)
-        case .restriction(.notEnoughAmountForTxValue(_, let isFeeCurrency), _) where isFeeCurrency,
-             .restriction(.notEnoughAmountForFee(let isFeeCurrency), _) where isFeeCurrency:
+        case .restriction(.notEnoughAmountForTxValue(_, let isFeeCurrency), _, _) where isFeeCurrency,
+             .restriction(.notEnoughAmountForFee(let isFeeCurrency), _, _) where isFeeCurrency:
             sendCurrencyViewModel?.expressCurrencyViewModel.update(errorState: .insufficientFunds)
-        case .restriction(.validationError(.minimumRestrictAmount(let minimumAmount), _), _):
+        case .restriction(.validationError(.minimumRestrictAmount(let minimumAmount), _), _, _):
             let errorText = Localization.transferMinAmountError(minimumAmount.string())
             sendCurrencyViewModel?.expressCurrencyViewModel.update(errorState: .error(errorText))
         default:
@@ -426,18 +426,18 @@ private extension ExpressViewModel {
         updateFeeValue(state: state)
         await updateProviderView(state: state)
         updateMainButton(state: state)
-        await updateLegalText(state: state)
+        updateLegalText(state: state)
         updateSendCurrencyHeaderState(state: state)
 
         switch state {
-        case .idle:
+        case .idle, .preloadRestriction:
             isSwapButtonLoading = false
             stopTimer()
 
             updateFiatValue(expectAmount: 0)
             receiveCurrencyViewModel?.expressCurrencyViewModel.updateHighPricePercentLabel(quote: .none)
 
-        case .loading(let type, _):
+        case .loading(let type):
             isSwapButtonLoading = true
 
             // Turn on skeletons only for full update
@@ -447,20 +447,18 @@ private extension ExpressViewModel {
             receiveCurrencyViewModel?.expressCurrencyViewModel.update(fiatAmountState: .loading)
             receiveCurrencyViewModel?.expressCurrencyViewModel.updateHighPricePercentLabel(quote: .none)
 
-        case .restriction(let restriction, let quote):
+        case .restriction(.hasPendingApproveTransaction, _, let quote):
             isSwapButtonLoading = false
             updateFiatValue(expectAmount: quote?.expectAmount)
             receiveCurrencyViewModel?.expressCurrencyViewModel.updateHighPricePercentLabel(quote: quote)
 
-            // restart timer for pending approve transaction
-            switch restriction {
-            case .hasPendingApproveTransaction:
-                restartTimer()
-            default:
-                stopTimer()
-            }
+        case .requiredRefresh(_, let quote), .restriction(_, _, let quote):
+            isSwapButtonLoading = false
+            updateFiatValue(expectAmount: quote?.expectAmount)
+            receiveCurrencyViewModel?.expressCurrencyViewModel.updateHighPricePercentLabel(quote: quote)
+            stopTimer()
 
-        case .permissionRequired(_, let quote), .previewCEX(_, let quote), .readyToSwap(_, let quote):
+        case .permissionRequired(_, _, let quote), .previewCEX(_, _, let quote), .readyToSwap(_, _, let quote):
             isSwapButtonLoading = false
             restartTimer()
 
@@ -474,7 +472,7 @@ private extension ExpressViewModel {
         switch state {
         case .idle:
             providerState = .none
-        case .loading(.full, _):
+        case .loading(.full):
             providerState = .loading
         case .loading:
             // Do noting for other cases
@@ -490,22 +488,28 @@ private extension ExpressViewModel {
 
     func updateFeeValue(state: ExpressInteractor.State) {
         switch state {
-        case .previewCEX(let state, _) where state.isExemptFee:
+        case .loading(.refreshRates):
+            break
+
+        case .previewCEX(let state, _, _) where state.isExemptFee:
             // Don't show fee row if transaction has fee exemption
             expressFeeRowViewModel = nil
 
-        case .previewCEX(let state, _), .loading(.fee, .previewCEX(let state, _)):
-            updateExpressFeeRowViewModel(tokenFeeProvidersManager: state.tokenFeeProvidersManager)
+        case .loading(.fee):
+            expressFeeRowViewModel?.selectedFeeComponents = .loading
 
-        case .readyToSwap(let state, _), .loading(.fee, .readyToSwap(let state, _)):
-            updateExpressFeeRowViewModel(tokenFeeProvidersManager: state.tokenFeeProvidersManager)
+        case .restriction(.notEnoughAmountForFee, let context, _):
+            updateExpressFeeRowViewModel(tokenFeeProvidersManager: context.tokenFeeProvidersManager)
 
-        case .idle, .restriction, .loading(.fee, _), .loading(.full, _), .permissionRequired:
+        case .previewCEX(_, let context, _):
+            updateExpressFeeRowViewModel(tokenFeeProvidersManager: context.tokenFeeProvidersManager)
+
+        case .readyToSwap(_, let context, _):
+            updateExpressFeeRowViewModel(tokenFeeProvidersManager: context.tokenFeeProvidersManager)
+
+        case .idle, .loading, .preloadRestriction, .restriction, .requiredRefresh, .permissionRequired:
             // We have decided that will not give a choose for .permissionRequired state also
             expressFeeRowViewModel = nil
-
-        case .loading(.refreshRates, _):
-            break
         }
     }
 
@@ -521,51 +525,54 @@ private extension ExpressViewModel {
 
     func updateMainButton(state: ExpressInteractor.State) {
         switch state {
-        case .idle, .loading(type: .full, _):
+        case .idle, .loading(type: .full):
             mainButtonState = .swap
             mainButtonIsEnabled = false
-        case .loading(type: .fee, _):
+
+        case .loading(type: .fee):
             mainButtonIsEnabled = false
-        case .loading(type: .refreshRates, _):
+
+        case .loading(type: .refreshRates):
             // Do nothing
             break
-        case .restriction(let type, _):
-            switch type {
-            case .hasPendingTransaction,
-                 .hasPendingApproveTransaction,
-                 .requiredRefresh,
-                 .tooSmallAmountForSwapping,
-                 .tooBigAmountForSwapping,
-                 .noSourceTokens,
-                 .noDestinationTokens,
-                 .validationError,
-                 .notEnoughReceivedAmount:
-                mainButtonState = .swap
-            case .notEnoughBalanceForSwapping,
-                 .notEnoughAmountForFee,
-                 .notEnoughAmountForTxValue:
-                mainButtonState = .insufficientFunds
-            }
 
+        case .restriction(.notEnoughBalanceForSwapping, _, _),
+             .restriction(.notEnoughAmountForFee, _, _),
+             .restriction(.notEnoughAmountForTxValue, _, _):
+            mainButtonState = .insufficientFunds
+
+        case .requiredRefresh,
+             .preloadRestriction,
+             .restriction(.hasPendingTransaction, _, _),
+             .restriction(.hasPendingApproveTransaction, _, _),
+             .restriction(.tooSmallAmountForSwapping, _, _),
+             .restriction(.tooBigAmountForSwapping, _, _),
+             .restriction(.validationError, _, _),
+             .restriction(.notEnoughReceivedAmount, _, _):
+            mainButtonState = .swap
             mainButtonIsEnabled = false
+
         case .permissionRequired:
             mainButtonState = .swap
             mainButtonIsEnabled = false
+
         case .readyToSwap, .previewCEX:
             mainButtonState = .swap
             mainButtonIsEnabled = true
         }
     }
 
-    @MainActor
-    func updateLegalText(state: ExpressInteractor.State) async {
+    func updateLegalText(state: ExpressInteractor.State) {
         switch state {
-        case .loading(.refreshRates, _), .loading(.fee, _):
+        case .loading(.refreshRates), .loading(.fee):
             break
-        case .idle, .loading(.full, _):
+        case .idle, .loading(.full), .preloadRestriction, .requiredRefresh:
             legalText = nil
-        case .restriction, .permissionRequired, .previewCEX, .readyToSwap:
-            legalText = await interactor.getSelectedProvider()?.provider.legalText(branch: .swap)
+        case .restriction(_, let provider, _),
+             .permissionRequired(_, let provider, _),
+             .previewCEX(_, let provider, _),
+             .readyToSwap(_, let provider, _):
+            legalText = provider.provider.legalText(branch: .swap)
         }
     }
 }
@@ -574,7 +581,7 @@ private extension ExpressViewModel {
 
 private extension ExpressViewModel {
     func mapToProviderRowViewModel() async -> ProviderRowViewModel? {
-        guard let selectedProvider = await interactor.getSelectedProvider() else {
+        guard let selectedProvider = interactor.getState().context?.availableProvider else {
             return nil
         }
 
@@ -788,38 +795,29 @@ private extension ExpressViewModel {
 
     func stopTimer() {
         ExpressLogger.info("Stop timer")
-        refreshDataTimer?.cancel()
+        refreshDataTask?.cancel()
     }
 
     func startTimer() {
         ExpressLogger.info("Start timer")
-        refreshDataTimer = Just(())
-            .delay(for: 10, scheduler: DispatchQueue.main)
-            .sink { [weak self] in
-                ExpressLogger.info("Timer call autoupdate")
-                self?.interactor.refresh(type: .refreshRates)
-            }
+        refreshDataTask = Task { @MainActor [weak self] in
+            try await Task.sleep(for: .seconds(10))
+            try Task.checkCancellation()
+            ExpressLogger.info("Timer call autoupdate")
+            self?.interactor.refresh(type: .refreshRates)
+        }
     }
 }
 
 extension ExpressViewModel {
+    @RawCaseName
     enum ProviderState: Identifiable {
-        var id: Int {
-            switch self {
-            case .loading:
-                return "loading".hashValue
-            case .loaded(let data):
-                return data.id
-            }
-        }
-
         case loading
         case loaded(data: ProviderRowViewModel)
     }
 
-    enum MainButtonState: Hashable, Identifiable {
-        var id: Int { hashValue }
-
+    @RawCaseName
+    enum MainButtonState: Identifiable {
         case swap
         case insufficientFunds
         case permitAndSwap
