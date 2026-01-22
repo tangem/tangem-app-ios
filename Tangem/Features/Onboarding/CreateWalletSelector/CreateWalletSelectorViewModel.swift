@@ -26,7 +26,7 @@ final class CreateWalletSelectorViewModel: ObservableObject {
     let description = Localization.welcomeCreateWalletHardwareDescription
     let scanTitle = Localization.welcomeUnlockCard
     let buyTitle = Localization.detailsBuyWallet
-    let otherMethodTitle = Localization.welcomeCreateWalletOtherMethod
+    let otherMethodTitle = Localization.commonOr
 
     lazy var chipItems: [ChipItem] = makeChipItems()
     lazy var mobileWalletItem: MobileWalletItem = makeMobileWalletItem()
@@ -86,7 +86,6 @@ private extension CreateWalletSelectorViewModel {
     func makeMobileWalletItem() -> MobileWalletItem {
         MobileWalletItem(
             title: Localization.welcomeCreateWalletMobileTitle,
-            description: Localization.welcomeCreateWalletMobileDescription,
             action: weakify(self, forFunction: CreateWalletSelectorViewModel.onMobileWalletTap)
         )
     }
@@ -325,7 +324,6 @@ extension CreateWalletSelectorViewModel {
 
     struct MobileWalletItem {
         let title: String
-        let description: String
         let action: () -> Void
     }
 }
