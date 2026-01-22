@@ -9,6 +9,8 @@
 import Foundation
 import TangemAssets
 import enum TangemLocalization.Localization
+import struct TangemFoundation.IgnoredEquatable
+import struct TangemUIUtils.ConfirmationDialogViewModel
 
 struct WalletConnectViewState: Equatable {
     let contentMode: ContentMode
@@ -101,34 +103,20 @@ extension WalletConnectViewState {
     }
 
     enum ModalDialog: Equatable {
-        case alert(ModalDialog.Content)
-        case confirmationDialog(ModalDialog.Content)
+        case alert(ModalDialog.Alert)
+        case cameraAccessDeniedDialog(ConfirmationDialogViewModel)
 
-        var title: String {
+        var asAlert: ModalDialog.Alert? {
             switch self {
-            case .alert(let content), .confirmationDialog(let content):
-                content.title
+            case .alert(let alert): alert
+            case .cameraAccessDeniedDialog: nil
             }
         }
 
-        var subtitle: String {
+        var asConfirmationDialog: ConfirmationDialogViewModel? {
             switch self {
-            case .alert(let content), .confirmationDialog(let content):
-                content.subtitle
-            }
-        }
-
-        var isAlert: Bool {
-            switch self {
-            case .alert: true
-            case .confirmationDialog: false
-            }
-        }
-
-        var isConfirmationDialog: Bool {
-            switch self {
-            case .alert: false
-            case .confirmationDialog: true
+            case .alert: nil
+            case .cameraAccessDeniedDialog(let dialog): dialog
             }
         }
     }
@@ -196,34 +184,24 @@ extension WalletConnectViewState.ContentState {
 }
 
 extension WalletConnectViewState.ModalDialog {
-    struct Content: Equatable {
+    struct Alert: Equatable {
         let title: String
         let subtitle: String
-        let buttons: [DialogButton]
+        let buttons: [AlertButton]
 
-        static func cameraAccessDenied(openSystemSettingsAction: @escaping () -> Void) -> Content {
-            Content(
-                title: Localization.commonCameraDeniedAlertTitle,
-                subtitle: Localization.commonCameraDeniedAlertMessage,
-                buttons: [
-                    DialogButton(title: Localization.commonCameraAlertButtonSettings, role: nil, action: openSystemSettingsAction),
-                ]
-            )
-        }
-
-        static func disconnectAllDApps(action: @escaping () -> Void) -> Content {
-            Content(
+        static func disconnectAllDApps(action: @escaping () -> Void) -> Alert {
+            Alert(
                 title: Localization.wcDisconnectAllAlertTitle,
                 subtitle: Localization.wcDisconnectAllAlertDesc,
                 buttons: [
-                    DialogButton.cancel,
-                    DialogButton(title: Localization.commonDisconnect, role: .destructive, action: action),
+                    AlertButton.cancel,
+                    AlertButton(title: Localization.commonDisconnect, role: .destructive, action: action),
                 ]
             )
         }
 
-        static func featureDisabled(reason: String) -> Content {
-            Content(
+        static func featureDisabled(reason: String) -> Alert {
+            Alert(
                 title: Localization.commonWarning,
                 subtitle: reason,
                 buttons: [
@@ -233,25 +211,16 @@ extension WalletConnectViewState.ModalDialog {
         }
     }
 
-    struct DialogButton: Hashable {
+    struct AlertButton: Hashable {
         let title: String
-        let role: DialogButtonRole?
-        let action: () -> Void
+        let role: AlertButtonRole?
+        @IgnoredEquatable var action: () -> Void
 
-        static let cancel = DialogButton(title: Localization.commonCancel, role: .cancel, action: {})
-        static let ok = DialogButton(title: Localization.commonOk, role: nil, action: {})
-
-        func hash(into hasher: inout Hasher) {
-            hasher.combine(title)
-            hasher.combine(role)
-        }
-
-        static func == (lhs: WalletConnectViewState.ModalDialog.DialogButton, rhs: WalletConnectViewState.ModalDialog.DialogButton) -> Bool {
-            lhs.title == rhs.title && lhs.role == rhs.role
-        }
+        static let cancel = AlertButton(title: Localization.commonCancel, role: .cancel, action: {})
+        static let ok = AlertButton(title: Localization.commonOk, role: nil, action: {})
     }
 
-    enum DialogButtonRole: Hashable {
+    enum AlertButtonRole: Hashable {
         case cancel
         case destructive
     }
