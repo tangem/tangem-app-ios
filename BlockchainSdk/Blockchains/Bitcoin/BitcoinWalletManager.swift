@@ -37,14 +37,18 @@ class BitcoinWalletManager: BaseManager, WalletManager, DustRestrictable {
         super.init(wallet: wallet)
     }
 
-    override func updateWalletManager() async throws {
-        do {
-            let responses = try await networkService.getInfo(addresses: wallet.addresses).async()
-            updateWallet(with: responses)
-        } catch {
-            wallet.clearAmounts()
-            throw error
-        }
+    override func update(completion: @escaping (Result<Void, Error>) -> Void) {
+        cancellable = networkService.getInfo(addresses: wallet.addresses)
+            .receive(on: DispatchQueue.global())
+            .sink { [weak self] completionSubscription in
+                if case .failure(let error) = completionSubscription {
+                    self?.wallet.clearAmounts()
+                    completion(.failure(error))
+                }
+            } receiveValue: { [weak self] response in
+                self?.updateWallet(with: response)
+                completion(.success(()))
+            }
     }
 
     func updateWallet(with responses: [UTXONetworkProviderUpdatingResponse]) {

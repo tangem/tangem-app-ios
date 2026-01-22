@@ -33,26 +33,36 @@ class FilecoinWalletManager: BaseManager, WalletManager {
         super.init(wallet: wallet)
     }
 
-    override func updateWalletManager() async throws {
-        do {
-            let accountInfo = try await networkService
-                .getAccountInfo(address: wallet.address)
-                .async()
+    override func update(completion: @escaping (Result<Void, any Error>) -> Void) {
+        cancellable = networkService
+            .getAccountInfo(address: wallet.address)
+            .withWeakCaptureOf(self)
+            .sink(
+                receiveCompletion: { [weak self] result in
+                    switch result {
+                    case .failure(let error):
+                        self?.wallet.clearAmounts()
+                        completion(.failure(error))
+                    case .finished:
+                        completion(.success(()))
+                    }
+                },
+                receiveValue: { walletManager, accountInfo in
+                    if accountInfo.nonce != walletManager.nonce {
+                        walletManager.wallet.clearPendingTransaction()
+                    }
 
-            update(accountInfo: accountInfo)
-        } catch {
-            wallet.clearAmounts()
-            throw error
-        }
-    }
+                    walletManager.wallet.add(
+                        amount: Amount(
+                            with: .filecoin,
+                            type: .coin,
+                            value: accountInfo.balance / walletManager.wallet.blockchain.decimalValue
+                        )
+                    )
 
-    func update(accountInfo: FilecoinAccountInfo) {
-        if accountInfo.nonce != nonce {
-            wallet.clearPendingTransaction()
-        }
-
-        wallet.add(coinValue: accountInfo.balance / wallet.blockchain.decimalValue)
-        nonce = accountInfo.nonce
+                    walletManager.nonce = accountInfo.nonce
+                }
+            )
     }
 
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], any Error> {

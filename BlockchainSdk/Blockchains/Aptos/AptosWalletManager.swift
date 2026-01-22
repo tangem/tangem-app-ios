@@ -23,15 +23,26 @@ final class AptosWalletManager: BaseManager {
         super.init(wallet: wallet)
     }
 
-    override func updateWalletManager() async throws {
-        do {
-            let accountInfo = try await networkService.getAccount(address: wallet.address).async()
-            update(with: accountInfo)
-        } catch {
-            wallet.clearAmounts()
-            wallet.clearPendingTransaction()
-            throw error
-        }
+    // MARK: - Implementation
+
+    override func update(completion: @escaping (Result<Void, Error>) -> Void) {
+        cancellable = networkService
+            .getAccount(address: wallet.address)
+            .sink(
+                receiveCompletion: { [weak self] completionSubscription in
+                    switch completionSubscription {
+                    case .finished:
+                        completion(.success(()))
+                    case .failure(let error):
+                        self?.wallet.clearAmounts()
+                        self?.wallet.clearPendingTransaction()
+                        completion(.failure(error))
+                    }
+                },
+                receiveValue: { [weak self] accountInfo in
+                    self?.update(with: accountInfo)
+                }
+            )
     }
 }
 

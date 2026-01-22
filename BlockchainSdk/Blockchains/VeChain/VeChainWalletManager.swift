@@ -8,7 +8,6 @@
 
 import Foundation
 import Combine
-import TangemFoundation
 
 final class VeChainWalletManager: BaseManager {
     private let networkService: VeChainNetworkService
@@ -33,34 +32,55 @@ final class VeChainWalletManager: BaseManager {
         fatalError("\(#function) has not been implemented")
     }
 
-    override func updateWalletManager() async throws {
-        do {
-            let accountInfo = try await networkService
-                .getAccountInfo(address: wallet.address)
-                .async()
+    override func update(completion: @escaping (Result<Void, Error>) -> Void) {
+        let accountInfoPublisher = networkService
+            .getAccountInfo(address: wallet.address)
 
-            async let transactionsInfo = TaskGroup.tryExecuteKeepingOrder(items: wallet.pendingTransactions) { [weak self] transaction in
-                guard let self else { throw BlockchainSdkError.empty }
-
-                return try await networkService.getTransactionInfo(transactionHash: transaction.hash).async()
+        let transactionStatusesPublisher = wallet
+            .pendingTransactions
+            .publisher
+            .setFailureType(to: Error.self)
+            .withWeakCaptureOf(self)
+            .flatMap { walletManager, transaction in
+                return walletManager.networkService.getTransactionInfo(transactionHash: transaction.hash)
             }
+            .collect()
 
-            let nonEnergyTokens = cardTokens.filter { $0 != Constants.energyToken }
-            async let tokenBalanceAmounts = TaskGroup.tryExecuteKeepingOrder(items: nonEnergyTokens) { [weak self] token in
-                guard let self else { throw BlockchainSdkError.empty }
-
-                return try await networkService.getBalance(of: token, for: wallet.address).async()
+        // Although multiple contract calls can be aggregated into a single request, API docs says nothing
+        // about the order of the results of these contract calls in the response.
+        // Therefore requests are sent in a one-to-one manner, one request per token.
+        let tokenBalancesPublisher = cardTokens
+            .filter { $0 != Constants.energyToken } // Balance of energy token (VTHO) is fetched in the `getAccountInfo(address:)` method call above
+            .publisher
+            .setFailureType(to: Error.self)
+            .withWeakCaptureOf(self)
+            .flatMap { walletManager, token in
+                return walletManager
+                    .networkService
+                    .getBalance(of: token, for: walletManager.wallet.address)
             }
+            .collect()
 
-            try await updateWallet(
-                accountInfo: accountInfo,
-                transactionsInfo: transactionsInfo,
-                tokenBalanceAmounts: tokenBalanceAmounts
+        cancellable = Publishers.CombineLatest3(accountInfoPublisher, transactionStatusesPublisher, tokenBalancesPublisher)
+            .sink(
+                receiveCompletion: { [weak self] result in
+                    switch result {
+                    case .failure(let error):
+                        self?.wallet.clearAmounts()
+                        completion(.failure(error))
+                    case .finished:
+                        completion(.success(()))
+                    }
+                },
+                receiveValue: { [weak self] input in
+                    let (accountInfo, transactionsInfo, tokenBalanceAmounts) = input
+                    self?.updateWallet(
+                        accountInfo: accountInfo,
+                        transactionsInfo: transactionsInfo,
+                        tokenBalanceAmounts: tokenBalanceAmounts
+                    )
+                }
             )
-        } catch {
-            wallet.clearAmounts()
-            throw error
-        }
     }
 
     override func addToken(_ token: Token) {
