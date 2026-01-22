@@ -239,7 +239,7 @@ extension TransactionValidator where Self: RentExtemptionRestrictable {
     }
 
     func validate(amount: Amount, fee: Fee) throws {
-        try validate(amount: amount, fee: fee)
+        try validateAmounts(amount: amount, fee: fee)
         try validateRentExemption(amount: amount, fee: fee.amount)
     }
 }
