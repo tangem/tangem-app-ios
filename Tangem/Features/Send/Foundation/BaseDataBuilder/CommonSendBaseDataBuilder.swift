@@ -14,7 +14,7 @@ import TangemLocalization
 
 protocol SendApproveDataBuilderInput {
     var selectedPolicy: ApprovePolicy? { get }
-    var selectedExpressProvider: ExpressProvider? { get async }
+    var selectedExpressProvider: ExpressProvider? { get }
     var approveViewModelInput: ApproveViewModelInput? { get }
 }
 
@@ -100,12 +100,12 @@ extension CommonSendBaseDataBuilder: SendFeeCurrencyProviderDataBuilder {
 // MARK: - SendApproveViewModelInputDataBuilder
 
 extension CommonSendBaseDataBuilder: SendApproveViewModelInputDataBuilder {
-    func makeExpressApproveViewModelInput() async throws -> ExpressApproveViewModel.Input {
+    func makeExpressApproveViewModelInput() throws -> ExpressApproveViewModel.Input {
         guard let selectedPolicy = approveDataInput.selectedPolicy else {
             throw SendBaseDataBuilderError.notFound("Selected approve policy")
         }
 
-        guard let selectedProvider = await approveDataInput.selectedExpressProvider else {
+        guard let selectedProvider = approveDataInput.selectedExpressProvider else {
             throw SendBaseDataBuilderError.notFound("Selected provider")
         }
 

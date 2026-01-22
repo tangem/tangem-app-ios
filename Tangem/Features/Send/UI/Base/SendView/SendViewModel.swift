@@ -178,13 +178,11 @@ private extension SendViewModel {
     }
 
     func performApprove() {
-        Task { @MainActor in
-            do {
-                let input = try await dataBuilder.approveViewModelProvider().makeExpressApproveViewModelInput()
-                coordinator?.openApproveView(expressApproveViewModelInput: input)
-            } catch {
-                showAlert(error.alertBinder)
-            }
+        do {
+            let input = try dataBuilder.approveViewModelProvider().makeExpressApproveViewModelInput()
+            coordinator?.openApproveView(expressApproveViewModelInput: input)
+        } catch {
+            showAlert(error.alertBinder)
         }
     }
 
