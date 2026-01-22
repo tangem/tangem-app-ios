@@ -152,14 +152,9 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
         )
     }
 
-    func makeExpressSuccessSentViewModel(
-        data: SentExpressTransactionData,
-        appearance: ExpressSuccessSentAppearance,
-        coordinator: ExpressSuccessSentRoutable
-    ) -> ExpressSuccessSentViewModel {
+    func makeExpressSuccessSentViewModel(data: SentExpressTransactionData, coordinator: ExpressSuccessSentRoutable) -> ExpressSuccessSentViewModel {
         ExpressSuccessSentViewModel(
             data: data,
-            appearance: appearance,
             initialTokenItem: initialTokenItem,
             balanceConverter: balanceConverter,
             balanceFormatter: balanceFormatter,
