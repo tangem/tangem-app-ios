@@ -126,13 +126,6 @@ class CommonWalletModelsManager {
                 withExtendedLifetime(subscription) {}
             }
     }
-
-    /// Must be stateless, therefore it's static.
-    private static func updateAllInternal(silent: Bool, walletModels: [any WalletModel]) async {
-        await TaskGroup.execute(items: walletModels) {
-            await $0.update(silent: silent, features: .balances)
-        }
-    }
 }
 
 // MARK: - Initializable protocol conformance
