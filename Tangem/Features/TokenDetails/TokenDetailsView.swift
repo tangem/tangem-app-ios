@@ -70,6 +70,7 @@ struct TokenDetailsView: View {
                 TransactionsListView(
                     state: viewModel.transactionHistoryState,
                     exploreAction: viewModel.openExplorer,
+                    exploreConfirmationDialog: $viewModel.exploreConfirmationDialog,
                     exploreTransactionAction: viewModel.openTransactionExplorer,
                     reloadButtonAction: viewModel.onButtonReloadHistory,
                     isReloadButtonBusy: viewModel.isReloadingTransactionHistory,
@@ -90,7 +91,6 @@ struct TokenDetailsView: View {
         .onAppear(perform: viewModel.onAppear)
         .onAppear(perform: scrollOffsetHandler.onViewAppear)
         .alert(item: $viewModel.alert) { $0.alert }
-        .confirmationDialog(viewModel: $viewModel.confirmationDialog)
         .coordinateSpace(name: coordinateSpaceName)
         .toolbar(content: {
             ToolbarItem(placement: .principal) {

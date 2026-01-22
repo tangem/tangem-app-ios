@@ -20,7 +20,6 @@ struct LogsView: View {
         }
         .background(Colors.Background.tertiary.ignoresSafeArea())
         .alert(item: $viewModel.alert) { $0.alert }
-        .confirmationDialog(viewModel: $viewModel.confirmationDialog)
         .toolbar {
             ToolbarItem(placement: .principal) {
                 Menu {
@@ -44,6 +43,7 @@ struct LogsView: View {
                 Button(action: viewModel.openSheet) {
                     Assets.verticalDots.image
                 }
+                .confirmationDialog(viewModel: $viewModel.choseActionDialog)
             }
         }
     }
