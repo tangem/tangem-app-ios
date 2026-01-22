@@ -129,6 +129,8 @@ private extension UnstakingModel {
             return nil
         } catch let error as ValidationError {
             return .validationError(error, fee: fee)
+        } catch CardanoError.feeParametersNotFound {
+            return nil
         } catch {
             return .networkError(error)
         }
