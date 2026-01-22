@@ -66,25 +66,46 @@ final class HederaWalletManager: BaseManager {
 
     // MARK: - Wallet update
 
-    override func updateWalletManager() async throws {
-        do {
-            try await loadCachedAssociatedTokensIfNeeded().async()
+    override func update(completion: @escaping (Result<Void, Error>) -> Void) {
+        cancellable = loadCachedAssociatedTokensIfNeeded()
+            .withWeakCaptureOf(self)
+            .flatMap { walletManager, _ in
+                return walletManager.getAccountId()
+            }
+            .withWeakCaptureOf(self)
+            .flatMap { walletManager, accountId in
+                return Publishers.CombineLatest(
+                    walletManager.networkService.getBalance(accountId: accountId),
+                    walletManager.makePendingTransactionsInfoPublisher()
+                )
+            }
+            .withWeakCaptureOf(self)
+            .flatMap { walletManager, input in
+                let (accountBalance, transactionsInfo) = input
+                let alreadyAssociatedTokens = accountBalance.associatedTokensContractAddresses
 
-            let accountId = try await getAccountId().async()
-
-            async let accountBalance = try await networkService.getBalance(accountId: accountId).async()
-            async let transactionsInfo = try await makePendingTransactionsInfoPublisher().async()
-
-            let alreadyAssociatedTokens = try await accountBalance.associatedTokensContractAddresses
-            let exchangeRate = try await makeTokenAssociationFeeExchangeRatePublisher(alreadyAssociatedTokens: alreadyAssociatedTokens).async()
-
-            try await updateWallet(accountBalance: accountBalance, transactionsInfo: transactionsInfo)
-            try await updateWalletTokens(accountBalance: accountBalance, exchangeRate: exchangeRate)
-        } catch {
-            // We intentionally don't want to clear current token associations on failure
-            wallet.clearAmounts()
-            throw error
-        }
+                return walletManager
+                    .makeTokenAssociationFeeExchangeRatePublisher(alreadyAssociatedTokens: alreadyAssociatedTokens)
+                    .map { exchangeRate in
+                        return (accountBalance, transactionsInfo, exchangeRate)
+                    }
+            }
+            .sink(
+                receiveCompletion: { [weak self] result in
+                    switch result {
+                    case .failure(let error):
+                        // We intentionally don't want to clear current token associations on failure
+                        self?.wallet.clearAmounts()
+                        completion(.failure(error))
+                    case .finished:
+                        completion(.success(()))
+                    }
+                },
+                receiveValue: { [weak self] accountBalance, transactionsInfo, exchangeRate in
+                    self?.updateWallet(accountBalance: accountBalance, transactionsInfo: transactionsInfo)
+                    self?.updateWalletTokens(accountBalance: accountBalance, exchangeRate: exchangeRate)
+                }
+            )
     }
 
     private func updateWallet(accountBalance: HederaAccountBalance, transactionsInfo: [HederaTransactionInfo]) {
@@ -140,7 +161,7 @@ final class HederaWalletManager: BaseManager {
 
         return networkService
             .getExchangeRate()
-            .map { $0 as HederaExchangeRate? } // Combine can't implicitly bridge `Publisher<T, Error>` to `Publisher<T?, Error>`
+            .map { $0 as HederaExchangeRate? } // Combine can't implicitly bridge `Publisher<T, Error>` to `Publisher<T?, Error`
             .replaceError(with: nil) // Token association fee request is auxiliary and shouldn't cause the entire reactive chain to fail
             .setFailureType(to: Error.self)
             .eraseToAnyPublisher()

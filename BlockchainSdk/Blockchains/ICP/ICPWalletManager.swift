@@ -28,15 +28,21 @@ final class ICPWalletManager: BaseManager, WalletManager {
         super.init(wallet: wallet)
     }
 
-    override func updateWalletManager() async throws {
-        do {
-            let balance = try await networkService.getBalance(address: wallet.address).async()
-            updateWallet(with: balance)
-        } catch {
-            wallet.clearAmounts()
-            wallet.clearPendingTransaction()
-            throw error
-        }
+    override func update(completion: @escaping (Result<Void, any Error>) -> Void) {
+        cancellable = networkService.getBalance(address: wallet.address)
+            .sink(
+                receiveCompletion: { [weak self] completionSubscription in
+                    if case .failure(let error) = completionSubscription {
+                        self?.wallet.clearAmounts()
+                        self?.wallet.clearPendingTransaction()
+                        completion(.failure(error))
+                    }
+                },
+                receiveValue: { [weak self] balance in
+                    self?.updateWallet(with: balance)
+                    completion(.success(()))
+                }
+            )
     }
 
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], any Error> {
