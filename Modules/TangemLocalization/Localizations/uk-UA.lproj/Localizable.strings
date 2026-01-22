@@ -417,7 +417,7 @@
 "details_security_management_warning" = "Якщо ви забудете код, ви втратите доступ до своїх коштів. Відновлення коду неможливе.";
 "details_send_feedback" = "Надіслати відгук";
 "details_title" = "Деталі";
-"details_wallets_section_description" = "You can have either one mobile wallet or hardware wallet at the same time. Upgrade you wallet or delete it from the app to start using a Tangem cold wallet.";
+"details_wallets_section_description" = "You can have only one mobile wallet at a time. It can be upgraded to a Tangem cold wallet or used alongside a new cold wallet.";
 "disclaimer_title" = "Умови використання";
 "domain_receive_assets_default_address" = "Основна адреса";
 "domain_receive_assets_legacy_address" = "Legacy %@ адреса";
@@ -525,7 +525,7 @@
 "feedback_subject_tx_push_failed" = "Не можу проштовхнути транзакцію";
 "feedback_token_description_error" = "Помилка в описі монети";
 "gasless_not_enough_funds_to_cover_token_fee" = "Not enough funds";
-"gasless_transaction_fee" = "Gasless transaction fee";
+"gasless_transaction_fee" = "Transaction fee";
 "generic_error_code" = "Виникла помилка. Код: %@.";
 "generic_error" = "Виникла помилка";
 "generic_requires_memo_error" = "Вимагається memo";
@@ -575,6 +575,7 @@
 "hw_backup_need_title" = "Спочатку завершіть резервне копіювання";
 "hw_backup_no_backup" = "Не завершено";
 "hw_backup_section_other_title" = "Інші методи";
+"hw_backup_seed_code_description" = "Save your recovery phrase in a secure place and keep it private to protect your funds, and set up an access code for additional security.";
 "hw_backup_seed_description" = "Збережіть фразу відновлення у безпечному місці і тримайте її у таємниці.";
 "hw_backup_seed_title" = "Фраза відновлення";
 "hw_backup_to_secure_description" = "Щоб захистити свій гаманець за допомогою коду доступу, завершіть процес резервного копіювання.";
@@ -586,7 +587,7 @@
 "hw_create_seed_description" = "Створіть або відновіть свій гаманець за допомогою вашої фрази відновлення.";
 "hw_create_seed_title" = "Резервна копія";
 "hw_create_title" = "Створити мобільний гаманець";
-"hw_create_upgrade_description" = "Upgrade anytime with a Tangem card or ring and secure your keys on hardware.";
+"hw_create_upgrade_description" = "Transfer your mobile wallet to a Tangem card or ring anytime, securely.";
 "hw_create_upgrade_title" = "Upgrade to hardware wallet";
 "hw_import_existing_wallet" = "Імпортувати існуючий гаманець";
 "hw_import_seed_phrase_already_imported" = "Ця фраза відновлення вже була імпортована";
