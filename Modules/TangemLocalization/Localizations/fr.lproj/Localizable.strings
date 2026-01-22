@@ -417,7 +417,7 @@
 "details_security_management_warning" = "Si vous oubliez le code, vous perdrez l'accès à vos fonds. La récupération du code n'est pas possible.";
 "details_send_feedback" = "Envoyer un commentaire";
 "details_title" = "Détails";
-"details_wallets_section_description" = "You can have either one mobile wallet or hardware wallet at the same time. Upgrade you wallet or delete it from the app to start using a Tangem cold wallet.";
+"details_wallets_section_description" = "You can have only one mobile wallet at a time. It can be upgraded to a Tangem cold wallet or used alongside a new cold wallet.";
 "disclaimer_title" = "Conditions d'utilisation";
 "domain_receive_assets_default_address" = "Adresse par défaut";
 "domain_receive_assets_legacy_address" = "Legacy %@ adresse";
@@ -525,7 +525,7 @@
 "feedback_subject_tx_push_failed" = "Impossible d'effectuer une transaction";
 "feedback_token_description_error" = "Erreur de description de la pièce";
 "gasless_not_enough_funds_to_cover_token_fee" = "Not enough funds";
-"gasless_transaction_fee" = "Gasless transaction fee";
+"gasless_transaction_fee" = "Transaction fee";
 "generic_error_code" = "Une erreur s'est produite. Code:%@";
 "generic_error" = "Une erreur s'est produite";
 "generic_requires_memo_error" = "Un mémo est requis";
@@ -575,6 +575,7 @@
 "hw_backup_need_title" = "Finalisez d'abord la sauvegarde.";
 "hw_backup_no_backup" = "Incomplet";
 "hw_backup_section_other_title" = "Autres méthodes";
+"hw_backup_seed_code_description" = "Save your recovery phrase in a secure place and keep it private to protect your funds, and set up an access code for additional security.";
 "hw_backup_seed_description" = "Conservez votre seed phrase dans un endroit sûr et gardez-la confidentielle afin de protéger vos fonds.";
 "hw_backup_seed_title" = "Seed phrase";
 "hw_backup_to_secure_description" = "Pour sécuriser votre wallet avec un code d'accès, effectuez la procédure de sauvegarde.";
@@ -586,7 +587,7 @@
 "hw_create_seed_description" = "Créez ou restaurez votre portefeuille à l'aide d'une seed phrase.";
 "hw_create_seed_title" = "Sauvegarde de la seed phrase";
 "hw_create_title" = "Créer un wallet mobile";
-"hw_create_upgrade_description" = "Upgrade anytime with a Tangem card or ring and secure your keys on hardware.";
+"hw_create_upgrade_description" = "Transfer your mobile wallet to a Tangem card or ring anytime, securely.";
 "hw_create_upgrade_title" = "Upgrade to hardware wallet";
 "hw_import_existing_wallet" = "Importer un portefeuille existant";
 "hw_import_seed_phrase_already_imported" = "Cette seed phrase a déjà été importée.";
