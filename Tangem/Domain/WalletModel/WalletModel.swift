@@ -91,34 +91,20 @@ extension WalletModel {
     }
 }
 
-// MARK: - WalletModelUpdater
+// MARK: - Update
 
 protocol WalletModelUpdater {
-    func update(silent: Bool, features: [WalletModelUpdaterFeatureType]) async
+    @discardableResult
+    func generalUpdate(silent: Bool) -> AnyPublisher<Void, Never>
 
-    func updateTransactionsHistory() async
+    /// Do not use with flatMap.
+    /// - Note: This publisher may emit a single value and then complete. Similar to ``Publishers.Just``.
+    @discardableResult
+    func update(silent: Bool) -> AnyPublisher<WalletModelState, Never>
+
+    func updateTransactionsHistory() -> AnyPublisher<Void, Never>
     func updateAfterSendingTransaction()
 }
-
-extension WalletModelUpdater {
-    /// It can be call as `Fire-and-forget` update
-    @discardableResult
-    func startUpdateTask(silent: Bool = false, features: [WalletModelUpdaterFeatureType] = .full) -> Task<Void, Never> {
-        Task { await update(silent: silent, features: features) }
-    }
-}
-
-enum WalletModelUpdaterFeatureType {
-    case balances
-    case transactionHistory
-}
-
-extension [WalletModelUpdaterFeatureType] {
-    static let balances: [WalletModelUpdaterFeatureType] = [.balances]
-    static let full: [WalletModelUpdaterFeatureType] = [.balances, .transactionHistory]
-}
-
-// MARK: - WalletModelBalancesProvider
 
 protocol WalletModelBalancesProvider {
     var availableBalanceProvider: TokenBalanceProvider { get }
@@ -205,6 +191,7 @@ protocol WalletModelRentProvider {
 // MARK: - Existential deposit
 
 protocol ExistentialDepositInfoProvider {
+    ///    var existentialDeposit: Amount? { get }
     var existentialDepositWarning: String? { get }
 }
 

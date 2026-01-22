@@ -59,14 +59,15 @@ extension CommonSendDestinationTransactionHistoryProvider: SendDestinationTransa
             .transactionHistoryPublisher
             .prefix(1) // We only care about the most recent state and we process it only once
             .withWeakCaptureOf(self)
-            .sink { provider, transactionHistoryState in
+            .flatMap { provider, transactionHistoryState in
                 switch transactionHistoryState {
                 case .notSupported, .loading, .loaded:
-                    break
+                    return AnyPublisher.just
                 case .notLoaded, .error:
-                    Task { await provider.transactionHistoryUpdater.updateTransactionsHistory() }
+                    return provider.transactionHistoryUpdater.updateTransactionsHistory()
                 }
             }
+            .sink()
     }
 }
 

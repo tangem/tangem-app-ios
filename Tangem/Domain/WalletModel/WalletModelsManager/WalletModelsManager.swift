@@ -10,9 +10,8 @@ import Combine
 
 protocol WalletModelsManager: Initializable, AnyObject {
     var isInitialized: Bool { get }
-
     var walletModels: [any WalletModel] { get }
     var walletModelsPublisher: AnyPublisher<[any WalletModel], Never> { get }
 
-    func updateAll(silent: Bool) async
+    func updateAll(silent: Bool, completion: @escaping () -> Void)
 }
