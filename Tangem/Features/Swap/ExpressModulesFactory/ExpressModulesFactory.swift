@@ -36,7 +36,6 @@ protocol ExpressModulesFactory {
 
     func makeExpressSuccessSentViewModel(
         data: SentExpressTransactionData,
-        appearance: ExpressSuccessSentAppearance,
         coordinator: ExpressSuccessSentRoutable
     ) -> ExpressSuccessSentViewModel
 }

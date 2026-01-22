@@ -23,7 +23,8 @@ struct AmountSummaryView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            ExpressCurrencyDefaultHeaderView(headerType: data.headerType)
+            Text(data.title)
+                .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
 
             HStack(spacing: 0) {
                 TokenIcon(tokenIconInfo: data.tokenIconInfo, size: iconSize)
