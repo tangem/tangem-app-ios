@@ -28,8 +28,8 @@ class SwappingSuccessCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         switch options {
-        case .express(let factory, let data, let appearance):
-            rootViewModel = factory.makeExpressSuccessSentViewModel(data: data, appearance: appearance, coordinator: self)
+        case .express(let factory, let data):
+            rootViewModel = factory.makeExpressSuccessSentViewModel(data: data, coordinator: self)
         }
     }
 }
@@ -38,7 +38,7 @@ class SwappingSuccessCoordinator: CoordinatorObject {
 
 extension SwappingSuccessCoordinator {
     enum Options {
-        case express(factory: ExpressModulesFactory, data: SentExpressTransactionData, appearance: ExpressSuccessSentAppearance)
+        case express(factory: ExpressModulesFactory, SentExpressTransactionData)
     }
 }
 
