@@ -102,7 +102,7 @@ extension CommonStakingBaseDataBuilder: SendFeeCurrencyProviderDataBuilder {
 // MARK: - SendApproveViewModelInputDataBuilder
 
 extension CommonStakingBaseDataBuilder: SendApproveViewModelInputDataBuilder {
-    func makeExpressApproveViewModelInput() async throws -> ExpressApproveViewModel.Input {
+    func makeExpressApproveViewModelInput() throws -> ExpressApproveViewModel.Input {
         guard let selectedPolicy = input.selectedPolicy else {
             throw SendBaseDataBuilderError.notFound("Selected approve policy")
         }
