@@ -63,9 +63,12 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
 
         case .success(let wallet as ExpressInteractorSourceWallet):
             headerType = switch wallet.tokenHeader {
-            case .none: .action(name: viewType.actionName())
-            case .wallet(let name): .wallet(name: viewType.prefix(wallet: name))
-            case .account(let name, let icon): .account(prefix: viewType.prefix(), name: name, icon: icon)
+            case .none:
+                    .action(name: viewType.actionName())
+            case .wallet(let name):
+                    .wallet(name: viewType.prefix(wallet: name))
+            case .account(let name, let icon):
+                    .account(prefix: viewType.prefix(), name: name, icon: icon)
             }
 
             canChangeCurrency = wallet.id != initialWalletId
