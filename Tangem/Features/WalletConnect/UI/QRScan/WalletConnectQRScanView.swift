@@ -26,7 +26,12 @@ struct WalletConnectQRScanView: View {
             navigationBar
             scannerOverlayElements
         }
-        .confirmationDialog(for: viewModel.state.confirmationDialog, dismissAction: dismissDialogAction)
+        .confirmationDialog(
+            viewModel: viewModel.state.confirmationDialog,
+            onDismiss: {
+                viewModel.handle(viewEvent: .closeDialogButtonTapped)
+            }
+        )
         .onAppear {
             viewModel.handle(viewEvent: .viewDidAppear)
         }
@@ -134,45 +139,5 @@ struct WalletConnectQRScanView: View {
             .fill(fillColor)
             .aspectRatio(1, contentMode: .fit)
             .padding(.horizontal, 40)
-    }
-
-    private func dismissDialogAction() {
-        viewModel.handle(viewEvent: .closeDialogButtonTapped)
-    }
-}
-
-// MARK: - ModalDialogs wrappers
-
-// [REDACTED_TODO_COMMENT]
-private extension View {
-    func confirmationDialog(
-        for dialog: WalletConnectQRScanViewState.ConfirmationDialog?,
-        dismissAction: @escaping () -> Void
-    ) -> some View {
-        confirmationDialog(
-            dialog?.title ?? "",
-            isPresented: Binding(
-                get: { dialog != nil },
-                set: { isPresented in
-                    if !isPresented {
-                        dismissAction()
-                    }
-                }
-            ),
-            titleVisibility: .visible,
-            presenting: dialog,
-            actions: { _ in
-                dialog?.actions
-            },
-            message: { _ in
-                Text(dialog?.subtitle ?? "")
-            }
-        )
-    }
-}
-
-private extension WalletConnectQRScanViewState.ConfirmationDialog {
-    var actions: some View {
-        Button(button.title, action: button.action)
     }
 }

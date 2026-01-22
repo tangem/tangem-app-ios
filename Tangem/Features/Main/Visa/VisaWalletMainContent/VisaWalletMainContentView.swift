@@ -32,6 +32,7 @@ struct VisaWalletMainContentView: View {
             TransactionsListView(
                 state: viewModel.transactionListViewState,
                 exploreAction: viewModel.openExplorer,
+                exploreConfirmationDialog: nil,
                 exploreTransactionAction: viewModel.exploreTransaction(with:),
                 reloadButtonAction: viewModel.reloadTransactionHistory,
                 isReloadButtonBusy: viewModel.isTransactionHistoryReloading,

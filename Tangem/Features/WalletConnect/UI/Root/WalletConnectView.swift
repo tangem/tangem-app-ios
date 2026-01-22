@@ -35,7 +35,6 @@ struct WalletConnectView: View {
             navigationButton
         }
         .alert(for: viewModel.state.dialog, dismissAction: dismissDialogAction)
-        .confirmationDialog(for: viewModel.state.dialog, dismissAction: dismissDialogAction)
         .background(Colors.Background.secondary)
         .onAppear {
             viewModel.handle(viewEvent: .viewDidAppear)
@@ -80,6 +79,7 @@ struct WalletConnectView: View {
                 }
             }
             .transition(.opacity.animation(.easeInOut(duration: 0.2)))
+            .confirmationDialog(for: viewModel.state.dialog, dismissAction: dismissDialogAction)
             .padding(.horizontal, !viewModel.state.contentState.isContent ? 80 : 16)
             .padding(.bottom, UIDevice.current.hasHomeScreenIndicator ? .zero : 8)
             .offset(y: newConnectionButtonYOffset(proxy))
@@ -371,45 +371,27 @@ struct WalletConnectView: View {
 private extension View {
     func alert(for modalDialog: WalletConnectViewState.ModalDialog?, dismissAction: @escaping () -> Void) -> some View {
         alert(
-            modalDialog?.title ?? "",
+            modalDialog?.asAlert?.title ?? "",
             isPresented: Binding(
-                get: { modalDialog?.isAlert == true },
+                get: { modalDialog?.asAlert != nil },
                 set: { isPresented in
                     if !isPresented {
                         dismissAction()
                     }
                 }
             ),
-            presenting: modalDialog,
-            actions: { _ in
-                modalDialog?.actions
+            presenting: modalDialog?.asAlert,
+            actions: { alert in
+                alert.actions
             },
-            message: { _ in
-                Text(modalDialog?.subtitle ?? "")
+            message: { alert in
+                Text(alert.subtitle)
             }
         )
     }
 
     func confirmationDialog(for modalDialog: WalletConnectViewState.ModalDialog?, dismissAction: @escaping () -> Void) -> some View {
-        confirmationDialog(
-            modalDialog?.title ?? "",
-            isPresented: Binding(
-                get: { modalDialog?.isConfirmationDialog == true },
-                set: { isPresented in
-                    if !isPresented {
-                        dismissAction()
-                    }
-                }
-            ),
-            titleVisibility: .visible,
-            presenting: modalDialog,
-            actions: { _ in
-                modalDialog?.actions
-            },
-            message: { _ in
-                Text(modalDialog?.subtitle ?? "")
-            }
-        )
+        confirmationDialog(viewModel: modalDialog?.asConfirmationDialog, onDismiss: dismissAction)
     }
 }
 
@@ -429,18 +411,15 @@ private extension WalletConnectViewState.ContentState {
     }
 }
 
-private extension WalletConnectViewState.ModalDialog {
+private extension WalletConnectViewState.ModalDialog.Alert {
     var actions: some View {
-        switch self {
-        case .alert(let content), .confirmationDialog(let content):
-            ForEach(content.buttons, id: \.self) { button in
-                Button(button.title, role: button.role?.toSwiftUIButtonRole, action: button.action)
-            }
+        ForEach(buttons, id: \.self) { button in
+            Button(button.title, role: button.role?.toSwiftUIButtonRole, action: button.action)
         }
     }
 }
 
-private extension WalletConnectViewState.ModalDialog.DialogButtonRole {
+private extension WalletConnectViewState.ModalDialog.AlertButtonRole {
     var toSwiftUIButtonRole: ButtonRole {
         switch self {
         case .destructive: .destructive

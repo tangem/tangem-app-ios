@@ -11,7 +11,6 @@ import Combine
 import CombineExt
 import TangemLocalization
 import TangemUI
-import struct TangemUIUtils.ConfirmationDialogViewModel
 import TangemFoundation
 import TangemAccessibilityIdentifiers
 
@@ -29,7 +28,6 @@ final class MainViewModel: ObservableObject {
     @Published var pages: [MainUserWalletPageBuilder] = []
     @Published var selectedCardIndex = 0
     @Published var isHorizontalScrollDisabled = false
-    @Published var confirmationDialog: ConfirmationDialogViewModel?
 
     let swipeDiscoveryAnimationTrigger = CardsInfoPagerSwipeDiscoveryAnimationTrigger()
 
@@ -504,12 +502,6 @@ private extension MainViewModel {
 // MARK: - Navigation
 
 extension MainViewModel: MainLockedUserWalletDelegate {
-    func openTroubleshooting(confirmationDialog: ConfirmationDialogViewModel) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.scanTroubleshootingDelay) {
-            self.confirmationDialog = confirmationDialog
-        }
-    }
-
     func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType) {
         DispatchQueue.main.asyncAfter(deadline: .now() + Constants.feedbackRequestDelay) { [weak self] in
             self?.coordinator?.openMail(with: dataCollector, emailType: emailType, recipient: recipient)
@@ -521,7 +513,7 @@ extension MainViewModel: MainLockedUserWalletDelegate {
     }
 }
 
-extension MainViewModel: MultiWalletMainContentDelegate {
+extension MainViewModel: MultiWalletMainContentDelegate, SingleWalletMainContentDelegate {
     func displayAddressCopiedToast() {
         Toast(
             view: SuccessToast(text: Localization.walletNotificationAddressCopied)
@@ -531,12 +523,6 @@ extension MainViewModel: MultiWalletMainContentDelegate {
             layout: .top(padding: 12),
             type: .temporary()
         )
-    }
-}
-
-extension MainViewModel: SingleWalletMainContentDelegate {
-    func present(confirmationDialog: ConfirmationDialogViewModel) {
-        self.confirmationDialog = confirmationDialog
     }
 }
 
@@ -581,7 +567,6 @@ private extension MainViewModel {
         /// A small delay for animated addition of newly inserted wallet(s) after the main view becomes visible.
         static let pendingWalletsInsertionDelay = 1.0
         static let feedbackRequestDelay = 0.7
-        static let scanTroubleshootingDelay = 0.5
         static let pushNotificationAuthorizationRequestDelay = 0.5
         // [REDACTED_TODO_COMMENT]
         static let bottomSheetVisibilityColdStartDelay = 0.5

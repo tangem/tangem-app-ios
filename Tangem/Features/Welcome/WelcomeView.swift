@@ -13,9 +13,8 @@ struct WelcomeView: View {
     @ObservedObject var viewModel: WelcomeViewModel
 
     var body: some View {
-        StoriesView(viewModel: viewModel.storiesModel)
+        StoriesView(viewModel: viewModel.storiesModel, scanTroubleshootingDialog: $viewModel.scanTroubleshootingDialog)
             .alert(item: $viewModel.error, content: { $0.alert })
-            .confirmationDialog(viewModel: $viewModel.confirmationDialog)
             .environment(\.colorScheme, .dark)
             .onFirstAppear(perform: viewModel.onFirstAppear)
             .onAppear(perform: viewModel.onAppear)

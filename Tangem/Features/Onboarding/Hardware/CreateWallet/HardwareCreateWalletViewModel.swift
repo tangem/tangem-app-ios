@@ -16,7 +16,7 @@ import TangemAssets
 final class HardwareCreateWalletViewModel: ObservableObject {
     @Published var isScanning: Bool = false
 
-    @Published var confirmationDialog: ConfirmationDialogViewModel?
+    @Published var scanTroubleshootingDialog: ConfirmationDialogViewModel?
     @Published var alert: AlertBinder?
 
     let screenTitle = Localization.hardwareWalletCreateTitle
@@ -211,7 +211,7 @@ private extension HardwareCreateWalletViewModel {
             action: weakify(self, forFunction: HardwareCreateWalletViewModel.scanCardRequestSupport)
         )
 
-        confirmationDialog = ConfirmationDialogViewModel(
+        scanTroubleshootingDialog = ConfirmationDialogViewModel(
             title: Localization.alertTroubleshootingScanCardTitle,
             subtitle: Localization.alertTroubleshootingScanCardMessage,
             buttons: [
