@@ -641,10 +641,6 @@ extension CommonWalletModel: WalletModelDependenciesProvider {
     var ethereumGaslessTransactionFeeProvider: (any GaslessTransactionFeeProvider)? {
         walletManager as? GaslessTransactionFeeProvider
     }
-
-    var ethereumGaslessTransactionBroadcaster: (any EthereumGaslessTransactionBroadcaster)? {
-        walletManager as? EthereumGaslessTransactionBroadcaster
-    }
 }
 
 // MARK: - Transaction history

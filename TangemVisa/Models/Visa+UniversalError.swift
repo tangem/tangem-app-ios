@@ -8,6 +8,7 @@
 
 import TangemFoundation
 import TangemSdk
+import TangemPay
 
 /// Each error code must follow this format: xxxyyyzzz where
 /// xxx - Feature code
@@ -175,7 +176,7 @@ extension VisaWalletPublicKeyUtility.SearchError: VisaError {
     }
 }
 
-extension KYCService.KYCServiceError: VisaError {
+extension KYCService.KYCServiceError: @retroactive UniversalError, @retroactive LocalizedError, VisaError {
     public var errorCode: Int {
         switch self {
         case .sdkIsNotReady:
@@ -186,7 +187,7 @@ extension KYCService.KYCServiceError: VisaError {
     }
 }
 
-extension RainCryptoUtilities.RainCryptoUtilitiesError: VisaError {
+extension RainCryptoUtilities.RainCryptoUtilitiesError: @retroactive UniversalError, @retroactive LocalizedError, VisaError {
     public var errorCode: Int {
         switch self {
         case .invalidSecretKey, .invalidDecryptedPinBlock:
@@ -211,7 +212,7 @@ extension RainCryptoUtilities.RainCryptoUtilitiesError: VisaError {
     }
 }
 
-extension TangemPayAPIServiceError: VisaError {
+extension TangemPayAPIServiceError: @retroactive UniversalError, @retroactive LocalizedError, VisaError {
     public var errorCode: Int {
         switch self {
         case .moyaError:
