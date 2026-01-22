@@ -79,9 +79,21 @@ final class NewsListViewModel: ObservableObject {
             loadingState = newsItems.isEmpty ? .loading : .paginationLoading
         case .idle:
             loadingState = .idle
-        case .failedToFetchData:
+        case .failedToFetchData(let error):
             // If we already have items, it's pagination error
             loadingState = newsItems.isEmpty ? .error : .paginationError
+
+            // Log analytics only for initial load error (not pagination)
+            if newsItems.isEmpty {
+                let analyticsParams = error.marketsAnalyticsParams
+                Analytics.log(
+                    event: .marketsNewsListLoadError,
+                    params: [
+                        .errorCode: analyticsParams[.errorCode] ?? "",
+                        .errorMessage: analyticsParams[.errorMessage] ?? "",
+                    ]
+                )
+            }
         case .appendedItems(let items, let lastPage):
             AppLogger.debug("📰 [NewsListViewModel] appending \(items.count) items, current count: \(newsItems.count)")
             let newViewModels = items.map { mapper.toNewsItemViewModel(from: $0) }
@@ -126,6 +138,16 @@ extension NewsListViewModel {
     }
 
     private func onCategorySelected(_ categoryId: Int?) {
+        // Don't send analytics for "All news" (nil categoryId)
+        if let categoryId {
+            Analytics.log(
+                event: .marketsNewsCategoriesSelected,
+                params: [
+                    .selectedCategories: String(categoryId),
+                ]
+            )
+        }
+
         dataProvider.fetch(categoryIds: categoryId.map { [$0] })
     }
 
