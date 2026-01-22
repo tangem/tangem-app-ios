@@ -9,7 +9,6 @@
 import Foundation
 import Combine
 import UIKit
-import SwiftUI
 import TangemFoundation
 import TangemLogger
 import struct TangemUIUtils.AlertBinder
@@ -22,7 +21,7 @@ final class LogsViewModel: ObservableObject {
     @Published var logs: LoadingResult<[LogRowViewData], Error> = .loading
     @Published var categories: [String] = ["All"]
     @Published var alert: AlertBinder?
-    @Published var confirmationDialog: ConfirmationDialogViewModel?
+    @Published var choseActionDialog: ConfirmationDialogViewModel?
 
     private let entries: CurrentValueSubject<LoadingResult<[LogRowViewData], Error>, Never> = .init(.loading)
     private var bag: Set<AnyCancellable> = []
@@ -41,7 +40,7 @@ final class LogsViewModel: ObservableObject {
             self?.clear()
         }
 
-        confirmationDialog = ConfirmationDialogViewModel(
+        choseActionDialog = ConfirmationDialogViewModel(
             title: "Choose action",
             buttons: [
                 shareButton,

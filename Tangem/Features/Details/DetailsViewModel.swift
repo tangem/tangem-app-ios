@@ -44,7 +44,8 @@ final class DetailsViewModel: ObservableObject {
     @Published var supportSectionModels: [DefaultRowViewModel] = []
     @Published var environmentSetupViewModel: [DefaultRowViewModel] = []
     @Published var alert: AlertBinder?
-    @Published var confirmationDialog: ConfirmationDialogViewModel?
+    @Published var chooseSupportTypeDialog: ConfirmationDialogViewModel?
+    @Published var scanTroubleshootingDialog: ConfirmationDialogViewModel?
 
     @Published private var userWalletsViewModels: [SettingsUserWalletRowViewModel] = []
     @Published private var addOrScanNewUserWalletViewModel: DefaultRowViewModel?
@@ -92,6 +93,25 @@ final class DetailsViewModel: ObservableObject {
         setupView()
     }
 
+    func onAppear() {
+        Analytics.log(.settingsScreenOpened)
+    }
+
+    func openSocialNetwork(network: SocialNetwork) {
+        guard let url = network.url else {
+            return
+        }
+
+        Analytics.log(event: .buttonSocialNetwork, params: [
+            .network: network.name,
+        ])
+        coordinator?.openSocialNetwork(url: url)
+    }
+}
+
+// MARK: - Navigation
+
+private extension DetailsViewModel {
     func selectSupport() {
         Analytics.log(.requestSupport, params: [.source: .settings])
         var visaUserWalletModels = [UserWalletModel]()
@@ -115,7 +135,7 @@ final class DetailsViewModel: ObservableObject {
                 self?.openVisaSupport(models: visaUserWalletModels)
             }
 
-            confirmationDialog = ConfirmationDialogViewModel(
+            chooseSupportTypeDialog = ConfirmationDialogViewModel(
                 title: Localization.commonChooseAction,
                 buttons: [
                     contactTangemSupportButton,
@@ -131,11 +151,7 @@ final class DetailsViewModel: ObservableObject {
             openTangemSupport(models: tangemUserWalletModels)
         }
     }
-}
 
-// MARK: - Navigation
-
-extension DetailsViewModel {
     func openWalletConnect() {
         Analytics.log(.buttonWalletConnect)
         coordinator?.openWalletConnect(with: selectedUserWalletModel?.config.getDisabledLocalizedReason(for: .walletConnect))
@@ -207,21 +223,6 @@ extension DetailsViewModel {
 
     func openTOS() {
         coordinator?.openTOS()
-    }
-
-    func openSocialNetwork(network: SocialNetwork) {
-        guard let url = network.url else {
-            return
-        }
-
-        Analytics.log(event: .buttonSocialNetwork, params: [
-            .network: network.name,
-        ])
-        coordinator?.openSocialNetwork(url: url)
-    }
-
-    func onAppear() {
-        Analytics.log(.settingsScreenOpened)
     }
 
     func tryAgain() {
@@ -337,7 +338,7 @@ private extension DetailsViewModel {
         addOrScanNewUserWalletViewModel = makeAddOrScanUserWalletViewModel()
     }
 
-    private func makeAddOrScanUserWalletViewModel() -> DefaultRowViewModel {
+    func makeAddOrScanUserWalletViewModel() -> DefaultRowViewModel {
         let isSaveUserWallets = AppSettings.shared.saveUserWallets
         return DefaultRowViewModel(
             title: isSaveUserWallets ? Localization.userWalletListAddButton : Localization.scanCardSettingsButton,
@@ -611,7 +612,7 @@ private extension DetailsViewModel {
             self?.requestSupport()
         }
 
-        confirmationDialog = ConfirmationDialogViewModel(
+        scanTroubleshootingDialog = ConfirmationDialogViewModel(
             title: Localization.alertTroubleshootingScanCardTitle,
             subtitle: Localization.alertTroubleshootingScanCardMessage,
             buttons: [
