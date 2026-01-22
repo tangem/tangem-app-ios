@@ -12,6 +12,10 @@ enum UserWalletRepositoryModeHelper {
     @Injected(\.userWalletRepository) private static var userWalletRepository: UserWalletRepository
 
     static var mode: UserWalletRepositoryMode {
+        if userWalletRepository.models.isEmpty {
+            return .empty
+        }
+
         let hasNFC = userWalletRepository.models.map {
             $0.config.hasFeature(.nfcInteraction)
         }
