@@ -40,11 +40,17 @@ struct SendSuggestedWalletsFactory {
                     return .init(icon: icon, name: accountModel.name)
                 }
 
+                let tokenHeaderProvider = ExpressInteractorTokenHeaderProvider(
+                    userWalletInfo: userWalletModel.userWalletInfo,
+                    account: walletModel.account
+                )
+
                 return SendDestinationSuggestedWallet(
                     name: userWalletModel.name,
                     address: walletModel.defaultAddressString,
                     account: shouldShowAccounts ? account : .none,
-                    accountModelAnalyticsProvider: walletModel.account
+                    accountModelAnalyticsProvider: walletModel.account,
+                    tokenHeader: tokenHeaderProvider.makeHeader()
                 )
             }
         }

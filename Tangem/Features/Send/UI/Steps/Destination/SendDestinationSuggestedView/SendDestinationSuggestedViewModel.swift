@@ -119,18 +119,14 @@ struct SendDestinationSuggestedWallet {
         name: String,
         address: String,
         account: Account?,
-        accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
+        accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?,
+        tokenHeader: ExpressInteractorTokenHeader?
     ) {
         self.name = name
         self.address = address
         self.account = account
         self.accountModelAnalyticsProvider = accountModelAnalyticsProvider
-
-        if let account {
-            tokenHeader = .account(name: account.name, icon: account.icon)
-        } else {
-            tokenHeader = .wallet(name: name)
-        }
+        self.tokenHeader = tokenHeader
     }
 }
 
