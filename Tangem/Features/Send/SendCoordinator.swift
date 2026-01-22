@@ -167,7 +167,11 @@ extension SendCoordinator: SendRoutable {
             return
         }
 
-        Task { @MainActor in floatingSheetPresenter.enqueue(sheet: viewModel) }
+        Task { @MainActor in
+            // [REDACTED_TODO_COMMENT]
+            try? await Task.sleep(for: .seconds(0.3))
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
     }
 
     func openSwapProvidersSelector(viewModel: SendSwapProvidersSelectorViewModel) {
