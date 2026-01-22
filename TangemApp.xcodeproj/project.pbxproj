@@ -37,6 +37,7 @@
 		0A3080AB2F15152500CAA658 /* StakingYieldInfoProvider+Injected.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3080A62F150E6300CAA658 /* StakingYieldInfoProvider+Injected.swift */; };
 		0A3080AD2F15193200CAA658 /* StakingYieldInfoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3080AC2F15193200CAA658 /* StakingYieldInfoProvider.swift */; };
 		0A3080B02F152A6000CAA658 /* StakingIntegrationId.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3080AF2F152A6000CAA658 /* StakingIntegrationId.swift */; };
+		0A3083DE2F17A07800CAA658 /* EthereumPendingTransactionsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3083DD2F17A07800CAA658 /* EthereumPendingTransactionsManager.swift */; };
 		0A3B4A362EFD32CB0054E884 /* ApyFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3B4A352EFD32CB0054E884 /* ApyFormatter.swift */; };
 		0A3BF9692C6CDAD900163492 /* AdditionalAddresses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3BF9682C6CDAD900163492 /* AdditionalAddresses.swift */; };
 		0A3BF96B2C6CE96B00163492 /* StakingAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A3BF96A2C6CE96B00163492 /* StakingAction.swift */; };
@@ -157,6 +158,7 @@
 		0ACBC5A12DBA97B600272646 /* ReferralNotificationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACBC5A02DBA97B600272646 /* ReferralNotificationController.swift */; };
 		0AD13F952C8AD76800C2EE16 /* CommonStakingAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AD13F942C8AD76800C2EE16 /* CommonStakingAnalyticsLogger.swift */; };
 		0AD1D1592D3A7BB700D39F0E /* MultipleSignTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AD1D1582D3A7BB700D39F0E /* MultipleSignTask.swift */; };
+		0ADCB45B2F1A6AF3000FC4B6 /* CachedPendingTransactionRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ADCB45A2F1A6AF3000FC4B6 /* CachedPendingTransactionRecord.swift */; };
 		0ADFB9342E424F7D00334A3C /* MobileWalletError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ADFB9332E424F7D00334A3C /* MobileWalletError.swift */; };
 		0AE2C97B2E5882EB00D3B9EB /* CardanoTransactionBody.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AE2C97A2E5882EB00D3B9EB /* CardanoTransactionBody.swift */; };
 		0AE2C97D2E58831100D3B9EB /* PotentCBOR+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AE2C97C2E58831100D3B9EB /* PotentCBOR+.swift */; };
@@ -4815,6 +4817,7 @@
 		0A3080A62F150E6300CAA658 /* StakingYieldInfoProvider+Injected.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StakingYieldInfoProvider+Injected.swift"; sourceTree = "<group>"; };
 		0A3080AC2F15193200CAA658 /* StakingYieldInfoProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingYieldInfoProvider.swift; sourceTree = "<group>"; };
 		0A3080AF2F152A6000CAA658 /* StakingIntegrationId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingIntegrationId.swift; sourceTree = "<group>"; };
+		0A3083DD2F17A07800CAA658 /* EthereumPendingTransactionsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumPendingTransactionsManager.swift; sourceTree = "<group>"; };
 		0A3B4A352EFD32CB0054E884 /* ApyFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApyFormatter.swift; sourceTree = "<group>"; };
 		0A3BF9682C6CDAD900163492 /* AdditionalAddresses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdditionalAddresses.swift; sourceTree = "<group>"; };
 		0A3BF96A2C6CE96B00163492 /* StakingAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAction.swift; sourceTree = "<group>"; };
@@ -4933,6 +4936,7 @@
 		0AD13F942C8AD76800C2EE16 /* CommonStakingAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonStakingAnalyticsLogger.swift; sourceTree = "<group>"; };
 		0AD1D1582D3A7BB700D39F0E /* MultipleSignTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultipleSignTask.swift; sourceTree = "<group>"; };
 		0AD9EF0E2CC2A9B600466191 /* UnstakingAmountValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnstakingAmountValidator.swift; sourceTree = "<group>"; };
+        0ADCB45A2F1A6AF3000FC4B6 /* CachedPendingTransactionRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedPendingTransactionRecord.swift; sourceTree = "<group>"; };
 		0ADCF1BD53A99863069 /* AccountModelResolving.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountModelResolving.swift; sourceTree = "<group>"; };
 		0ADFB9332E424F7D00334A3C /* MobileWalletError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileWalletError.swift; sourceTree = "<group>"; };
 		0ADFB9352E42500700334A3C /* MobileWallet+UniversalError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MobileWallet+UniversalError.swift"; sourceTree = "<group>"; };
@@ -15492,6 +15496,7 @@
 				2D9FAB912E13E118005AE305 /* EthereumAddressUtils.swift */,
 				2D5E67362E8D37A4007AE26D /* EthereumCalculateSignatureUtils.swift */,
 				B62D3CC52CBC79D900C2460E /* EthereumExternalLinkProvider.swift */,
+				0A3083DD2F17A07800CAA658 /* EthereumPendingTransactionsManager.swift */,
 				B62D3D062CBC79D900C2460E /* EthereumStakingTransactionHelper.swift */,
 				0A51D9D62ED993D1008F3EBD /* EthereumTransactionMapper.swift */,
 				B62D3D072CBC79D900C2460E /* EthereumTransactionBuilder.swift */,
@@ -16768,6 +16773,7 @@
 				300B38042DDB3C2F007BDD32 /* NFTExternalLinksProvider.swift */,
 				B62D3F632CBC79D900C2460E /* PendingTransaction.swift */,
 				B62D3F642CBC79D900C2460E /* PendingTransactionRecord.swift */,
+				0ADCB45A2F1A6AF3000FC4B6 /* CachedPendingTransactionRecord.swift */,
 				EA0AD9C12EF976B9005C4D7D /* PendingTransactionStatus.swift */,
 				B62D3F652CBC79D900C2460E /* PendingTransactionRecordMapper.swift */,
 				B62D3D392CBC79D900C2460E /* AssetRequirementsPendingTransactionMapper.swift */,
@@ -29788,6 +29794,7 @@
 				B62D41062CBC79DA00C2460E /* KaspaExternalLinkProvider.swift in Sources */,
 				B62D41812CBC79DA00C2460E /* RavencoinTarget.swift in Sources */,
 				B62D3FB92CBC79DA00C2460E /* BinanceAddressService.swift in Sources */,
+				0A3083DE2F17A07800CAA658 /* EthereumPendingTransactionsManager.swift in Sources */,
 				B62D40C72CBC79DA00C2460E /* EthereumStakingTransactionHelper.swift in Sources */,
 				B62D3FC92CBC79DA00C2460E /* OP_1SUB.swift in Sources */,
 				B62D424D2CBC79DB00C2460E /* HostProvider.swift in Sources */,
@@ -30388,6 +30395,7 @@
 				B62D41EF2CBC79DB00C2460E /* VeChainNetworkResult.AccountInfo.swift in Sources */,
 				B62D41832CBC79DA00C2460E /* RavencoinWalletAssembly.swift in Sources */,
 				B62D404D2CBC79DA00C2460E /* CardanoNetworkService.swift in Sources */,
+				0ADCB45B2F1A6AF3000FC4B6 /* CachedPendingTransactionRecord.swift in Sources */,
 				B62D41ED2CBC79DB00C2460E /* VeChainNetworkParams.Transaction.swift in Sources */,
 				EFBAC3222D8B1A4F00024E38 /* MultiLockingScriptBuilder.swift in Sources */,
 				B62D410E2CBC79DA00C2460E /* KoinosDTOMapper.swift in Sources */,
