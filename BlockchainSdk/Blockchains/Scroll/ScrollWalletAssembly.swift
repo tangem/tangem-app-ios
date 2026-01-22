@@ -35,6 +35,14 @@ struct ScrollWalletAssembly: WalletManagerAssembly {
 
         let addressConverter = EthereumAddressConverterFactory().makeConverter(for: wallet.blockchain)
 
+        let pendingTransactionsManager = CommonEthereumPendingTransactionsManager(
+            walletAddress: wallet.address,
+            blockchain: wallet.blockchain,
+            networkService: networkService,
+            dataStorage: input.blockchainSdkDependencies.dataStorage,
+            addressConverter: addressConverter
+        )
+
         let l1SmartContractAddress = EthereumOptimisticRollupConstants.scrollL1GasPriceOracleSmartContractAddress
         let l1FeeMultiplier = EthereumOptimisticRollupConstants.scrollL1GasFeeMultiplier
 
@@ -44,6 +52,7 @@ struct ScrollWalletAssembly: WalletManagerAssembly {
             txBuilder: txBuilder,
             networkService: networkService,
             yieldSupplyService: yieldSupplyServiceFactory.makeProvider(networkService: networkService),
+            pendingTransactionsManager: pendingTransactionsManager,
             allowsFeeSelection: wallet.blockchain.allowsFeeSelection,
             l1SmartContractAddress: l1SmartContractAddress,
             l1FeeMultiplier: l1FeeMultiplier
