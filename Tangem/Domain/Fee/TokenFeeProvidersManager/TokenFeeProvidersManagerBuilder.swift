@@ -31,14 +31,37 @@ struct TokenFeeProvidersManagerBuilder {
             feeProviders.append(contentsOf: gaslessTokenFeeProviders)
         }
 
-        return CommonTokenFeeProvidersManager(feeProviders: feeProviders, initialSelectedProvider: coinTokenFeeProvider)
+        let initialSelectedProvider = prepareInitialTokenFeeProvider(main: coinTokenFeeProvider, all: feeProviders)
+        return CommonTokenFeeProvidersManager(feeProviders: feeProviders, initialSelectedProvider: initialSelectedProvider)
     }
 }
 
 // MARK: - Private
 
 private extension TokenFeeProvidersManagerBuilder {
-    private func makeMainTokenFeeProvider() -> any TokenFeeProvider {
+    func prepareInitialTokenFeeProvider(main: any TokenFeeProvider, all: [any TokenFeeProvider]) -> any TokenFeeProvider {
+        // Early exit when we have only main provider
+        guard all.hasMultipleFeeProviders else {
+            return main
+        }
+
+        // If main(coin) fee provider has zero balance then try to find gasless
+        guard main.balanceFeeTokenState.loaded == .zero else {
+            return main
+        }
+
+        // If we have same TokenFeeProvider as sending token.
+        // It means we have positive balance on this token.
+        // Then use it
+        if let gaslessProvider = all[walletModel.tokenItem], (gaslessProvider.balanceFeeTokenState.loaded ?? 0) > 0 {
+            return gaslessProvider
+        }
+
+        // Fallback to coin. In case we don't have any gasless providers.
+        return main
+    }
+
+    func makeMainTokenFeeProvider() -> any TokenFeeProvider {
         let feeWalletModelResult = try? WalletModelFinder.findWalletModel(
             userWalletId: walletModel.userWalletId,
             tokenItem: walletModel.feeTokenItem
@@ -58,7 +81,7 @@ private extension TokenFeeProvidersManagerBuilder {
         )
     }
 
-    private func makeGaslessTokenFeeProviders() -> [any TokenFeeProvider] {
+    func makeGaslessTokenFeeProviders() -> [any TokenFeeProvider] {
         let availableTokens = gaslessTransactionsNetworkManager.availableFeeTokens
             .filter { $0.chainId == walletModel.tokenItem.blockchain.chainId }
 
