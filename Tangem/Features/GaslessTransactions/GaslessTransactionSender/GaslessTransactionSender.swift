@@ -1,5 +1,5 @@
 //
-//  GaslessTransactionBroadcastService.swift
+//  GaslessTransactionSender.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import BlockchainSdk
 
-class GaslessTransactionBroadcastService {
+final class GaslessTransactionSender {
     @Injected(\.gaslessTransactionsNetworkManager)
     private var gaslessTransactionsNetworkManager: GaslessTransactionsNetworkManager
 
@@ -26,11 +26,7 @@ class GaslessTransactionBroadcastService {
         self.gaslessTransactionBuilder = gaslessTransactionBuilder
     }
 
-    func send(transaction: BSDKTransaction) async throws -> TransactionSendResult {
-        guard let ethereumGaslessTransactionBroadcaster = walletModel.ethereumGaslessTransactionBroadcaster else {
-            throw TransactionDispatcherResult.Error.actionNotSupported
-        }
-
+    func send(transaction: BSDKTransaction) async throws -> TransactionDispatcherResult {
         guard transaction.fee.amount.type.isToken else {
             assertionFailure("Gasless fee should be in token")
             throw TransactionDispatcherResult.Error.actionNotSupported
@@ -40,12 +36,16 @@ class GaslessTransactionBroadcastService {
             bsdkTransaction: transaction
         )
 
-        let signedResult = try await gaslessTransactionsNetworkManager.signGaslessTransaction(buildTransaction)
-        let hash = try await ethereumGaslessTransactionBroadcaster.broadcast(
-            transaction: transaction,
-            compiledTransactionHex: signedResult.signedTransaction
+        let transactionHash = try await gaslessTransactionsNetworkManager.sendGaslessTransaction(buildTransaction)
+        let sendResult = GaslessTransactionSendResult(hash: transactionHash, currentProviderHost: gaslessTransactionsNetworkManager.currentHost)
+
+        let dispatcherResult = TransactionDispatcherResultMapper().mapResult(
+            sendResult,
+            blockchain: walletModel.tokenItem.blockchain,
+            signer: transactionSigner.latestSignerType,
+            isToken: walletModel.tokenItem.isToken
         )
 
-        return hash
+        return dispatcherResult
     }
 }
