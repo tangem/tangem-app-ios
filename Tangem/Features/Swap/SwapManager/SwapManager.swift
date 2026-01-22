@@ -23,7 +23,6 @@ protocol SwapManager: SendApproveDataBuilderInput, SendFeeUpdater, TokenFeeProvi
     var statePublisher: AnyPublisher<SwapManagerState, Never> { get }
 
     var providers: [ExpressAvailableProvider] { get async }
-    var selectedProvider: ExpressAvailableProvider? { get async }
 
     var providersPublisher: AnyPublisher<[ExpressAvailableProvider], Never> { get }
     var selectedProviderPublisher: AnyPublisher<ExpressAvailableProvider?, Never> { get }
