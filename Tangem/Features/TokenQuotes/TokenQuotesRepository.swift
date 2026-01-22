@@ -36,10 +36,8 @@ extension TokenQuotesRepository {
         return quote(for: item.currencyId)
     }
 
-    @discardableResult
-    func loadQuotes(currencyIds: [String]) async -> Quotes {
-        let loadedQuotes = try? await loadQuotes(currencyIds: currencyIds).async()
-        return loadedQuotes ?? quotes
+    func loadQuotes(currencyIds: [String]) async {
+        _ = try? await loadQuotes(currencyIds: currencyIds).async()
     }
 }
 

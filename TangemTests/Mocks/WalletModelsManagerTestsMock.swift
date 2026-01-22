@@ -26,5 +26,7 @@ final class WalletModelsManagerTestsMock: WalletModelsManager {
 
     func initialize() {}
 
-    func updateAll(silent: Bool) async {}
+    func updateAll(silent: Bool, completion: @escaping () -> Void) {
+        completion()
+    }
 }
