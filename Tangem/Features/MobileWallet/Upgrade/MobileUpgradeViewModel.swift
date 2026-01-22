@@ -263,7 +263,7 @@ private extension MobileUpgradeViewModel {
         let cardInteractor = FactorySettingsResettingCardInteractor(with: cardInfo)
         let backupCardsCount = cardInfo.card.backupStatus?.backupCardsCount ?? 0
 
-        let resetUtil = ResetToFactoryUtilBuilder().build(
+        let resetUtil = ResetToFactoryUtilBuilder(flow: .upgrade).build(
             backupCardsCount: backupCardsCount,
             cardInteractor: cardInteractor
         )
