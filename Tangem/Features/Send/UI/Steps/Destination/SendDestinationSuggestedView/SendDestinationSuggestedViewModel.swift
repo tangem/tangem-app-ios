@@ -43,7 +43,8 @@ class SendDestinationSuggestedViewModel {
                     address: wallet.address,
                     additionalField: nil,
                     type: .otherWallet,
-                    accountModelAnalyticsProvider: wallet.accountModelAnalyticsProvider
+                    accountModelAnalyticsProvider: wallet.accountModelAnalyticsProvider,
+                    tokenHeader: wallet.tokenHeader
                 ))
             }
         }
@@ -59,7 +60,8 @@ class SendDestinationSuggestedViewModel {
                     additionalField: record.additionalField,
                     type: .recentAddress,
                     // Nil because we dont have account info in recent addreses
-                    accountModelAnalyticsProvider: nil
+                    accountModelAnalyticsProvider: nil,
+                    tokenHeader: nil
                 ))
             }
         }
@@ -91,6 +93,7 @@ struct SendDestinationSuggested {
     let additionalField: String?
     let type: DestinationType
     let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
+    let tokenHeader: ExpressInteractorTokenHeader?
 
     enum DestinationType {
         case otherWallet
@@ -105,6 +108,7 @@ struct SendDestinationSuggestedWallet {
     let address: String
     let account: Account?
     let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
+    let tokenHeader: ExpressInteractorTokenHeader?
 
     struct Account {
         let icon: AccountIconView.ViewData
@@ -121,6 +125,12 @@ struct SendDestinationSuggestedWallet {
         self.address = address
         self.account = account
         self.accountModelAnalyticsProvider = accountModelAnalyticsProvider
+
+        if let account {
+            tokenHeader = .account(name: account.name, icon: account.icon)
+        } else {
+            tokenHeader = .wallet(name: name)
+        }
     }
 }
 
