@@ -42,12 +42,14 @@ final class MobileFinishActivationManager {
             return
         }
 
-        let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
-        let totalBalances = walletModels.compactMap(\.availableBalanceProvider.balanceType.value)
-        let hasPositiveBalance = totalBalances.contains(where: { $0 > 0 })
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
+            let totalBalances = walletModels.compactMap(\.availableBalanceProvider.balanceType.value)
+            let hasPositiveBalance = totalBalances.contains(where: { $0 > 0 })
 
-        if hasPositiveBalance {
-            onActivation(userWalletModel)
+            if hasPositiveBalance {
+                onActivation(userWalletModel)
+            }
         }
     }
 }
