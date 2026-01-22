@@ -12,6 +12,7 @@ public typealias ExpressBalanceProvider = TangemExpress.BalanceProvider
 
 public protocol BalanceProvider {
     func getBalance() throws -> Decimal
+    func getCoinBalance() throws -> Decimal
 }
 
 public enum ExpressBalanceProviderError: LocalizedError {
