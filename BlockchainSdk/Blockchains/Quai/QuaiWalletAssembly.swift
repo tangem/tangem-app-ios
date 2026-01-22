@@ -30,11 +30,20 @@ struct QuaiWalletAssembly: WalletManagerAssembly {
 
         let addressConverter = EthereumAddressConverterFactory().makeConverter(for: wallet.blockchain)
 
+        let pendingTransactionsManager = CommonEthereumPendingTransactionsManager(
+            walletAddress: wallet.address,
+            blockchain: wallet.blockchain,
+            networkService: networkService,
+            dataStorage: input.blockchainSdkDependencies.dataStorage,
+            addressConverter: addressConverter
+        )
+
         return EthereumWalletManager(
             wallet: wallet,
             addressConverter: addressConverter,
             txBuilder: txBuilder,
             networkService: networkService,
+            pendingTransactionsManager: pendingTransactionsManager,
             allowsFeeSelection: wallet.blockchain.allowsFeeSelection
         )
     }

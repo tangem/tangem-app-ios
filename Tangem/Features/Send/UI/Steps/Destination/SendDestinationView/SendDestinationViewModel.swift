@@ -116,7 +116,9 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
         destinationAddressViewModel
             .addressPublisher()
             .dropFirst()
-            .debounce(for: interactor.willResolveAddress ? .seconds(1) : 0) { !$0.string.isEmpty }
+            .debounce(for: .seconds(1)) { [interactor] in
+                !$0.string.isEmpty && interactor.willResolve(address: $0.string)
+            }
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
             .sink { viewModel, destination in
@@ -141,6 +143,14 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
             .receive(on: DispatchQueue.main)
             .sink { viewModel, error in
                 viewModel.destinationAddressViewModel.update(error: error)
+            }
+            .store(in: &bag)
+
+        interactor.ignoreDestinationClear
+            .withWeakCaptureOf(self)
+            .receiveOnMain()
+            .sink { viewModel, ignore in
+                viewModel.destinationAddressViewModel.update(shouldIgnoreClearButton: ignore)
             }
             .store(in: &bag)
 

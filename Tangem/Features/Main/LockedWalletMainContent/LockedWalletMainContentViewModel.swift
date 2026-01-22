@@ -13,13 +13,13 @@ import TangemLocalization
 import class TangemSdk.BiometricsUtil
 
 protocol MainLockedUserWalletDelegate: AnyObject {
-    func openTroubleshooting(confirmationDialog: ConfirmationDialogViewModel)
     func openScanCardManual()
     func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType)
 }
 
 final class LockedWalletMainContentViewModel: ObservableObject {
     @Published var alert: AlertBinder?
+    @Published var scanTroubleshootingDialog: ConfirmationDialogViewModel?
 
     lazy var lockedNotificationInput: NotificationViewInput = {
         let factory = NotificationsFactory()
@@ -61,8 +61,6 @@ final class LockedWalletMainContentViewModel: ObservableObject {
     private let userWalletModel: UserWalletModel
     private let contextData: AnalyticsContextData?
 
-    private let balanceRestrictionFeatureAvailabilityProvider: BalanceRestrictionFeatureAvailabilityProvider
-
     private weak var lockedUserWalletDelegate: MainLockedUserWalletDelegate?
     private weak var coordinator: ActionButtonsRoutable?
 
@@ -78,16 +76,11 @@ final class LockedWalletMainContentViewModel: ObservableObject {
         self.isMultiWallet = isMultiWallet
         self.lockedUserWalletDelegate = lockedUserWalletDelegate
         self.coordinator = coordinator
-        balanceRestrictionFeatureAvailabilityProvider = BalanceRestrictionFeatureAvailabilityProvider(
-            userWalletConfig: userWalletModel.config,
-            walletModelsPublisher: AccountsFeatureAwareWalletModelsResolver.walletModelsPublisher(for: userWalletModel),
-            updatePublisher: userWalletModel.updatePublisher
-        )
 
         contextData = userWalletModel.analyticsContextData
 
         if isMultiWallet {
-            bindBalanceRestrictionsCheck()
+            setupActionButtons()
         }
 
         Analytics.log(event: .mainNoticeWalletUnlock, params: contextData?.analyticsParams ?? [:])
@@ -231,7 +224,7 @@ private extension LockedWalletMainContentViewModel {
             self?.requestSupport()
         }
 
-        let viewModel = ConfirmationDialogViewModel(
+        scanTroubleshootingDialog = ConfirmationDialogViewModel(
             title: Localization.alertTroubleshootingScanCardTitle,
             subtitle: Localization.alertTroubleshootingScanCardMessage,
             buttons: [
@@ -241,8 +234,6 @@ private extension LockedWalletMainContentViewModel {
                 ConfirmationDialogViewModel.Button.cancel,
             ]
         )
-
-        lockedUserWalletDelegate?.openTroubleshooting(confirmationDialog: viewModel)
     }
 
     func openScanCardManual() {
@@ -260,14 +251,8 @@ private extension LockedWalletMainContentViewModel {
 // MARK: - Action buttons
 
 private extension LockedWalletMainContentViewModel {
-    func bindBalanceRestrictionsCheck() {
-        balanceRestrictionFeatureAvailabilityProvider.isActionButtonsAvailablePublisher
-            .removeDuplicates()
-            .withWeakCaptureOf(self)
-            .sink { viewModel, isAvailable in
-                viewModel.actionButtonsViewModel = isAvailable ? viewModel.makeActionButtonsViewModel() : nil
-            }
-            .store(in: &bag)
+    func setupActionButtons() {
+        actionButtonsViewModel = makeActionButtonsViewModel()
     }
 
     func makeActionButtonsViewModel() -> ActionButtonsViewModel? {

@@ -14,4 +14,5 @@ struct ReferralInputModel {
     let supportedBlockchains: SupportedBlockchainsSet
     let workMode: ReferralViewModel.WorkMode
     let tokenIconInfoBuilder: TokenIconInfoBuilder
+    let userWalletModel: UserWalletModel
 }

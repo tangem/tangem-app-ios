@@ -239,7 +239,8 @@ extension MainCoordinator {
                 userWalletId: userWalletModel.userWalletId.value,
                 supportedBlockchains: userWalletModel.config.supportedBlockchains,
                 workMode: workMode,
-                tokenIconInfoBuilder: TokenIconInfoBuilder()
+                tokenIconInfoBuilder: TokenIconInfoBuilder(),
+                userWalletModel: userWalletModel
             )
 
             coordinator.openDeepLink(.referral(input: input))

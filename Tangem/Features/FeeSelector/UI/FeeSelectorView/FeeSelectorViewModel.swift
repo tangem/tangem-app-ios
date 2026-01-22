@@ -16,7 +16,7 @@ final class FeeSelectorViewModel: ObservableObject, FloatingSheetContentViewMode
 
     // MARK: - Properties
 
-    private let interactor: any FeeSelectorInteractor
+    let interactor: any FeeSelectorInteractor
 
     private let summaryViewModel: FeeSelectorSummaryViewModel
     private let tokensViewModel: FeeSelectorTokensViewModel

@@ -24,7 +24,6 @@ struct AuthView: View {
     var body: some View {
         unlockView
             .alert(item: $viewModel.error, content: { $0.alert })
-            .confirmationDialog(viewModel: $viewModel.confirmationDialog)
             .onAppear(perform: viewModel.onAppear)
             .onDisappear(perform: viewModel.onDisappear)
             .background(Colors.Background.primary.edgesIgnoringSafeArea(.all))
@@ -65,6 +64,7 @@ struct AuthView: View {
                 isLoading: viewModel.isScanningCard,
                 action: viewModel.unlockWithCard
             )
+            .confirmationDialog(viewModel: $viewModel.scanTroubleshootingDialog)
         }
         .padding([.top, .horizontal])
         .padding(.bottom, 6)
