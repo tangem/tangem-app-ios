@@ -21,7 +21,6 @@ struct NewAuthView: View {
         stateView
             .allowsHitTesting(!viewModel.isUnlocking)
             .alert(item: $viewModel.alert, content: { $0.alert })
-            .confirmationDialog(viewModel: $viewModel.confirmationDialog)
             .background(Colors.Background.secondary.ignoresSafeArea())
             .onFirstAppear(perform: viewModel.onFirstAppear)
             .onAppear(perform: viewModel.onAppear)
@@ -38,10 +37,12 @@ private extension NewAuthView {
             case .locked:
                 LockView(usesNamespace: false)
                     .transition(.opacity.animation(.easeIn))
+
             case .wallets(let item):
                 walletsView(item: item)
-                    .tangemLogoNavigationToolbar(trailingItem: trailingNavigationBarItem(item: item.addWallet))
+                    .tangemLogoNavigationToolbar(trailingItem: trailingNavigationBarItem(item: item.addWalletButton))
                     .transition(.opacity.animation(.easeIn))
+
             case .none:
                 EmptyView()
             }
@@ -51,7 +52,7 @@ private extension NewAuthView {
     func walletsView(item: ViewModel.WalletsStateItem) -> some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(spacing: 32) {
-                infoView(item: item.info)
+                infoView(title: item.title, description: item.description)
                 walletsView(items: item.wallets)
             }
             .padding(.top, 32)
@@ -59,7 +60,7 @@ private extension NewAuthView {
             .ignoresSafeArea(edges: .bottom)
         }
         .safeAreaInset(edge: .bottom, spacing: 10) {
-            item.biometricsUnlock.map {
+            item.biometricsUnlockButton.map {
                 biometricsUnlockButton(item: $0)
                     .padding(.horizontal, 16)
                     .padding(.bottom, 6)
@@ -72,7 +73,7 @@ private extension NewAuthView {
 // MARK: - NavigationBar
 
 private extension NewAuthView {
-    func trailingNavigationBarItem(item: ViewModel.AddWalletItem) -> some View {
+    func trailingNavigationBarItem(item: ViewModel.Button) -> some View {
         Button(action: item.action) {
             Text(item.title)
                 .style(Fonts.Regular.body, color: Colors.Text.primary1)
@@ -85,13 +86,13 @@ private extension NewAuthView {
 // MARK: - WalletsState subviews
 
 private extension NewAuthView {
-    func infoView(item: ViewModel.InfoItem) -> some View {
+    func infoView(title: String, description: String) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(item.title)
+            Text(title)
                 .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                 .accessibilityIdentifier(AuthAccessibilityIdentifiers.title)
 
-            Text(item.description)
+            Text(description)
                 .style(Fonts.Regular.callout, color: Colors.Text.secondary)
                 .accessibilityIdentifier(AuthAccessibilityIdentifiers.subtitle)
         }
@@ -100,14 +101,20 @@ private extension NewAuthView {
 
     func walletsView(items: [ViewModel.WalletItem]) -> some View {
         VStack(spacing: 8) {
-            ForEach(items) {
-                NewAuthWalletView(item: $0)
+            ForEach(items) { walletItem in
+                NewAuthWalletView(item: walletItem)
+                    .confirmationDialog(
+                        viewModel: walletItem.scanTroubleshootingDialog,
+                        onDismiss: {
+                            viewModel.onScanTroubleshootingDialogDismiss(for: walletItem.id)
+                        }
+                    )
                     .environment(\.unlockingUserWalletId, viewModel.unlockingUserWalletId)
             }
         }
     }
 
-    func biometricsUnlockButton(item: ViewModel.BiometricsUnlockItem) -> some View {
+    func biometricsUnlockButton(item: ViewModel.Button) -> some View {
         Button(action: item.action) {
             Text(item.title)
                 .style(Fonts.Bold.callout, color: Colors.Text.primary1)
