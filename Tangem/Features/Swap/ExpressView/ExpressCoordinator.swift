@@ -92,7 +92,7 @@ extension ExpressCoordinator: ExpressRoutable {
         )
     }
 
-    func presentSuccessView(data: SentExpressTransactionData, appearance: ExpressSuccessSentAppearance) {
+    func presentSuccessView(data: SentExpressTransactionData) {
         UIApplication.shared.endEditing()
 
         let dismissAction = { [weak self] in
@@ -106,7 +106,7 @@ extension ExpressCoordinator: ExpressRoutable {
             dismissAction: dismissAction,
             popToRootAction: popToRootAction
         )
-        coordinator.start(with: .express(factory: factory, data: data, appearance: appearance))
+        coordinator.start(with: .express(factory: factory, data))
 
         swappingSuccessCoordinator = coordinator
     }
