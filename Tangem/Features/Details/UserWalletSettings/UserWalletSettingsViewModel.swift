@@ -44,7 +44,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
     @Published var forgetViewModel: DefaultRowViewModel?
 
     @Published var alert: AlertBinder?
-    @Published var confirmationDialog: ConfirmationDialogViewModel?
+    @Published var forgetWalletConfirmationDialog: ConfirmationDialogViewModel?
 
     // MARK: - Private
 
@@ -437,7 +437,7 @@ private extension UserWalletSettingsViewModel {
             }
         )
 
-        confirmationDialog = ConfirmationDialogViewModel(
+        forgetWalletConfirmationDialog = ConfirmationDialogViewModel(
             title: Localization.userWalletListDeletePrompt,
             buttons: [
                 deleteButton,
