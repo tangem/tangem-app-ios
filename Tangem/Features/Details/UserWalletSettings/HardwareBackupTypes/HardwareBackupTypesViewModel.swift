@@ -12,14 +12,15 @@ import TangemFoundation
 import TangemLocalization
 import TangemUIUtils
 import TangemMobileWalletSdk
+import TangemAssets
 
 final class HardwareBackupTypesViewModel: ObservableObject {
     @Published var alert: AlertBinder?
 
     let navigationTitle = Localization.hwBackupHardwareTitle
 
+    lazy var infoItem: InfoItem = makeInfoItem()
     lazy var backupItems: [BackupItem] = makeBackupItems()
-    lazy var buyItem: BuyItem = makeBuyItem()
 
     @Injected(\.safariManager) private var safariManager: SafariManager
 
@@ -51,6 +52,27 @@ extension HardwareBackupTypesViewModel {
 // MARK: - Private methods
 
 private extension HardwareBackupTypesViewModel {
+    func makeInfoItem() -> InfoItem {
+        let action = InfoActionItem(
+            title: Localization.detailsBuyWallet,
+            handler: weakify(self, forFunction: HardwareBackupTypesViewModel.onInfoTap)
+        )
+
+        let chips: [InfoChipItem] = [
+            InfoChipItem(icon: Assets.Glyphs.checkmarkShield, title: Localization.welcomeCreateWalletFeatureClass),
+            InfoChipItem(icon: Assets.Glyphs.boldFlash, title: Localization.welcomeCreateWalletFeatureDelivery),
+            InfoChipItem(icon: Assets.Glyphs.sparkles, title: Localization.welcomeCreateWalletFeatureSeedphrase),
+        ]
+
+        return InfoItem(
+            title: Localization.commonTangemWallet,
+            description: Localization.hwBackupBannerDescription,
+            icon: Assets.Onboarding.tangemVerticalCardSet,
+            chips: chips,
+            action: action
+        )
+    }
+
     func makeBackupItems() -> [BackupItem] {
         let createWalletItem = BackupItem(
             title: Localization.hwBackupHardwareCreateTitle,
@@ -102,15 +124,7 @@ private extension HardwareBackupTypesViewModel {
         }
     }
 
-    func makeBuyItem() -> BuyItem {
-        BuyItem(
-            title: Localization.walletAddHardwarePurchase,
-            buttonTitle: Localization.walletImportBuyTitle,
-            buttonAction: weakify(self, forFunction: HardwareBackupTypesViewModel.onBuyTap)
-        )
-    }
-
-    func onBuyTap() {
+    func onInfoTap() {
         runTask(in: self) { viewModel in
             await viewModel.openBuyHardwareWallet()
         }
@@ -244,9 +258,21 @@ extension HardwareBackupTypesViewModel {
         let action: () -> Void
     }
 
-    struct BuyItem {
+    struct InfoItem {
         let title: String
-        let buttonTitle: String
-        let buttonAction: () -> Void
+        let description: String
+        let icon: ImageType
+        let chips: [InfoChipItem]
+        let action: InfoActionItem
+    }
+
+    struct InfoChipItem: Hashable {
+        let icon: ImageType
+        let title: String
+    }
+
+    struct InfoActionItem {
+        let title: String
+        let handler: () -> Void
     }
 }
