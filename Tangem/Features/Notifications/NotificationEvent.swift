@@ -84,8 +84,6 @@ extension NotificationEvent {
                 return TokenAccessibilityIdentifiers.topUpWalletBanner
             case .existentialDepositWarning:
                 return SendAccessibilityIdentifiers.existentialDepositWarningBanner
-            case .notEnoughFeeForTransaction:
-                return TokenAccessibilityIdentifiers.notEnoughFeeForTransactionBanner
             default:
                 return nil
             }
