@@ -25,7 +25,6 @@ struct CreateWalletSelectorView: View {
             .background(Colors.Background.plain.ignoresSafeArea())
             .onFirstAppear(perform: viewModel.onFirstAppear)
             .alert(item: $viewModel.alert, content: { $0.alert })
-            .confirmationDialog(viewModel: $viewModel.confirmationDialog)
             .environment(\.colorScheme, .dark)
     }
 }
@@ -115,6 +114,7 @@ private extension CreateWalletSelectorView {
                 isLoading: viewModel.isScanning,
                 action: viewModel.onScanTap
             )
+            .confirmationDialog(viewModel: $viewModel.scanTroubleshootingDialog)
             .accessibilityIdentifier(StoriesAccessibilityIdentifiers.scanButton)
 
             MainButton(
