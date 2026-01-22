@@ -14,13 +14,14 @@ import TangemNetworkUtils
 protocol GaslessTransactionsNetworkManager {
     typealias FeeToken = GaslessTransactionsDTO.Response.FeeToken
     typealias GaslessTransaction = GaslessTransactionsDTO.Request.GaslessTransaction
-    typealias SignResult = GaslessTransactionsDTO.Response.SignResponse.Result
 
     var availableFeeTokens: [FeeToken] { get }
     var availableFeeTokensPublisher: AnyPublisher<[FeeToken], Never> { get }
 
+    var currentHost: String { get }
+
     func updateAvailableTokens()
-    func signGaslessTransaction(_ transaction: GaslessTransaction) async throws -> SignResult
+    func sendGaslessTransaction(_ transaction: GaslessTransaction) async throws -> String
     func initialize()
 
     var feeRecipientAddress: String? { get }
@@ -43,6 +44,12 @@ final class CommonGaslessTransactionsNetworkManager {
 // MARK: - GaslessTransactionsNetworkManager
 
 extension CommonGaslessTransactionsNetworkManager: GaslessTransactionsNetworkManager {
+    var currentHost: String {
+        AppEnvironment.current.isProduction ?
+            GaslessApiTargetConstants.prodBaseURL.absoluteString :
+            GaslessApiTargetConstants.devBaseURL.absoluteString
+    }
+
     var feeRecipientAddress: String? {
         _feeRecipientAddress
     }
@@ -82,8 +89,8 @@ extension CommonGaslessTransactionsNetworkManager: GaslessTransactionsNetworkMan
         self.fetchFeeTokensTask = fetchFeeTokensTask
     }
 
-    func signGaslessTransaction(_ transaction: GaslessTransaction) async throws -> SignResult {
-        try await apiService.signGaslessTransaction(transaction)
+    func sendGaslessTransaction(_ transaction: GaslessTransaction) async throws -> String {
+        try await apiService.sendGaslessTransaction(transaction)
     }
 
     func preloadFeeRecipientAddress() {
