@@ -31,6 +31,13 @@ final class NewsWidgetViewModel: ObservableObject {
 
     private var bag = Set<AnyCancellable>()
 
+    // MARK: - Analytics Session Flags
+
+    private var hasLoggedCarouselScrolled = false
+    private var hasLoggedCarouselEndReached = false
+    private var hasLoggedCarouselAllNewsButton = false
+    private var hasLoggedTrendingClicked = false
+
     // MARK: - Init
 
     init(
@@ -58,7 +65,56 @@ final class NewsWidgetViewModel: ObservableObject {
 
     @MainActor
     func handleAllNewsTap() {
+        Analytics.log(
+            event: .marketsNewsListOpened,
+            params: [
+                .source: Analytics.ParameterValue.markets.rawValue,
+            ]
+        )
+
         coordinator?.openSeeAllNewsWidget()
+    }
+
+    @MainActor
+    func handleCarouselAllNewsTap() {
+        if !hasLoggedCarouselAllNewsButton {
+            hasLoggedCarouselAllNewsButton = true
+            Analytics.log(.marketsNewsCarouselAllNewsButton)
+        }
+
+        handleAllNewsTap()
+    }
+
+    @MainActor
+    func handleCarouselItemAppear(at index: Int) {
+        guard let carouselItems = resultState.value?.carouselNewsItems else { return }
+
+        // Track when user scrolls to 4th news item or beyond (index 3, 0-based)
+        if index >= 3, !hasLoggedCarouselScrolled {
+            hasLoggedCarouselScrolled = true
+            Analytics.log(.marketsNewsCarouselScrolled)
+        }
+
+        // Track when user reaches the end (last item before "See All" card)
+        if index >= carouselItems.count - 1, !hasLoggedCarouselEndReached {
+            hasLoggedCarouselEndReached = true
+            Analytics.log(.marketsNewsCarouselEndReached)
+        }
+    }
+
+    @MainActor
+    func handleTrendingNewsTap(newsId: String) {
+        if !hasLoggedTrendingClicked {
+            hasLoggedTrendingClicked = true
+            Analytics.log(
+                event: .marketsNewsCarouselTrendingClicked,
+                params: [
+                    .token: newsId, // News Id
+                ]
+            )
+        }
+
+        handleTap(newsId: newsId)
     }
 
     @MainActor
@@ -103,6 +159,15 @@ private extension NewsWidgetViewModel {
                 case .failure(let error):
                     widgetLoadingState = .error
                     viewModel.resultState = .failure(error)
+
+                    let analyticsParams = error.marketsAnalyticsParams
+                    Analytics.log(
+                        event: .marketsNewsLoadError,
+                        params: [
+                            .errorCode: analyticsParams[.errorCode] ?? "",
+                            .errorMessage: analyticsParams[.errorMessage] ?? "",
+                        ]
+                    )
                 }
 
                 viewModel.widgetsUpdateHandler.performUpdateLoading(state: widgetLoadingState, for: viewModel.widgetType)
@@ -125,7 +190,7 @@ private extension NewsWidgetViewModel {
             if item.isTrending, trendingCardNewsItem == nil {
                 trendingCardNewsItem = mapper.toTrendingCardNewsItem(
                     from: item,
-                    onTap: weakify(self, forFunction: NewsWidgetViewModel.handleTap)
+                    onTap: weakify(self, forFunction: NewsWidgetViewModel.handleTrendingNewsTap)
                 )
             } else {
                 let carouselItem = mapper.toCarouselNewsItem(

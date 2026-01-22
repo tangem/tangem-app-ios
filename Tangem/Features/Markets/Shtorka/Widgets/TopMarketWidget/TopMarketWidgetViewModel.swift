@@ -75,6 +75,13 @@ final class TopMarketWidgetViewModel: ObservableObject {
     }
 
     func onSeeAllTapAction() {
+        Analytics.log(
+            event: .marketsTokenListOpened,
+            params: [
+                .source: Analytics.ParameterValue.markets.rawValue,
+            ]
+        )
+
         runTask(in: self) { @MainActor viewModel in
             viewModel.coordinator?.openSeeAllTopMarketWidget()
         }
@@ -121,6 +128,15 @@ private extension TopMarketWidgetViewModel {
                 case .failedToFetchData(let error):
                     if viewModel.dataProvider.items.isEmpty {
                         viewModel.quotesUpdatesScheduler.cancelUpdates()
+
+                        let analyticsParams = error.marketsAnalyticsParams
+                        Analytics.log(
+                            event: .marketsMarketsLoadError,
+                            params: [
+                                .errorCode: analyticsParams[.errorCode] ?? "",
+                                .errorMessage: analyticsParams[.errorMessage] ?? "",
+                            ]
+                        )
                     }
 
                     viewModel.tokenViewModelsState = .failure(error)

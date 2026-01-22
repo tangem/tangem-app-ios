@@ -121,6 +121,8 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
                 self.isBottomSheetExpanded = true
             }
 
+            Analytics.log(.marketsScreenOpened)
+
             headerViewModel.onBottomSheetExpand(isTapGesture: state.isTapGesture)
         case .collapsed:
             isBottomSheetExpanded = false
@@ -211,6 +213,14 @@ private extension MarketsMainViewModel {
             .sink { viewModel, state in
                 if case .allWidgetsWithError = state {
                     viewModel.widgetsViewState = .error
+
+                    Analytics.log(
+                        event: .marketsAllWidgetsLoadError,
+                        params: [
+                            .errorCode: Analytics.ParameterValue.marketsErrorCodeIsNotHTTPError.rawValue,
+                            .errorMessage: "",
+                        ]
+                    )
                 }
             }
             .store(in: &bag)
