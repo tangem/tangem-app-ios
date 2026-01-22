@@ -6,36 +6,15 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import BitcoinDevKit
 import TangemSdk
 import Testing
 import WalletCore
 @testable import BlockchainSdk
 
 struct BitcoinPsbtTests {
-    @Test(arguments: [PsbtTestCase.Segwit.singleInputSingleOutput])
-    func hashesToSign_segwitInput_matchesSighashBuilder(testCase: PsbtTestCase.Segwit) throws {
-        let fixture = testCase.fixture
-        let scriptCode = OpCodeUtils.p2pkh(data: fixture.pubKeyHash)
-
-        let hashes = try BitcoinPsbtSigningBuilder.hashesToSign(
-            psbtBase64: fixture.psbtBase64,
-            signInputs: [.init(index: 0)] // sign the only input
-        )
-        let expectedHash = try BitcoinSighashBuilder.segwitV0SighashAll(
-            version: fixture.version,
-            lockTime: fixture.lockTime,
-            inputs: fixture.txInputs,
-            outputs: fixture.txOutputs,
-            inputIndex: 0,
-            scriptCode: scriptCode,
-            value: fixture.utxoValue
-        )
-
-        #expect(hashes == [expectedHash])
-    }
-
     @Test
-    func applySignatures_finalizesPsbt() throws {
+    func applySignaturesFinalizesPsbt() throws {
         let fixture = PsbtTestCase.Segwit.singleInputSingleOutput.fixture
         let hashes = try BitcoinPsbtSigningBuilder.hashesToSign(
             psbtBase64: fixture.psbtBase64,
@@ -73,6 +52,104 @@ struct BitcoinPsbtTests {
     }
 
     @Test
+    func produceValidPsbtTransaction() throws {
+        let fixture = PsbtTestCase.Segwit.singleInputSingleOutput.fixture
+        let psbtBase64 = fixture.psbtBase64 // input PSBT base64
+
+        let hashes = try BitcoinPsbtSigningBuilder.hashesToSign(
+            psbtBase64: psbtBase64,
+            signInputs: [.init(index: 0)] // sign the only input
+        )
+        let hashToSign = try #require(hashes.first)
+        let signature = try #require(fixture.privateKey.sign(digest: hashToSign, curve: .secp256k1))
+        let signatureInfo = SignatureInfo(
+            signature: signature.prefix(64),
+            publicKey: fixture.publicKey,
+            hash: hashToSign
+        )
+
+        let signedPsbtBase64 = try BitcoinPsbtSigningBuilder.applySignaturesAndFinalize(
+            psbtBase64: psbtBase64,
+            signInputs: [.init(index: 0)],
+            signatures: [signatureInfo],
+            publicKey: fixture.publicKey
+        )
+
+        let extractedTx = try Psbt(psbtBase64: signedPsbtBase64).extractTx().serialize()
+
+        let inputScript = UTXOLockingScript(
+            data: OpCodeUtils.p2wpkh(version: 0, data: fixture.pubKeyHash),
+            type: .p2wpkh,
+            spendable: .publicKey(fixture.publicKey)
+        )
+        let input = ScriptUnspentOutput(
+            output: UnspentOutput(
+                blockId: 1,
+                txId: fixture.txInputs[0].txid.hex(),
+                index: Int(fixture.txInputs[0].vout),
+                amount: fixture.utxoValue
+            ),
+            script: inputScript
+        )
+        let outputScript = UTXOLockingScript(
+            data: fixture.txOutputs[0].scriptPubKey,
+            type: .p2wpkh,
+            spendable: .none
+        )
+        let preImage = PreImageTransaction(
+            inputs: [input],
+            outputs: [.destination(outputScript, value: Int(fixture.txOutputs[0].value))],
+            fee: 0
+        )
+        let transaction = Transaction(
+            amount: Amount(with: .bitcoin(testnet: false), value: .init(stringValue: "0.001")!),
+            fee: Fee(Amount(with: .bitcoin(testnet: false), value: .init(stringValue: "0")!)),
+            sourceAddress: "source",
+            destinationAddress: "destination",
+            changeAddress: "change"
+        )
+
+        let serializer = CommonUTXOTransactionSerializer(
+            version: fixture.version,
+            sequence: .final,
+            signHashType: .bitcoinAll
+        )
+        let expectedSignatureInfo = SignatureInfo(
+            signature: try signatureInfo.der(),
+            publicKey: fixture.publicKey,
+            hash: hashToSign
+        )
+        let expectedTx = try serializer.compile(
+            transaction: (transaction: transaction, preImage: preImage),
+            signatures: [expectedSignatureInfo]
+        )
+
+        #expect(extractedTx == expectedTx)
+    }
+
+    @Test(arguments: [PsbtTestCase.Segwit.singleInputSingleOutput])
+    func hashesToSign_segwitInput_matchesSighashBuilder(testCase: PsbtTestCase.Segwit) throws {
+        let fixture = testCase.fixture
+        let scriptCode = OpCodeUtils.p2pkh(data: fixture.pubKeyHash)
+
+        let hashes = try BitcoinPsbtSigningBuilder.hashesToSign(
+            psbtBase64: fixture.psbtBase64,
+            signInputs: [.init(index: 0)] // sign the only input
+        )
+        let expectedHash = try BitcoinSighashBuilder.segwitV0SighashAll(
+            version: fixture.version,
+            lockTime: fixture.lockTime,
+            inputs: fixture.txInputs,
+            outputs: fixture.txOutputs,
+            inputIndex: 0,
+            scriptCode: scriptCode,
+            value: fixture.utxoValue
+        )
+
+        #expect(hashes == [expectedHash])
+    }
+
+    @Test
     func hashesToSign_invalidBase64_throws() {
         #expect(throws: (any Error).self) {
             _ = try BitcoinPsbtSigningBuilder.hashesToSign(
@@ -83,7 +160,7 @@ struct BitcoinPsbtTests {
     }
 
     @Test
-    func applySignatures_wrongSignaturesCount_throws() throws {
+    func applySignatures_wrongSignaturesCount() throws {
         let fixture = PsbtTestCase.Segwit.singleInputSingleOutput.fixture
         let hashToSign = try BitcoinPsbtSigningBuilder.hashesToSign(
             psbtBase64: fixture.psbtBase64,
