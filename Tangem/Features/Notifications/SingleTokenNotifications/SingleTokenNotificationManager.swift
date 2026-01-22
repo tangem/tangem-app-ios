@@ -128,13 +128,6 @@ final class SingleTokenNotificationManager {
             events.append(.cloreMigration)
         }
 
-        switch walletModel.sendingRestrictions {
-        case .zeroFeeCurrencyBalance(let configuration) where !walletModel.isMainToken:
-            events.append(.notEnoughFeeForTransaction(configuration: configuration))
-        default:
-            break
-        }
-
         events += makeAssetRequirementsNotificationEvents()
 
         let inputs = events.map {
