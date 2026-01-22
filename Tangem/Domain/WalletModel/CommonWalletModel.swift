@@ -153,8 +153,8 @@ class CommonWalletModel {
             _stakingManager.updateWalletBalancesPublisher
                 .dropFirst() // drop initial value
                 .withWeakCaptureOf(self)
-                .asyncMap { walletModel, _ in
-                    await walletModel.update(silent: false, features: .balances)
+                .flatMap { walletModel, _ in
+                    walletModel.generalUpdate(silent: false)
                 }
                 .sink { _ in }
                 .store(in: &bag)
