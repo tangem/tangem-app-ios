@@ -12,4 +12,5 @@ enum UserWalletRepositoryMode {
     case hardware
     case mobile
     case mixed
+    case empty
 }

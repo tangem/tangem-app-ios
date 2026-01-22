@@ -163,7 +163,7 @@ private extension MobileCreateWalletViewModel {
                 subtitle: Localization.hwCreateSeedDescription
             ),
             InfoItem(
-                icon: Assets.Glyphs.secureDocument,
+                icon: Assets.Glyphs.tangemGlyph,
                 title: Localization.hwCreateUpgradeTitle,
                 subtitle: Localization.hwCreateUpgradeDescription
             ),
