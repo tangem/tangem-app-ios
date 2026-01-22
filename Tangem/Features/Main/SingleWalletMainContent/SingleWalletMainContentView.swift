@@ -49,6 +49,7 @@ struct SingleWalletMainContentView: View {
             TransactionsListView(
                 state: viewModel.transactionHistoryState,
                 exploreAction: viewModel.openExplorer,
+                exploreConfirmationDialog: $viewModel.exploreConfirmationDialog,
                 exploreTransactionAction: viewModel.openTransactionExplorer,
                 reloadButtonAction: viewModel.onButtonReloadHistory,
                 isReloadButtonBusy: viewModel.isReloadingTransactionHistory,

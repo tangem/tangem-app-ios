@@ -44,7 +44,6 @@ struct UserWalletSettingsView: View {
         .navigationTitle(Localization.walletSettingsTitle)
         .navigationBarTitleDisplayMode(.inline)
         .alert(item: $viewModel.alert) { $0.alert }
-        .confirmationDialog(viewModel: $viewModel.confirmationDialog)
         .scrollDismissesKeyboard(.interactively)
         .onFirstAppear(perform: viewModel.onFirstAppear)
         .onAppear(perform: viewModel.onAppear)
@@ -134,6 +133,7 @@ struct UserWalletSettingsView: View {
         GroupedSection(viewModel.forgetViewModel) {
             DefaultRowView(viewModel: $0)
                 .appearance(.destructiveButton)
+                .confirmationDialog(viewModel: $viewModel.forgetWalletConfirmationDialog)
         } footer: {
             DefaultFooterView(Localization.settingsForgetWalletFooter)
         }
