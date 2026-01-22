@@ -26,17 +26,22 @@ class CosmosWalletManager: BaseManager, WalletManager {
         super.init(wallet: wallet)
     }
 
-    override func updateWalletManager() async throws {
-        do {
-            let transactionHashes = wallet.pendingTransactions.map { $0.hash }
-            let info = try await networkService
-                .accountInfo(for: wallet.address, tokens: cardTokens, transactionHashes: transactionHashes)
-                .async()
-            updateWallet(accountInfo: info)
-        } catch {
-            wallet.clearAmounts()
-            throw error
-        }
+    override func update(completion: @escaping (Result<Void, Error>) -> Void) {
+        let transactionHashes = wallet.pendingTransactions.map { $0.hash }
+
+        cancellable = networkService
+            .accountInfo(for: wallet.address, tokens: cardTokens, transactionHashes: transactionHashes)
+            .sink { [weak self] result in
+                switch result {
+                case .failure(let error):
+                    self?.wallet.clearAmounts()
+                    completion(.failure(error))
+                case .finished:
+                    completion(.success(()))
+                }
+            } receiveValue: { [weak self] in
+                self?.updateWallet(accountInfo: $0)
+            }
     }
 
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {

@@ -43,8 +43,14 @@ class BaseManager {
     }
 
     func updateWalletManager() async throws {
-        assertionFailure("Has to be overridden")
-        throw InternalError.updateMethodHasToBeOverridden
+        try await withCheckedThrowingContinuation { [weak self] continuation in
+            self?.update { continuation.resume(with: $0) }
+        }
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    func update(completion: @escaping (Result<Void, Error>) -> Void) {
+        fatalError("Have to be overridden")
     }
 }
 

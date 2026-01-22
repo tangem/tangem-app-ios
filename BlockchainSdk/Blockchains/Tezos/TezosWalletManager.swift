@@ -18,14 +18,18 @@ class TezosWalletManager: BaseManager, WalletManager {
 
     var currentHost: String { networkService.host }
 
-    override func updateWalletManager() async throws {
-        do {
-            let response = try await networkService.getInfo(address: wallet.address).async()
-            updateWallet(with: response)
-        } catch {
-            wallet.clearAmounts()
-            throw error
-        }
+    override func update(completion: @escaping (Result<Void, Error>) -> Void) {
+        cancellable = networkService
+            .getInfo(address: wallet.address)
+            .sink(receiveCompletion: { [weak self] completionSubscription in
+                if case .failure(let error) = completionSubscription {
+                    self?.wallet.clearAmounts()
+                    completion(.failure(error))
+                }
+            }, receiveValue: { [weak self] response in
+                self?.updateWallet(with: response)
+                completion(.success(()))
+            })
     }
 
     private func updateWallet(with response: TezosAddress) {

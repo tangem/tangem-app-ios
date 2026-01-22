@@ -85,17 +85,19 @@ class StellarWalletManager: BaseManager, WalletManager {
     /// We assume that a trustline transaction will be finished within 10 seconds of setting this timestamp.
     private var lastTrustlineOpenAttemptDate: Date?
 
-    override func updateWalletManager() async throws {
-        do {
-            let tokens = cardTokens
-            let response = try await networkService
-                .getInfo(accountId: wallet.address, isAsset: !tokens.isEmpty)
-                .async()
-            updateWallet(with: response, tokens: tokens)
-        } catch {
-            wallet.clearAmounts()
-            throw error
-        }
+    override func update(completion: @escaping (Result<Void, Error>) -> Void) {
+        let tokens = cardTokens
+        cancellable = networkService
+            .getInfo(accountId: wallet.address, isAsset: !tokens.isEmpty)
+            .sink(receiveCompletion: { [weak self] completionSubscription in
+                if case .failure(let error) = completionSubscription {
+                    self?.wallet.clearAmounts()
+                    completion(.failure(error))
+                }
+            }, receiveValue: { [weak self] response in
+                self?.updateWallet(with: response, tokens: tokens)
+                completion(.success(()))
+            })
     }
 
     private func signAndSend(
