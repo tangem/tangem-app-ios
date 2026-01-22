@@ -127,7 +127,7 @@ private extension TokenFeeProviderStateUnavailableReason {
         case .notSupported:
             .notSupported
         case .notEnoughFeeBalance:
-            .notEnoughBalance
+            .notEnoughBalance(supportsMultipleOptions: true)
         case .noTokenBalance:
             .noBalance
         }

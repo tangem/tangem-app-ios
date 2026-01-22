@@ -22,6 +22,7 @@ struct FeeSelectorSummaryView: View {
             suggestedFeeCurrency
             suggestedFee
         }
+        .frame(minHeight: 140) // Ensures minimum height to avoid floating sheet glitches when inner scroll content becomes too small
         .padding(.horizontal, 16)
     }
 
