@@ -97,7 +97,7 @@ private extension MobileBackupTypesViewModel {
     func makeBackupSections() -> [Section] {
         let commonSection = Section(
             title: nil,
-            items: [makeSeedPhraseItem(), makeICloudItem()]
+            items: [makeActivationItem(), makeICloudItem()]
         )
         return [commonSection]
     }
@@ -112,24 +112,6 @@ private extension MobileBackupTypesViewModel {
             items: [makeActivationItem(), makeICloudItem()]
         )
         return [commonSection, otherMethodsSection]
-    }
-
-    func makeSeedPhraseItem() -> SectionItem {
-        let badge: BadgeView.Item = if isBackupNeeded {
-            .noBackup
-        } else {
-            .done
-        }
-
-        let action = weakify(self, forFunction: MobileBackupTypesViewModel.onSeedPhraseBackupTap)
-
-        return SectionItem(
-            title: Localization.hwBackupSeedTitle,
-            description: Localization.hwBackupSeedDescription,
-            badge: badge,
-            isEnabled: true,
-            action: action
-        )
     }
 
     func makeActivationItem() -> SectionItem {
@@ -171,18 +153,6 @@ private extension MobileBackupTypesViewModel {
             isEnabled: false,
             action: {}
         )
-    }
-
-    func onSeedPhraseBackupTap() {
-        logRecoveryPhraseTapAnalytics()
-
-        runTask(in: self) { viewModel in
-            if viewModel.isBackupNeeded {
-                await viewModel.openSeedPhraseBackup()
-            } else {
-                await viewModel.handleSeedPhraseReveal()
-            }
-        }
     }
 
     func onActivationTap() {
@@ -250,14 +220,6 @@ private extension MobileBackupTypesViewModel {
 private extension MobileBackupTypesViewModel {
     func openUpgrade() {
         coordinator?.openMobileUpgrade(userWalletModel: userWalletModel)
-    }
-
-    func openSeedPhraseBackup() {
-        let input = MobileOnboardingInput(flow: .seedPhraseBackup(
-            userWalletModel: userWalletModel,
-            source: .backup(action: .backup)
-        ))
-        coordinator?.openMobileOnboarding(input: input)
     }
 
     func openActivation() {
