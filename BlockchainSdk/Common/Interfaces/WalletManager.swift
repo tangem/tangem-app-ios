@@ -20,6 +20,31 @@ public protocol WalletManager: WalletProvider,
     YieldSupplyServiceProvider,
     TransactionValidator {}
 
+public enum WalletManagerState {
+    case initial
+    case loading
+    case loaded
+    case failed(Error)
+
+    public var isInitialState: Bool {
+        switch self {
+        case .initial:
+            return true
+        default:
+            return false
+        }
+    }
+
+    public var isLoading: Bool {
+        switch self {
+        case .loading:
+            return true
+        default:
+            return false
+        }
+    }
+}
+
 // MARK: - WalletProvider
 
 public protocol WalletProvider: AnyObject {
@@ -35,19 +60,12 @@ extension WalletProvider {
     var defaultChangeAddress: String { wallet.address }
 }
 
-public enum WalletManagerState {
-    case initial
-    case loading
-    case loaded
-    case failed(Error)
-}
-
 // MARK: - WalletUpdater
 
 public protocol WalletUpdater: AnyObject {
-    /// Reset the last updating time
+    /// updatePublisher must be called after setNeedsUpdate
     func setNeedsUpdate()
-    func update() async
+    func updatePublisher() -> AnyPublisher<Void, Never>
 }
 
 // MARK: - TokensWalletProvider
