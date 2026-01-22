@@ -553,7 +553,8 @@ private extension UserWalletSettingsViewModel {
             userWalletId: userWalletModel.userWalletId.value,
             supportedBlockchains: userWalletModel.config.supportedBlockchains,
             workMode: workMode,
-            tokenIconInfoBuilder: TokenIconInfoBuilder()
+            tokenIconInfoBuilder: TokenIconInfoBuilder(),
+            userWalletModel: userWalletModel
         )
 
         coordinator?.openReferral(input: input)
