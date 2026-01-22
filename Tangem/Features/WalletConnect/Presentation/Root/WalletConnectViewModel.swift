@@ -14,6 +14,7 @@ import enum TangemAssets.Assets
 import TangemLocalization
 import TangemLogger
 import TangemFoundation
+import struct TangemUIUtils.ConfirmationDialogViewModel
 
 @MainActor
 final class WalletConnectViewModel: ObservableObject {
@@ -167,8 +168,18 @@ extension WalletConnectViewModel {
 
             switch newDAppConnectionResult {
             case .cameraAccessDenied(let openSystemSettingsAction):
-                state.dialog = .confirmationDialog(
-                    .cameraAccessDenied(openSystemSettingsAction: openSystemSettingsAction)
+                state.dialog = .cameraAccessDeniedDialog(
+                    ConfirmationDialogViewModel(
+                        title: Localization.commonCameraDeniedAlertTitle,
+                        subtitle: Localization.commonCameraDeniedAlertMessage,
+                        buttons: [
+                            ConfirmationDialogViewModel.Button(
+                                title: Localization.commonCameraAlertButtonSettings,
+                                role: nil,
+                                action: openSystemSettingsAction
+                            ),
+                        ]
+                    )
                 )
 
             case .canOpenQRScanner:
@@ -270,10 +281,12 @@ extension WalletConnectViewModel {
                 .mapValues { $0.map(\.1) }
         }()
 
-        let accountIdToV2DApps: [String: [WalletConnectViewState.ContentState.ConnectedDApp]] = {
-            let pairs = connectedDApps.compactMap { dApp -> (String, WalletConnectViewState.ContentState.ConnectedDApp)? in
+        let accountIdToV2DApps: [DAppsV2Key: [WalletConnectViewState.ContentState.ConnectedDApp]] = {
+            let pairs = connectedDApps.compactMap { dApp -> (DAppsV2Key, WalletConnectViewState.ContentState.ConnectedDApp)? in
                 guard case .v2(let current) = dApp else { return nil }
-                return (current.accountId, .init(domainModel: dApp))
+                let key = DAppsV2Key(userWalletID: current.wrapped.userWalletID, accountID: current.accountId)
+
+                return (key, .init(domainModel: dApp))
             }
 
             return Dictionary(grouping: pairs, by: { $0.0 })
@@ -291,7 +304,9 @@ extension WalletConnectViewModel {
 
             func appendSection(for account: any CryptoAccountModel) {
                 let accountId = account.id.walletConnectIdentifierString
-                guard let dApps = accountIdToV2DApps[accountId], !dApps.isEmpty else { return }
+                let key = DAppsV2Key(userWalletID: walletId, accountID: accountId)
+
+                guard let dApps = accountIdToV2DApps[key], !dApps.isEmpty else { return }
 
                 accountsWithSessions += 1
                 accountSections.append(
@@ -340,5 +355,14 @@ extension WalletConnectViewModel {
         }
 
         return result.sorted { $0.walletName.localizedCompare($1.walletName) == .orderedAscending }
+    }
+}
+
+// MARK: - Auxiliary types
+
+private extension WalletConnectViewModel {
+    struct DAppsV2Key: Hashable {
+        let userWalletID: String
+        let accountID: String
     }
 }
