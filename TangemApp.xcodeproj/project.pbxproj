@@ -4303,7 +4303,6 @@
 		EF9E2A392B4F0CD100418559 /* ExpressManagerSwappingPair.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E2A002B4F0CCF00418559 /* ExpressManagerSwappingPair.swift */; };
 		EF9E2A3B2B4F0CD100418559 /* CommonExpressManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E2A022B4F0CCF00418559 /* CommonExpressManager.swift */; };
 		EF9E2A3C2B4F0CD100418559 /* ExpressManagerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E2A032B4F0CCF00418559 /* ExpressManagerError.swift */; };
-		EF9E2A3D2B4F0CD100418559 /* ExpressManagerState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E2A042B4F0CCF00418559 /* ExpressManagerState.swift */; };
 		EF9E2A442B55329800418559 /* ExpressCurrencyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E2A432B55329800418559 /* ExpressCurrencyView.swift */; };
 		EF9E2A472B5532A600418559 /* ExpressCurrencyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E2A462B5532A600418559 /* ExpressCurrencyViewModel.swift */; };
 		EF9E2A4E2B56A54400418559 /* ExpressModulesFactoryMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E2A4D2B56A54400418559 /* ExpressModulesFactoryMock.swift */; };
@@ -4937,7 +4936,7 @@
 		0AD13F942C8AD76800C2EE16 /* CommonStakingAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonStakingAnalyticsLogger.swift; sourceTree = "<group>"; };
 		0AD1D1582D3A7BB700D39F0E /* MultipleSignTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultipleSignTask.swift; sourceTree = "<group>"; };
 		0AD9EF0E2CC2A9B600466191 /* UnstakingAmountValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnstakingAmountValidator.swift; sourceTree = "<group>"; };
-        0ADCB45A2F1A6AF3000FC4B6 /* CachedPendingTransactionRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedPendingTransactionRecord.swift; sourceTree = "<group>"; };
+		0ADCB45A2F1A6AF3000FC4B6 /* CachedPendingTransactionRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedPendingTransactionRecord.swift; sourceTree = "<group>"; };
 		0ADCF1BD53A99863069 /* AccountModelResolving.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountModelResolving.swift; sourceTree = "<group>"; };
 		0ADFB9332E424F7D00334A3C /* MobileWalletError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileWalletError.swift; sourceTree = "<group>"; };
 		0ADFB9352E42500700334A3C /* MobileWallet+UniversalError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MobileWallet+UniversalError.swift"; sourceTree = "<group>"; };
@@ -9058,7 +9057,6 @@
 		EF9E2A002B4F0CCF00418559 /* ExpressManagerSwappingPair.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressManagerSwappingPair.swift; sourceTree = "<group>"; };
 		EF9E2A022B4F0CCF00418559 /* CommonExpressManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommonExpressManager.swift; sourceTree = "<group>"; };
 		EF9E2A032B4F0CCF00418559 /* ExpressManagerError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressManagerError.swift; sourceTree = "<group>"; };
-		EF9E2A042B4F0CCF00418559 /* ExpressManagerState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressManagerState.swift; sourceTree = "<group>"; };
 		EF9E2A432B55329800418559 /* ExpressCurrencyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressCurrencyView.swift; sourceTree = "<group>"; };
 		EF9E2A462B5532A600418559 /* ExpressCurrencyViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressCurrencyViewModel.swift; sourceTree = "<group>"; };
 		EF9E2A482B56A21000418559 /* ExpressPendingTransactionRepositoryMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressPendingTransactionRepositoryMock.swift; sourceTree = "<group>"; };
@@ -24385,7 +24383,6 @@
 			children = (
 				EF9E29FF2B4F0CCF00418559 /* ExpressManager.swift */,
 				EF9E2A022B4F0CCF00418559 /* CommonExpressManager.swift */,
-				EF9E2A042B4F0CCF00418559 /* ExpressManagerState.swift */,
 				EF9E29FE2B4F0CCF00418559 /* ExpressManagerSwappingPairRequest.swift */,
 				EF9E2A002B4F0CCF00418559 /* ExpressManagerSwappingPair.swift */,
 				EF9E2A032B4F0CCF00418559 /* ExpressManagerError.swift */,
@@ -30745,7 +30742,6 @@
 				EF9E2A3B2B4F0CD100418559 /* CommonExpressManager.swift in Sources */,
 				EF49C0692CAD85E70062AF06 /* CommonOnrampManager.swift in Sources */,
 				EF13996E2CBCFD2500AC9E2B /* OnrampPaymentMethod.swift in Sources */,
-				EF9E2A3D2B4F0CD100418559 /* ExpressManagerState.swift in Sources */,
 				EF49C0652CAD85B40062AF06 /* OnrampPair.swift in Sources */,
 				EF9E2A172B4F0CD100418559 /* ExpressAuthorizationPlugin.swift in Sources */,
 				EF60C8BF2E015258005D538C /* ExpressSwappableDataItem.swift in Sources */,
