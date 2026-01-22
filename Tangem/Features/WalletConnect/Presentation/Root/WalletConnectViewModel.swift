@@ -14,6 +14,7 @@ import enum TangemAssets.Assets
 import TangemLocalization
 import TangemLogger
 import TangemFoundation
+import struct TangemUIUtils.ConfirmationDialogViewModel
 
 @MainActor
 final class WalletConnectViewModel: ObservableObject {
@@ -167,8 +168,18 @@ extension WalletConnectViewModel {
 
             switch newDAppConnectionResult {
             case .cameraAccessDenied(let openSystemSettingsAction):
-                state.dialog = .confirmationDialog(
-                    .cameraAccessDenied(openSystemSettingsAction: openSystemSettingsAction)
+                state.dialog = .cameraAccessDeniedDialog(
+                    ConfirmationDialogViewModel(
+                        title: Localization.commonCameraDeniedAlertTitle,
+                        subtitle: Localization.commonCameraDeniedAlertMessage,
+                        buttons: [
+                            ConfirmationDialogViewModel.Button(
+                                title: Localization.commonCameraAlertButtonSettings,
+                                role: nil,
+                                action: openSystemSettingsAction
+                            ),
+                        ]
+                    )
                 )
 
             case .canOpenQRScanner:
