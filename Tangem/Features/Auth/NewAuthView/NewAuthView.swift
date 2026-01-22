@@ -19,7 +19,7 @@ struct NewAuthView: View {
 
     var body: some View {
         stateView
-            .allowsHitTesting(!viewModel.isUnlocking)
+            .allowsHitTesting(viewModel.allowsHitTesting)
             .alert(item: $viewModel.alert, content: { $0.alert })
             .confirmationDialog(viewModel: $viewModel.confirmationDialog)
             .background(Colors.Background.secondary.ignoresSafeArea())
@@ -98,7 +98,7 @@ private extension NewAuthView {
             Text(item.title)
                 .style(Fonts.Regular.body, color: Colors.Text.primary1)
         }
-        .allowsHitTesting(!viewModel.isUnlocking)
+        .allowsHitTesting(viewModel.allowsHitTesting)
         .accessibilityIdentifier(AuthAccessibilityIdentifiers.addWalletButton)
     }
 }
@@ -130,12 +130,21 @@ private extension NewAuthView {
 
     func biometricsUnlockButton(item: ViewModel.BiometricsUnlockItem) -> some View {
         Button(action: item.action) {
-            Text(item.title)
-                .style(Fonts.Bold.callout, color: Colors.Text.primary1)
-                .padding(.vertical, 12)
-                .frame(maxWidth: .infinity, alignment: .center)
-                .background(Colors.Button.secondary)
-                .cornerRadius(14, corners: .allCorners)
+            HStack(spacing: 6) {
+                Text(item.title)
+                    .style(Fonts.Bold.callout, color: Colors.Text.primary1)
+
+                BiometryLogoImage.image
+                    .resizable()
+                    .renderingMode(.template)
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 20, height: 20)
+                    .foregroundStyle(Colors.Text.primary1)
+            }
+            .padding(.vertical, 12)
+            .frame(maxWidth: .infinity, alignment: .center)
+            .background(Colors.Button.secondary)
+            .cornerRadius(14, corners: .allCorners)
         }
         .colorScheme(.dark)
         .accessibilityIdentifier(AuthAccessibilityIdentifiers.biometricsUnlockButton)
