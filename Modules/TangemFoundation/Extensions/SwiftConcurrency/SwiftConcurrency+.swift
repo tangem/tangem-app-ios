@@ -108,11 +108,11 @@ public func runTask<T>(
 
 public func runTask<T>(
     withTimeout timeout: TimeInterval,
-    code: @escaping () async throws -> T
+    code: @escaping () async -> T
 ) async throws -> T {
     try await withThrowingTaskGroup(of: T.self) { group in
         group.addTask {
-            try await code()
+            await code()
         }
 
         group.addTask {

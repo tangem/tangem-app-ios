@@ -186,6 +186,8 @@ extension MainCoordinator {
                     userWalletModel: userWalletModel
                 )
             } else {
+                // Trigger the update without retaining the subscription — it's internally managed by WalletModel and TransactionHistoryService
+                walletModel.generalUpdate(silent: false)
                 coordinator.openDeepLink(.tokenDetails(walletModel: walletModel, userWalletModel: userWalletModel))
                 return true
             }

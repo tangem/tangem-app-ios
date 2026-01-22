@@ -53,12 +53,19 @@ class VisaWalletModel {
 }
 
 extension VisaWalletModel: WalletModelUpdater {
-    func update(silent: Bool, features: [WalletModelUpdaterFeatureType]) async {
+    func generalUpdate(silent: Bool) -> AnyPublisher<Void, Never> {
         // [REDACTED_TODO_COMMENT]
+        return Just(()).eraseToAnyPublisher()
     }
 
-    func updateTransactionsHistory() async {
+    func update(silent: Bool) -> AnyPublisher<WalletModelState, Never> {
         // [REDACTED_TODO_COMMENT]
+        return stateSubject.eraseToAnyPublisher()
+    }
+
+    func updateTransactionsHistory() -> AnyPublisher<Void, Never> {
+        // [REDACTED_TODO_COMMENT]
+        return Just(()).eraseToAnyPublisher()
     }
 
     func updateAfterSendingTransaction() {
