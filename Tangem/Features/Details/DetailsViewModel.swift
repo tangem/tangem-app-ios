@@ -46,6 +46,16 @@ final class DetailsViewModel: ObservableObject {
     @Published var alert: AlertBinder?
     @Published var confirmationDialog: ConfirmationDialogViewModel?
 
+    var userWalletsSectionFooterString: String? {
+        guard
+            FeatureProvider.isAvailable(.mobileWallet),
+            [.mobile, .mixed].contains(UserWalletRepositoryModeHelper.mode)
+        else {
+            return nil
+        }
+        return Localization.detailsWalletsSectionDescription
+    }
+
     @Published private var userWalletsViewModels: [SettingsUserWalletRowViewModel] = []
     @Published private var addOrScanNewUserWalletViewModel: DefaultRowViewModel?
     @Published private var addNewUserWalletViewModel: DefaultRowViewModel?
@@ -234,13 +244,13 @@ extension DetailsViewModel {
         coordinator?.openScanCardManual()
     }
 
-    func openAddWallet() {
+    func addWallet() {
         Analytics.log(
             .buttonAddWallet,
             params: [.source: .settings],
             contextParams: .empty
         )
-        coordinator?.openAddWallet()
+        addOrScanNewUserWallet()
     }
 
     func requestSupport() {
@@ -326,7 +336,7 @@ private extension DetailsViewModel {
         if FeatureProvider.isAvailable(.mobileWallet) {
             addNewUserWalletViewModel = DefaultRowViewModel(
                 title: Localization.userWalletListAddButton,
-                action: weakify(self, forFunction: DetailsViewModel.openAddWallet)
+                action: weakify(self, forFunction: DetailsViewModel.addWallet)
             )
         } else {
             addOrScanNewUserWalletViewModel = DefaultRowViewModel(
