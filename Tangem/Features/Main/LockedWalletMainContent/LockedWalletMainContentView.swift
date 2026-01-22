@@ -45,6 +45,7 @@ struct LockedWalletMainContentView: View {
             }
 
             NotificationView(input: viewModel.lockedNotificationInput)
+                .confirmationDialog(viewModel: $viewModel.scanTroubleshootingDialog)
 
             VStack(alignment: .leading, spacing: 0) {
                 Text(Localization.mainTokens)
