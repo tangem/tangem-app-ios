@@ -25,18 +25,29 @@ final class AmplitudeWrapper {
     }
 
     func configure() {
+        guard !AppEnvironment.current.isDebug else {
+            return
+        }
+
         let config = Configuration(apiKey: keysManager.amplitudeApiKey)
         let amplitude = Amplitude(configuration: config)
         _amplitude = amplitude
     }
 
     func track(eventType: String, eventProperties: [String: Any]? = nil) {
+        guard !AppEnvironment.current.isDebug else {
+            return
+        }
+
         _amplitude?.track(eventType: eventType, eventProperties: eventProperties)
     }
 
-    private func setUserId(userId: UserWalletId) {
-        let id = userId.value.sha256().hexString
-        _amplitude?.setUserId(userId: id)
+    private func setUserId(userId: String) {
+        guard !AppEnvironment.current.isDebug else {
+            return
+        }
+
+        _amplitude?.setUserId(userId: userId)
     }
 
     private func bind() {
@@ -46,7 +57,7 @@ final class AmplitudeWrapper {
             .sink { wrapper, event in
                 switch event {
                 case .selected(let userWalletId):
-                    wrapper.setUserId(userId: userWalletId)
+                    wrapper.setUserId(userId: userWalletId.hashedStringValue)
                 default:
                     break
                 }
