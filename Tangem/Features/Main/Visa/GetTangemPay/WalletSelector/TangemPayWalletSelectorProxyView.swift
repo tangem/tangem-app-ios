@@ -35,5 +35,6 @@ struct TangemPayWalletSelectorProxyView: View {
                 .padding(.top, 8)
                 .padding(.trailing, 16)
         }
+        .onAppear(perform: viewModel.onAppear)
     }
 }

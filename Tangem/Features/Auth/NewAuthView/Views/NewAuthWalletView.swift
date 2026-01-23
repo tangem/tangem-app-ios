@@ -17,7 +17,7 @@ struct NewAuthWalletView: View {
 
     @Environment(\.unlockingUserWalletId) private var unlockingUserWalletId: UserWalletId?
 
-    init(item: NewAuthViewModel.WalletItem) {
+    init(item: NewAuthViewState.WalletItem) {
         _viewModel = StateObject(wrappedValue: NewAuthWalletViewModel(item: item))
     }
 
