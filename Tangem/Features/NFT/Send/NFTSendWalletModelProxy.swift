@@ -392,10 +392,6 @@ extension NFTSendWalletModelProxy: WalletModel {
         mainTokenWalletModel.ethereumGaslessTransactionFeeProvider
     }
 
-    var ethereumGaslessTransactionBroadcaster: (any EthereumGaslessTransactionBroadcaster)? {
-        mainTokenWalletModel.ethereumGaslessTransactionBroadcaster
-    }
-
     var ethereumGaslessDataProvider: (any BlockchainSdk.EthereumGaslessDataProvider)? {
         mainTokenWalletModel.ethereumGaslessDataProvider
     }
