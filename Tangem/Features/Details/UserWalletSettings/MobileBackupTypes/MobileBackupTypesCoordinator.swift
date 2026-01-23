@@ -34,14 +34,18 @@ class MobileBackupTypesCoordinator: CoordinatorObject {
     }
 
     func start(with options: InputOptions) {
-        rootViewModel = MobileBackupTypesViewModel(userWalletModel: options.userWalletModel, coordinator: self)
+        rootViewModel = MobileBackupTypesViewModel(
+            userWalletModel: options.userWalletModel,
+            mode: options.mode,
+            coordinator: self
+        )
     }
 }
 
 // MARK: - MobileBackupTypesRoutable
 
 extension MobileBackupTypesCoordinator: MobileBackupTypesRoutable {
-    func openHardwareBackupTypes(userWalletModel: UserWalletModel) {
+    func openMobileUpgrade(userWalletModel: UserWalletModel) {
         let dismissAction: Action<HardwareBackupTypesCoordinator.OutputOptions> = { [weak self] options in
             switch options {
             case .main(let userWalletModel):
@@ -90,6 +94,7 @@ private extension MobileBackupTypesCoordinator {
 extension MobileBackupTypesCoordinator {
     struct InputOptions {
         let userWalletModel: UserWalletModel
+        let mode: MobileBackupTypesMode
     }
 
     enum OutputOptions {

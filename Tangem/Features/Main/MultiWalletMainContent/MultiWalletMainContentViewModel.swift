@@ -352,7 +352,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .receiveOnMain()
             .assign(to: &$tangemPayAccountViewModel)
 
-        tangemPayAvailabilityRepository.shouldShowGetTangemPayBanner
+        tangemPayAvailabilityRepository
+            .shouldShowGetTangemPayBanner(
+                for: userWalletModel.userWalletId.stringValue
+            )
             .withWeakCaptureOf(self)
             .map { viewModel, shouldShow in
                 shouldShow
@@ -683,7 +686,13 @@ extension MultiWalletMainContentViewModel {
 
     private func openMobileFinishActivation() {
         Analytics.log(.mainButtonFinalizeActivation)
-        coordinator?.openMobileBackupOnboarding(userWalletModel: userWalletModel)
+
+        let isBackupNeeded = userWalletModel.config.hasFeature(.mnemonicBackup) && userWalletModel.config.hasFeature(.iCloudBackup)
+        if isBackupNeeded {
+            coordinator?.openMobileBackup(userWalletModel: userWalletModel)
+        } else {
+            coordinator?.openMobileBackupOnboarding(userWalletModel: userWalletModel)
+        }
     }
 
     private func openMobileUpgrade() {
