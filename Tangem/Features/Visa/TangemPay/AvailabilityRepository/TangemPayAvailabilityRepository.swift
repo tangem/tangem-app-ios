@@ -10,16 +10,16 @@ import Combine
 import TangemFoundation
 
 protocol TangemPayAvailabilityRepository {
-    var isTangemPayAvailable: Bool { get }
     var availableUserWalletModels: [any UserWalletModel] { get }
     var isTangemPayAvailablePublisher: AnyPublisher<Bool, Never> { get }
     var isUserWalletModelsAvailable: Bool { get }
     var isUserWalletModelsAvailblePublisher: AnyPublisher<Bool, Never> { get }
 
     var shouldShowGetTangemPay: AnyPublisher<Bool, Never> { get }
-    var shouldShowGetTangemPayBanner: AnyPublisher<Bool, Never> { get }
 
+    func shouldShowGetTangemPayBanner(for customerWalletId: String) -> AnyPublisher<Bool, Never>
     func userDidCloseGetTangemPayBanner()
+    func requestEligibility() async -> Bool
 }
 
 private struct TangemPayAvailabilityRepositoryKey: InjectionKey {
