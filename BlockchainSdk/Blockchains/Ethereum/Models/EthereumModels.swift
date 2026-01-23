@@ -60,7 +60,5 @@ public struct EthereumTransaction: Decodable {
 }
 
 struct EthereumPendingTransactionsInfo {
-    let statuses: [String: PendingTransactionStatus]
-    let transactionCount: Int
-    let pendingTransactionCount: Int
+    let statuses: [PendingTransactionRecord: PendingTransactionStatusInfo]
 }
