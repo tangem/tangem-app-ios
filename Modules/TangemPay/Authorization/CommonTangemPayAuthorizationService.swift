@@ -54,7 +54,7 @@ final class CommonTangemPayAuthorizationService {
     }
 
     private func refreshTokens(refreshToken: String) async throws(TangemPayAPIServiceError) -> TangemPayAuthorizationTokens {
-        try await request(for: .refreshTokens(.init(refreshToken: refreshToken)))
+        try await request(for: .refreshTokens(request: .init(refreshToken: refreshToken)))
     }
 
     private func request<T: Decodable>(for target: TangemPayAuthorizationAPITarget.Target) async throws(TangemPayAPIServiceError) -> T {
