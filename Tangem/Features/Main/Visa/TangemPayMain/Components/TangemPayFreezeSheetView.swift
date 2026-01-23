@@ -23,7 +23,6 @@ struct TangemPayFreezeSheetView: View {
         .floatingSheetConfiguration { configuration in
             configuration.backgroundInteractionBehavior = .tapToDismiss
         }
-        .onAppear(perform: viewModel.onAppear)
     }
 
     private var content: some View {
