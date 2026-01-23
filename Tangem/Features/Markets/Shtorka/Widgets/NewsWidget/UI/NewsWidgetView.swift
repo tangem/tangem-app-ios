@@ -32,7 +32,7 @@ struct NewsWidgetView: View {
             headerImage: Assets.Markets.tangemAI.image,
             buttonTitle: Localization.commonSeeAll,
             buttonAction: viewModel.handleAllNewsTap,
-            isLoading: viewModel.resultState.isLoading
+            isLoading: viewModel.isFirstLoading
         )
     }
 
