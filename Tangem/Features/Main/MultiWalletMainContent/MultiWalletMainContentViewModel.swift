@@ -353,7 +353,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .receiveOnMain()
             .assign(to: &$tangemPayAccountViewModel)
 
-        tangemPayAvailabilityRepository.shouldShowGetTangemPayBanner
+        tangemPayAvailabilityRepository
+            .shouldShowGetTangemPayBanner(
+                for: userWalletModel.userWalletId.stringValue
+            )
             .withWeakCaptureOf(self)
             .map { viewModel, shouldShow in
                 shouldShow

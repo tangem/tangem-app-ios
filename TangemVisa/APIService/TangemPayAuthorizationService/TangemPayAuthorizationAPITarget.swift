@@ -53,7 +53,15 @@ struct TangemPayAuthorizationAPITarget: TargetType {
     }
 
     var headers: [String: String]? {
-        ["Content-Type": "application/json"]
+        switch target {
+        case .refreshTokens(let request):
+            return [
+                "Content-Type": "application/json",
+                .idempotencyKey: "\(request.refreshToken.hash)",
+            ]
+        case .getChallenge, .getTokens:
+            return ["Content-Type": "application/json"]
+        }
     }
 }
 
@@ -61,7 +69,7 @@ extension TangemPayAuthorizationAPITarget {
     enum Target {
         case getChallenge(TangemPayGetChallengeRequest)
         case getTokens(TangemPayGetTokensRequest)
-        case refreshTokens(TangemPayRefreshTokensRequest)
+        case refreshTokens(request: TangemPayRefreshTokensRequest)
     }
 }
 
@@ -73,4 +81,8 @@ extension TangemPayAuthorizationAPITarget: TargetTypeLogConvertible {
     var shouldLogResponseBody: Bool {
         false
     }
+}
+
+private extension String {
+    static var idempotencyKey = "Idempotency-Key"
 }
