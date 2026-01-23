@@ -36,7 +36,11 @@ struct NFTCollectionsCoordinatorView: View {
             }
             .floatingSheetContent(for: AccountSelectorViewModel.self) { viewModel in
                 FloatingSheetContentWithHeader(
-                    headerConfig: .init(title: Localization.commonChooseAccount, backAction: nil, closeAction: coordinator.closeSheet),
+                    headerConfig: .init(
+                        title: viewModel.state.navigationBarTitle,
+                        backAction: nil,
+                        closeAction: coordinator.closeSheet
+                    ),
                     content: {
                         AccountSelectorView(viewModel: viewModel)
                     }
