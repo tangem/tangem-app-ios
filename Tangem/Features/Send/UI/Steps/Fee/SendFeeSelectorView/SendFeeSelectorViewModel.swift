@@ -171,8 +171,10 @@ extension SendFeeSelectorViewModel {
             attr.foregroundColor = Colors.Text.tertiary
 
             if let range = attr.range(of: Localization.commonLearnMore) {
-                attr[range].foregroundColor = Colors.Text.accent
-                attr[range].link = URL(string: " ")
+                // Temporarily replace with an empty string because the final URL isn't ready yet
+                attr.replaceSubrange(range, with: AttributedString(""))
+//                attr[range].foregroundColor = Colors.Text.accent
+//                attr[range].link = URL(string: " ")
             }
 
             return attr
