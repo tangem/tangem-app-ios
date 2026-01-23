@@ -130,9 +130,9 @@ private extension ExpressSuccessSentViewModel {
         let sourceFiatAmountFormatted = balanceFormatter.formatFiatBalance(sourceFiatAmount)
 
         sourceData = AmountSummaryViewData(
-            title: Localization.swappingFromTitle,
             amount: sourceAmountFormatted,
             amountFiat: sourceFiatAmountFormatted,
+            headerType: ExpressCurrencyHeaderType(viewType: .send, tokenHeader: data.source.tokenHeader),
             tokenIconInfo: TokenIconInfoBuilder().build(from: sourceTokenItem, isCustom: false)
         )
 
@@ -141,9 +141,9 @@ private extension ExpressSuccessSentViewModel {
         let destinationFiatAmountFormatted = balanceFormatter.formatFiatBalance(destinationFiatAmount)
 
         destinationData = AmountSummaryViewData(
-            title: Localization.swappingToTitle,
             amount: destinationAmountFormatted,
             amountFiat: destinationFiatAmountFormatted,
+            headerType: ExpressCurrencyHeaderType(viewType: .receive, tokenHeader: data.destination.tokenHeader),
             tokenIconInfo: TokenIconInfoBuilder().build(from: destinationTokenItem, isCustom: false)
         )
 
