@@ -47,6 +47,10 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
         bind()
     }
 
+    func onAppear() {
+        Analytics.log(.visaScreenChangePinScreenShown)
+    }
+
     func close() {
         switch state {
         case .created:
