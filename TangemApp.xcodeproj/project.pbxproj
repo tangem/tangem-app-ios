@@ -9384,8 +9384,8 @@
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		DF34D6F62EF11F6F0076C9F2 /* AvailabilityRepository */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = AvailabilityRepository; sourceTree = "<group>"; };
-		DF631D002F1FA27500DD8393 /* TangemPayWithdrawNoteSheet */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = TangemPayWithdrawNoteSheet; sourceTree = "<group>"; };
 		DF57F18C2F19A7400085A6A1 /* TangemPayKYCDeclinedPopup */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = TangemPayKYCDeclinedPopup; sourceTree = "<group>"; };
+		DF631D002F1FA27500DD8393 /* TangemPayWithdrawNoteSheet */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = TangemPayWithdrawNoteSheet; sourceTree = "<group>"; };
 		DFB0DFA52EEA7323006885A1 /* Coordinator */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Coordinator; sourceTree = "<group>"; };
 		DFF3F35F2EF43F86004E61AB /* TangemPayKYCStatusPopup */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = TangemPayKYCStatusPopup; sourceTree = "<group>"; };
 		DFFE445E2EE1A917004CAC28 /* GetTangemPay */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = GetTangemPay; sourceTree = "<group>"; };
@@ -12198,6 +12198,7 @@
 				B62D43792CBC7EC700C2460E /* BlockchainSdkExample */,
 				5D3F77C324BF56D800E8695B /* Products */,
 				2E5061A84512B23CCB5F2E17 /* Frameworks */,
+				DCB2F8412F23B2B400D2ED7A /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -21355,6 +21356,14 @@
 			path = Factory;
 			sourceTree = "<group>";
 		};
+		DCB2F8412F23B2B400D2ED7A /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				DF34D6F62EF11F6F0076C9F2 /* AvailabilityRepository */,
+			);
+			name = "Recovered References";
+			sourceTree = "<group>";
+		};
 		DCB5734F2E8BF685003D54E6 /* SelectorCell */ = {
 			isa = PBXGroup;
 			children = (
@@ -25795,8 +25804,8 @@
 			);
 			fileSystemSynchronizedGroups = (
 				DF34D6F62EF11F6F0076C9F2 /* AvailabilityRepository */,
-				DF631D002F1FA27500DD8393 /* TangemPayWithdrawNoteSheet */,
 				DF57F18C2F19A7400085A6A1 /* TangemPayKYCDeclinedPopup */,
+				DF631D002F1FA27500DD8393 /* TangemPayWithdrawNoteSheet */,
 				DFB0DFA52EEA7323006885A1 /* Coordinator */,
 				DFF3F35F2EF43F86004E61AB /* TangemPayKYCStatusPopup */,
 				DFFE445E2EE1A917004CAC28 /* GetTangemPay */,

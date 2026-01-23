@@ -148,7 +148,7 @@ private extension CreateWalletSelectorView {
             }
             .frame(maxWidth: .infinity)
         }
-         .accessibilityIdentifier(OnboardingAccessibilityIdentifiers.mobileWalletButton)
+        .accessibilityIdentifier(OnboardingAccessibilityIdentifiers.mobileWalletButton)
     }
 
     var actionsSeparator: some View {
