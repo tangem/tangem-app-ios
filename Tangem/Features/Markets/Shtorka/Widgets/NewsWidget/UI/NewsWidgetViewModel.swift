@@ -16,6 +16,7 @@ import TangemLocalization
 final class NewsWidgetViewModel: ObservableObject {
     // MARK: - Injected & Published Properties
 
+    @Published private(set) var isFirstLoading: Bool = true
     @Published private(set) var resultState: LoadingResult<ResultState, Error> = .loading
 
     let widgetType: MarketsWidgetType
@@ -23,6 +24,7 @@ final class NewsWidgetViewModel: ObservableObject {
     // MARK: - Properties
 
     private let widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler
+    private let analyticsService: MarketsWidgetAnalyticsProvider
 
     private let mapper = NewsModelMapper()
     private let newsProvider = CommonMarketsWidgetNewsService()
@@ -43,10 +45,12 @@ final class NewsWidgetViewModel: ObservableObject {
     init(
         widgetType: MarketsWidgetType,
         widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler,
+        analyticsService: MarketsWidgetAnalyticsProvider,
         coordinator: NewsWidgetRoutable?
     ) {
         self.widgetType = widgetType
         self.widgetsUpdateHandler = widgetsUpdateHandler
+        self.analyticsService = analyticsService
         self.coordinator = coordinator
 
         bind()
@@ -136,9 +140,20 @@ private extension NewsWidgetViewModel {
             .removeDuplicates()
             .receiveOnMain()
             .withWeakCaptureOf(self)
-            .sink { viewModel, event in
-                if case .readyForDisplay = event {
+            .sink { viewModel, state in
+                switch state {
+                case .loaded:
                     viewModel.updateViewState()
+                    viewModel.clearIsFirstLoadingFlag()
+                case .initialLoading:
+                    viewModel.resultState = .loading
+                case .reloading(let widgetTypes):
+                    if widgetTypes.contains(viewModel.widgetType) {
+                        viewModel.resultState = .loading
+                    }
+                case .allFailed:
+                    // Global error UI is handled at a higher level
+                    return
                 }
             }
             .store(in: &bag)
@@ -152,22 +167,11 @@ private extension NewsWidgetViewModel {
 
                 switch result {
                 case .loading:
-                    viewModel.resultState = .loading
                     widgetLoadingState = .loading
                 case .success:
                     widgetLoadingState = .loaded
-                case .failure(let error):
+                case .failure:
                     widgetLoadingState = .error
-                    viewModel.resultState = .failure(error)
-
-                    let analyticsParams = error.marketsAnalyticsParams
-                    Analytics.log(
-                        event: .marketsNewsLoadError,
-                        params: [
-                            .errorCode: analyticsParams[.errorCode] ?? "",
-                            .errorMessage: analyticsParams[.errorMessage] ?? "",
-                        ]
-                    )
                 }
 
                 viewModel.widgetsUpdateHandler.performUpdateLoading(state: widgetLoadingState, for: viewModel.widgetType)
@@ -215,8 +219,14 @@ private extension NewsWidgetViewModel {
     }
 
     func updateViewState() {
-        if resultState.error == nil {
+        switch newsProvider.newsResult {
+        case .success:
             resultState = .success(viewStateForLoadedItems())
+        case .failure(let error):
+            resultState = .failure(error)
+            analyticsService.logNewsLoadError(error)
+        case .loading:
+            resultState = .loading
         }
     }
 
@@ -231,6 +241,12 @@ private extension NewsWidgetViewModel {
                 return lhs.offset < rhs.offset
             }
             .map(\.element)
+    }
+
+    func clearIsFirstLoadingFlag() {
+        if isFirstLoading {
+            isFirstLoading = false
+        }
     }
 }
 

@@ -15,7 +15,7 @@ import enum TangemLocalization.Localization
 /// including its title, optional subtitle, and the list of action buttons.
 ///
 /// Used with the combination of `View.confirmationDialog(viewModel:)` modifier to show a SwiftUI confirmation dialog.
-public struct ConfirmationDialogViewModel {
+public struct ConfirmationDialogViewModel: Hashable {
     /// The main title displayed at the top of the dialog.
     public let title: String?
 
