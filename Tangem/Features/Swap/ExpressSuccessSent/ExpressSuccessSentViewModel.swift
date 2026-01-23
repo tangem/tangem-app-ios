@@ -165,10 +165,15 @@ private extension ExpressSuccessSentViewModel {
         )
 
         if !data.source.isExemptFee, let feeValue = data.fee.value.value {
-            let feeFormatted = feeFormatter.format(fee: feeValue.amount.value, tokenItem: data.fee.tokenItem)
+            let feeComponents = feeFormatter.formattedFeeComponents(
+                fee: feeValue.amount.value,
+                tokenItem: data.fee.tokenItem,
+                formattingOptions: .sendCryptoFeeFormattingOptions
+            )
+
             feeCompactViewModel = FeeCompactViewModel(
                 selectedFeeTokenCurrencySymbol: data.fee.tokenItem.currencySymbol,
-                selectedFeeComponents: .loaded(text: feeFormatted),
+                selectedFeeComponents: .loaded(text: feeComponents.fiatFee ?? feeComponents.cryptoFee),
                 canEditFee: false,
                 feeFormatter: feeFormatter
             )
