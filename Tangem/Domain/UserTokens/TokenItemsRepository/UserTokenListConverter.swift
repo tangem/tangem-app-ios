@@ -63,7 +63,9 @@ struct UserTokenListConverter {
             notifyStatus: notifyStatusValue,
             version: Constants.apiVersion,
             name: context["name"],
-            type: context["type"]
+            type: context["type"],
+            ref: context["ref"],
+            campaign: context["campaign"]
         )
     }
 
@@ -75,6 +77,7 @@ struct UserTokenListConverter {
         let contextBuilder = model.config.contextBuilder
         let context = contextBuilder
             .enrich(withName: model.name)
+            .enrichReferral()
             .buildRaw()
 
         return context
