@@ -3546,6 +3546,7 @@
 		DCB573632E8C0B5B003D54E6 /* AccountSelectorAccountItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB573622E8C0B5B003D54E6 /* AccountSelectorAccountItem.swift */; };
 		DCB616E52CB39AE100BE4481 /* WalletConnect in Frameworks */ = {isa = PBXBuildFile; productRef = DCB616E42CB39AE100BE4481 /* WalletConnect */; };
 		DCB616E72CB3A63800BE4481 /* ReownWalletKit in Frameworks */ = {isa = PBXBuildFile; productRef = DCB616E62CB3A63800BE4481 /* ReownWalletKit */; };
+		DCBA2ADC2F2292E8007C8C48 /* SupportedTokensFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCBA2ADB2F2292E7007C8C48 /* SupportedTokensFilter.swift */; };
 		DCBC944B2993F3420050BC35 /* AnalyticsStorageKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCBC944A2993F3420050BC35 /* AnalyticsStorageKey.swift */; };
 		DCBC944D2993FE380050BC35 /* Analytics+ParameterKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCBC944C2993FE380050BC35 /* Analytics+ParameterKey.swift */; };
 		DCBC944F2993FE720050BC35 /* Analytics+ParameterValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCBC944E2993FE720050BC35 /* Analytics+ParameterValue.swift */; };
@@ -8303,6 +8304,7 @@
 		DCB5735E2E8C0B49003D54E6 /* AccountSelectorWalletItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountSelectorWalletItem.swift; sourceTree = "<group>"; };
 		DCB573602E8C0B51003D54E6 /* AccountSelectorMultipleAccountsItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountSelectorMultipleAccountsItem.swift; sourceTree = "<group>"; };
 		DCB573622E8C0B5B003D54E6 /* AccountSelectorAccountItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountSelectorAccountItem.swift; sourceTree = "<group>"; };
+		DCBA2ADB2F2292E7007C8C48 /* SupportedTokensFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportedTokensFilter.swift; sourceTree = "<group>"; };
 		DCBC944A2993F3420050BC35 /* AnalyticsStorageKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsStorageKey.swift; sourceTree = "<group>"; };
 		DCBC944C2993FE380050BC35 /* Analytics+ParameterKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Analytics+ParameterKey.swift"; sourceTree = "<group>"; };
 		DCBC944E2993FE720050BC35 /* Analytics+ParameterValue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Analytics+ParameterValue.swift"; sourceTree = "<group>"; };
@@ -16792,6 +16794,7 @@
 		B62D3F742CBC79D900C2460E /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				DCBA2ADB2F2292E7007C8C48 /* SupportedTokensFilter.swift */,
 				EF2FE49A2C6BABD20015940A /* AllowanceChecker */,
 				B62D3F502CBC79D900C2460E /* Amount.swift */,
 				B62D3F512CBC79D900C2460E /* AssetRequirementsCondition.swift */,
@@ -29687,6 +29690,7 @@
 				B62D3FE52CBC79DA00C2460E /* OP_INVERT.swift in Sources */,
 				B62D3FE12CBC79DA00C2460E /* OP_WITHIN.swift in Sources */,
 				B62D3FD32CBC79DA00C2460E /* OP_LESSTHAN.swift in Sources */,
+				DCBA2ADC2F2292E8007C8C48 /* SupportedTokensFilter.swift in Sources */,
 				B62D402C2CBC79DA00C2460E /* BitcoinExternalLinkProvider.swift in Sources */,
 				B62D40282CBC79DA00C2460E /* ScriptChunkHelper.swift in Sources */,
 				B62D41B42CBC79DB00C2460E /* TezosTransactionBuilder.swift in Sources */,
