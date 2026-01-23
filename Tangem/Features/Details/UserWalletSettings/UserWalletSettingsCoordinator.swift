@@ -37,6 +37,7 @@ final class UserWalletSettingsCoordinator: CoordinatorObject {
     @Published var archivedAccountsCoordinator: ArchivedAccountsCoordinator?
     @Published var mobileBackupTypesCoordinator: MobileBackupTypesCoordinator?
     @Published var mobileUpgradeCoordinator: MobileUpgradeCoordinator?
+    @Published var hardwareBackupTypesCoordinator: HardwareBackupTypesCoordinator?
 
     // MARK: - Child view models
 
@@ -165,10 +166,25 @@ extension UserWalletSettingsCoordinator:
             }
         }
 
-        let inputOptions = MobileBackupTypesCoordinator.InputOptions(userWalletModel: userWalletModel)
+        let inputOptions = MobileBackupTypesCoordinator.InputOptions(userWalletModel: userWalletModel, mode: .backup)
         let coordinator = MobileBackupTypesCoordinator(dismissAction: dismissAction)
         coordinator.start(with: inputOptions)
         mobileBackupTypesCoordinator = coordinator
+    }
+
+    @MainActor
+    func openHardwareBackupTypes(userWalletModel: UserWalletModel) {
+        let dismissAction: Action<HardwareBackupTypesCoordinator.OutputOptions> = { [weak self] options in
+            switch options {
+            case .main(let userWalletModel):
+                self?.openMain(userWalletModel: userWalletModel)
+            }
+        }
+
+        let inputOptions = HardwareBackupTypesCoordinator.InputOptions(userWalletModel: userWalletModel)
+        let coordinator = HardwareBackupTypesCoordinator(dismissAction: dismissAction)
+        coordinator.start(with: inputOptions)
+        hardwareBackupTypesCoordinator = coordinator
     }
 
     @MainActor
