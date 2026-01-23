@@ -124,8 +124,8 @@ private extension CommonDeeplinkPresenter {
                 deeplinkString: deeplinkString,
             )
 
-        case .promo(let promoCode):
-            return constructPromoViewController(promoCode: promoCode)
+        case .promo(let promoCode, let refcode, let campaign):
+            return constructPromoViewController(promoCode: promoCode, refcode: refcode, campaign: campaign)
 
         case .externalLink, .market:
             return nil
@@ -134,9 +134,9 @@ private extension CommonDeeplinkPresenter {
 }
 
 private extension CommonDeeplinkPresenter {
-    private func constructPromoViewController(promoCode: String) -> UIViewController {
+    private func constructPromoViewController(promoCode: String, refcode: String?, campaign: String?) -> UIViewController {
         let viewController = makeDeeplinkViewController(
-            view: { PromocodeActivationView(promoCode: promoCode) },
+            view: { PromocodeActivationView(promoCode: promoCode, refcode: refcode, campaign: campaign) },
             embedInNavigationStack: false
         )
 
