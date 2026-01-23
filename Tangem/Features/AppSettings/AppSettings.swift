@@ -150,6 +150,15 @@ final class AppSettings {
     @AppStorageCompat(StorageType.showMarketsYieldModeNotification)
     var showMarketsYieldModeNotification = true
 
+    @AppStorageCompat(StorageType.referralRefcode)
+    var referralRefcode: String? = nil
+
+    @AppStorageCompat(StorageType.referralCampaign)
+    var referralCampaign: String? = nil
+
+    @AppStorageCompat(StorageType.hasReferralBindingRequest)
+    var hasReferralBindingRequest: Bool = false
+
     static let shared: AppSettings = .init()
 
     private init() {}
