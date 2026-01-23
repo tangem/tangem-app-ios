@@ -218,6 +218,10 @@ final class FakeTangemApiService: TangemApiService {
     func getTokenPositionInfo(tokenContractAddress: String, chainId: Int) async throws -> YieldModuleDTO.Response.PositionInfo {
         throw "Not implemented"
     }
+
+    func bindReferral(request model: ReferralDTO.Request) async throws {
+        throw "Not implemented"
+    }
 }
 
 private struct FakeCoinListProvider {
