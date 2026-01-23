@@ -22,6 +22,7 @@ public struct PendingTransactionRecord {
     public let fee: Fee
     public let date: Date
     public let isIncoming: Bool
+    public let networkProviderType: NetworkProviderType?
     public let transactionType: TransactionType
     public let transactionParams: TransactionParams?
 
@@ -37,6 +38,7 @@ public struct PendingTransactionRecord {
         fee: Fee,
         date: Date,
         isIncoming: Bool,
+        networkProviderType: NetworkProviderType? = nil,
         transactionType: TransactionType,
         transactionParams: TransactionParams? = nil
     ) {
@@ -47,7 +49,18 @@ public struct PendingTransactionRecord {
         self.fee = fee
         self.date = date
         self.isIncoming = isIncoming
+        self.networkProviderType = networkProviderType
         self.transactionType = transactionType
         self.transactionParams = transactionParams
+    }
+}
+
+extension PendingTransactionRecord: Hashable, Equatable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(hash)
+    }
+
+    public static func == (lhs: PendingTransactionRecord, rhs: PendingTransactionRecord) -> Bool {
+        lhs.hash == rhs.hash
     }
 }
