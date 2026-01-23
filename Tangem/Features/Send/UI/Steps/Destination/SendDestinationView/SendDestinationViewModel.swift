@@ -245,7 +245,10 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
         FeedbackGenerator.success()
 
         // Set destination account via SendModel, which forwards to analytics logger
-        destinationAccountOutput?.setDestinationAccountAnalyticsProvider(destination.accountModelAnalyticsProvider)
+        destinationAccountOutput?.setDestinationAccountInfo(
+            tokenHeader: destination.tokenHeader,
+            analyticsProvider: destination.accountModelAnalyticsProvider
+        )
 
         destinationAddressViewModel.update(address: .init(
             string: destination.address,
