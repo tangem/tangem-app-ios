@@ -226,6 +226,7 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func termsAndLimits() {
+        Analytics.log(.visaScreenTermsAndLimitsClicked)
         coordinator?.openTermsAndLimits()
     }
 
