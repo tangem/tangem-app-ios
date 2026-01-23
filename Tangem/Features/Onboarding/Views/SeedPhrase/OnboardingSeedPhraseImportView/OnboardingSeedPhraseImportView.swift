@@ -88,6 +88,7 @@ struct OnboardingSeedPhraseImportView: View {
                     .animation(nil, value: viewModel.suggestions)
             }
         }
+        .screenCaptureProtection()
         .animation(.default, value: viewModel.inputError)
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
@@ -126,7 +127,6 @@ struct OnboardingSeedPhraseImportView: View {
                 placeholder: Localization.sendOptionalField
             )
             .setAutocapitalizationType(.none)
-            .screenCaptureProtection()
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 12)
