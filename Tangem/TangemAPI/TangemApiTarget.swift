@@ -127,6 +127,10 @@ struct TangemApiTarget: TargetType {
             return "/news/categories"
         case .trendingNews:
             return "/news/trending"
+
+        // MARK: - Referral 2.0
+        case .bindWalletsByCode:
+            return "/referral/bind-wallets-by-code"
         }
     }
 
@@ -175,7 +179,8 @@ struct TangemApiTarget: TargetType {
              .createAccount,
              .createUserWalletsApplication,
              .activatePromoCode,
-             .createWallet:
+             .createWallet,
+             .bindWalletsByCode:
             return .post
         case .resetAward:
             return .delete
@@ -314,6 +319,10 @@ struct TangemApiTarget: TargetType {
                 parameters: parameters,
                 encoding: URLEncoding.default
             )
+
+        // MARK: - Referral 2.0
+        case .bindWalletsByCode(let requestModel):
+            return .requestJSONEncodable(requestModel)
         }
     }
 
@@ -367,7 +376,8 @@ struct TangemApiTarget: TargetType {
              .createWallet,
              .trendingNews,
              .newsList,
-             .newsCategories:
+             .newsCategories,
+             .bindWalletsByCode:
             return nil
         }
     }
@@ -446,6 +456,9 @@ extension TangemApiTarget {
         case trendingNews(limit: Int?, lang: String?)
         case newsList(_ requestModel: NewsDTO.List.Request)
         case newsCategories
+
+        /// Referral 2.0
+        case bindWalletsByCode(_ requestModel: ReferralDTO.Request)
     }
 }
 
@@ -488,7 +501,8 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .createWallet,
              .newsList,
              .newsCategories,
-             .trendingNews:
+             .trendingNews,
+             .bindWalletsByCode:
             return false
         case .geo,
              .features,
