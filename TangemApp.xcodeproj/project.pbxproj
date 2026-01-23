@@ -9243,6 +9243,7 @@
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		DF34D6F62EF11F6F0076C9F2 /* AvailabilityRepository */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = AvailabilityRepository; sourceTree = "<group>"; };
+		DF631D002F1FA27500DD8393 /* TangemPayWithdrawNoteSheet */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = TangemPayWithdrawNoteSheet; sourceTree = "<group>"; };
 		DFB0DFA52EEA7323006885A1 /* Coordinator */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Coordinator; sourceTree = "<group>"; };
 		DFF3F35F2EF43F86004E61AB /* TangemPayKYCStatusPopup */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = TangemPayKYCStatusPopup; sourceTree = "<group>"; };
 		DFFE445E2EE1A917004CAC28 /* GetTangemPay */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = GetTangemPay; sourceTree = "<group>"; };
@@ -12615,6 +12616,7 @@
 				B04718FD2B4E7BED00444734 /* VisaBalancesLimits */,
 				DFFE445E2EE1A917004CAC28 /* GetTangemPay */,
 				DFF3F35F2EF43F86004E61AB /* TangemPayKYCStatusPopup */,
+				DF631D002F1FA27500DD8393 /* TangemPayWithdrawNoteSheet */,
 			);
 			path = Visa;
 			sourceTree = "<group>";
@@ -25246,6 +25248,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				DF34D6F62EF11F6F0076C9F2 /* AvailabilityRepository */,
+				DF631D002F1FA27500DD8393 /* TangemPayWithdrawNoteSheet */,
 				DFB0DFA52EEA7323006885A1 /* Coordinator */,
 				DFF3F35F2EF43F86004E61AB /* TangemPayKYCStatusPopup */,
 				DFFE445E2EE1A917004CAC28 /* GetTangemPay */,
