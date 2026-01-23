@@ -48,7 +48,9 @@ final class CommonTangemPayAuthorizationTokensHandler {
 
         if tokens.accessTokenExpired {
             do {
-                let newTokens = try await authorizationService.refreshTokens(refreshToken: tokens.refreshToken)
+                let newTokens = try await authorizationService.refreshTokens(
+                    refreshToken: tokens.refreshToken
+                )
                 try? saveTokens(tokens: newTokens)
 
                 // Either:
