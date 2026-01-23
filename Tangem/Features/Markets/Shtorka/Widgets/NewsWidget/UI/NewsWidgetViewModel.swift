@@ -24,7 +24,7 @@ final class NewsWidgetViewModel: ObservableObject {
     // MARK: - Properties
 
     private let widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler
-    private let analyticsService: MarketsWidgetAnalyticsProvider
+    private let analyticsService: NewsWidgetAnalyticsProvider
 
     private let mapper = NewsModelMapper()
     private let newsProvider = CommonMarketsWidgetNewsService()
@@ -45,7 +45,7 @@ final class NewsWidgetViewModel: ObservableObject {
     init(
         widgetType: MarketsWidgetType,
         widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler,
-        analyticsService: MarketsWidgetAnalyticsProvider,
+        analyticsService: NewsWidgetAnalyticsProvider,
         coordinator: NewsWidgetRoutable?
     ) {
         self.widgetType = widgetType
@@ -69,13 +69,7 @@ final class NewsWidgetViewModel: ObservableObject {
 
     @MainActor
     func handleAllNewsTap() {
-        Analytics.log(
-            event: .marketsNewsListOpened,
-            params: [
-                .source: Analytics.ParameterValue.markets.rawValue,
-            ]
-        )
-
+        analyticsService.logNewsListOpened()
         coordinator?.openSeeAllNewsWidget()
     }
 
@@ -83,7 +77,7 @@ final class NewsWidgetViewModel: ObservableObject {
     func handleCarouselAllNewsTap() {
         if !hasLoggedCarouselAllNewsButton {
             hasLoggedCarouselAllNewsButton = true
-            Analytics.log(.marketsNewsCarouselAllNewsButton)
+            analyticsService.logCarouselAllNewsButton()
         }
 
         handleAllNewsTap()
@@ -96,13 +90,13 @@ final class NewsWidgetViewModel: ObservableObject {
         // Track when user scrolls to 4th news item or beyond (index 3, 0-based)
         if index >= 3, !hasLoggedCarouselScrolled {
             hasLoggedCarouselScrolled = true
-            Analytics.log(.marketsNewsCarouselScrolled)
+            analyticsService.logCarouselScrolled()
         }
 
         // Track when user reaches the end (last item before "See All" card)
         if index >= carouselItems.count - 1, !hasLoggedCarouselEndReached {
             hasLoggedCarouselEndReached = true
-            Analytics.log(.marketsNewsCarouselEndReached)
+            analyticsService.logCarouselEndReached()
         }
     }
 
@@ -110,12 +104,7 @@ final class NewsWidgetViewModel: ObservableObject {
     func handleTrendingNewsTap(newsId: String) {
         if !hasLoggedTrendingClicked {
             hasLoggedTrendingClicked = true
-            Analytics.log(
-                event: .marketsNewsCarouselTrendingClicked,
-                params: [
-                    .token: newsId, // News Id
-                ]
-            )
+            analyticsService.logTrendingClicked(newsId: newsId)
         }
 
         handleTap(newsId: newsId)
