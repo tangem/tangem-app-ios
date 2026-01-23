@@ -2765,6 +2765,7 @@
 		C28CF4042E9FC1920099797D /* NoMailAccountPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C28CF4032E9FC18C0099797D /* NoMailAccountPlaceholderView.swift */; };
 		C28E01682E798A8C00B47571 /* AppsFlyerAnalyticsEventConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C28E01672E798A7700B47571 /* AppsFlyerAnalyticsEventConverter.swift */; };
 		C28E016B2E79A6FA00B47571 /* AppsFlyerLib-Strict in Frameworks */ = {isa = PBXBuildFile; productRef = C28E016A2E79A6FA00B47571 /* AppsFlyerLib-Strict */; };
+		C2A12FAF2F23C8D3002FF26E /* NewAuthViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2A12FAE2F23C8CF002FF26E /* NewAuthViewState.swift */; };
 		C2A6B54C2E02506D00F160C0 /* WalletConnectDAppSessionsExtender.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2A6B54B2E02506400F160C0 /* WalletConnectDAppSessionsExtender.swift */; };
 		C2B885522E1424510086B214 /* ReownWalletConnectDAppSessionExtensionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2B885512E1424340086B214 /* ReownWalletConnectDAppSessionExtensionService.swift */; };
 		C2BB90B12DE8C6BB00793F94 /* WCDappTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2BB90B02DE8C6BB00793F94 /* WCDappTitleView.swift */; };
@@ -7510,6 +7511,7 @@
 		C28CF4012E9FA5B50099797D /* MailComposePresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailComposePresenter.swift; sourceTree = "<group>"; };
 		C28CF4032E9FC18C0099797D /* NoMailAccountPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoMailAccountPlaceholderView.swift; sourceTree = "<group>"; };
 		C28E01672E798A7700B47571 /* AppsFlyerAnalyticsEventConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppsFlyerAnalyticsEventConverter.swift; sourceTree = "<group>"; };
+		C2A12FAE2F23C8CF002FF26E /* NewAuthViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewAuthViewState.swift; sourceTree = "<group>"; };
 		C2A6B54B2E02506400F160C0 /* WalletConnectDAppSessionsExtender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectDAppSessionsExtender.swift; sourceTree = "<group>"; };
 		C2B885512E1424340086B214 /* ReownWalletConnectDAppSessionExtensionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReownWalletConnectDAppSessionExtensionService.swift; sourceTree = "<group>"; };
 		C2BB90B02DE8C6BB00793F94 /* WCDappTitleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCDappTitleView.swift; sourceTree = "<group>"; };
@@ -10156,6 +10158,7 @@
 			children = (
 				0FF19C902E3CBCB500008D8E /* Views */,
 				0FA453D62E1E9F1B0055B5BB /* NewAuthView.swift */,
+				C2A12FAE2F23C8CF002FF26E /* NewAuthViewState.swift */,
 				0FA453D42E1E9F140055B5BB /* NewAuthViewModel.swift */,
 				0FA453D82E1E9F330055B5BB /* NewAuthRoutable.swift */,
 			);
@@ -27892,6 +27895,7 @@
 				B601D3852D42ECEB002694AE /* PerformanceTracker.swift in Sources */,
 				DA5044E32ABACA6600D1E5CF /* MarketPriceView.swift in Sources */,
 				0FE5885E2DF08D7200E5663E /* MobileCreateWalletView.swift in Sources */,
+				C2A12FAF2F23C8D3002FF26E /* NewAuthViewState.swift in Sources */,
 				3027D3462E82EBAE001E15FB /* AccountDetailsCoordinatorView.swift in Sources */,
 				DA3070C12F1D49C7001A5214 /* TangemPayManager.swift in Sources */,
 				2DCDCD362E9528560056072D /* ExpressProviderTransactionValidatorMock.swift in Sources */,
