@@ -89,6 +89,7 @@ struct TangemPayPinView: View {
             .padding(.bottom, 20)
             .padding(.horizontal, 16)
         }
+        .onAppear(perform: viewModel.onAppear)
     }
 
     @ViewBuilder
