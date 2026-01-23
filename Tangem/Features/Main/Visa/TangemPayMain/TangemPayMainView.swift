@@ -80,6 +80,7 @@ struct TangemPayMainView: View {
                             systemImage: "text.page.fill"
                         )
                     }
+                    .onAppear { viewModel.onToolbarClicked() }
 
                     Button(
                         action: viewModel.freezingState.isFrozen
