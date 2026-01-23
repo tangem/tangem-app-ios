@@ -69,6 +69,10 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
         interactor.preloadTransactionsHistoryIfNeeded()
     }
 
+    func setIgnoreDestinationAddressClearButton(_ ignore: Bool) {
+        destinationAddressViewModel.update(shouldIgnoreClearButton: ignore)
+    }
+
     private func updateView(tokenItem: TokenItem) {
         networkName = tokenItem.networkName
         destinationAddressViewModel.textViewModel.placeholder = makePlaceholder(tokenItem: tokenItem)
@@ -138,14 +142,6 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
             .receive(on: DispatchQueue.main)
             .sink { viewModel, error in
                 viewModel.destinationAddressViewModel.update(error: error)
-            }
-            .store(in: &bag)
-
-        interactor.ignoreDestinationClear
-            .withWeakCaptureOf(self)
-            .receiveOnMain()
-            .sink { viewModel, ignore in
-                viewModel.destinationAddressViewModel.update(shouldIgnoreClearButton: ignore)
             }
             .store(in: &bag)
 
