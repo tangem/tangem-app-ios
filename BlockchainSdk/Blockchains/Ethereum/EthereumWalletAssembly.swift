@@ -36,16 +36,19 @@ struct EthereumWalletAssembly: WalletManagerAssembly {
             dataStorage: input.blockchainSdkDependencies.dataStorage
         )
 
-        let providers = networkProviderAssembly.makeEthereumJsonRpcProviders(with: input.networkInput)
+        let apiList = APIList(dictionaryLiteral: (blockchain.networkId, input.networkInput.apiInfo))
+
+        let serviceFactory = WalletNetworkServiceFactory(
+            blockchainSdkKeysConfig: input.networkInput.keysConfig,
+            tangemProviderConfig: input.networkInput.tangemProviderConfig,
+            apiList: apiList
+        )
+
+        let networkService: EthereumNetworkService = try serviceFactory.makeServiceWithType(for: blockchain)
+
         let txBuilder = CommonEthereumTransactionBuilder(
             chainId: chainId,
             sourceAddress: wallet.defaultAddress
-        )
-        let networkService = EthereumNetworkService(
-            decimals: blockchain.decimalCount,
-            providers: providers,
-            abiEncoder: WalletCoreABIEncoder(),
-            blockchainName: input.wallet.blockchain.displayName
         )
 
         let addressConverter = EthereumAddressConverterFactory().makeConverter(for: blockchain)
@@ -54,6 +57,7 @@ struct EthereumWalletAssembly: WalletManagerAssembly {
             walletAddress: wallet.address,
             blockchain: wallet.blockchain,
             networkService: networkService,
+            networkServiceFactory: serviceFactory,
             dataStorage: input.blockchainSdkDependencies.dataStorage,
             addressConverter: addressConverter
         )
