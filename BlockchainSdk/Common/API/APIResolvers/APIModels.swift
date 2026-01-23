@@ -11,7 +11,7 @@ import TangemFoundation
 
 public typealias APIList = [String: [NetworkProviderType]]
 
-public enum NetworkProviderType {
+public enum NetworkProviderType: Equatable, Hashable, Codable {
     case `public`(link: String)
     case nowNodes
     case blink
@@ -36,6 +36,15 @@ public enum NetworkProviderType {
     case tangemAlephium
     case tatum
     case mock
+}
+
+extension NetworkProviderType {
+    var isPrivateMempool: Bool {
+        switch self {
+        case .blink: true
+        default: false
+        }
+    }
 }
 
 struct NodeInfo: HostProvider {
