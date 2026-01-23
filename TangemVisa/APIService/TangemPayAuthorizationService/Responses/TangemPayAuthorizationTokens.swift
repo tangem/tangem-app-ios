@@ -13,7 +13,12 @@ public struct TangemPayAuthorizationTokens: Codable, Equatable {
     private let expiresAt: Date
     private let refreshExpiresAt: Date
 
-    public init(accessToken: String, refreshToken: String, expiresAt: Date, refreshExpiresAt: Date) {
+    public init(
+        accessToken: String,
+        refreshToken: String,
+        expiresAt: Date,
+        refreshExpiresAt: Date
+    ) {
         self.accessToken = accessToken
         self.refreshToken = refreshToken
         self.expiresAt = expiresAt
