@@ -259,7 +259,8 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
         let derivationPath = enteredDerivationPath()
 
         let missingTokenInformation = contractAddress.isEmpty && name.isEmpty && symbol.isEmpty && decimals.isEmpty
-        if !blockchain.canHandleCustomTokens || missingTokenInformation {
+        if !blockchain.canHandleCustomTokens || missingTokenInformation
+            || !SupportedTokensFilter.canHandleCustomToken(contractAddress: contractAddress, blockchain: blockchain) {
             return .blockchain(.init(blockchain, derivationPath: derivationPath))
         } else {
             let enteredContractAddress = try enteredContractAddress(in: blockchain)
