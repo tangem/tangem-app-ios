@@ -203,28 +203,18 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .walletsWithNFTEnabledPublisher
             .share(replay: 1)
 
-        let nftEntrypointViewModelPublisher: AnyPublisher<Set<UserWalletId>, Never>
-
-        let hasAccounts = FeatureProvider.isAvailable(.accounts)
-
-        if hasAccounts {
-            nftEntrypointViewModelPublisher = Publishers.Merge(
-                walletsWithNFTEnabledPublisher,
-                AccountWalletModelsAggregator
-                    .walletModelsPublisher(from: userWalletModel.accountModelsManager)
-                    .withLatestFrom(walletsWithNFTEnabledPublisher)
-            )
-            .eraseToAnyPublisher()
+        let nftEntrypointViewModelPublisher = if FeatureProvider.isAvailable(.accounts) {
+            AccountWalletModelsAggregator
+                .walletModelsPublisher(from: userWalletModel.accountModelsManager)
+                .withLatestFrom(walletsWithNFTEnabledPublisher)
+                .merge(with: walletsWithNFTEnabledPublisher)
         } else {
             // accounts_fixes_needed_none
-            nftEntrypointViewModelPublisher = Publishers.Merge(
-                walletsWithNFTEnabledPublisher,
-                userWalletModel
-                    .walletModelsManager
-                    .walletModelsPublisher
-                    .withLatestFrom(walletsWithNFTEnabledPublisher)
-            )
-            .eraseToAnyPublisher()
+            userWalletModel
+                .walletModelsManager
+                .walletModelsPublisher
+                .withLatestFrom(walletsWithNFTEnabledPublisher)
+                .merge(with: walletsWithNFTEnabledPublisher)
         }
 
         nftEntrypointViewModelPublisher
@@ -268,7 +258,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
         tokenItemPromoProvider
             .makePromoOutputPublisher(using: tokenItemPromoInputPublisher)
-            .eraseToAnyPublisher()
             .removeDuplicates()
             .handleEvents(receiveOutput: { [weak self] output in
                 guard let output, let walletModel = self?.findWalletModel(with: output.walletModelId) else {
