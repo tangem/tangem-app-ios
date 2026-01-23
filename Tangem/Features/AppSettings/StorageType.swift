@@ -56,4 +56,7 @@ enum StorageType: String {
     case tangemPayIsEligibilityAvailable = "tangem_pay_is_eligibility_available"
     case jailbreakWarningWasShown = "jailbreak_warning_was_shown"
     case showMarketsYieldModeNotification = "show_markets_yield_mode_notification"
+    case referralRefcode = "referral_refcode"
+    case referralCampaign = "referral_campaign"
+    case hasReferralBindingRequest = "has_referral_binding_request"
 }
