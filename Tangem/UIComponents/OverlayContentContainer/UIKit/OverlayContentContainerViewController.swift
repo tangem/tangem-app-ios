@@ -27,6 +27,7 @@ final class OverlayContentContainerViewController: UIViewController {
     private var panGestureStartLocationInScreenCoordinateSpace: CGPoint = .zero
     private var panGestureStartLocationInOverlayViewCoordinateSpace: CGPoint = .zero
     private var shouldIgnorePanGestureRecognizer = false
+    private var isGestureOnHorizontalScrollView = false
     private var didTap = false
 
     private var progress: OverlayContentContainerProgress = .zero {
@@ -438,6 +439,7 @@ final class OverlayContentContainerViewController: UIViewController {
         panGestureStartLocationInScreenCoordinateSpace = .zero
         panGestureStartLocationInOverlayViewCoordinateSpace = .zero
         shouldIgnorePanGestureRecognizer = false
+        isGestureOnHorizontalScrollView = false
         scrollViewContentOffsetLocker = nil
     }
 
@@ -487,6 +489,13 @@ final class OverlayContentContainerViewController: UIViewController {
 
     func onPanGestureChanged(_ gestureRecognizer: UIPanGestureRecognizer) {
         if shouldIgnorePanGestureRecognizer {
+            return
+        }
+
+        // Ignore vertical gestures on horizontal scroll views to prevent
+        // the overlay from moving when the user drags vertically on a horizontal scroll
+        if isGestureOnHorizontalScrollView {
+            shouldIgnorePanGestureRecognizer = true
             return
         }
 
@@ -723,8 +732,14 @@ extension OverlayContentContainerViewController: UIGestureRecognizerDelegate {
         shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer
     ) -> Bool {
         if let scrollView = otherGestureRecognizer.view as? UIScrollView {
-            if scrollViewContentOffsetLocker?.scrollView !== scrollView {
-                scrollViewContentOffsetLocker = .make(for: scrollView)
+            // For horizontal scroll views, we should ignore the overlay's pan gesture
+            // to prevent vertical gestures from moving the overlay
+            if scrollView.isHorizontalScrollView {
+                isGestureOnHorizontalScrollView = true
+            } else {
+                if scrollViewContentOffsetLocker?.scrollView !== scrollView {
+                    scrollViewContentOffsetLocker = .make(for: scrollView)
+                }
             }
         } else {
             gestureConflictResolver.handleSwiftUIGestureIfNeeded(otherGestureRecognizer)
@@ -772,6 +787,17 @@ extension OverlayContentContainerViewController: OverlayContentContainerAppLifec
 
     func appLifecycleHelperDidTriggerCollapse(_ appLifecycleHelper: OverlayContentContainerAppLifecycleHelper) {
         collapse()
+    }
+}
+
+// MARK: - UIScrollView horizontal detection
+
+private extension UIScrollView {
+    /// Determines if the scroll view is configured for horizontal scrolling only.
+    /// A scroll view is considered horizontal if its content extends beyond
+    /// the horizontal bounds but not beyond the vertical bounds.
+    var isHorizontalScrollView: Bool {
+        return contentSize.width > bounds.width && contentSize.height <= bounds.height
     }
 }
 
