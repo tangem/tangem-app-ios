@@ -127,9 +127,9 @@
 "backup_complete_seed_description" = "These words cannot be recovered if lost. Store them securely.";
 "backup_complete_title" = "Backup completed";
 "backup_info_description" = "Your secret recovery phrase is a set of %@ random words for accessing and recovering your wallet.";
-"backup_info_keep_description" = "These words cannot be recovered if lost. Keep them safe.";
+"backup_info_keep_description" = "If you lose this phrase, it cannot be recovered. Keep it completely secure.";
 "backup_info_keep_title" = "Keep it safe";
-"backup_info_save_description" = "Save these %@ words in a secure location and never share them with anyone.";
+"backup_info_save_description" = "Save these %@ words in a secure place that only you can access, and never share them with anyone.";
 "backup_info_save_title" = "No recovery possible";
 "backup_info_title" = "Recovery phrase";
 "backup_seed_caution" = "The %@ words below are your wallet's recovery phrase. Never share these words with anyone. Tangem will never ask you for them. Use them to restore your wallet if you lose your device.";
@@ -417,7 +417,7 @@
 "details_security_management_warning" = "If you forget the code you will lose access to your funds. Code recovery is not possible.";
 "details_send_feedback" = "Send feedback";
 "details_title" = "Requisiti";
-"details_wallets_section_description" = "You can have only one mobile wallet at a time. It can be upgraded to a Tangem cold wallet or used alongside a new cold wallet.";
+"details_wallets_section_description" = "You can only have one mobile wallet. Upgrade it to Tangem hardware wallet, or add a new hardware wallet.";
 "disclaimer_title" = "Termini del servizio";
 "domain_receive_assets_default_address" = "Default Address";
 "domain_receive_assets_legacy_address" = "Legacy %@ Address";
@@ -537,7 +537,7 @@
 "give_permission_swap_subtitle" = "To continue, grant %1@ smart contracts permission to use your %2@";
 "give_permission_title" = "Give Permission";
 "give_permission_unlimited" = "Unlimited";
-"hardware_wallet_backup_feature_description" = "New addresses will be generated for you inside your hardware wallet, ready for use and fully secure.";
+"hardware_wallet_backup_feature_description" = "Addresses are generated directly on your Tangem hardware wallet — ready to use and fully protected.";
 "hardware_wallet_backup_feature_title" = "New Addresses";
 "hardware_wallet_create_title" = "Add Tangem Wallet";
 "hardware_wallet_key_feature_description" = "Your private key will be generated directly inside the Tangem card and will never leave it.";
@@ -612,7 +612,7 @@
 "hw_upgrade_error_wallet2_card_required" = "An error occurred during the operation.";
 "hw_upgrade_funds_access_description" = "Your funds remain safe and fully accessible during the process";
 "hw_upgrade_funds_access_title" = "Access to funds";
-"hw_upgrade_general_security_description" = "After upgrading, your mobile wallet will be removed from the app and stored on your hardware wallet; your recovery phrase stays with you.";
+"hw_upgrade_general_security_description" = "After upgrading, your mobile wallet is removed from the app and stored on your Tangem hardware wallet. Your recovery phrase stays with you.";
 "hw_upgrade_general_security_title" = "General security";
 "hw_upgrade_key_migration_description" = "Private keys will be moved from the app to your Tangem hardware wallet";
 "hw_upgrade_key_migration_title" = "Key migration";
@@ -910,7 +910,7 @@
 "onboarding_wallet_info_title_fourth" = "Access code restore";
 "onboarding_wallet_info_title_second" = "Identical cards";
 "onboarding_wallet_info_title_third" = "Access code";
-"only_one_mobile_wallet_explanation" = "You can have either a mobile wallet or a hardware wallet at one time. Upgrade your wallet or delete it from the app to start using a Tangem cold wallet.";
+"only_one_mobile_wallet_explanation" = "You can only have one mobile wallet. Upgrade it to Tangem hardware wallet, or add a new hardware wallet.";
 "onramp_all_offers_button_title" = "All offers";
 "onramp_avaiable_with_payment_methods" = "Available with %@";
 "onramp_choose_provider_title_hint" = "Providers facilitate transactions";
@@ -1445,8 +1445,8 @@
 "tangempay_temporarily_unavailable" = "Tangem Pay è temporaneamente non disponibile";
 "tangempay_title" = "Tangem Pay";
 "tangempay_use_tangem_device_to_restore_payment_account" = "Fare clic sul pulsante in basso per ripristinare l'accesso";
-"tangempay_withdrawal_note_description" = "You can only withdraw USDC (Polygon) currently available on your on‑chain address balance, taking into account pending transactions. If you previously made a refund or cancelled a purchase, your crypto account balance will update within 2 business days.";
-"tangempay_withdrawal_note_title" = "Please note";
+"tangempay_withdrawal_note_description" = "Puoi prelevare solo USDC Polygon disponibili sul tuo indirizzo on-chain. Il saldo on-chain differisce dal saldo della carta e si aggiorna entro 2 giorni lavorativi dopo un acquisto (per rimborsi o transazioni annullate può richiedere fino a 14 giorni lavorativi).";
+"tangempay_withdrawal_note_title" = "Attenzione";
 "tangempay_your_pin_code" = "Il tuo codice PIN";
 "this_is_my_wallet_title" = "This is my wallet";
 "toast_balances_hidden" = "Balances hidden";
