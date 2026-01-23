@@ -440,17 +440,15 @@ private extension ExpressInteractor {
         let sender = try getSourceWallet()
         let amount = makeAmount(value: permissionRequired.quote.fromAmount, tokenItem: sender.tokenItem)
         let fee = permissionRequired.data.fee
-        let quote = try await map(quote: permissionRequired.quote)
-
-        let tokenFeeProvidersManager = try getTokenFeeProvidersManager(providerId: permissionRequired.provider.id)
-        let feeTokenItem = tokenFeeProvidersManager.selectedFeeProvider.feeTokenItem
-        let approveFee = ApproveInputFee(feeTokenItem: feeTokenItem, fee: fee)
+        let approveFee = ApproveInputFee(feeTokenItem: sender.feeTokenItem, fee: fee)
 
         let permissionRequiredState = PermissionRequiredState(
             policy: permissionRequired.policy,
             data: permissionRequired.data,
             fee: approveFee
         )
+
+        let quote = try await map(quote: permissionRequired.quote)
         let correctState: State = .permissionRequired(permissionRequiredState, context: context, quote: quote)
 
         return validate(amount: amount, fee: fee, correctState: correctState, in: context)
@@ -877,9 +875,18 @@ extension ExpressInteractor {
 
         var isAvailableToSendTransaction: Bool {
             switch self {
-            case .readyToSwap, .permissionRequired, .previewCEX:
+            case .readyToSwap, .previewCEX:
                 return true
-            case .idle, .loading, .restriction, .preloadRestriction, .requiredRefresh:
+            case .idle, .loading, .restriction, .preloadRestriction, .requiredRefresh, .permissionRequired:
+                return false
+            }
+        }
+
+        var isFeeRowVisible: Bool {
+            switch self {
+            case .restriction, .readyToSwap, .previewCEX:
+                return true
+            case .idle, .loading, .preloadRestriction, .requiredRefresh, .permissionRequired:
                 return false
             }
         }
@@ -966,16 +973,5 @@ extension ExpressInteractor {
         let data: ExpressTransactionData
         let fee: Fee
         let provider: ExpressProvider
-    }
-}
-
-// MARK: - ExpressFee.Option+
-
-extension ExpressFee.Option {
-    var feeOption: FeeOption {
-        switch self {
-        case .fast: .fast
-        case .market: .market
-        }
     }
 }
