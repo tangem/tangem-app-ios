@@ -10,6 +10,9 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 import TangemAccessibilityIdentifiers
+import os
+
+let _logger = Logger(subsystem: "com.app.example", category: "azaza")
 
 struct TokenItemView: View {
     @ObservedObject private var viewModel: TokenItemViewModel
@@ -107,6 +110,8 @@ struct TokenItemView: View {
         case .pendingTransaction:
             ProgressDots(style: .small)
         case .rewards(let rewardsInfo):
+            let _ = _logger.debug("got rewards for: \(viewModel.tokenItem, privacy: .public)")
+            let _ = AppLogger.debug("got rewards for: \(viewModel.tokenItem)")
             TokenItemEarnBadgeView(
                 rewardType: rewardsInfo.type,
                 rewardValue: rewardsInfo.rewardValue,
@@ -115,6 +120,8 @@ struct TokenItemView: View {
                 isUpdating: rewardsInfo.isUpdating
             )
         case .none:
+            let _ = _logger.debug("got none for: \(viewModel.tokenItem, privacy: .public)")
+            let _ = AppLogger.debug("got none for: \(viewModel.tokenItem)")
             EmptyView()
         }
     }
