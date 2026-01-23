@@ -111,6 +111,7 @@ extension DetailsCoordinator: DetailsRoutable {
         modalOnboardingCoordinator = coordinator
     }
 
+    // [REDACTED_TODO_COMMENT]
     func openAddWallet() {
         let dismissAction: Action<AddWalletSelectorCoordinator.OutputOptions> = { [weak self] options in
             switch options {

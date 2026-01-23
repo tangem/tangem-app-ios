@@ -14,16 +14,11 @@ import TangemPay
 final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityRepository {
     @Injected(\.userWalletRepository)
     private var userWalletRepository: UserWalletRepository
-
     private var _availableUserWalletModels = CurrentValueSubject<[UserWalletModel], Never>([])
-    private var _isTangemPayAvailable = CurrentValueSubject<Bool, Never>(false)
-    private var _shouldShowGetTangemPayBanner = CurrentValueSubject<Bool, Never>(
-        AppSettings.shared.tangemPayShouldShowGetBanner
-    )
 
     var isTangemPayAvailablePublisher: AnyPublisher<Bool, Never> {
-        _isTangemPayAvailable
-            .removeDuplicates()
+        AppSettings.shared
+            .$tangemPayIsEligibilityAvailable
             .eraseToAnyPublisher()
     }
 
@@ -50,30 +45,6 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
             .eraseToAnyPublisher()
     }
 
-    var isTangemPayAvailable: Bool {
-        _isTangemPayAvailable.value
-    }
-
-    var shouldShowGetTangemPayBanner: AnyPublisher<Bool, Never> {
-        Publishers
-            .CombineLatest3(
-                shouldShowGetTangemPay,
-                isTangemPayHiddenAnywhereOnce.map { !$0 },
-                _shouldShowGetTangemPayBanner
-            )
-            .map { $0 && $1 && $2 }
-            .removeDuplicates()
-            .eraseToAnyPublisher()
-    }
-
-    private var isTangemPayHiddenAnywhereOnce: AnyPublisher<Bool, Never> {
-        AppSettings.shared
-            .$tangemPayIsKYCHiddenForCustomerWalletId
-            .removeDuplicates()
-            .map { $0.contains(where: { $0.value }) }
-            .eraseToAnyPublisher()
-    }
-
     var shouldShowGetTangemPay: AnyPublisher<Bool, Never> {
         Publishers
             .CombineLatest4(
@@ -87,6 +58,14 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
             .eraseToAnyPublisher()
     }
 
+    private var isTangemPayHiddenAnywhereOnce: AnyPublisher<Bool, Never> {
+        AppSettings.shared
+            .$tangemPayIsKYCHiddenForCustomerWalletId
+            .removeDuplicates()
+            .map { $0.contains(where: { $0.value }) }
+            .eraseToAnyPublisher()
+    }
+
     private let availabilityService = TangemPayAvailabilityServiceBuilder().build()
 
     private var bag = Set<AnyCancellable>()
@@ -97,22 +76,48 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
         guard FeatureProvider.isAvailable(.tangemPayPermanentEntryPoint) else {
             return
         }
-        runTask(in: self) { repository in
-            do {
-                let isTangemPayAvailable = try await repository.availabilityService
-                    .loadEligibility()
-                    .isTangemPayAvailable
 
-                repository._isTangemPayAvailable.send(isTangemPayAvailable)
-            } catch {
-                VisaLogger.error("Failed to receive TangemPay availability", error: error)
+        if !AppSettings.shared.tangemPayIsEligibilityAvailable {
+            runTask(in: self) { repo in
+                await repo.requestEligibility()
             }
         }
     }
 
+    func shouldShowGetTangemPayBanner(for customerWalletId: String) -> AnyPublisher<Bool, Never> {
+        Publishers
+            .CombineLatest3(
+                shouldShowGetTangemPay,
+                isTangemPayHiddenAnywhereOnce.map { !$0 },
+                availableUserWalletModelsPublisher
+                    .map { $0.contains(where: { $0.userWalletId.stringValue == customerWalletId }) }
+            )
+            .map { $0 && $1 && $2 }
+            .eraseToAnyPublisher()
+    }
+
     func userDidCloseGetTangemPayBanner() {
-        _shouldShowGetTangemPayBanner.send(false)
         AppSettings.shared.tangemPayShouldShowGetBanner = false
+    }
+
+    @discardableResult
+    func requestEligibility() async -> Bool {
+        do {
+            let isTangemPayAvailable = try await availabilityService
+                .loadEligibility()
+                .isTangemPayAvailable
+
+            if isTangemPayAvailable {
+                await MainActor.run {
+                    AppSettings.shared.tangemPayIsEligibilityAvailable = true
+                }
+            }
+
+            return isTangemPayAvailable
+        } catch {
+            VisaLogger.error("Failed to receive TangemPay availability", error: error)
+            return false
+        }
     }
 
     private func isAvailableForTangemPay(
