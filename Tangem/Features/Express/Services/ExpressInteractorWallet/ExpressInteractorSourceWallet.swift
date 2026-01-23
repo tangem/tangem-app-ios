@@ -10,15 +10,11 @@ import TangemExpress
 import BlockchainSdk
 
 protocol ExpressInteractorSourceWallet: ExpressInteractorDestinationWallet, ExpressSourceWallet {
-    var id: WalletModelId { get }
-    var isCustom: Bool { get }
     var isMainToken: Bool { get }
 
     /// Applicable only for `TangemPay` because there is no fee for withdraw
     var isExemptFee: Bool { get }
 
-    var tokenHeader: ExpressInteractorTokenHeader? { get }
-    var tokenItem: TokenItem { get }
     var feeTokenItem: TokenItem { get }
 
     var defaultAddressString: String { get }
