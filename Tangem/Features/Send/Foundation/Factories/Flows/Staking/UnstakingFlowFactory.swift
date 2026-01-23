@@ -113,12 +113,12 @@ extension UnstakingFlowFactory: SendGenericFlowFactory {
         let amount = makeSendAmountStep()
         amount.amountUpdater.externalUpdate(amount: action.amount)
 
-        let feeCompactViewModel = FeeCompactViewModel()
+        let sendFeeCompactViewModel = SendFeeCompactViewModel()
         let sendFeeFinishViewModel = SendFeeFinishViewModel()
 
         let summary = makeSendSummaryStep(
             sendAmountCompactViewModel: amount.compact,
-            feeCompactViewModel: feeCompactViewModel,
+            sendFeeCompactViewModel: sendFeeCompactViewModel,
         )
 
         let finish = makeSendFinishStep(
@@ -128,7 +128,7 @@ extension UnstakingFlowFactory: SendGenericFlowFactory {
         )
 
         // Steps
-        feeCompactViewModel.bind(input: unstakingModel)
+        sendFeeCompactViewModel.bind(input: unstakingModel)
         sendFeeFinishViewModel.bind(input: unstakingModel)
 
         // Notifications setup
