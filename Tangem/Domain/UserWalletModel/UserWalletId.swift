@@ -7,9 +7,14 @@
 //
 
 import Foundation
+import TangemSdk
 import TangemFoundation
 
 extension UserWalletId {
+    var hashedStringValue: String {
+        value.sha256().hexString
+    }
+
     init?(cardInfo: CardInfo) {
         let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
         self.init(config: config)
