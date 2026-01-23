@@ -254,9 +254,16 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .assign(to: \.accountSections, on: self, ownership: .weak)
             .store(in: &bag)
 
-        let tokenItemPromoInputPublisher = plainSectionsPublisher
+        let tokenItemPromoInputPublisher = accountSectionsPublisher
             .eraseToAnyPublisher()
-            .map { $0.flatMap(\.items) }
+            .combineLatest(plainSectionsPublisher.eraseToAnyPublisher()) { accountSections, plainSections in
+                let flattenedAccountSectionsTokenItems = accountSections
+                    .flatMap(\.items)
+                    .flatMap(\.items)
+                    .nilIfEmpty
+
+                return flattenedAccountSectionsTokenItems ?? plainSections.flatMap(\.items)
+            }
             .mapMany { TokenItemPromoProviderInput(id: $0.id, tokenItem: $0.tokenItem) }
 
         tokenItemPromoProvider
