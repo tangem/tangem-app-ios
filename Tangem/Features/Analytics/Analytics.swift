@@ -84,6 +84,7 @@ class Analytics {
         log(
             event: event,
             params: params.mapValues { $0.rawValue },
+            analyticsSystems: analyticsSystems,
             contextParams: contextParams,
             limit: limit
         )
