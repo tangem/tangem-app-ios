@@ -81,6 +81,7 @@ extension AuthCoordinator: AuthRoutable {
 // MARK: - NewAuthRoutable
 
 extension AuthCoordinator: NewAuthRoutable {
+    // [REDACTED_TODO_COMMENT]
     func openAddWallet() {
         let dismissAction: Action<AddWalletSelectorCoordinator.OutputOptions> = { [weak self] options in
             switch options {

@@ -86,7 +86,7 @@ extension MobileUpgradeViewModel {
         )
 
         let backupTrait = TraitItem(
-            icon: Assets.Visa.securityCheck,
+            icon: Assets.Glyphs.tangemUpgrade,
             title: Localization.hwUpgradeBackupTitle,
             subtitle: Localization.hwUpgradeBackupDescription
         )
@@ -263,7 +263,7 @@ private extension MobileUpgradeViewModel {
         let cardInteractor = FactorySettingsResettingCardInteractor(with: cardInfo)
         let backupCardsCount = cardInfo.card.backupStatus?.backupCardsCount ?? 0
 
-        let resetUtil = ResetToFactoryUtilBuilder().build(
+        let resetUtil = ResetToFactoryUtilBuilder(flow: .upgrade).build(
             backupCardsCount: backupCardsCount,
             cardInteractor: cardInteractor
         )

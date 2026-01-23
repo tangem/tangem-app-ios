@@ -10,5 +10,6 @@ import Foundation
 
 protocol MobileFinishActivationNeededRoutable: AnyObject {
     func dismissMobileFinishActivationNeeded()
+    func openMobileBackup(userWalletModel: UserWalletModel)
     func openMobileBackupOnboarding(userWalletModel: UserWalletModel)
 }
