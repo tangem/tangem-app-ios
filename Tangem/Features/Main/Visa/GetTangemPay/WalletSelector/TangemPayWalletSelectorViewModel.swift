@@ -23,6 +23,10 @@ struct TangemPayWalletSelectorViewModel {
         dataSource = .init(onSelect: onSelect)
         walletSelectorViewModel = .init(dataSource: dataSource)
     }
+
+    func onAppear() {
+        Analytics.log(.visaOnboardingChooseWalletPopup)
+    }
 }
 
 extension TangemPayWalletSelectorViewModel: FloatingSheetContentViewModel {

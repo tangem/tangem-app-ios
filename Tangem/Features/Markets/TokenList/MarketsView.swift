@@ -15,6 +15,7 @@ import TangemUI
 import TangemUIUtils
 import TangemFoundation
 import TangemAccessibilityIdentifiers
+import TangemMacro
 
 struct MarketsView: View {
     @ObservedObject var viewModel: MarketsViewModel
@@ -304,6 +305,7 @@ private extension MarketsView {
 // MARK: - Auxiliary types
 
 extension MarketsView {
+    @CaseFlagable
     enum ListLoadingState: String, Identifiable, Hashable {
         case noResults
         case error
