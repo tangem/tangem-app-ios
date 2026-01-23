@@ -349,7 +349,7 @@ private extension NewAuthViewModel {
 
                 await MainActor.run {
                     viewModel.isCardScanning = false
-                    viewModel.openTroubleshooting()
+                    viewModel.openTroubleshooting(userWalletModel: userWalletModel)
                 }
 
             case .success(let cardInfo):
@@ -435,33 +435,6 @@ private extension NewAuthViewModel {
         )
 
         state?.show(scanTroubleshootingDialog: confirmationDialog, for: userWalletModel.userWalletId)
-    }
-
-    func openTroubleshooting() {
-        logScanCardTroubleshootingAnalytics()
-
-        let tryAgainButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonTryAgain) { [weak self] in
-            self?.scanCardTryAgain()
-        }
-
-        let readMoreButton = ConfirmationDialogViewModel.Button(title: Localization.commonReadMore) { [weak self] in
-            self?.openScanCardManual()
-        }
-
-        let requestSupportButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonRequestSupport) { [weak self] in
-            self?.openSupportRequest()
-        }
-
-        confirmationDialog = ConfirmationDialogViewModel(
-            title: Localization.alertTroubleshootingScanCardTitle,
-            subtitle: Localization.alertTroubleshootingScanCardMessage,
-            buttons: [
-                tryAgainButton,
-                readMoreButton,
-                requestSupportButton,
-                ConfirmationDialogViewModel.Button.cancel,
-            ]
-        )
     }
 
     func openScanCardManual() {

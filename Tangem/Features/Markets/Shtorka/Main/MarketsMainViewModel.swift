@@ -53,7 +53,6 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
     private let dataProvider = MarketsListDataProvider()
     private let chartsHistoryProvider = MarketsListChartsHistoryProvider()
     private let quotesUpdatesScheduler = MarketsQuotesUpdatesScheduler()
-    private let marketsNotificationsManager: MarketsNotificationsManager
 
     private var bag = Set<AnyCancellable>()
 
@@ -75,7 +74,6 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
         self.coordinator = coordinator
 
         headerViewModel = MainBottomSheetHeaderViewModel()
-        marketsNotificationsManager = MarketsNotificationsManager(dataProvider: dataProvider)
 
         tokenListViewModel = MarketsTokenListViewModel(
             listDataProvider: dataProvider,
