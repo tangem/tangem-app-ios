@@ -287,7 +287,11 @@ private extension NewAuthViewModel {
 // MARK: - Card unlocking
 
 private extension NewAuthViewModel {
-    func unlockWithCardTryAgain(userWalletModel: UserWalletModel) {
+    func unlockWithCardTryAgain(userWalletID: UserWalletId) {
+        guard let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId == userWalletID }) else {
+            return
+        }
+
         logScanCardTryAgainAnalytics()
         unlock(userWalletModel: userWalletModel)
     }
@@ -401,7 +405,13 @@ private extension NewAuthViewModel {
         logScanCardTroubleshootingAnalytics()
 
         let tryAgainButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonTryAgain) { [weak self] in
-            self?.scanCardTryAgain()
+            switch placement {
+            case .addWalletButton:
+                self?.scanCardTryAgain()
+
+            case .wallet(let userWalletID):
+                self?.unlockWithCardTryAgain(userWalletID: userWalletID)
+            }
         }
 
         let readMoreButton = ConfirmationDialogViewModel.Button(title: Localization.commonReadMore) { [weak self] in
