@@ -1445,7 +1445,7 @@
 "tangempay_temporarily_unavailable" = "Tangem Payは現在一時的に利用できません。";
 "tangempay_title" = "Tangem Pay";
 "tangempay_use_tangem_device_to_restore_payment_account" = "下のボタンをクリックしてアクセスを復元してください";
-"tangempay_withdrawal_note_description" = "現在引き出せるのは、保留中の取引分を差し引いたオンチェーンアドレス上のUSDC（Polygon）のみです。以前に返金や購入のキャンセルを行った場合、暗号資産アカウントの残高は2営業日以内に更新されます。";
+"tangempay_withdrawal_note_description" = "オンチェーンアドレスにある USDC Polygon のみ出金可能です。オンチェーン残高はカード残高とは異なり、購入後 2 営業日以内に更新されます（返金またはキャンセルされた取引の場合、最大 14 営業日かかることがあります）。";
 "tangempay_withdrawal_note_title" = "ご注意ください";
 "tangempay_your_pin_code" = "PINコード";
 "this_is_my_wallet_title" = "これは私のウォレットです";
