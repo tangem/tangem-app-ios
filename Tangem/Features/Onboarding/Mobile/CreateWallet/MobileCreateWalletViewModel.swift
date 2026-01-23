@@ -153,14 +153,19 @@ private extension MobileCreateWalletViewModel {
     func makeInfoItems() -> [InfoItem] {
         [
             InfoItem(
-                icon: Assets.cog24,
+                icon: Assets.lock24,
                 title: Localization.hwCreateKeysTitle,
                 subtitle: Localization.hwCreateKeysDescription
             ),
             InfoItem(
-                icon: Assets.lock24,
+                icon: Assets.Glyphs.secureDocument,
                 title: Localization.hwCreateSeedTitle,
                 subtitle: Localization.hwCreateSeedDescription
+            ),
+            InfoItem(
+                icon: Assets.Glyphs.tangemGlyph,
+                title: Localization.hwCreateUpgradeTitle,
+                subtitle: Localization.hwCreateUpgradeDescription
             ),
         ]
     }
