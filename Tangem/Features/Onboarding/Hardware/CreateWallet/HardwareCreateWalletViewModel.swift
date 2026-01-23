@@ -71,13 +71,13 @@ extension HardwareCreateWalletViewModel {
 extension HardwareCreateWalletViewModel {
     func makeInfoItems() -> [InfoItem] {
         let keyTrait = InfoItem(
-            icon: Assets.Glyphs.mobileSecurity,
+            icon: Assets.Glyphs.keySecurity,
             title: Localization.hardwareWalletKeyFeatureTitle,
             subtitle: Localization.hardwareWalletKeyFeatureDescription
         )
 
         let backupTrait = InfoItem(
-            icon: Assets.Visa.securityCheck,
+            icon: Assets.Glyphs.twinSparkles,
             title: Localization.hardwareWalletBackupFeatureTitle,
             subtitle: Localization.hardwareWalletBackupFeatureDescription
         )
