@@ -83,8 +83,8 @@ struct SendSummaryView: View {
 
     @ViewBuilder
     private var feeSectionView: some View {
-        if let feeCompactViewModel = viewModel.feeCompactViewModel {
-            FeeCompactView(viewModel: feeCompactViewModel, tapAction: viewModel.userDidTapFee)
+        if let sendFeeCompactViewModel = viewModel.sendFeeCompactViewModel {
+            SendFeeCompactView(viewModel: sendFeeCompactViewModel, tapAction: viewModel.userDidTapFee)
                 .accessibilityElement(children: .contain)
                 .accessibilityIdentifier(SendAccessibilityIdentifiers.networkFeeBlock)
         }
