@@ -1044,7 +1044,7 @@ private extension WalletOnboardingViewModel {
             cardInteractors.append(FactorySettingsResettingCardInteractor(with: $0.cardId))
         }
 
-        let resetUtil = ResetToFactoryUtilBuilder().build(cardInteractors: cardInteractors)
+        let resetUtil = ResetToFactoryUtilBuilder(flow: .reset).build(cardInteractors: cardInteractors)
 
         resetUtil.alertPublisher
             .receiveOnMain()
