@@ -505,23 +505,6 @@ extension EthereumWalletManager: TransactionFeeProvider {
     }
 }
 
-// MARK: - EthereumGaslessTransactionBroadcaster
-
-extension EthereumWalletManager: EthereumGaslessTransactionBroadcaster {
-    func broadcast(transaction: Transaction, compiledTransactionHex: String) async throws -> TransactionSendResult {
-        do {
-            let hash = try await networkService.send(transaction: compiledTransactionHex).async()
-            let mapper = PendingTransactionRecordMapper()
-            let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hash)
-            wallet.addPendingTransaction(record)
-
-            return TransactionSendResult(hash: hash, currentProviderHost: currentHost)
-        } catch {
-            throw SendTxError(error: error.toUniversalError(), tx: compiledTransactionHex)
-        }
-    }
-}
-
 // MARK: - GaslessTransactionFeeProvider
 
 extension EthereumWalletManager: GaslessTransactionFeeProvider {
