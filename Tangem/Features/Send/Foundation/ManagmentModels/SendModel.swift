@@ -611,6 +611,25 @@ extension SendModel: SendFeeInput {
             .flatMapLatest { $0.supportFeeSelectionPublisher }
             .eraseToAnyPublisher()
     }
+
+    var shouldShowFeeSelectorRow: AnyPublisher<Bool, Never> {
+        receiveTokenPublisher
+            .withWeakCaptureOf(self)
+            .flatMapLatest { $0.shouldShowFeeSelectorRow(token: $1) }
+            .eraseToAnyPublisher()
+    }
+
+    private func shouldShowFeeSelectorRow(token: SendReceiveTokenType) -> AnyPublisher<Bool, Never> {
+        switch token {
+        case .same:
+            return .just(output: true)
+        case .swap:
+            return swapManager.statePublisher
+                .filter { !$0.isRefreshRates }
+                .map { $0.isFeeRowVisible }
+                .eraseToAnyPublisher()
+        }
+    }
 }
 
 // MARK: - SendSummaryInput, SendSummaryOutput
