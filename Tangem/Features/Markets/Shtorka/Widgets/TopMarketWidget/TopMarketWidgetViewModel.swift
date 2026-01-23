@@ -25,7 +25,7 @@ final class TopMarketWidgetViewModel: ObservableObject {
 
     private let quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper
     private let widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler
-    private let analyticsService: MarketsWidgetAnalyticsProvider
+    private let analyticsService: TopMarketWidgetAnalyticsProvider
 
     private let filterProvider = MarketsListDataFilterProvider()
     private let dataProvider = MarketsListDataProvider()
@@ -41,7 +41,7 @@ final class TopMarketWidgetViewModel: ObservableObject {
         widgetType: MarketsWidgetType,
         widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler,
         quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper,
-        analyticsService: MarketsWidgetAnalyticsProvider,
+        analyticsService: TopMarketWidgetAnalyticsProvider,
         coordinator: TopMarketWidgetRoutable?
     ) {
         self.widgetType = widgetType
@@ -76,12 +76,7 @@ final class TopMarketWidgetViewModel: ObservableObject {
     }
 
     func onSeeAllTapAction() {
-        Analytics.log(
-            event: .marketsTokenListOpened,
-            params: [
-                .source: Analytics.ParameterValue.markets.rawValue,
-            ]
-        )
+        analyticsService.logTopMarketTokenListOpened()
 
         runTask(in: self) { @MainActor viewModel in
             viewModel.coordinator?.openSeeAllTopMarketWidget()
@@ -217,7 +212,7 @@ private extension TopMarketWidgetViewModel {
             tokenViewModelsState = .success(tokenViewModelsToAppend)
         case .failedToFetchData(let error):
             tokenViewModelsState = .failure(error)
-            analyticsService.logMarketsLoadError(error)
+            analyticsService.logTopMarketLoadError(error)
         case .loading, .startInitialFetch, .cleared:
             tokenViewModelsState = .loading
         case .idle:

@@ -45,7 +45,7 @@ final class PulseMarketWidgetViewModel: ObservableObject {
 
     private let quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper
     private let widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler
-    private let analyticsService: MarketsWidgetAnalyticsProvider
+    private let analyticsService: PulseMarketWidgetAnalyticsProvider
 
     private let filterProvider = MarketsListDataFilterProvider()
     private let dataProvider = MarketsListDataProvider()
@@ -61,7 +61,7 @@ final class PulseMarketWidgetViewModel: ObservableObject {
         widgetType: MarketsWidgetType,
         widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler,
         quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper,
-        analyticsService: MarketsWidgetAnalyticsProvider,
+        analyticsService: PulseMarketWidgetAnalyticsProvider,
         coordinator: PulseMarketWidgetRoutable?
     ) {
         self.widgetType = widgetType
@@ -99,19 +99,10 @@ final class PulseMarketWidgetViewModel: ObservableObject {
     func onSeeAllTapAction() {
         let currentFilter = filterProvider.currentFilterValue
 
-        Analytics.log(
-            event: .marketsTokenListOpened,
-            params: [
-                .source: Analytics.ParameterValue.marketPulse.rawValue,
-            ]
-        )
-
-        Analytics.log(
-            event: .marketsTokensSort,
-            params: [
-                .type: currentFilter.order.analyticsValue.capitalizingFirstLetter(),
-                .period: currentFilter.interval.rawValue,
-            ]
+        analyticsService.logPulseMarketTokenListOpened()
+        analyticsService.logTokensSort(
+            type: currentFilter.order.analyticsValue.capitalizingFirstLetter(),
+            period: currentFilter.interval.rawValue
         )
 
         runTask(in: self) { @MainActor viewModel in
@@ -196,7 +187,7 @@ private extension PulseMarketWidgetViewModel {
                 case .failedToFetchData(let error):
                     if viewModel.dataProvider.items.isEmpty {
                         viewModel.quotesUpdatesScheduler.cancelUpdates()
-                        viewModel.analyticsService.logMarketsLoadError(error)
+                        viewModel.analyticsService.logPulseMarketLoadError(error)
                     }
 
                     viewModel.widgetsUpdateHandler.performUpdateLoading(state: .error, for: viewModel.widgetType)
@@ -287,7 +278,7 @@ private extension PulseMarketWidgetViewModel {
             tokenViewModelsState = .success(tokenViewModelsToAppend)
         case .failedToFetchData(let error):
             tokenViewModelsState = .failure(error)
-            analyticsService.logMarketsLoadError(error)
+            analyticsService.logPulseMarketLoadError(error)
         case .loading, .startInitialFetch, .cleared:
             tokenViewModelsState = .loading
         case .idle:
