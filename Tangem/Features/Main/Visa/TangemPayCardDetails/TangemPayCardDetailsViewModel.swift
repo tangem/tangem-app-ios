@@ -41,14 +41,17 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
     }
 
     func copyNumber() {
+        Analytics.log(.visaScreenCopyCardNumberClicked)
         copyAction(copiedTextKeyPath: \.number, toastMessage: "Number copied")
     }
 
     func copyExpirationDate() {
+        Analytics.log(.visaScreenCopyCardExpiryClicked)
         copyAction(copiedTextKeyPath: \.expirationDate, toastMessage: "Expiration date copied")
     }
 
     func copyCVC() {
+        Analytics.log(.visaScreenCopyCardCVVClicked)
         copyAction(copiedTextKeyPath: \.cvc, toastMessage: "CVC copied")
     }
 
@@ -57,7 +60,7 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
             cardDetailsExposureTask?.cancel()
             return
         }
-
+        Analytics.log(.visaScreenViewCardDetailsClicked)
         toggleInteractive()
     }
 
