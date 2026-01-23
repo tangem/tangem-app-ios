@@ -54,6 +54,7 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
     private let chartsHistoryProvider = MarketsListChartsHistoryProvider()
     private let quotesUpdatesScheduler = MarketsQuotesUpdatesScheduler()
     private let marketsNotificationsManager: MarketsNotificationsManager
+    private let widgetAnalyticsService: MarketsWidgetAnalyticsProvider = CommonMarketsWidgetAnalyticsService()
 
     private var bag = Set<AnyCancellable>()
 
@@ -211,16 +212,9 @@ private extension MarketsMainViewModel {
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, state in
-                if case .allWidgetsWithError = state {
+                if case .allFailed = state {
                     viewModel.widgetsViewState = .error
-
-                    Analytics.log(
-                        event: .marketsAllWidgetsLoadError,
-                        params: [
-                            .errorCode: Analytics.ParameterValue.marketsErrorCodeIsNotHTTPError.rawValue,
-                            .errorMessage: "",
-                        ]
-                    )
+                    Analytics.log(.marketsAllWidgetsLoadError)
                 }
             }
             .store(in: &bag)
@@ -260,6 +254,7 @@ private extension MarketsMainViewModel {
                 widgetType: widgetModel.type,
                 widgetsUpdateHandler: widgetsUpdateHandler,
                 quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper,
+                analyticsService: widgetAnalyticsService,
                 coordinator: coordinator
             )
             contentItem = .top(viewModel)
@@ -267,6 +262,7 @@ private extension MarketsMainViewModel {
             let viewModel = NewsWidgetViewModel(
                 widgetType: widgetModel.type,
                 widgetsUpdateHandler: widgetsUpdateHandler,
+                analyticsService: widgetAnalyticsService,
                 coordinator: coordinator
             )
             contentItem = .news(viewModel)
@@ -277,7 +273,7 @@ private extension MarketsMainViewModel {
                 widgetType: widgetModel.type,
                 widgetsUpdateHandler: widgetsUpdateHandler,
                 quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper,
-
+                analyticsService: widgetAnalyticsService,
                 coordinator: coordinator
             )
             contentItem = .pulse(viewModel)

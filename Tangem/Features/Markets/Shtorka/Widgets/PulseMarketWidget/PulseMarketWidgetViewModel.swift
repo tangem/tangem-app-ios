@@ -20,7 +20,7 @@ final class PulseMarketWidgetViewModel: ObservableObject {
     @Published private(set) var tokenViewModelsState: LoadingResult<[MarketTokenItemViewModel], Error> = .loading
 
     var isNeedDisplayFilter: Bool {
-        !isFirstLoading && !tokenViewModelsState.isFailure
+        !isFirstLoading
     }
 
     var availabilityToSelectionOrderType: [MarketsListOrderType] {
@@ -45,6 +45,7 @@ final class PulseMarketWidgetViewModel: ObservableObject {
 
     private let quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper
     private let widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler
+    private let analyticsService: MarketsWidgetAnalyticsProvider
 
     private let filterProvider = MarketsListDataFilterProvider()
     private let dataProvider = MarketsListDataProvider()
@@ -60,11 +61,13 @@ final class PulseMarketWidgetViewModel: ObservableObject {
         widgetType: MarketsWidgetType,
         widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler,
         quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper,
+        analyticsService: MarketsWidgetAnalyticsProvider,
         coordinator: PulseMarketWidgetRoutable?
     ) {
         self.widgetType = widgetType
         self.widgetsUpdateHandler = widgetsUpdateHandler
         self.quotesRepositoryUpdateHelper = quotesRepositoryUpdateHelper
+        self.analyticsService = analyticsService
         self.coordinator = coordinator
 
         marketCapFormatter = .init(
@@ -89,8 +92,6 @@ final class PulseMarketWidgetViewModel: ObservableObject {
     // MARK: - Public Implementation
 
     func tryLoadAgain() {
-        isFirstLoading = true
-        tokenViewModelsState = .loading
         dataProvider.reset()
         fetch(by: filterProvider.currentFilterValue)
     }
@@ -189,28 +190,17 @@ private extension PulseMarketWidgetViewModel {
                 switch newEvent {
                 case .loading:
                     if case .failedToFetchData = oldEvent { return }
-                    viewModel.tokenViewModelsState = .loading
                     viewModel.widgetsUpdateHandler.performUpdateLoading(state: .loading, for: viewModel.widgetType)
                 case .idle:
                     break
                 case .failedToFetchData(let error):
                     if viewModel.dataProvider.items.isEmpty {
                         viewModel.quotesUpdatesScheduler.cancelUpdates()
-
-                        let analyticsParams = error.marketsAnalyticsParams
-                        Analytics.log(
-                            event: .marketsMarketsLoadError,
-                            params: [
-                                .errorCode: analyticsParams[.errorCode] ?? "",
-                                .errorMessage: analyticsParams[.errorMessage] ?? "",
-                            ]
-                        )
+                        viewModel.analyticsService.logMarketsLoadError(error)
                     }
 
-                    viewModel.tokenViewModelsState = .failure(error)
                     viewModel.widgetsUpdateHandler.performUpdateLoading(state: .error, for: viewModel.widgetType)
                 case .startInitialFetch, .cleared:
-                    viewModel.tokenViewModelsState = .loading
                     viewModel.widgetsUpdateHandler.performUpdateLoading(state: .loading, for: viewModel.widgetType)
                     viewModel.quotesUpdatesScheduler.saveQuotesUpdateDate(Date())
 
@@ -254,13 +244,19 @@ private extension PulseMarketWidgetViewModel {
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, state in
-                if case .readyForDisplay = state, viewModel.dataProvider.lastEvent.isAppendedItems {
-                    let items = viewModel.dataProvider.items.prefix(Constants.itemsOnListWidget)
-                    let tokenViewModelsToAppend = viewModel.mapToItemViewModel(Array(items), offset: 0)
-                    viewModel.tokenViewModelsState = .success(tokenViewModelsToAppend)
+                switch state {
+                case .loaded:
+                    viewModel.mapReadyForDisplay()
+                    viewModel.clearIsFirstLoadingFlag()
+                case .initialLoading:
+                    viewModel.tokenViewModelsState = .loading
+                case .reloading(let widgetTypes):
+                    if widgetTypes.contains(viewModel.widgetType) {
+                        viewModel.tokenViewModelsState = .loading
+                    }
+                case .allFailed:
+                    return
                 }
-
-                viewModel.clearIsFirstLoadingFlag()
             }
             .store(in: &bag)
     }
@@ -279,6 +275,24 @@ private extension PulseMarketWidgetViewModel {
                 self?.onTokenTapAction(with: tokenItemModel)
             }
         )
+    }
+
+    // MARK: - Map Widget States
+
+    func mapReadyForDisplay() {
+        switch dataProvider.lastEvent {
+        case .appendedItems:
+            let items = dataProvider.items.prefix(Constants.itemsOnListWidget)
+            let tokenViewModelsToAppend = mapToItemViewModel(Array(items), offset: 0)
+            tokenViewModelsState = .success(tokenViewModelsToAppend)
+        case .failedToFetchData(let error):
+            tokenViewModelsState = .failure(error)
+            analyticsService.logMarketsLoadError(error)
+        case .loading, .startInitialFetch, .cleared:
+            tokenViewModelsState = .loading
+        case .idle:
+            break
+        }
     }
 
     // MARK: - Actions
