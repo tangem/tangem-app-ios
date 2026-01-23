@@ -113,7 +113,7 @@ extension NFTFlowFactory: SendGenericFlowFactory {
         let summary = makeSendSummaryStep(
             sendDestinationCompactViewModel: destination.compact,
             nftAssetCompactViewModel: nftAssetCompactViewModel,
-            feeCompactViewModel: fee.compact
+            sendFeeCompactViewModel: fee.compact
         )
 
         let finish = makeSendFinishStep(
