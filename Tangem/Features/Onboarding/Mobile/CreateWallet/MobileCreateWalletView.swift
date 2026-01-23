@@ -47,6 +47,8 @@ private extension MobileCreateWalletView {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(spacing: 0) {
                 Assets.MobileWallet.mobileWalletWithoutFrame.image
+                    .renderingMode(.template)
+                    .foregroundColor(Colors.Icon.secondary)
 
                 Text(viewModel.title)
                     .style(Fonts.Bold.title1, color: Colors.Text.primary1)
@@ -77,6 +79,10 @@ private extension MobileCreateWalletView {
                     .frame(width: 42)
 
                 item.icon.image
+                    .resizable()
+                    .renderingMode(.template)
+                    .foregroundColor(Colors.Icon.primary1)
+                    .frame(width: 24, height: 24)
             }
 
             VStack(alignment: .leading, spacing: 4) {
