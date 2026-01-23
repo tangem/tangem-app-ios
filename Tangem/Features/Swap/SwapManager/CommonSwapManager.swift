@@ -82,11 +82,17 @@ extension CommonSwapManager: SwapManager {
         interactor.update(amount: amount, by: .amountChange)
     }
 
-    func update(destination: TokenItem?, address: String?, accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?) {
+    func update(
+        destination: TokenItem?,
+        address: String?,
+        tokenHeader: ExpressInteractorTokenHeader?,
+        accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
+    ) {
         let destinationWallet = destination.map {
             SwapDestinationWalletWrapper(
                 tokenItem: $0,
                 address: address,
+                tokenHeader: tokenHeader,
                 accountModelAnalyticsProvider: accountModelAnalyticsProvider
             )
         }
