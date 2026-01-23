@@ -3958,6 +3958,8 @@
 		EF42FC742D9571B3009CBB22 /* Wallet.PublicKey+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF42FC732D9571B3009CBB22 /* Wallet.PublicKey+.swift */; };
 		EF435A052C2B124A00B627EB /* SendDestinationInputOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF435A042C2B124A00B627EB /* SendDestinationInputOutput.swift */; };
 		EF435A072C2B1F2300B627EB /* SendDestinationTransactionHistoryProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF435A062C2B1F2300B627EB /* SendDestinationTransactionHistoryProvider.swift */; };
+		EF440EF72F2384C4005D20C3 /* SendFeeCompactViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF440EF62F2384C4005D20C3 /* SendFeeCompactViewModel.swift */; };
+		EF440EF92F2384E5005D20C3 /* SendFeeCompactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF440EF82F2384E5005D20C3 /* SendFeeCompactView.swift */; };
 		EF455BA02E13DB5D005660C4 /* EVMCustomFeeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF455B9F2E13DB5D005660C4 /* EVMCustomFeeService.swift */; };
 		EF46621B2924DEEE00346B6C /* DefaultHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4662102924DEEE00346B6C /* DefaultHeaderView.swift */; };
 		EF46621C2924DEEE00346B6C /* DefaultFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4662112924DEEE00346B6C /* DefaultFooterView.swift */; };
@@ -8704,6 +8706,8 @@
 		EF42FC732D9571B3009CBB22 /* Wallet.PublicKey+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Wallet.PublicKey+.swift"; sourceTree = "<group>"; };
 		EF435A042C2B124A00B627EB /* SendDestinationInputOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDestinationInputOutput.swift; sourceTree = "<group>"; };
 		EF435A062C2B1F2300B627EB /* SendDestinationTransactionHistoryProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDestinationTransactionHistoryProvider.swift; sourceTree = "<group>"; };
+		EF440EF62F2384C4005D20C3 /* SendFeeCompactViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFeeCompactViewModel.swift; sourceTree = "<group>"; };
+		EF440EF82F2384E5005D20C3 /* SendFeeCompactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFeeCompactView.swift; sourceTree = "<group>"; };
 		EF455B9F2E13DB5D005660C4 /* EVMCustomFeeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EVMCustomFeeService.swift; sourceTree = "<group>"; };
 		EF4662102924DEEE00346B6C /* DefaultHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultHeaderView.swift; sourceTree = "<group>"; };
 		EF4662112924DEEE00346B6C /* DefaultFooterView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultFooterView.swift; sourceTree = "<group>"; };
@@ -18785,6 +18789,7 @@
 				EF93AF9C2F1A9D4D0090EC3C /* SendFeeSelectorBuilder.swift */,
 				EF82F80F2EAFA674006A46BB /* IO */,
 				EF2C5A5E2F0C268D009F1B96 /* SendFeeSelectorView */,
+				EF440EFA2F2384F0005D20C3 /* SendFeeCompactView */,
 				EF066AA72E4C8C380026CEF8 /* SendFeeFinishView */,
 				EFE0D5D62E095D4500936D4F /* SendFeeUpdater */,
 			);
@@ -22781,6 +22786,15 @@
 			path = Mocks;
 			sourceTree = "<group>";
 		};
+		EF440EFA2F2384F0005D20C3 /* SendFeeCompactView */ = {
+			isa = PBXGroup;
+			children = (
+				EF440EF82F2384E5005D20C3 /* SendFeeCompactView.swift */,
+				EF440EF62F2384C4005D20C3 /* SendFeeCompactViewModel.swift */,
+			);
+			path = SendFeeCompactView;
+			sourceTree = "<group>";
+		};
 		EF46620F2924DEEE00346B6C /* DefaultListViews */ = {
 			isa = PBXGroup;
 			children = (
@@ -26437,6 +26451,7 @@
 				DC1DA92E2D554356003638ED /* OverlayContentContainerAppLifecycleHelper.swift in Sources */,
 				0A917D802D4A1EF4008A3C8F /* CommonStakeKitTransactionStatusProvider.swift in Sources */,
 				DC66BBE52858EB6300CDF765 /* OnboardingCoordinator.swift in Sources */,
+				EF440EF72F2384C4005D20C3 /* SendFeeCompactViewModel.swift in Sources */,
 				DA7BB0092E991F8E001116F2 /* TangemPayAccountViewModel.swift in Sources */,
 				EF700D6E2DF9C9E000C95113 /* SendReceiveTokenBuilder.swift in Sources */,
 				B012A11C2AA617000079BAB4 /* NotificationManager.swift in Sources */,
@@ -28946,6 +28961,7 @@
 				EFEEB47C2EBE4B62000B5154 /* SendTokenHeaderView.swift in Sources */,
 				DC0003512DC2090600305FB6 /* WalletConnectCryptoProvider.swift in Sources */,
 				2DB43917296EBC6000CBBB1E /* AppsFlyerConfig.swift in Sources */,
+				EF440EF92F2384E5005D20C3 /* SendFeeCompactView.swift in Sources */,
 				EA9B03A52E9431B200F4B40D /* YieldModuleTokenInfo.swift in Sources */,
 				EF7B9CEF286C6BD7004C33A9 /* CardSettingsView.swift in Sources */,
 				3096BFEB2EC5DC0900D92846 /* AccountsFeatureAwareWalletModelsResolver.swift in Sources */,
