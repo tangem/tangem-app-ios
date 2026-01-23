@@ -11,6 +11,24 @@ import CombineExt
 import BlockchainSdk
 import TangemSdk
 import TangemFoundation
+import func QuartzCore.CACurrentMediaTime // [REDACTED_TODO_COMMENT]
+
+// [REDACTED_TODO_COMMENT]
+actor Test {
+    var counter = 0
+
+    func increment() {
+        counter += 1
+    }
+
+    func decrement() {
+        counter -= 1
+    }
+
+    func getCounter() -> Int {
+        return counter
+    }
+}
 
 class CommonWalletModelsManager {
     private let walletManagersRepository: WalletManagersRepository
@@ -126,20 +144,26 @@ class CommonWalletModelsManager {
 
     /// Must be stateless, therefore it's static.
     private static func updateAllInternal(silent: Bool, walletModels: [any WalletModel]) async {
+        let test = Test()
         let maxConcurrentUpdates = 5
         let count = walletModels.count
 
         await withTaskGroup(of: Void.self) { group in
             for index in 0 ..< count {
+                _ = print("\(#function) called at \(CACurrentMediaTime()) with: before, loop \(index), counter: \(await test.getCounter())")
                 // Maintain a sliding window of concurrent updates with a maximum size of `maxConcurrentUpdates`
                 if index >= maxConcurrentUpdates {
+                    await test.decrement()
                     await group.next()
                 }
                 _ = group.addTaskUnlessCancelled {
+                    await test.increment()
                     await walletModels[index].update(silent: silent, features: .balances)
                 }
+                _ = print("\(#function) called at \(CACurrentMediaTime()) with: after, loop \(index), counter: \(await test.getCounter())")
             }
             await group.waitForAll()
+            _ = print("\(#function) called at \(CACurrentMediaTime()) with: finish, counter: \(await test.getCounter())")
         }
     }
 }
