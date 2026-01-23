@@ -84,6 +84,7 @@ class Analytics {
         log(
             event: event,
             params: params.mapValues { $0.rawValue },
+            analyticsSystems: analyticsSystems,
             contextParams: contextParams,
             limit: limit
         )
@@ -213,6 +214,14 @@ class Analytics {
             case .appsFlyer:
                 let convertedEvent = AppsFlyerAnalyticsEventConverter.convert(event: event)
                 let convertedParams = AppsFlyerAnalyticsEventConverter.convert(params: params)
+
+                let printableParams: [String: String] = convertedParams.reduce(into: [:]) { $0[$1.key] = String(describing: $1.value) }
+                if let data = try? JSONSerialization.data(withJSONObject: printableParams, options: .sortedKeys),
+                   let paramsString = String(data: data, encoding: .utf8)?.replacingOccurrences(of: ",\"", with: ", \"") {
+                    let logMessage = "Analytics event [appsflyer]: \(event). Params: \(paramsString)"
+                    AnalyticsLogger.info(logMessage)
+                }
+
                 AppsFlyerLib.shared().logEvent(name: convertedEvent, values: convertedParams, completionHandler: { params, error in
                     if let error {
                         AnalyticsLogger.error(params, error: error)
