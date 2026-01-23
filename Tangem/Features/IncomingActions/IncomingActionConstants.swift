@@ -32,6 +32,8 @@ enum IncomingActionConstants {
         static let entry = "entry"
         static let id = "id"
         static let promoCode = "promo_code"
+        static let refcode = "ref"
+        static let campaign = "campaign"
     }
 
     enum DeeplinkDestination: String, CaseIterable {
