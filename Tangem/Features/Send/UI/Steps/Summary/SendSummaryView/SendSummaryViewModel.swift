@@ -15,7 +15,7 @@ class SendSummaryViewModel: ObservableObject, Identifiable {
     @Published private(set) var nftAssetCompactViewModel: NFTAssetCompactViewModel?
     @Published private(set) var sendDestinationCompactViewModel: SendDestinationCompactViewModel?
     @Published private(set) var stakingTargetsCompactViewModel: StakingTargetsCompactViewModel?
-    @Published private(set) var feeCompactViewModel: FeeCompactViewModel?
+    @Published private(set) var sendFeeCompactViewModel: SendFeeCompactViewModel?
 
     let destinationEditableType: Settings.EditableType
     let amountEditableType: Settings.EditableType
@@ -43,7 +43,7 @@ class SendSummaryViewModel: ObservableObject, Identifiable {
         nftAssetCompactViewModel: NFTAssetCompactViewModel?,
         sendDestinationCompactViewModel: SendDestinationCompactViewModel?,
         stakingTargetsCompactViewModel: StakingTargetsCompactViewModel?,
-        feeCompactViewModel: FeeCompactViewModel?
+        sendFeeCompactViewModel: SendFeeCompactViewModel?
     ) {
         self.interactor = interactor
         destinationEditableType = settings.destinationEditableType
@@ -54,7 +54,7 @@ class SendSummaryViewModel: ObservableObject, Identifiable {
         self.nftAssetCompactViewModel = nftAssetCompactViewModel
         self.sendDestinationCompactViewModel = sendDestinationCompactViewModel
         self.stakingTargetsCompactViewModel = stakingTargetsCompactViewModel
-        self.feeCompactViewModel = feeCompactViewModel
+        self.sendFeeCompactViewModel = sendFeeCompactViewModel
 
         sendAmountCompactViewModel?.router = self
 
