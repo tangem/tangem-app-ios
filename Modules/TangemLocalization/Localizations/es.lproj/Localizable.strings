@@ -910,7 +910,7 @@
 "onboarding_wallet_info_title_fourth" = "Restaurar código de acceso";
 "onboarding_wallet_info_title_second" = "Tarjetas idénticas";
 "onboarding_wallet_info_title_third" = "Código de acceso";
-"only_one_mobile_wallet_explanation" = "You can have either a mobile wallet or a hardware wallet at one time. Upgrade your wallet or delete it from the app to start using a Tangem cold wallet.";
+"only_one_mobile_wallet_explanation" = "You can only have one mobile wallet. Upgrade it to Tangem hardware wallet, or add a new hardware wallet.";
 "onramp_all_offers_button_title" = "Todas las ofertas";
 "onramp_avaiable_with_payment_methods" = "Disponible con %@";
 "onramp_choose_provider_title_hint" = "La compra de criptomonedas en Tangem se lleva a cabo utilizando proveedores externos.";
@@ -1445,8 +1445,8 @@
 "tangempay_temporarily_unavailable" = "Tangem Pay temporalmente no disponible";
 "tangempay_title" = "Tangem Pay";
 "tangempay_use_tangem_device_to_restore_payment_account" = "Haga clic en el botón de abajo para restaurar el acceso";
-"tangempay_withdrawal_note_description" = "You can only withdraw USDC (Polygon) currently available on your on‑chain address balance, taking into account pending transactions. If you previously made a refund or cancelled a purchase, your crypto account balance will update within 2 business days.";
-"tangempay_withdrawal_note_title" = "Please note";
+"tangempay_withdrawal_note_description" = "Solo puedes retirar USDC Polygon disponibles en tu dirección on-chain. El saldo on-chain difiere del saldo de tu tarjeta y se actualiza en 2 días hábiles después de una compra (para reembolsos o transacciones canceladas puede tomar hasta 14 días hábiles).";
+"tangempay_withdrawal_note_title" = "Tenga en cuenta";
 "tangempay_your_pin_code" = "Tu código PIN";
 "this_is_my_wallet_title" = "Esta es mi billetera";
 "toast_balances_hidden" = "Saldos ocultos";
