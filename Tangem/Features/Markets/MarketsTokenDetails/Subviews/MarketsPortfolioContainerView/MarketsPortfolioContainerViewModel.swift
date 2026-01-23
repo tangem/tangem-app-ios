@@ -111,12 +111,15 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
 
             for network in networks {
                 if let supportedBlockchain = supportedBlockchains[network.networkId] {
-                    if network.contractAddress == nil {
-                        return .available
-                    }
-
                     // searchable network is token
-                    if supportedBlockchain.canHandleTokens {
+                    if let contractAddress = network.contractAddress {
+                        if SupportedTokensFilter.canHandleToken(
+                            contractAddress: contractAddress,
+                            blockchain: supportedBlockchain
+                        ) {
+                            return .available
+                        }
+                    } else {
                         return .available
                     }
                 }
