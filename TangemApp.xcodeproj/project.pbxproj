@@ -21,6 +21,7 @@
 		0A0DEF4F2EBC8990006007FA /* TangemPayAddToAppPayGuideViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0DEF4E2EBC8990006007FA /* TangemPayAddToAppPayGuideViewModel.swift */; };
 		0A0E01772C64AA79009E01F2 /* StakingAmountValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0E01762C64AA79009E01F2 /* StakingAmountValidator.swift */; };
 		0A1396EB2D7AF67500CA6A31 /* StakingTargetInfoStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1396EA2D7AF67500CA6A31 /* StakingTargetInfoStatus.swift */; };
+		0A14C5CB2F23A619006F5AA5 /* SendDestinationWalletDataFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A14C5CA2F23A619006F5AA5 /* SendDestinationWalletDataFactory.swift */; };
 		0A16965B2E4DFCA400FBDA90 /* SignInAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A16965A2E4DFCA400FBDA90 /* SignInAnalyticsLogger.swift */; };
 		0A1992A62B5FBDF800344312 /* CurrencyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1992A52B5FBDF800344312 /* CurrencyTests.swift */; };
 		0A22617E2D9588E7004DC848 /* CardanoAddressResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A22617D2D9588E7004DC848 /* CardanoAddressResponse.swift */; };
@@ -4800,6 +4801,7 @@
 		0A0DEF4E2EBC8990006007FA /* TangemPayAddToAppPayGuideViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemPayAddToAppPayGuideViewModel.swift; sourceTree = "<group>"; };
 		0A0E01762C64AA79009E01F2 /* StakingAmountValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAmountValidator.swift; sourceTree = "<group>"; };
 		0A1396EA2D7AF67500CA6A31 /* StakingTargetInfoStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingTargetInfoStatus.swift; sourceTree = "<group>"; };
+		0A14C5CA2F23A619006F5AA5 /* SendDestinationWalletDataFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDestinationWalletDataFactory.swift; sourceTree = "<group>"; };
 		0A16965A2E4DFCA400FBDA90 /* SignInAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInAnalyticsLogger.swift; sourceTree = "<group>"; };
 		0A1992A52B5FBDF800344312 /* CurrencyTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrencyTests.swift; sourceTree = "<group>"; };
 		0A22617D2D9588E7004DC848 /* CardanoAddressResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardanoAddressResponse.swift; sourceTree = "<group>"; };
@@ -24766,6 +24768,7 @@
 		EFBC4EE62E815F6E0080271D /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				0A14C5CA2F23A619006F5AA5 /* SendDestinationWalletDataFactory.swift */,
 				EF3F75512E32608300334E51 /* SendDestinationExternalUpdater.swift */,
 				EF70A4072C1714A100805D9F /* SendDestinationValidator.swift */,
 				EF435A062C2B1F2300B627EB /* SendDestinationTransactionHistoryProvider.swift */,
@@ -29056,6 +29059,7 @@
 				EF341C802ECCE7A8000F8C35 /* ExpressCEXTransactionProcessor.swift in Sources */,
 				2D245DE72E97E9BD006AD2DC /* MarketsPricePerformanceData.swift in Sources */,
 				2D245DE82E97E9BD006AD2DC /* MarketsDTO.swift in Sources */,
+				0A14C5CB2F23A619006F5AA5 /* SendDestinationWalletDataFactory.swift in Sources */,
 				2D245DE92E97E9BD006AD2DC /* MarketsTokenHistoryChartMapper.swift in Sources */,
 				EF0E1DA62CE3A222003D47AA /* OnrampRedirectingInputOutput.swift in Sources */,
 				EF5D83DB2B0B7A2B00516B5F /* ExpressSuccessSentRoutable.swift in Sources */,

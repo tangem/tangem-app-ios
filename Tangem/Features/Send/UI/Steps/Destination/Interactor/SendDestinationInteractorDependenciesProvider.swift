@@ -22,7 +22,7 @@ class SendDestinationInteractorDependenciesProvider {
         case .same:
             return sendingWalletData.suggestedWallets
         case .swap(let receiveToken):
-            return makeSuggestedWalletsForReceiveToken(receiveToken)
+            return receivingWalletData?.suggestedWallets ?? []
         }
     }
 
@@ -31,18 +31,25 @@ class SendDestinationInteractorDependenciesProvider {
     }
 
     private let sendingWalletData: SendingWalletData
+    private var receivingWalletData: SendingWalletData?
+    
+    private let walletDataFactory: SendDestinationWalletDataFactory
     private var receivedTokenType: SendReceiveTokenType
 
     init(
         receivedTokenType: SendReceiveTokenType,
-        sendingWalletData: SendingWalletData
+        sendingWalletData: SendingWalletData,
+        walletDataFactory: SendDestinationWalletDataFactory
     ) {
         self.receivedTokenType = receivedTokenType
         self.sendingWalletData = sendingWalletData
+        self.walletDataFactory = walletDataFactory
     }
 
     func update(receivedTokenType: SendReceiveTokenType) {
         self.receivedTokenType = receivedTokenType
+
+        receivingWalletData = makeReceiveTokenWalletData(for: receivedTokenType.tokenItem)
 
         validator = makeValidator()
         addressResolver = makeAddressResolver()
@@ -82,7 +89,7 @@ private extension SendDestinationInteractorDependenciesProvider {
         case .same:
             return sendingWalletData.destinationTransactionHistoryProvider
         case .swap(let receiveToken):
-            return makeTransactionHistoryProviderForReceiveToken(receiveToken)
+            return receivingWalletData?.destinationTransactionHistoryProvider ?? EmptySendDestinationTransactionHistoryProvider()
         }
     }
 
@@ -94,29 +101,18 @@ private extension SendDestinationInteractorDependenciesProvider {
         sendingWalletData.analyticsLogger
     }
 
-    private func makeSuggestedWalletsForReceiveToken(_ receiveToken: SendReceiveToken) -> [SendDestinationSuggestedWallet] {
-        guard let walletModel = findWalletModel(for: receiveToken.tokenItem) else {
-            return []
+    private func makeReceiveTokenWalletData(for tokenItem: TokenItem) -> SendingWalletData? {
+        // Find wallet model and create new wallet data
+        guard let walletModel = findWalletModel(for: tokenItem) else {
+            return nil
         }
 
-        return SendSuggestedWalletsFactory().makeSuggestedWallets(walletModel: walletModel)
-    }
-
-    private func makeTransactionHistoryProviderForReceiveToken(_ receiveToken: SendReceiveToken) -> SendDestinationTransactionHistoryProvider {
-        guard let walletModel = findWalletModel(for: receiveToken.tokenItem) else {
-            return EmptySendDestinationTransactionHistoryProvider()
-        }
-
-        let walletAddresses = walletModel.addresses.map(\.value)
-        return CommonSendDestinationTransactionHistoryProvider(
-            transactionHistoryUpdater: walletModel,
-            transactionHistoryMapper: TransactionHistoryMapper(
-                currencySymbol: receiveToken.tokenItem.currencySymbol,
-                walletAddresses: walletAddresses,
-                showSign: false,
-                isToken: receiveToken.tokenItem.isToken
-            )
+        let walletData = walletDataFactory.makeWalletData(
+            walletModel: walletModel,
+            analyticsLogger: sendingWalletData.analyticsLogger
         )
+
+        return walletData
     }
 
     private func findWalletModel(for tokenItem: TokenItem) -> (any WalletModel)? {

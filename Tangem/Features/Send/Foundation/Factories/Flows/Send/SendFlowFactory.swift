@@ -31,12 +31,15 @@ class SendFlowFactory: SendFlowBaseDependenciesFactory {
     let suggestedWallets: [SendDestinationSuggestedWallet]
     let analyticsLogger: SendAnalyticsLogger
 
+    private let sourceWalletModel: any WalletModel
+
     lazy var swapManager = makeSwapManager()
     lazy var sendModel = makeSendWithSwapModel(swapManager: swapManager, analyticsLogger: analyticsLogger, predefinedValues: .init())
     lazy var notificationManager = makeSendWithSwapNotificationManager(receiveTokenInput: sendModel)
 
     init(userWalletInfo: UserWalletInfo, walletModel: any WalletModel) {
         self.userWalletInfo = userWalletInfo
+        sourceWalletModel = walletModel
 
         tokenHeaderProvider = SendTokenHeaderProvider(
             userWalletInfo: userWalletInfo,
@@ -234,22 +237,16 @@ extension SendFlowFactory: SendDestinationStepBuildable {
         receiveTokenInput: SendReceiveTokenInput,
         analyticsLogger: any SendDestinationAnalyticsLogger
     ) -> SendDestinationInteractorDependenciesProvider {
-        SendDestinationInteractorDependenciesProvider(
+        let walletDataFactory = SendDestinationWalletDataFactory()
+        let sendingWalletData = walletDataFactory.makeWalletData(
+            walletModel: sourceWalletModel,
+            analyticsLogger: analyticsLogger
+        )
+
+        return SendDestinationInteractorDependenciesProvider(
             receivedTokenType: receiveTokenInput.receiveToken,
-            sendingWalletData: .init(
-                walletAddresses: walletAddresses,
-                suggestedWallets: suggestedWallets,
-                destinationTransactionHistoryProvider: CommonSendDestinationTransactionHistoryProvider(
-                    transactionHistoryUpdater: walletModelHistoryUpdater,
-                    transactionHistoryMapper: TransactionHistoryMapper(
-                        currencySymbol: tokenItem.currencySymbol,
-                        walletAddresses: walletAddresses,
-                        showSign: false,
-                        isToken: tokenItem.isToken
-                    )
-                ),
-                analyticsLogger: analyticsLogger
-            )
+            sendingWalletData: sendingWalletData,
+            walletDataFactory: walletDataFactory
         )
     }
 }
