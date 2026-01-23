@@ -118,6 +118,10 @@ struct TangemApiTarget: TargetType {
             return "/wallets/\(userWalletId)/accounts"
         case .getArchivedUserAccounts(let userWalletId):
             return "/wallets/\(userWalletId)/accounts/archived"
+
+        // MARK: - Referral 2.0
+        case .bindWalletsByCode:
+            return "/referral/bind-wallets-by-code"
         }
     }
 
@@ -163,7 +167,8 @@ struct TangemApiTarget: TargetType {
              .createAccount,
              .createUserWalletsApplication,
              .activatePromoCode,
-             .createWallet:
+             .createWallet,
+             .bindWalletsByCode:
             return .post
         case .resetAward:
             return .delete
@@ -281,6 +286,10 @@ struct TangemApiTarget: TargetType {
             return .requestJSONEncodable(accounts)
         case .getArchivedUserAccounts:
             return .requestPlain
+
+        // MARK: - Referral 2.0
+        case .bindWalletsByCode(let requestModel):
+            return .requestJSONEncodable(requestModel)
         }
     }
 
@@ -331,7 +340,8 @@ struct TangemApiTarget: TargetType {
              .connectUserWallets,
              .getUserAccounts,
              .getArchivedUserAccounts,
-             .createWallet:
+             .createWallet,
+             .bindWalletsByCode:
             return nil
         }
     }
@@ -404,6 +414,9 @@ extension TangemApiTarget {
         case getUserAccounts(userWalletId: String)
         case saveUserAccounts(userWalletId: String, revision: String, accounts: AccountsDTO.Request.Accounts)
         case getArchivedUserAccounts(userWalletId: String)
+
+        /// Referral 2.0
+        case bindWalletsByCode(_ requestModel: ReferralDTO.Request)
     }
 }
 
@@ -443,7 +456,8 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .getUserWallet,
              .updateWallet,
              .connectUserWallets,
-             .createWallet:
+             .createWallet,
+             .bindWalletsByCode:
             return false
         case .geo,
              .features,
