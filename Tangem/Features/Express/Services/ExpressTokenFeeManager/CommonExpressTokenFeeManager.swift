@@ -49,7 +49,6 @@ extension CommonExpressTokenFeeProvidersManager: ExpressTokenFeeProvidersManager
     func updateSelectedFeeTokenItemInAllManagers(feeTokenItem: TokenItem) {
         managers.values.forEach { tokenFeeProvidersManager in
             tokenFeeProvidersManager.updateSelectedFeeProvider(feeTokenItem: feeTokenItem)
-            tokenFeeProvidersManager.selectedFeeProvider.updateFees()
         }
     }
 }
