@@ -7,8 +7,10 @@
 //
 
 import BlockchainSdk
+import TangemAccounts
 
 class SendDestinationInteractorDependenciesProvider {
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     lazy var validator: SendDestinationValidator = makeValidator()
     lazy var addressResolver: AddressResolver? = makeAddressResolver()
     lazy var transactionHistoryProvider: SendDestinationTransactionHistoryProvider = makeSendDestinationTransactionHistoryProvider()
@@ -19,8 +21,8 @@ class SendDestinationInteractorDependenciesProvider {
         switch receivedTokenType {
         case .same:
             return sendingWalletData.suggestedWallets
-        case .swap:
-            return []
+        case .swap(let receiveToken):
+            return makeSuggestedWalletsForReceiveToken(receiveToken)
         }
     }
 
@@ -79,8 +81,8 @@ private extension SendDestinationInteractorDependenciesProvider {
         switch receivedTokenType {
         case .same:
             return sendingWalletData.destinationTransactionHistoryProvider
-        case .swap:
-            return EmptySendDestinationTransactionHistoryProvider()
+        case .swap(let receiveToken):
+            return makeTransactionHistoryProviderForReceiveToken(receiveToken)
         }
     }
 
@@ -90,6 +92,48 @@ private extension SendDestinationInteractorDependenciesProvider {
 
     private func makeAnalyticsLogger() -> SendDestinationAnalyticsLogger {
         sendingWalletData.analyticsLogger
+    }
+
+    private func makeSuggestedWalletsForReceiveToken(_ receiveToken: SendReceiveToken) -> [SendDestinationSuggestedWallet] {
+        guard let walletModel = findWalletModel(for: receiveToken.tokenItem) else {
+            return []
+        }
+
+        return SendSuggestedWalletsFactory().makeSuggestedWallets(walletModel: walletModel)
+    }
+
+    private func makeTransactionHistoryProviderForReceiveToken(_ receiveToken: SendReceiveToken) -> SendDestinationTransactionHistoryProvider {
+        guard let walletModel = findWalletModel(for: receiveToken.tokenItem) else {
+            return EmptySendDestinationTransactionHistoryProvider()
+        }
+
+        let walletAddresses = walletModel.addresses.map(\.value)
+        return CommonSendDestinationTransactionHistoryProvider(
+            transactionHistoryUpdater: walletModel,
+            transactionHistoryMapper: TransactionHistoryMapper(
+                currencySymbol: receiveToken.tokenItem.currencySymbol,
+                walletAddresses: walletAddresses,
+                showSign: false,
+                isToken: receiveToken.tokenItem.isToken
+            )
+        )
+    }
+
+    private func findWalletModel(for tokenItem: TokenItem) -> (any WalletModel)? {
+        let targetNetworkId = tokenItem.blockchain.networkId
+
+        return userWalletRepository.models
+            .flatMap { userWalletModel -> [any WalletModel] in
+                if FeatureProvider.isAvailable(.accounts) {
+                    return AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
+                } else {
+                    // accounts_fixes_needed_none
+                    return userWalletModel.walletModelsManager.walletModels
+                }
+            }
+            .first { walletModel in
+                walletModel.tokenItem.blockchain.networkId == targetNetworkId && walletModel.isMainToken
+            }
     }
 }
 
