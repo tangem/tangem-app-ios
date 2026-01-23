@@ -43,9 +43,8 @@ struct TangemPayWithdrawNoteSheetView: View {
                 .padding(.bottom, 8)
         }
         .overlay(alignment: .topTrailing) {
-            CircleButton
+            NavigationBarButton
                 .close(action: viewModel.close)
-                .size(.small)
                 .padding(.top, 8)
         }
         .padding(.bottom, 12)
