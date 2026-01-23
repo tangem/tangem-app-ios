@@ -98,10 +98,14 @@ private extension CreateWalletSelectorView {
     }
 
     var actions: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 0) {
             primaryActions
+
             actionsSeparator
+                .padding(.top, 24)
+
             secondaryActions
+                .padding(.top, 16)
         }
     }
 
@@ -130,29 +134,21 @@ private extension CreateWalletSelectorView {
     }
 
     func mobileWalletAction(item: ViewModel.MobileWalletItem) -> some View {
-        VStack(spacing: 0) {
-            Text(item.description)
-                .style(Fonts.Bold.subheadline, color: Colors.Text.tertiary)
-                .multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
+        Button(action: item.action) {
+            HStack(spacing: 0) {
+                Text(item.title)
+                    .style(Fonts.Bold.callout, color: Colors.Text.primary1)
 
-            Button(action: item.action) {
-                HStack(spacing: 0) {
-                    Text(item.title)
-                        .style(Fonts.Bold.callout, color: Colors.Text.primary1)
-
-                    Assets.chevronRight.image
-                        .renderingMode(.template)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 20, height: 20)
-                        .foregroundStyle(Colors.Icon.primary1)
-                }
-                .padding(.vertical, 12)
-                .frame(maxWidth: .infinity)
+                Assets.chevronRight.image
+                    .renderingMode(.template)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 20, height: 20)
+                    .foregroundStyle(Colors.Icon.primary1)
             }
-            .accessibilityIdentifier(OnboardingAccessibilityIdentifiers.mobileWalletButton)
+            .frame(maxWidth: .infinity)
         }
+         .accessibilityIdentifier(OnboardingAccessibilityIdentifiers.mobileWalletButton)
     }
 
     var actionsSeparator: some View {
