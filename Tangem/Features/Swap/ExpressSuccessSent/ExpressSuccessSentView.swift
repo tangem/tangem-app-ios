@@ -111,6 +111,9 @@ struct ExpressSuccessSentView: View {
     }
 }
 
+// MARK: - Previews
+
+#if DEBUG
 struct ExpressSuccessSentView_Preview: PreviewProvider {
     static let viewModel = ExpressModulesFactoryMock().makeExpressSuccessSentViewModel(
         data: .mock,
@@ -124,3 +127,4 @@ struct ExpressSuccessSentView_Preview: PreviewProvider {
             }
     }
 }
+#endif // DEBUG

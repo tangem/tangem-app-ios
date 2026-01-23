@@ -43,6 +43,7 @@ class SendDestinationSuggestedViewModel {
                     address: wallet.address,
                     additionalField: nil,
                     type: .otherWallet,
+                    tokenHeader: wallet.tokenHeader,
                     accountModelAnalyticsProvider: wallet.accountModelAnalyticsProvider
                 ))
             }
@@ -58,7 +59,8 @@ class SendDestinationSuggestedViewModel {
                     address: record.address,
                     additionalField: record.additionalField,
                     type: .recentAddress,
-                    // Nil because we dont have account info in recent addreses
+                    // Nil because we don't have account info in recent addresses
+                    tokenHeader: nil,
                     accountModelAnalyticsProvider: nil
                 ))
             }
@@ -90,6 +92,7 @@ struct SendDestinationSuggested {
     let address: String
     let additionalField: String?
     let type: DestinationType
+    let tokenHeader: ExpressInteractorTokenHeader?
     let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
 
     enum DestinationType {
@@ -104,23 +107,12 @@ struct SendDestinationSuggestedWallet {
     let name: String
     let address: String
     let account: Account?
+    let tokenHeader: ExpressInteractorTokenHeader?
     let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
 
     struct Account {
         let icon: AccountIconView.ViewData
         let name: String
-    }
-
-    init(
-        name: String,
-        address: String,
-        account: Account?,
-        accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
-    ) {
-        self.name = name
-        self.address = address
-        self.account = account
-        self.accountModelAnalyticsProvider = accountModelAnalyticsProvider
     }
 }
 
