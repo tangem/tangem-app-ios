@@ -80,10 +80,16 @@ private extension NewsWidgetViewModel {
             .removeDuplicates()
             .receiveOnMain()
             .withWeakCaptureOf(self)
-            .sink { viewModel, event in
-                if case .readyForDisplay = event {
-                    viewModel.updateViewState()
+            .sink { viewModel, state in
+                // When the main widgets container reports `.allWidgetsWithError`,
+                // the global error UI is handled at a higher level. We intentionally
+                // skip updating this widget's local view state here to avoid
+                // overriding the shared error representation or causing UI flicker.
+                if case .allWidgetsWithError = state {
+                    return
                 }
+
+                viewModel.updateViewState()
             }
             .store(in: &bag)
 
@@ -96,13 +102,11 @@ private extension NewsWidgetViewModel {
 
                 switch result {
                 case .loading:
-                    viewModel.resultState = .loading
                     widgetLoadingState = .loading
                 case .success:
                     widgetLoadingState = .loaded
-                case .failure(let error):
+                case .failure:
                     widgetLoadingState = .error
-                    viewModel.resultState = .failure(error)
                 }
 
                 viewModel.widgetsUpdateHandler.performUpdateLoading(state: widgetLoadingState, for: viewModel.widgetType)
@@ -150,8 +154,13 @@ private extension NewsWidgetViewModel {
     }
 
     func updateViewState() {
-        if resultState.error == nil {
+        switch newsProvider.newsResult {
+        case .success:
             resultState = .success(viewStateForLoadedItems())
+        case .failure(let error):
+            resultState = .failure(error)
+        case .loading:
+            resultState = .loading
         }
     }
 
