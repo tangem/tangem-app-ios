@@ -66,19 +66,6 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
             .eraseToAnyPublisher()
     }
 
-    var shouldShowGetTangemPay: AnyPublisher<Bool, Never> {
-        Publishers
-            .CombineLatest4(
-                isTangemPayAvailablePublisher,
-                isUserWalletModelsAvailblePublisher,
-                Just(isDeviceRooted).map { !$0 },
-                Just(FeatureProvider.isAvailable(.tangemPayPermanentEntryPoint))
-            )
-            .map { $0 && $1 && $2 && $3 }
-            .removeDuplicates()
-            .eraseToAnyPublisher()
-    }
-
     private let availabilityService = TangemPayAvailabilityServiceBuilder().build()
 
     private var bag = Set<AnyCancellable>()
