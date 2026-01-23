@@ -86,5 +86,6 @@ struct TangemPayPinCheckView: View {
             }
         }
         .background(Color.Tangem.Surface.level3)
+        .onAppear(perform: viewModel.onAppear)
     }
 }
