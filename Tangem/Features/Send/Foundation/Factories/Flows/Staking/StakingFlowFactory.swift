@@ -105,13 +105,13 @@ extension StakingFlowFactory: SendGenericFlowFactory {
         let amount = makeSendAmountStep()
         let targets = makeStakingTargetsStep()
 
-        let feeCompactViewModel = FeeCompactViewModel()
+        let sendFeeCompactViewModel = SendFeeCompactViewModel()
         let sendFeeFinishViewModel = SendFeeFinishViewModel()
 
         let summary = makeSendSummaryStep(
             sendAmountCompactViewModel: amount.compact,
             stakingTargetsCompactViewModel: targets.compact,
-            feeCompactViewModel: feeCompactViewModel,
+            sendFeeCompactViewModel: sendFeeCompactViewModel,
         )
 
         let finish = makeSendFinishStep(
@@ -122,7 +122,7 @@ extension StakingFlowFactory: SendGenericFlowFactory {
         )
 
         // Steps
-        feeCompactViewModel.bind(input: stakingModel)
+        sendFeeCompactViewModel.bind(input: stakingModel)
         sendFeeFinishViewModel.bind(input: stakingModel)
 
         // Notifications setup
