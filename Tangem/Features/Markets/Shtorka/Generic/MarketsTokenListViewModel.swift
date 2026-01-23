@@ -44,7 +44,6 @@ final class MarketsTokenListViewModel: ObservableObject {
     private let dataProvider: MarketsListDataProvider
     private let chartsHistoryProvider: MarketsListChartsHistoryProvider
     private let quotesUpdatesScheduler: MarketsQuotesUpdatesScheduler
-    private let marketsNotificationsManager: MarketsNotificationsManager
 
     private lazy var listDataController: MarketsListDataController = .init(dataFetcher: self, cellsStateUpdater: self)
 
@@ -74,8 +73,6 @@ final class MarketsTokenListViewModel: ObservableObject {
         self.quotesUpdatesScheduler = quotesUpdatesScheduler
         self.chartsHistoryProvider = chartsHistoryProvider
         self.coordinator = coordinator
-
-        marketsNotificationsManager = MarketsNotificationsManager(dataProvider: dataProvider)
 
         marketCapFormatter = .init(
             divisorsList: AmountNotationSuffixFormatter.Divisor.defaultList,
