@@ -177,6 +177,34 @@ extension WalletNetworkServiceFactory {
             throw Error.notImplemeneted
         }
     }
+
+    /// EVM with specific provider type
+    func makeEthereumNetworkServiceIfAvailable(
+        for blockchain: Blockchain,
+        with providerType: NetworkProviderType
+    ) -> EthereumNetworkService? {
+        let networkAssembly = NetworkProviderAssembly()
+
+        let allProviders = networkAssembly.makeEthereumJsonRpcProviders(with: NetworkProviderAssembly.Input(
+            blockchain: blockchain,
+            keysConfig: blockchainSdkKeysConfig,
+            apiInfo: apiList[blockchain.networkId] ?? [],
+            tangemProviderConfig: tangemProviderConfig
+        ))
+
+        let filteredProviders = allProviders.filter { $0.networkProviderType == providerType }
+
+        guard !filteredProviders.isEmpty else {
+            return nil
+        }
+
+        return EthereumNetworkService(
+            decimals: blockchain.decimalCount,
+            providers: filteredProviders,
+            abiEncoder: WalletCoreABIEncoder(),
+            blockchainName: blockchain.displayName
+        )
+    }
 }
 
 // MARK: - Chains Implementation
