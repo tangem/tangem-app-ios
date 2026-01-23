@@ -42,9 +42,7 @@ final class TangemPayPinCheckViewModel: ObservableObject, Identifiable {
         tangemPayAccount = account
 
         revealPin()
-    }
 
-    func onAppear() {
         Analytics.log(.visaScreenCurrentPinShown)
     }
 
