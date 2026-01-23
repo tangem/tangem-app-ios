@@ -37,7 +37,7 @@ struct TangemLoggerConfiguration: TangemLogger.Logger.Configuration {
 
     /// Write to file
     func isWritable() -> Bool {
-        FeatureProvider.isAvailable(.logs)
+        true
     }
 }
 
