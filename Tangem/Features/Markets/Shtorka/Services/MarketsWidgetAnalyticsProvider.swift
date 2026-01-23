@@ -8,13 +8,50 @@
 
 import Foundation
 
-/// Protocol for logging analytics events related to Markets widgets.
-protocol MarketsWidgetAnalyticsProvider {
-    /// Logs an error event for Markets/Pulse widget load failure.
-    /// - Parameter error: The error that occurred during loading.
-    func logMarketsLoadError(_ error: Error)
+// MARK: - Top Market Widget Analytics
 
-    /// Logs an error event for News widget load failure.
-    /// - Parameter error: The error that occurred during loading.
+/// Protocol for logging analytics events related to Top Market widget.
+protocol TopMarketWidgetAnalyticsProvider {
+    /// Logs an error event for widget load failure.
+    func logTopMarketLoadError(_ error: Error)
+
+    /// Logs when user opens the token list from widget.
+    func logTopMarketTokenListOpened()
+}
+
+// MARK: - Pulse Market Widget Analytics
+
+/// Protocol for logging analytics events related to Pulse Market widget.
+protocol PulseMarketWidgetAnalyticsProvider {
+    /// Logs an error event for widget load failure.
+    func logPulseMarketLoadError(_ error: Error)
+
+    /// Logs when user opens the token list from widget.
+    func logPulseMarketTokenListOpened()
+
+    /// Logs the sort parameters when opening the list.
+    func logTokensSort(type: String, period: String)
+}
+
+// MARK: - News Widget Analytics
+
+/// Protocol for logging analytics events related to News widget.
+protocol NewsWidgetAnalyticsProvider {
+    /// Logs an error event for widget load failure.
     func logNewsLoadError(_ error: Error)
+
+    /// Logs when user opens the news list from widget.
+    func logNewsListOpened()
+
+    /// Logs when user taps "See all" button at the end of carousel.
+    func logCarouselAllNewsButton()
+
+    /// Logs when user scrolls carousel to 4th news item.
+    func logCarouselScrolled()
+
+    /// Logs when user scrolls carousel to the end.
+    func logCarouselEndReached()
+
+    /// Logs when user taps on trending news in carousel.
+    func logTrendingClicked(newsId: String)
 }
