@@ -25,8 +25,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             .foregroundColor: UIColor(Colors.Text.primary1),
         ]
         UIView.appearance(whenContainedInInstancesOf: [UIAlertController.self]).tintColor = UIColor.textAccent
-
-        servicesManager.initialize()
+        servicesManager.initialize(delegate: self)
         return true
     }
 
