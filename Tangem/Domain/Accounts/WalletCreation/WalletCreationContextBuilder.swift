@@ -11,6 +11,8 @@ import AnyCodable
 
 /// Builder for creating an opaque wallet creation context used in the Tangem API.
 final class WalletCreationContextBuilder {
+    @Injected(\.referralService) private var referralService: ReferralService
+
     private var storage: [String: AnyEncodable]
 
     init(
@@ -26,6 +28,18 @@ final class WalletCreationContextBuilder {
 
     func enrich(withIdentifier identifier: some Encodable) -> Self {
         storage["id"] = AnyEncodable(identifier)
+        return self
+    }
+
+    func enrichReferral() -> Self {
+        if let referral = referralService.refcode {
+            storage["ref"] = AnyEncodable(referral)
+
+            if let campaign = referralService.campaign {
+                storage["campaign"] = AnyEncodable(campaign)
+            }
+        }
+
         return self
     }
 
