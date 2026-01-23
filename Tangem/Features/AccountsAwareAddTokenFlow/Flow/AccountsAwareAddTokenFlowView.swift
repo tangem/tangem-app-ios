@@ -56,8 +56,8 @@ struct AccountsAwareAddTokenFlowView: View {
         let closeButtonAction = viewState.canBeClosed ? { viewModel.close() } : nil
 
         switch viewState {
-        case .accountSelector:
-            title = Localization.commonChooseAccount
+        case .accountSelector(let viewModel, _):
+            title = viewModel.state.navigationBarTitle
 
         case .networkSelector:
             title = Localization.commonChooseNetwork
