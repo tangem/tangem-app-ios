@@ -2700,7 +2700,7 @@
 		C20EB74D2DAD442700E0F15D /* NFTManagerStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67EA58C2D9A26B000441EA8 /* NFTManagerStub.swift */; };
 		C20FC9242E2EB85D0075DBC7 /* WalletConnectDAppConnectionRequestAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20FC9232E2EB8550075DBC7 /* WalletConnectDAppConnectionRequestAnalyticsLogger.swift */; };
 		C20FC9292E2EC0A60075DBC7 /* CommonWalletConnectDAppConnectionRequestAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20FC9282E2EC0A20075DBC7 /* CommonWalletConnectDAppConnectionRequestAnalyticsLogger.swift */; };
-		C214BE922E79731F00B311BB /* AppsFlyerConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C214BE912E79730500B311BB /* AppsFlyerConfigurator.swift */; };
+		C214BE922E79731F00B311BB /* AppsFlyerWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C214BE912E79730500B311BB /* AppsFlyerWrapper.swift */; };
 		C216A8E32EF0C60D008CC5F9 /* MarketsView+NavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C216A8E22EF0C5FE008CC5F9 /* MarketsView+NavigationController.swift */; };
 		C21707172D395292000AC361 /* BitrockExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C21707162D395290000AC361 /* BitrockExternalLinkProvider.swift */; };
 		C22564022D9154DD003063DA /* FloatingSheetPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C22564012D9154DD003063DA /* FloatingSheetPresenter.swift */; };
@@ -3424,6 +3424,9 @@
 		DC7539FD2C92050C00CE2D30 /* TangemIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7539FC2C92050C00CE2D30 /* TangemIconView.swift */; };
 		DC7616DE2E3E0C1100B786D7 /* Array+UserWalletModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7616DD2E3E0C0800B786D7 /* Array+UserWalletModel.swift */; };
 		DC76175A2E41304800B786D7 /* ScannedCardWalletUnlocker.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7617592E41303300B786D7 /* ScannedCardWalletUnlocker.swift */; };
+		DC7743702F1E71B400052325 /* ReferralService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC77436F2F1E71B000052325 /* ReferralService.swift */; };
+		DC7743722F1E728600052325 /* CommonReferralService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7743712F1E728500052325 /* CommonReferralService.swift */; };
+		DC7743742F1E7DB200052325 /* ReferralDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7743732F1E7DAA00052325 /* ReferralDTO.swift */; };
 		DC7796032E17CBB3000E3213 /* WCTransactionSecurityAlertViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7796022E17CBB3000E3213 /* WCTransactionSecurityAlertViewModel.swift */; };
 		DC7796052E17CBE4000E3213 /* WCTransactionSecurityAlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7796042E17CBE4000E3213 /* WCTransactionSecurityAlertView.swift */; };
 		DC7796072E17CC09000E3213 /* WCTransactionSecurityAlertInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7796062E17CC09000E3213 /* WCTransactionSecurityAlertInput.swift */; };
@@ -3603,6 +3606,8 @@
 		DCE2F7E22CE354A400BDE145 /* ActionButtonsSellCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE2F7E12CE3549E00BDE145 /* ActionButtonsSellCoordinatorView.swift */; };
 		DCE2F7E42CE354D900BDE145 /* ActionButtonsSellCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE2F7E32CE354D500BDE145 /* ActionButtonsSellCoordinator.swift */; };
 		DCE2F7F22CE7253A00BDE145 /* ActionButtonsSendToSellModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE2F7F12CE7253300BDE145 /* ActionButtonsSendToSellModel.swift */; };
+		DCE32A632F1965D900D59A03 /* AppDelegate+DeepLinkDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE32A622F1965D300D59A03 /* AppDelegate+DeepLinkDelegate.swift */; };
+		DCE32A652F1965F800D59A03 /* AppsFlyerDeepLinkResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE32A642F1965F600D59A03 /* AppsFlyerDeepLinkResolver.swift */; };
 		DCE402B82A31E69100D40C77 /* Analytics+DestinationAddressSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE402B72A31E69100D40C77 /* Analytics+DestinationAddressSource.swift */; };
 		DCE5C66C28898B7F000C7F67 /* TangemApiService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE5C66B28898B7F000C7F67 /* TangemApiService.swift */; };
 		DCE5C66E28898BB6000C7F67 /* CommonTangemApiService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE5C66D28898BB6000C7F67 /* CommonTangemApiService.swift */; };
@@ -3627,6 +3632,8 @@
 		DCF109AD2EF45D5400B97F19 /* TangemIconProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF109AC2EF45D5000B97F19 /* TangemIconProvider.swift */; };
 		DCF2369129924C0900FE1855 /* AnalyticsSessionContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF2369029924C0900FE1855 /* AnalyticsSessionContext.swift */; };
 		DCF23693299257EB00FE1855 /* AnalyticsContextData.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF23692299257EB00FE1855 /* AnalyticsContextData.swift */; };
+		DCF760262F1A599B00F768C1 /* AppsFlyerDeepReferralHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF760252F1A599900F768C1 /* AppsFlyerDeepReferralHandler.swift */; };
+		DCF760282F1A59DB00F768C1 /* AppsFlyerDeepLinkKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF760272F1A59D900F768C1 /* AppsFlyerDeepLinkKeys.swift */; };
 		DCF8972D28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF8972C28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift */; };
 		DCFCA17528F4232F0037586C /* Array+.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFCA17428F4232F0037586C /* Array+.swift */; };
 		DCFE143E294B31C00053106B /* AppPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFE143D294B31C00053106B /* AppPresenter.swift */; };
@@ -7445,7 +7452,7 @@
 		C209B6452E047700009DF477 /* WalletConnectDAppIconURLResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectDAppIconURLResolver.swift; sourceTree = "<group>"; };
 		C20FC9232E2EB8550075DBC7 /* WalletConnectDAppConnectionRequestAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectDAppConnectionRequestAnalyticsLogger.swift; sourceTree = "<group>"; };
 		C20FC9282E2EC0A20075DBC7 /* CommonWalletConnectDAppConnectionRequestAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonWalletConnectDAppConnectionRequestAnalyticsLogger.swift; sourceTree = "<group>"; };
-		C214BE912E79730500B311BB /* AppsFlyerConfigurator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppsFlyerConfigurator.swift; sourceTree = "<group>"; };
+		C214BE912E79730500B311BB /* AppsFlyerWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppsFlyerWrapper.swift; sourceTree = "<group>"; };
 		C216A8E22EF0C5FE008CC5F9 /* MarketsView+NavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarketsView+NavigationController.swift"; sourceTree = "<group>"; };
 		C21707162D395290000AC361 /* BitrockExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitrockExternalLinkProvider.swift; sourceTree = "<group>"; };
 		C22564012D9154DD003063DA /* FloatingSheetPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingSheetPresenter.swift; sourceTree = "<group>"; };
@@ -8173,6 +8180,9 @@
 		DC7539FC2C92050C00CE2D30 /* TangemIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemIconView.swift; sourceTree = "<group>"; };
 		DC7616DD2E3E0C0800B786D7 /* Array+UserWalletModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+UserWalletModel.swift"; sourceTree = "<group>"; };
 		DC7617592E41303300B786D7 /* ScannedCardWalletUnlocker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScannedCardWalletUnlocker.swift; sourceTree = "<group>"; };
+		DC77436F2F1E71B000052325 /* ReferralService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralService.swift; sourceTree = "<group>"; };
+		DC7743712F1E728500052325 /* CommonReferralService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonReferralService.swift; sourceTree = "<group>"; };
+		DC7743732F1E7DAA00052325 /* ReferralDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralDTO.swift; sourceTree = "<group>"; };
 		DC7796022E17CBB3000E3213 /* WCTransactionSecurityAlertViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCTransactionSecurityAlertViewModel.swift; sourceTree = "<group>"; };
 		DC7796042E17CBE4000E3213 /* WCTransactionSecurityAlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCTransactionSecurityAlertView.swift; sourceTree = "<group>"; };
 		DC7796062E17CC09000E3213 /* WCTransactionSecurityAlertInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WCTransactionSecurityAlertInput.swift; sourceTree = "<group>"; };
@@ -8356,6 +8366,8 @@
 		DCE2F7E12CE3549E00BDE145 /* ActionButtonsSellCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButtonsSellCoordinatorView.swift; sourceTree = "<group>"; };
 		DCE2F7E32CE354D500BDE145 /* ActionButtonsSellCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButtonsSellCoordinator.swift; sourceTree = "<group>"; };
 		DCE2F7F12CE7253300BDE145 /* ActionButtonsSendToSellModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButtonsSendToSellModel.swift; sourceTree = "<group>"; };
+		DCE32A622F1965D300D59A03 /* AppDelegate+DeepLinkDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppDelegate+DeepLinkDelegate.swift"; sourceTree = "<group>"; };
+		DCE32A642F1965F600D59A03 /* AppsFlyerDeepLinkResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppsFlyerDeepLinkResolver.swift; sourceTree = "<group>"; };
 		DCE402B72A31E69100D40C77 /* Analytics+DestinationAddressSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Analytics+DestinationAddressSource.swift"; sourceTree = "<group>"; };
 		DCE5C66B28898B7F000C7F67 /* TangemApiService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemApiService.swift; sourceTree = "<group>"; };
 		DCE5C66D28898BB6000C7F67 /* CommonTangemApiService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonTangemApiService.swift; sourceTree = "<group>"; };
@@ -8377,6 +8389,8 @@
 		DCF109AC2EF45D5000B97F19 /* TangemIconProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemIconProvider.swift; sourceTree = "<group>"; };
 		DCF2369029924C0900FE1855 /* AnalyticsSessionContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsSessionContext.swift; sourceTree = "<group>"; };
 		DCF23692299257EB00FE1855 /* AnalyticsContextData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsContextData.swift; sourceTree = "<group>"; };
+		DCF760252F1A599900F768C1 /* AppsFlyerDeepReferralHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppsFlyerDeepReferralHandler.swift; sourceTree = "<group>"; };
+		DCF760272F1A59D900F768C1 /* AppsFlyerDeepLinkKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppsFlyerDeepLinkKeys.swift; sourceTree = "<group>"; };
 		DCF8972C28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSdkConfigFactory.swift; sourceTree = "<group>"; };
 		DCFCA17428F4232F0037586C /* Array+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+.swift"; sourceTree = "<group>"; };
 		DCFE143D294B31C00053106B /* AppPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPresenter.swift; sourceTree = "<group>"; };
@@ -14141,12 +14155,12 @@
 		B0D1AC302906718600584E6C /* Analytics */ = {
 			isa = PBXGroup;
 			children = (
+				DCE32A612F1965A800D59A03 /* Appsflyer */,
 				DCEE80A62E799EAC005CFABC /* ContextData */,
 				B074AF832B06585B00E9CEA3 /* AnalyticsContext */,
 				B079DB702AEB937000D2D0D5 /* Debug */,
 				5D225CB82524B721001564A3 /* Analytics.swift */,
 				DC20E0C32E71A233003B8948 /* AmplitudeWrapper.swift */,
-				C214BE912E79730500B311BB /* AppsFlyerConfigurator.swift */,
 				DCBC94502993FE9A0050BC35 /* Analytics+AnalyticsSystem.swift */,
 				2DA8AB112A433BDB00C75D85 /* Analytics+BlockchainExceptionHandler.swift */,
 				DCBC94522993FEC80050BC35 /* Analytics+CardScanSource.swift */,
@@ -20555,6 +20569,16 @@
 			path = CardScanner;
 			sourceTree = "<group>";
 		};
+		DC77436E2F1E719100052325 /* Referral */ = {
+			isa = PBXGroup;
+			children = (
+				DC7743732F1E7DAA00052325 /* ReferralDTO.swift */,
+				DC7743712F1E728500052325 /* CommonReferralService.swift */,
+				DC77436F2F1E71B000052325 /* ReferralService.swift */,
+			);
+			path = Referral;
+			sourceTree = "<group>";
+		};
 		DC7795FF2E17CB7F000E3213 /* SecurityAlert */ = {
 			isa = PBXGroup;
 			children = (
@@ -20658,6 +20682,8 @@
 		DC8C22E42D89FF6E005159FE /* Features */ = {
 			isa = PBXGroup;
 			children = (
+				DCF1093F2EF3111800B97F19 /* JailbreakWarning */,
+				0A941BE32E6B29D200770474 /* YieldModule */,
 				308631572E40E36C00D58D37 /* Accounts */,
 				30AC0FD82EFBCFE5009AACB7 /* AccountsAwareAddTokenFlow */,
 				B0D1AC302906718600584E6C /* Analytics */,
@@ -21648,6 +21674,18 @@
 			path = Builders;
 			sourceTree = "<group>";
 		};
+		DCE32A612F1965A800D59A03 /* Appsflyer */ = {
+			isa = PBXGroup;
+			children = (
+				DCF760242F1A599100F768C1 /* Handlers */,
+				DCE32A642F1965F600D59A03 /* AppsFlyerDeepLinkResolver.swift */,
+				DCF760272F1A59D900F768C1 /* AppsFlyerDeepLinkKeys.swift */,
+				DCE32A622F1965D300D59A03 /* AppDelegate+DeepLinkDelegate.swift */,
+				C214BE912E79730500B311BB /* AppsFlyerWrapper.swift */,
+			);
+			path = Appsflyer;
+			sourceTree = "<group>";
+		};
 		DCE61E3F2B5EDDEC005A8D2E /* Safari */ = {
 			isa = PBXGroup;
 			children = (
@@ -21686,6 +21724,14 @@
 				DCF109402EF3113A00B97F19 /* JailbreakWarningView.swift */,
 			);
 			path = JailbreakWarning;
+			sourceTree = "<group>";
+		};
+		DCF760242F1A599100F768C1 /* Handlers */ = {
+			isa = PBXGroup;
+			children = (
+				DCF760252F1A599900F768C1 /* AppsFlyerDeepReferralHandler.swift */,
+			);
+			path = Handlers;
 			sourceTree = "<group>";
 		};
 		DCFEFE422CF07D8C002DFE58 /* Model */ = {
@@ -26579,7 +26625,7 @@
 				EF9E2A592B56AA7F00418559 /* ExpressSuccessSentRoutableMock.swift in Sources */,
 				0F27863B2E2B8BF900742D0F /* MobileOnboardingSeedPhraseRecoveryStep.swift in Sources */,
 				B69610982A428C9B00CF88B7 /* OrganizeTokensListInnerSectionView.swift in Sources */,
-				C214BE922E79731F00B311BB /* AppsFlyerConfigurator.swift in Sources */,
+				C214BE922E79731F00B311BB /* AppsFlyerWrapper.swift in Sources */,
 				B0FF12682C4A815600C81ED8 /* MainWindowSizeKey.swift in Sources */,
 				B072E12E2B18B26000B0AB27 /* PendingExpressTxStatusBottomSheetView.swift in Sources */,
 				B6E7068F2ED922E70076F14D /* AccountEditError.swift in Sources */,
@@ -27660,6 +27706,7 @@
 				0A8E8FE52EB4AC7C00F0B06C /* YieldBalanceTicker.swift in Sources */,
 				EFF9A2FA2BD6B45E007C63D2 /* UserWalletSettingsCoordinator.swift in Sources */,
 				DCB573632E8C0B5B003D54E6 /* AccountSelectorAccountItem.swift in Sources */,
+				DC7743722F1E728600052325 /* CommonReferralService.swift in Sources */,
 				EF0DC1072A0BD7F8007E3DA7 /* OptionPicker.swift in Sources */,
 				B63FDB182A5F09F10080240F /* CardsInfoPagerFlexibleFooterView.swift in Sources */,
 				0AB346812E83CD8F004003A0 /* YieldModuleDTO.swift in Sources */,
@@ -27702,6 +27749,7 @@
 				B62A28F62DD15C1300E5BC37 /* NFTSendTransactionSummaryDescriptionBuilder.swift in Sources */,
 				EFFA43562E02B319001E0E54 /* SendReceiveTokensListBuilder.swift in Sources */,
 				EA4216522E74619D00B36D39 /* YieldModulePromoCoordinator.swift in Sources */,
+				DC7743702F1E71B400052325 /* ReferralService.swift in Sources */,
 				EF1947642E37EE8C00FE6CC9 /* SendSwapProviderBestRateAnimationBadgeView.swift in Sources */,
 				EF0D86DB2EC390A80080E80A /* TransactionViewAmountView.swift in Sources */,
 				B07E07B22CD8E6F2007DEDA6 /* VisaOnboardingWelcomeViewModel.swift in Sources */,
@@ -28056,6 +28104,7 @@
 				EFE8C70E2C77388A0067CF2E /* MultipleRewardsView.swift in Sources */,
 				EFE8C70F2C77388A0067CF2E /* MultipleRewardsViewModel.swift in Sources */,
 				DC99538C2ECC5F4E00819D13 /* WCAccountFinder.swift in Sources */,
+				DC7743742F1E7DB200052325 /* ReferralDTO.swift in Sources */,
 				DC3549E92E2E265A00641727 /* WCFeeInteractorType.swift in Sources */,
 				EFE8C7102C77388A0067CF2E /* MultipleRewardsRoutable.swift in Sources */,
 				B6572F562ED7F28E00C93E59 /* CommonCryptoAccountModelDelegate.swift in Sources */,
@@ -28380,6 +28429,7 @@
 				EF8D780F2981458500B67418 /* UserTokenListManagerMock.swift in Sources */,
 				2DE0BB602CAD41E3002C09D9 /* BlockHeaderTitleView.swift in Sources */,
 				DA4055262ABDD3A300353F8A /* AddCustomTokenNetworksListItemView.swift in Sources */,
+				DCF760262F1A599B00F768C1 /* AppsFlyerDeepReferralHandler.swift in Sources */,
 				0AF14E7A2E435D0400D9B40F /* NewAppSettingsView.swift in Sources */,
 				B020A51426F1DBE700D38596 /* OnboardingInput.swift in Sources */,
 				EA742A9E2E97A02F0074FCD2 /* YieldModuleChartManager.swift in Sources */,
@@ -28477,6 +28527,7 @@
 				B6AA136A2A2A373600B53937 /* CardInfoPagePreviewSection.swift in Sources */,
 				DA559C382B0261F400F59584 /* SendType.swift in Sources */,
 				DCDE745C2C1374AC00C19A23 /* WelcomeOnboardingTOSDelegate.swift in Sources */,
+				DCF760282F1A59DB00F768C1 /* AppsFlyerDeepLinkKeys.swift in Sources */,
 				2DB648892C35877000DA100D /* MarketsSkeletonItemView.swift in Sources */,
 				B69E78782A69795D007E358A /* CardInfoPagePreviewConfig.swift in Sources */,
 				C2A6B54C2E02506D00F160C0 /* WalletConnectDAppSessionsExtender.swift in Sources */,
@@ -29165,6 +29216,7 @@
 				B04718FF2B4E7C3B00444734 /* VisaBalancesLimitsBottomSheetView.swift in Sources */,
 				2D57CA862C3D0B0D0070D477 /* MarketsWalletDataSource.swift in Sources */,
 				EF6CB17E292E1190001335EA /* EnvironmentSetupViewModel.swift in Sources */,
+				DCE32A632F1965D900D59A03 /* AppDelegate+DeepLinkDelegate.swift in Sources */,
 				EFFC85D32E7B63110079F320 /* OnrampProviderItemViewModelBuilder.swift in Sources */,
 				DCF109AD2EF45D5400B97F19 /* TangemIconProvider.swift in Sources */,
 				DA3880A02E391E25000B0242 /* VisaBuilder+FeatureStorage.swift in Sources */,
@@ -29172,6 +29224,7 @@
 				30B457592D943444002B8BD0 /* AppStorageCompat.swift in Sources */,
 				EF0F99AB289028F8008B01DF /* AppSettingsCoordinatorView.swift in Sources */,
 				B09721DC2AC466A400058675 /* CommonExpressAvailabilityProvider.swift in Sources */,
+				DCE32A652F1965F800D59A03 /* AppsFlyerDeepLinkResolver.swift in Sources */,
 				DC7D3A0529E06334007BCD23 /* GenericTangemSdkFactory.swift in Sources */,
 				EF1214652DDB54110097D5C9 /* SendDestinationAdditionalFieldViewModel.swift in Sources */,
 				DAE6F76D2800011400411F45 /* AppError.swift in Sources */,
