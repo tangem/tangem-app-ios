@@ -137,6 +137,9 @@ final class AppSettings {
     @AppStorageCompat(StorageType.tangemPayIsKYCHiddenForCustomerWalletId)
     var tangemPayIsKYCHiddenForCustomerWalletId: [String: Bool] = [:]
 
+    @AppStorageCompat(StorageType.tangemPayIsEligibilityAvailable)
+    var tangemPayIsEligibilityAvailable: Bool = false
+
     @AppStorageCompat(StorageType.tangemPayShouldShowGetBanner)
     var tangemPayShouldShowGetBanner: Bool = true
 
