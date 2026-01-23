@@ -15,19 +15,26 @@ import struct TangemUIUtils.AlertBinder
 final class PromocodeActivationViewModel: ObservableObject {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.referralService) private var referralService: ReferralService
 
     @Published var alert: AlertBinder?
     @Published private(set) var isCheckingPromoCode = false
 
     private let promoCode: String
+    private let refcode: String?
+    private let campaign: String?
+
     private let alertOkButton = Alert.Button.default(Text(Localization.commonOk)) {
         UIApplication.dismissTop(animated: false)
     }
 
     // MARK: - Init
 
-    init(promoCode: String) {
+    init(promoCode: String, refcode: String?, campaign: String?) {
         self.promoCode = promoCode
+        self.refcode = refcode
+        self.campaign = campaign
+
         Analytics.log(.bitcoinPromoDeeplinkActivation)
     }
 
@@ -38,6 +45,13 @@ final class PromocodeActivationViewModel: ObservableObject {
 
         defer {
             isCheckingPromoCode = false
+        }
+
+        AnalyticsLogger.debug("Activating promo code: \(promoCode)")
+
+        if let refcode {
+            AnalyticsLogger.debug("Refcode was provided: \(refcode)")
+            referralService.saveAndBindIfNeeded(refcode: refcode, campaign: campaign)
         }
 
         do {
