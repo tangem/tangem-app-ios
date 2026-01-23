@@ -29,7 +29,7 @@ extension InjectedValues {
 protocol ServicesManager {
     var initialized: Bool { get }
 
-    func initialize()
+    func initialize(delegate: AppDelegate)
     func initializeKeychainSensitiveServices() async
 }
 
@@ -44,6 +44,7 @@ final class CommonServicesManager {
     @Injected(\.wcService) private var wcService: any WCService
     @Injected(\.cryptoAccountsETagStorage) private var eTagStorage: CryptoAccountsETagStorage
     @Injected(\.experimentService) private var experimentService: ExperimentService
+    @Injected(\.referralService) private var referralService: ReferralService
 
     private var stakingPendingHashesSender: StakingPendingHashesSender?
     private let storyDataPrefetchService: StoryDataPrefetchService
@@ -74,15 +75,6 @@ final class CommonServicesManager {
         }
 
         FirebaseApp.configure(options: options)
-    }
-
-    private func configureAmplitude() {
-        guard !AppEnvironment.current.isDebug else {
-            return
-        }
-
-        AmplitudeWrapper.shared.configure()
-        experimentService.configure()
     }
 
     private func configureBlockchainSdkExceptionHandler() {
@@ -146,7 +138,7 @@ extension CommonServicesManager: ServicesManager {
         _initialized
     }
 
-    func initialize() {
+    func initialize(delegate: AppDelegate) {
         if _initialized {
             return
         }
@@ -167,8 +159,9 @@ extension CommonServicesManager: ServicesManager {
         AppLogger.info("Start services initializing")
 
         configureFirebase()
-        configureAmplitude()
-        AppsFlyerConfigurator.configure()
+        AmplitudeWrapper.shared.configure()
+        experimentService.configure()
+        AppsFlyerWrapper.shared.configure(delegate: delegate)
 
         configureBlockchainSdkExceptionHandler()
 
@@ -185,6 +178,7 @@ extension CommonServicesManager: ServicesManager {
         mobileAccessCodeCleaner.initialize()
         SendFeatureProvider.shared.loadFeaturesAvailability()
         PredefinedOnrampParametersBuilder.loadMoonpayPromotion()
+        referralService.retryBindingIfNeeded()
     }
 
     /// Some services should be initialized later, in SceneDelegate to bypass locked keychain during preheating
