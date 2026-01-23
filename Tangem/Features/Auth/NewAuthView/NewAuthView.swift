@@ -13,9 +13,7 @@ import TangemUIUtils
 import TangemAccessibilityIdentifiers
 
 struct NewAuthView: View {
-    typealias ViewModel = NewAuthViewModel
-
-    @ObservedObject var viewModel: ViewModel
+    @ObservedObject var viewModel: NewAuthViewModel
 
     var body: some View {
         stateView
@@ -38,9 +36,9 @@ private extension NewAuthView {
                 LockView(usesNamespace: false)
                     .transition(.opacity.animation(.easeIn))
 
-            case .wallets(let item):
-                walletsView(item: item)
-                    .tangemLogoNavigationToolbar(trailingItem: trailingNavigationBarItem(item: item.addWalletButton))
+            case .wallets(let walletsState):
+                walletsView(walletsState)
+                    .tangemLogoNavigationToolbar(trailingItem: addWalletNavigationBarButton(walletsState))
                     .transition(.opacity.animation(.easeIn))
 
             case .none:
@@ -49,18 +47,28 @@ private extension NewAuthView {
         }
     }
 
-    func walletsView(item: ViewModel.WalletsStateItem) -> some View {
+    func walletsView(_ state: NewAuthViewState.WalletsState) -> some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(spacing: 32) {
-                infoView(title: item.title, description: item.description)
-                walletsView(items: item.wallets)
+                infoView(title: state.title, description: state.description)
+
+                VStack(spacing: 8) {
+                    ForEach(state.wallets) { wallet in
+                        NewAuthWalletView(item: wallet)
+                            .confirmationDialog(
+                                viewModel: confirmationDialogViewModel(for: wallet, dialog: state.scanTroubleshootingDialog),
+                                onDismiss: viewModel.onScanTroubleshootingDialogDismiss
+                            )
+                            .environment(\.unlockingUserWalletId, viewModel.unlockingUserWalletId)
+                    }
+                }
             }
             .padding(.top, 32)
             .padding(.horizontal, 16)
             .ignoresSafeArea(edges: .bottom)
         }
         .safeAreaInset(edge: .bottom, spacing: 10) {
-            item.biometricsUnlockButton.map {
+            state.biometricsUnlockButton.map {
                 biometricsUnlockButton(item: $0)
                     .padding(.horizontal, 16)
                     .padding(.bottom, 6)
@@ -68,17 +76,35 @@ private extension NewAuthView {
         }
         .accessibilityIdentifier(AuthAccessibilityIdentifiers.walletsList)
     }
+
+    func confirmationDialogViewModel(
+        for walletItem: NewAuthViewState.WalletItem,
+        dialog: NewAuthViewState.ScanTroubleshootingDialog?
+    ) -> ConfirmationDialogViewModel? {
+        guard let dialog, case .wallet(let userWalletID) = dialog.placement else { return nil }
+
+        return walletItem.id == userWalletID
+            ? dialog.viewModel
+            : nil
+    }
+
+    func confirmationDialogViewModelForAddButton(_ state: NewAuthViewState.WalletsState) -> ConfirmationDialogViewModel? {
+        guard let dialog = state.scanTroubleshootingDialog, case .addWalletButton = dialog.placement else { return nil }
+
+        return dialog.viewModel
+    }
 }
 
 // MARK: - NavigationBar
 
 private extension NewAuthView {
-    func trailingNavigationBarItem(item: ViewModel.Button) -> some View {
-        Button(action: item.action) {
-            Text(item.title)
+    func addWalletNavigationBarButton(_ state: NewAuthViewState.WalletsState) -> some View {
+        Button(action: state.addWalletButton.action) {
+            Text(state.addWalletButton.title)
                 .style(Fonts.Regular.body, color: Colors.Text.primary1)
         }
         .allowsHitTesting(viewModel.allowsHitTesting)
+        .confirmationDialog(viewModel: confirmationDialogViewModelForAddButton(state), onDismiss: viewModel.onScanTroubleshootingDialogDismiss)
         .accessibilityIdentifier(AuthAccessibilityIdentifiers.addWalletButton)
     }
 }
@@ -99,22 +125,7 @@ private extension NewAuthView {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    func walletsView(items: [ViewModel.WalletItem]) -> some View {
-        VStack(spacing: 8) {
-            ForEach(items) { walletItem in
-                NewAuthWalletView(item: walletItem)
-                    .confirmationDialog(
-                        viewModel: walletItem.scanTroubleshootingDialog,
-                        onDismiss: {
-                            viewModel.onScanTroubleshootingDialogDismiss(for: walletItem.id)
-                        }
-                    )
-                    .environment(\.unlockingUserWalletId, viewModel.unlockingUserWalletId)
-            }
-        }
-    }
-
-    func biometricsUnlockButton(item: ViewModel.Button) -> some View {
+    func biometricsUnlockButton(item: NewAuthViewState.Button) -> some View {
         Button(action: item.action) {
             HStack(spacing: 6) {
                 Text(item.title)
