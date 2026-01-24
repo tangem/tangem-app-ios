@@ -52,7 +52,7 @@ private extension CreateWalletSelectorView {
                     VStack(spacing: 12) {
                         info.padding(.horizontal, 20)
                         tangemIcon
-                        actions
+                        // actions
                     }
                     .padding(.top, 12)
                     .id(scrollToId)
@@ -62,6 +62,10 @@ private extension CreateWalletSelectorView {
                     proxy.scrollTo(scrollToId, anchor: .bottom)
                 }
             }
+
+            // Temporary hide
+            primaryActions
+                .padding(.horizontal, 16)
         }
     }
 }
