@@ -145,6 +145,8 @@ extension CommonServicesManager: ServicesManager {
             return
         }
 
+        AppLogger.info("Start services initializing")
+
         configureForUITests()
 
         SettingsMigrator.migrateIfNeeded()
@@ -157,8 +159,6 @@ extension CommonServicesManager: ServicesManager {
         if initialLaunches == 0 {
             KeychainCleaner.cleanAllData()
         }
-
-        AppLogger.info("Start services initializing")
 
         configureFirebase()
         AmplitudeWrapper.shared.configure()
