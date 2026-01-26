@@ -138,6 +138,9 @@ final class AppSettings {
     @AppStorageCompat(StorageType.tangemPayIsKYCHiddenForCustomerWalletId)
     var tangemPayIsKYCHiddenForCustomerWalletId: [String: Bool] = [:]
 
+    @AppStorageCompat(StorageType.tangemPayIsEligibilityAvailable)
+    var tangemPayIsEligibilityAvailable: Bool = false
+
     @AppStorageCompat(StorageType.tangemPayShouldShowGetBanner)
     var tangemPayShouldShowGetBanner: Bool = true
 
@@ -146,6 +149,15 @@ final class AppSettings {
 
     @AppStorageCompat(StorageType.showMarketsYieldModeNotification)
     var showMarketsYieldModeNotification = true
+
+    @AppStorageCompat(StorageType.referralRefcode)
+    var referralRefcode: String? = nil
+
+    @AppStorageCompat(StorageType.referralCampaign)
+    var referralCampaign: String? = nil
+
+    @AppStorageCompat(StorageType.hasReferralBindingRequest)
+    var hasReferralBindingRequest: Bool = false
 
     static let shared: AppSettings = .init()
 

@@ -230,6 +230,10 @@ final class FakeTangemApiService: TangemApiService {
     func loadNewsCategories() async throws -> NewsDTO.Categories.Response {
         throw "Not implemented"
     }
+
+    func bindReferral(request model: ReferralDTO.Request) async throws {
+        throw "Not implemented"
+    }
 }
 
 private struct FakeCoinListProvider {

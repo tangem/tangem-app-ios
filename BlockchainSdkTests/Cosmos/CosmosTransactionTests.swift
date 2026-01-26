@@ -101,7 +101,7 @@ struct CosmosTransactionTests {
         // given
         let cosmosChain = CosmosChain.terraV1
         let blockchain = cosmosChain.blockchain
-        let token = Token(name: "USTC", symbol: "USTC", contractAddress: "uusd", decimalCount: 6)
+        let token = Token(name: "USTC", symbol: "USTC", contractAddress: CosmosChain.supportedTokenContractAddress, decimalCount: 6)
 
         let privateKey = PrivateKey(data: Data(hexString: "80e81ea269e66a0a05b11236df7919fb7fbeedba87452d667489d7403a02f005"))!
         let publicKeyData = privateKey.getPublicKeySecp256k1(compressed: true).data

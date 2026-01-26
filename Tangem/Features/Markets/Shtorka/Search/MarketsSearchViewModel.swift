@@ -37,7 +37,7 @@ final class MarketsSearchViewModel: MarketsBaseViewModel {
     private let chartsHistoryProvider = MarketsListChartsHistoryProvider()
     private let quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper
     private let quotesUpdatesScheduler = MarketsQuotesUpdatesScheduler()
-    private let marketsNotificationsManager: MarketsNotificationsManager
+    private lazy var marketsNotificationsManager = MarketsNotificationsManager(tokenLoadingStateProvider: tokenListViewModel.$tokenListLoadingState.eraseToAnyPublisher())
 
     private var marketCapFormatter: MarketCapFormatter
     private var bag = Set<AnyCancellable>()
@@ -62,7 +62,6 @@ final class MarketsSearchViewModel: MarketsBaseViewModel {
         self.coordinator = coordinator
 
         filterProvider = MarketsListDataFilterProvider(initialOrderType: initialOrderType)
-        marketsNotificationsManager = MarketsNotificationsManager(dataProvider: dataProvider)
 
         marketCapFormatter = .init(
             divisorsList: AmountNotationSuffixFormatter.Divisor.defaultList,

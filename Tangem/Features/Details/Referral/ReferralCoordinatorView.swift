@@ -31,7 +31,7 @@ struct ReferralCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: AccountSelectorViewModel.self) { viewModel in
                 VStack(spacing: 0) {
                     BottomSheetHeaderView(
-                        title: Localization.commonChooseAccount,
+                        title: viewModel.state.navigationBarTitle,
                         trailing: {
                             NavigationBarButton.close(action: coordinator.closeSheet)
                         }

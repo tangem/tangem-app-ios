@@ -884,10 +884,15 @@ extension ExpressInteractor {
 
         var isFeeRowVisible: Bool {
             switch self {
+            case .idle,
+                 .loading,
+                 .preloadRestriction,
+                 .requiredRefresh,
+                 .permissionRequired,
+                 .restriction(.hasPendingApproveTransaction, _, _):
+                return false
             case .restriction, .readyToSwap, .previewCEX:
                 return true
-            case .idle, .loading, .preloadRestriction, .requiredRefresh, .permissionRequired:
-                return false
             }
         }
 
