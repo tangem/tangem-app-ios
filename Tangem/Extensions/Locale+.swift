@@ -44,8 +44,34 @@ extension Locale {
 }
 
 extension Locale {
-    /// Language code used by news-related services (e.g., `NewsDataProvider`, `CommonMarketsWidgetNewsService`)
+    /// Supported language codes for news-related services.
+    private static let supportedNewsLanguageCodes: Set<String> = [
+        "en", // English
+        "ru", // Russian
+        "fr", // French
+        "ua", // Ukrainian
+        "de", // German
+        "ja", // Japanese
+        "es", // Spanish
+        "tr", // Turkish
+        "ko", // Korean
+        "zh", // Chinese
+        "pt", // Portuguese
+    ]
+
+    /// Language code used by news-related services (e.g., `NewsDataProvider`, `CommonMarketsWidgetNewsService`).
+    /// Returns the device's preferred language code if it's in the supported list, otherwise returns English.
     static var newsLanguageCode: String {
-        Locale.current.language.languageCode?.identifier(.alpha2) ?? Locale.enLanguageCode
+        guard let preferredLanguage = Locale.preferredLanguages.first else {
+            return Locale.enLanguageCode
+        }
+
+        // preferredLanguages returns identifiers like "ko-KR", "pt-BR", "en-US"
+        // We need to extract just the language code (ISO 639-1)
+        let language = Locale.Language(identifier: preferredLanguage)
+        let languageCode = language.languageCode?.identifier(.alpha2) ?? Locale.enLanguageCode
+
+        // Return the language code only if it's supported, otherwise fallback to English
+        return supportedNewsLanguageCodes.contains(languageCode) ? languageCode : Locale.enLanguageCode
     }
 }
