@@ -121,6 +121,18 @@ extension MarketsCoordinator: MarketsMainRoutable {
 
     func openNews(by id: NewsId) {}
 
+    // MARK: - Earn
+
+    func openEarnTokenDetails(for token: EarnTokenModel) {
+        // [REDACTED_TODO_COMMENT]
+        // For now, this is a placeholder
+    }
+
+    func openSeeAllEarnWidget() {
+        // [REDACTED_TODO_COMMENT]
+        // For now, this is a placeholder
+    }
+
     // MARK: - Private Implementation
 
     private func openSeeAllMarket(with widgetType: MarketsWidgetType, orderType: MarketsListOrderType? = nil) {
