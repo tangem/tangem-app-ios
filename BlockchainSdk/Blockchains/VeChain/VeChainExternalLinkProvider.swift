@@ -24,7 +24,7 @@ struct VeChainExternalLinkProvider: ExternalLinkProvider {
             return URL(string: "https://explore-testnet.vechain.org/accounts/\(address)")
         }
 
-        return URL(string: "https://explore.vechain.org/accounts/\(address)")
+        return URL(string: "https://explore.vechain.org/address/\(address)")
     }
 
     func url(transaction hash: String) -> URL? {
