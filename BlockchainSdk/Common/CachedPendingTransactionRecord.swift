@@ -16,6 +16,7 @@ struct CachedPendingTransactionRecord {
     let fee: CachedFee
     let date: Date
     let isIncoming: Bool
+    let networkProviderType: NetworkProviderType?
     let transactionType: CachedTransactionType
     let transactionParams: CachedTransactionParams?
 
@@ -27,6 +28,7 @@ struct CachedPendingTransactionRecord {
         fee = CachedFee(amount: CachedAmount(amount: pendingTransactionRecord.fee.amount))
         date = pendingTransactionRecord.date
         isIncoming = pendingTransactionRecord.isIncoming
+        networkProviderType = pendingTransactionRecord.networkProviderType
         transactionType = CachedTransactionType(from: pendingTransactionRecord.transactionType)
         transactionParams = CachedTransactionParams(
             transactionParams: pendingTransactionRecord.transactionParams
@@ -42,6 +44,7 @@ struct CachedPendingTransactionRecord {
             fee: fee.fee,
             date: date,
             isIncoming: isIncoming,
+            networkProviderType: networkProviderType,
             transactionType: transactionType.transactionType,
             transactionParams: transactionParams?.transactionParams
         )
