@@ -744,3 +744,11 @@ extension EthereumWalletManager: EthereumGaslessDataProvider {
         try GaslessTransactionAddressFactory.gaslessExecutorContractAddress(blockchain: wallet.blockchain)
     }
 }
+
+// MARK: - PendingTransactionRecordAdding
+
+extension EthereumWalletManager: PendingTransactionRecordAdding {
+    public func addPendingTransaction(_ transaction: Transaction, hash: String) {
+        pendingTransactionsManager.addTransaction(transaction, hash: hash)
+    }
+}
