@@ -12,6 +12,7 @@
 		0A0412B72D772656000D3A63 /* KaspaTransactionHistoryResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0412B62D772656000D3A63 /* KaspaTransactionHistoryResponse.swift */; };
 		0A0412B92D7727A6000D3A63 /* KaspaTransactionHistoryMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0412B82D7727A6000D3A63 /* KaspaTransactionHistoryMapper.swift */; };
 		0A04FCA52E03009800ABB6B0 /* ImageProviderFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A04FCA42E03009800ABB6B0 /* ImageProviderFactory.swift */; };
+		0A0551D62F273814005B70D2 /* SendReceiveTokenWalletDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0551D52F273814005B70D2 /* SendReceiveTokenWalletDataProvider.swift */; };
 		0A0D889B2E82980A00877140 /* YieldModuleTransactionDispatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0D889A2E82980A00877140 /* YieldModuleTransactionDispatcher.swift */; };
 		0A0D889D2E829CCF00877140 /* EvmTransactionBulkScan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0D889C2E829CCF00877140 /* EvmTransactionBulkScan.swift */; };
 		0A0DB6E82C479A6900003450 /* ActiveStakingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0DB6E72C479A6900003450 /* ActiveStakingView.swift */; };
@@ -4810,6 +4811,7 @@
 		0A0412B62D772656000D3A63 /* KaspaTransactionHistoryResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaTransactionHistoryResponse.swift; sourceTree = "<group>"; };
 		0A0412B82D7727A6000D3A63 /* KaspaTransactionHistoryMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaspaTransactionHistoryMapper.swift; sourceTree = "<group>"; };
 		0A04FCA42E03009800ABB6B0 /* ImageProviderFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageProviderFactory.swift; sourceTree = "<group>"; };
+		0A0551D52F273814005B70D2 /* SendReceiveTokenWalletDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendReceiveTokenWalletDataProvider.swift; sourceTree = "<group>"; };
 		0A0D889A2E82980A00877140 /* YieldModuleTransactionDispatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleTransactionDispatcher.swift; sourceTree = "<group>"; };
 		0A0D889C2E829CCF00877140 /* EvmTransactionBulkScan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvmTransactionBulkScan.swift; sourceTree = "<group>"; };
 		0A0DB6E72C479A6900003450 /* ActiveStakingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveStakingView.swift; sourceTree = "<group>"; };
@@ -23399,6 +23401,7 @@
 		EF665E3B2CBD231300F79B87 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				0A0551D52F273814005B70D2 /* SendReceiveTokenWalletDataProvider.swift */,
 				EFA265A82EE9DBAF00F02EC7 /* UnstakingBalanceProvider.swift */,
 				EF1D1ADF2C272055000CB941 /* InformationRelevanceService.swift */,
 				DAAA3C6E2B3D79FA0002DBB0 /* TransactionParamsBuilder.swift */,
@@ -28693,6 +28696,7 @@
 				2D245E612E97EB56006AD2DC /* MarketsTokenDetailsPricePerformanceViewModel.swift in Sources */,
 				2D245E622E97EB56006AD2DC /* MarketsTokenDetailsDateHelper.swift in Sources */,
 				2D245E632E97EB56006AD2DC /* MarketsHistoryChartViewModel.swift in Sources */,
+				0A0551D62F273814005B70D2 /* SendReceiveTokenWalletDataProvider.swift in Sources */,
 				2D245E642E97EB56006AD2DC /* MarketsTokenDetailsChipsContainer.swift in Sources */,
 				2D245E652E97EB56006AD2DC /* ScrollViewOffsetHandler+MarketsTokenDetails.swift in Sources */,
 				2D06399D2EF0271300BE0499 /* MarketsNoResultsStateView.swift in Sources */,
