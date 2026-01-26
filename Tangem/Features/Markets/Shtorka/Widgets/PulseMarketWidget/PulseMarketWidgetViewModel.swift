@@ -187,7 +187,6 @@ private extension PulseMarketWidgetViewModel {
                 case .failedToFetchData(let error):
                     if viewModel.dataProvider.items.isEmpty {
                         viewModel.quotesUpdatesScheduler.cancelUpdates()
-                        viewModel.analyticsService.logPulseMarketLoadError(error)
                     }
 
                     viewModel.widgetsUpdateHandler.performUpdateLoading(state: .error, for: viewModel.widgetType)
