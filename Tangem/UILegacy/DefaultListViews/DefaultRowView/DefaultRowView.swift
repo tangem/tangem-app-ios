@@ -21,6 +21,10 @@ struct DefaultRowView: View {
 
     private var isTappable: Bool { viewModel.action != nil }
 
+    private var verticalPadding: CGFloat {
+        appearance.hasVerticalPadding ? 14 : 0
+    }
+
     var body: some View {
         if let action = viewModel.action {
             Button(action: action) {
@@ -50,7 +54,7 @@ struct DefaultRowView: View {
             }
         }
         .lineLimit(1)
-        .padding(.vertical, 14)
+        .padding(.vertical, verticalPadding)
         .contentShape(Rectangle())
     }
 
@@ -125,6 +129,7 @@ extension DefaultRowView {
         let font: Font
         let textColor: Color
         let detailsColor: Color
+        let hasVerticalPadding: Bool
         let leadingIcon: LeadingIcon?
 
         static let destructiveButton = Appearance(isChevronVisible: false, textColor: Colors.Text.warning)
@@ -141,12 +146,14 @@ extension DefaultRowView {
             font: Font = Fonts.Regular.callout,
             textColor: Color = Colors.Text.primary1,
             detailsColor: Color = Colors.Text.tertiary,
+            hasVerticalPadding: Bool = true,
             leadingIcon: LeadingIcon? = nil
         ) {
             self.isChevronVisible = isChevronVisible
             self.font = font
             self.textColor = textColor
             self.detailsColor = detailsColor
+            self.hasVerticalPadding = hasVerticalPadding
             self.leadingIcon = leadingIcon
         }
     }
