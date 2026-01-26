@@ -20,6 +20,7 @@ final class CommonMarketsWidgetAnalyticsService: TopMarketWidgetAnalyticsProvide
             params: [
                 .errorCode: analyticsParams[.errorCode] ?? "",
                 .errorMessage: analyticsParams[.errorMessage] ?? "",
+                .source: Analytics.ParameterValue.markets.rawValue,
             ]
         )
     }
@@ -42,6 +43,7 @@ final class CommonMarketsWidgetAnalyticsService: TopMarketWidgetAnalyticsProvide
             params: [
                 .errorCode: analyticsParams[.errorCode] ?? "",
                 .errorMessage: analyticsParams[.errorMessage] ?? "",
+                .source: Analytics.ParameterValue.marketPulse.rawValue,
             ]
         )
     }
