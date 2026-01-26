@@ -591,14 +591,6 @@ final class UserTokensRepositoryAdapter: UserTokensRepository {
 
         return cryptoAccount
     }
-
-    @available(*, deprecated, message: "Temporary workaround until [REDACTED_INFO] is resolved")
-    private static func _cryptoAccount(
-        forDerivationIndex derivationIndex: Int,
-        from cryptoAccounts: [StoredCryptoAccount],
-    ) -> StoredCryptoAccount? {
-        return cryptoAccounts.first(where: { $0.derivationIndex == derivationIndex })
-    }
 }
 
 // MARK: - Auxiliary types
