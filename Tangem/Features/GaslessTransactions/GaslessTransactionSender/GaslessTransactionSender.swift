@@ -37,6 +37,9 @@ final class GaslessTransactionSender {
         )
 
         let transactionHash = try await gaslessTransactionsNetworkManager.sendGaslessTransaction(buildTransaction)
+
+        walletModel.pendingTransactionRecordAdder?.addPendingTransaction(transaction, hash: transactionHash)
+
         let sendResult = GaslessTransactionSendResult(hash: transactionHash, currentProviderHost: gaslessTransactionsNetworkManager.currentHost)
 
         let dispatcherResult = TransactionDispatcherResultMapper().mapResult(
