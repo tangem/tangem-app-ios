@@ -210,7 +210,11 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     private func performLoadHistory() {
         Task {
             await walletModel.updateTransactionsHistory()
-            await MainActor.run { isReloadingTransactionHistory = false }
+            await MainActor.run {
+                if isReloadingTransactionHistory {
+                    isReloadingTransactionHistory = false
+                }
+            }
         }
     }
 
