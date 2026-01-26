@@ -26,6 +26,7 @@ class MarketsCoordinator: CoordinatorObject {
     @Published var tokenDetailsCoordinator: MarketsTokenDetailsCoordinator?
     @Published var marketsSearchCoordinator: MarketsSearchCoordinator?
     @Published var newsListCoordinator: NewsListCoordinator?
+    @Published var earnListCoordinator: EarnCoordinator?
 
     // MARK: - Child ViewModels
 
@@ -129,8 +130,15 @@ extension MarketsCoordinator: MarketsMainRoutable {
     }
 
     func openSeeAllEarnWidget() {
-        // [REDACTED_TODO_COMMENT]
-        // For now, this is a placeholder
+        let coordinator = EarnCoordinator(
+            dismissAction: { [weak self] in
+                self?.earnListCoordinator = nil
+            }
+        )
+
+        coordinator.start(with: .init())
+
+        earnListCoordinator = coordinator
     }
 
     // MARK: - Private Implementation
