@@ -126,8 +126,22 @@ class CommonWalletModelsManager {
 
     /// Must be stateless, therefore it's static.
     private static func updateAllInternal(silent: Bool, walletModels: [any WalletModel]) async {
-        await TaskGroup.execute(items: walletModels) {
-            await $0.update(silent: silent, features: .balances)
+        // Even modern iOS devices, like iPhone 17 Pro/Pro Max, have at most 6 CPU cores
+        // Therefore, n=5 is a reasonable limit for concurrent network requests (as for now)
+        let maxConcurrentUpdates = 5
+        let count = walletModels.count
+
+        await withTaskGroup(of: Void.self) { group in
+            for index in 0 ..< count {
+                // Maintain a sliding window of concurrent updates with a maximum size of `maxConcurrentUpdates`
+                if index >= maxConcurrentUpdates {
+                    await group.next()
+                }
+                _ = group.addTaskUnlessCancelled {
+                    await walletModels[index].update(silent: silent, features: .balances)
+                }
+            }
+            await group.waitForAll()
         }
     }
 }
