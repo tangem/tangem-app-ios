@@ -12,7 +12,13 @@ public extension View {
     @ViewBuilder
     func matchedGeometryEffect(_ effect: GeometryEffectPropertiesModel?) -> some View {
         if let effect {
-            matchedGeometryEffect(id: effect.id, in: effect.namespace, isSource: effect.isSource)
+            matchedGeometryEffect(
+                id: effect.id,
+                in: effect.namespace,
+                properties: effect.properties,
+                anchor: effect.anchor,
+                isSource: effect.isSource
+            )
         } else {
             self
         }
