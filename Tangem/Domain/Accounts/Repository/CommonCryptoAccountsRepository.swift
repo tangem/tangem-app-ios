@@ -516,11 +516,17 @@ final class UserTokensRepositoryAdapter: UserTokensRepository {
     }
 
     var cryptoAccountPublisher: AnyPublisher<StoredCryptoAccount, Never> {
-        innerRepository
+        let index = derivationIndex
+
+        return innerRepository
             .cryptoAccountsPublisher
-            // [REDACTED_TODO_COMMENT]
-            .compactMap { [index = derivationIndex] cryptoAccounts in
-                return Self._cryptoAccount(forDerivationIndex: index, from: cryptoAccounts)
+            .filter { cryptoAccounts in
+                // Removal of the account triggers `innerRepository.cryptoAccountsPublisher` to emit a new value,
+                // but in this case the account is already removed so we have to skip this value
+                return cryptoAccounts.contains { $0.derivationIndex == index }
+            }
+            .map { cryptoAccounts in
+                return Self.cryptoAccount(forDerivationIndex: index, from: cryptoAccounts)
             }
             .eraseToAnyPublisher()
     }
