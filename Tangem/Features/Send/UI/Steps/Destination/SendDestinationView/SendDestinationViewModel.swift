@@ -21,6 +21,10 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
         return section
     }
 
+    var hasNonEmptyDestinationAddress: Bool {
+        !destinationAddressViewModel.address.string.isEmpty
+    }
+
     @Published var additionalFieldViewModel: SendDestinationAdditionalFieldViewModel?
 
     @Published var shouldShowSuggestedDestination: Bool = true
@@ -67,6 +71,10 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
 
     func onAppear() {
         interactor.preloadTransactionsHistoryIfNeeded()
+    }
+
+    func setIgnoreDestinationAddressClearButton(_ ignore: Bool) {
+        destinationAddressViewModel.update(shouldIgnoreClearButton: ignore)
     }
 
     private func updateView(tokenItem: TokenItem) {
@@ -138,14 +146,6 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
             .receive(on: DispatchQueue.main)
             .sink { viewModel, error in
                 viewModel.destinationAddressViewModel.update(error: error)
-            }
-            .store(in: &bag)
-
-        interactor.ignoreDestinationClear
-            .withWeakCaptureOf(self)
-            .receiveOnMain()
-            .sink { viewModel, ignore in
-                viewModel.destinationAddressViewModel.update(shouldIgnoreClearButton: ignore)
             }
             .store(in: &bag)
 
