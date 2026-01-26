@@ -40,6 +40,10 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
 
     private var allFieldsIsValidSubscription: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
+    
+    var hasNonEmptyDestinationAddress: Bool {
+        !destinationAddressViewModel.address.string.isEmpty
+    }
 
     weak var stepRouter: SendDestinationStepRoutable?
 
@@ -71,10 +75,6 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
 
     func setIgnoreDestinationAddressClearButton(_ ignore: Bool) {
         destinationAddressViewModel.update(shouldIgnoreClearButton: ignore)
-    }
-
-    var hasNonEmptyDestinationAddress: Bool {
-        !destinationAddressViewModel.address.string.isEmpty
     }
 
     private func updateView(tokenItem: TokenItem) {
