@@ -520,14 +520,10 @@ final class UserTokensRepositoryAdapter: UserTokensRepository {
 
         return innerRepository
             .cryptoAccountsPublisher
-            .filter { cryptoAccounts in
-                // Removal of the account triggers `innerRepository.cryptoAccountsPublisher` to emit a new value,
-                // but in this case the account is already removed so we have to skip this value
-                return cryptoAccounts.contains { $0.derivationIndex == index }
-            }
-            .map { cryptoAccounts in
-                return Self.cryptoAccount(forDerivationIndex: index, from: cryptoAccounts)
-            }
+            // Removal of the account triggers `innerRepository.cryptoAccountsPublisher` to emit a new value,
+            // but in this case the account is already removed so we have to skip this value
+            .filter { $0.contains { $0.derivationIndex == index } }
+            .map { Self.cryptoAccount(forDerivationIndex: index, from: $0) }
             .eraseToAnyPublisher()
     }
 
