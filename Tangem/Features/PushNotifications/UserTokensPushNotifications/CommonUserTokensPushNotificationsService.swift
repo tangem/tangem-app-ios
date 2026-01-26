@@ -206,7 +206,8 @@ private extension CommonUserTokensPushNotificationsService {
                 systemVersion: deviceInfo.systemVersion,
                 language: deviceInfo.appLanguageCode,
                 timezone: deviceInfo.timezone,
-                version: deviceInfo.version
+                version: deviceInfo.version,
+                appsflyerId: AppsFlyerWrapper.shared.appsflyerId
             )
 
             let response = try await tangemApiService.createUserWalletsApplications(requestModel: requestModel)
