@@ -73,6 +73,10 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
         destinationAddressViewModel.update(shouldIgnoreClearButton: ignore)
     }
 
+    var hasNonEmptyDestinationAddress: Bool {
+        !destinationAddressViewModel.address.string.isEmpty
+    }
+
     private func updateView(tokenItem: TokenItem) {
         networkName = tokenItem.networkName
         destinationAddressViewModel.textViewModel.placeholder = makePlaceholder(tokenItem: tokenItem)
