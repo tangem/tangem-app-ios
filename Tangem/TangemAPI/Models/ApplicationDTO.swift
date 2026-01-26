@@ -21,6 +21,7 @@ enum ApplicationDTO {
         let language: String
         let timezone: String
         let version: String
+        let appsflyerId: String
     }
 
     enum Create {
