@@ -49,6 +49,11 @@ extension SendDestinationStep: SendStep {
         interactor.allFieldsIsValid.eraseToAnyPublisher()
     }
 
+    func canBeClosed(continueAction: @escaping () -> Void) -> Bool {
+        // Synchronous check to prevent race condition when Clear and Next buttons are tapped simultaneously
+        viewModel.hasNonEmptyDestinationAddress
+    }
+
     func initialAppear() {
         analyticsLogger.logDestinationStepOpened()
     }
@@ -57,10 +62,10 @@ extension SendDestinationStep: SendStep {
         step.type.isSummary ? analyticsLogger.logDestinationStepReopened() : analyticsLogger.logDestinationStepOpened()
 
         interactorSaver.captureValue()
-        interactor.setIgnoreDestinationClear(false)
+        viewModel.setIgnoreDestinationAddressClearButton(false)
     }
 
     func willDisappear(next step: any SendStep) {
-        interactor.setIgnoreDestinationClear(true)
+        viewModel.setIgnoreDestinationAddressClearButton(true)
     }
 }
