@@ -31,6 +31,8 @@ public struct AccountInlineHeaderView: View {
 
             Text(name)
                 .style(font, color: textColor)
+                .minimumScaleFactor(0.7)
+                .lineLimit(1)
 
             if expandsHorizontally {
                 Spacer()
@@ -56,6 +58,13 @@ extension AccountInlineHeaderView: Setupable {
 
     public func textColor(_ color: Color) -> Self {
         map { $0.textColor = color }
+    }
+
+    public func nameStyle(_ font: Font, color: Color) -> Self {
+        map {
+            $0.font = font
+            $0.textColor = color
+        }
     }
 
     public func expandsHorizontally(_ expands: Bool) -> Self {
