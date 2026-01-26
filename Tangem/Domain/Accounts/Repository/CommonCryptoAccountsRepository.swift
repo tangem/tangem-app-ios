@@ -534,8 +534,7 @@ final class UserTokensRepositoryAdapter: UserTokensRepository {
     var cryptoAccount: StoredCryptoAccount {
         let cryptoAccounts = innerRepository.persistentStorage.getList()
 
-        // [REDACTED_TODO_COMMENT]
-        return Self._cryptoAccount(forDerivationIndex: derivationIndex, from: cryptoAccounts) ?? cryptoAccounts[0].withTokens([])
+        return Self.cryptoAccount(forDerivationIndex: derivationIndex, from: cryptoAccounts)
     }
 
     func performBatchUpdates(_ batchUpdates: BatchUpdates) rethrows {
