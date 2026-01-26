@@ -76,11 +76,13 @@ struct UserTokenListConverter {
 
         let contextBuilder = model.config.contextBuilder
         let context = contextBuilder
-            .enrich(withName: model.name)
             .enrichReferral()
-            .buildRaw()
 
-        return context
+        if model.name.isNotEmpty {
+            _ = context.enrich(withName: model.name)
+        }
+
+        return context.buildRaw()
     }
 
     private func convertToGroupType(
