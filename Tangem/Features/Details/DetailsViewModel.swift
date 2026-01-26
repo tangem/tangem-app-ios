@@ -32,10 +32,6 @@ final class DetailsViewModel: ObservableObject {
         addOrScanNewUserWalletViewModel.map { viewModel in
             viewModels.append(.addOrScanNewUserWalletButton(viewModel))
         }
-        addNewUserWalletViewModel.map { viewModel in
-            viewModels.append(.addNewUserWalletButton(viewModel))
-        }
-
         return viewModels
     }
 
@@ -59,7 +55,6 @@ final class DetailsViewModel: ObservableObject {
 
     @Published private var userWalletsViewModels: [SettingsUserWalletRowViewModel] = []
     @Published private var addOrScanNewUserWalletViewModel: DefaultRowViewModel?
-    @Published private var addNewUserWalletViewModel: DefaultRowViewModel?
 
     private var isScanning: Bool = false {
         didSet {
@@ -245,15 +240,6 @@ private extension DetailsViewModel {
         coordinator?.openScanCardManual()
     }
 
-    func addWallet() {
-        Analytics.log(
-            .buttonAddWallet,
-            params: [.source: .settings],
-            contextParams: .empty
-        )
-        addOrScanNewUserWallet()
-    }
-
     func requestSupport() {
         Analytics.log(.requestSupport, params: [.source: .settings])
         failedCardScanTracker.resetCounter()
@@ -334,14 +320,7 @@ private extension DetailsViewModel {
             }
         }
 
-        if FeatureProvider.isAvailable(.mobileWallet) {
-            addNewUserWalletViewModel = DefaultRowViewModel(
-                title: Localization.userWalletListAddButton,
-                action: weakify(self, forFunction: DetailsViewModel.addWallet)
-            )
-        } else {
-            addOrScanNewUserWalletViewModel = makeAddOrScanUserWalletViewModel()
-        }
+        addOrScanNewUserWalletViewModel = makeAddOrScanUserWalletViewModel()
     }
 
     func updateAddOrScanNewUserWalletButton() {
@@ -411,7 +390,16 @@ private extension DetailsViewModel {
 
     func addOrScanNewUserWallet() {
         isScanning = true
-        Analytics.log(Analytics.CardScanSource.settings.cardScanButtonEvent)
+
+        if FeatureProvider.isAvailable(.mobileWallet) {
+            Analytics.log(
+                .buttonAddWallet,
+                params: [.source: .settings],
+                contextParams: .empty
+            )
+        } else {
+            Analytics.log(Analytics.CardScanSource.settings.cardScanButtonEvent)
+        }
 
         runTask(in: self) { viewModel in
             let cardScanner = CardScannerFactory().makeDefaultScanner()
@@ -682,15 +670,12 @@ extension DetailsViewModel {
     enum WalletSectionType: Identifiable {
         case wallet(SettingsUserWalletRowViewModel)
         case addOrScanNewUserWalletButton(DefaultRowViewModel)
-        case addNewUserWalletButton(DefaultRowViewModel)
 
         var id: Int {
             switch self {
             case .wallet(let viewModel):
                 return viewModel.id.hashValue
             case .addOrScanNewUserWalletButton(let viewModel):
-                return viewModel.id.hashValue
-            case .addNewUserWalletButton(let viewModel):
                 return viewModel.id.hashValue
             }
         }
