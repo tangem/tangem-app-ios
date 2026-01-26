@@ -8,7 +8,9 @@
 
 import Foundation
 import TangemLocalization
+import TangemMacro
 
+@CaseFlagable
 enum MarketsListOrderType: String, CaseIterable, Encodable, CustomStringConvertible, Identifiable {
     case rating
     case trending
