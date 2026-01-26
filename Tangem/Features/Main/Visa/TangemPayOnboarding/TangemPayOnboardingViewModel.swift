@@ -57,7 +57,7 @@ final class TangemPayOnboardingViewModel: ObservableObject {
 
                 try await validateDeeplink(deeplinkString: deeplink)
             case .other:
-                break
+                try await requestEligibility()
             }
             try? await minimumLoaderShowingTimeTask.value
 
@@ -82,12 +82,24 @@ final class TangemPayOnboardingViewModel: ObservableObject {
             throw TangemPayOnboardingError.invalidDeeplink
         }
     }
+
+    private func requestEligibility() async throws {
+        let isTangemPayAvailable = await tangemPayAvailabilityRepository.requestEligibility()
+        await MainActor.run {
+            AppSettings.shared.tangemPayIsEligibilityAvailable = isTangemPayAvailable
+        }
+
+        if !isTangemPayAvailable {
+            throw TangemPayOnboardingError.tangemPayIsNotAvailable
+        }
+    }
 }
 
 private extension TangemPayOnboardingViewModel {
     enum TangemPayOnboardingError: Error {
         case invalidDeeplink
         case noAvailableWallets
+        case tangemPayIsNotAvailable
     }
 }
 
