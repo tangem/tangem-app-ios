@@ -15,6 +15,10 @@ class AppsFlyerWrapper {
     @Injected(\.keysManager) private var keysManager: any KeysManager
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
+    var appsflyerId: String {
+        AppsFlyerLib.shared().getAppsFlyerUID()
+    }
+
     static let shared: AppsFlyerWrapper = .init()
 
     private var bag: Set<AnyCancellable> = []
