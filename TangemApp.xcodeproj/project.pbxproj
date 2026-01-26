@@ -11051,8 +11051,8 @@
 		2D91AD8A2EFEBD8F0022503F /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				2D91AD882EFEBD8F0022503F /* Common */,
 				2D91AD892EFEBD8F0022503F /* MarketsWidgetNewsProvider.swift */,
+				2D91AD882EFEBD8F0022503F /* Common */,
 			);
 			path = Services;
 			sourceTree = "<group>";
