@@ -15,22 +15,34 @@ public struct AccountInlineHeaderView: View {
     private let name: String
 
     private var iconSettings: AccountIconView.Settings = .extraSmallSized
-    private var spacing: CGFloat = 6
+    private var spacing: CGFloat = Constants.spacing
     private var font: Font = Fonts.Bold.footnote
     private var textColor: Color = Colors.Text.primary1
     private var expandsHorizontally: Bool = false
+    private var iconGeometryEffect: GeometryEffectPropertiesModel?
+    private var iconBackgroundGeometryEffect: GeometryEffectPropertiesModel?
+    private var nameGeometryEffect: GeometryEffectPropertiesModel?
 
-    public init(iconData: AccountIconView.ViewData, name: String) {
+    public init(
+        iconData: AccountIconView.ViewData,
+        name: String
+    ) {
         self.iconData = iconData
         self.name = name
     }
 
     public var body: some View {
         HStack(spacing: spacing) {
-            AccountIconView(data: iconData, settings: iconSettings)
+            AccountIconView(
+                data: iconData,
+                settings: iconSettings,
+                iconGeometryEffect: iconGeometryEffect,
+                backgroundGeometryEffect: iconBackgroundGeometryEffect
+            )
 
             Text(name)
                 .style(font, color: textColor)
+                .matchedGeometryEffect(nameGeometryEffect)
                 .minimumScaleFactor(0.7)
                 .lineLimit(1)
 
@@ -41,15 +53,19 @@ public struct AccountInlineHeaderView: View {
     }
 }
 
+// MARK: - Constants
+
+public extension AccountInlineHeaderView {
+    enum Constants {
+        public static let spacing: CGFloat = 6
+    }
+}
+
 // MARK: - Setupable
 
 extension AccountInlineHeaderView: Setupable {
     public func iconSettings(_ settings: AccountIconView.Settings) -> Self {
         map { $0.iconSettings = settings }
-    }
-
-    public func spacing(_ spacing: CGFloat) -> Self {
-        map { $0.spacing = spacing }
     }
 
     public func font(_ font: Font) -> Self {
@@ -69,6 +85,18 @@ extension AccountInlineHeaderView: Setupable {
 
     public func expandsHorizontally(_ expands: Bool) -> Self {
         map { $0.expandsHorizontally = expands }
+    }
+
+    public func iconGeometryEffect(_ effect: GeometryEffectPropertiesModel?) -> Self {
+        map { $0.iconGeometryEffect = effect }
+    }
+
+    public func iconBackgroundGeometryEffect(_ effect: GeometryEffectPropertiesModel?) -> Self {
+        map { $0.iconBackgroundGeometryEffect = effect }
+    }
+
+    public func nameGeometryEffect(_ effect: GeometryEffectPropertiesModel?) -> Self {
+        map { $0.nameGeometryEffect = effect }
     }
 }
 
@@ -93,7 +121,6 @@ extension AccountInlineHeaderView: Setupable {
             iconData: .init(backgroundColor: .orange, nameMode: .letter("C")),
             name: "Account 3"
         )
-        .spacing(8)
         .expandsHorizontally(true)
     }
     .padding()
