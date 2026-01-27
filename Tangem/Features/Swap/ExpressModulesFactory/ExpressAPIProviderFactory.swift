@@ -53,7 +53,7 @@ struct ExpressAPIProviderFactory {
 private extension ExpressAPIProviderFactory {
     func apiKey(expressAPIType: ExpressAPIType) -> String {
         switch expressAPIType {
-        case .develop, .develop2, .develop3, .stage, .mock:
+        case .develop, .develop2, .develop3, .stage, .stage2, .mock:
             if let apiKey = keysManager.devExpressKeys?.apiKey {
                 return apiKey
             }
@@ -67,7 +67,7 @@ private extension ExpressAPIProviderFactory {
 
     func signVerifierPublicKey(expressAPIType: ExpressAPIType) -> String {
         switch expressAPIType {
-        case .develop, .develop2, .develop3, .stage, .mock:
+        case .develop, .develop2, .develop3, .stage, .stage2, .mock:
             if let publicKey = keysManager.devExpressKeys?.signVerifierPublicKey {
                 return publicKey
             }

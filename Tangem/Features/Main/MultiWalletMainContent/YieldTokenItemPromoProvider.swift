@@ -6,7 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import SwiftUI
+import Foundation
 import Combine
 import TangemAssets
 import TangemLocalization
@@ -20,11 +20,7 @@ final class YieldTokenItemPromoProvider {
     @Injected(\.yieldModuleNetworkManager)
     private var yieldModuleNetworkManager: YieldModuleNetworkManager
 
-    private let yieldPromoWalletModelSubject: CurrentValueSubject<TokenItemPromoParams?, Never> = .init(nil)
-
     private let decimalRoundingUtility = DecimalRoundingUtility()
-
-    private var bag = Set<AnyCancellable>()
 
     private let processingQueue = DispatchQueue(
         label: "com.tangem.MultiWalletMainContentViewTokenItemPromoProvider.processingQueue",
@@ -34,79 +30,20 @@ final class YieldTokenItemPromoProvider {
     // MARK: - Dependencies
 
     private let userWalletModel: UserWalletModel
-    private let sectionsProvider: any MultiWalletMainContentViewSectionsProvider
     private let yieldModuleMarketsRepository: YieldModuleMarketsRepository
     private let tokenItemPromoBubbleVisibilityInteractor: TokenItemPromoBubbleVisibilityInteractor
 
     init(
         userWalletModel: UserWalletModel,
-        sectionsProvider: any MultiWalletMainContentViewSectionsProvider,
         yieldModuleMarketsRepository: YieldModuleMarketsRepository,
         tokenItemPromoBubbleVisibilityInteractor: TokenItemPromoBubbleVisibilityInteractor
     ) {
         self.userWalletModel = userWalletModel
-        self.sectionsProvider = sectionsProvider
         self.yieldModuleMarketsRepository = yieldModuleMarketsRepository
         self.tokenItemPromoBubbleVisibilityInteractor = tokenItemPromoBubbleVisibilityInteractor
-
-        bind()
     }
 
     // MARK: - Private Implementation
-
-    private func bind() {
-        Publishers
-            .CombineLatest(
-                makeYieldMarketsPublisher().eraseToAnyPublisher(),
-                sectionsProvider.makePlainSectionsPublisher().eraseToAnyPublisher()
-            )
-            .receive(on: processingQueue)
-            .withWeakCaptureOf(self)
-            .sink { provider, output in
-                guard provider.tokenItemPromoBubbleVisibilityInteractor.shouldShowPromoBubble(for: Constants.appStorageKey) else {
-                    return
-                }
-
-                let (marketInfo, sections) = output
-
-                let thisUserWalletWalletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(
-                    for: provider.userWalletModel
-                )
-
-                guard !thisUserWalletWalletModels.hasActiveYield() else {
-                    provider.yieldPromoWalletModelSubject.send(nil)
-                    return
-                }
-
-                let yieldAvailableWalletModels = provider.walletModelWithNotActiveYield(
-                    walletModels: thisUserWalletWalletModels,
-                    yieldMarketInfo: marketInfo
-                )
-
-                let selectedWalletModelId = provider.selectWalletModelId(
-                    from: yieldAvailableWalletModels,
-                    flattenedSectionItems: sections.flatMap { $0.items }
-                )
-
-                guard let (id, contractAddress) = selectedWalletModelId,
-                      let apy = marketInfo.first(where: { $0.tokenContractAddress == contractAddress })?.apy
-                else {
-                    return
-                }
-
-                let apyFormatted = PercentFormatter().format(apy, option: .interval)
-
-                let params = TokenItemPromoParams(
-                    walletModelId: id,
-                    message: Localization.yieldModuleMainScreenPromoBannerMessage(apyFormatted),
-                    icon: Assets.YieldModule.yieldLogo16.image,
-                    appStorageKey: Constants.appStorageKey
-                )
-
-                provider.yieldPromoWalletModelSubject.send(params)
-            }
-            .store(in: &bag)
-    }
 
     private func walletModelWithNotActiveYield(
         walletModels: [any WalletModel],
@@ -131,7 +68,7 @@ final class YieldTokenItemPromoProvider {
 
     private func selectWalletModelId(
         from filtered: [any WalletModel],
-        flattenedSectionItems: [TokenItemViewModel]
+        promoProviderInput: [TokenItemPromoProviderInput]
     ) -> (id: WalletModelId, contractAddress: String)? {
         guard filtered.isNotEmpty else {
             return nil
@@ -159,7 +96,7 @@ final class YieldTokenItemPromoProvider {
             }
         }
 
-        let selectedModel = flattenedSectionItems.first { topIds.contains($0.id) }
+        let selectedModel = promoProviderInput.first { topIds.contains($0.id) }
 
         guard let id = selectedModel?.id, let address = selectedModel?.tokenItem.contractAddress else {
             return nil
@@ -168,15 +105,22 @@ final class YieldTokenItemPromoProvider {
         return (id, address)
     }
 
-    private func makeYieldMarketsPublisher() -> any Publisher<[YieldModuleMarketInfo], Never> {
-        let publisher = yieldModuleNetworkManager.marketsPublisher.filter { !$0.isEmpty }.removeDuplicates()
+    private func makeYieldMarketsPublisher() -> some Publisher<[YieldModuleMarketInfo], Never> {
+        let publisher = yieldModuleNetworkManager
+            .marketsPublisher
+            .filter { !$0.isEmpty }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
 
         guard let cachedMarkets = yieldModuleMarketsRepository.markets() else {
             return publisher
         }
 
         let marketsInfo = cachedMarkets.markets.map { YieldModuleMarketInfo(from: $0) }
-        return publisher.prepend(marketsInfo)
+
+        return publisher
+            .prepend(marketsInfo)
+            .eraseToAnyPublisher()
     }
 }
 
@@ -189,8 +133,55 @@ private enum Constants {
 // MARK: - TokenItemPromoProvider
 
 extension YieldTokenItemPromoProvider: TokenItemPromoProvider {
-    var promoWalletModelPublisher: AnyPublisher<TokenItemPromoParams?, Never> {
-        yieldPromoWalletModelSubject.eraseToAnyPublisher()
+    func makePromoOutputPublisher(
+        using promoInputPublisher: some Publisher<[TokenItemPromoProviderInput], Never>
+    ) -> AnyPublisher<TokenItemPromoProviderOutput?, Never> {
+        return makeYieldMarketsPublisher()
+            .combineLatest(promoInputPublisher)
+            .receive(on: processingQueue)
+            .withWeakCaptureOf(self)
+            .map { provider, output -> TokenItemPromoProviderOutput? in
+                guard provider.tokenItemPromoBubbleVisibilityInteractor.shouldShowPromoBubble(for: Constants.appStorageKey) else {
+                    return nil
+                }
+
+                let (marketInfo, promoProviderInput) = output
+
+                let thisUserWalletWalletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(
+                    for: provider.userWalletModel
+                )
+
+                guard !thisUserWalletWalletModels.hasActiveYield() else {
+                    return nil
+                }
+
+                let yieldAvailableWalletModels = provider.walletModelWithNotActiveYield(
+                    walletModels: thisUserWalletWalletModels,
+                    yieldMarketInfo: marketInfo
+                )
+
+                let selectedWalletModelId = provider.selectWalletModelId(
+                    from: yieldAvailableWalletModels,
+                    promoProviderInput: promoProviderInput
+                )
+
+                guard
+                    let (id, contractAddress) = selectedWalletModelId,
+                    let apy = marketInfo.first(where: { $0.tokenContractAddress == contractAddress })?.apy
+                else {
+                    return nil
+                }
+
+                let apyFormatted = PercentFormatter().format(apy, option: .interval)
+
+                return TokenItemPromoProviderOutput(
+                    walletModelId: id,
+                    message: Localization.yieldModuleMainScreenPromoBannerMessage(apyFormatted),
+                    icon: Assets.YieldModule.yieldLogo16.image,
+                    appStorageKey: Constants.appStorageKey
+                )
+            }
+            .eraseToAnyPublisher()
     }
 
     func hidePromoBubble() {

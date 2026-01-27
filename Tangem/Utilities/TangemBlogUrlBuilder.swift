@@ -10,11 +10,9 @@ import Foundation
 
 struct TangemBlogUrlBuilder {
     func url(post: Post) -> URL {
-        return URL(string: "https://tangem.com/\(Locale.webLanguageCode())/blog/post/\(post.path)/")!
-    }
-
-    func url(root: Root) -> URL {
-        return URL(string: "https://tangem.com/\(Locale.webLanguageCode())/\(root.path)/")!
+        var urlComponents = URLComponents(string: "https://tangem.com/blog/post/\(post.path)/")!
+        urlComponents.queryItems = TangemUrlHelper.queryItems(utmCampaign: .articles)
+        return urlComponents.url!
     }
 }
 
@@ -25,12 +23,8 @@ extension TangemBlogUrlBuilder {
         case refundedDex
         case whatIsStaking
         case seedNotify
-        case mobileVsHardware
+        case mobileWallet
         case giveRevokePermission
-    }
-
-    enum Root {
-        case pricing
     }
 }
 
@@ -47,19 +41,10 @@ private extension TangemBlogUrlBuilder.Post {
             "how-to-stake-cryptocurrency"
         case .seedNotify:
             "seed-notify"
-        case .mobileVsHardware:
-            "mobile-vs-hardware"
+        case .mobileWallet:
+            "mobile-wallet"
         case .giveRevokePermission:
             "give-revoke-permission"
-        }
-    }
-}
-
-private extension TangemBlogUrlBuilder.Root {
-    var path: String {
-        switch self {
-        case .pricing:
-            "pricing"
         }
     }
 }

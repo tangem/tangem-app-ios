@@ -42,7 +42,7 @@ struct MarketsTokenAccountNetworkSelectorFlowView: View {
         .safeAreaInset(edge: .top, spacing: .zero) {
             header(from: viewModel.viewState)
         }
-        .scrollBounceBehaviorBackport(.basedOnSize)
+        .scrollBounceBehavior(.basedOnSize)
         .coordinateSpace(name: Layout.scrollViewCoordinateSpace)
         .floatingSheetConfiguration { configuration in
             configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
