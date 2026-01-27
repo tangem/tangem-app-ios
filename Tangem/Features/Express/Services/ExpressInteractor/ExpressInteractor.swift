@@ -636,6 +636,28 @@ private extension ExpressInteractor {
             } catch is CancellationError {
                 // Do nothing
                 log("The update task was cancelled")
+            } catch ExpressRepositoryError.availableProvidersDoesNotFound {
+                // Handle pair not available error - no providers support this pair
+                if let source = getSource().value, let destination = getDestination() {
+                    let sourceToken = source.tokenItem
+                    let destinationToken = destination.tokenItem
+
+                    Analytics.log(
+                        event: .swapNoticeSwapIsNotAvailableForThisPair,
+                        params: [
+                            .sendToken: sourceToken.currencySymbol,
+                            .receiveToken: destinationToken.currencySymbol,
+                            .sendBlockchain: sourceToken.blockchain.displayName,
+                            .receiveBlockchain: destinationToken.blockchain.displayName,
+                        ]
+                    )
+
+                    log("Pair not available (no providers): \(sourceToken.expressCurrency) -> \(destinationToken.expressCurrency)")
+                    updateState(.preloadRestriction(.pairNotAvailable(source: sourceToken, destination: destinationToken)))
+                } else {
+                    let quote = getState().quote
+                    updateState(.requiredRefresh(occurredError: ExpressRepositoryError.availableProvidersDoesNotFound, quote: quote))
+                }
             } catch {
                 switch error {
                 case let error as ExpressAPIError:
@@ -676,8 +698,17 @@ private extension ExpressInteractor {
             case (.success, .none):
                 log("Destination loading is not needed")
 
-            case (.success, .success):
-                // All already set
+            case (.success(let sourceWallet), .success(let destinationWallet)):
+                // Both tokens are already set - check if pair is available
+                try await expressPairsRepository.updatePairs(for: sourceWallet.tokenItem.expressCurrency, userWalletInfo: userWalletInfo)
+
+                if let pairNotAvailableRestriction = await checkPairAvailability(
+                    source: sourceWallet,
+                    destination: destinationWallet
+                ) {
+                    return pairNotAvailableRestriction
+                }
+
                 swappingPairDidChange()
 
             case (.success(let source), _):
@@ -725,6 +756,36 @@ private extension ExpressInteractor {
 
             throw error
         }
+    }
+
+    /// Check if the selected pair is available for swap
+    /// Returns PreloadRestrictionType if pair is not available, nil otherwise
+    func checkPairAvailability(
+        source: any ExpressInteractorSourceWallet,
+        destination: any ExpressInteractorDestinationWallet
+    ) async -> PreloadRestrictionType? {
+        let pairs = await expressPairsRepository.getPairs(from: source.tokenItem.expressCurrency)
+        let isPairAvailable = pairs.contains { $0.destination == destination.tokenItem.expressCurrency.asCurrency }
+
+        if !isPairAvailable {
+            let sourceToken = source.tokenItem
+            let destinationToken = destination.tokenItem
+
+            Analytics.log(
+                event: .swapNoticeSwapIsNotAvailableForThisPair,
+                params: [
+                    .sendToken: sourceToken.currencySymbol,
+                    .receiveToken: destinationToken.currencySymbol,
+                    .sendBlockchain: sourceToken.blockchain.displayName,
+                    .receiveBlockchain: destinationToken.blockchain.displayName,
+                ]
+            )
+
+            log("Pair not available: \(sourceToken.expressCurrency) -> \(destinationToken.expressCurrency)")
+            return .pairNotAvailable(source: sourceToken, destination: destinationToken)
+        }
+
+        return nil
     }
 
     func makeAmount(value: Decimal, tokenItem: TokenItem) -> Amount {
@@ -915,6 +976,7 @@ extension ExpressInteractor {
     enum PreloadRestrictionType {
         case noSourceTokens(destination: TokenItem)
         case noDestinationTokens(source: TokenItem)
+        case pairNotAvailable(source: TokenItem, destination: TokenItem)
     }
 
     enum RestrictionType {

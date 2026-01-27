@@ -6,25 +6,16 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-import TangemExpress
-
 struct SwapDestinationTokenAvailabilitySorter {
-    // MARK: - Dependencies
-
-    @Injected(\.expressPairsRepository)
-    private var expressPairsRepository: ExpressPairsRepository
-
     // MARK: - Private property
 
     private let sourceTokenWalletModel: any WalletModel
-    private let userWalletModelConfig: UserWalletConfig
 
     init(
         sourceTokenWalletModel: any WalletModel,
         userWalletModelConfig: UserWalletConfig
     ) {
         self.sourceTokenWalletModel = sourceTokenWalletModel
-        self.userWalletModelConfig = userWalletModelConfig
     }
 }
 
@@ -32,18 +23,15 @@ struct SwapDestinationTokenAvailabilitySorter {
 
 extension SwapDestinationTokenAvailabilitySorter: TokenAvailabilitySorter {
     func sortModels(walletModels: [any WalletModel]) async -> (availableModels: [any WalletModel], unavailableModels: [any WalletModel]) {
-        let availablePairs = await expressPairsRepository.getPairs(from: sourceTokenWalletModel.tokenItem.expressCurrency)
-
+        // All tokens are available for swap destination - actual pair check happens on the exchange screen
+        // Filter only custom tokens and source token itself
         let result = walletModels.filter { $0.id != sourceTokenWalletModel.id }.reduce(
             into: (availableModels: [any WalletModel](), unavailableModels: [any WalletModel]())
         ) { result, walletModel in
-            let availabilityProvider = TokenActionAvailabilityProvider(userWalletConfig: userWalletModelConfig, walletModel: walletModel)
-
-            if availablePairs.map(\.destination).contains(walletModel.tokenItem.expressCurrency.asCurrency),
-               availabilityProvider.isSwapAvailable {
-                result.availableModels.append(walletModel)
-            } else {
+            if walletModel.isCustom {
                 result.unavailableModels.append(walletModel)
+            } else {
+                result.availableModels.append(walletModel)
             }
         }
 

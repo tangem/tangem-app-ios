@@ -242,21 +242,8 @@ extension TokenActionAvailabilityProvider {
             }
         }
 
-        let assetsState = expressAvailabilityProvider.expressAvailabilityUpdateStateValue
-        let tokenState = expressAvailabilityProvider.swapState(for: walletModel.tokenItem)
-
-        switch (tokenState, assetsState) {
-        case (.available, _):
-            return .available
-        case (.unavailable, .updating), (.notLoaded, .updating):
-            return .expressLoading
-        case (.notLoaded, .updated):
-            return .expressNotLoaded
-        case (.unavailable, .updated):
-            return .unavailable(tokenName: walletModel.tokenItem.name)
-        case (.notLoaded, .failed), (.unavailable, .failed):
-            return .expressUnreachable
-        }
+        // Swap availability is now checked on the exchange screen, not at startup
+        return .available
     }
 }
 

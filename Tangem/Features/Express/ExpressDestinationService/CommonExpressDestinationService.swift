@@ -12,9 +12,7 @@ import TangemFoundation
 
 struct CommonExpressDestinationService {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-    @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
     @Injected(\.expressPendingTransactionsRepository) private var pendingTransactionRepository: ExpressPendingTransactionRepository
-    @Injected(\.expressPairsRepository) private var expressPairsRepository: ExpressPairsRepository
 
     /// [REDACTED_TODO_COMMENT]
     /// [REDACTED_INFO]
@@ -74,14 +72,13 @@ private extension CommonExpressDestinationService {
             }
         }()
 
-        let availablePairs = await expressPairsRepository.getPairs(from: base.tokenItem.expressCurrency)
+        // All tokens are available for swap - actual pair check happens on the exchange screen
+        // Only filter out source token itself and custom tokens
         let searchableWalletModels = walletModels.filter { wallet in
             let isNotSource = wallet.walletModel.id != base.id
-            let isAvailable = expressAvailabilityProvider.canSwap(tokenItem: wallet.tokenItem)
             let isNotCustom = !wallet.walletModel.isCustom
-            let hasPair = availablePairs.contains(where: { $0.destination == wallet.tokenItem.expressCurrency.asCurrency })
 
-            return isNotSource && isAvailable && isNotCustom && hasPair
+            return isNotSource && isNotCustom
         }
 
         ExpressLogger.info(self, "has searchableWalletModels: \(searchableWalletModels.map(\.walletModel.tokenItem.expressCurrency))")
