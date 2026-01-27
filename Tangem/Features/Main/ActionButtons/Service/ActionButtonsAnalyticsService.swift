@@ -21,7 +21,7 @@ enum ActionButtonsAnalyticsService {
         let status: ActionButtonStatus = switch state {
         case .initial, .loading: .pending
         case .idle: .success
-        case .restricted, .disabled: .error
+        case .restricted, .disabled, .unavailable: .error
         }
 
         Analytics.log(event: event, params: [.status: status.rawValue])

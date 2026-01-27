@@ -62,7 +62,7 @@ struct OnboardingSeedPhraseImportView: View {
 
                     MainButton(
                         title: Localization.commonImport,
-                        icon: .trailing(Assets.tangemIcon),
+                        icon: viewModel.mainButtonIcon,
                         style: .primary,
                         isLoading: false,
                         isDisabled: !viewModel.isSeedPhraseValid,
@@ -88,6 +88,7 @@ struct OnboardingSeedPhraseImportView: View {
                     .animation(nil, value: viewModel.suggestions)
             }
         }
+        .screenCaptureProtection()
         .animation(.default, value: viewModel.inputError)
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
@@ -126,7 +127,6 @@ struct OnboardingSeedPhraseImportView: View {
                 placeholder: Localization.sendOptionalField
             )
             .setAutocapitalizationType(.none)
-            .screenCaptureProtection()
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 12)
@@ -138,6 +138,7 @@ struct OnboardingSeedPhraseImportView: View {
 struct OnboardingSeedPhraseImportView_Previews: PreviewProvider {
     private static let viewModel = OnboardingSeedPhraseImportViewModel(
         inputProcessor: SeedPhraseInputProcessor(),
+        shouldShowTangemIcon: true,
         delegate: nil
     )
 
