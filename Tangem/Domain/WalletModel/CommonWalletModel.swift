@@ -641,6 +641,10 @@ extension CommonWalletModel: WalletModelDependenciesProvider {
     var ethereumGaslessTransactionFeeProvider: (any GaslessTransactionFeeProvider)? {
         walletManager as? GaslessTransactionFeeProvider
     }
+
+    var pendingTransactionRecordAdder: (any PendingTransactionRecordAdding)? {
+        walletManager as? PendingTransactionRecordAdding
+    }
 }
 
 // MARK: - Transaction history

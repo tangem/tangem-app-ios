@@ -388,6 +388,10 @@ extension NFTSendWalletModelProxy: WalletModel {
         mainTokenWalletModel.ethereumGaslessTransactionFeeProvider
     }
 
+    var pendingTransactionRecordAdder: (any PendingTransactionRecordAdding)? {
+        mainTokenWalletModel.pendingTransactionRecordAdder
+    }
+
     var ethereumGaslessDataProvider: (any BlockchainSdk.EthereumGaslessDataProvider)? {
         mainTokenWalletModel.ethereumGaslessDataProvider
     }
