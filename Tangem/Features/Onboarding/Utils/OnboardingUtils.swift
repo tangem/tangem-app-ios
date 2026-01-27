@@ -39,7 +39,7 @@ struct OnboardingUtils {
         AppSettings.shared.askedToSaveUserWallets = true
         AppSettings.shared.useBiometricAuthentication = agreed
 
-        if !MobileWalletFeatureProvider.isAvailable {
+        if !FeatureProvider.isAvailable(.mobileWallet) {
             AppSettings.shared.saveUserWallets = agreed
         }
 

@@ -27,9 +27,9 @@ class PersistentStorage {
         containerUrl.appendingPathComponent(key).appendingPathExtension(documentType)
     }
 
-    private func encryptAndWriteToDocuments(_ data: Data, at path: inout URL) throws {
+    private func encryptAndWriteToDocuments(_ data: Data, at path: inout URL, options: Data.WritingOptions) throws {
         let encrypted = try encryptionUtility.encryptData(data)
-        try encrypted.write(to: path, options: .atomic)
+        try encrypted.write(to: path, options: options)
         var fileValues = URLResourceValues()
         fileValues.isExcludedFromBackup = true
         try path.setResourceValues(fileValues)
@@ -62,6 +62,10 @@ extension PersistentStorage: PersistentStorageProtocol {
         var documentPath = documentPath(for: key.path)
         createDirectory()
         let data = try JSONEncoder().encode(value)
-        try encryptAndWriteToDocuments(data, at: &documentPath)
+        var options: Data.WritingOptions = [.atomic]
+        if key.shouldEnableCompleteFileProtection {
+            options.insert(.completeFileProtection)
+        }
+        try encryptAndWriteToDocuments(data, at: &documentPath, options: options)
     }
 }

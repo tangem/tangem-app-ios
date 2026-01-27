@@ -13,7 +13,7 @@ import protocol TangemUI.FloatingSheetContentViewModel
 
 final class MobileBackupNeededViewModel {
     let title = Localization.hwBackupNeedTitle
-    let description = Localization.hwBackupNeedDescription
+    let description = Localization.hwBackupToSecureDescription
     let actionTitle = Localization.hwBackupNeedAction
 
     private let userWalletModel: UserWalletModel

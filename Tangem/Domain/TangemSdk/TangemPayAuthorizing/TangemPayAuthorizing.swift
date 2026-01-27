@@ -9,7 +9,7 @@
 import TangemSdk
 import TangemVisa
 
-protocol TangemPayAuthorizing: AnyObject {
+protocol TangemPayAuthorizing: TangemPayAuthorizerSyncNeededTitleProvider {
     func authorize(
         customerWalletId: String,
         authorizationService: TangemPayAuthorizationService
