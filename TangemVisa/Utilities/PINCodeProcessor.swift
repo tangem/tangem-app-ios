@@ -9,6 +9,7 @@
 import Foundation
 import CryptoKit
 import CryptoSwift
+import TangemSdk
 
 protocol PINCodeProcessor {
     func processSelectedPINCode(_ pinCode: String) async throws -> ProcessedPIN
@@ -69,10 +70,8 @@ class PaymentologyPINCodeProcessor {
         return (sessionIdData as Data).base64EncodedString()
     }
 
-    private func generateIV() -> Data {
-        var randomBytes = [UInt8](repeating: 0, count: ivLength)
-        _ = SecRandomCopyBytes(kSecRandomDefault, randomBytes.count, &randomBytes)
-        return Data(randomBytes)
+    private func generateIV() throws -> Data {
+        return try CryptoUtils.generateRandomBytes(count: ivLength)
     }
 
     private func encrypt(message: String, ivData: Data) throws -> String {
@@ -94,7 +93,7 @@ class PaymentologyPINCodeProcessor {
 extension PaymentologyPINCodeProcessor: PINCodeProcessor {
     func processSelectedPINCode(_ pinCode: String) async throws -> ProcessedPIN {
         let sessionId = try makeSessionId()
-        let ivData = generateIV()
+        let ivData = try generateIV()
         let ivBase64 = ivData.base64EncodedString()
 
         // ISO Format 2 Pin block CLPPPPffffffffFF

@@ -8,6 +8,7 @@
 
 import BlockchainSdk
 import TangemSdk
+import CryptoSwift
 
 public enum TangemPayUtilities {}
 
