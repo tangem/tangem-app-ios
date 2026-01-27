@@ -12,4 +12,6 @@ import Foundation
 protocol EarnDetailRoutable: AnyObject {
     func dismiss()
     func openEarnTokenDetails(for token: EarnTokenModel)
+    func openNetworksFilter()
+    func openTypesFilter()
 }

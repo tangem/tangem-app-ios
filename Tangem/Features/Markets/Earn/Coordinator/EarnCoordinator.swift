@@ -18,6 +18,8 @@ final class EarnCoordinator: CoordinatorObject {
     @Published var rootViewModel: EarnDetailViewModel?
     @Published var error: AlertBinder?
 
+    // MARK: - Child ViewModels
+
     // MARK: - Init
 
     required init(
@@ -55,5 +57,15 @@ extension EarnCoordinator: EarnDetailRoutable {
 
     func openEarnTokenDetails(for token: EarnTokenModel) {
         // Will be implemented in future iteration
+    }
+
+    func openNetworksFilter() {
+        // [REDACTED_TODO_COMMENT]
+        // For now, this is a placeholder
+    }
+
+    func openTypesFilter() {
+        // [REDACTED_TODO_COMMENT]
+        // For now, this is a placeholder
     }
 }
