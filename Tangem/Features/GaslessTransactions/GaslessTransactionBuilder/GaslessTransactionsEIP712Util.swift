@@ -39,6 +39,7 @@ extension GaslessTransactionBuilder {
                     .init(name: "coinPriceInToken", type: "uint256"),
                     .init(name: "feeTransferGasLimit", type: "uint256"),
                     .init(name: "baseGas", type: "uint256"),
+                    .init(name: "feeReceiver", type: "address"),
                 ],
                 primaryType: [
                     .init(name: "transaction", type: "Transaction"),
@@ -66,6 +67,7 @@ extension GaslessTransactionBuilder {
                     "coinPriceInToken": .string(fee.coinPriceInToken),
                     "feeTransferGasLimit": .string(fee.feeTransferGasLimit),
                     "baseGas": .string(fee.baseGas),
+                    "feeReceiver": .string(fee.feeReceiver),
                 ]),
                 "nonce": .string(nonce),
             ])
