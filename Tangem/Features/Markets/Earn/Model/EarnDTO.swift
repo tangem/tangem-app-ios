@@ -15,6 +15,41 @@ enum EarnDTO {
 // MARK: - List
 
 extension EarnDTO.List {
+    struct Request: Encodable {
+        let isForEarn: Bool?
+        let page: Int?
+        let limit: Int?
+        let type: EarnType?
+        let network: [String]?
+
+        var parameters: [String: Any] {
+            var params: [String: Any] = [:]
+
+            if let isForEarn {
+                params["isForEarn"] = isForEarn
+            }
+            if let page {
+                params["page"] = page
+            }
+            if let limit {
+                params["limit"] = limit
+            }
+            if let type {
+                params["type"] = type.rawValue
+            }
+            if let network, !network.isEmpty {
+                params["network"] = network.joined(separator: ",")
+            }
+
+            return params
+        }
+    }
+
+    enum EarnType: String, Encodable {
+        case staking
+        case yield
+    }
+
     struct Response: Decodable {
         let items: [Item]
         let meta: Meta

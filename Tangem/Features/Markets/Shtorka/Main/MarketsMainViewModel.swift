@@ -92,6 +92,7 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
         headerViewModel.delegate = self
 
         searchTextBind(publisher: headerViewModel.enteredSearchInputPublisher)
+        bindToSearchFocus()
 
         bindChildViewModels()
         bindToWidgetsProvider()
@@ -177,6 +178,15 @@ private extension MarketsMainViewModel {
                     viewModel.currentSearchValue = ""
                     viewModel.tokenListViewModel.onFetch(with: "", by: viewModel.filterProvider.currentFilterValue)
                 }
+            }
+            .store(in: &bag)
+    }
+
+    func bindToSearchFocus() {
+        headerViewModel.$inputShouldBecomeFocused
+            .filter { $0 }
+            .sink { _ in
+                Analytics.log(.marketsTokenSearchedClicked)
             }
             .store(in: &bag)
     }
