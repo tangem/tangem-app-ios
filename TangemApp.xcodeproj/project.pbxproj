@@ -521,6 +521,16 @@
 		2D665C322CDCA3FC00C9BA85 /* CLValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D665C0B2CDCA3FC00C9BA85 /* CLValue.swift */; };
 		2D665C342CDCA46C00C9BA85 /* CasperNetworkResponse.Transaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D665C332CDCA46C00C9BA85 /* CasperNetworkResponse.Transaction.swift */; };
 		2D67256B2EB0A6490035A4BC /* Experiment in Frameworks */ = {isa = PBXBuildFile; productRef = 2D67256A2EB0A6490035A4BC /* Experiment */; };
+		2D6E76B02F28C79300449331 /* EarnDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6E76AD2F28C79300449331 /* EarnDetailView.swift */; };
+		2D6E76B12F28C79300449331 /* EarnBestOpportunitiesListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6E76A82F28C79300449331 /* EarnBestOpportunitiesListView.swift */; };
+		2D6E76B22F28C79300449331 /* EarnDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6E76AE2F28C79300449331 /* EarnDetailViewModel.swift */; };
+		2D6E76B32F28C79300449331 /* EarnDetailHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6E76A92F28C79300449331 /* EarnDetailHeaderView.swift */; };
+		2D6E76B42F28C79300449331 /* EarnDetailRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6E76A62F28C79300449331 /* EarnDetailRoutable.swift */; };
+		2D6E76B52F28C79300449331 /* EarnDetailCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6E76A52F28C79300449331 /* EarnDetailCoordinatorView.swift */; };
+		2D6E76B62F28C79300449331 /* EarnMostlyUsedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6E76AB2F28C79300449331 /* EarnMostlyUsedView.swift */; };
+		2D6E76B72F28C79300449331 /* EarnFilterHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6E76AA2F28C79300449331 /* EarnFilterHeaderView.swift */; };
+		2D6E76B82F28C79300449331 /* EarnCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6E76A42F28C79300449331 /* EarnCoordinator.swift */; };
+		2D6E76BC2F28C9C800449331 /* EarnDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6E76BB2F28C9C800449331 /* EarnDataProvider.swift */; };
 		2D70C61D2B21E90A00BD1DAB /* MarketsAddCustomItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D70C61B2B21E90A00BD1DAB /* MarketsAddCustomItemView.swift */; };
 		2D72D97E2EF5605B008868DE /* PulseMarketWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D72D9762EF5605B008868DE /* PulseMarketWidgetView.swift */; };
 		2D72D97F2EF5605B008868DE /* TopMarketWidgetRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D72D9792EF5605B008868DE /* TopMarketWidgetRoutable.swift */; };
@@ -2816,6 +2826,7 @@
 		C2FF4FFC2DD6710B00FE1D9E /* WalletConnectDAppConnectionRequestViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2FF4FFB2DD670FE00FE1D9E /* WalletConnectDAppConnectionRequestViewModel.swift */; };
 		C2FF4FFE2DD6712300FE1D9E /* WalletConnectDAppConnectionRequestViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2FF4FFD2DD6711C00FE1D9E /* WalletConnectDAppConnectionRequestViewState.swift */; };
 		C2FF50002DD6713600FE1D9E /* WalletConnectDAppConnectionRequestViewEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2FF4FFF2DD6712800FE1D9E /* WalletConnectDAppConnectionRequestViewEvent.swift */; };
+		D3DB6A2DC7084F92B79EC035 /* PendingTransactionRecordAdder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44295B21C65849E388096220 /* PendingTransactionRecordAdder.swift */; };
 		D80903F32E1575DF0031E6CE /* ExpressAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = D80903F22E1575DF0031E6CE /* ExpressAPI.swift */; };
 		D80A115D2ED0A4F200DCD516 /* SendAddressXRPUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D80A115C2ED0A4F200DCD516 /* SendAddressXRPUITests.swift */; };
 		D81CE66D2EFEE69B0019144A /* MarketsSearchUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D81CE66C2EFEE69B0019144A /* MarketsSearchUITests.swift */; };
@@ -3740,7 +3751,6 @@
 		EA84AA392E8E89CC002EF6CE /* YieldModuleRateInfoChartContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA84AA382E8E89CC002EF6CE /* YieldModuleRateInfoChartContainer.swift */; };
 		EA87D7ED2F0E4D83006519B9 /* FeeSelectorMockUIUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA87D7EC2F0E4D83006519B9 /* FeeSelectorMockUIUtils.swift */; };
 		EA87D9C52F124307006519B9 /* EthereumGaslessDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA87D9C42F124307006519B9 /* EthereumGaslessDataProvider.swift */; };
-		D3DB6A2DC7084F92B79EC035 /* PendingTransactionRecordAdder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44295B21C65849E388096220 /* PendingTransactionRecordAdder.swift */; };
 		EA87D9DD2F127C45006519B9 /* GaslessTransactionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA87D9DC2F127C45006519B9 /* GaslessTransactionBuilder.swift */; };
 		EA87D9EB2F1281E3006519B9 /* EthEip7702Util.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA87D9EA2F1281E3006519B9 /* EthEip7702Util.swift */; };
 		EA87D9EC2F1281E3006519B9 /* EthEip7702Util.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA87D9EA2F1281E3006519B9 /* EthEip7702Util.swift */; };
@@ -5337,6 +5347,16 @@
 		2D665C1E2CDCA3FC00C9BA85 /* CLTypeSerializeHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLTypeSerializeHelper.swift; sourceTree = "<group>"; };
 		2D665C1F2CDCA3FC00C9BA85 /* DeploySerialization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeploySerialization.swift; sourceTree = "<group>"; };
 		2D665C332CDCA46C00C9BA85 /* CasperNetworkResponse.Transaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CasperNetworkResponse.Transaction.swift; sourceTree = "<group>"; };
+		2D6E76A42F28C79300449331 /* EarnCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnCoordinator.swift; sourceTree = "<group>"; };
+		2D6E76A52F28C79300449331 /* EarnDetailCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnDetailCoordinatorView.swift; sourceTree = "<group>"; };
+		2D6E76A62F28C79300449331 /* EarnDetailRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnDetailRoutable.swift; sourceTree = "<group>"; };
+		2D6E76A82F28C79300449331 /* EarnBestOpportunitiesListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnBestOpportunitiesListView.swift; sourceTree = "<group>"; };
+		2D6E76A92F28C79300449331 /* EarnDetailHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnDetailHeaderView.swift; sourceTree = "<group>"; };
+		2D6E76AA2F28C79300449331 /* EarnFilterHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnFilterHeaderView.swift; sourceTree = "<group>"; };
+		2D6E76AB2F28C79300449331 /* EarnMostlyUsedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnMostlyUsedView.swift; sourceTree = "<group>"; };
+		2D6E76AD2F28C79300449331 /* EarnDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnDetailView.swift; sourceTree = "<group>"; };
+		2D6E76AE2F28C79300449331 /* EarnDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnDetailViewModel.swift; sourceTree = "<group>"; };
+		2D6E76BB2F28C9C800449331 /* EarnDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnDataProvider.swift; sourceTree = "<group>"; };
 		2D70C61B2B21E90A00BD1DAB /* MarketsAddCustomItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsAddCustomItemView.swift; sourceTree = "<group>"; };
 		2D72D95B2EF5605B008868DE /* MarketsTokenListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsTokenListViewModel.swift; sourceTree = "<group>"; };
 		2D72D95F2EF5605B008868DE /* MarketsMainRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsMainRoutable.swift; sourceTree = "<group>"; };
@@ -5737,6 +5757,7 @@
 		30D24FF82DA3FA42003B90B5 /* UIApplication+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIApplication+.swift"; sourceTree = "<group>"; };
 		30DEC7692E9FDF6A007B033D /* MarketsAccountsAwarePortfolioContainerViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsAccountsAwarePortfolioContainerViewState.swift; sourceTree = "<group>"; };
 		30E0388A2D6DD7D200D9AD18 /* BinanceTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinanceTransactionTests.swift; sourceTree = "<group>"; };
+		44295B21C65849E388096220 /* PendingTransactionRecordAdder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTransactionRecordAdder.swift; sourceTree = "<group>"; };
 		4A2CA5A5CDBF4003B4214E95 /* NoOpAddTokenFlowAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoOpAddTokenFlowAnalyticsLogger.swift; sourceTree = "<group>"; };
 		5D06E03F250A5D54004218D0 /* NSRegularExpression+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSRegularExpression+.swift"; sourceTree = "<group>"; };
 		5D09383B25EAE7FD0049B8F0 /* PersistentStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistentStorage.swift; sourceTree = "<group>"; };
@@ -8517,7 +8538,6 @@
 		EA84AA382E8E89CC002EF6CE /* YieldModuleRateInfoChartContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleRateInfoChartContainer.swift; sourceTree = "<group>"; };
 		EA87D7EC2F0E4D83006519B9 /* FeeSelectorMockUIUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeSelectorMockUIUtils.swift; sourceTree = "<group>"; };
 		EA87D9C42F124307006519B9 /* EthereumGaslessDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumGaslessDataProvider.swift; sourceTree = "<group>"; };
-		44295B21C65849E388096220 /* PendingTransactionRecordAdder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTransactionRecordAdder.swift; sourceTree = "<group>"; };
 		EA87D9DC2F127C45006519B9 /* GaslessTransactionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GaslessTransactionBuilder.swift; sourceTree = "<group>"; };
 		EA87D9EA2F1281E3006519B9 /* EthEip7702Util.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthEip7702Util.swift; sourceTree = "<group>"; };
 		EA87DA152F139C15006519B9 /* GaslessTransactionsEIP712Util.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GaslessTransactionsEIP712Util.swift; sourceTree = "<group>"; };
@@ -10947,6 +10967,45 @@
 			path = Serialize;
 			sourceTree = "<group>";
 		};
+		2D6E76A72F28C79300449331 /* Coordinator */ = {
+			isa = PBXGroup;
+			children = (
+				2D6E76A42F28C79300449331 /* EarnCoordinator.swift */,
+				2D6E76A52F28C79300449331 /* EarnDetailCoordinatorView.swift */,
+				2D6E76A62F28C79300449331 /* EarnDetailRoutable.swift */,
+			);
+			path = Coordinator;
+			sourceTree = "<group>";
+		};
+		2D6E76AC2F28C79300449331 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				2D6E76A82F28C79300449331 /* EarnBestOpportunitiesListView.swift */,
+				2D6E76A92F28C79300449331 /* EarnDetailHeaderView.swift */,
+				2D6E76AA2F28C79300449331 /* EarnFilterHeaderView.swift */,
+				2D6E76AB2F28C79300449331 /* EarnMostlyUsedView.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		2D6E76AF2F28C79300449331 /* Detail */ = {
+			isa = PBXGroup;
+			children = (
+				2D6E76AC2F28C79300449331 /* Components */,
+				2D6E76AD2F28C79300449331 /* EarnDetailView.swift */,
+				2D6E76AE2F28C79300449331 /* EarnDetailViewModel.swift */,
+			);
+			path = Detail;
+			sourceTree = "<group>";
+		};
+		2D6E76B92F28C98000449331 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				2D6E76BB2F28C9C800449331 /* EarnDataProvider.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
 		2D72D95C2EF5605B008868DE /* Generic */ = {
 			isa = PBXGroup;
 			children = (
@@ -11627,7 +11686,10 @@
 		2DBE53492F27A651001EDE3E /* Earn */ = {
 			isa = PBXGroup;
 			children = (
+				2D6E76A72F28C79300449331 /* Coordinator */,
+				2D6E76AF2F28C79300449331 /* Detail */,
 				2DBE53482F27A651001EDE3E /* Model */,
+				2D6E76B92F28C98000449331 /* Services */,
 			);
 			path = Earn;
 			sourceTree = "<group>";
@@ -26719,6 +26781,7 @@
 				B6ACD0142AD6A8A1005A6CA3 /* OrganizeTokensDragAndDropGesturePredicate.swift in Sources */,
 				0F92C2852E8C2A81008C3D32 /* UserWalletsActionButtonsAvailabilityProvider.swift in Sources */,
 				DC0A582928252FEB0031BECC /* TokenItemsRepository.swift in Sources */,
+				2D6E76BC2F28C9C800449331 /* EarnDataProvider.swift in Sources */,
 				EFFA436B2E02E915001E0E54 /* SendReceiveTokensListTokenViewData.swift in Sources */,
 				EFAF8A842E85EEBF009C3CF9 /* SendGenericFlowBaseDependenciesFactory.swift in Sources */,
 				DA76BF4C2CEF95DF00199317 /* PendingOnrampTransaction.swift in Sources */,
@@ -29401,6 +29464,15 @@
 				B00307042AF0E1BA00C13BCA /* Analytics+WalletConnectDebugEvent.swift in Sources */,
 				0AA322622E79C3740090B803 /* YieldModuleSmartContractState.swift in Sources */,
 				DC28917D2CD920FB00F57F59 /* BuyTokenSelectorStrings.swift in Sources */,
+				2D6E76B02F28C79300449331 /* EarnDetailView.swift in Sources */,
+				2D6E76B12F28C79300449331 /* EarnBestOpportunitiesListView.swift in Sources */,
+				2D6E76B22F28C79300449331 /* EarnDetailViewModel.swift in Sources */,
+				2D6E76B32F28C79300449331 /* EarnDetailHeaderView.swift in Sources */,
+				2D6E76B42F28C79300449331 /* EarnDetailRoutable.swift in Sources */,
+				2D6E76B52F28C79300449331 /* EarnDetailCoordinatorView.swift in Sources */,
+				2D6E76B62F28C79300449331 /* EarnMostlyUsedView.swift in Sources */,
+				2D6E76B72F28C79300449331 /* EarnFilterHeaderView.swift in Sources */,
+				2D6E76B82F28C79300449331 /* EarnCoordinator.swift in Sources */,
 				0F84C10B2E1299DB00DC7FB1 /* MobileBackupTypesView.swift in Sources */,
 				EF3138B12E43B65D0060FEE6 /* CommonNFTSendStepsManager.swift in Sources */,
 				EF6883092CF87DA300658644 /* OnrampCountryDetectionCoordinator.swift in Sources */,
