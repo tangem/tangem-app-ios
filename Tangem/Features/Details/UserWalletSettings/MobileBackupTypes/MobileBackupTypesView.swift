@@ -78,18 +78,12 @@ private extension MobileBackupTypesView {
 
     func sectionInfoItem(model: ViewModel.SectionItem) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            if #available(iOS 16.0, *) {
-                WrappingHStack(
-                    alignment: .leading,
-                    horizontalSpacing: 8,
-                    verticalSpacing: 4
-                ) {
-                    sectionInfo(title: model.title, badge: model.badge)
-                }
-            } else {
-                HStack(alignment: .top, spacing: 8) {
-                    sectionInfo(title: model.title, badge: model.badge)
-                }
+            WrappingHStack(
+                alignment: .leading,
+                horizontalSpacing: 8,
+                verticalSpacing: 4
+            ) {
+                sectionInfo(title: model.title, badge: model.badge)
             }
 
             Text(model.description)
