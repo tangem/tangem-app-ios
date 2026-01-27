@@ -61,7 +61,8 @@ final class EarnWidgetViewModel: ObservableObject {
     @MainActor
     func onSeeAllTapAction() {
         analyticsService.logEarnListOpened()
-        coordinator?.openSeeAllEarnWidget()
+        let tokens = earnProvider.earnResult.value ?? []
+        coordinator?.openSeeAllEarnWidget(mostlyUsedTokens: Array(tokens.prefix(Constants.itemsOnMostlyUsed)))
     }
 }
 
@@ -153,5 +154,6 @@ private extension EarnWidgetViewModel {
 private extension EarnWidgetViewModel {
     enum Constants {
         static let itemsOnListWidget = 5
+        static let itemsOnMostlyUsed = 3
     }
 }
