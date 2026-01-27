@@ -44,6 +44,5 @@ struct ReferralCoordinatorView: CoordinatorView {
                     config.backgroundInteractionBehavior = .tapToDismiss
                 }
             }
-            .emptyNavigationLink()
     }
 }

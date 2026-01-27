@@ -24,6 +24,7 @@ protocol UserWalletModel:
     TangemPayAuthorizingProvider,
     WalletSelectorInfoProvider,
     UserWalletModelUnlockerResolvable,
+    UserWalletInfoProvider,
     TangemPayAccountProvider,
     AnyObject {
     var hasBackupCards: Bool { get }
@@ -65,6 +66,7 @@ enum UpdateRequest {
     // [REDACTED_TODO_COMMENT]
     // [REDACTED_INFO]
     case tangemPayOfferAccepted(TangemPayAccount)
+    case tangemPayKYCDeclined
 }
 
 enum UpdateResult {
@@ -74,6 +76,7 @@ enum UpdateResult {
     // [REDACTED_TODO_COMMENT]
     // [REDACTED_INFO]
     case tangemPayOfferAccepted(TangemPayAccount)
+    case tangemPayKYCDeclined
 
     var newName: String? {
         switch self {
