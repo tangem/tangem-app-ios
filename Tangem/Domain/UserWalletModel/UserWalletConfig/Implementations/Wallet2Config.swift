@@ -263,7 +263,7 @@ extension Wallet2Config: UserWalletConfig {
         case "AF85", "AF86", "AF87", "AF990011", "AF990012", "AF990013":
             return cardsCount == 2 ? Assets.Cards.winter2Double : Assets.Cards.winter2Triple
         // USA
-        case "AF91", "AF990017":
+        case "AF91", "AF990017", "AF990056":
             return cardsCount == 2 ? Assets.Cards.usaDouble : Assets.Cards.usaTriple
         // Gets Mine
         case "BB000008":
@@ -338,10 +338,14 @@ extension Wallet2Config: UserWalletConfig {
         case "AF990023", "AF990024", "AF990025":
             return cardsCount == 2 ? Assets.Cards.electraSeaDouble : Assets.Cards.electraSeaTriple
         // Hyper Blue summer collection
-        case "AF990026", "AF990027", "AF990028":
+        case "AF990026", "AF990027", "AF990028", "AF990050", "AF990051", "AF990052":
             return cardsCount == 2 ? Assets.Cards.hyperBlueDouble : Assets.Cards.hyperBlueTriple
+        // Winter Sakura
         case "AF990053", "AF990054", "AF990055":
             return cardsCount == 2 ? Assets.Cards.winterSakuraDouble : Assets.Cards.winterSakuraTriple
+        // Lunar
+        case "AF990057", "AF990058", "AF990059":
+            return cardsCount == 2 ? Assets.Cards.lunarDouble : Assets.Cards.lunarTriple
         // Tangem Wallet 2.0
         default:
             var isUserWalletWithRing = false
@@ -357,6 +361,10 @@ extension Wallet2Config: UserWalletConfig {
 
             return cardsCount == 2 ? Assets.Cards.wallet2Double : Assets.Cards.wallet2Triple
         }
+    }
+
+    var contextBuilder: WalletCreationContextBuilder {
+        ["type": "card"]
     }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
@@ -453,6 +461,8 @@ extension Wallet2Config: UserWalletConfig {
             return .available
         case .transactionPayloadLimit:
             return .available
+        case .tangemPay:
+            return card.settings.isHDWalletAllowed ? .available : .hidden
         }
     }
 

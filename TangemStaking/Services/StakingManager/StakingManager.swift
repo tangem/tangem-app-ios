@@ -21,7 +21,6 @@ public protocol StakingManager {
     func updateState(loadActions: Bool) async
     func estimateFee(action: StakingAction) async throws -> Decimal
     func transaction(action: StakingAction) async throws -> StakingTransactionAction
-    func transactionDetails(id: String) async throws -> StakingTransactionInfo
 
     func transactionDidSent(action: StakingAction)
 }
@@ -31,14 +30,24 @@ public extension StakingManager {
         await updateState(loadActions: false)
     }
 
+    func waitForLoadingCompletion() async throws {
+        // Drop the current `loading` state
+        _ = try await statePublisher.dropFirst().first().async()
+        // Check if after the loading state we have same status
+        // To exclude endless recursion
+        if case .loading = state {
+            throw StakingManagerError.stakingManagerIsLoading
+        }
+    }
+
     func mapToStakingBalance(balance: StakingBalanceInfo, yield: StakingYieldInfo) -> StakingBalance {
-        let validatorType: StakingValidatorType = {
-            guard let validatorAddress = balance.validatorAddress else {
+        let targetType: StakingTargetType = {
+            guard let targetAddress = balance.targetAddress else {
                 return .empty
             }
 
-            let validator = yield.validators.first(where: { $0.address == validatorAddress })
-            return validator.map { .validator($0) } ?? .disabled
+            let target = yield.targets.first(where: { $0.address == targetAddress })
+            return target.map { .target($0) } ?? .disabled
         }()
 
         return StakingBalance(
@@ -46,7 +55,7 @@ public extension StakingManager {
             amount: balance.amount,
             accountAddress: balance.accountAddress,
             balanceType: balance.balanceType,
-            validatorType: validatorType,
+            targetType: targetType,
             inProgress: false,
             actions: balance.actions,
             actionConstraints: balance.actionConstraints

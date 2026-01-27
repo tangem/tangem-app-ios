@@ -13,7 +13,7 @@ import TangemUIUtils
 import TangemAccessibilityIdentifiers
 
 struct OrganizeTokensListFooter: View {
-    let viewModel: OrganizeTokensViewModel
+    let actionsHandler: OrganizeTokensListFooterActionsHandler
     let isTokenListFooterGradientHidden: Bool
     let cornerRadius: CGFloat
     let contentInsets: EdgeInsets
@@ -41,14 +41,14 @@ struct OrganizeTokensListFooter: View {
                     title: Localization.commonCancel,
                     style: .secondary,
                     size: buttonSize,
-                    action: viewModel.onCancelButtonTap
+                    action: actionsHandler.onCancelButtonTap
                 )
 
                 MainButton(
                     title: Localization.commonApply,
                     style: .primary,
                     size: buttonSize,
-                    action: viewModel.onApplyButtonTap
+                    action: actionsHandler.onApplyButtonTap
                 )
                 .accessibilityIdentifier(OrganizeTokensAccessibilityIdentifiers.applyButton)
             }

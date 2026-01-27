@@ -65,7 +65,7 @@ struct TangemPayMainView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
-                    Button(action: viewModel.setPin) {
+                    Button(action: viewModel.onPin) {
                         Label(
                             Localization.visaOnboardingPinCodeNavigationTitle,
                             systemImage: "circle.grid.3x3.fill"
@@ -79,6 +79,7 @@ struct TangemPayMainView: View {
                             systemImage: "text.page.fill"
                         )
                     }
+                    .onAppear { viewModel.onToolbarClicked() }
 
                     Button(
                         action: viewModel.freezingState.isFrozen
