@@ -57,5 +57,10 @@ extension SendDestinationStep: SendStep {
         step.type.isSummary ? analyticsLogger.logDestinationStepReopened() : analyticsLogger.logDestinationStepOpened()
 
         interactorSaver.captureValue()
+        interactor.setIgnoreDestinationClear(false)
+    }
+
+    func willDisappear(next step: any SendStep) {
+        interactor.setIgnoreDestinationClear(true)
     }
 }
