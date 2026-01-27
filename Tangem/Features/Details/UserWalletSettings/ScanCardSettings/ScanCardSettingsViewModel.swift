@@ -13,7 +13,7 @@ import struct TangemUIUtils.AlertBinder
 final class ScanCardSettingsViewModel: ObservableObject, Identifiable {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    @Published var icon: LoadingValue<ImageValue> = .loading
+    @Published var icon: LoadingResult<ImageValue, Never> = .loading
     @Published var isLoading: Bool = false
     @Published var alert: AlertBinder?
 
@@ -37,7 +37,7 @@ final class ScanCardSettingsViewModel: ObservableObject, Identifiable {
             let image = await viewModel.cardImageProvider.loadLargeImage()
 
             await runOnMain {
-                viewModel.icon = .loaded(image)
+                viewModel.icon = .success(image)
             }
         }
     }
