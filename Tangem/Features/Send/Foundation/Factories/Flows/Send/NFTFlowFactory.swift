@@ -222,7 +222,7 @@ extension NFTFlowFactory: SendDestinationStepBuildable {
     ) -> SendDestinationInteractorDependenciesProvider {
         SendDestinationInteractorDependenciesProvider(
             receivedTokenType: receiveTokenInput.receiveToken,
-            sendingWalletData: .init(
+            sourceWalletData: .init(
                 walletAddresses: walletAddresses,
                 suggestedWallets: suggestedWallets,
                 destinationTransactionHistoryProvider: CommonSendDestinationTransactionHistoryProvider(

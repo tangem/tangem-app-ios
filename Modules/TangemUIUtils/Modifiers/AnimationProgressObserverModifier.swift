@@ -9,11 +9,11 @@
 import SwiftUI
 
 /// An animatable modifier that is used for observing animations for a given animatable value.
-struct AnimationProgressObserverModifier<Value>: AnimatableModifier where Value: VectorArithmetic {
-    typealias ValueComparator = (_ lhs: Value, _ rhs: Value) -> Bool
+public struct AnimationProgressObserverModifier<Value>: AnimatableModifier where Value: VectorArithmetic {
+    public typealias ValueComparator = (_ lhs: Value, _ rhs: Value) -> Bool
 
     /// While animating, SwiftUI changes the old input value to the new target value using this property.
-    var animatableData: Value {
+    public var animatableData: Value {
         didSet { notifyIfNeeded() }
     }
 
@@ -27,7 +27,7 @@ struct AnimationProgressObserverModifier<Value>: AnimatableModifier where Value:
     /// `targetValue` (final value of an animatable property).
     private let valueComparator: ValueComparator
 
-    init(
+    public init(
         observedValue: Value,
         targetValue: Value? = nil,
         valueComparator: @escaping ValueComparator = (==),
@@ -50,7 +50,7 @@ struct AnimationProgressObserverModifier<Value>: AnimatableModifier where Value:
         }
     }
 
-    func body(content: Content) -> some View {
+    public func body(content: Content) -> some View {
         // We're not really modifying the view so we can directly return the original input value.
         return content
     }
@@ -58,7 +58,7 @@ struct AnimationProgressObserverModifier<Value>: AnimatableModifier where Value:
 
 // MARK: - Convenience extensions
 
-extension View {
+public extension View {
     /// Calls the completion handler whenever an animation on the given value completes.
     /// - Parameters:
     ///   - value: The value to observe for animations.
