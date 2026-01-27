@@ -96,10 +96,12 @@ extension WalletNetworkServiceFactory {
              .scroll,
              .linea,
              .arbitrumNova,
-             .plasma:
+             .plasma,
+             .decimal,
+             .xdc,
+             .energyWebX,
+             .rsk:
             return makeEthereumNetworkService(for: blockchain)
-        case .rsk:
-            throw Error.notImplemeneted
         case .bitcoinCash:
             throw Error.notImplemeneted
         case .binance:
@@ -145,10 +147,6 @@ extension WalletNetworkServiceFactory {
             throw Error.notImplemeneted
         case .near:
             return makeNEARNetworkService(for: blockchain)
-        case .decimal:
-            throw Error.notImplemeneted
-        case .xdc:
-            throw Error.notImplemeneted
         case .hedera:
             throw Error.notImplemeneted
         case .radiant:
@@ -162,8 +160,6 @@ extension WalletNetworkServiceFactory {
         case .sui:
             throw Error.notImplemeneted
         case .filecoin:
-            throw Error.notImplemeneted
-        case .energyWebX:
             throw Error.notImplemeneted
         case .casper:
             throw Error.notImplemeneted
