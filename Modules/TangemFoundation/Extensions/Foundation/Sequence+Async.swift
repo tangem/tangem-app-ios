@@ -7,59 +7,99 @@
 //
 
 public extension Sequence {
-    func asyncMap<T>(_ transform: (Element) async throws -> T) async rethrows -> [T] {
-        var values = [T]()
+    /// - Warning: Do not use on sequences with large number of elements, as it may create too many sleeping tasks simultaneously.
+    /// - [REDACTED_TODO_COMMENT]
+    /// for example of batching implementation).
+    func asyncMap<T>(_ transform: @escaping (Element) async throws -> T) async rethrows -> [T] {
+        // Creating a separate array of elements to have a stable backing storage and multipass iteration guarantee
+        // (since `Sequence` can have vastly different implementations under the hood)
+        let elements = Array(self)
 
-        for element in self {
-            try await values.append(transform(element))
-        }
-
-        return values
-    }
-
-    func asyncCompactMap<T>(_ transform: (Element) async throws -> T?) async rethrows -> [T] {
-        var values = [T]()
-
-        for element in self {
-            if let value = try await transform(element) {
-                values.append(value)
+        return try await TaskGroup
+            .tryExecuteKeepingOrder(items: elements) { element in
+                return try await transform(element)
             }
-        }
-
-        return values
     }
 
-    func asyncFlatMap<T: Sequence>(_ transform: (Element) async throws -> T) async rethrows -> [T.Element] {
-        var values = [T.Element]()
+    /// - Warning: Do not use on sequences with large number of elements, as it may create too many sleeping tasks simultaneously.
+    /// - [REDACTED_TODO_COMMENT]
+    /// for example of batching implementation).
+    func asyncCompactMap<T>(_ transform: @escaping (Element) async throws -> T?) async rethrows -> [T] {
+        // Creating a separate array of elements to have a stable backing storage and multipass iteration guarantee
+        // (since `Sequence` can have vastly different implementations under the hood)
+        let elements = Array(self)
 
-        for element in self {
-            try await values.append(contentsOf: transform(element))
-        }
+        return try await TaskGroup
+            .tryExecuteKeepingOrder(items: elements) { element in
+                if let value = try await transform(element) {
+                    return value
+                }
 
-        return values
+                // Discarding nil elements early by returning nil
+                return nil
+            }
+            .compactMap { $0 }
     }
 
-    func asyncFilter(_ isIncluded: (Element) async throws -> Bool) async rethrows -> [Element] {
-        var values: [Element] = []
+    /// - Warning: Do not use on sequences with large number of elements, as it may create too many sleeping tasks simultaneously.
+    /// - [REDACTED_TODO_COMMENT]
+    /// for example of batching implementation).
+    func asyncFlatMap<T: Sequence>(_ transform: @escaping (Element) async throws -> T) async rethrows -> [T.Element] {
+        // Creating a separate array of elements to have a stable backing storage and multipass iteration guarantee
+        // (since `Sequence` can have vastly different implementations under the hood)
+        let elements = Array(self)
 
-        for element in self where try await isIncluded(element) {
-            values.append(element)
-        }
-
-        return values
+        return try await TaskGroup
+            .tryExecuteKeepingOrder(items: elements) { element in
+                return try await transform(element)
+            }
+            .flatMap { $0 }
     }
 
-    func asyncSorted<T>(sort areInIncreasingOrder: (T, T) throws -> Bool, by value: @escaping (Element) async throws -> T) async rethrows -> [Element] {
-        let values: [(element: Element, value: T)] = try await withThrowingTaskGroup(of: (Element, T).self) { group in
-            for element in self {
+    /// - Warning: Do not use on sequences with large number of elements, as it may create too many sleeping tasks simultaneously.
+    /// - [REDACTED_TODO_COMMENT]
+    /// for example of batching implementation).
+    func asyncFilter(_ isIncluded: @escaping (Element) async throws -> Bool) async rethrows -> [Element] {
+        // Creating a separate array of elements to have a stable backing storage and multipass iteration guarantee
+        // (since `Sequence` can have vastly different implementations under the hood)
+        let elements = Array(self)
+
+        return try await TaskGroup
+            .tryExecuteKeepingOrder(items: elements) { element in
+                if try await isIncluded(element) {
+                    return element
+                }
+
+                // Discarding filtered out elements early by returning nil
+                return nil
+            }
+            .compactMap { $0 }
+    }
+
+    /// - Warning: Do not use on sequences with large number of elements, as it may create too many sleeping tasks simultaneously.
+    /// - [REDACTED_TODO_COMMENT]
+    /// for example of batching implementation).
+    func asyncSorted<T>(
+        sort areInIncreasingOrder: (T, T) throws -> Bool,
+        by value: @escaping (Element) async throws -> T
+    ) async rethrows -> [Element] {
+        typealias IntermediateElement = (element: Element, value: T)
+
+        // Creating a separate array of elements to have a stable backing storage and multipass iteration guarantee
+        // (since `Sequence` can have vastly different implementations under the hood)
+        let elements = Array(self)
+
+        return try await withThrowingTaskGroup(of: IntermediateElement.self) { group in
+            for element in elements {
                 group.addTask {
-                    try await (element, value(element))
+                    return try await (element, value(element))
                 }
             }
 
-            return try await group.reduce([]) { $0 + [$1] }
+            return try await group
+                .reduce(into: []) { $0.append($1) }
+                .sorted(by: { try areInIncreasingOrder($0.value, $1.value) })
+                .map(\.element)
         }
-
-        return try values.sorted(by: { try areInIncreasingOrder($0.value, $1.value) }).map { $0.element }
     }
 }

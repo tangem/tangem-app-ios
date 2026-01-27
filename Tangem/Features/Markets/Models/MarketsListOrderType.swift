@@ -8,7 +8,9 @@
 
 import Foundation
 import TangemLocalization
+import TangemMacro
 
+@CaseFlagable
 enum MarketsListOrderType: String, CaseIterable, Encodable, CustomStringConvertible, Identifiable {
     case rating
     case trending
@@ -16,9 +18,17 @@ enum MarketsListOrderType: String, CaseIterable, Encodable, CustomStringConverti
     case gainers
     case losers
     case staking
+    case yield
 
     var id: String {
         rawValue
+    }
+
+    var analyticsValue: String {
+        switch self {
+        case .yield: "yield mode"
+        default: rawValue
+        }
     }
 
     var description: String {
@@ -29,6 +39,7 @@ enum MarketsListOrderType: String, CaseIterable, Encodable, CustomStringConverti
         case .gainers: return Localization.marketsSortByTopGainersTitle
         case .losers: return Localization.marketsSortByTopLosersTitle
         case .staking: return Localization.commonStaking
+        case .yield: return Localization.commonYieldMode
         }
     }
 }

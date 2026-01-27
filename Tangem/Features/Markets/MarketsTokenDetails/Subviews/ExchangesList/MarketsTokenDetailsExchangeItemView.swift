@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemUI
 
@@ -16,6 +17,8 @@ struct MarketsTokenDetailsExchangeItemView: View {
     var body: some View {
         HStack(spacing: 12) {
             icon
+                .accessibilityIdentifier(
+                    MarketsAccessibilityIdentifiers.exchangesListExchangeLogo)
 
             content
         }
@@ -43,17 +46,24 @@ struct MarketsTokenDetailsExchangeItemView: View {
                 Text(info.name)
                     .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .accessibilityIdentifier(
+                        MarketsAccessibilityIdentifiers.exchangesListExchangeName)
 
                 Text("\(info.formattedVolume)")
                     .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
+                    .accessibilityIdentifier(
+                        MarketsAccessibilityIdentifiers.exchangesListTradingVolume)
             }
 
             HStack(alignment: .firstTextBaseline) {
                 Text(info.exchangeType.title)
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .accessibilityIdentifier(MarketsAccessibilityIdentifiers.exchangesListType)
 
                 ExchangeTrustScoreView(trustScore: info.trustScore)
+                    .accessibilityIdentifier(
+                        MarketsAccessibilityIdentifiers.exchangesListTrustScore)
             }
         }
     }

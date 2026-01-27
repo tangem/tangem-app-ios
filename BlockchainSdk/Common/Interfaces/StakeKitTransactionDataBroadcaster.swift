@@ -13,8 +13,7 @@ protocol StakeKitTransactionDataBroadcaster {
 
     /// Send raw transaction data into blockchain
     /// - Parameters:
-    ///   - transaction: original unsigned transaction from StakeKit
     ///   - rawTransaction: signed transaction data
     /// - Returns: hash of the submitted transaction
-    func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> String
+    func broadcast(rawTransaction: RawTransaction) async throws -> String
 }

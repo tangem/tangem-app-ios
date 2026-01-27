@@ -27,7 +27,7 @@ class CommonUserWalletModel {
     let nftManager: NFTManager
     let keysRepository: KeysRepository
     let totalBalanceProvider: TotalBalanceProvider
-    let tangemPayAccountProvider: TangemPayAccountProvider
+    let tangemPayAccountProvider: TangemPayAccountProviderSetupable
 
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
     let accountModelsManager: AccountModelsManager
@@ -94,6 +94,18 @@ class CommonUserWalletModel {
             keysRepository.update(keys: walletInfo.keys)
         }
         _updatePublisher.send(.configurationChanged(model: self))
+    }
+
+    private func syncRemoteAfterUpgrade() {
+        runTask(in: self) { model in
+            let walletCreationHelper = WalletCreationHelper(
+                userWalletId: model.userWalletId,
+                userWalletName: model.name,
+                userWalletConfig: model.config
+            )
+
+            try? await walletCreationHelper.updateWallet()
+        }
     }
 }
 
@@ -216,6 +228,7 @@ extension CommonUserWalletModel: UserWalletModel {
                 updateConfiguration(walletInfo: WalletInfo.cardWallet(mutableCardInfo))
                 _cardHeaderImagePublisher.send(config.cardHeaderImage)
                 cleanMobileWallet()
+                syncRemoteAfterUpgrade()
             }
 
         case .accessCodeDidSet:
@@ -260,6 +273,9 @@ extension CommonUserWalletModel: UserWalletModel {
 
         case .tangemPayOfferAccepted(let tangemPayAccount):
             _updatePublisher.send(.tangemPayOfferAccepted(tangemPayAccount))
+
+        case .tangemPayKYCDeclined:
+            _updatePublisher.send(.tangemPayKYCDeclined)
         }
     }
 

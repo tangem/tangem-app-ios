@@ -23,7 +23,6 @@ struct ExpressTokensListView: View {
         .onDisappear(perform: viewModel.onDisappear)
     }
 
-    @ViewBuilder
     private var mainContent: some View {
         VStack(spacing: .zero) {
             BottomSheetSearchableHeaderView(
@@ -44,7 +43,7 @@ struct ExpressTokensListView: View {
         case .isEmpty:
             emptyContent
         case .loaded(let availableTokens, let unavailableTokens):
-            GroupedScrollView(alignment: .leading, spacing: 14) {
+            GroupedScrollView(contentType: .lazy(alignment: .leading, spacing: 14)) {
                 if availableTokens.isEmpty, unavailableTokens.isEmpty {
                     emptySearchContent
                 } else {
