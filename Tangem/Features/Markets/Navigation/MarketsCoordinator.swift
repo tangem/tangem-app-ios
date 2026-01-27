@@ -129,14 +129,14 @@ extension MarketsCoordinator: MarketsMainRoutable {
         // For now, this is a placeholder
     }
 
-    func openSeeAllEarnWidget() {
+    func openSeeAllEarnWidget(mostlyUsedTokens: [EarnTokenModel]) {
         let coordinator = EarnCoordinator(
             dismissAction: { [weak self] in
                 self?.earnListCoordinator = nil
             }
         )
 
-        coordinator.start(with: .init())
+        coordinator.start(with: .init(mostlyUsedTokens: mostlyUsedTokens))
 
         earnListCoordinator = coordinator
     }

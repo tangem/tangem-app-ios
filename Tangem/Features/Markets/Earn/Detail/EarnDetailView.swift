@@ -36,11 +36,14 @@ struct EarnDetailView: View {
                 VStack(alignment: .leading, spacing: Layout.sectionSpacing) {
                     // Mostly Used Section
                     EarnDetailHeaderView(headerTitle: "Mostly used")
-                    EarnMostlyUsedView()
+                    EarnMostlyUsedView(viewModels: viewModel.mostlyUsedViewModels)
 
                     // Best Opportunities Section
                     EarnDetailHeaderView(headerTitle: "Best opportunities")
-                    EarnFilterHeaderView()
+                    EarnFilterHeaderView(
+                        onNetworksTap: { viewModel.handleViewAction(.networksFilterTap) },
+                        onTypesTap: { viewModel.handleViewAction(.typesFilterTap) }
+                    )
                     EarnBestOpportunitiesListView()
                 }
             }

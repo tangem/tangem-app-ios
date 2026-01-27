@@ -10,32 +10,26 @@ import SwiftUI
 import TangemAssets
 
 struct EarnMostlyUsedView: View {
+    let viewModels: [EarnTokenItemViewModel]
+
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
+        ScrollView(.horizontal) {
             LazyHStack(spacing: Layout.cardSpacing) {
-                ForEach(0 ..< 3) { _ in
-                    placeholderTile
+                ForEach(viewModels) { viewModel in
+                    EarnMostlyUsedTileView(viewModel: viewModel)
                 }
             }
             .padding(.horizontal, Layout.horizontalPadding)
         }
+        .scrollIndicators(.hidden)
         .frame(height: Layout.height)
-    }
-
-    private var placeholderTile: some View {
-        RoundedRectangle(cornerRadius: Layout.cornerRadius)
-            .fill(Color.red)
-            .frame(width: Layout.tileWidth, height: Layout.tileHeight)
     }
 }
 
 private extension EarnMostlyUsedView {
     enum Layout {
-        static let height: CGFloat = 108.0
+        static let height: CGFloat = 106.0
         static let cardSpacing: CGFloat = 8.0
         static let horizontalPadding: CGFloat = 16.0
-        static let cornerRadius: CGFloat = 14.0
-        static let tileWidth: CGFloat = 150.0
-        static let tileHeight: CGFloat = 108.0
     }
 }

@@ -12,7 +12,8 @@ import Foundation
 final class EarnDetailViewModel: ObservableObject {
     // MARK: - Published Properties
 
-    // [REDACTED_TODO_COMMENT]
+    @Published private(set) var mostlyUsedViewModels: [EarnTokenItemViewModel] = []
+
     // [REDACTED_TODO_COMMENT]
     // [REDACTED_TODO_COMMENT]
 
@@ -26,9 +27,21 @@ final class EarnDetailViewModel: ObservableObject {
     // MARK: - Init
 
     init(
+        mostlyUsedTokens: [EarnTokenModel],
         coordinator: EarnDetailRoutable? = nil
     ) {
         self.coordinator = coordinator
+        setupMostlyUsedViewModels(from: mostlyUsedTokens)
+    }
+
+    // MARK: - Private Implementation
+
+    private func setupMostlyUsedViewModels(from tokens: [EarnTokenModel]) {
+        mostlyUsedViewModels = tokens.map { token in
+            EarnTokenItemViewModel(token: token) { [weak self] in
+                self?.coordinator?.openEarnTokenDetails(for: token)
+            }
+        }
     }
 }
 
@@ -39,10 +52,18 @@ extension EarnDetailViewModel {
         switch viewAction {
         case .back:
             coordinator?.dismiss()
+        case .networksFilterTap:
+            // [REDACTED_TODO_COMMENT]
+            break
+        case .typesFilterTap:
+            // [REDACTED_TODO_COMMENT]
+            break
         }
     }
 
     enum ViewAction {
         case back
+        case networksFilterTap
+        case typesFilterTap
     }
 }
