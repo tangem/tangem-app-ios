@@ -36,8 +36,8 @@ struct ExpandableAnimatedContent<CollapsedView: View, ExpandedHeader: View, Expa
                 collapsedView
             }
         }
-        .background(background)
-        .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+        // Do not apply cornerRadius to the view directly to avoid clipping iOS context menus
+        .background(background.cornerRadiusContinuous(cornerRadius))
     }
 
     // MARK: - Views
