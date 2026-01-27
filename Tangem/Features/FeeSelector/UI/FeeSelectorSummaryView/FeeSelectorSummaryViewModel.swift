@@ -68,7 +68,6 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
         .withWeakCaptureOf(self)
         .map { $0.mapTokenItemToRowViewModel(tokenFeeProvider: $1.0, canExpand: $1.1) }
         .receiveOnMain()
-        .receiveOnMain()
         .assign(to: &$suggestedFeeCurrency)
 
         Publishers.CombineLatest4(
