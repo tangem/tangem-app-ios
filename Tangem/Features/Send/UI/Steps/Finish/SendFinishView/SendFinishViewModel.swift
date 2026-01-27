@@ -21,7 +21,7 @@ class SendFinishViewModel: ObservableObject, Identifiable {
     @Published private(set) var sendAmountFinishViewModel: SendAmountFinishViewModel?
     @Published private(set) var nftAssetCompactViewModel: NFTAssetCompactViewModel?
     @Published private(set) var sendDestinationCompactViewModel: SendDestinationCompactViewModel?
-    @Published private(set) var stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?
+    @Published private(set) var stakingTargetsCompactViewModel: StakingTargetsCompactViewModel?
     @Published private(set) var sendFeeFinishViewModel: SendFeeFinishViewModel?
 
     // Staking
@@ -39,7 +39,7 @@ class SendFinishViewModel: ObservableObject, Identifiable {
         sendAmountFinishViewModel: SendAmountFinishViewModel?,
         nftAssetCompactViewModel: NFTAssetCompactViewModel?,
         sendDestinationCompactViewModel: SendDestinationCompactViewModel?,
-        stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?,
+        stakingTargetsCompactViewModel: StakingTargetsCompactViewModel?,
         sendFeeFinishViewModel: SendFeeFinishViewModel?,
         onrampAmountCompactViewModel: OnrampAmountCompactViewModel?,
         onrampStatusCompactViewModel: OnrampStatusCompactViewModel?,
@@ -50,7 +50,7 @@ class SendFinishViewModel: ObservableObject, Identifiable {
         self.sendAmountFinishViewModel = sendAmountFinishViewModel
         self.nftAssetCompactViewModel = nftAssetCompactViewModel
         self.sendDestinationCompactViewModel = sendDestinationCompactViewModel
-        self.stakingValidatorsCompactViewModel = stakingValidatorsCompactViewModel
+        self.stakingTargetsCompactViewModel = stakingTargetsCompactViewModel
         self.sendFeeFinishViewModel = sendFeeFinishViewModel
         self.onrampAmountCompactViewModel = onrampAmountCompactViewModel
         self.onrampStatusCompactViewModel = onrampStatusCompactViewModel

@@ -62,5 +62,8 @@ struct DetailsCoordinatorView: CoordinatorView {
                 SupportChatView(viewModel: $0)
                     .edgesIgnoringSafeArea(.vertical)
             }
+            .fullScreenCover(item: $coordinator.tangemPayOnboardingCoordinator) {
+                TangemPayOnboardingCoordinatorView(coordinator: $0)
+            }
     }
 }

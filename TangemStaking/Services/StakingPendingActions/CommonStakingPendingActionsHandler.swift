@@ -85,7 +85,7 @@ struct CommonStakingPendingActionsHandler: StakingPendingActionsHandler {
         balances.firstIndex(where: {
             !$0.inProgress
                 && $0.balanceType == type
-                && $0.validatorType.validator?.address == action.validatorAddress
+                && $0.targetType.target?.address == action.targetAddress
                 && $0.accountAddress.flatMap { action.accountAddresses?.contains($0) } ?? true
         })
     }
@@ -108,7 +108,7 @@ struct CommonStakingPendingActionsHandler: StakingPendingActionsHandler {
             amount: amount,
             accountAddress: balance.accountAddress,
             balanceType: balance.balanceType,
-            validatorType: balance.validatorType,
+            targetType: balance.targetType,
             inProgress: inProgress,
             actions: balance.actions
         )

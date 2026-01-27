@@ -20,12 +20,10 @@ struct ScanCardSettingsCoordinatorView: CoordinatorView {
         }
     }
 
-    @ViewBuilder
     private var links: some View {
         NavHolder()
             .navigation(item: $coordinator.cardSettingsCoordinator) {
                 CardSettingsCoordinatorView(coordinator: $0)
             }
-            .emptyNavigationLink()
     }
 }

@@ -14,11 +14,10 @@ import TangemAssets
 import TangemUI
 import TangemUIUtils
 import TangemFoundation
+import TangemMacro
 
 struct MarketsView: View {
     @ObservedObject var viewModel: MarketsViewModel
-
-    @StateObject private var navigationControllerConfigurator = MarketsViewNavigationControllerConfigurator()
 
     @Environment(\.mainWindowSize) private var mainWindowSize
 
@@ -32,7 +31,6 @@ struct MarketsView: View {
     @State private var listOverlayVerticalOffset: CGFloat = .zero
     @State private var listOverlayTitleOpacity: CGFloat = 1.0
     @State private var isListContentObscured = false
-    @State private var responderChainIntrospectionTrigger = UUID()
 
     private var defaultBackgroundColor: Color { Colors.Background.primary }
 
@@ -71,7 +69,7 @@ struct MarketsView: View {
                 }
             }
             .opacity(viewModel.overlayContentHidingProgress) // Hides list content on bottom sheet minimizing
-            .scrollDismissesKeyboardCompat(.immediately)
+            .scrollDismissesKeyboard(.immediately)
 
             navigationBarBackground
 
@@ -86,23 +84,7 @@ struct MarketsView: View {
         // `navigationControllerConfigurator` won't hide the navigation bar on that page (`Markets Token Details`)
         .navigationTitle("Markets")
         .navigationBarTitleDisplayMode(.inline)
-        .onWillAppear {
-            navigationControllerConfigurator.setCornerRadius(overlayContentContainer.cornerRadius)
-            // `UINavigationBar` may be installed into the view hierarchy quite late;
-            // therefore, we're triggering introspection in the `viewWillAppear` callback
-            responderChainIntrospectionTrigger = UUID()
-        }
-        .onAppear {
-            navigationControllerConfigurator.setCornerRadius(overlayContentContainer.cornerRadius)
-            // `UINavigationBar` may be installed into the view hierarchy quite late;
-            // therefore, we're triggering introspection in the `onAppear` callback
-            responderChainIntrospectionTrigger = UUID()
-        }
-        .introspectResponderChain(
-            introspectedType: UINavigationController.self,
-            updateOnChangeOf: responderChainIntrospectionTrigger,
-            action: navigationControllerConfigurator.configure(_:)
-        )
+        .injectMarketsNavigationControllerConfigurator()
     }
 
     @ViewBuilder
@@ -203,14 +185,13 @@ struct MarketsView: View {
                         .frame(height: overlayHeight)
 
                     LazyVStack(spacing: 0) {
-                        if !showSearchResult, case .visible(let apy) = viewModel.stakingNotificationState {
-                            MarketsStakingNotificationView(
-                                apy: apy,
+                        if !showSearchResult, viewModel.yieldModeNotificationVisible {
+                            MarketsYieldModeNotificationView(
                                 openAction: { [viewModel] in
-                                    viewModel.openStakingFiter()
+                                    viewModel.openYieldModeFiter()
                                 },
                                 closeAction: { [viewModel] in
-                                    viewModel.closeStakingNotification()
+                                    viewModel.closeYieldModeNotification()
                                 }
                             )
                         }
@@ -321,6 +302,7 @@ private extension MarketsView {
 // MARK: - Auxiliary types
 
 extension MarketsView {
+    @CaseFlagable
     enum ListLoadingState: String, Identifiable, Hashable {
         case noResults
         case error

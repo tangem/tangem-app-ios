@@ -28,7 +28,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     @Published var tokenNotificationInputs: [NotificationViewInput] = []
     @Published var pendingExpressTransactions: [PendingExpressTransactionView.Info] = []
     @Published private(set) var pendingTransactionViews: [TransactionViewModel] = []
-    @Published private(set) var miniChartData: LoadingValue<[Double]?> = .loading
+    @Published private(set) var miniChartData: LoadingResult<[Double]?, any Error> = .loading
 
     private(set) lazy var refreshScrollViewStateObject: RefreshScrollViewStateObject = .init(
         settings: .init(stopRefreshingDelay: 0.2),
@@ -419,7 +419,7 @@ extension SingleTokenBaseViewModel {
 
     private func setupMiniChart() {
         guard let id = walletModel.tokenItem.currencyId else {
-            miniChartData = .failedToLoad(error: "")
+            miniChartData = .failure("")
             return
         }
         miniChartsProvider.fetch(for: [id], with: miniChartPriceIntervalType)
@@ -491,10 +491,10 @@ extension SingleTokenBaseViewModel {
             let chartPoints = try mapper
                 .mapAndSortValues(from: data)
                 .map(\.price.doubleValue)
-            miniChartData = .loaded(chartPoints)
+            miniChartData = .success(chartPoints)
         } catch {
             AppLogger.error(error: error)
-            miniChartData = .failedToLoad(error: error)
+            miniChartData = .failure(error)
         }
     }
 
@@ -510,7 +510,7 @@ extension SingleTokenBaseViewModel {
             return !tokenActionAvailabilityProvider.isSwapAvailable
         case .sell:
             return !tokenActionAvailabilityProvider.isSellAvailable
-        case .copyAddress, .hide, .stake, .marketsDetails:
+        case .copyAddress, .hide, .stake, .marketsDetails, .yield:
             return true
         }
     }
@@ -531,7 +531,7 @@ extension SingleTokenBaseViewModel {
         case .receive: return openReceiveAction
         case .exchange: return openExchangeAction
         case .sell: return openSellAction
-        case .copyAddress, .hide, .stake, .marketsDetails: return nil
+        case .copyAddress, .hide, .stake, .marketsDetails, .yield: return nil
         }
     }
 
@@ -539,7 +539,7 @@ extension SingleTokenBaseViewModel {
         switch buttonType {
         case .receive:
             return weakify(self, forFunction: SingleTokenBaseViewModel.copyDefaultAddress)
-        case .buy, .send, .exchange, .sell, .copyAddress, .hide, .stake, .marketsDetails:
+        case .buy, .send, .exchange, .sell, .copyAddress, .hide, .stake, .marketsDetails, .yield:
             return nil
         }
     }

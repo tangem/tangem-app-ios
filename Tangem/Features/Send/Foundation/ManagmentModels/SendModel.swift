@@ -106,7 +106,7 @@ private extension SendModel {
                 switch fee {
                 case .loading:
                     return .none
-                case .loaded(let fee):
+                case .success(let fee):
                     do {
                         let transaction = try await manager.makeTransaction(
                             amountValue: amount,
@@ -119,7 +119,7 @@ private extension SendModel {
                     } catch {
                         return .failure(error)
                     }
-                case .failedToLoad(let error):
+                case .failure(let error):
                     return .failure(error)
                 }
             }
@@ -608,13 +608,13 @@ extension SendModel: SendFeeInput {
         case .loading:
             return .init(option: state.fees.selected, value: .loading)
         case .restriction(.requiredRefresh(let occurredError), _):
-            return .init(option: state.fees.selected, value: .failedToLoad(error: occurredError))
+            return .init(option: state.fees.selected, value: .failure(occurredError))
         case let state:
             do {
                 let fee = try state.fees.selectedFee()
-                return .init(option: state.fees.selected, value: .loaded(fee))
+                return .init(option: state.fees.selected, value: .success(fee))
             } catch {
-                return .init(option: state.fees.selected, value: .failedToLoad(error: error))
+                return .init(option: state.fees.selected, value: .failure(error))
             }
         }
     }

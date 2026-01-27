@@ -10,9 +10,11 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 
+// [REDACTED_TODO_COMMENT]
 struct TokenPriceChangeView: View {
     let state: State
     var showSkeletonWhenLoading: Bool = true
+    var showSeparatorForNeutralStyle: Bool = true
 
     private let loaderSize = CGSize(width: 40, height: 12)
 
@@ -37,8 +39,8 @@ struct TokenPriceChangeView: View {
             }
         case .loaded(let signType, let text):
             HStack(spacing: 4) {
-                if let icon = signType.imageType?.image {
-                    icon
+                if shouldShowIcon(for: signType) {
+                    signType.imageType.image
                         .renderingMode(.template)
                         .foregroundColor(signType.textColor)
                 }
@@ -46,6 +48,13 @@ struct TokenPriceChangeView: View {
                 styledText(text, textColor: signType.textColor)
             }
         }
+    }
+
+    private func shouldShowIcon(for signType: ChangeSignType) -> Bool {
+        if signType == .neutral {
+            return showSeparatorForNeutralStyle
+        }
+        return true
     }
 
     private var styledDashText: some View {

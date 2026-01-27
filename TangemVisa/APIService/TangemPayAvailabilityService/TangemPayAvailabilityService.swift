@@ -14,19 +14,16 @@ public protocol TangemPayAvailabilityService {
 
 class CommonTangemPayAvailabilityService {
     private let apiService: APIService<TangemPayAvailabilityAPITarget>
-    private let tangemPayAPIService: TangemPayAPIService<TangemPayAvailabilityAPITarget>
     private let apiType: VisaAPIType
     private let bffStaticToken: String
 
     init(
         apiType: VisaAPIType,
         apiService: APIService<TangemPayAvailabilityAPITarget>,
-        tangemPayAPIService: TangemPayAPIService<TangemPayAvailabilityAPITarget>,
         bffStaticToken: String
     ) {
         self.apiType = apiType
         self.apiService = apiService
-        self.tangemPayAPIService = tangemPayAPIService
         self.bffStaticToken = bffStaticToken
     }
 }
@@ -48,7 +45,7 @@ extension CommonTangemPayAvailabilityService: TangemPayAvailabilityService {
     }
 
     func isPaeraCustomer(customerWalletId: String) async throws -> TangemPayIsPaeraCustomerResponse {
-        try await tangemPayAPIService.request(
+        try await apiService.request(
             .init(
                 target: .isPaeraCustomer(
                     customerWalletId: customerWalletId,

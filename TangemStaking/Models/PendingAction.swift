@@ -16,7 +16,7 @@ public struct PendingAction: Hashable {
     public let type: StakingPendingActionInfo.ActionType
     public let currentStepIndex: Int
     public let transactions: [ActionTransaction]
-    public let validatorAddress: String?
+    public let targetAddress: String?
 
     public init(
         id: String,
@@ -26,7 +26,7 @@ public struct PendingAction: Hashable {
         type: StakingPendingActionInfo.ActionType,
         currentStepIndex: Int,
         transactions: [ActionTransaction],
-        validatorAddress: String? = nil
+        targetAddress: String? = nil
     ) {
         self.id = id
         self.accountAddresses = accountAddresses
@@ -35,6 +35,6 @@ public struct PendingAction: Hashable {
         self.type = type
         self.currentStepIndex = currentStepIndex
         self.transactions = transactions
-        self.validatorAddress = validatorAddress
+        self.targetAddress = targetAddress
     }
 }

@@ -18,6 +18,7 @@ public protocol CustomerInfoManagementService: AnyObject {
     func getCardDetails(sessionId: String) async throws -> TangemPayCardDetailsResponse
     func freeze(cardId: String) async throws -> TangemPayFreezeUnfreezeResponse
     func unfreeze(cardId: String) async throws -> TangemPayFreezeUnfreezeResponse
+    func getPin(sessionId: String) async throws -> TangemPayGetPinResponse
     func setPin(pin: String, sessionId: String, iv: String) async throws -> TangemPaySetPinResponse
 
     func getTransactionHistory(limit: Int, cursor: String?) async throws -> TangemPayTransactionHistoryResponse
@@ -33,6 +34,9 @@ public protocol CustomerInfoManagementService: AnyObject {
 
     func placeOrder(customerWalletAddress: String) async throws -> TangemPayOrderResponse
     func getOrder(orderId: String) async throws -> TangemPayOrderResponse
+
+    @discardableResult
+    func cancelKYC() async throws -> TangemPayCancelKYCResponse
 }
 
 final class CommonCustomerInfoManagementService {
@@ -69,6 +73,12 @@ final class CommonCustomerInfoManagementService {
 }
 
 extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
+    func cancelKYC() async throws -> TangemPayCancelKYCResponse {
+        return try await apiService.request(
+            makeRequest(for: .setPayEnabled)
+        )
+    }
+
     func loadCustomerInfo() async throws -> VisaCustomerInfoResponse {
         return try await apiService.request(
             makeRequest(for: .getCustomerInfo)
@@ -108,6 +118,12 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
     func setPin(pin: String, sessionId: String, iv: String) async throws -> TangemPaySetPinResponse {
         try await apiService.request(
             makeRequest(for: .setPin(pin: pin, sessionId: sessionId, iv: iv))
+        )
+    }
+
+    func getPin(sessionId: String) async throws -> TangemPayGetPinResponse {
+        try await apiService.request(
+            makeRequest(for: .getPin(sessionId: sessionId))
         )
     }
 

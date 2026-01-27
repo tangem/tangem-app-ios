@@ -8,6 +8,8 @@
 import TangemVisa
 
 class TangemPayAuthorizingMock: TangemPayAuthorizing {
+    var syncNeededTitle: String = "Mock Sync Needed"
+
     func authorize(
         customerWalletId: String,
         authorizationService: TangemPayAuthorizationService

@@ -31,7 +31,7 @@ struct ExperimentWalletContext {
     static func initial(for userWalletId: UserWalletId) -> ExperimentWalletContext {
         ExperimentWalletContext(
             userWalletId: userWalletId,
-            region: Locale.current.regionCode ?? "",
+            region: Locale.current.region?.identifier ?? "",
             language: deviceInfo.language,
             appVersion: deviceInfo.version,
             environment: AppEnvironment.current.rawValue,

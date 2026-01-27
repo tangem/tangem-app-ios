@@ -174,7 +174,7 @@ private extension CommonUTXOTransactionSerializer {
         bytes += locktime.data
         bytes += UInt32(signHashType.value).data
 
-        return bytes.getDoubleSha256()
+        return bytes.getDoubleSHA256()
     }
 
     /// https://github.com/bitcoin/bips/blob/master/bip-0143.mediawiki
@@ -186,10 +186,10 @@ private extension CommonUTXOTransactionSerializer {
         bytes += version.data
 
         let prevouts = transaction.inputs.flatMap { encodeOutPoint($0) }
-        bytes += prevouts.getDoubleSha256()
+        bytes += prevouts.getDoubleSHA256()
 
         let sequences = transaction.inputs.flatMap { _ in sequence.value.data }
-        bytes += sequences.getDoubleSha256()
+        bytes += sequences.getDoubleSHA256()
 
         let input = transaction.inputs[inputIndex]
         bytes += encodeOutPoint(input)
@@ -216,12 +216,12 @@ private extension CommonUTXOTransactionSerializer {
         bytes += sequence.value.data
 
         let outputs = transaction.outputs.flatMap { encodeOutput($0) }
-        bytes += Data(outputs).getDoubleSha256()
+        bytes += Data(outputs).getDoubleSHA256()
 
         bytes += locktime.data
         bytes += UInt32(signHashType.value).data
 
-        return bytes.getDoubleSha256()
+        return bytes.getDoubleSHA256()
     }
 
     func encodeOutPoint(_ input: ScriptUnspentOutput) -> Data {

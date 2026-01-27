@@ -15,7 +15,7 @@ import TangemFoundation
 import TangemUI
 
 public final class NFTCollectionsListViewModel: ObservableObject {
-    typealias ViewState = LoadingValue<DisplayMode>
+    typealias ViewState = LoadingResult<DisplayMode, any Error>
 
     // MARK: State
 
@@ -103,11 +103,11 @@ public final class NFTCollectionsListViewModel: ObservableObject {
 
     var isSearchable: Bool {
         switch state {
-        case .failedToLoad:
+        case .failure:
             false
-        case .loaded(let displayMode) where isStateEmpty(displayMode: displayMode):
+        case .success(let displayMode) where isStateEmpty(displayMode: displayMode):
             false
-        case .loaded, .loading:
+        case .success, .loading:
             true
         }
     }
@@ -178,15 +178,15 @@ public final class NFTCollectionsListViewModel: ObservableObject {
         let currentCollections = stateUpdater.mostRecentState?.value?.collections ?? state.value?.collections ?? []
 
         switch result.viewState {
-        case .loaded where didHaveErrorsWithEmptyCollections(result) && (state.isLoading || currentCollections.isEmpty):
+        case .success where didHaveErrorsWithEmptyCollections(result) && (state.isLoading || currentCollections.isEmpty):
             // We don't need error here, NSError used to silence the compiler
-            updateState(to: .failedToLoad(error: NSError.dummy))
+            updateState(to: .failure(NSError.dummy))
 
-        case .loaded where didHaveErrorsWithEmptyCollections(result):
+        case .success where didHaveErrorsWithEmptyCollections(result):
             break // Keep previous state
 
-        case .loaded:
-            updateState(to: .loaded(filteredCollections(entry: searchEntry, from: displayMode)))
+        case .success:
+            updateState(to: .success(filteredCollections(entry: searchEntry, from: displayMode)))
 
         case .loading where currentCollections.isEmpty:
             updateState(to: .loading)
@@ -194,16 +194,16 @@ public final class NFTCollectionsListViewModel: ObservableObject {
         case .loading:
             isShimmerActive = true // Keep previous state and start shimmer animation
 
-        case .failedToLoad(let error):
-            updateState(to: .failedToLoad(error: error))
+        case .failure(let error):
+            updateState(to: .failure(error))
         }
     }
 
     private func map(managerState: NFTManagerState) -> ManagerStateMappingResult {
         switch managerState {
-        case .failedToLoad(let error):
+        case .failure(let error):
             return .init(
-                viewState: .failedToLoad(error: error),
+                viewState: .failure(error),
                 notificationViewData: nil
             )
 
@@ -213,16 +213,16 @@ public final class NFTCollectionsListViewModel: ObservableObject {
                 notificationViewData: loadingTroublesViewData
             )
 
-        case .loaded(let collectionsResult):
+        case .success(let collectionsResult):
             let loadingTroublesViewData = collectionsResult.hasErrors ? makeNotificationViewData() : nil
             let state = accounForNFTCollectionsProvider.provideAccountsWithCollectionsState(for: collectionsResult.value)
 
             let viewState: NFTCollectionsListViewModel.ViewState = switch state {
             case .singleAccount:
-                .loaded(.flattenedList(buildCollections(from: collectionsResult.value)))
+                .success(.flattenedList(buildCollections(from: collectionsResult.value)))
 
             case .multipleAccounts(let accountsWithCollections):
-                .loaded(.groupedList(buildAccountsWithCollectionViewModels(from: accountsWithCollections)))
+                .success(.groupedList(buildAccountsWithCollectionViewModels(from: accountsWithCollections)))
             }
 
             return .init(
@@ -244,9 +244,9 @@ public final class NFTCollectionsListViewModel: ObservableObject {
                 let assetsResult = collection.assetsResult
 
                 let assetsState: NFTCollectionDisclosureGroupViewModel.AssetsState = if assetsResult.hasErrors, assetsResult.value.isEmpty {
-                    .failedToLoad(error: NSError.dummy)
+                    .failure(NSError.dummy)
                 } else if assetsResult.value.isNotEmpty {
-                    .loaded(assetsResult.value)
+                    .success(assetsResult.value)
                 } else {
                     .loading
                 }
@@ -281,8 +281,8 @@ public final class NFTCollectionsListViewModel: ObservableObject {
     }
 
     private func filterAndAssignCollections(for entry: String) {
-        guard case .loaded = state else { return }
-        updateState(to: .loaded(filteredCollections(entry: entry, from: displayMode)))
+        guard case .success = state else { return }
+        updateState(to: .success(filteredCollections(entry: entry, from: displayMode)))
     }
 
     private func filteredCollections(entry: String, from displayMode: DisplayMode?) -> DisplayMode {

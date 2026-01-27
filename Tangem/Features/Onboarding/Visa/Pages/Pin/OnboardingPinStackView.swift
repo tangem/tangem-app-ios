@@ -17,6 +17,7 @@ struct OnboardingPinStackView: View {
 
     @Environment(\.pinStackColor) private var pinColor
     @Environment(\.pinStackSecured) private var pinSecured
+    @Environment(\.pinStackDigitBackground) private var pinDigitBackground
 
     @State private var isResponder: Bool? = false
 
@@ -30,7 +31,7 @@ struct OnboardingPinStackView: View {
                     Text(getDigit(index))
                         .style(Fonts.Regular.title1, color: pinColor)
                         .frame(width: 42, height: 58)
-                        .background(Colors.Field.primary)
+                        .background(pinDigitBackground)
                         .cornerRadius(14)
                 }
             }
@@ -40,6 +41,7 @@ struct OnboardingPinStackView: View {
             }
         }
         .screenCaptureProtection()
+        .fixedSize()
         .onChange(of: isDisabled) { disabled in
             isResponder = !disabled
         }
@@ -84,6 +86,10 @@ private struct PinStackSecuredKey: EnvironmentKey {
     static let defaultValue: Bool = false
 }
 
+private struct PinStackDigitBackground: EnvironmentKey {
+    static let defaultValue: Color = Colors.Field.primary
+}
+
 extension EnvironmentValues {
     var pinStackColor: Color {
         get { self[PinStackColorKey.self] }
@@ -94,6 +100,11 @@ extension EnvironmentValues {
         get { self[PinStackSecuredKey.self] }
         set { self[PinStackSecuredKey.self] = newValue }
     }
+
+    var pinStackDigitBackground: Color {
+        get { self[PinStackDigitBackground.self] }
+        set { self[PinStackDigitBackground.self] = newValue }
+    }
 }
 
 extension View {
@@ -103,6 +114,10 @@ extension View {
 
     func pinStackSecured(_ isSecured: Bool) -> some View {
         environment(\.pinStackSecured, isSecured)
+    }
+
+    func pinStackDigitBackground(_ color: Color) -> some View {
+        environment(\.pinStackDigitBackground, color)
     }
 }
 

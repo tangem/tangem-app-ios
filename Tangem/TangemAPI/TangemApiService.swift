@@ -95,7 +95,6 @@ protocol TangemApiService: AnyObject {
     func setSeedNotifyStatus(userWalletId: String, status: SeedNotifyStatus) async throws
     func getSeedNotifyStatusConfirmed(userWalletId: String) async throws -> SeedNotifyDTO
     func setSeedNotifyStatusConfirmed(userWalletId: String, status: SeedNotifyStatus) async throws
-    func setWalletInitialized(userWalletId: String) async throws
 
     // MARK: - Configs
 
@@ -115,6 +114,11 @@ protocol TangemApiService: AnyObject {
     /// Update application with new uid with pushToken
     func updateUserWalletsApplications(uid: String, requestModel: ApplicationDTO.Update.Request) async throws
 
+    /// Creates a new user wallet and associates it with the given application
+    /// - Parameters:
+    ///   - requestModel: Details for connecting user wallets
+    func connectUserWallets(uid: String, requestModel: ApplicationDTO.Connect.Request) async throws
+
     // MARK: - UserWallets
 
     /// Retrieves all user wallets associated with the given application ID
@@ -126,12 +130,10 @@ protocol TangemApiService: AnyObject {
     func getUserWallet(userWalletId: String) async throws -> UserWalletDTO.Response
 
     /// Update user wallet data model
-    func updateUserWallet(by userWalletId: String, requestModel: UserWalletDTO.Update.Request) async throws
+    func updateWallet(by userWalletId: String, context: some Encodable) async throws
 
-    /// Creates a new user wallet and associates it with the given application
-    /// - Parameters:
-    ///   - requestModel: Details for creating the new wallet including ID and name
-    func createAndConnectUserWallet(applicationUid: String, items: Set<UserWalletDTO.Create.Request>) async throws
+    /// - Returns: New revision for optimistic locking.
+    func createWallet(with context: some Encodable) async throws -> String?
 
     // MARK: - Accounts
 
