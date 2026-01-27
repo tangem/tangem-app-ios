@@ -426,6 +426,11 @@
 "domain_receive_assets_onboarding_description" = "Надсилання активів в інші мережі призведе до безповоротної втрати.";
 "domain_receive_assets_onboarding_network_name" = "%@ мережа";
 "domain_receive_assets_onboarding_title" = "Надсилайте кошти, використовуючи лише";
+"earn_best_opportunities" = "Best opportunities";
+"earn_filter_all_networks" = "All networks";
+"earn_filter_all_types" = "All types";
+"earn_mostly_used" = "Mostly used";
+"earn_title" = "Earn";
 "email_preface_wc_error" = "Привіт, команда підтримки, я зіткнувся з помилкою з кодом: %@";
 "email_subject_wc_error" = "Помилка WalletConnect";
 "error_wrong_wallet_tapped" = "Ви використали картку або кільце від іншого гаманця. Прикладіть картку або кільце, пов'язану з цим гаманцем.";

@@ -426,6 +426,11 @@
 "domain_receive_assets_onboarding_description" = "他のネットワークで資産を送金すると、永久に失われます。";
 "domain_receive_assets_onboarding_network_name" = "%@ネットワーク";
 "domain_receive_assets_onboarding_title" = "下記のみを使用して資金を送金する";
+"earn_best_opportunities" = "Best opportunities";
+"earn_filter_all_networks" = "All networks";
+"earn_filter_all_types" = "All types";
+"earn_mostly_used" = "Mostly used";
+"earn_title" = "Earn";
 "email_preface_wc_error" = "こんにちは、サポートチームの皆さん、コード %@ のエラーが発生しました。";
 "email_subject_wc_error" = "WalletConnectエラー";
 "error_wrong_wallet_tapped" = "別のウォレットのカードまたはリングを使用しました。このウォレットにリンクしているカードまたはリングをタップしてください。";
