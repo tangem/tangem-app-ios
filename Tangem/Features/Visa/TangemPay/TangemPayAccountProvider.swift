@@ -22,7 +22,8 @@ protocol TangemPayAccountProvider {
 
 class CommonTangemPayAccountProvider {
     private let tangemPayAccountSubject: CurrentValueSubject<TangemPayAccount?, Never> = .init(nil)
-    private var tangemPayAccountCancellable: Cancellable?
+    private let onKYCCancelledSubject = PassthroughSubject<Void, Never>()
+    private var bag = Set<AnyCancellable>()
 
     init() {}
 }
@@ -32,21 +33,43 @@ class CommonTangemPayAccountProvider {
 extension CommonTangemPayAccountProvider: TangemPayAccountProviderSetupable {
     func setup(for userWalletModel: any UserWalletModel) {
         Task { [self] in
-            let builder = TangemPayAccountBuilder()
-            let tangemPayAccount = try? await builder.makeTangemPayAccount(
-                authorizerType: .availabilityService,
-                userWalletModel: userWalletModel
-            )
+            if await !(AppSettings.shared.tangemPayIsKYCHiddenForCustomerWalletId[
+                userWalletModel.userWalletId.stringValue
+            ] ?? false) {
+                let builder = TangemPayAccountBuilder()
+                let tangemPayAccount = try? await builder.makeTangemPayAccount(
+                    authorizerType: .availabilityService,
+                    userWalletModel: userWalletModel
+                )
 
-            if let tangemPayAccount {
-                tangemPayAccountSubject.send(tangemPayAccount)
-            } else {
-                // Make it possible to create TangemPayAccount from offer screen
-                tangemPayAccountCancellable = userWalletModel.updatePublisher
-                    .compactMap(\.tangemPayAccount)
-                    .first()
-                    .sink(receiveValue: tangemPayAccountSubject.send)
+                if let tangemPayAccount {
+                    tangemPayAccount.setupKYCCancellationDelegate(self)
+                    tangemPayAccountSubject.send(tangemPayAccount)
+                }
             }
+
+            userWalletModel.updatePublisher
+                .compactMap(\.tangemPayAccount)
+                .handleEvents(receiveOutput: { [weak self] account in
+                    guard let self else { return }
+                    account.setupKYCCancellationDelegate(self)
+                })
+                .sink(receiveValue: tangemPayAccountSubject.send)
+                .store(in: &bag)
+
+            userWalletModel.updatePublisher
+                .filter { $0.isKYCDeclined }
+                .sink { [weak self] _ in
+                    self?.tangemPayAccountSubject.send(nil)
+                }
+                .store(in: &bag)
+
+            onKYCCancelledSubject
+                .map { UpdateRequest.tangemPayKYCDeclined }
+                .sink { [weak userWalletModel] in
+                    userWalletModel?.update(type: $0)
+                }
+                .store(in: &bag)
         }
     }
 }
@@ -60,5 +83,26 @@ extension CommonTangemPayAccountProvider: TangemPayAccountProvider {
 
     var tangemPayAccount: TangemPayAccount? {
         tangemPayAccountSubject.value
+    }
+}
+
+// MARK: - TangemPayKYCCancellationDelegate
+
+extension CommonTangemPayAccountProvider: TangemPayKYCCancellationDelegate {
+    func onKYCCancelled() {
+        onKYCCancelledSubject.send()
+    }
+}
+
+// MARK: - Private utils
+
+private extension UpdateResult {
+    var isKYCDeclined: Bool {
+        switch self {
+        case .tangemPayKYCDeclined:
+            return true
+        default:
+            return false
+        }
     }
 }

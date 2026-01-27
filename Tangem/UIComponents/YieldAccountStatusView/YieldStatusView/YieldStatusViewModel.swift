@@ -84,7 +84,7 @@ final class YieldStatusViewModel: ObservableObject {
     }
 
     private func makeTitle() -> AttributedString {
-        var title = AttributedString(Localization.yieldModuleTokenDetailsEarnNotificationEarningOnYourBalanceTitle)
+        var title = AttributedString(Localization.commonYieldMode)
         title.foregroundColor = Colors.Text.primary1
         title.font = Fonts.Bold.subheadline
 

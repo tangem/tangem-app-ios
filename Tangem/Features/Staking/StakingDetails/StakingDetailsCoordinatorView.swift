@@ -51,7 +51,7 @@ struct StakingDetailsCoordinatorView: CoordinatorView {
 
 extension StakingDetailsCoordinatorView {
     func stakingNavigationView() -> some View {
-        NavigationView {
+        NavigationStack {
             self
                 .navigationBarTitle(Text(Localization.commonStake), displayMode: .inline)
                 .toolbar {

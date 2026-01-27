@@ -15,7 +15,7 @@ struct SelectorReceiveAssetsView: View {
     @ObservedObject var viewModel: SelectorReceiveAssetsViewModel
 
     var body: some View {
-        GroupedScrollView(spacing: Layout.Container.spacingContent) {
+        GroupedScrollView(contentType: .lazy(alignment: .center, spacing: Layout.Container.spacingContent)) {
             ForEach(viewModel.sections, id: \.id) { section in
                 switch section.id {
                 case .default:

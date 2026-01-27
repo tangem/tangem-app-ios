@@ -14,9 +14,15 @@ final class CommonP2PStakingAPIService: P2PStakingAPIService {
     private let credential: StakingAPICredential
     private let network: P2PNetwork
 
-    private let decoder: JSONDecoder = {
+    private lazy var millisecondsDateDecoder: JSONDecoder = {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .millisecondsSince1970
+        return decoder
+    }()
+
+    private lazy var decoder: JSONDecoder = {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601WithFractionalSeconds
         return decoder
     }()
 
@@ -33,7 +39,7 @@ final class CommonP2PStakingAPIService: P2PStakingAPIService {
     // MARK: - Vaults
 
     func getVaultsList() async throws -> P2PDTO.Vaults.VaultsInfo {
-        try await response(.getVaultsList)
+        try await response(.getVaultsList, decoder: millisecondsDateDecoder)
     }
 
     // MARK: - Account Summary
@@ -61,8 +67,8 @@ final class CommonP2PStakingAPIService: P2PStakingAPIService {
     // MARK: - Prepare Deposit Transaction
 
     func prepareDepositTransaction(
-        request: P2PDTO.PrepareDepositTransaction.Request
-    ) async throws -> P2PDTO.PrepareDepositTransaction.PrepareDepositTransactionInfo {
+        request: P2PDTO.PrepareTransaction.Request
+    ) async throws -> P2PDTO.PrepareTransaction.PrepareTransactionInfo {
         try await response(
             .prepareDepositTransaction(request: request)
         )
@@ -71,8 +77,8 @@ final class CommonP2PStakingAPIService: P2PStakingAPIService {
     // MARK: - Prepare Unstake Transaction
 
     func prepareUnstakeTransaction(
-        request: P2PDTO.PrepareUnstakeTransaction.Request
-    ) async throws -> P2PDTO.PrepareUnstakeTransaction.PrepareUnstakeTransactionInfo {
+        request: P2PDTO.PrepareTransaction.Request
+    ) async throws -> P2PDTO.PrepareTransaction.PrepareTransactionInfo {
         try await response(
             .prepareUnstakeTransaction(request: request)
         )
@@ -81,8 +87,8 @@ final class CommonP2PStakingAPIService: P2PStakingAPIService {
     // MARK: - Prepare Withdraw Transaction
 
     func prepareWithdrawTransaction(
-        request: P2PDTO.PrepareWithdrawTransaction.Request
-    ) async throws -> P2PDTO.PrepareWithdrawTransaction.PrepareWithdrawTransactionInfo {
+        request: P2PDTO.PrepareTransaction.Request
+    ) async throws -> P2PDTO.PrepareTransaction.PrepareTransactionInfo {
         try await response(
             .prepareWithdrawTransaction(request: request)
         )
@@ -100,7 +106,10 @@ final class CommonP2PStakingAPIService: P2PStakingAPIService {
 
     // MARK: - Private
 
-    private func response<T: Decodable>(_ target: P2PTarget.Target) async throws -> T {
+    private func response<T: Decodable>(
+        _ target: P2PTarget.Target,
+        decoder: JSONDecoder? = nil
+    ) async throws -> T {
         let targetType = P2PTarget(
             apiKey: credential.apiKey,
             target: target,
@@ -108,12 +117,18 @@ final class CommonP2PStakingAPIService: P2PStakingAPIService {
         )
         let response = try await provider.requestPublisher(targetType).async()
         do {
+            let decoder = decoder ?? self.decoder
             let p2pResponse = try decoder.decode(P2PDTO.GenericResponse<T>.self, from: response.data)
 
-            if let error = p2pResponse.error {
-                throw P2PStakingAPIError.apiError(error)
+            if let result = p2pResponse.result {
+                return result
             }
-            return p2pResponse.result
+
+            if let error = p2pResponse.error {
+                throw P2PStakingError.apiError(P2PAPIError(apiError: error))
+            }
+
+            throw P2PStakingError.httpError(statusCode: response.statusCode)
         } catch {
             StakingLogger.error(error: error)
             throw error

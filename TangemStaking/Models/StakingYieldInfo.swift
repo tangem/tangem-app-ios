@@ -21,8 +21,8 @@ public struct StakingYieldInfo: Hashable {
     public let exitMinimumRequirement: Decimal
 
     // Validators
-    public let validators: [ValidatorInfo]
-    public let preferredValidators: [ValidatorInfo]
+    public let targets: [StakingTargetInfo]
+    public let preferredTargets: [StakingTargetInfo]
 
     // Metadata
     public let item: StakingTokenItem
@@ -32,6 +32,8 @@ public struct StakingYieldInfo: Hashable {
     public let rewardClaimingType: RewardClaimingType
     public let rewardScheduleType: RewardScheduleType
 
+    public let maximumStakeAmount: Decimal?
+
     public init(
         id: String,
         isAvailable: Bool,
@@ -39,13 +41,14 @@ public struct StakingYieldInfo: Hashable {
         rewardRateValues: RewardRateValues,
         enterMinimumRequirement: Decimal,
         exitMinimumRequirement: Decimal,
-        validators: [ValidatorInfo],
-        preferredValidators: [ValidatorInfo],
+        targets: [StakingTargetInfo],
+        preferredTargets: [StakingTargetInfo],
         item: StakingTokenItem,
         unbondingPeriod: Period,
         warmupPeriod: Period,
         rewardClaimingType: RewardClaimingType,
-        rewardScheduleType: RewardScheduleType
+        rewardScheduleType: RewardScheduleType,
+        maximumStakeAmount: Decimal?
     ) {
         self.id = id
         self.isAvailable = isAvailable
@@ -53,12 +56,13 @@ public struct StakingYieldInfo: Hashable {
         self.rewardRateValues = rewardRateValues
         self.enterMinimumRequirement = enterMinimumRequirement
         self.exitMinimumRequirement = exitMinimumRequirement
-        self.validators = validators
-        self.preferredValidators = preferredValidators
+        self.targets = targets
+        self.preferredTargets = preferredTargets
         self.item = item
         self.unbondingPeriod = unbondingPeriod
         self.warmupPeriod = warmupPeriod
         self.rewardClaimingType = rewardClaimingType
         self.rewardScheduleType = rewardScheduleType
+        self.maximumStakeAmount = maximumStakeAmount
     }
 }

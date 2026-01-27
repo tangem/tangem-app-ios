@@ -70,8 +70,15 @@ class MobileOnboardingBackupSeedPhraseFlowBuilder: MobileOnboardingFlowBuilder {
 
 private extension MobileOnboardingBackupSeedPhraseFlowBuilder {
     func makeDoneStep() -> Step {
+        let successType: MobileOnboardingSuccessViewModel.SuccessType
+        if case .walletSettings(let action) = source, action == .accessCode {
+            successType = .seedPhaseBackupContinue
+        } else {
+            successType = .seedPhaseBackupFinish
+        }
+
         let step = MobileOnboardingSuccessStep(
-            type: .seedPhaseBackupFinish,
+            type: successType,
             onAppear: { [weak self] in
                 self?.logBackupCompletedScreenOpenedAnalytics()
                 self?.openConfetti()

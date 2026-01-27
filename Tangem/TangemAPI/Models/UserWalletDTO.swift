@@ -17,20 +17,4 @@ enum UserWalletDTO {
         /// Flag indicating if notifications are enabled for this wallet
         let notifyStatus: Bool
     }
-
-    enum Update {
-        struct Request: Encodable {
-            /// Flag to enable/disable notifications for the wallet
-            let name: String
-        }
-    }
-
-    enum Create {
-        struct Request: Encodable, Hashable {
-            /// Unique identifier for the new wallet
-            let id: String
-            /// Display name for the new wallet
-            let name: String
-        }
-    }
 }
