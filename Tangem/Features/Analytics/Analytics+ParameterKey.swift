@@ -92,6 +92,8 @@ extension Analytics {
         case method = "Method"
         case appTheme = "App Theme"
         case mobileWallet = "Mobile Wallet"
+        case feeToken = "Fee Token"
+        case availableFee = "Available Fee"
 
         case fromSummary = "From Summary"
         case valid = "Valid"
