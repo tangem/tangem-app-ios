@@ -12,7 +12,7 @@ import TangemExpress
 
 final class OnrampCountrySelectorViewModel: Identifiable, ObservableObject {
     @Published var searchText: String = ""
-    @Published private(set) var countries: LoadingValue<[OnrampCountryViewData]> = .loading
+    @Published private(set) var countries: LoadingResult<[OnrampCountryViewData], any Error> = .loading
 
     private let repository: OnrampRepository
     private let dataRepository: OnrampDataRepository
@@ -43,7 +43,7 @@ final class OnrampCountrySelectorViewModel: Identifiable, ObservableObject {
                 viewModel.countriesSubject.send(countries)
             } catch {
                 await runOnMain {
-                    viewModel.countries = .failedToLoad(error: error)
+                    viewModel.countries = .failure(error)
                 }
             }
         }
@@ -56,7 +56,7 @@ private extension OnrampCountrySelectorViewModel {
             .withWeakCaptureOf(self)
             .map { viewModel, data in
                 let (countries, searchText) = data
-                return .loaded(
+                return .success(
                     viewModel.mapToCountriesViewData(
                         countries: countries,
                         searchText: searchText

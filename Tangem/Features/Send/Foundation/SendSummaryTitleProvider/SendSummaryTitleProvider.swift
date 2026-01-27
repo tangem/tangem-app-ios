@@ -10,11 +10,6 @@ import TangemLocalization
 
 protocol SendSummaryTitleProvider {
     var title: String { get }
-    var subtitle: String? { get }
-}
-
-extension SendSummaryTitleProvider {
-    var subtitle: String? { nil }
 }
 
 // MARK: - Send
@@ -30,10 +25,6 @@ struct CommonSendSummaryTitleProvider: SendSummaryTitleProvider {
         default:
             Localization.sendSummaryTitle(tokenItem.currencySymbol)
         }
-    }
-
-    var subtitle: String? {
-        walletName
     }
 }
 
@@ -73,13 +64,6 @@ struct StakingSendSummaryTitleProvider: SendSummaryTitleProvider {
             return SendFlowActionType.withdraw.title
         default:
             return actionType.title
-        }
-    }
-
-    var subtitle: String? {
-        switch actionType {
-        case .approve, .stake, .restake: walletName
-        default: nil
         }
     }
 }

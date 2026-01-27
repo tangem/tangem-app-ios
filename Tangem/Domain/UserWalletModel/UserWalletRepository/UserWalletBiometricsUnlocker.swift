@@ -13,14 +13,11 @@ import TangemVisa
 
 class UserWalletBiometricsUnlocker: UserWalletBiometricsProvider {
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
-    @Injected(\.tangemPayAuthorizationTokensRepository)
-    private var tangemPayAuthorizationTokensRepository: TangemPayAuthorizationTokensRepository
 
     func unlock() async throws -> LAContext {
         do {
             let context = try await BiometricsUtil.requestAccess(localizedReason: Localization.biometryTouchIdReason)
             visaRefreshTokenRepository.fetch(using: context)
-            tangemPayAuthorizationTokensRepository.fetch(using: context)
             return context
         } catch {
             Self.trackBiometricFailure(error: error)
