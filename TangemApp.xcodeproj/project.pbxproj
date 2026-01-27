@@ -16816,7 +16816,7 @@
 				B62D3F632CBC79D900C2460E /* PendingTransaction.swift */,
 				B62D3F642CBC79D900C2460E /* PendingTransactionRecord.swift */,
 				0ADCB45A2F1A6AF3000FC4B6 /* CachedPendingTransactionRecord.swift */,
-                EA0AD9C12EF976B9005C4D7D /* PendingTransactionStatusInfo.swift */,
+				EA0AD9C12EF976B9005C4D7D /* PendingTransactionStatusInfo.swift */,
 				B62D3F652CBC79D900C2460E /* PendingTransactionRecordMapper.swift */,
 				B62D3D392CBC79D900C2460E /* AssetRequirementsPendingTransactionMapper.swift */,
 				B62D3F662CBC79D900C2460E /* SignatureInfo.swift */,
@@ -24194,6 +24194,13 @@
 			path = Sell;
 			sourceTree = "<group>";
 		};
+		EF93030B2F27CBB600AD1FB6 /* Swap */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Swap;
+			sourceTree = "<group>";
+		};
 		EF9448D82ADFD19D00F4AFAC /* InformationHiddenBalances */ = {
 			isa = PBXGroup;
 			children = (
@@ -24708,6 +24715,7 @@
 		EFAF8A912E86A8B0009C3CF9 /* Flows */ = {
 			isa = PBXGroup;
 			children = (
+				EF93030B2F27CBB600AD1FB6 /* Swap */,
 				EFF8F1CF2E8573CD00A5EF0C /* Send */,
 				EFF8F1D82E85824C00A5EF0C /* Staking */,
 				EFAF8A882E85EFF4009C3CF9 /* Onramp */,
