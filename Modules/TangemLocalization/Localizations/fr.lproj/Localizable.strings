@@ -955,6 +955,7 @@
 "onramp_tos_external_providers" = "Service is provided by an external provider. \nTangem is not responsible.";
 "onramp_transaction_status_footer_text" = "Vous pouvez vérifier l'état de la transaction à partir de la page du jeton";
 "onramp_up_to_rate" = "Jusqu'à";
+"onramp_via_provider" = "via %@";
 "onramp_via" = "Via";
 "onramp_you_will_pay_title" = "Vous paierez";
 "organize_tokens_group" = "Grouper";
