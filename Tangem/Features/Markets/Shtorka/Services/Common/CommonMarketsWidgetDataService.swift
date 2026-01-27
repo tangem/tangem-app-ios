@@ -1,5 +1,5 @@
 //
-//  MarketsWidgetDataService.swift
+//  CommonMarketsWidgetDataService.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -18,6 +18,9 @@ final class CommonMarketsMainWidgetDataService {
 
     private let _widgetsValueSubject: CurrentValueSubject<[MarketsWidgetModel], Never> = .init([])
     private let _widgetsUpdateStateEventSubject: PassthroughSubject<WidgetLoadingStateEvent, Never> = .init()
+
+    /// Tracks whether the initial load has completed (all widgets finished loading at least once)
+    private var hasCompletedInitialLoad: Bool = false
 
     private lazy var widgetsLoadingStates: [MarketsWidgetType: WidgetLoadingState] = {
         let allCases = MarketsWidgetType.allCases
@@ -87,19 +90,44 @@ extension CommonMarketsMainWidgetDataService: MarketsMainWidgetsProvider {
 
 extension CommonMarketsMainWidgetDataService: MarketsMainWidgetsUpdateHandler {
     func performUpdateLoading(state: WidgetLoadingState, for widgetType: MarketsWidgetType) {
+        AppLogger.debug("[MarketsWidgets] Widget \(widgetType.rawValue) state changed to: \(state)")
+
         widgetsLoadingStates[widgetType] = state
 
-        if widgetsLoadingStates.allSatisfy({ $0.value.isError }) {
-            _widgetsUpdateStateEventSubject.send(.allWidgetsWithError)
+        let allFinishedLoading = widgetsLoadingStates.values.allSatisfy { !$0.isLoading }
+        let allFailed = widgetsLoadingStates.allSatisfy { $0.value.isError }
+
+        AppLogger.debug("[MarketsWidgets] Loading states: \(widgetsLoadingStates.map { "\($0.key.rawValue): \($0.value)" })")
+
+        // All widgets failed with errors
+        if allFailed {
+            hasCompletedInitialLoad = true
+            AppLogger.debug("[MarketsWidgets] All widgets failed - sending .allFailed")
+            _widgetsUpdateStateEventSubject.send(.allFailed)
             return
         }
 
-        if widgetsLoadingStates.values.allSatisfy({ !$0.isLoading }) {
-            _widgetsUpdateStateEventSubject.send(.readyForDisplay)
+        // All widgets finished loading (some may have errors, some succeeded)
+        if allFinishedLoading {
+            hasCompletedInitialLoad = true
+            AppLogger.debug("[MarketsWidgets] All widgets finished loading - sending .loaded")
+            _widgetsUpdateStateEventSubject.send(.loaded)
             return
         }
 
-        _widgetsUpdateStateEventSubject.send(.lockedForDisplay)
+        // Some widgets are still loading
+        if hasCompletedInitialLoad {
+            // After initial load - this is a reload (e.g., retry after error)
+            let reloadingWidgets = widgetsLoadingStates
+                .filter { $0.value.isLoading }
+                .map(\.key)
+            AppLogger.debug("[MarketsWidgets] Reloading widgets: \(reloadingWidgets.map(\.rawValue)) - sending .reloading")
+            _widgetsUpdateStateEventSubject.send(.reloading(reloadingWidgets))
+        } else {
+            // First time loading
+            AppLogger.debug("[MarketsWidgets] Initial loading in progress - sending .initialLoading")
+            _widgetsUpdateStateEventSubject.send(.initialLoading)
+        }
     }
 }
 
