@@ -955,6 +955,7 @@
 "onramp_tos_external_providers" = "Der Service wird von einem externen Anbieter bereitgestellt. \n Tangem übernimmt keine Verantwortung.";
 "onramp_transaction_status_footer_text" = "Du kannst diesen Bildschirm schließen und den Transaktionsstatus auf dem Bildschirm mit den Token-Details überprüfen.";
 "onramp_up_to_rate" = "Bis zu";
+"onramp_via_provider" = "über %@";
 "onramp_via" = "Über";
 "onramp_you_will_pay_title" = "Du zahlst";
 "organize_tokens_group" = "Gruppe erstellen";
