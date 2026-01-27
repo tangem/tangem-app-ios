@@ -103,13 +103,24 @@ struct AccountDerivationPathHelperTests {
         #expect(accountNode?.rawIndex == expectedIndex)
     }
 
-    @Test("Extract account node from EVM blockchain path")
-    func extractAccountNodeFromEVMPath() throws {
+    /// See Accounts-REQ-App-006 for details.
+    @Test("Extract account node from standard EVM blockchain path")
+    func extractAccountNodeFromStandardEVMPath() throws {
         let helper = AccountDerivationPathHelper(blockchain: ethereumMainnet)
         let derivationPath = try DerivationPath(rawPath: "m/44'/60'/0'/0/10")
 
         let accountNode = helper.extractAccountDerivationNode(from: derivationPath)
         #expect(accountNode?.rawIndex == 10)
+    }
+
+    /// See Accounts-REQ-App-006 for details.
+    @Test("Extract account node from non-standard EVM blockchain path")
+    func extractAccountNodeFromNonStandardEVMPath() throws {
+        let helper = AccountDerivationPathHelper(blockchain: ethereumMainnet)
+        let derivationPath = try DerivationPath(rawPath: "m/44'/9001'/11'/0/10")
+
+        let accountNode = helper.extractAccountDerivationNode(from: derivationPath)
+        #expect(accountNode?.rawIndex == 11)
     }
 
     @Test("Extract account node from Solana path")
@@ -151,13 +162,24 @@ struct AccountDerivationPathHelperTests {
         #expect(newPath.rawPath == expectedPath)
     }
 
-    @Test("Create EVM blockchain derivation path with account index")
-    func createEVMDerivationPathWithAccountIndex() throws {
+    /// See Accounts-REQ-App-006 for details.
+    @Test("Create standard EVM blockchain derivation path with account index")
+    func createStandardEVMDerivationPathWithAccountIndex() throws {
         let helper = AccountDerivationPathHelper(blockchain: ethereumMainnet)
         let originalPath = try DerivationPath(rawPath: "m/44'/60'/0'/0/0")
 
         let newPath = helper.makeDerivationPath(from: originalPath, forAccountWithIndex: 3)
         #expect(newPath.rawPath == "m/44'/60'/0'/0/3")
+    }
+
+    /// See Accounts-REQ-App-006 for details.
+    @Test("Create non-standard EVM blockchain derivation path with account index")
+    func createNonStandardEVMDerivationPathWithAccountIndex() throws {
+        let helper = AccountDerivationPathHelper(blockchain: ethereumMainnet)
+        let originalPath = try DerivationPath(rawPath: "m/44'/9001'/0'/0/7")
+
+        let newPath = helper.makeDerivationPath(from: originalPath, forAccountWithIndex: 5)
+        #expect(newPath.rawPath == "m/44'/9001'/5'/0/7")
     }
 
     @Test("Create Solana derivation path with account index")

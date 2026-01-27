@@ -10,7 +10,7 @@ import TangemStaking
 import TangemLocalization
 
 class CommonRestakingStepsManager {
-    private let validatorsStep: StakingValidatorsStep
+    private let targetsStep: StakingTargetsStep
     private let summaryStep: SendSummaryStep
     private let finishStep: SendFinishStep
     private let summaryTitleProvider: SendSummaryTitleProvider
@@ -20,19 +20,19 @@ class CommonRestakingStepsManager {
     private weak var output: SendStepsManagerOutput?
 
     init(
-        validatorsStep: StakingValidatorsStep,
+        targetsStep: StakingTargetsStep,
         summaryStep: SendSummaryStep,
         finishStep: SendFinishStep,
         summaryTitleProvider: SendSummaryTitleProvider,
         actionType: SendFlowActionType
     ) {
-        self.validatorsStep = validatorsStep
+        self.targetsStep = targetsStep
         self.summaryStep = summaryStep
         self.finishStep = finishStep
         self.summaryTitleProvider = summaryTitleProvider
         self.actionType = actionType
 
-        stack = [actionType == .restake ? validatorsStep : summaryStep]
+        stack = [actionType == .restake ? targetsStep : summaryStep]
     }
 
     private func currentStep() -> SendStep {
@@ -42,7 +42,7 @@ class CommonRestakingStepsManager {
 
     private func getNextStep() -> SendStep? {
         switch currentStep().type {
-        case .validators:
+        case .targets:
             return summaryStep
         default:
             assertionFailure("There is no next step")
@@ -76,7 +76,7 @@ extension CommonRestakingStepsManager: SendStepsManager {
     }
 
     var initialStep: any SendStep {
-        actionType == .restake ? validatorsStep : summaryStep
+        actionType == .restake ? targetsStep : summaryStep
     }
 
     var shouldShowDismissAlert: Bool {
@@ -85,10 +85,10 @@ extension CommonRestakingStepsManager: SendStepsManager {
 
     var navigationBarSettings: SendStepNavigationBarSettings {
         switch currentStep().type {
-        case .validators:
+        case .targets:
             return .init(title: Localization.stakingValidator, trailingViewType: .closeButton)
         case .summary:
-            return .init(title: summaryTitleProvider.title, subtitle: summaryTitleProvider.subtitle, trailingViewType: .closeButton)
+            return .init(title: summaryTitleProvider.title, trailingViewType: .closeButton)
         case .finish:
             return .init(trailingViewType: .closeButton)
         default:
@@ -100,8 +100,8 @@ extension CommonRestakingStepsManager: SendStepsManager {
         let isEditAction = stack.contains(where: { $0.type.isSummary })
 
         switch currentStep().type {
-        case .validators where isEditAction: return .init(action: .continue)
-        case .validators: return .init(action: .next)
+        case .targets where isEditAction: return .init(action: .continue)
+        case .targets: return .init(action: .next)
         case .summary: return .init(action: .action)
         case .finish: return .init(action: .close)
         default: return .empty
@@ -140,6 +140,6 @@ extension CommonRestakingStepsManager: SendSummaryStepsRoutable {
             return
         }
 
-        next(step: validatorsStep)
+        next(step: targetsStep)
     }
 }
