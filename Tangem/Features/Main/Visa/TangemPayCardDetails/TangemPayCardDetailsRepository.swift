@@ -59,7 +59,8 @@ final class TangemPayCardDetailsRepository {
         let details = TangemPayCardDetailsData(
             number: formattedPan,
             expirationDate: formattedExpiryDate,
-            cvc: decryptedCVV
+            cvc: decryptedCVV,
+            isPinSet: cardDetails.isPinSet
         )
         return details
     }

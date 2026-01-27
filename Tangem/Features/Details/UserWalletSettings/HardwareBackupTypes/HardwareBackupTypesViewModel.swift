@@ -12,15 +12,15 @@ import TangemFoundation
 import TangemLocalization
 import TangemUIUtils
 import TangemMobileWalletSdk
+import TangemAssets
 
 final class HardwareBackupTypesViewModel: ObservableObject {
-    @Published var isBuyAvailable = false
     @Published var alert: AlertBinder?
 
     let navigationTitle = Localization.hwBackupHardwareTitle
 
+    lazy var infoItem: InfoItem = makeInfoItem()
     lazy var backupItems: [BackupItem] = makeBackupItems()
-    lazy var buyItem: BuyItem = makeBuyItem()
 
     @Injected(\.safariManager) private var safariManager: SafariManager
 
@@ -45,7 +45,6 @@ final class HardwareBackupTypesViewModel: ObservableObject {
 
 extension HardwareBackupTypesViewModel {
     func onFirstAppear() {
-        scheduleBuyAvailability()
         logScreenOpenedAnalytics()
     }
 }
@@ -53,6 +52,27 @@ extension HardwareBackupTypesViewModel {
 // MARK: - Private methods
 
 private extension HardwareBackupTypesViewModel {
+    func makeInfoItem() -> InfoItem {
+        let action = InfoActionItem(
+            title: Localization.detailsBuyWallet,
+            handler: weakify(self, forFunction: HardwareBackupTypesViewModel.onInfoTap)
+        )
+
+        let chips: [InfoChipItem] = [
+            InfoChipItem(icon: Assets.Glyphs.checkmarkShield, title: Localization.welcomeCreateWalletFeatureClass),
+            InfoChipItem(icon: Assets.Glyphs.boldFlash, title: Localization.welcomeCreateWalletFeatureDelivery),
+            InfoChipItem(icon: Assets.Glyphs.sparkles, title: Localization.welcomeCreateWalletFeatureSeedphrase),
+        ]
+
+        return InfoItem(
+            title: Localization.commonTangemWallet,
+            description: Localization.hwBackupBannerDescription,
+            icon: Assets.Onboarding.tangemVerticalCardSet,
+            chips: chips,
+            action: action
+        )
+    }
+
     func makeBackupItems() -> [BackupItem] {
         let createWalletItem = BackupItem(
             title: Localization.hwBackupHardwareCreateTitle,
@@ -104,15 +124,7 @@ private extension HardwareBackupTypesViewModel {
         }
     }
 
-    func makeBuyItem() -> BuyItem {
-        BuyItem(
-            title: Localization.walletAddHardwarePurchase,
-            buttonTitle: Localization.walletImportBuyTitle,
-            buttonAction: weakify(self, forFunction: HardwareBackupTypesViewModel.onBuyTap)
-        )
-    }
-
-    func onBuyTap() {
+    func onInfoTap() {
         runTask(in: self) { viewModel in
             await viewModel.openBuyHardwareWallet()
         }
@@ -122,13 +134,6 @@ private extension HardwareBackupTypesViewModel {
         runTask(in: self) { viewModel in
             await viewModel.closeOnboarding()
             await viewModel.upgradeMobileWallet()
-        }
-    }
-
-    func scheduleBuyAvailability() {
-        guard !isBuyAvailable else { return }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
-            self?.isBuyAvailable = true
         }
     }
 }
@@ -199,7 +204,7 @@ private extension HardwareBackupTypesViewModel {
 
     func openBuyHardwareWallet() {
         logBuyHardwareWalletAnalytics()
-        safariManager.openURL(TangemBlogUrlBuilder().url(root: .pricing))
+        safariManager.openURL(TangemShopUrlBuilder().url(utmCampaign: .backup))
     }
 
     func closeOnboarding() {
@@ -215,7 +220,11 @@ private extension HardwareBackupTypesViewModel {
     }
 
     func logBuyHardwareWalletAnalytics() {
-        Analytics.log(.onboardingButtonBuy, params: [.source: .backup], contextParams: analyticsContextParams)
+        Analytics.log(
+            .basicButtonBuy,
+            params: [.source: Analytics.BuyWalletSource.hardwareWallet.parameterValue],
+            contextParams: analyticsContextParams
+        )
     }
 
     func logCreateNewWalletTapAnalytics() {
@@ -249,9 +258,21 @@ extension HardwareBackupTypesViewModel {
         let action: () -> Void
     }
 
-    struct BuyItem {
+    struct InfoItem {
         let title: String
-        let buttonTitle: String
-        let buttonAction: () -> Void
+        let description: String
+        let icon: ImageType
+        let chips: [InfoChipItem]
+        let action: InfoActionItem
+    }
+
+    struct InfoChipItem: Hashable {
+        let icon: ImageType
+        let title: String
+    }
+
+    struct InfoActionItem {
+        let title: String
+        let handler: () -> Void
     }
 }
