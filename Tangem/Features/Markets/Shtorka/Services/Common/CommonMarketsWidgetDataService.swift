@@ -90,14 +90,19 @@ extension CommonMarketsMainWidgetDataService: MarketsMainWidgetsProvider {
 
 extension CommonMarketsMainWidgetDataService: MarketsMainWidgetsUpdateHandler {
     func performUpdateLoading(state: WidgetLoadingState, for widgetType: MarketsWidgetType) {
+        AppLogger.debug("[MarketsWidgets] Widget \(widgetType.rawValue) state changed to: \(state)")
+
         widgetsLoadingStates[widgetType] = state
 
         let allFinishedLoading = widgetsLoadingStates.values.allSatisfy { !$0.isLoading }
         let allFailed = widgetsLoadingStates.allSatisfy { $0.value.isError }
 
+        AppLogger.debug("[MarketsWidgets] Loading states: \(widgetsLoadingStates.map { "\($0.key.rawValue): \($0.value)" })")
+
         // All widgets failed with errors
         if allFailed {
             hasCompletedInitialLoad = true
+            AppLogger.debug("[MarketsWidgets] All widgets failed - sending .allFailed")
             _widgetsUpdateStateEventSubject.send(.allFailed)
             return
         }
@@ -105,6 +110,7 @@ extension CommonMarketsMainWidgetDataService: MarketsMainWidgetsUpdateHandler {
         // All widgets finished loading (some may have errors, some succeeded)
         if allFinishedLoading {
             hasCompletedInitialLoad = true
+            AppLogger.debug("[MarketsWidgets] All widgets finished loading - sending .loaded")
             _widgetsUpdateStateEventSubject.send(.loaded)
             return
         }
@@ -115,9 +121,11 @@ extension CommonMarketsMainWidgetDataService: MarketsMainWidgetsUpdateHandler {
             let reloadingWidgets = widgetsLoadingStates
                 .filter { $0.value.isLoading }
                 .map(\.key)
+            AppLogger.debug("[MarketsWidgets] Reloading widgets: \(reloadingWidgets.map(\.rawValue)) - sending .reloading")
             _widgetsUpdateStateEventSubject.send(.reloading(reloadingWidgets))
         } else {
             // First time loading
+            AppLogger.debug("[MarketsWidgets] Initial loading in progress - sending .initialLoading")
             _widgetsUpdateStateEventSubject.send(.initialLoading)
         }
     }
