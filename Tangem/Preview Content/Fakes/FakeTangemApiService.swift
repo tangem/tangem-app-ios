@@ -234,6 +234,10 @@ final class FakeTangemApiService: TangemApiService {
     func bindReferral(request model: ReferralDTO.Request) async throws {
         throw "Not implemented"
     }
+
+    func loadEarnYieldMarkets(requestModel: EarnDTO.List.Request) async throws -> EarnDTO.List.Response {
+        throw "Not implemented"
+    }
 }
 
 private struct FakeCoinListProvider {
