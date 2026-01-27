@@ -54,7 +54,8 @@ struct ExpressInteractorTangemPayWalletWrapper: ExpressInteractorTangemPayWallet
         self.transactionValidator = transactionValidator
 
         interactorAnalyticsLogger = CommonExpressInteractorAnalyticsLogger(
-            tokenItem: tokenItem
+            tokenItem: tokenItem,
+            feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder(isFixedFee: false)
         )
 
         expressTokenFeeProvidersManager = TangemPayExpressTokenFeeProvidersManager(tokenItem: tokenItem)

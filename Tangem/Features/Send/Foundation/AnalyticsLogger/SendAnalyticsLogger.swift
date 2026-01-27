@@ -58,17 +58,32 @@ protocol SendManagementModelAnalyticsLogger {
         additionalField: SendDestinationAdditionalField?,
         fee: FeeOption,
         signerType: String,
-        currentProviderHost: String
+        currentProviderHost: String,
+        tokenFee: TokenFee?
     )
 }
 
 extension SendManagementModelAnalyticsLogger {
     func logTransactionSent(amount: SendAmount?, fee: FeeOption, signerType: String, currentProviderHost: String) {
-        logTransactionSent(amount: amount, additionalField: .none, fee: fee, signerType: signerType, currentProviderHost: currentProviderHost)
+        logTransactionSent(
+            amount: amount,
+            additionalField: .none,
+            fee: fee,
+            signerType: signerType,
+            currentProviderHost: currentProviderHost,
+            tokenFee: nil
+        )
     }
 
     func logTransactionSent(fee: FeeOption, signerType: String, currentProviderHost: String) {
-        logTransactionSent(amount: .none, additionalField: .none, fee: fee, signerType: signerType, currentProviderHost: currentProviderHost)
+        logTransactionSent(
+            amount: .none,
+            additionalField: .none,
+            fee: fee,
+            signerType: signerType,
+            currentProviderHost: currentProviderHost,
+            tokenFee: nil
+        )
     }
 }
 
@@ -112,11 +127,14 @@ protocol SendReceiveTokensListAnalyticsLogger {
 }
 
 protocol SendFeeAnalyticsLogger {
-    func logSendFeeSelected(_ feeOption: FeeOption)
+    func logFeeSelected(tokenFee: TokenFee)
+    func logFeeSelected(_ feeOption: FeeOption)
 
     func logSendNoticeTransactionDelaysArePossible()
     func logFeeStepOpened()
     func logFeeStepReopened()
+    func logFeeSummaryOpened()
+    func logFeeTokensOpened(availableTokenFees: [TokenFee])
 }
 
 protocol SendTargetsAnalyticsLogger {
