@@ -78,6 +78,7 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
             .receiveToken: data.destination.tokenItem.currencySymbol,
             .sendBlockchain: data.source.tokenItem.blockchain.displayName,
             .receiveBlockchain: data.destination.tokenItem.blockchain.displayName,
+            .feeToken: SendAnalyticsHelper.makeAnalyticsTokenName(from: data.fee.tokenItem),
         ]
 
         if FeatureProvider.isAvailable(.accounts) {

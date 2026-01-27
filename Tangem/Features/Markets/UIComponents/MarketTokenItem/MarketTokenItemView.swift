@@ -27,6 +27,7 @@ struct MarketTokenItemView: View {
         }) {
             HStack(spacing: Constants.itemsHorizontalSpacing) {
                 IconView(url: viewModel.imageURL, size: Constants.imageSize, forceKingfisher: true)
+                    .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenIcon)
                     .padding(.trailing, Constants.imageTrailingPadding)
 
                 VStack(spacing: 3) {
@@ -69,6 +70,7 @@ struct MarketTokenItemView: View {
                     originalColor: Colors.Text.primary1
                 )
                 .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
+                .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenPrice)
         }
     }
 
@@ -79,10 +81,12 @@ struct MarketTokenItemView: View {
                     Text(marketRating)
                         .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                         .roundedBackground(with: Colors.Field.primary, verticalPadding: .zero, horizontalPadding: 5, radius: 4)
+                        .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenRating)
                 }
 
                 Text(viewModel.marketCap)
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                    .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenMarketCap)
 
                 if let maxApy = viewModel.maxApy {
                     Text(maxApy)
@@ -99,6 +103,7 @@ struct MarketTokenItemView: View {
             .frame(minWidth: 0.32 * textBlockWidth, maxWidth: .infinity, alignment: .leading)
 
             TokenPriceChangeView(state: viewModel.priceChangeState)
+                .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenPriceChange)
         }
     }
 
@@ -113,6 +118,7 @@ struct MarketTokenItemView: View {
                 makeSkeletonView(by: Constants.skeletonMediumWidthValue)
             }
         }
+        .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenChart)
         .frame(size: Constants.chartSize, alignment: .center)
     }
 

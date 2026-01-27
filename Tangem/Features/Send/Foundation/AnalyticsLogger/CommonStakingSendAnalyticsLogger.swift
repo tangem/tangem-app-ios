@@ -226,7 +226,8 @@ extension CommonStakingSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
         additionalField: SendDestinationAdditionalField?,
         fee: FeeOption,
         signerType: String,
-        currentProviderHost: String
+        currentProviderHost: String,
+        tokenFee: TokenFee? = nil
     ) {
         Analytics.log(event: .transactionSent, params: [
             .source: Analytics.ParameterValue.transactionSourceStaking.rawValue,
