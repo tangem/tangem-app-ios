@@ -955,6 +955,7 @@
 "onramp_tos_external_providers" = "Послуга надається зовнішнім провайдером. \nTangem не несе відповідальності.";
 "onramp_transaction_status_footer_text" = "Ви можете перевірити статус транзакції на сторінці токена";
 "onramp_up_to_rate" = "До";
+"onramp_via_provider" = "через %@";
 "onramp_via" = "Через";
 "onramp_you_will_pay_title" = "Ви заплатите";
 "organize_tokens_group" = "Групами";
