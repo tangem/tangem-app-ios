@@ -15,7 +15,7 @@ struct EarnDetailView: View {
     @ObservedObject var viewModel: EarnDetailViewModel
 
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: .zero) {
             // Header
             NavigationBar(
                 title: "Earn",
@@ -31,9 +31,26 @@ struct EarnDetailView: View {
             )
             .padding(.top, 12)
 
-            // Content placeholder
-            Spacer()
+            // Content
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: Layout.sectionSpacing) {
+                    // Mostly Used Section
+                    EarnDetailHeaderView(headerTitle: "Mostly used")
+                    EarnMostlyUsedView()
+
+                    // Best Opportunities Section
+                    EarnDetailHeaderView(headerTitle: "Best opportunities")
+                    EarnFilterHeaderView()
+                    EarnBestOpportunitiesListView()
+                }
+            }
         }
         .background(Color.Tangem.Surface.level3.ignoresSafeArea())
+    }
+}
+
+private extension EarnDetailView {
+    enum Layout {
+        static let sectionSpacing: CGFloat = 12.0
     }
 }
