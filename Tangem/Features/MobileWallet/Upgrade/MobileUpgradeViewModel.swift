@@ -36,6 +36,10 @@ final class MobileUpgradeViewModel: ObservableObject {
         .custom(userWalletModel.analyticsContextData)
     }
 
+    private var analyticsCardScanSourceParameterValue: Analytics.ParameterValue {
+        Analytics.CardScanSource.upgrade.cardWasScannedParameterValue
+    }
+
     private let userWalletModel: UserWalletModel
     private let context: MobileWalletContext
     private weak var coordinator: MobileUpgradeRoutable?
@@ -82,7 +86,7 @@ extension MobileUpgradeViewModel {
         )
 
         let backupTrait = TraitItem(
-            icon: Assets.Visa.securityCheck,
+            icon: Assets.Glyphs.tangemUpgrade,
             title: Localization.hwUpgradeBackupTitle,
             subtitle: Localization.hwUpgradeBackupDescription
         )
@@ -148,6 +152,7 @@ extension MobileUpgradeViewModel {
 private extension MobileUpgradeViewModel {
     func scanCard() {
         isScanning = true
+        logScanCardTapAnalytics()
 
         runTask(in: self) { viewModel in
             let cardScanner = CardScannerFactory().makeDefaultScanner()
@@ -258,7 +263,7 @@ private extension MobileUpgradeViewModel {
         let cardInteractor = FactorySettingsResettingCardInteractor(with: cardInfo)
         let backupCardsCount = cardInfo.card.backupStatus?.backupCardsCount ?? 0
 
-        let resetUtil = ResetToFactoryUtilBuilder().build(
+        let resetUtil = ResetToFactoryUtilBuilder(flow: .upgrade).build(
             backupCardsCount: backupCardsCount,
             cardInteractor: cardInteractor
         )
@@ -311,7 +316,8 @@ private extension MobileUpgradeViewModel {
     }
 
     func openBuyCard() {
-        safariManager.openURL(TangemBlogUrlBuilder().url(root: .pricing))
+        logBuyHardwareWalletAnalytics()
+        safariManager.openURL(TangemShopUrlBuilder().url(utmCampaign: .upgrade))
     }
 
     func openScanCardManual() {
@@ -349,21 +355,49 @@ private extension MobileUpgradeViewModel {
         Analytics.log(.walletSettingsButtonStartUpgrade, contextParams: analyticsContextParams)
     }
 
+    func logScanCardTapAnalytics() {
+        Analytics.log(
+            .introductionProcessButtonScanCard,
+            params: [.source: analyticsCardScanSourceParameterValue],
+            contextParams: analyticsContextParams
+        )
+    }
+
     func logScanCardTryAgainAnalytics() {
-        Analytics.log(.cantScanTheCardTryAgainButton, params: [.source: .introduction], contextParams: analyticsContextParams)
+        Analytics.log(
+            .cantScanTheCardTryAgainButton,
+            params: [.source: analyticsCardScanSourceParameterValue],
+            contextParams: analyticsContextParams
+        )
     }
 
     func logScanCardRequestSupportAnalytics() {
-        Analytics.log(.requestSupport, params: [.source: .introduction], contextParams: analyticsContextParams)
+        Analytics.log(
+            .requestSupport,
+            params: [.source: analyticsCardScanSourceParameterValue],
+            contextParams: analyticsContextParams
+        )
     }
 
     func logScanCardTroubleshootingAnalytics() {
-        Analytics.log(.cantScanTheCard, params: [.source: .introduction], contextParams: analyticsContextParams)
+        Analytics.log(
+            .cantScanTheCard,
+            params: [.source: analyticsCardScanSourceParameterValue],
+            contextParams: analyticsContextParams
+        )
     }
 
     func logScanCardAnalytics(error: Error) {
-        Analytics.logScanError(error, source: .introduction, contextParams: analyticsContextParams)
-        Analytics.logVisaCardScanErrorIfNeeded(error, source: .introduction)
+        Analytics.logScanError(error, source: .upgrade, contextParams: analyticsContextParams)
+        Analytics.logVisaCardScanErrorIfNeeded(error, source: .upgrade)
+    }
+
+    func logBuyHardwareWalletAnalytics() {
+        Analytics.log(
+            .basicButtonBuy,
+            params: [.source: Analytics.BuyWalletSource.upgrade.parameterValue],
+            contextParams: analyticsContextParams
+        )
     }
 }
 

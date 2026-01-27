@@ -13,9 +13,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li card</string>
+        <string>%@ картка</string>
+        <key>few</key>
+        <string>%@ картки</string>
+        <key>many</key>
+        <string>%@ карток</string>
         <key>other</key>
-        <string>%li cards</string>
+        <string>%@ картки</string>
       </dict>
     </dict>
     <key>card_label_card_count</key>
@@ -49,9 +53,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li token</string>
+        <string>%1$li токен</string>
+        <key>few</key>
+        <string>%1$li токени</string>
+        <key>many</key>
+        <string>%1$li токенів</string>
         <key>other</key>
-        <string>%li tokens</string>
+        <string>%1$li токени</string>
       </dict>
     </dict>
     <key>common_days_no_param</key>
@@ -85,9 +93,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li network</string>
+        <string>%1$@ мережа</string>
+        <key>few</key>
+        <string>%1$@ мережі</string>
+        <key>many</key>
+        <string>%1$@ мереж</string>
         <key>other</key>
-        <string>%li networks</string>
+        <string>%1$@ мережі</string>
       </dict>
     </dict>
     <key>common_tokens_count</key>
@@ -181,9 +193,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%lih ago</string>
+        <string>%1$@ годину тому</string>
+        <key>few</key>
+        <string>%1$@ години тому</string>
+        <key>many</key>
+        <string>%1$@ годин тому</string>
         <key>other</key>
-        <string>%lih ago</string>
+        <string>%1$@ годин тому</string>
       </dict>
     </dict>
     <key>news_published_minutes_ago</key>
@@ -197,9 +213,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li minute ago</string>
+        <string>%1$@ хвилину тому</string>
+        <key>few</key>
+        <string>%1$@ хвилини тому</string>
+        <key>many</key>
+        <string>%1$@ хвилин тому</string>
         <key>other</key>
-        <string>%li minutes ago</string>
+        <string>%1$@ хвилин тому</string>
       </dict>
     </dict>
     <key>nft_collections_count</key>
@@ -308,9 +328,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li provider</string>
+        <string>%@ провайдер</string>
+        <key>few</key>
+        <string>%@ провайдери</string>
+        <key>many</key>
+        <string>%@ провайдерів</string>
         <key>other</key>
-        <string>%li providers</string>
+        <string>%@ провайдерів</string>
       </dict>
     </dict>
     <key>onramp_timing_days</key>
@@ -324,9 +348,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>up to %li day</string>
+        <string>до %@ дня</string>
+        <key>few</key>
+        <string>до %@ днів</string>
+        <key>many</key>
+        <string>до %@ днів</string>
         <key>other</key>
-        <string>up to %li days</string>
+        <string>до %@ днів</string>
       </dict>
     </dict>
     <key>referral_number_of_wallets</key>
@@ -380,9 +408,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>available for %li day</string>
+        <string>доступно протягом %1$@ дня</string>
+        <key>few</key>
+        <string>доступно протягом %1$@ днів</string>
+        <key>many</key>
+        <string>доступно протягом %1$@ днів</string>
         <key>other</key>
-        <string>available for %li days</string>
+        <string>доступно протягом %1$@ днів</string>
       </dict>
     </dict>
     <key>warning_missing_derivation_message</key>

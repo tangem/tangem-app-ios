@@ -15,18 +15,10 @@ struct HardwareBackupTypesView: View {
 
     @ObservedObject var viewModel: ViewModel
 
-    @State private var screenMaxY: CGFloat = 0
-    @State private var buyButtonMinY: CGFloat = 0
-
-    private var buyButtonOffsetY: CGFloat {
-        viewModel.isBuyAvailable ? 0 : (screenMaxY - buyButtonMinY + UIApplication.safeAreaInsets.bottom)
-    }
-
     var body: some View {
         content
+            .padding(.horizontal, 16)
             .navigationTitle(viewModel.navigationTitle)
-            .padding(16)
-            .readGeometry(\.frame.maxY, inCoordinateSpace: .global, bindTo: $screenMaxY)
             .background(Colors.Background.secondary)
             .onFirstAppear(perform: viewModel.onFirstAppear)
             .alert(item: $viewModel.alert) { $0.alert }
@@ -37,16 +29,54 @@ struct HardwareBackupTypesView: View {
 
 private extension HardwareBackupTypesView {
     var content: some View {
-        VStack(spacing: 0) {
-            backupTypes
-
-            Spacer()
-
-            buyButton(item: viewModel.buyItem)
-                .offset(y: buyButtonOffsetY)
-                .readGeometry(\.frame.minY, inCoordinateSpace: .global, bindTo: $buyButtonMinY)
-                .animation(.default, value: viewModel.isBuyAvailable)
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(spacing: 8) {
+                info(item: viewModel.infoItem)
+                backupTypes
+            }
+            .padding(.top, 16)
         }
+    }
+
+    func info(item: ViewModel.InfoItem) -> some View {
+        VStack(spacing: 0) {
+            Text(item.title)
+                .style(Fonts.Bold.title2, color: Colors.Text.primary1)
+                .padding(.horizontal, 24)
+
+            Text(item.description)
+                .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.top, 8)
+                .padding(.horizontal, 24)
+
+            HorizontalFlowLayout(
+                items: item.chips,
+                alignment: .center,
+                horizontalSpacing: 16,
+                verticalSpacing: 8,
+                itemContent: infoChip
+            )
+            .padding(.top, 16)
+
+            item.icon.image
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 124, height: 124)
+                .padding(.top, 4)
+
+            MainButton(
+                title: item.action.title,
+                style: .secondary,
+                action: item.action.handler
+            )
+            .padding(.top, 4)
+        }
+        .padding(EdgeInsets(top: 24, leading: 14, bottom: 16, trailing: 14))
+        .background(Colors.Background.primary)
+        .cornerRadius(14, corners: .allCorners)
+        .colorScheme(.dark)
     }
 
     var backupTypes: some View {
@@ -61,6 +91,21 @@ private extension HardwareBackupTypesView {
 // MARK: - Subviews
 
 private extension HardwareBackupTypesView {
+    func infoChip(item: ViewModel.InfoChipItem) -> some View {
+        HStack(alignment: .top, spacing: 6) {
+            item.icon.image
+                .renderingMode(.template)
+                .resizable()
+                .scaledToFit()
+                .foregroundStyle(Colors.Icon.accent)
+                .frame(width: 16, height: 16)
+
+            Text(item.title)
+                .style(Fonts.Bold.footnote, color: Colors.Text.secondary)
+                .multilineTextAlignment(.center)
+        }
+    }
+
     func backupType(item: ViewModel.BackupItem) -> some View {
         Button(action: item.action) {
             HStack(spacing: 4) {
@@ -81,13 +126,12 @@ private extension HardwareBackupTypesView {
 
     func backupTypeInfo(item: ViewModel.BackupItem) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            HStack(spacing: 8) {
-                Text(item.title)
-                    .style(Fonts.Bold.body, color: Colors.Text.primary1)
-
-                item.badge.map {
-                    BadgeView(item: $0)
-                }
+            WrappingHStack(
+                alignment: .leading,
+                horizontalSpacing: 8,
+                verticalSpacing: 4
+            ) {
+                backupTypeInfoHeader(title: item.title, badge: item.badge)
             }
 
             Text(item.description)
@@ -98,27 +142,16 @@ private extension HardwareBackupTypesView {
         }
     }
 
-    func buyButton(item: ViewModel.BuyItem) -> some View {
-        HStack(spacing: 0) {
-            Text(item.title)
-                .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+    func backupTypeInfoHeader(title: String, badge: BadgeView.Item?) -> some View {
+        Group {
+            Text(title)
+                .style(Fonts.Bold.body, color: Colors.Text.primary1)
                 .multilineTextAlignment(.leading)
                 .fixedSize(horizontal: false, vertical: true)
 
-            Spacer(minLength: 22)
-
-            Button(action: item.buttonAction) {
-                Text(item.buttonTitle)
-                    .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
-                    .padding(.vertical, 8)
-                    .padding(.horizontal, 16)
-                    .background(Colors.Button.secondary)
-                    .cornerRadius(24, corners: .allCorners)
+            badge.map {
+                BadgeView(item: $0)
             }
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 14)
-        .background(Colors.Background.primary)
-        .cornerRadius(14, corners: .allCorners)
     }
 }

@@ -54,7 +54,7 @@ enum NotificationButtonActionType: Identifiable {
     case unlock
     case openMobileFinishActivation(needsAttention: Bool)
     case openMobileUpgrade
-    case tangemPaySync
+    case tangemPaySync(title: String)
     case allowPushPermissionRequest
     case postponePushPermissionRequest
     case activate
@@ -149,8 +149,8 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.hwActivationNeedFinish
         case .openMobileUpgrade:
             return .empty
-        case .tangemPaySync:
-            return Localization.homeButtonScan
+        case .tangemPaySync(let title):
+            return title
         case .allowPushPermissionRequest:
             return Localization.commonEnable
         case .postponePushPermissionRequest:

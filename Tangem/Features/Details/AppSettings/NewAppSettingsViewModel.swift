@@ -125,7 +125,11 @@ private extension NewAppSettingsViewModel {
         // [REDACTED_TODO_COMMENT]
 
         guard hasProtectedWallets else {
-            presentSetAccessCodeAlert(useBiometricAuthentication: useBiometricAuthentication)
+            if useBiometricAuthentication {
+                presentSetAccessCodeAlert(useBiometricAuthentication: useBiometricAuthentication)
+            } else {
+                setUseBiometricAuthentication(useBiometricAuthentication)
+            }
             return
         }
 
