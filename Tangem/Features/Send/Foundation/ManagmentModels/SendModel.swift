@@ -13,6 +13,32 @@ import BlockchainSdk
 import TangemExpress
 import TangemFoundation
 
+final class SwapModel {
+    let interactor: ExpressInteractor
+
+    init(interactor: ExpressInteractor) {
+        self.interactor = interactor
+    }
+}
+
+// MARK: - SendSourceTokenInput
+
+extension SwapModel: SendSourceTokenInput {
+    var sourceToken: SendSourceToken { _sendingToken.value }
+
+    var sourceTokenPublisher: AnyPublisher<SendSourceToken, Never> {
+        _sendingToken.eraseToAnyPublisher()
+    }
+}
+
+// MARK: - SendReceiveTokenOutput
+
+extension SwapModel: SendReceiveTokenOutput {
+    func userDidSelect(sourceToken: SendSourceToken) {
+        _sendingToken.send(sourceToken)
+    }
+}
+
 protocol SendModelRoutable: AnyObject {
     func openNetworkCurrency()
     func openApproveSheet()
