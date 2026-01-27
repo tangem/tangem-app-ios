@@ -61,7 +61,11 @@ final class CommonWalletConnectDAppConnectionRequestAnalyticsLogger: WalletConne
             .walletConnectDAppDomainVerification: proposalReceivedDomainVerificationValue.rawValue,
         ]
 
-        Analytics.log(event: .walletConnectDAppConnected, params: params)
+        Analytics.log(
+            event: .walletConnectDAppConnected,
+            params: params,
+            analyticsSystems: .all
+        )
     }
 
     func logDAppConnectionFailed(with error: WalletConnectDAppProposalApprovalError) {

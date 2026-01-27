@@ -13,7 +13,7 @@ class CommonStakingSendAnalyticsLogger {
     private let tokenItem: TokenItem
     private let actionType: SendFlowActionType
 
-    private weak var stakingValidatorsInput: StakingValidatorsInput?
+    private weak var stakingTargetsInput: StakingTargetsInput?
 
     init(
         tokenItem: TokenItem,
@@ -26,11 +26,11 @@ class CommonStakingSendAnalyticsLogger {
 
 // MARK: - SendValidatorsAnalyticsLogger
 
-extension CommonStakingSendAnalyticsLogger: SendValidatorsAnalyticsLogger {
-    func logStakingValidatorChosen() {
+extension CommonStakingSendAnalyticsLogger: SendTargetsAnalyticsLogger {
+    func logStakingTargetChosen() {
         Analytics.log(
             event: .stakingValidatorChosen,
-            params: [.validator: stakingValidatorsInput?.selectedValidator?.name ?? ""]
+            params: [.validator: stakingTargetsInput?.selectedTarget?.name ?? ""]
         )
     }
 }
@@ -70,8 +70,8 @@ extension CommonStakingSendAnalyticsLogger: SendAmountAnalyticsLogger {
 // MARK: - SendBaseViewAnalyticsLogger
 
 extension CommonStakingSendAnalyticsLogger: StakingSendAnalyticsLogger {
-    func setup(stakingValidatorsInput: any StakingValidatorsInput) {
-        self.stakingValidatorsInput = stakingValidatorsInput
+    func setup(stakingTargetsInput: any StakingTargetsInput) {
+        self.stakingTargetsInput = stakingTargetsInput
     }
 
     func logNoticeUninitializedAddress() {
@@ -101,11 +101,12 @@ extension CommonStakingSendAnalyticsLogger: SendSummaryAnalyticsLogger {
         Analytics.log(
             event: .stakingConfirmationScreenOpened,
             params: [
-                .validator: stakingValidatorsInput?.selectedValidator?.address ?? "",
+                .validator: stakingTargetsInput?.selectedTarget?.address ?? "",
                 .action: actionType.stakingAnalyticsAction?.rawValue ?? "",
                 .token: tokenItem.currencySymbol,
                 .blockchain: tokenItem.blockchain.displayName,
-            ]
+            ],
+            analyticsSystems: .all
         )
     }
 
@@ -121,10 +122,10 @@ extension CommonStakingSendAnalyticsLogger: SendFinishAnalyticsLogger {
         }
 
         Analytics.log(event: .stakingStakeInProgressScreenOpened, params: [
-            .validator: stakingValidatorsInput?.selectedValidator?.name ?? "",
+            .validator: stakingTargetsInput?.selectedTarget?.name ?? "",
             .token: tokenItem.currencySymbol,
             .action: stakingAnalyticsAction.rawValue,
-        ])
+        ], analyticsSystems: .all)
     }
 
     func logShareButton() {
@@ -160,7 +161,7 @@ extension CommonStakingSendAnalyticsLogger: SendBaseViewAnalyticsLogger {
 
     func logMainActionButton(type: SendMainButtonType, flow: SendFlowActionType) {
         var actionParameters: [Analytics.ParameterKey: String] = [
-            .validator: stakingValidatorsInput?.selectedValidator?.name ?? "",
+            .validator: stakingTargetsInput?.selectedTarget?.name ?? "",
             .token: tokenItem.currencySymbol,
         ]
 
@@ -189,7 +190,7 @@ extension CommonStakingSendAnalyticsLogger: SendBaseViewAnalyticsLogger {
             Analytics.log(
                 event: .stakingRewardScreenOpened,
                 params: [
-                    .validator: stakingValidatorsInput?.selectedValidator?.address ?? "",
+                    .validator: stakingTargetsInput?.selectedTarget?.address ?? "",
                     .token: tokenItem.currencySymbol,
                 ]
             )
@@ -225,7 +226,7 @@ extension CommonStakingSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
             .feeType: fee.option.analyticsValue.rawValue,
             .walletForm: signerType,
             .selectedHost: currentProviderHost,
-        ])
+        ], analyticsSystems: .all)
 
         switch amount?.type {
         case .none:
