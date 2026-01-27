@@ -955,6 +955,7 @@
 "onramp_tos_external_providers" = "サービスは外部プロバイダーによって提供されます。 \nTangemは責任を負いません。";
 "onramp_transaction_status_footer_text" = "この画面を閉じて、トークンの詳細画面で取引状況を確認できます。";
 "onramp_up_to_rate" = "最大";
+"onramp_via_provider" = "%@ 経由";
 "onramp_via" = "経由";
 "onramp_you_will_pay_title" = "支払い";
 "organize_tokens_group" = "グループ";
