@@ -143,6 +143,8 @@ final class MarketsSearchViewModel: MarketsBaseViewModel {
     }
 
     func onSearchButtonAction() {
+        Analytics.log(.marketsTokenSearchedClicked)
+
         isSearching = true
 
         DispatchQueue.main.asyncAfter(deadline: .now() + Constants.searchFieldAnimationDelay) {

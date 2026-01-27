@@ -463,6 +463,7 @@ extension Analytics {
         case marketsYieldModePromoClosed = "[Markets] Yield Mode Promo Closed"
         case marketsYieldModeMoreInfo = "[Markets] Yield Mode More Info"
         case marketsTokenSearch = "[Markets] Token Search"
+        case marketsTokenSearchedClicked = "[Markets] Token Searched Clicked"
 
         // MARK: - Markets / Chart
 
