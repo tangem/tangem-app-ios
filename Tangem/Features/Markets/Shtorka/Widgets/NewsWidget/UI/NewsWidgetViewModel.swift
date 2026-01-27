@@ -16,6 +16,7 @@ import TangemLocalization
 final class NewsWidgetViewModel: ObservableObject {
     // MARK: - Injected & Published Properties
 
+    @Published private(set) var isFirstLoading: Bool = true
     @Published private(set) var resultState: LoadingResult<ResultState, Error> = .loading
 
     let widgetType: MarketsWidgetType
@@ -23,6 +24,7 @@ final class NewsWidgetViewModel: ObservableObject {
     // MARK: - Properties
 
     private let widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler
+    private let analyticsService: NewsWidgetAnalyticsProvider
 
     private let mapper = NewsModelMapper()
     private let newsProvider = CommonMarketsWidgetNewsService()
@@ -31,15 +33,24 @@ final class NewsWidgetViewModel: ObservableObject {
 
     private var bag = Set<AnyCancellable>()
 
+    // MARK: - Analytics Session Flags
+
+    private var hasLoggedCarouselScrolled = false
+    private var hasLoggedCarouselEndReached = false
+    private var hasLoggedCarouselAllNewsButton = false
+    private var hasLoggedTrendingClicked = false
+
     // MARK: - Init
 
     init(
         widgetType: MarketsWidgetType,
         widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler,
+        analyticsService: NewsWidgetAnalyticsProvider,
         coordinator: NewsWidgetRoutable?
     ) {
         self.widgetType = widgetType
         self.widgetsUpdateHandler = widgetsUpdateHandler
+        self.analyticsService = analyticsService
         self.coordinator = coordinator
 
         bind()
@@ -58,7 +69,45 @@ final class NewsWidgetViewModel: ObservableObject {
 
     @MainActor
     func handleAllNewsTap() {
+        analyticsService.logNewsListOpened()
         coordinator?.openSeeAllNewsWidget()
+    }
+
+    @MainActor
+    func handleCarouselAllNewsTap() {
+        if !hasLoggedCarouselAllNewsButton {
+            hasLoggedCarouselAllNewsButton = true
+            analyticsService.logCarouselAllNewsButton()
+        }
+
+        handleAllNewsTap()
+    }
+
+    @MainActor
+    func handleCarouselItemAppear(at index: Int) {
+        guard let carouselItems = resultState.value?.carouselNewsItems else { return }
+
+        // Track when user scrolls to 4th news item or beyond (index 3, 0-based)
+        if index >= 3, !hasLoggedCarouselScrolled {
+            hasLoggedCarouselScrolled = true
+            analyticsService.logCarouselScrolled()
+        }
+
+        // Track when user reaches the end (last item before "See All" card)
+        if index >= carouselItems.count - 1, !hasLoggedCarouselEndReached {
+            hasLoggedCarouselEndReached = true
+            analyticsService.logCarouselEndReached()
+        }
+    }
+
+    @MainActor
+    func handleTrendingNewsTap(newsId: String) {
+        if !hasLoggedTrendingClicked {
+            hasLoggedTrendingClicked = true
+            analyticsService.logTrendingClicked(newsId: newsId)
+        }
+
+        handleTap(newsId: newsId)
     }
 
     @MainActor
@@ -81,15 +130,20 @@ private extension NewsWidgetViewModel {
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, state in
-                // When the main widgets container reports `.allWidgetsWithError`,
-                // the global error UI is handled at a higher level. We intentionally
-                // skip updating this widget's local view state here to avoid
-                // overriding the shared error representation or causing UI flicker.
-                if case .allWidgetsWithError = state {
+                switch state {
+                case .loaded:
+                    viewModel.updateViewState()
+                    viewModel.clearIsFirstLoadingFlag()
+                case .initialLoading:
+                    viewModel.resultState = .loading
+                case .reloading(let widgetTypes):
+                    if widgetTypes.contains(viewModel.widgetType) {
+                        viewModel.resultState = .loading
+                    }
+                case .allFailed:
+                    // Global error UI is handled at a higher level
                     return
                 }
-
-                viewModel.updateViewState()
             }
             .store(in: &bag)
 
@@ -129,7 +183,7 @@ private extension NewsWidgetViewModel {
             if item.isTrending, trendingCardNewsItem == nil {
                 trendingCardNewsItem = mapper.toTrendingCardNewsItem(
                     from: item,
-                    onTap: weakify(self, forFunction: NewsWidgetViewModel.handleTap)
+                    onTap: weakify(self, forFunction: NewsWidgetViewModel.handleTrendingNewsTap)
                 )
             } else {
                 let carouselItem = mapper.toCarouselNewsItem(
@@ -159,6 +213,7 @@ private extension NewsWidgetViewModel {
             resultState = .success(viewStateForLoadedItems())
         case .failure(let error):
             resultState = .failure(error)
+            analyticsService.logNewsLoadError(error)
         case .loading:
             resultState = .loading
         }
@@ -175,6 +230,12 @@ private extension NewsWidgetViewModel {
                 return lhs.offset < rhs.offset
             }
             .map(\.element)
+    }
+
+    func clearIsFirstLoadingFlag() {
+        if isFirstLoading {
+            isFirstLoading = false
+        }
     }
 }
 
