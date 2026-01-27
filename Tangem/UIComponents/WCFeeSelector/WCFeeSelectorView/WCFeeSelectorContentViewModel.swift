@@ -99,7 +99,7 @@ final class WCFeeSelectorContentViewModel: ObservableObject, FloatingSheetConten
 private extension WCFeeSelectorContentViewModel {
     func userDidSelect(_ option: FeeOption) {
         selectedFeeOption = option
-        analytics.logSendFeeSelected(option)
+        analytics.logFeeSelected(option)
 
         guard savingType == .autosave, option != .custom else {
             return

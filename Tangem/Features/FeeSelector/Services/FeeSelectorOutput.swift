@@ -19,5 +19,11 @@ protocol FeeSelectorRoutable: AnyObject {
 
 protocol FeeSelectorAnalytics {
     func logFeeStepOpened()
-    func logSendFeeSelected(_ feeOption: FeeOption)
+    func logFeeSelected(tokenFee: TokenFee)
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_INFO]
+    func logFeeSelected(_ feeOption: FeeOption)
+    func logFeeSummaryOpened()
+    func logFeeTokensOpened(availableTokenFees: [TokenFee])
+    func logCustomFeeClicked()
 }
