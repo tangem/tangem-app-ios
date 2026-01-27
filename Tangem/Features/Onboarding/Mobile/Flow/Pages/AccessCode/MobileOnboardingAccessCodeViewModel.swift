@@ -18,6 +18,7 @@ import class TangemSdk.BiometricsUtil
 
 final class MobileOnboardingAccessCodeViewModel: ObservableObject {
     @Published private(set) var state: State = .accessCode
+    @Published private(set) var shakeTrigger: CGFloat = 0
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
@@ -27,12 +28,13 @@ final class MobileOnboardingAccessCodeViewModel: ObservableObject {
     @Published var alert: AlertBinder?
 
     let codeLength: Int = 6
+    let shakeDuration: TimeInterval = 0.3
 
-    var leadingBavBarItem: MobileOnboardingFlowNavBarAction? {
+    var leadingNavBarItem: MobileOnboardingFlowNavBarAction? {
         makeLeadingNavBarItem()
     }
 
-    var trailingBavBarItem: MobileOnboardingFlowNavBarAction? {
+    var trailingNavBarItem: MobileOnboardingFlowNavBarAction? {
         makeTrailingNavBarItem()
     }
 
@@ -75,12 +77,7 @@ final class MobileOnboardingAccessCodeViewModel: ObservableObject {
     }
 
     var isPinSecured: Bool {
-        switch state {
-        case .accessCode:
-            false
-        case .confirmAccessCode:
-            true
-        }
+        true
     }
 
     var pinColor: Color {
@@ -103,6 +100,8 @@ final class MobileOnboardingAccessCodeViewModel: ObservableObject {
 
     private lazy var mobileWalletSdk: MobileWalletSdk = CommonMobileWalletSdk()
 
+    private let accessCodeValidator = MobileOnboardingAccessCodeValidator()
+
     private let mode: Mode
     private let source: MobileOnboardingFlowSource
     private weak var delegate: MobileOnboardingAccessCodeDelegate?
@@ -121,6 +120,10 @@ final class MobileOnboardingAccessCodeViewModel: ObservableObject {
         self.source = source
         self.delegate = delegate
         bind()
+    }
+
+    deinit {
+        AppLogger.debug("MobileOnboardingAccessCodeViewModel deinit")
     }
 }
 
@@ -160,15 +163,24 @@ private extension MobileOnboardingAccessCodeViewModel {
         guard accessCode.count == codeLength else {
             return
         }
+
         logAccessCodeEnteredAnalytics()
-        state = .confirmAccessCode
+
+        guard accessCodeValidator.validate(accessCode: accessCode) else {
+            alert = makeAccessCodeValidationAlert()
+            return
+        }
+
+        setup(state: .confirmAccessCode)
     }
 
     func check(confirmAccessCode: String) {
-        guard
-            confirmAccessCode.count == codeLength,
-            confirmAccessCode == accessCode
-        else {
+        guard confirmAccessCode.count == codeLength else {
+            return
+        }
+
+        guard confirmAccessCode == accessCode else {
+            handleWrongConfirmAccessCode()
             return
         }
 
@@ -231,6 +243,13 @@ private extension MobileOnboardingAccessCodeViewModel {
         }
     }
 
+    func handleWrongConfirmAccessCode() {
+        shakeTrigger += 1
+        DispatchQueue.main.asyncAfter(deadline: .now() + shakeDuration) { [weak self] in
+            self?.reset(state: .confirmAccessCode)
+        }
+    }
+
     func isBiometricsAvailable() async -> Bool {
         if BiometricsUtil.isAvailable {
             do {
@@ -266,10 +285,20 @@ private extension MobileOnboardingAccessCodeViewModel {
         return context
     }
 
-    func resetState() {
-        accessCode = ""
-        confirmAccessCode = ""
-        state = .accessCode
+    func setup(state: State) {
+        self.state = state
+    }
+
+    func reset(state: State) {
+        switch state {
+        case .accessCode:
+            accessCode = ""
+            confirmAccessCode = ""
+            setup(state: .accessCode)
+        case .confirmAccessCode:
+            confirmAccessCode = ""
+            setup(state: .confirmAccessCode)
+        }
     }
 }
 
@@ -301,8 +330,8 @@ private extension MobileOnboardingAccessCodeViewModel {
 
     func makeTrailingNavBarItem() -> MobileOnboardingFlowNavBarAction? {
         switch mode {
-        case .create:
-            return .skip(handler: weakify(self, forFunction: MobileOnboardingAccessCodeViewModel.onSkipTap))
+        case .create(let canSkip):
+            return canSkip ? .skip(handler: weakify(self, forFunction: MobileOnboardingAccessCodeViewModel.onSkipTap)) : nil
         case .change:
             return nil
         }
@@ -313,7 +342,7 @@ private extension MobileOnboardingAccessCodeViewModel {
     }
 
     func onBackTap() {
-        resetState()
+        reset(state: .accessCode)
     }
 }
 
@@ -334,6 +363,23 @@ private extension MobileOnboardingAccessCodeViewModel {
         )
     }
 
+    func makeAccessCodeValidationAlert() -> AlertBinder {
+        AlertBuilder.makeAlert(
+            title: Localization.accessCodeAlertValidationTitle,
+            message: Localization.accessCodeAlertValidationDescription,
+            with: .init(
+                primaryButton: .destructive(
+                    Text(Localization.accessCodeAlertValidationOk),
+                    action: weakify(self, forFunction: MobileOnboardingAccessCodeViewModel.onAccessCodeValidationOkTap)
+                ),
+                secondaryButton: .default(
+                    Text(Localization.accessCodeAlertValidationCancel),
+                    action: {}
+                ),
+            )
+        )
+    }
+
     func onSkipOkTap() {
         logSkipTapAnalytics()
 
@@ -345,6 +391,10 @@ private extension MobileOnboardingAccessCodeViewModel {
         runTask(in: self) { viewModel in
             await viewModel.onAccessCodeComplete()
         }
+    }
+
+    func onAccessCodeValidationOkTap() {
+        setup(state: .confirmAccessCode)
     }
 }
 
@@ -384,7 +434,7 @@ private extension MobileOnboardingAccessCodeViewModel {
 
 extension MobileOnboardingAccessCodeViewModel {
     enum Mode {
-        case create
+        case create(canSkip: Bool)
         case change(MobileWalletContext)
     }
 
