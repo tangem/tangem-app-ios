@@ -93,6 +93,8 @@ class AppCoordinator: CoordinatorObject {
                 await coordinator.servicesManager.initializeKeychainSensitiveServices()
                 coordinator.start(with: options)
             }
+        case .jailbreakWarning:
+            setupJailbreakWarning()
         }
     }
 
@@ -117,6 +119,11 @@ class AppCoordinator: CoordinatorObject {
 
     private func setupLaunch() {
         setState(.launch)
+    }
+
+    private func setupJailbreakWarning() {
+        let viewModel = JailbreakWarningViewModel(coordinator: self)
+        setState(.jailbreakWarning(viewModel))
     }
 
     private func setupWelcome() {
@@ -308,10 +315,11 @@ extension AppCoordinator {
         case onboarding(OnboardingCoordinator)
         case lock
         case launch
+        case jailbreakWarning(JailbreakWarningViewModel)
 
         var shouldAddLockView: Bool {
             switch self {
-            case .auth, .welcome, .launch:
+            case .auth, .welcome, .launch, .jailbreakWarning:
                 return false
             case .lock, .main, .onboarding, .uncompleteBackup:
                 return true
@@ -320,7 +328,7 @@ extension AppCoordinator {
 
         static func == (lhs: AppCoordinator.ViewState, rhs: AppCoordinator.ViewState) -> Bool {
             switch (lhs, rhs) {
-            case (.welcome, .welcome), (.uncompleteBackup, .uncompleteBackup), (.auth, .auth), (.main, .main):
+            case (.welcome, .welcome), (.uncompleteBackup, .uncompleteBackup), (.auth, .auth), (.main, .main), (.jailbreakWarning, .jailbreakWarning):
                 return true
             default:
                 return false
@@ -365,6 +373,12 @@ extension AppCoordinator {
         coordinator.start(with: options)
 
         setState(.main(coordinator))
+    }
+}
+
+extension AppCoordinator: JailbreakWarningRoutable {
+    func closeJailbreakWarning() {
+        start()
     }
 }
 

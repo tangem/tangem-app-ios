@@ -7,6 +7,7 @@
 import XCTest
 import BlockchainSdk
 import TangemSdk
+import CryptoSwift
 @testable import Tangem
 
 class EIP712TypedDataTests: XCTestCase {

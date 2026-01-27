@@ -37,7 +37,6 @@ final class OnboardingCoordinator: CoordinatorObject {
 
     // MARK: - Private
 
-    private var options: OnboardingCoordinator.Options!
     private var safariHandle: SafariHandle?
 
     required init(dismissAction: @escaping Action<OutputOptions>, popToRootAction: @escaping Action<PopToRootOptions>) {
@@ -46,15 +45,16 @@ final class OnboardingCoordinator: CoordinatorObject {
     }
 
     func start(with options: OnboardingCoordinator.Options) {
-        self.options = options
         switch options {
-        case .input(let onboardingInputput):
-            handle(input: onboardingInputput)
+        case .input(let onboardingInput):
+            handle(input: onboardingInput)
+            logOnboardingStartedAnalytics(contextParams: options.contextParams)
         case .mobileInput(let mobileOnboardingInput):
             handle(input: mobileOnboardingInput)
+            if mobileOnboardingInput.shouldLogOnboardingStartedAnalytics {
+                logOnboardingStartedAnalytics(contextParams: options.contextParams)
+            }
         }
-
-        Analytics.log(.onboardingStarted, contextParams: options.contextParams)
     }
 }
 
@@ -191,6 +191,14 @@ private extension OnboardingCoordinator {
         let model = MobileOnboardingViewModel(input: input, coordinator: self)
         onDismissalAttempt = model.onDismissalAttempt
         viewState = .mobile(model)
+    }
+}
+
+// MARK: - Analytics
+
+private extension OnboardingCoordinator {
+    func logOnboardingStartedAnalytics(contextParams: Analytics.ContextParams) {
+        Analytics.log(.onboardingStarted, contextParams: contextParams)
     }
 }
 

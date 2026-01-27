@@ -162,7 +162,7 @@ extension WelcomeCoordinator: WelcomeRoutable {
 
     func openShop() {
         Analytics.log(.shopScreenOpened)
-        safariManager.openURL(AppConstants.getWebShopUrl(isExistingUser: false))
+        safariManager.openURL(TangemShopUrlBuilder().url(utmCampaign: .prospect))
     }
 
     func openScanCardManual() {

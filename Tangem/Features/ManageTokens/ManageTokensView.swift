@@ -57,7 +57,7 @@ struct ManageTokensView: View {
         }
         .background(Colors.Background.primary.ignoresSafeArea())
         .navigationTitle(Text(Localization.addTokensTitle))
-        .scrollDismissesKeyboardCompat(.immediately)
+        .scrollDismissesKeyboard(.immediately)
         .keyboardType(.alphabet)
         .bindAlert($viewModel.alert)
         .if(viewModel.canAddCustomToken) {
@@ -109,7 +109,7 @@ struct ManageTokensView: View {
         )
     )
 
-    return NavigationView {
+    return NavigationStack {
         ManageTokensView(viewModel: .init(
             adapter: adapter,
             context: context,
