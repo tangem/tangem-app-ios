@@ -7,14 +7,15 @@
 //
 
 import Foundation
+import TangemFoundation
 
 @MainActor
 final class EarnDetailViewModel: ObservableObject {
     // MARK: - Published Properties
 
     @Published private(set) var mostlyUsedViewModels: [EarnTokenItemViewModel] = []
+    @Published private(set) var bestOpportunitiesResultState: LoadingResult<[EarnTokenItemViewModel], Error> = .loading
 
-    // [REDACTED_TODO_COMMENT]
     // [REDACTED_TODO_COMMENT]
 
     // MARK: - Private Properties
@@ -32,6 +33,7 @@ final class EarnDetailViewModel: ObservableObject {
     ) {
         self.coordinator = coordinator
         setupMostlyUsedViewModels(from: mostlyUsedTokens)
+        loadBestOpportunities()
     }
 
     // MARK: - Private Implementation
@@ -43,6 +45,28 @@ final class EarnDetailViewModel: ObservableObject {
             }
         }
     }
+
+    func loadBestOpportunities() {
+        // [REDACTED_TODO_COMMENT]
+        bestOpportunitiesResultState = .loading
+
+        // Placeholder: simulate loading
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 1_000_000_000)
+            // For now, set to error to demonstrate error state
+            // In real implementation, this would fetch data and set to .success or .failure
+            let error = NSError(
+                domain: "EarnDetailViewModel",
+                code: -1,
+                userInfo: [NSLocalizedDescriptionKey: "Failed to load best opportunities"]
+            )
+            bestOpportunitiesResultState = .failure(error)
+        }
+    }
+
+    func retryBestOpportunities() {
+        loadBestOpportunities()
+    }
 }
 
 // MARK: - View Action
@@ -53,11 +77,9 @@ extension EarnDetailViewModel {
         case .back:
             coordinator?.dismiss()
         case .networksFilterTap:
-            // [REDACTED_TODO_COMMENT]
-            break
+            coordinator?.openNetworksFilter()
         case .typesFilterTap:
-            // [REDACTED_TODO_COMMENT]
-            break
+            coordinator?.openTypesFilter()
         }
     }
 
