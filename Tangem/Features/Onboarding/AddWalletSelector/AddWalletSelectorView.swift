@@ -91,18 +91,12 @@ private extension AddWalletSelectorView {
     func walletDescription(item: ViewModel.WalletDescriptionItem) -> some View {
         HStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 4) {
-                if #available(iOS 16.0, *) {
-                    WrappingHStack(
-                        alignment: .leading,
-                        horizontalSpacing: 8,
-                        verticalSpacing: 4
-                    ) {
-                        walletDescriptionHeader(title: item.title, badge: item.badge)
-                    }
-                } else {
-                    HStack(alignment: .top, spacing: 8) {
-                        walletDescriptionHeader(title: item.title, badge: item.badge)
-                    }
+                WrappingHStack(
+                    alignment: .leading,
+                    horizontalSpacing: 8,
+                    verticalSpacing: 4
+                ) {
+                    walletDescriptionHeader(title: item.title, badge: item.badge)
                 }
 
                 Text(item.subtitle)
