@@ -13,13 +13,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%@ картка</string>
+        <string>%li картка</string>
         <key>few</key>
-        <string>%@ картки</string>
+        <string>%li картки</string>
         <key>many</key>
-        <string>%@ карток</string>
+        <string>%li карток</string>
         <key>other</key>
-        <string>%@ картки</string>
+        <string>%li картки</string>
       </dict>
     </dict>
     <key>card_label_card_count</key>
@@ -53,13 +53,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%1$li токен</string>
+        <string>%li токен</string>
         <key>few</key>
-        <string>%1$li токени</string>
+        <string>%li токени</string>
         <key>many</key>
-        <string>%1$li токенів</string>
+        <string>%li токенів</string>
         <key>other</key>
-        <string>%1$li токени</string>
+        <string>%li токени</string>
       </dict>
     </dict>
     <key>common_days_no_param</key>
@@ -93,13 +93,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%1$@ мережа</string>
+        <string>%li мережа</string>
         <key>few</key>
-        <string>%1$@ мережі</string>
+        <string>%li мережі</string>
         <key>many</key>
-        <string>%1$@ мереж</string>
+        <string>%li мереж</string>
         <key>other</key>
-        <string>%1$@ мережі</string>
+        <string>%li мережі</string>
       </dict>
     </dict>
     <key>common_tokens_count</key>
@@ -193,13 +193,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%1$@ годину тому</string>
+        <string>%li годину тому</string>
         <key>few</key>
-        <string>%1$@ години тому</string>
+        <string>%li години тому</string>
         <key>many</key>
-        <string>%1$@ годин тому</string>
+        <string>%li годин тому</string>
         <key>other</key>
-        <string>%1$@ годин тому</string>
+        <string>%li годин тому</string>
       </dict>
     </dict>
     <key>news_published_minutes_ago</key>
@@ -213,13 +213,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%1$@ хвилину тому</string>
+        <string>%li хвилину тому</string>
         <key>few</key>
-        <string>%1$@ хвилини тому</string>
+        <string>%li хвилини тому</string>
         <key>many</key>
-        <string>%1$@ хвилин тому</string>
+        <string>%li хвилин тому</string>
         <key>other</key>
-        <string>%1$@ хвилин тому</string>
+        <string>%li хвилин тому</string>
       </dict>
     </dict>
     <key>nft_collections_count</key>
@@ -328,13 +328,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%@ провайдер</string>
+        <string>%li провайдер</string>
         <key>few</key>
-        <string>%@ провайдери</string>
+        <string>%li провайдери</string>
         <key>many</key>
-        <string>%@ провайдерів</string>
+        <string>%li провайдерів</string>
         <key>other</key>
-        <string>%@ провайдерів</string>
+        <string>%li провайдерів</string>
       </dict>
     </dict>
     <key>onramp_timing_days</key>
@@ -348,13 +348,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>до %@ дня</string>
+        <string>до %li дня</string>
         <key>few</key>
-        <string>до %@ днів</string>
+        <string>до %li днів</string>
         <key>many</key>
-        <string>до %@ днів</string>
+        <string>до %li днів</string>
         <key>other</key>
-        <string>до %@ днів</string>
+        <string>до %li днів</string>
       </dict>
     </dict>
     <key>referral_number_of_wallets</key>
@@ -408,13 +408,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>доступно протягом %1$@ дня</string>
+        <string>доступно протягом %li дня</string>
         <key>few</key>
-        <string>доступно протягом %1$@ днів</string>
+        <string>доступно протягом %li днів</string>
         <key>many</key>
-        <string>доступно протягом %1$@ днів</string>
+        <string>доступно протягом %li днів</string>
         <key>other</key>
-        <string>доступно протягом %1$@ днів</string>
+        <string>доступно протягом %li днів</string>
       </dict>
     </dict>
     <key>warning_missing_derivation_message</key>
