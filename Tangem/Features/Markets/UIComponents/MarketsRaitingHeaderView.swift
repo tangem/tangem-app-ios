@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 struct MarketsRatingHeaderView: View {
     @ObservedObject var viewModel: MarketsRatingHeaderViewModel
@@ -41,6 +42,7 @@ struct MarketsRatingHeaderView: View {
                     .fill(Colors.Button.secondary)
             )
         }
+        .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsSortButton)
     }
 
     private var timeIntervalPicker: some View {
@@ -51,7 +53,10 @@ struct MarketsRatingHeaderView: View {
                 shouldStretchToFill: false,
                 isDisabled: false,
                 style: .init(textVerticalPadding: 4),
-                titleFactory: { $0.tokenDetailsNameLocalized }
+                titleFactory: { $0.tokenDetailsNameLocalized },
+                accessibilityIdentifierFactory: { interval in
+                    MarketsAccessibilityIdentifiers.marketsIntervalSegment(interval.marketsAccessibilityId)
+                }
             )
         }
     }
