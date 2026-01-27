@@ -9,5 +9,5 @@
 import BlockchainSdk
 
 protocol ExpressTransactionValidator {
-    func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws
+    func validate(amount: Amount, fee: Fee) throws
 }
