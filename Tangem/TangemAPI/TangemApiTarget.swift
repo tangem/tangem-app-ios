@@ -81,6 +81,10 @@ struct TangemApiTarget: TargetType {
         case .tokenExchangesList(let requestModel):
             return "/coins/\(requestModel.tokenId)/exchanges"
 
+        // MARK: - Earn paths
+        case .earnYieldMarkets:
+            return "/api/v1/earn/yield/markets"
+
         // MARK: - Action Buttons
         case .hotCrypto:
             return "/hot_crypto"
@@ -152,6 +156,7 @@ struct TangemApiTarget: TargetType {
              .historyChart,
              .tokenExchangesList,
              .hotCrypto,
+             .earnYieldMarkets,
              .seedNotifyGetStatus,
              .seedNotifyGetStatusConfirmed,
              .story,
@@ -271,6 +276,10 @@ struct TangemApiTarget: TargetType {
         case .tokenExchangesList, .seedNotifyGetStatus, .seedNotifyGetStatusConfirmed:
             return .requestPlain
 
+        // MARK: - Earn tasks
+        case .earnYieldMarkets(let requestModel):
+            return .requestParameters(parameters: requestModel.parameters, encoding: URLEncoding.default)
+
         // MARK: - News tasks
         case .hotCrypto(let requestModel):
             return .requestParameters(parameters: ["currency": requestModel.currency], encoding: URLEncoding.default)
@@ -359,6 +368,7 @@ struct TangemApiTarget: TargetType {
              .historyChart,
              .tokenExchangesList,
              .hotCrypto,
+             .earnYieldMarkets,
              .apiList,
              .seedNotifyGetStatus,
              .seedNotifySetStatus,
@@ -419,6 +429,10 @@ extension TangemApiTarget {
         case historyChart(_ requestModel: MarketsDTO.ChartsHistory.HistoryRequest)
         case tokenExchangesList(_ requestModel: MarketsDTO.ExchangesList.Request)
 
+        // MARK: - Earn Targets
+
+        case earnYieldMarkets(_ requestModel: EarnDTO.List.Request)
+
         // MARK: - Action Buttons
 
         case hotCrypto(_ requestModel: HotCryptoDTO.Request)
@@ -465,7 +479,7 @@ extension TangemApiTarget {
 extension TangemApiTarget: CachePolicyProvider {
     var cachePolicy: URLRequest.CachePolicy {
         switch type {
-        case .geo, .features, .apiList, .quotes, .coinsList, .tokenMarketsDetails, .newsList, .newsCategories:
+        case .geo, .features, .apiList, .quotes, .coinsList, .tokenMarketsDetails, .newsList, .newsCategories, .earnYieldMarkets:
             return .reloadIgnoringLocalAndRemoteCacheData
         default:
             return .useProtocolCachePolicy
@@ -489,6 +503,7 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .historyChart,
              .tokenMarketsDetails,
              .tokenExchangesList,
+             .earnYieldMarkets,
              .story,
              .rawData,
              .hotCrypto,

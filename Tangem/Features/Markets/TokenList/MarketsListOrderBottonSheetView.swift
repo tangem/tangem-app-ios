@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct MarketsListOrderBottomSheetView: View {
     @ObservedObject var viewModel: MarketsListOrderBottomSheetViewModel
@@ -20,6 +21,7 @@ struct MarketsListOrderBottomSheetView: View {
 
             GroupedSection(viewModel.listOptionViewModel) {
                 DefaultSelectableRowView(data: $0, selection: $viewModel.currentOrderType)
+                    .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsSortOption($0.id.rawValue))
             }
             .settings(\.backgroundColor, Colors.Background.action)
         }
