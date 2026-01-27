@@ -115,6 +115,7 @@ public enum ExpressAPIType: String, Hashable, CaseIterable {
     case develop3
     case production
     case stage
+    case stage2
     case mock
 
     public var title: String {
@@ -129,6 +130,8 @@ public enum ExpressAPIType: String, Hashable, CaseIterable {
             return "prod"
         case .stage:
             return "stage"
+        case .stage2:
+            return "stage2"
         case .mock:
             return "mock"
         }

@@ -199,7 +199,7 @@ extension KYCService.KYCServiceError: VisaError {
 extension RainCryptoUtilities.RainCryptoUtilitiesError: VisaError {
     public var errorCode: Int {
         switch self {
-        case .invalidSecretKey:
+        case .invalidSecretKey, .invalidDecryptedPinBlock:
             104014001
         case .invalidBase64EncodedPublicKey:
             104014002

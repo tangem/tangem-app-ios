@@ -48,7 +48,8 @@ struct CollapsedAccountItemHeaderView: View {
             secondaryTrailingView: {
                 TokenPriceChangeView(
                     state: priceChange,
-                    showSkeletonWhenLoading: true
+                    showSkeletonWhenLoading: true,
+                    showSeparatorForNeutralStyle: false
                 )
             }
         )

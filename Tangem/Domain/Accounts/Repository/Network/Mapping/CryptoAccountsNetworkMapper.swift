@@ -13,7 +13,7 @@ import struct TangemSdk.DerivationPath
 final class CryptoAccountsNetworkMapper {
     typealias RemoteIdentifierBuilder = (StoredCryptoAccount) -> String
 
-    var externalParametersProvider: UserTokenListExternalParametersProvider?
+    weak var externalParametersProvider: UserTokenListExternalParametersProvider?
 
     private let supportedBlockchains: SupportedBlockchainsSet
     private let remoteIdentifierBuilder: RemoteIdentifierBuilder
@@ -29,6 +29,8 @@ final class CryptoAccountsNetworkMapper {
     // MARK: - Stored to Remote
 
     func map(request: [StoredCryptoAccount]) -> (accounts: AccountsDTO.Request.Accounts, userTokens: AccountsDTO.Request.UserTokens) {
+        assert(externalParametersProvider != nil, "CryptoAccountsNetworkMapper is not configured with UserTokenListExternalParametersProvider")
+
         let walletModelAddresses = externalParametersProvider?.provideTokenListAddresses()
         var tokens: [AccountsDTO.Request.Token] = []
 
@@ -283,8 +285,13 @@ final class CryptoAccountsNetworkMapper {
     }
 
     private func mapGroupingOption(
-        groupType: UserTokenList.GroupType
+        groupType: UserTokenList.GroupType?
     ) -> StoredUserTokenList.Grouping {
+        guard let groupType else {
+            // Fallback value for newly activated wallets (created by the very first PUT /accounts request)
+            return CryptoAccountPersistentConfig.TokenListAppearance.default.grouping
+        }
+
         switch groupType {
         case .none:
             return .none
@@ -294,8 +301,13 @@ final class CryptoAccountsNetworkMapper {
     }
 
     private func mapSortingOption(
-        sortType: UserTokenList.SortType
+        sortType: UserTokenList.SortType?
     ) -> StoredUserTokenList.Sorting {
+        guard let sortType else {
+            // Fallback value for newly activated wallets (created by the very first PUT /accounts request)
+            return CryptoAccountPersistentConfig.TokenListAppearance.default.sorting
+        }
+
         switch sortType {
         case .manual:
             return .manual
