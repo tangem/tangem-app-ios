@@ -240,6 +240,10 @@ extension Analytics {
         case onramp = "Onramp"
         case markets = "Markets"
 
+        // MARK: - Markets
+
+        case marketPulse = "Market Pulse"
+
         // MARK: - Wallet Connect
 
         case walletConnectVerified = "Verified"
