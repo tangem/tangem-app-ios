@@ -68,7 +68,6 @@ public struct TransactionHistoryProviderFactory {
         case .ethereum,
              .ethereumPoW,
              .ethereumClassic,
-             .bsc,
              .avalanche,
              .arbitrum:
             return EthereumTransactionHistoryProvider(
@@ -93,7 +92,8 @@ public struct TransactionHistoryProviderFactory {
              .polygonZkEVM,
              .sonic,
              .xdc,
-             .zkSync:
+             .zkSync,
+             .bsc:
             // https://docs.etherscan.io/supported-chains
 
             guard let chainId = blockchain.chainId else {
