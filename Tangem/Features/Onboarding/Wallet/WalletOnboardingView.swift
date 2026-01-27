@@ -237,7 +237,7 @@ struct WalletOnboardingView: View {
 
 #if DEBUG
 #Preview {
-    NavigationView {
+    NavigationStack {
         WalletOnboardingView(viewModel: .init(
             input: PreviewData.previewWalletOnboardingInput,
             coordinator: OnboardingCoordinator()

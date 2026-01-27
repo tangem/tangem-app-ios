@@ -124,7 +124,7 @@ class VisaWalletMainContentViewModel: ObservableObject {
         isTransactionHistoryReloading = true
         updateTask = runTask(in: self) { viewModel in
             await viewModel.visaWalletModel.generalUpdateAsync()
-            try? await Task.sleep(seconds: 0.2)
+            try? await Task.sleep(for: .seconds(0.2))
 
             await runOnMain { viewModel.isTransactionHistoryReloading = false }
 

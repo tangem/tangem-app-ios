@@ -48,7 +48,7 @@ enum SocialNetwork: Hashable, CaseIterable, Identifiable {
     var url: URL? {
         switch self {
         case .telegram:
-            switch Locale.deviceLanguageCode() {
+            switch Locale.deviceLanguageCode {
             case Locale.ruLanguageCode, Locale.byLanguageCode:
                 return URL(string: "https://t.me/tangem_chat_ru")
             default:

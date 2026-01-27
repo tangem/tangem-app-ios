@@ -28,10 +28,14 @@ enum AppsFlyerAnalyticsEventConverter {
 
     static func convert(params: [String: Any]) -> [String: Any] {
         params.reduce(into: [:]) { result, element in
-            let convertedKey = convert(event: element.key)
+            let convertedKey = convert(parameterKey: element.key)
             let convertedValue = convert(parameterValue: element.value)
             result[convertedKey] = convertedValue
         }
+    }
+
+    private static func convert(parameterKey: String) -> String {
+        parameterKey.toUnderscoreCase().trim(toLength: Limits.eventParameterKeyLength)
     }
 
     private static func convert(parameterValue: Any) -> Any {
@@ -65,6 +69,7 @@ extension AppsFlyerAnalyticsEventConverter {
     // [REDACTED_TODO_COMMENT]
     private enum Limits {
         static let eventNameLength = 100
+        static let eventParameterKeyLength = 100
         static let eventParameterValueLength = 1000
         static let numberDecimalPrecision = 5
     }

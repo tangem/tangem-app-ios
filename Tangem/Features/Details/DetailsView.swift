@@ -20,7 +20,7 @@ struct DetailsView: View {
     }
 
     var body: some View {
-        GroupedScrollView(spacing: 24) {
+        GroupedScrollView(contentType: .lazy(alignment: .center, spacing: 24)) {
             walletConnectSection
 
             userWalletsSection
@@ -51,22 +51,28 @@ struct DetailsView: View {
     }
 
     private var userWalletsSection: some View {
-        GroupedSection(viewModel.walletsSectionTypes) { type in
-            switch type {
-            case .wallet(let viewModel):
-                SettingsUserWalletRowView(viewModel: viewModel)
-            case .addOrScanNewUserWalletButton(let viewModel):
-                DefaultRowView(viewModel: viewModel)
-                    .appearance(.accentButton)
-            case .addNewUserWalletButton(let viewModel):
-                DefaultRowView(viewModel: viewModel)
-                    .appearance(.accentButton)
+        GroupedSection(
+            viewModel.walletsSectionTypes,
+            content: { type in
+                switch type {
+                case .wallet(let viewModel):
+                    SettingsUserWalletRowView(viewModel: viewModel)
+                case .addOrScanNewUserWalletButton(let viewModel):
+                    DefaultRowView(viewModel: viewModel)
+                        .appearance(.accentButton)
+                case .addNewUserWalletButton(let viewModel):
+                    DefaultRowView(viewModel: viewModel)
+                        .appearance(.accentButton)
+                }
+            },
+            footer: {
+                viewModel.userWalletsSectionFooterString.map { DefaultFooterView($0) }
             }
-        }
+        )
     }
 
     private var buyWalletSection: some View {
-        GroupedSection(viewModel.buyWalletViewModel) {
+        GroupedSection(viewModel.getSectionViewModels) {
             DefaultRowView(viewModel: $0)
                 .appearance(.accentButton)
         }
@@ -125,13 +131,12 @@ struct DetailsView: View {
 
 struct SettingsView_Previews: PreviewProvider {
     static var previews: some View {
-        NavigationView {
+        NavigationStack {
             DetailsView(
                 viewModel: DetailsViewModel(
                     coordinator: DetailsCoordinator()
                 )
             )
         }
-        .navigationViewStyle(.stack)
     }
 }

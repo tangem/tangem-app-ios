@@ -6,12 +6,11 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import TangemFoundation
 import BlockchainSdk
 
 struct WCFeeRowViewModel {
-    let components: LoadingValue<FormattedFeeComponents>
+    let components: LoadingResult<FormattedFeeComponents, any Error>
     let onTap: () -> Void
 
     init(
@@ -32,11 +31,11 @@ struct WCFeeRowViewModel {
         selectedFee: WCFee,
         blockchain: Blockchain,
         feeTokenItem: TokenItem
-    ) -> LoadingValue<FormattedFeeComponents> {
+    ) -> LoadingResult<FormattedFeeComponents, any Error> {
         switch selectedFee.value {
         case .loading:
             return .loading
-        case .loaded(let fee):
+        case .success(let fee):
             let feeFormatter = CommonFeeFormatter(
                 balanceFormatter: BalanceFormatter(),
                 balanceConverter: BalanceConverter()
@@ -49,9 +48,9 @@ struct WCFeeRowViewModel {
                 isFeeApproximate: false,
                 formattingOptions: .defaultCryptoFeeFormattingOptions
             )
-            return .loaded(components)
-        case .failedToLoad(let error):
-            return .failedToLoad(error: error)
+            return .success(components)
+        case .failure(let error):
+            return .failure(error)
         }
     }
 }

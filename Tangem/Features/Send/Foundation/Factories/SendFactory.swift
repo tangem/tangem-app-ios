@@ -47,7 +47,7 @@ struct SendFactory {
                 // Default action with full available amount
                 action: StakingAction(
                     amount: options.input.walletModel.availableBalanceProvider.balanceType.value ?? 0,
-                    validatorType: .empty,
+                    targetType: .empty,
                     type: .stake
                 ),
                 walletModel: options.input.walletModel,
