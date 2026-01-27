@@ -32,7 +32,7 @@ extension ReferralViewModel {
 
     enum LoadedState {
         case alreadyParticipant(AlreadyParticipantDisplayMode)
-        case readyToBecomeParticipant(ReadyToBecomParticipantDisplayMode)
+        case readyToBecomeParticipant(ReadyToBecomeParticipantDisplayMode)
 
         var accountData: SelectedAccountViewData? {
             switch self {
@@ -81,7 +81,7 @@ extension ReferralViewModel {
         }
     }
 
-    enum ReadyToBecomParticipantDisplayMode {
+    enum ReadyToBecomeParticipantDisplayMode {
         case simple
         case accounts(TokenType, SelectedAccountViewData)
 
