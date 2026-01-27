@@ -16,13 +16,10 @@ public extension Locale {
 public extension Locale {
     static let appLanguageCode = Bundle.main.preferredLocalizations.first ?? enLanguageCode
 
-    static func deviceLanguageCode() -> String {
-        if #available(iOS 16, *) {
-            return Locale.current.language.languageCode?.identifier ?? LanguageCode.english.identifier
-        } else {
-            return Locale.current.languageCode ?? enLanguageCode
-        }
-    }
+    static let deviceLanguageCode = {
+        let languages = CFPreferencesCopyAppValue("AppleLanguages" as CFString, kCFPreferencesAnyApplication) as? [String]
+        return languages?.first ?? LanguageCode.english.identifier
+    }()
 }
 
 public extension Locale {
@@ -33,8 +30,7 @@ public extension Locale {
 
 public extension Locale {
     static func webLanguageCode() -> String {
-        let languageCode = deviceLanguageCode()
-        switch languageCode {
+        switch deviceLanguageCode {
         case ruLanguageCode, byLanguageCode:
             return ruLanguageCode
         default:

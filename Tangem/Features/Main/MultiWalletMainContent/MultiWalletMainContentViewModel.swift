@@ -54,24 +54,26 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private(set) lazy var bottomSheetFooterViewModel = MainBottomSheetFooterViewModel()
 
     @Published private(set) var actionButtonsViewModel: ActionButtonsViewModel?
+    @Published private(set) var tangemPayBannerViewModel: GetTangemPayBannerViewModel?
 
-    // [REDACTED_TODO_COMMENT]
     var isOrganizeTokensVisible: Bool {
-        guard canManageTokens else { return false }
-
-        if plainSections.isEmpty {
-            return false
+        func numberOfTokensInSections<T, U>(_ sections: [SectionModel<T, U>]) -> Int {
+            return sections.reduce(0) { $0 + $1.items.count }
         }
 
-        let numberOfTokens = plainSections.reduce(0) { $0 + $1.items.count }
-        let requiredNumberOfTokens = 2
+        guard canManageTokens else { return false }
 
-        return numberOfTokens >= requiredNumberOfTokens
+        let numberOfTokensInPlainSections = numberOfTokensInSections(plainSections)
+        let maxNumberOfTokensInAccountSections = accountSections.map { numberOfTokensInSections($0.items) }.max() ?? 0
+        let minRequiredNumberOfTokens = 2
+
+        return numberOfTokensInPlainSections >= minRequiredNumberOfTokens || maxNumberOfTokensInAccountSections >= minRequiredNumberOfTokens
     }
 
     // MARK: - Dependencies
 
     @Injected(\.mobileFinishActivationManager) private var mobileFinishActivationManager: MobileFinishActivationManager
+    @Injected(\.tangemPayAvailabilityRepository) private var tangemPayAvailabilityRepository: TangemPayAvailabilityRepository
 
     private let nftFeatureLifecycleHandler: NFTFeatureLifecycleHandling
     private let userWalletModel: UserWalletModel
@@ -128,6 +130,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         sectionsProvider.configure(with: self)
 
         bind()
+        setupActionButtons()
         setupTangemPayIfNeeded()
     }
 
@@ -247,10 +250,17 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .assign(to: \.accountSections, on: self, ownership: .weak)
             .store(in: &bag)
 
-        tokenItemPromoProvider.promoWalletModelPublisher
+        let tokenItemPromoInputPublisher = plainSectionsPublisher
+            .eraseToAnyPublisher()
+            .map { $0.flatMap(\.items) }
+            .mapMany { TokenItemPromoProviderInput(id: $0.id, tokenItem: $0.tokenItem) }
+
+        tokenItemPromoProvider
+            .makePromoOutputPublisher(using: tokenItemPromoInputPublisher)
+            .eraseToAnyPublisher()
             .removeDuplicates()
-            .handleEvents(receiveOutput: { [weak self] params in
-                guard let params, let walletModel = self?.findWalletModel(with: params.walletModelId) else {
+            .handleEvents(receiveOutput: { [weak self] output in
+                guard let output, let walletModel = self?.findWalletModel(with: output.walletModelId) else {
                     return
                 }
 
@@ -259,9 +269,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             })
             .receiveOnMain()
             .withWeakCaptureOf(self)
-            .map { viewModel, params in
-                guard let params else { return nil }
-                return viewModel.makeTokenItemPromoViewModel(from: params)
+            .map { viewModel, output in
+                output.flatMap(viewModel.makeTokenItemPromoViewModel(from:))
             }
             .assign(to: \.tokenItemPromoBubbleViewModel, on: self, ownership: .weak)
             .store(in: &bag)
@@ -298,15 +307,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             notificationsPublisher2: $tokensNotificationInputs
         )
 
-        balanceRestrictionFeatureAvailabilityProvider.isActionButtonsAvailablePublisher
-            .removeDuplicates()
-            .receiveOnMain()
-            .withWeakCaptureOf(self)
-            .sink { viewModel, isAvailable in
-                viewModel.actionButtonsViewModel = isAvailable ? viewModel.makeActionButtonsViewModel() : nil
-            }
-            .store(in: &bag)
-
         nftFeatureLifecycleHandler.startObserving()
     }
 
@@ -318,25 +318,61 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         }
 
         userWalletModel.tangemPayAccountPublisher
-            .compactMap(\.self)
-            .flatMapLatest(\.tangemPayNotificationManager.notificationPublisher)
+            .flatMapLatest { tangemPayAccount in
+                guard let tangemPayAccount else {
+                    return Just([NotificationViewInput]())
+                        .eraseToAnyPublisher()
+                }
+
+                return tangemPayAccount
+                    .tangemPayNotificationManager
+                    .notificationPublisher
+            }
             .receiveOnMain()
             .assign(to: &$tangemPayNotificationInputs)
 
         userWalletModel.tangemPayAccountPublisher
-            .compactMap(\.self)
-            .flatMapLatest(\.tangemPaySyncInProgressPublisher)
+            .flatMapLatest { tangemPayAccount in
+                guard let tangemPayAccount else {
+                    return Just(false)
+                        .eraseToAnyPublisher()
+                }
+
+                return tangemPayAccount
+                    .tangemPaySyncInProgressPublisher
+            }
             .receiveOnMain()
             .assign(to: &$tangemPaySyncInProgress)
 
         userWalletModel.tangemPayAccountPublisher
-            .compactMap(\.self)
             .withWeakCaptureOf(self)
             .map { viewModel, tangemPayAccount in
-                TangemPayAccountViewModel(tangemPayAccount: tangemPayAccount, router: viewModel)
+                guard let tangemPayAccount else { return nil }
+                return TangemPayAccountViewModel(tangemPayAccount: tangemPayAccount, router: viewModel)
             }
             .receiveOnMain()
             .assign(to: &$tangemPayAccountViewModel)
+
+        tangemPayAvailabilityRepository
+            .shouldShowGetTangemPayBanner(
+                for: userWalletModel.userWalletId.stringValue
+            )
+            .withWeakCaptureOf(self)
+            .map { viewModel, shouldShow in
+                shouldShow
+                    ? GetTangemPayBannerViewModel(
+                        onBannerTap: { [weak viewModel] in
+                            viewModel?.coordinator?.openGetTangemPay()
+                        }
+                    )
+                    : nil
+            }
+            .receiveOnMain()
+            .assign(to: &$tangemPayBannerViewModel)
+    }
+
+    private func setupActionButtons() {
+        actionButtonsViewModel = makeActionButtonsViewModel()
     }
 
     /// - Note: This method throws an opaque error if the NFT Entrypoint view model is already created and there is no need to update it.
@@ -399,10 +435,11 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             // will emit the available models both after local initialization/migration and after remote synchronization,
             // so no separate `initializedPublisher` trigger needed
             didSyncTokenListPublisher = .just
-            // Either plain or account sections can be a trigger
+            // Both plain and account sections should emit a value to be a trigger for finishing loading state
             didReceiveSectionsPublisher = plainSectionsPublisher
                 .mapToVoid()
-                .merge(with: accountSectionsPublisher.mapToVoid())
+                .zip(accountSectionsPublisher.mapToVoid())
+                .mapToVoid()
                 .eraseToAnyPublisher()
         } else {
             // [REDACTED_TODO_COMMENT]
@@ -557,11 +594,11 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         )
     }
 
-    private func makeTokenItemPromoViewModel(from params: TokenItemPromoParams) -> TokenItemPromoBubbleViewModel? {
+    private func makeTokenItemPromoViewModel(from output: TokenItemPromoProviderOutput) -> TokenItemPromoBubbleViewModel? {
         TokenItemPromoBubbleViewModel(
-            id: params.walletModelId,
-            leadingImage: params.icon,
-            message: params.message,
+            id: output.walletModelId,
+            leadingImage: output.icon,
+            message: output.message,
             onDismiss: { [weak self] in
                 self?.tokenItemPromoProvider.hidePromoBubble()
                 self?.tokenItemPromoBubbleViewModel = nil
@@ -570,7 +607,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                 guard let userWalletModel = self?.userWalletModel,
                       let walletModel = AccountsFeatureAwareWalletModelsResolver
                       .walletModels(for: userWalletModel)
-                      .first(where: { model in model.id == params.walletModelId })
+                      .first(where: { model in model.id == output.walletModelId })
                 else {
                     return
                 }
@@ -598,30 +635,17 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 private extension MultiWalletMainContentViewModel {
     func hideTokenAction(for tokenItemViewModel: TokenItemViewModel) {
         let tokenItem = tokenItemViewModel.tokenItem
-
         let alertBuilder = HideTokenAlertBuilder()
-        // accounts_fixes_needed_main
-        if userWalletModel.userTokensManager.canRemove(tokenItem) {
-            error = alertBuilder.hideTokenAlert(tokenItem: tokenItem, hideAction: {
-                [weak self] in
-                self?.hideToken(tokenItem: tokenItem)
-            })
-        } else {
-            error = alertBuilder.unableToHideTokenAlert(tokenItem: tokenItem)
+        let actionFactory = HideTokenActionFactory(userWalletModel: userWalletModel)
+        let walletModel = findWalletModel(with: tokenItemViewModel.id)
+
+        do {
+            let hideAction = try actionFactory.makeAction(tokenItem: tokenItem, walletModel: walletModel)
+            error = alertBuilder.hideTokenAlert(tokenItem: tokenItem, hideAction: hideAction)
+        } catch {
+            AppLogger.error("Can't hide token due to error:", error: error)
+            self.error = alertBuilder.unableToHideTokenAlert(tokenItem: tokenItem)
         }
-    }
-
-    func hideToken(tokenItem: TokenItem) {
-        // accounts_fixes_needed_main
-        userWalletModel.userTokensManager.remove(tokenItem)
-
-        Analytics.log(
-            event: .buttonRemoveToken,
-            params: [
-                Analytics.ParameterKey.token: tokenItem.currencySymbol,
-                Analytics.ParameterKey.source: Analytics.ParameterValue.main.rawValue,
-            ]
-        )
     }
 }
 
@@ -665,8 +689,14 @@ extension MultiWalletMainContentViewModel {
     }
 
     private func openMobileFinishActivation() {
-        Analytics.log(.mainButtonFinishNow)
-        coordinator?.openMobileBackupOnboarding(userWalletModel: userWalletModel)
+        Analytics.log(.mainButtonFinalizeActivation)
+
+        let isBackupNeeded = userWalletModel.config.hasFeature(.mnemonicBackup) && userWalletModel.config.hasFeature(.iCloudBackup)
+        if isBackupNeeded {
+            coordinator?.openMobileBackup(userWalletModel: userWalletModel)
+        } else {
+            coordinator?.openMobileBackupOnboarding(userWalletModel: userWalletModel)
+        }
     }
 
     private func openMobileUpgrade() {
@@ -689,6 +719,12 @@ extension MultiWalletMainContentViewModel {
 // MARK: - TangemPayAccountRoutable
 
 extension MultiWalletMainContentViewModel: TangemPayAccountRoutable {
+    func openTangemPayKYCInProgressPopup(tangemPayAccount: TangemPayAccount) {
+        coordinator?.openTangemPayKYCInProgressPopup(
+            tangemPayAccount: tangemPayAccount
+        )
+    }
+
     func openTangemPayIssuingYourCardPopup() {
         coordinator?.openTangemPayIssuingYourCardPopup()
     }
@@ -852,6 +888,8 @@ extension MultiWalletMainContentViewModel: TokenItemContextActionDelegate {
             tokenRouter.openExchange(walletModel: walletModel)
         case .stake:
             tokenRouter.openStaking(walletModel: walletModel)
+        case .yield:
+            tokenRouter.openYieldModule(walletModel: walletModel)
         case .marketsDetails, .hide:
             return
         }
