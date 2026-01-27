@@ -103,17 +103,7 @@ final class ReferralViewModel: ObservableObject {
                 guard let self else { return }
 
                 Analytics.log(.referralListChooseAccount)
-
-                let accountData = SelectedAccountViewData(
-                    id: cryptoAccountModel.id.toAnyHashable(),
-                    iconViewData: AccountModelUtils.UI.iconViewData(
-                        icon: cryptoAccountModel.icon,
-                        accountName: cryptoAccountModel.name
-                    ),
-                    name: cryptoAccountModel.name
-                )
-
-                viewState = viewState.updateAccountData(with: accountData)
+                setReadyToBecomeState(for: cryptoAccountModel)
             }
         )
     }
@@ -322,10 +312,6 @@ final class ReferralViewModel: ObservableObject {
     }
 
     private func mapReadyToBecomeState(cryptoAccounts: CryptoAccounts) {
-        guard let validatedData = validateAwardData(from: referralProgramInfo) else {
-            return
-        }
-
         switch cryptoAccounts {
         case .single:
             viewState = .loaded(.readyToBecomeParticipant(.simple))
@@ -340,38 +326,48 @@ final class ReferralViewModel: ObservableObject {
                 return
             }
 
-            let viewData = SelectedAccountViewData(
-                id: selectedOrMainAccount.id.toAnyHashable(),
-                iconViewData: AccountModelUtils.UI.iconViewData(icon: selectedOrMainAccount.icon, accountName: selectedOrMainAccount.name),
-                name: selectedOrMainAccount.name
-            )
-
-            let walletModel = selectedOrMainAccount
-                .walletModelsManager
-                .walletModels
-                .first { $0.tokenItem.token == validatedData.storageToken }
-
-            if let walletModel {
-                viewState = .loaded(
-                    .readyToBecomeParticipant(
-                        .accounts(
-                            .tokenItem(makeExpressTokenItemViewModel(from: walletModel)), viewData
-                        )
-                    )
-                )
-            } else {
-                let tokenIconInfo = tokenIconInfoBuilder.build(
-                    for: .token(value: validatedData.storageToken),
-                    in: validatedData.blockchain,
-                    isCustom: validatedData.storageToken.isCustom
-                )
-
-                let storageToken = validatedData.storageToken
-                viewState = .loaded(
-                    .readyToBecomeParticipant(.accounts(.token(tokenIconInfo, storageToken.name, storageToken.symbol), viewData))
-                )
-            }
+            setReadyToBecomeState(for: selectedOrMainAccount)
         }
+    }
+
+    private func setReadyToBecomeState(for account: any CryptoAccountModel) {
+        guard let validatedData = validateAwardData(from: referralProgramInfo) else {
+            return
+        }
+
+        let viewData = makeSelectedAccountViewData(from: account)
+        let tokenType = makeTokenType(for: account, validatedData: validatedData)
+
+        viewState = .loaded(.readyToBecomeParticipant(.accounts(tokenType, viewData)))
+    }
+
+    private func makeSelectedAccountViewData(from account: any CryptoAccountModel) -> SelectedAccountViewData {
+        SelectedAccountViewData(
+            id: account.id.toAnyHashable(),
+            iconViewData: AccountModelUtils.UI.iconViewData(icon: account.icon, accountName: account.name),
+            name: account.name
+        )
+    }
+
+    private func makeTokenType(
+        for account: any CryptoAccountModel,
+        validatedData: ValidatedAwardData
+    ) -> ReadyToBecomeParticipantDisplayMode.TokenType {
+        let walletModel = account
+            .walletModelsManager
+            .walletModels
+            .first { $0.tokenItem.token == validatedData.storageToken }
+
+        if let walletModel {
+            return .tokenItem(makeExpressTokenItemViewModel(from: walletModel))
+        }
+
+        let tokenIconInfo = tokenIconInfoBuilder.build(
+            for: .token(value: validatedData.storageToken),
+            in: validatedData.blockchain,
+            isCustom: validatedData.storageToken.isCustom
+        )
+        return .token(tokenIconInfo, validatedData.storageToken.name, validatedData.storageToken.symbol)
     }
 
     private func processReferralError(_ error: ReferralError) {
