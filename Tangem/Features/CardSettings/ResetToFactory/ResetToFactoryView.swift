@@ -111,6 +111,8 @@ struct ResetToFactoryView: View {
             return CardSettingsAccessibilityIdentifiers.accessToCard
         case .accessCodeRecovery:
             return CardSettingsAccessibilityIdentifiers.accessCodeRecovery
+        case .tangemPay:
+            return CardSettingsAccessibilityIdentifiers.tangemPay
         }
     }
 }
@@ -155,7 +157,7 @@ struct ResetToFactoryView_Previews: PreviewProvider {
     )
 
     static var previews: some View {
-        NavigationView {
+        NavigationStack {
             ResetToFactoryView(viewModel: viewModel)
         }
     }
