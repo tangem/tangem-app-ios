@@ -426,6 +426,11 @@
 "domain_receive_assets_onboarding_description" = "Надсилання активів в інші мережі призведе до безповоротної втрати.";
 "domain_receive_assets_onboarding_network_name" = "%@ мережа";
 "domain_receive_assets_onboarding_title" = "Надсилайте кошти, використовуючи лише";
+"earn_best_opportunities" = "Best opportunities";
+"earn_filter_all_networks" = "All networks";
+"earn_filter_all_types" = "All types";
+"earn_mostly_used" = "Mostly used";
+"earn_title" = "Earn";
 "email_preface_wc_error" = "Привіт, команда підтримки, я зіткнувся з помилкою з кодом: %@";
 "email_subject_wc_error" = "Помилка WalletConnect";
 "error_wrong_wallet_tapped" = "Ви використали картку або кільце від іншого гаманця. Прикладіть картку або кільце, пов'язану з цим гаманцем.";
@@ -950,6 +955,7 @@
 "onramp_tos_external_providers" = "Послуга надається зовнішнім провайдером. \nTangem не несе відповідальності.";
 "onramp_transaction_status_footer_text" = "Ви можете перевірити статус транзакції на сторінці токена";
 "onramp_up_to_rate" = "До";
+"onramp_via_provider" = "через %@";
 "onramp_via" = "Через";
 "onramp_you_will_pay_title" = "Ви заплатите";
 "organize_tokens_group" = "Групами";
@@ -1151,6 +1157,7 @@
 "staking_amount_tron_integer_error_unstaking" = "Сума зняття зі стейкінгу буде округлена до %1$@ TRX через мережеві правила.";
 "staking_amount_tron_integer_error" = "Сума стейкінгу буде округлена до %1$@ TRX відповідно до правил мережі.";
 "staking_apr_earn_badge" = "APR %1$@%%";
+"staking_cardano_details_rewards_info_text" = "Your staking rewards will start after 5 epochs (~25 days) while your delegation is registered and counted by the network.";
 "staking_claim_unstaked" = "Зняти кошти";
 "staking_details_account_fee_info" = "Стейкінг-акаунт — це спеціальний рахунок, на якому зберігаються застейкані SOL токени. Він створюється, коли ви делегуєте свої токени валідатору для участі у перевірці транзакцій та отримання винагород. За створення стейкінг-акаунту стягується невелика комісія, яка повертається після завершення стейкінгу.";
 "staking_details_account_fee" = "Комісія за стейкінг-акаунт";
