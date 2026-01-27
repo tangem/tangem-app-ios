@@ -113,6 +113,8 @@ extension Analytics {
 
         case watched = "Watched"
 
+        case selectedCategories = "Selected Categories"
+
         // MARK: - Wallet Connect
 
         case walletConnectDAppName = "DApp Name"
