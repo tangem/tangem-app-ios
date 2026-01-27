@@ -426,6 +426,11 @@
 "domain_receive_assets_onboarding_description" = "Sending assets in other networks will result in permanent loss.";
 "domain_receive_assets_onboarding_network_name" = "%@ network";
 "domain_receive_assets_onboarding_title" = "Send funds using only";
+"earn_best_opportunities" = "Best opportunities";
+"earn_filter_all_networks" = "All networks";
+"earn_filter_all_types" = "All types";
+"earn_mostly_used" = "Mostly used";
+"earn_title" = "Earn";
 "email_preface_wc_error" = "Hi support team, I've encountered an error with code: %@";
 "email_subject_wc_error" = "WalletConnect error";
 "error_wrong_wallet_tapped" = "You have used a card or ring from another wallet. Tap the card or ring associated with this wallet";
