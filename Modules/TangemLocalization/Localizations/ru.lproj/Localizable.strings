@@ -426,6 +426,11 @@
 "domain_receive_assets_onboarding_description" = "Отправка средств в другой сети может повлечь потерю средств.";
 "domain_receive_assets_onboarding_network_name" = "%@ сеть";
 "domain_receive_assets_onboarding_title" = "Отправляйте средства, используя только";
+"earn_best_opportunities" = "Best opportunities";
+"earn_filter_all_networks" = "All networks";
+"earn_filter_all_types" = "All types";
+"earn_mostly_used" = "Mostly used";
+"earn_title" = "Earn";
 "email_preface_wc_error" = "Привет, команда поддержки, у меня возникла ошибка с кодом: %@";
 "email_subject_wc_error" = "Ошибка WalletConnect";
 "error_wrong_wallet_tapped" = "Вы использовали карту или кольцо от другого кошелька. Приложите карту или кольцо, связанную с этим кошельком.";
@@ -678,7 +683,7 @@
 "markets_loading_no_data_title" = "Нет данных";
 "markets_pulse_common_title" = "Пульс рынка";
 "markets_quick_actions" = "Быстрые действия";
-"markets_search_header_title" = "Поиск на рынке";
+"markets_search_header_title" = "Поиск токенов";
 "markets_search_result_title" = "Результат";
 "markets_search_see_tokens_under_100k" = "Токены с капитализацией меньше 100к USD";
 "markets_search_show_tokens" = "Показать токены";
@@ -950,6 +955,7 @@
 "onramp_tos_external_providers" = "Service is provided by an external provider. \nTangem is not responsible.";
 "onramp_transaction_status_footer_text" = "Вы можете закрыть этот экран и проверить статус транзакции на экране информации о токене.";
 "onramp_up_to_rate" = "До";
+"onramp_via_provider" = "через %@";
 "onramp_via" = "Через";
 "onramp_you_will_pay_title" = "Вы заплатите";
 "organize_tokens_group" = "Группы";
@@ -1151,6 +1157,7 @@
 "staking_amount_tron_integer_error_unstaking" = "Сумма для вывода из стейкинга будет округлена до %1$@ TRX ввиду особенностей сети.";
 "staking_amount_tron_integer_error" = "Согласно правилам сети, сумма стейкинга будет округлена до %1$@TRX.";
 "staking_apr_earn_badge" = "APR %1$@%%";
+"staking_cardano_details_rewards_info_text" = "Your staking rewards will start after 5 epochs (~25 days) while your delegation is registered and counted by the network.";
 "staking_claim_unstaked" = "Забрать средства";
 "staking_details_account_fee_info" = "Стейкинг аккаунт — это специальный счет, на котором хранятся застейканные токены SOL. Он создается при делегировании ваших токенов валидатору для участия в подтверждении транзакций и получении наград. За создание стейкинг аккаунта взимается небольшая комиссия, которая возвращается после завершения стейкинга.";
 "staking_details_account_fee" = "Комиссия за стейкинг аккаунт";
