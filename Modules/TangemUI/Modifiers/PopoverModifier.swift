@@ -11,7 +11,6 @@ import TangemAssets
 import TangemUIUtils
 
 /// The `PopoverModifier` which will be able to show a bubble with some text
-@available(iOS 16.4, *)
 public struct PopoverModifier: ViewModifier {
     private let text: TextType
     @Binding private var isPresented: Bool
@@ -19,7 +18,7 @@ public struct PopoverModifier: ViewModifier {
     /// Strange hack but it's important for a multiline text. More then 3 lines
     @State private var textSize: CGSize = .zero
 
-    public init(text: TextType, isPresented: Binding<Bool>) {
+    init(text: TextType, isPresented: Binding<Bool>) {
         self.text = text
         _isPresented = isPresented
     }
@@ -54,7 +53,6 @@ public struct PopoverModifier: ViewModifier {
     }
 }
 
-@available(iOS 16.4, *)
 public extension PopoverModifier {
     enum TextType {
         case rich(text: String)
@@ -63,23 +61,19 @@ public extension PopoverModifier {
 }
 
 public extension View {
-    @available(iOS 16.4, *)
     func popover(_ text: String, isPresented: Binding<Bool>) -> some View {
         modifier(PopoverModifier(text: .rich(text: text), isPresented: isPresented))
     }
 
-    @available(iOS 16.4, *)
     func popover(_ text: AttributedString, isPresented: Binding<Bool>) -> some View {
         modifier(PopoverModifier(text: .attributed(text: text), isPresented: isPresented))
     }
 
-    @available(iOS 16.4, *)
     func popover(_ text: PopoverModifier.TextType, isPresented: Binding<Bool>) -> some View {
         modifier(PopoverModifier(text: text, isPresented: isPresented))
     }
 
     /// Backports ``View.popover(_:axes:)``.
-    /// - Attention: No-op for iOS < 16.4.
     /// - Parameters:
     ///   - text: The text which will be presented in the popover bubble
     ///   - isPresented: A binding to a Boolean value that determines whether
@@ -87,13 +81,7 @@ public extension View {
     ///     `content` closure.
     ///
     /// - Returns: A view that's configured with the `PopoverModifier`
-    @available(iOS, obsoleted: 16.4, message: "Use View.popover(_:isPresented:) instead.")
-    @ViewBuilder
     func popoverBackport(_ text: String, isPresented: Binding<Bool>) -> some View {
-        if #available(iOS 16.4, *) {
-            modifier(PopoverModifier(text: .rich(text: text), isPresented: isPresented))
-        } else {
-            self
-        }
+        modifier(PopoverModifier(text: .rich(text: text), isPresented: isPresented))
     }
 }
