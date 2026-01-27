@@ -33,6 +33,7 @@ extension GaslessTransactionsDTO.Request {
                 let coinPriceInToken: String
                 let feeTransferGasLimit: String
                 let baseGas: String
+                let feeReceiver: String
             }
         }
 
