@@ -11,12 +11,13 @@ import TangemAssets
 import TangemUI
 
 struct EarnBestOpportunitiesListView: View {
+    let viewModels: [EarnTokenItemViewModel]
+
     var body: some View {
-        VStack(spacing: .zero) {
-            // Placeholder for future list implementation
-            // Will use LazyVStack with EarnTokenItemView
-            Color.clear
-                .frame(height: Layout.placeholderHeight)
+        LazyVStack(spacing: Layout.itemSpacing) {
+            ForEach(viewModels) { viewModel in
+                EarnTokenItemView(viewModel: viewModel)
+            }
         }
         .padding(.horizontal, Layout.horizontalPadding)
     }
@@ -24,7 +25,7 @@ struct EarnBestOpportunitiesListView: View {
 
 private extension EarnBestOpportunitiesListView {
     enum Layout {
-        static let placeholderHeight: CGFloat = 200.0
+        static let itemSpacing: CGFloat = .zero
         static let horizontalPadding: CGFloat = 16.0
     }
 }
