@@ -18,7 +18,8 @@ class MarketsCoordinator: CoordinatorObject {
 
     // MARK: - Root Published
 
-    @Published private(set) var rootViewModel: MarketsViewModel?
+    @Published private(set) var marketsViewModel: MarketsViewModel?
+    @Published private(set) var marketsMainViewModel: MarketsMainViewModel?
 
     // MARK: - Coordinators
 
@@ -42,10 +43,23 @@ class MarketsCoordinator: CoordinatorObject {
     // MARK: - Implementation
 
     func start(with options: MarketsCoordinator.Options) {
-        rootViewModel = .init(
-            quotesRepositoryUpdateHelper: CommonMarketsQuotesUpdateHelper(),
-            coordinator: self
-        )
+        let quotesRepositoryUpdateHelper = CommonMarketsQuotesUpdateHelper()
+
+        if FeatureProvider.isAvailable(.marketsAndNews) {
+            let viewModel = MarketsMainViewModel(
+                quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper,
+                coordinator: self
+            )
+
+            marketsMainViewModel = viewModel
+        } else {
+            let viewModel = MarketsViewModel(
+                quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper,
+                coordinator: self
+            )
+
+            marketsViewModel = viewModel
+        }
     }
 }
 
@@ -66,8 +80,20 @@ extension MarketsCoordinator: MarketsRoutable {
                 self?.tokenDetailsCoordinator = nil
             }
         )
-        tokenDetailsCoordinator.start(with: .init(info: tokenInfo, style: .marketsSheet))
+        tokenDetailsCoordinator.start(
+            with: .init(info: tokenInfo, style: .marketsSheet)
+        )
 
         self.tokenDetailsCoordinator = tokenDetailsCoordinator
+    }
+}
+
+// MARK: - MarketsMainRoutable
+
+extension MarketsCoordinator: MarketsMainRoutable {
+    func openSeeAll(with widgetType: MarketsWidgetType) {
+        // Will be implemented partially. For completed features etc. news, earn
+        // For market & pulse will be implement in:
+        // [REDACTED_TODO_COMMENT]
     }
 }
