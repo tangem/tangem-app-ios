@@ -12,9 +12,16 @@ import Foundation
 final class EarnDetailViewModel: ObservableObject {
     // MARK: - Published Properties
 
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_TODO_COMMENT]
+
     // MARK: - Private Properties
 
     private weak var coordinator: EarnDetailRoutable?
+
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_TODO_COMMENT]
 
     // MARK: - Init
 
