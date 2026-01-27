@@ -91,7 +91,7 @@ final class ExpressViewModel: ObservableObject {
 
         Analytics.log(
             event: .swapScreenOpenedSwap,
-            params: [.token: initialTokenItem.currencySymbol],
+            params: [.token: initialTokenItem.currencySymbol, .blockchain: initialTokenItem.blockchain.displayName],
             analyticsSystems: .all
         )
         setupView()
