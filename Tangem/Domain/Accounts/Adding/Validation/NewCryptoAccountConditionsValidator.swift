@@ -16,7 +16,7 @@ struct NewCryptoAccountConditionsValidator {
 // MARK: - CryptoAccountConditionsValidator protocol conformance
 
 extension NewCryptoAccountConditionsValidator: CryptoAccountConditionsValidator {
-    typealias ValidationError = Error
+    typealias ValidationError = AccountEditError
 
     func validate() async throws(ValidationError) {
         guard remoteState.accounts.count < AccountModelUtils.maxNumberOfAccounts else {
@@ -33,15 +33,5 @@ extension NewCryptoAccountConditionsValidator: CryptoAccountConditionsValidator 
             AccountsLogger.warning("Account with the same name already exists")
             throw .duplicateAccountName
         }
-    }
-}
-
-// MARK: - Auxiliary types
-
-extension NewCryptoAccountConditionsValidator {
-    enum Error: Swift.Error {
-        case tooManyAccounts
-        case accountNameTooLong
-        case duplicateAccountName
     }
 }

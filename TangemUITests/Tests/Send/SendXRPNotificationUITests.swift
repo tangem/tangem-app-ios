@@ -88,7 +88,7 @@ final class SendXRPNotificationUITests: BaseTestCase {
             scenarios: [xrpScenario]
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(coin)
             .tapSendButton()

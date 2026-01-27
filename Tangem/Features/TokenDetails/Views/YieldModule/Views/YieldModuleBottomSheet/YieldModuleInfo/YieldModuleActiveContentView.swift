@@ -42,7 +42,7 @@ struct YieldModuleActiveContentView: View {
                 bottomSection
             }
         }
-        .scrollBounceBehaviorBackport(.basedOnSize)
+        .scrollBounceBehavior(.basedOnSize)
         .padding(.horizontal, 16)
         .padding(.top, 2)
         .safeAreaInset(edge: .top) {
@@ -59,7 +59,7 @@ struct YieldModuleActiveContentView: View {
     }
 
     private var navTitleView: some View {
-        BottomSheetHeaderView(title: Localization.yieldModuleEarnSheetTitle, trailing: { CircleButton.close { viewModel.onBackButtonTap() } })
+        BottomSheetHeaderView(title: Localization.commonYieldMode, trailing: { CircleButton.close { viewModel.onBackButtonTap() } })
     }
 
     private var button: MainButton {

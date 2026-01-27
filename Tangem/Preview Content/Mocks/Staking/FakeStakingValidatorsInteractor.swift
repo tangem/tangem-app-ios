@@ -10,8 +10,8 @@ import Foundation
 import Combine
 import TangemStaking
 
-struct FakeStakingValidatorsInteractor: StakingValidatorsInteractor {
-    var validatorsPublisher: AnyPublisher<[ValidatorInfo], Never> {
+struct FakeStakingValidatorsInteractor: StakingTargetsInteractor {
+    var targetsPublisher: AnyPublisher<[StakingTargetInfo], Never> {
         .just(output: [
             .init(
                 address: UUID().uuidString,
@@ -36,9 +36,9 @@ struct FakeStakingValidatorsInteractor: StakingValidatorsInteractor {
         ])
     }
 
-    var selectedValidatorPublisher: AnyPublisher<ValidatorInfo, Never> {
-        validatorsPublisher.compactMap { $0.first }.eraseToAnyPublisher()
+    var selectedTargetPublisher: AnyPublisher<StakingTargetInfo, Never> {
+        targetsPublisher.compactMap { $0.first }.eraseToAnyPublisher()
     }
 
-    func userDidSelect(validatorAddress: String) {}
+    func userDidSelect(targetAddress: String) {}
 }

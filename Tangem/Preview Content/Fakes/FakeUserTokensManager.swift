@@ -71,7 +71,9 @@ class FakeUserTokensManager: UserTokensManager {
 
     func remove(_ tokenItem: TokenItem) {}
 
-    func sync(completion: @escaping () -> Void) {}
+    func sync(completion: @escaping () -> Void) {
+        completion()
+    }
 }
 
 // MARK: - UserTokensReordering protocol conformance

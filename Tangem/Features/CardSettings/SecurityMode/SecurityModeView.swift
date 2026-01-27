@@ -45,7 +45,7 @@ struct SecurityModeView: View {
 
 struct SecurityModeView_Previews: PreviewProvider {
     static var previews: some View {
-        NavigationView {
+        NavigationStack {
             SecurityModeView(viewModel: .init(
                 securityOptionChangeInteractor: SecurityOptionChangingMock(),
                 coordinator: SecurityModeCoordinator()
