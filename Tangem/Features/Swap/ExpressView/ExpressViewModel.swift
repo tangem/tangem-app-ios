@@ -85,7 +85,11 @@ final class ExpressViewModel: ObservableObject {
         self.interactor = interactor
         self.coordinator = coordinator
 
-        Analytics.log(event: .swapScreenOpenedSwap, params: [.token: initialTokenItem.currencySymbol])
+        Analytics.log(
+            event: .swapScreenOpenedSwap,
+            params: [.token: initialTokenItem.currencySymbol],
+            analyticsSystems: .all
+        )
         setupView()
         bind()
     }

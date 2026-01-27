@@ -97,7 +97,7 @@ final class AddCustomTokenDerivationPathSelectorViewModel: ObservableObject {
             case .currentAccount, .noAccount:
                 setAndSelectDerivation(enteredDerivationPath: enteredDerivationPath)
 
-            case .differentAccount(let accountName):
+            case .differentAccount(let accountName, _):
                 showAccountMismatchAlert(accountName: accountName, enteredDerivationPath: enteredDerivationPath)
             }
         }

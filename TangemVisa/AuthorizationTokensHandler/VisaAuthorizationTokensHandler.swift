@@ -189,7 +189,7 @@ final class CommonVisaAuthorizationTokensHandler {
 
             VisaLogger.info("No need to refresh access token, awaits \(refreshDelay) seconds and then confinue setup process")
             // Wait until token will need to refresh and update it one time
-            try await Task.sleep(seconds: refreshDelay)
+            try await Task.sleep(for: .seconds(refreshDelay))
             try await refreshAccessToken(internalTokens: tokens)
         }
 

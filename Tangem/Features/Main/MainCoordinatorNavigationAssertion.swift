@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-final class MainCoordinatorNavigationAssertion: NSObject, ObservableObject {
+final class MainCoordinatorNavigationAssertion: NSObject {
     @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
 }
 

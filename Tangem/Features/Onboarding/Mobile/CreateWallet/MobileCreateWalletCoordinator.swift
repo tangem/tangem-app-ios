@@ -27,7 +27,7 @@ class MobileCreateWalletCoordinator: CoordinatorObject {
     }
 
     func start(with options: InputOptions) {
-        rootViewModel = MobileCreateWalletViewModel(coordinator: self, delegate: self)
+        rootViewModel = MobileCreateWalletViewModel(source: options.source, coordinator: self, delegate: self)
     }
 }
 
@@ -77,7 +77,9 @@ private extension MobileCreateWalletCoordinator {
 // MARK: - Options
 
 extension MobileCreateWalletCoordinator {
-    struct InputOptions {}
+    struct InputOptions {
+        let source: MobileCreateWalletSource
+    }
 
     enum OutputOptions {
         case main(userWalletModel: UserWalletModel)

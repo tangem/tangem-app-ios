@@ -13,7 +13,7 @@ enum SettingsMigrator {
     static func migrateIfNeeded() {
         cleanStorageIfNeeded()
 
-        guard MobileWalletFeatureProvider.isAvailable else {
+        guard FeatureProvider.isAvailable(.mobileWallet) else {
             return
         }
 

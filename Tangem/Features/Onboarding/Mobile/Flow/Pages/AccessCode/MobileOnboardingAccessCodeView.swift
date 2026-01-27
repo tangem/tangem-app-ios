@@ -17,10 +17,10 @@ struct MobileOnboardingAccessCodeView: View {
 
     var body: some View {
         content
-            .ifLet(viewModel.leadingBavBarItem) { view, item in
+            .ifLet(viewModel.leadingNavBarItem) { view, item in
                 view.flowNavBar(leadingItem: item.view)
             }
-            .ifLet(viewModel.trailingBavBarItem) { view, item in
+            .ifLet(viewModel.trailingNavBarItem) { view, item in
                 view.flowNavBar(trailingItem: item.view)
             }
             .background(Color.clear.alert(item: $viewModel.alert) { $0.alert })
@@ -45,6 +45,12 @@ private extension MobileOnboardingAccessCodeView {
             )
             .pinStackColor(viewModel.pinColor)
             .pinStackSecured(viewModel.isPinSecured)
+            .shake(
+                trigger: viewModel.shakeTrigger,
+                duration: viewModel.shakeDuration,
+                shakesPerUnit: 3,
+                travelDistance: 10
+            )
         }
         .padding(.top, 32)
     }

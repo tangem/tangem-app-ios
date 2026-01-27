@@ -48,17 +48,15 @@ struct AccountFormView: View {
         }
         .ignoresSafeArea(.keyboard)
         .alert(item: $viewModel.alert, content: { $0.alert })
-        .toolbar {
-            ToolbarItemGroup(placement: .keyboard) {
-                Spacer()
-                Button(Localization.commonDone) { isNameFocused = false }
-            }
-        }
         .submitLabel(.done)
         .onSubmit {
-            isNameFocused = false
+            // Do NOT access SwiftUI internal state (@State, @FocusState, @Binding, @StateObject, etc) inside the `onSubmit(of:_:)` closure.
+            // This causes a memory leak as soon as the text field becomes the first responder.
+            // See https://stackoverflow.com/questions/70510596 and https://stackoverflow.com/questions/78763987 for more details
+            UIResponder.current?.resignFirstResponder()
         }
         .onAppear {
+            viewModel.onAppear()
             isNameFocused = true
         }
     }
@@ -83,7 +81,7 @@ struct AccountFormView: View {
             }
         }
         .coordinateSpace(name: coordinateSpaceName)
-        .scrollDisabledBackport(contentHeight <= containerHeight)
+        .scrollDisabled(contentHeight <= containerHeight)
         .readGeometry(\.size.height) { height in
             containerHeight = height
         }
@@ -191,12 +189,12 @@ struct AccountFormView: View {
     @Previewable @ObservedObject var viewModel = AccountFormViewModel(
         accountModelsManager: AccountModelsManagerMock(),
         flowType: .create(.crypto),
-        closeAction: {}
+        closeAction: { _ in }
     )
 
     Color.clear
         .sheet(isPresented: .constant(true)) {
-            NavigationView {
+            NavigationStack {
                 AccountFormView(viewModel: viewModel)
             }
         }

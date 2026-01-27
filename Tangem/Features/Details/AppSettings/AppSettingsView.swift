@@ -22,7 +22,7 @@ struct AppSettingsView: View {
         ZStack {
             Colors.Background.secondary.edgesIgnoringSafeArea(.all)
 
-            GroupedScrollView(spacing: 24) {
+            GroupedScrollView(contentType: .lazy(alignment: .center, spacing: 24)) {
                 appCurrencySection
 
                 warningSection
@@ -41,14 +41,12 @@ struct AppSettingsView: View {
         .navigationBarTitle(Text(Localization.appSettingsTitle), displayMode: .inline)
     }
 
-    @ViewBuilder
     private var appCurrencySection: some View {
         GroupedSection(viewModel.currencySelectionViewModel) {
             DefaultRowView(viewModel: $0)
         }
     }
 
-    @ViewBuilder
     private var warningSection: some View {
         GroupedSection(viewModel.warningViewModel) {
             DefaultWarningRow(viewModel: $0)

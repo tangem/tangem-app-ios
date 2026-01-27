@@ -86,7 +86,7 @@ final class AccountForNFTCollectionProvider {
                 return nil
             }
 
-            let iconData = AccountIconViewBuilder.makeAccountIconViewData(accountModel: tuple.account)
+            let iconData = AccountModelUtils.UI.iconViewData(accountModel: tuple.account)
             let accountData = AccountForNFTData(
                 id: accountId,
                 iconData: iconData,

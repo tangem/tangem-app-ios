@@ -198,6 +198,7 @@ public extension Color.Tangem.Markers {
 // MARK: - Visa
 
 public extension Color.Tangem.Visa {
+    static let bannerGradientStart: Color = Primitives.Visa.bannerGradientStart
     static let cardDetailBackground: Color = Primitives.Visa.background
 }
 

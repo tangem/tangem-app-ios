@@ -18,11 +18,13 @@ final class EthereumWCLinksUITests: BaseTestCase {
         setAllureId(3957)
 
         getWcURI()
+        app.launchEnvironment = ["UITEST": "1"]
         app.launch()
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .acceptToSIfNeeded()
             .allowPushNotificationsIfNeeded()
             .scanMockWallet(name: .wallet2)
+            .validate(cardType: .wallet2)
 
         app.swipeDown()
 
@@ -36,8 +38,10 @@ final class EthereumWCLinksUITests: BaseTestCase {
 
         app.activate()
 
-        StoriesScreen(app)
-            .scanMockWallet(name: .wallet2)
+        WelcomeBackScreen(app)
+            .selectWalletByName("Wallet")
+        CreateWalletSelectorScreen(app)
+            .selectWalletFromList(name: .wallet2)
 
         WalletConnectSheet(app)
             .waitForConnectionProposalBottomSheetToBeVisible()
@@ -57,7 +61,7 @@ final class EthereumWCLinksUITests: BaseTestCase {
 
         getWcURI()
         launchApp(tangemApiType: .mock)
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
 
         safari.launch()
@@ -81,7 +85,7 @@ final class EthereumWCLinksUITests: BaseTestCase {
 
         getWcURI()
         launchApp(tangemApiType: .mock)
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .openDetails()
 
@@ -107,7 +111,7 @@ final class EthereumWCLinksUITests: BaseTestCase {
         UIPasteboard.general.string = wcURI.replacingOccurrences(of: "\(WCURIScheme.tangem.rawValue)?uri=", with: "")
         launchApp(tangemApiType: .mock)
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .openDetails()
 

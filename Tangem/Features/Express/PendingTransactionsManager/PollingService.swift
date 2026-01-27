@@ -108,7 +108,7 @@ actor PollingService<RequestData: Identifiable, ResponseData: Identifiable>: Sen
 
             latestResult = responses
             sendValue(responses)
-            try? await Task.sleep(seconds: pollingInterval)
+            try? await Task.sleep(for: .seconds(pollingInterval))
         }
     }
 

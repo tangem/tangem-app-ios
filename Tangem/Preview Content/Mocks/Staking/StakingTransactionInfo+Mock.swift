@@ -19,13 +19,8 @@ extension StakingTransactionAction {
 
 extension StakingTransactionInfo {
     static let mock = StakingTransactionInfo(
-        id: UUID().uuidString,
-        actionId: UUID().uuidString,
         network: "solana",
-        unsignedTransactionData: "",
+        unsignedTransactionData: .raw(""),
         fee: 1.23,
-        type: "SPLIT",
-        status: "CONFIRMED",
-        stepIndex: 0
     )
 }

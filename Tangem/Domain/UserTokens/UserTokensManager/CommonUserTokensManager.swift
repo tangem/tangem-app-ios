@@ -221,7 +221,7 @@ extension CommonUserTokensManager: UserTokensManager {
         }
 
         // wait for walletModelsManager to be updated
-        try await Task.sleep(seconds: 0.1)
+        try await Task.sleep(for: .seconds(0.1))
 
         let walletModelId = WalletModelId(tokenItem: tokenItem)
 

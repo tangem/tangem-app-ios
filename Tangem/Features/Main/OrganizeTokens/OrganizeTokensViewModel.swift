@@ -12,6 +12,7 @@ import SwiftUI
 import TangemUI
 import TangemFoundation
 
+@available(iOS, deprecated: 100000.0, message: "Will be removed after accounts migration is complete ([REDACTED_INFO])")
 final class OrganizeTokensViewModel: ObservableObject, Identifiable {
     /// Sentinel value for `item` of `IndexPath` representing a section.
     var sectionHeaderItemIndex: Int { .min }
@@ -21,7 +22,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
         optionsEditing: optionsEditing
     )
 
-    @Published private(set) var sections: [OrganizeTokensListSection] = []
+    @Published private(set) var sections: [OrganizeTokensListInnerSection] = []
 
     let id = UUID()
 
@@ -47,11 +48,11 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
     private var didBind = false
 
     init(
-        coordinator: OrganizeTokensRoutable,
         userWalletModel: UserWalletModel,
         tokenSectionsAdapter: TokenSectionsAdapter,
         optionsProviding: OrganizeTokensOptionsProviding,
-        optionsEditing: OrganizeTokensOptionsEditing
+        optionsEditing: OrganizeTokensOptionsEditing,
+        coordinator: OrganizeTokensRoutable
     ) {
         self.coordinator = coordinator
         self.userWalletModel = userWalletModel
@@ -68,20 +69,11 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
         reportScreenOpened()
     }
 
-    func onCancelButtonTap() {
-        Analytics.log(.organizeTokensButtonCancel)
-        coordinator?.didTapCancelButton()
-    }
-
-    func onApplyButtonTap() {
-        onSave.send()
-    }
-
     private func bind() {
         if didBind { return }
 
         let sourcePublisherFactory = TokenSectionsSourcePublisherFactory()
-        let tokenSectionsSourcePublisher = sourcePublisherFactory.makeSourcePublisherForMainScreen(for: userWalletModel)
+        let tokenSectionsSourcePublisher = sourcePublisherFactory.makeSourcePublisher(for: userWalletModel)
 
         let organizedTokensSectionsPublisher = tokenSectionsAdapter
             .organizedSections(from: tokenSectionsSourcePublisher, on: mappingQueue)
@@ -168,7 +160,7 @@ final class OrganizeTokensViewModel: ObservableObject, Identifiable {
         sortingOption: UserTokensReorderingOptions.Sorting,
         groupingOption: UserTokensReorderingOptions.Grouping,
         dragAndDropActionsCache: OrganizeTokensDragAndDropActionsCache
-    ) -> [OrganizeTokensListSection] {
+    ) -> [OrganizeTokensListInnerSection] {
         let tokenIconInfoBuilder = TokenIconInfoBuilder()
         let listFactory = OrganizeTokensListFactory(tokenIconInfoBuilder: tokenIconInfoBuilder)
 
@@ -260,7 +252,7 @@ extension OrganizeTokensViewModel {
             .first { $0.id.toAnyHashable() == identifier }
     }
 
-    func section(for identifier: AnyHashable) -> OrganizeTokensListSection? {
+    func section(for identifier: AnyHashable) -> OrganizeTokensListInnerSection? {
         return sections
             .first { $0.id == identifier }
     }
@@ -358,7 +350,7 @@ extension OrganizeTokensViewModel {
         return sections[indexPath.section].items[indexPath.item]
     }
 
-    private func section(at indexPath: IndexPath) -> OrganizeTokensListSection? {
+    private func section(at indexPath: IndexPath) -> OrganizeTokensListInnerSection? {
         guard indexPath.item == sectionHeaderItemIndex else { return nil }
 
         return sections[indexPath.section]
@@ -393,6 +385,19 @@ extension OrganizeTokensViewModel: OrganizeTokensDragAndDropControllerDataSource
         listViewIdentifierForItemAt indexPath: IndexPath
     ) -> AnyHashable {
         return section(at: indexPath)?.id ?? itemViewModel(at: indexPath).id.toAnyHashable()
+    }
+}
+
+// MARK: - OrganizeTokensListFooterActionsHandler protocol conformance
+
+extension OrganizeTokensViewModel: OrganizeTokensListFooterActionsHandler {
+    func onCancelButtonTap() {
+        Analytics.log(.organizeTokensButtonCancel)
+        coordinator?.didTapCancelButton()
+    }
+
+    func onApplyButtonTap() {
+        onSave.send()
     }
 }
 

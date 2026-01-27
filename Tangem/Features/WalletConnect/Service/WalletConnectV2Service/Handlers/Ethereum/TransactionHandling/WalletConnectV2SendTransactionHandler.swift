@@ -114,7 +114,7 @@ extension WalletConnectV2SendTransactionHandler: WalletConnectMessageHandler, WC
             .blockchain: walletModel.tokenItem.blockchain.displayName,
             .walletForm: result.signerType,
             .selectedHost: result.currentHost,
-        ])
+        ], analyticsSystems: .all)
 
         return RPCResult.response(AnyCodable(result.hash.lowercased()))
     }

@@ -13,7 +13,7 @@ final class OnboardingUITests: BaseTestCase {
         setAllureId(3989)
         launchApp()
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .shibaNoBackup)
 
         CreateBackupScreen(app)
@@ -24,7 +24,7 @@ final class OnboardingUITests: BaseTestCase {
         setAllureId(3990)
         launchApp()
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2NoBackup)
 
         CreateBackupScreen(app)
@@ -35,7 +35,7 @@ final class OnboardingUITests: BaseTestCase {
         setAllureId(248)
         launchApp()
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .shibaNoWallets)
 
         CreateWalletScreen(app)
@@ -46,7 +46,7 @@ final class OnboardingUITests: BaseTestCase {
         setAllureId(246)
         launchApp()
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2NoWallets)
 
         CreateWalletScreen(app)

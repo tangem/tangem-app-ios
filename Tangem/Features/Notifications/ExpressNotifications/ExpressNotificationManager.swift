@@ -14,7 +14,7 @@ import TangemAssets
 import TangemFoundation
 import struct TangemExpress.ExpressAPIError
 
-class ExpressNotificationManager {
+final class ExpressNotificationManager {
     private let notificationInputsSubject = CurrentValueSubject<[NotificationViewInput], Never>([])
 
     private weak var expressInteractor: ExpressInteractor?
@@ -110,7 +110,7 @@ class ExpressNotificationManager {
         case .hasPendingApproveTransaction:
             event = .hasPendingApproveTransaction
         case .notEnoughBalanceForSwapping:
-            notificationInputsSubject.value = []
+            await updateNotificationInputs([])
             return
         case .validationError(let error, let context):
             let sender = try interactor.getSourceWallet()
@@ -119,7 +119,7 @@ class ExpressNotificationManager {
         case .notEnoughAmountForFee, .notEnoughAmountForTxValue:
             let sender = try interactor.getSourceWallet()
             guard let notEnoughFeeForTokenTxEvent = makeNotEnoughFeeForTokenTx(sender: sender) else {
-                notificationInputsSubject.value = []
+                await updateNotificationInputs([])
                 return
             }
 
@@ -163,7 +163,8 @@ class ExpressNotificationManager {
         let notification = notificationsFactory.buildNotificationInput(for: event) { [weak self] id, actionType in
             self?.delegate?.didTapNotification(with: id, action: actionType)
         }
-        notificationInputsSubject.value = [notification]
+
+        await updateNotificationInputs([notification])
     }
 
     private func setupNotification(source: any ExpressInteractorSourceWallet, validationError: ValidationError, context: ValidationErrorContext) {
@@ -239,7 +240,13 @@ class ExpressNotificationManager {
             self?.delegate?.didTapNotification(with: id, action: actionType)
         }
 
-        notificationInputsSubject.value = [notification]
+        await updateNotificationInputs([notification])
+    }
+
+    /// Updates may be called from async context - hence the @MainActor.
+    @MainActor
+    private func updateNotificationInputs(_ inputs: [NotificationViewInput]) {
+        notificationInputsSubject.value = inputs
     }
 
     private func setupFeeWillBeSubtractFromSendingAmountNotification(source: any ExpressInteractorSourceWallet, subtractFee: Decimal) -> NotificationViewInput? {

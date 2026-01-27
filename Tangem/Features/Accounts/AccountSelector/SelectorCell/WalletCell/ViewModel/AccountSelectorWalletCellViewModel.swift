@@ -26,7 +26,7 @@ final class AccountSelectorWalletCellViewModel: ObservableObject {
 
     // MARK: Published Properties
 
-    @Published private(set) var walletIcon: LoadingValue<ImageValue> = .loading
+    @Published private(set) var walletIcon: LoadingResult<ImageValue, Never> = .loading
     @Published private(set) var fiatBalanceState: LoadableTokenBalanceView.State = .loading()
 
     // MARK: Private Properties
@@ -44,7 +44,7 @@ final class AccountSelectorWalletCellViewModel: ObservableObject {
     func loadWalletImage() async {
         let image = await walletModel.walletImageProvider.loadSmallImage()
 
-        walletIcon = .loaded(image)
+        walletIcon = .success(image)
     }
 
     // MARK: Private Methods

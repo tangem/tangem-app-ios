@@ -22,11 +22,22 @@ struct TangemPayFreezeSheetViewModel: FloatingSheetContentViewModel {
     weak var coordinator: TangemPayFreezeSheetRoutable?
     let freezeAction: () -> Void
 
+    init(
+        coordinator: TangemPayFreezeSheetRoutable,
+        freezeAction: @escaping () -> Void
+    ) {
+        self.coordinator = coordinator
+        self.freezeAction = freezeAction
+
+        Analytics.log(.visaScreenFreezeCardConfirmShown)
+    }
+
     func close() {
         coordinator?.closeFreezeSheet()
     }
 
     func freeze() {
+        Analytics.log(.visaScreenFreezeCardConfirmClicked)
         freezeAction()
         close()
     }

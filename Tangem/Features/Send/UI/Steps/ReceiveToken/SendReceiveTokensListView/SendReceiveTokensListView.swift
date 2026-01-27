@@ -56,7 +56,7 @@ struct SendReceiveTokensListView: View {
                         .onAppear(perform: viewModel.fetchMore)
                 }
             }
-            .scrollDismissesKeyboardCompat(.interactively)
+            .scrollDismissesKeyboard(.interactively)
         }
         .animation(.default, value: viewModel.onboardNotification == nil)
         .background(Colors.Background.tertiary)

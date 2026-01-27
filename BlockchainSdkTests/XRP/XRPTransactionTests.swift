@@ -19,7 +19,7 @@ struct XRPTransactionTests {
     func roundTripAccountWithDoubleRBase58Encoding() {
         // simulate address with double r
         let buffer = Data(hexString: "000010101010101010101010101010101010101010")
-        let checkSum = buffer.getDoubleSha256().prefix(4)
+        let checkSum = buffer.getDoubleSHA256().prefix(4)
         let account = XRPBase58.getString(from: buffer + checkSum)
         let decodedData = XRPBase58.getData(from: account)!
         // 1 zero byte for network prefix + 20 bytes of address data + 4 bytes of checksum

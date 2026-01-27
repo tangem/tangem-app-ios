@@ -46,9 +46,9 @@ class ClvmProgram {
 
     func hash() throws -> Data {
         if let value = atom {
-            return Data([1] + value).getSha256()
+            return Data([1] + value).getSHA256()
         } else if let left = try left?.hash(), let right = try right?.hash() {
-            return Data([2] + left + right).getSha256()
+            return Data([2] + left + right).getSHA256()
         }
 
         throw NSError()

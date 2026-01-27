@@ -18,7 +18,7 @@ struct MainBottomSheetFooterShadowView: View {
     }
 
     private var endColor: Color {
-        return shadowColor.opacity(colorScheme == .dark ? 0.36 : 0.08)
+        return shadowColor.opacity(colorScheme == .dark ? 0.36 : 0.12)
     }
 
     var body: some View {

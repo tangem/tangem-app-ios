@@ -20,19 +20,11 @@ extension HyperliquidExternalLinkProvider: ExternalLinkProvider {
     }
 
     func url(transaction hash: String) -> URL? {
-        if #available(iOS 16.0, *) {
-            return explorerURL?.appending(path: "tx").appending(path: hash)
-        } else {
-            return explorerURL?.appendingPathComponent("tx").appendingPathComponent(hash)
-        }
+        explorerURL?.appending(path: "tx").appending(path: hash)
     }
 
     func url(address: String, contractAddress: String?) -> URL? {
-        if #available(iOS 16.0, *) {
-            return explorerURL?.appending(path: "address").appending(path: address)
-        } else {
-            return explorerURL?.appendingPathComponent("address").appendingPathComponent(address)
-        }
+        explorerURL?.appending(path: "address").appending(path: address)
     }
 }
 

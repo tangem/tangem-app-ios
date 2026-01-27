@@ -12,7 +12,7 @@ import BlockchainSdk
 
 extension TokenItem {
     var stakingTokenItem: TangemStaking.StakingTokenItem? {
-        StakingNetworkType(rawValue: blockchain.coinId).map { network in
+        StakingNetworkType(rawValue: blockchain.networkId).map { network in
             StakingTokenItem(
                 network: network,
                 contractAddress: contractAddress,

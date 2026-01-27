@@ -11,7 +11,8 @@ import Foundation
 import Combine
 import TangemFoundation
 
-class CommonUserTokensPushNotificationsManager {
+@available(iOS, deprecated: 100000.0, message: "Will be removed after accounts migration is complete ([REDACTED_INFO])")
+final class CommonUserTokensPushNotificationsManager {
     // MARK: - Services
 
     @Injected(\.userTokensPushNotificationsService) var userTokensPushNotificationsService: UserTokensPushNotificationsService

@@ -128,7 +128,7 @@ private extension CommonSendNotificationManager {
 
     func updateCustomFee(selectedFee: SendFee, feeValues: [SendFee]) {
         switch (selectedFee.option, selectedFee.value) {
-        case (.custom, .loaded(let customFee)):
+        case (.custom, .success(let customFee)):
             updateCustomFeeTooLow(
                 customFee: customFee,
                 lowestFee: feeValues.first(where: { $0.option == .slow })?.value.value

@@ -19,7 +19,6 @@ final class SendScreen: ScreenBase<SendScreenElement> {
     private lazy var nextButton = button(.nextButton)
     private lazy var backButton = button(.backButton)
     private lazy var maxButton = button(.maxButton)
-    private lazy var feeBlock = otherElement(.networkFeeBlock)
     private lazy var invalidAmountBanner = staticText(.invalidAmountBanner)
     private lazy var totalExceedsBalanceBanner = staticText(.totalExceedsBalanceBanner)
     private lazy var remainingAmountIsLessThanRentExemptionBanner = staticText(.remainingAmountIsLessThanRentExemptionBanner)
@@ -151,17 +150,6 @@ final class SendScreen: ScreenBase<SendScreenElement> {
             closeButton.waitAndTap()
         }
         return TokenScreen(app)
-    }
-
-    @discardableResult
-    func tapFeeBlock() -> SendFeeSelectorScreen {
-        XCTContext.runActivity(named: "Tap fee block on Send screen") { _ in
-            let predicate = NSPredicate(format: NSPredicateFormat.labelBeginsWith.rawValue, "Network fee")
-            let networkFeeButton = app.buttons.matching(predicate).firstMatch
-            waitAndAssertTrue(networkFeeButton, "Network fee button should exist")
-            networkFeeButton.tap()
-        }
-        return SendFeeSelectorScreen(app)
     }
 
     @discardableResult

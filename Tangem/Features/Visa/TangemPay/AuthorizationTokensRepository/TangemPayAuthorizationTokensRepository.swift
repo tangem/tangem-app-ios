@@ -12,8 +12,6 @@ import TangemVisa
 protocol TangemPayAuthorizationTokensRepository: TangemPayAuthorizationTokensSaver {
     func save(tokens: TangemPayAuthorizationTokens, customerWalletId: String) throws
     func deleteTokens(customerWalletId: String) throws
-    func clearPersistent()
-    func fetch(using context: LAContext)
     func getToken(forCustomerWalletId customerWalletId: String) -> TangemPayAuthorizationTokens?
 }
 

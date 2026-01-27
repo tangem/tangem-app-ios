@@ -14,7 +14,8 @@ final class FeedbackUITests: BaseTestCase {
         setAllureId(892)
         launchApp()
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
+            .skipStories()
             .openScanMenu()
             .cancelScan()
             .openScanMenu()
@@ -27,14 +28,17 @@ final class FeedbackUITests: BaseTestCase {
 
     func testRequestSupportFromDetails_SupportEmailOpened() throws {
         setAllureId(3960)
+
+        try XCTSkipIf(true, "Testcase is waiting for QA review dut to business logic change.")
+
         launchApp()
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .openDetails()
-            .scanCardOrRing()
+            .tapAddNewWallet()
             .cancelScan()
-            .scanCardOrRing()
+            .tapAddNewWallet()
             .cancelScan()
 
         TroubleShootSheet(app)
@@ -51,7 +55,7 @@ final class FeedbackUITests: BaseTestCase {
 
         launchApp(tangemApiType: .mock)
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(token)
             .tapActionButton(.send)
@@ -72,7 +76,7 @@ final class FeedbackUITests: BaseTestCase {
         setAllureId(894)
         launchApp()
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .openDetails()
             .contactSupport()

@@ -14,6 +14,8 @@ final class MobileOnboardingSuccessViewModel {
     lazy var infoItem = makeInfoItem()
     lazy var actionItem = makeActionItem()
 
+    private var isAppeared = false
+
     private let type: SuccessType
     private let onAppear: () -> Void
     private let onComplete: () -> Void
@@ -33,6 +35,8 @@ final class MobileOnboardingSuccessViewModel {
 
 extension MobileOnboardingSuccessViewModel {
     func onWillAppear() {
+        guard !isAppeared else { return }
+        isAppeared = true
         onAppear()
     }
 }
@@ -51,7 +55,9 @@ private extension MobileOnboardingSuccessViewModel {
         }
 
         let description = switch type {
-        case .walletImported, .seedPhaseBackupContinue:
+        case .walletImported:
+            Localization.walletImportSuccessDescription
+        case .seedPhaseBackupContinue:
             Localization.backupCompleteDescription
         case .seedPhaseBackupFinish:
             Localization.backupCompleteSeedDescription
