@@ -131,6 +131,8 @@ extension Analytics {
         case sendMaxAmountTapped = "[Token / Send] Max Amount Taped"
         case sendSelectedCurrency = "[Token / Send] Selected Currency"
         case sendFeeScreenOpened = "[Token / Send] Fee Screen Opened"
+        case sendFeeSummaryScreenOpened = "[Token / Send] Fee Summary Screen Opened"
+        case sendFeeTokenScreenOpened = "[Token / Send] Fee Token Screen Opened"
         case sendFeeSelected = "[Token / Send] Fee Selected"
         case sendCustomFeeClicked = "[Token / Send] Custom Fee Clicked"
         case sendGasPriceInserted = "[Token / Send] Gas Price Inserted"
@@ -295,6 +297,11 @@ extension Analytics {
         case swapNoticeNotEnoughFee = "[Swap] Notice - Not Enough Fee"
         case swapNoticeExpressError = "[Swap] Notice - Express Error"
         case swapNoticePermissionNeeded = "[Swap] Notice - Permission Needed"
+
+        case swapFeeScreenOpened = "[Swap] Fee Screen Opened"
+        case swapFeeSummaryScreenOpened = "[Swap] Fee Summary Screen Opened"
+        case swapFeeTokenScreenOpened = "[Swap] Fee Token Screen Opened"
+        case swapFeeSelected = "[Swap] Fee Selected"
 
         // MARK: - Seed phrase
 
