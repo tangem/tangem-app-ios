@@ -6,17 +6,11 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-import TangemExpress
 import TangemLocalization
 import TangemFoundation
 import Combine
 
 final class ActionButtonsSwapViewModel: ObservableObject {
-    // MARK: Inject
-
-    @Injected(\.expressPairsRepository)
-    private var expressPairsRepository: ExpressPairsRepository
-
     // MARK: Published property
 
     @Published var sourceToken: ActionButtonsTokenSelectorItem?
@@ -123,7 +117,7 @@ final class ActionButtonsSwapViewModel: ObservableObject {
         case .didTapToken(let token):
             Task { @MainActor in
                 if sourceToken == nil {
-                    await selectSourceToken(token)
+                    selectSourceToken(token)
                 } else {
                     selectDestinationToken(token)
                 }
@@ -132,41 +126,19 @@ final class ActionButtonsSwapViewModel: ObservableObject {
     }
 
     @MainActor
-    func updatePairs(for token: ActionButtonsTokenSelectorItem, userWalletModel: UserWalletModel) async {
-        tokenSelectorState = .loading
-
-        do {
-            try await expressPairsRepository.updatePairs(
-                for: token.walletModel.tokenItem.expressCurrency,
-                userWalletInfo: userWalletModel.userWalletInfo
-            )
-
-            destinationTokenSelectorViewModel = makeToSwapTokenSelectorViewModel(
-                from: token,
-                userWalletModel: userWalletModel
-            )
-
-            tokenSelectorState = isNotAvailablePairs ? .noAvailablePairs : .loaded
-        } catch let error as ExpressAPIError {
-            tokenSelectorState = .refreshRequired(
-                title: error.localizedTitle,
-                message: error.localizedMessage
-            )
-        } catch {
-            tokenSelectorState = .refreshRequired(
-                title: Localization.commonError,
-                message: Localization.commonUnknownError
-            )
-        }
-    }
-
-    @MainActor
-    private func selectSourceToken(_ token: ActionButtonsTokenSelectorItem) async {
+    private func selectSourceToken(_ token: ActionButtonsTokenSelectorItem) {
         ActionButtonsAnalyticsService.trackTokenClicked(.swap, tokenSymbol: token.infoProvider.tokenItem.currencySymbol)
 
         sourceToken = token
         coordinator?.showYieldNotificationIfNeeded(for: token.walletModel, completion: nil)
-        await updatePairs(for: token, userWalletModel: userWalletModel)
+
+        // All tokens are available for swap - actual pair check happens on the exchange screen
+        destinationTokenSelectorViewModel = makeToSwapTokenSelectorViewModel(
+            from: token,
+            userWalletModel: userWalletModel
+        )
+
+        tokenSelectorState = isNotAvailablePairs ? .noAvailablePairs : .loaded
     }
 
     private func selectDestinationToken(_ token: ActionButtonsTokenSelectorItem) {
@@ -227,20 +199,12 @@ extension ActionButtonsSwapViewModel: NotificationTapDelegate {
     func didTapNotification(with id: NotificationViewId, action: NotificationButtonActionType) {
         guard
             let notification = notificationInputs.first(where: { $0.id == id }),
-            let _ = notification.settings.event as? ActionButtonsNotificationEvent,
-            let sourceToken
+            let _ = notification.settings.event as? ActionButtonsNotificationEvent
         else {
             return
         }
 
-        switch action {
-        case .refresh:
-            Task {
-                await self.updatePairs(for: sourceToken, userWalletModel: userWalletModel)
-            }
-        default:
-            break
-        }
+        // Refresh action is no longer needed as we don't pre-check pairs
     }
 }
 
@@ -249,7 +213,7 @@ extension ActionButtonsSwapViewModel: NotificationTapDelegate {
 private extension ActionButtonsSwapViewModel {
     func makeToSwapTokenSelectorViewModel(
         from token: ActionButtonsTokenSelectorItem,
-        userWalletModel: UserWalletModel,
+        userWalletModel: UserWalletModel
     ) -> ActionButtonsTokenSelectorViewModel {
         .init(
             tokenSelectorItemBuilder: ActionButtonsTokenSelectorItemBuilder(),
