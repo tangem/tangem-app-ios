@@ -807,6 +807,7 @@ private extension ExpressInteractor {
             .feeType: analyticsFeeType.rawValue,
             .walletForm: signerType,
             .selectedHost: data.result.currentHost,
+            .feeToken: SendAnalyticsHelper.makeAnalyticsTokenName(from: data.fee.tokenItem),
         ], analyticsSystems: .all)
     }
 }
