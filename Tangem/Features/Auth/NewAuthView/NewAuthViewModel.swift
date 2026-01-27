@@ -19,9 +19,10 @@ final class NewAuthViewModel: ObservableObject {
     @Published var alert: AlertBinder?
     @Published var confirmationDialog: ConfirmationDialogViewModel?
     @Published var unlockingUserWalletId: UserWalletId?
+    @Published var isCardScanning: Bool = false
 
-    var isUnlocking: Bool {
-        unlockingUserWalletId != nil
+    var allowsHitTesting: Bool {
+        unlockingUserWalletId == nil && isCardScanning == false
     }
 
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
@@ -31,6 +32,12 @@ final class NewAuthViewModel: ObservableObject {
     private var isBiometricsUtilAvailable: Bool {
         BiometricsUtil.isAvailable && AppSettings.shared.useBiometricAuthentication
     }
+
+    private var analyticsCardScanSourceParameterValue: Analytics.ParameterValue {
+        Analytics.CardScanSource.auth.cardWasScannedParameterValue
+    }
+
+    private var analyticsContextParams: Analytics.ContextParams { .empty }
 
     private let signInAnalyticsLogger = SignInAnalyticsLogger()
     private let unlockOnAppear: Bool
@@ -46,10 +53,8 @@ final class NewAuthViewModel: ObservableObject {
 
 extension NewAuthViewModel {
     func onFirstAppear() {
+        logScreenOpenedAnalytics()
         setupInitialState()
-
-        let walletsCount = userWalletRepository.models.count
-        Analytics.log(event: .signInScreenOpened, params: [.walletCount: String(walletsCount)])
     }
 
     func onAppear() {
@@ -65,7 +70,9 @@ extension NewAuthViewModel {
 
 private extension NewAuthViewModel {
     func setup(state: State) {
-        self.state = state
+        runTask(in: self) { @MainActor viewModel in
+            viewModel.state = state
+        }
     }
 
     func setupInitialState() {
@@ -85,7 +92,7 @@ private extension NewAuthViewModel {
     func makeWalletsState() -> State {
         let addWallet = AddWalletItem(
             title: Localization.authInfoAddWalletTitle,
-            action: weakify(self, forFunction: NewAuthViewModel.openAddWallet)
+            action: weakify(self, forFunction: NewAuthViewModel.addWallet)
         )
 
         let info = InfoItem(
@@ -142,23 +149,24 @@ private extension NewAuthViewModel {
         runTask(in: self) { viewModel in
             let unlocker = UserWalletModelUnlockerFactory.makeUnlocker(userWalletModel: userWalletModel)
 
-            if unlocker.analyticsSignInType == .card {
-                Analytics.log(Analytics.CardScanSource.auth.cardScanButtonEvent)
-            }
+            viewModel.signInAnalyticsLogger.logSignInButtonWalletEvent(
+                signInType: unlocker.analyticsSignInType,
+                userWalletModel: userWalletModel
+            )
 
             await viewModel.startUnlocking(userWalletId: userWalletModel.userWalletId)
             let unlockResult = await unlocker.unlock()
             await viewModel.finishUnlocking()
 
             if case .success = unlockResult, unlocker.analyticsSignInType == .card {
-                Analytics.log(
-                    .cardWasScanned,
-                    params: [.source: Analytics.CardScanSource.auth.cardWasScannedParameterValue],
-                    contextParams: .custom(userWalletModel.analyticsContextData)
-                )
+                viewModel.logSuccessScanCardToUnlockAnalytics(userWalletModel: userWalletModel)
             }
 
-            await viewModel.handleUnlock(result: unlockResult, userWalletModel: userWalletModel, signInType: unlocker.analyticsSignInType)
+            await viewModel.handleUnlock(
+                result: unlockResult,
+                userWalletModel: userWalletModel,
+                signInType: unlocker.analyticsSignInType
+            )
         }
     }
 
@@ -178,7 +186,7 @@ private extension NewAuthViewModel {
             do {
                 let unlockMethod = UserWalletRepositoryUnlockMethod.encryptionKey(userWalletId: userWalletId, encryptionKey: encryptionKey)
                 let userWalletModel = try await userWalletRepository.unlock(with: unlockMethod)
-                signInAnalyticsLogger.logSignInEvent(signInType: signInType)
+                signInAnalyticsLogger.logSignInEvent(signInType: signInType, userWalletModel: userWalletModel)
                 await openMain(userWalletModel: userWalletModel)
             } catch {
                 incomingActionManager.discardIncomingAction()
@@ -191,7 +199,7 @@ private extension NewAuthViewModel {
             do {
                 let unlockMethod = UserWalletRepositoryUnlockMethod.biometrics(context)
                 let userWalletModel = try await userWalletRepository.unlock(with: unlockMethod)
-                signInAnalyticsLogger.logSignInEvent(signInType: signInType)
+                signInAnalyticsLogger.logSignInEvent(signInType: signInType, userWalletModel: userWalletModel)
                 await openMain(userWalletModel: userWalletModel)
             } catch {
                 incomingActionManager.discardIncomingAction()
@@ -240,7 +248,7 @@ private extension NewAuthViewModel {
 
 private extension NewAuthViewModel {
     func onUnlockWithBiometryTap() {
-        Analytics.log(.signInButtonUnlockAllWithBiometrics)
+        logUnlockAllWithBiometricsAnalytics()
         unlockWithBiometry()
     }
 
@@ -250,7 +258,7 @@ private extension NewAuthViewModel {
                 let context = try await UserWalletBiometricsUnlocker().unlock()
                 let userWalletModel = try await viewModel.userWalletRepository.unlock(with: .biometrics(context))
 
-                viewModel.signInAnalyticsLogger.logSignInEvent(signInType: .biometrics)
+                viewModel.signInAnalyticsLogger.logSignInEvent(signInType: .biometrics, userWalletModel: userWalletModel)
 
                 await viewModel.openMain(userWalletModel: userWalletModel)
             } catch {
@@ -293,8 +301,100 @@ private extension NewAuthViewModel {
 
 private extension NewAuthViewModel {
     func unlockWithCardTryAgain(userWalletModel: UserWalletModel) {
-        Analytics.log(.cantScanTheCardTryAgainButton, params: [.source: .signIn])
+        logScanCardTryAgainAnalytics()
         unlock(userWalletModel: userWalletModel)
+    }
+}
+
+// MARK: - Card scanning
+
+private extension NewAuthViewModel {
+    func scanCard() {
+        logScanCardTapAnalytics()
+
+        isCardScanning = true
+
+        runTask(in: self) { viewModel in
+            let cardScanner = CardScannerFactory().makeDefaultScanner()
+            let userWalletCardScanner = UserWalletCardScanner(scanner: cardScanner)
+            let result = await userWalletCardScanner.scanCard()
+
+            switch result {
+            case .error(let error) where error.isCancellationError:
+                viewModel.incomingActionManager.discardIncomingAction()
+
+                await runOnMain {
+                    viewModel.isCardScanning = false
+                }
+
+            case .error(let error):
+                viewModel.logScanCardAnalytics(error: error)
+                viewModel.incomingActionManager.discardIncomingAction()
+
+                await runOnMain {
+                    viewModel.isCardScanning = false
+                    viewModel.alert = error.alertBinder
+                }
+
+            case .onboarding(let input, _):
+                viewModel.logScanCardOnboardingAnalytics(cardInput: input.cardInput)
+                viewModel.incomingActionManager.discardIncomingAction()
+
+                await MainActor.run {
+                    viewModel.isCardScanning = false
+                    viewModel.openOnboarding(input: input)
+                }
+
+            case .scanTroubleshooting:
+                viewModel.logScanCardTroubleshootingAnalytics()
+                viewModel.incomingActionManager.discardIncomingAction()
+
+                await MainActor.run {
+                    viewModel.isCardScanning = false
+                    viewModel.openTroubleshooting()
+                }
+
+            case .success(let cardInfo):
+                viewModel.logScanCardSuccessAnalytics(cardInfo: cardInfo)
+
+                do {
+                    if let newUserWalletModel = CommonUserWalletModelFactory().makeModel(
+                        walletInfo: .cardWallet(cardInfo),
+                        keys: .cardWallet(keys: cardInfo.card.wallets)
+                    ) {
+                        try viewModel.userWalletRepository.add(userWalletModel: newUserWalletModel)
+
+                        await MainActor.run {
+                            viewModel.isCardScanning = false
+                            viewModel.openMain(userWalletModel: newUserWalletModel)
+                        }
+                    } else {
+                        throw UserWalletRepositoryError.cantUnlockWallet
+                    }
+                } catch {
+                    viewModel.incomingActionManager.discardIncomingAction()
+
+                    await runOnMain {
+                        viewModel.isCardScanning = false
+                        viewModel.alert = error.alertBinder
+                    }
+                }
+            }
+        }
+    }
+
+    func scanCardTryAgain() {
+        logScanCardTryAgainAnalytics()
+        scanCard()
+    }
+}
+
+// MARK: - Private methods
+
+private extension NewAuthViewModel {
+    func addWallet() {
+        logAddWalletTapAnalytics()
+        scanCard()
     }
 }
 
@@ -306,12 +406,13 @@ private extension NewAuthViewModel {
         coordinator?.openMain(with: userWalletModel)
     }
 
-    func openAddWallet() {
-        Analytics.log(.buttonAddWallet, params: [.action: .create])
-        coordinator?.openAddWallet()
+    func openOnboarding(input: OnboardingInput) {
+        coordinator?.openOnboarding(with: input)
     }
 
     func openTroubleshooting(userWalletModel: UserWalletModel) {
+        logScanCardTroubleshootingAnalytics()
+
         let tryAgainButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonTryAgain) { [weak self] in
             self?.unlockWithCardTryAgain(userWalletModel: userWalletModel)
         }
@@ -336,15 +437,140 @@ private extension NewAuthViewModel {
         )
     }
 
+    func openTroubleshooting() {
+        logScanCardTroubleshootingAnalytics()
+
+        let tryAgainButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonTryAgain) { [weak self] in
+            self?.scanCardTryAgain()
+        }
+
+        let readMoreButton = ConfirmationDialogViewModel.Button(title: Localization.commonReadMore) { [weak self] in
+            self?.openScanCardManual()
+        }
+
+        let requestSupportButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonRequestSupport) { [weak self] in
+            self?.openSupportRequest()
+        }
+
+        confirmationDialog = ConfirmationDialogViewModel(
+            title: Localization.alertTroubleshootingScanCardTitle,
+            subtitle: Localization.alertTroubleshootingScanCardMessage,
+            buttons: [
+                tryAgainButton,
+                readMoreButton,
+                requestSupportButton,
+                ConfirmationDialogViewModel.Button.cancel,
+            ]
+        )
+    }
+
     func openScanCardManual() {
-        Analytics.log(.cantScanTheCardButtonBlog, params: [.source: .signIn])
+        logCantScanTheCardAnalytics()
         coordinator?.openScanCardManual()
     }
 
     func openSupportRequest() {
-        Analytics.log(.requestSupport, params: [.source: .signIn])
+        logScanCardRequestSupportAnalytics()
         failedCardScanTracker.resetCounter()
         coordinator?.openMail(with: BaseDataCollector(), recipient: EmailConfig.default.recipient)
+    }
+}
+
+// MARK: - Analytics
+
+private extension NewAuthViewModel {
+    func logScreenOpenedAnalytics() {
+        let walletsCount = userWalletRepository.models.count
+        Analytics.log(
+            event: .signInScreenOpened,
+            params: [.walletCount: String(walletsCount)],
+            contextParams: analyticsContextParams
+        )
+    }
+
+    func logSuccessScanCardToUnlockAnalytics(userWalletModel: UserWalletModel) {
+        Analytics.log(
+            .cardWasScanned,
+            params: [.source: analyticsCardScanSourceParameterValue],
+            contextParams: .custom(userWalletModel.analyticsContextData)
+        )
+    }
+
+    func logUnlockAllWithBiometricsAnalytics() {
+        Analytics.log(.signInButtonUnlockAllWithBiometrics, contextParams: analyticsContextParams)
+    }
+
+    func logAddWalletTapAnalytics() {
+        Analytics.log(
+            .buttonAddWallet,
+            params: [.source: .signIn],
+            contextParams: analyticsContextParams
+        )
+    }
+
+    func logScanCardTapAnalytics() {
+        Analytics.log(
+            Analytics.CardScanSource.auth.cardScanButtonEvent,
+            params: [.source: analyticsCardScanSourceParameterValue],
+            contextParams: analyticsContextParams
+        )
+    }
+
+    func logScanCardAnalytics(error: Error) {
+        Analytics.logScanError(
+            error,
+            source: .signIn,
+            contextParams: analyticsContextParams
+        )
+        Analytics.logVisaCardScanErrorIfNeeded(error, source: .signIn)
+    }
+
+    func logCantScanTheCardAnalytics() {
+        Analytics.log(
+            .cantScanTheCardButtonBlog,
+            params: [.source: analyticsCardScanSourceParameterValue],
+            contextParams: analyticsContextParams
+        )
+    }
+
+    func logScanCardOnboardingAnalytics(cardInput: OnboardingInput.CardInput) {
+        Analytics.log(
+            .cardWasScanned,
+            params: [.source: analyticsCardScanSourceParameterValue],
+            contextParams: cardInput.getContextParams()
+        )
+    }
+
+    func logScanCardSuccessAnalytics(cardInfo: CardInfo) {
+        Analytics.log(
+            .cardWasScanned,
+            params: [.source: analyticsCardScanSourceParameterValue],
+            contextParams: .custom(cardInfo.analyticsContextData)
+        )
+    }
+
+    func logScanCardTryAgainAnalytics() {
+        Analytics.log(
+            .cantScanTheCardTryAgainButton,
+            params: [.source: analyticsCardScanSourceParameterValue],
+            contextParams: analyticsContextParams
+        )
+    }
+
+    func logScanCardTroubleshootingAnalytics() {
+        Analytics.log(
+            .cantScanTheCard,
+            params: [.source: analyticsCardScanSourceParameterValue],
+            contextParams: analyticsContextParams
+        )
+    }
+
+    func logScanCardRequestSupportAnalytics() {
+        Analytics.log(
+            .requestSupport,
+            params: [.source: analyticsCardScanSourceParameterValue],
+            contextParams: analyticsContextParams
+        )
     }
 }
 

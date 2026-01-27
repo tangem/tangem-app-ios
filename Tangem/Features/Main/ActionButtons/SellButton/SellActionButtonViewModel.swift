@@ -58,7 +58,7 @@ final class SellActionButtonViewModel: ActionButtonViewModel {
         switch viewState {
         case .initial:
             handleInitialStateTap()
-        case .loading, .disabled:
+        case .loading, .disabled, .unavailable:
             break
         case .restricted(let reason):
             alert = .init(title: "", message: reason)
@@ -150,7 +150,7 @@ private extension SellActionButtonViewModel {
         switch viewState {
         case .restricted(let reason): showScheduledAlert(with: reason)
         case .idle: scheduledOpenSell()
-        case .loading, .initial, .disabled: break
+        case .loading, .initial, .disabled, .unavailable: break
         }
     }
 

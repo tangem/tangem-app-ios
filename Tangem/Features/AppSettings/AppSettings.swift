@@ -101,9 +101,6 @@ final class AppSettings {
     @AppStorageCompat(StorageType.marketsTooltipWasShown)
     var marketsTooltipWasShown: Bool = false
 
-    @AppStorageCompat(StorageType.startWalletUsageDate)
-    var startWalletUsageDate: Date? = nil
-
     @AppStorageCompat(StorageType.tronWarningWithdrawTokenDisplayed)
     var tronWarningWithdrawTokenDisplayed: Int = 0
 
@@ -136,6 +133,21 @@ final class AppSettings {
 
     @AppStorageCompat(StorageType.tangemPayIsPaeraCustomer)
     var tangemPayIsPaeraCustomer: [String: Bool] = [:]
+
+    @AppStorageCompat(StorageType.tangemPayIsKYCHiddenForCustomerWalletId)
+    var tangemPayIsKYCHiddenForCustomerWalletId: [String: Bool] = [:]
+
+    @AppStorageCompat(StorageType.tangemPayIsEligibilityAvailable)
+    var tangemPayIsEligibilityAvailable: Bool = false
+
+    @AppStorageCompat(StorageType.tangemPayShouldShowGetBanner)
+    var tangemPayShouldShowGetBanner: Bool = true
+
+    @AppStorageCompat(StorageType.jailbreakWarningWasShown)
+    var jailbreakWarningWasShown: Bool = false
+
+    @AppStorageCompat(StorageType.showMarketsYieldModeNotification)
+    var showMarketsYieldModeNotification = true
 
     static let shared: AppSettings = .init()
 

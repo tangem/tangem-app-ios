@@ -11,6 +11,7 @@ import TangemLocalization
 import Combine
 import BlockchainSdk
 import TangemFoundation
+import TangemAccessibilityIdentifiers
 
 class BitcoinCustomFeeService {
     private weak var output: CustomFeeServiceOutput?
@@ -151,7 +152,9 @@ extension BitcoinCustomFeeService: FeeSelectorCustomFeeFieldsBuilder {
                 .compactMap { $0 }
                 .withWeakCaptureOf(self)
                 .map { $0.formatToFiat(value: $1.amount.value) }
-                .eraseToAnyPublisher()
+                .eraseToAnyPublisher(),
+            accessibilityIdentifier: FeeAccessibilityIdentifiers.customFeeMaxFeeField,
+            alternativeAmountAccessibilityIdentifier: FeeAccessibilityIdentifiers.customFeeMaxFeeFiatValue
         )
 
         let satoshiPerByteRowViewModel = FeeSelectorCustomFeeRowViewModel(
@@ -160,7 +163,8 @@ extension BitcoinCustomFeeService: FeeSelectorCustomFeeFieldsBuilder {
             suffix: nil,
             isEditable: true,
             textFieldViewModel: satoshiPerByteTextField,
-            amountAlternativePublisher: AnyPublisher.just(output: nil)
+            amountAlternativePublisher: AnyPublisher.just(output: nil),
+            accessibilityIdentifier: FeeAccessibilityIdentifiers.customFeeSatoshiPerByteField
         )
 
         return [customFeeRowViewModel, satoshiPerByteRowViewModel]
