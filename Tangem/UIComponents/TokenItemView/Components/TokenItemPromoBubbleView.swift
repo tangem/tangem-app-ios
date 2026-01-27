@@ -9,7 +9,6 @@
 import SwiftUI
 import TangemAssets
 
-@available(iOS 16.0, *)
 struct TokenItemPromoBubbleView: View {
     let viewModel: TokenItemPromoBubbleViewModel
     let position: Position
@@ -42,7 +41,6 @@ struct TokenItemPromoBubbleView: View {
         .background(background)
     }
 
-    @ViewBuilder
     private var background: some View {
         Colors.Background.primary
             .cornerRadiusContinuous(
@@ -54,7 +52,6 @@ struct TokenItemPromoBubbleView: View {
     }
 }
 
-@available(iOS 16.0, *)
 extension TokenItemPromoBubbleView {
     enum Position {
         case top

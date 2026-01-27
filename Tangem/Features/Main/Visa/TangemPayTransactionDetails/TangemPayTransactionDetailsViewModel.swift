@@ -67,6 +67,7 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
     }
 
     func userDidTapMainButton() {
+        Analytics.log(.visaScreenSupportOnTransactionPopupClicked)
         let subject: VisaEmailSubject = switch mainButtonAction {
         case .dispute: .dispute
         case .info: .default

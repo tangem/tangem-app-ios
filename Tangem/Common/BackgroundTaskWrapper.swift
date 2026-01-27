@@ -43,6 +43,7 @@ final class BackgroundTaskWrapper {
         taskIdentifier = UIApplication.shared.beginBackgroundTask(withName: taskName) { [weak self] in
             self?.finish(isExpired: true)
         }
+        AppLogger.info("Background task '\(taskName)' started")
     }
 
     private func finish(isExpired: Bool) {
@@ -60,7 +61,11 @@ final class BackgroundTaskWrapper {
 
             expirationHandler = nil
 
-            AppLogger.warning("Background task '\(taskName)' finished (expired: \(isExpired))")
+            if isExpired {
+                AppLogger.warning("Background task '\(taskName)' has expired")
+            } else {
+                AppLogger.info("Background task '\(taskName)' finished normally")
+            }
         }
     }
 }

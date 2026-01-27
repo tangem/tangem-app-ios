@@ -16,7 +16,7 @@ struct SendDestinationView: View {
     @ObservedObject var viewModel: SendDestinationViewModel
 
     var body: some View {
-        GroupedScrollView(spacing: 24) {
+        GroupedScrollView(contentType: .lazy(alignment: .center, spacing: 24)) {
             GroupedSection(viewModel.destinationAddressSectionType) { type in
                 switch type {
                 case .destinationAddress(let viewModel):

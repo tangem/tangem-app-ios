@@ -17,7 +17,7 @@ extension StakingYieldInfo {
         rewardRateValues: .single(0.03712381),
         enterMinimumRequirement: 1,
         exitMinimumRequirement: 1,
-        validators: [
+        targets: [
             .init(
                 address: UUID().uuidString,
                 name: "InfStones",
@@ -39,7 +39,7 @@ extension StakingYieldInfo {
                 status: .active
             ),
         ],
-        preferredValidators: [
+        preferredTargets: [
             .init(
                 address: UUID().uuidString,
                 name: "InfStones",
@@ -62,9 +62,10 @@ extension StakingYieldInfo {
             ),
         ],
         item: .init(network: .tron, contractAddress: nil, name: "", decimals: 0, symbol: ""),
-        unbondingPeriod: .specific(days: 14),
-        warmupPeriod: .specific(days: 0),
+        unbondingPeriod: .constant(days: 14),
+        warmupPeriod: .constant(days: 0),
         rewardClaimingType: .manual,
-        rewardScheduleType: .daily
+        rewardScheduleType: .daily,
+        maximumStakeAmount: nil
     )
 }

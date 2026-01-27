@@ -41,6 +41,9 @@ struct ActionButtonView<ViewModel: ActionButtonViewModel>: View {
                     color: isDisabled ? Colors.Text.disabled : Colors.Text.primary1
                 )
         }
+        .if(viewModel.viewState == .unavailable) { _ in
+            EmptyView()
+        }
     }
 
     @ViewBuilder
@@ -50,6 +53,8 @@ struct ActionButtonView<ViewModel: ActionButtonViewModel>: View {
             buttonIcon
         case .loading:
             progressView
+        case .unavailable:
+            EmptyView()
         }
     }
 

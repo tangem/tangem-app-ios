@@ -16,8 +16,8 @@ final class MobileBackupToUpgradeNeededViewModel {
     let description = Localization.hwBackupToUpgradeDescription
     let actionTitle = Localization.hwBackupNeedAction
 
-    private let onBackup: () -> Void
     private weak var coordinator: MobileBackupToUpgradeNeededRoutable?
+    private let onBackup: () -> Void
 
     init(coordinator: MobileBackupToUpgradeNeededRoutable, onBackup: @escaping () -> Void) {
         self.coordinator = coordinator
