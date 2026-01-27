@@ -60,7 +60,7 @@ final class SendKusamaNotificationUITests: BaseTestCase {
             scenarios: [kusamaTokenScenario, quotesScenario]
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(coin)
             .tapSendButton()

@@ -31,6 +31,5 @@ private extension HardwareCreateWalletCoordinatorView {
                 OnboardingCoordinatorView(coordinator: $0)
                     .navigationBarHidden(true)
             }
-            .emptyNavigationLink()
     }
 }

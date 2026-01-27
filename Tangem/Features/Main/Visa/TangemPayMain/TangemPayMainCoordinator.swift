@@ -91,11 +91,21 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
         )
     }
 
-    func openTangemPayPin(tangemPayAccount: TangemPayAccount) {
+    func openTangemPaySetPin(tangemPayAccount: TangemPayAccount) {
         tangemPayPinViewModel = TangemPayPinViewModel(
             tangemPayAccount: tangemPayAccount,
             coordinator: self
         )
+    }
+
+    func openTangemPayCheckPin(tangemPayAccount: TangemPayAccount) {
+        let viewModel = TangemPayPinCheckViewModel(
+            account: tangemPayAccount,
+            coordinator: self
+        )
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
     }
 
     func openTangemPayAddFundsSheet(input: TangemPayAddFundsSheetViewModel.Input) {
@@ -107,7 +117,17 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
 
     func openTangemPayWithdraw(input: ExpressDependenciesInput) {
         let factory = CommonExpressModulesFactory(input: input)
-        openExpress(factory: factory)
+        let viewModel = TangemPayWithdrawNoteSheetViewModel(coordinator: self) { [weak self] in
+            Task { @MainActor in
+                self?.floatingSheetPresenter.removeActiveSheet()
+                try? await Task.sleep(for: .seconds(0.2))
+                self?.openExpress(factory: factory)
+            }
+        }
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
     }
 
     func openTangemWithdrawInProgressSheet() {
@@ -183,6 +203,16 @@ extension TangemPayMainCoordinator: TangemPayNoDepositAddressSheetRoutable {
     }
 }
 
+// MARK: - TangemPayWithdrawNoteSheetRoutable
+
+extension TangemPayMainCoordinator: TangemPayWithdrawNoteSheetRoutable {
+    func closeWithdrawNoteSheetPopup() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
 // MARK: - TangemPayWithdrawInProgressSheetRoutable
 
 extension TangemPayMainCoordinator: TangemPayWithdrawInProgressSheetRoutable {
@@ -225,7 +255,7 @@ extension TangemPayMainCoordinator: TangemPayAddFundsSheetRoutable {
     func addFundsSheetRequestReceive(viewModel: ReceiveMainViewModel) {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
-            try? await Task.sleep(seconds: 0.2)
+            try? await Task.sleep(for: .seconds(0.2))
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
@@ -235,7 +265,7 @@ extension TangemPayMainCoordinator: TangemPayAddFundsSheetRoutable {
             floatingSheetPresenter.removeActiveSheet()
 
             // Give some time to hide sheet with animation
-            try? await Task.sleep(seconds: 0.2)
+            try? await Task.sleep(for: .seconds(0.2))
             let factory = CommonExpressModulesFactory(input: input)
             openExpress(factory: factory)
         }
@@ -286,5 +316,15 @@ extension TangemPayMainCoordinator: PendingExpressTxStatusRoutable {
 
     func dismissPendingTxSheet() {
         pendingExpressTxStatusBottomSheet = nil
+    }
+}
+
+// MARK: - TangemPayPinCheckRoutable
+
+extension TangemPayMainCoordinator: TangemPayPinCheckRoutable {
+    func closePinCheck() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
     }
 }

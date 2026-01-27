@@ -33,17 +33,16 @@ struct AccountDetailsCoordinatorView: View {
             .navigation(item: $coordinator.manageTokensCoordinator) {
                 ManageTokensCoordinatorView(coordinator: $0)
             }
-            .emptyNavigationLink()
     }
 
     private var sheets: some View {
         NavHolder()
             .sheet(item: $coordinator.editAccountViewModel) { viewModel in
-                NavigationView {
+                NavigationStack {
                     AccountFormView(viewModel: viewModel)
                 }
                 .presentation(onDismissalAttempt: viewModel.onClose)
-                .presentationCornerRadiusBackport(24)
+                .presentationCornerRadius(24)
             }
     }
 }

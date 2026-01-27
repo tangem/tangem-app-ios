@@ -41,7 +41,7 @@ private extension HardwareBackupTypesCoordinatorView {
     }
 
     func makeHardwareCreateWalletSheetContent(coordinator: HardwareCreateWalletCoordinator) -> some View {
-        NavigationView {
+        NavigationStack {
             HardwareCreateWalletCoordinatorView(coordinator: coordinator)
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {
@@ -49,7 +49,6 @@ private extension HardwareBackupTypesCoordinatorView {
                     }
                 }
         }
-        .navigationViewStyle(.stack)
         .presentation(modal: true, onDismissalAttempt: coordinator.onDismissalAttempt, onDismissed: nil)
         .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
             self.coordinator.modalKeeper = value

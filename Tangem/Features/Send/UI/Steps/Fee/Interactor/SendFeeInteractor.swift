@@ -19,7 +19,7 @@ protocol SendFeeInteractor {
     func update(selectedFee: SendFee)
 }
 
-class CommonSendFeeInteractor {
+final class CommonSendFeeInteractor {
     // MARK: Dependencies
 
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
@@ -54,15 +54,18 @@ class CommonSendFeeInteractor {
     func bind() {
         let suggestedFeeToUse = provider.feesPublisher
             .withWeakCaptureOf(self)
-            .compactMap { interactor, fees in
-                switch fees {
+            .compactMap { (interactor: CommonSendFeeInteractor, feesResult: LoadingResult<[SendFee], Error>) in
+                switch feesResult {
                 case .success(let fees):
                     return interactor.feeForAutoupdate(fees: fees)
+
                 case .failure(let error):
-                    return SendFee(option: .market, value: .failedToLoad(error: error))
+                    return SendFee(option: .market, value: .failure(error))
+
                 case .loading where interactor.input?.selectedFee.value.value == nil:
                     // Show skeleton if currently fee don't have value
                     return SendFee(option: .market, value: .loading)
+
                 case .loading:
                     // Do nothing to exclude jumping skeleton/value
                     return nil
@@ -207,7 +210,7 @@ private extension CommonSendFeeInteractor {
         case .success(let fees):
             return mapToFees(fees: fees, customFee: customFee)
         case .failure(let error):
-            return provider.feeOptions.map { SendFee(option: $0, value: .failedToLoad(error: error)) }
+            return provider.feeOptions.map { SendFee(option: $0, value: .failure(error)) }
         }
     }
 
@@ -219,7 +222,7 @@ private extension CommonSendFeeInteractor {
             let customFee = customFee ?? defaultOptions.first(where: { $0.option == .market })?.value.value
 
             if let customFee {
-                defaultOptions.append(SendFee(option: .custom, value: .loaded(customFee)))
+                defaultOptions.append(SendFee(option: .custom, value: .success(customFee)))
             }
         }
 

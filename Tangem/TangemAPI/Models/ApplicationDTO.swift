@@ -35,4 +35,10 @@ enum ApplicationDTO {
             let pushToken: String?
         }
     }
+
+    enum Connect {
+        struct Request: Encodable {
+            let walletIds: [String]
+        }
+    }
 }
