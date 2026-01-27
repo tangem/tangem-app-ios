@@ -191,7 +191,7 @@ final class CommonWCTransactionFeeManager: WCTransactionFeeManager {
         )
         events.append(contentsOf: highFeeEvents)
 
-        if case .failedToLoad = feeInteractor.selectedFee.value {
+        if case .failure = feeInteractor.selectedFee.value {
             events.append(.networkFeeUnreachable)
         }
 
