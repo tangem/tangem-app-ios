@@ -49,11 +49,13 @@ extension CommonExpressAvailabilityProvider: ExpressAvailabilityProvider {
     }
 
     func swapState(for tokenItem: TokenItem) -> TokenItemExpressState {
-        _cache.value[tokenItem.expressCurrency.asCurrency]?.swap ?? .notLoaded
+        // Swap availability is now checked on the exchange screen, not at startup
+        .available
     }
 
     func canSwap(tokenItem: TokenItem) -> Bool {
-        swapState(for: tokenItem) == .available
+        // Swap is always available - actual pair check happens on the exchange screen
+        true
     }
 
     func onrampState(for tokenItem: TokenItem) -> TokenItemExpressState {
