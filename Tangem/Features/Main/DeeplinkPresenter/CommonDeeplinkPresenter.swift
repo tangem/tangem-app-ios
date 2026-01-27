@@ -56,9 +56,14 @@ extension CommonDeeplinkPresenter: DeeplinkPresenter {
 // MARK: - Private Implementation
 
 private extension CommonDeeplinkPresenter {
-    func makeDeeplinkViewController<Content: View>(@ViewBuilder view: () -> Content, embedInNavigationView: Bool) -> UIViewController {
-        if embedInNavigationView {
-            let navRoot = NavigationView {
+    func makeDeeplinkViewController<Content: View>(
+        @ViewBuilder view: () -> Content,
+        embedInNavigationStack: Bool,
+        modalPresentationStyle: UIModalPresentationStyle = .automatic
+    ) -> UIViewController {
+        let controller: UIViewController
+        if embedInNavigationStack {
+            let navRoot = NavigationStack {
                 view()
                     .toolbar {
                         ToolbarItem(placement: .navigationBarLeading) {
@@ -69,10 +74,13 @@ private extension CommonDeeplinkPresenter {
                         }
                     }
             }
-            return UIHostingController(rootView: navRoot)
+            controller = UIHostingController(rootView: navRoot)
         } else {
-            return UIHostingController(rootView: view())
+            controller = UIHostingController(rootView: view())
         }
+        controller.modalPresentationStyle = modalPresentationStyle
+
+        return controller
     }
 }
 
@@ -107,10 +115,9 @@ private extension CommonDeeplinkPresenter {
         case .marketsTokenDetails(let tokenId):
             return constructMarketsTokenViewController(tokenId: tokenId)
 
-        case .onboardVisa(let deeplinkString, let userWalletModel):
+        case .onboardVisa(let deeplinkString):
             return constructTangemPayOnboardViewController(
                 deeplinkString: deeplinkString,
-                userWalletModel: userWalletModel
             )
 
         case .promo(let promoCode):
@@ -124,7 +131,10 @@ private extension CommonDeeplinkPresenter {
 
 private extension CommonDeeplinkPresenter {
     private func constructPromoViewController(promoCode: String) -> UIViewController {
-        let viewController = makeDeeplinkViewController(view: { PromocodeActivationView(promoCode: promoCode) }, embedInNavigationView: false)
+        let viewController = makeDeeplinkViewController(
+            view: { PromocodeActivationView(promoCode: promoCode) },
+            embedInNavigationStack: false
+        )
 
         viewController.view.backgroundColor = .clear
         viewController.modalPresentationStyle = .overFullScreen
@@ -149,7 +159,7 @@ private extension CommonDeeplinkPresenter {
 
         return makeDeeplinkViewController(
             view: { TokenDetailsCoordinatorView(coordinator: coordinator) },
-            embedInNavigationView: true
+            embedInNavigationStack: true
         )
     }
 
@@ -166,7 +176,7 @@ private extension CommonDeeplinkPresenter {
 
         return makeDeeplinkViewController(
             view: { TokenDetailsCoordinatorView(coordinator: coordinator) },
-            embedInNavigationView: true
+            embedInNavigationStack: true
         )
     }
 
@@ -176,7 +186,7 @@ private extension CommonDeeplinkPresenter {
         coordinator.start(with: .init(input: input))
         return makeDeeplinkViewController(
             view: { ReferralCoordinatorView(coordinator: coordinator) },
-            embedInNavigationView: true
+            embedInNavigationStack: true
         )
     }
 
@@ -195,7 +205,7 @@ private extension CommonDeeplinkPresenter {
 
         return makeDeeplinkViewController(
             view: { ActionButtonsBuyCoordinatorView(coordinator: coordinator) },
-            embedInNavigationView: false
+            embedInNavigationStack: false
         )
     }
 
@@ -208,7 +218,7 @@ private extension CommonDeeplinkPresenter {
         coordinator.start(with: .default)
         return makeDeeplinkViewController(
             view: { ActionButtonsSellCoordinatorView(coordinator: coordinator) },
-            embedInNavigationView: false
+            embedInNavigationStack: false
         )
     }
 
@@ -221,7 +231,7 @@ private extension CommonDeeplinkPresenter {
         coordinator.start(with: .default)
         return makeDeeplinkViewController(
             view: { ActionButtonsSwapCoordinatorView(coordinator: coordinator) },
-            embedInNavigationView: false
+            embedInNavigationStack: false
         )
     }
 
@@ -234,7 +244,7 @@ private extension CommonDeeplinkPresenter {
         coordinator.start(with: options)
         return makeDeeplinkViewController(
             view: { StakingDetailsCoordinatorView(coordinator: coordinator) },
-            embedInNavigationView: true
+            embedInNavigationStack: true
         )
     }
 
@@ -247,6 +257,7 @@ private extension CommonDeeplinkPresenter {
             currentPrice: nil,
             priceChangePercentage: [:],
             marketRating: nil,
+            maxYieldApy: nil,
             marketCap: nil,
             isUnderMarketCapLimit: nil,
             stakingOpportunities: nil
@@ -271,33 +282,25 @@ private extension CommonDeeplinkPresenter {
                 MarketsTokenDetailsCoordinatorView(coordinator: coordinator)
                     .environment(\.mainWindowSize, windowSize ?? .zero)
             },
-            embedInNavigationView: true
+            embedInNavigationStack: true
         )
     }
 
     private func constructTangemPayOnboardViewController(
-        deeplinkString: String,
-        userWalletModel: UserWalletModel
+        deeplinkString: String
     ) -> UIViewController {
-        var viewController: TangemPayOnboardingHostingController?
+        let coordinator = coordinatorFactory.makeTangemPayOnboardingCoordinator { _ in
+            UIApplication.dismissTop()
+        }
+        coordinator.start(with: .init(source: .deeplink(deeplinkString)))
 
-        let viewModel = TangemPayOnboardingViewModel(
-            deeplinkString: deeplinkString,
-            userWalletModel: userWalletModel,
-            closeOfferScreen: { @MainActor in
-                viewController?.customDismiss()
-                // To exclude reference cycle possibility
-                viewController = nil
-            }
+        return makeDeeplinkViewController(
+            view: {
+                TangemPayOnboardingCoordinatorView(coordinator: coordinator)
+            },
+            embedInNavigationStack: false,
+            modalPresentationStyle: .overFullScreen
         )
-
-        let view = TangemPayOnboardingView(viewModel: viewModel)
-        let controller = TangemPayOnboardingHostingController(rootView: view)
-        controller.modalPresentationStyle = .overFullScreen
-
-        viewController = controller
-
-        return controller
     }
 }
 

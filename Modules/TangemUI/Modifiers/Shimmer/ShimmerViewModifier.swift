@@ -50,6 +50,7 @@ private struct ShimmerViewModifier: ViewModifier {
                     LinearGradient(gradient: gradient, startPoint: gradientPoints.start, endPoint: gradientPoints.end)
                         .animation(isAppeared ? activeAnimation : dummyAnimation, value: isAppeared)
                 }
+                .drawingGroup()
                 .onAppear {
                     guard !isAppeared else {
                         return

@@ -91,30 +91,25 @@ private extension AccountSelectorView {
             }
 
             VStack(spacing: 6) {
-                ForEach(section.accounts) { account in
-                    accountSectionCell(for: account)
+                ForEach(section.accounts) { entry in
+                    accountSectionCell(for: entry)
                 }
             }
         }
     }
 
-    func accountSectionCell(for account: AccountSelectorAccountItem) -> some View {
+    func accountSectionCell(for entry: AccountSelectorMultipleAccountsItem.AccountEntry) -> some View {
         ZStack {
-            Button(
-                action: { viewModel.handleViewAction(.selectItem(.account(account))) },
-                label: {
-                    AccountRowView(input: viewModel.makeAccountRowInput(for: account))
-                        .lineLimit(1)
-                        .padding(.init(top: 12, leading: 14, bottom: 12, trailing: 14))
-                        .contentShape(.rect)
-                        .background(Colors.Background.action)
-                        .cornerRadius(14, corners: .allCorners)
-                }
-            )
-            .buttonStyle(.plain)
-            .disabled(account.availability != .available)
+            AccountRowButtonView(viewModel: entry.rowViewModel)
+                .buttonStyle(.plain)
+                .lineLimit(1)
+                .padding(.vertical, 12)
+                .padding(.horizontal, 14)
+                .contentShape(.rect)
+                .background(Colors.Background.action)
+                .cornerRadius(14, corners: .allCorners)
 
-            cellSelectionBorder(for: .account(account))
+            cellSelectionBorder(for: .account(entry.item))
         }
     }
 }

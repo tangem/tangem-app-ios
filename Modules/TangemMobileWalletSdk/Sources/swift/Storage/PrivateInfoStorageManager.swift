@@ -45,7 +45,8 @@ final class PrivateInfoStorageManager {
     }
 
     func validate(auth: AuthenticationUnlockData, for walletID: UserWalletId) throws -> MobileWalletContext {
-        _ = try getEncryptionKey(for: walletID, auth: auth)
+        var aesEncryptionKey = try getEncryptionKey(for: walletID, auth: auth)
+        defer { secureErase(data: &aesEncryptionKey) }
 
         return MobileWalletContext(walletID: walletID, authentication: auth)
     }
@@ -56,10 +57,7 @@ final class PrivateInfoStorageManager {
 
     func getPrivateInfoData(context: MobileWalletContext) throws -> Data {
         var aesEncryptionKey = try getEncryptionKey(for: context.walletID, auth: context.authentication)
-
-        defer {
-            secureErase(data: &aesEncryptionKey)
-        }
+        defer { secureErase(data: &aesEncryptionKey) }
 
         return try privateInfoStorage.getPrivateInfoData(for: context.walletID, aesEncryptionKey: aesEncryptionKey)
     }
@@ -69,7 +67,8 @@ final class PrivateInfoStorageManager {
         enableBiometrics: Bool = false,
         context: MobileWalletContext
     ) throws {
-        let aesEncryptionKey = try getEncryptionKey(for: context.walletID, auth: context.authentication)
+        var aesEncryptionKey = try getEncryptionKey(for: context.walletID, auth: context.authentication)
+        defer { secureErase(data: &aesEncryptionKey) }
 
         try encryptedSecureStorage.storeData(
             aesEncryptionKey,
@@ -96,7 +95,8 @@ final class PrivateInfoStorageManager {
     func enableBiometrics(
         context: MobileWalletContext
     ) throws {
-        let aesEncryptionKey = try getEncryptionKey(for: context.walletID, auth: context.authentication)
+        var aesEncryptionKey = try getEncryptionKey(for: context.walletID, auth: context.authentication)
+        defer { secureErase(data: &aesEncryptionKey) }
 
         try encryptedBiometricsStorage.storeData(
             aesEncryptionKey,

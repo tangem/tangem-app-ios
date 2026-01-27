@@ -17,7 +17,7 @@ struct UnarchivedCryptoAccountConditionsValidator {
 // MARK: - CryptoAccountConditionsValidator protocol conformance
 
 extension UnarchivedCryptoAccountConditionsValidator: CryptoAccountConditionsValidator {
-    typealias ValidationError = Error
+    typealias ValidationError = AccountRecoveryError
 
     func validate() async throws(ValidationError) {
         guard remoteState.accounts.count < AccountModelUtils.maxNumberOfAccounts else {
@@ -27,16 +27,7 @@ extension UnarchivedCryptoAccountConditionsValidator: CryptoAccountConditionsVal
 
         guard CryptoAccountNameUniquenessChecker(remoteState: remoteState).isNameUnique(newAccountName) else {
             // It's a recoverable error in this flow, therefore no logging needed here
-            throw .accountHasDuplicatedName
+            throw .duplicateAccountName
         }
-    }
-}
-
-// MARK: - Auxiliary types
-
-extension UnarchivedCryptoAccountConditionsValidator {
-    enum Error: Swift.Error {
-        case tooManyAccounts
-        case accountHasDuplicatedName
     }
 }

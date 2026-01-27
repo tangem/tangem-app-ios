@@ -8,30 +8,32 @@
 
 import Foundation
 import TangemUI
-import TangemUIUtils
 import Combine
 import CombineExt
 import TangemLocalization
 import TangemFoundation
+import TangemAccounts
 
 final class UserSettingsAccountsViewModel: ObservableObject {
     // MARK: - Published State
 
-    @Published var accountRows: [UserSettingsAccountRowViewData] = []
+    @Published var accountRows: [AccountRow] = []
     @Published private(set) var addNewAccountButton: AddListItemButton.ViewData?
-    @Published private(set) var archivedAccountButton: ArchivedAccountsButtonViewData?
+    @Published private(set) var archivedAccountsButton: ArchivedAccountsButtonViewData?
 
     // MARK: - Dependencies
 
     private let accountModelsManager: AccountModelsManager
+    private let accountsReorderer: UserSettingsAccountsReorderer
     private let userWalletConfig: UserWalletConfig
     private weak var coordinator: UserSettingsAccountsRoutable?
+
+    private var cachedAccountRows: [AnyHashable: AccountRow] = [:]
     private var bag = Set<AnyCancellable>()
 
     // MARK: - Init
 
     init(
-        accountModels: [AccountModel],
         accountModelsManager: AccountModelsManager,
         userWalletConfig: UserWalletConfig,
         coordinator: UserSettingsAccountsRoutable?
@@ -39,15 +41,10 @@ final class UserSettingsAccountsViewModel: ObservableObject {
         self.accountModelsManager = accountModelsManager
         self.userWalletConfig = userWalletConfig
         self.coordinator = coordinator
-
-        accountRows = accountModels.flatMap {
-            AccountModelToUserSettingsViewDataMapper.map(
-                from: $0,
-                onTap: { [weak self] in
-                    self?.onTapAccount(account: $0)
-                }
-            )
-        }
+        accountsReorderer = UserSettingsAccountsReorderer(
+            accountModelsReorderer: accountModelsManager,
+            debounceInterval: Constants.accountsReorderingDebounceInterval
+        )
 
         bind()
     }
@@ -58,21 +55,25 @@ final class UserSettingsAccountsViewModel: ObservableObject {
         accountRows.count > 1
     }
 
-    func makeAccountRowInput(from model: UserSettingsAccountRowViewData) -> AccountRowViewModel.Input {
-        AccountRowViewModel.Input(
-            iconData: model.accountIconViewData,
-            name: model.name,
-            subtitle: model.description,
-            balancePublisher: model.balancePublisher,
-            availability: .available
-        )
-    }
-
     // MARK: - Binding
 
     private func bind() {
+        bindAccountRows()
         bindArchivedAccountsButton()
         bindAddNewAccountButton()
+        bindPendingReorder()
+    }
+
+    private func bindAccountRows() {
+        accountModelsManager
+            .accountModelsPublisher
+            .map { Self.extractVisibleAccounts(from: $0) }
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, accounts in
+                viewModel.updateAccountRows(from: accounts)
+            }
+            .store(in: &bag)
     }
 
     private func bindArchivedAccountsButton() {
@@ -89,7 +90,7 @@ final class UserSettingsAccountsViewModel: ObservableObject {
                 }
             }
             .receiveOnMain()
-            .assign(to: \.archivedAccountButton, on: self, ownership: .weak)
+            .assign(to: \.archivedAccountsButton, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
@@ -97,6 +98,7 @@ final class UserSettingsAccountsViewModel: ObservableObject {
         accountModelsManager
             .accountModelsPublisher
             .withWeakCaptureOf(self)
+            .receiveOnMain()
             .map { viewModel, accountModels in
                 viewModel.makeAddNewAccountButtonViewData(from: accountModels)
             }
@@ -105,10 +107,28 @@ final class UserSettingsAccountsViewModel: ObservableObject {
             .store(in: &bag)
     }
 
+    private func bindPendingReorder() {
+        $accountRows
+            .removeDuplicates { lhs, rhs in
+                lhs.map(\.id) == rhs.map(\.id)
+            }
+            .pairwise()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, input in
+                let (oldRows, newRows) = input
+                viewModel.accountsReorderer.schedulePendingReorderIfNeeded(
+                    oldRows: oldRows,
+                    newRows: newRows,
+                    persistentIdentifierProvider: Self.extractPersistentIdentifier(from:)
+                )
+            }
+            .store(in: &bag)
+    }
+
     // MARK: - View Data Factory
 
     private func makeAddNewAccountButtonViewData(from accountModels: [AccountModel]) -> AddListItemButton.ViewData {
-        let accountCount = countAccounts(accountModels)
+        let accountCount = accountModels.cryptoAccountsCount
         let isLimitReached = accountCount >= AccountModelUtils.maxNumberOfAccounts
         let buttonState = makeAddNewAccountButtonState(isLimitReached: isLimitReached)
 
@@ -133,6 +153,7 @@ final class UserSettingsAccountsViewModel: ObservableObject {
     // MARK: - Actions
 
     private func onTapAccount(account: any BaseAccountModel) {
+        Analytics.log(.walletSettingsButtonOpenExistingAccount)
         coordinator?.openAccountDetails(
             account: account,
             accountModelsManager: accountModelsManager,
@@ -141,10 +162,12 @@ final class UserSettingsAccountsViewModel: ObservableObject {
     }
 
     private func onTapArchivedAccounts() {
+        Analytics.log(.walletSettingsButtonArchivedAccounts)
         coordinator?.openArchivedAccounts(accountModelsManager: accountModelsManager)
     }
 
     private func onTapNewAccount() {
+        Analytics.log(.walletSettingsButtonAddAccount)
         coordinator?.addNewAccount(accountModelsManager: accountModelsManager)
     }
 
@@ -154,19 +177,47 @@ final class UserSettingsAccountsViewModel: ObservableObject {
 
     // MARK: - Utilities
 
-    private func countAccounts(_ accountModels: [AccountModel]) -> Int {
-        accountModels.reduce(0) { count, accountModel in
-            // When new account types appear, clarify with your manager
-            // Whether those accounts should participate in this logic
+    private func updateAccountRows(from accounts: [any BaseAccountModel]) {
+        let currentIds = Set(accounts.map { $0.id.toAnyHashable() })
+        cachedAccountRows = cachedAccountRows.filter { currentIds.contains($0.key) }
+
+        accountRows = accounts.map { account in
+            let id = account.id.toAnyHashable()
+
+            if let cached = cachedAccountRows[id] {
+                return cached
+            }
+
+            let viewModel = AccountRowButtonViewModel(accountModel: account) { [weak self] in
+                self?.onTapAccount(account: account)
+            }
+            let accountRow = AccountRow(viewModel: viewModel, accountModel: account)
+            cachedAccountRows[id] = accountRow
+
+            return accountRow
+        }
+    }
+
+    private static func extractVisibleAccounts(from accountModels: [AccountModel]) -> [any BaseAccountModel] {
+        accountModels.flatMap { accountModel -> [any BaseAccountModel] in
             switch accountModel {
             case .standard(.single):
-                return count + 1
+                // Single accounts are not displayed in the UI
+                return []
             case .standard(.multiple(let cryptoAccountModels)):
-                return count + cryptoAccountModels.count
+                return cryptoAccountModels
             }
         }
     }
+
+    private static func extractPersistentIdentifier(
+        from accountRow: AccountRow
+    ) -> any AccountModelPersistentIdentifierConvertible {
+        accountRow.accountModel.id
+    }
 }
+
+// MARK: - Auxiliary types
 
 extension UserSettingsAccountsViewModel {
     struct ArchivedAccountsButtonViewData: Identifiable {
@@ -176,5 +227,28 @@ extension UserSettingsAccountsViewModel {
         var id: String {
             text
         }
+    }
+
+    /// An opaque wrapper to prevent an exposure of the `BaseAccountModel` associated with the row.
+    struct AccountRow: Identifiable {
+        var id: AccountRowButtonViewModel.ID { viewModel.id }
+        let viewModel: AccountRowButtonViewModel
+        fileprivate let accountModel: any BaseAccountModel
+
+        fileprivate init(
+            viewModel: AccountRowButtonViewModel,
+            accountModel: any BaseAccountModel
+        ) {
+            self.viewModel = viewModel
+            self.accountModel = accountModel
+        }
+    }
+}
+
+// MARK: - Constants
+
+private extension UserSettingsAccountsViewModel {
+    enum Constants {
+        static let accountsReorderingDebounceInterval = 1.0
     }
 }

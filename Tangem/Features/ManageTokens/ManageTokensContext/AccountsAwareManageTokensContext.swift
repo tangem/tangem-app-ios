@@ -41,19 +41,22 @@ final class AccountsAwareManageTokensContext: ManageTokensContext {
 
         // Check if target account matches current account
         if targetAccount.id == currentAccount.id {
-            return .currentAccount
+            return .currentAccount(isMainAccount: targetAccount.isMainAccount)
         }
 
-        return .differentAccount(accountName: targetAccount.name)
+        return .differentAccount(accountName: targetAccount.name, isMainAccount: targetAccount.isMainAccount)
     }
 
     func canManageBlockchain(_ blockchain: Blockchain) -> Bool {
-        if currentAccount.isMainAccount {
-            return true
+        AccountBlockchainManageabilityChecker.canManageBlockchain(blockchain, for: currentAccount)
+    }
+
+    func isAddedToPortfolio(_ tokenItem: TokenItem) -> Bool {
+        guard let targetCryptoAccount = findAccountForToken(tokenItem) else {
+            return false
         }
 
-        let helper = AccountDerivationPathHelper(blockchain: blockchain)
-        return helper.areAccountsAvailableForBlockchain()
+        return targetCryptoAccount.userTokensManager.contains(tokenItem, derivationInsensitive: false)
     }
 
     // MARK: - Private Helpers

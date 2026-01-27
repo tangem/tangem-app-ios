@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemNetworkUtils
 import TangemFoundation
 
 /// Conforms to both `CryptoAccountsNetworkService` and `ArchivedCryptoAccountsProvider` protocols.
@@ -24,70 +25,137 @@ final class CommonCryptoAccountsNetworkService {
         self.userWalletId = userWalletId
         self.mapper = mapper
     }
+
+    private func retry<T>(retryCount: Int, work: () async throws -> T) async throws(CryptoAccountsNetworkServiceError) -> T {
+        var currentRetryAttempt = 0
+        var lastError: CryptoAccountsNetworkServiceError?
+
+        while currentRetryAttempt <= retryCount {
+            do {
+                // Send the request immediately on the first attempt, then apply exponential backoff for subsequent attempts
+                if currentRetryAttempt > 0 {
+                    let retryInterval = ExponentialBackoffInterval(retryAttempt: currentRetryAttempt)
+                    try await Task.sleep(nanoseconds: retryInterval())
+                }
+                return try await work()
+            } catch let error as CryptoAccountsNetworkServiceError where error.isCancellationError {
+                throw error // Do not retry on cancellation error wrapped in `CryptoAccountsNetworkServiceError`
+            } catch let error where error.isCancellationError {
+                throw .underlyingError(error) // Do not retry on generic cancellation error
+            } catch {
+                lastError = (error as? CryptoAccountsNetworkServiceError) ?? .underlyingError(error)
+                currentRetryAttempt += 1
+            }
+        }
+
+        throw lastError ?? CryptoAccountsNetworkServiceError.noRetriesLeft
+    }
+}
+
+// MARK: - WalletsNetworkService protocol conformance
+
+extension CommonCryptoAccountsNetworkService: WalletsNetworkService {
+    func createWallet(with context: some Encodable) async throws(CryptoAccountsNetworkServiceError) {
+        do {
+            let newRevision = try await tangemApiService.createWallet(with: context)
+
+            if let newRevision {
+                eTagStorage.saveETag(newRevision, for: userWalletId)
+            }
+        } catch let error as CryptoAccountsNetworkServiceError {
+            throw error // Just re-throw an original error
+        } catch {
+            throw .underlyingError(error)
+        }
+    }
+
+    func updateWallet(userWalletId: String, context: some Encodable) async throws(CryptoAccountsNetworkServiceError) {
+        do {
+            try await tangemApiService.updateWallet(by: userWalletId, context: context)
+        } catch let error as CryptoAccountsNetworkServiceError {
+            throw error // Just re-throw an original error
+        } catch {
+            throw .underlyingError(error)
+        }
+    }
 }
 
 // MARK: - CryptoAccountsNetworkService protocol conformance
 
 extension CommonCryptoAccountsNetworkService: CryptoAccountsNetworkService {
-    func getCryptoAccounts() async throws(CryptoAccountsNetworkServiceError) -> RemoteCryptoAccountsInfo {
-        do {
-            let (newRevision, accountsDTO) = try await tangemApiService.getUserAccounts(userWalletId: userWalletId.stringValue)
+    func getCryptoAccounts(
+        retryCount: Int
+    ) async throws(CryptoAccountsNetworkServiceError) -> RemoteCryptoAccountsInfo {
+        return try await retry(retryCount: retryCount) {
+            do {
+                let (newRevision, accountsDTO) = try await tangemApiService.getUserAccounts(userWalletId: userWalletId.stringValue)
 
-            if let newRevision {
-                eTagStorage.saveETag(newRevision, for: userWalletId)
+                if let newRevision {
+                    eTagStorage.saveETag(newRevision, for: userWalletId)
+                }
+
+                return mapper.map(response: accountsDTO)
+            } catch let error as CryptoAccountsNetworkServiceError {
+                throw error // Just re-throw an original error
+            } catch let error as TangemAPIError where error.code == .notFound {
+                throw CryptoAccountsNetworkServiceError.noAccountsCreated
+            } catch {
+                throw CryptoAccountsNetworkServiceError.underlyingError(error)
             }
-
-            return mapper.map(response: accountsDTO)
-        } catch let error as CryptoAccountsNetworkServiceError {
-            throw error // Just re-throw an original error
-        } catch let error as TangemAPIError where error.code == .notFound {
-            throw CryptoAccountsNetworkServiceError.noAccountsCreated
-        } catch {
-            throw .underlyingError(error)
         }
     }
 
-    func saveAccounts(from cryptoAccounts: [StoredCryptoAccount]) async throws(CryptoAccountsNetworkServiceError) -> RemoteCryptoAccountsInfo {
-        do {
-            let (accountsDTO, _) = mapper.map(request: cryptoAccounts)
+    func saveAccounts(
+        from cryptoAccounts: [StoredCryptoAccount],
+        retryCount: Int
+    ) async throws(CryptoAccountsNetworkServiceError) -> RemoteCryptoAccountsInfo {
+        return try await retry(retryCount: retryCount) {
+            do {
+                let (accountsDTO, _) = mapper.map(request: cryptoAccounts)
 
-            guard let revision = eTagStorage.loadETag(for: userWalletId) else {
-                throw CryptoAccountsNetworkServiceError.missingRevision
+                guard let revision = eTagStorage.loadETag(for: userWalletId) else {
+                    throw CryptoAccountsNetworkServiceError.missingRevision
+                }
+
+                let (newRevision, newAccountsDTO) = try await tangemApiService.saveUserAccounts(
+                    userWalletId: userWalletId.stringValue,
+                    revision: revision,
+                    accounts: accountsDTO
+                )
+
+                if let newRevision {
+                    eTagStorage.saveETag(newRevision, for: userWalletId)
+                }
+
+                return mapper.map(response: newAccountsDTO)
+            } catch let error as CryptoAccountsNetworkServiceError {
+                throw error // Just re-throw an original error
+            } catch let error as TangemAPIError where error.code == .notFound {
+                throw CryptoAccountsNetworkServiceError.noAccountsCreated
+            } catch let error as TangemAPIError where error.code == .optimisticLockingFailed {
+                throw CryptoAccountsNetworkServiceError.inconsistentState
+            } catch {
+                throw CryptoAccountsNetworkServiceError.underlyingError(error)
             }
-
-            let (newRevision, newAccountsDTO) = try await tangemApiService.saveUserAccounts(
-                userWalletId: userWalletId.stringValue,
-                revision: revision,
-                accounts: accountsDTO
-            )
-
-            if let newRevision {
-                eTagStorage.saveETag(newRevision, for: userWalletId)
-            }
-
-            return mapper.map(response: newAccountsDTO)
-        } catch let error as CryptoAccountsNetworkServiceError {
-            throw error // Just re-throw an original error
-        } catch let error as TangemAPIError where error.code == .notFound {
-            throw CryptoAccountsNetworkServiceError.noAccountsCreated
-        } catch let error as TangemAPIError where error.code == .optimisticLockingFailed {
-            throw CryptoAccountsNetworkServiceError.inconsistentState
-        } catch {
-            throw .underlyingError(error)
         }
     }
 
-    func saveTokens(from cryptoAccounts: [StoredCryptoAccount]) async throws(CryptoAccountsNetworkServiceError) {
-        do {
-            let (_, userTokensDTO) = mapper.map(request: cryptoAccounts)
+    func saveTokens(
+        from cryptoAccounts: [StoredCryptoAccount],
+        retryCount: Int
+    ) async throws(CryptoAccountsNetworkServiceError) {
+        return try await retry(retryCount: retryCount) {
+            do {
+                let (_, userTokensDTO) = mapper.map(request: cryptoAccounts)
 
-            try await tangemApiService.saveTokens(list: userTokensDTO, for: userWalletId.stringValue)
-        } catch let error as CryptoAccountsNetworkServiceError {
-            throw error // Just re-throw an original error
-        } catch let error as TangemAPIError where error.code == .notFound {
-            throw CryptoAccountsNetworkServiceError.noAccountsCreated
-        } catch {
-            throw .underlyingError(error)
+                try await tangemApiService.saveTokens(list: userTokensDTO, for: userWalletId.stringValue)
+            } catch let error as CryptoAccountsNetworkServiceError {
+                throw error // Just re-throw an original error
+            } catch let error as TangemAPIError where error.code == .notFound {
+                throw CryptoAccountsNetworkServiceError.noAccountsCreated
+            } catch {
+                throw CryptoAccountsNetworkServiceError.underlyingError(error)
+            }
         }
     }
 }

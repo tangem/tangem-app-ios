@@ -17,6 +17,12 @@ struct MobileUnlockView: View {
 
     var body: some View {
         content
+            .onReceive(viewModel.$isAccessCodeAvailable) { isAccessCodeAvailable in
+                if !isAccessCodeAvailable {
+                    // [REDACTED_TODO_COMMENT]
+                    UIApplication.shared.endEditing()
+                }
+            }
             .onDisappear(perform: viewModel.onDisappear)
     }
 }

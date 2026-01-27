@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemLocalization
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 struct MarketsTokenDetailsListedOnExchangesView: View {
     let exchangesCount: Int
@@ -21,9 +22,14 @@ struct MarketsTokenDetailsListedOnExchangesView: View {
     var body: some View {
         Group {
             if isListedOnExchanges {
-                Button(action: buttonAction, label: {
-                    content
-                })
+                Button(
+                    action: buttonAction,
+                    label: {
+                        content
+                    }
+                )
+                .accessibilityIdentifier(
+                    MarketsAccessibilityIdentifiers.listedOnExchanges)
             } else {
                 content
             }
@@ -36,12 +42,16 @@ struct MarketsTokenDetailsListedOnExchangesView: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text(Localization.marketsTokenDetailsListedOn)
                     .style(Fonts.Bold.footnote.weight(.semibold), color: Colors.Text.tertiary)
+                    .accessibilityIdentifier(
+                        MarketsAccessibilityIdentifiers.listedOnExchangesTitle)
 
                 Group {
                     if isListedOnExchanges {
                         Text(Localization.marketsTokenDetailsAmountExchanges(exchangesCount))
                     } else {
                         Text(Localization.marketsTokenDetailsEmptyExchanges)
+                            .accessibilityIdentifier(
+                                MarketsAccessibilityIdentifiers.listedOnExchangesEmptyText)
                     }
                 }
                 .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
