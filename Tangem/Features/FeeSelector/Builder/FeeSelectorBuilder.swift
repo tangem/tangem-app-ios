@@ -18,18 +18,18 @@ struct FeeSelectorBuilder {
             summaryViewModel: FeeSelectorSummaryViewModel(
                 tokensDataProvider: feeSelectorInteractor,
                 feesDataProvider: feeSelectorInteractor,
-                feeFormatter: feeFormatter,
+                feeFormatter: feeFormatter
             ),
             tokensViewModel: FeeSelectorTokensViewModel(
-                tokensDataProvider: feeSelectorInteractor
+                tokensDataProvider: feeSelectorInteractor,
             ),
             feesViewModel: FeeSelectorFeesViewModel(
                 provider: feeSelectorInteractor,
                 customFeeDataProvider: feeSelectorInteractor,
                 feeFormatter: feeFormatter,
-                analytics: analytics
             ),
             router: router,
+            analytics: analytics
         )
     }
 }
