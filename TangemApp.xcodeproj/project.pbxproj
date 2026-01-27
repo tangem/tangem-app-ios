@@ -10996,9 +10996,9 @@
 		2D6E76AF2F28C79300449331 /* Detail */ = {
 			isa = PBXGroup;
 			children = (
-				2D6E76AC2F28C79300449331 /* Components */,
 				2D6E76AD2F28C79300449331 /* EarnDetailView.swift */,
 				2D6E76AE2F28C79300449331 /* EarnDetailViewModel.swift */,
+				2D6E76AC2F28C79300449331 /* Components */,
 			);
 			path = Detail;
 			sourceTree = "<group>";
