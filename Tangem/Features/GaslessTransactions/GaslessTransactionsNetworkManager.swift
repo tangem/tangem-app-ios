@@ -24,7 +24,8 @@ protocol GaslessTransactionsNetworkManager {
     func sendGaslessTransaction(_ transaction: GaslessTransaction) async throws -> String
     func initialize()
 
-    var feeRecipientAddress: String? { get }
+    var cachedFeeRecipientAddress: String? { get }
+    var feeRecipientAddress: String? { get async }
     /// Fire-and-forget variant for environments without an async context.
     /// We need this version to kick off fetching the fee recipient address early (e.g. during app startup)
     func preloadFeeRecipientAddress()
@@ -34,6 +35,7 @@ final class CommonGaslessTransactionsNetworkManager {
     private let apiService: GaslessTransactionsAPIService
     private let availableFeeTokensSubject = CurrentValueSubject<[FeeToken], Never>([])
     private var fetchFeeTokensTask: Task<Void, Never>?
+    private var feeRecipientTask: Task<String?, Never>?
     private var _feeRecipientAddress: String?
 
     init(apiService: GaslessTransactionsAPIService) {
@@ -44,6 +46,10 @@ final class CommonGaslessTransactionsNetworkManager {
 // MARK: - GaslessTransactionsNetworkManager
 
 extension CommonGaslessTransactionsNetworkManager: GaslessTransactionsNetworkManager {
+    var cachedFeeRecipientAddress: String? {
+        _feeRecipientAddress
+    }
+
     var currentHost: String {
         AppEnvironment.current.isProduction ?
             GaslessApiTargetConstants.prodBaseURL.absoluteString :
@@ -51,7 +57,29 @@ extension CommonGaslessTransactionsNetworkManager: GaslessTransactionsNetworkMan
     }
 
     var feeRecipientAddress: String? {
-        _feeRecipientAddress
+        get async {
+            if let cached = _feeRecipientAddress {
+                return cached
+            }
+            if let task = feeRecipientTask {
+                return await task.value
+            }
+
+            let task = Task<String?, Never> {
+                do {
+                    let address = try await apiService.getFeeRecipientAddress()
+                    _feeRecipientAddress = address
+                    return address
+                } catch {
+                    AppLogger.error("Failed to fetch fee recipient address", error: error)
+                    return nil
+                }
+            }
+            feeRecipientTask = task
+            let value = await task.value
+            feeRecipientTask = nil
+            return value
+        }
     }
 
     var availableFeeTokens: [FeeToken] {
