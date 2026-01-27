@@ -28,4 +28,7 @@ protocol MainCoordinatorChildFactory {
     ) -> StakingDetailsCoordinator
 
     func makeMarketsTokenDetailsCoordinator() -> MarketsTokenDetailsCoordinator
+    func makeTangemPayOnboardingCoordinator(
+        dismissAction: @escaping Action<TangemPayOnboardingCoordinator.DismissOptions?>
+    ) -> TangemPayOnboardingCoordinator
 }

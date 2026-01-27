@@ -157,9 +157,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%lih ago</string>
+        <string>%liStunde her</string>
         <key>other</key>
-        <string>%lih ago</string>
+        <string>%liStunden her</string>
       </dict>
     </dict>
     <key>news_published_minutes_ago</key>
@@ -173,9 +173,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li minute ago</string>
+        <string>%liMinute her</string>
         <key>other</key>
-        <string>%li minutes ago</string>
+        <string>%liMinuten her</string>
       </dict>
     </dict>
     <key>nft_collections_count</key>

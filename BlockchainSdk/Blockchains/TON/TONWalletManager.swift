@@ -262,15 +262,18 @@ private extension TONWalletManager {
 
 // MARK: - StakeKitTransactionSender, StakeKitTransactionSenderProvider
 
-extension TONWalletManager: StakeKitTransactionsBuilder, StakeKitTransactionSender {
+extension TONWalletManager: StakeKitTransactionSender, StakingTransactionsBuilder {
     typealias RawTransaction = String
 
     /// we need to pass the same signing input into prepareForSend method
-    func buildRawTransactions(
-        from transactions: [StakeKitTransaction],
+    func buildRawTransactions<T: StakingTransaction>(
+        from transactions: [T],
         publicKey: Wallet.PublicKey,
         signer: any TransactionSigner
     ) async throws -> [String] {
+        guard let transactions = transactions as? [StakeKitTransaction] else {
+            throw BlockchainSdkError.failedToBuildTx
+        }
         let expireAt = createExpirationTimestampSecs()
 
         let helper = TONStakeKitTransactionHelper(transactionBuilder: transactionBuilder)
@@ -285,10 +288,8 @@ extension TONWalletManager: StakeKitTransactionsBuilder, StakeKitTransactionSend
         ).async()
 
         return try signatures.enumerated().compactMap { index, signature -> RawTransaction? in
-            guard let transaction = transactions[safe: index],
-                  let preSignData = preSignData[safe: index] else { return nil }
+            guard let preSignData = preSignData[safe: index] else { return nil }
             return try helper.prepareForSend(
-                stakingTransaction: transaction,
                 preSignData: preSignData,
                 signatureInfo: signature
             )
@@ -297,7 +298,7 @@ extension TONWalletManager: StakeKitTransactionsBuilder, StakeKitTransactionSend
 }
 
 extension TONWalletManager: StakeKitTransactionDataBroadcaster {
-    func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> String {
+    func broadcast(rawTransaction: RawTransaction) async throws -> String {
         try await networkService.send(message: rawTransaction).async()
     }
 }

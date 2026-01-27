@@ -10,12 +10,11 @@ import XCTest
 import TangemAccessibilityIdentifiers
 @testable import TangemAssets
 
-final class OrganizeTokensScreen: ScreenBase<StoriesScreenElement> {
-    private lazy var tokensList = app.scrollViews[OrganizeTokensAccessibilityIdentifiers.tokensList]
-    private lazy var sortByBalanceButton = app.buttons[OrganizeTokensAccessibilityIdentifiers.sortByBalanceButton]
-    private lazy var groupButton =
-        app.buttons[OrganizeTokensAccessibilityIdentifiers.groupButton]
-    private lazy var applyButton = app.buttons[OrganizeTokensAccessibilityIdentifiers.applyButton]
+final class OrganizeTokensScreen: ScreenBase<OrganizeTokensScreenElement> {
+    private lazy var tokensList = scrollView(.tokensList)
+    private lazy var sortByBalanceButton = button(.sortByBalanceButton)
+    private lazy var groupButton = button(.groupButton)
+    private lazy var applyButton = button(.applyButton)
 
     @discardableResult
     func sortByBalance() -> Self {
@@ -202,5 +201,25 @@ final class OrganizeTokensScreen: ScreenBase<StoriesScreenElement> {
 
         let result = XCTWaiter().wait(for: [expectation], timeout: timeout)
         XCTAssertEqual(result, .completed, "Timed out waiting for group button to show '\(expectedButtonText)'")
+    }
+}
+
+enum OrganizeTokensScreenElement: String, UIElement {
+    case tokensList
+    case sortByBalanceButton
+    case groupButton
+    case applyButton
+
+    var accessibilityIdentifier: String {
+        switch self {
+        case .tokensList:
+            return OrganizeTokensAccessibilityIdentifiers.tokensList
+        case .sortByBalanceButton:
+            return OrganizeTokensAccessibilityIdentifiers.sortByBalanceButton
+        case .groupButton:
+            return OrganizeTokensAccessibilityIdentifiers.groupButton
+        case .applyButton:
+            return OrganizeTokensAccessibilityIdentifiers.applyButton
+        }
     }
 }

@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-class SendFeeFinishViewModel: ObservableObject, Identifiable {
+final class SendFeeFinishViewModel: ObservableObject, Identifiable {
     @Published var selectedFeeRowViewModel: FeeRowViewModel?
 
     private let feeTokenItem: TokenItem
@@ -35,11 +35,11 @@ class SendFeeFinishViewModel: ObservableObject, Identifiable {
 
     private func mapToFeeRowViewModel(fee: SendFee) -> FeeRowViewModel? {
         switch fee.value {
-        case .failedToLoad, .loading:
+        case .failure, .loading:
             // Do nothing to avoid incorrect UI
             return nil
 
-        case .loaded(let feeValue):
+        case .success(let feeValue):
             let feeComponents = feeFormatter.formattedFeeComponents(
                 fee: feeValue.amount.value,
                 currencySymbol: feeTokenItem.currencySymbol,
@@ -48,7 +48,7 @@ class SendFeeFinishViewModel: ObservableObject, Identifiable {
                 formattingOptions: .sendCryptoFeeFormattingOptions
             )
 
-            return FeeRowViewModel(option: fee.option, components: .loaded(feeComponents), style: .plain)
+            return FeeRowViewModel(option: fee.option, components: .success(feeComponents), style: .plain)
         }
     }
 }

@@ -40,4 +40,26 @@ enum PersistentStorageKey {
             return "onramp_preference"
         }
     }
+
+    /// Should the file be protected while the device is locked? For sensitive data.
+    var shouldEnableCompleteFileProtection: Bool {
+        switch self {
+        case .accounts:
+            false
+        case .allWalletConnectSessionsOld:
+            false
+        case .onrampPreference:
+            false
+        case .pendingExpressTransactions:
+            false
+        case .pendingOnrampTransactions:
+            false
+        case .pendingStakingTransactions:
+            false
+        case .walletConnectSessions:
+            false
+        case .wallets:
+            false
+        }
+    }
 }
