@@ -13,7 +13,7 @@ import TangemAssets
 import TangemLocalization
 
 struct AddressForRewardsSection: View {
-    let tokenType: ReferralViewModel.ReadyToBecomParticipantDisplayMode.TokenType
+    let tokenType: ReferralViewModel.ReadyToBecomeParticipantDisplayMode.TokenType
     let account: ReferralViewModel.SelectedAccountViewData
     let openAccountSelector: () -> Void
 
