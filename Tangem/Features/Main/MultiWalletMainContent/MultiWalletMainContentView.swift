@@ -93,15 +93,8 @@ struct MultiWalletMainContentView: View {
                 accountsList
 
                 makeTokensList(sections: viewModel.plainSections)
-                    .modifyView { view in
-                        // Don't apply `.cornerRadiusContinuous` modifier to this view on iOS 16.0 and above,
-                        // this will cause clipping of iOS context menu previews in `TokenItemView` view
-                        if #available(iOS 16.0, *) {
-                            view
-                        } else {
-                            view.cornerRadiusContinuous(Constants.cornerRadius)
-                        }
-                    }
+                    // Do not apply cornerRadius to the view directly to avoid clipping iOS context menus
+                    .background(Colors.Background.primary.cornerRadiusContinuous(Constants.cornerRadius))
                     .accessibilityIdentifier(MainAccessibilityIdentifiers.tokensList)
             }
         }
