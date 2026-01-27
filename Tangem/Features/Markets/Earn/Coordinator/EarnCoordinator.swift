@@ -31,6 +31,7 @@ final class EarnCoordinator: CoordinatorObject {
     func start(with options: Options) {
         Task { @MainActor in
             rootViewModel = EarnDetailViewModel(
+                mostlyUsedTokens: options.mostlyUsedTokens,
                 coordinator: self
             )
         }
@@ -40,7 +41,9 @@ final class EarnCoordinator: CoordinatorObject {
 // MARK: - Options
 
 extension EarnCoordinator {
-    struct Options {}
+    struct Options {
+        let mostlyUsedTokens: [EarnTokenModel]
+    }
 }
 
 // MARK: - EarnDetailRoutable

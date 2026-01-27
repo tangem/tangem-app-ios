@@ -531,6 +531,7 @@
 		2D6E76B72F28C79300449331 /* EarnFilterHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6E76AA2F28C79300449331 /* EarnFilterHeaderView.swift */; };
 		2D6E76B82F28C79300449331 /* EarnCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6E76A42F28C79300449331 /* EarnCoordinator.swift */; };
 		2D6E76BC2F28C9C800449331 /* EarnDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6E76BB2F28C9C800449331 /* EarnDataProvider.swift */; };
+		2D6E78322F28DF6E00449331 /* EarnMostlyUsedTileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6E78312F28DF6E00449331 /* EarnMostlyUsedTileView.swift */; };
 		2D70C61D2B21E90A00BD1DAB /* MarketsAddCustomItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D70C61B2B21E90A00BD1DAB /* MarketsAddCustomItemView.swift */; };
 		2D72D97E2EF5605B008868DE /* PulseMarketWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D72D9762EF5605B008868DE /* PulseMarketWidgetView.swift */; };
 		2D72D97F2EF5605B008868DE /* TopMarketWidgetRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D72D9792EF5605B008868DE /* TopMarketWidgetRoutable.swift */; };
@@ -5358,6 +5359,7 @@
 		2D6E76AD2F28C79300449331 /* EarnDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnDetailView.swift; sourceTree = "<group>"; };
 		2D6E76AE2F28C79300449331 /* EarnDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnDetailViewModel.swift; sourceTree = "<group>"; };
 		2D6E76BB2F28C9C800449331 /* EarnDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnDataProvider.swift; sourceTree = "<group>"; };
+		2D6E78312F28DF6E00449331 /* EarnMostlyUsedTileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnMostlyUsedTileView.swift; sourceTree = "<group>"; };
 		2D70C61B2B21E90A00BD1DAB /* MarketsAddCustomItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsAddCustomItemView.swift; sourceTree = "<group>"; };
 		2D72D95B2EF5605B008868DE /* MarketsTokenListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsTokenListViewModel.swift; sourceTree = "<group>"; };
 		2D72D95F2EF5605B008868DE /* MarketsMainRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsMainRoutable.swift; sourceTree = "<group>"; };
@@ -10985,6 +10987,7 @@
 				2D6E76A82F28C79300449331 /* EarnBestOpportunitiesListView.swift */,
 				2D6E76A92F28C79300449331 /* EarnDetailHeaderView.swift */,
 				2D6E76AA2F28C79300449331 /* EarnFilterHeaderView.swift */,
+				2D6E78312F28DF6E00449331 /* EarnMostlyUsedTileView.swift */,
 				2D6E76AB2F28C79300449331 /* EarnMostlyUsedView.swift */,
 			);
 			path = Components;
@@ -28382,6 +28385,7 @@
 				0F0B9CE42F1FE862005D1F0F /* MobileBackupTypesMode.swift in Sources */,
 				DC51186128609F71004FB954 /* CardOperationRoutable.swift in Sources */,
 				EF5FAE9C2EC3DF40004FEA9D /* TangemPayTransactionRecordMapper.swift in Sources */,
+				2D6E78322F28DF6E00449331 /* EarnMostlyUsedTileView.swift in Sources */,
 				0F721C252EE1D5D800C1183B /* TangemShopUrlBuilder.swift in Sources */,
 				EF3CC86E2CE4BF4C006A9FBD /* OnrampAmountCompactViewModel.swift in Sources */,
 				2D5DCC2F2C3309F1000EE379 /* MarketsTokensNetworkSelectorItemViewModel.swift in Sources */,
