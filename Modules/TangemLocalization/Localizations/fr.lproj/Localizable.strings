@@ -1151,6 +1151,7 @@
 "staking_amount_tron_integer_error_unstaking" = "Le montant d'annulation du staking sera arrondi à %1$@ TRX en raison des règles du réseau.";
 "staking_amount_tron_integer_error" = "Le montant du staking sera arrondi à %1$@ TRX en raison des règles du réseau.";
 "staking_apr_earn_badge" = "TAEG %1$@%%";
+"staking_cardano_details_rewards_info_text" = "Your staking rewards will start after 5 epochs (~25 days) while your delegation is registered and counted by the network.";
 "staking_claim_unstaked" = "Réclamation déstakée";
 "staking_details_account_fee_info" = "Un compte de staking est un compte spécial où sont stockés les jetons SOL stakés. Il est créé lorsque vous déléguez vos jetons à un validateur pour participer à la validation des transactions et gagner des récompenses. Des frais minimes sont facturés pour la création du compte de staking, qui sont restitués une fois le staking terminé.";
 "staking_details_account_fee" = "Frais de staking du compte";
