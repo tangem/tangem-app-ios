@@ -141,6 +141,14 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
             }
             .store(in: &bag)
 
+        interactor.ignoreDestinationClear
+            .withWeakCaptureOf(self)
+            .receiveOnMain()
+            .sink { viewModel, ignore in
+                viewModel.destinationAddressViewModel.update(shouldIgnoreClearButton: ignore)
+            }
+            .store(in: &bag)
+
         // MARK: - Transaction History
 
         Publishers

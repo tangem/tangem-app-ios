@@ -19,6 +19,8 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
+    @Injected(\.overlayContentStateController) private var bottomSheetStateController: OverlayContentStateController
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     // MARK: - Root ViewModels
 
@@ -36,6 +38,9 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     @Published var sendCoordinator: SendCoordinator? = nil
     @Published var expressCoordinator: ExpressCoordinator? = nil
     @Published var stakingDetailsCoordinator: StakingDetailsCoordinator? = nil
+    @Published var yieldModulePromoCoordinator: YieldModulePromoCoordinator? = nil
+    @Published var yieldModuleActiveCoordinator: YieldModuleActiveCoordinator? = nil
+    @Published var tokenDetailsCoordinator: TokenDetailsCoordinator? = nil
 
     private var safariHandle: SafariHandle?
 
@@ -67,6 +72,11 @@ extension MarketsTokenDetailsCoordinator {
     struct Options {
         let info: MarketsTokenModel
         let style: MarketsTokenDetailsPresentationStyle
+
+        init(info: MarketsTokenModel, style: MarketsTokenDetailsPresentationStyle) {
+            self.info = info
+            self.style = style
+        }
     }
 }
 
@@ -136,6 +146,90 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
         coordinator.start(with: options)
         stakingDetailsCoordinator = coordinator
     }
+
+    func makeYieldModuleFlowFactory(input: SendInput, manager: YieldModuleManager) -> YieldModuleFlowFactory? {
+        let factory = TransactionDispatcherFactory(walletModel: input.walletModel, signer: input.userWalletInfo.signer)
+        guard let dispatcher = factory.makeYieldModuleDispatcher() else {
+            return nil
+        }
+
+        return CommonYieldModuleFlowFactory(
+            walletModel: input.walletModel,
+            yieldModuleManager: manager,
+            transactionDispatcher: dispatcher
+        )
+    }
+
+    func openYieldModulePromoView(apy: Decimal, factory: YieldModuleFlowFactory) {
+        let dismissAction: Action<YieldModulePromoCoordinator.DismissOptions?> = { [weak self] option in
+            self?.yieldModulePromoCoordinator = nil
+            self?.proceedFeeCurrencyNavigatingDismissOption(option: option)
+        }
+
+        let coordinator = factory.makeYieldPromoCoordinator(apy: apy, dismissAction: dismissAction)
+        yieldModulePromoCoordinator = coordinator
+    }
+
+    func openYieldModuleActiveInfo(factory: YieldModuleFlowFactory) {
+        let dismissAction: Action<YieldModulePromoCoordinator.DismissOptions?> = { [weak self] option in
+            self?.yieldModuleActiveCoordinator = nil
+            self?.proceedFeeCurrencyNavigatingDismissOption(option: option)
+        }
+
+        let coordinator = factory.makeYieldActiveCoordinator(dismissAction: dismissAction)
+        yieldModuleActiveCoordinator = coordinator
+    }
+
+    private func openTokenDetails(walletModel: any WalletModel) {
+        guard let userWalletModel = userWalletRepository.selectedModel else {
+            return
+        }
+
+        let coordinator = TokenDetailsCoordinator { [weak self] in
+            self?.tokenDetailsCoordinator = nil
+        }
+
+        coordinator.start(with: .init(userWalletModel: userWalletModel, walletModel: walletModel))
+        tokenDetailsCoordinator = coordinator
+    }
+
+    func openYield(input: SendInput, yieldModuleManager: any YieldModuleManager) {
+        guard let factory = makeYieldModuleFlowFactory(input: input, manager: yieldModuleManager) else { return }
+
+        let logger = CommonYieldAnalyticsLogger(tokenItem: input.walletModel.tokenItem, userWalletId: input.walletModel.userWalletId)
+
+        func openActiveYield() {
+            logger.logEarningApyClicked(state: .enabled)
+            openYieldModuleActiveInfo(factory: factory)
+        }
+
+        func openPromoYield() {
+            if let apy = yieldModuleManager.state?.marketInfo?.apy {
+                openYieldModulePromoView(apy: apy, factory: factory)
+                logger.logEarningApyClicked(state: .disabled)
+            }
+        }
+
+        switch yieldModuleManager.state?.state {
+        case .active:
+            openActiveYield()
+        case .failedToLoad(_, let cached?):
+            switch cached {
+            case .active:
+                openActiveYield()
+            case .notActive:
+                openPromoYield()
+            default:
+                break
+            }
+        case .processing:
+            openTokenDetails(walletModel: input.walletModel)
+        case .notActive:
+            openPromoYield()
+        case .disabled, .failedToLoad, .loading, .none:
+            break
+        }
+    }
 }
 
 // MARK: - MarketsPortfolioContainerRoutable
@@ -164,8 +258,9 @@ extension MarketsTokenDetailsCoordinator {
         let action = { [weak self] in
             guard let self else { return }
 
-            let dismissAction: ExpressCoordinator.DismissAction = { [weak self] _ in
+            let dismissAction: ExpressCoordinator.DismissAction = { [weak self] option in
                 self?.expressCoordinator = nil
+                self?.proceedFeeCurrencyNavigatingDismissOption(option: option)
             }
 
             let openSwapBlock = { [weak self] in
@@ -265,3 +360,5 @@ private extension MarketsTokenDetailsCoordinator {
         static let topPadding: CGFloat = 52
     }
 }
+
+extension MarketsTokenDetailsCoordinator: FeeCurrencyNavigating {}

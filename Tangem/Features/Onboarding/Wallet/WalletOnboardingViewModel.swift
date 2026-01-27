@@ -242,7 +242,11 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
         return true
     }
 
-    lazy var importSeedPhraseModel: OnboardingSeedPhraseImportViewModel? = .init(inputProcessor: SeedPhraseInputProcessor(), delegate: self)
+    lazy var importSeedPhraseModel: OnboardingSeedPhraseImportViewModel? = .init(
+        inputProcessor: SeedPhraseInputProcessor(),
+        shouldShowTangemIcon: true,
+        delegate: self
+    )
     var generateSeedPhraseModel: OnboardingSeedPhraseGenerateViewModel?
     var validationUserSeedPhraseModel: OnboardingSeedPhraseUserValidationViewModel?
 
@@ -661,13 +665,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
             case .success(let cardInfo):
                 initializeUserWallet(from: cardInfo)
 
-                if let userWalletModel, userWalletModel.hasImportedWallets {
-                    let userWalletId = userWalletModel.userWalletId.stringValue
-                    runTask(in: self) { model in
-                        try? await model.tangemApiService.setWalletInitialized(userWalletId: userWalletId)
-                    }
-                }
-
                 if let primaryCard = cardInfo.primaryCard {
                     backupService.setPrimaryCard(primaryCard)
                 }
@@ -1047,7 +1044,7 @@ private extension WalletOnboardingViewModel {
             cardInteractors.append(FactorySettingsResettingCardInteractor(with: $0.cardId))
         }
 
-        let resetUtil = ResetToFactoryUtilBuilder().build(cardInteractors: cardInteractors)
+        let resetUtil = ResetToFactoryUtilBuilder(flow: .reset).build(cardInteractors: cardInteractors)
 
         resetUtil.alertPublisher
             .receiveOnMain()
@@ -1099,6 +1096,8 @@ extension WalletOnboardingViewModel: OnboardingSeedPhraseGenerationDelegate {
 
 extension WalletOnboardingViewModel: SeedPhraseImportDelegate {
     func importSeedPhrase(mnemonic: Mnemonic, passphrase: String) {
+        Analytics.log(.onboardingSeedButtonImport)
+
         do {
             try ensureWalletIsNotAlreadyAdded(mnemonic: mnemonic, passphrase: passphrase)
 
