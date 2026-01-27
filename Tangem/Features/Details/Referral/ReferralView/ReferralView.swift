@@ -147,7 +147,7 @@ struct ReferralView: View {
     }
 
     @ViewBuilder
-    private func makeReadyToBecomeParticipantView(_ displayMode: ReferralViewModel.ReadyToBecomParticipantDisplayMode) -> some View {
+    private func makeReadyToBecomeParticipantView(_ displayMode: ReferralViewModel.ReadyToBecomeParticipantDisplayMode) -> some View {
         switch displayMode {
         case .simple:
             simpleReadyToBecomeParticipantView
