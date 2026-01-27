@@ -1151,6 +1151,7 @@
 "staking_amount_tron_integer_error_unstaking" = "La cantidad de unstaking se redondeará a %1$@ TRX debido a las reglas de la red.";
 "staking_amount_tron_integer_error" = "La cantidad de staking se redondeará a %1$@ TRX debido a las reglas de la red.";
 "staking_apr_earn_badge" = "APR %1$@%%";
+"staking_cardano_details_rewards_info_text" = "Your staking rewards will start after 5 epochs (~25 days) while your delegation is registered and counted by the network.";
 "staking_claim_unstaked" = "Reclamar lo que no está en staking";
 "staking_details_account_fee_info" = "Una cuenta de staking es una cuenta especial donde se almacenan los tokens SOL de staking. Se crea cuando delegas sus tokens a un validador para participar en la validación de transacciones y ganar recompensas. Se cobra una pequeña tarifa por crear la cuenta de staking, que se devuelve una vez que se completa el staking.";
 "staking_details_account_fee" = "Tarifa de staking de la cuenta ";
