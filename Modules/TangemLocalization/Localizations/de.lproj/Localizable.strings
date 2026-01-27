@@ -426,6 +426,11 @@
 "domain_receive_assets_onboarding_description" = "Das Senden von Vermögenswerten in anderen Netzwerken führt zu dauerhaftem Verlust.";
 "domain_receive_assets_onboarding_network_name" = "%@ Netzwerk";
 "domain_receive_assets_onboarding_title" = "Sende Geld nur mit";
+"earn_best_opportunities" = "Best opportunities";
+"earn_filter_all_networks" = "All networks";
+"earn_filter_all_types" = "All types";
+"earn_mostly_used" = "Mostly used";
+"earn_title" = "Earn";
 "email_preface_wc_error" = "Hallo Support-Team, ich habe einen Fehler mit dem Code %@ festgestellt.";
 "email_subject_wc_error" = "WalletConnect-Fehler";
 "error_wrong_wallet_tapped" = "Du hast eine Karte oder Ring aus einer anderen Wallet verwendet. Tippe auf die Karte oder Ring, die dieser Wallet zugeordnet ist.";
