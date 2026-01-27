@@ -23,6 +23,8 @@ final class CommonMarketsWidgetEarnService: MarketsWidgetEarnProvider {
 
     private var updateTask: AnyCancellable?
 
+    private let mapper = EarnModelMapper()
+
     deinit {
         updateTask?.cancel()
     }
@@ -44,12 +46,22 @@ extension CommonMarketsWidgetEarnService {
 
         earnResultValueSubject.value = .loading
 
-        // [REDACTED_TODO_COMMENT]
-        // For now, return empty array as placeholder
         updateTask = runTask(in: self) { service in
-            // Placeholder: return empty array
-            // Will be replaced with actual API call when TangemApiService method is implemented
-            service.earnResultValueSubject.send(.success([]))
+            do {
+                let requestModel = EarnDTO.List.Request(
+                    isForEarn: true,
+                    page: nil,
+                    limit: nil,
+                    type: nil,
+                    network: nil
+                )
+
+                let response = try await service.tangemApiService.loadEarnYieldMarkets(requestModel: requestModel)
+                let earnTokenModels = response.items.map { service.mapper.mapToEarnTokenModel(from: $0) }
+                service.earnResultValueSubject.send(.success(earnTokenModels))
+            } catch {
+                service.earnResultValueSubject.send(.failure(error))
+            }
         }.eraseToAnyCancellable()
     }
 }
