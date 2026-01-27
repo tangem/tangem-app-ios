@@ -1151,6 +1151,7 @@
 "staking_amount_tron_integer_error_unstaking" = "Сумма для вывода из стейкинга будет округлена до %1$@ TRX ввиду особенностей сети.";
 "staking_amount_tron_integer_error" = "Согласно правилам сети, сумма стейкинга будет округлена до %1$@TRX.";
 "staking_apr_earn_badge" = "APR %1$@%%";
+"staking_cardano_details_rewards_info_text" = "Your staking rewards will start after 5 epochs (~25 days) while your delegation is registered and counted by the network.";
 "staking_claim_unstaked" = "Забрать средства";
 "staking_details_account_fee_info" = "Стейкинг аккаунт — это специальный счет, на котором хранятся застейканные токены SOL. Он создается при делегировании ваших токенов валидатору для участия в подтверждении транзакций и получении наград. За создание стейкинг аккаунта взимается небольшая комиссия, которая возвращается после завершения стейкинга.";
 "staking_details_account_fee" = "Комиссия за стейкинг аккаунт";
