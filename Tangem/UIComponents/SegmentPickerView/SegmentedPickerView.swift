@@ -26,6 +26,7 @@ public struct SegmentedPickerView<Option: Hashable & Identifiable, SelectionView
     private let segmentContent: (Option, Bool) -> SegmentContent
     private let shouldStretchToFill: Bool
     private let isDisabled: Bool
+    private let segmentAccessibilityIdentifier: ((Option) -> String)?
 
     @State private var optionIsPressed: [Option.ID: Bool] = [:]
     @State private var selectedIndex: Int
@@ -52,6 +53,7 @@ public struct SegmentedPickerView<Option: Hashable & Identifiable, SelectionView
         shouldStretchToFill: Bool,
         isDisabled: Bool,
         selectionView: @escaping () -> SelectionView,
+        segmentAccessibilityIdentifier: ((Option) -> String)? = nil,
         @ViewBuilder segmentContent: @escaping (Option, Bool) -> SegmentContent
     ) {
         _selection = selection
@@ -60,6 +62,7 @@ public struct SegmentedPickerView<Option: Hashable & Identifiable, SelectionView
         self.segmentContent = segmentContent
         self.shouldStretchToFill = shouldStretchToFill
         self.isDisabled = isDisabled
+        self.segmentAccessibilityIdentifier = segmentAccessibilityIdentifier
         optionIsPressed = Dictionary(uniqueKeysWithValues: options.lazy.map { ($0.id, false) })
         selectedIndex = options.firstIndex(of: selection.wrappedValue) ?? 0
     }
@@ -91,6 +94,7 @@ public struct SegmentedPickerView<Option: Hashable & Identifiable, SelectionView
                     backgroundID: buttonBackgroundID,
                     namespaceID: namespaceID,
                     targetWidth: targetWidth,
+                    accessibilityIdentifier: segmentAccessibilityIdentifier?(option),
                     action: {
                         if selection == option || isDisabled {
                             return
@@ -158,6 +162,7 @@ private extension SegmentedPickerView {
         let backgroundID: String
         let namespaceID: Namespace.ID
         let targetWidth: CGFloat?
+        let accessibilityIdentifier: String?
         let action: () -> Void
 
         // MARK: - UI
@@ -176,6 +181,7 @@ private extension SegmentedPickerView {
                     }
                     .animation(animation, value: isSelected)
             }
+            .accessibilityIdentifier(accessibilityIdentifier ?? "")
             .buttonStyle(SegmentButtonStyle(isPressed: $isPressed))
         }
     }
@@ -200,6 +206,7 @@ public extension SegmentedPickerView {
         shouldStretchToFill: Bool,
         isDisabled: Bool,
         selectionView: SelectionView,
+        segmentAccessibilityIdentifier: ((Option) -> String)? = nil,
         @ViewBuilder segmentContent: @escaping (Option, Bool) -> SegmentContent
     ) {
         self.init(
@@ -208,6 +215,7 @@ public extension SegmentedPickerView {
             shouldStretchToFill: shouldStretchToFill,
             isDisabled: isDisabled,
             selectionView: { selectionView },
+            segmentAccessibilityIdentifier: segmentAccessibilityIdentifier,
             segmentContent: segmentContent
         )
     }

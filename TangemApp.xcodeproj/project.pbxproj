@@ -2813,6 +2813,7 @@
 		D826F6C22EAA430C00CA6353 /* SendAzeroNotificationUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D826F6C12EAA430C00CA6353 /* SendAzeroNotificationUITests.swift */; };
 		D826F6C42EAA58D900CA6353 /* SendKusamaNotificationUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D826F6C32EAA58D900CA6353 /* SendKusamaNotificationUITests.swift */; };
 		D82DA8DE2E7AFB7000DFF7AF /* wallet2Imported.json in Resources */ = {isa = PBXBuildFile; fileRef = D82DA8DD2E7AFB7000DFF7AF /* wallet2Imported.json */; };
+		D830EE132F22222E00515821 /* MarketsTokenListUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D830EE122F22222E00515821 /* MarketsTokenListUITests.swift */; };
 		D83EAE752EF1F449009B72AC /* AddressesInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83EAE732EF1F449009B72AC /* AddressesInfoView.swift */; };
 		D83EAE762EF1F449009B72AC /* AddressesInfoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83EAE742EF1F449009B72AC /* AddressesInfoViewModel.swift */; };
 		D83EAEE02EF413CE009B72AC /* EnvironmentSetupScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83EAEDD2EF413CE009B72AC /* EnvironmentSetupScreen.swift */; };
@@ -7576,6 +7577,7 @@
 		D826F6C12EAA430C00CA6353 /* SendAzeroNotificationUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAzeroNotificationUITests.swift; sourceTree = "<group>"; };
 		D826F6C32EAA58D900CA6353 /* SendKusamaNotificationUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendKusamaNotificationUITests.swift; sourceTree = "<group>"; };
 		D82DA8DD2E7AFB7000DFF7AF /* wallet2Imported.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = wallet2Imported.json; sourceTree = "<group>"; };
+		D830EE122F22222E00515821 /* MarketsTokenListUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsTokenListUITests.swift; sourceTree = "<group>"; };
 		D83EAE732EF1F449009B72AC /* AddressesInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressesInfoView.swift; sourceTree = "<group>"; };
 		D83EAE742EF1F449009B72AC /* AddressesInfoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressesInfoViewModel.swift; sourceTree = "<group>"; };
 		D83EAEDC2EF413CE009B72AC /* AddressesInfoScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressesInfoScreen.swift; sourceTree = "<group>"; };
@@ -18672,6 +18674,7 @@
 		D8BDC5942EEC163200709D4F /* Markets */ = {
 			isa = PBXGroup;
 			children = (
+				D830EE122F22222E00515821 /* MarketsTokenListUITests.swift */,
 				D81CE66C2EFEE69B0019144A /* MarketsSearchUITests.swift */,
 				D8BDC5922EEC162E00709D4F /* MarketsExchangeUITests.swift */,
 			);
@@ -29476,6 +29479,7 @@
 				D863E7502E65C77D00912D52 /* ResetCardScreen.swift in Sources */,
 				D876699B2EB116C100E53613 /* ReceiveQRCodeSheet.swift in Sources */,
 				D876699C2EB116C100E53613 /* MoonPayPage.swift in Sources */,
+				D830EE132F22222E00515821 /* MarketsTokenListUITests.swift in Sources */,
 				D8B80B622EC4B6860002B6A5 /* SendConfirmationUITests.swift in Sources */,
 				D876699D2EB116C100E53613 /* NetworkSelectionWarningSheet.swift in Sources */,
 				D876699E2EB116C100E53613 /* ReceiveTemplatesSheet.swift in Sources */,
