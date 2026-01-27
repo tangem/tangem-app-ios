@@ -13,18 +13,62 @@ import TangemFoundation
 
 struct CommonExpressInteractorAnalyticsLogger {
     private let tokenItem: TokenItem
+    private let feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder
 
-    init(tokenItem: TokenItem) {
+    init(tokenItem: TokenItem, feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder) {
         self.tokenItem = tokenItem
+        self.feeAnalyticsParameterBuilder = feeAnalyticsParameterBuilder
     }
 }
 
 // MARK: - ExpressAnalyticsLogger
 
 extension CommonExpressInteractorAnalyticsLogger: ExpressInteractorAnalyticsLogger {
-    func logFeeStepOpened() {}
+    func logFeeSelected(_ feeOption: FeeOption) {
+        // [REDACTED_TODO_COMMENT]
+        // [REDACTED_INFO]
+    }
 
-    func logSendFeeSelected(_ feeOption: FeeOption) {}
+    func logCustomFeeClicked() {
+        // Custom fees are not supported for express
+    }
+
+    func logFeeSummaryOpened() {
+        Analytics.log(event: .swapFeeSummaryScreenOpened, params: [.blockchain: tokenItem.blockchain.displayName])
+    }
+
+    func logFeeTokensOpened(availableTokenFees: [TokenFee]) {
+        let availableFeeParam = availableTokenFees.map { SendAnalyticsHelper.makeAnalyticsTokenName(from: $0.tokenItem) }.joined(separator: ", ")
+        Analytics.log(
+            event: .swapFeeTokenScreenOpened,
+            params: [.availableFee: availableFeeParam, .blockchain: tokenItem.blockchain.displayName]
+        )
+    }
+
+    func logFeeStepOpened() {
+        switch tokenItem.token?.metadata.kind {
+        case .fungible, .none:
+            Analytics.log(event: .swapFeeScreenOpened, params: [.blockchain: tokenItem.blockchain.displayName])
+        case .nonFungible:
+            Analytics.log(.nftCommissionScreenOpened)
+        }
+    }
+
+    func logFeeSelected(tokenFee: TokenFee) {
+        let feeTypeParam = feeAnalyticsParameterBuilder.analyticsParameter(selectedFee: tokenFee.option)
+        let feeTokenParam = SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenFee.tokenItem)
+        let sourceParam: Analytics.ParameterValue = .swap
+        let blockchainParam = tokenFee.tokenItem.blockchain.displayName
+
+        let params: [Analytics.ParameterKey: String] = [
+            .feeToken: feeTokenParam,
+            .feeType: feeTypeParam.rawValue,
+            .source: sourceParam.rawValue,
+            .blockchain: blockchainParam,
+        ]
+
+        Analytics.log(event: .swapFeeSelected, params: params)
+    }
 
     func logExpressError(_ error: Error, provider: ExpressProvider?) {
         var parameters: [Analytics.ParameterKey: String] = [
