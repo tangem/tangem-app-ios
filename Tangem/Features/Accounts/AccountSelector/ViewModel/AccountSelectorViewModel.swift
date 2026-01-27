@@ -91,7 +91,6 @@ final class AccountSelectorViewModel: ObservableObject {
                     onSelect(.wallet(model))
                 }
             case .account(let model):
-                guard model.availability == .available else { return }
                 selectedItem = model.domainModel
                 onSelect(.account(model))
             }
@@ -110,19 +109,6 @@ final class AccountSelectorViewModel: ObservableObject {
         }
 
         return false
-    }
-
-    func makeAccountRowInput(for account: AccountSelectorAccountItem) -> AccountRowViewModel.Input {
-        AccountRowViewModel.Input(
-            iconData: AccountModelUtils.UI.iconViewData(
-                icon: account.icon,
-                accountName: account.name
-            ),
-            name: account.name,
-            subtitle: account.tokensCount,
-            balancePublisher: account.availability.isBalanceVisible ? account.formattedBalanceTypePublisher : nil,
-            availability: account.availability
-        )
     }
 
     // MARK: - Private Methods
@@ -220,8 +206,12 @@ final class AccountSelectorViewModel: ObservableObject {
                         userWalletModel: userWallet,
                         availability: .available
                     ),
-                ]
+                ],
+                onSelect: { [weak self] item in
+                    self?.handleViewAction(.selectItem(.account(item)))
+                }
             )
+
         case .standard(.multiple(let cryptoAccountModels)):
             let filteredCryptoAccountModels = cryptoAccountModels.filter(cryptoAccountModelsFilter)
 
@@ -231,6 +221,9 @@ final class AccountSelectorViewModel: ObservableObject {
                 userWallet: userWallet,
                 accounts: filteredCryptoAccountModels.map {
                     AccountSelectorAccountItem(account: $0, userWalletModel: userWallet, availability: availabilityProvider($0))
+                },
+                onSelect: { [weak self] item in
+                    self?.handleViewAction(.selectItem(.account(item)))
                 }
             )
         }

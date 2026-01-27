@@ -18,4 +18,5 @@ public enum CardSettingsAccessibilityIdentifiers {
     public static let resetCardButton = "cardSettingsResetCardButton"
     public static let accessToCard = "cardSettingsAccessToCardCheckbox"
     public static let accessCodeRecovery = "cardSettingsAccessCodeRecovery"
+    public static let tangemPay = "cardSettingsTangemPayCheckbox"
 }

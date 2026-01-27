@@ -14,7 +14,7 @@ final class ResetCardUITests: BaseTestCase {
         setAllureId(3974)
         launchApp()
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .openDetails()
             .openWalletSettings(for: "Wallet")
@@ -38,7 +38,7 @@ final class ResetCardUITests: BaseTestCase {
         setAllureId(3987)
         launchApp()
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet)
             .openDetails()
             .openWalletSettings(for: "Wallet")
@@ -62,7 +62,7 @@ final class ResetCardUITests: BaseTestCase {
         setAllureId(3988)
         launchApp()
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .walletNoBackup)
             .openDetails()
             .openWalletSettings(for: "Wallet")

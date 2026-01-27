@@ -7,34 +7,38 @@
 //
 
 import Foundation
+import BlockchainSdk
 
-public struct StakingTransactionInfo: Hashable {
-    public let id: String
-    public let actionId: String
+public protocol StakingTransactionMetadata {
+    var id: String { get }
+}
+
+public struct StakingTransactionInfo {
     public let network: String
-    public let unsignedTransactionData: String
+    public let unsignedTransactionData: UnsignedTransactionData
     public let fee: Decimal
-    public let type: String
-    public let status: String
-    public let stepIndex: Int
+    public let metadata: StakingTransactionMetadata?
 
     public init(
-        id: String,
-        actionId: String,
         network: String,
-        unsignedTransactionData: String,
+        unsignedTransactionData: UnsignedTransactionData,
         fee: Decimal,
-        type: String,
-        status: String,
-        stepIndex: Int
+        metadata: StakingTransactionMetadata? = nil
     ) {
-        self.id = id
-        self.actionId = actionId
         self.network = network
         self.unsignedTransactionData = unsignedTransactionData
         self.fee = fee
-        self.type = type
-        self.status = status
-        self.stepIndex = stepIndex
+        self.metadata = metadata
+    }
+}
+
+extension StakingTransactionInfo: Hashable {
+    public static func == (lhs: StakingTransactionInfo, rhs: StakingTransactionInfo) -> Bool {
+        lhs.unsignedTransactionData == rhs.unsignedTransactionData && lhs.fee == rhs.fee
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(unsignedTransactionData)
+        hasher.combine(fee)
     }
 }
