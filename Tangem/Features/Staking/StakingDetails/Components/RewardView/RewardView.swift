@@ -23,6 +23,10 @@ struct RewardView: View {
     @ViewBuilder
     var content: some View {
         switch data.state {
+        case .noRewards where data.networkType == .cardano:
+            Text(Localization.stakingCardanoDetailsRewardsInfoText)
+                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+
         case .noRewards:
             Text(Localization.stakingDetailsNoRewardsToClaim)
                 .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
