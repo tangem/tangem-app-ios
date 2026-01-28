@@ -20,6 +20,7 @@ enum Feature: String, Hashable, CaseIterable {
     case tangemPayPermanentEntryPoint
     case gaslessTransactions
     case exchangeOnlyWithinSingleAddress
+    case experimentService
     case expressAllTokensSearch
 
     var name: String {
@@ -35,6 +36,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .tangemPayPermanentEntryPoint: return "TangemPay Permanent Entry Point"
         case .gaslessTransactions: return "Gasless transactions"
         case .exchangeOnlyWithinSingleAddress: return "Filter by `exchangeOnlyWithinSingleAddress`"
+        case .experimentService: return "Experiment service"
         case .expressAllTokensSearch: return "Express All Tokens Search"
         }
     }
@@ -52,6 +54,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .tangemPayPermanentEntryPoint: return .unspecified
         case .gaslessTransactions: return .unspecified
         case .exchangeOnlyWithinSingleAddress: return .unspecified
+        case .experimentService: return .unspecified
         case .expressAllTokensSearch: return .unspecified
         }
     }

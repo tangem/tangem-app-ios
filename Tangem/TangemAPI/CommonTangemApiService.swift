@@ -340,6 +340,12 @@ extension CommonTangemApiService: TangemApiService {
         return try await request(for: .tokenExchangesList(requestModel), decoder: decoder)
     }
 
+    // MARK: - Earn Implementation
+
+    func loadEarnYieldMarkets(requestModel: EarnDTO.List.Request) async throws -> EarnDTO.List.Response {
+        return try await request(for: .earnYieldMarkets(requestModel), decoder: decoder)
+    }
+
     // MARK: - Action Buttons
 
     func loadHotCrypto(requestModel: HotCryptoDTO.Request) async throws -> HotCryptoDTO.Response {
@@ -470,6 +476,10 @@ extension CommonTangemApiService: TangemApiService {
 
     func loadNewsList(requestModel: NewsDTO.List.Request) async throws -> NewsDTO.List.Response {
         return try await request(for: .newsList(requestModel), decoder: decoder)
+    }
+
+    func loadNewsDetails(requestModel: NewsDTO.Details.Request) async throws -> NewsDTO.Details.Response {
+        return try await request(for: .newsDetails(requestModel), decoder: decoder)
     }
 
     func loadNewsCategories() async throws -> NewsDTO.Categories.Response {
