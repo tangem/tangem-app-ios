@@ -44,9 +44,14 @@ protocol TangemApiService: AnyObject {
 
     func loadTokenExchangesListDetails(requestModel: MarketsDTO.ExchangesRequest) async throws -> MarketsDTO.ExchangesResponse
 
+    // MARK: - Earn
+
+    func loadEarnYieldMarkets(requestModel: EarnDTO.List.Request) async throws -> EarnDTO.List.Response
+
     // MARK: - News
 
     func loadNewsList(requestModel: NewsDTO.List.Request) async throws -> NewsDTO.List.Response
+    func loadNewsDetails(requestModel: NewsDTO.Details.Request) async throws -> NewsDTO.Details.Response
     func loadNewsCategories() async throws -> NewsDTO.Categories.Response
 
     /// Retrieves the list of trending news for the main page.

@@ -270,6 +270,7 @@
 "common_go_to_token" = "トークンへ移動";
 "common_got_it" = "わかりました";
 "common_hide" = "非表示";
+"common_hold_to" = "Hold to %@";
 "common_hour" = "時間";
 "common_import" = "インポート";
 "common_in_progress" = "進行中";
@@ -343,6 +344,7 @@
 "common_swap" = "スワップ";
 "common_tangem_wallet" = "Tangem Wallet";
 "common_tangem" = "Tangem";
+"common_tap_and_hold_hint" = "Tap and hold";
 "common_terms_and_conditions" = "利用規約";
 "common_terms_of_use" = "利用規約";
 "common_to_wallet_name" = "%@へ";
