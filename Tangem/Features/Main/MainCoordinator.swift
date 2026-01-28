@@ -117,7 +117,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
         mainViewModel = viewModel
 
         mobileFinishActivationManager.observe(
-            userWalletId: options.userWalletModel.userWalletId,
+            userWalletModel: options.userWalletModel,
             onActivation: weakify(self, forFunction: MainCoordinator.openMobileFinishActivation)
         )
 
