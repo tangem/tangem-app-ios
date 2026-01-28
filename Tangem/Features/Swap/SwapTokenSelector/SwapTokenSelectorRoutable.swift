@@ -12,6 +12,7 @@ protocol SwapTokenSelectorRoutable: AnyObject {
     func closeSwapTokenSelector()
 
     /// Opens the add-token flow for an external token selected from search results
+    @MainActor
     func openAddTokenFlowForExpress(
         coinId: String,
         coinName: String,
