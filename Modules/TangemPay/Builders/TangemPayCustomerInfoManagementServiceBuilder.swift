@@ -45,12 +45,16 @@ public struct TangemPayCustomerInfoManagementServiceBuilder {
             let container = try decoder.singleValueContainer()
             let dateString = try container.decode(String.self)
 
+            let locale = Locale(identifier: "en_US_POSIX")
+
             let formatterA = DateFormatter(dateFormat: "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+            formatterA.locale = locale
             if let date = formatterA.date(from: dateString) {
                 return date
             }
 
             let formatterB = DateFormatter(dateFormat: "yyyy-MM-dd'T'HH:mm:ss.SSS")
+            formatterB.locale = locale
             if let date = formatterB.date(from: dateString) {
                 return date
             }
