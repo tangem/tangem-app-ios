@@ -10,7 +10,8 @@ import Foundation
 
 final class CommonMarketsWidgetAnalyticsService: TopMarketWidgetAnalyticsProvider,
     PulseMarketWidgetAnalyticsProvider,
-    NewsWidgetAnalyticsProvider {
+    NewsWidgetAnalyticsProvider,
+    EarnWidgetAnalyticsProvider {
     // MARK: - TopMarketWidgetAnalyticsProvider
 
     func logTopMarketLoadError(_ error: Error) {
@@ -106,6 +107,29 @@ final class CommonMarketsWidgetAnalyticsService: TopMarketWidgetAnalyticsProvide
             event: .marketsNewsCarouselTrendingClicked,
             params: [
                 .token: newsId,
+            ]
+        )
+    }
+
+    // MARK: - EarnWidgetAnalyticsProvider
+
+    func logEarnLoadError(_ error: Error) {
+        let analyticsParams = error.marketsAnalyticsParams
+        Analytics.log(
+            event: .marketsMarketsLoadError,
+            params: [
+                .errorCode: analyticsParams[.errorCode] ?? "",
+                .errorMessage: analyticsParams[.errorMessage] ?? "",
+                .source: Analytics.ParameterValue.markets.rawValue,
+            ]
+        )
+    }
+
+    func logEarnListOpened() {
+        Analytics.log(
+            event: .marketsTokenListOpened,
+            params: [
+                .source: Analytics.ParameterValue.markets.rawValue,
             ]
         )
     }

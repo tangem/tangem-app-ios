@@ -1,0 +1,80 @@
+{
+  "items": [
+    {
+      "apy": "0.15282500000000000000",
+      "networkId": "cosmos",
+      "rewardType": "apr",
+      "type": "staking",
+      "token": {
+        "id": "cosmos",
+        "symbol": "ATOM",
+        "name": "Cosmos Hub",
+        "address": "0x6b175474e89094c44da98b954eedeac495271d0f"
+      }
+    },
+    {
+      "apy": "0.05210000000000000000",
+      "networkId": "ethereum",
+      "rewardType": "apr",
+      "type": "yield",
+      "token": {
+        "id": "dai",
+        "symbol": "DAI",
+        "name": "Dai Stablecoin",
+        "address": "0x6b175474e89094c44da98b954eedeac495271d0f"
+      }
+    },
+    {
+      "apy": "0.08500000000000000000",
+      "networkId": "ethereum",
+      "rewardType": "apy",
+      "type": "staking",
+      "token": {
+        "id": "ethereum",
+        "symbol": "ETH",
+        "name": "Ethereum",
+        "address": null
+      }
+    },
+    {
+      "apy": "0.12340000000000000000",
+      "networkId": "solana",
+      "rewardType": "apr",
+      "type": "staking",
+      "token": {
+        "id": "solana",
+        "symbol": "SOL",
+        "name": "Solana",
+        "address": null
+      }
+    },
+    {
+      "apy": "0.04750000000000000000",
+      "networkId": "polygon",
+      "rewardType": "apy",
+      "type": "yield",
+      "token": {
+        "id": "matic-network",
+        "symbol": "MATIC",
+        "name": "Polygon",
+        "address": "0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0"
+      }
+    },
+    {
+      "apy": "0.09870000000000000000",
+      "networkId": "avalanche",
+      "rewardType": "apr",
+      "type": "staking",
+      "token": {
+        "id": "avalanche-2",
+        "symbol": "AVAX",
+        "name": "Avalanche",
+        "address": null
+      }
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "limit": 20
+  }
+}
