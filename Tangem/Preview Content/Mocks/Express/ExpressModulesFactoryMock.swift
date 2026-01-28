@@ -12,6 +12,9 @@ import TangemExpress
 import BlockchainSdk
 
 class ExpressModulesFactoryMock: ExpressModulesFactory {
+    @Injected(\.tangemApiService)
+    private var tangemApiService: TangemApiService
+
     @Injected(\.expressPairsRepository)
     private var expressPairsRepository: ExpressPairsRepository
 
@@ -66,8 +69,7 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
             tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel(walletsProvider: .common(), availabilityProvider: .swap()),
             externalSearchViewModel: nil,
             expressInteractor: expressInteractor,
-            expressPairsRepository: expressPairsRepository,
-            userWalletInfo: userWalletInfo,
+            tangemApiService: tangemApiService,
             coordinator: coordinator
         )
     }

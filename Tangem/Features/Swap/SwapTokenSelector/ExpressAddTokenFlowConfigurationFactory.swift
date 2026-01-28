@@ -16,7 +16,7 @@ enum ExpressAddTokenFlowConfigurationFactory {
         coinName: String,
         coinSymbol: String,
         networks: [NetworkModel],
-        onTokenAdded: @escaping (TokenItem, any CryptoAccountModel) -> Void
+        onTokenAdded: @escaping (TokenItem, UserWalletInfo, any CryptoAccountModel) -> Void
     ) -> AccountsAwareAddTokenFlowConfiguration {
         let analyticsLogger = ExpressAddTokenAnalyticsLogger(coinSymbol: coinSymbol)
 
@@ -35,7 +35,8 @@ enum ExpressAddTokenFlowConfigurationFactory {
                 account.userTokensManager.contains(tokenItem, derivationInsensitive: false)
             },
             postAddBehavior: .executeAction { tokenItem, accountSelectorCell in
-                onTokenAdded(tokenItem, accountSelectorCell.cryptoAccountModel)
+                let userWalletInfo = accountSelectorCell.userWalletModel.userWalletInfo
+                onTokenAdded(tokenItem, userWalletInfo, accountSelectorCell.cryptoAccountModel)
             },
             accountFilter: { account, supportedBlockchains in
                 let networkIds = networks.map(\.networkId)

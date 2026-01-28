@@ -8,31 +8,62 @@
 
 import SwiftUI
 import TangemAssets
-import TangemLocalization
 import TangemUI
 
 struct ExpressExternalTokensSection: View {
     @ObservedObject var viewModel: ExpressExternalSearchViewModel
 
-    let cellWidth: CGFloat
+    @Environment(\.mainWindowSize) private var mainWindowSize
 
     var body: some View {
-        if viewModel.isSearching || !viewModel.searchResults.isEmpty {
-            VStack(alignment: .leading, spacing: 0) {
-                sectionHeader
+        Group {
+            switch viewModel.state {
+            case .idle, .noResults:
+                EmptyView()
+            case .loading(let mode):
+                sectionContent(title: mode.title, showCount: false, tokens: [], isLoading: true)
+            case .loaded(let tokens, let mode):
+                sectionContent(title: mode.title, showCount: mode.showsTokenCount, tokens: tokens, isLoading: false)
+            }
+        }
+        .onAppear {
+            viewModel.onAppear()
+        }
+    }
 
-                tokensList
+    @ViewBuilder
+    private func sectionContent(
+        title: String,
+        showCount: Bool,
+        tokens: [MarketTokenItemViewModel],
+        isLoading: Bool
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            sectionHeader(title: title, showCount: showCount, count: tokens.count)
+
+            if isLoading {
+                loadingSkeletons
+                    .background(Colors.Background.action)
+                    .cornerRadiusContinuous(Constants.cornerRadius)
+            } else {
+                VStack(spacing: 0) {
+                    ForEach(tokens) { item in
+                        MarketTokenItemView(viewModel: item, cellWidth: mainWindowSize.width)
+                    }
+                }
+                .background(Colors.Background.action)
+                .cornerRadiusContinuous(Constants.cornerRadius)
             }
         }
     }
 
-    private var sectionHeader: some View {
+    private func sectionHeader(title: String, showCount: Bool, count: Int) -> some View {
         HStack(spacing: Constants.titleCountSpacing) {
-            Text(Localization.commonFeeSelectorOptionMarket)
+            Text(title)
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
-            if !viewModel.searchResults.isEmpty {
-                Text("\(viewModel.searchResults.count)")
+            if showCount, count > 0 {
+                Text("\(count)")
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
             }
         }
@@ -40,23 +71,6 @@ struct ExpressExternalTokensSection: View {
         .padding(.horizontal, Constants.horizontalPadding)
         .padding(.top, Constants.headerTopPadding)
         .padding(.bottom, Constants.headerBottomPadding)
-    }
-
-    @ViewBuilder
-    private var tokensList: some View {
-        if viewModel.isSearching {
-            loadingSkeletons
-                .background(Colors.Background.action)
-                .cornerRadiusContinuous(Constants.cornerRadius)
-        } else {
-            VStack(spacing: 0) {
-                ForEach(viewModel.searchResults) { item in
-                    MarketTokenItemView(viewModel: item, cellWidth: cellWidth)
-                }
-            }
-            .background(Colors.Background.action)
-            .cornerRadiusContinuous(Constants.cornerRadius)
-        }
     }
 
     private var loadingSkeletons: some View {
