@@ -14,6 +14,7 @@ enum CardMock: String, CaseIterable {
     case wallet2
     case wallet
     case twin
+    case nodl
     case xrpNote
     case xlmBird
     case visa
@@ -40,6 +41,8 @@ enum CardMock: String, CaseIterable {
             return CardMockAccessibilityIdentifiers.wallet.rawValue
         case .twin:
             return CardMockAccessibilityIdentifiers.twin.rawValue
+        case .nodl:
+            return CardMockAccessibilityIdentifiers.nodl.rawValue
         case .xrpNote:
             return CardMockAccessibilityIdentifiers.xrpNote.rawValue
         case .xlmBird:
@@ -92,7 +95,24 @@ enum CardMock: String, CaseIterable {
         case .twin:
             return .twin(
                 WalletData(blockchain: "BTC", token: nil),
-                TwinData(series: .cb61, pairPublicKey: Data(hexString: "0417553CDACA4928E934C4DCC519697634A283163C63BE5BA3EF6D1F8A7D987AE0E1DA3B8E04505C3356AA3669EB271FC344F93E1C541D5DD425726A06183C6DB4"))
+                TwinData(
+                    series: .cb61,
+                    pairPublicKey: Data(
+                        hexString: "0417553CDACA4928E934C4DCC519697634A283163C63BE5BA3EF6D1F8A7D987AE0E1DA3B8E04505C3356AA3669EB271FC344F93E1C541D5DD425726A06183C6DB4"
+                    )
+                )
+            )
+        case .nodl:
+            return .legacy(
+                WalletData(
+                    blockchain: "XLM",
+                    token: .init(
+                        name: "NODL",
+                        symbol: "NODL",
+                        contractAddress: "GB2Y3AWXVROM2BHFQKQPTWKIOI3TZEBBD3LTKTVQTKEPXGOBE742NODL",
+                        decimals: 7
+                    )
+                )
             )
         case .visa:
             return .none
@@ -139,6 +159,8 @@ enum CardMock: String, CaseIterable {
         switch self {
         case .twin:
             return url(fileName: "twinCard")
+        case .nodl:
+            return url(fileName: "nodl")
         case .visa:
             return url(fileName: "visa")
         case .visaTestnet:
