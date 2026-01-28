@@ -13,12 +13,29 @@ import TangemLocalization
 
 struct SwapTokenSelectorView: View {
     @ObservedObject var viewModel: SwapTokenSelectorViewModel
+    @ObservedObject private var tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel
+
+    @Environment(\.mainWindowSize) private var mainWindowSize
+
+    init(viewModel: SwapTokenSelectorViewModel) {
+        self.viewModel = viewModel
+        tokenSelectorViewModel = viewModel.tokenSelectorViewModel
+    }
 
     var body: some View {
         NavigationStack {
-            AccountsAwareTokenSelectorView(viewModel: viewModel.tokenSelectorViewModel) {
-                AccountsAwareTokenSelectorEmptyContentView(message: Localization.expressTokenListEmptySearch)
-            }
+            AccountsAwareTokenSelectorView(
+                viewModel: tokenSelectorViewModel,
+                emptyContentView: {
+                    AccountsAwareTokenSelectorEmptyContentView(message: Localization.expressTokenListEmptySearch)
+                },
+                additionalContent: {
+                    ExpressExternalTokensSection(
+                        viewModel: tokenSelectorViewModel,
+                        cellWidth: mainWindowSize.width
+                    )
+                }
+            )
             .searchType(.native)
             .background(Colors.Background.tertiary.ignoresSafeArea())
             .navigationTitle(Localization.swappingTokenListTitle)

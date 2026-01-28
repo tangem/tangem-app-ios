@@ -19,6 +19,7 @@ enum Feature: String, Hashable, CaseIterable {
     case marketsEarn
     case tangemPayPermanentEntryPoint
     case gaslessTransactions
+    case expressAllTokensSearch
 
     var name: String {
         switch self {
@@ -32,6 +33,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .marketsEarn: return "Markets Earn"
         case .tangemPayPermanentEntryPoint: return "TangemPay Permanent Entry Point"
         case .gaslessTransactions: return "Gasless transactions"
+        case .expressAllTokensSearch: return "Express All Tokens Search"
         }
     }
 
@@ -47,6 +49,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .marketsEarn: return .unspecified
         case .tangemPayPermanentEntryPoint: return .unspecified
         case .gaslessTransactions: return .unspecified
+        case .expressAllTokensSearch: return .version("5.33")
         }
     }
 }
