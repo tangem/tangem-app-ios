@@ -59,30 +59,30 @@ final class AccountsAwareUserTokensManager {
         let blockchain = tokenItem.blockchain
         let derivationPathHelper = AccountDerivationPathHelper(blockchain: blockchain)
         let derivationPath = tokenItem.blockchainNetwork.derivationPath
+        let derivationIndex = derivationInfo.derivationIndex
 
         // In case when a token item already contains derivation such token item can be added to the main account as is
         if isMainAccountManager, derivationPath != nil {
             return makeTokenItem(from: tokenItem, with: derivationPath)
         }
 
-        // Non-main account with existing derivation: correct only the account node
-        if let existingDerivationPath = derivationPath {
-            let derivationIndexAwarePath = derivationPathHelper.makeDerivationPath(
-                from: existingDerivationPath,
-                forAccountWithIndex: derivationInfo.derivationIndex
-            )
-
+        // Non-main account with existing derivation: correct only the account node (if possible)
+        if let existingDerivationPath = derivationPath, let derivationIndexAwarePath = try? derivationPathHelper.makeDerivationPath(
+            from: existingDerivationPath,
+            forAccountWithIndex: derivationIndex
+        ) {
             return makeTokenItem(from: tokenItem, with: derivationIndexAwarePath)
         }
 
+        // Derivation unsupported
         guard let derivationStyle = derivationInfo.derivationStyle else {
             return tokenItem
         }
 
-        // No derivation: compute from blockchain's default
+        // Last resort: override from the blockchain's default derivation path
         let originalDerivationPath = blockchain.derivationPath(for: derivationStyle)
-        let accountAwareDerivationPath = originalDerivationPath.map { path in
-            return derivationPathHelper.makeDerivationPath(from: path, forAccountWithIndex: derivationInfo.derivationIndex)
+        let accountAwareDerivationPath = originalDerivationPath.flatMap { path in
+            return try? derivationPathHelper.makeDerivationPath(from: path, forAccountWithIndex: derivationIndex)
         }
 
         return makeTokenItem(from: tokenItem, with: accountAwareDerivationPath)
@@ -143,9 +143,11 @@ final class AccountsAwareUserTokensManager {
             throw TangemSdkError.nonHardenedDerivationNotSupported
         }
 
+        let derivationPathHelper = AccountDerivationPathHelper(blockchain: blockchain)
+
         // Some blockchains do not support any derivations other than the default one (for the main account)
         if let derivationPath,
-           let accountDerivationNode = AccountDerivationPathHelper(blockchain: blockchain).extractAccountDerivationNode(from: derivationPath),
+           let accountDerivationNode = try? derivationPathHelper.extractAccountDerivationNode(from: derivationPath),
            !AccountModelUtils.isMainAccount(accountDerivationNode.rawIndex),
            !blockchain.curve.supportsDerivation {
             throw Error.derivationNotSupported(tokenName: tokenItem.name)
@@ -156,14 +158,15 @@ final class AccountsAwareUserTokensManager {
             return
         }
 
-        let derivationPathHelper = AccountDerivationPathHelper(blockchain: tokenItem.blockchain)
-
-        guard let derivationNode = derivationPathHelper.extractAccountDerivationNode(from: derivationPath) else {
+        guard
+            let derivationPath,
+            let accountDerivationNode = try? derivationPathHelper.extractAccountDerivationNode(from: derivationPath)
+        else {
             throw Error.derivationPathNotFound(tokenName: tokenItem.name)
         }
 
         let expectedDerivationIndex = UInt32(derivationInfo.derivationIndex)
-        let actualDerivationIndex = derivationNode.rawIndex
+        let actualDerivationIndex = accountDerivationNode.rawIndex
 
         if actualDerivationIndex != expectedDerivationIndex {
             throw Error.accountDerivationNodeMismatch(
