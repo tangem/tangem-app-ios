@@ -20,6 +20,8 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
 
     private let swapDirection: SwapDirection
     private let expressInteractor: ExpressInteractor
+    private let expressPairsRepository: ExpressPairsRepository
+    private let userWalletInfo: UserWalletInfo
     private weak var coordinator: SwapTokenSelectorRoutable?
 
     private var selectedTokenItem: TokenItem?
@@ -28,15 +30,20 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
         swapDirection: SwapDirection,
         tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel,
         expressInteractor: ExpressInteractor,
+        expressPairsRepository: ExpressPairsRepository,
+        userWalletInfo: UserWalletInfo,
         coordinator: SwapTokenSelectorRoutable
     ) {
         self.swapDirection = swapDirection
         self.tokenSelectorViewModel = tokenSelectorViewModel
         self.expressInteractor = expressInteractor
+        self.expressPairsRepository = expressPairsRepository
+        self.userWalletInfo = userWalletInfo
         self.coordinator = coordinator
 
         tokenSelectorViewModel.setup(directionPublisher: Just(swapDirection).eraseToOptional())
         tokenSelectorViewModel.setup(with: self)
+        tokenSelectorViewModel.setup(externalTokenSelectionHandler: self)
     }
 
     func close() {
@@ -79,6 +86,54 @@ extension SwapTokenSelectorViewModel: AccountsAwareTokenSelectorViewModelOutput 
         }
 
         selectedTokenItem = item.walletModel.tokenItem
+        coordinator?.closeSwapTokenSelector()
+    }
+}
+
+// MARK: - ExpressExternalTokenSelectionHandler
+
+extension SwapTokenSelectorViewModel: ExpressExternalTokenSelectionHandler {
+    func didSelectExternalToken(_ token: MarketsTokenModel) {
+        Task { @MainActor in
+            // For now, skip pair validation since we don't have network info from Markets API
+            // The add-token flow will handle network selection
+
+            // Proceed with add-token flow
+            coordinator?.openAddTokenFlowForExpress(
+                coinId: token.id,
+                coinName: token.name,
+                coinSymbol: token.symbol,
+                swapDirection: swapDirection,
+                userWalletInfo: userWalletInfo,
+                completion: { [weak self] tokenItem, account in
+                    self?.handleTokenAdded(tokenItem: tokenItem, account: account)
+                }
+            )
+        }
+    }
+
+    private func handleTokenAdded(tokenItem: TokenItem, account: any CryptoAccountModel) {
+        // Find newly created WalletModel
+        guard let walletModel = account.walletModelsManager.walletModels
+            .first(where: { $0.tokenItem == tokenItem }) else {
+            return
+        }
+
+        // Get the userWalletInfo for the account
+        let expressInteractorWallet = ExpressInteractorWalletModelWrapper(
+            userWalletInfo: userWalletInfo,
+            walletModel: walletModel,
+            expressOperationType: .swap
+        )
+
+        switch swapDirection {
+        case .fromSource:
+            expressInteractor.update(destination: expressInteractorWallet)
+        case .toDestination:
+            expressInteractor.update(sender: expressInteractorWallet)
+        }
+
+        selectedTokenItem = tokenItem
         coordinator?.closeSwapTokenSelector()
     }
 }
