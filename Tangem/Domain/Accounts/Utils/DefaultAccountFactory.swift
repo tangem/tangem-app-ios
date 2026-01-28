@@ -13,6 +13,10 @@ struct DefaultAccountFactory {
     private let userWalletId: UserWalletId
     private let defaultBlockchains: [TokenItem]
 
+    private var enrichedDefaultBlockchains: [TokenItem] {
+        TokenItemsEnricher.enrichedWithBlockchainNetworksIfNeeded(defaultBlockchains)
+    }
+
     init(userWalletId: UserWalletId, defaultBlockchains: [TokenItem]) {
         self.userWalletId = userWalletId
         self.defaultBlockchains = defaultBlockchains
@@ -20,7 +24,7 @@ struct DefaultAccountFactory {
 
     func makeDefaultAccount(defaultTokensOverride: [StoredCryptoAccount.Token]) -> StoredCryptoAccount {
         let config = AccountModelUtils.mainAccountPersistentConfig(forUserWalletWithId: userWalletId)
-        let tokens = defaultTokensOverride.nilIfEmpty ?? StoredEntryConverter.convertToStoredEntries(defaultBlockchains)
+        let tokens = defaultTokensOverride.nilIfEmpty ?? StoredEntryConverter.convertToStoredEntries(enrichedDefaultBlockchains)
 
         return StoredCryptoAccount(config: config, tokenListAppearance: .default, tokens: tokens)
     }
