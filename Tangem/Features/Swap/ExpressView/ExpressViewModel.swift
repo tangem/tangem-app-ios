@@ -381,7 +381,7 @@ private extension ExpressViewModel {
         case .restriction(.notEnoughBalanceForSwapping, _, _):
             sendCurrencyViewModel?.expressCurrencyViewModel.update(errorState: .insufficientFunds)
         case .restriction(.notEnoughAmountForTxValue(_, let isFeeCurrency), _, _) where isFeeCurrency,
-             .restriction(.notEnoughAmountForFee(let isFeeCurrency), _, _) where isFeeCurrency:
+             .restriction(.notEnoughAmountForFee(let isFeeCurrency, _), _, _) where isFeeCurrency:
             sendCurrencyViewModel?.expressCurrencyViewModel.update(errorState: .insufficientFunds)
         case .restriction(.validationError(.minimumRestrictAmount(let minimumAmount), _), _, _):
             let errorText = Localization.transferMinAmountError(minimumAmount.string())
@@ -498,7 +498,7 @@ private extension ExpressViewModel {
         case .loading(.fee):
             expressFeeRowViewModel?.selectedFeeComponents = .loading
 
-        case .restriction(.notEnoughAmountForFee, let context, _):
+        case .restriction(.notEnoughAmountForFee(_, true), let context, _):
             updateExpressFeeRowViewModel(tokenFeeProvidersManager: context.tokenFeeProvidersManager)
 
         case .previewCEX(_, let context, _):
