@@ -125,7 +125,6 @@ extension LoadableTokenBalanceView {
     enum ContentTransitionType {
         case numeric(isCountdown: Bool)
 
-        @available(iOS 16.0, *)
         var contentTransition: ContentTransition? {
             switch self {
             case .numeric(let isCountdown): .numericText(countsDown: isCountdown)
@@ -157,11 +156,7 @@ private extension View {
 
 extension LoadableTokenBalanceView: Setupable {
     func setContentTransition(_ transitionType: ContentTransitionType?) -> Self {
-        if #available(iOS 16.0, *) {
-            return map { $0.contentTransitionType = transitionType }
-        } else {
-            return self
-        }
+        map { $0.contentTransitionType = transitionType }
     }
 }
 

@@ -552,8 +552,8 @@ extension CommonWalletModel: WalletModelHelpers {
             yieldModuleStateRepository: yieldModuleStateRepository,
             yieldModuleMarketsRepository: CommonYieldModuleMarketsRepository(),
             pendingTransactionsPublisher: nonFilteredPendingTransactionsPublisher,
-            scheduleWalletUpdate: { [weak self] in
-                self?.startUpdatingTimer()
+            updateWallet: { [weak self] in
+                await self?.update(silent: false, features: .full)
             }
         )
     }
@@ -640,6 +640,10 @@ extension CommonWalletModel: WalletModelDependenciesProvider {
 
     var ethereumGaslessTransactionFeeProvider: (any GaslessTransactionFeeProvider)? {
         walletManager as? GaslessTransactionFeeProvider
+    }
+
+    var pendingTransactionRecordAdder: (any PendingTransactionRecordAdding)? {
+        walletManager as? PendingTransactionRecordAdding
     }
 }
 

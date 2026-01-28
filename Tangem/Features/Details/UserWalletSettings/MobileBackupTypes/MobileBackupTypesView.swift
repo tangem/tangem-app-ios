@@ -30,60 +30,12 @@ struct MobileBackupTypesView: View {
 private extension MobileBackupTypesView {
     var content: some View {
         ScrollView(.vertical, showsIndicators: false) {
-            VStack(spacing: 8) {
-                info(item: viewModel.infoItem)
-                sections
+            VStack(spacing: 20) {
+                ForEach(viewModel.sections) {
+                    section(model: $0)
+                }
             }
             .padding(.top, 16)
-        }
-    }
-
-    func info(item: ViewModel.InfoItem) -> some View {
-        VStack(spacing: 0) {
-            Text(item.title)
-                .style(Fonts.Bold.title2, color: Colors.Text.primary1)
-                .padding(.horizontal, 24)
-
-            Text(item.description)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
-                .multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
-                .padding(.top, 8)
-                .padding(.horizontal, 24)
-
-            HorizontalFlowLayout(
-                items: item.chips,
-                alignment: .center,
-                horizontalSpacing: 16,
-                verticalSpacing: 8,
-                itemContent: infoChip
-            )
-            .padding(.top, 16)
-
-            item.icon.image
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 124, height: 124)
-                .padding(.top, 4)
-
-            MainButton(
-                title: item.action.title,
-                style: .secondary,
-                action: item.action.handler
-            )
-            .padding(.top, 4)
-        }
-        .padding(EdgeInsets(top: 24, leading: 14, bottom: 16, trailing: 14))
-        .background(Colors.Background.primary)
-        .cornerRadius(14, corners: .allCorners)
-        .colorScheme(.dark)
-    }
-
-    var sections: some View {
-        VStack(spacing: 20) {
-            ForEach(viewModel.sections) {
-                section(model: $0)
-            }
         }
     }
 
@@ -126,18 +78,12 @@ private extension MobileBackupTypesView {
 
     func sectionInfoItem(model: ViewModel.SectionItem) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            if #available(iOS 16.0, *) {
-                WrappingHStack(
-                    alignment: .leading,
-                    horizontalSpacing: 8,
-                    verticalSpacing: 4
-                ) {
-                    sectionInfo(title: model.title, badge: model.badge)
-                }
-            } else {
-                HStack(alignment: .top, spacing: 8) {
-                    sectionInfo(title: model.title, badge: model.badge)
-                }
+            WrappingHStack(
+                alignment: .leading,
+                horizontalSpacing: 8,
+                verticalSpacing: 4
+            ) {
+                sectionInfo(title: model.title, badge: model.badge)
             }
 
             Text(model.description)
@@ -158,21 +104,6 @@ private extension MobileBackupTypesView {
             badge.map {
                 BadgeView(item: $0)
             }
-        }
-    }
-
-    func infoChip(item: ViewModel.InfoChipItem) -> some View {
-        HStack(alignment: .top, spacing: 6) {
-            item.icon.image
-                .renderingMode(.template)
-                .resizable()
-                .scaledToFit()
-                .foregroundStyle(Colors.Icon.accent)
-                .frame(width: 16, height: 16)
-
-            Text(item.title)
-                .style(Fonts.Bold.footnote, color: Colors.Text.secondary)
-                .multilineTextAlignment(.center)
         }
     }
 }

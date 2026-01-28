@@ -147,7 +147,7 @@ struct ReferralView: View {
     }
 
     @ViewBuilder
-    private func makeReadyToBecomeParticipantView(_ displayMode: ReferralViewModel.ReadyToBecomParticipantDisplayMode) -> some View {
+    private func makeReadyToBecomeParticipantView(_ displayMode: ReferralViewModel.ReadyToBecomeParticipantDisplayMode) -> some View {
         switch displayMode {
         case .simple:
             simpleReadyToBecomeParticipantView
@@ -189,15 +189,17 @@ struct ReferralView: View {
                 if let accountData {
                     Divider()
 
-                    BaseOneLineRow(icon: nil, title: Localization.accountForRewards, trailingView: {
-                        HStack(spacing: 4) {
-                            AccountIconView(data: accountData.iconViewData)
-                                .settings(.smallSized)
-
-                            Text(accountData.name)
-                                .style(Fonts.Regular.body, color: Colors.Text.tertiary)
+                    BaseOneLineRow(
+                        icon: nil,
+                        title: Localization.accountForRewards,
+                        trailingView: {
+                            AccountInlineHeaderView(
+                                iconData: accountData.iconViewData,
+                                name: accountData.name
+                            )
+                            .rowTrailingStyle()
                         }
-                    })
+                    )
                     .shouldShowTrailingIcon(false)
                 }
             }

@@ -57,6 +57,7 @@ class SendModel {
     private let balanceConverter = BalanceConverter()
 
     private var destinationAccountAnalyticsProvider: (any AccountModelAnalyticsProviding)?
+    private var destinationTokenHeader: ExpressInteractorTokenHeader?
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Public interface
@@ -144,6 +145,7 @@ private extension SendModel {
                 $0.swapManager.update(
                     destination: $1.0.receiveToken?.tokenItem,
                     address: $1.1?.value.transactionAddress,
+                    tokenHeader: $0.destinationTokenHeader,
                     accountModelAnalyticsProvider: $0.destinationAccountAnalyticsProvider
                 )
             }
@@ -301,7 +303,8 @@ private extension SendModel {
             additionalField: _destinationAdditionalField.value,
             fee: sourceToken.tokenFeeProvidersManager.selectedTokenFee.option,
             signerType: result.signerType,
-            currentProviderHost: result.currentHost
+            currentProviderHost: result.currentHost,
+            tokenFee: sourceToken.tokenFeeProvidersManager.selectedTokenFee
         )
     }
 
@@ -881,9 +884,13 @@ extension SendModel: SendBaseDataBuilderInput {
 // MARK: - SendDestinationAccountOutput
 
 extension SendModel: SendDestinationAccountOutput {
-    func setDestinationAccountAnalyticsProvider(_ provider: (any AccountModelAnalyticsProviding)?) {
-        destinationAccountAnalyticsProvider = provider
-        analyticsLogger.setDestinationAnalyticsProvider(provider)
+    func setDestinationAccountInfo(
+        tokenHeader: ExpressInteractorTokenHeader?,
+        analyticsProvider: (any AccountModelAnalyticsProviding)?
+    ) {
+        destinationTokenHeader = tokenHeader
+        destinationAccountAnalyticsProvider = analyticsProvider
+        analyticsLogger.setDestinationAnalyticsProvider(analyticsProvider)
     }
 }
 

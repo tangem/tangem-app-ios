@@ -24,7 +24,7 @@ final class CommonWalletConnectTransactionAnalyticsLogger: WalletConnectTransact
         }
 
         let signatureRequestReceivedEvent = Analytics.Event.walletConnectSignatureRequestReceived
-        let signatureRequestReceivedParams: [Analytics.ParameterKey: String] = [
+        var signatureRequestReceivedParams: [Analytics.ParameterKey: String] = [
             .methodName: transactionData.method.rawValue,
             .walletConnectDAppName: transactionData.dAppData.name,
             .walletConnectDAppUrl: transactionData.dAppData.domain.absoluteString,
@@ -33,6 +33,13 @@ final class CommonWalletConnectTransactionAnalyticsLogger: WalletConnectTransact
             .type: simulationResult.rawValue,
         ]
 
+        if let account = transactionData.account {
+            account.enrichAnalyticsParameters(
+                &signatureRequestReceivedParams,
+                using: SingleAccountAnalyticsBuilder()
+            )
+        }
+
         Analytics.log(event: signatureRequestReceivedEvent, params: signatureRequestReceivedParams)
     }
 
@@ -40,7 +47,7 @@ final class CommonWalletConnectTransactionAnalyticsLogger: WalletConnectTransact
         let event = Analytics.Event.walletConnectSignatureRequestHandled
         let simulationResult = getSimulationResult(from: simulationState)
 
-        let params: [Analytics.ParameterKey: String] = [
+        var params: [Analytics.ParameterKey: String] = [
             .methodName: transactionData.method.rawValue,
             .walletConnectDAppName: transactionData.dAppData.name,
             .walletConnectDAppUrl: transactionData.dAppData.domain.absoluteString,
@@ -48,12 +55,16 @@ final class CommonWalletConnectTransactionAnalyticsLogger: WalletConnectTransact
             .type: simulationResult.rawValue,
         ]
 
+        if let account = transactionData.account {
+            account.enrichAnalyticsParameters(&params, using: SingleAccountAnalyticsBuilder())
+        }
+
         Analytics.log(event: event, params: params, analyticsSystems: .all)
     }
 
     func logSignatureRequestFailed(transactionData: WCHandleTransactionData, error: some Error) {
         let event = Analytics.Event.walletConnectSignatureRequestFailed
-        let params: [Analytics.ParameterKey: String] = [
+        var params: [Analytics.ParameterKey: String] = [
             .methodName: transactionData.method.rawValue,
             .walletConnectDAppName: transactionData.dAppData.name,
             .walletConnectDAppUrl: transactionData.dAppData.domain.absoluteString,
@@ -61,6 +72,10 @@ final class CommonWalletConnectTransactionAnalyticsLogger: WalletConnectTransact
             .errorCode: "\(error.universalErrorCode)",
             .errorDescription: error.localizedDescription,
         ]
+
+        if let account = transactionData.account {
+            account.enrichAnalyticsParameters(&params, using: SingleAccountAnalyticsBuilder())
+        }
 
         Analytics.log(event: event, params: params)
     }

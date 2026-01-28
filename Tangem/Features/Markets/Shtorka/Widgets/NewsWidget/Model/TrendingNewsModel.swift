@@ -11,7 +11,7 @@ import TangemLocalization
 
 // MARK: - TrendingNewsModel
 
-struct TrendingNewsModel: Identifiable, Hashable {
+struct TrendingNewsModel: Identifiable, Hashable, NewsReadStatusSortable {
     let id: NewsId
     let createdAt: Date
     let score: Double

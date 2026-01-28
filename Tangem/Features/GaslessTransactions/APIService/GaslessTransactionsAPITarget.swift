@@ -31,7 +31,6 @@ struct GaslessTransactionsAPITarget: TargetType {
         case feeRecipient
     }
 
-    // [REDACTED_TODO_COMMENT]
     var baseURL: URL {
         let baseUrl: URL
 
