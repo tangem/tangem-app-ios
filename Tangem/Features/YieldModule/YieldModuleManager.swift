@@ -368,19 +368,10 @@ private extension CommonYieldModuleManager {
                 guard let previous else { return }
 
                 if !previous.isEmpty, current.isEmpty {
-                    await moduleManager.updateWallet()
-
-                    guard !moduleManager.isInExpectedState else { return }
-
-                    switch moduleManager.blockchain {
-                    case .bsc, .polygon:
-                        // for polygon and bsc update just one more time after delay
-                        try? await Task.sleep(for: .seconds(Constants.updateTimeInterval))
-                        await moduleManager.updateWallet()
-                    default:
-                        // for the rest of networks start polling
-                        await moduleManager.updateWalletState()
-                    }
+                    await moduleManager.updateWalletState(
+                        iteration: 0,
+                        maxIterations: Constants.maxUpdateIterations
+                    )
                 }
             }
             .sink { _ in }
@@ -573,23 +564,29 @@ private extension CommonYieldModuleManager {
         }
     }
 
-    func updateWalletState() async {
-        AppLogger.debug("Update yield module state")
+    func updateWalletState(iteration: Int, maxIterations: Int) async {
+        guard iteration < maxIterations else {
+            nextExpectedState = nil
+            AppLogger.debug("Max iterations reached. Stopping yield module state update.")
+            return
+        }
 
-        try? await Task.sleep(for: .seconds(Constants.updateTimeInterval)) // Initial delay
+        AppLogger.debug("Update yield module state")
 
         await updateWallet()
 
         if isInExpectedState {
             nextExpectedState = nil
         } else {
-            await updateWalletState()
+            // delay only if the next update is necessary
+            try? await Task.sleep(for: .seconds(Constants.updateTimeInterval))
+            await updateWalletState(iteration: iteration + 1, maxIterations: maxIterations)
         }
     }
 
     var isInExpectedState: Bool {
         switch (state?.state, nextExpectedState) {
-        case (.active, .active), (.notActive, .notActive): true
+        case (.active, .active), (.notActive, .notActive), (_, .none): true
         default: false
         }
     }
@@ -705,5 +702,6 @@ private extension CommonYieldModuleManager {
     enum Constants {
         static let yieldContractRetryCount = 5
         static let updateTimeInterval: TimeInterval = 10
+        static let maxUpdateIterations = 3
     }
 }
