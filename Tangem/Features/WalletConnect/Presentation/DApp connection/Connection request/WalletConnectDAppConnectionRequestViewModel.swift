@@ -171,14 +171,23 @@ extension WalletConnectDAppConnectionRequestViewModel {
                 } else {
                     self?.handleLoadedDAppProposalForWallet(dAppProposal)
                 }
-
-            } catch WalletConnectDAppProposalLoadingError.cancelledByUser {
-                logger.info("DApp proposal loading canceled by user.")
             } catch {
-                analyticsLogger.logSessionFailed(with: error)
-                logger.error("Failed to load dApp proposal", error: error)
-                self?.hapticFeedbackGenerator.errorNotificationOccurred()
-                self?.coordinator?.display(proposalLoadingError: error)
+                // Ugly and explicit switch here due to https://github.com/swiftlang/swift/issues/74555 ([REDACTED_INFO])
+                switch error {
+                case .cancelledByUser:
+                    logger.info("DApp proposal loading canceled by user.")
+                case .uriAlreadyUsed,
+                     .pairingFailed,
+                     .invalidDomainURL,
+                     .unsupportedDomain,
+                     .unsupportedBlockchains,
+                     .noBlockchainsProvidedByDApp,
+                     .pairingTimeout:
+                    analyticsLogger.logSessionFailed(with: error)
+                    logger.error("Failed to load dApp proposal", error: error)
+                    self?.hapticFeedbackGenerator.errorNotificationOccurred()
+                    self?.coordinator?.display(proposalLoadingError: error)
+                }
             }
         }
     }
