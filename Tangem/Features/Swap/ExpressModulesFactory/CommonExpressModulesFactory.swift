@@ -18,6 +18,9 @@ class CommonExpressModulesFactory {
     @Injected(\.expressPairsRepository)
     private var expressPairsRepository: ExpressPairsRepository
 
+    @Injected(\.tangemApiService)
+    private var tangemApiService: TangemApiService
+
     private let userWalletInfo: UserWalletInfo
     private let initialTokenItem: TokenItem
     private let expressDependenciesFactory: ExpressDependenciesFactory
@@ -94,10 +97,21 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
         swapDirection: SwapTokenSelectorViewModel.SwapDirection,
         coordinator: any SwapTokenSelectorRoutable
     ) -> SwapTokenSelectorViewModel {
-        SwapTokenSelectorViewModel(
+        // Create external search provider if feature toggle is enabled
+        let externalSearchProvider: ExpressSearchTokensProvider? = FeatureProvider.isAvailable(.expressAllTokensSearch)
+            ? CommonExpressSearchTokensProvider(tangemApiService: tangemApiService)
+            : nil
+
+        return SwapTokenSelectorViewModel(
             swapDirection: swapDirection,
-            tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel(walletsProvider: .common(), availabilityProvider: .swap()),
+            tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel(
+                walletsProvider: .common(),
+                availabilityProvider: .swap(),
+                externalSearchProvider: externalSearchProvider
+            ),
             expressInteractor: expressDependenciesFactory.expressInteractor,
+            expressPairsRepository: expressPairsRepository,
+            userWalletInfo: userWalletInfo,
             coordinator: coordinator
         )
     }
