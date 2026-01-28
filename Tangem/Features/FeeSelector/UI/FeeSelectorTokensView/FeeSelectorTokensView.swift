@@ -16,17 +16,13 @@ struct FeeSelectorTokensView: View {
     // MARK: - View Body
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                RowSection(rows: viewModel.availableFeeCurrencyTokens)
+        VStack(spacing: 20) {
+            RowSection(rows: viewModel.availableFeeCurrencyTokens)
 
-                if viewModel.unavailableFeeCurrencyTokens.isNotEmpty {
-                    RowSection(title: Localization.commonNotAvailable, rows: viewModel.unavailableFeeCurrencyTokens)
-                }
+            if viewModel.unavailableFeeCurrencyTokens.isNotEmpty {
+                RowSection(title: Localization.commonNotAvailable, rows: viewModel.unavailableFeeCurrencyTokens)
             }
         }
-        .scrollIndicators(.hidden)
-        .scrollBounceBehavior(.basedOnSize)
     }
 }
 
