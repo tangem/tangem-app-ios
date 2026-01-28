@@ -18,8 +18,6 @@ protocol AccountModelAnalyticsProviding {
 
 protocol AccountsAnalyticsBuilder {
     @discardableResult
-    func setIsMainAccount(_ isMainAccount: Bool) -> Self
-    @discardableResult
     func setDerivationIndex(_ index: Int) -> Self
     func build() -> [Analytics.ParameterKey: String]
 }

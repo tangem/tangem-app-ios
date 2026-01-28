@@ -127,9 +127,9 @@
 "backup_complete_seed_description" = "これらの単語は、紛失すると復元できません。安全に保管してください。";
 "backup_complete_title" = "バックアップが完了しました";
 "backup_info_description" = "シークレットリカバリーフレーズは、ウォレットへのアクセスおよび復元に使用する、%@個のランダムな単語のセットです。";
-"backup_info_keep_description" = "これらの単語は紛失した場合、復元できません。大切に保管してください。";
+"backup_info_keep_description" = "このフレーズを紛失すると、復元することはできません。厳重に保管してください。";
 "backup_info_keep_title" = "安全に保管してください";
-"backup_info_save_description" = "これらの%@個の単語を安全な場所に保存し、決して誰とも共有しないでください。";
+"backup_info_save_description" = "これらの%@の単語は、あなただけがアクセスできる安全な場所に保管し、決して他人と共有しないでください。";
 "backup_info_save_title" = "復元は不可能です";
 "backup_info_title" = "リカバリーフレーズ";
 "backup_seed_caution" = "以下の%@個の単語が、あなたのウォレットのリカバリーフレーズです。これらの単語は絶対に他人と共有しないでください。Tangemがこれらを尋ねることは決してありません。デバイスを紛失した場合、このフレーズを使ってウォレットを復元できます。";
@@ -270,6 +270,7 @@
 "common_go_to_token" = "トークンへ移動";
 "common_got_it" = "わかりました";
 "common_hide" = "非表示";
+"common_hold_to" = "Hold to %@";
 "common_hour" = "時間";
 "common_import" = "インポート";
 "common_in_progress" = "進行中";
@@ -343,6 +344,7 @@
 "common_swap" = "スワップ";
 "common_tangem_wallet" = "Tangem Wallet";
 "common_tangem" = "Tangem";
+"common_tap_and_hold_hint" = "Tap and hold";
 "common_terms_and_conditions" = "利用規約";
 "common_terms_of_use" = "利用規約";
 "common_to_wallet_name" = "%@へ";
@@ -417,7 +419,7 @@
 "details_security_management_warning" = "コードを忘れた場合、資金にアクセスできなくなります。コードの回復は不可能です。";
 "details_send_feedback" = "フィードバックを送信";
 "details_title" = "詳細";
-"details_wallets_section_description" = "モバイルウォレットは同時に1つのみ利用できます。Tangemコールドウォレットにアップグレードすることも、新しいコールドウォレットと併用することも可能です。";
+"details_wallets_section_description" = "モバイルウォレットは1つしか作成できません。Tangemハードウェアウォレットにアップグレードするか、新しいハードウェアウォレットを追加してください。";
 "disclaimer_title" = "利用規約";
 "domain_receive_assets_default_address" = "デフォルトアドレス";
 "domain_receive_assets_legacy_address" = "レガシー%@アドレス";
@@ -426,6 +428,11 @@
 "domain_receive_assets_onboarding_description" = "他のネットワークで資産を送金すると、永久に失われます。";
 "domain_receive_assets_onboarding_network_name" = "%@ネットワーク";
 "domain_receive_assets_onboarding_title" = "下記のみを使用して資金を送金する";
+"earn_best_opportunities" = "Best opportunities";
+"earn_filter_all_networks" = "All networks";
+"earn_filter_all_types" = "All types";
+"earn_mostly_used" = "Mostly used";
+"earn_title" = "Earn";
 "email_preface_wc_error" = "こんにちは、サポートチームの皆さん、コード %@ のエラーが発生しました。";
 "email_subject_wc_error" = "WalletConnectエラー";
 "error_wrong_wallet_tapped" = "別のウォレットのカードまたはリングを使用しました。このウォレットにリンクしているカードまたはリングをタップしてください。";
@@ -537,7 +544,7 @@
 "give_permission_swap_subtitle" = "続行するには、%1@スマートコントラクトに%2@を使用する権限を付与してください";
 "give_permission_title" = "許可を与える";
 "give_permission_unlimited" = "無制限";
-"hardware_wallet_backup_feature_description" = "ハードウェアウォレット内に新しいアドレスが自動生成され、安全にすぐ利用できる状態になります。";
+"hardware_wallet_backup_feature_description" = "アドレスはTangemハードウェアウォレット上で直接生成され、そのまま安全に使用できます。";
 "hardware_wallet_backup_feature_title" = "新しいアドレス";
 "hardware_wallet_create_title" = "Tangemウォレットを追加";
 "hardware_wallet_key_feature_description" = "秘密鍵はTangemカード内部で直接生成され、外部に出ることは一切ありません。";
@@ -612,7 +619,7 @@
 "hw_upgrade_error_wallet2_card_required" = "操作中にエラーが発生しました。";
 "hw_upgrade_funds_access_description" = "処理中も、資金は安全に保たれ、常にアクセス可能です。";
 "hw_upgrade_funds_access_title" = "資金へのアクセス";
-"hw_upgrade_general_security_description" = "アップグレード後、モバイルウォレットはアプリから削除され、ハードウェアウォレットに保存されます。リカバリーフレーズは引き続きご自身で管理してください。";
+"hw_upgrade_general_security_description" = "アップグレード後、モバイルウォレットはアプリから削除され、Tangemハードウェアウォレットに保存されます。リカバリーフレーズは引き続きお手元に保持されます。";
 "hw_upgrade_general_security_title" = "セキュリティ全般";
 "hw_upgrade_key_migration_description" = "秘密鍵はアプリからTangemハードウェアウォレットへ移行されます";
 "hw_upgrade_key_migration_title" = "キーの移行";
@@ -910,7 +917,7 @@
 "onboarding_wallet_info_title_fourth" = "アクセスコードの復元";
 "onboarding_wallet_info_title_second" = "同一のカード";
 "onboarding_wallet_info_title_third" = "アクセスコード";
-"only_one_mobile_wallet_explanation" = "同時に利用できるのは、モバイルウォレットまたはハードウェアウォレットのいずれか一方のみです。Tangemのコールドウォレットを使用するには、ウォレットをアップグレードするか、アプリから削除してください。";
+"only_one_mobile_wallet_explanation" = "モバイルウォレットは1つまでしか作成できません。Tangemハードウェアウォレットにアップグレードするか、新しいハードウェアウォレットを追加してください。";
 "onramp_all_offers_button_title" = "すべてのオファー";
 "onramp_avaiable_with_payment_methods" = "%@で利用可能";
 "onramp_choose_provider_title_hint" = "プロバイダーが取引を促進します";
@@ -950,6 +957,7 @@
 "onramp_tos_external_providers" = "サービスは外部プロバイダーによって提供されます。 \nTangemは責任を負いません。";
 "onramp_transaction_status_footer_text" = "この画面を閉じて、トークンの詳細画面で取引状況を確認できます。";
 "onramp_up_to_rate" = "最大";
+"onramp_via_provider" = "%@ 経由";
 "onramp_via" = "経由";
 "onramp_you_will_pay_title" = "支払い";
 "organize_tokens_group" = "グループ";
@@ -1151,6 +1159,7 @@
 "staking_amount_tron_integer_error_unstaking" = "ネットワークルールにより、ステーキング解除の量は%1$@ TRX に切り上げられます。";
 "staking_amount_tron_integer_error" = "ネットワークルールにより、ステーキング金額は%1$@ TRX に切り上げられます。";
 "staking_apr_earn_badge" = "APR %1$@%%";
+"staking_cardano_details_rewards_info_text" = "Your staking rewards will start after 5 epochs (~25 days) while your delegation is registered and counted by the network.";
 "staking_claim_unstaked" = "ステーキング解除分を請求する";
 "staking_details_account_fee_info" = "ステーキングアカウントとは、ステーキングされたSOLが保管される特別なアカウントです。トークンをバリデーターに委任し、取引の検証に参加して報酬を受け取る際に作成されます。ステーキングアカウントの作成には少額の手数料がかかりますが、ステーキング完了後に返金されます。";
 "staking_details_account_fee" = "ステーキングアカウント手数料";
@@ -1445,7 +1454,7 @@
 "tangempay_temporarily_unavailable" = "Tangem Payは現在一時的に利用できません。";
 "tangempay_title" = "Tangem Pay";
 "tangempay_use_tangem_device_to_restore_payment_account" = "下のボタンをクリックしてアクセスを復元してください";
-"tangempay_withdrawal_note_description" = "オンチェーンアドレスにある USDC Polygon のみ出金可能です。オンチェーン残高はカード残高とは異なり、購入後 2 営業日以内に更新されます（返金またはキャンセルされた取引の場合、最大 14 営業日かかることがあります）。";
+"tangempay_withdrawal_note_description" = "USDC Polygonのオンチェーン残高はカード残高とは異なり、購入後2営業日以内に更新されます。返金された購入資金はオンチェーン残高に戻らず、出金もできませんが、カード残高に残り、購入に使用できます。";
 "tangempay_withdrawal_note_title" = "ご注意ください";
 "tangempay_your_pin_code" = "PINコード";
 "this_is_my_wallet_title" = "これは私のウォレットです";

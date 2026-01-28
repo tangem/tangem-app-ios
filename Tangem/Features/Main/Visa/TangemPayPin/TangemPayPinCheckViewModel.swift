@@ -42,9 +42,12 @@ final class TangemPayPinCheckViewModel: ObservableObject, Identifiable {
         tangemPayAccount = account
 
         revealPin()
+
+        Analytics.log(.visaScreenCurrentPinShown)
     }
 
     func changePin() {
+        Analytics.log(.visaScreenChangePinOnCurrentPinClicked)
         coordinator?.closePinCheck()
         coordinator?.openTangemPaySetPin(tangemPayAccount: tangemPayAccount)
     }
