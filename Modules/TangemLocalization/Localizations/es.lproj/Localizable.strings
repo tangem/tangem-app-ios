@@ -955,6 +955,7 @@
 "onramp_tos_external_providers" = "El servicio es proporcionado por un proveedor externo. \nTangem no es responsable.";
 "onramp_transaction_status_footer_text" = "Puede comprobar el estado de la transacción desde la página detallada del token";
 "onramp_up_to_rate" = "Hasta";
+"onramp_via_provider" = "vía %@";
 "onramp_via" = "Vía";
 "onramp_you_will_pay_title" = "Pagará";
 "organize_tokens_group" = "Agrupar";
