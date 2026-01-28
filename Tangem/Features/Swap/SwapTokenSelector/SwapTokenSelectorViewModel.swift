@@ -15,6 +15,7 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
     // MARK: - View
 
     let tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel
+    let externalSearchViewModel: ExpressExternalSearchViewModel?
 
     // MARK: - Dependencies
 
@@ -29,6 +30,7 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
     init(
         swapDirection: SwapDirection,
         tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel,
+        externalSearchViewModel: ExpressExternalSearchViewModel?,
         expressInteractor: ExpressInteractor,
         expressPairsRepository: ExpressPairsRepository,
         userWalletInfo: UserWalletInfo,
@@ -36,6 +38,7 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
     ) {
         self.swapDirection = swapDirection
         self.tokenSelectorViewModel = tokenSelectorViewModel
+        self.externalSearchViewModel = externalSearchViewModel
         self.expressInteractor = expressInteractor
         self.expressPairsRepository = expressPairsRepository
         self.userWalletInfo = userWalletInfo
@@ -43,7 +46,9 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
 
         tokenSelectorViewModel.setup(directionPublisher: Just(swapDirection).eraseToOptional())
         tokenSelectorViewModel.setup(with: self)
-        tokenSelectorViewModel.setup(externalTokenSelectionHandler: self)
+
+        externalSearchViewModel?.setup(searchTextPublisher: tokenSelectorViewModel.$searchText)
+        externalSearchViewModel?.setup(selectionHandler: self)
     }
 
     func close() {

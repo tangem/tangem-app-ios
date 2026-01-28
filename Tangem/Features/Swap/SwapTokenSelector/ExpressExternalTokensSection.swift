@@ -12,12 +12,12 @@ import TangemLocalization
 import TangemUI
 
 struct ExpressExternalTokensSection: View {
-    @ObservedObject var viewModel: AccountsAwareTokenSelectorViewModel
+    @ObservedObject var viewModel: ExpressExternalSearchViewModel
 
     let cellWidth: CGFloat
 
     var body: some View {
-        if viewModel.isSearchingExternal || !viewModel.externalSearchResults.isEmpty {
+        if viewModel.isSearching || !viewModel.searchResults.isEmpty {
             VStack(alignment: .leading, spacing: 0) {
                 sectionHeader
 
@@ -31,8 +31,8 @@ struct ExpressExternalTokensSection: View {
             Text(Localization.commonFeeSelectorOptionMarket)
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
-            if !viewModel.externalSearchResults.isEmpty {
-                Text("\(viewModel.externalSearchResults.count)")
+            if !viewModel.searchResults.isEmpty {
+                Text("\(viewModel.searchResults.count)")
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
             }
         }
@@ -44,13 +44,13 @@ struct ExpressExternalTokensSection: View {
 
     @ViewBuilder
     private var tokensList: some View {
-        if viewModel.isSearchingExternal {
-            loadingIndicator
+        if viewModel.isSearching {
+            loadingSkeletons
                 .background(Colors.Background.action)
                 .cornerRadiusContinuous(Constants.cornerRadius)
         } else {
             VStack(spacing: 0) {
-                ForEach(viewModel.externalSearchResults) { item in
+                ForEach(viewModel.searchResults) { item in
                     MarketTokenItemView(viewModel: item, cellWidth: cellWidth)
                 }
             }
@@ -59,14 +59,12 @@ struct ExpressExternalTokensSection: View {
         }
     }
 
-    private var loadingIndicator: some View {
-        HStack {
-            Spacer()
-            ProgressView()
-                .progressViewStyle(.circular)
-            Spacer()
+    private var loadingSkeletons: some View {
+        VStack(spacing: 0) {
+            ForEach(0 ..< Constants.skeletonItemsCount, id: \.self) { _ in
+                MarketsSkeletonItemView()
+            }
         }
-        .padding(.vertical, Constants.loadingIndicatorVerticalPadding)
     }
 }
 
@@ -79,6 +77,6 @@ extension ExpressExternalTokensSection {
         static let headerBottomPadding: CGFloat = 10
         static let titleCountSpacing: CGFloat = 4
         static let cornerRadius: CGFloat = 14
-        static let loadingIndicatorVerticalPadding: CGFloat = 16
+        static let skeletonItemsCount: Int = 7
     }
 }

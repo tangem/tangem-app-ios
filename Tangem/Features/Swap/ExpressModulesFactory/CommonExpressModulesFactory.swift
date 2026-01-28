@@ -97,18 +97,22 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
         swapDirection: SwapTokenSelectorViewModel.SwapDirection,
         coordinator: any SwapTokenSelectorRoutable
     ) -> SwapTokenSelectorViewModel {
-        // Create external search provider if feature toggle is enabled
-        let externalSearchProvider: ExpressSearchTokensProvider? = FeatureProvider.isAvailable(.expressAllTokensSearch)
-            ? CommonExpressSearchTokensProvider(tangemApiService: tangemApiService)
-            : nil
+        // Create external search view model if feature toggle is enabled
+        let externalSearchViewModel: ExpressExternalSearchViewModel?
+        if FeatureProvider.isAvailable(.expressAllTokensSearch) {
+            let searchProvider = CommonExpressSearchTokensProvider(tangemApiService: tangemApiService)
+            externalSearchViewModel = ExpressExternalSearchViewModel(searchProvider: searchProvider)
+        } else {
+            externalSearchViewModel = nil
+        }
 
         return SwapTokenSelectorViewModel(
             swapDirection: swapDirection,
             tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel(
                 walletsProvider: .common(),
-                availabilityProvider: .swap(),
-                externalSearchProvider: externalSearchProvider
+                availabilityProvider: .swap()
             ),
+            externalSearchViewModel: externalSearchViewModel,
             expressInteractor: expressDependenciesFactory.expressInteractor,
             expressPairsRepository: expressPairsRepository,
             userWalletInfo: userWalletInfo,
