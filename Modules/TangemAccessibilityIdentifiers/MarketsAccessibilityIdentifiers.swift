@@ -46,4 +46,14 @@ public enum MarketsAccessibilityIdentifiers {
     public static func marketsSortOption(_ orderType: String) -> String {
         "marketsSortOption_\(orderType)"
     }
+
+    // MARK: - Security Score
+
+    public static let securityScoreBlock = "marketsTokenDetailsSecurityScoreBlock"
+    public static let securityScoreValue = "marketsTokenDetailsSecurityScoreValue"
+    public static let securityScoreRatingStars = "marketsTokenDetailsSecurityScoreRatingStars"
+    public static let securityScoreReviewsCount = "marketsTokenDetailsSecurityScoreReviewsCount"
+    public static let securityScoreInfoButton = "marketsTokenDetailsSecurityScoreInfoButton"
+    public static let securityScoreDetailsTitle = "marketsTokenDetailsSecurityScoreDetailsTitle"
+    public static let securityScoreDetailsProviderLink = "marketsTokenDetailsSecurityScoreDetailsProviderLink"
 }
