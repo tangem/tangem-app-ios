@@ -33,9 +33,10 @@ class CommonOnrampSendAnalyticsLogger {
         ]
 
         if FeatureProvider.isAvailable(.accounts), let accountModelAnalyticsProvider {
-            let builder = SingleAccountAnalyticsBuilder()
-            let accountParams = accountModelAnalyticsProvider.analyticsParameters(with: builder)
-            analyticsParameters.merge(accountParams) { $1 }
+            accountModelAnalyticsProvider.enrichAnalyticsParameters(
+                &analyticsParameters,
+                using: SingleAccountAnalyticsBuilder()
+            )
         }
 
         Analytics.log(event: .onrampButtonBuy, params: analyticsParameters)
