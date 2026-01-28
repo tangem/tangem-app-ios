@@ -23,6 +23,6 @@ struct MarketsRelatedTokenNewsProvider {
 
 extension MarketsRelatedTokenNewsProvider {
     enum Constants {
-        static let newsLimitOnPage: Int = 5
+        static let newsLimitOnPage: Int = 10
     }
 }
