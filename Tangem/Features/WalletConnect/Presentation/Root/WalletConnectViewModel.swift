@@ -7,7 +7,6 @@
 //
 
 import Combine
-import Dispatch
 import Foundation
 import BlockchainSdk
 import enum TangemAssets.Assets
@@ -29,8 +28,6 @@ final class WalletConnectViewModel: ObservableObject {
     private var connectedDAppsUpdateHandleTask: Task<Void, Never>?
     private var disconnectAllDAppsTask: Task<Void, Never>?
 
-    private var currentConnectedDApps: [WalletConnectConnectedDApp] = []
-
     @Published private(set) var state: WalletConnectViewState
 
     init(
@@ -46,12 +43,11 @@ final class WalletConnectViewModel: ObservableObject {
         self.analyticsLogger = analyticsLogger
         self.logger = logger
         self.coordinator = coordinator
-        state = .loading
 
         if let prefetchedConnectedDApps {
-            currentConnectedDApps = prefetchedConnectedDApps
-            state = makeState(from: prefetchedConnectedDApps)
+            state = Self.makeState(from: prefetchedConnectedDApps, userWalletRepository: userWalletRepository)
         } else {
+            state = .loading
             fetchConnectedDApps()
         }
 
@@ -148,7 +144,6 @@ extension WalletConnectViewModel {
             handleDAppButtonTapped(dApp)
 
         case .connectedDAppsChanged(let connectedDApps):
-            guard connectedDApps != currentConnectedDApps else { return }
             handleConnectedDAppsChanged(connectedDApps)
 
         case .closeDialogButtonTapped:
@@ -227,8 +222,7 @@ extension WalletConnectViewModel {
     }
 
     private func handleConnectedDAppsChanged(_ connectedDApps: [WalletConnectConnectedDApp]) {
-        currentConnectedDApps = connectedDApps
-        state = makeState(from: connectedDApps)
+        state = Self.makeState(from: connectedDApps, userWalletRepository: userWalletRepository)
     }
 
     private func handleCloseDialogButtonTapped() {
@@ -239,12 +233,15 @@ extension WalletConnectViewModel {
 // MARK: - Factory methods and state mapping
 
 extension WalletConnectViewModel {
-    private func makeState(from connectedDApps: [WalletConnectConnectedDApp]) -> WalletConnectViewState {
+    private static func makeState(
+        from connectedDApps: [WalletConnectConnectedDApp],
+        userWalletRepository: some UserWalletRepository
+    ) -> WalletConnectViewState {
         guard !connectedDApps.isEmpty else {
             return .empty
         }
 
-        let walletsWithDApps = makeWalletsWithConnectedDApps(from: connectedDApps)
+        let walletsWithDApps = makeWalletsWithConnectedDApps(from: connectedDApps, userWalletRepository: userWalletRepository)
 
         guard !walletsWithDApps.isEmpty else {
             return .empty
@@ -257,19 +254,9 @@ extension WalletConnectViewModel {
         )
     }
 
-    private func makeWalletsWithConnectedDApps(
-        from connectedDApps: [WalletConnectConnectedDApp]
-    ) -> [WalletConnectViewState.ContentState.WalletWithConnectedDApps] {
-        guard connectedDApps.isNotEmpty else { return [] }
-
-        return buildAccountAwareLayout(from: connectedDApps, wallets: userWalletRepository.models)
-    }
-
-    // MARK: - Layout builders
-
-    private func buildAccountAwareLayout(
+    private static func makeWalletsWithConnectedDApps(
         from connectedDApps: [WalletConnectConnectedDApp],
-        wallets: [any UserWalletModel]
+        userWalletRepository: some UserWalletRepository
     ) -> [WalletConnectViewState.ContentState.WalletWithConnectedDApps] {
         let walletIdToV1DApps: [String: [WalletConnectViewState.ContentState.ConnectedDApp]] = {
             let pairs = connectedDApps.compactMap { dApp -> (String, WalletConnectViewState.ContentState.ConnectedDApp)? in
@@ -295,7 +282,7 @@ extension WalletConnectViewModel {
 
         var result: [WalletConnectViewState.ContentState.WalletWithConnectedDApps] = []
 
-        for wallet in wallets {
+        for wallet in userWalletRepository.models {
             let walletId = wallet.userWalletId.stringValue
             let walletLevel = walletIdToV1DApps[walletId] ?? []
 
@@ -312,7 +299,8 @@ extension WalletConnectViewModel {
                 accountSections.append(
                     WalletConnectViewState.ContentState.AccountSection(
                         id: accountId,
-                        accountData: account,
+                        icon: account.icon,
+                        name: account.name,
                         dApps: dApps
                     )
                 )
