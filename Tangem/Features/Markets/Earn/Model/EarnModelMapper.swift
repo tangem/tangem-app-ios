@@ -16,7 +16,7 @@ struct EarnModelMapper {
     // MARK: - Implementation
 
     func mapToEarnTokenModel(from response: EarnDTO.List.Item) -> EarnTokenModel {
-        let rateValue = Decimal(string: response.apy) ?? 0
+        let rateValue = Decimal(stringValue: response.apy) ?? 0
         let rateType: RateType = response.rewardType.lowercased() == "apy" ? .apy : .apr
         let earnType: EarnType = response.type.lowercased() == "staking" ? .staking : .yieldMode
 

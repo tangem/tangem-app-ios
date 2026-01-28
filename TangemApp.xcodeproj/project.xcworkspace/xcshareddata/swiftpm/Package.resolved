@@ -1,5 +1,5 @@
 {
-  "originHash" : "f663a13208537176259473f38ac32268992a04d25dbf4ca2a8ba9fa631f8e6ff",
+  "originHash" : "ecc25b22e62611e0b4bfd3e24853d220c1fac904b57ba9a50a7a6d750f56c137",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -33,8 +33,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/amplitude/AmplitudeCore-Swift.git",
       "state" : {
-        "revision" : "e3f177f55233ae679b9edacd679aeb3d8bc06bc0",
-        "version" : "1.3.4"
+        "revision" : "ff6c51468788daa82e5cc559ce519581f21dcf6e",
+        "version" : "1.4.0"
       }
     },
     {
@@ -330,8 +330,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/krzyzanowskim/OpenSSL",
       "state" : {
-        "revision" : "e7d34385da795aaaeb2212e38c7401e5c333f792",
-        "version" : "3.6.1"
+        "revision" : "623c84da314e85363236507ca38a4bde65df21c3",
+        "version" : "3.3.3001"
       }
     },
     {
@@ -663,8 +663,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/tangem-sdk-ios.git",
       "state" : {
-        "revision" : "cc0b0c3fdef9076a04aa1f66cee3b916c02be2d4",
-        "version" : "4.0.6"
+        "revision" : "aa4310d51320e1706a0999067e9826a17c58e2b0",
+        "version" : "4.0.8"
       }
     },
     {
@@ -699,8 +699,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/twilio/twilio-video-ios",
       "state" : {
-        "revision" : "b2c7eb4b43e48d96500d6ae14fa67ac069431acd",
-        "version" : "5.11.1"
+        "revision" : "a896521ecf73844731f00ed62f7d5afa487e0b3a",
+        "version" : "5.9.0"
       }
     },
     {

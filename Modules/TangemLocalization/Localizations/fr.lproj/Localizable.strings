@@ -270,6 +270,7 @@
 "common_go_to_token" = "Aller au jeton";
 "common_got_it" = "Compris";
 "common_hide" = "Cacher";
+"common_hold_to" = "Hold to %@";
 "common_hour" = "heure";
 "common_import" = "Importez";
 "common_in_progress" = "En cours";
@@ -343,6 +344,7 @@
 "common_swap" = "Échanger";
 "common_tangem_wallet" = "Tangem Wallet";
 "common_tangem" = "Tangem";
+"common_tap_and_hold_hint" = "Tap and hold";
 "common_terms_and_conditions" = "termes et conditions";
 "common_terms_of_use" = "Conditions d'utilisation";
 "common_to_wallet_name" = "À %@";
@@ -955,6 +957,7 @@
 "onramp_tos_external_providers" = "Service is provided by an external provider. \nTangem is not responsible.";
 "onramp_transaction_status_footer_text" = "Vous pouvez vérifier l'état de la transaction à partir de la page du jeton";
 "onramp_up_to_rate" = "Jusqu'à";
+"onramp_via_provider" = "via %@";
 "onramp_via" = "Via";
 "onramp_you_will_pay_title" = "Vous paierez";
 "organize_tokens_group" = "Grouper";
