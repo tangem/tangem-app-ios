@@ -11,6 +11,8 @@ import Foundation
 enum NewsDTO {
     enum List {}
     enum Categories {}
+    enum Details {}
+    enum Like {}
 }
 
 // MARK: - List
@@ -120,4 +122,84 @@ extension NewsDTO.Categories {
 
 struct TrendingNewsResponse: Decodable {
     let items: [NewsDTO.List.Item]
+}
+
+// MARK: - Like
+
+extension NewsDTO.Like {
+    struct Request: Encodable {
+        let newsId: Int
+        let isLiked: Bool
+
+        enum CodingKeys: String, CodingKey {
+            case isLiked
+        }
+    }
+
+    struct Response: Decodable {
+        let isLiked: Bool
+    }
+}
+
+// MARK: - Details
+
+extension NewsDTO.Details {
+    struct Request {
+        let newsId: Int
+        let lang: String?
+
+        init(newsId: Int, lang: String? = nil) {
+            self.newsId = newsId
+            self.lang = lang
+        }
+    }
+
+    struct Response: Decodable {
+        let id: Int
+        let createdAt: String
+        let score: Double
+        let language: String
+        let isTrending: Bool
+        let categories: [NewsDTO.List.Category]
+        let relatedTokens: [NewsDTO.List.RelatedToken]
+        let title: String
+        let newsUrl: String
+        let shortContent: String
+        let content: String
+        let relatedArticles: [RelatedArticle]
+
+        private enum CodingKeys: String, CodingKey {
+            case id
+            case createdAt
+            case score
+            case language
+            case isTrending
+            case categories
+            case relatedTokens
+            case title
+            case newsUrl
+            case shortContent
+            case content
+            case relatedArticles
+        }
+    }
+
+    struct RelatedArticle: Decodable, Identifiable {
+        let id: Int
+        let title: String?
+        let media: Media?
+        let language: String?
+        let publishedAt: String?
+        let url: String?
+        let imageUrl: String?
+
+        var sourceName: String? {
+            media?.name
+        }
+    }
+
+    struct Media: Decodable {
+        let id: Int
+        let name: String
+    }
 }
