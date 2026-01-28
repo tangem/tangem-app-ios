@@ -115,7 +115,6 @@ struct AccountDetailsView: View {
             titleVisibility: .visible
         ) {
             Button(Localization.accountDetailsArchive, role: .destructive) {
-                Analytics.log(.accountSettingsButtonArchiveAccountConfirmation)
                 viewModel.archiveAccount()
             }
         }
