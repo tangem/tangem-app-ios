@@ -194,7 +194,8 @@ extension WalletConnectDAppConnectionRequestViewModel {
 
     // [REDACTED_TODO_COMMENT]
     private func handleLoadedDAppProposalForWallet(_ dAppProposal: WalletConnectDAppConnectionProposal) {
-        analyticsLogger.logConnectionProposalReceived(dAppProposal)
+        // No account should be passed here. This method will be deleted when migration is complete ([REDACTED_INFO])
+        analyticsLogger.logConnectionProposalReceived(dAppProposal, accountAnalyticsProviding: nil)
 
         let blockchainsAvailabilityResult = interactor.resolveAvailableBlockchains(
             sessionProposal: dAppProposal.sessionProposal,
@@ -212,7 +213,7 @@ extension WalletConnectDAppConnectionRequestViewModel {
     private func handleLoadedDAppProposalForAccount(_ dAppProposal: WalletConnectDAppConnectionProposal) {
         guard let selectedAccount else { return }
 
-        analyticsLogger.logConnectionProposalReceived(dAppProposal)
+        analyticsLogger.logConnectionProposalReceived(dAppProposal, accountAnalyticsProviding: selectedAccount)
 
         let blockchainsAvailabilityResult = interactor.resolveAvailableBlockchains(
             sessionProposal: dAppProposal.sessionProposal,
@@ -239,9 +240,7 @@ extension WalletConnectDAppConnectionRequestViewModel {
             var params: [Analytics.ParameterKey: String] = [
                 .walletConnectDAppName: proposal.dAppData.name,
             ]
-            let builder = SingleAccountAnalyticsBuilderIncludingMain()
-            let accountParams = selectedAccount.analyticsParameters(with: builder)
-            params.merge(accountParams) { $1 }
+            selectedAccount.enrichAnalyticsParameters(&params, using: SingleAccountAnalyticsBuilder())
             Analytics.log(event: .walletConnectButtonConnectWithAccount, params: params)
         }
 

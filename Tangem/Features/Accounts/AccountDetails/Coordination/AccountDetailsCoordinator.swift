@@ -112,7 +112,8 @@ private extension AccountDetailsCoordinator {
             manageTokensCoordinator.start(
                 with: ManageTokensCoordinator.Options(
                     context: context,
-                    userWalletConfig: options.userWalletConfig
+                    userWalletConfig: options.userWalletConfig,
+                    analyticsSourceRawValue: Analytics.ParameterValue.account.rawValue
                 )
             )
 

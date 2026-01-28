@@ -55,13 +55,17 @@ class CommonSendAnalyticsLogger {
         var result: [Analytics.ParameterKey: String] = [:]
 
         if let sourceAccount = sendSourceTokenInput?.sourceToken.accountModelAnalyticsProvider {
-            let builder = PairedAccountAnalyticsBuilder(role: .source)
-            result.merge(sourceAccount.analyticsParameters(with: builder)) { $1 }
+            sourceAccount.enrichAnalyticsParameters(
+                &result,
+                using: PairedAccountAnalyticsBuilder(role: .source)
+            )
         }
 
         if let destinationAnalyticsProvider {
-            let builder = PairedAccountAnalyticsBuilder(role: .destination)
-            result.merge(destinationAnalyticsProvider.analyticsParameters(with: builder)) { $1 }
+            destinationAnalyticsProvider.enrichAnalyticsParameters(
+                &result,
+                using: PairedAccountAnalyticsBuilder(role: .destination)
+            )
         }
 
         return result
@@ -372,13 +376,13 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
             .ensAddress: Analytics.ParameterValue.boolState(for: destinationDidResolved).rawValue,
         ]
 
-        if let tokenFee = sendFeeInput?.selectedFee {
-            analyticsParameters[.feeToken] = SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenFee.tokenItem)
-        }
+        if let selectedFee = sendFeeInput?.selectedFee {
+            if let parameters = selectedFee.value.value?.parameters as? EthereumFeeParameters {
+                let hasNonce = parameters.nonce != nil
+                analyticsParameters[.nonce] = Analytics.ParameterValue.affirmativeOrNegative(for: hasNonce).rawValue
+            }
 
-        if let parameters = sendFeeInput?.selectedFee?.value.value?.parameters as? EthereumFeeParameters,
-           let nonce = parameters.nonce {
-            analyticsParameters[.nonce] = String(nonce)
+            analyticsParameters[.feeToken] = SendAnalyticsHelper.makeAnalyticsTokenName(from: selectedFee.tokenItem)
         }
 
         // Merge account analytics (source + destination)
@@ -397,15 +401,12 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
         if let selectedFee = sendFeeInput?.selectedFee {
             let parameter = feeAnalyticsParameterBuilder.analyticsParameter(selectedFee: selectedFee.option)
             analyticsParameters[.feeType] = parameter.rawValue
+            analyticsParameters[.feeToken] = SendAnalyticsHelper.makeAnalyticsTokenName(from: selectedFee.tokenItem)
         }
 
         if let source = sendSourceTokenInput?.sourceToken {
             analyticsParameters[.sendToken] = source.tokenItem.currencySymbol
             analyticsParameters[.sendBlockchain] = source.tokenItem.blockchain.displayName
-        }
-
-        if let tokenFee = sendFeeInput?.selectedFee {
-            analyticsParameters[.feeToken] = SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenFee.tokenItem)
         }
 
         if let receive = sendReceiveTokenInput?.receiveToken.receiveToken {
