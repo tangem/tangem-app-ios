@@ -60,11 +60,12 @@ extension CommonTokenFeeProvidersManager: TokenFeeProvidersManager {
 
     func updateInputInAllProviders(input: TokenFeeProviderInputData) {
         feeProviders.forEach { $0.setup(input: input) }
+        checkSelectedProviderIsSupported()
     }
 
     func updateSelectedFeeProvider(feeTokenItem: TokenItem) {
         guard let tokenFeeProvider = feeProviders.first(where: { $0.feeTokenItem == feeTokenItem }) else {
-            FeeLogger.warning(self, "Provider for token item \(feeTokenItem.name) not found")
+            FeeLogger.error(self, error: "Provider for token item \(feeTokenItem.name) not found")
             return
         }
 
@@ -74,6 +75,24 @@ extension CommonTokenFeeProvidersManager: TokenFeeProvidersManager {
         }
 
         selectedProviderSubject.send(tokenFeeProvider)
+    }
+}
+
+// MARK: - Private
+
+private extension CommonTokenFeeProvidersManager {
+    func checkSelectedProviderIsSupported() {
+        guard !selectedFeeProvider.state.isSupported else {
+            // All good
+            return
+        }
+
+        guard let supportedFeeProvider = feeProviders.first(where: { $0.state.isSupported }) else {
+            FeeLogger.error(self, error: "Don't have supported token fee provider")
+            return
+        }
+
+        selectedProviderSubject.send(supportedFeeProvider)
     }
 }
 
