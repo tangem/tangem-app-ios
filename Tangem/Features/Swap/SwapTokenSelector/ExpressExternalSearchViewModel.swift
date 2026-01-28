@@ -9,12 +9,12 @@
 import Combine
 import Foundation
 import TangemFoundation
+import TangemLocalization
 
 final class ExpressExternalSearchViewModel: ObservableObject {
     // MARK: - Published
 
-    @Published private(set) var searchResults: [MarketTokenItemViewModel] = []
-    @Published private(set) var isSearching: Bool = false
+    @Published private(set) var state: State = .idle
 
     // MARK: - Dependencies
 
@@ -23,10 +23,12 @@ final class ExpressExternalSearchViewModel: ObservableObject {
     private let filterProvider: MarketsListDataFilterProvider
     private let marketCapFormatter: MarketCapFormatter
 
-    private var searchTask: Task<Void, Never>?
+    private var currentTask: Task<Void, Never>?
     private var searchCancellable: AnyCancellable?
 
     private weak var selectionHandler: ExpressExternalTokenSelectionHandler?
+
+    private var currentSearchText: String = ""
 
     // MARK: - Init
 
@@ -46,11 +48,10 @@ final class ExpressExternalSearchViewModel: ObservableObject {
 
     func setup(searchTextPublisher: some Publisher<String, Never>) {
         searchCancellable = searchTextPublisher
-            .dropFirst()
             .debounce(for: .milliseconds(500), scheduler: DispatchQueue.main)
             .removeDuplicates()
             .sink { [weak self] text in
-                self?.performSearch(text: text)
+                self?.handleSearchTextChange(text)
             }
     }
 
@@ -58,45 +59,91 @@ final class ExpressExternalSearchViewModel: ObservableObject {
         self.selectionHandler = selectionHandler
     }
 
+    func onAppear() {
+        // Load trending on first appear if no search text
+        if currentSearchText.isEmpty, case .idle = state {
+            loadTrending()
+        }
+    }
+
     // MARK: - Private
 
-    private func performSearch(text: String) {
-        searchTask?.cancel()
+    private func handleSearchTextChange(_ text: String) {
+        currentSearchText = text
 
-        guard text.count >= 2 else {
-            searchResults = []
-            isSearching = false
-            return
+        if text.isEmpty {
+            loadTrending()
+        } else if text.count >= 2 {
+            performSearch(text: text)
+        } else {
+            // 1 character - show idle state
+            currentTask?.cancel()
+            state = .idle
         }
+    }
 
-        // Clear previous results and show loading state
-        searchResults = []
-        isSearching = true
+    private func loadTrending() {
+        currentTask?.cancel()
+        state = .loading(mode: .trending)
 
-        searchTask = Task { [weak self] in
+        currentTask = Task { [weak self] in
             guard let self else { return }
 
             do {
-                let tokens = try await searchProvider.search(text: text)
+                let trendingTokens = try await searchProvider.loadTrending()
 
                 guard !Task.isCancelled else { return }
 
                 await MainActor.run {
-                    // Fetch chart data for the tokens
-                    let tokenIds = tokens.map(\.id)
+                    let tokenIds = trendingTokens.map(\.id)
                     self.chartsProvider.fetch(for: tokenIds, with: self.filterProvider.currentFilterValue.interval)
 
-                    self.searchResults = tokens.map { token in
+                    let viewModels = trendingTokens.map { token in
                         self.makeItemViewModel(token: token)
                     }
-                    self.isSearching = false
+                    self.state = .loaded(tokens: viewModels, mode: .trending)
                 }
             } catch {
                 guard !Task.isCancelled else { return }
 
                 await MainActor.run {
-                    self.searchResults = []
-                    self.isSearching = false
+                    self.state = .idle
+                }
+            }
+        }
+    }
+
+    private func performSearch(text: String) {
+        currentTask?.cancel()
+        state = .loading(mode: .search)
+
+        currentTask = Task { [weak self] in
+            guard let self else { return }
+
+            do {
+                let searchResults = try await searchProvider.search(text: text)
+
+                guard !Task.isCancelled else { return }
+
+                await MainActor.run {
+                    let tokenIds = searchResults.map(\.id)
+                    self.chartsProvider.fetch(for: tokenIds, with: self.filterProvider.currentFilterValue.interval)
+
+                    let viewModels = searchResults.map { token in
+                        self.makeItemViewModel(token: token)
+                    }
+
+                    if viewModels.isEmpty {
+                        self.state = .noResults
+                    } else {
+                        self.state = .loaded(tokens: viewModels, mode: .search)
+                    }
+                }
+            } catch {
+                guard !Task.isCancelled else { return }
+
+                await MainActor.run {
+                    self.state = .idle
                 }
             }
         }
@@ -112,6 +159,53 @@ final class ExpressExternalSearchViewModel: ObservableObject {
                 self?.selectionHandler?.didSelectExternalToken(token)
             }
         )
+    }
+}
+
+// MARK: - State
+
+extension ExpressExternalSearchViewModel {
+    enum State: Equatable {
+        case idle
+        case loading(mode: Mode)
+        case loaded(tokens: [MarketTokenItemViewModel], mode: Mode)
+        case noResults
+
+        static func == (lhs: State, rhs: State) -> Bool {
+            switch (lhs, rhs) {
+            case (.idle, .idle), (.noResults, .noResults):
+                return true
+            case (.loading(let lhsMode), .loading(let rhsMode)):
+                return lhsMode == rhsMode
+            case (.loaded(let lhsTokens, let lhsMode), .loaded(let rhsTokens, let rhsMode)):
+                return lhsTokens.map(\.id) == rhsTokens.map(\.id) && lhsMode == rhsMode
+            default:
+                return false
+            }
+        }
+    }
+
+    enum Mode: Equatable {
+        case trending
+        case search
+
+        var title: String {
+            switch self {
+            case .trending:
+                return Localization.marketsSortByTrendingTitle
+            case .search:
+                return Localization.commonFeeSelectorOptionMarket
+            }
+        }
+
+        var showsTokenCount: Bool {
+            switch self {
+            case .trending:
+                return false
+            case .search:
+                return true
+            }
+        }
     }
 }
 

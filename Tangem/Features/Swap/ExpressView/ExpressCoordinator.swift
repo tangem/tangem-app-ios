@@ -18,7 +18,6 @@ final class ExpressCoordinator: CoordinatorObject {
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     let dismissAction: DismissAction
     let popToRootAction: Action<PopToRootOptions>
@@ -37,10 +36,6 @@ final class ExpressCoordinator: CoordinatorObject {
     @Published var swapTokenSelectorViewModel: SwapTokenSelectorViewModel?
     @Published var expressProvidersSelectorViewModel: ExpressProvidersSelectorViewModel?
     @Published var expressApproveViewModel: ExpressApproveViewModel?
-
-    // MARK: - Express add token flow state
-
-    private var expressAddTokenCompletion: ((TokenItem, any CryptoAccountModel) -> Void)?
 
     // MARK: - Properties
 
@@ -169,66 +164,23 @@ extension ExpressCoordinator: SwapTokenSelectorRoutable {
 
     @MainActor
     func openAddTokenFlowForExpress(
-        coinId: String,
-        coinName: String,
-        coinSymbol: String,
-        swapDirection: SwapTokenSelectorViewModel.SwapDirection,
-        userWalletInfo: UserWalletInfo,
-        completion: @escaping (TokenItem, any CryptoAccountModel) -> Void
+        inputData: ExpressAddTokenInputData,
+        completion: @escaping (TokenItem, UserWalletInfo, any CryptoAccountModel) -> Void
     ) {
         // Dismiss keyboard but keep token selector open
         UIApplication.shared.endEditing()
 
-        // Store the completion for later
-        expressAddTokenCompletion = completion
-
-        // Load networks for this coin and then show the add-token flow
-        Task { @MainActor in
-            do {
-                let networks = try await loadNetworks(for: coinId)
-
-                guard !networks.isEmpty else {
-                    // No networks available for this coin
-                    return
-                }
-
-                showAddTokenFlow(
-                    coinId: coinId,
-                    coinName: coinName,
-                    coinSymbol: coinSymbol,
-                    networks: networks
-                )
-            } catch {
-                // Failed to load networks
-                AppLogger.error("Failed to load networks for coinId: \(coinId)", error: error)
-            }
+        guard !inputData.networks.isEmpty else {
+            return
         }
-    }
 
-    private func loadNetworks(for coinId: String) async throws -> [NetworkModel] {
-        let request = CoinsList.Request(
-            supportedBlockchains: [],
-            ids: [coinId]
-        )
-
-        let response = try await tangemApiService.loadCoins(requestModel: request)
-        return response.coins.first?.networks ?? []
-    }
-
-    @MainActor
-    private func showAddTokenFlow(
-        coinId: String,
-        coinName: String,
-        coinSymbol: String,
-        networks: [NetworkModel]
-    ) {
         // Create configuration
         let configuration = ExpressAddTokenFlowConfigurationFactory.make(
-            coinId: coinId,
-            coinName: coinName,
-            coinSymbol: coinSymbol,
-            networks: networks,
-            onTokenAdded: { [weak self] tokenItem, account in
+            coinId: inputData.coinId,
+            coinName: inputData.coinName,
+            coinSymbol: inputData.coinSymbol,
+            networks: inputData.networks,
+            onTokenAdded: { [weak self] tokenItem, userWalletInfo, account in
                 guard let self else { return }
 
                 // Dismiss floating sheet first
@@ -239,8 +191,7 @@ extension ExpressCoordinator: SwapTokenSelectorRoutable {
                     try? await Task.sleep(for: .milliseconds(300))
 
                     // Call completion which will close the token selector
-                    self.expressAddTokenCompletion?(tokenItem, account)
-                    self.expressAddTokenCompletion = nil
+                    completion(tokenItem, userWalletInfo, account)
                 }
             }
         )

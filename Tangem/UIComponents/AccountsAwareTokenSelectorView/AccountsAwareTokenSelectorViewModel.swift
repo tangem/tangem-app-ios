@@ -9,7 +9,6 @@
 import Combine
 import TangemAccounts
 import TangemFoundation
-import BlockchainSdk
 
 final class AccountsAwareTokenSelectorViewModel: ObservableObject {
     @Published var searchText: String = ""
