@@ -270,7 +270,10 @@ struct MarketsTokenDetailsView: View {
     @ViewBuilder
     private var newsView: some View {
         if viewModel.isAvailableNews {
-            MarketsTokenNewsView(items: viewModel.tokenNewsItems)
+            MarketsTokenNewsView(
+                items: viewModel.tokenNewsItems,
+                onFourthItemAppear: viewModel.logCarouselScrolledIfNeeded
+            )
         }
     }
 
