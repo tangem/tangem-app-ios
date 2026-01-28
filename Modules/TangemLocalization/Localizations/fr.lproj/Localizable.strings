@@ -270,6 +270,7 @@
 "common_go_to_token" = "Aller au jeton";
 "common_got_it" = "Compris";
 "common_hide" = "Cacher";
+"common_hold_to" = "Hold to %@";
 "common_hour" = "heure";
 "common_import" = "Importez";
 "common_in_progress" = "En cours";
@@ -343,6 +344,7 @@
 "common_swap" = "Échanger";
 "common_tangem_wallet" = "Tangem Wallet";
 "common_tangem" = "Tangem";
+"common_tap_and_hold_hint" = "Tap and hold";
 "common_terms_and_conditions" = "termes et conditions";
 "common_terms_of_use" = "Conditions d'utilisation";
 "common_to_wallet_name" = "À %@";
