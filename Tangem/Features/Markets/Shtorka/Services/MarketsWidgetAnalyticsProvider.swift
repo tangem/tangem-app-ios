@@ -55,3 +55,14 @@ protocol NewsWidgetAnalyticsProvider {
     /// Logs when user taps on trending news in carousel.
     func logTrendingClicked(newsId: String)
 }
+
+// MARK: - Earn Widget Analytics
+
+/// Protocol for logging analytics events related to Earn widget.
+protocol EarnWidgetAnalyticsProvider {
+    /// Logs an error event for widget load failure.
+    func logEarnLoadError(_ error: Error)
+
+    /// Logs when user opens the earn token list from widget.
+    func logEarnListOpened()
+}
