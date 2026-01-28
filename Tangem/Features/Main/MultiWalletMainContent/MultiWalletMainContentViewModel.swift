@@ -142,6 +142,20 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         AppLogger.debug("\(userWalletModel.name) deinit")
     }
 
+    func onDidAppear() {
+        mobileFinishActivationManager.onMain(
+            userWalletId: userWalletModel.userWalletId,
+            isAppeared: true
+        )
+    }
+
+    func onWillDisappear() {
+        mobileFinishActivationManager.onMain(
+            userWalletId: userWalletModel.userWalletId,
+            isAppeared: false
+        )
+    }
+
     func onPullToRefresh() async {
         if await isUpdating {
             return
@@ -151,14 +165,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         await refreshActionButtonsData()
         await MultiWalletMainContentUpdater.scheduleUpdate(with: userWalletModel)
         await setIsUpdating(false)
-    }
-
-    func onFirstAppear() {
-        finishMobileActivationIfNeeded()
-    }
-
-    func finishMobileActivationIfNeeded() {
-        mobileFinishActivationManager.activateIfNeeded(userWalletModel: userWalletModel)
     }
 
     func deriveEntriesWithoutDerivation() {
@@ -348,7 +354,10 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .receiveOnMain()
             .assign(to: &$tangemPayAccountViewModel)
 
-        tangemPayAvailabilityRepository.shouldShowGetTangemPayBanner
+        tangemPayAvailabilityRepository
+            .shouldShowGetTangemPayBanner(
+                for: userWalletModel.userWalletId.stringValue
+            )
             .withWeakCaptureOf(self)
             .map { viewModel, shouldShow in
                 shouldShow
@@ -679,7 +688,13 @@ extension MultiWalletMainContentViewModel {
 
     private func openMobileFinishActivation() {
         Analytics.log(.mainButtonFinalizeActivation)
-        coordinator?.openMobileBackupOnboarding(userWalletModel: userWalletModel)
+
+        let isBackupNeeded = userWalletModel.config.hasFeature(.mnemonicBackup) && userWalletModel.config.hasFeature(.iCloudBackup)
+        if isBackupNeeded {
+            coordinator?.openMobileBackup(userWalletModel: userWalletModel)
+        } else {
+            coordinator?.openMobileBackupOnboarding(userWalletModel: userWalletModel)
+        }
     }
 
     private func openMobileUpgrade() {

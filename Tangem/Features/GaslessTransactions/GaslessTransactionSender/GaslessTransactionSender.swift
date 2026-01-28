@@ -32,11 +32,18 @@ final class GaslessTransactionSender {
             throw TransactionDispatcherResult.Error.actionNotSupported
         }
 
+        guard let feeRecipientAddress = await gaslessTransactionsNetworkManager.feeRecipientAddress else {
+            throw GaslessTransactionSenderError.noFeeRecipientAddress
+        }
+
         let buildTransaction = try await gaslessTransactionBuilder.buildGaslessTransaction(
-            bsdkTransaction: transaction
+            bsdkTransaction: transaction, feeRecipientAddress: feeRecipientAddress
         )
 
         let transactionHash = try await gaslessTransactionsNetworkManager.sendGaslessTransaction(buildTransaction)
+
+        walletModel.pendingTransactionRecordAdder?.addPendingTransaction(transaction, hash: transactionHash)
+
         let sendResult = GaslessTransactionSendResult(hash: transactionHash, currentProviderHost: gaslessTransactionsNetworkManager.currentHost)
 
         let dispatcherResult = TransactionDispatcherResultMapper().mapResult(
@@ -47,5 +54,11 @@ final class GaslessTransactionSender {
         )
 
         return dispatcherResult
+    }
+}
+
+extension GaslessTransactionSender {
+    enum GaslessTransactionSenderError: Error {
+        case noFeeRecipientAddress
     }
 }
