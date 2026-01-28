@@ -101,9 +101,12 @@ final class AccountsAwareOrganizeTokensViewModel: ObservableObject, Identifiable
                     return .just(output: [])
                 }
 
-                let shouldUseInvisibleOuterSection = cryptoAccountModels.count == 1
+                let hasSingleAccount = cryptoAccountModels.count == 1
 
                 let outerSectionViewModels = cryptoAccountModels.map { cryptoAccountModel in
+                    let hasNoTokens = cryptoAccountModel.userTokensManager.userTokens.isEmpty
+                    let shouldUseInvisibleOuterSection = hasSingleAccount || hasNoTokens
+
                     return OrganizeTokensListOuterSectionViewModel(
                         cryptoAccountModel: cryptoAccountModel,
                         shouldUseInvisibleOuterSection: shouldUseInvisibleOuterSection

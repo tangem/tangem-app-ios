@@ -48,6 +48,10 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
         bind()
     }
 
+    func onAppear() {
+        Analytics.log(.visaScreenChangePinScreenShown)
+    }
+
     func close() {
         switch state {
         case .created:
@@ -62,6 +66,7 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
     }
 
     func submit() {
+        Analytics.log(.visaScreenChangePinSubmitClicked)
         isLoading = true
 
         runTask(in: self) { [pin] viewModel in
@@ -80,6 +85,7 @@ final class TangemPayPinViewModel: ObservableObject, Identifiable {
                     viewModel.isLoading = false
                     switch response.result {
                     case .success:
+                        Analytics.log(.visaScreenChangePinSuccessShown)
                         viewModel.state = .created
                     case .pinTooWeak:
                         viewModel.errorMessage = Localization.visaOnboardingPinValidationErrorMessage
