@@ -18,7 +18,6 @@ struct ArchivedAccountsView: View {
     var body: some View {
         content
             .task { await viewModel.fetchArchivedAccounts() }
-            .onAppear { viewModel.onAppear() }
             .frame(maxWidth: .infinity)
             .background(Colors.Background.secondary.ignoresSafeArea())
             .alert(item: $viewModel.alertBinder, content: { $0.alert })

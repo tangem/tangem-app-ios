@@ -82,6 +82,7 @@ final class AccountDetailsViewModel: ObservableObject {
     }
 
     func archiveAccount() {
+        Analytics.log(event: .accountSettingsButtonArchiveAccountConfirmation, params: getAccountAnalyticsParameters())
         archivingState = .archivingInProgress
         archiveAccountTask?.cancel()
 
@@ -97,13 +98,13 @@ final class AccountDetailsViewModel: ObservableObject {
     // MARK: - Routing
 
     func showShouldArchiveDialog() {
-        Analytics.log(.accountSettingsButtonArchiveAccount)
+        Analytics.log(event: .accountSettingsButtonArchiveAccount, params: getAccountAnalyticsParameters())
         archiveAccountDialogPresented = true
     }
 
     func handleDialogDismissed() {
         if archivingState == .readyToBeArchived {
-            Analytics.log(.accountSettingsButtonCancelAccountArchivation)
+            Analytics.log(event: .accountSettingsButtonCancelAccountArchivation, params: getAccountAnalyticsParameters())
         }
     }
 
@@ -113,7 +114,7 @@ final class AccountDetailsViewModel: ObservableObject {
     }
 
     func openManageTokens() {
-        Analytics.log(.accountSettingsButtonManageTokens)
+        Analytics.log(event: .accountSettingsButtonManageTokens, params: getAccountAnalyticsParameters())
         coordinator?.manageTokens()
     }
 
@@ -149,6 +150,10 @@ final class AccountDetailsViewModel: ObservableObject {
     private func applySnapshot() {
         accountName = account.name
         accountIcon = account.icon
+    }
+
+    private func getAccountAnalyticsParameters() -> [Analytics.ParameterKey: String] {
+        account.analyticsParameters(with: SingleAccountAnalyticsBuilder())
     }
 
     @MainActor
