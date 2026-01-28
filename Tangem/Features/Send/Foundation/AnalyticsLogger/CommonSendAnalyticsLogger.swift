@@ -294,7 +294,7 @@ extension CommonSendAnalyticsLogger: SendReceiveTokensListAnalyticsLogger {
 
             analyticsParameters[.receiveToken] = token
 
-            if let provider = await sendSwapProvidersInput?.selectedExpressProvider {
+            if let provider = sendSwapProvidersInput?.selectedExpressProvider {
                 analyticsParameters[.provider] = provider.provider.name
             }
 
