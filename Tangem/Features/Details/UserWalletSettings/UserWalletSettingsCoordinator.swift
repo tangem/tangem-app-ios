@@ -127,7 +127,8 @@ extension UserWalletSettingsCoordinator:
         coordinator.start(
             with: .init(
                 context: context,
-                userWalletConfig: userWalletConfig
+                userWalletConfig: userWalletConfig,
+                analyticsSourceRawValue: Analytics.ParameterValue.settings.rawValue
             )
         )
         manageTokensCoordinator = coordinator

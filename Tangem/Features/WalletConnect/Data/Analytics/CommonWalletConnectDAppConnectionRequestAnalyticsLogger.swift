@@ -23,7 +23,11 @@ final class CommonWalletConnectDAppConnectionRequestAnalyticsLogger: WalletConne
         Analytics.log(event: .walletConnectSessionFailed, params: [.errorCode: "\(error.errorCode)"])
     }
 
-    func logConnectionProposalReceived(_ connectionProposal: WalletConnectDAppConnectionProposal) {
+    /// `accountAnalyticsProviding`  should become non-optional when account migration is complete ([REDACTED_INFO])
+    func logConnectionProposalReceived(
+        _ connectionProposal: WalletConnectDAppConnectionProposal,
+        accountAnalyticsProviding: (any AccountModelAnalyticsProviding)?
+    ) {
         let proposalReceivedDomainVerificationValue = getAnalyticsVerificationParameterValue(
             from: connectionProposal.verificationStatus
         )
@@ -34,12 +38,19 @@ final class CommonWalletConnectDAppConnectionRequestAnalyticsLogger: WalletConne
             .joined(separator: ",")
 
         let proposalReceivedEvent = Analytics.Event.walletConnectDAppSessionProposalReceived
-        let proposalReceivedParams: [Analytics.ParameterKey: String] = [
+        var proposalReceivedParams: [Analytics.ParameterKey: String] = [
             .walletConnectDAppName: connectionProposal.dAppData.name,
             .walletConnectDAppUrl: connectionProposal.dAppData.domain.absoluteString,
             .networks: blockchainNames,
             .walletConnectDAppDomainVerification: proposalReceivedDomainVerificationValue.rawValue,
         ]
+
+        if let accountAnalyticsProviding {
+            accountAnalyticsProviding.enrichAnalyticsParameters(
+                &proposalReceivedParams,
+                using: SingleAccountAnalyticsBuilder()
+            )
+        }
 
         Analytics.log(event: proposalReceivedEvent, params: proposalReceivedParams)
     }
