@@ -100,24 +100,18 @@ final class AccountsAwareUserTokensManager {
     }
 
     private func addInternal(_ tokenItems: [TokenItem], using updater: UserTokensRepositoryBatchUpdater) throws {
-        let tokenItemsToAdd = try tokenItems.flatMap { tokenItem in
+        let enrichedItems = TokenItemsEnricher.enrichedWithBlockchainNetworksIfNeeded(tokenItems, filter: userTokens)
+
+        for tokenItem in enrichedItems {
             try validateDerivation(for: tokenItem)
 
-            if tokenItem.isBlockchain {
-                return [tokenItem]
+            if tokenItem.isToken {
+                let networkTokenItem = TokenItem.blockchain(tokenItem.blockchainNetwork)
+                try validateDerivation(for: networkTokenItem)
             }
-
-            let networkTokenItem = TokenItem.blockchain(tokenItem.blockchainNetwork)
-            try validateDerivation(for: networkTokenItem)
-
-            if !userTokens.contains(networkTokenItem), !tokenItems.contains(networkTokenItem) {
-                return [networkTokenItem, tokenItem]
-            }
-
-            return [tokenItem]
         }
 
-        updater.append(tokenItemsToAdd)
+        updater.append(enrichedItems)
     }
 
     private func removeInternal(_ tokenItems: [TokenItem], using updater: UserTokensRepositoryBatchUpdater) {
