@@ -147,7 +147,8 @@ extension WalletConnectViewState.ContentState {
 
     struct AccountSection: Identifiable, Equatable {
         let id: String
-        let accountData: any CryptoAccountModel
+        let icon: AccountModel.Icon
+        let name: String
         let dApps: [ConnectedDApp]
 
         static func == (lhs: WalletConnectViewState.ContentState.AccountSection, rhs: WalletConnectViewState.ContentState.AccountSection) -> Bool {
