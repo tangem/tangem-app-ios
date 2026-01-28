@@ -270,6 +270,7 @@
 "common_go_to_token" = "Ir al token";
 "common_got_it" = "Entendido";
 "common_hide" = "Ocultar";
+"common_hold_to" = "Hold to %@";
 "common_hour" = "hora";
 "common_import" = "Importe";
 "common_in_progress" = "En progreso";
@@ -343,6 +344,7 @@
 "common_swap" = "Intercambiar";
 "common_tangem_wallet" = "Tangem Wallet";
 "common_tangem" = "Tangem";
+"common_tap_and_hold_hint" = "Tap and hold";
 "common_terms_and_conditions" = "términos y condiciones";
 "common_terms_of_use" = "Condiciones de uso";
 "common_to_wallet_name" = "A %@";
@@ -426,6 +428,11 @@
 "domain_receive_assets_onboarding_description" = "Enviar activos a otras redes resultará en una pérdida permanente.";
 "domain_receive_assets_onboarding_network_name" = "Red de %@";
 "domain_receive_assets_onboarding_title" = "Envíe fondos utilizando solo";
+"earn_best_opportunities" = "Best opportunities";
+"earn_filter_all_networks" = "All networks";
+"earn_filter_all_types" = "All types";
+"earn_mostly_used" = "Mostly used";
+"earn_title" = "Earn";
 "email_preface_wc_error" = "Hola equipo de soporte, he encontrado un error con el código: %@";
 "email_subject_wc_error" = "Error de WalletConnect";
 "error_wrong_wallet_tapped" = "Ha usado una tarjeta de otra billetera. Toque la tarjeta asociada con esta billetera";
@@ -950,6 +957,7 @@
 "onramp_tos_external_providers" = "El servicio es proporcionado por un proveedor externo. \nTangem no es responsable.";
 "onramp_transaction_status_footer_text" = "Puede comprobar el estado de la transacción desde la página detallada del token";
 "onramp_up_to_rate" = "Hasta";
+"onramp_via_provider" = "vía %@";
 "onramp_via" = "Vía";
 "onramp_you_will_pay_title" = "Pagará";
 "organize_tokens_group" = "Agrupar";
@@ -1151,6 +1159,7 @@
 "staking_amount_tron_integer_error_unstaking" = "La cantidad de unstaking se redondeará a %1$@ TRX debido a las reglas de la red.";
 "staking_amount_tron_integer_error" = "La cantidad de staking se redondeará a %1$@ TRX debido a las reglas de la red.";
 "staking_apr_earn_badge" = "APR %1$@%%";
+"staking_cardano_details_rewards_info_text" = "Your staking rewards will start after 5 epochs (~25 days) while your delegation is registered and counted by the network.";
 "staking_claim_unstaked" = "Reclamar lo que no está en staking";
 "staking_details_account_fee_info" = "Una cuenta de staking es una cuenta especial donde se almacenan los tokens SOL de staking. Se crea cuando delegas sus tokens a un validador para participar en la validación de transacciones y ganar recompensas. Se cobra una pequeña tarifa por crear la cuenta de staking, que se devuelve una vez que se completa el staking.";
 "staking_details_account_fee" = "Tarifa de staking de la cuenta ";
@@ -1445,7 +1454,7 @@
 "tangempay_temporarily_unavailable" = "Tangem Pay temporalmente no disponible";
 "tangempay_title" = "Tangem Pay";
 "tangempay_use_tangem_device_to_restore_payment_account" = "Haga clic en el botón de abajo para restaurar el acceso";
-"tangempay_withdrawal_note_description" = "Solo puedes retirar USDC Polygon disponibles en tu dirección on-chain. El saldo on-chain difiere del saldo de tu tarjeta y se actualiza en 2 días hábiles después de una compra (para reembolsos o transacciones canceladas puede tomar hasta 14 días hábiles).";
+"tangempay_withdrawal_note_description" = "Tu saldo USDC Polygon on-chain difiere de tu saldo de tarjeta y se actualiza dentro de 2 días hábiles después de una compra. Los fondos de compras reembolsadas no se devolverán a tu saldo on-chain ni estarán disponibles para retiro, pero permanecerán en tu saldo de tarjeta para compras.";
 "tangempay_withdrawal_note_title" = "Tenga en cuenta";
 "tangempay_your_pin_code" = "Tu código PIN";
 "this_is_my_wallet_title" = "Esta es mi billetera";

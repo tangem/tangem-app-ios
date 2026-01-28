@@ -262,7 +262,6 @@ extension ExpressInteractor {
         // Ignore error here
         try? await expressAPIProvider.exchangeSent(result: expressSentResult)
 
-        updateState(.idle)
         let sentTransactionData = SentExpressTransactionData(
             result: result.dispatcherResult,
             source: source,
@@ -807,6 +806,7 @@ private extension ExpressInteractor {
             .feeType: analyticsFeeType.rawValue,
             .walletForm: signerType,
             .selectedHost: data.result.currentHost,
+            .feeToken: SendAnalyticsHelper.makeAnalyticsTokenName(from: data.fee.tokenItem),
         ], analyticsSystems: .all)
     }
 }
@@ -884,10 +884,15 @@ extension ExpressInteractor {
 
         var isFeeRowVisible: Bool {
             switch self {
+            case .idle,
+                 .loading,
+                 .preloadRestriction,
+                 .requiredRefresh,
+                 .permissionRequired,
+                 .restriction(.hasPendingApproveTransaction, _, _):
+                return false
             case .restriction, .readyToSwap, .previewCEX:
                 return true
-            case .idle, .loading, .preloadRestriction, .requiredRefresh, .permissionRequired:
-                return false
             }
         }
 
