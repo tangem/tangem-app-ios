@@ -262,7 +262,6 @@ extension ExpressInteractor {
         // Ignore error here
         try? await expressAPIProvider.exchangeSent(result: expressSentResult)
 
-        updateState(.idle)
         let sentTransactionData = SentExpressTransactionData(
             result: result.dispatcherResult,
             source: source,
