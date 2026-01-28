@@ -12,7 +12,7 @@ import TangemUIUtils
 import TangemUI
 import TangemFoundation
 
-struct CarouselNewsItem: Identifiable, Equatable {
+struct CarouselNewsItem: Identifiable, Equatable, NewsReadStatusSortable {
     let id: String
     let title: String
     let rating: String
@@ -37,6 +37,18 @@ struct CarouselNewsItem: Identifiable, Equatable {
         self.tags = tags
         self.isRead = isRead
         self.onTap = onTap
+    }
+
+    func withIsRead(_ isRead: Bool) -> CarouselNewsItem {
+        CarouselNewsItem(
+            id: id,
+            title: title,
+            rating: rating,
+            timeAgo: timeAgo,
+            tags: tags,
+            isRead: isRead,
+            onTap: onTap
+        )
     }
 }
 
@@ -83,7 +95,7 @@ struct CarouselNewsCardView: View {
 
             Spacer(minLength: .zero)
 
-            InfoChipsView(chips: item.tags, alignment: .leading)
+            InfoChipsRowView(chips: item.tags)
                 .skeletonable(isShown: isLoading, radius: Layout.Skeleton.cornerRadius)
         }
     }

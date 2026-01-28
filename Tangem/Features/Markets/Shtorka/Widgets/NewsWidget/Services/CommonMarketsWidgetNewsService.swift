@@ -16,13 +16,15 @@ final class CommonMarketsWidgetNewsService: MarketsWidgetNewsProvider {
     // MARK: - Inject Services
 
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
+    @Injected(\.newsReadStatusProvider) private var readStatusProvider: NewsReadStatusProvider
 
     // MARK: - Private Properties
 
-    private let newsReadStatusDidUpdateSubject: PassthroughSubject<Void, Never> = .init()
     private let newsResultValueSubject: CurrentValueSubject<LoadingResult<[TrendingNewsModel], Error>, Never> = .init(.loading)
 
-    private let mapper = NewsModelMapper()
+    private lazy var mapper: NewsModelMapper = .init(readStatusProvider: readStatusProvider)
+
+    init() {}
 
     private var updateTask: AnyCancellable?
 
@@ -34,10 +36,6 @@ final class CommonMarketsWidgetNewsService: MarketsWidgetNewsProvider {
 // MARK: -
 
 extension CommonMarketsWidgetNewsService {
-    var newsReadStatusDidUpdate: AnyPublisher<Void, Never> {
-        newsReadStatusDidUpdateSubject.eraseToAnyPublisher()
-    }
-
     var newsResultPublisher: AnyPublisher<LoadingResult<[TrendingNewsModel], Error>, Never> {
         newsResultValueSubject.eraseToAnyPublisher()
     }
@@ -58,8 +56,7 @@ extension CommonMarketsWidgetNewsService {
                     lang: Locale.newsLanguageCode
                 )
 
-                // [REDACTED_TODO_COMMENT]
-                let result = response.items.map { service.mapper.mapToNewsModel(from: $0, isRead: Bool.random()) }
+                let result = response.items.map { service.mapper.mapToNewsModel(from: $0) }
 
                 service.newsResultValueSubject.send(.success(result))
             } catch {
