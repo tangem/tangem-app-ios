@@ -11,10 +11,11 @@ import SwiftUI
 import Combine
 import CombineExt
 import TangemFoundation
-import TangemLocalization
 
 final class NewsWidgetViewModel: ObservableObject {
-    // MARK: - Injected & Published Properties
+    @Injected(\.newsReadStatusProvider) private var readStatusProvider: NewsReadStatusProvider
+
+    // MARK: - Published Properties
 
     @Published private(set) var isFirstLoading: Bool = true
     @Published private(set) var resultState: LoadingResult<ResultState, Error> = .loading
@@ -26,7 +27,7 @@ final class NewsWidgetViewModel: ObservableObject {
     private let widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler
     private let analyticsService: NewsWidgetAnalyticsProvider
 
-    private let mapper = NewsModelMapper()
+    private lazy var mapper = NewsModelMapper(readStatusProvider: readStatusProvider)
     private let newsProvider = CommonMarketsWidgetNewsService()
 
     private weak var coordinator: NewsWidgetRoutable?
@@ -112,7 +113,30 @@ final class NewsWidgetViewModel: ObservableObject {
 
     @MainActor
     private func handleTap(newsId: String) {
-        coordinator?.openNews(by: newsId)
+        guard let newsIdInt = Int(newsId) else { return }
+
+        let visibleNewsIds = getVisibleNewsIds()
+        guard let selectedIndex = visibleNewsIds.firstIndex(of: newsIdInt) else { return }
+
+        Analytics.log(event: .marketsNewsCarouselTrendingClicked, params: [.newsId: newsId])
+        coordinator?.openNewsDetails(newsIds: visibleNewsIds, selectedIndex: selectedIndex)
+    }
+
+    // MARK: - Private Helpers
+
+    /// Returns only the news IDs that are visible in the widget (1 trending + up to 5 carousel)
+    private func getVisibleNewsIds() -> [Int] {
+        let items = sortItems(newsProvider.newsResult.value ?? [])
+        var result: [NewsId] = []
+
+        if let trending = items.last(where: { $0.isTrending }) {
+            result.append(trending.id)
+        }
+
+        let carouselItems = items.filter { !$0.isTrending }
+        result.append(contentsOf: carouselItems.compactMap { $0.id })
+
+        return result.compactMap { Int($0) }
     }
 }
 
@@ -159,11 +183,26 @@ private extension NewsWidgetViewModel {
                     widgetLoadingState = .loading
                 case .success:
                     widgetLoadingState = .loaded
-                case .failure:
+                    Analytics.log(event: .marketsNewsListOpened, params: [.source: Analytics.ParameterValue.markets.rawValue])
+                case .failure(let error):
                     widgetLoadingState = .error
+                    viewModel.resultState = .failure(error)
+                    Analytics.log(
+                        event: .marketsNewsLoadError,
+                        params: error.marketsAnalyticsParams
+                    )
                 }
 
                 viewModel.widgetsUpdateHandler.performUpdateLoading(state: widgetLoadingState, for: viewModel.widgetType)
+            }
+            .store(in: &bag)
+
+        readStatusProvider
+            .readStatusChangedPublisher
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, _ in
+                viewModel.updateReadState()
             }
             .store(in: &bag)
     }
@@ -223,10 +262,12 @@ private extension NewsWidgetViewModel {
         items
             .enumerated()
             .sorted { lhs, rhs in
-                if lhs.element.isRead != rhs.element.isRead {
-                    return !lhs.element.isRead
-                }
+                let lhsIsRead = readStatusProvider.isRead(for: lhs.element.id)
+                let rhsIsRead = readStatusProvider.isRead(for: rhs.element.id)
 
+                if lhsIsRead != rhsIsRead {
+                    return !lhsIsRead
+                }
                 return lhs.offset < rhs.offset
             }
             .map(\.element)
