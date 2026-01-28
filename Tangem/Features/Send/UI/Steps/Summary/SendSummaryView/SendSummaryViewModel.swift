@@ -80,6 +80,7 @@ class SendSummaryViewModel: ObservableObject, Identifiable {
 
     func userDidTapFee() {
         didTapSummary()
+
         router?.summaryStepRequestEditFee()
     }
 }
