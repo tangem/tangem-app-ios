@@ -28,7 +28,7 @@ final class SendFeeSelectorViewModel: ObservableObject, FloatingSheetContentView
     private(set) var feeSelectorViewModel: FeeSelectorViewModel
 
     @Published
-    private(set) var isMainButtonDisabled = false
+    private(set) var isMainButtonEnabled = false
 
     // MARK: - Dependencies
 
@@ -75,11 +75,12 @@ final class SendFeeSelectorViewModel: ObservableObject, FloatingSheetContentView
             .assign(to: &$state)
 
         feeSelectorViewModel
-            .interactor
-            .feeCoveragePublisher
+            .selectedFeeStateWithCoveragePublisher
             .receiveOnMain()
-            .map { !$0.isCovered }
-            .assign(to: &$isMainButtonDisabled)
+            .map { feeState, coverage in
+                feeState.isAvailable && coverage.isCovered
+            }
+            .assign(to: &$isMainButtonEnabled)
     }
 }
 
