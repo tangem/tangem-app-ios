@@ -184,8 +184,9 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
     // MARK: - Actions
 
     func onAppear() {
-        if case .edit = flowType {
-            Analytics.log(.accountSettingsEditScreenOpened)
+        if case .edit(let account) = flowType {
+            let params = account.analyticsParameters(with: SingleAccountAnalyticsBuilder())
+            Analytics.log(event: .accountSettingsEditScreenOpened, params: params)
         }
     }
 
@@ -220,21 +221,27 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
 
     private func logMainButtonAnalytics() {
         switch flowType {
-        case .edit:
-            Analytics.log(event: .accountSettingsButtonSave, params: [
+        case .edit(let account):
+            var params: [Analytics.ParameterKey: String] = [
                 .accountName: accountName,
                 .accountColor: selectedColor.id.rawValue,
                 .accountIcon: selectedIcon.id.rawValue,
-            ])
+            ]
+
+            account.enrichAnalyticsParameters(&params, using: SingleAccountAnalyticsBuilder())
+            Analytics.log(event: .accountSettingsButtonSave, params: params)
+
         case .create:
-            Analytics.log(event: .accountSettingsButtonAddNewAccount, params: [
+            let params: [Analytics.ParameterKey: String] = [
                 .accountName: accountName,
                 .accountColor: selectedColor.id.rawValue,
                 .accountIcon: selectedIcon.id.rawValue,
                 // In analytics this field is named "Derivation", but in the form we don't want to
                 // expose any knowledge about derivation — as far as we're concerned, it's the account's ordinal number
-                .derivation: String(totalAccountsCount),
-            ])
+                .accountDerivation: String(totalAccountsCount),
+            ]
+
+            Analytics.log(event: .accountSettingsButtonAddNewAccount, params: params)
         }
     }
 

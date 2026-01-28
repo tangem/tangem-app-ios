@@ -13,17 +13,10 @@ import Foundation
 /// Main accounts are skipped and return an empty dictionary.
 final class PairedAccountAnalyticsBuilder: AccountsAnalyticsBuilder {
     private let role: Role
-    private var isMainAccount: Bool?
     private var derivationIndex: Int?
 
     init(role: Role) {
         self.role = role
-    }
-
-    @discardableResult
-    func setIsMainAccount(_ isMainAccount: Bool) -> Self {
-        self.isMainAccount = isMainAccount
-        return self
     }
 
     @discardableResult
@@ -33,7 +26,7 @@ final class PairedAccountAnalyticsBuilder: AccountsAnalyticsBuilder {
     }
 
     func build() -> [Analytics.ParameterKey: String] {
-        guard let isMainAccount, !isMainAccount, let derivationIndex else {
+        guard let derivationIndex else {
             return [:]
         }
 
