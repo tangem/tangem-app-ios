@@ -226,6 +226,12 @@ extension Analytics {
         case marketsErrorTypeTimeout = "Timeout"
         case marketsErrorTypeNetwork = "Network"
 
+        // MARK: - News
+
+        case newsSourceNewsList = "News List"
+        case newsSourceNewsPage = "News Page"
+        case newsSourceNewsLink = "News Link"
+
         // MARK: - Biometrics
 
         case biometricsSourceTransaction = "Transaction"
