@@ -90,3 +90,13 @@ extension ArchivedCryptoAccountInfo {
         )
     }
 }
+
+// MARK: - Analytics
+
+extension ArchivedCryptoAccountInfo: AccountModelAnalyticsProviding {
+    func analyticsParameters(with builder: AccountsAnalyticsBuilder) -> [Analytics.ParameterKey: String] {
+        builder
+            .setDerivationIndex(derivationIndex)
+            .build()
+    }
+}

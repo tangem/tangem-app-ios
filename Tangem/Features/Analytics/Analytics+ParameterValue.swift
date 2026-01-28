@@ -58,6 +58,7 @@ extension Analytics {
         case details = "Details"
         case deviceSettings = "Device Settings"
         case settings = "Settings"
+        case account = "Account"
         case signIn = "Sign In"
         case receive = "Receive"
         case qr = "QR"

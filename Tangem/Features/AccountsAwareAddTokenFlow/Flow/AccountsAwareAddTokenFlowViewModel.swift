@@ -159,8 +159,9 @@ private extension AccountsAwareAddTokenFlowViewModel {
         // Don't push if this is the initial entry (context == .root)
         if context == .fromAddToken {
             pushCurrentState()
-            configuration.analyticsLogger.logAccountSelectorOpened()
         }
+
+        configuration.analyticsLogger.logAccountSelectorOpened()
 
         let filter = makeCryptoAccountModelsFilter(with: supportedBlockchains)
         let availabilityProvider = makeAccountAvailabilityProvider(supportedBlockchains: supportedBlockchains)
