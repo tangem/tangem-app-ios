@@ -53,6 +53,7 @@ final class MainBottomSheetHeaderViewModel: ObservableObject {
         searchInputSubject.send(.cancelInput)
         shouldSkipNextTextInput = true
         enteredSearchText = ""
+        inputShouldBecomeFocused = false
     }
 
     private func bind() {
