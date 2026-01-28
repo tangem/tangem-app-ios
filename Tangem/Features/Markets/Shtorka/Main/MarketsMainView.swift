@@ -242,6 +242,8 @@ struct MarketsMainView: View {
             PulseMarketWidgetView(viewModel: viewModel)
         case .news(let viewModel):
             NewsWidgetView(viewModel: viewModel)
+        case .earn(let viewModel):
+            EarnWidgetView(viewModel: viewModel)
         }
     }
 }
