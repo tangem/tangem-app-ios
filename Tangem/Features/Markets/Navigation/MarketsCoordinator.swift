@@ -134,6 +134,18 @@ extension MarketsCoordinator: MarketsMainRoutable {
         newsPagerViewModel = viewModel
     }
 
+    // MARK: - Earn
+
+    func openEarnTokenDetails(for token: EarnTokenModel) {
+        // [REDACTED_TODO_COMMENT]
+        // For now, this is a placeholder. Number of task did not completed.
+    }
+
+    func openSeeAllEarnWidget() {
+        // [REDACTED_TODO_COMMENT]
+        // [REDACTED_INFO]
+    }
+
     // MARK: - Private Implementation
 
     private func openSeeAllMarket(with widgetType: MarketsWidgetType, orderType: MarketsListOrderType? = nil) {

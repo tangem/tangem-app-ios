@@ -276,7 +276,13 @@ private extension MarketsMainViewModel {
             )
             contentItem = .news(viewModel)
         case .earn:
-            return nil
+            let viewModel = EarnWidgetViewModel(
+                widgetType: widgetModel.type,
+                widgetsUpdateHandler: widgetsUpdateHandler,
+                analyticsService: widgetAnalyticsService,
+                coordinator: coordinator
+            )
+            contentItem = .earn(viewModel)
         case .pulse:
             let viewModel = PulseMarketWidgetViewModel(
                 widgetType: widgetModel.type,
@@ -317,6 +323,7 @@ extension MarketsMainViewModel {
         case top(TopMarketWidgetViewModel)
         case pulse(PulseMarketWidgetViewModel)
         case news(NewsWidgetViewModel)
+        case earn(EarnWidgetViewModel)
 
         var id: MarketsWidgetType {
             switch self {
@@ -326,6 +333,8 @@ extension MarketsMainViewModel {
                 return .pulse
             case .news:
                 return .news
+            case .earn:
+                return .earn
             }
         }
 
