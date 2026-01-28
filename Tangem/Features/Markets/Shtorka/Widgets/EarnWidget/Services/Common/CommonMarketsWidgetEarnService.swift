@@ -12,7 +12,7 @@ import TangemFoundation
 
 // MARK: - Common Implementation
 
-final class CommonMarketsWidgetEarnService: MarketsWidgetEarnProvider {
+final class CommonMarketsWidgetEarnService {
     // MARK: - Inject Services
 
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
@@ -30,9 +30,9 @@ final class CommonMarketsWidgetEarnService: MarketsWidgetEarnProvider {
     }
 }
 
-// MARK: -
+// MARK: - MarketsWidgetEarnProvider
 
-extension CommonMarketsWidgetEarnService {
+extension CommonMarketsWidgetEarnService: MarketsWidgetEarnProvider {
     var earnResultPublisher: AnyPublisher<LoadingResult<[EarnTokenModel], Error>, Never> {
         earnResultValueSubject.eraseToAnyPublisher()
     }
