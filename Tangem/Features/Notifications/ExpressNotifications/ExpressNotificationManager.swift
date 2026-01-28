@@ -183,7 +183,7 @@ final class ExpressNotificationManager {
             let sender = try interactor.getSourceWallet()
             setupNotification(source: sender, validationError: error, context: context)
             return
-        case .notEnoughAmountForFee(let isFeeCurrency), .notEnoughAmountForTxValue(_, let isFeeCurrency):
+        case .notEnoughAmountForFee(let isFeeCurrency, _), .notEnoughAmountForTxValue(_, let isFeeCurrency):
             guard !isFeeCurrency else {
                 await updateNotificationInputs([])
                 return
