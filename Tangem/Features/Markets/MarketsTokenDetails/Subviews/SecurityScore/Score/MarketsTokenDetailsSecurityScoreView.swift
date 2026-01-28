@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 
 struct MarketsTokenDetailsSecurityScoreView: View {
@@ -31,6 +32,8 @@ struct MarketsTokenDetailsSecurityScoreView: View {
             with: Colors.Background.action,
             verticalPadding: .zero
         )
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier(MarketsAccessibilityIdentifiers.securityScoreBlock)
     }
 
     @ViewBuilder
@@ -45,12 +48,14 @@ struct MarketsTokenDetailsSecurityScoreView: View {
                     .foregroundStyle(Colors.Icon.informative)
             }
         }
+        .accessibilityIdentifier(MarketsAccessibilityIdentifiers.securityScoreInfoButton)
     }
 
     @ViewBuilder
     private var subtitle: some View {
         Text(viewModel.subtitle)
             .font(Fonts.Regular.caption1)
+            .accessibilityIdentifier(MarketsAccessibilityIdentifiers.securityScoreReviewsCount)
     }
 }
 
