@@ -16,6 +16,14 @@ final class FeeSelectorViewModel: ObservableObject, FloatingSheetContentViewMode
 
     // MARK: - Properties
 
+    var selectedFeeStateWithCoveragePublisher: AnyPublisher<(TokenFeeProviderState, FeeCoverage), Never> {
+        Publishers.CombineLatest(
+            interactor.selectedTokenFeeProviderPublisher.flatMapLatest { $0.statePublisher },
+            interactor.feeCoveragePublisher
+        )
+        .eraseToAnyPublisher()
+    }
+
     private let summaryViewModel: FeeSelectorSummaryViewModel
     private let tokensViewModel: FeeSelectorTokensViewModel
     private let feesViewModel: FeeSelectorFeesViewModel
@@ -23,8 +31,8 @@ final class FeeSelectorViewModel: ObservableObject, FloatingSheetContentViewMode
 
     // MARK: - Dependencies
 
+    private let interactor: any FeeSelectorInteractor
     private weak var router: FeeSelectorRoutable?
-    let interactor: any FeeSelectorInteractor
 
     private var customFeeSelectionAnalyticsCancellable: AnyCancellable?
 
