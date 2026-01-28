@@ -112,6 +112,8 @@ struct DefaultIncomingLinkParserTests {
             urlString = "tangem://\(rawValue)?entry=some-entry&id=some-id"
         case .payApp:
             urlString = "https://tangem.com/\(rawValue)?id=some-id"
+        case .news:
+            urlString = "tangem://\(rawValue)?id=some-id"
         default:
             urlString = "tangem://\(rawValue)?type=income_transaction"
         }
