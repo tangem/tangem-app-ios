@@ -57,6 +57,7 @@ final class CommonExpandableAccountItemStateStorageProvider {
                 .accountModelsManager
                 .accountModelsPublisher
                 .map { $0.cryptoAccounts() }
+                .prepend([]) // Triggers initial `pairwise` call
                 .pairwise()
                 .withWeakCaptureOf(self)
                 .sink { storage, input in
