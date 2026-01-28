@@ -186,16 +186,30 @@ private extension CommonWalletModelsManager {
         AppLogger.info("✅ Actual List of WalletModels [\(walletModels.map(\.name))]")
     }
 
+    /// - Note: Currently this method produces derivation path which is only used for determining if wallet models are
+    /// custom or not (see `CommonWalletModelsFactory.isMainCoinCustom(blockchainDerivationPath:targetAccountDerivationPath:)`).
     func makeTargetDerivationPath(for blockchain: Blockchain) -> DerivationPath? {
-        guard let derivationStyle else {
+        guard
+            let derivationStyle,
+            let defaultPath = blockchain.derivationPath(for: derivationStyle)
+        else {
             return nil
         }
 
-        guard let defaultPath = blockchain.derivationPath(for: derivationStyle) else {
-            return nil
-        }
+        do {
+            let helper = AccountDerivationPathHelper(blockchain: blockchain)
 
-        let helper = AccountDerivationPathHelper(blockchain: blockchain)
-        return helper.makeDerivationPath(from: defaultPath, forAccountWithIndex: derivationIndex)
+            return try helper.makeDerivationPath(from: defaultPath, forAccountWithIndex: derivationIndex)
+        } catch {
+            // Ugly and explicit switch here due to https://github.com/swiftlang/swift/issues/74555 ([REDACTED_INFO])
+            switch error {
+            case .insufficientNodes:
+                // Insufficient amount of nodes to create an accounts-aware derivation path means that
+                // this blockchain (and therefore all its tokens) will be custom
+                return defaultPath
+            case .accountsUnavailableForBlockchain:
+                return nil
+            }
+        }
     }
 }
