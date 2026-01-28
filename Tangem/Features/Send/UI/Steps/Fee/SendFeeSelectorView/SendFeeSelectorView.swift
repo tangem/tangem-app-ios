@@ -43,7 +43,7 @@ struct SendFeeSelectorView: View {
                 settings: .init(
                     title: Localization.commonApply,
                     style: .primary,
-                    isDisabled: viewModel.isMainButtonDisabled,
+                    isDisabled: !viewModel.isMainButtonEnabled,
                     action: viewModel.userDidTapConfirmButton
                 )
             )
