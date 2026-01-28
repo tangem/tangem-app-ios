@@ -19,7 +19,7 @@ struct AccountsAwareTokenSelectorView<EmptyContentView: View, AdditionalContentV
     private let additionalContent: AdditionalContentView
 
     private var searchType: SearchType?
-    private var sectionTitle: String?
+    private var sectionHeaderConfiguration: SectionHeaderConfiguration?
 
     init(
         viewModel: AccountsAwareTokenSelectorViewModel,
@@ -66,9 +66,9 @@ struct AccountsAwareTokenSelectorView<EmptyContentView: View, AdditionalContentV
         case .empty:
             emptyContentView
                 .transition(.move(edge: .top).combined(with: .opacity).animation(.easeInOut))
-        case .visible:
-            if let sectionTitle {
-                sectionHeader(title: sectionTitle)
+        case .visible(let itemsCount):
+            if let sectionHeaderConfiguration {
+                sectionHeader(configuration: sectionHeaderConfiguration, itemsCount: itemsCount)
             }
 
             LazyVStack(spacing: 8) {
@@ -82,13 +82,22 @@ struct AccountsAwareTokenSelectorView<EmptyContentView: View, AdditionalContentV
         FixedSpacer(height: 12)
     }
 
-    private func sectionHeader(title: String) -> some View {
-        Text(title)
-            .style(Fonts.BoldStatic.title3, color: Colors.Text.primary1)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 16)
-            .padding(.top, 14)
-            .padding(.bottom, 10)
+    private func sectionHeader(configuration: SectionHeaderConfiguration, itemsCount: Int) -> some View {
+        let showCount = configuration.showsItemsCount && !viewModel.searchText.isEmpty && itemsCount > 0
+
+        return HStack(spacing: 8) {
+            Text(configuration.title)
+                .style(Fonts.BoldStatic.title3, color: Colors.Text.primary1)
+
+            if showCount {
+                Text("\(itemsCount)")
+                    .style(Fonts.BoldStatic.title3, color: Colors.Text.tertiary)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 16)
+        .padding(.top, 14)
+        .padding(.bottom, 10)
     }
 }
 
@@ -99,8 +108,8 @@ extension AccountsAwareTokenSelectorView: Setupable {
         map { $0.searchType = searchType }
     }
 
-    func sectionTitle(_ title: String?) -> Self {
-        map { $0.sectionTitle = title }
+    func sectionHeader(_ configuration: SectionHeaderConfiguration) -> Self {
+        map { $0.sectionHeaderConfiguration = configuration }
     }
 }
 
@@ -108,6 +117,16 @@ extension AccountsAwareTokenSelectorView {
     enum SearchType {
         case native
         case custom
+    }
+
+    struct SectionHeaderConfiguration {
+        let title: String
+        let showsItemsCount: Bool
+
+        init(title: String, showsItemsCount: Bool = false) {
+            self.title = title
+            self.showsItemsCount = showsItemsCount
+        }
     }
 }
 
