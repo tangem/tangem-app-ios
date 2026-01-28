@@ -55,6 +55,7 @@ final class NewsDataProvider {
     private var taskCancellable: AnyCancellable?
     private var categoriesCancellable: AnyCancellable?
     private var scheduledFetchTask: AnyCancellable?
+    private var isScheduledFetchPending: Bool = false
 
     // MARK: - Init
 
@@ -83,7 +84,7 @@ final class NewsDataProvider {
             clearItems()
         }
 
-        guard scheduledFetchTask == nil else {
+        guard !isScheduledFetchPending else {
             AppLogger.debug("📰 [NewsDataProvider] scheduledFetchTask exists, skipping fetch")
             return
         }
@@ -120,6 +121,7 @@ final class NewsDataProvider {
                 let response = try await tangemApiService.loadNewsCategories()
                 _categoriesSubject.send(response.items)
             } catch {
+                AppLogger.error("📰 [NewsDataProvider] Failed to fetch categories", error: error)
                 // Silently fail - categories are optional
             }
         }.eraseToAnyCancellable()
@@ -136,6 +138,7 @@ final class NewsDataProvider {
         if scheduledFetchTask != nil {
             scheduledFetchTask?.cancel()
             scheduledFetchTask = nil
+            isScheduledFetchPending = false
         }
 
         _eventSubject.send(.startInitialFetch)
@@ -179,9 +182,11 @@ final class NewsDataProvider {
             isLoading = false
 
             if error.isCancellationError {
+                AppLogger.debug("📰 [NewsDataProvider] Request was cancelled")
                 return
             }
 
+            AppLogger.error("📰 [NewsDataProvider] Failed to fetch news", error: error)
             _eventSubject.send(.failedToFetchData(error: error))
 
             if hasLoadedItems {
@@ -191,11 +196,13 @@ final class NewsDataProvider {
     }
 
     private func scheduleRetryForFailedFetchRequest() {
-        guard scheduledFetchTask == nil else { return }
+        guard !isScheduledFetchPending else { return }
 
+        isScheduledFetchPending = true
         scheduledFetchTask = Task.delayed(withDelay: repeatRequestDelayInSeconds, operation: { @MainActor [weak self] in
             guard let self else { return }
 
+            isScheduledFetchPending = false
             scheduledFetchTask = nil
             fetchMore()
         }).eraseToAnyCancellable()
