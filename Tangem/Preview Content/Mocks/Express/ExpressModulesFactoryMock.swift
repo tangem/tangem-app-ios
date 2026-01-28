@@ -64,6 +64,7 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
         SwapTokenSelectorViewModel(
             swapDirection: swapDirection,
             tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel(walletsProvider: .common(), availabilityProvider: .swap()),
+            externalSearchViewModel: nil,
             expressInteractor: expressInteractor,
             expressPairsRepository: expressPairsRepository,
             userWalletInfo: userWalletInfo,
