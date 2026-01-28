@@ -21,8 +21,7 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
 
     private let swapDirection: SwapDirection
     private let expressInteractor: ExpressInteractor
-    private let expressPairsRepository: ExpressPairsRepository
-    private let userWalletInfo: UserWalletInfo
+    private let tangemApiService: TangemApiService
     private weak var coordinator: SwapTokenSelectorRoutable?
 
     private var selectedTokenItem: TokenItem?
@@ -32,16 +31,14 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
         tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel,
         externalSearchViewModel: ExpressExternalSearchViewModel?,
         expressInteractor: ExpressInteractor,
-        expressPairsRepository: ExpressPairsRepository,
-        userWalletInfo: UserWalletInfo,
+        tangemApiService: TangemApiService,
         coordinator: SwapTokenSelectorRoutable
     ) {
         self.swapDirection = swapDirection
         self.tokenSelectorViewModel = tokenSelectorViewModel
         self.externalSearchViewModel = externalSearchViewModel
         self.expressInteractor = expressInteractor
-        self.expressPairsRepository = expressPairsRepository
-        self.userWalletInfo = userWalletInfo
+        self.tangemApiService = tangemApiService
         self.coordinator = coordinator
 
         tokenSelectorViewModel.setup(directionPublisher: Just(swapDirection).eraseToOptional())
@@ -100,31 +97,50 @@ extension SwapTokenSelectorViewModel: AccountsAwareTokenSelectorViewModelOutput 
 extension SwapTokenSelectorViewModel: ExpressExternalTokenSelectionHandler {
     func didSelectExternalToken(_ token: MarketsTokenModel) {
         Task { @MainActor in
-            // For now, skip pair validation since we don't have network info from Markets API
-            // The add-token flow will handle network selection
+            do {
+                let networks = try await loadNetworks(for: token.id)
 
-            // Proceed with add-token flow
-            coordinator?.openAddTokenFlowForExpress(
-                coinId: token.id,
-                coinName: token.name,
-                coinSymbol: token.symbol,
-                swapDirection: swapDirection,
-                userWalletInfo: userWalletInfo,
-                completion: { [weak self] tokenItem, account in
-                    self?.handleTokenAdded(tokenItem: tokenItem, account: account)
+                guard !networks.isEmpty else {
+                    return
                 }
-            )
+
+                let inputData = ExpressAddTokenInputData(
+                    coinId: token.id,
+                    coinName: token.name,
+                    coinSymbol: token.symbol,
+                    networks: networks,
+                    swapDirection: swapDirection
+                )
+
+                coordinator?.openAddTokenFlowForExpress(
+                    inputData: inputData,
+                    completion: { [weak self] tokenItem, userWalletInfo, account in
+                        self?.handleTokenAdded(tokenItem: tokenItem, userWalletInfo: userWalletInfo, account: account)
+                    }
+                )
+            } catch {
+                AppLogger.error("Failed to load networks for coinId: \(token.id)", error: error)
+            }
         }
     }
 
-    private func handleTokenAdded(tokenItem: TokenItem, account: any CryptoAccountModel) {
+    private func loadNetworks(for coinId: String) async throws -> [NetworkModel] {
+        let request = CoinsList.Request(
+            supportedBlockchains: [],
+            ids: [coinId]
+        )
+
+        let response = try await tangemApiService.loadCoins(requestModel: request)
+        return response.coins.first?.networks ?? []
+    }
+
+    private func handleTokenAdded(tokenItem: TokenItem, userWalletInfo: UserWalletInfo, account: any CryptoAccountModel) {
         // Find newly created WalletModel
         guard let walletModel = account.walletModelsManager.walletModels
             .first(where: { $0.tokenItem == tokenItem }) else {
             return
         }
 
-        // Get the userWalletInfo for the account
         let expressInteractorWallet = ExpressInteractorWalletModelWrapper(
             userWalletInfo: userWalletInfo,
             walletModel: walletModel,

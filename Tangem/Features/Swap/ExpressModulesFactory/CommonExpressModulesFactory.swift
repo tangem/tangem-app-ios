@@ -114,8 +114,7 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
             ),
             externalSearchViewModel: externalSearchViewModel,
             expressInteractor: expressDependenciesFactory.expressInteractor,
-            expressPairsRepository: expressPairsRepository,
-            userWalletInfo: userWalletInfo,
+            tangemApiService: tangemApiService,
             coordinator: coordinator
         )
     }
