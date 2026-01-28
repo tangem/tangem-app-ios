@@ -180,3 +180,4 @@ Always use Context7 MCP for library/API documentation, code generation, or confi
 ## Miscellaneous
 
 - DO NOT read, access or modify files at paths specified in the @.cursorignore file
+- When adding new Swift or Objective-C files to the project itself (not to SPM modules, `./Modules/*`), always modify the project file (`TangemApp.xcodeproj/project.pbxproj`) accordingly

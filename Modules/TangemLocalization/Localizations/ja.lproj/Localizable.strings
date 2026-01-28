@@ -270,6 +270,7 @@
 "common_go_to_token" = "トークンへ移動";
 "common_got_it" = "わかりました";
 "common_hide" = "非表示";
+"common_hold_to" = "Hold to %@";
 "common_hour" = "時間";
 "common_import" = "インポート";
 "common_in_progress" = "進行中";
@@ -343,6 +344,7 @@
 "common_swap" = "スワップ";
 "common_tangem_wallet" = "Tangem Wallet";
 "common_tangem" = "Tangem";
+"common_tap_and_hold_hint" = "Tap and hold";
 "common_terms_and_conditions" = "利用規約";
 "common_terms_of_use" = "利用規約";
 "common_to_wallet_name" = "%@へ";
@@ -955,6 +957,7 @@
 "onramp_tos_external_providers" = "サービスは外部プロバイダーによって提供されます。 \nTangemは責任を負いません。";
 "onramp_transaction_status_footer_text" = "この画面を閉じて、トークンの詳細画面で取引状況を確認できます。";
 "onramp_up_to_rate" = "最大";
+"onramp_via_provider" = "%@ 経由";
 "onramp_via" = "経由";
 "onramp_you_will_pay_title" = "支払い";
 "organize_tokens_group" = "グループ";

@@ -88,6 +88,6 @@ private extension EarnTokenItemView {
         static let verticalPadding: CGFloat = 14.0
         static let textVerticalSpacing: CGFloat = 2.0
         static let nameSymbolSpacing: CGFloat = 4.0
-        static let imageSize: CGSize = .init(bothDimensions: 40)
+        static let imageSize: CGSize = .init(bothDimensions: 36)
     }
 }

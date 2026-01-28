@@ -51,6 +51,7 @@ protocol TangemApiService: AnyObject {
     // MARK: - News
 
     func loadNewsList(requestModel: NewsDTO.List.Request) async throws -> NewsDTO.List.Response
+    func loadNewsDetails(requestModel: NewsDTO.Details.Request) async throws -> NewsDTO.Details.Response
     func loadNewsCategories() async throws -> NewsDTO.Categories.Response
 
     /// Retrieves the list of trending news for the main page.
