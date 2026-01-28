@@ -133,5 +133,14 @@ extension Analytics {
 
         case backupManual = "Manual Backup"
         case backupICloud = "Icloud Backup"
+
+        // MARK: - News
+
+        case newsId = "News Id"
+        case direction = "Direction"
+        case relatedNewsId = "Related News Id"
+        case tokenSymbol = "Token Symbol"
+        case newsCount = "News Count"
+        case tokenId = "Token Id"
     }
 }

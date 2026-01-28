@@ -18,6 +18,7 @@ extension MainCoordinator {
         @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
         @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
         @Injected(\.overlayContentStateController) private var bottomSheetStateController: OverlayContentStateController
+        @Injected(\.newsDeeplinkValidationService) private var newsDeeplinkValidationService: NewsDeeplinkValidating
 
         weak var coordinator: MainRoutable?
 
@@ -77,7 +78,24 @@ extension MainCoordinator {
 
             case .promo:
                 return routePromoAction(params: navigationAction.params)
+
+            case .news:
+                return routeNewsAction(params: navigationAction.params, deeplinkString: navigationAction.deeplinkString)
             }
+        }
+
+        private func routeNewsAction(params: DeeplinkNavigationAction.Params, deeplinkString: String) -> Bool {
+            guard let coordinator,
+                  let idString = params.id,
+                  let newsId = Int(idString)
+            else {
+                incomingActionManager.discardIncomingAction()
+                return false
+            }
+
+            newsDeeplinkValidationService.setDeeplinkURL(deeplinkString)
+            coordinator.openDeepLink(.newsDetails(newsId: newsId))
+            return true
         }
 
         private func routePromoAction(params: DeeplinkNavigationAction.Params) -> Bool {
