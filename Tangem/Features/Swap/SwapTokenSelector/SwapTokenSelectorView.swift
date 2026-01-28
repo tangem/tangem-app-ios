@@ -29,6 +29,7 @@ struct SwapTokenSelectorView: View {
                     }
                 }
             )
+            .sectionTitle(Localization.swapYourAssetsTitle)
             .searchType(.native)
             .background(Colors.Background.tertiary.ignoresSafeArea())
             .navigationTitle(Localization.swappingTokenListTitle)
