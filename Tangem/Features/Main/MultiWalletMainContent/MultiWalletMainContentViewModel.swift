@@ -142,6 +142,20 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         AppLogger.debug("\(userWalletModel.name) deinit")
     }
 
+    func onDidAppear() {
+        mobileFinishActivationManager.onMain(
+            userWalletId: userWalletModel.userWalletId,
+            isAppeared: true
+        )
+    }
+
+    func onWillDisappear() {
+        mobileFinishActivationManager.onMain(
+            userWalletId: userWalletModel.userWalletId,
+            isAppeared: false
+        )
+    }
+
     func onPullToRefresh() async {
         if await isUpdating {
             return
@@ -151,14 +165,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         await refreshActionButtonsData()
         await MultiWalletMainContentUpdater.scheduleUpdate(with: userWalletModel)
         await setIsUpdating(false)
-    }
-
-    func onFirstAppear() {
-        finishMobileActivationIfNeeded()
-    }
-
-    func finishMobileActivationIfNeeded() {
-        mobileFinishActivationManager.activateIfNeeded(userWalletModel: userWalletModel)
     }
 
     func deriveEntriesWithoutDerivation() {
