@@ -23,6 +23,14 @@ final class MarketsScreen: ScreenBase<MarketsScreenElement> {
     // MARK: - Public methods
 
     @discardableResult
+    func verifyMarketsSheetIsDisplayed() -> Self {
+        XCTContext.runActivity(named: "Verify Markets sheet is displayed") { _ in
+            waitAndAssertTrue(searchField, "Markets sheet should be displayed with search field")
+            return self
+        }
+    }
+
+    @discardableResult
     func closeMarketsSheetWithSwipe() -> MainScreen {
         XCTContext.runActivity(named: "Close markets sheet with swipe down gesture") { _ in
             // Find the grabber view or bottom sheet area to swipe down
