@@ -14,6 +14,7 @@ import BlockchainSdk
 
 protocol ExpressSearchTokensProvider {
     func search(text: String) async throws -> [MarketsTokenModel]
+    func loadTrending() async throws -> [MarketsTokenModel]
 }
 
 // MARK: - Implementation
@@ -30,7 +31,6 @@ final class CommonExpressSearchTokensProvider: ExpressSearchTokensProvider {
             return []
         }
 
-        // Use Markets API for searching - same as Markets list
         let request = MarketsDTO.General.Request(
             currency: AppSettings.shared.selectedCurrencyCode,
             offset: 0,
@@ -38,6 +38,20 @@ final class CommonExpressSearchTokensProvider: ExpressSearchTokensProvider {
             interval: .day,
             order: .rating,
             search: text
+        )
+
+        let response = try await tangemApiService.loadCoinsList(requestModel: request)
+        return response.tokens
+    }
+
+    func loadTrending() async throws -> [MarketsTokenModel] {
+        let request = MarketsDTO.General.Request(
+            currency: AppSettings.shared.selectedCurrencyCode,
+            offset: 0,
+            limit: 20,
+            interval: .day,
+            order: .trending,
+            search: nil
         )
 
         let response = try await tangemApiService.loadCoinsList(requestModel: request)

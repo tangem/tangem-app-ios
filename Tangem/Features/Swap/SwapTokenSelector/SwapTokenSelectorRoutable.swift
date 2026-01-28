@@ -14,11 +14,15 @@ protocol SwapTokenSelectorRoutable: AnyObject {
     /// Opens the add-token flow for an external token selected from search results
     @MainActor
     func openAddTokenFlowForExpress(
-        coinId: String,
-        coinName: String,
-        coinSymbol: String,
-        swapDirection: SwapTokenSelectorViewModel.SwapDirection,
-        userWalletInfo: UserWalletInfo,
-        completion: @escaping (TokenItem, any CryptoAccountModel) -> Void
+        inputData: ExpressAddTokenInputData,
+        completion: @escaping (TokenItem, UserWalletInfo, any CryptoAccountModel) -> Void
     )
+}
+
+struct ExpressAddTokenInputData {
+    let coinId: String
+    let coinName: String
+    let coinSymbol: String
+    let networks: [NetworkModel]
+    let swapDirection: SwapTokenSelectorViewModel.SwapDirection
 }
