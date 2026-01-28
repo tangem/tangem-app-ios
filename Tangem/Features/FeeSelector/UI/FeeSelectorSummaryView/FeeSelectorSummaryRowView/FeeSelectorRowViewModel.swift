@@ -10,6 +10,9 @@ import TangemMacro
 import SwiftUI
 import TangemUI
 import TangemFoundation
+import TangemLocalization
+import TangemAssets
+import TangemAccessibilityIdentifiers
 
 struct FeeSelectorRowViewModel: Hashable {
     let rowType: RowType
@@ -17,17 +20,6 @@ struct FeeSelectorRowViewModel: Hashable {
     let subtitle: SubtitleType
     let availability: Availability
     let accessibilityIdentifier: String
-
-    var isActionEnabled: Bool {
-        switch availability {
-        case .available:
-            true
-        case .noBalance, .notSupported, .unavailable:
-            false
-        case .notEnoughBalance(let hasMultipleOptions):
-            hasMultipleOptions
-        }
-    }
 
     // MARK: - Expansion
 
@@ -46,7 +38,13 @@ struct FeeSelectorRowViewModel: Hashable {
 
 extension FeeSelectorRowViewModel {
     /// Plain (no selection and no expansion)
-    init(rowType: RowType, title: String, subtitle: SubtitleType, accessibilityIdentifier: String, availability: Availability = .available) {
+    init(
+        rowType: RowType,
+        title: String,
+        subtitle: SubtitleType,
+        accessibilityIdentifier: String,
+        availability: Availability = .available(isSubtitleHighlighted: false)
+    ) {
         self.rowType = rowType
         self.title = title
         self.subtitle = subtitle
@@ -60,7 +58,14 @@ extension FeeSelectorRowViewModel {
     }
 
     /// Optional expansion-only configuration: provides expandAction, disables selection
-    init(rowType: RowType, title: String, subtitle: SubtitleType, accessibilityIdentifier: String, availability: Availability = .available, expandAction: (() -> Void)?) {
+    init(
+        rowType: RowType,
+        title: String,
+        subtitle: SubtitleType,
+        accessibilityIdentifier: String,
+        availability: Availability = .available(isSubtitleHighlighted: false),
+        expandAction: (() -> Void)?
+    ) {
         self.rowType = rowType
         self.title = title
         self.subtitle = subtitle
@@ -79,7 +84,7 @@ extension FeeSelectorRowViewModel {
         title: String,
         subtitle: SubtitleType,
         accessibilityIdentifier: String,
-        availability: Availability = .available,
+        availability: Availability = .available(isSubtitleHighlighted: false),
         isSelected: Bool,
         selectAction: @escaping () -> Void
     ) {
@@ -111,11 +116,8 @@ extension FeeSelectorRowViewModel {
 
     @CaseFlagable
     enum Availability: Hashable {
-        case available
-        case noBalance
-        case notSupported
+        case available(isSubtitleHighlighted: Bool)
         case unavailable
-        case notEnoughBalance(supportsMultipleOptions: Bool)
     }
 }
 
@@ -137,4 +139,15 @@ extension FeeSelectorRowViewModel.RowType: Hashable {
         default: return false
         }
     }
+}
+
+extension FeeSelectorRowViewModel {
+    static let placeholder = Self(
+        rowType: .fee(image: Assets.FeeOptions.marketFeeIcon.image),
+        title: Localization.commonFeeSelectorOptionMarket,
+        subtitle: .fee(.noData),
+        accessibilityIdentifier: FeeAccessibilityIdentifiers.suggestedFeeCurrency,
+        availability: .unavailable,
+        expandAction: nil
+    )
 }
