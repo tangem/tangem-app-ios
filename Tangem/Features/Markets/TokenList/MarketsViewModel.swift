@@ -56,8 +56,10 @@ final class MarketsViewModel: MarketsBaseViewModel {
     private let chartsHistoryProvider = MarketsListChartsHistoryProvider()
     private let quotesUpdatesScheduler = MarketsQuotesUpdatesScheduler()
     private let imageCache = KingfisherManager.shared.cache
-    private let marketsNotificationsManager: MarketsNotificationsManager
 
+    private lazy var marketsNotificationsManager = MarketsNotificationsManager(
+        tokenLoadingStateProvider: $tokenListLoadingState.eraseToAnyPublisher()
+    )
     private lazy var listDataController: MarketsListDataController = .init(dataFetcher: self, cellsStateUpdater: self)
 
     private var marketCapFormatter: MarketCapFormatter
@@ -79,8 +81,6 @@ final class MarketsViewModel: MarketsBaseViewModel {
     ) {
         self.quotesRepositoryUpdateHelper = quotesRepositoryUpdateHelper
         self.coordinator = coordinator
-
-        marketsNotificationsManager = MarketsNotificationsManager(dataProvider: dataProvider)
 
         marketCapFormatter = .init(
             divisorsList: AmountNotationSuffixFormatter.Divisor.defaultList,

@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import AppsFlyerLib
 import FirebaseAnalytics
 import FirebaseCrashlytics
 import BlockchainSdk
@@ -23,8 +22,6 @@ class Analytics {
     )
 
     private static let defaultAnalyticsSystems: [Analytics.AnalyticsSystem] = [.firebase, .amplitude, .crashlytics]
-
-    private init() {}
 
     // MARK: - Others
 
@@ -84,6 +81,7 @@ class Analytics {
         log(
             event: event,
             params: params.mapValues { $0.rawValue },
+            analyticsSystems: analyticsSystems,
             contextParams: contextParams,
             limit: limit
         )
@@ -211,13 +209,7 @@ class Analytics {
             case .amplitude:
                 AmplitudeWrapper.shared.track(eventType: event, eventProperties: params)
             case .appsFlyer:
-                let convertedEvent = AppsFlyerAnalyticsEventConverter.convert(event: event)
-                let convertedParams = AppsFlyerAnalyticsEventConverter.convert(params: params)
-                AppsFlyerLib.shared().logEvent(name: convertedEvent, values: convertedParams, completionHandler: { params, error in
-                    if let error {
-                        AnalyticsLogger.error(params, error: error)
-                    }
-                })
+                AppsFlyerWrapper.shared.log(event: event, params: params)
             }
         }
 

@@ -39,6 +39,8 @@ struct DefaultIncomingLinkParser {
             promoCode: keyedQueryItems[IncomingActionConstants.DeeplinkParams.promoCode],
             entry: keyedQueryItems[IncomingActionConstants.DeeplinkParams.entry],
             id: keyedQueryItems[IncomingActionConstants.DeeplinkParams.id],
+            refcode: keyedQueryItems[IncomingActionConstants.DeeplinkParams.refcode],
+            campaign: keyedQueryItems[IncomingActionConstants.DeeplinkParams.campaign],
         )
     }
 

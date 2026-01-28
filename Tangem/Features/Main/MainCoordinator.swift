@@ -62,6 +62,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var mobileUpgradeCoordinator: MobileUpgradeCoordinator? = nil
     @Published var tangemPayMainCoordinator: TangemPayMainCoordinator?
     @Published var tangemPayOnboardingCoordinator: TangemPayOnboardingCoordinator?
+    @Published var mobileBackupTypesCoordinator: MobileBackupTypesCoordinator?
 
     // MARK: - Child view models
 
@@ -116,7 +117,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
         mainViewModel = viewModel
 
         mobileFinishActivationManager.observe(
-            userWalletId: options.userWalletModel.userWalletId,
+            userWalletModel: options.userWalletModel,
             onActivation: weakify(self, forFunction: MainCoordinator.openMobileFinishActivation)
         )
 
@@ -854,7 +855,8 @@ extension MainCoordinator {
         case externalLink(url: URL)
         case market
         case onboardVisa(deeplinkString: String)
-        case promo(code: String)
+        case newsDetails(newsId: Int)
+        case promo(code: String, refcode: String?, campaign: String?)
     }
 }
 
@@ -865,6 +867,22 @@ extension MainCoordinator: MobileFinishActivationNeededRoutable {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
         }
+    }
+
+    func openMobileBackup(userWalletModel: UserWalletModel) {
+        mainBottomSheetUIManager.hide()
+
+        let dismissAction: Action<MobileBackupTypesCoordinator.OutputOptions> = { [weak self] options in
+            switch options {
+            case .main:
+                self?.mobileBackupTypesCoordinator = nil
+            }
+        }
+
+        let inputOptions = MobileBackupTypesCoordinator.InputOptions(userWalletModel: userWalletModel, mode: .activate)
+        let coordinator = MobileBackupTypesCoordinator(dismissAction: dismissAction)
+        coordinator.start(with: inputOptions)
+        mobileBackupTypesCoordinator = coordinator
     }
 
     func openMobileBackupOnboarding(userWalletModel: UserWalletModel) {

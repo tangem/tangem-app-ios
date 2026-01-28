@@ -247,7 +247,6 @@ enum StoredCryptoAccountsTokensDistributor {
         }
 
         let blockchain = blockchainNetwork.blockchain
-        let derivationPath = blockchainNetwork.derivationPath
         let helper: AccountDerivationPathHelper
 
         // We don't use `subscript(_:default:)` here despite `AccountDerivationPathHelper` being a value type to
@@ -259,8 +258,20 @@ enum StoredCryptoAccountsTokensDistributor {
             cachedHelpers[blockchain] = helper
         }
 
-        if let tokenAccountDerivationNode = helper.extractAccountDerivationNode(from: derivationPath) {
-            return Int(tokenAccountDerivationNode.rawIndex)
+        if let derivationPath = blockchainNetwork.derivationPath {
+            do {
+                let tokenAccountDerivationNode = try helper.extractAccountDerivationNode(from: derivationPath)
+                return Int(tokenAccountDerivationNode.rawIndex)
+            } catch {
+                // Ugly and explicit switch here due to https://github.com/swiftlang/swift/issues/74555 ([REDACTED_INFO])
+                switch error {
+                case .insufficientNodes,
+                     .accountsUnavailableForBlockchain:
+                    // Both of these errors must be unconditionally fallback to the Main account since only the
+                    // Main account can handle malformed derivation paths and/or blockchains w/o accounts support
+                    return AccountModelUtils.mainAccountDerivationIndex
+                }
+            }
         }
 
         return fallbackToMainAccount ? AccountModelUtils.mainAccountDerivationIndex : nil

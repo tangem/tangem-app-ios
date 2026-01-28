@@ -14,20 +14,31 @@ import TangemAccounts
 struct ExpandableAccountItemView<ExpandedView>: View where ExpandedView: View {
     @ObservedObject var viewModel: ExpandableAccountItemViewModel
 
+    @Namespace private var namespace
+
     let expandedView: () -> ExpandedView
 
+    // MARK: - Body
+
     var body: some View {
+        let effects = AccountGeometryEffects(namespace: namespace)
+
         ExpandableItemView(
             isExpanded: viewModel.isExpanded,
-            initialCollapsedHeight: Constants.initialCollapsedHeight,
-            initialExpandedHeight: Constants.initialExpandedHeight,
+            backgroundGeometryEffect: effects.background,
+            expandedViewTransition: viewModel.isEmptyContent ? nil : Constants.expandedContentTransition,
             collapsedView: {
                 CollapsedAccountItemHeaderView(
                     name: viewModel.name,
                     iconData: viewModel.iconData,
                     tokensCount: viewModel.tokensCount,
                     totalFiatBalance: viewModel.totalFiatBalance,
-                    priceChange: viewModel.priceChange
+                    priceChange: viewModel.priceChange,
+                    iconGeometryEffect: effects.icon,
+                    iconBackgroundGeometryEffect: effects.iconBackground,
+                    nameGeometryEffect: effects.name,
+                    tokensCountGeometryEffect: effects.tokensCount,
+                    balanceGeometryEffect: effects.balance
                 )
             },
             expandedView: {
@@ -41,6 +52,12 @@ struct ExpandableAccountItemView<ExpandedView>: View where ExpandedView: View {
                 ExpandedAccountItemHeaderView(
                     name: viewModel.name,
                     iconData: viewModel.iconData,
+                    totalFiatBalance: viewModel.totalFiatBalance,
+                    iconGeometryEffect: effects.icon,
+                    iconBackgroundGeometryEffect: effects.iconBackground,
+                    nameGeometryEffect: effects.name,
+                    tokensCountGeometryEffect: effects.tokensCount,
+                    balanceGeometryEffect: effects.balance
                 )
             },
             onExpandedChange: viewModel.onExpandedChange
@@ -53,10 +70,12 @@ struct ExpandableAccountItemView<ExpandedView>: View where ExpandedView: View {
 
 private extension ExpandableAccountItemView {
     enum Constants {
-        /// Measured height of the standard collapsed account item view.
-        static var initialCollapsedHeight: CGFloat { 64.0 }
-        /// Measured height of the expanded account item view with a single token in the account.
-        static var initialExpandedHeight: CGFloat { 108.0 }
+        static var expandedContentTransition: AnyTransition {
+            .asymmetric(
+                insertion: .offset(y: 20).combined(with: .opacity),
+                removal: .opacity
+            )
+        }
     }
 }
 

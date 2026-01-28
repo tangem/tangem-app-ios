@@ -29,9 +29,6 @@ protocol SendDestinationInteractor {
     func update(additionalField: String)
 
     func preloadTransactionsHistoryIfNeeded()
-
-    var ignoreDestinationClear: AnyPublisher<Bool, Never> { get }
-    func setIgnoreDestinationClear(_ ignore: Bool)
 }
 
 class CommonSendDestinationInteractor {
@@ -52,8 +49,6 @@ class CommonSendDestinationInteractor {
 
     private let _suggestedWallets: CurrentValueSubject<[SendDestinationSuggestedWallet], Never> = .init([])
     private let _suggestedDestination: CurrentValueSubject<[SendDestinationSuggestedTransactionRecord], Never> = .init([])
-
-    private let _ignoreDestinationClear: CurrentValueSubject<Bool, Never> = .init(false)
 
     private var updatingTask: Task<Void, Never>?
     private var bag: Set<AnyCancellable> = []
@@ -264,14 +259,6 @@ extension CommonSendDestinationInteractor: SendDestinationInteractor {
 
     func preloadTransactionsHistoryIfNeeded() {
         dependenciesBuilder.transactionHistoryProvider.preloadTransactionsHistoryIfNeeded()
-    }
-
-    var ignoreDestinationClear: AnyPublisher<Bool, Never> {
-        _ignoreDestinationClear.eraseToAnyPublisher()
-    }
-
-    func setIgnoreDestinationClear(_ ignore: Bool) {
-        _ignoreDestinationClear.send(ignore)
     }
 }
 

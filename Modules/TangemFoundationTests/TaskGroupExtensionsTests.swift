@@ -44,14 +44,14 @@ struct TaskGroupExtensionsTests {
 
     private func processItem(_ item: Int) async -> String {
         return await Task.detached {
-            try? await Task.sleep(for: .seconds(item))
+            try? await Task.sleep(for: .milliseconds(item * 100))
             return "\(item)"
         }.value
     }
 
     private func tryProcessItem(_ item: Int) async throws -> String {
         return try await Task.detached {
-            try await Task.sleep(for: .seconds(item))
+            try await Task.sleep(for: .milliseconds(item * 100))
             return "\(item)"
         }.value
     }

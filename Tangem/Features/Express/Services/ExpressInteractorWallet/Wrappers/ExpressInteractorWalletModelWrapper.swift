@@ -60,7 +60,10 @@ struct ExpressInteractorWalletModelWrapper {
         availableBalanceProvider = walletModel.availableBalanceProvider
         transactionValidator = BSDKExpressTransactionValidator(transactionValidator: walletModel.transactionValidator)
         withdrawalNotificationProvider = walletModel.withdrawalNotificationProvider
-        interactorAnalyticsLogger = CommonExpressInteractorAnalyticsLogger(tokenItem: walletModel.tokenItem)
+        interactorAnalyticsLogger = CommonExpressInteractorAnalyticsLogger(
+            tokenItem: walletModel.tokenItem,
+            feeAnalyticsParameterBuilder: .init(isFixedFee: !walletModel.shouldShowFeeSelector)
+        )
 
         let transactionDispatcher = TransactionDispatcherFactory(
             walletModel: walletModel,
@@ -107,8 +110,10 @@ extension ExpressInteractorWalletModelWrapper: ExpressInteractorSourceWallet {
         case .swapAndSend where isYieldModuleActive,
              .swap where isYieldModuleActive:
             return .cex
-        case .swapAndSend:
+        case .swapAndSend where FeatureProvider.isAvailable(.exchangeOnlyWithinSingleAddress):
             return .byDifferentAddressExchangeSupport
+        case .swapAndSend:
+            return .cex
         case .swap:
             return .swap
         }
