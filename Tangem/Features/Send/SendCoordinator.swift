@@ -168,8 +168,6 @@ extension SendCoordinator: SendRoutable {
         }
 
         Task { @MainActor in
-            // [REDACTED_TODO_COMMENT]
-            try? await Task.sleep(for: .seconds(0.3))
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }

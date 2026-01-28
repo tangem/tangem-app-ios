@@ -100,6 +100,7 @@ public struct FloatingSheetView: View {
                             }
                         }
                         .onDisappear {
+                            sheetContentHeight = .zero
                             sheetContentHasAppeared = false
                         }
                 }
