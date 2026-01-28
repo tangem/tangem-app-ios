@@ -60,6 +60,9 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
                     MarketsTokenDetailsExchangesListView(viewModel: viewModel)
                 }
             }
+            .navigation(item: $coordinator.newsPagerViewModel) { viewModel in
+                NewsPagerView(viewModel: viewModel)
+            }
             .fullScreenCover(item: $coordinator.yieldModulePromoCoordinator) { coordinator in
                 NavigationView {
                     YieldModulePromoCoordinatorView(coordinator: coordinator)
