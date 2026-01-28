@@ -363,10 +363,10 @@ private extension ExpressInteractor {
             return try await .requiredRefresh(occurredError: error, quote: map(quote: quote))
 
         case .restriction(let restriction, .none):
-            return try await .restriction(map(restriction: restriction), context: context, quote: .none)
+            return try await .restriction(map(restriction: restriction, in: context), context: context, quote: .none)
 
         case .restriction(let restriction, .some(let quote)):
-            return try await .restriction(map(restriction: restriction), context: context, quote: map(quote: quote))
+            return try await .restriction(map(restriction: restriction, in: context), context: context, quote: map(quote: quote))
 
         case .permissionRequired(let permissionRequired) where hasPendingTransaction():
             return try await .restriction(.hasPendingTransaction, context: context, quote: map(quote: permissionRequired.quote))
@@ -413,7 +413,7 @@ private extension ExpressInteractor {
         return hasPendingTransaction ?? false
     }
 
-    func map(restriction: ExpressRestriction) async throws -> RestrictionType {
+    func map(restriction: ExpressRestriction, in context: Context) async throws -> RestrictionType {
         switch restriction {
         case .tooSmallAmount(let minAmount):
             return .tooSmallAmountForSwapping(minAmount: minAmount)
@@ -428,7 +428,8 @@ private extension ExpressInteractor {
             return .notEnoughBalanceForSwapping(requiredAmount: requiredAmount)
 
         case .feeCurrencyHasZeroBalance(let isFeeCurrency):
-            return .notEnoughAmountForFee(isFeeCurrency: isFeeCurrency)
+            let supportFeeSelection = context.tokenFeeProvidersManager.supportFeeSelection
+            return .notEnoughAmountForFee(isFeeCurrency: isFeeCurrency, supportFeeSelection: supportFeeSelection)
 
         case .feeCurrencyInsufficientBalanceForTxValue(let fee, let isFeeCurrency):
             return .notEnoughAmountForTxValue(fee, isFeeCurrency: isFeeCurrency)
@@ -504,16 +505,23 @@ private extension ExpressInteractor {
     }
 
     func validate(amount: Amount, fee: Fee, correctState: State, in context: Context) -> State {
+        let isFeeCurrency = fee.amount.type == amount.type
+
         do {
             let transactionValidator = try getSourceWallet().transactionValidator
             try transactionValidator.validate(amount: amount, fee: fee)
         } catch ValidationError.totalExceedsBalance, ValidationError.amountExceedsBalance {
             return .restriction(.notEnoughBalanceForSwapping(requiredAmount: amount.value), context: context, quote: correctState.quote)
         } catch ValidationError.feeExceedsBalance {
-            let isFeeCurrency = fee.amount.type == amount.type
-            return .restriction(.notEnoughAmountForFee(isFeeCurrency: isFeeCurrency), context: context, quote: correctState.quote)
+            let supportFeeSelection = switch correctState {
+            // We should not show fee selector for `.permissionRequired` state
+            case .permissionRequired: false
+            default: context.tokenFeeProvidersManager.supportFeeSelection
+            }
+
+            let restriction = RestrictionType.notEnoughAmountForFee(isFeeCurrency: isFeeCurrency, supportFeeSelection: supportFeeSelection)
+            return .restriction(restriction, context: context, quote: correctState.quote)
         } catch let error as ValidationError {
-            let isFeeCurrency = fee.amount.type == amount.type
             let validationErrorContext = ValidationErrorContext(isFeeCurrency: isFeeCurrency, feeValue: fee.amount.value)
             return .restriction(.validationError(error: error, context: validationErrorContext), context: context, quote: correctState.quote)
         } catch {
@@ -885,13 +893,13 @@ extension ExpressInteractor {
         var isFeeRowVisible: Bool {
             switch self {
             case .idle,
-                 .loading,
+                 .loading(.full),
                  .preloadRestriction,
                  .requiredRefresh,
                  .permissionRequired,
                  .restriction(.hasPendingApproveTransaction, _, _):
                 return false
-            case .restriction, .readyToSwap, .previewCEX:
+            case .loading, .restriction, .readyToSwap, .previewCEX:
                 return true
             }
         }
@@ -923,7 +931,7 @@ extension ExpressInteractor {
         case hasPendingTransaction
         case hasPendingApproveTransaction
         case notEnoughBalanceForSwapping(requiredAmount: Decimal)
-        case notEnoughAmountForFee(isFeeCurrency: Bool)
+        case notEnoughAmountForFee(isFeeCurrency: Bool, supportFeeSelection: Bool)
         case notEnoughAmountForTxValue(_ estimatedTxValue: Decimal, isFeeCurrency: Bool)
         case validationError(error: ValidationError, context: ValidationErrorContext)
         case notEnoughReceivedAmount(minAmount: Decimal, tokenSymbol: String)
