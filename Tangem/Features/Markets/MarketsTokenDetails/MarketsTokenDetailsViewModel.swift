@@ -16,6 +16,11 @@ import struct TangemUIUtils.AlertBinder
 class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
     @Injected(\.ukGeoDefiner) private var ukGeoDefiner: UKGeoDefiner
+    @Injected(\.newsReadStatusProvider) private var readStatusProvider: NewsReadStatusProvider
+
+    /// Tracks token IDs for which the news carousel scroll event has been logged in the current session.
+    /// Using a static set ensures the event is only logged once per app session per token.
+    private static var loggedNewsCarouselScrolledTokenIds: Set<String> = []
 
     @Published private(set) var priceChangeAnimation: ForegroundBlinkAnimationModifier.Change = .neutral
     @Published private(set) var isLoading = true
@@ -61,6 +66,8 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
     @Published private var tokenInsights: MarketsTokenDetailsInsights?
 
     @Published private(set) var tokenNewsItems: [CarouselNewsItem] = []
+
+    private var loadedNewsIds: [Int] = []
 
     var isAvailableNews: Bool {
         !tokenNewsItems.isEmpty && FeatureProvider.isAvailable(.marketsAndNews)
@@ -126,7 +133,7 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
 
     private lazy var priceHelper = MarketsTokenDetailsPriceInfoHelper()
     private lazy var dateHelper = MarketsTokenDetailsDateHelper(initialDate: initialDate)
-    private lazy var newsMapper = NewsModelMapper()
+    private lazy var newsMapper = NewsModelMapper(readStatusProvider: readStatusProvider)
 
     private let defaultAmountNotationFormatter = DefaultAmountNotationFormatter()
 
@@ -265,6 +272,18 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
             coordinator?.openMail(with: dataCollector, emailType: .appFeedback(subject: Localization.feedbackTokenDescriptionError))
         }
     }
+
+    func logCarouselScrolledIfNeeded() {
+        guard !Self.loggedNewsCarouselScrolledTokenIds.contains(tokenInfo.id) else { return }
+        Self.loggedNewsCarouselScrolledTokenIds.insert(tokenInfo.id)
+        Analytics.log(
+            event: .coinPageTokenNewsCarouselScrolled,
+            params: [
+                .tokenId: tokenInfo.id,
+                .tokenSymbol: tokenInfo.symbol,
+            ]
+        )
+    }
 }
 
 // MARK: - Details response processing
@@ -273,18 +292,39 @@ private extension MarketsTokenDetailsViewModel {
     func performLoadNews(with currencyId: String) async {
         do {
             let result = try await marketsNewsProvider.loadRelatedNews(for: currencyId)
+            let newsIds = result.items.map(\.id)
 
             await runOnMain {
+                loadedNewsIds = newsIds
                 tokenNewsItems = newsMapper.mapCarouselNewsItem(
                     from: result,
-                    onTap: { [weak self] newsId in
-                        self?.coordinator?.openNews(by: newsId)
+                    onTap: { [weak self] newsIdString in
+                        guard let self, let newsId = Int(newsIdString) else { return }
+
+                        let selectedIndex = loadedNewsIds.firstIndex(of: newsId) ?? 0
+                        Task { @MainActor in
+                            self.coordinator?.openNews(newsIds: self.loadedNewsIds, selectedIndex: selectedIndex)
+                        }
                     }
-                )
+                ).sortedByReadStatus()
+
+                if !newsIds.isEmpty {
+                    Analytics.log(
+                        event: .coinPageTokenNewsViewed,
+                        params: [
+                            .tokenId: tokenInfo.id,
+                            .tokenSymbol: tokenInfo.symbol,
+                            .newsCount: String(newsIds.count),
+                        ]
+                    )
+                }
             }
         } catch {
-            // Non blocking catch failure for response
             AppLogger.error("Failed load news for related token with id: \(currencyId)", error: error)
+            var params = error.marketsAnalyticsParams
+            params[.tokenId] = currencyId
+            params[.tokenSymbol] = tokenInfo.symbol
+            Analytics.log(event: .coinPageTokenNewsLoadError, params: params)
         }
     }
 
@@ -384,6 +424,23 @@ private extension MarketsTokenDetailsViewModel {
                 viewModel.loadDetailedInfo()
             }
             .store(in: &bag)
+
+        readStatusProvider.readStatusChangedPublisher
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink { viewModel, newsId in
+                viewModel.updateNewsReadStatus(newsId: newsId)
+            }
+            .store(in: &bag)
+    }
+
+    func updateNewsReadStatus(newsId: NewsId) {
+        guard let index = tokenNewsItems.firstIndex(where: { $0.id == newsId }) else {
+            return
+        }
+
+        tokenNewsItems[index] = tokenNewsItems[index].withIsRead(true)
+        tokenNewsItems = tokenNewsItems.sortedByReadStatus()
     }
 
     func bindToHistoryChartViewModel() {
