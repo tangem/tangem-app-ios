@@ -22,6 +22,8 @@ protocol ExpressSearchTokensProvider {
 final class CommonExpressSearchTokensProvider: ExpressSearchTokensProvider {
     private let tangemApiService: TangemApiService
 
+    private var cachedTrending: [MarketsTokenModel]?
+
     init(tangemApiService: TangemApiService) {
         self.tangemApiService = tangemApiService
     }
@@ -45,6 +47,10 @@ final class CommonExpressSearchTokensProvider: ExpressSearchTokensProvider {
     }
 
     func loadTrending() async throws -> [MarketsTokenModel] {
+        if let cachedTrending {
+            return cachedTrending
+        }
+
         let request = MarketsDTO.General.Request(
             currency: AppSettings.shared.selectedCurrencyCode,
             offset: 0,
@@ -55,6 +61,7 @@ final class CommonExpressSearchTokensProvider: ExpressSearchTokensProvider {
         )
 
         let response = try await tangemApiService.loadCoinsList(requestModel: request)
+        cachedTrending = response.tokens
         return response.tokens
     }
 }

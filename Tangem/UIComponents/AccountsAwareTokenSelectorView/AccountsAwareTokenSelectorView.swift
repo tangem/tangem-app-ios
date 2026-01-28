@@ -19,6 +19,7 @@ struct AccountsAwareTokenSelectorView<EmptyContentView: View, AdditionalContentV
     private let additionalContent: AdditionalContentView
 
     private var searchType: SearchType?
+    private var sectionTitle: String?
 
     init(
         viewModel: AccountsAwareTokenSelectorViewModel,
@@ -66,6 +67,10 @@ struct AccountsAwareTokenSelectorView<EmptyContentView: View, AdditionalContentV
             emptyContentView
                 .transition(.move(edge: .top).combined(with: .opacity).animation(.easeInOut))
         case .visible:
+            if let sectionTitle {
+                sectionHeader(title: sectionTitle)
+            }
+
             LazyVStack(spacing: 8) {
                 ForEach(viewModel.wallets) { AccountsAwareTokenSelectorWalletItemView(viewModel: $0) }
             }
@@ -76,6 +81,15 @@ struct AccountsAwareTokenSelectorView<EmptyContentView: View, AdditionalContentV
 
         FixedSpacer(height: 12)
     }
+
+    private func sectionHeader(title: String) -> some View {
+        Text(title)
+            .style(Fonts.BoldStatic.title3, color: Colors.Text.primary1)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 16)
+            .padding(.top, 14)
+            .padding(.bottom, 10)
+    }
 }
 
 // MARK: - Setupable
@@ -83,6 +97,10 @@ struct AccountsAwareTokenSelectorView<EmptyContentView: View, AdditionalContentV
 extension AccountsAwareTokenSelectorView: Setupable {
     func searchType(_ searchType: SearchType) -> Self {
         map { $0.searchType = searchType }
+    }
+
+    func sectionTitle(_ title: String?) -> Self {
+        map { $0.sectionTitle = title }
     }
 }
 
