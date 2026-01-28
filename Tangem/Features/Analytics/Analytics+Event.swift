@@ -686,5 +686,19 @@ extension Analytics {
         case earningNoticeAmountNotDeposited = "[Earning] Notice - Amount Not Deposited"
         case mainNoticeYieldPromo = "[Main Screen] Yield Promo"
         case mainNoticeYieldPromoClicked = "[Main Screen] Yield Promo Clicked"
+
+        // MARK: - News
+
+        case newsArticleOpened = "[Markets] News Article Opened"
+        case newsRelatedClicked = "[Markets] Related News Clicked"
+        case newsArticleLoadError = "[Markets] News Article Load Error"
+        case newsLikeClicked = "[Markets] News Like Clicked"
+        case newsLinkMismatch = "[Markets] News Link Mismatch"
+
+        // MARK: - News (CoinPage)
+
+        case coinPageTokenNewsViewed = "[CoinPage] Token News Viewed"
+        case coinPageTokenNewsLoadError = "[CoinPage] Token News Load Error"
+        case coinPageTokenNewsCarouselScrolled = "[CoinPage] Token News Carousel Scrolled"
     }
 }

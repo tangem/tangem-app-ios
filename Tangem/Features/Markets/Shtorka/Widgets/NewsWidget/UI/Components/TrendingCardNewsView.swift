@@ -84,7 +84,7 @@ struct TrendingCardNewsView: View {
 
             FixedSpacer(height: Layout.Spacing.afterRating)
 
-            InfoChipsView(chips: item.tags)
+            InfoChipsRowView(chips: item.tags, alignment: .center)
                 .skeletonable(isShown: itemState.isLoading, radius: Layout.Skeleton.cornerRadius)
         }
         .infinityFrame(axis: .horizontal, alignment: .center)

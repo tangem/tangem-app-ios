@@ -6,7 +6,7 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-import Foundation
+import UIKit
 import TangemUI
 import TangemStaking
 import struct TangemUIUtils.AlertBinder
@@ -40,6 +40,7 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     @Published var yieldModulePromoCoordinator: YieldModulePromoCoordinator? = nil
     @Published var yieldModuleActiveCoordinator: YieldModuleActiveCoordinator? = nil
     @Published var tokenDetailsCoordinator: TokenDetailsCoordinator? = nil
+    @Published var newsPagerViewModel: NewsPagerViewModel? = nil
 
     private var safariHandle: SafariHandle?
     private let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
@@ -271,9 +272,17 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
         }
     }
 
-    func openNews(by id: NewsId) {
-        // [REDACTED_TODO_COMMENT]
-        // when the Markets News feature and corresponding coordinator/flow are available.
+    @MainActor
+    func openNews(newsIds: [Int], selectedIndex: Int) {
+        let viewModel = NewsPagerViewModel(
+            newsIds: newsIds,
+            initialIndex: selectedIndex,
+            isDeeplinkMode: false,
+            dataSource: SingleNewsDataSource(),
+            analyticsSource: .token,
+            coordinator: self
+        )
+        newsPagerViewModel = viewModel
     }
 }
 
@@ -405,3 +414,20 @@ private extension MarketsTokenDetailsCoordinator {
 }
 
 extension MarketsTokenDetailsCoordinator: FeeCurrencyNavigating {}
+
+// MARK: - NewsDetailsRoutable
+
+extension MarketsTokenDetailsCoordinator: NewsDetailsRoutable {
+    func dismissNewsDetails() {
+        newsPagerViewModel = nil
+    }
+
+    func share(url: String) {
+        guard let url = URL(string: url) else { return }
+        AppPresenter.shared.show(UIActivityViewController(activityItems: [url], applicationActivities: nil))
+    }
+
+    func openTokenDetails(_ token: MarketsTokenModel) {
+        // Token details is already shown, no need to navigate
+    }
+}

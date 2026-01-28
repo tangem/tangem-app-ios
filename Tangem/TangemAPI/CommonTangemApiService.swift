@@ -472,6 +472,10 @@ extension CommonTangemApiService: TangemApiService {
         return try await request(for: .newsList(requestModel), decoder: decoder)
     }
 
+    func loadNewsDetails(requestModel: NewsDTO.Details.Request) async throws -> NewsDTO.Details.Response {
+        return try await request(for: .newsDetails(requestModel), decoder: decoder)
+    }
+
     func loadNewsCategories() async throws -> NewsDTO.Categories.Response {
         return try await request(for: .newsCategories, decoder: decoder)
     }

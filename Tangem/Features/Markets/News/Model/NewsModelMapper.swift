@@ -17,9 +17,11 @@ struct NewsModelMapper {
     private let iconBuilder: IconURLBuilder = .init()
     private let dateFormatter: NewsDateFormatter = .init()
 
-    // MARK: - Implementation
+    let readStatusProvider: NewsReadStatusProvider
 
-    func mapToNewsModel(from response: NewsDTO.List.Item, isRead: Bool) -> TrendingNewsModel {
+    // MARK: - Implementation Map DTO models
+
+    func mapToNewsModel(from response: NewsDTO.List.Item) -> TrendingNewsModel {
         TrendingNewsModel(
             id: String(response.id),
             createdAt: response.createdAt,
@@ -30,7 +32,7 @@ struct NewsModelMapper {
             categories: response.categories,
             relatedTokens: response.relatedTokens,
             title: response.title,
-            isRead: isRead
+            isRead: readStatusProvider.isRead(for: String(response.id))
         )
     }
 
@@ -39,17 +41,41 @@ struct NewsModelMapper {
         onTap: @escaping (String) -> Void
     ) -> [CarouselNewsItem] {
         response.items.map { item in
-            CarouselNewsItem(
-                id: String(item.id),
+            let newsId = String(item.id)
+            return CarouselNewsItem(
+                id: newsId,
                 title: item.title,
                 rating: formatScore(item.score),
                 timeAgo: dateFormatter.formatTimeAgo(from: item.createdAt),
                 tags: buildTags(categories: item.categories, tokens: item.relatedTokens),
-                isRead: false,
+                isRead: readStatusProvider.isRead(for: newsId),
                 onTap: onTap
             )
         }
     }
+
+    @MainActor
+    func toNewsItemViewModel(from item: NewsDTO.List.Item) -> NewsItemViewModel {
+        return NewsItemViewModel(
+            id: item.id,
+            score: formatScore(item.score),
+            category: item.categories.first?.name ?? "",
+            relatedTokens: item.relatedTokens.map { token in
+                NewsItemViewModel.RelatedToken(
+                    id: token.id,
+                    symbol: token.symbol,
+                    iconURL: iconBuilder.tokenIconURL(id: token.id, size: .small)
+                )
+            },
+            title: truncateTitle(item.title, maxLength: Constants.maxTitleLength),
+            relativeTime: dateFormatter.formatRelativeTime(from: item.createdAt),
+            isTrending: item.isTrending,
+            newsUrl: item.newsUrl,
+            isRead: readStatusProvider.isRead(for: String(item.id))
+        )
+    }
+
+    // MARK: - Implementation Map Domain models
 
     func toTrendingCardNewsItem(
         from item: TrendingNewsModel,
@@ -61,7 +87,7 @@ struct NewsModelMapper {
             rating: formatScore(item.score),
             timeAgo: dateFormatter.formatTimeAgo(from: item.createdAt),
             tags: buildTags(categories: item.categories, tokens: item.relatedTokens),
-            isRead: item.isRead,
+            isRead: readStatusProvider.isRead(for: item.id),
             onTap: onTap
         )
     }
@@ -76,23 +102,8 @@ struct NewsModelMapper {
             rating: formatScore(item.score),
             timeAgo: dateFormatter.formatTimeAgo(from: item.createdAt),
             tags: buildTags(categories: item.categories, tokens: item.relatedTokens),
-            isRead: item.isRead,
+            isRead: readStatusProvider.isRead(for: item.id),
             onTap: onTap
-        )
-    }
-
-    func toNewsItemViewModel(from item: NewsDTO.List.Item) -> NewsItemViewModel {
-        NewsItemViewModel(
-            id: item.id,
-            score: formatScore(item.score),
-            category: item.categories.first?.name ?? "",
-            relatedTokens: item.relatedTokens.map { token in
-                NewsItemViewModel.RelatedToken(id: token.id, symbol: token.symbol)
-            },
-            title: truncateTitle(item.title, maxLength: Constants.maxTitleLength),
-            relativeTime: dateFormatter.formatTimeAgo(from: item.createdAt),
-            isTrending: item.isTrending,
-            newsUrl: item.newsUrl
         )
     }
 }
