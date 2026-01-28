@@ -392,41 +392,39 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
     }
 
     private func logSendWithSwapFinishScreenOpened() {
-        Task {
-            var analyticsParameters: [Analytics.ParameterKey: String] = [:]
+        var analyticsParameters: [Analytics.ParameterKey: String] = [:]
 
-            if let selectedFee = sendFeeInput?.selectedFee {
-                let parameter = feeAnalyticsParameterBuilder.analyticsParameter(selectedFee: selectedFee.option)
-                analyticsParameters[.feeType] = parameter.rawValue
-            }
-
-            if let source = sendSourceTokenInput?.sourceToken {
-                analyticsParameters[.sendToken] = source.tokenItem.currencySymbol
-                analyticsParameters[.sendBlockchain] = source.tokenItem.blockchain.displayName
-            }
-
-            if let tokenFee = sendFeeInput?.selectedFee {
-                analyticsParameters[.feeToken] = SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenFee.tokenItem)
-            }
-
-            if let receive = sendReceiveTokenInput?.receiveToken.receiveToken {
-                analyticsParameters[.receiveToken] = receive.tokenItem.currencySymbol
-                analyticsParameters[.receiveBlockchain] = receive.tokenItem.blockchain.displayName
-            }
-
-            if let provider = await sendSwapProvidersInput?.selectedExpressProvider {
-                analyticsParameters[.provider] = provider.provider.name
-            }
-
-            // Merge account analytics (source + destination)
-            analyticsParameters.merge(buildAccountAnalyticsParameters()) { $1 }
-
-            Analytics.log(
-                event: .sendSendWithSwapInProgressScreenOpened,
-                params: analyticsParameters,
-                analyticsSystems: .all
-            )
+        if let selectedFee = sendFeeInput?.selectedFee {
+            let parameter = feeAnalyticsParameterBuilder.analyticsParameter(selectedFee: selectedFee.option)
+            analyticsParameters[.feeType] = parameter.rawValue
         }
+
+        if let source = sendSourceTokenInput?.sourceToken {
+            analyticsParameters[.sendToken] = source.tokenItem.currencySymbol
+            analyticsParameters[.sendBlockchain] = source.tokenItem.blockchain.displayName
+        }
+
+        if let tokenFee = sendFeeInput?.selectedFee {
+            analyticsParameters[.feeToken] = SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenFee.tokenItem)
+        }
+
+        if let receive = sendReceiveTokenInput?.receiveToken.receiveToken {
+            analyticsParameters[.receiveToken] = receive.tokenItem.currencySymbol
+            analyticsParameters[.receiveBlockchain] = receive.tokenItem.blockchain.displayName
+        }
+
+        if let provider = sendSwapProvidersInput?.selectedExpressProvider {
+            analyticsParameters[.provider] = provider.provider.name
+        }
+
+        // Merge account analytics (source + destination)
+        analyticsParameters.merge(buildAccountAnalyticsParameters()) { $1 }
+
+        Analytics.log(
+            event: .sendSendWithSwapInProgressScreenOpened,
+            params: analyticsParameters,
+            analyticsSystems: .all
+        )
     }
 }
 
