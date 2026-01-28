@@ -60,11 +60,11 @@ struct ExpressExternalTokensSection: View {
     private func sectionHeader(title: String, showCount: Bool, count: Int) -> some View {
         HStack(spacing: Constants.titleCountSpacing) {
             Text(title)
-                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.BoldStatic.title3, color: Colors.Text.primary1)
 
             if showCount, count > 0 {
                 Text("\(count)")
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .style(Fonts.BoldStatic.title3, color: Colors.Text.tertiary)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -89,7 +89,7 @@ extension ExpressExternalTokensSection {
         static let horizontalPadding: CGFloat = 16
         static let headerTopPadding: CGFloat = 14
         static let headerBottomPadding: CGFloat = 10
-        static let titleCountSpacing: CGFloat = 4
+        static let titleCountSpacing: CGFloat = 8
         static let cornerRadius: CGFloat = 14
         static let skeletonItemsCount: Int = 7
     }
