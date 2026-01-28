@@ -13,6 +13,8 @@ import UIKit
 class MarketsCoordinator: CoordinatorObject {
     // MARK: - Dependencies
 
+    @Injected(\.safariManager) private var safariManager: SafariManager
+
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
@@ -26,6 +28,8 @@ class MarketsCoordinator: CoordinatorObject {
     @Published var tokenDetailsCoordinator: MarketsTokenDetailsCoordinator?
     @Published var marketsSearchCoordinator: MarketsSearchCoordinator?
     @Published var newsListCoordinator: NewsListCoordinator?
+    @Published var newsPagerViewModel: NewsPagerViewModel?
+    @Published var newsPagerTokenDetailsCoordinator: MarketsTokenDetailsCoordinator?
 
     // MARK: - Child ViewModels
 
@@ -119,7 +123,16 @@ extension MarketsCoordinator: MarketsMainRoutable {
         newsListCoordinator = coordinator
     }
 
-    func openNews(by id: NewsId) {}
+    func openNewsDetails(newsIds: [Int], selectedIndex: Int) {
+        let viewModel = NewsPagerViewModel(
+            newsIds: newsIds,
+            initialIndex: selectedIndex,
+            dataSource: SingleNewsDataSource(),
+            analyticsSource: .markets,
+            coordinator: self
+        )
+        newsPagerViewModel = viewModel
+    }
 
     // MARK: - Private Implementation
 
@@ -138,5 +151,32 @@ extension MarketsCoordinator: MarketsMainRoutable {
         )
 
         self.marketsSearchCoordinator = marketsSearchCoordinator
+    }
+}
+
+// MARK: - NewsDetailsRoutable (for widget pager)
+
+extension MarketsCoordinator: NewsDetailsRoutable {
+    func dismissNewsDetails() {
+        newsPagerViewModel = nil
+    }
+
+    func share(url: String) {
+        guard let url = URL(string: url) else { return }
+        AppPresenter.shared.show(UIActivityViewController(activityItems: [url], applicationActivities: nil))
+    }
+
+    func openURL(_ url: URL) {
+        safariManager.openURL(url)
+    }
+
+    func openTokenDetails(_ token: MarketsTokenModel) {
+        let coordinator = MarketsTokenDetailsCoordinator(
+            dismissAction: { [weak self] in
+                self?.newsPagerTokenDetailsCoordinator = nil
+            }
+        )
+        coordinator.start(with: .init(info: token, style: .marketsSheet))
+        newsPagerTokenDetailsCoordinator = coordinator
     }
 }
