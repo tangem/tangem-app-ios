@@ -110,8 +110,10 @@ extension ExpressInteractorWalletModelWrapper: ExpressInteractorSourceWallet {
         case .swapAndSend where isYieldModuleActive,
              .swap where isYieldModuleActive:
             return .cex
-        case .swapAndSend:
+        case .swapAndSend where FeatureProvider.isAvailable(.exchangeOnlyWithinSingleAddress):
             return .byDifferentAddressExchangeSupport
+        case .swapAndSend:
+            return .cex
         case .swap:
             return .swap
         }

@@ -127,6 +127,8 @@ struct TangemApiTarget: TargetType {
         // MARK: - News
         case .newsList:
             return "/news"
+        case .newsDetails(let requestModel):
+            return "/news/\(requestModel.newsId)"
         case .newsCategories:
             return "/news/categories"
         case .trendingNews:
@@ -166,6 +168,7 @@ struct TangemApiTarget: TargetType {
              .getUserWallets,
              .getUserWallet,
              .newsList,
+             .newsDetails,
              .newsCategories,
              .trendingNews:
             return .get
@@ -328,6 +331,11 @@ struct TangemApiTarget: TargetType {
                 parameters: parameters,
                 encoding: URLEncoding.default
             )
+        case .newsDetails(let requestModel):
+            if let lang = requestModel.lang {
+                return .requestParameters(parameters: ["lang": lang], encoding: URLEncoding.default)
+            }
+            return .requestPlain
 
         // MARK: - Referral 2.0
         case .bindWalletsByCode(let requestModel):
@@ -386,6 +394,7 @@ struct TangemApiTarget: TargetType {
              .createWallet,
              .trendingNews,
              .newsList,
+             .newsDetails,
              .newsCategories,
              .bindWalletsByCode:
             return nil
@@ -465,13 +474,12 @@ extension TangemApiTarget {
         case saveUserAccounts(userWalletId: String, revision: String, accounts: AccountsDTO.Request.Accounts)
         case getArchivedUserAccounts(userWalletId: String)
 
-        // MARK: - News
+        // MARK: - News Targets
 
         case trendingNews(limit: Int?, lang: String?)
         case newsList(_ requestModel: NewsDTO.List.Request)
+        case newsDetails(_ requestModel: NewsDTO.Details.Request)
         case newsCategories
-
-        /// Referral 2.0
         case bindWalletsByCode(_ requestModel: ReferralDTO.Request)
     }
 }
@@ -479,7 +487,7 @@ extension TangemApiTarget {
 extension TangemApiTarget: CachePolicyProvider {
     var cachePolicy: URLRequest.CachePolicy {
         switch type {
-        case .geo, .features, .apiList, .quotes, .coinsList, .tokenMarketsDetails, .newsList, .newsCategories, .earnYieldMarkets:
+        case .geo, .features, .apiList, .quotes, .coinsList, .tokenMarketsDetails, .trendingNews, .newsList, .newsDetails, .newsCategories, .earnYieldMarkets:
             return .reloadIgnoringLocalAndRemoteCacheData
         default:
             return .useProtocolCachePolicy
@@ -516,6 +524,7 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .createWallet,
              .newsList,
              .newsCategories,
+             .newsDetails,
              .trendingNews,
              .bindWalletsByCode:
             return false
