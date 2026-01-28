@@ -855,6 +855,7 @@ extension MainCoordinator {
         case externalLink(url: URL)
         case market
         case onboardVisa(deeplinkString: String)
+        case newsDetails(newsId: Int)
         case promo(code: String, refcode: String?, campaign: String?)
     }
 }
