@@ -8,6 +8,7 @@
 
 import Combine
 import TangemLocalization
+import TangemAssets
 import TangemAccessibilityIdentifiers
 import Foundation
 
@@ -44,6 +45,7 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
         self.feeFormatter = feeFormatter
 
         bind()
+        setPlaceholderFee()
     }
 
     func setup(router: FeeSelectorSummaryRoutable?) {
@@ -59,6 +61,10 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
     }
 
     // MARK: - Private Implementation
+
+    private func setPlaceholderFee() {
+        suggestedFee = .placeholder
+    }
 
     private func bind() {
         Publishers.CombineLatest(
@@ -138,18 +144,32 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
             default:
                 return .noData
             }
-
         }()
 
-        let hasEnoughBalance = feeCoverage.isCovered
         let supportsMultipleOptions = tokenFeeProvider.hasMultipleFeeOptions
+
+        var feeTokenAvailability: FeeSelectorRowViewModel.Availability {
+            switch (state, feeCoverage) {
+            case (.idle, _), (.unavailable, _), (.error, _), (_, .undefined):
+                return .unavailable
+
+            case (.loading, _), (.available, .covered):
+                return .available(isSubtitleHighlighted: false)
+
+            case (.available, .uncovered) where supportsMultipleOptions:
+                return .available(isSubtitleHighlighted: true)
+
+            case (.available(_), .uncovered):
+                return .unavailable
+            }
+        }
 
         return FeeSelectorRowViewModel(
             rowType: .fee(image: option.icon.image),
             title: option.title,
             subtitle: .fee(subtitleState),
             accessibilityIdentifier: FeeAccessibilityIdentifiers.suggestedFeeCurrency,
-            availability: hasEnoughBalance ? .available : .notEnoughBalance(supportsMultipleOptions: supportsMultipleOptions),
+            availability: feeTokenAvailability,
             expandAction: supportsMultipleOptions ? userDidTapFee : nil
         )
     }
