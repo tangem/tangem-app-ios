@@ -30,10 +30,12 @@ struct SwapTokenSelectorView: View {
                     AccountsAwareTokenSelectorEmptyContentView(message: Localization.expressTokenListEmptySearch)
                 },
                 additionalContent: {
-                    ExpressExternalTokensSection(
-                        viewModel: tokenSelectorViewModel,
-                        cellWidth: mainWindowSize.width
-                    )
+                    if let externalSearchViewModel = viewModel.externalSearchViewModel {
+                        ExpressExternalTokensSection(
+                            viewModel: externalSearchViewModel,
+                            cellWidth: mainWindowSize.width
+                        )
+                    }
                 }
             )
             .searchType(.native)
