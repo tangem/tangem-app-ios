@@ -13,6 +13,7 @@ import TangemAssets
 
 struct MarketsTokenNewsView: View {
     let items: [CarouselNewsItem]
+    var onFourthItemAppear: (() -> Void)?
 
     var body: some View {
         VStack(alignment: .leading, spacing: Constants.verticalSpacing) {
@@ -33,7 +34,14 @@ struct MarketsTokenNewsView: View {
     }
 
     private var content: some View {
-        CarouselNewsView(itemsState: .success(items))
+        CarouselNewsView(
+            itemsState: .success(items),
+            onItemAppear: { index in
+                if index >= 3 {
+                    onFourthItemAppear?()
+                }
+            }
+        )
     }
 }
 
