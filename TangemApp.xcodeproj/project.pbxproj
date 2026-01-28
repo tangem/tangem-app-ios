@@ -800,6 +800,18 @@
 		2DE0BB602CAD41E3002C09D9 /* BlockHeaderTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE0BB5F2CAD41E3002C09D9 /* BlockHeaderTitleView.swift */; };
 		2DE0BBB42CAED2CF002C09D9 /* TokenDescriptionBottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE0BBB32CAED2CF002C09D9 /* TokenDescriptionBottomSheetView.swift */; };
 		2DE173F22EA6287200922CF9 /* ArbitrumNovaExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE173F12EA6287100922CF9 /* ArbitrumNovaExternalLinkProvider.swift */; };
+		2DE2A39F2F2A2BB70097CA73 /* EarnDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE2A39B2F2A2BB70097CA73 /* EarnDTO.swift */; };
+		2DE2A3A02F2A2BB70097CA73 /* EarnModelMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE2A39C2F2A2BB70097CA73 /* EarnModelMapper.swift */; };
+		2DE2A3AF2F2A2BC30097CA73 /* EarnTokenItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE2A3A72F2A2BC30097CA73 /* EarnTokenItemView.swift */; };
+		2DE2A3B02F2A2BC30097CA73 /* EarnTokenItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE2A3A82F2A2BC30097CA73 /* EarnTokenItemViewModel.swift */; };
+		2DE2A3B12F2A2BC30097CA73 /* EarnTokenModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE2A3A12F2A2BC30097CA73 /* EarnTokenModel.swift */; };
+		2DE2A3B22F2A2BC30097CA73 /* MarketsWidgetEarnProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE2A3A52F2A2BC30097CA73 /* MarketsWidgetEarnProvider.swift */; };
+		2DE2A3B32F2A2BC30097CA73 /* EarnWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE2A3AB2F2A2BC30097CA73 /* EarnWidgetView.swift */; };
+		2DE2A3B42F2A2BC30097CA73 /* EarnWidgetRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE2A3AA2F2A2BC30097CA73 /* EarnWidgetRoutable.swift */; };
+		2DE2A3B52F2A2BC30097CA73 /* EarnWidgetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE2A3AC2F2A2BC30097CA73 /* EarnWidgetViewModel.swift */; };
+		2DE2A3B62F2A2BC30097CA73 /* CommonMarketsWidgetEarnService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE2A3A32F2A2BC30097CA73 /* CommonMarketsWidgetEarnService.swift */; };
+		2DE2A3B82F2A2D5A0097CA73 /* earnTokens.json in Resources */ = {isa = PBXBuildFile; fileRef = 2DE2A3B72F2A2D5A0097CA73 /* earnTokens.json */; };
+		2DE2A3BB2F2A2D690097CA73 /* MockMarketsWidgetEarnService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE2A3B92F2A2D690097CA73 /* MockMarketsWidgetEarnService.swift */; };
 		2DE66F0E2E7F3AB700CCE029 /* PushPermissionNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE66F0D2E7F3AB700CCE029 /* PushPermissionNotificationManager.swift */; };
 		2DF123452F28A1B10NEWS0002 /* NewsIncomingLinkParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DF123452F28A1B10NEWS0001 /* NewsIncomingLinkParser.swift */; };
 		2DF123452F28A1B10NEWS0004 /* NewsIncomingLinkParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DF123452F28A1B10NEWS0003 /* NewsIncomingLinkParserTests.swift */; };
@@ -5623,6 +5635,18 @@
 		2DE0BB5F2CAD41E3002C09D9 /* BlockHeaderTitleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockHeaderTitleView.swift; sourceTree = "<group>"; };
 		2DE0BBB32CAED2CF002C09D9 /* TokenDescriptionBottomSheetView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenDescriptionBottomSheetView.swift; sourceTree = "<group>"; };
 		2DE173F12EA6287100922CF9 /* ArbitrumNovaExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArbitrumNovaExternalLinkProvider.swift; sourceTree = "<group>"; };
+		2DE2A39B2F2A2BB70097CA73 /* EarnDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnDTO.swift; sourceTree = "<group>"; };
+		2DE2A39C2F2A2BB70097CA73 /* EarnModelMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnModelMapper.swift; sourceTree = "<group>"; };
+		2DE2A3A12F2A2BC30097CA73 /* EarnTokenModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnTokenModel.swift; sourceTree = "<group>"; };
+		2DE2A3A32F2A2BC30097CA73 /* CommonMarketsWidgetEarnService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonMarketsWidgetEarnService.swift; sourceTree = "<group>"; };
+		2DE2A3A52F2A2BC30097CA73 /* MarketsWidgetEarnProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsWidgetEarnProvider.swift; sourceTree = "<group>"; };
+		2DE2A3A72F2A2BC30097CA73 /* EarnTokenItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnTokenItemView.swift; sourceTree = "<group>"; };
+		2DE2A3A82F2A2BC30097CA73 /* EarnTokenItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnTokenItemViewModel.swift; sourceTree = "<group>"; };
+		2DE2A3AA2F2A2BC30097CA73 /* EarnWidgetRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnWidgetRoutable.swift; sourceTree = "<group>"; };
+		2DE2A3AB2F2A2BC30097CA73 /* EarnWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnWidgetView.swift; sourceTree = "<group>"; };
+		2DE2A3AC2F2A2BC30097CA73 /* EarnWidgetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnWidgetViewModel.swift; sourceTree = "<group>"; };
+		2DE2A3B72F2A2D5A0097CA73 /* earnTokens.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = earnTokens.json; sourceTree = "<group>"; };
+		2DE2A3B92F2A2D690097CA73 /* MockMarketsWidgetEarnService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockMarketsWidgetEarnService.swift; sourceTree = "<group>"; };
 		2DE66F0D2E7F3AB700CCE029 /* PushPermissionNotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushPermissionNotificationManager.swift; sourceTree = "<group>"; };
 		2DF123452F28A1B10NEWS0001 /* NewsIncomingLinkParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsIncomingLinkParser.swift; sourceTree = "<group>"; };
 		2DF123452F28A1B10NEWS0003 /* NewsIncomingLinkParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsIncomingLinkParserTests.swift; sourceTree = "<group>"; };
@@ -11064,6 +11088,7 @@
 		2D72D97D2EF5605B008868DE /* Widgets */ = {
 			isa = PBXGroup;
 			children = (
+				2DE2A3AE2F2A2BC30097CA73 /* EarnWidget */,
 				2D91AD932EFEBD8F0022503F /* NewsWidget */,
 				2D72D9782EF5605B008868DE /* PulseMarketWidget */,
 				2D72D97C2EF5605B008868DE /* TopMarketWidget */,
@@ -11865,6 +11890,86 @@
 				2D96E95F2E55D25300B69F91 /* UI */,
 			);
 			path = Receive;
+			sourceTree = "<group>";
+		};
+		2DE2A39D2F2A2BB70097CA73 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				2DE2A39B2F2A2BB70097CA73 /* EarnDTO.swift */,
+				2DE2A39C2F2A2BB70097CA73 /* EarnModelMapper.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		2DE2A39E2F2A2BB70097CA73 /* Earn */ = {
+			isa = PBXGroup;
+			children = (
+				2DE2A39D2F2A2BB70097CA73 /* Model */,
+			);
+			path = Earn;
+			sourceTree = "<group>";
+		};
+		2DE2A3A22F2A2BC30097CA73 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				2DE2A3A12F2A2BC30097CA73 /* EarnTokenModel.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		2DE2A3A42F2A2BC30097CA73 /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				2DE2A3A32F2A2BC30097CA73 /* CommonMarketsWidgetEarnService.swift */,
+			);
+			path = Common;
+			sourceTree = "<group>";
+		};
+		2DE2A3A62F2A2BC30097CA73 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				2DE2A3A42F2A2BC30097CA73 /* Common */,
+				2DE2A3A52F2A2BC30097CA73 /* MarketsWidgetEarnProvider.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		2DE2A3A92F2A2BC30097CA73 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				2DE2A3A72F2A2BC30097CA73 /* EarnTokenItemView.swift */,
+				2DE2A3A82F2A2BC30097CA73 /* EarnTokenItemViewModel.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		2DE2A3AD2F2A2BC30097CA73 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				2DE2A3A92F2A2BC30097CA73 /* Components */,
+				2DE2A3AA2F2A2BC30097CA73 /* EarnWidgetRoutable.swift */,
+				2DE2A3AB2F2A2BC30097CA73 /* EarnWidgetView.swift */,
+				2DE2A3AC2F2A2BC30097CA73 /* EarnWidgetViewModel.swift */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		2DE2A3AE2F2A2BC30097CA73 /* EarnWidget */ = {
+			isa = PBXGroup;
+			children = (
+				2DE2A3A22F2A2BC30097CA73 /* Model */,
+				2DE2A3A62F2A2BC30097CA73 /* Services */,
+				2DE2A3AD2F2A2BC30097CA73 /* UI */,
+			);
+			path = EarnWidget;
+			sourceTree = "<group>";
+		};
+		2DE2A3BA2F2A2D690097CA73 /* Earn */ = {
+			isa = PBXGroup;
+			children = (
+				2DE2A3B92F2A2D690097CA73 /* MockMarketsWidgetEarnService.swift */,
+			);
+			path = Earn;
 			sourceTree = "<group>";
 		};
 		2DF123452F28A1B10NEWS0007 /* Markets */ = {
@@ -14611,6 +14716,7 @@
 			children = (
 				2D91AD7A2EFEBD710022503F /* coinsListResponse.json */,
 				B098F3A12C04B5D300F79989 /* coinsResponse.json */,
+				2DE2A3B72F2A2D5A0097CA73 /* earnTokens.json */,
 				2D91AD7B2EFEBD710022503F /* trendingNews.json */,
 				B0FB4EF92A8511DA0057F4C2 /* walletUserWalletList.json */,
 			);
@@ -19270,6 +19376,7 @@
 			children = (
 				751F5921F99B18F2F97F3EEE /* AccountWithNetworkSelector */,
 				B690FC662C91CE8800D8683B /* Common */,
+				2DE2A39E2F2A2BB70097CA73 /* Earn */,
 				2D245E322E97EB56006AD2DC /* MarketsTokenDetails */,
 				2D245DD92E97E9BD006AD2DC /* Models */,
 				2DC5675F2B0DFFAF00B0244F /* Navigation */,
@@ -23984,6 +24091,7 @@
 				B0DCD02729DFF03A00C36C84 /* Card */,
 				EFA6B04A2955A3930090A92F /* Common */,
 				2D1BB3A02C08AC29008392F7 /* Dummy */,
+				2DE2A3BA2F2A2D690097CA73 /* Earn */,
 				EF9E2A4C2B56A53100418559 /* Express */,
 				B0B335DA29FA945300E2082E /* ForComponents */,
 				2D91AD7F2EFEBD7C0022503F /* News */,
@@ -26507,6 +26615,7 @@
 				B0DC10D1292755BB00BBE854 /* wallet.json in Resources */,
 				B620352F2E25B3A300F1F229 /* visa.json in Resources */,
 				B62035302E25B3A300F1F229 /* visaTestnet.json in Resources */,
+				2DE2A3B82F2A2D5A0097CA73 /* earnTokens.json in Resources */,
 				DC4512762BD1640500DE6F94 /* walletDemo.json in Resources */,
 				DC4512742BD163EA00DE6F94 /* wallet2Demo.json in Resources */,
 				B03662662B638BBC0064E073 /* visaSingleTransaction.json in Resources */,
@@ -26663,6 +26772,14 @@
 				DA9493E72B9978A900F2BE0F /* EmailDataProviderMock.swift in Sources */,
 				C207D6012DE60EFF00A5FB2E /* WalletConnectDAppVerificationStatus.swift in Sources */,
 				C207D6022DE60EFF00A5FB2E /* WalletConnectDAppData.swift in Sources */,
+				2DE2A3AF2F2A2BC30097CA73 /* EarnTokenItemView.swift in Sources */,
+				2DE2A3B02F2A2BC30097CA73 /* EarnTokenItemViewModel.swift in Sources */,
+				2DE2A3B12F2A2BC30097CA73 /* EarnTokenModel.swift in Sources */,
+				2DE2A3B22F2A2BC30097CA73 /* MarketsWidgetEarnProvider.swift in Sources */,
+				2DE2A3B32F2A2BC30097CA73 /* EarnWidgetView.swift in Sources */,
+				2DE2A3B42F2A2BC30097CA73 /* EarnWidgetRoutable.swift in Sources */,
+				2DE2A3B52F2A2BC30097CA73 /* EarnWidgetViewModel.swift in Sources */,
+				2DE2A3B62F2A2BC30097CA73 /* CommonMarketsWidgetEarnService.swift in Sources */,
 				C207D6032DE60EFF00A5FB2E /* WalletConnectDAppBlockchainsAvailabilityResult.swift in Sources */,
 				C207D6042DE60EFF00A5FB2E /* WalletConnectDAppConnectionRequest.swift in Sources */,
 				C207D6052DE60EFF00A5FB2E /* WalletConnectDAppConnectionProposal.swift in Sources */,
@@ -27136,6 +27253,8 @@
 				EF3CC86C2CE4BF2E006A9FBD /* OnrampAmountCompactView.swift in Sources */,
 				0FA453C62E1D47910055B5BB /* MobileAccessCodeConfiguration.swift in Sources */,
 				DC2CD3442B0FE3D600C0D677 /* SendCurrencyView.swift in Sources */,
+				2DE2A39F2F2A2BB70097CA73 /* EarnDTO.swift in Sources */,
+				2DE2A3A02F2A2BB70097CA73 /* EarnModelMapper.swift in Sources */,
 				B05449CE2CCF8B4F00983C78 /* VisaOnboardingView.swift in Sources */,
 				EF5A5AD528D86094002544AC /* CardImageProvider.swift in Sources */,
 				DC99D0DF2C982B23006AE8FA /* AdaptiveSizeSheetViewModel.swift in Sources */,
@@ -28889,6 +29008,7 @@
 				2D245E612E97EB56006AD2DC /* MarketsTokenDetailsPricePerformanceViewModel.swift in Sources */,
 				2D245E622E97EB56006AD2DC /* MarketsTokenDetailsDateHelper.swift in Sources */,
 				2D245E632E97EB56006AD2DC /* MarketsHistoryChartViewModel.swift in Sources */,
+				2DE2A3BB2F2A2D690097CA73 /* MockMarketsWidgetEarnService.swift in Sources */,
 				0A0551D62F273814005B70D2 /* SendReceiveTokenWalletDataProvider.swift in Sources */,
 				2D245E642E97EB56006AD2DC /* MarketsTokenDetailsChipsContainer.swift in Sources */,
 				2D245E652E97EB56006AD2DC /* ScrollViewOffsetHandler+MarketsTokenDetails.swift in Sources */,
