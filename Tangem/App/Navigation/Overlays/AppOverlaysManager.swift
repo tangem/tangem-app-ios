@@ -166,6 +166,7 @@ extension AppOverlaysManager {
 
         let window = PassThroughWindow(windowScene: windowScene)
         window.windowLevel = .alert + 1
+        window.overrideUserInterfaceStyle = AppSettings.shared.appTheme.interfaceStyle
         window.isHidden = false
         window.isOpaque = false
         window.backgroundColor = .clear
