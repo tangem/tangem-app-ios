@@ -28,11 +28,6 @@ struct AllowanceServiceFactory {
             ethereumTransactionDataBuilder: walletModel.ethereumTransactionDataBuilder
         )
 
-        let approveTransactionProcessor = ExpressTransactionProcessorFactory(
-            walletModel: walletModel,
-            transactionDispatcher: approveTransactionDispatcher,
-        ).makeExpressApproveTransactionProcessor()
-
         return CommonAllowanceService(
             allowanceChecker: allowanceChecker,
             approveTransactionDispatcher: approveTransactionDispatcher

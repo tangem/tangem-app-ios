@@ -29,7 +29,6 @@ struct ExpressInteractorWalletModelWrapper {
     private let walletModel: any WalletModel
     private let expressOperationType: ExpressOperationType
 
-    private let transactionProcessorFactory: ExpressTransactionProcessorFactory
     private let transactionDispatcherFactory: TransactionDispatcherFactory
 
     private let _allowanceService: (any AllowanceService)?
@@ -75,11 +74,6 @@ struct ExpressInteractorWalletModelWrapper {
             approveTransactionDispatcher: transactionDispatcherFactory.makeApproveDispatcher(),
         )
         _allowanceService = allowanceServiceFactory.makeAllowanceService()
-
-        transactionProcessorFactory = ExpressTransactionProcessorFactory(
-            walletModel: walletModel,
-            transactionDispatcher: transactionDispatcherFactory.makeCEXExpressDispatcher(),
-        )
 
         _balanceProvider = CommonExpressBalanceProvider(
             availableBalanceProvider: walletModel.availableBalanceProvider,

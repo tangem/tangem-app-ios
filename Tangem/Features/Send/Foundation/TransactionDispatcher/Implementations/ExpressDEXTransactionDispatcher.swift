@@ -69,7 +69,7 @@ extension ExpressDEXTransactionDispatcher: TransactionDispatcher {
             )
 
         case let blockchain:
-            throw Error.dexNotSupported(blockchain: blockchain.displayName)
+            throw DEXTransactionDispatcherError.dexNotSupported(blockchain: blockchain.displayName)
         }
     }
 }
@@ -79,7 +79,7 @@ extension ExpressDEXTransactionDispatcher: TransactionDispatcher {
 private extension ExpressDEXTransactionDispatcher {
     func buildTransaction(data: ExpressTransactionData, fee: Fee) async throws -> BSDKTransaction {
         guard let txData = data.txData else {
-            throw Error.transactionDataForSwapOperationNotFound
+            throw DEXTransactionDispatcherError.transactionDataForSwapOperationNotFound
         }
 
         let amount = Amount(with: feeTokenItem.blockchain, type: feeTokenItem.amountType, value: data.txValue)
@@ -97,7 +97,7 @@ private extension ExpressDEXTransactionDispatcher {
 
     func buildRawCompiledTransaction(data: ExpressTransactionData, fee: Fee) throws -> Data {
         guard let txData = data.txData, let unsignedData = Data(base64Encoded: txData) else {
-            throw Error.transactionDataForSwapOperationNotFound
+            throw DEXTransactionDispatcherError.transactionDataForSwapOperationNotFound
         }
 
         return unsignedData
@@ -106,16 +106,14 @@ private extension ExpressDEXTransactionDispatcher {
 
 // MARK: - Error
 
-extension ExpressDEXTransactionDispatcher {
-    enum Error: LocalizedError {
-        case dexNotSupported(blockchain: String)
-        case transactionDataForSwapOperationNotFound
+enum DEXTransactionDispatcherError: LocalizedError {
+    case dexNotSupported(blockchain: String)
+    case transactionDataForSwapOperationNotFound
 
-        var errorDescription: String? {
-            switch self {
-            case .dexNotSupported(let blockchain): "DEX is not supported for \(blockchain)"
-            case .transactionDataForSwapOperationNotFound: "Transaction data for swap operation not found"
-            }
+    var errorDescription: String? {
+        switch self {
+        case .dexNotSupported(let blockchain): "DEX is not supported for \(blockchain)"
+        case .transactionDataForSwapOperationNotFound: "Transaction data for swap operation not found"
         }
     }
 }
