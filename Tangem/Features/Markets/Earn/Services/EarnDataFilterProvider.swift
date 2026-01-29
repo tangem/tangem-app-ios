@@ -10,25 +10,33 @@ import Foundation
 import Combine
 import TangemFoundation
 
-@MainActor
 final class EarnDataFilterProvider {
     // MARK: - Dependencies
 
-    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
+    // [REDACTED_TODO_COMMENT]
+    private var tangemApiService: TangemApiService = FakeTangemApiService()
 
     // MARK: - Private State
 
     private let _filterTypeValue: CurrentValueSubject<EarnFilterType, Never>
     private let _networkFilterValue: CurrentValueSubject<EarnNetworkFilterType, Never>
     private let _userNetworkIdsSubject = CurrentValueSubject<[String]?, Never>(nil)
-    private let _networkLoadingResultSubject = CurrentValueSubject<LoadingResult<[EarnNetworkInfo], Error>, Never>(.loading)
+    private let _networkLoadingResultSubject = CurrentValueSubject<LoadingResult<[EarnNetworkInfo], Error>, Never>(.success([]))
+
+    private var bag = Set<AnyCancellable>()
+    private var fetchNetworksTask: Task<Void, Never>?
 
     // MARK: - Public Properties
 
     var filterPublisher: AnyPublisher<EarnDataProvider.Filter, Never> {
-        Publishers.CombineLatest3(_filterTypeValue, _networkFilterValue, _userNetworkIdsSubject)
-            .map { [weak self] type, networkFilter, userIds in
-                let networkIds = self?.resolveNetworkIds(for: networkFilter, userNetworkIds: userIds) ?? nil
+        Publishers
+            .CombineLatest3(_filterTypeValue, _networkFilterValue, _userNetworkIdsSubject)
+            .withWeakCaptureOf(self)
+            .map { provider, args in
+                let (type, networkFilter, userIds) = args
+                let networkIds = provider.resolveNetworkIds(for: networkFilter, userNetworkIds: userIds) ?? nil
                 return EarnDataProvider.Filter(type: type, networkIds: networkIds)
             }
             .eraseToAnyPublisher()
@@ -69,14 +77,20 @@ final class EarnDataFilterProvider {
         _networkFilterValue.value
     }
 
-    private let iconBuilder = IconURLBuilder()
-    private var fetchNetworksTask: Task<Void, Never>?
-
     // MARK: - Init
 
     init(initialFilterType: EarnFilterType = .all, initialNetworkFilter: EarnNetworkFilterType = .all) {
         _filterTypeValue = .init(initialFilterType)
         _networkFilterValue = .init(initialNetworkFilter)
+
+        let userNetworkIds = userWalletRepository.models
+            .flatMap { $0.accountModelsManager.cryptoAccountModels }
+            .flatMap { $0.userTokensManager.userTokens }
+            .map(\.networkId)
+            .unique()
+        _userNetworkIdsSubject.send(userNetworkIds.isEmpty ? nil : userNetworkIds)
+
+        bind()
     }
 
     // MARK: - Public Methods
@@ -93,6 +107,9 @@ final class EarnDataFilterProvider {
         _userNetworkIdsSubject.send(ids)
     }
 
+    /// Converts `EarnNetworkFilterType` to an array of network IDs for the API request.
+    /// - Returns: `nil` means "no filter" (API will return tokens from all networks).
+    ///            Non-empty array means filter by specific networks.
     func resolveNetworkIds(for filter: EarnNetworkFilterType, userNetworkIds: [String]?) -> [String]? {
         switch filter {
         case .all:
@@ -106,8 +123,31 @@ final class EarnDataFilterProvider {
     }
 
     func fetchAvailableNetworks() async {
-        guard !_networkLoadingResultSubject.value.isLoading else { return }
+        let currentType = _filterTypeValue.value
+        await fetchAvailableNetworks(for: currentType)
+    }
 
+    // MARK: - Private Methods
+
+    private func bind() {
+        _filterTypeValue
+            .dropFirst()
+            .removeDuplicates()
+            .sink { [weak self] newType in
+                guard let self else { return }
+
+                // Reset network filter when type changes (available networks may differ)
+                _networkFilterValue.send(.all)
+
+                // Reload networks for the new type
+                Task { [weak self] in
+                    await self?.fetchAvailableNetworks(for: newType)
+                }
+            }
+            .store(in: &bag)
+    }
+
+    private func fetchAvailableNetworks(for filterType: EarnFilterType) async {
         fetchNetworksTask?.cancel()
         _networkLoadingResultSubject.send(.loading)
 
@@ -115,24 +155,18 @@ final class EarnDataFilterProvider {
             guard let self else { return }
 
             do {
-                let request = EarnDTO.List.Request(
-                    isForEarn: true,
-                    page: 1,
-                    limit: 100,
-                    type: nil,
-                    network: nil
-                )
-                let response = try await tangemApiService.loadEarnYieldMarkets(requestModel: request)
+                let apiType = filterType.apiValue
+                let request = EarnDTO.Networks.Request(type: apiType)
+                let response = try await tangemApiService.loadEarnNetworks(requestModel: request)
 
                 if Task.isCancelled { return }
 
-                let networkIds = Set(response.items.map(\.networkId))
-                let infos = networkIds.sorted().map { id in
-                    EarnNetworkInfo(id: id, name: id.capitalized)
+                let infos = response.items.map { item in
+                    EarnNetworkInfo(networkId: item.networkId)
                 }
 
                 _networkLoadingResultSubject.send(.success(infos))
-                AppLogger.tag("Earn").debug("Fetched \(infos.count) available networks")
+                AppLogger.tag("Earn").debug("Fetched \(infos.count) available networks for type: \(filterType)")
             } catch {
                 if Task.isCancelled { return }
                 AppLogger.tag("Earn").error("Failed to fetch available networks", error: error)
@@ -142,6 +176,4 @@ final class EarnDataFilterProvider {
 
         await fetchNetworksTask?.value
     }
-
-    // MARK: - Private Methods
 }

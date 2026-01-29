@@ -21,6 +21,9 @@ struct EarnDetailView: View {
             contentView
         }
         .background(Color.Tangem.Surface.level3.ignoresSafeArea())
+        .onAppear {
+            viewModel.onAppear()
+        }
     }
 
     private var header: some View {
