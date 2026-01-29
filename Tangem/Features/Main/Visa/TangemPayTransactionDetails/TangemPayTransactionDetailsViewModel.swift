@@ -48,7 +48,7 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
             isOutgoing: mapper.isOutgoing()
         )
         name = mapper.name()
-        category = mapper.categoryName()
+        category = mapper.categoryName(detailed: true)
         amount = TransactionViewAmountViewData(
             amount: mapper.amount(),
             type: mapper.type(),
