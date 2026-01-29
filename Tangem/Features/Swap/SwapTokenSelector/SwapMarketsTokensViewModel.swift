@@ -1,5 +1,5 @@
 //
-//  ExpressExternalSearchViewModel.swift
+//  SwapMarketsTokensViewModel.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,14 +11,14 @@ import Foundation
 import TangemFoundation
 import TangemLocalization
 
-final class ExpressExternalSearchViewModel: ObservableObject {
+final class SwapMarketsTokensViewModel: ObservableObject {
     // MARK: - Published
 
     @Published private(set) var state: State = .idle
 
     // MARK: - Dependencies
 
-    private let searchProvider: ExpressSearchTokensProvider
+    private let searchProvider: SwapMarketsTokensProvider
     private let chartsProvider: MarketsListChartsHistoryProvider
     private let filterProvider: MarketsListDataFilterProvider
     private let marketCapFormatter: MarketCapFormatter
@@ -26,13 +26,13 @@ final class ExpressExternalSearchViewModel: ObservableObject {
     private var currentTask: Task<Void, Never>?
     private var searchCancellable: AnyCancellable?
 
-    private weak var selectionHandler: ExpressExternalTokenSelectionHandler?
+    private weak var selectionHandler: SwapMarketsTokenSelectionHandler?
 
     private var currentSearchText: String = ""
 
     // MARK: - Init
 
-    init(searchProvider: ExpressSearchTokensProvider) {
+    init(searchProvider: SwapMarketsTokensProvider) {
         self.searchProvider = searchProvider
 
         chartsProvider = MarketsListChartsHistoryProvider()
@@ -55,7 +55,7 @@ final class ExpressExternalSearchViewModel: ObservableObject {
             }
     }
 
-    func setup(selectionHandler: ExpressExternalTokenSelectionHandler?) {
+    func setup(selectionHandler: SwapMarketsTokenSelectionHandler?) {
         self.selectionHandler = selectionHandler
     }
 
@@ -164,7 +164,7 @@ final class ExpressExternalSearchViewModel: ObservableObject {
 
 // MARK: - State
 
-extension ExpressExternalSearchViewModel {
+extension SwapMarketsTokensViewModel {
     enum State: Equatable {
         case idle
         case loading(mode: Mode)
@@ -209,8 +209,8 @@ extension ExpressExternalSearchViewModel {
     }
 }
 
-// MARK: - ExpressExternalTokenSelectionHandler
+// MARK: - SwapMarketTokenSelectionHandler
 
-protocol ExpressExternalTokenSelectionHandler: AnyObject {
+protocol SwapMarketsTokenSelectionHandler: AnyObject {
     func didSelectExternalToken(_ token: MarketsTokenModel)
 }

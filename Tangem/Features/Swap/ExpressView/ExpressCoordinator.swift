@@ -170,7 +170,7 @@ extension ExpressCoordinator: SwapTokenSelectorRoutable {
         }
 
         // Create configuration
-        let configuration = ExpressAddTokenFlowConfigurationFactory.make(
+        let configuration = SwapAddMarketsTokenFlowConfigurationFactory.make(
             coinId: inputData.coinId,
             coinName: inputData.coinName,
             coinSymbol: inputData.coinSymbol,
@@ -178,12 +178,9 @@ extension ExpressCoordinator: SwapTokenSelectorRoutable {
             coordinator: self
         )
 
-        // Get user wallet models
-        let userWalletModels = userWalletRepository.models
-
         // Present add token flow
         let viewModel = AccountsAwareAddTokenFlowViewModel(
-            userWalletModels: userWalletModels,
+            userWalletModels: userWalletRepository.models,
             configuration: configuration,
             coordinator: self
         )
@@ -194,7 +191,8 @@ extension ExpressCoordinator: SwapTokenSelectorRoutable {
     func onTokenAdded(item: AccountsAwareTokenSelectorItem) {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
-            try? await Task.sleep(for: .milliseconds(300))
+
+            try? await Task.sleep(for: .milliseconds(500))
 
             // Delegate to swapTokenSelectorViewModel to handle the selection
             swapTokenSelectorViewModel?.usedDidSelect(item: item)
