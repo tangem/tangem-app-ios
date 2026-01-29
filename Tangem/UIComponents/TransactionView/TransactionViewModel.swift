@@ -212,7 +212,7 @@ extension TransactionViewModel {
 
     enum TangemPayTransactionType: Hashable {
         /// Spend fiat value
-        case spend(name: String, icon: URL?, isDeclined: Bool)
+        case spend(name: String, icon: URL?, isDeclined: Bool, isNegativeAmount: Bool)
 
         /// Crypto transfers
         case transfer(name: String)
@@ -222,7 +222,7 @@ extension TransactionViewModel {
 
         var name: String {
             switch self {
-            case .spend(let name, _, _): name
+            case .spend(let name, _, _, _): name
             case .transfer(let name): name
             case .fee(let name): name
             }
