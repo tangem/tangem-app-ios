@@ -76,7 +76,7 @@ private extension TangemPayLocalState {
         case .unavailable:
             .unavailable
 
-        case .initial, .kycRequired, .kycDeclined, .issuingCard, .failedToIssueCard, .tangemPayAccount:
+        case .initial, .loading, .kycRequired, .kycDeclined, .issuingCard, .failedToIssueCard, .tangemPayAccount:
             nil
         }
     }
