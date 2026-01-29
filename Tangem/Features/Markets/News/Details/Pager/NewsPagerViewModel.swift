@@ -6,7 +6,7 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-import Foundation
+import UIKit
 import Combine
 import TangemFoundation
 
@@ -52,10 +52,6 @@ final class NewsPagerViewModel: MarketsBaseViewModel {
         !isDeeplinkMode && newsIds.count > 1
     }
 
-    var shouldShowNavigationBar: Bool {
-        !isDeeplinkMode
-    }
-
     // MARK: - Dependencies
 
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
@@ -76,6 +72,7 @@ final class NewsPagerViewModel: MarketsBaseViewModel {
     private var isLoadingMoreNews = false
     private let preloadThreshold = 3
     private var loggedLikeNewsIds: Set<Int> = []
+    private lazy var selectionFeedbackGenerator = UISelectionFeedbackGenerator()
 
     // MARK: - Init
 
@@ -280,7 +277,7 @@ final class NewsPagerViewModel: MarketsBaseViewModel {
             do {
                 let request = NewsDTO.Details.Request(
                     newsId: newsId,
-                    lang: Locale.current.language.languageCode?.identifier
+                    lang: Locale.newsLanguageCode
                 )
                 let response = try await tangemApiService.loadNewsDetails(requestModel: request)
                 let article = NewsDetailsViewModel.ArticleModel(from: response, dateFormatter: dateFormatter)
@@ -309,6 +306,8 @@ final class NewsPagerViewModel: MarketsBaseViewModel {
         let wasLiked = likeService.isLiked(newsId: newsId)
         likeService.toggleLike(newsId: newsId)
         objectWillChange.send()
+
+        selectionFeedbackGenerator.selectionChanged()
 
         if !wasLiked, !loggedLikeNewsIds.contains(newsId) {
             loggedLikeNewsIds.insert(newsId)

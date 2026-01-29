@@ -101,13 +101,13 @@ public struct InfoChipView: View {
                     .fixedSize(horizontal: true, vertical: true)
             }
         }
+        .frame(height: Layout.contentHeight)
         .defaultRoundedBackground(
             with: Colors.Control.unchecked,
             verticalPadding: Layout.verticalPadding,
             horizontalPadding: Layout.horizontalPadding,
             cornerRadius: Layout.cornerRadius
         )
-        .frame(height: Layout.height)
     }
 
     @ViewBuilder
@@ -123,7 +123,7 @@ public struct InfoChipView: View {
     }
 
     private enum Layout {
-        static let height: CGFloat = 24
+        static let contentHeight: CGFloat = 16
         static let contentSpacing: CGFloat = 4
         static let horizontalPadding: CGFloat = 10
         static let verticalPadding: CGFloat = 4
