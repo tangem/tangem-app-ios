@@ -26,8 +26,7 @@ public enum EthereumFeeParametersConstants {
     public static var defaultGasLimitIncreasePercent = BigUInt(12)
     public static var yieldModuleGasLimitIncreasePercent = BigUInt(20)
     public static var gaslessMinTokenAmount = BigUInt(10_000)
-    public static var gaslessBaseGasBuffer = BigUInt(100_000)
-    public static var gaslessMaxFeePerGasMultiplier = BigUInt(2)
+    public static var gaslessBaseGasBuffer = BigUInt(60_000)
 }
 
 public extension EthereumFeeParameters {
@@ -175,9 +174,13 @@ public struct EthereumGaslessTransactionFeeParameters: FeeParameters {
     /// Conversion rate from native coin to token.
     /// Represents how many token units correspond to 1 unit of native coin
     /// (e.g. 1 ETH = 1500 USDC → coinToTokenRate = 1500).
-    public let nativeToFeeTokenRate: Decimal
+    private let nativeToFeeTokenRate: Decimal
 
     public let feeTokenTransferGasLimit: BigUInt
+
+    public var bufferedNativeToFeeTokenRate: Decimal {
+        nativeToFeeTokenRate * 1.01
+    }
 
     public init(
         gasLimit: BigUInt,
@@ -220,26 +223,29 @@ extension EthereumGaslessTransactionFeeParameters: EthereumFeeParameters {
     /// Calculates the transaction fee expressed in the selected token.
     ///
     /// Calculation steps:
-    /// 1. Computes the fee in native coin smallest units (wei):
-    ///    feeWEI = gasLimit × maxFeePerGas
-    /// 2. Converts the fee from wei to native coin using `decimalValue` (e.g. 1e18 for ETH):
-    ///    feeInCoin = feeWEI / decimalValue
-    /// 3. Converts the fee from native coin to token using `nativeToFeeTokenRate`:
-    ///    feeInToken = feeInCoin × coinToTokenRate
+    /// 1. Compute the fee in the native coin's smallest units (wei):
+    ///    feeWEI = gasLimit × maxFeePerGas, then apply a 1.5× safety buffer:
+    ///    feeWEI_buffered = feeWEI × 1.5 (implemented as `* 3 / 2` using integer math).
+    /// 2. Convert the buffered fee from wei to the native coin using `decimalValue` (e.g., 1e18 for ETH):
+    ///    feeInCoin = feeWEI_buffered / decimalValue.
+    /// 3. Convert the fee from the native coin to the fee token using an exchange rate buffered by +1%:
+    ///    feeInToken = feeInCoin × bufferedNativeToFeeTokenRate (i.e., nativeToFeeTokenRate × 1.01).
     ///
     /// Example:
     /// - gasLimit = 21_000
     /// - maxFeePerGas = 30 gwei = 30_000_000_000
     /// - feeWEI = 630_000_000_000_000
+    /// - feeWEI_buffered = feeWEI × 1.5 = 945_000_000_000_000
     /// - decimalValue = 1e18 (ETH decimals)
-    /// - feeInCoin = 0.00063 ETH
-    /// - coinToTokenRate = 1500 (1 ETH = 1500 USDC)
-    /// - feeInToken = 0.945 USDC
+    /// - feeInCoin = 0.000945 ETH
+    /// - nativeToFeeTokenRate = 1500 (1 ETH = 1500 USDC)
+    /// - bufferedNativeToFeeTokenRate = 1500 × 1.01 = 1515
+    /// - feeInToken = 0.000945 × 1515 = 1.431675 USDC
     public func calculateFee(decimalValue: Decimal) -> Decimal {
-        let feeWEI = gasLimit * maxFeePerGas
+        let feeWEI = gasLimit * maxFeePerGas * BigUInt(3) / BigUInt(2)
         let feeValue = feeWEI.decimal ?? Decimal(UInt64(feeWEI))
         let feeInCoin = feeValue / decimalValue
-        let feeInToken = feeInCoin * nativeToFeeTokenRate
+        let feeInToken = feeInCoin * bufferedNativeToFeeTokenRate
         return feeInToken
     }
 
