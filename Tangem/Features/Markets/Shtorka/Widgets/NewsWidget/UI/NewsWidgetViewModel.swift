@@ -126,7 +126,7 @@ final class NewsWidgetViewModel: ObservableObject {
 
     /// Returns only the news IDs that are visible in the widget (1 trending + up to 5 carousel)
     private func getVisibleNewsIds() -> [Int] {
-        let items = sortItems(newsProvider.newsResult.value ?? [])
+        let items = newsProvider.newsResult.value ?? []
         var result: [NewsId] = []
 
         if let trending = items.last(where: { $0.isTrending }) {
@@ -197,12 +197,15 @@ private extension NewsWidgetViewModel {
             }
             .store(in: &bag)
 
+        // Subscription for reorder reading news.
+        // Small delay is needed so `WidgetNewsService` has time to rebuild and updated state models.
         readStatusProvider
             .readStatusChangedPublisher
             .receiveOnMain()
+            .delay(for: 0.3, scheduler: DispatchQueue.main)
             .withWeakCaptureOf(self)
             .sink { viewModel, _ in
-                viewModel.updateReadState()
+                viewModel.updateViewState()
             }
             .store(in: &bag)
     }
@@ -212,7 +215,7 @@ private extension NewsWidgetViewModel {
         var carouselNewsItems: [CarouselNewsItem] = []
         var processedNewsIds = Set<String>()
 
-        sortItems(newsProvider.newsResult.value ?? []).forEach { item in
+        (newsProvider.newsResult.value ?? []).forEach { item in
             // Deduplication by ID
             guard !processedNewsIds.contains(item.id) else {
                 return
@@ -256,21 +259,6 @@ private extension NewsWidgetViewModel {
         case .loading:
             resultState = .loading
         }
-    }
-
-    func sortItems(_ items: [TrendingNewsModel]) -> [TrendingNewsModel] {
-        items
-            .enumerated()
-            .sorted { lhs, rhs in
-                let lhsIsRead = readStatusProvider.isRead(for: lhs.element.id)
-                let rhsIsRead = readStatusProvider.isRead(for: rhs.element.id)
-
-                if lhsIsRead != rhsIsRead {
-                    return !lhsIsRead
-                }
-                return lhs.offset < rhs.offset
-            }
-            .map(\.element)
     }
 
     func clearIsFirstLoadingFlag() {
