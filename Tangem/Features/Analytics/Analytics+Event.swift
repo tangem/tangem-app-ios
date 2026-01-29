@@ -227,6 +227,7 @@ extension Analytics {
         case accountSettingsButtonSave = "[Settings / Account] Button - Save"
         case accountSettingsButtonAddNewAccount = "[Settings / Account] Button - Add New Account"
         case accountSettingsAccountError = "[Settings / Account] Account Error"
+        case manageTokensCustomTokenAddedToAnotherAccount = "[Settings / Account] Button - Add Token To Another Account"
 
         // MARK: - Wallet Connect
 
@@ -256,7 +257,7 @@ extension Analytics {
 
         case walletConnectTransactionSolanaLarge = "[Wallet Connect] Solana Large Transaction"
         case walletConnectTransactionSolanaLargeStatus = "[Wallet Connect] Solana Large Transaction Status"
-        case walletConnectButtonConnectWithAccount = "[WalletConnect - Account] Button - Connect"
+        case walletConnectButtonConnectWithAccount = "[WalletConnect / Account] Button - Connect"
 
         case chatScreenOpened = "[Chat] Chat Screen Opened"
         case settingsScreenOpened = "[Settings] Settings Screen Opened"
@@ -270,7 +271,7 @@ extension Analytics {
         case referralButtonOpenTos = "[Referral Program] Link - TaC"
         case referralParticipateSuccessfull = "[Referral Program] Participate Successfull"
         case referralError = "[Referral Program] Referral Error"
-        case referralListChooseAccount = "[Referral program - Account] List - choose account"
+        case referralListChooseAccount = "[Referral program / Account] List - Choose Account"
 
         // MARK: - Swap
 
@@ -484,8 +485,8 @@ extension Analytics {
         case marketsChartExchangesScreenOpened = "[Markets / Chart] Exchanges Screen Opened"
         case marketsChartSecurityScoreInfo = "[Markets / Chart] Security Score Info"
         case marketsChartSecurityScoreProviderClicked = "[Markets / Chart] Security Score Provider Clicked"
-        case marketsChartPopupChooseAccount = "[Markets / Chart] Popup to choose account"
-        case marketsChartButtonAddTokenToAnotherAccount = "[Markets / Chart] Button - Add (token not to main Account)"
+        case marketsChartPopupChooseAccount = "[Markets / Chart] - Choose Account Opened"
+        case marketsChartButtonAddTokenToAnotherAccount = "[Markets / Chart] Button - Add To Account"
         case marketsChartPopupGetTokenButtonBuy = "[Markets / Chart] Popup Get token - Button Buy"
         case marketsChartPopupGetTokenButtonExchange = "[Markets / Chart] Popup Get token - Button Exchange"
         case marketsChartPopupGetTokenButtonReceive = "[Markets / Chart] Popup Get token - Button Receive"
@@ -513,7 +514,6 @@ extension Analytics {
         case manageTokensCustomTokenName = "[Manage Tokens / Custom] Custom Token Name"
         case manageTokensCustomTokenSymbol = "[Manage Tokens / Custom] Custom Token Symbol"
         case manageTokensCustomTokenDecimals = "[Manage Tokens / Custom] Custom Token Decimals"
-        case manageTokensCustomTokenAddedToAnotherAccount = "[Manage Tokens / Custom Token] Button - Add Token To Another Account"
 
         // MARK: - Onramp
 
