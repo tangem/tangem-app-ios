@@ -66,41 +66,11 @@ struct EarnDetailView: View {
                 onNetworksTap: { viewModel.handleViewAction(.networksFilterTap) },
                 onTypesTap: { viewModel.handleViewAction(.typesFilterTap) }
             )
-            bestOpportunitiesContent
+            EarnBestOpportunitiesListView(
+                resultState: viewModel.bestOpportunitiesResultState,
+                retryAction: { viewModel.retryBestOpportunities() }
+            )
         }
-    }
-
-    @ViewBuilder
-    private var bestOpportunitiesContent: some View {
-        switch viewModel.bestOpportunitiesResultState {
-        case .loading:
-            loadingSkeletons
-        case .success(let viewModels):
-            opportunitiesList(viewModels: viewModels)
-        case .failure:
-            errorView
-        }
-    }
-
-    private var loadingSkeletons: some View {
-        VStack(spacing: .zero) {
-            ForEach(0 ..< 5) { _ in
-                MarketsSkeletonItemView()
-            }
-        }
-        .padding(.horizontal, Layout.horizontalPadding)
-    }
-
-    private func opportunitiesList(viewModels: [EarnTokenItemViewModel]) -> some View {
-        EarnBestOpportunitiesListView(viewModels: viewModels)
-    }
-
-    private var errorView: some View {
-        UnableToLoadDataView(
-            isButtonBusy: false,
-            retryButtonAction: { viewModel.retryBestOpportunities() }
-        )
-        .padding(.horizontal, Layout.horizontalPadding)
     }
 }
 
