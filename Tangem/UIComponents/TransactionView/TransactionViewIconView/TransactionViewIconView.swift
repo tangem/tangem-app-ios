@@ -23,7 +23,7 @@ struct TransactionViewIconView: View {
     @ViewBuilder
     private var iconView: some View {
         switch data.type {
-        case .tangemPay(.spend(_, let iconURL, _)):
+        case .tangemPay(.spend(_, let iconURL, _, _)):
             KFImage(iconURL)
                 .resizable()
                 .placeholder { assetView }
