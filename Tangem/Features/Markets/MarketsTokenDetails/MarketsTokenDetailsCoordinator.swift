@@ -41,9 +41,12 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     @Published var yieldModuleActiveCoordinator: YieldModuleActiveCoordinator? = nil
     @Published var tokenDetailsCoordinator: TokenDetailsCoordinator? = nil
     @Published var newsPagerViewModel: NewsPagerViewModel? = nil
+    @Published var newsRelatedTokenDetailsCoordinator: MarketsTokenDetailsCoordinator? = nil
 
     private var safariHandle: SafariHandle?
     private let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
+    private var presentationStyle: MarketsTokenDetailsPresentationStyle = .marketsSheet
+    private var isDeeplinkMode: Bool = false
 
     // MARK: - Init
 
@@ -56,6 +59,8 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
+        presentationStyle = options.style
+        isDeeplinkMode = options.isDeeplinkMode
         rootViewModel = .init(
             tokenInfo: options.info,
             presentationStyle: options.style,
@@ -70,10 +75,12 @@ extension MarketsTokenDetailsCoordinator {
     struct Options {
         let info: MarketsTokenModel
         let style: MarketsTokenDetailsPresentationStyle
+        let isDeeplinkMode: Bool
 
-        init(info: MarketsTokenModel, style: MarketsTokenDetailsPresentationStyle) {
+        init(info: MarketsTokenModel, style: MarketsTokenDetailsPresentationStyle, isDeeplinkMode: Bool = false) {
             self.info = info
             self.style = style
+            self.isDeeplinkMode = isDeeplinkMode
         }
     }
 }
@@ -277,7 +284,7 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
         let viewModel = NewsPagerViewModel(
             newsIds: newsIds,
             initialIndex: selectedIndex,
-            isDeeplinkMode: false,
+            isDeeplinkMode: false, // Always false - nested news screen should show back button, not close
             dataSource: SingleNewsDataSource(),
             analyticsSource: .token,
             coordinator: self
@@ -428,6 +435,17 @@ extension MarketsTokenDetailsCoordinator: NewsDetailsRoutable {
     }
 
     func openTokenDetails(_ token: MarketsTokenModel) {
-        // Token details is already shown, no need to navigate
+        weak var weakCoordinator: MarketsTokenDetailsCoordinator?
+
+        let coordinator = MarketsTokenDetailsCoordinator(
+            dismissAction: { [weak self] _ in
+                self?.newsRelatedTokenDetailsCoordinator = nil
+            },
+            popToRootAction: popToRootAction
+        )
+
+        weakCoordinator = coordinator
+        coordinator.start(with: .init(info: token, style: presentationStyle, isDeeplinkMode: isDeeplinkMode))
+        newsRelatedTokenDetailsCoordinator = coordinator
     }
 }

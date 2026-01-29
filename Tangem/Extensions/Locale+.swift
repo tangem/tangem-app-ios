@@ -49,7 +49,7 @@ extension Locale {
         "en", // English
         "ru", // Russian
         "fr", // French
-        "ua", // Ukrainian
+        "uk", // Ukrainian
         "de", // German
         "ja", // Japanese
         "es", // Spanish
