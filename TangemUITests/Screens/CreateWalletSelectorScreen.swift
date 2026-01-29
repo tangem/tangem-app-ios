@@ -34,7 +34,7 @@ final class CreateWalletSelectorScreen: ScreenBase<CreateWalletSelectorScreenEle
 
     func selectWalletFromList(name: CardMockAccessibilityIdentifiers) {
         // Find the mock wallet button in the alert
-        let walletButton = app.buttons[name.rawValue]
+        let walletButton = app.buttons[name.rawValue].firstMatch
 
         if !walletButton.isHittable {
             app.swipeUp()
