@@ -32,4 +32,5 @@ public enum OnboardingAccessibilityIdentifiers {
 
     /// Access code
     public static let accessCodeSkipButton = "onboardingAccessCodeSkipButton"
+    public static let accessCodeInputField = "onboardingAccessCodeInputField"
 }
