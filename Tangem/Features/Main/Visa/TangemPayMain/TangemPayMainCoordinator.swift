@@ -116,16 +116,16 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
     }
 
     func openTangemPayWithdraw(input: ExpressDependenciesInput) {
-        let factory = CommonExpressModulesFactory(input: input)
-        let viewModel = TangemPayWithdrawNoteSheetViewModel(coordinator: self) { [weak self] in
-            Task { @MainActor in
-                self?.floatingSheetPresenter.removeActiveSheet()
-                try? await Task.sleep(for: .seconds(0.2))
-                self?.openExpress(factory: factory)
-            }
-        }
-
         Task { @MainActor in
+            let factory = CommonExpressModulesFactory(input: input)
+            let viewModel = TangemPayWithdrawNoteSheetViewModel(coordinator: self) { [weak self] in
+                Task { @MainActor in
+                    self?.floatingSheetPresenter.removeActiveSheet()
+                    try? await Task.sleep(for: .seconds(0.2))
+                    self?.openExpress(factory: factory)
+                }
+            }
+
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
@@ -147,12 +147,11 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
     }
 
     func openTangemPayFreezeSheet(freezeAction: @escaping () -> Void) {
-        let viewModel = TangemPayFreezeSheetViewModel(
-            coordinator: self,
-            freezeAction: freezeAction
-        )
-
         Task { @MainActor in
+            let viewModel = TangemPayFreezeSheetViewModel(
+                coordinator: self,
+                freezeAction: freezeAction
+            )
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
