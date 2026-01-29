@@ -115,6 +115,10 @@ final class TangemPayManager {
             return
         }
 
+        if case .initial = stateSubject.value {
+            stateSubject.value = .loading
+        }
+
         let customerWalletAddress = TangemPayUtilities.getCustomerWalletAddressAndAuthorizationTokens(
             customerWalletId: customerWalletId,
             keysRepository: keysRepository
@@ -155,6 +159,7 @@ final class TangemPayManager {
 
         case .notEnrolled:
             orderStatusPollingService.cancel()
+            stateSubject.value = .initial
 
         case .kycRequired:
             orderStatusPollingService.cancel()
