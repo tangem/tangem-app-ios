@@ -18,8 +18,6 @@ enum ExpressAddTokenFlowConfigurationFactory {
         networks: [NetworkModel],
         onTokenAdded: @escaping (TokenItem, UserWalletInfo, any CryptoAccountModel) -> Void
     ) -> AccountsAwareAddTokenFlowConfiguration {
-        let analyticsLogger = ExpressAddTokenAnalyticsLogger(coinSymbol: coinSymbol)
-
         return AccountsAwareAddTokenFlowConfiguration(
             getAvailableTokenItems: { accountSelectorCell in
                 MarketsTokenItemsProvider.calculateTokenItems(
@@ -48,7 +46,7 @@ enum ExpressAddTokenFlowConfigurationFactory {
                     )
                 }
             },
-            analyticsLogger: analyticsLogger
+            analyticsLogger: NoOpAddTokenFlowAnalyticsLogger()
         )
     }
 }
