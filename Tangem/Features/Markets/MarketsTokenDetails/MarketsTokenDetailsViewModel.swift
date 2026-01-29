@@ -440,7 +440,6 @@ private extension MarketsTokenDetailsViewModel {
         }
 
         tokenNewsItems[index] = tokenNewsItems[index].withIsRead(true)
-        tokenNewsItems = tokenNewsItems.sortedByReadStatus()
     }
 
     func bindToHistoryChartViewModel() {
