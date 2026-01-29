@@ -17,10 +17,16 @@ struct EarnFilterBottomSheetView: View {
         VStack(spacing: .zero) {
             BottomSheetHeaderView(title: viewModel.title)
 
-            GroupedSection(viewModel.listOptionViewModel) {
-                DefaultSelectableRowView(data: $0, selection: $viewModel.currentSelection)
+            ScrollView {
+                VStack(spacing: 16) {
+                    ForEach(viewModel.sections) { section in
+                        GroupedSection(section.items) {
+                            DefaultSelectableRowView(data: $0, selection: $viewModel.currentSelection)
+                        }
+                        .settings(\.backgroundColor, Colors.Background.action)
+                    }
+                }
             }
-            .settings(\.backgroundColor, Colors.Background.action)
         }
         .padding(.horizontal, 16)
         .padding(.bottom, 10)

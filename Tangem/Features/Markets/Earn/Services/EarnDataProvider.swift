@@ -14,7 +14,8 @@ import TangemFoundation
 final class EarnDataProvider {
     // MARK: - Dependencies
 
-    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
+    // [REDACTED_TODO_COMMENT]
+    private var tangemApiService: TangemApiService = FakeTangemApiService()
 
     // MARK: - Subjects
 
@@ -138,7 +139,8 @@ final class EarnDataProvider {
             let response = try result.get()
 
             let nextPage = response.meta.page + 1
-            let metaHasNext = response.meta.hasNext
+//            let metaHasNext = response.meta.hasNext
+            let metaHasNext = false
             hasNext = metaHasNext
             currentPage = nextPage
 

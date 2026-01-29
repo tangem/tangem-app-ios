@@ -22,7 +22,7 @@ final class EarnDetailViewModel: ObservableObject {
     // MARK: - Private Properties
 
     private let dataProvider = EarnDataProvider()
-    private let filterProvider = EarnDataFilterProvider(initialFilterType: .all, initialNetworkFilter: .userNetworks)
+    let filterProvider = EarnDataFilterProvider(initialFilterType: .all, initialNetworkFilter: .userNetworks)
     private weak var coordinator: EarnDetailRoutable?
 
     private var accumulatedOpportunities: [EarnTokenItemViewModel] = []
@@ -79,7 +79,7 @@ final class EarnDetailViewModel: ObservableObject {
             break
         case .failedToFetchData(let error):
             bestOpportunitiesResultState = .failure(error)
-        case .appendedItems(let models, let lastPage):
+        case .appendedItems(let models, _):
             let newViewModels = models.map { token in
                 EarnTokenItemViewModel(token: token) { [weak self] in
                     self?.coordinator?.openEarnTokenDetails(for: token)
@@ -87,12 +87,15 @@ final class EarnDetailViewModel: ObservableObject {
             }
             accumulatedOpportunities.append(contentsOf: newViewModels)
             bestOpportunitiesResultState = .success(accumulatedOpportunities)
-        case .startInitialFetch:
+        case .startInitialFetch, .cleared:
             accumulatedOpportunities = []
             bestOpportunitiesResultState = .loading
-        case .cleared:
-            accumulatedOpportunities = []
-            bestOpportunitiesResultState = .loading
+        }
+    }
+
+    func onAppear() {
+        Task {
+            await filterProvider.fetchAvailableNetworks()
         }
     }
 
