@@ -12,20 +12,22 @@ import TangemUI
 import TangemLocalization
 
 struct EarnFilterHeaderView: View {
+    let networkFilterTitle: String
+    let typesFilterTitle: String
     let onNetworksTap: () -> Void
     let onTypesTap: () -> Void
 
     var body: some View {
         HStack(spacing: Layout.filterSpacing) {
             filterButton(
-                title: Localization.earnFilterAllNetworks,
+                title: networkFilterTitle,
                 action: onNetworksTap
             )
 
             Spacer()
 
             filterButton(
-                title: Localization.earnFilterAllTypes,
+                title: typesFilterTitle,
                 action: onTypesTap
             )
         }
