@@ -25,7 +25,7 @@ final class EarnWidgetViewModel: ObservableObject {
     private let widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler
     private let analyticsService: EarnWidgetAnalyticsProvider
 
-    private let earnProvider = MockMarketsWidgetEarnService()
+    private let earnProvider = CommonMarketsWidgetEarnService()
 
     private weak var coordinator: EarnWidgetRoutable?
 
