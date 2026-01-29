@@ -18,7 +18,7 @@ public final class KYCService {
     @discardableResult
     private init(
         getToken: @escaping () async throws -> VisaKYCAccessTokenResponse,
-        onDidDismiss: @escaping () -> Void
+        onDidDismiss: @escaping () async -> Void
     ) async throws {
         guard Self.shared == nil else {
             throw KYCServiceError.alreadyPresent
@@ -40,7 +40,9 @@ public final class KYCService {
         Self.shared = self
         sdk.onDidDismiss { _ in
             Self.shared = nil
-            onDidDismiss()
+            Task {
+                await onDidDismiss()
+            }
         }
 
         sdk.tokenExpirationHandler { onComplete in
@@ -113,7 +115,7 @@ extension KYCService {
 public extension KYCService {
     static func start(
         getToken: @escaping () async throws -> VisaKYCAccessTokenResponse,
-        onDidDismiss: @escaping () -> Void
+        onDidDismiss: @escaping () async -> Void
     ) async throws {
         try await KYCService(
             getToken: getToken,
