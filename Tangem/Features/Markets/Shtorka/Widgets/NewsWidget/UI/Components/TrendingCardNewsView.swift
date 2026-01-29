@@ -72,7 +72,6 @@ struct TrendingCardNewsView: View {
             FixedSpacer(height: Layout.Spacing.afterTrendingBadge)
 
             Text(item.title)
-                .lineLimit(2)
                 .multilineTextAlignment(.center)
                 .style(Fonts.Bold.title3, color: Colors.Text.primary1)
                 .skeletonable(isShown: itemState.isLoading, radius: Layout.Skeleton.cornerRadius)
