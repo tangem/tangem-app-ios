@@ -58,7 +58,9 @@ struct NewsPagerView: View {
                 }
             }
         }
-        .injectMarketsNavigationControllerConfigurator()
+        .if(!viewModel.isDeeplinkMode) { view in
+            view.injectMarketsNavigationControllerConfigurator()
+        }
     }
 
     private var pageIndicatorOverlay: some View {
