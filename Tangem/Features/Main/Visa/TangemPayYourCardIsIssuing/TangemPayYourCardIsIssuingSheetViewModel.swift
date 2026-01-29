@@ -6,27 +6,40 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import SwiftUI
+import TangemAssets
 import TangemLocalization
 import TangemUI
 
-struct TangemPayYourCardIsIssuingSheetViewModel: FloatingSheetContentViewModel {
-    var id: String { String(describing: Self.self) }
-
-    let title = Localization.tangempayIssuingYourCard
-    let subtitle = Localization.tangempayIssuingYourCardDescription
-
-    weak var coordinator: TangemPayYourCardIsIssuingRoutable?
-
-    func close() {
-        coordinator?.closeYourCardIsIssuingSheet()
+final class TangemPayYourCardIsIssuingSheetViewModel: TangemPayPopupViewModel {
+    var icon: Image {
+        Assets.warningIcon.image
     }
 
-    var primaryButtonSettings: MainButton.Settings {
-        MainButton.Settings(
+    var title: AttributedString {
+        .init(Localization.tangempayIssuingYourCard)
+    }
+
+    var description: AttributedString {
+        .init(Localization.tangempayIssuingYourCardDescription)
+    }
+
+    var primaryButton: MainButton.Settings {
+        .init(
             title: Localization.commonGotIt,
             style: .secondary,
             size: .default,
-            action: close
+            action: dismiss
         )
+    }
+
+    weak var coordinator: TangemPayYourCardIsIssuingRoutable?
+
+    init(coordinator: TangemPayYourCardIsIssuingRoutable?) {
+        self.coordinator = coordinator
+    }
+
+    func dismiss() {
+        coordinator?.closeYourCardIsIssuingSheet()
     }
 }
