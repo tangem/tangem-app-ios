@@ -70,17 +70,16 @@ final class ArchivedAccountsViewModel: ObservableObject {
             viewState = .loading
             let archivedAccounts = try await accountModelsManager.archivedCryptoAccountInfos()
             viewState = .success(archivedAccounts)
+            logScreenOpenedAnalytics(accountsCount: archivedAccounts.count)
         } catch {
             viewState = .failure(error)
         }
     }
 
-    func onAppear() {
-        Analytics.log(.walletSettingsArchivedAccountsScreenOpened)
-    }
-
     func recoverAccount(_ accountInfo: ArchivedCryptoAccountInfo) {
-        Analytics.log(.walletSettingsButtonRecoverAccount)
+        let analyticsParams = accountInfo.analyticsParameters(with: SingleAccountAnalyticsBuilder())
+        Analytics.log(event: .walletSettingsButtonRecoverAccount, params: analyticsParams)
+
         recoverAccountTask?.cancel()
         recoveringAccountId = accountInfo.id
 
@@ -98,6 +97,13 @@ final class ArchivedAccountsViewModel: ObservableObject {
     }
 
     // MARK: - Private implementation
+
+    private func logScreenOpenedAnalytics(accountsCount: Int) {
+        Analytics.log(
+            event: .walletSettingsArchivedAccountsScreenOpened,
+            params: [.accountsCount: String(accountsCount)]
+        )
+    }
 
     @MainActor
     private func handleAccountRecoverySuccess(result: AccountOperationResult) {
