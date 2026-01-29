@@ -20,6 +20,12 @@ final class EarnCoordinator: CoordinatorObject {
 
     // MARK: - Child ViewModels
 
+    @Published var filterBottomSheetViewModel: EarnFilterBottomSheetViewModel?
+
+    // MARK: - Private Properties
+
+    private lazy var filterProvider = EarnFilterProvider()
+
     // MARK: - Init
 
     required init(
@@ -60,12 +66,14 @@ extension EarnCoordinator: EarnDetailRoutable {
     }
 
     func openNetworksFilter() {
-        // [REDACTED_TODO_COMMENT]
-        // For now, this is a placeholder
+        filterBottomSheetViewModel = .init(kind: .networks, provider: filterProvider) { [weak self] in
+            self?.filterBottomSheetViewModel = nil
+        }
     }
 
     func openTypesFilter() {
-        // [REDACTED_TODO_COMMENT]
-        // For now, this is a placeholder
+        filterBottomSheetViewModel = .init(kind: .types, provider: filterProvider) { [weak self] in
+            self?.filterBottomSheetViewModel = nil
+        }
     }
 }
