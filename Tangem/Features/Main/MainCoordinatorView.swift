@@ -147,16 +147,16 @@ struct MainCoordinatorView: CoordinatorView {
                 YieldNoticeView(viewModel: $0)
             }
             .floatingSheetContent(for: TangemPayYourCardIsIssuingSheetViewModel.self) {
-                TangemPayYourCardIsIssuingSheetView(viewModel: $0)
+                TangemPayPopupView(viewModel: $0)
             }
             .floatingSheetContent(for: TangemPayFailedToIssueCardSheetViewModel.self) {
-                TangemPayFailedToIssueCardSheetView(viewModel: $0)
+                TangemPayPopupView(viewModel: $0)
             }
             .floatingSheetContent(for: TangemPayKYCStatusPopupViewModel.self) {
-                TangemPayKYCStatusPopupView(viewModel: $0)
+                TangemPayPopupView(viewModel: $0)
             }
             .floatingSheetContent(for: TangemPayKYCDeclinedPopupViewModel.self) {
-                TamgemPayKYCDeclinedPopupView(viewModel: $0)
+                TangemPayPopupView(viewModel: $0)
             }
 
         NavHolder()
