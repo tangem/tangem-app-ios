@@ -16,6 +16,7 @@ struct P2PTarget {
     let apiKey: String
     let target: Target
     let network: P2PNetwork
+    private let idempotencyKey = UUID().uuidString
 
     enum Target {
         /// Get the list of vaults for a network
@@ -83,6 +84,7 @@ extension P2PTarget: TargetType {
         [
             "Content-Type": "application/json",
             "authorization": "Bearer \(apiKey)",
+            "Idempotency-Key": idempotencyKey,
         ]
     }
 }
