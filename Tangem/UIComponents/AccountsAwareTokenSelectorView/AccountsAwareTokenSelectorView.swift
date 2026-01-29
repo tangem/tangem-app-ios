@@ -95,9 +95,9 @@ struct AccountsAwareTokenSelectorView<EmptyContentView: View, AdditionalContentV
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 16)
-        .padding(.top, 14)
-        .padding(.bottom, 10)
+        .padding(.horizontal, 8)
+        .padding(.top, 8)
+        .padding(.bottom, 14)
     }
 }
 
