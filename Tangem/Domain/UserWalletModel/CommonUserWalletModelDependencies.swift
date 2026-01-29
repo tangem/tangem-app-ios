@@ -173,10 +173,6 @@ private extension CommonUserWalletModelDependencies {
                 derivationManager: derivationManager
             )
 
-        guard FeatureProvider.isAvailable(.visa) else {
-            return baseProvider
-        }
-
         return TangemPayAwareTotalBalanceProvider(
             totalBalanceProvider: baseProvider,
             tangemPayTotalBalanceProvider: TangemPayTotalBalanceProvider(tangemPayManager: tangemPayManager)
