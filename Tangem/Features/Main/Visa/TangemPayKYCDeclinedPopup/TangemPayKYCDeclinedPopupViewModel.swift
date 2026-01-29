@@ -6,12 +6,13 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import Foundation
+import SwiftUI
 import TangemUI
 import TangemLocalization
+import TangemAssets
 import TangemPay
 
-final class TangemPayKYCDeclinedPopupViewModel {
+final class TangemPayKYCDeclinedPopupViewModel: TangemPayPopupViewModel {
     @Injected(\.alertPresenterViewModel)
     private var alertPresenterViewModel: AlertPresenterViewModel
 
@@ -21,15 +22,7 @@ final class TangemPayKYCDeclinedPopupViewModel {
     let tangemPayManager: TangemPayManager
     weak var coordinator: TangemPayKYCDeclinedRoutable?
 
-    init(
-        tangemPayManager: TangemPayManager,
-        coordinator: TangemPayKYCDeclinedRoutable
-    ) {
-        self.tangemPayManager = tangemPayManager
-        self.coordinator = coordinator
-    }
-
-    var openSupportButton: MainButton.Settings {
+    var primaryButton: MainButton.Settings {
         .init(
             title: Localization.tangempayGoToSupport,
             style: .primary,
@@ -37,12 +30,38 @@ final class TangemPayKYCDeclinedPopupViewModel {
         )
     }
 
-    var hideKYCButton: MainButton.Settings {
+    var secondaryButton: MainButton.Settings? {
         .init(
             title: Localization.tangempayCancelKyc,
             style: .secondary,
             action: hideKYC
         )
+    }
+
+    var title: AttributedString {
+        .init(Localization.tangempayKycRejected)
+    }
+
+    var description: AttributedString {
+        var start = AttributedString(Localization.tangempayKycRejectedDescription + " ")
+        start.foregroundColor = Colors.Text.secondary
+
+        var end = AttributedString(Localization.tangempayKycRejectedDescriptionSpan)
+        end.foregroundColor = Colors.Text.accent
+
+        return start + end
+    }
+
+    var icon: Image {
+        Assets.Visa.kycDeclinedBrokenHeart.image
+    }
+
+    init(
+        tangemPayManager: TangemPayManager,
+        coordinator: TangemPayKYCDeclinedRoutable
+    ) {
+        self.tangemPayManager = tangemPayManager
+        self.coordinator = coordinator
     }
 
     func dismiss() {
@@ -82,11 +101,5 @@ final class TangemPayKYCDeclinedPopupViewModel {
                     type: .temporary()
                 )
         }
-    }
-}
-
-extension TangemPayKYCDeclinedPopupViewModel: FloatingSheetContentViewModel {
-    var id: String {
-        String(describing: self)
     }
 }
