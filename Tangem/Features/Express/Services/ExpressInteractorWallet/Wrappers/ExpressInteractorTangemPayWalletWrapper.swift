@@ -76,7 +76,7 @@ extension ExpressInteractorTangemPayWalletWrapper {
         _cexTransactionDispatcher
     }
 
-    func dexTransactionDispatcherr() throws -> any TransactionDispatcher {
+    func dexTransactionDispatcher() throws -> any TransactionDispatcher {
         throw DEXTransactionDispatcherError.dexNotSupported(blockchain: "TangemPay")
     }
 

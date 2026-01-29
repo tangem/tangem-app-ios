@@ -1,5 +1,5 @@
 //
-//  TangemPayExpressCEXTransactionProcessor.swift
+//  TangemPayExpressCEXTransactionDispatcher.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,14 +10,14 @@ import BlockchainSdk
 import TangemExpress
 import TangemVisa
 
-struct TangemPayExpressCEXTransactionProcessor {
+struct TangemPayExpressCEXTransactionDispatcher {
     let withdrawTransactionService: TangemPayWithdrawTransactionService
     let walletPublicKey: Wallet.PublicKey?
 }
 
-// MARK: - ExpressCEXTransactionProcessor
+// MARK: - TransactionDispatcher
 
-extension TangemPayExpressCEXTransactionProcessor: TransactionDispatcher {
+extension TangemPayExpressCEXTransactionDispatcher: TransactionDispatcher {
     var hasNFCInteraction: Bool { true }
 
     func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult {
@@ -39,7 +39,7 @@ extension TangemPayExpressCEXTransactionProcessor: TransactionDispatcher {
     }
 }
 
-extension TangemPayExpressCEXTransactionProcessor {
+extension TangemPayExpressCEXTransactionDispatcher {
     enum Error: LocalizedError {
         case walletPublicKeyNotFound
     }

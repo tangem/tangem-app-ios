@@ -130,7 +130,7 @@ extension ExpressInteractorWalletModelWrapper: ExpressInteractorSourceWallet {
         transactionDispatcherFactory.makeCEXExpressDispatcher()
     }
 
-    func dexTransactionDispatcherr() throws -> any TransactionDispatcher {
+    func dexTransactionDispatcher() throws -> any TransactionDispatcher {
         transactionDispatcherFactory.makeDEXExpressDispatcher()
     }
 

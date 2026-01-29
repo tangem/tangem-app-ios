@@ -29,7 +29,7 @@ protocol ExpressInteractorSourceWallet: ExpressInteractorDestinationWallet, Expr
     var interactorAnalyticsLogger: any ExpressInteractorAnalyticsLogger { get }
 
     func approveTransactionDispatcher() throws -> TransactionDispatcher
-    func dexTransactionDispatcherr() throws -> TransactionDispatcher
+    func dexTransactionDispatcher() throws -> TransactionDispatcher
     func cexTransactionDispatcher() throws -> TransactionDispatcher
 }
 

@@ -560,7 +560,7 @@ private extension ExpressInteractor {
     func sendDEXTransaction(state: ReadyToSwapState, context: Context) async throws -> TransactionSendResultState {
         let sender = try getSourceWallet()
         let fee = try context.tokenFeeProvidersManager.selectedFeeProvider.selectedTokenFee.value.get()
-        let processor = try sender.dexTransactionDispatcherr()
+        let processor = try sender.dexTransactionDispatcher()
         let result = try await processor.send(transaction: .dex(data: state.data, fee: fee))
 
         return TransactionSendResultState(dispatcherResult: result, data: state.data, fee: fee, provider: context.provider)
