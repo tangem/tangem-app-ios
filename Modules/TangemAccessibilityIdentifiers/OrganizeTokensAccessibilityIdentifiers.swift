@@ -14,6 +14,14 @@ public enum OrganizeTokensAccessibilityIdentifiers {
     public static let groupButton = "groupButton"
     public static let applyButton = "applyButton"
 
+    /// Accessibility identifier prefix for an account header (outer section) in accounts-aware organize tokens list.
+    /// Full format: "organizeTokens_accountHeader_<outerSection>_<accountId>_<accountName>"
+    public static let accountHeaderPrefix = "organizeTokens_accountHeader"
+
+    public static func accountHeader(outerSection: Int, accountId: AnyHashable, accountName: String) -> String {
+        "\(accountHeaderPrefix)_\(outerSection)_\(accountId)_\(accountName)"
+    }
+
     public static func token(name: String) -> String {
         return "token_\(name)"
     }
