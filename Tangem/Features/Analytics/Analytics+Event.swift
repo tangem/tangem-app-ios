@@ -302,8 +302,6 @@ extension Analytics {
         case swapFeeSummaryScreenOpened = "[Swap] Fee Summary Screen Opened"
         case swapFeeTokenScreenOpened = "[Swap] Fee Token Screen Opened"
         case swapFeeSelected = "[Swap] Fee Selected"
-        case swapExternalTokenAdded = "[Swap] External Token Added"
-        case swapExternalTokenAccountSelectorOpened = "[Swap] External Token Account Selector Opened"
 
         // MARK: - Seed phrase
 
