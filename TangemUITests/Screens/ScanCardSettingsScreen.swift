@@ -24,7 +24,7 @@ final class ScanCardSettingsScreen: ScreenBase<ScanCardSettingsScreenElement> {
     func scanMockWallet(name: CardMockAccessibilityIdentifiers) -> DeviceSettingsScreen {
         XCTContext.runActivity(named: "Scan Mock Wallet: \(name)") { _ in
             scanCardButton.waitAndTap()
-            let walletButton = app.buttons[name.rawValue]
+            let walletButton = app.buttons[name.rawValue].firstMatch
             if !walletButton.isHittable {
                 app.swipeUp()
             }
