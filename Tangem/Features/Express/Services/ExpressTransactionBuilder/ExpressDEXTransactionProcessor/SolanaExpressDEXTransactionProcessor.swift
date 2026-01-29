@@ -20,7 +20,8 @@ extension SolanaExpressDEXTransactionProcessor: ExpressDEXTransactionProcessor {
         assert(data.transactionType == .swap, "Support only .swap transactions")
 
         let transaction = try await buildRawCompiledTransaction(data: data, fee: fee)
-        return try await transactionDispatcher.send(transaction: .express(.compiled(transaction)))
+        fatalError()
+        // return try await transactionDispatcher.send(transaction: .express(.compiled(transaction)))
     }
 }
 

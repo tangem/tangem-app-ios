@@ -22,7 +22,8 @@ extension EVMExpressDEXTransactionProcessor: ExpressDEXTransactionProcessor {
         assert(data.transactionType == .swap, "Support only .swap transactions")
 
         let transaction = try await buildTransaction(data: data, fee: fee)
-        return try await transactionDispatcher.send(transaction: .express(.default(transaction)))
+        fatalError()
+        // return try await transactionDispatcher.send(transaction: .express(.default(transaction)))
     }
 }
 

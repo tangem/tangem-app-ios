@@ -548,7 +548,7 @@
 		2D72D9992EF56142008868DE /* MarketsListErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D72D9962EF56142008868DE /* MarketsListErrorView.swift */; };
 		2D7C45DB2DF2F2E300F0C2A7 /* TransactionPushActionURLHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D7C45DA2DF2F2E300F0C2A7 /* TransactionPushActionURLHelper.swift */; };
 		2D7D6CAF2E93A5EF009927FE /* BlinkAPIResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D7D6CAE2E93A5EF009927FE /* BlinkAPIResolver.swift */; };
-		2D8619BB2E7B06A500F196A2 /* ExpressTransactionDispatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8619BA2E7B06A500F196A2 /* ExpressTransactionDispatcher.swift */; };
+		2D8619BB2E7B06A500F196A2 /* ExpressCEXTransactionDispatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8619BA2E7B06A500F196A2 /* ExpressCEXTransactionDispatcher.swift */; };
 		2D8B960B2ED739FD00AA79AF /* MarketTokenItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8B960A2ED739FD00AA79AF /* MarketTokenItemView.swift */; };
 		2D8B960D2ED73A2400AA79AF /* MarketTokenItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8B960C2ED73A2400AA79AF /* MarketTokenItemViewModel.swift */; };
 		2D8D5EA42D5F2FA1005AECC9 /* AlephiumAPIResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8D5EA32D5F2FA1005AECC9 /* AlephiumAPIResolver.swift */; };
@@ -4467,6 +4467,8 @@
 		EFB6FF162E4F20930036731A /* SendSummaryTitleProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB6FF152E4F20930036731A /* SendSummaryTitleProvider.swift */; };
 		EFB7521B2C985F1100CB614C /* CommonFeeIncludedCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB7521A2C985F1100CB614C /* CommonFeeIncludedCalculator.swift */; };
 		EFB7521D2C985F2600CB614C /* StakingFeeIncludedCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB7521C2C985F2400CB614C /* StakingFeeIncludedCalculator.swift */; };
+		EFB7F4452F2B7FF200325D69 /* ExpressDEXTransactionDispatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB7F4442F2B7FF200325D69 /* ExpressDEXTransactionDispatcher.swift */; };
+		EFB7F4472F2BCC9700325D69 /* ApproveTransactionDispatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB7F4462F2BCC9700325D69 /* ApproveTransactionDispatcher.swift */; };
 		EFB932032C3EAF7900C999E9 /* SendStepType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB932022C3EAF7900C999E9 /* SendStepType.swift */; };
 		EFB9320D2C3EC0C800C999E9 /* StakingTargetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB9320B2C3EC0C700C999E9 /* StakingTargetView.swift */; };
 		EFB932152C3EC18300C999E9 /* StakingTargetsInputOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB9320F2C3EC18300C999E9 /* StakingTargetsInputOutput.swift */; };
@@ -5395,7 +5397,7 @@
 		2D788E822ADD657000E0884B /* WalletSelectorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletSelectorView.swift; sourceTree = "<group>"; };
 		2D7C45DA2DF2F2E300F0C2A7 /* TransactionPushActionURLHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionPushActionURLHelper.swift; sourceTree = "<group>"; };
 		2D7D6CAE2E93A5EF009927FE /* BlinkAPIResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlinkAPIResolver.swift; sourceTree = "<group>"; };
-		2D8619BA2E7B06A500F196A2 /* ExpressTransactionDispatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressTransactionDispatcher.swift; sourceTree = "<group>"; };
+		2D8619BA2E7B06A500F196A2 /* ExpressCEXTransactionDispatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressCEXTransactionDispatcher.swift; sourceTree = "<group>"; };
 		2D8B960A2ED739FD00AA79AF /* MarketTokenItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketTokenItemView.swift; sourceTree = "<group>"; };
 		2D8B960C2ED73A2400AA79AF /* MarketTokenItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketTokenItemViewModel.swift; sourceTree = "<group>"; };
 		2D8D5EA32D5F2FA1005AECC9 /* AlephiumAPIResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlephiumAPIResolver.swift; sourceTree = "<group>"; };
@@ -9283,6 +9285,8 @@
 		EFB6FF152E4F20930036731A /* SendSummaryTitleProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendSummaryTitleProvider.swift; sourceTree = "<group>"; };
 		EFB7521A2C985F1100CB614C /* CommonFeeIncludedCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonFeeIncludedCalculator.swift; sourceTree = "<group>"; };
 		EFB7521C2C985F2400CB614C /* StakingFeeIncludedCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingFeeIncludedCalculator.swift; sourceTree = "<group>"; };
+		EFB7F4442F2B7FF200325D69 /* ExpressDEXTransactionDispatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressDEXTransactionDispatcher.swift; sourceTree = "<group>"; };
+		EFB7F4462F2BCC9700325D69 /* ApproveTransactionDispatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApproveTransactionDispatcher.swift; sourceTree = "<group>"; };
 		EFB932022C3EAF7900C999E9 /* SendStepType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendStepType.swift; sourceTree = "<group>"; };
 		EFB9320B2C3EC0C700C999E9 /* StakingTargetView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakingTargetView.swift; sourceTree = "<group>"; };
 		EFB9320F2C3EC18300C999E9 /* StakingTargetsInputOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakingTargetsInputOutput.swift; sourceTree = "<group>"; };
@@ -25295,7 +25299,9 @@
 			children = (
 				0A0D889A2E82980A00877140 /* YieldModuleTransactionDispatcher.swift */,
 				DC2911B52C623DE300DF53CC /* DemoSendTransactionDispatcher.swift */,
-				2D8619BA2E7B06A500F196A2 /* ExpressTransactionDispatcher.swift */,
+				2D8619BA2E7B06A500F196A2 /* ExpressCEXTransactionDispatcher.swift */,
+				EFB7F4442F2B7FF200325D69 /* ExpressDEXTransactionDispatcher.swift */,
+				EFB7F4462F2BCC9700325D69 /* ApproveTransactionDispatcher.swift */,
 				DC2911B12C623D1E00DF53CC /* SendTransactionDispatcher.swift */,
 				DC2911B32C623D2C00DF53CC /* StakeKitTransactionDispatcher.swift */,
 				0ABBB2D52ECDFDA70082BC76 /* P2PTransactionDispatcher.swift */,
@@ -27067,7 +27073,7 @@
 				B69F0EDB2DD3992400997631 /* StakingAmountModifier.swift in Sources */,
 				5D84DBED270E26B90013A813 /* WelcomeBackgroundView.swift in Sources */,
 				EF8E9AAF2ECE7BD700FFA134 /* ExpressInteractorTokenHeader.swift in Sources */,
-				2D8619BB2E7B06A500F196A2 /* ExpressTransactionDispatcher.swift in Sources */,
+				2D8619BB2E7B06A500F196A2 /* ExpressCEXTransactionDispatcher.swift in Sources */,
 				EFF8F1BE2E844CEA00A5EF0C /* StakingFlowFactory.swift in Sources */,
 				EFA4E3792C3EEB33008815AD /* StakingTargetsStep.swift in Sources */,
 				EF5B751E2EBEB59E0045CF03 /* UnstakingTokenHeaderProvider.swift in Sources */,
@@ -28204,6 +28210,7 @@
 				5DBAFD1E27E2471D0008B882 /* CoinModel.swift in Sources */,
 				3027D33D2E82DE89001E15FB /* AccountDetailsViewModel.swift in Sources */,
 				2D1BB3A22C08AC3A008392F7 /* DummyMarketTokenModelFactory.swift in Sources */,
+				EFB7F4452F2B7FF200325D69 /* ExpressDEXTransactionDispatcher.swift in Sources */,
 				EF991A362F146486006F93CB /* TokenFeeProviderState.swift in Sources */,
 				B600F4E02C50F7D8008E53FE /* LineChartViewData.swift in Sources */,
 				EF5769422A8BAFF000901571 /* TransactionHistoryFactoryProvider.swift in Sources */,
@@ -28478,6 +28485,7 @@
 				B643EBBF2E9BF38F00DBBFE3 /* NewCryptoAccountConditionsValidator.swift in Sources */,
 				DC74BC2F28EF060600B49850 /* UserWalletId.swift in Sources */,
 				DC8F7BDB2E0C9C2400B3F5DB /* WCApprovalHelpers.swift in Sources */,
+				EFB7F4472F2BCC9700325D69 /* ApproveTransactionDispatcher.swift in Sources */,
 				DC8F7BDC2E0C9C2400B3F5DB /* WCApprovalAnalyzer.swift in Sources */,
 				EF4BEF8128AB953E00C5D1BE /* CommonUserTokenListManager.swift in Sources */,
 				2DC5DAAD29B782420039154A /* TonCenterApiKeys.swift in Sources */,

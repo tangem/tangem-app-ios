@@ -17,8 +17,14 @@ struct TangemPayExpressCEXTransactionProcessor {
 
 // MARK: - ExpressCEXTransactionProcessor
 
-extension TangemPayExpressCEXTransactionProcessor: ExpressCEXTransactionProcessor {
-    func process(data: ExpressTransactionData, fee: BSDKFee) async throws -> TransactionDispatcherResult {
+extension TangemPayExpressCEXTransactionProcessor: TransactionDispatcher {
+    var hasNFCInteraction: Bool { true }
+
+    func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult {
+        guard case .cex(let data, _) = transaction else {
+            throw TransactionDispatcherResult.Error.transactionNotFound
+        }
+
         guard let walletPublicKey else {
             throw Error.walletPublicKeyNotFound
         }

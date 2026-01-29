@@ -33,7 +33,9 @@ struct CommonExpressApproveTransactionProcessor {
 extension CommonExpressApproveTransactionProcessor: ExpressApproveTransactionProcessor {
     func process(data: ApproveTransactionData) async throws -> TransactionDispatcherResult {
         let transaction = try await buildTransaction(data: data)
-        return try await transactionDispatcher.send(transaction: .express(.default(transaction)))
+        fatalError()
+
+        // return try await transactionDispatcher.send(transaction: .express(.default(transaction)))
     }
 }
 

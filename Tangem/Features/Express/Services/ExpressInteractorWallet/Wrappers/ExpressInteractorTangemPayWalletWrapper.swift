@@ -33,7 +33,7 @@ struct ExpressInteractorTangemPayWalletWrapper: ExpressInteractorTangemPayWallet
     let withdrawalNotificationProvider: (any WithdrawalNotificationProvider)? = nil
     let interactorAnalyticsLogger: any ExpressInteractorAnalyticsLogger
 
-    private let _cexTransactionProcessor: any ExpressCEXTransactionProcessor
+    private let _cexTransactionDispatcher: any TransactionDispatcher
     private var _balanceProvider: any ExpressBalanceProvider
     private var _feeProvider: any ExpressFeeProvider
 
@@ -42,7 +42,7 @@ struct ExpressInteractorTangemPayWalletWrapper: ExpressInteractorTangemPayWallet
         feeTokenItem: TokenItem,
         defaultAddressString: String,
         availableBalanceProvider: any TokenBalanceProvider,
-        cexTransactionProcessor: any ExpressCEXTransactionProcessor,
+        cexTransactionDispatcher: any TransactionDispatcher,
         transactionValidator: any ExpressTransactionValidator
     ) {
         id = .init(tokenItem: tokenItem)
@@ -59,7 +59,7 @@ struct ExpressInteractorTangemPayWalletWrapper: ExpressInteractorTangemPayWallet
         )
 
         expressTokenFeeProvidersManager = TangemPayExpressTokenFeeProvidersManager(tokenItem: tokenItem)
-        _cexTransactionProcessor = cexTransactionProcessor
+        _cexTransactionDispatcher = cexTransactionDispatcher
 
         _balanceProvider = TangemPayExpressBalanceProvider(
             availableBalanceProvider: availableBalanceProvider,
@@ -72,12 +72,16 @@ struct ExpressInteractorTangemPayWalletWrapper: ExpressInteractorTangemPayWallet
 }
 
 extension ExpressInteractorTangemPayWalletWrapper {
-    func cexTransactionProcessor() throws -> any ExpressCEXTransactionProcessor {
-        _cexTransactionProcessor
+    func cexTransactionDispatcher() throws -> any TransactionDispatcher {
+        _cexTransactionDispatcher
     }
 
-    func dexTransactionProcessor() throws -> any ExpressDEXTransactionProcessor {
-        throw ExpressTransactionProcessorFactory.Error.dexNotSupported(blockchain: "Visa")
+    func dexTransactionDispatcherr() throws -> any TransactionDispatcher {
+        throw ExpressTransactionProcessorFactory.Error.dexNotSupported(blockchain: "TangemPay")
+    }
+
+    func approveTransactionDispatcher() throws -> any TransactionDispatcher {
+        throw ExpressTransactionProcessorFactory.Error.dexNotSupported(blockchain: "TangemPay")
     }
 }
 

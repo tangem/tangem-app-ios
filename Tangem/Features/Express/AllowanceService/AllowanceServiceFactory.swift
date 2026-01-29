@@ -10,7 +10,7 @@ import BlockchainSdk
 
 struct AllowanceServiceFactory {
     let walletModel: any WalletModel
-    let transactionDispatcher: any TransactionDispatcher
+    let approveTransactionDispatcher: any TransactionDispatcher
 
     func makeAllowanceService() -> (any AllowanceService)? {
         let tokenItem = walletModel.tokenItem
@@ -30,12 +30,12 @@ struct AllowanceServiceFactory {
 
         let approveTransactionProcessor = ExpressTransactionProcessorFactory(
             walletModel: walletModel,
-            transactionDispatcher: transactionDispatcher,
+            transactionDispatcher: approveTransactionDispatcher,
         ).makeExpressApproveTransactionProcessor()
 
         return CommonAllowanceService(
             allowanceChecker: allowanceChecker,
-            approveTransactionProcessor: approveTransactionProcessor
+            approveTransactionDispatcher: approveTransactionDispatcher
         )
     }
 }

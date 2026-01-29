@@ -50,7 +50,7 @@ extension YieldModuleTransactionDispatcher: TransactionDispatcher {
     func send(transactions: [TransactionDispatcherTransactionType]) async throws -> [TransactionDispatcherResult] {
         let transferTransactions = transactions.compactMap { transactionType -> BSDKTransaction? in
             switch transactionType {
-            case .staking, .express: return nil
+            case .staking, .dex, .cex, .approve: return nil
             case .transfer(let transaction): return transaction
             }
         }

@@ -28,8 +28,9 @@ protocol ExpressInteractorSourceWallet: ExpressInteractorDestinationWallet, Expr
     var withdrawalNotificationProvider: (any WithdrawalNotificationProvider)? { get }
     var interactorAnalyticsLogger: any ExpressInteractorAnalyticsLogger { get }
 
-    func dexTransactionProcessor() throws -> ExpressDEXTransactionProcessor
-    func cexTransactionProcessor() throws -> ExpressCEXTransactionProcessor
+    func approveTransactionDispatcher() throws -> TransactionDispatcher
+    func dexTransactionDispatcherr() throws -> TransactionDispatcher
+    func cexTransactionDispatcher() throws -> TransactionDispatcher
 }
 
 // MARK: ExpressSourceWallet + ExpressInteractorSourceWallet

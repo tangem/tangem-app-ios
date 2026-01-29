@@ -30,7 +30,7 @@ struct ExpressInteractorWalletModelWrapper {
     private let expressOperationType: ExpressOperationType
 
     private let transactionProcessorFactory: ExpressTransactionProcessorFactory
-    private let allowanceServiceFactory: AllowanceServiceFactory
+    private let transactionDispatcherFactory: TransactionDispatcherFactory
 
     private let _allowanceService: (any AllowanceService)?
     private let _balanceProvider: any ExpressBalanceProvider
@@ -65,22 +65,21 @@ struct ExpressInteractorWalletModelWrapper {
             feeAnalyticsParameterBuilder: .init(isFixedFee: !walletModel.shouldShowFeeSelector)
         )
 
-        let transactionDispatcher = TransactionDispatcherFactory(
+        transactionDispatcherFactory = TransactionDispatcherFactory(
             walletModel: walletModel,
             signer: userWalletInfo.signer
-        ).makeExpressDispatcher()
-
-        allowanceServiceFactory = AllowanceServiceFactory(
-            walletModel: walletModel,
-            transactionDispatcher: transactionDispatcher,
         )
+
+        let allowanceServiceFactory = AllowanceServiceFactory(
+            walletModel: walletModel,
+            approveTransactionDispatcher: transactionDispatcherFactory.makeApproveDispatcher(),
+        )
+        _allowanceService = allowanceServiceFactory.makeAllowanceService()
 
         transactionProcessorFactory = ExpressTransactionProcessorFactory(
             walletModel: walletModel,
-            transactionDispatcher: transactionDispatcher,
+            transactionDispatcher: transactionDispatcherFactory.makeCEXExpressDispatcher(),
         )
-
-        _allowanceService = allowanceServiceFactory.makeAllowanceService()
 
         _balanceProvider = CommonExpressBalanceProvider(
             availableBalanceProvider: walletModel.availableBalanceProvider,
@@ -133,12 +132,16 @@ extension ExpressInteractorWalletModelWrapper: ExpressInteractorSourceWallet {
 
     var allowanceService: (any AllowanceService)? { _allowanceService }
 
-    func cexTransactionProcessor() throws -> any ExpressCEXTransactionProcessor {
-        return try transactionProcessorFactory.makeCEXTransactionProcessor()
+    func cexTransactionDispatcher() throws -> any TransactionDispatcher {
+        transactionDispatcherFactory.makeCEXExpressDispatcher()
     }
 
-    func dexTransactionProcessor() throws -> any ExpressDEXTransactionProcessor {
-        return try transactionProcessorFactory.makeDEXTransactionProcessor()
+    func dexTransactionDispatcherr() throws -> any TransactionDispatcher {
+        transactionDispatcherFactory.makeDEXExpressDispatcher()
+    }
+
+    func approveTransactionDispatcher() throws -> any TransactionDispatcher {
+        transactionDispatcherFactory.makeApproveDispatcher()
     }
 }
 

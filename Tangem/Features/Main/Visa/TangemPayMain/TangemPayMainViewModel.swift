@@ -359,7 +359,7 @@ private extension TangemPayMainViewModel {
             feeTokenItem: TangemPayUtilities.usdcTokenItem,
             defaultAddressString: depositAddress,
             availableBalanceProvider: tangemPayAccount.balancesProvider.availableBalanceProvider,
-            cexTransactionProcessor: tangemPayAccount.expressCEXTransactionProcessor,
+            cexTransactionDispatcher: tangemPayAccount.expressCEXTransactionDispatcher,
             transactionValidator: TangemPayExpressTransactionValidator(
                 availableBalanceProvider: tangemPayAccount.balancesProvider.availableBalanceProvider,
             )

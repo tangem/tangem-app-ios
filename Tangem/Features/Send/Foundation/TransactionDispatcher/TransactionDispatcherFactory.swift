@@ -32,12 +32,36 @@ struct TransactionDispatcherFactory {
         )
     }
 
-    func makeExpressDispatcher() -> TransactionDispatcher {
+    func makeDEXExpressDispatcher() -> TransactionDispatcher {
         if walletModel.isDemo {
             return DemoSendTransactionDispatcher(walletModel: walletModel, transactionSigner: signer)
         }
 
-        return ExpressTransactionDispatcher(
+        return ExpressDEXTransactionDispatcher(
+            walletModel: walletModel,
+            transactionSigner: signer,
+            sendTransactionDispatcher: makeSendDispatcher()
+        )
+    }
+
+    func makeCEXExpressDispatcher() -> TransactionDispatcher {
+        if walletModel.isDemo {
+            return DemoSendTransactionDispatcher(walletModel: walletModel, transactionSigner: signer)
+        }
+
+        return ExpressCEXTransactionDispatcher(
+            walletModel: walletModel,
+            transactionSigner: signer,
+            sendTransactionDispatcher: makeSendDispatcher()
+        )
+    }
+
+    func makeApproveDispatcher() -> TransactionDispatcher {
+        if walletModel.isDemo {
+            return DemoSendTransactionDispatcher(walletModel: walletModel, transactionSigner: signer)
+        }
+
+        return ApproveTransactionDispatcher(
             walletModel: walletModel,
             transactionSigner: signer,
             sendTransactionDispatcher: makeSendDispatcher()

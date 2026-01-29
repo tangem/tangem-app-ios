@@ -31,7 +31,8 @@ extension CommonExpressCEXTransactionProcessor: ExpressCEXTransactionProcessor {
     func process(data: ExpressTransactionData, fee: BSDKFee) async throws -> TransactionDispatcherResult {
         assert(data.transactionType == .send, "Support only .send transactions")
         let transaction = try await buildTransaction(data: data, fee: fee)
-        return try await transactionDispatcher.send(transaction: .express(.default(transaction)))
+        fatalError()
+        // return try await transactionDispatcher.send(transaction: .express(.default(transaction)))
     }
 }
 
@@ -50,12 +51,8 @@ private extension CommonExpressCEXTransactionProcessor {
         }()
 
         let amount = Amount(with: tokenItem.blockchain, type: tokenItem.amountType, value: data.txValue)
-        let transaction = try await transactionCreator.createTransaction(
-            amount: amount,
-            fee: fee,
-            destinationAddress: data.destinationAddress,
-            params: transactionParams
-        )
+        let transaction = try await transactionCreator
+            .createTransaction(amount: amount, fee: fee, destinationAddress: data.destinationAddress, params: transactionParams)
 
         return transaction
     }
