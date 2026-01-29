@@ -7,7 +7,9 @@
 //
 
 import SwiftUI
+import TangemUI
 import TangemUIUtils
+import TangemAssets
 
 struct EarnDetailCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: EarnCoordinator
@@ -17,6 +19,14 @@ struct EarnDetailCoordinatorView: CoordinatorView {
             if let viewModel = coordinator.rootViewModel {
                 EarnDetailView(viewModel: viewModel)
             }
+
+            NavHolder()
+                .bottomSheet(
+                    item: $coordinator.filterBottomSheetViewModel,
+                    backgroundColor: Colors.Background.tertiary
+                ) {
+                    EarnFilterBottomSheetView(viewModel: $0)
+                }
         }
         .bindAlert($coordinator.error)
     }
