@@ -1,0 +1,28 @@
+//
+//  EarnFilterBottomSheetView.swift
+//  Tangem
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2026 Tangem AG. All rights reserved.
+//
+
+import SwiftUI
+import TangemAssets
+import TangemUI
+
+struct EarnFilterBottomSheetView: View {
+    @ObservedObject var viewModel: EarnFilterBottomSheetViewModel
+
+    var body: some View {
+        VStack(spacing: .zero) {
+            BottomSheetHeaderView(title: viewModel.title)
+
+            GroupedSection(viewModel.listOptionViewModel) {
+                DefaultSelectableRowView(data: $0, selection: $viewModel.currentSelection)
+            }
+            .settings(\.backgroundColor, Colors.Background.action)
+        }
+        .padding(.horizontal, 16)
+        .padding(.bottom, 10)
+    }
+}
