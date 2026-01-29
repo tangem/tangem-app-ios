@@ -41,6 +41,7 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     @Published var yieldModuleActiveCoordinator: YieldModuleActiveCoordinator? = nil
     @Published var tokenDetailsCoordinator: TokenDetailsCoordinator? = nil
     @Published var newsPagerViewModel: NewsPagerViewModel? = nil
+    @Published var newsRelatedTokenDetailsPath: [MarketsTokenDetailsCoordinator] = []
 
     private var safariHandle: SafariHandle?
     private let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
@@ -428,6 +429,18 @@ extension MarketsTokenDetailsCoordinator: NewsDetailsRoutable {
     }
 
     func openTokenDetails(_ token: MarketsTokenModel) {
-        // Token details is already shown, no need to navigate
+        weak var weakCoordinator: MarketsTokenDetailsCoordinator?
+
+        let coordinator = MarketsTokenDetailsCoordinator(
+            dismissAction: { [weak self] in
+                guard let coordinator = weakCoordinator else { return }
+                self?.newsRelatedTokenDetailsPath.removeAll { $0 === coordinator }
+            },
+            popToRootAction: popToRootAction
+        )
+
+        weakCoordinator = coordinator
+        coordinator.start(with: .init(info: token, style: .marketsSheet))
+        newsRelatedTokenDetailsPath.append(coordinator)
     }
 }
