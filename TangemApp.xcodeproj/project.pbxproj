@@ -811,7 +811,6 @@
 		2DE2A3B52F2A2BC30097CA73 /* EarnWidgetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE2A3AC2F2A2BC30097CA73 /* EarnWidgetViewModel.swift */; };
 		2DE2A3B62F2A2BC30097CA73 /* CommonMarketsWidgetEarnService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE2A3A32F2A2BC30097CA73 /* CommonMarketsWidgetEarnService.swift */; };
 		2DE2A3B82F2A2D5A0097CA73 /* earnTokens.json in Resources */ = {isa = PBXBuildFile; fileRef = 2DE2A3B72F2A2D5A0097CA73 /* earnTokens.json */; };
-		2DE2A3BB2F2A2D690097CA73 /* MockMarketsWidgetEarnService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE2A3B92F2A2D690097CA73 /* MockMarketsWidgetEarnService.swift */; };
 		2DE2A4DB2F2A3F420097CA73 /* EarnDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE2A4D92F2A3F420097CA73 /* EarnDataProvider.swift */; };
 		2DE2A4DC2F2A3F420097CA73 /* EarnDetailHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE2A4D12F2A3F420097CA73 /* EarnDetailHeaderView.swift */; };
 		2DE2A4DD2F2A3F420097CA73 /* EarnMostlyUsedTileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE2A4D32F2A3F420097CA73 /* EarnMostlyUsedTileView.swift */; };
@@ -5663,7 +5662,6 @@
 		2DE2A3AB2F2A2BC30097CA73 /* EarnWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnWidgetView.swift; sourceTree = "<group>"; };
 		2DE2A3AC2F2A2BC30097CA73 /* EarnWidgetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnWidgetViewModel.swift; sourceTree = "<group>"; };
 		2DE2A3B72F2A2D5A0097CA73 /* earnTokens.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = earnTokens.json; sourceTree = "<group>"; };
-		2DE2A3B92F2A2D690097CA73 /* MockMarketsWidgetEarnService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockMarketsWidgetEarnService.swift; sourceTree = "<group>"; };
 		2DE2A4CC2F2A3F420097CA73 /* EarnCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnCoordinator.swift; sourceTree = "<group>"; };
 		2DE2A4CD2F2A3F420097CA73 /* EarnDetailCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnDetailCoordinatorView.swift; sourceTree = "<group>"; };
 		2DE2A4CE2F2A3F420097CA73 /* EarnDetailRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnDetailRoutable.swift; sourceTree = "<group>"; };
@@ -11999,14 +11997,6 @@
 				2DE2A3AD2F2A2BC30097CA73 /* UI */,
 			);
 			path = EarnWidget;
-			sourceTree = "<group>";
-		};
-		2DE2A3BA2F2A2D690097CA73 /* Earn */ = {
-			isa = PBXGroup;
-			children = (
-				2DE2A3B92F2A2D690097CA73 /* MockMarketsWidgetEarnService.swift */,
-			);
-			path = Earn;
 			sourceTree = "<group>";
 		};
 		2DE2A4CF2F2A3F420097CA73 /* Coordinator */ = {
@@ -24174,7 +24164,6 @@
 				B0DCD02729DFF03A00C36C84 /* Card */,
 				EFA6B04A2955A3930090A92F /* Common */,
 				2D1BB3A02C08AC29008392F7 /* Dummy */,
-				2DE2A3BA2F2A2D690097CA73 /* Earn */,
 				EF9E2A4C2B56A53100418559 /* Express */,
 				B0B335DA29FA945300E2082E /* ForComponents */,
 				2D91AD7F2EFEBD7C0022503F /* News */,
@@ -29094,7 +29083,6 @@
 				2D245E612E97EB56006AD2DC /* MarketsTokenDetailsPricePerformanceViewModel.swift in Sources */,
 				2D245E622E97EB56006AD2DC /* MarketsTokenDetailsDateHelper.swift in Sources */,
 				2D245E632E97EB56006AD2DC /* MarketsHistoryChartViewModel.swift in Sources */,
-				2DE2A3BB2F2A2D690097CA73 /* MockMarketsWidgetEarnService.swift in Sources */,
 				0A0551D62F273814005B70D2 /* SendReceiveTokenWalletDataProvider.swift in Sources */,
 				2D245E642E97EB56006AD2DC /* MarketsTokenDetailsChipsContainer.swift in Sources */,
 				2D245E652E97EB56006AD2DC /* ScrollViewOffsetHandler+MarketsTokenDetails.swift in Sources */,
