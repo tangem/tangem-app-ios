@@ -84,31 +84,29 @@ final class TangemPayAccount {
     }
 
     func loadCustomerInfo() async {
-        runTask { [self] in
-            do throws(TangemPayAPIServiceError) {
-                let customerInfo = try await customerService.loadCustomerInfo()
-                guard let productInstance = customerInfo.productInstance else {
-                    // [REDACTED_TODO_COMMENT]
-                    VisaLogger.info("Product instance was unexpectedly nil")
-                    return
-                }
-
-                customerInfoSubject.send((customerInfo, productInstance))
-
-                if productInstance.status == .active {
-                    await loadBalance()
-                }
-            } catch {
-                switch error {
-                case .unauthorized:
-                    // [REDACTED_TODO_COMMENT]
-                    break
-                case .moyaError, .apiError, .decodingError:
-                    // [REDACTED_TODO_COMMENT]
-                    break
-                }
-                VisaLogger.error("Failed to load customer info", error: error)
+        do throws(TangemPayAPIServiceError) {
+            let customerInfo = try await customerService.loadCustomerInfo()
+            guard let productInstance = customerInfo.productInstance else {
+                // [REDACTED_TODO_COMMENT]
+                VisaLogger.info("Product instance was unexpectedly nil")
+                return
             }
+
+            customerInfoSubject.send((customerInfo, productInstance))
+
+            if productInstance.status == .active {
+                await loadBalance()
+            }
+        } catch {
+            switch error {
+            case .unauthorized:
+                // [REDACTED_TODO_COMMENT]
+                break
+            case .moyaError, .apiError, .decodingError:
+                // [REDACTED_TODO_COMMENT]
+                break
+            }
+            VisaLogger.error("Failed to load customer info", error: error)
         }
     }
 
