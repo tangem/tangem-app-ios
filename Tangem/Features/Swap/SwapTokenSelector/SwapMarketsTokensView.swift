@@ -1,5 +1,5 @@
 //
-//  ExpressExternalTokensSection.swift
+//  SwapMarketsTokensView.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,8 +10,8 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 
-struct ExpressExternalTokensSection: View {
-    @ObservedObject var viewModel: ExpressExternalSearchViewModel
+struct SwapMarketsTokensView: View {
+    @ObservedObject var viewModel: SwapMarketsTokensViewModel
 
     @Environment(\.mainWindowSize) private var mainWindowSize
 
@@ -88,7 +88,7 @@ struct ExpressExternalTokensSection: View {
 
 // MARK: - Constants
 
-extension ExpressExternalTokensSection {
+extension SwapMarketsTokensView {
     enum Constants {
         static let headerHorizontalPadding: CGFloat = 8
         static let headerTopPadding: CGFloat = 8
