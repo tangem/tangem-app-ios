@@ -51,6 +51,12 @@ struct EarnBestOpportunitiesListView: View {
             retryButtonAction: retryAction
         )
         .infinityFrame(axis: .horizontal, alignment: .center)
+        .frame(maxHeight: Layout.defaultMaxHeight)
+        .defaultRoundedBackground(
+            with: Colors.Background.action,
+            verticalPadding: Layout.verticalPadding,
+            horizontalPadding: Layout.horizontalPadding
+        )
         .padding(.horizontal, Layout.horizontalPadding)
     }
 }
@@ -59,5 +65,7 @@ private extension EarnBestOpportunitiesListView {
     enum Layout {
         static let itemSpacing: CGFloat = .zero
         static let horizontalPadding: CGFloat = 16.0
+        static let verticalPadding: CGFloat = 34
+        static let defaultMaxHeight: CGFloat = 130
     }
 }
