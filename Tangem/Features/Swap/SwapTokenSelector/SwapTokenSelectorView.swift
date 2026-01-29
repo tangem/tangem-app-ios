@@ -19,7 +19,7 @@ struct SwapTokenSelectorView: View {
             AccountsAwareTokenSelectorView(
                 viewModel: viewModel.tokenSelectorViewModel,
                 emptyContentView: {
-                    EmptyView()
+                    AccountsAwareTokenSelectorEmptyContentView(message: Localization.expressTokenListEmptySearch)
                 },
                 additionalContent: {
                     if let externalSearchViewModel = viewModel.externalSearchViewModel {

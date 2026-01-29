@@ -41,19 +41,15 @@ struct ExpressExternalTokensSection: View {
         VStack(alignment: .leading, spacing: 0) {
             sectionHeader(title: title, showCount: showCount, count: tokens.count)
 
-            if isLoading {
-                loadingSkeletons
-                    .background(Colors.Background.action)
-                    .cornerRadiusContinuous(Constants.cornerRadius)
-            } else {
-                VStack(spacing: 0) {
-                    ForEach(tokens) { item in
-                        MarketTokenItemView(viewModel: item, cellWidth: mainWindowSize.width)
-                    }
+            Group {
+                if isLoading {
+                    loadingSkeletons
+                } else {
+                    loadedTokens(tokens)
                 }
-                .background(Colors.Background.action)
-                .cornerRadiusContinuous(Constants.cornerRadius)
             }
+            .background(Colors.Background.action)
+            .cornerRadiusContinuous(Constants.cornerRadius)
         }
     }
 
@@ -68,9 +64,17 @@ struct ExpressExternalTokensSection: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, Constants.horizontalPadding)
+        .padding(.horizontal, Constants.headerHorizontalPadding)
         .padding(.top, Constants.headerTopPadding)
         .padding(.bottom, Constants.headerBottomPadding)
+    }
+
+    private func loadedTokens(_ tokens: [MarketTokenItemViewModel]) -> some View {
+        VStack(spacing: 0) {
+            ForEach(tokens) { item in
+                MarketTokenItemView(viewModel: item, cellWidth: mainWindowSize.width)
+            }
+        }
     }
 
     private var loadingSkeletons: some View {
@@ -86,9 +90,9 @@ struct ExpressExternalTokensSection: View {
 
 extension ExpressExternalTokensSection {
     enum Constants {
-        static let horizontalPadding: CGFloat = 16
-        static let headerTopPadding: CGFloat = 14
-        static let headerBottomPadding: CGFloat = 10
+        static let headerHorizontalPadding: CGFloat = 8
+        static let headerTopPadding: CGFloat = 8
+        static let headerBottomPadding: CGFloat = 14
         static let titleCountSpacing: CGFloat = 8
         static let cornerRadius: CGFloat = 14
         static let skeletonItemsCount: Int = 7
