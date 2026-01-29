@@ -544,34 +544,30 @@ extension EthereumWalletManager: GaslessTransactionFeeProvider {
             throw BlockchainSdkError.failedToGetFee
         }
 
-        let maximumFeePerGas = params.maxFeePerGas
+        let originalMaxFeePerGas = params.maxFeePerGas
         let originalGasLimit = params.gasLimit
 
-        // 5) Combine gas limits and add BASE_GAS buffer (100_000)
+        // 5) Combine gas limits and add BASE_GAS buffer (60_000)
         let newGasLimit = originalGasLimit + feeTransferGasLimitBuffered + EthereumFeeParametersConstants.gaslessBaseGasBuffer
 
-        // 6) Calculate maximum fee per gas (gasLimit * 2 * maxFeePerGas)
-        let doubledMaxFeePerGas = maximumFeePerGas * EthereumFeeParametersConstants.gaslessMaxFeePerGasMultiplier
-
-        // 7) Create updated fee params and compute fee amount
+        // 6) Create updated fee params
         let newParams = EthereumGaslessTransactionFeeParameters(
             gasLimit: newGasLimit,
-            maxFeePerGas: doubledMaxFeePerGas,
+            maxFeePerGas: originalMaxFeePerGas,
             priorityFee: params.priorityFee,
             nativeToFeeTokenRate: nativeToFeeTokenRate,
             feeTokenTransferGasLimit: feeTransferGasLimitBuffered
         )
 
-        // 8) IMPORTANT: The fee is calculated in TOKEN using the provided nativeToFeeTokenRate
+        // 7) Compute the fee amount.
+        // IMPORTANT: The fee is calculated in the token using the provided nativeToFeeTokenRate,
+        // buffered by +1% (buffering is done by calculateFee).
         var fee = newParams.calculateFee(decimalValue: wallet.blockchain.decimalValue)
 
-        // 9) Add markup of 1%
-        fee *= Decimal(1.01)
-
-        // 10)
+        // 8) Round the fee to the fee token's decimal precision
         fee = fee.rounded(scale: feeToken.decimalCount)
 
-        // 11) Return Fee with updated params and computed amount
+        // 9) Return Fee with updated params and computed amount
         return Fee(.init(with: feeToken, value: fee), parameters: newParams)
     }
 }
