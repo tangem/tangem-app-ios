@@ -1,5 +1,5 @@
 //
-//  ExpressAddTokenFlowConfigurationFactory.swift
+//  SwapAddMarketsTokenFlowConfigurationFactory.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import Foundation
 import BlockchainSdk
 import TangemAccounts
 
-enum ExpressAddTokenFlowConfigurationFactory {
+enum SwapAddMarketsTokenFlowConfigurationFactory {
     static func make(
         coinId: String,
         coinName: String,
