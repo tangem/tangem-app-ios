@@ -22,11 +22,18 @@ final class CommonMarketsWidgetNewsService: MarketsWidgetNewsProvider {
 
     private let newsResultValueSubject: CurrentValueSubject<LoadingResult<[TrendingNewsModel], Error>, Never> = .init(.loading)
 
+    /// Cached original API response items used to preserve API order when rebuilding models with updated read status
+    private var cachedResponseItems: [NewsDTO.List.Item] = []
+
     private lazy var mapper: NewsModelMapper = .init(readStatusProvider: readStatusProvider)
 
-    init() {}
+    private var bag = Set<AnyCancellable>()
 
     private var updateTask: AnyCancellable?
+
+    init() {
+        bindReadStatusUpdates()
+    }
 
     deinit {
         updateTask?.cancel()
@@ -56,9 +63,11 @@ extension CommonMarketsWidgetNewsService {
                     lang: Locale.newsLanguageCode
                 )
 
+                service.cachedResponseItems = response.items
+
                 let result = response.items.map { service.mapper.mapToNewsModel(from: $0) }
 
-                service.newsResultValueSubject.send(.success(result))
+                service.newsResultValueSubject.send(.success(result.sortedByReadStatus()))
             } catch {
                 if error.isCancellationError {
                     return
@@ -67,6 +76,24 @@ extension CommonMarketsWidgetNewsService {
                 service.newsResultValueSubject.send(.failure(error))
             }
         }.eraseToAnyCancellable()
+    }
+
+    func bindReadStatusUpdates() {
+        readStatusProvider
+            .readStatusChangedPublisher
+            .withWeakCaptureOf(self)
+            .sink { service, _ in
+                service.handleReadStatusDidChange()
+            }
+            .store(in: &bag)
+    }
+
+    func handleReadStatusDidChange() {
+        guard case .success = newsResultValueSubject.value, !cachedResponseItems.isEmpty else { return }
+
+        let updatedModels = cachedResponseItems.map { mapper.mapToNewsModel(from: $0) }
+
+        newsResultValueSubject.value = .success(updatedModels.sortedByReadStatus())
     }
 }
 
