@@ -39,7 +39,10 @@ struct TangemPayDefaultHeadersPlugin: PluginType {
     func prepare(_ request: URLRequest, target: TargetType) -> URLRequest {
         var request = request
 
-        request.headers.add(name: "Content-Type", value: "application/json")
+        request.headers.add(
+            name: TangemPayNetworkingConstants.Header.Key.contentType,
+            value: TangemPayNetworkingConstants.Header.Value.applicationJson
+        )
 
         return request
     }
@@ -52,10 +55,16 @@ struct TangemPayAuthorizationPlugin: PluginType {
     func prepare(_ request: URLRequest, target: TargetType) -> URLRequest {
         var request = request
 
-        request.headers.add(name: "X-API-KEY", value: bffStaticToken)
+        request.headers.add(
+            name: TangemPayNetworkingConstants.Header.Key.xApiKey,
+            value: bffStaticToken
+        )
 
         if let authorizationToken = authorizationTokensHandler?.authorizationHeader {
-            request.headers.add(name: "Authorization", value: authorizationToken)
+            request.headers.add(
+                name: TangemPayNetworkingConstants.Header.Key.authorization,
+                value: authorizationToken
+            )
         }
 
         return request
