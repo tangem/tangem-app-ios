@@ -83,13 +83,17 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
 
         if FeatureProvider.isAvailable(.accounts) {
             if let sourceAccount = data.source.accountModelAnalyticsProvider {
-                let builder = PairedAccountAnalyticsBuilder(role: .source)
-                params.merge(sourceAccount.analyticsParameters(with: builder)) { $1 }
+                sourceAccount.enrichAnalyticsParameters(
+                    &params,
+                    using: PairedAccountAnalyticsBuilder(role: .source)
+                )
             }
 
             if let destAccount = data.destination.accountModelAnalyticsProvider {
-                let builder = PairedAccountAnalyticsBuilder(role: .destination)
-                params.merge(destAccount.analyticsParameters(with: builder)) { $1 }
+                destAccount.enrichAnalyticsParameters(
+                    &params,
+                    using: PairedAccountAnalyticsBuilder(role: .destination)
+                )
             }
         }
 

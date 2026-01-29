@@ -22,10 +22,11 @@ struct CommonWalletModelsFactory {
     }
 
     private func isMainCoinCustom(
-        derivationPath: DerivationPath?,
+        blockchainDerivationPath: DerivationPath?,
         targetAccountDerivationPath: DerivationPath?
     ) -> Bool {
-        guard let derivationPath else {
+        guard let blockchainDerivationPath else {
+            // Blockchain can't be custom if its derivation path is absent
             return false
         }
 
@@ -34,7 +35,7 @@ struct CommonWalletModelsFactory {
             return false
         }
 
-        return derivationPath != targetAccountDerivationPath
+        return blockchainDerivationPath != targetAccountDerivationPath
     }
 
     private func makeTransactionHistoryService(tokenItem: TokenItem, addresses: [String]) -> TransactionHistoryService? {
@@ -111,9 +112,8 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
     ) -> [any WalletModel] {
         var models: [any WalletModel] = []
 
-        let currentDerivation = blockchainNetwork.derivationPath
         let isMainCoinCustom = isMainCoinCustom(
-            derivationPath: currentDerivation,
+            blockchainDerivationPath: blockchainNetwork.derivationPath,
             targetAccountDerivationPath: targetAccountDerivationPath
         )
         let sendAvailabilityProvider = TransactionSendAvailabilityProvider(
