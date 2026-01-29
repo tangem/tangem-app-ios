@@ -171,21 +171,31 @@ extension WalletConnectDAppConnectionRequestViewModel {
                 } else {
                     self?.handleLoadedDAppProposalForWallet(dAppProposal)
                 }
-
-            } catch WalletConnectDAppProposalLoadingError.cancelledByUser {
-                logger.info("DApp proposal loading canceled by user.")
             } catch {
-                analyticsLogger.logSessionFailed(with: error)
-                logger.error("Failed to load dApp proposal", error: error)
-                self?.hapticFeedbackGenerator.errorNotificationOccurred()
-                self?.coordinator?.display(proposalLoadingError: error)
+                // Ugly and explicit switch here due to https://github.com/swiftlang/swift/issues/74555 ([REDACTED_INFO])
+                switch error {
+                case .cancelledByUser:
+                    logger.info("DApp proposal loading canceled by user.")
+                case .uriAlreadyUsed,
+                     .pairingFailed,
+                     .invalidDomainURL,
+                     .unsupportedDomain,
+                     .unsupportedBlockchains,
+                     .noBlockchainsProvidedByDApp,
+                     .pairingTimeout:
+                    analyticsLogger.logSessionFailed(with: error)
+                    logger.error("Failed to load dApp proposal", error: error)
+                    self?.hapticFeedbackGenerator.errorNotificationOccurred()
+                    self?.coordinator?.display(proposalLoadingError: error)
+                }
             }
         }
     }
 
     // [REDACTED_TODO_COMMENT]
     private func handleLoadedDAppProposalForWallet(_ dAppProposal: WalletConnectDAppConnectionProposal) {
-        analyticsLogger.logConnectionProposalReceived(dAppProposal)
+        // No account should be passed here. This method will be deleted when migration is complete ([REDACTED_INFO])
+        analyticsLogger.logConnectionProposalReceived(dAppProposal, accountAnalyticsProviding: nil)
 
         let blockchainsAvailabilityResult = interactor.resolveAvailableBlockchains(
             sessionProposal: dAppProposal.sessionProposal,
@@ -203,7 +213,7 @@ extension WalletConnectDAppConnectionRequestViewModel {
     private func handleLoadedDAppProposalForAccount(_ dAppProposal: WalletConnectDAppConnectionProposal) {
         guard let selectedAccount else { return }
 
-        analyticsLogger.logConnectionProposalReceived(dAppProposal)
+        analyticsLogger.logConnectionProposalReceived(dAppProposal, accountAnalyticsProviding: selectedAccount)
 
         let blockchainsAvailabilityResult = interactor.resolveAvailableBlockchains(
             sessionProposal: dAppProposal.sessionProposal,
@@ -230,9 +240,7 @@ extension WalletConnectDAppConnectionRequestViewModel {
             var params: [Analytics.ParameterKey: String] = [
                 .walletConnectDAppName: proposal.dAppData.name,
             ]
-            let builder = SingleAccountAnalyticsBuilderIncludingMain()
-            let accountParams = selectedAccount.analyticsParameters(with: builder)
-            params.merge(accountParams) { $1 }
+            selectedAccount.enrichAnalyticsParameters(&params, using: SingleAccountAnalyticsBuilder())
             Analytics.log(event: .walletConnectButtonConnectWithAccount, params: params)
         }
 
