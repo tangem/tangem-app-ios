@@ -70,7 +70,7 @@ final class RelatedTokensViewModel: ObservableObject {
 
     private func fetchTokensData() async throws -> [MarketsTokenModel] {
         let currencyCode = AppSettings.shared.selectedCurrencyCode
-        let language = Locale.current.language.languageCode?.identifier ?? "en"
+        let language = Locale.newsLanguageCode
 
         // Fetch each token's details to get full data including marketCap
         let indexedResults: [(index: Int, token: MarketsTokenModel)] = await withTaskGroup(of: (Int, MarketsTokenModel?).self) { group in

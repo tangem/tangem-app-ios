@@ -44,11 +44,13 @@ struct NewsListCoordinatorView: CoordinatorView {
     private var pagerBinding: Binding<NewsPagerViewModel?> {
         Binding(
             get: {
-                coordinator.path.first(where: \.isPager)?.pagerValue
+                coordinator.path.last(where: \.isPager)?.pagerValue
             },
             set: { newValue in
                 if newValue == nil {
-                    coordinator.path.removeAll(where: \.isPager)
+                    if let lastIndex = coordinator.path.lastIndex(where: \.isPager) {
+                        coordinator.path.remove(at: lastIndex)
+                    }
                 }
             }
         )
@@ -57,11 +59,13 @@ struct NewsListCoordinatorView: CoordinatorView {
     private var tokenDetailsBinding: Binding<MarketsTokenDetailsCoordinator?> {
         Binding(
             get: {
-                coordinator.path.first(where: \.isTokenDetails)?.tokenDetailsValue
+                coordinator.path.last(where: \.isTokenDetails)?.tokenDetailsValue
             },
             set: { newValue in
                 if newValue == nil {
-                    coordinator.path.removeAll(where: \.isTokenDetails)
+                    if let lastIndex = coordinator.path.lastIndex(where: \.isTokenDetails) {
+                        coordinator.path.remove(at: lastIndex)
+                    }
                 }
             }
         )
