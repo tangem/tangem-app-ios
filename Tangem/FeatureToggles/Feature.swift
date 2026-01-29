@@ -52,7 +52,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .marketsAndNews: return .version("5.33")
         case .marketsEarn: return .unspecified
         case .tangemPayPermanentEntryPoint: return .unspecified
-        case .gaslessTransactions: return .unspecified
+        case .gaslessTransactions: return .version("5.33")
         case .exchangeOnlyWithinSingleAddress: return .unspecified
         case .experimentService: return .unspecified
         case .expressAllTokensSearch: return .unspecified
