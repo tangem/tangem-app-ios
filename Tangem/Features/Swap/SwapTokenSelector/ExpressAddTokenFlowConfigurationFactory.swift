@@ -16,9 +16,9 @@ enum ExpressAddTokenFlowConfigurationFactory {
         coinName: String,
         coinSymbol: String,
         networks: [NetworkModel],
-        onTokenAdded: @escaping (TokenItem, UserWalletInfo, any CryptoAccountModel) -> Void
+        coordinator: SwapTokenSelectorRoutable
     ) -> AccountsAwareAddTokenFlowConfiguration {
-        return AccountsAwareAddTokenFlowConfiguration(
+        AccountsAwareAddTokenFlowConfiguration(
             getAvailableTokenItems: { accountSelectorCell in
                 MarketsTokenItemsProvider.calculateTokenItems(
                     coinId: coinId,
@@ -32,9 +32,23 @@ enum ExpressAddTokenFlowConfigurationFactory {
             isTokenAdded: { tokenItem, account in
                 account.userTokensManager.contains(tokenItem, derivationInsensitive: false)
             },
-            postAddBehavior: .executeAction { tokenItem, accountSelectorCell in
-                let userWalletInfo = accountSelectorCell.userWalletModel.userWalletInfo
-                onTokenAdded(tokenItem, userWalletInfo, accountSelectorCell.cryptoAccountModel)
+            postAddBehavior: .executeAction { [weak coordinator] tokenItem, accountSelectorCell in
+                guard let coordinator else { return }
+
+                let walletModel = accountSelectorCell.cryptoAccountModel.walletModelsManager.walletModels.first {
+                    $0.tokenItem == tokenItem
+                }
+
+                guard let walletModel else {
+                    return
+                }
+
+                let item = AccountsAwareTokenSelectorItem(
+                    userWalletInfo: accountSelectorCell.userWalletModel.userWalletInfo,
+                    account: accountSelectorCell.cryptoAccountModel,
+                    walletModel: walletModel
+                )
+                coordinator.onTokenAdded(item: item)
             },
             accountFilter: { account, supportedBlockchains in
                 let networkIds = networks.map(\.networkId)

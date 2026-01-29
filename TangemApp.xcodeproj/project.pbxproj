@@ -92,7 +92,6 @@
 		0A85A19B2E71662F00ED535D /* YieldTransactionFeeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A85A19A2E71662F00ED535D /* YieldTransactionFeeProvider.swift */; };
 		0A85A1A42E71C12300ED535D /* YieldModuleDTO+MarketInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A85A1A32E71C12300ED535D /* YieldModuleDTO+MarketInfo.swift */; };
 		0A8714202F29FF2100CB87E8 /* ExpressSearchTokensProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A87141F2F29FF2100CB87E8 /* ExpressSearchTokensProvider.swift */; };
-		0A8714222F29FF5C00CB87E8 /* ExpressAddTokenAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A8714212F29FF5C00CB87E8 /* ExpressAddTokenAnalyticsLogger.swift */; };
 		0A8714242F2A201D00CB87E8 /* ExpressExternalSearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A8714232F2A201D00CB87E8 /* ExpressExternalSearchViewModel.swift */; };
 		0A8DD9772E018F1500783A9E /* MobileWalletImageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A8DD9762E018F1500783A9E /* MobileWalletImageProvider.swift */; };
 		0A8E6CE42E697F85004ABC72 /* YieldModuleError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A8E6CE32E697F85004ABC72 /* YieldModuleError.swift */; };
@@ -4936,7 +4935,6 @@
 		0A85A19A2E71662F00ED535D /* YieldTransactionFeeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldTransactionFeeProvider.swift; sourceTree = "<group>"; };
 		0A85A1A32E71C12300ED535D /* YieldModuleDTO+MarketInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "YieldModuleDTO+MarketInfo.swift"; sourceTree = "<group>"; };
 		0A87141F2F29FF2100CB87E8 /* ExpressSearchTokensProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressSearchTokensProvider.swift; sourceTree = "<group>"; };
-		0A8714212F29FF5C00CB87E8 /* ExpressAddTokenAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressAddTokenAnalyticsLogger.swift; sourceTree = "<group>"; };
 		0A8714232F2A201D00CB87E8 /* ExpressExternalSearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressExternalSearchViewModel.swift; sourceTree = "<group>"; };
 		0A8DD9762E018F1500783A9E /* MobileWalletImageProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileWalletImageProvider.swift; sourceTree = "<group>"; };
 		0A8E6CE32E697F85004ABC72 /* YieldModuleError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleError.swift; sourceTree = "<group>"; };
@@ -5792,8 +5790,8 @@
 		30D24FF82DA3FA42003B90B5 /* UIApplication+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIApplication+.swift"; sourceTree = "<group>"; };
 		30DEC7692E9FDF6A007B033D /* MarketsAccountsAwarePortfolioContainerViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsAccountsAwarePortfolioContainerViewState.swift; sourceTree = "<group>"; };
 		30E0388A2D6DD7D200D9AD18 /* BinanceTransactionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinanceTransactionTests.swift; sourceTree = "<group>"; };
-		44295B21C65849E388096220 /* PendingTransactionRecordAdder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTransactionRecordAdder.swift; sourceTree = "<group>"; };
 		357247949948C3A3ACDB7833 /* ExpressAddTokenFlowConfigurationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ExpressAddTokenFlowConfigurationFactory.swift; path = Tangem/Features/Swap/SwapTokenSelector/ExpressAddTokenFlowConfigurationFactory.swift; sourceTree = SOURCE_ROOT; };
+		44295B21C65849E388096220 /* PendingTransactionRecordAdder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTransactionRecordAdder.swift; sourceTree = "<group>"; };
 		4A2CA5A5CDBF4003B4214E95 /* NoOpAddTokenFlowAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoOpAddTokenFlowAnalyticsLogger.swift; sourceTree = "<group>"; };
 		5D06E03F250A5D54004218D0 /* NSRegularExpression+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSRegularExpression+.swift"; sourceTree = "<group>"; };
 		5D09383B25EAE7FD0049B8F0 /* PersistentStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistentStorage.swift; sourceTree = "<group>"; };
@@ -22805,7 +22803,6 @@
 		EF279CF72EA8264B003C4660 /* SwapTokenSelector */ = {
 			isa = PBXGroup;
 			children = (
-				0A8714212F29FF5C00CB87E8 /* ExpressAddTokenAnalyticsLogger.swift */,
 				0A87141F2F29FF2100CB87E8 /* ExpressSearchTokensProvider.swift */,
 				357247949948C3A3ACDB7833 /* ExpressAddTokenFlowConfigurationFactory.swift */,
 				D2354F74874D3743775E82D9 /* ExpressExternalTokensSection.swift */,
@@ -29580,7 +29577,6 @@
 				30B457592D943444002B8BD0 /* AppStorageCompat.swift in Sources */,
 				EF0F99AB289028F8008B01DF /* AppSettingsCoordinatorView.swift in Sources */,
 				2DBFAC372F17BE2000761067 /* NewsReadStatusProvider.swift in Sources */,
-				0A8714222F29FF5C00CB87E8 /* ExpressAddTokenAnalyticsLogger.swift in Sources */,
 				B09721DC2AC466A400058675 /* CommonExpressAvailabilityProvider.swift in Sources */,
 				DCE32A652F1965F800D59A03 /* AppsFlyerDeepLinkResolver.swift in Sources */,
 				DC7D3A0529E06334007BCD23 /* GenericTangemSdkFactory.swift in Sources */,
