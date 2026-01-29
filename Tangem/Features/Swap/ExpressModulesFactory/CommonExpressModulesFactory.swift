@@ -98,12 +98,13 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
         coordinator: any SwapTokenSelectorRoutable
     ) -> SwapTokenSelectorViewModel {
         // Create external search view model if feature toggle is enabled
-        let externalSearchViewModel: ExpressExternalSearchViewModel?
+        let marketsTokensViewModel: SwapMarketsTokensViewModel?
         if FeatureProvider.isAvailable(.expressAllTokensSearch) {
-            let searchProvider = CommonExpressSearchTokensProvider(tangemApiService: tangemApiService)
-            externalSearchViewModel = ExpressExternalSearchViewModel(searchProvider: searchProvider)
+            marketsTokensViewModel = SwapMarketsTokensViewModel(
+                searchProvider: CommonSwapMarketsSearchTokensProvider(tangemApiService: tangemApiService)
+            )
         } else {
-            externalSearchViewModel = nil
+            marketsTokensViewModel = nil
         }
 
         return SwapTokenSelectorViewModel(
@@ -112,7 +113,7 @@ extension CommonExpressModulesFactory: ExpressModulesFactory {
                 walletsProvider: .common(),
                 availabilityProvider: .swap()
             ),
-            externalSearchViewModel: externalSearchViewModel,
+            marketsTokensViewModel: marketsTokensViewModel,
             expressInteractor: expressDependenciesFactory.expressInteractor,
             tangemApiService: tangemApiService,
             coordinator: coordinator

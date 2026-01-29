@@ -1,5 +1,5 @@
 //
-//  ExpressSearchTokensProvider.swift
+//  SwapSearchTokensProvider.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,14 +12,14 @@ import BlockchainSdk
 
 // MARK: - Protocol
 
-protocol ExpressSearchTokensProvider {
+protocol SwapMarketsTokensProvider {
     func search(text: String) async throws -> [MarketsTokenModel]
     func loadTrending() async throws -> [MarketsTokenModel]
 }
 
 // MARK: - Implementation
 
-final class CommonExpressSearchTokensProvider: ExpressSearchTokensProvider {
+final class CommonSwapMarketsSearchTokensProvider: SwapMarketsTokensProvider {
     private let tangemApiService: TangemApiService
 
     private var cachedTrending: [MarketsTokenModel]?
@@ -33,7 +33,7 @@ final class CommonExpressSearchTokensProvider: ExpressSearchTokensProvider {
             return []
         }
 
-        let request = MarketsDTO.General.Request(
+        let request = await MarketsDTO.General.Request(
             currency: AppSettings.shared.selectedCurrencyCode,
             offset: 0,
             limit: 50,
@@ -51,7 +51,7 @@ final class CommonExpressSearchTokensProvider: ExpressSearchTokensProvider {
             return cachedTrending
         }
 
-        let request = MarketsDTO.General.Request(
+        let request = await MarketsDTO.General.Request(
             currency: AppSettings.shared.selectedCurrencyCode,
             offset: 0,
             limit: 20,

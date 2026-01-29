@@ -15,7 +15,7 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
     // MARK: - View
 
     let tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel
-    let externalSearchViewModel: ExpressExternalSearchViewModel?
+    let marketsTokensViewModel: SwapMarketsTokensViewModel?
 
     // MARK: - Dependencies
 
@@ -29,14 +29,14 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
     init(
         swapDirection: SwapDirection,
         tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel,
-        externalSearchViewModel: ExpressExternalSearchViewModel?,
+        marketsTokensViewModel: SwapMarketsTokensViewModel?,
         expressInteractor: ExpressInteractor,
         tangemApiService: TangemApiService,
         coordinator: SwapTokenSelectorRoutable
     ) {
         self.swapDirection = swapDirection
         self.tokenSelectorViewModel = tokenSelectorViewModel
-        self.externalSearchViewModel = externalSearchViewModel
+        self.marketsTokensViewModel = marketsTokensViewModel
         self.expressInteractor = expressInteractor
         self.tangemApiService = tangemApiService
         self.coordinator = coordinator
@@ -44,8 +44,8 @@ final class SwapTokenSelectorViewModel: ObservableObject, Identifiable {
         tokenSelectorViewModel.setup(directionPublisher: Just(swapDirection).eraseToOptional())
         tokenSelectorViewModel.setup(with: self)
 
-        externalSearchViewModel?.setup(searchTextPublisher: tokenSelectorViewModel.$searchText)
-        externalSearchViewModel?.setup(selectionHandler: self)
+        marketsTokensViewModel?.setup(searchTextPublisher: tokenSelectorViewModel.$searchText)
+        marketsTokensViewModel?.setup(selectionHandler: self)
     }
 
     func close() {
@@ -94,7 +94,7 @@ extension SwapTokenSelectorViewModel: AccountsAwareTokenSelectorViewModelOutput 
 
 // MARK: - ExpressExternalTokenSelectionHandler
 
-extension SwapTokenSelectorViewModel: ExpressExternalTokenSelectionHandler {
+extension SwapTokenSelectorViewModel: SwapMarketsTokenSelectionHandler {
     func didSelectExternalToken(_ token: MarketsTokenModel) {
         Task { @MainActor in
             do {
