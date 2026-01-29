@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import SwiftUI
 import TangemUI
 import TangemLocalization
 
@@ -13,11 +14,27 @@ protocol TangemPayFreezeSheetRoutable: AnyObject {
     func closeFreezeSheet()
 }
 
-struct TangemPayFreezeSheetViewModel: FloatingSheetContentViewModel {
-    var id: String { String(describing: Self.self) }
+final class TangemPayFreezeSheetViewModel: FloatingSheetContentViewModel, TangemPayPopupViewModel {
+    var icon: Image {
+        Image(systemName: "snowflake")
+    }
 
-    let title = Localization.tangemPayFreezeCardAlertTitle
-    let subtitle = Localization.tangemPayFreezeCardAlertBody
+    var title: AttributedString {
+        .init(Localization.tangemPayFreezeCardAlertTitle)
+    }
+
+    var description: AttributedString {
+        .init(Localization.tangemPayFreezeCardAlertBody)
+    }
+
+    var primaryButton: MainButton.Settings {
+        MainButton.Settings(
+            title: Localization.tangemPayFreezeCardFreeze,
+            style: .primary,
+            size: .default,
+            action: freeze
+        )
+    }
 
     weak var coordinator: TangemPayFreezeSheetRoutable?
     let freezeAction: () -> Void
@@ -32,22 +49,13 @@ struct TangemPayFreezeSheetViewModel: FloatingSheetContentViewModel {
         Analytics.log(.visaScreenFreezeCardConfirmShown)
     }
 
-    func close() {
+    func dismiss() {
         coordinator?.closeFreezeSheet()
     }
 
     func freeze() {
         Analytics.log(.visaScreenFreezeCardConfirmClicked)
         freezeAction()
-        close()
-    }
-
-    var primaryButtonSettings: MainButton.Settings {
-        MainButton.Settings(
-            title: Localization.tangemPayFreezeCardFreeze,
-            style: .primary,
-            size: .default,
-            action: freeze
-        )
+        dismiss()
     }
 }

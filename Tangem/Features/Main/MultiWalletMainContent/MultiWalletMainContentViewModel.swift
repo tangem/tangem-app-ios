@@ -317,12 +317,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     private func setupTangemPayIfNeeded() {
-        // [REDACTED_TODO_COMMENT]
-        // [REDACTED_INFO]
-        guard FeatureProvider.isAvailable(.visa) else {
-            return
-        }
-
         tangemPayNotificationManager
             .notificationPublisher
             .receiveOnMain()

@@ -31,6 +31,7 @@ struct TokenItemView: View {
                         .accessibilityIdentifier(MainAccessibilityIdentifiers.tokenTitle)
 
                     leadingBadge
+                        .layoutPriority(1000.0)
                 }
             },
             primaryTrailingView: {
