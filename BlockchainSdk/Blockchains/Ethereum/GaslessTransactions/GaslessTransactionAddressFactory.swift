@@ -21,10 +21,6 @@ enum GaslessTransactionAddressFactory {
             return Constants.polygonAddress
         case .arbitrum:
             return Constants.arbitrumAddress
-        case .xdc:
-            return Constants.xdcAddress
-        case .optimism:
-            return Constants.optimismAddress
         default:
             throw GaslessTransactionAddressFactoryError.addressNotDefined(blockchain.displayName)
         }
@@ -39,12 +35,10 @@ extension GaslessTransactionAddressFactory {
 
 extension GaslessTransactionAddressFactory {
     enum Constants {
-        static let ethereumAddress = "0x2C2397c7605dc6d5493518260BDdeebE743B3faD"
-        static let bscAddress = "0x2C2397c7605dc6d5493518260BDdeebE743B3faD"
-        static let baseAddress = "0x2C2397c7605dc6d5493518260BDdeebE743B3faD"
+        static let ethereumAddress = "0xe3014E9AB2739aDeF234B3829C79128746160178"
+        static let bscAddress = "0xe1d0BF13C427C4B2e25Df0CA29E1Faa2d10458f3"
+        static let baseAddress = "0x61dD8620410a2372CbE4946f9148671F38F93fC7"
         static let polygonAddress = "0x2C2397c7605dc6d5493518260BDdeebE743B3faD"
-        static let arbitrumAddress = "0x2C2397c7605dc6d5493518260BDdeebE743B3faD"
-        static let xdcAddress = "0x2C2397c7605dc6d5493518260BDdeebE743B3faD"
-        static let optimismAddress = "0x2C2397c7605dc6d5493518260BDdeebE743B3faD"
+        static let arbitrumAddress = "0x20e7016ff14Dd10f04028fE52aBBca34F44b6965"
     }
 }
