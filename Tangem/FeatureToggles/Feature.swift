@@ -43,13 +43,13 @@ enum Feature: String, Hashable, CaseIterable {
         switch self {
         case .disableFirmwareVersionLimit: return .unspecified
         case .learnToEarn: return .unspecified
-        case .visa: return .version("5.31")
+        case .visa: return .unspecified
         case .mobileWallet: return .version("5.32")
         case .wcSolanaALT: return .version("5.28")
         case .accounts: return .version("5.33")
         case .marketsAndNews: return .version("5.33")
         case .marketsEarn: return .unspecified
-        case .tangemPayPermanentEntryPoint: return .unspecified
+        case .tangemPayPermanentEntryPoint: return .version("5.33")
         case .gaslessTransactions: return .version("5.33")
         case .exchangeOnlyWithinSingleAddress: return .unspecified
         case .experimentService: return .unspecified
