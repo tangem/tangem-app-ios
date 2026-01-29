@@ -89,14 +89,14 @@ struct TangemPayTransactionDetailsView: View {
                     .foregroundStyle(Colors.Icon.secondary)
 
                 Text(bottomInfo)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.footnote, color: Colors.Text.warning)
             }
             .infinityFrame(axis: .horizontal, alignment: .leading)
             .padding(.vertical, 12)
             .padding(.horizontal, 14)
             .background(
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(Colors.Button.disabled)
+                    .fill(Colors.Icon.warning.opacity(0.1))
             )
         }
     }
