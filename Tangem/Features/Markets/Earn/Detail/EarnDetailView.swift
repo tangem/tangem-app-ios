@@ -63,6 +63,8 @@ struct EarnDetailView: View {
             EarnDetailHeaderView(headerTitle: Localization.earnBestOpportunities)
 
             EarnFilterHeaderView(
+                networkFilterTitle: viewModel.currentNetworkFilter.displayTitle,
+                typesFilterTitle: viewModel.currentFilterType.description,
                 onNetworksTap: { viewModel.handleViewAction(.networksFilterTap) },
                 onTypesTap: { viewModel.handleViewAction(.typesFilterTap) }
             )

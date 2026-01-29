@@ -823,6 +823,11 @@
 		2DE2A4E32F2A3F420097CA73 /* EarnBestOpportunitiesListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE2A4D02F2A3F420097CA73 /* EarnBestOpportunitiesListView.swift */; };
 		2DE2A4E42F2A3F420097CA73 /* EarnMostlyUsedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE2A4D42F2A3F420097CA73 /* EarnMostlyUsedView.swift */; };
 		2DE2A4E52F2A3F420097CA73 /* EarnDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE2A4D72F2A3F420097CA73 /* EarnDetailViewModel.swift */; };
+		2DE2A9342F2B581D0097CA73 /* EarnFilterType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE2A9312F2B581D0097CA73 /* EarnFilterType.swift */; };
+		2DE2A9352F2B581D0097CA73 /* EarnNetworkFilterType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE2A9322F2B581D0097CA73 /* EarnNetworkFilterType.swift */; };
+		2DE2A9362F2B581D0097CA73 /* EarnNetworkInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE2A9332F2B581D0097CA73 /* EarnNetworkInfo.swift */; };
+		2DE2A95E2F2B599E0097CA73 /* EarnDataProvider+Filter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE2A95D2F2B599E0097CA73 /* EarnDataProvider+Filter.swift */; };
+		2DE2A95F2F2B599E0097CA73 /* EarnDataFilterProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE2A95C2F2B599E0097CA73 /* EarnDataFilterProvider.swift */; };
 		2DE66F0E2E7F3AB700CCE029 /* PushPermissionNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE66F0D2E7F3AB700CCE029 /* PushPermissionNotificationManager.swift */; };
 		2DF123452F28A1B10NEWS0002 /* NewsIncomingLinkParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DF123452F28A1B10NEWS0001 /* NewsIncomingLinkParser.swift */; };
 		2DF123452F28A1B10NEWS0004 /* NewsIncomingLinkParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DF123452F28A1B10NEWS0003 /* NewsIncomingLinkParserTests.swift */; };
@@ -5675,6 +5680,11 @@
 		2DE2A4D62F2A3F420097CA73 /* EarnDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnDetailView.swift; sourceTree = "<group>"; };
 		2DE2A4D72F2A3F420097CA73 /* EarnDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnDetailViewModel.swift; sourceTree = "<group>"; };
 		2DE2A4D92F2A3F420097CA73 /* EarnDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnDataProvider.swift; sourceTree = "<group>"; };
+		2DE2A9312F2B581D0097CA73 /* EarnFilterType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnFilterType.swift; sourceTree = "<group>"; };
+		2DE2A9322F2B581D0097CA73 /* EarnNetworkFilterType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnNetworkFilterType.swift; sourceTree = "<group>"; };
+		2DE2A9332F2B581D0097CA73 /* EarnNetworkInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnNetworkInfo.swift; sourceTree = "<group>"; };
+		2DE2A95C2F2B599E0097CA73 /* EarnDataFilterProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnDataFilterProvider.swift; sourceTree = "<group>"; };
+		2DE2A95D2F2B599E0097CA73 /* EarnDataProvider+Filter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EarnDataProvider+Filter.swift"; sourceTree = "<group>"; };
 		2DE66F0D2E7F3AB700CCE029 /* PushPermissionNotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushPermissionNotificationManager.swift; sourceTree = "<group>"; };
 		2DF123452F28A1B10NEWS0001 /* NewsIncomingLinkParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsIncomingLinkParser.swift; sourceTree = "<group>"; };
 		2DF123452F28A1B10NEWS0003 /* NewsIncomingLinkParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsIncomingLinkParserTests.swift; sourceTree = "<group>"; };
@@ -11930,7 +11940,10 @@
 			isa = PBXGroup;
 			children = (
 				2DE2A39B2F2A2BB70097CA73 /* EarnDTO.swift */,
+				2DE2A9312F2B581D0097CA73 /* EarnFilterType.swift */,
 				2DE2A39C2F2A2BB70097CA73 /* EarnModelMapper.swift */,
+				2DE2A9322F2B581D0097CA73 /* EarnNetworkFilterType.swift */,
+				2DE2A9332F2B581D0097CA73 /* EarnNetworkInfo.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -12044,7 +12057,9 @@
 		2DE2A4DA2F2A3F420097CA73 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				2DE2A95C2F2B599E0097CA73 /* EarnDataFilterProvider.swift */,
 				2DE2A4D92F2A3F420097CA73 /* EarnDataProvider.swift */,
+				2DE2A95D2F2B599E0097CA73 /* EarnDataProvider+Filter.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -29412,6 +29427,8 @@
 				DAAA28C42E66DAD10002D5A1 /* TangemPayNotificationEvent.swift in Sources */,
 				DC0003182DC2090600305FB6 /* WalletConnectV2SignTypedData.swift in Sources */,
 				DC0003192DC2090600305FB6 /* WCSolanaSignAllTransactionsHandler.swift in Sources */,
+				2DE2A95E2F2B599E0097CA73 /* EarnDataProvider+Filter.swift in Sources */,
+				2DE2A95F2F2B599E0097CA73 /* EarnDataFilterProvider.swift in Sources */,
 				DC00031A2DC2090600305FB6 /* WebSocketError.swift in Sources */,
 				DC00031B2DC2090600305FB6 /* WalletConnectEthTransaction.swift in Sources */,
 				EA265A112E5F302F00C6EA3F /* TokenItemEarnBadgeView.swift in Sources */,
@@ -29613,6 +29630,9 @@
 				EFBC4EEA2E8166410080271D /* SendDestinationSuggestedViewModel.swift in Sources */,
 				EFBC4EEB2E8166410080271D /* SendDestinationSuggestedView.swift in Sources */,
 				EF42D7892D1D65D90065AFD1 /* AvailableTokenBalanceProvider.swift in Sources */,
+				2DE2A9342F2B581D0097CA73 /* EarnFilterType.swift in Sources */,
+				2DE2A9352F2B581D0097CA73 /* EarnNetworkFilterType.swift in Sources */,
+				2DE2A9362F2B581D0097CA73 /* EarnNetworkInfo.swift in Sources */,
 				DC7796092E17CC21000E3213 /* WCTransactionSecurityAlertFactory.swift in Sources */,
 				EF42D78A2D1D65D90065AFD1 /* BalanceProvider.swift in Sources */,
 				DC2F88EA2E142D560034D437 /* Onramp+UniversalError.swift in Sources */,
