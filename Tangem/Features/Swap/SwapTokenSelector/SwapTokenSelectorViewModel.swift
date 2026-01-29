@@ -112,12 +112,7 @@ extension SwapTokenSelectorViewModel: ExpressExternalTokenSelectionHandler {
                     swapDirection: swapDirection
                 )
 
-                coordinator?.openAddTokenFlowForExpress(
-                    inputData: inputData,
-                    completion: { [weak self] tokenItem, userWalletInfo, account in
-                        self?.handleTokenAdded(tokenItem: tokenItem, userWalletInfo: userWalletInfo, account: account)
-                    }
-                )
+                coordinator?.openAddTokenFlowForExpress(inputData: inputData)
             } catch {
                 AppLogger.error("Failed to load networks for coinId: \(token.id)", error: error)
             }
@@ -132,30 +127,6 @@ extension SwapTokenSelectorViewModel: ExpressExternalTokenSelectionHandler {
 
         let response = try await tangemApiService.loadCoins(requestModel: request)
         return response.coins.first?.networks ?? []
-    }
-
-    private func handleTokenAdded(tokenItem: TokenItem, userWalletInfo: UserWalletInfo, account: any CryptoAccountModel) {
-        // Find newly created WalletModel
-        guard let walletModel = account.walletModelsManager.walletModels
-            .first(where: { $0.tokenItem == tokenItem }) else {
-            return
-        }
-
-        let expressInteractorWallet = ExpressInteractorWalletModelWrapper(
-            userWalletInfo: userWalletInfo,
-            walletModel: walletModel,
-            expressOperationType: .swap
-        )
-
-        switch swapDirection {
-        case .fromSource:
-            expressInteractor.update(destination: expressInteractorWallet)
-        case .toDestination:
-            expressInteractor.update(sender: expressInteractorWallet)
-        }
-
-        selectedTokenItem = tokenItem
-        coordinator?.closeSwapTokenSelector()
     }
 }
 
