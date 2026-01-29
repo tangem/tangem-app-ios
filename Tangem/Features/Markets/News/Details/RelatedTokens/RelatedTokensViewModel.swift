@@ -73,8 +73,8 @@ final class RelatedTokensViewModel: ObservableObject {
         let language = Locale.current.language.languageCode?.identifier ?? "en"
 
         // Fetch each token's details to get full data including marketCap
-        let marketsTokens: [MarketsTokenModel] = await withTaskGroup(of: MarketsTokenModel?.self) { group in
-            for token in tokens {
+        let indexedResults: [(index: Int, token: MarketsTokenModel)] = await withTaskGroup(of: (Int, MarketsTokenModel?).self) { group in
+            for (index, token) in tokens.enumerated() {
                 group.addTask { [tangemApiService] in
                     do {
                         let request = MarketsDTO.Coins.Request(
@@ -84,7 +84,7 @@ final class RelatedTokensViewModel: ObservableObject {
                         )
                         let response = try await tangemApiService.loadTokenMarketsDetails(requestModel: request)
 
-                        return MarketsTokenModel(
+                        let model = MarketsTokenModel(
                             id: response.id,
                             name: response.name,
                             symbol: response.symbol,
@@ -96,22 +96,27 @@ final class RelatedTokensViewModel: ObservableObject {
                             isUnderMarketCapLimit: nil,
                             stakingOpportunities: nil
                         )
+
+                        return (index, model)
                     } catch {
-                        return nil
+                        return (index, nil)
                     }
                 }
             }
 
-            var results: [MarketsTokenModel] = []
-            for await result in group {
-                if let token = result {
-                    results.append(token)
+            var results: [(index: Int, token: MarketsTokenModel)] = []
+            for await (index, token) in group {
+                if let token {
+                    results.append((index: index, token: token))
                 }
             }
             return results
         }
 
-        return marketsTokens
+        // Preserve the order from the original response (`tokens` array)
+        return indexedResults
+            .sorted { $0.index < $1.index }
+            .map(\.token)
     }
 
     private func processTokens(_ marketsTokens: [MarketsTokenModel]) {
