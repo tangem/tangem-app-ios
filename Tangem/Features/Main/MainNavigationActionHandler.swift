@@ -293,9 +293,7 @@ extension MainCoordinator {
             params: DeeplinkNavigationAction.Params,
             deeplinkString: String
         ) -> Bool {
-            guard FeatureProvider.isAvailable(.visa),
-                  let coordinator
-            else {
+            guard let coordinator else {
                 incomingActionManager.discardIncomingAction()
                 return false
             }
