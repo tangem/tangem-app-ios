@@ -9,6 +9,9 @@
 import Foundation
 
 struct EarnNetworkInfo: Identifiable, Hashable {
-    let id: String
-    let name: String
+    let networkId: String
+
+    var id: String {
+        networkId
+    }
 }

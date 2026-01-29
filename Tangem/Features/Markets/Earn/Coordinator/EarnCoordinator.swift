@@ -9,6 +9,7 @@
 import Foundation
 import struct TangemUIUtils.AlertBinder
 
+@MainActor
 final class EarnCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
@@ -22,10 +23,6 @@ final class EarnCoordinator: CoordinatorObject {
 
     @Published var filterBottomSheetViewModel: EarnFilterBottomSheetViewModel?
 
-    // MARK: - Private Properties
-
-    private lazy var filterProvider = EarnFilterProvider()
-
     // MARK: - Init
 
     required init(
@@ -37,12 +34,10 @@ final class EarnCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        Task { @MainActor in
-            rootViewModel = EarnDetailViewModel(
-                mostlyUsedTokens: options.mostlyUsedTokens,
-                coordinator: self
-            )
-        }
+        rootViewModel = EarnDetailViewModel(
+            mostlyUsedTokens: options.mostlyUsedTokens,
+            coordinator: self
+        )
     }
 }
 
@@ -66,12 +61,16 @@ extension EarnCoordinator: EarnDetailRoutable {
     }
 
     func openNetworksFilter() {
+        guard let filterProvider = rootViewModel?.filterProvider else { return }
+
         filterBottomSheetViewModel = .init(kind: .networks, provider: filterProvider) { [weak self] in
             self?.filterBottomSheetViewModel = nil
         }
     }
 
     func openTypesFilter() {
+        guard let filterProvider = rootViewModel?.filterProvider else { return }
+
         filterBottomSheetViewModel = .init(kind: .types, provider: filterProvider) { [weak self] in
             self?.filterBottomSheetViewModel = nil
         }

@@ -84,6 +84,8 @@ struct TangemApiTarget: TargetType {
         // MARK: - Earn paths
         case .earnYieldMarkets:
             return "/api/v1/earn/yield/markets"
+        case .earnNetworks:
+            return "/api/v1/earn/networks"
 
         // MARK: - Action Buttons
         case .hotCrypto:
@@ -159,6 +161,7 @@ struct TangemApiTarget: TargetType {
              .tokenExchangesList,
              .hotCrypto,
              .earnYieldMarkets,
+             .earnNetworks,
              .seedNotifyGetStatus,
              .seedNotifyGetStatusConfirmed,
              .story,
@@ -282,6 +285,8 @@ struct TangemApiTarget: TargetType {
         // MARK: - Earn tasks
         case .earnYieldMarkets(let requestModel):
             return .requestParameters(parameters: requestModel.parameters, encoding: URLEncoding.default)
+        case .earnNetworks(let requestModel):
+            return .requestParameters(parameters: requestModel.parameters, encoding: URLEncoding.default)
 
         // MARK: - News tasks
         case .hotCrypto(let requestModel):
@@ -377,6 +382,7 @@ struct TangemApiTarget: TargetType {
              .tokenExchangesList,
              .hotCrypto,
              .earnYieldMarkets,
+             .earnNetworks,
              .apiList,
              .seedNotifyGetStatus,
              .seedNotifySetStatus,
@@ -441,6 +447,7 @@ extension TangemApiTarget {
         // MARK: - Earn Targets
 
         case earnYieldMarkets(_ requestModel: EarnDTO.List.Request)
+        case earnNetworks(_ requestModel: EarnDTO.Networks.Request)
 
         // MARK: - Action Buttons
 
@@ -487,7 +494,7 @@ extension TangemApiTarget {
 extension TangemApiTarget: CachePolicyProvider {
     var cachePolicy: URLRequest.CachePolicy {
         switch type {
-        case .geo, .features, .apiList, .quotes, .coinsList, .tokenMarketsDetails, .trendingNews, .newsList, .newsDetails, .newsCategories, .earnYieldMarkets:
+        case .geo, .features, .apiList, .quotes, .coinsList, .tokenMarketsDetails, .trendingNews, .newsList, .newsDetails, .newsCategories, .earnYieldMarkets, .earnNetworks:
             return .reloadIgnoringLocalAndRemoteCacheData
         default:
             return .useProtocolCachePolicy
@@ -512,6 +519,7 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .tokenMarketsDetails,
              .tokenExchangesList,
              .earnYieldMarkets,
+             .earnNetworks,
              .story,
              .rawData,
              .hotCrypto,
