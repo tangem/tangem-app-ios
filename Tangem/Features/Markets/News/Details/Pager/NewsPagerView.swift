@@ -21,9 +21,7 @@ struct NewsPagerView: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             VStack(spacing: 0) {
-                if viewModel.shouldShowNavigationBar {
-                    navigationBar
-                }
+                navigationBar
 
                 pagerContent
                     .opacity(viewModel.overlayContentHidingProgress)
@@ -47,20 +45,7 @@ struct NewsPagerView: View {
         .onOverlayContentProgressChange(overlayContentStateObserver: overlayContentStateObserver) { [weak viewModel] progress in
             viewModel?.onOverlayContentProgressChange(progress)
         }
-        .if(viewModel.isDeeplinkMode) { view in
-            view.toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(action: { viewModel.handleViewAction(.share) }) {
-                        Assets.Glyphs.moreVertical.image
-                            .foregroundColor(shareButtonColor)
-                    }
-                    .disabled(viewModel.isCurrentArticleLoading)
-                }
-            }
-        }
-        .if(!viewModel.isDeeplinkMode) { view in
-            view.injectMarketsNavigationControllerConfigurator()
-        }
+        .injectMarketsNavigationConfigurator(isSimplified: viewModel.isDeeplinkMode)
     }
 
     private var pageIndicatorOverlay: some View {
@@ -95,13 +80,18 @@ struct NewsPagerView: View {
             title: "",
             settings: .init(backgroundColor: Color.Tangem.Surface.level3),
             leftButtons: {
-                BackButton(
-                    height: 44.0,
-                    isVisible: true,
-                    isEnabled: true,
-                    hPadding: 10.0,
-                    action: { viewModel.handleViewAction(.back) }
-                )
+                if viewModel.isDeeplinkMode {
+                    CloseTextButton(action: { viewModel.handleViewAction(.back) })
+                        .padding(.leading, 16)
+                } else {
+                    BackButton(
+                        height: 44.0,
+                        isVisible: true,
+                        isEnabled: true,
+                        hPadding: 10.0,
+                        action: { viewModel.handleViewAction(.back) }
+                    )
+                }
             },
             rightButtons: {
                 Button(action: { viewModel.handleViewAction(.share) }) {
@@ -201,15 +191,17 @@ private struct NewsPageContentView: View {
         return Button { viewModel.handleViewAction(.like(newsId)) } label: {
             HStack(spacing: 8) {
                 ZStack {
-                    Assets.Glyphs.glyphsFavorite.image
-                        .frame(size: .init(bothDimensions: 22))
-                        .foregroundStyle(Color.Tangem.Text.Neutral.primary)
-
                     if isLiked {
                         Assets.Glyphs.glyphsFavouriteFill.image
                             .resizable()
                             .frame(size: .init(bothDimensions: 22))
+                            .foregroundStyle(Color.Tangem.Graphic.Status.warning)
                             .transition(.scale.animation(.easeInOut(duration: 0.2)))
+                    } else {
+                        Assets.Glyphs.glyphsFavorite.image
+                            .frame(size: .init(bothDimensions: 22))
+                            .foregroundStyle(Color.Tangem.Text.Neutral.primary)
+                            .transition(.opacity.animation(.easeInOut(duration: 0.2)))
                     }
                 }
 
