@@ -327,7 +327,8 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
         let totalBalance = mainScreen.getTotalBalanceNumericValue()
         XCTAssertEqual(totalBalance, 0, "Total balance should equal 0, but got: \(totalBalance)")
 
-        let tokenNames = mainScreen.getTokensOrder()
+        let tokensOrder = mainScreen.getTokensOrder()
+        let tokenNames = tokensOrder.allTokensFlat
         for tokenName in tokenNames {
             if tokenName == customToken {
                 let balances = mainScreen.getAllTokenBalances(tokenName: tokenName)
@@ -369,7 +370,8 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
         let totalBalance = mainScreen.getTotalBalanceNumericValue()
         XCTAssertGreaterThan(totalBalance, 0, "Total balance should be positive, but got: \(totalBalance)")
 
-        let tokenNames = mainScreen.getTokensOrder()
+        let tokensOrder = mainScreen.getTokensOrder()
+        let tokenNames = tokensOrder.allTokensFlat
 
         for tokenName in tokenNames {
             if tokenName == customToken {

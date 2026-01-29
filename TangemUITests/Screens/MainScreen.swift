@@ -147,15 +147,11 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         return self
     }
 
-    func getTokensOrder() -> [String] {
+    func getTokensOrder() -> TokensOrder {
         XCTContext.runActivity(named: "Get tokens order from main screen") { _ in
-            // Wait for tokens list to be available
             XCTAssertTrue(tokensList.waitForExistence(timeout: .robustUIUpdate), "Tokens list should exist")
 
-            // Wait for token elements to be stable - use predicate expectation
             let tokenTitleQuery = tokensList.staticTexts.matching(identifier: MainAccessibilityIdentifiers.tokenTitle)
-
-            // Wait until we have stable token elements
             let expectation = XCTNSPredicateExpectation(
                 predicate: NSPredicate(format: "count > 0"),
                 object: tokenTitleQuery
@@ -164,22 +160,16 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             let result = XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate)
             XCTAssertEqual(result, .completed, "Should have token title elements available")
 
-            // Get all token title elements and ensure they're stable
             let tokenTitleElements = tokenTitleQuery.allElementsBoundByIndex
-
-            // Filter out elements that are not properly loaded or visible
             let stableElements = tokenTitleElements.filter { element in
                 element.exists && element.isHittable && !element.label.isEmpty
             }
 
-            // Sort by Y-coordinate (top to bottom) and return labels
             let sortedElements = stableElements.sorted { element1, element2 in
-                // Add small tolerance for Y-coordinate comparison to handle minor positioning differences
                 let tolerance: CGFloat = 1.0
                 let diff = element1.frame.minY - element2.frame.minY
 
                 if abs(diff) < tolerance {
-                    // If elements are at roughly the same Y position, sort by X coordinate (left to right)
                     return element1.frame.minX < element2.frame.minX
                 } else {
                     return diff < 0
@@ -188,7 +178,6 @@ final class MainScreen: ScreenBase<MainScreenElement> {
 
             let labels = sortedElements.map { $0.label }
 
-            // Add diagnostic information for debugging
             if labels.isEmpty {
                 let allTexts = tokensList.staticTexts.allElementsBoundByIndex.map {
                     "[\($0.identifier): '\($0.label)']"
@@ -196,27 +185,39 @@ final class MainScreen: ScreenBase<MainScreenElement> {
                 XCTFail("No token titles found. Available static texts: \(allTexts)")
             }
 
-            return labels
+            // No account headers on main screen yet.
+            return .mainAccount(labels)
         }
+    }
+
+    @discardableResult
+    func verifyTokensOrder(_ expectedOrder: TokensOrder) -> Self {
+        XCTContext.runActivity(named: "Verify tokens order on main screen") { _ in
+            let actual = getTokensOrder()
+
+            // Check accounts order
+            XCTAssertEqual(
+                actual.accountNames,
+                expectedOrder.accountNames,
+                "Accounts order on main screen doesn't match. Actual: \(actual.accountNames), Expected: \(expectedOrder.accountNames)"
+            )
+
+            // Check token order within each account
+            for (index, expected) in expectedOrder.enumerated() {
+                let actualTokens = actual[index].tokens
+                XCTAssertEqual(
+                    actualTokens,
+                    expected.tokens,
+                    "Tokens order for account '\(expected.account)' doesn't match. Actual: \(actualTokens), Expected: \(expected.tokens)"
+                )
+            }
+        }
+        return self
     }
 
     @discardableResult
     func verifyTokensOrder(_ expectedOrder: [String]) -> Self {
-        XCTContext.runActivity(named: "Verify tokens order on main screen") { _ in
-            let actualOrder = getTokensOrder()
-            XCTAssertEqual(actualOrder, expectedOrder, "Tokens order on main screen doesn't match expected")
-        }
-        return self
-    }
-
-    @discardableResult
-    func verifyIsGrouped(_ expectedState: Bool) -> Self {
-        XCTContext.runActivity(named: "Verify tokens grouping state on main screen is \(expectedState)") { _ in
-            _ = tokensList.waitForExistence(timeout: .robustUIUpdate)
-            let actualState = isGrouped()
-            XCTAssertEqual(actualState, expectedState, "Expected grouping state on main screen: \(expectedState), but got: \(actualState)")
-        }
-        return self
+        verifyTokensOrder(.mainAccount(expectedOrder))
     }
 
     @discardableResult
@@ -498,6 +499,20 @@ final class MainScreen: ScreenBase<MainScreenElement> {
 
             return MarketsScreen(app)
         }
+    }
+
+    @discardableResult
+    func verifyIsGrouped(_ expectedState: Bool) -> Self {
+        XCTContext.runActivity(named: "Verify tokens grouping state on main screen is \(expectedState)") { _ in
+            _ = tokensList.waitForExistence(timeout: .robustUIUpdate)
+            let actualState = isGrouped()
+            XCTAssertEqual(
+                actualState,
+                expectedState,
+                "Expected grouping state on main screen: \(expectedState), but got: \(actualState)"
+            )
+        }
+        return self
     }
 
     private func isGrouped() -> Bool {
