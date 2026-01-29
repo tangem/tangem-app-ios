@@ -12,6 +12,7 @@ import TangemExpress
 import TangemFoundation
 import TangemAccounts
 import TangemLocalization
+import TangemUI
 import class UIKit.UIApplication
 
 final class ExpressCoordinator: CoordinatorObject {
@@ -163,13 +164,7 @@ extension ExpressCoordinator: SwapTokenSelectorRoutable {
     }
 
     @MainActor
-    func openAddTokenFlowForExpress(
-        inputData: ExpressAddTokenInputData,
-        completion: @escaping (TokenItem, UserWalletInfo, any CryptoAccountModel) -> Void
-    ) {
-        // Dismiss keyboard but keep token selector open
-        UIApplication.shared.endEditing()
-
+    func openAddTokenFlowForExpress(inputData: ExpressAddTokenInputData) {
         guard !inputData.networks.isEmpty else {
             return
         }
@@ -180,20 +175,7 @@ extension ExpressCoordinator: SwapTokenSelectorRoutable {
             coinName: inputData.coinName,
             coinSymbol: inputData.coinSymbol,
             networks: inputData.networks,
-            onTokenAdded: { [weak self] tokenItem, userWalletInfo, account in
-                guard let self else { return }
-
-                // Dismiss floating sheet first
-                floatingSheetPresenter.removeActiveSheet()
-
-                // Delay closing the token selector to allow floating sheet dismiss animation to complete
-                Task { @MainActor in
-                    try? await Task.sleep(for: .milliseconds(300))
-
-                    // Call completion which will close the token selector
-                    completion(tokenItem, userWalletInfo, account)
-                }
-            }
+            coordinator: self
         )
 
         // Get user wallet models
@@ -208,12 +190,19 @@ extension ExpressCoordinator: SwapTokenSelectorRoutable {
 
         floatingSheetPresenter.enqueue(sheet: viewModel)
     }
+
+    func onTokenAdded(item: AccountsAwareTokenSelectorItem) {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            try? await Task.sleep(for: .milliseconds(300))
+
+            // Delegate to swapTokenSelectorViewModel to handle the selection
+            swapTokenSelectorViewModel?.usedDidSelect(item: item)
+        }
+    }
 }
 
-func presentSuccessToast(with text: String) {
-    // Intentionally left empty: the Express flow communicates success via
-    // sheet dismissal and updated token lists instead of a separate toast.
-}
+// MARK: - AccountsAwareAddTokenFlowRoutable
 
 extension ExpressCoordinator: AccountsAwareAddTokenFlowRoutable {
     func close() {
@@ -222,9 +211,21 @@ extension ExpressCoordinator: AccountsAwareAddTokenFlowRoutable {
         }
     }
 
-    func presentSuccessToast(with text: String) {}
+    func presentSuccessToast(with text: String) {
+        Toast(view: SuccessToast(text: text))
+            .present(
+                layout: .top(padding: ToastConstants.topPadding),
+                type: .temporary()
+            )
+    }
 
-    func presentErrorToast(with text: String) {}
+    func presentErrorToast(with text: String) {
+        Toast(view: WarningToast(text: text))
+            .present(
+                layout: .top(padding: ToastConstants.topPadding),
+                type: .temporary()
+            )
+    }
 }
 
 // MARK: - ExpressApproveRoutable
@@ -250,5 +251,13 @@ extension ExpressCoordinator: ExpressApproveRoutable {
 extension ExpressCoordinator: ExpressProvidersSelectorRoutable {
     func closeExpressProvidersSelector() {
         expressProvidersSelectorViewModel = nil
+    }
+}
+
+// MARK: - Constants
+
+private extension ExpressCoordinator {
+    enum ToastConstants {
+        static let topPadding: CGFloat = 52
     }
 }

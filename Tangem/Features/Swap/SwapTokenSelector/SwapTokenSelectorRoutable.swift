@@ -13,10 +13,10 @@ protocol SwapTokenSelectorRoutable: AnyObject {
 
     /// Opens the add-token flow for an external token selected from search results
     @MainActor
-    func openAddTokenFlowForExpress(
-        inputData: ExpressAddTokenInputData,
-        completion: @escaping (TokenItem, UserWalletInfo, any CryptoAccountModel) -> Void
-    )
+    func openAddTokenFlowForExpress(inputData: ExpressAddTokenInputData)
+
+    /// Called when a token is added via the add-token flow
+    func onTokenAdded(item: AccountsAwareTokenSelectorItem)
 }
 
 struct ExpressAddTokenInputData {
