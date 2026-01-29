@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Combine
 import TangemFoundation
 
 @MainActor
@@ -15,15 +16,17 @@ final class EarnDetailViewModel: ObservableObject {
 
     @Published private(set) var mostlyUsedViewModels: [EarnTokenItemViewModel] = []
     @Published private(set) var bestOpportunitiesResultState: LoadingResult<[EarnTokenItemViewModel], Error> = .loading
-
-    // [REDACTED_TODO_COMMENT]
+    @Published private(set) var currentFilterType: EarnFilterType = .all
+    @Published private(set) var currentNetworkFilter: EarnNetworkFilterType = .all
 
     // MARK: - Private Properties
 
+    private let dataProvider = EarnDataProvider()
+    private let filterProvider = EarnDataFilterProvider(initialFilterType: .all, initialNetworkFilter: .userNetworks)
     private weak var coordinator: EarnDetailRoutable?
 
-    // [REDACTED_TODO_COMMENT]
-    // [REDACTED_TODO_COMMENT]
+    private var accumulatedOpportunities: [EarnTokenItemViewModel] = []
+    private var bag = Set<AnyCancellable>()
 
     // MARK: - Init
 
@@ -33,7 +36,7 @@ final class EarnDetailViewModel: ObservableObject {
     ) {
         self.coordinator = coordinator
         setupMostlyUsedViewModels(from: mostlyUsedTokens)
-        loadBestOpportunities()
+        bind()
     }
 
     // MARK: - Private Implementation
@@ -46,26 +49,67 @@ final class EarnDetailViewModel: ObservableObject {
         }
     }
 
-    func loadBestOpportunities() {
-        // [REDACTED_TODO_COMMENT]
-        bestOpportunitiesResultState = .loading
+    private func bind() {
+        filterProvider.filterPublisher
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, filter in
+                viewModel.currentFilterType = viewModel.filterProvider.selectedFilterType
+                viewModel.currentNetworkFilter = viewModel.filterProvider.selectedNetworkFilter
+                viewModel.dataProvider.fetch(with: filter)
+            }
+            .store(in: &bag)
 
-        // Placeholder: simulate loading
-        Task { @MainActor in
-            try? await Task.sleep(nanoseconds: 1_000_000_000)
-            // For now, set to error to demonstrate error state
-            // In real implementation, this would fetch data and set to .success or .failure
-            let error = NSError(
-                domain: "EarnDetailViewModel",
-                code: -1,
-                userInfo: [NSLocalizedDescriptionKey: "Failed to load best opportunities"]
-            )
+        dataProvider.eventPublisher
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, event in
+                viewModel.handleDataProviderEvent(event)
+            }
+            .store(in: &bag)
+    }
+
+    private func handleDataProviderEvent(_ event: EarnDataProvider.Event) {
+        switch event {
+        case .loading:
+            if accumulatedOpportunities.isEmpty {
+                bestOpportunitiesResultState = .loading
+            }
+        case .idle:
+            break
+        case .failedToFetchData(let error):
             bestOpportunitiesResultState = .failure(error)
+        case .appendedItems(let models, let lastPage):
+            let newViewModels = models.map { token in
+                EarnTokenItemViewModel(token: token) { [weak self] in
+                    self?.coordinator?.openEarnTokenDetails(for: token)
+                }
+            }
+            accumulatedOpportunities.append(contentsOf: newViewModels)
+            bestOpportunitiesResultState = .success(accumulatedOpportunities)
+        case .startInitialFetch:
+            accumulatedOpportunities = []
+            bestOpportunitiesResultState = .loading
+        case .cleared:
+            accumulatedOpportunities = []
+            bestOpportunitiesResultState = .loading
         }
     }
 
+    func loadBestOpportunities() {
+        dataProvider.fetch(with: filterProvider.currentFilter)
+    }
+
     func retryBestOpportunities() {
-        loadBestOpportunities()
+        dataProvider.fetch(with: filterProvider.currentFilter)
+    }
+
+    var canFetchMore: Bool {
+        dataProvider.canFetchMore
+    }
+
+    func fetchMore() {
+        dataProvider.fetchMore()
     }
 }
 
@@ -87,5 +131,21 @@ extension EarnDetailViewModel {
         case back
         case networksFilterTap
         case typesFilterTap
+    }
+}
+
+// MARK: - Filter actions (for filter sheets / future use)
+
+extension EarnDetailViewModel {
+    func handleFilterTypeSelection(_ type: EarnFilterType) {
+        filterProvider.didSelectFilterType(type)
+    }
+
+    func handleNetworkFilterSelection(_ filter: EarnNetworkFilterType) {
+        filterProvider.didSelectNetworkFilter(filter)
+    }
+
+    func setUserNetworkIds(_ ids: [String]?) {
+        filterProvider.setUserNetworkIds(ids)
     }
 }
