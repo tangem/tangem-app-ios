@@ -48,13 +48,13 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
                 TangemPayAddFundsSheetView(viewModel: $0)
             }
             .floatingSheetContent(for: TangemPayFreezeSheetViewModel.self) {
-                TangemPayFreezeSheetView(viewModel: $0)
+                TangemPayPopupView(viewModel: $0)
             }
             .floatingSheetContent(for: TangemPayTransactionDetailsViewModel.self) {
                 TangemPayTransactionDetailsView(viewModel: $0)
             }
             .floatingSheetContent(for: TangemPayWithdrawNoteSheetViewModel.self) {
-                TangemPayWithdrawNoteSheetView(viewModel: $0)
+                TangemPayPopupView(viewModel: $0)
             }
             .sheet(item: $coordinator.expressCoordinator) {
                 ExpressCoordinatorView(coordinator: $0)
