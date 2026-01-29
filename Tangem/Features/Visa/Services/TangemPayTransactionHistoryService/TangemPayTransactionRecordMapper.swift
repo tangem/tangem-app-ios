@@ -46,7 +46,12 @@ struct TangemPayTransactionRecordMapper {
     func type() -> TransactionViewModel.TransactionType {
         let type: TransactionViewModel.TangemPayTransactionType = switch transaction.record {
         case .spend(let spend):
-            .spend(name: name(), icon: spend.enrichedMerchantIcon, isDeclined: spend.isDeclined)
+            .spend(
+                name: name(),
+                icon: spend.enrichedMerchantIcon,
+                isDeclined: spend.isDeclined,
+                isNegativeAmount: spend.amount < .zero
+            )
         case .collateral:
             .transfer(name: name())
         case .payment:
@@ -79,7 +84,11 @@ struct TangemPayTransactionRecordMapper {
     func additionalInfo() -> String? {
         switch transaction.record {
         case .spend(let spend) where spend.isDeclined:
-            return Localization.tangemPayTransactionDeclinedNotificationText
+            if let declinedReason = spend.declinedReason {
+                return Localization.alertFailedToSendTransactionMessage(declinedReason)
+            } else {
+                return Localization.tangemPayTransactionDeclinedNotificationText
+            }
         case .fee:
             return Localization.tangemPayTransactionFeeNotificationText
         case .spend, .collateral, .payment:
@@ -137,7 +146,8 @@ struct TangemPayTransactionRecordMapper {
         case .spend(let spend) where spend.amount == 0:
             return format(amount: spend.amount, currencyCode: spend.currency)
         case .spend(let spend):
-            return format(amount: -spend.amount, currencyCode: spend.currency)
+            let prefix = spend.amount < 0 ? "+" : ""
+            return format(amount: -spend.amount, currencyCode: spend.currency, prefix: prefix)
         case .collateral(let collateral):
             // In the `collateral.currency` we have `USDC` crypto token
             // But we have to show user just simple `$` currency
@@ -176,12 +186,15 @@ struct TangemPayTransactionRecordMapper {
         }
     }
 
-    func categoryName() -> String {
+    func categoryName(detailed: Bool) -> String {
         switch transaction.record {
         case .spend(let spend):
+            if detailed, let category = spend.merchantCategory, let mcc = spend.merchantCategoryCode {
+                return category + " " + AppConstants.dotSign + " " + mcc
+            }
+
             return spend.merchantCategory?.orNilIfEmpty
                 ?? spend.enrichedMerchantCategory?.orNilIfEmpty
-                ?? spend.merchantCategoryCode?.orNilIfEmpty
                 ?? Localization.tangemPayOther
         case .collateral:
             return Localization.commonTransfer
