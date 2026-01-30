@@ -113,7 +113,7 @@ struct MarketsSearchView: View {
         // This dummy title won't be shown in the UI, but it's required since without it UIKit may allocate
         // another `UINavigationBar` instance for the pushed screens, which breaks our custom nav bar layout.
         .navigationTitle("MarketsSearchView")
-        .injectMarketsNavigationControllerConfigurator()
+        .injectMarketsNavigationConfigurator()
     }
 
     // MARK: - Navigation Bar implementation
