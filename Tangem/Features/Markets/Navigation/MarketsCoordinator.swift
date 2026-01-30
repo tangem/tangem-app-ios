@@ -184,9 +184,10 @@ extension MarketsCoordinator: NewsDetailsRoutable {
 
     func openTokenDetails(_ token: MarketsTokenModel) {
         let coordinator = MarketsTokenDetailsCoordinator(
-            dismissAction: { [weak self] in
+            dismissAction: { [weak self] _ in
                 self?.newsPagerTokenDetailsCoordinator = nil
-            }
+            },
+            popToRootAction: popToRootAction
         )
         coordinator.start(with: .init(info: token, style: .marketsSheet))
         newsPagerTokenDetailsCoordinator = coordinator

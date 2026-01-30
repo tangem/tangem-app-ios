@@ -484,6 +484,7 @@
 		2D5C19CE2F03C4E8007BC52C /* NewsId.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D5C19CA2F03C4E8007BC52C /* NewsId.swift */; };
 		2D5C19CF2F03C4E8007BC52C /* NewsModelMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D5C19CB2F03C4E8007BC52C /* NewsModelMapper.swift */; };
 		2D5C19D02F03C4E8007BC52C /* NewsDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D5C19C92F03C4E8007BC52C /* NewsDTO.swift */; };
+		2D5C19D12F03C4E8007BC52C /* NewsArticleModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D5C19CD2F03C4E8007BC52C /* NewsArticleModels.swift */; };
 		2D5DCC2D2C3309F1000EE379 /* MarketsTokensNetworkSelectorAlertBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D5DCC262C3309F1000EE379 /* MarketsTokensNetworkSelectorAlertBuilder.swift */; };
 		2D5DCC2E2C3309F1000EE379 /* MarketsTokensNetworkSelectorItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D5DCC272C3309F1000EE379 /* MarketsTokensNetworkSelectorItemView.swift */; };
 		2D5DCC2F2C3309F1000EE379 /* MarketsTokensNetworkSelectorItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D5DCC282C3309F1000EE379 /* MarketsTokensNetworkSelectorItemViewModel.swift */; };
@@ -5322,6 +5323,7 @@
 		2D5C19C92F03C4E8007BC52C /* NewsDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsDTO.swift; sourceTree = "<group>"; };
 		2D5C19CA2F03C4E8007BC52C /* NewsId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsId.swift; sourceTree = "<group>"; };
 		2D5C19CB2F03C4E8007BC52C /* NewsModelMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsModelMapper.swift; sourceTree = "<group>"; };
+		2D5C19CD2F03C4E8007BC52C /* NewsArticleModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsArticleModels.swift; sourceTree = "<group>"; };
 		2D5DCC262C3309F1000EE379 /* MarketsTokensNetworkSelectorAlertBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsTokensNetworkSelectorAlertBuilder.swift; sourceTree = "<group>"; };
 		2D5DCC272C3309F1000EE379 /* MarketsTokensNetworkSelectorItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsTokensNetworkSelectorItemView.swift; sourceTree = "<group>"; };
 		2D5DCC282C3309F1000EE379 /* MarketsTokensNetworkSelectorItemViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsTokensNetworkSelectorItemViewModel.swift; sourceTree = "<group>"; };
@@ -10890,6 +10892,7 @@
 		2D5C19CC2F03C4E8007BC52C /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				2D5C19CD2F03C4E8007BC52C /* NewsArticleModels.swift */,
 				2D5C19C92F03C4E8007BC52C /* NewsDTO.swift */,
 				2D5C19CA2F03C4E8007BC52C /* NewsId.swift */,
 				2D5C19CB2F03C4E8007BC52C /* NewsModelMapper.swift */,
@@ -27755,6 +27758,7 @@
 				2D5C19CE2F03C4E8007BC52C /* NewsId.swift in Sources */,
 				2D5C19CF2F03C4E8007BC52C /* NewsModelMapper.swift in Sources */,
 				2D5C19D02F03C4E8007BC52C /* NewsDTO.swift in Sources */,
+				2D5C19D12F03C4E8007BC52C /* NewsArticleModels.swift in Sources */,
 				B0B335DC29FA948F00E2082E /* FakeTokenItemInfoProvider.swift in Sources */,
 				B643EBC12E9BF39D00DBBFE3 /* CryptoAccountConditionsValidator.swift in Sources */,
 				B6FECF502C4032930030A8A9 /* PushNotificationsPermissionRequestDelegateStub.swift in Sources */,
