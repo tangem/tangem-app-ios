@@ -11,6 +11,8 @@ import Combine
 import TangemFoundation
 
 final class MobileFinishActivationManager {
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
     private var hasPositiveBalanceSubject = PassthroughSubject<Bool, Never>()
     private var isMainAppearedSubject = CurrentValueSubject<Bool?, Never>(nil)
     private var hasMainDeepLinkSubject = CurrentValueSubject<Bool?, Never>(nil)
@@ -26,34 +28,33 @@ final class MobileFinishActivationManager {
 
     fileprivate init() {}
 
-    func observe(userWalletModel: UserWalletModel, onActivation: @escaping (UserWalletModel) -> Void) {
-        guard observation == nil else { return }
+    func observeUserWallet(
+        id userWalletId: UserWalletId,
+        config userWalletConfig: UserWalletConfig,
+        onActivation: @escaping (UserWalletModel) -> Void
+    ) {
+        guard isActivationNeeded else { return }
+        observation = Observation(userWalletId: userWalletId, activation: onActivation)
 
-        observation = Observation(
-            userWalletModel: userWalletModel,
-            activation: onActivation
-        )
-
-        let config = userWalletModel.config
-        let needBackup = config.hasFeature(.mnemonicBackup) && config.hasFeature(.iCloudBackup)
-        let needAccessCode = config.hasFeature(.userWalletAccessCode) && config.userWalletAccessCodeStatus == .none
+        let needBackup = userWalletConfig.hasFeature(.mnemonicBackup) && userWalletConfig.hasFeature(.iCloudBackup)
+        let needAccessCode = userWalletConfig.hasFeature(.userWalletAccessCode) && userWalletConfig.userWalletAccessCodeStatus == .none
 
         if !needBackup, !needAccessCode {
             isActivationNeeded = false
         }
     }
 
-    func onMain(userWalletId: UserWalletId, isAppeared: Bool) {
+    func onMain(userWalletModel: UserWalletModel, isAppeared: Bool) {
         guard
             isActivationNeeded,
-            let observation,
-            observation.userWalletModel.userWalletId == userWalletId
+            observation?.userWalletId == userWalletModel.userWalletId
         else {
             return
         }
 
         if isSubscriptionNeeded {
-            bind(observation: observation)
+            let walletModelsPublisher = AccountsFeatureAwareWalletModelsResolver.walletModelsPublisher(for: userWalletModel)
+            bind(with: walletModelsPublisher)
         }
 
         isMainAppearedSubject.send(isAppeared)
@@ -72,15 +73,14 @@ final class MobileFinishActivationManager {
         hasMainDeepLinkSubject.send(hasMainDeepLink)
     }
 
-    private func bind(observation: Observation) {
+    private func bind(with walletModelsPublisher: AnyPublisher<[any WalletModel], Never>) {
         isSubscriptionNeeded = false
 
         let hasPositiveBalanceTimer: AnyPublisher<Bool, Never> = Just(false)
             .delay(for: .seconds(waitingBalanceInterval), scheduler: DispatchQueue.main)
             .eraseToAnyPublisher()
 
-        let hasPositiveBalancePublisher = AccountsFeatureAwareWalletModelsResolver
-            .walletModelsPublisher(for: observation.userWalletModel)
+        let hasPositiveBalancePublisher = walletModelsPublisher
             .map { walletModels in
                 let totalBalances = walletModels.compactMap(\.availableBalanceProvider.balanceType.value)
                 return totalBalances.contains { $0 > 0 }
@@ -102,8 +102,7 @@ final class MobileFinishActivationManager {
         activationSubscription = hasPositiveBalancePublisher
             .combineLatest(isMainAppearedPublisher, hasMainDeepLinkPublisher)
             .sink { [weak self] hasPositiveBalance, isMainAppeared, hasMainDeepLink in
-                self?.handle(
-                    observation: observation,
+                self?.activateIfNeeded(
                     hasPositiveBalance: hasPositiveBalance,
                     isMainAppeared: isMainAppeared,
                     hasMainDeepLink: hasMainDeepLink
@@ -111,17 +110,25 @@ final class MobileFinishActivationManager {
             }
     }
 
-    private func handle(
-        observation: Observation,
+    private func activateIfNeeded(
         hasPositiveBalance: Bool,
         isMainAppeared: Bool,
         hasMainDeepLink: Bool
     ) {
         guard isActivationNeeded else { return }
+
         isActivationNeeded = false
+        activationSubscription = nil
+
+        guard
+            let observation,
+            let userWalletModel = userWalletRepository.models[observation.userWalletId]
+        else {
+            return
+        }
 
         if isMainAppeared, hasPositiveBalance, !hasMainDeepLink {
-            observation.activation(observation.userWalletModel)
+            observation.activation(userWalletModel)
         }
     }
 }
@@ -130,7 +137,7 @@ final class MobileFinishActivationManager {
 
 private extension MobileFinishActivationManager {
     struct Observation {
-        let userWalletModel: UserWalletModel
+        let userWalletId: UserWalletId
         let activation: (UserWalletModel) -> Void
     }
 }
