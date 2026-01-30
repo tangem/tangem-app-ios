@@ -54,7 +54,7 @@ enum UserWalletRepositoryEvent: Equatable {
     case unlocked
     case inserted(userWalletId: UserWalletId)
     case unlockedWallet(userWalletId: UserWalletId)
-    case deleted(userWalletIds: [UserWalletId])
+    case deleted(userWalletIds: [UserWalletId], isRepositoryEmpty: Bool)
     case selected(userWalletId: UserWalletId)
 }
 
