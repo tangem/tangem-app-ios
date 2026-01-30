@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 struct MarketsRelatedTokenNewsProvider {
     // MARK: - Injected Services
@@ -16,7 +17,11 @@ struct MarketsRelatedTokenNewsProvider {
     // MARK: - Protocol Implementation
 
     func loadRelatedNews(for tokenId: TokenItemId) async throws -> NewsDTO.List.Response {
-        let requestModel = NewsDTO.List.Request(limit: Constants.newsLimitOnPage, tokenIds: [tokenId])
+        let requestModel = NewsDTO.List.Request(
+            limit: Constants.newsLimitOnPage,
+            lang: Locale.newsLanguageCode,
+            tokenIds: [tokenId]
+        )
         return try await tangemAPIService.loadNewsList(requestModel: requestModel)
     }
 }
