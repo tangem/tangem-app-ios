@@ -56,7 +56,7 @@ private extension WCServiceV2 {
             .withWeakCaptureOf(self)
             .sink { wcService, event in
                 switch event {
-                case .deleted(let userWalletIds):
+                case .deleted(let userWalletIds, _):
                     userWalletIds.forEach {
                         wcService.walletModelsSnapshots[$0.stringValue] = nil
                         wcService.disconnectAllSessionsForUserWallet(with: $0.stringValue)

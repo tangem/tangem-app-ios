@@ -33,7 +33,7 @@ final class CommonCryptoAccountsETagStorage {
 
     private func handleUserWalletRepositoryEvent(_ event: UserWalletRepositoryEvent) {
         switch event {
-        case .deleted(let userWalletIds):
+        case .deleted(let userWalletIds, _):
             userWalletIds.forEach(clearETag(for:))
         default:
             break
