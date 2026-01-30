@@ -113,6 +113,8 @@ final class MainViewModel: ObservableObject {
 
     /// Handles `SwiftUI.View.onAppear(perform:)`.
     func onViewAppear() {
+        guard !isLoggingOut else { return }
+
         logMainScreenOpenedAnalytics()
 
         updateYieldMarkets()
@@ -334,10 +336,10 @@ final class MainViewModel: ObservableObject {
                     }
                 case .unlockedWallet(let userWalletId):
                     userWalletUnlocked(userWalletId: userWalletId)
-                case .deleted(let userWalletIds):
+                case .deleted(let userWalletIds, let isEmpty):
                     // This model is alive for enough time to receive the "deleted" event
                     // after the last model has been removed and the application has been logged out
-                    if userWalletRepository.models.isEmpty {
+                    if isEmpty {
                         return
                     }
                     removePages(with: userWalletIds)
