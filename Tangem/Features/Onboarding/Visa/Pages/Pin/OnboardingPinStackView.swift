@@ -7,11 +7,13 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUIUtils
 
 struct OnboardingPinStackView: View {
     let maxDigits: Int
     var handleKeyboard: Bool = true
     let isDisabled: Bool
+    var accessibilityIdentifier: String? = nil
 
     @Binding var pinText: String
 
@@ -42,6 +44,7 @@ struct OnboardingPinStackView: View {
         }
         .screenCaptureProtection()
         .fixedSize()
+        .accessibilityIdentifier(accessibilityIdentifier)
         .onChange(of: isDisabled) { disabled in
             isResponder = !disabled
         }
@@ -65,6 +68,7 @@ struct OnboardingPinStackView: View {
             maxCount: maxDigits
         )
         .setAutocapitalizationType(.none)
+        .setAccessibilityIdentifier(accessibilityIdentifier)
     }
 
     private func getDigit(_ index: Int) -> String {
