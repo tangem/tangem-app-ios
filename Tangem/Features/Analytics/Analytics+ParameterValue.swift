@@ -40,6 +40,7 @@ extension Analytics {
         case blocks = "Blocks"
         case seedless = "Seedless"
         case seedphrase = "Seed phrase"
+        case addNew = "Add New"
 
         case card = "Card"
         case ring = "Ring"
