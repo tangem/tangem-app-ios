@@ -58,7 +58,7 @@ final class NFTFeatureLifecycleHandler: NFTFeatureLifecycleHandling {
 
     private func handleUserWalletRepositoryEvent(_ event: UserWalletRepositoryEvent) {
         switch event {
-        case .deleted(let userWalletIds):
+        case .deleted(let userWalletIds, _):
             for userWalletId in userWalletIds {
                 clearNFTCache(forUserWalletWithId: userWalletId)
                 disableNFTAvailability(forUserWalletWithId: userWalletId)
