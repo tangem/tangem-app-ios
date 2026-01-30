@@ -15,7 +15,7 @@ class CommonExpressAvailabilityProvider {
     fileprivate typealias Availability = [ExpressCurrency: AvailabilityState]
     fileprivate typealias CurrenciesSet = Set<ExpressWalletCurrency>
 
-    private let storage = CachesDirectoryStorage(file: .cachedExpressAvailability)
+    private let storage: CachesDirectoryStorage = .init(file: .cachedExpressAvailability)
     private let _state: CurrentValueSubject<ExpressAvailabilityUpdateState, Never> = .init(.updating)
     private lazy var _cache: CurrentValueSubject<Availability, Never> = .init(loadFromDiskStorage())
 

@@ -48,7 +48,7 @@ final class StakeKitStakingManager {
         self.stateRepository = stateRepository
         self.analyticsLogger = analyticsLogger
 
-        _state = CurrentValueSubject<StakingManagerState, Never>(.loading(cached: stateRepository.state()))
+        _state = CurrentValueSubject<StakingManagerState, Never>(.loading(cached: stateRepository.state(cacheId: wallet.cacheId)))
     }
 }
 
@@ -84,7 +84,7 @@ extension StakeKitStakingManager: StakingManager {
     }
 
     func updateState(loadActions: Bool, startUpdateDate: Date? = nil, previousActions: [PendingAction]? = nil) async {
-        await updateState(.loading(cached: stateRepository.state()))
+        await updateState(.loading(cached: stateRepository.state(cacheId: wallet.cacheId)))
         do {
             async let balances = apiProvider.balances(wallet: wallet, integrationId: integrationId)
             async let yield = yieldInfoProvider.yieldInfo(for: integrationId)
@@ -116,7 +116,7 @@ extension StakeKitStakingManager: StakingManager {
         } catch {
             analyticsLogger.logError(error, currencySymbol: wallet.item.symbol)
             StakingLogger.error(self, error: error)
-            await updateState(.loadingError(error.localizedDescription, cached: stateRepository.state()))
+            await updateState(.loadingError(error.localizedDescription, cached: stateRepository.state(cacheId: wallet.cacheId)))
         }
     }
 
@@ -184,7 +184,7 @@ private extension StakeKitStakingManager {
     @MainActor
     func updateState(_ state: StakingManagerState) {
         StakingLogger.info(self, "Update state to \(state)")
-        stateRepository.storeState(state)
+        stateRepository.storeState(state, cacheId: wallet.cacheId)
         _state.send(state)
         updateBalances(state)
     }

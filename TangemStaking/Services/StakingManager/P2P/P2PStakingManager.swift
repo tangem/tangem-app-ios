@@ -36,7 +36,7 @@ final class P2PStakingManager {
         self.stateRepository = stateRepository
         self.analyticsLogger = analyticsLogger
 
-        _state = CurrentValueSubject(.loading(cached: stateRepository.state()))
+        _state = CurrentValueSubject(.loading(cached: stateRepository.state(cacheId: wallet.cacheId)))
     }
 }
 
@@ -44,14 +44,14 @@ final class P2PStakingManager {
 
 extension P2PStakingManager: StakingManager {
     func updateState(loadActions: Bool) async {
-        updateState(.loading(cached: stateRepository.state()))
+        updateState(.loading(cached: stateRepository.state(cacheId: wallet.cacheId)))
 
         do {
             let yield = try await yieldInfoProvider.yieldInfo(for: integrationId)
 
             guard !yield.preferredTargets.isEmpty else {
                 // Empty vaults should show as temporarily unavailable, not disabled
-                updateState(.temporaryUnavailable(yield, cached: stateRepository.state()))
+                updateState(.temporaryUnavailable(yield, cached: stateRepository.state(cacheId: wallet.cacheId)))
                 return
             }
 
@@ -62,7 +62,7 @@ extension P2PStakingManager: StakingManager {
             let state = state(balances: balances, yield: yield)
             updateState(state)
         } catch {
-            updateState(.loadingError(error.localizedDescription, cached: stateRepository.state()))
+            updateState(.loadingError(error.localizedDescription, cached: stateRepository.state(cacheId: wallet.cacheId)))
         }
     }
 
@@ -127,7 +127,7 @@ extension P2PStakingManager: CustomStringConvertible {
 
 private extension P2PStakingManager {
     func updateState(_ state: StakingManagerState) {
-        stateRepository.storeState(state)
+        stateRepository.storeState(state, cacheId: wallet.cacheId)
         _state.send(state)
     }
 
@@ -138,7 +138,7 @@ private extension P2PStakingManager {
 
         // Empty validators or unavailable yield means temporarily unavailable
         guard !yield.preferredTargets.isEmpty, yield.isAvailable else {
-            return .temporaryUnavailable(yield, cached: stateRepository.state())
+            return .temporaryUnavailable(yield, cached: stateRepository.state(cacheId: wallet.cacheId))
         }
 
         let stakingBalances = balances?.map { balance in

@@ -16,9 +16,11 @@ protocol YieldModuleMarketsRepository {
 }
 
 final class CommonYieldModuleMarketsRepository {
-    private let storage = CachesDirectoryStorage(file: .cachedYieldMarkets)
+    private let storage: CachesDirectoryStorage
 
-    init() {}
+    init(storage: CachesDirectoryStorage) {
+        self.storage = storage
+    }
 }
 
 extension CommonYieldModuleMarketsRepository: YieldModuleMarketsRepository {

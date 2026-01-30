@@ -52,10 +52,11 @@ final class CommonYieldModuleManager {
     let tokenId: String
 
     private let walletAddress: String
+    private let walletModelId: WalletModelId
+    private let userWalletId: UserWalletId
     private let token: Token
     private let chainId: Int
     private let yieldSupplyService: YieldSupplyService
-    private let userWalletId: String
 
     private let transactionProvider: YieldTransactionProvider
     private let transactionFeeProvider: YieldTransactionFeeProvider
@@ -76,7 +77,8 @@ final class CommonYieldModuleManager {
 
     init?(
         walletAddress: String,
-        userWalletId: String,
+        walletModelId: WalletModelId,
+        userWalletId: UserWalletId,
         token: Token,
         blockchain: Blockchain,
         yieldSupplyService: YieldSupplyService,
@@ -97,6 +99,7 @@ final class CommonYieldModuleManager {
         }
 
         self.walletAddress = walletAddress
+        self.walletModelId = walletModelId
         self.userWalletId = userWalletId
         self.token = token
         self.blockchain = blockchain
@@ -400,7 +403,7 @@ private extension CommonYieldModuleManager {
         case .created:
             state = .loading(cachedState: nil)
         case .loading:
-            state = .loading(cachedState: yieldModuleStateRepository.state())
+            state = .loading(cachedState: yieldModuleStateRepository.state(walletModelId: walletModelId, userWalletId: userWalletId))
         case .loaded:
             if let balance = walletModelData.balance,
                case .token(let token) = balance.type,
@@ -421,7 +424,7 @@ private extension CommonYieldModuleManager {
         case .noAccount:
             state = .disabled
         case .failed(error: let error):
-            let cachedState = yieldModuleStateRepository.state()
+            let cachedState = yieldModuleStateRepository.state(walletModelId: walletModelId, userWalletId: userWalletId)
             if (marketInfo?.isActive ?? false) || cachedState?.isEffectivelyActive == true {
                 state = .failedToLoad(error: error, cachedState: cachedState)
             } else {
@@ -541,7 +544,7 @@ private extension CommonYieldModuleManager {
         .eraseToAnyPublisher()
 
         guard let cachedMarket = yieldModuleMarketsRepository.marketInfo(for: token.contractAddress),
-              let cachedState = yieldModuleStateRepository.state()
+              let cachedState = yieldModuleStateRepository.state(walletModelId: walletModelId, userWalletId: userWalletId)
         else {
             return statePublisher
         }
@@ -557,9 +560,9 @@ private extension CommonYieldModuleManager {
     func updateStateCacheIfNeeded(state: YieldModuleManagerStateInfo) {
         switch state.state {
         case .disabled:
-            yieldModuleStateRepository.clearState()
+            yieldModuleStateRepository.clearState(walletModelId: walletModelId, userWalletId: userWalletId)
         case .processing, .active, .notActive:
-            yieldModuleStateRepository.storeState(state.state)
+            yieldModuleStateRepository.storeState(state.state, walletModelId: walletModelId, userWalletId: userWalletId, token: token)
         default: break
         }
     }

@@ -11,27 +11,31 @@ import BlockchainSdk
 import TangemFoundation
 
 protocol YieldModuleStateRepository {
-    func storeState(_ state: YieldModuleManagerState)
-    func state() -> YieldModuleManagerState?
-    func clearState()
+    func storeState(
+        _ state: YieldModuleManagerState,
+        walletModelId: WalletModelId,
+        userWalletId: UserWalletId,
+        token: Token
+    )
+    func state(walletModelId: WalletModelId, userWalletId: UserWalletId) -> YieldModuleManagerState?
+    func clearState(walletModelId: WalletModelId, userWalletId: UserWalletId)
 }
 
 final class CommonYieldModuleStateRepository {
-    private let storage = CachesDirectoryStorage(file: .cachedYieldModuleState)
+    private let storage: CachesDirectoryStorage
 
-    let walletModelId: WalletModelId
-    let userWalletId: UserWalletId
-    let token: Token
-
-    init(walletModelId: WalletModelId, userWalletId: UserWalletId, token: Token) {
-        self.walletModelId = walletModelId
-        self.userWalletId = userWalletId
-        self.token = token
+    init(storage: CachesDirectoryStorage) {
+        self.storage = storage
     }
 }
 
 extension CommonYieldModuleStateRepository: YieldModuleStateRepository {
-    func storeState(_ state: YieldModuleManagerState) {
+    func storeState(
+        _ state: YieldModuleManagerState,
+        walletModelId: WalletModelId,
+        userWalletId: UserWalletId,
+        token: Token
+    ) {
         let stateToCache: CachedYieldModuleState
 
         switch state {
@@ -53,12 +57,12 @@ extension CommonYieldModuleStateRepository: YieldModuleStateRepository {
             )
         }
 
-        updateUserWalletState { stateForUserWallet in
+        updateState(userWalletId: userWalletId) { stateForUserWallet in
             stateForUserWallet.updateValue(stateToCache, forKey: walletModelId.id)
         }
     }
 
-    func state() -> YieldModuleManagerState? {
+    func state(walletModelId: WalletModelId, userWalletId: UserWalletId) -> YieldModuleManagerState? {
         let currentState = getCurrentState()
 
         let cachedState: CachedYieldModuleState? = currentState[userWalletId.stringValue]?[walletModelId.id]
@@ -86,13 +90,16 @@ extension CommonYieldModuleStateRepository: YieldModuleStateRepository {
         }
     }
 
-    func clearState() {
-        updateUserWalletState { stateForUserWallet in
+    func clearState(walletModelId: WalletModelId, userWalletId: UserWalletId) {
+        updateState(userWalletId: userWalletId) { stateForUserWallet in
             stateForUserWallet.removeValue(forKey: walletModelId.id)
         }
     }
 
-    private func updateUserWalletState(_ updateBlock: (inout [String: CachedYieldModuleState]) -> Void) {
+    private func updateState(
+        userWalletId: UserWalletId,
+        _ updateBlock: (inout [String: CachedYieldModuleState]) -> Void
+    ) {
         var currentState = getCurrentState()
         var stateForUserWallet = currentState[userWalletId.stringValue, default: [:]]
 
@@ -103,7 +110,7 @@ extension CommonYieldModuleStateRepository: YieldModuleStateRepository {
     }
 
     private func getCurrentState() -> [String: [String: CachedYieldModuleState]] {
-        (try? storage.value()) ?? .init()
+        (try? storage.value()) ?? [:]
     }
 }
 

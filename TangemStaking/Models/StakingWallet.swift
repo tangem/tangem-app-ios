@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import CryptoKit
 
 public struct StakingWallet: Hashable {
     public let item: StakingTokenItem
@@ -17,5 +18,11 @@ public struct StakingWallet: Hashable {
         self.item = item
         self.address = address
         self.publicKey = publicKey
+    }
+
+    public var cacheId: String {
+        let digest = SHA256.hash(data: publicKey)
+        let hash = Data(digest).hexString
+        return "\(item.network)_\(item.contractAddress ?? "coin")_\(hash)"
     }
 }
