@@ -154,11 +154,11 @@ extension VisaWalletModel: WalletModelHelpers {
 }
 
 extension VisaWalletModel: WalletModelFeesProvider {
-    var tokenFeeLoader: any TokenFeeLoader {
+    var customFeeProvider: (any CustomFeeProvider)? { .none }
+
+    func makeTokenFeeLoader(for tokenItem: TokenItem) -> any TokenFeeLoader {
         DemoTokenFeeLoader(tokenItem: tokenItem)
     }
-
-    var customFeeProvider: (any CustomFeeProvider)? { .none }
 }
 
 extension VisaWalletModel: WalletModelFeeProvider {
