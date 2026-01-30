@@ -962,6 +962,11 @@
 		9345E59CCF194B22F38F4A45 /* AccountOperationResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9345E59CCF194B22F38F4A46 /* AccountOperationResult.swift */; };
 		99AAEEC4800C458A897C37DD /* FloatingSheetNavigationBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E69B531B7D974A48A77CBE89 /* FloatingSheetNavigationBarView.swift */; };
 		A7CD56912ECB36BF00FD6F36 /* PlasmaExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7CD56902ECB36BF00FD6F36 /* PlasmaExternalLinkProvider.swift */; };
+		A7F344B12F2CE39800544085 /* FloatingSheetRegistry+CloreMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7F344B02F2CE39800544085 /* FloatingSheetRegistry+CloreMigration.swift */; };
+		A7F344B32F2CE3B400544085 /* CloreMigrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7F344B22F2CE3B400544085 /* CloreMigrationView.swift */; };
+		A7F344B52F2CE3D600544085 /* CloreMigrationModuleFlowFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7F344B42F2CE3D600544085 /* CloreMigrationModuleFlowFactory.swift */; };
+		A7F344B72F2CE41200544085 /* CloreMigrationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7F344B62F2CE41200544085 /* CloreMigrationViewModel.swift */; };
+		A7F344BA2F2CE45F00544085 /* CloreMigrationMessageSigner.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7F344B92F2CE45F00544085 /* CloreMigrationMessageSigner.swift */; };
 		B00142BD2D79954A00923B6D /* WalletModelId.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00142BC2D79954A00923B6D /* WalletModelId.swift */; };
 		B0017EA52D3E76480057F164 /* VisaOnboardingSuccessView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0017EA42D3E76480057F164 /* VisaOnboardingSuccessView.swift */; };
 		B002416F2C2441EF00416397 /* HideTokenAlertBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B002416E2C2441EF00416397 /* HideTokenAlertBuilder.swift */; };
@@ -5686,6 +5691,11 @@
 		7985089E2DE99FE800388668 /* ToSScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToSScreen.swift; sourceTree = "<group>"; };
 		9345E59CCF194B22F38F4A46 /* AccountOperationResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountOperationResult.swift; sourceTree = "<group>"; };
 		A7CD56902ECB36BF00FD6F36 /* PlasmaExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlasmaExternalLinkProvider.swift; sourceTree = "<group>"; };
+		A7F344B02F2CE39800544085 /* FloatingSheetRegistry+CloreMigration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FloatingSheetRegistry+CloreMigration.swift"; sourceTree = "<group>"; };
+		A7F344B22F2CE3B400544085 /* CloreMigrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloreMigrationView.swift; sourceTree = "<group>"; };
+		A7F344B42F2CE3D600544085 /* CloreMigrationModuleFlowFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloreMigrationModuleFlowFactory.swift; sourceTree = "<group>"; };
+		A7F344B62F2CE41200544085 /* CloreMigrationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloreMigrationViewModel.swift; sourceTree = "<group>"; };
+		A7F344B92F2CE45F00544085 /* CloreMigrationMessageSigner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloreMigrationMessageSigner.swift; sourceTree = "<group>"; };
 		B00142BC2D79954A00923B6D /* WalletModelId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletModelId.swift; sourceTree = "<group>"; };
 		B0017EA42D3E76480057F164 /* VisaOnboardingSuccessView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaOnboardingSuccessView.swift; sourceTree = "<group>"; };
 		B002416E2C2441EF00416397 /* HideTokenAlertBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HideTokenAlertBuilder.swift; sourceTree = "<group>"; };
@@ -12347,6 +12357,34 @@
 				D852F81C2E5C86AB00C71B7F /* Smoke */,
 			);
 			path = Tests;
+			sourceTree = "<group>";
+		};
+		A7F344AE2F2CE34900544085 /* CloreMigration */ = {
+			isa = PBXGroup;
+			children = (
+				A7F344B82F2CE43800544085 /* CloreMigrationBottomSheet */,
+				A7F344B92F2CE45F00544085 /* CloreMigrationMessageSigner.swift */,
+			);
+			path = CloreMigration;
+			sourceTree = "<group>";
+		};
+		A7F344AF2F2CE37700544085 /* FloatingSheet */ = {
+			isa = PBXGroup;
+			children = (
+				A7F344B02F2CE39800544085 /* FloatingSheetRegistry+CloreMigration.swift */,
+			);
+			path = FloatingSheet;
+			sourceTree = "<group>";
+		};
+		A7F344B82F2CE43800544085 /* CloreMigrationBottomSheet */ = {
+			isa = PBXGroup;
+			children = (
+				A7F344AF2F2CE37700544085 /* FloatingSheet */,
+				A7F344B22F2CE3B400544085 /* CloreMigrationView.swift */,
+				A7F344B42F2CE3D600544085 /* CloreMigrationModuleFlowFactory.swift */,
+				A7F344B62F2CE41200544085 /* CloreMigrationViewModel.swift */,
+			);
+			path = CloreMigrationBottomSheet;
 			sourceTree = "<group>";
 		};
 		B0017EA32D3E762C0057F164 /* Success */ = {
@@ -20403,6 +20441,7 @@
 				DC261CA2292CF53E00875E64 /* Auth */,
 				DCBF4D392D8B4D42002C2B8E /* BalanceCache */,
 				EF7B9CED286C6B95004C33A9 /* CardSettings */,
+				A7F344AE2F2CE34900544085 /* CloreMigration */,
 				DC8C22EC2D8A01E0005159FE /* Details */,
 				B043FA1826B16B1D00D77729 /* Email */,
 				DC0A57FF28243D050031BECC /* SellLegacy */,
@@ -26517,6 +26556,7 @@
 				C2075EFC2DE62325009AD2F7 /* WalletConnectBlockchainMapper.swift in Sources */,
 				C2075EFE2DE62389009AD2F7 /* WalletConnectDAppDataService.swift in Sources */,
 				EFACB7012EA641EB002EB2E2 /* ExpressFeeCurrencyNavigating.swift in Sources */,
+				A7F344B72F2CE41200544085 /* CloreMigrationViewModel.swift in Sources */,
 				0F2784FD2E2809A300742D0F /* MobileOnboardingFlowRoutable.swift in Sources */,
 				DA682F962A29D08F0083CA79 /* PromotionNetworkModels.swift in Sources */,
 				B60B203A2AC5B5100098C09D /* MainBottomSheetFooterView.swift in Sources */,
@@ -26756,6 +26796,7 @@
 				2D3023562DF093B600B4FFE6 /* UserTokensPushNotificationsService.swift in Sources */,
 				EF8DBCE02C060CCE009072CF /* StakingDependenciesFactory.swift in Sources */,
 				EF5E08372DBBB0F700B553CC /* OnrampIncomingActionURLParser.swift in Sources */,
+				A7F344B52F2CE3D600544085 /* CloreMigrationModuleFlowFactory.swift in Sources */,
 				0F25E19C2EA13B1C00C67A34 /* MobileOnboardingBackupToUpgradeSeedPhraseFlowBuilder.swift in Sources */,
 				0F27862D2E2AEAC500742D0F /* MobileOnboardingImportWalletStep.swift in Sources */,
 				B0A948FF2ACD999C00C80B0A /* WeakifyFunction.swift in Sources */,
@@ -26994,6 +27035,7 @@
 				EFA23E732DEF6CBE004ADD0A /* SendFinishStep.swift in Sources */,
 				EA4032592E55F02E00573568 /* PromoCodeActivationDTO.swift in Sources */,
 				EF0423682E9933EA00D80B0B /* HotCryptoAddToPortfolioBottomSheetViewModel.swift in Sources */,
+				A7F344B12F2CE39800544085 /* FloatingSheetRegistry+CloreMigration.swift in Sources */,
 				B6E301992EC54F6F00D92416 /* AccountModel+.swift in Sources */,
 				B6293B1A2F15478F00B44807 /* TokenItemPromoProviderInput.swift in Sources */,
 				B0431B412919538700F84DEF /* IconWithBackground.swift in Sources */,
@@ -27878,6 +27920,7 @@
 				C2C084922ED9ADAC007914AE /* CurrencySelectViewEvent.swift in Sources */,
 				EFAD40B62A9CB22500364D65 /* SensitiveTextVisibilityViewModel.swift in Sources */,
 				EF4C0C5B2DDB52C100AFD567 /* SendDestinationAdditionalFieldView.swift in Sources */,
+				A7F344BA2F2CE45F00544085 /* CloreMigrationMessageSigner.swift in Sources */,
 				DAF97FC92BAAF2CC006D9A44 /* Locale+.swift in Sources */,
 				DC0A57D72822A3C80031BECC /* InjectionKey.swift in Sources */,
 				EFF034AC28B4B6ED00F70FF7 /* Publisher+TangemAPIError.swift in Sources */,
@@ -28278,6 +28321,7 @@
 				DC145B682E2E4E2900E04F5C /* WCTransactionViewStates.swift in Sources */,
 				DCBC945F2994F9BF0050BC35 /* AnalyticsSessionContextScope.swift in Sources */,
 				EFA4E3772C3EE785008815AD /* FakeStakingValidatorsInteractor.swift in Sources */,
+				A7F344B32F2CE3B400544085 /* CloreMigrationView.swift in Sources */,
 				B687286F2B7D48E90090C24F /* BlockchainAccountCreateParameters.swift in Sources */,
 				DCFEFE442CF07D94002DFE58 /* SwapTokenSelectorStrings.swift in Sources */,
 				B66913702C41958D0016B0EE /* OverlayContentContainerViewControllerAdapter.swift in Sources */,
