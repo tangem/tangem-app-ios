@@ -4466,6 +4466,7 @@
 		EFB6FF162E4F20930036731A /* SendSummaryTitleProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB6FF152E4F20930036731A /* SendSummaryTitleProvider.swift */; };
 		EFB7521B2C985F1100CB614C /* CommonFeeIncludedCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB7521A2C985F1100CB614C /* CommonFeeIncludedCalculator.swift */; };
 		EFB7521D2C985F2600CB614C /* StakingFeeIncludedCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB7521C2C985F2400CB614C /* StakingFeeIncludedCalculator.swift */; };
+		EFB7F4D82F2CE5BB00325D69 /* WalletModelBalancesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB7F4D72F2CE5BB00325D69 /* WalletModelBalancesProvider.swift */; };
 		EFB932032C3EAF7900C999E9 /* SendStepType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB932022C3EAF7900C999E9 /* SendStepType.swift */; };
 		EFB9320D2C3EC0C800C999E9 /* StakingTargetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB9320B2C3EC0C700C999E9 /* StakingTargetView.swift */; };
 		EFB932152C3EC18300C999E9 /* StakingTargetsInputOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB9320F2C3EC18300C999E9 /* StakingTargetsInputOutput.swift */; };
@@ -9281,6 +9282,7 @@
 		EFB6FF152E4F20930036731A /* SendSummaryTitleProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendSummaryTitleProvider.swift; sourceTree = "<group>"; };
 		EFB7521A2C985F1100CB614C /* CommonFeeIncludedCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonFeeIncludedCalculator.swift; sourceTree = "<group>"; };
 		EFB7521C2C985F2400CB614C /* StakingFeeIncludedCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingFeeIncludedCalculator.swift; sourceTree = "<group>"; };
+		EFB7F4D72F2CE5BB00325D69 /* WalletModelBalancesProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletModelBalancesProvider.swift; sourceTree = "<group>"; };
 		EFB932022C3EAF7900C999E9 /* SendStepType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendStepType.swift; sourceTree = "<group>"; };
 		EFB9320B2C3EC0C700C999E9 /* StakingTargetView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakingTargetView.swift; sourceTree = "<group>"; };
 		EFB9320F2C3EC18300C999E9 /* StakingTargetsInputOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakingTargetsInputOutput.swift; sourceTree = "<group>"; };
@@ -13006,6 +13008,7 @@
 				EFEB07C02C7CDFBC00E88352 /* WalletModelRate.swift */,
 				B6116E402E8E7C7B00D9121A /* RateValue.swift */,
 				DC3DCAD62A40AA4B00F72554 /* WalletModelsFactory.swift */,
+				EFB7F4D62F2CE5AC00325D69 /* WalletModelBalancesProvider */,
 				DC9113642D6FAE95002E17C5 /* AssetRequirements */,
 				EF4EB4F82EDDFF1E00A32D25 /* FiatBalanceProvider */,
 				EF42D7842D1D65D90065AFD1 /* BalanceProvider */,
@@ -25088,6 +25091,14 @@
 			path = SendTransactionSummaryDescriptionBuilder;
 			sourceTree = "<group>";
 		};
+		EFB7F4D62F2CE5AC00325D69 /* WalletModelBalancesProvider */ = {
+			isa = PBXGroup;
+			children = (
+				EFB7F4D72F2CE5BB00325D69 /* WalletModelBalancesProvider.swift */,
+			);
+			path = WalletModelBalancesProvider;
+			sourceTree = "<group>";
+		};
 		EFB9320C2C3EC0C700C999E9 /* StakingTargetView */ = {
 			isa = PBXGroup;
 			children = (
@@ -29547,6 +29558,7 @@
 				EFFA436D2E02EA30001E0E54 /* SendReceiveTokenCoordinatorView.swift in Sources */,
 				EFB9320D2C3EC0C800C999E9 /* StakingTargetView.swift in Sources */,
 				B60B9FDB2A95D96B00A7E905 /* OrganizeTokensListInnerSectionViewModel.swift in Sources */,
+				EFB7F4D82F2CE5BB00325D69 /* WalletModelBalancesProvider.swift in Sources */,
 				DAC37FBA2A2DFB730068F3ED /* PromotionView.swift in Sources */,
 				B68FE44D2ECFCE600069F5AF /* WalletModelsManagerStub.swift in Sources */,
 				DC145B5E2E2E3E3F00E04F5C /* WCRequestDetailsInputFactory.swift in Sources */,
