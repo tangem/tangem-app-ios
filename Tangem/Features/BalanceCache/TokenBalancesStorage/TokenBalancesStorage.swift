@@ -13,14 +13,3 @@ protocol TokenBalancesStorage {
     func store(balance: CachedBalance, type: CachedBalanceType, id: WalletModelId, userWalletId: UserWalletId)
     func balance(for id: WalletModelId, userWalletId: UserWalletId, type: CachedBalanceType) -> CachedBalance?
 }
-
-private struct TokenBalancesStorageKey: InjectionKey {
-    static var currentValue: TokenBalancesStorage = CommonTokenBalancesStorage()
-}
-
-extension InjectedValues {
-    var tokenBalancesStorage: TokenBalancesStorage {
-        get { Self[TokenBalancesStorageKey.self] }
-        set { Self[TokenBalancesStorageKey.self] = newValue }
-    }
-}

@@ -11,23 +11,21 @@ import TangemFoundation
 import CryptoKit
 
 public protocol StakingManagerStateRepository {
-    func storeState(_ state: StakingManagerState)
-    func state() -> CachedStakingManagerState?
-    func clearState()
+    func storeState(_ state: StakingManagerState, cacheId: String)
+    func state(cacheId: String) -> CachedStakingManagerState?
+    func clearState(cacheId: String)
 }
 
 public final class CommonStakingManagerStateRepository {
     private let storage: CachesDirectoryStorage
-    private let stakingWallet: StakingWallet
 
-    public init(stakingWallet: StakingWallet, storage: CachesDirectoryStorage) {
-        self.stakingWallet = stakingWallet
+    public init(storage: CachesDirectoryStorage) {
         self.storage = storage
     }
 }
 
 extension CommonStakingManagerStateRepository: StakingManagerStateRepository {
-    public func storeState(_ state: StakingManagerState) {
+    public func storeState(_ state: StakingManagerState, cacheId: String) {
         guard let cachedStakeState = mapToCachedStakeState(state),
               let rewardType = state.rewardType,
               let apy = state.apy else { return }
@@ -39,24 +37,23 @@ extension CommonStakingManagerStateRepository: StakingManagerStateRepository {
             date: Date()
         )
 
-        updateUserWalletState { stateForUserWallet in
-            stateForUserWallet.updateValue(stateToCache, forKey: stakingWallet.cacheId)
+        updateState { currentState in
+            currentState.updateValue(stateToCache, forKey: cacheId)
         }
     }
 
-    public func state() -> CachedStakingManagerState? {
+    public func state(cacheId: String) -> CachedStakingManagerState? {
         let currentState = getCurrentState()
-
-        return currentState[stakingWallet.cacheId]
+        return currentState[cacheId]
     }
 
-    public func clearState() {
-        updateUserWalletState { stateForUserWallet in
-            stateForUserWallet.removeValue(forKey: stakingWallet.cacheId)
+    public func clearState(cacheId: String) {
+        updateState { currentState in
+            currentState.removeValue(forKey: cacheId)
         }
     }
 
-    private func updateUserWalletState(_ updateBlock: (inout [String: CachedStakingManagerState]) -> Void) {
+    private func updateState(_ updateBlock: (inout [String: CachedStakingManagerState]) -> Void) {
         var currentState = getCurrentState()
 
         updateBlock(&currentState)
@@ -83,13 +80,5 @@ private extension CommonStakingManagerStateRepository {
         case .staked(let stakedInfo): .staked(balance: stakedInfo.balances.blocked().sum())
         default: nil
         }
-    }
-}
-
-private extension StakingWallet {
-    var cacheId: String {
-        let digest = SHA256.hash(data: publicKey)
-        let hash = Data(digest).hexString
-        return "\(item.network)_\(item.contractAddress ?? "coin")_\(hash)"
     }
 }
