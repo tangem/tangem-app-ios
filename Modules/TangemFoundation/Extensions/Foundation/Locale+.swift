@@ -39,20 +39,24 @@ public extension Locale {
     }
 }
 
-// MARK: - News Language Code
+// MARK: - Supported Language Code
 
 public extension Locale {
-    /// Supported language codes for news-related services.
-    private static let supportedNewsLanguageCodes: Set<String> = [
-        "en", "ru", "fr", "uk", "de", "ja", "es", "tr", "ko", "zh", "pt",
-    ]
+    /// Returns supported language code with priority: appLanguage → deviceLanguage → fallback
+    static func languageCode(supportedCodes: Set<String>, fallback: String = enLanguageCode) -> String {
+        // Priority 1: App language (respects per-app language setting in iOS Settings)
+        let appLang = Locale.Language(identifier: appLanguageCode)
+        if let code = appLang.languageCode?.identifier(.alpha2), supportedCodes.contains(code) {
+            return code
+        }
 
-    /// Language code used by news-related services.
-    /// Returns the app's language code if it's in the supported list, otherwise returns English.
-    /// Priority: 1) App language (set in iOS Settings → App → Language), 2) Device language
-    static var newsLanguageCode: String {
-        let language = Locale.Language(identifier: appLanguageCode)
-        let languageCode = language.languageCode?.identifier(.alpha2) ?? enLanguageCode
-        return supportedNewsLanguageCodes.contains(languageCode) ? languageCode : enLanguageCode
+        // Priority 2: Device language
+        let deviceLang = Locale.Language(identifier: deviceLanguageCode)
+        if let code = deviceLang.languageCode?.identifier(.alpha2), supportedCodes.contains(code) {
+            return code
+        }
+
+        // Fallback
+        return fallback
     }
 }
