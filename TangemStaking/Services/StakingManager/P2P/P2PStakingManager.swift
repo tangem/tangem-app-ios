@@ -50,7 +50,8 @@ extension P2PStakingManager: StakingManager {
             let yield = try await yieldInfoProvider.yieldInfo(for: integrationId)
 
             guard !yield.preferredTargets.isEmpty else {
-                updateState(.notEnabled)
+                // Empty vaults should show as temporarily unavailable, not disabled
+                updateState(.temporaryUnavailable(yield, cached: stateRepository.state()))
                 return
             }
 
@@ -131,12 +132,13 @@ private extension P2PStakingManager {
     }
 
     func state(balances: [StakingBalanceInfo]?, yield: StakingYieldInfo?) -> StakingManagerState {
-        guard let yield, !yield.preferredTargets.isEmpty else {
+        guard let yield else {
             return .notEnabled
         }
 
-        guard yield.isAvailable else {
-            return .temporaryUnavailable(yield)
+        // Empty validators or unavailable yield means temporarily unavailable
+        guard !yield.preferredTargets.isEmpty, yield.isAvailable else {
+            return .temporaryUnavailable(yield, cached: stateRepository.state())
         }
 
         let stakingBalances = balances?.map { balance in
