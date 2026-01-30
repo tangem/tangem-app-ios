@@ -144,14 +144,14 @@ final class MultiWalletMainContentViewModel: ObservableObject {
 
     func onDidAppear() {
         mobileFinishActivationManager.onMain(
-            userWalletId: userWalletModel.userWalletId,
+            userWalletModel: userWalletModel,
             isAppeared: true
         )
     }
 
     func onWillDisappear() {
         mobileFinishActivationManager.onMain(
-            userWalletId: userWalletModel.userWalletId,
+            userWalletModel: userWalletModel,
             isAppeared: false
         )
     }
