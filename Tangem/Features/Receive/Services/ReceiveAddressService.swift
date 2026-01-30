@@ -11,6 +11,7 @@ import Combine
 import BlockchainSdk
 import TangemFoundation
 
+@MainActor
 protocol ReceiveAddressService: AnyObject {
     var addressTypes: [ReceiveAddressType] { get }
     var addressInfos: [ReceiveAddressInfo] { get }
@@ -20,70 +21,87 @@ protocol ReceiveAddressService: AnyObject {
 
 // MARK: - CommonReceiveAddressService
 
-class CommonReceiveAddressService {
-    // MARK: - Private Properties
-
-    private var _addressTypes: [ReceiveAddressType] = []
-
-    private var resolveDestinationTask: Task<Void, Error>?
+@MainActor
+final class CommonReceiveAddressService {
+    // MARK: - Dependencies
 
     private let domainAddressResolver: DomainNameAddressResolver?
-    private let receiveAddressInfoUtils = ReceiveAddressInfoUtils(colorScheme: .whiteBlack)
+    private let receiveAddressInfoUtils: ReceiveAddressInfoUtils
+
+    // MARK: - State
+
+    private(set) var addressTypes: [ReceiveAddressType] = []
+    private var resolveDomainTask: Task<Void, Never>?
 
     // MARK: - Init
 
-    init(addresses: [Address], domainAddressResolver: DomainNameAddressResolver?) {
+    init(
+        addresses: [Address],
+        domainAddressResolver: DomainNameAddressResolver?,
+        receiveAddressInfoUtils: ReceiveAddressInfoUtils = ReceiveAddressInfoUtils(colorScheme: .whiteBlack)
+    ) {
         self.domainAddressResolver = domainAddressResolver
+        self.receiveAddressInfoUtils = receiveAddressInfoUtils
 
-        updateReceiveAddressTypes(with: addresses)
+        addressTypes = makeAddressTypes(from: addresses)
     }
 }
 
 // MARK: - ReceiveAddressService
 
 extension CommonReceiveAddressService: ReceiveAddressService {
-    var addressTypes: [ReceiveAddressType] {
-        _addressTypes
-    }
-
     var addressInfos: [ReceiveAddressInfo] {
-        _addressTypes.map { $0.info }
+        addressTypes.map(\.info)
     }
 
     func update(with addresses: [Address]) async {
-        updateReceiveAddressTypes(with: addresses)
+        resolveDomainTask?.cancel()
+        addressTypes = makeAddressTypes(from: addresses)
 
-        resolveDestinationTask?.cancel()
+        await resolveDomainNamesIfNeeded()
+    }
+}
 
-        resolveDestinationTask = runTask(in: self) { service in
-            await service.resolveDomainAddressTypes()
-        }
+// MARK: - Private
 
-        _ = try? await resolveDestinationTask?.value
+private extension CommonReceiveAddressService {
+    func makeAddressTypes(from addresses: [Address]) -> [ReceiveAddressType] {
+        receiveAddressInfoUtils
+            .makeAddressInfos(from: addresses)
+            .map { .address($0) }
     }
 
-    // MARK: - Private Implementation
+    func resolveDomainNamesIfNeeded() async {
+        guard domainAddressResolver != nil else {
+            return
+        }
 
-    private func resolveDomainAddressTypes() async {
+        resolveDomainTask = Task { [weak self] in
+            await self?.resolveDomainNames()
+        }
+
+        await resolveDomainTask?.value
+    }
+
+    func resolveDomainNames() async {
         guard let domainAddressResolver else {
             return
         }
 
         for addressInfo in addressInfos {
+            guard !Task.isCancelled else {
+                return
+            }
+
             do {
-                let resolveDomainName = try await domainAddressResolver.resolveDomainName(addressInfo.address)
-                _addressTypes.append(.domain(resolveDomainName, addressInfo))
+                let domainName = try await domainAddressResolver.resolveDomainName(addressInfo.address)
+                addressTypes.append(.domain(domainName, addressInfo))
             } catch is CancellationError {
-                // Do Nothig
+                return
             } catch {
-                AppLogger.error("Failed to check resolve address with error:", error: error)
+                // Domain name not found for this address — expected for most addresses
             }
         }
-    }
-
-    private func updateReceiveAddressTypes(with addresses: [Address]) {
-        let addressInfos = receiveAddressInfoUtils.makeAddressInfos(from: addresses)
-        _addressTypes = addressInfos.map { ReceiveAddressType.address($0) }
     }
 }
 
