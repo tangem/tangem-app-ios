@@ -22,7 +22,7 @@ final class RelatedTokensViewModel: ObservableObject {
 
     // MARK: - Private Properties
 
-    private let tokens: [NewsDetailsViewModel.RelatedToken]
+    private let tokens: [NewsRelatedToken]
     private let newsId: Int
     private let filterProvider = MarketsListDataFilterProvider()
     private let chartsHistoryProvider = MarketsListChartsHistoryProvider()
@@ -31,7 +31,7 @@ final class RelatedTokensViewModel: ObservableObject {
 
     // MARK: - Init
 
-    init(tokens: [NewsDetailsViewModel.RelatedToken], newsId: Int, coordinator: NewsDetailsRoutable?) {
+    init(tokens: [NewsRelatedToken], newsId: Int, coordinator: NewsDetailsRoutable?) {
         self.tokens = tokens
         self.newsId = newsId
         self.coordinator = coordinator
