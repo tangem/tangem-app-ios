@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 
 struct MarketsRelatedTokenNewsProvider {
     // MARK: - Injected Services
