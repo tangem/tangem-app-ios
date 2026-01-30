@@ -824,7 +824,8 @@ extension SendModel: NotificationTapDelegate {
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
              .activate,
-             .givePermission:
+             .givePermission,
+             .openCloreMigration:
             assertionFailure("Notification tap not handled")
         }
     }
