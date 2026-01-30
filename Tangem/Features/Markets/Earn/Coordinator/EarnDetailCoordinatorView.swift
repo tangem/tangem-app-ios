@@ -22,10 +22,16 @@ struct EarnDetailCoordinatorView: CoordinatorView {
 
             NavHolder()
                 .bottomSheet(
-                    item: $coordinator.filterBottomSheetViewModel,
+                    item: $coordinator.networkFilterBottomSheetViewModel,
                     backgroundColor: Colors.Background.tertiary
                 ) {
-                    EarnFilterBottomSheetView(viewModel: $0)
+                    EarnNetworkFilterBottomSheetView(viewModel: $0)
+                }
+                .bottomSheet(
+                    item: $coordinator.typeFilterBottomSheetViewModel,
+                    backgroundColor: Colors.Background.tertiary
+                ) {
+                    EarnTypeFilterBottomSheetView(viewModel: $0)
                 }
         }
         .bindAlert($coordinator.error)

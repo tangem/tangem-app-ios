@@ -769,6 +769,10 @@
 		2DD5C39B2C4EA6570000658D /* MarketsListDataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD5C3992C4EA6570000658D /* MarketsListDataController.swift */; };
 		2DD669352E28D0DC006D715A /* SolanaALTLookupTableDispatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD669342E28D0DC006D715A /* SolanaALTLookupTableDispatcher.swift */; };
 		2DD669372E28EDDD006D715A /* SolanaALTSendTransactionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD669362E28EDDD006D715A /* SolanaALTSendTransactionBuilder.swift */; };
+		2DD6A09C2F2D05EE003BF9ED /* EarnNetworkFilterBottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD6A0972F2D05ED003BF9ED /* EarnNetworkFilterBottomSheetView.swift */; };
+		2DD6A09D2F2D05EE003BF9ED /* EarnTypeFilterBottomSheetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD6A09A2F2D05ED003BF9ED /* EarnTypeFilterBottomSheetViewModel.swift */; };
+		2DD6A09E2F2D05EE003BF9ED /* EarnNetworkFilterBottomSheetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD6A0982F2D05ED003BF9ED /* EarnNetworkFilterBottomSheetViewModel.swift */; };
+		2DD6A09F2F2D05EE003BF9ED /* EarnTypeFilterBottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD6A0992F2D05ED003BF9ED /* EarnTypeFilterBottomSheetView.swift */; };
 		2DD91FA62E66A79300A0B0B5 /* SelectorReceiveRoundButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD91FA52E66A79300A0B0B5 /* SelectorReceiveRoundButtonView.swift */; };
 		2DDB4C392E9F92EC00759EAA /* LineaExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DDB4C382E9F92EC00759EAA /* LineaExternalLinkProvider.swift */; };
 		2DDF91942A14DA2700B31113 /* TokenItemMenuActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DDF91932A14DA2700B31113 /* TokenItemMenuActions.swift */; };
@@ -823,10 +827,8 @@
 		2DE2A4E42F2A3F420097CA73 /* EarnMostlyUsedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE2A4D42F2A3F420097CA73 /* EarnMostlyUsedView.swift */; };
 		2DE2A4E52F2A3F420097CA73 /* EarnDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE2A4D72F2A3F420097CA73 /* EarnDetailViewModel.swift */; };
 		2DE2AA462F2B6B5B0097CA73 /* EarnTypeFilterType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE2AA442F2B6B5B0097CA73 /* EarnTypeFilterType.swift */; };
-		2DE2AA472F2B6B5B0097CA73 /* EarnFilterBottomSheetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE2AA3F2F2B6B5B0097CA73 /* EarnFilterBottomSheetViewModel.swift */; };
 		2DE2AA482F2B6B5B0097CA73 /* EarnNetworkFilterType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE2AA432F2B6B5B0097CA73 /* EarnNetworkFilterType.swift */; };
 		2DE2AA492F2B6B5B0097CA73 /* EarnFilterProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE2AA412F2B6B5B0097CA73 /* EarnFilterProvider.swift */; };
-		2DE2AA4A2F2B6B5B0097CA73 /* EarnFilterBottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE2AA3E2F2B6B5B0097CA73 /* EarnFilterBottomSheetView.swift */; };
 		2DE66F0E2E7F3AB700CCE029 /* PushPermissionNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE66F0D2E7F3AB700CCE029 /* PushPermissionNotificationManager.swift */; };
 		2DF123452F28A1B10NEWS0002 /* NewsIncomingLinkParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DF123452F28A1B10NEWS0001 /* NewsIncomingLinkParser.swift */; };
 		2DF123452F28A1B10NEWS0004 /* NewsIncomingLinkParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DF123452F28A1B10NEWS0003 /* NewsIncomingLinkParserTests.swift */; };
@@ -5624,6 +5626,10 @@
 		2DD5C3992C4EA6570000658D /* MarketsListDataController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsListDataController.swift; sourceTree = "<group>"; };
 		2DD669342E28D0DC006D715A /* SolanaALTLookupTableDispatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaALTLookupTableDispatcher.swift; sourceTree = "<group>"; };
 		2DD669362E28EDDD006D715A /* SolanaALTSendTransactionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaALTSendTransactionBuilder.swift; sourceTree = "<group>"; };
+		2DD6A0972F2D05ED003BF9ED /* EarnNetworkFilterBottomSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnNetworkFilterBottomSheetView.swift; sourceTree = "<group>"; };
+		2DD6A0982F2D05ED003BF9ED /* EarnNetworkFilterBottomSheetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnNetworkFilterBottomSheetViewModel.swift; sourceTree = "<group>"; };
+		2DD6A0992F2D05ED003BF9ED /* EarnTypeFilterBottomSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnTypeFilterBottomSheetView.swift; sourceTree = "<group>"; };
+		2DD6A09A2F2D05ED003BF9ED /* EarnTypeFilterBottomSheetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnTypeFilterBottomSheetViewModel.swift; sourceTree = "<group>"; };
 		2DD91FA52E66A79300A0B0B5 /* SelectorReceiveRoundButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectorReceiveRoundButtonView.swift; sourceTree = "<group>"; };
 		2DDB4C382E9F92EC00759EAA /* LineaExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineaExternalLinkProvider.swift; sourceTree = "<group>"; };
 		2DDF91932A14DA2700B31113 /* TokenItemMenuActions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenItemMenuActions.swift; sourceTree = "<group>"; };
@@ -5677,8 +5683,6 @@
 		2DE2A4D62F2A3F420097CA73 /* EarnDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnDetailView.swift; sourceTree = "<group>"; };
 		2DE2A4D72F2A3F420097CA73 /* EarnDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnDetailViewModel.swift; sourceTree = "<group>"; };
 		2DE2A4D92F2A3F420097CA73 /* EarnDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnDataProvider.swift; sourceTree = "<group>"; };
-		2DE2AA3E2F2B6B5B0097CA73 /* EarnFilterBottomSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnFilterBottomSheetView.swift; sourceTree = "<group>"; };
-		2DE2AA3F2F2B6B5B0097CA73 /* EarnFilterBottomSheetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnFilterBottomSheetViewModel.swift; sourceTree = "<group>"; };
 		2DE2AA412F2B6B5B0097CA73 /* EarnFilterProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnFilterProvider.swift; sourceTree = "<group>"; };
 		2DE2AA432F2B6B5B0097CA73 /* EarnNetworkFilterType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnNetworkFilterType.swift; sourceTree = "<group>"; };
 		2DE2AA442F2B6B5B0097CA73 /* EarnTypeFilterType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnTypeFilterType.swift; sourceTree = "<group>"; };
@@ -11794,6 +11798,17 @@
 			path = Analytics;
 			sourceTree = "<group>";
 		};
+		2DD6A09B2F2D05ED003BF9ED /* FilterBottomSheet */ = {
+			isa = PBXGroup;
+			children = (
+				2DD6A0972F2D05ED003BF9ED /* EarnNetworkFilterBottomSheetView.swift */,
+				2DD6A0982F2D05ED003BF9ED /* EarnNetworkFilterBottomSheetViewModel.swift */,
+				2DD6A0992F2D05ED003BF9ED /* EarnTypeFilterBottomSheetView.swift */,
+				2DD6A09A2F2D05ED003BF9ED /* EarnTypeFilterBottomSheetViewModel.swift */,
+			);
+			path = FilterBottomSheet;
+			sourceTree = "<group>";
+		};
 		2DD91FA42E66A77C00A0B0B5 /* Components */ = {
 			isa = PBXGroup;
 			children = (
@@ -11947,7 +11962,7 @@
 			children = (
 				2DE2A4CF2F2A3F420097CA73 /* Coordinator */,
 				2DE2A4D82F2A3F420097CA73 /* Detail */,
-				2DE2AA402F2B6B5B0097CA73 /* FilterBottomSheet */,
+				2DD6A09B2F2D05ED003BF9ED /* FilterBottomSheet */,
 				2DE2A39D2F2A2BB70097CA73 /* Model */,
 				2DE2AA422F2B6B5B0097CA73 /* Providers */,
 				2DE2A4DA2F2A3F420097CA73 /* Services */,
@@ -12049,15 +12064,6 @@
 				2DE2A4D92F2A3F420097CA73 /* EarnDataProvider.swift */,
 			);
 			path = Services;
-			sourceTree = "<group>";
-		};
-		2DE2AA402F2B6B5B0097CA73 /* FilterBottomSheet */ = {
-			isa = PBXGroup;
-			children = (
-				2DE2AA3E2F2B6B5B0097CA73 /* EarnFilterBottomSheetView.swift */,
-				2DE2AA3F2F2B6B5B0097CA73 /* EarnFilterBottomSheetViewModel.swift */,
-			);
-			path = FilterBottomSheet;
 			sourceTree = "<group>";
 		};
 		2DE2AA422F2B6B5B0097CA73 /* Providers */ = {
@@ -28402,6 +28408,10 @@
 				B0A0E7972BF48CAF0059FD5C /* VisaUtilities+Extensions.swift in Sources */,
 				EF8F56E32F0C7AD3000F6FD0 /* FeeSelectorBuilder.swift in Sources */,
 				EFBAB8812E13E8F800657FB6 /* BitcoinCustomFeeService.swift in Sources */,
+				2DD6A09C2F2D05EE003BF9ED /* EarnNetworkFilterBottomSheetView.swift in Sources */,
+				2DD6A09D2F2D05EE003BF9ED /* EarnTypeFilterBottomSheetViewModel.swift in Sources */,
+				2DD6A09E2F2D05EE003BF9ED /* EarnNetworkFilterBottomSheetViewModel.swift in Sources */,
+				2DD6A09F2F2D05EE003BF9ED /* EarnTypeFilterBottomSheetView.swift in Sources */,
 				2DC567812B0E047700B0244F /* MainBottomSheetUIManager.swift in Sources */,
 				B6CC6F602DD77301005D78DD /* FeeCurrencyNavigating.swift in Sources */,
 				DCBF08412E6EDD370093AE67 /* WCTransactionsFilter.swift in Sources */,
@@ -29670,10 +29680,8 @@
 				EF6CB17E292E1190001335EA /* EnvironmentSetupViewModel.swift in Sources */,
 				DCE32A632F1965D900D59A03 /* AppDelegate+DeepLinkDelegate.swift in Sources */,
 				2DE2AA462F2B6B5B0097CA73 /* EarnTypeFilterType.swift in Sources */,
-				2DE2AA472F2B6B5B0097CA73 /* EarnFilterBottomSheetViewModel.swift in Sources */,
 				2DE2AA482F2B6B5B0097CA73 /* EarnNetworkFilterType.swift in Sources */,
 				2DE2AA492F2B6B5B0097CA73 /* EarnFilterProvider.swift in Sources */,
-				2DE2AA4A2F2B6B5B0097CA73 /* EarnFilterBottomSheetView.swift in Sources */,
 				EFFC85D32E7B63110079F320 /* OnrampProviderItemViewModelBuilder.swift in Sources */,
 				DCF109AD2EF45D5400B97F19 /* TangemIconProvider.swift in Sources */,
 				DA3880A02E391E25000B0242 /* VisaBuilder+FeatureStorage.swift in Sources */,

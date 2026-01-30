@@ -41,7 +41,7 @@ class EarnFilterProvider {
     }
 
     var supportedNetworks: [EarnNetworkFilterType] {
-        EarnNetworkFilterType.allCases
+        EarnNetworkFilterType.presetCases
     }
 
     var supportedTypes: [EarnTypeFilterType] {
