@@ -834,9 +834,9 @@
 "notification_sepa_title" = "Покупайте крипту через SEPA";
 "notification_visa_waitlist_promo_text" = "Присоединяйтесь к списку ожидания и получите уникальную платёжную карту, не похожую ни на одну другую.";
 "notification_visa_waitlist_promo_title" = "Tangem Visa Card";
-"notification_yield_promo_button" = "Terms and conditions";
-"notification_yield_promo_text" = "Deposit $100+, hold for 30 days, get $10.";
-"notification_yield_promo_title" = "Join the Yield Mode Campaign!";
+"notification_yield_promo_button" = "Условия программы";
+"notification_yield_promo_text" = "Внесите депозит от $100, удерживайте его 30 дней и получите бонус $10";
+"notification_yield_promo_title" = "Подключите Режим доходности!";
 "onboarding_access_code_feature_1_description" = "Установите единый код доступа для защиты всех ваших карт или колец";
 "onboarding_access_code_feature_1_title" = "Защита";
 "onboarding_access_code_feature_2_description" = "Установите индивидуальный код доступа для каждой карты или кольца позже.";
