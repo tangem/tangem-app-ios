@@ -26,11 +26,12 @@ class CommonTokenBalancesStorage {
      */
     private typealias Balances = [String: [String: [String: CachedBalance]]]
 
-    private let storage = CachesDirectoryStorage(file: .cachedBalances)
+    private let storage: CachesDirectoryStorage
     private let balances: CurrentValueSubject<Balances, Never>
     private var bag: Set<AnyCancellable> = []
 
-    init() {
+    init(storage: CachesDirectoryStorage) {
+        self.storage = storage
         let cachedBalances: Balances? = try? storage.value()
         balances = .init(cachedBalances ?? [:])
 
