@@ -87,6 +87,10 @@ class SendModel {
 
         bind()
     }
+
+    deinit {
+        AppLogger.debug("SendModel deinit")
+    }
 }
 
 // MARK: - Validation
