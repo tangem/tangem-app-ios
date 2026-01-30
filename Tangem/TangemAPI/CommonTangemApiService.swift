@@ -247,6 +247,15 @@ extension CommonTangemApiService: TangemApiService {
         }
     }
 
+    func bindReferral(request model: ReferralDTO.Request) async throws {
+        let target = TangemApiTarget(type: .bindWalletsByCode(model))
+
+        try await withErrorLoggingPipeline(target: target) {
+            let response = try await provider.asyncRequest(target)
+            _ = try response.filterSuccessfulStatusAndRedirectCodes()
+        }
+    }
+
     func expressPromotion(request model: ExpressPromotion.Request) async throws -> ExpressPromotion.Response {
         return try await request(for: .promotion(request: model), decoder: decoder)
     }
