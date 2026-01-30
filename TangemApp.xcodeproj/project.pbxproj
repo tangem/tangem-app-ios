@@ -3882,7 +3882,7 @@
 		EF15D62A2E30E5020080B000 /* SendDestinationInteractorSaver.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF15D6292E30E5020080B000 /* SendDestinationInteractorSaver.swift */; };
 		EF15D6312E30EE790080B000 /* SendAmountInteractorSaver.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF15D6302E30EE790080B000 /* SendAmountInteractorSaver.swift */; };
 		EF170E772EA0FCFF005AE9A0 /* AccountsAwareActionButtonsSwapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF170E762EA0FCFF005AE9A0 /* AccountsAwareActionButtonsSwapViewModel.swift */; };
-		EF170E792EA100D1005AE9A0 /* AccountsAwareActionButtonsSwapHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF170E782EA100D1005AE9A0 /* AccountsAwareActionButtonsSwapHeaderView.swift */; };
+		EF170E792EA100D1005AE9A0 /* ActionButtonsSwapHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF170E782EA100D1005AE9A0 /* ActionButtonsSwapHeaderView.swift */; };
 		EF170E7B2EA1077F005AE9A0 /* AccountsAwareActionButtonsSwapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF170E7A2EA1077F005AE9A0 /* AccountsAwareActionButtonsSwapView.swift */; };
 		EF175D722E8BF93500B69415 /* StakingTargetRewardRateFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF175D712E8BF93500B69415 /* StakingTargetRewardRateFormatter.swift */; };
 		EF175D742E8C26E300B69415 /* AccountsAwareTokenSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF175D732E8C26E300B69415 /* AccountsAwareTokenSelectorView.swift */; };
@@ -8687,7 +8687,7 @@
 		EF15D6292E30E5020080B000 /* SendDestinationInteractorSaver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDestinationInteractorSaver.swift; sourceTree = "<group>"; };
 		EF15D6302E30EE790080B000 /* SendAmountInteractorSaver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendAmountInteractorSaver.swift; sourceTree = "<group>"; };
 		EF170E762EA0FCFF005AE9A0 /* AccountsAwareActionButtonsSwapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountsAwareActionButtonsSwapViewModel.swift; sourceTree = "<group>"; };
-		EF170E782EA100D1005AE9A0 /* AccountsAwareActionButtonsSwapHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountsAwareActionButtonsSwapHeaderView.swift; sourceTree = "<group>"; };
+		EF170E782EA100D1005AE9A0 /* ActionButtonsSwapHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButtonsSwapHeaderView.swift; sourceTree = "<group>"; };
 		EF170E7A2EA1077F005AE9A0 /* AccountsAwareActionButtonsSwapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountsAwareActionButtonsSwapView.swift; sourceTree = "<group>"; };
 		EF175D712E8BF93500B69415 /* StakingTargetRewardRateFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingTargetRewardRateFormatter.swift; sourceTree = "<group>"; };
 		EF175D732E8C26E300B69415 /* AccountsAwareTokenSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountsAwareTokenSelectorView.swift; sourceTree = "<group>"; };
@@ -22696,7 +22696,7 @@
 			children = (
 				EF170E7A2EA1077F005AE9A0 /* AccountsAwareActionButtonsSwapView.swift */,
 				EF170E762EA0FCFF005AE9A0 /* AccountsAwareActionButtonsSwapViewModel.swift */,
-				EF170E782EA100D1005AE9A0 /* AccountsAwareActionButtonsSwapHeaderView.swift */,
+				EF170E782EA100D1005AE9A0 /* ActionButtonsSwapHeaderView.swift */,
 			);
 			path = Swap;
 			sourceTree = "<group>";
@@ -27080,7 +27080,7 @@
 				DC7D3A0929E065E3007BCD23 /* BackupHelper.swift in Sources */,
 				DC72548C2A02B97A0003FE1B /* ResetToFactoryViewModelInput.swift in Sources */,
 				B03156A82A86369B001D9646 /* DefaultTokenItemInfoProvider.swift in Sources */,
-				EF170E792EA100D1005AE9A0 /* AccountsAwareActionButtonsSwapHeaderView.swift in Sources */,
+				EF170E792EA100D1005AE9A0 /* ActionButtonsSwapHeaderView.swift in Sources */,
 				0FA453B62E1D3AFE0055B5BB /* MobileWrongAccessCodeStore.swift in Sources */,
 				0FA453B82E1D3AFE0055B5BB /* MobileUnlockView.swift in Sources */,
 				0FA453BA2E1D3AFE0055B5BB /* MobileAccessCodeState.swift in Sources */,

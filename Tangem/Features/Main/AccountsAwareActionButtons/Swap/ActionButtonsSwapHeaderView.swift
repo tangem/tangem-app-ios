@@ -1,5 +1,5 @@
 //
-//  AccountsAwareActionButtonsSwapHeaderView.swift
+//  ActionButtonsSwapHeaderView.swift
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,22 +10,21 @@ import SwiftUI
 import TangemAssets
 import TangemLocalization
 
-struct AccountsAwareActionButtonsSwapHeaderView: View {
-    let title: String
+struct ActionButtonsSwapHeaderView: View {
+    let headerType: ExpressCurrencyHeaderType
     let remove: (() -> Void)?
 
     var body: some View {
         HStack(spacing: .zero) {
-            Text(title)
-                .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
+            ExpressCurrencyDefaultHeaderView(headerType: headerType)
 
             Spacer()
 
             if let remove {
-                Button(action: remove, label: {
+                Button(action: remove) {
                     Text(Localization.manageTokensRemove)
                         .style(Fonts.Regular.footnote, color: Colors.Text.accent)
-                })
+                }
             }
         }
         .padding(.vertical, 8)
