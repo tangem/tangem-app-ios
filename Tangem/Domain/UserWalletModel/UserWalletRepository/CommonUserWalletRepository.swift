@@ -194,7 +194,7 @@ class CommonUserWalletRepository: UserWalletRepository {
                 models = [selectedModel]
             }
 
-            sendEvent(.deleted(userWalletIds: otherUserWallets.map { $0.userWalletId }))
+            sendEvent(.deleted(userWalletIds: otherUserWallets.map { $0.userWalletId }, isRepositoryEmpty: false))
         }
     }
 
@@ -238,10 +238,11 @@ class CommonUserWalletRepository: UserWalletRepository {
 
         try? mobileWalletSdk.delete(walletIDs: [userWalletId])
 
+        sendEvent(.deleted(userWalletIds: [userWalletId], isRepositoryEmpty: models.isEmpty))
+
         if models.isEmpty {
             lockInternal()
         } else {
-            sendEvent(.deleted(userWalletIds: [userWalletId]))
             let newModel = models[nextSelectionIndex]
             select(userWalletId: newModel.userWalletId)
         }
