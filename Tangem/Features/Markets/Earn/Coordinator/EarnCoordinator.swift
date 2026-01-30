@@ -20,7 +20,8 @@ final class EarnCoordinator: CoordinatorObject {
 
     // MARK: - Child ViewModels
 
-    @Published var filterBottomSheetViewModel: EarnFilterBottomSheetViewModel?
+    @Published var networkFilterBottomSheetViewModel: EarnNetworkFilterBottomSheetViewModel?
+    @Published var typeFilterBottomSheetViewModel: EarnTypeFilterBottomSheetViewModel?
 
     // MARK: - Private Properties
 
@@ -66,14 +67,20 @@ extension EarnCoordinator: EarnDetailRoutable {
     }
 
     func openNetworksFilter() {
-        filterBottomSheetViewModel = .init(kind: .networks, provider: filterProvider) { [weak self] in
-            self?.filterBottomSheetViewModel = nil
-        }
+        networkFilterBottomSheetViewModel = EarnNetworkFilterBottomSheetViewModel(
+            provider: filterProvider,
+            onDismiss: { [weak self] in
+                self?.networkFilterBottomSheetViewModel = nil
+            }
+        )
     }
 
     func openTypesFilter() {
-        filterBottomSheetViewModel = .init(kind: .types, provider: filterProvider) { [weak self] in
-            self?.filterBottomSheetViewModel = nil
-        }
+        typeFilterBottomSheetViewModel = EarnTypeFilterBottomSheetViewModel(
+            provider: filterProvider,
+            onDismiss: { [weak self] in
+                self?.typeFilterBottomSheetViewModel = nil
+            }
+        )
     }
 }

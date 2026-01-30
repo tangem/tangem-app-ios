@@ -48,7 +48,7 @@ final class EarnDetailViewModel: ObservableObject {
 
     func loadBestOpportunities() {
         // [REDACTED_TODO_COMMENT]
-        // 
+        //
         bestOpportunitiesResultState = .loading
 
         // Placeholder: simulate loading
