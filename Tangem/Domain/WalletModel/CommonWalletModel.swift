@@ -533,15 +533,12 @@ extension CommonWalletModel: WalletModelHelpers {
                 .map { $0.pendingTransactions }
                 .eraseToAnyPublisher()
 
-        let yieldModuleStateRepository = CommonYieldModuleStateRepository(
-            walletModelId: WalletModelId(tokenItem: tokenItem),
-            userWalletId: userWalletId,
-            token: token
-        )
+        @Injected(\.cachesProvider) var cachesProvider: CachesProviding
 
         return CommonYieldModuleManager(
             walletAddress: wallet.defaultAddress.value,
-            userWalletId: userWalletId.stringValue,
+            walletModelId: WalletModelId(tokenItem: tokenItem),
+            userWalletId: userWalletId,
             token: token,
             blockchain: wallet.blockchain,
             yieldSupplyService: yieldSupplyService,
@@ -549,8 +546,8 @@ extension CommonWalletModel: WalletModelHelpers {
             ethereumNetworkProvider: ethereumNetworkProvider,
             transactionCreator: transactionCreator,
             blockaidApiService: BlockaidFactory().makeBlockaidAPIService(),
-            yieldModuleStateRepository: yieldModuleStateRepository,
-            yieldModuleMarketsRepository: CommonYieldModuleMarketsRepository(),
+            yieldModuleStateRepository: cachesProvider.yieldModuleStateRepository,
+            yieldModuleMarketsRepository: cachesProvider.yieldModuleMarketsRepository,
             pendingTransactionsPublisher: nonFilteredPendingTransactionsPublisher,
             updateWallet: { [weak self] in
                 await self?.update(silent: false, features: .full)
