@@ -52,6 +52,6 @@ extension MobileOnboardingSuccessView {
             title: item.title,
             action: item.action
         )
-        .accessibilityIdentifier(viewModel.actionButtonAccessibilityIdentifier())
+        .accessibilityIdentifier(viewModel.actionButtonAccessibilityIdentifier)
     }
 }

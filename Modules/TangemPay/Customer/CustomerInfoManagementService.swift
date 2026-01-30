@@ -153,15 +153,3 @@ extension CommonCustomerInfoManagementService: CustomerInfoManagementService {
         try await request(for: .getOrder(orderId: orderId))
     }
 }
-
-private let hexPrefix = "0x"
-
-private extension String {
-    func addHexPrefix() -> String {
-        if lowercased().hasPrefix(hexPrefix) {
-            return self
-        }
-
-        return hexPrefix.appending(self)
-    }
-}
