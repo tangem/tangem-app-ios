@@ -9,10 +9,11 @@
 import Foundation
 import BlockchainSdk
 
-protocol TokenDetailsRoutable: FeeCurrencyNavigating {
+protocol TokenDetailsRoutable: FeeCurrencyNavigating, CloreMigrationRoutable {
     func dismiss()
 
     func openYieldModulePromoView(apy: Decimal, factory: YieldModuleFlowFactory)
     func openYieldModuleActiveInfo(factory: YieldModuleFlowFactory)
     func openYieldBalanceInfo(factory: YieldModuleFlowFactory)
+    func openCloreMigration(factory: CloreMigrationModuleFlowFactory)
 }

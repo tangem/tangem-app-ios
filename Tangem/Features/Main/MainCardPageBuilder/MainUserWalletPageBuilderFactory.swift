@@ -108,7 +108,11 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                     return nil
                 }
 
-                return BannerNotificationManager(userWalletInfo: model.userWalletInfo, placement: .main)
+                return BannerNotificationManager(
+                    userWalletInfo: model.userWalletInfo,
+                    userWalletModel: model,
+                    placement: .main
+                )
             }()
 
             let tokenItemPromoProvider = YieldTokenItemPromoProvider(
