@@ -50,7 +50,7 @@ class BaseTestCase: XCTestCase {
         disableMobileWallet: Bool = false,
         scenarios: [ScenarioConfig] = []
     ) {
-        var arguments = ["--uitesting", "--alpha"]
+        var arguments: [String] = []
 
         arguments.append(contentsOf: [
             "-tangem_api_type", tangemApiType?.rawValue ?? TangemAPI.prod.rawValue,
