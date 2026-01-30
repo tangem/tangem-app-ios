@@ -142,8 +142,14 @@ protocol WalletModelHelpers {
 // MARK: - Fee
 
 protocol WalletModelFeesProvider {
-    var tokenFeeLoader: any TokenFeeLoader { get }
     var customFeeProvider: (any CustomFeeProvider)? { get }
+    func makeTokenFeeLoader(for tokenItem: TokenItem) -> any TokenFeeLoader
+}
+
+extension WalletModelFeeProvider where Self: WalletModel {
+    func makeTokenFeeLoader() -> any TokenFeeLoader {
+        makeTokenFeeLoader(for: tokenItem)
+    }
 }
 
 protocol WalletModelFeeProvider {
