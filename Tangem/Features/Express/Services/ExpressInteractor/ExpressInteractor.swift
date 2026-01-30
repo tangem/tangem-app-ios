@@ -560,8 +560,8 @@ private extension ExpressInteractor {
     func sendDEXTransaction(state: ReadyToSwapState, context: Context) async throws -> TransactionSendResultState {
         let sender = try getSourceWallet()
         let fee = try context.tokenFeeProvidersManager.selectedFeeProvider.selectedTokenFee.value.get()
-        let processor = try sender.dexTransactionDispatcher()
-        let result = try await processor.send(transaction: .dex(data: state.data, fee: fee))
+        let dispatcher = try sender.dexTransactionDispatcher()
+        let result = try await dispatcher.send(transaction: .dex(data: state.data, fee: fee))
 
         return TransactionSendResultState(dispatcherResult: result, data: state.data, fee: fee, provider: context.provider)
     }
@@ -570,8 +570,8 @@ private extension ExpressInteractor {
         let sender = try getSourceWallet()
         let fee = try context.tokenFeeProvidersManager.selectedFeeProvider.selectedTokenFee.value.get()
         let data = try await expressManager.requestData()
-        let processor = try sender.cexTransactionDispatcher()
-        let result = try await processor.send(transaction: .cex(data: data, fee: fee))
+        let dispatcher = try sender.cexTransactionDispatcher()
+        let result = try await dispatcher.send(transaction: .cex(data: data, fee: fee))
 
         return TransactionSendResultState(dispatcherResult: result, data: data, fee: fee, provider: context.provider)
     }

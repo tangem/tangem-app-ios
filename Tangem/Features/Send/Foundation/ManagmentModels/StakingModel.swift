@@ -50,7 +50,6 @@ final class StakingModel {
     private var estimatedFeeTask: Task<Void, Never>?
     private var accountInitializationFee: Fee?
 
-    private var transactionCreator: TransactionCreator { sendSourceToken.transactionCreator }
     private var transactionValidator: TransactionValidator { sendSourceToken.transactionValidator }
     private var tokenItem: TokenItem { sendSourceToken.tokenItem }
     private var feeTokenItem: TokenItem { sendSourceToken.feeTokenItem }
