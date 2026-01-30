@@ -9,16 +9,29 @@
 import Foundation
 import TangemLocalization
 
-enum EarnNetworkFilterType: String, CaseIterable, Identifiable {
+enum EarnNetworkFilterType: Hashable, Identifiable {
     case all
+    case my
+    case network(networkId: String)
 
     var id: String {
-        rawValue
+        switch self {
+        case .all: return "all"
+        case .my: return "my"
+        case .network(let networkId): return networkId
+        }
     }
 
     var description: String {
         switch self {
         case .all: return Localization.earnFilterAllNetworks
+        case .my: return "My networks"
+        case .network: return "" // Section 2 rows use blockchain displayName
         }
+    }
+
+    /// Preset options for the first section (All networks, My networks).
+    static var presetCases: [EarnNetworkFilterType] {
+        [.all, .my]
     }
 }
