@@ -834,9 +834,9 @@
 "notification_sepa_title" = "Acheter des cryptomonnaies avec SEPA";
 "notification_visa_waitlist_promo_text" = "Rejoignez la liste d’attente et obtenez une carte de paiement pas comme les autres.";
 "notification_visa_waitlist_promo_title" = "Tangem Visa Card";
-"notification_yield_promo_button" = "Terms and conditions";
-"notification_yield_promo_text" = "Deposit $100+, hold for 30 days, get $10.";
-"notification_yield_promo_title" = "Join the Yield Mode Campaign!";
+"notification_yield_promo_button" = "Conditions générales";
+"notification_yield_promo_text" = "Déposez 100 $ ou plus, conservez le dépôt pendant 30 jours et recevez 10 $.";
+"notification_yield_promo_title" = "Rejoignez la campagne Yield Mode !";
 "onboarding_access_code_feature_1_description" = "Vous devez définir un seul code d'accès pour protéger tous vos appareils.";
 "onboarding_access_code_feature_1_title" = "Protéger";
 "onboarding_access_code_feature_2_description" = "Vous pourrez définir un code d'accès individuel sur chaque carte plus tard";
