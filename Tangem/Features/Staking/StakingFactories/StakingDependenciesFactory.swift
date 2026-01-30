@@ -16,6 +16,11 @@ import TangemFoundation
 class StakingDependenciesFactory {
     @Injected(\.keysManager) private var keysManager: KeysManager
     @Injected(\.stakingYieldInfoProvider) private var stakingYieldInfoProvider: StakingYieldInfoProvider
+    @Injected(\.cachesProvider) private var cachesProvider: CachesProviding
+
+    private lazy var stakingManagerStateRepository: StakingManagerStateRepository = CommonStakingManagerStateRepository(
+        storage: cachesProvider.storage(for: .cachedStakingManagerState)
+    )
 
     func makeStakeKitAPIProvider() -> StakeKitAPIProvider {
         let plugins: [PluginType] = [
@@ -61,10 +66,7 @@ class StakingDependenciesFactory {
                 wallet: wallet,
                 provider: makeP2PAPIProvider(),
                 yieldInfoProvider: stakingYieldInfoProvider,
-                stateRepository: CommonStakingManagerStateRepository(
-                    stakingWallet: wallet,
-                    storage: CachesDirectoryStorage(file: .cachedStakingManagerState)
-                ),
+                stateRepository: stakingManagerStateRepository,
                 analyticsLogger: CommonStakingAnalyticsLogger()
             )
         default:
@@ -73,10 +75,7 @@ class StakingDependenciesFactory {
                 wallet: wallet,
                 provider: makeStakeKitAPIProvider(),
                 yieldInfoProvider: stakingYieldInfoProvider,
-                stateRepository: CommonStakingManagerStateRepository(
-                    stakingWallet: wallet,
-                    storage: CachesDirectoryStorage(file: .cachedStakingManagerState)
-                ),
+                stateRepository: stakingManagerStateRepository,
                 analyticsLogger: CommonStakingAnalyticsLogger()
             )
         }
