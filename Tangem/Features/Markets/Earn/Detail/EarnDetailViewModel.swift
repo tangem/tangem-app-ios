@@ -15,17 +15,24 @@ final class EarnDetailViewModel: ObservableObject {
     // MARK: - Published Properties
 
     @Published private(set) var mostlyUsedViewModels: [EarnTokenItemViewModel] = []
-    @Published private(set) var bestOpportunitiesResultState: LoadingResult<[EarnTokenItemViewModel], Error> = .loading
-    @Published private(set) var currentFilterType: EarnFilterType = .all
-    @Published private(set) var currentNetworkFilter: EarnNetworkFilterType = .all
+    @Published private(set) var listLoadingState: EarnBestOpportunitiesListView.LoadingState = .loading
+    @Published private(set) var tokenViewModels: [EarnTokenItemViewModel] = []
+
+    let filterProvider = EarnDataFilterProvider()
+
+    var isFilterInteractionEnabled: Bool {
+        filterProvider.state == .loaded
+    }
+
+    var isFilterLoading: Bool {
+        filterProvider.state == .loading
+    }
 
     // MARK: - Private Properties
 
     private let dataProvider = EarnDataProvider()
-    let filterProvider = EarnDataFilterProvider(initialFilterType: .all, initialNetworkFilter: .userNetworks)
     private weak var coordinator: EarnDetailRoutable?
 
-    private var accumulatedOpportunities: [EarnTokenItemViewModel] = []
     private var bag = Set<AnyCancellable>()
 
     // MARK: - Init
@@ -35,8 +42,31 @@ final class EarnDetailViewModel: ObservableObject {
         coordinator: EarnDetailRoutable? = nil
     ) {
         self.coordinator = coordinator
+
         setupMostlyUsedViewModels(from: mostlyUsedTokens)
         bind()
+
+        fetch(with: filterProvider.currentFilter)
+    }
+
+    // MARK: - Public Methods
+
+    func onAppear() {
+        Task {
+            await filterProvider.fetchAvailableNetworks()
+        }
+    }
+
+    func onRetry() {
+        fetch(with: filterProvider.currentFilter)
+    }
+
+    var canFetchMore: Bool {
+        dataProvider.canFetchMore
+    }
+
+    func fetchMore() {
+        dataProvider.fetchMore()
     }
 
     // MARK: - Private Implementation
@@ -51,68 +81,63 @@ final class EarnDetailViewModel: ObservableObject {
 
     private func bind() {
         filterProvider.filterPublisher
+            .dropFirst()
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, filter in
-                viewModel.currentFilterType = viewModel.filterProvider.selectedFilterType
-                viewModel.currentNetworkFilter = viewModel.filterProvider.selectedNetworkFilter
-                viewModel.dataProvider.fetch(with: filter)
+                viewModel.fetch(with: filter)
             }
             .store(in: &bag)
 
+        let loadedFilterStatePublisher = filterProvider.statePublisher
+            .filter { $0 != .idle }
+            .filter { $0 != .loading }
+            .first()
+
         dataProvider.eventPublisher
+            .combineLatest(loadedFilterStatePublisher)
             .receiveOnMain()
             .withWeakCaptureOf(self)
-            .sink { viewModel, event in
+            .sink { viewModel, args in
+                let (event, _) = args
                 viewModel.handleDataProviderEvent(event)
             }
             .store(in: &bag)
     }
 
+    private func fetch(with filter: EarnDataProvider.Filter) {
+        dataProvider.fetch(with: filter)
+    }
+
     private func handleDataProviderEvent(_ event: EarnDataProvider.Event) {
         switch event {
         case .loading:
-            if accumulatedOpportunities.isEmpty {
-                bestOpportunitiesResultState = .loading
+            if tokenViewModels.isEmpty {
+                listLoadingState = .loading
             }
         case .idle:
             break
-        case .failedToFetchData(let error):
-            bestOpportunitiesResultState = .failure(error)
-        case .appendedItems(let models, _):
+        case .failedToFetchData:
+            if tokenViewModels.isEmpty {
+                listLoadingState = .error
+            }
+        case .appendedItems(let models, let lastPage):
             let newViewModels = models.map { token in
                 EarnTokenItemViewModel(token: token) { [weak self] in
                     self?.coordinator?.openEarnTokenDetails(for: token)
                 }
             }
-            accumulatedOpportunities.append(contentsOf: newViewModels)
-            bestOpportunitiesResultState = .success(accumulatedOpportunities)
+            tokenViewModels.append(contentsOf: newViewModels)
+
+            if tokenViewModels.isEmpty {
+                listLoadingState = .noResults
+            } else {
+                listLoadingState = lastPage ? .allDataLoaded : .idle
+            }
         case .startInitialFetch, .cleared:
-            accumulatedOpportunities = []
-            bestOpportunitiesResultState = .loading
+            tokenViewModels = []
+            listLoadingState = .loading
         }
-    }
-
-    func onAppear() {
-        Task {
-            await filterProvider.fetchAvailableNetworks()
-        }
-    }
-
-    func loadBestOpportunities() {
-        dataProvider.fetch(with: filterProvider.currentFilter)
-    }
-
-    func retryBestOpportunities() {
-        dataProvider.fetch(with: filterProvider.currentFilter)
-    }
-
-    var canFetchMore: Bool {
-        dataProvider.canFetchMore
-    }
-
-    func fetchMore() {
-        dataProvider.fetchMore()
     }
 }
 
@@ -134,21 +159,5 @@ extension EarnDetailViewModel {
         case back
         case networksFilterTap
         case typesFilterTap
-    }
-}
-
-// MARK: - Filter actions (for filter sheets / future use)
-
-extension EarnDetailViewModel {
-    func handleFilterTypeSelection(_ type: EarnFilterType) {
-        filterProvider.didSelectFilterType(type)
-    }
-
-    func handleNetworkFilterSelection(_ filter: EarnNetworkFilterType) {
-        filterProvider.didSelectNetworkFilter(filter)
-    }
-
-    func setUserNetworkIds(_ ids: [String]?) {
-        filterProvider.setUserNetworkIds(ids)
     }
 }

@@ -41,7 +41,8 @@ class EarnFilterBottomSheetViewModel: ObservableObject, Identifiable {
         let items: [DefaultSelectableRowViewModel<EarnFilterOption>]
     }
 
-    @Published var sections: [Section]
+    @Published var sections: [Section] = []
+    @Published var listOptionViewModel: [DefaultSelectableRowViewModel<EarnFilterOption>] = []
     @Published var currentSelection: EarnFilterOption
 
     var title: String {
@@ -71,24 +72,23 @@ class EarnFilterBottomSheetViewModel: ObservableObject, Identifiable {
             currentSelection = .networkFilter(provider.selectedNetworkFilter)
             sections = Self.buildNetworkSections(availableNetworks: provider.availableNetworks)
 
-            provider.availableNetworksPublisher
-                .dropFirst()
-                .receiveOnMain()
-                .sink { [weak self] networks in
-                    self?.sections = Self.buildNetworkSections(availableNetworks: networks)
+            provider.statePublisher
+                .filter { $0 == .loaded || $0 == .emptyAvailableNetworks }
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] _ in
+                    guard let self else { return }
+                    sections = Self.buildNetworkSections(availableNetworks: self.provider.availableNetworks)
                 }
                 .store(in: &bag)
         case .types:
             currentSelection = .filterType(provider.selectedFilterType)
-            sections = [
-                Section(items: provider.supportedFilterTypes.map {
-                    DefaultSelectableRowViewModel(
-                        id: .filterType($0),
-                        title: $0.description,
-                        subtitle: nil
-                    )
-                }),
-            ]
+            listOptionViewModel = provider.supportedFilterTypes.map {
+                DefaultSelectableRowViewModel(
+                    id: .filterType($0),
+                    title: $0.description,
+                    subtitle: nil
+                )
+            }
         }
 
         bind()

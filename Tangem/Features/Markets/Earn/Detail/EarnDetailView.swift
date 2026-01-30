@@ -65,15 +65,24 @@ struct EarnDetailView: View {
         VStack(alignment: .leading, spacing: Layout.sectionSpacing) {
             EarnDetailHeaderView(headerTitle: Localization.earnBestOpportunities)
 
-            EarnFilterHeaderView(
-                networkFilterTitle: viewModel.currentNetworkFilter.displayTitle,
-                typesFilterTitle: viewModel.currentFilterType.description,
-                onNetworksTap: { viewModel.handleViewAction(.networksFilterTap) },
-                onTypesTap: { viewModel.handleViewAction(.typesFilterTap) }
-            )
+            ZStack(alignment: .center) {
+                EarnFilterHeaderView(
+                    networkFilterTitle: viewModel.filterProvider.selectedNetworkFilter.displayTitle,
+                    typesFilterTitle: viewModel.filterProvider.selectedFilterType.description,
+                    onNetworksTap: { viewModel.handleViewAction(.networksFilterTap) },
+                    onTypesTap: { viewModel.handleViewAction(.typesFilterTap) }
+                )
+                .disabled(!viewModel.isFilterInteractionEnabled)
+
+                if viewModel.isFilterLoading {
+                    ProgressView()
+                }
+            }
+
             EarnBestOpportunitiesListView(
-                resultState: viewModel.bestOpportunitiesResultState,
-                retryAction: { viewModel.retryBestOpportunities() }
+                loadingState: viewModel.listLoadingState,
+                tokenViewModels: viewModel.tokenViewModels,
+                retryAction: viewModel.onRetry
             )
         }
     }
