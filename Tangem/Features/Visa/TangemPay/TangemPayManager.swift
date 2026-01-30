@@ -86,10 +86,13 @@ final class TangemPayManager {
         await refreshState()
     }
 
-    func launchKYC(onDidDismiss: @escaping () -> Void) async throws {
+    func launchKYC(onDidDismiss: (() async -> Void)? = nil) async throws {
         try await KYCService.start(
             getToken: customerService.loadKYCAccessToken,
-            onDidDismiss: onDidDismiss
+            onDidDismiss: { [weak self] in
+                await self?.refreshState()
+                await onDidDismiss?()
+            }
         )
         Analytics.log(.visaOnboardingVisaKYCFlowOpened)
     }
