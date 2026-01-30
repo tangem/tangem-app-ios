@@ -11,7 +11,7 @@ import TangemAssets
 import TangemUI
 
 struct NewsArticleHeaderView: View {
-    let article: NewsDetailsViewModel.ArticleModel
+    let article: NewsArticleModel
     var onShareTap: (() -> Void)?
 
     var body: some View {
