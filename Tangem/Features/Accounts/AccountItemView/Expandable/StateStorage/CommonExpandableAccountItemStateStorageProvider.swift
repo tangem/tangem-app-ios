@@ -134,7 +134,7 @@ final class CommonExpandableAccountItemStateStorageProvider {
 
     private func handleUserWalletRepositoryEvent(_ event: UserWalletRepositoryEvent) {
         switch event {
-        case .deleted(let userWalletIds):
+        case .deleted(let userWalletIds, _):
             handleDeletedUserWalletModelsWithIdentifiers(userWalletIds)
         case .unlocked:
             subscribeToUserWalletModelsIfNeeded(userWalletRepository.models)
