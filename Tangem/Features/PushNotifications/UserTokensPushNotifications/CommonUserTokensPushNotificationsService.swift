@@ -206,7 +206,8 @@ private extension CommonUserTokensPushNotificationsService {
                 systemVersion: deviceInfo.systemVersion,
                 language: deviceInfo.appLanguageCode,
                 timezone: deviceInfo.timezone,
-                version: deviceInfo.version
+                version: deviceInfo.version,
+                appsflyerId: AppsFlyerWrapper.shared.appsflyerId
             )
 
             let response = try await tangemApiService.createUserWalletsApplications(requestModel: requestModel)
@@ -406,8 +407,22 @@ private extension CommonUserTokensPushNotificationsService {
 
     func updateLocalWallet(name: String, by userWalletId: String) {
         guard let userWalletModel = userWalletRepository.models.first(where: {
-            $0.userWalletId.stringValue == userWalletId && $0.name != name
+            $0.userWalletId.stringValue == userWalletId
         }) else {
+            return
+        }
+
+        if name.isEmpty, userWalletModel.name.isEmpty {
+            let defaultName = UserWalletNameIndexationHelper().suggestedName(userWalletConfig: userWalletModel.config)
+            userWalletModel.update(type: .newName(defaultName))
+            return
+        }
+
+        if name.isEmpty, userWalletModel.name.isNotEmpty {
+            return
+        }
+
+        if name == userWalletModel.name {
             return
         }
 
