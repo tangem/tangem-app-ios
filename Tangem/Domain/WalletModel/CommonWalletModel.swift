@@ -26,15 +26,16 @@ class CommonWalletModel {
     let isCustom: Bool
     var demoBalance: Decimal?
 
-    // MARK: - Balance providers
+    // MARK: - Balances provider
 
-    lazy var availableBalanceProvider = makeAvailableBalanceProvider()
-    lazy var stakingBalanceProvider = makeStakingBalanceProvider()
-    lazy var totalTokenBalanceProvider = makeTotalTokenBalanceProvider()
-
-    lazy var fiatAvailableBalanceProvider = makeFiatAvailableBalanceProvider()
-    lazy var fiatStakingBalanceProvider = makeFiatStakingBalanceProvider()
-    lazy var fiatTotalTokenBalanceProvider = makeFiatTotalTokenBalanceProvider()
+    lazy var walletModelBalancesProvider: WalletModelBalancesProvider = CommonWalletModelBalancesProvider(
+        walletModelId: id,
+        tokenItem: tokenItem,
+        availableTokenBalanceProviderInput: self,
+        stakingTokenBalanceProviderInput: self,
+        fiatTokenBalanceProviderInput: self,
+        tokenBalancesRepository: tokenBalancesRepository
+    )
 
     /// Simple flag to check exactly BSDK balance
     var balanceState: WalletModelBalanceState? {
@@ -322,7 +323,7 @@ extension CommonWalletModel: WalletModel {
         Publishers.Merge4(
             expressAvailabilityProvider.availabilityDidChangePublisher,
             stakingManagerStatePublisher.mapToVoid(),
-            totalTokenBalanceProvider.balanceTypePublisher.mapToVoid(),
+            walletModelBalancesProvider.totalTokenBalanceProvider.balanceTypePublisher.mapToVoid(),
             (yieldModuleManager?.statePublisher ?? Just(.none).eraseToAnyPublisher()).mapToVoid()
         )
         .eraseToAnyPublisher()
@@ -422,43 +423,12 @@ extension CommonWalletModel: WalletModelUpdater {
 // MARK: - Balance Provider
 
 extension CommonWalletModel: WalletModelBalancesProvider {
-    func makeAvailableBalanceProvider() -> TokenBalanceProvider {
-        AvailableTokenBalanceProvider(
-            input: self,
-            walletModelId: id,
-            tokenItem: tokenItem,
-            tokenBalancesRepository: tokenBalancesRepository
-        )
-    }
-
-    func makeStakingBalanceProvider() -> TokenBalanceProvider {
-        StakingTokenBalanceProvider(
-            input: self,
-            walletModelId: id,
-            tokenItem: tokenItem,
-            tokenBalancesRepository: tokenBalancesRepository
-        )
-    }
-
-    func makeTotalTokenBalanceProvider() -> TokenBalanceProvider {
-        TotalTokenBalanceProvider(
-            tokenItem: tokenItem,
-            availableBalanceProvider: availableBalanceProvider,
-            stakingBalanceProvider: stakingBalanceProvider
-        )
-    }
-
-    func makeFiatAvailableBalanceProvider() -> TokenBalanceProvider {
-        FiatTokenBalanceProvider(input: self, cryptoBalanceProvider: availableBalanceProvider)
-    }
-
-    func makeFiatStakingBalanceProvider() -> TokenBalanceProvider {
-        FiatTokenBalanceProvider(input: self, cryptoBalanceProvider: stakingBalanceProvider)
-    }
-
-    func makeFiatTotalTokenBalanceProvider() -> TokenBalanceProvider {
-        FiatTokenBalanceProvider(input: self, cryptoBalanceProvider: totalTokenBalanceProvider)
-    }
+    var availableBalanceProvider: TokenBalanceProvider { walletModelBalancesProvider.availableBalanceProvider }
+    var stakingBalanceProvider: TokenBalanceProvider { walletModelBalancesProvider.stakingBalanceProvider }
+    var totalTokenBalanceProvider: TokenBalanceProvider { walletModelBalancesProvider.totalTokenBalanceProvider }
+    var fiatAvailableBalanceProvider: TokenBalanceProvider { walletModelBalancesProvider.fiatAvailableBalanceProvider }
+    var fiatStakingBalanceProvider: TokenBalanceProvider { walletModelBalancesProvider.fiatStakingBalanceProvider }
+    var fiatTotalTokenBalanceProvider: TokenBalanceProvider { walletModelBalancesProvider.fiatTotalTokenBalanceProvider }
 }
 
 // MARK: - Helpers
