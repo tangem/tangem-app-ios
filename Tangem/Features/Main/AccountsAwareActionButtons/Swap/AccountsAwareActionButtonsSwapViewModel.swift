@@ -29,6 +29,14 @@ final class AccountsAwareActionButtonsSwapViewModel: ObservableObject {
 
     let tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel
 
+    var sourceHeaderType: ExpressCurrencyHeaderType {
+        makeHeaderType(for: source, viewType: .send)
+    }
+
+    var destinationHeaderType: ExpressCurrencyHeaderType {
+        makeHeaderType(for: destination, viewType: .receive)
+    }
+
     // MARK: - Private
 
     private let filterTokenItem: CurrentValueSubject<TokenItem?, Never> = .init(nil)
@@ -206,6 +214,21 @@ private extension AccountsAwareActionButtonsSwapViewModel {
         })
 
         notificationInput = input
+    }
+
+    func makeHeaderType(for tokenItemType: TokenItemType?, viewType: ExpressCurrencyViewType) -> ExpressCurrencyHeaderType {
+        switch tokenItemType {
+        case .none,
+             .placeholder:
+            return ExpressCurrencyHeaderType(viewType: viewType, tokenHeader: nil)
+        case .token(let item, _):
+            let provider = ExpressInteractorTokenHeaderProvider(
+                userWalletInfo: item.userWalletInfo,
+                account: item.account
+            )
+            let tokenHeader = provider.makeHeader()
+            return ExpressCurrencyHeaderType(viewType: viewType, tokenHeader: tokenHeader)
+        }
     }
 }
 
