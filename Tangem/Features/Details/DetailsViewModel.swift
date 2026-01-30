@@ -273,8 +273,12 @@ private extension DetailsViewModel {
             .withWeakCaptureOf(self)
             .sink { viewModel, event in
                 switch event {
-                case .inserted, .deleted, .unlockedWallet, .unlocked:
+                case .inserted, .unlockedWallet, .unlocked:
                     viewModel.setupUserWalletViewModels()
+                case .deleted(_, let isEmpty):
+                    if !isEmpty {
+                        viewModel.setupUserWalletViewModels()
+                    }
                 default:
                     break
                 }
