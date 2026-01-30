@@ -270,6 +270,7 @@
 "common_go_to_token" = "Aller au jeton";
 "common_got_it" = "Compris";
 "common_hide" = "Cacher";
+"common_hold_to" = "Hold to %@";
 "common_hour" = "heure";
 "common_import" = "Importez";
 "common_in_progress" = "En cours";
@@ -343,6 +344,7 @@
 "common_swap" = "Échanger";
 "common_tangem_wallet" = "Tangem Wallet";
 "common_tangem" = "Tangem";
+"common_tap_and_hold_hint" = "Tap and hold";
 "common_terms_and_conditions" = "termes et conditions";
 "common_terms_of_use" = "Conditions d'utilisation";
 "common_to_wallet_name" = "À %@";
@@ -426,6 +428,11 @@
 "domain_receive_assets_onboarding_description" = "L’envoi d’actifs sur d’autres réseaux entraînera une perte définitive.";
 "domain_receive_assets_onboarding_network_name" = "%@ réseau";
 "domain_receive_assets_onboarding_title" = "Envoyez des fonds en utilisant uniquement";
+"earn_best_opportunities" = "Best opportunities";
+"earn_filter_all_networks" = "All networks";
+"earn_filter_all_types" = "All types";
+"earn_mostly_used" = "Mostly used";
+"earn_title" = "Earn";
 "email_preface_wc_error" = "Bonjour équipe de support, j’ai rencontré une erreur avec le code : %@";
 "email_subject_wc_error" = "Erreur WalletConnect";
 "error_wrong_wallet_tapped" = "Vous avez utilisé une carte d'un autre portefeuille. Appuyez sur la carte associée à ce portefeuille";
@@ -950,6 +957,7 @@
 "onramp_tos_external_providers" = "Service is provided by an external provider. \nTangem is not responsible.";
 "onramp_transaction_status_footer_text" = "Vous pouvez vérifier l'état de la transaction à partir de la page du jeton";
 "onramp_up_to_rate" = "Jusqu'à";
+"onramp_via_provider" = "via %@";
 "onramp_via" = "Via";
 "onramp_you_will_pay_title" = "Vous paierez";
 "organize_tokens_group" = "Grouper";
@@ -1151,6 +1159,7 @@
 "staking_amount_tron_integer_error_unstaking" = "Le montant d'annulation du staking sera arrondi à %1$@ TRX en raison des règles du réseau.";
 "staking_amount_tron_integer_error" = "Le montant du staking sera arrondi à %1$@ TRX en raison des règles du réseau.";
 "staking_apr_earn_badge" = "TAEG %1$@%%";
+"staking_cardano_details_rewards_info_text" = "Your staking rewards will start after 5 epochs (~25 days) while your delegation is registered and counted by the network.";
 "staking_claim_unstaked" = "Réclamation déstakée";
 "staking_details_account_fee_info" = "Un compte de staking est un compte spécial où sont stockés les jetons SOL stakés. Il est créé lorsque vous déléguez vos jetons à un validateur pour participer à la validation des transactions et gagner des récompenses. Des frais minimes sont facturés pour la création du compte de staking, qui sont restitués une fois le staking terminé.";
 "staking_details_account_fee" = "Frais de staking du compte";
