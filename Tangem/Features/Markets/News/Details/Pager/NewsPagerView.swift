@@ -167,7 +167,7 @@ private struct NewsPageContentView: View {
 
     // MARK: - Article Content
 
-    private func articleContentView(_ article: NewsDetailsViewModel.ArticleModel) -> some View {
+    private func articleContentView(_ article: NewsArticleModel) -> some View {
         NewsArticleContentView(
             article: article,
             onSourceTap: { source in viewModel.handleViewAction(.openSource(source)) },

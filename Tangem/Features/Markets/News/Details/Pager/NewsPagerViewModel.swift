@@ -27,7 +27,7 @@ final class NewsPagerViewModel: MarketsBaseViewModel {
         return newsIds[currentIndex]
     }
 
-    var currentArticle: NewsDetailsViewModel.ArticleModel? {
+    var currentArticle: NewsArticleModel? {
         guard let newsId = currentNewsId,
               case .loaded(let article) = articles[newsId] else {
             return nil
@@ -110,7 +110,7 @@ final class NewsPagerViewModel: MarketsBaseViewModel {
         articleState(for: newsId) == .loading
     }
 
-    func article(for newsId: Int) -> NewsDetailsViewModel.ArticleModel {
+    func article(for newsId: Int) -> NewsArticleModel {
         if case .loaded(let article) = articleState(for: newsId) {
             return article
         }
@@ -125,7 +125,7 @@ final class NewsPagerViewModel: MarketsBaseViewModel {
         likeService.isLiked(newsId: newsId)
     }
 
-    func relatedTokensViewModel(for article: NewsDetailsViewModel.ArticleModel) -> RelatedTokensViewModel {
+    func relatedTokensViewModel(for article: NewsArticleModel) -> RelatedTokensViewModel {
         if let existing = relatedTokensViewModels[article.id] {
             return existing
         }
@@ -280,7 +280,7 @@ final class NewsPagerViewModel: MarketsBaseViewModel {
                     lang: Locale.newsLanguageCode
                 )
                 let response = try await tangemApiService.loadNewsDetails(requestModel: request)
-                let article = NewsDetailsViewModel.ArticleModel(from: response, dateFormatter: dateFormatter)
+                let article = NewsArticleModel(from: response, dateFormatter: dateFormatter)
                 articles[newsId] = .loaded(article)
 
                 newsDeeplinkValidationService.validateAndLogMismatchIfNeeded(
@@ -325,7 +325,7 @@ extension NewsPagerViewModel {
         case retry
         case back
         case share
-        case openSource(NewsDetailsViewModel.Source)
+        case openSource(NewsSource)
         case like(Int)
     }
 }
@@ -335,7 +335,7 @@ extension NewsPagerViewModel {
 extension NewsPagerViewModel {
     enum ArticleState: Equatable {
         case loading
-        case loaded(NewsDetailsViewModel.ArticleModel)
+        case loaded(NewsArticleModel)
         case error
     }
 }
