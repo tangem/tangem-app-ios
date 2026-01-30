@@ -54,7 +54,7 @@ enum NotificationButtonActionType: Identifiable {
     case unlock(icon: MainButton.Icon?)
     case openMobileFinishActivation(needsAttention: Bool)
     case openMobileUpgrade
-    case tangemPaySync(title: String)
+    case tangemPaySync(title: String, hasNFCInteraction: Bool)
     case allowPushPermissionRequest
     case postponePushPermissionRequest
     case activate
@@ -149,7 +149,7 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.hwActivationNeedFinish
         case .openMobileUpgrade:
             return .empty
-        case .tangemPaySync(let title):
+        case .tangemPaySync(let title, _):
             return title
         case .allowPushPermissionRequest:
             return Localization.commonEnable
@@ -168,8 +168,8 @@ enum NotificationButtonActionType: Identifiable {
              .retryKaspaTokenTransaction(let icon),
              .unlock(let icon):
             return icon
-        case .tangemPaySync:
-            return .trailing(Assets.tangemIcon)
+        case .tangemPaySync(_, let hasNFCInteraction):
+            return hasNFCInteraction ? .trailing(Assets.tangemIcon) : nil
         case .swap:
             return .leading(Assets.exchangeMini)
         case .backupCard,

@@ -20,7 +20,12 @@ final class TangemPayNotificationManager {
         self.userWalletModel = userWalletModel
 
         cancellable = userWalletModel.tangemPayManager.statePublisher
-            .map { $0.asNotificationEvent(userWalletModel.tangemPayAuthorizingInteractor.syncNeededTitle) }
+            .map { state in
+                state.asNotificationEvent(
+                    syncNeededTitle: userWalletModel.tangemPayAuthorizingInteractor.syncNeededTitle,
+                    hasNFCInteraction: userWalletModel.signer.hasNFCInteraction
+                )
+            }
             .withWeakCaptureOf(self)
             .map { manager, event in
                 if let event {
@@ -68,10 +73,10 @@ extension TangemPayNotificationManager: NotificationManager {
 // MARK: - TangemPayLocalState+notificationEvent
 
 private extension TangemPayLocalState {
-    func asNotificationEvent(_ syncNeededTitle: String) -> TangemPayNotificationEvent? {
+    func asNotificationEvent(syncNeededTitle: String, hasNFCInteraction: Bool) -> TangemPayNotificationEvent? {
         switch self {
         case .syncNeeded, .syncInProgress:
-            .syncNeeded(syncNeededTitle)
+            .syncNeeded(title: syncNeededTitle, hasNFCInteraction: hasNFCInteraction)
 
         case .unavailable:
             .unavailable
