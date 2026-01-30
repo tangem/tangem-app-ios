@@ -116,8 +116,10 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
         swipeDiscoveryHelper.delegate = viewModel
         mainViewModel = viewModel
 
-        mobileFinishActivationManager.observe(
-            userWalletModel: options.userWalletModel,
+        let userWalletModel = options.userWalletModel
+        mobileFinishActivationManager.observeUserWallet(
+            id: userWalletModel.userWalletId,
+            config: userWalletModel.config,
             onActivation: weakify(self, forFunction: MainCoordinator.openMobileFinishActivation)
         )
 
