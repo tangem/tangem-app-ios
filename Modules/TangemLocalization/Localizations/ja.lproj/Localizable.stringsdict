@@ -41,7 +41,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>other</key>
-        <string>%1$liトークン</string>
+        <string>%liトークン</string>
       </dict>
     </dict>
     <key>common_days_no_param</key>
