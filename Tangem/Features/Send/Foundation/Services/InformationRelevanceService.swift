@@ -18,7 +18,7 @@ protocol InformationRelevanceService {
 
 class CommonInformationRelevanceService {
     private weak var input: SendFeeInput?
-    private let provider: SendFeeUpdater
+    private weak var provider: SendFeeUpdater?
 
     private var lastUpdateStartTime = Date()
     private let informationValidityInterval: TimeInterval = 60
@@ -69,7 +69,7 @@ extension CommonInformationRelevanceService: InformationRelevanceService {
             return Empty().eraseToAnyPublisher()
         }
 
-        defer { provider.updateFees() }
+        defer { provider?.updateFees() }
 
         // Catch the subscriptions
         return input
