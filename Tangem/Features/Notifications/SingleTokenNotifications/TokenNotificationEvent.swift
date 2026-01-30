@@ -110,7 +110,7 @@ extension TokenNotificationEvent: NotificationEvent {
         case .maticMigration:
             return Localization.warningMaticMigrationMessage
         case .cloreMigration:
-            return Localization.warningCloreMigrationMessage
+            return Localization.warningCloreMigrationDescription
         }
     }
 
@@ -212,8 +212,7 @@ extension TokenNotificationEvent: NotificationEvent {
              .noAccount,
              .bnbBeaconChainRetirement,
              .manaLevel,
-             .maticMigration,
-             .cloreMigration:
+             .maticMigration:
             return nil
         case .notEnoughFeeForTransaction(let configuration):
             let currencySymbol = configuration.currencyButtonTitle ?? configuration.feeAmountTypeCurrencySymbol
@@ -233,6 +232,8 @@ extension TokenNotificationEvent: NotificationEvent {
             return nil
         case .staking:
             return .init(.stake)
+        case .cloreMigration:
+            return .init(.openCloreMigration)
         }
     }
 }
