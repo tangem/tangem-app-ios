@@ -44,7 +44,6 @@ extension SendGenericFlowBaseDependenciesFactory {
             transactionValidator: walletModelDependenciesProvider.transactionValidator,
             transactionCreator: walletModelDependenciesProvider.transactionCreator,
             transactionDispatcher: transactionDispatcherFactory.makeSendDispatcher(),
-            approveTransactionDispatcher: transactionDispatcherFactory.makeApproveDispatcher(),
             accountModelAnalyticsProvider: accountModelAnalyticsProvider
         )
     }

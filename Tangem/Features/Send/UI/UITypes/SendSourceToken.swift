@@ -24,8 +24,6 @@ struct SendSourceToken {
     let transactionValidator: TransactionValidator
     let transactionCreator: TransactionCreator
     let transactionDispatcher: any TransactionDispatcher
-    let approveTransactionDispatcher: (any TransactionDispatcher)?
-
     let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
 }
 
