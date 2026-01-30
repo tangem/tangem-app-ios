@@ -411,7 +411,11 @@ final class MainViewModel: ObservableObject {
             params[.accountsCount] = String(accountModels.cryptoAccountsCount)
         }
 
-        Analytics.log(event: .mainScreenOpened, params: params)
+        Analytics.log(
+            event: .mainScreenOpened,
+            params: params,
+            analyticsSystems: .all
+        )
     }
 
     private func openPushNotificationsAuthorizationIfNeeded() {
