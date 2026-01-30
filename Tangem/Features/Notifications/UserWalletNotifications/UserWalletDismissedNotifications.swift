@@ -56,7 +56,7 @@ private extension CommonUserWalletDismissedNotifications {
         case .unlockedWallet(let userWalletId):
             clean(userWalletId: userWalletId)
 
-        case .deleted(let userWalletIds):
+        case .deleted(let userWalletIds, _):
             userWalletIds.forEach {
                 clean(userWalletId: $0)
             }
