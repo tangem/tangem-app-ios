@@ -45,7 +45,7 @@ class BannerNotificationManager {
     private func load() {
         switch placement {
         case .main:
-            loadActivePromotions(programNames: [.visaWaitlist, .blackFriday, .onePlusOne])
+            loadActivePromotions()
         case .tokenDetails:
             break
         }
@@ -85,30 +85,15 @@ class BannerNotificationManager {
             .assign(to: \.notificationInputsSubject.value, on: self, ownership: .weak)
     }
 
-    private func loadActivePromotions(programNames: [PromotionProgramName]) {
-        // Cancel previous tasks
-        promotionUpdateTasks.values.forEach { $0.cancel() }
-        promotionUpdateTasks.removeAll()
+    private func loadActivePromotions() {
+        runTask(in: self) { manager in
+            let activePromotions = await manager.bannerPromotionService.loadActivePromotionsFor(
+                walletId: manager.userWalletInfo.id.stringValue, on: manager.placement
+            )
 
-        // Load each promotion independently
-        for programName in programNames {
-            let task = runTask(in: self) { manager in
-                guard let promotion = await manager.bannerPromotionService.activePromotion(
-                    promotion: programName,
-                    on: manager.placement
-                ) else {
-                    await runOnMain {
-                        manager.removePromotion(programName: programName)
-                    }
-                    return
-                }
-
-                try Task.checkCancellation()
-                await runOnMain {
-                    manager.addOrUpdatePromotion(promotion)
-                }
+            await runOnMain {
+                activePromotions.forEach { manager.addOrUpdatePromotion($0) }
             }
-            promotionUpdateTasks[programName] = task
         }
     }
 
@@ -132,9 +117,7 @@ class BannerNotificationManager {
             self?.delegate?.didTapNotification(with: id, action: action)
 
             switch event.programName {
-            case .visaWaitlist:
-                Analytics.log(event: .promotionButtonJoinNow, params: event.analytics.analyticsParams)
-            case .blackFriday, .onePlusOne:
+            case .yield:
                 var params = event.analytics.analyticsParams
                 params[.action] = Analytics.ParameterValue.clicked.rawValue
                 Analytics.log(event: .promotionBannerClicked, params: params)
@@ -145,14 +128,9 @@ class BannerNotificationManager {
             self?.bannerPromotionService.hide(promotion: event.programName, on: placement)
             self?.dismissNotification(with: id)
 
-            switch event.programName {
-            case .visaWaitlist:
-                Analytics.log(event: .promotionButtonClose, params: event.analytics.analyticsParams)
-            case .blackFriday, .onePlusOne:
-                var params = event.analytics.analyticsParams
-                params[.action] = Analytics.ParameterValue.closed.rawValue
-                Analytics.log(event: .promotionBannerClicked, params: params)
-            }
+            var params = event.analytics.analyticsParams
+            params[.action] = Analytics.ParameterValue.closed.rawValue
+            Analytics.log(event: .promotionBannerClicked, params: params)
         }
 
         let input = NotificationsFactory()
