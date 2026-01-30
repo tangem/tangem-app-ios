@@ -68,10 +68,7 @@ final class TangemPayOfferViewModel: ObservableObject {
                 switch tangemPayManager.state {
                 case .kycRequired:
                     try await tangemPayManager.launchKYC {
-                        runTask(in: viewModel) { viewModel in
-                            await tangemPayManager.refreshState()
-                            await viewModel.closeOfferScreen()
-                        }
+                        await viewModel.closeOfferScreen()
                     }
                 default:
                     await viewModel.closeOfferScreen()

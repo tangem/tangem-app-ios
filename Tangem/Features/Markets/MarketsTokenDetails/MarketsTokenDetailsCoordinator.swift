@@ -435,8 +435,6 @@ extension MarketsTokenDetailsCoordinator: NewsDetailsRoutable {
     }
 
     func openTokenDetails(_ token: MarketsTokenModel) {
-        weak var weakCoordinator: MarketsTokenDetailsCoordinator?
-
         let coordinator = MarketsTokenDetailsCoordinator(
             dismissAction: { [weak self] _ in
                 self?.newsRelatedTokenDetailsCoordinator = nil
@@ -444,7 +442,6 @@ extension MarketsTokenDetailsCoordinator: NewsDetailsRoutable {
             popToRootAction: popToRootAction
         )
 
-        weakCoordinator = coordinator
         coordinator.start(with: .init(info: token, style: presentationStyle, isDeeplinkMode: isDeeplinkMode))
         newsRelatedTokenDetailsCoordinator = coordinator
     }
