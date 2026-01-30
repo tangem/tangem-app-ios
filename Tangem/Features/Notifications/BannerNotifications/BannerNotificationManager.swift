@@ -11,6 +11,7 @@ import Combine
 import TangemFoundation
 import TangemExpress
 import TangemLocalization
+import BlockchainSdk
 
 class BannerNotificationManager {
     @Injected(\.bannerPromotionService) private var bannerPromotionService: BannerPromotionService
@@ -20,6 +21,7 @@ class BannerNotificationManager {
     private weak var delegate: NotificationTapDelegate?
 
     private let userWalletInfo: UserWalletInfo
+    private let userWalletModel: UserWalletModel?
     private let placement: BannerPromotionPlacement
 
     private let analyticsService: NotificationsAnalyticsService
@@ -31,9 +33,11 @@ class BannerNotificationManager {
 
     init(
         userWalletInfo: UserWalletInfo,
+        userWalletModel: UserWalletModel? = nil,
         placement: BannerPromotionPlacement
     ) {
         self.userWalletInfo = userWalletInfo
+        self.userWalletModel = userWalletModel
         self.placement = placement
 
         analyticsService = NotificationsAnalyticsService(userWalletId: userWalletInfo.id)
@@ -60,7 +64,17 @@ class BannerNotificationManager {
                 manager.analyticsService.sendEventsIfNeeded(for: notifications)
             })
 
-        activePromotionSubscription = activePromotions
+        let promotionsPublisher = makePromotionsInputsPublisher()
+        let cloreMigrationPublisher = makeCloreMigrationInputsPublisher()
+
+        activePromotionSubscription = Publishers.CombineLatest(promotionsPublisher, cloreMigrationPublisher)
+            .map { $0 + $1 }
+            .receiveOnMain()
+            .assign(to: \.notificationInputsSubject.value, on: self, ownership: .weak)
+    }
+
+    private func makePromotionsInputsPublisher() -> AnyPublisher<[NotificationViewInput], Never> {
+        activePromotions
             .withWeakCaptureOf(self)
             .flatMapLatest { manager, activePromotions -> AnyPublisher<[NotificationViewInput], Never> in
                 guard !activePromotions.isEmpty else {
@@ -82,7 +96,46 @@ class BannerNotificationManager {
                     .receiveOnMain()
                     .eraseToAnyPublisher()
             }
-            .assign(to: \.notificationInputsSubject.value, on: self, ownership: .weak)
+            .eraseToAnyPublisher()
+    }
+
+    private func makeCloreMigrationInputsPublisher() -> AnyPublisher<[NotificationViewInput], Never> {
+        guard case .main = placement, let userWalletModel else {
+            return Just([]).eraseToAnyPublisher()
+        }
+
+        return AccountsFeatureAwareWalletModelsResolver
+            .walletModelsPublisher(for: userWalletModel)
+            .map { $0.filter { $0.tokenItem.blockchain == .clore } }
+            .map { walletModels -> AnyPublisher<[TokenBalanceType], Never> in
+                guard !walletModels.isEmpty else {
+                    return Just([TokenBalanceType]()).eraseToAnyPublisher()
+                }
+
+                return walletModels
+                    .map { $0.totalTokenBalanceProvider.balanceTypePublisher }
+                    .combineLatest()
+            }
+            .switchToLatest()
+            .map { balances in
+                balances.compactMap { $0.value }.contains(where: { $0 > 0 })
+            }
+            .removeDuplicates()
+            .withWeakCaptureOf(self)
+            .map { manager, hasBalance in
+                hasBalance ? [manager.makeCloreMigrationNotification()] : []
+            }
+            .eraseToAnyPublisher()
+    }
+
+    private func makeCloreMigrationNotification() -> NotificationViewInput {
+        NotificationsFactory()
+            .buildNotificationInput(
+                for: TokenNotificationEvent.cloreMigration,
+                buttonAction: { [weak self] id, action in
+                    self?.delegate?.didTapNotification(with: id, action: action)
+                }
+            )
     }
 
     private func loadActivePromotions() {
