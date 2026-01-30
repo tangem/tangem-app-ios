@@ -94,10 +94,12 @@ extension StakingTokenBalanceProvider {
             return .loading(mapToCachedBalance(cachedState: cachedState))
         case .loading(.none):
             return .loading(oldCachedBalance())
-        case .notEnabled, .temporaryUnavailable:
+        case .notEnabled:
             return .empty(.noData)
-        case .loadingError(_, .some(let cachedState)):
+        case .loadingError(_, .some(let cachedState)), .temporaryUnavailable(_, .some(let cachedState)):
             return .failure(mapToCachedBalance(cachedState: cachedState))
+        case .temporaryUnavailable:
+            return .empty(.noData)
         case .loadingError(_, .none):
             return .loading(oldCachedBalance())
         case .availableToStake:
