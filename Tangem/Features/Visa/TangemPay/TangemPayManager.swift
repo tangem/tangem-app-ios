@@ -150,12 +150,14 @@ final class TangemPayManager {
         case .enrolled(let customerInfo, let productInstance):
             orderStatusPollingService.cancel()
             orderIdStorage.deleteCardIssuingOrderId(customerWalletId: customerWalletId)
-            stateSubject.value = .tangemPayAccount(
-                tangemPayAccountBuilder.makeTangemPayAccount(
-                    customerInfo: customerInfo,
-                    productInstance: productInstance
-                )
+            let account = tangemPayAccountBuilder.makeTangemPayAccount(
+                customerInfo: customerInfo,
+                productInstance: productInstance
             )
+            runTask {
+                await account.loadBalance()
+            }
+            stateSubject.value = .tangemPayAccount(account)
 
         case .notEnrolled:
             orderStatusPollingService.cancel()
@@ -203,6 +205,22 @@ final class TangemPayManager {
                 VisaLogger.error("Failed to poll order status", error: error)
             }
         )
+    }
+
+    private func bind() {
+        stateSubject
+            .compactMap(\.tangemPayAccount)
+            .flatMap(\.syncNeededSignalPublisher)
+            .mapToValue(.syncNeeded)
+            .sink(receiveValue: stateSubject.send)
+            .store(in: &bag)
+
+        stateSubject
+            .compactMap(\.tangemPayAccount)
+            .flatMap(\.unavailableSignalPublisher)
+            .mapToValue(.unavailable)
+            .sink(receiveValue: stateSubject.send)
+            .store(in: &bag)
     }
 }
 
