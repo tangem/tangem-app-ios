@@ -11,6 +11,14 @@ import Combine
 import BlockchainSdk
 
 final class FakeTangemApiService: TangemApiService {
+    func expressPromotion(request: ExpressPromotion.NewRequest) async throws -> ExpressPromotion.Response {
+        throw "Not implemented"
+    }
+
+    func promotion(programName: String, timeout: TimeInterval?) async throws -> PromotionParameters {
+        throw "Not implemented"
+    }
+
     private let geoIpRegionCode: String
 
     init(geoIpRegionCode: String = "us") {
@@ -72,14 +80,6 @@ final class FakeTangemApiService: TangemApiService {
     }
 
     func participateInReferralProgram(using token: AwardToken, for address: String, with userWalletId: String) async throws -> ReferralProgramInfo {
-        throw "Not implemented"
-    }
-
-    func expressPromotion(request: ExpressPromotion.Request) async throws -> ExpressPromotion.Response {
-        throw "Not implemented"
-    }
-
-    func promotion(programName: String, timeout: TimeInterval?) async throws -> PromotionParameters {
         throw "Not implemented"
     }
 
