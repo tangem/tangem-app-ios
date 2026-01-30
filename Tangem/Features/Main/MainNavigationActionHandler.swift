@@ -88,7 +88,10 @@ extension MainCoordinator {
                 return false
             }
 
-            coordinator.openDeepLink(.promo(code: promoCode))
+            let refcode = params.refcode
+            let campaign = params.campaign
+
+            coordinator.openDeepLink(.promo(code: promoCode, refcode: refcode, campaign: campaign))
             return true
         }
 
