@@ -118,17 +118,6 @@ extension [WalletModelUpdaterFeatureType] {
     static let full: [WalletModelUpdaterFeatureType] = [.balances, .transactionHistory]
 }
 
-// MARK: - WalletModelBalancesProvider
-
-protocol WalletModelBalancesProvider {
-    var availableBalanceProvider: TokenBalanceProvider { get }
-    var stakingBalanceProvider: TokenBalanceProvider { get }
-    var totalTokenBalanceProvider: TokenBalanceProvider { get }
-    var fiatAvailableBalanceProvider: TokenBalanceProvider { get }
-    var fiatStakingBalanceProvider: TokenBalanceProvider { get }
-    var fiatTotalTokenBalanceProvider: TokenBalanceProvider { get }
-}
-
 // MARK: - Helpers
 
 protocol WalletModelHelpers {
