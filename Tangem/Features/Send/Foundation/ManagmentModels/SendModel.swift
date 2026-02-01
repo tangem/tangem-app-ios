@@ -87,6 +87,10 @@ class SendModel {
 
         bind()
     }
+
+    deinit {
+        AppLogger.debug("SendModel deinit")
+    }
 }
 
 // MARK: - Validation
@@ -303,7 +307,8 @@ private extension SendModel {
             additionalField: _destinationAdditionalField.value,
             fee: sourceToken.tokenFeeProvidersManager.selectedTokenFee.option,
             signerType: result.signerType,
-            currentProviderHost: result.currentHost
+            currentProviderHost: result.currentHost,
+            tokenFee: sourceToken.tokenFeeProvidersManager.selectedTokenFee
         )
     }
 

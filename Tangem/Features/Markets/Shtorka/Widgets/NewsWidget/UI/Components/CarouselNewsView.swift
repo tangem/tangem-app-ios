@@ -16,12 +16,17 @@ import TangemLocalization
 struct CarouselNewsView: View {
     let itemsState: LoadingResult<[CarouselNewsItem], Never>
     let onAllNewsTap: (() -> Void)?
+    let onItemAppear: ((Int) -> Void)?
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: Layout.cardSpacing) {
-                ForEach(displayItems, id: \.id) { item in
+            LazyHStack(spacing: Layout.cardSpacing) {
+                ForEach(Array(displayItems.enumerated()), id: \.element.id) { index, item in
                     CarouselNewsCardView(item: item, isLoading: itemsState.isLoading)
+                        .id(item.id)
+                        .onAppear {
+                            onItemAppear?(index)
+                        }
                 }
 
                 if !itemsState.isLoading, onAllNewsTap != nil {
@@ -32,9 +37,14 @@ struct CarouselNewsView: View {
         }
     }
 
-    init(itemsState: LoadingResult<[CarouselNewsItem], Never>, onAllNewsTap: (() -> Void)? = nil) {
+    init(
+        itemsState: LoadingResult<[CarouselNewsItem], Never>,
+        onAllNewsTap: (() -> Void)? = nil,
+        onItemAppear: ((Int) -> Void)? = nil
+    ) {
         self.itemsState = itemsState
         self.onAllNewsTap = onAllNewsTap
+        self.onItemAppear = onItemAppear
     }
 
     // MARK: - Computed Properties

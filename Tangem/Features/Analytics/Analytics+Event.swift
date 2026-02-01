@@ -131,6 +131,8 @@ extension Analytics {
         case sendMaxAmountTapped = "[Token / Send] Max Amount Taped"
         case sendSelectedCurrency = "[Token / Send] Selected Currency"
         case sendFeeScreenOpened = "[Token / Send] Fee Screen Opened"
+        case sendFeeSummaryScreenOpened = "[Token / Send] Fee Summary Screen Opened"
+        case sendFeeTokenScreenOpened = "[Token / Send] Fee Token Screen Opened"
         case sendFeeSelected = "[Token / Send] Fee Selected"
         case sendCustomFeeClicked = "[Token / Send] Custom Fee Clicked"
         case sendGasPriceInserted = "[Token / Send] Gas Price Inserted"
@@ -225,6 +227,7 @@ extension Analytics {
         case accountSettingsButtonSave = "[Settings / Account] Button - Save"
         case accountSettingsButtonAddNewAccount = "[Settings / Account] Button - Add New Account"
         case accountSettingsAccountError = "[Settings / Account] Account Error"
+        case manageTokensCustomTokenAddedToAnotherAccount = "[Settings / Account] Button - Add Token To Another Account"
 
         // MARK: - Wallet Connect
 
@@ -254,7 +257,7 @@ extension Analytics {
 
         case walletConnectTransactionSolanaLarge = "[Wallet Connect] Solana Large Transaction"
         case walletConnectTransactionSolanaLargeStatus = "[Wallet Connect] Solana Large Transaction Status"
-        case walletConnectButtonConnectWithAccount = "[WalletConnect - Account] Button - Connect"
+        case walletConnectButtonConnectWithAccount = "[WalletConnect / Account] Button - Connect"
 
         case chatScreenOpened = "[Chat] Chat Screen Opened"
         case settingsScreenOpened = "[Settings] Settings Screen Opened"
@@ -268,7 +271,7 @@ extension Analytics {
         case referralButtonOpenTos = "[Referral Program] Link - TaC"
         case referralParticipateSuccessfull = "[Referral Program] Participate Successfull"
         case referralError = "[Referral Program] Referral Error"
-        case referralListChooseAccount = "[Referral program - Account] List - choose account"
+        case referralListChooseAccount = "[Referral program / Account] List - Choose Account"
 
         // MARK: - Swap
 
@@ -295,6 +298,11 @@ extension Analytics {
         case swapNoticeNotEnoughFee = "[Swap] Notice - Not Enough Fee"
         case swapNoticeExpressError = "[Swap] Notice - Express Error"
         case swapNoticePermissionNeeded = "[Swap] Notice - Permission Needed"
+
+        case swapFeeScreenOpened = "[Swap] Fee Screen Opened"
+        case swapFeeSummaryScreenOpened = "[Swap] Fee Summary Screen Opened"
+        case swapFeeTokenScreenOpened = "[Swap] Fee Token Screen Opened"
+        case swapFeeSelected = "[Swap] Fee Selected"
 
         // MARK: - Seed phrase
 
@@ -439,12 +447,24 @@ extension Analytics {
         // MARK: - Markets
 
         case marketsScreenOpened = "[Markets] Markets Screen Opened"
+        case marketsTokenListOpened = "[Markets] Token List Opened"
+        case marketsNewsListOpened = "[Markets] News List Opened"
         case marketsTokensSort = "[Markets] Sort By"
         case marketsDataError = "[Markets] Data Error"
+        case marketsMarketsLoadError = "[Markets] Markets Load Error"
+        case marketsNewsLoadError = "[Markets] News Load Error"
+        case marketsAllWidgetsLoadError = "[Markets] All Widgets Load Error"
+        case marketsNewsCarouselScrolled = "[Markets] News Carousel Scrolled"
+        case marketsNewsCarouselEndReached = "[Markets] News Carousel End Reached"
+        case marketsNewsCarouselAllNewsButton = "[Markets] News Carousel All News button"
+        case marketsNewsCarouselTrendingClicked = "[Markets] News Carousel Trending Clicked"
+        case marketsNewsListLoadError = "[Markets] News List Load Error"
+        case marketsNewsCategoriesSelected = "[Markets] News Categories Selected"
         case marketsNoticeYieldModePromo = "[Markets] Notice - Yield Mode Promo"
         case marketsYieldModePromoClosed = "[Markets] Yield Mode Promo Closed"
         case marketsYieldModeMoreInfo = "[Markets] Yield Mode More Info"
         case marketsTokenSearch = "[Markets] Token Search"
+        case marketsTokenSearchedClicked = "[Markets] Token Searched Clicked"
 
         // MARK: - Markets / Chart
 
@@ -465,8 +485,8 @@ extension Analytics {
         case marketsChartExchangesScreenOpened = "[Markets / Chart] Exchanges Screen Opened"
         case marketsChartSecurityScoreInfo = "[Markets / Chart] Security Score Info"
         case marketsChartSecurityScoreProviderClicked = "[Markets / Chart] Security Score Provider Clicked"
-        case marketsChartPopupChooseAccount = "[Markets / Chart] Popup to choose account"
-        case marketsChartButtonAddTokenToAnotherAccount = "[Markets / Chart] Button - Add (token not to main Account)"
+        case marketsChartPopupChooseAccount = "[Markets / Chart] - Choose Account Opened"
+        case marketsChartButtonAddTokenToAnotherAccount = "[Markets / Chart] Button - Add To Account"
         case marketsChartPopupGetTokenButtonBuy = "[Markets / Chart] Popup Get token - Button Buy"
         case marketsChartPopupGetTokenButtonExchange = "[Markets / Chart] Popup Get token - Button Exchange"
         case marketsChartPopupGetTokenButtonReceive = "[Markets / Chart] Popup Get token - Button Receive"
@@ -494,7 +514,6 @@ extension Analytics {
         case manageTokensCustomTokenName = "[Manage Tokens / Custom] Custom Token Name"
         case manageTokensCustomTokenSymbol = "[Manage Tokens / Custom] Custom Token Symbol"
         case manageTokensCustomTokenDecimals = "[Manage Tokens / Custom] Custom Token Decimals"
-        case manageTokensCustomTokenAddedToAnotherAccount = "[Manage Tokens / Custom Token] Button - Add Token To Another Account"
 
         // MARK: - Onramp
 
@@ -667,5 +686,19 @@ extension Analytics {
         case earningNoticeAmountNotDeposited = "[Earning] Notice - Amount Not Deposited"
         case mainNoticeYieldPromo = "[Main Screen] Yield Promo"
         case mainNoticeYieldPromoClicked = "[Main Screen] Yield Promo Clicked"
+
+        // MARK: - News
+
+        case newsArticleOpened = "[Markets] News Article Opened"
+        case newsRelatedClicked = "[Markets] Related News Clicked"
+        case newsArticleLoadError = "[Markets] News Article Load Error"
+        case newsLikeClicked = "[Markets] News Like Clicked"
+        case newsLinkMismatch = "[Markets] News Link Mismatch"
+
+        // MARK: - News (CoinPage)
+
+        case coinPageTokenNewsViewed = "[CoinPage] Token News Viewed"
+        case coinPageTokenNewsLoadError = "[CoinPage] Token News Load Error"
+        case coinPageTokenNewsCarouselScrolled = "[CoinPage] Token News Carousel Scrolled"
     }
 }

@@ -13,7 +13,7 @@ extension Analytics {
         case blockchain = "Blockchain"
         case firmware = "Firmware"
         case action = "Action"
-        case errorDescription = "Error Description"
+        case errorDescription = "Error"
         case errorCode = "Error Code"
         case errorMessage = "Error Message"
         case errorType = "Error Type"
@@ -43,8 +43,8 @@ extension Analytics {
         case accountColor = "Color"
         case accountIcon = "Icon"
         case accountDerivation = "Account Derivation"
-        case accountDerivationFrom = "Account Derivation (From)"
-        case accountDerivationTo = "Account Derivation (To)"
+        case accountDerivationFrom = "Account Derivation (from)"
+        case accountDerivationTo = "Account Derivation (to)"
         case sku = "SKU"
         case amount = "Amount"
         case count = "Count"
@@ -92,6 +92,8 @@ extension Analytics {
         case method = "Method"
         case appTheme = "App Theme"
         case mobileWallet = "Mobile Wallet"
+        case feeToken = "Fee Token"
+        case availableFee = "Available Fee"
 
         case fromSummary = "From Summary"
         case valid = "Valid"
@@ -111,6 +113,8 @@ extension Analytics {
 
         case watched = "Watched"
 
+        case selectedCategories = "Selected Categories"
+
         // MARK: - Wallet Connect
 
         case walletConnectDAppName = "DApp Name"
@@ -129,5 +133,14 @@ extension Analytics {
 
         case backupManual = "Manual Backup"
         case backupICloud = "Icloud Backup"
+
+        // MARK: - News
+
+        case newsId = "News Id"
+        case direction = "Direction"
+        case relatedNewsId = "Related News Id"
+        case tokenSymbol = "Token Symbol"
+        case newsCount = "News Count"
+        case tokenId = "Token Id"
     }
 }

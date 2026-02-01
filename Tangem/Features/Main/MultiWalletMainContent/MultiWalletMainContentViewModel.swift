@@ -142,6 +142,20 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         AppLogger.debug("\(userWalletModel.name) deinit")
     }
 
+    func onDidAppear() {
+        mobileFinishActivationManager.onMain(
+            userWalletModel: userWalletModel,
+            isAppeared: true
+        )
+    }
+
+    func onWillDisappear() {
+        mobileFinishActivationManager.onMain(
+            userWalletModel: userWalletModel,
+            isAppeared: false
+        )
+    }
+
     func onPullToRefresh() async {
         if await isUpdating {
             return
@@ -151,14 +165,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         await refreshActionButtonsData()
         await MultiWalletMainContentUpdater.scheduleUpdate(with: userWalletModel)
         await setIsUpdating(false)
-    }
-
-    func onFirstAppear() {
-        finishMobileActivationIfNeeded()
-    }
-
-    func finishMobileActivationIfNeeded() {
-        mobileFinishActivationManager.activateIfNeeded(userWalletModel: userWalletModel)
     }
 
     func deriveEntriesWithoutDerivation() {
@@ -203,28 +209,18 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .walletsWithNFTEnabledPublisher
             .share(replay: 1)
 
-        let nftEntrypointViewModelPublisher: AnyPublisher<Set<UserWalletId>, Never>
-
-        let hasAccounts = FeatureProvider.isAvailable(.accounts)
-
-        if hasAccounts {
-            nftEntrypointViewModelPublisher = Publishers.Merge(
-                walletsWithNFTEnabledPublisher,
-                AccountWalletModelsAggregator
-                    .walletModelsPublisher(from: userWalletModel.accountModelsManager)
-                    .withLatestFrom(walletsWithNFTEnabledPublisher)
-            )
-            .eraseToAnyPublisher()
+        let nftEntrypointViewModelPublisher = if FeatureProvider.isAvailable(.accounts) {
+            AccountWalletModelsAggregator
+                .walletModelsPublisher(from: userWalletModel.accountModelsManager)
+                .withLatestFrom(walletsWithNFTEnabledPublisher)
+                .merge(with: walletsWithNFTEnabledPublisher)
         } else {
             // accounts_fixes_needed_none
-            nftEntrypointViewModelPublisher = Publishers.Merge(
-                walletsWithNFTEnabledPublisher,
-                userWalletModel
-                    .walletModelsManager
-                    .walletModelsPublisher
-                    .withLatestFrom(walletsWithNFTEnabledPublisher)
-            )
-            .eraseToAnyPublisher()
+            userWalletModel
+                .walletModelsManager
+                .walletModelsPublisher
+                .withLatestFrom(walletsWithNFTEnabledPublisher)
+                .merge(with: walletsWithNFTEnabledPublisher)
         }
 
         nftEntrypointViewModelPublisher
@@ -254,14 +250,20 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .assign(to: \.accountSections, on: self, ownership: .weak)
             .store(in: &bag)
 
-        let tokenItemPromoInputPublisher = plainSectionsPublisher
+        let tokenItemPromoInputPublisher = accountSectionsPublisher
             .eraseToAnyPublisher()
-            .map { $0.flatMap(\.items) }
+            .combineLatest(plainSectionsPublisher.eraseToAnyPublisher()) { accountSections, plainSections in
+                let flattenedAccountSectionsTokenItems = accountSections
+                    .flatMap(\.items)
+                    .flatMap(\.items)
+                    .nilIfEmpty
+
+                return flattenedAccountSectionsTokenItems ?? plainSections.flatMap(\.items)
+            }
             .mapMany { TokenItemPromoProviderInput(id: $0.id, tokenItem: $0.tokenItem) }
 
         tokenItemPromoProvider
             .makePromoOutputPublisher(using: tokenItemPromoInputPublisher)
-            .eraseToAnyPublisher()
             .removeDuplicates()
             .handleEvents(receiveOutput: { [weak self] output in
                 guard let output, let walletModel = self?.findWalletModel(with: output.walletModelId) else {
@@ -315,12 +317,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     private func setupTangemPayIfNeeded() {
-        // [REDACTED_TODO_COMMENT]
-        // [REDACTED_INFO]
-        guard FeatureProvider.isAvailable(.visa) else {
-            return
-        }
-
         tangemPayNotificationManager
             .notificationPublisher
             .receiveOnMain()

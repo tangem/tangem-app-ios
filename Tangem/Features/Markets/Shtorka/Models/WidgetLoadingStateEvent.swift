@@ -8,12 +8,31 @@
 
 import Foundation
 
-enum WidgetLoadingStateEvent: String, Identifiable, Hashable {
-    case readyForDisplay = "ready_for_display"
-    case lockedForDisplay = "locked_for_display"
-    case allWidgetsWithError = "all_widgets_with_error"
+enum WidgetLoadingStateEvent: Identifiable, Hashable {
+    /// All widgets finished loading (some may have errors, some may have succeeded)
+    case loaded
+
+    /// All widgets failed with errors
+    case allFailed
+
+    /// Initial loading - widgets are loading for the first time
+    case initialLoading
+
+    /// Reloading after initial load - some widgets are reloading (e.g., retry after error)
+    /// Contains the list of widget types that are currently reloading.
+    /// Other widgets should not show loading state in this case.
+    case reloading([MarketsWidgetType])
 
     var id: String {
-        rawValue
+        switch self {
+        case .loaded:
+            return "loaded"
+        case .allFailed:
+            return "all_failed"
+        case .initialLoading:
+            return "initial_loading"
+        case .reloading:
+            return "reloading"
+        }
     }
 }
