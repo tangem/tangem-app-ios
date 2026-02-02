@@ -233,13 +233,27 @@ private extension CommonEthereumPendingTransactionsManager {
     func updatePendingTransactionsStatus() {
         guard pendingTransactionsCheckTask == nil else { return }
 
-        pendingTransactionsCheckTask = Task { [weak self] in
-            while self?.pendingTransactionsSubject.value.isEmpty == false {
-                try await self?.syncPendingTransactions()
-                try await Task.sleep(for: .seconds(Constants.transactionCheckInterval))
-            }
+        pendingTransactionsCheckTask = Task { [weak self, walletAddress] in
+            defer { self?.pendingTransactionsCheckTask = nil }
 
-            self?.pendingTransactionsCheckTask = nil
+            while self?.pendingTransactionsSubject.value.isEmpty == false {
+                do {
+                    try await self?.syncPendingTransactions()
+                } catch is CancellationError {
+                    break
+                } catch {
+                    BSDKLogger.debug(
+                        "Failed to sync pending Ethereum transactions for \(walletAddress): \(error)"
+                    )
+                }
+                do {
+                    try await Task.sleep(for: .seconds(Constants.transactionCheckInterval))
+                } catch is CancellationError {
+                    break
+                } catch {
+                    BSDKLogger.debug("Pending Ethereum transactions polling sleep interrupted: \(error)")
+                }
+            }
         }
     }
 }
