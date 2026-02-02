@@ -87,6 +87,10 @@ class SendModel {
 
         bind()
     }
+
+    deinit {
+        AppLogger.debug("SendModel deinit")
+    }
 }
 
 // MARK: - Validation
@@ -831,7 +835,8 @@ extension SendModel: NotificationTapDelegate {
              .tangemPaySync,
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
-             .activate:
+             .activate,
+             .openCloreMigration:
             assertionFailure("Notification tap not handled")
         }
     }
