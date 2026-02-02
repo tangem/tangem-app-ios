@@ -50,7 +50,7 @@ struct NewsListView: View {
         .onOverlayContentProgressChange(overlayContentStateObserver: overlayContentStateObserver) { [weak viewModel] progress in
             viewModel?.onOverlayContentProgressChange(progress)
         }
-        .injectMarketsNavigationControllerConfigurator()
+        .injectMarketsNavigationConfigurator()
     }
 
     @ViewBuilder

@@ -12,8 +12,8 @@ import TangemLocalization
 import TangemUI
 
 struct NewsSourcesSectionView: View {
-    let sources: [NewsDetailsViewModel.Source]
-    let onSourceTap: (NewsDetailsViewModel.Source) -> Void
+    let sources: [NewsSource]
+    let onSourceTap: (NewsSource) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {

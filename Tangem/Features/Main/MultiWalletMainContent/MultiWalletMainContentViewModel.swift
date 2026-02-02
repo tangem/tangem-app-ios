@@ -652,6 +652,14 @@ extension MultiWalletMainContentViewModel {
         coordinator?.openOrganizeTokens(for: userWalletModel)
     }
 
+    private func openCloreMigration() {
+        guard let walletModel = findCloreWalletModelForMigration() else {
+            return
+        }
+
+        coordinator?.openCloreMigration(walletModel: walletModel)
+    }
+
     private func openSupport() {
         Analytics.log(.requestSupport, params: [.source: .main])
 
@@ -705,6 +713,16 @@ extension MultiWalletMainContentViewModel {
                 }
             }
         }
+    }
+
+    private func findCloreWalletModelForMigration() -> (any WalletModel)? {
+        let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
+
+        let walletModelWithBalance = walletModels.first {
+            $0.tokenItem.blockchain == .clore && ($0.totalTokenBalanceProvider.balanceType.value ?? 0) > 0
+        }
+
+        return walletModelWithBalance ?? walletModels.first { $0.tokenItem.blockchain == .clore }
     }
 }
 
@@ -803,6 +821,8 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
             userWalletNotificationManager.dismissNotification(with: id)
         case .tangemPaySync:
             userWalletModel.tangemPayManager.syncTokens(authorizingInteractor: userWalletModel.tangemPayAuthorizingInteractor)
+        case .openCloreMigration:
+            openCloreMigration()
         default:
             break
         }
