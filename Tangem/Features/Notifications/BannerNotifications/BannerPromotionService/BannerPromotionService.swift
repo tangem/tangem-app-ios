@@ -9,10 +9,8 @@
 import Foundation
 
 protocol BannerPromotionService {
-    func loadPromotion(programName: String) async -> PromotionServicePromotionInfo
-
-    func activePromotion(promotion: PromotionProgramName, on place: BannerPromotionPlacement) async -> ActivePromotionInfo?
-    func isHidden(promotion: PromotionProgramName, on place: BannerPromotionPlacement) -> Bool
+    func loadActivePromotionsFor(walletId: String, on place: BannerPromotionPlacement) async -> [ActivePromotionInfo]
+    func isHidden(promotionName: String, on place: BannerPromotionPlacement) -> Bool
     func hide(promotion: PromotionProgramName, on place: BannerPromotionPlacement)
 }
 
@@ -56,25 +54,15 @@ enum BannerPromotionPlacement {
 }
 
 enum PromotionProgramName: String, Hashable, CaseIterable {
-    case visaWaitlist = "visa-waitlist"
-    case blackFriday = "black-friday"
-    case onePlusOne = "one-plus-one"
+    case yield = "promo-yield"
 
     var analyticsEvent: Analytics.Event? {
-        switch self {
-        case .blackFriday, .onePlusOne: Analytics.Event.promotionBannerAppeared
-        case .visaWaitlist: Analytics.Event.promotionVisaWaitlist
-        }
+        Analytics.Event.promotionBannerAppeared
     }
 
     var analyticsValue: Analytics.ParameterValue {
         switch self {
-        case .blackFriday:
-            return Analytics.ParameterValue.blackFriday
-        case .visaWaitlist:
-            return Analytics.ParameterValue.visaWaitlist
-        case .onePlusOne:
-            return Analytics.ParameterValue.onePlusOne
+        case .yield: return Analytics.ParameterValue.yieldPromo
         }
     }
 }

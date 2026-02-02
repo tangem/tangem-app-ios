@@ -40,15 +40,15 @@ extension Analytics {
         case blocks = "Blocks"
         case seedless = "Seedless"
         case seedphrase = "Seed phrase"
+        case addNew = "Add New"
 
         case card = "Card"
         case ring = "Ring"
         case sepa = "Sepa"
         case mobileWallet = "MobileWallet"
         case visa = "Visa"
-        case visaWaitlist = "Visa Waitlist"
         case blackFriday = "Black Friday"
-        case onePlusOne = "One-Plus-One"
+        case yieldPromo = "Yield Promo"
 
         case main = "Main"
         case token = "Token"
