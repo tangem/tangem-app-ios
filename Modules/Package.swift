@@ -33,7 +33,7 @@ let package = Package(
         .package(url: "https://github.com/weichsel/ZIPFoundation.git", .upToNextMajor(from: "0.9.19")),
         .package(url: "https://github.com/airbnb/lottie-spm.git", .upToNextMajor(from: "4.5.2")),
         .package(url: "https://github.com/CombineCommunity/CombineExt.git", .upToNextMajor(from: "1.8.1")),
-        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", .upToNextMajor(from: "4.0.9")),
+        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", .upToNextMajor(from: "4.0.10")),
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", exact: "1.9.0"),
         .package(url: "https://github.com/swiftlang/swift-syntax.git", .upToNextMajor(from: "602.0.0")),
         .package(url: "https://github.com/SumSubstance/IdensicMobileSDK-iOS.git", exact: "1.39.0"),
