@@ -836,7 +836,6 @@ extension SendModel: NotificationTapDelegate {
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
              .activate,
-             .givePermission,
              .openCloreMigration:
             assertionFailure("Notification tap not handled")
         }
