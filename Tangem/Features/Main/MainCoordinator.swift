@@ -284,6 +284,14 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         yieldModuleActiveCoordinator = coordinator
     }
 
+    func openCloreMigration(walletModel: any WalletModel) {
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(
+                sheet: CommonCloreMigrationModuleFlowFactory(walletModel: walletModel, coordinator: self).makeCloreMigrationViewModel()
+            )
+        }
+    }
+
     func openTokenDetails(for model: any WalletModel, userWalletModel: UserWalletModel) {
         mainBottomSheetUIManager.hide()
 
@@ -378,6 +386,14 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
 
         coordinator.start(with: .init(userWalletInfo: userWalletInfo, tangemPayAccount: tangemPayAccount))
         tangemPayMainCoordinator = coordinator
+    }
+}
+
+// MARK: - CloreMigrationRoutable
+
+extension MainCoordinator: CloreMigrationRoutable {
+    func openURLInSystemBrowser(url: URL) {
+        UIApplication.shared.open(url)
     }
 }
 
