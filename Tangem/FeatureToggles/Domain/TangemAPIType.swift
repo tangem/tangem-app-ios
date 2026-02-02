@@ -27,6 +27,19 @@ public enum TangemAPIType: String, CaseIterable, Codable {
         }
     }
 
+    public var apiBaseUrlv2: URL {
+        switch self {
+        case .prod:
+            return URL(string: "https://api.tangem.org/v2")!
+        case .dev:
+            return URL(string: "https://api.tests-d.com/v2")!
+        case .stage:
+            return URL(string: "https://api.tests-s.com/v2")!
+        case .mock:
+            return URL(string: "https://wiremock.tests-d.com/v2")!
+        }
+    }
+
     public var iconBaseUrl: URL {
         switch self {
         case .prod:
