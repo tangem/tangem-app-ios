@@ -740,7 +740,8 @@ extension ExpressViewModel: NotificationTapDelegate {
              .tangemPaySync,
              .activate,
              .allowPushPermissionRequest,
-             .postponePushPermissionRequest:
+             .postponePushPermissionRequest,
+             .openCloreMigration:
             return
         }
     }

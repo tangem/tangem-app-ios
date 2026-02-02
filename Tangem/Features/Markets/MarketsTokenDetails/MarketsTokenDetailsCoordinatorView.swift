@@ -62,12 +62,7 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
             }
             .navigation(item: $coordinator.newsPagerViewModel) { viewModel in
                 NewsPagerView(viewModel: viewModel)
-                    .navigationLinks(
-                        NavHolder()
-                            .navigation(item: newsRelatedTokenDetailsBinding) { tokenCoordinator in
-                                MarketsTokenDetailsCoordinatorView(coordinator: tokenCoordinator)
-                            }
-                    )
+                    .navigationLinks(newsRelatedTokenDetailsLink)
             }
             .fullScreenCover(item: $coordinator.yieldModulePromoCoordinator) { coordinator in
                 NavigationView {
@@ -101,15 +96,12 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
         )
     }
 
-    private var newsRelatedTokenDetailsBinding: Binding<MarketsTokenDetailsCoordinator?> {
-        Binding(
-            get: { coordinator.newsRelatedTokenDetailsPath.first },
-            set: { newValue in
-                if newValue == nil, !coordinator.newsRelatedTokenDetailsPath.isEmpty {
-                    coordinator.newsRelatedTokenDetailsPath.removeFirst()
-                }
+    private var newsRelatedTokenDetailsLink: some View {
+        NavHolder()
+            .navigation(item: $coordinator.newsRelatedTokenDetailsCoordinator) { tokenCoordinator in
+                MarketsTokenDetailsCoordinatorView(coordinator: tokenCoordinator)
+                    .ignoresSafeArea(.container, edges: .top)
             }
-        )
     }
 }
 
