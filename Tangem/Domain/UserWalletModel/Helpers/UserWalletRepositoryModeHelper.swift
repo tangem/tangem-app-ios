@@ -11,6 +11,10 @@ import Foundation
 enum UserWalletRepositoryModeHelper {
     @Injected(\.userWalletRepository) private static var userWalletRepository: UserWalletRepository
 
+    static var hasSingleMobileWallet: Bool {
+        userWalletRepository.models.count == 1 && mode == .mobile
+    }
+
     static var mode: UserWalletRepositoryMode {
         if userWalletRepository.models.isEmpty {
             return .empty
