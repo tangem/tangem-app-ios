@@ -3632,6 +3632,7 @@
 		DCBF4D332D8B497F002C2B8E /* AnyWalletManagerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCBF4D162D8B497F002C2B8E /* AnyWalletManagerFactory.swift */; };
 		DCBF4D342D8B497F002C2B8E /* SimpleWalletManagerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCBF4D1A2D8B497F002C2B8E /* SimpleWalletManagerFactory.swift */; };
 		DCC05A602CD17DFD004CE6A4 /* TokenSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC05A5F2CD17DF6004CE6A4 /* TokenSelectorView.swift */; };
+		DCC4F7942F30D0C900AF0322 /* TangemSdkAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC4F7932F30D0C000AF0322 /* TangemSdkAnalyticsLogger.swift */; };
 		DCC5C9942C1248C5001B970A /* PushNotificationsPermissionRequestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5C9932C1248C5001B970A /* PushNotificationsPermissionRequestView.swift */; };
 		DCC5C99A2C136C52001B970A /* PushNotificationsPermissionRequestViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5C9992C136C52001B970A /* PushNotificationsPermissionRequestViewModel.swift */; };
 		DCC5C99C2C136D8F001B970A /* PushNotificationsPermissionRequestDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5C99B2C136D8F001B970A /* PushNotificationsPermissionRequestDelegate.swift */; };
@@ -8439,6 +8440,7 @@
 		DCBF4D242D8B497F002C2B8E /* TransactionCreator+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TransactionCreator+.swift"; sourceTree = "<group>"; };
 		DCBF4D252D8B497F002C2B8E /* WalletManagerFactoryProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletManagerFactoryProvider.swift; sourceTree = "<group>"; };
 		DCC05A5F2CD17DF6004CE6A4 /* TokenSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenSelectorView.swift; sourceTree = "<group>"; };
+		DCC4F7932F30D0C000AF0322 /* TangemSdkAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSdkAnalyticsLogger.swift; sourceTree = "<group>"; };
 		DCC5C9932C1248C5001B970A /* PushNotificationsPermissionRequestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsPermissionRequestView.swift; sourceTree = "<group>"; };
 		DCC5C9992C136C52001B970A /* PushNotificationsPermissionRequestViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsPermissionRequestViewModel.swift; sourceTree = "<group>"; };
 		DCC5C99B2C136D8F001B970A /* PushNotificationsPermissionRequestDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsPermissionRequestDelegate.swift; sourceTree = "<group>"; };
@@ -12741,6 +12743,7 @@
 		5DF2522524F914C90015B429 /* TangemSdk */ = {
 			isa = PBXGroup;
 			children = (
+				DCC4F7932F30D0C000AF0322 /* TangemSdkAnalyticsLogger.swift */,
 				B6F291A72ED53D9500662749 /* Accounts */,
 				DC02EE7E2ECB92C600A4BD67 /* TangemPayAuthorizing */,
 				DCD1AA6D2E9976BE00C78540 /* TangemSdkNetworkServiceFactory.swift */,
@@ -29080,6 +29083,7 @@
 				DC37C1952EF7820C009FEDF8 /* NewsCategoryChipsView.swift in Sources */,
 				DC37C1962EF7820C009FEDF8 /* NewsListCoordinator.swift in Sources */,
 				DC37C1982EF7820C009FEDF8 /* NewsListView.swift in Sources */,
+				DCC4F7942F30D0C900AF0322 /* TangemSdkAnalyticsLogger.swift in Sources */,
 				DC37C19A2EF7820C009FEDF8 /* NewsListCoordinatorView.swift in Sources */,
 				DC37C19B2EF7820C009FEDF8 /* NewsPagingView.swift in Sources */,
 				B0B2DF6026E1FD5400BC0934 /* AnimatedView.swift in Sources */,
