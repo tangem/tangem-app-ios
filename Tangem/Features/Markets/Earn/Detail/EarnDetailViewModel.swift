@@ -18,8 +18,6 @@ final class EarnDetailViewModel: ObservableObject {
     @Published private(set) var listLoadingState: EarnBestOpportunitiesListView.LoadingState = .loading
     @Published private(set) var tokenViewModels: [EarnTokenItemViewModel] = []
 
-    let filterProvider = EarnDataFilterProvider()
-
     var isFilterInteractionEnabled: Bool {
         filterProvider.state == .loaded
     }
@@ -28,7 +26,17 @@ final class EarnDetailViewModel: ObservableObject {
         filterProvider.state == .loading
     }
 
+    var selectedNetworkFilterTitle: String {
+        filterProvider.selectedNetworkFilter.displayTitle
+    }
+
+    var selectedFilterTypeTitle: String {
+        filterProvider.selectedFilterType.description
+    }
+
     // MARK: - Private Properties
+
+    private let filterProvider: EarnDataFilterProvider
 
     private let dataProvider = EarnDataProvider()
     private weak var coordinator: EarnDetailRoutable?
@@ -38,9 +46,11 @@ final class EarnDetailViewModel: ObservableObject {
     // MARK: - Init
 
     init(
+        filterProvider: EarnDataFilterProvider,
         mostlyUsedTokens: [EarnTokenModel],
         coordinator: EarnDetailRoutable? = nil
     ) {
+        self.filterProvider = filterProvider
         self.coordinator = coordinator
 
         setupMostlyUsedViewModels(from: mostlyUsedTokens)
