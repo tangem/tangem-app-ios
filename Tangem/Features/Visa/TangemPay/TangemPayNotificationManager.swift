@@ -8,6 +8,7 @@
 
 import Combine
 import TangemPay
+import TangemUI
 
 final class TangemPayNotificationManager {
     private let userWalletModel: UserWalletModel
@@ -20,7 +21,12 @@ final class TangemPayNotificationManager {
         self.userWalletModel = userWalletModel
 
         cancellable = userWalletModel.tangemPayManager.statePublisher
-            .map { $0.asNotificationEvent(userWalletModel.tangemPayAuthorizingInteractor.syncNeededTitle) }
+            .map { state in
+                state.asNotificationEvent(
+                    syncNeededTitle: userWalletModel.tangemPayAuthorizingInteractor.syncNeededTitle,
+                    icon: CommonTangemIconProvider(config: userWalletModel.config).getMainButtonIcon()
+                )
+            }
             .withWeakCaptureOf(self)
             .map { manager, event in
                 if let event {
@@ -68,15 +74,15 @@ extension TangemPayNotificationManager: NotificationManager {
 // MARK: - TangemPayLocalState+notificationEvent
 
 private extension TangemPayLocalState {
-    func asNotificationEvent(_ syncNeededTitle: String) -> TangemPayNotificationEvent? {
+    func asNotificationEvent(syncNeededTitle: String, icon: MainButton.Icon?) -> TangemPayNotificationEvent? {
         switch self {
         case .syncNeeded, .syncInProgress:
-            .syncNeeded(syncNeededTitle)
+            .syncNeeded(title: syncNeededTitle, icon: icon)
 
         case .unavailable:
             .unavailable
 
-        case .initial, .kycRequired, .kycDeclined, .issuingCard, .failedToIssueCard, .tangemPayAccount:
+        case .initial, .loading, .kycRequired, .kycDeclined, .issuingCard, .failedToIssueCard, .tangemPayAccount:
             nil
         }
     }
