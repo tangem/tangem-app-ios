@@ -12,16 +12,12 @@ import BlockchainSdk
 import TangemAssets
 import TangemLocalization
 
-extension AddCustomTokenNetworksListItemViewModel: Identifiable {
-    var id: String { networkId }
-}
-
 final class EarnNetworkFilterBottomSheetViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
 
     @Published var currentSelection: EarnNetworkFilterType
     @Published var presetRowViewModels: [DefaultSelectableRowViewModel<EarnNetworkFilterType>]
-    @Published var networkItemViewModels: [AddCustomTokenNetworksListItemViewModel] = []
+    @Published var networkRowInputs: [EarnNetworkFilterNetworkRowInput] = []
 
     var title: String {
         Localization.earnFilterAllNetworks
@@ -43,7 +39,7 @@ final class EarnNetworkFilterBottomSheetViewModel: ObservableObject, Identifiabl
     // MARK: - Private Properties
 
     private let provider: EarnFilterProvider
-    private let dismiss: (() -> Void)?
+    private let dismissAction: (() -> Void)?
 
     // MARK: - Init
 
@@ -53,7 +49,7 @@ final class EarnNetworkFilterBottomSheetViewModel: ObservableObject, Identifiabl
         onDismiss: (() -> Void)? = nil
     ) {
         self.provider = provider
-        dismiss = onDismiss
+        dismissAction = onDismiss
         currentSelection = provider.currentFilterValue.network
 
         presetRowViewModels = EarnNetworkFilterType.presetCases.map {
@@ -64,24 +60,17 @@ final class EarnNetworkFilterBottomSheetViewModel: ObservableObject, Identifiabl
             )
         }
 
-        networkItemViewModels = SupportedBlockchains.all
-            .map { blockchain in
-                let isSelected: Bool
-                if case .network(let networkId) = currentSelection {
-                    isSelected = blockchain.networkId == networkId
-                } else {
-                    isSelected = false
-                }
-                return AddCustomTokenNetworksListItemViewModel(
-                    networkId: blockchain.networkId,
-                    iconAsset: blockchainIconProvider.provide(by: blockchain, filled: true),
-                    networkName: blockchain.displayName,
-                    currencySymbol: blockchain.currencySymbol,
-                    isSelected: isSelected
-                ) { [weak self] in
+        networkRowInputs = SupportedBlockchains.all.map { blockchain in
+            EarnNetworkFilterNetworkRowInput(
+                id: blockchain.networkId,
+                iconAsset: blockchainIconProvider.provide(by: blockchain, filled: true),
+                networkName: blockchain.displayName,
+                currencySymbol: blockchain.currencySymbol,
+                onTap: { [weak self] in
                     self?.selectAndDismiss(network: .network(networkId: blockchain.networkId))
                 }
-            }
+            )
+        }
     }
 
     // MARK: - Private Methods
@@ -89,6 +78,6 @@ final class EarnNetworkFilterBottomSheetViewModel: ObservableObject, Identifiabl
     private func selectAndDismiss(network: EarnNetworkFilterType) {
         currentSelection = network
         provider.didSelectNetwork(network)
-        dismiss?()
+        dismissAction?()
     }
 }
