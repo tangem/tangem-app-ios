@@ -834,6 +834,9 @@
 "notification_sepa_title" = "Buy Crypto with SEPA";
 "notification_visa_waitlist_promo_text" = "Join the waitlist and get a payment card unlike any other";
 "notification_visa_waitlist_promo_title" = "Tangem Visa Card";
+"notification_yield_promo_button" = "Terms and conditions";
+"notification_yield_promo_text" = "Deposit $100+, hold for 30 days, get $10";
+"notification_yield_promo_title" = "Join the Yield Mode Campaign!";
 "onboarding_access_code_feature_1_description" = "Set up a single access code to protect all your devices.";
 "onboarding_access_code_feature_1_title" = "保護";
 "onboarding_access_code_feature_2_description" = "您可以稍後在每張卡上設置單獨的訪問密碼";

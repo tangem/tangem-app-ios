@@ -24,22 +24,9 @@ struct NewsDeeplinkContainerView: View {
 
     private var tokenDetailsLinks: some View {
         NavHolder()
-            .navigation(item: tokenDetailsBinding) { tokenCoordinator in
+            .navigation(item: $coordinator.tokenDetailsCoordinator) { tokenCoordinator in
                 MarketsTokenDetailsCoordinatorView(coordinator: tokenCoordinator)
                     .ignoresSafeArea(.container, edges: .top)
             }
-    }
-
-    private var tokenDetailsBinding: Binding<MarketsTokenDetailsCoordinator?> {
-        Binding(
-            get: {
-                coordinator.path.first(where: \.isTokenDetails)?.tokenDetailsValue
-            },
-            set: { newValue in
-                if newValue == nil {
-                    coordinator.path.removeAll(where: \.isTokenDetails)
-                }
-            }
-        )
     }
 }
