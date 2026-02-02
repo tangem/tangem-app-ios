@@ -162,7 +162,12 @@ private extension HardwareCreateWalletViewModel {
                         walletInfo: .cardWallet(cardInfo),
                         keys: .cardWallet(keys: cardInfo.card.wallets)
                     ) {
+                        let hadSingleMobileWallet = UserWalletRepositoryModeHelper.hasSingleMobileWallet
                         try viewModel.userWalletRepository.add(userWalletModel: newUserWalletModel)
+
+                        if hadSingleMobileWallet {
+                            viewModel.logColdWalletAddedAnalytics(cardInfo: cardInfo)
+                        }
 
                         await runOnMain {
                             viewModel.isScanning = false
@@ -276,6 +281,14 @@ private extension HardwareCreateWalletViewModel {
             .cardWasScanned,
             params: [.source: Analytics.CardScanSource.createWallet.cardWasScannedParameterValue],
             contextParams: analyticsContextParams
+        )
+    }
+
+    func logColdWalletAddedAnalytics(cardInfo: CardInfo) {
+        Analytics.log(
+            .settingsColdWalletAdded,
+            params: [.source: Analytics.ParameterValue.addNew],
+            contextParams: .custom(cardInfo.analyticsContextData)
         )
     }
 
