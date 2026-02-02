@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import BlockchainSdk
+import UIKit
 
 class TokenDetailsCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
@@ -160,6 +161,16 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: factory.makeYieldModuleBalanceInfoViewModel())
         }
+    }
+
+    func openCloreMigration(factory: CloreMigrationModuleFlowFactory) {
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: factory.makeCloreMigrationViewModel())
+        }
+    }
+
+    func openURLInSystemBrowser(url: URL) {
+        UIApplication.shared.open(url)
     }
 }
 
