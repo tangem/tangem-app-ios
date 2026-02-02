@@ -80,7 +80,7 @@ struct MarketTokenItemView: View {
                 if let marketRating = viewModel.marketRating {
                     Text(marketRating)
                         .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-                        .roundedBackground(with: Colors.Field.primary, verticalPadding: .zero, horizontalPadding: 5, radius: 4)
+                        .roundedBackground(with: Colors.Button.secondary, verticalPadding: .zero, horizontalPadding: 5, radius: 4)
                         .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenRating)
                 }
 
