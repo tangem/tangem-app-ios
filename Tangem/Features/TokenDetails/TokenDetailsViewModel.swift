@@ -140,6 +140,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             )
         case .swap:
             openExchange()
+        case .openCloreMigration:
+            openCloreMigration()
         case .generateAddresses,
              .backupCard,
              .refresh,
@@ -533,6 +535,21 @@ extension TokenDetailsViewModel {
         )
 
         coordinator?.openYieldBalanceInfo(factory: factory)
+    }
+}
+
+extension TokenDetailsViewModel {
+    func makeCloreMigrationModuleFlowFactory() -> CloreMigrationModuleFlowFactory? {
+        guard let coordinator else { return nil }
+        return CommonCloreMigrationModuleFlowFactory(walletModel: walletModel, coordinator: coordinator)
+    }
+
+    func openCloreMigration() {
+        guard let factory = makeCloreMigrationModuleFlowFactory() else {
+            return
+        }
+
+        coordinator?.openCloreMigration(factory: factory)
     }
 }
 
