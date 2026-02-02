@@ -101,8 +101,10 @@ final class WalletModelTestsMock: WalletModel {
 
     // MARK: - WalletModelFeesProvider
 
-    var tokenFeeLoader: any TokenFeeLoader { TokenFeeLoaderMock() }
     var customFeeProvider: (any CustomFeeProvider)? { .none }
+    func makeTokenFeeLoader(for tokenItem: Tangem.TokenItem) -> any Tangem.TokenFeeLoader {
+        TokenFeeLoaderMock()
+    }
 
     // MARK: - TransactionHistoryFetcher
 
