@@ -232,12 +232,12 @@ extension NFTSendWalletModelProxy: WalletModel {
         mainTokenWalletModel.fulfillRequirements(signer: signer)
     }
 
-    var tokenFeeLoader: any TokenFeeLoader {
-        mainTokenWalletModel.tokenFeeLoader
-    }
-
     var customFeeProvider: (any CustomFeeProvider)? {
         mainTokenWalletModel.customFeeProvider
+    }
+
+    func makeTokenFeeLoader(for tokenItem: TokenItem) -> any TokenFeeLoader {
+        mainTokenWalletModel.makeTokenFeeLoader(for: tokenItem)
     }
 
     func hasFeeCurrency() -> Bool {
