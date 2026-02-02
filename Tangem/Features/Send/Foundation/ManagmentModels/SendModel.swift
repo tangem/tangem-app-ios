@@ -835,7 +835,8 @@ extension SendModel: NotificationTapDelegate {
              .tangemPaySync,
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
-             .activate:
+             .activate,
+             .openCloreMigration:
             assertionFailure("Notification tap not handled")
         }
     }
