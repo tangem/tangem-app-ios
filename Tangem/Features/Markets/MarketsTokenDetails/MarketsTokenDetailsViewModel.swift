@@ -278,10 +278,7 @@ class MarketsTokenDetailsViewModel: MarketsBaseViewModel {
         Self.loggedNewsCarouselScrolledTokenIds.insert(tokenInfo.id)
         Analytics.log(
             event: .coinPageTokenNewsCarouselScrolled,
-            params: [
-                .tokenId: tokenInfo.id,
-                .tokenSymbol: tokenInfo.symbol,
-            ]
+            params: [.token: tokenInfo.symbol]
         )
     }
 }
@@ -306,24 +303,19 @@ private extension MarketsTokenDetailsViewModel {
                             self.coordinator?.openNews(newsIds: self.loadedNewsIds, selectedIndex: selectedIndex)
                         }
                     }
-                ).sortedByReadStatus()
+                )
 
                 if !newsIds.isEmpty {
                     Analytics.log(
                         event: .coinPageTokenNewsViewed,
-                        params: [
-                            .tokenId: tokenInfo.id,
-                            .tokenSymbol: tokenInfo.symbol,
-                            .newsCount: String(newsIds.count),
-                        ]
+                        params: [.token: tokenInfo.symbol]
                     )
                 }
             }
         } catch {
             AppLogger.error("Failed load news for related token with id: \(currencyId)", error: error)
             var params = error.marketsAnalyticsParams
-            params[.tokenId] = currencyId
-            params[.tokenSymbol] = tokenInfo.symbol
+            params[.token] = tokenInfo.symbol
             Analytics.log(event: .coinPageTokenNewsLoadError, params: params)
         }
     }
