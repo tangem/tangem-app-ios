@@ -97,6 +97,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         sheetRegistry.registerWalletConnectFloatingSheets()
         sheetRegistry.registerAccountsAwareAddTokenFlowFloatingSheets()
         sheetRegistry.registerTangemPayWalletSelectorSheets()
+        sheetRegistry.registerCloreMigrationFloatingSheets()
 
         let appCoordinator = AppCoordinator()
         let appCoordinatorView = AppCoordinatorView(coordinator: appCoordinator).environment(\.floatingSheetRegistry, sheetRegistry)
