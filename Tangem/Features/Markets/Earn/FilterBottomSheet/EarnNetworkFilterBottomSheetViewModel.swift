@@ -38,36 +38,44 @@ final class EarnNetworkFilterBottomSheetViewModel: ObservableObject, Identifiabl
 
     // MARK: - Private Properties
 
-    private let provider: EarnFilterProvider
+    private let filterProvider: EarnDataFilterProvider
     private let dismissAction: (() -> Void)?
 
     // MARK: - Init
 
     init(
-        provider: EarnFilterProvider,
+        filterProvider: EarnDataFilterProvider,
         blockchainIconProvider: NetworkImageProvider = NetworkImageProvider(),
         onDismiss: (() -> Void)? = nil
     ) {
-        self.provider = provider
+        self.filterProvider = filterProvider
         dismissAction = onDismiss
-        currentSelection = provider.currentFilterValue.network
+        currentSelection = filterProvider.selectedNetworkFilter
 
-        presetRowViewModels = EarnNetworkFilterType.presetCases.map {
+        presetRowViewModels = [EarnNetworkFilterType.all, EarnNetworkFilterType.userNetworks].map {
             DefaultSelectableRowViewModel(
                 id: $0,
-                title: $0.description,
+                title: $0.displayTitle,
                 subtitle: nil
             )
         }
 
-        networkRowInputs = SupportedBlockchains.all.map { blockchain in
-            EarnNetworkFilterNetworkRowInput(
+        let blockchainsByNetworkId = Dictionary(
+            uniqueKeysWithValues: SupportedBlockchains.all.map { ($0.networkId, $0) }
+        )
+
+        networkRowInputs = filterProvider.availableNetworks.compactMap { networkInfo in
+            guard let blockchain = blockchainsByNetworkId[networkInfo.networkId] else {
+                return nil
+            }
+
+            return EarnNetworkFilterNetworkRowInput(
                 id: blockchain.networkId,
                 iconAsset: blockchainIconProvider.provide(by: blockchain, filled: true),
                 networkName: blockchain.displayName,
                 currencySymbol: blockchain.currencySymbol,
                 onTap: { [weak self] in
-                    self?.selectAndDismiss(network: .network(networkId: blockchain.networkId))
+                    self?.selectAndDismiss(network: .specific(networkIds: [blockchain.networkId]))
                 }
             )
         }
@@ -77,7 +85,7 @@ final class EarnNetworkFilterBottomSheetViewModel: ObservableObject, Identifiabl
 
     private func selectAndDismiss(network: EarnNetworkFilterType) {
         currentSelection = network
-        provider.didSelectNetwork(network)
+        filterProvider.didSelectNetworkFilter(network)
         dismissAction?()
     }
 }
