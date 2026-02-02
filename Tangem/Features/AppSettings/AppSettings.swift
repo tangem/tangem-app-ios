@@ -159,6 +159,9 @@ final class AppSettings {
     @AppStorageCompat(StorageType.hasReferralBindingRequest)
     var hasReferralBindingRequest: Bool = false
 
+    @AppStorageCompat(StorageType.shouldShowMobilePromoWalletSelector)
+    var shouldShowMobilePromoWalletSelector: Bool = false
+
     static let shared: AppSettings = .init()
 
     private init() {}
