@@ -17,7 +17,7 @@ final class NewsDeeplinkCoordinator: ObservableObject, NewsDetailsRoutable {
 
     // MARK: - Published Properties
 
-    @Published var path: [Destination] = []
+    @Published var tokenDetailsCoordinator: MarketsTokenDetailsCoordinator?
 
     // MARK: - Properties
 
@@ -53,55 +53,14 @@ final class NewsDeeplinkCoordinator: ObservableObject, NewsDetailsRoutable {
     }
 
     func openTokenDetails(_ token: MarketsTokenModel) {
-        weak var weakCoordinator: MarketsTokenDetailsCoordinator?
-
         let coordinator = MarketsTokenDetailsCoordinator(
-            dismissAction: { [weak self] in
-                guard let coordinator = weakCoordinator else { return }
-                self?.dismissTokenDetails(coordinator)
-            }
+            dismissAction: { [weak self] _ in
+                self?.tokenDetailsCoordinator = nil
+            },
+            popToRootAction: { _ in }
         )
 
-        weakCoordinator = coordinator
-        coordinator.start(with: .init(info: token, style: .marketsSheet))
-        path.append(.tokenDetails(coordinator))
-    }
-
-    // MARK: - Private Methods
-
-    private func dismissTokenDetails(_ coordinator: MarketsTokenDetailsCoordinator) {
-        path.removeAll { $0 == .tokenDetails(coordinator) }
-    }
-}
-
-// MARK: - Destination
-
-extension NewsDeeplinkCoordinator {
-    enum Destination: Hashable {
-        case tokenDetails(MarketsTokenDetailsCoordinator)
-
-        var isTokenDetails: Bool {
-            if case .tokenDetails = self { return true }
-            return false
-        }
-
-        var tokenDetailsValue: MarketsTokenDetailsCoordinator? {
-            if case .tokenDetails(let coordinator) = self { return coordinator }
-            return nil
-        }
-
-        static func == (lhs: Destination, rhs: Destination) -> Bool {
-            switch (lhs, rhs) {
-            case (.tokenDetails(let lhsCoord), .tokenDetails(let rhsCoord)):
-                return lhsCoord === rhsCoord
-            }
-        }
-
-        func hash(into hasher: inout Hasher) {
-            switch self {
-            case .tokenDetails(let coordinator):
-                hasher.combine(ObjectIdentifier(coordinator))
-            }
-        }
+        coordinator.start(with: .init(info: token, style: .marketsSheet, isDeeplinkMode: true))
+        tokenDetailsCoordinator = coordinator
     }
 }
