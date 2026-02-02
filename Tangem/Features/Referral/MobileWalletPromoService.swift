@@ -48,7 +48,7 @@ class CommonMobileWalletPromoService: MobileWalletPromoService {
         userWalletRepository.eventProvider
             .sink { event in
                 switch event {
-                    // reset promo flag when user adds wallet or removes last wallet
+                // reset promo flag when user adds wallet or removes last wallet
                 case .unlocked, .locked:
                     AppSettings.shared.shouldShowMobilePromoWalletSelector = false
                 default:
