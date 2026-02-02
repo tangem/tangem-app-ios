@@ -265,6 +265,8 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             }
         } else {
             // add model
+            let hadSingleMobileWallet = UserWalletRepositoryModeHelper.hasSingleMobileWallet
+
             if AppSettings.shared.saveUserWallets {
                 try? userWalletRepository.add(userWalletModel: userWalletModel)
             } else {
@@ -275,6 +277,10 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
                 if let currentUserWalletId {
                     userWalletRepository.delete(userWalletId: currentUserWalletId)
                 }
+            }
+
+            if hadSingleMobileWallet, userWalletRepository.models.count == 2 {
+                logColdWalletAddedAnalytics(contextData: userWalletModel.analyticsContextData)
             }
 
             DispatchQueue.main.async {
@@ -482,6 +488,18 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             // accounts_fixes_needed_none
             userTokensManager: userWalletModel.userTokensManager,
             walletModelsManager: userWalletModel.walletModelsManager
+        )
+    }
+}
+
+// MARK: - Analytics
+
+private extension OnboardingViewModel {
+    func logColdWalletAddedAnalytics(contextData: AnalyticsContextData) {
+        Analytics.log(
+            .settingsColdWalletAdded,
+            params: [.source: Analytics.ParameterValue.onboarding],
+            contextParams: .custom(contextData)
         )
     }
 }
