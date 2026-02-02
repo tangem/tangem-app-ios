@@ -37,40 +37,49 @@ public enum InfoChipIcon: Equatable {
     case url(URL)
 }
 
-/// A row of chips with overflow indicator using OverflowHStack.
+/// A row of chips with optional overflow indicator.
 public struct InfoChipsRowView: View {
     private let chips: [InfoChipItem]
     private let spacing: CGFloat
     private let alignment: HorizontalAlignment
+    private let lineLimit: Int?
 
+    /// Creates a chips row view.
+    /// - Parameters:
+    ///   - chips: The chips to display.
+    ///   - spacing: Spacing between chips (default: 4).
+    ///   - alignment: Horizontal alignment (default: .leading).
+    ///   - lineLimit: Maximum number of lines. Use `1` for single line with "+N", `nil` for unlimited (default: 1).
     public init(
         chips: [InfoChipItem],
         spacing: CGFloat = 4,
-        alignment: HorizontalAlignment = .leading
+        alignment: HorizontalAlignment = .leading,
+        lineLimit: Int? = 1
     ) {
         self.chips = chips
         self.spacing = spacing
         self.alignment = alignment
+        self.lineLimit = lineLimit
     }
 
     public var body: some View {
         OverflowHStack(
             chips,
-            spacing: spacing,
+            horizontalSpacing: spacing,
+            verticalSpacing: spacing,
             horizontalAlignment: alignment,
-            viewGenerator: { chip in
-                InfoChipView(item: chip)
-            },
-            overflowViewGenerator: { count in
-                Text("+\(count)")
-                    .style(Fonts.Bold.caption1, color: Colors.Text.secondary)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 4)
-                    .background(Colors.Control.unchecked)
-                    .cornerRadiusContinuous(16)
-                    .frame(height: 24)
-            }
-        )
+            lineLimit: lineLimit
+        ) { chip in
+            InfoChipView(item: chip)
+        } limitViewGenerator: { count in
+            Text("+\(count)")
+                .style(Fonts.Bold.caption1, color: Colors.Text.secondary)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 4)
+                .background(Colors.Control.unchecked)
+                .cornerRadiusContinuous(16)
+                .frame(height: 24)
+        }
     }
 }
 
