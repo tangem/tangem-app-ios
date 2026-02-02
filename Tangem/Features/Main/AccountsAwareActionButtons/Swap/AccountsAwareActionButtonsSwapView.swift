@@ -47,8 +47,8 @@ struct AccountsAwareActionButtonsSwapView: View {
                     .allowsHitTesting(false)
             }
         } header: {
-            AccountsAwareActionButtonsSwapHeaderView(
-                title: Localization.swappingFromTitle,
+            ActionButtonsSwapHeaderView(
+                headerType: viewModel.sourceHeaderType,
                 remove: viewModel.removeSourceTokenAction()
             )
         }
@@ -63,8 +63,8 @@ struct AccountsAwareActionButtonsSwapView: View {
                     .allowsHitTesting(false)
             }
         } header: {
-            AccountsAwareActionButtonsSwapHeaderView(
-                title: Localization.swappingToTitle,
+            ActionButtonsSwapHeaderView(
+                headerType: viewModel.destinationHeaderType,
                 remove: .none
             )
         }

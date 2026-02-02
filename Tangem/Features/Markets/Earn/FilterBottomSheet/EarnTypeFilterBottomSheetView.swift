@@ -1,5 +1,5 @@
 //
-//  EarnFilterBottomSheetView.swift
+//  EarnTypeFilterBottomSheetView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,8 +10,8 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 
-struct EarnFilterBottomSheetView: View {
-    @ObservedObject var viewModel: EarnFilterBottomSheetViewModel
+struct EarnTypeFilterBottomSheetView: View {
+    @ObservedObject var viewModel: EarnTypeFilterBottomSheetViewModel
 
     var body: some View {
         VStack(spacing: .zero) {
