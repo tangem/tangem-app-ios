@@ -256,8 +256,8 @@ extension CommonTangemApiService: TangemApiService {
         }
     }
 
-    func expressPromotion(request model: ExpressPromotion.Request) async throws -> ExpressPromotion.Response {
-        return try await request(for: .promotion(request: model), decoder: decoder)
+    func expressPromotion(request requestModel: ExpressPromotion.NewRequest) async throws -> ExpressPromotion.Response {
+        try await request(for: .newPromotion(request: requestModel), decoder: decoder)
     }
 
     func promotion(programName: String, timeout: TimeInterval?) async throws -> PromotionParameters {
