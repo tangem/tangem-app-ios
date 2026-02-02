@@ -20,46 +20,37 @@ class CommonBannerPromotionService {
 // MARK: - BannerPromotionService
 
 extension CommonBannerPromotionService: BannerPromotionService {
-    func loadPromotion(programName: String) async -> PromotionServicePromotionInfo {
+    func loadActivePromotionsFor(walletId: String, on place: BannerPromotionPlacement) async -> [ActivePromotionInfo] {
         do {
-            let request = ExpressPromotion.Request(programName: programName)
-            let promotionInfo = try await tangemApiService.expressPromotion(request: request)
+            let request = ExpressPromotion.NewRequest(walletId: walletId)
+            let promotionInfos = try await tangemApiService.expressPromotion(request: request).promotions
 
-            PromotionLogger.info("Promotion - \(programName) is \(promotionInfo.all.status) and timeline is \(promotionInfo.all.timeline)")
+            let activePromotions = promotionInfos.filter { promotion in
+                PromotionLogger.info(
+                    "Promotion - \(promotion.name) is \(promotion.all.status) and timeline is \(promotion.all.timeline)"
+                )
 
-            switch promotionInfo.all.status {
-            case .active where .now < promotionInfo.all.timeline.end:
-                return .active(promotionInfo)
-            default:
-                return .expired
+                switch promotion.all.status {
+                case .active where .now < promotion.all.timeline.end:
+                    return !isHidden(promotionName: promotion.name, on: place)
+                default:
+                    return false
+                }
             }
+
+            return activePromotions.compactMap { try? mapToActivePromotionInfo(promotionInfo: $0) }
+
         } catch {
-            PromotionLogger.error("Check promotions catch error", error: error)
-            return .loadingError(error)
+            return []
         }
     }
 
-    func activePromotion(promotion: PromotionProgramName, on place: BannerPromotionPlacement) async -> ActivePromotionInfo? {
-        // Promotion is not hidden
-        guard !isHidden(promotion: promotion, on: place) else {
-            return nil
-        }
-
-        switch await loadPromotion(programName: promotion.rawValue) {
-        case .active(let promotionInfo):
-            let activePromotionInfo = try? mapToActivePromotionInfo(promotionInfo: promotionInfo)
-            return activePromotionInfo
-        case .expired, .loadingError:
-            return nil
-        }
-    }
-
-    func isHidden(promotion: PromotionProgramName, on place: BannerPromotionPlacement) -> Bool {
+    func isHidden(promotionName: String, on place: BannerPromotionPlacement) -> Bool {
         switch place {
         case .main:
-            return AppSettings.shared.mainPromotionDismissed.contains(promotion.rawValue)
+            return AppSettings.shared.mainPromotionDismissed.contains(promotionName)
         case .tokenDetails:
-            return AppSettings.shared.tokenPromotionDismissed.contains(promotion.rawValue)
+            return AppSettings.shared.tokenPromotionDismissed.contains(promotionName)
         }
     }
 
@@ -76,15 +67,13 @@ extension CommonBannerPromotionService: BannerPromotionService {
 // MARK: - Private
 
 private extension CommonBannerPromotionService {
-    func mapToActivePromotionInfo(promotionInfo: PromotionServicePromotionInfo.PromotionInfo) throws -> ActivePromotionInfo {
+    func mapToActivePromotionInfo(promotionInfo: ExpressPromotion.Response.Promotion) throws -> ActivePromotionInfo {
         guard let promotion = PromotionProgramName(rawValue: promotionInfo.name) else {
             throw Error.wrongPromotionProgramName
         }
 
         let link: URL? = switch promotion {
-        case .visaWaitlist: Constants.visaWaitlinkLink
-        case .blackFriday: Constants.blackFridayLink
-        case .onePlusOne: Constants.onePlusOneLink
+        case .yield: Constants.yieldLink
         }
 
         return .init(bannerPromotion: promotion, timeline: promotionInfo.all.timeline, link: link)
@@ -95,17 +84,7 @@ private extension CommonBannerPromotionService {
 
 private extension CommonBannerPromotionService {
     enum Constants {
-        static let visaWaitlinkLink = URL(
-            string: "https://tangem.com/en/cardwaitlist/?utm_source=tangem-app-banner&utm_medium=banner&utm_campaign=tangempaywaitlist"
-        )!
-
-        static let blackFridayLink = URL(
-            string: "https://tangem.com/en/pricing/?promocode=BF2025&utm_source=tangem-app-banner&utm_medium=banner&utm_campaign=BlackFriday2025"
-        )!
-
-        static let onePlusOneLink = URL(
-            string: "https://tangem.com/pricing/?cat=family&utm_source=tangem-app-banner&utm_medium=banner&utm_campaign=BOGO50"
-        )!
+        static let yieldLink = URL(string: "https://tangem.com/docs/yield-mode-toc.html")!
     }
 }
 
