@@ -232,6 +232,11 @@ private extension EthereumTransactionHistoryMapper {
             return .transfer
         }
 
+        // ERC-20 transfer method id
+        if methodId == Constants.tokenTransferMethodId {
+            return .transfer
+        }
+
         // MethodId is empty for the coin transfers
         if methodId.isEmpty {
             return .transfer
@@ -313,5 +318,11 @@ private extension EthereumTransactionHistoryMapper {
         let source: TransactionRecord.Source
         let destination: TransactionRecord.Destination
         let isOutgoing: Bool
+    }
+}
+
+private extension EthereumTransactionHistoryMapper {
+    enum Constants {
+        static let tokenTransferMethodId: String = "0xa9059cbb"
     }
 }
