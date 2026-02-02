@@ -773,6 +773,7 @@
 		2DD669372E28EDDD006D715A /* SolanaALTSendTransactionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD669362E28EDDD006D715A /* SolanaALTSendTransactionBuilder.swift */; };
 		2DD91FA62E66A79300A0B0B5 /* SelectorReceiveRoundButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD91FA52E66A79300A0B0B5 /* SelectorReceiveRoundButtonView.swift */; };
 		2DDB4C392E9F92EC00759EAA /* LineaExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DDB4C382E9F92EC00759EAA /* LineaExternalLinkProvider.swift */; };
+		A7C1B2D42F12345600ABCDE1 /* MonadExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7C1B2D32F12345600ABCDE1 /* MonadExternalLinkProvider.swift */; };
 		2DDF91942A14DA2700B31113 /* TokenItemMenuActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DDF91932A14DA2700B31113 /* TokenItemMenuActions.swift */; };
 		2DDFA7952C230E2F00E51F7F /* MarketCapFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DDFA7942C230E2F00E51F7F /* MarketCapFormatter.swift */; };
 		2DE0091B2EA66BCD00A3C9D0 /* TokenAlertReceiveAssetsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE009152EA66BCD00A3C9D0 /* TokenAlertReceiveAssetsView.swift */; };
@@ -5621,6 +5622,7 @@
 		2DD669362E28EDDD006D715A /* SolanaALTSendTransactionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolanaALTSendTransactionBuilder.swift; sourceTree = "<group>"; };
 		2DD91FA52E66A79300A0B0B5 /* SelectorReceiveRoundButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectorReceiveRoundButtonView.swift; sourceTree = "<group>"; };
 		2DDB4C382E9F92EC00759EAA /* LineaExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineaExternalLinkProvider.swift; sourceTree = "<group>"; };
+		A7C1B2D32F12345600ABCDE1 /* MonadExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonadExternalLinkProvider.swift; sourceTree = "<group>"; };
 		2DDF91932A14DA2700B31113 /* TokenItemMenuActions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenItemMenuActions.swift; sourceTree = "<group>"; };
 		2DDFA7942C230E2F00E51F7F /* MarketCapFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketCapFormatter.swift; sourceTree = "<group>"; };
 		2DE008FD2EA66BCD00A3C9D0 /* QRCodeReceiveAssetsRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeReceiveAssetsRoutable.swift; sourceTree = "<group>"; };
@@ -15835,6 +15837,7 @@
 				305F5AEF2D63796900AB90EC /* ZKLinkNovaExternalLinkProvider.swift */,
 				B62D3CFD2CBC79D900C2460E /* ZkSyncExternalLinkProvider.swift */,
 				2DDB4C382E9F92EC00759EAA /* LineaExternalLinkProvider.swift */,
+				A7C1B2D32F12345600ABCDE1 /* MonadExternalLinkProvider.swift */,
 				A7CD56902ECB36BF00FD6F36 /* PlasmaExternalLinkProvider.swift */,
 			);
 			path = OtherChains;
@@ -30328,6 +30331,7 @@
 				B62D42902CBC79DB00C2460E /* TransactionHistoryPages.swift in Sources */,
 				2D2B9C282CE5176A00D744C6 /* ChilizExternalLinkProvider.swift in Sources */,
 				2DDB4C392E9F92EC00759EAA /* LineaExternalLinkProvider.swift in Sources */,
+				A7C1B2D42F12345600ABCDE1 /* MonadExternalLinkProvider.swift in Sources */,
 				B62D407C2CBC79DA00C2460E /* DogecoinExternalLinkProvider.swift in Sources */,
 				B62D41A72CBC79DA00C2460E /* SuiFeeParameters.swift in Sources */,
 				B62D3FEC2CBC79DA00C2460E /* OP_CHECKSIG.swift in Sources */,
