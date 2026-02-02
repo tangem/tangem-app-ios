@@ -398,6 +398,7 @@ extension Analytics {
         case cantScanTheCardButtonBlog = "[Errors] Cant Scan The Card - Button Blog"
         case cantScanTheCardTryAgainButton = "[Errors] Cant Scan The Card - Try Again Button"
         case scanErrors = "[Error] Scan Errors"
+        case cardHealth = "[Error] Card Health Info"
 
         // MARK: - Promo
 
