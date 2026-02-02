@@ -12,8 +12,8 @@ import TangemAssets
 import TangemUI
 
 struct NewsSourceCardView: View {
-    let source: NewsDetailsViewModel.Source
-    let onTap: (NewsDetailsViewModel.Source) -> Void
+    let source: NewsSource
+    let onTap: (NewsSource) -> Void
 
     private enum Constants {
         static let cardWidth: CGFloat = 240
