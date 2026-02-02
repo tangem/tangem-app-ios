@@ -15,19 +15,49 @@ struct EarnNetworkFilterBottomSheetView: View {
 
     var body: some View {
         VStack(spacing: .zero) {
-            BottomSheetHeaderView(title: viewModel.title)
+            header
 
+            ScrollView(.vertical, showsIndicators: false) {
+                content
+            }
+        }
+        .background(Colors.Background.tertiary)
+    }
+}
+
+// MARK: - Layout
+
+extension EarnNetworkFilterBottomSheetView {
+    enum Layout {
+        static let horizontalPadding: CGFloat = 16
+        static let verticalPadding: CGFloat = 12
+        static let bottomPadding: CGFloat = 6
+        static let sectionSpacing: CGFloat = 14
+    }
+}
+
+// MARK: - Subviews
+
+private extension EarnNetworkFilterBottomSheetView {
+    var header: some View {
+        BottomSheetHeaderView(title: viewModel.title)
+            .padding(.horizontal, Layout.horizontalPadding)
+            .padding(.vertical, Layout.verticalPadding)
+    }
+
+    var content: some View {
+        VStack(spacing: Layout.sectionSpacing) {
             GroupedSection(viewModel.presetRowViewModels) { data in
                 DefaultSelectableRowView(data: data, selection: viewModel.selectionBinding)
             }
             .settings(\.backgroundColor, Colors.Background.action)
 
-            GroupedSection(viewModel.networkItemViewModels) { itemViewModel in
-                AddCustomTokenNetworksListItemView(viewModel: itemViewModel)
+            GroupedSection(viewModel.networkRowInputs) { input in
+                EarnNetworkFilterNetworkRowView(input: input)
             }
             .settings(\.backgroundColor, Colors.Background.action)
         }
-        .padding(.horizontal, 16)
-        .padding(.bottom, 10)
+        .padding(.horizontal, Layout.horizontalPadding)
+        .padding(.bottom, Layout.bottomPadding)
     }
 }
