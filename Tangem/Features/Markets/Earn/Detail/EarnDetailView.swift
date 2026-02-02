@@ -67,12 +67,12 @@ struct EarnDetailView: View {
 
             ZStack(alignment: .center) {
                 EarnFilterHeaderView(
-                    networkFilterTitle: viewModel.filterProvider.selectedNetworkFilter.displayTitle,
-                    typesFilterTitle: viewModel.filterProvider.selectedFilterType.description,
+                    networkFilterTitle: viewModel.selectedNetworkFilterTitle,
+                    typesFilterTitle: viewModel.selectedFilterTypeTitle,
                     onNetworksTap: { viewModel.handleViewAction(.networksFilterTap) },
                     onTypesTap: { viewModel.handleViewAction(.typesFilterTap) }
                 )
-                .disabled(!viewModel.isFilterInteractionEnabled)
+//                .disabled(!viewModel.isFilterInteractionEnabled)
 
                 if viewModel.isFilterLoading {
                     ProgressView()
