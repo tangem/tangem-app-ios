@@ -39,6 +39,7 @@ enum NotificationButtonActionType: Identifiable {
     case addTokenTrustline
     case retryKaspaTokenTransaction
     case stake
+    case openCloreMigration
     /// Rate the app
     case openFeedbackMail
     /// Rate the app.
@@ -77,6 +78,7 @@ enum NotificationButtonActionType: Identifiable {
         case .addTokenTrustline: "addTokenTrustline".hashValue
         case .retryKaspaTokenTransaction: "retryKaspaTokenTransaction".hashValue
         case .stake: "stake".hashValue
+        case .openCloreMigration: "openCloreMigration".hashValue
         case .openFeedbackMail: "openFeedbackMail".hashValue
         case .openAppStoreReview: "openAppStoreReview".hashValue
         case .empty: "empty".hashValue
@@ -159,6 +161,8 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.commonActivate
         case .givePermission:
             return Localization.givePermissionTitle
+        case .openCloreMigration:
+            return Localization.warningCloreMigrationButton
         }
     }
 
@@ -197,7 +201,8 @@ enum NotificationButtonActionType: Identifiable {
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
              .activate,
-             .givePermission:
+             .givePermission,
+             .openCloreMigration:
             return nil
         }
     }
@@ -234,7 +239,8 @@ enum NotificationButtonActionType: Identifiable {
              .seedSupport2No,
              .addTokenTrustline,
              .postponePushPermissionRequest,
-             .givePermission:
+             .givePermission,
+             .openCloreMigration:
             return .secondary
         case .openMobileFinishActivation(let needsAttention), .reduceAmountBy(_, _, let needsAttention):
             return needsAttention ? .primary : .secondary
