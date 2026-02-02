@@ -9,6 +9,8 @@
 enum TangemPayLocalState {
     case initial
 
+    case loading
+
     case syncNeeded
     case syncInProgress
 
