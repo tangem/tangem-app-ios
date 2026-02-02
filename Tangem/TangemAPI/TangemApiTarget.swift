@@ -22,6 +22,8 @@ struct TangemApiTarget: TargetType {
             fullURL
         case .activatePromoCode:
             AppEnvironment.current.activatePromoCodeBaseUrl
+        case .newPromotion:
+            AppEnvironment.current.apiBaseUrlv2
         default:
             AppEnvironment.current.apiBaseUrl
         }
@@ -50,7 +52,7 @@ struct TangemApiTarget: TargetType {
             return "/referral/\(userWalletId)"
         case .participateInReferralProgram:
             return "/referral"
-        case .promotion:
+        case .promotion, .newPromotion:
             return "/promotion"
         case .validateNewUserPromotionEligibility:
             return "/promotion/code/validate"
@@ -150,6 +152,7 @@ struct TangemApiTarget: TargetType {
              .getUserWalletTokens,
              .loadReferralProgramInfo,
              .promotion,
+             .newPromotion,
              .apiList,
              .features,
              .coinsList,
@@ -221,6 +224,8 @@ struct TangemApiTarget: TargetType {
         case .participateInReferralProgram(let requestData):
             return .requestParameters(requestData)
         case .promotion(let request):
+            return .requestParameters(request)
+        case .newPromotion(let request):
             return .requestParameters(request)
         case .validateNewUserPromotionEligibility(let walletId, let code):
             return .requestParameters(parameters: [
@@ -363,6 +368,7 @@ struct TangemApiTarget: TargetType {
              .participateInReferralProgram,
              .createAccount,
              .promotion,
+             .newPromotion,
              .validateNewUserPromotionEligibility,
              .validateOldUserPromotionEligibility,
              .awardNewUser,
@@ -421,6 +427,7 @@ extension TangemApiTarget {
 
         // Promotion
         case promotion(request: ExpressPromotion.Request)
+        case newPromotion(request: ExpressPromotion.NewRequest)
         case validateNewUserPromotionEligibility(walletId: String, code: String)
         case validateOldUserPromotionEligibility(walletId: String, programName: String)
         case awardNewUser(walletId: String, address: String, code: String)
@@ -537,6 +544,7 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .participateInReferralProgram,
              .createAccount,
              .promotion,
+             .newPromotion,
              .validateNewUserPromotionEligibility,
              .validateOldUserPromotionEligibility,
              .awardNewUser,
