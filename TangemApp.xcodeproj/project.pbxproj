@@ -556,6 +556,8 @@
 		2D8DFC6A2F30B6A600F3C7FC /* EarnNetworkFilterType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8DFC682F30B6A600F3C7FC /* EarnNetworkFilterType.swift */; };
 		2D8DFC6B2F30B6A600F3C7FC /* EarnNetworkInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8DFC692F30B6A600F3C7FC /* EarnNetworkInfo.swift */; };
 		2D8DFC6C2F30B6A600F3C7FC /* EarnFilterType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8DFC672F30B6A600F3C7FC /* EarnFilterType.swift */; };
+		2D8DFC6F2F30B80E00F3C7FC /* EarnDataFilterProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8DFC6D2F30B80E00F3C7FC /* EarnDataFilterProvider.swift */; };
+		2D8DFC702F30B80E00F3C7FC /* EarnDataProvider+Filter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8DFC6E2F30B80E00F3C7FC /* EarnDataProvider+Filter.swift */; };
 		2D8F9E742CF9B280007434A4 /* CloreMainNetworkParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8F9E712CF9B280007434A4 /* CloreMainNetworkParams.swift */; };
 		2D8F9E752CF9B280007434A4 /* CloreWalletAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8F9E722CF9B280007434A4 /* CloreWalletAssembly.swift */; };
 		2D8F9E762CF9B280007434A4 /* CloreExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8F9E702CF9B280007434A4 /* CloreExternalLinkProvider.swift */; };
@@ -5421,6 +5423,8 @@
 		2D8DFC672F30B6A600F3C7FC /* EarnFilterType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnFilterType.swift; sourceTree = "<group>"; };
 		2D8DFC682F30B6A600F3C7FC /* EarnNetworkFilterType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnNetworkFilterType.swift; sourceTree = "<group>"; };
 		2D8DFC692F30B6A600F3C7FC /* EarnNetworkInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnNetworkInfo.swift; sourceTree = "<group>"; };
+		2D8DFC6D2F30B80E00F3C7FC /* EarnDataFilterProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnDataFilterProvider.swift; sourceTree = "<group>"; };
+		2D8DFC6E2F30B80E00F3C7FC /* EarnDataProvider+Filter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EarnDataProvider+Filter.swift"; sourceTree = "<group>"; };
 		2D8F9E702CF9B280007434A4 /* CloreExternalLinkProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloreExternalLinkProvider.swift; sourceTree = "<group>"; };
 		2D8F9E712CF9B280007434A4 /* CloreMainNetworkParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloreMainNetworkParams.swift; sourceTree = "<group>"; };
 		2D8F9E722CF9B280007434A4 /* CloreWalletAssembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloreWalletAssembly.swift; sourceTree = "<group>"; };
@@ -12065,7 +12069,9 @@
 		2DE2A4DA2F2A3F420097CA73 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				2D8DFC6D2F30B80E00F3C7FC /* EarnDataFilterProvider.swift */,
 				2DE2A4D92F2A3F420097CA73 /* EarnDataProvider.swift */,
+				2D8DFC6E2F30B80E00F3C7FC /* EarnDataProvider+Filter.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -29470,6 +29476,8 @@
 				DC0003402DC2090600305FB6 /* WCService.swift in Sources */,
 				EF97E7402EBCCDAF00B95C60 /* TangemPayAddFundsSheetViewModel.swift in Sources */,
 				DC0003412DC2090600305FB6 /* WalletConnectV2HandlersFactory.swift in Sources */,
+				2D8DFC6F2F30B80E00F3C7FC /* EarnDataFilterProvider.swift in Sources */,
+				2D8DFC702F30B80E00F3C7FC /* EarnDataProvider+Filter.swift in Sources */,
 				DC0003422DC2090600305FB6 /* WalletConnectSolanaSignMessageHandler.swift in Sources */,
 				DCA19BEA2DDD611A0057BDA5 /* WCHandlersService.swift in Sources */,
 				EF57D3D12EF45E6500950BD6 /* AccountsAwareTokenSelectorViewModelsMapper.swift in Sources */,
