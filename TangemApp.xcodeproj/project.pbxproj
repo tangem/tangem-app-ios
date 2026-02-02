@@ -5324,8 +5324,8 @@
 		2D5C19C92F03C4E8007BC52C /* NewsDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsDTO.swift; sourceTree = "<group>"; };
 		2D5C19CA2F03C4E8007BC52C /* NewsId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsId.swift; sourceTree = "<group>"; };
 		2D5C19CB2F03C4E8007BC52C /* NewsModelMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsModelMapper.swift; sourceTree = "<group>"; };
-		2D5C19CD2F03C4E8007BC52C /* NewsArticleModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsArticleModels.swift; sourceTree = "<group>"; };
 		2D5C19CC2F03C4E8007BC521 /* Locale+News.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Locale+News.swift"; sourceTree = "<group>"; };
+		2D5C19CD2F03C4E8007BC52C /* NewsArticleModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsArticleModels.swift; sourceTree = "<group>"; };
 		2D5DCC262C3309F1000EE379 /* MarketsTokensNetworkSelectorAlertBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsTokensNetworkSelectorAlertBuilder.swift; sourceTree = "<group>"; };
 		2D5DCC272C3309F1000EE379 /* MarketsTokensNetworkSelectorItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsTokensNetworkSelectorItemView.swift; sourceTree = "<group>"; };
 		2D5DCC282C3309F1000EE379 /* MarketsTokensNetworkSelectorItemViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketsTokensNetworkSelectorItemViewModel.swift; sourceTree = "<group>"; };
@@ -37331,7 +37331,7 @@
 			repositoryURL = "git@github.com:tangem-developments/tangem-sdk-ios.git";
 			requirement = {
 				kind = exactVersion;
-				version = 4.0.9;
+				version = 4.0.10;
 			};
 		};
 		B68E1F882CBC44910043E598 /* XCRemoteSwiftPackageReference "hedera-sdk-swift" */ = {
