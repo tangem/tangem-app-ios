@@ -3636,6 +3636,7 @@
 		DCBF4D342D8B497F002C2B8E /* SimpleWalletManagerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCBF4D1A2D8B497F002C2B8E /* SimpleWalletManagerFactory.swift */; };
 		DCC05A602CD17DFD004CE6A4 /* TokenSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC05A5F2CD17DF6004CE6A4 /* TokenSelectorView.swift */; };
 		DCC4F7942F30D0C900AF0322 /* TangemSdkAnalyticsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC4F7932F30D0C000AF0322 /* TangemSdkAnalyticsLogger.swift */; };
+		DCC4F7B92F30E85600AF0322 /* MobileWalletPromoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC4F7B82F30E84C00AF0322 /* MobileWalletPromoService.swift */; };
 		DCC5C9942C1248C5001B970A /* PushNotificationsPermissionRequestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5C9932C1248C5001B970A /* PushNotificationsPermissionRequestView.swift */; };
 		DCC5C99A2C136C52001B970A /* PushNotificationsPermissionRequestViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5C9992C136C52001B970A /* PushNotificationsPermissionRequestViewModel.swift */; };
 		DCC5C99C2C136D8F001B970A /* PushNotificationsPermissionRequestDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC5C99B2C136D8F001B970A /* PushNotificationsPermissionRequestDelegate.swift */; };
@@ -8447,6 +8448,7 @@
 		DCBF4D252D8B497F002C2B8E /* WalletManagerFactoryProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletManagerFactoryProvider.swift; sourceTree = "<group>"; };
 		DCC05A5F2CD17DF6004CE6A4 /* TokenSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenSelectorView.swift; sourceTree = "<group>"; };
 		DCC4F7932F30D0C000AF0322 /* TangemSdkAnalyticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSdkAnalyticsLogger.swift; sourceTree = "<group>"; };
+		DCC4F7B82F30E84C00AF0322 /* MobileWalletPromoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileWalletPromoService.swift; sourceTree = "<group>"; };
 		DCC5C9932C1248C5001B970A /* PushNotificationsPermissionRequestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsPermissionRequestView.swift; sourceTree = "<group>"; };
 		DCC5C9992C136C52001B970A /* PushNotificationsPermissionRequestViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsPermissionRequestViewModel.swift; sourceTree = "<group>"; };
 		DCC5C99B2C136D8F001B970A /* PushNotificationsPermissionRequestDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsPermissionRequestDelegate.swift; sourceTree = "<group>"; };
@@ -21013,6 +21015,7 @@
 		DC80FE9D2F23E3C900E81B1A /* Referral */ = {
 			isa = PBXGroup;
 			children = (
+				DCC4F7B82F30E84C00AF0322 /* MobileWalletPromoService.swift */,
 				DC80FE9A2F23E3C900E81B1A /* CommonReferralService.swift */,
 				DC80FE9B2F23E3C900E81B1A /* ReferralDTO.swift */,
 				DC80FE9C2F23E3C900E81B1A /* ReferralService.swift */,
@@ -29482,6 +29485,7 @@
 				2D72D98A2EF5605B008868DE /* MarketsWidgetType.swift in Sources */,
 				2D72D98B2EF5605B008868DE /* TopMarketWidgetViewModel.swift in Sources */,
 				2D72D98C2EF5605B008868DE /* MarketsMainView.swift in Sources */,
+				DCC4F7B92F30E85600AF0322 /* MobileWalletPromoService.swift in Sources */,
 				2D72D98D2EF5605B008868DE /* PulseMarketWidgetViewModel.swift in Sources */,
 				2D72D98E2EF5605B008868DE /* MarketsSearchCoordinatorView.swift in Sources */,
 				2D72D98F2EF5605B008868DE /* TopMarketWidgetView.swift in Sources */,
