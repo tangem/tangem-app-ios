@@ -32,6 +32,14 @@ final class TangemPayAccount {
         customerInfoSubject.value.customerInfo.id
     }
 
+    var syncNeededSignalPublisher: AnyPublisher<Void, Never> {
+        syncNeededSignalSubject.eraseToAnyPublisher()
+    }
+
+    var unavailableSignalPublisher: AnyPublisher<Void, Never> {
+        unavailableSignalSubject.eraseToAnyPublisher()
+    }
+
     // MARK: - Withdraw
 
     let expressCEXTransactionProcessor: ExpressCEXTransactionProcessor
@@ -57,6 +65,9 @@ final class TangemPayAccount {
 
     private let balancesService: any TangemPayBalancesService
     private let customerInfoSubject: CurrentValueSubject<(customerInfo: VisaCustomerInfoResponse, productInstance: VisaCustomerInfoResponse.ProductInstance), Never>
+
+    private let syncNeededSignalSubject = PassthroughSubject<Void, Never>()
+    private let unavailableSignalSubject = PassthroughSubject<Void, Never>()
 
     init(
         customerInfo: VisaCustomerInfoResponse,
@@ -87,7 +98,7 @@ final class TangemPayAccount {
         do throws(TangemPayAPIServiceError) {
             let customerInfo = try await customerService.loadCustomerInfo()
             guard let productInstance = customerInfo.productInstance else {
-                // [REDACTED_TODO_COMMENT]
+                unavailableSignalSubject.send(())
                 VisaLogger.info("Product instance was unexpectedly nil")
                 return
             }
@@ -100,11 +111,9 @@ final class TangemPayAccount {
         } catch {
             switch error {
             case .unauthorized:
-                // [REDACTED_TODO_COMMENT]
-                break
+                syncNeededSignalSubject.send(())
             case .moyaError, .apiError, .decodingError:
-                // [REDACTED_TODO_COMMENT]
-                break
+                unavailableSignalSubject.send(())
             }
             VisaLogger.error("Failed to load customer info", error: error)
         }
