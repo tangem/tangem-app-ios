@@ -562,12 +562,17 @@ extension CommonWalletModel: WalletModelHelpers {
 // MARK: - WalletModelFeesProvider
 
 extension CommonWalletModel: WalletModelFeesProvider {
-    var tokenFeeLoader: any TokenFeeLoader {
-        TokenFeeLoaderBuilder.makeTokenFeeLoader(walletModel: self, walletManager: walletManager)
-    }
-
     var customFeeProvider: (any CustomFeeProvider)? {
         CustomFeeProviderBuilder.makeCustomFeeProvider(walletModel: self, walletManager: walletManager)
+    }
+
+    func makeTokenFeeLoader(for tokenItem: TokenItem) -> any TokenFeeLoader {
+        TokenFeeLoaderBuilder.makeTokenFeeLoader(
+            tokenItem: tokenItem,
+            feeTokenItem: feeTokenItem,
+            walletManager: walletManager,
+            isDemo: isDemo
+        )
     }
 }
 
