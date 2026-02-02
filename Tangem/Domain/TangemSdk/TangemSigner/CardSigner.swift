@@ -74,6 +74,7 @@ extension CardSigner: TangemSigner {
                     if let lastResponse = response.last {
                         self?.updateLatestSignerType(card: lastResponse.card)
                         self?.warnDeprecatedCards(card: lastResponse.card)
+                        TangemSdkAnalyticsLogger().logHealthIfNeeded(lastResponse.card)
                     }
                 },
                 receiveCompletion: { completion in
