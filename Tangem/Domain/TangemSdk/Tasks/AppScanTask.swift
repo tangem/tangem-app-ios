@@ -77,6 +77,8 @@ final class AppScanTask: CardSessionRunnable {
             return
         }
 
+        TangemSdkAnalyticsLogger().logHealthIfNeeded(card)
+
         if VisaUtilities.isVisaCard(card) {
             guard FeatureProvider.isAvailable(.visa) else {
                 completion(.failure(.notSupportedFirmwareVersion))
