@@ -132,6 +132,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         )
 
         sectionsProvider.configure(with: self)
+        tangemPayNotificationManager.setupManager(with: self)
 
         bind()
         setupActionButtons()
