@@ -37,7 +37,7 @@ final class TangemPayAccountViewModel: ObservableObject {
 
     func userDidTapView() {
         switch tangemPayManager.state {
-        case .initial, .syncNeeded, .syncInProgress, .unavailable:
+        case .initial, .loading, .syncNeeded, .syncInProgress, .unavailable:
             break
         case .kycRequired:
             router?.openTangemPayKYCInProgressPopup(tangemPayManager: tangemPayManager)
@@ -64,7 +64,7 @@ private extension TangemPayAccountViewModel {
                 }
 
                 return switch state {
-                case .initial:
+                case .initial, .loading:
                     .just(output: .skeleton)
                 case .syncNeeded, .syncInProgress:
                     .just(output: .syncNeeded)

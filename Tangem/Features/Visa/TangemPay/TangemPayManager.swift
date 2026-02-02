@@ -60,6 +60,8 @@ final class TangemPayManager {
         self.paeraCustomerFlagRepository = paeraCustomerFlagRepository
         self.tangemPayAccountBuilder = tangemPayAccountBuilder
 
+        bind()
+
         runTask { [self] in
             await refreshState()
         }
@@ -118,6 +120,10 @@ final class TangemPayManager {
             return
         }
 
+        if case .initial = stateSubject.value {
+            stateSubject.value = .loading
+        }
+
         let customerWalletAddress = TangemPayUtilities.getCustomerWalletAddressAndAuthorizationTokens(
             customerWalletId: customerWalletId,
             keysRepository: keysRepository
@@ -149,15 +155,18 @@ final class TangemPayManager {
         case .enrolled(let customerInfo, let productInstance):
             orderStatusPollingService.cancel()
             orderIdStorage.deleteCardIssuingOrderId(customerWalletId: customerWalletId)
-            stateSubject.value = .tangemPayAccount(
-                tangemPayAccountBuilder.makeTangemPayAccount(
-                    customerInfo: customerInfo,
-                    productInstance: productInstance
-                )
+            let account = tangemPayAccountBuilder.makeTangemPayAccount(
+                customerInfo: customerInfo,
+                productInstance: productInstance
             )
+            runTask {
+                await account.loadBalance()
+            }
+            stateSubject.value = .tangemPayAccount(account)
 
         case .notEnrolled:
             orderStatusPollingService.cancel()
+            stateSubject.value = .initial
 
         case .kycRequired:
             orderStatusPollingService.cancel()
@@ -201,6 +210,22 @@ final class TangemPayManager {
                 VisaLogger.error("Failed to poll order status", error: error)
             }
         )
+    }
+
+    private func bind() {
+        stateSubject
+            .compactMap(\.tangemPayAccount)
+            .flatMapLatest(\.syncNeededSignalPublisher)
+            .mapToValue(.syncNeeded)
+            .sink(receiveValue: stateSubject.send)
+            .store(in: &bag)
+
+        stateSubject
+            .compactMap(\.tangemPayAccount)
+            .flatMapLatest(\.unavailableSignalPublisher)
+            .mapToValue(.unavailable)
+            .sink(receiveValue: stateSubject.send)
+            .store(in: &bag)
     }
 }
 
