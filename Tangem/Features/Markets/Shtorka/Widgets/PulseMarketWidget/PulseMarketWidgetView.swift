@@ -62,7 +62,7 @@ struct PulseMarketWidgetView: View {
             }
         }
         .defaultRoundedBackground(
-            with: Colors.Background.action,
+            with: Color.Tangem.Surface.level4,
             verticalPadding: MarketsWidgetLayout.Content.innerContentPadding,
             horizontalPadding: MarketsWidgetLayout.Content.innerContentPadding
         )
