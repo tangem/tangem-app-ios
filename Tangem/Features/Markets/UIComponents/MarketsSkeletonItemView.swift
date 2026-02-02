@@ -15,23 +15,18 @@ struct MarketsSkeletonItemView: View {
     private let iconSize = CGSize(bothDimensions: 36)
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 10) {
             IconView(url: nil, size: iconSize, forceKingfisher: true)
+                .padding(.trailing, 2)
 
-            VStack {
+            VStack(spacing: 3) {
                 tokenInfoView
             }
 
-            Spacer()
-
-            VStack(alignment: .trailing) {
-                HStack(alignment: .center, spacing: .zero) {
-                    priceHistoryView
-                }
-            }
+            priceHistoryView
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 15)
+        .padding(.vertical, 14)
         .disableAnimations() // Disable animations on scroll reuse
     }
 
@@ -45,13 +40,14 @@ struct MarketsSkeletonItemView: View {
                 makeSkeletonView(by: Constants.skeletonSmallWidthValue)
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var priceHistoryView: some View {
         VStack {
             makeSkeletonView(by: Constants.skeletonMediumWidthValue)
         }
-        .frame(width: 56, height: 32, alignment: .center)
+        .frame(width: 56, height: 24, alignment: .center)
     }
 
     private func makeSkeletonView(by value: String) -> some View {
