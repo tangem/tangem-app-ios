@@ -38,7 +38,7 @@
 "account_form_create_button" = "Додати акаунт";
 "account_form_edit_button" = "Зберегти";
 "account_form_name_already_exist_error_description" = "Акаунт з такою назвою вже існує. Будь ласка, виберіть іншу назву.";
-"account_form_name_already_exist_error_title" = "Account name already in use";
+"account_form_name_already_exist_error_title" = "Обліковий запис з таким ім’ям уже існує";
 "account_form_name" = "Назва акаунту";
 "account_form_placeholder_edit_account" = "Акаунт";
 "account_form_placeholder_new_account" = "Новий акаунт";
@@ -834,6 +834,9 @@
 "notification_sepa_title" = "Купуйте криптовалюту через SEPA";
 "notification_visa_waitlist_promo_text" = "Приєднуйтесь до списку очікування та отримайте унікальну платіжну картку, якої ще не було.";
 "notification_visa_waitlist_promo_title" = "Tangem Visa Card";
+"notification_yield_promo_button" = "Умови та положення";
+"notification_yield_promo_text" = "Внесіть депозит від $100, утримуйте його 30 днів та отримайте $10.";
+"notification_yield_promo_title" = "Кампанія Yield Mode!";
 "onboarding_access_code_feature_1_description" = "Налаштуйте єдиний код доступу для захисту всіх ваших карток або кілець";
 "onboarding_access_code_feature_1_title" = "Захист";
 "onboarding_access_code_feature_2_description" = "Встановіть індивідуальний код доступу для кожної картки або кільця пізніше.";
@@ -1346,6 +1349,9 @@
 "tangem_pay_freeze_card_freeze" = "Заморозити";
 "tangem_pay_freeze_card_success" = "Вашу картку заморожено.";
 "tangem_pay_get_help" = "Звернутися до підтримки";
+"tangem_pay_history_item_spend_mc_declined_reason" = "Reason: %@";
+"tangem_pay_history_item_spend_mc_title_format" = "%@ · %@";
+"tangem_pay_history_item_spend_mcc" = "MCC %@";
 "tangem_pay_other" = "Інше";
 "tangem_pay_rooted_device_subtitle" = "Unable to use on rooted devices";
 "tangem_pay_status_completed" = "Завершено";
@@ -1681,7 +1687,18 @@
 "warning_button_ok" = "Зрозуміло!";
 "warning_button_really_cool" = "Дуже круто!";
 "warning_button_refresh" = "Оновити";
+"warning_clore_migration_button" = "Start migration";
+"warning_clore_migration_copy_button" = "Copy";
+"warning_clore_migration_description" = "To keep access to your funds, start the migration according to the official Clore guidelines.";
+"warning_clore_migration_error_signing_not_supported" = "Message signing is not supported for this network";
+"warning_clore_migration_error_wallet_manager_not_found" = "Unable to sign message. Please try again.";
+"warning_clore_migration_message_label" = "Message";
 "warning_clore_migration_message" = "Згідно з офіційною документацією Clore, усі монети, отримані до 21 грудня, будуть мігровані в токен Clore (ERC-20); монети, отримані після цієї дати, — ні. Рішення для переказу перебуває в розробці — стежте за оновленнями.";
+"warning_clore_migration_open_portal_button" = "Open Claim portal";
+"warning_clore_migration_sheet_description" = "To continue using your Clore tokens, you must complete the token migration according to the information on the Claim Portal.";
+"warning_clore_migration_sheet_title" = "Clore Network Migration";
+"warning_clore_migration_sign_button" = "Sign";
+"warning_clore_migration_signature_label" = "Signature";
 "warning_clore_migration_title" = "Міграція мережі Clore";
 "warning_demo_mode_message" = "Ви перебуваєте в демонстраційному режимі";
 "warning_demo_mode_title" = "Демонстраційний режим активовано";
