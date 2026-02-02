@@ -14,16 +14,7 @@ enum PredefinedOnrampParametersBuilder {
     private static let moonpayProviderId: String = "moonpay"
     private static var isMoonpayPromotionActive: ThreadSafeContainer<Bool> = .init(false)
 
-    static func loadMoonpayPromotion() {
-        Task {
-            switch await bannerPromotionService.loadPromotion(programName: moonpayProviderId) {
-            case .active:
-                isMoonpayPromotionActive.mutate { $0 = true }
-            case .expired, .loadingError:
-                isMoonpayPromotionActive.mutate { $0 = false }
-            }
-        }
-    }
+    static func loadMoonpayPromotion() {}
 
     static func makeMoonpayPromotionParametersIfActive() -> PredefinedOnrampParameters {
         guard isMoonpayPromotionActive.read() else {
