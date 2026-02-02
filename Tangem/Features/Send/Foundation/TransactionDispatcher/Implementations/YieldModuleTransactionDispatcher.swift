@@ -67,8 +67,6 @@ extension YieldModuleTransactionDispatcher: TransactionDispatcher {
                 signer: transactionSigner
             ).async()
 
-            walletModelUpdater.updateAfterSendingTransaction()
-
             let sentTransactionResults = hashes.map { hash in
                 mapper.mapResult(
                     hash,
