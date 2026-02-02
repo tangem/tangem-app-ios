@@ -86,7 +86,7 @@ final class AccountSelectorViewModel: ObservableObject {
         case .selectItem(let item):
             switch item {
             case .wallet(let model):
-                if case .active = model.wallet {
+                if case .active = model.wallet, model.accountAvailability == .available {
                     selectedItem = model.mainAccount
                     onSelect(.wallet(model))
                 }
@@ -100,7 +100,7 @@ final class AccountSelectorViewModel: ObservableObject {
     func isCellSelected(for cell: AccountSelectorCellModel) -> Bool {
         switch cell {
         case .wallet(let model):
-            if case .active = model.wallet {
+            if case .active = model.wallet, model.accountAvailability == .available {
                 return selectedItem?.id.toAnyHashable() == model.mainAccount.id.toAnyHashable()
             }
         case .account(let model):
@@ -171,10 +171,12 @@ final class AccountSelectorViewModel: ObservableObject {
         case .standard(.single(let cryptoAccountModel)):
             guard cryptoAccountModelsFilter(cryptoAccountModel) else { return nil }
 
+            let accountAvailability = availabilityProvider(cryptoAccountModel)
             return .init(
                 userWallet: userWallet,
                 cryptoAccountModel: cryptoAccountModel,
-                isLocked: userWallet.isUserWalletLocked
+                isLocked: userWallet.isUserWalletLocked,
+                accountAvailability: accountAvailability
             )
 
         case .standard(.multiple(let cryptoAccountModels)):
@@ -184,10 +186,12 @@ final class AccountSelectorViewModel: ObservableObject {
 
             guard cryptoAccountModelsFilter(cryptoAccountModel) else { return nil }
 
+            let accountAvailability = availabilityProvider(cryptoAccountModel)
             return .init(
                 userWallet: userWallet,
                 cryptoAccountModel: cryptoAccountModel,
-                isLocked: userWallet.isUserWalletLocked
+                isLocked: userWallet.isUserWalletLocked,
+                accountAvailability: accountAvailability
             )
         }
     }
