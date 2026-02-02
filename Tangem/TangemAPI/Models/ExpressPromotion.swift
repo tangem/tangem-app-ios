@@ -15,9 +15,17 @@ extension ExpressPromotion {
         let programName: String
     }
 
+    struct NewRequest: Encodable {
+        let walletId: String
+    }
+
     struct Response: Decodable {
-        let name: String
-        let all: Info
+        let promotions: [Promotion]
+
+        struct Promotion: Decodable {
+            let name: String
+            let all: Info
+        }
 
         struct Info: Decodable {
             let timeline: Timeline
