@@ -462,6 +462,8 @@ private extension DetailsViewModel {
                         throw UserWalletRepositoryError.cantUnlockWallet
                     }
 
+                    let hadSingleMobileWallet = UserWalletRepositoryModeHelper.hasSingleMobileWallet
+
                     if AppSettings.shared.saveUserWallets {
                         try viewModel.userWalletRepository.add(userWalletModel: newUserWalletModel)
                     } else {
@@ -471,6 +473,10 @@ private extension DetailsViewModel {
                         if let currentUserWalletId {
                             viewModel.userWalletRepository.delete(userWalletId: currentUserWalletId)
                         }
+                    }
+
+                    if hadSingleMobileWallet {
+                        viewModel.logColdWalletAddedAnalytics(cardInfo: cardInfo)
                     }
 
                     viewModel.isScanning = false
@@ -659,6 +665,18 @@ private extension DetailsViewModel {
         }
 
         return selectedUserWalletModel
+    }
+}
+
+// MARK: - Analytics
+
+private extension DetailsViewModel {
+    func logColdWalletAddedAnalytics(cardInfo: CardInfo) {
+        Analytics.log(
+            .settingsColdWalletAdded,
+            params: [.source: Analytics.ParameterValue.settings],
+            contextParams: .custom(cardInfo.analyticsContextData)
+        )
     }
 }
 
