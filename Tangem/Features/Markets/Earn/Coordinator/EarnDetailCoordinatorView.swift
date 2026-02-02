@@ -21,11 +21,9 @@ struct EarnDetailCoordinatorView: CoordinatorView {
             }
 
             NavHolder()
-                .bottomSheet(
-                    item: $coordinator.networkFilterBottomSheetViewModel,
-                    backgroundColor: Colors.Background.tertiary
-                ) {
+                .sheet(item: $coordinator.networkFilterBottomSheetViewModel) {
                     EarnNetworkFilterBottomSheetView(viewModel: $0)
+                        .presentationDragIndicator(.visible)
                 }
                 .bottomSheet(
                     item: $coordinator.typeFilterBottomSheetViewModel,
