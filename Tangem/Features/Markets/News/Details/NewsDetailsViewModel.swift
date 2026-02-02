@@ -71,7 +71,7 @@ final class NewsDetailsViewModel: ObservableObject {
             do {
                 let request = NewsDTO.Details.Request(
                     newsId: newsId,
-                    lang: Locale.current.language.languageCode?.identifier
+                    lang: Locale.newsLanguageCode
                 )
                 let response = try await tangemApiService.loadNewsDetails(requestModel: request)
                 article = ArticleModel(from: response, dateFormatter: dateFormatter)
@@ -217,14 +217,4 @@ extension NewsDetailsViewModel {
             imageUrl = article.imageUrl.flatMap { URL(string: $0) }
         }
     }
-}
-
-// MARK: - NewsDetailsRoutable
-
-@MainActor
-protocol NewsDetailsRoutable: AnyObject {
-    func dismissNewsDetails()
-    func share(url: String)
-    func openURL(_ url: URL)
-    func openTokenDetails(_ token: MarketsTokenModel)
 }
