@@ -168,7 +168,7 @@ struct ExpressView: View {
             }
             .readGeometry(\.frame.size, bindTo: $bottomViewSize)
         }
-        .disableAnimations() // To force `.animation(nil)` behaviour
+        .disableAnimations() // To force `.animation(nil)` behavior
     }
 
     @ViewBuilder
@@ -181,18 +181,13 @@ struct ExpressView: View {
 
     @ViewBuilder
     private var keyboardToolbarContent: some View {
-        #if compiler(>=6.2)
         if #available(iOS 26.0, *) {
             glassToolbarContent
         } else {
             regularToolbarContent
         }
-        #else
-        regularToolbarContent
-        #endif
     }
 
-    #if compiler(>=6.2)
     @available(iOS 26.0, *)
     private var glassToolbarContent: some View {
         HStack(spacing: .zero) {
@@ -220,7 +215,6 @@ struct ExpressView: View {
         }
         .padding(.horizontal, 20)
     }
-    #endif
 
     private var regularToolbarContent: some View {
         HStack(spacing: .zero) {
