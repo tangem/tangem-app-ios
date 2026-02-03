@@ -262,7 +262,7 @@ private extension CreateWalletSelectorViewModel {
 
 private extension CreateWalletSelectorViewModel {
     func logScreenOpenedAnalytics() {
-        Analytics.log(.introductionProcessCreateWalletIntroScreenOpened)
+        Analytics.log(event: .introductionProcessCreateWalletIntroScreenOpened, params: ReferralAnalyticsHelper().getReferralParams())
     }
 
     func logScanCardTapAnalytics() {
