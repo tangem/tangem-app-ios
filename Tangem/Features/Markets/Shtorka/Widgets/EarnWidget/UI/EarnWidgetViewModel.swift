@@ -15,6 +15,8 @@ import TangemFoundation
 final class EarnWidgetViewModel: ObservableObject {
     // MARK: - Injected & Published Properties
 
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
     @Published private(set) var isFirstLoading: Bool = true
     @Published private(set) var resultState: LoadingResult<[EarnTokenItemViewModel], Error> = .loading
 
@@ -139,7 +141,9 @@ private extension EarnWidgetViewModel {
 
     private func onTokenTapAction(with token: EarnTokenModel) {
         Task { @MainActor [weak self] in
-            self?.coordinator?.openEarnTokenDetails(for: token)
+            guard let self else { return }
+            let userWalletModels = userWalletRepository.models.filter { !$0.isUserWalletLocked }
+            coordinator?.openAddEarnToken(token, userWalletModels: userWalletModels)
         }
     }
 
