@@ -246,15 +246,10 @@ extension WalletConnectDAppConnectionRequestViewModel {
 
 extension WalletConnectDAppConnectionRequestViewModel {
     private func connectDApp(with proposal: WalletConnectDAppConnectionProposal, selectedBlockchains: [WalletConnectDAppBlockchain]) async {
-        analyticsLogger.logConnectButtonTapped()
-
-        if FeatureProvider.isAvailable(.accounts), let selectedAccount {
-            var params: [Analytics.ParameterKey: String] = [
-                .walletConnectDAppName: proposal.dAppData.name,
-            ]
-            selectedAccount.enrichAnalyticsParameters(&params, using: SingleAccountAnalyticsBuilder())
-            Analytics.log(event: .walletConnectButtonConnectWithAccount, params: params)
-        }
+        analyticsLogger.logConnectButtonTapped(
+            dAppName: proposal.dAppData.name,
+            accountAnalyticsProviding: selectedAccount
+        )
 
         let dAppSession: WalletConnectDAppSession
 
