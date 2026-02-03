@@ -49,17 +49,6 @@ actor PersistentStorageWalletConnectConnectedDAppRepository: WalletConnectConnec
         return dApp
     }
 
-    func getDApps(for accountId: String) throws(WalletConnectDAppPersistenceError) -> [WalletConnectConnectedDApp] {
-        try fetchIfNeeded()
-
-        return inMemoryCache.compactMap { dApp in
-            if case .v2(let model) = dApp, model.accountId == accountId {
-                return dApp
-            }
-            return nil
-        }
-    }
-
     func getDApps(forUserWalletId userWalletId: String) throws(WalletConnectDAppPersistenceError) -> [WalletConnectConnectedDApp] {
         try fetchIfNeeded()
 
@@ -119,27 +108,6 @@ actor PersistentStorageWalletConnectConnectedDAppRepository: WalletConnectConnec
         inMemoryCache = filteredDApps
         try persist(inMemoryCache)
         continuation?.yield(inMemoryCache)
-    }
-
-    func deleteDApps(forAccountId accountId: String) throws(WalletConnectDAppPersistenceError) -> [WalletConnectConnectedDApp] {
-        try fetchIfNeeded()
-
-        var retained: [WalletConnectConnectedDApp] = []
-        var removed: [WalletConnectConnectedDApp] = []
-
-        for dApp in inMemoryCache {
-            if case .v2(let model) = dApp, model.accountId == accountId {
-                removed.append(dApp)
-            } else {
-                retained.append(dApp)
-            }
-        }
-
-        inMemoryCache = retained
-        try persist(inMemoryCache)
-        continuation?.yield(inMemoryCache)
-
-        return removed
     }
 
     func deleteDApps(forUserWalletId userWalletId: String) throws(WalletConnectDAppPersistenceError) -> [WalletConnectConnectedDApp] {

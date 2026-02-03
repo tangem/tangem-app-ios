@@ -13,18 +13,15 @@ enum WCAccountFinder {
     ) -> (any CryptoAccountModel)? {
         for accountModel in accountModelsManager.accountModels {
             switch accountModel {
-            case .standard(let cryptoAccounts):
-                switch cryptoAccounts {
-                case .single(let cryptoAccountModel):
-                    if cryptoAccountModel.id.walletConnectIdentifierString == accountId {
-                        return cryptoAccountModel
-                    }
-                case .multiple(let cryptoAccountModels):
-                    if let cryptoAccountModel = cryptoAccountModels.first(where: {
-                        $0.id.walletConnectIdentifierString == accountId
-                    }) {
-                        return cryptoAccountModel
-                    }
+            case .standard(.single(let cryptoAccountModel)):
+                if cryptoAccountModel.id.walletConnectIdentifierString == accountId {
+                    return cryptoAccountModel
+                }
+            case .standard(.multiple(let cryptoAccountModels)):
+                if let cryptoAccountModel = cryptoAccountModels.first(where: {
+                    $0.id.walletConnectIdentifierString == accountId
+                }) {
+                    return cryptoAccountModel
                 }
             }
         }
