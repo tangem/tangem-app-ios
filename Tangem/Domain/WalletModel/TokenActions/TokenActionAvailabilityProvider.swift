@@ -222,7 +222,9 @@ extension TokenActionAvailabilityProvider {
         switch walletModel.sendingRestrictions {
         case .cantSignLongTransactions:
             return .cantSignLongTransactions
-        case .blockchainUnreachable:
+        case .blockchainUnreachable(true):
+            break
+        case .blockchainUnreachable(false):
             return .blockchainUnreachable
         case .blockchainLoading:
             return .blockchainLoading

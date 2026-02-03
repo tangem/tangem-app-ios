@@ -94,7 +94,7 @@ enum SendingRestrictions: Hashable {
     case hasPendingWithdrawOrder
     case hasPendingTransaction(blockchain: Blockchain)
     case zeroFeeCurrencyBalance(configuration: NotEnoughFeeConfiguration)
-    case blockchainUnreachable
+    case blockchainUnreachable(noAccount: Bool)
     case blockchainLoading
     case oldCard
 
@@ -118,8 +118,10 @@ extension TokenBalanceType {
         switch self {
         case .loading(.none):
             return .blockchainLoading
+        case .empty(.noAccount):
+            return .blockchainUnreachable(noAccount: true)
         case .empty, .failure(.none):
-            return .blockchainUnreachable
+            return .blockchainUnreachable(noAccount: false)
         case .loading(.some), .failure(.some):
             return .hasOnlyCachedBalance
         case .loaded(let value) where value == .zero:
