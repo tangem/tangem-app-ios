@@ -140,6 +140,7 @@ extension SendFlowFactory: SendGenericFlowFactory {
             feeSelectorBuilder: fee.feeSelectorBuilder,
             providersSelector: providers,
             summaryTitleProvider: SendWithSwapSummaryTitleProvider(receiveTokenInput: sendModel),
+            confirmTransactionPolicy: CommonConfirmTransactionPolicy(userWalletInfo: userWalletInfo),
             router: router
         )
 

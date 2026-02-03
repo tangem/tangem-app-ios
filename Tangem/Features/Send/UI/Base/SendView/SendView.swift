@@ -153,21 +153,42 @@ struct SendView: View {
     @ViewBuilder
     private var bottomContainer: some View {
         if let mainButtonType = viewModel.bottomBarSettings.action {
-            MainButton(
-                title: mainButtonType.title(action: viewModel.flowActionType),
-                icon: mainButtonType.icon(action: viewModel.flowActionType, provider: viewModel.tangemIconProvider),
-                style: .primary,
-                size: .default,
-                isLoading: viewModel.mainButtonLoading,
-                isDisabled: !viewModel.actionIsAvailable,
-                action: {
-                    viewModel.userDidTapActionButton(mainButtonType: mainButtonType)
+            Group {
+                if mainButtonType == .holdAction {
+                    bottomHoldAction(mainButtonType)
+                } else {
+                    bottomAction(mainButtonType)
                 }
-            )
+            }
             .accessibilityIdentifier(SendAccessibilityIdentifiers.sendViewNextButton)
             .padding(.bottom, 14)
             .padding(.horizontal, 16)
         }
+    }
+
+    private func bottomAction(_ mainButtonType: SendMainButtonType) -> some View {
+        MainButton(
+            title: mainButtonType.title(action: viewModel.flowActionType),
+            icon: mainButtonType.icon(action: viewModel.flowActionType, provider: viewModel.tangemIconProvider),
+            style: .primary,
+            size: .default,
+            isLoading: viewModel.mainButtonLoading,
+            isDisabled: !viewModel.actionIsAvailable,
+            action: {
+                viewModel.userDidTapActionButton(mainButtonType: mainButtonType)
+            }
+        )
+    }
+
+    private func bottomHoldAction(_ mainButtonType: SendMainButtonType) -> some View {
+        HoldToConfirmButton(
+            title: mainButtonType.title(action: viewModel.flowActionType),
+            action: {
+                viewModel.userDidTapActionButton(mainButtonType: mainButtonType)
+            }
+        )
+        .isLoading(viewModel.mainButtonLoading)
+        .disabled(!viewModel.actionIsAvailable)
     }
 
     private var bottomOverlay: some View {

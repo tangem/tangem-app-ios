@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemUIUtils
 import TangemAssets
+import TangemLocalization
 
 public struct HoldToConfirmButton: View {
     typealias ViewModel = HoldToConfirmButtonModel
@@ -17,6 +18,14 @@ public struct HoldToConfirmButton: View {
 
     @Environment(\.isEnabled) private var isEnabled: Bool
     @Environment(\.holdToConfirmButtonIsLoading) private var isLoading: Bool
+
+    private var isIOS18OrNewer: Bool {
+        if #available(iOS 18.0, *) {
+            true
+        } else {
+            false
+        }
+    }
 
     private let title: String
     private let action: () -> Void
@@ -47,7 +56,7 @@ public struct HoldToConfirmButton: View {
     }
 }
 
-// MARK: - Calculations
+// MARK: - Views calculations
 
 private extension HoldToConfirmButton {
     var isHoldingState: Bool {
@@ -80,7 +89,7 @@ private extension HoldToConfirmButton {
         return .easeOut(duration: duration)
     }
 
-    var scaleValue: CGFloat {
+    var scaleFactor: CGFloat {
         isHoldingState ? 0.95 : 1
     }
 }
@@ -90,25 +99,28 @@ private extension HoldToConfirmButton {
 private extension HoldToConfirmButton {
     var content: some View {
         label
-            .frame(height: 46)
-            .frame(maxWidth: .infinity)
             .background(background)
             .overlay(overlay)
-            .scaleEffect(scaleValue)
+            // For iOS versions earlier than 18 there is issue using `scaleEffect` together
+            // with UIKit gestures: touch `ended` and `cancelled` events stop being delivered.
+            .if(isIOS18OrNewer) {
+                $0.scaleEffect(scaleFactor)
+            }
             .animation(scaleAnimation, value: viewModel.state)
     }
 
     var label: some View {
         Text(viewModel.labelText(title: title))
             .transaction { $0.animation = nil }
-            .font(.headline)
-            .foregroundStyle(labelTextColor)
+            .style(Fonts.Bold.callout, color: labelTextColor)
             .shake(
                 trigger: viewModel.shakeTrigger,
                 duration: viewModel.shakeDuration,
                 shakesPerUnit: 1,
                 travelDistance: 10
             )
+            .frame(height: 46)
+            .frame(maxWidth: .infinity)
     }
 
     @ViewBuilder
@@ -119,11 +131,7 @@ private extension HoldToConfirmButton {
         case .confirmed, .disabled:
             EmptyView()
         case .loading:
-            ZStack {
-                backgroundColor
-                ProgressView().tint(Colors.Text.primary2)
-            }
-            .clipShape(RoundedRectangle(cornerRadius: 14))
+            loading
         }
     }
 
@@ -131,6 +139,14 @@ private extension HoldToConfirmButton {
         ZStack(alignment: .leading) {
             backgroundColor
             progressBar
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+    }
+
+    var loading: some View {
+        ZStack {
+            backgroundColor
+            ProgressView().tint(Colors.Text.primary2)
         }
         .clipShape(RoundedRectangle(cornerRadius: 14))
     }
@@ -155,7 +171,7 @@ public extension HoldToConfirmButton {
         let vibratesPerSecond: Int
 
         public static let `default` = Self(
-            cancelTitle: "Tap and hold",
+            cancelTitle: Localization.commonTapAndHoldHint,
             holdDuration: 1.5,
             shakeDuration: 0.5,
             vibratesPerSecond: 20

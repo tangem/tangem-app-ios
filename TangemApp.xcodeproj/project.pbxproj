@@ -225,6 +225,7 @@
 		0F2786592E2D6F9200742D0F /* MobileOnboardingFlowProgressBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2786582E2D6F9200742D0F /* MobileOnboardingFlowProgressBar.swift */; };
 		0F291C322E9CF6B2002A4869 /* MobileRemoveWalletView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F291C312E9CF6B2002A4869 /* MobileRemoveWalletView.swift */; };
 		0F291C342E9CF6BA002A4869 /* MobileRemoveWalletViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F291C332E9CF6BA002A4869 /* MobileRemoveWalletViewModel.swift */; };
+		0F2F45122F33351700199EE8 /* ConfirmTransactionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2F45112F33351700199EE8 /* ConfirmTransactionPolicy.swift */; };
 		0F3735022E5EFEBE009E58C7 /* UserWalletDismissedNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F3735012E5EFEBE009E58C7 /* UserWalletDismissedNotifications.swift */; };
 		0F3735252E5F0C42009E58C7 /* MobileUpgradeCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FB93DE82E59A47400DAB673 /* MobileUpgradeCoordinatorView.swift */; };
 		0F3CD98D2F30E8000073C929 /* CreateWalletSelectorPromoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F3CD98C2F30E8000073C929 /* CreateWalletSelectorPromoView.swift */; };
@@ -5115,6 +5116,7 @@
 		0F2786582E2D6F9200742D0F /* MobileOnboardingFlowProgressBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingFlowProgressBar.swift; sourceTree = "<group>"; };
 		0F291C312E9CF6B2002A4869 /* MobileRemoveWalletView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileRemoveWalletView.swift; sourceTree = "<group>"; };
 		0F291C332E9CF6BA002A4869 /* MobileRemoveWalletViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileRemoveWalletViewModel.swift; sourceTree = "<group>"; };
+		0F2F45112F33351700199EE8 /* ConfirmTransactionPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfirmTransactionPolicy.swift; sourceTree = "<group>"; };
 		0F3735012E5EFEBE009E58C7 /* UserWalletDismissedNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletDismissedNotifications.swift; sourceTree = "<group>"; };
 		0F3CD98C2F30E8000073C929 /* CreateWalletSelectorPromoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateWalletSelectorPromoView.swift; sourceTree = "<group>"; };
 		0F3CD98E2F30E80D0073C929 /* CreateWalletSelectorPromoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateWalletSelectorPromoViewModel.swift; sourceTree = "<group>"; };
@@ -21419,6 +21421,7 @@
 				0A4953992E4A0D9B0037174D /* BalanceRestrictionFeatureAvailabilityProvider.swift */,
 				0F92C2842E8C2A81008C3D32 /* UserWalletsActionButtonsAvailabilityProvider.swift */,
 				5DFCCB7724C389740014A293 /* CommonUserWalletModel.swift */,
+				0F2F45112F33351700199EE8 /* ConfirmTransactionPolicy.swift */,
 				DCDBDA052A27C16C0000EBA2 /* LockedUserWalletModel.swift */,
 				DC3DCAE42A41FA6A00F72554 /* KeysRepository.swift */,
 				DC0A57E52822AA240031BECC /* UserWalletRepository */,
@@ -29329,6 +29332,7 @@
 				B0E1D175257DE75D00A3AB98 /* CommonKeysManager.swift in Sources */,
 				30DEC76A2E9FDF6C007B033D /* MarketsAccountsAwarePortfolioContainerViewState.swift in Sources */,
 				DAFD693D2ED9D96A007FAF9B /* TangemPayFailedToIssueCardRoutable.swift in Sources */,
+				0F2F45122F33351700199EE8 /* ConfirmTransactionPolicy.swift in Sources */,
 				C2075F002DE6241A009AD2F7 /* WalletConnectSessionProposalMapper.swift in Sources */,
 				DC7796032E17CBB3000E3213 /* WCTransactionSecurityAlertViewModel.swift in Sources */,
 				0F2786592E2D6F9200742D0F /* MobileOnboardingFlowProgressBar.swift in Sources */,

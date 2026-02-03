@@ -85,24 +85,42 @@ struct YieldModuleStartView: View {
         }
     }
 
-    private var mainButton: MainButton {
+    @ViewBuilder
+    private var mainButton: some View {
         switch viewModel.viewState {
         case .rateInfo, .feePolicy:
-            .init(settings: .init(
+            MainButton(settings: .init(
                 title: Localization.commonGotIt,
                 style: .secondary,
                 action: ctaButtonAction
             ))
         case .startEarning:
-            .init(settings: .init(
-                title: Localization.yieldModuleStartEarning,
-                icon: viewModel.tangemIconProvider.getMainButtonIcon(),
-                style: .primary,
-                isLoading: viewModel.isProcessingStartRequest,
-                isDisabled: !viewModel.isButtonEnabled,
-                action: ctaButtonAction,
-            ))
+            if viewModel.confirmTransactionPolicy.needsHoldToConfirm {
+                startEarningHoldButton
+            } else {
+                startEarningButton
+            }
         }
+    }
+
+    private var startEarningButton: some View {
+        MainButton(settings: .init(
+            title: Localization.yieldModuleStartEarning,
+            icon: viewModel.tangemIconProvider.getMainButtonIcon(),
+            style: .primary,
+            isLoading: viewModel.isProcessingStartRequest,
+            isDisabled: !viewModel.isButtonEnabled,
+            action: ctaButtonAction,
+        ))
+    }
+
+    private var startEarningHoldButton: some View {
+        HoldToConfirmButton(
+            title: Localization.yieldModuleStartEarning,
+            action: ctaButtonAction
+        )
+        .isLoading(viewModel.isProcessingStartRequest)
+        .disabled(!viewModel.isButtonEnabled)
     }
 
     @ViewBuilder

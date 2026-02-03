@@ -16,6 +16,7 @@ class CommonSendStepsManager {
     private let finishStep: SendFinishStep
     private let feeSelectorBuilder: SendFeeSelectorBuilder
     private let providersSelector: SendSwapProvidersSelectorViewModel
+    private let confirmTransactionPolicy: ConfirmTransactionPolicy
     private let summaryTitleProvider: SendSummaryTitleProvider
 
     private var stack: [SendStep]
@@ -34,6 +35,7 @@ class CommonSendStepsManager {
         feeSelectorBuilder: SendFeeSelectorBuilder,
         providersSelector: SendSwapProvidersSelectorViewModel,
         summaryTitleProvider: SendSummaryTitleProvider,
+        confirmTransactionPolicy: ConfirmTransactionPolicy,
         router: SendRoutable
     ) {
         self.amountStep = amountStep
@@ -43,6 +45,7 @@ class CommonSendStepsManager {
         self.feeSelectorBuilder = feeSelectorBuilder
         self.providersSelector = providersSelector
         self.summaryTitleProvider = summaryTitleProvider
+        self.confirmTransactionPolicy = confirmTransactionPolicy
         self.router = router
 
         stack = [amountStep]
@@ -111,7 +114,7 @@ extension CommonSendStepsManager: SendStepsManager {
         case .destination where isEditAction: .init(action: .continue)
         case .amount: .init(action: .next)
         case .destination: .init(action: .next)
-        case .summary: .init(action: .action)
+        case .summary: .init(action: confirmTransactionPolicy.needsHoldToConfirm ? .holdAction : .action)
         case .finish: .init(action: .close)
         default: .empty
         }

@@ -159,17 +159,34 @@ struct ExpressView: View {
             VStack(spacing: 12) {
                 legalView
 
-                MainButton(
-                    title: viewModel.mainButtonState.title,
-                    icon: viewModel.mainButtonState.getIcon(tangemIconProvider: viewModel.tangemIconProvider),
-                    isLoading: viewModel.mainButtonIsLoading,
-                    isDisabled: !viewModel.mainButtonIsEnabled,
-                    action: viewModel.didTapMainButton
-                )
+                if viewModel.confirmTransactionPolicy.needsHoldToConfirm {
+                    bottomHoldAction
+                } else {
+                    bottomAction
+                }
             }
             .readGeometry(\.frame.size, bindTo: $bottomViewSize)
         }
         .disableAnimations() // To force `.animation(nil)` behavior
+    }
+
+    private var bottomAction: some View {
+        MainButton(
+            title: viewModel.mainButtonState.title,
+            icon: viewModel.mainButtonState.getIcon(tangemIconProvider: viewModel.tangemIconProvider),
+            isLoading: viewModel.mainButtonIsLoading,
+            isDisabled: !viewModel.mainButtonIsEnabled,
+            action: viewModel.didTapMainButton
+        )
+    }
+
+    private var bottomHoldAction: some View {
+        HoldToConfirmButton(
+            title: viewModel.mainButtonState.title,
+            action: viewModel.didTapMainButton
+        )
+        .isLoading(viewModel.mainButtonIsLoading)
+        .disabled(!viewModel.mainButtonIsEnabled)
     }
 
     @ViewBuilder
