@@ -11,6 +11,7 @@ import TangemUI
 import TangemAssets
 import TangemAccessibilityIdentifiers
 import TangemUIUtils
+import TangemMacro
 
 struct LoadableTokenBalanceView: View {
     let state: State
@@ -87,6 +88,7 @@ struct LoadableTokenBalanceView: View {
 extension LoadableTokenBalanceView {
     typealias Text = SensitiveText.TextType
 
+    @CaseFlagable
     enum State: Hashable {
         case loading(cached: Text? = nil)
         case failed(cached: Text, icon: Icon? = nil)
