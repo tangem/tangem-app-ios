@@ -14,42 +14,42 @@ import TangemPay
 final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityRepository {
     @Injected(\.userWalletRepository)
     private var userWalletRepository: UserWalletRepository
-    private var _availableUserWalletModels = CurrentValueSubject<[UserWalletModel], Never>([])
 
-    var isTangemPayAvailablePublisher: AnyPublisher<Bool, Never> {
+    private var _tangemPayOfferAvailabilitySubject = CurrentValueSubject<
+        TangemPayOfferAvailability, Never
+    >(.notAvailable)
+
+    private var _tangemPayOfferAvailabilityPublisher: AnyPublisher<TangemPayOfferAvailability, Never> {
+        _tangemPayOfferAvailabilitySubject
+            .eraseToAnyPublisher()
+    }
+
+    var tangemPayOfferAvailability: TangemPayOfferAvailability {
+        _tangemPayOfferAvailabilitySubject.value
+    }
+
+    var isTangemPayOfferAvailablePublisher: AnyPublisher<Bool, Never> {
+        _tangemPayOfferAvailabilityPublisher
+            .map { $0.isAvailable }
+            .filter { $0 }
+            .eraseToAnyPublisher()
+    }
+
+    var isTangemPayEligiblePublisher: AnyPublisher<Bool, Never> {
         AppSettings.shared
             .$tangemPayIsEligibilityAvailable
             .eraseToAnyPublisher()
     }
 
-    var availableUserWalletModels: [UserWalletModel] {
-        _availableUserWalletModels.value
-    }
-
-    var isDeviceRooted: Bool {
+    private var isDeviceRooted: Bool {
         RTCUtil().checkStatus().hasIssues
-    }
-
-    var availableUserWalletModelsPublisher: AnyPublisher<[UserWalletModel], Never> {
-        _availableUserWalletModels
-            .eraseToAnyPublisher()
-    }
-
-    var isUserWalletModelsAvailable: Bool {
-        _availableUserWalletModels.value.isNotEmpty
-    }
-
-    var isUserWalletModelsAvailablePublisher: AnyPublisher<Bool, Never> {
-        availableUserWalletModelsPublisher
-            .map { $0.isNotEmpty }
-            .eraseToAnyPublisher()
     }
 
     var shouldShowGetTangemPay: AnyPublisher<Bool, Never> {
         Publishers
             .CombineLatest4(
-                isTangemPayAvailablePublisher,
-                isUserWalletModelsAvailablePublisher,
+                isTangemPayEligiblePublisher,
+                isTangemPayOfferAvailable,
                 Just(isDeviceRooted).map { !$0 },
                 Just(FeatureProvider.isAvailable(.tangemPayPermanentEntryPoint))
             )
@@ -58,11 +58,36 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
             .eraseToAnyPublisher()
     }
 
+    private var isTangemPayOfferAvailable: AnyPublisher<Bool, Never> {
+        _tangemPayOfferAvailabilityPublisher
+            .map { $0.isAvailable }
+            .eraseToAnyPublisher()
+    }
+
     private var isTangemPayHiddenAnywhereOnce: AnyPublisher<Bool, Never> {
         AppSettings.shared
             .$tangemPayIsKYCHiddenForCustomerWalletId
             .removeDuplicates()
             .map { $0.contains(where: { $0.value }) }
+            .eraseToAnyPublisher()
+    }
+
+    private var wasAnyTangemPayOfferAccepted: AnyPublisher<Bool, Never> {
+        AppSettings.shared
+            .$tangemPayIsPaeraCustomer
+            .removeDuplicates()
+            .map { $0.contains(where: { $0.value }) }
+            .eraseToAnyPublisher()
+    }
+
+    private var shouldShowTangemPayBannerByAppSettings: AnyPublisher<Bool, Never> {
+        Publishers
+            .CombineLatest3(
+                AppSettings.shared.$tangemPayShouldShowGetBanner,
+                isTangemPayHiddenAnywhereOnce.map { !$0 },
+                wasAnyTangemPayOfferAccepted.map { !$0 }
+            )
+            .map { $0 && $1 && $2 }
             .eraseToAnyPublisher()
     }
 
@@ -85,12 +110,20 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
     }
 
     func shouldShowGetTangemPayBanner(for customerWalletId: String) -> AnyPublisher<Bool, Never> {
-        Publishers
+        let isAvailableUserWalletModelsContainsCustomerWalletId = _tangemPayOfferAvailabilityPublisher
+            .map {
+                $0.availableWalletSelection?
+                    .wallets
+                    .contains(
+                        where: { $0.userWalletId.stringValue == customerWalletId }
+                    ) ?? false
+            }
+
+        return Publishers
             .CombineLatest3(
                 shouldShowGetTangemPay,
-                isTangemPayHiddenAnywhereOnce.map { !$0 },
-                availableUserWalletModelsPublisher
-                    .map { $0.contains(where: { $0.userWalletId.stringValue == customerWalletId }) }
+                shouldShowTangemPayBannerByAppSettings,
+                isAvailableUserWalletModelsContainsCustomerWalletId
             )
             .map { $0 && $1 && $2 }
             .eraseToAnyPublisher()
@@ -120,7 +153,7 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
         }
     }
 
-    private func isAvailableForTangemPay(
+    private func isAvailableForTangemPayOffer(
         userWalletModel: UserWalletModel
     ) async -> Bool {
         guard userWalletModel.supportsTangemPay else { return false }
@@ -162,7 +195,9 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
                     return
                 }
 
-                _ = await repo.isAvailableForTangemPay(userWalletModel: userWalletModel)
+                _ = await repo.isAvailableForTangemPayOffer(
+                    userWalletModel: userWalletModel
+                )
             }
             .sink()
             .store(in: &bag)
@@ -203,8 +238,19 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
                             && !ids.contains($0.userWalletId.stringValue)
                     }
             }
+            .map { models -> TangemPayOfferAvailability in
+                guard models.count > .zero else {
+                    return .notAvailable
+                }
+
+                if models.count == 1, let only = models.first {
+                    return .available(walletSelection: .single(only))
+                }
+
+                return .available(walletSelection: .multiple(models))
+            }
             .sink(receiveValue: { [weak self] in
-                self?._availableUserWalletModels.send($0)
+                self?._tangemPayOfferAvailabilitySubject.send($0)
             })
             .store(in: &bag)
     }

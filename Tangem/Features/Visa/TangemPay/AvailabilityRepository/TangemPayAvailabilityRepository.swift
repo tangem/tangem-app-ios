@@ -9,15 +9,44 @@
 import Combine
 import TangemFoundation
 
-protocol TangemPayAvailabilityRepository {
-    var availableUserWalletModels: [any UserWalletModel] { get }
-    var isTangemPayAvailablePublisher: AnyPublisher<Bool, Never> { get }
-    var isUserWalletModelsAvailable: Bool { get }
-    var isUserWalletModelsAvailablePublisher: AnyPublisher<Bool, Never> { get }
+enum TangemPayWalletSelectionType {
+    case single(UserWalletModel)
+    case multiple([UserWalletModel])
 
+    var wallets: [UserWalletModel] {
+        switch self {
+        case .single(let wallet): return [wallet]
+        case .multiple(let wallets): return wallets
+        }
+    }
+}
+
+enum TangemPayOfferAvailability {
+    case available(walletSelection: TangemPayWalletSelectionType)
+    case notAvailable
+
+    var availableWalletSelection: TangemPayWalletSelectionType? {
+        switch self {
+        case .available(let selection): return selection
+        case .notAvailable: return nil
+        }
+    }
+
+    var isAvailable: Bool {
+        switch self {
+        case .available: true
+        case .notAvailable: false
+        }
+    }
+}
+
+protocol TangemPayAvailabilityRepository {
+    var tangemPayOfferAvailability: TangemPayOfferAvailability { get }
     var shouldShowGetTangemPay: AnyPublisher<Bool, Never> { get }
 
-    func shouldShowGetTangemPayBanner(for customerWalletId: String) -> AnyPublisher<Bool, Never>
+    func shouldShowGetTangemPayBanner(
+        for customerWalletId: String
+    ) -> AnyPublisher<Bool, Never>
     func userDidCloseGetTangemPayBanner()
     func requestEligibility() async -> Bool
 }

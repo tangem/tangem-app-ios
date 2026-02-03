@@ -47,6 +47,7 @@ final class TangemPayKYCDeclinedPopupViewModel: TangemPayPopupViewModel {
         start.foregroundColor = Colors.Text.secondary
 
         var end = AttributedString(Localization.tangempayKycRejectedDescriptionSpan)
+        end.link = URL(string: "blank:url")
         end.foregroundColor = Colors.Text.accent
 
         return start + end
@@ -66,6 +67,11 @@ final class TangemPayKYCDeclinedPopupViewModel: TangemPayPopupViewModel {
 
     func dismiss() {
         coordinator?.closeKYCDeclinedPopup()
+    }
+
+    func onHyperLinkTap(_ link: URL) {
+        coordinator?.closeKYCDeclinedPopup()
+        Task { try? await tangemPayManager.launchKYC() }
     }
 
     private func openSupport() {

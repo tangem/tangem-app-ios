@@ -13,9 +13,6 @@ import TangemSdk
 import TangemUI
 
 final class TangemPayOfferViewModel: ObservableObject {
-    @Injected(\.tangemPayAvailabilityRepository)
-    private var tangemPayAvailabilityRepository: TangemPayAvailabilityRepository
-
     @Injected(\.userWalletRepository)
     private var userWalletRepository: UserWalletRepository
 
@@ -32,11 +29,14 @@ final class TangemPayOfferViewModel: ObservableObject {
 
     private weak var coordinator: TangemPayOnboardingRoutable?
     private let closeOfferScreen: @MainActor () -> Void
+    private let walletSelectionType: TangemPayWalletSelectionType
 
     init(
+        walletSelectionType: TangemPayWalletSelectionType,
         closeOfferScreen: @escaping @MainActor () -> Void,
         coordinator: TangemPayOnboardingRoutable?
     ) {
+        self.walletSelectionType = walletSelectionType
         self.coordinator = coordinator
         self.closeOfferScreen = closeOfferScreen
     }
@@ -48,12 +48,15 @@ final class TangemPayOfferViewModel: ObservableObject {
     func getCard() {
         Analytics.log(.visaOnboardingButtonVisaGetCard)
 
-        if tangemPayAvailabilityRepository.availableUserWalletModels.count == 1,
-           let userWalletModel = tangemPayAvailabilityRepository.availableUserWalletModels.first {
-            acceptOffer(on: userWalletModel)
-        } else {
-            coordinator?.openWalletSelector { [weak self] walletModel in
-                self?.acceptOffer(on: walletModel)
+        switch walletSelectionType {
+        case .single(let walletModel):
+            acceptOffer(on: walletModel)
+
+        case .multiple(let walletModels):
+            coordinator?.openWalletSelector(
+                from: walletModels
+            ) { [weak self] selectedModel in
+                self?.acceptOffer(on: selectedModel)
             }
         }
     }
