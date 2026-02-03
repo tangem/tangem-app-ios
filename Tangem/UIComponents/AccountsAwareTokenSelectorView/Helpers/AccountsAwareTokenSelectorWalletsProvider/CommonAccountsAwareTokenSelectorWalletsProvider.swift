@@ -11,8 +11,6 @@ import Combine
 final class CommonAccountsAwareTokenSelectorWalletsProvider {
     @Injected(\.userWalletRepository)
     private var userWalletRepository: UserWalletRepository
-
-    init() {}
 }
 
 // MARK: - AccountsAwareTokenSelectorWalletsProvider
@@ -29,43 +27,47 @@ extension CommonAccountsAwareTokenSelectorWalletsProvider: AccountsAwareTokenSel
 
 private extension CommonAccountsAwareTokenSelectorWalletsProvider {
     func mapToAccountsAwareTokenSelectorWallet(userWalletModel: any UserWalletModel) -> AccountsAwareTokenSelectorWallet {
-        func mapToAccountType(accountModels: [AccountModel]) -> AccountsAwareTokenSelectorWallet.AccountType {
-            switch accountModels.firstStandard() {
-            case .none:
-                assertionFailure("UserWalletModel does not contain CryptoAccount")
-                return .multiple([])
-            case .standard(.single(let account)):
-                return .single(
-                    mapToAccountsAwareTokenSelectorAccount(wallet: userWalletModel, cryptoAccount: account)
-                )
-            case .standard(.multiple(let accounts)):
-                let accounts = accounts
-                    .map { mapToAccountsAwareTokenSelectorAccount(wallet: userWalletModel, cryptoAccount: $0) }
-
-                return .multiple(accounts)
-            }
-        }
-
-        let accounts = mapToAccountType(accountModels: userWalletModel.accountModelsManager.accountModels)
+        let userWalletInfo = userWalletModel.userWalletInfo
+        let accounts = mapToAccountType(accountModels: userWalletModel.accountModelsManager.accountModels, userWalletInfo: userWalletInfo)
         let accountsPublisher = userWalletModel
             .accountModelsManager
             .accountModelsPublisher
-            .map { mapToAccountType(accountModels: $0) }
+            .withWeakCaptureOf(self)
+            .map { mapper, accountModels in
+                mapper.mapToAccountType(accountModels: accountModels, userWalletInfo: userWalletInfo)
+            }
             .eraseToAnyPublisher()
 
         return AccountsAwareTokenSelectorWallet(
-            wallet: userWalletModel.userWalletInfo,
+            wallet: userWalletInfo,
             accounts: accounts,
             accountsPublisher: accountsPublisher
         )
     }
 
-    func mapToAccountsAwareTokenSelectorAccount(wallet: any UserWalletModel, cryptoAccount: any CryptoAccountModel) -> AccountsAwareTokenSelectorAccount {
+    func mapToAccountsAwareTokenSelectorAccount(userWalletInfo: UserWalletInfo, cryptoAccount: any CryptoAccountModel) -> AccountsAwareTokenSelectorAccount {
         let itemsProvider = CommonAccountsAwareTokenSelectorCryptoAccountModelItemsProvider(
-            userWalletInfo: wallet.userWalletInfo,
+            userWalletInfo: userWalletInfo,
             cryptoAccount: cryptoAccount
         )
 
         return AccountsAwareTokenSelectorAccount(cryptoAccount: cryptoAccount, itemsProvider: itemsProvider)
+    }
+
+    func mapToAccountType(accountModels: [AccountModel], userWalletInfo: UserWalletInfo) -> AccountsAwareTokenSelectorWallet.AccountType {
+        switch accountModels.firstStandard() {
+        case .none:
+            assertionFailure("UserWalletModel does not contain CryptoAccount")
+            return .multiple([])
+        case .standard(.single(let account)):
+            return .single(
+                mapToAccountsAwareTokenSelectorAccount(userWalletInfo: userWalletInfo, cryptoAccount: account)
+            )
+        case .standard(.multiple(let accounts)):
+            let accounts = accounts
+                .map { mapToAccountsAwareTokenSelectorAccount(userWalletInfo: userWalletInfo, cryptoAccount: $0) }
+
+            return .multiple(accounts)
+        }
     }
 }

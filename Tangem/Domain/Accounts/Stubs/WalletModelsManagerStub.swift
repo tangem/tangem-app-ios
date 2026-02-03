@@ -22,4 +22,6 @@ final class WalletModelsManagerStub: WalletModelsManager {
     func initialize() {
         isInitialized = true
     }
+
+    func dispose() {}
 }

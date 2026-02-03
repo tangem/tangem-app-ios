@@ -189,4 +189,6 @@ extension AccountModelsManagerMock: AccountModelsManager {
                 return firstIndex < secondIndex
             }
     }
+
+    func dispose() {}
 }
