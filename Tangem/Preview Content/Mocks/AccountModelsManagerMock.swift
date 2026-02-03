@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemFoundation
+import TangemPay
 
 final class AccountModelsManagerMock {
     private let walletModelsManager: WalletModelsManager
@@ -107,6 +108,10 @@ extension AccountModelsManagerMock: AccountModelsManager {
         accountModelsSubject.eraseToAnyPublisher()
     }
 
+    var tangemPayCustomerId: String? {
+        nil
+    }
+
     func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws(AccountEditError) -> AccountOperationResult {
         let cryptoAccount = CryptoAccountModelMock(
             isMainAccount: false,
@@ -191,4 +196,10 @@ extension AccountModelsManagerMock: AccountModelsManager {
     }
 
     func dispose() {}
+
+    func acceptTangemPayOffer(authorizingInteractor: any TangemPayAuthorizing) async {}
+
+    func refreshTangemPay() async {}
+
+    func syncTangemPayTokens(authorizingInteractor: any TangemPayAuthorizing) {}
 }

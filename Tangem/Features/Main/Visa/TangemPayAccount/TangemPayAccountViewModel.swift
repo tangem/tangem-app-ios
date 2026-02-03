@@ -15,34 +15,34 @@ import TangemPay
 protocol TangemPayAccountRoutable: AnyObject {
     func openTangemPayIssuingYourCardPopup()
     func openTangemPayFailedToIssueCardPopup()
-    func openTangemPayKYCInProgressPopup(tangemPayManager: TangemPayManager)
-    func openTangemPayKYCDeclinedPopup(tangemPayManager: TangemPayManager)
+    func openTangemPayKYCInProgressPopup(tangemPayKYCInteractor: TangemPayKYCInteractor)
+    func openTangemPayKYCDeclinedPopup(tangemPayKYCInteractor: TangemPayKYCInteractor)
     func openTangemPayMainView(tangemPayAccount: TangemPayAccount)
 }
 
 final class TangemPayAccountViewModel: ObservableObject {
     @Published private(set) var state: ViewState = .skeleton
 
-    private let tangemPayManager: TangemPayManager
+    private let tangemPayLocalState: TangemPayLocalState
     private weak var router: TangemPayAccountRoutable?
 
     private let loadableTokenBalanceViewStateBuilder = LoadableTokenBalanceViewStateBuilder()
 
-    init(tangemPayManager: TangemPayManager, router: TangemPayAccountRoutable?) {
-        self.tangemPayManager = tangemPayManager
+    init(tangemPayLocalState: TangemPayLocalState, router: TangemPayAccountRoutable?) {
+        self.tangemPayLocalState = tangemPayLocalState
         self.router = router
 
         bind()
     }
 
     func userDidTapView() {
-        switch tangemPayManager.state {
+        switch tangemPayLocalState {
         case .initial, .loading, .syncNeeded, .syncInProgress, .unavailable:
             break
-        case .kycRequired:
-            router?.openTangemPayKYCInProgressPopup(tangemPayManager: tangemPayManager)
-        case .kycDeclined:
-            router?.openTangemPayKYCDeclinedPopup(tangemPayManager: tangemPayManager)
+        case .kycRequired(let tangemPayKYCInteractor):
+            router?.openTangemPayKYCInProgressPopup(tangemPayKYCInteractor: tangemPayKYCInteractor)
+        case .kycDeclined(let tangemPayKYCInteractor):
+            router?.openTangemPayKYCDeclinedPopup(tangemPayKYCInteractor: tangemPayKYCInteractor)
         case .issuingCard:
             router?.openTangemPayIssuingYourCardPopup()
         case .failedToIssueCard:
@@ -57,7 +57,7 @@ final class TangemPayAccountViewModel: ObservableObject {
 
 private extension TangemPayAccountViewModel {
     func bind() {
-        tangemPayManager.statePublisher
+        Just(tangemPayLocalState)
             .flatMapLatest { state -> AnyPublisher<ViewState, Never> in
                 guard !RTCUtil().checkStatus().hasIssues else {
                     return .just(output: .rootedDevice)

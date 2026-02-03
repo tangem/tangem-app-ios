@@ -52,7 +52,7 @@ final class TangemPayFailedToIssueCardSheetViewModel: TangemPayPopupViewModel {
         let dataCollector = TangemPaySupportDataCollector(
             source: .failedToIssueCardSheet,
             userWalletId: userWalletModel.userWalletId.stringValue,
-            customerId: userWalletModel.tangemPayManager.customerId
+            customerId: userWalletModel.accountModelsManager.tangemPayCustomerId
         )
         let logsComposer = LogsComposer(infoProvider: dataCollector, includeZipLogs: false)
         let mailViewModel = MailViewModel(

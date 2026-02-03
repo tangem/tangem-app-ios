@@ -717,9 +717,10 @@ private extension UserWalletSettingsViewModel {
                     walletModelsManager: cryptoAccountModels.first?.walletModelsManager,
                     userTokensManager: cryptoAccountModels.first?.userTokensManager
                 )
-            case .standard(.multiple):
+            case .standard(.multiple), .tangemPay:
                 // In multiple accounts case we don't support managing tokens from this screen,
-                // instead users should manage tokens from respective account details screens
+                // instead users should manage tokens from respective account details screens.
+                // TangemPay currently doesn't support managing tokens at all
                 updateManagers(walletModelsManager: nil, userTokensManager: nil)
             case .none:
                 // Unreachable state, because account models manager should always contain at least one account model (main account)

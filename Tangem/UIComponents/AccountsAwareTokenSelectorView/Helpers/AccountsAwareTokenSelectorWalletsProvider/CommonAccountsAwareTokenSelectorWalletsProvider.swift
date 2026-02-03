@@ -68,6 +68,8 @@ private extension CommonAccountsAwareTokenSelectorWalletsProvider {
                 .map { mapToAccountsAwareTokenSelectorAccount(userWalletInfo: userWalletInfo, cryptoAccount: $0) }
 
             return .multiple(accounts)
+        case .tangemPay:
+            return .multiple([])
         }
     }
 }

@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemFoundation
+import TangemPay
 
 actor CommonAccountModelsManager {
     private typealias AccountId = CommonCryptoAccountModel.AccountId
@@ -20,6 +21,7 @@ actor CommonAccountModelsManager {
 
     private nonisolated let cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
     private nonisolated let cryptoAccountsRepository: CryptoAccountsRepository
+    private nonisolated let tangemPayManager: TangemPayManager
     private let archivedCryptoAccountsProvider: ArchivedCryptoAccountsProvider
     private let dependenciesFactory: CryptoAccountDependenciesFactory
 
@@ -39,12 +41,14 @@ actor CommonAccountModelsManager {
     init(
         userWalletId: UserWalletId,
         cryptoAccountsRepository: CryptoAccountsRepository,
+        tangemPayManager: TangemPayManager,
         archivedCryptoAccountsProvider: ArchivedCryptoAccountsProvider,
         dependenciesFactory: CryptoAccountDependenciesFactory,
         areHDWalletsSupported: Bool
     ) {
         self.userWalletId = userWalletId
         self.cryptoAccountsRepository = cryptoAccountsRepository
+        self.tangemPayManager = tangemPayManager
         self.archivedCryptoAccountsProvider = archivedCryptoAccountsProvider
         self.dependenciesFactory = dependenciesFactory
         self.areHDWalletsSupported = areHDWalletsSupported
@@ -171,7 +175,7 @@ actor CommonAccountModelsManager {
                     )
                 })
 
-            let publisher = cryptoAccountsRepository
+            let crypto = cryptoAccountsRepository
                 .cryptoAccountsPublisher
                 .combineLatest(globalCryptoAccountsStatePublisher)
                 .withWeakCaptureOf(self)
@@ -194,9 +198,15 @@ actor CommonAccountModelsManager {
                 .share(replay: 1)
                 .eraseToAnyPublisher()
 
-            unsafeAccountModelsPublisher = publisher
+            let tangemPay = tangemPayManager.statePublisher.map(AccountModel.tangemPay)
 
-            return publisher
+            let combined = Publishers.CombineLatest(crypto, tangemPay)
+                .map { $0 + [$1] }
+                .eraseToAnyPublisher()
+
+            unsafeAccountModelsPublisher = combined
+
+            return combined
         }
     }
 
@@ -329,6 +339,10 @@ extension CommonAccountModelsManager: AccountModelsManager {
         makeOrGetAccountModelsPublisher()
     }
 
+    nonisolated var tangemPayCustomerId: String? {
+        tangemPayManager.customerId
+    }
+
     func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws(AccountEditError) -> AccountOperationResult {
         guard canAddCryptoAccounts else {
             throw .unknownError(AccountModelsManagerError.addingCryptoAccountsNotSupported)
@@ -421,6 +435,33 @@ extension CommonAccountModelsManager: AccountModelsManager {
             throw .unknownError(error)
         }
     }
+
+    func acceptTangemPayOffer(authorizingInteractor: any TangemPayAuthorizing) async {
+        await tangemPayManager.authorizeWithCustomerWallet(authorizingInteractor: authorizingInteractor)
+        guard case .kycRequired = tangemPayManager.state else {
+            return
+        }
+
+        await withCheckedContinuation { continuation in
+            runTask { [self] in
+                do {
+                    try await tangemPayManager.launchKYC {
+                        continuation.resume()
+                    }
+                } catch {
+                    continuation.resume()
+                }
+            }
+        }
+    }
+
+    func refreshTangemPay() async {
+        await tangemPayManager.refreshState()
+    }
+
+    nonisolated func syncTangemPayTokens(authorizingInteractor: any TangemPayAuthorizing) {
+        tangemPayManager.syncTokens(authorizingInteractor: authorizingInteractor)
+    }
 }
 
 // MARK: - CommonCryptoAccountModelDelegate protocol conformance
@@ -460,6 +501,8 @@ extension CommonAccountModelsManager: DisposableEntity {
                 cryptoAccountModel.dispose()
             case .standard(.multiple(let cryptoAccountModels)):
                 cryptoAccountModels.forEach { $0.dispose() }
+            case .tangemPay:
+                break
             }
         }
 

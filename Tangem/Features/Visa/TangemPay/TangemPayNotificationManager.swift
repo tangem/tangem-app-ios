@@ -33,8 +33,8 @@ final class TangemPayNotificationManager {
         self.userWalletModel = userWalletModel
 
         cancellable = userWalletModel
-            .tangemPayManager
-            .statePublisher
+            .accountModelsManager
+            .tangemPayLocalStatePublisher
             .withWeakCaptureOf(self)
             .map { manager, state in
                 if let event = state.asNotificationEvent(syncNeededTitle: manager.syncNeededTitle, icon: manager.mainButtonIcon) {

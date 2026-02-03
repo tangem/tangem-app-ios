@@ -31,7 +31,6 @@ class CommonUserWalletModel {
 
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
     let accountModelsManager: AccountModelsManager
-    let tangemPayManager: TangemPayManager
 
     var emailConfig: EmailConfig? {
         config.emailConfig
@@ -60,8 +59,7 @@ class CommonUserWalletModel {
         keysRepository: KeysRepository,
         totalBalanceProvider: TotalBalanceProvider,
         userTokensPushNotificationsManager: UserTokensPushNotificationsManager,
-        accountModelsManager: AccountModelsManager,
-        tangemPayManager: TangemPayManager
+        accountModelsManager: AccountModelsManager
     ) {
         self.walletInfo = walletInfo
         self.config = config
@@ -74,7 +72,6 @@ class CommonUserWalletModel {
         self.totalBalanceProvider = totalBalanceProvider
         self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
         self.accountModelsManager = accountModelsManager
-        self.tangemPayManager = tangemPayManager
 
         _cardHeaderImagePublisher = .init(config.cardHeaderImage)
     }
@@ -163,7 +160,7 @@ extension CommonUserWalletModel: UserWalletModel {
     var emailData: [EmailCollectedData] {
         var data = config.emailData
 
-        if let tangemPayCustomerId = tangemPayManager.customerId {
+        if let tangemPayCustomerId = accountModelsManager.tangemPayCustomerId {
             data.append(EmailCollectedData(type: .tangemPayCustomerId, data: tangemPayCustomerId))
         }
         data.append(EmailCollectedData(type: .card(.userWalletId), data: userWalletId.stringValue))

@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemPay
 
 /// Just a stub when there should be no accounts available (locked wallets, feature toggle is disabled, etc).
 struct DummyCommonAccountModelsManager {}
@@ -39,6 +40,10 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
         AnyPublisher.just(output: accountModels)
     }
 
+    var tangemPayCustomerId: String? {
+        nil
+    }
+
     func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws(AccountEditError) -> AccountOperationResult {
         throw .unknownError(NSError.dummy)
     }
@@ -62,4 +67,10 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
     }
 
     func dispose() {}
+
+    func acceptTangemPayOffer(authorizingInteractor: any TangemPayAuthorizing) async {}
+
+    func refreshTangemPay() async {}
+
+    func syncTangemPayTokens(authorizingInteractor: any TangemPayAuthorizing) {}
 }

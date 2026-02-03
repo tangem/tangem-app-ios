@@ -53,7 +53,7 @@ class LockedUserWalletModel: UserWalletModel {
     var emailData: [EmailCollectedData] {
         var data = config.emailData
 
-        if let tangemPayCustomerId = tangemPayManager.customerId {
+        if let tangemPayCustomerId = accountModelsManager.tangemPayCustomerId {
             data.append(EmailCollectedData(type: .tangemPayCustomerId, data: tangemPayCustomerId))
         }
         data.append(EmailCollectedData(type: .card(.userWalletId), data: userWalletId.stringValue))
@@ -97,15 +97,6 @@ class LockedUserWalletModel: UserWalletModel {
 
     var accountModelsManager: AccountModelsManager {
         DummyCommonAccountModelsManager()
-    }
-
-    var tangemPayManager: TangemPayManager {
-        TangemPayBuilder(
-            userWalletId: userWalletId,
-            keysRepository: keysRepository,
-            signer: signer
-        )
-        .buildTangemPayManager()
     }
 
     var refcodeProvider: RefcodeProvider? {

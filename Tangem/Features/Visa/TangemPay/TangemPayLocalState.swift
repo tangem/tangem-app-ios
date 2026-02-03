@@ -16,8 +16,8 @@ enum TangemPayLocalState {
 
     case unavailable
 
-    case kycRequired
-    case kycDeclined
+    case kycRequired(TangemPayKYCInteractor)
+    case kycDeclined(TangemPayKYCInteractor)
     case issuingCard
     case failedToIssueCard
 
@@ -44,5 +44,38 @@ extension TangemPayLocalState {
             return tangemPayAccount
         }
         return nil
+    }
+}
+
+struct TangemPayManagerWeakReferenceHolder {
+    weak var tangemPayManager: TangemPayManager?
+}
+
+// MARK: - TangemPayKYCLauncher
+
+protocol TangemPayKYCInteractor {
+    var customerId: String? { get }
+
+    func launchKYC(onDidDismiss: (() async -> Void)?) async throws
+    func cancelKYC(onFinish: @escaping (Bool) -> Void)
+}
+
+extension TangemPayKYCInteractor {
+    func launchKYC() async throws {
+        try await launchKYC(onDidDismiss: nil)
+    }
+}
+
+extension TangemPayManagerWeakReferenceHolder: TangemPayKYCInteractor {
+    var customerId: String? {
+        tangemPayManager?.customerId
+    }
+
+    func launchKYC(onDidDismiss: (() async -> Void)?) async throws {
+        try await tangemPayManager?.launchKYC(onDidDismiss: onDidDismiss)
+    }
+
+    func cancelKYC(onFinish: @escaping (Bool) -> Void) {
+        tangemPayManager?.cancelKYC(onFinish: onFinish)
     }
 }

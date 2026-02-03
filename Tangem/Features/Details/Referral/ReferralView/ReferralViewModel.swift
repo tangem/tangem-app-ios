@@ -290,6 +290,11 @@ final class ReferralViewModel: ObservableObject {
 
         case (nil, .standard(let cryptoAccounts)):
             mapReadyToBecomeState(cryptoAccounts: cryptoAccounts)
+
+        case (_, .tangemPay):
+            // Currenctly TangemPay works only with USDC in Polygon
+            // Therefore it's impossible to get reward (USDT in Tron)
+            break
         }
     }
 
