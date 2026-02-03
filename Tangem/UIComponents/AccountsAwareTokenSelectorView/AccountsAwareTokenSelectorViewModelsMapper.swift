@@ -101,36 +101,18 @@ private extension AccountsAwareTokenSelectorViewModelsMapper {
 
 private extension AccountsAwareTokenSelectorViewModelsMapper {
     func mapToAccountsAwareTokenSelectorWalletItemViewModel(wallet: AccountsAwareTokenSelectorWallet) -> AccountsAwareTokenSelectorWalletItemViewModel {
-        func mapToViewType(accountType: AccountsAwareTokenSelectorWallet.AccountType) -> AccountsAwareTokenSelectorWalletItemViewModel.ViewType {
-            switch accountType {
-            case .single(let account):
-                let wallet = mapToAccountsAwareTokenSelectorAccountViewModel(
-                    header: .wallet(wallet.wallet.name),
-                    account: account
-                )
+        let walletName = wallet.wallet.name
 
-                return .wallet(wallet)
-
-            case .multiple(let accounts):
-                let accounts = accounts.map { account in
-                    let header = AccountsAwareTokenSelectorAccountViewModel.HeaderType.account(
-                        icon: AccountModelUtils.UI.iconViewData(accountModel: account.cryptoAccount),
-                        name: account.cryptoAccount.name
-                    )
-
-                    return mapToAccountsAwareTokenSelectorAccountViewModel(header: header, account: account)
-                }
-
-                return .accounts(walletName: wallet.wallet.name, accounts: accounts)
+        let viewTypePublisher = wallet
+            .accountsPublisher
+            .withWeakCaptureOf(self)
+            .map { mapper, accounts in
+                return mapper.mapToViewType(accountType: accounts, walletName: walletName)
             }
-        }
-
-        let viewTypePublisher = wallet.accountsPublisher
-            .map { mapToViewType(accountType: $0) }
             .eraseToAnyPublisher()
 
         return AccountsAwareTokenSelectorWalletItemViewModel(
-            viewType: mapToViewType(accountType: wallet.accounts),
+            viewType: mapToViewType(accountType: wallet.accounts, walletName: walletName),
             viewTypePublisher: viewTypePublisher
         )
     }
@@ -155,6 +137,33 @@ private extension AccountsAwareTokenSelectorViewModelsMapper {
     func mapToAccountsAwareTokenSelectorItemViewModel(item: AccountsAwareTokenSelectorItem) -> AccountsAwareTokenSelectorItemViewModel {
         itemViewModelBuilder.mapToAccountsAwareTokenSelectorItemViewModel(item: item) { [weak self] in
             self?.output?.usedDidSelect(item: item)
+        }
+    }
+
+    func mapToViewType(
+        accountType: AccountsAwareTokenSelectorWallet.AccountType,
+        walletName: String
+    ) -> AccountsAwareTokenSelectorWalletItemViewModel.ViewType {
+        switch accountType {
+        case .single(let account):
+            let wallet = mapToAccountsAwareTokenSelectorAccountViewModel(
+                header: .wallet(walletName),
+                account: account
+            )
+
+            return .wallet(wallet)
+
+        case .multiple(let accounts):
+            let accounts = accounts.map { account in
+                let header = AccountsAwareTokenSelectorAccountViewModel.HeaderType.account(
+                    icon: AccountModelUtils.UI.iconViewData(accountModel: account.cryptoAccount),
+                    name: account.cryptoAccount.name
+                )
+
+                return mapToAccountsAwareTokenSelectorAccountViewModel(header: header, account: account)
+            }
+
+            return .accounts(walletName: walletName, accounts: accounts)
         }
     }
 }
