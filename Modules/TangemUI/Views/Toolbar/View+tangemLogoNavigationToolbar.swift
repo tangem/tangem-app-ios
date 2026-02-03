@@ -20,18 +20,13 @@ public extension View {
     /// - Parameter trailingItem: content for the top trailing button.
     @ViewBuilder
     func tangemLogoNavigationToolbar(trailingItem: some View) -> some View {
-        #if compiler(>=6.2)
         if #available(iOS 26.0, *) {
             liquidGlassToolbar(trailingItem: trailingItem)
         } else {
             regularToolbar(trailingItem: trailingItem)
         }
-        #else
-        regularToolbar(trailingItem: trailingItem)
-        #endif
     }
 
-    #if compiler(>=6.2)
     @available(iOS 26.0, *)
     private func liquidGlassToolbar(trailingItem: some View) -> some View {
         // [REDACTED_USERNAME], ToolbarItemPlacement.principal + ToolbarRole.editor is the trick to force leading placement
@@ -49,7 +44,6 @@ public extension View {
         }
         .toolbarRole(.editor)
     }
-    #endif
 
     private func regularToolbar(trailingItem: some View) -> some View {
         toolbar {
