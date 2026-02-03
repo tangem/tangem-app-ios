@@ -85,7 +85,7 @@ struct MarketsView: View {
         // `navigationControllerConfigurator` won't hide the navigation bar on that page (`Markets Token Details`)
         .navigationTitle("Markets")
         .navigationBarTitleDisplayMode(.inline)
-        .injectMarketsNavigationControllerConfigurator()
+        .injectMarketsNavigationConfigurator()
     }
 
     @ViewBuilder
