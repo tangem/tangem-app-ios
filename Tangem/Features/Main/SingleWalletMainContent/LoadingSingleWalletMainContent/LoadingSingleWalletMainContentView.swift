@@ -37,7 +37,9 @@ struct LoadingSingleWalletMainContentView: View {
 
             TransactionsListView(
                 state: .loading,
-                exploreAction: {}, exploreTransactionAction: { _ in },
+                exploreAction: nil,
+                exploreConfirmationDialog: nil,
+                exploreTransactionAction: { _ in },
                 reloadButtonAction: {},
                 isReloadButtonBusy: false,
                 fetchMore: nil

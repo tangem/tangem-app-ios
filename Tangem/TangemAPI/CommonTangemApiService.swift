@@ -247,8 +247,17 @@ extension CommonTangemApiService: TangemApiService {
         }
     }
 
-    func expressPromotion(request model: ExpressPromotion.Request) async throws -> ExpressPromotion.Response {
-        return try await request(for: .promotion(request: model), decoder: decoder)
+    func bindReferral(request model: ReferralDTO.Request) async throws {
+        let target = TangemApiTarget(type: .bindWalletsByCode(model))
+
+        try await withErrorLoggingPipeline(target: target) {
+            let response = try await provider.asyncRequest(target)
+            _ = try response.filterSuccessfulStatusAndRedirectCodes()
+        }
+    }
+
+    func expressPromotion(request requestModel: ExpressPromotion.NewRequest) async throws -> ExpressPromotion.Response {
+        try await request(for: .newPromotion(request: requestModel), decoder: decoder)
     }
 
     func promotion(programName: String, timeout: TimeInterval?) async throws -> PromotionParameters {
@@ -329,6 +338,12 @@ extension CommonTangemApiService: TangemApiService {
         requestModel: MarketsDTO.ExchangesRequest
     ) async throws -> MarketsDTO.ExchangesResponse {
         return try await request(for: .tokenExchangesList(requestModel), decoder: decoder)
+    }
+
+    // MARK: - Earn Implementation
+
+    func loadEarnYieldMarkets(requestModel: EarnDTO.List.Request) async throws -> EarnDTO.List.Response {
+        return try await request(for: .earnYieldMarkets(requestModel), decoder: decoder)
     }
 
     // MARK: - Action Buttons
@@ -461,6 +476,10 @@ extension CommonTangemApiService: TangemApiService {
 
     func loadNewsList(requestModel: NewsDTO.List.Request) async throws -> NewsDTO.List.Response {
         return try await request(for: .newsList(requestModel), decoder: decoder)
+    }
+
+    func loadNewsDetails(requestModel: NewsDTO.Details.Request) async throws -> NewsDTO.Details.Response {
+        return try await request(for: .newsDetails(requestModel), decoder: decoder)
     }
 
     func loadNewsCategories() async throws -> NewsDTO.Categories.Response {

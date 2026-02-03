@@ -16,7 +16,7 @@ import TangemAssets
 final class HardwareCreateWalletViewModel: ObservableObject {
     @Published var isScanning: Bool = false
 
-    @Published var confirmationDialog: ConfirmationDialogViewModel?
+    @Published var scanTroubleshootingDialog: ConfirmationDialogViewModel?
     @Published var alert: AlertBinder?
 
     let screenTitle = Localization.hardwareWalletCreateTitle
@@ -71,13 +71,13 @@ extension HardwareCreateWalletViewModel {
 extension HardwareCreateWalletViewModel {
     func makeInfoItems() -> [InfoItem] {
         let keyTrait = InfoItem(
-            icon: Assets.Glyphs.mobileSecurity,
+            icon: Assets.Glyphs.keySecurity,
             title: Localization.hardwareWalletKeyFeatureTitle,
             subtitle: Localization.hardwareWalletKeyFeatureDescription
         )
 
         let backupTrait = InfoItem(
-            icon: Assets.Visa.securityCheck,
+            icon: Assets.Glyphs.twinSparkles,
             title: Localization.hardwareWalletBackupFeatureTitle,
             subtitle: Localization.hardwareWalletBackupFeatureDescription
         )
@@ -162,7 +162,12 @@ private extension HardwareCreateWalletViewModel {
                         walletInfo: .cardWallet(cardInfo),
                         keys: .cardWallet(keys: cardInfo.card.wallets)
                     ) {
+                        let hadSingleMobileWallet = UserWalletRepositoryModeHelper.hasSingleMobileWallet
                         try viewModel.userWalletRepository.add(userWalletModel: newUserWalletModel)
+
+                        if hadSingleMobileWallet {
+                            viewModel.logColdWalletAddedAnalytics(cardInfo: cardInfo)
+                        }
 
                         await runOnMain {
                             viewModel.isScanning = false
@@ -211,7 +216,7 @@ private extension HardwareCreateWalletViewModel {
             action: weakify(self, forFunction: HardwareCreateWalletViewModel.scanCardRequestSupport)
         )
 
-        confirmationDialog = ConfirmationDialogViewModel(
+        scanTroubleshootingDialog = ConfirmationDialogViewModel(
             title: Localization.alertTroubleshootingScanCardTitle,
             subtitle: Localization.alertTroubleshootingScanCardMessage,
             buttons: [
@@ -276,6 +281,14 @@ private extension HardwareCreateWalletViewModel {
             .cardWasScanned,
             params: [.source: Analytics.CardScanSource.createWallet.cardWasScannedParameterValue],
             contextParams: analyticsContextParams
+        )
+    }
+
+    func logColdWalletAddedAnalytics(cardInfo: CardInfo) {
+        Analytics.log(
+            .settingsColdWalletAdded,
+            params: [.source: Analytics.ParameterValue.addNew],
+            contextParams: .custom(cardInfo.analyticsContextData)
         )
     }
 

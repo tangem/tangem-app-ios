@@ -11,11 +11,13 @@ import SwiftUI
 import Combine
 import CombineExt
 import TangemFoundation
-import TangemLocalization
 
 final class NewsWidgetViewModel: ObservableObject {
-    // MARK: - Injected & Published Properties
+    @Injected(\.newsReadStatusProvider) private var readStatusProvider: NewsReadStatusProvider
 
+    // MARK: - Published Properties
+
+    @Published private(set) var isFirstLoading: Bool = true
     @Published private(set) var resultState: LoadingResult<ResultState, Error> = .loading
 
     let widgetType: MarketsWidgetType
@@ -23,23 +25,33 @@ final class NewsWidgetViewModel: ObservableObject {
     // MARK: - Properties
 
     private let widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler
+    private let analyticsService: NewsWidgetAnalyticsProvider
 
-    private let mapper = NewsModelMapper()
+    private lazy var mapper = NewsModelMapper(readStatusProvider: readStatusProvider)
     private let newsProvider = CommonMarketsWidgetNewsService()
 
     private weak var coordinator: NewsWidgetRoutable?
 
     private var bag = Set<AnyCancellable>()
 
+    // MARK: - Analytics Session Flags
+
+    private var hasLoggedCarouselScrolled = false
+    private var hasLoggedCarouselEndReached = false
+    private var hasLoggedCarouselAllNewsButton = false
+    private var hasLoggedTrendingClicked = false
+
     // MARK: - Init
 
     init(
         widgetType: MarketsWidgetType,
         widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler,
+        analyticsService: NewsWidgetAnalyticsProvider,
         coordinator: NewsWidgetRoutable?
     ) {
         self.widgetType = widgetType
         self.widgetsUpdateHandler = widgetsUpdateHandler
+        self.analyticsService = analyticsService
         self.coordinator = coordinator
 
         bind()
@@ -58,12 +70,73 @@ final class NewsWidgetViewModel: ObservableObject {
 
     @MainActor
     func handleAllNewsTap() {
+        analyticsService.logNewsListOpened()
         coordinator?.openSeeAllNewsWidget()
     }
 
     @MainActor
+    func handleCarouselAllNewsTap() {
+        if !hasLoggedCarouselAllNewsButton {
+            hasLoggedCarouselAllNewsButton = true
+            analyticsService.logCarouselAllNewsButton()
+        }
+
+        handleAllNewsTap()
+    }
+
+    @MainActor
+    func handleCarouselItemAppear(at index: Int) {
+        guard let carouselItems = resultState.value?.carouselNewsItems else { return }
+
+        // Track when user scrolls to 4th news item or beyond (index 3, 0-based)
+        if index >= 3, !hasLoggedCarouselScrolled {
+            hasLoggedCarouselScrolled = true
+            analyticsService.logCarouselScrolled()
+        }
+
+        // Track when user reaches the end (last item before "See All" card)
+        if index >= carouselItems.count - 1, !hasLoggedCarouselEndReached {
+            hasLoggedCarouselEndReached = true
+            analyticsService.logCarouselEndReached()
+        }
+    }
+
+    @MainActor
+    func handleTrendingNewsTap(newsId: String) {
+        if !hasLoggedTrendingClicked {
+            hasLoggedTrendingClicked = true
+            analyticsService.logTrendingClicked(newsId: newsId)
+        }
+
+        handleTap(newsId: newsId)
+    }
+
+    @MainActor
     private func handleTap(newsId: String) {
-        coordinator?.openNews(by: newsId)
+        guard let newsIdInt = Int(newsId) else { return }
+
+        let visibleNewsIds = getVisibleNewsIds()
+        guard let selectedIndex = visibleNewsIds.firstIndex(of: newsIdInt) else { return }
+
+        Analytics.log(event: .marketsNewsCarouselTrendingClicked, params: [.newsId: newsId])
+        coordinator?.openNewsDetails(newsIds: visibleNewsIds, selectedIndex: selectedIndex)
+    }
+
+    // MARK: - Private Helpers
+
+    /// Returns only the news IDs that are visible in the widget (1 trending + up to 5 carousel)
+    private func getVisibleNewsIds() -> [Int] {
+        let items = newsProvider.newsResult.value ?? []
+        var result: [NewsId] = []
+
+        if let trending = items.last(where: { $0.isTrending }) {
+            result.append(trending.id)
+        }
+
+        let carouselItems = items.filter { !$0.isTrending }
+        result.append(contentsOf: carouselItems.compactMap { $0.id })
+
+        return result.compactMap { Int($0) }
     }
 }
 
@@ -80,9 +153,20 @@ private extension NewsWidgetViewModel {
             .removeDuplicates()
             .receiveOnMain()
             .withWeakCaptureOf(self)
-            .sink { viewModel, event in
-                if case .readyForDisplay = event {
+            .sink { viewModel, state in
+                switch state {
+                case .loaded:
                     viewModel.updateViewState()
+                    viewModel.clearIsFirstLoadingFlag()
+                case .initialLoading:
+                    viewModel.resultState = .loading
+                case .reloading(let widgetTypes):
+                    if widgetTypes.contains(viewModel.widgetType) {
+                        viewModel.resultState = .loading
+                    }
+                case .allFailed:
+                    // Global error UI is handled at a higher level
+                    return
                 }
             }
             .store(in: &bag)
@@ -96,16 +180,32 @@ private extension NewsWidgetViewModel {
 
                 switch result {
                 case .loading:
-                    viewModel.resultState = .loading
                     widgetLoadingState = .loading
                 case .success:
                     widgetLoadingState = .loaded
+                    Analytics.log(event: .marketsNewsListOpened, params: [.source: Analytics.ParameterValue.markets.rawValue])
                 case .failure(let error):
                     widgetLoadingState = .error
                     viewModel.resultState = .failure(error)
+                    Analytics.log(
+                        event: .marketsNewsLoadError,
+                        params: error.marketsAnalyticsParams
+                    )
                 }
 
                 viewModel.widgetsUpdateHandler.performUpdateLoading(state: widgetLoadingState, for: viewModel.widgetType)
+            }
+            .store(in: &bag)
+
+        // Subscription for reorder reading news.
+        // Small delay is needed so `WidgetNewsService` has time to rebuild and updated state models.
+        readStatusProvider
+            .readStatusChangedPublisher
+            .receiveOnMain()
+            .delay(for: 0.3, scheduler: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink { viewModel, _ in
+                viewModel.updateViewState()
             }
             .store(in: &bag)
     }
@@ -115,7 +215,7 @@ private extension NewsWidgetViewModel {
         var carouselNewsItems: [CarouselNewsItem] = []
         var processedNewsIds = Set<String>()
 
-        sortItems(newsProvider.newsResult.value ?? []).forEach { item in
+        (newsProvider.newsResult.value ?? []).forEach { item in
             // Deduplication by ID
             guard !processedNewsIds.contains(item.id) else {
                 return
@@ -125,7 +225,7 @@ private extension NewsWidgetViewModel {
             if item.isTrending, trendingCardNewsItem == nil {
                 trendingCardNewsItem = mapper.toTrendingCardNewsItem(
                     from: item,
-                    onTap: weakify(self, forFunction: NewsWidgetViewModel.handleTap)
+                    onTap: weakify(self, forFunction: NewsWidgetViewModel.handleTrendingNewsTap)
                 )
             } else {
                 let carouselItem = mapper.toCarouselNewsItem(
@@ -150,22 +250,21 @@ private extension NewsWidgetViewModel {
     }
 
     func updateViewState() {
-        if resultState.error == nil {
+        switch newsProvider.newsResult {
+        case .success:
             resultState = .success(viewStateForLoadedItems())
+        case .failure(let error):
+            resultState = .failure(error)
+            analyticsService.logNewsLoadError(error)
+        case .loading:
+            resultState = .loading
         }
     }
 
-    func sortItems(_ items: [TrendingNewsModel]) -> [TrendingNewsModel] {
-        items
-            .enumerated()
-            .sorted { lhs, rhs in
-                if lhs.element.isRead != rhs.element.isRead {
-                    return !lhs.element.isRead
-                }
-
-                return lhs.offset < rhs.offset
-            }
-            .map(\.element)
+    func clearIsFirstLoadingFlag() {
+        if isFirstLoading {
+            isFirstLoading = false
+        }
     }
 }
 

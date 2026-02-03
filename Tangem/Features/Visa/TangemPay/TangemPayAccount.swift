@@ -32,6 +32,14 @@ final class TangemPayAccount {
         customerInfoSubject.value.customerInfo.id
     }
 
+    var syncNeededSignalPublisher: AnyPublisher<Void, Never> {
+        syncNeededSignalSubject.eraseToAnyPublisher()
+    }
+
+    var unavailableSignalPublisher: AnyPublisher<Void, Never> {
+        unavailableSignalSubject.eraseToAnyPublisher()
+    }
+
     // MARK: - Withdraw
 
     let expressCEXTransactionProcessor: ExpressCEXTransactionProcessor
@@ -57,6 +65,9 @@ final class TangemPayAccount {
 
     private let balancesService: any TangemPayBalancesService
     private let customerInfoSubject: CurrentValueSubject<(customerInfo: VisaCustomerInfoResponse, productInstance: VisaCustomerInfoResponse.ProductInstance), Never>
+
+    private let syncNeededSignalSubject = PassthroughSubject<Void, Never>()
+    private let unavailableSignalSubject = PassthroughSubject<Void, Never>()
 
     init(
         customerInfo: VisaCustomerInfoResponse,
@@ -84,31 +95,27 @@ final class TangemPayAccount {
     }
 
     func loadCustomerInfo() async {
-        runTask { [self] in
-            do throws(TangemPayAPIServiceError) {
-                let customerInfo = try await customerService.loadCustomerInfo()
-                guard let productInstance = customerInfo.productInstance else {
-                    // [REDACTED_TODO_COMMENT]
-                    VisaLogger.info("Product instance was unexpectedly nil")
-                    return
-                }
-
-                customerInfoSubject.send((customerInfo, productInstance))
-
-                if productInstance.status == .active {
-                    await loadBalance()
-                }
-            } catch {
-                switch error {
-                case .unauthorized:
-                    // [REDACTED_TODO_COMMENT]
-                    break
-                case .moyaError, .apiError, .decodingError:
-                    // [REDACTED_TODO_COMMENT]
-                    break
-                }
-                VisaLogger.error("Failed to load customer info", error: error)
+        do throws(TangemPayAPIServiceError) {
+            let customerInfo = try await customerService.loadCustomerInfo()
+            guard let productInstance = customerInfo.productInstance else {
+                unavailableSignalSubject.send(())
+                VisaLogger.info("Product instance was unexpectedly nil")
+                return
             }
+
+            customerInfoSubject.send((customerInfo, productInstance))
+
+            if productInstance.status == .active {
+                await loadBalance()
+            }
+        } catch {
+            switch error {
+            case .unauthorized:
+                syncNeededSignalSubject.send(())
+            case .moyaError, .apiError, .decodingError:
+                unavailableSignalSubject.send(())
+            }
+            VisaLogger.error("Failed to load customer info", error: error)
         }
     }
 

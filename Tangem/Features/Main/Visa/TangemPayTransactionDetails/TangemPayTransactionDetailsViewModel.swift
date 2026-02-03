@@ -48,7 +48,7 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
             isOutgoing: mapper.isOutgoing()
         )
         name = mapper.name()
-        category = mapper.categoryName()
+        category = mapper.categoryName(detailed: true)
         amount = TransactionViewAmountViewData(
             amount: mapper.amount(),
             type: mapper.type(),
@@ -67,6 +67,7 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
     }
 
     func userDidTapMainButton() {
+        Analytics.log(.visaScreenSupportOnTransactionPopupClicked)
         let subject: VisaEmailSubject = switch mainButtonAction {
         case .dispute: .dispute
         case .info: .default

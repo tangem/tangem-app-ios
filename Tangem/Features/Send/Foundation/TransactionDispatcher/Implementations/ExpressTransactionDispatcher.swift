@@ -52,7 +52,8 @@ extension ExpressTransactionDispatcher: TransactionDispatcher {
             return mapper.mapResult(
                 transactionSendResult,
                 blockchain: walletModel.tokenItem.blockchain,
-                signer: transactionSigner.latestSignerType
+                signer: transactionSigner.latestSignerType,
+                isToken: walletModel.tokenItem.isToken
             )
         case .default(let transaction):
             return try await sendTransactionDispatcher.send(transaction: .transfer(transaction))

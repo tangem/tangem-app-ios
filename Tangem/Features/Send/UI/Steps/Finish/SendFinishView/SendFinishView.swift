@@ -40,8 +40,8 @@ struct SendFinishView: View {
                 StakingTargetsCompactView(viewModel: stakingTargetsCompactViewModel)
             }
 
-            if let feeCompactViewModel = viewModel.sendFeeFinishViewModel {
-                SendFeeFinishView(viewModel: feeCompactViewModel)
+            if let sendFeeCompactViewModel = viewModel.sendFeeFinishViewModel {
+                SendFeeFinishView(viewModel: sendFeeCompactViewModel)
             }
 
             if let onrampStatusCompactViewModel = viewModel.onrampStatusCompactViewModel {
@@ -96,7 +96,7 @@ struct SendFinishView: View {
                 action: { viewModel.share(url: url) }
             )
         }
-        .padding(.bottom, 8)
+        .padding(.vertical, 8)
         .padding(.horizontal, 16)
         .transition(
             .opacity.animation(SendTransitions.animation)
