@@ -9,13 +9,18 @@
 import BlockchainSdk
 
 enum TokenFeeLoaderBuilder {
-    static func makeTokenFeeLoader(walletModel: any WalletModel, walletManager: any WalletManager) -> TokenFeeLoader {
-        if walletModel.isDemo {
-            return DemoTokenFeeLoader(tokenItem: walletModel.tokenItem)
+    static func makeTokenFeeLoader(
+        tokenItem: TokenItem,
+        feeTokenItem: TokenItem,
+        walletManager: any WalletManager,
+        isDemo: Bool
+    ) -> TokenFeeLoader {
+        if isDemo {
+            return DemoTokenFeeLoader(tokenItem: tokenItem)
         }
 
         let tokenFeeLoader = CommonTokenFeeLoader(
-            tokenItem: walletModel.tokenItem,
+            tokenItem: tokenItem,
             transactionFeeProvider: walletManager
         )
 
@@ -27,7 +32,7 @@ enum TokenFeeLoaderBuilder {
             )
         case let walletManager as EthereumNetworkProvider:
             return CommonEthereumTokenFeeLoader(
-                feeBlockchain: walletModel.feeTokenItem.blockchain,
+                feeBlockchain: feeTokenItem.blockchain,
                 tokenFeeLoader: tokenFeeLoader,
                 ethereumNetworkProvider: walletManager
             )
@@ -38,7 +43,7 @@ enum TokenFeeLoaderBuilder {
 
     static func makeGaslessTokenFeeLoader(walletModel: any WalletModel, feeWalletModel: any WalletModel) -> TokenFeeLoader {
         guard let gaslessTransactionFeeProvider = feeWalletModel.ethereumGaslessTransactionFeeProvider else {
-            return walletModel.tokenFeeLoader
+            return walletModel.makeTokenFeeLoader()
         }
 
         return CommonGaslessTokenFeeLoader(
