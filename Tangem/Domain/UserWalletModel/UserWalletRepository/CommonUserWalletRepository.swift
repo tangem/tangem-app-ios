@@ -233,6 +233,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
         try? tangemPayAuthorizationTokensRepository.deleteTokens(customerWalletId: userWalletId.stringValue)
 
+        let removedModels = models.filter { $0.userWalletId == userWalletId }
         models.removeAll { $0.userWalletId == userWalletId }
         userWalletDataStorage.delete(userWalletId: userWalletId, updatedWallets: models.compactMap { $0.serializePublic() })
 
@@ -246,6 +247,8 @@ class CommonUserWalletRepository: UserWalletRepository {
             let newModel = models[nextSelectionIndex]
             select(userWalletId: newModel.userWalletId)
         }
+
+        removedModels.forEach { $0.dispose() }
     }
 
     private func savePrivateData(userWalletModel: UserWalletModel, encryptionKey: UserWalletEncryptionKey) {
