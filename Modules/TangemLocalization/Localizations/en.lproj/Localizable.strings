@@ -429,9 +429,13 @@
 "domain_receive_assets_onboarding_network_name" = "%@ network";
 "domain_receive_assets_onboarding_title" = "Send funds using only";
 "earn_best_opportunities" = "Best opportunities";
+"earn_clear_filter" = "Clear filter";
 "earn_filter_all_networks" = "All networks";
 "earn_filter_all_types" = "All types";
+"earn_filter_by" = "Filter by";
+"earn_filter_networks" = "Networks";
 "earn_mostly_used" = "Mostly used";
+"earn_no_results" = "No results";
 "earn_title" = "Earn";
 "email_preface_wc_error" = "Hi support team, I've encountered an error with code: %@";
 "email_subject_wc_error" = "WalletConnect error";
@@ -774,7 +778,7 @@
 "news_all_news" = "All news";
 "news_like" = "Like";
 "news_quick_recap" = "Quick recap";
-"news_related_news" = "Related News";
+"news_related_news" = "News";
 "news_related_tokens" = "Related tokens";
 "news_sources" = "Related news";
 "news_stay_in_the_loop" = "Stay in the loop";
