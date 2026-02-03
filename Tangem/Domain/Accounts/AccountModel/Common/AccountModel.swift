@@ -14,6 +14,5 @@ enum AccountModel {
     @available(*, unavailable, message: "This account type is not implemented yet")
     case smart(any SmartAccountModel)
 
-    @available(*, unavailable, message: "This account type is not implemented yet")
-    case visa(any VisaAccountModel)
+    case tangemPay(TangemPayLocalState)
 }

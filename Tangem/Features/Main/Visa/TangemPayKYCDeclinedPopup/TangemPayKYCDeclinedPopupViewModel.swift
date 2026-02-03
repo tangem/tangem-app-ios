@@ -19,7 +19,7 @@ final class TangemPayKYCDeclinedPopupViewModel: TangemPayPopupViewModel {
     @Injected(\.mailComposePresenter)
     private var mailPresenter: MailComposePresenter
 
-    let tangemPayManager: TangemPayManager
+    let tangemPayKYCInteractor: TangemPayKYCInteractor
     weak var coordinator: TangemPayKYCDeclinedRoutable?
 
     var primaryButton: MainButton.Settings {
@@ -57,10 +57,10 @@ final class TangemPayKYCDeclinedPopupViewModel: TangemPayPopupViewModel {
     }
 
     init(
-        tangemPayManager: TangemPayManager,
+        tangemPayKYCInteractor: TangemPayKYCInteractor,
         coordinator: TangemPayKYCDeclinedRoutable
     ) {
-        self.tangemPayManager = tangemPayManager
+        self.tangemPayKYCInteractor = tangemPayKYCInteractor
         self.coordinator = coordinator
     }
 
@@ -72,7 +72,7 @@ final class TangemPayKYCDeclinedPopupViewModel: TangemPayPopupViewModel {
         dismiss()
         let logsComposer = LogsComposer(
             infoProvider: TangemPayKYCDeclinedDataCollector(
-                customerId: tangemPayManager.customerId
+                customerId: tangemPayKYCInteractor.customerId
             ),
             includeZipLogs: false
         )
@@ -88,7 +88,7 @@ final class TangemPayKYCDeclinedPopupViewModel: TangemPayPopupViewModel {
     }
 
     private func hideKYC() {
-        tangemPayManager.cancelKYC { [weak self] succeeded in
+        tangemPayKYCInteractor.cancelKYC { [weak self] succeeded in
             succeeded ? self?.dismiss() : self?.showSomethingWentWrong()
         }
     }

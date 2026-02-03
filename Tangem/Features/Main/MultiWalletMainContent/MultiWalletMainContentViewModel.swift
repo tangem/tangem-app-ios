@@ -323,25 +323,21 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .receiveOnMain()
             .assign(to: &$tangemPayNotificationInputs)
 
-        let tangemPayManager = userWalletModel.tangemPayManager
-
-        tangemPayManager
-            .statePublisher
+        userWalletModel.accountModelsManager
+            .tangemPayLocalStatePublisher
             .map(\.isSyncInProgress)
             .receiveOnMain()
             .assign(to: &$tangemPaySyncInProgress)
 
-        tangemPayManager
-            .statePublisher
-            .map(\.isInitial)
-            .removeDuplicates()
+        userWalletModel.accountModelsManager
+            .tangemPayLocalStatePublisher
             .withWeakCaptureOf(self)
-            .map { viewModel, isInitial in
-                if isInitial {
+            .map { viewModel, state in
+                if state.isInitial {
                     nil
                 } else {
                     TangemPayAccountViewModel(
-                        tangemPayManager: tangemPayManager,
+                        tangemPayLocalState: state,
                         router: viewModel
                     )
                 }
@@ -730,12 +726,12 @@ extension MultiWalletMainContentViewModel {
 // MARK: - TangemPayAccountRoutable
 
 extension MultiWalletMainContentViewModel: TangemPayAccountRoutable {
-    func openTangemPayKYCInProgressPopup(tangemPayManager: TangemPayManager) {
-        coordinator?.openTangemPayKYCInProgressPopup(tangemPayManager: tangemPayManager)
+    func openTangemPayKYCInProgressPopup(tangemPayKYCInteractor: TangemPayKYCInteractor) {
+        coordinator?.openTangemPayKYCInProgressPopup(tangemPayKYCInteractor: tangemPayKYCInteractor)
     }
 
-    func openTangemPayKYCDeclinedPopup(tangemPayManager: TangemPayManager) {
-        coordinator?.openTangemPayKYCDeclinedPopup(tangemPayManager: tangemPayManager)
+    func openTangemPayKYCDeclinedPopup(tangemPayKYCInteractor: TangemPayKYCInteractor) {
+        coordinator?.openTangemPayKYCDeclinedPopup(tangemPayKYCInteractor: tangemPayKYCInteractor)
     }
 
     func openTangemPayIssuingYourCardPopup() {
@@ -821,7 +817,7 @@ extension MultiWalletMainContentViewModel: NotificationTapDelegate {
         case .allowPushPermissionRequest, .postponePushPermissionRequest:
             userWalletNotificationManager.dismissNotification(with: id)
         case .tangemPaySync:
-            userWalletModel.tangemPayManager.syncTokens(authorizingInteractor: userWalletModel.tangemPayAuthorizingInteractor)
+            userWalletModel.accountModelsManager.syncTangemPayTokens(authorizingInteractor: userWalletModel.tangemPayAuthorizingInteractor)
         case .openCloreMigration:
             openCloreMigration()
         default:

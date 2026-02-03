@@ -143,6 +143,8 @@ final class TangemPayManager {
             return
         }
 
+        let weakReferenceHolder = TangemPayManagerWeakReferenceHolder(tangemPayManager: self)
+
         switch enrollmentState {
         case .issuingCard(let customerWalletAddress):
             do {
@@ -170,11 +172,11 @@ final class TangemPayManager {
 
         case .kycRequired:
             orderStatusPollingService.cancel()
-            stateSubject.value = .kycRequired
+            stateSubject.value = .kycRequired(weakReferenceHolder)
 
         case .kycDeclined:
             orderStatusPollingService.cancel()
-            stateSubject.value = .kycDeclined
+            stateSubject.value = .kycDeclined(weakReferenceHolder)
         }
     }
 

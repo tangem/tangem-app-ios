@@ -313,6 +313,9 @@ extension WalletConnectViewModel {
 
                 case .standard(.multiple(let accounts)):
                     accounts.forEach(appendSection(for:))
+
+                case .tangemPay:
+                    break
                 }
             }
 

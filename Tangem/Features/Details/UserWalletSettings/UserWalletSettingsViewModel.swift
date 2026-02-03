@@ -712,8 +712,9 @@ private extension UserWalletSettingsViewModel {
                     userTokensManager: cryptoAccountModel.userTokensManager
                 )
 
-            case .standard(.multiple):
+            case .standard(.multiple), .tangemPay:
                 // In multiple accounts case we don't support managing tokens from this screen
+                // TangemPay currently doesn't support managing tokens at all
                 updateManagers(walletModelsManager: nil, userTokensManager: nil)
             }
         }
