@@ -39,6 +39,7 @@ enum NotificationButtonActionType: Identifiable {
     case addTokenTrustline
     case retryKaspaTokenTransaction(icon: MainButton.Icon?)
     case stake
+    case openCloreMigration
     /// Rate the app
     case openFeedbackMail
     /// Rate the app.
@@ -54,7 +55,7 @@ enum NotificationButtonActionType: Identifiable {
     case unlock(icon: MainButton.Icon?)
     case openMobileFinishActivation(needsAttention: Bool)
     case openMobileUpgrade
-    case tangemPaySync(title: String)
+    case tangemPaySync(title: String, icon: MainButton.Icon?)
     case allowPushPermissionRequest
     case postponePushPermissionRequest
     case activate
@@ -77,6 +78,7 @@ enum NotificationButtonActionType: Identifiable {
         case .addTokenTrustline: "addTokenTrustline".hashValue
         case .retryKaspaTokenTransaction: "retryKaspaTokenTransaction".hashValue
         case .stake: "stake".hashValue
+        case .openCloreMigration: "openCloreMigration".hashValue
         case .openFeedbackMail: "openFeedbackMail".hashValue
         case .openAppStoreReview: "openAppStoreReview".hashValue
         case .empty: "empty".hashValue
@@ -149,7 +151,7 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.hwActivationNeedFinish
         case .openMobileUpgrade:
             return .empty
-        case .tangemPaySync(let title):
+        case .tangemPaySync(let title, _):
             return title
         case .allowPushPermissionRequest:
             return Localization.commonEnable
@@ -159,6 +161,8 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.commonActivate
         case .givePermission:
             return Localization.givePermissionTitle
+        case .openCloreMigration:
+            return Localization.warningCloreMigrationButton
         }
     }
 
@@ -166,10 +170,9 @@ enum NotificationButtonActionType: Identifiable {
         switch self {
         case .generateAddresses(let icon),
              .retryKaspaTokenTransaction(let icon),
-             .unlock(let icon):
+             .unlock(let icon),
+             .tangemPaySync(_, let icon):
             return icon
-        case .tangemPaySync:
-            return .trailing(Assets.tangemIcon)
         case .swap:
             return .leading(Assets.exchangeMini)
         case .backupCard,
@@ -198,7 +201,8 @@ enum NotificationButtonActionType: Identifiable {
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
              .activate,
-             .givePermission:
+             .givePermission,
+             .openCloreMigration:
             return nil
         }
     }
@@ -235,7 +239,8 @@ enum NotificationButtonActionType: Identifiable {
              .seedSupport2No,
              .addTokenTrustline,
              .postponePushPermissionRequest,
-             .givePermission:
+             .givePermission,
+             .openCloreMigration:
             return .secondary
         case .openMobileFinishActivation(let needsAttention), .reduceAmountBy(_, _, let needsAttention):
             return needsAttention ? .primary : .secondary
