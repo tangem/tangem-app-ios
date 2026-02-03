@@ -19,7 +19,6 @@ public extension View {
     }
 }
 
-// [REDACTED_TODO_COMMENT]
 struct KeyboardToolbarViewModifier<ToolbarContent: View>: ViewModifier {
     let toolbarContent: ToolbarContent
 
@@ -41,18 +40,13 @@ struct KeyboardToolbarViewModifier<ToolbarContent: View>: ViewModifier {
 
     @ViewBuilder
     private var overlayToolbarContent: some View {
-        #if compiler(>=6.2)
         if #available(iOS 26.0, *) {
             glassToolbar
         } else {
             regularToolbar
         }
-        #else
-        regularToolbar
-        #endif
     }
 
-    #if compiler(>=6.2)
     @available(iOS 26.0, *)
     private var glassToolbar: some View {
         GlassEffectContainer(spacing: .zero) {
@@ -60,7 +54,6 @@ struct KeyboardToolbarViewModifier<ToolbarContent: View>: ViewModifier {
         }
         .padding(.bottom, 8)
     }
-    #endif
 
     private var regularToolbar: some View {
         VStack(spacing: .zero) {
