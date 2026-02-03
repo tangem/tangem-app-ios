@@ -522,10 +522,18 @@ private extension CommonYieldModuleManager {
             .eraseToAnyPublisher()
 
         let statePublisher = Publishers.CombineLatest4(
-            _walletModelData.compactMap { $0 },
-            yieldModuleNetworkManager.marketsPublisher.removeDuplicates(),
-            pendingTransactionsPublisher,
-            yieldContractPublisher
+            _walletModelData.compactMap { $0 }.handleEvents(receiveOutput: { walletModelData in
+                AppLogger.debug("New walletModelData: \(walletModelData)")
+            }),
+            yieldModuleNetworkManager.marketsPublisher.removeDuplicates().handleEvents(receiveOutput: { markets in
+                AppLogger.debug("New markets: \(markets)")
+            }),
+            pendingTransactionsPublisher.handleEvents(receiveOutput: { pendingTransactions in
+                AppLogger.debug("New pendingTransactions: \(pendingTransactions)")
+            }),
+            yieldContractPublisher.handleEvents(receiveOutput: { yieldContract in
+                AppLogger.debug("New yieldContract: \(yieldContract)")
+            })
         )
         .withWeakCaptureOf(self)
         .map { result -> YieldModuleManagerStateInfo in
