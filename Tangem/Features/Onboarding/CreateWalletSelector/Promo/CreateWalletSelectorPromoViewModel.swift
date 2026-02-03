@@ -1,9 +1,9 @@
 //
-//  CreateWalletSelectorViewModel.swift
+//  CreateWalletSelectorPromoViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2025 Tangem AG. All rights reserved.
+//  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
 import Foundation
@@ -14,7 +14,7 @@ import TangemLocalization
 import struct TangemUIUtils.AlertBinder
 import struct TangemUIUtils.ConfirmationDialogViewModel
 
-final class CreateWalletSelectorViewModel: ObservableObject {
+final class CreateWalletSelectorPromoViewModel: ObservableObject {
     @Published var isScanning: Bool = false
 
     @Published var scanTroubleshootingDialog: ConfirmationDialogViewModel?
@@ -23,13 +23,14 @@ final class CreateWalletSelectorViewModel: ObservableObject {
     let backButtonHeight: CGFloat = OnboardingLayoutConstants.navbarSize.height
 
     let title = Localization.commonTangemWallet
-    let description = Localization.welcomeCreateWalletHardwareDescription
-    let scanTitle = Localization.welcomeUnlockCard
-    let buyTitle = Localization.detailsBuyWallet
+    let description = Localization.welcomeCreateWalletMobileDescriptionFull
     let otherMethodTitle = Localization.commonOr
+    let hardwareWalletTitle = Localization.welcomeCreateWalletUseHardwareDescription
 
     lazy var chipItems: [ChipItem] = makeChipItems()
     lazy var mobileWalletItem: MobileWalletItem = makeMobileWalletItem()
+    lazy var buyWalletItem: BuyWalletItem = makeBuyWalletItem()
+    lazy var cardWalletItem: CardWalletItem = makeCardWalletItem()
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
@@ -52,7 +53,7 @@ final class CreateWalletSelectorViewModel: ObservableObject {
 
 // MARK: - Internal methods
 
-extension CreateWalletSelectorViewModel {
+extension CreateWalletSelectorPromoViewModel {
     func onFirstAppear() {
         logScreenOpenedAnalytics()
     }
@@ -62,31 +63,39 @@ extension CreateWalletSelectorViewModel {
             await viewModel.close()
         }
     }
-
-    func onScanTap() {
-        scanCard()
-    }
-
-    func onBuyTap() {
-        openBuyHardwareWallet()
-    }
 }
 
 // MARK: - Private methods
 
-private extension CreateWalletSelectorViewModel {
+private extension CreateWalletSelectorPromoViewModel {
     func makeChipItems() -> [ChipItem] {
         [
-            ChipItem(icon: Assets.Glyphs.checkmarkShield, title: Localization.welcomeCreateWalletFeatureClass),
-            ChipItem(icon: Assets.Glyphs.boldFlash, title: Localization.welcomeCreateWalletFeatureDelivery),
-            ChipItem(icon: Assets.Glyphs.sparkles, title: Localization.welcomeCreateWalletFeatureUse),
+            ChipItem(icon: Assets.Glyphs.checkmarkShield, title: Localization.welcomeCreateWalletFeatureSeamless),
+            ChipItem(icon: Assets.Glyphs.boldFlash, title: Localization.welcomeCreateWalletFeatureOneTap),
+            ChipItem(icon: Assets.Glyphs.stackNew, title: Localization.welcomeCreateWalletFeatureAssets),
         ]
     }
 
     func makeMobileWalletItem() -> MobileWalletItem {
         MobileWalletItem(
             title: Localization.welcomeCreateWalletMobileTitle,
-            action: weakify(self, forFunction: CreateWalletSelectorViewModel.onMobileWalletTap)
+            action: weakify(self, forFunction: CreateWalletSelectorPromoViewModel.onMobileWalletTap)
+        )
+    }
+
+    func makeBuyWalletItem() -> BuyWalletItem {
+        BuyWalletItem(
+            title: Localization.welcomeCreateWalletUseHardwareTitle,
+            action: weakify(self, forFunction: CreateWalletSelectorPromoViewModel.onBuyTap)
+        )
+    }
+
+    func makeCardWalletItem() -> CardWalletItem {
+        CardWalletItem(
+            title: Localization.walletCreateScanTitle,
+            description: Localization.welcomeCreateWalletAlreadyHave,
+            icon: Assets.tangemIcon,
+            action: weakify(self, forFunction: CreateWalletSelectorPromoViewModel.onScanTap)
         )
     }
 
@@ -97,11 +106,19 @@ private extension CreateWalletSelectorViewModel {
         }
         openCreateMobileWallet()
     }
+
+    func onBuyTap() {
+        openBuyHardwareWallet()
+    }
+
+    func onScanTap() {
+        scanCard()
+    }
 }
 
 // MARK: - Card operations
 
-private extension CreateWalletSelectorViewModel {
+private extension CreateWalletSelectorPromoViewModel {
     func scanCard() {
         logScanCardTapAnalytics()
 
@@ -179,7 +196,7 @@ private extension CreateWalletSelectorViewModel {
 
 // MARK: - Navigation
 
-private extension CreateWalletSelectorViewModel {
+private extension CreateWalletSelectorPromoViewModel {
     func openCreateMobileWallet() {
         logCreateNewWalletAnalytics()
         coordinator?.openCreateMobileWallet()
@@ -227,7 +244,7 @@ private extension CreateWalletSelectorViewModel {
 
 // MARK: - Helpers
 
-private extension CreateWalletSelectorViewModel {
+private extension CreateWalletSelectorPromoViewModel {
     func scanCardTryAgain() {
         logScanCardTryAgainAnalytics()
         scanCard()
@@ -260,7 +277,7 @@ private extension CreateWalletSelectorViewModel {
 
 // MARK: - Analytics
 
-private extension CreateWalletSelectorViewModel {
+private extension CreateWalletSelectorPromoViewModel {
     func logScreenOpenedAnalytics() {
         Analytics.log(.introductionProcessCreateWalletIntroScreenOpened)
     }
@@ -316,13 +333,25 @@ private extension CreateWalletSelectorViewModel {
 
 // MARK: - Types
 
-extension CreateWalletSelectorViewModel {
+extension CreateWalletSelectorPromoViewModel {
     struct ChipItem: Hashable {
         let icon: ImageType
         let title: String
     }
 
     struct MobileWalletItem {
+        let title: String
+        let action: () -> Void
+    }
+
+    struct CardWalletItem {
+        let title: String
+        let description: String
+        let icon: ImageType
+        let action: () -> Void
+    }
+
+    struct BuyWalletItem {
         let title: String
         let action: () -> Void
     }
