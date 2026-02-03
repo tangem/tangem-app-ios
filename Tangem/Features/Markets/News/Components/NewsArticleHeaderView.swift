@@ -11,7 +11,7 @@ import TangemAssets
 import TangemUI
 
 struct NewsArticleHeaderView: View {
-    let article: NewsDetailsViewModel.ArticleModel
+    let article: NewsArticleModel
     var onShareTap: (() -> Void)?
 
     var body: some View {
@@ -50,6 +50,6 @@ struct NewsArticleHeaderView: View {
     private var tagsSection: some View {
         let chips = article.categories.map { InfoChipItem(id: String($0.id), title: $0.name) }
             + article.relatedTokens.map { InfoChipItem(id: $0.id, title: $0.symbol, leadingIcon: .url($0.iconURL)) }
-        return InfoChipsRowView(chips: chips)
+        return InfoChipsRowView(chips: chips, lineLimit: nil)
     }
 }
