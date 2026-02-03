@@ -72,7 +72,6 @@ struct TrendingCardNewsView: View {
             FixedSpacer(height: Layout.Spacing.afterTrendingBadge)
 
             Text(item.title)
-                .lineLimit(2)
                 .multilineTextAlignment(.center)
                 .style(Fonts.Bold.title3, color: Colors.Text.primary1)
                 .skeletonable(isShown: itemState.isLoading, radius: Layout.Skeleton.cornerRadius)
@@ -84,7 +83,7 @@ struct TrendingCardNewsView: View {
 
             FixedSpacer(height: Layout.Spacing.afterRating)
 
-            InfoChipsView(chips: item.tags)
+            InfoChipsRowView(chips: item.tags, alignment: .center)
                 .skeletonable(isShown: itemState.isLoading, radius: Layout.Skeleton.cornerRadius)
         }
         .infinityFrame(axis: .horizontal, alignment: .center)

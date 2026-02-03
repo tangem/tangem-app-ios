@@ -11,6 +11,14 @@ import Combine
 import BlockchainSdk
 
 final class FakeTangemApiService: TangemApiService {
+    func expressPromotion(request: ExpressPromotion.NewRequest) async throws -> ExpressPromotion.Response {
+        throw "Not implemented"
+    }
+
+    func promotion(programName: String, timeout: TimeInterval?) async throws -> PromotionParameters {
+        throw "Not implemented"
+    }
+
     private let geoIpRegionCode: String
 
     init(geoIpRegionCode: String = "us") {
@@ -72,14 +80,6 @@ final class FakeTangemApiService: TangemApiService {
     }
 
     func participateInReferralProgram(using token: AwardToken, for address: String, with userWalletId: String) async throws -> ReferralProgramInfo {
-        throw "Not implemented"
-    }
-
-    func expressPromotion(request: ExpressPromotion.Request) async throws -> ExpressPromotion.Response {
-        throw "Not implemented"
-    }
-
-    func promotion(programName: String, timeout: TimeInterval?) async throws -> PromotionParameters {
         throw "Not implemented"
     }
 
@@ -227,7 +227,19 @@ final class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
+    func loadNewsDetails(requestModel: NewsDTO.Details.Request) async throws -> NewsDTO.Details.Response {
+        throw "Not implemented"
+    }
+
     func loadNewsCategories() async throws -> NewsDTO.Categories.Response {
+        throw "Not implemented"
+    }
+
+    func bindReferral(request model: ReferralDTO.Request) async throws {
+        throw "Not implemented"
+    }
+
+    func loadEarnYieldMarkets(requestModel: EarnDTO.List.Request) async throws -> EarnDTO.List.Response {
         throw "Not implemented"
     }
 }

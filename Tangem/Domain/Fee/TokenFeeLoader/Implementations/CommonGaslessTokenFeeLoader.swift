@@ -29,7 +29,7 @@ extension CommonGaslessTokenFeeLoader: TokenFeeLoader {
             throw TokenFeeLoaderError.gaslessEthereumTokenFeeSupportOnlyTokenAsFeeTokenItem
         }
 
-        guard let feeRecipientAddress = networkManager.feeRecipientAddress else {
+        guard let feeRecipientAddress = await networkManager.feeRecipientAddress else {
             throw TokenFeeLoaderError.missingFeeRecipientAddress
         }
 
@@ -61,7 +61,7 @@ extension CommonGaslessTokenFeeLoader: TokenFeeLoader {
             throw TokenFeeLoaderError.gaslessEthereumTokenFeeSupportOnlyTokenAsFeeTokenItem
         }
 
-        guard let feeRecipientAddress = networkManager.feeRecipientAddress else {
+        guard let feeRecipientAddress = await networkManager.feeRecipientAddress else {
             throw TokenFeeLoaderError.missingFeeRecipientAddress
         }
 

@@ -62,6 +62,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var mobileUpgradeCoordinator: MobileUpgradeCoordinator? = nil
     @Published var tangemPayMainCoordinator: TangemPayMainCoordinator?
     @Published var tangemPayOnboardingCoordinator: TangemPayOnboardingCoordinator?
+    @Published var mobileBackupTypesCoordinator: MobileBackupTypesCoordinator?
 
     // MARK: - Child view models
 
@@ -115,8 +116,10 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
         swipeDiscoveryHelper.delegate = viewModel
         mainViewModel = viewModel
 
-        mobileFinishActivationManager.observe(
-            userWalletId: options.userWalletModel.userWalletId,
+        let userWalletModel = options.userWalletModel
+        mobileFinishActivationManager.observeUserWallet(
+            id: userWalletModel.userWalletId,
+            config: userWalletModel.config,
             onActivation: weakify(self, forFunction: MainCoordinator.openMobileFinishActivation)
         )
 
@@ -283,6 +286,14 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         yieldModuleActiveCoordinator = coordinator
     }
 
+    func openCloreMigration(walletModel: any WalletModel) {
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(
+                sheet: CommonCloreMigrationModuleFlowFactory(walletModel: walletModel, coordinator: self).makeCloreMigrationViewModel()
+            )
+        }
+    }
+
     func openTokenDetails(for walletModel: any WalletModel, userWalletModel: UserWalletModel) {
         mainBottomSheetUIManager.hide()
 
@@ -373,35 +384,41 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
     }
 
     func openTangemPayIssuingYourCardPopup() {
-        let viewModel = TangemPayYourCardIsIssuingSheetViewModel(coordinator: self)
         Task { @MainActor in
+            let viewModel = TangemPayYourCardIsIssuingSheetViewModel(
+                coordinator: self
+            )
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
 
     func openTangemPayKYCInProgressPopup(tangemPayManager: TangemPayManager) {
-        let viewModel = TangemPayKYCStatusPopupViewModel(
-            tangemPayManager: tangemPayManager,
-            coordinator: self
-        )
         Task { @MainActor in
+            let viewModel = TangemPayKYCStatusPopupViewModel(
+                tangemPayManager: tangemPayManager,
+                coordinator: self
+            )
+
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
 
     func openTangemPayKYCDeclinedPopup(tangemPayManager: TangemPayManager) {
-        let viewModel = TangemPayKYCDeclinedPopupViewModel(
-            tangemPayManager: tangemPayManager,
-            coordinator: self
-        )
         Task { @MainActor in
+            let viewModel = TangemPayKYCDeclinedPopupViewModel(
+                tangemPayManager: tangemPayManager,
+                coordinator: self
+            )
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
 
     func openTangemPayFailedToIssueCardPopup(userWalletModel: UserWalletModel) {
-        let viewModel = TangemPayFailedToIssueCardSheetViewModel(userWalletModel: userWalletModel, coordinator: self)
         Task { @MainActor in
+            let viewModel = TangemPayFailedToIssueCardSheetViewModel(
+                userWalletModel: userWalletModel,
+                coordinator: self
+            )
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
@@ -416,6 +433,14 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
 
         coordinator.start(with: .init(userWalletInfo: userWalletInfo, tangemPayAccount: tangemPayAccount))
         tangemPayMainCoordinator = coordinator
+    }
+}
+
+// MARK: - CloreMigrationRoutable
+
+extension MainCoordinator: CloreMigrationRoutable {
+    func openURLInSystemBrowser(url: URL) {
+        UIApplication.shared.open(url)
     }
 }
 
@@ -854,7 +879,8 @@ extension MainCoordinator {
         case externalLink(url: URL)
         case market
         case onboardVisa(deeplinkString: String)
-        case promo(code: String)
+        case newsDetails(newsId: Int)
+        case promo(code: String, refcode: String?, campaign: String?)
     }
 }
 
@@ -865,6 +891,22 @@ extension MainCoordinator: MobileFinishActivationNeededRoutable {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
         }
+    }
+
+    func openMobileBackup(userWalletModel: UserWalletModel) {
+        mainBottomSheetUIManager.hide()
+
+        let dismissAction: Action<MobileBackupTypesCoordinator.OutputOptions> = { [weak self] options in
+            switch options {
+            case .main:
+                self?.mobileBackupTypesCoordinator = nil
+            }
+        }
+
+        let inputOptions = MobileBackupTypesCoordinator.InputOptions(userWalletModel: userWalletModel, mode: .activate)
+        let coordinator = MobileBackupTypesCoordinator(dismissAction: dismissAction)
+        coordinator.start(with: inputOptions)
+        mobileBackupTypesCoordinator = coordinator
     }
 
     func openMobileBackupOnboarding(userWalletModel: UserWalletModel) {

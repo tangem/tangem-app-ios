@@ -22,7 +22,7 @@ struct GaslessTransactionBuilder {
 
     // MARK: - Public Implementation
 
-    func buildGaslessTransaction(bsdkTransaction: BSDKTransaction) async throws -> GaslessTransaction {
+    func buildGaslessTransaction(bsdkTransaction: BSDKTransaction, feeRecipientAddress: String) async throws -> GaslessTransaction {
         guard let chainId = walletModel.tokenItem.blockchain.chainId else {
             throw GaslessTransactionBuilderError.missingChainId
         }
@@ -30,14 +30,15 @@ struct GaslessTransactionBuilder {
         let transaction = try await makeTransaction(from: bsdkTransaction)
         let smartContractNonce = try await getSmartContractNonce(address: walletModel.defaultAddressString)
 
-        let feeData = try await makeGaslessTransactionFee(bsdkFee: bsdkTransaction.fee)
+        let feeData = try await makeGaslessTransactionFee(bsdkFee: bsdkTransaction.fee, feeRecipientAddress: feeRecipientAddress)
         let transactionData = TransactionData(transaction: transaction, fee: feeData, nonce: smartContractNonce)
 
         let signedData = try await makeSignedGaslessData(
             transaction: transaction,
             fee: feeData,
             chainId: chainId,
-            smartContractNonce: smartContractNonce
+            smartContractNonce: smartContractNonce,
+            feeRecipientAddress: feeRecipientAddress
         )
 
         return GaslessTransaction(
@@ -67,6 +68,7 @@ struct GaslessTransactionBuilder {
         fee: GaslessTransactionFee,
         chainId: Int,
         smartContractNonce: String,
+        feeRecipientAddress: String
     ) async throws -> SignedData {
         let eip7702Data = try await getEIP7702Data()
 
@@ -134,13 +136,13 @@ struct GaslessTransactionBuilder {
             fee: fee,
             nonce: nonce,
             chainId: chainId,
-            verifyingContract: walletModel.defaultAddress.value
+            verifyingContract: walletModel.defaultAddress.value,
         )
 
         return typedData.signHash
     }
 
-    private func makeGaslessTransactionFee(bsdkFee: BSDKFee) async throws -> GaslessTransactionFee {
+    private func makeGaslessTransactionFee(bsdkFee: BSDKFee, feeRecipientAddress: String) async throws -> GaslessTransactionFee {
         guard let parameters = bsdkFee.parameters as? EthereumGaslessTransactionFeeParameters else {
             throw GaslessTransactionBuilderError.invalidFeeParameters
         }
@@ -152,16 +154,17 @@ struct GaslessTransactionBuilder {
         }
 
         let maxTokenFeeInTokenUnits = (bsdkFee.amount.value * token.decimalValue).intValue(roundingMode: .up).description
-        var coinPriceInTokenUnits = (parameters.nativeToFeeTokenRate * token.decimalValue)
-
-        coinPriceInTokenUnits *= 1.01
+        let bufferedCoinPriceInTokenUnits = (parameters.bufferedNativeToFeeTokenRate * token.decimalValue).intValue(roundingMode: .up).description
+        let feeTransferGasLimit = parameters.feeTokenTransferGasLimit.description
+        let baseGas = EthereumFeeParametersConstants.gaslessBaseGasBuffer.description
 
         return GaslessTransactionFee(
             feeToken: token.contractAddress,
             maxTokenFee: maxTokenFeeInTokenUnits,
-            coinPriceInToken: coinPriceInTokenUnits.intValue(roundingMode: .up).description,
-            feeTransferGasLimit: parameters.feeTokenTransferGasLimit.description,
-            baseGas: Constants.baseGas
+            coinPriceInToken: bufferedCoinPriceInTokenUnits,
+            feeTransferGasLimit: feeTransferGasLimit,
+            baseGas: baseGas,
+            feeReceiver: feeRecipientAddress
         )
     }
 
@@ -179,14 +182,6 @@ struct GaslessTransactionBuilder {
         }
 
         return try await networkProvider.getSmartContractNonce(for: address).async().description
-    }
-}
-
-// MARK: - Constants
-
-extension GaslessTransactionBuilder {
-    enum Constants {
-        static let baseGas = "100000"
     }
 }
 

@@ -13,9 +13,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%@ Karte</string>
+        <string>%li Karte</string>
         <key>other</key>
-        <string>%@ Karten</string>
+        <string>%li Karten</string>
       </dict>
     </dict>
     <key>card_label_card_count</key>
@@ -77,9 +77,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%1$@ Netzwerk</string>
+        <string>%li Netzwerk</string>
         <key>other</key>
-        <string>%1$@ Netzwerke</string>
+        <string>%li Netzwerke</string>
       </dict>
     </dict>
     <key>common_tokens_count</key>

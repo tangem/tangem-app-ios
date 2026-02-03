@@ -142,8 +142,14 @@ protocol WalletModelHelpers {
 // MARK: - Fee
 
 protocol WalletModelFeesProvider {
-    var tokenFeeLoader: any TokenFeeLoader { get }
     var customFeeProvider: (any CustomFeeProvider)? { get }
+    func makeTokenFeeLoader(for tokenItem: TokenItem) -> any TokenFeeLoader
+}
+
+extension WalletModelFeesProvider where Self: WalletModel {
+    func makeTokenFeeLoader() -> any TokenFeeLoader {
+        makeTokenFeeLoader(for: tokenItem)
+    }
 }
 
 protocol WalletModelFeeProvider {
@@ -178,7 +184,7 @@ protocol WalletModelDependenciesProvider {
     // MARK: - Gasless Transactions
 
     var ethereumGaslessTransactionFeeProvider: (any GaslessTransactionFeeProvider)? { get }
-    var ethereumGaslessTransactionBroadcaster: (any EthereumGaslessTransactionBroadcaster)? { get }
+    var pendingTransactionRecordAdder: (any PendingTransactionRecordAdding)? { get }
 }
 
 // MARK: - Tx history

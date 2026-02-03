@@ -57,6 +57,7 @@ final class CommonExpandableAccountItemStateStorageProvider {
                 .accountModelsManager
                 .accountModelsPublisher
                 .map { $0.cryptoAccounts() }
+                .prepend([]) // Triggers initial `pairwise` call
                 .pairwise()
                 .withWeakCaptureOf(self)
                 .sink { storage, input in
@@ -133,7 +134,7 @@ final class CommonExpandableAccountItemStateStorageProvider {
 
     private func handleUserWalletRepositoryEvent(_ event: UserWalletRepositoryEvent) {
         switch event {
-        case .deleted(let userWalletIds):
+        case .deleted(let userWalletIds, _):
             handleDeletedUserWalletModelsWithIdentifiers(userWalletIds)
         case .unlocked:
             subscribeToUserWalletModelsIfNeeded(userWalletRepository.models)

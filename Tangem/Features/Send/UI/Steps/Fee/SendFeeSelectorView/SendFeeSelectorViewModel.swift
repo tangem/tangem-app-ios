@@ -28,7 +28,7 @@ final class SendFeeSelectorViewModel: ObservableObject, FloatingSheetContentView
     private(set) var feeSelectorViewModel: FeeSelectorViewModel
 
     @Published
-    private(set) var isMainButtonDisabled = false
+    private(set) var isMainButtonEnabled = false
 
     // MARK: - Dependencies
 
@@ -75,11 +75,12 @@ final class SendFeeSelectorViewModel: ObservableObject, FloatingSheetContentView
             .assign(to: &$state)
 
         feeSelectorViewModel
-            .interactor
-            .feeCoveragePublisher
+            .selectedFeeStateWithCoveragePublisher
             .receiveOnMain()
-            .map { !$0.isCovered }
-            .assign(to: &$isMainButtonDisabled)
+            .map { feeState, coverage in
+                feeState.isAvailable && coverage.isCovered
+            }
+            .assign(to: &$isMainButtonEnabled)
     }
 }
 
@@ -171,8 +172,10 @@ extension SendFeeSelectorViewModel {
             attr.foregroundColor = Colors.Text.tertiary
 
             if let range = attr.range(of: Localization.commonLearnMore) {
-                attr[range].foregroundColor = Colors.Text.accent
-                attr[range].link = URL(string: " ")
+                // Temporarily replace with an empty string because the final URL isn't ready yet
+                attr.replaceSubrange(range, with: AttributedString(""))
+//                attr[range].foregroundColor = Colors.Text.accent
+//                attr[range].link = URL(string: " ")
             }
 
             return attr

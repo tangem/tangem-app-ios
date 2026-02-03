@@ -30,12 +30,16 @@ final class UserWalletSettingsViewModel: ObservableObject {
     @Published private(set) var walletImage: Image?
 
     @Published var accountsViewModel: UserSettingsAccountsViewModel?
-    @Published var mobileUpgradeNotificationInput: NotificationViewInput?
+    @Published var mobileUpgradeNotificationInput: NotificationViewInput? // [REDACTED_TODO_COMMENT]
     @Published var mobileAccessCodeViewModel: DefaultRowViewModel?
     @Published var backupViewModel: DefaultRowViewModel?
 
     var commonSectionModels: [DefaultRowViewModel] {
         [mobileBackupViewModel, manageTokensViewModel, cardSettingsViewModel, referralViewModel].compactMap { $0 }
+    }
+
+    var isMobileUpgradeAvailable: Bool {
+        FeatureProvider.isAvailable(.mobileWallet) && userWalletModel.config.hasFeature(.userWalletUpgrade)
     }
 
     @Published var nftViewModel: DefaultToggleRowViewModel?
@@ -44,7 +48,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
     @Published var forgetViewModel: DefaultRowViewModel?
 
     @Published var alert: AlertBinder?
-    @Published var confirmationDialog: ConfirmationDialogViewModel?
+    @Published var forgetWalletConfirmationDialog: ConfirmationDialogViewModel?
 
     // MARK: - Private
 
@@ -182,6 +186,12 @@ final class UserWalletSettingsViewModel: ObservableObject {
             message: Localization.accountAddLimitDialogDescription(AccountModelUtils.maxNumberOfAccounts),
             buttonText: Localization.commonGotIt
         )
+    }
+
+    func mobileUpgradeTap() {
+        runTask(in: self) { viewModel in
+            await viewModel.openMobileUpgrade()
+        }
     }
 }
 
@@ -437,7 +447,7 @@ private extension UserWalletSettingsViewModel {
             }
         )
 
-        confirmationDialog = ConfirmationDialogViewModel(
+        forgetWalletConfirmationDialog = ConfirmationDialogViewModel(
             title: Localization.userWalletListDeletePrompt,
             buttons: [
                 deleteButton,
@@ -553,7 +563,8 @@ private extension UserWalletSettingsViewModel {
             userWalletId: userWalletModel.userWalletId.value,
             supportedBlockchains: userWalletModel.config.supportedBlockchains,
             workMode: workMode,
-            tokenIconInfoBuilder: TokenIconInfoBuilder()
+            tokenIconInfoBuilder: TokenIconInfoBuilder(),
+            userWalletModel: userWalletModel
         )
 
         coordinator?.openReferral(input: input)
@@ -602,6 +613,11 @@ private extension UserWalletSettingsViewModel {
             onContinue: weakify(self, forFunction: UserWalletSettingsViewModel.onMobileBackupToUpgradeComplete)
         ))
         coordinator?.openOnboardingModal(with: .mobileInput(input))
+    }
+
+    @MainActor
+    func openMobileUpgrade() {
+        coordinator?.openHardwareBackupTypes(userWalletModel: userWalletModel)
     }
 
     @MainActor

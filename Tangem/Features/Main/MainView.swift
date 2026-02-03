@@ -50,7 +50,6 @@ struct MainView: View {
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .ignoresSafeArea(.keyboard)
         .tangemLogoNavigationToolbar(trailingItem: detailsNavigationButton)
-        .confirmationDialog(viewModel: $viewModel.confirmationDialog)
     }
 
     private var detailsNavigationButton: some View {
