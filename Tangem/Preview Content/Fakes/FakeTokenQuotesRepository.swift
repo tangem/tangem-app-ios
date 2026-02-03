@@ -10,6 +10,17 @@ import Foundation
 import Combine
 
 class FakeTokenQuotesRepository: TokenQuotesRepository, TokenQuotesRepositoryUpdater {
+    func fetchFreshQuoteFor(currencyId: String, shouldUpdateCache: Bool) async throws -> TokenQuote {
+        await TokenQuote(
+            currencyId: currencyId,
+            price: 1,
+            priceChange24h: 3.3,
+            priceChange7d: 43.3,
+            priceChange30d: 93.3,
+            currencyCode: AppSettings.shared.selectedCurrencyCode
+        )
+    }
+
     var quotes: Quotes {
         currentQuotes.value
     }
