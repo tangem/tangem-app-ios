@@ -127,22 +127,35 @@ extension CommonYieldModuleNetworkManager: YieldModuleNetworkManager {
 
 private extension CommonYieldModuleNetworkManager {
     func bind() {
-        userWalletRepository.eventProvider
-            .filter {
-                switch $0 {
-                case .inserted, .unlocked:
-                    true
-                default:
-                    false
-                }
-            }
+        // Observe all user wallet models
+        let allUserWalletModelsPublisher = userWalletRepository.eventProvider
             .withWeakCaptureOf(self)
             .map { manager, _ in
                 manager.userWalletRepository.models
             }
+            .prepend(userWalletRepository.models) // start with current state
+
+        // Observe token changes across all wallets / accounts
+        let allWalletModelsPublisher = allUserWalletModelsPublisher
             .map { userWalletModels in
                 userWalletModels.map { userWalletModel in
-                    AccountsFeatureAwareWalletModelsResolver.walletModelsPublisher(for: userWalletModel)
+                    userWalletModel
+                        .accountModelsManager
+                        .cryptoAccountModelsPublisher
+                        .flatMapLatest { cryptoAccounts -> AnyPublisher<[any WalletModel], Never> in
+                            guard !cryptoAccounts.isEmpty else {
+                                return userWalletModel.walletModelsManager.walletModelsPublisher
+                            }
+
+                            let walletModelsPublishers = cryptoAccounts.map(\.walletModelsManager.walletModelsPublisher)
+
+                            return walletModelsPublishers.combineLatest()
+                                .map { walletModelsArrays in
+                                    walletModelsArrays.flatMap { $0 }
+                                }
+                                .eraseToAnyPublisher()
+                        }
+                        .eraseToAnyPublisher()
                 }
             }
             .flatMapLatest { publishers -> AnyPublisher<[any WalletModel], Never> in
@@ -154,6 +167,9 @@ private extension CommonYieldModuleNetworkManager {
                     .map { $0.flatMap { $0 } }
                     .eraseToAnyPublisher()
             }
+
+        // Detect EVM blockchain additions
+        allWalletModelsPublisher
             .pairwise()
             .receiveOnMain()
             .sink { [weak self] value in
