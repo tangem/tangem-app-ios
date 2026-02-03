@@ -18,7 +18,8 @@ protocol WalletConnectDAppConnectionRequestAnalyticsLogger {
         accountAnalyticsProviding: (any AccountModelAnalyticsProviding)?
     )
 
-    func logConnectButtonTapped()
+    /// `accountAnalyticsProviding`  should become non-optional when account migration is complete ([REDACTED_INFO])
+    func logConnectButtonTapped(dAppName: String, accountAnalyticsProviding: (any AccountModelAnalyticsProviding)?)
     func logCancelButtonTapped()
 
     func logDAppConnected(with dAppData: WalletConnectDAppData, verificationStatus: WalletConnectDAppVerificationStatus)
