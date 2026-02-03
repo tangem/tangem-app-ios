@@ -76,7 +76,7 @@ private extension TokenFeeProvidersManagerBuilder {
             feeTokenItem: feeWalletModel.tokenItem,
             supportingOptions: supportingOptions,
             availableTokenBalanceProvider: feeWalletModel.availableBalanceProvider,
-            tokenFeeLoader: walletModel.tokenFeeLoader,
+            tokenFeeLoader: walletModel.makeTokenFeeLoader(),
             customFeeProvider: feeWalletModel.customFeeProvider
         )
     }

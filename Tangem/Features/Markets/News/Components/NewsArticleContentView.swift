@@ -11,15 +11,15 @@ import TangemAssets
 import TangemUI
 
 struct NewsArticleContentView<AdditionalContent: View>: View {
-    let article: NewsDetailsViewModel.ArticleModel
-    let onSourceTap: (NewsDetailsViewModel.Source) -> Void
+    let article: NewsArticleModel
+    let onSourceTap: (NewsSource) -> Void
     let onShareTap: (() -> Void)?
     let bottomPadding: CGFloat
     let additionalContent: AdditionalContent
 
     init(
-        article: NewsDetailsViewModel.ArticleModel,
-        onSourceTap: @escaping (NewsDetailsViewModel.Source) -> Void,
+        article: NewsArticleModel,
+        onSourceTap: @escaping (NewsSource) -> Void,
         onShareTap: (() -> Void)? = nil,
         bottomPadding: CGFloat = 32,
         @ViewBuilder additionalContent: () -> AdditionalContent = { EmptyView() }
