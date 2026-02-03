@@ -25,8 +25,11 @@ struct EarnModelMapper {
             name: response.token.name,
             symbol: response.token.symbol,
             imageUrl: iconBuilder.tokenIconURL(id: response.token.id),
+            networkId: response.networkId,
             networkName: response.networkId.capitalized,
             networkImageUrl: iconBuilder.tokenIconURL(id: response.networkId),
+            contractAddress: response.token.address,
+            decimalCount: response.token.decimalCount,
             rateValue: rateValue,
             rateType: rateType,
             earnType: earnType
