@@ -11,7 +11,7 @@ import TangemAssets
 import TangemUI
 
 struct SendAmountFinishSmallAmountView: View {
-    @ObservedObject var viewModel: SendAmountFinishSmallAmountViewModel
+    let viewModel: SendAmountFinishSmallAmountViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
