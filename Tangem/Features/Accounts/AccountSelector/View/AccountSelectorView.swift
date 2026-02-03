@@ -63,11 +63,12 @@ private extension AccountSelectorView {
 
     func walletCell(for wallet: AccountSelectorWalletItem) -> some View {
         ZStack {
-            Button(
-                action: { viewModel.handleViewAction(.selectItem(.wallet(wallet))) },
-                label: { AccountSelectorWalletCellView(walletModel: wallet) }
+            AccountSelectorWalletCellButtonView(
+                walletModel: wallet,
+                onTap: {
+                    viewModel.handleViewAction(.selectItem(.wallet(wallet)))
+                }
             )
-            .buttonStyle(.plain)
 
             cellSelectionBorder(for: .wallet(wallet))
         }
@@ -126,7 +127,12 @@ private extension AccountSelectorView {
                 sectionHeader(Localization.commonLockedWallets)
 
                 ForEach(viewModel.lockedWalletItems) {
-                    AccountSelectorWalletCellView(walletModel: $0)
+                    AccountSelectorWalletCellButtonView(
+                        walletModel: $0,
+                        onTap: {
+                            // No-op for locked wallets
+                        }
+                    )
                 }
             }
         }
