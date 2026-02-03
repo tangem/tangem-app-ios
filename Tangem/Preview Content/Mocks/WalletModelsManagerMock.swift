@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-class WalletModelsManagerMock: WalletModelsManager {
+final class WalletModelsManagerMock: WalletModelsManager {
     private(set) var isInitialized = false
     var walletModels: [any WalletModel] { [CommonWalletModel.mockETH] }
     var walletModelsPublisher: AnyPublisher<[any WalletModel], Never> { .just(output: walletModels) }
@@ -19,4 +19,6 @@ class WalletModelsManagerMock: WalletModelsManager {
     func initialize() {
         isInitialized = true
     }
+
+    func dispose() {}
 }
