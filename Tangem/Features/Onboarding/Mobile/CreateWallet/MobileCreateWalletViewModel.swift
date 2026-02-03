@@ -200,12 +200,14 @@ private extension MobileCreateWalletViewModel {
     }
 
     func logWalletCreatedAnalytics() {
-        let params: [Analytics.ParameterKey: String] = [
+        var params: [Analytics.ParameterKey: String] = [
             .creationType: Analytics.ParameterValue.walletCreationTypeNewSeed.rawValue,
             .seedLength: Constants.seedPhraseLength,
             .passphrase: Analytics.ParameterValue.empty.rawValue,
             .source: source.analyticsParameterValue.rawValue,
         ]
+
+        params.enrich(with: ReferralAnalyticsHelper().getReferralParams())
 
         Analytics.log(
             event: .walletCreatedSuccessfully,
