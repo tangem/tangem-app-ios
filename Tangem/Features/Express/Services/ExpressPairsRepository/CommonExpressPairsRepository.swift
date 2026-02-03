@@ -8,12 +8,13 @@
 
 import Combine
 import TangemExpress
+import TangemFoundation
 
 actor CommonExpressPairsRepository {
     @Injected(\.userWalletRepository)
     private var userWalletRepository: UserWalletRepository
 
-    private var providers: [UserWalletInfo: any ExpressAPIProvider] = [:]
+    private var providers: [UserWalletId: any ExpressAPIProvider] = [:]
     private var pairs: Set<ExpressPair> = []
 
     private var userCurrencies: Set<ExpressWalletCurrency> {
@@ -23,10 +24,10 @@ actor CommonExpressPairsRepository {
         return walletModels.map { $0.tokenItem.expressCurrency }.toSet()
     }
 
-    init() {}
-
     private func provider(userWalletInfo: UserWalletInfo) -> any ExpressAPIProvider {
-        if let provider = providers[userWalletInfo] {
+        let key = userWalletInfo.id
+
+        if let provider = providers[key] {
             return provider
         }
 
@@ -35,7 +36,7 @@ actor CommonExpressPairsRepository {
             refcode: userWalletInfo.refcode
         )
 
-        providers[userWalletInfo] = provider
+        providers[key] = provider
         return provider
     }
 }
