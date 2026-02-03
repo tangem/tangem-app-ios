@@ -88,8 +88,8 @@ extension MainCoordinator {
                 return false
             }
 
-            let refcode = params.refcode
-            let campaign = params.campaign
+            let refcode = params.refcode?.nilIfEmpty
+            let campaign = params.campaign?.nilIfEmpty
 
             coordinator.openDeepLink(.promo(code: promoCode, refcode: refcode, campaign: campaign))
             return true
