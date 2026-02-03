@@ -15,8 +15,11 @@ struct EarnTokenModel: Identifiable, Hashable {
     let name: String
     let symbol: String
     let imageUrl: URL?
+    let networkId: String
     let networkName: String
     let networkImageUrl: URL?
+    let contractAddress: String?
+    let decimalCount: Int?
     let rateValue: Decimal
     let rateType: RateType
     let earnType: EarnType
