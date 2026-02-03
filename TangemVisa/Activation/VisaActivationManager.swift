@@ -378,7 +378,7 @@ extension CommonVisaActivationManager: CardActivationTaskDelegate {
     /// Send signed authorization challenge to BFF to acquire authorization tokens. Loaded tokens will be stored in tokens handler
     /// - Parameters:
     ///   - signedAuthorizationChallenge: The signed authorization challenge used to load access token that will be used to access BFF.
-    ///   - completion: Completion handler returning Void if authorization was successfull and error otherwise
+    ///   - completion: Completion handler returning Void if authorization was successful and error otherwise
     func processAuthorizationChallenge(
         signedAuthorizationChallenge: AttestCardKeyResponse,
         completion: @escaping (Result<Void, Error>) -> Void
