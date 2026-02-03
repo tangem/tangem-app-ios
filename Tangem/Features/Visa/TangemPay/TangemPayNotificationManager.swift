@@ -17,19 +17,27 @@ final class TangemPayNotificationManager {
     private let notificationInputsSubject = CurrentValueSubject<[NotificationViewInput], Never>([])
     private var cancellable: Cancellable?
 
+    /// - Note: Workaround to avoid retain cycle for `UserWalletModel` instance in the Combine pipeline
+    private var syncNeededTitle: String {
+        userWalletModel.tangemPayAuthorizingInteractor.syncNeededTitle
+    }
+
+    /// - Note: Workaround to avoid retain cycle for `UserWalletModel` instance in the Combine pipeline
+    private var mainButtonIcon: MainButton.Icon? {
+        let provider = CommonTangemIconProvider(config: userWalletModel.config)
+
+        return provider.getMainButtonIcon()
+    }
+
     init(userWalletModel: UserWalletModel) {
         self.userWalletModel = userWalletModel
 
-        cancellable = userWalletModel.tangemPayManager.statePublisher
-            .map { state in
-                state.asNotificationEvent(
-                    syncNeededTitle: userWalletModel.tangemPayAuthorizingInteractor.syncNeededTitle,
-                    icon: CommonTangemIconProvider(config: userWalletModel.config).getMainButtonIcon()
-                )
-            }
+        cancellable = userWalletModel
+            .tangemPayManager
+            .statePublisher
             .withWeakCaptureOf(self)
-            .map { manager, event in
-                if let event {
+            .map { manager, state in
+                if let event = state.asNotificationEvent(syncNeededTitle: manager.syncNeededTitle, icon: manager.mainButtonIcon) {
                     [manager.makeNotificationViewInput(event: event)]
                 } else {
                     []
