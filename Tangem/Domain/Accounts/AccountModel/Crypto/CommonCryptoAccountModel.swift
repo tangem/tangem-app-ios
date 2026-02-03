@@ -173,6 +173,14 @@ extension CommonCryptoAccountModel: BalanceProvidingAccountModel {
     }
 }
 
+// MARK: - DisposableEntity protocol conformance
+
+extension CommonCryptoAccountModel: DisposableEntity {
+    nonisolated func dispose() {
+        walletModelsManager.dispose()
+    }
+}
+
 // MARK: - CustomStringConvertible protocol conformance
 
 extension CommonCryptoAccountModel: CustomStringConvertible {
