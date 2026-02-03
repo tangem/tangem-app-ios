@@ -24,7 +24,7 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
 
     private var selectedUserWallet: any UserWalletModel
     private var userWalletIDToBlockchainsAvailabilityResult: [UserWalletId: WalletConnectDAppBlockchainsAvailabilityResult]
-    private var userAccountIdToBlockchainsAvailabilityResult: [String: WalletConnectDAppBlockchainsAvailabilityResult]
+    private var accountCacheKeyToBlockchainsAvailabilityResult: [AccountCacheKey: WalletConnectDAppBlockchainsAvailabilityResult]
     private var selectedAccount: (any CryptoAccountModel)?
     private var hasMultipleAccounts: Bool = false
 
@@ -70,7 +70,7 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
 
         bag = []
         userWalletIDToBlockchainsAvailabilityResult = [:]
-        userAccountIdToBlockchainsAvailabilityResult = [:]
+        accountCacheKeyToBlockchainsAvailabilityResult = [:]
     }
 
     deinit {
@@ -120,7 +120,11 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
         self.selectedUserWallet = selectedUserWallet
         hasMultipleAccounts = selectedUserWallet.accountModelsManager.accountModels.cryptoAccounts().hasMultipleAccounts
 
-        let previousBlockchainsAvailabilityResult = userAccountIdToBlockchainsAvailabilityResult[selectedAccount.id.walletConnectIdentifierString]
+        let cacheKey = AccountCacheKey(
+            userWalletId: selectedUserWallet.userWalletId.stringValue,
+            accountId: selectedAccount.id.walletConnectIdentifierString
+        )
+        let previousBlockchainsAvailabilityResult = accountCacheKeyToBlockchainsAvailabilityResult[cacheKey]
         let selectedBlockchains = previousBlockchainsAvailabilityResult?.retrieveSelectedBlockchains().map(\.blockchain)
             ?? Array(loadedDAppProposal.sessionProposal.optionalBlockchains)
 
@@ -131,7 +135,7 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
             account: selectedAccount
         )
 
-        userAccountIdToBlockchainsAvailabilityResult[selectedAccount.id.walletConnectIdentifierString] = blockchainsAvailabilityResult
+        accountCacheKeyToBlockchainsAvailabilityResult[cacheKey] = blockchainsAvailabilityResult
         updateState(dAppProposal: loadedDAppProposal, blockchainsAvailabilityResult: blockchainsAvailabilityResult)
     }
 
@@ -145,7 +149,11 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
             account: selectedAccount
         )
 
-        userAccountIdToBlockchainsAvailabilityResult[selectedAccount.id.walletConnectIdentifierString] = blockchainsAvailabilityResult
+        let cacheKey = AccountCacheKey(
+            userWalletId: selectedUserWallet.userWalletId.stringValue,
+            accountId: selectedAccount.id.walletConnectIdentifierString
+        )
+        accountCacheKeyToBlockchainsAvailabilityResult[cacheKey] = blockchainsAvailabilityResult
         updateState(dAppProposal: loadedDAppProposal, blockchainsAvailabilityResult: blockchainsAvailabilityResult)
     }
 }
@@ -223,7 +231,11 @@ extension WalletConnectDAppConnectionRequestViewModel {
         )
 
         loadedDAppProposal = dAppProposal
-        userAccountIdToBlockchainsAvailabilityResult[selectedAccount.id.walletConnectIdentifierString] = blockchainsAvailabilityResult
+        let cacheKey = AccountCacheKey(
+            userWalletId: selectedUserWallet.userWalletId.stringValue,
+            accountId: selectedAccount.id.walletConnectIdentifierString
+        )
+        accountCacheKeyToBlockchainsAvailabilityResult[cacheKey] = blockchainsAvailabilityResult
 
         updateState(dAppProposal: dAppProposal, blockchainsAvailabilityResult: blockchainsAvailabilityResult)
         hapticFeedbackGenerator.successNotificationOccurred()
@@ -234,15 +246,10 @@ extension WalletConnectDAppConnectionRequestViewModel {
 
 extension WalletConnectDAppConnectionRequestViewModel {
     private func connectDApp(with proposal: WalletConnectDAppConnectionProposal, selectedBlockchains: [WalletConnectDAppBlockchain]) async {
-        analyticsLogger.logConnectButtonTapped()
-
-        if FeatureProvider.isAvailable(.accounts), let selectedAccount {
-            var params: [Analytics.ParameterKey: String] = [
-                .walletConnectDAppName: proposal.dAppData.name,
-            ]
-            selectedAccount.enrichAnalyticsParameters(&params, using: SingleAccountAnalyticsBuilder())
-            Analytics.log(event: .walletConnectButtonConnectWithAccount, params: params)
-        }
+        analyticsLogger.logConnectButtonTapped(
+            dAppName: proposal.dAppData.name,
+            accountAnalyticsProviding: selectedAccount
+        )
 
         let dAppSession: WalletConnectDAppSession
 
@@ -380,8 +387,12 @@ extension WalletConnectDAppConnectionRequestViewModel {
 
     private func handleNetworksRowTapped() {
         if FeatureProvider.isAvailable(.accounts) {
-            guard let selectedAccount,
-                  let blockchainsAvailabilityResult = userAccountIdToBlockchainsAvailabilityResult[selectedAccount.id.walletConnectIdentifierString] else { return }
+            guard let selectedAccount else { return }
+            let cacheKey = AccountCacheKey(
+                userWalletId: selectedUserWallet.userWalletId.stringValue,
+                accountId: selectedAccount.id.walletConnectIdentifierString
+            )
+            guard let blockchainsAvailabilityResult = accountCacheKeyToBlockchainsAvailabilityResult[cacheKey] else { return }
             coordinator?.openNetworksSelector(blockchainsAvailabilityResult)
         } else {
             guard let blockchainsAvailabilityResult = userWalletIDToBlockchainsAvailabilityResult[selectedUserWallet.userWalletId] else { return }
@@ -402,7 +413,8 @@ extension WalletConnectDAppConnectionRequestViewModel {
             let loadedDAppProposal,
             let blockchainsAvailabilityResult: WalletConnectDAppBlockchainsAvailabilityResult = {
                 if FeatureProvider.isAvailable(.accounts), let selectedAccount {
-                    return userAccountIdToBlockchainsAvailabilityResult[selectedAccount.id.walletConnectIdentifierString]
+                    let cacheKey = AccountCacheKey(userWalletId: selectedUserWallet.userWalletId.stringValue, accountId: selectedAccount.id.walletConnectIdentifierString)
+                    return accountCacheKeyToBlockchainsAvailabilityResult[cacheKey]
                 } else {
                     return userWalletIDToBlockchainsAvailabilityResult[selectedUserWallet.userWalletId]
                 }
@@ -623,5 +635,14 @@ private extension WalletConnectWarningNotificationViewModel {
         }
 
         return nil
+    }
+}
+
+// MARK: - Auxiliary types
+
+private extension WalletConnectDAppConnectionRequestViewModel {
+    struct AccountCacheKey: Hashable {
+        let userWalletId: String
+        let accountId: String
     }
 }

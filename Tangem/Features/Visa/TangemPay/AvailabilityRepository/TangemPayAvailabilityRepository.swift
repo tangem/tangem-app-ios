@@ -13,7 +13,7 @@ protocol TangemPayAvailabilityRepository {
     var availableUserWalletModels: [any UserWalletModel] { get }
     var isTangemPayAvailablePublisher: AnyPublisher<Bool, Never> { get }
     var isUserWalletModelsAvailable: Bool { get }
-    var isUserWalletModelsAvailblePublisher: AnyPublisher<Bool, Never> { get }
+    var isUserWalletModelsAvailablePublisher: AnyPublisher<Bool, Never> { get }
 
     var shouldShowGetTangemPay: AnyPublisher<Bool, Never> { get }
 
