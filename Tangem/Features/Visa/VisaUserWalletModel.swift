@@ -613,3 +613,12 @@ extension VisaUserWalletModel: AssociatedCardIdsProvider {
         cardInfo.associatedCardIds
     }
 }
+
+// MARK: - DisposableEntity protocol conformance
+
+extension VisaUserWalletModel: DisposableEntity {
+    func dispose() {
+        walletModelsManager.dispose()
+        accountModelsManager.dispose()
+    }
+}
