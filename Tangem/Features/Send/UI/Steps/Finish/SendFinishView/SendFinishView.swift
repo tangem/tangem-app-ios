@@ -65,7 +65,7 @@ struct SendFinishView: View {
                 .frame(width: 56, height: 56)
 
             VStack(spacing: 4) {
-                Text(Localization.sentTransactionSentTitle)
+                Text(viewModel.headerTitle)
                     .style(Fonts.Bold.title3, color: Colors.Text.primary1)
 
                 Text(transactionTime)

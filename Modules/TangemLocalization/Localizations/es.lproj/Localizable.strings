@@ -429,9 +429,13 @@
 "domain_receive_assets_onboarding_network_name" = "Red de %@";
 "domain_receive_assets_onboarding_title" = "Envíe fondos utilizando solo";
 "earn_best_opportunities" = "Las mejores oportunidades";
+"earn_clear_filter" = "Clear filter";
 "earn_filter_all_networks" = "Todas las redes";
 "earn_filter_all_types" = "Todos los tipos";
+"earn_filter_by" = "Filter by";
+"earn_filter_networks" = "Networks";
 "earn_mostly_used" = "Mayormente usado";
+"earn_no_results" = "No results";
 "earn_title" = "Ganar";
 "email_preface_wc_error" = "Hola equipo de soporte, he encontrado un error con el código: %@";
 "email_subject_wc_error" = "Error de WalletConnect";
@@ -774,7 +778,7 @@
 "news_all_news" = "Todas las noticias";
 "news_like" = "Me Gusta";
 "news_quick_recap" = "Resumen rápido";
-"news_related_news" = "Noticias relacionadas";
+"news_related_news" = "Noticias";
 "news_related_tokens" = "Tokens relacionados";
 "news_sources" = "Fuentes";
 "news_stay_in_the_loop" = "Manténgase informado";
