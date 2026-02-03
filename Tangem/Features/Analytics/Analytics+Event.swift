@@ -271,7 +271,7 @@ extension Analytics {
         case referralButtonCopyCode = "[Referral Program] Button - Copy"
         case referralButtonShareCode = "[Referral Program] Button - Share"
         case referralButtonOpenTos = "[Referral Program] Link - TaC"
-        case referralParticipateSuccessfull = "[Referral Program] Participate Successfull"
+        case referralParticipateSuccessful = "[Referral Program] Participate Successfull"
         case referralError = "[Referral Program] Referral Error"
         case referralListChooseAccount = "[Referral program / Account] List - Choose Account"
 

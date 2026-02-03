@@ -173,6 +173,15 @@ extension FakeUserWalletModel: AnalyticsContextDataProvider {
     }
 }
 
+// MARK: - DisposableEntity protocol conformance
+
+extension FakeUserWalletModel: DisposableEntity {
+    func dispose() {
+        walletModelsManager.dispose()
+        accountModelsManager.dispose()
+    }
+}
+
 extension FakeUserWalletModel {
     static let allFakeWalletModels = [
         wallet3Cards,
