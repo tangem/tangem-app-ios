@@ -709,9 +709,10 @@ extension CommonWalletModel: WalletModelTransactionHistoryProvider {
             return .just(output: .notSupported)
         }
 
-        return Publishers.Merge(
+        return Publishers.Merge3(
             _localPendingTransactionSubject.withLatestFrom(_transactionHistoryService.statePublisher),
-            _transactionHistoryService.statePublisher
+            _transactionHistoryService.statePublisher,
+            pendingTransactionPublisher.removeDuplicates().withLatestFrom(_transactionHistoryService.statePublisher)
         )
         .map { [weak self] state -> WalletModelTransactionHistoryState in
             switch state {
