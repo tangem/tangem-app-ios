@@ -405,6 +405,15 @@ extension CommonUserWalletModel: AssociatedCardIdsProvider {
     }
 }
 
+// MARK: - DisposableEntity protocol conformance
+
+extension CommonUserWalletModel: DisposableEntity {
+    func dispose() {
+        walletModelsManager.dispose()
+        accountModelsManager.dispose()
+    }
+}
+
 // MARK: - Private methods
 
 private extension CommonUserWalletModel {
