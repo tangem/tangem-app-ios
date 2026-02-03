@@ -127,4 +127,9 @@ class UserWalletModelMock: UserWalletModel {
     func update(type: UpdateRequest) {}
 
     func addAssociatedCard(cardId: String) {}
+
+    func dispose() {
+        walletModelsManager.dispose()
+        accountModelsManager.dispose()
+    }
 }
