@@ -238,11 +238,7 @@ struct WalletConnectView: View {
     }
 
     private func shouldShowWalletName(for wallet: WalletConnectViewState.ContentState.WalletWithConnectedDApps) -> Bool {
-        guard viewModel.state.shouldDisplayWalletNames else {
-            return false
-        }
-
-        return wallet.hasAccountSections || wallet.hasWalletLevelDApps
+        return viewModel.state.shouldDisplayWalletNames && wallet.hasAccountSections
     }
 
     private func dAppRowView(_ dApp: WalletConnectViewState.ContentState.ConnectedDApp) -> some View {
