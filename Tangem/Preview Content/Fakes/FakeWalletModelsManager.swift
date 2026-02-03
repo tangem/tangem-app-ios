@@ -45,4 +45,8 @@ class FakeWalletModelsManager: WalletModelsManager {
     func initialize() {
         isInitialized = true
     }
+
+    func dispose() {
+        walletModelsSubject.send([])
+    }
 }
