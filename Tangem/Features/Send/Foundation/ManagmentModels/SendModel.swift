@@ -21,7 +21,7 @@ protocol SendModelRoutable: AnyObject {
     func openAccountInitializationFlow(viewModel: BlockchainAccountInitializationViewModel)
 }
 
-class SendModel {
+final class SendModel {
     // MARK: - Data
 
     private let _sendingToken: CurrentValueSubject<SendSourceToken, Never>
