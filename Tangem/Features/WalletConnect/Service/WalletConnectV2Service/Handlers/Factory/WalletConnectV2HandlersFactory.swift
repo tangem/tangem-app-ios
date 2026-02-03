@@ -219,13 +219,25 @@ final class WalletConnectHandlersFactory: WalletConnectHandlersCreator {
         // MARK: - Bitcoin
 
         case .sendTransfer:
-            return try WalletConnectSendTransferHandler(
-                requestParams: params,
-                blockchainId: blockchainNetworkID,
-                transactionBuilder: btcTransactionBuilder,
-                signer: signer,
-                walletModelProvider: walletModelProvider
-            )
+            switch connectedDApp {
+            case .v1:
+                return try WalletConnectSendTransferHandler(
+                    requestParams: params,
+                    blockchainId: blockchainNetworkID,
+                    transactionBuilder: btcTransactionBuilder,
+                    signer: signer,
+                    walletModelProvider: walletModelProvider
+                )
+            case .v2(let walletConnectConnectedDAppV2):
+                return try WalletConnectSendTransferHandler(
+                    requestParams: params,
+                    blockchainId: blockchainNetworkID,
+                    transactionBuilder: btcTransactionBuilder,
+                    signer: signer,
+                    wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
+                    accountId: walletConnectConnectedDAppV2.accountId
+                )
+            }
 
         case .getAccountAddresses:
             switch connectedDApp {
