@@ -62,12 +62,7 @@ struct ExpandedAccountItemHeaderView: View {
             .iconBackgroundGeometryEffect(iconBackgroundGeometryEffect)
             .nameGeometryEffect(nameGeometryEffect)
 
-            LoadableTokenBalanceView(
-                state: totalFiatBalance,
-                style: .init(font: Fonts.Bold.subheadline, textColor: Colors.Text.tertiary),
-                loader: .init(size: .init(width: 40, height: 12))
-            )
-            .matchedGeometryEffect(balanceGeometryEffect)
+            balanceView
 
             Spacer()
 
@@ -96,6 +91,18 @@ struct ExpandedAccountItemHeaderView: View {
                     dimensions[.bottom] - verticalAlignmentGuideOffset
                 }
                 .matchedGeometryEffect(tokensCountGeometryEffect)
+        }
+    }
+
+    @ViewBuilder
+    private var balanceView: some View {
+        if totalFiatBalance.isLoaded {
+            LoadableTokenBalanceView(
+                state: totalFiatBalance,
+                style: .init(font: Fonts.Bold.subheadline, textColor: Colors.Text.tertiary),
+                loader: .init(size: .init(width: 40, height: 12))
+            )
+            .matchedGeometryEffect(balanceGeometryEffect)
         }
     }
 
