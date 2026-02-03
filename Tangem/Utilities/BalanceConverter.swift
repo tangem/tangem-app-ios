@@ -43,15 +43,16 @@ struct BalanceConverter {
     func cryptoToCryptoRate(from sourceAssetId: String, to targetAssetId: String) async throws -> Decimal {
         if sourceAssetId == targetAssetId { return 1 }
 
-        let sourceInFiat = try await convertToFiat(1, currencyId: sourceAssetId)
-        let targetInFiat = try await convertToFiat(1, currencyId: targetAssetId)
+        async let sourceInFiat: Decimal = try quotesRepository.fetchFreshQuoteFor(currencyId: sourceAssetId, shouldUpdateCache: false).price
+        async let targetInFiat: Decimal = try quotesRepository.fetchFreshQuoteFor(currencyId: targetAssetId, shouldUpdateCache: false).price
 
-        guard targetInFiat != 0 else {
+        let (sourcePrice, targetPrice) = try await (sourceInFiat, targetInFiat)
+
+        guard targetPrice != 0 else {
             throw BalanceConverterError.invalidTargetPrice
         }
 
-        let rate = sourceInFiat / targetInFiat
-        return rate
+        return sourcePrice / targetPrice
     }
 
     func convertToFiat(_ value: Decimal, currencyId: String) -> Decimal? {

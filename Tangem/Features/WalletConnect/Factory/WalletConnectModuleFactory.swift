@@ -73,9 +73,13 @@ enum WalletConnectModuleFactory {
             disconnectDApp: disconnectDAppUseCase
         )
 
+        @Injected(\.cryptoAccountsGlobalStateProvider)
+        var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
+
         return WalletConnectViewModel(
             interactor: interactor,
             userWalletRepository: userWalletRepository,
+            cryptoAccountsGlobalStateProvider: cryptoAccountsGlobalStateProvider,
             analyticsLogger: CommonWalletConnectAnalyticsLogger(),
             logger: WCLogger,
             coordinator: coordinator,
