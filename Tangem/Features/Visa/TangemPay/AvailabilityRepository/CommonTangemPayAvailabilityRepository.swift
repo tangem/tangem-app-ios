@@ -39,7 +39,7 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
         _availableUserWalletModels.value.isNotEmpty
     }
 
-    var isUserWalletModelsAvailblePublisher: AnyPublisher<Bool, Never> {
+    var isUserWalletModelsAvailablePublisher: AnyPublisher<Bool, Never> {
         availableUserWalletModelsPublisher
             .map { $0.isNotEmpty }
             .eraseToAnyPublisher()
@@ -49,7 +49,7 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
         Publishers
             .CombineLatest4(
                 isTangemPayAvailablePublisher,
-                isUserWalletModelsAvailblePublisher,
+                isUserWalletModelsAvailablePublisher,
                 Just(isDeviceRooted).map { !$0 },
                 Just(FeatureProvider.isAvailable(.tangemPayPermanentEntryPoint))
             )
