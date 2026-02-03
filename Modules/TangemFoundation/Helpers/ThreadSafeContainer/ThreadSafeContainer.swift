@@ -38,3 +38,11 @@ public final class ThreadSafeContainer<Value>: @unchecked Sendable {
         accessQueue.async(flags: .barrier) { body(&self.value) }
     }
 }
+
+// MARK: - CustomStringConvertible protocol conformance
+
+extension ThreadSafeContainer: CustomStringConvertible {
+    public var description: String {
+        String(describing: value)
+    }
+}

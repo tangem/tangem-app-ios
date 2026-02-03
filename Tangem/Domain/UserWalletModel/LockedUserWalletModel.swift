@@ -276,6 +276,15 @@ extension LockedUserWalletModel: AssociatedCardIdsProvider {
     }
 }
 
+// MARK: - DisposableEntity protocol conformance
+
+extension LockedUserWalletModel: DisposableEntity {
+    func dispose() {
+        walletModelsManager.dispose()
+        accountModelsManager.dispose()
+    }
+}
+
 private extension LockedUserWalletModel {
     func cleanMobileWallet() {
         let mobileSdk = CommonMobileWalletSdk()
