@@ -78,17 +78,22 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
             .receiveToken: data.destination.tokenItem.currencySymbol,
             .sendBlockchain: data.source.tokenItem.blockchain.displayName,
             .receiveBlockchain: data.destination.tokenItem.blockchain.displayName,
+            .feeToken: SendAnalyticsHelper.makeAnalyticsTokenName(from: data.fee.tokenItem),
         ]
 
         if FeatureProvider.isAvailable(.accounts) {
             if let sourceAccount = data.source.accountModelAnalyticsProvider {
-                let builder = PairedAccountAnalyticsBuilder(role: .source)
-                params.merge(sourceAccount.analyticsParameters(with: builder)) { $1 }
+                sourceAccount.enrichAnalyticsParameters(
+                    &params,
+                    using: PairedAccountAnalyticsBuilder(role: .source)
+                )
             }
 
             if let destAccount = data.destination.accountModelAnalyticsProvider {
-                let builder = PairedAccountAnalyticsBuilder(role: .destination)
-                params.merge(destAccount.analyticsParameters(with: builder)) { $1 }
+                destAccount.enrichAnalyticsParameters(
+                    &params,
+                    using: PairedAccountAnalyticsBuilder(role: .destination)
+                )
             }
         }
 
@@ -130,9 +135,9 @@ private extension ExpressSuccessSentViewModel {
         let sourceFiatAmountFormatted = balanceFormatter.formatFiatBalance(sourceFiatAmount)
 
         sourceData = AmountSummaryViewData(
-            title: Localization.swappingFromTitle,
             amount: sourceAmountFormatted,
             amountFiat: sourceFiatAmountFormatted,
+            headerType: ExpressCurrencyHeaderType(viewType: .send, tokenHeader: data.source.tokenHeader),
             tokenIconInfo: TokenIconInfoBuilder().build(from: sourceTokenItem, isCustom: false)
         )
 
@@ -141,9 +146,9 @@ private extension ExpressSuccessSentViewModel {
         let destinationFiatAmountFormatted = balanceFormatter.formatFiatBalance(destinationFiatAmount)
 
         destinationData = AmountSummaryViewData(
-            title: Localization.swappingToTitle,
             amount: destinationAmountFormatted,
             amountFiat: destinationFiatAmountFormatted,
+            headerType: ExpressCurrencyHeaderType(viewType: .receive, tokenHeader: data.destination.tokenHeader),
             tokenIconInfo: TokenIconInfoBuilder().build(from: destinationTokenItem, isCustom: false)
         )
 
@@ -165,10 +170,15 @@ private extension ExpressSuccessSentViewModel {
         )
 
         if !data.source.isExemptFee, let feeValue = data.fee.value.value {
-            let feeFormatted = feeFormatter.format(fee: feeValue.amount.value, tokenItem: data.fee.tokenItem)
+            let feeComponents = feeFormatter.formattedFeeComponents(
+                fee: feeValue.amount.value,
+                tokenItem: data.fee.tokenItem,
+                formattingOptions: .sendCryptoFeeFormattingOptions
+            )
+
             feeCompactViewModel = FeeCompactViewModel(
                 selectedFeeTokenCurrencySymbol: data.fee.tokenItem.currencySymbol,
-                selectedFeeComponents: .loaded(text: feeFormatted),
+                selectedFeeComponents: .loaded(text: feeComponents.fiatFee ?? feeComponents.cryptoFee),
                 canEditFee: false,
                 feeFormatter: feeFormatter
             )

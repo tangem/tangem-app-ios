@@ -6,7 +6,7 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-import Foundation
+import UIKit
 import TangemUI
 import TangemStaking
 import struct TangemUIUtils.AlertBinder
@@ -40,9 +40,13 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     @Published var yieldModulePromoCoordinator: YieldModulePromoCoordinator? = nil
     @Published var yieldModuleActiveCoordinator: YieldModuleActiveCoordinator? = nil
     @Published var tokenDetailsCoordinator: TokenDetailsCoordinator? = nil
+    @Published var newsPagerViewModel: NewsPagerViewModel? = nil
+    @Published var newsRelatedTokenDetailsCoordinator: MarketsTokenDetailsCoordinator? = nil
 
     private var safariHandle: SafariHandle?
     private let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
+    private var presentationStyle: MarketsTokenDetailsPresentationStyle = .marketsSheet
+    private var isDeeplinkMode: Bool = false
 
     // MARK: - Init
 
@@ -55,6 +59,8 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
+        presentationStyle = options.style
+        isDeeplinkMode = options.isDeeplinkMode
         rootViewModel = .init(
             tokenInfo: options.info,
             presentationStyle: options.style,
@@ -69,10 +75,12 @@ extension MarketsTokenDetailsCoordinator {
     struct Options {
         let info: MarketsTokenModel
         let style: MarketsTokenDetailsPresentationStyle
+        let isDeeplinkMode: Bool
 
-        init(info: MarketsTokenModel, style: MarketsTokenDetailsPresentationStyle) {
+        init(info: MarketsTokenModel, style: MarketsTokenDetailsPresentationStyle, isDeeplinkMode: Bool = false) {
             self.info = info
             self.style = style
+            self.isDeeplinkMode = isDeeplinkMode
         }
     }
 }
@@ -271,9 +279,17 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
         }
     }
 
-    func openNews(by id: NewsId) {
-        // [REDACTED_TODO_COMMENT]
-        // when the Markets News feature and corresponding coordinator/flow are available.
+    @MainActor
+    func openNews(newsIds: [Int], selectedIndex: Int) {
+        let viewModel = NewsPagerViewModel(
+            newsIds: newsIds,
+            initialIndex: selectedIndex,
+            isDeeplinkMode: false, // Always false - nested news screen should show back button, not close
+            dataSource: SingleNewsDataSource(),
+            analyticsSource: .token,
+            coordinator: self
+        )
+        newsPagerViewModel = viewModel
     }
 }
 
@@ -405,3 +421,28 @@ private extension MarketsTokenDetailsCoordinator {
 }
 
 extension MarketsTokenDetailsCoordinator: FeeCurrencyNavigating {}
+
+// MARK: - NewsDetailsRoutable
+
+extension MarketsTokenDetailsCoordinator: NewsDetailsRoutable {
+    func dismissNewsDetails() {
+        newsPagerViewModel = nil
+    }
+
+    func share(url: String) {
+        guard let url = URL(string: url) else { return }
+        AppPresenter.shared.show(UIActivityViewController(activityItems: [url], applicationActivities: nil))
+    }
+
+    func openTokenDetails(_ token: MarketsTokenModel) {
+        let coordinator = MarketsTokenDetailsCoordinator(
+            dismissAction: { [weak self] _ in
+                self?.newsRelatedTokenDetailsCoordinator = nil
+            },
+            popToRootAction: popToRootAction
+        )
+
+        coordinator.start(with: .init(info: token, style: presentationStyle, isDeeplinkMode: isDeeplinkMode))
+        newsRelatedTokenDetailsCoordinator = coordinator
+    }
+}

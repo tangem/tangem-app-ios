@@ -11,7 +11,6 @@ import Combine
 import CombineExt
 import TangemLocalization
 import TangemUI
-import struct TangemUIUtils.ConfirmationDialogViewModel
 import TangemFoundation
 import TangemAccessibilityIdentifiers
 
@@ -29,7 +28,6 @@ final class MainViewModel: ObservableObject {
     @Published var pages: [MainUserWalletPageBuilder] = []
     @Published var selectedCardIndex = 0
     @Published var isHorizontalScrollDisabled = false
-    @Published var confirmationDialog: ConfirmationDialogViewModel?
 
     let swipeDiscoveryAnimationTrigger = CardsInfoPagerSwipeDiscoveryAnimationTrigger()
 
@@ -115,6 +113,8 @@ final class MainViewModel: ObservableObject {
 
     /// Handles `SwiftUI.View.onAppear(perform:)`.
     func onViewAppear() {
+        guard !isLoggingOut else { return }
+
         logMainScreenOpenedAnalytics()
 
         updateYieldMarkets()
@@ -336,10 +336,10 @@ final class MainViewModel: ObservableObject {
                     }
                 case .unlockedWallet(let userWalletId):
                     userWalletUnlocked(userWalletId: userWalletId)
-                case .deleted(let userWalletIds):
+                case .deleted(let userWalletIds, let isEmpty):
                     // This model is alive for enough time to receive the "deleted" event
                     // after the last model has been removed and the application has been logged out
-                    if userWalletRepository.models.isEmpty {
+                    if isEmpty {
                         return
                     }
                     removePages(with: userWalletIds)
@@ -350,9 +350,11 @@ final class MainViewModel: ObservableObject {
             }
             .store(in: &bag)
 
-        wcService.transactionRequestPublisher
+        wcService
+            .transactionRequestPublisher
             .receiveOnMain()
-            .sink { [coordinator, floatingSheetPresenter] transactionHandleResult in
+            .withWeakCaptureOf(self)
+            .sink { viewModel, transactionHandleResult in
                 MainActor.assumeIsolated {
                     switch transactionHandleResult {
                     case .success(let transactionData):
@@ -363,19 +365,19 @@ final class MainViewModel: ObservableObject {
                             ),
                             analyticsLogger: CommonWalletConnectTransactionAnalyticsLogger()
                         )
-                        coordinator?.show(floatingSheetViewModel: sheetViewModel)
+                        viewModel.coordinator?.show(floatingSheetViewModel: sheetViewModel)
 
                     case .failure(let error):
                         if let transactionRequestError = error as? WalletConnectTransactionRequestProcessingError,
                            let errorViewModel = WalletConnectModuleFactory.makeTransactionRequestProcessingErrorViewModel(
                                transactionRequestError,
-                               closeAction: {
-                                   floatingSheetPresenter.removeActiveSheet()
+                               closeAction: { [weak viewModel] in
+                                   viewModel?.floatingSheetPresenter.removeActiveSheet()
                                }
                            ) {
-                            coordinator?.show(floatingSheetViewModel: errorViewModel)
+                            viewModel.coordinator?.show(floatingSheetViewModel: errorViewModel)
                         } else {
-                            coordinator?.show(toast: WalletConnectModuleFactory.makeGenericErrorToast(error))
+                            viewModel.coordinator?.show(toast: WalletConnectModuleFactory.makeGenericErrorToast(error))
                         }
                     }
                 }
@@ -431,7 +433,11 @@ final class MainViewModel: ObservableObject {
             params[.accountsCount] = String(accountModels.cryptoAccountsCount)
         }
 
-        Analytics.log(event: .mainScreenOpened, params: params)
+        Analytics.log(
+            event: .mainScreenOpened,
+            params: params,
+            analyticsSystems: .all
+        )
     }
 
     private func openPushNotificationsAuthorizationIfNeeded() {
@@ -504,12 +510,6 @@ private extension MainViewModel {
 // MARK: - Navigation
 
 extension MainViewModel: MainLockedUserWalletDelegate {
-    func openTroubleshooting(confirmationDialog: ConfirmationDialogViewModel) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.scanTroubleshootingDelay) {
-            self.confirmationDialog = confirmationDialog
-        }
-    }
-
     func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType) {
         DispatchQueue.main.asyncAfter(deadline: .now() + Constants.feedbackRequestDelay) { [weak self] in
             self?.coordinator?.openMail(with: dataCollector, emailType: emailType, recipient: recipient)
@@ -521,7 +521,7 @@ extension MainViewModel: MainLockedUserWalletDelegate {
     }
 }
 
-extension MainViewModel: MultiWalletMainContentDelegate {
+extension MainViewModel: MultiWalletMainContentDelegate, SingleWalletMainContentDelegate {
     func displayAddressCopiedToast() {
         Toast(
             view: SuccessToast(text: Localization.walletNotificationAddressCopied)
@@ -531,12 +531,6 @@ extension MainViewModel: MultiWalletMainContentDelegate {
             layout: .top(padding: 12),
             type: .temporary()
         )
-    }
-}
-
-extension MainViewModel: SingleWalletMainContentDelegate {
-    func present(confirmationDialog: ConfirmationDialogViewModel) {
-        self.confirmationDialog = confirmationDialog
     }
 }
 
@@ -581,7 +575,6 @@ private extension MainViewModel {
         /// A small delay for animated addition of newly inserted wallet(s) after the main view becomes visible.
         static let pendingWalletsInsertionDelay = 1.0
         static let feedbackRequestDelay = 0.7
-        static let scanTroubleshootingDelay = 0.5
         static let pushNotificationAuthorizationRequestDelay = 0.5
         // [REDACTED_TODO_COMMENT]
         static let bottomSheetVisibilityColdStartDelay = 0.5
