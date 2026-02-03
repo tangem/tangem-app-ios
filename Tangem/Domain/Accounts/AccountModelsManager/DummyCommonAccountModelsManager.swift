@@ -56,4 +56,6 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
     func reorder(orderedIdentifiers: [any AccountModelPersistentIdentifierConvertible]) async throws {
         throw NSError.dummy
     }
+
+    func dispose() {}
 }

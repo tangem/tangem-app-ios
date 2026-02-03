@@ -179,6 +179,16 @@ extension CommonWalletModelsManager: WalletModelsManager {
     }
 }
 
+// MARK: - DisposableEntity protocol conformance
+
+extension CommonWalletModelsManager: DisposableEntity {
+    func dispose() {
+        if _walletModels.value != nil {
+            _walletModels.send([])
+        }
+    }
+}
+
 // MARK: - Convenience extensions
 
 private extension CommonWalletModelsManager {
