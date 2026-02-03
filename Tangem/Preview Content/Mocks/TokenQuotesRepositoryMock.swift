@@ -11,6 +11,17 @@ import Combine
 import BlockchainSdk
 
 class TokenQuotesRepositoryMock: TokenQuotesRepository, TokenQuotesRepositoryUpdater {
+    func fetchFreshQuoteFor(currencyId: String, shouldUpdateCache: Bool) async throws -> TokenQuote {
+        TokenQuote(
+            currencyId: currencyId,
+            price: 1,
+            priceChange24h: 0.3,
+            priceChange7d: 3.3,
+            priceChange30d: 9.3,
+            currencyCode: "USD"
+        )
+    }
+
     var quotes: Quotes { [:] }
     var quotesPublisher: AnyPublisher<Quotes, Never> { .just(output: .init()) }
 
