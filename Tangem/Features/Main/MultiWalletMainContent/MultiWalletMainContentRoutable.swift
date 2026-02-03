@@ -20,6 +20,7 @@ protocol MultiWalletMainContentRoutable: SingleTokenBaseRoutable {
     func openMobileBackupOnboarding(userWalletModel: UserWalletModel)
     func openYieldModuleActiveInfo(factory: YieldModuleFlowFactory)
     func openYieldModulePromoView(apy: Decimal, factory: YieldModuleFlowFactory)
+    func openCloreMigration(walletModel: any WalletModel)
     func openTangemPayIssuingYourCardPopup()
     func openTangemPayKYCInProgressPopup(tangemPayManager: TangemPayManager)
     func openTangemPayKYCDeclinedPopup(tangemPayManager: TangemPayManager)

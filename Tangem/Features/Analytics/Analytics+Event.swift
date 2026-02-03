@@ -165,6 +165,7 @@ extension Analytics {
         case withdrawScreenOpened = "[Token / Withdraw] Withdraw Screen Opened"
         case settingsButtonChat = "[Settings] Button - Chat"
         case settingsButtonManageTokens = "[Settings] Button - Manage Tokens"
+        case settingsColdWalletAdded = "[Settings] Cold Wallet Added"
         case buttonWalletConnect = "[Settings] Button - Wallet Connect"
         case buttonStartWalletConnectSession = "[Settings] Button - Start Wallet Connect Session"
         case buttonStopWalletConnectSession = "[Settings] Button - Stop Wallet Connect Session"
@@ -205,6 +206,7 @@ extension Analytics {
         case walletSettingsBackupCompleteScreen = "[Settings / Wallet Settings] Backup Complete Screen"
         case walletSettingsCreateAccessCode = "[Settings / Wallet Settings] Access Code Screen Opened"
         case walletSettingsConfirmAccessCode = "[Settings / Wallet Settings] Re-enter Access Code Screen"
+        case walletSettingsWalletUpgraded = "[Settings / Wallet Settings] Wallet Upgraded"
         case walletSettingsButtonAddAccount = "[Settings / Wallet] Button - Add Account"
         case walletSettingsButtonOpenExistingAccount = "[Settings / Wallet] Button - Open Existing Account"
         case walletSettingsButtonArchivedAccounts = "[Settings / Wallet] Button - Archived Accounts"
@@ -269,7 +271,7 @@ extension Analytics {
         case referralButtonCopyCode = "[Referral Program] Button - Copy"
         case referralButtonShareCode = "[Referral Program] Button - Share"
         case referralButtonOpenTos = "[Referral Program] Link - TaC"
-        case referralParticipateSuccessfull = "[Referral Program] Participate Successfull"
+        case referralParticipateSuccessful = "[Referral Program] Participate Successfull"
         case referralError = "[Referral Program] Referral Error"
         case referralListChooseAccount = "[Referral program / Account] List - Choose Account"
 
@@ -396,6 +398,7 @@ extension Analytics {
         case cantScanTheCardButtonBlog = "[Errors] Cant Scan The Card - Button Blog"
         case cantScanTheCardTryAgainButton = "[Errors] Cant Scan The Card - Try Again Button"
         case scanErrors = "[Error] Scan Errors"
+        case cardHealth = "[Error] Card Health Info"
 
         // MARK: - Promo
 

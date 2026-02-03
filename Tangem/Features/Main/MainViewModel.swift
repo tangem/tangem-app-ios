@@ -350,9 +350,11 @@ final class MainViewModel: ObservableObject {
             }
             .store(in: &bag)
 
-        wcService.transactionRequestPublisher
+        wcService
+            .transactionRequestPublisher
             .receiveOnMain()
-            .sink { [coordinator, floatingSheetPresenter] transactionHandleResult in
+            .withWeakCaptureOf(self)
+            .sink { viewModel, transactionHandleResult in
                 MainActor.assumeIsolated {
                     switch transactionHandleResult {
                     case .success(let transactionData):
@@ -363,19 +365,19 @@ final class MainViewModel: ObservableObject {
                             ),
                             analyticsLogger: CommonWalletConnectTransactionAnalyticsLogger()
                         )
-                        coordinator?.show(floatingSheetViewModel: sheetViewModel)
+                        viewModel.coordinator?.show(floatingSheetViewModel: sheetViewModel)
 
                     case .failure(let error):
                         if let transactionRequestError = error as? WalletConnectTransactionRequestProcessingError,
                            let errorViewModel = WalletConnectModuleFactory.makeTransactionRequestProcessingErrorViewModel(
                                transactionRequestError,
-                               closeAction: {
-                                   floatingSheetPresenter.removeActiveSheet()
+                               closeAction: { [weak viewModel] in
+                                   viewModel?.floatingSheetPresenter.removeActiveSheet()
                                }
                            ) {
-                            coordinator?.show(floatingSheetViewModel: errorViewModel)
+                            viewModel.coordinator?.show(floatingSheetViewModel: errorViewModel)
                         } else {
-                            coordinator?.show(toast: WalletConnectModuleFactory.makeGenericErrorToast(error))
+                            viewModel.coordinator?.show(toast: WalletConnectModuleFactory.makeGenericErrorToast(error))
                         }
                     }
                 }
@@ -431,7 +433,11 @@ final class MainViewModel: ObservableObject {
             params[.accountsCount] = String(accountModels.cryptoAccountsCount)
         }
 
-        Analytics.log(event: .mainScreenOpened, params: params)
+        Analytics.log(
+            event: .mainScreenOpened,
+            params: params,
+            analyticsSystems: .all
+        )
     }
 
     private func openPushNotificationsAuthorizationIfNeeded() {

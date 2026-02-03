@@ -142,5 +142,10 @@ extension Analytics {
         case tokenSymbol = "Token Symbol"
         case newsCount = "News Count"
         case tokenId = "Token Id"
+
+        // MARK: - Card Health
+
+        case cardId = "Card Id"
+        case health = "Health"
     }
 }

@@ -8,6 +8,7 @@
 
 import Combine
 import TangemPay
+import TangemUI
 
 final class TangemPayNotificationManager {
     private let userWalletModel: UserWalletModel
@@ -16,14 +17,27 @@ final class TangemPayNotificationManager {
     private let notificationInputsSubject = CurrentValueSubject<[NotificationViewInput], Never>([])
     private var cancellable: Cancellable?
 
+    /// - Note: Workaround to avoid retain cycle for `UserWalletModel` instance in the Combine pipeline
+    private var syncNeededTitle: String {
+        userWalletModel.tangemPayAuthorizingInteractor.syncNeededTitle
+    }
+
+    /// - Note: Workaround to avoid retain cycle for `UserWalletModel` instance in the Combine pipeline
+    private var mainButtonIcon: MainButton.Icon? {
+        let provider = CommonTangemIconProvider(config: userWalletModel.config)
+
+        return provider.getMainButtonIcon()
+    }
+
     init(userWalletModel: UserWalletModel) {
         self.userWalletModel = userWalletModel
 
-        cancellable = userWalletModel.tangemPayManager.statePublisher
-            .map { $0.asNotificationEvent(userWalletModel.tangemPayAuthorizingInteractor.syncNeededTitle) }
+        cancellable = userWalletModel
+            .tangemPayManager
+            .statePublisher
             .withWeakCaptureOf(self)
-            .map { manager, event in
-                if let event {
+            .map { manager, state in
+                if let event = state.asNotificationEvent(syncNeededTitle: manager.syncNeededTitle, icon: manager.mainButtonIcon) {
                     [manager.makeNotificationViewInput(event: event)]
                 } else {
                     []
@@ -68,15 +82,15 @@ extension TangemPayNotificationManager: NotificationManager {
 // MARK: - TangemPayLocalState+notificationEvent
 
 private extension TangemPayLocalState {
-    func asNotificationEvent(_ syncNeededTitle: String) -> TangemPayNotificationEvent? {
+    func asNotificationEvent(syncNeededTitle: String, icon: MainButton.Icon?) -> TangemPayNotificationEvent? {
         switch self {
         case .syncNeeded, .syncInProgress:
-            .syncNeeded(syncNeededTitle)
+            .syncNeeded(title: syncNeededTitle, icon: icon)
 
         case .unavailable:
             .unavailable
 
-        case .initial, .kycRequired, .kycDeclined, .issuingCard, .failedToIssueCard, .tangemPayAccount:
+        case .initial, .loading, .kycRequired, .kycDeclined, .issuingCard, .failedToIssueCard, .tangemPayAccount:
             nil
         }
     }
