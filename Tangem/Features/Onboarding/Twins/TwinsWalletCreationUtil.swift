@@ -121,7 +121,9 @@ class TwinsWalletCreationUtil {
 
             switch result {
             case .success(let response):
-                Analytics.log(.walletCreatedSuccessfully, params: [.creationType: .walletCreationTypePrivateKey])
+                var params = [Analytics.ParameterKey.creationType: Analytics.ParameterValue.walletCreationTypePrivateKey.rawValue]
+                params.enrich(with: ReferralAnalyticsHelper().getReferralParams())
+                Analytics.log(event: .walletCreatedSuccessfully, params: params)
 
                 step.send(.done(response.getCardInfo()))
             case .failure(let error):
