@@ -45,18 +45,22 @@ final class CommonWalletConnectDAppConnectionRequestAnalyticsLogger: WalletConne
             .walletConnectDAppDomainVerification: proposalReceivedDomainVerificationValue.rawValue,
         ]
 
-        if let accountAnalyticsProviding {
-            accountAnalyticsProviding.enrichAnalyticsParameters(
-                &proposalReceivedParams,
-                using: SingleAccountAnalyticsBuilder()
-            )
-        }
+        accountAnalyticsProviding?.enrichAnalyticsParameters(
+            &proposalReceivedParams,
+            using: SingleAccountAnalyticsBuilder()
+        )
 
         Analytics.log(event: proposalReceivedEvent, params: proposalReceivedParams)
     }
 
-    func logConnectButtonTapped() {
-        Analytics.log(.walletConnectDAppConnectionRequestConnectButtonTapped)
+    /// `accountAnalyticsProviding` has to become non-optional when accounts migration is complete ([REDACTED_INFO])
+    func logConnectButtonTapped(dAppName: String, accountAnalyticsProviding: (any AccountModelAnalyticsProviding)?) {
+        var params: [Analytics.ParameterKey: String] = [
+            .walletConnectDAppName: dAppName,
+        ]
+        accountAnalyticsProviding?.enrichAnalyticsParameters(&params, using: SingleAccountAnalyticsBuilder())
+
+        Analytics.log(event: .walletConnectDAppConnectionRequestConnectButtonTapped, params: params)
     }
 
     func logCancelButtonTapped() {
