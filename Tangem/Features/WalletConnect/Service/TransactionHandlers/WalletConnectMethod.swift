@@ -69,3 +69,14 @@ enum WalletConnectMethod: String {
         }
     }
 }
+
+extension WalletConnectMethod {
+    var isSendTransaction: Bool {
+        switch self {
+        case .sendTransaction, .sendTransfer:
+            true
+        default:
+            false
+        }
+    }
+}
