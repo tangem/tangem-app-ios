@@ -94,7 +94,7 @@ protocol TangemApiService: AnyObject {
 
     func bindReferral(request model: ReferralDTO.Request) async throws
 
-    func expressPromotion(request: ExpressPromotion.Request) async throws -> ExpressPromotion.Response
+    func expressPromotion(request: ExpressPromotion.NewRequest) async throws -> ExpressPromotion.Response
     func promotion(programName: String, timeout: TimeInterval?) async throws -> PromotionParameters
 
     @discardableResult

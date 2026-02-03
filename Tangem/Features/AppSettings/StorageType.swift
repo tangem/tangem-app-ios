@@ -59,4 +59,5 @@ enum StorageType: String {
     case referralRefcode = "referral_refcode"
     case referralCampaign = "referral_campaign"
     case hasReferralBindingRequest = "has_referral_binding_request"
+    case shouldShowMobilePromoWalletSelector = "should_show_mobile_promo_wallet_selector"
 }
