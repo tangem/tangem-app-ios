@@ -7,16 +7,19 @@
 //
 
 import SwiftUI
-import Combine
 import TangemUI
 import TangemAssets
-import TangemLocalization
 
 struct SendAmountFinishLargeAmountView: View {
-    @ObservedObject var viewModel: SendAmountFinishLargeAmountViewModel
+    let viewModel: SendAmountFinishLargeAmountViewModel
 
     var body: some View {
         VStack(spacing: 16) {
+            if let tokenHeader = viewModel.tokenHeader {
+                SendTokenHeaderView(header: tokenHeader)
+                    .padding(.bottom, 8.0)
+            }
+
             TokenIcon(
                 tokenIconInfo: viewModel.tokenIconInfo,
                 size: CGSize(width: 36, height: 36),
