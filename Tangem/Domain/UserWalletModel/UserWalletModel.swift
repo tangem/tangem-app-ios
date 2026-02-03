@@ -26,6 +26,7 @@ protocol UserWalletModel:
     WalletSelectorInfoProvider,
     UserWalletModelUnlockerResolvable,
     UserWalletInfoProvider,
+    DisposableEntity,
     AnyObject {
     var hasBackupCards: Bool { get }
     var config: UserWalletConfig { get }
