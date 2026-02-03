@@ -127,35 +127,26 @@ extension CommonYieldModuleNetworkManager: YieldModuleNetworkManager {
 
 private extension CommonYieldModuleNetworkManager {
     func bind() {
-        // Observe all user wallet models
-        let allUserWalletModelsPublisher = userWalletRepository.eventProvider
+        // Observe all user wallet models, starting with current state
+        let initialModelsPublisher = Deferred { [weak self] in
+            Just(self?.userWalletRepository.models ?? [])
+        }
+
+        let eventModelsPublisher = userWalletRepository.eventProvider
             .withWeakCaptureOf(self)
             .map { manager, _ in
                 manager.userWalletRepository.models
             }
-            .prepend(userWalletRepository.models) // start with current state
+
+        let allUserWalletModelsPublisher = initialModelsPublisher
+            .merge(with: eventModelsPublisher)
+            .eraseToAnyPublisher()
 
         // Observe token changes across all wallets / accounts
         let allWalletModelsPublisher = allUserWalletModelsPublisher
             .map { userWalletModels in
                 userWalletModels.map { userWalletModel in
-                    userWalletModel
-                        .accountModelsManager
-                        .cryptoAccountModelsPublisher
-                        .flatMapLatest { cryptoAccounts -> AnyPublisher<[any WalletModel], Never> in
-                            guard !cryptoAccounts.isEmpty else {
-                                return userWalletModel.walletModelsManager.walletModelsPublisher
-                            }
-
-                            let walletModelsPublishers = cryptoAccounts.map(\.walletModelsManager.walletModelsPublisher)
-
-                            return walletModelsPublishers.combineLatest()
-                                .map { walletModelsArrays in
-                                    walletModelsArrays.flatMap { $0 }
-                                }
-                                .eraseToAnyPublisher()
-                        }
-                        .eraseToAnyPublisher()
+                    AccountsFeatureAwareWalletModelsResolver.walletModelsPublisher(for: userWalletModel)
                 }
             }
             .flatMapLatest { publishers -> AnyPublisher<[any WalletModel], Never> in
