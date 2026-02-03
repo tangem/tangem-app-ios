@@ -39,6 +39,20 @@ extension CommonTokenQuotesRepository: TokenQuotesRepository {
         _quotes.eraseToAnyPublisher()
     }
 
+    func fetchFreshQuoteFor(currencyId: String, shouldUpdateCache: Bool) async throws -> TokenQuote {
+        let quotes = await loadQuotes(currencyIds: [currencyId])
+
+        guard let quote = quotes[currencyId] else {
+            throw CommonError.noData
+        }
+
+        if shouldUpdateCache {
+            saveQuotes([quote])
+        }
+
+        return quote
+    }
+
     func quote(for currencyId: String) async throws -> TokenQuote {
         var quote = quotes[currencyId]
 
