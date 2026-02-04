@@ -411,6 +411,8 @@ final class MainViewModel: ObservableObject {
             params[.accountsCount] = String(accountModels.cryptoAccountsCount)
         }
 
+        params.enrich(with: ReferralAnalyticsHelper().getReferralParams())
+
         Analytics.log(
             event: .mainScreenOpened,
             params: params,
