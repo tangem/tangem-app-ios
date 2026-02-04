@@ -53,6 +53,7 @@ final class MarketsMainViewModel: MarketsBaseViewModel {
     private let dataProvider = MarketsListDataProvider()
     private let chartsHistoryProvider = MarketsListChartsHistoryProvider()
     private let quotesUpdatesScheduler = MarketsQuotesUpdatesScheduler()
+    private let earnDataProvider = CommonMarketsWidgetEarnService()
 
     private let widgetAnalyticsService = CommonMarketsWidgetAnalyticsService()
 
@@ -279,6 +280,7 @@ private extension MarketsMainViewModel {
             let viewModel = EarnWidgetViewModel(
                 widgetType: widgetModel.type,
                 widgetsUpdateHandler: widgetsUpdateHandler,
+                earnDataProvider: earnDataProvider,
                 analyticsService: widgetAnalyticsService,
                 coordinator: coordinator
             )
