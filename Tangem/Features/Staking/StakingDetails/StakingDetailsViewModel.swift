@@ -162,7 +162,7 @@ private extension StakingDetailsViewModel {
         case .notEnabled:
             actionButtonLoading = false
             actionButtonType = .none
-        case .temporaryUnavailable(let yieldInfo), .availableToStake(let yieldInfo):
+        case .temporaryUnavailable(let yieldInfo, _), .availableToStake(let yieldInfo):
             setupView(yield: yieldInfo, balances: [])
 
             actionButtonLoading = false
