@@ -15,7 +15,7 @@ import enum JSONRPC.RPCResult
 struct WalletConnectBitcoinSignMessageHandler {
     private let message: String
     private let address: String
-    private let signer: WalletConnectSigner
+    private let signer: BitcoinWalletConnectSigner
     private let walletModel: any WalletModel
     private let request: AnyCodable
 
@@ -32,7 +32,7 @@ struct WalletConnectBitcoinSignMessageHandler {
     init(
         request: AnyCodable,
         blockchainId: String,
-        signer: WalletConnectSigner,
+        signer: BitcoinWalletConnectSigner,
         walletModelProvider: WalletConnectWalletModelProvider
     ) throws {
         let castedParams: WalletConnectBtcSignMessageRequest
@@ -56,7 +56,7 @@ struct WalletConnectBitcoinSignMessageHandler {
     init(
         request: AnyCodable,
         blockchainId: String,
-        signer: WalletConnectSigner,
+        signer: BitcoinWalletConnectSigner,
         wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider,
         accountId: String
     ) throws {
@@ -139,7 +139,11 @@ extension WalletConnectBitcoinSignMessageHandler: WalletConnectMessageHandler {
 
         do {
             // Delegate signature formatting to Bitcoin-specific signer
-            let btcSignature = try await signer.sign(data: hash, using: walletModel)
+            let btcSignature = try await signer.sign(
+                data: hash,
+                using: walletModel,
+                address: address
+            )
             let response = WalletConnectBtcSignMessageResponse(
                 address: address,
                 signature: btcSignature.hexString.lowercased()

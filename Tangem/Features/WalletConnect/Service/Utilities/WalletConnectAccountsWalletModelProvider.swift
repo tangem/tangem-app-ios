@@ -50,7 +50,7 @@ final class CommonWalletConnectAccountsWalletModelProvider: WalletConnectAccount
         guard
             let model = getMainWalletModels(for: accountId).first(where: {
                 $0.tokenItem.blockchain.networkId == blockchainId
-                    && $0.walletConnectAddress.caseInsensitiveCompare(address) == .orderedSame
+                    && matchesAddress($0, address: address)
             })
         else {
             throw WalletConnectTransactionRequestProcessingError.walletModelNotFound(blockchainNetworkID: blockchainId)
@@ -76,6 +76,14 @@ final class CommonWalletConnectAccountsWalletModelProvider: WalletConnectAccount
         else { return [] }
 
         return cryptoAccountModel.walletModelsManager.walletModels.filter { $0.isMainToken }
+    }
+
+    private func matchesAddress(_ model: any WalletModel, address: String) -> Bool {
+        if model.walletConnectAddress.caseInsensitiveCompare(address) == .orderedSame {
+            return true
+        }
+
+        return model.addresses.contains { $0.value.caseInsensitiveCompare(address) == .orderedSame }
     }
 }
 
