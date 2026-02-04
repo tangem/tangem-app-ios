@@ -38,6 +38,10 @@ final class EarnDetailViewModel: ObservableObject {
         filterProvider.selectedFilterType.description
     }
 
+    var hasActiveFilters: Bool {
+        filterProvider.hasActiveFilters
+    }
+
     // MARK: - Private Properties
 
     private let filterProvider: EarnDataFilterProvider
@@ -78,6 +82,10 @@ final class EarnDetailViewModel: ObservableObject {
 
     func onRetry() {
         fetch(with: filterProvider.currentFilter)
+    }
+
+    func clearFilters() {
+        filterProvider.clear()
     }
 
     var canFetchMore: Bool {
