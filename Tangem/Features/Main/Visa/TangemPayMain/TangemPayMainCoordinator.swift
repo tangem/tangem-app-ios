@@ -156,10 +156,15 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
         }
     }
 
-    func openTangemPayTransactionDetailsSheet(transaction: TangemPayTransactionRecord, userWalletId: String) {
+    func openTangemPayTransactionDetailsSheet(
+        transaction: TangemPayTransactionRecord,
+        userWalletId: String,
+        customerId: String
+    ) {
         let viewModel = TangemPayTransactionDetailsViewModel(
             transaction: transaction,
             userWalletId: userWalletId,
+            customerId: customerId,
             coordinator: self
         )
 
