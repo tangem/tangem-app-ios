@@ -67,16 +67,21 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
         self.coordinator = coordinator
 
         setupView()
+
+        var params: [Analytics.ParameterKey: String] = [
+            .provider: data.provider.name,
+            .commission: data.feeOption.analyticsValue.rawValue,
+            .sendToken: data.source.tokenItem.currencySymbol,
+            .receiveToken: data.destination.tokenItem.currencySymbol,
+            .sendBlockchain: data.source.tokenItem.blockchain.displayName,
+            .receiveBlockchain: data.destination.tokenItem.blockchain.displayName,
+        ]
+
+        params.enrich(with: ReferralAnalyticsHelper().getReferralParams())
+
         Analytics.log(
             event: .swapSwapInProgressScreenOpened,
-            params: [
-                .provider: data.provider.name,
-                .commission: data.feeOption.analyticsValue.rawValue,
-                .sendToken: data.source.tokenItem.currencySymbol,
-                .receiveToken: data.destination.tokenItem.currencySymbol,
-                .sendBlockchain: data.source.tokenItem.blockchain.displayName,
-                .receiveBlockchain: data.destination.tokenItem.blockchain.displayName,
-            ],
+            params: params,
             analyticsSystems: .all
         )
     }
