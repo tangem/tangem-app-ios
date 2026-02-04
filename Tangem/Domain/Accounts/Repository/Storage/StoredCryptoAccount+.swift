@@ -26,6 +26,14 @@ extension StoredCryptoAccount {
         )
     }
 
+    @available(iOS, deprecated: 100000.0, message: "For troubleshooting only, will be removed after accounts migration is complete ([REDACTED_INFO])")
+    static func dummy(withDerivationIndex derivationIndex: Int) -> Self {
+        let icon = AccountModel.Icon(name: .allCases[0], color: .allCases[0])
+        let config = CryptoAccountPersistentConfig(derivationIndex: derivationIndex, name: nil, icon: icon)
+
+        return StoredCryptoAccount(config: config, tokenListAppearance: .default)
+    }
+
     func withTokens(_ newTokens: [StoredCryptoAccount.Token]) -> Self {
         return StoredCryptoAccount(
             derivationIndex: derivationIndex,
