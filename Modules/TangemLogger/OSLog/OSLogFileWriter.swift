@@ -39,7 +39,7 @@ class OSLogFileWriter {
 
     private init() {
         try? removeLogFileIfNeeded()
-        try? createLogFileIfNeeded()
+     //   try? createLogFileIfNeeded()
     }
 }
 
@@ -49,7 +49,7 @@ extension OSLogFileWriter {
     var logFile: URL { logFileURL }
 
     func write(_ message: String, category: OSLog.Category, level: OSLog.Level, date: Date = .now) throws {
-        var message = message.trimmingCharacters(in: .whitespacesAndNewlines)
+        /*var message = message.trimmingCharacters(in: .whitespacesAndNewlines)
 
         if message.isEmpty {
             // Message can not be empty
@@ -71,7 +71,7 @@ extension OSLogFileWriter {
         )
 
         let row = "\n\(entry.encoded(separator: OSLogConstants.separator))"
-        try write(row: row)
+        try write(row: row)*/
     }
 
     func clear() throws {
@@ -111,11 +111,11 @@ private extension OSLogFileWriter {
     func removeLogFileIfNeeded() throws {
         let fileAttributes = try fileManager.attributesOfItem(atPath: logFileURL.relativePath)
 
-        guard let creationDate = fileAttributes[.creationDate] as? Date,
-              let expirationDate = Calendar.current.date(byAdding: .day, value: OSLogConstants.numberOfDaysUntilExpiration, to: creationDate),
-              expirationDate < Date() else {
-            return
-        }
+//        guard let creationDate = fileAttributes[.creationDate] as? Date,
+//              let expirationDate = Calendar.current.date(byAdding: .day, value: OSLogConstants.numberOfDaysUntilExpiration, to: creationDate),
+//              expirationDate < Date() else {
+//            return
+//        }
 
         try fileManager.removeItem(at: logFileURL)
     }
