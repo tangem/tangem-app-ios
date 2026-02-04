@@ -226,6 +226,7 @@ extension CommonUserWalletModel: UserWalletModel {
                 _cardHeaderImagePublisher.send(config.cardHeaderImage)
                 cleanMobileWallet()
                 syncRemoteAfterUpgrade()
+                logMobileWalletUpgradedAnalytics()
             }
 
         case .accessCodeDidSet:
@@ -404,6 +405,15 @@ extension CommonUserWalletModel: AssociatedCardIdsProvider {
     }
 }
 
+// MARK: - DisposableEntity protocol conformance
+
+extension CommonUserWalletModel: DisposableEntity {
+    func dispose() {
+        walletModelsManager.dispose()
+        accountModelsManager.dispose()
+    }
+}
+
 // MARK: - Private methods
 
 private extension CommonUserWalletModel {
@@ -414,5 +424,17 @@ private extension CommonUserWalletModel {
         } catch {
             AppLogger.error("Failed to delete mobile wallet after upgrade:", error: error)
         }
+    }
+}
+
+// MARK: - Analytics
+
+private extension CommonUserWalletModel {
+    func logMobileWalletUpgradedAnalytics() {
+        Analytics.log(
+            .walletSettingsWalletUpgraded,
+            analyticsSystems: .all,
+            contextParams: .custom(analyticsContextData)
+        )
     }
 }

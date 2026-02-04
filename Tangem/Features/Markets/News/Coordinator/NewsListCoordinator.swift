@@ -164,18 +164,15 @@ extension NewsListCoordinator: NewsDetailsRoutable {
         weak var weakCoordinator: MarketsTokenDetailsCoordinator?
 
         let coordinator = MarketsTokenDetailsCoordinator(
-            dismissAction: { [weak self] in
+            dismissAction: { [weak self] _ in
                 guard let coordinator = weakCoordinator else { return }
-                self?.dismissTokenDetails(coordinator)
-            }
+                self?.path.removeAll { $0 == .tokenDetails(coordinator) }
+            },
+            popToRootAction: popToRootAction
         )
 
         weakCoordinator = coordinator
         coordinator.start(with: .init(info: token, style: .marketsSheet))
         path.append(.tokenDetails(coordinator))
-    }
-
-    private func dismissTokenDetails(_ coordinator: MarketsTokenDetailsCoordinator) {
-        path.removeAll { $0 == .tokenDetails(coordinator) }
     }
 }

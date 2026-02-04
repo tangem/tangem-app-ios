@@ -21,7 +21,7 @@ protocol SendModelRoutable: AnyObject {
     func openAccountInitializationFlow(viewModel: BlockchainAccountInitializationViewModel)
 }
 
-class SendModel {
+final class SendModel {
     // MARK: - Data
 
     private let _sendingToken: CurrentValueSubject<SendSourceToken, Never>
@@ -86,6 +86,10 @@ class SendModel {
         _amount = .init(predefinedValues.amount)
 
         bind()
+    }
+
+    deinit {
+        AppLogger.debug("SendModel deinit")
     }
 }
 
@@ -831,7 +835,8 @@ extension SendModel: NotificationTapDelegate {
              .tangemPaySync,
              .allowPushPermissionRequest,
              .postponePushPermissionRequest,
-             .activate:
+             .activate,
+             .openCloreMigration:
             assertionFailure("Notification tap not handled")
         }
     }
