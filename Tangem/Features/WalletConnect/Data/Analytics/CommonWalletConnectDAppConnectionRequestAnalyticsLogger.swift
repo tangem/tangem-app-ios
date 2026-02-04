@@ -45,10 +45,9 @@ final class CommonWalletConnectDAppConnectionRequestAnalyticsLogger: WalletConne
             .walletConnectDAppDomainVerification: proposalReceivedDomainVerificationValue.rawValue,
         ]
 
-        accountAnalyticsProviding?.enrichAnalyticsParameters(
-            &proposalReceivedParams,
-            using: SingleAccountAnalyticsBuilder()
-        )
+        if let accountAnalyticsProviding {
+            proposalReceivedParams.enrich(with: accountAnalyticsProviding.analyticsParameters(with: SingleAccountAnalyticsBuilder()))
+        }
 
         Analytics.log(event: proposalReceivedEvent, params: proposalReceivedParams)
     }
@@ -58,7 +57,10 @@ final class CommonWalletConnectDAppConnectionRequestAnalyticsLogger: WalletConne
         var params: [Analytics.ParameterKey: String] = [
             .walletConnectDAppName: dAppName,
         ]
-        accountAnalyticsProviding?.enrichAnalyticsParameters(&params, using: SingleAccountAnalyticsBuilder())
+
+        if let accountAnalyticsProviding {
+            params.enrich(with: accountAnalyticsProviding.analyticsParameters(with: SingleAccountAnalyticsBuilder()))
+        }
 
         Analytics.log(event: .walletConnectDAppConnectionRequestConnectButtonTapped, params: params)
     }
