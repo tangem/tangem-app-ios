@@ -15,6 +15,8 @@ import TangemFoundation
 final class EarnWidgetViewModel: ObservableObject {
     // MARK: - Injected & Published Properties
 
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
     @Published private(set) var isFirstLoading: Bool = true
     @Published private(set) var resultState: LoadingResult<[EarnTokenItemViewModel], Error> = .loading
 
@@ -23,9 +25,8 @@ final class EarnWidgetViewModel: ObservableObject {
     // MARK: - Properties
 
     private let widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler
+    private let earnDataProvider: MarketsWidgetEarnProvider
     private let analyticsService: EarnWidgetAnalyticsProvider
-
-    private let earnProvider = CommonMarketsWidgetEarnService()
 
     private weak var coordinator: EarnWidgetRoutable?
 
@@ -36,11 +37,13 @@ final class EarnWidgetViewModel: ObservableObject {
     init(
         widgetType: MarketsWidgetType,
         widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler,
+        earnDataProvider: MarketsWidgetEarnProvider,
         analyticsService: EarnWidgetAnalyticsProvider,
         coordinator: EarnWidgetRoutable?
     ) {
         self.widgetType = widgetType
         self.widgetsUpdateHandler = widgetsUpdateHandler
+        self.earnDataProvider = earnDataProvider
         self.analyticsService = analyticsService
         self.coordinator = coordinator
 
@@ -61,7 +64,7 @@ final class EarnWidgetViewModel: ObservableObject {
     @MainActor
     func onSeeAllTapAction() {
         analyticsService.logEarnListOpened()
-        let tokens = earnProvider.earnResult.value ?? []
+        let tokens = earnDataProvider.earnResult.value ?? []
         coordinator?.openSeeAllEarnWidget(mostlyUsedTokens: tokens)
     }
 }
@@ -70,7 +73,7 @@ final class EarnWidgetViewModel: ObservableObject {
 
 private extension EarnWidgetViewModel {
     func update() {
-        earnProvider.fetch()
+        earnDataProvider.fetch()
     }
 
     func bind() {
@@ -97,7 +100,7 @@ private extension EarnWidgetViewModel {
             }
             .store(in: &bag)
 
-        earnProvider
+        earnDataProvider
             .earnResultPublisher
             .receiveOnMain()
             .withWeakCaptureOf(self)
@@ -119,7 +122,7 @@ private extension EarnWidgetViewModel {
     }
 
     func updateViewState() {
-        switch earnProvider.earnResult {
+        switch earnDataProvider.earnResult {
         case .success(let tokens):
             let viewModels = tokens.prefix(Constants.itemsOnListWidget).map { token in
                 EarnTokenItemViewModel(
@@ -140,7 +143,9 @@ private extension EarnWidgetViewModel {
 
     private func onTokenTapAction(with token: EarnTokenModel) {
         Task { @MainActor [weak self] in
-            self?.coordinator?.openEarnTokenDetails(for: token)
+            guard let self else { return }
+            let userWalletModels = userWalletRepository.models.filter { !$0.isUserWalletLocked }
+            coordinator?.openAddEarnToken(for: token, userWalletModels: userWalletModels)
         }
     }
 
