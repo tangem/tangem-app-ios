@@ -22,7 +22,8 @@ protocol TangemPayMainRoutable: AnyObject {
 
     func openTangemPayTransactionDetailsSheet(
         transaction: TangemPayTransactionRecord,
-        userWalletId: String
+        userWalletId: String,
+        customerId: String
     )
 
     func openPendingExpressTransactionDetails(
