@@ -22,6 +22,13 @@ struct EarnTokenItemViewModel: Identifiable, Hashable {
     let earnType: EarnType
     let onTapAction: () -> Void
 
+    var rateText: String {
+        let formatted = percentFormatter.format(rateValue, option: .staking)
+        return "\(rateType.rawValue) \(formatted)"
+    }
+
+    private let percentFormatter = PercentFormatter()
+
     init(token: EarnTokenModel, onTapAction: @escaping () -> Void) {
         id = token.id
         name = token.name
