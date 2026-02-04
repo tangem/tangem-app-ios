@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import TangemFoundation
+import BlockchainSdk
 
 // MARK: - State
 
@@ -85,6 +86,19 @@ final class EarnDataFilterProvider {
         _networkFilterValue.value
     }
 
+    var hasActiveFilters: Bool {
+        switch (_filterTypeValue.value, _networkFilterValue.value) {
+        case (.all, .all):
+            return false
+        default:
+            return true
+        }
+    }
+
+    var supportedBlockchainsByNetworkId: [String: Blockchain] = Dictionary(
+        uniqueKeysWithValues: SupportedBlockchains.all.map { ($0.networkId, $0) }
+    )
+
     // MARK: - Init
 
     init(initialFilterType: EarnFilterType = .all, initialNetworkFilter: EarnNetworkFilterType = .all) {
@@ -100,6 +114,11 @@ final class EarnDataFilterProvider {
 
     func didSelectNetworkFilter(_ filter: EarnNetworkFilterType) {
         _networkFilterValue.send(filter)
+    }
+
+    func clear() {
+        _filterTypeValue.send(.all)
+        _networkFilterValue.send(.all)
     }
 
     func fetchAvailableNetworks() async {
@@ -124,8 +143,6 @@ final class EarnDataFilterProvider {
             .flatMap { $0.userTokensManager.userTokens }
             .map { EarnNetworkInfo(networkId: $0.networkId, networkName: $0.name) }
             .unique()
-
-        print(_myNetworks.map { $0.networkId })
     }
 
     private func loadAvailableNetworks() async {
@@ -135,10 +152,8 @@ final class EarnDataFilterProvider {
 
             guard !Task.isCancelled else { return }
 
-            let supportedBlockchains = SupportedBlockchains.all
-
             _availableNetworks = response.items.compactMap { item in
-                guard let blockchain = supportedBlockchains.first(where: { $0.networkId == item.networkId }) else {
+                guard let blockchain = supportedBlockchainsByNetworkId[item.networkId] else {
                     return nil
                 }
 

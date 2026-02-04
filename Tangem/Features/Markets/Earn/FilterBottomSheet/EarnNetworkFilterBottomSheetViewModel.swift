@@ -63,9 +63,7 @@ final class EarnNetworkFilterBottomSheetViewModel: ObservableObject, Identifiabl
             )
         }
 
-        let blockchainsByNetworkId = Dictionary(
-            uniqueKeysWithValues: SupportedBlockchains.all.map { ($0.networkId, $0) }
-        )
+        let blockchainsByNetworkId = filterProvider.supportedBlockchainsByNetworkId
 
         networkRowInputs = filterProvider.availableNetworks.compactMap { networkInfo in
             guard let blockchain = blockchainsByNetworkId[networkInfo.networkId] else {
