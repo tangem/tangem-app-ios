@@ -159,21 +159,19 @@ private extension CommonYieldModuleNetworkManager {
                     .eraseToAnyPublisher()
             }
 
-        // Detect EVM blockchain additions
+        // Detect new EVM chain additions (blockchain or token on that chain)
         allWalletModelsPublisher
             .pairwise()
             .receiveOnMain()
             .sink { [weak self] value in
                 guard let self else { return }
 
-                let oldTokenItems = Set(value.0.map(\.tokenItem))
-                let newTokenItems = Set(value.1.map(\.tokenItem))
+                let oldChainIds = Set(value.0.compactMap { $0.tokenItem.blockchain.isEvm ? $0.tokenItem.blockchain.chainId : nil })
+                let newChainIds = Set(value.1.compactMap { $0.tokenItem.blockchain.isEvm ? $0.tokenItem.blockchain.chainId : nil })
 
-                let diff = newTokenItems.subtracting(oldTokenItems)
+                let didAddNewEVMChain = !newChainIds.subtracting(oldChainIds).isEmpty
 
-                let didAddEVMBlockchain = diff.contains(where: { $0.isBlockchain && $0.blockchain.isEvm })
-
-                if didAddEVMBlockchain {
+                if didAddNewEVMChain {
                     updateMarkets()
                 }
             }
