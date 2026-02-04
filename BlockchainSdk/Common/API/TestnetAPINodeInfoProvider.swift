@@ -296,6 +296,10 @@ struct TestnetAPINodeInfoProvider {
             return [
                 .init(url: URL(string: "https://rpc.sepolia.linea.build/")!),
             ]
+        case .monad:
+            return [
+                .init(url: URL(string: "https://testnet-rpc.monad.xyz")!),
+            ]
         case .plasma:
             return [
                 .init(url: URL(string: "https://testnet-rpc.plasma.to")!),
