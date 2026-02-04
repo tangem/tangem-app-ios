@@ -28,15 +28,18 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
 
     private let transaction: TangemPayTransactionRecord
     private let userWalletId: String
+    private let customerId: String
     private weak var coordinator: TangemPayTransactionDetailsRoutable?
 
     init(
         transaction: TangemPayTransactionRecord,
         userWalletId: String,
+        customerId: String,
         coordinator: TangemPayTransactionDetailsRoutable
     ) {
         self.transaction = transaction
         self.userWalletId = userWalletId
+        self.customerId = customerId
         self.coordinator = coordinator
 
         let mapper = TangemPayTransactionRecordMapper(transaction: transaction)
@@ -75,7 +78,8 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
 
         let dataCollector = TangemPaySupportDataCollector(
             source: .transactionDetails(transaction),
-            userWalletId: userWalletId
+            userWalletId: userWalletId,
+            customerId: customerId
         )
 
         coordinator?.transactionDetailsDidRequestDispute(dataCollector: dataCollector, subject: subject)
