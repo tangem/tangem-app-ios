@@ -28,7 +28,8 @@ public struct AccountGeometryEffects {
         )
         name = GeometryEffectPropertiesModel(
             id: "accountName",
-            namespace: namespace
+            namespace: namespace,
+            properties: .position
         )
         tokensCount = GeometryEffectPropertiesModel(
             id: "tokensCount",
@@ -39,11 +40,13 @@ public struct AccountGeometryEffects {
         balance = GeometryEffectPropertiesModel(
             id: "accountBalance",
             namespace: namespace,
-            properties: .position
+            properties: .position,
+            anchor: .leading
         )
         background = GeometryEffectPropertiesModel(
             id: "expandableBackground",
-            namespace: namespace
+            namespace: namespace,
+            properties: .position
         )
     }
 }
