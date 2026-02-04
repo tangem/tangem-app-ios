@@ -23,14 +23,6 @@ final class MarketsScreen: ScreenBase<MarketsScreenElement> {
     // MARK: - Public methods
 
     @discardableResult
-    func verifyMarketsSheetIsDisplayed() -> Self {
-        XCTContext.runActivity(named: "Verify Markets sheet is displayed") { _ in
-            waitAndAssertTrue(searchField, "Markets sheet should be displayed with search field")
-            return self
-        }
-    }
-
-    @discardableResult
     func closeMarketsSheetWithSwipe() -> MainScreen {
         XCTContext.runActivity(named: "Close markets sheet with swipe down gesture") { _ in
             // Find the grabber view or bottom sheet area to swipe down
@@ -45,15 +37,6 @@ final class MarketsScreen: ScreenBase<MarketsScreenElement> {
             startPoint.press(forDuration: 0.1, thenDragTo: endPoint)
 
             return MainScreen(app)
-        }
-    }
-
-    @discardableResult
-    func searchForToken(_ tokenName: String) -> Self {
-        XCTContext.runActivity(named: "Search for token: \(tokenName)") { _ in
-            searchField.waitAndTap()
-            searchField.typeText(tokenName)
-            return self
         }
     }
 
@@ -220,19 +203,6 @@ final class MarketsScreen: ScreenBase<MarketsScreenElement> {
     }
 
     @discardableResult
-    func pasteIntoSearchField() -> Self {
-        XCTContext.runActivity(named: "Paste into Markets search field") { _ in
-            searchField.waitAndTap()
-            searchField.press(forDuration: 1.0)
-
-            let pasteMenuItem = app.menuItems["Paste"]
-            pasteMenuItem.waitAndTap()
-
-            return self
-        }
-    }
-
-    @discardableResult
     func verifyTokenInSearchResults(_ tokenName: String) -> Self {
         XCTContext.runActivity(named: "Verify token in search results: \(tokenName)") { _ in
             let tokenButton = app.buttons[
@@ -259,19 +229,23 @@ final class MarketsScreen: ScreenBase<MarketsScreenElement> {
     }
 
     @discardableResult
-    func tapSearchFieldAndVerifyKeyboard() -> Self {
-        XCTContext.runActivity(named: "Tap Markets search field and verify keyboard") { _ in
-            searchField.waitAndTap()
-            waitAndAssertTrue(app.keyboards.firstMatch, "Keyboard should appear after tapping search field")
+    func typeInSearchField(_ text: String) -> Self {
+        XCTContext.runActivity(named: "Type in Markets search field: \(text)") { _ in
+            waitAndAssertTrue(searchField, "Markets search field should exist")
+            searchField.typeText(text)
             return self
         }
     }
 
     @discardableResult
-    func typeInSearchField(_ text: String) -> Self {
-        XCTContext.runActivity(named: "Type in Markets search field: \(text)") { _ in
-            waitAndAssertTrue(searchField, "Markets search field should exist")
-            searchField.typeText(text)
+    func pasteIntoSearchField() -> Self {
+        XCTContext.runActivity(named: "Paste into Markets search field") { _ in
+            searchField.waitAndTap()
+            searchField.press(forDuration: 1.0)
+
+            let pasteMenuItem = app.menuItems["Paste"]
+            pasteMenuItem.waitAndTap()
+
             return self
         }
     }
