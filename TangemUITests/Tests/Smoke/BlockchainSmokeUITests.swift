@@ -81,6 +81,9 @@ final class BlockchainSmokeUITests: BaseTestCase {
 
         setupWireMockScenarios([foundAccountInfo, foundAccountLines])
 
+        // to handle debounce mechanism
+        Thread.sleep(forTimeInterval: 5)
+
         pullToRefresh()
 
         TokenScreen(app)
