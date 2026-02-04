@@ -33,6 +33,7 @@ class MarketsCoordinator: CoordinatorObject {
     @Published var newsListCoordinator: NewsListCoordinator?
     @Published var newsPagerViewModel: NewsPagerViewModel?
     @Published var newsPagerTokenDetailsCoordinator: MarketsTokenDetailsCoordinator?
+    @Published var earnListCoordinator: EarnCoordinator?
 
     // MARK: - Child ViewModels
 
@@ -139,7 +140,7 @@ extension MarketsCoordinator: MarketsMainRoutable {
 
     // MARK: - Earn
 
-    func openAddEarnToken(_ token: EarnTokenModel, userWalletModels: [UserWalletModel]) {
+    func openAddEarnToken(for token: EarnTokenModel, userWalletModels: [UserWalletModel]) {
         let configuration = EarnAddTokenFlowConfigurationFactory.make(
             earnToken: token,
             coordinator: self
@@ -154,9 +155,19 @@ extension MarketsCoordinator: MarketsMainRoutable {
         }
     }
 
-    func openSeeAllEarnWidget() {
-        // [REDACTED_TODO_COMMENT]
-        // [REDACTED_INFO]
+    func openSeeAllEarnWidget(mostlyUsedTokens: [EarnTokenModel]) {
+        let coordinator = EarnCoordinator(
+            dismissAction: { [weak self] in
+                self?.earnListCoordinator = nil
+            },
+            openEarnTokenDetailsAction: { [weak self] token, userWalletModels in
+                self?.openAddEarnToken(for: token, userWalletModels: userWalletModels)
+            }
+        )
+
+        coordinator.start(with: .init(mostlyUsedTokens: mostlyUsedTokens))
+
+        earnListCoordinator = coordinator
     }
 
     // MARK: - Private Implementation
