@@ -9,8 +9,6 @@
 import Foundation
 
 enum CryptoAccountsNetworkServiceError: Error {
-    /// A revision (i.e. the `ETag` header) is missing when trying to save the accounts.
-    case missingRevision
     /// The revision (i.e. the `ETag` header) is outdated when trying to save the accounts.
     case inconsistentState
     /// No accounts were created on the server when trying to fetch the accounts.
@@ -28,8 +26,7 @@ extension CryptoAccountsNetworkServiceError {
         switch self {
         case .underlyingError(let error):
             return error.isCancellationError
-        case .missingRevision,
-             .inconsistentState,
+        case .inconsistentState,
              .noAccountsCreated,
              .noRetriesLeft:
             return false
