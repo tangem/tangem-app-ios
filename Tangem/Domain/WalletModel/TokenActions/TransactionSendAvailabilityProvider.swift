@@ -97,6 +97,7 @@ enum SendingRestrictions: Hashable {
     case blockchainUnreachable
     case blockchainLoading
     case oldCard
+    case noAccount
 
     struct NotEnoughFeeConfiguration: Hashable {
         let amountCurrencySymbol: String
@@ -118,6 +119,8 @@ extension TokenBalanceType {
         switch self {
         case .loading(.none):
             return .blockchainLoading
+        case .empty(.noAccount):
+            return .noAccount
         case .empty, .failure(.none):
             return .blockchainUnreachable
         case .loading(.some), .failure(.some):
