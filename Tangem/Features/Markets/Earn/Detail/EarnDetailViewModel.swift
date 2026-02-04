@@ -20,8 +20,6 @@ final class EarnDetailViewModel: ObservableObject {
     @Published private(set) var mostlyUsedViewModels: [EarnTokenItemViewModel] = []
     @Published private(set) var bestOpportunitiesResultState: LoadingResult<[EarnTokenItemViewModel], Error> = .loading
 
-    // [REDACTED_TODO_COMMENT]
-
     // MARK: - Private Properties
 
     private weak var coordinator: EarnDetailRoutable?
@@ -29,9 +27,8 @@ final class EarnDetailViewModel: ObservableObject {
     private var userWalletModels: [UserWalletModel] {
         userWalletRepository.models.filter { !$0.isUserWalletLocked }
     }
-
-    // [REDACTED_TODO_COMMENT]
-    // [REDACTED_TODO_COMMENT]
+    
+    // Services & states will be implement in [REDACTED_INFO]
 
     // MARK: - Init
 
@@ -57,11 +54,7 @@ final class EarnDetailViewModel: ObservableObject {
     }
 
     func loadBestOpportunities() {
-        // [REDACTED_TODO_COMMENT]
-        //
-        bestOpportunitiesResultState = .loading
-
-        // Placeholder: simulate loading
+        // Will be remove in [REDACTED_INFO]
         Task { @MainActor in
             try? await Task.sleep(nanoseconds: 1_000_000_000)
             // For now, set to error to demonstrate error state
