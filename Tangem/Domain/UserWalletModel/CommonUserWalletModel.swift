@@ -163,8 +163,10 @@ extension CommonUserWalletModel: UserWalletModel {
     var emailData: [EmailCollectedData] {
         var data = config.emailData
 
-        let userWalletIdItem = EmailCollectedData(type: .card(.userWalletId), data: userWalletId.stringValue)
-        data.append(userWalletIdItem)
+        if let tangemPayCustomerId = tangemPayManager.customerId {
+            data.append(EmailCollectedData(type: .tangemPayCustomerId, data: tangemPayCustomerId))
+        }
+        data.append(EmailCollectedData(type: .card(.userWalletId), data: userWalletId.stringValue))
 
         return data
     }
