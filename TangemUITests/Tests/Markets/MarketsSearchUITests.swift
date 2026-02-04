@@ -83,6 +83,7 @@ final class MarketsSearchUITests: BaseTestCase {
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .openMarketsSheetWithSwipe()
+            .tapSeeAll()
             .verifyFirstCoinsOrder(expected)
     }
 
