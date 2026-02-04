@@ -120,7 +120,7 @@ extension CommonCryptoAccountsNetworkService: CryptoAccountsNetworkService {
         retryCount: Int
     ) async throws(CryptoAccountsNetworkServiceError) -> RemoteCryptoAccountsInfo {
         return try await retry(retryCount: retryCount) {
-            let revision = eTagStorage.loadETag(for: userWalletId) ?? ""
+            let revision = eTagStorage.loadETag(for: userWalletId) ?? .empty
             do {
                 let (accountsDTO, _) = mapper.map(request: cryptoAccounts)
 
