@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import Moya
 
 public extension MoyaError {
@@ -43,5 +44,9 @@ public extension MoyaError {
              .underlying:
             return false
         }
+    }
+
+    var urlError: URLError? {
+        underlyingError as? URLError
     }
 }
