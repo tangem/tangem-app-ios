@@ -25,9 +25,8 @@ final class EarnWidgetViewModel: ObservableObject {
     // MARK: - Properties
 
     private let widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler
+    private let earnDataProvider: MarketsWidgetEarnProvider
     private let analyticsService: EarnWidgetAnalyticsProvider
-
-    private let earnProvider = MockMarketsWidgetEarnService()
 
     private weak var coordinator: EarnWidgetRoutable?
 
@@ -38,11 +37,13 @@ final class EarnWidgetViewModel: ObservableObject {
     init(
         widgetType: MarketsWidgetType,
         widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler,
+        earnDataProvider: MarketsWidgetEarnProvider,
         analyticsService: EarnWidgetAnalyticsProvider,
         coordinator: EarnWidgetRoutable?
     ) {
         self.widgetType = widgetType
         self.widgetsUpdateHandler = widgetsUpdateHandler
+        self.earnDataProvider = earnDataProvider
         self.analyticsService = analyticsService
         self.coordinator = coordinator
 
@@ -63,7 +64,8 @@ final class EarnWidgetViewModel: ObservableObject {
     @MainActor
     func onSeeAllTapAction() {
         analyticsService.logEarnListOpened()
-        coordinator?.openSeeAllEarnWidget()
+        let tokens = earnDataProvider.earnResult.value ?? []
+        coordinator?.openSeeAllEarnWidget(mostlyUsedTokens: tokens)
     }
 }
 
@@ -71,7 +73,7 @@ final class EarnWidgetViewModel: ObservableObject {
 
 private extension EarnWidgetViewModel {
     func update() {
-        earnProvider.fetch()
+        earnDataProvider.fetch()
     }
 
     func bind() {
@@ -98,7 +100,7 @@ private extension EarnWidgetViewModel {
             }
             .store(in: &bag)
 
-        earnProvider
+        earnDataProvider
             .earnResultPublisher
             .receiveOnMain()
             .withWeakCaptureOf(self)
@@ -120,7 +122,7 @@ private extension EarnWidgetViewModel {
     }
 
     func updateViewState() {
-        switch earnProvider.earnResult {
+        switch earnDataProvider.earnResult {
         case .success(let tokens):
             let viewModels = tokens.prefix(Constants.itemsOnListWidget).map { token in
                 EarnTokenItemViewModel(
@@ -143,7 +145,7 @@ private extension EarnWidgetViewModel {
         Task { @MainActor [weak self] in
             guard let self else { return }
             let userWalletModels = userWalletRepository.models.filter { !$0.isUserWalletLocked }
-            coordinator?.openAddEarnToken(token, userWalletModels: userWalletModels)
+            coordinator?.openAddEarnToken(for: token, userWalletModels: userWalletModels)
         }
     }
 
