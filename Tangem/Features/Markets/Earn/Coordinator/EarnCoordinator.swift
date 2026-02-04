@@ -13,6 +13,7 @@ import struct TangemUIUtils.AlertBinder
 final class EarnCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
+    let openEarnTokenDetailsAction: (_ token: EarnTokenModel, _ userWalletModels: [UserWalletModel]) -> Void
 
     // MARK: - Root ViewModels
 
@@ -32,10 +33,12 @@ final class EarnCoordinator: CoordinatorObject {
 
     required init(
         dismissAction: @escaping Action<Void>,
-        popToRootAction: @escaping Action<PopToRootOptions> = { _ in }
+        popToRootAction: @escaping Action<PopToRootOptions> = { _ in },
+        openEarnTokenDetailsAction: @escaping (_ token: EarnTokenModel, _ userWalletModels: [UserWalletModel]) -> Void
     ) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
+        self.openEarnTokenDetailsAction = openEarnTokenDetailsAction
     }
 
     func start(with options: Options) {
@@ -63,6 +66,10 @@ extension EarnCoordinator {
 extension EarnCoordinator: EarnDetailRoutable {
     func dismiss() {
         dismissAction(())
+    }
+
+    func openAddEarnToken(for token: EarnTokenModel, userWalletModels: [any UserWalletModel]) {
+        openEarnTokenDetailsAction(token, userWalletModels)
     }
 
     func openEarnTokenDetails(for token: EarnTokenModel) {
