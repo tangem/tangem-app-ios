@@ -27,14 +27,14 @@ final class EarnDetailViewModel: ObservableObject {
     private var userWalletModels: [UserWalletModel] {
         userWalletRepository.models.filter { !$0.isUserWalletLocked }
     }
-    
+
     // Services & states will be implement in [REDACTED_INFO]
 
     // MARK: - Init
 
     init(
         mostlyUsedTokens: [EarnTokenModel],
-        
+
         coordinator: EarnDetailRoutable? = nil
     ) {
         self.coordinator = coordinator
