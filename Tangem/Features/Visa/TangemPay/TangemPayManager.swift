@@ -21,12 +21,11 @@ final class TangemPayManager {
         stateSubject.eraseToAnyPublisher()
     }
 
-    var customerId: String? {
-        state.tangemPayAccount?.customerId
-    }
+    private(set) var customerId: String?
 
     private let customerWalletId: String
     private let keysRepository: KeysRepository
+    private let availabilityService: TangemPayAvailabilityService
     private let authorizationService: TangemPayAuthorizationService
     private let customerService: CustomerInfoManagementService
     private let enrollmentStateFetcher: TangemPayEnrollmentStateFetcher
@@ -42,6 +41,7 @@ final class TangemPayManager {
     init(
         customerWalletId: String,
         keysRepository: KeysRepository,
+        availabilityService: TangemPayAvailabilityService,
         authorizationService: TangemPayAuthorizationService,
         customerService: CustomerInfoManagementService,
         enrollmentStateFetcher: TangemPayEnrollmentStateFetcher,
@@ -52,6 +52,7 @@ final class TangemPayManager {
     ) {
         self.customerWalletId = customerWalletId
         self.keysRepository = keysRepository
+        self.availabilityService = availabilityService
         self.authorizationService = authorizationService
         self.customerService = customerService
         self.enrollmentStateFetcher = enrollmentStateFetcher
@@ -116,7 +117,9 @@ final class TangemPayManager {
     }
 
     func refreshState() async {
-        guard !paeraCustomerFlagRepository.isKYCHidden(customerWalletId: customerWalletId) else {
+        guard await availabilityService.isPaeraCustomer(customerWalletId: customerWalletId) else {
+            orderStatusPollingService.cancel()
+            stateSubject.value = .initial
             return
         }
 
@@ -124,14 +127,17 @@ final class TangemPayManager {
             stateSubject.value = .loading
         }
 
-        let customerWalletAddress = TangemPayUtilities.getCustomerWalletAddressAndAuthorizationTokens(
+        guard let (customerWalletAddress, _) = TangemPayUtilities.getCustomerWalletAddressAndAuthorizationTokens(
             customerWalletId: customerWalletId,
             keysRepository: keysRepository
-        )?.customerWalletAddress
+        ) else {
+            stateSubject.value = .syncNeeded
+            return
+        }
 
         let enrollmentState: TangemPayEnrollmentState
         do {
-            enrollmentState = try await enrollmentStateFetcher.getEnrollmentState(customerWalletAddress: customerWalletAddress)
+            (enrollmentState, customerId) = try await enrollmentStateFetcher.getEnrollmentState()
         } catch {
             switch error {
             case .unauthorized:
@@ -144,7 +150,7 @@ final class TangemPayManager {
         }
 
         switch enrollmentState {
-        case .issuingCard(let customerWalletAddress):
+        case .issuingCard:
             do {
                 try await issueCardIfNeededAndStartStatusPolling(customerWalletAddress: customerWalletAddress)
                 stateSubject.value = .issuingCard
@@ -163,10 +169,6 @@ final class TangemPayManager {
                 await account.loadBalance()
             }
             stateSubject.value = .tangemPayAccount(account)
-
-        case .notEnrolled:
-            orderStatusPollingService.cancel()
-            stateSubject.value = .initial
 
         case .kycRequired:
             orderStatusPollingService.cancel()
