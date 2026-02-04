@@ -134,7 +134,7 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
 
         do {
             let result = try await availabilityService
-                .isPaeraCustomer(
+                .getIsPaeraCustomer(
                     customerWalletId: customerWalletId
                 )
 
