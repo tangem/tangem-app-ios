@@ -14,3 +14,9 @@ extension Dictionary {
             .forEach { removeValue(forKey: $0.key) }
     }
 }
+
+extension Dictionary where Key == Analytics.ParameterKey, Value == String {
+    mutating func enrich(with params: [Analytics.ParameterKey: String]) {
+        merge(params, uniquingKeysWith: { old, _ in old })
+    }
+}

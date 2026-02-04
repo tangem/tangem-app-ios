@@ -678,7 +678,7 @@ extension Analytics {
         case earningButtonFeePolicy = "[Earning] Button - Fee Policy"
         case earningInProgressScreen = "[Earning] Earn In Progress Screen"
         case earningFundsEarned = "[Earning] Funds Earned"
-        case earningFundsWithdrawed = "[Earning] Funds Withdrawn"
+        case earningFundsWithdrawn = "[Earning] Funds Withdrawn"
         case earningEarnedFundsInfo = "[Earning] Earned Funds Info"
         case earningNoticeNotEnoughFee = "[Earning] Notice - Not Enough Fee"
         case earningNoticeApproveNeeded = "[Earning] Notice - Approve Needed"
