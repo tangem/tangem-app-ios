@@ -45,7 +45,7 @@ struct EarnTokenItemView: View {
 
                 // Right: Rate (APY/APR) and Earn Type
                 VStack(alignment: .trailing, spacing: Layout.textVerticalSpacing) {
-                    Text(rateText)
+                    Text(viewModel.rateText)
                         .lineLimit(1)
                         .style(Fonts.Bold.subheadline, color: Colors.Text.accent)
 
@@ -72,12 +72,6 @@ struct EarnTokenItemView: View {
             isWithOverlays: false,
             forceKingfisher: true
         )
-    }
-
-    private var rateText: String {
-        let percentFormatter = PercentFormatter()
-        let formatted = percentFormatter.format(viewModel.rateValue, option: .staking)
-        return "\(viewModel.rateType.rawValue) \(formatted)"
     }
 }
 
