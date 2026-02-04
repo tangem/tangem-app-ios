@@ -22,6 +22,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     private lazy var totalBalance = staticText(.totalBalance)
     private lazy var totalBalanceShimmer = otherElement(.totalBalanceShimmer)
     private lazy var missingDerivationNotification = otherElement(.missingDerivationNotification)
+    private lazy var grabber = app.otherElements[CommonUIAccessibilityIdentifiers.grabber].firstMatch
 
     @discardableResult
     func validate(cardType: CardMockAccessibilityIdentifiers) -> Self {
@@ -102,6 +103,9 @@ final class MainScreen: ScreenBase<MainScreenElement> {
                 )
             }
 
+            // Scroll the button above the markets sheet if needed
+            scrollOrganizeButtonAboveMarketsSheet()
+
             // Use the robust waitAndTap method instead of direct tap
             XCTAssertTrue(
                 organizeTokensButton.waitAndTap(timeout: .robustUIUpdate),
@@ -109,6 +113,28 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             )
 
             return OrganizeTokensScreen(app)
+        }
+    }
+
+    /// Scrolls the tokens list so that the organize button is above the markets sheet grabber
+    private func scrollOrganizeButtonAboveMarketsSheet() {
+        guard grabber.exists, organizeTokensButton.exists else { return }
+
+        let grabberFrame = grabber.frame
+        let buttonFrame = organizeTokensButton.frame
+
+        // If the button is below or overlapping with the grabber, scroll the list up
+        if buttonFrame.maxY > grabberFrame.minY {
+            // Calculate how much we need to scroll
+            let scrollDistance = buttonFrame.maxY - grabberFrame.minY + 50 // Add some padding
+
+            // Scroll the tokens list up
+            let startPoint = tokensList.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.3))
+            let endPoint = startPoint.withOffset(CGVector(dx: 0, dy: -scrollDistance))
+            startPoint.press(forDuration: 0.1, thenDragTo: endPoint)
+
+            // Wait for scroll animation to settle
+            _ = organizeTokensButton.waitForState(state: .hittable)
         }
     }
 
@@ -484,20 +510,17 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     @discardableResult
-    func openMarketsSheetWithSwipe() -> MarketsScreen {
+    func openMarketsSheetWithSwipe() -> MarketsAndNewsScreen {
         XCTContext.runActivity(named: "Open markets sheet with swipe up gesture") { _ in
-            // Find the grabber view or bottom sheet area to swipe up
-            let grabberView = app.otherElements.matching(identifier: "commonUIGrabber").firstMatch
-
-            waitAndAssertTrue(grabberView)
+            waitAndAssertTrue(grabber)
 
             // Swipe up on the grabber view
-            let startPoint = grabberView.coordinate(
+            let startPoint = grabber.coordinate(
                 withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
             let endPoint = startPoint.withOffset(CGVector(dx: 0, dy: -300))
             startPoint.press(forDuration: 0.2, thenDragTo: endPoint)
 
-            return MarketsScreen(app)
+            return MarketsAndNewsScreen(app)
         }
     }
 

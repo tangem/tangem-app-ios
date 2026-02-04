@@ -135,6 +135,7 @@ struct ExpressView: View {
             FeeCompactView(viewModel: expressFeeRowViewModel) {
                 viewModel.userDidTapFeeRow()
             }
+            .accessibilityIdentifier(SwapAccessibilityIdentifiers.feeBlock)
         }
     }
 
