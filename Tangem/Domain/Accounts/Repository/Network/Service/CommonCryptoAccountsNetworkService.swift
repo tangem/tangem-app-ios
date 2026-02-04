@@ -110,12 +110,9 @@ extension CommonCryptoAccountsNetworkService: CryptoAccountsNetworkService {
         retryCount: Int
     ) async throws(CryptoAccountsNetworkServiceError) -> RemoteCryptoAccountsInfo {
         return try await retry(retryCount: retryCount) {
+            let revision = eTagStorage.loadETag(for: userWalletId) ?? ""
             do {
                 let (accountsDTO, _) = mapper.map(request: cryptoAccounts)
-
-                guard let revision = eTagStorage.loadETag(for: userWalletId) else {
-                    throw CryptoAccountsNetworkServiceError.missingRevision
-                }
 
                 let (newRevision, newAccountsDTO) = try await tangemApiService.saveUserAccounts(
                     userWalletId: userWalletId.stringValue,
@@ -131,6 +128,11 @@ extension CommonCryptoAccountsNetworkService: CryptoAccountsNetworkService {
             } catch let error as CryptoAccountsNetworkServiceError {
                 throw error // Just re-throw an original error
             } catch let error as TangemAPIError where error.code == .notFound {
+                throw CryptoAccountsNetworkServiceError.noAccountsCreated
+            } catch let error as TangemAPIError where error.code == .badRequest && revision.isEmpty {
+                // A special case when the user activates a new or existing wallet offline
+                // Remote data (such as accounts and tokens) will be overwritten (by creating and uploading a new default account),
+                // this is expected behavior
                 throw CryptoAccountsNetworkServiceError.noAccountsCreated
             } catch let error as TangemAPIError where error.code == .optimisticLockingFailed {
                 throw CryptoAccountsNetworkServiceError.inconsistentState
