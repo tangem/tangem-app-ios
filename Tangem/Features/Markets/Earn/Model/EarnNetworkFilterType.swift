@@ -9,30 +9,19 @@
 import Foundation
 import TangemLocalization
 
-enum EarnNetworkFilterType: Hashable, Equatable {
+enum EarnNetworkFilterType: Hashable {
     case all
-    case userNetworks
-    case specific(networkIds: Set<String>)
+    case userNetworks(networkInfos: [EarnNetworkInfo])
+    case specific(networkInfo: EarnNetworkInfo)
 
     var displayTitle: String {
         switch self {
         case .all:
-            return "All"
+            return Localization.earnFilterAllTypes
         case .userNetworks:
-            return "Networks"
-        case .specific(let networkIds):
-            return "All networks"
-        }
-    }
-
-    var apiNetworkIds: [String]? {
-        switch self {
-        case .all:
-            return nil
-        case .userNetworks:
-            return nil
-        case .specific(let networkIds):
-            return Array(networkIds)
+            return Localization.earnFilterAllTypes
+        case .specific(let networkItem):
+            return networkItem.networkName
         }
     }
 }

@@ -62,6 +62,7 @@ private extension SendAmountFinishViewModel {
         guard let receiveSmallAmountViewModel, let sendSwapProviderFinishViewModel else {
             return .one(
                 .init(
+                    tokenHeader: tokenHeader,
                     tokenIconInfo: tokenIconInfo,
                     amountDecimalNumberTextFieldViewModel: amountDecimalNumberTextFieldViewModel,
                     amountFieldOptions: amountFieldOptions,

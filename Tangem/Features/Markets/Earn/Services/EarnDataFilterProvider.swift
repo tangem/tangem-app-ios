@@ -35,7 +35,7 @@ final class EarnDataFilterProvider {
     private let _networkFilterValue: CurrentValueSubject<EarnNetworkFilterType, Never>
     private let _stateSubject = CurrentValueSubject<State, Never>(.idle)
     private var _availableNetworks: [EarnNetworkInfo] = []
-    private var _myNetworkIds: [String] = []
+    private var _myNetworks: [EarnNetworkInfo] = []
 
     private var fetchNetworksTask: Task<Void, Never>?
 
@@ -46,7 +46,7 @@ final class EarnDataFilterProvider {
             .withWeakCaptureOf(self)
             .map { provider, args in
                 let (type, networkFilter) = args
-                let networkIds = provider.resolveNetworkIds(for: networkFilter, userNetworkIds: provider.myNetworkIds)
+                let networkIds = provider.resolveNetworkIds(for: networkFilter)
                 return EarnDataProvider.Filter(type: type, networkIds: networkIds)
             }
             .eraseToAnyPublisher()
@@ -61,7 +61,7 @@ final class EarnDataFilterProvider {
     }
 
     var currentFilter: EarnDataProvider.Filter {
-        let networkIds = resolveNetworkIds(for: _networkFilterValue.value, userNetworkIds: myNetworkIds)
+        let networkIds = resolveNetworkIds(for: _networkFilterValue.value)
         return EarnDataProvider.Filter(type: _filterTypeValue.value, networkIds: networkIds)
     }
 
@@ -69,8 +69,8 @@ final class EarnDataFilterProvider {
         EarnFilterType.allCases
     }
 
-    var myNetworkIds: [String] {
-        _myNetworkIds
+    var myNetworks: [EarnNetworkInfo] {
+        _myNetworks
     }
 
     var availableNetworks: [EarnNetworkInfo] {
@@ -119,10 +119,10 @@ final class EarnDataFilterProvider {
     // MARK: - Private Methods
 
     private func updateMyNetworkIds() {
-        _myNetworkIds = userWalletRepository.models
+        _myNetworks = userWalletRepository.models
             .flatMap { $0.accountModelsManager.cryptoAccountModels }
             .flatMap { $0.userTokensManager.userTokens }
-            .map(\.networkId)
+            .map { EarnNetworkInfo(networkId: $0.networkId, networkName: $0.name) }
             .unique()
     }
 
@@ -133,7 +133,16 @@ final class EarnDataFilterProvider {
 
             guard !Task.isCancelled else { return }
 
-            _availableNetworks = response.items.map { EarnNetworkInfo(networkId: $0.networkId) }
+            let supportedBlockchains = SupportedBlockchains.all
+
+            _availableNetworks = response.items.compactMap { item in
+                guard let blockchain = supportedBlockchains.first(where: { $0.networkId == item.networkId }) else {
+                    return nil
+                }
+
+                return EarnNetworkInfo(networkId: blockchain.networkId, networkName: blockchain.displayName)
+            }
+
             _stateSubject.send(_availableNetworks.isEmpty ? .emptyAvailableNetworks : .loaded)
             AppLogger.tag("Earn").debug("Fetched \(_availableNetworks.count) available networks")
         } catch {
@@ -147,14 +156,15 @@ final class EarnDataFilterProvider {
     /// Converts `EarnNetworkFilterType` to an array of network IDs for the API request.
     /// - Returns: `nil` means "no filter" (API will return tokens from all networks).
     ///            Non-empty array means filter by specific networks.
-    private func resolveNetworkIds(for filter: EarnNetworkFilterType, userNetworkIds: [String]) -> [String]? {
+    private func resolveNetworkIds(for filter: EarnNetworkFilterType) -> [String]? {
         switch filter {
         case .all:
             return nil
-        case .userNetworks:
-            return userNetworkIds.isEmpty ? nil : userNetworkIds
-        case .specific(let networkIds):
-            return Array(networkIds)
+        case .userNetworks(let networkInfos):
+            let networkIds = networkInfos.map { $0.networkId }
+            return networkIds.isEmpty ? nil : networkIds
+        case .specific(let networkInfo):
+            return [networkInfo.networkId]
         }
     }
 }

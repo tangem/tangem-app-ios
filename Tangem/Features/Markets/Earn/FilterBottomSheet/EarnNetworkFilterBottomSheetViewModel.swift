@@ -52,7 +52,10 @@ final class EarnNetworkFilterBottomSheetViewModel: ObservableObject, Identifiabl
         dismissAction = onDismiss
         currentSelection = filterProvider.selectedNetworkFilter
 
-        presetRowViewModels = [EarnNetworkFilterType.all, EarnNetworkFilterType.userNetworks].map {
+        presetRowViewModels = [
+            EarnNetworkFilterType.all,
+            EarnNetworkFilterType.userNetworks(networkInfos: filterProvider.myNetworks),
+        ].map {
             DefaultSelectableRowViewModel(
                 id: $0,
                 title: $0.displayTitle,
@@ -75,7 +78,7 @@ final class EarnNetworkFilterBottomSheetViewModel: ObservableObject, Identifiabl
                 networkName: blockchain.displayName,
                 currencySymbol: blockchain.currencySymbol,
                 onTap: { [weak self] in
-                    self?.selectAndDismiss(network: .specific(networkIds: [blockchain.networkId]))
+                    self?.selectAndDismiss(network: .specific(networkInfo: networkInfo))
                 }
             )
         }
