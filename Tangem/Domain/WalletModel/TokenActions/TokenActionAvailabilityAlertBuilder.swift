@@ -17,7 +17,7 @@ struct TokenActionAvailabilityAlertBuilder {
         switch sendingRestrictions {
         case .none, .zeroFeeCurrencyBalance:
             return nil
-        case .zeroWalletBalance:
+        case .zeroWalletBalance, .noAccount:
             return AlertBinder(
                 title: "",
                 message: Localization.tokenButtonUnavailabilityReasonEmptyBalanceSend
@@ -56,7 +56,7 @@ struct TokenActionAvailabilityAlertBuilder {
             return cantSignLongTransactionAlert
         case .hasOnlyCachedBalance:
             return outOfDateBalanceAlert
-        case .zeroWalletBalance:
+        case .zeroWalletBalance, .noAccount:
             return .init(
                 title: "",
                 message: Localization.tokenButtonUnavailabilityReasonEmptyBalanceSend
@@ -134,7 +134,7 @@ struct TokenActionAvailabilityAlertBuilder {
                 title: "",
                 message: Localization.tokenButtonUnavailabilityReasonSellUnavailable(tokenName)
             )
-        case .zeroWalletBalance:
+        case .zeroWalletBalance, .noAccount:
             return .init(
                 title: "",
                 message: Localization.tokenButtonUnavailabilityReasonEmptyBalanceSell
