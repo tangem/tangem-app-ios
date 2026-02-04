@@ -14,21 +14,11 @@ struct BitcoinWalletConnectSigner: WalletConnectSigner {
     let signer: TangemSigner
 
     func sign(data: Data, using walletModel: any WalletModel) async throws -> Data {
-        // Sign the provided hash using the card
-        let pubKey = walletModel.publicKey
-        let signed = try await signer.sign(hash: data, walletPublicKey: pubKey)
-            .tryMap { response -> Data in
-                try bitcoinSignature(
-                    signedHash: response,
-                    hash: data,
-                    publicKey: pubKey.blockchainKey,
-                    address: walletModel.defaultAddress.value
-                )
-            }
-            .eraseToAnyPublisher()
-            .async()
-
-        return signed
+        try await sign(
+            data: data,
+            using: walletModel,
+            address: walletModel.defaultAddress.value
+        )
     }
 
     func sign(hashes: [Data], using walletModel: any WalletModel) async throws -> [Data] {
@@ -48,6 +38,23 @@ struct BitcoinWalletConnectSigner: WalletConnectSigner {
             .async()
 
         return responses
+    }
+
+    func sign(data: Data, using walletModel: any WalletModel, address: String) async throws -> Data {
+        let pubKey = walletModel.publicKey
+        let signed = try await signer.sign(hash: data, walletPublicKey: pubKey)
+            .tryMap { response -> Data in
+                try bitcoinSignature(
+                    signedHash: response,
+                    hash: data,
+                    publicKey: pubKey.blockchainKey,
+                    address: address
+                )
+            }
+            .eraseToAnyPublisher()
+            .async()
+
+        return signed
     }
 }
 
