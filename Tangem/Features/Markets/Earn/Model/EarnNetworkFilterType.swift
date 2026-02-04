@@ -17,9 +17,9 @@ enum EarnNetworkFilterType: Hashable {
     var displayTitle: String {
         switch self {
         case .all:
-            return Localization.earnFilterAllTypes
+            return Localization.earnFilterAllNetworks
         case .userNetworks:
-            return Localization.earnFilterAllTypes
+            return "My networks"
         case .specific(let networkItem):
             return networkItem.networkName
         }
