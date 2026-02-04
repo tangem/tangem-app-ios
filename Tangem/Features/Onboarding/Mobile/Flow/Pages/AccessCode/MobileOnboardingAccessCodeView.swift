@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct MobileOnboardingAccessCodeView: View {
     typealias ViewModel = MobileOnboardingAccessCodeViewModel
@@ -41,6 +42,7 @@ private extension MobileOnboardingAccessCodeView {
                 maxDigits: viewModel.codeLength,
                 handleKeyboard: false,
                 isDisabled: false,
+                accessibilityIdentifier: OnboardingAccessibilityIdentifiers.accessCodeInputField,
                 pinText: viewModel.code
             )
             .pinStackColor(viewModel.pinColor)
@@ -58,6 +60,7 @@ private extension MobileOnboardingAccessCodeView {
     func infoView(_ item: ViewModel.InfoItem) -> some View {
         VStack(spacing: 12) {
             Text(item.title)
+                .accessibilityIdentifier(OnboardingAccessibilityIdentifiers.title)
                 .style(Fonts.Bold.title1, color: Colors.Text.primary1)
 
             Text(item.description)

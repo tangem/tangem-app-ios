@@ -46,6 +46,16 @@ struct MarketsCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: YieldNoticeViewModel.self) {
                 YieldNoticeView(viewModel: $0)
             }
+            .fullScreenCover(item: $coordinator.mainTokenDetailsCoordinator, content: { item in
+                NavigationView {
+                    TokenDetailsCoordinatorView(coordinator: item)
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarLeading) {
+                                backButton
+                            }
+                        }
+                }
+            })
     }
 
     private var links: some View {
@@ -65,6 +75,9 @@ struct MarketsCoordinatorView: CoordinatorView {
                 NewsPagerView(viewModel: $0)
                     .navigationLinks(newsPagerTokenDetailsLink)
             }
+            .navigation(item: $coordinator.earnListCoordinator) {
+                EarnDetailCoordinatorView(coordinator: $0)
+            }
     }
 
     private var newsPagerTokenDetailsLink: some View {
@@ -73,5 +86,24 @@ struct MarketsCoordinatorView: CoordinatorView {
                 MarketsTokenDetailsCoordinatorView(coordinator: $0)
                     .ignoresSafeArea(.container, edges: .top)
             }
+    }
+
+    private var backButton: some View {
+        BackButton(
+            height: Constants.backButtonHeight,
+            isVisible: true,
+            isEnabled: true,
+            hPadding: Constants.backButtonHorizontalPadding,
+            action: { UIApplication.dismissTop() }
+        )
+    }
+}
+
+// MARK: - Constants
+
+private extension MarketsCoordinatorView {
+    enum Constants {
+        static let backButtonHorizontalPadding: CGFloat = -6
+        static let backButtonHeight: CGFloat = 44.0
     }
 }

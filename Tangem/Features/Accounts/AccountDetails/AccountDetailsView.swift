@@ -11,6 +11,7 @@ import TangemUI
 import TangemAccounts
 import TangemLocalization
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 struct AccountDetailsView: View {
     @ObservedObject var viewModel: AccountDetailsViewModel
@@ -70,6 +71,7 @@ struct AccountDetailsView: View {
                 }
                 .defaultRoundedBackground(with: Colors.Background.action)
             }
+            .accessibilityIdentifier(AccountsAccessibilityIdentifiers.accountDetailsManageTokensButton)
         }
     }
 
