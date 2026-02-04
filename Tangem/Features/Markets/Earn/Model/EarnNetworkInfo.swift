@@ -10,6 +10,7 @@ import Foundation
 
 struct EarnNetworkInfo: Identifiable, Hashable {
     let networkId: String
+    let networkName: String
 
     var id: String {
         networkId

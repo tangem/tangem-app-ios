@@ -74,6 +74,7 @@ extension EarnDTO.List {
         let symbol: String
         let name: String
         let address: String?
+        let decimalCount: Int?
     }
 }
 
