@@ -12,12 +12,12 @@ struct AppsFlyerDeepReferralHandler {
     @Injected(\.mobileWalletPromoService) private var mobileWalletPromoService: MobileWalletPromoService
 
     func handle(_ deepLink: DeepLink) {
-        guard let refcode = deepLink.getValue(forKey: AppsFlyerDeepLinkKeys.sub1) else {
+        guard let refcode = deepLink.getValue(forKey: AppsFlyerDeepLinkKeys.sub1)?.nilIfEmpty else {
             AppsflyerLogger.info("Could not extract refcode")
             return
         }
 
-        let campaign = deepLink.getValue(forKey: AppsFlyerDeepLinkKeys.sub2)
+        let campaign = deepLink.getValue(forKey: AppsFlyerDeepLinkKeys.sub2)?.nilIfEmpty
 
         if referralService.hasNoReferral {
             mobileWalletPromoService.setNeedsPromo()
