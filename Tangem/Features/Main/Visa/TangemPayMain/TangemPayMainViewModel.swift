@@ -234,7 +234,8 @@ final class TangemPayMainViewModel: ObservableObject {
         Analytics.log(.visaScreenGoToSupportOnBetaBannerClicked)
         let dataCollector = TangemPaySupportDataCollector(
             source: .permanentBanner,
-            userWalletId: userWalletInfo.id.stringValue
+            userWalletId: userWalletInfo.id.stringValue,
+            customerId: tangemPayAccount.customerId
         )
         let logsComposer = LogsComposer(infoProvider: dataCollector, includeZipLogs: false)
         let mailViewModel = MailViewModel(
@@ -288,7 +289,8 @@ final class TangemPayMainViewModel: ObservableObject {
         )
         coordinator?.openTangemPayTransactionDetailsSheet(
             transaction: transaction,
-            userWalletId: userWalletInfo.id.stringValue
+            userWalletId: userWalletInfo.id.stringValue,
+            customerId: tangemPayAccount.customerId
         )
     }
 
