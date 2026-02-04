@@ -2580,7 +2580,6 @@
 		B6ACD0102AD69B50005A6CA3 /* OrganizeTokensDragAndDropMarkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6ACD00F2AD69B50005A6CA3 /* OrganizeTokensDragAndDropMarkView.swift */; };
 		B6ACD0122AD6A888005A6CA3 /* OrganizeTokensDragAndDropGestureContextProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6ACD0112AD6A888005A6CA3 /* OrganizeTokensDragAndDropGestureContextProvider.swift */; };
 		B6ACD0142AD6A8A1005A6CA3 /* OrganizeTokensDragAndDropGesturePredicate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6ACD0132AD6A8A1005A6CA3 /* OrganizeTokensDragAndDropGesturePredicate.swift */; };
-		B6AD20DE2E9D635700363341 /* DefaultAccountFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6AD20DC2E9D635700363341 /* DefaultAccountFactory.swift */; };
 		B6AD4BBB2CAF8449001338E4 /* MarketsNavigationBarBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6AD4BBA2CAF8449001338E4 /* MarketsNavigationBarBackgroundView.swift */; };
 		B6AD952C2A30072000FE845A /* TokenItemViewLeadingComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6AD952B2A30072000FE845A /* TokenItemViewLeadingComponent.swift */; };
 		B6AE4DA52C530C7500070D96 /* MarketsHistoryChartProviderStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6AE4DA42C530C7500070D96 /* MarketsHistoryChartProviderStub.swift */; };
@@ -2593,6 +2592,8 @@
 		B6B436B42E3C3CE600006FA7 /* CommonAccountModelsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6B436B32E3C3CE600006FA7 /* CommonAccountModelsManager.swift */; };
 		B6B488462EE3348D00F05344 /* AccountModelUtilsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6B488452EE3348D00F05344 /* AccountModelUtilsTests.swift */; };
 		B6B7D4E22CED637000567C4B /* SingleTokenNotificationManagerInteractionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6B7D4E12CED637000567C4B /* SingleTokenNotificationManagerInteractionDelegate.swift */; };
+		B6B86A4C2F33505B006C4983 /* CommonDefaultAccountFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6B86A492F33505B006C4983 /* CommonDefaultAccountFactory.swift */; };
+		B6B86A4D2F33505B006C4983 /* DefaultAccountFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6B86A4A2F33505B006C4983 /* DefaultAccountFactory.swift */; };
 		B6B8CB092E96E92F000435D8 /* CryptoAccountsRemoteState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6B8CB082E96E92F000435D8 /* CryptoAccountsRemoteState.swift */; };
 		B6BB46482ECDF1F700EC1F5D /* AccountsAwareDerivationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6BB46462ECDF1F700EC1F5D /* AccountsAwareDerivationManager.swift */; };
 		B6BB464B2ECDF1F700EC1F5D /* DerivationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6BB46492ECDF1F700EC1F5D /* DerivationManager.swift */; };
@@ -7414,7 +7415,6 @@
 		B6ACD00F2AD69B50005A6CA3 /* OrganizeTokensDragAndDropMarkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensDragAndDropMarkView.swift; sourceTree = "<group>"; };
 		B6ACD0112AD6A888005A6CA3 /* OrganizeTokensDragAndDropGestureContextProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensDragAndDropGestureContextProvider.swift; sourceTree = "<group>"; };
 		B6ACD0132AD6A8A1005A6CA3 /* OrganizeTokensDragAndDropGesturePredicate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeTokensDragAndDropGesturePredicate.swift; sourceTree = "<group>"; };
-		B6AD20DC2E9D635700363341 /* DefaultAccountFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultAccountFactory.swift; sourceTree = "<group>"; };
 		B6AD4BBA2CAF8449001338E4 /* MarketsNavigationBarBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsNavigationBarBackgroundView.swift; sourceTree = "<group>"; };
 		B6AD952B2A30072000FE845A /* TokenItemViewLeadingComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenItemViewLeadingComponent.swift; sourceTree = "<group>"; };
 		B6AE4DA42C530C7500070D96 /* MarketsHistoryChartProviderStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsHistoryChartProviderStub.swift; sourceTree = "<group>"; };
@@ -7427,6 +7427,8 @@
 		B6B436B32E3C3CE600006FA7 /* CommonAccountModelsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonAccountModelsManager.swift; sourceTree = "<group>"; };
 		B6B488452EE3348D00F05344 /* AccountModelUtilsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountModelUtilsTests.swift; sourceTree = "<group>"; };
 		B6B7D4E12CED637000567C4B /* SingleTokenNotificationManagerInteractionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleTokenNotificationManagerInteractionDelegate.swift; sourceTree = "<group>"; };
+		B6B86A492F33505B006C4983 /* CommonDefaultAccountFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonDefaultAccountFactory.swift; sourceTree = "<group>"; };
+		B6B86A4A2F33505B006C4983 /* DefaultAccountFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultAccountFactory.swift; sourceTree = "<group>"; };
 		B6B8CB082E96E92F000435D8 /* CryptoAccountsRemoteState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoAccountsRemoteState.swift; sourceTree = "<group>"; };
 		B6BB46462ECDF1F700EC1F5D /* AccountsAwareDerivationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountsAwareDerivationManager.swift; sourceTree = "<group>"; };
 		B6BB46492ECDF1F700EC1F5D /* DerivationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DerivationManager.swift; sourceTree = "<group>"; };
@@ -18080,6 +18082,15 @@
 			path = AccountModel;
 			sourceTree = "<group>";
 		};
+		B6B86A4B2F33505B006C4983 /* DefaultAccountFactory */ = {
+			isa = PBXGroup;
+			children = (
+				B6B86A4A2F33505B006C4983 /* DefaultAccountFactory.swift */,
+				B6B86A492F33505B006C4983 /* CommonDefaultAccountFactory.swift */,
+			);
+			path = DefaultAccountFactory;
+			sourceTree = "<group>";
+		};
 		B6BB46472ECDF1F700EC1F5D /* Accounts */ = {
 			isa = PBXGroup;
 			children = (
@@ -18218,12 +18229,12 @@
 		B6DC54B62E4E8F7F005C8EB9 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				B6B86A4B2F33505B006C4983 /* DefaultAccountFactory */,
 				B6DC54B72E4E8F91005C8EB9 /* AccountDerivationPathHelper.swift */,
 				B6DC54BA2E4E8F91005C8EB9 /* AccountBlockchainManageabilityChecker.swift */,
 				B62FE4112EC4272E00CCBAC1 /* AccountWalletModelsAggregator.swift */,
 				B643EBC02E9BF39D00DBBFE3 /* CryptoAccountConditionsValidator.swift */,
 				B67A22502EC683BB0063CC41 /* CryptoAccountNameUniquenessChecker.swift */,
-				B6AD20DC2E9D635700363341 /* DefaultAccountFactory.swift */,
 				B6017FC82E99C20C004F0046 /* StoredCryptoAccountsMerger.swift */,
 				B6017FC62E993337004F0046 /* StoredCryptoAccountsTokensDistributor.swift */,
 				B65F595B2ECF5E9A00034F94 /* StoredCryptoAccountsCustomTokensMigrator.swift */,
@@ -26949,6 +26960,8 @@
 				B6ACD0142AD6A8A1005A6CA3 /* OrganizeTokensDragAndDropGesturePredicate.swift in Sources */,
 				0F92C2852E8C2A81008C3D32 /* UserWalletsActionButtonsAvailabilityProvider.swift in Sources */,
 				DC0A582928252FEB0031BECC /* TokenItemsRepository.swift in Sources */,
+				B6B86A4C2F33505B006C4983 /* CommonDefaultAccountFactory.swift in Sources */,
+				B6B86A4D2F33505B006C4983 /* DefaultAccountFactory.swift in Sources */,
 				EFFA436B2E02E915001E0E54 /* SendReceiveTokensListTokenViewData.swift in Sources */,
 				EFAF8A842E85EEBF009C3CF9 /* SendGenericFlowBaseDependenciesFactory.swift in Sources */,
 				DA76BF4C2CEF95DF00199317 /* PendingOnrampTransaction.swift in Sources */,
@@ -27415,7 +27428,6 @@
 				EA742AA42E97E3450074FCD2 /* YieldModuleStatusProvider.swift in Sources */,
 				EF729B712AF3E86300D80205 /* ExpressProvidersSelectorView.swift in Sources */,
 				B05F1E66299CB81D00E27E32 /* TransactionViewPlaceholder.swift in Sources */,
-				B6AD20DE2E9D635700363341 /* DefaultAccountFactory.swift in Sources */,
 				B6FFADEA2C5D67E900B43A56 /* DGCharts.ChartViewBase+.swift in Sources */,
 				B0AF2DEF2B1D8FF9001A8696 /* PendingExpressTransactionsManager.swift in Sources */,
 				EF4041352DE46772002F996A /* SendSummaryViewModel.swift in Sources */,
