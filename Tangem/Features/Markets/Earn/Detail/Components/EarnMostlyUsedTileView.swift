@@ -38,7 +38,7 @@ struct EarnMostlyUsedTileView: View {
                 FixedSpacer(height: Layout.textAPRVerticalSpacing)
 
                 // Rate (APY/APR)
-                Text(rateText)
+                Text(viewModel.rateText)
                     .lineLimit(1)
                     .style(Fonts.Bold.caption1, color: Colors.Text.accent)
             }
@@ -64,12 +64,6 @@ struct EarnMostlyUsedTileView: View {
             isWithOverlays: false,
             forceKingfisher: true
         )
-    }
-
-    private var rateText: String {
-        let percentFormatter = PercentFormatter()
-        let formatted = percentFormatter.format(viewModel.rateValue, option: .staking)
-        return "\(viewModel.rateType.rawValue) \(formatted)"
     }
 }
 
