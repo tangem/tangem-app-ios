@@ -12,13 +12,16 @@ import TangemNetworkUtils
 public struct TangemPayAvailabilityServiceBuilder {
     private let apiType: VisaAPIType
     private let bffStaticToken: String
+    private let paeraCustomerFlagRepository: TangemPayPaeraCustomerFlagRepository
 
     public init(
         apiType: VisaAPIType,
-        bffStaticToken: String
+        bffStaticToken: String,
+        paeraCustomerFlagRepository: TangemPayPaeraCustomerFlagRepository
     ) {
         self.apiType = apiType
         self.bffStaticToken = bffStaticToken
+        self.paeraCustomerFlagRepository = paeraCustomerFlagRepository
     }
 
     public func build(
@@ -34,7 +37,8 @@ public struct TangemPayAvailabilityServiceBuilder {
                 ),
                 decoder: makeDecoder(),
                 responseFormat: .wrapped
-            )
+            ),
+            paeraCustomerFlagRepository: paeraCustomerFlagRepository
         )
     }
 
