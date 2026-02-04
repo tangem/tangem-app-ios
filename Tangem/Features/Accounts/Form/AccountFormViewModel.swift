@@ -228,7 +228,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
                 .accountIcon: selectedIcon.id.rawValue,
             ]
 
-            account.enrichAnalyticsParameters(&params, using: SingleAccountAnalyticsBuilder())
+            params.enrich(with: account.analyticsParameters(with: SingleAccountAnalyticsBuilder()))
             Analytics.log(event: .accountSettingsButtonSave, params: params)
 
         case .create:
