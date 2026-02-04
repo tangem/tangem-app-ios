@@ -136,7 +136,7 @@ private extension MobileOnboardingSeedPhraseImportViewModel {
     }
 
     func logWalletImportedAnalytics(seedLength: Int, isPassphraseEmpty: Bool) {
-        let params: [Analytics.ParameterKey: String] = [
+        var params: [Analytics.ParameterKey: String] = [
             .creationType: Analytics.ParameterValue.walletCreationTypeSeedImport.rawValue,
             .seedLength: "\(seedLength)",
             .passphrase: isPassphraseEmpty
@@ -144,6 +144,8 @@ private extension MobileOnboardingSeedPhraseImportViewModel {
                 : Analytics.ParameterValue.full.rawValue,
             .source: Analytics.ParameterValue.importWallet.rawValue,
         ]
+
+        params.enrich(with: ReferralAnalyticsHelper().getReferralParams())
 
         Analytics.log(
             event: .walletCreatedSuccessfully,
