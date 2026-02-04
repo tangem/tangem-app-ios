@@ -47,6 +47,7 @@ protocol YieldAnalyticsLogger {
 final class CommonYieldAnalyticsLogger: YieldAnalyticsLogger {
     private let tokenItem: TokenItem
     private let userWalletId: UserWalletId
+    private let referralAnalyticsHelper = ReferralAnalyticsHelper()
 
     init(tokenItem: TokenItem, userWalletId: UserWalletId) {
         self.tokenItem = tokenItem
@@ -116,18 +117,24 @@ final class CommonYieldAnalyticsLogger: YieldAnalyticsLogger {
     }
 
     func logEarningFundsEarned() {
+        var params = tokenBlockchainParams()
+        params.enrich(with: referralAnalyticsHelper.getReferralParams())
+
         Analytics.log(
             event: .earningFundsEarned,
-            params: tokenBlockchainParams(),
+            params: params,
             analyticsSystems: .all,
             contextParams: .userWallet(userWalletId)
         )
     }
 
     func logEarningFundsWithdrawed() {
+        var params = tokenBlockchainParams()
+        params.enrich(with: referralAnalyticsHelper.getReferralParams())
+
         Analytics.log(
-            event: .earningFundsWithdrawed,
-            params: tokenBlockchainParams(),
+            event: .earningFundsWithdrawn,
+            params: params,
             analyticsSystems: .all,
             contextParams: .userWallet(userWalletId)
         )
