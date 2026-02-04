@@ -15,7 +15,8 @@ import TangemFoundation
 final class CommonMarketsWidgetEarnService {
     // MARK: - Inject Services
 
-    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
+    // [REDACTED_TODO_COMMENT]
+    private var tangemApiService: TangemApiService = FakeTangemApiService()
 
     // MARK: - Private Properties
 
