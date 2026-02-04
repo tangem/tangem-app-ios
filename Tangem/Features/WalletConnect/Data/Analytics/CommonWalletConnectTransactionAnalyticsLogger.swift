@@ -33,7 +33,9 @@ final class CommonWalletConnectTransactionAnalyticsLogger: WalletConnectTransact
             .type: simulationResult.rawValue,
         ]
 
-        transactionData.account?.enrichAnalyticsParameters(&signatureRequestReceivedParams, using: SingleAccountAnalyticsBuilder())
+        if let accountParams = transactionData.account?.analyticsParameters(with: SingleAccountAnalyticsBuilder()) {
+            signatureRequestReceivedParams.enrich(with: accountParams)
+        }
 
         Analytics.log(event: signatureRequestReceivedEvent, params: signatureRequestReceivedParams)
     }
@@ -50,7 +52,9 @@ final class CommonWalletConnectTransactionAnalyticsLogger: WalletConnectTransact
             .type: simulationResult.rawValue,
         ]
 
-        transactionData.account?.enrichAnalyticsParameters(&params, using: SingleAccountAnalyticsBuilder())
+        if let accountParams = transactionData.account?.analyticsParameters(with: SingleAccountAnalyticsBuilder()) {
+            params.enrich(with: accountParams)
+        }
 
         Analytics.log(event: event, params: params, analyticsSystems: .all)
     }
@@ -66,7 +70,9 @@ final class CommonWalletConnectTransactionAnalyticsLogger: WalletConnectTransact
             .errorDescription: error.localizedDescription,
         ]
 
-        transactionData.account?.enrichAnalyticsParameters(&params, using: SingleAccountAnalyticsBuilder())
+        if let accountParams = transactionData.account?.analyticsParameters(with: SingleAccountAnalyticsBuilder()) {
+            params.enrich(with: accountParams)
+        }
 
         Analytics.log(event: event, params: params)
     }

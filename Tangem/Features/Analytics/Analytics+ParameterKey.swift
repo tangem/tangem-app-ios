@@ -147,5 +147,10 @@ extension Analytics {
 
         case cardId = "Card Id"
         case health = "Health"
+
+        // MARK: - Referral
+
+        case referral = "Referral"
+        case referralID = "Referral_ID"
     }
 }
