@@ -67,12 +67,12 @@ struct EarnDetailView: View {
 
             ZStack(alignment: .center) {
                 EarnFilterHeaderView(
+                    isFilterInteractionEnabled: viewModel.isFilterInteractionEnabled,
                     networkFilterTitle: viewModel.selectedNetworkFilterTitle,
                     typesFilterTitle: viewModel.selectedFilterTypeTitle,
                     onNetworksTap: { viewModel.handleViewAction(.networksFilterTap) },
                     onTypesTap: { viewModel.handleViewAction(.typesFilterTap) }
                 )
-//                .disabled(!viewModel.isFilterInteractionEnabled)
 
                 if viewModel.isFilterLoading {
                     ProgressView()
@@ -82,7 +82,9 @@ struct EarnDetailView: View {
             EarnBestOpportunitiesListView(
                 loadingState: viewModel.listLoadingState,
                 tokenViewModels: viewModel.tokenViewModels,
-                retryAction: viewModel.onRetry
+                retryAction: viewModel.onRetry,
+                hasActiveFilters: viewModel.hasActiveFilters,
+                clearFilterAction: viewModel.clearFilters
             )
             .defaultRoundedBackground(
                 with: Color.Tangem.Surface.level4,

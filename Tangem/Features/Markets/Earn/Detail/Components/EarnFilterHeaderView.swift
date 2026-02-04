@@ -12,6 +12,7 @@ import TangemUI
 import TangemLocalization
 
 struct EarnFilterHeaderView: View {
+    let isFilterInteractionEnabled: Bool
     let networkFilterTitle: String
     let typesFilterTitle: String
     let onNetworksTap: () -> Void
@@ -21,21 +22,23 @@ struct EarnFilterHeaderView: View {
         HStack(spacing: Layout.filterSpacing) {
             filterButton(
                 title: networkFilterTitle,
-                action: onNetworksTap
+                action: onNetworksTap,
+                isEnabled: isFilterInteractionEnabled
             )
 
             Spacer()
 
             filterButton(
                 title: typesFilterTitle,
-                action: onTypesTap
+                action: onTypesTap,
+                isEnabled: isFilterInteractionEnabled
             )
         }
         .padding(.horizontal, Layout.horizontalPadding)
         .padding(.vertical, Layout.verticalPadding)
     }
 
-    private func filterButton(title: String, action: @escaping () -> Void) -> some View {
+    private func filterButton(title: String, action: @escaping () -> Void, isEnabled: Bool) -> some View {
         Button {
             action()
         } label: {
@@ -52,6 +55,9 @@ struct EarnFilterHeaderView: View {
                     .fill(Colors.Button.secondary)
             )
         }
+        .style(.plain)
+        .disabled(!isEnabled)
+        .opacity(isEnabled ? Layout.enabledOpacity : Layout.disabledOpacity)
     }
 }
 
