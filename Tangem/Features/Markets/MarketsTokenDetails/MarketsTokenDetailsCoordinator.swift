@@ -231,8 +231,8 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
                 with: .init(
                     userWalletInfo: userWalletModel.userWalletInfo,
                     keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
-                    walletModelsManager: userWalletModel.walletModelsManager,
-                    userTokensManager: userWalletModel.userTokensManager,
+                    walletModelsManager: userWalletModel.walletModelsManager, // accounts_fixes_needed_none
+                    userTokensManager: userWalletModel.userTokensManager, // accounts_fixes_needed_none
                     walletModel: walletModel
                 )
             )
