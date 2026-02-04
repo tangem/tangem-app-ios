@@ -16,6 +16,10 @@ final class UserWalletsActionButtonsAvailabilityProvider {
             return false
         }
 
+        if userWalletRepository.models.count > 1 {
+            return true
+        }
+
         let balanceRestrictionFeatureAvailabilityProvider = BalanceRestrictionFeatureAvailabilityProvider(
             userWalletConfig: userWalletModel.config,
             walletModelsPublisher: AccountsFeatureAwareWalletModelsResolver.walletModelsPublisher(for: userWalletModel),
