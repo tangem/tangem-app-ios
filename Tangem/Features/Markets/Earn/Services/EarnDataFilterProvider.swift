@@ -124,6 +124,8 @@ final class EarnDataFilterProvider {
             .flatMap { $0.userTokensManager.userTokens }
             .map { EarnNetworkInfo(networkId: $0.networkId, networkName: $0.name) }
             .unique()
+
+        print(_myNetworks.map { $0.networkId })
     }
 
     private func loadAvailableNetworks() async {
