@@ -86,7 +86,7 @@ final class CommonCryptoAccountsRepository {
         self.userWalletInfoProvider = userWalletInfoProvider
     }
 
-    // MARK: - Legacy storage migration and initialization, not accounts created, no wallets created, etc.
+    // MARK: - Legacy storage migration and initialization, no accounts created, no wallets created, etc.
 
     private func initializeStorage(with initialAccount: StoredCryptoAccount) {
         persistentStorage.replace(with: [initialAccount])
@@ -126,6 +126,7 @@ final class CommonCryptoAccountsRepository {
 
         let defaultAccount: StoredCryptoAccount
 
+        // [REDACTED_TODO_COMMENT]
         if let existingDefaultAccount = persistentStorage.getList().first(where: { $0.derivationIndex == AccountModelUtils.mainAccountDerivationIndex }) {
             // If the wallet was created offline due to network issues, we use this existing default account
             // Remote data (such as accounts and tokens) will be overwritten (by creating and uploading a new default account),
@@ -262,7 +263,8 @@ final class CommonCryptoAccountsRepository {
         } catch CryptoAccountsNetworkServiceError.missingRevision, CryptoAccountsNetworkServiceError.inconsistentState {
             try await refreshInconsistentState()
             try Task.checkCancellation()
-            try await updateAccountsOnServerAsync(cryptoAccounts: cryptoAccounts, updateOptions: updateOptions) // Schedules a retry after fixing the state
+            // Schedules a retry after fixing the state
+            try await updateAccountsOnServerAsync(cryptoAccounts: cryptoAccounts, updateOptions: updateOptions)
         } catch CryptoAccountsNetworkServiceError.noAccountsCreated {
             try await loadAccountsFromServerAsync() // Implicitly creates a new account if none exist on the server yet
         } catch CryptoAccountsNetworkServiceError.underlyingError(let error) {
