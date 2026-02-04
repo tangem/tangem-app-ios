@@ -159,14 +159,26 @@ private extension MarketsAddTokenFlowConfigurationFactory {
         inputData: MarketsTokensNetworkSelectorViewModel.InputData
     ) -> (AccountsAwareAddTokenFlowConfiguration.AccountAvailabilityContext) -> AccountAvailability {
         { context in
-            let isAddedOnAll = TokenAdditionChecker.isTokenAddedOnNetworks(
-                account: context.account,
+            let tokenItems = MarketsTokenItemsProvider.calculateTokenItems(
                 coinId: inputData.coinId,
-                availableNetworks: inputData.networks,
+                coinName: inputData.coinName,
+                coinSymbol: inputData.coinSymbol,
+                networks: inputData.networks,
+                supportedBlockchains: context.supportedBlockchains,
+                cryptoAccount: context.account
+            )
+
+            guard tokenItems.isNotEmpty else {
+                return .unavailable(reason: nil)
+            }
+
+            let allAdded = TokenAdditionChecker.areTokenItemsAdded(
+                in: context.account,
+                tokenItems: tokenItems,
                 supportedBlockchains: context.supportedBlockchains
             )
 
-            return isAddedOnAll
+            return allAdded
                 ? .unavailable(reason: Localization.marketsTokenAdded)
                 : .available
         }

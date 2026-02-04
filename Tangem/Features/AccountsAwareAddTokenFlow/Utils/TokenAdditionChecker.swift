@@ -11,116 +11,49 @@ import BlockchainSdk
 
 /// Unified checker for token addition status across accounts and wallets.
 enum TokenAdditionChecker {
-    static func isTokenAddedOnNetworks(
-        account: any CryptoAccountModel,
-        coinId: String,
-        availableNetworks: [NetworkModel],
+    static func areTokenItemsAdded(
+        in account: any CryptoAccountModel,
+        tokenItems: [TokenItem],
         supportedBlockchains: Set<Blockchain>
     ) -> Bool {
-        let networksToCheck = networksToCheck(
-            for: account,
-            availableNetworks: availableNetworks,
-            supportedBlockchains: supportedBlockchains
-        )
+        let manageableItems = tokenItems.filter { item in
+            AccountBlockchainManageabilityChecker.canManageNetwork(
+                item.networkId, for: account, in: supportedBlockchains
+            )
+        }
 
-        guard networksToCheck.isNotEmpty else {
+        guard manageableItems.isNotEmpty else {
             return true
         }
 
-        let addedNetworks = addedNetworkIds(for: account, coinId: coinId)
-        let missingNetworks = networksToCheck.subtracting(addedNetworks)
-
-        return missingNetworks.isEmpty
+        return manageableItems.allSatisfy { item in
+            account.userTokensManager.contains(item, derivationInsensitive: false)
+        }
     }
 
-    /// Checks if token is added on networks across ALL accounts in all wallets
-    static func isTokenAddedOnNetworksInAllAccounts(
-        coinId: String,
-        availableNetworks: [NetworkModel],
-        userWalletModels: [any UserWalletModel]
+    /// Checks if token items are added across ALL accounts in all wallets
+    static func areTokenItemsAddedInAllAccounts(
+        userWalletModels: [any UserWalletModel],
+        tokenItemsFactory: (_ account: any CryptoAccountModel, _ supportedBlockchains: Set<Blockchain>) -> [TokenItem]
     ) -> Bool {
-        guard availableNetworks.isNotEmpty else {
-            return true
-        }
-
         let multiCurrencyWallets = userWalletModels.filter { $0.config.hasFeature(.multiCurrency) }
 
         for wallet in multiCurrencyWallets {
             let accounts = wallet.accountModelsManager.cryptoAccountModels
 
             for account in accounts {
-                let isAddedOnAll = isTokenAddedOnNetworks(
-                    account: account,
-                    coinId: coinId,
-                    availableNetworks: availableNetworks,
-                    supportedBlockchains: wallet.config.supportedBlockchains
-                )
+                let tokenItems = tokenItemsFactory(account, wallet.config.supportedBlockchains)
 
-                if !isAddedOnAll {
+                if !areTokenItemsAdded(
+                    in: account,
+                    tokenItems: tokenItems,
+                    supportedBlockchains: wallet.config.supportedBlockchains
+                ) {
                     return false
                 }
             }
         }
 
         return true
-    }
-}
-
-// MARK: - Private Helpers
-
-private extension TokenAdditionChecker {
-    static func networksToCheck(
-        for account: any CryptoAccountModel,
-        availableNetworks: [NetworkModel],
-        supportedBlockchains: Set<Blockchain>
-    ) -> Set<String> {
-        availableNetworks.compactMap { network in
-            guard AccountBlockchainManageabilityChecker.canManageNetwork(network.networkId, for: account, in: supportedBlockchains) else {
-                return nil
-            }
-
-            guard NetworkSupportChecker.isNetworkSupported(network, in: supportedBlockchains) else {
-                return nil
-            }
-
-            return network.networkId
-        }
-        .toSet()
-    }
-
-    static func addedNetworkIds(
-        for account: any CryptoAccountModel,
-        coinId: String
-    ) -> Set<String> {
-        let l2BlockchainIds = Set(SupportedBlockchains.l2Blockchains.map(\.coinId))
-        var result = Set<String>()
-
-        for token in account.userTokensManager.userTokens {
-            if let networkId = matchingNetworkId(for: token, coinId: coinId, l2BlockchainIds: l2BlockchainIds) {
-                result.insert(networkId)
-            }
-        }
-
-        return result
-    }
-
-    static func matchingNetworkId(
-        for token: TokenItem,
-        coinId: String,
-        l2BlockchainIds: Set<String>
-    ) -> String? {
-        guard let tokenId = token.id else {
-            return nil
-        }
-
-        if coinId == Blockchain.ethereum(testnet: false).coinId, l2BlockchainIds.contains(tokenId) {
-            return token.networkId
-        }
-
-        guard tokenId == coinId else {
-            return nil
-        }
-
-        return token.networkId
     }
 }

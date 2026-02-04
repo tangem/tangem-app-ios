@@ -31,7 +31,9 @@ final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
     private weak var coordinator: MarketsPortfolioContainerRoutable?
     private var addTokenTapAction: (() -> Void)?
 
-    private var coinId: String
+    private let coinId: String
+    private let coinName: String
+    private let coinSymbol: String
 
     // Make networks a publisher so changes trigger reactive pipeline
     private let networksSubject = CurrentValueSubject<[NetworkModel]?, Never>(nil)
@@ -50,6 +52,8 @@ final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
         addTokenTapAction: (() -> Void)?
     ) {
         coinId = inputData.coinId
+        coinName = inputData.coinName
+        coinSymbol = inputData.coinSymbol
         self.walletDataProvider = walletDataProvider
         self.coordinator = coordinator
         self.addTokenTapAction = addTokenTapAction
@@ -97,11 +101,19 @@ final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
         return .unavailable
     }
 
-    private func tokenAddedToAllNetworksInAllAccounts(availableNetworks: [NetworkModel]) -> Bool {
-        TokenAdditionChecker.isTokenAddedOnNetworksInAllAccounts(
-            coinId: coinId,
-            availableNetworks: availableNetworks,
-            userWalletModels: walletDataProvider.userWalletModels
+    private func areTokenItemsAddedInAllAccounts(availableNetworks: [NetworkModel]) -> Bool {
+        TokenAdditionChecker.areTokenItemsAddedInAllAccounts(
+            userWalletModels: walletDataProvider.userWalletModels,
+            tokenItemsFactory: { [coinId, coinName, coinSymbol] account, supportedBlockchains in
+                MarketsTokenItemsProvider.calculateTokenItems(
+                    coinId: coinId,
+                    coinName: coinName,
+                    coinSymbol: coinSymbol,
+                    networks: availableNetworks,
+                    supportedBlockchains: supportedBlockchains,
+                    cryptoAccount: account
+                )
+            }
         )
     }
 
@@ -341,7 +353,7 @@ final class MarketsAccountsAwarePortfolioContainerViewModel: ObservableObject {
     private func updateTypeView(hasTokens: Bool, listStyle: TypeView.ListStyle, animated: Bool) {
         if let networks {
             let supportedState = supportedState(networks: networks)
-            isAddTokenButtonDisabled = tokenAddedToAllNetworksInAllAccounts(availableNetworks: networks)
+            isAddTokenButtonDisabled = areTokenItemsAddedInAllAccounts(availableNetworks: networks)
 
             let targetState = determineTypeViewState(hasTokens: hasTokens, listStyle: listStyle, supportedState: supportedState)
 
@@ -442,6 +454,8 @@ extension MarketsAccountsAwarePortfolioContainerViewModel: MarketsPortfolioConte
 extension MarketsAccountsAwarePortfolioContainerViewModel {
     struct InputData {
         let coinId: String
+        let coinName: String
+        let coinSymbol: String
     }
 
     enum SupportedStateOption {
