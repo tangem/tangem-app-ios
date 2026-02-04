@@ -101,6 +101,7 @@ enum EmailCollectedDataType {
     case token(TokenData)
     case visaDisputeTransaction(VisaDisputeTransactionData)
     case mobileWallet(MobileWalletData)
+    case tangemPayCustomerId
 
     enum CardData: String {
         case cardId = "Card ID"
@@ -192,6 +193,7 @@ enum EmailCollectedDataType {
         case .separator(let type): return type.rawValue
         case .visaDisputeTransaction(let data): return data.rawValue + ": "
         case .mobileWallet(let data): return data.rawValue + ": "
+        case .tangemPayCustomerId: return "Tangem Pay Customer ID: "
         }
     }
 }
