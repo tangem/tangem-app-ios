@@ -286,9 +286,10 @@ private extension CommonUserWalletModelDependencies {
             userWalletId: userWalletId,
             mapper: mapper
         )
-        let defaultAccountFactory = DefaultAccountFactory(
+        let defaultAccountFactory = CommonDefaultAccountFactory(
             userWalletId: userWalletId,
-            defaultBlockchains: config.defaultBlockchains
+            defaultBlockchains: config.defaultBlockchains,
+            persistentStorage: persistentStorage
         )
         let cryptoAccountsRepository = CommonCryptoAccountsRepository(
             tokenItemsRepository: tokenItemsRepository,
