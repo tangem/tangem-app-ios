@@ -122,7 +122,7 @@ extension WalletConnectBitcoinSignMessageHandler: WalletConnectMessageHandler {
     var method: WalletConnectMethod { .signMessage }
 
     var requestData: Data {
-        Data(hex: message)
+        Data(message.utf8)
     }
 
     var rawTransaction: String? {
