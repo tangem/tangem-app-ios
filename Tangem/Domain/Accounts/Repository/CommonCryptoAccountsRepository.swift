@@ -208,7 +208,7 @@ final class CommonCryptoAccountsRepository {
                 // therefore tokens need to be updated on the server
                 try await updateAccountsOnServerAsync(cryptoAccounts: updatedAccounts, updateOptions: .tokens)
             }
-        } catch CryptoAccountsNetworkServiceError.missingRevision, CryptoAccountsNetworkServiceError.inconsistentState {
+        } catch CryptoAccountsNetworkServiceError.inconsistentState {
             // Impossible case, since we don't update remote accounts here
             preconditionFailure("Unexpected state: missing revision or inconsistent state when loading accounts from server")
         } catch CryptoAccountsNetworkServiceError.underlyingError(let error) {
@@ -260,7 +260,7 @@ final class CommonCryptoAccountsRepository {
             if updateOptions.contains(.tokens) {
                 try await networkService.saveTokens(from: cryptoAccounts, tokenListUpdateOptions: .none)
             }
-        } catch CryptoAccountsNetworkServiceError.missingRevision, CryptoAccountsNetworkServiceError.inconsistentState {
+        } catch CryptoAccountsNetworkServiceError.inconsistentState {
             try await refreshInconsistentState()
             try Task.checkCancellation()
             // Schedules a retry after fixing the state
