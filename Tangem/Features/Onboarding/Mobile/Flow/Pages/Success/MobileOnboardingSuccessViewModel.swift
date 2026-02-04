@@ -41,7 +41,7 @@ extension MobileOnboardingSuccessViewModel {
         onAppear()
     }
 
-    func actionButtonAccessibilityIdentifier() -> String {
+    var actionButtonAccessibilityIdentifier: String {
         switch type {
         case .walletImported:
             return OnboardingAccessibilityIdentifiers.seedImportSuccessContinueButton
