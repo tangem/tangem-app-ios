@@ -62,6 +62,7 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
             }
             .navigation(item: $coordinator.newsPagerViewModel) { viewModel in
                 NewsPagerView(viewModel: viewModel)
+                    .navigationLinks(newsRelatedTokenDetailsLink)
             }
             .fullScreenCover(item: $coordinator.yieldModulePromoCoordinator) { coordinator in
                 NavigationView {
@@ -93,6 +94,14 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
             hPadding: Constants.backButtonHorizontalPadding,
             action: { UIApplication.dismissTop() }
         )
+    }
+
+    private var newsRelatedTokenDetailsLink: some View {
+        NavHolder()
+            .navigation(item: $coordinator.newsRelatedTokenDetailsCoordinator) { tokenCoordinator in
+                MarketsTokenDetailsCoordinatorView(coordinator: tokenCoordinator)
+                    .ignoresSafeArea(.container, edges: .top)
+            }
     }
 }
 

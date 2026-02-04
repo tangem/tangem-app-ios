@@ -154,16 +154,20 @@ struct GaslessTransactionBuilder {
         }
 
         let maxTokenFeeInTokenUnits = (bsdkFee.amount.value * token.decimalValue).intValue(roundingMode: .up).description
-        var coinPriceInTokenUnits = (parameters.nativeToFeeTokenRate * token.decimalValue)
 
-        coinPriceInTokenUnits *= 1.01
+        let bufferedCoinPriceInTokenUnits = (
+            parameters.bufferedNativeToFeeTokenRate.rounded(scale: token.decimalCount) * token.decimalValue
+        ).description
+
+        let feeTransferGasLimit = parameters.feeTokenTransferGasLimit.description
+        let baseGas = EthereumFeeParametersConstants.gaslessBaseGasBuffer.description
 
         return GaslessTransactionFee(
             feeToken: token.contractAddress,
             maxTokenFee: maxTokenFeeInTokenUnits,
-            coinPriceInToken: coinPriceInTokenUnits.intValue(roundingMode: .up).description,
-            feeTransferGasLimit: parameters.feeTokenTransferGasLimit.description,
-            baseGas: Constants.baseGas,
+            coinPriceInToken: bufferedCoinPriceInTokenUnits,
+            feeTransferGasLimit: feeTransferGasLimit,
+            baseGas: baseGas,
             feeReceiver: feeRecipientAddress
         )
     }
@@ -182,14 +186,6 @@ struct GaslessTransactionBuilder {
         }
 
         return try await networkProvider.getSmartContractNonce(for: address).async().description
-    }
-}
-
-// MARK: - Constants
-
-extension GaslessTransactionBuilder {
-    enum Constants {
-        static let baseGas = "100000"
     }
 }
 
