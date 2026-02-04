@@ -6,15 +6,39 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import SwiftUI
+import TangemAssets
 import TangemUI
 import TangemLocalization
 
-final class TangemPayWithdrawNoteSheetViewModel {
+final class TangemPayWithdrawNoteSheetViewModel: TangemPayPopupViewModel {
     @Injected(\.alertPresenterViewModel)
     private var alertPresenterViewModel: AlertPresenterViewModel
 
     private weak var coordinator: TangemPayWithdrawNoteSheetRoutable?
     private let openWithdrawal: () -> Void
+
+    var primaryButton: MainButton.Settings {
+        .init(
+            title: Localization.commonGotIt,
+            style: .primary,
+            action: openWithdrawal
+        )
+    }
+
+    var secondaryButton: MainButton.Settings? = nil
+
+    var title: AttributedString {
+        .init(Localization.tangempayWithdrawalNoteTitle)
+    }
+
+    var description: AttributedString {
+        .init(Localization.tangempayWithdrawalNoteDescription)
+    }
+
+    var icon: Image {
+        Assets.warningIcon.image
+    }
 
     init(
         coordinator: TangemPayWithdrawNoteSheetRoutable,
@@ -24,21 +48,7 @@ final class TangemPayWithdrawNoteSheetViewModel {
         self.openWithdrawal = openWithdrawal
     }
 
-    var gotItButton: MainButton.Settings {
-        .init(
-            title: Localization.commonGotIt,
-            style: .primary,
-            action: openWithdrawal
-        )
-    }
-
-    func close() {
+    func dismiss() {
         coordinator?.closeWithdrawNoteSheetPopup()
-    }
-}
-
-extension TangemPayWithdrawNoteSheetViewModel: FloatingSheetContentViewModel {
-    var id: String {
-        String(describing: self)
     }
 }

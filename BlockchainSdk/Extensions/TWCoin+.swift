@@ -142,6 +142,7 @@ extension CoinType {
              .quai,
              .scroll,
              .linea,
+             .monad,
              .arbitrumNova,
              .plasma:
             // Blockchains that are not in WalletCore yet
