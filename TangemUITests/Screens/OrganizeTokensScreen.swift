@@ -50,6 +50,7 @@ final class OrganizeTokensScreen: ScreenBase<OrganizeTokensScreenElement> {
     }
 
     func isGrouped() -> Bool {
+        waitAndAssertTrue(groupButton, "Wait for group button to exist")
         let groupButtonTitle = groupButton.label.lowercased()
         if groupButtonTitle.contains("ungroup") {
             return true
