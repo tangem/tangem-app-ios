@@ -84,6 +84,11 @@ struct EarnDetailView: View {
                 tokenViewModels: viewModel.tokenViewModels,
                 retryAction: viewModel.onRetry
             )
+            .defaultRoundedBackground(
+                with: Color.Tangem.Surface.level4,
+                verticalPadding: Layout.innerContentPadding,
+                horizontalPadding: Layout.innerContentPadding
+            )
         }
     }
 }
@@ -92,5 +97,6 @@ private extension EarnDetailView {
     enum Layout {
         static let sectionSpacing: CGFloat = 12.0
         static let horizontalPadding: CGFloat = 16.0
+        static let innerContentPadding: CGFloat = 0.0
     }
 }
