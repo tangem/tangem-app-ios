@@ -55,17 +55,11 @@ class CommonSendAnalyticsLogger {
         var result: [Analytics.ParameterKey: String] = [:]
 
         if let sourceAccount = sendSourceTokenInput?.sourceToken.accountModelAnalyticsProvider {
-            sourceAccount.enrichAnalyticsParameters(
-                &result,
-                using: PairedAccountAnalyticsBuilder(role: .source)
-            )
+            result.enrich(with: sourceAccount.analyticsParameters(with: PairedAccountAnalyticsBuilder(role: .source)))
         }
 
         if let destinationAnalyticsProvider {
-            destinationAnalyticsProvider.enrichAnalyticsParameters(
-                &result,
-                using: PairedAccountAnalyticsBuilder(role: .destination)
-            )
+            result.enrich(with: destinationAnalyticsProvider.analyticsParameters(with: PairedAccountAnalyticsBuilder(role: .destination)))
         }
 
         return result
