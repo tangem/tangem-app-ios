@@ -14,8 +14,7 @@ import TangemFoundation
 final class EarnDataProvider {
     // MARK: - Dependencies
 
-    // [REDACTED_TODO_COMMENT]
-    private var tangemApiService: TangemApiService = FakeTangemApiService()
+    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     // MARK: - Subjects
 
