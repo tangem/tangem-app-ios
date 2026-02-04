@@ -11,6 +11,10 @@ import TangemFoundation
 
 @MainActor
 final class EarnDetailViewModel: ObservableObject {
+    // MARK: - Injected & Published Properties
+
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
     // MARK: - Published Properties
 
     @Published private(set) var mostlyUsedViewModels: [EarnTokenItemViewModel] = []
@@ -22,6 +26,10 @@ final class EarnDetailViewModel: ObservableObject {
 
     private weak var coordinator: EarnDetailRoutable?
 
+    private var userWalletModels: [UserWalletModel] {
+        userWalletRepository.models.filter { !$0.isUserWalletLocked }
+    }
+
     // [REDACTED_TODO_COMMENT]
     // [REDACTED_TODO_COMMENT]
 
@@ -29,6 +37,7 @@ final class EarnDetailViewModel: ObservableObject {
 
     init(
         mostlyUsedTokens: [EarnTokenModel],
+        
         coordinator: EarnDetailRoutable? = nil
     ) {
         self.coordinator = coordinator
@@ -41,7 +50,8 @@ final class EarnDetailViewModel: ObservableObject {
     private func setupMostlyUsedViewModels(from tokens: [EarnTokenModel]) {
         mostlyUsedViewModels = tokens.map { token in
             EarnTokenItemViewModel(token: token) { [weak self] in
-                self?.coordinator?.openEarnTokenDetails(for: token)
+                guard let self else { return }
+                coordinator?.openAddEarnToken(for: token, userWalletModels: userWalletModels)
             }
         }
     }
