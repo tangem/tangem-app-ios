@@ -124,11 +124,21 @@ final class CommonCryptoAccountsRepository {
             try await createWallet()
         }
 
-        // In some rare edge cases, when a wallet has already been created and used on a previous app version
-        // (w/o accounts support) and this wallet has an empty token list, default tokens from
-        // `DefaultAccountFactory.defaultBlockchains` (i.e. `UserWalletConfig.defaultBlockchains`) will be added
-        // to the newly created account. We consider this behavior acceptable (mirrors the Android implementation).
-        let defaultAccount = defaultAccountFactory.makeDefaultAccount(defaultTokensOverride: additionalTokens)
+        let defaultAccount: StoredCryptoAccount
+
+        if let existingDefaultAccount = persistentStorage.getList().first(where: { $0.derivationIndex == AccountModelUtils.mainAccountDerivationIndex }) {
+            // If the wallet was created offline due to network issues, we use this existing default account
+            // Remote data (such as accounts and tokens) will be overwritten (by creating and uploading a new default account),
+            // this is expected behavior
+            defaultAccount = existingDefaultAccount
+        } else {
+            // In some rare edge cases, when a wallet has already been created and used on a previous app version
+            // (w/o accounts support) and this wallet has an empty token list, default tokens from
+            // `DefaultAccountFactory.defaultBlockchains` (i.e. `UserWalletConfig.defaultBlockchains`) will be added
+            // to the newly created account. We consider this behavior acceptable (mirrors the Android implementation).
+            defaultAccount = defaultAccountFactory.makeDefaultAccount(defaultTokensOverride: additionalTokens)
+        }
+
         _ = try await addAccountsInternal([defaultAccount], tokenListUpdateOptions: .forceUpdate)
     }
 
@@ -431,8 +441,15 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
             // Local-only storage initialization with a default account
             initializeStorage(with: defaultAccountFactory.makeDefaultAccount(defaultTokensOverride: []))
         } else {
-            // Last resort option: initialize storage with remote info from the server
-            loadAccountsFromServer()
+            // Last resort option: initialize storage with remote info from the server and
+            // fallback to an offline (local) default account in case of failure
+            loadAccountsFromServer { [weak self] result in
+                guard result.error != nil, let self else {
+                    return
+                }
+
+                initializeStorage(with: defaultAccountFactory.makeDefaultAccount(defaultTokensOverride: []))
+            }
         }
     }
 
