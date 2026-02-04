@@ -96,7 +96,7 @@ struct ExpandedAccountItemHeaderView: View {
 
     @ViewBuilder
     private var balanceView: some View {
-        if totalFiatBalance.isLoaded {
+        if shouldShowBalance {
             LoadableTokenBalanceView(
                 state: totalFiatBalance,
                 style: .init(font: .Tangem.caption1Medium, textColor: .Tangem.Text.Neutral.tertiary),
@@ -104,6 +104,10 @@ struct ExpandedAccountItemHeaderView: View {
             )
             .matchedGeometryEffect(balanceGeometryEffect)
         }
+    }
+
+    private var shouldShowBalance: Bool {
+        totalFiatBalance.isLoaded && totalFiatBalance != .empty
     }
 
     private var alignmentPoint: some View {
