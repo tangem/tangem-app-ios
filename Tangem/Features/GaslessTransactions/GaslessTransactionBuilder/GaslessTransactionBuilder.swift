@@ -154,7 +154,11 @@ struct GaslessTransactionBuilder {
         }
 
         let maxTokenFeeInTokenUnits = (bsdkFee.amount.value * token.decimalValue).intValue(roundingMode: .up).description
-        let bufferedCoinPriceInTokenUnits = (parameters.bufferedNativeToFeeTokenRate * token.decimalValue).intValue(roundingMode: .up).description
+
+        let bufferedCoinPriceInTokenUnits = (
+            parameters.bufferedNativeToFeeTokenRate.rounded(scale: token.decimalCount) * token.decimalValue
+        ).description
+
         let feeTransferGasLimit = parameters.feeTokenTransferGasLimit.description
         let baseGas = EthereumFeeParametersConstants.gaslessBaseGasBuffer.description
 

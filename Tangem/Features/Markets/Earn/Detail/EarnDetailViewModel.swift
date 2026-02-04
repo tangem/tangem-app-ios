@@ -12,6 +12,10 @@ import TangemFoundation
 
 @MainActor
 final class EarnDetailViewModel: ObservableObject {
+    // MARK: - Injected & Published Properties
+
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
     // MARK: - Published Properties
 
     @Published private(set) var mostlyUsedViewModels: [EarnTokenItemViewModel] = []
@@ -41,6 +45,10 @@ final class EarnDetailViewModel: ObservableObject {
     private let dataProvider = EarnDataProvider()
     private weak var coordinator: EarnDetailRoutable?
 
+    private var userWalletModels: [UserWalletModel] {
+        userWalletRepository.models.filter { !$0.isUserWalletLocked }
+    }
+
     private var bag = Set<AnyCancellable>()
 
     // MARK: - Init
@@ -48,6 +56,7 @@ final class EarnDetailViewModel: ObservableObject {
     init(
         filterProvider: EarnDataFilterProvider,
         mostlyUsedTokens: [EarnTokenModel],
+
         coordinator: EarnDetailRoutable? = nil
     ) {
         self.filterProvider = filterProvider
@@ -84,7 +93,8 @@ final class EarnDetailViewModel: ObservableObject {
     private func setupMostlyUsedViewModels(from tokens: [EarnTokenModel]) {
         mostlyUsedViewModels = tokens.map { token in
             EarnTokenItemViewModel(token: token) { [weak self] in
-                self?.coordinator?.openEarnTokenDetails(for: token)
+                guard let self else { return }
+                coordinator?.openAddEarnToken(for: token, userWalletModels: userWalletModels)
             }
         }
     }
@@ -134,7 +144,8 @@ final class EarnDetailViewModel: ObservableObject {
         case .appendedItems(let models, let lastPage):
             let newViewModels = models.map { token in
                 EarnTokenItemViewModel(token: token) { [weak self] in
-                    self?.coordinator?.openEarnTokenDetails(for: token)
+                    guard let self else { return }
+                    coordinator?.openAddEarnToken(for: token, userWalletModels: userWalletModels)
                 }
             }
             tokenViewModels.append(contentsOf: newViewModels)
