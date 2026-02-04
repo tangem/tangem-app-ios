@@ -43,7 +43,7 @@ final class SeedPhraseImportScreen: ScreenBase<SeedPhraseImportScreenElement> {
     func tapImportButton() -> SeedImportSuccessScreen {
         XCTContext.runActivity(named: "Tap Import button") { _ in
             importButton.waitAndTap()
-            return SeedImportSuccessScreen(app).waitForScreen()
+            return SeedImportSuccessScreen(app)
         }
     }
 
