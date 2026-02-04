@@ -1,5 +1,5 @@
 //
-//  EarnWidgetRoutable.swift
+//  EarnDetailRoutable.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,9 @@
 import Foundation
 
 @MainActor
-protocol EarnWidgetRoutable: AnyObject {
-    func openSeeAllEarnWidget(mostlyUsedTokens: [EarnTokenModel])
+protocol EarnDetailRoutable: AnyObject {
+    func dismiss()
     func openAddEarnToken(for token: EarnTokenModel, userWalletModels: [UserWalletModel])
+    func openNetworksFilter()
+    func openTypesFilter()
 }
