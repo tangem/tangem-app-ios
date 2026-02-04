@@ -153,5 +153,12 @@ extension NEARTarget: TargetTypeLogConvertible {
         }
     }
 
-    var shouldLogResponseBody: Bool { true }
+    var shouldLogResponseBody: Bool {
+        switch target {
+        case .protocolConfig:
+            return false
+        default:
+            return true
+        }
+    }
 }
