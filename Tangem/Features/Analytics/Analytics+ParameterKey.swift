@@ -126,5 +126,10 @@ extension Analytics {
 
         case backupManual = "Manual Backup"
         case backupICloud = "Icloud Backup"
+
+        // MARK: - Referral
+
+        case referral = "Referral"
+        case referralID = "Referral_ID"
     }
 }
