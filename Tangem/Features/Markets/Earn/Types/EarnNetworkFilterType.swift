@@ -25,7 +25,7 @@ enum EarnNetworkFilterType: Hashable, Identifiable {
     var description: String {
         switch self {
         case .all: return Localization.earnFilterAllNetworks
-        case .my: return Localization.earnFilterMyNetworks
+        case .my: return "My network"
         case .network: return "" // Section 2 rows use blockchain displayName
         }
     }
