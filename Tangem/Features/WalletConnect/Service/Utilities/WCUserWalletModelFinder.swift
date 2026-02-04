@@ -15,10 +15,9 @@ enum WCUserWalletModelFinder {
         case .v1(let dAppV1):
             try firstUserWallet(from: userWalletModels, with: { $0.userWalletId.stringValue == dAppV1.userWalletID })
         case .v2(let dAppV2):
-            try firstUserWallet(from: userWalletModels) {
-                let account = WCAccountFinder.findCryptoAccountModel(by: dAppV2.accountId, accountModelsManager: $0.accountModelsManager)
-
-                return account != nil
+            try firstUserWallet(from: userWalletModels) { userWalletModel in
+                userWalletModel.userWalletId.stringValue == dAppV2.userWalletID
+                    && findCryptoAccountModel(dAppV2: dAppV2, userWalletModel: userWalletModel) != nil
             }
         }
     }
@@ -32,5 +31,12 @@ enum WCUserWalletModelFinder {
         }
 
         return userWalletModel
+    }
+
+    private static func findCryptoAccountModel(
+        dAppV2: WalletConnectConnectedDAppV2,
+        userWalletModel: any UserWalletModel
+    ) -> (any CryptoAccountModel)? {
+        return WCAccountFinder.findCryptoAccountModel(by: dAppV2.accountId, accountModelsManager: userWalletModel.accountModelsManager)
     }
 }
