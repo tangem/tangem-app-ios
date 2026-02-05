@@ -47,7 +47,7 @@ final class PulseMarketWidgetViewModel: ObservableObject {
     private let widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler
     private let analyticsService: PulseMarketWidgetAnalyticsProvider
 
-    private let filterProvider = MarketsListDataFilterProvider()
+    private let filterProvider = MarketsListDataFilterProvider(initialOrderType: Constants.initialOrderType)
     private let dataProvider = MarketsListDataProvider()
     private let chartsHistoryProvider = MarketsListChartsHistoryProvider()
     private let quotesUpdatesScheduler = MarketsQuotesUpdatesScheduler()
@@ -303,6 +303,7 @@ private extension PulseMarketWidgetViewModel {
 
 private extension PulseMarketWidgetViewModel {
     enum Constants {
+        static let initialOrderType: MarketsListOrderType = .trending
         static let itemsOnListWidget = 5
     }
 }

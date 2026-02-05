@@ -8,6 +8,8 @@
 
 import SwiftUI
 import TangemUI
+import TangemVisa
+import TangemFoundation
 import TangemLocalization
 import TangemAssets
 import TangemPay
@@ -47,6 +49,7 @@ final class TangemPayKYCDeclinedPopupViewModel: TangemPayPopupViewModel {
         start.foregroundColor = Colors.Text.secondary
 
         var end = AttributedString(Localization.tangempayKycRejectedDescriptionSpan)
+        end.link = URL(string: "blank:url")
         end.foregroundColor = Colors.Text.accent
 
         return start + end
@@ -66,6 +69,17 @@ final class TangemPayKYCDeclinedPopupViewModel: TangemPayPopupViewModel {
 
     func dismiss() {
         coordinator?.closeKYCDeclinedPopup()
+    }
+
+    func onHyperLinkTap(_ link: URL) {
+        coordinator?.closeKYCDeclinedPopup()
+        runTask(in: self) { viewModel in
+            do {
+                try await viewModel.tangemPayManager.launchKYC()
+            } catch {
+                VisaLogger.error("Failed to launch KYC from hyperlink", error: error)
+            }
+        }
     }
 
     private func openSupport() {
