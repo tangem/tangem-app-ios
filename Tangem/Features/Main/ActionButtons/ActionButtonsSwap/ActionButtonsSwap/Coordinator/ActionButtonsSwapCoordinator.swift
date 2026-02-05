@@ -56,8 +56,13 @@ final class ActionButtonsSwapCoordinator: CoordinatorObject {
                 userWalletModel: userWalletModel,
                 sourceSwapTokenSelectorViewModel: makeTokenSelectorViewModel()
             ))
-        case .new:
-            viewType = .new(NewActionButtonsSwapViewModel(coordinator: self))
+        case .new(let tokenSelectorViewModel):
+            viewType = .new(
+                AccountsAwareActionButtonsSwapViewModel(
+                    tokenSelectorViewModel: tokenSelectorViewModel,
+                    coordinator: self
+                )
+            )
         }
     }
 }
@@ -67,15 +72,15 @@ final class ActionButtonsSwapCoordinator: CoordinatorObject {
 extension ActionButtonsSwapCoordinator {
     enum Options {
         case `default`
-        case new
+        case new(tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel)
     }
 }
 
 // MARK: - ActionButtonsSwapRoutable
 
 extension ActionButtonsSwapCoordinator: ActionButtonsSwapRoutable {
-    func openExpress(input: CommonExpressModulesFactory.InputModel) {
-        let factory = CommonExpressModulesFactory(inputModel: input)
+    func openExpress(input: ExpressDependenciesInput) {
+        let factory = CommonExpressModulesFactory(input: input)
         let coordinator = ExpressCoordinator(
             factory: factory,
             dismissAction: dismissAction,
@@ -124,7 +129,7 @@ private extension ActionButtonsSwapCoordinator {
 extension ActionButtonsSwapCoordinator {
     enum ViewType: Identifiable {
         case legacy(ActionButtonsSwapViewModel)
-        case new(NewActionButtonsSwapViewModel)
+        case new(AccountsAwareActionButtonsSwapViewModel)
         case express(ExpressCoordinator)
 
         var id: String {

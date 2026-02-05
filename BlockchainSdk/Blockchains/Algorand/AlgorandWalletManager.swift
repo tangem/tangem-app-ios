@@ -27,40 +27,32 @@ final class AlgorandWalletManager: BaseManager {
 
     // MARK: - Implementation
 
-    override func update(completion: @escaping (Result<Void, Error>) -> Void) {
-        let transactionStatusesPublisher = wallet
-            .pendingTransactions
-            .publisher
-            .setFailureType(to: Error.self)
-            .withWeakCaptureOf(self)
-            .flatMap { walletManager, transaction in
-                return walletManager.networkService.getPendingTransaction(transactionHash: transaction.hash)
-            }
-            .compactMap { $0 }
-            .collect()
-
-        let accountInfoPublisher = networkService
-            .getAccount(address: wallet.address)
-
-        cancellable = Publishers.CombineLatest(accountInfoPublisher, transactionStatusesPublisher)
-            .withWeakCaptureOf(self)
-            .tryMap { walletManager, input in
-                let (accountInfo, _) = input
-                try walletManager.validateMinimalBalanceAccount(with: accountInfo)
-                return input
-            }
-            .sink(receiveCompletion: { [weak self] result in
-                switch result {
-                case .failure(let error):
-                    self?.wallet.clearAmounts()
-                    completion(.failure(error))
-                case .finished:
-                    completion(.success(()))
+    override func updateWalletManager() async throws {
+        do {
+            async let transactionsInfo: [AlgorandTransactionInfo] = {
+                guard !wallet.pendingTransactions.isEmpty else {
+                    return []
                 }
-            }, receiveValue: { [weak self] accountInfo, transactionsInfo in
-                self?.update(with: accountInfo)
-                self?.updatePendingTransactions(with: transactionsInfo)
-            })
+
+                let transactions = await TaskGroup.executeKeepingOrder(items: wallet.pendingTransactions) { tx in
+                    try? await self.networkService.getPendingTransaction(transactionHash: tx.hash).async()
+                }
+
+                return transactions.compactMap { $0 }
+            }()
+
+            // Fetch account info
+            async let accountInfo = networkService.getAccount(address: wallet.address).async()
+
+            // Validate and update state
+            try await validateMinimalBalanceAccount(with: accountInfo)
+            try await update(with: accountInfo)
+
+            await updatePendingTransactions(with: transactionsInfo)
+        } catch {
+            wallet.clearAmounts()
+            throw error
+        }
     }
 }
 
@@ -163,7 +155,7 @@ extension AlgorandWalletManager {
                 let mapper = PendingTransactionRecordMapper()
                 let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: txId)
                 walletManager.wallet.addPendingTransaction(record)
-                return TransactionSendResult(hash: txId)
+                return TransactionSendResult(hash: txId, currentProviderHost: walletManager.currentHost)
             }
             .mapSendTxError()
             .eraseToAnyPublisher()

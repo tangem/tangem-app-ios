@@ -45,7 +45,39 @@ class WalletConnectV2SendTransactionHandler {
         }
 
         self.transactionBuilder = transactionBuilder
-        transactionDispatcher = SendTransactionDispatcher(walletModel: walletModel, transactionSigner: signer)
+        transactionDispatcher = TransactionDispatcherFactory(walletModel: walletModel, signer: signer).makeSendDispatcher()
+        request = requestParams
+    }
+
+    init(
+        requestParams: AnyCodable,
+        blockchainId: String,
+        transactionBuilder: WCEthTransactionBuilder,
+        signer: TangemSigner,
+        wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider,
+        accountId: String
+    ) throws {
+        do {
+            let params = try requestParams.get([WalletConnectEthTransaction].self)
+
+            guard let wcTransaction = params.first else {
+                throw WalletConnectTransactionRequestProcessingError.invalidPayload(requestParams.description)
+            }
+
+            self.wcTransaction = wcTransaction
+
+            walletModel = try wcAccountsWalletModelProvider.getModel(
+                with: wcTransaction.from,
+                blockchainId: blockchainId,
+                accountId: accountId
+            )
+        } catch {
+            WCLogger.error("Failed to create Send transaction handler", error: error)
+            throw error
+        }
+
+        self.transactionBuilder = transactionBuilder
+        transactionDispatcher = TransactionDispatcherFactory(walletModel: walletModel, signer: signer).makeSendDispatcher()
         request = requestParams
     }
 }
@@ -81,7 +113,8 @@ extension WalletConnectV2SendTransactionHandler: WalletConnectMessageHandler, WC
             .token: SendAnalyticsHelper.makeAnalyticsTokenName(from: walletModel.tokenItem),
             .blockchain: walletModel.tokenItem.blockchain.displayName,
             .walletForm: result.signerType,
-        ])
+            .selectedHost: result.currentHost,
+        ], analyticsSystems: .all)
 
         return RPCResult.response(AnyCodable(result.hash.lowercased()))
     }

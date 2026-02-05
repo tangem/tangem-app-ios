@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct MobileOnboardingSuccessView: View {
     typealias ViewModel = MobileOnboardingSuccessViewModel
@@ -51,5 +52,6 @@ extension MobileOnboardingSuccessView {
             title: item.title,
             action: item.action
         )
+        .accessibilityIdentifier(viewModel.actionButtonAccessibilityIdentifier)
     }
 }

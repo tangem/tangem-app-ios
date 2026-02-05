@@ -13,36 +13,14 @@ final class SendKusamaNotificationUITests: BaseTestCase {
     private let coin = "Kusama"
     private let destinationAddress = "CqNrR92Hh76vW69vDBL5iATrZoYkk9nj67iVSUbb2YHtktn"
 
-    override func setUp() {
-        super.setUp()
-
-        let kusamaTokenScenario = ScenarioConfig(
-            name: "user_tokens_api",
-            initialState: "Kusama"
-        )
-        let quotesScenario = ScenarioConfig(
-            name: "quotes_api",
-            initialState: "Kusama"
-        )
-
-        launchApp(
-            tangemApiType: .mock,
-            clearStorage: true,
-            scenarios: [kusamaTokenScenario, quotesScenario]
-        )
-
-        StoriesScreen(app)
-            .scanMockWallet(name: .wallet2)
-            .tapToken(coin)
-            .tapSendButton()
-    }
-
     func testKusamaDepositWarningNotification() {
         setAllureId(4291)
 
+        prepareSendFlow()
+
         // the remaining balance is less than the required deposit
         let sendScreen = SendScreen(app)
-            .validate()
+            .waitForDisplay()
             .enterAmount("0.300333")
             .tapNextButton()
             .enterDestination(destinationAddress)
@@ -64,5 +42,27 @@ final class SendKusamaNotificationUITests: BaseTestCase {
             .tapNextButton()
             .waitForExistentialDepositWarningBannerNotExists()
             .waitForSendButtonEnabled()
+    }
+
+    private func prepareSendFlow() {
+        let kusamaTokenScenario = ScenarioConfig(
+            name: "user_tokens_api",
+            initialState: "Kusama"
+        )
+        let quotesScenario = ScenarioConfig(
+            name: "quotes_api",
+            initialState: "Kusama"
+        )
+
+        launchApp(
+            tangemApiType: .mock,
+            clearStorage: true,
+            scenarios: [kusamaTokenScenario, quotesScenario]
+        )
+
+        CreateWalletSelectorScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .tapToken(coin)
+            .tapSendButton()
     }
 }

@@ -20,14 +20,12 @@ struct AuthCoordinatorView: CoordinatorView {
     }
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             content
                 .navigationLinks(links)
         }
-        .navigationViewStyle(.stack)
     }
 
-    @ViewBuilder
     private var content: some View {
         ZStack {
             if let rootViewModel = coordinator.rootViewModel {
@@ -38,26 +36,14 @@ struct AuthCoordinatorView: CoordinatorView {
             if let rootViewModel = coordinator.newRootViewModel {
                 NewAuthView(viewModel: rootViewModel)
             }
-
-            sheets
         }
     }
 
-    @ViewBuilder
-    private var sheets: some View {
-        NavHolder()
-            .sheet(item: $coordinator.mailViewModel) {
-                MailView(viewModel: $0)
-            }
-    }
-
-    @ViewBuilder
     private var links: some View {
         NavHolder()
             .navigation(item: $coordinator.addWalletSelectorCoordinator) {
                 AddWalletSelectorCoordinatorView(coordinator: $0)
             }
-            .emptyNavigationLink()
     }
 }
 

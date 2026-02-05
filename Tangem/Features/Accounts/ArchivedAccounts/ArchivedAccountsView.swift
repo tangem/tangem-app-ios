@@ -19,7 +19,6 @@ struct ArchivedAccountsView: View {
         content
             .task { await viewModel.fetchArchivedAccounts() }
             .frame(maxWidth: .infinity)
-            .padding(.horizontal, 16)
             .background(Colors.Background.secondary.ignoresSafeArea())
             .alert(item: $viewModel.alertBinder, content: { $0.alert })
     }
@@ -29,11 +28,13 @@ struct ArchivedAccountsView: View {
             switch viewModel.viewState {
             case .loading:
                 loadingView
+                    .padding(.horizontal, Constants.horizontalPadding)
 
-            case .failedToLoad:
+            case .failure:
                 errorView
+                    .padding(.horizontal, Constants.horizontalPadding)
 
-            case .loaded(let accountInfos):
+            case .success(let accountInfos):
                 makeAccountsView(from: accountInfos)
             }
         }
@@ -42,34 +43,14 @@ struct ArchivedAccountsView: View {
     }
 
     private func makeAccountsView(from models: [ArchivedCryptoAccountInfo]) -> some View {
-        VStack(spacing: 0) {
+        GroupedScrollView(contentType: .lazy(alignment: .center, spacing: 0)) {
             GroupedSection(models) { model in
-                // [REDACTED_TODO_COMMENT]
-                RowWithLeadingAndTrailingIcons(
-                    leadingIcon: {
-                        AccountIconView(data: viewModel.makeAccountIconViewData(for: model))
-                    },
-                    content: {
-                        VStack(alignment: .leading, spacing: 0) {
-                            Text(model.name)
-                                .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
-
-                            Text(Localization.commonTokensCount(model.tokensCount))
-                                .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-                        }
-                    },
-                    trailingIcon: {
-                        CircleButton(title: Localization.accountArchivedRecover) {
-                            viewModel.recoverAccount(model)
-                        }
-                    }
-                )
-                .padding(.vertical, 12)
+                ArchivedAccountRowView(viewData: viewModel.makeAccountRowViewData(for: model))
+                    .padding(.vertical, 12)
             }
             .separatorStyle(.none)
-
-            Spacer()
         }
+        .scrollIndicators(.hidden)
     }
 
     private var loadingView: some View {
@@ -94,5 +75,13 @@ struct ArchivedAccountsView: View {
 
             Spacer()
         }
+    }
+}
+
+// MARK: - Constants
+
+private extension ArchivedAccountsView {
+    enum Constants {
+        static let horizontalPadding: CGFloat = 16
     }
 }

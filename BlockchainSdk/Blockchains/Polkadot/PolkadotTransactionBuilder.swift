@@ -38,14 +38,12 @@ class PolkadotTransactionBuilder {
      */
     private var balanceTransferCallIndex: Data {
         switch network {
-        case .polkadot, .azero, .joystream, .bittensor:
+        case .azero, .joystream, .bittensor:
             return Data(hexString: "0x0500")
-        case .kusama:
+        case .kusama, .polkadot, .energyWebX:
             return Data(hexString: "0x0A00")
         case .westend:
             return Data(hexString: "0x0400")
-        case .energyWebX:
-            return Data(hexString: "0x0A00")
         }
     }
 
@@ -221,10 +219,8 @@ class PolkadotTransactionBuilder {
         var data = Data()
 
         switch network {
-        case .kusama:
+        case .kusama, .polkadot:
             data.append(try encode(UInt8(0), .compact))
-        case .polkadot:
-            break
         case .westend:
             break
         case .azero:

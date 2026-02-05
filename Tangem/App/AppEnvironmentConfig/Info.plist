@@ -2,10 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>BGTaskSchedulerPermittedIdentifiers</key>
-	<array>
-		<string>$(APP_BUNDLE_IDENTIFIER).PolkadotAccountHealthCheckTask</string>
-	</array>
 	<key>BSDK_SUITE_NAME</key>
 	<string>$(BSDK_SUITE_NAME)</string>
 	<key>CFBundleDevelopmentRegion</key>
@@ -59,13 +55,13 @@
 	<key>NFCReaderUsageDescription</key>
 	<string>To Scan Smart Card</string>
 	<key>NSCameraUsageDescription</key>
-	<string>To Scan QR Code or take a photo for chat support</string>
+	<string>To Scan QR Code or take a photo for support chat</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Use Face ID to allow save your card in the app</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>To record video for chat support</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app includes a third-party library with optional location features, which are not used</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>To share with chat support</string>
+	<string>To Scan QR Code or share with support chat</string>
 	<key>NSUserActivityTypes</key>
 	<array>
 		<string>ScanTangemCardIntent</string>
@@ -89,10 +85,6 @@
 			</array>
 		</dict>
 	</dict>
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>processing</string>
-	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>Launch Screen</string>
 	<key>UIRequiredDeviceCapabilities</key>

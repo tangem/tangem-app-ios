@@ -17,7 +17,7 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
     @Published var sourceData: AmountSummaryViewData?
     @Published var destinationData: AmountSummaryViewData?
     @Published var provider: ProviderRowViewModel?
-    @Published var expressFee: ExpressFeeRowData?
+    @Published var feeCompactViewModel: FeeCompactViewModel?
 
     var isStatusButtonVisible: Bool {
         data.expressTransactionData.externalTxUrl != nil
@@ -31,6 +31,10 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
         return formatter.string(from: data.date)
     }
 
+    var exploreURL: URL? {
+        data.result.url
+    }
+
     var shouldShowShareExploreButtons: Bool {
         !data.source.tokenItem.blockchain.isTransactionAsync
     }
@@ -38,7 +42,7 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
     // MARK: - Dependencies
 
     private let data: SentExpressTransactionData
-    private let initialWallet: any WalletModel
+    private let initialTokenItem: TokenItem
     private let balanceConverter: BalanceConverter
     private let balanceFormatter: BalanceFormatter
     private let providerFormatter: ExpressProviderFormatter
@@ -47,7 +51,7 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
 
     init(
         data: SentExpressTransactionData,
-        initialWallet: any WalletModel,
+        initialTokenItem: TokenItem,
         balanceConverter: BalanceConverter,
         balanceFormatter: BalanceFormatter,
         providerFormatter: ExpressProviderFormatter,
@@ -55,7 +59,7 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
         coordinator: ExpressSuccessSentRoutable
     ) {
         self.data = data
-        self.initialWallet = initialWallet
+        self.initialTokenItem = initialTokenItem
         self.balanceConverter = balanceConverter
         self.balanceFormatter = balanceFormatter
         self.providerFormatter = providerFormatter
@@ -63,25 +67,41 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
         self.coordinator = coordinator
 
         setupView()
+        logSwapInProgressScreenOpened()
+    }
+
+    private func logSwapInProgressScreenOpened() {
+        var params: [Analytics.ParameterKey: String] = [
+            .provider: data.provider.name,
+            .commission: data.fee.option.analyticsValue.rawValue,
+            .sendToken: data.source.tokenItem.currencySymbol,
+            .receiveToken: data.destination.tokenItem.currencySymbol,
+            .sendBlockchain: data.source.tokenItem.blockchain.displayName,
+            .receiveBlockchain: data.destination.tokenItem.blockchain.displayName,
+            .feeToken: SendAnalyticsHelper.makeAnalyticsTokenName(from: data.fee.tokenItem),
+        ]
+
+        if FeatureProvider.isAvailable(.accounts) {
+            if let sourceAccount = data.source.accountModelAnalyticsProvider {
+                params.enrich(with: sourceAccount.analyticsParameters(with: PairedAccountAnalyticsBuilder(role: .source)))
+            }
+
+            if let destAccount = data.destination.accountModelAnalyticsProvider {
+                params.enrich(with: destAccount.analyticsParameters(with: PairedAccountAnalyticsBuilder(role: .destination)))
+            }
+        }
+
+        params.enrich(with: ReferralAnalyticsHelper().getReferralParams())
+
         Analytics.log(
             event: .swapSwapInProgressScreenOpened,
-            params: [
-                .provider: data.provider.name,
-                .commission: data.feeOption.analyticsValue.rawValue,
-                .sendToken: data.source.tokenItem.currencySymbol,
-                .receiveToken: data.destination.tokenItem.currencySymbol,
-                .sendBlockchain: data.source.tokenItem.blockchain.displayName,
-                .receiveBlockchain: data.destination.tokenItem.blockchain.displayName,
-            ]
+            params: params,
+            analyticsSystems: .all
         )
     }
 
-    func openExplore() {
-        guard let exploreURL = data.source.exploreTransactionURL(for: data.result.hash) else {
-            return
-        }
-
-        Analytics.log(event: .swapButtonExplore, params: [.token: initialWallet.tokenItem.currencySymbol])
+    func openExplore(exploreURL: URL) {
+        Analytics.log(event: .swapButtonExplore, params: [.token: initialTokenItem.currencySymbol])
         coordinator?.openWebView(url: exploreURL)
     }
 
@@ -90,7 +110,7 @@ final class ExpressSuccessSentViewModel: ObservableObject, Identifiable {
             return
         }
 
-        Analytics.log(event: .swapButtonStatus, params: [.token: initialWallet.tokenItem.currencySymbol])
+        Analytics.log(event: .swapButtonStatus, params: [.token: initialTokenItem.currencySymbol])
         coordinator?.openWebView(url: externalTxUrl)
     }
 
@@ -111,9 +131,9 @@ private extension ExpressSuccessSentViewModel {
         let sourceFiatAmountFormatted = balanceFormatter.formatFiatBalance(sourceFiatAmount)
 
         sourceData = AmountSummaryViewData(
-            title: Localization.swappingFromTitle,
             amount: sourceAmountFormatted,
             amountFiat: sourceFiatAmountFormatted,
+            headerType: ExpressCurrencyHeaderType(viewType: .send, tokenHeader: data.source.tokenHeader),
             tokenIconInfo: TokenIconInfoBuilder().build(from: sourceTokenItem, isCustom: false)
         )
 
@@ -122,9 +142,9 @@ private extension ExpressSuccessSentViewModel {
         let destinationFiatAmountFormatted = balanceFormatter.formatFiatBalance(destinationFiatAmount)
 
         destinationData = AmountSummaryViewData(
-            title: Localization.swappingToTitle,
             amount: destinationAmountFormatted,
             amountFiat: destinationFiatAmountFormatted,
+            headerType: ExpressCurrencyHeaderType(viewType: .receive, tokenHeader: data.destination.tokenHeader),
             tokenIconInfo: TokenIconInfoBuilder().build(from: destinationTokenItem, isCustom: false)
         )
 
@@ -145,7 +165,19 @@ private extension ExpressSuccessSentViewModel {
             detailsType: .none
         )
 
-        let feeFormatted = feeFormatter.format(fee: data.fee, tokenItem: data.source.feeTokenItem)
-        expressFee = ExpressFeeRowData(title: Localization.commonNetworkFeeTitle, subtitle: .loaded(text: feeFormatted))
+        if !data.source.isExemptFee, let feeValue = data.fee.value.value {
+            let feeComponents = feeFormatter.formattedFeeComponents(
+                fee: feeValue.amount.value,
+                tokenItem: data.fee.tokenItem,
+                formattingOptions: .sendCryptoFeeFormattingOptions
+            )
+
+            feeCompactViewModel = FeeCompactViewModel(
+                selectedFeeTokenCurrencySymbol: data.fee.tokenItem.currencySymbol,
+                selectedFeeComponents: .loaded(text: feeComponents.fiatFee ?? feeComponents.cryptoFee),
+                canEditFee: false,
+                feeFormatter: feeFormatter
+            )
+        }
     }
 }

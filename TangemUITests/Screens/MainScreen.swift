@@ -11,9 +11,9 @@ import TangemAccessibilityIdentifiers
 import Foundation
 
 final class MainScreen: ScreenBase<MainScreenElement> {
-    private lazy var buyTitle = staticText(.buyTitle)
-    private lazy var exchangeTitle = staticText(.exchangeTitle)
-    private lazy var sellTitle = staticText(.sellTitle)
+    private lazy var buyActionButton = staticText(.buyTitle)
+    private lazy var swapActionButton = staticText(.exchangeTitle)
+    private lazy var sellActionButton = staticText(.sellTitle)
     private lazy var tokensList = otherElement(.tokensList)
     private lazy var organizeTokensButton = button(.organizeTokensButton)
     private lazy var detailsButton = button(.detailsButton)
@@ -21,9 +21,11 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     private lazy var headerCardImage = image(.headerCardImage)
     private lazy var totalBalance = staticText(.totalBalance)
     private lazy var totalBalanceShimmer = otherElement(.totalBalanceShimmer)
-    private lazy var missingDerivationNotification = button(.missingDerivationNotification)
+    private lazy var missingDerivationNotification = otherElement(.missingDerivationNotification)
+    private lazy var grabber = app.otherElements[CommonUIAccessibilityIdentifiers.grabber].firstMatch
 
-    func validate(cardType: CardMockAccessibilityIdentifiers) {
+    @discardableResult
+    func validate(cardType: CardMockAccessibilityIdentifiers) -> Self {
         XCTContext.runActivity(named: "Validate MainPage for card type: \(cardType.rawValue)") { _ in
             validateHeaderCardImage(for: cardType)
 
@@ -36,12 +38,42 @@ final class MainScreen: ScreenBase<MainScreenElement> {
                 XCTAssertTrue(buttonTexts.contains("Receive"), "Receive button should exist")
             case .wallet, .wallet2, .walletDemo, .wallet2Demo, .shiba, .four12, .v3seckp, .ring:
                 XCTAssertTrue(tokensList.waitForExistence(timeout: .robustUIUpdate), "Tokens list should exist")
-                XCTAssertTrue(buyTitle.waitForExistence(timeout: .robustUIUpdate), "Buy button should exist for wallet cards")
-                XCTAssertTrue(exchangeTitle.exists, "Exchange button should exist for wallet cards")
-                XCTAssertTrue(sellTitle.exists, "Sell button should exist for wallet cards")
+                XCTAssertTrue(buyActionButton.waitForExistence(timeout: .robustUIUpdate), "Buy button should exist for wallet cards")
+                XCTAssertTrue(swapActionButton.exists, "Exchange button should exist for wallet cards")
+                XCTAssertTrue(sellActionButton.exists, "Sell button should exist for wallet cards")
             default:
                 XCTFail("Provide card verification methods for card type: \(String(describing: cardType))")
             }
+        }
+        return self
+    }
+
+    // MARK: - Main action buttons
+
+    @discardableResult
+    func tapMainBuy() -> BuyTokenSelectorScreen {
+        XCTContext.runActivity(named: "Tap Buy action on main screen") { _ in
+            waitAndAssertTrue(buyActionButton, "Buy title should exist on main screen")
+            buyActionButton.waitAndTap()
+            return BuyTokenSelectorScreen(app)
+        }
+    }
+
+    @discardableResult
+    func tapMainSwap() -> SwapTokenSelectorScreen {
+        XCTContext.runActivity(named: "Tap Exchange action on main screen") { _ in
+            waitAndAssertTrue(swapActionButton, "Exchange title should exist on main screen")
+            swapActionButton.waitAndTap()
+            return SwapTokenSelectorScreen(app)
+        }
+    }
+
+    @discardableResult
+    func tapMainSell() -> SellTokenSelectorScreen {
+        XCTContext.runActivity(named: "Tap Sell action on main screen") { _ in
+            waitAndAssertTrue(sellActionButton, "Sell title should exist on main screen")
+            sellActionButton.waitAndTap()
+            return SellTokenSelectorScreen(app)
         }
     }
 
@@ -71,6 +103,9 @@ final class MainScreen: ScreenBase<MainScreenElement> {
                 )
             }
 
+            // Scroll the button above the markets sheet if needed
+            scrollOrganizeButtonAboveMarketsSheet()
+
             // Use the robust waitAndTap method instead of direct tap
             XCTAssertTrue(
                 organizeTokensButton.waitAndTap(timeout: .robustUIUpdate),
@@ -78,6 +113,28 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             )
 
             return OrganizeTokensScreen(app)
+        }
+    }
+
+    /// Scrolls the tokens list so that the organize button is above the markets sheet grabber
+    private func scrollOrganizeButtonAboveMarketsSheet() {
+        guard grabber.exists, organizeTokensButton.exists else { return }
+
+        let grabberFrame = grabber.frame
+        let buttonFrame = organizeTokensButton.frame
+
+        // If the button is below or overlapping with the grabber, scroll the list up
+        if buttonFrame.maxY > grabberFrame.minY {
+            // Calculate how much we need to scroll
+            let scrollDistance = buttonFrame.maxY - grabberFrame.minY + 50 // Add some padding
+
+            // Scroll the tokens list up
+            let startPoint = tokensList.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.3))
+            let endPoint = startPoint.withOffset(CGVector(dx: 0, dy: -scrollDistance))
+            startPoint.press(forDuration: 0.1, thenDragTo: endPoint)
+
+            // Wait for scroll animation to settle
+            _ = organizeTokensButton.waitForState(state: .hittable)
         }
     }
 
@@ -110,21 +167,17 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     @discardableResult
     func validateMandatorySecurityUpdateBannerExists() -> Self {
         XCTContext.runActivity(named: "Validate mandatory security update banner exists") { _ in
-            let bannerElement = app.staticTexts[MainAccessibilityIdentifiers.mandatorySecurityUpdateBanner]
+            let bannerElement = app.otherElements[MainAccessibilityIdentifiers.mandatorySecurityUpdateBanner]
             waitAndAssertTrue(bannerElement, "Mandatory security update banner should be displayed")
         }
         return self
     }
 
-    func getTokensOrder() -> [String] {
+    func getTokensOrder() -> TokensOrder {
         XCTContext.runActivity(named: "Get tokens order from main screen") { _ in
-            // Wait for tokens list to be available
             XCTAssertTrue(tokensList.waitForExistence(timeout: .robustUIUpdate), "Tokens list should exist")
 
-            // Wait for token elements to be stable - use predicate expectation
             let tokenTitleQuery = tokensList.staticTexts.matching(identifier: MainAccessibilityIdentifiers.tokenTitle)
-
-            // Wait until we have stable token elements
             let expectation = XCTNSPredicateExpectation(
                 predicate: NSPredicate(format: "count > 0"),
                 object: tokenTitleQuery
@@ -133,22 +186,16 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             let result = XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate)
             XCTAssertEqual(result, .completed, "Should have token title elements available")
 
-            // Get all token title elements and ensure they're stable
             let tokenTitleElements = tokenTitleQuery.allElementsBoundByIndex
-
-            // Filter out elements that are not properly loaded or visible
             let stableElements = tokenTitleElements.filter { element in
                 element.exists && element.isHittable && !element.label.isEmpty
             }
 
-            // Sort by Y-coordinate (top to bottom) and return labels
             let sortedElements = stableElements.sorted { element1, element2 in
-                // Add small tolerance for Y-coordinate comparison to handle minor positioning differences
                 let tolerance: CGFloat = 1.0
                 let diff = element1.frame.minY - element2.frame.minY
 
                 if abs(diff) < tolerance {
-                    // If elements are at roughly the same Y position, sort by X coordinate (left to right)
                     return element1.frame.minX < element2.frame.minX
                 } else {
                     return diff < 0
@@ -157,7 +204,6 @@ final class MainScreen: ScreenBase<MainScreenElement> {
 
             let labels = sortedElements.map { $0.label }
 
-            // Add diagnostic information for debugging
             if labels.isEmpty {
                 let allTexts = tokensList.staticTexts.allElementsBoundByIndex.map {
                     "[\($0.identifier): '\($0.label)']"
@@ -165,27 +211,39 @@ final class MainScreen: ScreenBase<MainScreenElement> {
                 XCTFail("No token titles found. Available static texts: \(allTexts)")
             }
 
-            return labels
+            // No account headers on main screen yet.
+            return .mainAccount(labels)
         }
+    }
+
+    @discardableResult
+    func verifyTokensOrder(_ expectedOrder: TokensOrder) -> Self {
+        XCTContext.runActivity(named: "Verify tokens order on main screen") { _ in
+            let actual = getTokensOrder()
+
+            // Check accounts order
+            XCTAssertEqual(
+                actual.accountNames,
+                expectedOrder.accountNames,
+                "Accounts order on main screen doesn't match. Actual: \(actual.accountNames), Expected: \(expectedOrder.accountNames)"
+            )
+
+            // Check token order within each account
+            for (index, expected) in expectedOrder.enumerated() {
+                let actualTokens = actual[index].tokens
+                XCTAssertEqual(
+                    actualTokens,
+                    expected.tokens,
+                    "Tokens order for account '\(expected.account)' doesn't match. Actual: \(actualTokens), Expected: \(expected.tokens)"
+                )
+            }
+        }
+        return self
     }
 
     @discardableResult
     func verifyTokensOrder(_ expectedOrder: [String]) -> Self {
-        XCTContext.runActivity(named: "Verify tokens order on main screen") { _ in
-            let actualOrder = getTokensOrder()
-            XCTAssertEqual(actualOrder, expectedOrder, "Tokens order on main screen doesn't match expected")
-        }
-        return self
-    }
-
-    @discardableResult
-    func verifyIsGrouped(_ expectedState: Bool) -> Self {
-        XCTContext.runActivity(named: "Verify tokens grouping state on main screen is \(expectedState)") { _ in
-            _ = tokensList.waitForExistence(timeout: .robustUIUpdate)
-            let actualState = isGrouped()
-            XCTAssertEqual(actualState, expectedState, "Expected grouping state on main screen: \(expectedState), but got: \(actualState)")
-        }
-        return self
+        verifyTokensOrder(.mainAccount(expectedOrder))
     }
 
     @discardableResult
@@ -205,14 +263,13 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         return self
     }
 
-    @discardableResult
-    func longPressToken(_ tokenName: String) -> TokenScreen {
+    func longPressToken(_ tokenName: String) -> ContextMenuScreen {
         XCTContext.runActivity(named: "Long press token: \(tokenName)") { _ in
             waitAndAssertTrue(tokensList, "Tokens list should exist")
             let tokenElement = tokensList.staticTextByLabel(label: tokenName)
             waitAndAssertTrue(tokenElement, "Token '\(tokenName)' should exist")
             tokenElement.press(forDuration: 1.0)
-            return TokenScreen(app)
+            return ContextMenuScreen(app)
         }
     }
 
@@ -221,6 +278,15 @@ final class MainScreen: ScreenBase<MainScreenElement> {
         XCTContext.runActivity(named: "Wait for no rename button exists") { _ in
             let renameButton = app.buttons["Rename"]
             XCTAssertFalse(renameButton.exists, "Rename button should not exist in context menu")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitForNoDeleteButton() -> Self {
+        XCTContext.runActivity(named: "Wait for delete button exists") { _ in
+            let deleteButton = app.buttons["Delete"]
+            XCTAssertFalse(deleteButton.exists, "Delete button should not exist in context menu")
         }
         return self
     }
@@ -411,6 +477,63 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     func waitForSynchronizeAddressesButtonExists() -> Self {
         XCTContext.runActivity(named: "Wait for synchronize addresses button exists") { _ in
             waitAndAssertTrue(missingDerivationNotification, "Missing derivation notification should exist")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitActionButtonsEnabled() -> Self {
+        XCTContext.runActivity(named: "Validate action buttons are enabled") { _ in
+            waitAndAssertTrue(buyActionButton, "Buy button should exist")
+            waitAndAssertTrue(swapActionButton, "Exchange button should exist")
+            waitAndAssertTrue(sellActionButton, "Sell button should exist")
+
+            XCTAssertTrue(buyActionButton.isEnabled, "Buy button should be enabled")
+            XCTAssertTrue(swapActionButton.isEnabled, "Exchange button should be enabled")
+            XCTAssertTrue(sellActionButton.isEnabled, "Sell button should be enabled")
+        }
+        return self
+    }
+
+    @discardableResult
+    func waitActionButtonsDisabled() -> Self {
+        XCTContext.runActivity(named: "Validate action buttons are disabled") { _ in
+            waitAndAssertTrue(buyActionButton, "Buy button should exist")
+            waitAndAssertTrue(swapActionButton, "Exchange button should exist")
+            waitAndAssertTrue(sellActionButton, "Sell button should exist")
+
+            XCTAssertFalse(buyActionButton.isEnabled, "Buy button should be disabled")
+            XCTAssertFalse(swapActionButton.isEnabled, "Exchange button should be disabled")
+            XCTAssertFalse(sellActionButton.isEnabled, "Sell button should be disabled")
+        }
+        return self
+    }
+
+    @discardableResult
+    func openMarketsSheetWithSwipe() -> MarketsAndNewsScreen {
+        XCTContext.runActivity(named: "Open markets sheet with swipe up gesture") { _ in
+            waitAndAssertTrue(grabber)
+
+            // Swipe up on the grabber view
+            let startPoint = grabber.coordinate(
+                withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+            let endPoint = startPoint.withOffset(CGVector(dx: 0, dy: -300))
+            startPoint.press(forDuration: 0.2, thenDragTo: endPoint)
+
+            return MarketsAndNewsScreen(app)
+        }
+    }
+
+    @discardableResult
+    func verifyIsGrouped(_ expectedState: Bool) -> Self {
+        XCTContext.runActivity(named: "Verify tokens grouping state on main screen is \(expectedState)") { _ in
+            _ = tokensList.waitForExistence(timeout: .robustUIUpdate)
+            let actualState = isGrouped()
+            XCTAssertEqual(
+                actualState,
+                expectedState,
+                "Expected grouping state on main screen: \(expectedState), but got: \(actualState)"
+            )
         }
         return self
     }

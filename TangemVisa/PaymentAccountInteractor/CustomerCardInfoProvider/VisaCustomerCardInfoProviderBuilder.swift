@@ -9,14 +9,13 @@
 import Foundation
 import BlockchainSdk
 import TangemNetworkUtils
+import TangemPay
 
 public struct VisaCustomerCardInfoProviderBuilder {
     private let apiType: VisaAPIType
-    private let isMockedAPIEnabled: Bool
 
-    public init(apiType: VisaAPIType, isMockedAPIEnabled: Bool) {
+    public init(apiType: VisaAPIType) {
         self.apiType = apiType
-        self.isMockedAPIEnabled = isMockedAPIEnabled
     }
 
     public func build(
@@ -24,36 +23,10 @@ public struct VisaCustomerCardInfoProviderBuilder {
         evmSmartContractInteractor: EVMSmartContractInteractor,
         urlSessionConfiguration: URLSessionConfiguration = .visaConfiguration
     ) -> VisaCustomerCardInfoProvider {
-        var customerInfoManagementService: CustomerInfoManagementService?
-        if let authorizationTokensHandler {
-            customerInfoManagementService = buildCustomerInfoManagementService(
-                authorizationTokensHandler: authorizationTokensHandler,
-                urlSessionConfiguration: urlSessionConfiguration
-            )
-        }
-
-        return CommonCustomerCardInfoProvider(
+        CommonCustomerCardInfoProvider(
             isTestnet: apiType.isTestnet,
-            customerInfoManagementService: customerInfoManagementService,
+            customerInfoManagementService: nil,
             evmSmartContractInteractor: evmSmartContractInteractor
         )
-    }
-
-    public func buildCustomerInfoManagementService(
-        authorizationTokensHandler: VisaAuthorizationTokensHandler,
-        urlSessionConfiguration: URLSessionConfiguration = .visaConfiguration
-    ) -> CustomerInfoManagementService {
-        if isMockedAPIEnabled {
-            return CustomerInfoManagementServiceMock()
-        } else {
-            return CommonCustomerInfoManagementService(
-                apiType: apiType,
-                authorizationTokenHandler: authorizationTokensHandler,
-                apiService: .init(
-                    provider: MoyaProviderBuilder().buildProvider(configuration: urlSessionConfiguration),
-                    decoder: JSONDecoderFactory().makeCIMDecoder()
-                )
-            )
-        }
     }
 }

@@ -49,7 +49,6 @@ struct AppCoordinatorView: CoordinatorView {
             }
     }
 
-    @ViewBuilder
     private var content: some View {
         // We need stack to force transition animation work
         ZStack {
@@ -76,6 +75,8 @@ struct AppCoordinatorView: CoordinatorView {
                     .transition(.asymmetric(insertion: .identity, removal: .opacity.animation(.easeOut(duration: 0.3))))
             case .launch:
                 LaunchScreenView()
+            case .jailbreakWarning(let viewModel):
+                JailbreakWarningView(viewModel: viewModel)
             case .none:
                 EmptyView()
             }

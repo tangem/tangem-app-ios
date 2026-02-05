@@ -26,13 +26,8 @@ struct MainView: View {
                     .contextMenu {
                         if !info.isLockedWallet {
                             if AppSettings.shared.saveUserWallets {
-                                Button(
-                                    action: weakify(viewModel, forFunction: MainViewModel.didTapEditWallet),
-                                    label: editButtonLabel
-                                )
+                                renameButton
                             }
-
-                            Button(role: .destructive, action: weakify(viewModel, forFunction: MainViewModel.didTapDeleteWallet), label: deleteButtonLabel)
                         }
                     }
             },
@@ -54,41 +49,26 @@ struct MainView: View {
         .navigationBarBackButtonHidden(true)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .ignoresSafeArea(.keyboard)
-        .toolbar(content: {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Assets.newTangemLogo.image
-                    .foregroundColor(Colors.Icon.primary1)
-            }
-
-            ToolbarItem(placement: .navigationBarTrailing) {
-                detailsNavigationButton
-            }
-        })
-        .confirmationDialog(viewModel: $viewModel.confirmationDialog)
+        .tangemLogoNavigationToolbar(trailingItem: detailsNavigationButton)
     }
 
-    var detailsNavigationButton: some View {
+    private var detailsNavigationButton: some View {
         Button(action: weakify(viewModel, forFunction: MainViewModel.openDetails)) {
             NavbarDotsImage()
                 .disableAnimations() // Try fix unexpected animations [REDACTED_INFO]
         }
-        .buttonStyle(PlainButtonStyle())
+        .buttonStyle(.plain)
         .disableAnimations() // Try fix unexpected animations [REDACTED_INFO]
         .accessibility(label: Text(Localization.voiceOverOpenCardDetails))
         .accessibilityIdentifier(MainAccessibilityIdentifiers.detailsButton)
     }
 
-    private func editButtonLabel() -> some View {
-        HStack {
-            Text(Localization.commonRename)
-            Image(systemName: "pencil")
-        }
-    }
-
-    private func deleteButtonLabel() -> some View {
-        HStack {
-            Text(Localization.commonDelete)
-            Image(systemName: "trash")
+    private var renameButton: some View {
+        Button(action: weakify(viewModel, forFunction: MainViewModel.didTapEditWallet)) {
+            HStack {
+                Text(Localization.commonRename)
+                Image(systemName: "pencil")
+            }
         }
     }
 }
@@ -111,7 +91,7 @@ struct MainView_Preview: PreviewProvider {
     }()
 
     static var previews: some View {
-        NavigationView {
+        NavigationStack {
             MainView(viewModel: viewModel)
         }
     }

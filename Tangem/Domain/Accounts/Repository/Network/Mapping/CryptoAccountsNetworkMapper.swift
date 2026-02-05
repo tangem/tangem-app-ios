@@ -13,7 +13,7 @@ import struct TangemSdk.DerivationPath
 final class CryptoAccountsNetworkMapper {
     typealias RemoteIdentifierBuilder = (StoredCryptoAccount) -> String
 
-    var externalParametersProvider: UserTokenListExternalParametersProvider?
+    weak var externalParametersProvider: UserTokenListExternalParametersProvider?
 
     private let supportedBlockchains: SupportedBlockchainsSet
     private let remoteIdentifierBuilder: RemoteIdentifierBuilder
@@ -51,21 +51,30 @@ final class CryptoAccountsNetworkMapper {
                 )
             }
 
+        let notifyStatusValue = mapTokenListNotifyStatusValue()
+
         // Currently, we assume that all accounts share the same grouping option
         let group = mapGroupType(groupingOption: request.first?.grouping)
+
         // Currently, we assume that all accounts share the same sorting option
         let sort = mapSortType(sortingOption: request.first?.sorting)
-        let notifyStatusValue = externalParametersProvider?.provideTokenListNotifyStatusValue()
+
+        // Ensuring tokens uniqueness based on API requirements
+        let uniqueTokens = tokens.unique(by: \.uniqueKey)
+
+        validateTokensUniqueness(tokens, uniqueTokensCount: uniqueTokens.count)
 
         let userTokens = AccountsDTO.Request.UserTokens(
-            tokens: tokens,
+            tokens: uniqueTokens,
             group: group,
             sort: sort,
             notifyStatus: notifyStatusValue,
             version: Constants.apiVersion
         )
 
-        return (AccountsDTO.Request.Accounts(accounts: accounts), userTokens)
+        let userAccounts = AccountsDTO.Request.Accounts(accounts: accounts)
+
+        return (userAccounts, userTokens)
     }
 
     private func map(
@@ -174,6 +183,18 @@ final class CryptoAccountsNetworkMapper {
         }
     }
 
+    private func mapTokenListNotifyStatusValue() -> Bool {
+        if let externalParametersProvider {
+            return externalParametersProvider.provideTokenListNotifyStatusValue()
+        }
+
+        let message = "Programmer error: '\(self)' is not configured with 'UserTokenListExternalParametersProvider' instance before using"
+        AccountsLogger.error(error: message)
+        assertionFailure(message)
+
+        return false
+    }
+
     // MARK: - Remote to Stored
 
     func map(response: AccountsDTO.Response.Accounts) -> RemoteCryptoAccountsInfo {
@@ -198,20 +219,10 @@ final class CryptoAccountsNetworkMapper {
         }
 
         let legacyTokens = map(tokens: response.unassignedTokens)
-        let nextDerivationIndex = response.wallet.totalAccounts
-
-        if accounts.count != nextDerivationIndex {
-            AccountsLogger.warning(
-                String(
-                    format: "Back-end inconsistency: incorrect next derivation index: '%d' vs '%d'",
-                    nextDerivationIndex,
-                    accounts.count
-                )
-            )
-        }
+        let counters = mapCounters(from: response.wallet)
 
         return RemoteCryptoAccountsInfo(
-            nextDerivationIndex: nextDerivationIndex,
+            counters: counters,
             accounts: accounts,
             legacyTokens: legacyTokens
         )
@@ -264,6 +275,13 @@ final class CryptoAccountsNetworkMapper {
             .unique() // Additional uniqueness check for remote tokens (replicates old behavior)
     }
 
+    private func mapCounters(from wallet: AccountsDTO.Response.Accounts.Wallet) -> RemoteCryptoAccountsInfo.Counters {
+        return RemoteCryptoAccountsInfo.Counters(
+            archived: wallet.totalArchivedAccounts,
+            total: wallet.totalAccounts
+        )
+    }
+
     /// - Throws: `HDWalletError` if the derivation path is invalid.
     private func mapBlockchainNetworkContainer(
         token: AccountsDTO.Response.Accounts.Token
@@ -286,8 +304,13 @@ final class CryptoAccountsNetworkMapper {
     }
 
     private func mapGroupingOption(
-        groupType: UserTokenList.GroupType
+        groupType: UserTokenList.GroupType?
     ) -> StoredUserTokenList.Grouping {
+        guard let groupType else {
+            // Fallback value for newly activated wallets (created by the very first PUT /accounts request)
+            return CryptoAccountPersistentConfig.TokenListAppearance.default.grouping
+        }
+
         switch groupType {
         case .none:
             return .none
@@ -297,8 +320,13 @@ final class CryptoAccountsNetworkMapper {
     }
 
     private func mapSortingOption(
-        sortType: UserTokenList.SortType
+        sortType: UserTokenList.SortType?
     ) -> StoredUserTokenList.Sorting {
+        guard let sortType else {
+            // Fallback value for newly activated wallets (created by the very first PUT /accounts request)
+            return CryptoAccountPersistentConfig.TokenListAppearance.default.sorting
+        }
+
         switch sortType {
         case .manual:
             return .manual
@@ -349,6 +377,24 @@ final class CryptoAccountsNetworkMapper {
             )
         }
     }
+
+    // MARK: - Helpers
+
+    private func validateTokensUniqueness(_ tokens: [AccountsDTO.Request.Token], uniqueTokensCount: Int) {
+        guard tokens.count != uniqueTokensCount else {
+            // Fast path: all tokens are unique
+            return
+        }
+
+        let duplicateTokens = tokens
+            .grouped(by: \.uniqueKey)
+            .filter { $0.value.count > 1 }
+            .flatMap { $0.value }
+
+        let message = "Inconsistency detected: duplicate tokens '\(duplicateTokens)' found during mapping to remote DTO, discarding duplicates"
+        AccountsLogger.warning(message)
+        assertionFailure(message)
+    }
 }
 
 // MARK: - Constants
@@ -356,5 +402,25 @@ final class CryptoAccountsNetworkMapper {
 private extension CryptoAccountsNetworkMapper {
     enum Constants {
         static var apiVersion: Int { 1 }
+    }
+}
+
+// MARK: - Convenience extensions
+
+private extension AccountsDTO.Request.Token {
+    private struct UniqueKey: Hashable {
+        let networkId: String
+        let contractAddress: String?
+        let derivationPath: String?
+    }
+
+    /// A synthetic unique key for token uniqueness checks. The API strictly requires that the list of tokens does not
+    /// contain duplicates based on the combination of `networkId`, `contractAddress`, and `derivationPath` fields.
+    var uniqueKey: some Hashable {
+        UniqueKey(
+            networkId: networkId,
+            contractAddress: contractAddress,
+            derivationPath: derivationPath
+        )
     }
 }

@@ -13,36 +13,14 @@ final class SendPolkadotNotificationUITests: BaseTestCase {
     private let coin = "Polkadot"
     private let destinationAddress = "143TfgFYAFfM86LRzt4UcFNU3KosxCndBCVz2U5HCxpLidKZ"
 
-    override func setUp() {
-        super.setUp()
-
-        let polkadotTokenScenario = ScenarioConfig(
-            name: "user_tokens_api",
-            initialState: "Polkadot"
-        )
-        let quotesScenario = ScenarioConfig(
-            name: "quotes_api",
-            initialState: "Polkadot"
-        )
-
-        launchApp(
-            tangemApiType: .mock,
-            clearStorage: true,
-            scenarios: [polkadotTokenScenario, quotesScenario]
-        )
-
-        StoriesScreen(app)
-            .scanMockWallet(name: .wallet2)
-            .tapToken(coin)
-            .tapSendButton()
-    }
-
     func testPolkadotDepositWarningNotification() {
         setAllureId(4289)
 
+        prepareSendFlow()
+
         // the remaining balance is less than the required deposit
         let sendScreen = SendScreen(app)
-            .validate()
+            .waitForDisplay()
             .enterAmount("1.299")
             .tapNextButton()
             .enterDestination(destinationAddress)
@@ -64,5 +42,27 @@ final class SendPolkadotNotificationUITests: BaseTestCase {
             .tapNextButton()
             .waitForExistentialDepositWarningBannerNotExists()
             .waitForSendButtonEnabled()
+    }
+
+    private func prepareSendFlow() {
+        let polkadotTokenScenario = ScenarioConfig(
+            name: "user_tokens_api",
+            initialState: "Polkadot"
+        )
+        let quotesScenario = ScenarioConfig(
+            name: "quotes_api",
+            initialState: "Polkadot"
+        )
+
+        launchApp(
+            tangemApiType: .mock,
+            clearStorage: true,
+            scenarios: [polkadotTokenScenario, quotesScenario]
+        )
+
+        CreateWalletSelectorScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .tapToken(coin)
+            .tapSendButton()
     }
 }

@@ -25,6 +25,7 @@ enum WalletConnectModuleFactory {
     @Injected(\.dAppVerificationService) private static var dAppVerificationService: any WalletConnectDAppVerificationService
     @Injected(\.dAppIconURLResolver) private static var dAppIconURLResolver: WalletConnectDAppIconURLResolver
     @Injected(\.floatingSheetPresenter) private static var floatingSheetPresenter: any FloatingSheetPresenter
+    @Injected(\.mailComposePresenter) private static var mailPresenter: MailComposePresenter
 
     private static let openSystemSettingsAction = UIApplication.openSystemSettings
     private static let cameraAccessProvider = AVWalletConnectCameraAccessProvider()
@@ -72,9 +73,13 @@ enum WalletConnectModuleFactory {
             disconnectDApp: disconnectDAppUseCase
         )
 
+        @Injected(\.cryptoAccountsGlobalStateProvider)
+        var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
+
         return WalletConnectViewModel(
             interactor: interactor,
             userWalletRepository: userWalletRepository,
+            cryptoAccountsGlobalStateProvider: cryptoAccountsGlobalStateProvider,
             analyticsLogger: CommonWalletConnectAnalyticsLogger(),
             logger: WCLogger,
             coordinator: coordinator,
@@ -87,6 +92,10 @@ enum WalletConnectModuleFactory {
         source: Analytics.WalletConnectSessionSource
     ) -> WalletConnectDAppConnectionViewModel? {
         let filteredUserWallets = Self.userWalletRepository.models.filter { $0.config.isFeatureVisible(.walletConnect) }
+
+        let hasMultipleAccountsWallet = filteredUserWallets.contains { userWalletModel in
+            userWalletModel.accountModelsManager.accountModels.cryptoAccounts().hasMultipleAccounts
+        }
 
         guard filteredUserWallets.isNotEmpty else {
             assertionFailure("UserWalletRepository does not have any UserWalletModel that supports WalletConnect feature. Developer mistake.")
@@ -108,18 +117,26 @@ enum WalletConnectModuleFactory {
             uri: uri
         )
 
+        let migrateToAccountsUseCase = WalletConnectToAccountsMigrationUseCase(
+            connectedDAppRepository: connectedDAppRepository,
+            userWalletRepository: userWalletRepository,
+            appSettings: AppSettings.shared,
+            logger: WCLogger
+        )
+
         let interactor = WalletConnectDAppConnectionInteractor(
             getDAppConnectionProposal: getDAppConnectionProposalUseCase,
             resolveAvailableBlockchains: WalletConnectResolveAvailableBlockchainsUseCase(),
             approveDAppProposal: WalletConnectApproveDAppProposalUseCase(dAppProposalApprovalService: dAppProposalApprovalService),
             rejectDAppProposal: WalletConnectRejectDAppProposalUseCase(dAppProposalApprovalService: dAppProposalApprovalService),
-            persistConnectedDApp: WalletConnectPersistConnectedDAppUseCase(repository: connectedDAppRepository)
+            persistConnectedDApp: WalletConnectPersistConnectedDAppUseCase(repository: connectedDAppRepository),
+            migrateToAccounts: migrateToAccountsUseCase
         )
 
         let hapticFeedbackGenerator = WalletConnectUIFeedbackGenerator()
 
         let connectionRequestViewModel = WalletConnectDAppConnectionRequestViewModel(
-            state: .loading(selectedUserWalletName: selectedUserWallet.name, walletSelectionIsAvailable: filteredUserWallets.count > 1),
+            state: .loading(selectedUserWalletName: selectedUserWallet.name, targetSelectionIsAvailable: filteredUserWallets.count > 1 || hasMultipleAccountsWallet),
             interactor: interactor,
             analyticsLogger: CommonWalletConnectDAppConnectionRequestAnalyticsLogger(source: source),
             logger: WCLogger,
@@ -376,7 +393,8 @@ enum WalletConnectModuleFactory {
              .userWalletIsLocked,
              .missingEthTransactionSigner,
              .missingGasLoader,
-             .eraseMultipleTransactions:
+             .eraseMultipleTransactions,
+             .accountNotFound:
             // [REDACTED_TODO_COMMENT]
             return nil
         }
@@ -397,8 +415,8 @@ enum WalletConnectModuleFactory {
                 recipient: EmailConfig.default.recipient,
                 emailType: .walletConnectUntypedError(formattedErrorCode: Self.formattedErrorCode(from: error))
             )
-            let mailView = MailView(viewModel: mailViewModel)
-            AppPresenter.shared.show(UIHostingController(rootView: mailView))
+
+            mailPresenter.present(viewModel: mailViewModel)
         }
     }
 }

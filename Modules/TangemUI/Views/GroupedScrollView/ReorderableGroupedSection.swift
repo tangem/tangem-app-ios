@@ -83,7 +83,7 @@ public struct ReorderableGroupedSection<
 
                 if let sectionFooter {
                     VStack(spacing: 0) {
-                        Separator(color: Colors.Stroke.primary)
+                        Separator(height: .minimal, color: Colors.Stroke.primary)
 
                         sectionFooter
                             .padding(.vertical, settings.innerContentPadding)
@@ -122,7 +122,10 @@ public struct ReorderableGroupedSection<
             }
             .listStyle(.plain)
             .frame(height: reorderableRowSizes.values.map(\.height).reduce(0, +))
-            .scrollDisabledBackport(true)
+            .scrollDisabled(true)
+        }
+        .onChange(of: reorderableModels.map(\.id)) { ids in
+            reorderableRowSizes = reorderableRowSizes.filter { ids.contains($0.key) }
         }
     }
 

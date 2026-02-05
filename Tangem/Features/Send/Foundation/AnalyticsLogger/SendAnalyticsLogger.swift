@@ -8,6 +8,7 @@
 
 import TangemStaking
 import TangemExpress
+import BlockchainSdk
 
 protocol SendAnalyticsLogger: SendManagementModelAnalyticsLogger,
     SendBaseViewAnalyticsLogger,
@@ -15,7 +16,7 @@ protocol SendAnalyticsLogger: SendManagementModelAnalyticsLogger,
     SendReceiveTokensListAnalyticsLogger,
     SendDestinationAnalyticsLogger,
     SendFeeAnalyticsLogger,
-    FeeSelectorContentViewModelAnalytics,
+    FeeSelectorAnalytics,
     SendSwapProvidersAnalyticsLogger,
     SendSummaryAnalyticsLogger,
     SendFinishAnalyticsLogger {
@@ -30,10 +31,12 @@ protocol StakingSendAnalyticsLogger: StakingAnalyticsLogger,
     SendManagementModelAnalyticsLogger,
     SendBaseViewAnalyticsLogger,
     SendAmountAnalyticsLogger,
-    SendValidatorsAnalyticsLogger,
+    SendTargetsAnalyticsLogger,
     SendSummaryAnalyticsLogger,
     SendFinishAnalyticsLogger {
-    func setup(stakingValidatorsInput: StakingValidatorsInput)
+    func setup(stakingTargetsInput: StakingTargetsInput)
+    func logNoticeUninitializedAddress()
+    func logNoticeNotEnoughFee()
 }
 
 protocol OnrampSendAnalyticsLogger: SendBaseViewAnalyticsLogger,
@@ -49,17 +52,38 @@ protocol OnrampSendAnalyticsLogger: SendBaseViewAnalyticsLogger,
 // MARK: - ManagementModel
 
 protocol SendManagementModelAnalyticsLogger {
-    func logTransactionRejected(error: Error)
-    func logTransactionSent(amount: SendAmount?, additionalField: SendDestinationAdditionalField?, fee: SendFee, signerType: String)
+    func logTransactionRejected(error: SendTxError)
+    func logTransactionSent(
+        amount: SendAmount?,
+        additionalField: SendDestinationAdditionalField?,
+        fee: FeeOption,
+        signerType: String,
+        currentProviderHost: String,
+        tokenFee: TokenFee?
+    )
 }
 
 extension SendManagementModelAnalyticsLogger {
-    func logTransactionSent(amount: SendAmount?, fee: SendFee, signerType: String) {
-        logTransactionSent(amount: amount, additionalField: .none, fee: fee, signerType: signerType)
+    func logTransactionSent(amount: SendAmount?, fee: FeeOption, signerType: String, currentProviderHost: String) {
+        logTransactionSent(
+            amount: amount,
+            additionalField: .none,
+            fee: fee,
+            signerType: signerType,
+            currentProviderHost: currentProviderHost,
+            tokenFee: nil
+        )
     }
 
-    func logTransactionSent(fee: SendFee, signerType: String) {
-        logTransactionSent(amount: .none, additionalField: .none, fee: fee, signerType: signerType)
+    func logTransactionSent(fee: FeeOption, signerType: String, currentProviderHost: String) {
+        logTransactionSent(
+            amount: .none,
+            additionalField: .none,
+            fee: fee,
+            signerType: signerType,
+            currentProviderHost: currentProviderHost,
+            tokenFee: nil
+        )
     }
 }
 
@@ -82,6 +106,8 @@ protocol SendDestinationAnalyticsLogger {
 
     func logDestinationStepOpened()
     func logDestinationStepReopened()
+
+    func setDestinationAnalyticsProvider(_ analyticsProvider: (any AccountModelAnalyticsProviding)?)
 }
 
 protocol SendAmountAnalyticsLogger {
@@ -101,15 +127,18 @@ protocol SendReceiveTokensListAnalyticsLogger {
 }
 
 protocol SendFeeAnalyticsLogger {
-    func logSendFeeSelected(_ feeOption: FeeOption)
+    func logFeeSelected(tokenFee: TokenFee)
+    func logFeeSelected(_ feeOption: FeeOption)
 
     func logSendNoticeTransactionDelaysArePossible()
     func logFeeStepOpened()
     func logFeeStepReopened()
+    func logFeeSummaryOpened()
+    func logFeeTokensOpened(availableTokenFees: [TokenFee])
 }
 
-protocol SendValidatorsAnalyticsLogger {
-    func logStakingValidatorChosen()
+protocol SendTargetsAnalyticsLogger {
+    func logStakingTargetChosen()
 }
 
 protocol SendOnrampOffersAnalyticsLogger: SendOnrampProvidersAnalyticsLogger,

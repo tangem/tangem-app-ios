@@ -12,6 +12,8 @@ import BlockchainSdk
 import TangemVisa
 
 struct UserWalletConfigFactory {
+    private let demoUtil = DemoUtil()
+
     func makeConfig(walletInfo: WalletInfo) -> UserWalletConfig {
         switch walletInfo {
         case .cardWallet(let cardInfo):
@@ -22,7 +24,7 @@ struct UserWalletConfigFactory {
     }
 
     func makeConfig(cardInfo: CardInfo) -> UserWalletConfig {
-        let isDemo = DemoUtil().isDemoCard(cardId: cardInfo.card.cardId)
+        let isDemo = demoUtil.isDemoCard(cardId: cardInfo.card.cardId)
         let isS2CCard = cardInfo.card.issuer.name.lowercased() == "start2coin"
 
         switch cardInfo.walletData {
@@ -44,11 +46,11 @@ struct UserWalletConfigFactory {
                 return Start2CoinConfig(card: cardInfo.card, walletData: noteData)
             }
 
-            if isDemo {
-                return NoteDemoConfig(card: cardInfo.card, noteData: noteData)
-            } else {
-                return NoteConfig(card: cardInfo.card, noteData: noteData)
+            if demoUtil.isDemoNoteAsMultiWallet(cardId: cardInfo.card.cardId) {
+                return Wallet2Config(card: cardInfo.card, isDemo: true)
             }
+
+            return NoteConfig(card: cardInfo.card, noteData: noteData, isDemo: isDemo)
         case .twin(let walletData, let twinData):
             return TwinConfig(card: cardInfo.card, walletData: walletData, twinData: twinData)
         case .legacy(let walletData):

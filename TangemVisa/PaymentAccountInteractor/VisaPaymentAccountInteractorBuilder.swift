@@ -13,16 +13,13 @@ import TangemNetworkUtils
 public struct VisaPaymentAccountInteractorBuilder {
     private let isTestnet: Bool
     private let evmSmartContractInteractor: EVMSmartContractInteractor
-    private let isMockedAPIEnabled: Bool
 
     public init(
         isTestnet: Bool,
         evmSmartContractInteractor: EVMSmartContractInteractor,
-        isMockedAPIEnabled: Bool
     ) {
         self.isTestnet = isTestnet
         self.evmSmartContractInteractor = evmSmartContractInteractor
-        self.isMockedAPIEnabled = isMockedAPIEnabled
     }
 
     public func build(

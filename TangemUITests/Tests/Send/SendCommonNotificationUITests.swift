@@ -13,26 +13,18 @@ final class SendCommonNotificationUITests: BaseTestCase {
     private let ethTokenName = "Ethereum"
     private let destination = "0x24298f15b837E5851925E18439490859e0c1F1ee"
 
-    override func setUp() {
-        super.setUp()
-
-        launchApp(tangemApiType: .mock)
-
-        StoriesScreen(app)
-            .scanMockWallet(name: .wallet2)
-            .tapToken(ethTokenName)
-            .tapSendButton()
-            .validate()
-    }
-
-    func testNotificationDisplayed_WhenCustomFeeLowerThanSlow() {
+    func testNotificationDisplayed_WhenCustomFeeLowerThanSlow() throws {
         setAllureId(4293)
+
+        try skipDueToBug("[REDACTED_INFO]", description: "Send: It is not possible to paste an amount into the input field")
+
+        prepareSendFlow()
 
         SendScreen(app)
             .enterAmount("0.01")
             .tapNextButton()
             .enterDestination(destination)
-            .tapNextButton()
+            .tapNextButtonToSummary()
             .tapFeeBlock()
             .selectCustom()
             .setLowCustomFee()
@@ -44,6 +36,8 @@ final class SendCommonNotificationUITests: BaseTestCase {
     func testNotificationDisplayed_WhenTotalExceedsBalance() {
         setAllureId(4221)
 
+        prepareSendFlow()
+
         SendScreen(app)
             .enterAmount("0.9999")
             .tapNextButton()
@@ -53,19 +47,62 @@ final class SendCommonNotificationUITests: BaseTestCase {
             .waitForSendButtonEnabled()
     }
 
-    func testNotificationDisplayed_WhenCustomFeeIsHigh() {
+    func testNotificationDisplayed_WhenCustomFeeIsHigh() throws {
         setAllureId(4294)
+
+        try skipDueToBug("[REDACTED_INFO]", description: "Send: It is not possible to paste an amount into the input field")
+
+        prepareSendFlow()
 
         SendScreen(app)
             .enterAmount("0.01")
             .tapNextButton()
             .enterDestination(destination)
-            .tapNextButton()
+            .tapNextButtonToSummary()
             .tapFeeBlock()
             .selectCustom()
             .setHighCustomFee()
             .tapFeeSelectorDone()
             .waitForCustomFeeTooHighBanner()
             .waitForSendButtonEnabled()
+    }
+
+    func testInsufficientEthereumFeeBannerNavigatesToEthereumToken() {
+        setAllureId(3645)
+
+        // [REDACTED_TODO_COMMENT]
+
+        let polTokenName = "POL (ex-MATIC)"
+
+        let ethNetworkScenario = ScenarioConfig(
+            name: "eth_network_balance",
+            initialState: "Empty"
+        )
+
+        launchApp(
+            tangemApiType: .mock,
+            clearStorage: true,
+            scenarios: [ethNetworkScenario]
+        )
+
+        let polTokenScreen = CreateWalletSelectorScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .tapToken(polTokenName)
+            .waitForNotEnoughFeeForTransactionBanner()
+
+        polTokenScreen
+            .tapGoToFeeCurrencyButton()
+            .waitForTokenName(ethTokenName)
+            .waitForActionButtons()
+    }
+
+    private func prepareSendFlow() {
+        launchApp(tangemApiType: .mock)
+
+        CreateWalletSelectorScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .tapToken(ethTokenName)
+            .tapSendButton()
+            .waitForDisplay()
     }
 }

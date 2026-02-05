@@ -22,7 +22,7 @@ struct BannerNotificationEvent: NotificationEvent {
     var colorScheme: NotificationView.ColorScheme { programName.colorScheme }
     var severity: NotificationView.Severity { .info }
     var isDismissable: Bool { true }
-    var analyticsEvent: Analytics.Event? { .promotionBannerAppeared }
+    var analyticsEvent: Analytics.Event? { programName.analyticsEvent }
     var analyticsParams: [Analytics.ParameterKey: String] { analytics.analyticsParams }
     var isOneShotAnalyticsEvent: Bool { true }
 }
@@ -30,29 +30,32 @@ struct BannerNotificationEvent: NotificationEvent {
 extension PromotionProgramName {
     var title: String {
         switch self {
-        case .sepa: Localization.notificationSepaTitle
+        case .yield: Localization.notificationYieldPromoTitle
         }
     }
 
     var description: String? {
         switch self {
-        case .sepa: Localization.notificationSepaText
+        case .yield: Localization.notificationYieldPromoText
         }
     }
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .sepa:
-            .init(
-                iconType: .image(Assets.sepaBannerImage.image),
-                size: .init(bothDimensions: 54)
-            )
+        case .yield:
+            .init(iconType: .image(Assets.YieldModule.yieldModuleLogo.image), size: .init(bothDimensions: 36))
         }
     }
 
     var colorScheme: NotificationView.ColorScheme {
         switch self {
-        case .sepa: .primary
+        case .yield: .primary
+        }
+    }
+
+    var buttonTitle: String {
+        switch self {
+        case .yield: Localization.notificationYieldPromoButton
         }
     }
 }

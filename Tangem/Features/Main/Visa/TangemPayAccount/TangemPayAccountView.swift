@@ -9,56 +9,111 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemLocalization
+import TangemVisa
+import TangemPay
 
 struct TangemPayAccountView: View {
-    let viewModel: TangemPayAccountViewModel
+    @ObservedObject var viewModel: TangemPayAccountViewModel
 
     var body: some View {
-        HStack(alignment: .center, spacing: 12) {
-            Assets.Visa.usa.image
-                .resizable()
-                .frame(size: .init(bothDimensions: 36))
+        Button(action: viewModel.userDidTapView) {
+            HStack(alignment: .center, spacing: 12) {
+                leadingContent
 
-            VStack(alignment: .leading, spacing: 4) {
-                // [REDACTED_TODO_COMMENT]
-                Text("Tangem Pay")
-                    .style(
-                        Fonts.Bold.subheadline,
-                        color: Colors.Text.primary1
-                    )
+                Spacer()
 
-                HStack(alignment: .center, spacing: 6) {
-                    Assets.Visa.badge.image
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(height: 16)
-
-                    Text("*" + viewModel.card.cardNumberEnd)
-                        .style(
-                            Fonts.Regular.caption1,
-                            color: Colors.Text.tertiary
-                        )
-                }
+                trailingContent
             }
+            .opacity(viewModel.state.isFullyVisible ? 1 : 0.6)
+            .defaultRoundedBackground(with: Colors.Background.primary, verticalPadding: 14, horizontalPadding: 14)
+        }
+    }
 
-            Spacer()
+    @ViewBuilder
+    var leadingContent: some View {
+        if viewModel.state.isSkeleton {
+            skeletonLeadingContent
+        } else {
+            defaultLeadingContent
+        }
+    }
 
-            VStack(alignment: .trailing, spacing: 4) {
-                // [REDACTED_TODO_COMMENT]
-                Text("$ " + viewModel.balance.availableBalance.description)
-                    .style(
-                        Fonts.Regular.subheadline,
-                        color: Colors.Text.primary1
-                    )
+    @ViewBuilder
+    var skeletonLeadingContent: some View {
+        HStack(alignment: .center, spacing: 12) {
+            skeleton(width: 36, height: 36, radius: 8)
 
-                Text(viewModel.balance.currency)
-                    .style(
-                        Fonts.Regular.caption1,
-                        color: Colors.Text.tertiary
-                    )
+            VStack(alignment: .leading, spacing: 8) {
+                skeleton(width: 112)
+                skeleton(width: 80)
             }
         }
-        .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 14, horizontalPadding: 14)
-        .onTapGesture(perform: viewModel.tapAction)
+    }
+
+    @ViewBuilder
+    var defaultLeadingContent: some View {
+        HStack(alignment: .center, spacing: 12) {
+            Assets.Visa.accountAvatar.image
+                .resizable()
+                .frame(width: 36, height: 36)
+                .aspectRatio(contentMode: .fit)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(Localization.tangempayPaymentAccount)
+                    .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+
+                Text(viewModel.state.subtitle)
+                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+            }
+        }
+    }
+
+    @ViewBuilder
+    var trailingContent: some View {
+        switch viewModel.state {
+        case .kycInProgress, .issuingYourCard, .syncNeeded, .unavailable, .rootedDevice, .kycDeclined:
+            EmptyView()
+
+        case .failedToIssueCard:
+            Assets.redCircleWarning20Outline.image
+
+        case .normal(_, let balance):
+            VStack(alignment: .trailing, spacing: 4) {
+                LoadableTokenBalanceView(
+                    state: balance,
+                    style: .init(font: Fonts.Regular.subheadline, textColor: Colors.Text.primary1),
+                    loader: .init(size: CGSize(width: 40, height: 17))
+                )
+
+                SensitiveText(TangemPayUtilities.usdcTokenItem.currencySymbol)
+                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+            }
+
+        case .skeleton:
+            VStack(alignment: .trailing, spacing: 8) {
+                skeleton(width: 40)
+                skeleton(width: 40)
+            }
+        }
+    }
+
+    private func skeleton(
+        width: CGFloat,
+        height: CGFloat = Constants.defaultSkeletonHeight,
+        radius: CGFloat = Constants.defaultSkeletonRadius
+    ) -> some View {
+        SkeletonView()
+            .frame(width: width, height: height)
+            .cornerRadiusContinuous(radius)
+    }
+}
+
+// MARK: - TangemPayAccountView+Constants
+
+private extension TangemPayAccountView {
+    enum Constants {
+        static let defaultSkeletonHeight: CGFloat = 12
+        static let defaultSkeletonRadius: CGFloat = 3
     }
 }

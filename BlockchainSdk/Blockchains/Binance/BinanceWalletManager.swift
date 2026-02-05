@@ -19,18 +19,14 @@ class BinanceWalletManager: BaseManager, WalletManager {
 
     var currentHost: String { networkService.host }
 
-    override func update(completion: @escaping (Result<Void, Error>) -> Void) {
-        cancellable = networkService
-            .getInfo(address: wallet.address)
-            .sink(receiveCompletion: { [weak self] completionSubscription in
-                if case .failure(let error) = completionSubscription {
-                    self?.wallet.clearAmounts()
-                    completion(.failure(error))
-                }
-            }, receiveValue: { [weak self] response in
-                self?.updateWallet(with: response)
-                completion(.success(()))
-            })
+    override func updateWalletManager() async throws {
+        do {
+            let response = try await networkService.getInfo(address: wallet.address).async()
+            updateWallet(with: response)
+        } catch {
+            wallet.clearAmounts()
+            throw error
+        }
     }
 
     private func updateWallet(with response: BinanceInfoResponse) {
@@ -69,18 +65,20 @@ extension BinanceWalletManager: TransactionSender {
                 }
                 return tx
             }
-            .flatMap { [weak self] tx -> AnyPublisher<TransactionSendResult, Error> in
-                self?.networkService.send(transaction: tx).tryMap { [weak self] response in
-                    guard let self = self else { throw BlockchainSdkError.empty }
-                    let hash = response.broadcast.first?.hash ?? response.tx.txHash
-                    let mapper = PendingTransactionRecordMapper()
-                    let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hash)
-                    wallet.addPendingTransaction(record)
-                    latestTxDate = Date()
-                    return TransactionSendResult(hash: hash)
-                }
-                .mapAndEraseSendTxError(tx: tx.encodeForSignature().hex())
-                .eraseToAnyPublisher() ?? .emptyFail
+            .withWeakCaptureOf(self)
+            .flatMap { manager, tx -> AnyPublisher<TransactionSendResult, Error> in
+                manager.networkService.send(transaction: tx)
+                    .withWeakCaptureOf(self)
+                    .tryMap { manager, response in
+                        let hash = response.broadcast.first?.hash ?? response.tx.txHash
+                        let mapper = PendingTransactionRecordMapper()
+                        let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hash)
+                        manager.wallet.addPendingTransaction(record)
+                        manager.latestTxDate = Date()
+                        return TransactionSendResult(hash: hash, currentProviderHost: manager.currentHost)
+                    }
+                    .mapAndEraseSendTxError(tx: tx.encodeForSignature().hex())
+                    .eraseToAnyPublisher()
             }
             .mapSendTxError()
             .eraseToAnyPublisher()

@@ -24,7 +24,6 @@ struct DetailsCoordinatorView: CoordinatorView {
         }
     }
 
-    @ViewBuilder
     private var links: some View {
         NavHolder()
             .navigation(item: $coordinator.walletConnectCoordinator) {
@@ -50,12 +49,8 @@ struct DetailsCoordinatorView: CoordinatorView {
             }
     }
 
-    @ViewBuilder
     private var sheets: some View {
         NavHolder()
-            .sheet(item: $coordinator.mailViewModel) {
-                MailView(viewModel: $0)
-            }
             .sheet(item: $coordinator.modalOnboardingCoordinator) {
                 OnboardingCoordinatorView(coordinator: $0)
                     .presentation(modal: true, onDismissalAttempt: $0.onDismissalAttempt, onDismissed: nil)
@@ -66,6 +61,9 @@ struct DetailsCoordinatorView: CoordinatorView {
             .fullScreenCover(item: $coordinator.supportChatViewModel) {
                 SupportChatView(viewModel: $0)
                     .edgesIgnoringSafeArea(.vertical)
+            }
+            .fullScreenCover(item: $coordinator.tangemPayOnboardingCoordinator) {
+                TangemPayOnboardingCoordinatorView(coordinator: $0)
             }
     }
 }

@@ -8,9 +8,9 @@
 
 import Combine
 import Foundation
+import TangemAssets
 import TangemLogger
 import TangemUI
-import TangemAssets
 
 @MainActor
 final class WalletConnectConnectedDAppDetailsViewModel: ObservableObject {
@@ -163,16 +163,52 @@ extension WalletConnectConnectedDAppDetailsViewModel {
         verifiedDomainAction: @escaping () -> Void
     ) -> WalletConnectConnectedDAppDetailsViewState {
         let imageProvider = NetworkImageProvider()
-        let walletName: String
+        var walletSection: WalletConnectConnectedDAppDetailsViewState.DAppDetails.WalletSection?
+        var connectionTargetSection: WalletConnectConnectedDAppDetailsViewState.DAppDetails.ConnectionTargetSection?
+        var walletName = ""
 
-        if let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == dApp.userWalletID }) {
-            walletName = userWalletModel.name
-        } else {
-            logger.warning("UserWalletModel not found for \(dApp.dAppData.name) dApp")
-            walletName = ""
+        switch dApp {
+        case .v1(let dAppV1):
+            let userWalletID = dAppV1.userWalletID
+            if let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == userWalletID }) {
+                walletName = userWalletModel.name
+            } else {
+                logger.warning("UserWalletModel not found for \(dApp.dAppData.name) dApp")
+            }
+        case .v2(let dAppV2):
+            outer: for userWalletModel in userWalletRepository.models where userWalletModel.userWalletId.stringValue == dAppV2.userWalletID {
+                for accountModel in userWalletModel.accountModelsManager.accountModels {
+                    switch accountModel {
+                    case .standard(.single(let cryptoAccount)):
+                        if cryptoAccount.id.walletConnectIdentifierString == dAppV2.accountId {
+                            connectionTargetSection = .init(
+                                targetName: walletName,
+                                target: .wallet()
+                            )
+                            walletSection = nil
+                            break outer
+                        }
+
+                    case .standard(.multiple(let cryptoAccounts)):
+                        if let cryptoAccount = cryptoAccounts.first(where: { $0.id.walletConnectIdentifierString == dAppV2.accountId }) {
+                            connectionTargetSection = .init(
+                                targetName: cryptoAccount.name,
+                                target: .account(.init(icon: cryptoAccount.icon))
+                            )
+                            walletSection = nil
+                            break outer
+                        }
+                    }
+                }
+            }
+
+            if connectionTargetSection == nil {
+                walletSection = .init(walletName: walletName)
+                logger.warning("CryptoAccountModel not found for \(dApp.dAppData.name) dApp")
+            }
         }
 
-        let verifcationStatusIconConfig = EntitySummaryView.ViewState.TitleInfoConfig(
+        let verificationStatusIconConfig = EntitySummaryView.ViewState.TitleInfoConfig(
             imageType: Assets.Glyphs.verified,
             foregroundColor: Colors.Icon.accent,
             onTap: verifiedDomainAction
@@ -191,11 +227,12 @@ extension WalletConnectConnectedDAppDetailsViewModel {
                         title: dApp.dAppData.name,
                         subtitle: dApp.dAppData.domain.host ?? "",
                         titleInfoConfig: dApp.verificationStatus.isVerified
-                            ? verifcationStatusIconConfig
+                            ? verificationStatusIconConfig
                             : nil
                     )
                 ),
-                walletSection: WalletConnectConnectedDAppDetailsViewState.DAppDetails.WalletSection(walletName: walletName),
+                walletSection: walletSection,
+                connectionTargetSection: connectionTargetSection,
                 dAppVerificationWarningSection: WalletConnectWarningNotificationViewModel(dApp.verificationStatus),
                 connectedNetworksSection: WalletConnectConnectedDAppDetailsViewState.DAppDetails.ConnectedNetworksSection(
                     blockchains: dApp.dAppBlockchains.map { dAppBlockchain in

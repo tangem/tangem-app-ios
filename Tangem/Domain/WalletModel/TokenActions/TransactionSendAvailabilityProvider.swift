@@ -8,13 +8,18 @@
 
 import Foundation
 import BlockchainSdk
+import TangemUI
 import TangemAssets
+import TangemMacro
 
 struct TransactionSendAvailabilityProvider {
     private let hardwareLimitationsUtil: HardwareLimitationsUtil
     private let networkIconProvider: NetworkImageProvider
 
-    init(hardwareLimitationsUtil: HardwareLimitationsUtil, networkIconProvider: NetworkImageProvider = NetworkImageProvider()) {
+    init(
+        hardwareLimitationsUtil: HardwareLimitationsUtil,
+        networkIconProvider: NetworkImageProvider = NetworkImageProvider()
+    ) {
         self.hardwareLimitationsUtil = hardwareLimitationsUtil
         self.networkIconProvider = networkIconProvider
     }
@@ -29,17 +34,8 @@ struct TransactionSendAvailabilityProvider {
             break
         }
 
-        switch walletModel.availableBalanceProvider.balanceType {
-        case .loading(.none):
-            return .blockchainLoading
-        case .empty, .failure(.none):
-            return .blockchainUnreachable
-        case .loading(.some), .failure(.some):
-            return .hasOnlyCachedBalance
-        case .loaded(let value) where value == .zero:
-            return .zeroWalletBalance
-        case .loaded:
-            break
+        if let restriction = walletModel.availableBalanceProvider.balanceType.sendingRestrictions {
+            return restriction
         }
 
         // has pending tx
@@ -48,46 +44,91 @@ struct TransactionSendAvailabilityProvider {
         }
 
         // no fee
-        if !walletModel.hasFeeCurrency(amountType: walletModel.tokenItem.amountType) {
-            let feeAmountTypeIconAsset = networkIconProvider.provide(by: walletModel.feeTokenItem.blockchain, filled: true)
-            return .zeroFeeCurrencyBalance(
-                configuration: .init(
-                    amountCurrencySymbol: walletModel.tokenItem.currencySymbol,
-                    amountCurrencyBlockchainName: walletModel.tokenItem.blockchain.displayName,
-                    transactionAmountTypeName: walletModel.tokenItem.name,
-                    feeAmountTypeName: walletModel.feeTokenItem.name,
-                    feeAmountTypeCurrencySymbol: walletModel.feeTokenItem.currencySymbol,
-                    feeAmountTypeIconAsset: feeAmountTypeIconAsset,
-                    networkName: walletModel.tokenItem.networkName,
-                    currencyButtonTitle: walletModel.tokenItem.blockchain.feeDisplayName
-                )
-            )
+        if !walletModel.hasFeeCurrency(),
+           let configuration = makeNotEnoughFeeConfiguration(walletModel: walletModel) {
+            return .zeroFeeCurrencyBalance(configuration: configuration)
         }
 
         return nil
     }
+
+    private func makeNotEnoughFeeConfiguration(walletModel: any WalletModel) -> SendingRestrictions.NotEnoughFeeConfiguration? {
+        do {
+            let feeWalletModelFinderResult = try WalletModelFinder.findWalletModel(tokenItem: walletModel.feeTokenItem)
+            let availabilityProvider = TokenActionAvailabilityProvider(
+                userWalletConfig: feeWalletModelFinderResult.userWalletModel.config,
+                walletModel: feeWalletModelFinderResult.walletModel
+            )
+
+            let tokenIconInfo = TokenIconInfoBuilder().build(
+                for: walletModel.feeTokenItem.amountType,
+                in: walletModel.feeTokenItem.blockchain,
+                isCustom: walletModel.isCustom
+            )
+
+            return .init(
+                amountCurrencySymbol: walletModel.tokenItem.currencySymbol,
+                amountCurrencyBlockchainName: walletModel.tokenItem.blockchain.displayName,
+                transactionAmountTypeName: walletModel.tokenItem.name,
+                feeAmountTypeName: walletModel.feeTokenItem.name,
+                feeAmountTypeCurrencySymbol: walletModel.feeTokenItem.currencySymbol,
+                feeTokenIconInfo: tokenIconInfo,
+                networkName: walletModel.tokenItem.networkName,
+                currencyButtonTitle: walletModel.tokenItem.blockchain.feeDisplayName,
+                isFeeCurrencyPurchaseAllowed: availabilityProvider.isBuyAvailable
+            )
+        } catch {
+            AppLogger.error(error: "FeeWalletModel didn't found")
+            return nil
+        }
+    }
 }
 
-extension TransactionSendAvailabilityProvider {
-    enum SendingRestrictions: Hashable {
-        case zeroWalletBalance
-        case hasOnlyCachedBalance
-        case cantSignLongTransactions
-        case hasPendingTransaction(blockchain: Blockchain)
-        case zeroFeeCurrencyBalance(configuration: NotEnoughFeeConfiguration)
-        case blockchainUnreachable
-        case blockchainLoading
-        case oldCard
+// MARK: - SendingRestrictions
 
-        struct NotEnoughFeeConfiguration: Hashable {
-            let amountCurrencySymbol: String
-            let amountCurrencyBlockchainName: String
-            let transactionAmountTypeName: String
-            let feeAmountTypeName: String
-            let feeAmountTypeCurrencySymbol: String
-            let feeAmountTypeIconAsset: ImageType
-            let networkName: String
-            let currencyButtonTitle: String?
+@CaseFlagable
+enum SendingRestrictions: Hashable {
+    case zeroWalletBalance
+    case hasOnlyCachedBalance
+    case cantSignLongTransactions
+    case hasPendingWithdrawOrder
+    case hasPendingTransaction(blockchain: Blockchain)
+    case zeroFeeCurrencyBalance(configuration: NotEnoughFeeConfiguration)
+    case blockchainUnreachable
+    case blockchainLoading
+    case oldCard
+    case noAccount
+
+    struct NotEnoughFeeConfiguration: Hashable {
+        let amountCurrencySymbol: String
+        let amountCurrencyBlockchainName: String
+        let transactionAmountTypeName: String
+        let feeAmountTypeName: String
+        let feeAmountTypeCurrencySymbol: String
+        let feeTokenIconInfo: TokenIconInfo
+        let networkName: String
+        let currencyButtonTitle: String?
+        let isFeeCurrencyPurchaseAllowed: Bool
+    }
+}
+
+// MARK: - TokenBalanceType + SendingRestrictions
+
+extension TokenBalanceType {
+    var sendingRestrictions: SendingRestrictions? {
+        switch self {
+        case .loading(.none):
+            return .blockchainLoading
+        case .empty(.noAccount):
+            return .noAccount
+        case .empty, .failure(.none):
+            return .blockchainUnreachable
+        case .loading(.some), .failure(.some):
+            return .hasOnlyCachedBalance
+        case .loaded(let value) where value == .zero:
+            return .zeroWalletBalance
+        case .loaded:
+            return nil
         }
     }
 }

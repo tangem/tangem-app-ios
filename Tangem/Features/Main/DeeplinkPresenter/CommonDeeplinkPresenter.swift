@@ -56,9 +56,14 @@ extension CommonDeeplinkPresenter: DeeplinkPresenter {
 // MARK: - Private Implementation
 
 private extension CommonDeeplinkPresenter {
-    func makeDeeplinkViewController<Content: View>(@ViewBuilder view: () -> Content, embedInNavigationView: Bool) -> UIViewController {
-        if embedInNavigationView {
-            let navRoot = NavigationView {
+    func makeDeeplinkViewController<Content: View>(
+        @ViewBuilder view: () -> Content,
+        embedInNavigationStack: Bool,
+        modalPresentationStyle: UIModalPresentationStyle = .automatic
+    ) -> UIViewController {
+        let controller: UIViewController
+        if embedInNavigationStack {
+            let navRoot = NavigationStack {
                 view()
                     .toolbar {
                         ToolbarItem(placement: .navigationBarLeading) {
@@ -69,10 +74,13 @@ private extension CommonDeeplinkPresenter {
                         }
                     }
             }
-            return UIHostingController(rootView: navRoot)
+            controller = UIHostingController(rootView: navRoot)
         } else {
-            return UIHostingController(rootView: view())
+            controller = UIHostingController(rootView: view())
         }
+        controller.modalPresentationStyle = modalPresentationStyle
+
+        return controller
     }
 }
 
@@ -80,14 +88,18 @@ private extension CommonDeeplinkPresenter {
     private func constructViewControllerForDeepLink(_ deepLink: DeepLinkDestination) -> UIViewController? {
         switch deepLink {
         case .expressTransactionStatus(let walletModel, let userWalletModel, let pendingTransactionDetails):
-            return constructTokenDetailsViewControllerWithPendingTransaction(
+            return constructTokenDetailsViewController(
                 walletModel: walletModel,
                 userWalletModel: userWalletModel,
                 pendingTransactionDetails: pendingTransactionDetails
             )
 
         case .tokenDetails(let walletModel, let userWalletModel):
-            return constructTokenDetailsViewController(walletModel: walletModel, userWalletModel: userWalletModel)
+            return constructTokenDetailsViewController(
+                walletModel: walletModel,
+                userWalletModel: userWalletModel,
+                pendingTransactionDetails: nil
+            )
 
         case .buy(let userWalletModel):
             return constructBuyViewController(userWalletModel: userWalletModel)
@@ -107,14 +119,16 @@ private extension CommonDeeplinkPresenter {
         case .marketsTokenDetails(let tokenId):
             return constructMarketsTokenViewController(tokenId: tokenId)
 
-        case .onboardVisa(let deeplinkString, let userWalletModel):
+        case .onboardVisa(let deeplinkString):
             return constructTangemPayOnboardViewController(
                 deeplinkString: deeplinkString,
-                userWalletModel: userWalletModel
             )
 
-        case .promo(let promoCode):
-            return constructPromoViewController(promoCode: promoCode)
+        case .promo(let promoCode, let refcode, let campaign):
+            return constructPromoViewController(promoCode: promoCode, refcode: refcode, campaign: campaign)
+
+        case .newsDetails(let newsId):
+            return constructNewsDetailsViewController(newsId: newsId)
 
         case .externalLink, .market:
             return nil
@@ -123,8 +137,11 @@ private extension CommonDeeplinkPresenter {
 }
 
 private extension CommonDeeplinkPresenter {
-    private func constructPromoViewController(promoCode: String) -> UIViewController {
-        let viewController = makeDeeplinkViewController(view: { PromocodeActivationView(promoCode: promoCode) }, embedInNavigationView: false)
+    private func constructPromoViewController(promoCode: String, refcode: String?, campaign: String?) -> UIViewController {
+        let viewController = makeDeeplinkViewController(
+            view: { PromocodeActivationView(promoCode: promoCode, refcode: refcode, campaign: campaign) },
+            embedInNavigationStack: false
+        )
 
         viewController.view.backgroundColor = .clear
         viewController.modalPresentationStyle = .overFullScreen
@@ -132,41 +149,48 @@ private extension CommonDeeplinkPresenter {
         return viewController
     }
 
-    private func constructTokenDetailsViewControllerWithPendingTransaction(
+    private func constructTokenDetailsViewController(
         walletModel: any WalletModel,
         userWalletModel: UserWalletModel,
-        pendingTransactionDetails: PendingTransactionDetails
-    ) -> UIViewController {
+        pendingTransactionDetails: PendingTransactionDetails?
+    ) -> UIViewController? {
         let coordinator = coordinatorFactory.makeTokenDetailsCoordinator(dismissAction: { UIApplication.dismissTop() })
 
-        coordinator.start(
-            with: .init(
-                userWalletModel: userWalletModel,
-                walletModel: walletModel,
-                pendingTransactionDetails: pendingTransactionDetails
+        // [REDACTED_TODO_COMMENT]
+        if FeatureProvider.isAvailable(.accounts) {
+            guard let account = walletModel.account else {
+                let message = "Inconsistent state: WalletModel '\(walletModel.name)' has no account in accounts-enabled build"
+                AppLogger.error(error: message)
+                assertionFailure(message)
+                return nil
+            }
+
+            coordinator.start(
+                with: .init(
+                    userWalletInfo: userWalletModel.userWalletInfo,
+                    keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
+                    walletModelsManager: account.walletModelsManager,
+                    userTokensManager: account.userTokensManager,
+                    walletModel: walletModel,
+                    pendingTransactionDetails: pendingTransactionDetails
+                )
             )
-        )
+        } else {
+            coordinator.start(
+                with: .init(
+                    userWalletInfo: userWalletModel.userWalletInfo,
+                    keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
+                    walletModelsManager: userWalletModel.walletModelsManager, // accounts_fixes_needed_none
+                    userTokensManager: userWalletModel.userTokensManager, // accounts_fixes_needed_none
+                    walletModel: walletModel,
+                    pendingTransactionDetails: pendingTransactionDetails
+                )
+            )
+        }
 
         return makeDeeplinkViewController(
             view: { TokenDetailsCoordinatorView(coordinator: coordinator) },
-            embedInNavigationView: true
-        )
-    }
-
-    private func constructTokenDetailsViewController(walletModel: any WalletModel, userWalletModel: UserWalletModel) -> UIViewController {
-        let coordinator = coordinatorFactory.makeTokenDetailsCoordinator(dismissAction: { UIApplication.dismissTop() })
-
-        coordinator.start(
-            with: .init(
-                userWalletModel: userWalletModel,
-                walletModel: walletModel,
-                pendingTransactionDetails: nil
-            )
-        )
-
-        return makeDeeplinkViewController(
-            view: { TokenDetailsCoordinatorView(coordinator: coordinator) },
-            embedInNavigationView: true
+            embedInNavigationStack: true
         )
     }
 
@@ -176,7 +200,7 @@ private extension CommonDeeplinkPresenter {
         coordinator.start(with: .init(input: input))
         return makeDeeplinkViewController(
             view: { ReferralCoordinatorView(coordinator: coordinator) },
-            embedInNavigationView: true
+            embedInNavigationStack: true
         )
     }
 
@@ -187,10 +211,7 @@ private extension CommonDeeplinkPresenter {
             with: .default(
                 options: .init(
                     userWalletModel: userWalletModel,
-                    expressTokensListAdapter: CommonExpressTokensListAdapter(
-                        userTokensManager: userWalletModel.userTokensManager,
-                        walletModelsManager: userWalletModel.walletModelsManager,
-                    ),
+                    expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletId: userWalletModel.userWalletId),
                     tokenSorter: CommonBuyTokenAvailabilitySorter(userWalletModelConfig: userWalletModel.config)
                 )
             )
@@ -198,7 +219,7 @@ private extension CommonDeeplinkPresenter {
 
         return makeDeeplinkViewController(
             view: { ActionButtonsBuyCoordinatorView(coordinator: coordinator) },
-            embedInNavigationView: false
+            embedInNavigationStack: false
         )
     }
 
@@ -211,7 +232,7 @@ private extension CommonDeeplinkPresenter {
         coordinator.start(with: .default)
         return makeDeeplinkViewController(
             view: { ActionButtonsSellCoordinatorView(coordinator: coordinator) },
-            embedInNavigationView: false
+            embedInNavigationStack: false
         )
     }
 
@@ -224,7 +245,7 @@ private extension CommonDeeplinkPresenter {
         coordinator.start(with: .default)
         return makeDeeplinkViewController(
             view: { ActionButtonsSwapCoordinatorView(coordinator: coordinator) },
-            embedInNavigationView: false
+            embedInNavigationStack: false
         )
     }
 
@@ -237,7 +258,7 @@ private extension CommonDeeplinkPresenter {
         coordinator.start(with: options)
         return makeDeeplinkViewController(
             view: { StakingDetailsCoordinatorView(coordinator: coordinator) },
-            embedInNavigationView: true
+            embedInNavigationStack: true
         )
     }
 
@@ -250,6 +271,7 @@ private extension CommonDeeplinkPresenter {
             currentPrice: nil,
             priceChangePercentage: [:],
             marketRating: nil,
+            maxYieldApy: nil,
             marketCap: nil,
             isUnderMarketCapLimit: nil,
             stakingOpportunities: nil
@@ -274,33 +296,41 @@ private extension CommonDeeplinkPresenter {
                 MarketsTokenDetailsCoordinatorView(coordinator: coordinator)
                     .environment(\.mainWindowSize, windowSize ?? .zero)
             },
-            embedInNavigationView: true
+            embedInNavigationStack: true
         )
     }
 
     private func constructTangemPayOnboardViewController(
-        deeplinkString: String,
-        userWalletModel: UserWalletModel
+        deeplinkString: String
     ) -> UIViewController {
-        var viewController: UIViewController?
+        let coordinator = coordinatorFactory.makeTangemPayOnboardingCoordinator { _ in
+            UIApplication.dismissTop()
+        }
+        coordinator.start(with: .init(source: .deeplink(deeplinkString)))
 
-        let viewModel = TangemPayOnboardingViewModel(
-            deeplinkString: deeplinkString,
-            userWalletModel: userWalletModel,
-            closeOfferScreen: { @MainActor in
-                viewController?.dismiss(animated: true)
-                // To exclude reference cycle possibility
-                viewController = nil
-            }
+        return makeDeeplinkViewController(
+            view: {
+                TangemPayOnboardingCoordinatorView(coordinator: coordinator)
+            },
+            embedInNavigationStack: false,
+            modalPresentationStyle: .overFullScreen
         )
+    }
 
-        let view = TangemPayOnboardingView(viewModel: viewModel)
-        let controller = UIHostingController(rootView: view)
-        controller.modalPresentationStyle = .overFullScreen
+    private func constructNewsDetailsViewController(newsId: Int) -> UIViewController {
+        var windowSize: CGSize?
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first {
+            windowSize = window.screen.bounds.size
+        }
 
-        viewController = controller
-
-        return controller
+        return makeDeeplinkViewController(
+            view: {
+                NewsDeeplinkContainerView(newsId: newsId)
+                    .environment(\.mainWindowSize, windowSize ?? .zero)
+            },
+            embedInNavigationStack: true
+        )
     }
 }
 

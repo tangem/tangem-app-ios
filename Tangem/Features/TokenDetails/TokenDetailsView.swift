@@ -49,7 +49,7 @@ struct TokenDetailsView: View {
                     )
                 }
 
-                yieldStatueView
+                yieldStatusView
 
                 if let activeStakingViewData = viewModel.activeStakingViewData {
                     ActiveStakingView(data: activeStakingViewData)
@@ -70,6 +70,7 @@ struct TokenDetailsView: View {
                 TransactionsListView(
                     state: viewModel.transactionHistoryState,
                     exploreAction: viewModel.openExplorer,
+                    exploreConfirmationDialog: $viewModel.exploreConfirmationDialog,
                     exploreTransactionAction: viewModel.openTransactionExplorer,
                     reloadButtonAction: viewModel.onButtonReloadHistory,
                     isReloadButtonBusy: viewModel.isReloadingTransactionHistory,
@@ -90,7 +91,6 @@ struct TokenDetailsView: View {
         .onAppear(perform: viewModel.onAppear)
         .onAppear(perform: scrollOffsetHandler.onViewAppear)
         .alert(item: $viewModel.alert) { $0.alert }
-        .confirmationDialog(viewModel: $viewModel.confirmationDialog)
         .coordinateSpace(name: coordinateSpaceName)
         .toolbar(content: {
             ToolbarItem(placement: .principal) {
@@ -135,7 +135,7 @@ struct TokenDetailsView: View {
     }
 
     @ViewBuilder
-    private var yieldStatueView: some View {
+    private var yieldStatusView: some View {
         switch viewModel.yieldModuleAvailability {
         case .checking, .notApplicable:
             EmptyView()
@@ -165,7 +165,8 @@ private extension TokenDetailsView {
     let notifManager = SingleTokenNotificationManager(
         userWalletId: userWalletModel.userWalletId,
         walletModel: walletModel,
-        walletModelsManager: userWalletModel.walletModelsManager
+        walletModelsManager: userWalletModel.walletModelsManager,
+        tangemIconProvider: CommonTangemIconProvider(hasNFCInteraction: true)
     )
     let expressAPIProvider = ExpressAPIProviderFactory().makeExpressAPIProvider(
         userWalletId: userWalletModel.userWalletId,
@@ -173,13 +174,14 @@ private extension TokenDetailsView {
     )
     let pendingExpressTxsManager = CommonPendingExpressTransactionsManager(
         userWalletId: userWalletModel.userWalletId.stringValue,
-        walletModel: walletModel,
+        tokenItem: walletModel.tokenItem,
+        walletModelUpdater: walletModel,
         expressAPIProvider: expressAPIProvider,
         expressRefundedTokenHandler: ExpressRefundedTokenHandlerMock()
     )
     let pendingOnrampTxsManager = CommonPendingOnrampTransactionsManager(
         userWalletId: userWalletModel.userWalletId.stringValue,
-        walletModel: walletModel,
+        tokenItem: walletModel.tokenItem,
         expressAPIProvider: expressAPIProvider
     )
     let pendingTxsManager = CompoundPendingTransactionsManager(
@@ -189,22 +191,23 @@ private extension TokenDetailsView {
     let coordinator = TokenDetailsCoordinator()
 
     let bannerNotificationManager = BannerNotificationManager(
-        userWallet: userWalletModel,
-        placement: .tokenDetails(walletModel.tokenItem)
+        userWalletInfo: userWalletModel.userWalletInfo,
+        placement: .tokenDetails(walletModel.tokenItem),
     )
 
     let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
 
     TokenDetailsView(viewModel: .init(
-        userWalletModel: userWalletModel,
+        userWalletInfo: userWalletModel.userWalletInfo,
         walletModel: walletModel,
         notificationManager: notifManager,
         bannerNotificationManager: bannerNotificationManager,
+        userTokensManager: userWalletModel.userTokensManager,
         pendingExpressTransactionsManager: pendingTxsManager,
         xpubGenerator: nil,
         coordinator: coordinator,
         tokenRouter: SingleTokenRouter(
-            userWalletModel: userWalletModel,
+            userWalletInfo: userWalletModel.userWalletInfo,
             coordinator: coordinator,
             yieldModuleNoticeInteractor: yieldModuleNoticeInteractor
         ),

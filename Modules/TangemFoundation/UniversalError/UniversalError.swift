@@ -32,6 +32,10 @@ public protocol UniversalError: LocalizedError {
     var errorCode: Int { get }
 }
 
+public protocol CancellableError {
+    var isUserCancelled: Bool { get }
+}
+
 public extension Error {
     var universalErrorCode: Int {
         toUniversalError().errorCode

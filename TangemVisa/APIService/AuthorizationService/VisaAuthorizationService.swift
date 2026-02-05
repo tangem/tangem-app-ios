@@ -8,11 +8,15 @@
 
 import Foundation
 import Moya
+import TangemPay
 
 public protocol VisaAuthorizationService {
     func getCardAuthorizationChallenge(cardId: String, cardPublicKey: String) async throws -> VisaAuthChallengeResponse
     func getWalletAuthorizationChallenge(cardId: String, walletPublicKey: String) async throws -> VisaAuthChallengeResponse
-    func getCustomerWalletAuthorizationChallenge(customerWalletAddress: String) async throws -> VisaAuthChallengeResponse
+    func getCustomerWalletAuthorizationChallenge(
+        customerWalletAddress: String,
+        customerWalletId: String
+    ) async throws -> VisaAuthChallengeResponse
     func getAccessTokensForCardAuth(
         signedChallenge: String,
         salt: String,
@@ -36,7 +40,7 @@ public protocol VisaAuthorizationTokenRefreshService {
 }
 
 struct CommonVisaAuthorizationService {
-    typealias AuthorizationAPIService = APIService<AuthorizationAPITarget>
+    typealias AuthorizationAPIService = TangemPayAPIService<AuthorizationAPITarget>
     private let apiService: AuthorizationAPIService
 
     private let apiType: VisaAPIType
@@ -74,7 +78,10 @@ extension CommonVisaAuthorizationService: VisaAuthorizationService {
         ))
     }
 
-    func getCustomerWalletAuthorizationChallenge(customerWalletAddress: String) async throws -> VisaAuthChallengeResponse {
+    func getCustomerWalletAuthorizationChallenge(
+        customerWalletAddress: String,
+        customerWalletId: String
+    ) async throws -> VisaAuthChallengeResponse {
         try await apiService.request(.init(
             target: .generateNonce(request: .init(
                 cardId: nil,

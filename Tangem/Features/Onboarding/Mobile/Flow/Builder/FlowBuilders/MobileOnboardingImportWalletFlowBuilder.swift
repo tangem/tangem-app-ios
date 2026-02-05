@@ -15,9 +15,11 @@ final class MobileOnboardingImportWalletFlowBuilder: MobileOnboardingFlowBuilder
 
     private var userWalletModel: UserWalletModel?
 
+    private let source: MobileOnboardingFlowSource
     private weak var coordinator: MobileOnboardingFlowRoutable?
 
-    init(coordinator: MobileOnboardingFlowRoutable) {
+    init(source: MobileOnboardingFlowSource, coordinator: MobileOnboardingFlowRoutable) {
+        self.source = source
         self.coordinator = coordinator
         super.init()
     }
@@ -40,7 +42,7 @@ final class MobileOnboardingImportWalletFlowBuilder: MobileOnboardingFlowBuilder
         importCompletedStep.configureNavBar(title: Localization.walletImportTitle)
         append(step: importCompletedStep)
 
-        let accessCodeStep = MobileOnboardingAccessCodeStep(delegate: self)
+        let accessCodeStep = MobileOnboardingAccessCodeStep(mode: .create(canSkip: true), source: source, delegate: self)
             .configureNavBar(title: Localization.accessCodeNavtitle)
         append(step: accessCodeStep)
 

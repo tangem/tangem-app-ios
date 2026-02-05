@@ -10,23 +10,21 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct CreateWalletSelectorView: View {
     typealias ViewModel = CreateWalletSelectorViewModel
 
     @ObservedObject var viewModel: ViewModel
 
-    @State private var introspectResponderChainID = UUID()
+    @State private var scrollToId = UUID()
 
     var body: some View {
         content
-            .padding(.horizontal, 16)
             .allowsHitTesting(!viewModel.isScanning)
             .background(Colors.Background.plain.ignoresSafeArea())
-            .onAppear(perform: viewModel.onAppear)
-            .alert(item: $viewModel.error, content: { $0.alert })
-            .confirmationDialog(viewModel: $viewModel.confirmationDialog)
-            .sheet(item: $viewModel.mailViewModel) { MailView(viewModel: $0) }
+            .onFirstAppear(perform: viewModel.onFirstAppear)
+            .alert(item: $viewModel.alert, content: { $0.alert })
             .environment(\.colorScheme, .dark)
     }
 }
@@ -35,32 +33,33 @@ struct CreateWalletSelectorView: View {
 
 private extension CreateWalletSelectorView {
     var content: some View {
-        CustomScrollView {
-            VStack(spacing: 12) {
-                info.padding(.horizontal, 20)
-                tangemIcon
-                actions
-            }
-            .padding(.top, 12)
-        }
-        .introspectResponderChain(
-            introspectedType: UINavigationBar.self,
-            includeSubviews: true,
-            updateOnChangeOf: introspectResponderChainID,
-            action: { navigationBar in
-                navigationBar.tintColor = UIColor(Colors.Text.constantWhite)
-            }
-        )
-        .onWillAppear {
-            DispatchQueue.main.async {
-                introspectResponderChainID = UUID()
-            }
-        }
-        // Is used to update UINavigationBar appearance
-        // when the user starts an interactive back swipe gesture.
-        .onWillDisappear {
-            DispatchQueue.main.async {
-                introspectResponderChainID = UUID()
+        VStack(spacing: 0) {
+            NavigationBar(
+                title: "",
+                leftButtons: {
+                    BackButton(
+                        height: viewModel.backButtonHeight,
+                        isVisible: true,
+                        isEnabled: true,
+                        action: viewModel.onBackTap
+                    )
+                }
+            )
+
+            ScrollViewReader { proxy in
+                ScrollView(.vertical, showsIndicators: false) {
+                    VStack(spacing: 12) {
+                        info.padding(.horizontal, 20)
+                        tangemIcon
+                        actions
+                    }
+                    .padding(.top, 12)
+                    .id(scrollToId)
+                }
+                .padding(.horizontal, 16)
+                .onFirstAppear {
+                    proxy.scrollTo(scrollToId, anchor: .bottom)
+                }
             }
         }
     }
@@ -80,10 +79,9 @@ private extension CreateWalletSelectorView {
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, 8)
 
-            FlowLayout(
+            HorizontalFlowLayout(
                 items: viewModel.chipItems,
-                horizontalAlignment: .center,
-                verticalAlignment: .center,
+                alignment: .center,
                 horizontalSpacing: 20,
                 verticalSpacing: 8,
                 itemContent: chip
@@ -100,10 +98,14 @@ private extension CreateWalletSelectorView {
     }
 
     var actions: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 0) {
             primaryActions
+
             actionsSeparator
+                .padding(.top, 24)
+
             secondaryActions
+                .padding(.top, 16)
         }
     }
 
@@ -116,6 +118,8 @@ private extension CreateWalletSelectorView {
                 isLoading: viewModel.isScanning,
                 action: viewModel.onScanTap
             )
+            .confirmationDialog(viewModel: $viewModel.scanTroubleshootingDialog)
+            .accessibilityIdentifier(StoriesAccessibilityIdentifiers.scanButton)
 
             MainButton(
                 title: viewModel.buyTitle,
@@ -130,26 +134,21 @@ private extension CreateWalletSelectorView {
     }
 
     func mobileWalletAction(item: ViewModel.MobileWalletItem) -> some View {
-        VStack(spacing: 0) {
-            Text(item.description)
-                .style(Fonts.Bold.subheadline, color: Colors.Text.tertiary)
+        Button(action: item.action) {
+            HStack(spacing: 0) {
+                Text(item.title)
+                    .style(Fonts.Bold.callout, color: Colors.Text.primary1)
 
-            Button(action: item.action) {
-                HStack(spacing: 0) {
-                    Text(item.title)
-                        .style(Fonts.Bold.callout, color: Colors.Text.primary1)
-
-                    Assets.chevronRight.image
-                        .renderingMode(.template)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 20, height: 20)
-                        .foregroundStyle(Colors.Icon.primary1)
-                }
-                .padding(.vertical, 12)
-                .frame(maxWidth: .infinity)
+                Assets.chevronRight.image
+                    .renderingMode(.template)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 20, height: 20)
+                    .foregroundStyle(Colors.Icon.primary1)
             }
+            .frame(maxWidth: .infinity)
         }
+        .accessibilityIdentifier(OnboardingAccessibilityIdentifiers.mobileWalletButton)
     }
 
     var actionsSeparator: some View {
@@ -178,7 +177,7 @@ private extension CreateWalletSelectorView {
     }
 
     func chip(item: ViewModel.ChipItem) -> some View {
-        HStack(spacing: 6) {
+        HStack(alignment: .top, spacing: 6) {
             item.icon.image
                 .renderingMode(.template)
                 .resizable()
@@ -188,41 +187,9 @@ private extension CreateWalletSelectorView {
 
             Text(item.title)
                 .style(Fonts.Bold.footnote, color: Colors.Text.secondary)
+                .multilineTextAlignment(.center)
         }
     }
-}
-
-// MARK: - CustomScrollView
-
-private struct CustomScrollView<Content: View>: UIViewRepresentable {
-    private let content: Content
-
-    init(@ViewBuilder content: () -> Content) {
-        self.content = content()
-    }
-
-    func makeUIView(context: Context) -> UIScrollView {
-        let scrollView = UIScrollView()
-        scrollView.alwaysBounceVertical = false
-        scrollView.showsVerticalScrollIndicator = false
-
-        let host = UIHostingController(rootView: content)
-        host.view.translatesAutoresizingMaskIntoConstraints = false
-
-        scrollView.addSubview(host.view)
-
-        NSLayoutConstraint.activate([
-            host.view.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor),
-            host.view.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor),
-            host.view.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor),
-            host.view.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor),
-            host.view.widthAnchor.constraint(equalTo: scrollView.frameLayoutGuide.widthAnchor),
-        ])
-
-        return scrollView
-    }
-
-    func updateUIView(_ uiView: UIScrollView, context: Context) {}
 }
 
 // MARK: - HorizontalDots

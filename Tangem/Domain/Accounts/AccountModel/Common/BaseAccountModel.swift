@@ -9,12 +9,13 @@
 import Foundation
 import Combine
 
-// [REDACTED_TODO_COMMENT]
-protocol BaseAccountModel: Identifiable where ID: AccountModelPersistentIdentifierConvertible {
+protocol BaseAccountModel: AccountModelAnalyticsProviding, AccountModelResolvable, Identifiable where ID: AccountModelPersistentIdentifierConvertible {
+    typealias Editor = (_ editor: AccountModelEditor) -> Void
+
     var name: String { get }
     var icon: AccountModel.Icon { get }
     var didChangePublisher: AnyPublisher<Void, Never> { get }
 
-    func setName(_ name: String)
-    func setIcon(_ icon: AccountModel.Icon)
+    @discardableResult
+    func edit(with editor: Editor) async throws(AccountEditError) -> Self
 }

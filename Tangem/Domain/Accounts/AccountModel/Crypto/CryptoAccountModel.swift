@@ -8,9 +8,8 @@
 
 import Foundation
 import Combine
-import TangemNFT
 
-protocol CryptoAccountModel: BaseAccountModel, BalanceProvidingAccountModel, AnyObject {
+protocol CryptoAccountModel: BaseAccountModel, BalanceProvidingAccountModel, DisposableEntity, AnyObject {
     var isMainAccount: Bool { get }
 
     var descriptionString: String { get }
@@ -19,7 +18,13 @@ protocol CryptoAccountModel: BaseAccountModel, BalanceProvidingAccountModel, Any
 
     var userTokensManager: UserTokensManager { get }
 
-    // [REDACTED_TODO_COMMENT]
-    @available(iOS, deprecated: 100000.0, message: "Probably will be removed from the public interface, rewritten from scratch and used only internally")
-    var userTokenListManager: UserTokenListManager { get }
+    func archive() async throws(AccountArchivationError)
+}
+
+// MARK: - AccountModelResolvable protocol conformance
+
+extension CryptoAccountModel {
+    func resolve<R>(using resolver: R) -> R.Result where R: AccountModelResolving {
+        resolver.resolve(accountModel: self)
+    }
 }

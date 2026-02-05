@@ -13,6 +13,8 @@ import FirebaseMessaging
 import TangemVisa
 import struct TangemUIUtils.AlertBinder
 import TangemStaking
+import TangemAccessibilityIdentifiers
+import TangemPay
 
 final class EnvironmentSetupViewModel: ObservableObject {
     @Injected(\.promotionService) var promotionService: PromotionServiceProtocol
@@ -35,6 +37,9 @@ final class EnvironmentSetupViewModel: ObservableObject {
     @Published var currentPromoCode: String = ""
     @Published var finishedPromotionNames: String = ""
     @Published var awardedPromotionNames: String = ""
+
+    /// Application UID
+    @Published var applicationUid: String = ""
 
     // MARK: - Dependencies
 
@@ -77,15 +82,6 @@ final class EnvironmentSetupViewModel: ObservableObject {
                     set: { $0.isMockedCardScannerEnabled = $1 }
                 )
             ),
-            DefaultToggleRowViewModel(
-                title: "Visa API Mocks",
-                isOn: BindingValue<Bool>(
-                    root: featureStorage,
-                    default: false,
-                    get: { $0.isVisaAPIMocksEnabled },
-                    set: { $0.isVisaAPIMocksEnabled = $1 }
-                )
-            ),
         ]
 
         pickerViewModels = [
@@ -108,7 +104,8 @@ final class EnvironmentSetupViewModel: ObservableObject {
                     default: ExpressAPIType.production.rawValue,
                     get: { $0.apiExpress },
                     set: { $0.apiExpress = $1 }
-                )
+                ),
+                pickerStyle: .menu
             ),
             DefaultPickerRowViewModel(
                 title: "Visa API type",
@@ -121,13 +118,13 @@ final class EnvironmentSetupViewModel: ObservableObject {
                 )
             ),
             DefaultPickerRowViewModel(
-                title: "Staking API type",
-                options: StakingAPIType.allCases.map { $0.rawValue },
+                title: "StakeKit staking API type",
+                options: StakeKitAPIType.allCases.map { $0.rawValue },
                 selection: BindingValue<String>(
                     root: featureStorage,
-                    default: StakingAPIType.prod.rawValue,
-                    get: { $0.stakingAPIType.rawValue },
-                    set: { $0.stakingAPIType = StakingAPIType(rawValue: $1) ?? .prod }
+                    default: StakeKitAPIType.prod.rawValue,
+                    get: { $0.stakeKitAPIType.rawValue },
+                    set: { $0.stakeKitAPIType = StakeKitAPIType(rawValue: $1) ?? .prod }
                 )
             ),
             DefaultPickerRowViewModel(
@@ -138,6 +135,16 @@ final class EnvironmentSetupViewModel: ObservableObject {
                     default: YieldModuleAPIType.prod.rawValue,
                     get: { $0.yieldModuleAPIType.rawValue },
                     set: { $0.yieldModuleAPIType = YieldModuleAPIType(rawValue: $1) ?? .prod }
+                )
+            ),
+            DefaultPickerRowViewModel(
+                title: "Gasless Transactions API type",
+                options: GaslessTransactionsAPIType.allCases.map { $0.rawValue },
+                selection: BindingValue<String>(
+                    root: featureStorage,
+                    default: GaslessTransactionsAPIType.prod.rawValue,
+                    get: { $0.gaslessTransactionsAPIType.rawValue },
+                    set: { $0.gaslessTransactionsAPIType = GaslessTransactionsAPIType(rawValue: $1) ?? .prod }
                 )
             ),
         ]
@@ -172,6 +179,13 @@ final class EnvironmentSetupViewModel: ObservableObject {
             DefaultRowViewModel(title: "NFT-enabled Blockchains", action: { [weak self] in
                 self?.coordinator?.openNFTBlockchainsPreferences()
             }),
+            DefaultRowViewModel(
+                title: "Addresses info",
+                accessibilityIdentifier: CommonUIAccessibilityIdentifiers.addressesInfoButton,
+                action: { [weak self] in
+                    self?.coordinator?.openAddressesInfo()
+                }
+            ),
         ]
 
         updateCurrentPromoCode()
@@ -190,12 +204,19 @@ final class EnvironmentSetupViewModel: ObservableObject {
             .store(in: &bag)
 
         fcmToken = Messaging.messaging().fcmToken ?? "none"
+
+        updateApplicationUid()
     }
 
     func copyField(_ keyPath: KeyPath<EnvironmentSetupViewModel, String>) {
         let value = self[keyPath: keyPath]
         UIPasteboard.general.string = value
         UINotificationFeedbackGenerator().notificationOccurred(.success)
+    }
+
+    func resetApplicationUID() {
+        AppSettings.shared.applicationUid = ""
+        updateApplicationUid()
     }
 
     func resetCurrentPromoCode() {
@@ -253,5 +274,9 @@ final class EnvironmentSetupViewModel: ObservableObject {
         } else {
             self.awardedPromotionNames = awardedPromotionNames.joined(separator: ", ")
         }
+    }
+
+    private func updateApplicationUid() {
+        applicationUid = AppSettings.shared.applicationUid
     }
 }

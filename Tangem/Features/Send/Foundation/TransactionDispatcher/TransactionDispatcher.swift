@@ -12,6 +12,8 @@ import BlockchainSdk
 import TangemFoundation
 
 protocol TransactionDispatcher {
+    var hasNFCInteraction: Bool { get }
+
     func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult
     func send(transactions: [TransactionDispatcherTransactionType]) async throws -> [TransactionDispatcherResult]
 }
@@ -26,12 +28,14 @@ extension TransactionDispatcher {
 
 struct TransactionDispatcherResult: Hashable {
     let hash: String
+    /// Explorer url
     let url: URL?
     let signerType: String
+    let currentHost: String
 }
 
 extension TransactionDispatcherResult {
-    enum Error {
+    enum Error: CancellableError {
         case informationRelevanceServiceError
         case informationRelevanceServiceFeeWasIncreased
 
@@ -61,6 +65,15 @@ extension TransactionDispatcherResult {
                 return "User cancelled"
             case .actionNotSupported:
                 return "Action not supported"
+            }
+        }
+
+        var isUserCancelled: Bool {
+            switch self {
+            case .userCancelled:
+                return true
+            default:
+                return false
             }
         }
     }

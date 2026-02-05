@@ -26,18 +26,9 @@ class PolkadotWalletManager: BaseManager, WalletManager {
         super.init(wallet: wallet)
     }
 
-    override func update(completion: @escaping (Result<Void, Error>) -> Void) {
-        cancellable = networkService.getInfo(for: wallet.address)
-            .sink {
-                switch $0 {
-                case .failure(let error):
-                    completion(.failure(error))
-                case .finished:
-                    completion(.success(()))
-                }
-            } receiveValue: { [weak self] info in
-                self?.updateInfo(info)
-            }
+    override func updateWalletManager() async throws {
+        let balance = try await networkService.getInfo(for: wallet.address).async()
+        updateInfo(balance)
     }
 
     private func updateInfo(_ balance: BigUInt) {
@@ -88,11 +79,12 @@ extension PolkadotWalletManager: TransactionSender {
                 .mapAndEraseSendTxError(tx: image.hex())
                 .eraseToAnyPublisher()
         }
-        .tryMap { [weak self] hash in
+        .withWeakCaptureOf(self)
+        .tryMap { manager, hash in
             let mapper = PendingTransactionRecordMapper()
             let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hash)
-            self?.wallet.addPendingTransaction(record)
-            return TransactionSendResult(hash: hash)
+            manager.wallet.addPendingTransaction(record)
+            return TransactionSendResult(hash: hash, currentProviderHost: manager.currentHost)
         }
         .mapSendTxError()
         .eraseToAnyPublisher()

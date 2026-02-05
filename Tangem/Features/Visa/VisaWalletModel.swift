@@ -53,19 +53,12 @@ class VisaWalletModel {
 }
 
 extension VisaWalletModel: WalletModelUpdater {
-    func generalUpdate(silent: Bool) -> AnyPublisher<Void, Never> {
+    func update(silent: Bool, features: [WalletModelUpdaterFeatureType]) async {
         // [REDACTED_TODO_COMMENT]
-        return Just(()).eraseToAnyPublisher()
     }
 
-    func update(silent: Bool) -> AnyPublisher<WalletModelState, Never> {
+    func updateTransactionsHistory() async {
         // [REDACTED_TODO_COMMENT]
-        return stateSubject.eraseToAnyPublisher()
-    }
-
-    func updateTransactionsHistory() -> AnyPublisher<Void, Never> {
-        // [REDACTED_TODO_COMMENT]
-        return Just(()).eraseToAnyPublisher()
     }
 
     func updateAfterSendingTransaction() {
@@ -160,25 +153,21 @@ extension VisaWalletModel: WalletModelHelpers {
     }
 }
 
+extension VisaWalletModel: WalletModelFeesProvider {
+    var customFeeProvider: (any CustomFeeProvider)? { .none }
+
+    func makeTokenFeeLoader(for tokenItem: TokenItem) -> any TokenFeeLoader {
+        DemoTokenFeeLoader(tokenItem: tokenItem)
+    }
+}
+
 extension VisaWalletModel: WalletModelFeeProvider {
-    func estimatedFee(amount: Amount) -> AnyPublisher<[Fee], any Error> {
-        return .justWithError(output: [])
-    }
-
-    func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], any Error> {
-        return .justWithError(output: [])
-    }
-
-    func getFeeCurrencyBalance(amountType: Amount.AmountType) -> Decimal {
+    func getFeeCurrencyBalance() -> Decimal {
         return 0
     }
 
-    func hasFeeCurrency(amountType: Amount.AmountType) -> Bool {
+    func hasFeeCurrency() -> Bool {
         return false
-    }
-
-    func getFee(compiledTransaction data: Data) async throws -> [Fee] {
-        return []
     }
 }
 
@@ -198,6 +187,8 @@ extension VisaWalletModel: WalletModelDependenciesProvider {
     var bitcoinTransactionFeeCalculator: (any BitcoinTransactionFeeCalculator)? { nil }
     var accountInitializationService: (any BlockchainAccountInitializationService)? { nil }
     var minimalBalanceProvider: (any MinimalBalanceProvider)? { nil }
+    var ethereumGaslessTransactionFeeProvider: (any GaslessTransactionFeeProvider)? { nil }
+    var pendingTransactionRecordAdder: (any PendingTransactionRecordAdding)? { nil }
 }
 
 extension VisaWalletModel: WalletModelTransactionHistoryProvider {
@@ -239,6 +230,12 @@ extension VisaWalletModel: TransactionHistoryFetcher {
 extension VisaWalletModel: ExistentialDepositInfoProvider {
     var existentialDepositWarning: String? {
         nil
+    }
+}
+
+extension VisaWalletModel: WalletModelResolvable {
+    func resolve<R>(using resolver: R) -> R.Result where R: WalletModelResolving {
+        resolver.resolve(walletModel: self)
     }
 }
 
@@ -311,7 +308,7 @@ extension VisaWalletModel: WalletModel {
         false
     }
 
-    var sendingRestrictions: TransactionSendAvailabilityProvider.SendingRestrictions? {
+    var sendingRestrictions: SendingRestrictions? {
         transactionSendAvailabilityProvider.sendingRestrictions(walletModel: self)
     }
 
@@ -325,7 +322,11 @@ extension VisaWalletModel: WalletModel {
 
     var stakeKitTransactionSender: (any StakeKitTransactionSender)? { nil }
 
-    var account: any CryptoAccountModel {
+    var p2pTransactionSender: P2PTransactionSender? {
+        nil
+    }
+
+    var account: (any CryptoAccountModel)? {
         preconditionFailure("Visa should be implemented as a dedicated account type, not as a wallet model")
     }
 
@@ -338,6 +339,10 @@ extension VisaWalletModel: WalletModel {
         // [REDACTED_TODO_COMMENT]
         let addressInfos = ReceiveAddressInfoUtils().makeAddressInfos(from: addresses)
         return addressInfos.map { .address($0) }
+    }
+
+    var ethereumGaslessDataProvider: (any EthereumGaslessDataProvider)? {
+        nil
     }
 }
 

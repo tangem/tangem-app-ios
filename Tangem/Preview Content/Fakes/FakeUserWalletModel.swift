@@ -13,10 +13,13 @@ import BlockchainSdk
 import TangemAssets
 import TangemNFT
 import TangemFoundation
+import TangemPay
 
 class FakeUserWalletModel: UserWalletModel {
     var hasImportedWallets: Bool { false }
     var keysDerivingInteractor: any KeysDeriving { KeysDerivingMock() }
+    var tangemPayAuthorizingInteractor: TangemPayAuthorizing { TangemPayAuthorizingMock() }
+
     var keysRepository: KeysRepository {
         CommonKeysRepository(
             userWalletId: userWalletId,
@@ -24,6 +27,11 @@ class FakeUserWalletModel: UserWalletModel {
             keys: .cardWallet(keys: [])
         )
     }
+
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_INFO]
+    var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount?, Never> { .empty }
+    var tangemPayAccount: TangemPayAccount? { nil }
 
     private(set) var name: String
     let emailData: [EmailCollectedData] = []
@@ -60,17 +68,31 @@ class FakeUserWalletModel: UserWalletModel {
         CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
     }
 
+    var wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider {
+        CommonWalletConnectAccountsWalletModelProvider(accountModelsManager: accountModelsManager)
+    }
+
     var userTokensPushNotificationsManager: UserTokensPushNotificationsManager {
         CommonUserTokensPushNotificationsManager(
             userWalletId: userWalletId,
             walletModelsManager: walletModelsManager,
+            userTokensManager: userTokensManager,
+            remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncingStub(),
             derivationManager: nil,
-            userTokensManager: userTokensManager
         )
     }
 
     var accountModelsManager: AccountModelsManager {
         AccountModelsManagerMock()
+    }
+
+    var tangemPayManager: TangemPayManager {
+        TangemPayBuilder(
+            userWalletId: userWalletId,
+            keysRepository: keysRepository,
+            signer: signer
+        )
+        .buildTangemPayManager()
     }
 
     var refcodeProvider: RefcodeProvider? {
@@ -148,6 +170,15 @@ extension FakeUserWalletModel: MainHeaderSupplementInfoProvider {
 extension FakeUserWalletModel: AnalyticsContextDataProvider {
     func getAnalyticsContextData() -> AnalyticsContextData? {
         return nil
+    }
+}
+
+// MARK: - DisposableEntity protocol conformance
+
+extension FakeUserWalletModel: DisposableEntity {
+    func dispose() {
+        walletModelsManager.dispose()
+        accountModelsManager.dispose()
     }
 }
 

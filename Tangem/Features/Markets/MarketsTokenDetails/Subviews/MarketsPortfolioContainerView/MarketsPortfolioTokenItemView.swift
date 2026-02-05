@@ -140,33 +140,13 @@ struct MarketsPortfolioTokenItemView: View {
     }
 
     private func makeQuickActionItem(for actionType: TokenActionType, at index: Int) -> some View {
-        HStack(spacing: 16) {
-            if let image = portfolioTokenActionTypeAsset(for: actionType) {
-                image
-                    .renderingMode(.template)
-                    .foregroundStyle(Colors.Icon.primary1)
-                    .padding(10)
-                    .background(
-                        Circle()
-                            .fill(Colors.Background.tertiary)
-                    )
-                    .padding(.leading, 2)
-                    .unreadNotificationBadge(viewModel.shouldShowUnreadNotificationBadge(for: actionType), badgeColor: Colors.Icon.accent)
-            }
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(actionType.title)
-                    .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
-
-                if let description = actionType.description {
-                    Text(description)
-                        .multilineTextAlignment(.leading)
-                        .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-                }
-            }
-
-            Spacer()
-        }
+        GetTokenActionRowView(
+            icon: portfolioTokenActionTypeImageType(for: actionType),
+            title: actionType.title,
+            subtitle: actionType.description,
+            showNotificationBadge: viewModel.shouldShowUnreadNotificationBadge(for: actionType),
+            style: .solid
+        )
     }
 
     private func makeLineRowActionItem() -> some View {
@@ -183,18 +163,21 @@ struct MarketsPortfolioTokenItemView: View {
         .frame(maxWidth: .infinity)
     }
 
-    private func portfolioTokenActionTypeAsset(for type: TokenActionType) -> Image? {
+    private func portfolioTokenActionTypeImageType(for type: TokenActionType) -> ImageType {
         switch type {
         case .buy:
-            return Assets.Portfolio.buy12.image
+            return Assets.Portfolio.buy12
         case .exchange:
-            return Assets.Portfolio.exchange12.image
+            return Assets.Portfolio.exchange12
         case .receive:
-            return Assets.Portfolio.receive12.image
+            return Assets.Portfolio.receive12
         case .stake:
-            return Assets.Portfolio.stake12.image
+            return Assets.Portfolio.stake12
+        case .yield:
+            return Assets.YieldModule.yieldSupplyAssets
         default:
-            return nil
+            assertionFailure("Unhandled TokenActionType: \(type)")
+            return Assets.Portfolio.buy12
         }
     }
 }

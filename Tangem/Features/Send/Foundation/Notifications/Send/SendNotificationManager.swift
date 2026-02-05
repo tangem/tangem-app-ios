@@ -11,8 +11,8 @@ import BlockchainSdk
 import TangemFoundation
 
 protocol SendNotificationManagerInput {
-    var feeValues: AnyPublisher<[SendFee], Never> { get }
-    var selectedFeePublisher: AnyPublisher<SendFee, Never> { get }
+    var feeValues: AnyPublisher<[TokenFee], Never> { get }
+    var selectedTokenFeePublisher: AnyPublisher<TokenFee, Never> { get }
     var isFeeIncludedPublisher: AnyPublisher<Bool, Never> { get }
 
     var bsdkTransactionPublisher: AnyPublisher<BSDKTransaction?, Never> { get }
@@ -25,7 +25,6 @@ protocol SendNotificationManager: NotificationManager {
 
 class CommonSendNotificationManager {
     private let tokenItem: TokenItem
-    private let feeTokenItem: TokenItem
     private let withdrawalNotificationProvider: WithdrawalNotificationProvider?
 
     private let notificationInputsSubject = CurrentValueSubject<[NotificationViewInput], Never>([])
@@ -36,11 +35,9 @@ class CommonSendNotificationManager {
     init(
         userWalletId: UserWalletId,
         tokenItem: TokenItem,
-        feeTokenItem: TokenItem,
         withdrawalNotificationProvider: WithdrawalNotificationProvider?
     ) {
         self.tokenItem = tokenItem
-        self.feeTokenItem = feeTokenItem
         self.withdrawalNotificationProvider = withdrawalNotificationProvider
         analyticsService = NotificationsAnalyticsService(userWalletId: userWalletId)
     }
@@ -59,7 +56,7 @@ private extension CommonSendNotificationManager {
             })
             .store(in: &bag)
 
-        input.selectedFeePublisher
+        input.selectedTokenFeePublisher
             .filter { !$0.value.isLoading }
             .withWeakCaptureOf(self)
             .sink { manager, fee in
@@ -68,21 +65,22 @@ private extension CommonSendNotificationManager {
             .store(in: &bag)
 
         Publishers.CombineLatest(
-            input.selectedFeePublisher,
-            input.feeValues.filter { !$0.allConforms { $0.value.isLoading } }
+            input.selectedTokenFeePublisher,
+            input.feeValues.removeDuplicates(),
         )
         .sink { [weak self] selectedFee, loadedFeeValues in
             self?.updateCustomFee(selectedFee: selectedFee, feeValues: loadedFeeValues)
         }
         .store(in: &bag)
 
-        input.selectedFeePublisher
-            .compactMap { $0.value.value?.amount.value }
-            .combineLatest(input.isFeeIncludedPublisher)
-            .sink { [weak self] feeValue, isFeeIncluded in
-                self?.updateFeeInclusionEvent(isFeeIncluded: isFeeIncluded, feeCryptoValue: feeValue)
-            }
-            .store(in: &bag)
+        Publishers.CombineLatest(
+            input.selectedTokenFeePublisher,
+            input.isFeeIncludedPublisher.removeDuplicates(),
+        )
+        .sink { [weak self] tokenFee, isFeeIncluded in
+            self?.updateFeeInclusionEvent(isFeeIncluded: isFeeIncluded, tokenFee: tokenFee)
+        }
+        .store(in: &bag)
 
         input.transactionCreationError
             .receive(on: DispatchQueue.main)
@@ -116,13 +114,7 @@ private extension CommonSendNotificationManager {
     func updateNetworkFeeUnreachable(error: Error?) {
         switch error {
         case .none:
-            hideAllNotification { event in
-                if case .networkFeeUnreachable = event {
-                    return true
-                }
-
-                return false
-            }
+            hideAllNotification { $0.isNetworkFeeUnreachable }
         case .some(SuiError.oneSuiCoinIsRequiredForTokenTransaction):
             updateNotification(error: error)
         case .some(BlockchainSdkError.accountNotActivated):
@@ -132,9 +124,9 @@ private extension CommonSendNotificationManager {
         }
     }
 
-    func updateCustomFee(selectedFee: SendFee, feeValues: [SendFee]) {
+    func updateCustomFee(selectedFee: TokenFee, feeValues: [TokenFee]) {
         switch (selectedFee.option, selectedFee.value) {
-        case (.custom, .loaded(let customFee)):
+        case (.custom, .success(let customFee)):
             updateCustomFeeTooLow(
                 customFee: customFee,
                 lowestFee: feeValues.first(where: { $0.option == .slow })?.value.value
@@ -161,13 +153,7 @@ private extension CommonSendNotificationManager {
         if let lowestFee, customFee.amount.value < lowestFee.amount.value {
             show(notification: .customFeeTooLow)
         } else {
-            hideAllNotification { event in
-                if case .customFeeTooLow = event {
-                    return true
-                }
-
-                return false
-            }
+            hideAllNotification { $0.isCustomFeeTooLow }
         }
     }
 
@@ -180,42 +166,35 @@ private extension CommonSendNotificationManager {
 
             show(notification: .customFeeTooHigh(orderOfMagnitude: highFeeOrderOfMagnitude))
         } else {
-            hideAllNotification { event in
-                if case .customFeeTooHigh = event {
-                    return true
-                }
-
-                return false
-            }
+            hideAllNotification { $0.isCustomFeeTooHigh }
         }
     }
 
-    func updateFeeInclusionEvent(isFeeIncluded: Bool, feeCryptoValue: Decimal) {
-        if isFeeIncluded {
-            let feeFiatValue = feeTokenItem.currencyId.flatMap { BalanceConverter().convertToFiat(feeCryptoValue, currencyId: $0) }
+    func updateFeeInclusionEvent(isFeeIncluded: Bool, tokenFee: TokenFee) {
+        switch tokenFee.value {
+        case .success(let fee) where isFeeIncluded:
+            let feeCryptoValue = fee.amount.value
+            let feeFiatValue = tokenFee.tokenItem.currencyId.flatMap {
+                BalanceConverter().convertToFiat(feeCryptoValue, currencyId: $0)
+            }
 
             let formatter = BalanceFormatter()
-            let cryptoAmountFormatted = formatter.formatCryptoBalance(feeCryptoValue, currencyCode: feeTokenItem.currencySymbol)
+            let feeCurrencySymbol = tokenFee.tokenItem.currencySymbol
+            let cryptoAmountFormatted = formatter.formatCryptoBalance(feeCryptoValue, currencyCode: feeCurrencySymbol)
             let fiatAmountFormatted = formatter.formatFiatBalance(feeFiatValue)
 
             show(notification: .feeWillBeSubtractFromSendingAmount(
                 cryptoAmountFormatted: cryptoAmountFormatted,
                 fiatAmountFormatted: fiatAmountFormatted,
-                amountCurrencySymbol: feeTokenItem.currencySymbol
+                amountCurrencySymbol: feeCurrencySymbol
             ))
-        } else {
+        default:
             hideFeeWillBeSubtractedNotification()
         }
     }
 
     private func hideFeeWillBeSubtractedNotification() {
-        hideAllNotification { event in
-            if case .feeWillBeSubtractFromSendingAmount = event {
-                return true
-            }
-
-            return false
-        }
+        hideAllNotification { $0.isFeeWillBeSubtractFromSendingAmount }
     }
 }
 
@@ -239,15 +218,9 @@ private extension CommonSendNotificationManager {
     func updateWithdrawalNotification(notification: WithdrawalNotification?) {
         switch notification {
         case .none:
-            hideAllNotification { event in
-                if case .withdrawalNotificationEvent = event {
-                    return true
-                }
-
-                return false
-            }
+            hideAllNotification { $0.isWithdrawalNotificationEvent }
         case .some(let suggestion):
-            let factory = BlockchainSDKNotificationMapper(tokenItem: tokenItem, feeTokenItem: feeTokenItem)
+            let factory = BlockchainSDKNotificationMapper(tokenItem: tokenItem)
             let withdrawalNotification = factory.mapToWithdrawalNotificationEvent(suggestion)
 
             guard shouldShowWithdrawal(notification: withdrawalNotification) else {
@@ -263,7 +236,7 @@ private extension CommonSendNotificationManager {
         case .none:
             hideAllValidationErrorEvent()
         case let validationError as ValidationError:
-            let factory = BlockchainSDKNotificationMapper(tokenItem: tokenItem, feeTokenItem: feeTokenItem)
+            let factory = BlockchainSDKNotificationMapper(tokenItem: tokenItem)
             let validationErrorEvent = factory.mapToValidationErrorEvent(validationError)
 
             switch validationErrorEvent {
@@ -313,7 +286,11 @@ private extension CommonSendNotificationManager {
 
         let dismissAction: NotificationView.NotificationAction = { [weak self] id in
             self?.notificationInputsSubject.value.removeAll {
-                $0.settings.id == id
+                if let sendNotificationEvent = $0.settings.event as? SendNotificationEvent {
+                    return sendNotificationEvent.isEqualByRawCaseIdentifier(to: event)
+                }
+
+                return false
             }
         }
 
@@ -323,7 +300,15 @@ private extension CommonSendNotificationManager {
             dismissAction: dismissAction
         )
 
-        if let index = notificationInputsSubject.value.firstIndex(where: { $0.id == input.id }) {
+        let index = notificationInputsSubject.value.firstIndex(where: {
+            if let sendNotificationEvent = $0.settings.event as? SendNotificationEvent {
+                return sendNotificationEvent.isEqualByRawCaseIdentifier(to: event)
+            }
+
+            return false
+        })
+
+        if let index {
             notificationInputsSubject.value[index] = input
         } else {
             notificationInputsSubject.value.append(input)
@@ -331,13 +316,7 @@ private extension CommonSendNotificationManager {
     }
 
     func hideAllValidationErrorEvent() {
-        hideAllNotification { event in
-            if case .validationErrorEvent = event {
-                return true
-            }
-
-            return false
-        }
+        hideAllNotification { $0.isValidationErrorEvent }
     }
 
     func hideAllNotification(where shouldBeRemoved: (SendNotificationEvent) -> Bool) {

@@ -24,7 +24,7 @@ struct OnrampProviderItemView: View {
                     horizontalPadding: .zero
                 )
         }
-        .disabled(!viewModel.isAvailable)
+        .accessibilityIdentifier(OnrampAccessibilityIdentifiers.paymentMethodCard)
     }
 
     private var content: some View {
@@ -71,12 +71,15 @@ struct OnrampProviderItemView: View {
         case .availableFrom(let amount):
             Text(Localization.onrampProviderMinAmount(amount))
                 .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerAmount(name: viewModel.paymentMethod.id))
         case .availableUpTo(let amount):
             Text(Localization.onrampProviderMaxAmount(amount))
                 .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerAmount(name: viewModel.paymentMethod.id))
         case .available(let amount):
             HStack(spacing: 4) {
                 Text(amount.attributedFormatted)
+                    .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerAmount(name: viewModel.paymentMethod.id))
 
                 OnrampAmountBadge(badge: amount.badge)
             }

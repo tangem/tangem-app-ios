@@ -10,13 +10,20 @@ import Foundation
 import SwiftUI
 import Combine
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct SeedPhraseTextView: UIViewRepresentable {
     private unowned var inputProcessor: SeedPhraseInputProcessor
+    private let handleKeyboard: Bool
     private let isResponder: Bool
 
-    init(inputProcessor: SeedPhraseInputProcessor, isResponder: Bool) {
+    init(
+        inputProcessor: SeedPhraseInputProcessor,
+        handleKeyboard: Bool,
+        isResponder: Bool
+    ) {
         self.inputProcessor = inputProcessor
+        self.handleKeyboard = handleKeyboard
         self.isResponder = isResponder
     }
 
@@ -37,22 +44,25 @@ struct SeedPhraseTextView: UIViewRepresentable {
         textView.textColor = inputProcessor.defaultTextColor
         textView.font = inputProcessor.defaultTextFont
         textView.keyboardType = .asciiCapable // We currently only support the BIP39 English word list
+        textView.accessibilityIdentifier = OnboardingAccessibilityIdentifiers.seedPhraseImportTextField
         context.coordinator.setupTextView(textView)
 
         var toolbarItems = [UIBarButtonItem]()
-        toolbarItems = [
-            UIBarButtonItem(
-                barButtonSystemItem: .flexibleSpace,
-                target: nil,
-                action: nil
-            ),
-            UIBarButtonItem(
-                image: UIImage(systemName: "keyboard.chevron.compact.down"),
-                style: .plain,
-                target: context.coordinator,
-                action: #selector(context.coordinator.hideKeyboard)
-            ),
-        ]
+        if handleKeyboard {
+            toolbarItems = [
+                UIBarButtonItem(
+                    barButtonSystemItem: .flexibleSpace,
+                    target: nil,
+                    action: nil
+                ),
+                UIBarButtonItem(
+                    image: UIImage(systemName: "keyboard.chevron.compact.down"),
+                    style: .plain,
+                    target: context.coordinator,
+                    action: #selector(context.coordinator.hideKeyboard)
+                ),
+            ]
+        }
 
         if !toolbarItems.isEmpty {
             let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 44))

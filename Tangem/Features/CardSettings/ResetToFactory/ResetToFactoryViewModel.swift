@@ -6,7 +6,7 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import SwiftUI
+import Combine
 import TangemLocalization
 import struct TangemUIUtils.AlertBinder
 import struct TangemUIUtils.ConfirmationDialogViewModel
@@ -28,20 +28,33 @@ final class ResetToFactoryViewModel: ObservableObject {
         }
     }
 
-    private let hasBackupCards: Bool
-    private let resetHelper: ResetToFactoryService
-    private let cardInteractor: FactorySettingsResetting
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
+    private var hasBackupCards: Bool {
+        input.backupCardsCount > 0
+    }
+
+    private var isPaeraCustomer: Bool {
+        AppSettings.shared.tangemPayIsPaeraCustomer[
+            input.userWalletId.stringValue
+        ] ?? false
+    }
+
+    private let input: ResetToFactoryViewModel.Input
+    private let resetUtil: ResetToFactoryUtil
     private weak var coordinator: ResetToFactoryViewRoutable?
 
-    init(input: ResetToFactoryViewModel.Input, coordinator: ResetToFactoryViewRoutable) {
-        cardInteractor = input.cardInteractor
-        hasBackupCards = input.backupCardsCount > 0
-        resetHelper = ResetToFactoryService(
-            userWalletId: input.userWalletId,
-            totalCardsCount: input.backupCardsCount + 1
-        )
-        self.coordinator = coordinator
+    private var bag = Set<AnyCancellable>()
 
+    init(input: ResetToFactoryViewModel.Input, coordinator: ResetToFactoryViewRoutable) {
+        self.input = input
+        self.coordinator = coordinator
+        resetUtil = ResetToFactoryUtilBuilder(flow: .reset).build(
+            backupCardsCount: input.backupCardsCount,
+            cardInteractor: input.cardInteractor
+        )
+
+        bind()
         setupView()
     }
 
@@ -50,28 +63,6 @@ final class ResetToFactoryViewModel: ObservableObject {
     }
 
     func didTapMainButton() {
-        showConfirmationDialog()
-    }
-
-    func toggleWarning(warningType: WarningType) {
-        guard let index = warnings.firstIndex(where: { $0.type == warningType }) else {
-            return
-        }
-
-        warnings[index].isAccepted.toggle()
-    }
-}
-
-private extension ResetToFactoryViewModel {
-    func setupView() {
-        warnings.append(Warning(isAccepted: false, type: .accessToCard))
-
-        if hasBackupCards {
-            warnings.append(Warning(isAccepted: false, type: .accessCodeRecovery))
-        }
-    }
-
-    func showConfirmationDialog() {
         let resetButton = ConfirmationDialogViewModel.Button(
             title: Localization.cardSettingsActionSheetReset,
             role: .destructive,
@@ -89,57 +80,44 @@ private extension ResetToFactoryViewModel {
         )
     }
 
-    func resetCardToFactory() {
-        let header = makeHeader(from: resetHelper.cardNumberToReset)
-        cardInteractor.resetCard(headerMessage: header) { [weak self] result in
-            guard let self else { return }
+    func toggleWarning(warningType: WarningType) {
+        guard let index = warnings.firstIndex(where: { $0.type == warningType }) else {
+            return
+        }
 
-            switch result {
-            case .success(let didReset):
-                if didReset {
-                    resetHelper.cardDidReset()
-                }
+        warnings[index].isAccepted.toggle()
+    }
+}
 
-                if resetHelper.hasCardsToReset {
-                    alert = ResetToFactoryAlertBuilder.makeContinueResetAlert(continueAction: resetCardToFactory, cancelAction: resetDidCancel)
-                } else {
-                    alert = ResetToFactoryAlertBuilder.makeResetDidFinishAlert(continueAction: resetDidFinish)
-                }
-
-            case .failure(let error):
-                if resetHelper.resettedCardsCount == 0 {
-                    if !error.isUserCancelled {
-                        alert = error.alertBinder
-                    }
-                } else {
-                    alert = ResetToFactoryAlertBuilder.makeResetIncompleteAlert(continueAction: resetCardToFactory, cancelAction: resetDidFinish)
-                }
-
-                if !error.isUserCancelled {
-                    AppLogger.error(error: error)
-                    Analytics.error(error: error, params: [.action: .purgeWallet])
-                }
+private extension ResetToFactoryViewModel {
+    func bind() {
+        resetUtil.alertPublisher
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, alert in
+                viewModel.alert = alert
             }
+            .store(in: &bag)
+    }
+
+    func setupView() {
+        warnings.append(Warning(isAccepted: false, type: .accessToCard))
+
+        if hasBackupCards {
+            warnings.append(Warning(isAccepted: false, type: .accessCodeRecovery))
+        }
+
+        if isPaeraCustomer {
+            warnings.append(Warning(isAccepted: false, type: .tangemPay))
         }
     }
 
-    func makeHeader(from cardNumber: Int?) -> String? {
-        guard let cardNumber, cardNumber > 1 else {
-            return nil
-        }
-
-        return Localization.initialMessageResetBackupCardHeader(cardNumber)
-    }
-
-    func resetDidCancel() {
-        // Add a delay between successive alerts
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            self.alert = ResetToFactoryAlertBuilder.makeResetIncompleteAlert(continueAction: self.resetCardToFactory, cancelAction: self.resetDidFinish)
-        }
+    func resetCardToFactory() {
+        resetUtil.resetToFactory(onDidFinish: weakify(self, forFunction: ResetToFactoryViewModel.resetDidFinish))
     }
 
     func resetDidFinish() {
-        resetHelper.resetDidDinish()
+        userWalletRepository.delete(userWalletId: input.userWalletId)
         coordinator?.dismiss()
     }
 }
@@ -154,43 +132,18 @@ extension ResetToFactoryViewModel {
 
     enum WarningType: String, CaseIterable, Hashable {
         case accessToCard
+        case tangemPay
         case accessCodeRecovery
 
         var title: String {
             switch self {
             case .accessToCard:
                 return Localization.resetCardToFactoryCondition1
+            case .tangemPay:
+                return Localization.tangempayFactorySettingsWarningTitle
             case .accessCodeRecovery:
                 return Localization.resetCardToFactoryCondition2
             }
         }
-    }
-}
-
-private enum ResetToFactoryAlertBuilder {
-    static func makeContinueResetAlert(continueAction: @escaping () -> Void, cancelAction: @escaping () -> Void) -> AlertBinder {
-        AlertBuilder.makeAlert(
-            title: Localization.cardSettingsContinueResetAlertTitle,
-            message: Localization.cardSettingsContinueResetAlertMessage,
-            primaryButton: .default(Text(Localization.cardSettingsActionSheetReset), action: continueAction),
-            secondaryButton: .destructive(Text(Localization.commonCancel), action: cancelAction)
-        )
-    }
-
-    static func makeResetDidFinishAlert(continueAction: @escaping () -> Void) -> AlertBinder {
-        AlertBuilder.makeAlert(
-            title: Localization.cardSettingsCompletedResetAlertTitle,
-            message: Localization.cardSettingsCompletedResetAlertMessage,
-            primaryButton: .default(Text(Localization.commonOk), action: continueAction)
-        )
-    }
-
-    static func makeResetIncompleteAlert(continueAction: @escaping () -> Void, cancelAction: @escaping () -> Void) -> AlertBinder {
-        AlertBuilder.makeAlert(
-            title: Localization.cardSettingsInterruptedResetAlertTitle,
-            message: Localization.cardSettingsInterruptedResetAlertMessage,
-            primaryButton: .default(Text(Localization.cardSettingsActionSheetReset), action: continueAction),
-            secondaryButton: .destructive(Text(Localization.commonCancel), action: cancelAction)
-        )
     }
 }

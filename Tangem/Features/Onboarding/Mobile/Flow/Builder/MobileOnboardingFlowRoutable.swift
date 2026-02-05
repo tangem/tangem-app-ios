@@ -12,5 +12,6 @@ protocol MobileOnboardingFlowRoutable: AnyObject {
     func openMain()
     func openMain(userWalletModel: UserWalletModel)
     func openConfetti()
+    func completeOnboarding()
     func closeOnboarding()
 }

@@ -10,31 +10,29 @@ import Foundation
 import TangemExpress
 import BlockchainSdk
 
-class CommonAllowanceService {
-    private let tokenItem: TokenItem
+actor CommonAllowanceService {
     private let allowanceChecker: AllowanceChecker
+    private let approveTransactionProcessor: ExpressApproveTransactionProcessor
 
     private var spendersAwaitingApprove: Set<String> = []
 
-    init(tokenItem: TokenItem, allowanceChecker: AllowanceChecker) {
-        self.tokenItem = tokenItem
+    init(
+        allowanceChecker: AllowanceChecker,
+        approveTransactionProcessor: ExpressApproveTransactionProcessor
+    ) {
         self.allowanceChecker = allowanceChecker
+        self.approveTransactionProcessor = approveTransactionProcessor
     }
 }
 
 // MARK: - AllowanceService
 
 extension CommonAllowanceService: AllowanceService {
-    var isSupportAllowance: Bool {
-        tokenItem.blockchain.isEvm && tokenItem.isToken
-    }
-
     func allowanceState(amount: Decimal, spender: String, approvePolicy: ApprovePolicy) async throws -> AllowanceState {
         let isPermissionRequired = try await allowanceChecker.isPermissionRequired(amount: amount, spender: spender)
 
         guard isPermissionRequired else {
             spendersAwaitingApprove.remove(spender)
-
             return .enoughAllowance
         }
 
@@ -47,7 +45,10 @@ extension CommonAllowanceService: AllowanceService {
         return .permissionRequired(approveData)
     }
 
-    func didSendApproveTransaction(for spender: String) {
-        spendersAwaitingApprove.insert(spender)
+    func sendApproveTransaction(data: ApproveTransactionData) async throws -> TransactionDispatcherResult {
+        let result = try await approveTransactionProcessor.process(data: data)
+        spendersAwaitingApprove.insert(data.spender)
+
+        return result
     }
 }

@@ -29,19 +29,14 @@ class XRPWalletManager: BaseManager, WalletManager {
     /// We assume that a trustline transaction will be finished within 10 seconds of setting this timestamp.
     private var lastTrustlineOpenAttemptDate: Date?
 
-    override func update(completion: @escaping (Result<Void, Error>) -> Void) {
-        let tokens = cardTokens
-        cancellable = networkService
-            .getInfo(account: wallet.address)
-            .sink(receiveCompletion: { [weak self] completionSubscription in
-                if case .failure(let error) = completionSubscription {
-                    self?.wallet.clearAmounts()
-                    completion(.failure(error))
-                }
-            }, receiveValue: { [weak self] response in
-                self?.updateWallet(with: response, tokens: tokens)
-                completion(.success(()))
-            })
+    override func updateWalletManager() async throws {
+        do {
+            let response = try await networkService.getInfo(account: wallet.address).async()
+            updateWallet(with: response, tokens: cardTokens)
+        } catch {
+            wallet.clearAmounts()
+            throw error
+        }
     }
 
     private func updateWallet(with response: XrpInfoResponse, tokens: [Token]) {
@@ -106,30 +101,26 @@ class XRPWalletManager: BaseManager, WalletManager {
 
     private func signAndSend(
         transaction: Transaction,
-        signer: TransactionSigner,
         xrpTransaction: XRPTransaction,
-        hash: Data,
+        hashToSign: Data,
+        signer: TransactionSigner
     ) -> AnyPublisher<TransactionSendResult, SendTxError> {
-        signer.sign(hash: hash, walletPublicKey: wallet.publicKey)
-            .withWeakCaptureOf(self)
-            .tryMap { manager, hash in
-                let rawTransactionHash = try manager.txBuilder.buildForSend(transaction: xrpTransaction, signature: hash)
-                return rawTransactionHash
+        return Future.async { [weak self] in
+            guard let self else {
+                throw BlockchainSdkError.failedToSendTx
             }
-            .withWeakCaptureOf(self)
-            .flatMap { manager, rawTransactionHash -> AnyPublisher<TransactionSendResult, Error> in
-                manager.networkService.send(blob: rawTransactionHash)
-                    .tryMap { [weak manager] hash in
-                        let mapper = PendingTransactionRecordMapper()
-                        let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hash)
-                        manager?.wallet.addPendingTransaction(record)
-                        return TransactionSendResult(hash: hash)
-                    }
-                    .mapAndEraseSendTxError(tx: rawTransactionHash)
-                    .eraseToAnyPublisher()
-            }
-            .mapSendTxError()
-            .eraseToAnyPublisher()
+
+            let signature = try await signer.sign(hash: hashToSign, walletPublicKey: wallet.publicKey).async()
+            let txHash = try await sendXRPTransaction(xrpTransaction, signature: signature.signature)
+
+            let mapper = PendingTransactionRecordMapper()
+            let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: txHash)
+            wallet.addPendingTransaction(record)
+
+            return TransactionSendResult(hash: txHash, currentProviderHost: currentHost)
+        }
+        .mapSendTxError()
+        .eraseToAnyPublisher()
     }
 
     private func signAndSubmitTrustSetTransaction(
@@ -157,7 +148,14 @@ class XRPWalletManager: BaseManager, WalletManager {
             .withWeakCaptureOf(self)
             .flatMap { manager, txAndHash in
                 let (xrpTransaction, hash) = txAndHash
-                let publisher = manager.signAndSend(transaction: transaction, signer: signer, xrpTransaction: xrpTransaction, hash: hash)
+
+                let publisher = manager.signAndSend(
+                    transaction: transaction,
+                    xrpTransaction: xrpTransaction,
+                    hashToSign: hash,
+                    signer: signer
+                )
+
                 return publisher
                     .handleEvents(receiveCompletion: { [weak manager] in
                         if case .failure = $0 {
@@ -191,9 +189,9 @@ class XRPWalletManager: BaseManager, WalletManager {
             .flatMap { manager, _ in
                 manager.signAndSend(
                     transaction: transaction,
-                    signer: signer,
                     xrpTransaction: xrpTransaction,
-                    hash: hash
+                    hashToSign: hash,
+                    signer: signer
                 )
             }
             .eraseToAnyPublisher()
@@ -204,57 +202,15 @@ extension XRPWalletManager: TransactionSender {
     var allowsFeeSelection: Bool { true }
 
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
-        return networkService
-            .getSequence(account: decodeAddress(address: transaction.sourceAddress))
-            .withWeakCaptureOf(self)
-            .flatMap { manager, sequence in
-                if case .token(let token) = transaction.amount.type {
-                    do {
-                        let issuer = try XRPAssetIdParser().getCurrencyCodeAndIssuer(from: token.contractAddress).1
-
-                        return manager.networkService
-                            .shouldAllowPartialPayment(for: issuer)
-                            .map { hasFee in (sequence, hasFee) }
-                            .eraseToAnyPublisher()
-                    } catch {
-                        return Fail(error: error).eraseToAnyPublisher()
-                    }
-                } else {
-                    return Just((sequence, false))
-                        .setFailureType(to: Error.self)
-                        .eraseToAnyPublisher()
-                }
+        return Future.async { [weak self] in
+            guard let self else {
+                throw BlockchainSdkError.failedToSendTx
             }
-            .withWeakCaptureOf(self)
-            .tryMap { manager, result in
-                let (sequence, hasTransferFee) = result
-                let enrichedTx = manager.enrichTransaction(transaction, withSequence: sequence)
-                let txBuiltForSign = try manager.txBuilder.buildForSign(transaction: enrichedTx, partialPaymentAllowed: hasTransferFee)
-                return txBuiltForSign
-            }
-            .mapSendTxError()
-            .withWeakCaptureOf(self)
-            .flatMap { manager, txBuiltForSign in
-                let (xrpTransaction, hash) = txBuiltForSign
 
-                if case .token(let token) = transaction.amount.type {
-                    return manager.checkTrustlineAndSendToken(
-                        token: token,
-                        transaction: transaction,
-                        signer: signer,
-                        xrpTransaction: xrpTransaction,
-                        hash: hash
-                    )
-                }
-
-                return manager.signAndSend(
-                    transaction: transaction,
-                    signer: signer,
-                    xrpTransaction: xrpTransaction,
-                    hash: hash
-                )
-            }
-            .eraseToAnyPublisher()
+            return try await performSend(transaction: transaction, signer: signer)
+        }
+        .mapSendTxError()
+        .eraseToAnyPublisher()
     }
 
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> {
@@ -273,6 +229,27 @@ extension XRPWalletManager: TransactionSender {
                 let maxFee = Amount(with: blockchain, value: max)
 
                 return [minFee, normalFee, maxFee].map { Fee($0) }
+            }
+            .withWeakCaptureOf(self)
+            .tryMap { manager, fees in
+                switch amount.type {
+                case .token(let token):
+                    let account = manager.decodeAddress(address: manager.wallet.address)
+
+                    let (currency, issuer) = try XRPAssetIdParser().getCurrencyCodeAndIssuer(from: token.contractAddress)
+
+                    // To turn off rippling, you will need to send 2 transactions.
+                    if try manager.isNeedSetNoRippling(currency: currency, issuer: issuer, with: account) {
+                        return fees.map {
+                            let targetAmount = Amount(with: self.wallet.blockchain, value: $0.amount.value * 2)
+                            return Fee(targetAmount, parameters: $0.parameters)
+                        }
+                    }
+                default:
+                    break
+                }
+
+                return fees
             }
             .eraseToAnyPublisher()
     }
@@ -396,9 +373,11 @@ extension XRPWalletManager: AssetRequirementsManager {
 
         lastTrustlineOpenAttemptDate = Date()
 
+        let utils = XRPAmountConverter(blockchain: wallet.blockchain)
+
         return networkService.getFee()
             .tryMap { response -> Decimal in
-                response.normal
+                utils.convertFromDrops(response.normal)
             }
             .withWeakCaptureOf(self)
             .flatMap { manager, fee in
@@ -408,6 +387,150 @@ extension XRPWalletManager: AssetRequirementsManager {
             .eraseToAnyPublisher()
     }
 }
+
+// MARK: - Send Flow
+
+private extension XRPWalletManager {
+    func performSend(transaction: Transaction, signer: TransactionSigner) async throws -> TransactionSendResult {
+        let sourceAccount = decodeAddress(address: transaction.sourceAddress)
+
+        let result: String
+
+        if case .token(let token) = transaction.amount.type {
+            result = try await performSendTokenTransaction(
+                transaction: transaction,
+                account: sourceAccount,
+                token: token,
+                signer: signer
+            )
+        } else {
+            result = try await performSendTransaction(
+                transaction: transaction,
+                account: sourceAccount,
+                hasTransferFee: false,
+                signer: signer
+            )
+        }
+
+        let mapper = PendingTransactionRecordMapper()
+        let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: result)
+        wallet.addPendingTransaction(record)
+
+        return TransactionSendResult(hash: result, currentProviderHost: currentHost)
+    }
+
+    func performSendTokenTransaction(
+        transaction: Transaction,
+        account: String,
+        token: Token,
+        signer: TransactionSigner
+    ) async throws -> String {
+        let (currency, issuer) = try XRPAssetIdParser().getCurrencyCodeAndIssuer(from: token.contractAddress)
+
+        let isNeedSetNoRippling = try isNeedSetNoRippling(currency: currency, issuer: issuer, with: account)
+
+        let hasTransferFee = try await networkService
+            .shouldAllowPartialPayment(for: issuer)
+            .async()
+
+        try await checkTrustlineAccount(
+            destinationAddress: decodeAddress(address: transaction.destinationAddress),
+            currency: currency,
+            issuer: issuer
+        )
+
+        let sendResult: String
+
+        if isNeedSetNoRippling {
+            let sequenceTrustlineTx = try await networkService.getSequence(account: account).async()
+            let enrichedTrustlineTx = enrichTransaction(transaction, withSequence: sequenceTrustlineTx)
+            let compiledTrustlineTx = try txBuilder.buildTrustSetTransactionForSign(transaction: enrichedTrustlineTx)
+
+            let sequenceSendTx = sequenceTrustlineTx + 1
+            let enrichedSendTx = enrichTransaction(transaction, withSequence: sequenceSendTx)
+            let compiledSendTx = try txBuilder.buildForSign(transaction: enrichedSendTx, partialPaymentAllowed: hasTransferFee)
+
+            let signatures = try await signer.sign(
+                hashes: [compiledTrustlineTx.hash, compiledSendTx.1],
+                walletPublicKey: wallet.publicKey
+            ).async()
+
+            guard signatures.count == 2 else {
+                throw BlockchainSdkError.failedToSendTx
+            }
+
+            let _ = try await sendXRPTransaction(compiledTrustlineTx.0, signature: signatures[0].signature)
+
+            sendResult = try await sendXRPTransaction(compiledSendTx.0, signature: signatures[1].signature)
+        } else {
+            sendResult = try await performSendTransaction(
+                transaction: transaction,
+                account: account,
+                hasTransferFee: hasTransferFee,
+                signer: signer
+            )
+        }
+
+        return sendResult
+    }
+
+    func performSendTransaction(
+        transaction: Transaction,
+        account: String,
+        hasTransferFee: Bool,
+        signer: TransactionSigner
+    ) async throws -> String {
+        let sequence = try await networkService.getSequence(account: account).async()
+        let enrichedTx = enrichTransaction(transaction, withSequence: sequence)
+
+        let buildForSign = try txBuilder.buildForSign(transaction: enrichedTx, partialPaymentAllowed: hasTransferFee)
+        let signature = try await signer.sign(hash: buildForSign.1, walletPublicKey: wallet.publicKey).async()
+        let sendResult = try await sendXRPTransaction(buildForSign.0, signature: signature.signature)
+
+        return sendResult
+    }
+
+    func sendXRPTransaction(_ transaction: XRPTransaction, signature: Data) async throws -> String {
+        let rawTransactionHash = try txBuilder.buildForSend(transaction: transaction, signature: signature)
+
+        return try await networkService.send(blob: rawTransactionHash)
+            .withWeakCaptureOf(self)
+            .mapAndEraseSendTxError(tx: rawTransactionHash)
+            .map { $0.1 }
+            .eraseToAnyPublisher()
+            .async()
+    }
+
+    func isNeedSetNoRippling(currency: String, issuer: String, with account: String) throws -> Bool {
+        if !XRPTrustlineUtils.containsTrustline(in: establishedTrustlines, currency: currency, issuer: issuer) {
+            throw BlockchainSdkError.failedToBuildTx
+        }
+
+        let existTrustline = XRPTrustlineUtils.firstMatchingTrustline(
+            in: establishedTrustlines,
+            currency: currency,
+            issuer: issuer
+        )
+
+        let isNeedSetNoRippling = !(existTrustline?.no_ripple ?? false)
+
+        return isNeedSetNoRippling
+    }
+
+    private func checkTrustlineAccount(destinationAddress: String, currency: String, issuer: String) async throws {
+        try await networkService.getAccountTrustlines(account: decodeAddress(address: destinationAddress))
+            .tryMap { result in
+                let trustlines = try result.get()
+
+                if !XRPTrustlineUtils.containsTrustline(in: trustlines, currency: currency, issuer: issuer) {
+                    throw BlockchainSdkError.noTrustlineAtDestination
+                }
+            }
+            .async()
+    }
+}
+
+// MARK: - Constants
 
 extension XRPWalletManager {
     enum Constants {

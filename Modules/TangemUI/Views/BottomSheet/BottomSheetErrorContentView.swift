@@ -12,6 +12,7 @@ import TangemLocalization
 import TangemUIUtils
 
 public struct BottomSheetErrorContentView: View {
+    private let icon: Icon
     private let title: String
     private let subtitle: String
     private let closeAction: (() -> Void)?
@@ -19,12 +20,14 @@ public struct BottomSheetErrorContentView: View {
     private let secondaryButton: MainButton.Settings?
 
     public init(
+        icon: Icon = .attention,
         title: String,
         subtitle: String,
         closeAction: (() -> Void)? = nil,
         primaryButton: MainButton.Settings? = nil,
         secondaryButton: MainButton.Settings? = nil
     ) {
+        self.icon = icon
         self.title = title
         self.subtitle = subtitle
         self.closeAction = closeAction
@@ -37,7 +40,7 @@ public struct BottomSheetErrorContentView: View {
             content
 
             if let closeAction {
-                CircleButton.close(action: closeAction)
+                NavigationBarButton.close(action: closeAction)
                     .padding(.all, 16)
             }
         }
@@ -46,11 +49,11 @@ public struct BottomSheetErrorContentView: View {
     public var content: some View {
         VStack(spacing: .zero) {
             VStack(spacing: 24) {
-                Assets.attention.image
+                icon.icon.image
                     .resizable()
                     .frame(width: 32, height: 32)
                     .padding(12)
-                    .background(Circle().fill(Colors.Icon.attention.opacity(0.1)))
+                    .background(Circle().fill(icon.overlay.opacity(0.1)))
 
                 VStack(spacing: 8) {
                     Text(title)
@@ -78,5 +81,19 @@ public struct BottomSheetErrorContentView: View {
             .padding(.all, 16)
         }
         .infinityFrame(axis: .horizontal)
+    }
+}
+
+public extension BottomSheetErrorContentView {
+    struct Icon {
+        public static let attention = Icon(icon: Assets.attention, overlay: Colors.Icon.attention)
+
+        public let icon: ImageType
+        public let overlay: Color
+
+        public init(icon: ImageType, overlay: Color) {
+            self.icon = icon
+            self.overlay = overlay
+        }
     }
 }

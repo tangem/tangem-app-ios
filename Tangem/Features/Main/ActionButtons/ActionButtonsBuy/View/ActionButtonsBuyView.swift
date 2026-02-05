@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemAssets
 import TangemUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct ActionButtonsBuyView: View {
     @ObservedObject var viewModel: ActionButtonsBuyViewModel
@@ -21,7 +22,7 @@ struct ActionButtonsBuyView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    CloseButton(dismiss: { viewModel.handleViewAction(.close) })
+                    CloseTextButton(action: { viewModel.handleViewAction(.close) })
                 }
             }
             .transition(.opacity.animation(.easeInOut))
@@ -63,6 +64,7 @@ struct ActionButtonsBuyView: View {
             }
         }
         .background(Colors.Background.tertiary.ignoresSafeArea(.all))
-        .scrollDismissesKeyboardCompat(.immediately)
+        .scrollDismissesKeyboard(.immediately)
+        .accessibilityIdentifier(ActionButtonsAccessibilityIdentifiers.buyTokenSelectorTokensList)
     }
 }

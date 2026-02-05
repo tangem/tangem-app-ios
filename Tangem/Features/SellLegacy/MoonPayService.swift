@@ -413,7 +413,9 @@ private extension Blockchain {
         case .quai: return nil
         case .scroll: return nil
         case .linea: return "linea"
+        case .monad: return nil
         case .arbitrumNova: return nil
+        case .plasma: return nil
             // Did you get a compilation error here? If so, check whether the network is supported at https://api.moonpay.com/v3/currencies
         }
     }
@@ -512,7 +514,9 @@ private extension Blockchain {
         case .quai: return nil
         case .scroll: return nil
         case .linea: return "linea"
+        case .monad: return nil
         case .arbitrumNova: return nil
+        case .plasma: return nil
             // Did you get a compilation error here? If so, check whether the network is supported at https://api.moonpay.com/v3/currencies
         }
     }

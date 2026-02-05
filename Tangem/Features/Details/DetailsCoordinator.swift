@@ -7,16 +7,18 @@
 //
 
 import Foundation
-import UIKit
+import class UIKit.UIApplication
 
-class DetailsCoordinator: CoordinatorObject {
+final class DetailsCoordinator: CoordinatorObject {
     // MARK: - Dependencies
 
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
+    @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.connectedDAppRepository) private var connectedDAppRepository: any WalletConnectConnectedDAppRepository
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
 
     // MARK: - Main view model
 
@@ -29,10 +31,11 @@ class DetailsCoordinator: CoordinatorObject {
     @Published var modalOnboardingCoordinator: OnboardingCoordinator?
     @Published var appSettingsCoordinator: AppSettingsCoordinator?
     @Published var addWalletSelectorCoordinator: AddWalletSelectorCoordinator?
+    @Published var tangemPayOnboardingCoordinator: TangemPayOnboardingCoordinator?
 
     // MARK: - Child view models
 
-    @Published var mailViewModel: MailViewModel?
+    @Published var tangemPayWalletSelectorViewModel: TangemPayWalletSelectorViewModel?
     @Published var supportChatViewModel: SupportChatViewModel?
     @Published var tosViewModel: DetailsTOSViewModel?
     @Published var environmentSetupCoordinator: EnvironmentSetupCoordinator?
@@ -48,7 +51,9 @@ class DetailsCoordinator: CoordinatorObject {
     }
 
     func start(with options: DetailsCoordinator.Options) {
-        detailsViewModel = DetailsViewModel(coordinator: self)
+        Task { @MainActor in
+            detailsViewModel = DetailsViewModel(coordinator: self)
+        }
     }
 }
 
@@ -76,9 +81,14 @@ extension DetailsCoordinator: DetailsRoutable {
         }
     }
 
-    func openWalletSettings(options: UserWalletSettingsCoordinator.Options) {
-        let dismissAction: Action<Void> = { [weak self] _ in
-            self?.userWalletSettingsCoordinator = nil
+    func openWalletSettings(options: UserWalletSettingsCoordinator.InputOptions) {
+        let dismissAction: Action<UserWalletSettingsCoordinator.OutputOptions> = { [weak self] options in
+            switch options {
+            case .main:
+                self?.dismiss()
+            case .dismiss:
+                self?.userWalletSettingsCoordinator = nil
+            }
         }
 
         let coordinator = UserWalletSettingsCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
@@ -101,6 +111,7 @@ extension DetailsCoordinator: DetailsRoutable {
         modalOnboardingCoordinator = coordinator
     }
 
+    // [REDACTED_TODO_COMMENT]
     func openAddWallet() {
         let dismissAction: Action<AddWalletSelectorCoordinator.OutputOptions> = { [weak self] options in
             switch options {
@@ -110,7 +121,7 @@ extension DetailsCoordinator: DetailsRoutable {
         }
 
         let coordinator = AddWalletSelectorCoordinator(dismissAction: dismissAction)
-        let inputOptions = AddWalletSelectorCoordinator.InputOptions()
+        let inputOptions = AddWalletSelectorCoordinator.InputOptions(source: .settings)
         coordinator.start(with: inputOptions)
         addWalletSelectorCoordinator = coordinator
     }
@@ -123,7 +134,19 @@ extension DetailsCoordinator: DetailsRoutable {
 
     func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType) {
         let logsComposer = LogsComposer(infoProvider: dataCollector)
-        mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: emailType)
+        let mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: emailType)
+
+        mailPresenter.present(viewModel: mailViewModel)
+    }
+
+    func openGetTangemPay() {
+        let dismissAction: Action<TangemPayOnboardingCoordinator.DismissOptions?> = { [weak self] _ in
+            self?.tangemPayOnboardingCoordinator = nil
+        }
+
+        let coordinator = TangemPayOnboardingCoordinator(dismissAction: dismissAction)
+        coordinator.start(with: .init(source: .other))
+        tangemPayOnboardingCoordinator = coordinator
     }
 
     func openSupportChat(input: SupportChatInputModel) {
@@ -140,7 +163,7 @@ extension DetailsCoordinator: DetailsRoutable {
     }
 
     func openShop() {
-        safariManager.openURL(AppConstants.getWebShopUrl(isExistingUser: true))
+        safariManager.openURL(TangemShopUrlBuilder().url(utmCampaign: .users))
     }
 
     func openSocialNetwork(url: URL) {

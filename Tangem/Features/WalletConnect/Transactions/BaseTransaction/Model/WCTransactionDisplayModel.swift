@@ -30,6 +30,7 @@ protocol WCTransactionDisplayModel {
     var isActionButtonBlocked: Bool { get }
     var isDataReady: Bool { get }
     var simulationDisplayModel: WCTransactionSimulationDisplayModel? { get }
+    var tangemIconProvider: TangemIconProvider { get }
 }
 
 @MainActor
@@ -78,7 +79,7 @@ final class CommonWCTransactionDisplayModel: WCTransactionDisplayModel {
     }
 
     var isActionButtonBlocked: Bool {
-        if case .failedToLoad = viewModel?.selectedFee?.value {
+        if case .failure = viewModel?.selectedFee?.value {
             return true
         }
 
@@ -114,13 +115,28 @@ final class CommonWCTransactionDisplayModel: WCTransactionDisplayModel {
     var simulationDisplayModel: WCTransactionSimulationDisplayModel? {
         guard let viewModel = viewModel else { return nil }
 
+        let walletModels: [any WalletModel]
+
+        do {
+            walletModels = try WCWalletModelsResolver.resolveWalletModels(
+                account: transactionData.account, userWalletModel: transactionData.userWalletModel
+            )
+        } catch {
+            WCLogger.error(error: error)
+            return nil
+        }
+
         return simulationManager.createDisplayModel(
             from: viewModel.simulationState,
             originalTransaction: viewModel.sendableTransaction,
-            userWalletModel: transactionData.userWalletModel,
+            walletModels: walletModels,
             onApprovalEdit: { [weak viewModel] approvalInfo, asset in
                 viewModel?.handleViewAction(.editApproval(approvalInfo, asset))
             }
         )
+    }
+
+    var tangemIconProvider: TangemIconProvider {
+        CommonTangemIconProvider(config: transactionData.userWalletModel.config)
     }
 }

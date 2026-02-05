@@ -16,15 +16,15 @@ struct DummyCommonAccountModelsManager {}
 
 extension DummyCommonAccountModelsManager: AccountModelsManager {
     var canAddCryptoAccounts: Bool {
-        return false
+        false
     }
 
-    var hasArchivedCryptoAccounts: AnyPublisher<Bool, Never> {
-        return .just(output: false)
+    var hasArchivedCryptoAccountsPublisher: AnyPublisher<Bool, Never> {
+        .just(output: false)
     }
 
     var totalAccountsCountPublisher: AnyPublisher<Int, Never> {
-        .just(output: 0)
+        .just(output: accountModels.count)
     }
 
     var accountModels: [AccountModel] {
@@ -32,24 +32,30 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
     }
 
     var accountModelsPublisher: AnyPublisher<[AccountModel], Never> {
-        return AnyPublisher.just(output: [])
+        AnyPublisher.just(output: accountModels)
     }
 
-    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws(AccountModelsManagerError) {
-        throw .addingCryptoAccountsNotSupported
+    func addCryptoAccount(name: String, icon: AccountModel.Icon) async throws(AccountEditError) -> AccountOperationResult {
+        throw .unknownError(NSError.dummy)
     }
 
     func archivedCryptoAccountInfos() async throws(AccountModelsManagerError) -> [ArchivedCryptoAccountInfo] {
-        return []
+        []
     }
 
     func archiveCryptoAccount(
         withIdentifier identifier: any AccountModelPersistentIdentifierConvertible
-    ) throws(AccountModelsManagerError) {
-        throw .cannotArchiveCryptoAccount
+    ) throws(AccountArchivationError) {
+        throw .unknownError(NSError.dummy)
     }
 
-    func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) throws(AccountModelsManagerError) {
-        throw .cannotUnarchiveCryptoAccount
+    func unarchiveCryptoAccount(info: ArchivedCryptoAccountInfo) throws(AccountRecoveryError) -> AccountOperationResult {
+        throw .unknownError(NSError.dummy)
     }
+
+    func reorder(orderedIdentifiers: [any AccountModelPersistentIdentifierConvertible]) async throws {
+        throw NSError.dummy
+    }
+
+    func dispose() {}
 }

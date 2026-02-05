@@ -48,6 +48,7 @@ final class AppOverlaysManager {
         )
 
         bindStories()
+        bindActiveSheet()
     }
 
     func setMainWindow(_ mainWindow: MainWindow) {
@@ -81,6 +82,19 @@ final class AppOverlaysManager {
 
                 let av = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
                 manager.present(viewController: av)
+            }
+            .store(in: &cancellables)
+    }
+
+    private func bindActiveSheet() {
+        floatingSheetViewModel
+            .$activeSheet
+            .dropFirst()
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { manager, activeSheet in
+                guard activeSheet == nil else { return }
+                manager.restoreMainWindowKeyboardIfNeeded()
             }
             .store(in: &cancellables)
     }
@@ -121,10 +135,14 @@ final class AppOverlaysManager {
             animated: true,
             completion: { [weak self] in
                 self?.storiesViewController = nil
-                // restores keyboard for main window if it was previously visible
-                self?.mainWindow?.makeKey()
+                self?.restoreMainWindowKeyboardIfNeeded()
             }
         )
+    }
+
+    /// Restores keyboard for main window if it was previously visible.
+    private func restoreMainWindowKeyboardIfNeeded() {
+        mainWindow?.makeKey()
     }
 }
 
@@ -148,6 +166,7 @@ extension AppOverlaysManager {
 
         let window = PassThroughWindow(windowScene: windowScene)
         window.windowLevel = .alert + 1
+        window.overrideUserInterfaceStyle = AppSettings.shared.appTheme.interfaceStyle
         window.isHidden = false
         window.isOpaque = false
         window.backgroundColor = .clear

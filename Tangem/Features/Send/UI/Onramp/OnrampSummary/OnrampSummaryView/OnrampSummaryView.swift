@@ -30,6 +30,14 @@ struct OnrampSummaryView: View {
         }
         .safeAreaInset(edge: .bottom, spacing: .zero) { bottomContainer }
         .animation(SendTransitions.animation, value: viewModel.viewState.id)
+        .onChange(of: viewModel.viewState) { viewState in
+            switch viewState {
+            case .idle, .presets:
+                break
+            case .loading, .suggestedOffers:
+                keyboardActive = false
+            }
+        }
     }
 
     @ViewBuilder
@@ -48,7 +56,6 @@ struct OnrampSummaryView: View {
         }
     }
 
-    @ViewBuilder
     private var loadingView: some View {
         HStack(spacing: 8) {
             ProgressView()
@@ -83,19 +90,35 @@ struct OnrampSummaryView: View {
             .padding(.top, 12)
         }
 
-        if offers.shouldShowAllOffersButton {
-            MainButton(title: Localization.onrampAllOffersButtonTitle, style: .secondary) {
-                keyboardActive = false
-                viewModel.userDidTapAllOffersButton()
-            }
+        MainButton(title: Localization.onrampAllOffersButtonTitle, style: .secondary) {
+            keyboardActive = false
+            viewModel.userDidTapAllOffersButton()
         }
+        .accessibilityIdentifier(OnrampAccessibilityIdentifiers.allOffersButton)
+    }
+
+    private var bottomContainer: some View {
+        HStack(spacing: 4) {
+            presets
+
+            HideKeyboardButton(focused: $keyboardActive)
+                .padding(.vertical, 5)
+                .padding(.horizontal, 12)
+                .background(Colors.Button.secondary)
+                .clipShape(Capsule())
+        }
+        .padding(.horizontal, 12)
+        .padding(.bottom, 8)
+        .animation(.default, value: keyboardActive)
+        .visible(keyboardActive)
     }
 
     @ViewBuilder
-    private var bottomContainer: some View {
+    private var presets: some View {
         switch viewModel.viewState {
         case .idle, .loading, .suggestedOffers:
-            EmptyView()
+            // Use the `Spacer()` to keep `HideKeyboardButton` in the trailing position
+            Spacer()
         case .presets(let presets):
             HStack(spacing: 4) {
                 ForEach(presets) { preset in
@@ -109,10 +132,6 @@ struct OnrampSummaryView: View {
                     }
                 }
             }
-            .padding(.horizontal, 12)
-            .padding(.bottom, 8)
-            .animation(.default, value: keyboardActive)
-            .visible(keyboardActive)
         }
     }
 }

@@ -8,14 +8,14 @@
 
 import Foundation
 import TangemNetworkUtils
+import TangemPay
 
 public struct VisaAuthorizationTokensHandlerBuilder {
     private let apiServiceBuilder: VisaAPIServiceBuilder
 
-    public init(apiType: VisaAPIType, isMockedAPIEnabled: Bool) {
+    public init(apiType: VisaAPIType) {
         apiServiceBuilder = VisaAPIServiceBuilder(
-            apiType: apiType,
-            isMockedAPIEnabled: isMockedAPIEnabled
+            apiType: apiType
         )
     }
 
@@ -23,6 +23,7 @@ public struct VisaAuthorizationTokensHandlerBuilder {
         cardId: String,
         cardActivationStatus: VisaCardActivationLocalState,
         refreshTokenSaver: VisaRefreshTokenSaver?,
+        allowRefresherTask: Bool,
         urlSessionConfiguration: URLSessionConfiguration = .visaConfiguration
     ) -> VisaAuthorizationTokensHandler {
         let authorizationTokensHolder: AuthorizationTokensHolder
@@ -41,7 +42,8 @@ public struct VisaAuthorizationTokensHandlerBuilder {
             visaRefreshTokenId: .cardId(cardId),
             authorizationTokensHolder: authorizationTokensHolder,
             tokenRefreshService: authorizationTokenRefreshService,
-            refreshTokenSaver: refreshTokenSaver
+            refreshTokenSaver: refreshTokenSaver,
+            allowRefresherTask: allowRefresherTask
         )
 
         return authorizationTokensHandler
@@ -51,6 +53,7 @@ public struct VisaAuthorizationTokensHandlerBuilder {
         customerWalletAddress: String,
         authorizationTokens: VisaAuthorizationTokens?,
         refreshTokenSaver: VisaRefreshTokenSaver?,
+        allowRefresherTask: Bool,
         urlSessionConfiguration: URLSessionConfiguration = .visaConfiguration
     ) -> VisaAuthorizationTokensHandler {
         let authorizationTokensHolder: AuthorizationTokensHolder
@@ -69,7 +72,8 @@ public struct VisaAuthorizationTokensHandlerBuilder {
             visaRefreshTokenId: .customerWalletAddress(customerWalletAddress),
             authorizationTokensHolder: authorizationTokensHolder,
             tokenRefreshService: authorizationTokenRefreshService,
-            refreshTokenSaver: refreshTokenSaver
+            refreshTokenSaver: refreshTokenSaver,
+            allowRefresherTask: allowRefresherTask
         )
     }
 }

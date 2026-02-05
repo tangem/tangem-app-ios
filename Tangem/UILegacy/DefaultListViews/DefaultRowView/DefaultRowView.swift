@@ -21,6 +21,10 @@ struct DefaultRowView: View {
 
     private var isTappable: Bool { viewModel.action != nil }
 
+    private var verticalPadding: CGFloat {
+        appearance.hasVerticalPadding ? 14 : 0
+    }
+
     var body: some View {
         if let action = viewModel.action {
             Button(action: action) {
@@ -34,7 +38,11 @@ struct DefaultRowView: View {
     }
 
     private var content: some View {
-        HStack {
+        HStack(spacing: 12) {
+            if let leadingIcon = appearance.leadingIcon {
+                leadingIconView(for: leadingIcon)
+            }
+
             titleView
 
             Spacer()
@@ -46,7 +54,7 @@ struct DefaultRowView: View {
             }
         }
         .lineLimit(1)
-        .padding(.vertical, 14)
+        .padding(.vertical, verticalPadding)
         .contentShape(Rectangle())
     }
 
@@ -62,6 +70,14 @@ struct DefaultRowView: View {
                         .foregroundColor(Colors.Icon.informative)
                 }
             }
+        }
+    }
+
+    @ViewBuilder
+    private func leadingIconView(for icon: Appearance.LeadingIcon) -> some View {
+        switch icon {
+        case .plus:
+            PlusIconView(textAndIconColor: appearance.textColor)
         }
     }
 
@@ -105,24 +121,40 @@ extension DefaultRowView: Setupable {
 
 extension DefaultRowView {
     struct Appearance {
+        enum LeadingIcon {
+            case plus
+        }
+
         let isChevronVisible: Bool
         let font: Font
         let textColor: Color
         let detailsColor: Color
+        let hasVerticalPadding: Bool
+        let leadingIcon: LeadingIcon?
 
         static let destructiveButton = Appearance(isChevronVisible: false, textColor: Colors.Text.warning)
         static let accentButton = Appearance(isChevronVisible: false, textColor: Colors.Text.accent)
+        static let addButton = Appearance(
+            isChevronVisible: false,
+            font: Fonts.Bold.subheadline,
+            textColor: Colors.Text.accent,
+            leadingIcon: .plus
+        )
 
         init(
             isChevronVisible: Bool = true,
             font: Font = Fonts.Regular.callout,
             textColor: Color = Colors.Text.primary1,
-            detailsColor: Color = Colors.Text.tertiary
+            detailsColor: Color = Colors.Text.tertiary,
+            hasVerticalPadding: Bool = true,
+            leadingIcon: LeadingIcon? = nil
         ) {
             self.isChevronVisible = isChevronVisible
             self.font = font
             self.textColor = textColor
             self.detailsColor = detailsColor
+            self.hasVerticalPadding = hasVerticalPadding
+            self.leadingIcon = leadingIcon
         }
     }
 }

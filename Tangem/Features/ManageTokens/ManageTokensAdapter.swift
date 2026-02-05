@@ -21,6 +21,7 @@ class ManageTokensAdapter {
     private let userTokensManager: UserTokensManager
     private let hardwareLimitationUtil: HardwareLimitationsUtil
     private let loader: TokensListDataLoader
+    private let context: ManageTokensContext
 
     /// This parameter is required due to the fact that the adapter is used in various places
     private let analyticsSourceRawValue: String
@@ -60,14 +61,22 @@ class ManageTokensAdapter {
     init(settings: Settings) {
         hardwareLimitationUtil = settings.hardwareLimitationUtil
         existingCurves = settings.existingCurves
-        userTokensManager = settings.userTokensManager
-        loader = TokensListDataLoader(supportedBlockchains: settings.supportedBlockchains)
+        context = settings.context
+        userTokensManager = settings.context.userTokensManager
         analyticsSourceRawValue = settings.analyticsSourceRawValue
+
+        let filteredBlockchains = settings.supportedBlockchains.filter { blockchain in
+            settings.context.canManageBlockchain(blockchain)
+        }
+
+        loader = TokensListDataLoader(supportedBlockchains: filteredBlockchains)
 
         bind()
     }
 
     func saveChanges(completion: @escaping (Result<Void, Error>) -> Void) {
+        logAddTokenToNonMainAccountAnalyticsIfNeeded()
+
         userTokensManager.update(
             itemsToRemove: pendingRemove,
             itemsToAdd: pendingAdd
@@ -86,7 +95,7 @@ class ManageTokensAdapter {
                 Analytics.log(event: .manageTokensTokenAdded, params: analyticsParams)
             }
 
-            completion(result)
+            completion(result.map { _ in })
         }
     }
 
@@ -179,6 +188,8 @@ private extension ManageTokensAdapter {
                 pendingRemove.remove(tokenItem)
             } else {
                 pendingRemove.append(tokenItem)
+                // A token items remains in the list after canceling its addition (no derivation performed)
+                pendingAdd.remove(tokenItem)
             }
         } else {
             if selected {
@@ -324,14 +335,24 @@ private extension ManageTokensAdapter {
         let analyticsParams: [Analytics.ParameterKey: String] = [.input: searchValue]
         Analytics.log(event: .manageTokensTokenIsNotFound, params: analyticsParams)
     }
+
+    func logAddTokenToNonMainAccountAnalyticsIfNeeded() {
+        for tokenItem in pendingAdd {
+            let destination = context.accountDestination(for: tokenItem)
+            ManageTokensAnalyticsLogger.logAddTokenToNonMainAccountIfNeeded(
+                tokenItem: tokenItem,
+                destination: destination
+            )
+        }
+    }
 }
 
 extension ManageTokensAdapter {
     struct Settings {
         let existingCurves: [EllipticCurve]
         let supportedBlockchains: Set<Blockchain>
-        let userTokensManager: UserTokensManager
         let hardwareLimitationUtil: HardwareLimitationsUtil
         let analyticsSourceRawValue: String
+        let context: ManageTokensContext
     }
 }

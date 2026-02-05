@@ -12,6 +12,7 @@ import TangemAssets
 import TangemUI
 import TangemUIUtils
 import TangemAccessibilityIdentifiers
+import TangemAccounts
 
 struct WalletConnectDAppConnectionRequestView: View {
     @ObservedObject var viewModel: WalletConnectDAppConnectionRequestViewModel
@@ -62,6 +63,8 @@ struct WalletConnectDAppConnectionRequestView: View {
 
     private var walletAndNetworksSections: some View {
         VStack(spacing: .zero) {
+            accountSection
+                .padding(.horizontal, 14)
             walletSection
                 .padding(.horizontal, 14)
 
@@ -88,24 +91,87 @@ struct WalletConnectDAppConnectionRequestView: View {
 
     // MARK: - Wallet section
 
+    @ViewBuilder
     private var walletSection: some View {
-        BaseOneLineRowButton(
-            icon: viewModel.state.walletSection.iconAsset,
-            title: viewModel.state.walletSection.label,
-            shouldShowTrailingIcon: viewModel.state.walletSection.selectionIsAvailable,
-            action: { viewModel.handle(viewEvent: .walletRowTapped) },
-            trailingView: { walletSectionTrailingView }
-        )
-        .verticalPadding(12)
-        .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.walletLabel)
-        .allowsHitTesting(viewModel.state.walletSection.selectionIsAvailable)
+        if let walletSection = viewModel.state.walletSection {
+            BaseOneLineRowButton(
+                icon: walletSection.iconAsset,
+                title: walletSection.label,
+                shouldShowTrailingIcon: walletSection.selectionIsAvailable,
+                action: { viewModel.handle(viewEvent: .walletRowTapped) },
+                trailingView: { walletSectionTrailingView(walletSection.selectedUserWalletName) }
+            )
+            .verticalPadding(12)
+            .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.walletLabel)
+            .allowsHitTesting(walletSection.selectionIsAvailable)
+        }
     }
 
-    private var walletSectionTrailingView: some View {
-        HStack(spacing: 0) {
-            Text(viewModel.state.walletSection.selectedUserWalletName)
+    private func walletSectionTrailingView(_ userWalletName: String) -> some View {
+        Text(userWalletName)
+            .style(Fonts.Regular.body, color: Colors.Text.tertiary)
+            .padding(.horizontal, 4)
+    }
+
+    // MARK: - Account Section
+
+    @ViewBuilder
+    private var accountSection: some View {
+        if let connectionTargetSection = viewModel.state.connectionTargetSection {
+            let label = switch connectionTargetSection.target {
+            case .wallet(let target):
+                target.label
+            case .account(let target):
+                target.label
+            }
+
+            BaseOneLineRowButton(
+                icon: connectionTargetSection.iconAsset,
+                shouldShowTrailingIcon: connectionTargetSection.selectionIsAvailable,
+                action: { viewModel.handle(viewEvent: .accountRowTapped) },
+                titleView: {
+                    switch connectionTargetSection.state {
+                    case .loading:
+                        SkeletonView()
+                            .frame(width: 64, height: 24)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                    case .content:
+                        Text(label)
+                            .style(Fonts.Regular.body, color: Colors.Text.primary1)
+                            .lineLimit(1)
+                    }
+                },
+                trailingView: {
+                    switch connectionTargetSection.state {
+                    case .loading:
+                        SkeletonView()
+                            .frame(width: 88, height: 24)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                    case .content:
+                        switch connectionTargetSection.target {
+                        case .wallet:
+                            walletSectionTrailingView(connectionTargetSection.targetName)
+                        case .account(let target):
+                            accountTargetTrailingView(icon: target.icon, accountName: connectionTargetSection.targetName)
+                        }
+                    }
+                }
+            )
+            .verticalPadding(12)
+            .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.walletLabel)
+            .allowsHitTesting(connectionTargetSection.selectionIsAvailable)
+        }
+    }
+
+    private func accountTargetTrailingView(icon: AccountModel.Icon, accountName: String) -> some View {
+        HStack(spacing: 6) {
+            AccountIconView(
+                data: AccountModelUtils.UI.iconViewData(icon: icon, accountName: accountName)
+            )
+            .settings(.smallSized)
+
+            Text(accountName)
                 .style(Fonts.Regular.body, color: Colors.Text.tertiary)
-                .padding(.horizontal, 4)
         }
     }
 

@@ -10,12 +10,13 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct SendSummaryView: View {
     @ObservedObject var viewModel: SendSummaryViewModel
 
     var body: some View {
-        GroupedScrollView(spacing: 14) {
+        GroupedScrollView(contentType: .lazy(alignment: .center, spacing: 14)) {
             amountSectionView
 
             nftSectionView
@@ -70,11 +71,11 @@ struct SendSummaryView: View {
 
     @ViewBuilder
     private var stakingValidatorsView: some View {
-        if let stakingValidatorsCompactViewModel = viewModel.stakingValidatorsCompactViewModel {
+        if let stakingTargetsCompactViewModel = viewModel.stakingTargetsCompactViewModel {
             Button(action: viewModel.userDidTapValidator) {
-                StakingValidatorsCompactView(viewModel: stakingValidatorsCompactViewModel)
+                StakingTargetsCompactView(viewModel: stakingTargetsCompactViewModel)
             }
-            .allowsHitTesting(stakingValidatorsCompactViewModel.canEditValidator)
+            .allowsHitTesting(stakingTargetsCompactViewModel.canEditTarget)
         }
     }
 
@@ -82,18 +83,15 @@ struct SendSummaryView: View {
 
     @ViewBuilder
     private var feeSectionView: some View {
-        if let feeCompactViewModel = viewModel.sendFeeCompactViewModel {
-            if feeCompactViewModel.canEditFee {
-                Button(action: viewModel.userDidTapFee) { SendNewFeeCompactView(viewModel: feeCompactViewModel) }
-            } else {
-                SendNewFeeCompactView(viewModel: feeCompactViewModel)
-            }
+        if let sendFeeCompactViewModel = viewModel.sendFeeCompactViewModel {
+            SendFeeCompactView(viewModel: sendFeeCompactViewModel, tapAction: viewModel.userDidTapFee)
+                .accessibilityElement(children: .contain)
+                .accessibilityIdentifier(SendAccessibilityIdentifiers.networkFeeBlock)
         }
     }
 
     // MARK: - Notifications
 
-    @ViewBuilder
     private var notificationsView: some View {
         ForEach(viewModel.notificationInputs) { input in
             NotificationView(input: input)

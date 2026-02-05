@@ -18,7 +18,7 @@ public struct AddListItemButton: View {
     }
 
     public var body: some View {
-        Button(action: viewData.action) {
+        Button(action: viewData.buttonAction) {
             HStack(spacing: 12) {
                 plusIcon
 
@@ -29,18 +29,11 @@ public struct AddListItemButton: View {
             }
         }
         .disabled(!viewData.isEnabled)
+        .onTapGesture(perform: viewData.disabledActionIfNeeded)
     }
 
     private var plusIcon: some View {
-        Assets.plusMini
-            .image
-            .renderingMode(.template)
-            .foregroundStyle(textAndIconColor)
-            .roundedBackground(
-                with: iconBackgroundColor,
-                padding: 8,
-                radius: 8
-            )
+        PlusIconView(textAndIconColor: textAndIconColor, isEnabled: viewData.isEnabled)
     }
 
     private var textAndIconColor: Color {
@@ -49,14 +42,6 @@ public struct AddListItemButton: View {
         }
 
         return Colors.Text.disabled
-    }
-
-    private var iconBackgroundColor: Color {
-        if viewData.isEnabled {
-            return Colors.Text.accent.opacity(0.1)
-        }
-
-        return Colors.Field.focused
     }
 }
 
@@ -67,24 +52,57 @@ public extension AddListItemButton {
         }
 
         let text: String
-        let isEnabled: Bool
-        let action: () -> Void
+        let state: State
 
-        public init(text: String, isEnabled: Bool = true, action: @escaping () -> Void) {
+        public init(text: String, state: State) {
             self.text = text
-            self.isEnabled = isEnabled
-            self.action = action
+            self.state = state
         }
 
-        public static let initial = Self(text: "", action: {})
+        public static let initial = Self(text: "", state: .enabled(action: {}))
+
+        var buttonAction: () -> Void {
+            switch state {
+            case .enabled(let action):
+                return action
+            case .disabled:
+                return {}
+            }
+        }
+
+        func disabledActionIfNeeded() {
+            switch state {
+            case .enabled:
+                break
+            case .disabled(let action):
+                action?()
+            }
+        }
+
+        var isEnabled: Bool {
+            switch state {
+            case .enabled:
+                return true
+            case .disabled:
+                return false
+            }
+        }
+    }
+}
+
+public extension AddListItemButton {
+    enum State {
+        case enabled(action: () -> Void)
+        case disabled(action: (() -> Void)? = nil)
     }
 }
 
 #if DEBUG
 #Preview {
     VStack {
-        AddListItemButton(viewData: AddListItemButton.ViewData(text: "Add account", action: {}))
-        AddListItemButton(viewData: AddListItemButton.ViewData(text: "Add account", isEnabled: false, action: {}))
+        AddListItemButton(viewData: AddListItemButton.ViewData(text: "Add account", state: .enabled(action: {})))
+        AddListItemButton(viewData: AddListItemButton.ViewData(text: "Add account (disabled, no action)", state: .disabled()))
+        AddListItemButton(viewData: AddListItemButton.ViewData(text: "Add account (disabled, with action)", state: .disabled(action: { print("Tapped disabled button") })))
     }
 }
 #endif

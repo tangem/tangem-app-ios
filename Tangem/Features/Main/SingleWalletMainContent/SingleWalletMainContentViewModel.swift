@@ -16,6 +16,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
 
     @Published var notificationInputs: [NotificationViewInput] = []
     @Published var walletPromoBannerViewModel: WalletPromoBannerViewModel?
+    @Published var exploreConfirmationDialog: ConfirmationDialogViewModel?
 
     private(set) lazy var bottomSheetFooterViewModel = MainBottomSheetFooterViewModel()
 
@@ -52,7 +53,7 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         }
 
         super.init(
-            userWalletModel: userWalletModel,
+            userWalletInfo: userWalletModel.userWalletInfo,
             walletModel: walletModel,
             notificationManager: tokenNotificationManager,
             pendingExpressTransactionsManager: pendingExpressTransactionsManager,
@@ -62,8 +63,8 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         bind()
     }
 
-    override func present(confirmationDialog: ConfirmationDialogViewModel) {
-        delegate?.present(confirmationDialog: confirmationDialog)
+    override func present(exploreConfirmationDialog: ConfirmationDialogViewModel) {
+        self.exploreConfirmationDialog = exploreConfirmationDialog
     }
 
     override func copyDefaultAddress() {

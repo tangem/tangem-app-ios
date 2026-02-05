@@ -47,6 +47,8 @@ class CardSigner {
 }
 
 extension CardSigner: TangemSigner {
+    var hasNFCInteraction: Bool { true }
+
     var latestSignerType: TangemSignerType? { _latestSignerType }
 
     func sign(hashes: [Data], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[SignatureInfo], any Error> {
@@ -60,13 +62,19 @@ extension CardSigner: TangemSigner {
     }
 
     func sign(dataToSign: [SignData], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[SignatureInfo], any Error> {
-        let signCommand = MultipleSignTask(dataToSign: dataToSign, seedKey: walletPublicKey.seedKey)
+        let signCommand = MultipleSignTask(
+            dataToSign: dataToSign,
+            seedKey: walletPublicKey.seedKey,
+            pairKey: twinKey?.getPairKey(for: walletPublicKey.seedKey)
+        )
+
         return sdk.startSessionPublisher(with: signCommand, filter: filter, initialMessage: initialMessage)
             .handleEvents(
                 receiveOutput: { [weak self] response in
                     if let lastResponse = response.last {
                         self?.updateLatestSignerType(card: lastResponse.card)
                         self?.warnDeprecatedCards(card: lastResponse.card)
+                        TangemSdkAnalyticsLogger().logHealthIfNeeded(lastResponse.card)
                     }
                 },
                 receiveCompletion: { completion in

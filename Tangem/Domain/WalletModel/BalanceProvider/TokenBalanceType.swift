@@ -7,9 +7,11 @@
 //
 
 import Foundation
+import TangemMacro
 
 // MARK: - TokenBalanceType
 
+@CaseFlagable
 enum TokenBalanceType: Hashable {
     /// No derivation / Don't start loading yet
     case empty(EmptyReason)
@@ -34,26 +36,19 @@ extension TokenBalanceType {
         }
     }
 
+    var loaded: Decimal? {
+        switch self {
+        case .empty, .loading, .failure: nil
+        case .loaded(let value): value
+        }
+    }
+
     var cached: TokenBalanceType.Cached? {
         switch self {
         case .empty: nil
         case .loading(let cached): cached
         case .failure(let cached): cached
         case .loaded: nil
-        }
-    }
-
-    var isLoading: Bool {
-        switch self {
-        case .loading: true
-        default: false
-        }
-    }
-
-    var isFailure: Bool {
-        switch self {
-        case .failure: true
-        default: false
         }
     }
 }

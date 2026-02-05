@@ -60,10 +60,14 @@ class FakeBalanceWithButtonsInfoProvider {
 
     func map(_ provider: FakeTokenBalanceProvider) -> BalanceWithButtonsViewModel {
         BalanceWithButtonsViewModel(
+            tokenItem: .blockchain(.init(.bitcoin(testnet: false), derivationPath: nil)),
             buttonsPublisher: provider.buttonsPublisher,
             balanceProvider: provider,
             balanceTypeSelectorProvider: provider,
-            yieldModuleStatusProvider: provider
+            yieldModuleStatusProvider: provider,
+            refreshStatusProvider: provider,
+            showYieldBalanceInfoAction: {},
+            reloadBalance: {}
         )
     }
 }

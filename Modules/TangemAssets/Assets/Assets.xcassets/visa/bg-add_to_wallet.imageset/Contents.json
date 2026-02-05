@@ -1,0 +1,15 @@
+{
+  "images" : [
+    {
+      "filename" : "bg-add_to_wallet.svg",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  },
+  "properties" : {
+    "preserves-vector-representation" : true
+  }
+}

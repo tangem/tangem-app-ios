@@ -44,7 +44,7 @@ struct OnboardingAddTokensView: View {
                     )
             }
         }
-        .scrollDismissesKeyboardCompat(.interactively)
+        .scrollDismissesKeyboard(.interactively)
         .keyboardType(.alphabet)
     }
 }
@@ -57,9 +57,12 @@ struct OnboardingAddTokensView: View {
         settings: .init(
             existingCurves: fakeModel.config.existingCurves,
             supportedBlockchains: fakeModel.config.supportedBlockchains,
-            userTokensManager: fakeModel.userTokensManager,
             hardwareLimitationUtil: HardwareLimitationsUtil(config: fakeModel.config),
-            analyticsSourceRawValue: "preview"
+            analyticsSourceRawValue: "preview",
+            context: LegacyManageTokensContext(
+                userTokensManager: UserTokensManagerMock(),
+                walletModelsManager: WalletModelsManagerMock()
+            )
         )
     )
 

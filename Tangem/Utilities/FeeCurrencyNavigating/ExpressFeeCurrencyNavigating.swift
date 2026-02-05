@@ -28,19 +28,7 @@ extension ExpressFeeCurrencyNavigating {
     func makeExpressCoordinatorDismissAction() -> ExpressCoordinator.DismissAction {
         return { [weak self] dismissOptions in
             self?.expressCoordinator = nil
-
-            switch dismissOptions {
-            case .openFeeCurrency(let userWalletId, let feeTokenItem):
-                guard let result = FeeCurrencyFinder().findFeeWalletModel(userWalletId: userWalletId, feeTokenItem: feeTokenItem) else {
-                    return
-                }
-
-                DispatchQueue.main.asyncAfter(deadline: .now() + Self.feeCurrencyNavigationDelay) {
-                    self?.openFeeCurrency(for: result.feeWalletModel, userWalletModel: result.userWalletModel)
-                }
-            case .none:
-                break
-            }
+            self?.proceedFeeCurrencyNavigatingDismissOption(option: dismissOptions)
         }
     }
 

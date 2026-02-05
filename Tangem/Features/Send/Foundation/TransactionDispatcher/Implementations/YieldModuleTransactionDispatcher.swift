@@ -10,20 +10,20 @@ import Foundation
 import BlockchainSdk
 
 class YieldModuleTransactionDispatcher {
-    private let blockchain: Blockchain
+    private let tokenItem: TokenItem
     private let walletModelUpdater: WalletModelUpdater
     private let transactionSigner: TangemSigner
     private let transactionsSender: MultipleTransactionsSender
     private let logger: YieldAnalyticsLogger
 
     init(
-        blockchain: Blockchain,
+        tokenItem: TokenItem,
         walletModelUpdater: WalletModelUpdater,
         transactionsSender: MultipleTransactionsSender,
         transactionSigner: TangemSigner,
         logger: YieldAnalyticsLogger
     ) {
-        self.blockchain = blockchain
+        self.tokenItem = tokenItem
         self.walletModelUpdater = walletModelUpdater
         self.transactionsSender = transactionsSender
         self.transactionSigner = transactionSigner
@@ -34,13 +34,16 @@ class YieldModuleTransactionDispatcher {
 // MARK: - TransactionDispatcher
 
 extension YieldModuleTransactionDispatcher: TransactionDispatcher {
+    var hasNFCInteraction: Bool {
+        transactionSigner.hasNFCInteraction
+    }
+
     func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult {
         let results = try await send(transactions: [transaction])
         guard let result = results.first else {
             throw TransactionDispatcherResult.Error.transactionNotFound
         }
 
-        logger.logTransactionSent()
         return result
     }
 
@@ -52,7 +55,7 @@ extension YieldModuleTransactionDispatcher: TransactionDispatcher {
             }
         }
 
-        guard !transferTransactions.isEmpty else {
+        guard let firstTransaction = transferTransactions.first else {
             throw TransactionDispatcherResult.Error.transactionNotFound
         }
 
@@ -64,22 +67,24 @@ extension YieldModuleTransactionDispatcher: TransactionDispatcher {
                 signer: transactionSigner
             ).async()
 
-            transferTransactions.forEach { _ in
-                logger.logTransactionSent()
-            }
-
-            walletModelUpdater.updateAfterSendingTransaction()
-
-            return hashes.map { hash in
+            let sentTransactionResults = hashes.map { hash in
                 mapper.mapResult(
                     hash,
-                    blockchain: blockchain,
-                    signer: transactionSigner.latestSignerType
+                    blockchain: tokenItem.blockchain,
+                    signer: transactionSigner.latestSignerType,
+                    isToken: tokenItem.isToken
                 )
             }
+
+            sentTransactionResults.forEach {
+                logger.logTransactionSent(with: $0)
+            }
+
+            return sentTransactionResults
         } catch {
             AppLogger.error(error: error)
-            throw error.toUniversalError()
+            // [REDACTED_TODO_COMMENT]
+            throw mapper.mapError(error.toUniversalError(), transaction: .transfer(firstTransaction))
         }
     }
 }

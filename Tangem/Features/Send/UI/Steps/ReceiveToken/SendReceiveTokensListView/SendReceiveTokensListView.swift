@@ -18,7 +18,7 @@ struct SendReceiveTokensListView: View {
     var body: some View {
         VStack(spacing: 0) {
             BottomSheetHeaderView(title: Localization.commonChooseToken, trailing: {
-                CircleButton.close(action: viewModel.dismiss)
+                NavigationBarButton.close(action: viewModel.dismiss)
             })
             .padding(.vertical, 4)
             .padding(.horizontal, 16)
@@ -56,7 +56,7 @@ struct SendReceiveTokensListView: View {
                         .onAppear(perform: viewModel.fetchMore)
                 }
             }
-            .scrollDismissesKeyboardCompat(.interactively)
+            .scrollDismissesKeyboard(.interactively)
         }
         .animation(.default, value: viewModel.onboardNotification == nil)
         .background(Colors.Background.tertiary)

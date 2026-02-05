@@ -81,7 +81,7 @@ private extension OnrampOffersSelectorViewModel {
             .compactMap { $0?.value }
             .map { providers in
                 providers
-                    .sorted(sorter: ProviderItemSorterBySuccessfullyLoadedProvidersWithPaymentMethodPriority())
+                    .sortedByFirstItem(sorter: ProviderItemSorterByPaymentMethodPriority())
                     .filter { $0.hasSelectableProviders() }
             }
             .receiveOnMain()

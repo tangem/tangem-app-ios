@@ -13,11 +13,10 @@ struct MobileUpgradeCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: MobileUpgradeCoordinator
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             content
                 .navigationLinks(links)
         }
-        .navigationViewStyle(.stack)
     }
 }
 
@@ -29,8 +28,6 @@ private extension MobileUpgradeCoordinatorView {
             if let rootViewModel = coordinator.rootViewModel {
                 MobileUpgradeView(viewModel: rootViewModel)
             }
-
-            sheets
         }
     }
 
@@ -39,14 +36,6 @@ private extension MobileUpgradeCoordinatorView {
             .navigation(item: $coordinator.onboardingCoordinator) {
                 OnboardingCoordinatorView(coordinator: $0)
                     .navigationBarHidden(true)
-            }
-            .emptyNavigationLink()
-    }
-
-    var sheets: some View {
-        NavHolder()
-            .sheet(item: $coordinator.mailViewModel) {
-                MailView(viewModel: $0)
             }
     }
 }

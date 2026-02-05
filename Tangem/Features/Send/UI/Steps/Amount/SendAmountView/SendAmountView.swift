@@ -12,6 +12,7 @@ import TangemAssets
 import TangemUI
 import TangemFoundation
 import TangemAccessibilityIdentifiers
+import struct TangemAccounts.AccountIconView
 
 struct SendAmountView: View {
     @ObservedObject var viewModel: SendAmountViewModel
@@ -22,7 +23,7 @@ struct SendAmountView: View {
     private let scrollViewSpacing: CGFloat = 8
 
     var body: some View {
-        GroupedScrollView(spacing: scrollViewSpacing) {
+        GroupedScrollView(contentType: .lazy(alignment: .center, spacing: scrollViewSpacing)) {
             content
             receiveTokenView
         }
@@ -32,8 +33,9 @@ struct SendAmountView: View {
     private var content: some View {
         VStack(alignment: .center, spacing: .zero) {
             VStack(alignment: .center, spacing: 12) {
-                Text(viewModel.walletHeaderText)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                if let header = viewModel.tokenHeader {
+                    SendTokenHeaderView(header: header)
+                }
 
                 VStack(alignment: .center, spacing: .zero) {
                     textField
@@ -84,12 +86,9 @@ struct SendAmountView: View {
                 .backgroundColor(Colors.Background.action)
                 .innerContentPadding(0)
 
-                CircleButton(
-                    content: .title(icon: .trailing(Assets.clear), title: Localization.commonConvert),
-                    action: viewModel.removeReceivedToken
-                )
-                .readGeometry(\.frame.size, bindTo: $convertButtonSize)
-                .offset(y: -(convertButtonSize.height + scrollViewSpacing) / 2)
+                CapsuleButton(icon: .trailing(Assets.clear), title: Localization.commonConvert, action: viewModel.removeReceivedToken)
+                    .readGeometry(\.frame.size, bindTo: $convertButtonSize)
+                    .offset(y: -(convertButtonSize.height + scrollViewSpacing) / 2)
             }
         }
     }
@@ -100,6 +99,7 @@ struct SendAmountView: View {
         case .crypto:
             SendDecimalNumberTextField(viewModel: viewModel.cryptoTextFieldViewModel)
                 .accessibilityIdentifier(SendAccessibilityIdentifiers.decimalNumberTextField)
+                .prefixSuffixAccessibilityIdentifier(SendAccessibilityIdentifiers.currencySymbol)
                 .prefixSuffixOptions(viewModel.cryptoTextFieldOptions)
                 .alignment(.center)
                 .minTextScale(SendAmountStep.Constants.amountMinTextScale)
@@ -110,6 +110,7 @@ struct SendAmountView: View {
         case .fiat:
             SendDecimalNumberTextField(viewModel: viewModel.fiatTextFieldViewModel)
                 .accessibilityIdentifier(SendAccessibilityIdentifiers.decimalNumberTextField)
+                .prefixSuffixAccessibilityIdentifier(SendAccessibilityIdentifiers.currencySymbol)
                 .prefixSuffixOptions(viewModel.fiatTextFieldOptions)
                 .alignment(.center)
                 .minTextScale(SendAmountStep.Constants.amountMinTextScale)
@@ -136,6 +137,7 @@ struct SendAmountView: View {
                 }) {
                     alternativeView
                 }
+                .accessibilityIdentifier(SendAccessibilityIdentifiers.currencyToggleButton)
             case .info(let string):
                 Text(string)
                     .style(Fonts.Regular.subheadline, color: Colors.Text.attention)
@@ -144,6 +146,7 @@ struct SendAmountView: View {
                 Text(string)
                     .style(Fonts.Regular.subheadline, color: Colors.Text.warning)
                     .padding(.vertical, 8)
+                    .accessibilityIdentifier(SendAccessibilityIdentifiers.totalExceedsBalanceBanner)
             case .none:
                 Text(" ") // Hold empty space
                     .style(Fonts.Regular.subheadline, color: Colors.Text.warning)
@@ -152,6 +155,12 @@ struct SendAmountView: View {
         }
         .multilineTextAlignment(.center)
         .lineLimit(2)
+    }
+
+    private var alternativeAmountAccessibilityIdentifier: String {
+        viewModel.useFiatCalculation
+            ? SendAccessibilityIdentifiers.alternativeCryptoAmount
+            : SendAccessibilityIdentifiers.alternativeFiatAmount
     }
 
     private var alternativeView: some View {
@@ -165,6 +174,7 @@ struct SendAmountView: View {
                 Text(viewModel.alternativeAmount)
                     .style(Fonts.Bold.subheadline, color: Colors.Text.secondary)
                     .lineLimit(1)
+                    .accessibilityIdentifier(alternativeAmountAccessibilityIdentifier)
 
                 IconView(
                     url: viewModel.useFiatCalculation ? viewModel.cryptoIconURL : viewModel.fiatIconURL,

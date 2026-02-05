@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemLocalization
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct OnrampOfferView: View {
     let viewModel: OnrampOfferViewModel
@@ -36,7 +37,7 @@ struct OnrampOfferView: View {
 
             Spacer(minLength: 8)
 
-            CircleButton(title: Localization.commonBuy, action: viewModel.buyButtonAction)
+            CapsuleButton(title: Localization.commonBuy, action: viewModel.buyButtonAction)
                 .size(.medium)
                 .style(.primary)
                 .disabled(!viewModel.isAvailable)
@@ -83,6 +84,7 @@ struct OnrampOfferView: View {
                     Fonts.Bold.callout,
                     color: viewModel.isAvailable ? Colors.Text.primary1 : Colors.Text.tertiary
                 )
+                .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerAmount(name: viewModel.provider.name))
 
             OnrampAmountBadge(badge: viewModel.amount.badge)
         }
@@ -112,7 +114,7 @@ struct OnrampOfferView: View {
             Text(AppConstants.dotSign)
                 .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
 
-            Text(viewModel.provider.name)
+            Text(Localization.onrampViaProvider(viewModel.provider.name))
                 .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
         }
     }

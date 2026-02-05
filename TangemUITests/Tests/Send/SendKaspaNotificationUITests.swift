@@ -19,7 +19,7 @@ final class SendKaspaNotificationUITests: BaseTestCase {
         openSend(initialState: "less_than_84")
 
         SendScreen(app)
-            .validate()
+            .waitForDisplay()
             .enterAmount("0.3")
             .tapNextButton()
             .enterDestination(destinationAddress)
@@ -34,7 +34,7 @@ final class SendKaspaNotificationUITests: BaseTestCase {
         openSend(initialState: "equal_84")
 
         SendScreen(app)
-            .validate()
+            .waitForDisplay()
             .enterAmount("0.3")
             .tapNextButton()
             .enterDestination(destinationAddress)
@@ -49,7 +49,7 @@ final class SendKaspaNotificationUITests: BaseTestCase {
         openSend(initialState: "more_than_84")
 
         SendScreen(app)
-            .validate()
+            .waitForDisplay()
             .enterAmount("0.85")
             .tapNextButton()
             .enterDestination(destinationAddress)
@@ -77,7 +77,7 @@ final class SendKaspaNotificationUITests: BaseTestCase {
             scenarios: [kaspaTokenScenario, kaspaUtxoScenario, quotesScenario]
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(coin)
             .tapSendButton()

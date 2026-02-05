@@ -27,20 +27,15 @@ class SolanaWalletManager: BaseManager, WalletManager {
 
     private let transactionHelper = SolanaTransactionHelper()
 
-    override func update(completion: @escaping (Result<Void, Error>) -> Void) {
-        let tokens = cardTokens
-        cancellable = networkService.getInfo(accountId: wallet.address, tokens: tokens)
-            .sink { [weak self] in
-                switch $0 {
-                case .failure(let error):
-                    self?.wallet.clearAmounts()
-                    completion(.failure(error))
-                case .finished:
-                    completion(.success(()))
-                }
-            } receiveValue: { [weak self] info in
-                self?.updateWallet(info: info, tokens: tokens)
-            }
+    override func updateWalletManager() async throws {
+        do {
+            let tokens = cardTokens
+            let info = try await networkService.getInfo(accountId: wallet.address, tokens: tokens).async()
+            updateWallet(info: info, tokens: tokens)
+        } catch {
+            wallet.clearAmounts()
+            throw error
+        }
     }
 
     private func updateWallet(info: SolanaAccountInfoResponse, tokens: [Token]) {
@@ -75,16 +70,13 @@ extension SolanaWalletManager: TransactionSender {
         }
 
         return sendPublisher
-            .tryMap { [weak self] hash in
-                guard let self else {
-                    throw BlockchainSdkError.empty
-                }
-
+            .withWeakCaptureOf(self)
+            .tryMap { manager, hash in
                 let mapper = PendingTransactionRecordMapper()
                 let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hash)
-                wallet.addPendingTransaction(record)
+                manager.wallet.addPendingTransaction(record)
 
-                return TransactionSendResult(hash: hash)
+                return TransactionSendResult(hash: hash, currentProviderHost: manager.currentHost)
             }
             .mapSendTxError()
             .eraseToAnyPublisher()
@@ -269,7 +261,7 @@ extension SolanaWalletManager: ThenProcessable {}
 
 // MARK: - StakeKitTransactionSender, StakeKitTransactionSenderProvider
 
-extension SolanaWalletManager: StakeKitTransactionsBuilder, StakeKitTransactionSender, StakeKitTransactionDataProvider {
+extension SolanaWalletManager: StakeKitTransactionSender, StakingTransactionsBuilder, StakeKitTransactionDataProvider {
     struct RawTransactionData: CustomStringConvertible {
         let serializedData: String
         let blockhashDate: Date
@@ -292,15 +284,20 @@ extension SolanaWalletManager: StakeKitTransactionsBuilder, StakeKitTransactionS
             signature.signature,
             transaction: Data(hex: transaction.unsignedData)
         )
+
+        guard let solanaBlockhashDate = transaction.solanaBlockhashDate else {
+            throw BlockchainSdkError.failedToBuildTx
+        }
+
         return RawTransactionData(
             serializedData: signedTransaction,
-            blockhashDate: transaction.params.solanaBlockhashDate
+            blockhashDate: solanaBlockhashDate
         )
     }
 }
 
 extension SolanaWalletManager: StakeKitTransactionDataBroadcaster {
-    func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> String {
+    func broadcast(rawTransaction: RawTransaction) async throws -> String {
         try await networkService.sendRaw(
             base64serializedTransaction: rawTransaction.serializedData,
             startSendingTimestamp: rawTransaction.blockhashDate
@@ -352,7 +349,7 @@ extension SolanaWalletManager: CompiledTransactionSender, CompiledTransactionFee
             startSendingTimestamp: Date()
         ).async()
 
-        return TransactionSendResult(hash: hash)
+        return TransactionSendResult(hash: hash, currentProviderHost: currentHost)
     }
 }
 

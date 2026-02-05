@@ -42,13 +42,7 @@ extension CommonCardActivationOrderProvider: CardActivationOrderProvider {
             return loadedOrder
         }
 
-        guard let authorizationTokens = await accessTokenProvider.authorizationTokens else {
-            VisaLogger.error("Missing access token, can't load activation order data", error: VisaActivationError.missingAccessToken)
-            throw VisaActivationError.missingAccessToken
-        }
-
         let activationStatus = try await activationStatusService.getCardActivationStatus(
-            authorizationTokens: authorizationTokens,
             cardId: activationInput.cardId,
             cardPublicKey: activationInput.cardPublicKey.hexString
         )

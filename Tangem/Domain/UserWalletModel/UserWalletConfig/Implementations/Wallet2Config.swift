@@ -38,10 +38,18 @@ extension Wallet2Config: UserWalletConfig {
     }
 
     var createWalletCurves: [EllipticCurve] {
-        [.secp256k1, .ed25519, .bls12381_G2_AUG, .bip0340, .ed25519_slip0010]
+        if card.settings.maxWalletsCount == 1, let curve = card.supportedCurves.first {
+            return [curve]
+        }
+
+        return [.secp256k1, .ed25519, .bls12381_G2_AUG, .bip0340, .ed25519_slip0010]
     }
 
     var derivationStyle: DerivationStyle? {
+        guard hasFeature(.hdWallets) else {
+            return nil
+        }
+
         return .v3
     }
 
@@ -96,6 +104,8 @@ extension Wallet2Config: UserWalletConfig {
         guard isDemo else { return [] }
 
         let blockchainIds = DemoUtil().getDemoBlockchains(isTestnet: AppEnvironment.current.isTestnet)
+            .filter { card.walletCurves.contains($0.curve) }
+            .map { $0.coinId }
 
         let entries: [TokenItem] = blockchainIds.compactMap { coinId in
             guard let blockchain = supportedBlockchains.first(where: { $0.coinId == coinId }) else {
@@ -138,13 +148,13 @@ extension Wallet2Config: UserWalletConfig {
     }
 
     var productType: Analytics.ProductType {
-        return .wallet2
+        isDemo ? .demoWallet : .wallet2
     }
 
     var cardHeaderImage: ImageType? {
-        // Case with broken backup (e.g. CardLinked)
+        // Case with broken backup (e.g. CardLinked) and demo notes as wallets with maxWalletsCount == 1
         if cardsCount == 1 {
-            return nil
+            return card.settings.maxWalletsCount == 1 ? Assets.Cards.wallet2Double : nil
         }
 
         // Wallet 2.0 cards can't be used without backup, so min number of cards = 2
@@ -253,7 +263,7 @@ extension Wallet2Config: UserWalletConfig {
         case "AF85", "AF86", "AF87", "AF990011", "AF990012", "AF990013":
             return cardsCount == 2 ? Assets.Cards.winter2Double : Assets.Cards.winter2Triple
         // USA
-        case "AF91", "AF990017":
+        case "AF91", "AF990017", "AF990056":
             return cardsCount == 2 ? Assets.Cards.usaDouble : Assets.Cards.usaTriple
         // Gets Mine
         case "BB000008":
@@ -328,10 +338,14 @@ extension Wallet2Config: UserWalletConfig {
         case "AF990023", "AF990024", "AF990025":
             return cardsCount == 2 ? Assets.Cards.electraSeaDouble : Assets.Cards.electraSeaTriple
         // Hyper Blue summer collection
-        case "AF990026", "AF990027", "AF990028":
+        case "AF990026", "AF990027", "AF990028", "AF990050", "AF990051", "AF990052":
             return cardsCount == 2 ? Assets.Cards.hyperBlueDouble : Assets.Cards.hyperBlueTriple
+        // Winter Sakura
         case "AF990053", "AF990054", "AF990055":
             return cardsCount == 2 ? Assets.Cards.winterSakuraDouble : Assets.Cards.winterSakuraTriple
+        // Lunar
+        case "AF990057", "AF990058", "AF990059":
+            return cardsCount == 2 ? Assets.Cards.lunarDouble : Assets.Cards.lunarTriple
         // Tangem Wallet 2.0
         default:
             var isUserWalletWithRing = false
@@ -347,6 +361,10 @@ extension Wallet2Config: UserWalletConfig {
 
             return cardsCount == 2 ? Assets.Cards.wallet2Double : Assets.Cards.wallet2Triple
         }
+    }
+
+    var contextBuilder: WalletCreationContextBuilder {
+        ["type": "card"]
     }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
@@ -400,6 +418,10 @@ extension Wallet2Config: UserWalletConfig {
         case .hdWallets:
             return card.settings.isHDWalletAllowed ? .available : .hidden
         case .staking:
+            if isDemo {
+                return .demoStub
+            }
+
             return .available
         case .referralProgram:
             if isDemo {
@@ -439,6 +461,8 @@ extension Wallet2Config: UserWalletConfig {
             return .available
         case .transactionPayloadLimit:
             return .available
+        case .tangemPay:
+            return card.settings.isHDWalletAllowed ? .available : .hidden
         }
     }
 

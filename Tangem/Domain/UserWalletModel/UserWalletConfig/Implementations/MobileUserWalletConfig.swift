@@ -25,7 +25,7 @@ extension MobileUserWalletConfig: UserWalletConfig {
         Localization.hwMobileWallet
     }
 
-    var defaultName: String { Localization.hwMobileWallet }
+    var defaultName: String { "Wallet" }
 
     var existingCurves: [EllipticCurve] {
         [.secp256k1, .ed25519, .bls12381_G2_AUG, .bip0340, .ed25519_slip0010]
@@ -102,6 +102,10 @@ extension MobileUserWalletConfig: UserWalletConfig {
 
     var cardSessionFilter: SessionFilter { .cardId("") }
 
+    var contextBuilder: WalletCreationContextBuilder {
+        ["type": "mobile"]
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .accessCode: return .hidden
@@ -148,6 +152,11 @@ extension MobileUserWalletConfig: UserWalletConfig {
         case .nfcInteraction:
             return .hidden
         case .transactionPayloadLimit:
+            return .hidden
+        case .tangemPay:
+            if userWalletAccessCodeStatus == .set {
+                return .available
+            }
             return .hidden
         }
     }

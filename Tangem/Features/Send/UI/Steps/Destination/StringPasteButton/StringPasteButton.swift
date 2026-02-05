@@ -31,22 +31,16 @@ struct StringPasteButton: View {
     }
 
     @ViewBuilder
-    var content: some View {
+    private var content: some View {
         switch style {
         case .native:
-            if #available(iOS 16.0, *) {
-                native
-            } else {
-                custom
-            }
+            native
         case .custom:
             custom
         }
     }
 
-    @ViewBuilder
-    @available(iOS 16.0, *)
-    var native: some View {
+    private var native: some View {
         PasteButton(payloadType: String.self) { strings in
             if let string = strings.first {
                 // We receive the value on the non-GUI thread
@@ -60,9 +54,8 @@ struct StringPasteButton: View {
         .disableAnimations()
     }
 
-    @ViewBuilder
-    var custom: some View {
-        CircleButton(title: Localization.commonPaste) {
+    private var custom: some View {
+        CapsuleButton(title: Localization.commonPaste) {
             if let string = UIPasteboard.general.string {
                 action(string)
             }

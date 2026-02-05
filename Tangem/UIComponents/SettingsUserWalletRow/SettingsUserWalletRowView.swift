@@ -19,7 +19,6 @@ struct SettingsUserWalletRowView: View {
             content
         }
         .buttonStyle(.plain)
-        .allowsHitTesting(!viewModel.isUserWalletLocked)
         .accessibilityIdentifier(WalletSettingsAccessibilityIdentifiers.walletSettingsButton(name: viewModel.name))
         .onAppear(perform: viewModel.onAppear)
     }
@@ -34,9 +33,7 @@ struct SettingsUserWalletRowView: View {
                     Assets.redCircleWarning.image
                 }
 
-                if !viewModel.isUserWalletLocked {
-                    Assets.chevron.image
-                }
+                Assets.chevron.image
             }
         )
         .infinityFrame(axis: .horizontal, alignment: .leading)
@@ -44,7 +41,6 @@ struct SettingsUserWalletRowView: View {
         .contentShape(Rectangle())
     }
 
-    @ViewBuilder
     private var icon: some View {
         image
             .frame(width: 36, height: 36)
@@ -61,19 +57,18 @@ struct SettingsUserWalletRowView: View {
         case .loading:
             Color.clear
 
-        case .loaded(let image):
+        case .success(let image):
             image.image
                 .resizable()
                 .aspectRatio(contentMode: .fit)
 
-        case .failedToLoad:
+        case .failure:
             Assets.Onboarding.darkCard.image
                 .resizable()
                 .aspectRatio(contentMode: .fit)
         }
     }
 
-    @ViewBuilder
     private var textViews: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(viewModel.name)

@@ -10,20 +10,21 @@ import Foundation
 import Combine
 import TangemFoundation
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 import struct TangemUI.TokenIconInfo
 
 class SendAmountViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
 
-    @Published var walletHeaderText: String = ""
+    @Published var tokenHeader: SendTokenHeader?
     @Published var possibleToConvertToFiat: Bool = true
 
     @Published var cryptoIconURL: URL?
     @Published var fiatIconURL: URL?
 
-    @Published var cryptoTextFieldViewModel: DecimalNumberTextField.ViewModel
+    @Published var cryptoTextFieldViewModel: DecimalNumberTextFieldViewModel
     @Published var cryptoTextFieldOptions: SendDecimalNumberTextField.PrefixSuffixOptions
-    @Published var fiatTextFieldViewModel: DecimalNumberTextField.ViewModel
+    @Published var fiatTextFieldViewModel: DecimalNumberTextFieldViewModel
     @Published var fiatTextFieldOptions: SendDecimalNumberTextField.PrefixSuffixOptions
     @Published var alternativeAmount: String
 
@@ -36,6 +37,12 @@ class SendAmountViewModel: ObservableObject, Identifiable {
     var useFiatCalculation: Bool {
         get { amountType == .fiat }
         set { amountType = newValue ? .fiat : .crypto }
+    }
+
+    var alternativeAmountAccessibilityIdentifier: String {
+        useFiatCalculation
+            ? SendAccessibilityIdentifiers.alternativeCryptoAmount
+            : SendAccessibilityIdentifiers.alternativeFiatAmount
     }
 
     // MARK: - Router
@@ -182,7 +189,7 @@ private extension SendAmountViewModel {
 
 extension SendAmountViewModel {
     func updateSourceToken(sourceToken: SendSourceToken) {
-        walletHeaderText = Localization.sendFromWalletName(sourceToken.wallet)
+        tokenHeader = sourceToken.header
         possibleToConvertToFiat = sourceToken.possibleToConvertToFiat
 
         var balanceFormatted = sourceToken.availableBalanceProvider.formattedBalanceType.value

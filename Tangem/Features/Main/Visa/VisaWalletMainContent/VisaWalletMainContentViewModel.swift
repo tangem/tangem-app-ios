@@ -19,7 +19,7 @@ import struct TangemUIUtils.AlertBinder
 protocol VisaWalletRoutable: AnyObject {
     func openReceiveScreen(tokenItem: TokenItem, addressInfos: [ReceiveAddressInfo])
     func openInSafari(url: URL)
-    func openOnramp(userWalletModel: any UserWalletModel, walletModel: any WalletModel, parameters: PredefinedOnrampParameters)
+    func openOnramp(input: SendInput, parameters: PredefinedOnrampParameters)
     func openTransactionDetails(tokenItem: TokenItem, for record: VisaTransactionRecord, emailConfig: EmailConfig)
 }
 
@@ -124,7 +124,7 @@ class VisaWalletMainContentViewModel: ObservableObject {
         isTransactionHistoryReloading = true
         updateTask = runTask(in: self) { viewModel in
             await viewModel.visaWalletModel.generalUpdateAsync()
-            try? await Task.sleep(seconds: 0.2)
+            try? await Task.sleep(for: .seconds(0.2))
 
             await runOnMain { viewModel.isTransactionHistoryReloading = false }
 
@@ -184,15 +184,15 @@ class VisaWalletMainContentViewModel: ObservableObject {
         }
 
         switch modelError {
-        case .missingValidRefreshToken:
+        case .missingValidRefreshToken(let icon):
             failedToLoadInfoNotificationInput = .init(
                 style: .withButtons([.init(
                     action: weakify(self, forFunction: VisaWalletMainContentViewModel.notificationButtonTapped),
-                    actionType: .unlock,
+                    actionType: .unlock(icon: icon),
                     isWithLoader: true
                 )]),
                 severity: .info,
-                settings: .init(event: VisaNotificationEvent.missingValidRefreshToken, dismissAction: nil)
+                settings: .init(event: VisaNotificationEvent.missingValidRefreshToken(icon: icon), dismissAction: nil)
             )
         default:
             failedToLoadInfoNotificationInput = NotificationsFactory().buildNotificationInput(for: modelError.notificationEvent)

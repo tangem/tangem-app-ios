@@ -54,6 +54,7 @@ final class SelectorReceiveAssetsViewModel: ObservableObject, Identifiable {
 
         interactor
             .addressTypesPublisher
+            .dropFirst() // Skip initial empty list addresses
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .map { viewModel, assets in

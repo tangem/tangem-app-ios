@@ -18,6 +18,7 @@ struct WalletConnectDAppConnectionView: View {
     let kingfisherImageCache: ImageCache
 
     @State private var navigationBarBottomSeparatorIsVisible = false
+    @State private var navigationBarHeight: CGFloat = 0
 
     var body: some View {
         ScrollViewReader { scrollProxy in
@@ -36,7 +37,7 @@ struct WalletConnectDAppConnectionView: View {
             .safeAreaInset(edge: .bottom, spacing: .zero) {
                 footer
             }
-            .scrollBounceBehaviorBackport(.basedOnSize)
+            .scrollBounceBehavior(.basedOnSize)
             .coordinateSpace(name: Layout.scrollViewCoordinateSpace)
         }
         .floatingSheetConfiguration { configuration in
@@ -62,6 +63,10 @@ struct WalletConnectDAppConnectionView: View {
 
             case .walletSelector(let viewModel):
                 WalletConnectWalletSelectorView(viewModel: viewModel, scrollProxy: scrollProxy)
+                    .transition(.content)
+
+            case .connectionTarget(let viewModel):
+                AccountSelectorView(viewModel: viewModel)
                     .transition(.content)
 
             case .networkSelector(let viewModel):
@@ -106,6 +111,12 @@ struct WalletConnectDAppConnectionView: View {
             backButtonAction = { viewModel.handle(viewEvent: .navigationBackButtonTapped) }
             closeButtonAction = nil
 
+        case .connectionTarget(let viewModel):
+            title = viewModel.state.navigationBarTitle
+            backgroundColor = Colors.Background.tertiary
+            backButtonAction = { self.viewModel.openConnectionRequest() }
+            closeButtonAction = nil
+
         case .error(let viewModel):
             title = nil
             backgroundColor = Colors.Background.tertiary
@@ -125,6 +136,7 @@ struct WalletConnectDAppConnectionView: View {
         .transition(.opacity)
         .transformEffect(.identity)
         .animation(.headerOpacity.delay(0.2), value: viewModel.state.id)
+        .readGeometry(\.size.height, bindTo: $navigationBarHeight)
     }
 
     private var footer: some View {
@@ -138,7 +150,7 @@ struct WalletConnectDAppConnectionView: View {
                 domainVerificationFooter(viewModel)
                     .transition(.footer)
 
-            case .walletSelector:
+            case .walletSelector, .connectionTarget:
                 EmptyView()
 
             case .networkSelector(let viewModel):
@@ -228,7 +240,8 @@ struct WalletConnectDAppConnectionView: View {
     }
 
     private func updateNavigationBarBottomSeparatorVisibility(_ scrollViewMinY: CGFloat) {
-        navigationBarBottomSeparatorIsVisible = scrollViewMinY < Layout.navigationBarHeight - Layout.contentTopPadding
+        guard navigationBarHeight > .zero else { return }
+        navigationBarBottomSeparatorIsVisible = scrollViewMinY < navigationBarHeight - Layout.contentTopPadding
     }
 }
 
@@ -261,6 +274,8 @@ private extension WalletConnectDAppConnectionViewState {
             "walletSelector"
         case .networkSelector:
             "networkSelector"
+        case .connectionTarget:
+            "connectionTarget"
         case .error:
             "error"
         }
@@ -287,8 +302,6 @@ private extension WalletConnectErrorViewState.Button.Style {
 
 extension WalletConnectDAppConnectionView {
     private enum Layout {
-        /// 52
-        static let navigationBarHeight = FloatingSheetNavigationBarView.height
         /// 12
         static let contentTopPadding: CGFloat = 12
 

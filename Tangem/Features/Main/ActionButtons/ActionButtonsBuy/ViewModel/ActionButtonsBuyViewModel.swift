@@ -11,6 +11,7 @@ import Foundation
 import BlockchainSdk
 import struct TangemUIUtils.AlertBinder
 
+@available(iOS, deprecated: 100000.0, message: "Only used when accounts are disabled, will be removed in the future ([REDACTED_INFO])")
 final class ActionButtonsBuyViewModel: ObservableObject {
     // MARK: - Dependencies
 
@@ -62,6 +63,7 @@ final class ActionButtonsBuyViewModel: ObservableObject {
                 viewModel: .init(
                     token: token,
                     userWalletName: userWalletModel.name,
+                    tangemIconProvider: CommonTangemIconProvider(config: userWalletModel.config),
                     action: { [weak self] in
                         self?.addTokenToPortfolio(token)
                     }
@@ -74,7 +76,10 @@ final class ActionButtonsBuyViewModel: ObservableObject {
 
     private func handleTokenTap(_ token: ActionButtonsTokenSelectorItem) {
         ActionButtonsAnalyticsService.trackTokenClicked(.buy, tokenSymbol: token.infoProvider.tokenItem.currencySymbol)
-        coordinator?.openOnramp(walletModel: token.walletModel, userWalletModel: userWalletModel)
+
+        let sendInput = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: token.walletModel)
+        let parameters = PredefinedOnrampParametersBuilder.makeMoonpayPromotionParametersIfActive()
+        coordinator?.openOnramp(input: sendInput, parameters: parameters)
     }
 }
 
@@ -84,6 +89,7 @@ extension ActionButtonsBuyViewModel {
     private func bind() {
         let tokenMapper = TokenItemMapper(supportedBlockchains: userWalletModel.config.supportedBlockchains)
 
+        // accounts_fixes_needed_none
         userWalletModel
             .walletModelsManager
             .walletModelsPublisher
@@ -112,8 +118,10 @@ extension ActionButtonsBuyViewModel {
             guard let tokenItem = hotToken.tokenItem else { return false }
 
             do {
+                // accounts_fixes_needed_none
                 try userWalletModel.userTokensManager.addTokenItemPrecondition(tokenItem)
 
+                // accounts_fixes_needed_none
                 let isNotAddedToken = !userWalletModel.userTokensManager.contains(tokenItem, derivationInsensitive: true)
 
                 return isNotAddedToken
@@ -134,20 +142,22 @@ extension ActionButtonsBuyViewModel {
     func addTokenToPortfolio(_ hotToken: HotCryptoToken) {
         guard let tokenItem = hotToken.tokenItem else { return }
 
+        // accounts_fixes_needed_none
         userWalletModel.userTokensManager.add(tokenItem) { [weak self] result in
-            guard let self, result.error == nil else { return }
+            guard let self, case .success(let enrichedTokenItem) = result else { return }
 
             expressAvailabilityProvider.updateExpressAvailability(
-                for: [tokenItem],
+                for: [enrichedTokenItem],
                 forceReload: true,
                 userWalletId: userWalletModel.userWalletId.stringValue
             )
 
-            handleTokenAdding(tokenItem: tokenItem)
+            handleTokenAdding(tokenItem: enrichedTokenItem)
         }
     }
 
     private func handleTokenAdding(tokenItem: TokenItem) {
+        // accounts_fixes_needed_none
         let walletModels = userWalletModel.walletModelsManager.walletModels
 
         guard
@@ -166,7 +176,12 @@ extension ActionButtonsBuyViewModel {
         ActionButtonsAnalyticsService.hotTokenClicked(tokenSymbol: walletModel.tokenItem.currencySymbol)
 
         coordinator?.closeAddToPortfolio()
-        coordinator?.openOnramp(walletModel: walletModel, userWalletModel: userWalletModel)
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self, userWalletModel] in
+            let sendInput = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
+            let parameters = PredefinedOnrampParametersBuilder.makeMoonpayPromotionParametersIfActive()
+            self?.coordinator?.openOnramp(input: sendInput, parameters: parameters)
+        }
     }
 }
 

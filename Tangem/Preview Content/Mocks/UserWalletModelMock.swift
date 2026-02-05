@@ -12,10 +12,12 @@ import TangemAssets
 import TangemNFT
 import BlockchainSdk
 import TangemFoundation
+import TangemPay
 
 class UserWalletModelMock: UserWalletModel {
     var hasImportedWallets: Bool { false }
     var keysDerivingInteractor: any KeysDeriving { KeysDerivingMock() }
+    var tangemPayAuthorizingInteractor: TangemPayAuthorizing { TangemPayAuthorizingMock() }
 
     var keysRepository: KeysRepository {
         CommonKeysRepository(
@@ -24,6 +26,11 @@ class UserWalletModelMock: UserWalletModel {
             keys: .cardWallet(keys: [])
         )
     }
+
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_INFO]
+    var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount?, Never> { .empty }
+    var tangemPayAccount: TangemPayAccount? { nil }
 
     var name: String { "" }
     var hasBackupCards: Bool { false }
@@ -80,17 +87,31 @@ class UserWalletModelMock: UserWalletModel {
         CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
     }
 
+    var wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider {
+        CommonWalletConnectAccountsWalletModelProvider(accountModelsManager: accountModelsManager)
+    }
+
     var userTokensPushNotificationsManager: UserTokensPushNotificationsManager {
         CommonUserTokensPushNotificationsManager(
             userWalletId: userWalletId,
             walletModelsManager: walletModelsManager,
-            derivationManager: nil,
-            userTokensManager: userTokensManager
+            userTokensManager: userTokensManager,
+            remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncingStub(),
+            derivationManager: nil
         )
     }
 
     var accountModelsManager: AccountModelsManager {
         AccountModelsManagerMock()
+    }
+
+    var tangemPayManager: TangemPayManager {
+        TangemPayBuilder(
+            userWalletId: userWalletId,
+            keysRepository: keysRepository,
+            signer: signer
+        )
+        .buildTangemPayManager()
     }
 
     var refcodeProvider: RefcodeProvider? {
@@ -106,4 +127,9 @@ class UserWalletModelMock: UserWalletModel {
     func update(type: UpdateRequest) {}
 
     func addAssociatedCard(cardId: String) {}
+
+    func dispose() {
+        walletModelsManager.dispose()
+        accountModelsManager.dispose()
+    }
 }

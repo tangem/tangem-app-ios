@@ -13,51 +13,60 @@ final class OnrampUITests: BaseTestCase {
     let token = "Polygon"
     let amountToEnter = "100"
 
-    func testGoOnramp_validateScreen() {
+    func testGoOnramp_validateScreen() throws {
         setAllureId(2566)
-        let expectedAmount = "0"
+        let expectedAmount = ""
         let expectedCurrency = "€"
         let expectedTitle = "Buy \(token)"
 
         launchApp(tangemApiType: .mock)
 
-        StoriesScreen(app)
+        try CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(token)
             .tapBuyButton()
             .tapCurrencySelector()
             .selectCurrency("EUR")
-            .validate(amount: expectedAmount, currency: expectedCurrency, title: expectedTitle)
+            .waitForAmountFieldDisplay(
+                amount: expectedAmount,
+                currency: expectedCurrency,
+                title: expectedTitle
+            )
             .enterAmount(amountToEnter)
-            .validateCryptoAmount()
-            .hideKeyboard()
-            .validateProviderToSLinkExists()
+            .waitForCryptoAmountRounding()
     }
 
     func testGoOnramp_validateProvidersScreen() {
         setAllureId(2570)
         launchApp(tangemApiType: .mock)
 
-        StoriesScreen(app)
+        let providersAfterSelection = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(token)
             .tapBuyButton()
             .enterAmount(amountToEnter)
             .waitForProvidersToLoad()
-            .tapPayWithBlock()
-            .validate()
-            .validateAnyProviderCard()
+            .tapAllOffersButton()
+            .waitForPaymentMethodIconsAndNames()
+            .selectPaymentMethod()
+
+        providersAfterSelection
+            .waitForProviders()
+            .waitForProviderIconsAndNames()
+            .waitForProviderCard()
+            .waitForBuyButtons()
+            .tapAnyBuyButtonAndValidateWebView()
             .tapCloseButton()
     }
 
-    func testGoOnramp_validateCurrencySelector() {
+    func testGoOnramp_validateCurrencySelector() throws {
         setAllureId(2565)
         let newCurrency = "USD"
         let newCurrencySymbol = "$"
 
         launchApp(tangemApiType: .mock)
 
-        StoriesScreen(app)
+        try CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(token)
             .tapBuyButton()
@@ -67,20 +76,20 @@ final class OnrampUITests: BaseTestCase {
             .validateCurrencyExists(newCurrency)
             .selectCurrency(newCurrency)
             .validateCurrencyChanged(expectedCurrency: newCurrencySymbol)
-            .validate(
+            .waitForAmountFieldDisplay(
                 amount: amountToEnter,
                 currency: newCurrencySymbol,
                 title: "Buy \(token)"
             )
     }
 
-    func testGoOnramp_validateResidenceSelection() {
+    func testGoOnramp_validateResidenceSelection() throws {
         setAllureId(2563)
         let countryToSelect = "United States of America"
 
         launchApp(tangemApiType: .mock)
 
-        StoriesScreen(app)
+        try CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(token)
             .tapBuyButton()
@@ -92,7 +101,7 @@ final class OnrampUITests: BaseTestCase {
             .selectCountry(countryToSelect)
             .validateSelectedCountry(countryToSelect)
             .dismissOnrampSettings()
-            .validate(
+            .waitForAmountFieldDisplay(
                 amount: amountToEnter,
                 currency: "$",
                 title: "Buy \(token)"
@@ -105,23 +114,18 @@ final class OnrampUITests: BaseTestCase {
 
         launchApp(tangemApiType: .mock)
 
-        let (returnedProvidersScreen, selectedPaymentMethodId) = StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(token)
             .tapBuyButton()
             .enterAmount(amountToEnter)
             .waitForProvidersToLoad()
-            .tapPayWithBlock()
-            .validateScreenTitle()
-            .validateProviderIconsAndNames()
-            .tapPaymentMethodBlock()
-            .validate()
-            .validatePaymentMethodIconsAndNames()
-            .selectPaymentMethod(at: 1)
-
-        returnedProvidersScreen
-            .validateSelectedPaymentMethod(selectedPaymentMethodId)
-            .validateScreenTitle()
+            .tapAllOffersButton()
+            .waitForPaymentMethodIconsAndNames()
+            .selectPaymentMethod()
+            .waitForProviders()
+            .waitForBuyButtons()
+            .waitForProviderIconsAndNames()
     }
 
     func testGoOnramp_paymentMethodsErrorShowed() {
@@ -137,11 +141,11 @@ final class OnrampUITests: BaseTestCase {
             scenarios: [errorScenario]
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(token)
             .tapBuyButton()
             .enterAmount(amountToEnter)
-            .validateErrorViewExists()
+            .waitForErrorView()
     }
 }

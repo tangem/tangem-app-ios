@@ -29,8 +29,8 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
     func makeExpressViewModel(coordinator: ExpressRoutable) -> ExpressViewModel {
         let notificationManager = notificationManager
         let model = ExpressViewModel(
-            initialWallet: initialWalletModel,
             userWalletInfo: userWalletModel.userWalletInfo,
+            initialTokenItem: initialWalletModel.tokenItem,
             feeFormatter: feeFormatter,
             balanceFormatter: balanceFormatter,
             expressProviderFormatter: expressProviderFormatter,
@@ -53,7 +53,7 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
             expressPairsRepository: expressPairsRepository,
             expressInteractor: expressInteractor,
             coordinator: coordinator,
-            userWalletModelConfig: userWalletModel.config
+            userWalletInfo: userWalletModel.userWalletInfo
         )
     }
 
@@ -63,35 +63,36 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
     ) -> SwapTokenSelectorViewModel {
         SwapTokenSelectorViewModel(
             swapDirection: swapDirection,
-            expressPairsRepository: expressPairsRepository,
+            tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel(walletsProvider: .common(), availabilityProvider: .swap()),
             expressInteractor: expressInteractor,
             coordinator: coordinator
         )
     }
 
-    func makeExpressFeeSelectorViewModel(coordinator: ExpressFeeSelectorRoutable) -> ExpressFeeSelectorViewModel {
-        ExpressFeeSelectorViewModel(
-            feeFormatter: feeFormatter,
-            expressInteractor: expressInteractor,
-            coordinator: coordinator
-        )
+    func makeFeeSelectorViewModel(
+        coordinator: SendFeeSelectorRoutable
+    ) -> SendFeeSelectorViewModel? {
+        fatalError()
     }
 
     func makeExpressApproveViewModel(
+        source: any ExpressInteractorSourceWallet,
         providerName: String,
         selectedPolicy: BSDKApprovePolicy,
-        coordinator: ExpressApproveRoutable
+        coordinator: any ExpressApproveRoutable
     ) -> ExpressApproveViewModel {
         ExpressApproveViewModel(
-            settings: .init(
-                subtitle: Localization.givePermissionSwapSubtitle(providerName, "USDT"),
-                feeFooterText: Localization.swapGivePermissionFeeFooter,
-                tokenItem: .token(.tetherMock, .init(.ethereum(testnet: false), derivationPath: .none)),
-                feeTokenItem: .blockchain(.init(.ethereum(testnet: false), derivationPath: .none)),
-                selectedPolicy: selectedPolicy
+            input: .init(
+                settings: .init(
+                    subtitle: Localization.givePermissionSwapSubtitle(providerName, "USDT"),
+                    feeFooterText: Localization.swapGivePermissionFeeFooter,
+                    tokenItem: .token(.tetherMock, .init(.ethereum(testnet: false), derivationPath: .none)),
+                    selectedPolicy: selectedPolicy,
+                    tangemIconProvider: CommonTangemIconProvider(config: userWalletModel.config)
+                ),
+                feeFormatter: feeFormatter,
+                approveViewModelInput: expressInteractor,
             ),
-            feeFormatter: feeFormatter,
-            approveViewModelInput: expressInteractor,
             coordinator: coordinator
         )
     }
@@ -111,7 +112,7 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
     func makeExpressSuccessSentViewModel(data: SentExpressTransactionData, coordinator: ExpressSuccessSentRoutable) -> ExpressSuccessSentViewModel {
         ExpressSuccessSentViewModel(
             data: data,
-            initialWallet: initialWalletModel,
+            initialTokenItem: initialWalletModel.tokenItem,
             balanceConverter: balanceConverter,
             balanceFormatter: balanceFormatter,
             providerFormatter: providerFormatter,
@@ -124,13 +125,14 @@ class ExpressModulesFactoryMock: ExpressModulesFactory {
         CompoundPendingTransactionsManager(
             first: CommonPendingExpressTransactionsManager(
                 userWalletId: userWalletModel.userWalletId.stringValue,
-                walletModel: initialWalletModel,
+                tokenItem: initialWalletModel.tokenItem,
+                walletModelUpdater: initialWalletModel,
                 expressAPIProvider: makeExpressAPIProvider(),
                 expressRefundedTokenHandler: ExpressRefundedTokenHandlerMock()
             ),
             second: CommonPendingOnrampTransactionsManager(
                 userWalletId: userWalletModel.userWalletId.stringValue,
-                walletModel: initialWalletModel,
+                tokenItem: initialWalletModel.tokenItem,
                 expressAPIProvider: makeExpressAPIProvider()
             )
         )
@@ -162,20 +164,15 @@ private extension ExpressModulesFactoryMock {
     var balanceConverter: BalanceConverter { .init() }
     var balanceFormatter: BalanceFormatter { .init() }
     var providerFormatter: ExpressProviderFormatter { .init(balanceFormatter: balanceFormatter) }
-    var walletModelsManager: WalletModelsManager { userWalletModel.walletModelsManager }
     var userWalletId: String { userWalletModel.userWalletId.stringValue }
     var signer: TangemSigner { CardSigner(filter: .cardId(""), sdk: TangemSdkDefaultFactory().makeTangemSdk(), twinKey: nil) }
-    var userTokensManager: UserTokensManager { userWalletModel.userTokensManager }
 
     var expressTokensListAdapter: ExpressTokensListAdapter {
-        CommonExpressTokensListAdapter(
-            userTokensManager: userWalletModel.userTokensManager,
-            walletModelsManager: userWalletModel.walletModelsManager,
-        )
+        CommonExpressTokensListAdapter(userWalletId: userWalletInfo.id)
     }
 
     var expressDestinationService: ExpressDestinationService {
-        CommonExpressDestinationService(walletModelsManager: walletModelsManager)
+        CommonExpressDestinationService(userWalletId: userWalletInfo.id)
     }
 
     // MARK: - Methods
@@ -188,27 +185,27 @@ private extension ExpressModulesFactoryMock {
     }
 
     func makeExpressInteractor() -> ExpressInteractor {
-        let analyticsLogger = ExpressAnalyticsLoggerMock()
         let transactionValidator = ExpressProviderTransactionValidatorMock()
 
         let expressManager = TangemExpressFactory().makeExpressManager(
             expressAPIProvider: expressAPIProvider,
             expressRepository: expressRepository,
-            analyticsLogger: analyticsLogger,
-            supportedProviderTypes: .swap,
-            operationType: .swap,
             transactionValidator: transactionValidator
+        )
+
+        let sender = ExpressInteractorWalletModelWrapper(
+            userWalletInfo: userWalletInfo,
+            walletModel: initialWalletModel,
+            expressOperationType: .swap
         )
 
         let interactor = ExpressInteractor(
             userWalletInfo: userWalletInfo,
-            initialWallet: initialWalletModel.asExpressInteractorWallet,
-            destinationWallet: .loading,
+            swappingPair: .init(sender: .success(sender), destination: .loading),
             expressManager: expressManager,
             expressPairsRepository: expressPairsRepository,
             expressPendingTransactionRepository: pendingTransactionRepository,
             expressDestinationService: expressDestinationService,
-            expressAnalyticsLogger: analyticsLogger,
             expressAPIProvider: expressAPIProvider,
         )
 

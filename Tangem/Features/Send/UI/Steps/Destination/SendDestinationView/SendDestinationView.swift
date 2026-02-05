@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUI
@@ -15,7 +16,7 @@ struct SendDestinationView: View {
     @ObservedObject var viewModel: SendDestinationViewModel
 
     var body: some View {
-        GroupedScrollView(spacing: 20) {
+        GroupedScrollView(contentType: .lazy(alignment: .center, spacing: 24)) {
             GroupedSection(viewModel.destinationAddressSectionType) { type in
                 switch type {
                 case .destinationAddress(let viewModel):
@@ -25,9 +26,11 @@ struct SendDestinationView: View {
                         .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                         .lineLimit(1)
                         .truncationMode(.middle)
+                        .accessibilityIdentifier(SendAccessibilityIdentifiers.addressResolvedAddress)
                 }
             } footer: {
                 DefaultFooterView(Localization.sendRecipientAddressFooter(viewModel.networkName))
+                    .accessibilityIdentifier(SendAccessibilityIdentifiers.addressNetworkWarning)
             }
             .interItemSpacing(12)
             .innerContentPadding(12)

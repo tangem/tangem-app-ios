@@ -13,9 +13,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%@ Karte</string>
+        <string>%li Karte</string>
         <key>other</key>
-        <string>%@ Karten</string>
+        <string>%li Karten</string>
       </dict>
     </dict>
     <key>card_label_card_count</key>
@@ -77,9 +77,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%1$@ Netzwerk</string>
+        <string>%li Netzwerk</string>
         <key>other</key>
-        <string>%1$@ Netzwerke</string>
+        <string>%li Netzwerke</string>
       </dict>
     </dict>
     <key>common_tokens_count</key>
@@ -144,6 +144,38 @@
         <string>Bewertung, basierend auf %li</string>
         <key>other</key>
         <string>Bewertungen, basierend auf %li</string>
+      </dict>
+    </dict>
+    <key>news_published_hours_ago</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%liStunde her</string>
+        <key>other</key>
+        <string>%liStunden her</string>
+      </dict>
+    </dict>
+    <key>news_published_minutes_ago</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%liMinute her</string>
+        <key>other</key>
+        <string>%liMinuten her</string>
       </dict>
     </dict>
     <key>nft_collections_count</key>
@@ -248,9 +280,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>up to %li day</string>
+        <string>bis zu %li Tag</string>
         <key>other</key>
-        <string>up to %li days</string>
+        <string>bis zu %li Tagen</string>
       </dict>
     </dict>
     <key>referral_number_of_wallets</key>

@@ -6,7 +6,9 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import SwiftUI
+import Foundation
+import Combine
+import TangemFoundation
 
 final class YieldModulePromoCoordinator: CoordinatorObject {
     // MARK: - Injected
@@ -14,28 +16,32 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
     @Injected(\.floatingSheetPresenter)
     private var floatingSheetPresenter: any FloatingSheetPresenter
 
-    // MARK: - Propeties
+    @Injected(\.safariManager)
+    private var safariManager: any SafariManager
 
-    let dismissAction: Action<Void>
+    // MARK: - Properties
+
+    let dismissAction: Action<DismissOptions?>
     let popToRootAction: Action<PopToRootOptions>
 
     @Published
     var rootViewModel: YieldModulePromoViewModel? = nil
 
-    private weak var feeCurrencyNavigator: (any SendFeeCurrencyNavigating)?
-
     // MARK: - Init
 
-    required init(dismissAction: @escaping Action<Void>, popToRootAction: @escaping Action<PopToRootOptions>) {
+    required init(dismissAction: @escaping Action<DismissOptions?>, popToRootAction: @escaping Action<PopToRootOptions>) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
     }
 
     // MARK: - Public Implementation
 
+    func openUrl(url: URL) {
+        safariManager.openURL(url)
+    }
+
     func start(with options: Options) {
         rootViewModel = options.viewModel
-        feeCurrencyNavigator = options.feeCurrencyNavigator
     }
 
     func openBottomSheet(viewModel: YieldModuleStartViewModel) {
@@ -44,14 +50,17 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
         }
     }
 
-    func openFeeCurrency(for feeWalletModel: any WalletModel, userWalletModel: any UserWalletModel) {
-        feeCurrencyNavigator?.openFeeCurrency(for: feeWalletModel, userWalletModel: userWalletModel)
+    func openFeeCurrency(walletModel: any WalletModel) {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            dismiss(with: .init(userWalletId: walletModel.userWalletId, tokenItem: walletModel.feeTokenItem))
+        }
     }
 
     func dismiss() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
-            dismissAction(())
+            dismiss(with: nil)
         }
     }
 }
@@ -61,6 +70,7 @@ final class YieldModulePromoCoordinator: CoordinatorObject {
 extension YieldModulePromoCoordinator {
     struct Options {
         let viewModel: YieldModulePromoViewModel
-        let feeCurrencyNavigator: (any SendFeeCurrencyNavigating)?
     }
+
+    typealias DismissOptions = FeeCurrencyNavigatingDismissOption
 }

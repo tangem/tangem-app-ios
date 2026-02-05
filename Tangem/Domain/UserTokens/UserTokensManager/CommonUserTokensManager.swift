@@ -19,7 +19,6 @@ final class CommonUserTokensManager {
 
     weak var walletModelsManager: WalletModelsManager?
     weak var derivationManager: DerivationManager?
-    weak var keysDerivingProvider: KeysDerivingProvider?
 
     private let userWalletId: UserWalletId
     private let shouldLoadExpressAvailability: Bool
@@ -28,6 +27,7 @@ final class CommonUserTokensManager {
     private let existingCurves: [EllipticCurve]
     private let hardwareLimitationsUtil: HardwareLimitationsUtil
     private var pendingUserTokensSyncCompletions: [() -> Void] = []
+
     init(
         userWalletId: UserWalletId,
         shouldLoadExpressAvailability: Bool,
@@ -72,21 +72,18 @@ final class CommonUserTokensManager {
     }
 
     private func addInternal(_ tokenItems: [TokenItem], shouldUpload: Bool) throws {
-        var tokenItems = tokenItems
-        let tokens = tokenItems.filter { $0.isToken }
+        let enrichedItems = TokenItemsEnricher.enrichedWithBlockchainNetworksIfNeeded(tokenItems, filter: userTokens)
 
-        for token in tokens {
-            let network = TokenItem.blockchain(token.blockchainNetwork)
-            if !userTokens.contains(network), !tokenItems.contains(network) {
-                tokenItems.append(network)
+        for tokenItem in enrichedItems {
+            try validateDerivation(for: tokenItem)
+
+            if tokenItem.isToken {
+                let networkTokenItem = TokenItem.blockchain(tokenItem.blockchainNetwork)
+                try validateDerivation(for: networkTokenItem)
             }
         }
 
-        try tokenItems.forEach { tokenItem in
-            try validateDerivation(for: tokenItem)
-        }
-
-        userTokenListManager.update(.append(tokenItems), shouldUpload: shouldUpload)
+        userTokenListManager.update(.append(enrichedItems), shouldUpload: shouldUpload)
     }
 
     private func removeInternal(_ tokenItem: TokenItem, shouldUpload: Bool) {
@@ -122,7 +119,8 @@ final class CommonUserTokensManager {
 
     private func handleUserTokensSync() {
         loadSwapAvailabilityStateIfNeeded(forceReload: true)
-        walletModelsManager?.updateAll(silent: false) { [weak self] in
+        Task { [weak self] in
+            await self?.walletModelsManager?.updateAll(silent: false)
             self?.handleWalletModelsUpdate()
         }
     }
@@ -137,10 +135,6 @@ final class CommonUserTokensManager {
 // MARK: - UserTokensManager protocol conformance
 
 extension CommonUserTokensManager: UserTokensManager {
-    var initialized: Bool {
-        userTokenListManager.initialized
-    }
-
     var initializedPublisher: AnyPublisher<Bool, Never> {
         userTokenListManager.initializedPublisher
     }
@@ -158,17 +152,14 @@ extension CommonUserTokensManager: UserTokensManager {
     }
 
     func deriveIfNeeded(completion: @escaping (Result<Void, Swift.Error>) -> Void) {
-        guard
-            let derivationManager,
-            let interactor = keysDerivingProvider?.keysDerivingInteractor
-        else {
+        guard let derivationManager else {
             completion(.success(()))
             return
         }
 
         // Delay to update derivations in derivationManager
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            derivationManager.deriveKeys(interactor: interactor, completion: completion)
+            derivationManager.deriveKeys(completion: completion)
         }
     }
 
@@ -183,7 +174,7 @@ extension CommonUserTokensManager: UserTokensManager {
     }
 
     func needsCardDerivation(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) -> Bool {
-        guard let derivationManager, let keysDerivingProvider else {
+        guard let derivationManager else {
             return false
         }
 
@@ -199,8 +190,7 @@ extension CommonUserTokensManager: UserTokensManager {
 
         return derivationManager.shouldDeriveKeys(
             networksToRemove: networksToRemove,
-            networksToAdd: networksToAdd,
-            interactor: keysDerivingProvider.keysDerivingInteractor
+            networksToAdd: networksToAdd
         )
     }
 
@@ -219,16 +209,21 @@ extension CommonUserTokensManager: UserTokensManager {
     func add(_ tokenItem: TokenItem) async throws -> String {
         let tokenItem = withBlockchainNetwork(tokenItem)
 
-        try await withCheckedThrowingContinuation { continuation in
+        let addedToken = try await withCheckedThrowingContinuation { continuation in
             add(tokenItem) { result in
-                continuation.resume(with: result)
+                switch result {
+                case .success(let addedTokenItem):
+                    continuation.resume(returning: addedTokenItem)
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
             }
         }
 
         // wait for walletModelsManager to be updated
-        try await Task.sleep(seconds: 0.1)
+        try await Task.sleep(for: .seconds(0.1))
 
-        let walletModelId = WalletModelId(tokenItem: tokenItem)
+        let walletModelId = WalletModelId(tokenItem: addedToken)
 
         guard let walletModel = walletModelsManager?.walletModels.first(where: { $0.id == walletModelId }) else {
             throw Error.addressNotFound
@@ -237,7 +232,7 @@ extension CommonUserTokensManager: UserTokensManager {
         return walletModel.defaultAddressString
     }
 
-    func add(_ tokenItems: [TokenItem], completion: @escaping (Result<Void, Swift.Error>) -> Void) {
+    func add(_ tokenItems: [TokenItem], completion: @escaping (Result<[TokenItem], Swift.Error>) -> Void) {
         let tokenItems = tokenItems.map { withBlockchainNetwork($0) }
 
         do {
@@ -247,7 +242,14 @@ extension CommonUserTokensManager: UserTokensManager {
             return
         }
 
-        deriveIfNeeded(completion: completion)
+        deriveIfNeeded { result in
+            switch result {
+            case .success:
+                completion(.success(tokenItems))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
     }
 
     func canRemove(_ tokenItem: TokenItem, pendingToAddItems: [TokenItem], pendingToRemoveItems: [TokenItem]) -> Bool {
@@ -284,7 +286,11 @@ extension CommonUserTokensManager: UserTokensManager {
         removeInternal(tokenItem, shouldUpload: true)
     }
 
-    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], completion: @escaping (Result<Void, Swift.Error>) -> Void) {
+    func update(
+        itemsToRemove: [TokenItem],
+        itemsToAdd: [TokenItem],
+        completion: @escaping (Result<UserTokensManagerResult.UpdatedTokenItems, Swift.Error>) -> Void
+    ) {
         let itemsToRemove = itemsToRemove.map { withBlockchainNetwork($0) }
         let itemsToAdd = itemsToAdd.map { withBlockchainNetwork($0) }
 
@@ -295,7 +301,16 @@ extension CommonUserTokensManager: UserTokensManager {
             return
         }
 
-        deriveIfNeeded(completion: completion)
+        deriveIfNeeded { result in
+            switch result {
+            case .success:
+                let updatedItems = UserTokensManagerResult.UpdatedTokenItems(removed: itemsToRemove, added: itemsToAdd)
+                completion(.success(updatedItems))
+
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
     }
 
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) throws {
@@ -325,10 +340,6 @@ extension CommonUserTokensManager: UserTokensManager {
             self?.handleUserTokensSync()
         }
     }
-
-    func upload() {
-        userTokenListManager.upload()
-    }
 }
 
 // MARK: - UserTokensReordering protocol conformance
@@ -341,7 +352,17 @@ extension CommonUserTokensManager: UserTokensReordering {
             .eraseToAnyPublisher()
     }
 
-    var groupingOption: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> {
+    var groupingOption: UserTokensReorderingOptions.Grouping {
+        let converter = UserTokensReorderingOptionsConverter()
+        return converter.convert(userTokenListManager.userTokensList.grouping)
+    }
+
+    var sortingOption: UserTokensReorderingOptions.Sorting {
+        let converter = UserTokensReorderingOptionsConverter()
+        return converter.convert(userTokenListManager.userTokensList.sorting)
+    }
+
+    var groupingOptionPublisher: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> {
         let converter = UserTokensReorderingOptionsConverter()
         return userTokenListManager
             .userTokensListPublisher
@@ -349,7 +370,7 @@ extension CommonUserTokensManager: UserTokensReordering {
             .eraseToAnyPublisher()
     }
 
-    var sortingOption: AnyPublisher<UserTokensReorderingOptions.Sorting, Never> {
+    var sortingOptionPublisher: AnyPublisher<UserTokensReorderingOptions.Sorting, Never> {
         let converter = UserTokensReorderingOptionsConverter()
         return userTokenListManager
             .userTokensListPublisher
@@ -406,6 +427,16 @@ extension CommonUserTokensManager: UserTokensReordering {
         .eraseToAnyPublisher()
     }
 }
+
+// MARK: - UserTokensPushNotificationsRemoteStatusSyncing protocol conformance
+
+extension CommonUserTokensManager: UserTokensPushNotificationsRemoteStatusSyncing {
+    func syncRemoteStatus() {
+        userTokenListManager.upload()
+    }
+}
+
+// MARK: - Auxiliary types
 
 extension CommonUserTokensManager {
     enum Error: LocalizedError {

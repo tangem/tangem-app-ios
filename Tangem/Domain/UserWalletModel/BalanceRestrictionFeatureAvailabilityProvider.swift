@@ -10,12 +10,6 @@ import Foundation
 import Combine
 
 final class BalanceRestrictionFeatureAvailabilityProvider {
-    private let userWalletConfig: UserWalletConfig
-    private let totalBalanceProvider: TotalBalanceProvider
-
-    private let isActionButtonsAvailableSubject: CurrentValueSubject<Bool, Never>
-    private var bag = Set<AnyCancellable>()
-
     var isActionButtonsAvailablePublisher: AnyPublisher<Bool, Never> {
         isActionButtonsAvailableSubject.eraseToAnyPublisher()
     }
@@ -24,32 +18,62 @@ final class BalanceRestrictionFeatureAvailabilityProvider {
         isActionButtonsAvailableSubject.value
     }
 
-    init(userWalletConfig: UserWalletConfig, totalBalanceProvider: TotalBalanceProvider) {
-        self.userWalletConfig = userWalletConfig
-        self.totalBalanceProvider = totalBalanceProvider
+    private let isBalanceRestrictionActiveSubject: CurrentValueSubject<Bool, Never>
+    private let isActionButtonsAvailableSubject: CurrentValueSubject<Bool, Never>
 
+    private var bag = Set<AnyCancellable>()
+
+    init(
+        userWalletConfig: UserWalletConfig,
+        walletModelsPublisher: AnyPublisher<[any WalletModel], Never>,
+        updatePublisher: AnyPublisher<UpdateResult, Never>
+    ) {
         let isBalanceRestrictionActive = userWalletConfig.hasFeature(.isBalanceRestrictionActive)
-
+        isBalanceRestrictionActiveSubject = CurrentValueSubject(isBalanceRestrictionActive)
         isActionButtonsAvailableSubject = CurrentValueSubject(!isBalanceRestrictionActive)
 
-        if isBalanceRestrictionActive {
-            bind()
-        }
+        bind(walletModelsPublisher: walletModelsPublisher, updatePublisher: updatePublisher)
     }
 
-    private func bind() {
-        totalBalanceProvider.totalBalancePublisher
-            .map { totalBalanceState in
-                switch totalBalanceState {
-                case .empty: false
-                case .loading(let cached): (cached ?? 0) > 0
-                case .failed(let cached, _): (cached ?? 0) > 0
-                case .loaded(let balance): balance > 0
+    private func bind(
+        walletModelsPublisher: AnyPublisher<[any WalletModel], Never>,
+        updatePublisher: AnyPublisher<UpdateResult, Never>
+    ) {
+        let totalBalancesPublisher: AnyPublisher<[TokenBalanceType], Never> = walletModelsPublisher
+            .map { walletModels in
+                guard !walletModels.isEmpty else {
+                    return Just([TokenBalanceType]()).eraseToAnyPublisher()
+                }
+                return walletModels
+                    .map { $0.availableBalanceProvider.balanceTypePublisher }
+                    .combineLatest()
+            }
+            .switchToLatest()
+            .eraseToAnyPublisher()
+
+        isBalanceRestrictionActiveSubject
+            .combineLatest(totalBalancesPublisher)
+            .map { isBalanceRestrictionActive, totalBalances in
+                if isBalanceRestrictionActive {
+                    return totalBalances.compactMap { $0.value }.contains(where: { $0 > 0 })
+                } else {
+                    return true
                 }
             }
-            .sink(receiveValue: { [isActionButtonsAvailableSubject] value in
-                isActionButtonsAvailableSubject.send(value)
-            })
+            .removeDuplicates()
+            .subscribe(isActionButtonsAvailableSubject)
+            .store(in: &bag)
+
+        updatePublisher
+            .compactMap { update in
+                switch update {
+                case .configurationChanged(let userWalletModel):
+                    return userWalletModel.config.hasFeature(.isBalanceRestrictionActive)
+                default:
+                    return nil
+                }
+            }
+            .subscribe(isBalanceRestrictionActiveSubject)
             .store(in: &bag)
     }
 }

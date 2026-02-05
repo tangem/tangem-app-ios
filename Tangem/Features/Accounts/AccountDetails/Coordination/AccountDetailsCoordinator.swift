@@ -66,7 +66,7 @@ extension AccountDetailsCoordinator: BaseAccountDetailsRoutable {
         editAccountViewModel = AccountFormViewModel(
             accountModelsManager: options.accountModelsManager,
             flowType: .edit(account: options.account),
-            closeAction: { [weak self] in
+            closeAction: { [weak self] _ in
                 self?.editAccountViewModel = nil
             }
         )
@@ -81,26 +81,43 @@ extension AccountDetailsCoordinator: BaseAccountDetailsRoutable {
 
 extension AccountDetailsCoordinator: CryptoAccountDetailsRoutable {
     func manageTokens() {
-        // [REDACTED_TODO_COMMENT]
-        guard let options, let cryptoAccount = options.account as? any CryptoAccountModel else {
+        guard let options else {
             return
         }
 
-        let coordinator = ManageTokensCoordinator(
-            dismissAction: { [weak self] in
-                self?.manageTokensCoordinator = nil
-            },
-            popToRootAction: popToRootAction
-        )
+        options.account.resolve(using: ManageTokensResolver(coordinator: self, options: options))
+    }
+}
 
-        coordinator.start(
-            with: ManageTokensCoordinator.Options(
-                walletModelsManager: cryptoAccount.walletModelsManager,
-                userTokensManager: cryptoAccount.userTokensManager,
-                userWalletConfig: options.userWalletConfig
+// MARK: - ManageTokensResolver
+
+private extension AccountDetailsCoordinator {
+    struct ManageTokensResolver: AccountModelResolving {
+        let coordinator: AccountDetailsCoordinator
+        let options: Options
+
+        func resolve(accountModel: any CryptoAccountModel) {
+            let manageTokensCoordinator = ManageTokensCoordinator(
+                dismissAction: { [weak coordinator] in
+                    coordinator?.manageTokensCoordinator = nil
+                },
+                popToRootAction: coordinator.popToRootAction
             )
-        )
 
-        manageTokensCoordinator = coordinator
+            let context = AccountsAwareManageTokensContext(
+                accountModelsManager: options.accountModelsManager,
+                currentAccount: accountModel
+            )
+
+            manageTokensCoordinator.start(
+                with: ManageTokensCoordinator.Options(
+                    context: context,
+                    userWalletConfig: options.userWalletConfig,
+                    analyticsSourceRawValue: Analytics.ParameterValue.account.rawValue
+                )
+            )
+
+            coordinator.manageTokensCoordinator = manageTokensCoordinator
+        }
     }
 }

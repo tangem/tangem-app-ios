@@ -16,18 +16,22 @@ import TangemNFT
 import TangemFoundation
 import TangemUI
 import TangemMobileWalletSdk
+import struct TangemUIUtils.AlertBinder
+import TangemPay
 
-class MainCoordinator: CoordinatorObject {
+final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
     // MARK: - Dependencies
 
+    @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
     @Injected(\.mainBottomSheetUIManager) private var mainBottomSheetUIManager: MainBottomSheetUIManager
     @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
+    @Injected(\.mobileFinishActivationManager) private var mobileFinishActivationManager: MobileFinishActivationManager
 
     private let coordinatorFactory: MainCoordinatorChildFactory
     private let navigationActionHandler: MainNavigationActionHandler
@@ -43,8 +47,9 @@ class MainCoordinator: CoordinatorObject {
     @Published var tokenDetailsCoordinator: TokenDetailsCoordinator?
     @Published var marketsTokenDetailsCoordinator: MarketsTokenDetailsCoordinator?
     @Published var stakingDetailsCoordinator: StakingDetailsCoordinator?
-    @Published var referralCoordinator: ReferralCoordinator?
     @Published var nftCollectionsCoordinator: NFTCollectionsCoordinator?
+    @Published var yieldModulePromoCoordinator: YieldModulePromoCoordinator?
+    @Published var yieldModuleActiveCoordinator: YieldModuleActiveCoordinator?
 
     // MARK: - Child coordinators (Other)
 
@@ -55,20 +60,22 @@ class MainCoordinator: CoordinatorObject {
     @Published var actionButtonsSellCoordinator: ActionButtonsSellCoordinator? = nil
     @Published var actionButtonsSwapCoordinator: ActionButtonsSwapCoordinator? = nil
     @Published var mobileUpgradeCoordinator: MobileUpgradeCoordinator? = nil
+    @Published var tangemPayMainCoordinator: TangemPayMainCoordinator?
+    @Published var tangemPayOnboardingCoordinator: TangemPayOnboardingCoordinator?
+    @Published var mobileBackupTypesCoordinator: MobileBackupTypesCoordinator?
 
     // MARK: - Child view models
 
-    @Published var mailViewModel: MailViewModel?
-    @Published var receiveBottomSheetViewModel: ReceiveBottomSheetViewModel?
-    @Published var organizeTokensViewModel: OrganizeTokensViewModel?
+    @Published var organizeTokensViewModel: AccountsAwareOrganizeTokensViewModel?
+    @available(iOS, deprecated: 100000.0, message: "Superseded by 'organizeTokensViewModel', will be removed in the future ([REDACTED_INFO])")
+    @Published var legacyOrganizeTokensViewModel: OrganizeTokensViewModel?
     @Published var pushNotificationsViewModel: PushNotificationsPermissionRequestViewModel?
     @Published var visaTransactionDetailsViewModel: VisaTransactionDetailsViewModel?
     @Published var pendingExpressTxStatusBottomSheetViewModel: PendingExpressTxStatusBottomSheetViewModel? = nil
-    @Published var tangemPayMainViewModel: TangemPayMainViewModel?
 
     // MARK: - Helpers
 
-    @Published var modalOnboardingCoordinatorKeeper: Bool = false
+    @Published var modalOnboardingCoordinatorKeeper = false
     @Published var isAppStoreReviewRequested = false
     @Published var isMarketsTooltipVisible = false
 
@@ -108,6 +115,13 @@ class MainCoordinator: CoordinatorObject {
 
         swipeDiscoveryHelper.delegate = viewModel
         mainViewModel = viewModel
+
+        let userWalletModel = options.userWalletModel
+        mobileFinishActivationManager.observeUserWallet(
+            id: userWalletModel.userWalletId,
+            config: userWalletModel.config,
+            onActivation: weakify(self, forFunction: MainCoordinator.openMobileFinishActivation)
+        )
 
         setupUI()
         bind()
@@ -206,7 +220,11 @@ extension MainCoordinator: MainRoutable {
 
     func openMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String) {
         let logsComposer = LogsComposer(infoProvider: dataCollector)
-        mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: emailType)
+        let mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: emailType)
+
+        Task { @MainActor in
+            mailPresenter.present(viewModel: mailViewModel)
+        }
     }
 
     func openOnboardingModal(with options: OnboardingCoordinator.Options) {
@@ -237,51 +255,114 @@ extension MainCoordinator: MainRoutable {
 // MARK: - MultiWalletMainContentRoutable protocol conformance
 
 extension MainCoordinator: MultiWalletMainContentRoutable {
-    func openTokenDetails(for model: any WalletModel, userWalletModel: UserWalletModel) {
+    func openYieldModulePromoView(apy: Decimal, factory: YieldModuleFlowFactory) {
+        let dismissAction: Action<YieldModulePromoCoordinator.DismissOptions?> = { [weak self] option in
+            self?.yieldModulePromoCoordinator = nil
+            self?.proceedFeeCurrencyNavigatingDismissOption(option: option)
+        }
+
+        mainBottomSheetUIManager.hide()
+        let coordinator = factory.makeYieldPromoCoordinator(apy: apy, dismissAction: dismissAction)
+        yieldModulePromoCoordinator = coordinator
+    }
+
+    func openGetTangemPay() {
+        let dismissAction: Action<TangemPayOnboardingCoordinator.DismissOptions?> = { [weak self] _ in
+            self?.tangemPayOnboardingCoordinator = nil
+        }
+
+        let coordinator = TangemPayOnboardingCoordinator(dismissAction: dismissAction)
+        coordinator.start(with: .init(source: .other))
+        tangemPayOnboardingCoordinator = coordinator
+    }
+
+    func openYieldModuleActiveInfo(factory: YieldModuleFlowFactory) {
+        let dismissAction: Action<YieldModuleActiveCoordinator.DismissOptions?> = { [weak self] option in
+            self?.yieldModuleActiveCoordinator = nil
+            self?.proceedFeeCurrencyNavigatingDismissOption(option: option)
+        }
+
+        let coordinator = factory.makeYieldActiveCoordinator(dismissAction: dismissAction)
+        yieldModuleActiveCoordinator = coordinator
+    }
+
+    func openCloreMigration(walletModel: any WalletModel) {
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(
+                sheet: CommonCloreMigrationModuleFlowFactory(walletModel: walletModel, coordinator: self).makeCloreMigrationViewModel()
+            )
+        }
+    }
+
+    func openTokenDetails(for walletModel: any WalletModel, userWalletModel: UserWalletModel) {
         mainBottomSheetUIManager.hide()
 
         let coordinator = coordinatorFactory.makeTokenDetailsCoordinator(dismissAction: { [weak self] in
             self?.tokenDetailsCoordinator = nil
         })
 
-        coordinator.start(with: .init(userWalletModel: userWalletModel, walletModel: model))
+        // [REDACTED_TODO_COMMENT]
+        if FeatureProvider.isAvailable(.accounts) {
+            guard let account = walletModel.account else {
+                let message = "Inconsistent state: WalletModel '\(walletModel.name)' has no account in accounts-enabled build"
+                AppLogger.error(error: message)
+                assertionFailure(message)
+                return
+            }
+
+            coordinator.start(
+                with: .init(
+                    userWalletInfo: userWalletModel.userWalletInfo,
+                    keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
+                    walletModelsManager: account.walletModelsManager,
+                    userTokensManager: account.userTokensManager,
+                    walletModel: walletModel
+                )
+            )
+        } else {
+            coordinator.start(
+                with: .init(
+                    userWalletInfo: userWalletModel.userWalletInfo,
+                    keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
+                    walletModelsManager: userWalletModel.walletModelsManager, // accounts_fixes_needed_none
+                    userTokensManager: userWalletModel.userTokensManager, // accounts_fixes_needed_none
+                    walletModel: walletModel
+                )
+            )
+        }
 
         tokenDetailsCoordinator = coordinator
     }
 
     func openOrganizeTokens(for userWalletModel: UserWalletModel) {
-        let optionsManager = OrganizeTokensOptionsManager(userTokensReorderer: userWalletModel.userTokensManager)
-        let tokenSectionsAdapter = TokenSectionsAdapter(
-            userTokensManager: userWalletModel.userTokensManager,
-            optionsProviding: optionsManager,
-            preservesLastSortedOrderOnSwitchToDragAndDrop: true
-        )
-        organizeTokensViewModel = OrganizeTokensViewModel(
-            coordinator: self,
-            userWalletModel: userWalletModel,
-            tokenSectionsAdapter: tokenSectionsAdapter,
-            optionsProviding: optionsManager,
-            optionsEditing: optionsManager
-        )
-    }
-
-    func openReferral(input: ReferralInputModel) {
-        mainBottomSheetUIManager.hide()
-        let coordinator = coordinatorFactory.makeReferralCoordinator(
-            dismissAction: { [weak self] _ in
-                self?.referralCoordinator = nil
-            }
-        )
-
-        coordinator.start(with: .init(input: input))
-        referralCoordinator = coordinator
-        Analytics.log(.referralScreenOpened)
+        if FeatureProvider.isAvailable(.accounts) {
+            organizeTokensViewModel = AccountsAwareOrganizeTokensViewModel(
+                userWalletModel: userWalletModel,
+                coordinator: self
+            )
+        } else {
+            // accounts_fixes_needed_none
+            let userTokensManager = userWalletModel.userTokensManager
+            let optionsManager = OrganizeTokensOptionsManager(userTokensReorderer: userTokensManager)
+            let tokenSectionsAdapter = TokenSectionsAdapter(
+                userTokensManager: userTokensManager,
+                optionsProviding: optionsManager,
+                preservesLastSortedOrderOnSwitchToDragAndDrop: true
+            )
+            legacyOrganizeTokensViewModel = OrganizeTokensViewModel(
+                userWalletModel: userWalletModel,
+                tokenSectionsAdapter: tokenSectionsAdapter,
+                optionsProviding: optionsManager,
+                optionsEditing: optionsManager,
+                coordinator: self
+            )
+        }
     }
 
     func openMobileFinishActivation(userWalletModel: UserWalletModel) {
         Task { @MainActor in
             floatingSheetPresenter.enqueue(
-                sheet: MobileFinishActivationNeededViewModel(userWalletModel: userWalletModel, routable: self)
+                sheet: MobileFinishActivationNeededViewModel(userWalletModel: userWalletModel, coordinator: self)
             )
         }
     }
@@ -290,7 +371,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         Task { @MainActor in
             let dismissAction: Action<MobileUpgradeCoordinator.OutputOptions> = { [weak self] options in
                 switch options {
-                case .dismiss, .upgraded:
+                case .dismiss, .main:
                     self?.mobileUpgradeCoordinator = nil
                 }
             }
@@ -302,15 +383,70 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         }
     }
 
-    func openTangemPayMainView(tangemPayAccount: TangemPayAccount) {
+    func openTangemPayIssuingYourCardPopup() {
+        Task { @MainActor in
+            let viewModel = TangemPayYourCardIsIssuingSheetViewModel(
+                coordinator: self
+            )
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func openTangemPayKYCInProgressPopup(tangemPayManager: TangemPayManager) {
+        Task { @MainActor in
+            let viewModel = TangemPayKYCStatusPopupViewModel(
+                tangemPayManager: tangemPayManager,
+                coordinator: self
+            )
+
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func openTangemPayKYCDeclinedPopup(tangemPayManager: TangemPayManager) {
+        Task { @MainActor in
+            let viewModel = TangemPayKYCDeclinedPopupViewModel(
+                tangemPayManager: tangemPayManager,
+                coordinator: self
+            )
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func openTangemPayFailedToIssueCardPopup(userWalletModel: UserWalletModel) {
+        Task { @MainActor in
+            let viewModel = TangemPayFailedToIssueCardSheetViewModel(
+                userWalletModel: userWalletModel,
+                coordinator: self
+            )
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func openTangemPayMainView(userWalletInfo: UserWalletInfo, tangemPayAccount: TangemPayAccount) {
         mainBottomSheetUIManager.hide()
-        tangemPayMainViewModel = TangemPayMainViewModel(tangemPayAccount: tangemPayAccount)
+
+        let coordinator = TangemPayMainCoordinator(
+            dismissAction: makeExpressCoordinatorDismissAction(),
+            popToRootAction: popToRootAction
+        )
+
+        coordinator.start(with: .init(userWalletInfo: userWalletInfo, tangemPayAccount: tangemPayAccount))
+        tangemPayMainCoordinator = coordinator
+    }
+}
+
+// MARK: - CloreMigrationRoutable
+
+extension MainCoordinator: CloreMigrationRoutable {
+    func openURLInSystemBrowser(url: URL) {
+        UIApplication.shared.open(url)
     }
 }
 
 // MARK: - SingleTokenBaseRoutable
 
-extension MainCoordinator: SingleTokenBaseRoutable, SendFeeCurrencyNavigating, ExpressFeeCurrencyNavigating {
+extension MainCoordinator: SingleTokenBaseRoutable {
     func openReceiveScreen(walletModel: any WalletModel) {
         let receiveFlowFactory = AvailabilityReceiveFlowFactory(
             flow: .crypto,
@@ -320,22 +456,10 @@ extension MainCoordinator: SingleTokenBaseRoutable, SendFeeCurrencyNavigating, E
             isYieldModuleActive: false
         )
 
-        switch receiveFlowFactory.makeAvailabilityReceiveFlow() {
-        case .bottomSheetReceiveFlow(let viewModel):
-            receiveBottomSheetViewModel = viewModel
-        case .domainReceiveFlow(let viewModel):
-            Task { @MainActor in
-                floatingSheetPresenter.enqueue(sheet: viewModel)
-            }
-        }
-    }
+        let viewModel = receiveFlowFactory.makeAvailabilityReceiveFlow()
 
-    func openBuyCrypto(at url: URL, action: @escaping () -> Void) {
-        Analytics.log(.topupScreenOpened)
-
-        safariHandle = safariManager.openURL(url) { [weak self] _ in
-            self?.safariHandle = nil
-            action()
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
 
@@ -348,45 +472,26 @@ extension MainCoordinator: SingleTokenBaseRoutable, SendFeeCurrencyNavigating, E
         }
     }
 
-    func openSend(userWalletModel: UserWalletModel, walletModel: any WalletModel) {
+    func openSend(input: SendInput) {
         guard SendFeatureProvider.shared.isAvailable else {
             return
         }
 
         let coordinator = makeSendCoordinator()
-        let options = SendCoordinator.Options(
-            input: .init(
-                userWalletInfo: userWalletModel.userWalletInfo,
-                walletModel: walletModel,
-                expressInput: .init(
-                    userWalletInfo: userWalletModel.userWalletInfo,
-                    walletModelsManager: userWalletModel.walletModelsManager
-                )
-            ),
-            type: .send,
-            source: .main
-        )
+        let options = SendCoordinator.Options(input: input, type: .send, source: .main)
 
         coordinator.start(with: options)
         sendCoordinator = coordinator
     }
 
-    func openSendToSell(userWalletModel: UserWalletModel, walletModel: any WalletModel, sellParameters: PredefinedSellParameters) {
+    func openSendToSell(input: SendInput, sellParameters: PredefinedSellParameters) {
         guard SendFeatureProvider.shared.isAvailable else {
             return
         }
 
         let coordinator = makeSendCoordinator()
-
         let options = SendCoordinator.Options(
-            input: .init(
-                userWalletInfo: userWalletModel.userWalletInfo,
-                walletModel: walletModel,
-                expressInput: .init(
-                    userWalletInfo: userWalletModel.userWalletInfo,
-                    walletModelsManager: userWalletModel.walletModelsManager
-                )
-            ),
+            input: input,
             type: .sell(parameters: sellParameters),
             source: .main
         )
@@ -394,8 +499,8 @@ extension MainCoordinator: SingleTokenBaseRoutable, SendFeeCurrencyNavigating, E
         sendCoordinator = coordinator
     }
 
-    func openExpress(input: CommonExpressModulesFactory.InputModel) {
-        let factory = CommonExpressModulesFactory(inputModel: input)
+    func openExpress(input: ExpressDependenciesInput) {
+        let factory = CommonExpressModulesFactory(input: input)
         let coordinator = makeExpressCoordinator(factory: factory)
 
         let openExpressBlock = { [weak self] in
@@ -435,17 +540,10 @@ extension MainCoordinator: SingleTokenBaseRoutable, SendFeeCurrencyNavigating, E
         marketsTokenDetailsCoordinator = coordinator
     }
 
-    func openOnramp(userWalletModel: any UserWalletModel, walletModel: any WalletModel, parameters: PredefinedOnrampParameters) {
+    func openOnramp(input: SendInput, parameters: PredefinedOnrampParameters) {
         let coordinator = makeSendCoordinator()
         let options = SendCoordinator.Options(
-            input: .init(
-                userWalletInfo: userWalletModel.userWalletInfo,
-                walletModel: walletModel,
-                expressInput: .init(
-                    userWalletInfo: userWalletModel.userWalletInfo,
-                    walletModelsManager: userWalletModel.walletModelsManager
-                )
-            ),
+            input: input,
             type: .onramp(parameters: parameters),
             source: .main
         )
@@ -456,16 +554,26 @@ extension MainCoordinator: SingleTokenBaseRoutable, SendFeeCurrencyNavigating, E
     func openPendingExpressTransactionDetails(
         pendingTransaction: PendingTransaction,
         tokenItem: TokenItem,
-        userWalletModel: UserWalletModel,
+        userWalletInfo: UserWalletInfo,
         pendingTransactionsManager: PendingExpressTransactionsManager
     ) {
         pendingExpressTxStatusBottomSheetViewModel = PendingExpressTxStatusBottomSheetViewModel(
             pendingTransaction: pendingTransaction,
             currentTokenItem: tokenItem,
-            userWalletModel: userWalletModel,
+            userWalletInfo: userWalletInfo,
             pendingTransactionsManager: pendingTransactionsManager,
             router: self
         )
+    }
+}
+
+// MARK: - SendFeeCurrencyNavigating, ExpressFeeCurrencyNavigating {
+
+extension MainCoordinator: SendFeeCurrencyNavigating, ExpressFeeCurrencyNavigating {
+    func openFeeCurrency(for walletModel: any WalletModel, userWalletModel: UserWalletModel) {
+        // We use our own custom implementation instead of implementation in `ExpressFeeCurrencyNavigating` because
+        // we have to call `mainBottomSheetUIManager.hide()` when performing this navigation action from the main screen
+        openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
     }
 }
 
@@ -474,10 +582,12 @@ extension MainCoordinator: SingleTokenBaseRoutable, SendFeeCurrencyNavigating, E
 extension MainCoordinator: OrganizeTokensRoutable {
     func didTapCancelButton() {
         organizeTokensViewModel = nil
+        legacyOrganizeTokensViewModel = nil
     }
 
     func didTapSaveButton() {
         organizeTokensViewModel = nil
+        legacyOrganizeTokensViewModel = nil
     }
 }
 
@@ -499,18 +609,38 @@ extension MainCoordinator: VisaWalletRoutable {
             isYieldModuleActive: false
         )
 
-        switch receiveFlowFactory.makeAvailabilityReceiveFlow() {
-        case .bottomSheetReceiveFlow(let viewModel):
-            receiveBottomSheetViewModel = viewModel
-        case .domainReceiveFlow(let viewModel):
-            Task { @MainActor in
-                floatingSheetPresenter.enqueue(sheet: viewModel)
-            }
+        let viewModel = receiveFlowFactory.makeAvailabilityReceiveFlow()
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
 }
 
 extension MainCoordinator: VisaTransactionDetailsRouter {}
+
+extension MainCoordinator: TangemPayYourCardIsIssuingRoutable {
+    func closeYourCardIsIssuingSheet() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
+extension MainCoordinator: TangemPayFailedToIssueCardRoutable {
+    func closeFailedToIssueCardSheet() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+
+    func openMailFromFailedToIssueCardSheet(mailViewModel: MailViewModel) {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            mailPresenter.present(viewModel: mailViewModel)
+        }
+    }
+}
 
 // MARK: - RateAppRoutable protocol conformance
 
@@ -531,6 +661,7 @@ extension MainCoordinator: PushNotificationsPermissionRequestDelegate {
 // MARK: - Action buttons buy routable
 
 extension MainCoordinator: ActionButtonsBuyFlowRoutable {
+    // [REDACTED_TODO_COMMENT]
     func openBuy(userWalletModel: some UserWalletModel) {
         let coordinator = coordinatorFactory.makeBuyCoordinator(
             dismissAction: { [weak self] _ in
@@ -538,20 +669,27 @@ extension MainCoordinator: ActionButtonsBuyFlowRoutable {
             }
         )
 
-        let options: ActionButtonsBuyCoordinator.Options = if FeatureProvider.isAvailable(.accounts) {
-            .new
-        } else {
-            .default(options: .init(
-                userWalletModel: userWalletModel,
-                expressTokensListAdapter: CommonExpressTokensListAdapter(
-                    userTokensManager: userWalletModel.userTokensManager,
-                    walletModelsManager: userWalletModel.walletModelsManager,
-                ),
-                tokenSorter: CommonBuyTokenAvailabilitySorter(userWalletModelConfig: userWalletModel.config)
-            ))
-        }
+        coordinator.start(with: .default(options: .init(
+            userWalletModel: userWalletModel,
+            expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletId: userWalletModel.userWalletId),
+            tokenSorter: CommonBuyTokenAvailabilitySorter(userWalletModelConfig: userWalletModel.config)
+        )))
 
-        coordinator.start(with: options)
+        actionButtonsBuyCoordinator = coordinator
+    }
+
+    func openBuy(userWalletModels: [UserWalletModel]) {
+        let coordinator = coordinatorFactory.makeBuyCoordinator(
+            dismissAction: { [weak self] _ in
+                self?.actionButtonsBuyCoordinator = nil
+            }
+        )
+
+        let options = ActionButtonsBuyCoordinator.Options.AccountsAwareActionButtonBuyCoordinatorOptions(
+            userWalletModels: userWalletModels
+        )
+
+        coordinator.start(with: .new(options: options))
         actionButtonsBuyCoordinator = coordinator
     }
 }
@@ -566,15 +704,28 @@ extension MainCoordinator: ActionButtonsSellFlowRoutable {
                 self?.actionButtonsSellCoordinator = nil
                 guard let model else { return }
 
-                self?.openSendToSell(
-                    userWalletModel: userWalletModel,
-                    walletModel: model.walletModel,
-                    sellParameters: model.sellParameters
-                )
+                let input = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: model.walletModel)
+                self?.openSendToSell(input: input, sellParameters: model.sellParameters)
             }
         )
 
-        coordinator.start(with: FeatureProvider.isAvailable(.accounts) ? .new : .default)
+        coordinator.start(with: .default)
+        actionButtonsSellCoordinator = coordinator
+    }
+
+    func openSell(userWalletModel: some UserWalletModel, tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel) {
+        let coordinator = coordinatorFactory.makeSellCoordinator(
+            userWalletModel: userWalletModel,
+            dismissAction: { [weak self] model in
+                self?.actionButtonsSellCoordinator = nil
+                guard let model else { return }
+
+                let input = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: model.walletModel)
+                self?.openSendToSell(input: input, sellParameters: model.sellParameters)
+            }
+        )
+
+        coordinator.start(with: .new(tokenSelectorViewModel: tokenSelectorViewModel))
         actionButtonsSellCoordinator = coordinator
     }
 }
@@ -592,7 +743,27 @@ extension MainCoordinator: ActionButtonsSwapFlowRoutable {
                 story: .swap(.initialWithoutImages),
                 analyticsSource: .main,
                 presentCompletion: { [weak self] in
-                    coordinator.start(with: FeatureProvider.isAvailable(.accounts) ? .new : .default)
+                    coordinator.start(with: .default)
+                    self?.actionButtonsSwapCoordinator = coordinator
+                }
+            )
+        }
+    }
+
+    func openSwap(
+        userWalletModel: some UserWalletModel,
+        tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel
+    ) {
+        let coordinator = coordinatorFactory.makeSwapCoordinator(userWalletModel: userWalletModel) { [weak self] _ in
+            self?.actionButtonsSwapCoordinator = nil
+        }
+
+        Task { @MainActor [tangemStoriesPresenter] in
+            tangemStoriesPresenter.present(
+                story: .swap(.initialWithoutImages),
+                analyticsSource: .main,
+                presentCompletion: { [weak self] in
+                    coordinator.start(with: .new(tokenSelectorViewModel: tokenSelectorViewModel))
                     self?.actionButtonsSwapCoordinator = coordinator
                 }
             )
@@ -607,18 +778,8 @@ extension MainCoordinator: PendingExpressTxStatusRoutable {
         safariManager.openURL(url)
     }
 
-    func openCurrency(tokenItem: TokenItem, userWalletModel: UserWalletModel) {
+    func openRefundCurrency(walletModel: any WalletModel, userWalletModel: any UserWalletModel) {
         pendingExpressTxStatusBottomSheetViewModel = nil
-
-        // We don't have info about derivation here, so we have to find first non-custom walletModel.
-        guard let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: {
-            $0.tokenItem.blockchain == tokenItem.blockchain
-                && $0.tokenItem.token == tokenItem.token
-                && !$0.isCustom
-        }) else {
-            return
-        }
-
         openTokenDetails(for: walletModel, userWalletModel: userWalletModel)
     }
 
@@ -634,13 +795,28 @@ extension MainCoordinator {
     }
 }
 
+extension MainCoordinator: TangemPayKYCStatusRoutable {
+    func closeKYCStatusPopup() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
+extension MainCoordinator: TangemPayKYCDeclinedRoutable {
+    func closeKYCDeclinedPopup() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
 // MARK: - NFTEntrypointRoutable
 
 extension MainCoordinator: NFTEntrypointRoutable {
     func openCollections(
         nftManager: NFTManager,
-        accounForNFTCollectionsProvider: any AccountForNFTCollectionProviding,
-        nftAccountNavigationContextProvider: any NFTAccountNavigationContextProviding,
+        accountForNFTCollectionsProvider: any AccountForNFTCollectionsProviding,
         navigationContext: NFTNavigationContext
     ) {
         mainBottomSheetUIManager.hide()
@@ -658,12 +834,11 @@ extension MainCoordinator: NFTEntrypointRoutable {
         coordinator.start(
             with: .init(
                 nftManager: nftManager,
-                accounForNFTCollectionsProvider: accounForNFTCollectionsProvider,
-                nftAccountNavigationContextProvider: nftAccountNavigationContextProvider,
+                accountForNFTCollectionsProvider: accountForNFTCollectionsProvider,
+                navigationContext: navigationContext,
                 nftChainIconProvider: NetworkImageProvider(),
                 nftChainNameProvider: NFTChainNameProvider(),
                 priceFormatter: NFTPriceFormatter(),
-                navigationContext: navigationContext,
                 blockchainSelectionAnalytics: NFTAnalytics.BlockchainSelection(
                     logBlockchainChosen: { blockchain in
                         Analytics.log(event: .nftReceiveBlockchainChosen, params: [.blockchain: blockchain])
@@ -703,8 +878,9 @@ extension MainCoordinator {
         case marketsTokenDetails(tokenId: String)
         case externalLink(url: URL)
         case market
-        case onboardVisa(deeplinkString: String, userWalletModel: UserWalletModel)
-        case promo(code: String)
+        case onboardVisa(deeplinkString: String)
+        case newsDetails(newsId: Int)
+        case promo(code: String, refcode: String?, campaign: String?)
     }
 }
 
@@ -717,8 +893,29 @@ extension MainCoordinator: MobileFinishActivationNeededRoutable {
         }
     }
 
+    func openMobileBackup(userWalletModel: UserWalletModel) {
+        mainBottomSheetUIManager.hide()
+
+        let dismissAction: Action<MobileBackupTypesCoordinator.OutputOptions> = { [weak self] options in
+            switch options {
+            case .main:
+                self?.mobileBackupTypesCoordinator = nil
+            }
+        }
+
+        let inputOptions = MobileBackupTypesCoordinator.InputOptions(userWalletModel: userWalletModel, mode: .activate)
+        let coordinator = MobileBackupTypesCoordinator(dismissAction: dismissAction)
+        coordinator.start(with: inputOptions)
+        mobileBackupTypesCoordinator = coordinator
+    }
+
     func openMobileBackupOnboarding(userWalletModel: UserWalletModel) {
-        let backupInput = MobileOnboardingInput(flow: .walletActivate(userWalletModel: userWalletModel))
-        openOnboardingModal(with: .mobileInput(backupInput))
+        Task { @MainActor in
+            let backupInput = MobileOnboardingInput(flow: .walletActivate(
+                userWalletModel: userWalletModel,
+                source: .main(action: .backup)
+            ))
+            openOnboardingModal(with: .mobileInput(backupInput))
+        }
     }
 }

@@ -7,15 +7,19 @@
 //
 
 import Combine
-import Dispatch
+import Foundation
+import BlockchainSdk
 import enum TangemAssets.Assets
 import TangemLocalization
 import TangemLogger
+import TangemFoundation
+import struct TangemUIUtils.ConfirmationDialogViewModel
 
 @MainActor
 final class WalletConnectViewModel: ObservableObject {
     private let interactor: WalletConnectInteractor
     private let userWalletRepository: any UserWalletRepository
+    private let cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
     private let analyticsLogger: any WalletConnectAnalyticsLogger
     private let logger: TangemLogger.Logger
 
@@ -30,6 +34,7 @@ final class WalletConnectViewModel: ObservableObject {
     init(
         interactor: WalletConnectInteractor,
         userWalletRepository: some UserWalletRepository,
+        cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider,
         analyticsLogger: some WalletConnectAnalyticsLogger,
         logger: TangemLogger.Logger,
         coordinator: some WalletConnectRoutable,
@@ -37,17 +42,23 @@ final class WalletConnectViewModel: ObservableObject {
     ) {
         self.interactor = interactor
         self.userWalletRepository = userWalletRepository
+        self.cryptoAccountsGlobalStateProvider = cryptoAccountsGlobalStateProvider
         self.analyticsLogger = analyticsLogger
         self.logger = logger
         self.coordinator = coordinator
 
         if let prefetchedConnectedDApps {
-            state = Self.makeState(from: prefetchedConnectedDApps, userWalletRepository: userWalletRepository, logger: logger)
-            subscribeToConnectedDAppsUpdates()
+            state = Self.makeState(
+                from: prefetchedConnectedDApps,
+                userWalletRepository: userWalletRepository,
+                cryptoAccountsState: cryptoAccountsGlobalStateProvider.globalCryptoAccountsState()
+            )
         } else {
             state = .loading
             fetchConnectedDApps()
         }
+
+        subscribeToConnectedDAppsUpdates()
     }
 
     deinit {
@@ -92,7 +103,9 @@ final class WalletConnectViewModel: ObservableObject {
         connectedDAppsUpdateHandleTask?.cancel()
         disconnectAllDAppsTask?.cancel()
 
-        let allConnectedDApps = walletsWithDApps.flatMap(\.dApps)
+        let allConnectedDApps = walletsWithDApps.flatMap { wallet in
+            wallet.accountSections.flatMap(\.dApps) + wallet.walletLevelDApps
+        }
 
         disconnectAllDAppsTask = Task { [weak self, disconnectDApp = interactor.disconnectDApp, analyticsLogger, logger] in
             await withTaskGroup(of: Void.self) { group in
@@ -157,8 +170,18 @@ extension WalletConnectViewModel {
 
             switch newDAppConnectionResult {
             case .cameraAccessDenied(let openSystemSettingsAction):
-                state.dialog = .confirmationDialog(
-                    .cameraAccessDenied(openSystemSettingsAction: openSystemSettingsAction)
+                state.dialog = .cameraAccessDeniedDialog(
+                    ConfirmationDialogViewModel(
+                        title: Localization.commonCameraDeniedAlertTitle,
+                        subtitle: Localization.commonCameraDeniedAlertMessage,
+                        buttons: [
+                            ConfirmationDialogViewModel.Button(
+                                title: Localization.commonCameraAlertButtonSettings,
+                                role: nil,
+                                action: openSystemSettingsAction
+                            ),
+                        ]
+                    )
                 )
 
             case .canOpenQRScanner:
@@ -206,7 +229,11 @@ extension WalletConnectViewModel {
     }
 
     private func handleConnectedDAppsChanged(_ connectedDApps: [WalletConnectConnectedDApp]) {
-        state = Self.makeState(from: connectedDApps, userWalletRepository: userWalletRepository, logger: logger)
+        state = Self.makeState(
+            from: connectedDApps,
+            userWalletRepository: userWalletRepository,
+            cryptoAccountsState: cryptoAccountsGlobalStateProvider.globalCryptoAccountsState()
+        )
     }
 
     private func handleCloseDialogButtonTapped() {
@@ -220,16 +247,16 @@ extension WalletConnectViewModel {
     private static func makeState(
         from connectedDApps: [WalletConnectConnectedDApp],
         userWalletRepository: some UserWalletRepository,
-        logger: TangemLogger.Logger
+        cryptoAccountsState: CryptoAccounts.State
     ) -> WalletConnectViewState {
         guard !connectedDApps.isEmpty else {
             return .empty
         }
 
-        let walletsWithDApps = Self.makeWalletsWithConnectedDApps(
+        let walletsWithDApps = makeWalletsWithConnectedDApps(
             from: connectedDApps,
             userWalletRepository: userWalletRepository,
-            logger: logger
+            cryptoAccountsState: cryptoAccountsState
         )
 
         guard !walletsWithDApps.isEmpty else {
@@ -246,43 +273,102 @@ extension WalletConnectViewModel {
     private static func makeWalletsWithConnectedDApps(
         from connectedDApps: [WalletConnectConnectedDApp],
         userWalletRepository: some UserWalletRepository,
-        logger: TangemLogger.Logger
+        cryptoAccountsState: CryptoAccounts.State
     ) -> [WalletConnectViewState.ContentState.WalletWithConnectedDApps] {
-        var userWalletIDToConnectedDApps = [String: [WalletConnectConnectedDApp]]()
-        var orderedUserWalletIDs = [String]()
-
-        for dApp in connectedDApps {
-            let connectedDApps: [WalletConnectConnectedDApp]
-
-            if var addedDApps = userWalletIDToConnectedDApps[dApp.userWalletID] {
-                addedDApps.append(dApp)
-                connectedDApps = addedDApps
-            } else {
-                orderedUserWalletIDs.append(dApp.userWalletID)
-                connectedDApps = [dApp]
+        let walletIdToV1DApps: [String: [WalletConnectViewState.ContentState.ConnectedDApp]] = {
+            let pairs = connectedDApps.compactMap { dApp -> (String, WalletConnectViewState.ContentState.ConnectedDApp)? in
+                guard case .v1(let legacy) = dApp else { return nil }
+                return (legacy.userWalletID, .init(domainModel: dApp))
             }
 
-            userWalletIDToConnectedDApps[dApp.userWalletID] = connectedDApps
-        }
+            return Dictionary(grouping: pairs, by: { $0.0 })
+                .mapValues { $0.map(\.1) }
+        }()
 
-        return orderedUserWalletIDs
-            .compactMap { userWalletID in
-                guard let dApps = userWalletIDToConnectedDApps[userWalletID] else { return nil }
+        let accountIdToV2DApps: [DAppsV2Key: [WalletConnectViewState.ContentState.ConnectedDApp]] = {
+            let pairs = connectedDApps.compactMap { dApp -> (DAppsV2Key, WalletConnectViewState.ContentState.ConnectedDApp)? in
+                guard case .v2(let current) = dApp else { return nil }
+                let key = DAppsV2Key(userWalletID: current.wrapped.userWalletID, accountID: current.accountId)
 
-                let walletName: String
+                return (key, .init(domainModel: dApp))
+            }
 
-                if let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId.stringValue == userWalletID }) {
-                    walletName = userWalletModel.name
-                } else {
-                    logger.warning("UserWalletModel not found for \(dApps.map(\.dAppData.name).joined(separator: ", ")) dApps")
-                    walletName = ""
-                }
+            return Dictionary(grouping: pairs, by: { $0.0 })
+                .mapValues { $0.map(\.1) }
+        }()
 
-                return WalletConnectViewState.ContentState.WalletWithConnectedDApps(
-                    walletId: userWalletID,
-                    walletName: walletName,
-                    dApps: dApps.map(WalletConnectViewState.ContentState.ConnectedDApp.init)
+        var result: [WalletConnectViewState.ContentState.WalletWithConnectedDApps] = []
+
+        for wallet in userWalletRepository.models {
+            let walletId = wallet.userWalletId.stringValue
+            let walletLevel = walletIdToV1DApps[walletId] ?? []
+
+            var accountSections: [WalletConnectViewState.ContentState.AccountSection] = []
+            var accountsWithSessions = 0
+
+            func appendSection(for account: any CryptoAccountModel) {
+                let accountId = account.id.walletConnectIdentifierString
+                let key = DAppsV2Key(userWalletID: walletId, accountID: accountId)
+
+                guard let dApps = accountIdToV2DApps[key], !dApps.isEmpty else { return }
+
+                accountsWithSessions += 1
+                accountSections.append(
+                    WalletConnectViewState.ContentState.AccountSection(
+                        id: accountId,
+                        icon: account.icon,
+                        name: account.name,
+                        dApps: dApps
+                    )
                 )
             }
+
+            for accountModel in wallet.accountModelsManager.accountModels {
+                switch accountModel {
+                case .standard(.single(let account)):
+                    appendSection(for: account)
+
+                case .standard(.multiple(let accounts)):
+                    accounts.forEach(appendSection(for:))
+                }
+            }
+
+            switch cryptoAccountsState {
+            case .single:
+                let combined = (accountSections.first?.dApps ?? []) + walletLevel
+                guard !combined.isEmpty else { continue }
+
+                result.append(
+                    WalletConnectViewState.ContentState.WalletWithConnectedDApps(
+                        walletId: walletId,
+                        walletName: wallet.name,
+                        accountSections: [],
+                        walletLevelDApps: combined
+                    )
+                )
+            case .multiple:
+                guard !accountSections.isEmpty || !walletLevel.isEmpty else { continue }
+
+                result.append(
+                    WalletConnectViewState.ContentState.WalletWithConnectedDApps(
+                        walletId: walletId,
+                        walletName: wallet.name,
+                        accountSections: accountSections,
+                        walletLevelDApps: walletLevel
+                    )
+                )
+            }
+        }
+
+        return result.sorted { $0.walletName.localizedCompare($1.walletName) == .orderedAscending }
+    }
+}
+
+// MARK: - Auxiliary types
+
+private extension WalletConnectViewModel {
+    struct DAppsV2Key: Hashable {
+        let userWalletID: String
+        let accountID: String
     }
 }

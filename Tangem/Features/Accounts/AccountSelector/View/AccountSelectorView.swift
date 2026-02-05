@@ -11,6 +11,7 @@ import TangemAssets
 import TangemUI
 import TangemUIUtils
 import TangemLocalization
+import TangemAccounts
 
 struct AccountSelectorView: View {
     @ObservedObject var viewModel: AccountSelectorViewModel
@@ -62,11 +63,12 @@ private extension AccountSelectorView {
 
     func walletCell(for wallet: AccountSelectorWalletItem) -> some View {
         ZStack {
-            Button(
-                action: { viewModel.handleViewAction(.selectItem(.wallet(wallet))) },
-                label: { AccountSelectorWalletCellView(walletModel: wallet) }
+            AccountSelectorWalletCellButtonView(
+                walletModel: wallet,
+                onTap: {
+                    viewModel.handleViewAction(.selectItem(.wallet(wallet)))
+                }
             )
-            .buttonStyle(.plain)
 
             cellSelectionBorder(for: .wallet(wallet))
         }
@@ -77,9 +79,11 @@ private extension AccountSelectorView {
 
 private extension AccountSelectorView {
     var accountSectionsView: some View {
-        ForEach(viewModel.accountsSections) { section in
-            accountSectionContent(for: section)
-                .padding(.bottom, 24)
+        VStack(spacing: 0) {
+            ForEach(viewModel.accountsSections) { section in
+                accountSectionContent(for: section)
+                    .padding(.bottom, 24)
+            }
         }
     }
 
@@ -90,22 +94,25 @@ private extension AccountSelectorView {
             }
 
             VStack(spacing: 6) {
-                ForEach(section.accounts) { account in
-                    accountSectionCell(for: account)
+                ForEach(section.accounts) { entry in
+                    accountSectionCell(for: entry)
                 }
             }
         }
     }
 
-    func accountSectionCell(for account: AccountSelectorAccountItem) -> some View {
+    func accountSectionCell(for entry: AccountSelectorMultipleAccountsItem.AccountEntry) -> some View {
         ZStack {
-            Button(
-                action: { viewModel.handleViewAction(.selectItem(.account(account))) },
-                label: { AccountSelectorAccountCellView(accountModel: account) }
-            )
-            .buttonStyle(.plain)
+            AccountRowButtonView(viewModel: entry.rowViewModel)
+                .buttonStyle(.plain)
+                .lineLimit(1)
+                .padding(.vertical, 12)
+                .padding(.horizontal, 14)
+                .contentShape(.rect)
+                .background(Colors.Background.action)
+                .cornerRadius(14, corners: .allCorners)
 
-            cellSelectionBorder(for: .account(account))
+            cellSelectionBorder(for: .account(entry.item))
         }
     }
 }
@@ -120,7 +127,12 @@ private extension AccountSelectorView {
                 sectionHeader(Localization.commonLockedWallets)
 
                 ForEach(viewModel.lockedWalletItems) {
-                    AccountSelectorWalletCellView(walletModel: $0)
+                    AccountSelectorWalletCellButtonView(
+                        walletModel: $0,
+                        onTap: {
+                            // No-op for locked wallets
+                        }
+                    )
                 }
             }
         }

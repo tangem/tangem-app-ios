@@ -47,15 +47,22 @@ class BaseTestCase: XCTestCase {
         stakingApiType: StakingAPI? = nil,
         skipToS: Bool = true,
         clearStorage: Bool = false,
+        disableMobileWallet: Bool = false,
         scenarios: [ScenarioConfig] = []
     ) {
-        var arguments = ["--uitesting", "--alpha"]
+        var arguments: [String] = []
 
-        arguments.append(contentsOf: ["-tangem_api_type", tangemApiType?.rawValue ?? TangemAPI.prod.rawValue])
+        arguments.append(contentsOf: [
+            "-tangem_api_type", tangemApiType?.rawValue ?? TangemAPI.prod.rawValue,
+        ])
 
-        arguments.append(contentsOf: ["-api_express", expressApiType?.rawValue ?? ExpressAPI.production.rawValue])
+        arguments.append(contentsOf: [
+            "-api_express", expressApiType?.rawValue ?? ExpressAPI.production.rawValue,
+        ])
 
-        arguments.append(contentsOf: ["-staking_api_type", stakingApiType?.rawValue ?? StakingAPI.prod.rawValue])
+        arguments.append(contentsOf: [
+            "-stake_kit_api_type", stakingApiType?.rawValue ?? StakingAPI.prod.rawValue,
+        ])
 
         if skipToS {
             arguments.append("-uitest-skip-tos")
@@ -63,6 +70,10 @@ class BaseTestCase: XCTestCase {
 
         if clearStorage {
             arguments.append("-uitest-clear-storage")
+        }
+
+        if disableMobileWallet {
+            arguments.append("-uitest-disable-mobile-wallet")
         }
 
         app.launchArguments = arguments
@@ -117,6 +128,32 @@ class BaseTestCase: XCTestCase {
         XCTContext.runActivity(named: "Maximize application") { _ in
             app.activate()
             XCTAssertTrue(app.wait(for: .runningForeground, timeout: 5.0), "App should be running in foreground")
+        }
+    }
+
+    // MARK: - Alert Handling
+
+    func waitAndDismissErrorAlert(
+        actionName: String,
+        expectedMessage: String = "currently unavailable",
+        buttonTitle: String = "OK"
+    ) {
+        XCTContext.runActivity(named: "Verify and dismiss error alert for \(actionName)") { _ in
+            let alert = app.alerts.firstMatch
+            XCTAssertTrue(
+                alert.waitForExistence(timeout: .robustUIUpdate),
+                "Error alert should be displayed after tapping \(actionName) button"
+            )
+
+            let alertMessage = alert.staticTexts.element(
+                matching: NSPredicate(format: "label CONTAINS %@", expectedMessage)
+            ).firstMatch
+            XCTAssertTrue(
+                alertMessage.exists,
+                "Alert should contain message about action being unavailable"
+            )
+
+            alert.buttons[buttonTitle].waitAndTap()
         }
     }
 }

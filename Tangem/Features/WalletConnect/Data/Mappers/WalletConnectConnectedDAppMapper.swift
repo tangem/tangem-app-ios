@@ -20,29 +20,70 @@ enum WalletConnectConnectedDAppMapper {
             icon: connectedDAppDTO.dAppIconURL
         )
 
-        return WalletConnectConnectedDApp(
-            session: session,
-            userWalletID: connectedDAppDTO.userWalletID,
-            dAppData: dAppData,
-            verificationStatus: mapVerificationStatus(toDomain: connectedDAppDTO.verificationStatus),
-            dAppBlockchains: connectedDAppDTO.dAppBlockchains.map(mapDAppBlockchain(toDomain:)),
-            connectionDate: connectedDAppDTO.connectionDate
-        )
+        switch connectedDAppDTO {
+        case .v1(let dto):
+            return .v1(
+                WalletConnectConnectedDAppV1(
+                    session: session,
+                    userWalletID: dto.userWalletID,
+                    dAppData: dAppData,
+                    verificationStatus: mapVerificationStatus(toDomain: dto.verificationStatus),
+                    dAppBlockchains: dto.dAppBlockchains.map(mapDAppBlockchain(toDomain:)),
+                    connectionDate: dto.connectionDate
+                )
+            )
+
+        case .v2(let dto):
+            let wrapped = WalletConnectConnectedDAppV1(
+                session: session,
+                userWalletID: dto.identifier.userWalletID,
+                dAppData: dAppData,
+                verificationStatus: mapVerificationStatus(toDomain: dto.verificationStatus),
+                dAppBlockchains: dto.dAppBlockchains.map(mapDAppBlockchain(toDomain:)),
+                connectionDate: dto.connectionDate
+            )
+            return .v2(WalletConnectConnectedDAppV2(accountId: dto.identifier.accountID, wrapped: wrapped))
+        }
     }
 
     static func mapFromDomain(_ connectedDApp: WalletConnectConnectedDApp) -> WalletConnectConnectedDAppPersistentDTO {
-        WalletConnectConnectedDAppPersistentDTO(
-            sessionTopic: connectedDApp.session.topic,
-            namespaces: mapNamespaces(fromDomain: connectedDApp.session.namespaces),
-            userWalletID: connectedDApp.userWalletID,
-            dAppName: connectedDApp.dAppData.name,
-            dAppDomainURL: connectedDApp.dAppData.domain,
-            dAppIconURL: connectedDApp.dAppData.icon,
-            verificationStatus: mapVerificationStatus(fromDomain: connectedDApp.verificationStatus),
-            dAppBlockchains: connectedDApp.dAppBlockchains.map(mapDAppBlockchain(fromDomain:)),
-            expiryDate: connectedDApp.session.expiryDate,
-            connectionDate: connectedDApp.connectionDate
-        )
+        switch connectedDApp {
+        case .v1(let dApp):
+            return .v1(
+                WalletConnectConnectedDAppPersistentDTOV1(
+                    sessionTopic: dApp.session.topic,
+                    namespaces: mapNamespaces(fromDomain: dApp.session.namespaces),
+                    userWalletID: dApp.userWalletID,
+                    dAppName: dApp.dAppData.name,
+                    dAppDomainURL: dApp.dAppData.domain,
+                    dAppIconURL: dApp.dAppData.icon,
+                    verificationStatus: mapVerificationStatus(fromDomain: dApp.verificationStatus),
+                    dAppBlockchains: dApp.dAppBlockchains.map(mapDAppBlockchain(fromDomain:)),
+                    expiryDate: dApp.session.expiryDate,
+                    connectionDate: dApp.connectionDate
+                )
+            )
+
+        case .v2(let dApp):
+            let identifier = WalletConnectConnectedDAppPersistentDTO.IdentifierV2(
+                userWalletID: dApp.wrapped.userWalletID,
+                accountID: dApp.accountId
+            )
+            return .v2(
+                WalletConnectConnectedDAppPersistentDTOV2(
+                    sessionTopic: dApp.session.topic,
+                    namespaces: mapNamespaces(fromDomain: dApp.session.namespaces),
+                    identifier: identifier,
+                    dAppName: dApp.dAppData.name,
+                    dAppDomainURL: dApp.dAppData.domain,
+                    dAppIconURL: dApp.dAppData.icon,
+                    verificationStatus: mapVerificationStatus(fromDomain: dApp.verificationStatus),
+                    dAppBlockchains: dApp.dAppBlockchains.map(mapDAppBlockchain(fromDomain:)),
+                    expiryDate: dApp.session.expiryDate,
+                    connectionDate: dApp.connectionDate
+                )
+            )
+        }
     }
 
     // MARK: - Private

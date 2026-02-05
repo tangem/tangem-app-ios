@@ -7,12 +7,22 @@
 //
 
 import Foundation
+import TangemAccounts
 import TangemLocalization
 
 // MARK: - View model
 
 class SendDestinationSuggestedViewModel {
-    private(set) var cellViewModels: [CellModel] = []
+    var suggestedWalletsHeader: String {
+        if suggestedWallets.contains(where: { $0.wallet.account != nil }) {
+            return Localization.commonAccounts
+        }
+
+        return Localization.sendRecipientWalletsTitle
+    }
+
+    private(set) var suggestedWallets: [Wallet] = []
+    private(set) var suggestedRecentTransaction: [RecentTransaction] = []
 
     private let tapAction: (SendDestinationSuggested) -> Void
 
@@ -23,80 +33,93 @@ class SendDestinationSuggestedViewModel {
     ) {
         self.tapAction = tapAction
 
-        var cellViewModels: [CellModel] = []
-
-        if !wallets.isEmpty {
-            cellViewModels.append(CellModel(type: .header(title: Localization.sendRecipientWalletsTitle), tapAction: nil))
-            cellViewModels.append(
-                contentsOf: wallets.map { [weak self] wallet in
-                    CellModel(
-                        type: .wallet(wallet: wallet, addressIconViewModel: AddressIconViewModel(address: wallet.address)),
-                        tapAction: {
-                            self?.tapAction(SendDestinationSuggested(address: wallet.address, additionalField: nil, type: .otherWallet))
-                        }
-                    )
-                }
-            )
+        suggestedWallets = wallets.map { wallet in
+            Wallet(
+                id: wallet.address,
+                addressIconViewModel: AddressIconViewModel(address: wallet.address),
+                wallet: wallet
+            ) { [weak self] in
+                self?.tapAction(SendDestinationSuggested(
+                    address: wallet.address,
+                    additionalField: nil,
+                    type: .otherWallet,
+                    tokenHeader: wallet.tokenHeader,
+                    accountModelAnalyticsProvider: wallet.accountModelAnalyticsProvider
+                ))
+            }
         }
 
-        if !recentTransactions.isEmpty {
-            cellViewModels.append(CellModel(type: .header(title: Localization.sendRecentTransactions), tapAction: nil))
-            cellViewModels.append(
-                contentsOf: recentTransactions.map { [weak self] record in
-                    CellModel(
-                        type: .recentTransaction(record: record, addressIconViewModel: AddressIconViewModel(address: record.address)),
-                        tapAction: {
-                            self?.tapAction(SendDestinationSuggested(address: record.address, additionalField: record.additionalField, type: .recentAddress))
-                        }
-                    )
-                }
-            )
+        suggestedRecentTransaction = recentTransactions.map { record in
+            RecentTransaction(
+                id: record.id,
+                addressIconViewModel: AddressIconViewModel(address: record.address),
+                record: record
+            ) { [weak self] in
+                self?.tapAction(SendDestinationSuggested(
+                    address: record.address,
+                    additionalField: record.additionalField,
+                    type: .recentAddress,
+                    // Nil because we don't have account info in recent addresses
+                    tokenHeader: nil,
+                    accountModelAnalyticsProvider: nil
+                ))
+            }
         }
-
-        self.cellViewModels = cellViewModels
     }
 }
 
-// MARK: - Cell model
+// MARK: - UI view models
 
 extension SendDestinationSuggestedViewModel {
-    struct CellModel: Identifiable {
-        let id = UUID()
+    struct RecentTransaction: Identifiable {
+        let id: String
+        let addressIconViewModel: AddressIconViewModel
+        let record: SendDestinationSuggestedTransactionRecord
+        let action: () -> Void
+    }
 
-        let type: `Type`
-        let tapAction: (() -> Void)?
+    struct Wallet: Identifiable {
+        let id: String
+        let addressIconViewModel: AddressIconViewModel
+        let wallet: SendDestinationSuggestedWallet
+        let action: () -> Void
     }
 }
 
-// MARK: - Helper types
-
-extension SendDestinationSuggestedViewModel.CellModel {
-    enum `Type` {
-        case header(title: String)
-        case wallet(wallet: SendDestinationSuggestedWallet, addressIconViewModel: AddressIconViewModel)
-        case recentTransaction(record: SendDestinationSuggestedTransactionRecord, addressIconViewModel: AddressIconViewModel)
-    }
-}
+// MARK: - SendDestinationSuggested (selection result model)
 
 struct SendDestinationSuggested {
     let address: String
     let additionalField: String?
     let type: DestinationType
-}
+    let tokenHeader: ExpressInteractorTokenHeader?
+    let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
 
-extension SendDestinationSuggested {
     enum DestinationType {
         case otherWallet
         case recentAddress
     }
 }
 
+// MARK: - SuggestedWallet (User's wallets)
+
 struct SendDestinationSuggestedWallet {
     let name: String
     let address: String
+    let account: Account?
+    let tokenHeader: ExpressInteractorTokenHeader?
+    let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
+
+    struct Account {
+        let icon: AccountIconView.ViewData
+        let name: String
+    }
 }
 
+// MARK: - TransactionRecord (History)
+
 struct SendDestinationSuggestedTransactionRecord {
+    let id: String
     let address: String
     let additionalField: String?
     let isOutgoing: Bool

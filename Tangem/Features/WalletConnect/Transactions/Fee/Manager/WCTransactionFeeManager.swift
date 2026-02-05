@@ -27,7 +27,7 @@ protocol WCTransactionFeeManager {
         walletModel: any WalletModel,
         feeInteractor: WCFeeInteractor,
         output: WCFeeInteractorOutput?
-    ) -> FeeSelectorContentViewModel
+    ) -> WCFeeSelectorContentViewModel
 
     func updateTransactionWithFee(
         _ fee: WCFee,
@@ -105,7 +105,7 @@ final class CommonWCTransactionFeeManager: WCTransactionFeeManager {
         walletModel: any WalletModel,
         feeInteractor: WCFeeInteractor,
         output: WCFeeInteractorOutput?
-    ) -> FeeSelectorContentViewModel {
+    ) -> WCFeeSelectorContentViewModel {
         return feeSelectorFactory.createFeeSelector(
             customFeeService: feeInteractor.customFeeService,
             walletModel: walletModel,
@@ -148,6 +148,8 @@ final class CommonWCTransactionFeeManager: WCTransactionFeeManager {
                 maxPriorityFeePerGas: nil,
                 nonce: currentTransaction.nonce
             )
+        case .gasless:
+            return nil
         }
 
         return updatedTransaction
@@ -191,7 +193,7 @@ final class CommonWCTransactionFeeManager: WCTransactionFeeManager {
         )
         events.append(contentsOf: highFeeEvents)
 
-        if case .failedToLoad = feeInteractor.selectedFee.value {
+        if case .failure = feeInteractor.selectedFee.value {
             events.append(.networkFeeUnreachable)
         }
 

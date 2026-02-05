@@ -12,7 +12,7 @@ import BlockchainSdk
 
 extension TokenItem {
     var stakingTokenItem: TangemStaking.StakingTokenItem? {
-        StakeKitNetworkType(rawValue: blockchain.stakeKitNetworkID).map { network in
+        StakingNetworkType(rawValue: blockchain.networkId).map { network in
             StakingTokenItem(
                 network: network,
                 contractAddress: contractAddress,
@@ -20,16 +20,6 @@ extension TokenItem {
                 decimals: decimalCount,
                 symbol: currencySymbol
             )
-        }
-    }
-}
-
-private extension Blockchain {
-    var stakeKitNetworkID: String {
-        switch self {
-        case .bsc: "binance"
-        case .ton: "ton"
-        default: coinId
         }
     }
 }

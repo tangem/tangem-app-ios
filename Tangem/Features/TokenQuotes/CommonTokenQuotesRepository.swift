@@ -19,7 +19,7 @@ class CommonTokenQuotesRepository {
     private var loadingQueue = PassthroughSubject<QueueItem, Never>()
     private var bag: Set<AnyCancellable> = []
     private let storage = CachesDirectoryStorage(file: .cachedQuotes)
-    private let lock = Lock(isRecursive: false)
+    private let lock = OSAllocatedUnfairLock()
 
     init() {
         bind()
@@ -39,6 +39,20 @@ extension CommonTokenQuotesRepository: TokenQuotesRepository {
         _quotes.eraseToAnyPublisher()
     }
 
+    func fetchFreshQuoteFor(currencyId: String, shouldUpdateCache: Bool) async throws -> TokenQuote {
+        let quotes = await loadQuotes(currencyIds: [currencyId])
+
+        guard let quote = quotes[currencyId] else {
+            throw CommonError.noData
+        }
+
+        if shouldUpdateCache {
+            saveQuotes([quote])
+        }
+
+        return quote
+    }
+
     func quote(for currencyId: String) async throws -> TokenQuote {
         var quote = quotes[currencyId]
 
@@ -54,6 +68,7 @@ extension CommonTokenQuotesRepository: TokenQuotesRepository {
         return quote
     }
 
+    @discardableResult
     func loadQuotes(currencyIds: [String]) -> AnyPublisher<[String: TokenQuote], Never> {
         AppLogger.info(self, "Request loading quotes for ids: \(currencyIds)")
 
@@ -87,22 +102,6 @@ extension CommonTokenQuotesRepository: TokenQuotesRepositoryUpdater {
 
 private extension CommonTokenQuotesRepository {
     func bind() {
-        AppSettings.shared.$selectedCurrencyCode
-            // Ignore already the selected code
-            .dropFirst()
-            .debounce(for: 0.5, scheduler: DispatchQueue.main)
-            // Ignore if the selected code is equal
-            .removeDuplicates()
-            .withLatestFrom(_quotes)
-            .withWeakCaptureOf(self)
-            // Reload existing quotes for a new currency code
-            .flatMapLatest { repository, quotes in
-                let currencyIds = Array(quotes.keys)
-                return repository.loadQuotes(currencyIds: currencyIds)
-            }
-            .sink()
-            .store(in: &bag)
-
         loadingQueue
             .collect(debouncedTime: 0.3, scheduler: DispatchQueue.global())
             .withWeakCaptureOf(self)
@@ -139,7 +138,8 @@ private extension CommonTokenQuotesRepository {
             .withWeakCaptureOf(self)
             .flatMap { repository, _ in
                 let userWallets = repository.userWalletRepository.models
-                let userCurrencyIds = Array(Set(userWallets.flatMap { $0.walletModelsManager.walletModels.compactMap(\.tokenItem.currencyId) }))
+                let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWallets)
+                let userCurrencyIds = walletModels.compactMap(\.tokenItem.currencyId).unique()
                 return repository.loadQuotes(currencyIds: userCurrencyIds)
             }
             .sink()

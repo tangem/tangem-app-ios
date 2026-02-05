@@ -10,7 +10,7 @@ import Combine
 import TangemFoundation
 
 final class NewAuthWalletViewModel: ObservableObject {
-    @Published var icon: LoadingValue<ImageValue> = .loading
+    @Published var icon: LoadingResult<ImageValue, Never> = .loading
 
     var title: String {
         item.title
@@ -24,9 +24,9 @@ final class NewAuthWalletViewModel: ObservableObject {
         item.isProtected
     }
 
-    private let item: NewAuthViewModel.WalletItem
+    private let item: NewAuthViewState.WalletItem
 
-    init(item: NewAuthViewModel.WalletItem) {
+    init(item: NewAuthViewState.WalletItem) {
         self.item = item
         loadImage()
     }
@@ -56,7 +56,7 @@ private extension NewAuthWalletViewModel {
             let image = await viewModel.item.imageProvider.loadSmallImage()
 
             await runOnMain {
-                viewModel.icon = .loaded(image)
+                viewModel.icon = .success(image)
             }
         }
     }

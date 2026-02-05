@@ -17,7 +17,6 @@ final class CommonUserTokenListManager {
     typealias Completion = (Result<Void, Swift.Error>) -> Void
 
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
-    @Injected(\.wcService) private var wcService: any WCService
 
     weak var externalParametersProvider: UserTokenListExternalParametersProvider?
 
@@ -52,7 +51,7 @@ final class CommonUserTokenListManager {
         self.hdWalletsSupported = hdWalletsSupported
         self.hasTokenSynchronization = hasTokenSynchronization
         self.defaultBlockchains = defaultBlockchains
-        tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.hexString) // [REDACTED_TODO_COMMENT]
+        tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.hexString)
         initializedSubject = CurrentValueSubject(tokenItemsRepository.containsFile)
         userTokensListSubject = CurrentValueSubject(tokenItemsRepository.getList())
 
@@ -63,10 +62,6 @@ final class CommonUserTokenListManager {
 // MARK: - UserTokenListManager
 
 extension CommonUserTokenListManager: UserTokenListManager {
-    var initialized: Bool {
-        initializedSubject.value
-    }
-
     var initializedPublisher: AnyPublisher<Bool, Never> {
         initializedSubject.eraseToAnyPublisher()
     }
@@ -89,7 +84,7 @@ extension CommonUserTokenListManager: UserTokenListManager {
             externalParametersProvider: externalParametersProvider
         )
 
-        updateTokensOnServer(list: converter.convertStoredToRemote(userTokenList))
+        updateTokensOnServer(list: converter.convertStoredToRemote(userTokenList, userWalletId: userWalletId))
     }
 
     func update(_ type: UserTokenListUpdateType, shouldUpload: Bool) {
@@ -102,9 +97,8 @@ extension CommonUserTokenListManager: UserTokenListManager {
         case .remove(let entry):
             let storedUserToken = converter.convertToStoredUserToken(tokenItem: entry)
             tokenItemsRepository.remove([storedUserToken])
-            if entry.isBlockchain {
-                wcService.handleHiddenBlockchainFromCurrentUserWallet(entry.blockchainNetwork.blockchain)
-            }
+        case .update:
+            break // No-op, not supported
         }
 
         notifyAboutTokenListUpdates()
@@ -135,7 +129,7 @@ private extension CommonUserTokenListManager {
         let updatedUserTokenList = userTokenList ?? tokenItemsRepository.getList()
         userTokensListSubject.send(updatedUserTokenList)
 
-        if !initialized, tokenItemsRepository.containsFile {
+        if !initializedSubject.value, tokenItemsRepository.containsFile {
             initializedSubject.send(true)
         }
     }
@@ -217,7 +211,7 @@ private extension CommonUserTokenListManager {
             externalParametersProvider: externalParametersProvider
         )
         let list = tokenItemsRepository.getList()
-        return converter.convertStoredToRemote(list)
+        return converter.convertStoredToRemote(list, userWalletId: userWalletId)
     }
 
     // MARK: - Token upgrading

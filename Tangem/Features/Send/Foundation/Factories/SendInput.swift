@@ -9,15 +9,9 @@
 struct SendInput {
     let userWalletInfo: UserWalletInfo
     let walletModel: any WalletModel
-    let expressInput: CommonExpressDependenciesFactory.Input
 
-    init(
-        userWalletInfo: UserWalletInfo,
-        walletModel: any WalletModel,
-        expressInput: CommonExpressDependenciesFactory.Input
-    ) {
+    init(userWalletInfo: UserWalletInfo, walletModel: any WalletModel) {
         self.userWalletInfo = userWalletInfo
         self.walletModel = walletModel
-        self.expressInput = expressInput
     }
 }

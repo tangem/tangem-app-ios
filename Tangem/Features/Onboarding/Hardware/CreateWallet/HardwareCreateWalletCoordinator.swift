@@ -13,7 +13,9 @@ import TangemFoundation
 import TangemUIUtils
 import TangemMobileWalletSdk
 
-class HardwareCreateWalletCoordinator: CoordinatorObject {
+final class HardwareCreateWalletCoordinator: CoordinatorObject {
+    @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
+
     let dismissAction: Action<OutputOptions>
     let popToRootAction: Action<PopToRootOptions>
 
@@ -24,10 +26,6 @@ class HardwareCreateWalletCoordinator: CoordinatorObject {
     // MARK: - Child coordinators
 
     @Published var onboardingCoordinator: OnboardingCoordinator?
-
-    // MARK: - Child view models
-
-    @Published var mailViewModel: MailViewModel?
 
     required init(
         dismissAction: @escaping Action<OutputOptions>,
@@ -42,7 +40,11 @@ class HardwareCreateWalletCoordinator: CoordinatorObject {
 
 extension HardwareCreateWalletCoordinator {
     func start(with options: InputOptions) {
-        rootViewModel = HardwareCreateWalletViewModel(coordinator: self)
+        rootViewModel = HardwareCreateWalletViewModel(
+            userWalletModel: options.userWalletModel,
+            source: options.source,
+            coordinator: self
+        )
     }
 
     func onDismissalAttempt() {
@@ -63,11 +65,15 @@ extension HardwareCreateWalletCoordinator: HardwareCreateWalletRoutable {
 
     func openMail(dataCollector: EmailDataCollector, recipient: String) {
         let logsComposer = LogsComposer(infoProvider: dataCollector)
-        mailViewModel = MailViewModel(
+        let mailViewModel = MailViewModel(
             logsComposer: logsComposer,
             recipient: recipient,
             emailType: .failedToScanCard
         )
+
+        Task { @MainActor in
+            mailPresenter.present(viewModel: mailViewModel)
+        }
     }
 }
 
@@ -93,7 +99,10 @@ private extension HardwareCreateWalletCoordinator {
 // MARK: - Options
 
 extension HardwareCreateWalletCoordinator {
-    struct InputOptions {}
+    struct InputOptions {
+        let userWalletModel: UserWalletModel?
+        let source: HardwareCreateWalletSource
+    }
 
     enum OutputOptions {
         case main(userWalletModel: UserWalletModel)

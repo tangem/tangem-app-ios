@@ -138,18 +138,48 @@ final class WCTransactionViewModel: ObservableObject & FloatingSheetContentViewM
             return nil
         }
 
-        return transactionData.userWalletModel.walletModelsManager.walletModels.first { walletModel in
+        let walletModels: [any WalletModel]
+
+        do {
+            walletModels = try WCWalletModelsResolver.resolveWalletModels(
+                account: transactionData.account, userWalletModel: transactionData.userWalletModel
+            )
+        } catch {
+            WCLogger.error(error: error)
+            return nil
+        }
+
+        return walletModels.first { walletModel in
             walletModel.tokenItem.blockchain.networkId == transactionData.blockchain.networkId &&
-                walletModel.defaultAddressString.caseInsensitiveCompare(ethTransaction.from) == .orderedSame
+                walletModel.walletConnectAddress.caseInsensitiveCompare(ethTransaction.from) == .orderedSame
         }
     }
 
     func startTransactionSimulation() async {
         simulationState = .loading
 
+        let walletModels: [any WalletModel]
+
+        do {
+            walletModels = try WCWalletModelsResolver.resolveWalletModels(
+                account: transactionData.account, userWalletModel: transactionData.userWalletModel
+            )
+        } catch {
+            WCLogger.error(error: error)
+
+            simulationState = .simulationFailed(error: error.localizedDescription)
+
+            analyticsLogger.logSignatureRequestReceived(
+                transactionData: transactionData,
+                simulationState: simulationState
+            )
+
+            return
+        }
+
         simulationState = await simulationManager.startSimulation(
             for: transactionData,
-            userWalletModel: transactionData.userWalletModel
+            walletModels: walletModels
         )
 
         analyticsLogger.logSignatureRequestReceived(
@@ -369,7 +399,7 @@ private extension WCTransactionViewModel {
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, fee in
-                if case .failedToLoad = fee?.value, let fee {
+                if case .failure = fee?.value, let fee {
                     viewModel.handleFeeLoadingError(fee)
                 }
             }
@@ -398,7 +428,7 @@ private extension WCTransactionViewModel {
                     backAction: { [weak self] in self?.returnToTransactionDetails() }
                 )
 
-                let state = WCMultipleTransactionsAlertFactory.makeMultipleTransactionAlertState()
+                let state = WCMultipleTransactionsAlertFactory.makeMultipleTransactionAlertState(tangemIconProvider: CommonTangemIconProvider(config: transactionData.userWalletModel.config))
                 let viewModel = WCMultipleTransactionAlertViewModel(state: state, input: input)
 
                 presentationState = .multipleTransactionsAlert(viewModel)
@@ -436,12 +466,12 @@ private extension WCTransactionViewModel {
 
     private func handleFeeLoadingError(_ selectedFee: WCFee) {
         switch selectedFee.value {
-        case .failedToLoad:
+        case .failure:
             let networkFeeEvent = WCNotificationEvent.networkFeeUnreachable
             feeValidationInputs = notificationManager.updateFeeValidationNotifications([networkFeeEvent], buttonAction: { [weak self] _, actionType in
                 self?.handleNotificationButtonAction(actionType)
             })
-        case .loading, .loaded:
+        case .loading, .success:
             let currentEvents = notificationManager.currentFeeValidationInputs(buttonAction: { [weak self] _, actionType in
                 self?.handleNotificationButtonAction(actionType)
             })
@@ -484,20 +514,39 @@ private extension WCTransactionViewModel {
     }
 
     private func getFeeTokenItem() -> TokenItem? {
-        if let walletModel = transactionData.userWalletModel.walletModelsManager.walletModels.first(where: {
-            $0.tokenItem.blockchain.networkId == transactionData.blockchain.networkId
-        }) {
-            return walletModel.feeTokenItem
+        let walletModels: [any WalletModel]
+
+        do {
+            walletModels = try WCWalletModelsResolver.resolveWalletModels(
+                account: transactionData.account, userWalletModel: transactionData.userWalletModel
+            )
+        } catch {
+            WCLogger.error(error: error)
+            return nil
         }
 
-        return nil
+        guard let walletModel = walletModels.first(where: {
+            $0.tokenItem.blockchain.networkId == transactionData.blockchain.networkId
+        }) else {
+            return nil
+        }
+
+        return walletModel.feeTokenItem
     }
 
     private static func makeAddressRowViewModel(from transactionData: WCHandleTransactionData) -> WCTransactionAddressRowViewModel? {
-        let walletModels = transactionData
-            .userWalletModel
-            .walletModelsManager
-            .walletModels
+        let walletModels: [any WalletModel]
+
+        do {
+            walletModels = try WCWalletModelsResolver.resolveWalletModels(
+                account: transactionData.account, userWalletModel: transactionData.userWalletModel
+            )
+        } catch {
+            WCLogger.error(error: error)
+            return nil
+        }
+
+        let filteredWalletModels = walletModels
             .filter { walletModel in
                 let isCoin = walletModel.tokenItem.blockchain.networkId == transactionData.blockchain.networkId && walletModel.isMainToken
                 let isTokenInOtherBlockchain = walletModel.tokenItem.token?.id == transactionData.blockchain.networkId
@@ -506,8 +555,8 @@ private extension WCTransactionViewModel {
             }
 
         guard
-            walletModels.count > 1,
-            let mainAddress = walletModels.first(where: { $0.isMainToken })?.defaultAddressString
+            filteredWalletModels.count > 1,
+            let mainAddress = filteredWalletModels.first(where: { $0.isMainToken })?.walletConnectAddress
         else {
             return nil
         }

@@ -11,7 +11,8 @@ import Foundation
 import Combine
 import TangemFoundation
 
-class CommonUserTokensPushNotificationsManager {
+@available(iOS, deprecated: 100000.0, message: "Will be removed after accounts migration is complete ([REDACTED_INFO])")
+final class CommonUserTokensPushNotificationsManager {
     // MARK: - Services
 
     @Injected(\.userTokensPushNotificationsService) var userTokensPushNotificationsService: UserTokensPushNotificationsService
@@ -22,8 +23,9 @@ class CommonUserTokensPushNotificationsManager {
 
     private let userWalletId: UserWalletId
     private let walletModelsManager: WalletModelsManager
-    private let derivationManager: DerivationManager?
     private let userTokensManager: UserTokensManager
+    private let remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncing
+    private let derivationManager: DerivationManager?
 
     private let _userWalletPushStatusSubject: CurrentValueSubject<UserWalletPushNotifyStatus, Never> = .init(
         .unavailable(reason: .notInitialized, enabledRemote: false)
@@ -46,13 +48,15 @@ class CommonUserTokensPushNotificationsManager {
     init(
         userWalletId: UserWalletId,
         walletModelsManager: WalletModelsManager,
+        userTokensManager: UserTokensManager,
+        remoteStatusSyncing: UserTokensPushNotificationsRemoteStatusSyncing,
         derivationManager: DerivationManager?,
-        userTokensManager: UserTokensManager
     ) {
         self.userWalletId = userWalletId
         self.walletModelsManager = walletModelsManager
-        self.derivationManager = derivationManager
         self.userTokensManager = userTokensManager
+        self.remoteStatusSyncing = remoteStatusSyncing
+        self.derivationManager = derivationManager
 
         bind()
     }
@@ -135,7 +139,7 @@ class CommonUserTokensPushNotificationsManager {
     }
 
     private func syncRemoteStatus() {
-        userTokensManager.upload()
+        remoteStatusSyncing.syncRemoteStatus()
     }
 
     @MainActor

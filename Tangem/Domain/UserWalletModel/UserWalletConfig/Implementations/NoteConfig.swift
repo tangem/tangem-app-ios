@@ -11,14 +11,17 @@ import TangemSdk
 import BlockchainSdk
 import TangemAssets
 import TangemFoundation
+import TangemLocalization
 
 struct NoteConfig: CardContainer {
     let card: CardDTO
     private let noteData: WalletData
+    private let isDemo: Bool
 
-    init(card: CardDTO, noteData: WalletData) {
+    init(card: CardDTO, noteData: WalletData, isDemo: Bool) {
         self.card = card
         self.noteData = noteData
+        self.isDemo = isDemo
     }
 
     private var defaultBlockchain: Blockchain {
@@ -60,7 +63,13 @@ extension NoteConfig: UserWalletConfig {
     }
 
     var generalNotificationEvents: [GeneralNotificationEvent] {
-        GeneralNotificationEventsFactory().makeNotifications(for: card)
+        var notifications = GeneralNotificationEventsFactory().makeNotifications(for: card)
+
+        if isDemo, !AppEnvironment.current.isTestnet {
+            notifications.append(.demoCard)
+        }
+
+        return notifications
     }
 
     var emailData: [EmailCollectedData] {
@@ -72,7 +81,7 @@ extension NoteConfig: UserWalletConfig {
     }
 
     var productType: Analytics.ProductType {
-        .note
+        isDemo ? .demoNote : .note
     }
 
     var cardHeaderImage: ImageType? {
@@ -87,6 +96,10 @@ extension NoteConfig: UserWalletConfig {
         }
     }
 
+    var contextBuilder: WalletCreationContextBuilder {
+        ["type": "card"]
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .accessCode:
@@ -94,6 +107,10 @@ extension NoteConfig: UserWalletConfig {
         case .passcode:
             return .hidden
         case .longTap:
+            if isDemo {
+                return .hidden
+            }
+
             return card.settings.isRemovingUserCodesAllowed ? .available : .hidden
         case .signing:
             return .available
@@ -104,13 +121,13 @@ extension NoteConfig: UserWalletConfig {
         case .twinning:
             return .hidden
         case .exchange:
-            return .available
+            return isDemo ? .disabled(localizedReason: Localization.alertDemoFeatureDisabled) : .available
         case .walletConnect:
             return .hidden
         case .multiCurrency:
             return .hidden
         case .resetToFactory:
-            return .available
+            return isDemo ? .disabled(localizedReason: Localization.alertDemoFeatureDisabled) : .available
         case .hdWallets:
             return .hidden
         case .staking:
@@ -145,10 +162,16 @@ extension NoteConfig: UserWalletConfig {
             return .available
         case .transactionPayloadLimit:
             return .available
+        case .tangemPay:
+            return .hidden
         }
     }
 
     func makeWalletModelsFactory(userWalletId: UserWalletId) -> WalletModelsFactory {
+        if isDemo {
+            return DemoWalletModelsFactory(config: self, userWalletId: userWalletId)
+        }
+
         return CommonWalletModelsFactory(config: self, userWalletId: userWalletId)
     }
 

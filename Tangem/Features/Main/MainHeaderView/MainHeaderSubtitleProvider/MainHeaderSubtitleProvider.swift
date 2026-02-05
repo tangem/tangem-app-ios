@@ -8,7 +8,7 @@
 
 import Combine
 
-protocol MainHeaderSubtitleProvider: AnyObject {
+protocol MainHeaderSubtitleProvider {
     var isLoadingPublisher: AnyPublisher<Bool, Never> { get }
     var subtitlePublisher: AnyPublisher<MainHeaderSubtitleInfo, Never> { get }
 

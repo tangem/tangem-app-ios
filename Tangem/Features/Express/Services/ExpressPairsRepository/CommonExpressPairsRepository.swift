@@ -8,41 +8,26 @@
 
 import Combine
 import TangemExpress
+import TangemFoundation
 
 actor CommonExpressPairsRepository {
     @Injected(\.userWalletRepository)
     private var userWalletRepository: UserWalletRepository
 
-    private var providers: [UserWalletInfo: any ExpressAPIProvider] = [:]
+    private var providers: [UserWalletId: any ExpressAPIProvider] = [:]
     private var pairs: Set<ExpressPair> = []
 
     private var userCurrencies: Set<ExpressWalletCurrency> {
-        let walletModels = if FeatureProvider.isAvailable(.accounts) {
-            userWalletRepository.models.compactMap {
-                $0.accountModelsManager.accountModels.standard()
-            }
-            .flatMap { accountModel in
-                switch accountModel {
-                case .standard(.single(let cryptoAccountModel)): [cryptoAccountModel]
-                case .standard(.multiple(let cryptoAccountModels)): cryptoAccountModels
-                }
-            }
-            .flatMap { cryptoAccountModel in
-                cryptoAccountModel.walletModelsManager.walletModels
-            }
-        } else {
-            userWalletRepository.models.flatMap { userWalletModel in
-                userWalletModel.walletModelsManager.walletModels
-            }
-        }
+        let walletModels = AccountsFeatureAwareWalletModelsResolver
+            .walletModels(for: userWalletRepository.models)
 
         return walletModels.map { $0.tokenItem.expressCurrency }.toSet()
     }
 
-    init() {}
-
     private func provider(userWalletInfo: UserWalletInfo) -> any ExpressAPIProvider {
-        if let provider = providers[userWalletInfo] {
+        let key = userWalletInfo.id
+
+        if let provider = providers[key] {
             return provider
         }
 
@@ -51,7 +36,7 @@ actor CommonExpressPairsRepository {
             refcode: userWalletInfo.refcode
         )
 
-        providers[userWalletInfo] = provider
+        providers[key] = provider
         return provider
     }
 }

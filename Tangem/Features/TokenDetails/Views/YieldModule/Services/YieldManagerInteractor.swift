@@ -8,7 +8,7 @@
 
 import Foundation
 import TangemFoundation
-import enum BlockchainSdk.YieldModuleError
+import BlockchainSdk
 
 actor YieldManagerInteractor {
     private(set) var enterFee: YieldTransactionFee?
@@ -39,6 +39,10 @@ actor YieldManagerInteractor {
 
     // MARK: - Public Implementation
 
+    func isGasPriceHigh(in fee: YieldTransactionFee) -> Bool {
+        return fee.maxFeePerGas?.decimal ?? .zero > Constants.maxFeePerGasLimitWei
+    }
+
     func getAvailableBalance() -> Decimal? {
         manager.state?.state.activeInfo?.yieldModuleBalanceValue
     }
@@ -68,24 +72,45 @@ actor YieldManagerInteractor {
         }
     }
 
-    func getMaxFee() -> (Decimal, Decimal)? {
-        if let marketInfo = manager.state?.marketInfo, let maxFeeNative = marketInfo.maxFeeNative, let maxFeeUSD = marketInfo.maxFeeUSD {
-            return (maxFeeNative, maxFeeUSD)
+    func getMaxFeeNative() -> Decimal? {
+        if let marketInfo = manager.state?.marketInfo, let maxFeeNative = marketInfo.maxFeeNative {
+            return maxFeeNative
         }
 
         return nil
-    }
-
-    func getMinAmount() async throws -> Decimal {
-        try await manager.minimalFee()
     }
 
     func getChartData() async throws -> YieldChartData {
         try await manager.fetchChartData()
     }
 
-    func getCurrentNetworkFee() async throws -> Decimal {
-        try await manager.currentNetworkFee()
+    func getCurrentFeeParameters() async throws -> EthereumFeeParameters {
+        try await manager.currentNetworkFeeParameters()
+    }
+
+    func getMinAmount(feeParameters: EthereumFeeParameters) async throws -> Decimal {
+        let converter = BalanceConverter()
+
+        let feeNative = feeParameters.calculateFee(decimalValue: manager.blockchain.decimalValue)
+        let gasInFiat = try await converter.convertToFiat(feeNative, currencyId: manager.blockchain.currencyId)
+
+        guard let gasInToken = converter.convertToCryptoFrom(fiatValue: gasInFiat, currencyId: manager.tokenId) else {
+            throw YieldModuleError.minimalTopUpAmountNotFound
+        }
+
+        let feeBuffered = gasInToken * Constants.minimalTopUpBuffer
+        let minAmount = feeBuffered / Constants.minimalTopUpFeeLimit
+
+        let minAmountInFiat = try await converter.convertToFiat(minAmount, currencyId: manager.tokenId)
+        return minAmountInFiat
+    }
+
+    func getCurrentNetworkFee(feeParameters: EthereumFeeParameters) async throws -> Decimal {
+        let converter = BalanceConverter()
+
+        let feeNative = feeParameters.calculateFee(decimalValue: manager.blockchain.decimalValue)
+        let gasInFiat = try await converter.convertToFiat(feeNative, currencyId: manager.blockchain.currencyId)
+        return gasInFiat
     }
 
     func clearAll() {
@@ -173,13 +198,24 @@ actor YieldManagerInteractor {
         let new = Task { try await loader() }
         setTask(new)
 
+        defer {
+            setTask(nil)
+        }
+
         do {
             let fee = try await new.value
             setCache(fee)
             return fee
         } catch {
-            setTask(nil)
             throw error
         }
+    }
+}
+
+private extension YieldManagerInteractor {
+    enum Constants {
+        static let minimalTopUpBuffer: Decimal = 1.25
+        static let minimalTopUpFeeLimit: Decimal = 0.04
+        static let maxFeePerGasLimitWei: Decimal = 4000000000
     }
 }

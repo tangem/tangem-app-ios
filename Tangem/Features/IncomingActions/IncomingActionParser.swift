@@ -19,6 +19,7 @@ public class IncomingActionParser {
         WalletConnectURLParser(),
         BlockchainURLSchemesParser(),
         OnrampIncomingActionURLParser(),
+        NewsIncomingLinkParser(),
         DefaultIncomingLinkParser(),
     ]
 

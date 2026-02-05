@@ -22,16 +22,11 @@ final class ExpressProvidersSelectorViewModel: ObservableObject, Identifiable {
 
     // MARK: - Dependencies
 
-    private var allProviders: [ExpressAvailableProvider] = []
-    private var selectedProvider: ExpressAvailableProvider?
-
     private let priceChangeFormatter: PriceChangeFormatter
     private let expressProviderFormatter: ExpressProviderFormatter
     private let expressRepository: ExpressRepository
     private let expressInteractor: ExpressInteractor
     private weak var coordinator: ExpressProvidersSelectorRoutable?
-
-    private var stateSubscription: AnyCancellable?
 
     init(
         priceChangeFormatter: PriceChangeFormatter,
@@ -47,82 +42,67 @@ final class ExpressProvidersSelectorViewModel: ObservableObject, Identifiable {
         self.coordinator = coordinator
 
         bind()
-        initialSetup()
     }
 
+    func userDidTap(provider: ExpressAvailableProvider) {
+        Analytics.log(event: .swapProviderChosen, params: [.provider: provider.provider.name])
+        expressInteractor.updateProvider(provider: provider)
+        coordinator?.closeExpressProvidersSelector()
+    }
+}
+
+// MARK: - Private Implementation
+
+extension ExpressProvidersSelectorViewModel {
     func bind() {
-        stateSubscription = expressInteractor.state
-            .dropFirst()
-            .compactMap { $0.quote }
-            .removeDuplicates()
-            .sink { [weak self] state in
-                self?.updateView()
-            }
+        expressInteractor.providersPublisher()
+            .withWeakCaptureOf(self)
+            .map { $0.mapToFCAWarningIfNeeded(providers: $1) }
+            .receiveOnMain()
+            .assign(to: &$ukNotificationInput)
+
+        Publishers.CombineLatest(
+            expressInteractor.providersPublisher(),
+            expressInteractor.selectedProviderPublisher()
+        )
+        .withWeakCaptureOf(self)
+        .asyncMap { await $0.mapToProviderRowViewModels(providers: $1.0, selectedProvider: $1.1) }
+        .receiveOnMain()
+        .assign(to: &$providerViewModels)
     }
 
-    func initialSetup() {
-        runTask(in: self) { viewModel in
-            try await viewModel.updateFields()
-            await viewModel.setupProviderRowViewModels()
+    func mapToFCAWarningIfNeeded(
+        providers: [ExpressAvailableProvider]
+    ) -> NotificationViewInput? {
+        let allProviderIds = providers.map { $0.provider.id }
 
-            await runOnMain { [weak self] in
-                self?.showFCAWarningIfNeeded()
-            }
+        // Display FCA notification if the providers list contains FCA restriction for any provider
+        let isRestrictableFCAIncluded = allProviderIds.contains(where: {
+            ExpressConstants.expressProvidersFCAWarningList.contains($0)
+        })
+
+        guard ukGeoDefiner.isUK, isRestrictableFCAIncluded else {
+            return nil
         }
+
+        return NotificationsFactory().buildNotificationInput(for: ExpressProvidersListEvent.fcaWarningList)
     }
 
-    func updateView() {
-        runTask(in: self) { viewModel in
-            await viewModel.setupProviderRowViewModels()
-        }
+    func mapToProviderRowViewModels(
+        providers: [ExpressAvailableProvider],
+        selectedProvider: ExpressAvailableProvider?
+    ) async -> [ProviderRowViewModel] {
+        await providers
+            .showableProviders(selectedProviderId: selectedProvider?.provider.id)
+            .sortedByPriorityAndQuotes()
+            .asyncMap { await self.mapToProviderRowViewModel(provider: $0, selectedProvider: selectedProvider) }
     }
 
-    func updateFields() async throws {
-        allProviders = await expressInteractor.getAllProviders()
-        selectedProvider = await expressInteractor.getSelectedProvider()
-    }
-
-    func setupProviderRowViewModels() async {
-        typealias SortableProvider = (priority: ExpressAvailableProvider.Priority, amount: Decimal)
-
-        let viewModels: [ProviderRowViewModel] = await allProviders
-            .asyncSorted(
-                sort: { (firstProvider: SortableProvider, secondProvider: SortableProvider) in
-                    if firstProvider.priority == secondProvider.priority {
-                        return firstProvider.amount > secondProvider.amount
-                    } else {
-                        return firstProvider.priority > secondProvider.priority
-                    }
-                },
-                by: { provider in
-                    let priority = await provider.getPriority()
-                    let expectedAmount = await provider.getState().quote?.expectAmount ?? 0
-                    return (priority, expectedAmount)
-                }
-            )
-            .asyncCompactMap { provider in
-                guard provider.isAvailable else {
-                    return nil
-                }
-
-                // If the provider `isSelected` we are forced to show it anyway
-                let isSelected = selectedProvider?.provider.id == provider.provider.id
-                let isAvailableToShow = await provider.getState().isAvailableToShow
-
-                guard isSelected || isAvailableToShow else {
-                    return nil
-                }
-
-                return await mapToProviderRowViewModel(provider: provider)
-            }
-
-        await runOnMain {
-            providerViewModels = viewModels
-        }
-    }
-
-    func mapToProviderRowViewModel(provider: ExpressAvailableProvider) async -> ProviderRowViewModel {
-        let senderCurrencyCode = expressInteractor.getSender().tokenItem.currencySymbol
+    func mapToProviderRowViewModel(
+        provider: ExpressAvailableProvider,
+        selectedProvider: ExpressAvailableProvider?
+    ) async -> ProviderRowViewModel {
+        let senderCurrencyCode = expressInteractor.getSource().value?.tokenItem.currencySymbol
         let destinationCurrencyCode = expressInteractor.getDestination()?.tokenItem.currencySymbol
         var subtitles: [ProviderRowViewModel.Subtitle] = []
 
@@ -155,7 +135,7 @@ final class ExpressProvidersSelectorViewModel: ObservableObject, Identifiable {
             return .none
         }()
 
-        if let percentSubtitle = await makePercentSubtitle(provider: provider) {
+        if let percentSubtitle = await makePercentSubtitle(provider: provider, selectedProvider: selectedProvider) {
             subtitles.append(percentSubtitle)
         }
 
@@ -172,27 +152,10 @@ final class ExpressProvidersSelectorViewModel: ObservableObject, Identifiable {
         )
     }
 
-    func unavailableProviderRowViewModel(provider: ExpressProvider) -> ProviderRowViewModel {
-        ProviderRowViewModel(
-            provider: expressProviderFormatter.mapToProvider(provider: provider),
-            titleFormat: .name,
-            isDisabled: true,
-            badge: .none,
-            subtitles: [.text(Localization.expressProviderNotAvailable)],
-            detailsType: .none,
-            tapAction: {}
-        )
-    }
-
-    func userDidTap(provider: ExpressAvailableProvider) {
-        // Cancel subscription that view do not jump
-        stateSubscription?.cancel()
-        Analytics.log(event: .swapProviderChosen, params: [.provider: provider.provider.name])
-        expressInteractor.updateProvider(provider: provider)
-        coordinator?.closeExpressProvidersSelector()
-    }
-
-    func makePercentSubtitle(provider: ExpressAvailableProvider) async -> ProviderRowViewModel.Subtitle? {
+    func makePercentSubtitle(
+        provider: ExpressAvailableProvider,
+        selectedProvider: ExpressAvailableProvider?
+    ) async -> ProviderRowViewModel.Subtitle? {
         // For selectedProvider we don't add percent badge
         guard selectedProvider?.provider.id != provider.provider.id else {
             return nil
@@ -206,42 +169,5 @@ final class ExpressProvidersSelectorViewModel: ObservableObject, Identifiable {
         let changePercent = quote.rate / selectedRate - 1
         let result = priceChangeFormatter.formatFractionalValue(changePercent, option: .express)
         return .percent(result.formattedText, signType: result.signType)
-    }
-
-    // MARK: - Private Implementation
-
-    func showFCAWarningIfNeeded() {
-        let allProviderIds = allProviders.map { $0.provider.id }
-
-        // Display FCA notification if the providers list contains FCA restriction for any provider
-        let isRestrictableFCAIncluded = allProviderIds.contains(where: {
-            ExpressConstants.expressProvidersFCAWarningList.contains($0)
-        })
-
-        if ukGeoDefiner.isUK, isRestrictableFCAIncluded {
-            ukNotificationInput = NotificationsFactory().buildNotificationInput(for: ExpressProvidersListEvent.fcaWarningList)
-        } else {
-            ukNotificationInput = nil
-        }
-    }
-}
-
-private extension ExpressProviderManagerState {
-    var isPermissionRequired: Bool {
-        switch self {
-        case .permissionRequired:
-            return true
-        default:
-            return false
-        }
-    }
-
-    var isAvailableToShow: Bool {
-        switch self {
-        case .error:
-            return false
-        default:
-            return true
-        }
     }
 }

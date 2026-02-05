@@ -32,6 +32,10 @@ final class ExpressTransactionDispatcher {
 // MARK: - TransactionDispatcher
 
 extension ExpressTransactionDispatcher: TransactionDispatcher {
+    var hasNFCInteraction: Bool {
+        transactionSigner.hasNFCInteraction
+    }
+
     func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult {
         guard case .express(let transactionTypeData) = transaction else {
             throw TransactionDispatcherResult.Error.transactionNotFound
@@ -41,10 +45,15 @@ extension ExpressTransactionDispatcher: TransactionDispatcher {
         case .compiled(let unsignedData):
             let transactionSendResult = try await send(unsignedData: unsignedData)
 
+            if walletModel.yieldModuleManager?.state?.state.isEffectivelyActive == true {
+                walletModel.yieldModuleManager?.sendTransactionSendEvent(transactionHash: transactionSendResult.hash)
+            }
+
             return mapper.mapResult(
                 transactionSendResult,
                 blockchain: walletModel.tokenItem.blockchain,
-                signer: transactionSigner.latestSignerType
+                signer: transactionSigner.latestSignerType,
+                isToken: walletModel.tokenItem.isToken
             )
         case .default(let transaction):
             return try await sendTransactionDispatcher.send(transaction: .transfer(transaction))

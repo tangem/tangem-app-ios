@@ -20,14 +20,19 @@ class UnstakingFlowFactory: StakingFlowDependenciesFactory {
     let action: RestakingModel.Action
     var actionType: StakingAction.ActionType { action.displayType }
 
+    let tokenFeeProvidersManager: TokenFeeProvidersManager
+    let tokenHeaderProvider: SendGenericTokenHeaderProvider
     let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let walletModelDependenciesProvider: WalletModelDependenciesProvider
-    let walletModelBalancesProvider: WalletModelBalancesProvider
+    let availableBalanceProvider: any TokenBalanceProvider
+    let fiatAvailableBalanceProvider: any TokenBalanceProvider
     let transactionDispatcherFactory: TransactionDispatcherFactory
+    /// Staking doesn't support account-based analytics
+    let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? = nil
 
     lazy var analyticsLogger = makeStakingSendAnalyticsLogger()
     lazy var unstakingModel = makeUnstakingModel(stakingManager: manager, analyticsLogger: analyticsLogger)
-    lazy var notificationManager = makeStakingNotificationManager()
+    lazy var notificationManager = makeStakingNotificationManager(analyticsLogger: analyticsLogger)
 
     init(
         walletModel: any WalletModel,
@@ -39,14 +44,24 @@ class UnstakingFlowFactory: StakingFlowDependenciesFactory {
         self.manager = manager
         self.action = action
 
+        tokenHeaderProvider = UnstakingTokenHeaderProvider()
         tokenItem = walletModel.tokenItem
         feeTokenItem = walletModel.feeTokenItem
         tokenIconInfo = TokenIconInfoBuilder().build(
             from: walletModel.tokenItem,
             isCustom: walletModel.isCustom
         )
+
+        tokenFeeProvidersManager = TokenFeeProvidersManagerBuilder(walletModel: walletModel).makeTokenFeeProvidersManager()
         walletModelDependenciesProvider = walletModel
-        walletModelBalancesProvider = walletModel
+        availableBalanceProvider = UnstakingBalanceProvider(
+            tokenItem: tokenItem,
+            action: action
+        )
+        fiatAvailableBalanceProvider = FiatTokenBalanceProvider(
+            input: walletModel,
+            cryptoBalanceProvider: availableBalanceProvider
+        )
         transactionDispatcherFactory = TransactionDispatcherFactory(
             walletModel: walletModel,
             signer: userWalletInfo.signer
@@ -87,25 +102,6 @@ extension UnstakingFlowFactory {
         }
         return .init(type: .typical(crypto: action.amount, fiat: fiat))
     }
-
-    func maxAmount() -> Decimal {
-        amount.crypto ?? 0
-    }
-
-    func walletHeaderText() -> String {
-        Localization.stakingStakedAmount
-    }
-
-    func formattedBalance() -> String {
-        let formatter = BalanceFormatter()
-        let cryptoFormatted = formatter.formatCryptoBalance(
-            amount.crypto,
-            currencyCode: tokenItem.currencySymbol
-        )
-
-        let fiatFormatted = formatter.formatFiatBalance(amount.fiat)
-        return Localization.commonCryptoFiatFormat(cryptoFormatted, fiatFormatted)
-    }
 }
 
 // MARK: - SendGenericFlowFactory
@@ -117,15 +113,8 @@ extension UnstakingFlowFactory: SendGenericFlowFactory {
         let amount = makeSendAmountStep()
         amount.amountUpdater.externalUpdate(amount: action.amount)
 
-        let sendFeeCompactViewModel = SendNewFeeCompactViewModel(
-            feeTokenItem: feeTokenItem,
-            isFeeApproximate: isFeeApproximate()
-        )
-
-        let sendFeeFinishViewModel = SendFeeFinishViewModel(
-            feeTokenItem: feeTokenItem,
-            isFeeApproximate: isFeeApproximate()
-        )
+        let sendFeeCompactViewModel = SendFeeCompactViewModel()
+        let sendFeeFinishViewModel = SendFeeFinishViewModel()
 
         let summary = makeSendSummaryStep(
             sendAmountCompactViewModel: amount.compact,
@@ -147,7 +136,7 @@ extension UnstakingFlowFactory: SendGenericFlowFactory {
         notificationManager.setupManager(with: unstakingModel)
 
         // Analytics
-        analyticsLogger.setup(stakingValidatorsInput: unstakingModel)
+        analyticsLogger.setup(stakingTargetsInput: unstakingModel)
 
         let stepsManager = CommonUnstakingStepsManager(
             amountStep: amount.step,
@@ -183,7 +172,8 @@ extension UnstakingFlowFactory: SendBaseBuildable {
             alertBuilder: makeStakingAlertBuilder(),
             dataBuilder: makeStakingBaseDataBuilder(input: unstakingModel),
             analyticsLogger: analyticsLogger,
-            blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper()
+            blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper(),
+            tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
         )
     }
 }

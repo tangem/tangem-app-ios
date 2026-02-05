@@ -54,7 +54,7 @@ public struct OnboardingCloseButton: View {
     }
 
     public var body: some View {
-        CloseButton(dismiss: action)
+        CloseTextButton(action: action)
             .padding(.horizontal, hPadding)
     }
 }
@@ -131,6 +131,47 @@ public struct SupportButton: View {
         Button(action: action, label: {
             Text(title)
                 .font(.system(size: 17, weight: .regular))
+        })
+        .allowsHitTesting(isEnabled)
+        .opacity(isVisible ? 1.0 : 0.0)
+        .frame(height: height)
+        .foregroundColor(isEnabled ? color : color.opacity(0.5))
+        .padding(.horizontal, hPadding)
+    }
+}
+
+public struct SearchButton: View {
+    let height: CGFloat
+    let isVisible: Bool
+    let isEnabled: Bool
+    let color: Color
+    let hPadding: CGFloat
+    let action: () -> Void
+
+    public init(
+        height: CGFloat,
+        isVisible: Bool,
+        isEnabled: Bool,
+        color: Color = Colors.Old.tangemGrayDark6,
+        hPadding: CGFloat = 16,
+        action: @escaping () -> Void
+    ) {
+        self.height = height
+        self.isVisible = isVisible
+        self.isEnabled = isEnabled
+        self.color = color
+        self.hPadding = hPadding
+        self.action = action
+    }
+
+    public var body: some View {
+        Button(action: action, label: {
+            Assets.search.image
+                .renderingMode(.template)
+                .resizable()
+                .foregroundColor(Colors.Icon.primary1)
+                .frame(width: 24, height: 24)
+                .padding(.all, 4)
         })
         .allowsHitTesting(isEnabled)
         .opacity(isVisible ? 1.0 : 0.0)

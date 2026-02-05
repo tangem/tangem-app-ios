@@ -13,9 +13,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li card</string>
+        <string>%li карта</string>
+        <key>few</key>
+        <string>%li карты</string>
+        <key>many</key>
+        <string>%li карт</string>
         <key>other</key>
-        <string>%li cards</string>
+        <string>%li карты</string>
       </dict>
     </dict>
     <key>card_label_card_count</key>
@@ -49,9 +53,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li token</string>
+        <string>%li токен</string>
+        <key>few</key>
+        <string>%li токена</string>
+        <key>many</key>
+        <string>%li токенов</string>
         <key>other</key>
-        <string>%li tokens</string>
+        <string>%li токены</string>
       </dict>
     </dict>
     <key>common_days_no_param</key>
@@ -85,9 +93,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li network</string>
+        <string>%li сеть</string>
+        <key>few</key>
+        <string>%li сети</string>
+        <key>many</key>
+        <string>%li сетей</string>
         <key>other</key>
-        <string>%li networks</string>
+        <string>%li сетях</string>
       </dict>
     </dict>
     <key>common_tokens_count</key>
@@ -168,6 +180,46 @@
         <string>На основе %li оценок</string>
         <key>other</key>
         <string>На основе %li оценок</string>
+      </dict>
+    </dict>
+    <key>news_published_hours_ago</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%liч назад</string>
+        <key>few</key>
+        <string>%liч назад</string>
+        <key>many</key>
+        <string>%liч назад</string>
+        <key>other</key>
+        <string>%liч назад</string>
+      </dict>
+    </dict>
+    <key>news_published_minutes_ago</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%liмин назад</string>
+        <key>few</key>
+        <string>%liмин назад</string>
+        <key>many</key>
+        <string>%liмин назад</string>
+        <key>other</key>
+        <string>%liмин назад</string>
       </dict>
     </dict>
     <key>nft_collections_count</key>

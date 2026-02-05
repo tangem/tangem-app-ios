@@ -26,7 +26,7 @@ public struct NFTAssetExtendedInfoView: View {
                 Text(viewData.title)
                     .style(Fonts.Bold.body, color: Colors.Text.primary1)
             } rightButtons: {
-                CloseButton(dismiss: dismissAction)
+                CloseTextButton(action: dismissAction)
             }
 
             Text(viewData.text)

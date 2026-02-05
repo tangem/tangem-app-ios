@@ -11,8 +11,16 @@ import SwiftUI
 final class MobileOnboardingSeedPhraseIntroStep: MobileOnboardingFlowStep {
     private let viewModel: MobileOnboardingSeedPhraseIntroViewModel
 
-    init(delegate: MobileOnboardingSeedPhraseIntroDelegate) {
-        viewModel = MobileOnboardingSeedPhraseIntroViewModel(delegate: delegate)
+    init(
+        userWalletModel: UserWalletModel,
+        source: MobileOnboardingFlowSource,
+        delegate: MobileOnboardingSeedPhraseIntroDelegate
+    ) {
+        viewModel = MobileOnboardingSeedPhraseIntroViewModel(
+            userWalletModel: userWalletModel,
+            source: source,
+            delegate: delegate
+        )
     }
 
     override func build() -> any View {

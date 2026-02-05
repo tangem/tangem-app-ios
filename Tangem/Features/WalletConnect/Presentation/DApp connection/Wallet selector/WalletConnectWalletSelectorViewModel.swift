@@ -12,6 +12,7 @@ import struct SwiftUI.Image
 import TangemLocalization
 import TangemFoundation
 
+@available(iOS, deprecated: 100000.0, message: "Only used when accounts are disabled, will be removed in the future ([REDACTED_INFO])")
 @MainActor
 final class WalletConnectWalletSelectorViewModel: ObservableObject {
     private let backAction: () -> Void
@@ -167,6 +168,7 @@ private extension WalletConnectWalletSelectorViewState {
                     domainModel: userWallet,
                     imageState: .loading,
                     description: .init(
+                        // accounts_fixes_needed_none
                         tokensCount: Localization.commonTokensCount(userWallet.walletModelsManager.walletModels.filter { $0.isMainToken }.count),
                         balanceState: .loading(cached: nil)
                     ),

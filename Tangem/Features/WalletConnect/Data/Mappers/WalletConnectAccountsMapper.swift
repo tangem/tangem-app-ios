@@ -40,6 +40,20 @@ enum WalletConnectAccountsMapper {
 
     static func map(
         from blockchain: BlockchainSdk.Blockchain,
+        wcAccountsWalletModelProvider: some WalletConnectAccountsWalletModelProvider,
+        accountId: String,
+        preferredCAIPReference: String?
+    ) -> [ReownWalletKit.Account] {
+        map(
+            from: blockchain,
+            wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
+            preferredCAIPReference: preferredCAIPReference,
+            accountId: accountId
+        )
+    }
+
+    static func map(
+        from blockchain: BlockchainSdk.Blockchain,
         walletConnectWalletModelProvider: some WalletConnectWalletModelProvider,
         preferredCAIPReference: String?
     ) -> [ReownWalletKit.Account] {
@@ -54,7 +68,31 @@ enum WalletConnectAccountsMapper {
         }
 
         return wallets.compactMap { wallet in
-            ReownWalletKit.Account(chainIdentifier: reownBlockchain.absoluteString, address: wallet.defaultAddressString)
+            ReownWalletKit.Account(chainIdentifier: reownBlockchain.absoluteString, address: wallet.walletConnectAddress)
+        }
+    }
+
+    static func map(
+        from blockchain: BlockchainSdk.Blockchain,
+        wcAccountsWalletModelProvider: some WalletConnectAccountsWalletModelProvider,
+        preferredCAIPReference: String?,
+        accountId: String
+    ) -> [ReownWalletKit.Account] {
+        guard let reownBlockchain = WalletConnectBlockchainMapper.mapFromDomain(blockchain, preferredCAIPReference: preferredCAIPReference) else {
+            return []
+        }
+
+        let wallets = wcAccountsWalletModelProvider.getModels(
+            with: blockchain.networkId,
+            accountId: accountId
+        )
+
+        guard wallets.isNotEmpty else {
+            return []
+        }
+
+        return wallets.compactMap { wallet in
+            ReownWalletKit.Account(chainIdentifier: reownBlockchain.absoluteString, address: wallet.walletConnectAddress)
         }
     }
 }

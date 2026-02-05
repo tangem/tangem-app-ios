@@ -12,6 +12,7 @@ import TangemNetworkUtils
 final class CommonYieldModuleAPIService {
     private let provider: TangemProvider<YieldModuleAPITarget>
     private let yieldModuleAPIType: YieldModuleAPIType
+    private let tangemAPIType: TangemAPIType
 
     private let decoder: JSONDecoder = {
         let decoder = JSONDecoder()
@@ -19,7 +20,7 @@ final class CommonYieldModuleAPIService {
         return decoder
     }()
 
-    init(provider: TangemProvider<YieldModuleAPITarget>, yieldModuleAPIType: YieldModuleAPIType) {
+    init(provider: TangemProvider<YieldModuleAPITarget>, yieldModuleAPIType: YieldModuleAPIType, tangemAPIType: TangemAPIType) {
         assert(
             provider.plugins.contains(where: { $0 is YieldModuleAuthorizationPlugin }),
             "Should contains YieldModuleAuthorizationPlugin"
@@ -27,6 +28,7 @@ final class CommonYieldModuleAPIService {
 
         self.provider = provider
         self.yieldModuleAPIType = yieldModuleAPIType
+        self.tangemAPIType = tangemAPIType
     }
 }
 
@@ -67,12 +69,13 @@ extension CommonYieldModuleAPIService: YieldModuleAPIService {
         )
     }
 
-    func activate(tokenContractAddress: String, walletAddress: String, chainId: Int) async throws {
+    func activate(tokenContractAddress: String, walletAddress: String, chainId: Int, userWalletId: String) async throws {
         let _: YieldModuleDTO.Response.ActivateInfo = try await request(
             for: .activate(
                 tokenContractAddress: tokenContractAddress,
                 walletAddress: walletAddress,
-                chainId: chainId
+                chainId: chainId,
+                userWalletId: userWalletId
             ),
             decoder: decoder
         )
@@ -88,12 +91,26 @@ extension CommonYieldModuleAPIService: YieldModuleAPIService {
             decoder: decoder
         )
     }
+
+    func sendTransactionEvent(txHash: String, operation: String) async throws {
+        try await request(
+            for: .transactionEvents(
+                txHash: txHash,
+                operation: operation,
+            )
+        )
+    }
 }
 
 private extension CommonYieldModuleAPIService {
     func request<T: Decodable>(for target: YieldModuleAPITarget.TargetType, decoder: JSONDecoder) async throws -> T {
-        let request = YieldModuleAPITarget(yieldModuleAPIType: yieldModuleAPIType, target: target)
+        let request = YieldModuleAPITarget(yieldModuleAPIType: yieldModuleAPIType, tangemAPIType: tangemAPIType, target: target)
         let response = try await provider.asyncRequest(request)
         return try response.mapAPIResponseThrowingTangemAPIError(allowRedirectCodes: false, decoder: decoder)
+    }
+
+    func request(for target: YieldModuleAPITarget.TargetType) async throws {
+        let request = YieldModuleAPITarget(yieldModuleAPIType: yieldModuleAPIType, tangemAPIType: tangemAPIType, target: target)
+        _ = try await provider.asyncRequest(request)
     }
 }

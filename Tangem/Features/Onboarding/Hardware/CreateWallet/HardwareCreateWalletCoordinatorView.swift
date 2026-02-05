@@ -18,8 +18,6 @@ struct HardwareCreateWalletCoordinatorView: CoordinatorView {
                 HardwareCreateWalletView(viewModel: viewModel)
                     .navigationLinks(links)
             }
-
-            sheets
         }
     }
 }
@@ -32,14 +30,6 @@ private extension HardwareCreateWalletCoordinatorView {
             .navigation(item: $coordinator.onboardingCoordinator) {
                 OnboardingCoordinatorView(coordinator: $0)
                     .navigationBarHidden(true)
-            }
-            .emptyNavigationLink()
-    }
-
-    var sheets: some View {
-        NavHolder()
-            .sheet(item: $coordinator.mailViewModel) {
-                MailView(viewModel: $0)
             }
     }
 }

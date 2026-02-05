@@ -10,8 +10,6 @@ import TangemUI
 
 protocol SendFlowBaseDependenciesFactory: SendGenericFlowBaseDependenciesFactory {
     var shouldShowFeeSelector: Bool { get }
-
-    var walletModelFeeProvider: WalletModelFeeProvider { get }
     var expressDependenciesFactory: ExpressDependenciesFactory { get }
 }
 
@@ -38,7 +36,10 @@ extension SendFlowBaseDependenciesFactory {
     }
 
     func makeSwapManager() -> SwapManager {
-        CommonSwapManager(interactor: expressDependenciesFactory.expressInteractor)
+        CommonSwapManager(
+            userWalletConfig: userWalletInfo.config,
+            interactor: expressDependenciesFactory.expressInteractor
+        )
     }
 
     func makeSendAlertBuilder() -> SendAlertBuilder {
@@ -49,60 +50,6 @@ extension SendFlowBaseDependenciesFactory {
         TransactionParamsBuilder(blockchain: tokenItem.blockchain)
     }
 
-    // MARK: - Fee
-
-    func makeSendWithSwapFeeProvider(
-        receiveTokenInput: SendReceiveTokenInput,
-        sendFeeProvider: SendFeeProvider,
-        swapFeeProvider: SendFeeProvider
-    ) -> SendFeeProvider {
-        SendWithSwapFeeProvider(
-            receiveTokenInput: receiveTokenInput,
-            sendFeeProvider: sendFeeProvider,
-            swapFeeProvider: swapFeeProvider
-        )
-    }
-
-    func makeSendFeeProvider(input: any SendFeeProviderInput, hasCustomFeeService: Bool) -> SendFeeProvider {
-        let options: [FeeOption] = switch (shouldShowFeeSelector, hasCustomFeeService) {
-        case (true, true): [.slow, .market, .fast, .custom]
-        case (true, false): [.slow, .market, .fast]
-        case (false, true): [.market, .custom]
-        case (false, false): [.market]
-        }
-
-        return CommonSendFeeProvider(
-            input: input,
-            feeLoader: CommonSendFeeLoader(tokenItem: tokenItem, walletModelFeeProvider: walletModelFeeProvider),
-            defaultFeeOptions: options
-        )
-    }
-
-    func makeSwapFeeProvider(swapManager: SwapManager) -> SendFeeProvider {
-        SwapFeeProvider(swapManager: swapManager)
-    }
-
-    func makeCustomFeeService(input: CustomFeeServiceInput) -> CustomFeeService? {
-        let factory = CustomFeeServiceFactory(
-            tokenItem: tokenItem,
-            feeTokenItem: feeTokenItem,
-            bitcoinTransactionFeeCalculator: walletModelDependenciesProvider.bitcoinTransactionFeeCalculator
-        )
-
-        return factory.makeService(input: input)
-    }
-
-    // MARK: - Analytics
-
-    func makeSendAnalyticsLogger(sendType: CommonSendAnalyticsLogger.SendType) -> SendAnalyticsLogger {
-        CommonSendAnalyticsLogger(
-            tokenItem: tokenItem,
-            feeTokenItem: feeTokenItem,
-            feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder(isFixedFee: !shouldShowFeeSelector),
-            sendType: sendType
-        )
-    }
-
     // MARK: - Notifications
 
     func makeSendWithSwapNotificationManager(receiveTokenInput: SendReceiveTokenInput) -> SendNotificationManager {
@@ -111,7 +58,6 @@ extension SendFlowBaseDependenciesFactory {
             sendNotificationManager: CommonSendNotificationManager(
                 userWalletId: userWalletInfo.id,
                 tokenItem: tokenItem,
-                feeTokenItem: feeTokenItem,
                 withdrawalNotificationProvider: walletModelDependenciesProvider.withdrawalNotificationProvider
             ),
             expressNotificationManager: ExpressNotificationManager(
@@ -136,6 +82,20 @@ extension SendFlowBaseDependenciesFactory {
                 blockchain: tokenItem.blockchain,
                 decimalCount: tokenItem.decimalCount
             )
+        )
+    }
+
+    // MARK: - Analytics
+
+    static func makeSendAnalyticsLogger(
+        walletModel: any WalletModel,
+        sendType: CommonSendAnalyticsLogger.SendType
+    ) -> SendAnalyticsLogger {
+        CommonSendAnalyticsLogger(
+            tokenItem: walletModel.tokenItem,
+            feeTokenItem: walletModel.feeTokenItem,
+            feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder(isFixedFee: !walletModel.shouldShowFeeSelector),
+            sendType: sendType
         )
     }
 }

@@ -18,12 +18,6 @@ extension EmailDataCollector {
     var fileName: String {
         LogFilesNames.infoLogs
     }
-
-    func prepareLogFile() -> URL {
-        let url = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent(fileName)
-        try? logData?.write(to: url)
-        return url
-    }
 }
 
 private extension EmailDataCollector {
@@ -32,6 +26,31 @@ private extension EmailDataCollector {
         let collectedString = collectedInfo.reduce("") { $0 + $1.type.title + $1.data + "\n" } + (appendDeviceInfo ? DeviceInfoProvider.info() : "")
         let messageToConvert = "\(sessionPrefix)\n\(collectedString)"
         return messageToConvert.data(using: .utf8)
+    }
+
+    func makeExplorerLinks(with walletModel: any WalletModel) -> [EmailCollectedData] {
+        var dataToFormat: [EmailCollectedData] = []
+
+        if walletModel.addressNames.count > 1 {
+            var explorerLinks = "Multiple explorers links: "
+            var addresses = "Multiple addresses: "
+            let suffix = " ; \n"
+            walletModel.addressNames.enumerated().forEach {
+                let namePrefix = $0.element + " - "
+                addresses += namePrefix + walletModel.displayAddress(for: $0.offset) + suffix
+                explorerLinks += namePrefix + (walletModel.exploreURL(for: $0.offset)?.absoluteString ?? "") + suffix
+            }
+            explorerLinks.removeLast(suffix.count)
+            addresses.removeLast(suffix.count)
+
+            dataToFormat.append(EmailCollectedData(type: .wallet(.walletAddress), data: addresses))
+            dataToFormat.append(EmailCollectedData(type: .wallet(.explorerLink), data: explorerLinks))
+        } else if walletModel.addressNames.count == 1 {
+            dataToFormat.append(EmailCollectedData(type: .wallet(.walletAddress), data: walletModel.displayAddress(for: 0)))
+            dataToFormat.append(EmailCollectedData(type: .wallet(.explorerLink), data: walletModel.exploreURL(for: 0)?.absoluteString ?? ""))
+        }
+
+        return dataToFormat
     }
 }
 
@@ -106,10 +125,10 @@ struct SendScreenDataCollector: EmailDataCollector {
             data.append(EmailCollectedData(type: .staking(.stakingAction), data: stakingAction.title))
         }
 
-        if let validator {
+        if let stakingTarget {
             data.append(contentsOf: [
-                EmailCollectedData(type: .staking(.validatorName), data: validator.name),
-                EmailCollectedData(type: .staking(.validatorAddress), data: validator.address),
+                EmailCollectedData(type: .staking(.validatorName), data: stakingTarget.name),
+                EmailCollectedData(type: .staking(.validatorAddress), data: stakingTarget.address),
             ])
         }
 
@@ -118,6 +137,8 @@ struct SendScreenDataCollector: EmailDataCollector {
             data.append(EmailCollectedData(type: .wallet(.exceptionWalletManagerHost), data: exceptionHost))
             data.append(EmailCollectedData(type: .send(.transactionHex), data: txHex))
         }
+
+        data.append(contentsOf: makeExplorerLinks(with: walletModel))
 
         return formatData(data)
     }
@@ -130,7 +151,7 @@ struct SendScreenDataCollector: EmailDataCollector {
     private let isFeeIncluded: Bool
     private let lastError: SendTxError?
     private let stakingAction: StakingAction.ActionType?
-    private let validator: ValidatorInfo?
+    private let stakingTarget: StakingTargetInfo?
 
     init(
         userWalletEmailData: [EmailCollectedData],
@@ -141,7 +162,7 @@ struct SendScreenDataCollector: EmailDataCollector {
         isFeeIncluded: Bool,
         lastError: SendTxError?,
         stakingAction: StakingAction.ActionType?,
-        validator: ValidatorInfo?
+        stakingTarget: StakingTargetInfo?
     ) {
         self.userWalletEmailData = userWalletEmailData
         self.walletModel = walletModel
@@ -151,7 +172,7 @@ struct SendScreenDataCollector: EmailDataCollector {
         self.isFeeIncluded = isFeeIncluded
         self.lastError = lastError
         self.stakingAction = stakingAction
-        self.validator = validator
+        self.stakingTarget = stakingTarget
     }
 }
 
@@ -294,24 +315,8 @@ struct DetailsFeedbackDataCollector: EmailDataCollector {
                 }
 
                 dataToFormat.append(EmailCollectedData(type: .wallet(.walletManagerHost), data: walletModel.blockchainDataProvider.currentHost))
-                if walletModel.addressNames.count > 1 {
-                    var explorerLinks = "Multiple explorers links: "
-                    var addresses = "Multiple addresses: "
-                    let suffix = " ; \n"
-                    walletModel.addressNames.enumerated().forEach {
-                        let namePrefix = $0.element + " - "
-                        addresses += namePrefix + walletModel.displayAddress(for: $0.offset) + suffix
-                        explorerLinks += namePrefix + (walletModel.exploreURL(for: $0.offset)?.absoluteString ?? "") + suffix
-                    }
-                    explorerLinks.removeLast(suffix.count)
-                    addresses.removeLast(suffix.count)
 
-                    dataToFormat.append(EmailCollectedData(type: .wallet(.walletAddress), data: addresses))
-                    dataToFormat.append(EmailCollectedData(type: .wallet(.explorerLink), data: explorerLinks))
-                } else if walletModel.addressNames.count == 1 {
-                    dataToFormat.append(EmailCollectedData(type: .wallet(.walletAddress), data: walletModel.displayAddress(for: 0)))
-                    dataToFormat.append(EmailCollectedData(type: .wallet(.explorerLink), data: walletModel.exploreURL(for: 0)?.absoluteString ?? ""))
-                }
+                dataToFormat.append(contentsOf: makeExplorerLinks(with: walletModel))
             }
 
             dataToFormat.append(.separator(.dashes))
@@ -405,5 +410,93 @@ struct VisaDisputeTransactionDataCollector: EmailDataCollector {
 
     init(transaction: VisaTransactionRecord) {
         self.transaction = transaction
+    }
+}
+
+// MARK: - TangemPay
+
+struct TangemPaySupportDataCollector: EmailDataCollector {
+    enum Source {
+        case transactionDetails(TangemPayTransactionRecord)
+        case failedToIssueCardSheet
+        case permanentBanner
+    }
+
+    let source: Source
+    let userWalletId: String
+    let customerId: String?
+
+    var logData: Data? {
+        var stringBuilder = DeviceInfoProvider.Subject.allCases
+            .map(\.description)
+            .joined(separator: "\n")
+
+        var encodable: Encodable?
+        let issueType: String?
+        switch source {
+        case .transactionDetails(let transaction):
+            switch transaction.record {
+            case .spend(let value as Encodable),
+                 .fee(let value as Encodable),
+                 .payment(let value as Encodable):
+                issueType = "Transaction"
+                encodable = value
+
+            case .collateral(let value as Encodable):
+                issueType = "Receive/Withdraw"
+                encodable = value
+            }
+
+        case .failedToIssueCardSheet:
+            issueType = "Card issuing"
+            encodable = nil
+
+        case .permanentBanner:
+            issueType = nil
+            encodable = nil
+        }
+
+        if let issueType {
+            stringBuilder.append("\nIssue type: \(issueType)")
+        }
+
+        stringBuilder.append("\n--------\n")
+
+        if let encodable, let jsonData = try? JSONEncoder().encode(encodable), let jsonString = String(data: jsonData, encoding: .utf8) {
+            stringBuilder.append(jsonString)
+            stringBuilder.append("\n--------\n")
+        }
+
+        if let customerId {
+            stringBuilder.append("Tangem Pay Customer ID: \(customerId)\n")
+        }
+
+        stringBuilder.append("User Wallet ID: \(userWalletId)")
+
+        return stringBuilder.data(using: .utf8)
+    }
+}
+
+// MARK: - Paera
+
+struct TangemPayKYCDeclinedDataCollector: EmailDataCollector {
+    private let customerId: String?
+
+    init(customerId: String?) {
+        self.customerId = customerId
+    }
+
+    var logData: Data? {
+        var stringBuilder = DeviceInfoProvider.Subject.allCases
+            .map(\.description)
+            .joined(separator: "\n")
+
+        stringBuilder.append("\n--------\n")
+
+        if let customerId {
+            stringBuilder.append("Tangem Pay Customer ID: \(customerId)")
+        }
+
+        return stringBuilder.data(using: .utf8)
     }
 }

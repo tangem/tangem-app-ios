@@ -13,10 +13,12 @@ import TangemFoundation
 class MultipleSignTask: CardSessionRunnable {
     private let dataToSign: [SignData]
     private let seedKey: Data
+    private let pairKey: Data?
 
-    public init(dataToSign: [SignData], seedKey: Data) {
+    public init(dataToSign: [SignData], seedKey: Data, pairKey: Data?) {
         self.dataToSign = dataToSign
         self.seedKey = seedKey
+        self.pairKey = pairKey
     }
 
     deinit {
@@ -47,7 +49,7 @@ class MultipleSignTask: CardSessionRunnable {
         let signCommand = SignAndReadTask(
             hashes: signData.hashes,
             seedKey: seedKey,
-            pairWalletPublicKey: nil,
+            pairWalletPublicKey: pairKey,
             hdKey: signData.derivationPath.map {
                 .init(blockchainKey: signData.publicKey, derivationPath: $0)
             }
@@ -65,7 +67,7 @@ class MultipleSignTask: CardSessionRunnable {
                     MultipleSignTaskResponse(
                         signatures: signResponse.signatures,
                         card: signResponse.card,
-                        publicKey: signData.publicKey,
+                        publicKey: signResponse.publicKey,
                         hashes: signData.hashes
                     )
                 )

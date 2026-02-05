@@ -79,12 +79,11 @@ public final class NFTAssetDetailsViewModel: ObservableObject, Identifiable {
 
     private let asset: NFTAsset
     private let collection: NFTCollection
-    private let navigationContext: NFTNavigationContext
     private let nftChainNameProvider: NFTChainNameProviding
     private let priceFormatter: NFTPriceFormatting
     private let analytics: NFTAnalytics.Details
 
-    @Published private var fiatPrice: LoadingValue<String> = .loading
+    @Published private var fiatPrice: LoadingResult<String, any Error> = .loading
     private var didAppear = false
 
     private weak var coordinator: NFTAssetDetailsRoutable?
@@ -92,13 +91,11 @@ public final class NFTAssetDetailsViewModel: ObservableObject, Identifiable {
     public init(
         asset: NFTAsset,
         collection: NFTCollection,
-        navigationContext: NFTNavigationContext,
         dependencies: NFTAssetDetailsDependencies,
         coordinator: NFTAssetDetailsRoutable?
     ) {
         self.asset = asset
         self.collection = collection
-        self.navigationContext = navigationContext
         nftChainNameProvider = dependencies.nftChainNameProvider
         priceFormatter = dependencies.priceFormatter
         analytics = dependencies.analytics
@@ -116,7 +113,7 @@ public final class NFTAssetDetailsViewModel: ObservableObject, Identifiable {
     }
 
     func onSendButtonTap() {
-        coordinator?.openSend(for: asset, in: collection, navigationContext: navigationContext)
+        coordinator?.openSend(for: asset, in: collection)
         analytics.logSendTapped()
     }
 
@@ -320,7 +317,7 @@ public final class NFTAssetDetailsViewModel: ObservableObject, Identifiable {
             let chain = viewModel.asset.id.chain
             let fiatPrice = await viewModel.priceFormatter.convertToFiatAndFormatCryptoPrice(salePrice.value, in: chain)
             // Since this is a non-detached task and inherits the Main Actor context, we can safely update the UI here
-            viewModel.fiatPrice = .loaded(fiatPrice)
+            viewModel.fiatPrice = .success(fiatPrice)
         }
     }
 }

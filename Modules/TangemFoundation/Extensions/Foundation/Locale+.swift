@@ -16,13 +16,10 @@ public extension Locale {
 public extension Locale {
     static let appLanguageCode = Bundle.main.preferredLocalizations.first ?? enLanguageCode
 
-    static func deviceLanguageCode() -> String {
-        if #available(iOS 16, *) {
-            return Locale.current.language.languageCode?.identifier ?? LanguageCode.english.identifier
-        } else {
-            return Locale.current.languageCode ?? enLanguageCode
-        }
-    }
+    static let deviceLanguageCode = {
+        let languages = CFPreferencesCopyAppValue("AppleLanguages" as CFString, kCFPreferencesAnyApplication) as? [String]
+        return languages?.first ?? LanguageCode.english.identifier
+    }()
 }
 
 public extension Locale {
@@ -33,12 +30,33 @@ public extension Locale {
 
 public extension Locale {
     static func webLanguageCode() -> String {
-        let languageCode = deviceLanguageCode()
-        switch languageCode {
+        switch deviceLanguageCode {
         case ruLanguageCode, byLanguageCode:
             return ruLanguageCode
         default:
             return enLanguageCode
         }
+    }
+}
+
+// MARK: - Supported Language Code
+
+public extension Locale {
+    /// Returns supported language code with priority: appLanguage → deviceLanguage → fallback
+    static func languageCode(supportedCodes: Set<String>, fallback: String = enLanguageCode) -> String {
+        // Priority 1: App language (respects per-app language setting in iOS Settings)
+        let appLang = Locale.Language(identifier: appLanguageCode)
+        if let code = appLang.languageCode?.identifier(.alpha2), supportedCodes.contains(code) {
+            return code
+        }
+
+        // Priority 2: Device language
+        let deviceLang = Locale.Language(identifier: deviceLanguageCode)
+        if let code = deviceLang.languageCode?.identifier(.alpha2), supportedCodes.contains(code) {
+            return code
+        }
+
+        // Fallback
+        return fallback
     }
 }

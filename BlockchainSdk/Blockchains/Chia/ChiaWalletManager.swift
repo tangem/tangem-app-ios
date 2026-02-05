@@ -35,19 +35,9 @@ final class ChiaWalletManager: BaseManager, WalletManager {
 
     // MARK: - Implementation
 
-    override func update(completion: @escaping (Result<Void, Error>) -> Void) {
-        cancellable = networkService
-            .getUnspents(puzzleHash: puzzleHash)
-            .sink(
-                receiveCompletion: { completionSubscription in
-                    if case .failure(let error) = completionSubscription {
-                        completion(.failure(error))
-                    }
-                },
-                receiveValue: { [weak self] response in
-                    self?.update(with: response, completion: completion)
-                }
-            )
+    override func updateWalletManager() async throws {
+        let coins = try await networkService.getUnspents(puzzleHash: puzzleHash).async()
+        await update(with: coins)
     }
 
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
@@ -77,11 +67,12 @@ final class ChiaWalletManager: BaseManager, WalletManager {
                     .mapAndEraseSendTxError(tx: encodedTransactionData?.hex())
                     .eraseToAnyPublisher()
             }
-            .map { [weak self] hash in
+            .withWeakCaptureOf(self)
+            .map { manager, hash in
                 let mapper = PendingTransactionRecordMapper()
                 let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hash)
-                self?.wallet.addPendingTransaction(record)
-                return TransactionSendResult(hash: hash)
+                manager.wallet.addPendingTransaction(record)
+                return TransactionSendResult(hash: hash, currentProviderHost: manager.currentHost)
             }
             .mapSendTxError()
             .eraseToAnyPublisher()
@@ -111,7 +102,7 @@ final class ChiaWalletManager: BaseManager, WalletManager {
 // MARK: - Private Implementation
 
 private extension ChiaWalletManager {
-    func update(with coins: [ChiaCoin], completion: @escaping (Result<Void, Error>) -> Void) {
+    func update(with coins: [ChiaCoin]) async {
         let decimalBalance = coins.map { Decimal($0.amount) }.reduce(0, +)
         let coinBalance = decimalBalance / wallet.blockchain.decimalValue
 
@@ -121,8 +112,6 @@ private extension ChiaWalletManager {
 
         wallet.add(coinValue: coinBalance)
         txBuilder.setUnspent(coins: coins)
-
-        completion(.success(()))
     }
 }
 

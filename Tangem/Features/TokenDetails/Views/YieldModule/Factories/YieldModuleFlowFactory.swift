@@ -8,80 +8,54 @@
 
 import Foundation
 
-final class YieldModuleFlowFactory {
-    private let apy: Decimal
+protocol YieldModuleFlowFactory {
+    func makeYieldPromoCoordinator(
+        apy: Decimal,
+        dismissAction: @escaping Action<YieldModulePromoCoordinator.DismissOptions?>
+    ) -> YieldModulePromoCoordinator
 
+    func makeYieldActiveCoordinator(
+        dismissAction: @escaping Action<YieldModuleActiveCoordinator.DismissOptions?>
+    ) -> YieldModuleActiveCoordinator
+
+    func makeYieldAvailableNotificationViewModel(
+        apy: Decimal,
+        onButtonTap: @escaping (Decimal) -> Void
+    ) -> YieldAvailableNotificationViewModel
+
+    func makeYieldStatusViewModel(
+        state: YieldStatusViewModel.State,
+        navigationAction: @escaping () -> Void
+    ) -> YieldStatusViewModel
+
+    func makeYieldModuleBalanceInfoViewModel() -> YieldModuleBalanceInfoViewModel
+}
+
+final class CommonYieldModuleFlowFactory {
     // MARK: - Dependencies
 
     private let walletModel: any WalletModel
-    private let yieldModuleManager: any YieldModuleManager
     private let transactionDispatcher: any TransactionDispatcher
-    private let yieldPromoCoordinator: YieldModulePromoCoordinator
-    private let feeCurrencyNavigator: (any SendFeeCurrencyNavigating)?
     private let yieldModuleNotificationInteractor = YieldModuleNoticeInteractor()
+    private let yieldModuleManager: any YieldModuleManager
 
     // MARK: - Init
 
-    init?(
+    init(
         walletModel: any WalletModel,
-        apy: Decimal = .zero,
-        signer: any TangemSigner,
-        feeCurrencyNavigator: (any SendFeeCurrencyNavigating)?,
-        dismissAction: @escaping Action<Void>
+        yieldModuleManager: YieldModuleManager,
+        transactionDispatcher: any TransactionDispatcher
     ) {
-        guard let manager = walletModel.yieldModuleManager,
-              let dispatcher = TransactionDispatcherFactory(walletModel: walletModel, signer: signer).makeYieldModuleDispatcher()
-        else {
-            return nil
-        }
-
-        yieldModuleManager = manager
-        transactionDispatcher = dispatcher
-        yieldPromoCoordinator = YieldModulePromoCoordinator(dismissAction: dismissAction)
-
+        self.yieldModuleManager = yieldModuleManager
+        self.transactionDispatcher = transactionDispatcher
         self.walletModel = walletModel
-        self.apy = apy
-        self.feeCurrencyNavigator = feeCurrencyNavigator
     }
 
-    // MARK: - Public Implementation
+    // MARK: - View Models
 
-    func getYieldPromoCoordinator() -> YieldModulePromoCoordinator {
-        let viewModel = makeYieldPromoViewModel()
-        let options = YieldModulePromoCoordinator.Options(viewModel: viewModel, feeCurrencyNavigator: feeCurrencyNavigator)
-
-        yieldPromoCoordinator.start(with: options)
-        return yieldPromoCoordinator
-    }
-
-    func makeYieldInfoViewModel() -> YieldModuleInfoViewModel? {
-        return YieldModuleInfoViewModel(
-            walletModel: walletModel,
-            feeCurrencyNavigator: feeCurrencyNavigator,
-            yieldManagerInteractor: makeInteractor(),
-            logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem)
-        )
-    }
-
-    // MARK: - Private Implementation
-
-    private func makeYieldPromoViewModel() -> YieldModulePromoViewModel {
+    private func makeYieldPromoViewModel(apy: Decimal, coordinator: YieldModulePromoCoordinator) -> YieldModulePromoViewModel {
         let interactor = makeInteractor()
-        let startFlowFactory = makeStartFlowFactory(interactor: interactor)
-
-        return YieldModulePromoViewModel(
-            walletModel: walletModel,
-            yieldManagerInteractor: interactor,
-            apy: apy,
-            coordinator: yieldPromoCoordinator,
-            startFlowFactory: startFlowFactory,
-            logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem)
-        )
-    }
-
-    private func makeYieldPromoViewModel(coordinator: YieldModulePromoCoordinator) -> YieldModulePromoViewModel {
-        let interactor = makeInteractor()
-        let startFlowFactory = makeStartFlowFactory(interactor: interactor)
+        let startFlowFactory = makeStartFlowFactory(coordinator: coordinator, interactor: interactor)
 
         return YieldModulePromoViewModel(
             walletModel: walletModel,
@@ -89,9 +63,49 @@ final class YieldModuleFlowFactory {
             apy: apy,
             coordinator: coordinator,
             startFlowFactory: startFlowFactory,
-            logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem)
+            logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId)
         )
     }
+
+    private func makeYieldModuleActiveViewModel(coordinator: YieldModuleActiveCoordinator) -> YieldModuleActiveViewModel {
+        let interactor = makeInteractor()
+
+        return YieldModuleActiveViewModel(
+            walletModel: walletModel,
+            coordinator: coordinator,
+            transactionFlowFactory: makeTransactionFlowFactory(coordinator: coordinator, interactor: interactor),
+            yieldManagerInteractor: interactor,
+            notificationManager: YieldModuleNotificationManager(tokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem),
+            logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId)
+        )
+    }
+
+    // MARK: - Factories
+
+    private func makeStartFlowFactory(coordinator: YieldModulePromoCoordinator, interactor: YieldManagerInteractor) -> YieldStartFlowFactory {
+        YieldStartFlowFactory(
+            walletModel: walletModel,
+            yieldManagerInteractor: interactor,
+            coordinator: coordinator,
+            logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId),
+            tangemIconProvider: CommonTangemIconProvider(hasNFCInteraction: transactionDispatcher.hasNFCInteraction)
+        )
+    }
+
+    private func makeTransactionFlowFactory(
+        coordinator: YieldModuleActiveCoordinator,
+        interactor: YieldManagerInteractor
+    ) -> YieldModuleTransactionFlowFactory {
+        YieldModuleTransactionFlowFactory(
+            walletModel: walletModel,
+            yieldManagerInteractor: interactor,
+            logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId),
+            tangemIconProvider: CommonTangemIconProvider(hasNFCInteraction: transactionDispatcher.hasNFCInteraction),
+            coordinator: coordinator
+        )
+    }
+
+    // MARK: - Interactor
 
     private func makeInteractor() -> YieldManagerInteractor {
         YieldManagerInteractor(
@@ -100,13 +114,52 @@ final class YieldModuleFlowFactory {
             yieldModuleNotificationInteractor: yieldModuleNotificationInteractor
         )
     }
+}
 
-    private func makeStartFlowFactory(interactor: YieldManagerInteractor) -> YieldStartFlowFactory {
-        YieldStartFlowFactory(
-            walletModel: walletModel,
-            yieldManagerInteractor: interactor,
-            coordinator: yieldPromoCoordinator,
-            logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem)
+// MARK: - YieldModuleFlowFactory
+
+extension CommonYieldModuleFlowFactory: YieldModuleFlowFactory {
+    func makeYieldModuleBalanceInfoViewModel() -> YieldModuleBalanceInfoViewModel {
+        YieldModuleBalanceInfoViewModel(tokenName: walletModel.tokenItem.name, tokenId: walletModel.tokenItem.id)
+    }
+
+    func makeYieldStatusViewModel(state: YieldStatusViewModel.State, navigationAction: @escaping () -> Void) -> YieldStatusViewModel {
+        YieldStatusViewModel(
+            state: state,
+            yieldInteractor: makeInteractor(),
+            feeTokenItem: walletModel.feeTokenItem,
+            token: walletModel.tokenItem,
+            navigationAction: navigationAction
         )
+    }
+
+    func makeYieldAvailableNotificationViewModel(apy: Decimal, onButtonTap: @escaping (Decimal) -> Void) -> YieldAvailableNotificationViewModel {
+        YieldAvailableNotificationViewModel(
+            apy: apy,
+            onButtonTap: onButtonTap
+        )
+    }
+
+    func makeYieldPromoCoordinator(
+        apy: Decimal,
+        dismissAction: @escaping Action<YieldModulePromoCoordinator.DismissOptions?>
+    ) -> YieldModulePromoCoordinator {
+        let coordinator = YieldModulePromoCoordinator(dismissAction: dismissAction)
+        let viewModel = makeYieldPromoViewModel(apy: apy, coordinator: coordinator)
+        let options = YieldModulePromoCoordinator.Options(viewModel: viewModel)
+
+        coordinator.start(with: options)
+        return coordinator
+    }
+
+    func makeYieldActiveCoordinator(
+        dismissAction: @escaping Action<YieldModuleActiveCoordinator.DismissOptions?>
+    ) -> YieldModuleActiveCoordinator {
+        let coordinator = YieldModuleActiveCoordinator(dismissAction: dismissAction)
+        let viewModel = makeYieldModuleActiveViewModel(coordinator: coordinator)
+        let options = YieldModuleActiveCoordinator.Options(viewModel: viewModel)
+
+        coordinator.start(with: options)
+        return coordinator
     }
 }

@@ -10,6 +10,7 @@ import SwiftUI
 import Combine
 import TangemUI
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 struct SendAmountCompactTokenView: View {
     @ObservedObject var viewModel: SendAmountCompactTokenViewModel
@@ -31,8 +32,13 @@ struct SendAmountCompactTokenView: View {
 
     private var headerView: some View {
         HStack(alignment: .center, spacing: .zero) {
-            Text(viewModel.title)
-                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+            switch viewModel.title {
+            case .text(let text):
+                Text(text)
+                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+            case .header(let header):
+                SendTokenHeaderView(header: header)
+            }
 
             Spacer()
 
@@ -58,6 +64,7 @@ struct SendAmountCompactTokenView: View {
                 Text(viewModel.amountText)
                     .style(Fonts.Regular.title1, color: Colors.Text.primary1)
                     .minimumScaleFactor(SendAmountStep.Constants.amountMinTextScale)
+                    .accessibilityIdentifier(SendAccessibilityIdentifiers.sendAmountViewValue)
             }
 
             HStack(spacing: 4) {
@@ -90,20 +97,8 @@ struct SendAmountCompactTokenView: View {
                         .padding(.leading, 4)
                 }
 
-                if #available(iOS 16.4, *) {
-                    InfoButtonView(size: .medium, tooltipText: highPriceImpactWarning.infoMessage)
-                        .color(highPriceImpactWarning.isHighPriceImpact ? Colors.Text.attention : Colors.Text.tertiary)
-                } else {
-                    Button(action: {
-                        viewModel.userDidTapHighPriceImpactWarning(highPriceImpactWarning: highPriceImpactWarning)
-                    }) {
-                        Assets.infoCircle16.image
-                            .renderingMode(.template)
-                            .resizable()
-                            .frame(width: 16, height: 16)
-                            .foregroundStyle(highPriceImpactWarning.isHighPriceImpact ? Colors.Text.attention : Colors.Text.tertiary)
-                    }
-                }
+                InfoButtonView(size: .medium, tooltipText: highPriceImpactWarning.infoMessage)
+                    .color(highPriceImpactWarning.isHighPriceImpact ? Colors.Text.attention : Colors.Text.tertiary)
             }
         }
     }

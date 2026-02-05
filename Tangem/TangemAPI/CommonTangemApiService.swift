@@ -247,8 +247,17 @@ extension CommonTangemApiService: TangemApiService {
         }
     }
 
-    func expressPromotion(request model: ExpressPromotion.Request) async throws -> ExpressPromotion.Response {
-        return try await request(for: .promotion(request: model), decoder: decoder)
+    func bindReferral(request model: ReferralDTO.Request) async throws {
+        let target = TangemApiTarget(type: .bindWalletsByCode(model))
+
+        try await withErrorLoggingPipeline(target: target) {
+            let response = try await provider.asyncRequest(target)
+            _ = try response.filterSuccessfulStatusAndRedirectCodes()
+        }
+    }
+
+    func expressPromotion(request requestModel: ExpressPromotion.NewRequest) async throws -> ExpressPromotion.Response {
+        try await request(for: .newPromotion(request: requestModel), decoder: decoder)
     }
 
     func promotion(programName: String, timeout: TimeInterval?) async throws -> PromotionParameters {
@@ -331,6 +340,12 @@ extension CommonTangemApiService: TangemApiService {
         return try await request(for: .tokenExchangesList(requestModel), decoder: decoder)
     }
 
+    // MARK: - Earn Implementation
+
+    func loadEarnYieldMarkets(requestModel: EarnDTO.List.Request) async throws -> EarnDTO.List.Response {
+        return try await request(for: .earnYieldMarkets(requestModel), decoder: decoder)
+    }
+
     // MARK: - Action Buttons
 
     func loadHotCrypto(requestModel: HotCryptoDTO.Request) async throws -> HotCryptoDTO.Response {
@@ -355,11 +370,6 @@ extension CommonTangemApiService: TangemApiService {
         let _: EmptyGenericResponseDTO = try await request(for: target, decoder: decoder)
     }
 
-    func setWalletInitialized(userWalletId: String) async throws {
-        let target: TangemApiTarget.TargetType = .walletInitialized(userWalletId: userWalletId)
-        let _: EmptyGenericResponseDTO = try await request(for: target, decoder: decoder)
-    }
-
     // MARK: - Notification
 
     func pushNotificationsEligibleNetworks() async throws -> [NotificationDTO.NetworkItem] {
@@ -378,6 +388,11 @@ extension CommonTangemApiService: TangemApiService {
         let _: EmptyGenericResponseDTO = try await request(for: target, decoder: decoder)
     }
 
+    func connectUserWallets(uid: String, requestModel: ApplicationDTO.Connect.Request) async throws {
+        let target: TangemApiTarget.TargetType = .connectUserWallets(uid: uid, requestModel: requestModel)
+        let _: EmptyGenericResponseDTO = try await request(for: target, decoder: decoder)
+    }
+
     // MARK: - UserWallets
 
     func getUserWallets(applicationUid: String) async throws -> [UserWalletDTO.Response] {
@@ -388,14 +403,24 @@ extension CommonTangemApiService: TangemApiService {
         try await request(for: .getUserWallet(userWalletId: userWalletId), decoder: decoder)
     }
 
-    func updateUserWallet(by userWalletId: String, requestModel: UserWalletDTO.Update.Request) async throws {
-        let target: TangemApiTarget.TargetType = .updateUserWallet(userWalletId: userWalletId, requestModel: requestModel)
+    func updateWallet(by userWalletId: String, context: some Encodable) async throws {
+        let target: TangemApiTarget.TargetType = .updateWallet(userWalletId: userWalletId, context: context)
         let _: EmptyGenericResponseDTO = try await request(for: target, decoder: decoder)
     }
 
-    func createAndConnectUserWallet(applicationUid: String, items: Set<UserWalletDTO.Create.Request>) async throws {
-        let target: TangemApiTarget.TargetType = .createAndConnectUserWallet(applicationUid: applicationUid, items: items)
-        let _: EmptyGenericResponseDTO = try await request(for: target, decoder: decoder)
+    func createWallet(with context: some Encodable) async throws -> String? {
+        let target = TangemApiTarget(type: .createWallet(context: context))
+
+        return try await withErrorLoggingPipeline(target: target) {
+            let response = try await provider.asyncRequest(target)
+            let revision = response.response?.value(forHTTPHeaderField: TangemAPIHeaders.eTag.rawValue)
+            let _: EmptyGenericResponseDTO = try response.mapAPIResponseThrowingTangemAPIError(
+                allowRedirectCodes: true,
+                decoder: decoder
+            )
+
+            return revision
+        }
     }
 
     // MARK: - Accounts
@@ -434,21 +459,31 @@ extension CommonTangemApiService: TangemApiService {
         }
     }
 
-    func getArchivedUserAccounts(
-        userWalletId: String
-    ) async throws -> (revision: String?, archivedAccounts: AccountsDTO.Response.ArchivedAccounts) {
+    func getArchivedUserAccounts(userWalletId: String) async throws -> AccountsDTO.Response.ArchivedAccounts {
         let target = TangemApiTarget(type: .getArchivedUserAccounts(userWalletId: userWalletId))
 
         return try await withErrorLoggingPipeline(target: target) {
             let response = try await provider.asyncRequest(target)
-            let revision = response.response?.value(forHTTPHeaderField: TangemAPIHeaders.eTag.rawValue)
-            let archivedAccounts: AccountsDTO.Response.ArchivedAccounts = try response.mapAPIResponseThrowingTangemAPIError(
-                allowRedirectCodes: true,
-                decoder: decoder
-            )
-
-            return (revision: revision, archivedAccounts: archivedAccounts)
+            return try response.mapAPIResponseThrowingTangemAPIError(allowRedirectCodes: true, decoder: decoder)
         }
+    }
+
+    // MARK: - News Implementation
+
+    func loadTrendingNews(limit: Int?, lang: String?) async throws -> TrendingNewsResponse {
+        return try await request(for: .trendingNews(limit: limit, lang: lang), decoder: decoder)
+    }
+
+    func loadNewsList(requestModel: NewsDTO.List.Request) async throws -> NewsDTO.List.Response {
+        return try await request(for: .newsList(requestModel), decoder: decoder)
+    }
+
+    func loadNewsDetails(requestModel: NewsDTO.Details.Request) async throws -> NewsDTO.Details.Response {
+        return try await request(for: .newsDetails(requestModel), decoder: decoder)
+    }
+
+    func loadNewsCategories() async throws -> NewsDTO.Categories.Response {
+        return try await request(for: .newsCategories, decoder: decoder)
     }
 }
 

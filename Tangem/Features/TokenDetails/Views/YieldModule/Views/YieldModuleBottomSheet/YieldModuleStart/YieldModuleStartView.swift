@@ -57,9 +57,9 @@ struct YieldModuleStartView: View {
         case .rateInfo:
             Localization.yieldModuleRateInfoSheetDescription
         case .startEarning:
-            Localization.yieldModuleStartEarningSheetDescription(viewModel.walletModel.tokenItem.name)
+            Localization.yieldModuleStartEarningSheetDescription(viewModel.walletModel.tokenItem.currencySymbol)
         case .feePolicy:
-            Localization.yieldModuleFeePolicySheetDescription(viewModel.walletModel.tokenItem.name)
+            Localization.yieldModuleFeePolicySheetDescription(viewModel.walletModel.tokenItem.currencySymbol)
         }
     }
 
@@ -91,13 +91,12 @@ struct YieldModuleStartView: View {
             .init(settings: .init(
                 title: Localization.commonGotIt,
                 style: .secondary,
-                isDisabled: !viewModel.isButtonEnabled,
                 action: ctaButtonAction
             ))
         case .startEarning:
             .init(settings: .init(
                 title: Localization.yieldModuleStartEarning,
-                icon: .trailing(Assets.tangemIcon),
+                icon: viewModel.tangemIconProvider.getMainButtonIcon(),
                 style: .primary,
                 isLoading: viewModel.isProcessingStartRequest,
                 isDisabled: !viewModel.isButtonEnabled,
@@ -117,7 +116,7 @@ struct YieldModuleStartView: View {
     }
 
     private var startEarningView: some View {
-        VStack(spacing: .zero) {
+        VStack(spacing: 8) {
             YieldFeeSection(
                 sectionState: viewModel.networkFeeState,
                 leadingTitle: Localization.commonNetworkFeeTitle,
@@ -125,8 +124,9 @@ struct YieldModuleStartView: View {
                 onLinkTapAction: viewModel.onShowFeePolicy,
                 notification: viewModel.networkFeeNotification
             )
-            .onAppear {
-                viewModel.fetchFees()
+
+            if let params = viewModel.highNetworkFeesNotification {
+                YieldModuleBottomSheetNotificationBannerView(params: params)
             }
         }
     }
@@ -136,13 +136,8 @@ struct YieldModuleStartView: View {
         switch viewModel.viewState {
         case .rateInfo:
             YieldModuleRateInfoChartContainer(state: viewModel.chartState)
-                .task {
-                    await viewModel.fetchChartData()
-                }
-
         case .startEarning:
             startEarningView
-
         case .feePolicy:
             YieldModuleFeePolicyView(
                 minimalAmountState: viewModel.minimalAmountState,
@@ -187,9 +182,9 @@ private extension YieldModuleStartView {
     func makeHeader(viewState: YieldModuleStartViewModel.ViewState) -> some View {
         switch viewState {
         case .feePolicy:
-            BottomSheetHeaderView(title: "", leading: { CircleButton.back { viewModel.onBackAction() } })
+            BottomSheetHeaderView(title: "", leading: { NavigationBarButton.back(action: viewModel.onBackAction) })
         case .startEarning, .rateInfo:
-            BottomSheetHeaderView(title: "", trailing: { CircleButton.close { viewModel.onCloseTap() } })
+            BottomSheetHeaderView(title: "", trailing: { NavigationBarButton.close(action: viewModel.onCloseTap) })
         }
     }
 }

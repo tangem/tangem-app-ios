@@ -15,6 +15,7 @@ import TangemUI
 import BlockchainSdk
 import TangemLocalization
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 class ReceiveMainViewModel: ObservableObject {
     // MARK: - Injected
@@ -42,6 +43,8 @@ class ReceiveMainViewModel: ObservableObject {
     private let receiveTokenWithdrawNoticeInteractor = ReceiveTokenWithdrawNoticeInteractor()
     private let yieldModuleNotificationInteractor = YieldModuleNoticeInteractor()
 
+    private lazy var selectorViewModel = receiveFlowFactory.makeSelectorReceiveAssetViewModel()
+
     // MARK: - Helpers
 
     init(options: Options) {
@@ -62,7 +65,6 @@ class ReceiveMainViewModel: ObservableObject {
 
     func onBackTapAction() {
         if case .qrCode = viewState {
-            let selectorViewModel = receiveFlowFactory.makeSelectorReceiveAssetViewModel()
             viewState = .selector(viewModel: selectorViewModel)
         }
     }
@@ -73,17 +75,16 @@ class ReceiveMainViewModel: ObservableObject {
         if yieldModuleNotificationInteractor.shouldShowYieldModuleAlert(for: options.tokenItem) {
             receiveTokenWithdrawNoticeInteractor.markWithdrawalAlertShown(for: options.tokenItem)
 
-            let vm = receiveFlowFactory.makeTokenAlertReceiveAssetViewModel()
+            let vm = receiveFlowFactory.makeTokenAlertReceiveAssetViewModel(with: selectorViewModel)
             return .yieldTokenAlert(viewModel: vm)
         }
 
         if isNeedDisplayTokenAlert() {
-            let viewModel = receiveFlowFactory.makeTokenAlertReceiveAssetViewModel()
+            let viewModel = receiveFlowFactory.makeTokenAlertReceiveAssetViewModel(with: selectorViewModel)
             return .tokenAlert(viewModel: viewModel)
         }
 
-        let viewModel = receiveFlowFactory.makeSelectorReceiveAssetViewModel()
-        return .selector(viewModel: viewModel)
+        return .selector(viewModel: selectorViewModel)
     }
 
     func isNeedDisplayTokenAlert() -> Bool {
@@ -118,11 +119,14 @@ extension ReceiveMainViewModel: ReceiveFlowCoordinator {
     func copyToClipboard(with address: String) {
         UIPasteboard.general.string = address
 
-        Toast(view: SuccessToast(text: Localization.walletNotificationAddressCopied))
-            .present(
-                layout: .top(padding: 12),
-                type: .temporary()
-            )
+        Toast(
+            view: SuccessToast(text: Localization.walletNotificationAddressCopied)
+                .accessibilityIdentifier(ActionButtonsAccessibilityIdentifiers.addressCopiedToast)
+        )
+        .present(
+            layout: .top(padding: 12),
+            type: .temporary()
+        )
     }
 
     func share(with address: String) {

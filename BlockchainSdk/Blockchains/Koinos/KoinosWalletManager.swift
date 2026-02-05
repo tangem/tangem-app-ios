@@ -39,57 +39,55 @@ class KoinosWalletManager: BaseManager, WalletManager, FeeResourceRestrictable {
         super.init(wallet: wallet)
     }
 
-    override func update(completion: @escaping (Result<Void, any Error>) -> Void) {
-        let existingTransactionIDs = Just(wallet.pendingTransactions)
-            .flatMap { [networkService] transactions -> AnyPublisher<Set<String>, Error> in
-                if transactions.isEmpty {
-                    return Just<Set<String>>([])
-                        .setFailureType(to: Error.self)
-                        .eraseToAnyPublisher()
+    override func updateWalletManager() async throws {
+        do {
+            // Build existingTransactionIDs equivalent
+            async let existingTransactionIDs: Set<String> = {
+                guard !wallet.pendingTransactions.isEmpty else {
+                    return []
                 }
 
-                return networkService
-                    .getExistingTransactionIDs(transactionIDs: transactions.map(\.hash))
-                    .eraseToAnyPublisher()
-            }
+                return try await networkService
+                    .getExistingTransactionIDs(transactionIDs: wallet.pendingTransactions.map(\.hash))
+                    .async()
+            }()
 
-        cancellable = Publishers.CombineLatest(
-            networkService.getInfo(address: wallet.address, koinContractId: koinContractId),
-            existingTransactionIDs
-        )
-        .sink { [weak self] in
-            switch $0 {
-            case .failure(let error):
-                self?.wallet.clearAmounts()
-                completion(.failure(error))
-            case .finished:
-                completion(.success(()))
-            }
-        } receiveValue: { [weak self] accountInfo, existingTransactionIDs in
-            guard let self else { return }
+            // Fetch account info
+            async let accountInfo = networkService
+                .getInfo(address: wallet.address, koinContractId: koinContractId)
+                .async()
 
-            koinContractId = accountInfo.koinContractId
-            let atomicUnitMultiplier = wallet.blockchain.decimalValue
-            let koinBalance = Decimal(accountInfo.koinBalance) / atomicUnitMultiplier
-            let mana = Decimal(accountInfo.mana) / atomicUnitMultiplier
+            // Update state
+            try await update(accountInfo: accountInfo, existingTransactionIDs: existingTransactionIDs)
 
-            wallet.add(
-                amount: Amount(
-                    with: wallet.blockchain,
-                    type: .coin,
-                    value: koinBalance
-                )
-            )
-            wallet.add(
-                amount: Amount(
-                    with: wallet.blockchain,
-                    type: .feeResource(.mana),
-                    value: mana
-                )
-            )
-
-            wallet.removePendingTransaction(where: existingTransactionIDs.contains)
+        } catch {
+            wallet.clearAmounts()
+            throw error
         }
+    }
+
+    private func update(accountInfo: KoinosAccountInfo, existingTransactionIDs: Set<String>) {
+        koinContractId = accountInfo.koinContractId
+        let atomicUnitMultiplier = wallet.blockchain.decimalValue
+        let koinBalance = Decimal(accountInfo.koinBalance) / atomicUnitMultiplier
+        let mana = Decimal(accountInfo.mana) / atomicUnitMultiplier
+
+        wallet.add(
+            amount: Amount(
+                with: wallet.blockchain,
+                type: .coin,
+                value: koinBalance
+            )
+        )
+        wallet.add(
+            amount: Amount(
+                with: wallet.blockchain,
+                type: .feeResource(.mana),
+                value: mana
+            )
+        )
+
+        wallet.removePendingTransaction(where: existingTransactionIDs.contains)
     }
 
     func send(_ transaction: Transaction, signer: any TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
@@ -125,7 +123,7 @@ class KoinosWalletManager: BaseManager, WalletManager, FeeResourceRestrictable {
                 let mapper = PendingTransactionRecordMapper()
                 let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: txId)
                 walletManager.wallet.addPendingTransaction(record)
-                return TransactionSendResult(hash: txId)
+                return TransactionSendResult(hash: txId, currentProviderHost: walletManager.currentHost)
             }
             .mapSendTxError()
             .eraseToAnyPublisher()
