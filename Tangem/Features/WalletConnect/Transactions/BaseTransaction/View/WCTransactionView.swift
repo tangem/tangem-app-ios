@@ -327,7 +327,7 @@ private extension WCTransactionView {
                 walletName: viewModel.userWalletName,
                 isWalletRowVisible: viewModel.isWalletRowVisible
             )
-        case .sendTransaction, .signTransaction:
+        case .sendTransaction, .signTransaction, .sendTransfer:
             WCEthTransactionDetailsView(viewModel: viewModel)
         default:
             EmptyView()
