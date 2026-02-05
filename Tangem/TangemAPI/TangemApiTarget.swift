@@ -85,9 +85,9 @@ struct TangemApiTarget: TargetType {
 
         // MARK: - Earn paths
         case .earnYieldMarkets:
-            return "/api/v1/earn/yield/markets"
+            return "/earn/markets"
         case .earnNetworks:
-            return "/api/v1/earn/networks"
+            return "/earn/networks"
 
         // MARK: - Action Buttons
         case .hotCrypto:

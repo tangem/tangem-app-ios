@@ -27,8 +27,7 @@ final class EarnDataFilterProvider {
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    // [REDACTED_TODO_COMMENT]
-    private var tangemApiService: TangemApiService = FakeTangemApiService()
+    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     // MARK: - Private State
 

@@ -21,13 +21,13 @@ extension EarnDTO.List {
         let page: Int?
         let limit: Int?
         let type: EarnType?
-        let network: [String]?
+        let networkIds: [String]?
 
         var parameters: [String: Any] {
             var params: [String: Any] = [:]
 
             if let isForEarn {
-                params["isForEarn"] = isForEarn
+                params["isForEarn"] = isForEarn ? "true" : "false"
             }
             if let page {
                 params["page"] = page
@@ -38,8 +38,8 @@ extension EarnDTO.List {
             if let type {
                 params["type"] = type.rawValue
             }
-            if let network, !network.isEmpty {
-                params["network"] = network.joined(separator: ",")
+            if let networkIds, !networkIds.isEmpty {
+                params["networkIds"] = networkIds.joined(separator: ",")
             }
 
             return params
