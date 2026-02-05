@@ -13,8 +13,8 @@ extension WCTransactionViewModel {
         displayModel.userWalletName
     }
 
-    var isWalletRowVisible: Bool {
-        displayModel.isWalletRowVisible
+    var connectionTargetKind: WCTransactionConnectionTargetKind? {
+        displayModel.connectionTargetKind
     }
 
     var primariActionButtonTitle: String {
