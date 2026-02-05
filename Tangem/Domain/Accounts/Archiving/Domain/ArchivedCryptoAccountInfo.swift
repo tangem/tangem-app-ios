@@ -64,22 +64,6 @@ extension ArchivedCryptoAccountInfo: CustomStringConvertible {
     }
 }
 
-// MARK: - BaseAccountModel protocol conformance
-
-extension ArchivedCryptoAccountInfo: BaseAccountModel {
-    func setIcon(_ icon: AccountModel.Icon) {
-        assertionFailure("Should never be called")
-    }
-
-    func setName(_ name: String) {
-        assertionFailure("Should never be called")
-    }
-
-    var didChangePublisher: AnyPublisher<Void, Never> {
-        .empty
-    }
-}
-
 // MARK: - CryptoAccountPersistentConfigConvertible protocol conformance
 
 extension ArchivedCryptoAccountInfo: CryptoAccountPersistentConfigConvertible {
@@ -104,5 +88,15 @@ extension ArchivedCryptoAccountInfo {
             networksCount: networksCount,
             derivationIndex: derivationIndex
         )
+    }
+}
+
+// MARK: - Analytics
+
+extension ArchivedCryptoAccountInfo: AccountModelAnalyticsProviding {
+    func analyticsParameters(with builder: AccountsAnalyticsBuilder) -> [Analytics.ParameterKey: String] {
+        builder
+            .setDerivationIndex(derivationIndex)
+            .build()
     }
 }

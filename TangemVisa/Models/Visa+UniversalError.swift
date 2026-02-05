@@ -8,6 +8,7 @@
 
 import TangemFoundation
 import TangemSdk
+import TangemPay
 
 /// Each error code must follow this format: xxxyyyzzz where
 /// xxx - Feature code
@@ -29,6 +30,7 @@ import TangemSdk
 /// `012` - VisaWalletPublicKeyUtility.SearchError
 /// `013` - KYC
 /// `014` - RainCryptoUtilitiesError
+/// `015` - TangemPayAPIServiceError
 /// `100` - BFF API
 extension VisaAuthorizationTokensHandlerError: VisaError {
     public var errorCode: Int {
@@ -174,18 +176,7 @@ extension VisaWalletPublicKeyUtility.SearchError: VisaError {
     }
 }
 
-extension VisaAPIError: VisaError {
-    public var errorCode: Int {
-        guard (100_000 ..< 1_000_000).contains(code) else {
-            // Default error code in api doc: 100300
-            return 104100300
-        }
-
-        return 104_000_000 + code
-    }
-}
-
-extension KYCService.KYCServiceError: VisaError {
+extension KYCService.KYCServiceError: @retroactive UniversalError, @retroactive LocalizedError, VisaError {
     public var errorCode: Int {
         switch self {
         case .sdkIsNotReady:
@@ -196,10 +187,10 @@ extension KYCService.KYCServiceError: VisaError {
     }
 }
 
-extension RainCryptoUtilities.RainCryptoUtilitiesError: VisaError {
+extension RainCryptoUtilities.RainCryptoUtilitiesError: @retroactive UniversalError, @retroactive LocalizedError, VisaError {
     public var errorCode: Int {
         switch self {
-        case .invalidSecretKey:
+        case .invalidSecretKey, .invalidDecryptedPinBlock:
             104014001
         case .invalidBase64EncodedPublicKey:
             104014002
@@ -217,6 +208,21 @@ extension RainCryptoUtilities.RainCryptoUtilitiesError: VisaError {
             104014008
         case .invalidSecretToEncrypt:
             104014009
+        }
+    }
+}
+
+extension TangemPayAPIServiceError: @retroactive UniversalError, @retroactive LocalizedError, VisaError {
+    public var errorCode: Int {
+        switch self {
+        case .moyaError:
+            104015001
+        case .unauthorized:
+            104015002
+        case .apiError:
+            104015003
+        case .decodingError:
+            104015004
         }
     }
 }

@@ -11,6 +11,7 @@ import Foundation
 import Combine
 import TangemFoundation
 import TangemMobileWalletSdk
+import TangemLocalization
 import struct TangemUIUtils.AlertBinder
 
 final class UserWalletSettingsCoordinator: CoordinatorObject {
@@ -36,6 +37,7 @@ final class UserWalletSettingsCoordinator: CoordinatorObject {
     @Published var archivedAccountsCoordinator: ArchivedAccountsCoordinator?
     @Published var mobileBackupTypesCoordinator: MobileBackupTypesCoordinator?
     @Published var mobileUpgradeCoordinator: MobileUpgradeCoordinator?
+    @Published var hardwareBackupTypesCoordinator: HardwareBackupTypesCoordinator?
 
     // MARK: - Child view models
 
@@ -46,6 +48,11 @@ final class UserWalletSettingsCoordinator: CoordinatorObject {
     // MARK: - Helpers
 
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
+    @Published var accountCreationFlowClosed: Bool = true
+
+    var noActiveCreateOrArchiveAccountFlows: Bool {
+        archivedAccountsCoordinator == nil && accountCreationFlowClosed
+    }
 
     required init(
         dismissAction: @escaping Action<OutputOptions>,
@@ -120,7 +127,8 @@ extension UserWalletSettingsCoordinator:
         coordinator.start(
             with: .init(
                 context: context,
-                userWalletConfig: userWalletConfig
+                userWalletConfig: userWalletConfig,
+                analyticsSourceRawValue: Analytics.ParameterValue.walletSettings.rawValue
             )
         )
         manageTokensCoordinator = coordinator
@@ -159,10 +167,25 @@ extension UserWalletSettingsCoordinator:
             }
         }
 
-        let inputOptions = MobileBackupTypesCoordinator.InputOptions(userWalletModel: userWalletModel)
+        let inputOptions = MobileBackupTypesCoordinator.InputOptions(userWalletModel: userWalletModel, mode: .backup)
         let coordinator = MobileBackupTypesCoordinator(dismissAction: dismissAction)
         coordinator.start(with: inputOptions)
         mobileBackupTypesCoordinator = coordinator
+    }
+
+    @MainActor
+    func openHardwareBackupTypes(userWalletModel: UserWalletModel) {
+        let dismissAction: Action<HardwareBackupTypesCoordinator.OutputOptions> = { [weak self] options in
+            switch options {
+            case .main(let userWalletModel):
+                self?.openMain(userWalletModel: userWalletModel)
+            }
+        }
+
+        let inputOptions = HardwareBackupTypesCoordinator.InputOptions(userWalletModel: userWalletModel)
+        let coordinator = HardwareBackupTypesCoordinator(dismissAction: dismissAction)
+        coordinator.start(with: inputOptions)
+        hardwareBackupTypesCoordinator = coordinator
     }
 
     @MainActor
@@ -235,13 +258,16 @@ extension UserWalletSettingsCoordinator:
     // MARK: UserSettingsAccountsRoutable
 
     func addNewAccount(accountModelsManager: any AccountModelsManager) {
+        accountCreationFlowClosed = false
+
         accountFormViewModel = AccountFormViewModel(
             accountModelsManager: accountModelsManager,
             // Mikhail Andreev - in future we will support multiple types of accounts and their creation process
             // will vary
             flowType: .create(.crypto),
-            closeAction: { [weak self] in
+            closeAction: { [weak self] result in
                 self?.accountFormViewModel = nil
+                self?.rootViewModel?.handleAccountOperationResult(result)
             }
         )
     }
@@ -267,8 +293,9 @@ extension UserWalletSettingsCoordinator:
 
     func openArchivedAccounts(accountModelsManager: any AccountModelsManager) {
         let coordinator = ArchivedAccountsCoordinator(
-            dismissAction: { [weak self] in
+            dismissAction: { [weak self] result in
                 self?.archivedAccountsCoordinator = nil
+                self?.rootViewModel?.handleAccountOperationResult(result)
             },
             popToRootAction: popToRootAction
         )

@@ -99,7 +99,7 @@
         <key>many</key>
         <string>%li сетей</string>
         <key>other</key>
-        <string>%li сети</string>
+        <string>%li сетях</string>
       </dict>
     </dict>
     <key>common_tokens_count</key>
@@ -180,6 +180,46 @@
         <string>На основе %li оценок</string>
         <key>other</key>
         <string>На основе %li оценок</string>
+      </dict>
+    </dict>
+    <key>news_published_hours_ago</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%liч назад</string>
+        <key>few</key>
+        <string>%liч назад</string>
+        <key>many</key>
+        <string>%liч назад</string>
+        <key>other</key>
+        <string>%liч назад</string>
+      </dict>
+    </dict>
+    <key>news_published_minutes_ago</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%liмин назад</string>
+        <key>few</key>
+        <string>%liмин назад</string>
+        <key>many</key>
+        <string>%liмин назад</string>
+        <key>other</key>
+        <string>%liмин назад</string>
       </dict>
     </dict>
     <key>nft_collections_count</key>

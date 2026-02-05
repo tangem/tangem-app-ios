@@ -251,7 +251,7 @@ extension NFTEntrypointView {
         Colors.Field.primary
         NFTEntrypointView(
             viewModel: NFTEntrypointViewModel(
-                nftManager: NFTManagerMock(state: .loaded(.init(value: []))),
+                nftManager: NFTManagerMock(state: .success(.init(value: []))),
                 accountForCollectionsProvider: AccountNFTCollectionProviderMock(),
                 navigationContext: NFTNavigationContextMock(),
                 analytics: .empty,
@@ -268,7 +268,7 @@ extension NFTEntrypointView {
         NFTEntrypointView(
             viewModel: NFTEntrypointViewModel(
                 nftManager: NFTManagerMock(
-                    state: .loaded(
+                    state: .success(
                         .init(
                             value: [
                                 .init(
@@ -305,7 +305,7 @@ extension NFTEntrypointView {
         NFTEntrypointView(
             viewModel: NFTEntrypointViewModel(
                 nftManager: NFTManagerMock(
-                    state: .loaded(
+                    state: .success(
                         .init(
                             value: (0 ... 1).map {
                                 .init(
@@ -342,7 +342,7 @@ extension NFTEntrypointView {
         NFTEntrypointView(
             viewModel: NFTEntrypointViewModel(
                 nftManager: NFTManagerMock(
-                    state: .loaded(
+                    state: .success(
                         .init(
                             value: (0 ... 2).map {
                                 .init(
@@ -379,7 +379,7 @@ extension NFTEntrypointView {
         NFTEntrypointView(
             viewModel: NFTEntrypointViewModel(
                 nftManager: NFTManagerMock(
-                    state: .loaded(
+                    state: .success(
                         .init(
                             value: (0 ... 3).map {
                                 .init(
@@ -416,7 +416,7 @@ extension NFTEntrypointView {
         NFTEntrypointView(
             viewModel: NFTEntrypointViewModel(
                 nftManager: NFTManagerMock(
-                    state: .loaded(
+                    state: .success(
                         .init(
                             value: (0 ... 5).map {
                                 .init(

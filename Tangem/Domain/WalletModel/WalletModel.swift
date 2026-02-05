@@ -16,7 +16,7 @@ import TangemFoundation
 protocol WalletModel:
     AnyObject, Identifiable, Hashable, CustomStringConvertible,
     AvailableTokenBalanceProviderInput, WalletModelBalancesProvider,
-    WalletModelHelpers, WalletModelFeeProvider, WalletModelDependenciesProvider,
+    WalletModelHelpers, WalletModelFeesProvider, WalletModelFeeProvider, WalletModelDependenciesProvider,
     WalletModelRentProvider, WalletModelHistoryUpdater, TransactionHistoryFetcher,
     StakingTokenBalanceProviderInput, FiatTokenBalanceProviderInput, ExistentialDepositInfoProvider,
     ReceiveAddressTypesProvider, WalletModelResolvable {
@@ -25,6 +25,7 @@ protocol WalletModel:
     var name: String { get }
     var addresses: [Address] { get }
     var defaultAddress: Address { get }
+    var defaultAddressString: String { get }
     var addressNames: [String] { get }
     var isMainToken: Bool { get }
     var tokenItem: TokenItem { get }
@@ -51,6 +52,7 @@ protocol WalletModel:
 
     var stakingManager: StakingManager? { get }
     var stakeKitTransactionSender: StakeKitTransactionSender? { get }
+    var p2pTransactionSender: P2PTransactionSender? { get }
 
     // MARK: - Accounts
 
@@ -61,6 +63,10 @@ protocol WalletModel:
 
     // [REDACTED_TODO_COMMENT]
     var yieldModuleManager: YieldModuleManager? { get }
+
+    // MARK: - Gasless Transactions
+
+    var ethereumGaslessDataProvider: (any EthereumGaslessDataProvider)? { get }
 }
 
 extension WalletModel {
@@ -76,22 +82,43 @@ extension WalletModel {
     var defaultAddressString: String {
         defaultAddress.value
     }
+
+    var walletConnectAddress: String {
+        let factory = EthereumAddressConverterFactory()
+        let converter = factory.makeConverter(for: tokenItem.blockchain)
+        let convertedAddress = try? converter.convertToETHAddress(defaultAddress.value)
+        return convertedAddress ?? defaultAddressString
+    }
 }
 
-// MARK: - Update
+// MARK: - WalletModelUpdater
 
 protocol WalletModelUpdater {
-    @discardableResult
-    func generalUpdate(silent: Bool) -> AnyPublisher<Void, Never>
+    func update(silent: Bool, features: [WalletModelUpdaterFeatureType]) async
 
-    /// Do not use with flatMap.
-    /// - Note: This publisher may emit a single value and then complete. Similar to ``Publishers.Just``.
-    @discardableResult
-    func update(silent: Bool) -> AnyPublisher<WalletModelState, Never>
-
-    func updateTransactionsHistory() -> AnyPublisher<Void, Never>
+    func updateTransactionsHistory() async
     func updateAfterSendingTransaction()
 }
+
+extension WalletModelUpdater {
+    /// It can be call as `Fire-and-forget` update
+    @discardableResult
+    func startUpdateTask(silent: Bool = false, features: [WalletModelUpdaterFeatureType] = .full) -> Task<Void, Never> {
+        Task { await update(silent: silent, features: features) }
+    }
+}
+
+enum WalletModelUpdaterFeatureType {
+    case balances
+    case transactionHistory
+}
+
+extension [WalletModelUpdaterFeatureType] {
+    static let balances: [WalletModelUpdaterFeatureType] = [.balances]
+    static let full: [WalletModelUpdaterFeatureType] = [.balances, .transactionHistory]
+}
+
+// MARK: - WalletModelBalancesProvider
 
 protocol WalletModelBalancesProvider {
     var availableBalanceProvider: TokenBalanceProvider { get }
@@ -114,12 +141,20 @@ protocol WalletModelHelpers {
 
 // MARK: - Fee
 
+protocol WalletModelFeesProvider {
+    var customFeeProvider: (any CustomFeeProvider)? { get }
+    func makeTokenFeeLoader(for tokenItem: TokenItem) -> any TokenFeeLoader
+}
+
+extension WalletModelFeesProvider where Self: WalletModel {
+    func makeTokenFeeLoader() -> any TokenFeeLoader {
+        makeTokenFeeLoader(for: tokenItem)
+    }
+}
+
 protocol WalletModelFeeProvider {
-    func estimatedFee(amount: Amount) -> AnyPublisher<[Fee], Error>
-    func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error>
-    func getFeeCurrencyBalance(amountType: Amount.AmountType) -> Decimal
-    func hasFeeCurrency(amountType: Amount.AmountType) -> Bool
-    func getFee(compiledTransaction data: Data) async throws -> [Fee]
+    func getFeeCurrencyBalance() -> Decimal
+    func hasFeeCurrency() -> Bool
 }
 
 // MARK: - Dependencies
@@ -145,6 +180,11 @@ protocol WalletModelDependenciesProvider {
 
     var accountInitializationService: BlockchainAccountInitializationService? { get }
     var minimalBalanceProvider: MinimalBalanceProvider? { get }
+
+    // MARK: - Gasless Transactions
+
+    var ethereumGaslessTransactionFeeProvider: (any GaslessTransactionFeeProvider)? { get }
+    var pendingTransactionRecordAdder: (any PendingTransactionRecordAdding)? { get }
 }
 
 // MARK: - Tx history
@@ -171,7 +211,6 @@ protocol WalletModelRentProvider {
 // MARK: - Existential deposit
 
 protocol ExistentialDepositInfoProvider {
-    ///    var existentialDeposit: Amount? { get }
     var existentialDepositWarning: String? { get }
 }
 

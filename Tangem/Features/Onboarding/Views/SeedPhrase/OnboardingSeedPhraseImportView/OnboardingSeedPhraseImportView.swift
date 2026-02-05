@@ -11,6 +11,7 @@ import TangemLocalization
 import TangemAssets
 import TangemUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct OnboardingSeedPhraseImportView: View {
     @ObservedObject var viewModel: OnboardingSeedPhraseImportViewModel
@@ -62,12 +63,13 @@ struct OnboardingSeedPhraseImportView: View {
 
                     MainButton(
                         title: Localization.commonImport,
-                        icon: .trailing(Assets.tangemIcon),
+                        icon: viewModel.mainButtonIcon,
                         style: .primary,
                         isLoading: false,
                         isDisabled: !viewModel.isSeedPhraseValid,
                         action: viewModel.importSeedPhrase
                     )
+                    .accessibilityIdentifier(OnboardingAccessibilityIdentifiers.seedPhraseImportButton)
                     .padding(.top, 14)
                     .padding(.horizontal, 16)
                     .padding(.bottom, 6)
@@ -88,6 +90,7 @@ struct OnboardingSeedPhraseImportView: View {
                     .animation(nil, value: viewModel.suggestions)
             }
         }
+        .screenCaptureProtection()
         .animation(.default, value: viewModel.inputError)
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
@@ -125,8 +128,8 @@ struct OnboardingSeedPhraseImportView: View {
                 clearButtonMode: .whileEditing,
                 placeholder: Localization.sendOptionalField
             )
+            .setAccessibilityIdentifier(OnboardingAccessibilityIdentifiers.seedPhraseImportPassphraseField)
             .setAutocapitalizationType(.none)
-            .screenCaptureProtection()
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 12)
@@ -138,6 +141,7 @@ struct OnboardingSeedPhraseImportView: View {
 struct OnboardingSeedPhraseImportView_Previews: PreviewProvider {
     private static let viewModel = OnboardingSeedPhraseImportViewModel(
         inputProcessor: SeedPhraseInputProcessor(),
+        tangemIconProvider: CommonTangemIconProvider(hasNFCInteraction: true),
         delegate: nil
     )
 

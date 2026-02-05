@@ -16,7 +16,7 @@ import TangemAssets
 final class HardwareCreateWalletViewModel: ObservableObject {
     @Published var isScanning: Bool = false
 
-    @Published var confirmationDialog: ConfirmationDialogViewModel?
+    @Published var scanTroubleshootingDialog: ConfirmationDialogViewModel?
     @Published var alert: AlertBinder?
 
     let screenTitle = Localization.hardwareWalletCreateTitle
@@ -36,10 +36,16 @@ final class HardwareCreateWalletViewModel: ObservableObject {
     }
 
     private let userWalletModel: UserWalletModel?
+    private let source: HardwareCreateWalletSource
     private weak var coordinator: HardwareCreateWalletRoutable?
 
-    init(userWalletModel: UserWalletModel?, coordinator: HardwareCreateWalletRoutable) {
+    init(
+        userWalletModel: UserWalletModel?,
+        source: HardwareCreateWalletSource,
+        coordinator: HardwareCreateWalletRoutable
+    ) {
         self.userWalletModel = userWalletModel
+        self.source = source
         self.coordinator = coordinator
     }
 }
@@ -65,13 +71,13 @@ extension HardwareCreateWalletViewModel {
 extension HardwareCreateWalletViewModel {
     func makeInfoItems() -> [InfoItem] {
         let keyTrait = InfoItem(
-            icon: Assets.Glyphs.mobileSecurity,
+            icon: Assets.Glyphs.keySecurity,
             title: Localization.hardwareWalletKeyFeatureTitle,
             subtitle: Localization.hardwareWalletKeyFeatureDescription
         )
 
         let backupTrait = InfoItem(
-            icon: Assets.Visa.securityCheck,
+            icon: Assets.Glyphs.twinSparkles,
             title: Localization.hardwareWalletBackupFeatureTitle,
             subtitle: Localization.hardwareWalletBackupFeatureDescription
         )
@@ -90,6 +96,8 @@ extension HardwareCreateWalletViewModel {
 
 private extension HardwareCreateWalletViewModel {
     func scanCard() {
+        logScanCardTapAnalytics()
+
         isScanning = true
 
         runTask(in: self) { viewModel in
@@ -154,7 +162,12 @@ private extension HardwareCreateWalletViewModel {
                         walletInfo: .cardWallet(cardInfo),
                         keys: .cardWallet(keys: cardInfo.card.wallets)
                     ) {
+                        let hadSingleMobileWallet = UserWalletRepositoryModeHelper.hasSingleMobileWallet
                         try viewModel.userWalletRepository.add(userWalletModel: newUserWalletModel)
+
+                        if hadSingleMobileWallet {
+                            viewModel.logColdWalletAddedAnalytics(cardInfo: cardInfo)
+                        }
 
                         await runOnMain {
                             viewModel.isScanning = false
@@ -203,7 +216,7 @@ private extension HardwareCreateWalletViewModel {
             action: weakify(self, forFunction: HardwareCreateWalletViewModel.scanCardRequestSupport)
         )
 
-        confirmationDialog = ConfirmationDialogViewModel(
+        scanTroubleshootingDialog = ConfirmationDialogViewModel(
             title: Localization.alertTroubleshootingScanCardTitle,
             subtitle: Localization.alertTroubleshootingScanCardMessage,
             buttons: [
@@ -216,7 +229,12 @@ private extension HardwareCreateWalletViewModel {
     }
 
     func openBuyCard() {
-        safariManager.openURL(TangemBlogUrlBuilder().url(root: .pricing))
+        logBuyHardwareWalletAnalytics()
+        let utmCampaign: TangemUTM.Campaign = switch source {
+        case .addNewWallet: .users
+        case .hardwareWallet: .upgrade
+        }
+        safariManager.openURL(TangemShopUrlBuilder().url(utmCampaign: utmCampaign))
     }
 
     func openScanCardManual() {
@@ -250,11 +268,27 @@ private extension HardwareCreateWalletViewModel {
         Analytics.log(.walletSettingsCreateWalletScreenOpened, contextParams: analyticsContextParams)
     }
 
+    func logScanCardTapAnalytics() {
+        Analytics.log(
+            Analytics.CardScanSource.createWallet.cardScanButtonEvent,
+            params: [.source: .create],
+            contextParams: analyticsContextParams
+        )
+    }
+
     func logScanCardSuccessAnalytics() {
         Analytics.log(
             .cardWasScanned,
             params: [.source: Analytics.CardScanSource.createWallet.cardWasScannedParameterValue],
             contextParams: analyticsContextParams
+        )
+    }
+
+    func logColdWalletAddedAnalytics(cardInfo: CardInfo) {
+        Analytics.log(
+            .settingsColdWalletAdded,
+            params: [.source: Analytics.ParameterValue.addNew],
+            contextParams: .custom(cardInfo.analyticsContextData)
         )
     }
 
@@ -281,6 +315,14 @@ private extension HardwareCreateWalletViewModel {
     func logScanCardAnalytics(error: Error) {
         Analytics.logScanError(error, source: .introduction, contextParams: analyticsContextParams)
         Analytics.logVisaCardScanErrorIfNeeded(error, source: .introduction)
+    }
+
+    func logBuyHardwareWalletAnalytics() {
+        Analytics.log(
+            .basicButtonBuy,
+            params: [.source: Analytics.BuyWalletSource.createWallet.parameterValue],
+            contextParams: analyticsContextParams
+        )
     }
 }
 

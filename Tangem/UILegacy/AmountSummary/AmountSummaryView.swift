@@ -23,8 +23,7 @@ struct AmountSummaryView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(data.title)
-                .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
+            ExpressCurrencyDefaultHeaderView(headerType: data.headerType)
 
             HStack(spacing: 0) {
                 TokenIcon(tokenIconInfo: data.tokenIconInfo, size: iconSize)
@@ -46,14 +45,17 @@ struct AmountSummaryView: View {
     }
 }
 
+// MARK: - Previews
+
+#if DEBUG
 #Preview {
-    GroupedScrollView(spacing: 14) {
+    GroupedScrollView(contentType: .lazy(alignment: .leading, spacing: 14)) {
         GroupedSection(
             [
                 AmountSummaryViewData(
-                    title: Localization.commonAmount,
                     amount: "100.00 USDT",
                     amountFiat: "99.98$",
+                    headerType: .action(name: Localization.commonAmount),
                     tokenIconInfo: .init(
                         name: "tether",
                         blockchainIconAsset: Tokens.ethereumFill,
@@ -70,9 +72,9 @@ struct AmountSummaryView: View {
 
         GroupedSection([
             AmountSummaryViewData(
-                title: Localization.commonAmount,
                 amount: "100 000 000 000 000 000 000 000 000 000 000.00 SOL",
                 amountFiat: "999 999 999 999 999 999 999 999 999 999 999 999 999.98$",
+                headerType: .wallet(name: "test wallet"),
                 tokenIconInfo: .init(
                     name: "optimism",
                     blockchainIconAsset: nil,
@@ -88,3 +90,4 @@ struct AmountSummaryView: View {
     }
     .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
 }
+#endif // DEBUG

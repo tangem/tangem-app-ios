@@ -19,7 +19,17 @@ struct TransactionDispatcherFactory {
             return DemoSendTransactionDispatcher(walletModel: walletModel, transactionSigner: signer)
         }
 
-        return SendTransactionDispatcher(walletModel: walletModel, transactionSigner: signer)
+        let gaslessTransactionBuilder = GaslessTransactionBuilder(walletModel: walletModel, signer: signer)
+        let gaslessTransactionSender = GaslessTransactionSender(
+            walletModel: walletModel,
+            transactionSigner: signer,
+            gaslessTransactionBuilder: gaslessTransactionBuilder
+        )
+        return SendTransactionDispatcher(
+            walletModel: walletModel,
+            transactionSigner: signer,
+            gaslessTransactionSender: gaslessTransactionSender
+        )
     }
 
     func makeExpressDispatcher() -> TransactionDispatcher {
@@ -42,17 +52,31 @@ struct TransactionDispatcherFactory {
             return DemoSendTransactionDispatcher(walletModel: walletModel, transactionSigner: signer)
         }
 
-        return StakingTransactionDispatcher(
-            walletModel: walletModel,
-            transactionSigner: signer,
-            pendingHashesSender: StakingDependenciesFactory().makePendingHashesSender(),
-            stakingTransactionMapper: StakingTransactionMapper(
-                tokenItem: walletModel.tokenItem,
-                feeTokenItem: walletModel.feeTokenItem
-            ),
-            analyticsLogger: analyticsLogger,
-            transactionStatusProvider: CommonStakeKitTransactionStatusProvider(stakingManager: stakingManger)
+        let mapper = StakingTransactionMapper(
+            tokenItem: walletModel.tokenItem,
+            feeTokenItem: walletModel.feeTokenItem
         )
+
+        switch (walletModel.tokenItem.blockchain, walletModel.tokenItem.token) {
+        case (.ethereum, .none):
+            return P2PTransactionDispatcher(
+                walletModel: walletModel,
+                transactionSigner: signer,
+                mapper: mapper,
+                apiProvider: StakingDependenciesFactory().makeP2PAPIProvider()
+            )
+        default:
+            return StakeKitTransactionDispatcher(
+                walletModel: walletModel,
+                transactionSigner: signer,
+                pendingHashesSender: StakingDependenciesFactory().makePendingHashesSender(),
+                stakingTransactionMapper: mapper,
+                analyticsLogger: analyticsLogger,
+                transactionStatusProvider: CommonStakeKitTransactionStatusProvider(
+                    apiProvider: StakingDependenciesFactory().makeStakeKitAPIProvider()
+                )
+            )
+        }
     }
 
     func makeYieldModuleDispatcher() -> TransactionDispatcher? {
@@ -63,11 +87,11 @@ struct TransactionDispatcherFactory {
         guard let transactionsSender = walletModel.multipleTransactionsSender else { return nil }
 
         return YieldModuleTransactionDispatcher(
-            blockchain: walletModel.tokenItem.blockchain,
+            tokenItem: walletModel.tokenItem,
             walletModelUpdater: walletModel,
             transactionsSender: transactionsSender,
             transactionSigner: signer,
-            logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem)
+            logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId)
         )
     }
 }

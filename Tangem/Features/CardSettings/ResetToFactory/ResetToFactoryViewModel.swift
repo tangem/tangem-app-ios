@@ -6,7 +6,6 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import SwiftUI
 import Combine
 import TangemLocalization
 import struct TangemUIUtils.AlertBinder
@@ -35,6 +34,12 @@ final class ResetToFactoryViewModel: ObservableObject {
         input.backupCardsCount > 0
     }
 
+    private var isPaeraCustomer: Bool {
+        AppSettings.shared.tangemPayIsPaeraCustomer[
+            input.userWalletId.stringValue
+        ] ?? false
+    }
+
     private let input: ResetToFactoryViewModel.Input
     private let resetUtil: ResetToFactoryUtil
     private weak var coordinator: ResetToFactoryViewRoutable?
@@ -44,7 +49,7 @@ final class ResetToFactoryViewModel: ObservableObject {
     init(input: ResetToFactoryViewModel.Input, coordinator: ResetToFactoryViewRoutable) {
         self.input = input
         self.coordinator = coordinator
-        resetUtil = ResetToFactoryUtilBuilder().build(
+        resetUtil = ResetToFactoryUtilBuilder(flow: .reset).build(
             backupCardsCount: input.backupCardsCount,
             cardInteractor: input.cardInteractor
         )
@@ -58,7 +63,21 @@ final class ResetToFactoryViewModel: ObservableObject {
     }
 
     func didTapMainButton() {
-        showConfirmationDialog()
+        let resetButton = ConfirmationDialogViewModel.Button(
+            title: Localization.cardSettingsActionSheetReset,
+            role: .destructive,
+            action: { [weak self] in
+                self?.resetCardToFactory()
+            }
+        )
+
+        confirmationDialog = ConfirmationDialogViewModel(
+            title: Localization.cardSettingsActionSheetTitle,
+            buttons: [
+                resetButton,
+                ConfirmationDialogViewModel.Button.cancel,
+            ]
+        )
     }
 
     func toggleWarning(warningType: WarningType) {
@@ -87,24 +106,10 @@ private extension ResetToFactoryViewModel {
         if hasBackupCards {
             warnings.append(Warning(isAccepted: false, type: .accessCodeRecovery))
         }
-    }
 
-    func showConfirmationDialog() {
-        let resetButton = ConfirmationDialogViewModel.Button(
-            title: Localization.cardSettingsActionSheetReset,
-            role: .destructive,
-            action: { [weak self] in
-                self?.resetCardToFactory()
-            }
-        )
-
-        confirmationDialog = ConfirmationDialogViewModel(
-            title: Localization.cardSettingsActionSheetTitle,
-            buttons: [
-                resetButton,
-                ConfirmationDialogViewModel.Button.cancel,
-            ]
-        )
+        if isPaeraCustomer {
+            warnings.append(Warning(isAccepted: false, type: .tangemPay))
+        }
     }
 
     func resetCardToFactory() {
@@ -127,12 +132,15 @@ extension ResetToFactoryViewModel {
 
     enum WarningType: String, CaseIterable, Hashable {
         case accessToCard
+        case tangemPay
         case accessCodeRecovery
 
         var title: String {
             switch self {
             case .accessToCard:
                 return Localization.resetCardToFactoryCondition1
+            case .tangemPay:
+                return Localization.tangempayFactorySettingsWarningTitle
             case .accessCodeRecovery:
                 return Localization.resetCardToFactoryCondition2
             }

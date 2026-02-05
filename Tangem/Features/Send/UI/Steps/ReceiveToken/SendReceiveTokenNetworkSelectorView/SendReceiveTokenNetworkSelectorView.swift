@@ -20,7 +20,7 @@ struct SendReceiveTokenNetworkSelectorView: View {
                 BottomSheetHeaderView(
                     title: viewModel.state.isSuccess ? Localization.commonChooseNetwork : "",
                     trailing: {
-                        CircleButton.close(action: viewModel.dismiss)
+                        NavigationBarButton.close(action: viewModel.dismiss)
                     }
                 )
                 .padding(.vertical, 4)
@@ -58,7 +58,7 @@ struct SendReceiveTokenNetworkSelectorView: View {
                 }
                 .padding(.bottom, 16)
             }
-            .scrollBounceBehaviorBackport(.basedOnSize)
+            .scrollBounceBehavior(.basedOnSize)
         }
     }
 

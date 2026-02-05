@@ -15,13 +15,22 @@ struct UserTokensManagerMock: UserTokensManager {
 
     var userTokens: [TokenItem] { [] }
 
-    var userTokensPublisher: AnyPublisher<[TokenItem], Never> { .just(output: []) }
+    var userTokensPublisher: AnyPublisher<[TokenItem], Never> { .just(output: userTokens) }
 
     var derivationManager: DerivationManager? { nil }
 
-    func deriveIfNeeded(completion: @escaping (Result<Void, Error>) -> Void) {}
+    func deriveIfNeeded(completion: @escaping (Result<Void, Error>) -> Void) {
+        completion(.success(()))
+    }
 
-    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], completion: @escaping (Result<Void, Error>) -> Void) {}
+    func update(
+        itemsToRemove: [TokenItem],
+        itemsToAdd: [TokenItem],
+        completion: @escaping (Result<UserTokensManagerResult.UpdatedTokenItems, any Error>) -> Void
+    ) {
+        let updatedItems = UserTokensManagerResult.UpdatedTokenItems(removed: itemsToRemove, added: itemsToAdd)
+        completion(.success(updatedItems))
+    }
 
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) throws {}
 
@@ -31,7 +40,9 @@ struct UserTokensManagerMock: UserTokensManager {
         return ""
     }
 
-    func add(_ tokenItems: [TokenItem], completion: @escaping (Result<Void, Error>) -> Void) {}
+    func add(_ tokenItems: [TokenItem], completion: @escaping (Result<[TokenItem], Error>) -> Void) {
+        completion(.success(tokenItems))
+    }
 
     func contains(_ tokenItem: TokenItem, derivationInsensitive: Bool) -> Bool {
         false
@@ -47,7 +58,9 @@ struct UserTokensManagerMock: UserTokensManager {
 
     func remove(_ tokenItem: TokenItem) {}
 
-    func sync(completion: @escaping () -> Void) {}
+    func sync(completion: @escaping () -> Void) {
+        completion()
+    }
 }
 
 // MARK: - UserTokensPushNotificationsRemoteStatusSyncing protocol conformance
@@ -61,9 +74,13 @@ extension UserTokensManagerMock: UserTokensPushNotificationsRemoteStatusSyncing 
 extension UserTokensManagerMock: UserTokensReordering {
     var orderedWalletModelIds: AnyPublisher<[WalletModelId.ID], Never> { .just(output: []) }
 
-    var groupingOption: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> { .just(output: .none) }
+    var groupingOption: UserTokensReorderingOptions.Grouping { .none }
 
-    var sortingOption: AnyPublisher<UserTokensReorderingOptions.Sorting, Never> { .just(output: .dragAndDrop) }
+    var sortingOption: UserTokensReorderingOptions.Sorting { .dragAndDrop }
+
+    var groupingOptionPublisher: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> { .just(output: .none) }
+
+    var sortingOptionPublisher: AnyPublisher<UserTokensReorderingOptions.Sorting, Never> { .just(output: .dragAndDrop) }
 
     func reorder(_ actions: [UserTokensReorderingAction], source: UserTokensReorderingSource) -> AnyPublisher<Void, Never> { .just }
 }

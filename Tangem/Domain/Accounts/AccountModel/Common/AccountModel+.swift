@@ -33,7 +33,7 @@ extension CryptoAccounts {
 }
 
 extension Array where Element == AccountModel {
-    func standard() -> AccountModel? {
+    func firstStandard() -> AccountModel? {
         first { account in
             if case .standard = account {
                 return true
@@ -55,6 +55,19 @@ extension Array where Element == AccountModel {
 
     func cryptoAccount(with identifier: some Hashable) -> (any CryptoAccountModel)? {
         compactMap { $0.cryptoAccount(with: identifier) }.first
+    }
+
+    /// When new account types appear (e.g., smart, visa), clarify whether
+    /// we should count all accounts together or separately by type.
+    var cryptoAccountsCount: Int {
+        reduce(0) { count, accountModel in
+            switch accountModel {
+            case .standard(.single):
+                return count + 1
+            case .standard(.multiple(let cryptoAccountModels)):
+                return count + cryptoAccountModels.count
+            }
+        }
     }
 }
 

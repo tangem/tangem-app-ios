@@ -41,14 +41,17 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
     }
 
     func copyNumber() {
+        Analytics.log(.visaScreenCopyCardNumberClicked)
         copyAction(copiedTextKeyPath: \.number, toastMessage: "Number copied")
     }
 
     func copyExpirationDate() {
+        Analytics.log(.visaScreenCopyCardExpiryClicked)
         copyAction(copiedTextKeyPath: \.expirationDate, toastMessage: "Expiration date copied")
     }
 
     func copyCVC() {
+        Analytics.log(.visaScreenCopyCardCVVClicked)
         copyAction(copiedTextKeyPath: \.cvc, toastMessage: "CVC copied")
     }
 
@@ -57,7 +60,7 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
             cardDetailsExposureTask?.cancel()
             return
         }
-
+        Analytics.log(.visaScreenViewCardDetailsClicked)
         toggleInteractive()
     }
 
@@ -92,7 +95,7 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
                 let cardDetailsData = try await viewModel.repository.revealRequest()
                 viewModel.flip(to: .loaded(.revealed(cardDetailsData)))
 
-                try? await Task.sleep(seconds: Constants.cardDetailsVisibilityPeriodInSeconds)
+                try? await Task.sleep(for: .seconds(Constants.cardDetailsVisibilityPeriodInSeconds))
                 viewModel.flip(to: .hidden(isFrozen: viewModel.state.isFrozen))
             } catch {
                 viewModel.state = .hidden(isFrozen: viewModel.state.isFrozen)

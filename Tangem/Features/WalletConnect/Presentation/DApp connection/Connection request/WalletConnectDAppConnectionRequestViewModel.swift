@@ -24,7 +24,7 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
 
     private var selectedUserWallet: any UserWalletModel
     private var userWalletIDToBlockchainsAvailabilityResult: [UserWalletId: WalletConnectDAppBlockchainsAvailabilityResult]
-    private var userAccountIdToBlockchainsAvailabilityResult: [String: WalletConnectDAppBlockchainsAvailabilityResult]
+    private var accountCacheKeyToBlockchainsAvailabilityResult: [AccountCacheKey: WalletConnectDAppBlockchainsAvailabilityResult]
     private var selectedAccount: (any CryptoAccountModel)?
     private var hasMultipleAccounts: Bool = false
 
@@ -56,7 +56,7 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
 
         self.selectedUserWallet = selectedUserWallet
 
-        let selectedAccountModel = selectedUserWallet.accountModelsManager.accountModels.first
+        let selectedAccountModel = selectedUserWallet.accountModelsManager.accountModels.firstStandard()
 
         switch selectedAccountModel {
         case .standard(.single(let account)):
@@ -70,7 +70,7 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
 
         bag = []
         userWalletIDToBlockchainsAvailabilityResult = [:]
-        userAccountIdToBlockchainsAvailabilityResult = [:]
+        accountCacheKeyToBlockchainsAvailabilityResult = [:]
     }
 
     deinit {
@@ -120,7 +120,11 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
         self.selectedUserWallet = selectedUserWallet
         hasMultipleAccounts = selectedUserWallet.accountModelsManager.accountModels.cryptoAccounts().hasMultipleAccounts
 
-        let previousBlockchainsAvailabilityResult = userAccountIdToBlockchainsAvailabilityResult[selectedAccount.id.walletConnectIdentifierString]
+        let cacheKey = AccountCacheKey(
+            userWalletId: selectedUserWallet.userWalletId.stringValue,
+            accountId: selectedAccount.id.walletConnectIdentifierString
+        )
+        let previousBlockchainsAvailabilityResult = accountCacheKeyToBlockchainsAvailabilityResult[cacheKey]
         let selectedBlockchains = previousBlockchainsAvailabilityResult?.retrieveSelectedBlockchains().map(\.blockchain)
             ?? Array(loadedDAppProposal.sessionProposal.optionalBlockchains)
 
@@ -131,7 +135,7 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
             account: selectedAccount
         )
 
-        userAccountIdToBlockchainsAvailabilityResult[selectedAccount.id.walletConnectIdentifierString] = blockchainsAvailabilityResult
+        accountCacheKeyToBlockchainsAvailabilityResult[cacheKey] = blockchainsAvailabilityResult
         updateState(dAppProposal: loadedDAppProposal, blockchainsAvailabilityResult: blockchainsAvailabilityResult)
     }
 
@@ -145,7 +149,11 @@ final class WalletConnectDAppConnectionRequestViewModel: ObservableObject {
             account: selectedAccount
         )
 
-        userAccountIdToBlockchainsAvailabilityResult[selectedAccount.id.walletConnectIdentifierString] = blockchainsAvailabilityResult
+        let cacheKey = AccountCacheKey(
+            userWalletId: selectedUserWallet.userWalletId.stringValue,
+            accountId: selectedAccount.id.walletConnectIdentifierString
+        )
+        accountCacheKeyToBlockchainsAvailabilityResult[cacheKey] = blockchainsAvailabilityResult
         updateState(dAppProposal: loadedDAppProposal, blockchainsAvailabilityResult: blockchainsAvailabilityResult)
     }
 }
@@ -171,21 +179,31 @@ extension WalletConnectDAppConnectionRequestViewModel {
                 } else {
                     self?.handleLoadedDAppProposalForWallet(dAppProposal)
                 }
-
-            } catch WalletConnectDAppProposalLoadingError.cancelledByUser {
-                logger.info("DApp proposal loading canceled by user.")
             } catch {
-                analyticsLogger.logSessionFailed(with: error)
-                logger.error("Failed to load dApp proposal", error: error)
-                self?.hapticFeedbackGenerator.errorNotificationOccurred()
-                self?.coordinator?.display(proposalLoadingError: error)
+                // Ugly and explicit switch here due to https://github.com/swiftlang/swift/issues/74555 ([REDACTED_INFO])
+                switch error {
+                case .cancelledByUser:
+                    logger.info("DApp proposal loading canceled by user.")
+                case .uriAlreadyUsed,
+                     .pairingFailed,
+                     .invalidDomainURL,
+                     .unsupportedDomain,
+                     .unsupportedBlockchains,
+                     .noBlockchainsProvidedByDApp,
+                     .pairingTimeout:
+                    analyticsLogger.logSessionFailed(with: error)
+                    logger.error("Failed to load dApp proposal", error: error)
+                    self?.hapticFeedbackGenerator.errorNotificationOccurred()
+                    self?.coordinator?.display(proposalLoadingError: error)
+                }
             }
         }
     }
 
     // [REDACTED_TODO_COMMENT]
     private func handleLoadedDAppProposalForWallet(_ dAppProposal: WalletConnectDAppConnectionProposal) {
-        analyticsLogger.logConnectionProposalReceived(dAppProposal)
+        // No account should be passed here. This method will be deleted when migration is complete ([REDACTED_INFO])
+        analyticsLogger.logConnectionProposalReceived(dAppProposal, accountAnalyticsProviding: nil)
 
         let blockchainsAvailabilityResult = interactor.resolveAvailableBlockchains(
             sessionProposal: dAppProposal.sessionProposal,
@@ -203,7 +221,7 @@ extension WalletConnectDAppConnectionRequestViewModel {
     private func handleLoadedDAppProposalForAccount(_ dAppProposal: WalletConnectDAppConnectionProposal) {
         guard let selectedAccount else { return }
 
-        analyticsLogger.logConnectionProposalReceived(dAppProposal)
+        analyticsLogger.logConnectionProposalReceived(dAppProposal, accountAnalyticsProviding: selectedAccount)
 
         let blockchainsAvailabilityResult = interactor.resolveAvailableBlockchains(
             sessionProposal: dAppProposal.sessionProposal,
@@ -213,7 +231,11 @@ extension WalletConnectDAppConnectionRequestViewModel {
         )
 
         loadedDAppProposal = dAppProposal
-        userAccountIdToBlockchainsAvailabilityResult[selectedAccount.id.walletConnectIdentifierString] = blockchainsAvailabilityResult
+        let cacheKey = AccountCacheKey(
+            userWalletId: selectedUserWallet.userWalletId.stringValue,
+            accountId: selectedAccount.id.walletConnectIdentifierString
+        )
+        accountCacheKeyToBlockchainsAvailabilityResult[cacheKey] = blockchainsAvailabilityResult
 
         updateState(dAppProposal: dAppProposal, blockchainsAvailabilityResult: blockchainsAvailabilityResult)
         hapticFeedbackGenerator.successNotificationOccurred()
@@ -224,7 +246,10 @@ extension WalletConnectDAppConnectionRequestViewModel {
 
 extension WalletConnectDAppConnectionRequestViewModel {
     private func connectDApp(with proposal: WalletConnectDAppConnectionProposal, selectedBlockchains: [WalletConnectDAppBlockchain]) async {
-        analyticsLogger.logConnectButtonTapped()
+        analyticsLogger.logConnectButtonTapped(
+            dAppName: proposal.dAppData.name,
+            accountAnalyticsProviding: selectedAccount
+        )
 
         let dAppSession: WalletConnectDAppSession
 
@@ -264,6 +289,7 @@ extension WalletConnectDAppConnectionRequestViewModel {
                     connectionProposal: proposal,
                     dAppSession: dAppSession,
                     dAppBlockchains: selectedBlockchains,
+                    selectedUserWallet: selectedUserWallet,
                     selectedAccount: selectedAccount
                 )
             } else {
@@ -361,8 +387,12 @@ extension WalletConnectDAppConnectionRequestViewModel {
 
     private func handleNetworksRowTapped() {
         if FeatureProvider.isAvailable(.accounts) {
-            guard let selectedAccount,
-                  let blockchainsAvailabilityResult = userAccountIdToBlockchainsAvailabilityResult[selectedAccount.id.walletConnectIdentifierString] else { return }
+            guard let selectedAccount else { return }
+            let cacheKey = AccountCacheKey(
+                userWalletId: selectedUserWallet.userWalletId.stringValue,
+                accountId: selectedAccount.id.walletConnectIdentifierString
+            )
+            guard let blockchainsAvailabilityResult = accountCacheKeyToBlockchainsAvailabilityResult[cacheKey] else { return }
             coordinator?.openNetworksSelector(blockchainsAvailabilityResult)
         } else {
             guard let blockchainsAvailabilityResult = userWalletIDToBlockchainsAvailabilityResult[selectedUserWallet.userWalletId] else { return }
@@ -383,7 +413,8 @@ extension WalletConnectDAppConnectionRequestViewModel {
             let loadedDAppProposal,
             let blockchainsAvailabilityResult: WalletConnectDAppBlockchainsAvailabilityResult = {
                 if FeatureProvider.isAvailable(.accounts), let selectedAccount {
-                    return userAccountIdToBlockchainsAvailabilityResult[selectedAccount.id.walletConnectIdentifierString]
+                    let cacheKey = AccountCacheKey(userWalletId: selectedUserWallet.userWalletId.stringValue, accountId: selectedAccount.id.walletConnectIdentifierString)
+                    return accountCacheKeyToBlockchainsAvailabilityResult[cacheKey]
                 } else {
                     return userWalletIDToBlockchainsAvailabilityResult[selectedUserWallet.userWalletId]
                 }
@@ -607,17 +638,11 @@ private extension WalletConnectWarningNotificationViewModel {
     }
 }
 
-extension AccountModel {
-    func firstAvailableStandard() -> any CryptoAccountModel {
-        switch self {
-        case .standard(.single(let cryptoAccount)):
-            return cryptoAccount
-        case .standard(.multiple(let cryptoAccounts)):
-            guard let cryptoAccount = cryptoAccounts.first else {
-                preconditionFailure("Required existence of at least one account in multiple account model")
-            }
+// MARK: - Auxiliary types
 
-            return cryptoAccount
-        }
+private extension WalletConnectDAppConnectionRequestViewModel {
+    struct AccountCacheKey: Hashable {
+        let userWalletId: String
+        let accountId: String
     }
 }

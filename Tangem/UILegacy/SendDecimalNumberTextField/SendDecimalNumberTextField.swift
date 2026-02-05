@@ -19,7 +19,7 @@ import TangemFoundation
 /// - Different `Alignment`
 struct SendDecimalNumberTextField: View {
     /// Public
-    @ObservedObject private var viewModel: DecimalNumberTextField.ViewModel
+    @ObservedObject private var viewModel: DecimalNumberTextFieldViewModel
 
     /// Internal state
     @FocusState private var isInputActive: Bool
@@ -40,7 +40,7 @@ struct SendDecimalNumberTextField: View {
             text += makePrefixSuffixText(prefix, hasSpaceBeforeText: false, hasSpaceAfterText: hasSpace)
         }
 
-        text += (viewModel.textFieldText.nilIfEmpty ?? Constants.placeholder)
+        text += (viewModel.textFieldTextBinding.value.nilIfEmpty ?? Constants.placeholder)
 
         if case .suffix(.some(let suffix), let hasSpace) = prefixSuffixOptions {
             text += makePrefixSuffixText(suffix, hasSpaceBeforeText: hasSpace, hasSpaceAfterText: false)
@@ -58,8 +58,12 @@ struct SendDecimalNumberTextField: View {
         }
     }
 
-    init(viewModel: DecimalNumberTextField.ViewModel) {
+    init(
+        viewModel: DecimalNumberTextFieldViewModel,
+        accessibilityIdentifier: String? = nil
+    ) {
         self.viewModel = viewModel
+        self.accessibilityIdentifier = accessibilityIdentifier
     }
 
     var body: some View {

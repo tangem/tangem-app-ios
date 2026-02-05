@@ -24,11 +24,16 @@ struct SendTokenHeaderView: View {
                 .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
         case .account(let name, let icon):
             HStack(spacing: 6) {
-                AccountIconView(data: icon)
-                    .settings(.smallSized)
-
-                Text(name)
+                Text(.init(Localization.commonFrom))
                     .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+
+                HStack(spacing: 4) {
+                    AccountIconView(data: icon)
+                        .settings(.smallSized)
+
+                    Text(name)
+                        .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                }
             }
         }
     }

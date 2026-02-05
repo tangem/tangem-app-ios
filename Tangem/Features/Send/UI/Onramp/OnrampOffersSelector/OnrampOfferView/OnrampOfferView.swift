@@ -37,7 +37,7 @@ struct OnrampOfferView: View {
 
             Spacer(minLength: 8)
 
-            CircleButton(title: Localization.commonBuy, action: viewModel.buyButtonAction)
+            CapsuleButton(title: Localization.commonBuy, action: viewModel.buyButtonAction)
                 .size(.medium)
                 .style(.primary)
                 .disabled(!viewModel.isAvailable)
@@ -114,7 +114,7 @@ struct OnrampOfferView: View {
             Text(AppConstants.dotSign)
                 .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
 
-            Text(viewModel.provider.name)
+            Text(Localization.onrampViaProvider(viewModel.provider.name))
                 .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
         }
     }

@@ -9,10 +9,13 @@
 import Foundation
 import TangemAssets
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 final class MobileOnboardingSuccessViewModel {
     lazy var infoItem = makeInfoItem()
     lazy var actionItem = makeActionItem()
+
+    private var isAppeared = false
 
     private let type: SuccessType
     private let onAppear: () -> Void
@@ -33,7 +36,20 @@ final class MobileOnboardingSuccessViewModel {
 
 extension MobileOnboardingSuccessViewModel {
     func onWillAppear() {
+        guard !isAppeared else { return }
+        isAppeared = true
         onAppear()
+    }
+
+    var actionButtonAccessibilityIdentifier: String {
+        switch type {
+        case .walletImported:
+            return OnboardingAccessibilityIdentifiers.seedImportSuccessContinueButton
+        case .walletReady:
+            return OnboardingAccessibilityIdentifiers.seedImportSuccessFinishButton
+        case .seedPhaseBackupContinue, .seedPhaseBackupFinish:
+            return OnboardingAccessibilityIdentifiers.seedImportSuccessContinueButton
+        }
     }
 }
 
@@ -51,7 +67,9 @@ private extension MobileOnboardingSuccessViewModel {
         }
 
         let description = switch type {
-        case .walletImported, .seedPhaseBackupContinue:
+        case .walletImported:
+            Localization.walletImportSuccessDescription
+        case .seedPhaseBackupContinue:
             Localization.backupCompleteDescription
         case .seedPhaseBackupFinish:
             Localization.backupCompleteSeedDescription

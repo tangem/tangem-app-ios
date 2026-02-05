@@ -10,10 +10,14 @@ import BlockchainSdk
 
 struct TransactionHistoryMapper {
     @Injected(\.smartContractMethodMapper) private var smartContractMethodMapper: SmartContractMethodMapper
+    // Temporary: injected to obtain the gasless fee recipient address until it’s provided via app config.
+    // Used to detect and classify gasless transaction fee transfers.
+    @Injected(\.gaslessTransactionsNetworkManager) private var gaslessTransactionsNetworkManager: GaslessTransactionsNetworkManager
 
     private let currencySymbol: String
     private let walletAddresses: [String]
     private let showSign: Bool
+    private let isToken: Bool
 
     private let balanceFormatter = BalanceFormatter()
     private let dateFormatter: DateFormatter = {
@@ -37,10 +41,11 @@ struct TransactionHistoryMapper {
         return dateFormatter
     }()
 
-    init(currencySymbol: String, walletAddresses: [String], showSign: Bool) {
+    init(currencySymbol: String, walletAddresses: [String], showSign: Bool, isToken: Bool) {
         self.currencySymbol = currencySymbol
         self.walletAddresses = walletAddresses
         self.showSign = showSign
+        self.isToken = isToken
     }
 
     func mapTransactionListItem(from records: [TransactionRecord]) -> [TransactionListItem] {
@@ -71,7 +76,8 @@ struct TransactionHistoryMapper {
             amount: transferAmount(from: record),
             isOutgoing: record.isOutgoing,
             transactionType: transactionType(from: record),
-            status: status(from: record)
+            status: status(from: record),
+            isFromYieldContract: record.isFromYieldContract
         )
     }
 
@@ -148,6 +154,10 @@ private extension TransactionHistoryMapper {
     }
 
     func interactionAddress(from record: TransactionRecord) -> TransactionViewModel.InteractionAddressType {
+        if let gaslessAddress = makeGaslessTransactionInteractionAddress(from: record) {
+            return gaslessAddress
+        }
+
         switch record.type {
         case .transfer:
             if record.isOutgoing {
@@ -211,9 +221,9 @@ private extension TransactionHistoryMapper {
             return .transfer
         case .contractMethodIdentifier(let id):
             let name = smartContractMethodMapper.getName(for: id)
-            return transactionType(fromContractMethodName: name)
+            return transactionType(fromContractMethodName: name, transactionRecord: record)
         case .contractMethodName(let name):
-            return transactionType(fromContractMethodName: name)
+            return transactionType(fromContractMethodName: name, transactionRecord: record)
         case .staking(let type, _):
             switch type {
             case .stake: return .stake
@@ -226,22 +236,31 @@ private extension TransactionHistoryMapper {
         }
     }
 
-    func transactionType(fromContractMethodName contractMethodName: String?) -> TransactionViewModel.TransactionType {
+    func transactionType(
+        fromContractMethodName contractMethodName: String?,
+        transactionRecord: TransactionRecord,
+    ) -> TransactionViewModel.TransactionType {
         switch contractMethodName?.nilIfEmpty {
-        case "transfer": .transfer
-        case "approve": .approve
-        case "swap": .swap
-        case "buyVoucher", "buyVoucherPOL", "delegate": .stake
-        case "sellVoucher_new", "sellVoucher_newPOL", "undelegate": .unstake
-        case "unstakeClaimTokens_new", "unstakeClaimTokens_newPOL", "claim": .withdraw
-        case "withdrawRewards", "withdrawRewardsPOL": .claimRewards
-        case "redelegate": .restake
-        case "yieldEnter": .yieldEnter
-        case "yieldWithdraw": .yieldWithdraw
-        case "yieldTopup": .yieldTopup
-        case "yieldDeploy", "yieldInit", "yieldReactivate": .yieldSupply
-        case .none: .unknownOperation
-        case .some(let name): .operation(name: name.capitalizingFirstLetter())
+        case "transfer": return .transfer
+        case "approve": return .approve
+        case "swap": return .swap
+        case "buyVoucher", "buyVoucherPOL", "delegate", "stakeETH": return .stake
+        case "sellVoucher_new", "sellVoucher_newPOL", "undelegate", "unstakeETH": return .unstake
+        case "unstakeClaimTokens_new", "unstakeClaimTokens_newPOL", "claim": return .withdraw
+        case "withdrawRewards", "withdrawRewardsPOL": return .claimRewards
+        case "redelegate": return .restake
+        case "yieldEnter" where !isToken: return .yieldEnterCoin
+        case "yieldEnter": return .yieldEnter
+        case "yieldWithdraw" where !isToken: return .yieldWithdrawCoin
+        case "yieldWithdraw": return .yieldWithdraw
+        case "yieldReactivate": return .yieldReactivate
+        case "yieldTopup": return .yieldTopup
+        case "yieldSend": return .yieldSend
+        case "yieldDeploy": return .yieldDeploy
+        case "yieldInit": return .yieldInit
+        case "gaslessTransaction": return mapGaslessTransaction(contractMethodName: contractMethodName, transactionRecord: transactionRecord)
+        case .none: return .unknownOperation
+        case .some(let name): return .operation(name: name.capitalizingFirstLetter())
         }
     }
 
@@ -281,9 +300,49 @@ private extension TransactionHistoryMapper {
         switch transactionType(from: record) {
         case .yieldEnter, .yieldTopup, .yieldWithdraw:
             return balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol)
+        case .yieldSend where record.isFromYieldContract:
+            return balanceFormatter.formatCryptoBalance(amount, currencyCode: currencySymbol)
         default:
             return formatted(amount: amount, isOutgoing: record.isOutgoing)
         }
+    }
+
+    /// There are three kinds of transactions with the `gaslessTransaction` method ID:
+    /// 1) Incoming — when we receive a token that was sent as a `Gasless Transaction`. We treat it as `gaslessTransfer`,
+    ///    which is ultimately displayed as a generic `Operation`.
+    /// 2) Outgoing — when a token is used to pay the `Gasless Transaction` fee. We classify it as `gaslessTransactionFee`,
+    ///    which has its own dedicated title in the UI.
+    /// 3) Outgoing — when we send a token via a `Gasless Transaction`. We treat it as `gaslessTransfer`,
+    ///    which is ultimately displayed as a generic `Operation`.
+    func mapGaslessTransaction(contractMethodName: String?, transactionRecord: TransactionRecord) -> TransactionViewModel.TransactionType {
+        guard contractMethodName == "gaslessTransaction" else {
+            assertionFailure("mapGaslessTransaction called with non-gasless transaction method")
+            return .unknownOperation
+        }
+
+        guard let feeRecipient = gaslessTransactionsNetworkManager.cachedFeeRecipientAddress,
+              let transfers = transactionRecord.tokenTransfers,
+              transfers.contains(where: { $0.destination.caseInsensitiveCompare(feeRecipient) == .orderedSame })
+        else {
+            return .gaslessTransfer
+        }
+
+        return .gaslessTransactionFee
+    }
+
+    /// Ensures transactions with the "gaslessTransaction" method ID display meaningful
+    /// `from` and `to` addresses in the transaction history.
+    func makeGaslessTransactionInteractionAddress(from record: TransactionRecord) -> TransactionViewModel.InteractionAddressType? {
+        guard case .contractMethodIdentifier(let id) = record.type,
+              let name = smartContractMethodMapper.getName(for: id),
+              name == "gaslessTransaction",
+              let tokenTransfer = record.tokenTransfers?.first
+        else {
+            return nil
+        }
+
+        let destination = record.isOutgoing ? tokenTransfer.destination : tokenTransfer.source
+        return .user(destination)
     }
 }
 

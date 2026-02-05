@@ -95,7 +95,7 @@ extension ExpressProvidersSelectorViewModel {
         await providers
             .showableProviders(selectedProviderId: selectedProvider?.provider.id)
             .sortedByPriorityAndQuotes()
-            .asyncMap { await mapToProviderRowViewModel(provider: $0, selectedProvider: selectedProvider) }
+            .asyncMap { await self.mapToProviderRowViewModel(provider: $0, selectedProvider: selectedProvider) }
     }
 
     func mapToProviderRowViewModel(
@@ -169,25 +169,5 @@ extension ExpressProvidersSelectorViewModel {
         let changePercent = quote.rate / selectedRate - 1
         let result = priceChangeFormatter.formatFractionalValue(changePercent, option: .express)
         return .percent(result.formattedText, signType: result.signType)
-    }
-}
-
-private extension ExpressProviderManagerState {
-    var isPermissionRequired: Bool {
-        switch self {
-        case .permissionRequired:
-            return true
-        default:
-            return false
-        }
-    }
-
-    var isAvailableToShow: Bool {
-        switch self {
-        case .error:
-            return false
-        default:
-            return true
-        }
     }
 }

@@ -14,10 +14,17 @@ struct TransactionViewAmountViewData: Hashable {
     let type: TransactionViewModel.TransactionType
     let status: TransactionViewModel.Status
     let isOutgoing: Bool
+    let isFromYieldContract: Bool
 
     var formattedAmount: String? {
         switch type {
-        case .approve, .vote, .withdraw, .yieldEnter, .yieldWithdraw, .yieldTopup:
+        case .yieldSend where isFromYieldContract:
+            return nil
+        case .yieldWithdrawCoin, .yieldEnterCoin, .yieldReactivate, .yieldDeploy, .yieldSend, .yieldInit, .gaslessTransfer, .gaslessTransactionFee:
+            return amount
+        case .yieldEnter, .yieldWithdraw, .yieldTopup:
+            return nil
+        case .vote, .withdraw:
             return nil
         case .transfer,
              .swap,
@@ -28,7 +35,7 @@ struct TransactionViewAmountViewData: Hashable {
              .claimRewards,
              .restake,
              .tangemPay,
-             .yieldSupply:
+             .approve:
             return amount
         }
     }
@@ -38,8 +45,11 @@ struct TransactionViewAmountViewData: Hashable {
         case (.failed, _):
             return Colors.Text.warning
 
-        case (_, .tangemPay(.spend(_, _, let isDeclined))) where isDeclined:
+        case (_, .tangemPay(.spend(_, _, let isDeclined, _))) where isDeclined:
             return Colors.Text.warning
+
+        case (_, .tangemPay(.spend(_, _, _, let isNegativeAmount))) where isNegativeAmount:
+            return Colors.Text.accent
 
         case (_, .tangemPay(.transfer)) where !isOutgoing:
             return Colors.Text.accent

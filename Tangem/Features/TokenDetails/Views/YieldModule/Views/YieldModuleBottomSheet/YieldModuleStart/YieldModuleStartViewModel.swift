@@ -36,6 +36,8 @@ final class YieldModuleStartViewModel: ObservableObject {
         }
     }
 
+    let tangemIconProvider: TangemIconProvider
+
     private var previousState: ViewState?
 
     // MARK: - Published
@@ -45,6 +47,9 @@ final class YieldModuleStartViewModel: ObservableObject {
 
     @Published
     private(set) var networkFeeNotification: YieldModuleNotificationBannerParams? = nil
+
+    @Published
+    private(set) var highNetworkFeesNotification: YieldModuleNotificationBannerParams? = nil
 
     @Published
     private(set) var networkFeeState: YieldFeeSectionState
@@ -93,13 +98,15 @@ final class YieldModuleStartViewModel: ObservableObject {
         viewState: ViewState,
         coordinator: YieldModulePromoCoordinator?,
         yieldManagerInteractor: YieldManagerInteractor,
-        logger: YieldAnalyticsLogger
+        logger: YieldAnalyticsLogger,
+        tangemIconProvider: TangemIconProvider
     ) {
         self.viewState = viewState
         self.walletModel = walletModel
         self.coordinator = coordinator
         self.yieldManagerInteractor = yieldManagerInteractor
         self.logger = logger
+        self.tangemIconProvider = tangemIconProvider
 
         networkFeeState = .init(
             footerText: Localization.yieldModuleStartEarningSheetNextDepositsV2(walletModel.tokenItem.currencySymbol),
@@ -190,6 +197,7 @@ final class YieldModuleStartViewModel: ObservableObject {
             } catch {
                 isButtonEnabled = false
                 setAllFeesState(.noData)
+                highNetworkFeesNotification = nil
                 networkFeeNotification = createFeeErrorNotification { [weak self] in
                     await self?.reloadAction()
                 }
@@ -232,6 +240,7 @@ final class YieldModuleStartViewModel: ObservableObject {
     @MainActor
     private func fetchNetworkFee() async {
         networkFeeNotification = nil
+        highNetworkFeesNotification = nil
         isButtonEnabled = false
         isNavigationToFeePolicyEnabled = false
 
@@ -239,12 +248,18 @@ final class YieldModuleStartViewModel: ObservableObject {
             let feeInCoins = try await yieldManagerInteractor.getEnterFee()
             let feeValue = feeInCoins.totalFeeAmount.value
             let fiatFee = try await feeConverter.createFeeString(from: feeValue)
+            let isGasPriceHigh = await yieldManagerInteractor.isGasPriceHigh(in: feeInCoins)
 
             networkFeeState = networkFeeState
                 .withFeeState(.loaded(text: fiatFee))
                 .withLinkActive(true)
 
-            let isFeeHigh = feeValue > walletModel.getFeeCurrencyBalance(amountType: walletModel.tokenItem.amountType)
+            let isFeeHigh = feeValue > walletModel.getFeeCurrencyBalance()
+
+            if case .ethereum = walletModel.tokenItem.blockchain, isGasPriceHigh, !isFeeHigh {
+                logger.logEarningNoticeHighNetworkFeeShown()
+                highNetworkFeesNotification = createHighNetworkFeesNotification()
+            }
 
             if isFeeHigh {
                 logger.logEarningNoticeNotEnoughFeeShown()
@@ -258,6 +273,7 @@ final class YieldModuleStartViewModel: ObservableObject {
                 await self?.reloadAction()
             }
 
+            highNetworkFeesNotification = nil
             networkFeeState = networkFeeState.withFeeState(.noData).withLinkActive(false)
             isButtonEnabled = false
         }
@@ -297,8 +313,9 @@ final class YieldModuleStartViewModel: ObservableObject {
     @MainActor
     private func reloadAction() async {
         networkFeeNotification = nil
+        highNetworkFeesNotification = nil
         setAllFeesState(.loading)
-        _ = try? await walletModel.update(silent: true).async()
+        await walletModel.update(silent: true, features: .balances)
         fetchFees()
     }
 
@@ -353,5 +370,9 @@ private extension YieldModuleStartViewModel {
                 await reloadAction()
             }
         }
+    }
+
+    func createHighNetworkFeesNotification() -> YieldModuleNotificationBannerParams {
+        notificationManager.createHighFeesNotification()
     }
 }

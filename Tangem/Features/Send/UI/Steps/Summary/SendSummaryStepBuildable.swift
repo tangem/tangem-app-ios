@@ -17,8 +17,8 @@ extension SendSummaryStepBuildable {
         sendDestinationCompactViewModel: SendDestinationCompactViewModel? = nil,
         sendAmountCompactViewModel: SendAmountCompactViewModel? = nil,
         nftAssetCompactViewModel: NFTAssetCompactViewModel? = nil,
-        stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel? = nil,
-        sendFeeCompactViewModel: SendNewFeeCompactViewModel? = nil
+        stakingTargetsCompactViewModel: StakingTargetsCompactViewModel? = nil,
+        sendFeeCompactViewModel: SendFeeCompactViewModel? = nil
     ) -> SendSummaryStepBuilder.ReturnValue {
         SendSummaryStepBuilder.make(
             io: summaryIO,
@@ -27,7 +27,7 @@ extension SendSummaryStepBuildable {
             sendDestinationCompactViewModel: sendDestinationCompactViewModel,
             sendAmountCompactViewModel: sendAmountCompactViewModel,
             nftAssetCompactViewModel: nftAssetCompactViewModel,
-            stakingValidatorsCompactViewModel: stakingValidatorsCompactViewModel,
+            stakingTargetsCompactViewModel: stakingTargetsCompactViewModel,
             sendFeeCompactViewModel: sendFeeCompactViewModel,
         )
     }
@@ -55,7 +55,7 @@ enum SendSummaryStepBuilder {
     }
 
     struct Dependencies {
-        let sendFeeProvider: any SendFeeProvider
+        let sendFeeProvider: any SendFeeUpdater
         let notificationManager: any NotificationManager
         let analyticsLogger: any SendSummaryAnalyticsLogger
         let sendDescriptionBuilder: any SendTransactionSummaryDescriptionBuilder
@@ -72,8 +72,8 @@ enum SendSummaryStepBuilder {
         sendDestinationCompactViewModel: SendDestinationCompactViewModel?,
         sendAmountCompactViewModel: SendAmountCompactViewModel?,
         nftAssetCompactViewModel: NFTAssetCompactViewModel?,
-        stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?,
-        sendFeeCompactViewModel: SendNewFeeCompactViewModel?
+        stakingTargetsCompactViewModel: StakingTargetsCompactViewModel?,
+        sendFeeCompactViewModel: SendFeeCompactViewModel?
     ) -> ReturnValue {
         let interactor = CommonSendSummaryInteractor(
             input: io.input,
@@ -92,7 +92,7 @@ enum SendSummaryStepBuilder {
             sendAmountCompactViewModel: sendAmountCompactViewModel,
             nftAssetCompactViewModel: nftAssetCompactViewModel,
             sendDestinationCompactViewModel: sendDestinationCompactViewModel,
-            stakingValidatorsCompactViewModel: stakingValidatorsCompactViewModel,
+            stakingTargetsCompactViewModel: stakingTargetsCompactViewModel,
             sendFeeCompactViewModel: sendFeeCompactViewModel
         )
 

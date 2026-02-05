@@ -12,7 +12,7 @@ public enum CommonUIAccessibilityIdentifiers {
     public static let decimalNumberTextField = "commonUIDecimalNumberTextField"
     public static let grabber = "commonUIGrabber"
     public static let closeButton = "commonUICloseButton"
-    public static let circleButton = "commonUICircleButton"
+    public static let backButton = "commonUIBackButton"
 
     /// Entity summary view components
     public static let entityProviderName = "commonUIEntityProviderName"
@@ -30,4 +30,11 @@ public enum CommonUIAccessibilityIdentifiers {
     public static let yieldModuleNotificationIcon = "yieldModuleNotificationIcon"
     public static let yieldModuleNotificationDismissButton = "yieldModuleNotificationDismissButton"
     public static let yieldModuleNotificationButton = "yieldModuleNotificationButton"
+
+    public static let retryButton = "commonRetryButton"
+
+    // Addresses info
+    public static let addressesInfoButton = "commonUIAddressesInfoButton"
+    public static let addressesInfoCopyButton = "commonUIAddressesInfoCopyButton"
+    public static let addressesInfoText = "commonUIAddressesInfoText"
 }

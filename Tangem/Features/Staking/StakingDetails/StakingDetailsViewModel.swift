@@ -76,7 +76,7 @@ final class StakingDetailsViewModel: ObservableObject {
     }
 
     func userDidTapActionButton() {
-        guard stakingManager.state.yieldInfo?.preferredValidators.allSatisfy({ $0.status == .full }) == false else {
+        guard stakingManager.state.yieldInfo?.preferredTargets.allSatisfy({ $0.status == .full }) == false else {
             alert = .init(
                 title: Localization.stakingErrorNoValidatorsTitle,
                 message: Localization.stakingNoValidatorsErrorMessage
@@ -89,7 +89,7 @@ final class StakingDetailsViewModel: ObservableObject {
             return
         }
 
-        guard stakingManager.state.yieldInfo?.preferredValidators.isEmpty == false else {
+        guard stakingManager.state.yieldInfo?.preferredTargets.isEmpty == false else {
             alert = .init(title: Localization.commonWarning, message: Localization.stakingNoValidatorsErrorMessage)
             return
         }
@@ -106,7 +106,8 @@ final class StakingDetailsViewModel: ObservableObject {
             params: [
                 .validatorsCount: balances,
                 .token: tokenItem.currencySymbol,
-            ]
+            ],
+            analyticsSystems: .all
         )
     }
 }
@@ -161,7 +162,7 @@ private extension StakingDetailsViewModel {
         case .notEnabled:
             actionButtonLoading = false
             actionButtonType = .none
-        case .temporaryUnavailable(let yieldInfo), .availableToStake(let yieldInfo):
+        case .temporaryUnavailable(let yieldInfo, _), .availableToStake(let yieldInfo):
             setupView(yield: yieldInfo, balances: [])
 
             actionButtonLoading = false
@@ -329,7 +330,7 @@ private extension StakingDetailsViewModel {
                         .token: tokenCurrencySymbol,
                     ]
                 )
-                self?.openFlow(balance: balance, validators: yield.validators)
+                self?.openFlow(balance: balance, targets: yield.targets)
             }
         }
 
@@ -346,9 +347,9 @@ private extension StakingDetailsViewModel {
         descriptionBottomSheetInfo = DescriptionBottomSheetInfo(title: title, description: description)
     }
 
-    func openFlow(balance: StakingBalance, validators: [ValidatorInfo]) {
+    func openFlow(balance: StakingBalance, targets: [StakingTargetInfo]) {
         do {
-            let action = try PendingActionMapper(balance: balance, validators: validators).getAction()
+            let action = try PendingActionMapper(balance: balance, validators: targets).getAction()
             switch action {
             case .single(let action):
                 openFlow(for: action)
@@ -371,9 +372,9 @@ private extension StakingDetailsViewModel {
 
     private func openRewardsFlow(rewardsBalances: [StakingBalance], yield: StakingYieldInfo) {
         if let rewardsBalance = rewardsBalances.singleElement {
-            openFlow(balance: rewardsBalance, validators: yield.validators)
+            openFlow(balance: rewardsBalance, targets: yield.targets)
 
-            let name = rewardsBalance.validatorType.validator?.name
+            let name = rewardsBalance.targetType.target?.name
             Analytics.log(
                 event: .stakingButtonRewards,
                 params: [
@@ -495,8 +496,8 @@ private extension StakingDetailsViewModel {
         }
 
         var attributedString = makeBaseAttributedString(for: Localization.stakingLegal(tos, policy))
-        formatLink(in: &attributedString, textToSearch: tos, url: Constants.tosURL)
-        formatLink(in: &attributedString, textToSearch: policy, url: Constants.privacyPolicyURL)
+        formatLink(in: &attributedString, textToSearch: tos, url: stakingManager.tosURL)
+        formatLink(in: &attributedString, textToSearch: policy, url: stakingManager.privacyPolicyURL)
         return attributedString
     }
 }
@@ -522,16 +523,25 @@ extension StakingDetailsViewModel {
     enum ActionButtonState: Hashable {
         case enabled
         case disabled(reason: DisableReason)
+
+        var allowTapHandling: Bool {
+            switch self {
+            case .enabled, .disabled(.cantStakeMore):
+                true
+            case .disabled(.insufficientFunds):
+                false
+            }
+        }
     }
 }
 
 extension Period {
     func formatted(formatter: DateComponentsFormatter) -> String {
         switch self {
-        case .specific(let days):
+        case .constant(let days):
             return formatter.string(from: DateComponents(day: days)) ?? days.formatted()
-        case .interval(let min, let max):
-            let minString = formatter.string(from: DateComponents(day: min)) ?? min.formatted()
+        case .variable(let min, let max):
+            let minString = "\(min)"
             let maxString = formatter.string(from: DateComponents(day: max)) ?? max.formatted()
             return "\(minString) - \(maxString)"
         }
@@ -615,12 +625,5 @@ extension DateComponentsFormatter {
         formatter.unitsStyle = .short
         formatter.allowedUnits = [.day]
         return formatter
-    }
-}
-
-extension StakingDetailsViewModel {
-    enum Constants {
-        static let tosURL = URL(string: "https://docs.yield.xyz/docs/terms-of-use#/")!
-        static let privacyPolicyURL = URL(string: "https://docs.yield.xyz/docs/privacy-policy#/")!
     }
 }

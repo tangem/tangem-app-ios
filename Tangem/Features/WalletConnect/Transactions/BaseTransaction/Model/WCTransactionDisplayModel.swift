@@ -30,6 +30,7 @@ protocol WCTransactionDisplayModel {
     var isActionButtonBlocked: Bool { get }
     var isDataReady: Bool { get }
     var simulationDisplayModel: WCTransactionSimulationDisplayModel? { get }
+    var tangemIconProvider: TangemIconProvider { get }
 }
 
 @MainActor
@@ -78,7 +79,7 @@ final class CommonWCTransactionDisplayModel: WCTransactionDisplayModel {
     }
 
     var isActionButtonBlocked: Bool {
-        if case .failedToLoad = viewModel?.selectedFee?.value {
+        if case .failure = viewModel?.selectedFee?.value {
             return true
         }
 
@@ -133,5 +134,9 @@ final class CommonWCTransactionDisplayModel: WCTransactionDisplayModel {
                 viewModel?.handleViewAction(.editApproval(approvalInfo, asset))
             }
         )
+    }
+
+    var tangemIconProvider: TangemIconProvider {
+        CommonTangemIconProvider(config: transactionData.userWalletModel.config)
     }
 }

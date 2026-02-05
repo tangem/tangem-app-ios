@@ -18,6 +18,7 @@ enum EmailType {
     case activatedCard
     case attestationFailed
     case visaFeedback(subject: VisaEmailSubject)
+    case paeraSupport(subject: PaeraEmailSubject)
     case walletConnectUntypedError(formattedErrorCode: String)
 
     var emailSubject: String {
@@ -34,10 +35,12 @@ enum EmailType {
             return "\(subject.prefix) \(Localization.feedbackSubjectSupport)"
         case .walletConnectUntypedError:
             return Localization.emailSubjectWcError
+        case .paeraSupport(subject: let subject):
+            return subject.prefix
         }
     }
 
-    var emailPreface: String {
+    var emailPreface: String? {
         switch self {
         case .negativeRateAppFeedback: return Localization.feedbackPrefaceRateNegative
         case .failedToScanCard: return Localization.feedbackPrefaceScanFailed
@@ -46,10 +49,12 @@ enum EmailType {
         case .appFeedback,
              .activatedCard,
              .attestationFailed,
-             .visaFeedback:
+             .paeraSupport:
             return Localization.feedbackPrefaceSupport
         case .walletConnectUntypedError(let formattedErrorCode):
             return Localization.emailPrefaceWcError(formattedErrorCode)
+        case .visaFeedback:
+            return nil
         }
     }
 
@@ -96,6 +101,7 @@ enum EmailCollectedDataType {
     case token(TokenData)
     case visaDisputeTransaction(VisaDisputeTransactionData)
     case mobileWallet(MobileWalletData)
+    case tangemPayCustomerId
 
     enum CardData: String {
         case cardId = "Card ID"
@@ -187,6 +193,7 @@ enum EmailCollectedDataType {
         case .separator(let type): return type.rawValue
         case .visaDisputeTransaction(let data): return data.rawValue + ": "
         case .mobileWallet(let data): return data.rawValue + ": "
+        case .tangemPayCustomerId: return "Tangem Pay Customer ID: "
         }
     }
 }

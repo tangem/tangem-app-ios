@@ -13,7 +13,8 @@ class CreateWalletSelectorCoordinator: CoordinatorObject {
     let dismissAction: Action<OutputOptions>
     let popToRootAction: Action<PopToRootOptions>
 
-    @Published private(set) var viewModel: CreateWalletSelectorViewModel?
+    @Published private(set) var rootViewModel: CreateWalletSelectorViewModel?
+    @Published private(set) var rootPromoViewModel: CreateWalletSelectorPromoViewModel?
     @Published var onboardingCoordinator: OnboardingCoordinator?
     @Published var mobileCreateWalletCoordinator: MobileCreateWalletCoordinator?
 
@@ -26,7 +27,11 @@ class CreateWalletSelectorCoordinator: CoordinatorObject {
     }
 
     func start(with options: InputOptions) {
-        viewModel = CreateWalletSelectorViewModel(coordinator: self)
+        if AppSettings.shared.shouldShowMobilePromoWalletSelector {
+            rootPromoViewModel = CreateWalletSelectorPromoViewModel(coordinator: self)
+        } else {
+            rootViewModel = CreateWalletSelectorViewModel(coordinator: self)
+        }
     }
 }
 
@@ -48,7 +53,7 @@ extension CreateWalletSelectorCoordinator: CreateWalletSelectorRoutable {
         }
 
         let coordinator = MobileCreateWalletCoordinator(dismissAction: dismissAction)
-        coordinator.start(with: MobileCreateWalletCoordinator.InputOptions())
+        coordinator.start(with: MobileCreateWalletCoordinator.InputOptions(source: .createWalletIntro))
         mobileCreateWalletCoordinator = coordinator
     }
 

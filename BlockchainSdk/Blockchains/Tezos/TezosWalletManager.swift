@@ -18,18 +18,14 @@ class TezosWalletManager: BaseManager, WalletManager {
 
     var currentHost: String { networkService.host }
 
-    override func update(completion: @escaping (Result<Void, Error>) -> Void) {
-        cancellable = networkService
-            .getInfo(address: wallet.address)
-            .sink(receiveCompletion: { [weak self] completionSubscription in
-                if case .failure(let error) = completionSubscription {
-                    self?.wallet.clearAmounts()
-                    completion(.failure(error))
-                }
-            }, receiveValue: { [weak self] response in
-                self?.updateWallet(with: response)
-                completion(.success(()))
-            })
+    override func updateWalletManager() async throws {
+        do {
+            let response = try await networkService.getInfo(address: wallet.address).async()
+            updateWallet(with: response)
+        } catch {
+            wallet.clearAmounts()
+            throw error
+        }
     }
 
     private func updateWallet(with response: TezosAddress) {
@@ -146,7 +142,7 @@ extension TezosWalletManager: TransactionSender {
     private func encodeSignature(_ signature: Data) -> String {
         let edsigPrefix = TezosPrefix.signaturePrefix(for: wallet.blockchain.curve)
         let prefixedSignature = edsigPrefix + signature
-        let checksum = prefixedSignature.getDoubleSha256().prefix(4)
+        let checksum = prefixedSignature.getDoubleSHA256().prefix(4)
         let prefixedSignatureWithChecksum = prefixedSignature + checksum
         return Base58.encode(prefixedSignatureWithChecksum)
     }

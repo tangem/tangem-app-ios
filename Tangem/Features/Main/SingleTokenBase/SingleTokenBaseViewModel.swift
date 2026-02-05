@@ -17,29 +17,29 @@ import TangemUI
 import struct TangemUIUtils.AlertBinder
 import struct TangemUIUtils.ConfirmationDialogViewModel
 
+@available(iOS, deprecated: 100000, message: "Avoid adding another derived class. Rethink your architectural decisions.")
 class SingleTokenBaseViewModel: NotificationTapDelegate {
     @Injected(\.storyAvailabilityService) private var storyAvailabilityService: any StoryAvailabilityService
 
-    @Published var alert: AlertBinder? = nil
-    @Published var transactionHistoryState: TransactionsListView.State = .loading
-    @Published var isReloadingTransactionHistory: Bool = false
-    @Published var isFulfillingAssetRequirements = false
-    @Published var actionButtons: [FixedSizeButtonWithIconInfo] = []
-    @Published var tokenNotificationInputs: [NotificationViewInput] = []
-    @Published var pendingExpressTransactions: [PendingExpressTransactionView.Info] = []
-    @Published private(set) var pendingTransactionViews: [TransactionViewModel] = []
-    @Published private(set) var miniChartData: LoadingValue<[Double]?> = .loading
+    @Published final var alert: AlertBinder? = nil
+    @Published final var transactionHistoryState: TransactionsListView.State = .loading
+    @Published final var isReloadingTransactionHistory: Bool = false
+    @Published final var isFulfillingAssetRequirements = false
+    @Published final var actionButtons: [FixedSizeButtonWithIconInfo] = []
+    @Published final var tokenNotificationInputs: [NotificationViewInput] = []
+    @Published final var pendingExpressTransactions: [PendingExpressTransactionView.Info] = []
+    @Published private(set) final var pendingTransactionViews: [TransactionViewModel] = []
+    @Published private(set) final var miniChartData: LoadingResult<[Double]?, any Error> = .loading
 
-    private(set) lazy var refreshScrollViewStateObject: RefreshScrollViewStateObject = .init(
+    private(set) final lazy var refreshScrollViewStateObject: RefreshScrollViewStateObject = .init(
         settings: .init(stopRefreshingDelay: 0.2),
-        reachedRefreshOffsetAction: { [weak self] in self?.isRefreshingSubject.send(true) },
         refreshable: { [weak self] in await self?.onPullToRefresh() }
     )
 
-    let userWalletInfo: UserWalletInfo
-    let walletModel: any WalletModel
-    let notificationManager: NotificationManager
-    var availableActions: [TokenActionType] = []
+    final let userWalletInfo: UserWalletInfo
+    final let walletModel: any WalletModel
+    final let notificationManager: NotificationManager
+    private var availableActions: [TokenActionType] = []
 
     private let tokenRouter: SingleTokenRoutable
     private let priceFormatter = MarketsTokenPriceFormatter()
@@ -50,37 +50,41 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     private let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
 
     private let priceChangeUtility = PriceChangeUtility()
-    private var transactionHistoryBag: AnyCancellable?
+
     private var updateTask: Task<Void, Never>?
     private var bag = Set<AnyCancellable>()
 
-    var isRefreshingSubject = PassthroughSubject<Bool, Never>()
+    private var blockchainNetwork: BlockchainNetwork { walletModel.tokenItem.blockchainNetwork }
 
-    var blockchainNetwork: BlockchainNetwork { walletModel.tokenItem.blockchainNetwork }
+    private var amountType: Amount.AmountType { walletModel.tokenItem.amountType }
 
-    var amountType: Amount.AmountType { walletModel.tokenItem.amountType }
-
-    var rateFormatted: String {
+    final var rateFormatted: String {
         priceFormatter.formatPrice(walletModel.quote?.price)
     }
 
-    var priceChangeState: TokenPriceChangeView.State {
+    final var priceChangeState: TokenPriceChangeView.State {
         priceChangeUtility.convertToPriceChangeState(changePercent: walletModel.quote?.priceChange24h)
     }
 
-    var blockchain: Blockchain { blockchainNetwork.blockchain }
+    final var blockchain: Blockchain { blockchainNetwork.blockchain }
 
-    var currencySymbol: String {
+    final var currencySymbol: String {
         amountType.token?.symbol ?? blockchainNetwork.blockchain.currencySymbol
     }
 
-    var isMarketsDetailsAvailable: Bool {
+    final var isMarketsDetailsAvailable: Bool {
         walletModel.tokenItem.id != nil
     }
 
-    lazy var transactionHistoryMapper = TransactionHistoryMapper(currencySymbol: currencySymbol, walletAddresses: walletModel.addresses.map { $0.value }, showSign: true)
-    lazy var pendingTransactionRecordMapper = PendingTransactionRecordMapper(formatter: BalanceFormatter())
-    lazy var miniChartsProvider = MarketsListChartsHistoryProvider()
+    private lazy var transactionHistoryMapper = TransactionHistoryMapper(
+        currencySymbol: currencySymbol,
+        walletAddresses: walletModel.addresses.map { $0.value },
+        showSign: true,
+        isToken: walletModel.tokenItem.isToken
+    )
+
+    private lazy var pendingTransactionRecordMapper = PendingTransactionRecordMapper(formatter: BalanceFormatter())
+    private lazy var miniChartsProvider = MarketsListChartsHistoryProvider()
 
     private let miniChartPriceIntervalType = MarketsPriceIntervalType.day
 
@@ -104,11 +108,11 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         prepareSelf()
     }
 
-    func present(confirmationDialog: ConfirmationDialogViewModel) {
+    func present(exploreConfirmationDialog: ConfirmationDialogViewModel) {
         assertionFailure("Must be reimplemented")
     }
 
-    func openExplorer() {
+    final func openExplorer() {
         let addresses = walletModel.addresses
 
         if addresses.count == 1 {
@@ -120,15 +124,15 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         }
     }
 
-    func openTransactionExplorer(transaction hash: String) {
+    final func openTransactionExplorer(transaction hash: String) {
         guard let url = walletModel.exploreTransactionURL(for: hash) else {
             return
         }
 
-        openExplorer(at: url)
+        tokenRouter.openExplorer(at: url, for: walletModel)
     }
 
-    func fetchMoreHistory() -> FetchMore? {
+    final func fetchMoreHistory() -> FetchMore? {
         // flag isReloadingTransactionHistory need for locked fetchMore requests update transaction history, when pullToRefresh is active
         guard walletModel.canFetchHistory, !isReloadingTransactionHistory else {
             return nil
@@ -140,7 +144,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     }
 
     @MainActor
-    func onPullToRefresh() async {
+    final func onPullToRefresh() async {
         guard updateTask == nil else {
             return
         }
@@ -150,22 +154,12 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         }
 
         isReloadingTransactionHistory = true
-        updateTask = runTask(in: self) { viewModel in
-            // Ignore the CancelationError() here
-            // WalletModel.generalUpdate() has not error throwing
-            try? await viewModel.walletModel.generalUpdate(silent: false).async()
-        }
+        updateTask = walletModel.startUpdateTask(silent: false)
 
         // Wait while task is finished
         await updateTask?.value
 
         AppLogger.info(self, "♻️ loading state changed")
-
-        Task {
-            try? await Task.sleep(seconds: 0.7)
-            isRefreshingSubject.send(false)
-        }
-
         isReloadingTransactionHistory = false
 
         updateTask = nil
@@ -177,7 +171,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
         tokenRouter.openMarketsTokenDetails(for: walletModel.tokenItem)
     }
 
-    func onButtonReloadHistory() {
+    final func onButtonReloadHistory() {
         Analytics.log(event: .buttonReload, params: [.token: currencySymbol])
 
         // We should reset transaction history to initial state here
@@ -214,12 +208,14 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     }
 
     private func performLoadHistory() {
-        transactionHistoryBag = walletModel
-            .updateTransactionsHistory()
-            .receive(on: DispatchQueue.main)
-            .receiveCompletion { [weak self] _ in
-                self?.isReloadingTransactionHistory = false
+        Task {
+            await walletModel.updateTransactionsHistory()
+            await MainActor.run {
+                if isReloadingTransactionHistory {
+                    isReloadingTransactionHistory = false
+                }
             }
+        }
     }
 
     private func fulfillRequirementsPublisher() -> AnyPublisher<AlertBinder?, Never> {
@@ -412,7 +408,7 @@ extension SingleTokenBaseViewModel {
 
     private func setupMiniChart() {
         guard let id = walletModel.tokenItem.currencyId else {
-            miniChartData = .failedToLoad(error: "")
+            miniChartData = .failure("")
             return
         }
         miniChartsProvider.fetch(for: [id], with: miniChartPriceIntervalType)
@@ -484,10 +480,10 @@ extension SingleTokenBaseViewModel {
             let chartPoints = try mapper
                 .mapAndSortValues(from: data)
                 .map(\.price.doubleValue)
-            miniChartData = .loaded(chartPoints)
+            miniChartData = .success(chartPoints)
         } catch {
             AppLogger.error(error: error)
-            miniChartData = .failedToLoad(error: error)
+            miniChartData = .failure(error)
         }
     }
 
@@ -503,7 +499,7 @@ extension SingleTokenBaseViewModel {
             return !tokenActionAvailabilityProvider.isSwapAvailable
         case .sell:
             return !tokenActionAvailabilityProvider.isSellAvailable
-        case .copyAddress, .hide, .stake, .marketsDetails:
+        case .copyAddress, .hide, .stake, .marketsDetails, .yield:
             return true
         }
     }
@@ -524,7 +520,7 @@ extension SingleTokenBaseViewModel {
         case .receive: return openReceiveAction
         case .exchange: return openExchangeAction
         case .sell: return openSellAction
-        case .copyAddress, .hide, .stake, .marketsDetails: return nil
+        case .copyAddress, .hide, .stake, .marketsDetails, .yield: return nil
         }
     }
 
@@ -532,7 +528,7 @@ extension SingleTokenBaseViewModel {
         switch buttonType {
         case .receive:
             return weakify(self, forFunction: SingleTokenBaseViewModel.copyDefaultAddress)
-        case .buy, .send, .exchange, .sell, .copyAddress, .hide, .stake, .marketsDetails:
+        case .buy, .send, .exchange, .sell, .copyAddress, .hide, .stake, .marketsDetails, .yield:
             return nil
         }
     }
@@ -541,7 +537,7 @@ extension SingleTokenBaseViewModel {
 // MARK: - Navigation
 
 extension SingleTokenBaseViewModel {
-    func openReceive() {
+    private func openReceive() {
         if let availabilityAlert = tokenActionAvailabilityAlertBuilder.alert(
             for: tokenActionAvailabilityProvider.receiveAvailability, blockchain: blockchain
         ) {
@@ -552,7 +548,7 @@ extension SingleTokenBaseViewModel {
         tokenRouter.openReceive(walletModel: walletModel)
     }
 
-    func openBuyCrypto() {
+    private func openBuyCrypto() {
         if let buyUnavailableAlert = tokenActionAvailabilityAlertBuilder.alert(for: tokenActionAvailabilityProvider.buyAvailablity) {
             alert = buyUnavailableAlert
             return
@@ -561,7 +557,7 @@ extension SingleTokenBaseViewModel {
         tokenRouter.openOnramp(walletModel: walletModel)
     }
 
-    func openSend() {
+    private func openSend() {
         if let sendUnavailableAlert = tokenActionAvailabilityAlertBuilder.alert(for: tokenActionAvailabilityProvider.sendAvailability) {
             alert = sendUnavailableAlert
             return
@@ -570,7 +566,7 @@ extension SingleTokenBaseViewModel {
         tokenRouter.openSend(walletModel: walletModel)
     }
 
-    func openExchange() {
+    final func openExchange() {
         if let swapUnavailableAlert = tokenActionAvailabilityAlertBuilder.alert(for: tokenActionAvailabilityProvider.swapAvailability) {
             alert = swapUnavailableAlert
             return
@@ -579,11 +575,11 @@ extension SingleTokenBaseViewModel {
         tokenRouter.openExchange(walletModel: walletModel)
     }
 
-    func openStaking() {
+    final func openStaking() {
         tokenRouter.openStaking(walletModel: walletModel)
     }
 
-    func openSell() {
+    private func openSell() {
         if let sellUnavailableAlert = tokenActionAvailabilityAlertBuilder.alert(for: tokenActionAvailabilityProvider.sellAvailability) {
             alert = sellUnavailableAlert
             return
@@ -592,11 +588,11 @@ extension SingleTokenBaseViewModel {
         tokenRouter.openSell(for: walletModel)
     }
 
-    func openSendToSell(with request: SellCryptoRequest) {
+    private func openSendToSell(with request: SellCryptoRequest) {
         tokenRouter.openSendToSell(with: request, for: walletModel)
     }
 
-    func openAddressSelector(_ addresses: [BlockchainSdk.Address], callback: @escaping (Int) -> Void) {
+    private func openAddressSelector(_ addresses: [BlockchainSdk.Address], callback: @escaping (Int) -> Void) {
         if addresses.isEmpty {
             return
         }
@@ -612,14 +608,10 @@ extension SingleTokenBaseViewModel {
             buttons: addressButtons + [ConfirmationDialogViewModel.Button.cancel]
         )
 
-        present(confirmationDialog: viewModel)
+        present(exploreConfirmationDialog: viewModel)
     }
 
-    func openExplorer(at url: URL) {
-        tokenRouter.openExplorer(at: url, for: walletModel)
-    }
-
-    func didTapPendingExpressTransaction(id: String) {
+    final func didTapPendingExpressTransaction(id: String) {
         let transactions = pendingExpressTransactionsManager.pendingTransactions
 
         guard let transaction = transactions.first(where: { $0.expressTransactionId == id }) else {
@@ -638,7 +630,7 @@ extension SingleTokenBaseViewModel {
             return
         }
 
-        openExplorer(at: url)
+        tokenRouter.openExplorer(at: url, for: walletModel)
     }
 
     private func openExchangeAction() {

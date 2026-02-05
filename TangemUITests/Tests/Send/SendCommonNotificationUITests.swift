@@ -13,8 +13,10 @@ final class SendCommonNotificationUITests: BaseTestCase {
     private let ethTokenName = "Ethereum"
     private let destination = "0x24298f15b837E5851925E18439490859e0c1F1ee"
 
-    func testNotificationDisplayed_WhenCustomFeeLowerThanSlow() {
+    func testNotificationDisplayed_WhenCustomFeeLowerThanSlow() throws {
         setAllureId(4293)
+
+        try skipDueToBug("[REDACTED_INFO]", description: "Send: It is not possible to paste an amount into the input field")
 
         prepareSendFlow()
 
@@ -22,7 +24,7 @@ final class SendCommonNotificationUITests: BaseTestCase {
             .enterAmount("0.01")
             .tapNextButton()
             .enterDestination(destination)
-            .tapNextButton()
+            .tapNextButtonToSummary()
             .tapFeeBlock()
             .selectCustom()
             .setLowCustomFee()
@@ -45,8 +47,10 @@ final class SendCommonNotificationUITests: BaseTestCase {
             .waitForSendButtonEnabled()
     }
 
-    func testNotificationDisplayed_WhenCustomFeeIsHigh() {
+    func testNotificationDisplayed_WhenCustomFeeIsHigh() throws {
         setAllureId(4294)
+
+        try skipDueToBug("[REDACTED_INFO]", description: "Send: It is not possible to paste an amount into the input field")
 
         prepareSendFlow()
 
@@ -54,7 +58,7 @@ final class SendCommonNotificationUITests: BaseTestCase {
             .enterAmount("0.01")
             .tapNextButton()
             .enterDestination(destination)
-            .tapNextButton()
+            .tapNextButtonToSummary()
             .tapFeeBlock()
             .selectCustom()
             .setHighCustomFee()
@@ -65,6 +69,8 @@ final class SendCommonNotificationUITests: BaseTestCase {
 
     func testInsufficientEthereumFeeBannerNavigatesToEthereumToken() {
         setAllureId(3645)
+
+        // [REDACTED_TODO_COMMENT]
 
         let polTokenName = "POL (ex-MATIC)"
 
@@ -79,7 +85,7 @@ final class SendCommonNotificationUITests: BaseTestCase {
             scenarios: [ethNetworkScenario]
         )
 
-        let polTokenScreen = StoriesScreen(app)
+        let polTokenScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(polTokenName)
             .waitForNotEnoughFeeForTransactionBanner()
@@ -93,7 +99,7 @@ final class SendCommonNotificationUITests: BaseTestCase {
     private func prepareSendFlow() {
         launchApp(tangemApiType: .mock)
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(ethTokenName)
             .tapSendButton()

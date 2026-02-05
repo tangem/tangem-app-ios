@@ -153,6 +153,10 @@ extension NFTSendWalletModelProxy: WalletModel {
         nil
     }
 
+    var p2pTransactionSender: P2PTransactionSender? {
+        nil
+    }
+
     var accountInitializationService: BlockchainAccountInitializationService? {
         // No staking for NFT
         nil
@@ -171,16 +175,12 @@ extension NFTSendWalletModelProxy: WalletModel {
         .just(output: state)
     }
 
-    func generalUpdate(silent: Bool) -> AnyPublisher<Void, Never> {
-        mainTokenWalletModel.generalUpdate(silent: silent)
+    func update(silent: Bool, features: [WalletModelUpdaterFeatureType]) async {
+        await mainTokenWalletModel.update(silent: silent, features: features)
     }
 
-    func update(silent: Bool) -> AnyPublisher<WalletModelState, Never> {
-        mainTokenWalletModel.update(silent: silent)
-    }
-
-    func updateTransactionsHistory() -> AnyPublisher<Void, Never> {
-        mainTokenWalletModel.updateTransactionsHistory()
+    func updateTransactionsHistory() async {
+        await mainTokenWalletModel.updateTransactionsHistory()
     }
 
     func updateAfterSendingTransaction() {
@@ -232,24 +232,20 @@ extension NFTSendWalletModelProxy: WalletModel {
         mainTokenWalletModel.fulfillRequirements(signer: signer)
     }
 
-    func estimatedFee(amount: Amount) -> AnyPublisher<[Fee], Error> {
-        mainTokenWalletModel.estimatedFee(amount: amount)
+    var customFeeProvider: (any CustomFeeProvider)? {
+        mainTokenWalletModel.customFeeProvider
     }
 
-    func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> {
-        mainTokenWalletModel.getFee(amount: amount, destination: destination)
+    func makeTokenFeeLoader(for tokenItem: TokenItem) -> any TokenFeeLoader {
+        mainTokenWalletModel.makeTokenFeeLoader(for: tokenItem)
     }
 
-    func hasFeeCurrency(amountType: Amount.AmountType) -> Bool {
-        mainTokenWalletModel.hasFeeCurrency(amountType: amountType)
+    func hasFeeCurrency() -> Bool {
+        mainTokenWalletModel.hasFeeCurrency()
     }
 
-    func getFeeCurrencyBalance(amountType: Amount.AmountType) -> Decimal {
-        mainTokenWalletModel.getFeeCurrencyBalance(amountType: amountType)
-    }
-
-    func getFee(compiledTransaction data: Data) async throws -> [Fee] {
-        try await mainTokenWalletModel.getFee(compiledTransaction: data)
+    func getFeeCurrencyBalance() -> Decimal {
+        mainTokenWalletModel.getFeeCurrencyBalance()
     }
 
     var blockchainDataProvider: BlockchainDataProvider {
@@ -386,5 +382,17 @@ extension NFTSendWalletModelProxy: WalletModel {
 
     func resolve<R>(using resolver: R) -> R.Result where R: WalletModelResolving {
         resolver.resolve(walletModel: self)
+    }
+
+    var ethereumGaslessTransactionFeeProvider: (any GaslessTransactionFeeProvider)? {
+        mainTokenWalletModel.ethereumGaslessTransactionFeeProvider
+    }
+
+    var pendingTransactionRecordAdder: (any PendingTransactionRecordAdding)? {
+        mainTokenWalletModel.pendingTransactionRecordAdder
+    }
+
+    var ethereumGaslessDataProvider: (any BlockchainSdk.EthereumGaslessDataProvider)? {
+        mainTokenWalletModel.ethereumGaslessDataProvider
     }
 }

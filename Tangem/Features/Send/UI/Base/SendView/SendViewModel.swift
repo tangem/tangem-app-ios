@@ -13,6 +13,7 @@ import TangemAssets
 import TangemExpress
 import TangemFoundation
 import TangemLocalization
+import TangemUI
 import struct TangemUIUtils.AlertBinder
 
 protocol SendViewAlertPresenter: AnyObject {
@@ -44,6 +45,8 @@ final class SendViewModel: ObservableObject {
         stepsManager.shouldShowDismissAlert
     }
 
+    let tangemIconProvider: TangemIconProvider
+
     private let interactor: SendBaseInteractor
     private let stepsManager: SendStepsManager
     private let alertBuilder: SendAlertBuilder
@@ -66,6 +69,7 @@ final class SendViewModel: ObservableObject {
         dataBuilder: SendGenericBaseDataBuilder,
         analyticsLogger: SendBaseViewAnalyticsLogger,
         blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper,
+        tangemIconProvider: TangemIconProvider,
         coordinator: SendRoutable
     ) {
         self.interactor = interactor
@@ -74,6 +78,7 @@ final class SendViewModel: ObservableObject {
         self.analyticsLogger = analyticsLogger
         self.blockchainSDKNotificationMapper = blockchainSDKNotificationMapper
         self.dataBuilder = dataBuilder
+        self.tangemIconProvider = tangemIconProvider
         self.coordinator = coordinator
 
         step = stepsManager.initialStep
@@ -174,8 +179,8 @@ private extension SendViewModel {
 
     func performApprove() {
         do {
-            let (settings, approveViewModelInput) = try dataBuilder.stakingBuilder().makeDataForExpressApproveViewModel()
-            coordinator?.openApproveView(settings: settings, approveViewModelInput: approveViewModelInput)
+            let input = try dataBuilder.approveViewModelProvider().makeExpressApproveViewModelInput()
+            coordinator?.openApproveView(expressApproveViewModelInput: input)
         } catch {
             showAlert(error.alertBinder)
         }
@@ -189,7 +194,7 @@ private extension SendViewModel {
                 await viewModel.proceed(result: result)
             } catch let error as TransactionDispatcherResult.Error {
                 // The demo alert doesn't show without delay
-                try? await Task.sleep(seconds: 1)
+                try? await Task.sleep(for: .seconds(1))
                 await viewModel.proceed(error: error)
             } catch _ as CancellationError {
                 // Do nothing
@@ -315,12 +320,16 @@ private extension SendViewModel {
 extension SendViewModel: SendModelRoutable {
     func openNetworkCurrency() {
         do {
-            let builder = try dataBuilder.sendBuilder()
+            let builder = try dataBuilder.feeCurrencyProvider()
             let feeCurrency = builder.makeFeeCurrencyData()
             coordinator?.openFeeCurrency(feeCurrency: feeCurrency)
         } catch {
             showAlert(error.alertBinder)
         }
+    }
+
+    func openApproveSheet() {
+        performApprove()
     }
 
     func openHighPriceImpactWarningSheetViewModel(viewModel: HighPriceImpactWarningSheetViewModel) {

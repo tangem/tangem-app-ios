@@ -31,6 +31,8 @@ extension DeeplinkNavigationAction {
         var url: URL?
         var entry: String?
         var id: String?
+        var refcode: String?
+        var campaign: String?
 
         static let empty = Params()
 

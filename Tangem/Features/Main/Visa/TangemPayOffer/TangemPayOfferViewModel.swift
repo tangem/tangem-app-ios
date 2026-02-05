@@ -10,19 +10,34 @@ import Combine
 import TangemVisa
 import TangemFoundation
 import TangemSdk
+import TangemUI
 
 final class TangemPayOfferViewModel: ObservableObject {
+    @Injected(\.userWalletRepository)
+    private var userWalletRepository: UserWalletRepository
+
     @Published private(set) var isLoading = false
     @Published var termsFeesAndLimitsViewModel: WebViewContainerViewModel?
 
-    private let userWalletModel: any UserWalletModel
+    var getCardButtonIcon: MainButton.Icon? {
+        if let model = userWalletRepository.models.first, userWalletRepository.models.count == 1 {
+            return CommonTangemIconProvider(config: model.config).getMainButtonIcon()
+        }
+
+        return nil
+    }
+
+    private weak var coordinator: TangemPayOnboardingRoutable?
     private let closeOfferScreen: @MainActor () -> Void
+    private let walletSelectionType: TangemPayWalletSelectionType
 
     init(
-        userWalletModel: any UserWalletModel,
-        closeOfferScreen: @escaping @MainActor () -> Void
+        walletSelectionType: TangemPayWalletSelectionType,
+        closeOfferScreen: @escaping @MainActor () -> Void,
+        coordinator: TangemPayOnboardingRoutable?
     ) {
-        self.userWalletModel = userWalletModel
+        self.walletSelectionType = walletSelectionType
+        self.coordinator = coordinator
         self.closeOfferScreen = closeOfferScreen
     }
 
@@ -33,23 +48,53 @@ final class TangemPayOfferViewModel: ObservableObject {
     func getCard() {
         Analytics.log(.visaOnboardingButtonVisaGetCard)
 
+        switch walletSelectionType {
+        case .single(let id):
+            guard
+                let userWalletModel = userWalletRepository.models.first(
+                    where: { $0.userWalletId.stringValue == id }
+                )
+            else {
+                VisaLogger.info("UserWalletModel not found for given id. This is unexpected.")
+                Task { @MainActor in
+                    closeOfferScreen()
+                }
+                return
+            }
+
+            acceptOffer(on: userWalletModel)
+
+        case .multiple(let ids):
+            let walletModels = userWalletRepository.models
+                .filter { ids.contains($0.userWalletId.stringValue) }
+
+            guard walletModels.isNotEmpty else {
+                VisaLogger.info("UserWalletModel not found for given ids. This is unexpected.")
+                Task { @MainActor in
+                    closeOfferScreen()
+                }
+                return
+            }
+
+            coordinator?.openWalletSelector(
+                from: walletModels
+            ) { [weak self] selectedModel in
+                self?.acceptOffer(on: selectedModel)
+            }
+        }
+    }
+
+    func acceptOffer(on userWalletModel: UserWalletModel) {
         isLoading = true
         runTask(in: self) { viewModel in
             do {
-                let tangemPayAccount = try await viewModel.makeTangemPayAccount()
-                let tangemPayStatus = try await tangemPayAccount.getTangemPayStatus()
+                let tangemPayManager = userWalletModel.tangemPayManager
+                await tangemPayManager.authorizeWithCustomerWallet(authorizingInteractor: userWalletModel.tangemPayAuthorizingInteractor)
 
-                // [REDACTED_TODO_COMMENT]
-                // [REDACTED_INFO]
-                viewModel.userWalletModel.update(type: .tangemPayOfferAccepted(tangemPayAccount))
-
-                switch tangemPayStatus {
+                switch tangemPayManager.state {
                 case .kycRequired:
-                    try await tangemPayAccount.launchKYC {
-                        tangemPayAccount.loadCustomerInfo()
-                        runTask(in: viewModel) { viewModel in
-                            await viewModel.closeOfferScreen()
-                        }
+                    try await tangemPayManager.launchKYC {
+                        await viewModel.closeOfferScreen()
                     }
                 default:
                     await viewModel.closeOfferScreen()
@@ -68,15 +113,6 @@ final class TangemPayOfferViewModel: ObservableObject {
             title: "",
             withCloseButton: true
         )
-    }
-
-    private func makeTangemPayAccount() async throws -> TangemPayAccount {
-        let builder = TangemPayAccountBuilder()
-        let tangemPayAccount = try await builder.makeTangemPayAccount(
-            authorizerType: .plain,
-            userWalletModel: userWalletModel
-        )
-        return tangemPayAccount
     }
 }
 

@@ -19,7 +19,7 @@ class CommonTokenQuotesRepository {
     private var loadingQueue = PassthroughSubject<QueueItem, Never>()
     private var bag: Set<AnyCancellable> = []
     private let storage = CachesDirectoryStorage(file: .cachedQuotes)
-    private let lock = Lock(isRecursive: false)
+    private let lock = OSAllocatedUnfairLock()
 
     init() {
         bind()
@@ -37,6 +37,20 @@ extension CommonTokenQuotesRepository: TokenQuotesRepository {
 
     var quotesPublisher: AnyPublisher<Quotes, Never> {
         _quotes.eraseToAnyPublisher()
+    }
+
+    func fetchFreshQuoteFor(currencyId: String, shouldUpdateCache: Bool) async throws -> TokenQuote {
+        let quotes = await loadQuotes(currencyIds: [currencyId])
+
+        guard let quote = quotes[currencyId] else {
+            throw CommonError.noData
+        }
+
+        if shouldUpdateCache {
+            saveQuotes([quote])
+        }
+
+        return quote
     }
 
     func quote(for currencyId: String) async throws -> TokenQuote {
@@ -124,8 +138,8 @@ private extension CommonTokenQuotesRepository {
             .withWeakCaptureOf(self)
             .flatMap { repository, _ in
                 let userWallets = repository.userWalletRepository.models
-                // accounts_fixes_needed_quotes
-                let userCurrencyIds = Array(Set(userWallets.flatMap { $0.walletModelsManager.walletModels.compactMap(\.tokenItem.currencyId) }))
+                let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWallets)
+                let userCurrencyIds = walletModels.compactMap(\.tokenItem.currencyId).unique()
                 return repository.loadQuotes(currencyIds: userCurrencyIds)
             }
             .sink()

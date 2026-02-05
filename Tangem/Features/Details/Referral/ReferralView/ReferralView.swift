@@ -147,7 +147,7 @@ struct ReferralView: View {
     }
 
     @ViewBuilder
-    private func makeReadyToBecomeParticipantView(_ displayMode: ReferralViewModel.ReadyToBecomParticipantDisplayMode) -> some View {
+    private func makeReadyToBecomeParticipantView(_ displayMode: ReferralViewModel.ReadyToBecomeParticipantDisplayMode) -> some View {
         switch displayMode {
         case .simple:
             simpleReadyToBecomeParticipantView
@@ -189,23 +189,23 @@ struct ReferralView: View {
                 if let accountData {
                     Divider()
 
-                    BaseOneLineRow(icon: nil, title: Localization.accountForRewards, trailingView: {
-                        HStack(spacing: 4) {
-                            AccountIconView(data: accountData.iconViewData)
-                                .settings(.smallSized)
-
-                            Text(accountData.name)
-                                .style(Fonts.Regular.body, color: Colors.Text.tertiary)
+                    BaseOneLineRow(
+                        icon: nil,
+                        title: Localization.accountForRewards,
+                        trailingView: {
+                            AccountInlineHeaderView(
+                                iconData: accountData.iconViewData,
+                                name: accountData.name
+                            )
+                            .rowTrailingStyle()
                         }
-                    })
+                    )
                     .shouldShowTrailingIcon(false)
                 }
             }
             .frame(maxWidth: .infinity)
             .padding(.top, 8)
-            .padding(.bottom, 12)
-            .background(Colors.Background.primary)
-            .cornerRadius(14)
+            .defaultRoundedBackground()
 
             HStack(spacing: 12) {
                 TangemButton(
@@ -336,7 +336,7 @@ struct ReferralView: View {
     private var participateButton: some View {
         MainButton(
             title: Localization.referralButtonParticipate,
-            icon: .trailing(Assets.tangemIcon),
+            icon: viewModel.mainButtonIcon,
             style: .primary,
             action: viewModel.participateInReferralProgram
         )
@@ -360,14 +360,15 @@ struct ReferralView: View {
 
 struct ReferralView_Previews: PreviewProvider {
     static var previews: some View {
-        NavigationView {
+        NavigationStack {
             ReferralView(
                 viewModel: ReferralViewModel(
                     input: .init(
                         userWalletId: Data(),
                         supportedBlockchains: SupportedBlockchains.all,
                         workMode: .plainUserTokensManager(UserTokensManagerMock()),
-                        tokenIconInfoBuilder: TokenIconInfoBuilder()
+                        tokenIconInfoBuilder: TokenIconInfoBuilder(),
+                        userWalletModel: UserWalletModelMock()
                     ),
                     coordinator: ReferralCoordinator()
                 )
@@ -375,14 +376,15 @@ struct ReferralView_Previews: PreviewProvider {
         }
         .previewGroup(devices: [.iPhone7], withZoomed: false)
 
-        NavigationView {
+        NavigationStack {
             ReferralView(
                 viewModel: ReferralViewModel(
                     input: .init(
                         userWalletId: Data(hexString: "6772C99F8B400E6F59FFCE0C4A66193BFD49DE2D9738868DE36F5E16569BB4F9"),
                         supportedBlockchains: SupportedBlockchains.all,
                         workMode: .plainUserTokensManager(UserTokensManagerMock()),
-                        tokenIconInfoBuilder: TokenIconInfoBuilder()
+                        tokenIconInfoBuilder: TokenIconInfoBuilder(),
+                        userWalletModel: UserWalletModelMock()
                     ),
                     coordinator: ReferralCoordinator()
                 )

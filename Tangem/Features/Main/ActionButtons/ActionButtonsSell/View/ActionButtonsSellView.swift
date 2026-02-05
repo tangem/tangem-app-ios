@@ -21,7 +21,7 @@ struct ActionButtonsSellView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    CloseButton(dismiss: { viewModel.handleViewAction(.close) })
+                    CloseTextButton(action: { viewModel.handleViewAction(.close) })
                 }
             }
             .onAppear {
@@ -55,7 +55,7 @@ struct ActionButtonsSellView: View {
             .padding(.horizontal, 16)
         }
         .background(Colors.Background.tertiary.ignoresSafeArea(.all))
-        .scrollDismissesKeyboardCompat(.immediately)
+        .scrollDismissesKeyboard(.immediately)
     }
 
     private var notifications: some View {

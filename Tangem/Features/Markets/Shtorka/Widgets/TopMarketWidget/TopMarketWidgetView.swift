@@ -1,0 +1,83 @@
+//
+//  TopMarketWidget.swift
+//  Tangem
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2025 Tangem AG. All rights reserved.
+//
+
+import SwiftUI
+import TangemLocalization
+import TangemAssets
+import TangemUI
+
+struct TopMarketWidgetView: View {
+    @ObservedObject var viewModel: TopMarketWidgetViewModel
+
+    @Environment(\.mainWindowSize) private var mainWindowSize
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: MarketsWidgetLayout.Item.interItemSpacing) {
+            header
+
+            list
+        }
+    }
+
+    private var header: some View {
+        MarketsCommonWidgetHeaderView(
+            headerTitle: viewModel.widgetType.headerTitle ?? "",
+            headerImage: nil,
+            buttonTitle: Localization.commonSeeAll,
+            buttonAction: viewModel.onSeeAllTapAction,
+            isLoading: viewModel.isFirstLoading
+        )
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        switch viewModel.tokenViewModelsState {
+        case .success(let tokenViewModels):
+            VStack(spacing: .zero) {
+                ForEach(tokenViewModels) {
+                    MarketTokenItemView(viewModel: $0, cellWidth: mainWindowSize.width)
+                }
+            }
+        case .failure:
+            MarketsWidgetErrorView(tryLoadAgain: viewModel.tryLoadAgain)
+        case .loading:
+            loadingSkeletons
+        }
+    }
+
+    private var list: some View {
+        Group {
+            switch viewModel.tokenViewModelsState {
+            case .loading:
+                loadingSkeletons
+            case .success(let tokenViewModels):
+                VStack(spacing: .zero) {
+                    ForEach(tokenViewModels) {
+                        MarketTokenItemView(viewModel: $0, cellWidth: mainWindowSize.width)
+                    }
+                }
+            case .failure:
+                MarketsWidgetErrorView(tryLoadAgain: viewModel.tryLoadAgain)
+            }
+        }
+        .defaultRoundedBackground(
+            with: Color.Tangem.Surface.level4,
+            verticalPadding: MarketsWidgetLayout.Content.innerContentPadding,
+            horizontalPadding: MarketsWidgetLayout.Content.innerContentPadding
+        )
+        .padding(.horizontal, MarketsWidgetLayout.Item.horizontalPadding)
+    }
+
+    private var loadingSkeletons: some View {
+        VStack(spacing: .zero) {
+            ForEach(0 ..< 5) { _ in
+                MarketsSkeletonItemView()
+            }
+        }
+    }
+}

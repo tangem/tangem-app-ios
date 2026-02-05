@@ -20,6 +20,7 @@ final class SingleTokenNotificationManager {
 
     private let walletModel: any WalletModel
     private let walletModelsManager: WalletModelsManager
+    private let tangemIconProvider: TangemIconProvider
     private weak var delegate: NotificationTapDelegate?
 
     private let notificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
@@ -28,13 +29,17 @@ final class SingleTokenNotificationManager {
     private var bag: Set<AnyCancellable> = []
     private var notificationsUpdateTask: Task<Void, Never>?
 
+    private var totalState: TokenBalanceType?
+
     init(
         userWalletId: UserWalletId,
         walletModel: any WalletModel,
-        walletModelsManager: WalletModelsManager
+        walletModelsManager: WalletModelsManager,
+        tangemIconProvider: TangemIconProvider
     ) {
         self.walletModel = walletModel
         self.walletModelsManager = walletModelsManager
+        self.tangemIconProvider = tangemIconProvider
         analyticsService = NotificationsAnalyticsService(userWalletId: userWalletId)
         bind()
     }
@@ -56,6 +61,12 @@ final class SingleTokenNotificationManager {
         .receive(on: DispatchQueue.main)
         .sink { [weak self] availableState, totalState in
             self?.notificationsUpdateTask?.cancel()
+            self?.totalState = totalState
+
+            if case .binance = self?.walletModel.tokenItem.blockchain {
+                self?.setupBinanceNotification()
+                return
+            }
 
             switch (availableState, totalState) {
             case (.failure(.none), _):
@@ -113,14 +124,15 @@ final class SingleTokenNotificationManager {
             events.append(.maticMigration)
         }
 
-        if let sendingRestrictions = walletModel.sendingRestrictions {
-            let isFeeCurrencyPurchaseAllowed = walletModelsManager.walletModels.contains {
-                $0.tokenItem == walletModel.feeTokenItem && $0.tokenItem.blockchainNetwork == walletModel.tokenItem.blockchainNetwork
-            }
+        if case .clore = walletModel.tokenItem.blockchain {
+            events.append(.cloreMigration)
+        }
 
-            if let event = TokenNotificationEvent.event(for: sendingRestrictions, isFeeCurrencyPurchaseAllowed: isFeeCurrencyPurchaseAllowed) {
-                events.append(event)
-            }
+        switch walletModel.sendingRestrictions {
+        case .zeroFeeCurrencyBalance(let configuration) where !walletModel.isMainToken && !walletModel.tokenItem.blockchain.isGaslessTransactionSupported:
+            events.append(.notEnoughFeeForTransaction(configuration: configuration))
+        default:
+            break
         }
 
         events += makeAssetRequirementsNotificationEvents()
@@ -172,19 +184,13 @@ final class SingleTokenNotificationManager {
     private func setupNetworkUnreachable() {
         let factory = NotificationsFactory()
 
-        if case .binance = walletModel.tokenItem.blockchain {
-            notificationInputsSubject.send([
-                factory.buildNotificationInput(for: TokenNotificationEvent.bnbBeaconChainRetirement),
+        notificationInputsSubject
+            .send([
+                factory.buildNotificationInput(
+                    for: TokenNotificationEvent.networkUnreachable(currencySymbol: walletModel.tokenItem.blockchain.currencySymbol),
+                    dismissAction: weakify(self, forFunction: SingleTokenNotificationManager.dismissNotification(with:))
+                ),
             ])
-        } else {
-            notificationInputsSubject
-                .send([
-                    factory.buildNotificationInput(
-                        for: TokenNotificationEvent.networkUnreachable(currencySymbol: walletModel.tokenItem.blockchain.currencySymbol),
-                        dismissAction: weakify(self, forFunction: SingleTokenNotificationManager.dismissNotification(with:))
-                    ),
-                ])
-        }
     }
 
     private func setupNetworkNotUpdated(lastUpdatedDate: Date) {
@@ -195,28 +201,39 @@ final class SingleTokenNotificationManager {
         ])
     }
 
-    private func setupNoAccountNotification(with message: String) {
-        // Skip displaying the BEP2 account creation top-up notification
-        // since it will be deprecated shortly due to the network shutdown
-        if case .binance = walletModel.tokenItem.blockchain {
+    /// Skip displaying the BEP2 account creation top-up notification
+    /// since it will be deprecated shortly due to the network shutdown
+    private func setupBinanceNotification() {
+        guard case .binance = walletModel.tokenItem.blockchain else {
             return
         }
 
         let factory = NotificationsFactory()
-        let event = TokenNotificationEvent.noAccount(message: message)
 
-        notificationInputsSubject
-            .send([
-                factory.buildNotificationInput(
-                    for: event,
-                    buttonAction: { [weak self] id, actionType in
-                        self?.delegate?.didTapNotification(with: id, action: actionType)
-                    },
-                    dismissAction: { [weak self] id in
-                        self?.dismissNotification(with: id)
-                    }
-                ),
-            ])
+        notificationInputsSubject.send([
+            factory.buildNotificationInput(for: TokenNotificationEvent.bnbBeaconChainRetirement),
+        ])
+    }
+
+    private func setupNoAccountNotification(with message: String) {
+        let factory = NotificationsFactory()
+        let noAccountEvent = TokenNotificationEvent.noAccount(message: message)
+        let missingTrustlineEvents = makeAssetRequirementsNotificationEvents()
+        let events = [noAccountEvent] + missingTrustlineEvents
+
+        let inputs = events.map {
+            factory.buildNotificationInput(
+                for: $0,
+                buttonAction: { [weak self] id, actionType in
+                    self?.delegate?.didTapNotification(with: id, action: actionType)
+                },
+                dismissAction: { [weak self] id in
+                    self?.dismissNotification(with: id)
+                }
+            )
+        }
+
+        notificationInputsSubject.send(inputs)
     }
 
     private func loadRentNotificationIfNeeded() async -> NotificationViewInput? {
@@ -248,26 +265,29 @@ final class SingleTokenNotificationManager {
             return []
         }
 
+        let isTotalStateLoaded = totalState?.isLoaded ?? false
+
         switch assetRequirementsManager.requirementsCondition(for: asset) {
         case .requiresTrustline(let blockchain, let fee, let isProcessingTrustlineOperation):
             let configuration = makeUnfulfilledRequirementsConfiguration(
                 blockchain: blockchain,
                 transactionAmount: nil,
                 feeAmount: fee,
-                isProcessingFulfillRequirementOperation: isProcessingTrustlineOperation
+                isProcessingFulfillRequirementOperation: isProcessingTrustlineOperation,
+                canPerformAction: isTotalStateLoaded
             )
 
-            return [.hasUnfulfilledRequirements(configuration: configuration)]
+            return [.hasUnfulfilledRequirements(configuration: configuration, icon: tangemIconProvider.getMainButtonIcon())]
 
-        case .paidTransactionWithFee(let blockchain, let transactionAmount, let feeAmount):
+        case .paidTransactionWithFee(let blockchain, let transactionAmount, let feeAmount) where isTotalStateLoaded:
             let configuration = makeUnfulfilledRequirementsConfiguration(
                 blockchain: blockchain,
                 transactionAmount: transactionAmount,
                 feeAmount: feeAmount
             )
-            return [.hasUnfulfilledRequirements(configuration: configuration)]
+            return [.hasUnfulfilledRequirements(configuration: configuration, icon: tangemIconProvider.getMainButtonIcon())]
 
-        case .none:
+        case .none, .paidTransactionWithFee:
             return []
         }
     }
@@ -276,7 +296,8 @@ final class SingleTokenNotificationManager {
         blockchain: Blockchain,
         transactionAmount: Amount?,
         feeAmount: Amount?,
-        isProcessingFulfillRequirementOperation: Bool? = nil
+        isProcessingFulfillRequirementOperation: Bool? = nil,
+        canPerformAction: Bool = true
     ) -> TokenNotificationEvent.UnfulfilledRequirementsConfiguration {
         switch blockchain {
         case .stellar, .xrp:
@@ -286,7 +307,8 @@ final class SingleTokenNotificationManager {
                     reserveCurrencySymbol: blockchain.currencySymbol,
                     reserveAmount: formattedReserve,
                     icon: NetworkImageProvider().provide(by: blockchain, filled: true),
-                    trustlineOperationInProgress: isProcessingFulfillRequirementOperation ?? false
+                    trustlineOperationInProgress: isProcessingFulfillRequirementOperation ?? false,
+                    canPerformAction: canPerformAction
                 )
             )
 
@@ -374,7 +396,7 @@ extension SingleTokenNotificationManager: NotificationManager {
 
         if let event = notification.settings.event as? TokenNotificationEvent {
             switch event {
-            case .hasUnfulfilledRequirements(.incompleteKaspaTokenTransaction(let revealTransaction)):
+            case .hasUnfulfilledRequirements(.incompleteKaspaTokenTransaction(let revealTransaction), _):
                 Analytics.log(event: .tokenButtonRevealCancel, params: event.analyticsParams)
 
                 interactionDelegate?.confirmDiscardingUnfulfilledAssetRequirements(

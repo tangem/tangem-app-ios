@@ -15,6 +15,7 @@ import TangemVisa
 import TangemLocalization
 import TangemFoundation
 import TangemMobileWalletSdk
+import TangemPay
 
 class CommonUserWalletRepository: UserWalletRepository {
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
@@ -48,7 +49,6 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private(set) var models = [UserWalletModel]()
-    private let encryptionKeyStorage = UserWalletEncryptionKeyStorage()
     private let userWalletDataStorage = UserWalletDataStorage()
     private let userWalletEncryptionKeyStorage = UserWalletEncryptionKeyStorage()
     private let accessCodeRepository = AccessCodeRepository()
@@ -114,8 +114,12 @@ class CommonUserWalletRepository: UserWalletRepository {
             throw UserWalletRepositoryError.duplicateWalletAdded
         }
 
+        let shouldShowInsertedEvent = models.isNotEmpty
         models.append(userWalletModel)
-        sendEvent(.inserted(userWalletId: userWalletModel.userWalletId))
+        if shouldShowInsertedEvent {
+            sendEvent(.inserted(userWalletId: userWalletModel.userWalletId))
+        }
+
         select(userWalletId: userWalletModel.userWalletId)
         save(userWalletModel: userWalletModel)
 
@@ -133,7 +137,7 @@ class CommonUserWalletRepository: UserWalletRepository {
 
         if let encryptionKey = UserWalletEncryptionKey(config: userWalletModel.config) {
             savePrivateData(userWalletModel: userWalletModel, encryptionKey: encryptionKey)
-            encryptionKeyStorage.refreshEncryptionKey(encryptionKey, for: userWalletModel.userWalletId)
+            userWalletEncryptionKeyStorage.refreshEncryptionKey(encryptionKey, for: userWalletModel.userWalletId)
         }
     }
 
@@ -152,7 +156,6 @@ class CommonUserWalletRepository: UserWalletRepository {
             let allUserWalletIds = models.map { $0.userWalletId }
             userWalletEncryptionKeyStorage.clear(userWalletIds: allUserWalletIds)
             visaRefreshTokenRepository.clearPersistent()
-            tangemPayAuthorizationTokensRepository.clearPersistent()
             mobileWalletSdk.clearBiometrics(walletIDs: allUserWalletIds)
         }
     }
@@ -164,7 +167,7 @@ class CommonUserWalletRepository: UserWalletRepository {
 
             if let selectedModel, let encryptionKey = UserWalletEncryptionKey(config: selectedModel.config) {
                 savePrivateData(userWalletModel: selectedModel, encryptionKey: encryptionKey)
-                encryptionKeyStorage.refreshEncryptionKey(encryptionKey, for: selectedModel.userWalletId)
+                userWalletEncryptionKeyStorage.refreshEncryptionKey(encryptionKey, for: selectedModel.userWalletId)
             }
 
             // All the necessary data is already saved in MobileWalletSdk, so we don't need to do anything else.
@@ -173,10 +176,9 @@ class CommonUserWalletRepository: UserWalletRepository {
 
             accessCodeRepository.clear()
             visaRefreshTokenRepository.clearPersistent()
-            tangemPayAuthorizationTokensRepository.clearPersistent()
             let userWalletIds = models.map { $0.userWalletId }
             userWalletDataStorage.clear()
-            encryptionKeyStorage.clear(userWalletIds: userWalletIds)
+            userWalletEncryptionKeyStorage.clear(userWalletIds: userWalletIds)
 
             let modelsToDelete = userWalletIds.filter { $0 != selectedModel?.userWalletId }
 
@@ -192,7 +194,7 @@ class CommonUserWalletRepository: UserWalletRepository {
                 models = [selectedModel]
             }
 
-            sendEvent(.deleted(userWalletIds: otherUserWallets.map { $0.userWalletId }))
+            sendEvent(.deleted(userWalletIds: otherUserWallets.map { $0.userWalletId }, isRepositoryEmpty: false))
         }
     }
 
@@ -222,7 +224,7 @@ class CommonUserWalletRepository: UserWalletRepository {
 
         let nextSelectionIndex = currentIndex > 0 ? (currentIndex - 1) : 0
 
-        encryptionKeyStorage.clear(userWalletIds: [userWalletId])
+        userWalletEncryptionKeyStorage.clear(userWalletIds: [userWalletId])
 
         let associatedCardIds = models[currentIndex].associatedCardIds
         try? accessCodeRepository.deleteAccessCode(for: Array(associatedCardIds))
@@ -231,19 +233,22 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
         try? tangemPayAuthorizationTokensRepository.deleteTokens(customerWalletId: userWalletId.stringValue)
 
+        let removedModels = models.filter { $0.userWalletId == userWalletId }
         models.removeAll { $0.userWalletId == userWalletId }
         userWalletDataStorage.delete(userWalletId: userWalletId, updatedWallets: models.compactMap { $0.serializePublic() })
 
         try? mobileWalletSdk.delete(walletIDs: [userWalletId])
 
+        sendEvent(.deleted(userWalletIds: [userWalletId], isRepositoryEmpty: models.isEmpty))
+
         if models.isEmpty {
-            AppSettings.shared.startWalletUsageDate = nil
             lockInternal()
         } else {
-            sendEvent(.deleted(userWalletIds: [userWalletId]))
             let newModel = models[nextSelectionIndex]
             select(userWalletId: newModel.userWalletId)
         }
+
+        removedModels.forEach { $0.dispose() }
     }
 
     private func savePrivateData(userWalletModel: UserWalletModel, encryptionKey: UserWalletEncryptionKey) {
@@ -256,31 +261,33 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
     }
 
-    private func setStartWalletUsageDateIfNeeded() {
-        guard selectedModel != nil else {
-            return
-        }
-
-        if AppSettings.shared.startWalletUsageDate == nil {
-            AppSettings.shared.startWalletUsageDate = Date()
-        }
-    }
-
     private func _handleUnlock(context: LAContext) throws {
-        let userWalletIds = models.map { $0.userWalletId }
-        let encryptionKeys = try encryptionKeyStorage.fetch(userWalletIds: userWalletIds, context: context)
+        // `userWalletIds` is filtered to include only locked user wallets.
+        // This is required for the case when biometrics have changed:
+        // some wallets may be unprotected and should be ignored during unlock.
+        // Otherwise, they would produce non-empty `sensitiveInfos` and prevent
+        // the biometrics-changed error from being propagated.
+        let userWalletIds = models.filter(\.isUserWalletLocked).map { $0.userWalletId }
+        let encryptionKeys = try userWalletEncryptionKeyStorage.fetch(userWalletIds: userWalletIds, context: context)
         let sensitiveInfos = userWalletDataStorage.fetchPrivateData(encryptionKeys: encryptionKeys)
 
         if sensitiveInfos.isEmpty {
             // clean to prevent double tap
             AccessCodeRepository().clear()
-            Analytics.log(.signInErrorBiometricUpdated)
+            Analytics.log(.signInErrorBiometricUpdated, contextParams: .empty)
             throw UserWalletRepositoryError.biometricsChanged
         }
 
         let publicData = models.compactMap { $0.serializePublic() }
         let unlockedModels = publicData.map { userWalletStorageItem in
-            if let sensitiveInfo = sensitiveInfos[UserWalletId(value: userWalletStorageItem.userWalletId)],
+            let userWalletId = UserWalletId(value: userWalletStorageItem.userWalletId)
+
+            // Already unlocked and unprotected mobile wallet
+            if let userWalletModel = models[userWalletId], !userWalletModel.isUserWalletLocked {
+                return userWalletModel
+            }
+
+            if let sensitiveInfo = sensitiveInfos[userWalletId],
                let userWalletModel = CommonUserWalletModelFactory().makeModel(publicData: userWalletStorageItem, sensitiveData: sensitiveInfo) {
                 return userWalletModel
             }
@@ -315,7 +322,10 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
 
         guard !targetUnlockedModel.isUserWalletLocked else {
-            Analytics.log(.signInErrorBiometricUpdated)
+            Analytics.log(
+                .signInErrorBiometricUpdated,
+                contextParams: .custom(targetUnlockedModel.analyticsContextData)
+            )
             throw UserWalletRepositoryError.biometricsChanged
         }
 
@@ -335,7 +345,7 @@ class CommonUserWalletRepository: UserWalletRepository {
         }
 
         // We have to refresh a key on every unlock because we are unable to check presence of the key
-        encryptionKeyStorage.refreshEncryptionKey(encryptionKey, for: userWalletId)
+        userWalletEncryptionKeyStorage.refreshEncryptionKey(encryptionKey, for: userWalletId)
 
         guard let sensitiveInfo = userWalletDataStorage.fetchPrivateData(encryptionKeys: [userWalletId: encryptionKey])[userWalletId],
               let publicData = existingLockedModel.serializePublic(),
@@ -366,6 +376,8 @@ class CommonUserWalletRepository: UserWalletRepository {
             switch result {
             case .success(let userWalletId, let encryptionKey):
                 encryptionKeys[userWalletId] = encryptionKey
+                // We have to refresh a key on every unlock because we are unable to check presence of the key
+                userWalletEncryptionKeyStorage.refreshEncryptionKey(encryptionKey, for: userWalletId)
             default:
                 continue
             }
@@ -384,7 +396,6 @@ class CommonUserWalletRepository: UserWalletRepository {
     }
 
     private func unlockInternal() {
-        setStartWalletUsageDateIfNeeded()
         _locked = false
         sendEvent(.unlocked)
     }

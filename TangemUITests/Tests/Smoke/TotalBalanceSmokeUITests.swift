@@ -13,7 +13,7 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
         setAllureId(150)
         launchApp(tangemApiType: .mock)
 
-        let mainScreen = StoriesScreen(app)
+        let mainScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .waitForTotalBalanceDisplayed()
 
@@ -34,7 +34,7 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
             scenarios: [currencyScenario]
         )
 
-        let appSettingsScreen = StoriesScreen(app)
+        let appSettingsScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .openDetails()
             .openAppSettings()
@@ -64,7 +64,7 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
         setAllureId(4000)
         launchApp(tangemApiType: .mock)
 
-        let mainScreen = StoriesScreen(app)
+        let mainScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .waitForTotalBalanceDisplayed()
 
@@ -82,7 +82,7 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
         setAllureId(4001)
         launchApp(tangemApiType: .mock)
 
-        let mainScreen = StoriesScreen(app)
+        let mainScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .waitForTotalBalanceDisplayed()
 
@@ -117,7 +117,7 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
             scenarios: [quotesErrorScenario]
         )
 
-        let tokenBalance = StoriesScreen(app)
+        let tokenBalance = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .getTokenBalance(tokenName: token)
 
@@ -143,7 +143,7 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
             scenarios: [quotesErrorScenario, coinsListErrorScenario]
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .waitForTotalBalanceDisplayedAsDash()
     }
@@ -167,7 +167,7 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
             scenarios: [coinsListDelayScenario, quotesDelayScenario]
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .waitForTotalBalanceShimmer()
             .waitForTotalBalanceDisplayed()
@@ -177,7 +177,7 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
         setAllureId(148)
         launchApp(tangemApiType: .mock)
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet)
             .waitForSynchronizeAddressesButtonExists()
             .waitForTotalBalanceDisplayedAsDash()
@@ -197,7 +197,7 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
             scenarios: [ethNetworkBalanceScenario]
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .waitForTotalBalanceDisplayedAsDash()
     }
@@ -216,7 +216,7 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
             scenarios: [stakingScenario]
         )
 
-        let tokenScreen = StoriesScreen(app)
+        let tokenScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken("POL (ex-MATIC)")
 
@@ -242,28 +242,31 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
             name: "quotes_api",
             initialState: "Ripple"
         )
+        let tokensScenario = ScenarioConfig(
+            name: "wallet_tokens_api",
+            initialState: "XRP"
+        )
         let expectedBalance = Decimal(3320.46)
 
         launchApp(
             tangemApiType: .mock,
-            clearStorage: true
+            clearStorage: true,
+            scenarios: [quotesScenario, tokensScenario]
         )
 
-        StoriesScreen(app)
+        let marketsScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
-
-        let marketsScreen = MarketsScreen(app)
             .openMarketsSheetWithSwipe()
             .searchForToken("XRP")
             .tapTokenInSearchResults("XRP")
 
-        setupWireMockScenarios([quotesScenario])
+        setupWireMockScenarios([quotesScenario, tokensScenario])
 
         let mainScreen = marketsScreen
             .tapAddToPortfolioButton()
-            .toggleMainNetworkSwitch()
-            .tapContinueButton()
-            .tapBackButton()
+            .selectNetwork("XRP Ledger")
+            .tapAddTokenButton()
+            .tapGetTokenLaterButton()
             .closeMarketsSheetWithSwipe()
 
         let actualBalance = mainScreen.getTotalBalanceNumericValue()
@@ -276,7 +279,7 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
         setAllureId(4002)
         launchApp(tangemApiType: .mock)
 
-        let mainScreen = StoriesScreen(app)
+        let mainScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .waitForTotalBalanceDisplayed()
 
@@ -317,14 +320,15 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
             scenarios: [userTokensScenario, rippleAccountInfoScenario, ethCallScenario, ethNetworkBalance]
         )
 
-        let mainScreen = StoriesScreen(app)
+        let mainScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .waitForTotalBalanceDisplayed()
 
         let totalBalance = mainScreen.getTotalBalanceNumericValue()
         XCTAssertEqual(totalBalance, 0, "Total balance should equal 0, but got: \(totalBalance)")
 
-        let tokenNames = mainScreen.getTokensOrder()
+        let tokensOrder = mainScreen.getTokensOrder()
+        let tokenNames = tokensOrder.allTokensFlat
         for tokenName in tokenNames {
             if tokenName == customToken {
                 let balances = mainScreen.getAllTokenBalances(tokenName: tokenName)
@@ -359,14 +363,15 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
             scenarios: [userTokensScenario, quotesScenario]
         )
 
-        let mainScreen = StoriesScreen(app)
+        let mainScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .waitForTotalBalanceDisplayed()
 
         let totalBalance = mainScreen.getTotalBalanceNumericValue()
         XCTAssertGreaterThan(totalBalance, 0, "Total balance should be positive, but got: \(totalBalance)")
 
-        let tokenNames = mainScreen.getTokensOrder()
+        let tokensOrder = mainScreen.getTokensOrder()
+        let tokenNames = tokensOrder.allTokensFlat
 
         for tokenName in tokenNames {
             if tokenName == customToken {
@@ -383,15 +388,14 @@ final class TotalBalanceSmokeUITests: BaseTestCase {
         }
     }
 
-    func testLongPressWalletHeader_NoRenameAndDeleteButtons() {
+    func testLongPressWalletHeader_NoDeleteButton() {
         setAllureId(3965)
         launchApp(tangemApiType: .mock)
 
-        let mainScreen = StoriesScreen(app)
+        let mainScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .longPressWalletHeader()
 
-        mainScreen.waitForNoRenameButton()
         mainScreen.waitForNoDeleteButton()
     }
 }

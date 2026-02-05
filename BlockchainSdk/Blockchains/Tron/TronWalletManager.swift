@@ -24,22 +24,18 @@ class TronWalletManager: BaseManager, WalletManager {
 
     private let feeSigner = DummySigner()
 
-    override func update(completion: @escaping (Result<Void, Error>) -> Void) {
-        cancellable = networkService.accountInfo(
-            for: wallet.address,
-            tokens: cardTokens,
-            transactionIDs: wallet.pendingTransactions.map { $0.hash }
-        )
-        .sink { [weak self] in
-            switch $0 {
-            case .failure(let error):
-                self?.wallet.clearAmounts()
-                completion(.failure(error))
-            case .finished:
-                completion(.success(()))
-            }
-        } receiveValue: { [weak self] accountInfo in
-            self?.updateWallet(accountInfo)
+    override func updateWalletManager() async throws {
+        do {
+            let accountInfo = try await networkService.accountInfo(
+                for: wallet.address,
+                tokens: cardTokens,
+                transactionIDs: wallet.pendingTransactions.map { $0.hash }
+            ).async()
+
+            updateWallet(accountInfo)
+        } catch {
+            wallet.clearAmounts()
+            throw error
         }
     }
 
@@ -286,7 +282,7 @@ extension TronWalletManager: TronTransactionDataBuilder {
 
 // MARK: - StakeKitTransactionSender, StakeKitTransactionSenderProvider
 
-extension TronWalletManager: StakeKitTransactionsBuilder, StakeKitTransactionSender, StakeKitTransactionDataProvider {
+extension TronWalletManager: StakeKitTransactionSender, StakingTransactionsBuilder, StakeKitTransactionDataProvider {
     typealias RawTransaction = Data
 
     func prepareDataForSign(transaction: StakeKitTransaction) throws -> Data {
@@ -301,7 +297,7 @@ extension TronWalletManager: StakeKitTransactionsBuilder, StakeKitTransactionSen
 }
 
 extension TronWalletManager: StakeKitTransactionDataBroadcaster {
-    func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> String {
+    func broadcast(rawTransaction: RawTransaction) async throws -> String {
         try await networkService.broadcastHex(rawTransaction).async().txid
     }
 }

@@ -1,0 +1,7 @@
+# Integration with Issue Tracker
+#
+# (note that '\' need to be escaped).
+
+[issuetracker "Tangem Jira Rule"]
+  regex = "IOS-(\\d+)"
+  url = "https://tangem.atlassian.net/browse/IOS-$1"

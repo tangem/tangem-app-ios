@@ -17,6 +17,7 @@ struct ExpressInteractorTangemPayWalletWrapper: ExpressInteractorTangemPayWallet
     let tokenHeader: ExpressInteractorTokenHeader? = nil
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
+    let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? = nil
 
     let isCustom: Bool = false
     let isMainToken: Bool = false
@@ -25,10 +26,12 @@ struct ExpressInteractorTangemPayWalletWrapper: ExpressInteractorTangemPayWallet
     let availableBalanceProvider: any TokenBalanceProvider
     let transactionValidator: any ExpressTransactionValidator
 
+    let expressTokenFeeProvidersManager: any ExpressTokenFeeProvidersManager
     let sendingRestrictions: SendingRestrictions? = .none
     let amountToCreateAccount: Decimal = .zero
     let allowanceService: (any AllowanceService)? = nil
     let withdrawalNotificationProvider: (any WithdrawalNotificationProvider)? = nil
+    let interactorAnalyticsLogger: any ExpressInteractorAnalyticsLogger
 
     private let _cexTransactionProcessor: any ExpressCEXTransactionProcessor
     private var _balanceProvider: any ExpressBalanceProvider
@@ -50,6 +53,12 @@ struct ExpressInteractorTangemPayWalletWrapper: ExpressInteractorTangemPayWallet
         self.availableBalanceProvider = availableBalanceProvider
         self.transactionValidator = transactionValidator
 
+        interactorAnalyticsLogger = CommonExpressInteractorAnalyticsLogger(
+            tokenItem: tokenItem,
+            feeAnalyticsParameterBuilder: FeeAnalyticsParameterBuilder(isFixedFee: false)
+        )
+
+        expressTokenFeeProvidersManager = TangemPayExpressTokenFeeProvidersManager(tokenItem: tokenItem)
         _cexTransactionProcessor = cexTransactionProcessor
 
         _balanceProvider = TangemPayExpressBalanceProvider(
@@ -77,7 +86,9 @@ extension ExpressInteractorTangemPayWalletWrapper {
 extension ExpressInteractorTangemPayWalletWrapper {
     var feeProvider: ExpressFeeProvider { _feeProvider }
 
-    var balanceProvider: BalanceProvider { _balanceProvider }
+    var balanceProvider: ExpressBalanceProvider { _balanceProvider }
 
-    var supportedProviders: [ExpressProviderType] { [.cex] }
+    var operationType: ExpressOperationType { .swap }
+
+    var supportedProvidersFilter: SupportedProvidersFilter { .cex }
 }

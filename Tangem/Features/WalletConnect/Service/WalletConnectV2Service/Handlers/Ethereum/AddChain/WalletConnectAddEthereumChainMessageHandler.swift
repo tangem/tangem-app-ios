@@ -140,19 +140,10 @@ final class WalletConnectAddEthereumChainMessageHandler: WalletConnectMessageHan
 
         let userWallet: any UserWalletModel
 
-        if let userWalletID = connectedDApp.userWalletID, let model = userWalletRepository.models.first(where: {
-            $0.userWalletId.stringValue == userWalletID
-        }) {
-            userWallet = model
-        } else if let accountId = connectedDApp.accountId, let model = userWalletRepository.models.first(where: {
-            $0.accountModelsManager.accountModels.contains {
-                $0.firstAvailableStandard().id.walletConnectIdentifierString == accountId
-            }
-        }) {
-            userWallet = model
-        } else {
-            throw WalletConnectTransactionRequestProcessingError.userWalletNotFound
-        }
+        userWallet = try WCUserWalletModelFinder.findUserWalletModel(
+            connectedDApp: connectedDApp,
+            userWalletModels: userWalletRepository.models
+        )
 
         guard !userWallet.isUserWalletLocked else {
             throw WalletConnectTransactionRequestProcessingError.userWalletIsLocked
@@ -207,20 +198,19 @@ private extension WalletConnectConnectedDApp {
             )
 
         case .v2(let dApp):
-            return .v2(
-                WalletConnectConnectedDAppV2(
-                    session: WalletConnectDAppSession(
-                        topic: dApp.session.topic,
-                        namespaces: updatedNamespaces,
-                        expiryDate: dApp.session.expiryDate
-                    ),
-                    accountId: dApp.accountId,
-                    dAppData: dApp.dAppData,
-                    verificationStatus: dApp.verificationStatus,
-                    dAppBlockchains: dApp.dAppBlockchains + [WalletConnectDAppBlockchain(blockchain: addedBlockchain, isRequired: false)],
-                    connectionDate: dApp.connectionDate
-                )
+            let wrapped = WalletConnectConnectedDAppV1(
+                session: WalletConnectDAppSession(
+                    topic: dApp.session.topic,
+                    namespaces: updatedNamespaces,
+                    expiryDate: dApp.session.expiryDate
+                ),
+                userWalletID: dApp.wrapped.userWalletID,
+                dAppData: dApp.dAppData,
+                verificationStatus: dApp.verificationStatus,
+                dAppBlockchains: dApp.dAppBlockchains + [WalletConnectDAppBlockchain(blockchain: addedBlockchain, isRequired: false)],
+                connectionDate: dApp.connectionDate
             )
+            return .v2(WalletConnectConnectedDAppV2(accountId: dApp.accountId, wrapped: wrapped))
         }
     }
 }

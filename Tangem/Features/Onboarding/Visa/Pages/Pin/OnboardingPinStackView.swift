@@ -7,16 +7,19 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUIUtils
 
 struct OnboardingPinStackView: View {
     let maxDigits: Int
     var handleKeyboard: Bool = true
     let isDisabled: Bool
+    var accessibilityIdentifier: String? = nil
 
     @Binding var pinText: String
 
     @Environment(\.pinStackColor) private var pinColor
     @Environment(\.pinStackSecured) private var pinSecured
+    @Environment(\.pinStackDigitBackground) private var pinDigitBackground
 
     @State private var isResponder: Bool? = false
 
@@ -30,7 +33,7 @@ struct OnboardingPinStackView: View {
                     Text(getDigit(index))
                         .style(Fonts.Regular.title1, color: pinColor)
                         .frame(width: 42, height: 58)
-                        .background(Colors.Field.primary)
+                        .background(pinDigitBackground)
                         .cornerRadius(14)
                 }
             }
@@ -39,6 +42,9 @@ struct OnboardingPinStackView: View {
                 isResponder = !isDisabled
             }
         }
+        .screenCaptureProtection()
+        .fixedSize()
+        .accessibilityIdentifier(accessibilityIdentifier)
         .onChange(of: isDisabled) { disabled in
             isResponder = !disabled
         }
@@ -62,6 +68,7 @@ struct OnboardingPinStackView: View {
             maxCount: maxDigits
         )
         .setAutocapitalizationType(.none)
+        .setAccessibilityIdentifier(accessibilityIdentifier)
     }
 
     private func getDigit(_ index: Int) -> String {
@@ -83,6 +90,10 @@ private struct PinStackSecuredKey: EnvironmentKey {
     static let defaultValue: Bool = false
 }
 
+private struct PinStackDigitBackground: EnvironmentKey {
+    static let defaultValue: Color = Colors.Field.primary
+}
+
 extension EnvironmentValues {
     var pinStackColor: Color {
         get { self[PinStackColorKey.self] }
@@ -93,6 +104,11 @@ extension EnvironmentValues {
         get { self[PinStackSecuredKey.self] }
         set { self[PinStackSecuredKey.self] = newValue }
     }
+
+    var pinStackDigitBackground: Color {
+        get { self[PinStackDigitBackground.self] }
+        set { self[PinStackDigitBackground.self] = newValue }
+    }
 }
 
 extension View {
@@ -102,6 +118,10 @@ extension View {
 
     func pinStackSecured(_ isSecured: Bool) -> some View {
         environment(\.pinStackSecured, isSecured)
+    }
+
+    func pinStackDigitBackground(_ color: Color) -> some View {
+        environment(\.pinStackDigitBackground, color)
     }
 }
 

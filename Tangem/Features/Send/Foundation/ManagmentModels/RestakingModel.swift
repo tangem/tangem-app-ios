@@ -19,10 +19,10 @@ protocol RestakingModelStateProvider {
     var statePublisher: AnyPublisher<RestakingModel.State, Never> { get }
 }
 
-class RestakingModel {
+final class RestakingModel {
     // MARK: - Data
 
-    private let _selectedValidator = CurrentValueSubject<LoadingValue<ValidatorInfo>, Never>(.loading)
+    private let _selectedTarget = CurrentValueSubject<LoadingResult<StakingTargetInfo, Never>, Never>(.loading)
     private let _state = CurrentValueSubject<State, Never>(.loading)
     private let _transactionTime = PassthroughSubject<Date?, Never>()
     private let _transactionURL = PassthroughSubject<URL?, Never>()
@@ -43,7 +43,7 @@ class RestakingModel {
 
     private var transactionValidator: TransactionValidator { sendSourceToken.transactionValidator }
     private var tokenItem: TokenItem { sendSourceToken.tokenItem }
-    private var feeTokenItem: TokenItem { sendSourceToken.feeTokenItem }
+    var feeTokenItem: TokenItem { sendSourceToken.feeTokenItem }
 
     private var estimatedFeeTask: Task<Void, Never>?
     private var bag: Set<AnyCancellable> = []
@@ -87,7 +87,7 @@ extension RestakingModel: RestakingModelStateProvider {
 
 private extension RestakingModel {
     func bind() {
-        _selectedValidator
+        _selectedTarget
             .removeDuplicates()
             .compactMap { $0.value }
             .first()
@@ -99,7 +99,7 @@ private extension RestakingModel {
     }
 
     func updateState() {
-        guard let validator = _selectedValidator.value.value else {
+        guard let target = _selectedTarget.value.value else {
             return
         }
 
@@ -115,7 +115,14 @@ private extension RestakingModel {
         estimatedFeeTask = runTask(in: self) { model in
             do {
                 model.update(state: .loading)
-                let state = try await model.state(amount: model.action.amount, validator: validator)
+                let estimateFee = try await model.stakingManager.estimateFee(
+                    action: StakingAction(
+                        amount: model.action.amount,
+                        targetType: .target(target),
+                        type: model.action.type
+                    )
+                )
+                let state = model.makeState(amount: model.action.amount, fee: estimateFee)
                 model.update(state: state)
             } catch is CancellationError {
                 // Do nothing
@@ -126,16 +133,12 @@ private extension RestakingModel {
         }
     }
 
-    func state(amount: Decimal, validator: ValidatorInfo) async throws -> RestakingModel.State {
-        let estimateFee = try await stakingManager.estimateFee(
-            action: StakingAction(amount: amount, validatorType: .validator(validator), type: action.type)
-        )
-
-        if let error = validate(amount: action.amount, fee: estimateFee) {
+    func makeState(amount: Decimal, fee: Decimal) -> RestakingModel.State {
+        if let error = validate(amount: action.amount, fee: fee) {
             return error
         }
 
-        return .ready(fee: estimateFee)
+        return .ready(fee: fee)
     }
 
     func validateMinimumStakingAmountRequirement() throws(StakingValidationError) {
@@ -155,6 +158,8 @@ private extension RestakingModel {
             return nil
         } catch let error as ValidationError {
             return .validationError(error, fee: fee)
+        } catch CardanoError.feeParametersNotFound {
+            return nil
         } catch {
             return .networkError(error)
         }
@@ -172,16 +177,16 @@ private extension RestakingModel {
         Fee(.init(with: feeTokenItem.blockchain, type: feeTokenItem.amountType, value: value))
     }
 
-    func mapToSendFee(_ state: State) -> SendFee {
+    func mapToSendFee(_ state: State) -> TokenFee {
         switch state {
         case .loading:
-            return SendFee(option: .market, value: .loading)
+            return TokenFee(option: .market, tokenItem: feeTokenItem, value: .loading)
         case .networkError(let error):
-            return SendFee(option: .market, value: .failedToLoad(error: error))
+            return TokenFee(option: .market, tokenItem: feeTokenItem, value: .failure(error))
         case .stakingValidationError(let error):
-            return SendFee(option: .market, value: .failedToLoad(error: error))
+            return TokenFee(option: .market, tokenItem: feeTokenItem, value: .failure(error))
         case .validationError(_, let fee), .ready(let fee):
-            return SendFee(option: .market, value: .loaded(makeFee(value: fee)))
+            return TokenFee(option: .market, tokenItem: feeTokenItem, value: .success(makeFee(value: fee)))
         }
     }
 }
@@ -190,13 +195,13 @@ private extension RestakingModel {
 
 private extension RestakingModel {
     private func send() async throws -> TransactionDispatcherResult {
-        guard let validator = _selectedValidator.value.value else {
-            throw StakingModelError.validatorNotFound
+        guard let target = _selectedTarget.value.value else {
+            throw StakingModelError.targetNotFound
         }
 
         let action = StakingAction(
             amount: action.amount,
-            validatorType: .validator(validator),
+            targetType: .target(target),
             type: action.type
         )
 
@@ -210,6 +215,9 @@ private extension RestakingModel {
         } catch let error as TransactionDispatcherResult.Error {
             proceed(error: error)
             throw error
+        } catch P2PStakingError.feeIncreased(let newFee) {
+            update(state: makeState(amount: action.amount, fee: newFee))
+            throw P2PStakingError.feeIncreased(newFee: newFee)
         } catch {
             throw TransactionDispatcherResult.Error.loadTransactionInfo(error: error.toUniversalError())
         }
@@ -218,7 +226,11 @@ private extension RestakingModel {
     private func proceed(result: TransactionDispatcherResult) {
         _transactionTime.send(Date())
         _transactionURL.send(result.url)
-        analyticsLogger.logTransactionSent(fee: selectedFee, signerType: result.signerType, currentProviderHost: result.currentHost)
+        analyticsLogger.logTransactionSent(
+            fee: .market,
+            signerType: result.signerType,
+            currentProviderHost: result.currentHost
+        )
     }
 
     private func proceed(error: TransactionDispatcherResult.Error) {
@@ -237,22 +249,9 @@ private extension RestakingModel {
     }
 }
 
-// MARK: - SendFeeProvider
+// MARK: - SendFeeUpdater
 
-extension RestakingModel: SendFeeProvider {
-    var feeOptions: [FeeOption] { [.market] }
-
-    var fees: TangemFoundation.LoadingResult<[SendFee], any Error> {
-        .success([mapToSendFee(_state.value)])
-    }
-
-    var feesPublisher: AnyPublisher<TangemFoundation.LoadingResult<[SendFee], any Error>, Never> {
-        _state
-            .withWeakCaptureOf(self)
-            .map { .success([$0.mapToSendFee($1)]) }
-            .eraseToAnyPublisher()
-    }
-
+extension RestakingModel: SendFeeUpdater {
     func updateFees() {
         updateState()
     }
@@ -302,43 +301,37 @@ extension RestakingModel: SendSourceTokenAmountOutput {
 
 // MARK: - StakingValidatorsInput
 
-extension RestakingModel: StakingValidatorsInput {
-    var selectedValidator: ValidatorInfo? { _selectedValidator.value.value }
-    var selectedValidatorPublisher: AnyPublisher<TangemStaking.ValidatorInfo, Never> {
-        _selectedValidator.compactMap { $0.value }.eraseToAnyPublisher()
+extension RestakingModel: StakingTargetsInput {
+    var selectedTarget: StakingTargetInfo? { _selectedTarget.value.value }
+    var selectedTargetPublisher: AnyPublisher<TangemStaking.StakingTargetInfo, Never> {
+        _selectedTarget.compactMap { $0.value }.eraseToAnyPublisher()
     }
 }
 
 // MARK: - StakingValidatorsOutput
 
-extension RestakingModel: StakingValidatorsOutput {
-    func userDidSelected(validator: TangemStaking.ValidatorInfo) {
-        _selectedValidator.send(.loaded(validator))
+extension RestakingModel: StakingTargetsOutput {
+    func userDidSelect(target: TangemStaking.StakingTargetInfo) {
+        _selectedTarget.send(.success(target))
     }
 }
 
 // MARK: - SendFeeInput
 
 extension RestakingModel: SendFeeInput {
-    var selectedFee: SendFee {
+    var selectedFee: TokenFee? {
         mapToSendFee(_state.value)
     }
 
-    var selectedFeePublisher: AnyPublisher<SendFee, Never> {
+    var selectedFeePublisher: AnyPublisher<TokenFee, Never> {
         _state
             .withWeakCaptureOf(self)
-            .map { model, fee in
-                model.mapToSendFee(fee)
-            }
+            .map { $0.mapToSendFee($1) }
             .eraseToAnyPublisher()
     }
-}
 
-// MARK: - SendFeeOutput
-
-extension RestakingModel: SendFeeOutput {
-    func feeDidChanged(fee: SendFee) {
-        assertionFailure("We can not change fee in staking")
+    var supportFeeSelectionPublisher: AnyPublisher<Bool, Never> {
+        Just(false).eraseToAnyPublisher()
     }
 }
 
@@ -417,7 +410,7 @@ extension RestakingModel: NotificationTapDelegate {
 extension RestakingModel: StakingBaseDataBuilderInput {
     var bsdkAmount: BSDKAmount? { makeAmount(value: action.amount) }
 
-    var bsdkFee: BlockchainSdk.Fee? { selectedFee.value.value }
+    var bsdkFee: BSDKFee? { selectedFee?.value.value }
 
     var isFeeIncluded: Bool { false }
 
@@ -427,7 +420,7 @@ extension RestakingModel: StakingBaseDataBuilderInput {
 
     var approveViewModelInput: (any ApproveViewModelInput)? { nil }
 
-    var validator: ValidatorInfo? { action.validatorInfo }
+    var target: StakingTargetInfo? { action.targetInfo }
 }
 
 extension RestakingModel {

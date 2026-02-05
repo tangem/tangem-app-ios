@@ -21,6 +21,8 @@ import TangemFoundation
 // `008` - CommonTokenEnricher.Error
 // `009` - OrganizeTokensViewModel.Error
 // `010` - WalletModelError
+// `011` - AccountsAwareUserTokensManager.Error
+// `012` - CloreMigrationSigningError
 
 extension CommonError: UniversalError {
     var errorCode: Int {
@@ -194,11 +196,35 @@ extension OrganizeTokensViewModel.Error: UniversalError {
     }
 }
 
+extension AccountsAwareOrganizeTokensViewModel.Error: UniversalError {
+    var errorCode: Int {
+        switch self {
+        case .sectionOffsetOutOfBound:
+            100009000
+        }
+    }
+}
+
 extension WalletModelError: UniversalError {
     var errorCode: Int {
         switch self {
         case .balanceNotFound:
             100010000
+        }
+    }
+}
+
+extension CloreMigrationSigningError: UniversalError {
+    var errorCode: Int {
+        switch self {
+        case .userWalletNotFound:
+            100012000
+        case .accountNotFound:
+            100012001
+        case .failedToGetWalletModel:
+            100012002
+        case .invalidSignature:
+            100012003
         }
     }
 }

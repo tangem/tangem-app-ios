@@ -8,8 +8,6 @@
 
 import SwiftUI
 import TangemUI
-import TangemLocalization
-import TangemAssets
 
 struct PromotionView: View {
     @ObservedObject private var viewModel: PromotionViewModel
@@ -19,10 +17,14 @@ struct PromotionView: View {
     }
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             WebView(url: viewModel.url, headers: viewModel.headers, urlActions: viewModel.urlActions)
                 .ignoresSafeArea()
-                .navigationBarItems(leading: CloseButton(dismiss: viewModel.close))
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        CloseTextButton(action: viewModel.close)
+                    }
+                }
         }
     }
 }

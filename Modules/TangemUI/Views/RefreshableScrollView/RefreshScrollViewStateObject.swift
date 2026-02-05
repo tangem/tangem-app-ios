@@ -20,6 +20,12 @@ public class RefreshScrollViewStateObject: ObservableObject {
         didSet { didChange(offset: contentOffset) }
     }
 
+    private let stateSubject = PassthroughSubject<RefreshState, Never>()
+
+    public var statePublisher: AnyPublisher<RefreshState, Never> {
+        stateSubject.eraseToAnyPublisher()
+    }
+
     var draggingStartFromTop: Bool {
         guard let dragging = scrollViewDelegate.dragging else {
             return false
@@ -38,20 +44,17 @@ public class RefreshScrollViewStateObject: ObservableObject {
 
     private let settings: Settings
     private var refreshable: () async -> Void
-    private var reachedRefreshOffsetAction: (() -> Void)?
 
     private var state: RefreshState = .idle {
-        didSet { refreshControlStateObject.update(state: state) }
+        didSet {
+            stateSubject.send(state)
+            refreshControlStateObject.update(state: state)
+        }
     }
 
-    public init(
-        settings: Settings = .init(),
-        reachedRefreshOffsetAction: (() -> Void)? = nil,
-        refreshable: @escaping () async -> Void
-    ) {
+    public init(settings: Settings = .init(), refreshable: @escaping () async -> Void) {
         self.settings = settings
         self.refreshable = refreshable
-        self.reachedRefreshOffsetAction = reachedRefreshOffsetAction
 
         refreshControlStateObject = .init(settings: settings)
     }
@@ -64,7 +67,7 @@ private extension RefreshScrollViewStateObject {
 
     func startRefreshing() {
         FeedbackGenerator.heavy()
-        reachedRefreshOffsetAction?()
+        state = .willStartRefreshing
 
         // Clouser which start refresh
         let refreshing: () -> Void = { [weak self] in
@@ -89,7 +92,7 @@ private extension RefreshScrollViewStateObject {
 
     func refreshing() async {
         await refreshable()
-        try? await Task.sleep(seconds: settings.stopRefreshingDelay)
+        try? await Task.sleep(for: .seconds(settings.stopRefreshingDelay))
         await stopRefreshing()
     }
 
@@ -184,6 +187,16 @@ public extension RefreshScrollViewStateObject {
         case idle
         case refreshing(_ task: () -> Void)
         case stillDragging
+        case willStartRefreshing
+
+        /// Used to temporarily block balance animations during pull-to-refresh.
+        /// For this purpose, all non-idle states are treated as `true`.
+        public var isRefreshing: Bool {
+            if case .idle = self {
+                return false
+            }
+            return true
+        }
     }
 
     enum Error: LocalizedError {

@@ -21,6 +21,7 @@ enum ApplicationDTO {
         let language: String
         let timezone: String
         let version: String
+        let appsflyerId: String
     }
 
     enum Create {
@@ -33,6 +34,12 @@ enum ApplicationDTO {
         struct Request: Encodable {
             /// The FCM push notification token (e.g. "fcm-token-123456")
             let pushToken: String?
+        }
+    }
+
+    enum Connect {
+        struct Request: Encodable {
+            let walletIds: [String]
         }
     }
 }

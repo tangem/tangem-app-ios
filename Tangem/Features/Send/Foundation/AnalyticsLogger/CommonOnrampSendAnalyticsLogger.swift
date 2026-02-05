@@ -11,12 +11,14 @@ import TangemExpress
 class CommonOnrampSendAnalyticsLogger {
     private let tokenItem: TokenItem
     private let source: SendCoordinator.Source
+    private let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
 
     private weak var onrampProvidersInput: OnrampProvidersInput?
 
-    init(tokenItem: TokenItem, source: SendCoordinator.Source) {
+    init(tokenItem: TokenItem, source: SendCoordinator.Source, accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?) {
         self.tokenItem = tokenItem
         self.source = source
+        self.accountModelAnalyticsProvider = accountModelAnalyticsProvider
     }
 
     private func logOnrampButtonBuy(provider: OnrampProvider?) {
@@ -24,14 +26,17 @@ class CommonOnrampSendAnalyticsLogger {
             return
         }
 
-        Analytics.log(
-            event: .onrampButtonBuy,
-            params: [
-                .provider: provider.provider.name,
-                .currency: request.pairItem.fiatCurrency.identity.code,
-                .token: tokenItem.currencySymbol,
-            ]
-        )
+        var analyticsParameters: [Analytics.ParameterKey: String] = [
+            .provider: provider.provider.name,
+            .currency: request.pairItem.fiatCurrency.identity.code,
+            .token: tokenItem.currencySymbol,
+        ]
+
+        if FeatureProvider.isAvailable(.accounts), let accountModelAnalyticsProvider {
+            analyticsParameters.enrich(with: accountModelAnalyticsProvider.analyticsParameters(with: SingleAccountAnalyticsBuilder()))
+        }
+
+        Analytics.log(event: .onrampButtonBuy, params: analyticsParameters)
     }
 }
 
@@ -83,7 +88,7 @@ extension CommonOnrampSendAnalyticsLogger: SendBaseViewAnalyticsLogger {
         Analytics.log(event: .onrampBuyScreenOpened, params: [
             .source: source.analytics.rawValue,
             .token: tokenItem.currencySymbol,
-        ])
+        ], analyticsSystems: .all)
     }
 
     func logCloseButton(stepType: SendStepType, isAvailableToAction: Bool) {
@@ -180,7 +185,7 @@ extension CommonOnrampSendAnalyticsLogger: SendFinishAnalyticsLogger {
             .paymentMethod: provider.paymentMethod.name,
             .residence: request.pairItem.country.identity.name,
             .currency: request.pairItem.fiatCurrency.identity.code,
-        ])
+        ], analyticsSystems: .all)
     }
 
     func logShareButton() {}

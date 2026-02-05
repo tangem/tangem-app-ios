@@ -11,6 +11,7 @@ import Combine
 import TangemSdk
 import TangemNFT
 import TangemFoundation
+import TangemPay
 
 protocol UserWalletModel:
     MainHeaderSupplementInfoProvider,
@@ -24,7 +25,8 @@ protocol UserWalletModel:
     TangemPayAuthorizingProvider,
     WalletSelectorInfoProvider,
     UserWalletModelUnlockerResolvable,
-    TangemPayAccountProvider,
+    UserWalletInfoProvider,
+    DisposableEntity,
     AnyObject {
     var hasBackupCards: Bool { get }
     var config: UserWalletConfig { get }
@@ -38,6 +40,7 @@ protocol UserWalletModel:
     var nftManager: NFTManager { get }
     var walletImageProvider: WalletImageProviding { get }
     var accountModelsManager: AccountModelsManager { get }
+    var tangemPayManager: TangemPayManager { get }
     var userTokensPushNotificationsManager: UserTokensPushNotificationsManager { get }
     var name: String { get }
 
@@ -61,19 +64,11 @@ enum UpdateRequest {
     case iCloudBackupCompleted
     case accessCodeDidSet
     case accessCodeDidSkip
-
-    // [REDACTED_TODO_COMMENT]
-    // [REDACTED_INFO]
-    case tangemPayOfferAccepted(TangemPayAccount)
 }
 
 enum UpdateResult {
     case configurationChanged(model: UserWalletModel)
     case nameDidChange(name: String)
-
-    // [REDACTED_TODO_COMMENT]
-    // [REDACTED_INFO]
-    case tangemPayOfferAccepted(TangemPayAccount)
 
     var newName: String? {
         switch self {
@@ -82,14 +77,5 @@ enum UpdateResult {
         default:
             return nil
         }
-    }
-
-    // [REDACTED_TODO_COMMENT]
-    // [REDACTED_INFO]
-    var tangemPayAccount: TangemPayAccount? {
-        if case .tangemPayOfferAccepted(let tangemPayAccount) = self {
-            return tangemPayAccount
-        }
-        return nil
     }
 }

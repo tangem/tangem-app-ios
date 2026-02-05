@@ -13,6 +13,7 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
     let tokenIconInfo: TokenIconInfo
+    let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
     let nftAssetStepBuilder: NFTAssetStepBuilder
     let tokenHeaderProvider: SendGenericTokenHeaderProvider
 
@@ -20,16 +21,18 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
     let suggestedWallets: [SendDestinationSuggestedWallet]
     let shouldShowFeeSelector: Bool
 
+    let tokenFeeProvidersManager: TokenFeeProvidersManager
     let walletModelHistoryUpdater: any WalletModelHistoryUpdater
-    let walletModelFeeProvider: any WalletModelFeeProvider
     let walletModelDependenciesProvider: WalletModelDependenciesProvider
-    let walletModelBalancesProvider: WalletModelBalancesProvider
+    let availableBalanceProvider: any TokenBalanceProvider
+    let fiatAvailableBalanceProvider: any TokenBalanceProvider
     let transactionDispatcherFactory: TransactionDispatcherFactory
     let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let expressDependenciesFactory: ExpressDependenciesFactory
 
+    let analyticsLogger: SendAnalyticsLogger
+
     lazy var swapManager = makeSwapManager()
-    lazy var analyticsLogger = makeSendAnalyticsLogger(sendType: .nft)
     lazy var sendModel = makeSendWithSwapModel(
         swapManager: swapManager,
         analyticsLogger: analyticsLogger,
@@ -39,12 +42,6 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
     )
 
     lazy var notificationManager = makeSendWithSwapNotificationManager(receiveTokenInput: sendModel)
-    lazy var customFeeService = makeCustomFeeService(input: sendModel)
-    lazy var sendFeeProvider = makeSendWithSwapFeeProvider(
-        receiveTokenInput: sendModel,
-        sendFeeProvider: makeSendFeeProvider(input: sendModel, hasCustomFeeService: customFeeService != nil),
-        swapFeeProvider: makeSwapFeeProvider(swapManager: swapManager)
-    )
 
     init(
         userWalletInfo: UserWalletInfo,
@@ -65,15 +62,18 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
             from: walletModel.tokenItem,
             isCustom: walletModel.isCustom
         )
+        accountModelAnalyticsProvider = walletModel.account
         walletAddresses = walletModel.addresses.map(\.value)
-        suggestedWallets = SendSuggestedWalletsFactory().makeSuggestedWallets(
-            walletModel: walletModel
-        )
         shouldShowFeeSelector = walletModel.shouldShowFeeSelector
+
+        suggestedWallets = SendSuggestedWalletsFactory().makeSuggestedWallets(walletModel: walletModel)
+        analyticsLogger = Self.makeSendAnalyticsLogger(walletModel: walletModel, sendType: .nft)
+
         walletModelHistoryUpdater = walletModel
-        walletModelFeeProvider = walletModel
+        tokenFeeProvidersManager = TokenFeeProvidersManagerBuilder(walletModel: walletModel).makeTokenFeeProvidersManager()
         walletModelDependenciesProvider = walletModel
-        walletModelBalancesProvider = walletModel
+        availableBalanceProvider = walletModel.availableBalanceProvider
+        fiatAvailableBalanceProvider = walletModel.fiatAvailableBalanceProvider
         transactionDispatcherFactory = TransactionDispatcherFactory(
             walletModel: walletModel,
             signer: userWalletInfo.signer
@@ -83,18 +83,19 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
             userWalletInfo: userWalletInfo
         )
 
+        let source = ExpressInteractorWalletModelWrapper(
+            userWalletInfo: userWalletInfo,
+            walletModel: walletModel,
+            expressOperationType: .swapAndSend
+        )
+
         let expressDependenciesInput = ExpressDependenciesInput(
             userWalletInfo: userWalletInfo,
-            source: ExpressInteractorWalletModelWrapper(userWalletInfo: userWalletInfo, walletModel: walletModel),
+            source: source,
             destination: .none
         )
 
-        expressDependenciesFactory = CommonExpressDependenciesFactory(
-            input: expressDependenciesInput,
-            // We support only `CEX` in `Send With Swap` flow
-            supportedProviderTypes: [.cex],
-            operationType: .swapAndSend
-        )
+        expressDependenciesFactory = CommonExpressDependenciesFactory(input: expressDependenciesInput)
     }
 }
 
@@ -102,9 +103,10 @@ class NFTFlowFactory: SendFlowBaseDependenciesFactory {
 
 extension NFTFlowFactory: SendGenericFlowFactory {
     func make(router: any SendRoutable) -> SendViewModel {
-        let nftAssetCompactViewModel = nftAssetStepBuilder.makeNFTAssetCompactViewModel()
+        let header = tokenHeaderProvider.makeSendTokenHeader()
+        let nftAssetCompactViewModel = nftAssetStepBuilder.makeNFTAssetCompactViewModel(header: header)
         let destination = makeSendDestinationStep(router: router)
-        let fee = makeSendFeeStep()
+        let fee = makeSendFeeStep(router: router)
 
         // Destination editable
         // Amount noEditable
@@ -123,9 +125,8 @@ extension NFTFlowFactory: SendGenericFlowFactory {
 
         // Model setup
         // We have to set dependencies here after all setups is completed
-        sendModel.sendFeeProvider = sendFeeProvider
         sendModel.informationRelevanceService = CommonInformationRelevanceService(
-            input: sendModel, output: sendModel, provider: sendFeeProvider
+            input: sendModel, provider: sendModel
         )
 
         // Steps setup
@@ -145,7 +146,7 @@ extension NFTFlowFactory: SendGenericFlowFactory {
 
         let stepsManager = CommonNFTSendStepsManager(
             destinationStep: destination.step,
-            feeSelector: fee.feeSelector,
+            feeSelectorBuilder: fee.feeSelectorBuilder,
             summaryStep: summary,
             finishStep: finish,
             summaryTitleProvider: SendWithSwapSummaryTitleProvider(receiveTokenInput: sendModel),
@@ -175,7 +176,8 @@ extension NFTFlowFactory: SendBaseBuildable {
         SendViewModelBuilder.Dependencies(
             alertBuilder: makeSendAlertBuilder(),
             dataBuilder: baseDataBuilderFactory.makeSendBaseDataBuilder(
-                input: sendModel,
+                baseDataInput: sendModel,
+                approveDataInput: swapManager,
                 sendReceiveTokensListBuilder: SendReceiveTokensListBuilder(
                     userWalletInfo: userWalletInfo,
                     sourceTokenInput: sendModel,
@@ -185,7 +187,8 @@ extension NFTFlowFactory: SendBaseBuildable {
                 )
             ),
             analyticsLogger: analyticsLogger,
-            blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper()
+            blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper(),
+            tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
         )
     }
 }
@@ -194,7 +197,12 @@ extension NFTFlowFactory: SendBaseBuildable {
 
 extension NFTFlowFactory: SendDestinationStepBuildable {
     var destinationIO: SendDestinationStepBuilder.IO {
-        SendDestinationStepBuilder.IO(input: sendModel, output: sendModel, receiveTokenInput: sendModel)
+        SendDestinationStepBuilder.IO(
+            input: sendModel,
+            output: sendModel,
+            receiveTokenInput: sendModel,
+            destinationAccountOutput: sendModel
+        )
     }
 
     var destinationDependencies: SendDestinationStepBuilder.Dependencies {
@@ -214,7 +222,7 @@ extension NFTFlowFactory: SendDestinationStepBuildable {
     ) -> SendDestinationInteractorDependenciesProvider {
         SendDestinationInteractorDependenciesProvider(
             receivedTokenType: receiveTokenInput.receiveToken,
-            sendingWalletData: .init(
+            sourceWalletData: .init(
                 walletAddresses: walletAddresses,
                 suggestedWallets: suggestedWallets,
                 destinationTransactionHistoryProvider: CommonSendDestinationTransactionHistoryProvider(
@@ -222,7 +230,8 @@ extension NFTFlowFactory: SendDestinationStepBuildable {
                     transactionHistoryMapper: TransactionHistoryMapper(
                         currencySymbol: tokenItem.currencySymbol,
                         walletAddresses: walletAddresses,
-                        showSign: false
+                        showSign: false,
+                        isToken: tokenItem.isToken
                     )
                 ),
                 analyticsLogger: analyticsLogger
@@ -234,22 +243,11 @@ extension NFTFlowFactory: SendDestinationStepBuildable {
 // MARK: - SendFeeStepBuildable
 
 extension NFTFlowFactory: SendFeeStepBuildable {
-    var feeIO: SendNewFeeStepBuilder.IO {
-        SendNewFeeStepBuilder.IO(input: sendModel, output: sendModel)
-    }
-
-    var feeTypes: SendNewFeeStepBuilder.Types {
-        SendNewFeeStepBuilder.Types(
-            feeTokenItem: feeTokenItem,
-            isFeeApproximate: isFeeApproximate()
-        )
-    }
-
-    var feeDependencies: SendNewFeeStepBuilder.Dependencies {
-        SendNewFeeStepBuilder.Dependencies(
-            feeProvider: sendFeeProvider,
-            analyticsLogger: analyticsLogger,
-            customFeeService: customFeeService
+    var feeDependencies: SendFeeStepBuilder.Dependencies {
+        SendFeeStepBuilder.Dependencies(
+            tokenFeeManagerProviding: sendModel,
+            feeSelectorOutput: sendModel,
+            analyticsLogger: analyticsLogger
         )
     }
 }
@@ -267,7 +265,7 @@ extension NFTFlowFactory: SendSummaryStepBuildable {
 
     var summaryDependencies: SendSummaryStepBuilder.Dependencies {
         SendSummaryStepBuilder.Dependencies(
-            sendFeeProvider: sendFeeProvider,
+            sendFeeProvider: sendModel,
             notificationManager: notificationManager,
             analyticsLogger: analyticsLogger,
             sendDescriptionBuilder: makeSendTransactionSummaryDescriptionBuilder(),

@@ -10,10 +10,12 @@ import Foundation
 import TangemLocalization
 import TangemFoundation
 import TangemAssets
+import TangemUI
 
 enum TangemPayNotificationEvent: Equatable, Hashable {
-    case syncNeeded
+    case syncNeeded(title: String, icon: MainButton.Icon?)
     case unavailable
+    case tangemPayIsNowBeta
 }
 
 extension TangemPayNotificationEvent: NotificationEvent {
@@ -23,6 +25,8 @@ extension TangemPayNotificationEvent: NotificationEvent {
             return .string(Localization.tangempayPaymentAccountSyncNeeded)
         case .unavailable:
             return .string(Localization.tangempayTemporarilyUnavailable)
+        case .tangemPayIsNowBeta:
+            return .string(Localization.tangemPayBetaNotificationTitle)
         }
     }
 
@@ -32,12 +36,14 @@ extension TangemPayNotificationEvent: NotificationEvent {
             return Localization.tangempayUseTangemDeviceToRestorePaymentAccount
         case .unavailable:
             return Localization.tangempayServiceUnreachableTryLater
+        case .tangemPayIsNowBeta:
+            return Localization.tangemPayBetaNotificationSubtitle
         }
     }
 
     var colorScheme: NotificationView.ColorScheme {
         switch self {
-        case .syncNeeded:
+        case .syncNeeded, .tangemPayIsNowBeta:
             return .primary
         case .unavailable:
             return .secondary
@@ -48,6 +54,8 @@ extension TangemPayNotificationEvent: NotificationEvent {
         switch self {
         case .syncNeeded, .unavailable:
             return .init(iconType: .image(Assets.warningIcon.image))
+        case .tangemPayIsNowBeta:
+            return .init(iconType: .image(Assets.Visa.promo.image), size: .init(bothDimensions: 36))
         }
     }
 
@@ -61,14 +69,14 @@ extension TangemPayNotificationEvent: NotificationEvent {
 
     var buttonAction: NotificationButtonAction? {
         switch self {
-        case .syncNeeded:
+        case .syncNeeded(let title, let icon):
             NotificationButtonAction(
-                .tangemPaySync,
+                .tangemPaySync(title: title, icon: icon),
                 withLoader: true,
                 isDisabled: false
             )
 
-        case .unavailable:
+        case .unavailable, .tangemPayIsNowBeta:
             nil
         }
     }

@@ -38,6 +38,16 @@ final class MobileUnlockViewModel: ObservableObject {
             .eraseToAnyPublisher()
     }
 
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+
+    private var analyticsContextParams: Analytics.ContextParams {
+        if let userWalletModel = userWalletRepository.models[userWalletId] {
+            .custom(userWalletModel.analyticsContextData)
+        } else {
+            .default
+        }
+    }
+
     private let actionSubject: CurrentValueSubject<Action?, Never> = .init(nil)
     private var bag: Set<AnyCancellable> = []
 
@@ -49,6 +59,10 @@ final class MobileUnlockViewModel: ObservableObject {
         self.accessCodeManager = accessCodeManager
         bind()
         setupUnlockItemIfNeeded()
+    }
+
+    deinit {
+        AppLogger.debug("MobileUnlockViewModel deinit")
     }
 }
 
@@ -109,13 +123,13 @@ private extension MobileUnlockViewModel {
         }
 
         unlockItem = UnlockItem(
-            title: Localization.welcomeUnlock(BiometricAuthorizationUtils.biometryType.name),
+            title: Localization.welcomeUnlock(BiometricsUtil.biometryType.name),
             action: weakify(self, forFunction: MobileUnlockViewModel.unlockWithBiometry)
         )
     }
 
     func unlockWithBiometry() {
-        Analytics.log(.buttonBiometricSignIn)
+        logBiometricSignInAnalytics()
         onAction(.biometricsRequest)
     }
 }
@@ -190,6 +204,14 @@ private extension MobileUnlockViewModel {
 
     func clearAccessCode() {
         accessCode = .empty
+    }
+}
+
+// MARK: - Analytics
+
+private extension MobileUnlockViewModel {
+    func logBiometricSignInAnalytics() {
+        Analytics.log(.buttonBiometricSignIn, contextParams: analyticsContextParams)
     }
 }
 

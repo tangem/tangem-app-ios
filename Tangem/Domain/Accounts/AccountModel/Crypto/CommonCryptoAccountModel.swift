@@ -10,7 +10,6 @@ import Foundation
 import Combine
 import TangemFoundation
 import TangemLocalization
-import TangemNFT
 
 final class CommonCryptoAccountModel {
     let walletModelsManager: WalletModelsManager
@@ -48,6 +47,7 @@ final class CommonCryptoAccountModel {
     private let didChangeSubject = PassthroughSubject<Void, Never>()
     private let accountId: AccountId
     private let derivationIndex: Int
+    private weak var delegate: CommonCryptoAccountModelDelegate?
 
     /// - Warning: The derivation manager is not used directly in this class, but a strong reference is stored here
     /// to keep it alive, since there is a circular dependency between `DerivationManager` and `UserTokensManager`,
@@ -65,7 +65,8 @@ final class CommonCryptoAccountModel {
         userTokensManager: UserTokensManager,
         accountBalanceProvider: AccountBalanceProvider,
         accountRateProvider: AccountRateProvider,
-        derivationManager: DerivationManager?
+        derivationManager: DerivationManager?,
+        delegate: CommonCryptoAccountModelDelegate
     ) {
         let accountId = AccountId(userWalletId: userWalletId, derivationIndex: derivationIndex)
 
@@ -78,6 +79,24 @@ final class CommonCryptoAccountModel {
         self.accountBalanceProvider = accountBalanceProvider
         self.accountRateProvider = accountRateProvider
         self.derivationManager = derivationManager
+        self.delegate = delegate
+    }
+
+    /// Updates the model properties directly without involving the delegate (internal use only by `AccountModelsManager`).
+    @discardableResult
+    func update(with editor: Editor) -> Self {
+        let accountModelEditor = CommonAccountModelEditor()
+        editor(accountModelEditor)
+
+        if let newName = accountModelEditor.name {
+            _name = newName
+        }
+
+        if let newIcon = accountModelEditor.icon {
+            icon = newIcon
+        }
+
+        return self
     }
 }
 
@@ -104,12 +123,41 @@ extension CommonCryptoAccountModel: CryptoAccountModel {
         Localization.accountFormAccountIndex(derivationIndex)
     }
 
-    func setName(_ name: String) {
-        _name = name
+    // MARK: - AccountModelAnalyticsProviding
+
+    func analyticsParameters(with builder: AccountsAnalyticsBuilder) -> [Analytics.ParameterKey: String] {
+        builder
+            .setDerivationIndex(derivationIndex)
+            .build()
     }
 
-    func setIcon(_ icon: AccountModel.Icon) {
-        self.icon = icon
+    /// Edits the account model using the provided editor closure (external use by consumers).
+    @discardableResult
+    func edit(with editor: Editor) async throws(AccountEditError) -> Self {
+        let accountModelEditor = CommonAccountModelEditor()
+        editor(accountModelEditor)
+
+        guard accountModelEditor.hasChanges, let delegate else {
+            return self
+        }
+
+        let persistentConfig = CryptoAccountPersistentConfig(
+            derivationIndex: derivationIndex,
+            name: accountModelEditor.name ?? _name,
+            icon: accountModelEditor.icon ?? icon
+        )
+
+        try await delegate.commonCryptoAccountModel(self, wantsToUpdateWith: persistentConfig)
+
+        return self
+    }
+
+    func archive() async throws(AccountArchivationError) {
+        guard let delegate else {
+            return
+        }
+
+        try await delegate.commonCryptoAccountModelWantsToArchive(self)
     }
 }
 
@@ -122,6 +170,14 @@ extension CommonCryptoAccountModel: BalanceProvidingAccountModel {
 
     var rateProvider: AccountRateProvider {
         accountRateProvider
+    }
+}
+
+// MARK: - DisposableEntity protocol conformance
+
+extension CommonCryptoAccountModel: DisposableEntity {
+    nonisolated func dispose() {
+        walletModelsManager.dispose()
     }
 }
 
@@ -143,14 +199,23 @@ extension CommonCryptoAccountModel: CustomStringConvertible {
     }
 }
 
-// MARK: - CryptoAccountPersistentConfigConvertible protocol conformance
+// MARK: - Auxiliary types
 
-extension CommonCryptoAccountModel: CryptoAccountPersistentConfigConvertible {
-    func toPersistentConfig() -> CryptoAccountPersistentConfig {
-        return CryptoAccountPersistentConfig(
-            derivationIndex: derivationIndex,
-            name: _name,
-            icon: icon
-        )
+private extension CommonCryptoAccountModel {
+    final class CommonAccountModelEditor: AccountModelEditor {
+        var name: String?
+        var icon: AccountModel.Icon?
+
+        var hasChanges: Bool {
+            return name != nil || icon != nil
+        }
+
+        func setName(_ name: String) {
+            self.name = name
+        }
+
+        func setIcon(_ icon: AccountModel.Icon) {
+            self.icon = icon
+        }
     }
 }

@@ -11,17 +11,21 @@ import TangemStaking
 import TangemExpress
 import TangemFoundation
 
-protocol SendBaseDataBuilder: SendGenericBaseDataBuilder {
-    func makeMailData(transaction: BSDKTransaction, error: SendTxError) -> (dataCollector: EmailDataCollector, recipient: String)
-    func makeMailData(transactionData: Data, error: SendTxError) -> (dataCollector: EmailDataCollector, recipient: String)
+typealias MailData = (dataCollector: EmailDataCollector, recipient: String)
+
+protocol SendBaseDataBuilder: SendGenericBaseDataBuilder,
+    SendApproveViewModelInputDataBuilder,
+    SendFeeCurrencyProviderDataBuilder {
+    func makeMailData(transaction: BSDKTransaction, error: SendTxError) -> MailData
+    func makeMailData(transactionData: Data, error: SendTxError) -> MailData
     func makeSendReceiveTokensList() -> SendReceiveTokensListBuilder
-    func makeFeeCurrencyData() -> FeeCurrencyNavigatingDismissOption
 }
 
-protocol StakingBaseDataBuilder: SendGenericBaseDataBuilder {
-    func makeMailData(stakingRequestError error: UniversalError) throws -> (dataCollector: EmailDataCollector, recipient: String)
-    func makeMailData(action: StakingTransactionAction, error: SendTxError) -> (dataCollector: EmailDataCollector, recipient: String)
-    func makeDataForExpressApproveViewModel() throws -> (settings: ExpressApproveViewModel.Settings, approveViewModelInput: any ApproveViewModelInput)
+protocol StakingBaseDataBuilder: SendGenericBaseDataBuilder,
+    SendApproveViewModelInputDataBuilder,
+    SendFeeCurrencyProviderDataBuilder {
+    func makeMailData(stakingRequestError error: UniversalError) throws -> MailData
+    func makeMailData(action: StakingTransactionAction, error: SendTxError) -> MailData
 }
 
 protocol OnrampBaseDataBuilder: SendGenericBaseDataBuilder {
@@ -31,13 +35,38 @@ protocol OnrampBaseDataBuilder: SendGenericBaseDataBuilder {
     func demoAlertMessage() -> String?
 }
 
+protocol SendFeeCurrencyProviderDataBuilder {
+    func makeFeeCurrencyData() -> FeeCurrencyNavigatingDismissOption
+}
+
+protocol SendApproveViewModelInputDataBuilder: SendGenericBaseDataBuilder {
+    func makeExpressApproveViewModelInput() throws -> ExpressApproveViewModel.Input
+}
+
 protocol SendGenericBaseDataBuilder {
+    func feeCurrencyProvider() throws -> SendFeeCurrencyProviderDataBuilder
+    func approveViewModelProvider() throws -> SendApproveViewModelInputDataBuilder
+
     func sendBuilder() throws -> SendBaseDataBuilder
     func stakingBuilder() throws -> StakingBaseDataBuilder
     func onrampBuilder() throws -> OnrampBaseDataBuilder
 }
 
 extension SendGenericBaseDataBuilder {
+    func feeCurrencyProvider() throws -> SendFeeCurrencyProviderDataBuilder {
+        guard let builder = self as? SendFeeCurrencyProviderDataBuilder else {
+            throw SendBaseDataBuilderError.notFound("SendFeeCurrencyProviderDataBuilder")
+        }
+        return builder
+    }
+
+    func approveViewModelProvider() throws -> SendApproveViewModelInputDataBuilder {
+        guard let builder = self as? SendApproveViewModelInputDataBuilder else {
+            throw SendBaseDataBuilderError.notFound("SendApproveViewModelInputDataBuilder")
+        }
+        return builder
+    }
+
     func sendBuilder() throws -> SendBaseDataBuilder {
         guard let builder = self as? SendBaseDataBuilder else {
             throw SendBaseDataBuilderError.notFound("SendBaseDataBuilder")

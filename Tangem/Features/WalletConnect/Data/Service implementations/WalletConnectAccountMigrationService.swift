@@ -88,20 +88,11 @@ final class WalletConnectAccountMigrationService {
                 throw Error.userWalletNotFound
             }
 
-            guard let mainAccount = userWalletModel.accountModelsManager.accountModels.standard()?.firstAvailableStandard() else {
+            guard let mainAccount = userWalletModel.accountModelsManager.cryptoAccountModels.first(where: \.isMainAccount) else {
                 throw Error.accountNotFound
             }
 
-            return .v2(
-                WalletConnectConnectedDAppV2(
-                    session: dApp.session,
-                    accountId: mainAccount.id.walletConnectIdentifierString,
-                    dAppData: dApp.dAppData,
-                    verificationStatus: dApp.verificationStatus,
-                    dAppBlockchains: dApp.dAppBlockchains,
-                    connectionDate: dApp.connectionDate
-                )
-            )
+            return .v2(WalletConnectConnectedDAppV2(accountId: mainAccount.id.walletConnectIdentifierString, wrapped: dApp))
         }
     }
 }

@@ -27,6 +27,7 @@ protocol SingleTokenRoutable {
         tokenItem: TokenItem,
         pendingTransactionsManager: PendingExpressTransactionsManager
     )
+    func openYieldModule(walletModel: any WalletModel)
 }
 
 final class SingleTokenRouter: SingleTokenRoutable {
@@ -54,7 +55,8 @@ final class SingleTokenRouter: SingleTokenRoutable {
 
     func openOnramp(walletModel: any WalletModel) {
         let input = makeSendInput(for: walletModel)
-        coordinator?.openOnramp(input: input, parameters: .none)
+        let parameters = PredefinedOnrampParametersBuilder.makeMoonpayPromotionParametersIfActive()
+        coordinator?.openOnramp(input: input, parameters: parameters)
     }
 
     func openSend(walletModel: any WalletModel) {
@@ -74,7 +76,11 @@ final class SingleTokenRouter: SingleTokenRoutable {
     func openExchange(walletModel: any WalletModel) {
         let input = ExpressDependenciesInput(
             userWalletInfo: userWalletInfo,
-            source: ExpressInteractorWalletModelWrapper(userWalletInfo: userWalletInfo, walletModel: walletModel),
+            source: ExpressInteractorWalletModelWrapper(
+                userWalletInfo: userWalletInfo,
+                walletModel: walletModel,
+                expressOperationType: .swap
+            ),
             destination: .loadingAndSet
         )
 
@@ -137,6 +143,7 @@ final class SingleTokenRouter: SingleTokenRoutable {
             currentPrice: quoteData?.price,
             priceChangePercentage: MarketsTokenQuoteHelper().makePriceChangeIntervalsDictionary(from: quoteData) ?? [:],
             marketRating: nil,
+            maxYieldApy: nil,
             marketCap: nil,
             isUnderMarketCapLimit: nil,
             stakingOpportunities: nil
@@ -157,6 +164,8 @@ final class SingleTokenRouter: SingleTokenRoutable {
             pendingTransactionsManager: pendingTransactionsManager
         )
     }
+
+    func openYieldModule(walletModel: any WalletModel) {}
 
     private func getTokenItemId(for tokenItem: TokenItem) -> TokenItemId? {
         guard tokenItem.isBlockchain, tokenItem.blockchain.isL2EthereumNetwork else {

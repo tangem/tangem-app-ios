@@ -6,7 +6,6 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import UIKit
 import TangemUIUtils
 import TangemUI
@@ -28,6 +27,7 @@ final class OverlayContentContainerViewController: UIViewController {
     private var panGestureStartLocationInScreenCoordinateSpace: CGPoint = .zero
     private var panGestureStartLocationInOverlayViewCoordinateSpace: CGPoint = .zero
     private var shouldIgnorePanGestureRecognizer = false
+    private var isGestureOnHorizontalScrollView = false
     private var didTap = false
 
     private var progress: OverlayContentContainerProgress = .zero {
@@ -62,7 +62,7 @@ final class OverlayContentContainerViewController: UIViewController {
         return isExpandedState || isCollapsedState
     }
 
-    private var minBackgroundShadowViewAlpha: CGFloat { .zero }
+    private let minBackgroundShadowViewAlpha = CGFloat.zero
 
     private var maxBackgroundShadowViewAlpha: CGFloat {
         traitCollection.isDarkMode
@@ -73,7 +73,6 @@ final class OverlayContentContainerViewController: UIViewController {
     // MARK: - IBOutlets/UI
 
     private var overlayViewTopAnchorConstraint: NSLayoutConstraint?
-    private var grabberView: UIView?
     private lazy var backgroundShadowView = UIView(frame: screenBounds)
     private lazy var tapGestureRecognizerHostingView = TouchPassthroughView()
 
@@ -124,16 +123,6 @@ final class OverlayContentContainerViewController: UIViewController {
         setupAppLifecycleHelper()
     }
 
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-
-        if let grabberView {
-            grabberView.superview?.bringSubviewToFront(grabberView)
-        }
-
-        backgroundShadowView.superview?.bringSubviewToFront(backgroundShadowView)
-    }
-
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
 
@@ -171,8 +160,6 @@ final class OverlayContentContainerViewController: UIViewController {
 
         overlayViewTopAnchorConstraint?.isActive = false
         overlayViewTopAnchorConstraint = nil
-
-        grabberView = nil
 
         let overlayView = overlayViewController.view!
         overlayView.removeFromSuperview()
@@ -261,26 +248,17 @@ final class OverlayContentContainerViewController: UIViewController {
         backgroundShadowView.alpha = minBackgroundShadowViewAlpha
         backgroundShadowView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         backgroundShadowView.isUserInteractionEnabled = false
-        contentViewController.view.addSubview(backgroundShadowView)
+        view.addSubview(backgroundShadowView)
         updateBackgroundShadowViewBackgroundColor()
     }
 
     private func setupContent() {
         addChild(contentViewController)
-
-        let containerView = view!
-        let contentView = contentViewController.view!
-        containerView.translatesAutoresizingMaskIntoConstraints = false
-        contentView.translatesAutoresizingMaskIntoConstraints = false
-        containerView.addSubview(contentView)
-
-        NSLayoutConstraint.activate([
-            contentView.heightAnchor.constraint(equalToConstant: screenBounds.height),
-            contentView.widthAnchor.constraint(equalToConstant: screenBounds.width),
-        ])
+        contentViewController.view.frame = screenBounds
+        view.addSubview(contentViewController.view)
 
         // Actual value for the `cornerRadius` CALayer property will be assigned later in `updateCornerRadius`
-        contentView.layer.cornerRadius(.zero, corners: .topEdge)
+        contentViewController.view.layer.cornerRadius(.zero, corners: .topEdge)
         contentViewController.didMove(toParent: self)
     }
 
@@ -293,32 +271,22 @@ final class OverlayContentContainerViewController: UIViewController {
     private func setupOverlay(_ overlayViewController: UIViewController) {
         addChild(overlayViewController)
 
-        let containerView = view!
-        let overlayView = overlayViewController.view!
-        containerView.translatesAutoresizingMaskIntoConstraints = false
-        overlayView.translatesAutoresizingMaskIntoConstraints = false
+        overlayViewController.view.translatesAutoresizingMaskIntoConstraints = false
         // `overlayView` always must be placed under `tapGestureRecognizerHostingView`
-        containerView.insertSubview(overlayView, belowSubview: tapGestureRecognizerHostingView)
+        view.insertSubview(overlayViewController.view, belowSubview: tapGestureRecognizerHostingView)
 
-        let overlayViewTopAnchorConstraint = overlayView
+        let overlayViewTopAnchorConstraint = overlayViewController.view
             .topAnchor
-            .constraint(equalTo: containerView.topAnchor, constant: overlayCollapsedVerticalOffset)
+            .constraint(equalTo: view.topAnchor, constant: overlayCollapsedVerticalOffset)
         self.overlayViewTopAnchorConstraint = overlayViewTopAnchorConstraint
 
         NSLayoutConstraint.activate([
             overlayViewTopAnchorConstraint,
-            overlayView.heightAnchor.constraint(equalToConstant: screenBounds.height),
-            overlayView.widthAnchor.constraint(equalToConstant: screenBounds.width),
+            overlayViewController.view.heightAnchor.constraint(equalToConstant: screenBounds.height),
+            overlayViewController.view.widthAnchor.constraint(equalToConstant: screenBounds.width),
         ])
 
-        let grabberViewFactory = GrabberViewFactory()
-        let grabberView = grabberViewFactory.makeUIKitView()
-        self.grabberView = grabberView
-
-        overlayView.addSubview(grabberView)
-        grabberView.centerXAnchor.constraint(equalTo: overlayView.centerXAnchor).isActive = true
-
-        overlayView.layer.cornerRadius(overlayCornerRadius, corners: .topEdge)
+        overlayViewController.view.layer.cornerRadius(overlayCornerRadius, corners: .topEdge)
         overlayViewController.additionalSafeAreaInsets.bottom = contentExpandedVerticalOffset // Over-scroll compensation
         overlayViewController.didMove(toParent: self)
     }
@@ -471,6 +439,7 @@ final class OverlayContentContainerViewController: UIViewController {
         panGestureStartLocationInScreenCoordinateSpace = .zero
         panGestureStartLocationInOverlayViewCoordinateSpace = .zero
         shouldIgnorePanGestureRecognizer = false
+        isGestureOnHorizontalScrollView = false
         scrollViewContentOffsetLocker = nil
     }
 
@@ -520,6 +489,13 @@ final class OverlayContentContainerViewController: UIViewController {
 
     func onPanGestureChanged(_ gestureRecognizer: UIPanGestureRecognizer) {
         if shouldIgnorePanGestureRecognizer {
+            return
+        }
+
+        // Ignore vertical gestures on horizontal scroll views to prevent
+        // the overlay from moving when the user drags vertically on a horizontal scroll
+        if isGestureOnHorizontalScrollView {
+            shouldIgnorePanGestureRecognizer = true
             return
         }
 
@@ -756,8 +732,14 @@ extension OverlayContentContainerViewController: UIGestureRecognizerDelegate {
         shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer
     ) -> Bool {
         if let scrollView = otherGestureRecognizer.view as? UIScrollView {
-            if scrollViewContentOffsetLocker?.scrollView !== scrollView {
-                scrollViewContentOffsetLocker = .make(for: scrollView)
+            // For horizontal scroll views, we should ignore the overlay's pan gesture
+            // to prevent vertical gestures from moving the overlay
+            if scrollView.isHorizontalScrollView {
+                isGestureOnHorizontalScrollView = true
+            } else {
+                if scrollViewContentOffsetLocker?.scrollView !== scrollView {
+                    scrollViewContentOffsetLocker = .make(for: scrollView)
+                }
             }
         } else {
             gestureConflictResolver.handleSwiftUIGestureIfNeeded(otherGestureRecognizer)
@@ -805,6 +787,17 @@ extension OverlayContentContainerViewController: OverlayContentContainerAppLifec
 
     func appLifecycleHelperDidTriggerCollapse(_ appLifecycleHelper: OverlayContentContainerAppLifecycleHelper) {
         collapse()
+    }
+}
+
+// MARK: - UIScrollView horizontal detection
+
+private extension UIScrollView {
+    /// Determines if the scroll view is configured for horizontal scrolling only.
+    /// A scroll view is considered horizontal if its content extends beyond
+    /// the horizontal bounds but not beyond the vertical bounds.
+    var isHorizontalScrollView: Bool {
+        return contentSize.width > bounds.width && contentSize.height <= bounds.height
     }
 }
 

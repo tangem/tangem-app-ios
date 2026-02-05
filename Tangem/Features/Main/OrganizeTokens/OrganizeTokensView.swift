@@ -13,6 +13,7 @@ import TangemUIUtils
 import TangemFoundation
 import TangemAccessibilityIdentifiers
 
+@available(iOS, deprecated: 100000.0, message: "Will be removed after accounts migration is complete ([REDACTED_INFO])")
 struct OrganizeTokensView: View {
     // MARK: - Model
 
@@ -211,6 +212,7 @@ struct OrganizeTokensView: View {
                             parametersProvider: parametersProvider
                         )
                         .hidden(isDragged)
+                        .accessibilityHidden(isDragged)
                         .readGeometry(
                             \.frame,
                             inCoordinateSpace: .named(scrollViewContentCoordinateSpaceName)
@@ -233,6 +235,7 @@ struct OrganizeTokensView: View {
                         parametersProvider: parametersProvider
                     )
                     .hidden(isDragged)
+                    .accessibilityHidden(isDragged)
                     .readGeometry(
                         \.frame,
                         inCoordinateSpace: .named(scrollViewContentCoordinateSpaceName)
@@ -262,7 +265,7 @@ struct OrganizeTokensView: View {
 
     private var tokenListFooter: some View {
         OrganizeTokensListFooter(
-            viewModel: viewModel,
+            actionsHandler: viewModel,
             isTokenListFooterGradientHidden: scrollState.isTokenListFooterGradientHidden,
             cornerRadius: Constants.contentCornerRadius,
             contentInsets: EdgeInsets(
@@ -386,7 +389,7 @@ struct OrganizeTokensView: View {
 
     @ViewBuilder
     private func makeSection(
-        from section: OrganizeTokensListSection,
+        from section: OrganizeTokensListInnerSection,
         atIndex sectionIndex: Int,
         parametersProvider: OrganizeTokensListCornerRadiusParametersProvider
     ) -> some View {
@@ -395,9 +398,9 @@ struct OrganizeTokensView: View {
             case .invisible:
                 EmptyView()
             case .fixed(let title):
-                OrganizeTokensListSectionView(title: title, isDraggable: false)
+                OrganizeTokensListInnerSectionView(title: title, isDraggable: false)
             case .draggable(let title):
-                OrganizeTokensListSectionView(title: title, identifier: section.model.id, isDraggable: true)
+                OrganizeTokensListInnerSectionView(title: title, identifier: section.model.id, isDraggable: true)
             }
         }
         .background(Colors.Background.primary)
@@ -620,20 +623,5 @@ private extension OrganizeTokensView {
         static let draggableViewCornerRadius = 7.0
         static let autoScrollFrequency = 0.2
         static let autoScrollTriggerHeightDiff = 10.0
-    }
-}
-
-// MARK: - Previews
-
-struct OrganizeTokensView_Preview: PreviewProvider {
-    static var previews: some View {
-        let viewModelFactory = OrganizeTokensPreviewViewModelFactory()
-
-        ForEach(OrganizeTokensPreviewConfiguration.allCases, id: \.name) { previewConfiguration in
-            let viewModel = viewModelFactory.makeViewModel(for: previewConfiguration)
-            OrganizeTokensView(viewModel: viewModel)
-                .previewLayout(.sizeThatFits)
-                .previewDisplayName(previewConfiguration.name)
-        }
     }
 }

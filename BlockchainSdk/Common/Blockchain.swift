@@ -108,6 +108,7 @@ public indirect enum Blockchain: Equatable, Hashable {
     case quai(testnet: Bool)
     case scroll(testnet: Bool)
     case linea(testnet: Bool)
+    case monad(testnet: Bool)
     case arbitrumNova
     case plasma(testnet: Bool)
 
@@ -167,6 +168,7 @@ public indirect enum Blockchain: Equatable, Hashable {
              .quai(let testnet),
              .scroll(let testnet),
              .linea(let testnet),
+             .monad(let testnet),
              .plasma(let testnet):
             return testnet
         case .litecoin,
@@ -350,6 +352,7 @@ public indirect enum Blockchain: Equatable, Hashable {
              .quai,
              .scroll,
              .linea,
+             .monad,
              .arbitrumNova,
              .plasma:
             return 18
@@ -554,6 +557,8 @@ public indirect enum Blockchain: Equatable, Hashable {
             return "HYPE"
         case .quai:
             return "QUAI"
+        case .monad:
+            return "MON"
         case .plasma:
             return "XPL"
         }
@@ -654,6 +659,8 @@ public indirect enum Blockchain: Equatable, Hashable {
             return isTestnet ? "Hyperliquid EVM Testnet" : "Hyperliquid EVM"
         case .quai:
             return isTestnet ? "Quai Orchard Testnet" : "Quai Network"
+        case .monad:
+            return "Monad" + testnetSuffix
         case .arbitrumNova:
             return "Arbitrum Nova"
         default:
@@ -899,6 +906,19 @@ public indirect enum Blockchain: Equatable, Hashable {
 public extension Blockchain {
     var isEvm: Bool { chainId != nil }
 
+    var isGaslessTransactionSupported: Bool {
+        switch self {
+        case .ethereum: true
+        case .bsc: true
+        case .base: true
+        case .arbitrum: true
+        case .polygon: true
+        case .xdc: true
+        case .optimism: true
+        default: false
+        }
+    }
+
     /// Only for Ethereum compatible blockchains
     /// https://chainlist.org
     var chainId: Int? {
@@ -952,6 +972,7 @@ public extension Blockchain {
         case .quai: return isTestnet ? 15000 : 9
         case .scroll: return isTestnet ? 534351 : 534352
         case .linea: return isTestnet ? 59141 : 59144
+        case .monad: return isTestnet ? 10143 : 143
         case .arbitrumNova: return 42170
         case .plasma: return isTestnet ? 9746 : 9745
         default:
@@ -1040,6 +1061,7 @@ public extension Blockchain {
         case .quai: return false // eth_feeHistory method returns error
         case .scroll: return true
         case .linea: return true
+        case .monad: return true
         case .arbitrumNova: return true
         case .plasma: return true
         default:
@@ -1055,7 +1077,6 @@ public extension Blockchain {
 public extension Blockchain {
     func derivationPath(for style: DerivationStyle) -> DerivationPath? {
         guard curve.supportsDerivation else {
-            BSDKLogger.error(error: "Wrong attempt to get a `DerivationPath` for a unsupported derivation curve")
             return nil
         }
 
@@ -1197,6 +1218,7 @@ extension Blockchain: Codable {
         case .quai: return "quai-network"
         case .scroll: return "scroll"
         case .linea: return "linea"
+        case .monad: return "monad"
         case .arbitrumNova: return "arbitrum-nova"
         case .plasma: return "plasma"
         }
@@ -1313,6 +1335,7 @@ extension Blockchain: Codable {
         case "quai-network": self = .quai(testnet: isTestnet)
         case "scroll": self = .scroll(testnet: isTestnet)
         case "linea": self = .linea(testnet: isTestnet)
+        case "monad": self = .monad(testnet: isTestnet)
         case "arbitrum-nova": self = .arbitrumNova
         case "plasma": self = .plasma(testnet: isTestnet)
         default:
@@ -1610,6 +1633,8 @@ private extension Blockchain {
             case .network: return "linea"
             case .coin: return "linea-ethereum"
             }
+        case .monad:
+            return "monad"
         case .arbitrumNova:
             switch type {
             case .network: return "arbitrum-nova"
@@ -1682,8 +1707,8 @@ extension Blockchain {
              .vanar,
              .zkLinkNova,
              .hyperliquidEVM,
-             .scroll,
              .linea,
+             .monad,
              .arbitrumNova,
              .plasma:
             return EthereumWalletAssembly()
@@ -1693,6 +1718,8 @@ extension Blockchain {
              .cyber,
              .blast:
             return EthereumOptimisticRollupWalletAssembly()
+        case .scroll:
+            return ScrollWalletAssembly()
         case .bitcoinCash:
             return BitcoinCashWalletAssembly()
         case .binance:

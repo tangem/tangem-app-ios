@@ -204,9 +204,23 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         bindAnalytics()
     }
 
-    func initializeUserWallet(from cardInfo: CardInfo) {
+    func initializeUserWallet(from cardInfo: CardInfo, walletCreationType: WalletOnboardingViewModel.WalletCreationType) {
         guard userWalletModel == nil else {
             return
+        }
+
+        runTask(in: self) { _ in
+            let userWalletConfig = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
+
+            if let userWalletId = UserWalletId(config: userWalletConfig) {
+                let walletCreationHelper = WalletCreationHelper(
+                    userWalletId: userWalletId,
+                    userWalletName: nil,
+                    userWalletConfig: userWalletConfig
+                )
+
+                try? await walletCreationHelper.createWallet()
+            }
         }
 
         guard let userWallet = CommonUserWalletModelFactory().makeModel(
@@ -215,6 +229,11 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         ) else {
             return
         }
+
+        AmplitudeWrapper.shared.setUserIdIfOnboarding(userWalletId: userWallet.userWalletId)
+        var params = walletCreationType.params
+        params.enrich(with: ReferralAnalyticsHelper().getReferralParams())
+        logAnalytics(event: .walletCreatedSuccessfully, params: params)
 
         Analytics.logTopUpIfNeeded(balance: 0, for: userWallet.userWalletId, contextParams: getContextParams())
 
@@ -251,6 +270,8 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             }
         } else {
             // add model
+            let hadSingleMobileWallet = UserWalletRepositoryModeHelper.hasSingleMobileWallet
+
             if AppSettings.shared.saveUserWallets {
                 try? userWalletRepository.add(userWalletModel: userWalletModel)
             } else {
@@ -261,6 +282,10 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
                 if let currentUserWalletId {
                     userWalletRepository.delete(userWalletId: currentUserWalletId)
                 }
+            }
+
+            if hadSingleMobileWallet, userWalletRepository.models.count == 2 {
+                logColdWalletAddedAnalytics(contextData: userWalletModel.analyticsContextData)
             }
 
             DispatchQueue.main.async {
@@ -462,11 +487,24 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         )
     }
 
+    @available(iOS, deprecated: 100000.0, message: "Only used when accounts are disabled, will be removed in the future ([REDACTED_INFO])")
     private func makeLegacyContext(for userWalletModel: UserWalletModel) -> ManageTokensContext {
         LegacyManageTokensContext(
             // accounts_fixes_needed_none
             userTokensManager: userWalletModel.userTokensManager,
             walletModelsManager: userWalletModel.walletModelsManager
+        )
+    }
+}
+
+// MARK: - Analytics
+
+private extension OnboardingViewModel {
+    func logColdWalletAddedAnalytics(contextData: AnalyticsContextData) {
+        Analytics.log(
+            .settingsColdWalletAdded,
+            params: [.source: Analytics.ParameterValue.onboarding],
+            contextParams: .custom(contextData)
         )
     }
 }

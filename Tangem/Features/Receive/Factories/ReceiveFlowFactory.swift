@@ -49,9 +49,7 @@ struct ReceiveFlowFactory {
         )
     }
 
-    func makeTokenAlertReceiveAssetViewModel() -> TokenAlertReceiveAssetsViewModel {
-        let selectorViewModel = makeSelectorReceiveAssetViewModel()
-
+    func makeTokenAlertReceiveAssetViewModel(with selectorViewModel: SelectorReceiveAssetsViewModel) -> TokenAlertReceiveAssetsViewModel {
         return TokenAlertReceiveAssetsViewModel(
             tokenItem: tokenItem,
             selectorViewModel: selectorViewModel,
@@ -82,12 +80,5 @@ struct ReceiveFlowFactory {
             // [REDACTED_TODO_COMMENT]
             isYieldModuleActive: isYieldModuleActive
         )
-    }
-}
-
-extension ReceiveFlowFactory {
-    enum AvailabilityViewModel {
-        case domainReceiveFlow(ReceiveMainViewModel)
-        case bottomSheetReceiveFlow(ReceiveBottomSheetViewModel)
     }
 }

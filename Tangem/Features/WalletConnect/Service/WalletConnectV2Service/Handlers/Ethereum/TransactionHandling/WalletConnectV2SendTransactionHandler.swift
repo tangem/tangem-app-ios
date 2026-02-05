@@ -45,7 +45,7 @@ class WalletConnectV2SendTransactionHandler {
         }
 
         self.transactionBuilder = transactionBuilder
-        transactionDispatcher = SendTransactionDispatcher(walletModel: walletModel, transactionSigner: signer)
+        transactionDispatcher = TransactionDispatcherFactory(walletModel: walletModel, signer: signer).makeSendDispatcher()
         request = requestParams
     }
 
@@ -77,7 +77,7 @@ class WalletConnectV2SendTransactionHandler {
         }
 
         self.transactionBuilder = transactionBuilder
-        transactionDispatcher = SendTransactionDispatcher(walletModel: walletModel, transactionSigner: signer)
+        transactionDispatcher = TransactionDispatcherFactory(walletModel: walletModel, signer: signer).makeSendDispatcher()
         request = requestParams
     }
 }
@@ -114,7 +114,7 @@ extension WalletConnectV2SendTransactionHandler: WalletConnectMessageHandler, WC
             .blockchain: walletModel.tokenItem.blockchain.displayName,
             .walletForm: result.signerType,
             .selectedHost: result.currentHost,
-        ])
+        ], analyticsSystems: .all)
 
         return RPCResult.response(AnyCodable(result.hash.lowercased()))
     }

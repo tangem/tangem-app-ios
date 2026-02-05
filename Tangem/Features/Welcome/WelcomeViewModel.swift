@@ -18,7 +18,7 @@ final class WelcomeViewModel: ObservableObject {
     @Injected(\.incomingActionManager) private var incomingActionManager: IncomingActionManaging
 
     @Published var error: AlertBinder?
-    @Published var confirmationDialog: ConfirmationDialogViewModel?
+    @Published var scanTroubleshootingDialog: ConfirmationDialogViewModel?
 
     let storiesModel: StoriesViewModel
 
@@ -64,8 +64,11 @@ final class WelcomeViewModel: ObservableObject {
         Analytics.log(.buttonBuyCards)
     }
 
-    func onAppear() {
+    func onFirstAppear() {
         Analytics.log(.introductionProcessOpened)
+    }
+
+    func onAppear() {
         incomingActionManager.becomeFirstResponder(self)
     }
 
@@ -134,7 +137,7 @@ final class WelcomeViewModel: ObservableObject {
 
                     let unlockMethod = UserWalletRepositoryUnlockMethod.encryptionKey(userWalletId: userWalletId, encryptionKey: encryptionKey)
                     let userWalletModel = try await viewModel.userWalletRepository.unlock(with: unlockMethod)
-                    viewModel.signInAnalyticsLogger.logSignInEvent(signInType: .card)
+                    viewModel.signInAnalyticsLogger.logSignInEvent(signInType: .card, userWalletModel: userWalletModel)
                     await runOnMain {
                         viewModel.isScanningCard.send(false)
                         viewModel.openMain(with: userWalletModel)
@@ -157,7 +160,7 @@ final class WelcomeViewModel: ObservableObject {
                 keys: .cardWallet(keys: cardInfo.card.wallets)
             ) {
                 try userWalletRepository.add(userWalletModel: newUserWalletModel)
-                signInAnalyticsLogger.logSignInEvent(signInType: .card)
+                signInAnalyticsLogger.logSignInEvent(signInType: .card, userWalletModel: newUserWalletModel)
                 await runOnMain {
                     isScanningCard.send(false)
                     openMain(with: newUserWalletModel)
@@ -196,7 +199,7 @@ extension WelcomeViewModel {
             self?.requestSupport()
         }
 
-        confirmationDialog = ConfirmationDialogViewModel(
+        scanTroubleshootingDialog = ConfirmationDialogViewModel(
             title: Localization.alertTroubleshootingScanCardTitle,
             subtitle: Localization.alertTroubleshootingScanCardMessage,
             buttons: [

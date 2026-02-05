@@ -10,12 +10,11 @@ import XCTest
 import TangemAccessibilityIdentifiers
 @testable import TangemAssets
 
-final class OrganizeTokensScreen: ScreenBase<StoriesScreenElement> {
-    private lazy var tokensList = app.scrollViews[OrganizeTokensAccessibilityIdentifiers.tokensList]
-    private lazy var sortByBalanceButton = app.buttons[OrganizeTokensAccessibilityIdentifiers.sortByBalanceButton]
-    private lazy var groupButton =
-        app.buttons[OrganizeTokensAccessibilityIdentifiers.groupButton]
-    private lazy var applyButton = app.buttons[OrganizeTokensAccessibilityIdentifiers.applyButton]
+final class OrganizeTokensScreen: ScreenBase<OrganizeTokensScreenElement> {
+    private lazy var tokensList = scrollView(.tokensList)
+    private lazy var sortByBalanceButton = button(.sortByBalanceButton)
+    private lazy var groupButton = button(.groupButton)
+    private lazy var applyButton = button(.applyButton)
 
     @discardableResult
     func sortByBalance() -> Self {
@@ -36,8 +35,6 @@ final class OrganizeTokensScreen: ScreenBase<StoriesScreenElement> {
     func group() -> Self {
         XCTContext.runActivity(named: "Group tokens by network") { _ in
             groupButton.waitAndTap()
-
-            // Wait for grouping to take effect
             waitForGroupingState(expectedGrouped: true)
             return self
         }
@@ -47,15 +44,13 @@ final class OrganizeTokensScreen: ScreenBase<StoriesScreenElement> {
     func ungroup() -> Self {
         XCTContext.runActivity(named: "Ungroup tokens") { _ in
             groupButton.waitAndTap()
-
-            // Wait for ungrouping to take effect
             waitForGroupingState(expectedGrouped: false)
             return self
         }
     }
 
     func isGrouped() -> Bool {
-        // Check group button title
+        waitAndAssertTrue(groupButton, "Wait for group button to exist")
         let groupButtonTitle = groupButton.label.lowercased()
         if groupButtonTitle.contains("ungroup") {
             return true
@@ -64,7 +59,6 @@ final class OrganizeTokensScreen: ScreenBase<StoriesScreenElement> {
             return false
         }
 
-        // Check group headers
         let networkHeaders = tokensList.descendants(matching: .staticText)
             .allElementsBoundByIndex
             .filter { element in
@@ -76,7 +70,6 @@ final class OrganizeTokensScreen: ScreenBase<StoriesScreenElement> {
             return true
         }
 
-        // Check section drag buttons
         let sectionDragIcons = tokensList.descendants(matching: .image)
             .matching(NSPredicate(format: "label == %@", Assets.OrganizeTokens.groupDragAndDropIcon.name))
             .allElementsBoundByIndex
@@ -110,83 +103,150 @@ final class OrganizeTokensScreen: ScreenBase<StoriesScreenElement> {
     @discardableResult
     func drag(one source: String, to destination: String) -> Self {
         XCTContext.runActivity(named: "Drag token '\(source)' to '\(destination)'") { _ in
-            getTokenDragIcon(name: source).press(forDuration: 1.0, thenDragTo: getTokenDragIcon(name: destination))
+            let sourceElement = getTokenDragIcon(name: source)
+            let destinationElement = getTokenDragIcon(name: destination)
+            sourceElement.press(forDuration: 1.0, thenDragTo: destinationElement)
             return self
         }
     }
 
-    @discardableResult
-    func dragToken(fromName: String, toName: String) -> Self {
-        XCTContext.runActivity(named: "Drag token from '\(fromName)' to '\(toName)'") { _ in
-            let sourceIcon = getTokenDragIcon(name: fromName)
-            let destinationIcon = getTokenDragIcon(name: toName)
-
-            XCTAssertTrue(sourceIcon.exists, "Source drag icon should exist for token: \(fromName)")
-            XCTAssertTrue(destinationIcon.exists, "Destination drag icon should exist for token: \(toName)")
-
-            // Perform drag & drop
-            sourceIcon.press(forDuration: 1.0, thenDragTo: destinationIcon)
-            return self
+    /// Returns token order grouped by account, preserving visual order.
+    func getTokensOrder() -> TokensOrder {
+        struct TokenInfo {
+            let outer: Int
+            let inner: Int
+            let item: Int
+            let name: String
         }
-    }
 
-    func getTokensOrder() -> [String] {
-        // Get all elements with token identifiers
-        let allElements = tokensList.descendants(matching: .any)
+        // Using .other to match only top-level SwiftUI views, not child elements
+        let allElements = tokensList.descendants(matching: .other)
             .matching(NSPredicate(format: "identifier BEGINSWITH 'token_' AND identifier CONTAINS '_'"))
             .allElementsBoundByIndex
 
-        // Group elements by identifier and take only unique ones
-        var uniqueTokens: [String: XCUIElement] = [:]
-
-        for element in allElements {
+        let parsedTokens: [TokenInfo] = allElements.map { element in
             let identifier = element.identifier
-            if !uniqueTokens.keys.contains(identifier), element.exists, element.frame.width > 0 {
-                uniqueTokens[identifier] = element
-            }
-        }
-
-        // Parse identifier to get position and name
-        let tokenInfo: [(section: Int, item: Int, name: String)] = uniqueTokens.compactMap { identifier, element in
             let components = identifier.components(separatedBy: "_")
 
-            // Expected format: token_section_item_name
-            guard components.count >= 4,
-                  components[0] == "token",
-                  let section = Int(components[1]),
-                  let item = Int(components[2]) else {
-                return nil
-            }
+            // Format: token_outer_inner_item_name
+            XCTAssertGreaterThanOrEqual(components.count, 5, "Invalid token identifier format: \(identifier)")
+            XCTAssertEqual(components[0], "token", "Token identifier must start with 'token': \(identifier)")
 
-            let name = components[3...].joined(separator: "_")
-            return (section: section, item: item, name: name)
+            return TokenInfo(
+                outer: Int(components[1])!,
+                inner: Int(components[2])!,
+                item: Int(components[3])!,
+                name: components[4...].joined(separator: "_")
+            )
         }
 
-        // Sort by position (section, then item)
-        let sortedTokens = tokenInfo.sorted { first, second in
-            if first.section != second.section {
-                return first.section < second.section
-            }
-            return first.item < second.item
+        // Parse account headers to map outer section -> account key
+        let headerElements = tokensList.descendants(matching: .other)
+            .matching(NSPredicate(format: "identifier BEGINSWITH %@", OrganizeTokensAccessibilityIdentifiers.accountHeaderPrefix + "_"))
+            .allElementsBoundByIndex
+
+        var outerToAccountKey: [Int: String] = [:]
+        for header in headerElements {
+            let parsed = Self.parseAccountHeaderIdentifier(header.identifier)
+            outerToAccountKey[parsed.outerSection] = parsed.key
         }
 
-        return sortedTokens.map { $0.name }
+        // Sort all tokens by visual order (outer -> inner -> item)
+        let sortedTokens = parsedTokens.sorted {
+            if $0.outer != $1.outer { return $0.outer < $1.outer }
+            if $0.inner != $1.inner { return $0.inner < $1.inner }
+            return $0.item < $1.item
+        }
+
+        // Group tokens by outer section while preserving order
+        var result: TokensOrder = []
+        var currentOuter: Int?
+        var currentTokens: [String] = []
+
+        for token in sortedTokens {
+            if token.outer != currentOuter {
+                // Save previous group if exists
+                if let outer = currentOuter {
+                    let accountKey = outerToAccountKey[outer] ?? "main_account"
+                    result.append((accountKey, currentTokens))
+                }
+                // Start new group
+                currentOuter = token.outer
+                currentTokens = [token.name]
+            } else {
+                currentTokens.append(token.name)
+            }
+        }
+
+        // Save the last group
+        if let outer = currentOuter {
+            let accountKey = outerToAccountKey[outer] ?? "main_account"
+            result.append((accountKey, currentTokens))
+        }
+
+        return result
     }
 
     @discardableResult
-    func verifyTokensOrder(_ expectedOrder: [String]) -> Self {
+    func verifyTokensOrder(_ expectedOrder: TokensOrder, timeout: TimeInterval = 5.0) -> Self {
         XCTContext.runActivity(named: "Verify tokens order matches expected") { _ in
-            let actualOrder = getTokensOrder()
-            XCTAssertEqual(actualOrder, expectedOrder, "Tokens order doesn't match expected")
+            let deadline = Date().addingTimeInterval(timeout)
+            var actual: TokensOrder = []
+            var accountsMatch = false
+            var tokensMatch = true
+
+            // Poll until order matches or timeout (handles drag animation settling)
+            repeat {
+                actual = getTokensOrder()
+                accountsMatch = actual.accountNames == expectedOrder.accountNames
+
+                if accountsMatch {
+                    tokensMatch = true
+                    for (index, expected) in expectedOrder.enumerated() {
+                        if actual[index].tokens != expected.tokens {
+                            tokensMatch = false
+                            break
+                        }
+                    }
+                }
+
+                if accountsMatch, tokensMatch {
+                    break
+                }
+            } while Date() < deadline
+
+            // Final assertions with detailed error messages
+            XCTAssertEqual(
+                actual.accountNames,
+                expectedOrder.accountNames,
+                "Accounts order doesn't match. Actual: \(actual.accountNames), Expected: \(expectedOrder.accountNames)"
+            )
+
+            for (index, expected) in expectedOrder.enumerated() {
+                let actualTokens = actual[index].tokens
+                XCTAssertEqual(
+                    actualTokens,
+                    expected.tokens,
+                    "Tokens order for account '\(expected.account)' doesn't match. Actual: \(actualTokens), Expected: \(expected.tokens)"
+                )
+            }
+
             return self
         }
     }
 
     private func getTokenDragIcon(name: String) -> XCUIElement {
-        // Find elements with label from Assets and filter by token name in identifier
-        return app.images
-            .matching(NSPredicate(format: "label == %@ AND identifier CONTAINS %@", Assets.OrganizeTokens.itemDragAndDropIcon.name, name))
+        let predicate = NSPredicate(
+            format: "label == %@ AND identifier ENDSWITH %@",
+            Assets.OrganizeTokens.itemDragAndDropIcon.name,
+            "_\(name)"
+        )
+        let element = tokensList.descendants(matching: .image)
+            .matching(predicate)
             .firstMatch
+
+        XCTAssertTrue(element.waitForExistence(timeout: 5.0), "Drag icon for '\(name)' not found")
+        return element
     }
 
     private func isGroupingButtonShowingUngroup() -> Bool {
@@ -195,12 +255,46 @@ final class OrganizeTokensScreen: ScreenBase<StoriesScreenElement> {
     }
 
     private func waitForGroupingState(expectedGrouped: Bool, timeout: TimeInterval = 5.0) {
-        // Wait for the group button to show the expected state
         let expectedButtonText = expectedGrouped ? "Ungroup" : "Group"
         let predicate = NSPredicate(format: "label CONTAINS[c] %@", expectedButtonText)
         let expectation = XCTNSPredicateExpectation(predicate: predicate, object: groupButton)
 
         let result = XCTWaiter().wait(for: [expectation], timeout: timeout)
         XCTAssertEqual(result, .completed, "Timed out waiting for group button to show '\(expectedButtonText)'")
+    }
+
+    /// Parses identifier format: organizeTokens_accountHeader_<outerSection>_<accountId>_<accountName>
+    private static func parseAccountHeaderIdentifier(_ identifier: String) -> (outerSection: Int, key: String) {
+        let prefix = OrganizeTokensAccessibilityIdentifiers.accountHeaderPrefix + "_"
+        precondition(identifier.hasPrefix(prefix), "Invalid account header identifier: \(identifier)")
+
+        let rest = String(identifier.dropFirst(prefix.count))
+        let parts = rest.components(separatedBy: "_")
+        precondition(parts.count >= 3, "Invalid account header format, expected at least 3 parts: \(identifier)")
+
+        let outerSection = Int(parts[0])!
+        let accountId = parts[1]
+        let accountName = parts[2...].joined(separator: "_")
+        return (outerSection: outerSection, key: "\(accountId)_\(accountName)")
+    }
+}
+
+enum OrganizeTokensScreenElement: String, UIElement {
+    case tokensList
+    case sortByBalanceButton
+    case groupButton
+    case applyButton
+
+    var accessibilityIdentifier: String {
+        switch self {
+        case .tokensList:
+            return OrganizeTokensAccessibilityIdentifiers.tokensList
+        case .sortByBalanceButton:
+            return OrganizeTokensAccessibilityIdentifiers.sortByBalanceButton
+        case .groupButton:
+            return OrganizeTokensAccessibilityIdentifiers.groupButton
+        case .applyButton:
+            return OrganizeTokensAccessibilityIdentifiers.applyButton
+        }
     }
 }

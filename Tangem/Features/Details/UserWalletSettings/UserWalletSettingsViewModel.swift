@@ -30,12 +30,16 @@ final class UserWalletSettingsViewModel: ObservableObject {
     @Published private(set) var walletImage: Image?
 
     @Published var accountsViewModel: UserSettingsAccountsViewModel?
-    @Published var mobileUpgradeNotificationInput: NotificationViewInput?
+    @Published var mobileUpgradeNotificationInput: NotificationViewInput? // [REDACTED_TODO_COMMENT]
     @Published var mobileAccessCodeViewModel: DefaultRowViewModel?
     @Published var backupViewModel: DefaultRowViewModel?
 
     var commonSectionModels: [DefaultRowViewModel] {
         [mobileBackupViewModel, manageTokensViewModel, cardSettingsViewModel, referralViewModel].compactMap { $0 }
+    }
+
+    var isMobileUpgradeAvailable: Bool {
+        FeatureProvider.isAvailable(.mobileWallet) && userWalletModel.config.hasFeature(.userWalletUpgrade)
     }
 
     @Published var nftViewModel: DefaultToggleRowViewModel?
@@ -44,7 +48,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
     @Published var forgetViewModel: DefaultRowViewModel?
 
     @Published var alert: AlertBinder?
-    @Published var confirmationDialog: ConfirmationDialogViewModel?
+    @Published var forgetWalletConfirmationDialog: ConfirmationDialogViewModel?
 
     // MARK: - Private
 
@@ -53,6 +57,9 @@ final class UserWalletSettingsViewModel: ObservableObject {
     @Published private var cardSettingsViewModel: DefaultRowViewModel?
     @Published private var referralViewModel: DefaultRowViewModel?
 
+    /// Alert for account operations that needs to be shown after a modal sheet is dismissed.
+    /// See `UserWalletSettingsCoordinatorView` for the trigger.
+    private var accountsPendingAlert: AlertBinder?
     private let mobileSettingsUtil: MobileSettingsUtil
 
     private var isNFTEnabled: Bool {
@@ -88,7 +95,13 @@ final class UserWalletSettingsViewModel: ObservableObject {
         dependencyUpdater = DependencyUpdater(userWalletModel: userWalletModel)
         dependencyUpdater.setup(owner: self)
 
+        // Calling this setup method before `bind()` because we need to subscribe to accounts VM updates
+        setupAccountsViewModel()
         bind()
+    }
+
+    deinit {
+        assert(accountsPendingAlert == nil, "accountsPendingAlert was not shown before deallocation. Update the alert display mechanism.")
     }
 
     func onFirstAppear() {
@@ -100,6 +113,49 @@ final class UserWalletSettingsViewModel: ObservableObject {
         if FeatureProvider.isAvailable(.accounts) {
             loadWalletImage()
         }
+    }
+
+    func handleAccountOperationResult(_ result: AccountOperationResult) {
+        switch result {
+        case .none:
+            return
+
+        case .redistributionHappened(let pairs):
+            // Find first actual redistribution between accounts and extract source account name
+            // Skip external sources (legacy tokens from server) - they're initial placements, not redistributions
+            // .lazy is used to avoid unnecessary iterations
+            // Source - https://stackoverflow.com/a/77408784
+            // `.first { _ in true }` is a workaround for a long-standing Swift bug with lazy + compactMap
+            // See: https://github.com/swiftlang/swift/issues/48324
+            let namesPair = pairs.lazy.compactMap { pair -> ((fromName: String, toName: String))? in
+                guard
+                    case .account(let accountName) = pair.source,
+                    let toName = pair.toAccountName
+                else {
+                    return nil
+                }
+
+                // If fromName is nil, this means Main account has the default name
+                return (accountName ?? Localization.accountMainAccountTitle, toName)
+            }.first { _ in true }
+
+            guard let namesPair else {
+                return
+            }
+
+            accountsPendingAlert = AlertBuilder.makeAlert(
+                title: Localization.accountsMigrationAlertTitle,
+                message: Localization.accountsMigrationAlertMessage(namesPair.fromName, namesPair.toName),
+                primaryButton: .default(Text(Localization.commonGotIt))
+            )
+        }
+    }
+
+    func showAccountsPendingAlertIfNeeded() {
+        guard let pendingAlert = accountsPendingAlert else { return }
+
+        alert = pendingAlert
+        accountsPendingAlert = nil
     }
 
     private func loadWalletImage() {
@@ -131,6 +187,12 @@ final class UserWalletSettingsViewModel: ObservableObject {
             buttonText: Localization.commonGotIt
         )
     }
+
+    func mobileUpgradeTap() {
+        runTask(in: self) { viewModel in
+            await viewModel.openMobileUpgrade()
+        }
+    }
 }
 
 // MARK: - Private
@@ -138,7 +200,7 @@ final class UserWalletSettingsViewModel: ObservableObject {
 private extension UserWalletSettingsViewModel {
     func bind() {
         userWalletModel.updatePublisher
-            .receive(on: DispatchQueue.main)
+            .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, event in
                 if case .configurationChanged = event {
@@ -147,29 +209,31 @@ private extension UserWalletSettingsViewModel {
             }
             .store(in: &bag)
 
-        let accountModelsManager = userWalletModel.accountModelsManager
-        if FeatureProvider.isAvailable(.accounts), accountModelsManager.canAddCryptoAccounts {
-            accountModelsManager
-                .accountModelsPublisher
-                .receiveOnMain()
-                .withWeakCaptureOf(self)
-                .map { viewModel, accounts in
-                    UserSettingsAccountsViewModel(
-                        accountModels: accounts,
-                        accountModelsManager: viewModel.userWalletModel.accountModelsManager,
-                        userWalletConfig: viewModel.userWalletModel.config,
-                        coordinator: viewModel.coordinator
-                    )
-                }
-                .withWeakCaptureOf(self)
-                .sink { viewModel, accountsViewModel in
-                    if accountsViewModel.accountRows.isNotEmpty {
-                        viewModel.manageTokensViewModel = nil
-                    }
-                    viewModel.accountsViewModel = accountsViewModel
-                }
-                .store(in: &bag)
+        // We should not display manageTokens row if we have visible accounts
+        // because if they are visible, token management is performed from
+        // their respective details screens
+        accountsViewModel?
+            .$accountRows
+            .withWeakCaptureOf(self)
+            .map { viewModel, accountRows in
+                viewModel.shouldShowManageTokens(accountRows: accountRows)
+                    ? viewModel.makeManageTokensRowViewModel()
+                    : nil
+            }
+            .receiveOnMain()
+            .assign(to: \.manageTokensViewModel, on: self, ownership: .weak)
+            .store(in: &bag)
+    }
+
+    private func shouldShowManageTokens(accountRows: [UserSettingsAccountsViewModel.AccountRow]?) -> Bool {
+        guard userWalletModel.config.hasFeature(.multiCurrency) else {
+            return false
         }
+
+        // If accounts are enabled (i.e. `accountRows` is not nil),
+        // then manage tokens row should be shown only if there are no visible accounts
+        // If accounts are not enabled, then manage tokens row should be always shown
+        return accountRows?.isEmpty ?? true
     }
 
     func setupView() {
@@ -198,11 +262,8 @@ private extension UserWalletSettingsViewModel {
             )
         }
 
-        if userWalletModel.config.hasFeature(.multiCurrency) {
-            manageTokensViewModel = .init(
-                title: Localization.mainManageTokens,
-                action: weakify(self, forFunction: UserWalletSettingsViewModel.openManageTokens)
-            )
+        if shouldShowManageTokens(accountRows: accountsViewModel?.accountRows) {
+            manageTokensViewModel = makeManageTokensRowViewModel()
         }
 
         if userWalletModel.config.hasFeature(.cardSettings) {
@@ -255,19 +316,33 @@ private extension UserWalletSettingsViewModel {
         }
     }
 
+    func setupAccountsViewModel() {
+        let accountModelsManager = userWalletModel.accountModelsManager
+
+        guard FeatureProvider.isAvailable(.accounts), accountModelsManager.canAddCryptoAccounts else {
+            return
+        }
+
+        accountsViewModel = UserSettingsAccountsViewModel(
+            accountModelsManager: accountModelsManager,
+            userWalletConfig: userWalletModel.config,
+            coordinator: coordinator
+        )
+    }
+
     func setupMobileViewModels() {
         mobileSettingsUtil.walletSettings.forEach { setting in
             switch setting {
             case .setAccessCode:
                 mobileAccessCodeViewModel = DefaultRowViewModel(
                     title: Localization.walletSettingsSetAccessCodeTitle,
-                    action: weakify(self, forFunction: UserWalletSettingsViewModel.mobileAccessCodeAction)
+                    action: weakify(self, forFunction: UserWalletSettingsViewModel.mobileAccessCodeTap)
                 )
 
             case .changeAccessCode:
                 mobileAccessCodeViewModel = DefaultRowViewModel(
                     title: Localization.walletSettingsChangeAccessCodeTitle,
-                    action: weakify(self, forFunction: UserWalletSettingsViewModel.mobileAccessCodeAction)
+                    action: weakify(self, forFunction: UserWalletSettingsViewModel.mobileAccessCodeTap)
                 )
 
             case .backup(let needsBackup):
@@ -331,10 +406,12 @@ private extension UserWalletSettingsViewModel {
         setupView()
     }
 
-    func mobileAccessCodeAction() {
-        let hasAccessCode = userWalletModel.config.userWalletAccessCodeStatus.hasAccessCode
-        logMobileAccessCodeTapAnalytics(hasAccessCode: hasAccessCode)
+    func mobileAccessCodeTap() {
+        logMobileAccessCodeTapAnalytics()
+        mobileAccessCodeAction()
+    }
 
+    func mobileAccessCodeAction() {
         runTask(in: self) { viewModel in
             let state = await viewModel.mobileSettingsUtil.calculateAccessCodeState()
 
@@ -370,7 +447,7 @@ private extension UserWalletSettingsViewModel {
             }
         )
 
-        confirmationDialog = ConfirmationDialogViewModel(
+        forgetWalletConfirmationDialog = ConfirmationDialogViewModel(
             title: Localization.userWalletListDeletePrompt,
             buttons: [
                 deleteButton,
@@ -380,7 +457,6 @@ private extension UserWalletSettingsViewModel {
     }
 
     func didTapRemoveMobileWallet() {
-        logMobileBackupNeededAnalytics(action: .remove)
         coordinator?.openMobileRemoveWalletNotification(userWalletModel: userWalletModel)
     }
 
@@ -391,6 +467,14 @@ private extension UserWalletSettingsViewModel {
 
     func showErrorAlert(error: Error) {
         alert = AlertBuilder.makeOkErrorAlert(message: error.localizedDescription)
+    }
+
+    func makeManageTokensRowViewModel() -> DefaultRowViewModel {
+        DefaultRowViewModel(
+            title: Localization.mainManageTokens,
+            accessibilityIdentifier: CardSettingsAccessibilityIdentifiers.manageTokensButton,
+            action: weakify(self, forFunction: UserWalletSettingsViewModel.openManageTokens)
+        )
     }
 
     func displayEnablePushSettingsAlert() {
@@ -471,15 +555,16 @@ private extension UserWalletSettingsViewModel {
         }
 
         // accounts_fixes_needed_none
-        let workMode: ReferralViewModel.WorkMode = FeatureProvider.isAvailable(.accounts) ?
-            .accounts(userWalletModel.accountModelsManager) :
-            .plainUserTokensManager(userWalletModel.userTokensManager)
+        let workMode: ReferralViewModel.WorkMode = FeatureProvider.isAvailable(.accounts)
+            ? .accounts(userWalletModel.accountModelsManager)
+            : .plainUserTokensManager(userWalletModel.userTokensManager)
 
         let input = ReferralInputModel(
             userWalletId: userWalletModel.userWalletId.value,
             supportedBlockchains: userWalletModel.config.supportedBlockchains,
             workMode: workMode,
-            tokenIconInfoBuilder: TokenIconInfoBuilder()
+            tokenIconInfoBuilder: TokenIconInfoBuilder(),
+            userWalletModel: userWalletModel
         )
 
         coordinator?.openReferral(input: input)
@@ -515,7 +600,6 @@ private extension UserWalletSettingsViewModel {
 
     @MainActor
     func openMobileBackupToUpgradeNeeded() {
-        logMobileBackupNeededAnalytics(action: .upgrade)
         coordinator?.openMobileBackupToUpgradeNeeded(
             onBackupRequested: weakify(self, forFunction: UserWalletSettingsViewModel.openBackupMobileWallet)
         )
@@ -529,6 +613,11 @@ private extension UserWalletSettingsViewModel {
             onContinue: weakify(self, forFunction: UserWalletSettingsViewModel.onMobileBackupToUpgradeComplete)
         ))
         coordinator?.openOnboardingModal(with: .mobileInput(input))
+    }
+
+    @MainActor
+    func openMobileUpgrade() {
+        coordinator?.openHardwareBackupTypes(userWalletModel: userWalletModel)
     }
 
     @MainActor
@@ -593,7 +682,8 @@ private extension UserWalletSettingsViewModel {
 
         private func setupDependencies() {
             if FeatureProvider.isAvailable(.accounts) {
-                userWalletModel.accountModelsManager
+                userWalletModel
+                    .accountModelsManager
                     .accountModelsPublisher
                     .receiveOnMain()
                     .sink { [weak self] accountModels in
@@ -610,7 +700,7 @@ private extension UserWalletSettingsViewModel {
         }
 
         private func updateManagersForAccountMode(accountModels: [AccountModel]) {
-            guard let accountModel = accountModels.first else {
+            guard let accountModel = accountModels.firstStandard() else {
                 updateManagers(walletModelsManager: nil, userTokensManager: nil)
                 return
             }
@@ -642,7 +732,17 @@ private extension UserWalletSettingsViewModel {
 
 private extension UserWalletSettingsViewModel {
     func logScreenOpenedAnalytics() {
-        Analytics.log(.walletSettingsScreenOpened, contextParams: analyticsContextParams)
+        var params: [Analytics.ParameterKey: String] = [:]
+
+        if FeatureProvider.isAvailable(.accounts) {
+            params[.accountsCount] = String(userWalletModel.accountModelsManager.accountModels.cryptoAccountsCount)
+        }
+
+        Analytics.log(
+            event: .walletSettingsScreenOpened,
+            params: params,
+            contextParams: analyticsContextParams
+        )
     }
 
     func logMobileBackupNeededAnalytics(action: Analytics.ParameterValue) {
@@ -656,7 +756,8 @@ private extension UserWalletSettingsViewModel {
         )
     }
 
-    func logMobileAccessCodeTapAnalytics(hasAccessCode: Bool) {
+    func logMobileAccessCodeTapAnalytics() {
+        let hasAccessCode = userWalletModel.config.userWalletAccessCodeStatus.hasAccessCode
         Analytics.log(
             .walletSettingsButtonAccessCode,
             params: [.action: hasAccessCode ? .changing : .set],
