@@ -23,6 +23,7 @@ class DefaultTokenItemInfoProvider {
         balanceProvider = walletModel.totalTokenBalanceProvider
         fiatBalanceProvider = walletModel.fiatTotalTokenBalanceProvider
         yieldModuleManager = walletModel.yieldModuleManager
+        AppLogger.debug("[YieldModule] DefaultTokenItemInfoProvider init for \(walletModel.tokenItem.name), yieldModuleManager=\(yieldModuleManager != nil ? "exists" : "nil")")
     }
 }
 
@@ -106,7 +107,11 @@ extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
 private extension DefaultTokenItemInfoProvider {
     var yieldModuleStatePublisher: AnyPublisher<YieldModuleManagerStateInfo?, Never> {
         if let manager = yieldModuleManager {
-            manager.statePublisher
+            AppLogger.debug("[YieldModule] \(walletModel.tokenItem.name) yieldModuleStatePublisher accessed, manager exists")
+            return manager.statePublisher
+                .handleEvents(receiveOutput: { stateInfo in
+                    AppLogger.debug("[YieldModule] \(self.walletModel.tokenItem.name) statePublisher emitted: \(String(describing: stateInfo?.state))")
+                })
                 .filter { stateInfo in
                     switch stateInfo?.state {
                     case .none:
@@ -121,7 +126,8 @@ private extension DefaultTokenItemInfoProvider {
                 }
                 .eraseToAnyPublisher()
         } else {
-            Just(.none).eraseToAnyPublisher()
+            AppLogger.debug("[YieldModule] \(walletModel.tokenItem.name) yieldModuleStatePublisher accessed, manager is nil")
+            return Just(.none).eraseToAnyPublisher()
         }
     }
 }
