@@ -51,7 +51,7 @@ struct ExpandedAccountItemHeaderView: View {
     }
 
     var body: some View {
-        HStack(spacing: 6) {
+        HStack(alignment: .firstTextBaseline, spacing: 6) {
             AccountInlineHeaderView(
                 iconData: iconData.applyingLetterConfig(AccountItemConstants.letterConfig),
                 name: name
@@ -96,14 +96,18 @@ struct ExpandedAccountItemHeaderView: View {
 
     @ViewBuilder
     private var balanceView: some View {
-        if totalFiatBalance.isLoaded {
+        if shouldShowBalance {
             LoadableTokenBalanceView(
                 state: totalFiatBalance,
-                style: .init(font: Fonts.Bold.subheadline, textColor: Colors.Text.tertiary),
+                style: .init(font: .Tangem.caption1Medium, textColor: .Tangem.Text.Neutral.tertiary),
                 loader: .init(size: .init(width: 40, height: 12))
             )
             .matchedGeometryEffect(balanceGeometryEffect)
         }
+    }
+
+    private var shouldShowBalance: Bool {
+        totalFiatBalance.isLoaded && totalFiatBalance != .empty
     }
 
     private var alignmentPoint: some View {
