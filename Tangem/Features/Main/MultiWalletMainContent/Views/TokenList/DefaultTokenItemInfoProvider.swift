@@ -23,7 +23,7 @@ class DefaultTokenItemInfoProvider {
         balanceProvider = walletModel.totalTokenBalanceProvider
         fiatBalanceProvider = walletModel.fiatTotalTokenBalanceProvider
         yieldModuleManager = walletModel.yieldModuleManager
-        AppLogger.debug("[YieldModule] DefaultTokenItemInfoProvider init for \(walletModel.tokenItem.name), yieldModuleManager=\(yieldModuleManager != nil ? "exists" : "nil")")
+//        AppLogger.debug("[YieldModule] DefaultTokenItemInfoProvider init for \(walletModel.tokenItem.name), yieldModuleManager=\(yieldModuleManager != nil ? "exists" : "nil")")
     }
 }
 
@@ -107,11 +107,11 @@ extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
 private extension DefaultTokenItemInfoProvider {
     var yieldModuleStatePublisher: AnyPublisher<YieldModuleManagerStateInfo?, Never> {
         if let manager = yieldModuleManager {
-            AppLogger.debug("[YieldModule] \(walletModel.tokenItem.name) yieldModuleStatePublisher accessed, manager exists")
+//            AppLogger.debug("[YieldModule] \(walletModel.tokenItem.name) yieldModuleStatePublisher accessed, manager exists")
             return manager.statePublisher
-                .handleEvents(receiveOutput: { stateInfo in
-                    AppLogger.debug("[YieldModule] \(self.walletModel.tokenItem.name) statePublisher emitted: \(String(describing: stateInfo?.state))")
-                })
+//                .handleEvents(receiveOutput: { stateInfo in
+//                    AppLogger.debug("[YieldModule] \(self.walletModel.tokenItem.name) statePublisher emitted: state=\(String(describing: stateInfo?.state)), marketInfo=\(stateInfo?.marketInfo != nil ? "exists (apy=\(stateInfo?.marketInfo?.apy ?? 0), isActive=\(stateInfo?.marketInfo?.isActive ?? false))" : "nil")")
+//                })
                 .filter { stateInfo in
                     switch stateInfo?.state {
                     case .none:
@@ -126,7 +126,7 @@ private extension DefaultTokenItemInfoProvider {
                 }
                 .eraseToAnyPublisher()
         } else {
-            AppLogger.debug("[YieldModule] \(walletModel.tokenItem.name) yieldModuleStatePublisher accessed, manager is nil")
+//            AppLogger.debug("[YieldModule] \(walletModel.tokenItem.name) yieldModuleStatePublisher accessed, manager is nil")
             return Just(.none).eraseToAnyPublisher()
         }
     }
