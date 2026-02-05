@@ -45,8 +45,8 @@ final class EarnDetailViewModel: ObservableObject {
     // MARK: - Private Properties
 
     private let filterProvider: EarnDataFilterProvider
+    private let dataProvider: EarnDataProvider
 
-    private let dataProvider = EarnDataProvider()
     private weak var coordinator: EarnDetailRoutable?
 
     private var userWalletModels: [UserWalletModel] {
@@ -58,11 +58,13 @@ final class EarnDetailViewModel: ObservableObject {
     // MARK: - Init
 
     init(
+        dataProvider: EarnDataProvider,
         filterProvider: EarnDataFilterProvider,
         mostlyUsedTokens: [EarnTokenModel],
 
         coordinator: EarnDetailRoutable? = nil
     ) {
+        self.dataProvider = dataProvider
         self.filterProvider = filterProvider
         self.coordinator = coordinator
 

@@ -595,32 +595,31 @@
 		2D96E9832E55D25300B69F91 /* AvailabilityReceiveFlowFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D96E92E2E55D25300B69F91 /* AvailabilityReceiveFlowFactory.swift */; };
 		2D96E9862E55D37500B69F91 /* ReceiveAddressTypeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D96E9852E55D37500B69F91 /* ReceiveAddressTypeProvider.swift */; };
 		2D9DCB3C2F31F59700C86A9E /* MarketsMainTokenDetailsCoordinatorFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DCB3B2F31F59600C86A9E /* MarketsMainTokenDetailsCoordinatorFactory.swift */; };
-		2D9DCE962F333C1100C86A9E /* EarnDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DCE842F333C1100C86A9E /* EarnDetailViewModel.swift */; };
-		2D9DCE972F333C1100C86A9E /* EarnTypeFilterBottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DCE892F333C1100C86A9E /* EarnTypeFilterBottomSheetView.swift */; };
-		2D9DCE982F333C1100C86A9E /* EarnBestOpportunitiesListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DCE7D2F333C1100C86A9E /* EarnBestOpportunitiesListView.swift */; };
-		2D9DCE992F333C1100C86A9E /* EarnAddTokenFlowConfigurationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DCE762F333C1100C86A9E /* EarnAddTokenFlowConfigurationFactory.swift */; };
-		2D9DCE9A2F333C1100C86A9E /* EarnDetailHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DCE7E2F333C1100C86A9E /* EarnDetailHeaderView.swift */; };
-		2D9DCE9B2F333C1100C86A9E /* EarnDataProvider+Filter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DCE942F333C1100C86A9E /* EarnDataProvider+Filter.swift */; };
-		2D9DCE9C2F333C1100C86A9E /* EarnNetworkInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DCE902F333C1100C86A9E /* EarnNetworkInfo.swift */; };
-		2D9DCE9D2F333C1100C86A9E /* EarnNetworkFilterBottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DCE862F333C1100C86A9E /* EarnNetworkFilterBottomSheetView.swift */; };
-		2D9DCE9E2F333C1100C86A9E /* EarnFilterType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DCE8D2F333C1100C86A9E /* EarnFilterType.swift */; };
-		2D9DCE9F2F333C1100C86A9E /* EarnAddTokenRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DCE772F333C1100C86A9E /* EarnAddTokenRoutable.swift */; };
-		2D9DCEA02F333C1100C86A9E /* EarnModelMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DCE8E2F333C1100C86A9E /* EarnModelMapper.swift */; };
-		2D9DCEA12F333C1100C86A9E /* EarnDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DCE8C2F333C1100C86A9E /* EarnDTO.swift */; };
-		2D9DCEA22F333C1100C86A9E /* EarnDetailRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DCE7B2F333C1100C86A9E /* EarnDetailRoutable.swift */; };
-		2D9DCEA32F333C1100C86A9E /* EarnNetworkFilterType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DCE8F2F333C1100C86A9E /* EarnNetworkFilterType.swift */; };
-		2D9DCEA42F333C1100C86A9E /* EarnNetworkFilterNetworkRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DCE882F333C1100C86A9E /* EarnNetworkFilterNetworkRowView.swift */; };
-		2D9DCEA52F333C1100C86A9E /* EarnMostlyUsedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DCE812F333C1100C86A9E /* EarnMostlyUsedView.swift */; };
-		2D9DCEA62F333C1100C86A9E /* EarnDataFilterProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DCE922F333C1100C86A9E /* EarnDataFilterProvider.swift */; };
-		2D9DCEA72F333C1100C86A9E /* EarnDetailCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DCE7A2F333C1100C86A9E /* EarnDetailCoordinatorView.swift */; };
-		2D9DCEA82F333C1100C86A9E /* EarnNetworkFilterBottomSheetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DCE872F333C1100C86A9E /* EarnNetworkFilterBottomSheetViewModel.swift */; };
-		2D9DCEA92F333C1100C86A9E /* EarnFilterHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DCE7F2F333C1100C86A9E /* EarnFilterHeaderView.swift */; };
-		2D9DCEAA2F333C1100C86A9E /* EarnTypeFilterBottomSheetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DCE8A2F333C1100C86A9E /* EarnTypeFilterBottomSheetViewModel.swift */; };
-		2D9DCEAB2F333C1100C86A9E /* EarnDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DCE932F333C1100C86A9E /* EarnDataProvider.swift */; };
-		2D9DCEAC2F333C1100C86A9E /* EarnDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DCE832F333C1100C86A9E /* EarnDetailView.swift */; };
-		2D9DCEAD2F333C1100C86A9E /* EarnCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DCE792F333C1100C86A9E /* EarnCoordinator.swift */; };
-		2D9DCEAE2F333C1100C86A9E /* EarnMostlyUsedTileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DCE802F333C1100C86A9E /* EarnMostlyUsedTileView.swift */; };
-		2D9DCEB02F333E8800C86A9E /* earnNetworks.json in Resources */ = {isa = PBXBuildFile; fileRef = 2D9DCEAF2F333E8800C86A9E /* earnNetworks.json */; };
+		2D9DD1062F33B96000C86A9E /* EarnDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DD0EF2F33B96000C86A9E /* EarnDetailViewModel.swift */; };
+		2D9DD1072F33B96000C86A9E /* EarnNetworkFilterBottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DD0F12F33B96000C86A9E /* EarnNetworkFilterBottomSheetView.swift */; };
+		2D9DD1082F33B96000C86A9E /* EarnNetworkFilterBottomSheetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DD0F22F33B96000C86A9E /* EarnNetworkFilterBottomSheetViewModel.swift */; };
+		2D9DD1092F33B96000C86A9E /* EarnDetailHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DD0E92F33B96000C86A9E /* EarnDetailHeaderView.swift */; };
+		2D9DD10A2F33B96000C86A9E /* EarnFilterHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DD0EA2F33B96000C86A9E /* EarnFilterHeaderView.swift */; };
+		2D9DD10B2F33B96000C86A9E /* EarnTypeFilterBottomSheetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DD0F52F33B96000C86A9E /* EarnTypeFilterBottomSheetViewModel.swift */; };
+		2D9DD10C2F33B96000C86A9E /* EarnDataProvider+Filter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DD1012F33B96000C86A9E /* EarnDataProvider+Filter.swift */; };
+		2D9DD10D2F33B96000C86A9E /* EarnFilterType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DD0F82F33B96000C86A9E /* EarnFilterType.swift */; };
+		2D9DD10E2F33B96000C86A9E /* EarnDetailRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DD0E62F33B96000C86A9E /* EarnDetailRoutable.swift */; };
+		2D9DD10F2F33B96000C86A9E /* EarnAddTokenFlowConfigurationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DD0E12F33B96000C86A9E /* EarnAddTokenFlowConfigurationFactory.swift */; };
+		2D9DD1102F33B96000C86A9E /* EarnNetworkFilterType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DD0FA2F33B96000C86A9E /* EarnNetworkFilterType.swift */; };
+		2D9DD1122F33B96000C86A9E /* EarnCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DD0E42F33B96000C86A9E /* EarnCoordinator.swift */; };
+		2D9DD1132F33B96000C86A9E /* EarnAddTokenRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DD0E22F33B96000C86A9E /* EarnAddTokenRoutable.swift */; };
+		2D9DD1142F33B96000C86A9E /* EarnModelMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DD0F92F33B96000C86A9E /* EarnModelMapper.swift */; };
+		2D9DD1152F33B96000C86A9E /* EarnMostlyUsedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DD0EC2F33B96000C86A9E /* EarnMostlyUsedView.swift */; };
+		2D9DD1162F33B96000C86A9E /* EarnTypeFilterBottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DD0F42F33B96000C86A9E /* EarnTypeFilterBottomSheetView.swift */; };
+		2D9DD1172F33B96000C86A9E /* EarnNetworkFilterNetworkRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DD0F32F33B96000C86A9E /* EarnNetworkFilterNetworkRowView.swift */; };
+		2D9DD1182F33B96000C86A9E /* EarnDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DD1002F33B96000C86A9E /* EarnDataProvider.swift */; };
+		2D9DD1192F33B96000C86A9E /* EarnDetailCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DD0E52F33B96000C86A9E /* EarnDetailCoordinatorView.swift */; };
+		2D9DD11B2F33B96000C86A9E /* EarnNetworkInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DD0FB2F33B96000C86A9E /* EarnNetworkInfo.swift */; };
+		2D9DD11C2F33B96000C86A9E /* EarnDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DD0F72F33B96000C86A9E /* EarnDTO.swift */; };
+		2D9DD11D2F33B96000C86A9E /* EarnDataFilterProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DD0FF2F33B96000C86A9E /* EarnDataFilterProvider.swift */; };
+		2D9DD11E2F33B96000C86A9E /* EarnBestOpportunitiesListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DD0E82F33B96000C86A9E /* EarnBestOpportunitiesListView.swift */; };
+		2D9DD1202F33B96000C86A9E /* EarnMostlyUsedTileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DD0EB2F33B96000C86A9E /* EarnMostlyUsedTileView.swift */; };
+		2D9DD1212F33B96000C86A9E /* EarnDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9DD0EE2F33B96000C86A9E /* EarnDetailView.swift */; };
 		2D9FAB932E13E118005AE305 /* EthereumAddressResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9FAB902E13E118005AE305 /* EthereumAddressResolver.swift */; };
 		2D9FAB942E13E118005AE305 /* EthereumAddressUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9FAB912E13E118005AE305 /* EthereumAddressUtils.swift */; };
 		2D9FAB952E13E118005AE305 /* EVMAddressService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9FAB922E13E118005AE305 /* EVMAddressService.swift */; };
@@ -5479,32 +5478,31 @@
 		2D96E95D2E55D25300B69F91 /* ReceiveMainViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveMainViewModel.swift; sourceTree = "<group>"; };
 		2D96E9852E55D37500B69F91 /* ReceiveAddressTypeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveAddressTypeProvider.swift; sourceTree = "<group>"; };
 		2D9DCB3B2F31F59600C86A9E /* MarketsMainTokenDetailsCoordinatorFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsMainTokenDetailsCoordinatorFactory.swift; sourceTree = "<group>"; };
-		2D9DCE762F333C1100C86A9E /* EarnAddTokenFlowConfigurationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnAddTokenFlowConfigurationFactory.swift; sourceTree = "<group>"; };
-		2D9DCE772F333C1100C86A9E /* EarnAddTokenRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnAddTokenRoutable.swift; sourceTree = "<group>"; };
-		2D9DCE792F333C1100C86A9E /* EarnCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnCoordinator.swift; sourceTree = "<group>"; };
-		2D9DCE7A2F333C1100C86A9E /* EarnDetailCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnDetailCoordinatorView.swift; sourceTree = "<group>"; };
-		2D9DCE7B2F333C1100C86A9E /* EarnDetailRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnDetailRoutable.swift; sourceTree = "<group>"; };
-		2D9DCE7D2F333C1100C86A9E /* EarnBestOpportunitiesListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnBestOpportunitiesListView.swift; sourceTree = "<group>"; };
-		2D9DCE7E2F333C1100C86A9E /* EarnDetailHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnDetailHeaderView.swift; sourceTree = "<group>"; };
-		2D9DCE7F2F333C1100C86A9E /* EarnFilterHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnFilterHeaderView.swift; sourceTree = "<group>"; };
-		2D9DCE802F333C1100C86A9E /* EarnMostlyUsedTileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnMostlyUsedTileView.swift; sourceTree = "<group>"; };
-		2D9DCE812F333C1100C86A9E /* EarnMostlyUsedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnMostlyUsedView.swift; sourceTree = "<group>"; };
-		2D9DCE832F333C1100C86A9E /* EarnDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnDetailView.swift; sourceTree = "<group>"; };
-		2D9DCE842F333C1100C86A9E /* EarnDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnDetailViewModel.swift; sourceTree = "<group>"; };
-		2D9DCE862F333C1100C86A9E /* EarnNetworkFilterBottomSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnNetworkFilterBottomSheetView.swift; sourceTree = "<group>"; };
-		2D9DCE872F333C1100C86A9E /* EarnNetworkFilterBottomSheetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnNetworkFilterBottomSheetViewModel.swift; sourceTree = "<group>"; };
-		2D9DCE882F333C1100C86A9E /* EarnNetworkFilterNetworkRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnNetworkFilterNetworkRowView.swift; sourceTree = "<group>"; };
-		2D9DCE892F333C1100C86A9E /* EarnTypeFilterBottomSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnTypeFilterBottomSheetView.swift; sourceTree = "<group>"; };
-		2D9DCE8A2F333C1100C86A9E /* EarnTypeFilterBottomSheetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnTypeFilterBottomSheetViewModel.swift; sourceTree = "<group>"; };
-		2D9DCE8C2F333C1100C86A9E /* EarnDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnDTO.swift; sourceTree = "<group>"; };
-		2D9DCE8D2F333C1100C86A9E /* EarnFilterType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnFilterType.swift; sourceTree = "<group>"; };
-		2D9DCE8E2F333C1100C86A9E /* EarnModelMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnModelMapper.swift; sourceTree = "<group>"; };
-		2D9DCE8F2F333C1100C86A9E /* EarnNetworkFilterType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnNetworkFilterType.swift; sourceTree = "<group>"; };
-		2D9DCE902F333C1100C86A9E /* EarnNetworkInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnNetworkInfo.swift; sourceTree = "<group>"; };
-		2D9DCE922F333C1100C86A9E /* EarnDataFilterProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnDataFilterProvider.swift; sourceTree = "<group>"; };
-		2D9DCE932F333C1100C86A9E /* EarnDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnDataProvider.swift; sourceTree = "<group>"; };
-		2D9DCE942F333C1100C86A9E /* EarnDataProvider+Filter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EarnDataProvider+Filter.swift"; sourceTree = "<group>"; };
-		2D9DCEAF2F333E8800C86A9E /* earnNetworks.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = earnNetworks.json; sourceTree = "<group>"; };
+		2D9DD0E12F33B96000C86A9E /* EarnAddTokenFlowConfigurationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnAddTokenFlowConfigurationFactory.swift; sourceTree = "<group>"; };
+		2D9DD0E22F33B96000C86A9E /* EarnAddTokenRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnAddTokenRoutable.swift; sourceTree = "<group>"; };
+		2D9DD0E42F33B96000C86A9E /* EarnCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnCoordinator.swift; sourceTree = "<group>"; };
+		2D9DD0E52F33B96000C86A9E /* EarnDetailCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnDetailCoordinatorView.swift; sourceTree = "<group>"; };
+		2D9DD0E62F33B96000C86A9E /* EarnDetailRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnDetailRoutable.swift; sourceTree = "<group>"; };
+		2D9DD0E82F33B96000C86A9E /* EarnBestOpportunitiesListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnBestOpportunitiesListView.swift; sourceTree = "<group>"; };
+		2D9DD0E92F33B96000C86A9E /* EarnDetailHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnDetailHeaderView.swift; sourceTree = "<group>"; };
+		2D9DD0EA2F33B96000C86A9E /* EarnFilterHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnFilterHeaderView.swift; sourceTree = "<group>"; };
+		2D9DD0EB2F33B96000C86A9E /* EarnMostlyUsedTileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnMostlyUsedTileView.swift; sourceTree = "<group>"; };
+		2D9DD0EC2F33B96000C86A9E /* EarnMostlyUsedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnMostlyUsedView.swift; sourceTree = "<group>"; };
+		2D9DD0EE2F33B96000C86A9E /* EarnDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnDetailView.swift; sourceTree = "<group>"; };
+		2D9DD0EF2F33B96000C86A9E /* EarnDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnDetailViewModel.swift; sourceTree = "<group>"; };
+		2D9DD0F12F33B96000C86A9E /* EarnNetworkFilterBottomSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnNetworkFilterBottomSheetView.swift; sourceTree = "<group>"; };
+		2D9DD0F22F33B96000C86A9E /* EarnNetworkFilterBottomSheetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnNetworkFilterBottomSheetViewModel.swift; sourceTree = "<group>"; };
+		2D9DD0F32F33B96000C86A9E /* EarnNetworkFilterNetworkRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnNetworkFilterNetworkRowView.swift; sourceTree = "<group>"; };
+		2D9DD0F42F33B96000C86A9E /* EarnTypeFilterBottomSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnTypeFilterBottomSheetView.swift; sourceTree = "<group>"; };
+		2D9DD0F52F33B96000C86A9E /* EarnTypeFilterBottomSheetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnTypeFilterBottomSheetViewModel.swift; sourceTree = "<group>"; };
+		2D9DD0F72F33B96000C86A9E /* EarnDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnDTO.swift; sourceTree = "<group>"; };
+		2D9DD0F82F33B96000C86A9E /* EarnFilterType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnFilterType.swift; sourceTree = "<group>"; };
+		2D9DD0F92F33B96000C86A9E /* EarnModelMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnModelMapper.swift; sourceTree = "<group>"; };
+		2D9DD0FA2F33B96000C86A9E /* EarnNetworkFilterType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnNetworkFilterType.swift; sourceTree = "<group>"; };
+		2D9DD0FB2F33B96000C86A9E /* EarnNetworkInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnNetworkInfo.swift; sourceTree = "<group>"; };
+		2D9DD0FF2F33B96000C86A9E /* EarnDataFilterProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnDataFilterProvider.swift; sourceTree = "<group>"; };
+		2D9DD1002F33B96000C86A9E /* EarnDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarnDataProvider.swift; sourceTree = "<group>"; };
+		2D9DD1012F33B96000C86A9E /* EarnDataProvider+Filter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EarnDataProvider+Filter.swift"; sourceTree = "<group>"; };
 		2D9FAB902E13E118005AE305 /* EthereumAddressResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumAddressResolver.swift; sourceTree = "<group>"; };
 		2D9FAB912E13E118005AE305 /* EthereumAddressUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumAddressUtils.swift; sourceTree = "<group>"; };
 		2D9FAB922E13E118005AE305 /* EVMAddressService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EVMAddressService.swift; sourceTree = "<group>"; };
@@ -11343,77 +11341,77 @@
 			path = UI;
 			sourceTree = "<group>";
 		};
-		2D9DCE782F333C1100C86A9E /* AccountWithNetworkSelector */ = {
+		2D9DD0E32F33B96000C86A9E /* AccountWithNetworkSelector */ = {
 			isa = PBXGroup;
 			children = (
-				2D9DCE762F333C1100C86A9E /* EarnAddTokenFlowConfigurationFactory.swift */,
-				2D9DCE772F333C1100C86A9E /* EarnAddTokenRoutable.swift */,
+				2D9DD0E12F33B96000C86A9E /* EarnAddTokenFlowConfigurationFactory.swift */,
+				2D9DD0E22F33B96000C86A9E /* EarnAddTokenRoutable.swift */,
 			);
 			path = AccountWithNetworkSelector;
 			sourceTree = "<group>";
 		};
-		2D9DCE7C2F333C1100C86A9E /* Coordinator */ = {
+		2D9DD0E72F33B96000C86A9E /* Coordinator */ = {
 			isa = PBXGroup;
 			children = (
-				2D9DCE792F333C1100C86A9E /* EarnCoordinator.swift */,
-				2D9DCE7A2F333C1100C86A9E /* EarnDetailCoordinatorView.swift */,
-				2D9DCE7B2F333C1100C86A9E /* EarnDetailRoutable.swift */,
+				2D9DD0E42F33B96000C86A9E /* EarnCoordinator.swift */,
+				2D9DD0E52F33B96000C86A9E /* EarnDetailCoordinatorView.swift */,
 			);
 			path = Coordinator;
 			sourceTree = "<group>";
 		};
-		2D9DCE822F333C1100C86A9E /* Components */ = {
+		2D9DD0ED2F33B96000C86A9E /* Components */ = {
 			isa = PBXGroup;
 			children = (
-				2D9DCE7D2F333C1100C86A9E /* EarnBestOpportunitiesListView.swift */,
-				2D9DCE7E2F333C1100C86A9E /* EarnDetailHeaderView.swift */,
-				2D9DCE7F2F333C1100C86A9E /* EarnFilterHeaderView.swift */,
-				2D9DCE802F333C1100C86A9E /* EarnMostlyUsedTileView.swift */,
-				2D9DCE812F333C1100C86A9E /* EarnMostlyUsedView.swift */,
+				2D9DD0E82F33B96000C86A9E /* EarnBestOpportunitiesListView.swift */,
+				2D9DD0E92F33B96000C86A9E /* EarnDetailHeaderView.swift */,
+				2D9DD0EA2F33B96000C86A9E /* EarnFilterHeaderView.swift */,
+				2D9DD0EB2F33B96000C86A9E /* EarnMostlyUsedTileView.swift */,
+				2D9DD0EC2F33B96000C86A9E /* EarnMostlyUsedView.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
 		};
-		2D9DCE852F333C1100C86A9E /* Detail */ = {
+		2D9DD0F02F33B96000C86A9E /* Detail */ = {
 			isa = PBXGroup;
 			children = (
-				2D9DCE822F333C1100C86A9E /* Components */,
-				2D9DCE832F333C1100C86A9E /* EarnDetailView.swift */,
-				2D9DCE842F333C1100C86A9E /* EarnDetailViewModel.swift */,
+				2D9DD0E62F33B96000C86A9E /* EarnDetailRoutable.swift */,
+				2D9DD0EE2F33B96000C86A9E /* EarnDetailView.swift */,
+				2D9DD0EF2F33B96000C86A9E /* EarnDetailViewModel.swift */,
+				2D9DD0ED2F33B96000C86A9E /* Components */,
 			);
 			path = Detail;
 			sourceTree = "<group>";
 		};
-		2D9DCE8B2F333C1100C86A9E /* FilterBottomSheet */ = {
+		2D9DD0F62F33B96000C86A9E /* FilterBottomSheet */ = {
 			isa = PBXGroup;
 			children = (
-				2D9DCE862F333C1100C86A9E /* EarnNetworkFilterBottomSheetView.swift */,
-				2D9DCE872F333C1100C86A9E /* EarnNetworkFilterBottomSheetViewModel.swift */,
-				2D9DCE882F333C1100C86A9E /* EarnNetworkFilterNetworkRowView.swift */,
-				2D9DCE892F333C1100C86A9E /* EarnTypeFilterBottomSheetView.swift */,
-				2D9DCE8A2F333C1100C86A9E /* EarnTypeFilterBottomSheetViewModel.swift */,
+				2D9DD0F12F33B96000C86A9E /* EarnNetworkFilterBottomSheetView.swift */,
+				2D9DD0F22F33B96000C86A9E /* EarnNetworkFilterBottomSheetViewModel.swift */,
+				2D9DD0F32F33B96000C86A9E /* EarnNetworkFilterNetworkRowView.swift */,
+				2D9DD0F42F33B96000C86A9E /* EarnTypeFilterBottomSheetView.swift */,
+				2D9DD0F52F33B96000C86A9E /* EarnTypeFilterBottomSheetViewModel.swift */,
 			);
 			path = FilterBottomSheet;
 			sourceTree = "<group>";
 		};
-		2D9DCE912F333C1100C86A9E /* Model */ = {
+		2D9DD0FC2F33B96000C86A9E /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				2D9DCE8C2F333C1100C86A9E /* EarnDTO.swift */,
-				2D9DCE8D2F333C1100C86A9E /* EarnFilterType.swift */,
-				2D9DCE8E2F333C1100C86A9E /* EarnModelMapper.swift */,
-				2D9DCE8F2F333C1100C86A9E /* EarnNetworkFilterType.swift */,
-				2D9DCE902F333C1100C86A9E /* EarnNetworkInfo.swift */,
+				2D9DD0F72F33B96000C86A9E /* EarnDTO.swift */,
+				2D9DD0F82F33B96000C86A9E /* EarnFilterType.swift */,
+				2D9DD0F92F33B96000C86A9E /* EarnModelMapper.swift */,
+				2D9DD0FA2F33B96000C86A9E /* EarnNetworkFilterType.swift */,
+				2D9DD0FB2F33B96000C86A9E /* EarnNetworkInfo.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
 		};
-		2D9DCE952F333C1100C86A9E /* Services */ = {
+		2D9DD1022F33B96000C86A9E /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				2D9DCE922F333C1100C86A9E /* EarnDataFilterProvider.swift */,
-				2D9DCE932F333C1100C86A9E /* EarnDataProvider.swift */,
-				2D9DCE942F333C1100C86A9E /* EarnDataProvider+Filter.swift */,
+				2D9DD0FF2F33B96000C86A9E /* EarnDataFilterProvider.swift */,
+				2D9DD1002F33B96000C86A9E /* EarnDataProvider.swift */,
+				2D9DD1012F33B96000C86A9E /* EarnDataProvider+Filter.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -12066,12 +12064,12 @@
 		2DE2A39E2F2A2BB70097CA73 /* Earn */ = {
 			isa = PBXGroup;
 			children = (
-				2D9DCE782F333C1100C86A9E /* AccountWithNetworkSelector */,
-				2D9DCE7C2F333C1100C86A9E /* Coordinator */,
-				2D9DCE852F333C1100C86A9E /* Detail */,
-				2D9DCE8B2F333C1100C86A9E /* FilterBottomSheet */,
-				2D9DCE912F333C1100C86A9E /* Model */,
-				2D9DCE952F333C1100C86A9E /* Services */,
+				2D9DD0E32F33B96000C86A9E /* AccountWithNetworkSelector */,
+				2D9DD0E72F33B96000C86A9E /* Coordinator */,
+				2D9DD0F02F33B96000C86A9E /* Detail */,
+				2D9DD0F62F33B96000C86A9E /* FilterBottomSheet */,
+				2D9DD0FC2F33B96000C86A9E /* Model */,
+				2D9DD1022F33B96000C86A9E /* Services */,
 			);
 			path = Earn;
 			sourceTree = "<group>";
@@ -14909,7 +14907,6 @@
 			children = (
 				2D91AD7A2EFEBD710022503F /* coinsListResponse.json */,
 				B098F3A12C04B5D300F79989 /* coinsResponse.json */,
-				2D9DCEAF2F333E8800C86A9E /* earnNetworks.json */,
 				2DE2A3B72F2A2D5A0097CA73 /* earnTokens.json */,
 				2D91AD7B2EFEBD710022503F /* trendingNews.json */,
 				B0FB4EF92A8511DA0057F4C2 /* walletUserWalletList.json */,
@@ -26779,7 +26776,6 @@
 				DC0132A1299A7B8E00B95145 /* referralMock.json in Resources */,
 				DC01329E299A786700B95145 /* testnet_tokens.json in Resources */,
 				D863E7A22E68A60500912D52 /* shibaNoBackup.json in Resources */,
-				2D9DCEB02F333E8800C86A9E /* earnNetworks.json in Resources */,
 				B0FB4EFA2A8512210057F4C2 /* walletUserWalletList.json in Resources */,
 				DC261CA0292CD3B800875E64 /* GoogleService-Info-Alpha.plist in Resources */,
 				2D91AD7C2EFEBD710022503F /* trendingNews.json in Resources */,
@@ -28399,6 +28395,31 @@
 				EF3AE1B92F1B12A40043A8A3 /* CommonTokenFeeProvidersManager.swift in Sources */,
 				DC5E6FDC2C906382008A98D0 /* AppLockController.swift in Sources */,
 				2DB3614B2C14FBAB00BB1D38 /* SegmentedPickerView.swift in Sources */,
+				2D9DD1062F33B96000C86A9E /* EarnDetailViewModel.swift in Sources */,
+				2D9DD1072F33B96000C86A9E /* EarnNetworkFilterBottomSheetView.swift in Sources */,
+				2D9DD1082F33B96000C86A9E /* EarnNetworkFilterBottomSheetViewModel.swift in Sources */,
+				2D9DD1092F33B96000C86A9E /* EarnDetailHeaderView.swift in Sources */,
+				2D9DD10A2F33B96000C86A9E /* EarnFilterHeaderView.swift in Sources */,
+				2D9DD10B2F33B96000C86A9E /* EarnTypeFilterBottomSheetViewModel.swift in Sources */,
+				2D9DD10C2F33B96000C86A9E /* EarnDataProvider+Filter.swift in Sources */,
+				2D9DD10D2F33B96000C86A9E /* EarnFilterType.swift in Sources */,
+				2D9DD10E2F33B96000C86A9E /* EarnDetailRoutable.swift in Sources */,
+				2D9DD10F2F33B96000C86A9E /* EarnAddTokenFlowConfigurationFactory.swift in Sources */,
+				2D9DD1102F33B96000C86A9E /* EarnNetworkFilterType.swift in Sources */,
+				2D9DD1122F33B96000C86A9E /* EarnCoordinator.swift in Sources */,
+				2D9DD1132F33B96000C86A9E /* EarnAddTokenRoutable.swift in Sources */,
+				2D9DD1142F33B96000C86A9E /* EarnModelMapper.swift in Sources */,
+				2D9DD1152F33B96000C86A9E /* EarnMostlyUsedView.swift in Sources */,
+				2D9DD1162F33B96000C86A9E /* EarnTypeFilterBottomSheetView.swift in Sources */,
+				2D9DD1172F33B96000C86A9E /* EarnNetworkFilterNetworkRowView.swift in Sources */,
+				2D9DD1182F33B96000C86A9E /* EarnDataProvider.swift in Sources */,
+				2D9DD1192F33B96000C86A9E /* EarnDetailCoordinatorView.swift in Sources */,
+				2D9DD11B2F33B96000C86A9E /* EarnNetworkInfo.swift in Sources */,
+				2D9DD11C2F33B96000C86A9E /* EarnDTO.swift in Sources */,
+				2D9DD11D2F33B96000C86A9E /* EarnDataFilterProvider.swift in Sources */,
+				2D9DD11E2F33B96000C86A9E /* EarnBestOpportunitiesListView.swift in Sources */,
+				2D9DD1202F33B96000C86A9E /* EarnMostlyUsedTileView.swift in Sources */,
+				2D9DD1212F33B96000C86A9E /* EarnDetailView.swift in Sources */,
 				B6FEC5332E7B88C100280029 /* CryptoAccountsETagStorage+InjectedValues.swift in Sources */,
 				EFB23F2D2CBE7F24005A6719 /* OnrampModel.swift in Sources */,
 				EF9448E12ADFD4F800F4AFAC /* InformationHiddenBalancesViewModel.swift in Sources */,
@@ -29780,31 +29801,6 @@
 				DC28917D2CD920FB00F57F59 /* BuyTokenSelectorStrings.swift in Sources */,
 				0F84C10B2E1299DB00DC7FB1 /* MobileBackupTypesView.swift in Sources */,
 				EF3138B12E43B65D0060FEE6 /* CommonNFTSendStepsManager.swift in Sources */,
-				2D9DCE962F333C1100C86A9E /* EarnDetailViewModel.swift in Sources */,
-				2D9DCE972F333C1100C86A9E /* EarnTypeFilterBottomSheetView.swift in Sources */,
-				2D9DCE982F333C1100C86A9E /* EarnBestOpportunitiesListView.swift in Sources */,
-				2D9DCE992F333C1100C86A9E /* EarnAddTokenFlowConfigurationFactory.swift in Sources */,
-				2D9DCE9A2F333C1100C86A9E /* EarnDetailHeaderView.swift in Sources */,
-				2D9DCE9B2F333C1100C86A9E /* EarnDataProvider+Filter.swift in Sources */,
-				2D9DCE9C2F333C1100C86A9E /* EarnNetworkInfo.swift in Sources */,
-				2D9DCE9D2F333C1100C86A9E /* EarnNetworkFilterBottomSheetView.swift in Sources */,
-				2D9DCE9E2F333C1100C86A9E /* EarnFilterType.swift in Sources */,
-				2D9DCE9F2F333C1100C86A9E /* EarnAddTokenRoutable.swift in Sources */,
-				2D9DCEA02F333C1100C86A9E /* EarnModelMapper.swift in Sources */,
-				2D9DCEA12F333C1100C86A9E /* EarnDTO.swift in Sources */,
-				2D9DCEA22F333C1100C86A9E /* EarnDetailRoutable.swift in Sources */,
-				2D9DCEA32F333C1100C86A9E /* EarnNetworkFilterType.swift in Sources */,
-				2D9DCEA42F333C1100C86A9E /* EarnNetworkFilterNetworkRowView.swift in Sources */,
-				2D9DCEA52F333C1100C86A9E /* EarnMostlyUsedView.swift in Sources */,
-				2D9DCEA62F333C1100C86A9E /* EarnDataFilterProvider.swift in Sources */,
-				2D9DCEA72F333C1100C86A9E /* EarnDetailCoordinatorView.swift in Sources */,
-				2D9DCEA82F333C1100C86A9E /* EarnNetworkFilterBottomSheetViewModel.swift in Sources */,
-				2D9DCEA92F333C1100C86A9E /* EarnFilterHeaderView.swift in Sources */,
-				2D9DCEAA2F333C1100C86A9E /* EarnTypeFilterBottomSheetViewModel.swift in Sources */,
-				2D9DCEAB2F333C1100C86A9E /* EarnDataProvider.swift in Sources */,
-				2D9DCEAC2F333C1100C86A9E /* EarnDetailView.swift in Sources */,
-				2D9DCEAD2F333C1100C86A9E /* EarnCoordinator.swift in Sources */,
-				2D9DCEAE2F333C1100C86A9E /* EarnMostlyUsedTileView.swift in Sources */,
 				EF6883092CF87DA300658644 /* OnrampCountryDetectionCoordinator.swift in Sources */,
 				DA10101D2CDA4D7F00EE0D05 /* OnrampCountryView.swift in Sources */,
 				B6FB04EB2B1FF022000BB59E /* StatusBarStyleConfigurator+Environment.swift in Sources */,
