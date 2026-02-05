@@ -24,9 +24,8 @@ extension NewCryptoAccountConditionsValidator: CryptoAccountConditionsValidator 
             throw .tooManyAccounts
         }
 
-        guard newAccountName.count <= AccountModelUtils.maxAccountNameLength else {
-            AccountsLogger.warning("Account name is too long")
-            throw .accountNameTooLong
+        guard AccountModelUtils.isAccountNameValid(newAccountName) else {
+            throw .invalidAccountName
         }
 
         guard CryptoAccountNameUniquenessChecker(remoteState: remoteState).isNameUnique(newAccountName) else {
