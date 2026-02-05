@@ -177,6 +177,7 @@ extension WalletConnectConnectedDAppDetailsViewModel {
             }
         case .v2(let dAppV2):
             outer: for userWalletModel in userWalletRepository.models where userWalletModel.userWalletId.stringValue == dAppV2.userWalletID {
+                walletName = userWalletModel.name
                 for accountModel in userWalletModel.accountModelsManager.accountModels {
                     switch accountModel {
                     case .standard(.single(let cryptoAccount)):
