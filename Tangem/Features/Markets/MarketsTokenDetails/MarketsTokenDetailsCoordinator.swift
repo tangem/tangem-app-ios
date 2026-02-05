@@ -48,6 +48,10 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     private var presentationStyle: MarketsTokenDetailsPresentationStyle = .marketsSheet
     private var isDeeplinkMode: Bool = false
 
+    var isMarketsSheetFlow: Bool {
+        presentationStyle == .marketsSheet
+    }
+
     // MARK: - Init
 
     required init(
@@ -197,7 +201,7 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
         yieldModuleActiveCoordinator = coordinator
     }
 
-    private func openTokenDetails(walletModel: any WalletModel) {
+    private func openMainTokenDetails(walletModel: any WalletModel) {
         guard let userWalletModel = userWalletRepository.selectedModel else {
             return
         }
@@ -206,36 +210,13 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
             self?.tokenDetailsCoordinator = nil
         }
 
-        let coordinator = TokenDetailsCoordinator(dismissAction: dismissAction)
-
-        // [REDACTED_TODO_COMMENT]
-        if FeatureProvider.isAvailable(.accounts) {
-            guard let account = walletModel.account else {
-                let message = "Inconsistent state: WalletModel '\(walletModel.name)' has no account in accounts-enabled build"
-                AppLogger.error(error: message)
-                assertionFailure(message)
-                return
-            }
-
-            coordinator.start(
-                with: .init(
-                    userWalletInfo: userWalletModel.userWalletInfo,
-                    keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
-                    walletModelsManager: account.walletModelsManager,
-                    userTokensManager: account.userTokensManager,
-                    walletModel: walletModel
-                )
-            )
-        } else {
-            coordinator.start(
-                with: .init(
-                    userWalletInfo: userWalletModel.userWalletInfo,
-                    keysDerivingInteractor: userWalletModel.keysDerivingInteractor,
-                    walletModelsManager: userWalletModel.walletModelsManager,
-                    userTokensManager: userWalletModel.userTokensManager,
-                    walletModel: walletModel
-                )
-            )
+        guard let coordinator = MarketsMainTokenDetailsCoordinatorFactory.make(
+            walletModel: walletModel,
+            userWalletModel: userWalletModel,
+            dismissAction: dismissAction,
+            popToRootAction: popToRootAction
+        ) else {
+            return
         }
 
         tokenDetailsCoordinator = coordinator
@@ -271,7 +252,7 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
                 break
             }
         case .processing:
-            openTokenDetails(walletModel: input.walletModel)
+            openMainTokenDetails(walletModel: input.walletModel)
         case .notActive:
             openPromoYield()
         case .disabled, .failedToLoad, .loading, .none:
@@ -285,6 +266,7 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
             newsIds: newsIds,
             initialIndex: selectedIndex,
             isDeeplinkMode: false, // Always false - nested news screen should show back button, not close
+            isMarketsSheetFlow: presentationStyle == .marketsSheet,
             dataSource: SingleNewsDataSource(),
             analyticsSource: .token,
             coordinator: self

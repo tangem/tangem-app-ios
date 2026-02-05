@@ -62,17 +62,6 @@ actor PersistentStorageWalletConnectConnectedDAppRepository: WalletConnectConnec
         return dApp
     }
 
-    func getDApps(for accountId: String) throws(WalletConnectDAppPersistenceError) -> [WalletConnectConnectedDApp] {
-        try fetchIfNeeded()
-
-        return inMemoryCache.compactMap { dApp in
-            if case .v2(let model) = dApp, model.accountId == accountId {
-                return dApp
-            }
-            return nil
-        }
-    }
-
     func getDApps(forUserWalletId userWalletId: String) throws(WalletConnectDAppPersistenceError) -> [WalletConnectConnectedDApp] {
         try fetchIfNeeded()
 

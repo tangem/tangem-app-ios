@@ -206,15 +206,15 @@ extension Analytics {
         case walletSettingsBackupCompleteScreen = "[Settings / Wallet Settings] Backup Complete Screen"
         case walletSettingsCreateAccessCode = "[Settings / Wallet Settings] Access Code Screen Opened"
         case walletSettingsConfirmAccessCode = "[Settings / Wallet Settings] Re-enter Access Code Screen"
+        case walletSettingsButtonAddAccount = "[Settings / Wallet Settings] Button - Add Account"
+        case walletSettingsButtonOpenExistingAccount = "[Settings / Wallet Settings] Button - Open Existing Account"
+        case walletSettingsButtonArchivedAccounts = "[Settings / Wallet Settings] Button - Archived Accounts"
+        case walletSettingsLongtapAccountsOrder = "[Settings / Wallet Settings] Longtap - Accounts Order"
+        case walletSettingsAccountCreated = "[Settings / Wallet Settings] Account Created"
+        case walletSettingsAccountRecovered = "[Settings / Wallet Settings] Account Recovered"
+        case walletSettingsArchivedAccountsScreenOpened = "[Settings / Wallet Settings] Archived Accounts Screen Opened"
+        case walletSettingsButtonRecoverAccount = "[Settings / Wallet Settings] Button - Recover Account"
         case walletSettingsWalletUpgraded = "[Settings / Wallet Settings] Wallet Upgraded"
-        case walletSettingsButtonAddAccount = "[Settings / Wallet] Button - Add Account"
-        case walletSettingsButtonOpenExistingAccount = "[Settings / Wallet] Button - Open Existing Account"
-        case walletSettingsButtonArchivedAccounts = "[Settings / Wallet] Button - Archived Accounts"
-        case walletSettingsLongtapAccountsOrder = "[Settings / Wallet] Longtap - Accounts Order"
-        case walletSettingsAccountCreated = "[Settings / Wallet] Account Created"
-        case walletSettingsAccountRecovered = "[Settings / Wallet] Account Recovered"
-        case walletSettingsArchivedAccountsScreenOpened = "[Settings / Wallet] Archived Accounts Screen Opened"
-        case walletSettingsButtonRecoverAccount = "[Settings / Wallet] Button - Recover Account"
 
         // MARK: - Account Settings
 
@@ -241,13 +241,13 @@ extension Analytics {
         case walletConnectSessionInitiated = "[Wallet Connect] Session Initiated"
         case walletConnectSessionFailed = "[Wallet Connect] Session Failed"
 
-        case walletConnectDAppSessionProposalReceived = "[Wallet Connect] dApp Connection Requested"
+        case walletConnectDAppSessionProposalReceived = "[Wallet Connect] DApp Connection Requested"
         case walletConnectDAppConnectionRequestConnectButtonTapped = "[Wallet Connect] Button - Connect"
         case walletConnectCancelButtonTapped = "[Wallet Connect] Button - Cancel"
 
-        case walletConnectDAppConnected = "[Wallet Connect] dApp Connected"
-        case walletConnectDAppConnectionFailed = "[Wallet Connect] dApp Connection Failed"
-        case walletConnectDAppDisconnected = "[Wallet Connect] dApp Disconnected"
+        case walletConnectDAppConnected = "[Wallet Connect] DApp Connected"
+        case walletConnectDAppConnectionFailed = "[Wallet Connect] DApp Connection Failed"
+        case walletConnectDAppDisconnected = "[Wallet Connect] DApp Disconnected"
 
         case walletConnectSignatureRequestReceived = "[Wallet Connect] Signature Request Received"
         case walletConnectSignatureRequestReceivedFailure = "[Wallet Connect] Signature Request Received with Failed"
@@ -259,7 +259,6 @@ extension Analytics {
 
         case walletConnectTransactionSolanaLarge = "[Wallet Connect] Solana Large Transaction"
         case walletConnectTransactionSolanaLargeStatus = "[Wallet Connect] Solana Large Transaction Status"
-        case walletConnectButtonConnectWithAccount = "[WalletConnect / Account] Button - Connect"
 
         case chatScreenOpened = "[Chat] Chat Screen Opened"
         case settingsScreenOpened = "[Settings] Settings Screen Opened"
@@ -679,7 +678,7 @@ extension Analytics {
         case earningButtonFeePolicy = "[Earning] Button - Fee Policy"
         case earningInProgressScreen = "[Earning] Earn In Progress Screen"
         case earningFundsEarned = "[Earning] Funds Earned"
-        case earningFundsWithdrawed = "[Earning] Funds Withdrawn"
+        case earningFundsWithdrawn = "[Earning] Funds Withdrawn"
         case earningEarnedFundsInfo = "[Earning] Earned Funds Info"
         case earningNoticeNotEnoughFee = "[Earning] Notice - Not Enough Fee"
         case earningNoticeApproveNeeded = "[Earning] Notice - Approve Needed"
@@ -697,6 +696,7 @@ extension Analytics {
         case newsArticleLoadError = "[Markets] News Article Load Error"
         case newsLikeClicked = "[Markets] News Like Clicked"
         case newsLinkMismatch = "[Markets] News Link Mismatch"
+        case newsShareButtonClicked = "[Markets] News Share Button Clicked"
 
         // MARK: - News (CoinPage)
 

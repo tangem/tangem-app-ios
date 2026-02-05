@@ -19,6 +19,7 @@ import struct TangemUIUtils.ConfirmationDialogViewModel
 final class WalletConnectViewModel: ObservableObject {
     private let interactor: WalletConnectInteractor
     private let userWalletRepository: any UserWalletRepository
+    private let cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
     private let analyticsLogger: any WalletConnectAnalyticsLogger
     private let logger: TangemLogger.Logger
 
@@ -33,6 +34,7 @@ final class WalletConnectViewModel: ObservableObject {
     init(
         interactor: WalletConnectInteractor,
         userWalletRepository: some UserWalletRepository,
+        cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider,
         analyticsLogger: some WalletConnectAnalyticsLogger,
         logger: TangemLogger.Logger,
         coordinator: some WalletConnectRoutable,
@@ -40,12 +42,17 @@ final class WalletConnectViewModel: ObservableObject {
     ) {
         self.interactor = interactor
         self.userWalletRepository = userWalletRepository
+        self.cryptoAccountsGlobalStateProvider = cryptoAccountsGlobalStateProvider
         self.analyticsLogger = analyticsLogger
         self.logger = logger
         self.coordinator = coordinator
 
         if let prefetchedConnectedDApps {
-            state = Self.makeState(from: prefetchedConnectedDApps, userWalletRepository: userWalletRepository)
+            state = Self.makeState(
+                from: prefetchedConnectedDApps,
+                userWalletRepository: userWalletRepository,
+                cryptoAccountsState: cryptoAccountsGlobalStateProvider.globalCryptoAccountsState()
+            )
         } else {
             state = .loading
             fetchConnectedDApps()
@@ -222,7 +229,11 @@ extension WalletConnectViewModel {
     }
 
     private func handleConnectedDAppsChanged(_ connectedDApps: [WalletConnectConnectedDApp]) {
-        state = Self.makeState(from: connectedDApps, userWalletRepository: userWalletRepository)
+        state = Self.makeState(
+            from: connectedDApps,
+            userWalletRepository: userWalletRepository,
+            cryptoAccountsState: cryptoAccountsGlobalStateProvider.globalCryptoAccountsState()
+        )
     }
 
     private func handleCloseDialogButtonTapped() {
@@ -235,13 +246,18 @@ extension WalletConnectViewModel {
 extension WalletConnectViewModel {
     private static func makeState(
         from connectedDApps: [WalletConnectConnectedDApp],
-        userWalletRepository: some UserWalletRepository
+        userWalletRepository: some UserWalletRepository,
+        cryptoAccountsState: CryptoAccounts.State
     ) -> WalletConnectViewState {
         guard !connectedDApps.isEmpty else {
             return .empty
         }
 
-        let walletsWithDApps = makeWalletsWithConnectedDApps(from: connectedDApps, userWalletRepository: userWalletRepository)
+        let walletsWithDApps = makeWalletsWithConnectedDApps(
+            from: connectedDApps,
+            userWalletRepository: userWalletRepository,
+            cryptoAccountsState: cryptoAccountsState
+        )
 
         guard !walletsWithDApps.isEmpty else {
             return .empty
@@ -256,7 +272,8 @@ extension WalletConnectViewModel {
 
     private static func makeWalletsWithConnectedDApps(
         from connectedDApps: [WalletConnectConnectedDApp],
-        userWalletRepository: some UserWalletRepository
+        userWalletRepository: some UserWalletRepository,
+        cryptoAccountsState: CryptoAccounts.State
     ) -> [WalletConnectViewState.ContentState.WalletWithConnectedDApps] {
         let walletIdToV1DApps: [String: [WalletConnectViewState.ContentState.ConnectedDApp]] = {
             let pairs = connectedDApps.compactMap { dApp -> (String, WalletConnectViewState.ContentState.ConnectedDApp)? in
@@ -316,7 +333,8 @@ extension WalletConnectViewModel {
                 }
             }
 
-            if accountsWithSessions <= 1 {
+            switch cryptoAccountsState {
+            case .single:
                 let combined = (accountSections.first?.dApps ?? []) + walletLevel
                 guard !combined.isEmpty else { continue }
 
@@ -328,7 +346,7 @@ extension WalletConnectViewModel {
                         walletLevelDApps: combined
                     )
                 )
-            } else {
+            case .multiple:
                 guard !accountSections.isEmpty || !walletLevel.isEmpty else { continue }
 
                 result.append(
