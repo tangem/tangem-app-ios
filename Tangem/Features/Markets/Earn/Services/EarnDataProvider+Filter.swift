@@ -9,7 +9,7 @@
 import Foundation
 
 extension EarnDataProvider {
-    struct Filter: Hashable, Equatable {
+    struct Filter: Hashable {
         let type: EarnFilterType
         let networkIds: [String]?
 

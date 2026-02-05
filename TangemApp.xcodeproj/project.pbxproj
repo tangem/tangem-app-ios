@@ -560,6 +560,7 @@
 		2D8F9E752CF9B280007434A4 /* CloreWalletAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8F9E722CF9B280007434A4 /* CloreWalletAssembly.swift */; };
 		2D8F9E762CF9B280007434A4 /* CloreExternalLinkProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8F9E702CF9B280007434A4 /* CloreExternalLinkProvider.swift */; };
 		2D8F9E782CF9B314007434A4 /* CloreBlockBookConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8F9E772CF9B314007434A4 /* CloreBlockBookConfig.swift */; };
+		2D907F3D2F34D503001F04EB /* earnNetworks.json in Resources */ = {isa = PBXBuildFile; fileRef = 2D907F3C2F34D503001F04EB /* earnNetworks.json */; };
 		2D9119C82EB00BAD0028F1B0 /* ExperimentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9119C72EB00BAD0028F1B0 /* ExperimentService.swift */; };
 		2D9119CA2EB00C100028F1B0 /* ExperimentFeatureFlagKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D9119C92EB00C100028F1B0 /* ExperimentFeatureFlagKey.swift */; };
 		2D91AD7C2EFEBD710022503F /* trendingNews.json in Resources */ = {isa = PBXBuildFile; fileRef = 2D91AD7B2EFEBD710022503F /* trendingNews.json */; };
@@ -5444,6 +5445,7 @@
 		2D8F9E712CF9B280007434A4 /* CloreMainNetworkParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloreMainNetworkParams.swift; sourceTree = "<group>"; };
 		2D8F9E722CF9B280007434A4 /* CloreWalletAssembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloreWalletAssembly.swift; sourceTree = "<group>"; };
 		2D8F9E772CF9B314007434A4 /* CloreBlockBookConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloreBlockBookConfig.swift; sourceTree = "<group>"; };
+		2D907F3C2F34D503001F04EB /* earnNetworks.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = earnNetworks.json; sourceTree = "<group>"; };
 		2D9119C72EB00BAD0028F1B0 /* ExperimentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExperimentService.swift; sourceTree = "<group>"; };
 		2D9119C92EB00C100028F1B0 /* ExperimentFeatureFlagKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExperimentFeatureFlagKey.swift; sourceTree = "<group>"; };
 		2D91AD7A2EFEBD710022503F /* coinsListResponse.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = coinsListResponse.json; sourceTree = "<group>"; };
@@ -12067,6 +12069,7 @@
 			isa = PBXGroup;
 			children = (
 				2D9DD0E32F33B96000C86A9E /* AccountWithNetworkSelector */,
+				2DE2A3A92F2A2BC30097CA73 /* Components */,
 				2D9DD0E72F33B96000C86A9E /* Coordinator */,
 				2D9DD0F02F33B96000C86A9E /* Detail */,
 				2D9DD0F62F33B96000C86A9E /* FilterBottomSheet */,
@@ -12113,7 +12116,6 @@
 		2DE2A3AD2F2A2BC30097CA73 /* UI */ = {
 			isa = PBXGroup;
 			children = (
-				2DE2A3A92F2A2BC30097CA73 /* Components */,
 				2DE2A3AA2F2A2BC30097CA73 /* EarnWidgetRoutable.swift */,
 				2DE2A3AB2F2A2BC30097CA73 /* EarnWidgetView.swift */,
 				2DE2A3AC2F2A2BC30097CA73 /* EarnWidgetViewModel.swift */,
@@ -14909,6 +14911,7 @@
 			children = (
 				2D91AD7A2EFEBD710022503F /* coinsListResponse.json */,
 				B098F3A12C04B5D300F79989 /* coinsResponse.json */,
+				2D907F3C2F34D503001F04EB /* earnNetworks.json */,
 				2DE2A3B72F2A2D5A0097CA73 /* earnTokens.json */,
 				2D91AD7B2EFEBD710022503F /* trendingNews.json */,
 				B0FB4EF92A8511DA0057F4C2 /* walletUserWalletList.json */,
@@ -26779,6 +26782,7 @@
 				DC0132A1299A7B8E00B95145 /* referralMock.json in Resources */,
 				DC01329E299A786700B95145 /* testnet_tokens.json in Resources */,
 				D863E7A22E68A60500912D52 /* shibaNoBackup.json in Resources */,
+				2D907F3D2F34D503001F04EB /* earnNetworks.json in Resources */,
 				B0FB4EFA2A8512210057F4C2 /* walletUserWalletList.json in Resources */,
 				DC261CA0292CD3B800875E64 /* GoogleService-Info-Alpha.plist in Resources */,
 				2D91AD7C2EFEBD710022503F /* trendingNews.json in Resources */,
