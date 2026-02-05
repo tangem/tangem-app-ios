@@ -63,7 +63,7 @@ final class CommonYieldModuleManager {
     private let yieldModuleStateRepository: YieldModuleStateRepository
     private let yieldModuleMarketsRepository: YieldModuleMarketsRepository
 
-    private var _state = CurrentValueSubject<YieldModuleManagerStateInfo?, Never>(nil)
+    private var _state: CurrentValueSubject<YieldModuleManagerStateInfo?, Never>
     private var _walletModelData = CurrentValueSubject<WalletModelData?, Never>(nil)
 
     private var pendingTransactionsPublisher: AnyPublisher<[PendingTransactionRecord], Never>
@@ -108,6 +108,20 @@ final class CommonYieldModuleManager {
         self.pendingTransactionsPublisher = pendingTransactionsPublisher
         self.updateWallet = updateWallet
 
+        // Initialize _state with cached value to avoid race condition where subscribers
+        // receive nil before the async publisher chain populates the state
+        if let cachedMarket = yieldModuleMarketsRepository.marketInfo(for: token.contractAddress),
+           let cachedState = yieldModuleStateRepository.state() {
+            _state = CurrentValueSubject(
+                YieldModuleManagerStateInfo(
+                    marketInfo: .init(from: cachedMarket),
+                    state: .loading(cachedState: cachedState)
+                )
+            )
+        } else {
+            _state = CurrentValueSubject(nil)
+        }
+
         transactionProvider = YieldTransactionProvider(
             token: token,
             blockchain: blockchain,
@@ -124,12 +138,12 @@ final class CommonYieldModuleManager {
             tokenBalanceProvider: tokenBalanceProvider
         )
 
-        AppLogger.debug("[YieldModule] \(tokenId) CommonYieldModuleManager init completed, calling bind()")
+//        AppLogger.debug("[YieldModule] \(tokenId) CommonYieldModuleManager init completed, calling bind()")
         bind()
     }
 
     deinit {
-        AppLogger.debug("[YieldModule] \(tokenId) CommonYieldModuleManager deinit")
+//        AppLogger.debug("[YieldModule] \(tokenId) CommonYieldModuleManager deinit")
     }
 }
 
@@ -354,19 +368,19 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
 
 private extension CommonYieldModuleManager {
     func bind() {
-        AppLogger.debug("[YieldModule] \(tokenId) bind() called, creating initialStatePublisher")
+//        AppLogger.debug("[YieldModule] \(tokenId) bind() called, creating initialStatePublisher")
         let initialStatePublisher = makeInitialStatePublisher()
 
         initialStatePublisher
-            .handleEvents(
-                receiveSubscription: { [weak self] _ in
-                    AppLogger.debug("[YieldModule] \(self?.tokenId ?? "?") initialStatePublisher subscribed")
-                },
-                receiveOutput: { [weak self] state in
-                    AppLogger.debug("[YieldModule] \(self?.tokenId ?? "?") initialStatePublisher emitted state: \(state.state)")
-                    self?.updateStateCacheIfNeeded(state: state)
-                }
-            )
+//            .handleEvents(
+//                receiveSubscription: { [weak self] _ in
+//                    AppLogger.debug("[YieldModule] \(self?.tokenId ?? "?") initialStatePublisher subscribed")
+//                },
+//                receiveOutput: { [weak self] state in
+//                    AppLogger.debug("[YieldModule] \(self?.tokenId ?? "?") initialStatePublisher emitted state: \(state.state)")
+//                    self?.updateStateCacheIfNeeded(state: state)
+//                }
+//            )
             .sink { [_state] result in
                 _state.send(result)
             }
@@ -523,62 +537,62 @@ private extension CommonYieldModuleManager {
     func makeInitialStatePublisher() -> AnyPublisher<YieldModuleManagerStateInfo, Never> {
         let yieldContractPublisher: AnyPublisher<String?, Never> = Future
             .async { [tokenId, yieldSupplyService] in
-                AppLogger.debug("[YieldModule] \(tokenId) yieldContractPublisher: starting getYieldContract()")
+//                AppLogger.debug("[YieldModule] \(tokenId) yieldContractPublisher: starting getYieldContract()")
                 let yieldContract = try? await yieldSupplyService.getYieldContract()
-                AppLogger.debug("[YieldModule] \(tokenId) yieldContractPublisher: getYieldContract() returned: \(yieldContract ?? "nil")")
+//                AppLogger.debug("[YieldModule] \(tokenId) yieldContractPublisher: getYieldContract() returned: \(yieldContract ?? "nil")")
                 if yieldContract == nil || yieldContract?.isEmpty == true {
-                    AppLogger.debug("[YieldModule] \(tokenId) yieldContractPublisher: calling calculateYieldContract()")
+//                    AppLogger.debug("[YieldModule] \(tokenId) yieldContractPublisher: calling calculateYieldContract()")
                     do {
                         let calculated = try await yieldSupplyService.calculateYieldContract()
-                        AppLogger.debug("[YieldModule] \(tokenId) yieldContractPublisher: calculateYieldContract() returned: \(calculated)")
+//                        AppLogger.debug("[YieldModule] \(tokenId) yieldContractPublisher: calculateYieldContract() returned: \(calculated)")
                         return calculated
                     } catch {
-                        AppLogger.debug("[YieldModule] \(tokenId) yieldContractPublisher: calculateYieldContract() threw: \(error)")
+//                        AppLogger.debug("[YieldModule] \(tokenId) yieldContractPublisher: calculateYieldContract() threw: \(error)")
                         throw error
                     }
                 }
                 return yieldContract
             }
-            .handleEvents(
-                receiveSubscription: { [tokenId] _ in
-                    AppLogger.debug("[YieldModule] \(tokenId) yieldContractPublisher: received subscription")
-                },
-                receiveCompletion: { [tokenId] completion in
-                    AppLogger.debug("[YieldModule] \(tokenId) yieldContractPublisher: completed with: \(completion)")
-                },
-                receiveCancel: { [tokenId] in
-                    AppLogger.debug("[YieldModule] \(tokenId) yieldContractPublisher: cancelled")
-                }
-            )
+//            .handleEvents(
+//                receiveSubscription: { [tokenId] _ in
+//                    AppLogger.debug("[YieldModule] \(tokenId) yieldContractPublisher: received subscription")
+//                },
+//                receiveCompletion: { [tokenId] completion in
+//                    AppLogger.debug("[YieldModule] \(tokenId) yieldContractPublisher: completed with: \(completion)")
+//                },
+//                receiveCancel: { [tokenId] in
+//                    AppLogger.debug("[YieldModule] \(tokenId) yieldContractPublisher: cancelled")
+//                }
+//            )
             .retry(Constants.yieldContractRetryCount)
             .replaceError(with: nil)
             .eraseToAnyPublisher()
 
         let statePublisher = Publishers.CombineLatest4(
-            _walletModelData.compactMap { $0 }
-                .handleEvents(receiveOutput: { [weak self] _ in
-                    AppLogger.debug("[YieldModule] \(self?.tokenId ?? "?") walletModelData emitted")
-                }),
-            yieldModuleNetworkManager.marketsPublisher
-                .handleEvents(receiveOutput: { [weak self] markets in
-                    AppLogger.debug("[YieldModule] \(self?.tokenId ?? "?") markets received (before removeDuplicates): \(markets.count) items")
-                })
-                .removeDuplicates()
-                .handleEvents(receiveOutput: { [weak self] markets in
-                    AppLogger.debug("[YieldModule] \(self?.tokenId ?? "?") markets emitted (after removeDuplicates): \(markets.count) items")
-                }),
-            pendingTransactionsPublisher
-                .handleEvents(receiveOutput: { [weak self] _ in
-                    AppLogger.debug("[YieldModule] \(self?.tokenId ?? "?") pendingTransactions emitted")
-                }),
+            _walletModelData.compactMap { $0 },
+//                .handleEvents(receiveOutput: { [weak self] _ in
+//                    AppLogger.debug("[YieldModule] \(self?.tokenId ?? "?") walletModelData emitted")
+//                }),
+            yieldModuleNetworkManager.marketsPublisher,
+//                .handleEvents(receiveOutput: { [weak self] markets in
+//                    AppLogger.debug("[YieldModule] \(self?.tokenId ?? "?") markets received (before removeDuplicates): \(markets.count) items")
+//                })
+//                .removeDuplicates()
+//                .handleEvents(receiveOutput: { [weak self] markets in
+//                    AppLogger.debug("[YieldModule] \(self?.tokenId ?? "?") markets emitted (after removeDuplicates): \(markets.count) items")
+//                }),
+            pendingTransactionsPublisher,
+//                .handleEvents(receiveOutput: { [weak self] _ in
+//                    AppLogger.debug("[YieldModule] \(self?.tokenId ?? "?") pendingTransactions emitted")
+//                }),
             yieldContractPublisher
-                .handleEvents(receiveOutput: { [weak self] contract in
-                    AppLogger.debug("[YieldModule] \(self?.tokenId ?? "?") yieldContract emitted: \(contract ?? "nil")")
-                })
+//                .handleEvents(receiveOutput: { [weak self] contract in
+//                    AppLogger.debug("[YieldModule] \(self?.tokenId ?? "?") yieldContract emitted: \(contract ?? "nil")")
+//                })
         )
-        .handleEvents(receiveOutput: { [weak self] _ in
-            AppLogger.debug("[YieldModule] \(self?.tokenId ?? "?") CombineLatest4 emitted!")
-        })
+//        .handleEvents(receiveOutput: { [weak self] _ in
+//            AppLogger.debug("[YieldModule] \(self?.tokenId ?? "?") CombineLatest4 emitted!")
+//        })
         .withWeakCaptureOf(self)
         .map { result -> YieldModuleManagerStateInfo in
             let (moduleManager, (walletModelData, marketsInfo, pendingTransactions, yieldContract)) = result
