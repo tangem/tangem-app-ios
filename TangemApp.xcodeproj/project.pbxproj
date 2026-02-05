@@ -2793,6 +2793,7 @@
 		C265B2182E56616A0011C01D /* WalletConnectTransactionRequestProcessingError.swift in Sources */ = {isa = PBXBuildFile; fileRef = C265B2172E56615B0011C01D /* WalletConnectTransactionRequestProcessingError.swift */; };
 		C265B21C2E5698950011C01D /* WalletConnectSessionNamespace.swift in Sources */ = {isa = PBXBuildFile; fileRef = C265B21B2E5698890011C01D /* WalletConnectSessionNamespace.swift */; };
 		C265B21E2E5698F70011C01D /* WalletConnectAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = C265B21D2E5698EE0011C01D /* WalletConnectAccount.swift */; };
+		C269F83C2F34BBC700AD84EB /* FloatingSheetRegistry+YieldModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = C269F83B2F34BBBD00AD84EB /* FloatingSheetRegistry+YieldModule.swift */; };
 		C2734B792E7C1F6600B6EE96 /* WalletConnectURIParsingError.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2734B782E7C1F6600B6EE96 /* WalletConnectURIParsingError.swift */; };
 		C274DF982DDA385300B1D97B /* WalletConnectDAppConnectionViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C274DF972DDA385100B1D97B /* WalletConnectDAppConnectionViewState.swift */; };
 		C274DFB22DDBDD2000B1D97B /* WalletConnectDAppConnectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C274DFB12DDBDD1500B1D97B /* WalletConnectDAppConnectionViewModel.swift */; };
@@ -3816,6 +3817,7 @@
 		EAE484392EB0FB6700086EBD /* YieldModuleTransactionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAE484382EB0FB6700086EBD /* YieldModuleTransactionViewModel.swift */; };
 		EAE4843B2EB0FBB400086EBD /* YieldModuleAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAE4843A2EB0FBB400086EBD /* YieldModuleAction.swift */; };
 		EAE4843D2EB0FD0C00086EBD /* YieldModuleTransactionFlowFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAE4843C2EB0FD0C00086EBD /* YieldModuleTransactionFlowFactory.swift */; };
+		EAF3FB572F347D810007E8DA /* ExpressProviderRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF3FB562F347D810007E8DA /* ExpressProviderRowView.swift */; };
 		EAF4F5962DF7081C0045996D /* DeeplinkNavigationAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF4F5952DF7081C0045996D /* DeeplinkNavigationAction.swift */; };
 		EAF545FC2E0C803000CF7343 /* DeeplinkValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF545FB2E0C803000CF7343 /* DeeplinkValidator.swift */; };
 		EAF6A6832DF9C44A0094B883 /* DefaultIncomingLinkParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF6A67E2DF9C44A0094B883 /* DefaultIncomingLinkParserTests.swift */; };
@@ -7605,6 +7607,7 @@
 		C265B2172E56615B0011C01D /* WalletConnectTransactionRequestProcessingError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectTransactionRequestProcessingError.swift; sourceTree = "<group>"; };
 		C265B21B2E5698890011C01D /* WalletConnectSessionNamespace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectSessionNamespace.swift; sourceTree = "<group>"; };
 		C265B21D2E5698EE0011C01D /* WalletConnectAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectAccount.swift; sourceTree = "<group>"; };
+		C269F83B2F34BBBD00AD84EB /* FloatingSheetRegistry+YieldModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FloatingSheetRegistry+YieldModule.swift"; sourceTree = "<group>"; };
 		C2734B782E7C1F6600B6EE96 /* WalletConnectURIParsingError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectURIParsingError.swift; sourceTree = "<group>"; };
 		C274DF972DDA385100B1D97B /* WalletConnectDAppConnectionViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectDAppConnectionViewState.swift; sourceTree = "<group>"; };
 		C274DFA72DDBB3F800B1D97B /* WalletConnectSessionProposalMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectSessionProposalMapper.swift; sourceTree = "<group>"; };
@@ -8630,6 +8633,7 @@
 		EAE484382EB0FB6700086EBD /* YieldModuleTransactionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleTransactionViewModel.swift; sourceTree = "<group>"; };
 		EAE4843A2EB0FBB400086EBD /* YieldModuleAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleAction.swift; sourceTree = "<group>"; };
 		EAE4843C2EB0FD0C00086EBD /* YieldModuleTransactionFlowFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YieldModuleTransactionFlowFactory.swift; sourceTree = "<group>"; };
+		EAF3FB562F347D810007E8DA /* ExpressProviderRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressProviderRowView.swift; sourceTree = "<group>"; };
 		EAF4F5952DF7081C0045996D /* DeeplinkNavigationAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeeplinkNavigationAction.swift; sourceTree = "<group>"; };
 		EAF545FB2E0C803000CF7343 /* DeeplinkValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeeplinkValidator.swift; sourceTree = "<group>"; };
 		EAF6A67E2DF9C44A0094B883 /* DefaultIncomingLinkParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultIncomingLinkParserTests.swift; sourceTree = "<group>"; };
@@ -22267,6 +22271,7 @@
 		EA4216462E7460F500B36D39 /* Coordinator */ = {
 			isa = PBXGroup;
 			children = (
+				C269F83B2F34BBBD00AD84EB /* FloatingSheetRegistry+YieldModule.swift */,
 				EA4216512E74619D00B36D39 /* YieldModulePromoCoordinator.swift */,
 				EA4216532E74623300B36D39 /* YieldModulePromoCoordinatorView.swift */,
 				EAC602482EAF7D1A00318A6C /* YieldModuleActiveCoordinator.swift */,
@@ -22475,6 +22480,14 @@
 				EAE4843C2EB0FD0C00086EBD /* YieldModuleTransactionFlowFactory.swift */,
 			);
 			path = Factories;
+			sourceTree = "<group>";
+		};
+		EAF3FB552F347D4E0007E8DA /* ExpressProviderRowView */ = {
+			isa = PBXGroup;
+			children = (
+				EAF3FB562F347D810007E8DA /* ExpressProviderRowView.swift */,
+			);
+			path = ExpressProviderRowView;
 			sourceTree = "<group>";
 		};
 		EAF4F5982DF729DF0045996D /* Clore */ = {
@@ -23943,6 +23956,7 @@
 		EF729B672AF3E82C00D80205 /* ExpressProvidersSelectorView */ = {
 			isa = PBXGroup;
 			children = (
+				EAF3FB552F347D4E0007E8DA /* ExpressProviderRowView */,
 				EFA23E7C2DF0858A004ADD0A /* ExpressProvidersEvents */,
 				EFA23E7B2DF08583004ADD0A /* ExpressMoreProvidersSoonView */,
 				EF729B6C2AF3E86300D80205 /* ExpressProvidersSelectorView.swift */,
@@ -29163,6 +29177,7 @@
 				2DE0091E2EA66BCD00A3C9D0 /* SelectorReceiveAssetsAddressPageItemViewModel.swift in Sources */,
 				2DE0091F2EA66BCD00A3C9D0 /* SelectorReceiveAssetsContentItemView.swift in Sources */,
 				2DE009202EA66BCD00A3C9D0 /* SelectorReceiveAssetsInteractor.swift in Sources */,
+				C269F83C2F34BBC700AD84EB /* FloatingSheetRegistry+YieldModule.swift in Sources */,
 				2DE009212EA66BCD00A3C9D0 /* QRCodeReceiveAssetsRoutable.swift in Sources */,
 				2DE009222EA66BCD00A3C9D0 /* QRCodeReceiveAssetsView.swift in Sources */,
 				2DE009232EA66BCD00A3C9D0 /* SelectorReceiveAssetsDomainItemView.swift in Sources */,
@@ -29253,6 +29268,7 @@
 				2D1BB3772C07503B008392F7 /* MarketsListDataProvider.swift in Sources */,
 				B0B4556925E0E63000D7572F /* FailedCardScanTracker.swift in Sources */,
 				EFD68F342CC2D29C00693C97 /* OnrampCountryDetectionRoutable.swift in Sources */,
+				EAF3FB572F347D810007E8DA /* ExpressProviderRowView.swift in Sources */,
 				DC66BBF5285A14CB00CDF765 /* WelcomeViewLifecycleListener.swift in Sources */,
 				EFA6B04729533C860090A92F /* ResetToFactoryViewRoutable.swift in Sources */,
 				2DB3614F2C14FC5700BB1D38 /* SegmentedPickerViewContentStyle.swift in Sources */,
@@ -37489,7 +37505,7 @@
 			repositoryURL = "https://github.com/amplitude/Amplitude-Swift";
 			requirement = {
 				kind = exactVersion;
-				version = 1.16.6;
+				version = 1.17.1;
 			};
 		};
 		B6DDDE7F2CF39C69008DEA94 /* XCRemoteSwiftPackageReference "analytics-connector-ios" */ = {
