@@ -25,6 +25,8 @@ Open `TangemApp.xcodeproj` in Xcode. There are three main schemes:
 - **Tangem Beta** - Beta testing
 - **Tangem Alpha** - Internal testing
 
+Always fetch installed iOS simulators (using appropriate command line tools like `simctl`) and select the one with the most recent iOS version to build and run the project
+
 ### Testing
 ```bash
 bundle exec fastlane test                                               # Unit tests (Production scheme)
@@ -175,9 +177,10 @@ struct MyView_Previews: PreviewProvider {
 
 ## Documentation
 
-Always use Context7 MCP for library/API documentation, code generation, or configuration steps.
+Always use Context7 MCP for fetching library/API documentation, code generation, or configuration steps.
 
 ## Miscellaneous
 
 - DO NOT read, access or modify files at paths specified in the @.cursorignore file
 - When adding new Swift or Objective-C files to the project itself (not to SPM modules, `./Modules/*`), always modify the project file (`TangemApp.xcodeproj/project.pbxproj`) accordingly
+- Call `./bootstrap.sh` once in the beginning of current working session. It's absolutely required before starting you work on the project to install all dependencies, to perform codegen, etc
