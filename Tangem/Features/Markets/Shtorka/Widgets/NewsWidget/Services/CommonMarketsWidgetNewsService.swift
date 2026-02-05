@@ -54,7 +54,7 @@ extension CommonMarketsWidgetNewsService {
     func fetch() {
         updateTask?.cancel()
 
-        newsResultValueSubject.value = .loading
+        newsResultValueSubject.send(.loading)
 
         updateTask = runTask(in: self) { service in
             do {
