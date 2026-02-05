@@ -10,6 +10,6 @@ import Foundation
 
 @MainActor
 protocol EarnWidgetRoutable: AnyObject {
-    func openSeeAllEarnWidget()
-    func openAddEarnToken(_ token: EarnTokenModel, userWalletModels: [UserWalletModel])
+    func openSeeAllEarnWidget(mostlyUsedTokens: [EarnTokenModel])
+    func openAddEarnToken(for token: EarnTokenModel, userWalletModels: [UserWalletModel])
 }
