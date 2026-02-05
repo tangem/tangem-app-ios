@@ -127,6 +127,10 @@ final class CommonYieldModuleManager {
         AppLogger.debug("[YieldModule] \(tokenId) CommonYieldModuleManager init completed, calling bind()")
         bind()
     }
+
+    deinit {
+        AppLogger.debug("[YieldModule] \(tokenId) CommonYieldModuleManager deinit")
+    }
 }
 
 extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdater {
@@ -518,13 +522,34 @@ private extension CommonYieldModuleManager {
     /// an immediate initial state before live updates arrive.
     func makeInitialStatePublisher() -> AnyPublisher<YieldModuleManagerStateInfo, Never> {
         let yieldContractPublisher: AnyPublisher<String?, Never> = Future
-            .async {
-                let yieldContract = try? await self.yieldSupplyService.getYieldContract()
+            .async { [tokenId, yieldSupplyService] in
+                AppLogger.debug("[YieldModule] \(tokenId) yieldContractPublisher: starting getYieldContract()")
+                let yieldContract = try? await yieldSupplyService.getYieldContract()
+                AppLogger.debug("[YieldModule] \(tokenId) yieldContractPublisher: getYieldContract() returned: \(yieldContract ?? "nil")")
                 if yieldContract == nil || yieldContract?.isEmpty == true {
-                    return try await self.yieldSupplyService.calculateYieldContract()
+                    AppLogger.debug("[YieldModule] \(tokenId) yieldContractPublisher: calling calculateYieldContract()")
+                    do {
+                        let calculated = try await yieldSupplyService.calculateYieldContract()
+                        AppLogger.debug("[YieldModule] \(tokenId) yieldContractPublisher: calculateYieldContract() returned: \(calculated)")
+                        return calculated
+                    } catch {
+                        AppLogger.debug("[YieldModule] \(tokenId) yieldContractPublisher: calculateYieldContract() threw: \(error)")
+                        throw error
+                    }
                 }
                 return yieldContract
             }
+            .handleEvents(
+                receiveSubscription: { [tokenId] _ in
+                    AppLogger.debug("[YieldModule] \(tokenId) yieldContractPublisher: received subscription")
+                },
+                receiveCompletion: { [tokenId] completion in
+                    AppLogger.debug("[YieldModule] \(tokenId) yieldContractPublisher: completed with: \(completion)")
+                },
+                receiveCancel: { [tokenId] in
+                    AppLogger.debug("[YieldModule] \(tokenId) yieldContractPublisher: cancelled")
+                }
+            )
             .retry(Constants.yieldContractRetryCount)
             .replaceError(with: nil)
             .eraseToAnyPublisher()
