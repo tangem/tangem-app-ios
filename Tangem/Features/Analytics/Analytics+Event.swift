@@ -696,6 +696,7 @@ extension Analytics {
         case newsArticleLoadError = "[Markets] News Article Load Error"
         case newsLikeClicked = "[Markets] News Like Clicked"
         case newsLinkMismatch = "[Markets] News Link Mismatch"
+        case newsShareButtonClicked = "[Markets] News Share Button Clicked"
 
         // MARK: - News (CoinPage)
 

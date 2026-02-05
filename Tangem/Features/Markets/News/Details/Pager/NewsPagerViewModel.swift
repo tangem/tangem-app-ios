@@ -21,6 +21,7 @@ final class NewsPagerViewModel: MarketsBaseViewModel {
 
     let initialIndex: Int
     let isDeeplinkMode: Bool
+    let isMarketsSheetFlow: Bool
 
     var currentNewsId: Int? {
         guard currentIndex >= 0, currentIndex < newsIds.count else { return nil }
@@ -52,6 +53,10 @@ final class NewsPagerViewModel: MarketsBaseViewModel {
         !isDeeplinkMode && newsIds.count > 1
     }
 
+    var isNativeNavigationBarUsed: Bool {
+        !isMarketsSheetFlow && !isDeeplinkMode
+    }
+
     // MARK: - Dependencies
 
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
@@ -72,6 +77,7 @@ final class NewsPagerViewModel: MarketsBaseViewModel {
     private var isLoadingMoreNews = false
     private let preloadThreshold = 3
     private var loggedLikeNewsIds: Set<Int> = []
+    private var lastShareEventTime: Date?
     private lazy var selectionFeedbackGenerator = UISelectionFeedbackGenerator()
 
     // MARK: - Init
@@ -80,6 +86,7 @@ final class NewsPagerViewModel: MarketsBaseViewModel {
         newsIds: [Int],
         initialIndex: Int,
         isDeeplinkMode: Bool = false,
+        isMarketsSheetFlow: Bool = true,
         dateFormatter: NewsDateFormatter = NewsDateFormatter(),
         dataSource: NewsPagerDataSource? = nil,
         analyticsSource: Analytics.ParameterValue? = nil,
@@ -88,6 +95,7 @@ final class NewsPagerViewModel: MarketsBaseViewModel {
         self.newsIds = newsIds
         self.initialIndex = initialIndex
         self.isDeeplinkMode = isDeeplinkMode
+        self.isMarketsSheetFlow = isMarketsSheetFlow
         currentIndex = initialIndex
         self.dateFormatter = dateFormatter
         self.dataSource = dataSource
@@ -155,6 +163,7 @@ final class NewsPagerViewModel: MarketsBaseViewModel {
             coordinator?.dismissNewsDetails()
         case .share:
             guard let article = currentArticle else { return }
+            logShareEventIfNeeded(newsId: article.id)
             coordinator?.share(url: article.newsUrl)
         case .openSource(let source):
             guard let newsId = currentNewsId, let url = source.url else { return }
@@ -313,6 +322,17 @@ final class NewsPagerViewModel: MarketsBaseViewModel {
             loggedLikeNewsIds.insert(newsId)
             Analytics.log(event: .newsLikeClicked, params: [.newsId: String(newsId)])
         }
+    }
+
+    private func logShareEventIfNeeded(newsId: Int) {
+        let now = Date()
+
+        if let lastTime = lastShareEventTime, now.timeIntervalSince(lastTime) < 10 {
+            return
+        }
+
+        lastShareEventTime = now
+        Analytics.log(event: .newsShareButtonClicked, params: [.newsId: String(newsId)])
     }
 }
 
