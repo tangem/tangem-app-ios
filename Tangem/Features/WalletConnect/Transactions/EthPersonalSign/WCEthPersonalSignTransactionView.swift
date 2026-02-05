@@ -12,23 +12,27 @@ import TangemUI
 import TangemAssets
 
 struct WCEthPersonalSignTransactionView: View {
-    let walletName: String
-    let isWalletRowVisible: Bool
+    let connectionTargetKind: WCTransactionConnectionTargetKind?
     let blockchain: Blockchain
     let addressRowViewModel: WCTransactionAddressRowViewModel?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            if isWalletRowVisible {
-                WCTransactionWalletRow(walletName: walletName)
-                separator
-            }
+            connectionTargetRow
 
             WCTransactionNetworkRow(blockchain: blockchain)
             addressRowView
         }
         .background(Colors.Background.action)
         .cornerRadius(14, corners: .allCorners)
+    }
+
+    @ViewBuilder
+    private var connectionTargetRow: some View {
+        if let connectionTargetKind {
+            WCTransactionConnectionTargetRow(kind: connectionTargetKind)
+            separator
+        }
     }
 
     @ViewBuilder
