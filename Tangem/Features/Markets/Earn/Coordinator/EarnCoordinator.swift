@@ -9,7 +9,6 @@
 import Foundation
 import struct TangemUIUtils.AlertBinder
 
-@MainActor
 final class EarnCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
@@ -27,7 +26,7 @@ final class EarnCoordinator: CoordinatorObject {
 
     // MARK: - Private Properties
 
-    private var filterProvider: EarnDataFilterProvider?
+    private let filterProvider = EarnDataFilterProvider()
 
     // MARK: - Init
 
@@ -42,14 +41,16 @@ final class EarnCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        let filterProvider = EarnDataFilterProvider()
-        self.filterProvider = filterProvider
+        Task { @MainActor in
+            let earnDataProvider = EarnDataProvider()
 
-        rootViewModel = EarnDetailViewModel(
-            filterProvider: filterProvider,
-            mostlyUsedTokens: options.mostlyUsedTokens,
-            coordinator: self
-        )
+            rootViewModel = EarnDetailViewModel(
+                dataProvider: earnDataProvider,
+                filterProvider: filterProvider,
+                mostlyUsedTokens: options.mostlyUsedTokens,
+                coordinator: self
+            )
+        }
     }
 }
 
@@ -72,13 +73,7 @@ extension EarnCoordinator: EarnDetailRoutable {
         openEarnTokenDetailsAction(token, userWalletModels)
     }
 
-    func openEarnTokenDetails(for token: EarnTokenModel) {
-        // Will be implemented in future iteration
-    }
-
     func openNetworksFilter() {
-        guard let filterProvider else { return }
-
         networkFilterBottomSheetViewModel = EarnNetworkFilterBottomSheetViewModel(
             filterProvider: filterProvider,
             onDismiss: { [weak self] in
@@ -88,8 +83,6 @@ extension EarnCoordinator: EarnDetailRoutable {
     }
 
     func openTypesFilter() {
-        guard let filterProvider else { return }
-
         typeFilterBottomSheetViewModel = EarnTypeFilterBottomSheetViewModel(
             filterProvider: filterProvider,
             onDismiss: { [weak self] in
