@@ -1,9 +1,9 @@
 //
-//  ProviderRowView.swift
-//  Tangem
+//  ExpressProviderRowView.swift
+//  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2023 Tangem AG. All rights reserved.
+//  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
 import SwiftUI
@@ -11,9 +11,7 @@ import TangemLocalization
 import TangemAssets
 import TangemUI
 
-// [REDACTED_TODO_COMMENT]
-// [REDACTED_INFO]
-struct ProviderRowView: View {
+struct ExpressProviderRowView: View {
     let viewModel: ProviderRowViewModel
 
     var body: some View {
@@ -42,7 +40,16 @@ struct ProviderRowView: View {
 
             detailsTypeView
         }
+        .padding(.vertical, 16)
+        .padding(.horizontal, 14)
         .frame(maxWidth: .infinity)
+        .background(backgroundView)
+        .overlay { SelectionOverlay().opacity(viewModel.detailsType?.isSelected == true ? 1 : 0) }
+    }
+
+    private var backgroundView: some View {
+        RoundedRectangle(cornerRadius: 14, style: .continuous)
+            .fill(Colors.Background.action)
     }
 
     private var titleView: some View {
@@ -130,75 +137,10 @@ struct ProviderRowView: View {
 
     @ViewBuilder
     private var detailsTypeView: some View {
-        switch viewModel.detailsType {
-        case .none:
-            EmptyView()
-        case .selected:
-            Assets.check.image
-                .renderingMode(.template)
-                .foregroundColor(Colors.Icon.accent)
-        case .chevron:
+        if viewModel.detailsType?.isChevron ?? false {
             Assets.chevron.image
                 .renderingMode(.template)
                 .foregroundColor(Colors.Icon.informative)
         }
-    }
-}
-
-struct ProviderRowViewModel_Preview: PreviewProvider {
-    static var previews: some View {
-        views
-            .preferredColorScheme(.light)
-
-        views
-            .preferredColorScheme(.dark)
-    }
-
-    static var views: some View {
-        GroupedSection([
-            viewModel(titleFormat: .prefixAndName, badge: .none, detailsType: .chevron),
-            viewModel(titleFormat: .prefixAndName, badge: .bestRate, detailsType: .selected),
-            viewModel(
-                titleFormat: .name,
-                badge: .permissionNeeded,
-                subtitles: [.percent("-1.2%", signType: .negative)]
-            ),
-            viewModel(
-                titleFormat: .name,
-                badge: .permissionNeeded,
-                subtitles: [.percent("0.7%", signType: .positive)]
-            ),
-            viewModel(titleFormat: .name, badge: .none, isDisabled: true),
-            viewModel(titleFormat: .name, badge: .bestRate, isDisabled: true),
-            viewModel(titleFormat: .name, badge: .permissionNeeded, isDisabled: true),
-        ]) {
-            ProviderRowView(viewModel: $0)
-        }
-        .interItemSpacing(14)
-        .innerContentPadding(12)
-        .padding()
-        .background(Colors.Background.secondary)
-    }
-
-    static func viewModel(
-        titleFormat: ProviderRowViewModel.TitleFormat,
-        badge: ProviderRowViewModel.Badge?,
-        isDisabled: Bool = false,
-        subtitles: [ProviderRowViewModel.Subtitle] = [],
-        detailsType: ProviderRowViewModel.DetailsType? = nil
-    ) -> ProviderRowViewModel {
-        ProviderRowViewModel(
-            provider: .init(
-                id: UUID().uuidString,
-                iconURL: URL(string: "https://s3.eu-central-1.amazonaws.com/tangem.api/express/1inch_512.png")!,
-                name: "1inch",
-                type: "DEX"
-            ),
-            titleFormat: titleFormat,
-            isDisabled: isDisabled,
-            badge: badge,
-            subtitles: [.text("1 132,46 MATIC")] + subtitles,
-            detailsType: detailsType
-        ) {}
     }
 }
