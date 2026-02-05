@@ -65,7 +65,7 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
                     .navigationLinks(newsRelatedTokenDetailsLink)
             }
             .fullScreenCover(item: $coordinator.yieldModulePromoCoordinator) { coordinator in
-                NavigationView {
+                NavigationStack {
                     YieldModulePromoCoordinatorView(coordinator: coordinator)
                         .toolbar {
                             ToolbarItem(placement: .navigationBarLeading) {
@@ -75,7 +75,7 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
                 }
             }
             .fullScreenCover(item: $coordinator.tokenDetailsCoordinator, content: { item in
-                NavigationView {
+                NavigationStack {
                     TokenDetailsCoordinatorView(coordinator: item)
                         .toolbar {
                             ToolbarItem(placement: .navigationBarLeading) {
