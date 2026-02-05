@@ -24,9 +24,8 @@ extension EditCryptoAccountConditionsValidator: CryptoAccountConditionsValidator
             return try validateMissingAccountName()
         }
 
-        guard newAccountName.count <= AccountModelUtils.maxAccountNameLength else {
-            AccountsLogger.warning("Account name is too long")
-            throw .accountNameTooLong
+        guard AccountModelUtils.isAccountNameValid(newAccountName) else {
+            throw .invalidAccountName
         }
 
         let remoteState = makeRemoteState()
