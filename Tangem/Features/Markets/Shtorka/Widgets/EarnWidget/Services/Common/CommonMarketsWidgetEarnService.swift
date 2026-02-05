@@ -15,8 +15,7 @@ import TangemFoundation
 final class CommonMarketsWidgetEarnService {
     // MARK: - Inject Services
 
-    // [REDACTED_TODO_COMMENT]
-    private var tangemApiService: TangemApiService = FakeTangemApiService()
+    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     // MARK: - Private Properties
 
@@ -54,7 +53,7 @@ extension CommonMarketsWidgetEarnService: MarketsWidgetEarnProvider {
                     page: nil,
                     limit: nil,
                     type: nil,
-                    network: nil
+                    networkIds: nil
                 )
 
                 let response = try await service.tangemApiService.loadEarnYieldMarkets(requestModel: requestModel)
