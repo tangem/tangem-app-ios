@@ -42,9 +42,31 @@ final class AmplitudeWrapper {
         _amplitude?.track(eventType: eventType, eventProperties: eventProperties)
     }
 
+    func setUserIdIfOnboarding(userWalletId: UserWalletId) {
+        guard !AppEnvironment.current.isDebug else {
+            return
+        }
+
+        guard userWalletRepository.models.isEmpty else {
+            return
+        }
+
+        setUserId(userId: userWalletId.hashedStringValue)
+    }
+
     private func setUserId(userId: String) {
         guard !AppEnvironment.current.isDebug else {
             return
+        }
+
+        let currentUserId = _amplitude?.getUserId()
+        if currentUserId == userId {
+            return
+        }
+
+        // Send all events before userId changes
+        if currentUserId != nil {
+            _amplitude?.flush()
         }
 
         _amplitude?.setUserId(userId: userId)
