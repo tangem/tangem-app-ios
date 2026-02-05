@@ -102,14 +102,17 @@ extension MobileOnboardingSeedPhraseImportViewModel: SeedPhraseImportDelegate {
                     throw UserWalletRepositoryError.cantUnlockWallet
                 }
 
+                AmplitudeWrapper.shared.setUserIdIfOnboarding(userWalletId: userWalletModel.userWalletId)
+
+                viewModel.logWalletImportedAnalytics(
+                    seedLength: mnemonic.mnemonicComponents.count,
+                    isPassphraseEmpty: passphrase.isEmpty
+                )
+
                 try viewModel.userWalletRepository.add(userWalletModel: userWalletModel)
 
                 await runOnMain {
                     viewModel.isCreating = false
-                    viewModel.logWalletImportedAnalytics(
-                        seedLength: mnemonic.mnemonicComponents.count,
-                        isPassphraseEmpty: passphrase.isEmpty
-                    )
                     viewModel.logOnboardingFinishedAnalytics()
                     viewModel.delegate?.didImportSeedPhrase(userWalletModel: userWalletModel)
                 }
@@ -136,7 +139,7 @@ private extension MobileOnboardingSeedPhraseImportViewModel {
     }
 
     func logWalletImportedAnalytics(seedLength: Int, isPassphraseEmpty: Bool) {
-        let params: [Analytics.ParameterKey: String] = [
+        var params: [Analytics.ParameterKey: String] = [
             .creationType: Analytics.ParameterValue.walletCreationTypeSeedImport.rawValue,
             .seedLength: "\(seedLength)",
             .passphrase: isPassphraseEmpty
@@ -144,6 +147,8 @@ private extension MobileOnboardingSeedPhraseImportViewModel {
                 : Analytics.ParameterValue.full.rawValue,
             .source: Analytics.ParameterValue.importWallet.rawValue,
         ]
+
+        params.enrich(with: ReferralAnalyticsHelper().getReferralParams())
 
         Analytics.log(
             event: .walletCreatedSuccessfully,

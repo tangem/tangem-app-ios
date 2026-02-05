@@ -99,11 +99,13 @@ extension MobileCreateWalletViewModel {
                     throw UserWalletRepositoryError.cantUnlockWallet
                 }
 
+                AmplitudeWrapper.shared.setUserIdIfOnboarding(userWalletId: newUserWalletModel.userWalletId)
+                viewModel.logWalletCreatedAnalytics()
+
                 try viewModel.userWalletRepository.add(userWalletModel: newUserWalletModel)
 
                 await runOnMain {
                     viewModel.isCreating = false
-                    viewModel.logWalletCreatedAnalytics()
                     viewModel.logOnboardingFinishedAnalytics()
                     viewModel.delegate?.onCreateWallet(userWalletModel: newUserWalletModel)
                 }
@@ -200,12 +202,14 @@ private extension MobileCreateWalletViewModel {
     }
 
     func logWalletCreatedAnalytics() {
-        let params: [Analytics.ParameterKey: String] = [
+        var params: [Analytics.ParameterKey: String] = [
             .creationType: Analytics.ParameterValue.walletCreationTypeNewSeed.rawValue,
             .seedLength: Constants.seedPhraseLength,
             .passphrase: Analytics.ParameterValue.empty.rawValue,
             .source: source.analyticsParameterValue.rawValue,
         ]
+
+        params.enrich(with: ReferralAnalyticsHelper().getReferralParams())
 
         Analytics.log(
             event: .walletCreatedSuccessfully,
