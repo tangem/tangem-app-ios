@@ -34,7 +34,7 @@ final class CommonYieldModuleNetworkManager {
 
     private var bag = Set<AnyCancellable>()
 
-    private let marketsSubject = CurrentValueSubject<[YieldModuleMarketInfo], Never>([])
+    private let marketsSubject: CurrentValueSubject<[YieldModuleMarketInfo], Never>
 
     init(
         yieldModuleAPIService: YieldModuleAPIService,
@@ -44,6 +44,11 @@ final class CommonYieldModuleNetworkManager {
         self.yieldModuleAPIService = yieldModuleAPIService
         self.yieldMarketsRepository = yieldMarketsRepository
         self.yieldModuleChartManager = yieldModuleChartManager
+
+        // Initialize with cached markets to avoid race condition where CombineLatest4
+        // fires before network response arrives, causing badge to disappear
+        let cachedMarkets = yieldMarketsRepository.markets()?.markets.map { YieldModuleMarketInfo(from: $0) } ?? []
+        marketsSubject = CurrentValueSubject(cachedMarkets)
 
         bind()
     }
