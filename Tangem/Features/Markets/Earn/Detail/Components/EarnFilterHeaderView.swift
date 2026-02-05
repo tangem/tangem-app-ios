@@ -55,7 +55,7 @@ struct EarnFilterHeaderView: View {
                     .fill(Colors.Button.secondary)
             )
         }
-        .style(.plain)
+        .buttonStyle(.plain)
         .disabled(!isEnabled)
         .opacity(isEnabled ? Layout.enabledOpacity : Layout.disabledOpacity)
     }
@@ -70,5 +70,7 @@ private extension EarnFilterHeaderView {
         static let buttonHorizontalPadding: CGFloat = 10.0
         static let buttonVerticalPadding: CGFloat = 6.0
         static let buttonCornerRadius: CGFloat = 8.0
+        static let enabledOpacity = 1.0
+        static let disabledOpacity = 0.7
     }
 }
