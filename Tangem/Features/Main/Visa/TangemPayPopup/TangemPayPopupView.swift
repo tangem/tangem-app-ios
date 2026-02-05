@@ -31,6 +31,10 @@ struct TangemPayPopupView: View {
                         .fixedSize(horizontal: false, vertical: true)
 
                     Text(viewModel.description)
+                        .environment(\.openURL, OpenURLAction(handler: { link in
+                            viewModel.onHyperLinkTap(link)
+                            return .handled
+                        }))
                         .style(
                             Fonts.RegularStatic.subheadline,
                             color: Colors.Text.secondary
