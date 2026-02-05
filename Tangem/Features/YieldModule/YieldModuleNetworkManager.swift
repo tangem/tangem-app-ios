@@ -61,14 +61,14 @@ extension CommonYieldModuleNetworkManager: YieldModuleNetworkManager {
 
     var marketsPublisher: AnyPublisher<[YieldModuleMarketInfo], Never> {
         marketsSubject
-            .handleEvents(receiveSubscription: { _ in
-                AppLogger.debug("[YieldModule] marketsPublisher new subscription, current value has \(self.marketsSubject.value.count) items")
-            })
+//            .handleEvents(receiveSubscription: { _ in
+//                AppLogger.debug("[YieldModule] marketsPublisher new subscription, current value has \(self.marketsSubject.value.count) items")
+//            })
             .eraseToAnyPublisher()
     }
 
     func updateMarkets() {
-        AppLogger.debug("[YieldModule] updateMarkets() called")
+//        AppLogger.debug("[YieldModule] updateMarkets() called")
         let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletRepository.models)
         let chainIDs = Set(
             walletModels.compactMap { walletModel -> String? in
@@ -76,11 +76,11 @@ extension CommonYieldModuleNetworkManager: YieldModuleNetworkManager {
                 return walletModel.tokenItem.blockchain.chainId.map { String($0) }
             }
         )
-        AppLogger.debug("[YieldModule] updateMarkets() chainIDs: \(chainIDs)")
+//        AppLogger.debug("[YieldModule] updateMarkets() chainIDs: \(chainIDs)")
 
         Task { @MainActor in
             let markets = await fetchMarkets(chainIDs: Array(chainIDs))
-            AppLogger.debug("[YieldModule] updateMarkets() sending \(markets.count) markets to subject")
+//            AppLogger.debug("[YieldModule] updateMarkets() sending \(markets.count) markets to subject")
             marketsSubject.send(markets)
         }
     }
