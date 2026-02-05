@@ -516,20 +516,21 @@ final class UserTokensRepositoryAdapter: UserTokensRepository {
     }
 
     var cryptoAccountPublisher: AnyPublisher<StoredCryptoAccount, Never> {
-        innerRepository
+        let index = derivationIndex
+
+        return innerRepository
             .cryptoAccountsPublisher
-            // [REDACTED_TODO_COMMENT]
-            .compactMap { [index = derivationIndex] cryptoAccounts in
-                return Self._cryptoAccount(forDerivationIndex: index, from: cryptoAccounts)
-            }
+            // Removal of the account triggers `innerRepository.cryptoAccountsPublisher` to emit a new value,
+            // but in this case the account is already removed so we have to skip this value
+            .filter { $0.contains { $0.derivationIndex == index } }
+            .map { Self.cryptoAccount(forDerivationIndex: index, from: $0) }
             .eraseToAnyPublisher()
     }
 
     var cryptoAccount: StoredCryptoAccount {
         let cryptoAccounts = innerRepository.persistentStorage.getList()
 
-        // [REDACTED_TODO_COMMENT]
-        return Self._cryptoAccount(forDerivationIndex: derivationIndex, from: cryptoAccounts) ?? cryptoAccounts[0].withTokens([])
+        return Self.cryptoAccount(forDerivationIndex: derivationIndex, from: cryptoAccounts)
     }
 
     func performBatchUpdates(_ batchUpdates: BatchUpdates) rethrows {
@@ -581,18 +582,18 @@ final class UserTokensRepositoryAdapter: UserTokensRepository {
         line: UInt = #line
     ) -> StoredCryptoAccount {
         guard let cryptoAccount = cryptoAccounts.first(where: { $0.derivationIndex == derivationIndex }) else {
-            preconditionFailure("No crypto account found for derivation index \(derivationIndex)", file: file, line: line)
+            #if ALPHA || BETA || DEBUG
+            preconditionFailure(
+                "No crypto account found for derivation index '\(derivationIndex)' in crypto accounts: '\(cryptoAccounts)'",
+                file: file,
+                line: line
+            )
+            #else
+            return .dummy(withDerivationIndex: derivationIndex)
+            #endif // ALPHA || BETA || DEBUG
         }
 
         return cryptoAccount
-    }
-
-    @available(*, deprecated, message: "Temporary workaround until [REDACTED_INFO] is resolved")
-    private static func _cryptoAccount(
-        forDerivationIndex derivationIndex: Int,
-        from cryptoAccounts: [StoredCryptoAccount],
-    ) -> StoredCryptoAccount? {
-        return cryptoAccounts.first(where: { $0.derivationIndex == derivationIndex })
     }
 }
 

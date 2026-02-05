@@ -20,33 +20,22 @@ protocol ReceiveAddressService: AnyObject {
 
 // MARK: - CommonReceiveAddressService
 
-final class CommonReceiveAddressService {
-    // MARK: - Dependencies
+class CommonReceiveAddressService {
+    // MARK: - Private Properties
+
+    private var _addressTypes: [ReceiveAddressType] = []
+
+    private var resolveDestinationTask: Task<Void, Error>?
 
     private let domainAddressResolver: DomainNameAddressResolver?
-    private let receiveAddressInfoUtils: ReceiveAddressInfoUtils
-
-    // MARK: - State
-
-    private let _addressTypes = ThreadSafeContainer<[ReceiveAddressType]>([])
-    private var resolveDomainTask: Task<Void, Never>?
+    private let receiveAddressInfoUtils = ReceiveAddressInfoUtils(colorScheme: .whiteBlack)
 
     // MARK: - Init
 
-    init(
-        addresses: [Address],
-        domainAddressResolver: DomainNameAddressResolver?,
-        receiveAddressInfoUtils: ReceiveAddressInfoUtils = ReceiveAddressInfoUtils(colorScheme: .whiteBlack)
-    ) {
+    init(addresses: [Address], domainAddressResolver: DomainNameAddressResolver?) {
         self.domainAddressResolver = domainAddressResolver
-        self.receiveAddressInfoUtils = receiveAddressInfoUtils
 
-        let types = makeAddressTypes(from: addresses)
-        _addressTypes.mutate { $0 = types }
-    }
-
-    deinit {
-        resolveDomainTask?.cancel()
+        updateReceiveAddressTypes(with: addresses)
     }
 }
 
@@ -54,62 +43,47 @@ final class CommonReceiveAddressService {
 
 extension CommonReceiveAddressService: ReceiveAddressService {
     var addressTypes: [ReceiveAddressType] {
-        _addressTypes.read()
+        _addressTypes
     }
 
     var addressInfos: [ReceiveAddressInfo] {
-        addressTypes.map(\.info)
+        _addressTypes.map { $0.info }
     }
 
     func update(with addresses: [Address]) async {
-        resolveDomainTask?.cancel()
-        let types = makeAddressTypes(from: addresses)
-        _addressTypes.mutate { $0 = types }
+        updateReceiveAddressTypes(with: addresses)
 
-        await resolveDomainNamesIfNeeded()
-    }
-}
+        resolveDestinationTask?.cancel()
 
-// MARK: - Private
-
-private extension CommonReceiveAddressService {
-    func makeAddressTypes(from addresses: [Address]) -> [ReceiveAddressType] {
-        receiveAddressInfoUtils
-            .makeAddressInfos(from: addresses)
-            .map { .address($0) }
-    }
-
-    func resolveDomainNamesIfNeeded() async {
-        guard domainAddressResolver != nil else {
-            return
+        resolveDestinationTask = runTask(in: self) { service in
+            await service.resolveDomainAddressTypes()
         }
 
-        resolveDomainTask = Task { [weak self] in
-            await self?.resolveDomainNames()
-        }
-
-        await resolveDomainTask?.value
+        _ = try? await resolveDestinationTask?.value
     }
 
-    func resolveDomainNames() async {
+    // MARK: - Private Implementation
+
+    private func resolveDomainAddressTypes() async {
         guard let domainAddressResolver else {
             return
         }
 
         for addressInfo in addressInfos {
-            guard !Task.isCancelled else {
-                return
-            }
-
             do {
-                let domainName = try await domainAddressResolver.resolveDomainName(addressInfo.address)
-                _addressTypes.mutate { $0.append(.domain(domainName, addressInfo)) }
+                let resolveDomainName = try await domainAddressResolver.resolveDomainName(addressInfo.address)
+                _addressTypes.append(.domain(resolveDomainName, addressInfo))
             } catch is CancellationError {
-                return
+                // Do Nothig
             } catch {
-                // Domain name not found for this address — expected for most addresses
+                AppLogger.error("Failed to check resolve address with error:", error: error)
             }
         }
+    }
+
+    private func updateReceiveAddressTypes(with addresses: [Address]) {
+        let addressInfos = receiveAddressInfoUtils.makeAddressInfos(from: addresses)
+        _addressTypes = addressInfos.map { ReceiveAddressType.address($0) }
     }
 }
 

@@ -10,7 +10,10 @@ import SwiftUI
 import TangemFoundation
 
 protocol TangemPayOnboardingRoutable: AnyObject {
-    func openWalletSelector(onSelect: @escaping (UserWalletModel) -> Void)
+    func openWalletSelector(
+        from: [UserWalletModel],
+        onSelect: @escaping (UserWalletModel) -> Void
+    )
 }
 
 final class TangemPayOnboardingCoordinator: CoordinatorObject {
@@ -42,13 +45,19 @@ final class TangemPayOnboardingCoordinator: CoordinatorObject {
 }
 
 extension TangemPayOnboardingCoordinator: TangemPayOnboardingRoutable {
-    func openWalletSelector(onSelect: @escaping (UserWalletModel) -> Void) {
+    func openWalletSelector(
+        from walletModels: [UserWalletModel],
+        onSelect: @escaping (UserWalletModel) -> Void
+    ) {
         let _onSelect: (UserWalletModel) -> Void = { [weak self] walletModel in
             self?.dismissActiveSheet()
             onSelect(walletModel)
         }
 
-        let walletSelectorViewModel = TangemPayWalletSelectorViewModel(onSelect: _onSelect) { [weak self] in
+        let walletSelectorViewModel = TangemPayWalletSelectorViewModel(
+            userWalletModels: walletModels,
+            onSelect: _onSelect
+        ) { [weak self] in
             self?.dismissActiveSheet()
         }
 
