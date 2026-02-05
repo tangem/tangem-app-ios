@@ -53,6 +53,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
 
     // MARK: - Child coordinators (Other)
 
+    @Published var designSystemCoordinator: DesignSystemDemoCoordinator?
     @Published var modalOnboardingCoordinator: OnboardingCoordinator?
     @Published var sendCoordinator: SendCoordinator? = nil
     @Published var expressCoordinator: ExpressCoordinator? = nil
@@ -99,6 +100,21 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
         self.deeplinkPresenter = deeplinkPresenter
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
+    }
+
+    func showDSDemo() {
+        mainBottomSheetUIManager.hide()
+
+        designSystemCoordinator = .init(
+            dismissAction: { [weak self] _ in
+                self?.designSystemCoordinator = nil
+            },
+            popToRootAction: { [weak self] _ in
+                self?.designSystemCoordinator = nil
+            }
+        )
+
+        designSystemCoordinator?.start(with: ())
     }
 
     func start(with options: Options) {
