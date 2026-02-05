@@ -285,12 +285,12 @@ private extension DetailsViewModel {
             }
             .store(in: &bag)
 
-        tangemPayAvailabilityRepository.shouldShowGetTangemPay
+        tangemPayAvailabilityRepository.isGetTangemPayFeatureAvailable
             .withWeakCaptureOf(self)
             .receiveOnMain()
-            .sink { viewModel, should in
+            .sink { viewModel, isAvailable in
                 viewModel.setupGetSectionViewModels(
-                    shouldShowGetTangemPay: should
+                    shouldShowGetTangemPay: isAvailable
                 )
             }
             .store(in: &bag)
