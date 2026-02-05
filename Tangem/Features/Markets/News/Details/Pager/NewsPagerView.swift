@@ -21,7 +21,9 @@ struct NewsPagerView: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             VStack(spacing: 0) {
-                navigationBar
+                if !viewModel.isNativeNavigationBarUsed {
+                    navigationBar
+                }
 
                 pagerContent
                     .opacity(viewModel.overlayContentHidingProgress)
@@ -45,7 +47,22 @@ struct NewsPagerView: View {
         .onOverlayContentProgressChange(overlayContentStateObserver: overlayContentStateObserver) { [weak viewModel] progress in
             viewModel?.onOverlayContentProgressChange(progress)
         }
-        .injectMarketsNavigationConfigurator(isSimplified: viewModel.isDeeplinkMode)
+        .if(viewModel.isMarketsSheetFlow || viewModel.isDeeplinkMode) { view in
+            view.injectMarketsNavigationConfigurator(isSimplified: viewModel.isDeeplinkMode)
+        }
+        .if(viewModel.isNativeNavigationBarUsed) { view in
+            view
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button(action: { viewModel.handleViewAction(.share) }) {
+                            Assets.Glyphs.moreVertical.image
+                                .foregroundColor(shareButtonColor)
+                        }
+                        .disabled(viewModel.isCurrentArticleLoading)
+                    }
+                }
+        }
     }
 
     private var pageIndicatorOverlay: some View {
@@ -171,7 +188,7 @@ private struct NewsPageContentView: View {
         NewsArticleContentView(
             article: article,
             onSourceTap: { source in viewModel.handleViewAction(.openSource(source)) },
-            bottomPadding: 54
+            bottomPadding: viewModel.isNativeNavigationBarUsed ? 70 : 54
         ) {
             likeButton(for: article.id)
                 .padding(.top, 24)
