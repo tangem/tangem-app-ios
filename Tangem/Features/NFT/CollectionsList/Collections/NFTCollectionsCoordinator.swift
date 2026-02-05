@@ -10,7 +10,7 @@ import Foundation
 import Combine
 import TangemNFT
 
-class NFTCollectionsCoordinator: CoordinatorObject {
+final class NFTCollectionsCoordinator: CoordinatorObject {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
 
     // MARK: - Navigation actions
@@ -62,8 +62,7 @@ class NFTCollectionsCoordinator: CoordinatorObject {
         )
         rootViewModel = NFTCollectionsListViewModel(
             nftManager: options.nftManager,
-            accounForNFTCollectionsProvider: options.accounForNFTCollectionsProvider,
-            navigationContext: options.navigationContext,
+            accountForNFTCollectionsProvider: options.accountForNFTCollectionsProvider,
             dependencies: dependencies,
             assetSendPublisher: assetSendSubject.eraseToAnyPublisher(),
             coordinator: self
@@ -75,11 +74,7 @@ class NFTCollectionsCoordinator: CoordinatorObject {
         floatingSheetPresenter.removeActiveSheet()
     }
 
-    private func openReceive(navigationContext: NFTNavigationContext, options: Options) {
-        guard let input = navigationContext as? NFTNavigationInput else {
-            return
-        }
-
+    private func openReceive(navigationInput: NFTNavigationInput, options: Options) {
         let coordinator = NFTReceiveCoordinator(
             dismissAction: { [weak self] in
                 self?.receiveCoordinator = nil
@@ -92,7 +87,7 @@ class NFTCollectionsCoordinator: CoordinatorObject {
 
         coordinator.start(
             with: .init(
-                input: input,
+                input: navigationInput,
                 nftChainNameProviding: options.nftChainNameProvider,
                 analytics: options.blockchainSelectionAnalytics
             )
@@ -100,27 +95,23 @@ class NFTCollectionsCoordinator: CoordinatorObject {
         receiveCoordinator = coordinator
     }
 
-    private func openAccountSelector(options: Options) {
-        guard let input = options.navigationContext as? NFTNavigationInput else {
-            return
-        }
+    private func openAccountSelector(options: Options, navigationInput: NFTNavigationInput) {
+        let userWalletModel = navigationInput.userWalletModel
 
         Task { @MainActor in
             floatingSheetPresenter.enqueue(
                 sheet: AccountSelectorViewModel(
-                    userWalletModel: input.userWalletModel,
+                    userWalletModel: userWalletModel,
                     onSelect: { [weak self] result in
                         self?.closeSheet()
 
-                        let navigationContext = options.nftAccountNavigationContextProvider.provide(
-                            for: result.cryptoAccountModel?.id.toAnyHashable()
+                        let navigationInput = NFTNavigationInput(
+                            userWalletModel: userWalletModel,
+                            name: result.cryptoAccountModel.name,
+                            walletModelsManager: result.cryptoAccountModel.walletModelsManager
                         )
 
-                        guard let navigationContext else {
-                            return
-                        }
-
-                        self?.openReceive(navigationContext: navigationContext, options: options)
+                        self?.openReceive(navigationInput: navigationInput, options: options)
                     }
                 )
             )
@@ -133,12 +124,11 @@ class NFTCollectionsCoordinator: CoordinatorObject {
 extension NFTCollectionsCoordinator {
     struct Options {
         let nftManager: NFTManager
-        let accounForNFTCollectionsProvider: AccountForNFTCollectionProviding
-        let nftAccountNavigationContextProvider: NFTAccountNavigationContextProviding
+        let accountForNFTCollectionsProvider: AccountForNFTCollectionsProviding
+        let navigationContext: NFTNavigationContext
         let nftChainIconProvider: NFTChainIconProvider
         let nftChainNameProvider: NFTChainNameProviding
         let priceFormatter: NFTPriceFormatting
-        let navigationContext: NFTNavigationContext
         let blockchainSelectionAnalytics: NFTAnalytics.BlockchainSelection
     }
 }
@@ -147,16 +137,31 @@ extension NFTCollectionsCoordinator {
 
 extension NFTCollectionsCoordinator: NFTCollectionsListRoutable {
     func receiveTapped() {
-        guard let options else { return }
+        guard
+            let options,
+            let input = options.navigationContext as? NFTNavigationInput
+        else {
+            return
+        }
 
         if FeatureProvider.isAvailable(.accounts) {
-            openAccountSelector(options: options)
+            openAccountSelector(options: options, navigationInput: input)
         } else {
-            openReceive(navigationContext: options.navigationContext, options: options)
+            openReceive(
+                navigationInput: input,
+                options: options
+            )
         }
     }
 
-    func openAssetDetails(for asset: NFTAsset, in collection: NFTCollection, navigationContext: NFTNavigationContext) {
+    func openAssetDetails(for asset: NFTAsset, in collection: NFTCollection, navigationContext: NFTNavigationContext?) {
+        guard
+            let options,
+            let input = (navigationContext ?? options.navigationContext) as? NFTNavigationInput
+        else {
+            return
+        }
+
         let coordinator = NFTAssetDetailsCoordinator(
             dismissAction: { [weak self] asset in
                 self?.assetDetailsCoordinator = nil
@@ -171,15 +176,13 @@ extension NFTCollectionsCoordinator: NFTCollectionsListRoutable {
             }
         )
 
-        guard let options else { return }
-
         coordinator.start(
             with: .init(
                 asset: asset,
                 collection: collection,
                 nftChainNameProvider: options.nftChainNameProvider,
                 priceFormatter: options.priceFormatter,
-                navigationContext: navigationContext
+                navigationInput: input
             )
         )
         assetDetailsCoordinator = coordinator

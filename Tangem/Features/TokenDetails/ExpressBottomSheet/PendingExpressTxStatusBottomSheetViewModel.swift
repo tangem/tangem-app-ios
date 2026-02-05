@@ -49,7 +49,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
 
     private let pendingTransaction: PendingTransaction
     private let currentTokenItem: TokenItem
-    private let userWalletModel: UserWalletModel
+    private let userWalletInfo: UserWalletInfo
 
     private let balanceConverter = BalanceConverter()
     private let balanceFormatter = BalanceFormatter()
@@ -66,13 +66,13 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
     init(
         pendingTransaction: PendingTransaction,
         currentTokenItem: TokenItem,
-        userWalletModel: UserWalletModel,
+        userWalletInfo: UserWalletInfo,
         pendingTransactionsManager: PendingExpressTransactionsManager,
         router: PendingExpressTxStatusRoutable
     ) {
         self.pendingTransaction = pendingTransaction
         self.currentTokenItem = currentTokenItem
-        self.userWalletModel = userWalletModel
+        self.userWalletInfo = userWalletInfo
         self.pendingTransactionsManager = pendingTransactionsManager
         self.router = router
 
@@ -91,7 +91,11 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
             sheetTitle = Localization.commonTransactionStatus
             statusViewTitle = Localization.commonTransactionStatus
             sourceAmountText = balanceFormatter.formatFiatBalance(sourceAmount, currencyCode: sourceCurrencySymbol)
-            destinationAmountText = balanceFormatter.formatCryptoBalance(destination.amount, currencyCode: destination.tokenItem.currencySymbol)
+            if destination.amount > 0 {
+                destinationAmountText = balanceFormatter.formatCryptoBalance(destination.amount, currencyCode: destination.tokenItem.currencySymbol)
+            } else {
+                destinationAmountText = destination.tokenItem.currencySymbol
+            }
             sourceTokenIconInfo = iconBuilder.build(from: sourceCurrencySymbol)
             destinationTokenIconInfo = iconBuilder.build(from: destination.tokenItem, isCustom: destination.isCustom)
         }
@@ -163,7 +167,19 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
 
     private func openCurrency(tokenItem: TokenItem) {
         Analytics.log(.tokenButtonGoToToken)
-        router?.openCurrency(tokenItem: tokenItem, userWalletModel: userWalletModel)
+        assert(tokenItem.blockchainNetwork.derivationPath != nil)
+
+        let feeCurrencyFinderResult = try? WalletModelFinder
+            .findWalletModel(userWalletId: userWalletInfo.id, tokenItem: tokenItem)
+
+        guard let feeCurrencyFinderResult else {
+            return
+        }
+
+        router?.openRefundCurrency(
+            walletModel: feeCurrencyFinderResult.walletModel,
+            userWalletModel: feeCurrencyFinderResult.userWalletModel
+        )
     }
 
     private func loadEmptyFiatRates() {
@@ -173,7 +189,11 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
             loadRatesIfNeeded(stateKeyPath: \.destinationFiatAmountTextState, for: destination, on: self)
         case .onramp(_, _, let destination):
             sourceFiatAmountTextState = .noData
-            loadRatesIfNeeded(stateKeyPath: \.destinationFiatAmountTextState, for: destination, on: self)
+            if destination.amount > 0 {
+                loadRatesIfNeeded(stateKeyPath: \.destinationFiatAmountTextState, for: destination, on: self)
+            } else {
+                destinationFiatAmountTextState = .noData
+            }
         }
     }
 
@@ -290,7 +310,7 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
 
             inputs.append(input)
 
-        case .canceled:
+        case .expired:
             showGoToProviderHeaderButton = false
 
         default:
@@ -308,7 +328,9 @@ class PendingExpressTxStatusBottomSheetViewModel: ObservableObject, Identifiable
         if let refundedTokenItem {
             let input = notificationFactory.buildNotificationInput(
                 for: ExpressNotificationEvent.refunded(tokenItem: refundedTokenItem),
-                buttonAction: weakify(self, forFunction: PendingExpressTxStatusBottomSheetViewModel.didTapNotification(with:action:))
+                buttonAction: { [weak self] id, action in
+                    self?.didTapNotification(with: id, action: action)
+                }
             )
 
             inputs.append(input)
@@ -448,7 +470,7 @@ extension PendingExpressTxStatusBottomSheetViewModel {
         case .paused,
              .refunded,
              .unknown,
-             .canceled,
+             .expired,
              .failed where pendingTransaction.type.branch == .onramp,
              .txFailed where pendingTransaction.type.branch == .swap:
             isHideButtonShowed = true
@@ -459,7 +481,7 @@ extension PendingExpressTxStatusBottomSheetViewModel {
              .buying,
              .exchanging,
              .sendingToUser,
-             .done,
+             .finished,
              .verificationRequired,
              .failed,
              .txFailed,

@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct MarketsTokenDetailsExchangeItemInfo: Identifiable, Equatable {
+struct MarketsTokenDetailsExchangeItemInfo: Identifiable, Equatable, Hashable {
     let id: String
     let name: String
     let trustScore: MarketsExchangeTrustScore

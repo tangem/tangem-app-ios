@@ -14,11 +14,7 @@ import TangemAccessibilityIdentifiers
 struct TokenItemView: View {
     @ObservedObject private var viewModel: TokenItemViewModel
 
-    /// Not used on iOS versions below iOS 16.0.
-    /// - Note: Although this property has no effect on iOS versions below iOS 16.0,
-    /// it can't be marked using `@available` declaration in Swift 5.7 and above.
     private let roundedCornersConfiguration: RoundedCornersConfiguration?
-
     private let previewContentShapeCornerRadius: CGFloat
 
     var body: some View {
@@ -35,6 +31,7 @@ struct TokenItemView: View {
                         .accessibilityIdentifier(MainAccessibilityIdentifiers.tokenTitle)
 
                     leadingBadge
+                        .layoutPriority(1000.0)
                 }
             },
             primaryTrailingView: {
@@ -113,7 +110,9 @@ struct TokenItemView: View {
             TokenItemEarnBadgeView(
                 rewardType: rewardsInfo.type,
                 rewardValue: rewardsInfo.rewardValue,
-                color: rewardsInfo.isActive ? Colors.Text.accent : Colors.Text.secondary
+                color: rewardsInfo.isActive ? Colors.Text.accent : Colors.Text.secondary,
+                tapAction: viewModel.yieldApyTapAction,
+                isUpdating: rewardsInfo.isUpdating
             )
         case .none:
             EmptyView()
@@ -137,7 +136,7 @@ struct TokenItemView: View {
 
     @ViewBuilder
     private var background: some View {
-        if #available(iOS 16.0, *), let roundedCornersConfiguration = roundedCornersConfiguration {
+        if let roundedCornersConfiguration = roundedCornersConfiguration {
             Colors.Background.primary
                 .cornerRadiusContinuous(
                     topLeadingRadius: roundedCornersConfiguration.topLeadingRadius,
@@ -180,7 +179,6 @@ struct TokenItemView: View {
 // MARK: - Initialization
 
 extension TokenItemView {
-    @available(iOS 16.0, *)
     init(
         viewModel: TokenItemViewModel,
         cornerRadius: CGFloat,
@@ -211,16 +209,6 @@ extension TokenItemView {
             roundedCornersConfiguration = nil
         }
     }
-
-    @available(iOS, obsoleted: 16.0, message: "Use 'init(viewModel:cornerRadius:roundedCornersConfiguration:)' instead")
-    init(
-        viewModel: TokenItemViewModel,
-        cornerRadius: CGFloat
-    ) {
-        self.viewModel = viewModel
-        previewContentShapeCornerRadius = cornerRadius
-        roundedCornersConfiguration = RoundedCornersConfiguration()
-    }
 }
 
 // MARK: - Constants
@@ -234,7 +222,6 @@ private extension TokenItemView {
 // MARK: - Auxiliary types
 
 extension TokenItemView {
-    @available(iOS 16.0, *)
     enum RoundedCornersVerticalEdge {
         case topEdge
         case bottomEdge
@@ -252,7 +239,7 @@ extension TokenItemView {
 // MARK: - Previews
 
 struct TokenItemView_Previews: PreviewProvider {
-    static var infoProvider: FakeTokenItemInfoProvider = {
+    static let infoProvider: FakeTokenItemInfoProvider = {
         let walletManagers: [FakeWalletManager] = [.ethWithTokensManager, .btcManager, .polygonWithTokensManager, .xrpManager]
         InjectedValues.setTokenQuotesRepository(FakeTokenQuotesRepository(walletManagers: walletManagers))
         return FakeTokenItemInfoProvider(walletManagers: walletManagers)
@@ -261,10 +248,10 @@ struct TokenItemView_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
             VStack(spacing: 0) {
-                TokenSectionView(title: "Ethereum network")
+                TokenSectionView(title: "Ethereum network", topEdgeCornerRadius: nil)
 
                 ForEach(infoProvider.viewModels, id: \.id) { model in
-                    TokenItemView(viewModel: model, cornerRadius: 14)
+                    TokenItemView(viewModel: model, cornerRadius: 14, roundedCornersVerticalEdge: nil)
                 }
 
                 Spacer()

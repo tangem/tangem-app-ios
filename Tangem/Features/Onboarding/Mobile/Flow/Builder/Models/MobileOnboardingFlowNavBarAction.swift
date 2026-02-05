@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 enum MobileOnboardingFlowNavBarAction {
     typealias Handler = () -> Void
@@ -29,7 +30,7 @@ enum MobileOnboardingFlowNavBarAction {
                 action: handler
             )
         case .close(let handler):
-            CloseButton(dismiss: handler)
+            CloseTextButton(action: handler)
                 .padding(.leading, 16)
         case .skip(let handler):
             Button(action: handler) {
@@ -37,6 +38,7 @@ enum MobileOnboardingFlowNavBarAction {
                     .style(Fonts.Regular.body, color: Colors.Text.primary1)
                     .frame(height: OnboardingLayoutConstants.navbarSize.height)
             }
+            .accessibilityIdentifier(OnboardingAccessibilityIdentifiers.accessCodeSkipButton)
             .padding(.trailing, 16)
         }
     }

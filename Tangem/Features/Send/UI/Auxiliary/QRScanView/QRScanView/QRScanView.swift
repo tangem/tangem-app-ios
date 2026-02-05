@@ -11,6 +11,7 @@ import TangemAssets
 import TangemLocalization
 import TangemUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct QRScanView: View {
     @ObservedObject var viewModel: QRScanViewModel
@@ -62,6 +63,7 @@ struct QRScanView: View {
             }
             .padding(7)
             .style(Fonts.Regular.body, color: .white)
+            .accessibilityIdentifier(SendQRScannerAccessibilityIdentifiers.closeButton)
 
             Spacer()
 
@@ -69,11 +71,13 @@ struct QRScanView: View {
                 viewModel.isFlashActive ? Assets.flashDisabled.image : Assets.flash.image
             }
             .padding(7)
+            .accessibilityIdentifier(SendQRScannerAccessibilityIdentifiers.flashToggleButton)
 
             Button(action: viewModel.scanFromGallery) {
                 Assets.gallery.image
             }
             .padding(7)
+            .accessibilityIdentifier(SendQRScannerAccessibilityIdentifiers.galleryButton)
         }
         .padding(.vertical, 21)
         .padding(.horizontal, 9)
@@ -94,6 +98,7 @@ struct QRScanView: View {
             .padding(.top, 24)
             .padding(.horizontal, viewfinderPadding)
             .offset(y: viewSize.height / 2 + viewSize.width / 2 - viewfinderPadding)
+            .accessibilityIdentifier(SendQRScannerAccessibilityIdentifiers.infoText)
     }
 }
 

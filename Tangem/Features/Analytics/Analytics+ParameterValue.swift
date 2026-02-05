@@ -40,20 +40,25 @@ extension Analytics {
         case blocks = "Blocks"
         case seedless = "Seedless"
         case seedphrase = "Seed phrase"
+        case addNew = "Add New"
 
         case card = "Card"
         case ring = "Ring"
         case sepa = "Sepa"
         case mobileWallet = "MobileWallet"
         case visa = "Visa"
+        case blackFriday = "Black Friday"
+        case yieldPromo = "Yield Promo"
 
         case main = "Main"
         case token = "Token"
         case manageTokens = "Manage Tokens"
         case introduction = "Introduction"
         case onboarding = "Onboarding"
+        case details = "Details"
         case deviceSettings = "Device Settings"
         case settings = "Settings"
+        case account = "Account"
         case signIn = "Sign In"
         case receive = "Receive"
         case qr = "QR"
@@ -222,6 +227,12 @@ extension Analytics {
         case marketsErrorTypeTimeout = "Timeout"
         case marketsErrorTypeNetwork = "Network"
 
+        // MARK: - News
+
+        case newsSourceNewsList = "News List"
+        case newsSourceNewsPage = "News Page"
+        case newsSourceNewsLink = "News Link"
+
         // MARK: - Biometrics
 
         case biometricsSourceTransaction = "Transaction"
@@ -235,6 +246,10 @@ extension Analytics {
 
         case onramp = "Onramp"
         case markets = "Markets"
+
+        // MARK: - Markets
+
+        case marketPulse = "Market Pulse"
 
         // MARK: - Wallet Connect
 
@@ -257,6 +272,14 @@ extension Analytics {
         case `import` = "Import"
         case create = "Create Wallet"
         case importWallet = "Import Wallet"
+        case walletSettings = "Wallet Settings"
+        case upgrade = "Upgrade"
+        case remove = "Remove"
+        case hardwareWallet = "Hardware Wallet"
+        case notStarted = "Not Started"
+        case unfinished = "Unfinished"
+        case createWalletIntro = "Create Wallet Intro"
+        case addNewWallet = "Add New Wallet"
 
         case set = "Set"
         case changing = "Changing"
@@ -265,6 +288,12 @@ extension Analytics {
 
         case yieldModuleApproveNeeded = "Approve Required"
         case yieldModuleSourceInfo = "Earning"
+
+        // MARK: - Account Settings
+
+        case accountSourceEdit = "Edit"
+        case accountSourceNew = "New Account"
+        case accountSourceArchive = "Archive"
 
         // MARK: - Common
 
@@ -286,6 +315,10 @@ extension Analytics {
 
         static func successOrFailed(for boolean: Bool) -> ParameterValue {
             return boolean ? .success : .failed
+        }
+
+        static func enabledOrDisabled(for boolean: Bool) -> ParameterValue {
+            return boolean ? .enabled : .disabled
         }
     }
 }

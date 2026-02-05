@@ -14,8 +14,8 @@ class SendSummaryViewModel: ObservableObject, Identifiable {
     @Published private(set) var sendAmountCompactViewModel: SendAmountCompactViewModel?
     @Published private(set) var nftAssetCompactViewModel: NFTAssetCompactViewModel?
     @Published private(set) var sendDestinationCompactViewModel: SendDestinationCompactViewModel?
-    @Published private(set) var stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?
-    @Published private(set) var sendFeeCompactViewModel: SendNewFeeCompactViewModel?
+    @Published private(set) var stakingTargetsCompactViewModel: StakingTargetsCompactViewModel?
+    @Published private(set) var sendFeeCompactViewModel: SendFeeCompactViewModel?
 
     let destinationEditableType: Settings.EditableType
     let amountEditableType: Settings.EditableType
@@ -42,8 +42,8 @@ class SendSummaryViewModel: ObservableObject, Identifiable {
         sendAmountCompactViewModel: SendAmountCompactViewModel?,
         nftAssetCompactViewModel: NFTAssetCompactViewModel?,
         sendDestinationCompactViewModel: SendDestinationCompactViewModel?,
-        stakingValidatorsCompactViewModel: StakingValidatorsCompactViewModel?,
-        sendFeeCompactViewModel: SendNewFeeCompactViewModel?
+        stakingTargetsCompactViewModel: StakingTargetsCompactViewModel?,
+        sendFeeCompactViewModel: SendFeeCompactViewModel?
     ) {
         self.interactor = interactor
         destinationEditableType = settings.destinationEditableType
@@ -53,7 +53,7 @@ class SendSummaryViewModel: ObservableObject, Identifiable {
         self.sendAmountCompactViewModel = sendAmountCompactViewModel
         self.nftAssetCompactViewModel = nftAssetCompactViewModel
         self.sendDestinationCompactViewModel = sendDestinationCompactViewModel
-        self.stakingValidatorsCompactViewModel = stakingValidatorsCompactViewModel
+        self.stakingTargetsCompactViewModel = stakingTargetsCompactViewModel
         self.sendFeeCompactViewModel = sendFeeCompactViewModel
 
         sendAmountCompactViewModel?.router = self
@@ -80,6 +80,7 @@ class SendSummaryViewModel: ObservableObject, Identifiable {
 
     func userDidTapFee() {
         didTapSummary()
+
         router?.summaryStepRequestEditFee()
     }
 }

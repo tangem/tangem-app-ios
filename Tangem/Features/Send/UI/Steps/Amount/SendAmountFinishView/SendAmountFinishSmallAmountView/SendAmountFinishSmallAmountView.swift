@@ -11,12 +11,11 @@ import TangemAssets
 import TangemUI
 
 struct SendAmountFinishSmallAmountView: View {
-    @ObservedObject var viewModel: SendAmountFinishSmallAmountViewModel
+    let viewModel: SendAmountFinishSmallAmountViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(viewModel.title)
-                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+            SendTokenHeaderView(header: viewModel.tokenHeader)
 
             HStack(spacing: 14) {
                 TokenIcon(

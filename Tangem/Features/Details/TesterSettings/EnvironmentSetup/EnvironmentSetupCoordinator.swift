@@ -22,6 +22,7 @@ class EnvironmentSetupCoordinator: CoordinatorObject {
     // MARK: - Child view models
 
     @Published var supportedBlockchainsPreferencesViewModel: SupportedBlockchainsPreferencesViewModel?
+    @Published var addressesInfoViewModel: AddressesInfoViewModel?
 
     required init(
         dismissAction: @escaping Action<Void>,
@@ -47,7 +48,7 @@ extension EnvironmentSetupCoordinator {
 extension EnvironmentSetupCoordinator: EnvironmentSetupRoutable {
     func openSupportedBlockchainsPreferences() {
         supportedBlockchainsPreferencesViewModel = SupportedBlockchainsPreferencesViewModel(
-            blockchainIds: SupportedBlockchains.testableIDs.map { .init(name: $0, id: $0) }.toSet(),
+            blockchainIds: SupportedBlockchains.testableBlockchains(version: .v2).map { .init(name: $0.displayName, id: $0.networkId) }.toSet(),
             featureStorageKeyPath: \.supportedBlockchainsIds
         )
     }
@@ -67,5 +68,9 @@ extension EnvironmentSetupCoordinator: EnvironmentSetupRoutable {
             blockchainIds: allNFTChains.map { .init(name: $0.id, id: $0.id) }.toSet(),
             featureStorageKeyPath: \.testableNFTChainsIds
         )
+    }
+
+    func openAddressesInfo() {
+        addressesInfoViewModel = AddressesInfoViewModel()
     }
 }

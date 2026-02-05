@@ -41,7 +41,7 @@ class NewAppSettingsViewModel: ObservableObject {
     @Published var alert: AlertBinder?
 
     var biometricsTitle: String {
-        BiometricAuthorizationUtils.biometryType == .faceID ? Constants.faceIDTitle : Constants.touchIDTitle
+        BiometricsUtil.biometryType == .faceID ? Constants.faceIDTitle : Constants.touchIDTitle
     }
 
     // MARK: Dependencies
@@ -50,12 +50,21 @@ class NewAppSettingsViewModel: ObservableObject {
 
     // MARK: Properties
 
+    private lazy var hasProtectedWallets: Bool = userWalletRepository.models.contains { userWalletModel in
+        let unlocker = UserWalletModelUnlockerFactory.makeUnlocker(userWalletModel: userWalletModel)
+        return !unlocker.canUnlockAutomatically
+    }
+
     private var bag: Set<AnyCancellable> = []
     private var isBiometryAvailable: Bool = true
 
     /// Change to @AppStorage and move to model with IOS 14.5 minimum deployment target
     @AppStorageCompat(StorageType.selectedCurrencyCode)
     private var selectedCurrencyCode: String = "USD"
+
+    private var isRequireAccessCodeEnabled: Bool {
+        hasProtectedWallets && useBiometricAuthentication
+    }
 
     private var showingBiometryWarning: Bool {
         warningViewModel != nil
@@ -115,6 +124,15 @@ private extension NewAppSettingsViewModel {
     func useBiometricAuthenticationRequestChange(useBiometricAuthentication: Bool) {
         // [REDACTED_TODO_COMMENT]
 
+        guard hasProtectedWallets else {
+            if useBiometricAuthentication {
+                presentSetAccessCodeAlert(useBiometricAuthentication: useBiometricAuthentication)
+            } else {
+                setUseBiometricAuthentication(useBiometricAuthentication)
+            }
+            return
+        }
+
         if useBiometricAuthentication {
             unlockWithBiometry { [weak self] in
                 self?.setUseBiometricAuthentication($0)
@@ -164,7 +182,7 @@ private extension NewAppSettingsViewModel {
 
         requireAccessCodesViewModel = DefaultToggleRowViewModel(
             title: Localization.appSettingsRequireAccessCode,
-            isDisabled: !useBiometricAuthentication,
+            isDisabled: !isRequireAccessCodeEnabled,
             isOn: requireAccessCodesBinding()
         )
 
@@ -227,6 +245,20 @@ private extension NewAppSettingsViewModel {
                 AppSettings.shared.isHidingSensitiveAvailable = enabled
             }
         )
+    }
+
+    func presentSetAccessCodeAlert(useBiometricAuthentication: Bool) {
+        let okButton = Alert.Button.default(Text(Localization.commonOk)) { [weak self] in
+            self?.setUseBiometricAuthentication(!useBiometricAuthentication)
+        }
+
+        let alert = Alert(
+            title: Text(Localization.commonAttention),
+            message: Text(Localization.appSettingsAccessCodeWarning),
+            dismissButton: okButton
+        )
+
+        self.alert = AlertBinder(alert: alert)
     }
 
     func presentDisableBiometricsAlert() {
@@ -309,7 +341,7 @@ private extension NewAppSettingsViewModel {
     }
 
     func updateView() {
-        isBiometryAvailable = BiometricAuthorizationUtils.getBiometricState() == .available
+        isBiometryAvailable = BiometricsUtil.isAvailable
         setupView()
     }
 

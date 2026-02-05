@@ -64,34 +64,40 @@ extension StakingFeatureProvider {
             StakingItem(network: .solana, contractAddress: nil),
             StakingItem(network: .cosmos, contractAddress: nil),
             StakingItem(network: .tron, contractAddress: nil),
-            StakingItem(network: .ethereum, contractAddress: StakingConstants.polygonContractAddress),
-            StakingItem(network: .binance, contractAddress: nil),
+            StakingItem(
+                network: .ethereum,
+                contractAddress: StakingConstants.polygonContractAddress
+            ),
+            StakingItem(network: .bsc, contractAddress: nil),
             StakingItem(network: .ton, contractAddress: nil),
+            StakingItem(network: .cardano, contractAddress: nil),
         ]
     }
 
     static var testableBlockchainItems: Set<StakingItem> {
         [
-            StakingItem(network: .cardano, contractAddress: nil),
+            StakingItem(network: .ethereum, contractAddress: nil),
         ]
     }
 
     func yieldIds(item: StakingItem) -> String? {
         switch (item.network, item.contractAddress) {
         case (.solana, .none):
-            return "solana-sol-native-multivalidator-staking"
+            return StakingIntegrationId.solana.rawValue
         case (.cosmos, .none):
-            return "cosmos-atom-native-staking"
+            return StakingIntegrationId.cosmos.rawValue
         case (.ethereum, StakingConstants.polygonContractAddress):
-            return "ethereum-matic-native-staking"
+            return StakingIntegrationId.matic.rawValue
         case (.tron, .none):
-            return "tron-trx-native-staking"
-        case (.binance, .none):
-            return "bsc-bnb-native-staking"
+            return StakingIntegrationId.tron.rawValue
+        case (.bsc, .none):
+            return StakingIntegrationId.bsc.rawValue
         case (.ton, .none):
-            return "ton-ton-chorus-one-pools-staking"
+            return StakingIntegrationId.ton.rawValue
         case (.cardano, .none):
-            return "cardano-ada-native-staking"
+            return StakingIntegrationId.cardano.rawValue
+        case (.ethereum, .none):
+            return StakingIntegrationId.ethereumP2P.rawValue // dummy id for consistency
         default:
             return nil
         }
@@ -100,7 +106,7 @@ extension StakingFeatureProvider {
 
 extension StakingFeatureProvider {
     struct StakingItem: Hashable {
-        let network: StakeKitNetworkType
+        let network: StakingNetworkType
         let contractAddress: String?
 
         var id: String {

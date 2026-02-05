@@ -32,20 +32,14 @@ final class TONWalletManager: BaseManager, WalletManager {
 
     // MARK: - Implementation
 
-    override func update(completion: @escaping (Result<Void, Error>) -> Void) {
-        cancellable = networkService
-            .getInfo(address: wallet.address, tokens: cardTokens)
-            .sink(
-                receiveCompletion: { [weak self] completionSubscription in
-                    if case .failure(let error) = completionSubscription {
-                        self?.wallet.clearAmounts()
-                        completion(.failure(error))
-                    }
-                },
-                receiveValue: { [weak self] info in
-                    self?.update(with: info, completion: completion)
-                }
-            )
+    override func updateWalletManager() async throws {
+        do {
+            let info = try await networkService.getInfo(address: wallet.address, tokens: cardTokens).async()
+            await update(with: info)
+        } catch {
+            wallet.clearAmounts()
+            throw error
+        }
     }
 
     func send(
@@ -101,12 +95,13 @@ final class TONWalletManager: BaseManager, WalletManager {
                     .mapAndEraseSendTxError(tx: message)
                     .eraseToAnyPublisher()
             }
-            .map { [weak self] base64String in
+            .withWeakCaptureOf(self)
+            .map { manager, base64String in
                 let mapper = PendingTransactionRecordMapper()
                 let hex = Data(base64Encoded: base64String)?.hex() ?? ""
                 let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: hex)
-                self?.wallet.addPendingTransaction(record)
-                return TransactionSendResult(hash: hex)
+                manager.wallet.addPendingTransaction(record)
+                return TransactionSendResult(hash: hex, currentProviderHost: manager.currentHost)
             }
             .mapSendTxError()
             .eraseToAnyPublisher()
@@ -140,17 +135,18 @@ extension TONWalletManager: TransactionFeeProvider {
 
                 return buildForSend
             }
-            .flatMap { [weak self] message -> AnyPublisher<[Fee], Error> in
-                guard let self else {
-                    return Fail(error: BlockchainSdkError.failedToBuildTx).eraseToAnyPublisher()
-                }
-
-                return networkService.getFee(address: wallet.address, message: message)
-                    .withWeakCaptureOf(self)
-                    .map { walletManager, fees in
-                        walletManager.appendJettonTransferProcessingFeeIfNeeded(fees, amountType: amount.type)
-                    }
-                    .eraseToAnyPublisher()
+            .withWeakCaptureOf(self)
+            .flatMap { manager, message -> AnyPublisher<([Fee], String?), Error> in
+                manager.networkService.getFee(
+                    source: manager.wallet.address,
+                    destination: destination,
+                    amount: amount,
+                    message: message
+                )
+            }
+            .withWeakCaptureOf(self)
+            .flatMap { manager, feesAndAddress -> AnyPublisher<[Fee], Error> in
+                manager.transformFeeIfNeeded(with: feesAndAddress, amount: amount)
             }
             .eraseToAnyPublisher()
     }
@@ -159,7 +155,7 @@ extension TONWalletManager: TransactionFeeProvider {
 // MARK: - Private Implementation
 
 private extension TONWalletManager {
-    private func update(with info: TONWalletInfo, completion: @escaping (Result<Void, Error>) -> Void) {
+    private func update(with info: TONWalletInfo) async {
         if info.sequenceNumber != transactionBuilder.sequenceNumber {
             wallet.clearPendingTransaction()
         }
@@ -179,7 +175,6 @@ private extension TONWalletManager {
         }
 
         transactionBuilder.sequenceNumber = info.sequenceNumber
-        completion(.success(()))
     }
 
     private func getJettonWalletAddressIfNeeded(
@@ -200,13 +195,49 @@ private extension TONWalletManager {
         }
     }
 
-    private func appendJettonTransferProcessingFeeIfNeeded(_ fees: [Fee], amountType: Amount.AmountType) -> [Fee] {
+    private func transformFeeIfNeeded(with feesAndAddress: ([Fee], String?), amount: Amount) -> AnyPublisher<[Fee], Error> {
+        let (fees, recipientJettonWalletAddress) = feesAndAddress
+
+        // Check if recipient's jetton wallet is active
+        if let recipientJettonWalletAddress {
+            return networkService.isJettonWalletActive(jettonWalletAddress: recipientJettonWalletAddress)
+                .withWeakCaptureOf(self)
+                .map { manager, isActive in
+                    manager.appendJettonTransferProcessingFeeIfNeeded(
+                        fees,
+                        amountType: amount.type,
+                        isRecipientJettonWalletActive: isActive
+                    )
+                }
+                .eraseToAnyPublisher()
+        } else {
+            let updatedFees = appendJettonTransferProcessingFeeIfNeeded(
+                fees,
+                amountType: amount.type,
+                isRecipientJettonWalletActive: false
+            )
+            return Just(updatedFees)
+                .setFailureType(to: Error.self)
+                .eraseToAnyPublisher()
+        }
+    }
+
+    private func appendJettonTransferProcessingFeeIfNeeded(
+        _ fees: [Fee],
+        amountType: Amount.AmountType,
+        isRecipientJettonWalletActive: Bool
+    ) -> [Fee] {
         guard case .token = amountType else {
             return fees
         }
+
+        let processingFee = isRecipientJettonWalletActive
+            ? TONTransactionBuilder.Constants.jettonTransferProcessingFeeForActiveWallet
+            : TONTransactionBuilder.Constants.jettonTransferProcessingFee
+
         return fees.map { fee in
             var amount = fee.amount
-            amount.value += TONTransactionBuilder.Constants.jettonTransferProcessingFee
+            amount.value += processingFee
             return Fee(amount, parameters: fee.parameters)
         }
     }
@@ -224,15 +255,18 @@ private extension TONWalletManager {
 
 // MARK: - StakeKitTransactionSender, StakeKitTransactionSenderProvider
 
-extension TONWalletManager: StakeKitTransactionsBuilder, StakeKitTransactionSender {
+extension TONWalletManager: StakeKitTransactionSender, StakingTransactionsBuilder {
     typealias RawTransaction = String
 
     /// we need to pass the same signing input into prepareForSend method
-    func buildRawTransactions(
-        from transactions: [StakeKitTransaction],
+    func buildRawTransactions<T: StakingTransaction>(
+        from transactions: [T],
         publicKey: Wallet.PublicKey,
         signer: any TransactionSigner
     ) async throws -> [String] {
+        guard let transactions = transactions as? [StakeKitTransaction] else {
+            throw BlockchainSdkError.failedToBuildTx
+        }
         let expireAt = createExpirationTimestampSecs()
 
         let helper = TONStakeKitTransactionHelper(transactionBuilder: transactionBuilder)
@@ -247,10 +281,8 @@ extension TONWalletManager: StakeKitTransactionsBuilder, StakeKitTransactionSend
         ).async()
 
         return try signatures.enumerated().compactMap { index, signature -> RawTransaction? in
-            guard let transaction = transactions[safe: index],
-                  let preSignData = preSignData[safe: index] else { return nil }
+            guard let preSignData = preSignData[safe: index] else { return nil }
             return try helper.prepareForSend(
-                stakingTransaction: transaction,
                 preSignData: preSignData,
                 signatureInfo: signature
             )
@@ -259,7 +291,7 @@ extension TONWalletManager: StakeKitTransactionsBuilder, StakeKitTransactionSend
 }
 
 extension TONWalletManager: StakeKitTransactionDataBroadcaster {
-    func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> String {
+    func broadcast(rawTransaction: RawTransaction) async throws -> String {
         try await networkService.send(message: rawTransaction).async()
     }
 }

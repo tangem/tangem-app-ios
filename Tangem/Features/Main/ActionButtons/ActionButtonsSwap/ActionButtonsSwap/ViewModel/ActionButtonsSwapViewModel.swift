@@ -179,13 +179,23 @@ final class ActionButtonsSwapViewModel: ObservableObject {
 
         let openExpressAction = { [weak coordinator, userWalletModel] in
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                coordinator?.openExpress(input: .init(
-                    userWalletInfo: userWalletModel.userWalletInfo,
-                    userTokensManager: userWalletModel.userTokensManager,
-                    walletModelsManager: userWalletModel.walletModelsManager,
-                    initialWalletModel: sourceToken.walletModel,
-                    destinationWalletModel: destinationToken.walletModel
-                ))
+                coordinator?.openExpress(
+                    input: .init(
+                        userWalletInfo: userWalletModel.userWalletInfo,
+                        source: ExpressInteractorWalletModelWrapper(
+                            userWalletInfo: userWalletModel.userWalletInfo,
+                            walletModel: sourceToken.walletModel,
+                            expressOperationType: .swap
+                        ),
+                        destination: .chosen(
+                            ExpressInteractorWalletModelWrapper(
+                                userWalletInfo: userWalletModel.userWalletInfo,
+                                walletModel: destinationToken.walletModel,
+                                expressOperationType: .swap
+                            )
+                        )
+                    )
+                )
             }
         }
 
@@ -244,10 +254,7 @@ private extension ActionButtonsSwapViewModel {
         .init(
             tokenSelectorItemBuilder: ActionButtonsTokenSelectorItemBuilder(),
             strings: SwapTokenSelectorStrings(tokenName: token.infoProvider.tokenItem.name),
-            expressTokensListAdapter: CommonExpressTokensListAdapter(
-                userTokensManager: userWalletModel.userTokensManager,
-                walletModelsManager: userWalletModel.walletModelsManager,
-            ),
+            expressTokensListAdapter: CommonExpressTokensListAdapter(userWalletId: userWalletModel.userWalletId),
             tokenSorter: SwapDestinationTokenAvailabilitySorter(
                 sourceTokenWalletModel: token.walletModel,
                 userWalletModelConfig: userWalletModel.config

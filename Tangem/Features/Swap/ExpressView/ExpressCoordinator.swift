@@ -14,6 +14,7 @@ import class UIKit.UIApplication
 
 final class ExpressCoordinator: CoordinatorObject {
     @Injected(\.safariManager) private var safariManager: SafariManager
+    @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
 
     let dismissAction: DismissAction
     let popToRootAction: Action<PopToRootOptions>
@@ -30,7 +31,6 @@ final class ExpressCoordinator: CoordinatorObject {
 
     @Published var expressTokensListViewModel: ExpressTokensListViewModel?
     @Published var swapTokenSelectorViewModel: SwapTokenSelectorViewModel?
-    @Published var expressFeeSelectorViewModel: ExpressFeeSelectorViewModel?
     @Published var expressProvidersSelectorViewModel: ExpressProvidersSelectorViewModel?
     @Published var expressApproveViewModel: ExpressApproveViewModel?
 
@@ -61,10 +61,7 @@ extension ExpressCoordinator {
     }
 
     typealias DismissAction = Action<DismissOptions?>
-
-    enum DismissOptions {
-        case openFeeCurrency(userWalletId: UserWalletId, feeTokenItem: TokenItem)
-    }
+    typealias DismissOptions = FeeCurrencyNavigatingDismissOption
 }
 
 // MARK: - ExpressRoutable
@@ -79,11 +76,16 @@ extension ExpressCoordinator: ExpressRoutable {
     }
 
     func presentFeeSelectorView() {
-        expressFeeSelectorViewModel = factory.makeExpressFeeSelectorViewModel(coordinator: self)
+        guard let feeSelectorViewModel = factory.makeFeeSelectorViewModel(coordinator: self) else {
+            return
+        }
+
+        Task { @MainActor in floatingSheetPresenter.enqueue(sheet: feeSelectorViewModel) }
     }
 
-    func presentApproveView(provider: ExpressProvider, selectedPolicy: BSDKApprovePolicy) {
+    func presentApproveView(source: any ExpressInteractorSourceWallet, provider: ExpressProvider, selectedPolicy: BSDKApprovePolicy) {
         expressApproveViewModel = factory.makeExpressApproveViewModel(
+            source: source,
             providerName: provider.name,
             selectedPolicy: selectedPolicy,
             coordinator: self
@@ -113,12 +115,32 @@ extension ExpressCoordinator: ExpressRoutable {
         expressProvidersSelectorViewModel = factory.makeExpressProvidersSelectorViewModel(coordinator: self)
     }
 
-    func presentFeeCurrency(userWalletId: UserWalletId, feeTokenItem: TokenItem) {
-        dismiss(with: .openFeeCurrency(userWalletId: userWalletId, feeTokenItem: feeTokenItem))
+    func presentFeeCurrency(feeCurrency: FeeCurrencyNavigatingDismissOption) {
+        dismiss(with: feeCurrency)
     }
 
     func closeSwappingView() {
-        dismiss(with: nil)
+        dismiss(with: .none)
+    }
+}
+
+// MARK: - FeeSelectorRoutable
+
+extension ExpressCoordinator: SendFeeSelectorRoutable {
+    func closeFeeSelector() {
+        Task { @MainActor in floatingSheetPresenter.removeActiveSheet() }
+    }
+
+    func openFeeSelectorLearnMoreURL(_ url: URL) {
+        Task { @MainActor in
+            floatingSheetPresenter.pauseSheetsDisplaying()
+            _ = safariManager.openURL(
+                url,
+                configuration: .init(),
+                onDismiss: { [weak self] in self?.floatingSheetPresenter.resumeSheetsDisplaying() },
+                onSuccess: { [weak self] _ in self?.floatingSheetPresenter.resumeSheetsDisplaying() },
+            )
+        }
     }
 }
 
@@ -135,15 +157,6 @@ extension ExpressCoordinator: ExpressTokensListRoutable {
 extension ExpressCoordinator: SwapTokenSelectorRoutable {
     func closeSwapTokenSelector() {
         swapTokenSelectorViewModel = nil
-    }
-}
-
-// MARK: - ExpressRoutable
-
-extension ExpressCoordinator: ExpressFeeSelectorRoutable {
-    func closeExpressFeeSelector() {
-        expressFeeSelectorViewModel = nil
-        rootViewModel?.didCloseFeeSelectorSheet()
     }
 }
 

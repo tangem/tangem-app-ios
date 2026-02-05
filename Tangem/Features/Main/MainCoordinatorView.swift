@@ -6,63 +6,49 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
+import StoreKit
 import SwiftUI
-import TangemLocalization
 import TangemAssets
-import TangemNFT
+import TangemLocalization
+import enum TangemFoundation.AppEnvironment
 import TangemUI
+import TangemUIUtils
 
 struct MainCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: MainCoordinator
 
-    @State private var responderChainIntrospectionTrigger = UUID()
-
-    @StateObject private var navigationAssertion = MainCoordinatorNavigationAssertion()
+    @Environment(\.requestReview) private var requestReview
 
     @Injected(\.overlayContentStateObserver) private var overlayContentStateObserver: OverlayContentStateObserver
 
     var body: some View {
-        NavigationView {
-            content
-        }
-        .navigationViewStyle(.stack)
-    }
+        NavigationStack {
+            ZStack {
+                if let mainViewModel = coordinator.mainViewModel {
+                    MainView(viewModel: mainViewModel)
+                        .navigationLinks(links)
+                }
 
-    private var content: some View {
-        ZStack {
-            if let mainViewModel = coordinator.mainViewModel {
-                MainView(viewModel: mainViewModel)
-                    .navigationLinks(links)
+                marketsTooltipView
+
+                sheets
             }
-
-            marketsTooltipView
-
-            sheets
-        }
-        .onOverlayContentStateChange(overlayContentStateObserver: overlayContentStateObserver) { [weak coordinator] state in
-            if !state.isCollapsed {
-                coordinator?.hideMarketsTooltip()
-            } else {
-                // Workaround: If you open the markets screen, add a token, and return to the main page, the frames break and no longer align with the tap zone.
-                // [REDACTED_INFO]
-                // https://forums.developer.apple.com/forums/thread/724598
-                if let vc = UIApplication.topViewController as? OverlayContentContainerViewController {
-                    vc.resetContentFrame()
+            .onOverlayContentStateChange(overlayContentStateObserver: overlayContentStateObserver) { [weak coordinator] state in
+                if !state.isCollapsed {
+                    coordinator?.hideMarketsTooltip()
+                } else {
+                    // Workaround: If you open the markets screen, add a token, and return to the main page, the frames break and no longer align with the tap zone.
+                    // [REDACTED_INFO]
+                    // https://forums.developer.apple.com/forums/thread/724598
+                    if let vc = UIApplication.topViewController as? OverlayContentContainerViewController {
+                        vc.resetContentFrame()
+                    }
                 }
             }
-        }
-        .onAppear {
-            responderChainIntrospectionTrigger = UUID()
-        }
-        .introspectResponderChain(
-            introspectedType: UINavigationController.self,
-            updateOnChangeOf: responderChainIntrospectionTrigger
-        ) { [weak navigationAssertion] navigationController in
-            navigationController.safeSet(delegate: navigationAssertion)
+            .injectNavigationAssertionDelegate()
         }
     }
 
-    @ViewBuilder
     private var links: some View {
         NavHolder()
             .navigation(item: $coordinator.detailsCoordinator) {
@@ -77,27 +63,32 @@ struct MainCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.marketsTokenDetailsCoordinator) {
                 MarketsTokenDetailsCoordinatorView(coordinator: $0)
             }
-            .navigation(item: $coordinator.referralCoordinator) {
-                ReferralCoordinatorView(coordinator: $0)
-            }
             .navigation(item: $coordinator.nftCollectionsCoordinator) {
                 NFTCollectionsCoordinatorView(coordinator: $0)
             }
-            .navigation(item: $coordinator.tangemPayMainViewModel) {
-                TangemPayMainView(viewModel: $0)
+            .navigation(item: $coordinator.tangemPayMainCoordinator) {
+                TangemPayMainCoordinatorView(coordinator: $0)
+            }
+            .navigation(item: $coordinator.yieldModulePromoCoordinator) {
+                YieldModulePromoCoordinatorView(coordinator: $0)
+            }
+            .navigation(item: $coordinator.mobileBackupTypesCoordinator) {
+                MobileBackupTypesCoordinatorView(coordinator: $0)
             }
     }
 
     @ViewBuilder
     private var sheets: some View {
         NavHolder()
-            .sheet(item: $coordinator.mailViewModel) {
-                MailView(viewModel: $0)
+            .fullScreenCover(
+                item: $coordinator.tangemPayOnboardingCoordinator
+            ) {
+                TangemPayOnboardingCoordinatorView(coordinator: $0)
             }
             .sheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
             }
-            .iOS16UIKitSheet(item: $coordinator.expressCoordinator) { coordinator in
+            .sheet(item: $coordinator.expressCoordinator) { coordinator in
                 ExpressCoordinatorView(coordinator: coordinator)
             }
             .sheet(item: $coordinator.modalOnboardingCoordinator) {
@@ -108,7 +99,14 @@ struct MainCoordinatorView: CoordinatorView {
                     })
             }
             .sheet(item: $coordinator.organizeTokensViewModel) { viewModel in
-                NavigationBarHidingView(shouldWrapInNavigationView: true) {
+                NavigationBarHidingView(shouldWrapInNavigationStack: true) {
+                    AccountsAwareOrganizeTokensView(viewModel: viewModel)
+                        .navigationTitle(Localization.organizeTokensTitle)
+                        .navigationBarTitleDisplayMode(.inline)
+                }
+            }
+            .sheet(item: $coordinator.legacyOrganizeTokensViewModel) { viewModel in
+                NavigationBarHidingView(shouldWrapInNavigationStack: true) {
                     OrganizeTokensView(viewModel: viewModel)
                         .navigationTitle(Localization.organizeTokensTitle)
                         .navigationBarTitleDisplayMode(.inline)
@@ -133,23 +131,35 @@ struct MainCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.actionButtonsSwapCoordinator) {
                 ActionButtonsSwapCoordinatorView(coordinator: $0)
             }
+            .sheet(item: $coordinator.yieldModuleActiveCoordinator) {
+                YieldModuleActiveCoordinatorView(coordinator: $0)
+            }
             .floatingSheetContent(for: MobileFinishActivationNeededViewModel.self) {
                 MobileFinishActivationNeededView(viewModel: $0)
             }
             .floatingSheetContent(for: ReceiveMainViewModel.self) {
                 ReceiveMainView(viewModel: $0)
             }
+            .floatingSheetContent(for: AccountSelectorViewModel.self) {
+                AccountSelectorView(viewModel: $0)
+            }
             .floatingSheetContent(for: YieldNoticeViewModel.self) {
                 YieldNoticeView(viewModel: $0)
             }
+            .floatingSheetContent(for: TangemPayYourCardIsIssuingSheetViewModel.self) {
+                TangemPayPopupView(viewModel: $0)
+            }
+            .floatingSheetContent(for: TangemPayFailedToIssueCardSheetViewModel.self) {
+                TangemPayPopupView(viewModel: $0)
+            }
+            .floatingSheetContent(for: TangemPayKYCStatusPopupViewModel.self) {
+                TangemPayPopupView(viewModel: $0)
+            }
+            .floatingSheetContent(for: TangemPayKYCDeclinedPopupViewModel.self) {
+                TangemPayPopupView(viewModel: $0)
+            }
 
         NavHolder()
-            .bottomSheet(
-                item: $coordinator.receiveBottomSheetViewModel,
-                settings: .init(backgroundColor: Colors.Background.primary, contentScrollsHorizontally: true)
-            ) {
-                ReceiveBottomSheetView(viewModel: $0)
-            }
             .bottomSheet(
                 item: $coordinator.pushNotificationsViewModel,
                 backgroundColor: Colors.Background.primary
@@ -164,7 +174,12 @@ struct MainCoordinatorView: CoordinatorView {
             }
 
         NavHolder()
-            .requestAppStoreReviewCompat($coordinator.isAppStoreReviewRequested)
+            .onChange(of: coordinator.isAppStoreReviewRequested) { newValue in
+                guard newValue else { return }
+
+                coordinator.isAppStoreReviewRequested.toggle()
+                requestReview()
+            }
     }
 
     /// Tooltip is placed on top of the other views
@@ -175,5 +190,39 @@ struct MainCoordinatorView: CoordinatorView {
             title: Localization.marketsTooltipTitle,
             message: Localization.marketsTooltipMessage
         )
+    }
+}
+
+// MARK: - Overlay content controller bottom sheet + push navigation assertion
+
+private extension View {
+    @ViewBuilder
+    func injectNavigationAssertionDelegate() -> some View {
+        if AppEnvironment.current.isAlphaOrBetaOrDebug {
+            modifier(NavigationControllerDelegateViewModifier())
+        } else {
+            self
+        }
+    }
+}
+
+private struct NavigationControllerDelegateViewModifier: ViewModifier {
+    @State private var responderChainIntrospectionTrigger = UUID()
+
+    @StateObject private var multicastDelegate = UINavigationControllerMulticastDelegate(
+        customDelegate: MainCoordinatorNavigationAssertion()
+    )
+
+    func body(content: Content) -> some View {
+        content
+            .onAppear {
+                responderChainIntrospectionTrigger = UUID()
+            }
+            .introspectResponderChain(
+                introspectedType: UINavigationController.self,
+                updateOnChangeOf: responderChainIntrospectionTrigger
+            ) { [weak multicastDelegate] navigationController in
+                navigationController.set(multicastDelegate: multicastDelegate)
+            }
     }
 }

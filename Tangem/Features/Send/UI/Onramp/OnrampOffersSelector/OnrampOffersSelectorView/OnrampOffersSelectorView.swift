@@ -10,6 +10,7 @@ import SwiftUI
 import TangemUI
 import TangemAssets
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct OnrampOffersSelectorView: View {
     @ObservedObject var viewModel: OnrampOffersSelectorViewModel
@@ -34,19 +35,20 @@ struct OnrampOffersSelectorView: View {
                 title: Localization.onrampAllOffersButtonTitle,
                 subtitle: subtitle,
                 leading: {
-                    CircleButton.back(action: viewModel.back).visible(backButtonVisible)
+                    NavigationBarButton.back(action: viewModel.back).visible(backButtonVisible)
                 },
                 trailing: {
-                    CircleButton.close(action: viewModel.close)
+                    NavigationBarButton.close(action: viewModel.close)
                 }
             )
             .subtitleSpacing(0)
             .padding(.horizontal, 16)
+            .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providersScreenTitle)
 
             GroupedScrollView(contentType: .plain(alignment: .leading, spacing: 8)) {
                 content
             }
-            .scrollBounceBehaviorBackport(.basedOnSize)
+            .scrollBounceBehavior(.basedOnSize)
             .animation(.contentFrameUpdate, value: viewModel.viewState.isPaymentMethods)
             .padding(.bottom, 16)
         }

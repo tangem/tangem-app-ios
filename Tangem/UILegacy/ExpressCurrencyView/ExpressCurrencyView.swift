@@ -7,10 +7,10 @@
 //
 
 import SwiftUI
-import TangemLocalization
 import TangemAssets
 import TangemUI
 import TangemUIUtils
+import TangemLocalization
 
 struct ExpressCurrencyView<Content: View>: View {
     @ObservedObject private var viewModel: ExpressCurrencyViewModel
@@ -42,18 +42,7 @@ struct ExpressCurrencyView<Content: View>: View {
 
     var topContent: some View {
         HStack(spacing: 0) {
-            switch viewModel.titleState {
-            case .text(let title):
-                Text(title)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
-            case .insufficientFunds:
-                Text(Localization.swappingInsufficientFunds)
-                    .style(Fonts.Regular.caption1, color: Colors.Text.warning)
-            case .error(let text):
-                // Use for generic error
-                Text(text)
-                    .style(Fonts.Regular.caption1, color: Colors.Text.warning)
-            }
+            headerView
 
             Spacer()
 
@@ -72,6 +61,16 @@ struct ExpressCurrencyView<Content: View>: View {
                 SensitiveText(builder: Localization.commonBalance, sensitive: value)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
             }
+        }
+    }
+
+    @ViewBuilder
+    var headerView: some View {
+        switch (viewModel.headerType, viewModel.errorState) {
+        case (_, .none):
+            ExpressCurrencyDefaultHeaderView(headerType: viewModel.headerType)
+        case (_, .some(let errorState)):
+            ExpressCurrencyErrorHeaderView(errorState: errorState)
         }
     }
 
@@ -198,7 +197,8 @@ extension ExpressCurrencyView: Setupable {
 struct ExpressCurrencyView_Preview: PreviewProvider {
     static let viewModels = [
         ExpressCurrencyViewModel(
-            titleState: .text(Localization.swappingToTitle),
+            viewType: .receive,
+            headerType: .action(name: Localization.swappingToTitle),
             balanceState: .loading,
             fiatAmountState: .loading,
             tokenIconState: .icon(TokenIconInfoBuilder().build(from: .blockchain(.init(.ethereum(testnet: false), derivationPath: nil)), isCustom: false)),
@@ -206,7 +206,8 @@ struct ExpressCurrencyView_Preview: PreviewProvider {
             canChangeCurrency: false
         ),
         ExpressCurrencyViewModel(
-            titleState: .text(Localization.swappingToTitle),
+            viewType: .receive,
+            headerType: .action(name: Localization.swappingToTitle),
             balanceState: .formatted("0.0058"),
             fiatAmountState: .loading,
             tokenIconState: .icon(TokenIconInfoBuilder().build(from: .blockchain(.init(.cardano(extended: false), derivationPath: nil)), isCustom: false)),
@@ -214,7 +215,8 @@ struct ExpressCurrencyView_Preview: PreviewProvider {
             canChangeCurrency: false
         ),
         ExpressCurrencyViewModel(
-            titleState: .text(Localization.swappingToTitle),
+            viewType: .receive,
+            headerType: .action(name: Localization.swappingToTitle),
             balanceState: .formatted("0.0058"),
             fiatAmountState: .loading,
             tokenIconState: .icon(TokenIconInfoBuilder().build(from: .blockchain(.init(.cardano(extended: false), derivationPath: nil)), isCustom: false)),
@@ -222,7 +224,8 @@ struct ExpressCurrencyView_Preview: PreviewProvider {
             canChangeCurrency: true
         ),
         ExpressCurrencyViewModel(
-            titleState: .text(Localization.swappingToTitle),
+            viewType: .receive,
+            headerType: .action(name: Localization.swappingToTitle),
             balanceState: .formatted("0.0058"),
             fiatAmountState: .loaded(text: "1100.46"),
             tokenIconState: .icon(TokenIconInfoBuilder().build(from: .blockchain(.init(.polygon(testnet: false), derivationPath: nil)), isCustom: false)),
@@ -230,7 +233,8 @@ struct ExpressCurrencyView_Preview: PreviewProvider {
             canChangeCurrency: true
         ),
         ExpressCurrencyViewModel(
-            titleState: .text(Localization.swappingToTitle),
+            viewType: .receive,
+            headerType: .action(name: Localization.swappingToTitle),
             balanceState: .formatted("0.0058"),
             fiatAmountState: .loaded(text: "2100.46 $"),
             tokenIconState: .icon(TokenIconInfoBuilder().build(from: .token(.tetherMock, .init(.polygon(testnet: false), derivationPath: nil)), isCustom: false)),
@@ -238,7 +242,8 @@ struct ExpressCurrencyView_Preview: PreviewProvider {
             canChangeCurrency: true
         ),
         ExpressCurrencyViewModel(
-            titleState: .text(Localization.swappingToTitle),
+            viewType: .receive,
+            headerType: .action(name: Localization.swappingToTitle),
             balanceState: .formatted("0.0058"),
             fiatAmountState: .loaded(text: "2100.46 $"),
             priceChangeState: .percent("-24.3 %", message: "Bla Bla Bla"),

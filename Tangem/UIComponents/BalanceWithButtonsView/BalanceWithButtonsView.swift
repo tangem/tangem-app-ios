@@ -19,47 +19,22 @@ struct BalanceWithButtonsView: View {
         VStack(alignment: .leading, spacing: 12) {
             VStack(alignment: .leading, spacing: 6) {
                 HStack {
-                    HStack(spacing: 4) {
-                        Text(Localization.commonBalanceTitle)
-                            .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-
-                        if let apy = viewModel.yieldModuleApy {
-                            Text(AppConstants.dotSign)
-                                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-
-                            Text(Localization.yieldModuleTokenDetailsEarnNotificationApy + " " + apy)
-                                .style(Fonts.Bold.footnote, color: Colors.Text.accent)
-                        }
-                    }
+                    Text(Localization.commonBalanceTitle)
+                        .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
                     Spacer()
 
                     balancePicker
                 }
 
-                LoadableTokenBalanceView(
-                    state: viewModel.fiatBalance,
-                    style: .init(font: Fonts.Regular.title1, textColor: Colors.Text.primary1),
-                    loader: .init(
-                        size: .init(width: 102, height: 24),
-                        padding: .init(top: 5, leading: 0, bottom: 5, trailing: 0),
-                        cornerRadius: 6
-                    )
-                )
-                .accessibilityIdentifier(balanceAccessibilityIdentifier(for: viewModel.selectedBalanceType))
-
-                LoadableTokenBalanceView(
-                    state: viewModel.cryptoBalance,
-                    style: .init(font: Fonts.Regular.footnote, textColor: Colors.Text.tertiary),
-                    loader: .init(
-                        size: .init(width: 70, height: 12),
-                        padding: .init(top: 2, leading: 0, bottom: 2, trailing: 0)
-                    )
-                )
-                .if(viewModel.shouldShowYieldBalanceInfo) {
-                    $0.yieldIdentificationIfNeeded {
-                        (viewModel.showYieldBalanceInfoAction ?? {})()
+                switch viewModel.state {
+                case .common(let commonViewModel):
+                    BalancesView(viewModel: commonViewModel)
+                case .yield(let yieldViewModel):
+                    BalancesView(viewModel: yieldViewModel) {
+                        yieldViewModel.showYieldBalanceInfoAction()
                     }
+                case .none: EmptyView()
                 }
             }
 
@@ -69,15 +44,6 @@ struct BalanceWithButtonsView: View {
         .padding(.vertical, 14)
         .background(Colors.Background.primary)
         .cornerRadiusContinuous(14)
-    }
-
-    private func balanceAccessibilityIdentifier(for balanceType: BalanceWithButtonsViewModel.BalanceType) -> String {
-        switch balanceType {
-        case .all:
-            return TokenAccessibilityIdentifiers.totalBalance
-        case .available:
-            return TokenAccessibilityIdentifiers.availableBalance
-        }
     }
 
     @ViewBuilder

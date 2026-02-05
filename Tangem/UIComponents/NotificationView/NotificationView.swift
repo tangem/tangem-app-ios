@@ -40,8 +40,8 @@ struct NotificationView: View {
         .padding(.horizontal, 14)
         .background(settings.event.colorScheme.background)
         .cornerRadiusContinuous(14)
-        .accessibilityIdentifier(settings.event.accessibilityIdentifier)
         .accessibilityElement(children: .combine)
+        .accessibilityIdentifier(settings.event.accessibilityIdentifier)
     }
 
     @ViewBuilder
@@ -116,10 +116,12 @@ struct NotificationView: View {
                 case .string(let string):
                     Text(string)
                         .style(Fonts.Bold.footnote, color: settings.event.colorScheme.titleColor)
+                        .multilineTextAlignment(.leading)
                         .fixedSize(horizontal: false, vertical: true)
                         .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.notificationTitle)
                 case .attributed(let attributedString):
                     Text(attributedString)
+                        .multilineTextAlignment(.leading)
                         .fixedSize(horizontal: false, vertical: true)
                         .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.notificationTitle)
                 case .none:
@@ -190,6 +192,8 @@ struct NotificationView: View {
             return SendAccessibilityIdentifiers.reduceFeeButton
         case .leaveAmount:
             return SendAccessibilityIdentifiers.leaveAmountButton
+        case .openFeeCurrency:
+            return TokenAccessibilityIdentifiers.feeCurrencyNavigationButton
         default:
             return CommonUIAccessibilityIdentifiers.notificationButton
         }
@@ -222,10 +226,10 @@ struct NotificationView_Previews: PreviewProvider {
             .init(
                 style: .withButtons([
                     .init(action: { _, _ in
-                    }, actionType: .generateAddresses, isWithLoader: false),
+                    }, actionType: .backupCard, isWithLoader: false),
                 ]),
                 severity: .warning,
-                settings: NotificationView.Settings(event: GeneralNotificationEvent.missingDerivation(numberOfNetworks: 1), dismissAction: { [weak self] id in
+                settings: NotificationView.Settings(event: GeneralNotificationEvent.demoCard, dismissAction: { [weak self] id in
                     self?.removeNotification(with: id)
                 })
             ),

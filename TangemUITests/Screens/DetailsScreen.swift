@@ -11,7 +11,7 @@ import Foundation
 import TangemAccessibilityIdentifiers
 
 final class DetailsScreen: ScreenBase<DetailsScreenElement> {
-    private lazy var scanCardOrRingButton = button(.scanCardOrRing)
+    private lazy var addNewWallet = button(.addNewWallet)
     private lazy var contactSupportButton = button(.contactSupport)
     private lazy var appSettingsButtons = button(.appSettings)
 
@@ -31,9 +31,9 @@ final class DetailsScreen: ScreenBase<DetailsScreenElement> {
         }
     }
 
-    func scanCardOrRing() -> Self {
+    func tapAddNewWallet() -> Self {
         XCTContext.runActivity(named: "Add new wallet") { _ in
-            scanCardOrRingButton.waitAndTap()
+            addNewWallet.waitAndTap()
             return self
         }
     }
@@ -69,11 +69,21 @@ final class DetailsScreen: ScreenBase<DetailsScreenElement> {
             return MainScreen(app)
         }
     }
+
+    @discardableResult
+    func openEnvironmentSetup() -> EnvironmentSetupScreen {
+        XCTContext.runActivity(named: "Open Environment Setup") { _ in
+            let environmentSetupButton = app.buttons["Environment setup"]
+            waitAndAssertTrue(environmentSetupButton, "Environment setup button should exist")
+            environmentSetupButton.waitAndTap()
+            return EnvironmentSetupScreen(app)
+        }
+    }
 }
 
 enum DetailsScreenElement: UIElement {
     case walletConnectButton
-    case scanCardOrRing
+    case addNewWallet
     case contactSupport
     case appSettings
 
@@ -81,8 +91,8 @@ enum DetailsScreenElement: UIElement {
         switch self {
         case .walletConnectButton:
             return WalletConnectAccessibilityIdentifiers.detailsButton
-        case .scanCardOrRing:
-            return "Scan card or ring"
+        case .addNewWallet:
+            return "Add new wallet"
         case .contactSupport:
             return "Contact support"
         case .appSettings:

@@ -44,11 +44,9 @@ struct ExpressSuccessSentView: View {
                     .innerContentPadding(12)
                     .backgroundColor(Colors.Background.action)
 
-                    GroupedSection(viewModel.expressFee) {
-                        ExpressFeeRowView(viewModel: $0)
+                    if let feeCompactViewModel = viewModel.feeCompactViewModel {
+                        FeeCompactView(viewModel: feeCompactViewModel, tapAction: nil)
                     }
-                    .innerContentPadding(12)
-                    .backgroundColor(Colors.Background.action)
                 }
             }
             .padding(.horizontal, 14)
@@ -81,12 +79,15 @@ struct ExpressSuccessSentView: View {
             VStack(spacing: 10) {
                 if viewModel.shouldShowShareExploreButtons {
                     HStack(spacing: 8) {
-                        MainButton(
-                            title: Localization.commonExplore,
-                            icon: .leading(Assets.compassExplore),
-                            style: .secondary,
-                            action: viewModel.openExplore
-                        )
+                        if let exploreURL = viewModel.exploreURL {
+                            MainButton(
+                                title: Localization.commonExplore,
+                                icon: .leading(Assets.compassExplore),
+                                style: .secondary
+                            ) {
+                                viewModel.openExplore(exploreURL: exploreURL)
+                            }
+                        }
 
                         if viewModel.isStatusButtonVisible {
                             MainButton(
@@ -110,6 +111,9 @@ struct ExpressSuccessSentView: View {
     }
 }
 
+// MARK: - Previews
+
+#if DEBUG
 struct ExpressSuccessSentView_Preview: PreviewProvider {
     static let viewModel = ExpressModulesFactoryMock().makeExpressSuccessSentViewModel(
         data: .mock,
@@ -123,3 +127,4 @@ struct ExpressSuccessSentView_Preview: PreviewProvider {
             }
     }
 }
+#endif // DEBUG

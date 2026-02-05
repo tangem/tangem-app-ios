@@ -10,8 +10,5 @@ import Foundation
 
 enum AccountModelsManagerError: Error {
     case addingCryptoAccountsNotSupported
-    case addingCryptoAccountsFailed
     case cannotFetchArchivedCryptoAccounts
-    case cannotArchiveCryptoAccount
-    case cannotUnarchiveCryptoAccount
 }

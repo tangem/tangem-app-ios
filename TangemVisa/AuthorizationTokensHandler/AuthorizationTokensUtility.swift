@@ -8,8 +8,9 @@
 
 import Foundation
 import JWTDecode
+import TangemPay
 
-struct AuthorizationTokensUtility {
+public struct AuthorizationTokensUtility {
     func decodeAuthTokens(_ tokens: VisaAuthorizationTokens) throws -> DecodedAuthorizationJWTTokens {
         var accessToken: JWT?
         if let token = tokens.accessToken {
@@ -34,6 +35,12 @@ struct AuthorizationTokensUtility {
         }
 
         return VisaConstants.authorizationHeaderValuePrefix + accessToken
+    }
+}
+
+public extension AuthorizationTokensUtility {
+    static func getAuthorizationHeader(from tokens: TangemPayAuthorizationTokens) -> String {
+        VisaConstants.authorizationHeaderValuePrefix + tokens.accessToken
     }
 }
 

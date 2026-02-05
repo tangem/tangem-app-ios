@@ -8,7 +8,6 @@
 
 import Foundation
 import UIKit
-import FirebaseAnalytics
 import TangemFoundation
 
 enum AppConstants {
@@ -33,29 +32,12 @@ enum AppConstants {
     static let rubSign = "₽"
     static let usdCurrencyCode = "USD"
     static let usdSign = "$"
+    static let audCurrencyCode = "AUD"
+    static let eurCurrencyCode = "EUR"
+    static let cadCurrencyCode = "CAD"
+    static let gbpCurrencyCode = "GBP"
 
     static let sessionId = UUID().uuidString
     static let tosURL = URL(string: "https://tangem.com/tangem_tos.html")!
-
-    static func getWebShopUrl(isExistingUser: Bool) -> URL {
-        var urlComponents = URLComponents(string: "https://buy.tangem.com")!
-        let campaignPrefix = isExistingUser ? "users-" : "prospect-"
-
-        let queryItemsDict = [
-            "utm_source": "tangem",
-            "utm_medium": "app",
-            "utm_campaign": campaignPrefix + Locale.appLanguageCode,
-            "utm_content": "devicelang-" + Locale.deviceLanguageCode(),
-            "app_instance_id": FirebaseAnalytics.Analytics.appInstanceID(),
-        ]
-
-        urlComponents.queryItems = queryItemsDict
-            .compactMap { key, value in
-                value.map { value in
-                    URLQueryItem(name: key, value: value)
-                }
-            }
-
-        return urlComponents.url!
-    }
+    static let tangemPayTermsAndLimitsURL = URL(string: "https://tangem.com/docs/en/tangem-visa-tariffs.pdf")!
 }

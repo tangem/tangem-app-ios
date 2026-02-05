@@ -23,14 +23,18 @@ struct CommonMainHeaderProviderFactory: MainHeaderProviderFactory {
         if isMultiWallet {
             return MultiWalletMainHeaderSubtitleProvider(
                 isUserWalletLocked: userWalletModel.isUserWalletLocked,
-                areWalletsImported: userWalletModel.hasImportedWallets,
                 dataSource: userWalletModel
             )
         }
 
+        let balanceProvider = AccountsFeatureAwareWalletModelsResolver
+            .walletModels(for: userWalletModel)
+            .first
+            .map(\.totalTokenBalanceProvider)
+
         return SingleWalletMainHeaderSubtitleProvider(
             isUserWalletLocked: isUserWalletLocked,
-            balanceProvider: userWalletModel.walletModelsManager.walletModels.first.map { $0.totalTokenBalanceProvider }
+            balanceProvider: balanceProvider
         )
     }
 }

@@ -19,10 +19,10 @@ final class AuthViewModel: ObservableObject {
 
     @Published var isScanningCard: Bool = false
     @Published var error: AlertBinder?
-    @Published var confirmationDialog: ConfirmationDialogViewModel?
+    @Published var scanTroubleshootingDialog: ConfirmationDialogViewModel?
 
     var unlockWithBiometryButtonTitle: String {
-        Localization.welcomeUnlock(BiometricAuthorizationUtils.biometryType.name)
+        Localization.welcomeUnlock(BiometricsUtil.biometryType.name)
     }
 
     // MARK: - Dependencies
@@ -47,11 +47,13 @@ final class AuthViewModel: ObservableObject {
         unlockWithCard()
     }
 
+    @MainActor
     func openScanCardManual() {
         Analytics.log(.cantScanTheCardButtonBlog, params: [.source: .signIn])
         coordinator?.openScanCardManual()
     }
 
+    @MainActor
     func requestSupport() {
         Analytics.log(.requestSupport, params: [.source: .signIn])
         failedCardScanTracker.resetCounter()
@@ -84,8 +86,8 @@ final class AuthViewModel: ObservableObject {
             do {
                 let context = try await UserWalletBiometricsUnlocker().unlock()
                 let userWalletModel = try await viewModel.userWalletRepository.unlock(with: .biometrics(context))
-                viewModel.signInAnalyticsLogger.logSignInEvent(signInType: .biometrics)
-                await runOnMain {
+                viewModel.signInAnalyticsLogger.logSignInEvent(signInType: .biometrics, userWalletModel: userWalletModel)
+                await MainActor.run {
                     viewModel.openMain(with: userWalletModel)
                 }
             } catch where error.isCancellationError {
@@ -133,7 +135,7 @@ final class AuthViewModel: ObservableObject {
                 )
                 viewModel.incomingActionManager.discardIncomingAction()
 
-                await runOnMain {
+                await MainActor.run {
                     viewModel.isScanningCard = false
                     viewModel.openOnboarding(with: input)
                 }
@@ -142,7 +144,7 @@ final class AuthViewModel: ObservableObject {
                 Analytics.log(.cantScanTheCard, params: [.source: .signIn])
                 viewModel.incomingActionManager.discardIncomingAction()
 
-                await runOnMain {
+                await MainActor.run {
                     viewModel.isScanningCard = false
                     viewModel.openTroubleshooting()
                 }
@@ -166,9 +168,9 @@ final class AuthViewModel: ObservableObject {
                         with: .encryptionKey(userWalletId: userWalletId, encryptionKey: encryptionKey)
                     )
 
-                    viewModel.signInAnalyticsLogger.logSignInEvent(signInType: .card)
+                    viewModel.signInAnalyticsLogger.logSignInEvent(signInType: .card, userWalletModel: userWalletModel)
 
-                    await runOnMain {
+                    await MainActor.run {
                         viewModel.isScanningCard = false
                         viewModel.openMain(with: userWalletModel)
                     }
@@ -190,8 +192,8 @@ final class AuthViewModel: ObservableObject {
                 keys: .cardWallet(keys: cardInfo.card.wallets)
             ) {
                 try userWalletRepository.add(userWalletModel: newUserWalletModel)
-                signInAnalyticsLogger.logSignInEvent(signInType: .card)
-                await runOnMain {
+                signInAnalyticsLogger.logSignInEvent(signInType: .card, userWalletModel: newUserWalletModel)
+                await MainActor.run {
                     isScanningCard = false
                     openMain(with: newUserWalletModel)
                 }
@@ -215,6 +217,7 @@ final class AuthViewModel: ObservableObject {
 
 // MARK: - Navigation
 
+@MainActor
 extension AuthViewModel {
     func openTroubleshooting() {
         let tryAgainButton = ConfirmationDialogViewModel.Button(title: Localization.alertButtonTryAgain) { [weak self] in
@@ -229,7 +232,7 @@ extension AuthViewModel {
             self?.requestSupport()
         }
 
-        confirmationDialog = ConfirmationDialogViewModel(
+        scanTroubleshootingDialog = ConfirmationDialogViewModel(
             title: Localization.alertTroubleshootingScanCardTitle,
             subtitle: Localization.alertTroubleshootingScanCardMessage,
             buttons: [

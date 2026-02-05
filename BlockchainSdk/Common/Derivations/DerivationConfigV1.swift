@@ -58,7 +58,8 @@ struct DerivationConfigV1: DerivationConfig {
              .zkLinkNova,
              .hyperliquidEVM,
              .linea,
-             .arbitrumNova:
+             .arbitrumNova,
+             .plasma:
             return "m/44'/60'/0'/0/0"
         case .ethereumClassic:
             return "m/44'/61'/0'/0/0"
@@ -173,6 +174,8 @@ struct DerivationConfigV1: DerivationConfig {
             return "m/44'/994'/0'/0"
         case .scroll:
             return "m/44'/534352'/0'/0/0"
+        case .monad:
+            return "m/44'/268435779'/0'/0/0"
         }
     }
 }

@@ -32,7 +32,7 @@ class MultiWalletMainHeaderSubtitleProvider: MainHeaderSubtitleProvider {
             return Localization.commonLocked
         }
 
-        if areWalletsImported {
+        if dataSource.hasImportedWallets {
             return Localization.commonSeedPhrase
         }
 
@@ -41,18 +41,15 @@ class MultiWalletMainHeaderSubtitleProvider: MainHeaderSubtitleProvider {
 
     private let subtitleInfoSubject: CurrentValueSubject<MainHeaderSubtitleInfo, Never> = .init(.empty)
     private let isUserWalletLocked: Bool
-    private let areWalletsImported: Bool
 
     private unowned var dataSource: MultiWalletMainHeaderSubtitleDataSource
     private var updateSubscription: AnyCancellable?
 
     init(
         isUserWalletLocked: Bool,
-        areWalletsImported: Bool,
         dataSource: MultiWalletMainHeaderSubtitleDataSource
     ) {
         self.isUserWalletLocked = isUserWalletLocked
-        self.areWalletsImported = areWalletsImported
         self.dataSource = dataSource
 
         subscribeToUpdates()

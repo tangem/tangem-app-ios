@@ -28,11 +28,11 @@ final class CommonNFTManager: NFTManager {
             updatePublisher.mapToValue(NFTManagerState.loading),
             updateAssetsPublisher.mapToValue(NFTManagerState.loading),
             // There is no point in caching empty collections
-            collectionsPublisherCached.filter { !$0.value.isEmpty }.map(NFTManagerState.loaded),
-            collectionsPublisherRemote.values().map(NFTManagerState.loaded),
-            collectionsPublisherRemote.failures().map(NFTManagerState.failedToLoad),
+            collectionsPublisherCached.filter { !$0.value.isEmpty }.map(NFTManagerState.success),
+            collectionsPublisherRemote.values().map(NFTManagerState.success),
+            collectionsPublisherRemote.failures().map(NFTManagerState.failure),
         )
-        .removeDuplicates()
+        .removeDuplicates(by: Self.equivalentNFTManagerStatePredicate)
         .eraseToAnyPublisher()
     }
 
@@ -180,14 +180,14 @@ final class CommonNFTManager: NFTManager {
     init(
         userWalletId: UserWalletId,
         walletModelsPublisher: AnyPublisher<[any WalletModel], Never>,
-        walletModelsManager: WalletModelsManager,
+        provideWalletModels: @escaping () -> [any WalletModel],
         analytics: NFTAnalytics.Error
     ) {
         self.analytics = analytics
         self.walletModelsPublisher = walletModelsPublisher
 
         let cache = NFTCache(userWalletId: userWalletId)
-        let cacheDelegate = CommonNFTCacheDelegate(walletModelsManager: walletModelsManager)
+        let cacheDelegate = CommonNFTCacheDelegate(provideWalletModels: provideWalletModels)
         cache.delegate = cacheDelegate
         self.cache = cache
         self.cacheDelegate = cacheDelegate
@@ -379,6 +379,19 @@ private extension CommonNFTManager {
                 analytics.logError("\(error.universalErrorCode)", error.localizedDescription)
                 throw error
             }
+        }
+    }
+
+    private static func equivalentNFTManagerStatePredicate(_ lhs: NFTManagerState, rhs: NFTManagerState) -> Bool {
+        switch (lhs, rhs) {
+        case (.loading, .loading):
+            true
+        case (.success(let lhsValue), .success(let rhsValue)):
+            lhsValue == rhsValue
+        case (.failure(let lhsError), .failure(let rhsError)):
+            lhsError.localizedDescription == rhsError.localizedDescription
+        default:
+            false
         }
     }
 }

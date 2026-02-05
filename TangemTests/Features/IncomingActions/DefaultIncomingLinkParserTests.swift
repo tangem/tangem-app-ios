@@ -110,6 +110,10 @@ struct DefaultIncomingLinkParserTests {
             urlString = "tangem://\(rawValue)?type=income_transaction&token_id=dummy"
         case .onboardVisa:
             urlString = "tangem://\(rawValue)?entry=some-entry&id=some-id"
+        case .payApp:
+            urlString = "https://tangem.com/\(rawValue)?id=some-id"
+        case .news:
+            urlString = "tangem://\(rawValue)?id=some-id"
         default:
             urlString = "tangem://\(rawValue)?type=income_transaction"
         }
@@ -161,15 +165,21 @@ struct DefaultIncomingLinkParserTests {
         arguments: [
             URL(string: "https://tangem.com/some/page")!,
             URL(string: "https://app.tangem.com/anything")!,
+            URL(string: "https://tangem.com/pay-app?id=something")!,
         ]
     )
     func parsesExternalLinks(url: URL) {
         let result = parser.parse(url)
         #expect(result != nil, "Expected \(url) to be parsed")
-        if case .navigation(let action) = result {
-            #expect(action.destination == .link)
-            #expect(action.params.url == url)
-        } else {
+
+        switch result {
+        case .navigation(let action) where action.destination == .link:
+            #expect(url == action.params.url)
+
+        case .navigation(let action) where action.destination == .payApp:
+            #expect("something" == action.params.id)
+
+        default:
             #expect(Bool(false), "Expected IncomingAction.navigation for \(url)")
         }
     }
@@ -185,6 +195,7 @@ struct DefaultIncomingLinkParserTests {
             URL(string: "https://wallet.tangem.com/redirect")!, // unlisted subdomain
             URL(string: "https://app.tangem.org/ndef")!, // wrong TLD
             URL(string: "ftp://tangem.com/file")!, // wrong protocol
+            URL(string: "https://tangem.com/pay-app")!, // missing id query param
         ]
     )
     func parsesInvalidExternalLinks(url: URL) {

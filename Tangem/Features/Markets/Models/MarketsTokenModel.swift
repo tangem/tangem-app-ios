@@ -17,6 +17,7 @@ struct MarketsTokenModel: Identifiable, Decodable, Equatable {
     let currentPrice: Decimal?
     let priceChangePercentage: [String: Decimal?]
     let marketRating: Int?
+    let maxYieldApy: Decimal?
     let marketCap: Decimal?
     let isUnderMarketCapLimit: Bool?
     let stakingOpportunities: [StakingOpportunity]?

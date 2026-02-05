@@ -27,6 +27,7 @@ protocol SingleTokenRoutable {
         tokenItem: TokenItem,
         pendingTransactionsManager: PendingExpressTransactionsManager
     )
+    func openYieldModule(walletModel: any WalletModel)
 }
 
 final class SingleTokenRouter: SingleTokenRoutable {
@@ -34,16 +35,16 @@ final class SingleTokenRouter: SingleTokenRoutable {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
 
-    private let userWalletModel: UserWalletModel
+    private let userWalletInfo: UserWalletInfo
     private weak var coordinator: SingleTokenBaseRoutable?
     private let yieldModuleNoticeInteractor: YieldModuleNoticeInteractor
 
     init(
-        userWalletModel: UserWalletModel,
+        userWalletInfo: UserWalletInfo,
         coordinator: SingleTokenBaseRoutable?,
         yieldModuleNoticeInteractor: YieldModuleNoticeInteractor
     ) {
-        self.userWalletModel = userWalletModel
+        self.userWalletInfo = userWalletInfo
         self.coordinator = coordinator
         self.yieldModuleNoticeInteractor = yieldModuleNoticeInteractor
     }
@@ -53,29 +54,34 @@ final class SingleTokenRouter: SingleTokenRoutable {
     }
 
     func openOnramp(walletModel: any WalletModel) {
-        coordinator?.openOnramp(userWalletModel: userWalletModel, walletModel: walletModel, parameters: .none)
+        let input = makeSendInput(for: walletModel)
+        let parameters = PredefinedOnrampParametersBuilder.makeMoonpayPromotionParametersIfActive()
+        coordinator?.openOnramp(input: input, parameters: parameters)
     }
 
     func openSend(walletModel: any WalletModel) {
+        let input = makeSendInput(for: walletModel)
+
         let openSendAction = { [weak self] in
-            guard let self else { return }
-            coordinator?.openSend(userWalletModel: userWalletModel, walletModel: walletModel)
+            self?.coordinator?.openSend(input: input)
         }
 
         if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: walletModel.tokenItem) {
-            openViaYieldNotice(tokenItem: walletModel.tokenItem, action: openSendAction)
+            openViaYieldNotice(tokenItem: walletModel.tokenItem, action: { openSendAction() })
         } else {
             openSendAction()
         }
     }
 
     func openExchange(walletModel: any WalletModel) {
-        let input = CommonExpressModulesFactory.InputModel(
-            userWalletInfo: userWalletModel.userWalletInfo,
-            userTokensManager: userWalletModel.userTokensManager,
-            walletModelsManager: userWalletModel.walletModelsManager,
-            initialWalletModel: walletModel,
-            destinationWalletModel: .none
+        let input = ExpressDependenciesInput(
+            userWalletInfo: userWalletInfo,
+            source: ExpressInteractorWalletModelWrapper(
+                userWalletInfo: userWalletInfo,
+                walletModel: walletModel,
+                expressOperationType: .swap
+            ),
+            destination: .loadingAndSet
         )
 
         if yieldModuleNoticeInteractor.shouldShowYieldModuleAlert(for: walletModel.tokenItem) {
@@ -93,13 +99,8 @@ final class SingleTokenRouter: SingleTokenRoutable {
             return
         }
 
-        coordinator?.openStaking(
-            options: .init(
-                userWalletModel: userWalletModel,
-                walletModel: walletModel,
-                manager: stakingManager
-            )
-        )
+        let input = makeSendInput(for: walletModel)
+        coordinator?.openStaking(options: .init(sendInput: input, manager: stakingManager))
     }
 
     func openSell(for walletModel: any WalletModel) {
@@ -116,9 +117,10 @@ final class SingleTokenRouter: SingleTokenRoutable {
     }
 
     func openSendToSell(with request: SellCryptoRequest, for walletModel: any WalletModel) {
+        let input = makeSendInput(for: walletModel)
+
         coordinator?.openSendToSell(
-            userWalletModel: userWalletModel,
-            walletModel: walletModel,
+            input: input,
             sellParameters: .init(amount: request.amount, destination: request.targetAddress, tag: request.tag)
         )
     }
@@ -141,6 +143,7 @@ final class SingleTokenRouter: SingleTokenRoutable {
             currentPrice: quoteData?.price,
             priceChangePercentage: MarketsTokenQuoteHelper().makePriceChangeIntervalsDictionary(from: quoteData) ?? [:],
             marketRating: nil,
+            maxYieldApy: nil,
             marketCap: nil,
             isUnderMarketCapLimit: nil,
             stakingOpportunities: nil
@@ -157,10 +160,12 @@ final class SingleTokenRouter: SingleTokenRoutable {
         coordinator?.openPendingExpressTransactionDetails(
             pendingTransaction: pendingTransaction,
             tokenItem: tokenItem,
-            userWalletModel: userWalletModel,
+            userWalletInfo: userWalletInfo,
             pendingTransactionsManager: pendingTransactionsManager
         )
     }
+
+    func openYieldModule(walletModel: any WalletModel) {}
 
     private func getTokenItemId(for tokenItem: TokenItem) -> TokenItemId? {
         guard tokenItem.isBlockchain, tokenItem.blockchain.isL2EthereumNetwork else {
@@ -178,18 +183,22 @@ final class SingleTokenRouter: SingleTokenRoutable {
     }
 }
 
-// MARK: - Utilities functions
+// MARK: - Private utilities functions
 
-extension SingleTokenRouter {
-    private func sendAnalyticsEvent(_ event: Analytics.Event, for walletModel: any WalletModel) {
+private extension SingleTokenRouter {
+    func sendAnalyticsEvent(_ event: Analytics.Event, for walletModel: any WalletModel) {
         Analytics.log(event: event, params: [.token: walletModel.tokenItem.currencySymbol])
     }
 
-    private func buildSellCryptoUtility(for walletModel: any WalletModel) -> SellCryptoUtility {
+    func buildSellCryptoUtility(for walletModel: any WalletModel) -> SellCryptoUtility {
         SellCryptoUtility(
             blockchain: walletModel.tokenItem.blockchain,
             address: walletModel.defaultAddressString,
             amountType: walletModel.tokenItem.amountType
         )
+    }
+
+    func makeSendInput(for walletModel: any WalletModel) -> SendInput {
+        SendInput(userWalletInfo: userWalletInfo, walletModel: walletModel)
     }
 }

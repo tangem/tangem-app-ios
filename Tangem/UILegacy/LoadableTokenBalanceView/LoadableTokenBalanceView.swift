@@ -10,6 +10,8 @@ import SwiftUI
 import TangemUI
 import TangemAssets
 import TangemAccessibilityIdentifiers
+import TangemUIUtils
+import TangemMacro
 
 struct LoadableTokenBalanceView: View {
     let state: State
@@ -17,7 +19,14 @@ struct LoadableTokenBalanceView: View {
     let loader: LoaderStyle
     let accessibilityIdentifier: String?
 
-    init(state: State, style: Style, loader: LoaderStyle, accessibilityIdentifier: String? = nil) {
+    private var contentTransitionType: ContentTransitionType?
+
+    init(
+        state: State,
+        style: Style,
+        loader: LoaderStyle,
+        accessibilityIdentifier: String? = nil,
+    ) {
         self.state = state
         self.style = style
         self.loader = loader
@@ -67,9 +76,11 @@ struct LoadableTokenBalanceView: View {
             .frame(width: 12, height: 12)
     }
 
+    @ViewBuilder
     private func textView(_ text: Text) -> some View {
         SensitiveText(text)
             .style(style.font, color: style.textColor)
+            .applyContentTransition(type: contentTransitionType, text: text)
             .accessibilityIdentifier(accessibilityIdentifier)
     }
 }
@@ -77,6 +88,7 @@ struct LoadableTokenBalanceView: View {
 extension LoadableTokenBalanceView {
     typealias Text = SensitiveText.TextType
 
+    @CaseFlagable
     enum State: Hashable {
         case loading(cached: Text? = nil)
         case failed(cached: Text, icon: Icon? = nil)
@@ -108,6 +120,45 @@ extension LoadableTokenBalanceView {
             self.padding = padding
             self.cornerRadius = cornerRadius
         }
+    }
+}
+
+extension LoadableTokenBalanceView {
+    enum ContentTransitionType {
+        case numeric(isCountdown: Bool)
+
+        var contentTransition: ContentTransition? {
+            switch self {
+            case .numeric(let isCountdown): .numericText(countsDown: isCountdown)
+            }
+        }
+    }
+}
+
+private extension View {
+    @ViewBuilder
+    func applyContentTransition(type: LoadableTokenBalanceView.ContentTransitionType?, text: SensitiveText.TextType) -> some View {
+        switch type {
+        case .numeric(let isCountdown):
+            if #available(iOS 17, *) {
+                self
+                    .contentTransition(.numericText(countsDown: isCountdown))
+                    .animation(.default, value: text)
+            } else {
+                self
+            }
+
+        case nil:
+            self
+        }
+    }
+}
+
+// MARK: - Setupable
+
+extension LoadableTokenBalanceView: Setupable {
+    func setContentTransition(_ transitionType: ContentTransitionType?) -> Self {
+        map { $0.contentTransitionType = transitionType }
     }
 }
 

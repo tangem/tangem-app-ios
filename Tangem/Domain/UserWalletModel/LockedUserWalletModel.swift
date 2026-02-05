@@ -15,16 +15,18 @@ import BlockchainSdk
 import TangemVisa
 import TangemFoundation
 import TangemMobileWalletSdk
+import TangemPay
 
 class LockedUserWalletModel: UserWalletModel {
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     let walletModelsManager: WalletModelsManager = LockedWalletModelsManager()
-    let userTokensManager: UserTokensManager = LockedUserTokensManager()
+    var userTokensManager: UserTokensManager { _userTokensManager }
+    private let _userTokensManager = LockedUserTokensManager()
     let nftManager: NFTManager = NotSupportedNFTManager()
     let walletImageProvider: WalletImageProviding
-    let config: UserWalletConfig
+    var config: UserWalletConfig
 
     var isUserWalletLocked: Bool { true }
 
@@ -51,8 +53,10 @@ class LockedUserWalletModel: UserWalletModel {
     var emailData: [EmailCollectedData] {
         var data = config.emailData
 
-        let userWalletIdItem = EmailCollectedData(type: .card(.userWalletId), data: userWalletId.stringValue)
-        data.append(userWalletIdItem)
+        if let tangemPayCustomerId = tangemPayManager.customerId {
+            data.append(EmailCollectedData(type: .tangemPayCustomerId, data: tangemPayCustomerId))
+        }
+        data.append(EmailCollectedData(type: .card(.userWalletId), data: userWalletId.stringValue))
 
         return data
     }
@@ -77,17 +81,31 @@ class LockedUserWalletModel: UserWalletModel {
         CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
     }
 
+    var wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider {
+        CommonWalletConnectAccountsWalletModelProvider(accountModelsManager: accountModelsManager)
+    }
+
     var userTokensPushNotificationsManager: UserTokensPushNotificationsManager {
         CommonUserTokensPushNotificationsManager(
             userWalletId: userWalletId,
             walletModelsManager: walletModelsManager,
-            derivationManager: nil,
-            userTokensManager: userTokensManager
+            userTokensManager: userTokensManager,
+            remoteStatusSyncing: _userTokensManager,
+            derivationManager: nil
         )
     }
 
     var accountModelsManager: AccountModelsManager {
         DummyCommonAccountModelsManager()
+    }
+
+    var tangemPayManager: TangemPayManager {
+        TangemPayBuilder(
+            userWalletId: userWalletId,
+            keysRepository: keysRepository,
+            signer: signer
+        )
+        .buildTangemPayManager()
     }
 
     var refcodeProvider: RefcodeProvider? {
@@ -102,7 +120,16 @@ class LockedUserWalletModel: UserWalletModel {
         )
     }
 
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_INFO]
+    var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount?, Never> { .empty }
+    var tangemPayAccount: TangemPayAccount? { nil }
+
     var keysDerivingInteractor: any KeysDeriving {
+        fatalError("Should not be called for locked wallets")
+    }
+
+    var tangemPayAuthorizingInteractor: TangemPayAuthorizing {
         fatalError("Should not be called for locked wallets")
     }
 
@@ -126,34 +153,22 @@ class LockedUserWalletModel: UserWalletModel {
     func update(type: UpdateRequest) {
         switch type {
         case .backupCompleted(let card, let associatedCardIds):
-            var mutableCardInfo = CardInfo(
+            if case .mobileWallet = userWallet.walletInfo {
+                syncRemoteAfterUpgrade()
+            }
+
+            let cardInfo = CardInfo(
                 card: CardDTO(card: card),
                 walletData: .none,
                 associatedCardIds: associatedCardIds
             )
 
-            switch userWallet.walletInfo {
-            case .cardWallet(let existingInfo):
-                for wallet in mutableCardInfo.card.wallets {
-                    if let existingDerivedKeys = existingInfo.card.wallets[wallet.publicKey]?.derivedKeys {
-                        mutableCardInfo.card.wallets[wallet.publicKey]?.derivedKeys = existingDerivedKeys
-                    }
-                }
-
-                userWallet.walletInfo = .cardWallet(mutableCardInfo)
-                userWalletRepository.save(userWalletModel: self)
-
-            case .mobileWallet(let existingInfo):
-                for wallet in mutableCardInfo.card.wallets {
-                    if let existingDerivedKeys = existingInfo.keys[wallet.publicKey]?.derivedKeys {
-                        mutableCardInfo.card.wallets[wallet.publicKey]?.derivedKeys = existingDerivedKeys
-                    }
-                }
-
-                userWallet.walletInfo = .cardWallet(mutableCardInfo)
-                userWalletRepository.save(userWalletModel: self)
-                cleanMobileWallet()
-            }
+            var mutableCardInfo = cardInfo
+            mutableCardInfo.card.wallets = []
+            userWallet.walletInfo = .cardWallet(mutableCardInfo)
+            config = UserWalletConfigFactory().makeConfig(walletInfo: userWallet.walletInfo)
+            userWalletRepository.savePublicData()
+            updatePrivateDataAfterIncompletedBackup(cardInfo: cardInfo)
         case .newName:
             break
         case .accessCodeDidSet:
@@ -164,12 +179,60 @@ class LockedUserWalletModel: UserWalletModel {
             break
         case .mnemonicBackupCompleted:
             break
-        case .tangemPayOfferAccepted:
-            break
         }
     }
 
     func addAssociatedCard(cardId: String) {}
+
+    func updatePrivateDataAfterIncompletedBackup(cardInfo: CardInfo) {
+        let config = UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
+        guard let encryptionKey = UserWalletEncryptionKey(config: config) else {
+            return
+        }
+
+        let dataStorage = UserWalletDataStorage()
+
+        guard let existingInfo = dataStorage.fetchPrivateData(encryptionKeys: [userWalletId: encryptionKey])[userWalletId] else {
+            return
+        }
+
+        var mutableCardInfo = cardInfo
+
+        switch existingInfo {
+        case .cardWallet(let keys):
+            for wallet in mutableCardInfo.card.wallets {
+                if let existingDerivedKeys = keys[wallet.publicKey]?.derivedKeys {
+                    mutableCardInfo.card.wallets[wallet.publicKey]?.derivedKeys = existingDerivedKeys
+                }
+            }
+        case .mobileWallet(let keys):
+            for wallet in mutableCardInfo.card.wallets {
+                if let existingDerivedKeys = keys[wallet.publicKey]?.derivedKeys {
+                    mutableCardInfo.card.wallets[wallet.publicKey]?.derivedKeys = existingDerivedKeys
+                }
+            }
+        }
+
+        dataStorage.savePrivateData(
+            sensitiveInfo: .cardWallet(keys: mutableCardInfo.card.wallets),
+            userWalletId: userWalletId,
+            encryptionKey: encryptionKey
+        )
+
+        cleanMobileWallet()
+    }
+
+    private func syncRemoteAfterUpgrade() {
+        runTask(in: self) { model in
+            let walletCreationHelper = WalletCreationHelper(
+                userWalletId: model.userWalletId,
+                userWalletName: model.name,
+                userWalletConfig: model.config
+            )
+
+            try? await walletCreationHelper.updateWallet()
+        }
+    }
 }
 
 extension LockedUserWalletModel: MainHeaderSupplementInfoProvider {
@@ -212,6 +275,15 @@ extension LockedUserWalletModel: AssociatedCardIdsProvider {
         case .mobileWallet:
             return []
         }
+    }
+}
+
+// MARK: - DisposableEntity protocol conformance
+
+extension LockedUserWalletModel: DisposableEntity {
+    func dispose() {
+        walletModelsManager.dispose()
+        accountModelsManager.dispose()
     }
 }
 

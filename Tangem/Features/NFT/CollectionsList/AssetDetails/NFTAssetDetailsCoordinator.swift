@@ -39,6 +39,8 @@ final class NFTAssetDetailsCoordinator: CoordinatorObject, SendFeeCurrencyNaviga
     @Published var traitsViewData: KeyValuePanelViewData?
     @Published var extendedInfoViewData: NFTAssetExtendedInfoViewData?
 
+    private var options: Options?
+
     required init(
         dismissAction: @escaping Action<NFTAsset?>,
         popToRootAction: @escaping Action<PopToRootOptions>
@@ -48,6 +50,8 @@ final class NFTAssetDetailsCoordinator: CoordinatorObject, SendFeeCurrencyNaviga
     }
 
     func start(with options: Options) {
+        self.options = options
+
         let dependencies = NFTAssetDetailsDependencies(
             nftChainNameProvider: options.nftChainNameProvider,
             priceFormatter: options.priceFormatter,
@@ -69,7 +73,6 @@ final class NFTAssetDetailsCoordinator: CoordinatorObject, SendFeeCurrencyNaviga
         rootViewModel = NFTAssetDetailsViewModel(
             asset: options.asset,
             collection: options.collection,
-            navigationContext: options.navigationContext,
             dependencies: dependencies,
             coordinator: self
         )
@@ -109,30 +112,33 @@ extension NFTAssetDetailsCoordinator {
         let collection: NFTCollection
         let nftChainNameProvider: NFTChainNameProviding
         let priceFormatter: NFTPriceFormatting
-        let navigationContext: NFTNavigationContext
+        let navigationInput: NFTNavigationInput
     }
 }
 
 // MARK: - NFTAssetDetailsRoutable
 
 extension NFTAssetDetailsCoordinator: NFTAssetDetailsRoutable {
-    func openSend(for asset: NFTAsset, in collection: NFTCollection, navigationContext: NFTNavigationContext) {
-        guard
-            SendFeatureProvider.shared.isAvailable,
-            let input = navigationContext as? NFTNavigationInput,
-            let walletModel = NFTWalletModelFinder.findWalletModel(for: asset, in: input.walletModelsManager.walletModels)
-        else {
+    func openSend(for asset: NFTAsset, in collection: NFTCollection) {
+        guard SendFeatureProvider.shared.isAvailable, let options else {
             return
         }
 
-        let nftSendUtil = NFTSendUtil(walletModel: walletModel, userWalletModel: input.userWalletModel)
-        let options = nftSendUtil.makeOptions(for: asset, in: collection)
+        let navigationInput = options.navigationInput
+
+        guard let walletModel = NFTWalletModelFinder.findWalletModel(for: asset, in: navigationInput.walletModelsManager.walletModels) else {
+            return
+        }
+
+        let nftSendUtil = NFTSendUtil(walletModel: walletModel, userWalletModel: navigationInput.userWalletModel)
+        let sendOptions = nftSendUtil.makeOptions(for: asset, in: collection)
 
         let coordinator = SendCoordinator(
             dismissAction: makeSendCoordinatorDismissActionInternal(for: asset),
             popToRootAction: makeSendCoordinatorPopToRootAction()
         )
-        coordinator.start(with: options)
+
+        coordinator.start(with: sendOptions)
         sendCoordinator = coordinator
     }
 

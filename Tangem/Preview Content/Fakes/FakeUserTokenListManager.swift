@@ -11,10 +11,6 @@ import Combine
 import struct BlockchainSdk.Token
 
 class FakeUserTokenListManager: UserTokenListManager {
-    var initialized: Bool {
-        _initialized.value
-    }
-
     var initializedPublisher: AnyPublisher<Bool, Never> {
         _initialized.eraseToAnyPublisher()
     }

@@ -15,6 +15,7 @@ import TangemSdk
 import TangemNFT
 import TangemFoundation
 import TangemMobileWalletSdk
+import TangemPay
 
 class CommonUserWalletModel {
     // MARK: Services
@@ -26,11 +27,11 @@ class CommonUserWalletModel {
     let userTokensManager: UserTokensManager
     let nftManager: NFTManager
     let keysRepository: KeysRepository
-    let derivationManager: DerivationManager?
     let totalBalanceProvider: TotalBalanceProvider
 
     let userTokensPushNotificationsManager: UserTokensPushNotificationsManager
     let accountModelsManager: AccountModelsManager
+    let tangemPayManager: TangemPayManager
 
     var emailConfig: EmailConfig? {
         config.emailConfig
@@ -57,10 +58,10 @@ class CommonUserWalletModel {
         userTokensManager: UserTokensManager,
         nftManager: NFTManager,
         keysRepository: KeysRepository,
-        derivationManager: DerivationManager?,
         totalBalanceProvider: TotalBalanceProvider,
         userTokensPushNotificationsManager: UserTokensPushNotificationsManager,
-        accountModelsManager: AccountModelsManager
+        accountModelsManager: AccountModelsManager,
+        tangemPayManager: TangemPayManager
     ) {
         self.walletInfo = walletInfo
         self.config = config
@@ -70,10 +71,10 @@ class CommonUserWalletModel {
         self.userTokensManager = userTokensManager
         self.nftManager = nftManager
         self.keysRepository = keysRepository
-        self.derivationManager = derivationManager
         self.totalBalanceProvider = totalBalanceProvider
         self.userTokensPushNotificationsManager = userTokensPushNotificationsManager
         self.accountModelsManager = accountModelsManager
+        self.tangemPayManager = tangemPayManager
 
         _cardHeaderImagePublisher = .init(config.cardHeaderImage)
     }
@@ -87,8 +88,21 @@ class CommonUserWalletModel {
         config = UserWalletConfigFactory().makeConfig(walletInfo: walletInfo)
         if shouldSave {
             userWalletRepository.save(userWalletModel: self)
+            keysRepository.update(keys: walletInfo.keys)
         }
         _updatePublisher.send(.configurationChanged(model: self))
+    }
+
+    private func syncRemoteAfterUpgrade() {
+        runTask(in: self) { model in
+            let walletCreationHelper = WalletCreationHelper(
+                userWalletId: model.userWalletId,
+                userWalletName: model.name,
+                userWalletConfig: model.config
+            )
+
+            try? await walletCreationHelper.updateWallet()
+        }
     }
 }
 
@@ -111,6 +125,10 @@ extension CommonUserWalletModel: TangemSdkFactory {
 extension CommonUserWalletModel: UserWalletModel {
     var wcWalletModelProvider: WalletConnectWalletModelProvider {
         CommonWalletConnectWalletModelProvider(walletModelsManager: walletModelsManager)
+    }
+
+    var wcAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider {
+        CommonWalletConnectAccountsWalletModelProvider(accountModelsManager: accountModelsManager)
     }
 
     var refcodeProvider: RefcodeProvider? {
@@ -145,8 +163,10 @@ extension CommonUserWalletModel: UserWalletModel {
     var emailData: [EmailCollectedData] {
         var data = config.emailData
 
-        let userWalletIdItem = EmailCollectedData(type: .card(.userWalletId), data: userWalletId.stringValue)
-        data.append(userWalletIdItem)
+        if let tangemPayCustomerId = tangemPayManager.customerId {
+            data.append(EmailCollectedData(type: .tangemPayCustomerId, data: tangemPayCustomerId))
+        }
+        data.append(EmailCollectedData(type: .card(.userWalletId), data: userWalletId.stringValue))
 
         return data
     }
@@ -207,6 +227,8 @@ extension CommonUserWalletModel: UserWalletModel {
                 updateConfiguration(walletInfo: WalletInfo.cardWallet(mutableCardInfo))
                 _cardHeaderImagePublisher.send(config.cardHeaderImage)
                 cleanMobileWallet()
+                syncRemoteAfterUpgrade()
+                logMobileWalletUpgradedAnalytics()
             }
 
         case .accessCodeDidSet:
@@ -248,9 +270,6 @@ extension CommonUserWalletModel: UserWalletModel {
                 mutableInfo.hasMnemonicBackup = true
                 updateConfiguration(walletInfo: .mobileWallet(mutableInfo))
             }
-
-        case .tangemPayOfferAccepted(let tangemPayAccount):
-            _updatePublisher.send(.tangemPayOfferAccepted(tangemPayAccount))
         }
     }
 
@@ -271,7 +290,7 @@ extension CommonUserWalletModel: UserWalletModel {
     func validate() -> Bool {
         switch walletInfo {
         case .cardWallet(let cardInfo):
-            return BackupValidator().validate(cardInfo: cardInfo)
+            return BackupValidator().validate(card: cardInfo.card)
         case .mobileWallet:
             return true
         }
@@ -304,6 +323,22 @@ extension CommonUserWalletModel: KeysDerivingProvider {
         }
     }
 }
+
+extension CommonUserWalletModel: TangemPayAuthorizingProvider {
+    var tangemPayAuthorizingInteractor: TangemPayAuthorizing {
+        switch walletInfo {
+        case .cardWallet(let cardInfo):
+            return TangemPayAuthorizingCardInteractor(with: cardInfo)
+        case .mobileWallet:
+            return TangemPayAuthorizingMobileWalletInteractor(
+                userWalletId: userWalletId,
+                userWalletConfig: config
+            )
+        }
+    }
+}
+
+// MARK: - TotalBalanceProvider
 
 extension CommonUserWalletModel: TotalBalanceProvider {
     var totalBalance: TotalBalanceState {
@@ -338,10 +373,13 @@ extension CommonUserWalletModel: UserWalletSerializable {
 
             return newStoredUserWallet
         case .mobileWallet(let mobileWalletInfo):
+            var mutableMobileWalletInfo = mobileWalletInfo
+            mutableMobileWalletInfo.keys = []
+
             let newStoredUserWallet = StoredUserWallet(
                 userWalletId: userWalletId.value,
                 name: name,
-                walletInfo: .mobileWallet(mobileWalletInfo),
+                walletInfo: .mobileWallet(mutableMobileWalletInfo),
             )
 
             return newStoredUserWallet
@@ -369,6 +407,15 @@ extension CommonUserWalletModel: AssociatedCardIdsProvider {
     }
 }
 
+// MARK: - DisposableEntity protocol conformance
+
+extension CommonUserWalletModel: DisposableEntity {
+    func dispose() {
+        walletModelsManager.dispose()
+        accountModelsManager.dispose()
+    }
+}
+
 // MARK: - Private methods
 
 private extension CommonUserWalletModel {
@@ -379,5 +426,17 @@ private extension CommonUserWalletModel {
         } catch {
             AppLogger.error("Failed to delete mobile wallet after upgrade:", error: error)
         }
+    }
+}
+
+// MARK: - Analytics
+
+private extension CommonUserWalletModel {
+    func logMobileWalletUpgradedAnalytics() {
+        Analytics.log(
+            .walletSettingsWalletUpgraded,
+            analyticsSystems: .all,
+            contextParams: .custom(analyticsContextData)
+        )
     }
 }

@@ -63,6 +63,7 @@ struct SendAmountTokenView: View {
                         style: .init(font: Fonts.Regular.caption1, textColor: Colors.Text.tertiary),
                         loader: .init(size: CGSize(width: 130, height: 15))
                     )
+                    .accessibilityIdentifier(SendAccessibilityIdentifiers.balanceLabel)
                 case .receive(let state):
                     LoadableTextView(
                         state: state,
@@ -83,7 +84,7 @@ struct SendAmountTokenView: View {
         case .none:
             EmptyView()
         case .max(let action):
-            CircleButton(title: Localization.sendMaxAmount, action: action)
+            CapsuleButton(title: Localization.sendMaxAmount, action: action)
                 .accessibilityIdentifier(SendAccessibilityIdentifiers.maxAmountButton)
         case .select(.none):
             Assets.Glyphs.selectIcon.image

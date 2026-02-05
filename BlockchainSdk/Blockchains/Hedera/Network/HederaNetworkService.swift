@@ -94,7 +94,10 @@ final class HederaNetworkService {
     func send(transaction: HederaTransactionBuilder.CompiledTransaction) -> some Publisher<TransactionSendResult, Error> {
         return consensusProvider
             .send(transaction: transaction)
-            .map(TransactionSendResult.init(hash:))
+            .withWeakCaptureOf(self)
+            .map { service, hash in
+                TransactionSendResult(hash: hash, currentProviderHost: service.host)
+            }
     }
 
     /// Expects `transactionHash` in a format suitable for Hedera Consensus node (like `0.0.3573746@1714034073.123382080`).

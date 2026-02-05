@@ -1,9 +1,9 @@
 //
 //  StakingManager.swift
-//  TangemStaking
+//  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2024 Tangem AG. All rights reserved.
+//  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
 import Foundation
@@ -14,12 +14,16 @@ public protocol StakingManager {
     var balances: [StakingBalance]? { get }
 
     var statePublisher: AnyPublisher<StakingManagerState, Never> { get }
+    var updateWalletBalancesPublisher: AnyPublisher<Void, Never> { get }
+
     var allowanceAddress: String? { get }
+
+    var tosURL: URL { get }
+    var privacyPolicyURL: URL { get }
 
     func updateState(loadActions: Bool) async
     func estimateFee(action: StakingAction) async throws -> Decimal
     func transaction(action: StakingAction) async throws -> StakingTransactionAction
-    func transactionDetails(id: String) async throws -> StakingTransactionInfo
 
     func transactionDidSent(action: StakingAction)
 }
@@ -28,70 +32,36 @@ public extension StakingManager {
     func updateState() async {
         await updateState(loadActions: false)
     }
-}
 
-public enum StakingManagerState: Hashable, CustomStringConvertible {
-    case loading
-    case notEnabled
-    case loadingError(String)
-    // When we turn off the YieldInfo in the admin panel
-    case temporaryUnavailable(StakingYieldInfo)
-    case availableToStake(StakingYieldInfo)
-    case staked(Staked)
-
-    public var yieldInfo: StakingYieldInfo? {
-        switch self {
-        case .loading, .notEnabled, .loadingError:
-            return nil
-        case .temporaryUnavailable(let yieldInfo), .availableToStake(let yieldInfo):
-            return yieldInfo
-        case .staked(let staked):
-            return staked.yieldInfo
+    func waitForLoadingCompletion() async throws {
+        // Drop the current `loading` state
+        _ = try await statePublisher.dropFirst().first().async()
+        // Check if after the loading state we have same status
+        // To exclude endless recursion
+        if case .loading = state {
+            throw StakingManagerError.stakingManagerIsLoading
         }
     }
 
-    public var isLoading: Bool {
-        switch self {
-        case .loading:
-            return true
-        default:
-            return false
-        }
-    }
+    func mapToStakingBalance(balance: StakingBalanceInfo, yield: StakingYieldInfo) -> StakingBalance {
+        let targetType: StakingTargetType = {
+            guard let targetAddress = balance.targetAddress else {
+                return .empty
+            }
 
-    public var isSuccessfullyLoaded: Bool {
-        switch self {
-        case .staked, .availableToStake:
-            return true
-        default:
-            return false
-        }
-    }
+            let target = yield.targets.first(where: { $0.address == targetAddress })
+            return target.map { .target($0) } ?? .disabled
+        }()
 
-    public func stakesCount(for validator: ValidatorInfo) -> Int? {
-        switch self {
-        case .staked(let staked):
-            staked.balances.filter { $0.validatorType.validator?.address == validator.address }.count
-        default: nil
-        }
-    }
-
-    public var description: String {
-        switch self {
-        case .loading: "loading"
-        case .notEnabled: "notEnabled"
-        case .loadingError(let error): "loadingError \(error)"
-        case .temporaryUnavailable: "temporaryUnavailable"
-        case .availableToStake: "availableToStake"
-        case .staked: "staked"
-        }
-    }
-}
-
-public extension StakingManagerState {
-    struct Staked: Hashable {
-        public let balances: [StakingBalance]
-        public let yieldInfo: StakingYieldInfo
-        public let canStakeMore: Bool
+        return StakingBalance(
+            item: balance.item,
+            amount: balance.amount,
+            accountAddress: balance.accountAddress,
+            balanceType: balance.balanceType,
+            targetType: targetType,
+            inProgress: false,
+            actions: balance.actions,
+            actionConstraints: balance.actionConstraints
+        )
     }
 }

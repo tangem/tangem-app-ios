@@ -12,6 +12,7 @@ import TangemLogger
 actor WalletConnectDAppSessionsExtender {
     private let connectedDAppRepository: any WalletConnectConnectedDAppRepository
     private let savedSessionMigrationService: WalletConnectSavedSessionMigrationService
+    private let savedSessionToAccountsMigrationService: WalletConnectAccountMigrationService
     private let dAppSessionExtensionService: ReownWalletConnectDAppSessionExtensionService
     private let logger: TangemLogger.Logger
     private let currentDateProvider: () -> Date
@@ -21,12 +22,14 @@ actor WalletConnectDAppSessionsExtender {
     init(
         connectedDAppRepository: some WalletConnectConnectedDAppRepository,
         savedSessionMigrationService: WalletConnectSavedSessionMigrationService,
+        savedSessionToAccountsMigrationService: WalletConnectAccountMigrationService,
         dAppSessionExtensionService: ReownWalletConnectDAppSessionExtensionService,
         logger: TangemLogger.Logger,
-        currentDateProvider: @escaping @autoclosure () -> Date = Date()
+        currentDateProvider: @escaping () -> Date = { Date() }
     ) {
         self.connectedDAppRepository = connectedDAppRepository
         self.savedSessionMigrationService = savedSessionMigrationService
+        self.savedSessionToAccountsMigrationService = savedSessionToAccountsMigrationService
         self.dAppSessionExtensionService = dAppSessionExtensionService
         self.logger = logger
         self.currentDateProvider = currentDateProvider
@@ -37,14 +40,22 @@ actor WalletConnectDAppSessionsExtender {
             return await extendTask.value
         }
 
-        let task = Task { [connectedDAppRepository, savedSessionMigrationService, logger, weak self] in
+        let task = Task { [connectedDAppRepository, savedSessionMigrationService, savedSessionToAccountsMigrationService, logger, weak self] in
             do {
                 let dAppsToExtend: [WalletConnectConnectedDApp]
 
-                if let migratedDApps = try await savedSessionMigrationService.migrateSavedSessions() {
-                    dAppsToExtend = migratedDApps
+                if FeatureProvider.isAvailable(.accounts) {
+                    if let migratedDApps = try await savedSessionToAccountsMigrationService.migrateSavedSessionsToAccounts() {
+                        dAppsToExtend = migratedDApps
+                    } else {
+                        dAppsToExtend = try await connectedDAppRepository.getAllDApps()
+                    }
                 } else {
-                    dAppsToExtend = try await connectedDAppRepository.getAllDApps()
+                    if let migratedDApps = try await savedSessionMigrationService.migrateSavedSessions() {
+                        dAppsToExtend = migratedDApps
+                    } else {
+                        dAppsToExtend = try await connectedDAppRepository.getAllDApps()
+                    }
                 }
 
                 try await withCheckedThrowingContinuation { continuation in
@@ -80,7 +91,7 @@ actor WalletConnectDAppSessionsExtender {
 
         await withTaskGroup(of: Void.self) { [weak self] taskGroup in
             guard let self else {
-                gate.run { continuation.resume() }
+                gate.run { continuation.resume(returning: ()) }
                 return
             }
 
@@ -88,7 +99,7 @@ actor WalletConnectDAppSessionsExtender {
                 do {
                     let result = try await self.extend(connectedDApps: nonExpiredDApps)
                     try await self.handle(extendedDApps: result)
-                    gate.run { continuation.resume() }
+                    gate.run { continuation.resume(returning: ()) }
                 } catch {
                     gate.run { continuation.resume(throwing: error) }
                 }
@@ -172,17 +183,37 @@ extension WalletConnectDAppSessionsExtender {
 
 private extension WalletConnectConnectedDApp {
     func with(updatedExpiryDate: Date) -> WalletConnectConnectedDApp {
-        WalletConnectConnectedDApp(
-            session: WalletConnectDAppSession(
-                topic: session.topic,
-                namespaces: session.namespaces,
-                expiryDate: updatedExpiryDate
-            ),
-            userWalletID: userWalletID,
-            dAppData: dAppData,
-            verificationStatus: verificationStatus,
-            dAppBlockchains: dAppBlockchains,
-            connectionDate: connectionDate
-        )
+        switch self {
+        case .v1(let dApp):
+            return .v1(
+                WalletConnectConnectedDAppV1(
+                    session: WalletConnectDAppSession(
+                        topic: dApp.session.topic,
+                        namespaces: dApp.session.namespaces,
+                        expiryDate: updatedExpiryDate
+                    ),
+                    userWalletID: dApp.userWalletID,
+                    dAppData: dApp.dAppData,
+                    verificationStatus: dApp.verificationStatus,
+                    dAppBlockchains: dApp.dAppBlockchains,
+                    connectionDate: dApp.connectionDate
+                )
+            )
+
+        case .v2(let dApp):
+            let wrapped = WalletConnectConnectedDAppV1(
+                session: WalletConnectDAppSession(
+                    topic: dApp.session.topic,
+                    namespaces: dApp.session.namespaces,
+                    expiryDate: updatedExpiryDate
+                ),
+                userWalletID: dApp.wrapped.userWalletID,
+                dAppData: dApp.dAppData,
+                verificationStatus: dApp.verificationStatus,
+                dAppBlockchains: dApp.dAppBlockchains,
+                connectionDate: dApp.connectionDate
+            )
+            return .v2(WalletConnectConnectedDAppV2(accountId: dApp.accountId, wrapped: wrapped))
+        }
     }
 }

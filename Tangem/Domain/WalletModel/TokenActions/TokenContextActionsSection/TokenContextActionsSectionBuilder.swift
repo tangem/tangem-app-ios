@@ -11,15 +11,15 @@ import Foundation
 struct TokenContextActionsSectionBuilder {
     func buildContextActionsSections(
         tokenItem: TokenItem,
-        walletModelId: WalletModelId,
-        userWalletModel: UserWalletModel,
+        walletModel: (any WalletModel)?,
+        userWalletConfig: UserWalletConfig,
         canNavigateToMarketsDetails: Bool,
         canHideToken: Bool
     ) -> [TokenContextActionsSection] {
         let hideTokenSection = TokenContextActionsSection(items: [.hide])
 
         // We don't have walletModel for token without derivation
-        guard let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id == walletModelId }) else {
+        guard let walletModel else {
             var sections: [TokenContextActionsSection] = []
 
             if canHideToken {
@@ -36,7 +36,7 @@ struct TokenContextActionsSectionBuilder {
             sections.append(marketsSection)
         }
 
-        let tokenActionAvailabilityProvider = TokenActionAvailabilityProvider(userWalletConfig: userWalletModel.config, walletModel: walletModel)
+        let tokenActionAvailabilityProvider = TokenActionAvailabilityProvider(userWalletConfig: userWalletConfig, walletModel: walletModel)
 
         let baseSectionItems = tokenActionAvailabilityProvider.buildTokenContextActions()
 

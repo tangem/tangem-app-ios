@@ -32,7 +32,7 @@ final class MobileOnboardingViewModel: ObservableObject {
 extension MobileOnboardingViewModel {
     func onDismissalAttempt() {
         switch input.flow {
-        case .walletActivate(let userWalletModel):
+        case .walletActivate(let userWalletModel, _):
             if isBackupNeeded(for: userWalletModel) {
                 alert = makeBackupNeedsAlert()
                 return
@@ -43,13 +43,13 @@ extension MobileOnboardingViewModel {
                 return
             }
 
-        case .accessCode(let userWalletModel, _):
+        case .accessCode(let userWalletModel, _, _):
             if isAccessCodeNeeded(for: userWalletModel) {
                 alert = makeAccessCodeCreationAlert()
                 return
             }
 
-        case .seedPhraseBackup(let userWalletModel), .seedPhraseBackupToUpgrade(let userWalletModel, _):
+        case .seedPhraseBackup(let userWalletModel, _), .seedPhraseBackupToUpgrade(let userWalletModel, _, _):
             if isBackupNeeded(for: userWalletModel) {
                 alert = makeBackupNeedsAlert()
                 return
@@ -66,23 +66,25 @@ extension MobileOnboardingViewModel {
 private extension MobileOnboardingViewModel {
     func makeFlowBuilder() -> MobileOnboardingFlowBuilder {
         switch input.flow {
-        case .walletImport:
-            MobileOnboardingImportWalletFlowBuilder(coordinator: self)
-        case .walletActivate(let userWalletModel):
-            MobileOnboardingActivateWalletFlowBuilder(userWalletModel: userWalletModel, coordinator: self)
-        case .accessCode(let userWalletModel, let context):
+        case .walletImport(let source):
+            MobileOnboardingImportWalletFlowBuilder(source: source, coordinator: self)
+        case .walletActivate(let userWalletModel, let source):
+            MobileOnboardingActivateWalletFlowBuilder(userWalletModel: userWalletModel, source: source, coordinator: self)
+        case .accessCode(let userWalletModel, let source, let context):
             MobileOnboardingAccessCodeFlowBuilder(
                 userWalletModel: userWalletModel,
+                source: source,
                 context: context,
                 coordinator: self
             )
-        case .seedPhraseBackup(let userWalletModel):
-            MobileOnboardingBackupSeedPhraseFlowBuilder(userWalletModel: userWalletModel, coordinator: self)
+        case .seedPhraseBackup(let userWalletModel, let source):
+            MobileOnboardingBackupSeedPhraseFlowBuilder(userWalletModel: userWalletModel, source: source, coordinator: self)
         case .seedPhraseReveal(let context):
             MobileOnboardingRevealSeedPhraseFlowBuilder(context: context, coordinator: self)
-        case .seedPhraseBackupToUpgrade(let userWalletModel, let onContinue):
+        case .seedPhraseBackupToUpgrade(let userWalletModel, let source, let onContinue):
             MobileOnboardingBackupToUpgradeSeedPhraseFlowBuilder(
                 userWalletModel: userWalletModel,
+                source: source,
                 coordinator: self,
                 onContinue: onContinue
             )
@@ -174,6 +176,10 @@ extension MobileOnboardingViewModel: MobileOnboardingFlowRoutable {
 
     func openConfetti() {
         shouldFireConfetti = true
+    }
+
+    func completeOnboarding() {
+        coordinator?.mobileOnboardingDidComplete()
     }
 
     func closeOnboarding() {

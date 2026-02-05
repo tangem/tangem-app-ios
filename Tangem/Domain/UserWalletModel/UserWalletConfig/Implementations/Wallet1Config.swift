@@ -37,7 +37,12 @@ extension Wallet1Config: UserWalletConfig {
     }
 
     var createWalletCurves: [EllipticCurve] {
-        [.secp256k1, .ed25519, .bls12381_G2_AUG]
+        // Workaround for notes as demo multiwallets
+        if isDemo, card.settings.maxWalletsCount == 1, let curve = card.supportedCurves.first {
+            return [curve]
+        }
+
+        return [.secp256k1, .ed25519, .bls12381_G2_AUG]
     }
 
     var derivationStyle: DerivationStyle? {
@@ -88,6 +93,8 @@ extension Wallet1Config: UserWalletConfig {
         guard isDemo else { return [] }
 
         let blockchainIds = DemoUtil().getDemoBlockchains(isTestnet: AppEnvironment.current.isTestnet)
+            .filter { card.walletCurves.contains($0.curve) }
+            .map { $0.coinId }
 
         let entries: [TokenItem] = blockchainIds.compactMap { coinId in
             guard let blockchain = supportedBlockchains.first(where: { $0.coinId == coinId }) else {
@@ -135,6 +142,10 @@ extension Wallet1Config: UserWalletConfig {
     }
 
     var productType: Analytics.ProductType {
+        if isDemo {
+            return .demoWallet
+        }
+
         return card.firmwareVersion.doubleValue >= 4.39 ? .wallet : .other
     }
 
@@ -156,6 +167,10 @@ extension Wallet1Config: UserWalletConfig {
             default: return Assets.Cards.walletSingle
             }
         }
+    }
+
+    var contextBuilder: WalletCreationContextBuilder {
+        ["type": "card"]
     }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
@@ -256,10 +271,16 @@ extension Wallet1Config: UserWalletConfig {
             return .available
         case .transactionPayloadLimit:
             return .available
+        case .tangemPay:
+            return card.settings.isHDWalletAllowed ? .available : .hidden
         }
     }
 
     func makeWalletModelsFactory(userWalletId: UserWalletId) -> WalletModelsFactory {
+        if isDemo {
+            return DemoWalletModelsFactory(config: self, userWalletId: userWalletId)
+        }
+
         return CommonWalletModelsFactory(config: self, userWalletId: userWalletId)
     }
 

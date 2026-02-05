@@ -94,11 +94,14 @@ extension NotificationView {
         case primary
         case secondary
         case action
+        /// Temporary: added for the Black Friday promo banner (Nov 2025).
+        /// Remove if no longer used.
+        case tertiary
 
         @ViewBuilder
         var background: some View {
             switch self {
-            case .primary: Colors.Background.primary
+            case .primary, .tertiary: Colors.Background.primary
             case .secondary: Colors.Button.disabled
             case .action: Colors.Background.action
             }
@@ -106,14 +109,14 @@ extension NotificationView {
 
         var dismissButtonColor: Color {
             switch self {
-            case .primary, .secondary, .action:
+            case .primary, .secondary, .action, .tertiary:
                 return Colors.Icon.inactive
             }
         }
 
         var titleColor: Color {
             switch self {
-            case .primary, .secondary, .action:
+            case .primary, .secondary, .action, .tertiary:
                 return Colors.Text.primary1
             }
         }
@@ -122,6 +125,8 @@ extension NotificationView {
             switch self {
             case .primary, .secondary, .action:
                 return Colors.Text.tertiary
+            case .tertiary:
+                return Colors.Text.secondary
             }
         }
     }

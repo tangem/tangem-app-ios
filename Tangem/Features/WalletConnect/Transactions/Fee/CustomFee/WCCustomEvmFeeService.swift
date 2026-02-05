@@ -12,6 +12,7 @@ import BlockchainSdk
 import Combine
 import BigInt
 import TangemFoundation
+import TangemAccessibilityIdentifiers
 
 final class WCCustomEvmFeeService {
     private weak var output: CustomFeeServiceOutput?
@@ -24,11 +25,11 @@ final class WCCustomEvmFeeService {
     private let notificationManager: WCNotificationManager?
     private let onValidationUpdate: ([NotificationViewInput]) -> Void
 
-    private lazy var customFeeTextField = DecimalNumberTextField.ViewModel(maximumFractionDigits: feeTokenItem.decimalCount)
-    private lazy var gasLimitTextField = DecimalNumberTextField.ViewModel(maximumFractionDigits: 0)
-    private lazy var gasPriceTextField = DecimalNumberTextField.ViewModel(maximumFractionDigits: Constants.gweiDigits)
-    private lazy var maxFeePerGasTextField = DecimalNumberTextField.ViewModel(maximumFractionDigits: Constants.gweiDigits)
-    private lazy var priorityFeeTextField = DecimalNumberTextField.ViewModel(maximumFractionDigits: Constants.gweiDigits)
+    private lazy var customFeeTextField = DecimalNumberTextFieldViewModel(maximumFractionDigits: feeTokenItem.decimalCount)
+    private lazy var gasLimitTextField = DecimalNumberTextFieldViewModel(maximumFractionDigits: 0)
+    private lazy var gasPriceTextField = DecimalNumberTextFieldViewModel(maximumFractionDigits: Constants.gweiDigits)
+    private lazy var maxFeePerGasTextField = DecimalNumberTextFieldViewModel(maximumFractionDigits: Constants.gweiDigits)
+    private lazy var priorityFeeTextField = DecimalNumberTextFieldViewModel(maximumFractionDigits: Constants.gweiDigits)
 
     private var gasLimit: BigUInt? {
         gasLimitTextField.value
@@ -208,6 +209,8 @@ final class WCCustomEvmFeeService {
         case .legacy(let legacyParameters):
             gasLimitTextField.update(value: legacyParameters.gasLimit.decimal)
             gasPriceTextField.update(value: legacyParameters.gasPrice.decimal?.shiftOrder(magnitude: -Constants.gweiDigits))
+        case .gasless:
+            break
         }
     }
 
@@ -265,9 +268,11 @@ protocol WCCustomFeeServiceOutput: CustomFeeServiceOutput {
     func updateCustomFeeForInitialization(_ customFee: Fee)
 }
 
-// MARK: - FeeSelectorCustomFeeFieldsBuilder
+// MARK: - FeeSelectorCustomFeeAvailabilityProvider
 
-extension WCCustomEvmFeeService: FeeSelectorCustomFeeFieldsBuilder {
+extension WCCustomEvmFeeService: FeeSelectorCustomFeeAvailabilityProvider {
+    var customFeeIsValid: Bool { customFee.value != zeroFee }
+
     var customFeeIsValidPublisher: AnyPublisher<Bool, Never> {
         customFee
             .withWeakCaptureOf(self)
@@ -275,6 +280,18 @@ extension WCCustomEvmFeeService: FeeSelectorCustomFeeFieldsBuilder {
             .eraseToAnyPublisher()
     }
 
+    func captureCustomFeeFieldsValue() {
+        cachedCustomFee = customFee.value
+    }
+
+    func resetCustomFeeFieldsValue() {
+        updateView(fee: cachedCustomFee)
+    }
+}
+
+// MARK: - FeeSelectorCustomFeeFieldsBuilder
+
+extension WCCustomEvmFeeService: FeeSelectorCustomFeeFieldsBuilder {
     func buildCustomFeeFields() -> [FeeSelectorCustomFeeRowViewModel] {
         let customFeeRowViewModel = FeeSelectorCustomFeeRowViewModel(
             title: Localization.sendMaxFee,
@@ -288,7 +305,9 @@ extension WCCustomEvmFeeService: FeeSelectorCustomFeeFieldsBuilder {
                 .eraseToAnyPublisher(),
             onFocusChanged: { [weak self] focused in
                 self?.onCustomFeeChanged(focused)
-            }
+            },
+            accessibilityIdentifier: FeeAccessibilityIdentifiers.customFeeTotalAmountField,
+            alternativeAmountAccessibilityIdentifier: FeeAccessibilityIdentifiers.customFeeMaxFeeFiatValue
         )
 
         let gasLimitRowViewModel = FeeSelectorCustomFeeRowViewModel(
@@ -337,14 +356,6 @@ extension WCCustomEvmFeeService: FeeSelectorCustomFeeFieldsBuilder {
 
             return [customFeeRowViewModel, gasPriceRowViewModel, gasLimitRowViewModel]
         }
-    }
-
-    func captureCustomFeeFieldsValue() {
-        cachedCustomFee = customFee.value
-    }
-
-    func resetCustomFeeFieldsValue() {
-        updateView(fee: cachedCustomFee)
     }
 }
 

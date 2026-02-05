@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import struct TangemUI.TokenIconInfo
 
 protocol SendGenericFlowBaseDependenciesFactory {
@@ -14,10 +15,16 @@ protocol SendGenericFlowBaseDependenciesFactory {
     var tokenIconInfo: TokenIconInfo { get }
     var userWalletInfo: UserWalletInfo { get }
 
-    var walletModelBalancesProvider: WalletModelBalancesProvider { get }
+    var tokenHeaderProvider: SendGenericTokenHeaderProvider { get }
+    var tokenFeeProvidersManager: TokenFeeProvidersManager { get }
+    var availableBalanceProvider: TokenBalanceProvider { get }
+    var fiatAvailableBalanceProvider: TokenBalanceProvider { get }
+
     var walletModelDependenciesProvider: WalletModelDependenciesProvider { get }
     var transactionDispatcherFactory: TransactionDispatcherFactory { get }
     var baseDataBuilderFactory: SendBaseDataBuilderFactory { get }
+
+    var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { get }
 }
 
 // MARK: - Common dependencies
@@ -25,17 +32,19 @@ protocol SendGenericFlowBaseDependenciesFactory {
 extension SendGenericFlowBaseDependenciesFactory {
     func makeSourceToken() -> SendSourceToken {
         SendSourceToken(
-            wallet: userWalletInfo.name,
+            header: tokenHeaderProvider.makeSendTokenHeader(),
             tokenItem: tokenItem,
             feeTokenItem: feeTokenItem,
             tokenIconInfo: tokenIconInfo,
             fiatItem: makeFiatItem(),
             possibleToConvertToFiat: possibleToConvertToFiat(),
-            availableBalanceProvider: walletModelBalancesProvider.availableBalanceProvider,
-            fiatAvailableBalanceProvider: walletModelBalancesProvider.fiatAvailableBalanceProvider,
+            tokenFeeProvidersManager: tokenFeeProvidersManager,
+            availableBalanceProvider: availableBalanceProvider,
+            fiatAvailableBalanceProvider: fiatAvailableBalanceProvider,
             transactionValidator: walletModelDependenciesProvider.transactionValidator,
             transactionCreator: walletModelDependenciesProvider.transactionCreator,
-            transactionDispatcher: transactionDispatcherFactory.makeSendDispatcher()
+            transactionDispatcher: transactionDispatcherFactory.makeSendDispatcher(),
+            accountModelAnalyticsProvider: accountModelAnalyticsProvider
         )
     }
 
@@ -44,7 +53,7 @@ extension SendGenericFlowBaseDependenciesFactory {
     }
 
     func possibleToConvertToFiat() -> Bool {
-        walletModelBalancesProvider.fiatAvailableBalanceProvider.balanceType.value != .none
+        fiatAvailableBalanceProvider.balanceType.value != .none
     }
 
     func makeFiatItem() -> FiatItem {
@@ -58,32 +67,23 @@ extension SendGenericFlowBaseDependenciesFactory {
     // Services
 
     func makeBlockchainSDKNotificationMapper() -> BlockchainSDKNotificationMapper {
-        BlockchainSDKNotificationMapper(tokenItem: tokenItem, feeTokenItem: feeTokenItem)
+        BlockchainSDKNotificationMapper(tokenItem: tokenItem)
     }
 
     // TransactionSummaryDescriptionBuilders
 
     func makeSendTransactionSummaryDescriptionBuilder() -> SendTransactionSummaryDescriptionBuilder {
         if case .nonFungible = tokenItem.token?.metadata.kind {
-            return NFTSendTransactionSummaryDescriptionBuilder(feeTokenItem: feeTokenItem)
+            return NFTSendTransactionSummaryDescriptionBuilder()
         }
 
         switch tokenItem.blockchain {
         case .koinos:
-            return KoinosSendTransactionSummaryDescriptionBuilder(
-                tokenItem: tokenItem,
-                feeTokenItem: feeTokenItem
-            )
+            return KoinosSendTransactionSummaryDescriptionBuilder(tokenItem: tokenItem)
         case .tron where tokenItem.isToken:
-            return TronSendTransactionSummaryDescriptionBuilder(
-                tokenItem: tokenItem,
-                feeTokenItem: feeTokenItem
-            )
+            return TronSendTransactionSummaryDescriptionBuilder(tokenItem: tokenItem)
         default:
-            return CommonSendTransactionSummaryDescriptionBuilder(
-                tokenItem: tokenItem,
-                feeTokenItem: feeTokenItem
-            )
+            return CommonSendTransactionSummaryDescriptionBuilder(tokenItem: tokenItem)
         }
     }
 

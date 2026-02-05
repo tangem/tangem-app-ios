@@ -17,30 +17,17 @@ struct UnarchivedCryptoAccountConditionsValidator {
 // MARK: - CryptoAccountConditionsValidator protocol conformance
 
 extension UnarchivedCryptoAccountConditionsValidator: CryptoAccountConditionsValidator {
-    func validate() async throws {
-        guard !identifier.isMainAccount else {
-            // Main account cannot be unarchived by definition
-            throw Error.isMainAccount
-        }
+    typealias ValidationError = AccountRecoveryError
 
+    func validate() async throws(ValidationError) {
         guard remoteState.accounts.count < AccountModelUtils.maxNumberOfAccounts else {
             AccountsLogger.warning("The number of accounts exceeded the limit")
-            throw Error.tooManyAccounts
+            throw .tooManyAccounts
         }
 
-        guard !remoteState.contains(accountWithName: newAccountName) else {
+        guard CryptoAccountNameUniquenessChecker(remoteState: remoteState).isNameUnique(newAccountName) else {
             // It's a recoverable error in this flow, therefore no logging needed here
-            throw Error.accountHasDuplicatedName
+            throw .duplicateAccountName
         }
-    }
-}
-
-// MARK: - Auxiliary types
-
-extension UnarchivedCryptoAccountConditionsValidator {
-    enum Error: Swift.Error {
-        case isMainAccount
-        case tooManyAccounts
-        case accountHasDuplicatedName
     }
 }

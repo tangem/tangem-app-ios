@@ -8,10 +8,12 @@
 
 import Foundation
 import BlockchainSdk
+import TangemMacro
 
+@CaseFlagable
 indirect enum YieldModuleManagerState: Equatable {
     case disabled
-    case loading
+    case loading(cachedState: YieldModuleManagerState?)
     case notActive
     case processing(action: ProcessingAction)
     case active(YieldSupplyInfo)
@@ -45,7 +47,7 @@ extension YieldModuleManagerState {
         switch self {
         case .active:
             true
-        case .failedToLoad(_, let cached?):
+        case .failedToLoad(_, let cached?), .loading(let cached?):
             cached.isEffectivelyActive
         default:
             false
@@ -53,11 +55,13 @@ extension YieldModuleManagerState {
     }
 
     var cachedState: YieldModuleManagerState? {
-        if case .failedToLoad(_, let cachedState) = self {
-            return cachedState
-        }
+        switch self {
+        case .failedToLoad(_, let cached), .loading(let cached):
+            return cached
 
-        return nil
+        default:
+            return nil
+        }
     }
 
     var activeInfo: YieldSupplyInfo? {
@@ -68,6 +72,15 @@ extension YieldModuleManagerState {
             return cached.activeInfo
         default:
             return nil
+        }
+    }
+
+    var isBusy: Bool {
+        switch self {
+        case .loading, .processing:
+            return true
+        default:
+            return false
         }
     }
 }

@@ -27,7 +27,7 @@ struct TangemPayOfferView: View {
                     Assets.Visa.card.image
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .frame(width: screenWidth * 0.5)
+                        .frame(width: screenWidth * 0.66)
 
                     titleSection
                         .padding(.horizontal, 20)
@@ -36,56 +36,57 @@ struct TangemPayOfferView: View {
                         .padding(.horizontal, 44)
                 }
             }
+            .padding(.bottom, 12)
 
-            getCardButton
-                .padding(.horizontal, 16)
-                .padding(.bottom, 16)
+            VStack(spacing: 8) {
+                termsFeesAndLimitsButton
+
+                getCardButton
+            }
+            .padding(.horizontal, 16)
+            .padding(.bottom, 16)
         }
         .background(Colors.Background.primary.edgesIgnoringSafeArea(.all))
+        .sheet(item: $viewModel.termsFeesAndLimitsViewModel) {
+            WebViewContainer(viewModel: $0)
+        }
+        .onAppear(perform: viewModel.onAppear)
     }
 
     private var titleSection: some View {
-        // [REDACTED_TODO_COMMENT]
-        Text("Get your free Crypto Card in minutes")
+        Text(Localization.tangempayOnboardingTitle)
             .style(Fonts.Bold.title1, color: Colors.Text.primary1)
             .multilineTextAlignment(.center)
     }
 
-    // [REDACTED_TODO_COMMENT]
     private var featuresSection: some View {
         VStack(alignment: .leading, spacing: 24) {
             featureRow(
                 icon: Assets.Visa.securityCheck,
-                title: "Built-in security",
-                description: "Your card details are protected — full control in the app."
+                title: Localization.tangempayOnboardingSecurityTitle,
+                description: Localization.tangempayOnboardingSecurityDescription
             )
 
             featureRow(
                 icon: Assets.Visa.shoppingBasket01,
-                title: "Everyday purchases",
-                description: "Use your USDC balance to pay for everyday purchases seamlessly."
+                title: Localization.tangempayOnboardingPurchasesTitle,
+                description: Localization.tangempayOnboardingPurchasesDescription
             )
 
             featureRow(
-                icon: Assets.Visa.analyticsUp,
-                title: "Apple Pay & Google Pay",
-                description: "Add to your wallet and pay with your phone anywhere."
+                icon: Assets.Visa.spendAssets,
+                title: Localization.tangempayOnboardingPayTitle,
+                description: Localization.tangempayOnboardingPayDescription
             )
         }
     }
 
     private func featureRow(icon: ImageType, title: String, description: String) -> some View {
-        HStack(alignment: .center, spacing: 16) {
-            Circle()
-                .fill(Colors.Button.secondary)
-                .frame(width: 40, height: 40)
-                .overlay(
-                    icon.image
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 24, height: 24)
-                        .foregroundColor(Colors.Icon.primary1)
-                )
+        HStack(alignment: .top, spacing: 16) {
+            icon.image
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 24, height: 24)
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(title)
@@ -99,11 +100,18 @@ struct TangemPayOfferView: View {
         }
     }
 
-    private var getCardButton: some View {
-        // [REDACTED_TODO_COMMENT]
+    private var termsFeesAndLimitsButton: some View {
         MainButton(
-            title: "Get card",
-            icon: .trailing(Assets.tangemIcon),
+            title: Localization.tangemPayTermsFeesLimits,
+            style: .secondary,
+            action: viewModel.termsFeesAndLimits
+        )
+    }
+
+    private var getCardButton: some View {
+        MainButton(
+            title: Localization.tangempayOnboardingGetCardButtonText,
+            icon: viewModel.getCardButtonIcon,
             style: .primary,
             action: viewModel.getCard
         )

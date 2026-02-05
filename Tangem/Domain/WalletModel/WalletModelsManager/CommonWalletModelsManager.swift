@@ -9,29 +9,36 @@
 import Combine
 import CombineExt
 import BlockchainSdk
+import TangemSdk
+import TangemFoundation
 
 class CommonWalletModelsManager {
     private let walletManagersRepository: WalletManagersRepository
     private let walletModelsFactory: WalletModelsFactory
+    private let derivationIndex: Int
+    private let derivationStyle: DerivationStyle?
 
     /// We need to keep optional array to track state when wallet models array wasn't able to initialize
     /// This state can happen while app awaiting API list from server, because and Wallet managers can't be created without this info
     /// Nil state is not the same as an empty state, because user can remove all tokens from main and the array will be empty
     /// Also if we initialize CurrentValueSubject with empty array recipients will evaluate this state as an empty list
     private var _walletModels = CurrentValueSubject<[any WalletModel]?, Never>(nil)
+    private var _initialized = false
     private var bag = Set<AnyCancellable>()
-    private var updateAllSubscription: AnyCancellable?
 
     /// An update is tracked only once per lifecycle of this manager.
     private var shouldTrackWalletModelsUpdate = true
 
     init(
         walletManagersRepository: WalletManagersRepository,
-        walletModelsFactory: WalletModelsFactory
+        walletModelsFactory: WalletModelsFactory,
+        derivationIndex: Int,
+        derivationStyle: DerivationStyle?
     ) {
         self.walletManagersRepository = walletManagersRepository
         self.walletModelsFactory = walletModelsFactory
-        bind()
+        self.derivationIndex = derivationIndex
+        self.derivationStyle = derivationStyle
     }
 
     private func bind() {
@@ -77,10 +84,12 @@ class CommonWalletModelsManager {
         let walletModelsToAdd: [any WalletModel] = dataToAdd.flatMap {
             if let walletManager = walletManagers[$0.key] {
                 let types = $0.value.map { $0.tokenItem.amountType }
+                let targetPath = makeTargetDerivationPath(for: $0.key.blockchain)
                 return walletModelsFactory.makeWalletModels(
                     for: types,
                     walletManager: walletManager,
-                    blockchainNetwork: $0.key
+                    blockchainNetwork: $0.key,
+                    targetAccountDerivationPath: targetPath
                 )
             }
 
@@ -104,22 +113,53 @@ class CommonWalletModelsManager {
             token = PerformanceTracker.startTracking(metric: .totalBalanceLoaded(tokensCount: walletModels.count))
         }
 
-        var subscription: AnyCancellable?
-        subscription = walletModels
-            .map { $0.update(silent: false) }
-            .combineLatest()
-            .sink { states in
-                if states.contains(where: \.isBlockchainUnreachable) {
-                    PerformanceTracker.endTracking(token: token, with: .failure)
-                } else {
-                    PerformanceTracker.endTracking(token: token, with: .success)
-                }
-                withExtendedLifetime(subscription) {}
+        Task {
+            await Self.updateAllInternal(silent: false, walletModels: walletModels)
+
+            if walletModels.contains(where: \.state.isBlockchainUnreachable) {
+                PerformanceTracker.endTracking(token: token, with: .failure)
+            } else {
+                PerformanceTracker.endTracking(token: token, with: .success)
             }
+        }
+    }
+
+    /// Must be stateless, therefore it's static.
+    private static func updateAllInternal(silent: Bool, walletModels: [any WalletModel]) async {
+        // Even modern iOS devices, like iPhone 17 Pro/Pro Max, have at most 6 CPU cores
+        // Therefore, n=5 is a reasonable limit for concurrent network requests (as for now)
+        let maxConcurrentUpdates = 5
+        let count = walletModels.count
+
+        await withTaskGroup(of: Void.self) { group in
+            for index in 0 ..< count {
+                // Maintain a sliding window of concurrent updates with a maximum size of `maxConcurrentUpdates`
+                if index >= maxConcurrentUpdates {
+                    await group.next()
+                }
+                _ = group.addTaskUnlessCancelled {
+                    await walletModels[index].update(silent: silent, features: .balances)
+                }
+            }
+            await group.waitForAll()
+        }
     }
 }
 
-// MARK: - WalletListManager
+// MARK: - Initializable protocol conformance
+
+extension CommonWalletModelsManager: Initializable {
+    func initialize() {
+        if _initialized {
+            return
+        }
+
+        bind()
+        _initialized = true
+    }
+}
+
+// MARK: - WalletModelsManager protocol conformance
 
 extension CommonWalletModelsManager: WalletModelsManager {
     var isInitialized: Bool { _walletModels.value != nil }
@@ -134,30 +174,52 @@ extension CommonWalletModelsManager: WalletModelsManager {
             .eraseToAnyPublisher()
     }
 
-    func updateAll() {
-        walletModels.forEach {
-            $0.update(silent: false)
-        }
-    }
-
-    func updateAll(silent: Bool, completion: @escaping () -> Void) {
-        let publishers = walletModels.map {
-            $0.update(silent: silent)
-        }
-
-        updateAllSubscription = Publishers
-            .MergeMany(publishers)
-            .collect(publishers.count)
-            .mapToVoid()
-            .receive(on: DispatchQueue.main)
-            .receiveCompletion { _ in
-                completion()
-            }
+    func updateAll(silent: Bool) async {
+        await Self.updateAllInternal(silent: silent, walletModels: walletModels)
     }
 }
+
+// MARK: - DisposableEntity protocol conformance
+
+extension CommonWalletModelsManager: DisposableEntity {
+    func dispose() {
+        if _walletModels.value != nil {
+            _walletModels.send([])
+        }
+    }
+}
+
+// MARK: - Convenience extensions
 
 private extension CommonWalletModelsManager {
     func log(walletModels: [any WalletModel]) {
         AppLogger.info("✅ Actual List of WalletModels [\(walletModels.map(\.name))]")
+    }
+
+    /// - Note: Currently this method produces derivation path which is only used for determining if wallet models are
+    /// custom or not (see `CommonWalletModelsFactory.isMainCoinCustom(blockchainDerivationPath:targetAccountDerivationPath:)`).
+    func makeTargetDerivationPath(for blockchain: Blockchain) -> DerivationPath? {
+        guard
+            let derivationStyle,
+            let defaultPath = blockchain.derivationPath(for: derivationStyle)
+        else {
+            return nil
+        }
+
+        do {
+            let helper = AccountDerivationPathHelper(blockchain: blockchain)
+
+            return try helper.makeDerivationPath(from: defaultPath, forAccountWithIndex: derivationIndex)
+        } catch {
+            // Ugly and explicit switch here due to https://github.com/swiftlang/swift/issues/74555 ([REDACTED_INFO])
+            switch error {
+            case .insufficientNodes:
+                // Insufficient amount of nodes to create an accounts-aware derivation path means that
+                // this blockchain (and therefore all its tokens) will be custom
+                return defaultPath
+            case .accountsUnavailableForBlockchain:
+                return nil
+            }
+        }
     }
 }

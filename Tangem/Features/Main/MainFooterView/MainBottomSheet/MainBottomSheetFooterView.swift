@@ -25,7 +25,10 @@ struct MainBottomSheetFooterView: View {
                 searchText: .constant(""),
                 isTextFieldFocused: .constant(false),
                 allowsHitTestingForTextField: false,
-                clearButtonAction: nil
+                clearButtonAction: nil,
+                cancelButtonAction: nil,
+                searchBarAccessibilityIdentifier: nil,
+                searchBarClearButtonAccessibilityIdentifier: nil
             )
             .padding(.bottom, bottomInset)
             .background(Colors.Background.primary) // Fills a small gap at the bottom on notchless devices
@@ -34,8 +37,7 @@ struct MainBottomSheetFooterView: View {
             }
             .cornerRadius(cornerRadius, corners: .topEdge)
             .overlay(alignment: .top) {
-                GrabberViewFactory()
-                    .makeSwiftUIView()
+                GrabberView()
             }
             .background(alignment: .top) {
                 MainBottomSheetFooterShadowView(colorScheme: colorScheme, shadowColor: .black)

@@ -21,6 +21,7 @@ public struct TransactionRecord: Hashable {
     public let type: TransactionType
     public let date: Date?
     public let tokenTransfers: [TokenTransfer]?
+    public let isFromYieldContract: Bool
 
     public init(
         hash: String,
@@ -32,7 +33,8 @@ public struct TransactionRecord: Hashable {
         isOutgoing: Bool,
         type: TransactionType,
         date: Date?,
-        tokenTransfers: [TokenTransfer]? = nil
+        tokenTransfers: [TokenTransfer]? = nil,
+        isFromYieldContract: Bool = false
     ) {
         self.index = index
         self.hash = hash
@@ -44,6 +46,7 @@ public struct TransactionRecord: Hashable {
         self.type = type
         self.date = date
         self.tokenTransfers = tokenTransfers
+        self.isFromYieldContract = isFromYieldContract
     }
 }
 
@@ -56,7 +59,7 @@ public extension TransactionRecord {
         case contractMethodIdentifier(id: String)
         /// Contains human-readable contract method name (like `swap`).
         case contractMethodName(name: String)
-        case staking(type: StakingTransactionType, validator: String?)
+        case staking(type: StakingTransactionType, target: String?)
 
         public enum StakingTransactionType {
             case stake
@@ -95,7 +98,10 @@ public extension TransactionRecord {
         }
 
         static func from(_ sources: [Source]) -> Self {
-            sources.count == 1 ? .single(sources.first!) : .multiple(sources)
+            if let source = sources.singleElement {
+                return .single(source)
+            }
+            return .multiple(sources)
         }
     }
 
@@ -125,7 +131,10 @@ public extension TransactionRecord {
         }
 
         static func from(_ destinations: [Destination]) -> Self {
-            destinations.count == 1 ? .single(destinations.first!) : .multiple(destinations)
+            if let destination = destinations.singleElement {
+                return .single(destination)
+            }
+            return .multiple(destinations)
         }
     }
 

@@ -7,10 +7,11 @@
 
 import Foundation
 import TangemNetworkUtils
+import TangemFoundation
 
 public typealias APIList = [String: [NetworkProviderType]]
 
-public enum NetworkProviderType {
+public enum NetworkProviderType: Equatable, Hashable, Codable {
     case `public`(link: String)
     case nowNodes
     case blink
@@ -37,13 +38,22 @@ public enum NetworkProviderType {
     case mock
 }
 
+extension NetworkProviderType {
+    var isPrivateMempool: Bool {
+        switch self {
+        case .blink: true
+        default: false
+        }
+    }
+}
+
 struct NodeInfo: HostProvider {
     let url: URL
     let headers: APIHeaderKeyInfo?
 
     var link: String { url.absoluteString }
 
-    var host: String { link }
+    var host: String { url.hostOrUnknown }
 
     init(url: URL, keyInfo: APIHeaderKeyInfo? = nil) {
         self.url = url

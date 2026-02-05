@@ -21,13 +21,21 @@ struct CommonWalletModelsFactory {
         self.userWalletId = userWalletId
     }
 
-    private func isDerivationDefault(blockchain: Blockchain, derivationPath: DerivationPath?) -> Bool {
-        guard let derivationStyle = config.derivationStyle else {
-            return true
+    private func isMainCoinCustom(
+        blockchainDerivationPath: DerivationPath?,
+        targetAccountDerivationPath: DerivationPath?
+    ) -> Bool {
+        guard let blockchainDerivationPath else {
+            // Blockchain can't be custom if its derivation path is absent
+            return false
         }
 
-        let defaultDerivation = blockchain.derivationPath(for: derivationStyle)
-        return derivationPath == defaultDerivation
+        guard let targetAccountDerivationPath else {
+            // No target path means no HD wallets support - not custom
+            return false
+        }
+
+        return blockchainDerivationPath != targetAccountDerivationPath
     }
 
     private func makeTransactionHistoryService(tokenItem: TokenItem, addresses: [String]) -> TransactionHistoryService? {
@@ -39,7 +47,7 @@ struct CommonWalletModelsFactory {
             addresses = Array(Set(convertedAddresses))
         }
 
-        if addresses.count == 1, let address = addresses.first {
+        if let address = addresses.singleElement {
             let factory = TransactionHistoryFactoryProvider().factory
 
             guard let provider = factory.makeProvider(for: tokenItem.blockchain, isToken: tokenItem.isToken) else {
@@ -96,27 +104,18 @@ struct CommonWalletModelsFactory {
 }
 
 extension CommonWalletModelsFactory: WalletModelsFactory {
-    func makeWalletModels(from walletManager: WalletManager) -> [any WalletModel] {
-        var types: [Amount.AmountType] = [.coin]
-        types += walletManager.cardTokens.map { Amount.AmountType.token(value: $0) }
-
-        let currentDerivation = walletManager.wallet.publicKey.derivationPath
-        let currentBlockchain = walletManager.wallet.blockchain
-        let blockchainNetwork = BlockchainNetwork(currentBlockchain, derivationPath: currentDerivation)
-
-        return makeWalletModels(for: types, walletManager: walletManager, blockchainNetwork: blockchainNetwork)
-    }
-
     func makeWalletModels(
         for types: [Amount.AmountType],
         walletManager: WalletManager,
-        blockchainNetwork: BlockchainNetwork
+        blockchainNetwork: BlockchainNetwork,
+        targetAccountDerivationPath: DerivationPath?
     ) -> [any WalletModel] {
         var models: [any WalletModel] = []
 
-        let currentBlockchain = blockchainNetwork.blockchain
-        let currentDerivation = blockchainNetwork.derivationPath
-        let isMainCoinCustom = !isDerivationDefault(blockchain: currentBlockchain, derivationPath: currentDerivation)
+        let isMainCoinCustom = isMainCoinCustom(
+            blockchainDerivationPath: blockchainNetwork.derivationPath,
+            targetAccountDerivationPath: targetAccountDerivationPath
+        )
         let sendAvailabilityProvider = TransactionSendAvailabilityProvider(
             hardwareLimitationsUtil: HardwareLimitationsUtil(config: config)
         )
@@ -137,7 +136,7 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                 userWalletConfig: config,
                 tokenItem: tokenItem
             )
-            let shouldPerformHealthCheck = shouldPerformHealthCheck(blockchain: currentBlockchain, amountType: .coin)
+
             let mainCoinModel = CommonWalletModel(
                 userWalletId: userWalletId,
                 tokenItem: tokenItem,
@@ -152,7 +151,6 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                 receiveAddressService: receiveAddressService,
                 sendAvailabilityProvider: sendAvailabilityProvider,
                 tokenBalancesRepository: tokenBalancesRepository,
-                shouldPerformHealthCheck: shouldPerformHealthCheck,
                 isCustom: isMainCoinCustom
             )
             models.append(mainCoinModel)
@@ -176,7 +174,7 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                     userWalletConfig: config,
                     tokenItem: tokenItem
                 )
-                let shouldPerformHealthCheck = shouldPerformHealthCheck(blockchain: currentBlockchain, amountType: amountType)
+
                 let tokenModel = CommonWalletModel(
                     userWalletId: userWalletId,
                     tokenItem: tokenItem,
@@ -191,7 +189,6 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                     receiveAddressService: receiveAddressService,
                     sendAvailabilityProvider: sendAvailabilityProvider,
                     tokenBalancesRepository: tokenBalancesRepository,
-                    shouldPerformHealthCheck: shouldPerformHealthCheck,
                     isCustom: isTokenCustom
                 )
                 models.append(tokenModel)
@@ -199,15 +196,5 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
         }
 
         return models
-    }
-
-    /// For now, an account health check is only required for Polkadot Mainnet.
-    private func shouldPerformHealthCheck(blockchain: Blockchain, amountType: Amount.AmountType) -> Bool {
-        switch (blockchain, amountType) {
-        case (.polkadot(_, let isTestnet), .coin):
-            return !isTestnet
-        default:
-            return false
-        }
     }
 }

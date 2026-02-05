@@ -14,6 +14,8 @@ import TangemVisa
 import TangemFoundation
 import TangemNFT
 import struct TangemUIUtils.AlertBinder
+import TangemUI
+import TangemPay
 
 /// Model responsible for interacting with payment account and BFF
 /// Main setup logic is in `setupPaymentAccountInteractorAsync` . It setups payment account interactor which is responsible with blockchain requests
@@ -195,7 +197,7 @@ final class VisaUserWalletModel {
         do {
             try await setupAuthorizationTokensHandler()
         } catch let modelError as ModelError {
-            if modelError == .missingValidRefreshToken {
+            if case .missingValidRefreshToken = modelError {
                 showRefreshTokenExpiredNotification()
                 return
             }
@@ -272,7 +274,7 @@ final class VisaUserWalletModel {
     }
 
     private func showRefreshTokenExpiredNotification() {
-        stateSubject.send(.failedToLoad(.missingValidRefreshToken))
+        stateSubject.send(.failedToLoad(.missingValidRefreshToken(icon: CommonTangemIconProvider(config: config).getMainButtonIcon())))
     }
 
     private func loadBalancesAndLimits() async {
@@ -345,14 +347,15 @@ extension VisaUserWalletModel {
             .build(
                 cardId: cardId,
                 cardActivationStatus: .activated(authTokens: tokens),
-                refreshTokenSaver: self
+                refreshTokenSaver: self,
+                allowRefresherTask: true
             )
 
-        if await authorizationTokensHandler.refreshTokenExpired {
-            throw ModelError.missingValidRefreshToken
+        if authorizationTokensHandler.refreshTokenExpired {
+            throw ModelError.missingValidRefreshToken(icon: CommonTangemIconProvider(config: config).getMainButtonIcon())
         }
 
-        if await authorizationTokensHandler.accessTokenExpired {
+        if authorizationTokensHandler.accessTokenExpired {
             try await authorizationTokensHandler.forceRefreshToken()
         }
 
@@ -479,14 +482,15 @@ extension VisaUserWalletModel {
         case missingPublicKey
         case failedToGenerateAddress
         case authorizationError
-        case missingValidRefreshToken
+        case missingValidRefreshToken(icon: MainButton.Icon?)
         case missingCardId
         case invalidConfig
         case invalidActivationState
 
         var notificationEvent: VisaNotificationEvent {
             switch self {
-            case .missingValidRefreshToken: return .missingValidRefreshToken
+            case .missingValidRefreshToken(let icon):
+                return .missingValidRefreshToken(icon: icon)
             default: return .error(self)
             }
         }
@@ -505,13 +509,20 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var tangemApiAuthData: TangemApiAuthorizationData? { userWalletModel.tangemApiAuthData }
 
+    // [REDACTED_TODO_COMMENT]
     var walletModelsManager: any WalletModelsManager { userWalletModel.walletModelsManager }
 
+    // [REDACTED_TODO_COMMENT]
     var userTokensManager: any UserTokensManager { userWalletModel.userTokensManager }
 
     var nftManager: any NFTManager { NotSupportedNFTManager() }
 
     var keysRepository: any KeysRepository { userWalletModel.keysRepository }
+
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_INFO]
+    var tangemPayAccountPublisher: AnyPublisher<TangemPayAccount?, Never> { .empty }
+    var tangemPayAccount: TangemPayAccount? { nil }
 
     var signer: TangemSigner { userWalletModel.signer }
 
@@ -543,9 +554,17 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var wcWalletModelProvider: any WalletConnectWalletModelProvider { NotSupportedWalletConnectWalletModelProvider() }
 
+    var wcAccountsWalletModelProvider: any WalletConnectAccountsWalletModelProvider {
+        NotSupportedWalletConnectAccountsWalletModelProvider()
+    }
+
     var refcodeProvider: RefcodeProvider? { userWalletModel.refcodeProvider }
 
     var keysDerivingInteractor: any KeysDeriving { userWalletModel.keysDerivingInteractor }
+
+    var tangemPayAuthorizingInteractor: TangemPayAuthorizing {
+        userWalletModel.tangemPayAuthorizingInteractor
+    }
 
     var userTokensPushNotificationsManager: any UserTokensPushNotificationsManager {
         userWalletModel.userTokensPushNotificationsManager
@@ -553,6 +572,10 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var accountModelsManager: AccountModelsManager {
         userWalletModel.accountModelsManager
+    }
+
+    var tangemPayManager: TangemPayManager {
+        userWalletModel.tangemPayManager
     }
 
     func validate() -> Bool { userWalletModel.validate() }
@@ -588,5 +611,14 @@ extension VisaUserWalletModel: UserWalletSerializable {
 extension VisaUserWalletModel: AssociatedCardIdsProvider {
     var associatedCardIds: Set<String> {
         cardInfo.associatedCardIds
+    }
+}
+
+// MARK: - DisposableEntity protocol conformance
+
+extension VisaUserWalletModel: DisposableEntity {
+    func dispose() {
+        walletModelsManager.dispose()
+        accountModelsManager.dispose()
     }
 }

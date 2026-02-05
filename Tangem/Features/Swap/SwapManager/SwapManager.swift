@@ -13,7 +13,7 @@ import TangemFoundation
 typealias SwapManagerState = ExpressInteractor.State
 typealias SwapManagerSwappingPair = ExpressInteractor.SwappingPair
 
-protocol SwapManager {
+protocol SwapManager: SendApproveDataBuilderInput, SendFeeUpdater, TokenFeeProvidersManagerProviding, FeeSelectorOutput {
     var isSwapAvailable: Bool { get }
 
     var swappingPair: SwapManagerSwappingPair { get }
@@ -23,17 +23,21 @@ protocol SwapManager {
     var statePublisher: AnyPublisher<SwapManagerState, Never> { get }
 
     var providers: [ExpressAvailableProvider] { get async }
-    var selectedProvider: ExpressAvailableProvider? { get async }
 
     var providersPublisher: AnyPublisher<[ExpressAvailableProvider], Never> { get }
     var selectedProviderPublisher: AnyPublisher<ExpressAvailableProvider?, Never> { get }
 
     func update(amount: Decimal?)
-    func update(destination: TokenItem?, address: String?)
+
+    func update(
+        destination: TokenItem?,
+        address: String?,
+        tokenHeader: ExpressInteractorTokenHeader?,
+        accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
+    )
+
     func update(provider: ExpressAvailableProvider)
-    func update(feeOption: FeeOption)
 
     func update()
-    func updateFees()
     func send() async throws -> TransactionDispatcherResult
 }

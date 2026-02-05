@@ -142,7 +142,9 @@ extension CoinType {
              .quai,
              .scroll,
              .linea,
-             .arbitrumNova:
+             .monad,
+             .arbitrumNova,
+             .plasma:
             // Blockchains that are not in WalletCore yet
             return nil
         }

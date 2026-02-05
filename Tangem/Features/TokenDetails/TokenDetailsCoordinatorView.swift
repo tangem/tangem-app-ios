@@ -51,16 +51,13 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
             }
-            .iOS16UIKitSheet(item: $coordinator.expressCoordinator) { coordinator in
+            .sheet(item: $coordinator.expressCoordinator) { coordinator in
                 ExpressCoordinatorView(coordinator: coordinator)
             }
 
         NavHolder()
-            .bottomSheet(
-                item: $coordinator.receiveBottomSheetViewModel,
-                settings: .init(backgroundColor: Colors.Background.primary, contentScrollsHorizontally: true)
-            ) {
-                ReceiveBottomSheetView(viewModel: $0)
+            .sheet(item: $coordinator.yieldModuleActiveCoordinator) {
+                YieldModuleActiveCoordinatorView(coordinator: $0)
             }
             .bottomSheet(
                 item: $coordinator.pendingExpressTxStatusBottomSheetViewModel,
@@ -71,11 +68,11 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: ReceiveMainViewModel.self) {
                 ReceiveMainView(viewModel: $0)
             }
-            .floatingSheetContent(for: YieldModuleInfoViewModel.self) {
-                YieldModuleInfoView(viewModel: $0)
-            }
             .floatingSheetContent(for: YieldModuleBalanceInfoViewModel.self) {
                 YieldModuleBalanceInfoView(viewModel: $0)
+            }
+            .floatingSheetContent(for: CloreMigrationViewModel.self) {
+                CloreMigrationView(viewModel: $0)
             }
     }
 }

@@ -34,9 +34,8 @@ class MobileWalletAddressesTests {
             partialResult[cardWallet.curve] = cardWallet.publicKey
         }
 
-        let config = MobileUserWalletConfig(mobileWalletInfo: walletInfo)
-        try config.supportedBlockchains.forEach { blockchain in
-
+        let blockchains = SupportedBlockchains(version: .v2).blockchains().union(SupportedBlockchains.testableBlockchains(version: .v2))
+        for blockchain in blockchains {
             let keyInfo = try #require(walletInfo.keys.filter { $0.curve == blockchain.curve }.first)
 
             let curve = try #require(seedKeys[blockchain.curve])
@@ -58,9 +57,12 @@ class MobileWalletAddressesTests {
                 )
             case .chia:
                 derivationType = nil
+            case .hedera:
+                // Hedera is not supported for mobile wallet
+                continue
             default:
                 let derivationPath = try #require(blockchain.derivationPath(for: .v3))
-                let publicKey = try #require(keyInfo.derivedKeys[derivationPath])
+                let publicKey = try #require(keyInfo.derivedKeys[derivationPath], "\(blockchain.displayName)")
 
                 derivationType = .plain(.init(path: derivationPath, extendedPublicKey: publicKey))
             }
@@ -72,12 +74,23 @@ class MobileWalletAddressesTests {
 
             let addressService = AddressServiceFactory(blockchain: blockchain).makeAddressService()
 
-            let address = try addressService.makeAddress(for: walletPublicKey, with: .default)
+            let address: Address
+            switch blockchain {
+            case .quai:
+                let derivationUtils = QuaiDerivationUtils()
 
-            // Did you add new blockchain and got failure here?
+                let extendedPublicKey = try #require(walletPublicKey.derivationType?.hdKey.extendedPublicKey)
+                let zoneDerivedResult = try derivationUtils.derive(extendedPublicKey: extendedPublicKey, with: .default)
+                let walletPublicKey = Wallet.PublicKey(seedKey: zoneDerivedResult.0.publicKey, derivationType: .none)
+                address = try addressService.makeAddress(for: walletPublicKey, with: .default)
+            default:
+                address = try addressService.makeAddress(for: walletPublicKey, with: .default)
+            }
+
+            // Did you add new blockchain and got failure here? USE ONLY CARD TO GENERATE ADDRESS! NOT A MOBILE WALLET!
             // generate address for seedphrase "tiny escape drive pupil flavor endless love walk gadget match filter luxury"
             // and put it to test_addresses.json file
-            #expect(json[blockchain.networkId] == address.value)
+            #expect(json[blockchain.networkId] == address.value, "\(blockchain.displayName)")
         }
     }
 

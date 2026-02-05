@@ -9,8 +9,8 @@
 import Foundation
 
 protocol BannerPromotionService {
-    func activePromotion(promotion: PromotionProgramName, on place: BannerPromotionPlacement) async -> ActivePromotionInfo?
-    func isHidden(promotion: PromotionProgramName, on place: BannerPromotionPlacement) -> Bool
+    func loadActivePromotionsFor(walletId: String, on place: BannerPromotionPlacement) async -> [ActivePromotionInfo]
+    func isHidden(promotionName: String, on place: BannerPromotionPlacement) -> Bool
     func hide(promotion: PromotionProgramName, on place: BannerPromotionPlacement)
 }
 
@@ -23,6 +23,14 @@ extension InjectedValues {
         get { Self[BannerPromotionServiceKey.self] }
         set { Self[BannerPromotionServiceKey.self] = newValue }
     }
+}
+
+enum PromotionServicePromotionInfo {
+    typealias PromotionInfo = ExpressPromotion.Response
+
+    case expired
+    case active(PromotionInfo)
+    case loadingError(Error)
 }
 
 struct ActivePromotionInfo: Hashable {
@@ -46,12 +54,15 @@ enum BannerPromotionPlacement {
 }
 
 enum PromotionProgramName: String, Hashable, CaseIterable {
-    case sepa
+    case yield = "promo-yield"
+
+    var analyticsEvent: Analytics.Event? {
+        Analytics.Event.promotionBannerAppeared
+    }
 
     var analyticsValue: Analytics.ParameterValue {
         switch self {
-        case .sepa:
-            return Analytics.ParameterValue.sepa
+        case .yield: return Analytics.ParameterValue.yieldPromo
         }
     }
 }

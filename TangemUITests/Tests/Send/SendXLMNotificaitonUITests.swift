@@ -14,30 +14,13 @@ final class SendXLMNotificationUITests: BaseTestCase {
     private let nonActivatedAddress = "GAGMMENFDWASIHSVO4BPVIT3ZH3YNUIM4EJ6MUDJW46OVPNOJSQIJ22K"
     private let activatedAddress = "GDKGS3UQFUNQY34P4SIAOKKGEA3NKHH6BSAXK4HIN3BZQQRBTITJLKL6"
 
-    override func setUp() {
-        super.setUp()
-
-        let xlmScenario = ScenarioConfig(
-            name: "user_tokens_api",
-            initialState: "XLM"
-        )
-
-        launchApp(
-            tangemApiType: .mock,
-            scenarios: [xlmScenario]
-        )
-
-        StoriesScreen(app)
-            .scanMockWallet(name: .wallet2)
-            .tapToken(coin)
-            .tapSendButton()
-    }
-
     func testNotificationDisplayed_WhenSendingLessThanReserveToNonActivatedAccount() {
         setAllureId(4287)
 
+        prepareSendFlow()
+
         SendScreen(app)
-            .validate()
+            .waitForDisplay()
             .enterAmount("0.5")
             .tapNextButton()
             .enterDestination(nonActivatedAddress)
@@ -55,8 +38,10 @@ final class SendXLMNotificationUITests: BaseTestCase {
     func testNotificationNotDisplayed_WhenSendingAmountEqualToReserve() {
         setAllureId(4286)
 
+        prepareSendFlow()
+
         SendScreen(app)
-            .validate()
+            .waitForDisplay()
             .enterAmount("1")
             .tapNextButton()
             .enterDestination(nonActivatedAddress)
@@ -74,8 +59,10 @@ final class SendXLMNotificationUITests: BaseTestCase {
     func testNotificationNotDisplayed_WhenSendingAmountGreaterThanReserve() {
         setAllureId(4288)
 
+        prepareSendFlow()
+
         SendScreen(app)
-            .validate()
+            .waitForDisplay()
             .enterAmount("2")
             .tapNextButton()
             .enterDestination(nonActivatedAddress)
@@ -88,5 +75,22 @@ final class SendXLMNotificationUITests: BaseTestCase {
             .tapNextButton()
             .waitForInsufficientAmountToReserveAtDestinationBannerNotExists()
             .waitForSendButtonEnabled()
+    }
+
+    private func prepareSendFlow() {
+        let xlmScenario = ScenarioConfig(
+            name: "user_tokens_api",
+            initialState: "XLM"
+        )
+
+        launchApp(
+            tangemApiType: .mock,
+            scenarios: [xlmScenario]
+        )
+
+        CreateWalletSelectorScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .tapToken(coin)
+            .tapSendButton()
     }
 }

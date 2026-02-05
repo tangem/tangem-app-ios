@@ -158,15 +158,7 @@ class VisaOnboardingViewModel: ObservableObject {
     }
 
     func openSupport() {
-        guard FeatureStorage.instance.isVisaAPIMocksEnabled else {
-            openSupportSheet()
-            return
-        }
-
-        VisaMocksManager.instance.showMocksMenu(
-            openSupportAction: weakify(self, forFunction: VisaOnboardingViewModel.openSupportSheet),
-            presenter: self
-        )
+        openSupportSheet()
     }
 
     func finishOnboarding() {
@@ -178,11 +170,13 @@ class VisaOnboardingViewModel: ObservableObject {
 
         UIApplication.shared.endEditing()
 
+        let walletModels = userWalletModel.map { AccountsFeatureAwareWalletModelsResolver.walletModels(for: $0) } ?? []
+
         let dataCollector = DetailsFeedbackDataCollector(
             data: [
                 .init(
                     userWalletEmailData: input.cardInput.emailData,
-                    walletModels: userWalletModel?.walletModelsManager.walletModels ?? []
+                    walletModels: walletModels
                 ),
             ]
         )
@@ -429,7 +423,7 @@ extension VisaOnboardingViewModel: VisaOnboardingAccessCodeSetupDelegate {
             title: Localization.commonError,
             message: error.localizedDescription,
             primaryButton: .default(
-                Text(Localization.detailsRowTitleContactToSupport),
+                Text(Localization.commonContactSupport),
                 action: { [weak self] in
                     self?.openSupport()
                 }
@@ -588,47 +582,3 @@ extension VisaOnboardingViewModel {
         case wrongRemoteState
     }
 }
-
-// MARK: Development menu
-
-// [REDACTED_TODO_COMMENT]
-
-extension VisaOnboardingViewModel: VisaMockMenuPresenter {
-    func modalFromTop(_ vc: UIViewController) {
-        UIApplication.modalFromTop(vc)
-    }
-}
-
-#if DEBUG
-extension VisaOnboardingViewModel {
-    static let coordinator = OnboardingCoordinator()
-
-    static var mock: VisaOnboardingViewModel {
-        let cardMock = CardMock.visa
-        let activationStatus = VisaCardActivationLocalState.notStartedActivation(activationInput: .init(
-            cardId: cardMock.card.cardId,
-            cardPublicKey: cardMock.card.cardPublicKey,
-            isAccessCodeSet: cardMock.cardInfo.card.isAccessCodeSet
-        ))
-        let cardMockConfig = VisaConfig(card: cardMock.cardInfo.card, activationLocalState: activationStatus)
-        let inputFactory = OnboardingInputFactory(
-            sdkFactory: cardMockConfig,
-            onboardingStepsBuilderFactory: cardMockConfig
-        )
-        guard let cardInput = inputFactory.makeOnboardingInput(cardInfo: cardMock.cardInfo) else {
-            fatalError("Failed to generate card input for visa onboarding")
-        }
-
-        return .init(
-            input: cardInput,
-            visaActivationManager: VisaActivationManagerFactory(apiType: .dev, isTestnet: false, isMockedAPIEnabled: true).make(
-                cardId: cardInput.primaryCardId,
-                initialActivationStatus: activationStatus,
-                tangemSdk: TangemSdkDefaultFactory().makeTangemSdk(),
-                urlSessionConfiguration: .default
-            ),
-            coordinator: coordinator
-        )
-    }
-}
-#endif

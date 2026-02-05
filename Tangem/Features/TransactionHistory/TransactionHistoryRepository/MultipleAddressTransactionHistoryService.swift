@@ -232,7 +232,7 @@ private extension TransactionRecord.SourceType {
 
         // We add the "unique" here because the input may exist twice
         let list = (lhsList + rhsList).unique()
-        if list.count == 1, let first = list.first {
+        if let first = list.singleElement {
             return .single(first)
         }
 
@@ -262,7 +262,7 @@ private extension TransactionRecord.DestinationType {
 
         // We add the "unique" here because the change may exist twice
         let list = (lhsList + rhsList).unique()
-        if list.count == 1, let first = list.first {
+        if let first = list.singleElement {
             return .single(first)
         }
 

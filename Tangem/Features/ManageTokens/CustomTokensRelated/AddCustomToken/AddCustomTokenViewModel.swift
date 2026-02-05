@@ -53,18 +53,20 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     private var foundStandardToken: CoinModel?
     private var settings: ManageTokensSettings
     private let userTokensManager: UserTokensManager
+    private let context: ManageTokensContext
     private var bag: Set<AnyCancellable> = []
 
     private weak var coordinator: AddCustomTokenRoutable?
 
     init(
         settings: ManageTokensSettings,
-        userTokensManager: UserTokensManager,
+        context: ManageTokensContext,
         coordinator: AddCustomTokenRoutable
     ) {
         self.settings = settings
         self.coordinator = coordinator
-        self.userTokensManager = userTokensManager
+        userTokensManager = context.userTokensManager
+        self.context = context
 
         networkSelectorViewModel = .init(
             selectedBlockchainNetworkId: nil,
@@ -91,13 +93,19 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
             let tokenItem = try enteredTokenItem()
             try checkLocalStorage()
 
+            logAddTokenToNonMainAccountAnalyticsIfNeeded(tokenItem: tokenItem)
+
+            // If we didn't find any suitable userTokensManager, we will use current. And if it can't add the token --
+            // we will present this error as alert
+            let userTokensManager = context.findUserTokensManager(for: tokenItem) ?? context.userTokensManager
             try userTokensManager.addTokenItemPrecondition(tokenItem)
+
             userTokensManager.add(tokenItem) { [weak self] result in
                 guard let self else { return }
 
                 switch result {
-                case .success:
-                    logSuccess(tokenItem: tokenItem)
+                case .success(let enrichedTokenItem):
+                    logSuccess(tokenItem: enrichedTokenItem)
                     coordinator?.dismiss()
                 case .failure(let error):
                     if error.isCancellationError {
@@ -251,7 +259,8 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
         let derivationPath = enteredDerivationPath()
 
         let missingTokenInformation = contractAddress.isEmpty && name.isEmpty && symbol.isEmpty && decimals.isEmpty
-        if !blockchain.canHandleCustomTokens || missingTokenInformation {
+        if !blockchain.canHandleCustomTokens || missingTokenInformation
+            || !SupportedTokensFilter.canHandleCustomToken(contractAddress: contractAddress, blockchain: blockchain) {
             return .blockchain(.init(blockchain, derivationPath: derivationPath))
         } else {
             let enteredContractAddress = try enteredContractAddress(in: blockchain)
@@ -343,7 +352,7 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
     private func checkLocalStorage() throws {
         guard let tokenItem = try? enteredTokenItem() else { return }
 
-        if userTokensManager.contains(tokenItem, derivationInsensitive: false) {
+        if context.isAddedToPortfolio(tokenItem) {
             throw TokenSearchError.alreadyAdded
         }
     }
@@ -456,6 +465,14 @@ final class AddCustomTokenViewModel: ObservableObject, Identifiable {
         Analytics.log(event: .manageTokensCustomTokenWasAdded, params: params)
     }
 
+    private func logAddTokenToNonMainAccountAnalyticsIfNeeded(tokenItem: TokenItem) {
+        let destination = context.accountDestination(for: tokenItem)
+        ManageTokensAnalyticsLogger.logAddTokenToNonMainAccountIfNeeded(
+            tokenItem: tokenItem,
+            destination: destination
+        )
+    }
+
     private func updateDefaultDerivationOption() {
         switch selectedDerivationOption {
         case .default, .none:
@@ -500,13 +517,15 @@ extension AddCustomTokenViewModel {
 
         let blockchainDerivationOptions: [AddCustomTokenDerivationOption] = settings.supportedBlockchains.compactMap {
             guard let derivationPath = $0.derivationPath(for: derivationStyle) else { return nil }
-            return AddCustomTokenDerivationOption.blockchain(name: $0.displayName, derivationPath: derivationPath)
+            return .blockchain(name: $0.displayName, derivationPath: derivationPath)
         }
 
         coordinator?.openDerivationSelector(
             selectedDerivationOption: selectedDerivationOption,
             defaultDerivationPath: defaultDerivationPath,
-            blockchainDerivationOptions: blockchainDerivationOptions
+            blockchainDerivationOptions: blockchainDerivationOptions,
+            context: context,
+            blockchain: selectedBlockchain
         )
     }
 }
@@ -572,7 +591,12 @@ private extension AddCustomTokenViewModel {
         case failedToFindToken
 
         var preventsFromAdding: Bool {
-            false
+            switch self {
+            case .alreadyAdded:
+                return true
+            case .failedToFindToken:
+                return false
+            }
         }
 
         var errorDescription: String? {
@@ -589,7 +613,7 @@ private extension AddCustomTokenViewModel {
             case .failedToFindToken:
                 return AddCustomTokenNotificationEvent.scamWarning
             case .alreadyAdded:
-                return nil
+                return AddCustomTokenNotificationEvent.alreadyAdded
             }
         }
     }

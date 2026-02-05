@@ -28,6 +28,8 @@ struct YieldModuleBottomSheetNotificationBannerView: View {
             return Localization.yieldModuleNetworkFeeUnreachableNotificationTitle
         case .hasUndepositedAmounts(let amount, let currencySymbol):
             return Localization.yieldModuleDepositErrorNotificationTitle(amount, currencySymbol)
+        case .highFees:
+            return Localization.yieldModuleHighNetworkFeesNotificationTitle
         }
     }
 
@@ -41,6 +43,8 @@ struct YieldModuleBottomSheetNotificationBannerView: View {
             return Localization.yieldModuleNetworkFeeUnreachableNotificationDescription
         case .hasUndepositedAmounts:
             return nil
+        case .highFees:
+            return Localization.yieldModuleHighNetworkFeesNotificationDescription
         }
     }
 
@@ -65,7 +69,7 @@ struct YieldModuleBottomSheetNotificationBannerView: View {
             action = buttonAction
             style = .secondary
 
-        case .hasUndepositedAmounts:
+        case .hasUndepositedAmounts, .highFees:
             return nil
         }
 
@@ -77,25 +81,27 @@ struct YieldModuleBottomSheetNotificationBannerView: View {
     var body: some View {
         VStack(spacing: 12) {
             HStack(spacing: 12) {
-                iconStack
+                icon
+                    .resizable()
+                    .frame(size: .init(bothDimensions: 20))
+
                 message
                 Spacer()
             }
 
             button
         }
-        .defaultRoundedBackground(with: Colors.Background.action)
+        .defaultRoundedBackground(with: backgroundColor, verticalPadding: 14)
     }
 
     // MARK: - Sub Views
 
-    private var iconStack: some View {
-        VStack {
-            icon
-                .resizable()
-                .frame(size: .init(bothDimensions: 16))
-
-            Spacer()
+    private var backgroundColor: Color {
+        switch params {
+        case .highFees:
+            return Colors.Button.disabled
+        default:
+            return Colors.Background.action
         }
     }
 
@@ -108,7 +114,9 @@ struct YieldModuleBottomSheetNotificationBannerView: View {
 
     private var icon: Image {
         switch params {
-        case .approveNeeded, .feeUnreachable, .hasUndepositedAmounts:
+        case .hasUndepositedAmounts, .highFees:
+            return Assets.blueCircleWarning.image
+        case .approveNeeded, .feeUnreachable:
             return Assets.attention.image
         case .notEnoughFeeCurrency(_, let tokenIcon, _):
             return tokenIcon.image

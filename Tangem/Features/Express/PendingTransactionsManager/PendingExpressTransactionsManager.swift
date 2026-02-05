@@ -22,7 +22,8 @@ class CommonPendingExpressTransactionsManager {
     @Injected(\.pendingExpressTransactionAnalayticsTracker) private var pendingExpressTransactionAnalyticsTracker: PendingExpressTransactionAnalyticsTracker
 
     private let userWalletId: String
-    private let walletModel: any WalletModel
+    private let tokenItem: TokenItem
+    private let walletModelUpdater: WalletModelUpdater?
     private let expressAPIProvider: ExpressAPIProvider
     private let expressRefundedTokenHandler: ExpressRefundedTokenHandler
 
@@ -33,16 +34,17 @@ class CommonPendingExpressTransactionsManager {
     private var bag = Set<AnyCancellable>()
     private var updateTask: Task<Void, Never>?
     private var transactionsScheduledForUpdate: [PendingExpressTransaction] = []
-    private var tokenItem: TokenItem { walletModel.tokenItem }
 
     init(
         userWalletId: String,
-        walletModel: any WalletModel,
+        tokenItem: TokenItem,
+        walletModelUpdater: WalletModelUpdater?,
         expressAPIProvider: ExpressAPIProvider,
         expressRefundedTokenHandler: ExpressRefundedTokenHandler
     ) {
         self.userWalletId = userWalletId
-        self.walletModel = walletModel
+        self.tokenItem = tokenItem
+        self.walletModelUpdater = walletModelUpdater
         self.expressAPIProvider = expressAPIProvider
         self.expressRefundedTokenHandler = expressRefundedTokenHandler
 
@@ -143,7 +145,7 @@ class CommonPendingExpressTransactionsManager {
 
                     // If transaction is done we have to update balance
                     if loadedPendingTransaction.transactionRecord.transactionStatus.isDone {
-                        self?.walletModel.update(silent: true)
+                        self?.walletModelUpdater?.startUpdateTask(silent: true)
                     }
 
                     transactionsToSchedule.append(loadedPendingTransaction)
@@ -163,7 +165,7 @@ class CommonPendingExpressTransactionsManager {
 
                 try Task.checkCancellation()
 
-                try await Task.sleep(seconds: Constants.statusUpdateTimeout)
+                try await Task.sleep(for: .seconds(Constants.statusUpdateTimeout))
 
                 try Task.checkCancellation()
 
@@ -197,10 +199,10 @@ class CommonPendingExpressTransactionsManager {
                 return false
             }
 
-            let isRelatedToken = walletModel.addresses.contains(where: {
-                $0.value == record.sourceTokenTxInfo.address || $0.value == record.destinationTokenTxInfo.address
-            })
+            let isSourceToken = tokenItem == record.sourceTokenTxInfo.tokenItem
+            let isDestinationToken = tokenItem == record.destinationTokenTxInfo.tokenItem
 
+            let isRelatedToken = isSourceToken || isDestinationToken
             return isRelatedToken
         }
     }
@@ -209,7 +211,11 @@ class CommonPendingExpressTransactionsManager {
         do {
             ExpressLogger.info("Requesting exchange status for transaction with id: \(transactionRecord.expressTransactionId)")
             let expressTransaction = try await expressAPIProvider.exchangeStatus(transactionId: transactionRecord.expressTransactionId)
-            let refundedTokenItem = await handleRefundedTokenIfNeeded(for: expressTransaction, providerType: transactionRecord.provider.type)
+            let refundedTokenItem = await handleRefundedTokenIfNeeded(
+                blockchainNetwork: transactionRecord.sourceTokenTxInfo.tokenItem.blockchainNetwork,
+                providerType: transactionRecord.provider.type,
+                refundedCurrency: expressTransaction.refundedCurrency
+            )
 
             let pendingTransaction = pendingTransactionFactory.buildPendingExpressTransaction(
                 expressTransaction: expressTransaction,
@@ -234,15 +240,18 @@ class CommonPendingExpressTransactionsManager {
     }
 
     private func handleRefundedTokenIfNeeded(
-        for transaction: ExpressTransaction,
-        providerType: ExpressPendingTransactionRecord.ProviderType
+        blockchainNetwork: BlockchainNetwork,
+        providerType: ExpressPendingTransactionRecord.ProviderType,
+        refundedCurrency: ExpressCurrency?,
     ) async -> TokenItem? {
-        guard providerType == .dexBridge,
-              let refundedCurrency = transaction.refundedCurrency else {
+        guard providerType == .dexBridge, let refundedCurrency else {
             return nil
         }
 
-        return try? await expressRefundedTokenHandler.handle(expressCurrency: refundedCurrency)
+        return try? await expressRefundedTokenHandler.handle(
+            blockchainNetwork: blockchainNetwork,
+            expressCurrency: refundedCurrency
+        )
     }
 }
 

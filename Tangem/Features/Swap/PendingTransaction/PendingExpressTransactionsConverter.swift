@@ -33,16 +33,20 @@ struct PendingExpressTransactionsConverter {
             case .onramp(let sourceAmount, let sourceCurrencySymbol, let destination):
                 title = Localization.expressStatusBuying(destination.tokenItem.name)
                 sourceAmountText = balanceFormatter.formatFiatBalance(sourceAmount, currencyCode: sourceCurrencySymbol)
-                destinationAmountText = balanceFormatter.formatCryptoBalance(destination.amount, currencyCode: destination.tokenItem.currencySymbol)
+                if destination.amount > 0 {
+                    destinationAmountText = balanceFormatter.formatCryptoBalance(destination.amount, currencyCode: destination.tokenItem.currencySymbol)
+                } else {
+                    destinationAmountText = destination.tokenItem.currencySymbol
+                }
                 sourceIconInfo = iconBuilder.build(from: sourceCurrencySymbol)
                 destinationIconInfo = iconBuilder.build(from: destination.tokenItem, isCustom: destination.isCustom)
             }
 
             let state: PendingExpressTransactionView.State
             switch record.transactionStatus {
-            case .created, .awaitingDeposit, .confirming, .exchanging, .buying, .sendingToUser, .done, .refunding, .refunded:
+            case .created, .awaitingDeposit, .confirming, .exchanging, .buying, .sendingToUser, .finished, .refunding, .refunded:
                 state = .inProgress
-            case .failed, .canceled, .unknown, .paused, .txFailed:
+            case .failed, .expired, .unknown, .paused, .txFailed:
                 state = .error
             case .verificationRequired, .awaitingHash:
                 state = .warning
@@ -94,7 +98,7 @@ struct PendingExpressTransactionsConverter {
             switch status {
             case .failed:
                 return .init(title: status.passedStatusTitle, state: .cross(passed: true))
-            case .canceled, .unknown, .refunded, .txFailed:
+            case .expired, .unknown, .refunded, .txFailed:
                 return .init(title: status.passedStatusTitle, state: .cross(passed: false))
             case .awaitingHash:
                 return .init(title: status.passedStatusTitle, state: .exclamationMark)
@@ -116,18 +120,18 @@ struct PendingExpressTransactionsConverter {
         case .refunded:
             // Refunded state is the final state and it can't be pending (with loader)
             state = isFinished ? .checkmark : .empty
-        case .awaitingDeposit where currentStatus == .done:
+        case .awaitingDeposit where currentStatus == .finished:
             // Required ultimate refactoring
             return .init(title: status.passedStatusTitle, state: .checkmark)
-        case .confirming where currentStatus == .done:
+        case .confirming where currentStatus == .finished:
             return .init(title: status.passedStatusTitle, state: .checkmark)
-        case .exchanging where currentStatus == .done:
+        case .exchanging where currentStatus == .finished:
             return .init(title: status.passedStatusTitle, state: .checkmark)
-        case .sendingToUser where currentStatus == .done:
+        case .sendingToUser where currentStatus == .finished:
             return .init(title: status.passedStatusTitle, state: .checkmark)
-        case .buying where currentStatus == .done:
+        case .buying where currentStatus == .finished:
             return .init(title: status.passedStatusTitle, state: .checkmark)
-        case .created, .awaitingDeposit, .confirming, .exchanging, .buying, .refunding, .sendingToUser, .done, .canceled:
+        case .created, .awaitingDeposit, .confirming, .exchanging, .buying, .refunding, .sendingToUser, .finished, .expired:
             break
         }
 

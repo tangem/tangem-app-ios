@@ -39,6 +39,8 @@ struct DefaultIncomingLinkParser {
             promoCode: keyedQueryItems[IncomingActionConstants.DeeplinkParams.promoCode],
             entry: keyedQueryItems[IncomingActionConstants.DeeplinkParams.entry],
             id: keyedQueryItems[IncomingActionConstants.DeeplinkParams.id],
+            refcode: keyedQueryItems[IncomingActionConstants.DeeplinkParams.refcode],
+            campaign: keyedQueryItems[IncomingActionConstants.DeeplinkParams.campaign],
         )
     }
 
@@ -46,9 +48,25 @@ struct DefaultIncomingLinkParser {
         IncomingActionConstants.DeeplinkDestination(rawValue: host)
     }
 
-    private func parseExternalLink(_ url: URL) -> IncomingAction {
+    private func parseExternalLink(_ url: URL) -> IncomingAction? {
         if url.pathComponents.contains(IncomingActionConstants.ndefPath) {
             return .start
+        }
+
+        // First path component is '/'
+        // The second one is the one we are looking for
+        if url.pathComponents.count == 2, url.pathComponents.last == IncomingActionConstants.DeeplinkDestination.payApp.rawValue {
+            let deeplinkNavAction = DeeplinkNavigationAction(
+                destination: .payApp,
+                params: getDeeplinkParams(from: url),
+                deeplinkString: url.absoluteString
+            )
+
+            if deeplinkValidator.hasMinimumDataForHandling(deeplink: deeplinkNavAction) {
+                return .navigation(deeplinkNavAction)
+            } else {
+                return nil
+            }
         }
 
         let navAction = DeeplinkNavigationAction(

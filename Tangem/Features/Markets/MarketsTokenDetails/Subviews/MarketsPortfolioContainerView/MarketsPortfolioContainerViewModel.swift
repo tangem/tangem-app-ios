@@ -12,7 +12,9 @@ import SwiftUI
 import BlockchainSdk
 import TangemFoundation
 
-class MarketsPortfolioContainerViewModel: ObservableObject {
+/// Legacy VM w/o accounts supports, use `MarketsAccountsAwarePortfolioContainerViewModel` instead when accounts are available.
+@available(iOS, deprecated: 100000.0, message: "Only used when accounts are disabled, will be removed in the future ([REDACTED_INFO])")
+final class MarketsPortfolioContainerViewModel: ObservableObject {
     // MARK: - Published Properties
 
     @Published var isAddTokenButtonDisabled: Bool = true
@@ -109,12 +111,15 @@ class MarketsPortfolioContainerViewModel: ObservableObject {
 
             for network in networks {
                 if let supportedBlockchain = supportedBlockchains[network.networkId] {
-                    if network.contractAddress == nil {
-                        return .available
-                    }
-
                     // searchable network is token
-                    if supportedBlockchain.canHandleTokens {
+                    if let contractAddress = network.contractAddress {
+                        if SupportedTokensFilter.canHandleToken(
+                            contractAddress: contractAddress,
+                            blockchain: supportedBlockchain
+                        ) {
+                            return .available
+                        }
+                    } else {
                         return .available
                     }
                 }
@@ -129,7 +134,6 @@ class MarketsPortfolioContainerViewModel: ObservableObject {
             return true
         }
 
-        let availableNetworksIds = availableNetworks.reduce(into: Set<String>()) { $0.insert($1.networkId) }
         let l2BlockchainsIds = SupportedBlockchains.l2Blockchains.map { $0.coinId }
 
         for userWalletModel in walletDataProvider.userWalletModels {
@@ -137,7 +141,15 @@ class MarketsPortfolioContainerViewModel: ObservableObject {
                 continue
             }
 
-            var networkIds = availableNetworksIds
+            let supportedBlockchains = userWalletModel.config.supportedBlockchains
+
+            let supportedNetworkIds = availableNetworks
+                .filter { NetworkSupportChecker.isNetworkSupported($0, in: supportedBlockchains) }
+                .map(\.networkId)
+                .toSet()
+
+            var networkIds = supportedNetworkIds
+            // accounts_fixes_needed_none
             let userTokenList = userWalletModel.userTokensManager.userTokens
             for entry in userTokenList {
                 guard let entryId = entry.id else {
@@ -174,7 +186,9 @@ class MarketsPortfolioContainerViewModel: ObservableObject {
 
         let tokenItemViewModelByUserWalletModels: [MarketsPortfolioTokenItemViewModel] = walletDataProvider.userWalletModels
             .reduce(into: []) { partialResult, userWalletModel in
+                // accounts_fixes_needed_none
                 let walletModels = userWalletModel.walletModelsManager.walletModels
+                // accounts_fixes_needed_none
                 let entries = userWalletModel.userTokensManager.userTokens
 
                 let viewModels: [MarketsPortfolioTokenItemViewModel] = portfolioTokenItemFactory.makeViewModels(
@@ -215,6 +229,7 @@ class MarketsPortfolioContainerViewModel: ObservableObject {
     }
 
     private func bindToTokensListsUpdates(userWalletModels: [UserWalletModel]) {
+        // accounts_fixes_needed_none
         let publishers = userWalletModels.map { $0.userTokensManager.userTokensPublisher }
         let walletModelsPublishers = userWalletModels.map { $0.walletModelsManager.walletModelsPublisher }
 
@@ -234,6 +249,7 @@ class MarketsPortfolioContainerViewModel: ObservableObject {
 extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsProvider {
     func buildContextActions(tokenItem: TokenItem, walletModelId: WalletModelId, userWalletId: UserWalletId) -> [TokenActionType] {
         guard let userWalletModel = walletDataProvider.userWalletModels[userWalletId],
+              // accounts_fixes_needed_none
               let walletModel = userWalletModel.walletModelsManager.walletModels.first(where: { $0.id == walletModelId }) else {
             return []
         }
@@ -260,11 +276,14 @@ extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsDele
 
     func didTapContextAction(_ action: TokenActionType, walletModelId: WalletModelId, userWalletId: UserWalletId) {
         let userWalletModel = walletDataProvider.userWalletModels[userWalletId]
+        // accounts_fixes_needed_none
         let walletModel = userWalletModel?.walletModelsManager.walletModels.first(where: { $0.id == walletModelId })
 
         guard let userWalletModel, let walletModel, let coordinator else {
             return
         }
+
+        let sendInput = SendInput(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel)
 
         let analyticsParams: [Analytics.ParameterKey: String] = [
             .source: Analytics.ParameterValue.market.rawValue,
@@ -275,16 +294,33 @@ extension MarketsPortfolioContainerViewModel: MarketsPortfolioContextActionsDele
         switch action {
         case .buy:
             Analytics.log(event: .marketsChartButtonBuy, params: analyticsParams)
-            coordinator.openOnramp(for: walletModel, with: userWalletModel)
+            let parameters = PredefinedOnrampParametersBuilder.makeMoonpayPromotionParametersIfActive()
+            coordinator.openOnramp(input: sendInput, parameters: parameters)
         case .receive:
             Analytics.log(event: .marketsChartButtonReceive, params: analyticsParams)
             coordinator.openReceive(walletModel: walletModel)
         case .exchange:
             Analytics.log(event: .marketsChartButtonSwap, params: analyticsParams)
-            coordinator.openExchange(for: walletModel, with: userWalletModel)
+            let expressInput = ExpressDependenciesInput(
+                userWalletInfo: userWalletModel.userWalletInfo,
+                source: ExpressInteractorWalletModelWrapper(
+                    userWalletInfo: userWalletModel.userWalletInfo,
+                    walletModel: walletModel,
+                    expressOperationType: .swap
+                ),
+                destination: .loadingAndSet
+            )
+            coordinator.openExchange(input: expressInput)
         case .stake:
             Analytics.log(event: .marketsChartButtonStake, params: analyticsParams)
-            coordinator.openStaking(for: walletModel, with: userWalletModel)
+            if let stakingManager = walletModel.stakingManager {
+                coordinator.openStaking(input: sendInput, stakingManager: stakingManager)
+            }
+        case .yield:
+            Analytics.log(event: .marketsChartButtonYieldMode, params: analyticsParams)
+            if let yieldModuleManager = walletModel.yieldModuleManager {
+                coordinator.openYield(input: sendInput, yieldModuleManager: yieldModuleManager)
+            }
         case .hide, .marketsDetails, .send, .sell, .copyAddress:
             // An empty value because it is not available
             return

@@ -31,6 +31,11 @@ protocol KeysManager {
     var appsFlyerConfig: AppsFlyerConfig { get }
     var yieldModuleApiKey: String { get }
     var yieldModuleApiKeyDev: String { get }
+    var p2pApiKeys: P2PAPIKeys { get }
+    var bffStaticToken: String { get }
+    var bffStaticTokenDev: String { get }
+    var gaslessTxApiKey: String { get }
+    var gaslessTxApiKeyDev: String { get }
 }
 
 private struct KeysManagerKey: InjectionKey {

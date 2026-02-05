@@ -11,14 +11,17 @@ import Combine
 import SwiftUI
 import TangemSdk
 
-class WelcomeCoordinator: CoordinatorObject {
+final class WelcomeCoordinator: CoordinatorObject {
     var dismissAction: Action<OutputOptions>
     var popToRootAction: Action<PopToRootOptions>
 
     // MARK: - Dependencies
 
+    @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
+
+    private var mailPresenterLifecycleSubject = PassthroughSubject<Bool, Never>()
 
     // MARK: - Root view model
 
@@ -33,17 +36,16 @@ class WelcomeCoordinator: CoordinatorObject {
     // MARK: - Child view models
 
     @Published var searchTokensViewModel: WelcomeSearchTokensViewModel? = nil
-    @Published var mailViewModel: MailViewModel? = nil
 
     // MARK: - Private
 
     private var lifecyclePublisher: AnyPublisher<Bool, Never> {
         // Only modals, because the modal presentation will not trigger onAppear/onDisappear events
         var publishers: [AnyPublisher<Bool, Never>] = []
-        publishers.append($mailViewModel.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
         publishers.append($searchTokensViewModel.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
         publishers.append($promotionCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
         publishers.append($welcomeOnboardingCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
+        publishers.append(mailPresenterLifecycleSubject.eraseToAnyPublisher())
 
         return Publishers.MergeMany(publishers)
             .eraseToAnyPublisher()
@@ -112,6 +114,8 @@ extension WelcomeCoordinator: WelcomeRoutable {
             switch options {
             case .main(let model):
                 self?.openMain(with: model)
+            case .dismiss:
+                self?.createWalletSelectorCoordinator = nil
             }
         }
 
@@ -127,7 +131,19 @@ extension WelcomeCoordinator: WelcomeRoutable {
 
     func openMail(with dataCollector: EmailDataCollector, recipient: String) {
         let logsComposer = LogsComposer(infoProvider: dataCollector)
-        mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: .failedToScanCard)
+        let mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: .failedToScanCard)
+
+        Task { @MainActor in
+            let mailPresenterBeingDismissed = true
+            mailPresenterLifecycleSubject.send(!mailPresenterBeingDismissed)
+
+            mailPresenter.present(
+                viewModel: mailViewModel,
+                completion: { [weak self] in
+                    self?.mailPresenterLifecycleSubject.send(mailPresenterBeingDismissed)
+                }
+            )
+        }
     }
 
     func openPromotion() {
@@ -146,7 +162,7 @@ extension WelcomeCoordinator: WelcomeRoutable {
 
     func openShop() {
         Analytics.log(.shopScreenOpened)
-        safariManager.openURL(AppConstants.getWebShopUrl(isExistingUser: false))
+        safariManager.openURL(TangemShopUrlBuilder().url(utmCampaign: .prospect))
     }
 
     func openScanCardManual() {

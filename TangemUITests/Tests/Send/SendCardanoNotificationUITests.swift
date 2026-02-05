@@ -13,27 +13,11 @@ final class SendCardanoNotificationUITests: BaseTestCase {
     private let destinationAddress = "addr1q8tl5q2al97clkvht3x5wa0fsxtsn60h69qv3z9qzjk97acl8vc4df3r6c4xz9a4lj9388fkazw4na6t7yx8x6mvw32qsmvtwy"
     private var cardanoScenario: ScenarioConfig!
 
-    override func setUp() {
-        super.setUp()
-        cardanoScenario = ScenarioConfig(
-            name: "user_tokens_api",
-            initialState: network
-        )
-
-        launchApp(
-            tangemApiType: .mock,
-            scenarios: [cardanoScenario]
-        )
-
-        StoriesScreen(app)
-            .scanMockWallet(name: .wallet2)
-            .tapToken(network)
-            .tapActionButton(.send)
-    }
-
     func testAfterTransacitonRemainsLessThanMinimumAmount_ShowsNotificationAndSendDisabled() {
         setAllureId(4204)
         let transactionAmount = "19"
+
+        prepareSendFlow()
 
         SendScreen(app)
             .enterAmount(transactionAmount)
@@ -48,6 +32,8 @@ final class SendCardanoNotificationUITests: BaseTestCase {
         setAllureId(4207)
         let transactionAmount = "2.5"
 
+        prepareSendFlow()
+
         SendScreen(app)
             .enterAmount(transactionAmount)
             .tapNextButton()
@@ -61,6 +47,8 @@ final class SendCardanoNotificationUITests: BaseTestCase {
         setAllureId(4210)
         let transactionAmount = "18"
 
+        prepareSendFlow()
+
         SendScreen(app)
             .enterAmount(transactionAmount)
             .tapNextButton()
@@ -68,5 +56,22 @@ final class SendCardanoNotificationUITests: BaseTestCase {
             .tapNextButton()
             .waitForInvalidAmountBannerNotExists()
             .waitForSendButtonEnabled()
+    }
+
+    private func prepareSendFlow() {
+        cardanoScenario = ScenarioConfig(
+            name: "user_tokens_api",
+            initialState: network
+        )
+
+        launchApp(
+            tangemApiType: .mock,
+            scenarios: [cardanoScenario]
+        )
+
+        CreateWalletSelectorScreen(app)
+            .scanMockWallet(name: .wallet2)
+            .tapToken(network)
+            .tapActionButton(.send)
     }
 }

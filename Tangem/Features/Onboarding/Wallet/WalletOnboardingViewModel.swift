@@ -16,6 +16,7 @@ import TangemFoundation
 import TangemUI
 import TangemMobileWalletSdk
 import struct TangemSdk.Mnemonic
+import struct TangemUIUtils.AlertBinder
 
 class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, OnboardingCoordinator>, ObservableObject {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
@@ -241,7 +242,11 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
         return true
     }
 
-    lazy var importSeedPhraseModel: OnboardingSeedPhraseImportViewModel? = .init(inputProcessor: SeedPhraseInputProcessor(), delegate: self)
+    lazy var importSeedPhraseModel: OnboardingSeedPhraseImportViewModel? = .init(
+        inputProcessor: SeedPhraseInputProcessor(),
+        tangemIconProvider: CommonTangemIconProvider(hasNFCInteraction: true),
+        delegate: self
+    )
     var generateSeedPhraseModel: OnboardingSeedPhraseGenerateViewModel?
     var validationUserSeedPhraseModel: OnboardingSeedPhraseUserValidationViewModel?
 
@@ -295,7 +300,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
     private let backupService: BackupService
     private var cardInitializer: CardInitializer?
-    private let pendingBackupManager = PendingBackupManager()
+    private var resetCardSetUtil: ResetToFactoryUtil?
+    private let backupValidator = BackupValidator()
 
     // MARK: - Initializer
 
@@ -657,20 +663,12 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
             switch result {
             case .success(let cardInfo):
-                initializeUserWallet(from: cardInfo)
-
-                if let userWalletModel, userWalletModel.hasImportedWallets {
-                    let userWalletId = userWalletModel.userWalletId.stringValue
-                    runTask(in: self) { model in
-                        try? await model.tangemApiService.setWalletInitialized(userWalletId: userWalletId)
-                    }
-                }
+                initializeUserWallet(from: cardInfo, walletCreationType: walletCreationType)
 
                 if let primaryCard = cardInfo.primaryCard {
                     backupService.setPrimaryCard(primaryCard)
                 }
 
-                logAnalytics(event: .walletCreatedSuccessfully, params: walletCreationType.params)
                 processPrimaryCardScan()
             case .failure(let error):
                 if !error.toTangemSdkError().isUserCancelled {
@@ -798,7 +796,10 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
                         switch result {
                         case .success(let updatedCard):
-                            pendingBackupManager.onProceedBackup(updatedCard)
+                            guard backupValidator.onProceedBackup(updatedCard) else {
+                                alert = makeResetCardSetAlert()
+                                return
+                            }
 
                             if backupServiceState == .finished {
                                 // Ring onboarding. Save userWalletId with ring, except interrupted backups
@@ -809,9 +810,25 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
                                 trySaveAccessCodes()
 
-                                pendingBackupManager.onBackupCompleted()
-                                // [REDACTED_TODO_COMMENT]
-                                userWalletModel?.update(type: .backupCompleted(card: updatedCard, associatedCardIds: cardIds ?? []))
+                                backupValidator.onBackupCompleted()
+
+                                let backupedUserWalletModel: UserWalletModel?
+                                switch userWalletModel {
+                                case .some(let model):
+                                    backupedUserWalletModel = model
+                                case .none:
+                                    // Used during mobile-to-hardware wallet upgrade when the backup flow
+                                    // was interrupted. In this case we need to locate the corresponding
+                                    // UserWalletModel by deriving its userWalletId from the card's public key.
+                                    let cardInfo = CardInfo(card: CardDTO(card: updatedCard), walletData: .none, associatedCardIds: [])
+                                    if let userWalletId = UserWalletId(cardInfo: cardInfo) {
+                                        backupedUserWalletModel = userWalletRepository.models[userWalletId]
+                                    } else {
+                                        backupedUserWalletModel = nil
+                                    }
+                                }
+
+                                backupedUserWalletModel?.update(type: .backupCompleted(card: updatedCard, associatedCardIds: cardIds ?? []))
                                 logAnalytics(
                                     event: .backupFinished,
                                     params: [.cardsCount: String((updatedCard.backupStatus?.backupCardsCount ?? 0) + 1)]
@@ -995,6 +1012,59 @@ extension WalletOnboardingViewModel {
     }
 }
 
+// MARK: - Backup card validation and resetting flow
+
+private extension WalletOnboardingViewModel {
+    func makeResetCardSetAlert() -> AlertBinder {
+        AlertBuilder.makeAlert(
+            title: Localization.resetCardsDialogFirstTitle,
+            message: Localization.resetCardsDialogFirstDescription,
+            primaryButton: .destructive(
+                Text(Localization.commonReset),
+                action: { [weak self] in
+                    self?.resetCardSet()
+                }
+            ),
+            secondaryButton: .default(
+                Text(Localization.commonCancel),
+                action: weakify(self, forFunction: WalletOnboardingViewModel.onDidFinishResetCardSet)
+            )
+        )
+    }
+
+    func resetCardSet() {
+        var cardInteractors: [FactorySettingsResetting] = []
+
+        if let primaryCardId = backupService.primaryCard?.cardId {
+            cardInteractors.append(FactorySettingsResettingCardInteractor(with: primaryCardId))
+        }
+
+        backupService.backupCards.forEach {
+            cardInteractors.append(FactorySettingsResettingCardInteractor(with: $0.cardId))
+        }
+
+        let resetUtil = ResetToFactoryUtilBuilder(flow: .reset).build(cardInteractors: cardInteractors)
+
+        resetUtil.alertPublisher
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, alert in
+                viewModel.alert = alert
+            }
+            .store(in: &bag)
+
+        resetUtil.resetToFactory(onDidFinish: weakify(self, forFunction: WalletOnboardingViewModel.onDidFinishResetCardSet))
+
+        resetCardSetUtil = resetUtil
+    }
+
+    func onDidFinishResetCardSet() {
+        backupService.discardIncompletedBackup()
+        backupValidator.onBackupCompleted()
+        closeOnboarding()
+    }
+}
+
 extension WalletOnboardingViewModel: OnboardingSeedPhraseGenerationDelegate {
     func continuePhraseGeneration(with entropyLength: EntropyLength) {
         guard let mnemonic = seedPhraseManager.mnemonics[entropyLength] else {
@@ -1025,6 +1095,8 @@ extension WalletOnboardingViewModel: OnboardingSeedPhraseGenerationDelegate {
 
 extension WalletOnboardingViewModel: SeedPhraseImportDelegate {
     func importSeedPhrase(mnemonic: Mnemonic, passphrase: String) {
+        Analytics.log(.onboardingSeedButtonImport)
+
         do {
             try ensureWalletIsNotAlreadyAdded(mnemonic: mnemonic, passphrase: passphrase)
 

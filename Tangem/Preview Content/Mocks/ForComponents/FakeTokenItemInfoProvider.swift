@@ -32,22 +32,21 @@ class FakeTokenItemInfoProvider: ObservableObject {
                 infoProvider: provider,
                 contextActionsProvider: self,
                 contextActionsDelegate: self,
-                tokenTapped: modelTapped(with:)
+                tokenTapped: modelTapped(with:),
+                yieldApyTapped: { _ in }
             )
         }
     }
 
-    func modelTapped(with id: WalletModelId.ID) {
-        guard let tappedWalletManager = walletModels.first(where: { $0.id.id == id }) else {
+    func modelTapped(with id: WalletModelId) {
+        guard let tappedWalletManager = walletModels.first(where: { $0.id.id == id.id }) else {
             return
         }
         AppLogger.debug("Tapped wallet model: \(tappedWalletManager)")
-        var updateSubscription: AnyCancellable?
-        updateSubscription = tappedWalletManager.update(silent: true)
-            .sink { newState in
-                AppLogger.debug("Receive new state \(newState) for \(tappedWalletManager)")
-                withExtendedLifetime(updateSubscription) {}
-            }
+        Task {
+            await tappedWalletManager.update(silent: true, features: .balances)
+            AppLogger.debug("Receive new state \(tappedWalletManager.state) for \(tappedWalletManager)")
+        }
     }
 }
 

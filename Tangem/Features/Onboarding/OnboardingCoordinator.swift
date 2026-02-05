@@ -15,6 +15,7 @@ final class OnboardingCoordinator: CoordinatorObject {
 
     // MARK: - Dependencies
 
+    @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.safariManager) private var safariManager: SafariManager
 
     // MARK: - Main view models
@@ -26,7 +27,6 @@ final class OnboardingCoordinator: CoordinatorObject {
     @Published var modalWebViewModel: WebViewContainerViewModel? = nil
     @Published var accessCodeModel: OnboardingAccessCodeViewModel? = nil
     @Published var supportChatViewModel: SupportChatViewModel? = nil
-    @Published var mailViewModel: MailViewModel? = nil
 
     // MARK: - Child coordinators
 
@@ -37,7 +37,6 @@ final class OnboardingCoordinator: CoordinatorObject {
 
     // MARK: - Private
 
-    private var options: OnboardingCoordinator.Options!
     private var safariHandle: SafariHandle?
 
     required init(dismissAction: @escaping Action<OutputOptions>, popToRootAction: @escaping Action<PopToRootOptions>) {
@@ -46,15 +45,16 @@ final class OnboardingCoordinator: CoordinatorObject {
     }
 
     func start(with options: OnboardingCoordinator.Options) {
-        self.options = options
         switch options {
-        case .input(let onboardingInputput):
-            handle(input: onboardingInputput)
+        case .input(let onboardingInput):
+            handle(input: onboardingInput)
+            logOnboardingStartedAnalytics(contextParams: options.contextParams)
         case .mobileInput(let mobileOnboardingInput):
             handle(input: mobileOnboardingInput)
+            if mobileOnboardingInput.shouldLogOnboardingStartedAnalytics {
+                logOnboardingStartedAnalytics(contextParams: options.contextParams)
+            }
         }
-
-        Analytics.log(.onboardingStarted, contextParams: options.contextParams)
     }
 }
 
@@ -113,7 +113,11 @@ extension OnboardingCoordinator: WalletOnboardingRoutable {
 
     func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType) {
         let logsComposer = LogsComposer(infoProvider: dataCollector)
-        mailViewModel = .init(logsComposer: logsComposer, recipient: recipient, emailType: emailType)
+        let mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: emailType)
+
+        Task { @MainActor in
+            mailPresenter.present(viewModel: mailViewModel)
+        }
     }
 
     func openSupportChat(input: SupportChatInputModel) {
@@ -150,7 +154,11 @@ extension OnboardingCoordinator: VisaOnboardingRoutable {}
 
 // MARK: - MobileOnboardingRoutable
 
-extension OnboardingCoordinator: MobileOnboardingRoutable {}
+extension OnboardingCoordinator: MobileOnboardingRoutable {
+    func mobileOnboardingDidComplete() {
+        dismiss(with: .dismiss(isSuccessful: true))
+    }
+}
 
 // MARK: - Input handlers
 
@@ -183,6 +191,14 @@ private extension OnboardingCoordinator {
         let model = MobileOnboardingViewModel(input: input, coordinator: self)
         onDismissalAttempt = model.onDismissalAttempt
         viewState = .mobile(model)
+    }
+}
+
+// MARK: - Analytics
+
+private extension OnboardingCoordinator {
+    func logOnboardingStartedAnalytics(contextParams: Analytics.ContextParams) {
+        Analytics.log(.onboardingStarted, contextParams: contextParams)
     }
 }
 

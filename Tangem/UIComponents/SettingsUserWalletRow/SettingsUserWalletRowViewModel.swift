@@ -11,9 +11,9 @@ import TangemLocalization
 import Combine
 import TangemFoundation
 
-class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
+final class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
     @Published var name: String = ""
-    @Published var icon: LoadingValue<ImageValue> = .loading
+    @Published var icon: LoadingResult<ImageValue, Never> = .loading
     @Published var cardSetLabel: String
     @Published var isUserWalletBackupNeeded: Bool
     @Published var balanceState: LoadableTokenBalanceView.State = .loading()
@@ -72,7 +72,7 @@ class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
             let image = await viewModel.walletImageProvider.loadSmallImage()
 
             await runOnMain {
-                viewModel.icon = .loaded(image)
+                viewModel.icon = .success(image)
             }
         }
     }
@@ -93,8 +93,6 @@ class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
                         viewModel.walletImageProvider = model.walletImageProvider
                         viewModel.reloadImage()
                     }
-                case .tangemPayOfferAccepted:
-                    break
                 }
             }
             .store(in: &bag)

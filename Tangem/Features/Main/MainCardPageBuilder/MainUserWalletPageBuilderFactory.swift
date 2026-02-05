@@ -71,12 +71,9 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             coordinator: coordinator
         )
 
-        let referralNotificationController = CommonReferralNotificationController(userWalletModel: model)
-
         let userWalletNotificationManager = UserWalletNotificationManager(
             userWalletModel: model,
-            rateAppController: rateAppController,
-            referralNotificationController: referralNotificationController
+            rateAppController: rateAppController
         )
 
         if model.isUserWalletLocked {
@@ -95,20 +92,12 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         let yieldModuleNoticeInteractor = YieldModuleNoticeInteractor()
 
         let tokenRouter = SingleTokenRouter(
-            userWalletModel: model,
+            userWalletInfo: model.userWalletInfo,
             coordinator: coordinator,
             yieldModuleNoticeInteractor: yieldModuleNoticeInteractor
         )
 
         if isMultiWalletPage {
-            let optionsManager = OrganizeTokensOptionsManager(
-                userTokensReorderer: model.userTokensManager
-            )
-            let sectionsAdapter = TokenSectionsAdapter(
-                userTokensManager: model.userTokensManager,
-                optionsProviding: optionsManager,
-                preservesLastSortedOrderOnSwitchToDragAndDrop: false
-            )
             let multiWalletNotificationManager = MultiWalletNotificationManager(
                 userWalletId: model.userWalletId,
                 totalBalanceProvider: model
@@ -120,26 +109,39 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 }
 
                 return BannerNotificationManager(
-                    userWallet: model,
+                    userWalletInfo: model.userWalletInfo,
+                    userWalletModel: model,
                     placement: .main
                 )
             }()
 
+            let tangemPayNotificationManager = TangemPayNotificationManager(userWalletModel: model)
+
+            let tokenItemPromoProvider = YieldTokenItemPromoProvider(
+                userWalletModel: model,
+                yieldModuleMarketsRepository: CommonYieldModuleMarketsRepository(),
+                tokenItemPromoBubbleVisibilityInteractor: TokenItemPromoBubbleVisibilityInteractor()
+            )
+
+            let sectionsProvider = makeMultiWalletMainContentViewSectionsProvider(userWalletModel: model)
+
             let viewModel = MultiWalletMainContentViewModel(
                 userWalletModel: model,
                 userWalletNotificationManager: userWalletNotificationManager,
+                sectionsProvider: sectionsProvider,
                 tokensNotificationManager: multiWalletNotificationManager,
                 bannerNotificationManager: bannerNotificationManager,
+                tangemPayNotificationManager: tangemPayNotificationManager,
                 rateAppController: rateAppController,
-                tokenSectionsAdapter: sectionsAdapter,
-                tokenRouter: tokenRouter,
-                optionsEditing: optionsManager,
                 nftFeatureLifecycleHandler: nftLifecycleHandler,
-                coordinator: coordinator
+                tokenRouter: tokenRouter,
+                coordinator: coordinator,
+                tokenItemPromoProvider: tokenItemPromoProvider
             )
             viewModel.delegate = multiWalletContentDelegate
             userWalletNotificationManager.setupManager(with: viewModel)
             bannerNotificationManager?.setupManager(with: viewModel)
+
             return .multiWallet(
                 id: id,
                 headerModel: headerModel,
@@ -147,31 +149,28 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             )
         }
 
-        guard let walletModel = model.walletModelsManager.walletModels.first else {
+        guard let dependencies = makeSingleWalletDependencies(userWalletModel: model) else {
             return .singleWallet(id: id, headerModel: headerModel, bodyModel: nil)
         }
 
         let singleWalletNotificationManager = SingleTokenNotificationManager(
             userWalletId: model.userWalletId,
-            walletModel: walletModel,
-            walletModelsManager: model.walletModelsManager
+            walletModel: dependencies.walletModel,
+            walletModelsManager: dependencies.walletModelsManager,
+            tangemIconProvider: CommonTangemIconProvider(config: model.config)
         )
 
-        let expressFactory = CommonExpressModulesFactory(
-            inputModel: .init(
-                userWalletInfo: model.userWalletInfo,
-                userTokensManager: model.userTokensManager,
-                walletModelsManager: model.walletModelsManager,
-                initialWalletModel: walletModel,
-                destinationWalletModel: .none
-            )
+        let expressFactory = ExpressPendingTransactionsFactory(
+            userWalletInfo: model.userWalletInfo,
+            tokenItem: dependencies.walletModel.tokenItem,
+            walletModelUpdater: dependencies.walletModel,
         )
 
         let pendingTransactionsManager = expressFactory.makePendingExpressTransactionsManager()
 
         let viewModel = SingleWalletMainContentViewModel(
             userWalletModel: model,
-            walletModel: walletModel,
+            walletModel: dependencies.walletModel,
             userWalletNotificationManager: userWalletNotificationManager,
             pendingExpressTransactionsManager: pendingTransactionsManager,
             tokenNotificationManager: singleWalletNotificationManager,
@@ -243,5 +242,53 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             headerModel: headerModel,
             bodyModel: viewModel
         )
+    }
+
+    private func makeMultiWalletMainContentViewSectionsProvider(
+        userWalletModel: UserWalletModel
+    ) -> any MultiWalletMainContentViewSectionsProvider {
+        if FeatureProvider.isAvailable(.accounts) {
+            return AccountsAwareMultiWalletMainContentViewSectionsProvider(userWalletModel: userWalletModel)
+        }
+
+        // accounts_fixes_needed_none
+        let optionsManager = OrganizeTokensOptionsManager(
+            userTokensReorderer: userWalletModel.userTokensManager
+        )
+
+        // accounts_fixes_needed_none
+        let tokenSectionsAdapter = TokenSectionsAdapter(
+            userTokensManager: userWalletModel.userTokensManager,
+            optionsProviding: optionsManager,
+            preservesLastSortedOrderOnSwitchToDragAndDrop: false
+        )
+
+        return LegacyMultiWalletMainContentViewSectionsProvider(
+            userWalletModel: userWalletModel,
+            optionsEditing: optionsManager,
+            tokenSectionsAdapter: tokenSectionsAdapter
+        )
+    }
+
+    private func makeSingleWalletDependencies(
+        userWalletModel: UserWalletModel
+    ) -> (walletModel: any WalletModel, walletModelsManager: WalletModelsManager)? {
+        let walletModelsManager: WalletModelsManager
+
+        if FeatureProvider.isAvailable(.accounts) {
+            guard let mainAccount = userWalletModel.accountModelsManager.cryptoAccountModels.first(where: \.isMainAccount) else {
+                return nil
+            }
+            walletModelsManager = mainAccount.walletModelsManager
+        } else {
+            // accounts_fixes_needed_none
+            walletModelsManager = userWalletModel.walletModelsManager
+        }
+
+        guard let walletModel = walletModelsManager.walletModels.first else {
+            return nil
+        }
+
+        return (walletModel: walletModel, walletModelsManager: walletModelsManager)
     }
 }

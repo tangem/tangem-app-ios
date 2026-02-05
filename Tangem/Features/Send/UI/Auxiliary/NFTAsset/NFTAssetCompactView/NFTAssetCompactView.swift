@@ -17,8 +17,7 @@ struct NFTAssetCompactView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: .zero) {
-                Text(viewModel.walletTitle)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                SendTokenHeaderView(header: viewModel.header)
 
                 Spacer()
             }

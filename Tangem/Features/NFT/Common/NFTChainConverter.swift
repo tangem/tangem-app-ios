@@ -152,7 +152,9 @@ enum NFTChainConverter {
              .quai,
              .scroll,
              .linea,
-             .arbitrumNova:
+             .monad,
+             .arbitrumNova,
+             .plasma:
             return nil
         }
     }

@@ -49,10 +49,15 @@ actor PersistentStorageWalletConnectConnectedDAppRepository: WalletConnectConnec
         return dApp
     }
 
-    func getDApps(for userWalletID: String) throws(WalletConnectDAppPersistenceError) -> [WalletConnectConnectedDApp] {
+    func getDApps(forUserWalletId userWalletId: String) throws(WalletConnectDAppPersistenceError) -> [WalletConnectConnectedDApp] {
         try fetchIfNeeded()
 
-        return inMemoryCache.filter { $0.userWalletID == userWalletID }
+        return inMemoryCache.compactMap { dApp in
+            if case .v1(let model) = dApp, model.userWalletID == userWalletId {
+                return dApp
+            }
+            return nil
+        }
     }
 
     func getAllDApps() throws(WalletConnectDAppPersistenceError) -> [WalletConnectConnectedDApp] {
@@ -105,23 +110,25 @@ actor PersistentStorageWalletConnectConnectedDAppRepository: WalletConnectConnec
         continuation?.yield(inMemoryCache)
     }
 
-    func deleteDApps(forUserWalletID userWalletID: String) throws(WalletConnectDAppPersistenceError) -> [WalletConnectConnectedDApp] {
+    func deleteDApps(forUserWalletId userWalletId: String) throws(WalletConnectDAppPersistenceError) -> [WalletConnectConnectedDApp] {
         try fetchIfNeeded()
 
-        var filteredDApps = inMemoryCache
-        var removedDApps = [WalletConnectConnectedDApp]()
+        var retained: [WalletConnectConnectedDApp] = []
+        var removed: [WalletConnectConnectedDApp] = []
 
-        for i in stride(from: filteredDApps.count - 1, through: .zero, by: -1) {
-            if filteredDApps[i].userWalletID == userWalletID {
-                removedDApps.append(filteredDApps.remove(at: i))
+        for dApp in inMemoryCache {
+            if case .v1(let model) = dApp, model.userWalletID == userWalletId {
+                removed.append(dApp)
+            } else {
+                retained.append(dApp)
             }
         }
 
-        inMemoryCache = filteredDApps
+        inMemoryCache = retained
         try persist(inMemoryCache)
         continuation?.yield(inMemoryCache)
 
-        return removedDApps
+        return removed
     }
 
     private func fetchIfNeeded() throws(WalletConnectDAppPersistenceError) {

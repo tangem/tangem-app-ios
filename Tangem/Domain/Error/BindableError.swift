@@ -12,6 +12,7 @@ import SwiftUI
 import TangemSdk
 import TangemLocalization
 import struct TangemUIUtils.AlertBinder
+import TangemStaking
 
 protocol BindableError {
     var binder: AlertBinder { get }
@@ -84,9 +85,33 @@ extension TangemSdkError: BindableError {
             recipient: EmailConfig.default.recipient,
             emailType: .attestationFailed
         )
-        let mailView = MailView(viewModel: mailViewModel)
-        let controller = UIHostingController(rootView: mailView)
-        AppPresenter.shared.show(controller)
+
+        let mailPresenter: MailComposePresenter = InjectedValues[\.mailComposePresenter]
+
+        Task { @MainActor in
+            mailPresenter.present(viewModel: mailViewModel)
+        }
+    }
+}
+
+extension P2PStakingError: BindableError {
+    var binder: TangemUIUtils.AlertBinder {
+        switch self {
+        case .feeIncreased:
+            return AlertBinder(
+                alert: Alert(
+                    title: Text(Localization.stakingAlertNetworkFeeUpdatedTitle),
+                    message: Text(Localization.stakingAlertNetworkFeeUpdatedMessage),
+                    dismissButton: Alert.Button.default(Text(Localization.commonOk))
+                )
+            )
+        default:
+            return AlertBinder(alert: Alert(
+                title: Text(Localization.commonError),
+                message: Text(localizedDescription),
+                dismissButton: Alert.Button.default(Text(Localization.commonOk))
+            ))
+        }
     }
 }
 

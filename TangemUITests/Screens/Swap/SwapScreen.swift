@@ -22,9 +22,10 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     private lazy var feeBlock = button(.feeBlock)
 
     // Fee selector elements
-    private lazy var feeSelectorTitle = staticText(.feeSelectorTitle)
     private lazy var normalFeeOption = button(.normalFeeOption)
     private lazy var priorityFeeOption = button(.priorityFeeOption)
+
+    private lazy var chooseSpeedTitle = app.staticTexts[FeeAccessibilityIdentifiers.feeSelectorChooseSpeedTitle]
 
     // MARK: - Validation Methods
 
@@ -121,9 +122,9 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     @discardableResult
     func waitForFeeSelectorToAppear() -> Self {
         XCTContext.runActivity(named: "Wait for fee selector to appear") { _ in
-            XCTAssertTrue(feeSelectorTitle.waitForExistence(timeout: .robustUIUpdate), "Fee selector title should appear")
-            XCTAssertTrue(normalFeeOption.waitForExistence(timeout: .robustUIUpdate), "Normal fee option should exist")
-            XCTAssertTrue(priorityFeeOption.waitForExistence(timeout: .robustUIUpdate), "Priority fee option should exist")
+            XCTAssertTrue(chooseSpeedTitle.waitForExistence(timeout: .robustUIUpdate), "Fee selector title 'Choose speed' should appear")
+            XCTAssertTrue(normalFeeOption.waitForExistence(timeout: .robustUIUpdate), "Normal/Market fee option should exist")
+            XCTAssertTrue(priorityFeeOption.waitForExistence(timeout: .robustUIUpdate), "Priority/Fast fee option should exist")
         }
         return self
     }
@@ -141,8 +142,7 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
     @discardableResult
     func validateFeeChanged() -> Self {
         XCTContext.runActivity(named: "Validate fee has changed after option selection") { _ in
-            // Wait for fee selector to disappear
-            XCTAssertTrue(feeSelectorTitle.waitForNonExistence(timeout: .robustUIUpdate), "Fee selector should disappear after selection")
+            XCTAssertTrue(chooseSpeedTitle.waitForNonExistence(timeout: .robustUIUpdate), "Fee selector should disappear after selection")
 
             // Validate fee block still exists with updated fee
             XCTAssertTrue(feeBlock.waitForExistence(timeout: .robustUIUpdate), "Fee block should still exist after fee change")
@@ -167,6 +167,17 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
         }
         return self
     }
+
+    @discardableResult
+    func waitFromTokenDisplayed(tokenSymbol: String) -> Self {
+        XCTContext.runActivity(named: "Validate 'You swap' section displays token '\(tokenSymbol)' with icon") { _ in
+            let fromContainerQuery = app.descendants(matching: .staticText).matching(identifier: SwapAccessibilityIdentifiers.fromAmountTextField)
+            let symbolPredicate = NSPredicate(format: "label == %@", tokenSymbol)
+            let symbolElement = fromContainerQuery.element(matching: symbolPredicate)
+            XCTAssertTrue(symbolElement.waitForExistence(timeout: .robustUIUpdate), "Token symbol '\(tokenSymbol)' should be displayed in 'You swap' section")
+        }
+        return self
+    }
 }
 
 enum FeeOptionType: String {
@@ -179,7 +190,6 @@ enum SwapScreenElement: String, UIElement {
     case fromAmountTextField
     case toAmountTextField
     case feeBlock
-    case feeSelectorTitle
     case normalFeeOption
     case priorityFeeOption
 
@@ -193,8 +203,6 @@ enum SwapScreenElement: String, UIElement {
             return SwapAccessibilityIdentifiers.toAmountTextField
         case .feeBlock:
             return SwapAccessibilityIdentifiers.feeBlock
-        case .feeSelectorTitle:
-            return SwapAccessibilityIdentifiers.feeSelectorTitle
         case .normalFeeOption:
             return FeeAccessibilityIdentifiers.marketFeeOption
         case .priorityFeeOption:

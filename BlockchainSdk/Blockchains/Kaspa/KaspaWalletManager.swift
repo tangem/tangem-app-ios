@@ -48,30 +48,18 @@ final class KaspaWalletManager: BaseManager, WalletManager {
         super.init(wallet: wallet)
     }
 
-    override func update(completion: @escaping (Result<Void, Error>) -> Void) {
-        cancellable = loadCachedIncompleteTokenTransactionsIfNeeded()
-            .withWeakCaptureOf(self)
-            .flatMap { manager, _ in
-                let coinResponse = manager.networkService.getInfo(address: manager.wallet.address)
-                let tokenResponse = manager.networkServiceKRC20.balance(
-                    address: manager.wallet.address,
-                    tokens: manager.cardTokens
-                )
+    override func updateWalletManager() async throws {
+        do {
+            try await loadCachedIncompleteTokenTransactionsIfNeeded().async()
 
-                return Publishers.Zip(coinResponse, tokenResponse)
-            }
-            .sink(receiveCompletion: { [weak self] result in
-                switch result {
-                case .failure(let error):
-                    self?.wallet.clearAmounts()
-                    completion(.failure(error))
-                case .finished:
-                    completion(.success(()))
-                }
-            }, receiveValue: { [weak self] kaspaAddressInfo, kaspaTokensInfo in
-                self?.updateWallet(kaspaAddressInfo, tokensInfo: kaspaTokensInfo)
-                completion(.success(()))
-            })
+            async let kaspaAddressInfo = networkService.getInfo(address: wallet.address).async()
+            async let kaspaTokensInfo = networkServiceKRC20.balance(address: wallet.address, tokens: cardTokens).async()
+
+            try await updateWallet(kaspaAddressInfo, tokensInfo: kaspaTokensInfo)
+        } catch {
+            wallet.clearAmounts()
+            throw error
+        }
     }
 
     func send(_ transaction: Transaction, signer: any TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
@@ -148,8 +136,8 @@ final class KaspaWalletManager: BaseManager, WalletManager {
             let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: response.transactionId)
             manager.wallet.addPendingTransaction(record)
         })
-        .map { _, response in
-            return TransactionSendResult(hash: response.transactionId)
+        .map { manager, response in
+            return TransactionSendResult(hash: response.transactionId, currentProviderHost: manager.currentHost)
         }
         .mapSendTxError()
         .eraseToAnyPublisher()
@@ -238,7 +226,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
         .asyncMap { manager, response in
             // Delete Commit
             await manager.removeIncompleteTokenTransaction(for: token)
-            return TransactionSendResult(hash: response.transactionId)
+            return TransactionSendResult(hash: response.transactionId, currentProviderHost: manager.currentHost)
         }
         .mapSendTxError()
         .eraseToAnyPublisher()
@@ -343,7 +331,7 @@ final class KaspaWalletManager: BaseManager, WalletManager {
             .asyncMap { manager, response in
                 // Delete Commit
                 await manager.removeIncompleteTokenTransaction(for: token)
-                return TransactionSendResult(hash: response.transactionId)
+                return TransactionSendResult(hash: response.transactionId, currentProviderHost: manager.currentHost)
             }
             .mapSendTxError()
             .eraseToAnyPublisher()

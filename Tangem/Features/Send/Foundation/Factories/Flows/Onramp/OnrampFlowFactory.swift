@@ -15,17 +15,21 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
     let parameters: PredefinedOnrampParameters
     let source: SendCoordinator.Source
 
+    let tokenHeaderProvider: SendGenericTokenHeaderProvider
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
     let tokenIconInfo: TokenIconInfo
     let defaultAddressString: String
 
+    let tokenFeeProvidersManager: TokenFeeProvidersManager
     let walletModelDependenciesProvider: WalletModelDependenciesProvider
-    let walletModelBalancesProvider: WalletModelBalancesProvider
+    let availableBalanceProvider: any TokenBalanceProvider
+    let fiatAvailableBalanceProvider: any TokenBalanceProvider
     let transactionDispatcherFactory: TransactionDispatcherFactory
     let baseDataBuilderFactory: SendBaseDataBuilderFactory
     let pendingExpressTransactionsManagerBuilder: PendingExpressTransactionsManagerBuilder
     let expressDependenciesFactory: ExpressDependenciesFactory
+    let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
 
     lazy var dependencies = makeOnrampDependencies(
         preferredValues: parameters.preferredValues
@@ -57,13 +61,17 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
         userWalletInfo: UserWalletInfo,
         parameters: PredefinedOnrampParameters,
         source: SendCoordinator.Source,
-        walletModel: any WalletModel,
-        expressInput: CommonExpressDependenciesFactory.Input,
+        walletModel: any WalletModel
     ) {
         self.userWalletInfo = userWalletInfo
         self.parameters = parameters
         self.source = source
 
+        tokenHeaderProvider = SendTokenHeaderProvider(
+            userWalletInfo: userWalletInfo,
+            account: walletModel.account,
+            flowActionType: .onramp
+        )
         tokenItem = walletModel.tokenItem
         feeTokenItem = walletModel.feeTokenItem
         tokenIconInfo = TokenIconInfoBuilder().build(
@@ -72,8 +80,10 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
         )
         defaultAddressString = walletModel.defaultAddressString
 
+        tokenFeeProvidersManager = TokenFeeProvidersManagerBuilder(walletModel: walletModel).makeTokenFeeProvidersManager()
         walletModelDependenciesProvider = walletModel
-        walletModelBalancesProvider = walletModel
+        availableBalanceProvider = walletModel.availableBalanceProvider
+        fiatAvailableBalanceProvider = walletModel.fiatAvailableBalanceProvider
         transactionDispatcherFactory = TransactionDispatcherFactory(
             walletModel: walletModel,
             signer: userWalletInfo.signer
@@ -84,16 +94,19 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
         )
         pendingExpressTransactionsManagerBuilder = .init(
             userWalletId: userWalletInfo.id.stringValue,
-            walletModel: walletModel
+            tokenItem: walletModel.tokenItem,
         )
-        expressDependenciesFactory = CommonExpressDependenciesFactory(
-            input: expressInput,
-            initialWallet: walletModel.asExpressInteractorWallet,
-            destinationWallet: .none,
-            // We support only `CEX` in `Send With Swap` flow
-            supportedProviderTypes: [.onramp],
-            operationType: .onramp
+
+        let source = ExpressInteractorWalletModelWrapper(
+            userWalletInfo: userWalletInfo,
+            walletModel: walletModel,
+            expressOperationType: .onramp
         )
+
+        let expressDependenciesInput = ExpressDependenciesInput(userWalletInfo: userWalletInfo, source: source)
+        expressDependenciesFactory = CommonExpressDependenciesFactory(input: expressDependenciesInput)
+
+        accountModelAnalyticsProvider = walletModel.account
     }
 }
 
@@ -165,7 +178,8 @@ extension OnrampFlowFactory: SendBaseBuildable {
             alertBuilder: makeSendAlertBuilder(),
             dataBuilder: dataBuilder,
             analyticsLogger: analyticsLogger,
-            blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper()
+            blockchainSDKNotificationMapper: makeBlockchainSDKNotificationMapper(),
+            tangemIconProvider: CommonTangemIconProvider(config: userWalletInfo.config)
         )
     }
 }

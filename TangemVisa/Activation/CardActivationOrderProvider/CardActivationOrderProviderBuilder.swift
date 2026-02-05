@@ -7,14 +7,13 @@
 //
 
 import Foundation
+import TangemPay
 
 struct CardActivationOrderProviderBuilder {
-    private let isMockedAPIEnabled: Bool
     private let apiType: VisaAPIType
 
-    init(apiType: VisaAPIType, isMockedAPIEnabled: Bool) {
+    init(apiType: VisaAPIType) {
         self.apiType = apiType
-        self.isMockedAPIEnabled = isMockedAPIEnabled
     }
 
     func build(
@@ -22,20 +21,20 @@ struct CardActivationOrderProviderBuilder {
         tokensHandler: VisaAuthorizationTokensHandler,
         cardActivationStatusService: VisaCardActivationStatusService?
     ) -> CardActivationOrderProvider {
-        if isMockedAPIEnabled {
-            return CardActivationTaskOrderProviderMock()
-        }
-
         let cardActivationStatusService = cardActivationStatusService ?? VisaCardActivationStatusServiceBuilder(
-            apiType: apiType, isMockedAPIEnabled: isMockedAPIEnabled
+            apiType: apiType
         ).build(urlSessionConfiguration: urlSessionConfiguration)
 
         let productActivationService = CommonProductActivationService(
             apiType: apiType,
-            authorizationTokensHandler: tokensHandler,
-            apiService: .init(
-                provider: MoyaProviderBuilder().buildProvider(configuration: urlSessionConfiguration),
-                decoder: JSONDecoderFactory().makePayAPIDecoder()
+            apiService: TangemPayAPIService(
+                provider: TangemPayProviderBuilder().buildProvider(
+                    bffStaticToken: "",
+                    authorizationTokensHandler: nil,
+                    configuration: urlSessionConfiguration
+                ),
+                decoder: JSONDecoder(),
+                responseFormat: .wrapped
             )
         )
 

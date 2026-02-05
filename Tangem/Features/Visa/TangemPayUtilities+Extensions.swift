@@ -8,8 +8,15 @@
 
 import BlockchainSdk
 import TangemVisa
+import TangemPay
 
 extension TangemPayUtilities {
+    @Injected(\.tangemPayAuthorizationTokensRepository)
+    private static var tangemPayAuthorizationTokensRepository: TangemPayAuthorizationTokensRepository
+
+    @Injected(\.keysManager)
+    private static var keysManager: KeysManager
+
     /// Hardcoded USDC token on visa blockchain network (currently - Polygon)
     static var usdcTokenItem: TokenItem {
         TokenItem.token(
@@ -26,6 +33,26 @@ extension TangemPayUtilities {
                 derivationPath: TangemPayUtilities.derivationPath
             )
         )
+    }
+
+    /// Hardcoded constant USD fiat item for Tangem Pay
+    static var fiatItem: FiatItem {
+        FiatItem(
+            iconURL: IconURLBuilder().fiatIconURL(currencyCode: "USD"),
+            currencyCode: "USD",
+            fractionDigits: 2
+        )
+    }
+
+    static var blockchain: Blockchain {
+        .polygon(testnet: false)
+    }
+
+    static func makeAddress(using walletPublicKey: Wallet.PublicKey) throws -> String {
+        try AddressServiceFactory(blockchain: TangemPayUtilities.blockchain)
+            .makeAddressService()
+            .makeAddress(for: walletPublicKey, with: .default)
+            .value
     }
 
     static func getKey(from repository: KeysRepository) -> Wallet.PublicKey? {
@@ -47,5 +74,35 @@ extension TangemPayUtilities {
                     )
                 )
             }
+    }
+
+    static func getCustomerWalletAddressAndAuthorizationTokens(
+        customerWalletId: String,
+        keysRepository: KeysRepository
+    ) -> (customerWalletAddress: String, tokens: TangemPayAuthorizationTokens)? {
+        guard let walletPublicKey = TangemPayUtilities.getKey(from: keysRepository),
+              let customerWalletAddress = try? TangemPayUtilities.makeAddress(using: walletPublicKey),
+              // If there was no refreshToken saved - means user never got tangem pay offer
+              let tokens = tangemPayAuthorizationTokensRepository.getToken(forCustomerWalletId: customerWalletId)
+        else {
+            return nil
+        }
+
+        return (customerWalletAddress, tokens)
+    }
+
+    static func getBFFStaticToken() -> String {
+        switch FeatureStorage.instance.visaAPIType {
+        case .dev:
+            keysManager.bffStaticTokenDev
+        case .prod:
+            keysManager.bffStaticToken
+        }
+    }
+}
+
+public extension RainCryptoUtilities {
+    static func getRainRSAPublicKey(for apiType: VisaAPIType) throws -> String {
+        try VisaConfigProvider.shared().getRainRSAPublicKey(apiType: apiType)
     }
 }

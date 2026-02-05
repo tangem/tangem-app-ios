@@ -18,28 +18,24 @@ struct SendFactory {
         case .send:
             SendFlowFactory(
                 userWalletInfo: options.input.userWalletInfo,
-                walletModel: options.input.walletModel,
-                expressInput: options.input.expressInput
+                walletModel: options.input.walletModel
             )
 
         case .nft(let parameters):
             NFTFlowFactory(
                 userWalletInfo: options.input.userWalletInfo,
                 nftAssetStepBuilder: NFTAssetStepBuilder(
-                    wallet: options.input.userWalletInfo.name,
                     asset: parameters.asset,
                     collection: parameters.collection
                 ),
-                walletModel: options.input.walletModel,
-                expressInput: options.input.expressInput
+                walletModel: options.input.walletModel
             )
 
         case .sell(let parameters):
             SellFlowFactory(
                 userWalletInfo: options.input.userWalletInfo,
                 sellParameters: parameters,
-                walletModel: options.input.walletModel,
-                expressInput: options.input.expressInput
+                walletModel: options.input.walletModel
             )
 
         // We are using restaking flow here because it doesn't allow to edit amount
@@ -50,7 +46,7 @@ struct SendFactory {
                 // Default action with full available amount
                 action: StakingAction(
                     amount: options.input.walletModel.availableBalanceProvider.balanceType.value ?? 0,
-                    validatorType: .empty,
+                    targetType: .empty,
                     type: .stake
                 ),
                 walletModel: options.input.walletModel,
@@ -92,8 +88,7 @@ struct SendFactory {
                 userWalletInfo: options.input.userWalletInfo,
                 parameters: parameters,
                 source: options.source,
-                walletModel: options.input.walletModel,
-                expressInput: options.input.expressInput
+                walletModel: options.input.walletModel
             )
         }
     }

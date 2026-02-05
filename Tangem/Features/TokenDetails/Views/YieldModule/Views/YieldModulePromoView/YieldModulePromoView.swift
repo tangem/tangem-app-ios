@@ -60,14 +60,15 @@ struct YieldModulePromoView: View {
     }
 
     private var title: some View {
-        Text(Localization.yieldModulePromoScreenTitle)
+        Text(Localization.yieldModulePromoScreenTitleV2(viewModel.apyString))
             .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+            .multilineTextAlignment(.center)
     }
 
     private var pillInfoButton: some View {
         Button(action: { viewModel.onInterestRateInfoTap() }) {
             HStack(spacing: 4) {
-                Text(Localization.yieldModulePromoScreenVariableRateInfo(viewModel.apyString))
+                Text(Localization.yieldModulePromoScreenVariableRateInfoV2)
                     .style(Fonts.Bold.caption1, color: Colors.Text.secondary)
 
                 Assets.infoCircle16.image
@@ -101,7 +102,7 @@ struct YieldModulePromoView: View {
             BenefitRow(
                 icon: Assets.YieldModule.yieldModuleSync.image,
                 title: Localization.yieldModulePromoScreenAutoBalanceTitle,
-                subtitle: Localization.yieldModulePromoScreenAutoBalanceSubtitle
+                subtitle: Localization.yieldModulePromoScreenAutoBalanceSubtitleV2(viewModel.tokenName)
             )
 
             BenefitRow(
@@ -113,7 +114,12 @@ struct YieldModulePromoView: View {
     }
 
     private var tosAndPrivacy: some View {
-        Text(viewModel.makeTosAndPrivacyString()).multilineTextAlignment(.center)
+        Text(viewModel.makeTosAndPrivacyString())
+            .multilineTextAlignment(.center)
+            .environment(\.openURL, OpenURLAction { url in
+                viewModel.openUrl(url)
+                return .handled
+            })
     }
 
     private var continueButton: some View {

@@ -225,7 +225,7 @@ extension CommonVisaActivationManager: VisaActivationManager {
     /// - Returns: The refreshed `VisaCardActivationRemoteState`.
     /// - Throws: A `VisaActivationError` if the state cannot be retrieved.
     func refreshActivationRemoteState() async throws(VisaActivationError) -> VisaCardActivationRemoteState {
-        guard let authorizationTokens = await authorizationTokensHandler.authorizationTokens else {
+        guard let authorizationTokens = authorizationTokensHandler.authorizationTokens else {
             throw .missingAccessToken
         }
 
@@ -236,7 +236,6 @@ extension CommonVisaActivationManager: VisaActivationManager {
         let loadedStatus: VisaCardActivationStatus
         do {
             loadedStatus = try await cardActivationStatusService.getCardActivationStatus(
-                authorizationTokens: authorizationTokens,
                 cardId: activationInput.cardId,
                 cardPublicKey: activationInput.cardPublicKey.hexString
             )
@@ -319,7 +318,7 @@ extension CommonVisaActivationManager: VisaActivationManager {
             throw .missingActivationStatusInfo
         }
 
-        guard let authorizationTokens = await authorizationTokensHandler.authorizationTokens else {
+        guard let authorizationTokens = authorizationTokensHandler.authorizationTokens else {
             throw .missingAccessToken
         }
 
@@ -348,7 +347,7 @@ extension CommonVisaActivationManager: VisaActivationManager {
     func setPINCode(_ pinCode: String) async throws(VisaActivationError) {
         guard
             let activationInput,
-            let authorizationTokens = await authorizationTokensHandler.authorizationTokens,
+            let authorizationTokens = authorizationTokensHandler.authorizationTokens,
             let activationOrderId = activationStatus?.activationOrder?.id
         else {
             throw .missingAccessToken
@@ -379,7 +378,7 @@ extension CommonVisaActivationManager: CardActivationTaskDelegate {
     /// Send signed authorization challenge to BFF to acquire authorization tokens. Loaded tokens will be stored in tokens handler
     /// - Parameters:
     ///   - signedAuthorizationChallenge: The signed authorization challenge used to load access token that will be used to access BFF.
-    ///   - completion: Completion handler returning Void if authorization was successfull and error otherwise
+    ///   - completion: Completion handler returning Void if authorization was successful and error otherwise
     func processAuthorizationChallenge(
         signedAuthorizationChallenge: AttestCardKeyResponse,
         completion: @escaping (Result<Void, Error>) -> Void
@@ -436,7 +435,7 @@ private extension CommonVisaActivationManager {
     ) async throws(VisaActivationError) -> CardActivationResponse {
         do {
             var authorizationChallenge: String?
-            if await !authorizationTokensHandler.containsAccessToken {
+            if !authorizationTokensHandler.containsAccessToken {
                 authorizationChallenge = try await authorizationProcessor.getAuthorizationChallenge(for: activationInput)
             }
 
@@ -471,7 +470,7 @@ private extension CommonVisaActivationManager {
                 isTestnet: isTestnet
             )
 
-            guard let tokens = await authorizationTokensHandler.authorizationTokens else {
+            guard let tokens = authorizationTokensHandler.authorizationTokens else {
                 throw VisaActivationError.missingAccessToken
             }
 
@@ -576,7 +575,7 @@ private extension CommonVisaActivationManager {
     ///   - activationInput: The card's activation context.
     /// - Throws: `VisaActivationError` if deployment submission fails.
     func handleCardActivation(using activationResponse: CardActivationResponse, activationInput: VisaCardActivationInput) async throws(VisaActivationError) {
-        guard let tokens = await authorizationTokensHandler.authorizationTokens else {
+        guard let tokens = authorizationTokensHandler.authorizationTokens else {
             throw .missingAccessToken
         }
 

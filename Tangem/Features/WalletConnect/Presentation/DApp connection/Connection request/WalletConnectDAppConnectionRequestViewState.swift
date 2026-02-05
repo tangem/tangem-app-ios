@@ -20,7 +20,8 @@ struct WalletConnectDAppConnectionRequestViewState: Equatable {
     var connectionRequestSection: ConnectionRequestSection
     var dAppVerificationWarningSection: WalletConnectWarningNotificationViewModel?
 
-    var walletSection: WalletSection
+    var walletSection: WalletSection?
+    var connectionTargetSection: ConnectionTargetSection?
     var networksSection: NetworksSection
     var networksWarningSection: WalletConnectWarningNotificationViewModel?
 
@@ -138,6 +139,57 @@ extension WalletConnectDAppConnectionRequestViewState {
             self.selectedUserWalletName = selectedUserWalletName
             self.selectionIsAvailable = selectionIsAvailable
         }
+    }
+}
+
+// MARK: - Account section
+
+extension WalletConnectDAppConnectionRequestViewState {
+    struct ConnectionTargetSection: Equatable {
+        let iconAsset = Assets.Glyphs.walletNew
+        let selectionIsAvailable: Bool
+        let targetName: String
+        let target: Target
+        let state: State
+
+        var trailingIconAsset: ImageType? {
+            switch state {
+            case .loading:
+                nil
+            case .content where selectionIsAvailable == false:
+                nil
+            case .content:
+                Assets.Glyphs.selectIcon
+            }
+        }
+
+        init(selectionIsAvailable: Bool, targetName: String, target: Target, state: State) {
+            self.selectionIsAvailable = selectionIsAvailable
+            self.targetName = targetName
+            self.target = target
+            self.state = state
+        }
+    }
+}
+
+extension WalletConnectDAppConnectionRequestViewState.ConnectionTargetSection {
+    enum Target: Equatable {
+        case wallet(WCWalletTarget = WCWalletTarget())
+        case account(WCAccountTarget)
+
+        struct WCWalletTarget: Equatable {
+            let label = Localization.wcCommonWallet
+        }
+
+        struct WCAccountTarget: Equatable {
+            let label = Localization.accountDetailsTitle
+            let icon: AccountModel.Icon
+        }
+    }
+
+    enum State: Equatable {
+        case loading
+        case content
     }
 }
 

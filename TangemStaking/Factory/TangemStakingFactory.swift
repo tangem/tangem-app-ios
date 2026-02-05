@@ -13,35 +13,73 @@ import TangemNetworkUtils
 public struct TangemStakingFactory {
     public init() {}
 
-    public func makeStakingManager(
+    public func makeStakeKitStakingManager(
         integrationId: String,
         wallet: StakingWallet,
-        provider: StakingAPIProvider,
+        provider: StakeKitAPIProvider,
+        yieldInfoProvider: StakingYieldInfoProvider,
+        stateRepository: StakingManagerStateRepository,
         analyticsLogger: StakingAnalyticsLogger
     ) -> StakingManager {
-        CommonStakingManager(
+        StakeKitStakingManager(
             integrationId: integrationId,
             wallet: wallet,
-            provider: provider,
+            apiProvider: provider,
+            yieldInfoProvider: yieldInfoProvider,
+            stateRepository: stateRepository,
             analyticsLogger: analyticsLogger
         )
     }
 
-    public func makeStakingAPIProvider(
+    public func makeP2PStakingManager(
+        integrationId: String,
+        wallet: StakingWallet,
+        provider: P2PAPIProvider,
+        yieldInfoProvider: StakingYieldInfoProvider,
+        stateRepository: StakingManagerStateRepository,
+        analyticsLogger: StakingAnalyticsLogger
+    ) -> StakingManager {
+        P2PStakingManager(
+            integrationId: integrationId,
+            wallet: wallet,
+            apiProvider: provider,
+            yieldInfoProvider: yieldInfoProvider,
+            stateRepository: stateRepository,
+            analyticsLogger: analyticsLogger
+        )
+    }
+
+    public func makeStakeKitAPIProvider(
         credential: StakingAPICredential,
         configuration: URLSessionConfiguration,
         plugins: [PluginType],
-        apiType: StakingAPIType = .prod
-    ) -> StakingAPIProvider {
+        apiType: StakeKitAPIType = .prod
+    ) -> StakeKitAPIProvider {
         let provider = TangemProvider<StakeKitTarget>(plugins: plugins, sessionConfiguration: configuration)
-        let service = StakeKitStakingAPIService(provider: provider, credential: credential, apiType: apiType)
+        let service = CommonStakeKitStakingAPIService(provider: provider, credential: credential, apiType: apiType)
         let mapper = StakeKitMapper()
-        return CommonStakingAPIProvider(service: service, mapper: mapper)
+        return CommonStakeKitAPIProvider(service: service, mapper: mapper)
+    }
+
+    public func makeP2PAPIProvider(
+        credential: StakingAPICredential,
+        configuration: URLSessionConfiguration,
+        plugins: [PluginType],
+        network: P2PNetwork
+    ) -> P2PAPIProvider {
+        let provider = TangemProvider<P2PTarget>(plugins: plugins, sessionConfiguration: configuration)
+        let service = CommonP2PStakingAPIService(
+            provider: provider,
+            credential: credential,
+            network: network
+        )
+        let mapper = P2PMapper()
+        return CommonP2PAPIProvider(service: service, mapper: mapper)
     }
 
     public func makePendingHashesSender(
         repository: StakingPendingHashesRepository,
-        provider: StakingAPIProvider
+        provider: StakeKitAPIProvider
     ) -> StakingPendingHashesSender {
         CommonStakingPendingHashesSender(repository: repository, provider: provider)
     }

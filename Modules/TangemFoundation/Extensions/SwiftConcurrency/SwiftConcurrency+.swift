@@ -108,11 +108,11 @@ public func runTask<T>(
 
 public func runTask<T>(
     withTimeout timeout: TimeInterval,
-    code: @escaping () async -> T
+    code: @escaping () async throws -> T
 ) async throws -> T {
     try await withThrowingTaskGroup(of: T.self) { group in
         group.addTask {
-            await code()
+            try await code()
         }
 
         group.addTask {
@@ -138,7 +138,7 @@ public func runTask<T>(
 ) async throws -> Task<T, Error> {
     Task {
         async let update = code()
-        async let minimumWaitingTime: () = Task.sleep(seconds: time)
+        async let minimumWaitingTime: () = Task.sleep(for: .seconds(time))
 
         let (result, _) = try await (update, minimumWaitingTime)
 
@@ -151,12 +151,13 @@ public func runTask<T>(
 public func runWithDelayedLoading<T>(
     thresholdSeconds: TimeInterval = 0.3,
     onLongRunning: @escaping @MainActor () async -> Void,
+    onCancel: @escaping () -> Void = {},
     operation: @escaping () async throws -> T
 ) -> Task<T, Error> {
     Task {
         // Start a delayed task that will call onLongRunning after the threshold unless cancelled.
         let loadingTask = Task {
-            try await Task.sleep(seconds: thresholdSeconds)
+            try await Task.sleep(for: .seconds(thresholdSeconds))
             try Task.checkCancellation()
 
             await onLongRunning()
@@ -167,22 +168,16 @@ public func runWithDelayedLoading<T>(
 
             // Run the main operation
             let result = try await operation()
+            try Task.checkCancellation()
             return result
         } onCancel: {
             loadingTask.cancel()
+            onCancel()
         }
     }
 }
 
 // MARK: - Convenience extensions
-
-public extension Task where Success == Never, Failure == Never {
-    @available(iOS, obsoleted: 16.0, message: "Use Task.sleep(for:tolerance:clock:) instead.")
-    static func sleep(seconds: TimeInterval) async throws {
-        let durationInNanoseconds = UInt64(seconds * Double(NSEC_PER_SEC))
-        try await Task.sleep(nanoseconds: durationInNanoseconds)
-    }
-}
 
 public extension Task where Failure == Error {
     static func delayed(
@@ -192,7 +187,7 @@ public extension Task where Failure == Error {
     ) -> Task {
         Task(priority: priority) {
             if delaySeconds > 0 {
-                try await Task<Never, Never>.sleep(seconds: delaySeconds)
+                try await Task<Never, Never>.sleep(for: .seconds(delaySeconds))
             }
             try Task<Never, Never>.checkCancellation()
             return try await operation()

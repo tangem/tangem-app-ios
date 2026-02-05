@@ -139,38 +139,11 @@ final class YieldTransactionFeeProvider {
         return try ApproveFee(fees: fees)
     }
 
-    func currentNetworkFee() async throws -> Decimal {
-        let converter = BalanceConverter()
-
-        let parameters = try await ethereumNetworkProvider.getFee(
+    func currentNetworkFeeParameters() async throws -> EthereumFeeParameters {
+        try await ethereumNetworkProvider.getFee(
             gasLimit: Constants.minimalTopUpGasLimit,
             supportsEIP1559: blockchain.supportsEIP1559
         )
-
-        let feeNative = parameters.calculateFee(decimalValue: blockchain.decimalValue)
-        let gasInFiat = try await converter.convertToFiat(feeNative, currencyId: blockchain.currencyId)
-        return gasInFiat
-    }
-
-    func minimalFee(tokenId: String) async throws -> Decimal {
-        let converter = BalanceConverter()
-
-        let parameters = try await ethereumNetworkProvider.getFee(
-            gasLimit: Constants.minimalTopUpGasLimit,
-            supportsEIP1559: blockchain.supportsEIP1559
-        )
-
-        let feeNative = parameters.calculateFee(decimalValue: blockchain.decimalValue)
-        let gasInFiat = try await converter.convertToFiat(feeNative, currencyId: blockchain.currencyId)
-
-        guard let gasInToken = converter.convertFromFiat(gasInFiat, currencyId: tokenId) else {
-            throw YieldModuleError.minimalTopUpAmountNotFound
-        }
-
-        let feeBuffered = gasInToken * Constants.minimalTopUpBuffer
-        let minAmount = feeBuffered / Constants.minimalTopUpFeeLimit
-
-        return minAmount
     }
 }
 
@@ -258,13 +231,19 @@ private extension YieldTransactionFeeProvider {
             throw YieldModuleError.feeNotFound
         }
 
-        return fees
+        return fees.map {
+            $0.increasingGasLimit(
+                byPercents: EthereumFeeParametersConstants.yieldModuleGasLimitIncreasePercent,
+                blockchain: blockchain,
+                decimalValue: blockchain.decimalValue
+            )
+        }
     }
 
     func estimateFees(transactions: [TransactionData]) async throws -> [Fee] {
         let defaultGasLimit = BigUInt(Constants.estimatedGasLimit)
         // we can calculate exact fee when transaction in one
-        if transactions.count == 1, let transaction = transactions.first {
+        if let transaction = transactions.singleElement {
             let fees = try await ethereumNetworkProvider.getFee(
                 destination: transaction.to,
                 value: Constants.zeroCoinAmount,
@@ -313,29 +292,16 @@ private extension YieldTransactionFeeProvider {
     }
 
     func getFees(gasLimits: [BigUInt]) async throws -> [Fee] {
-        try await withThrowingTaskGroup(of: (Int, Fee).self) { [blockchain, ethereumNetworkProvider] group in
-            for (index, gasLimit) in gasLimits.enumerated() {
-                group.addTask {
-                    let parameters = try await ethereumNetworkProvider.getFee(
-                        gasLimit: gasLimit,
-                        supportsEIP1559: blockchain.supportsEIP1559
-                    )
+        let feeParameters = try await ethereumNetworkProvider.getFees(
+            gasLimits: gasLimits,
+            supportsEIP1559: blockchain.supportsEIP1559
+        )
 
-                    let feeValue = parameters.calculateFee(decimalValue: blockchain.decimalValue)
-                    let gasAmount = Amount(with: blockchain, value: feeValue)
+        return feeParameters.map { params in
+            let feeValue = params.calculateFee(decimalValue: blockchain.decimalValue)
+            let gasAmount = Amount(with: blockchain, value: feeValue)
 
-                    return (index, Fee(gasAmount, parameters: parameters))
-                }
-            }
-
-            var result: [(Int, Fee)] = []
-            for try await element in group {
-                result.append(element)
-            }
-
-            return result
-                .sorted { $0.0 < $1.0 } // sort by index
-                .map { $0.1 } // take fees only
+            return Fee(gasAmount, parameters: params)
         }
     }
 }

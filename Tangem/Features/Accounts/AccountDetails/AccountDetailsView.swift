@@ -11,24 +11,23 @@ import TangemUI
 import TangemAccounts
 import TangemLocalization
 import TangemAssets
+import TangemAccessibilityIdentifiers
 
 struct AccountDetailsView: View {
     @ObservedObject var viewModel: AccountDetailsViewModel
 
     var body: some View {
-        ZStack {
-            VStack(spacing: 24) {
-                accountSection
+        VStack(spacing: 24) {
+            accountSection
 
-                manageTokensSection
+            manageTokensSection
 
-                archiveAccountSection
+            archiveAccountSection
 
-                Spacer()
-            }
-
-            actionSheets
+            Spacer()
         }
+        .alert(item: $viewModel.alert) { $0.alert }
+        .onFirstAppear(perform: viewModel.onFirstAppear)
     }
 
     private var accountSection: some View {
@@ -47,14 +46,14 @@ struct AccountDetailsView: View {
             },
             trailingIcon: {
                 if viewModel.canBeEdited {
-                    CircleButton(
+                    CapsuleButton(
                         title: Localization.commonEdit,
                         action: viewModel.openEditAccount
                     )
                 }
             }
         )
-        .defaultRoundedBackground()
+        .defaultRoundedBackground(with: Colors.Background.action)
     }
 
     @ViewBuilder
@@ -70,21 +69,21 @@ struct AccountDetailsView: View {
                     Assets.chevronRight.image
                         .foregroundColor(Colors.Icon.informative)
                 }
-                .defaultRoundedBackground()
+                .defaultRoundedBackground(with: Colors.Background.action)
             }
+            .accessibilityIdentifier(AccountsAccessibilityIdentifiers.accountDetailsManageTokensButton)
         }
     }
 
     @ViewBuilder
     private var archiveAccountSection: some View {
-        if viewModel.canBeArchived {
+        switch viewModel.archivingState {
+        case .none:
+            EmptyView()
+
+        case .some(let state):
             VStack(alignment: .leading, spacing: 8) {
-                Button(action: viewModel.showShouldArchiveDialog) {
-                    Text(Localization.accountDetailsArchive)
-                        .style(Fonts.Regular.callout, color: Colors.Text.warning)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .defaultRoundedBackground()
-                }
+                makeArchivingSectionContent(from: state)
 
                 Text(Localization.accountDetailsArchiveDescription)
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
@@ -93,16 +92,38 @@ struct AccountDetailsView: View {
         }
     }
 
-    private var actionSheets: some View {
-        NavHolder()
-            .confirmationDialog(
-                Localization.accountDetailsArchiveDescription,
-                isPresented: $viewModel.archiveAccountDialogPresented,
-                titleVisibility: .visible
-            ) {
-                Button(Localization.accountDetailsArchive, role: .destructive) {
-                    viewModel.archiveAccount()
+    private func makeArchivingSectionContent(from state: AccountDetailsViewModel.ArchivingState) -> some View {
+        Button(action: viewModel.showShouldArchiveDialog) {
+            HStack(spacing: 0) {
+                Text(viewModel.getArchivingButtonTitle(from: state))
+                    .style(Fonts.Regular.callout, color: viewModel.getArchivingButtonColor(from: state))
+
+                Spacer()
+
+                if state == .archivingInProgress {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: Color.Tangem.Graphic.Neutral.quaternary))
+                        .fixedSize()
                 }
             }
+            .frame(minHeight: 20)
+        }
+        .disabled(state == .archivingInProgress)
+        .defaultRoundedBackground(with: Colors.Background.action)
+        .animation(.default, value: viewModel.archivingState)
+        .confirmationDialog(
+            Localization.accountDetailsArchiveDescription,
+            isPresented: $viewModel.archiveAccountDialogPresented,
+            titleVisibility: .visible
+        ) {
+            Button(Localization.accountDetailsArchive, role: .destructive) {
+                viewModel.archiveAccount()
+            }
+        }
+        .onChange(of: viewModel.archiveAccountDialogPresented) { isPresented in
+            if !isPresented {
+                viewModel.handleDialogDismissed()
+            }
+        }
     }
 }

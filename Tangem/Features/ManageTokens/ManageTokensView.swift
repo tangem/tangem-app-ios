@@ -24,9 +24,13 @@ struct ManageTokensView: View {
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
-                CustomSearchBar(searchText: $viewModel.searchText, placeholder: Localization.commonSearch)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
+                CustomSearchBar(
+                    searchText: $viewModel.searchText,
+                    placeholder: Localization.commonSearch,
+                    cancelButtonAction: nil
+                )
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
 
                 if contentOffset.y > 0 {
                     Divider()
@@ -57,21 +61,23 @@ struct ManageTokensView: View {
         }
         .background(Colors.Background.primary.ignoresSafeArea())
         .navigationTitle(Text(Localization.addTokensTitle))
-        .scrollDismissesKeyboardCompat(.immediately)
+        .scrollDismissesKeyboard(.immediately)
         .keyboardType(.alphabet)
         .bindAlert($viewModel.alert)
-        .toolbar(content: {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button(
-                    action: {
-                        viewModel.openAddCustomToken()
-                    }, label: {
-                        Assets.plus24.image
-                            .foregroundStyle(Colors.Icon.primary1)
-                    }
-                )
+        .if(viewModel.canAddCustomToken) {
+            $0.toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(
+                        action: {
+                            viewModel.openAddCustomToken()
+                        }, label: {
+                            Assets.plus24.image
+                                .foregroundStyle(Colors.Icon.primary1)
+                        }
+                    )
+                }
             }
-        })
+        }
     }
 
     private func customTokensList() -> some View {
@@ -92,21 +98,25 @@ struct ManageTokensView: View {
     let fakeModel = FakeUserWalletModel.wallet3Cards
     let fakeAPIService = FakeTangemApiService()
     InjectedValues[\.tangemApiService] = fakeAPIService
+    let context = LegacyManageTokensContext(
+        userTokensManager: fakeModel.userTokensManager,
+        walletModelsManager: fakeModel.walletModelsManager
+    )
+
     let adapter = ManageTokensAdapter(
         settings: .init(
             existingCurves: fakeModel.config.existingCurves,
             supportedBlockchains: fakeModel.config.supportedBlockchains,
-            userTokensManager: fakeModel.userTokensManager,
             hardwareLimitationUtil: HardwareLimitationsUtil(config: fakeModel.config),
-            analyticsSourceRawValue: "preview"
+            analyticsSourceRawValue: "preview",
+            context: context
         )
     )
 
-    return NavigationView {
+    return NavigationStack {
         ManageTokensView(viewModel: .init(
             adapter: adapter,
-            userTokensManager: fakeModel.userTokensManager,
-            walletModelsManager: fakeModel.walletModelsManager,
+            context: context,
             coordinator: nil
         ))
     }

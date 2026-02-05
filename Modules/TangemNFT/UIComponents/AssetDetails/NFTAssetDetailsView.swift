@@ -112,7 +112,7 @@ private extension NFTAssetDetailsView {
 
 #if DEBUG
 #Preview {
-    NavigationView {
+    NavigationStack {
         NFTAssetDetailsView(
             viewModel: NFTAssetDetailsViewModel(
                 asset: NFTAsset(
@@ -150,7 +150,6 @@ private extension NFTAssetDetailsView {
                     assetsCount: 0,
                     assetsResult: .init(value: [])
                 ),
-                navigationContext: NFTNavigationContextMock(),
                 dependencies: NFTAssetDetailsDependencies(
                     nftChainNameProvider: NFTChainNameProviderMock(),
                     priceFormatter: NFTPriceFormatterMock(),

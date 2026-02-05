@@ -11,8 +11,6 @@ import Combine
 import BlockchainSdk
 
 class FakeUserTokensManager: UserTokensManager {
-    var initialized: Bool { true }
-
     var initializedPublisher: AnyPublisher<Bool, Never> { .just(output: true) }
 
     var userTokens: [TokenItem] {
@@ -37,8 +35,8 @@ class FakeUserTokensManager: UserTokensManager {
 
     func addTokenItemPrecondition(_ tokenItem: TokenItem) throws {}
 
-    func add(_ tokenItems: [TokenItem], completion: @escaping (Result<Void, Error>) -> Void) {
-        completion(.success(()))
+    func add(_ tokenItems: [TokenItem], completion: @escaping (Result<[TokenItem], Error>) -> Void) {
+        completion(.success(tokenItems))
     }
 
     func add(_ tokenItem: TokenItem) async throws -> String {
@@ -46,9 +44,7 @@ class FakeUserTokensManager: UserTokensManager {
     }
 
     func deriveIfNeeded(completion: @escaping (Result<Void, Error>) -> Void) {
-        derivationManager?.deriveKeys(interactor: KeysDerivingMock(), completion: { result in
-            completion(result)
-        })
+        derivationManager?.deriveKeys(completion: completion)
     }
 
     func contains(_ tokenItem: TokenItem, derivationInsensitive: Bool) -> Bool {
@@ -59,8 +55,9 @@ class FakeUserTokensManager: UserTokensManager {
         }
     }
 
-    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], completion: @escaping (Result<Void, Error>) -> Void) {
-        completion(.success(()))
+    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], completion: @escaping (Result<UserTokensManagerResult.UpdatedTokenItems, Error>) -> Void) {
+        let updatedItems = UserTokensManagerResult.UpdatedTokenItems(removed: itemsToRemove, added: itemsToAdd)
+        completion(.success(updatedItems))
     }
 
     func needsCardDerivation(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) -> Bool {
@@ -75,9 +72,9 @@ class FakeUserTokensManager: UserTokensManager {
 
     func remove(_ tokenItem: TokenItem) {}
 
-    func sync(completion: @escaping () -> Void) {}
-
-    func upload() {}
+    func sync(completion: @escaping () -> Void) {
+        completion()
+    }
 }
 
 // MARK: - UserTokensReordering protocol conformance
@@ -85,9 +82,13 @@ class FakeUserTokensManager: UserTokensManager {
 extension FakeUserTokensManager: UserTokensReordering {
     var orderedWalletModelIds: AnyPublisher<[WalletModelId.ID], Never> { .just(output: []) }
 
-    var groupingOption: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> { .just(output: .none) }
+    var groupingOption: UserTokensReorderingOptions.Grouping { .none }
 
-    var sortingOption: AnyPublisher<UserTokensReorderingOptions.Sorting, Never> { .just(output: .dragAndDrop) }
+    var sortingOption: UserTokensReorderingOptions.Sorting { .dragAndDrop }
+
+    var groupingOptionPublisher: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> { .just(output: .none) }
+
+    var sortingOptionPublisher: AnyPublisher<UserTokensReorderingOptions.Sorting, Never> { .just(output: .dragAndDrop) }
 
     func reorder(_ actions: [UserTokensReorderingAction], source: UserTokensReorderingSource) -> AnyPublisher<Void, Never> { .just }
 }

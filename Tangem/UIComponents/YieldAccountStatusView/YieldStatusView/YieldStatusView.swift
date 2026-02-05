@@ -18,11 +18,6 @@ struct YieldStatusView: View {
     @ObservedObject
     var viewModel: YieldStatusViewModel
 
-    // MARK: - Properties
-
-    @State private var rotation = 0.0
-    private let animation: Animation = .linear(duration: 1).speed(1).repeatForever(autoreverses: false)
-
     // MARK: - View Body
 
     var body: some View {
@@ -42,17 +37,17 @@ struct YieldStatusView: View {
         HStack(spacing: .zero) {
             aaveLogo
 
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: 4) {
                 title
                 descriptionText
-                    .multilineTextAlignment(.leading)
             }
+            .multilineTextAlignment(.leading)
 
-            Spacer()
+            Spacer(minLength: 0)
 
             trailingView
         }
-        .defaultRoundedBackground()
+        .defaultRoundedBackground(verticalPadding: 14)
     }
 
     private var aaveLogo: some View {
@@ -65,7 +60,7 @@ struct YieldStatusView: View {
 
     @ViewBuilder
     private var title: some View {
-        Text(Localization.yieldModuleTokenDetailsEarnNotificationEarningOnYourBalanceTitle)
+        Text(viewModel.title)
             .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
     }
 
@@ -85,21 +80,27 @@ struct YieldStatusView: View {
     }
 
     private var loadingIndicator: some View {
-        Circle()
-            .trim(from: 0.0, to: 0.8)
-            .stroke(Colors.Icon.accent, style: StrokeStyle(lineWidth: 2, lineCap: .square))
-            .frame(width: 20, height: 20)
-            .padding(.horizontal, 2)
-            .rotationEffect(.degrees(rotation))
-            .onAppear {
-                withAnimation(animation) {
-                    rotation = 360.0
-                }
-            }
+        TimelineView(.animation) { context in
+            let progress = context.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 1)
+            let degrees = progress * 360
+
+            Circle()
+                .trim(from: 0.0, to: 0.8)
+                .stroke(Colors.Icon.accent, style: StrokeStyle(lineWidth: 2, lineCap: .square))
+                .frame(width: 20, height: 20)
+                .padding(.horizontal, 2)
+                .rotationEffect(.degrees(degrees))
+        }
     }
 
-    private var warning: some View {
-        Assets.attention20.image
+    private var yellowWarningSign: some View {
+        Assets.attention.image
+    }
+
+    private var blueWarningSign: some View {
+        Assets.blueCircleWarning.image
+            .resizable()
+            .frame(size: .init(bothDimensions: 24))
     }
 
     private var chevron: some View {
@@ -110,14 +111,23 @@ struct YieldStatusView: View {
     }
 
     @ViewBuilder
+    private var trailingWarningSignView: some View {
+        switch viewModel.warning {
+        case .none:
+            EmptyView()
+        case .approveNeeded:
+            yellowWarningSign
+        case .hasUndepositedAmounts:
+            blueWarningSign
+        }
+    }
+
+    @ViewBuilder
     private var trailingView: some View {
         switch viewModel.state {
-        case .active(let isApproveNeeded, let hasUndepositedAmounts):
+        case .active:
             HStack(spacing: 2) {
-                if isApproveNeeded || hasUndepositedAmounts {
-                    warning
-                }
-
+                trailingWarningSignView
                 chevron
             }
         case .loading, .closing:

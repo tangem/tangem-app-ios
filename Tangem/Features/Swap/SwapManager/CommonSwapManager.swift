@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import BlockchainSdk
 import TangemExpress
 import TangemFoundation
 
@@ -16,13 +17,19 @@ class CommonSwapManager {
 
     @Injected(\.expressAvailabilityProvider)
     private var expressAvailabilityProvider: ExpressAvailabilityProvider
+
+    private let userWalletConfig: any UserWalletConfig
     private let interactor: ExpressInteractor
 
     // Private
     private var refreshDataTask: Task<Void, Error>?
     private var bag: Set<AnyCancellable> = []
 
-    init(interactor: ExpressInteractor) {
+    init(
+        userWalletConfig: any UserWalletConfig,
+        interactor: ExpressInteractor
+    ) {
+        self.userWalletConfig = userWalletConfig
         self.interactor = interactor
 
         bind()
@@ -33,10 +40,14 @@ class CommonSwapManager {
 
 extension CommonSwapManager: SwapManager {
     var isSwapAvailable: Bool {
-        let canSwap = expressAvailabilityProvider.canSwap(tokenItem: swappingPair.sender.tokenItem)
-        let hasMemo = SendDestinationAdditionalFieldType.type(for: swappingPair.sender.tokenItem.blockchain) != nil
+        guard let source = swappingPair.sender.value else {
+            return false
+        }
 
-        return canSwap && !hasMemo
+        let canSwap = expressAvailabilityProvider.canSwap(tokenItem: source.tokenItem)
+        let isMultiCurrency = userWalletConfig.hasFeature(.multiCurrency)
+
+        return canSwap && isMultiCurrency
     }
 
     var swappingPair: SwapManagerSwappingPair {
@@ -59,39 +70,31 @@ extension CommonSwapManager: SwapManager {
         get async { await interactor.getAllProviders() }
     }
 
-    var selectedProvider: ExpressAvailableProvider? {
-        get async { await interactor.getSelectedProvider() }
-    }
-
     var providersPublisher: AnyPublisher<[ExpressAvailableProvider], Never> {
-        statePublisher
-            // Skip rates loading to avoid UI jumping
-            .filter { !$0.isRefreshRates }
-            .withWeakCaptureOf(self)
-            .asyncMap { manager, _ in
-                await manager.interactor.getAllProviders()
-            }
-            .eraseToAnyPublisher()
+        interactor.providersPublisher()
     }
 
     var selectedProviderPublisher: AnyPublisher<ExpressAvailableProvider?, Never> {
-        statePublisher
-            // Skip rates loading to avoid UI jumping
-            .filter { !$0.isRefreshRates }
-            .withWeakCaptureOf(self)
-            .asyncMap { manager, _ in
-                await manager.interactor.getSelectedProvider()
-            }
-            .eraseToAnyPublisher()
+        interactor.selectedProviderPublisher()
     }
 
     func update(amount: Decimal?) {
         interactor.update(amount: amount, by: .amountChange)
     }
 
-    func update(destination: TokenItem?, address: String?) {
+    func update(
+        destination: TokenItem?,
+        address: String?,
+        tokenHeader: ExpressInteractorTokenHeader?,
+        accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
+    ) {
         let destinationWallet = destination.map {
-            SwapManagerDestinationWallet(tokenItem: $0, address: address)
+            SwapDestinationWalletWrapper(
+                tokenItem: $0,
+                address: address,
+                tokenHeader: tokenHeader,
+                accountModelAnalyticsProvider: accountModelAnalyticsProvider
+            )
         }
 
         interactor.update(destination: destinationWallet)
@@ -99,10 +102,6 @@ extension CommonSwapManager: SwapManager {
 
     func update(provider: ExpressAvailableProvider) {
         interactor.updateProvider(provider: provider)
-    }
-
-    func update(feeOption: FeeOption) {
-        interactor.updateFeeOption(option: feeOption)
     }
 
     func update() {
@@ -129,6 +128,46 @@ extension CommonSwapManager: SwapManager {
     }
 }
 
+// MARK: - SendApproveDataBuilderInput
+
+extension CommonSwapManager: SendApproveDataBuilderInput {
+    var selectedExpressProvider: ExpressProvider? {
+        state.context?.provider
+    }
+
+    var approveViewModelInput: (any ApproveViewModelInput)? {
+        interactor
+    }
+
+    var selectedPolicy: ApprovePolicy? {
+        guard case .permissionRequired(let permissionRequired, _, _) = interactor.getState() else {
+            return nil
+        }
+
+        return permissionRequired.policy
+    }
+}
+
+// MARK: - TokenFeeProvidersManagerProviding (ExpressInteractor Proxy)
+
+extension CommonSwapManager: TokenFeeProvidersManagerProviding {
+    var tokenFeeProvidersManager: TokenFeeProvidersManager? {
+        interactor.tokenFeeProvidersManager
+    }
+
+    var tokenFeeProvidersManagerPublisher: AnyPublisher<any TokenFeeProvidersManager, Never> {
+        interactor.tokenFeeProvidersManagerPublisher
+    }
+}
+
+// MARK: - TokenFeeProvidersManagerProviding (ExpressInteractor Proxy)
+
+extension CommonSwapManager: FeeSelectorOutput {
+    func userDidFinishSelection(feeTokenItem: TokenItem, feeOption: FeeOption) {
+        interactor.userDidFinishSelection(feeTokenItem: feeTokenItem, feeOption: feeOption)
+    }
+}
+
 // MARK: - Private
 
 private extension CommonSwapManager {
@@ -142,12 +181,12 @@ private extension CommonSwapManager {
 
     func updateTimer(state: SwapManagerState) {
         switch state {
-        case .restriction(.hasPendingApproveTransaction, _),
+        case .restriction(.hasPendingApproveTransaction, _, _),
              .permissionRequired,
              .previewCEX,
              .readyToSwap:
             restartTimer()
-        case .idle, .loading, .restriction:
+        case .idle, .loading, .preloadRestriction, .requiredRefresh, .restriction:
             stopTimer()
         }
     }
@@ -162,7 +201,7 @@ private extension CommonSwapManager {
 
         refreshDataTask?.cancel()
         refreshDataTask = runTask(in: self) {
-            try await Task.sleep(seconds: 10)
+            try await Task.sleep(for: .seconds(10))
             try Task.checkCancellation()
 
             AppLogger.info("Timer call autoupdate")

@@ -12,7 +12,9 @@ import BlockchainSdk
 import TangemVisa
 import SwiftUI
 import TangemFoundation
+import TangemMacro
 
+@CaseFlagable
 enum DefaultWalletData: Codable {
     case file(WalletData)
     case legacy(WalletData)
@@ -74,6 +76,8 @@ final class AppScanTask: CardSessionRunnable {
             completion(.failure(.missingPreflightRead))
             return
         }
+
+        TangemSdkAnalyticsLogger().logHealthIfNeeded(card)
 
         if VisaUtilities.isVisaCard(card) {
             guard FeatureProvider.isAvailable(.visa) else {
@@ -266,21 +270,8 @@ final class AppScanTask: CardSessionRunnable {
         var derivations: [EllipticCurve: [DerivationPath]] = [:]
 
         if let userWalletId = UserWalletId(config: config) {
-            let tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.stringValue) // [REDACTED_TODO_COMMENT]
-
-            // Force add blockchains for demo cards
-            if config.persistentBlockchains.isNotEmpty {
-                let converter = StorageEntryConverter()
-                tokenItemsRepository.append(converter.convertToStoredUserTokens(tokenItems: config.persistentBlockchains))
-            }
-
-            let savedItems = tokenItemsRepository.getList().entries
-
-            savedItems.forEach { item in
-                if let wallet = card.wallets.first(where: { $0.curve == item.blockchainNetwork.blockchain.curve }) {
-                    derivations[wallet.curve, default: []].append(contentsOf: item.blockchainNetwork.derivationPaths())
-                }
-            }
+            let helper = PersistentStorageAppScanTaskHelper(userWalletId: userWalletId)
+            derivations = helper.extractDerivations(forWalletsOnCard: card, config: config)
         }
 
         if derivations.isEmpty {
@@ -316,8 +307,7 @@ final class AppScanTask: CardSessionRunnable {
         let config = config(for: card)
 
         if let userWalletId = UserWalletId(config: config) {
-            let tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.stringValue) // [REDACTED_TODO_COMMENT]
-            if card.isAccessCodeSet, !tokenItemsRepository.containsFile {
+            if card.isAccessCodeSet, !isPersistentStorageInitialized(for: userWalletId) {
                 session.pause()
                 session.viewDelegate.setState(.empty)
                 let alert = AlertBuilder.makeActivatedCardAlertController {
@@ -329,9 +319,12 @@ final class AppScanTask: CardSessionRunnable {
                         recipient: EmailConfig.default.recipient,
                         emailType: .activatedCard
                     )
-                    let mailView = MailView(viewModel: mailViewModel)
-                    let controller = UIHostingController(rootView: mailView)
-                    AppPresenter.shared.show(controller)
+
+                    let mailPresenter: MailComposePresenter = InjectedValues[\.mailComposePresenter]
+                    Task { @MainActor in
+                        mailPresenter.present(viewModel: mailViewModel)
+                    }
+
                     completion(.failure(.userCancelled))
                 } cancelAction: {
                     completion(.failure(.userCancelled))
@@ -361,5 +354,11 @@ final class AppScanTask: CardSessionRunnable {
     private func config(for card: CardDTO) -> UserWalletConfig {
         let cardInfo = CardInfo(card: card, walletData: walletData, associatedCardIds: [])
         return UserWalletConfigFactory().makeConfig(cardInfo: cardInfo)
+    }
+
+    private func isPersistentStorageInitialized(for userWalletId: UserWalletId) -> Bool {
+        let helper = PersistentStorageAppScanTaskHelper(userWalletId: userWalletId)
+
+        return helper.isPersistentStorageInitialized()
     }
 }

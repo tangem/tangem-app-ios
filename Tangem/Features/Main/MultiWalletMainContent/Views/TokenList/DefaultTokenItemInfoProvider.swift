@@ -76,7 +76,7 @@ extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
         Publishers.CombineLatest3(
             hasPendingTransactions,
             yieldModuleStatePublisher,
-            walletModel.stakingManagerStatePublisher.filter { $0 != .loading }
+            walletModel.stakingManagerStatePublisher
         )
         .map { hasPendingTransactions, yieldModuleState, stakingManagerState -> TokenItemViewModel.LeadingBadge? in
             guard !hasPendingTransactions else {
@@ -94,6 +94,7 @@ extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
 
     var trailingBadgePublisher: AnyPublisher<TokenItemViewModel.TrailingBadge?, Never> {
         yieldModuleStatePublisher
+            .filter { !($0?.state.isLoading ?? false) }
             .map { state -> TokenItemViewModel.TrailingBadge? in
                 guard case .active(let supply) = state?.state else { return nil }
                 return supply.isAllowancePermissionRequired ? .isApproveNeeded : nil
@@ -105,10 +106,22 @@ extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
 private extension DefaultTokenItemInfoProvider {
     var yieldModuleStatePublisher: AnyPublisher<YieldModuleManagerStateInfo?, Never> {
         if let manager = yieldModuleManager {
-            return manager.statePublisher
+            manager.statePublisher
+                .filter { stateInfo in
+                    switch stateInfo?.state {
+                    case .none:
+                        return false
+                    case .processing, .loading(.none):
+                        return false
+                    case .loading(.some):
+                        return true
+                    case .active, .notActive, .failedToLoad, .disabled:
+                        return true
+                    }
+                }
                 .eraseToAnyPublisher()
         } else {
-            return Just(.none).eraseToAnyPublisher()
+            Just(.none).eraseToAnyPublisher()
         }
     }
 }
@@ -124,68 +137,58 @@ private enum LeadingBadgeMapper {
     typealias LeadingBadge = TokenItemViewModel.LeadingBadge
 
     static func mapRewards(stakingManagerState: StakingManagerState) -> LeadingBadge? {
-        switch stakingManagerState {
-        case .loading, .notEnabled, .loadingError, .temporaryUnavailable:
+        guard let apy = stakingManagerState.apy,
+              let rewardType = stakingManagerState.rewardType else {
             return nil
-        case .availableToStake(let stakingYieldInfo):
-            let rewardValue = switch stakingYieldInfo.rewardRateValues {
-            case .single(let apy): apy
-            case .interval(_, let maxAPY): maxAPY
-            }
-
-            let formattedRewardValue = PercentFormatter().format(rewardValue, option: .staking)
-
-            return .rewards(
-                RewardsInfo(
-                    type: stakingYieldInfo.rewardType,
-                    rewardValue: formattedRewardValue,
-                    isActive: false
-                )
-            )
-        case .staked(let staked):
-            let rewardRates = staked.balances.compactMap { $0.validatorType.validator?.rewardRate }
-
-            guard !rewardRates.isEmpty else {
-                return nil
-            }
-
-            let rewardValue = rewardRates.sum(by: \.self) / Decimal(rewardRates.count)
-
-            let formattedRewardValue = PercentFormatter().format(rewardValue, option: .staking)
-
-            return .rewards(
-                RewardsInfo(
-                    type: staked.yieldInfo.rewardType,
-                    rewardValue: formattedRewardValue,
-                    isActive: true
-                )
-            )
         }
+
+        let formattedRewardValue = PercentFormatter().format(apy, option: .staking)
+
+        return .rewards(
+            RewardsInfo(
+                type: rewardType,
+                rewardValue: formattedRewardValue,
+                isActive: stakingManagerState.isActive,
+                isUpdating: stakingManagerState.isLoading
+            )
+        )
     }
 
     static func mapRewards(marketInfo: YieldModuleMarketInfo, state: YieldModuleManagerState) -> LeadingBadge? {
-        guard FeatureProvider.isAvailable(.yieldModule) else {
-            return nil
-        }
-
         let formattedRewardValue = PercentFormatter().format(marketInfo.apy, option: .staking)
 
-        let rewardsInfo: RewardsInfo? = switch state {
+        let actualState: YieldModuleManagerState = switch state {
+        case .failedToLoad(_, .some(let cachedState)):
+            cachedState
+        default:
+            state
+        }
+
+        let rewardsInfo: RewardsInfo? = switch actualState {
         case .active:
             RewardsInfo(
                 type: .apy,
                 rewardValue: formattedRewardValue,
-                isActive: true
+                isActive: true,
+                isUpdating: false
             )
 
         case .notActive:
             if marketInfo.isActive {
-                RewardsInfo(type: .apy, rewardValue: formattedRewardValue, isActive: false)
+                RewardsInfo(type: .apy, rewardValue: formattedRewardValue, isActive: false, isUpdating: false)
             } else {
                 nil
             }
 
-        case .disabled, .failedToLoad, .processing, .loading:
+        case .loading(let cached?):
+            RewardsInfo(
+                type: .apy,
+                rewardValue: formattedRewardValue,
+                isActive: cached.isEffectivelyActive,
+                isUpdating: true
+            )
+
+        case .disabled, .failedToLoad, .processing, .loading(cachedState: nil):
             nil
         }
 

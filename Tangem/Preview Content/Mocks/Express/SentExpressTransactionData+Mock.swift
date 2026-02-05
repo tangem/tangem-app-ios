@@ -11,15 +11,23 @@ import TangemExpress
 
 extension SentExpressTransactionData {
     static let mock = SentExpressTransactionData(
-        result: .init(hash: UUID().uuidString, url: URL(string: "https://google.com"), signerType: "card"),
-        source: CommonWalletModel.mockETH.asExpressInteractorWallet,
-        destination: CommonWalletModel.mockETH.asExpressInteractorWallet,
-        fee: 0.032,
-        feeOption: .market,
+        result: .init(hash: UUID().uuidString, url: URL(string: "https://google.com"), signerType: "card", currentHost: ""),
+        source: ExpressInteractorWalletModelWrapper(
+            userWalletInfo: UserWalletModelMock().userWalletInfo,
+            walletModel: CommonWalletModel.mockETH,
+            expressOperationType: .swap
+        ),
+        destination: ExpressInteractorWalletModelWrapper(
+            userWalletInfo: UserWalletModelMock().userWalletInfo,
+            walletModel: CommonWalletModel.mockETH,
+            expressOperationType: .swap
+        ),
+        fee: .init(option: .market, tokenItem: CommonWalletModel.mockETH.feeTokenItem, value: .loading),
         provider: ExpressProvider(
             id: "1inch",
             name: "1inch",
             type: .dex,
+            exchangeOnlyWithinSingleAddress: false,
             imageURL: nil,
             termsOfUse: nil,
             privacyPolicy: nil,

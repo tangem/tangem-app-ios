@@ -7,9 +7,12 @@
 //
 
 import Foundation
+import TangemMacro
 
 /// - Warning: Use `CryptoAccountsBuilder` to create instances of this enum, DO NOT create instances directly.
 /// - Warning: DO NOT create a helper/property like `accounts: [CryptoAccountModel]`, as it defeats the purpose of this enum.
+@RawCaseName
+@CaseFlagable
 enum CryptoAccounts {
     /// A single (i.e. invisible) crypto account per single wallet, should not be rendered in the UI.
     case single(any CryptoAccountModel)

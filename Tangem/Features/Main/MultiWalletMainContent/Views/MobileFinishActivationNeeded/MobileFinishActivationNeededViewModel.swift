@@ -18,11 +18,11 @@ final class MobileFinishActivationNeededViewModel {
     }
 
     var iconType: ImageType {
-        hasPositiveBalance ? Assets.criticalAttentionShield : Assets.attentionShield
+        Assets.criticalAttentionShield
     }
 
     var iconBgColor: Color {
-        hasPositiveBalance ? Colors.Icon.warning : Colors.Icon.attention
+        Colors.Icon.warning
     }
 
     let title = Localization.hwActivationNeedTitle
@@ -33,16 +33,12 @@ final class MobileFinishActivationNeededViewModel {
         userWalletModel.config.hasFeature(.mnemonicBackup) && userWalletModel.config.hasFeature(.iCloudBackup)
     }
 
-    private var hasPositiveBalance: Bool {
-        userWalletModel.totalBalance.hasPositiveBalance
-    }
-
     private let userWalletModel: UserWalletModel
-    private weak var routable: MobileFinishActivationNeededRoutable?
+    private weak var coordinator: MobileFinishActivationNeededRoutable?
 
-    init(userWalletModel: UserWalletModel, routable: MobileFinishActivationNeededRoutable) {
+    init(userWalletModel: UserWalletModel, coordinator: MobileFinishActivationNeededRoutable) {
         self.userWalletModel = userWalletModel
-        self.routable = routable
+        self.coordinator = coordinator
     }
 }
 
@@ -51,18 +47,23 @@ final class MobileFinishActivationNeededViewModel {
 extension MobileFinishActivationNeededViewModel {
     func onCloseTap() {
         Analytics.log(.backupSkipped)
-        routable?.dismissMobileFinishActivationNeeded()
+        coordinator?.dismissMobileFinishActivationNeeded()
     }
 
     func onLaterTap() {
         Analytics.log(.backupSkipped)
-        routable?.dismissMobileFinishActivationNeeded()
+        coordinator?.dismissMobileFinishActivationNeeded()
     }
 
     func onBackupTap() {
         Analytics.log(.backupStarted)
-        routable?.dismissMobileFinishActivationNeeded()
-        routable?.openMobileBackupOnboarding(userWalletModel: userWalletModel)
+        coordinator?.dismissMobileFinishActivationNeeded()
+
+        if isBackupNeeded {
+            coordinator?.openMobileBackup(userWalletModel: userWalletModel)
+        } else {
+            coordinator?.openMobileBackupOnboarding(userWalletModel: userWalletModel)
+        }
     }
 }
 

@@ -1,5 +1,5 @@
 {
-  "originHash" : "5c6234568d61f044b9879ccb8c732f1cb9bf05cd0211b5439df2c858a9cf3667",
+  "originHash" : "f663a13208537176259473f38ac32268992a04d25dbf4ca2a8ba9fa631f8e6ff",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Alamofire/Alamofire.git",
       "state" : {
-        "revision" : "513364f870f6bfc468f9d2ff0a95caccc10044c5",
-        "version" : "5.10.2"
+        "revision" : "7be73f6c2b5cd90e40798b06ebd5da8f9f79cf88",
+        "version" : "5.11.0"
       }
     },
     {
@@ -24,8 +24,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/amplitude/Amplitude-Swift",
       "state" : {
-        "revision" : "9b5ed56da4e92d5a537d2d7a0af8307f922731a7",
-        "version" : "1.13.6"
+        "revision" : "3c357b2c31d4031ac52ad2f170c43a550a136b32",
+        "version" : "1.17.1"
       }
     },
     {
@@ -33,8 +33,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/amplitude/AmplitudeCore-Swift.git",
       "state" : {
-        "revision" : "13fd0eb0aa080816ffa409669758b2e8787322b2",
-        "version" : "1.1.0"
+        "revision" : "e3f177f55233ae679b9edacd679aeb3d8bc06bc0",
+        "version" : "1.3.4"
       }
     },
     {
@@ -78,8 +78,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/AppsFlyerSDK/AppsFlyerFramework-Strict",
       "state" : {
-        "revision" : "841ef61f5933ad5382e8b47a3b67abdf5bb501e3",
-        "version" : "6.17.2"
+        "revision" : "834538ff802c192c3f2b1eead40fbcc9401caabe",
+        "version" : "6.17.8"
       }
     },
     {
@@ -123,8 +123,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/krzyzanowskim/CryptoSwift.git",
       "state" : {
-        "revision" : "729e01bc9b9dab466ac85f21fb9ee2bc1c61b258",
-        "version" : "1.8.4"
+        "revision" : "e45a26384239e028ec87fbcc788f513b67e10d8f",
+        "version" : "1.9.0"
       }
     },
     {
@@ -134,6 +134,15 @@
       "state" : {
         "revision" : "a2c1aa43650995d5139ad9e3ad4fd9c93d41776d",
         "version" : "5.1.0-tangem3"
+      }
+    },
+    {
+      "identity" : "experiment-ios-client",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/amplitude/experiment-ios-client",
+      "state" : {
+        "revision" : "d9c02e9758e27394fd825506eaff1ad397876741",
+        "version" : "1.19.0"
       }
     },
     {
@@ -240,8 +249,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SumSubstance/IdensicMobileSDK-iOS.git",
       "state" : {
-        "revision" : "8fac25e637570ebc56a5a5b19cef0c80549bd6ac",
-        "version" : "1.38.0"
+        "revision" : "d5cf86061be9515d37552551443fc8b955ad49a2",
+        "version" : "1.39.0"
       }
     },
     {
@@ -267,8 +276,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/onevcat/Kingfisher.git",
       "state" : {
-        "revision" : "010a06c4387cea2d13606222b6c08e0454e6dd2d",
-        "version" : "8.3.3"
+        "revision" : "d30a5fad881137e2267f96a8e3fc35c58999bb94",
+        "version" : "8.6.2"
       }
     },
     {
@@ -321,8 +330,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/krzyzanowskim/OpenSSL",
       "state" : {
-        "revision" : "623c84da314e85363236507ca38a4bde65df21c3",
-        "version" : "3.3.3001"
+        "revision" : "e7d34385da795aaaeb2212e38c7401e5c333f792",
+        "version" : "3.6.1"
       }
     },
     {
@@ -375,8 +384,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/reown-com/reown-swift.git",
       "state" : {
-        "revision" : "33d7f1c37e3e28a7909040a0f8028e20418300db",
-        "version" : "1.6.12"
+        "revision" : "eb3e428165b8e807386dc535fb1d7da193599a5c",
+        "version" : "2.0.0"
       }
     },
     {
@@ -587,6 +596,15 @@
       }
     },
     {
+      "identity" : "swift-syntax",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swiftlang/swift-syntax.git",
+      "state" : {
+        "revision" : "4799286537280063c85a32f09884cfbca301b1a1",
+        "version" : "602.0.0"
+      }
+    },
+    {
       "identity" : "swift-system",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-system.git",
@@ -645,8 +663,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/tangem-sdk-ios.git",
       "state" : {
-        "revision" : "d8e3895301c7dfa022c0d1334536b0ecc0f09b9c",
-        "version" : "3.23.11"
+        "revision" : "449dcf6bfd42e986a25b6a67ad9f84f683bcf967",
+        "version" : "4.0.10"
       }
     },
     {
@@ -681,8 +699,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/twilio/twilio-video-ios",
       "state" : {
-        "revision" : "a896521ecf73844731f00ed62f7d5afa487e0b3a",
-        "version" : "5.9.0"
+        "revision" : "b2c7eb4b43e48d96500d6ae14fa67ac069431acd",
+        "version" : "5.11.1"
       }
     },
     {
@@ -708,8 +726,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/reown-com/yttrium",
       "state" : {
-        "revision" : "08bd868788cfaaac6499bd15c9e655044832a610",
-        "version" : "0.9.35"
+        "revision" : "3c8222684e5164af98027494226071d720e6e1d1",
+        "version" : "0.9.75"
       }
     },
     {

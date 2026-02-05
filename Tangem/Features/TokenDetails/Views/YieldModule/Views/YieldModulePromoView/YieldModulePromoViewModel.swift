@@ -11,9 +11,6 @@ import TangemLocalization
 import TangemAssets
 
 final class YieldModulePromoViewModel {
-    @Injected(\.safariManager)
-    private var safariManager: SafariManager
-
     // MARK: - Dependencies
 
     private let walletModel: any WalletModel
@@ -25,6 +22,7 @@ final class YieldModulePromoViewModel {
     // MARK: - Properties
 
     private let apy: Decimal
+    var tokenName: String { walletModel.tokenItem.currencySymbol }
     var apyString: String { PercentFormatter().format(apy, option: .interval) }
     private(set) var tosUrl = URL(string: "https://aave.com/terms-of-service")!
     private(set) var privacyPolicyUrl = URL(string: "https://aave.com/privacy-policy")!
@@ -64,7 +62,11 @@ final class YieldModulePromoViewModel {
     }
 
     func onHowItWorksTap() {
-        safariManager.openURL(howIrWorksUrl)
+        coordinator?.openUrl(url: howIrWorksUrl)
+    }
+
+    func openUrl(_ url: URL) {
+        coordinator?.openUrl(url: url)
     }
 
     func makeTosAndPrivacyString() -> AttributedString {

@@ -10,89 +10,64 @@ import Foundation
 import TangemLocalization
 import Combine
 import TangemFoundation
+import TangemMacro
 
-struct AccountSelectorWalletItem: Identifiable {
+struct AccountSelectorWalletItem: Identifiable, Equatable {
     let id: String
     let name: String
     let wallet: UserWallet
+    let mainAccount: any CryptoAccountModel
+    let domainModel: any UserWalletModel
     let walletImageProvider: WalletImageProviding
+    let accountAvailability: AccountAvailability
 
-    enum UserWallet: Hashable {
+    @CaseFlagable
+    enum UserWallet: Equatable {
         case active(ActiveWallet)
         case locked(LockedWallet)
 
-        struct ActiveWallet {
+        struct ActiveWallet: Equatable {
             let id: String
             let tokensCount: String
-            let domainModel: any UserWalletModel
-            let mainAccount: any CryptoAccountModel
-            let formattedBalanceTypePublisher: AnyPublisher<LoadableTokenBalanceView.State, Never>
+            @IgnoredEquatable
+            var formattedBalanceTypePublisher: AnyPublisher<LoadableTokenBalanceView.State, Never>
         }
 
-        struct LockedWallet {
-            let domainModel: any UserWalletModel
+        struct LockedWallet: Equatable {
             let cardsLabel: String
         }
+    }
+
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.id == rhs.id && lhs.wallet == rhs.wallet && lhs.accountAvailability == rhs.accountAvailability
     }
 }
 
 extension AccountSelectorWalletItem {
-    /// Init for locked wallet
-    init(userWallet: any UserWalletModel) {
+    init(
+        userWallet: any UserWalletModel,
+        cryptoAccountModel: any CryptoAccountModel,
+        isLocked: Bool,
+        accountAvailability: AccountAvailability = .available
+    ) {
         id = userWallet.userWalletId.stringValue
         name = userWallet.name
         walletImageProvider = userWallet.walletImageProvider
-        wallet = .locked(.init(
-            domainModel: userWallet,
-            cardsLabel: userWallet.cardSetLabel
-        ))
-    }
+        mainAccount = cryptoAccountModel
+        domainModel = userWallet
+        self.accountAvailability = accountAvailability
 
-    /// Init for active wallet
-    init(userWallet: any UserWalletModel, cryptoAccountModel: any CryptoAccountModel) {
-        id = userWallet.userWalletId.stringValue
-        name = userWallet.name
-        walletImageProvider = userWallet.walletImageProvider
-
-        wallet = .active(.init(
-            id: userWallet.userWalletId.stringValue,
-            tokensCount: Localization.commonTokensCount(cryptoAccountModel.walletModelsManager.walletModels.count),
-            domainModel: userWallet,
-            mainAccount: cryptoAccountModel,
-            formattedBalanceTypePublisher: cryptoAccountModel.fiatTotalBalanceProvider.totalFiatBalancePublisher
-        ))
-    }
-}
-
-extension AccountSelectorWalletItem: Hashable {
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-        hasher.combine(wallet)
-    }
-
-    static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.id == rhs.id && lhs.wallet == rhs.wallet
-    }
-}
-
-extension AccountSelectorWalletItem.UserWallet.ActiveWallet: Hashable {
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-        hasher.combine(tokensCount)
-    }
-
-    static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.id == rhs.id && lhs.tokensCount == rhs.tokensCount
-    }
-}
-
-extension AccountSelectorWalletItem.UserWallet.LockedWallet: Hashable {
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(domainModel.userWalletId)
-    }
-
-    static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.domainModel.userWalletId == rhs.domainModel.userWalletId &&
-            lhs.cardsLabel == rhs.cardsLabel
+        // Ternary avoided for clarity
+        wallet = if isLocked {
+            .locked(.init(
+                cardsLabel: userWallet.cardSetLabel
+            ))
+        } else {
+            .active(.init(
+                id: userWallet.userWalletId.stringValue,
+                tokensCount: Localization.commonTokensCount(cryptoAccountModel.walletModelsManager.walletModels.count),
+                formattedBalanceTypePublisher: cryptoAccountModel.fiatTotalBalanceProvider.totalFiatBalancePublisher
+            ))
+        }
     }
 }

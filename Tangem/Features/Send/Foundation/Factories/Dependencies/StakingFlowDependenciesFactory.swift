@@ -13,29 +13,6 @@ import TangemLocalization
 /// Sharing between Staking / Restaking / Unstaking / StakingSingleAction
 protocol StakingFlowDependenciesFactory: SendGenericFlowBaseDependenciesFactory {
     var actionType: StakingAction.ActionType { get }
-
-    func maxAmount() -> Decimal
-    func walletHeaderText() -> String
-    func formattedBalance() -> String
-}
-
-// MARK: - Default
-
-extension StakingFlowDependenciesFactory {
-    func maxAmount() -> Decimal {
-        walletModelBalancesProvider.availableBalanceProvider.balanceType.value ?? 0
-    }
-
-    func walletHeaderText() -> String {
-        userWalletInfo.name
-    }
-
-    func formattedBalance() -> String {
-        Localization.commonCryptoFiatFormat(
-            walletModelBalancesProvider.availableBalanceProvider.formattedBalanceType.value,
-            walletModelBalancesProvider.fiatAvailableBalanceProvider.formattedBalanceType.value
-        )
-    }
 }
 
 // MARK: - Shared dependencies
@@ -51,8 +28,12 @@ extension StakingFlowDependenciesFactory {
         )
     }
 
-    func makeStakingNotificationManager() -> StakingNotificationManager {
-        CommonStakingNotificationManager(tokenItem: tokenItem, feeTokenItem: feeTokenItem)
+    func makeStakingNotificationManager(analyticsLogger: StakingSendAnalyticsLogger) -> StakingNotificationManager {
+        CommonStakingNotificationManager(
+            tokenItem: tokenItem,
+            feeTokenItem: feeTokenItem,
+            analyticsLogger: analyticsLogger
+        )
     }
 
     func makeStakingAlertBuilder() -> SendAlertBuilder {
@@ -74,16 +55,18 @@ extension StakingFlowDependenciesFactory {
     func makeStakingSendAnalyticsLogger() -> StakingSendAnalyticsLogger {
         CommonStakingSendAnalyticsLogger(
             tokenItem: tokenItem,
-            actionType: sendFlowActionType()
+            actionType: actionType.sendFlowActionType
         )
     }
 
     func makeStakingSummaryTitleProvider() -> SendSummaryTitleProvider {
-        StakingSendSummaryTitleProvider(actionType: sendFlowActionType(), tokenItem: tokenItem, walletName: userWalletInfo.name)
+        StakingSendSummaryTitleProvider(actionType: actionType.sendFlowActionType, tokenItem: tokenItem, walletName: userWalletInfo.name)
     }
+}
 
-    func sendFlowActionType() -> SendFlowActionType {
-        switch actionType {
+extension StakingAction.ActionType {
+    var sendFlowActionType: SendFlowActionType {
+        switch self {
         case .stake, .pending(.stake): .stake
         case .unstake: .unstake
         case .pending(.claimRewards): .claimRewards

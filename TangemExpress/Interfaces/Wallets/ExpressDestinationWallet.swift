@@ -8,6 +8,8 @@
 
 import Foundation
 
+public typealias ExpressGenericWallet = ExpressDestinationWallet
+
 public protocol ExpressDestinationWallet {
     var currency: ExpressWalletCurrency { get }
     var address: String? { get }

@@ -6,13 +6,13 @@ import TangemLocalization
 protocol WCTransactionSimulationManager {
     func startSimulation(
         for transactionData: WCHandleTransactionData,
-        userWalletModel: UserWalletModel
+        walletModels: [any WalletModel]
     ) async -> TransactionSimulationState
 
     func createDisplayModel(
         from simulationState: TransactionSimulationState,
         originalTransaction: WCSendableTransaction?,
-        userWalletModel: UserWalletModel,
+        walletModels: [any WalletModel],
         onApprovalEdit: ((ApprovalInfo, BlockaidChainScanResult.Asset) -> Void)?
     ) -> WCTransactionSimulationDisplayModel?
 }
@@ -31,11 +31,11 @@ final class CommonWCTransactionSimulationManager: WCTransactionSimulationManager
 
     func startSimulation(
         for transactionData: WCHandleTransactionData,
-        userWalletModel: UserWalletModel
+        walletModels: [any WalletModel]
     ) async -> TransactionSimulationState {
-        guard let address = userWalletModel.walletModelsManager.walletModels.first(where: {
+        guard let address = walletModels.first(where: {
             $0.tokenItem.blockchain.networkId == transactionData.blockchain.networkId
-        })?.defaultAddressString else {
+        })?.walletConnectAddress else {
             return .simulationFailed(error: Localization.wcEstimatedWalletChangesNotSimulated)
         }
 
@@ -51,13 +51,13 @@ final class CommonWCTransactionSimulationManager: WCTransactionSimulationManager
     func createDisplayModel(
         from simulationState: TransactionSimulationState,
         originalTransaction: WCSendableTransaction?,
-        userWalletModel: UserWalletModel,
+        walletModels: [any WalletModel],
         onApprovalEdit: ((ApprovalInfo, BlockaidChainScanResult.Asset) -> Void)?
     ) -> WCTransactionSimulationDisplayModel? {
         return displayService.createDisplayModel(
             from: simulationState,
             originalTransaction: originalTransaction,
-            userWalletModel: userWalletModel,
+            walletModels: walletModels,
             onApprovalEdit: onApprovalEdit
         )
     }

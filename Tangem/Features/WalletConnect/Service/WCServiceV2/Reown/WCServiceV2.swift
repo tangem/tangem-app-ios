@@ -22,6 +22,8 @@ final class WCServiceV2 {
     private let transactionsFilter = WCTransactionsFilter()
     private let transactionRequestSubject = PassthroughSubject<Result<WCHandleTransactionData, any Error>, Never>()
     private var bag = Set<AnyCancellable>()
+    private var walletModelsCancellables = [UserWalletId: AnyCancellable]()
+    private var walletModelsSnapshots = [String: Set<Blockchain>]()
 
     private let walletKitClient: ReownWalletKit.WalletKitClient
     private let wcHandlersService: WCHandlersService
@@ -44,21 +46,43 @@ private extension WCServiceV2 {
     func bind() {
         subscribeToWCPublishers()
         setupMessagesSubscriptions()
-        subscribeToDeleteWallet()
+        subscribeToUserWalletEvents()
+        subscribeToWalletModelsIfNeeded()
     }
 
-    func subscribeToDeleteWallet() {
+    func subscribeToUserWalletEvents() {
         userWalletRepository
             .eventProvider
             .withWeakCaptureOf(self)
             .sink { wcService, event in
-                if case .deleted(let userWalletIds) = event {
+                switch event {
+                case .deleted(let userWalletIds, _):
                     userWalletIds.forEach {
+                        wcService.walletModelsSnapshots[$0.stringValue] = nil
                         wcService.disconnectAllSessionsForUserWallet(with: $0.stringValue)
+                        wcService.cancelWalletModelsSubscription(for: $0)
                     }
+
+                case .selected(let userWalletId), .unlockedWallet(let userWalletId):
+                    wcService.subscribeToWalletModels(for: userWalletId)
+
+                case .inserted(let userWalletId):
+                    wcService.subscribeToWalletModels(for: userWalletId)
+
+                case .unlocked:
+                    wcService.subscribeToWalletModelsIfNeeded()
+
+                case .locked:
+                    break
                 }
             }
             .store(in: &bag)
+    }
+
+    func subscribeToWalletModelsIfNeeded() {
+        userWalletRepository.models.forEach { model in
+            subscribeToWalletModels(for: model.userWalletId)
+        }
     }
 
     func subscribeToWCPublishers() {
@@ -182,6 +206,54 @@ private extension WCServiceV2 {
             WCLogger.error(errorMessage, error: error)
         }
     }
+
+    func subscribeToWalletModels(for userWalletId: UserWalletId) {
+        cancelWalletModelsSubscription(for: userWalletId)
+
+        guard let userWalletModel = userWalletRepository.models[userWalletId] else {
+            return
+        }
+
+        walletModelsCancellables[userWalletId] = AccountsFeatureAwareWalletModelsResolver
+            .walletModelsPublisher(for: userWalletModel)
+            .map { walletModels in
+                walletModels.compactMap { walletModel -> Blockchain? in
+                    guard walletModel.tokenItem.isBlockchain else {
+                        return nil
+                    }
+
+                    return walletModel.tokenItem.blockchain
+                }
+            }
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { wcService, blockchains in
+                wcService.handleWalletModelsUpdate(blockchains: blockchains, for: userWalletId.stringValue)
+            }
+    }
+
+    func cancelWalletModelsSubscription(for userWalletId: UserWalletId) {
+        walletModelsCancellables[userWalletId]?.cancel()
+        walletModelsCancellables[userWalletId] = nil
+    }
+
+    func handleWalletModelsUpdate(blockchains: [Blockchain], for userWalletId: String) {
+        let newSnapshot = Set(blockchains)
+        defer { walletModelsSnapshots[userWalletId] = newSnapshot }
+
+        guard let selectedUserWallet = userWalletRepository.selectedModel,
+              selectedUserWallet.userWalletId.stringValue == userWalletId,
+              let oldSnapshot = walletModelsSnapshots[userWalletId]
+        else {
+            return
+        }
+
+        let removedBlockchains = oldSnapshot.subtracting(newSnapshot)
+
+        removedBlockchains.forEach {
+            handleHiddenBlockchainFromCurrentUserWallet($0)
+        }
+    }
 }
 
 // MARK: - Disconnect
@@ -191,7 +263,7 @@ extension WCServiceV2 {
         runTask { [weak self, walletKitClient] in
             guard let self else { return }
 
-            let deletedDApps = (try? await connectedDAppRepository.deleteDApps(forUserWalletID: userWalletId)) ?? []
+            let deletedDApps = (try? await connectedDAppRepository.deleteDApps(forUserWalletId: userWalletId)) ?? []
 
             await withTaskGroup(of: Void.self) { taskGroup in
                 for dApp in deletedDApps {
@@ -222,7 +294,7 @@ extension WCServiceV2 {
         guard let selectedUserWallet = userWalletRepository.selectedModel else { return }
 
         Task { [connectedDAppRepository] in
-            let connectedDApps = (try? await connectedDAppRepository.getDApps(for: selectedUserWallet.userWalletId.stringValue)) ?? []
+            let connectedDApps = (try? await connectedDAppRepository.getDApps(forUserWalletId: selectedUserWallet.userWalletId.stringValue)) ?? []
 
             let dAppsToDisconnect = connectedDApps.filter { dApp in
                 let hasOnlyOneHiddenBlockchain = dApp.dAppBlockchains.count == 1

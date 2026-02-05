@@ -7,6 +7,7 @@
 //
 
 import Moya
+import TangemPay
 
 struct AuthorizationServiceBuilder {
     private let apiType: VisaAPIType
@@ -19,8 +20,13 @@ struct AuthorizationServiceBuilder {
         CommonVisaAuthorizationService(
             apiType: apiType,
             apiService: .init(
-                provider: MoyaProviderBuilder().buildProvider(configuration: urlSessionConfiguration),
-                decoder: JSONDecoderFactory().makePayAPIDecoder()
+                provider: TangemPayProviderBuilder().buildProvider(
+                    bffStaticToken: "",
+                    authorizationTokensHandler: nil,
+                    configuration: urlSessionConfiguration
+                ),
+                decoder: JSONDecoder(),
+                responseFormat: .wrapped
             )
         )
     }

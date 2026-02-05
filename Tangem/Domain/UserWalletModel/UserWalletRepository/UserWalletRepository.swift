@@ -31,6 +31,13 @@ protocol UserWalletRepository {
     func save(userWalletModel: UserWalletModel)
 }
 
+extension UserWalletRepository {
+    /// User has only one wallet is app
+    var hasOnlyOneWallet: Bool {
+        models.count == 1
+    }
+}
+
 private struct UserWalletRepositoryKey: InjectionKey {
     static var currentValue: UserWalletRepository = CommonUserWalletRepository()
 }
@@ -42,12 +49,12 @@ extension InjectedValues {
     }
 }
 
-enum UserWalletRepositoryEvent {
+enum UserWalletRepositoryEvent: Equatable {
     case locked
     case unlocked
     case inserted(userWalletId: UserWalletId)
     case unlockedWallet(userWalletId: UserWalletId)
-    case deleted(userWalletIds: [UserWalletId])
+    case deleted(userWalletIds: [UserWalletId], isRepositoryEmpty: Bool)
     case selected(userWalletId: UserWalletId)
 }
 

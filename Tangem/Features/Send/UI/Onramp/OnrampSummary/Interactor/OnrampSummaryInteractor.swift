@@ -14,7 +14,7 @@ protocol OnrampSummaryInteractor: AnyObject {
     var currencyPublisher: AnyPublisher<OnrampFiatCurrency?, Never> { get }
     var bottomInfoPublisher: AnyPublisher<LoadingResult<Decimal, OnrampSummaryInteractorBottomInfoError>?, Never> { get }
 
-    var suggestedOffersPublisher: AnyPublisher<LoadingResult<OnrampSummaryInteractorSuggestedOffer?, Never>, Never> { get }
+    var suggestedOffersPublisher: AnyPublisher<LoadingResult<OnrampSummaryInteractorSuggestedOffers, Never>, Never> { get }
     var isLoadingPublisher: AnyPublisher<Bool, Never> { get }
 
     func userDidChangeFiat(amount: Decimal?)
@@ -104,7 +104,7 @@ extension CommonOnrampSummaryInteractor: OnrampSummaryInteractor {
             .eraseToAnyPublisher()
     }
 
-    var suggestedOffersPublisher: AnyPublisher<LoadingResult<OnrampSummaryInteractorSuggestedOffer?, Never>, Never> {
+    var suggestedOffersPublisher: AnyPublisher<LoadingResult<OnrampSummaryInteractorSuggestedOffers, Never>, Never> {
         guard let providersInput else {
             assertionFailure("OnrampProvidersInput not found")
             return Empty().eraseToAnyPublisher()
@@ -154,10 +154,10 @@ private extension CommonOnrampSummaryInteractor {
     func mapToSuggestedOffers(
         selectedProvider: LoadingResult<OnrampProvider, Never>?,
         providers: LoadingResult<ProvidersList, Error>?
-    ) -> LoadingResult<OnrampSummaryInteractorSuggestedOffer?, Never> {
+    ) -> LoadingResult<OnrampSummaryInteractorSuggestedOffers, Never> {
         switch (selectedProvider, providers) {
         case (.none, _), (_, .none), (.failure, _), (_, .failure):
-            return .success(.none)
+            return .success([])
         case (.loading, _), (_, .loading):
             return .loading
         case (.success, .success(let list)):
@@ -181,52 +181,24 @@ private extension CommonOnrampSummaryInteractor {
             let fastest = list.fastest()
             let successfullyLoadedProviders = list.successfullyLoadedProviders()
 
-            let recommended: [OnrampProvider] = {
-                switch recent {
-                // When we don't have a provider with badge
-                // We have to recommend at least one
-                case .none where fastest == .none && great == .none:
-                    return successfullyLoadedProviders.first.map { [$0] } ?? []
-                case .some(let recent) where recent == fastest && recent == great:
-                    return []
-                case let recent where recent == great:
-                    return [fastest].compactMap(\.self).filter(\.isSuccessfullyLoaded)
-                case let recent where recent == fastest:
-                    return [great].compactMap(\.self).filter(\.isSuccessfullyLoaded)
-                case .none, .some:
-                    return [great, fastest].compactMap(\.self).filter(\.isSuccessfullyLoaded).unique()
+            var suggestedOffers: [OnrampSummaryInteractorSuggestedOfferItem] = [
+                recent.map { .recent($0) },
+                great.map { .great($0) },
+                fastest.map { .fastest($0) },
+            ]
+            .compactMap { $0 }
+            .filter { $0.provider.isSuccessfullyLoaded }
+            .unique(by: \.provider)
+
+            // When we don't have a provider with badge
+            // We have to recommend at least one
+            if suggestedOffers.isEmpty {
+                if let successfullyLoadedProvider = successfullyLoadedProviders.first {
+                    suggestedOffers.append(.plain(successfullyLoadedProvider))
                 }
-            }()
-
-            let suggested = ([recent] + recommended).compactMap(\.self).filter(\.isSuccessfullyLoaded).toSet()
-            let hasAnotherProviders = !successfullyLoadedProviders.toSet().subtracting(suggested).isEmpty
-
-            guard !suggested.isEmpty else {
-                return .success(.none)
             }
-
-            let suggestedOffers = OnrampSummaryInteractorSuggestedOffer(
-                recent: recent,
-                recommended: recommended,
-                shouldShowAllOffersButton: hasAnotherProviders
-            )
 
             return .success(suggestedOffers)
         }
     }
-}
-
-struct OnrampSummaryInteractorSuggestedOffer: Hashable {
-    let recent: OnrampProvider?
-    let recommended: [OnrampProvider]
-    let shouldShowAllOffersButton: Bool
-}
-
-protocol RecentOnrampTransactionParametersFinder: AnyObject {
-    var recentOnrampTransaction: RecentOnrampTransactionParameters? { get }
-}
-
-struct RecentOnrampTransactionParameters {
-    let providerId: String
-    let paymentMethodId: String
 }

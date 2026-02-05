@@ -32,7 +32,7 @@ class SendSwapProvidersSelectorViewModel: ObservableObject, FloatingSheetContent
     private let priceChangeFormatter: PriceChangeFormatter
     private let analyticsLogger: SendSwapProvidersAnalyticsLogger
 
-    private var providers: [ExpressAvailableProvider] = []
+    private var providers: ThreadSafeContainer<[ExpressAvailableProvider]> = .init([])
     private var bag: Set<AnyCancellable> = []
 
     init(
@@ -59,7 +59,7 @@ class SendSwapProvidersSelectorViewModel: ObservableObject, FloatingSheetContent
         .init(root: self, default: false) { root in
             root.selectedProvider?.provider.id == providerId
         } set: { root, isSelected in
-            if let provider = root.providers.first(where: { $0.provider.id == providerId }) {
+            if let provider = root.providers.read().first(where: { $0.provider.id == providerId }) {
                 root.selectedProvider = provider
                 root.userDidTap(provider: provider)
             }
@@ -87,7 +87,15 @@ private extension SendSwapProvidersSelectorViewModel {
             .expressProvidersPublisher
             .withWeakCaptureOf(self)
             .receiveOnMain()
-            .sink { $0.updateView(providers: $1) }
+            .map { $0.mapToFCAWarningIfNeeded(providers: $1) }
+            .assign(to: &$ukNotificationInput)
+
+        input?
+            .expressProvidersPublisher
+            .withWeakCaptureOf(self)
+            .sink { viewModel, providers in
+                viewModel.providers.mutate { $0 = providers }
+            }
             .store(in: &bag)
 
         input?
@@ -96,50 +104,17 @@ private extension SendSwapProvidersSelectorViewModel {
             .assign(to: &$selectedProvider)
     }
 
-    private func updateView(providers: [ExpressAvailableProvider]) {
-        self.providers = providers
-        showFCAWarningIfNeeded()
-    }
-
+    @MainActor
     private func prepareProviderRows(providers: [ExpressAvailableProvider]) async -> [SendSwapProvidersSelectorProviderViewData] {
-        typealias SortableProvider = (priority: ExpressAvailableProvider.Priority, amount: Decimal)
-
         let viewModels: [SendSwapProvidersSelectorProviderViewData] = await providers
-            .asyncSorted(
-                sort: { (firstProvider: SortableProvider, secondProvider: SortableProvider) in
-                    if firstProvider.priority == secondProvider.priority {
-                        return firstProvider.amount > secondProvider.amount
-                    } else {
-                        return firstProvider.priority > secondProvider.priority
-                    }
-                },
-                by: { provider in
-                    async let priority = provider.getPriority()
-                    async let expectedAmount = provider.getState().quote?.expectAmount ?? 0
-                    return await (priority, expectedAmount)
-                }
-            )
-            .asyncCompactMap { provider in
-                guard provider.isAvailable else {
-                    return nil
-                }
-
-                // If the provider `isSelected` we are forced to show it anyway
-                let isSelected = selectedProvider?.provider.id == provider.provider.id
-                let isAvailableToShow = await !provider.getState().isError
-
-                guard isSelected || isAvailableToShow else {
-                    return nil
-                }
-
-                return await mapToSendSwapProvidersSelectorProviderViewData(
-                    availableProvider: provider
-                )
-            }
+            .showableProviders(selectedProviderId: selectedProvider?.provider.id)
+            .sortedByPriorityAndQuotes()
+            .asyncMap { await self.mapToSendSwapProvidersSelectorProviderViewData(availableProvider: $0) }
 
         return viewModels
     }
 
+    @MainActor
     func mapToSendSwapProvidersSelectorProviderViewData(
         availableProvider: ExpressAvailableProvider
     ) async -> SendSwapProvidersSelectorProviderViewData {
@@ -204,7 +179,7 @@ private extension SendSwapProvidersSelectorViewModel {
         return .percent(result.formattedText, signType: result.signType)
     }
 
-    private func showFCAWarningIfNeeded() {
+    private func mapToFCAWarningIfNeeded(providers: [ExpressAvailableProvider]) -> NotificationViewInput? {
         let allProviderIds = providers.map { $0.provider.id }
 
         // Display FCA notification if the providers list contains FCA restriction for any provider
@@ -213,9 +188,9 @@ private extension SendSwapProvidersSelectorViewModel {
         })
 
         if ukGeoDefiner.isUK, isRestrictableFCAIncluded {
-            ukNotificationInput = NotificationsFactory().buildNotificationInput(for: ExpressProvidersListEvent.fcaWarningList)
+            return NotificationsFactory().buildNotificationInput(for: ExpressProvidersListEvent.fcaWarningList)
         } else {
-            ukNotificationInput = nil
+            return nil
         }
     }
 }

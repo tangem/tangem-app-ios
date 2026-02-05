@@ -11,9 +11,14 @@ import TangemAssets
 import TangemUI
 import TangemUIUtils
 import TangemAccounts
+import TangemLocalization
 
 struct AccountFormView: View {
+    // MARK: ViewModel
+
     @ObservedObject var viewModel: AccountFormViewModel
+
+    // MARK: State
 
     @State private var contentHeight: CGFloat = 0
     @State private var containerHeight: CGFloat = 0
@@ -22,12 +27,15 @@ struct AccountFormView: View {
     @State private var buttonMinY: CGFloat = 0
 
     @State private var shouldShowShadow = false
+    @FocusState private var isNameFocused: Bool
+
+    // MARK: Constants
 
     private let coordinateSpaceName = UUID()
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            scrollableContent
+            content
 
             overlayButtonView
         }
@@ -35,14 +43,31 @@ struct AccountFormView: View {
         .background(Colors.Background.tertiary)
         .navigationTitle(viewModel.title)
         .navigationBarTitleDisplayMode(.inline)
-        .withCloseButton(placement: .topBarTrailing, style: .crossImage) {
+        .withCloseButton(placement: .topBarTrailing, style: .icon) {
             viewModel.onClose()
         }
         .ignoresSafeArea(.keyboard)
         .alert(item: $viewModel.alert, content: { $0.alert })
+        .submitLabel(.done)
+        .onSubmit {
+            // Do NOT access SwiftUI internal state (@State, @FocusState, @Binding, @StateObject, etc) inside the `onSubmit(of:_:)` closure.
+            // This causes a memory leak as soon as the text field becomes the first responder.
+            // See https://stackoverflow.com/questions/70510596 and https://stackoverflow.com/questions/78763987 for more details
+            UIResponder.current?.resignFirstResponder()
+        }
+        .onAppear {
+            viewModel.onAppear()
+            isNameFocused = true
+        }
+        .onChange(of: viewModel.selectedColor) { _ in
+            isNameFocused = false
+        }
+        .onChange(of: viewModel.selectedIcon) { _ in
+            isNameFocused = false
+        }
     }
 
-    private var scrollableContent: some View {
+    private var content: some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 8) {
                 mainContent
@@ -62,7 +87,8 @@ struct AccountFormView: View {
             }
         }
         .coordinateSpace(name: coordinateSpaceName)
-        .scrollDisabledBackport(contentHeight <= containerHeight)
+        .scrollDismissesKeyboard(.immediately)
+        .scrollBounceBehavior(.basedOnSize)
         .readGeometry(\.size.height) { height in
             containerHeight = height
         }
@@ -72,6 +98,7 @@ struct AccountFormView: View {
     private var overlayButtonView: some View {
         MainButton(
             title: viewModel.buttonTitle,
+            isLoading: viewModel.isLoading,
             isDisabled: viewModel.mainButtonDisabled,
             action: viewModel.onMainButtonTap
         )
@@ -92,7 +119,8 @@ struct AccountFormView: View {
                 accountName: $viewModel.accountName,
                 maxCharacters: viewModel.maxNameLength,
                 placeholderText: viewModel.placeholder,
-                accountIconViewData: viewModel.iconViewData
+                accountIconViewData: viewModel.iconViewData,
+                isFocused: $isNameFocused
             )
 
             AccountFormGridView(
@@ -168,12 +196,12 @@ struct AccountFormView: View {
     @Previewable @ObservedObject var viewModel = AccountFormViewModel(
         accountModelsManager: AccountModelsManagerMock(),
         flowType: .create(.crypto),
-        closeAction: {}
+        closeAction: { _ in }
     )
 
     Color.clear
         .sheet(isPresented: .constant(true)) {
-            NavigationView {
+            NavigationStack {
                 AccountFormView(viewModel: viewModel)
             }
         }

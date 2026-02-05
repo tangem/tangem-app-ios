@@ -35,23 +35,14 @@ class AlephiumWalletManager: BaseManager, WalletManager {
 
     // MARK: - Manager Implementation
 
-    override func update(completion: @escaping (Result<Void, any Error>) -> Void) {
-        let accountInfoPublisher = networkService
-            .getAccountInfo(for: wallet.address)
-
-        cancellable = accountInfoPublisher
-            .withWeakCaptureOf(self)
-            .sink(receiveCompletion: { [weak self] result in
-                switch result {
-                case .failure(let error):
-                    self?.wallet.clearAmounts()
-                    completion(.failure(error))
-                case .finished:
-                    completion(.success(()))
-                }
-            }, receiveValue: { walletManager, accountInfo in
-                walletManager.updateWallet(accountInfo: accountInfo)
-            })
+    override func updateWalletManager() async throws {
+        do {
+            let accountInfo = try await networkService.getAccountInfo(for: wallet.address).async()
+            updateWallet(accountInfo: accountInfo)
+        } catch {
+            wallet.clearAmounts()
+            throw error
+        }
     }
 
     /**
@@ -106,7 +97,7 @@ class AlephiumWalletManager: BaseManager, WalletManager {
                         let mapper = PendingTransactionRecordMapper()
                         let record = mapper.mapToPendingTransactionRecord(transaction: transaction, hash: transactionHash)
                         walletManager.wallet.addPendingTransaction(record)
-                        return TransactionSendResult(hash: transactionHash)
+                        return TransactionSendResult(hash: transactionHash, currentProviderHost: walletManager.currentHost)
                     }
                     .mapSendTxError()
                     .eraseToAnyPublisher()

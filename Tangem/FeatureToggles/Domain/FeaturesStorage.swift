@@ -9,6 +9,7 @@
 import Foundation
 import TangemVisa
 import TangemStaking
+import TangemPay
 
 // MARK: - Provider
 
@@ -39,20 +40,20 @@ class FeatureStorage {
     @AppStorageCompat(FeatureStorageKeys.mockedCardScannerEnabled)
     var isMockedCardScannerEnabled = true
 
-    @AppStorageCompat(FeatureStorageKeys.useVisaAPIMocks)
-    var isVisaAPIMocksEnabled = false
-
     @AppStorageCompat(FeatureStorageKeys.visaAPIType)
     var visaAPIType = VisaAPIType.prod
 
     @AppStorageCompat(FeatureStorageKeys.tangemAPIType)
     var tangemAPIType = TangemAPIType.prod
 
-    @AppStorageCompat(FeatureStorageKeys.stakingAPIType)
-    var stakingAPIType = StakingAPIType.prod
+    @AppStorageCompat(FeatureStorageKeys.stakeKitAPIType)
+    var stakeKitAPIType = StakeKitAPIType.prod
 
     @AppStorageCompat(FeatureStorageKeys.yieldModuleAPIType)
     var yieldModuleAPIType = YieldModuleAPIType.prod
+
+    @AppStorageCompat(FeatureStorageKeys.gaslessTransactionsAPIType)
+    var gaslessTransactionsAPIType = GaslessTransactionsAPIType.prod
 
     private init() {}
 }
@@ -72,6 +73,7 @@ private enum FeatureStorageKeys: String {
     case useVisaAPIMocks = "use_visa_api_mocks"
     case visaAPIType = "visa_api_type"
     case tangemAPIType = "tangem_api_type"
-    case stakingAPIType = "staking_api_type"
+    case stakeKitAPIType = "stake_kit_api_type"
     case yieldModuleAPIType = "yield_module_api_type"
+    case gaslessTransactionsAPIType = "gasless_transactions_api_type"
 }
