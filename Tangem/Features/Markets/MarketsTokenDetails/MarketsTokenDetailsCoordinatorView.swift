@@ -100,7 +100,9 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
         NavHolder()
             .navigation(item: $coordinator.newsRelatedTokenDetailsCoordinator) { tokenCoordinator in
                 MarketsTokenDetailsCoordinatorView(coordinator: tokenCoordinator)
-                    .ignoresSafeArea(.container, edges: .top)
+                    .if(tokenCoordinator.isMarketsSheetFlow) { view in
+                        view.ignoresSafeArea(.container, edges: .top)
+                    }
             }
     }
 }
