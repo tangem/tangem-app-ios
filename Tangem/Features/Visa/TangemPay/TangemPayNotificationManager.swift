@@ -7,30 +7,43 @@
 //
 
 import Combine
+import TangemPay
+import TangemUI
 
 final class TangemPayNotificationManager {
-    private let notificationInputsSubject = CurrentValueSubject<[NotificationViewInput], Never>([])
-    private weak var delegate: NotificationTapDelegate?
+    private let userWalletModel: UserWalletModel
+    private weak var delegate: (any NotificationTapDelegate)?
 
+    private let notificationInputsSubject = CurrentValueSubject<[NotificationViewInput], Never>([])
     private var cancellable: Cancellable?
 
-    init(
-        tangemPayAuthorizerStatePublisher: AnyPublisher<TangemPayAuthorizer.State, Never>,
-        tangemPayAccountStatusPublisher: AnyPublisher<TangemPayStatus, Never>
-    ) {
-        cancellable = Publishers.Merge(
-            tangemPayAuthorizerStatePublisher.map(\.notificationEvent),
-            tangemPayAccountStatusPublisher.map(\.notificationEvent)
-        )
-        .withWeakCaptureOf(self)
-        .map { manager, event in
-            if let event {
-                [manager.makeNotificationViewInput(event: event)]
-            } else {
-                []
+    /// - Note: Workaround to avoid retain cycle for `UserWalletModel` instance in the Combine pipeline
+    private var syncNeededTitle: String {
+        userWalletModel.tangemPayAuthorizingInteractor.syncNeededTitle
+    }
+
+    /// - Note: Workaround to avoid retain cycle for `UserWalletModel` instance in the Combine pipeline
+    private var mainButtonIcon: MainButton.Icon? {
+        let provider = CommonTangemIconProvider(config: userWalletModel.config)
+
+        return provider.getMainButtonIcon()
+    }
+
+    init(userWalletModel: UserWalletModel) {
+        self.userWalletModel = userWalletModel
+
+        cancellable = userWalletModel
+            .tangemPayManager
+            .statePublisher
+            .withWeakCaptureOf(self)
+            .map { manager, state in
+                if let event = state.asNotificationEvent(syncNeededTitle: manager.syncNeededTitle, icon: manager.mainButtonIcon) {
+                    [manager.makeNotificationViewInput(event: event)]
+                } else {
+                    []
+                }
             }
-        }
-        .sink(receiveValue: notificationInputsSubject.send)
+            .sink(receiveValue: notificationInputsSubject.send)
     }
 
     private func makeNotificationViewInput(event: TangemPayNotificationEvent) -> NotificationViewInput {
@@ -66,32 +79,18 @@ extension TangemPayNotificationManager: NotificationManager {
     }
 }
 
-// MARK: - TangemPayAuthorizer.State+notificationEvent
+// MARK: - TangemPayLocalState+notificationEvent
 
-private extension TangemPayAuthorizer.State {
-    var notificationEvent: TangemPayNotificationEvent? {
+private extension TangemPayLocalState {
+    func asNotificationEvent(syncNeededTitle: String, icon: MainButton.Icon?) -> TangemPayNotificationEvent? {
         switch self {
-        case .authorized:
-            nil
-
-        case .syncNeeded:
-            .syncNeeded
+        case .syncNeeded, .syncInProgress:
+            .syncNeeded(title: syncNeededTitle, icon: icon)
 
         case .unavailable:
             .unavailable
-        }
-    }
-}
 
-// MARK: - TangemPayStatus+notificationEvent
-
-private extension TangemPayStatus {
-    var notificationEvent: TangemPayNotificationEvent? {
-        switch self {
-        case .unavailable:
-            .unavailable
-
-        default:
+        case .initial, .loading, .kycRequired, .kycDeclined, .issuingCard, .failedToIssueCard, .tangemPayAccount:
             nil
         }
     }

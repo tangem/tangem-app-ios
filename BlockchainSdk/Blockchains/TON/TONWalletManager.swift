@@ -32,20 +32,14 @@ final class TONWalletManager: BaseManager, WalletManager {
 
     // MARK: - Implementation
 
-    override func update(completion: @escaping (Result<Void, Error>) -> Void) {
-        cancellable = networkService
-            .getInfo(address: wallet.address, tokens: cardTokens)
-            .sink(
-                receiveCompletion: { [weak self] completionSubscription in
-                    if case .failure(let error) = completionSubscription {
-                        self?.wallet.clearAmounts()
-                        completion(.failure(error))
-                    }
-                },
-                receiveValue: { [weak self] info in
-                    self?.update(with: info, completion: completion)
-                }
-            )
+    override func updateWalletManager() async throws {
+        do {
+            let info = try await networkService.getInfo(address: wallet.address, tokens: cardTokens).async()
+            await update(with: info)
+        } catch {
+            wallet.clearAmounts()
+            throw error
+        }
     }
 
     func send(
@@ -161,7 +155,7 @@ extension TONWalletManager: TransactionFeeProvider {
 // MARK: - Private Implementation
 
 private extension TONWalletManager {
-    private func update(with info: TONWalletInfo, completion: @escaping (Result<Void, Error>) -> Void) {
+    private func update(with info: TONWalletInfo) async {
         if info.sequenceNumber != transactionBuilder.sequenceNumber {
             wallet.clearPendingTransaction()
         }
@@ -181,7 +175,6 @@ private extension TONWalletManager {
         }
 
         transactionBuilder.sequenceNumber = info.sequenceNumber
-        completion(.success(()))
     }
 
     private func getJettonWalletAddressIfNeeded(
@@ -262,15 +255,18 @@ private extension TONWalletManager {
 
 // MARK: - StakeKitTransactionSender, StakeKitTransactionSenderProvider
 
-extension TONWalletManager: StakeKitTransactionsBuilder, StakeKitTransactionSender {
+extension TONWalletManager: StakeKitTransactionSender, StakingTransactionsBuilder {
     typealias RawTransaction = String
 
     /// we need to pass the same signing input into prepareForSend method
-    func buildRawTransactions(
-        from transactions: [StakeKitTransaction],
+    func buildRawTransactions<T: StakingTransaction>(
+        from transactions: [T],
         publicKey: Wallet.PublicKey,
         signer: any TransactionSigner
     ) async throws -> [String] {
+        guard let transactions = transactions as? [StakeKitTransaction] else {
+            throw BlockchainSdkError.failedToBuildTx
+        }
         let expireAt = createExpirationTimestampSecs()
 
         let helper = TONStakeKitTransactionHelper(transactionBuilder: transactionBuilder)
@@ -285,10 +281,8 @@ extension TONWalletManager: StakeKitTransactionsBuilder, StakeKitTransactionSend
         ).async()
 
         return try signatures.enumerated().compactMap { index, signature -> RawTransaction? in
-            guard let transaction = transactions[safe: index],
-                  let preSignData = preSignData[safe: index] else { return nil }
+            guard let preSignData = preSignData[safe: index] else { return nil }
             return try helper.prepareForSend(
-                stakingTransaction: transaction,
                 preSignData: preSignData,
                 signatureInfo: signature
             )
@@ -297,7 +291,7 @@ extension TONWalletManager: StakeKitTransactionsBuilder, StakeKitTransactionSend
 }
 
 extension TONWalletManager: StakeKitTransactionDataBroadcaster {
-    func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> String {
+    func broadcast(rawTransaction: RawTransaction) async throws -> String {
         try await networkService.send(message: rawTransaction).async()
     }
 }

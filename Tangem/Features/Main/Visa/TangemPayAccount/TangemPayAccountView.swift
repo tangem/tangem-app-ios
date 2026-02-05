@@ -11,6 +11,7 @@ import TangemAssets
 import TangemUI
 import TangemLocalization
 import TangemVisa
+import TangemPay
 
 struct TangemPayAccountView: View {
     @ObservedObject var viewModel: TangemPayAccountViewModel
@@ -24,14 +25,34 @@ struct TangemPayAccountView: View {
 
                 trailingContent
             }
-            .opacity(viewModel.state.isTappable ? 1 : 0.6)
+            .opacity(viewModel.state.isFullyVisible ? 1 : 0.6)
             .defaultRoundedBackground(with: Colors.Background.primary, verticalPadding: 14, horizontalPadding: 14)
         }
-        .disabled(viewModel.disableButtonTap)
     }
 
     @ViewBuilder
     var leadingContent: some View {
+        if viewModel.state.isSkeleton {
+            skeletonLeadingContent
+        } else {
+            defaultLeadingContent
+        }
+    }
+
+    @ViewBuilder
+    var skeletonLeadingContent: some View {
+        HStack(alignment: .center, spacing: 12) {
+            skeleton(width: 36, height: 36, radius: 8)
+
+            VStack(alignment: .leading, spacing: 8) {
+                skeleton(width: 112)
+                skeleton(width: 80)
+            }
+        }
+    }
+
+    @ViewBuilder
+    var defaultLeadingContent: some View {
         HStack(alignment: .center, spacing: 12) {
             Assets.Visa.accountAvatar.image
                 .resizable()
@@ -51,7 +72,7 @@ struct TangemPayAccountView: View {
     @ViewBuilder
     var trailingContent: some View {
         switch viewModel.state {
-        case .kycInProgress, .issuingYourCard, .syncNeeded, .unavailable:
+        case .kycInProgress, .issuingYourCard, .syncNeeded, .unavailable, .rootedDevice, .kycDeclined:
             EmptyView()
 
         case .failedToIssueCard:
@@ -68,6 +89,31 @@ struct TangemPayAccountView: View {
                 SensitiveText(TangemPayUtilities.usdcTokenItem.currencySymbol)
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
             }
+
+        case .skeleton:
+            VStack(alignment: .trailing, spacing: 8) {
+                skeleton(width: 40)
+                skeleton(width: 40)
+            }
         }
+    }
+
+    private func skeleton(
+        width: CGFloat,
+        height: CGFloat = Constants.defaultSkeletonHeight,
+        radius: CGFloat = Constants.defaultSkeletonRadius
+    ) -> some View {
+        SkeletonView()
+            .frame(width: width, height: height)
+            .cornerRadiusContinuous(radius)
+    }
+}
+
+// MARK: - TangemPayAccountView+Constants
+
+private extension TangemPayAccountView {
+    enum Constants {
+        static let defaultSkeletonHeight: CGFloat = 12
+        static let defaultSkeletonRadius: CGFloat = 3
     }
 }

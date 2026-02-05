@@ -13,13 +13,13 @@ import TangemLocalization
 import class TangemSdk.BiometricsUtil
 
 protocol MainLockedUserWalletDelegate: AnyObject {
-    func openTroubleshooting(confirmationDialog: ConfirmationDialogViewModel)
     func openScanCardManual()
     func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType)
 }
 
 final class LockedWalletMainContentViewModel: ObservableObject {
     @Published var alert: AlertBinder?
+    @Published var scanTroubleshootingDialog: ConfirmationDialogViewModel?
 
     lazy var lockedNotificationInput: NotificationViewInput = {
         let factory = NotificationsFactory()
@@ -56,10 +56,10 @@ final class LockedWalletMainContentViewModel: ObservableObject {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
 
+    private let signInAnalyticsLogger = SignInAnalyticsLogger()
+
     private let userWalletModel: UserWalletModel
     private let contextData: AnalyticsContextData?
-
-    private let balanceRestrictionFeatureAvailabilityProvider: BalanceRestrictionFeatureAvailabilityProvider
 
     private weak var lockedUserWalletDelegate: MainLockedUserWalletDelegate?
     private weak var coordinator: ActionButtonsRoutable?
@@ -76,16 +76,11 @@ final class LockedWalletMainContentViewModel: ObservableObject {
         self.isMultiWallet = isMultiWallet
         self.lockedUserWalletDelegate = lockedUserWalletDelegate
         self.coordinator = coordinator
-        balanceRestrictionFeatureAvailabilityProvider = BalanceRestrictionFeatureAvailabilityProvider(
-            userWalletConfig: userWalletModel.config,
-            walletModelsPublisher: AccountsFeatureAwareWalletModelsResolver.walletModelsPublisher(for: userWalletModel),
-            updatePublisher: userWalletModel.updatePublisher
-        )
 
         contextData = userWalletModel.analyticsContextData
 
         if isMultiWallet {
-            bindBalanceRestrictionsCheck()
+            setupActionButtons()
         }
 
         Analytics.log(event: .mainNoticeWalletUnlock, params: contextData?.analyticsParams ?? [:])
@@ -109,7 +104,7 @@ private extension LockedWalletMainContentViewModel {
         guard BiometricsUtil.isAvailable else {
             return false
         }
-        if MobileWalletFeatureProvider.isAvailable {
+        if FeatureProvider.isAvailable(.mobileWallet) {
             return AppSettings.shared.useBiometricAuthentication
         } else {
             return AppSettings.shared.saveUserWallets
@@ -122,7 +117,9 @@ private extension LockedWalletMainContentViewModel {
         do {
             let context = try await UserWalletBiometricsUnlocker().unlock()
             let method = UserWalletRepositoryUnlockMethod.biometricsUserWallet(userWalletId: userWalletModel.userWalletId, context: context)
-            _ = try await userWalletRepository.unlock(with: method)
+            let userWalletModel = try await userWalletRepository.unlock(with: method)
+            signInAnalyticsLogger.logSignInEvent(signInType: .biometrics, userWalletModel: userWalletModel)
+
         } catch where error.isCancellationError {
             await unlockWithFallback()
         } catch let repositoryError as UserWalletRepositoryError {
@@ -143,10 +140,10 @@ private extension LockedWalletMainContentViewModel {
     func unlockWithFallback() async {
         let unlocker = UserWalletModelUnlockerFactory.makeUnlocker(userWalletModel: userWalletModel)
         let unlockResult = await unlocker.unlock()
-        await handleUnlock(result: unlockResult)
+        await handleUnlock(result: unlockResult, signInType: unlocker.analyticsSignInType)
     }
 
-    func handleUnlock(result: UserWalletModelUnlockerResult) async {
+    func handleUnlock(result: UserWalletModelUnlockerResult, signInType: Analytics.SignInType) async {
         switch result {
         case .error(let error):
             if error.isCancellationError {
@@ -169,7 +166,8 @@ private extension LockedWalletMainContentViewModel {
         case .biometrics(let context):
             do {
                 let method = UserWalletRepositoryUnlockMethod.biometrics(context)
-                _ = try await userWalletRepository.unlock(with: method)
+                let userWalletModel = try await userWalletRepository.unlock(with: method)
+                signInAnalyticsLogger.logSignInEvent(signInType: signInType, userWalletModel: userWalletModel)
 
             } catch {
                 await runOnMain {
@@ -186,7 +184,8 @@ private extension LockedWalletMainContentViewModel {
 
             do {
                 let method = UserWalletRepositoryUnlockMethod.encryptionKey(userWalletId: userWalletId, encryptionKey: encryptionKey)
-                _ = try await userWalletRepository.unlock(with: method)
+                let userWalletModel = try await userWalletRepository.unlock(with: method)
+                signInAnalyticsLogger.logSignInEvent(signInType: signInType, userWalletModel: userWalletModel)
 
             } catch {
                 await runOnMain {
@@ -225,7 +224,7 @@ private extension LockedWalletMainContentViewModel {
             self?.requestSupport()
         }
 
-        let viewModel = ConfirmationDialogViewModel(
+        scanTroubleshootingDialog = ConfirmationDialogViewModel(
             title: Localization.alertTroubleshootingScanCardTitle,
             subtitle: Localization.alertTroubleshootingScanCardMessage,
             buttons: [
@@ -235,8 +234,6 @@ private extension LockedWalletMainContentViewModel {
                 ConfirmationDialogViewModel.Button.cancel,
             ]
         )
-
-        lockedUserWalletDelegate?.openTroubleshooting(confirmationDialog: viewModel)
     }
 
     func openScanCardManual() {
@@ -254,14 +251,8 @@ private extension LockedWalletMainContentViewModel {
 // MARK: - Action buttons
 
 private extension LockedWalletMainContentViewModel {
-    func bindBalanceRestrictionsCheck() {
-        balanceRestrictionFeatureAvailabilityProvider.isActionButtonsAvailablePublisher
-            .removeDuplicates()
-            .withWeakCaptureOf(self)
-            .sink { viewModel, isAvailable in
-                viewModel.actionButtonsViewModel = isAvailable ? viewModel.makeActionButtonsViewModel() : nil
-            }
-            .store(in: &bag)
+    func setupActionButtons() {
+        actionButtonsViewModel = makeActionButtonsViewModel()
     }
 
     func makeActionButtonsViewModel() -> ActionButtonsViewModel? {

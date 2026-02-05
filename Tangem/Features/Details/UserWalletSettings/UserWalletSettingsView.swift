@@ -20,10 +20,8 @@ struct UserWalletSettingsView: View {
     }
 
     var body: some View {
-        GroupedScrollView(alignment: .leading, spacing: 24) {
+        GroupedScrollView(contentType: .lazy(alignment: .leading, spacing: 24)) {
             walletSection
-
-            mobileUpgradeSection
 
             accountsSection
 
@@ -44,14 +42,22 @@ struct UserWalletSettingsView: View {
         .navigationTitle(Localization.walletSettingsTitle)
         .navigationBarTitleDisplayMode(.inline)
         .alert(item: $viewModel.alert) { $0.alert }
-        .confirmationDialog(viewModel: $viewModel.confirmationDialog)
-        .scrollDismissesKeyboardCompat(.interactively)
+        .scrollDismissesKeyboard(.interactively)
         .onFirstAppear(perform: viewModel.onFirstAppear)
         .onAppear(perform: viewModel.onAppear)
     }
 
     @ViewBuilder
     private var walletSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            walletRenameSubsection
+            mobileUpgradeSubsection
+        }
+        .defaultRoundedBackground()
+    }
+
+    @ViewBuilder
+    private var walletRenameSubsection: some View {
         if FeatureProvider.isAvailable(.accounts) {
             InfoRowWithAction(
                 icon: {
@@ -68,18 +74,36 @@ struct UserWalletSettingsView: View {
                 actionTitle: Localization.commonRename,
                 onAction: viewModel.onTapNameField
             )
-            .defaultRoundedBackground()
         } else {
             DefaultTextFieldRowView(
                 title: Localization.settingsWalletNameTitle,
                 text: .constant(viewModel.name),
                 isReadonly: true
             )
-            .defaultRoundedBackground()
             .onTapGesture(perform: viewModel.onTapNameField)
         }
     }
 
+    @ViewBuilder
+    private var mobileUpgradeSubsection: some View {
+        if viewModel.isMobileUpgradeAvailable {
+            VStack(alignment: .leading, spacing: 12) {
+                Separator(height: .exact(0.5), color: Colors.Stroke.primary)
+
+                DefaultRowView(viewModel: DefaultRowViewModel(
+                    title: Localization.detailsMobileWalletUpgradeActionTitle,
+                    action: viewModel.mobileUpgradeTap
+                ))
+                .appearance(.init(
+                    isChevronVisible: false,
+                    textColor: Colors.Text.accent,
+                    hasVerticalPadding: false
+                ))
+            }
+        }
+    }
+
+    // [REDACTED_TODO_COMMENT]
     private var mobileUpgradeSection: some View {
         viewModel.mobileUpgradeNotificationInput.map {
             NotificationView(input: $0)
@@ -134,6 +158,7 @@ struct UserWalletSettingsView: View {
         GroupedSection(viewModel.forgetViewModel) {
             DefaultRowView(viewModel: $0)
                 .appearance(.destructiveButton)
+                .confirmationDialog(viewModel: $viewModel.forgetWalletConfirmationDialog)
         } footer: {
             DefaultFooterView(Localization.settingsForgetWalletFooter)
         }

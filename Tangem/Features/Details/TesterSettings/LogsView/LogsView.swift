@@ -15,12 +15,11 @@ struct LogsView: View {
     @ObservedObject var viewModel: LogsViewModel
 
     var body: some View {
-        GroupedScrollView(alignment: .leading, spacing: .zero) {
+        GroupedScrollView(contentType: .lazy(alignment: .leading, spacing: .zero)) {
             content
         }
         .background(Colors.Background.tertiary.ignoresSafeArea())
         .alert(item: $viewModel.alert) { $0.alert }
-        .confirmationDialog(viewModel: $viewModel.confirmationDialog)
         .toolbar {
             ToolbarItem(placement: .principal) {
                 Menu {
@@ -44,6 +43,7 @@ struct LogsView: View {
                 Button(action: viewModel.openSheet) {
                     Assets.verticalDots.image
                 }
+                .confirmationDialog(viewModel: $viewModel.choseActionDialog)
             }
         }
     }

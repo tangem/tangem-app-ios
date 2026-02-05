@@ -9,6 +9,7 @@
 import BlockchainSdk
 import TangemLocalization
 import TangemVisa
+import TangemPay
 
 struct TangemPayTransactionRecordMapper {
     private let transaction: TangemPayTransactionRecord
@@ -45,7 +46,12 @@ struct TangemPayTransactionRecordMapper {
     func type() -> TransactionViewModel.TransactionType {
         let type: TransactionViewModel.TangemPayTransactionType = switch transaction.record {
         case .spend(let spend):
-            .spend(name: name(), icon: spend.enrichedMerchantIcon, isDeclined: spend.isDeclined)
+            .spend(
+                name: name(),
+                icon: spend.enrichedMerchantIcon,
+                isDeclined: spend.isDeclined,
+                isNegativeAmount: spend.amount < .zero
+            )
         case .collateral:
             .transfer(name: name())
         case .payment:
@@ -60,11 +66,16 @@ struct TangemPayTransactionRecordMapper {
     /// `TangemPayTransactionDetailsStateView.TransactionState` will use in `TangemPayTransactionDetailsView`
     func state() -> TangemPayTransactionDetailsStateView.TransactionState? {
         switch transaction.record {
-        case .spend(let spend): spend.isDeclined ? .declined : .completed
+        case .spend(let spend): switch spend.status {
+            case .completed: .completed
+            case .declined: .declined
+            case .pending: .pending
+            }
         case .collateral: .none
         case .payment(let payment): switch payment.status {
             case .pending: .pending
             case .completed: .completed
+            case .declined: .declined
             }
         case .fee: .none
         }
@@ -73,7 +84,11 @@ struct TangemPayTransactionRecordMapper {
     func additionalInfo() -> String? {
         switch transaction.record {
         case .spend(let spend) where spend.isDeclined:
-            return Localization.tangemPayTransactionDeclinedNotificationText
+            if let declinedReason = spend.declinedReason {
+                return Localization.tangemPayHistoryItemSpendMcDeclinedReason(declinedReason)
+            } else {
+                return Localization.tangemPayTransactionDeclinedNotificationText
+            }
         case .fee:
             return Localization.tangemPayTransactionFeeNotificationText
         case .spend, .collateral, .payment:
@@ -119,6 +134,7 @@ struct TangemPayTransactionRecordMapper {
         case .payment(let payment): switch payment.status {
             case .pending: return .inProgress
             case .completed: return .confirmed
+            case .declined: return .failed
             }
         case .fee: return .confirmed
         }
@@ -130,7 +146,8 @@ struct TangemPayTransactionRecordMapper {
         case .spend(let spend) where spend.amount == 0:
             return format(amount: spend.amount, currencyCode: spend.currency)
         case .spend(let spend):
-            return format(amount: -spend.amount, currencyCode: spend.currency)
+            let prefix = spend.amount < 0 ? "+" : ""
+            return format(amount: -spend.amount, currencyCode: spend.currency, prefix: prefix)
         case .collateral(let collateral):
             // In the `collateral.currency` we have `USDC` crypto token
             // But we have to show user just simple `$` currency
@@ -146,7 +163,8 @@ struct TangemPayTransactionRecordMapper {
     func localAmount() -> String? {
         switch transaction.record {
         case .spend(let spend) where spend.currency != spend.localCurrency:
-            return format(amount: spend.localAmount, currencyCode: spend.localCurrency)
+            let prefix = spend.amount < 0 ? "+" : ""
+            return format(amount: spend.localAmount, currencyCode: spend.localCurrency, prefix: prefix)
         case .spend, .collateral, .payment, .fee:
             return nil
         }
@@ -169,12 +187,15 @@ struct TangemPayTransactionRecordMapper {
         }
     }
 
-    func categoryName() -> String {
+    func categoryName(detailed: Bool) -> String {
         switch transaction.record {
         case .spend(let spend):
+            if detailed, let category = spend.merchantCategory, let mcc = spend.merchantCategoryCode {
+                return .merchantCategory(category: category, mcc: mcc)
+            }
+
             return spend.merchantCategory?.orNilIfEmpty
                 ?? spend.enrichedMerchantCategory?.orNilIfEmpty
-                ?? spend.merchantCategoryCode?.orNilIfEmpty
                 ?? Localization.tangemPayOther
         case .collateral:
             return Localization.commonTransfer
@@ -206,6 +227,10 @@ extension TangemPayTransactionRecord {
 }
 
 private extension String {
+    static func merchantCategory(category: String, mcc: String) -> String {
+        return category + " " + AppConstants.dotSign + " " + Localization.tangemPayHistoryItemSpendMcc(mcc)
+    }
+
     var orNilIfEmpty: Self? {
         isEmpty ? nil : self
     }

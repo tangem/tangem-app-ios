@@ -26,22 +26,17 @@ class CosmosWalletManager: BaseManager, WalletManager {
         super.init(wallet: wallet)
     }
 
-    override func update(completion: @escaping (Result<Void, Error>) -> Void) {
-        let transactionHashes = wallet.pendingTransactions.map { $0.hash }
-
-        cancellable = networkService
-            .accountInfo(for: wallet.address, tokens: cardTokens, transactionHashes: transactionHashes)
-            .sink { [weak self] result in
-                switch result {
-                case .failure(let error):
-                    self?.wallet.clearAmounts()
-                    completion(.failure(error))
-                case .finished:
-                    completion(.success(()))
-                }
-            } receiveValue: { [weak self] in
-                self?.updateWallet(accountInfo: $0)
-            }
+    override func updateWalletManager() async throws {
+        do {
+            let transactionHashes = wallet.pendingTransactions.map { $0.hash }
+            let info = try await networkService
+                .accountInfo(for: wallet.address, tokens: cardTokens, transactionHashes: transactionHashes)
+                .async()
+            updateWallet(accountInfo: info)
+        } catch {
+            wallet.clearAmounts()
+            throw error
+        }
     }
 
     func send(_ transaction: Transaction, signer: TransactionSigner) -> AnyPublisher<TransactionSendResult, SendTxError> {
@@ -203,7 +198,7 @@ extension CosmosWalletManager: ThenProcessable {}
 
 // MARK: - StakeKitTransactionBuilder, StakeKitTransactionSender, StakeKitTransactionDataProvider
 
-extension CosmosWalletManager: StakeKitTransactionsBuilder, StakeKitTransactionSender, StakeKitTransactionDataProvider {
+extension CosmosWalletManager: StakeKitTransactionSender, StakingTransactionsBuilder, StakeKitTransactionDataProvider {
     typealias RawTransaction = Data
 
     func prepareDataForSign(transaction: StakeKitTransaction) throws -> Data {
@@ -220,7 +215,7 @@ extension CosmosWalletManager: StakeKitTransactionsBuilder, StakeKitTransactionS
 }
 
 extension CosmosWalletManager: StakeKitTransactionDataBroadcaster {
-    func broadcast(transaction: StakeKitTransaction, rawTransaction: RawTransaction) async throws -> String {
+    func broadcast(rawTransaction: RawTransaction) async throws -> String {
         try await networkService.send(transaction: rawTransaction).async()
     }
 }

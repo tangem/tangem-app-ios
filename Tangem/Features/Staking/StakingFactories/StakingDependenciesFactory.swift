@@ -15,6 +15,7 @@ import TangemFoundation
 
 class StakingDependenciesFactory {
     @Injected(\.keysManager) private var keysManager: KeysManager
+    @Injected(\.stakingYieldInfoProvider) private var stakingYieldInfoProvider: StakingYieldInfoProvider
 
     func makeStakeKitAPIProvider() -> StakeKitAPIProvider {
         let plugins: [PluginType] = [
@@ -56,8 +57,14 @@ class StakingDependenciesFactory {
         switch (wallet.item.network, wallet.item.contractAddress) {
         case (.ethereum, .none):
             TangemStakingFactory().makeP2PStakingManager(
+                integrationId: integrationId,
                 wallet: wallet,
                 provider: makeP2PAPIProvider(),
+                yieldInfoProvider: stakingYieldInfoProvider,
+                stateRepository: CommonStakingManagerStateRepository(
+                    stakingWallet: wallet,
+                    storage: CachesDirectoryStorage(file: .cachedStakingManagerState)
+                ),
                 analyticsLogger: CommonStakingAnalyticsLogger()
             )
         default:
@@ -65,6 +72,11 @@ class StakingDependenciesFactory {
                 integrationId: integrationId,
                 wallet: wallet,
                 provider: makeStakeKitAPIProvider(),
+                yieldInfoProvider: stakingYieldInfoProvider,
+                stateRepository: CommonStakingManagerStateRepository(
+                    stakingWallet: wallet,
+                    storage: CachesDirectoryStorage(file: .cachedStakingManagerState)
+                ),
                 analyticsLogger: CommonStakingAnalyticsLogger()
             )
         }

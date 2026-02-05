@@ -108,8 +108,20 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                     return nil
                 }
 
-                return BannerNotificationManager(userWalletInfo: model.userWalletInfo, placement: .main)
+                return BannerNotificationManager(
+                    userWalletInfo: model.userWalletInfo,
+                    userWalletModel: model,
+                    placement: .main
+                )
             }()
+
+            let tangemPayNotificationManager = TangemPayNotificationManager(userWalletModel: model)
+
+            let tokenItemPromoProvider = YieldTokenItemPromoProvider(
+                userWalletModel: model,
+                yieldModuleMarketsRepository: CommonYieldModuleMarketsRepository(),
+                tokenItemPromoBubbleVisibilityInteractor: TokenItemPromoBubbleVisibilityInteractor()
+            )
 
             let sectionsProvider = makeMultiWalletMainContentViewSectionsProvider(userWalletModel: model)
 
@@ -119,10 +131,12 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 sectionsProvider: sectionsProvider,
                 tokensNotificationManager: multiWalletNotificationManager,
                 bannerNotificationManager: bannerNotificationManager,
+                tangemPayNotificationManager: tangemPayNotificationManager,
                 rateAppController: rateAppController,
                 nftFeatureLifecycleHandler: nftLifecycleHandler,
                 tokenRouter: tokenRouter,
-                coordinator: coordinator
+                coordinator: coordinator,
+                tokenItemPromoProvider: tokenItemPromoProvider
             )
             viewModel.delegate = multiWalletContentDelegate
             userWalletNotificationManager.setupManager(with: viewModel)
@@ -135,29 +149,28 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             )
         }
 
-        // accounts_fixes_needed_main
-        guard let walletModel = model.walletModelsManager.walletModels.first else {
+        guard let dependencies = makeSingleWalletDependencies(userWalletModel: model) else {
             return .singleWallet(id: id, headerModel: headerModel, bodyModel: nil)
         }
 
-        // accounts_fixes_needed_main
         let singleWalletNotificationManager = SingleTokenNotificationManager(
             userWalletId: model.userWalletId,
-            walletModel: walletModel,
-            walletModelsManager: model.walletModelsManager
+            walletModel: dependencies.walletModel,
+            walletModelsManager: dependencies.walletModelsManager,
+            tangemIconProvider: CommonTangemIconProvider(config: model.config)
         )
 
         let expressFactory = ExpressPendingTransactionsFactory(
             userWalletInfo: model.userWalletInfo,
-            tokenItem: walletModel.tokenItem,
-            walletModelUpdater: walletModel,
+            tokenItem: dependencies.walletModel.tokenItem,
+            walletModelUpdater: dependencies.walletModel,
         )
 
         let pendingTransactionsManager = expressFactory.makePendingExpressTransactionsManager()
 
         let viewModel = SingleWalletMainContentViewModel(
             userWalletModel: model,
-            walletModel: walletModel,
+            walletModel: dependencies.walletModel,
             userWalletNotificationManager: userWalletNotificationManager,
             pendingExpressTransactionsManager: pendingTransactionsManager,
             tokenNotificationManager: singleWalletNotificationManager,
@@ -255,5 +268,27 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             optionsEditing: optionsManager,
             tokenSectionsAdapter: tokenSectionsAdapter
         )
+    }
+
+    private func makeSingleWalletDependencies(
+        userWalletModel: UserWalletModel
+    ) -> (walletModel: any WalletModel, walletModelsManager: WalletModelsManager)? {
+        let walletModelsManager: WalletModelsManager
+
+        if FeatureProvider.isAvailable(.accounts) {
+            guard let mainAccount = userWalletModel.accountModelsManager.cryptoAccountModels.first(where: \.isMainAccount) else {
+                return nil
+            }
+            walletModelsManager = mainAccount.walletModelsManager
+        } else {
+            // accounts_fixes_needed_none
+            walletModelsManager = userWalletModel.walletModelsManager
+        }
+
+        guard let walletModel = walletModelsManager.walletModels.first else {
+            return nil
+        }
+
+        return (walletModel: walletModel, walletModelsManager: walletModelsManager)
     }
 }

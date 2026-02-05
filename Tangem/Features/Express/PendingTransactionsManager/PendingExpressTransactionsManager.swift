@@ -145,7 +145,7 @@ class CommonPendingExpressTransactionsManager {
 
                     // If transaction is done we have to update balance
                     if loadedPendingTransaction.transactionRecord.transactionStatus.isDone {
-                        self?.walletModelUpdater?.update(silent: true)
+                        self?.walletModelUpdater?.startUpdateTask(silent: true)
                     }
 
                     transactionsToSchedule.append(loadedPendingTransaction)
@@ -165,7 +165,7 @@ class CommonPendingExpressTransactionsManager {
 
                 try Task.checkCancellation()
 
-                try await Task.sleep(seconds: Constants.statusUpdateTimeout)
+                try await Task.sleep(for: .seconds(Constants.statusUpdateTimeout))
 
                 try Task.checkCancellation()
 

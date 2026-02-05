@@ -86,29 +86,21 @@ final class WalletConnectToAccountsMigrationUseCase {
     private func migrateDApp(_ dApp: WalletConnectConnectedDAppV1) async -> WalletConnectConnectedDApp? {
         let sessionAddresses = dApp.session.namespaces.flatMap { $0.value.accounts }.map { $0.address }
 
-        guard let accountId = await resolveAccountId(from: sessionAddresses) else {
+        guard let accountId = await resolveAccountId(from: sessionAddresses, forUserWalletWithId: dApp.userWalletID) else {
             logger.warning("WalletConnect: Could not resolve accountId for dApp \(dApp.dAppData.name)")
             return nil
         }
 
-        return .v2(
-            WalletConnectConnectedDAppV2(
-                session: dApp.session,
-                accountId: accountId,
-                dAppData: dApp.dAppData,
-                verificationStatus: dApp.verificationStatus,
-                dAppBlockchains: dApp.dAppBlockchains,
-                connectionDate: dApp.connectionDate
-            )
-        )
+        return .v2(WalletConnectConnectedDAppV2(accountId: accountId, wrapped: dApp))
     }
 
-    private func resolveAccountId(from sessionAddresses: [String]) async -> String? {
+    private func resolveAccountId(from sessionAddresses: [String], forUserWalletWithId userWalletId: String) async -> String? {
         let uniqueSessionAddresses = Set(sessionAddresses)
-        for userWalletModel in userWalletRepository.models {
+
+        for userWalletModel in userWalletRepository.models where userWalletModel.userWalletId.stringValue == userWalletId {
             for accountModel in userWalletModel.accountModelsManager.accountModels {
-                let cryptoAccount = accountModel.firstAvailableStandard()
-                let accountAddresses = cryptoAccount.walletModelsManager.walletModels.map(\.defaultAddressString)
+                let cryptoAccount = WCAccountFinder.firstAvailableCryptoAccountModel(from: accountModel)
+                let accountAddresses = cryptoAccount.walletModelsManager.walletModels.map(\.walletConnectAddress)
 
                 if !uniqueSessionAddresses.isDisjoint(with: Set(accountAddresses)) {
                     return cryptoAccount.id.walletConnectIdentifierString

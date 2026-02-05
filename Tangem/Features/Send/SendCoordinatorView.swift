@@ -15,7 +15,7 @@ struct SendCoordinatorView: CoordinatorView {
     @State private var interactiveDismissDisabled: Bool = false
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 if let rootViewModel = coordinator.rootViewModel {
                     SendView(
@@ -32,7 +32,6 @@ struct SendCoordinatorView: CoordinatorView {
         .interactiveDismissDisabled(interactiveDismissDisabled)
     }
 
-    @ViewBuilder
     private var links: some View {
         NavHolder()
             .navigation(item: $coordinator.onrampSettingsViewModel) {
@@ -41,10 +40,8 @@ struct SendCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.onrampRedirectingViewModel) {
                 OnrampRedirectingView(viewModel: $0)
             }
-            .emptyNavigationLink()
     }
 
-    @ViewBuilder
     private var sheets: some View {
         NavHolder()
             .bottomSheet(
@@ -62,8 +59,8 @@ struct SendCoordinatorView: CoordinatorView {
             ) {
                 OnrampCountryDetectionCoordinatorView(coordinator: $0)
             }
-            .floatingSheetContent(for: FeeSelectorContentViewModel.self) {
-                FeeSelectorContentView(viewModel: $0)
+            .floatingSheetContent(for: SendFeeSelectorViewModel.self) {
+                SendFeeSelectorView(viewModel: $0)
             }
             .floatingSheetContent(for: SendSwapProvidersSelectorViewModel.self) {
                 SendSwapProvidersSelectorView(viewModel: $0)

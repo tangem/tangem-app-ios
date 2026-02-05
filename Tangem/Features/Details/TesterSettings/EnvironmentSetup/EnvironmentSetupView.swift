@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 import TangemUIUtils
+import TangemAccessibilityIdentifiers
 
 struct EnvironmentSetupView: View {
     @ObservedObject private var viewModel: EnvironmentSetupViewModel
@@ -22,7 +23,7 @@ struct EnvironmentSetupView: View {
         ZStack {
             Colors.Background.secondary.edgesIgnoringSafeArea(.all)
 
-            GroupedScrollView(spacing: 16) {
+            GroupedScrollView(contentType: .lazy(alignment: .center, spacing: 16)) {
                 GroupedSection(viewModel.appSettingsTogglesViewModels) {
                     DefaultToggleRowView(viewModel: $0)
                 }
@@ -40,6 +41,8 @@ struct EnvironmentSetupView: View {
                 }
 
                 demoCardIdControls
+
+                appUidControls
 
                 fcmControls
 
@@ -70,6 +73,24 @@ struct EnvironmentSetupView: View {
                 """
             )
             .font(.footnote)
+        }
+        .padding(.horizontal)
+    }
+
+    private var appUidControls: some View {
+        VStack(spacing: 10) {
+            Text("Reset application UID")
+                .font(.headline)
+
+            VStack(spacing: 15) {
+                HStack {
+                    Text("UID: \(viewModel.applicationUid)")
+                        .font(.footnote)
+                }
+
+                Button("Reset application UID", action: viewModel.resetApplicationUID)
+                    .foregroundColor(Color.red)
+            }
         }
         .padding(.horizontal)
     }
@@ -146,7 +167,7 @@ struct EnvironmentSetupView_Preview: PreviewProvider {
     static let viewModel = EnvironmentSetupViewModel(coordinator: EnvironmentSetupRoutableMock())
 
     static var previews: some View {
-        NavigationView {
+        NavigationStack {
             EnvironmentSetupView(viewModel: viewModel)
         }
     }

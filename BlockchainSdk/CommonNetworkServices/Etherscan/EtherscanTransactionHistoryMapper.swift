@@ -12,9 +12,11 @@ import TangemFoundation
 final class EtherscanTransactionHistoryMapper {
     private let blockchain: Blockchain
     private var transactionIndicesCounter: [String: Int] = [:]
+    private let aaveTokens: Set<String>?
 
     init(blockchain: Blockchain) {
         self.blockchain = blockchain
+        aaveTokens = AAVETokenRepository.tokens(for: blockchain)
     }
 
     private func mapAmount(
@@ -74,12 +76,17 @@ final class EtherscanTransactionHistoryMapper {
         amountType: Amount.AmountType
     ) -> TransactionRecord.TransactionType {
         switch amountType {
-        case .coin where transaction.isContractInteraction,
-             .token where transaction.isContractInteraction:
+        case .coin where transaction.isContractInteraction, .token where transaction.isContractInteraction:
+            let methodName = transaction.functionName?.components(separatedBy: Constants.methodNameSeparator).first?.nilIfEmpty
+
+            if methodName == Constants.tokenTransferMethodName {
+                return .transfer
+            }
+
             if let methodId = transaction.methodId {
                 return .contractMethodIdentifier(id: methodId)
             }
-            let methodName = transaction.functionName?.components(separatedBy: Constants.methodNameSeparator).first?.nilIfEmpty
+
             if let methodName {
                 return .contractMethodName(name: methodName)
             }
@@ -119,6 +126,24 @@ final class EtherscanTransactionHistoryMapper {
         case .coin, .reserve, .token, .feeResource:
             return false
         }
+    }
+
+    private func tokenTransfer(_ transaction: EtherscanTransactionHistoryResult.Transaction) -> [TransactionRecord.TokenTransfer] {
+        guard transaction.contractAddress != nil else {
+            // No contract address — treat as non-token (native) transfer
+            return []
+        }
+
+        let amount = Decimal(stringValue: transaction.value) ?? 0
+        return [TransactionRecord.TokenTransfer(
+            source: transaction.from,
+            destination: transaction.to,
+            amount: amount,
+            name: nil,
+            symbol: nil,
+            decimals: nil,
+            contract: nil
+        )]
     }
 }
 
@@ -161,7 +186,13 @@ extension EtherscanTransactionHistoryMapper: TransactionHistoryMapper {
                 amount: transactionAmount
             )
 
+            let type = mapType(transaction, amountType: amountType)
+
             let destinationAddressType: TransactionRecord.Destination.Address = {
+                if case .transfer = type {
+                    return .user(destinationAddress)
+                }
+
                 if let contract = transaction.contractAddress?.nilIfEmpty {
                     return .contract(contract)
                 }
@@ -183,6 +214,8 @@ extension EtherscanTransactionHistoryMapper: TransactionHistoryMapper {
             let index = transactionIndicesCounter[transaction.hash, default: 0]
             transactionIndicesCounter[transaction.hash] = index + 1
 
+            let isFromYieldContract = aaveTokens?.contains(transaction.from.lowercased()) ?? false
+
             return TransactionRecord(
                 hash: transaction.hash,
                 index: index,
@@ -192,7 +225,9 @@ extension EtherscanTransactionHistoryMapper: TransactionHistoryMapper {
                 status: mapStatus(transaction),
                 isOutgoing: isOutgoing,
                 type: mapType(transaction, amountType: amountType),
-                date: Date(timeIntervalSince1970: timeStamp)
+                date: Date(timeIntervalSince1970: timeStamp),
+                tokenTransfers: tokenTransfer(transaction),
+                isFromYieldContract: isFromYieldContract
             )
         }
     }
@@ -210,6 +245,7 @@ private extension EtherscanTransactionHistoryMapper {
         /// Method names in the API look like `swap(address executor,tuple desc,bytes permit,bytes data)`,
         /// so we have to remove all method signatures (parameters, types, etc).
         static let methodNameSeparator = "("
+        static let tokenTransferMethodName: String = "transfer"
     }
 }
 

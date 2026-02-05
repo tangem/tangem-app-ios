@@ -24,13 +24,12 @@ struct AddWalletSelectorView: View {
 
     var body: some View {
         content
-            .padding(.top, 32)
             .padding(.horizontal, 16)
-            .padding(.bottom, 14)
             .readGeometry(\.frame.maxY, inCoordinateSpace: .global, bindTo: $screenMaxY)
             .navigationBarItems(trailing: navigationBarTrailingItem)
             .onFirstAppear(perform: viewModel.onAppear)
             .background(Colors.Background.secondary)
+            .alert(item: $viewModel.alert, content: { $0.alert })
     }
 }
 
@@ -38,21 +37,24 @@ struct AddWalletSelectorView: View {
 
 private extension AddWalletSelectorView {
     var content: some View {
-        VStack(spacing: 24) {
-            Text(viewModel.screenTitle)
-                .style(Fonts.Bold.title1, color: Colors.Text.primary1)
-                .multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(spacing: 24) {
+                Text(viewModel.screenTitle)
+                    .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
 
-            VStack(spacing: 8) {
-                ForEach(viewModel.walletItems) { item in
-                    walletItem(item)
+                VStack(spacing: 8) {
+                    ForEach(viewModel.walletItems) { item in
+                        walletItem(item)
+                    }
                 }
             }
-
-            Spacer()
-
+            .padding(.top, 32)
+        }
+        .safeAreaInset(edge: .bottom, spacing: 16) {
             buyButton(item: viewModel.buyItem)
+                .bottomPaddingIfZeroSafeArea()
                 .offset(y: buyButtonOffsetY)
                 .readGeometry(\.frame.minY, inCoordinateSpace: .global, bindTo: $buyButtonMinY)
                 .animation(.default, value: viewModel.isBuyAvailable)
@@ -78,8 +80,6 @@ private extension AddWalletSelectorView {
         Button(action: item.action) {
             VStack(alignment: .leading, spacing: 12) {
                 walletDescription(item: item.description)
-                Separator(height: .exact(0.5), color: Colors.Stroke.primary, axis: .horizontal)
-                walletInfos(items: item.infos)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(14)
@@ -91,11 +91,12 @@ private extension AddWalletSelectorView {
     func walletDescription(item: ViewModel.WalletDescriptionItem) -> some View {
         HStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 8) {
-                    Text(item.title)
-                        .style(Fonts.Bold.body, color: Colors.Text.primary1)
-
-                    item.badge.map(BadgeView.init)
+                WrappingHStack(
+                    alignment: .leading,
+                    horizontalSpacing: 8,
+                    verticalSpacing: 4
+                ) {
+                    walletDescriptionHeader(title: item.title, badge: item.badge)
                 }
 
                 Text(item.subtitle)
@@ -114,20 +115,14 @@ private extension AddWalletSelectorView {
         }
     }
 
-    func walletInfos(items: [ViewModel.WalletInfoItem]) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            ForEach(items) { item in
-                HStack(spacing: 6) {
-                    item.icon.image
-                        .renderingMode(.template)
-                        .resizable()
-                        .foregroundStyle(Colors.Icon.accent)
-                        .frame(width: 16, height: 16)
+    func walletDescriptionHeader(title: String, badge: BadgeView.Item?) -> some View {
+        Group {
+            Text(title)
+                .style(Fonts.Bold.body, color: Colors.Text.primary1)
+                .multilineTextAlignment(.leading)
+                .fixedSize(horizontal: false, vertical: true)
 
-                    Text(item.title)
-                        .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
-                }
-            }
+            badge.map(BadgeView.init)
         }
     }
 

@@ -6,51 +6,61 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import SwiftUI
 import TangemLocalization
+import TangemAssets
 import TangemUI
 
-struct TangemPayFailedToIssueCardSheetViewModel: FloatingSheetContentViewModel {
-    var id: String { String(describing: Self.self) }
-
-    let userWalletModel: UserWalletModel
-
-    let title = Localization.tangempayFailedToIssueCard
-    let subtitle = Localization.tangempayFailedToIssueCardSupportDescription
-
-    weak var coordinator: TangemPayFailedToIssueCardRoutable?
-
-    func close() {
-        coordinator?.closeFailedToIssueCardSheet()
+final class TangemPayFailedToIssueCardSheetViewModel: TangemPayPopupViewModel {
+    var title: AttributedString {
+        .init(Localization.tangempayFailedToIssueCard)
     }
 
-    var primaryButtonSettings: MainButton.Settings {
+    var description: AttributedString {
+        .init(Localization.tangempayFailedToIssueCardSupportDescription)
+    }
+
+    var primaryButton: MainButton.Settings {
         MainButton.Settings(
-            title: Localization.commonContactTangemSupport,
+            title: Localization.tangempayGoToSupport,
             style: .primary,
             size: .default,
             action: goToSupport
         )
     }
 
-    func goToSupport() {
-        guard let emailConfig = userWalletModel.emailConfig else {
-            return
-        }
+    var icon: Image {
+        Assets.Visa.warningCircle.image
+    }
 
-        let dataCollector = DetailsFeedbackDataCollector(
-            data: [
-                DetailsFeedbackData(
-                    userWalletEmailData: userWalletModel.emailData,
-                    walletModels: AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
-                ),
-            ]
-        )
+    let userWalletModel: UserWalletModel
+    weak var coordinator: TangemPayFailedToIssueCardRoutable?
 
+    init(
+        userWalletModel: UserWalletModel,
+        coordinator: TangemPayFailedToIssueCardRoutable?
+    ) {
+        self.userWalletModel = userWalletModel
+        self.coordinator = coordinator
+    }
+
+    func dismiss() {
         coordinator?.closeFailedToIssueCardSheet()
-        coordinator?.openMail(
-            with: dataCollector,
-            recipient: emailConfig.recipient,
-            emailType: .appFeedback(subject: emailConfig.subject)
+    }
+
+    private func goToSupport() {
+        let dataCollector = TangemPaySupportDataCollector(
+            source: .failedToIssueCardSheet,
+            userWalletId: userWalletModel.userWalletId.stringValue,
+            customerId: userWalletModel.tangemPayManager.customerId
         )
+        let logsComposer = LogsComposer(infoProvider: dataCollector, includeZipLogs: false)
+        let mailViewModel = MailViewModel(
+            logsComposer: logsComposer,
+            recipient: EmailConfig.visaDefault(subject: .default).recipient,
+            emailType: .visaFeedback(subject: .default)
+        )
+
+        coordinator?.openMailFromFailedToIssueCardSheet(mailViewModel: mailViewModel)
     }
 }

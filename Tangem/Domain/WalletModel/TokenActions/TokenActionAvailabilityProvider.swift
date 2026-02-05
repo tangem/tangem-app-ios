@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import TangemLocalization
 import enum BlockchainSdk.Blockchain
 
@@ -153,6 +154,10 @@ extension TokenActionAvailabilityProvider {
             availableActions.append(.stake)
         }
 
+        if let yieldAPY {
+            availableActions.append(.yield(apy: PercentFormatter().format(yieldAPY, option: .interval)))
+        }
+
         return availableActions
     }
 
@@ -227,6 +232,7 @@ extension TokenActionAvailabilityProvider {
              .hasPendingWithdrawOrder,
              .oldCard,
              .zeroFeeCurrencyBalance,
+             .noAccount,
              .none:
             break
         case .zeroWalletBalance:
@@ -268,6 +274,7 @@ extension TokenActionAvailabilityProvider {
         case oldCard
         case hasOnlyCachedBalance
         case yieldModuleApproveNeeded
+        case noAccount
     }
 
     var isSendAvailable: Bool {
@@ -302,6 +309,8 @@ extension TokenActionAvailabilityProvider {
             return .zeroWalletBalance
         case .none, .zeroFeeCurrencyBalance:
             return .available
+        case .noAccount:
+            return .noAccount
         }
     }
 }
@@ -321,6 +330,7 @@ extension TokenActionAvailabilityProvider {
         case hasOnlyCachedBalance
         case demo(disabledLocalizedReason: String)
         case yieldModuleApproveNeeded
+        case noAccount
     }
 
     var isSellAvailable: Bool {
@@ -363,6 +373,8 @@ extension TokenActionAvailabilityProvider {
             return .zeroWalletBalance
         case .none, .zeroFeeCurrencyBalance:
             break
+        case .noAccount:
+            return .noAccount
         }
 
         return .available
@@ -450,5 +462,34 @@ extension TokenActionAvailabilityProvider {
         }
 
         return false
+    }
+}
+
+// MARK: - Yield mode
+
+extension TokenActionAvailabilityProvider {
+    var yieldAPY: Decimal? {
+        guard let yieldModuleState = walletModel.yieldModuleManager?.state,
+              let apy = yieldModuleState.marketInfo?.apy else {
+            return nil
+        }
+
+        let actualState: YieldModuleManagerState = switch yieldModuleState.state {
+        case .failedToLoad(_, .some(let cachedState)):
+            cachedState
+        default:
+            yieldModuleState.state
+        }
+
+        switch actualState {
+        case .loading(.none):
+            return nil
+        case .loading(.some):
+            return apy
+        case .failedToLoad:
+            return nil
+        case .active, .notActive, .disabled, .processing:
+            return apy
+        }
     }
 }

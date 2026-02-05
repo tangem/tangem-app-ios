@@ -11,7 +11,6 @@ import Combine
 import CombineExt
 import TangemLocalization
 import TangemUI
-import struct TangemUIUtils.ConfirmationDialogViewModel
 import TangemFoundation
 import TangemAccessibilityIdentifiers
 
@@ -22,13 +21,13 @@ final class MainViewModel: ObservableObject {
     @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
     @Injected(\.wcService) private var wcService: WCService
     @Injected(\.yieldModuleNetworkManager) private var yieldModuleNetworkManager: YieldModuleNetworkManager
+    @Injected(\.gaslessTransactionsNetworkManager) private var gaslessTransactionsNetworkManager: GaslessTransactionsNetworkManager
 
     // MARK: - ViewState
 
     @Published var pages: [MainUserWalletPageBuilder] = []
     @Published var selectedCardIndex = 0
     @Published var isHorizontalScrollDisabled = false
-    @Published var confirmationDialog: ConfirmationDialogViewModel?
 
     let swipeDiscoveryAnimationTrigger = CardsInfoPagerSwipeDiscoveryAnimationTrigger()
 
@@ -52,6 +51,10 @@ final class MainViewModel: ObservableObject {
 
     private var shouldDelayBottomSheetVisibility = true
     private var isLoggingOut = false
+    private var didLogMainScreenOpenedAnalytics = false
+
+    private var mainScreenOpenedAnalyticsSubscription: AnyCancellable?
+    private var pagesWithMissingBodyModelsRecreationSubscription: AnyCancellable?
 
     private var bag: Set<AnyCancellable> = []
 
@@ -80,6 +83,7 @@ final class MainViewModel: ObservableObject {
         assert(pages.count == userWalletRepository.models.count, "Number of pages must be equal to number of UserWalletModels")
 
         bind()
+        recreatePagesWithMissingBodyModelsIfNeeded()
     }
 
     convenience init(
@@ -109,18 +113,12 @@ final class MainViewModel: ObservableObject {
 
     /// Handles `SwiftUI.View.onAppear(perform:)`.
     func onViewAppear() {
-        if !isLoggingOut {
-            var analyticsParameters: [Analytics.ParameterKey: Analytics.ParameterValue] = [:]
+        guard !isLoggingOut else { return }
 
-            if let userWalletModel = userWalletRepository.selectedModel {
-                let walletType = Analytics.ParameterValue.seedState(for: userWalletModel.hasImportedWallets)
-                analyticsParameters[.walletType] = walletType
-            }
+        logMainScreenOpenedAnalytics()
 
-            Analytics.log(.mainScreenOpened, params: analyticsParameters)
-        }
-
-        updateMarkets()
+        updateYieldMarkets()
+        updateAvailableFeeTokens()
 
         swipeDiscoveryHelper.scheduleSwipeDiscoveryIfNeeded()
         openPushNotificationsAuthorizationIfNeeded()
@@ -128,6 +126,9 @@ final class MainViewModel: ObservableObject {
 
     /// Handles `SwiftUI.View.onDisappear(perform:)`.
     func onViewDisappear() {
+        didLogMainScreenOpenedAnalytics = false
+        mainScreenOpenedAnalyticsSubscription = nil
+
         swipeDiscoveryHelper.cancelScheduledSwipeDiscovery()
         coordinator?.resignHandlingIncomingActions()
     }
@@ -153,7 +154,9 @@ final class MainViewModel: ObservableObject {
             uiManager.show()
         }
 
-        coordinator?.beginHandlingIncomingActions()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.coordinator?.beginHandlingIncomingActions()
+        }
     }
 
     func onPageChange(dueTo reason: CardsInfoPageChangeReason) {
@@ -191,6 +194,7 @@ final class MainViewModel: ObservableObject {
         let newPageIndex = pages.count
         pages.append(newPage)
         selectedCardIndex = newPageIndex
+        recreatePagesWithMissingBodyModelsIfNeeded()
     }
 
     private func removePages(with userWalletIds: [UserWalletId]) {
@@ -214,6 +218,77 @@ final class MainViewModel: ObservableObject {
             multiWalletContentDelegate: self,
             nftLifecycleHandler: nftFeatureLifecycleHandler
         )
+    }
+
+    /// - Note: This quite ugly workaround is needed to handle two separate cases (both cases are related to single wallets):
+    ///   - Asynchronous loading of the API list after the main screen has already appeared
+    ///   - Asynchronous publishing of account and wallet models after the main screen has already appeared
+    private func recreatePagesWithMissingBodyModelsIfNeeded() {
+        let indicesToRecreate: [Int] = pages
+            .indexed()
+            .compactMap { $1.missingBodyModel ? $0 : nil }
+
+        guard indicesToRecreate.isNotEmpty else {
+            pagesWithMissingBodyModelsRecreationSubscription = nil
+            return
+        }
+
+        let userWalletsWithMissingBodyModel = indicesToRecreate
+            .map { userWalletRepository.models[$0] }
+
+        let walletModelsPublishers = userWalletsWithMissingBodyModel
+            .map(AccountsFeatureAwareWalletModelsResolver.walletModelsPublisher(for:))
+            .combineLatest()
+
+        let cryptoAccountModelsPublisher = userWalletsWithMissingBodyModel
+            .map(\.accountModelsManager.cryptoAccountModelsPublisher)
+            .combineLatest()
+
+        pagesWithMissingBodyModelsRecreationSubscription = cryptoAccountModelsPublisher
+            .combineLatest(walletModelsPublishers)
+            .combineLatest(apiListProvider.apiListPublisher)
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .sink { viewModel, input in
+                let (_, apiList) = input
+
+                if apiList.isEmpty {
+                    return
+                }
+
+                viewModel.recreatePagesWithMissingBodyModels()
+            }
+    }
+
+    private func recreatePagesWithMissingBodyModels() {
+        var updatedPages = pages
+
+        for (index, page) in updatedPages.indexed() {
+            // Double check that body model is still missing
+            guard
+                page.missingBodyModel,
+                index < userWalletRepository.models.count
+            else {
+                continue
+            }
+
+            let userWalletModel = userWalletRepository.models[index]
+            let updatedPage = mainUserWalletPageBuilderFactory.createPage(
+                for: userWalletModel,
+                lockedUserWalletDelegate: self,
+                singleWalletContentDelegate: self,
+                multiWalletContentDelegate: self,
+                nftLifecycleHandler: nftFeatureLifecycleHandler
+            )
+
+            if updatedPage.missingBodyModel {
+                continue
+            }
+
+            updatedPages[index] = updatedPage
+        }
+
+        pages = updatedPages
     }
 
     // MARK: - Private functions
@@ -261,10 +336,10 @@ final class MainViewModel: ObservableObject {
                     }
                 case .unlockedWallet(let userWalletId):
                     userWalletUnlocked(userWalletId: userWalletId)
-                case .deleted(let userWalletIds):
+                case .deleted(let userWalletIds, let isEmpty):
                     // This model is alive for enough time to receive the "deleted" event
                     // after the last model has been removed and the application has been logged out
-                    if userWalletRepository.models.isEmpty {
+                    if isEmpty {
                         return
                     }
                     removePages(with: userWalletIds)
@@ -275,57 +350,11 @@ final class MainViewModel: ObservableObject {
             }
             .store(in: &bag)
 
-        // We need to check if some pages are missing body model. This can happen due to not loaded API list
-        // In this case we need to recreate this pages after API list loaded and WalletModelsManager publishes list of models
-        let indexesToRecreate: [Int] = pages.indexed().compactMap { $1.missingBodyModel ? $0 : nil }
-        if indexesToRecreate.isNotEmpty {
-            // accounts_fixes_needed_main
-            let walletModelPublishers = indexesToRecreate.map { userWalletRepository.models[$0].walletModelsManager.walletModelsPublisher }
-            walletModelPublishers.combineLatest()
-                .combineLatest(apiListProvider.apiListPublisher)
-                .receive(on: DispatchQueue.main)
-                .withWeakCaptureOf(self)
-                .sink { viewModel, tuple in
-                    let (_, apiList) = tuple
-
-                    if apiList.isEmpty {
-                        return
-                    }
-
-                    var currentPages = viewModel.pages
-                    for (index, page) in currentPages.indexed() {
-                        // Double check that body model is still missing
-                        guard
-                            page.missingBodyModel,
-                            index < viewModel.userWalletRepository.models.count
-                        else {
-                            continue
-                        }
-
-                        let userWalletModel = viewModel.userWalletRepository.models[index]
-                        let updatedPage = viewModel.mainUserWalletPageBuilderFactory.createPage(
-                            for: userWalletModel,
-                            lockedUserWalletDelegate: viewModel,
-                            singleWalletContentDelegate: viewModel,
-                            multiWalletContentDelegate: viewModel,
-                            nftLifecycleHandler: viewModel.nftFeatureLifecycleHandler
-                        )
-
-                        if updatedPage.missingBodyModel {
-                            continue
-                        }
-
-                        currentPages[index] = updatedPage
-                    }
-
-                    viewModel.pages = currentPages
-                }
-                .store(in: &bag)
-        }
-
-        wcService.transactionRequestPublisher
+        wcService
+            .transactionRequestPublisher
             .receiveOnMain()
-            .sink { [coordinator, floatingSheetPresenter] transactionHandleResult in
+            .withWeakCaptureOf(self)
+            .sink { viewModel, transactionHandleResult in
                 MainActor.assumeIsolated {
                     switch transactionHandleResult {
                     case .success(let transactionData):
@@ -336,24 +365,81 @@ final class MainViewModel: ObservableObject {
                             ),
                             analyticsLogger: CommonWalletConnectTransactionAnalyticsLogger()
                         )
-                        coordinator?.show(floatingSheetViewModel: sheetViewModel)
+                        viewModel.coordinator?.show(floatingSheetViewModel: sheetViewModel)
 
                     case .failure(let error):
                         if let transactionRequestError = error as? WalletConnectTransactionRequestProcessingError,
                            let errorViewModel = WalletConnectModuleFactory.makeTransactionRequestProcessingErrorViewModel(
                                transactionRequestError,
-                               closeAction: {
-                                   floatingSheetPresenter.removeActiveSheet()
+                               closeAction: { [weak viewModel] in
+                                   viewModel?.floatingSheetPresenter.removeActiveSheet()
                                }
                            ) {
-                            coordinator?.show(floatingSheetViewModel: errorViewModel)
+                            viewModel.coordinator?.show(floatingSheetViewModel: errorViewModel)
                         } else {
-                            coordinator?.show(toast: WalletConnectModuleFactory.makeGenericErrorToast(error))
+                            viewModel.coordinator?.show(toast: WalletConnectModuleFactory.makeGenericErrorToast(error))
                         }
                     }
                 }
             }
             .store(in: &bag)
+    }
+
+    private func logMainScreenOpenedAnalytics() {
+        guard !didLogMainScreenOpenedAnalytics else { return }
+
+        let userWalletModel = userWalletRepository.selectedModel
+
+        if let userWalletModel, FeatureProvider.isAvailable(.accounts) {
+            mainScreenOpenedAnalyticsSubscription = userWalletModel
+                .accountModelsManager
+                .accountModelsPublisher
+                .filter(\.isNotEmpty)
+                .first()
+                .receiveOnMain()
+                .withWeakCaptureOf(self)
+                .sink { viewModel, accountModels in
+                    viewModel.logMainScreenOpenedEvent(userWalletModel: userWalletModel, accountModels: accountModels)
+                }
+        } else {
+            logMainScreenOpenedEvent(userWalletModel: userWalletModel, accountModels: nil)
+        }
+    }
+
+    private func logMainScreenOpenedEvent(userWalletModel: UserWalletModel?, accountModels: [AccountModel]?) {
+        guard !isLoggingOut else { return }
+
+        didLogMainScreenOpenedAnalytics = true
+
+        var params: [Analytics.ParameterKey: String] = [
+            .appTheme: AppSettings.shared.appTheme.analyticsParamValue.rawValue,
+        ]
+
+        let hasMobileWallet = userWalletRepository.models.contains { $0.config.productType == .mobileWallet }
+        params[.mobileWallet] = Analytics.ParameterValue.affirmativeOrNegative(for: hasMobileWallet).rawValue
+
+        if let userWalletModel {
+            let hasSeedPhrase = userWalletModel.config.productType == .mobileWallet || userWalletModel.hasImportedWallets
+            params[.walletType] = Analytics.ParameterValue.seedState(for: hasSeedPhrase).rawValue
+
+            let userWalletConfig = userWalletModel.config
+            let walletHasBackup = userWalletConfig.productType == .mobileWallet
+                ? !userWalletConfig.hasFeature(.mnemonicBackup)
+                : !userWalletConfig.hasFeature(.backup)
+            params[.walletHasBackup] = Analytics.ParameterValue.affirmativeOrNegative(for: walletHasBackup).rawValue
+        }
+
+        if let accountModels {
+            params[.accountsCount] = String(accountModels.cryptoAccountsCount)
+        }
+
+        params.enrich(with: ReferralAnalyticsHelper().getReferralParams())
+
+        Analytics.log(
+            event: .mainScreenOpened,
+            params: params,
+            analyticsSystems: .all
+        )
     }
 
     private func openPushNotificationsAuthorizationIfNeeded() {
@@ -394,7 +480,8 @@ final class MainViewModel: ObservableObject {
             await viewModel.onPullToRefresh()
         }
 
-        updateMarkets(force: true)
+        updateYieldMarkets(force: true)
+        updateAvailableFeeTokens()
     }
 }
 
@@ -425,12 +512,6 @@ private extension MainViewModel {
 // MARK: - Navigation
 
 extension MainViewModel: MainLockedUserWalletDelegate {
-    func openTroubleshooting(confirmationDialog: ConfirmationDialogViewModel) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.scanTroubleshootingDelay) {
-            self.confirmationDialog = confirmationDialog
-        }
-    }
-
     func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType) {
         DispatchQueue.main.asyncAfter(deadline: .now() + Constants.feedbackRequestDelay) { [weak self] in
             self?.coordinator?.openMail(with: dataCollector, emailType: emailType, recipient: recipient)
@@ -442,7 +523,7 @@ extension MainViewModel: MainLockedUserWalletDelegate {
     }
 }
 
-extension MainViewModel: MultiWalletMainContentDelegate {
+extension MainViewModel: MultiWalletMainContentDelegate, SingleWalletMainContentDelegate {
     func displayAddressCopiedToast() {
         Toast(
             view: SuccessToast(text: Localization.walletNotificationAddressCopied)
@@ -452,12 +533,6 @@ extension MainViewModel: MultiWalletMainContentDelegate {
             layout: .top(padding: 12),
             type: .temporary()
         )
-    }
-}
-
-extension MainViewModel: SingleWalletMainContentDelegate {
-    func present(confirmationDialog: ConfirmationDialogViewModel) {
-        self.confirmationDialog = confirmationDialog
     }
 }
 
@@ -480,17 +555,18 @@ extension MainViewModel: WalletSwipeDiscoveryHelperDelegate {
 // MARK: - Yield module
 
 extension MainViewModel {
-    func updateMarkets(force: Bool = false) {
+    func updateYieldMarkets(force: Bool = false) {
         if force || yieldModuleNetworkManager.markets.isEmpty {
-            let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletRepository.models)
-            let chainIDs = Set(
-                walletModels.compactMap { walletModel -> String? in
-                    guard walletModel.tokenItem.isToken, walletModel.yieldModuleManager != nil else { return nil }
-                    return walletModel.tokenItem.blockchain.chainId.map { String($0) }
-                }
-            )
-            yieldModuleNetworkManager.updateMarkets(chainIDs: chainIDs.asArray)
+            yieldModuleNetworkManager.updateMarkets()
         }
+    }
+}
+
+// MARK: - Gasless Transactions
+
+extension MainViewModel {
+    func updateAvailableFeeTokens() {
+        gaslessTransactionsNetworkManager.updateAvailableTokens()
     }
 }
 
@@ -501,7 +577,6 @@ private extension MainViewModel {
         /// A small delay for animated addition of newly inserted wallet(s) after the main view becomes visible.
         static let pendingWalletsInsertionDelay = 1.0
         static let feedbackRequestDelay = 0.7
-        static let scanTroubleshootingDelay = 0.5
         static let pushNotificationAuthorizationRequestDelay = 0.5
         // [REDACTED_TODO_COMMENT]
         static let bottomSheetVisibilityColdStartDelay = 0.5

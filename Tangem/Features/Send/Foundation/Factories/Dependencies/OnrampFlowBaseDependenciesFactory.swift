@@ -19,7 +19,11 @@ extension OnrampFlowBaseDependenciesFactory {
     // MARK: - Analytics
 
     func makeOnrampSendAnalyticsLogger(source: SendCoordinator.Source) -> OnrampSendAnalyticsLogger {
-        CommonOnrampSendAnalyticsLogger(tokenItem: tokenItem, source: source)
+        CommonOnrampSendAnalyticsLogger(
+            tokenItem: tokenItem,
+            source: source,
+            accountModelAnalyticsProvider: accountModelAnalyticsProvider
+        )
     }
 
     // MARK: - OnrampDependencies
@@ -35,7 +39,10 @@ extension OnrampFlowBaseDependenciesFactory {
         let factory = TangemExpressFactory()
         let dataRepository = factory.makeOnrampDataRepository(expressAPIProvider: apiProvider)
 
-        let analyticsLogger = CommonExpressAnalyticsLogger(tokenItem: tokenItem)
+        let analyticsLogger = CommonExpressInteractorAnalyticsLogger(
+            tokenItem: tokenItem,
+            feeAnalyticsParameterBuilder: .init(isFixedFee: false)
+        )
         let manager = factory.makeOnrampManager(
             expressAPIProvider: apiProvider,
             onrampRepository: repository,

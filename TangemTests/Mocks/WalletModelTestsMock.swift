@@ -87,17 +87,9 @@ final class WalletModelTestsMock: WalletModel {
 
     // MARK: - WalletModelUpdater
 
-    func generalUpdate(silent: Bool) -> AnyPublisher<Void, Never> {
-        Just(()).eraseToAnyPublisher()
-    }
+    func update(silent: Bool, features: [WalletModelUpdaterFeatureType]) async {}
 
-    func update(silent: Bool) -> AnyPublisher<WalletModelState, Never> {
-        Just(state).eraseToAnyPublisher()
-    }
-
-    func updateTransactionsHistory() -> AnyPublisher<Void, Never> {
-        Just(()).eraseToAnyPublisher()
-    }
+    func updateTransactionsHistory() async {}
 
     func updateAfterSendingTransaction() {}
 
@@ -105,6 +97,13 @@ final class WalletModelTestsMock: WalletModel {
 
     func updateRentWarning() -> AnyPublisher<String?, Never> {
         Just(nil).eraseToAnyPublisher()
+    }
+
+    // MARK: - WalletModelFeesProvider
+
+    var customFeeProvider: (any CustomFeeProvider)? { .none }
+    func makeTokenFeeLoader(for tokenItem: Tangem.TokenItem) -> any Tangem.TokenFeeLoader {
+        TokenFeeLoaderMock()
     }
 
     // MARK: - TransactionHistoryFetcher
@@ -145,6 +144,7 @@ final class WalletModelTestsMock: WalletModel {
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> { Empty().eraseToAnyPublisher() }
     var stakingManager: StakingManager? { nil }
     var stakeKitTransactionSender: StakeKitTransactionSender? { nil }
+    var p2pTransactionSender: (any P2PTransactionSender)? { nil }
     var account: (any CryptoAccountModel)? { nil }
     var yieldModuleManager: YieldModuleManager? { nil }
     var availableBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
@@ -166,6 +166,7 @@ final class WalletModelTestsMock: WalletModel {
     var bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator? { nil }
     var accountInitializationService: BlockchainAccountInitializationService? { nil }
     var minimalBalanceProvider: MinimalBalanceProvider? { nil }
+    var ethereumGaslessTransactionFeeProvider: (any GaslessTransactionFeeProvider)? { nil }
     var isSupportedTransactionHistory: Bool { false }
     var hasPendingTransactions: Bool { false }
     var hasAnyPendingTransactions: Bool { false }
@@ -174,6 +175,8 @@ final class WalletModelTestsMock: WalletModel {
     var isEmptyIncludingPendingIncomingTxs: Bool { false }
     var hasRent: Bool { false }
     var existentialDepositWarning: String? { nil }
+    var ethereumGaslessDataProvider: (any EthereumGaslessDataProvider)? { nil }
+    var pendingTransactionRecordAdder: (any PendingTransactionRecordAdding)? { nil }
 
     // MARK: - CustomStringConvertible
 
@@ -186,8 +189,8 @@ final class WalletModelTestsMock: WalletModel {
     func fulfillRequirements(signer: any TransactionSigner) -> AnyPublisher<Void, Error> { Empty().eraseToAnyPublisher() }
     func estimatedFee(amount: Amount) -> AnyPublisher<[Fee], Error> { Empty().eraseToAnyPublisher() }
     func getFee(amount: Amount, destination: String) -> AnyPublisher<[Fee], Error> { Empty().eraseToAnyPublisher() }
-    func getFeeCurrencyBalance(amountType: Amount.AmountType) -> Decimal { 0 }
-    func hasFeeCurrency(amountType: Amount.AmountType) -> Bool { false }
+    func getFeeCurrencyBalance() -> Decimal { 0 }
+    func hasFeeCurrency() -> Bool { false }
     func getFee(compiledTransaction data: Data) async throws -> [Fee] { [] }
     func hash(into hasher: inout Hasher) {}
     static func == (lhs: WalletModelTestsMock, rhs: WalletModelTestsMock) -> Bool { false }

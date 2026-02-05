@@ -24,7 +24,7 @@ final class BlockchainSmokeUITests: BaseTestCase {
             scenarios: [cardanoScenario]
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken(network)
             .tapActionButton(.send)
@@ -74,12 +74,15 @@ final class BlockchainSmokeUITests: BaseTestCase {
             ]
         )
 
-        StoriesScreen(app)
+        CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .tapToken("XRP Ledger")
             .validateTopUpWalletBannerExists()
 
         setupWireMockScenarios([foundAccountInfo, foundAccountLines])
+
+        // to handle debounce mechanism
+        Thread.sleep(forTimeInterval: 5)
 
         pullToRefresh()
 

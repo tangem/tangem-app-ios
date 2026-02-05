@@ -59,20 +59,30 @@ final class AccountsAwareUserTokensManager {
         let blockchain = tokenItem.blockchain
         let derivationPathHelper = AccountDerivationPathHelper(blockchain: blockchain)
         let derivationPath = tokenItem.blockchainNetwork.derivationPath
+        let derivationIndex = derivationInfo.derivationIndex
 
         // In case when a token item already contains derivation such token item can be added to the main account as is
         if isMainAccountManager, derivationPath != nil {
             return makeTokenItem(from: tokenItem, with: derivationPath)
         }
 
+        // Non-main account with existing derivation: correct only the account node (if possible)
+        if let existingDerivationPath = derivationPath, let derivationIndexAwarePath = try? derivationPathHelper.makeDerivationPath(
+            from: existingDerivationPath,
+            forAccountWithIndex: derivationIndex
+        ) {
+            return makeTokenItem(from: tokenItem, with: derivationIndexAwarePath)
+        }
+
+        // Derivation unsupported
         guard let derivationStyle = derivationInfo.derivationStyle else {
             return tokenItem
         }
 
+        // Last resort: override from the blockchain's default derivation path
         let originalDerivationPath = blockchain.derivationPath(for: derivationStyle)
-
-        let accountAwareDerivationPath = originalDerivationPath.map { path in
-            return derivationPathHelper.makeDerivationPath(from: path, forAccountWithIndex: derivationInfo.derivationIndex)
+        let accountAwareDerivationPath = originalDerivationPath.flatMap { path in
+            return try? derivationPathHelper.makeDerivationPath(from: path, forAccountWithIndex: derivationIndex)
         }
 
         return makeTokenItem(from: tokenItem, with: accountAwareDerivationPath)
@@ -90,24 +100,18 @@ final class AccountsAwareUserTokensManager {
     }
 
     private func addInternal(_ tokenItems: [TokenItem], using updater: UserTokensRepositoryBatchUpdater) throws {
-        let tokenItemsToAdd = try tokenItems.flatMap { tokenItem in
+        let enrichedItems = TokenItemsEnricher.enrichedWithBlockchainNetworksIfNeeded(tokenItems, filter: userTokens)
+
+        for tokenItem in enrichedItems {
             try validateDerivation(for: tokenItem)
 
-            if tokenItem.isBlockchain {
-                return [tokenItem]
+            if tokenItem.isToken {
+                let networkTokenItem = TokenItem.blockchain(tokenItem.blockchainNetwork)
+                try validateDerivation(for: networkTokenItem)
             }
-
-            let networkTokenItem = TokenItem.blockchain(tokenItem.blockchainNetwork)
-            try validateDerivation(for: networkTokenItem)
-
-            if !userTokens.contains(networkTokenItem), !tokenItems.contains(networkTokenItem) {
-                return [networkTokenItem, tokenItem]
-            }
-
-            return [tokenItem]
         }
 
-        updater.append(tokenItemsToAdd)
+        updater.append(enrichedItems)
     }
 
     private func removeInternal(_ tokenItems: [TokenItem], using updater: UserTokensRepositoryBatchUpdater) {
@@ -139,9 +143,11 @@ final class AccountsAwareUserTokensManager {
             throw TangemSdkError.nonHardenedDerivationNotSupported
         }
 
+        let derivationPathHelper = AccountDerivationPathHelper(blockchain: blockchain)
+
         // Some blockchains do not support any derivations other than the default one (for the main account)
         if let derivationPath,
-           let accountDerivationNode = AccountDerivationPathHelper(blockchain: blockchain).extractAccountDerivationNode(from: derivationPath),
+           let accountDerivationNode = try? derivationPathHelper.extractAccountDerivationNode(from: derivationPath),
            !AccountModelUtils.isMainAccount(accountDerivationNode.rawIndex),
            !blockchain.curve.supportsDerivation {
             throw Error.derivationNotSupported(tokenName: tokenItem.name)
@@ -152,14 +158,15 @@ final class AccountsAwareUserTokensManager {
             return
         }
 
-        let derivationPathHelper = AccountDerivationPathHelper(blockchain: tokenItem.blockchain)
-
-        guard let derivationNode = derivationPathHelper.extractAccountDerivationNode(from: derivationPath) else {
+        guard
+            let derivationPath,
+            let accountDerivationNode = try? derivationPathHelper.extractAccountDerivationNode(from: derivationPath)
+        else {
             throw Error.derivationPathNotFound(tokenName: tokenItem.name)
         }
 
         let expectedDerivationIndex = UInt32(derivationInfo.derivationIndex)
-        let actualDerivationIndex = derivationNode.rawIndex
+        let actualDerivationIndex = accountDerivationNode.rawIndex
 
         if actualDerivationIndex != expectedDerivationIndex {
             throw Error.accountDerivationNodeMismatch(
@@ -172,7 +179,9 @@ final class AccountsAwareUserTokensManager {
 
     private func handleUserTokensSync() {
         loadSwapAvailabilityStateIfNeeded(forceReload: true)
-        walletModelsManager?.updateAll(silent: false) { [weak self] in
+
+        Task { [weak self] in
+            await self?.walletModelsManager?.updateAll(silent: false)
             self?.handleWalletModelsUpdate()
         }
     }
@@ -202,15 +211,9 @@ final class AccountsAwareUserTokensManager {
             }
 
             guard let reorderedWalletModelId = reorderedWalletModelIds.popLast() else {
-                let walletModelsCount = walletModelIds.count
-                let allTokensCount = tokens.count
-                let unsupportedTokensCount = tokens.count { $0.walletModelId == nil }
-                assertionFailure(
-                    """
-                    Inconsistency detected: mismatched number of wallet models (\(walletModelsCount)) and the \
-                    number of tokens (\(allTokensCount)) minus the number of unsupported tokens (\(unsupportedTokensCount))
-                    """
-                )
+                // There may be tokens without derivation and thus without a wallet model,
+                // so we just append them, preserving the order
+                reorderedTokens.append(token)
                 continue
             }
 
@@ -306,16 +309,21 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
     func add(_ tokenItem: TokenItem) async throws -> String {
         let tokenItem = withBlockchainNetwork(tokenItem)
 
-        try await withCheckedThrowingContinuation { continuation in
+        let addedToken = try await withCheckedThrowingContinuation { continuation in
             add(tokenItem) { result in
-                continuation.resume(with: result)
+                switch result {
+                case .success(let addedTokenItem):
+                    continuation.resume(returning: addedTokenItem)
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
             }
         }
 
         // wait for walletModelsManager to be updated
-        try await Task.sleep(seconds: 0.1)
+        try await Task.sleep(for: .seconds(0.1))
 
-        let walletModelId = WalletModelId(tokenItem: tokenItem)
+        let walletModelId = WalletModelId(tokenItem: addedToken)
 
         guard let walletModel = walletModelsManager?.walletModels.first(where: { $0.id == walletModelId }) else {
             throw Error.addressNotFound
@@ -324,7 +332,7 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
         return walletModel.defaultAddressString
     }
 
-    func add(_ tokenItems: [TokenItem], completion: @escaping (Result<Void, Swift.Error>) -> Void) {
+    func add(_ tokenItems: [TokenItem], completion: @escaping (Result<[TokenItem], Swift.Error>) -> Void) {
         let tokenItems = tokenItems.map { withBlockchainNetwork($0) }
 
         do {
@@ -336,7 +344,14 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
             return
         }
 
-        deriveIfNeeded(completion: completion)
+        deriveIfNeeded { result in
+            switch result {
+            case .success:
+                completion(.success(tokenItems))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
     }
 
     func canRemove(_ tokenItem: TokenItem, pendingToAddItems: [TokenItem], pendingToRemoveItems: [TokenItem]) -> Bool {
@@ -375,7 +390,11 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
         }
     }
 
-    func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem], completion: @escaping (Result<Void, Swift.Error>) -> Void) {
+    func update(
+        itemsToRemove: [TokenItem],
+        itemsToAdd: [TokenItem],
+        completion: @escaping (Result<UserTokensManagerResult.UpdatedTokenItems, Swift.Error>) -> Void
+    ) {
         let itemsToRemove = itemsToRemove.map { withBlockchainNetwork($0) }
         let itemsToAdd = itemsToAdd.map { withBlockchainNetwork($0) }
 
@@ -386,7 +405,15 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
             return
         }
 
-        deriveIfNeeded(completion: completion)
+        deriveIfNeeded { result in
+            switch result {
+            case .success:
+                let updatedItems = UserTokensManagerResult.UpdatedTokenItems(removed: itemsToRemove, added: itemsToAdd)
+                completion(.success(updatedItems))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
     }
 
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) throws {
@@ -426,7 +453,17 @@ extension AccountsAwareUserTokensManager: UserTokensReordering {
             .eraseToAnyPublisher()
     }
 
-    var groupingOption: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> {
+    var groupingOption: UserTokensReorderingOptions.Grouping {
+        let converter = UserTokensReorderingOptionsConverter()
+        return converter.convert(userTokensRepository.cryptoAccount.grouping)
+    }
+
+    var sortingOption: UserTokensReorderingOptions.Sorting {
+        let converter = UserTokensReorderingOptionsConverter()
+        return converter.convert(userTokensRepository.cryptoAccount.sorting)
+    }
+
+    var groupingOptionPublisher: AnyPublisher<UserTokensReorderingOptions.Grouping, Never> {
         let converter = UserTokensReorderingOptionsConverter()
         return userTokensRepository
             .cryptoAccountPublisher
@@ -434,7 +471,7 @@ extension AccountsAwareUserTokensManager: UserTokensReordering {
             .eraseToAnyPublisher()
     }
 
-    var sortingOption: AnyPublisher<UserTokensReorderingOptions.Sorting, Never> {
+    var sortingOptionPublisher: AnyPublisher<UserTokensReorderingOptions.Sorting, Never> {
         let converter = UserTokensReorderingOptionsConverter()
         return userTokensRepository
             .cryptoAccountPublisher

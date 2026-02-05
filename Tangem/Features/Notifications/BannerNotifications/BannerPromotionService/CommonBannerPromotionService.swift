@@ -7,6 +7,9 @@
 //
 
 import Foundation
+import TangemFoundation
+
+let PromotionLogger = AppLogger.tag("Banner promotion")
 
 class CommonBannerPromotionService {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
@@ -14,40 +17,40 @@ class CommonBannerPromotionService {
     init() {}
 }
 
-// MARK: - PromotionService
+// MARK: - BannerPromotionService
 
 extension CommonBannerPromotionService: BannerPromotionService {
-    func activePromotion(promotion: PromotionProgramName, on place: BannerPromotionPlacement) async -> ActivePromotionInfo? {
-        guard !isHidden(promotion: promotion, on: place) else {
-            return nil
-        }
-
+    func loadActivePromotionsFor(walletId: String, on place: BannerPromotionPlacement) async -> [ActivePromotionInfo] {
         do {
-            let promotionInfo = try await tangemApiService.expressPromotion(request: .init(programName: promotion.rawValue))
+            let request = ExpressPromotion.NewRequest(walletId: walletId)
+            let promotionInfos = try await tangemApiService.expressPromotion(request: request).promotions
 
-            let now = Date()
-            if promotionInfo.all.status == .active, now < promotionInfo.all.timeline.end {
-                let link: URL? = switch promotion {
-                case .visaWaitlist: Constants.visaWaitlinkLink
-                case .blackFriday: Constants.blackFridayLink
+            let activePromotions = promotionInfos.filter { promotion in
+                PromotionLogger.info(
+                    "Promotion - \(promotion.name) is \(promotion.all.status) and timeline is \(promotion.all.timeline)"
+                )
+
+                switch promotion.all.status {
+                case .active where .now < promotion.all.timeline.end:
+                    return !isHidden(promotionName: promotion.name, on: place)
+                default:
+                    return false
                 }
-
-                return .init(bannerPromotion: promotion, timeline: promotionInfo.all.timeline, link: link)
             }
 
-        } catch {
-            AppLogger.error("Check promotions catch error", error: error)
-        }
+            return activePromotions.compactMap { try? mapToActivePromotionInfo(promotionInfo: $0) }
 
-        return nil
+        } catch {
+            return []
+        }
     }
 
-    func isHidden(promotion: PromotionProgramName, on place: BannerPromotionPlacement) -> Bool {
+    func isHidden(promotionName: String, on place: BannerPromotionPlacement) -> Bool {
         switch place {
         case .main:
-            return AppSettings.shared.mainPromotionDismissed.contains(promotion.rawValue)
+            return AppSettings.shared.mainPromotionDismissed.contains(promotionName)
         case .tokenDetails:
-            return AppSettings.shared.tokenPromotionDismissed.contains(promotion.rawValue)
+            return AppSettings.shared.tokenPromotionDismissed.contains(promotionName)
         }
     }
 
@@ -61,14 +64,40 @@ extension CommonBannerPromotionService: BannerPromotionService {
     }
 }
 
+// MARK: - Private
+
+private extension CommonBannerPromotionService {
+    func mapToActivePromotionInfo(promotionInfo: ExpressPromotion.Response.Promotion) throws -> ActivePromotionInfo {
+        guard let promotion = PromotionProgramName(rawValue: promotionInfo.name) else {
+            throw Error.wrongPromotionProgramName
+        }
+
+        let link: URL? = switch promotion {
+        case .yield: Constants.yieldLink
+        }
+
+        return .init(bannerPromotion: promotion, timeline: promotionInfo.all.timeline, link: link)
+    }
+}
+
+// MARK: - Constants
+
 private extension CommonBannerPromotionService {
     enum Constants {
-        static let visaWaitlinkLink = URL(
-            string: "https://tangem.com/en/cardwaitlist/?utm_source=tangem-app-banner&utm_medium=banner&utm_campaign=tangempaywaitlist"
-        )!
+        static let yieldLink = URL(string: "https://tangem.com/docs/yield-mode-toc.html")!
+    }
+}
 
-        static let blackFridayLink = URL(
-            string: "https://tangem.com/en/pricing/?promocode=BF2025&utm_source=tangem-app-banner&utm_medium=banner&utm_campaign=BlackFriday2025"
-        )!
+// MARK: - Error
+
+private extension CommonBannerPromotionService {
+    enum Error: LocalizedError {
+        case wrongPromotionProgramName
+
+        var errorDescription: String? {
+            switch self {
+            case .wrongPromotionProgramName: "Wrong promotion program name"
+            }
+        }
     }
 }

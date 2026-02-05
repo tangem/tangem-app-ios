@@ -21,6 +21,10 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
         return section
     }
 
+    var hasNonEmptyDestinationAddress: Bool {
+        !destinationAddressViewModel.address.string.isEmpty
+    }
+
     @Published var additionalFieldViewModel: SendDestinationAdditionalFieldViewModel?
 
     @Published var shouldShowSuggestedDestination: Bool = true
@@ -37,6 +41,7 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
     private let sendQRCodeService: SendQRCodeService
     private let analyticsLogger: SendDestinationAnalyticsLogger
     private weak var router: SendDestinationRoutable?
+    private weak var destinationAccountOutput: SendDestinationAccountOutput?
 
     private var allFieldsIsValidSubscription: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
@@ -49,12 +54,14 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
         interactor: SendDestinationInteractor,
         sendQRCodeService: SendQRCodeService,
         analyticsLogger: SendDestinationAnalyticsLogger,
-        router: SendDestinationRoutable
+        router: SendDestinationRoutable,
+        destinationAccountOutput: SendDestinationAccountOutput
     ) {
         self.interactor = interactor
         self.sendQRCodeService = sendQRCodeService
         self.analyticsLogger = analyticsLogger
         self.router = router
+        self.destinationAccountOutput = destinationAccountOutput
 
         destinationAddressViewModel = SendDestinationAddressViewModel(
             textViewModel: .init(),
@@ -67,6 +74,10 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
 
     func onAppear() {
         interactor.preloadTransactionsHistoryIfNeeded()
+    }
+
+    func setIgnoreDestinationAddressClearButton(_ ignore: Bool) {
+        destinationAddressViewModel.update(shouldIgnoreClearButton: ignore)
     }
 
     private func updateView(tokenItem: TokenItem) {
@@ -113,8 +124,10 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
         destinationAddressViewModel
             .addressPublisher()
             .dropFirst()
-            .debounce(for: interactor.willResolveAddress ? .seconds(1) : 0) { !$0.string.isEmpty }
             .withWeakCaptureOf(self)
+            .debounce(for: .seconds(1)) { viewModel, destination in
+                !destination.string.isEmpty && viewModel.interactor.willResolve(address: destination.string)
+            }
             .receive(on: DispatchQueue.main)
             .sink { viewModel, destination in
                 viewModel.interactor.update(destination: destination.string, source: destination.source)
@@ -230,6 +243,13 @@ class SendDestinationViewModel: ObservableObject, Identifiable {
 
     private func userDidTapSuggestedDestination(_ destination: SendDestinationSuggested) {
         FeedbackGenerator.success()
+
+        // Set destination account via SendModel, which forwards to analytics logger
+        destinationAccountOutput?.setDestinationAccountInfo(
+            tokenHeader: destination.tokenHeader,
+            analyticsProvider: destination.accountModelAnalyticsProvider
+        )
+
         destinationAddressViewModel.update(address: .init(
             string: destination.address,
             source: destination.type.source

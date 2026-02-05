@@ -30,37 +30,32 @@ struct BannerNotificationEvent: NotificationEvent {
 extension PromotionProgramName {
     var title: String {
         switch self {
-        case .visaWaitlist: Localization.notificationVisaWaitlistPromoTitle
-        case .blackFriday: Localization.notificationBlackFridayTitle
+        case .yield: Localization.notificationYieldPromoTitle
         }
     }
 
     var description: String? {
         switch self {
-        case .visaWaitlist: Localization.notificationVisaWaitlistPromoText
-        case .blackFriday: Localization.notificationBlackFridayText
+        case .yield: Localization.notificationYieldPromoText
         }
     }
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .visaWaitlist:
-            .init(
-                iconType: .image(Assets.promotionVisaWaitlist.image),
-                size: .init(bothDimensions: 54)
-            )
-        case .blackFriday:
-            .init(
-                iconType: .image(Assets.blackFridayBannerImage.image),
-                size: .init(bothDimensions: 54)
-            )
+        case .yield:
+            .init(iconType: .image(Assets.YieldModule.yieldModuleLogo.image), size: .init(bothDimensions: 36))
         }
     }
 
     var colorScheme: NotificationView.ColorScheme {
         switch self {
-        case .visaWaitlist: .primary
-        case .blackFriday: .tertiary
+        case .yield: .primary
+        }
+    }
+
+    var buttonTitle: String {
+        switch self {
+        case .yield: Localization.notificationYieldPromoButton
         }
     }
 }

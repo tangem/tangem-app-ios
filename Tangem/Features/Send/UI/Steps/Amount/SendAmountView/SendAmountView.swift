@@ -23,7 +23,7 @@ struct SendAmountView: View {
     private let scrollViewSpacing: CGFloat = 8
 
     var body: some View {
-        GroupedScrollView(spacing: scrollViewSpacing) {
+        GroupedScrollView(contentType: .lazy(alignment: .center, spacing: scrollViewSpacing)) {
             content
             receiveTokenView
         }
@@ -86,12 +86,9 @@ struct SendAmountView: View {
                 .backgroundColor(Colors.Background.action)
                 .innerContentPadding(0)
 
-                CircleButton(
-                    content: .title(icon: .trailing(Assets.clear), title: Localization.commonConvert),
-                    action: viewModel.removeReceivedToken
-                )
-                .readGeometry(\.frame.size, bindTo: $convertButtonSize)
-                .offset(y: -(convertButtonSize.height + scrollViewSpacing) / 2)
+                CapsuleButton(icon: .trailing(Assets.clear), title: Localization.commonConvert, action: viewModel.removeReceivedToken)
+                    .readGeometry(\.frame.size, bindTo: $convertButtonSize)
+                    .offset(y: -(convertButtonSize.height + scrollViewSpacing) / 2)
             }
         }
     }

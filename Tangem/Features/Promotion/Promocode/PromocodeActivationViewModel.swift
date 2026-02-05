@@ -9,25 +9,33 @@
 import Foundation
 import SwiftUI
 import TangemLocalization
+import TangemFoundation
 import struct TangemUIUtils.AlertBinder
 
 @MainActor
 final class PromocodeActivationViewModel: ObservableObject {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.referralService) private var referralService: ReferralService
 
     @Published var alert: AlertBinder?
     @Published private(set) var isCheckingPromoCode = false
 
     private let promoCode: String
+    private let refcode: String?
+    private let campaign: String?
+
     private let alertOkButton = Alert.Button.default(Text(Localization.commonOk)) {
         UIApplication.dismissTop(animated: false)
     }
 
     // MARK: - Init
 
-    init(promoCode: String) {
+    init(promoCode: String, refcode: String?, campaign: String?) {
         self.promoCode = promoCode
+        self.refcode = refcode
+        self.campaign = campaign
+
         Analytics.log(.bitcoinPromoDeeplinkActivation)
     }
 
@@ -40,11 +48,18 @@ final class PromocodeActivationViewModel: ObservableObject {
             isCheckingPromoCode = false
         }
 
+        AnalyticsLogger.debug("Activating promo code: \(promoCode)")
+
+        if let refcode {
+            AnalyticsLogger.debug("Refcode was provided: \(refcode)")
+            referralService.saveAndBindIfNeeded(refcode: refcode, campaign: campaign)
+        }
+
         do {
             // Delay added to handle cold start, since getWalletAddress may fail before wallet models are fully loaded
-            try await Task.sleep(seconds: 1)
-            let address = try getWalletAddress()
-            let request = PromoCodeActivationDTO.Request(address: address, promoCode: promoCode)
+            try await Task.sleep(for: .seconds(1))
+            let (address, userWalletId) = try getWalletInfo()
+            let request = PromoCodeActivationDTO.Request(address: address, promoCode: promoCode, walletId: userWalletId.stringValue)
             _ = try await tangemApiService.activatePromoCode(request: request).async()
             Analytics.log(event: .bitcoinPromoActivation, params: [.status: "Activated"])
             displaySuccessAlert()
@@ -64,18 +79,27 @@ final class PromocodeActivationViewModel: ObservableObject {
         displayErrorAlert(error: error)
     }
 
-    private func getWalletAddress() throws -> String {
-        // accounts_fixes_needed_promocode
-        guard let address = userWalletRepository
-            .selectedModel?
-            .walletModelsManager
-            .walletModels
-            .first(where: { $0.tokenItem.blockchain == .bitcoin(testnet: false) })?.defaultAddressString
-        else {
+    private func getWalletInfo() throws -> (String, UserWalletId) {
+        guard let userWalletModel = userWalletRepository.selectedModel else {
             throw PromocodeActivationError.noAddress
         }
 
-        return address
+        var walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletModel)
+
+        if FeatureProvider.isAvailable(.accounts) {
+            // Prefer main account's wallet model when multiple accounts are present - this is why we sort them here
+            walletModels.sort { first, second in
+                let isFirstMainAccount = first.account?.isMainAccount ?? false
+                let isSecondMainAccount = second.account?.isMainAccount ?? false
+                return isFirstMainAccount && !isSecondMainAccount
+            }
+        }
+
+        guard let walletModel = walletModels.first(where: { $0.tokenItem.blockchain == .bitcoin(testnet: false) }) else {
+            throw PromocodeActivationError.noAddress
+        }
+
+        return (walletModel.defaultAddressString, userWalletModel.userWalletId)
     }
 }
 

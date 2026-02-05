@@ -10,13 +10,14 @@ import SwiftUI
 import TangemFoundation
 import TangemAssets
 import TangemUI
+import TangemAccessibilityIdentifiers
 
 struct NewAuthWalletView: View {
     @StateObject private var viewModel: NewAuthWalletViewModel
 
     @Environment(\.unlockingUserWalletId) private var unlockingUserWalletId: UserWalletId?
 
-    init(item: NewAuthViewModel.WalletItem) {
+    init(item: NewAuthViewState.WalletItem) {
         _viewModel = StateObject(wrappedValue: NewAuthWalletViewModel(item: item))
     }
 
@@ -32,6 +33,7 @@ struct NewAuthWalletView: View {
             .background(Colors.Background.primary)
             .cornerRadius(14, corners: .allCorners)
         }
+        .accessibilityIdentifier(AuthAccessibilityIdentifiers.walletItem(walletName: viewModel.title))
     }
 }
 
@@ -54,12 +56,12 @@ private extension NewAuthWalletView {
         case .loading:
             Color.clear
 
-        case .loaded(let image):
+        case .success(let image):
             image.image
                 .resizable()
                 .aspectRatio(contentMode: .fit)
 
-        case .failedToLoad:
+        case .failure:
             Assets.Onboarding.darkCard.image
                 .resizable()
                 .aspectRatio(contentMode: .fit)

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemPay
 
 public struct VisaCustomerCardInfo {
     public let paymentAccount: String

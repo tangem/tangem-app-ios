@@ -42,9 +42,12 @@ struct TangemPayMainView: View {
                     PendingExpressTransactionView(info: transactionInfo)
                 }
 
+                NotificationView(input: viewModel.contactSupportNotificationInput)
+
                 TransactionsListView(
                     state: viewModel.tangemPayTransactionHistoryState,
                     exploreAction: nil,
+                    exploreConfirmationDialog: nil,
                     exploreTransactionAction: viewModel.openTransactionDetails,
                     reloadButtonAction: viewModel.reloadHistory,
                     isReloadButtonBusy: false,
@@ -63,7 +66,7 @@ struct TangemPayMainView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
-                    Button(action: viewModel.setPin) {
+                    Button(action: viewModel.onPin) {
                         Label(
                             Localization.visaOnboardingPinCodeNavigationTitle,
                             systemImage: "circle.grid.3x3.fill"
@@ -77,6 +80,7 @@ struct TangemPayMainView: View {
                             systemImage: "text.page.fill"
                         )
                     }
+                    .onAppear { viewModel.onToolbarClicked() }
 
                     Button(
                         action: viewModel.freezingState.isFrozen
@@ -99,32 +103,40 @@ struct TangemPayMainView: View {
     }
 
     var balance: some View {
-        VStack(spacing: .zero) {
-            MainHeaderView(viewModel: viewModel.mainHeaderViewModel)
-                .fixedSize(horizontal: false, vertical: true)
+        HStack(alignment: .bottom, spacing: 0) {
+            VStack(alignment: .leading, spacing: 7) {
+                Text(Localization.tangempayTitle)
+                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
 
-            ScrollableButtonsView(
-                itemsHorizontalOffset: 14,
-                itemsVerticalOffset: 3,
-                buttonsInfo: [
-                    FixedSizeButtonWithIconInfo(
-                        title: Localization.tangempayCardDetailsAddFunds,
-                        icon: Assets.plus14,
-                        disabled: viewModel.freezingState.shouldDisableActionButtons,
-                        action: viewModel.addFunds
-                    ),
-                    FixedSizeButtonWithIconInfo(
-                        title: Localization.tangempayCardDetailsWithdraw,
-                        icon: Assets.arrowUpMini,
-                        loading: viewModel.isWithdrawButtonLoading,
-                        disabled: viewModel.freezingState.shouldDisableActionButtons,
-                        action: viewModel.withdraw
-                    ),
-                ]
-            )
-            .padding(.horizontal, 14)
-            .padding(.bottom, 14)
+                LoadableTokenBalanceView(
+                    state: viewModel.balance,
+                    style: .init(font: Fonts.Regular.title1, textColor: Colors.Text.primary1),
+                    loader: .init(size: .init(width: 102, height: 24), cornerRadius: 6)
+                )
+                .padding(.bottom, 5)
+
+                ScrollableButtonsView(
+                    itemsHorizontalOffset: 14,
+                    itemsVerticalOffset: 3,
+                    buttonsInfo: [
+                        FixedSizeButtonWithIconInfo(
+                            title: Localization.tangempayCardDetailsAddFunds,
+                            icon: Assets.plus14,
+                            disabled: viewModel.freezingState.shouldDisableActionButtons,
+                            action: viewModel.addFunds
+                        ),
+                        FixedSizeButtonWithIconInfo(
+                            title: Localization.tangempayCardDetailsWithdraw,
+                            icon: Assets.arrowUpMini,
+                            loading: viewModel.isWithdrawButtonLoading,
+                            disabled: viewModel.freezingState.shouldDisableActionButtons,
+                            action: viewModel.withdraw
+                        ),
+                    ]
+                )
+            }
         }
+        .padding(14)
         .background(Colors.Background.primary)
         .cornerRadiusContinuous(14)
     }

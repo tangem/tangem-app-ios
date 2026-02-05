@@ -38,6 +38,9 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: TangemPayNoDepositAddressSheetViewModel.self) {
                 TangemPayNoDepositAddressSheetView(viewModel: $0)
             }
+            .floatingSheetContent(for: TangemPayPinCheckViewModel.self) {
+                TangemPayPinCheckView(viewModel: $0)
+            }
             .floatingSheetContent(for: TangemPayWithdrawInProgressSheetViewModel.self) {
                 TangemPayWithdrawInProgressSheetView(viewModel: $0)
             }
@@ -45,10 +48,13 @@ struct TangemPayMainCoordinatorView: CoordinatorView {
                 TangemPayAddFundsSheetView(viewModel: $0)
             }
             .floatingSheetContent(for: TangemPayFreezeSheetViewModel.self) {
-                TangemPayFreezeSheetView(viewModel: $0)
+                TangemPayPopupView(viewModel: $0)
             }
             .floatingSheetContent(for: TangemPayTransactionDetailsViewModel.self) {
                 TangemPayTransactionDetailsView(viewModel: $0)
+            }
+            .floatingSheetContent(for: TangemPayWithdrawNoteSheetViewModel.self) {
+                TangemPayPopupView(viewModel: $0)
             }
             .sheet(item: $coordinator.expressCoordinator) {
                 ExpressCoordinatorView(coordinator: $0)

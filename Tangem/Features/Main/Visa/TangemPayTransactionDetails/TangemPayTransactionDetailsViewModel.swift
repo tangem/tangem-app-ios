@@ -27,13 +27,19 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
     // MARK: - Dependencies
 
     private let transaction: TangemPayTransactionRecord
+    private let userWalletId: String
+    private let customerId: String
     private weak var coordinator: TangemPayTransactionDetailsRoutable?
 
     init(
         transaction: TangemPayTransactionRecord,
+        userWalletId: String,
+        customerId: String,
         coordinator: TangemPayTransactionDetailsRoutable
     ) {
         self.transaction = transaction
+        self.userWalletId = userWalletId
+        self.customerId = customerId
         self.coordinator = coordinator
 
         let mapper = TangemPayTransactionRecordMapper(transaction: transaction)
@@ -45,12 +51,13 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
             isOutgoing: mapper.isOutgoing()
         )
         name = mapper.name()
-        category = mapper.categoryName()
+        category = mapper.categoryName(detailed: true)
         amount = TransactionViewAmountViewData(
             amount: mapper.amount(),
             type: mapper.type(),
             status: mapper.status(),
-            isOutgoing: mapper.isOutgoing()
+            isOutgoing: mapper.isOutgoing(),
+            isFromYieldContract: false
         )
         localAmount = mapper.localAmount()
         state = mapper.state()
@@ -63,12 +70,19 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
     }
 
     func userDidTapMainButton() {
+        Analytics.log(.visaScreenSupportOnTransactionPopupClicked)
         let subject: VisaEmailSubject = switch mainButtonAction {
         case .dispute: .dispute
         case .info: .default
         }
 
-        coordinator?.transactionDetailsDidRequestDispute(dataCollector: BaseDataCollector(), subject: subject)
+        let dataCollector = TangemPaySupportDataCollector(
+            source: .transactionDetails(transaction),
+            userWalletId: userWalletId,
+            customerId: customerId
+        )
+
+        coordinator?.transactionDetailsDidRequestDispute(dataCollector: dataCollector, subject: subject)
     }
 }
 
@@ -79,8 +93,8 @@ extension TangemPayTransactionDetailsViewModel {
 
         var title: String {
             switch self {
-            case .dispute: Localization.tangemPayDispute
-            case .info: Localization.tangemPayGetHelp
+            case .dispute, .info:
+                Localization.tangemPayGetHelp
             }
         }
     }

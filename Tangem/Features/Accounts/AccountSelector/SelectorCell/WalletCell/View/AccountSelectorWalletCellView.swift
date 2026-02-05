@@ -10,18 +10,25 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 
-struct AccountSelectorWalletCellView: View {
+struct AccountSelectorWalletCellButtonView: View {
     @StateObject var viewModel: AccountSelectorWalletCellViewModel
 
-    init(walletModel: AccountSelectorWalletItem) {
+    private let onTap: () -> Void
+
+    init(walletModel: AccountSelectorWalletItem, onTap: @escaping () -> Void) {
         _viewModel = StateObject(wrappedValue: .init(walletModel: walletModel))
+        self.onTap = onTap
     }
 
     var body: some View {
-        content
-            .task { [weak viewModel] in
-                await viewModel?.loadWalletImage()
-            }
+        Button(action: onTap) {
+            content
+                .task { [weak viewModel] in
+                    await viewModel?.loadWalletImage()
+                }
+        }
+        .buttonStyle(.plain)
+        .disabled(viewModel.isDisabled)
     }
 
     private var content: some View {
@@ -34,7 +41,7 @@ struct AccountSelectorWalletCellView: View {
                 Text(viewModel.walletModel.name)
                     .style(
                         Fonts.Bold.subheadline,
-                        color: viewModel.isLocked ? Colors.Text.disabled : Colors.Text.primary1
+                        color: viewModel.isDisabled ? Colors.Text.disabled : Colors.Text.primary1
                     )
 
                 walletDescription
@@ -44,7 +51,7 @@ struct AccountSelectorWalletCellView: View {
         .lineLimit(1)
         .padding(14)
         .contentShape(.rect)
-        .saturation(viewModel.isLocked ? 0 : 1)
+        .saturation(viewModel.isDisabled ? 0 : 1)
     }
 
     private var walletImage: some View {
@@ -55,6 +62,7 @@ struct AccountSelectorWalletCellView: View {
                 size: CGSize(width: 36, height: 22),
                 paddings: EdgeInsets(top: 7, leading: 0, bottom: 7, trailing: 0)
             )
+            .opacity(viewModel.isDisabled ? 0.5 : 1)
     }
 
     @ViewBuilder
@@ -63,29 +71,55 @@ struct AccountSelectorWalletCellView: View {
         case .loading:
             Color.clear
 
-        case .loaded(let image):
+        case .success(let image):
             image.image
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-
-        case .failedToLoad:
-            Assets.Onboarding.darkCard.image
                 .resizable()
                 .aspectRatio(contentMode: .fit)
         }
     }
 
     @ViewBuilder
-    var walletDescription: some View {
+    private var walletDescription: some View {
         switch viewModel.walletModel.wallet {
         case .active(let activeWallet):
-            activeWalletDescription(activeWallet.tokensCount)
+            makeActiveWalletDescription(
+                for: activeWallet,
+                with: viewModel.walletModel.accountAvailability
+            )
+
         case .locked(let lockedWallet):
             lockedWalletDescription(lockedWallet.cardsLabel)
         }
     }
 
-    func activeWalletDescription(_ tokensCount: String) -> some View {
+    @ViewBuilder
+    private func makeActiveWalletDescription(
+        for activeWallet: AccountSelectorWalletItem.UserWallet.ActiveWallet,
+        with availability: AccountAvailability
+    ) -> some View {
+        switch availability {
+        case .unavailable(let reason):
+            makeUnavailableDescription(for: activeWallet, reason: reason)
+                .opacity(viewModel.isDisabled ? 0.5 : 1)
+        case .available:
+            activeWalletDescription(activeWallet.tokensCount)
+        }
+    }
+
+    @ViewBuilder
+    private func makeUnavailableDescription(
+        for activeWallet: AccountSelectorWalletItem.UserWallet.ActiveWallet,
+        reason: String?
+    ) -> some View {
+        if let reason {
+            Text(reason)
+                .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+        } else {
+            activeWalletDescription(activeWallet.tokensCount)
+        }
+    }
+
+    private func activeWalletDescription(_ tokensCount: String) -> some View {
         HStack(spacing: 4) {
             Text(tokensCount)
                 .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
@@ -103,7 +137,7 @@ struct AccountSelectorWalletCellView: View {
         }
     }
 
-    func lockedWalletDescription(_ cardSetLabel: String) -> some View {
+    private func lockedWalletDescription(_ cardSetLabel: String) -> some View {
         HStack(spacing: 4) {
             Text(cardSetLabel)
                 .style(Fonts.Regular.caption1, color: Colors.Text.disabled)

@@ -158,19 +158,15 @@ extension SendCoordinator: SendRoutable {
         dismiss(with: .openFeeCurrency(feeCurrency: feeCurrency))
     }
 
-    func openApproveView(settings: ExpressApproveViewModel.Settings, approveViewModelInput: any ApproveViewModelInput) {
-        expressApproveViewModel = .init(
-            settings: settings,
-            feeFormatter: CommonFeeFormatter(
-                balanceFormatter: .init(),
-                balanceConverter: .init()
-            ),
-            approveViewModelInput: approveViewModelInput,
-            coordinator: self
-        )
+    func openApproveView(expressApproveViewModelInput: ExpressApproveViewModel.Input) {
+        expressApproveViewModel = .init(input: expressApproveViewModelInput, coordinator: self)
     }
 
-    func openFeeSelector(viewModel: FeeSelectorContentViewModel) {
+    func openFeeSelector(feeSelectorBuilder: SendFeeSelectorBuilder) {
+        guard let viewModel = feeSelectorBuilder.makeSendFeeSelector(router: self) else {
+            return
+        }
+
         Task { @MainActor in
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
@@ -205,6 +201,18 @@ extension SendCoordinator: SendRoutable {
             floatingSheetPresenter.enqueue(sheet: viewModel)
         }
     }
+
+    func openFeeSelectorLearnMoreURL(_ url: URL) {
+        Task { @MainActor in
+            floatingSheetPresenter.pauseSheetsDisplaying()
+            safariHandle = safariManager.openURL(
+                url,
+                configuration: .init(),
+                onDismiss: { [weak self] in self?.floatingSheetPresenter.resumeSheetsDisplaying() },
+                onSuccess: { [weak self] _ in self?.floatingSheetPresenter.resumeSheetsDisplaying() },
+            )
+        }
+    }
 }
 
 // MARK: - OnrampRoutable
@@ -222,16 +230,7 @@ extension SendCoordinator: OnrampRoutable {
                 self?.onrampCountryDetectionCoordinator = nil
                 onCountrySelected()
             case .closeOnramp:
-                if #available(iOS 16, *) {
-                    self?.dismiss(with: nil)
-                } else {
-                    // On iOS 15 double dismiss doesn't work
-                    self?.onrampCountryDetectionCoordinator = nil
-
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-                        self?.dismiss(with: nil)
-                    }
-                }
+                self?.dismiss(with: nil)
             }
         })
 
@@ -293,7 +292,17 @@ extension SendCoordinator: ExpressApproveRoutable {
         expressApproveViewModel = nil
     }
 
-    func openLearnMore() {}
+    func openLearnMore() {
+        safariManager.openURL(TangemBlogUrlBuilder().url(post: .giveRevokePermission))
+    }
+}
+
+// MARK: - FeeSelectorRoutable
+
+extension SendCoordinator: FeeSelectorRoutable {
+    func closeFeeSelector() {
+        Task { @MainActor in floatingSheetPresenter.removeActiveSheet() }
+    }
 }
 
 // MARK: - OnrampCountrySelectorRoutable

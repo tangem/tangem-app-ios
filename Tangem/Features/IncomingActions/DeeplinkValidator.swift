@@ -25,6 +25,14 @@ struct CommonDeepLinkValidator {
         areParamsValid(params, keys: \.entry, \.id)
     }
 
+    private func hasEnoughPayAppParams(params: DeeplinkNavigationAction.Params) -> Bool {
+        areParamsValid(params, keys: \.id)
+    }
+
+    private func hasEnoughNewsParams(params: DeeplinkNavigationAction.Params) -> Bool {
+        areParamsValid(params, keys: \.id)
+    }
+
     private func hasEnoughTokenParams(params: DeeplinkNavigationAction.Params) -> Bool {
         guard areParamsValid(params, keys: \.tokenId, \.networkId) else {
             return false
@@ -87,6 +95,12 @@ extension CommonDeepLinkValidator: DeeplinkValidator {
 
         case .onboardVisa:
             return hasEnoughOnboardVisaParams(params: params)
+
+        case .payApp:
+            return hasEnoughPayAppParams(params: params)
+
+        case .news:
+            return hasEnoughNewsParams(params: params)
         }
     }
 }

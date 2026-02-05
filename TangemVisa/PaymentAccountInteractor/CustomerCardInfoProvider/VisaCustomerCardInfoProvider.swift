@@ -8,6 +8,7 @@
 
 import Foundation
 import BlockchainSdk
+import TangemPay
 
 public protocol VisaCustomerCardInfoProvider {
     func loadPaymentAccount(cardWalletAddress: String) async throws -> VisaCustomerCardInfo

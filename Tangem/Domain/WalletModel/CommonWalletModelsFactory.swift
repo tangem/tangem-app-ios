@@ -21,35 +21,21 @@ struct CommonWalletModelsFactory {
         self.userWalletId = userWalletId
     }
 
-    private func isMainCoinCustom(blockchain: Blockchain, derivationPath: DerivationPath?) -> Bool {
-        guard let derivationStyle = config.derivationStyle else {
+    private func isMainCoinCustom(
+        blockchainDerivationPath: DerivationPath?,
+        targetAccountDerivationPath: DerivationPath?
+    ) -> Bool {
+        guard let blockchainDerivationPath else {
+            // Blockchain can't be custom if its derivation path is absent
             return false
         }
 
-        guard let defaultDerivationPath = blockchain.derivationPath(for: derivationStyle) else {
+        guard let targetAccountDerivationPath else {
+            // No target path means no HD wallets support - not custom
             return false
         }
 
-        guard let derivationPath else {
-            return false
-        }
-
-        if derivationPath == defaultDerivationPath {
-            return false
-        }
-
-        let helper = AccountDerivationPathHelper(blockchain: blockchain)
-
-        guard let accountNode = helper.extractAccountDerivationNode(from: derivationPath) else {
-            return false
-        }
-
-        let expectedAccountPath = helper.makeDerivationPath(
-            from: defaultDerivationPath,
-            forAccountWithIndex: Int(accountNode.rawIndex)
-        )
-
-        return expectedAccountPath != derivationPath
+        return blockchainDerivationPath != targetAccountDerivationPath
     }
 
     private func makeTransactionHistoryService(tokenItem: TokenItem, addresses: [String]) -> TransactionHistoryService? {
@@ -118,27 +104,18 @@ struct CommonWalletModelsFactory {
 }
 
 extension CommonWalletModelsFactory: WalletModelsFactory {
-    func makeWalletModels(from walletManager: WalletManager) -> [any WalletModel] {
-        var types: [Amount.AmountType] = [.coin]
-        types += walletManager.cardTokens.map { Amount.AmountType.token(value: $0) }
-
-        let currentDerivation = walletManager.wallet.publicKey.derivationPath
-        let currentBlockchain = walletManager.wallet.blockchain
-        let blockchainNetwork = BlockchainNetwork(currentBlockchain, derivationPath: currentDerivation)
-
-        return makeWalletModels(for: types, walletManager: walletManager, blockchainNetwork: blockchainNetwork)
-    }
-
     func makeWalletModels(
         for types: [Amount.AmountType],
         walletManager: WalletManager,
-        blockchainNetwork: BlockchainNetwork
+        blockchainNetwork: BlockchainNetwork,
+        targetAccountDerivationPath: DerivationPath?
     ) -> [any WalletModel] {
         var models: [any WalletModel] = []
 
-        let currentBlockchain = blockchainNetwork.blockchain
-        let currentDerivation = blockchainNetwork.derivationPath
-        let isMainCoinCustom = isMainCoinCustom(blockchain: currentBlockchain, derivationPath: currentDerivation)
+        let isMainCoinCustom = isMainCoinCustom(
+            blockchainDerivationPath: blockchainNetwork.derivationPath,
+            targetAccountDerivationPath: targetAccountDerivationPath
+        )
         let sendAvailabilityProvider = TransactionSendAvailabilityProvider(
             hardwareLimitationsUtil: HardwareLimitationsUtil(config: config)
         )

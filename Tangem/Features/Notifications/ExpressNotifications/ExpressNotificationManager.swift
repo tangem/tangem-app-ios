@@ -6,15 +6,15 @@
 //  Copyright © 2023 Tangem AG. All rights reserved.
 //
 
-import Foundation
-import TangemLocalization
 import Combine
+import Foundation
 import BlockchainSdk
 import TangemAssets
+import TangemExpress
 import TangemFoundation
-import struct TangemExpress.ExpressAPIError
+import TangemLocalization
 
-class ExpressNotificationManager {
+final class ExpressNotificationManager {
     private let notificationInputsSubject = CurrentValueSubject<[NotificationViewInput], Never>([])
 
     private weak var expressInteractor: ExpressInteractor?
@@ -64,7 +64,13 @@ class ExpressNotificationManager {
                 return !event.removingOnFullLoadingState
             }
 
-        case .restriction(let restrictions, _):
+        case .requiredRefresh(let occurredError, _):
+            Task { await setupNotification(for: occurredError) }
+
+        case .preloadRestriction(let preloadRestrictionType):
+            Task { await setupNotification(for: preloadRestrictionType) }
+
+        case .restriction(let restrictions, _, _):
             runTask(in: self) { manager in
                 try await manager.setupNotification(for: restrictions)
             }
@@ -77,19 +83,80 @@ class ExpressNotificationManager {
         case .readyToSwap:
             notificationInputsSubject.value = []
 
-        case .previewCEX(let preview, _):
-            var inputs: [NotificationViewInput?] = []
+        case .previewCEX(let preview, _, _):
+            var inputs: [NotificationViewInput] = []
 
-            if let source = expressInteractor?.getSource().value {
-                inputs.append(setupFeeWillBeSubtractFromSendingAmountNotification(source: source, subtractFee: preview.subtractFee))
-
-                if let notification = preview.notification {
-                    inputs.append(setupWithdrawalInput(source: source, notification: notification))
-                }
+            if let feeWillBeSubtractFromSendingAmount = setupFeeWillBeSubtractFromSendingAmountNotification(subtractFee: preview.subtractFee) {
+                inputs.append(feeWillBeSubtractFromSendingAmount)
             }
 
-            notificationInputsSubject.value = inputs.compactMap { $0 }
+            if let source = expressInteractor?.getSource().value, let notification = preview.notification {
+                inputs.append(
+                    setupWithdrawalInput(source: source, notification: notification)
+                )
+            }
+
+            notificationInputsSubject.value = inputs
         }
+    }
+
+    private func setupNotification(for restrictions: ExpressInteractor.PreloadRestrictionType) async {
+        let event: ExpressNotificationEvent
+
+        switch restrictions {
+        case .noSourceTokens(let destinationTokenItem):
+            event = .noDestinationTokens(tokenName: destinationTokenItem.name)
+        case .noDestinationTokens(let sourceTokenItem):
+            event = .noDestinationTokens(tokenName: sourceTokenItem.name)
+        }
+
+        let notificationsFactory = NotificationsFactory()
+        let notification = notificationsFactory.buildNotificationInput(for: event) { [weak self] id, actionType in
+            self?.delegate?.didTapNotification(with: id, action: actionType)
+        }
+
+        await updateNotificationInputs([notification])
+    }
+
+    private func setupNotification(for error: Error) async {
+        let event: ExpressNotificationEvent
+
+        switch error {
+        case let occurredError as ExpressAPIError:
+            // For only a express error we use "Service temporary unavailable"
+            // or "Selected pair temporarily unavailable" depending on the error code.
+            var analyticsParams: [Analytics.ParameterKey: String] = [
+                .errorCode: "\(occurredError.errorCode.rawValue)",
+            ]
+
+            if let sender = expressInteractor?.getSource().value {
+                analyticsParams[.sendToken] = sender.tokenItem.currencySymbol
+            }
+
+            if let provider = expressInteractor?.getState().context?.provider.name {
+                analyticsParams[.provider] = provider
+            }
+
+            if let receiveToken = expressInteractor?.getDestination()?.tokenItem.currencySymbol {
+                analyticsParams[.receiveToken] = receiveToken
+            }
+
+            event = .refreshRequired(
+                title: occurredError.localizedTitle,
+                message: occurredError.localizedMessage,
+                expressErrorCode: occurredError.errorCode,
+                analyticsParams: analyticsParams
+            )
+        default:
+            event = .refreshRequired(title: Localization.commonError, message: Localization.commonUnknownError)
+        }
+
+        let notificationsFactory = NotificationsFactory()
+        let notification = notificationsFactory.buildNotificationInput(for: event) { [weak self] id, actionType in
+            self?.delegate?.didTapNotification(with: id, action: actionType)
+        }
+
+        await updateNotificationInputs([notification])
     }
 
     private func setupNotification(for restrictions: ExpressInteractor.RestrictionType) async throws {
@@ -110,64 +177,35 @@ class ExpressNotificationManager {
         case .hasPendingApproveTransaction:
             event = .hasPendingApproveTransaction
         case .notEnoughBalanceForSwapping:
-            notificationInputsSubject.value = []
+            await updateNotificationInputs([])
             return
         case .validationError(let error, let context):
             let sender = try interactor.getSourceWallet()
             setupNotification(source: sender, validationError: error, context: context)
             return
-        case .notEnoughAmountForFee, .notEnoughAmountForTxValue:
-            let sender = try interactor.getSourceWallet()
-            guard let notEnoughFeeForTokenTxEvent = makeNotEnoughFeeForTokenTx(sender: sender) else {
-                notificationInputsSubject.value = []
+        case .notEnoughAmountForFee(let isFeeCurrency, _), .notEnoughAmountForTxValue(_, let isFeeCurrency):
+            guard !isFeeCurrency else {
+                await updateNotificationInputs([])
                 return
             }
 
+            let sender = try interactor.getSourceWallet()
+            let notEnoughFeeForTokenTxEvent = makeNotEnoughFeeForTokenTx(feeBlockchain: sender.feeTokenItem.blockchain)
             event = notEnoughFeeForTokenTxEvent
         case .notEnoughReceivedAmount(let minAmount, let tokenSymbol):
             event = .notEnoughReceivedAmountForReserve(amountFormatted: "\(minAmount.formatted()) \(tokenSymbol)")
-        case .requiredRefresh(let occurredError as ExpressAPIError):
-            // For only a express error we use "Service temporary unavailable"
-            // or "Selected pair temporarily unavailable" depending on the error code.
-            var analyticsParams: [Analytics.ParameterKey: String] = [
-                .errorCode: "\(occurredError.errorCode.rawValue)",
-            ]
-
-            if let sender = interactor.getSource().value {
-                analyticsParams[.sendToken] = sender.tokenItem.currencySymbol
-            }
-
-            if let provider = await interactor.getSelectedProvider()?.provider.name {
-                analyticsParams[.provider] = provider
-            }
-
-            if let receiveToken = interactor.getDestination()?.tokenItem.currencySymbol {
-                analyticsParams[.receiveToken] = receiveToken
-            }
-
-            event = .refreshRequired(
-                title: occurredError.localizedTitle,
-                message: occurredError.localizedMessage,
-                expressErrorCode: occurredError.errorCode,
-                analyticsParams: analyticsParams
-            )
-        case .requiredRefresh:
-            event = .refreshRequired(title: Localization.commonError, message: Localization.commonUnknownError)
-        case .noSourceTokens(let destinationTokenItem):
-            event = .noDestinationTokens(tokenName: destinationTokenItem.name)
-        case .noDestinationTokens(let sourceTokenItem):
-            event = .noDestinationTokens(tokenName: sourceTokenItem.name)
         }
 
         let notificationsFactory = NotificationsFactory()
         let notification = notificationsFactory.buildNotificationInput(for: event) { [weak self] id, actionType in
             self?.delegate?.didTapNotification(with: id, action: actionType)
         }
-        notificationInputsSubject.value = [notification]
+
+        await updateNotificationInputs([notification])
     }
 
     private func setupNotification(source: any ExpressInteractorSourceWallet, validationError: ValidationError, context: ValidationErrorContext) {
-        let factory = BlockchainSDKNotificationMapper(tokenItem: source.tokenItem, feeTokenItem: source.feeTokenItem)
+        let factory = BlockchainSDKNotificationMapper(tokenItem: source.tokenItem)
         let validationErrorEvent = factory.mapToValidationErrorEvent(validationError)
         let event: ExpressNotificationEvent
 
@@ -176,18 +214,14 @@ class ExpressNotificationManager {
             event = .refreshRequired(title: Localization.commonError, message: validationError.localizedDescription)
 
         case .insufficientBalance:
-            assertionFailure("It have to be mapped to ExpressInteractor.RestrictionType.notEnoughBalanceForSwapping")
+            assertionFailure("It has to be mapped to ExpressInteractor.RestrictionType.notEnoughBalanceForSwapping")
             notificationInputsSubject.value = []
             return
 
         case .insufficientBalanceForFee:
-            assertionFailure("It have to be mapped to ExpressInteractor.RestrictionType.notEnoughAmountForFee")
-            guard let notEnoughFeeForTokenTxEvent = makeNotEnoughFeeForTokenTx(sender: source) else {
-                notificationInputsSubject.value = []
-                return
-            }
-
-            event = notEnoughFeeForTokenTxEvent
+            assertionFailure("It has to be mapped to ExpressInteractor.RestrictionType.notEnoughAmountForFee")
+            notificationInputsSubject.value = []
+            return
 
         case .minimumRestrictAmount:
             // The error will be displayed above the amount input field
@@ -221,29 +255,45 @@ class ExpressNotificationManager {
 
         let source = try interactor.getSourceWallet()
         let sourceTokenItem = source.tokenItem
-        let selectedProvider = await interactor.getSelectedProvider()?.provider
+        let selectedProvider = interactor.getState().context?.provider
+
+        var analyticsParams: [Analytics.ParameterKey: String] = [:]
+        analyticsParams[.sendToken] = sourceTokenItem.currencySymbol
+        analyticsParams[.provider] = selectedProvider?.name
+        analyticsParams[.receiveToken] = interactor.getDestination()?.tokenItem.currencySymbol
+
         let event: ExpressNotificationEvent = .permissionNeeded(
             providerName: selectedProvider?.name ?? "",
-            currencyCode: sourceTokenItem.currencySymbol
+            currencyCode: sourceTokenItem.currencySymbol,
+            analyticsParams: analyticsParams
         )
+
         let notificationsFactory = NotificationsFactory()
         let notification = notificationsFactory.buildNotificationInput(for: event) { [weak self] id, actionType in
             self?.delegate?.didTapNotification(with: id, action: actionType)
         }
 
-        notificationInputsSubject.value = [notification]
+        await updateNotificationInputs([notification])
     }
 
-    private func setupFeeWillBeSubtractFromSendingAmountNotification(source: any ExpressInteractorSourceWallet, subtractFee: Decimal) -> NotificationViewInput? {
-        guard subtractFee > 0 else {
+    /// Updates may be called from async context - hence the @MainActor.
+    @MainActor
+    private func updateNotificationInputs(_ inputs: [NotificationViewInput]) {
+        notificationInputsSubject.value = inputs
+    }
+
+    private func setupFeeWillBeSubtractFromSendingAmountNotification(
+        subtractFee: ExpressInteractor.SubtractFee
+    ) -> NotificationViewInput? {
+        guard subtractFee.subtractFee > 0 else {
             return nil
         }
 
-        let feeTokenItem = source.feeTokenItem
-        let feeFiatValue = BalanceConverter().convertToFiat(subtractFee, currencyId: feeTokenItem.currencyId ?? "")
+        let feeTokenItem = subtractFee.feeTokenItem
+        let feeFiatValue = BalanceConverter().convertToFiat(subtractFee.subtractFee, currencyId: feeTokenItem.currencyId ?? "")
 
         let formatter = BalanceFormatter()
-        let cryptoAmountFormatted = formatter.formatCryptoBalance(subtractFee, currencyCode: feeTokenItem.currencySymbol)
+        let cryptoAmountFormatted = formatter.formatCryptoBalance(subtractFee.subtractFee, currencyCode: feeTokenItem.currencySymbol)
         let fiatAmountFormatted = formatter.formatFiatBalance(feeFiatValue)
 
         let event = ExpressNotificationEvent.feeWillBeSubtractFromSendingAmount(
@@ -255,21 +305,18 @@ class ExpressNotificationManager {
         return notification
     }
 
-    private func makeNotEnoughFeeForTokenTx(sender: any ExpressInteractorSourceWallet) -> ExpressNotificationEvent? {
-        guard !sender.isFeeCurrency else {
-            return nil
-        }
+    private func makeNotEnoughFeeForTokenTx(feeBlockchain: Blockchain) -> ExpressNotificationEvent {
         let blockchainIconProvider = NetworkImageProvider()
 
         return .notEnoughFeeForTokenTx(
-            mainTokenName: sender.feeTokenItem.blockchain.displayName,
-            mainTokenSymbol: sender.feeTokenItem.currencySymbol,
-            blockchainIconAsset: blockchainIconProvider.provide(by: sender.feeTokenItem.blockchain, filled: true)
+            mainTokenName: feeBlockchain.displayName,
+            mainTokenSymbol: feeBlockchain.currencySymbol,
+            blockchainIconAsset: blockchainIconProvider.provide(by: feeBlockchain, filled: true)
         )
     }
 
-    private func setupWithdrawalInput(source: any ExpressInteractorSourceWallet, notification: WithdrawalNotification) -> NotificationViewInput? {
-        let factory = BlockchainSDKNotificationMapper(tokenItem: source.tokenItem, feeTokenItem: source.feeTokenItem)
+    private func setupWithdrawalInput(source: any ExpressInteractorSourceWallet, notification: WithdrawalNotification) -> NotificationViewInput {
+        let factory = BlockchainSDKNotificationMapper(tokenItem: source.tokenItem)
         let withdrawalNotification = factory.mapToWithdrawalNotificationEvent(notification)
 
         let event = ExpressNotificationEvent.withdrawalNotificationEvent(withdrawalNotification)

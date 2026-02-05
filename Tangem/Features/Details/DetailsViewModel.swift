@@ -22,6 +22,7 @@ final class DetailsViewModel: ObservableObject {
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
+    @Injected(\.tangemPayAvailabilityRepository) private var tangemPayAvailabilityRepository: TangemPayAvailabilityRepository
 
     // MARK: - View State
 
@@ -31,23 +32,29 @@ final class DetailsViewModel: ObservableObject {
         addOrScanNewUserWalletViewModel.map { viewModel in
             viewModels.append(.addOrScanNewUserWalletButton(viewModel))
         }
-        addNewUserWalletViewModel.map { viewModel in
-            viewModels.append(.addNewUserWalletButton(viewModel))
-        }
-
         return viewModels
     }
 
-    @Published var buyWalletViewModel: DefaultRowViewModel?
+    @Published var getSectionViewModels: [DefaultRowViewModel] = []
     @Published var appSettingsViewModel: DefaultRowViewModel?
     @Published var supportSectionModels: [DefaultRowViewModel] = []
     @Published var environmentSetupViewModel: [DefaultRowViewModel] = []
     @Published var alert: AlertBinder?
-    @Published var confirmationDialog: ConfirmationDialogViewModel?
+    @Published var chooseSupportTypeDialog: ConfirmationDialogViewModel?
+    @Published var scanTroubleshootingDialog: ConfirmationDialogViewModel?
+
+    var userWalletsSectionFooterString: String? {
+        guard
+            FeatureProvider.isAvailable(.mobileWallet),
+            [.mobile, .mixed].contains(UserWalletRepositoryModeHelper.mode)
+        else {
+            return nil
+        }
+        return Localization.detailsWalletsSectionDescription
+    }
 
     @Published private var userWalletsViewModels: [SettingsUserWalletRowViewModel] = []
     @Published private var addOrScanNewUserWalletViewModel: DefaultRowViewModel?
-    @Published private var addNewUserWalletViewModel: DefaultRowViewModel?
 
     private var isScanning: Bool = false {
         didSet {
@@ -80,6 +87,7 @@ final class DetailsViewModel: ObservableObject {
 
     // MARK: - Private
 
+    private let signInAnalyticsLogger = SignInAnalyticsLogger()
     private var bag = Set<AnyCancellable>()
     private weak var coordinator: DetailsRoutable?
 
@@ -90,6 +98,25 @@ final class DetailsViewModel: ObservableObject {
         setupView()
     }
 
+    func onAppear() {
+        Analytics.log(.settingsScreenOpened)
+    }
+
+    func openSocialNetwork(network: SocialNetwork) {
+        guard let url = network.url else {
+            return
+        }
+
+        Analytics.log(event: .buttonSocialNetwork, params: [
+            .network: network.name,
+        ])
+        coordinator?.openSocialNetwork(url: url)
+    }
+}
+
+// MARK: - Navigation
+
+private extension DetailsViewModel {
     func selectSupport() {
         Analytics.log(.requestSupport, params: [.source: .settings])
         var visaUserWalletModels = [UserWalletModel]()
@@ -113,7 +140,7 @@ final class DetailsViewModel: ObservableObject {
                 self?.openVisaSupport(models: visaUserWalletModels)
             }
 
-            confirmationDialog = ConfirmationDialogViewModel(
+            chooseSupportTypeDialog = ConfirmationDialogViewModel(
                 title: Localization.commonChooseAction,
                 buttons: [
                     contactTangemSupportButton,
@@ -129,11 +156,7 @@ final class DetailsViewModel: ObservableObject {
             openTangemSupport(models: tangemUserWalletModels)
         }
     }
-}
 
-// MARK: - Navigation
-
-extension DetailsViewModel {
     func openWalletConnect() {
         Analytics.log(.buttonWalletConnect)
         coordinator?.openWalletConnect(with: selectedUserWalletModel?.config.getDisabledLocalizedReason(for: .walletConnect))
@@ -168,8 +191,16 @@ extension DetailsViewModel {
     }
 
     func openBuyWallet() {
-        Analytics.log(.shopScreenOpened)
+        Analytics.log(
+            .basicButtonBuy,
+            params: [.source: Analytics.BuyWalletSource.settings.parameterValue],
+            contextParams: .empty
+        )
         coordinator?.openShop()
+    }
+
+    func openGetTangemPay() {
+        coordinator?.openGetTangemPay()
     }
 
     func openSupportChat() {
@@ -199,21 +230,6 @@ extension DetailsViewModel {
         coordinator?.openTOS()
     }
 
-    func openSocialNetwork(network: SocialNetwork) {
-        guard let url = network.url else {
-            return
-        }
-
-        Analytics.log(event: .buttonSocialNetwork, params: [
-            .network: network.name,
-        ])
-        coordinator?.openSocialNetwork(url: url)
-    }
-
-    func onAppear() {
-        Analytics.log(.settingsScreenOpened)
-    }
-
     func tryAgain() {
         Analytics.log(.cantScanTheCardTryAgainButton, params: [.source: .settings])
         addOrScanNewUserWallet()
@@ -222,10 +238,6 @@ extension DetailsViewModel {
     func openScanCardManual() {
         Analytics.log(.cantScanTheCardButtonBlog, params: [.source: .settings])
         coordinator?.openScanCardManual()
-    }
-
-    func openAddWallet() {
-        coordinator?.openAddWallet()
     }
 
     func requestSupport() {
@@ -241,7 +253,7 @@ private extension DetailsViewModel {
     func setupView() {
         setupWalletConnectRowViewModel()
         setupUserWalletViewModels()
-        setupBuyWalletViewModel()
+        setupGetSectionViewModels()
         setupAppSettingsViewModel()
         setupSupportSectionModels()
         setupEnvironmentSetupSection()
@@ -261,11 +273,25 @@ private extension DetailsViewModel {
             .withWeakCaptureOf(self)
             .sink { viewModel, event in
                 switch event {
-                case .inserted, .deleted, .unlockedWallet, .unlocked:
+                case .inserted, .unlockedWallet, .unlocked:
                     viewModel.setupUserWalletViewModels()
+                case .deleted(_, let isEmpty):
+                    if !isEmpty {
+                        viewModel.setupUserWalletViewModels()
+                    }
                 default:
                     break
                 }
+            }
+            .store(in: &bag)
+
+        tangemPayAvailabilityRepository.isGetTangemPayFeatureAvailable
+            .withWeakCaptureOf(self)
+            .receiveOnMain()
+            .sink { viewModel, isAvailable in
+                viewModel.setupGetSectionViewModels(
+                    shouldShowGetTangemPay: isAvailable
+                )
             }
             .store(in: &bag)
     }
@@ -298,31 +324,40 @@ private extension DetailsViewModel {
             }
         }
 
-        if MobileWalletFeatureProvider.isAvailable {
-            addNewUserWalletViewModel = DefaultRowViewModel(
-                title: Localization.userWalletListAddButton,
-                action: weakify(self, forFunction: DetailsViewModel.openAddWallet)
-            )
-        } else {
-            addOrScanNewUserWalletViewModel = DefaultRowViewModel(
-                title: AppSettings.shared.saveUserWallets ? Localization.userWalletListAddButton : Localization.scanCardSettingsButton,
-                detailsType: isScanning ? .loader : .none,
-                action: isScanning ? nil : weakify(self, forFunction: DetailsViewModel.addOrScanNewUserWallet)
-            )
-        }
+        addOrScanNewUserWalletViewModel = makeAddOrScanUserWalletViewModel()
     }
 
     func updateAddOrScanNewUserWalletButton() {
-        addOrScanNewUserWalletViewModel?.update(title: AppSettings.shared.saveUserWallets ? Localization.userWalletListAddButton : Localization.scanCardSettingsButton)
-        addOrScanNewUserWalletViewModel?.update(detailsType: isScanning ? .loader : .none)
-        addOrScanNewUserWalletViewModel?.update(action: isScanning ? nil : weakify(self, forFunction: DetailsViewModel.addOrScanNewUserWallet))
+        addOrScanNewUserWalletViewModel = makeAddOrScanUserWalletViewModel()
     }
 
-    func setupBuyWalletViewModel() {
-        buyWalletViewModel = DefaultRowViewModel(
-            title: Localization.detailsBuyWallet,
-            action: weakify(self, forFunction: DetailsViewModel.openBuyWallet)
+    func makeAddOrScanUserWalletViewModel() -> DefaultRowViewModel {
+        let isSaveUserWallets = AppSettings.shared.saveUserWallets
+        return DefaultRowViewModel(
+            title: isSaveUserWallets ? Localization.userWalletListAddButton : Localization.scanCardSettingsButton,
+            detailsType: isScanning ? .loader : .none,
+            action: isScanning ? nil : weakify(self, forFunction: DetailsViewModel.addOrScanNewUserWallet)
         )
+    }
+
+    func setupGetSectionViewModels(shouldShowGetTangemPay: Bool = false) {
+        var models = [
+            DefaultRowViewModel(
+                title: Localization.detailsBuyWallet,
+                action: weakify(self, forFunction: DetailsViewModel.openBuyWallet)
+            ),
+        ]
+
+        if shouldShowGetTangemPay {
+            models.append(
+                DefaultRowViewModel(
+                    title: Localization.tangempayGetTangemPay,
+                    action: weakify(self, forFunction: DetailsViewModel.openGetTangemPay)
+                )
+            )
+        }
+
+        getSectionViewModels = models
     }
 
     func setupAppSettingsViewModel() {
@@ -335,7 +370,7 @@ private extension DetailsViewModel {
     func setupSupportSectionModels() {
         supportSectionModels = [
             DefaultRowViewModel(
-                title: Localization.detailsRowTitleContactToSupport,
+                title: Localization.commonContactSupport,
                 action: weakify(self, forFunction: DetailsViewModel.selectSupport)
             ),
             DefaultRowViewModel(
@@ -359,7 +394,16 @@ private extension DetailsViewModel {
 
     func addOrScanNewUserWallet() {
         isScanning = true
-        Analytics.log(Analytics.CardScanSource.settings.cardScanButtonEvent)
+
+        if FeatureProvider.isAvailable(.mobileWallet) {
+            Analytics.log(
+                .buttonAddWallet,
+                params: [.source: .settings],
+                contextParams: .empty
+            )
+        } else {
+            Analytics.log(Analytics.CardScanSource.settings.cardScanButtonEvent)
+        }
 
         runTask(in: self) { viewModel in
             let cardScanner = CardScannerFactory().makeDefaultScanner()
@@ -418,6 +462,8 @@ private extension DetailsViewModel {
                         throw UserWalletRepositoryError.cantUnlockWallet
                     }
 
+                    let hadSingleMobileWallet = UserWalletRepositoryModeHelper.hasSingleMobileWallet
+
                     if AppSettings.shared.saveUserWallets {
                         try viewModel.userWalletRepository.add(userWalletModel: newUserWalletModel)
                     } else {
@@ -427,6 +473,10 @@ private extension DetailsViewModel {
                         if let currentUserWalletId {
                             viewModel.userWalletRepository.delete(userWalletId: currentUserWalletId)
                         }
+                    }
+
+                    if hadSingleMobileWallet {
+                        viewModel.logColdWalletAddedAnalytics(cardInfo: cardInfo)
                     }
 
                     viewModel.isScanning = false
@@ -458,7 +508,7 @@ private extension DetailsViewModel {
         guard BiometricsUtil.isAvailable else {
             return false
         }
-        if MobileWalletFeatureProvider.isAvailable {
+        if FeatureProvider.isAvailable(.mobileWallet) {
             return AppSettings.shared.useBiometricAuthentication
         } else {
             return AppSettings.shared.saveUserWallets
@@ -472,7 +522,9 @@ private extension DetailsViewModel {
             let context = try await UserWalletBiometricsUnlocker().unlock()
             let method = UserWalletRepositoryUnlockMethod.biometricsUserWallet(userWalletId: userWalletModel.userWalletId, context: context)
             let userWalletModel = try await userWalletRepository.unlock(with: method)
+            signInAnalyticsLogger.logSignInEvent(signInType: .biometrics, userWalletModel: userWalletModel)
             onDidUnlock(userWalletModel)
+
         } catch where error.isCancellationError {
             await unlockWithFallback(userWalletModel: userWalletModel, onDidUnlock: onDidUnlock)
         } catch let repositoryError as UserWalletRepositoryError {
@@ -489,10 +541,20 @@ private extension DetailsViewModel {
     func unlockWithFallback(userWalletModel: UserWalletModel, onDidUnlock: @escaping (UserWalletModel) -> Void) async {
         let unlocker = UserWalletModelUnlockerFactory.makeUnlocker(userWalletModel: userWalletModel)
         let unlockResult = await unlocker.unlock()
-        await handleUnlock(userWalletModel: userWalletModel, result: unlockResult, onDidUnlock: onDidUnlock)
+        await handleUnlock(
+            result: unlockResult,
+            userWalletModel: userWalletModel,
+            signInType: unlocker.analyticsSignInType,
+            onDidUnlock: onDidUnlock
+        )
     }
 
-    func handleUnlock(userWalletModel: UserWalletModel, result: UserWalletModelUnlockerResult, onDidUnlock: @escaping (UserWalletModel) -> Void) async {
+    func handleUnlock(
+        result: UserWalletModelUnlockerResult,
+        userWalletModel: UserWalletModel,
+        signInType: Analytics.SignInType,
+        onDidUnlock: @escaping (UserWalletModel) -> Void
+    ) async {
         switch result {
         case .error(let error):
             if error.isCancellationError {
@@ -514,7 +576,9 @@ private extension DetailsViewModel {
             do {
                 let method = UserWalletRepositoryUnlockMethod.biometrics(context)
                 let userWalletModel = try await userWalletRepository.unlock(with: method)
+                signInAnalyticsLogger.logSignInEvent(signInType: signInType, userWalletModel: userWalletModel)
                 onDidUnlock(userWalletModel)
+
             } catch {
                 alert = error.alertBinder
             }
@@ -529,7 +593,9 @@ private extension DetailsViewModel {
             do {
                 let method = UserWalletRepositoryUnlockMethod.encryptionKey(userWalletId: userWalletId, encryptionKey: encryptionKey)
                 let userWalletModel = try await userWalletRepository.unlock(with: method)
+                signInAnalyticsLogger.logSignInEvent(signInType: signInType, userWalletModel: userWalletModel)
                 onDidUnlock(userWalletModel)
+
             } catch {
                 alert = error.alertBinder
             }
@@ -554,7 +620,7 @@ private extension DetailsViewModel {
             self?.requestSupport()
         }
 
-        confirmationDialog = ConfirmationDialogViewModel(
+        scanTroubleshootingDialog = ConfirmationDialogViewModel(
             title: Localization.alertTroubleshootingScanCardTitle,
             subtitle: Localization.alertTroubleshootingScanCardMessage,
             buttons: [
@@ -602,6 +668,18 @@ private extension DetailsViewModel {
     }
 }
 
+// MARK: - Analytics
+
+private extension DetailsViewModel {
+    func logColdWalletAddedAnalytics(cardInfo: CardInfo) {
+        Analytics.log(
+            .settingsColdWalletAdded,
+            params: [.source: Analytics.ParameterValue.settings],
+            contextParams: .custom(cardInfo.analyticsContextData)
+        )
+    }
+}
+
 // MARK: - Navigation
 
 private extension DetailsViewModel {
@@ -614,15 +692,12 @@ extension DetailsViewModel {
     enum WalletSectionType: Identifiable {
         case wallet(SettingsUserWalletRowViewModel)
         case addOrScanNewUserWalletButton(DefaultRowViewModel)
-        case addNewUserWalletButton(DefaultRowViewModel)
 
         var id: Int {
             switch self {
             case .wallet(let viewModel):
                 return viewModel.id.hashValue
             case .addOrScanNewUserWalletButton(let viewModel):
-                return viewModel.id.hashValue
-            case .addNewUserWalletButton(let viewModel):
                 return viewModel.id.hashValue
             }
         }

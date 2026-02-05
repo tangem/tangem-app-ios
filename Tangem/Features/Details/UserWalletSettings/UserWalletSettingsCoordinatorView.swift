@@ -46,6 +46,14 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.mobileRemoveWalletViewModel) {
                 MobileRemoveWalletView(viewModel: $0)
             }
+            .navigation(item: $coordinator.hardwareBackupTypesCoordinator) {
+                HardwareBackupTypesCoordinatorView(coordinator: $0)
+            }
+            .onChange(of: coordinator.noActiveCreateOrArchiveAccountFlows) { hasNoFlows in
+                if hasNoFlows {
+                    coordinator.rootViewModel?.showAccountsPendingAlertIfNeeded()
+                }
+            }
     }
 
     private var sheets: some View {
@@ -73,12 +81,17 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
             .floatingSheetContent(for: MobileBackupToUpgradeNeededViewModel.self) {
                 MobileBackupToUpgradeNeededView(viewModel: $0)
             }
-            .sheet(item: $coordinator.accountFormViewModel) { viewModel in
-                NavigationView {
+            .sheet(
+                item: $coordinator.accountFormViewModel,
+                onDismiss: {
+                    coordinator.accountCreationFlowClosed = true
+                }
+            ) { viewModel in
+                NavigationStack {
                     AccountFormView(viewModel: viewModel)
                 }
                 .presentation(onDismissalAttempt: viewModel.onClose)
-                .presentationCornerRadiusBackport(24)
+                .presentationCornerRadius(24)
             }
     }
 }

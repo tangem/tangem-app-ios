@@ -17,7 +17,7 @@ import TangemLocalization
 final class AccountSelectorViewModel: ObservableObject {
     // MARK: - Published Properties
 
-    @Published private(set) var displayMode: AccountSelectorDisplayMode = .wallets
+    let displayMode: AccountSelectorDisplayMode
     @Published private(set) var lockedWalletItems: [AccountSelectorWalletItem] = []
     @Published private(set) var walletItems: [AccountSelectorWalletItem] = []
     @Published private(set) var accountsSections: [AccountSelectorMultipleAccountsItem] = []
@@ -86,12 +86,11 @@ final class AccountSelectorViewModel: ObservableObject {
         case .selectItem(let item):
             switch item {
             case .wallet(let model):
-                if case .active = model.wallet {
+                if case .active = model.wallet, model.accountAvailability == .available {
                     selectedItem = model.mainAccount
                     onSelect(.wallet(model))
                 }
             case .account(let model):
-                guard model.availability == .available else { return }
                 selectedItem = model.domainModel
                 onSelect(.account(model))
             }
@@ -101,7 +100,7 @@ final class AccountSelectorViewModel: ObservableObject {
     func isCellSelected(for cell: AccountSelectorCellModel) -> Bool {
         switch cell {
         case .wallet(let model):
-            if case .active = model.wallet {
+            if case .active = model.wallet, model.accountAvailability == .available {
                 return selectedItem?.id.toAnyHashable() == model.mainAccount.id.toAnyHashable()
             }
         case .account(let model):
@@ -112,25 +111,14 @@ final class AccountSelectorViewModel: ObservableObject {
         return false
     }
 
-    func makeAccountRowInput(for account: AccountSelectorAccountItem) -> AccountRowViewModel.Input {
-        AccountRowViewModel.Input(
-            iconData: AccountModelUtils.UI.iconViewData(
-                icon: account.icon,
-                accountName: account.name
-            ),
-            name: account.name,
-            subtitle: account.tokensCount,
-            balancePublisher: account.availability.isBalanceVisible ? account.formattedBalanceTypePublisher : nil,
-            availability: account.availability
-        )
-    }
-
     // MARK: - Private Methods
 
     private func bind() {
         userWalletModels
             .forEach { userWallet in
-                userWallet.accountModelsManager.accountModelsPublisher
+                userWallet
+                    .accountModelsManager
+                    .accountModelsPublisher
                     .receiveOnMain()
                     .withWeakCaptureOf(self)
                     .sink { viewModel, accountModels in
@@ -183,10 +171,12 @@ final class AccountSelectorViewModel: ObservableObject {
         case .standard(.single(let cryptoAccountModel)):
             guard cryptoAccountModelsFilter(cryptoAccountModel) else { return nil }
 
+            let accountAvailability = availabilityProvider(cryptoAccountModel)
             return .init(
                 userWallet: userWallet,
                 cryptoAccountModel: cryptoAccountModel,
-                isLocked: userWallet.isUserWalletLocked
+                isLocked: userWallet.isUserWalletLocked,
+                accountAvailability: accountAvailability
             )
 
         case .standard(.multiple(let cryptoAccountModels)):
@@ -196,10 +186,12 @@ final class AccountSelectorViewModel: ObservableObject {
 
             guard cryptoAccountModelsFilter(cryptoAccountModel) else { return nil }
 
+            let accountAvailability = availabilityProvider(cryptoAccountModel)
             return .init(
                 userWallet: userWallet,
                 cryptoAccountModel: cryptoAccountModel,
-                isLocked: userWallet.isUserWalletLocked
+                isLocked: userWallet.isUserWalletLocked,
+                accountAvailability: accountAvailability
             )
         }
     }
@@ -220,8 +212,12 @@ final class AccountSelectorViewModel: ObservableObject {
                         userWalletModel: userWallet,
                         availability: .available
                     ),
-                ]
+                ],
+                onSelect: { [weak self] item in
+                    self?.handleViewAction(.selectItem(.account(item)))
+                }
             )
+
         case .standard(.multiple(let cryptoAccountModels)):
             let filteredCryptoAccountModels = cryptoAccountModels.filter(cryptoAccountModelsFilter)
 
@@ -231,6 +227,9 @@ final class AccountSelectorViewModel: ObservableObject {
                 userWallet: userWallet,
                 accounts: filteredCryptoAccountModels.map {
                     AccountSelectorAccountItem(account: $0, userWalletModel: userWallet, availability: availabilityProvider($0))
+                },
+                onSelect: { [weak self] item in
+                    self?.handleViewAction(.selectItem(.account(item)))
                 }
             )
         }

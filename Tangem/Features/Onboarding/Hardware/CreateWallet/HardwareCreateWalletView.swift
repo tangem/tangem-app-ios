@@ -20,7 +20,6 @@ struct HardwareCreateWalletView: View {
             .padding(.horizontal, 16)
             .allowsHitTesting(!viewModel.isScanning)
             .onFirstAppear(perform: viewModel.onFirstAppear)
-            .confirmationDialog(viewModel: $viewModel.confirmationDialog)
             .alert(item: $viewModel.alert, content: { $0.alert })
     }
 }
@@ -47,6 +46,7 @@ private extension HardwareCreateWalletView {
         }
         .safeAreaInset(edge: .bottom, spacing: 16) {
             actionButtons
+                .bottomPaddingIfZeroSafeArea()
         }
     }
 
@@ -70,8 +70,10 @@ private extension HardwareCreateWalletView {
             ForEach(items) { item in
                 HStack(spacing: 16) {
                     item.icon.image
+                        .renderingMode(.template)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
+                        .foregroundStyle(Colors.Icon.primary1)
                         .frame(width: 24, height: 24)
                         .padding(10)
                         .background(
@@ -109,6 +111,7 @@ private extension HardwareCreateWalletView {
                 isLoading: viewModel.isScanning,
                 action: viewModel.onScanTap
             )
+            .confirmationDialog(viewModel: $viewModel.scanTroubleshootingDialog)
         }
     }
 }

@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemLocalization
+import TangemUIUtils
 
 struct TangemPayCardDetailsView: View {
     @ObservedObject var viewModel: TangemPayCardDetailsViewModel
@@ -230,6 +231,8 @@ struct TangemPayCardDetailsView: View {
                         Fonts.Regular.subheadline,
                         color: Colors.Text.constantWhite
                     )
+                    .screenCaptureProtection()
+                    .fixedSize()
 
                 Spacer()
 

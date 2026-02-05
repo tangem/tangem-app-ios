@@ -29,12 +29,15 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
     @ViewBuilder
     var sheets: some View {
         NavHolder()
-            .iOS16UIKitSheet(item: $coordinator.expressCoordinator) { coordinator in
+            .sheet(item: $coordinator.expressCoordinator) { coordinator in
                 ExpressCoordinatorView(coordinator: coordinator)
             }
-            .iOS16UIKitSheet(item: $coordinator.stakingDetailsCoordinator) { coordinator in
+            .sheet(item: $coordinator.stakingDetailsCoordinator) { coordinator in
                 StakingDetailsCoordinatorView(coordinator: coordinator)
                     .stakingNavigationView()
+            }
+            .sheet(item: $coordinator.yieldModuleActiveCoordinator) {
+                YieldModuleActiveCoordinatorView(coordinator: $0)
             }
             .sheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
@@ -42,37 +45,73 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
             .detentBottomSheet(
                 item: $coordinator.tokenNetworkSelectorCoordinator,
                 detents: [.large],
-                settings: .init(background: Colors.Background.tertiary)
             ) {
                 MarketsTokenNetworkSelectorCoordinatorView(coordinator: $0)
             }
             .floatingSheetContent(for: ReceiveMainViewModel.self) {
                 ReceiveMainView(viewModel: $0)
             }
-
-        NavHolder()
-            .bottomSheet(
-                item: $coordinator.receiveBottomSheetViewModel,
-                settings: .init(backgroundColor: Colors.Background.primary, contentScrollsHorizontally: true)
-            ) {
-                ReceiveBottomSheetView(viewModel: $0)
-            }
     }
 
     private var links: some View {
         NavHolder()
             .navigation(item: $coordinator.exchangesListViewModel) { viewModel in
-                let container = NavigationBarHidingView(shouldWrapInNavigationView: false) {
+                NavigationBarHidingView(shouldWrapInNavigationStack: false) {
                     MarketsTokenDetailsExchangesListView(viewModel: viewModel)
                 }
-
-                if #available(iOS 16, *) {
-                    container
-                } else {
-                    container
-                        .ignoresSafeArea(.container, edges: .vertical) // Without this on iOS 15 content won't ignore safe area and don't go below navbar
+            }
+            .navigation(item: $coordinator.newsPagerViewModel) { viewModel in
+                NewsPagerView(viewModel: viewModel)
+                    .navigationLinks(newsRelatedTokenDetailsLink)
+            }
+            .fullScreenCover(item: $coordinator.yieldModulePromoCoordinator) { coordinator in
+                NavigationStack {
+                    YieldModulePromoCoordinatorView(coordinator: coordinator)
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarLeading) {
+                                backButton
+                            }
+                        }
                 }
             }
-            .emptyNavigationLink()
+            .fullScreenCover(item: $coordinator.tokenDetailsCoordinator, content: { item in
+                NavigationStack {
+                    TokenDetailsCoordinatorView(coordinator: item)
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarLeading) {
+                                backButton
+                            }
+                        }
+                }
+            })
+    }
+
+    private var backButton: some View {
+        BackButton(
+            height: Constants.backButtonHeight,
+            isVisible: true,
+            isEnabled: true,
+            hPadding: Constants.backButtonHorizontalPadding,
+            action: { UIApplication.dismissTop() }
+        )
+    }
+
+    private var newsRelatedTokenDetailsLink: some View {
+        NavHolder()
+            .navigation(item: $coordinator.newsRelatedTokenDetailsCoordinator) { tokenCoordinator in
+                MarketsTokenDetailsCoordinatorView(coordinator: tokenCoordinator)
+                    .if(tokenCoordinator.isMarketsSheetFlow) { view in
+                        view.ignoresSafeArea(.container, edges: .top)
+                    }
+            }
+    }
+}
+
+// MARK: - Constants
+
+private extension MarketsTokenDetailsCoordinatorView {
+    enum Constants {
+        static let backButtonHorizontalPadding: CGFloat = -6
+        static let backButtonHeight: CGFloat = 44.0
     }
 }

@@ -19,10 +19,10 @@ final class AuthViewModel: ObservableObject {
 
     @Published var isScanningCard: Bool = false
     @Published var error: AlertBinder?
-    @Published var confirmationDialog: ConfirmationDialogViewModel?
+    @Published var scanTroubleshootingDialog: ConfirmationDialogViewModel?
 
     var unlockWithBiometryButtonTitle: String {
-        Localization.welcomeUnlock(BiometricAuthorizationUtils.biometryType.name)
+        Localization.welcomeUnlock(BiometricsUtil.biometryType.name)
     }
 
     // MARK: - Dependencies
@@ -86,7 +86,7 @@ final class AuthViewModel: ObservableObject {
             do {
                 let context = try await UserWalletBiometricsUnlocker().unlock()
                 let userWalletModel = try await viewModel.userWalletRepository.unlock(with: .biometrics(context))
-                viewModel.signInAnalyticsLogger.logSignInEvent(signInType: .biometrics)
+                viewModel.signInAnalyticsLogger.logSignInEvent(signInType: .biometrics, userWalletModel: userWalletModel)
                 await MainActor.run {
                     viewModel.openMain(with: userWalletModel)
                 }
@@ -168,7 +168,7 @@ final class AuthViewModel: ObservableObject {
                         with: .encryptionKey(userWalletId: userWalletId, encryptionKey: encryptionKey)
                     )
 
-                    viewModel.signInAnalyticsLogger.logSignInEvent(signInType: .card)
+                    viewModel.signInAnalyticsLogger.logSignInEvent(signInType: .card, userWalletModel: userWalletModel)
 
                     await MainActor.run {
                         viewModel.isScanningCard = false
@@ -192,7 +192,7 @@ final class AuthViewModel: ObservableObject {
                 keys: .cardWallet(keys: cardInfo.card.wallets)
             ) {
                 try userWalletRepository.add(userWalletModel: newUserWalletModel)
-                signInAnalyticsLogger.logSignInEvent(signInType: .card)
+                signInAnalyticsLogger.logSignInEvent(signInType: .card, userWalletModel: newUserWalletModel)
                 await MainActor.run {
                     isScanningCard = false
                     openMain(with: newUserWalletModel)
@@ -232,7 +232,7 @@ extension AuthViewModel {
             self?.requestSupport()
         }
 
-        confirmationDialog = ConfirmationDialogViewModel(
+        scanTroubleshootingDialog = ConfirmationDialogViewModel(
             title: Localization.alertTroubleshootingScanCardTitle,
             subtitle: Localization.alertTroubleshootingScanCardMessage,
             buttons: [
