@@ -11,19 +11,13 @@ import Combine
 import TangemFoundation
 
 final class TangemPayWalletSelectorDataSource: WalletSelectorDataSource {
-    @Injected(\.tangemPayAvailabilityRepository)
-    private var tangemPayAvailabilityRepository: TangemPayAvailabilityRepository
-
     private let _selectedUserWalletModel: CurrentValueSubject<UserWalletModel?, Never> = .init(nil)
 
     var selectedUserWalletIdPublisher: AnyPublisher<UserWalletId?, Never> {
         _selectedUserWalletModel.map { $0?.userWalletId }.eraseToAnyPublisher()
     }
 
-    var userWalletModels: [UserWalletModel] {
-        tangemPayAvailabilityRepository
-            .availableUserWalletModels
-    }
+    let userWalletModels: [UserWalletModel]
 
     var itemViewModels: [WalletSelectorItemViewModel] {
         userWalletModels
@@ -46,12 +40,14 @@ final class TangemPayWalletSelectorDataSource: WalletSelectorDataSource {
 
     private var cancellable: Cancellable?
 
-    init(onSelect: @escaping (UserWalletModel) -> Void) {
+    init(
+        userWalletModels: [UserWalletModel],
+        onSelect: @escaping (UserWalletModel) -> Void
+    ) {
+        self.userWalletModels = userWalletModels
         cancellable = _selectedUserWalletModel
             .compactMap { $0 }
             .first()
-            .sink { model in
-                onSelect(model)
-            }
+            .sink(receiveValue: onSelect)
     }
 }

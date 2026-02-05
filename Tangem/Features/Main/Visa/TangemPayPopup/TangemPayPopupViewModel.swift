@@ -17,9 +17,11 @@ protocol TangemPayPopupViewModel: AnyObject, FloatingSheetContentViewModel {
     var primaryButton: MainButton.Settings { get }
     var secondaryButton: MainButton.Settings? { get }
 
+    func onHyperLinkTap(_ link: URL)
     func dismiss()
 }
 
 extension TangemPayPopupViewModel {
     var secondaryButton: MainButton.Settings? { nil }
+    func onHyperLinkTap(_ link: URL) {}
 }
