@@ -184,7 +184,12 @@ class CommonWalletModel {
     @MainActor
     private func updateState(_ state: WalletModelState) {
         AppLogger.info(self, "Updating state. New state is \(state)")
-        _yieldModuleManager?.updateState(walletModelState: state, balance: wallet.amounts[amountType])
+        if let manager = _yieldModuleManager {
+            AppLogger.debug("[YieldModule] \(tokenItem.name) updateState called, manager exists")
+            manager.updateState(walletModelState: state, balance: wallet.amounts[amountType])
+        } else {
+            AppLogger.debug("[YieldModule] \(tokenItem.name) updateState called, manager is nil (isToken=\(tokenItem.isToken))")
+        }
         _state.value = state
     }
 
@@ -524,8 +529,11 @@ extension CommonWalletModel: WalletModelHelpers {
               let yieldSupplyService = walletManager.yieldSupplyService,
               let ethereumNetworkProvider
         else {
+            AppLogger.debug("[YieldModule] makeYieldModuleManager returning nil for \(tokenItem.name): isToken=\(tokenItem.isToken), hasYieldSupplyService=\(walletManager.yieldSupplyService != nil), hasEthereumNetworkProvider=\(ethereumNetworkProvider != nil)")
             return nil
         }
+
+        AppLogger.debug("[YieldModule] makeYieldModuleManager creating manager for \(token.name)")
 
         let nonFilteredPendingTransactionsPublisher: AnyPublisher<[PendingTransactionRecord], Never> =
             walletManager

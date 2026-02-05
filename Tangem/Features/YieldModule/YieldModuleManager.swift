@@ -124,6 +124,7 @@ final class CommonYieldModuleManager {
             tokenBalanceProvider: tokenBalanceProvider
         )
 
+        AppLogger.debug("[YieldModule] \(tokenId) CommonYieldModuleManager init completed, calling bind()")
         bind()
     }
 }
@@ -349,12 +350,19 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
 
 private extension CommonYieldModuleManager {
     func bind() {
+        AppLogger.debug("[YieldModule] \(tokenId) bind() called, creating initialStatePublisher")
         let initialStatePublisher = makeInitialStatePublisher()
 
         initialStatePublisher
-            .handleEvents(receiveOutput: { [weak self] in
-                self?.updateStateCacheIfNeeded(state: $0)
-            })
+            .handleEvents(
+                receiveSubscription: { [weak self] _ in
+                    AppLogger.debug("[YieldModule] \(self?.tokenId ?? "?") initialStatePublisher subscribed")
+                },
+                receiveOutput: { [weak self] state in
+                    AppLogger.debug("[YieldModule] \(self?.tokenId ?? "?") initialStatePublisher emitted state: \(state.state)")
+                    self?.updateStateCacheIfNeeded(state: state)
+                }
+            )
             .sink { [_state] result in
                 _state.send(result)
             }
