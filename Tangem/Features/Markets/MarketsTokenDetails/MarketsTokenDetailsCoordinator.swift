@@ -48,6 +48,10 @@ final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     private var presentationStyle: MarketsTokenDetailsPresentationStyle = .marketsSheet
     private var isDeeplinkMode: Bool = false
 
+    var isMarketsSheetFlow: Bool {
+        presentationStyle == .marketsSheet
+    }
+
     // MARK: - Init
 
     required init(
@@ -262,6 +266,7 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
             newsIds: newsIds,
             initialIndex: selectedIndex,
             isDeeplinkMode: false, // Always false - nested news screen should show back button, not close
+            isMarketsSheetFlow: presentationStyle == .marketsSheet,
             dataSource: SingleNewsDataSource(),
             analyticsSource: .token,
             coordinator: self

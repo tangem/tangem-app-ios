@@ -40,7 +40,7 @@ struct TokenActionAvailabilityAnalyticsMapper {
         switch status {
         case .available:
             return Analytics.ParameterValue.available
-        case .zeroWalletBalance:
+        case .zeroWalletBalance, .noAccount:
             return Analytics.ParameterValue.empty
         case .cantSignLongTransactions:
             return Analytics.ParameterValue.oldPhone
@@ -91,7 +91,7 @@ struct TokenActionAvailabilityAnalyticsMapper {
         switch status {
         case .available:
             return Analytics.ParameterValue.available
-        case .zeroWalletBalance:
+        case .zeroWalletBalance, .noAccount:
             return Analytics.ParameterValue.empty
         case .cantSignLongTransactions:
             return Analytics.ParameterValue.oldPhone
