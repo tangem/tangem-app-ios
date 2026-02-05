@@ -86,7 +86,7 @@ struct TangemPayTransactionDetailsView: View {
             HStack(spacing: 8) {
                 Assets.infoCircle20.image
                     .renderingMode(.template)
-                    .foregroundStyle(Colors.Icon.secondary)
+                    .foregroundStyle(Colors.Icon.warning)
 
                 Text(bottomInfo)
                     .style(Fonts.Regular.footnote, color: Colors.Text.warning)
