@@ -16,10 +16,7 @@ struct WCEthTransactionDetailsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            if viewModel.isWalletRowVisible {
-                WCTransactionWalletRow(walletName: viewModel.userWalletName)
-                separator
-            }
+            connectionTargetRow
 
             WCTransactionNetworkRow(blockchain: viewModel.transactionData.blockchain)
 
@@ -31,6 +28,14 @@ struct WCEthTransactionDetailsView: View {
         }
         .background(Colors.Background.action)
         .cornerRadius(14, corners: .allCorners)
+    }
+
+    @ViewBuilder
+    private var connectionTargetRow: some View {
+        if let connectionTargetKind = viewModel.connectionTargetKind {
+            WCTransactionConnectionTargetRow(kind: connectionTargetKind)
+            separator
+        }
     }
 
     @ViewBuilder
