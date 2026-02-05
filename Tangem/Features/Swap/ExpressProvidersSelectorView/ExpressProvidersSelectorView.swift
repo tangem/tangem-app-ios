@@ -31,13 +31,13 @@ struct ExpressProvidersSelectorView: View {
                     .padding(.vertical, 4)
             }
 
-            GroupedSection(viewModel.providerViewModels) {
-                ProviderRowView(viewModel: $0)
+            VStack(spacing: 6) {
+                ForEach(viewModel.providerViewModels) {
+                    ExpressProviderRowView(viewModel: $0)
+                }
             }
-            .interItemSpacing(14)
-            .innerContentPadding(12)
-            .backgroundColor(Colors.Background.action)
-            .padding(.vertical, 10)
+            .padding(.top, 10)
+            .padding(.bottom, 24)
 
             ExpressMoreProvidersSoonView()
         }
