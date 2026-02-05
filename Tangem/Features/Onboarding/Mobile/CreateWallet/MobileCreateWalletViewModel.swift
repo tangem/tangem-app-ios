@@ -99,11 +99,13 @@ extension MobileCreateWalletViewModel {
                     throw UserWalletRepositoryError.cantUnlockWallet
                 }
 
+                AmplitudeWrapper.shared.setUserIdIfOnboarding(userWalletId: newUserWalletModel.userWalletId)
+                viewModel.logWalletCreatedAnalytics()
+
                 try viewModel.userWalletRepository.add(userWalletModel: newUserWalletModel)
 
                 await runOnMain {
                     viewModel.isCreating = false
-                    viewModel.logWalletCreatedAnalytics()
                     viewModel.logOnboardingFinishedAnalytics()
                     viewModel.delegate?.onCreateWallet(userWalletModel: newUserWalletModel)
                 }
