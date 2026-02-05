@@ -522,11 +522,30 @@ private extension CommonYieldModuleManager {
             .eraseToAnyPublisher()
 
         let statePublisher = Publishers.CombineLatest4(
-            _walletModelData.compactMap { $0 },
-            yieldModuleNetworkManager.marketsPublisher.removeDuplicates(),
-            pendingTransactionsPublisher,
+            _walletModelData.compactMap { $0 }
+                .handleEvents(receiveOutput: { [weak self] _ in
+                    AppLogger.debug("[YieldModule] \(self?.tokenId ?? "?") walletModelData emitted")
+                }),
+            yieldModuleNetworkManager.marketsPublisher
+                .handleEvents(receiveOutput: { [weak self] markets in
+                    AppLogger.debug("[YieldModule] \(self?.tokenId ?? "?") markets received (before removeDuplicates): \(markets.count) items")
+                })
+                .removeDuplicates()
+                .handleEvents(receiveOutput: { [weak self] markets in
+                    AppLogger.debug("[YieldModule] \(self?.tokenId ?? "?") markets emitted (after removeDuplicates): \(markets.count) items")
+                }),
+            pendingTransactionsPublisher
+                .handleEvents(receiveOutput: { [weak self] _ in
+                    AppLogger.debug("[YieldModule] \(self?.tokenId ?? "?") pendingTransactions emitted")
+                }),
             yieldContractPublisher
+                .handleEvents(receiveOutput: { [weak self] contract in
+                    AppLogger.debug("[YieldModule] \(self?.tokenId ?? "?") yieldContract emitted: \(contract ?? "nil")")
+                })
         )
+        .handleEvents(receiveOutput: { [weak self] _ in
+            AppLogger.debug("[YieldModule] \(self?.tokenId ?? "?") CombineLatest4 emitted!")
+        })
         .withWeakCaptureOf(self)
         .map { result -> YieldModuleManagerStateInfo in
             let (moduleManager, (walletModelData, marketsInfo, pendingTransactions, yieldContract)) = result
