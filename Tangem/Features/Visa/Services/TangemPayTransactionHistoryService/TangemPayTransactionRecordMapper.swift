@@ -85,7 +85,7 @@ struct TangemPayTransactionRecordMapper {
         switch transaction.record {
         case .spend(let spend) where spend.isDeclined:
             if let declinedReason = spend.declinedReason {
-                return Localization.alertFailedToSendTransactionMessage(declinedReason)
+                return Localization.tangemPayHistoryItemSpendMcDeclinedReason(declinedReason)
             } else {
                 return Localization.tangemPayTransactionDeclinedNotificationText
             }
@@ -163,7 +163,8 @@ struct TangemPayTransactionRecordMapper {
     func localAmount() -> String? {
         switch transaction.record {
         case .spend(let spend) where spend.currency != spend.localCurrency:
-            return format(amount: spend.localAmount, currencyCode: spend.localCurrency)
+            let prefix = spend.amount < 0 ? "+" : ""
+            return format(amount: spend.localAmount, currencyCode: spend.localCurrency, prefix: prefix)
         case .spend, .collateral, .payment, .fee:
             return nil
         }
@@ -190,7 +191,7 @@ struct TangemPayTransactionRecordMapper {
         switch transaction.record {
         case .spend(let spend):
             if detailed, let category = spend.merchantCategory, let mcc = spend.merchantCategoryCode {
-                return category + " " + AppConstants.dotSign + " " + mcc
+                return .merchantCategory(category: category, mcc: mcc)
             }
 
             return spend.merchantCategory?.orNilIfEmpty
@@ -226,6 +227,10 @@ extension TangemPayTransactionRecord {
 }
 
 private extension String {
+    static func merchantCategory(category: String, mcc: String) -> String {
+        return category + " " + AppConstants.dotSign + " " + Localization.tangemPayHistoryItemSpendMcc(mcc)
+    }
+
     var orNilIfEmpty: Self? {
         isEmpty ? nil : self
     }
