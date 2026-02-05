@@ -47,6 +47,11 @@ struct MainCoordinatorView: CoordinatorView {
             }
             .injectNavigationAssertionDelegate()
         }
+        .onReceive(NotificationCenter.default.publisher(
+            for: .deviceDidShakeNotification)
+        ) { _ in
+            coordinator.showDSDemo()
+        }
     }
 
     private var links: some View {
@@ -74,6 +79,9 @@ struct MainCoordinatorView: CoordinatorView {
             }
             .navigation(item: $coordinator.mobileBackupTypesCoordinator) {
                 MobileBackupTypesCoordinatorView(coordinator: $0)
+            }
+            .navigation(item: $coordinator.designSystemCoordinator) {
+                DesignSystemDemoCoordinatorView(coordinator: $0)
             }
     }
 
