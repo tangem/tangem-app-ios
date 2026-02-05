@@ -19,6 +19,7 @@ import TangemFoundation
 final class AccountFormViewModel: ObservableObject, Identifiable {
     // MARK: - Dynamic State
 
+    /// - Note: For use in the UI only, for validation and other logic use `trimmedAccountName` property.
     @Published var accountName: String
 
     @Published var selectedColor: GridItemColor<AccountModel.Icon.Color>
@@ -66,7 +67,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
             return .imageType(imageType)
 
         case .letter:
-            if let firstLetter = accountName.first {
+            if let firstLetter = trimmedAccountName.first {
                 return .letter(String(firstLetter))
             }
 
@@ -75,6 +76,11 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
                 AccountIconView.NameMode.ImageConfig(opacity: 0.4)
             )
         }
+    }
+
+    /// - Note: For use in validation and other logic, for UI use `accountName` property.
+    private var trimmedAccountName: String {
+        accountName.trimmed()
     }
 
     private var accountIcon: AccountModel.Icon {
@@ -160,7 +166,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
     }
 
     var mainButtonDisabled: Bool {
-        accountName.isEmpty
+        !AccountModelUtils.isAccountNameValid(trimmedAccountName)
     }
 
     var title: String {
@@ -208,7 +214,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
                     result = .none
                 case .create:
                     result = try await viewModel.accountModelsManager.addCryptoAccount(
-                        name: viewModel.accountName,
+                        name: viewModel.trimmedAccountName,
                         icon: viewModel.accountIcon
                     )
                 }
@@ -223,7 +229,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
         switch flowType {
         case .edit(let account):
             var params: [Analytics.ParameterKey: String] = [
-                .accountName: accountName,
+                .accountName: trimmedAccountName,
                 .accountColor: selectedColor.id.rawValue,
                 .accountIcon: selectedIcon.id.rawValue,
             ]
@@ -233,7 +239,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
 
         case .create:
             let params: [Analytics.ParameterKey: String] = [
-                .accountName: accountName,
+                .accountName: trimmedAccountName,
                 .accountColor: selectedColor.id.rawValue,
                 .accountIcon: selectedIcon.id.rawValue,
                 // In analytics this field is named "Derivation", but in the form we don't want to
@@ -246,7 +252,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
     }
 
     func onClose() {
-        let currentSnapshot = StateSnapshot(name: accountName, color: selectedColor, image: selectedIcon)
+        let currentSnapshot = StateSnapshot(name: trimmedAccountName, color: selectedColor, image: selectedIcon)
 
         if currentSnapshot != initialStateSnapshot {
             let message = switch flowType {
@@ -266,11 +272,11 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
     // MARK: - Private
 
     private func editAccount(account: any BaseAccountModel) async throws(AccountEditError) {
-        let currentSnapshot = StateSnapshot(name: accountName, color: selectedColor, image: selectedIcon)
+        let currentSnapshot = StateSnapshot(name: trimmedAccountName, color: selectedColor, image: selectedIcon)
 
         try await account.edit { editor in
             if currentSnapshot.name != initialStateSnapshot.name {
-                editor.setName(accountName)
+                editor.setName(trimmedAccountName)
             }
             if currentSnapshot.color != initialStateSnapshot.color || currentSnapshot.image != initialStateSnapshot.image {
                 editor.setIcon(accountIcon)
@@ -327,7 +333,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
             title = Localization.accountFormNameAlreadyExistErrorTitle
             message = Localization.accountFormNameAlreadyExistErrorDescription
             buttonText = Localization.commonGotIt
-        case .accountNameTooLong,
+        case .invalidAccountName,
              .missingAccountName:
             // These two errors should never be thrown because this VM validates account name before trying to edit/create an account
             fallthrough
