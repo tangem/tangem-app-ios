@@ -173,6 +173,7 @@ private extension NewsWidgetViewModel {
 
         newsProvider
             .newsResultPublisher
+            .dropFirst()
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, result in
