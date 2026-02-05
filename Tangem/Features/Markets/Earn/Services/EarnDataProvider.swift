@@ -63,20 +63,14 @@ final class EarnDataProvider {
     }
 
     func fetch(with filter: Filter) {
-        AppLogger.tag("Earn").debug("fetch called with filter: type=\(filter.type), networkIds=\(String(describing: filter.networkIds))")
-
         _eventSubject.send(.loading)
         isLoading = true
 
         if lastFilter != filter {
-            AppLogger.tag("Earn").debug("filter changed, clearing items")
             clearItems()
         }
 
-        guard !isScheduledFetchPending else {
-            AppLogger.tag("Earn").debug("scheduledFetchTask exists, skipping fetch")
-            return
-        }
+        guard !isScheduledFetchPending else { return }
 
         lastFilter = filter
 
@@ -85,12 +79,9 @@ final class EarnDataProvider {
             guard let self else { return }
 
             do {
-                AppLogger.tag("Earn").debug("starting API request...")
                 let response = try await loadItems(with: filter)
-                AppLogger.tag("Earn").debug("API success, got \(response.items.count) items")
                 handleFetchResult(.success(response))
             } catch {
-                AppLogger.tag("Earn").debug("API error: \(error)")
                 handleFetchResult(.failure(error))
             }
         }.eraseToAnyCancellable()
@@ -123,22 +114,18 @@ final class EarnDataProvider {
             page: currentPage,
             limit: limitPerPage,
             type: filter.type.apiValue,
-            network: filter.networkIds
+            networkIds: filter.networkIds
         )
-
-        AppLogger.tag("Earn").debug("Loading earn list with request page=\(currentPage), limit=\(limitPerPage)")
 
         return try await tangemApiService.loadEarnYieldMarkets(requestModel: requestModel)
     }
 
     private func handleFetchResult(_ result: Result<EarnDTO.List.Response, Error>) {
-        AppLogger.tag("Earn").debug("handleFetchResult called")
-
         do {
             let response = try result.get()
 
             let nextPage = response.meta.page + 1
-//            let metaHasNext = response.meta.hasNext
+
             let metaHasNext = false
             hasNext = metaHasNext
             currentPage = nextPage
@@ -147,17 +134,16 @@ final class EarnDataProvider {
             hasLoadedItems = true
 
             let models = response.items.map { mapper.mapToEarnTokenModel(from: $0) }
-            AppLogger.tag("Earn").debug("sending .appendedItems with \(models.count) items")
             _eventSubject.send(.appendedItems(items: models, lastPage: !hasNext))
         } catch {
             isLoading = false
 
-            if error.isCancellationError {
-                AppLogger.tag("Earn").debug("Request was cancelled")
-                return
-            }
+            if error.isCancellationError { return }
 
-            AppLogger.tag("Earn").error("Failed to fetch earn list", error: error)
+            AppLogger.tag("Earn").error(
+                "Fetch failed (page \(currentPage))",
+                error: error
+            )
             _eventSubject.send(.failedToFetchData(error: error))
 
             if hasLoadedItems {
@@ -170,6 +156,7 @@ final class EarnDataProvider {
         guard !isScheduledFetchPending else { return }
 
         isScheduledFetchPending = true
+        AppLogger.tag("Earn").debug("Retry scheduled in \(Int(repeatRequestDelayInSeconds))s")
         scheduledFetchTask = Task.delayed(withDelay: repeatRequestDelayInSeconds, operation: { @MainActor [weak self] in
             guard let self else { return }
 
