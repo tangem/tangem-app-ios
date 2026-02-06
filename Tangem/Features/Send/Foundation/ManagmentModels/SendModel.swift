@@ -509,9 +509,9 @@ extension SendModel: SendReceiveTokenAmountInput {
         case .loading:
             return .loading
         case .restriction(_, _, .some(let quote)),
-                .permissionRequired(_, _, let quote),
-                .readyToSwap(_, _, let quote),
-                .previewCEX(_, _, let quote):
+             .permissionRequired(_, _, let quote),
+             .readyToSwap(_, _, let quote),
+             .previewCEX(_, _, let quote):
             let fiat = receiveToken.tokenItem.currencyId.flatMap { currencyId in
                 balanceConverter.convertToFiat(quote.expectAmount, currencyId: currencyId)
             }
