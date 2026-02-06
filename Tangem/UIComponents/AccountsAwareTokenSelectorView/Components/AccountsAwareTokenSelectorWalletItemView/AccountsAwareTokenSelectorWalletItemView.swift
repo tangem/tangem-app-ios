@@ -42,13 +42,34 @@ struct AccountsAwareTokenSelectorWalletItemView: View {
 
                 Spacer(minLength: 8)
 
-                NavigationBarButton.back(action: {})
-                    .allowsHitTesting(false)
-                    .rotationEffect(.degrees(180))
-                    .rotationEffect(.degrees(viewModel.isOpen ? 90 : -90))
+                isOpenButton
             }
             .padding(.horizontal, 8)
             .padding(.vertical, 2)
         }
+    }
+
+    private var isOpenButton: some View {
+        Group {
+            if #available(iOS 26, *) {
+                Button(action: {}) {
+                    Image(systemName: "chevron.down")
+                        .foregroundStyle(Colors.Text.primary1)
+                        .font(.title2)
+                        .fontWeight(.medium)
+                        .frame(width: 20, height: 20)
+                        .padding(12)
+                }
+                // [REDACTED_USERNAME], important to place transform effect before glass effect.
+                // Animation will cause scaling glitch otherwise.
+                .rotationEffect(.degrees(viewModel.isOpen ? 0 : 180))
+                .glassEffect(.regular, in: .circle)
+            } else {
+                NavigationBarButton.back(action: {})
+                    .rotationEffect(.degrees(viewModel.isOpen ? -90 : 90))
+            }
+        }
+        .allowsHitTesting(false)
+        .animation(.spring(duration: 0.2), value: viewModel.isOpen)
     }
 }
