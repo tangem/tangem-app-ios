@@ -47,6 +47,7 @@ final class SendModel {
 
     // MARK: - Private injections
 
+    private let userWalletId: UserWalletId
     private let transactionSigner: TangemSigner
     private let feeIncludedCalculator: FeeIncludedCalculator
     private let analyticsLogger: SendAnalyticsLogger
@@ -63,6 +64,7 @@ final class SendModel {
     // MARK: - Public interface
 
     init(
+        userWalletId: UserWalletId,
         userToken: SendSourceToken,
         transactionSigner: TangemSigner,
         feeIncludedCalculator: FeeIncludedCalculator,
@@ -72,6 +74,7 @@ final class SendModel {
         swapManager: SwapManager,
         predefinedValues: PredefinedValues
     ) {
+        self.userWalletId = userWalletId
         self.transactionSigner = transactionSigner
         self.feeIncludedCalculator = feeIncludedCalculator
         self.analyticsLogger = analyticsLogger
@@ -145,12 +148,14 @@ private extension SendModel {
             )
             .dropFirst()
             .withWeakCaptureOf(self)
-            .sink {
-                $0.swapManager.update(
-                    destination: $1.0.receiveToken?.tokenItem,
-                    address: $1.1?.value.transactionAddress,
-                    tokenHeader: $0.destinationTokenHeader,
-                    accountModelAnalyticsProvider: $0.destinationAccountAnalyticsProvider
+            .sink { sendModel, pair in
+                let (receivedToken, destination) = pair
+                sendModel.swapManager.update(
+                    userWalletId: sendModel.userWalletId,
+                    destination: receivedToken.receiveToken?.tokenItem,
+                    address: destination?.value.transactionAddress,
+                    tokenHeader: sendModel.destinationTokenHeader,
+                    accountModelAnalyticsProvider: sendModel.destinationAccountAnalyticsProvider
                 )
             }
             .store(in: &bag)
@@ -504,9 +509,9 @@ extension SendModel: SendReceiveTokenAmountInput {
         case .loading:
             return .loading
         case .restriction(_, _, .some(let quote)),
-                .permissionRequired(_, _, let quote),
-                .readyToSwap(_, _, let quote),
-                .previewCEX(_, _, let quote):
+             .permissionRequired(_, _, let quote),
+             .readyToSwap(_, _, let quote),
+             .previewCEX(_, _, let quote):
             let fiat = receiveToken.tokenItem.currencyId.flatMap { currencyId in
                 balanceConverter.convertToFiat(quote.expectAmount, currencyId: currencyId)
             }
