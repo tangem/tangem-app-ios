@@ -301,6 +301,10 @@ extension CommonAccountModelsManager: AccountModelsManager {
         areHDWalletsSupported
     }
 
+    nonisolated var hasSyncedWithRemotePublisher: AnyPublisher<Bool, Never> {
+        cryptoAccountsRepository.hasSyncedWithRemotePublisher
+    }
+
     nonisolated var hasArchivedCryptoAccountsPublisher: AnyPublisher<Bool, Never> {
         cryptoAccountsRepository
             .auxiliaryDataPublisher
@@ -308,7 +312,7 @@ extension CommonAccountModelsManager: AccountModelsManager {
             .eraseToAnyPublisher()
     }
 
-    nonisolated var totalAccountsCountPublisher: AnyPublisher<Int, Never> {
+    nonisolated var totalCryptoAccountsCountPublisher: AnyPublisher<Int, Never> {
         cryptoAccountsRepository
             .auxiliaryDataPublisher
             .map(\.totalAccountsCount)
