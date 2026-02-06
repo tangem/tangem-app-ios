@@ -21,16 +21,24 @@ struct EarnBestOpportunitiesListView: View {
     let clearFilterAction: (() -> Void)?
 
     var body: some View {
-        switch loadingState {
-        case .loading:
-            loadingSkeletons
-        case .idle, .allDataLoaded:
-            opportunitiesList
-        case .noResults:
-            emptyView
-        case .error:
-            errorView
+        Group {
+            switch loadingState {
+            case .loading:
+                loadingSkeletons
+            case .idle, .allDataLoaded:
+                opportunitiesList
+            case .noResults:
+                emptyView
+            case .error:
+                errorView
+            }
         }
+        .defaultRoundedBackground(
+            with: Color.Tangem.Surface.level4,
+            verticalPadding: Layout.innerContentPadding,
+            horizontalPadding: Layout.innerContentPadding
+        )
+        .padding(.horizontal, Layout.horizontalPadding)
     }
 
     private var loadingSkeletons: some View {
@@ -54,16 +62,23 @@ struct EarnBestOpportunitiesListView: View {
     private var emptyView: some View {
         VStack(spacing: Layout.emptyViewSpacing) {
             Text(Localization.earnNoResults)
-                .foregroundColor(Colors.Text.tertiary)
+                .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
 
             if hasActiveFilters, let clearFilterAction {
                 Button(action: clearFilterAction) {
                     Text(Localization.earnClearFilter)
-                        .style(Fonts.Bold.caption1.weight(.medium), color: Colors.Text.primary1)
+                        .style(Fonts.Bold.caption1, color: Colors.Text.primary1)
                 }
-                .roundedBackground(with: Colors.Button.secondary, verticalPadding: 6, horizontalPadding: 12, radius: 10)
+                .roundedBackground(
+                    with: Colors.Button.secondary,
+                    verticalPadding: Layout.ClearFilterButton.verticalPadding,
+                    horizontalPadding: Layout.ClearFilterButton.horizontalPadding,
+                    radius: Layout.ClearFilterButton.radius
+                )
             }
         }
+        .infinityFrame(axis: .horizontal, alignment: .center)
+        .frame(maxHeight: Layout.defaultMaxHeight)
         .padding()
     }
 
@@ -89,9 +104,16 @@ private extension EarnBestOpportunitiesListView {
     enum Layout {
         static let itemSpacing: CGFloat = .zero
         static let horizontalPadding: CGFloat = 16.0
+        static let innerContentPadding: CGFloat = 0.0
         static let verticalPadding: CGFloat = 34
-        static let defaultMaxHeight: CGFloat = 130
+        static let defaultMaxHeight: CGFloat = 180
         static let emptyViewSpacing: CGFloat = 12
+
+        enum ClearFilterButton {
+            static let verticalPadding: CGFloat = 8
+            static let horizontalPadding: CGFloat = 12
+            static let radius: CGFloat = 100
+        }
     }
 }
 
