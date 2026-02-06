@@ -514,15 +514,13 @@ private extension ExpressInteractor {
             return .restriction(.notEnoughBalanceForSwapping(requiredAmount: amount.value), context: context, quote: correctState.quote)
         } catch ValidationError.feeExceedsBalance {
             let supportFeeSelection = switch correctState {
-            // We should not show fee selector for `.permissionRequired` state
             case .permissionRequired: false
             default: context.tokenFeeProvidersManager.supportFeeSelection
             }
 
-            if !context.tokenFeeProvidersManager.supportFeeSelection {
-                let restriction = RestrictionType.notEnoughAmountForFee(isFeeCurrency: isFeeCurrency, supportFeeSelection: supportFeeSelection)
-                return .restriction(restriction, context: context, quote: correctState.quote)
-            }
+            let restriction = RestrictionType.notEnoughAmountForFee(isFeeCurrency: isFeeCurrency, supportFeeSelection: supportFeeSelection)
+            return .restriction(restriction, context: context, quote: correctState.quote)
+
         } catch let error as ValidationError {
             let validationErrorContext = ValidationErrorContext(isFeeCurrency: isFeeCurrency, feeValue: fee.amount.value)
             return .restriction(.validationError(error: error, context: validationErrorContext), context: context, quote: correctState.quote)
