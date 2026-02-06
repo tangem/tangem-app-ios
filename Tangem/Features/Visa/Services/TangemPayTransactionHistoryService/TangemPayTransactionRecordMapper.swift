@@ -164,7 +164,11 @@ struct TangemPayTransactionRecordMapper {
         switch transaction.record {
         case .spend(let spend) where spend.currency != spend.localCurrency:
             let prefix = spend.amount < 0 ? "+" : ""
-            return format(amount: spend.localAmount, currencyCode: spend.localCurrency, prefix: prefix)
+            return format(
+                amount: -spend.localAmount,
+                currencyCode: spend.localCurrency,
+                prefix: prefix
+            )
         case .spend, .collateral, .payment, .fee:
             return nil
         }
