@@ -675,6 +675,7 @@ private extension DetailsViewModel {
         Analytics.log(
             .settingsColdWalletAdded,
             params: [.source: Analytics.ParameterValue.settings],
+            analyticsSystems: .all,
             contextParams: .custom(cardInfo.analyticsContextData)
         )
     }
