@@ -361,6 +361,7 @@ private extension TangemPayMainViewModel {
         }
 
         let tangemPayWalletWrapper = ExpressInteractorTangemPayWalletWrapper(
+            userWalletId: userWalletInfo.id,
             tokenItem: TangemPayUtilities.usdcTokenItem,
             feeTokenItem: TangemPayUtilities.usdcTokenItem,
             defaultAddressString: depositAddress,
