@@ -1364,12 +1364,12 @@
 "tangem_pay_status_completed" = "Abgeschlossen";
 "tangem_pay_status_declined" = "Abgelehnt";
 "tangem_pay_status_pending" = "Ausstehend";
-"tangem_pay_status_reversed" = "Ausstehend";
+"tangem_pay_status_reversed" = "Storniert";
 "tangem_pay_terms_fees_limits" = "Bedingungen, Gebühren & Limits";
 "tangem_pay_terms_limits" = "Bedingungen und Einschränkungen";
 "tangem_pay_transaction_declined_notification_text" = "Die Bank hat diese Transaktionsanfrage abgelehnt.";
-"tangem_pay_transaction_fee_notification_text" = "Diese Gebühr dient zur Deckung der Kosten für die Abwicklung Deiner Überweisung.Questa commissione copre il costo della gestione del tuo trasferimento.";
-"tangem_pay_transaction_reversed_notification_text" = "Die Bank hat diese Transaktionsanfrage abgelehnt.";
+"tangem_pay_transaction_fee_notification_text" = "Diese Gebühr dient zur Deckung der Kosten für die Abwicklung Deiner Überweisung.";
+"tangem_pay_transaction_reversed_notification_text" = "Die Transaktion wurde vom Händler teilweise oder vollständig storniert";
 "tangem_pay_unfreeze_card_alert_body" = "Nutze Dein Geld weiterhin. Du kannst es jederzeit einfrieren.";
 "tangem_pay_unfreeze_card_alert_title" = "Karte entsperren?";
 "tangem_pay_unfreeze_card_failed" = "Entsperren der Karte fehlgeschlagen. Versuchen Sie es später erneut.";
@@ -1740,6 +1740,7 @@
 "warning_hedera_missing_token_association_message" = "Dieser Token muss mit Ihrem Hedera-Konto verbunden sein, bevor du diesen erhalten kannst. Zuordnungsgebühr ~%1$@ %2$@";
 "warning_hedera_missing_token_association_title" = "Verknüpfe deinen Token";
 "warning_hedera_token_association_not_enough_hbar_message" = "Nicht genug %@. Lade dein Hedera-Konto auf, um dieses Token zuzuordnen";
+"warning_ios_deprecation_message" = "Der Support für iOS %1$@ endet am %2$@. Um weiterhin App-Updates zu erhalten und die volle Funktionalität sicherzustellen, aktualisieren Sie bitte auf die neueste iOS-Version.";
 "warning_kaspa_unfinished_token_transaction_discard_message" = "Bist Du sicher, dass Du die Transaktion stornieren willst? Du kannst die Transaktion nicht erneut starten.";
 "warning_kaspa_unfinished_token_transaction_message" = "Deine Transaktion mit einem Betrag von %1$@ %2$@ wurde nicht abgeschlossen. Du kannst versuchen, diese erneut abzuschließen.";
 "warning_kaspa_unfinished_token_transaction_title" = "Du hast eine nicht abgeschlossene Transaktion";
