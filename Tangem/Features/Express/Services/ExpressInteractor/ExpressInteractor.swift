@@ -519,8 +519,10 @@ private extension ExpressInteractor {
             default: context.tokenFeeProvidersManager.supportFeeSelection
             }
 
-            let restriction = RestrictionType.notEnoughAmountForFee(isFeeCurrency: isFeeCurrency, supportFeeSelection: supportFeeSelection)
-            return .restriction(restriction, context: context, quote: correctState.quote)
+            if !context.tokenFeeProvidersManager.supportFeeSelection {
+                let restriction = RestrictionType.notEnoughAmountForFee(isFeeCurrency: isFeeCurrency, supportFeeSelection: supportFeeSelection)
+                return .restriction(restriction, context: context, quote: correctState.quote)
+            }
         } catch let error as ValidationError {
             let validationErrorContext = ValidationErrorContext(isFeeCurrency: isFeeCurrency, feeValue: fee.amount.value)
             return .restriction(.validationError(error: error, context: validationErrorContext), context: context, quote: correctState.quote)
