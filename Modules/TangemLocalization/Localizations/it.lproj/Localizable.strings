@@ -1364,12 +1364,12 @@
 "tangem_pay_status_completed" = "Completato";
 "tangem_pay_status_declined" = "Rifiutato";
 "tangem_pay_status_pending" = "In sospeso";
-"tangem_pay_status_reversed" = "In sospeso";
+"tangem_pay_status_reversed" = "Stornata";
 "tangem_pay_terms_fees_limits" = "Termini, commissioni e limiti";
 "tangem_pay_terms_limits" = "Termini e limiti";
 "tangem_pay_transaction_declined_notification_text" = "La banca ha rifiutato questa richiesta di transazione.";
 "tangem_pay_transaction_fee_notification_text" = "Questa commissione copre il costo della gestione del tuo trasferimento.";
-"tangem_pay_transaction_reversed_notification_text" = "La banca ha rifiutato questa richiesta di transazione.";
+"tangem_pay_transaction_reversed_notification_text" = "La transazione è stata parzialmente o totalmente stornata dal commerciante";
 "tangem_pay_unfreeze_card_alert_body" = "Continua a usare i tuoi soldi. Puoi congelarli in qualsiasi momento.";
 "tangem_pay_unfreeze_card_alert_title" = "Sbloccare la tua carta?";
 "tangem_pay_unfreeze_card_failed" = "Impossibile sbloccare la carta. Riprova più tardi.";
@@ -1740,6 +1740,7 @@
 "warning_hedera_missing_token_association_message" = "This token must be associated with your Hedera account before you can receive it. Association fee ~%1$@ %2$@";
 "warning_hedera_missing_token_association_title" = "Associate your token";
 "warning_hedera_token_association_not_enough_hbar_message" = "Not enough %@. Top up your Hedera account to associate this token";
+"warning_ios_deprecation_message" = "Il supporto per iOS %1$@ terminerà il %2$@. Per continuare a ricevere gli aggiornamenti dell’app e garantire la piena funzionalità, aggiorna all’ultima versione di iOS.";
 "warning_kaspa_unfinished_token_transaction_discard_message" = "Are you sure you want to cancel the transaction? You will not be able to retry the transaction again";
 "warning_kaspa_unfinished_token_transaction_message" = "Your transaction with an amount of %1$@ %2$@ was not completed. You can try again to complete it.";
 "warning_kaspa_unfinished_token_transaction_title" = "You have unfinished transaction";
