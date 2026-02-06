@@ -12,6 +12,8 @@ struct RemoteCryptoAccountsInfo {
     let counters: Counters
     let accounts: [StoredCryptoAccount]
     let legacyTokens: [StoredCryptoAccount.Token]
+    let legacyGrouping: StoredCryptoAccount.Grouping
+    let legacySorting: StoredCryptoAccount.Sorting
 }
 
 // MARK: - Inner types
