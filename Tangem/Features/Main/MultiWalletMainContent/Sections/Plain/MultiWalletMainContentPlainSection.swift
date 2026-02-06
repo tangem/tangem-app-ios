@@ -9,3 +9,11 @@
 import Foundation
 
 typealias MultiWalletMainContentPlainSection = SectionModel<MultiWalletMainContentPlainSectionViewModel, TokenItemViewModel>
+
+// MARK: - Convenience extensions
+
+extension Array where Element == MultiWalletMainContentPlainSection {
+    var flattenedTokenItems: [TokenItemViewModel] {
+        flatMap(\.items)
+    }
+}
