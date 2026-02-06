@@ -1740,6 +1740,7 @@
 "warning_hedera_missing_token_association_message" = "This token must be associated with your Hedera account before you can receive it. Association fee ~%1$@ %2$@";
 "warning_hedera_missing_token_association_title" = "Associate your token";
 "warning_hedera_token_association_not_enough_hbar_message" = "Not enough %@. Top up your Hedera account to associate this token";
+"warning_ios_deprecation_message" = "Support for iOS %1$@ will end on %2$@. To continue receiving app updates and ensure full functionality, please update to the latest version of iOS.";
 "warning_kaspa_unfinished_token_transaction_discard_message" = "Are you sure you want to cancel the transaction? You will not be able to retry the transaction again";
 "warning_kaspa_unfinished_token_transaction_message" = "Your transaction with an amount of %1$@ %2$@ was not completed. You can try again to complete it.";
 "warning_kaspa_unfinished_token_transaction_title" = "You have unfinished transaction";
