@@ -22,7 +22,7 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
 
     @Published private(set) var state: TangemPayTransactionDetailsStateView.TransactionState?
     @Published private(set) var mainButtonAction: MainButtonAction
-    @Published private(set) var bottomInfo: String?
+    @Published private(set) var additionalInfo: TangemPayTransactionDetailsView.AdditionalInfo?
 
     // MARK: - Dependencies
 
@@ -61,7 +61,7 @@ final class TangemPayTransactionDetailsViewModel: ObservableObject, FloatingShee
         )
         localAmount = mapper.localAmount()
         state = mapper.state()
-        bottomInfo = mapper.additionalInfo()
+        additionalInfo = mapper.additionalInfo()
         mainButtonAction = mapper.mainButtonAction()
     }
 

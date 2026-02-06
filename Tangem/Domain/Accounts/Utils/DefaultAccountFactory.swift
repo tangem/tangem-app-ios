@@ -22,10 +22,18 @@ struct DefaultAccountFactory {
         self.defaultBlockchains = defaultBlockchains
     }
 
-    func makeDefaultAccount(defaultTokensOverride: [StoredCryptoAccount.Token]) -> StoredCryptoAccount {
+    func makeDefaultAccount(
+        defaultTokensOverride: [StoredCryptoAccount.Token],
+        defaultGroupingOverride: StoredCryptoAccount.Grouping?,
+        defaultSortingOverride: StoredCryptoAccount.Sorting?
+    ) -> StoredCryptoAccount {
         let config = AccountModelUtils.mainAccountPersistentConfig(forUserWalletWithId: userWalletId)
         let tokens = defaultTokensOverride.nilIfEmpty ?? StoredEntryConverter.convertToStoredEntries(enrichedDefaultBlockchains)
+        let appearance = CryptoAccountPersistentConfig.TokenListAppearance(
+            grouping: defaultGroupingOverride ?? CryptoAccountPersistentConfig.TokenListAppearance.default.grouping,
+            sorting: defaultSortingOverride ?? CryptoAccountPersistentConfig.TokenListAppearance.default.sorting
+        )
 
-        return StoredCryptoAccount(config: config, tokenListAppearance: .default, tokens: tokens)
+        return StoredCryptoAccount(config: config, tokenListAppearance: appearance, tokens: tokens)
     }
 }
