@@ -18,7 +18,7 @@ final class CommonCryptoAccountsRepository {
     private let tokenItemsRepository: TokenItemsRepository
     private let defaultAccountFactory: DefaultAccountFactory
     private let networkService: CryptoAccountsNetworkService & WalletsNetworkService
-    private let auxiliaryDataStorage: CryptoAccountsAuxiliaryDataStorage
+    fileprivate let auxiliaryDataStorage: CryptoAccountsAuxiliaryDataStorage
     fileprivate let persistentStorage: CryptoAccountsPersistentStorage
     private let storageController: CryptoAccountsPersistentStorageController
     private let storageDidUpdateSubject: CryptoAccountsPersistentStorageController.StorageDidUpdateSubject
@@ -58,8 +58,8 @@ final class CommonCryptoAccountsRepository {
         storageController: CryptoAccountsPersistentStorageController,
         hasTokenSynchronization: Bool
     ) {
-        storageDidUpdateSubject = .init()
         stateHolder = .init()
+        storageDidUpdateSubject = .init()
         self.tokenItemsRepository = tokenItemsRepository
         self.defaultAccountFactory = defaultAccountFactory
         self.networkService = networkService
@@ -86,7 +86,7 @@ final class CommonCryptoAccountsRepository {
         self.userWalletInfoProvider = userWalletInfoProvider
     }
 
-    // MARK: - Legacy storage migration and initialization, not accounts created, no wallets created, etc.
+    // MARK: - Legacy storage migration and initialization, no accounts created, no wallets created, etc.
 
     private func initializeStorage(with initialAccount: StoredCryptoAccount) {
         persistentStorage.replace(with: [initialAccount])
@@ -124,12 +124,8 @@ final class CommonCryptoAccountsRepository {
             try await createWallet()
         }
 
-        // In some rare edge cases, when a wallet has already been created and used on a previous app version
-        // (w/o accounts support) and this wallet has an empty token list, default tokens from
-        // `DefaultAccountFactory.defaultBlockchains` (i.e. `UserWalletConfig.defaultBlockchains`) will be added
-        // to the newly created account. We consider this behavior acceptable (mirrors the Android implementation).
-        let defaultAccount = defaultAccountFactory.makeDefaultAccount(
-            defaultTokensOverride: legacyInfo?.legacyTokens ?? [],
+        let defaultAccount = defaultAccountFactory.makeDefaultAccountPreferringExisting(
+            defaultTokensOverride: legacyInfo?.legacyTokens,
             defaultGroupingOverride: legacyInfo?.legacyGrouping,
             defaultSortingOverride: legacyInfo?.legacySorting
         )
@@ -147,8 +143,8 @@ final class CommonCryptoAccountsRepository {
         loadAccountsSubscription = runTask(in: self) { repository in
             let hasScheduledPendingUpdate = await repository.stateHolder.performIsolated { holder in
                 guard
-                    let pending = holder.cryptoAccountsToUpdate,
-                    !Task.isCancelled
+                    !Task.isCancelled,
+                    let pending = holder.cryptoAccountsToUpdate
                 else {
                     return false
                 }
@@ -194,6 +190,7 @@ final class CommonCryptoAccountsRepository {
 
             // Updating the local storage first since it's the primary purpose of this method
             persistentStorage.replace(with: updatedAccounts)
+            auxiliaryDataStorage.hasSyncedWithRemote = true
             auxiliaryDataStorage.update(withRemoteInfo: remoteCryptoAccountsInfo)
 
             if shouldUpdateTokenListDueToTokensDistribution || shouldUpdateTokenListDueToCustomTokensMigration {
@@ -256,7 +253,8 @@ final class CommonCryptoAccountsRepository {
         } catch CryptoAccountsNetworkServiceError.missingRevision, CryptoAccountsNetworkServiceError.inconsistentState {
             try await refreshInconsistentState()
             try Task.checkCancellation()
-            try await updateAccountsOnServerAsync(cryptoAccounts: cryptoAccounts, updateOptions: updateOptions) // Schedules a retry after fixing the state
+            // Schedules a retry after fixing the state
+            try await updateAccountsOnServerAsync(cryptoAccounts: cryptoAccounts, updateOptions: updateOptions)
         } catch CryptoAccountsNetworkServiceError.noAccountsCreated {
             try await loadAccountsFromServerAsync() // Implicitly creates a new account if none exist on the server yet
         } catch CryptoAccountsNetworkServiceError.underlyingError(let error) {
@@ -274,7 +272,12 @@ final class CommonCryptoAccountsRepository {
         }
 
         await stateHolder.performIsolated { holder in
-            guard !Task.isCancelled else {
+            guard
+                !Task.isCancelled,
+                // Pending state discarded until we are sure that local storage is in sync with the server
+                // to avoid overriding remote accounts with local ones that are not up-to-date
+                auxiliaryDataStorage.hasSyncedWithRemote
+            else {
                 return
             }
 
@@ -403,6 +406,15 @@ final class CommonCryptoAccountsRepository {
 // MARK: - CryptoAccountsRepository protocol conformance
 
 extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
+    var hasSyncedWithRemotePublisher: AnyPublisher<Bool, Never> {
+        auxiliaryDataStorage
+            .didChangePublisher
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .map { $0.0.auxiliaryDataStorage.hasSyncedWithRemote }
+            .eraseToAnyPublisher()
+    }
+
     var cryptoAccountsPublisher: AnyPublisher<[StoredCryptoAccount], Never> {
         storageDidUpdatePublisher
             .eraseToAnyPublisher()
@@ -434,14 +446,28 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
         } else if !hasTokenSynchronization {
             // Local-only storage initialization with a default account
             let defaultAccount = defaultAccountFactory.makeDefaultAccount(
-                defaultTokensOverride: [],
+                defaultTokensOverride: nil,
                 defaultGroupingOverride: nil,
                 defaultSortingOverride: nil
             )
             initializeStorage(with: defaultAccount)
         } else {
-            // Last resort option: initialize storage with remote info from the server
-            loadAccountsFromServer()
+            // Last resort option: initialize storage with remote info from the server and
+            // fallback to an offline (local) default account in case of failure
+            loadAccountsFromServer { [weak self] result in
+                guard result.error != nil, let self else {
+                    return
+                }
+
+                let defaultAccount = defaultAccountFactory.makeDefaultAccount(
+                    // Temporary main account added here as an offline fallback must have an empty token list
+                    // so users can distinguish it from the main account created during new wallet onboarding
+                    defaultTokensOverride: [],
+                    defaultGroupingOverride: nil,
+                    defaultSortingOverride: nil
+                )
+                initializeStorage(with: defaultAccount)
+            }
         }
     }
 
@@ -574,7 +600,7 @@ final class UserTokensRepositoryAdapter: UserTokensRepository {
             innerRepository.persistentStorage.appendNewOrUpdateExisting(updatedAccount)
         }
 
-        if updates.isNotEmpty {
+        if updates.isNotEmpty, innerRepository.auxiliaryDataStorage.hasSyncedWithRemote {
             innerRepository.updateTokensOnServerDebouncer.debounce(withCompletion: { _ in })
         }
     }
