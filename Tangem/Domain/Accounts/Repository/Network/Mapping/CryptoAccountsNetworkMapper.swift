@@ -224,7 +224,9 @@ final class CryptoAccountsNetworkMapper {
         return RemoteCryptoAccountsInfo(
             counters: counters,
             accounts: accounts,
-            legacyTokens: legacyTokens
+            legacyTokens: legacyTokens,
+            legacyGrouping: grouping,
+            legacySorting: sorting
         )
     }
 
