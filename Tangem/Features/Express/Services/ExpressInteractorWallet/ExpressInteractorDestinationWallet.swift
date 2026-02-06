@@ -7,9 +7,11 @@
 //
 
 import TangemExpress
+import TangemFoundation
 
 protocol ExpressInteractorDestinationWallet: ExpressDestinationWallet {
     var id: WalletModelId { get }
+    var userWalletId: UserWalletId { get }
     var tokenItem: TokenItem { get }
     var isCustom: Bool { get }
     var tokenHeader: ExpressInteractorTokenHeader? { get }
