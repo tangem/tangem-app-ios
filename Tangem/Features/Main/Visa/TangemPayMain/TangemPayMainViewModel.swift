@@ -22,7 +22,7 @@ final class TangemPayMainViewModel: ObservableObject {
         guard let self else { return }
 
         async let balanceUpdate: Void = tangemPayAccount.loadBalance()
-        async let transactionsUpdate: Void = transactionHistoryService.reloadHistory().value
+        async let transactionsUpdate: Void = transactionHistoryService.reloadHistory()
 
         _ = await (balanceUpdate, transactionsUpdate)
     }
@@ -97,9 +97,12 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func reloadHistory() {
-        transactionHistoryService.reloadHistory()
+        runTask { [self] in
+            await transactionHistoryService.reloadHistory()
+        }
     }
 
+    @MainActor
     func fetchNextTransactionHistoryPage() -> FetchMore? {
         transactionHistoryService.fetchNextTransactionHistoryPage()
     }
@@ -275,6 +278,7 @@ final class TangemPayMainViewModel: ObservableObject {
             )
     }
 
+    @MainActor
     func openTransactionDetails(id: String) {
         guard let transaction = transactionHistoryService.getTransaction(id: id) else {
             assertionFailure("Transaction not found")
