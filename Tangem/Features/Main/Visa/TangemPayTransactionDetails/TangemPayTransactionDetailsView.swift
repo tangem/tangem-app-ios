@@ -82,22 +82,32 @@ struct TangemPayTransactionDetailsView: View {
 
     @ViewBuilder
     private var bottomInfoView: some View {
-        if let bottomInfo = viewModel.bottomInfo {
+        if let additionalInfo = viewModel.additionalInfo {
             HStack(spacing: 8) {
-                Assets.infoCircle20.image
+                additionalInfo.icon
                     .renderingMode(.template)
-                    .foregroundStyle(Colors.Icon.warning)
+                    .foregroundStyle(additionalInfo.iconColor)
 
-                Text(bottomInfo)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.warning)
+                Text(additionalInfo.text)
+                    .style(Fonts.Regular.footnote, color: additionalInfo.textColor)
             }
             .infinityFrame(axis: .horizontal, alignment: .leading)
             .padding(.vertical, 12)
             .padding(.horizontal, 14)
             .background(
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(Colors.Icon.warning.opacity(0.1))
+                    .fill(additionalInfo.backgroundColor)
             )
         }
+    }
+}
+
+extension TangemPayTransactionDetailsView {
+    struct AdditionalInfo {
+        let text: String
+        let textColor: Color
+        let icon: Image
+        let iconColor: Color
+        let backgroundColor: Color
     }
 }
