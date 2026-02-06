@@ -1364,12 +1364,12 @@
 "tangem_pay_status_completed" = "已完成";
 "tangem_pay_status_declined" = "已拒絕";
 "tangem_pay_status_pending" = "處理中";
-"tangem_pay_status_reversed" = "處理中";
+"tangem_pay_status_reversed" = "已撤銷";
 "tangem_pay_terms_fees_limits" = "條款、費用與限制";
 "tangem_pay_terms_limits" = "條款與限制";
 "tangem_pay_transaction_declined_notification_text" = "銀行拒絕了此交易請求。";
 "tangem_pay_transaction_fee_notification_text" = "此費用用於支付處理您轉帳的成本。";
-"tangem_pay_transaction_reversed_notification_text" = "銀行拒絕了此交易請求。";
+"tangem_pay_transaction_reversed_notification_text" = "該交易已被商家部分或全額撤銷";
 "tangem_pay_unfreeze_card_alert_body" = "繼續使用您的資金。您可以隨時凍結。";
 "tangem_pay_unfreeze_card_alert_title" = "解凍您的卡片？";
 "tangem_pay_unfreeze_card_failed" = "無法解凍卡片。請稍後再試。";
@@ -1740,6 +1740,7 @@
 "warning_hedera_missing_token_association_message" = "This token must be associated with your Hedera account before you can receive it. Association fee ~%1$@ %2$@";
 "warning_hedera_missing_token_association_title" = "Associate your token";
 "warning_hedera_token_association_not_enough_hbar_message" = "Not enough %@. Top up your Hedera account to associate this token";
+"warning_ios_deprecation_message" = "對 iOS %1$@ 的支援將於 %2$@ 結束。為了繼續接收 App 更新並確保完整功能，請更新至最新版本的 iOS。";
 "warning_kaspa_unfinished_token_transaction_discard_message" = "Are you sure you want to cancel the transaction? You will not be able to retry the transaction again";
 "warning_kaspa_unfinished_token_transaction_message" = "Your transaction with an amount of %1$@ %2$@ was not completed. You can try again to complete it.";
 "warning_kaspa_unfinished_token_transaction_title" = "You have unfinished transaction";
