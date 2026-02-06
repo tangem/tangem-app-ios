@@ -430,9 +430,11 @@
 "domain_receive_assets_onboarding_title" = "Send funds using only";
 "earn_best_opportunities" = "Best opportunities";
 "earn_clear_filter" = "Clear filter";
+"earn_empty" = "The list is temporarily empty as it’s being refreshed. Check back in a moment.";
 "earn_filter_all_networks" = "All networks";
 "earn_filter_all_types" = "All types";
 "earn_filter_by" = "Filter by";
+"earn_filter_my_networks" = "My networks";
 "earn_filter_networks" = "Networks";
 "earn_mostly_used" = "Mostly used";
 "earn_no_results" = "No results";
@@ -771,6 +773,7 @@
 "markets_token_details_volume" = "Volume";
 "markets_tooltip_message" = "Pull this up or tap the search bar to add tokens directly from the market";
 "markets_tooltip_title" = "Add tokens";
+"markets_tooltip_v2_title" = "Add more tokens";
 "markets_yield_supply_banner_description" = "Power up your assets while supplying them with instant access. %@";
 "markets_yield_supply_banner_title" = "Activate Yield Mode";
 "mobile_wallet_requires_min_os_warning_body" = "You must update to %1$@  before creating a mobile wallet";
@@ -1361,10 +1364,12 @@
 "tangem_pay_status_completed" = "Completato";
 "tangem_pay_status_declined" = "Rifiutato";
 "tangem_pay_status_pending" = "In sospeso";
+"tangem_pay_status_reversed" = "In sospeso";
 "tangem_pay_terms_fees_limits" = "Termini, commissioni e limiti";
 "tangem_pay_terms_limits" = "Termini e limiti";
 "tangem_pay_transaction_declined_notification_text" = "La banca ha rifiutato questa richiesta di transazione.";
 "tangem_pay_transaction_fee_notification_text" = "Questa commissione copre il costo della gestione del tuo trasferimento.";
+"tangem_pay_transaction_reversed_notification_text" = "La banca ha rifiutato questa richiesta di transazione.";
 "tangem_pay_unfreeze_card_alert_body" = "Continua a usare i tuoi soldi. Puoi congelarli in qualsiasi momento.";
 "tangem_pay_unfreeze_card_alert_title" = "Sbloccare la tua carta?";
 "tangem_pay_unfreeze_card_failed" = "Impossibile sbloccare la carta. Riprova più tardi.";

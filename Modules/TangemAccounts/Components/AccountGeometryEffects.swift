@@ -29,7 +29,8 @@ public struct AccountGeometryEffects {
         name = GeometryEffectPropertiesModel(
             id: "accountName",
             namespace: namespace,
-            properties: .position
+            properties: .position,
+            anchor: .leading
         )
         tokensCount = GeometryEffectPropertiesModel(
             id: "tokensCount",

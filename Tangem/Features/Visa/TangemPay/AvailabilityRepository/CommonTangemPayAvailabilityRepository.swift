@@ -38,54 +38,64 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
             .eraseToAnyPublisher()
     }
 
-    private var isTangemPayOfferAvailablePublisher: AnyPublisher<Bool, Never> {
-        _tangemPayOfferAvailabilityPublisher
-            .map { $0.isAvailable }
-            .filter { $0 }
-            .eraseToAnyPublisher()
+    private var userWalletRepositoryEvents: some Publisher<UserWalletRepositoryEvent, Never> {
+        userWalletRepository
+            .eventProvider
+            .removeDuplicates()
     }
 
-    private var isTangemPayEligiblePublisher: AnyPublisher<Bool, Never> {
+    private var knownPaeraCustomersIds: some Publisher<[String], Never> {
+        AppSettings.shared
+            .$tangemPayIsPaeraCustomer
+            .map {
+                $0.filter { $0.value }.map(\.key)
+            }
+            .removeDuplicates()
+    }
+
+    private var currentWalletModelsContainPaeraCustomers: some Publisher<Bool, Never> {
+        Publishers
+            .CombineLatest(
+                userWalletRepositoryEvents.mapToVoid().prepend(()),
+                knownPaeraCustomersIds
+            )
+            .map(\.1)
+            .withWeakCaptureOf(self)
+            .map { repository, paeraIds in
+                repository.userWalletRepository.models
+                    .contains(where: { paeraIds.contains($0.userWalletId.stringValue) })
+            }
+            .removeDuplicates()
+    }
+
+    private var isTangemPayEligiblePublisher: some Publisher<Bool, Never> {
         AppSettings.shared
             .$tangemPayIsEligibilityAvailable
-            .eraseToAnyPublisher()
     }
 
     private var isDeviceRooted: Bool {
         RTCUtil().checkStatus().hasIssues
     }
 
-    private var isTangemPayOfferAvailable: AnyPublisher<Bool, Never> {
+    private var isTangemPayOfferAvailable: some Publisher<Bool, Never> {
         _tangemPayOfferAvailabilityPublisher
             .map { $0.isAvailable }
-            .eraseToAnyPublisher()
     }
 
-    private var isTangemPayHiddenAnywhereOnce: AnyPublisher<Bool, Never> {
+    private var isTangemPayHiddenAnywhereOnce: some Publisher<Bool, Never> {
         AppSettings.shared
             .$tangemPayIsKYCHiddenForCustomerWalletId
             .removeDuplicates()
             .map { $0.contains(where: { $0.value }) }
-            .eraseToAnyPublisher()
     }
 
-    private var wasAnyTangemPayOfferAccepted: AnyPublisher<Bool, Never> {
-        AppSettings.shared
-            .$tangemPayIsPaeraCustomer
-            .removeDuplicates()
-            .map { $0.contains(where: { $0.value }) }
-            .eraseToAnyPublisher()
-    }
-
-    private var shouldShowTangemPayBannerByAppSettings: AnyPublisher<Bool, Never> {
+    private var shouldShowTangemPayBannerByAppSettings: some Publisher<Bool, Never> {
         Publishers
-            .CombineLatest3(
+            .CombineLatest(
                 AppSettings.shared.$tangemPayShouldShowGetBanner,
-                isTangemPayHiddenAnywhereOnce.map { !$0 },
-                wasAnyTangemPayOfferAccepted.map { !$0 }
+                isTangemPayHiddenAnywhereOnce.map { !$0 }
             )
-            .map { $0 && $1 && $2 }
-            .eraseToAnyPublisher()
+            .map { $0 && $1 }
     }
 
     private let availabilityService = TangemPayAvailabilityServiceBuilder()
@@ -117,12 +127,13 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
             }
 
         return Publishers
-            .CombineLatest3(
+            .CombineLatest4(
                 isGetTangemPayFeatureAvailable,
                 shouldShowTangemPayBannerByAppSettings,
-                isAvailableUserWalletModelsContainsCustomerWalletId
+                isAvailableUserWalletModelsContainsCustomerWalletId,
+                currentWalletModelsContainPaeraCustomers.map { !$0 }
             )
-            .map { $0 && $1 && $2 }
+            .map { $0 && $1 && $2 && $3 }
             .eraseToAnyPublisher()
     }
 
@@ -181,10 +192,6 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
     }
 
     private func bind() {
-        let userWalletRepositoryEvents = userWalletRepository
-            .eventProvider
-            .removeDuplicates()
-
         let anyUserWalletConfigurationChangesPublisher =
             userWalletRepositoryEvents
                 .withWeakCaptureOf(self)
@@ -216,19 +223,12 @@ final class CommonTangemPayAvailabilityRepository: TangemPayAvailabilityReposito
                     anyUserWalletConfigurationChangesPublisher
                 )
 
-        let knownPaeraCustomersIds = AppSettings.shared
-            .$tangemPayIsPaeraCustomer
-            .map {
-                $0.filter { $0.value }.map(\.key)
-            }
-            .removeDuplicates()
-
         Publishers
             .CombineLatest(
                 // Combine any UserWalletModel changes with known Paera customers.
                 // Any change in either source triggers recalculation of
                 // UserWalletModels availability for the TangemPay offer.
-                anyUserWalletModelChangesPublisher,
+                anyUserWalletModelChangesPublisher.prepend(()),
                 knownPaeraCustomersIds
             )
             .map(\.1)
