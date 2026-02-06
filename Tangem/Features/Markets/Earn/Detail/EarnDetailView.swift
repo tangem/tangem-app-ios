@@ -50,6 +50,7 @@ struct EarnDetailView: View {
                 bestOpportunitiesSection
             }
         }
+        .padding(.top, Layout.headerContentSpacing)
     }
 
     @ViewBuilder
@@ -65,19 +66,14 @@ struct EarnDetailView: View {
         VStack(alignment: .leading, spacing: Layout.sectionSpacing) {
             EarnDetailHeaderView(headerTitle: Localization.earnBestOpportunities)
 
-            ZStack(alignment: .center) {
-                EarnFilterHeaderView(
-                    isFilterInteractionEnabled: viewModel.isFilterInteractionEnabled,
-                    networkFilterTitle: viewModel.selectedNetworkFilterTitle,
-                    typesFilterTitle: viewModel.selectedFilterTypeTitle,
-                    onNetworksTap: { viewModel.handleViewAction(.networksFilterTap) },
-                    onTypesTap: { viewModel.handleViewAction(.typesFilterTap) }
-                )
-
-                if viewModel.isFilterLoading {
-                    ProgressView()
-                }
-            }
+            EarnFilterHeaderView(
+                isFilterInteractionEnabled: viewModel.isFilterInteractionEnabled,
+                isLoading: viewModel.isFilterLoading,
+                networkFilterTitle: viewModel.selectedNetworkFilterTitle,
+                typesFilterTitle: viewModel.selectedFilterTypeTitle,
+                onNetworksTap: { viewModel.handleViewAction(.networksFilterTap) },
+                onTypesTap: { viewModel.handleViewAction(.typesFilterTap) }
+            )
 
             EarnBestOpportunitiesListView(
                 loadingState: viewModel.listLoadingState,
@@ -86,19 +82,13 @@ struct EarnDetailView: View {
                 hasActiveFilters: viewModel.hasActiveFilters,
                 clearFilterAction: viewModel.clearFilters
             )
-            .defaultRoundedBackground(
-                with: Color.Tangem.Surface.level4,
-                verticalPadding: Layout.innerContentPadding,
-                horizontalPadding: Layout.innerContentPadding
-            )
         }
     }
 }
 
 private extension EarnDetailView {
     enum Layout {
-        static let sectionSpacing: CGFloat = 12.0
-        static let horizontalPadding: CGFloat = 16.0
-        static let innerContentPadding: CGFloat = 0.0
+        static let sectionSpacing: CGFloat = 32.0
+        static let headerContentSpacing: CGFloat = 12.0
     }
 }
