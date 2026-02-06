@@ -119,7 +119,7 @@ final class CommonCryptoAccountsRepository {
         try await walletCreationHelper.createWallet()
     }
 
-    private func addDefaultAccount(isWalletAlreadyCreated: Bool, additionalTokens: [StoredCryptoAccount.Token]) async throws {
+    private func addDefaultAccount(isWalletAlreadyCreated: Bool, legacyInfo: RemoteCryptoAccountsInfo?) async throws {
         if !isWalletAlreadyCreated {
             try await createWallet()
         }
@@ -128,7 +128,11 @@ final class CommonCryptoAccountsRepository {
         // (w/o accounts support) and this wallet has an empty token list, default tokens from
         // `DefaultAccountFactory.defaultBlockchains` (i.e. `UserWalletConfig.defaultBlockchains`) will be added
         // to the newly created account. We consider this behavior acceptable (mirrors the Android implementation).
-        let defaultAccount = defaultAccountFactory.makeDefaultAccount(defaultTokensOverride: additionalTokens)
+        let defaultAccount = defaultAccountFactory.makeDefaultAccount(
+            defaultTokensOverride: legacyInfo?.legacyTokens ?? [],
+            defaultGroupingOverride: legacyInfo?.legacyGrouping,
+            defaultSortingOverride: legacyInfo?.legacySorting
+        )
         _ = try await addAccountsInternal([defaultAccount], tokenListUpdateOptions: .forceUpdate)
     }
 
@@ -178,7 +182,7 @@ final class CommonCryptoAccountsRepository {
 
             var updatedAccounts = remoteCryptoAccountsInfo.accounts
             if updatedAccounts.isEmpty {
-                throw InternalError.migrationNeeded(additionalTokens: remoteCryptoAccountsInfo.legacyTokens)
+                throw InternalError.migrationNeeded(legacyInfo: remoteCryptoAccountsInfo)
             }
 
             let shouldUpdateTokenListDueToTokensDistribution = StoredCryptoAccountsTokensDistributor.distributeTokens(
@@ -203,9 +207,9 @@ final class CommonCryptoAccountsRepository {
         } catch CryptoAccountsNetworkServiceError.underlyingError(let error) {
             throw error
         } catch CryptoAccountsNetworkServiceError.noAccountsCreated {
-            try await addDefaultAccount(isWalletAlreadyCreated: false, additionalTokens: [])
-        } catch InternalError.migrationNeeded(let additionalTokens) {
-            try await addDefaultAccount(isWalletAlreadyCreated: true, additionalTokens: additionalTokens)
+            try await addDefaultAccount(isWalletAlreadyCreated: false, legacyInfo: nil)
+        } catch InternalError.migrationNeeded(let legacyInfo) {
+            try await addDefaultAccount(isWalletAlreadyCreated: true, legacyInfo: legacyInfo)
         }
     }
 
@@ -429,7 +433,12 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
             migrateStorage(forUserWalletWithId: userWalletId)
         } else if !hasTokenSynchronization {
             // Local-only storage initialization with a default account
-            initializeStorage(with: defaultAccountFactory.makeDefaultAccount(defaultTokensOverride: []))
+            let defaultAccount = defaultAccountFactory.makeDefaultAccount(
+                defaultTokensOverride: [],
+                defaultGroupingOverride: nil,
+                defaultSortingOverride: nil
+            )
+            initializeStorage(with: defaultAccount)
         } else {
             // Last resort option: initialize storage with remote info from the server
             loadAccountsFromServer()
@@ -629,7 +638,7 @@ private extension CommonCryptoAccountsRepository {
         /// Unlike `CryptoAccountsNetworkServiceError.noAccountsCreated`, this error indicates that the wallet
         /// has been created using an older version of the app (i.e. w/o accounts support) and exists,
         /// but no accounts have been created for this wallet yet.
-        case migrationNeeded(additionalTokens: [StoredCryptoAccount.Token])
+        case migrationNeeded(legacyInfo: RemoteCryptoAccountsInfo)
         /// No `UserWalletInfoProvider` has been configured for the repository, this is most likely a programming error.
         /// Check that `configure(with:)` method has been called before using the repository.
         case noUserWalletInfoProviderSet
