@@ -504,6 +504,7 @@ private extension OnboardingViewModel {
         Analytics.log(
             .settingsColdWalletAdded,
             params: [.source: Analytics.ParameterValue.onboarding],
+            analyticsSystems: .all,
             contextParams: .custom(contextData)
         )
     }
