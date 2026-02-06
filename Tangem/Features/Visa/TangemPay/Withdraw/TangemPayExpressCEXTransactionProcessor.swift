@@ -29,12 +29,24 @@ extension TangemPayExpressCEXTransactionProcessor: ExpressCEXTransactionProcesso
             walletPublicKey: walletPublicKey
         )
 
-        return TransactionDispatcherResultMapper().mapResult(result, signer: .none)
+        let orderResponse = try await withdrawTransactionService
+            .getOrder(id: result.orderID)
+
+        guard let txHash = orderResponse.data?.transactionHash else {
+            throw Error.transactionHashNotFound
+        }
+
+        return TransactionDispatcherResultMapper().mapResult(
+            result,
+            txHash: txHash,
+            signer: .none
+        )
     }
 }
 
 extension TangemPayExpressCEXTransactionProcessor {
     enum Error: LocalizedError {
         case walletPublicKeyNotFound
+        case transactionHashNotFound
     }
 }
