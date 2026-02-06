@@ -56,7 +56,6 @@ struct EarnBestOpportunitiesListView: View {
                 EarnTokenItemView(viewModel: viewModel)
             }
         }
-        .padding(.horizontal, Layout.horizontalPadding)
     }
 
     private var emptyView: some View {
