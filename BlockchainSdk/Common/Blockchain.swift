@@ -771,13 +771,7 @@ public indirect enum Blockchain: Equatable, Hashable {
     }
 
     public var canHandleCustomTokens: Bool {
-        switch self {
-        // Only one token supported currently
-        case .terraV1:
-            return false
-        default:
-            return canHandleTokens
-        }
+        return canHandleTokens
     }
 
     public var hasMemo: Bool {
