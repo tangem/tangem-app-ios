@@ -353,7 +353,7 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
     private func setupDescription() {
         guard case .create = flowType else { return }
 
-        accountModelsManager.totalAccountsCountPublisher
+        accountModelsManager.totalCryptoAccountsCountPublisher
             .receiveOnMain()
             .assign(to: &$totalAccountsCount)
     }
