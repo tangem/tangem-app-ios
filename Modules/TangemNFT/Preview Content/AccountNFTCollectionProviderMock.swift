@@ -8,6 +8,6 @@
 
 struct AccountNFTCollectionProviderMock: AccountForNFTCollectionsProviding {
     func provideAccountsWithCollectionsState(for collections: [NFTCollection]) -> AccountsWithCollectionsState {
-        .singleAccount
+        .singleAccount(NFTNavigationContextMock())
     }
 }
