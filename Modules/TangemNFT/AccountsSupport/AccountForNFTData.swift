@@ -38,6 +38,6 @@ public struct AccountWithCollectionsData {
 }
 
 public enum AccountsWithCollectionsState {
-    case singleAccount
+    case singleAccount(NFTNavigationContext)
     case multipleAccounts([AccountWithCollectionsData])
 }
