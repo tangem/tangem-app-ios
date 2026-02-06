@@ -13,6 +13,7 @@ import TangemLocalization
 
 struct EarnFilterHeaderView: View {
     let isFilterInteractionEnabled: Bool
+    let isLoading: Bool
     let networkFilterTitle: String
     let typesFilterTitle: String
     let onNetworksTap: () -> Void
@@ -54,6 +55,7 @@ struct EarnFilterHeaderView: View {
                 RoundedRectangle(cornerRadius: Layout.buttonCornerRadius)
                     .fill(Colors.Button.secondary)
             )
+            .skeletonable(isShown: isLoading, radius: Layout.buttonCornerRadius)
         }
         .buttonStyle(.plain)
         .disabled(!isEnabled)
