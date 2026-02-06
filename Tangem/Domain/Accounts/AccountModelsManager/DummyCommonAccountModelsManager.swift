@@ -19,11 +19,15 @@ extension DummyCommonAccountModelsManager: AccountModelsManager {
         false
     }
 
+    var hasSyncedWithRemotePublisher: AnyPublisher<Bool, Never> {
+        .just(output: true)
+    }
+
     var hasArchivedCryptoAccountsPublisher: AnyPublisher<Bool, Never> {
         .just(output: false)
     }
 
-    var totalAccountsCountPublisher: AnyPublisher<Int, Never> {
+    var totalCryptoAccountsCountPublisher: AnyPublisher<Int, Never> {
         .just(output: accountModels.count)
     }
 
