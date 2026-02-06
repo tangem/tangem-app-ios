@@ -11,6 +11,7 @@ import Combine
 
 final class AccountForNFTCollectionsProvider {
     private let userWalletModel: UserWalletModel
+    // [REDACTED_TODO_COMMENT]
     private var cryptoAccounts: CryptoAccounts?
 
     /// Cached mapping:  address -> crypto account
@@ -111,13 +112,23 @@ final class AccountForNFTCollectionsProvider {
 
 extension AccountForNFTCollectionsProvider: AccountForNFTCollectionsProviding {
     func provideAccountsWithCollectionsState(for collections: [NFTCollection]) -> AccountsWithCollectionsState {
-        guard let cryptoAccounts else {
-            return .singleAccount
-        }
-
         switch cryptoAccounts {
-        case .single:
-            return .singleAccount
+        case .none:
+            // Legacy mode w/o accounts support, wallets only
+            let navigationContext = NFTNavigationInput(
+                userWalletModel: userWalletModel,
+                name: userWalletModel.name,
+                walletModelsManager: userWalletModel.walletModelsManager
+            )
+            return .singleAccount(navigationContext)
+
+        case .single(let account):
+            let navigationContext = NFTNavigationInput(
+                userWalletModel: userWalletModel,
+                name: account.name,
+                walletModelsManager: account.walletModelsManager
+            )
+            return .singleAccount(navigationContext)
 
         case .multiple(let accounts):
             // Build address lookup map if needed
@@ -126,7 +137,12 @@ extension AccountForNFTCollectionsProvider: AccountForNFTCollectionsProviding {
             }
 
             guard let addressMap = addressToAccountMap else {
-                return .singleAccount
+                let navigationContext = NFTNavigationInput(
+                    userWalletModel: userWalletModel,
+                    name: userWalletModel.name,
+                    walletModelsManager: userWalletModel.walletModelsManager
+                )
+                return .singleAccount(navigationContext)
             }
 
             // Group collections by their owner accounts
