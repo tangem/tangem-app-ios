@@ -30,6 +30,7 @@ protocol SwapManager: SendApproveDataBuilderInput, SendFeeUpdater, TokenFeeProvi
     func update(amount: Decimal?)
 
     func update(
+        userWalletId: UserWalletId,
         destination: TokenItem?,
         address: String?,
         tokenHeader: ExpressInteractorTokenHeader?,
