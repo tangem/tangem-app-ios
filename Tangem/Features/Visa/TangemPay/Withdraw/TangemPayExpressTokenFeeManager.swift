@@ -12,9 +12,20 @@ struct TangemPayExpressTokenFeeProvidersManager: ExpressTokenFeeProvidersManager
     let tokenItem: TokenItem
 
     func tokenFeeProvidersManager(providerId: ExpressProvider.Id) -> TokenFeeProvidersManager {
-        CommonTokenFeeProvidersManager(
-            feeProviders: [.empty(feeTokenItem: tokenItem)],
-            initialSelectedProvider: .empty(feeTokenItem: tokenItem)
+        let provider = EmptyTokenFeeProvider(
+            feeTokenItem: tokenItem,
+            bsdkFee: BSDKFee(
+                BSDKAmount(
+                    with: tokenItem.blockchain,
+                    type: tokenItem.amountType,
+                    value: 0
+                )
+            )
+        )
+
+        return CommonTokenFeeProvidersManager(
+            feeProviders: [provider],
+            initialSelectedProvider: provider
         )
     }
 
