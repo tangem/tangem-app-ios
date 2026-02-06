@@ -430,9 +430,11 @@
 "domain_receive_assets_onboarding_title" = "下記のみを使用して資金を送金する";
 "earn_best_opportunities" = "おすすめ";
 "earn_clear_filter" = "Clear filter";
+"earn_empty" = "The list is temporarily empty as it’s being refreshed. Check back in a moment.";
 "earn_filter_all_networks" = "すべてのネットワーク";
 "earn_filter_all_types" = "すべての種類";
 "earn_filter_by" = "Filter by";
+"earn_filter_my_networks" = "My networks";
 "earn_filter_networks" = "Networks";
 "earn_mostly_used" = "よく使われています";
 "earn_no_results" = "No results";
@@ -771,6 +773,7 @@
 "markets_token_details_volume" = "取引量";
 "markets_tooltip_message" = "これをドラッグするか、検索窓をタップして、マーケットから直接トークンを追加します";
 "markets_tooltip_title" = "トークンを追加";
+"markets_tooltip_v2_title" = "Add more tokens";
 "markets_yield_supply_banner_description" = "資産を常時アクセス可能な状態に保ったまま、パワーアップさせよう。%@";
 "markets_yield_supply_banner_title" = "利息モードを有効にする";
 "mobile_wallet_requires_min_os_warning_body" = "モバイルウォレットを作成するには、%1$@にアップデートする必要があります";
@@ -1361,10 +1364,12 @@
 "tangem_pay_status_completed" = "完了";
 "tangem_pay_status_declined" = "拒否";
 "tangem_pay_status_pending" = "保留中";
+"tangem_pay_status_reversed" = "保留中";
 "tangem_pay_terms_fees_limits" = "利用規約・手数料・利用制限";
 "tangem_pay_terms_limits" = "利用規約と上限条件";
 "tangem_pay_transaction_declined_notification_text" = "銀行がこの取引リクエストを拒否しました。";
 "tangem_pay_transaction_fee_notification_text" = "この手数料は、送金処理にかかるコストをカバーするためのものです。";
+"tangem_pay_transaction_reversed_notification_text" = "銀行がこの取引リクエストを拒否しました。";
 "tangem_pay_unfreeze_card_alert_body" = "資金は引き続き使用できます。いつでも一時停止できます。";
 "tangem_pay_unfreeze_card_alert_title" = "カードの一時停止を解除しますか?";
 "tangem_pay_unfreeze_card_failed" = "カードの凍結解除に失敗しました。しばらくしてからもう一度お試しください。";
