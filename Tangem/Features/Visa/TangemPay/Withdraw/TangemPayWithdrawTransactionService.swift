@@ -10,7 +10,6 @@ import Foundation
 import BlockchainSdk
 import TangemVisa
 import TangemExpress
-import TangemFoundation
 import TangemPay
 
 protocol TangemPayWithdrawTransactionServiceOutput: AnyObject {
@@ -20,17 +19,19 @@ protocol TangemPayWithdrawTransactionServiceOutput: AnyObject {
 protocol TangemPayWithdrawTransactionService {
     func getOrder(id: String) async throws -> TangemPayOrderResponse
     func sendWithdrawTransaction(amount: Decimal, destination: String, walletPublicKey: Wallet.PublicKey) async throws -> TangemPayWithdrawTransactionResult
-    func set(output: TangemPayWithdrawTransactionServiceOutput)
+    func set(output: TangemPayWithdrawTransactionServiceOutput) async
 
     func hasActiveWithdrawOrder() async throws -> Bool
 }
 
-class CommonTangemPayWithdrawTransactionService {
+actor CommonTangemPayWithdrawTransactionService {
     private let customerInfoManagementService: any CustomerInfoManagementService
     private let fiatItem: FiatItem
     private let signer: any TangemSigner
 
-    private let activeWithdrawOrderID: ThreadSafeContainer<String?> = .init(nil)
+    private var activeWithdrawOrderID: String?
+    private var isWithdrawInProgress: Bool = false
+
     private weak var output: TangemPayWithdrawTransactionServiceOutput?
 
     init(
@@ -56,6 +57,13 @@ extension CommonTangemPayWithdrawTransactionService: TangemPayWithdrawTransactio
         destination: String,
         walletPublicKey: Wallet.PublicKey
     ) async throws -> TangemPayWithdrawTransactionResult {
+        if isWithdrawInProgress {
+            throw Error.withdrawInProgress
+        }
+
+        isWithdrawInProgress = true
+        defer { isWithdrawInProgress = false }
+
         let amountInCents = fiatItem.convertToCents(value: amount).description
         let request = TangemPayWithdrawRequest(amount: amount, amountInCents: amountInCents, destination: destination)
 
@@ -77,7 +85,7 @@ extension CommonTangemPayWithdrawTransactionService: TangemPayWithdrawTransactio
         let response = try await customerInfoManagementService
             .sendWithdrawTransaction(request: request, signature: signature)
 
-        activeWithdrawOrderID.mutate { $0 = response.orderID }
+        activeWithdrawOrderID = response.orderID
         return response
     }
 
@@ -86,7 +94,11 @@ extension CommonTangemPayWithdrawTransactionService: TangemPayWithdrawTransactio
     }
 
     func hasActiveWithdrawOrder() async throws -> Bool {
-        guard let orderId = activeWithdrawOrderID.read() else {
+        if isWithdrawInProgress {
+            return true
+        }
+
+        guard let orderId = activeWithdrawOrderID else {
             return false
         }
 
@@ -95,8 +107,16 @@ extension CommonTangemPayWithdrawTransactionService: TangemPayWithdrawTransactio
         case .new, .processing:
             return true
         case .completed, .canceled:
-            activeWithdrawOrderID.mutate { $0 = nil }
+            if activeWithdrawOrderID == orderId {
+                activeWithdrawOrderID = nil
+            }
             return false
         }
+    }
+}
+
+private extension CommonTangemPayWithdrawTransactionService {
+    enum Error: LocalizedError {
+        case withdrawInProgress
     }
 }
