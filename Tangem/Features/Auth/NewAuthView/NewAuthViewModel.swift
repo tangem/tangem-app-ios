@@ -530,6 +530,7 @@ private extension NewAuthViewModel {
         Analytics.log(
             .settingsColdWalletAdded,
             params: [.source: Analytics.ParameterValue.signIn],
+            analyticsSystems: .all,
             contextParams: .custom(cardInfo.analyticsContextData)
         )
     }
