@@ -430,9 +430,11 @@
 "domain_receive_assets_onboarding_title" = "Надсилайте кошти, використовуючи лише";
 "earn_best_opportunities" = "Best opportunities";
 "earn_clear_filter" = "Clear filter";
+"earn_empty" = "The list is temporarily empty as it’s being refreshed. Check back in a moment.";
 "earn_filter_all_networks" = "All networks";
 "earn_filter_all_types" = "All types";
 "earn_filter_by" = "Filter by";
+"earn_filter_my_networks" = "My networks";
 "earn_filter_networks" = "Networks";
 "earn_mostly_used" = "Mostly used";
 "earn_no_results" = "No results";
@@ -771,6 +773,7 @@
 "markets_token_details_volume" = "Обсяг";
 "markets_tooltip_message" = "Потягніть вгору або торкніться панелі пошуку, щоб додати токени безпосередньо з маркету";
 "markets_tooltip_title" = "Додати токени";
+"markets_tooltip_v2_title" = "Add more tokens";
 "markets_yield_supply_banner_description" = "Збільшуйте дохід з активів, зберігаючи миттєвий доступ до них. %@";
 "markets_yield_supply_banner_title" = "Активувати режим дохідності";
 "mobile_wallet_requires_min_os_warning_body" = "Оновіться до версії %1$@, щоб створити мобільний гаманець";
@@ -1361,10 +1364,12 @@
 "tangem_pay_status_completed" = "Завершено";
 "tangem_pay_status_declined" = "Відхилено";
 "tangem_pay_status_pending" = "В очікуванні";
+"tangem_pay_status_reversed" = "В очікуванні";
 "tangem_pay_terms_fees_limits" = "Умови, комісії та ліміти";
 "tangem_pay_terms_limits" = "Умови та обмеження";
 "tangem_pay_transaction_declined_notification_text" = "Банк відхилив цей запит на транзакцію.";
 "tangem_pay_transaction_fee_notification_text" = "Ця комісія покриває витрати на обробку вашого переказу.";
+"tangem_pay_transaction_reversed_notification_text" = "Банк відхилив цей запит на транзакцію.";
 "tangem_pay_unfreeze_card_alert_body" = "Продовжуйте користуватися карткою. Заморозити можна в будь-який момент.";
 "tangem_pay_unfreeze_card_alert_title" = "Розморозити картку?";
 "tangem_pay_unfreeze_card_failed" = "Не вдалося розморозити картку. Спробуйте пізніше.";
