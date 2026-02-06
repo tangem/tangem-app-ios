@@ -83,6 +83,7 @@ extension CommonSwapManager: SwapManager {
     }
 
     func update(
+        userWalletId: UserWalletId,
         destination: TokenItem?,
         address: String?,
         tokenHeader: ExpressInteractorTokenHeader?,
@@ -90,6 +91,7 @@ extension CommonSwapManager: SwapManager {
     ) {
         let destinationWallet = destination.map {
             SwapDestinationWalletWrapper(
+                userWalletId: userWalletId,
                 tokenItem: $0,
                 address: address,
                 tokenHeader: tokenHeader,
