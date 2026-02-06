@@ -103,10 +103,14 @@ final class EarnDetailViewModel: ObservableObject {
     private func setupMostlyUsedViewModels(from tokens: [EarnTokenModel]) {
         mostlyUsedViewModels = tokens.map { token in
             EarnTokenItemViewModel(token: token) { [weak self] in
-                guard let self else { return }
-                coordinator?.openAddEarnToken(for: token, userWalletModels: userWalletModels)
+                self?.handleTokenTap(token)
             }
         }
+    }
+
+    private func handleTokenTap(_ token: EarnTokenModel) {
+        let resolution = EarnTokenInWalletResolver().resolve(earnToken: token, userWalletModels: userWalletModels)
+        coordinator?.routeOnTokenResolved(resolution)
     }
 
     private func bind() {
@@ -154,8 +158,7 @@ final class EarnDetailViewModel: ObservableObject {
         case .appendedItems(let models, let lastPage):
             let newViewModels = models.map { token in
                 EarnTokenItemViewModel(token: token) { [weak self] in
-                    guard let self else { return }
-                    coordinator?.openAddEarnToken(for: token, userWalletModels: userWalletModels)
+                    self?.handleTokenTap(token)
                 }
             }
             tokenViewModels.append(contentsOf: newViewModels)
