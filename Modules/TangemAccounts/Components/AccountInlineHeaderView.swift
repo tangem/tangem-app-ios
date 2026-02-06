@@ -22,6 +22,7 @@ public struct AccountInlineHeaderView: View {
     private var iconGeometryEffect: GeometryEffectPropertiesModel?
     private var iconBackgroundGeometryEffect: GeometryEffectPropertiesModel?
     private var nameGeometryEffect: GeometryEffectPropertiesModel?
+    private var minimumScaleFactor: CGFloat = 0.7
 
     public init(
         iconData: AccountIconView.ViewData,
@@ -43,7 +44,7 @@ public struct AccountInlineHeaderView: View {
             Text(name)
                 .style(font, color: textColor)
                 .matchedGeometryEffect(nameGeometryEffect)
-                .minimumScaleFactor(0.7)
+                .minimumScaleFactor(minimumScaleFactor)
                 .lineLimit(1)
 
             if expandsHorizontally {
@@ -97,6 +98,10 @@ extension AccountInlineHeaderView: Setupable {
 
     public func nameGeometryEffect(_ effect: GeometryEffectPropertiesModel?) -> Self {
         map { $0.nameGeometryEffect = effect }
+    }
+
+    public func minimumScaleFactor(_ minimumScaleFactor: CGFloat) -> Self {
+        map { $0.minimumScaleFactor = minimumScaleFactor }
     }
 }
 
