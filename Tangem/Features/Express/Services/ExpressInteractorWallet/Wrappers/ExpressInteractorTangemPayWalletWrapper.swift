@@ -9,11 +9,13 @@
 import Combine
 import BlockchainSdk
 import TangemExpress
+import TangemFoundation
 
 typealias ExpressInteractorTangemPayWallet = ExpressInteractorSourceWallet
 
 struct ExpressInteractorTangemPayWalletWrapper: ExpressInteractorTangemPayWallet {
     let id: WalletModelId
+    let userWalletId: UserWalletId
     let tokenHeader: ExpressInteractorTokenHeader? = nil
     let tokenItem: TokenItem
     let feeTokenItem: TokenItem
@@ -38,6 +40,7 @@ struct ExpressInteractorTangemPayWalletWrapper: ExpressInteractorTangemPayWallet
     private var _feeProvider: any ExpressFeeProvider
 
     init(
+        userWalletId: UserWalletId,
         tokenItem: TokenItem,
         feeTokenItem: TokenItem,
         defaultAddressString: String,
@@ -46,7 +49,7 @@ struct ExpressInteractorTangemPayWalletWrapper: ExpressInteractorTangemPayWallet
         transactionValidator: any ExpressTransactionValidator
     ) {
         id = .init(tokenItem: tokenItem)
-
+        self.userWalletId = userWalletId
         self.tokenItem = tokenItem
         self.feeTokenItem = feeTokenItem
         self.defaultAddressString = defaultAddressString
