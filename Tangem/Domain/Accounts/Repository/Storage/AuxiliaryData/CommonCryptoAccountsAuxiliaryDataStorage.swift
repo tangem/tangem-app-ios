@@ -11,7 +11,15 @@ import Combine
 import TangemFoundation
 
 final class CommonCryptoAccountsAuxiliaryDataStorage {
-    private typealias Storage = AppStorageCompat<Key, Int>
+    private typealias Storage<T> = AppStorageCompat<Key, T>
+
+    @Storage private var innerHasSyncedWithRemote: Bool {
+        didSet {
+            if oldValue != innerHasSyncedWithRemote {
+                didChangeSubject.send()
+            }
+        }
+    }
 
     @Storage private var innerArchivedAccountsCount: Int {
         didSet {
@@ -32,10 +40,18 @@ final class CommonCryptoAccountsAuxiliaryDataStorage {
     private let didChangeSubject = PassthroughSubject<Void, Never>()
 
     init(
-        storageIdentifier: String
+        storageIdentifier: String,
+        hasTokenSynchronization: Bool
     ) {
-        _innerArchivedAccountsCount = .init(wrappedValue: 0, .init(forArchivedAccountsCountWithWithStorageIdentifier: storageIdentifier))
-        _innerTotalAccountsCount = .init(wrappedValue: 0, .init(forTotalAccountsCountWithStorageIdentifier: storageIdentifier))
+        _innerHasSyncedWithRemote = .init(
+            wrappedValue: !hasTokenSynchronization, .init(forHasSyncedWithRemoteWithStorageIdentifier: storageIdentifier)
+        )
+        _innerArchivedAccountsCount = .init(
+            wrappedValue: 0, .init(forArchivedAccountsCountWithWithStorageIdentifier: storageIdentifier)
+        )
+        _innerTotalAccountsCount = .init(
+            wrappedValue: 0, .init(forTotalAccountsCountWithStorageIdentifier: storageIdentifier)
+        )
     }
 }
 
@@ -47,6 +63,11 @@ extension CommonCryptoAccountsAuxiliaryDataStorage: CryptoAccountsAuxiliaryDataS
         didChangeSubject
             .prepend(())
             .eraseToAnyPublisher()
+    }
+
+    var hasSyncedWithRemote: Bool {
+        get { innerHasSyncedWithRemote }
+        set { innerHasSyncedWithRemote = newValue }
     }
 
     var archivedAccountsCount: Int {
@@ -64,6 +85,10 @@ extension CommonCryptoAccountsAuxiliaryDataStorage: CryptoAccountsAuxiliaryDataS
 
 private struct Key: RawRepresentable {
     let rawValue: String
+
+    init(forHasSyncedWithRemoteWithStorageIdentifier storageIdentifier: String) {
+        rawValue = "CommonCryptoAccountsAuxiliaryDataStorage_hasSyncedWithRemote_\(storageIdentifier)"
+    }
 
     init(forArchivedAccountsCountWithWithStorageIdentifier storageIdentifier: String) {
         rawValue = "CommonCryptoAccountsAuxiliaryDataStorage_archivedAccountsCount_\(storageIdentifier)"
