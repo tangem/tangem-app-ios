@@ -209,6 +209,15 @@ class Analytics {
             case .amplitude:
                 AmplitudeWrapper.shared.track(eventType: event, eventProperties: params)
             case .appsFlyer:
+                let convertedParams = AppsFlyerAnalyticsEventConverter.convert(params: params)
+                let printableParams: [String: String] = convertedParams.reduce(into: [:]) { $0[$1.key] = String(describing: $1.value) }
+
+                if let data = try? JSONSerialization.data(withJSONObject: printableParams, options: .sortedKeys),
+                   let paramsString = String(data: data, encoding: .utf8)?.replacingOccurrences(of: ",\"", with: ", \"") {
+                    let logMessage = "Analytics event [appsflyer]: \(event). Params: \(paramsString)"
+                    AnalyticsLogger.info(logMessage)
+                }
+
                 AppsFlyerWrapper.shared.log(event: event, params: params)
             }
         }
