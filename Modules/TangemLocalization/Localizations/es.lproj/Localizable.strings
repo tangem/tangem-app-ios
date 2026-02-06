@@ -430,9 +430,11 @@
 "domain_receive_assets_onboarding_title" = "Envíe fondos utilizando solo";
 "earn_best_opportunities" = "Las mejores oportunidades";
 "earn_clear_filter" = "Clear filter";
+"earn_empty" = "The list is temporarily empty as it’s being refreshed. Check back in a moment.";
 "earn_filter_all_networks" = "Todas las redes";
 "earn_filter_all_types" = "Todos los tipos";
 "earn_filter_by" = "Filter by";
+"earn_filter_my_networks" = "My networks";
 "earn_filter_networks" = "Networks";
 "earn_mostly_used" = "Mayormente usado";
 "earn_no_results" = "No results";
@@ -771,6 +773,7 @@
 "markets_token_details_volume" = "Volumen";
 "markets_tooltip_message" = "Tire hacia arriba o toque la barra de búsqueda para agregar tokens directamente desde el mercado";
 "markets_tooltip_title" = "Agregar tokens";
+"markets_tooltip_v2_title" = "Add more tokens";
 "markets_yield_supply_banner_description" = "Potencie sus activos mientras los suministra con acceso inmediato. %@";
 "markets_yield_supply_banner_title" = "Activar Modo Rendimiento";
 "mobile_wallet_requires_min_os_warning_body" = "Debes actualizar a %1$@ para crear una mobile wallet";
@@ -1361,10 +1364,12 @@
 "tangem_pay_status_completed" = "Completado";
 "tangem_pay_status_declined" = "Rechazado";
 "tangem_pay_status_pending" = "Pendiente";
+"tangem_pay_status_reversed" = "Pendiente";
 "tangem_pay_terms_fees_limits" = "Términos, tarifas y límites";
 "tangem_pay_terms_limits" = "Términos y límites";
 "tangem_pay_transaction_declined_notification_text" = "El banco rechazó esta solicitud de transacción.";
 "tangem_pay_transaction_fee_notification_text" = "Esta tarifa cubre el costo de procesar tu transferencia.";
+"tangem_pay_transaction_reversed_notification_text" = "El banco rechazó esta solicitud de transacción.";
 "tangem_pay_unfreeze_card_alert_body" = "Sigue usando tu dinero. Puedes congelarlo en cualquier momento.";
 "tangem_pay_unfreeze_card_alert_title" = "¿Descongelar tu tarjeta?";
 "tangem_pay_unfreeze_card_failed" = "No se pudo descongelar la tarjeta. Inténtalo de nuevo más tarde.";
