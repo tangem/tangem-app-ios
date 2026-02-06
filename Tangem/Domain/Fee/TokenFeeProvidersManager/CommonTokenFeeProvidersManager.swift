@@ -45,33 +45,16 @@ final class CommonTokenFeeProvidersManager {
                     }
 
                 return Publishers.CombineLatest(fee, balance)
-                    .map { fee, balance in fee > balance } // Bool: не хватает?
-                    .removeDuplicates() // важно!
+                    .map { fee, balance in fee > balance }
+                    .removeDuplicates()
                     .eraseToAnyPublisher()
             }
-            .filter { $0 } // только когда стало true
+            .filter { $0 }
             .sink { [weak self] _ in
                 self?.updateToAnotherProviderWithBalance()
             }
     }
-
-//    private func updateToAnotherProviderWithBalance() {
-//        FeeLogger.info(self, "Detect that selected provider doesn't have enough balance to cover fee")
-//        let supported = tokenFeeProviders.filter(\.state.isSupported).map(\.feeTokenItem)
-//        let notUsedFeeTokenItem = supported.first(where: { !alreadyUsedProviders.contains($0) })
-//
-//        guard let notUsedFeeTokenItem else {
-//            FeeLogger.info(self, "There are no other providers to choose from. Select the first one")
-//            updateSelectedFeeProvider(feeTokenItem: initialSelectedProvider.feeTokenItem)
-//            selectedFeeProvider.updateFees()
-//
-//            return
-//        }
-//
-//        updateSelectedFeeProvider(feeTokenItem: notUsedFeeTokenItem)
-//        selectedFeeProvider.updateFees()
-//    }
-
+    
     private func updateToAnotherProviderWithBalance() {
         let supported = tokenFeeProviders
             .filter(\.state.isSupported)
@@ -79,7 +62,6 @@ final class CommonTokenFeeProvidersManager {
 
         let notUsedFeeTokenItem = supported.first(where: { !alreadyUsedProviders.contains($0) })
 
-        // ✅ если все уже перебрали — сбрасываем set и возвращаемся к initial
         guard let notUsedFeeTokenItem else {
             alreadyUsedProviders.removeAll()
             alreadyUsedProviders.insert(initialSelectedProvider.feeTokenItem)
@@ -144,30 +126,13 @@ extension CommonTokenFeeProvidersManager: TokenFeeProvidersManager {
             return
         }
 
-        // ✅ 1) не шлём повторно того же провайдера (ломает лупы)
         guard tokenFeeProvider.feeTokenItem != selectedFeeProvider.feeTokenItem else {
             return
         }
 
-        // ✅ 2) помечаем как использованный
         alreadyUsedProviders.insert(tokenFeeProvider.feeTokenItem)
-
-        // ✅ 3) переключаем
         selectedProviderSubject.send(tokenFeeProvider)
     }
-
-//    func updateSelectedFeeProvider(feeTokenItem: TokenItem) {
-//        guard let tokenFeeProvider = feeProviders.first(where: { $0.feeTokenItem == feeTokenItem }) else {
-//            return
-//        }
-//
-//        guard tokenFeeProvider.state.isSupported else {
-//            FeeLogger.info(self, "Provider for token item \(feeTokenItem.name) is not supported. Will not select")
-//            return
-//        }
-//
-//        selectedProviderSubject.send(tokenFeeProvider)
-//    }
 }
 
 // MARK: - Private
