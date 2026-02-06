@@ -499,11 +499,14 @@ extension SendModel: SendReceiveTokenAmountInput {
         switch state {
         case .requiredRefresh(let error, _):
             return .failure(error)
-        case .idle, .preloadRestriction, .restriction:
+        case .idle, .preloadRestriction, .restriction(_, _, .none):
             return .failure(SendAmountError.noAmount)
         case .loading:
             return .loading
-        case .permissionRequired(_, _, let quote), .readyToSwap(_, _, let quote), .previewCEX(_, _, let quote):
+        case .restriction(_, _, .some(let quote)),
+                .permissionRequired(_, _, let quote),
+                .readyToSwap(_, _, let quote),
+                .previewCEX(_, _, let quote):
             let fiat = receiveToken.tokenItem.currencyId.flatMap { currencyId in
                 balanceConverter.convertToFiat(quote.expectAmount, currencyId: currencyId)
             }
