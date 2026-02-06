@@ -254,12 +254,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         let tokenItemPromoInputPublisher = accountSectionsPublisher
             .eraseToAnyPublisher()
             .combineLatest(plainSectionsPublisher.eraseToAnyPublisher()) { accountSections, plainSections in
-                let flattenedAccountSectionsTokenItems = accountSections
-                    .flatMap(\.items)
-                    .flatMap(\.items)
-                    .nilIfEmpty
-
-                return flattenedAccountSectionsTokenItems ?? plainSections.flatMap(\.items)
+                return accountSections.flattenedTokenItems.nilIfEmpty ?? plainSections.flattenedTokenItems
             }
             .mapMany { TokenItemPromoProviderInput(id: $0.id, tokenItem: $0.tokenItem) }
 
@@ -420,38 +415,30 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         plainSectionsPublisher: some Publisher<[MultiWalletMainContentPlainSection], Never>,
         accountSectionsPublisher: some Publisher<[MultiWalletMainContentAccountSection], Never>
     ) {
-        // [REDACTED_TODO_COMMENT]
-        let didSyncTokenListPublisher: AnyPublisher<Void, Never>
-        let didReceiveSectionsPublisher: AnyPublisher<Void, Never>
-
-        if FeatureProvider.isAvailable(.accounts) {
-            // The persistent storage for accounts (or, more precisely, the instance of `CryptoAccountsPersistentStorageController`)
-            // will emit the available models both after local initialization/migration and after remote synchronization,
-            // so no separate `initializedPublisher` trigger needed
-            didSyncTokenListPublisher = .just
-            // Both plain and account sections should emit a value to be a trigger for finishing loading state
-            didReceiveSectionsPublisher = plainSectionsPublisher
-                .mapToVoid()
-                .zip(accountSectionsPublisher.mapToVoid())
+        let didSyncTokenListPublisher = if FeatureProvider.isAvailable(.accounts) {
+            userWalletModel
+                .accountModelsManager
+                .hasSyncedWithRemotePublisher
+                .combineLatest(plainSectionsPublisher, accountSectionsPublisher) { hasSyncedWithRemote, plainSections, accountSections in
+                    // We disable loading state when the token list is synced with remote or there is at least one token
+                    // in the sections added offline by the user manually using 'manage tokens' flow after offline onboarding
+                    hasSyncedWithRemote || (plainSections.flattenedTokenItems.isNotEmpty || accountSections.flattenedTokenItems.isNotEmpty)
+                }
+                .filter { $0 }
                 .mapToVoid()
                 .eraseToAnyPublisher()
         } else {
             // [REDACTED_TODO_COMMENT]
-            // accounts_fixes_needed_none
-            didSyncTokenListPublisher = userWalletModel
-                .userTokensManager
+            userWalletModel
+                .userTokensManager // accounts_fixes_needed_none
                 .initializedPublisher
                 .filter { $0 }
-                .mapToVoid()
-                .eraseToAnyPublisher()
-            // When accounts aren't enabled, we rely only on plain sections
-            didReceiveSectionsPublisher = plainSectionsPublisher
+                .zip(plainSectionsPublisher) // When accounts aren't enabled, we rely only on plain sections
                 .mapToVoid()
                 .eraseToAnyPublisher()
         }
 
         didSyncTokenListPublisher
-            .zip(didReceiveSectionsPublisher)
             .prefix(1)
             .mapToValue(false)
             .receiveOnMain()
