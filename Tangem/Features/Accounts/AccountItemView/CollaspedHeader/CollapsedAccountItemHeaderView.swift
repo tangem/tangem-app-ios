@@ -68,6 +68,7 @@ struct CollapsedAccountItemHeaderView: View {
                 )
             }
         )
+        .linesSpacing(2)
         .padding(14.0)
     }
 }
