@@ -7,19 +7,63 @@
 //
 
 import Combine
+import Foundation
 import TangemFoundation
 
 final class CommonTokenFeeProvidersManager {
     private let feeProviders: [any TokenFeeProvider]
+    private let initialSelectedProvider: any TokenFeeProvider
 
     private let selectedProviderSubject: CurrentValueSubject<any TokenFeeProvider, Never>
+
+    private var alreadyUsedProviders: Set<TokenItem> = []
+    private var enoughFeeCheckingCancellable: AnyCancellable?
 
     init(
         feeProviders: [any TokenFeeProvider],
         initialSelectedProvider: any TokenFeeProvider
     ) {
         self.feeProviders = feeProviders
+        self.initialSelectedProvider = initialSelectedProvider
+
         selectedProviderSubject = .init(initialSelectedProvider)
+        alreadyUsedProviders = [initialSelectedProvider.feeTokenItem]
+
+        bind()
+    }
+
+    private func bind() {
+        enoughFeeCheckingCancellable = selectedProviderSubject
+            .flatMapLatest { selectedProvider -> AnyPublisher<(Decimal, Decimal), Never> in
+                Publishers.CombineLatest(
+                    selectedProvider.selectedTokenFeePublisher.compactMap { $0.value.value?.amount.value },
+                    selectedProvider.balanceTypePublisher.compactMap { $0.loaded },
+                )
+                .eraseToAnyPublisher()
+            }
+            .sink(receiveValue: { [weak self] selectedFee, balance in
+                // If not enough balance to selected fee
+                if selectedFee > balance {
+                    self?.updateToAnotherProviderWithBalance()
+                }
+            })
+    }
+
+    private func updateToAnotherProviderWithBalance() {
+        FeeLogger.info(self, "Detect that selected provider doesn't have enough balance to cover fee")
+        let supported = tokenFeeProviders.filter(\.state.isSupported).map(\.feeTokenItem)
+        let notUsedFeeTokenItem = supported.first(where: { !alreadyUsedProviders.contains($0) })
+
+        guard let notUsedFeeTokenItem else {
+            FeeLogger.info(self, "There are no other providers to choose from. Select the first one")
+            updateSelectedFeeProvider(feeTokenItem: initialSelectedProvider.feeTokenItem)
+            selectedFeeProvider.updateFees()
+
+            return
+        }
+
+        updateSelectedFeeProvider(feeTokenItem: notUsedFeeTokenItem)
+        selectedFeeProvider.updateFees()
     }
 }
 
@@ -60,6 +104,7 @@ extension CommonTokenFeeProvidersManager: TokenFeeProvidersManager {
 
     func updateInputInAllProviders(input: TokenFeeProviderInputData) {
         feeProviders.forEach { $0.setup(input: input) }
+
         checkSelectedProviderIsSupported()
     }
 
