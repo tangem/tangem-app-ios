@@ -11,6 +11,7 @@ import Combine
 
 protocol CryptoAccountsAuxiliaryDataStorage {
     var didChangePublisher: AnyPublisher<Void, Never> { get }
+    var hasSyncedWithRemote: Bool { get nonmutating set }
     var archivedAccountsCount: Int { get nonmutating set }
     var totalAccountsCount: Int { get nonmutating set }
 }
