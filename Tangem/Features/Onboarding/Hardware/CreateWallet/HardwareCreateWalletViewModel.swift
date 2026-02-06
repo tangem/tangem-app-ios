@@ -288,6 +288,7 @@ private extension HardwareCreateWalletViewModel {
         Analytics.log(
             .settingsColdWalletAdded,
             params: [.source: Analytics.ParameterValue.addNew],
+            analyticsSystems: .all,
             contextParams: .custom(cardInfo.analyticsContextData)
         )
     }
