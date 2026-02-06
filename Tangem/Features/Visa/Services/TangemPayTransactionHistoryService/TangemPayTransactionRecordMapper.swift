@@ -150,13 +150,7 @@ struct TangemPayTransactionRecordMapper {
     /// `TransactionViewModel.Status` will use in `TransactionListView`
     func status() -> TransactionViewModel.Status {
         switch transaction.record {
-        case .spend(let spend): switch spend.status {
-            case .pending: return .inProgress
-            case .completed: return .confirmed
-            case .declined: return .failed
-            case .reversed: return .confirmed
-            }
-        case .collateral, .payment, .fee:
+        case .spend, .collateral, .payment, .fee:
             return .confirmed
         }
     }
