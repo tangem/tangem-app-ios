@@ -51,7 +51,7 @@ extension CommonMarketsWidgetEarnService: MarketsWidgetEarnProvider {
                 let requestModel = EarnDTO.List.Request(
                     isForEarn: true,
                     page: nil,
-                    limit: nil,
+                    limit: Constants.earnLimit,
                     type: nil,
                     networkIds: nil
                 )
@@ -63,5 +63,13 @@ extension CommonMarketsWidgetEarnService: MarketsWidgetEarnProvider {
                 service.earnResultValueSubject.send(.failure(error))
             }
         }.eraseToAnyCancellable()
+    }
+}
+
+// MARK: - Constants
+
+private extension CommonMarketsWidgetEarnService {
+    enum Constants {
+        static let earnLimit = 5
     }
 }
