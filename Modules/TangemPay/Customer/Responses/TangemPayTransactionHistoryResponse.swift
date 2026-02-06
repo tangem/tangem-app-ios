@@ -82,9 +82,12 @@ public extension TangemPayTransactionHistoryResponse {
         public let authorizedAt: Date
         public let postedAt: Date?
 
-        // [REDACTED_TODO_COMMENT]
         public var isDeclined: Bool {
             status == .declined
+        }
+
+        public var isReversed: Bool {
+            status == .reversed
         }
     }
 
@@ -105,7 +108,6 @@ public extension TangemPayTransactionHistoryResponse {
         public let chainId: Double?
         public let walletAddress: String?
         public let transactionHash: String?
-        public let status: PaymentStatus
         public let postedAt: Date
     }
 
@@ -113,6 +115,7 @@ public extension TangemPayTransactionHistoryResponse {
         case pending
         case completed
         case declined
+        case reversed
     }
 
     struct Fee: Codable, Equatable {
