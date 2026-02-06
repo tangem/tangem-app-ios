@@ -18,6 +18,7 @@ protocol TangemPayWithdrawTransactionServiceOutput: AnyObject {
 }
 
 protocol TangemPayWithdrawTransactionService {
+    func getOrder(id: String) async throws -> TangemPayOrderResponse
     func sendWithdrawTransaction(amount: Decimal, destination: String, walletPublicKey: Wallet.PublicKey) async throws -> TangemPayWithdrawTransactionResult
     func set(output: TangemPayWithdrawTransactionServiceOutput)
 
@@ -46,6 +47,10 @@ class CommonTangemPayWithdrawTransactionService {
 // MARK: - TangemPayWithdrawTransactionService
 
 extension CommonTangemPayWithdrawTransactionService: TangemPayWithdrawTransactionService {
+    func getOrder(id: String) async throws -> TangemPayOrderResponse {
+        try await customerInfoManagementService.getOrder(orderId: id)
+    }
+
     func sendWithdrawTransaction(
         amount: Decimal,
         destination: String,
