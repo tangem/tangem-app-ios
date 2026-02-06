@@ -82,12 +82,12 @@ final class AccountModelsManagerMock {
 // MARK: - AccountModelsManager protocol conformance
 
 extension AccountModelsManagerMock: AccountModelsManager {
-    var hasMultipleAccounts: Bool {
+    var canAddCryptoAccounts: Bool {
         true
     }
 
-    var canAddCryptoAccounts: Bool {
-        true
+    var hasSyncedWithRemotePublisher: AnyPublisher<Bool, Never> {
+        .just(output: true)
     }
 
     var hasArchivedCryptoAccountsPublisher: AnyPublisher<Bool, Never> {
@@ -95,7 +95,7 @@ extension AccountModelsManagerMock: AccountModelsManager {
             .eraseToAnyPublisher()
     }
 
-    var totalAccountsCountPublisher: AnyPublisher<Int, Never> {
+    var totalCryptoAccountsCountPublisher: AnyPublisher<Int, Never> {
         totalAccountsCountSubject.eraseToAnyPublisher()
     }
 
