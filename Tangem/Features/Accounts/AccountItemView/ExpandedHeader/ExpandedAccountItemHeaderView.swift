@@ -26,8 +26,21 @@ struct ExpandedAccountItemHeaderView: View {
     /// width to properly offset alignmentGuide for animation
     @ScaledMetric private var scaledIconWidth: CGFloat
 
-    /// Heuristics for vertical offset for custom alignmentGuide
-    @ScaledMetric private var verticalAlignmentGuideOffset: CGFloat = 10
+    /// Base vertical offset for alignment guide calculations.
+    @ScaledMetric private var verticalAlignmentGuideBase: CGFloat = 10
+
+    /// Vertical offset to align expanded content with collapsed state position.
+    /// The collapsed view uses TwoLineRowWithIcon which centers content with a 36pt icon,
+    /// while the expanded view has a simpler layout with a 14pt icon. This offset
+    /// compensates for the vertical position difference, ensuring the matchedGeometryEffect
+    /// animation moves horizontally rather than diagonally.
+    @ScaledMetric private var collapsedLayoutAlignmentOffset: CGFloat = 1
+
+    /// Computed offset for tokensCount alignment guide.
+    /// Derived from base offset minus the collapsed alignment compensation.
+    private var verticalAlignmentGuideOffset: CGFloat {
+        verticalAlignmentGuideBase - collapsedLayoutAlignmentOffset
+    }
 
     init(
         name: String,
@@ -51,7 +64,7 @@ struct ExpandedAccountItemHeaderView: View {
     }
 
     var body: some View {
-        HStack(alignment: .firstTextBaseline, spacing: 6) {
+        HStack(spacing: 6) {
             AccountInlineHeaderView(
                 iconData: iconData.applyingLetterConfig(AccountItemConstants.letterConfig),
                 name: name
@@ -61,8 +74,14 @@ struct ExpandedAccountItemHeaderView: View {
             .iconGeometryEffect(iconGeometryEffect)
             .iconBackgroundGeometryEffect(iconBackgroundGeometryEffect)
             .nameGeometryEffect(nameGeometryEffect)
+            // Disable minimumScaleFactor to prevent text position jitter during
+            // expand/collapse animation. When minimumScaleFactor is active, the text's
+            // frame can change size during layout recalculation, causing the
+            // matchedGeometryEffect position to shift and create visible jitter.
+            .minimumScaleFactor(1)
 
             balanceView
+                .offset(y: collapsedLayoutAlignmentOffset)
 
             Spacer()
 
@@ -92,6 +111,7 @@ struct ExpandedAccountItemHeaderView: View {
                 }
                 .matchedGeometryEffect(tokensCountGeometryEffect)
         }
+        .offset(y: collapsedLayoutAlignmentOffset)
     }
 
     @ViewBuilder
