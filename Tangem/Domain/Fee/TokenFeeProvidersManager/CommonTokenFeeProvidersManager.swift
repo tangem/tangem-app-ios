@@ -39,23 +39,22 @@ final class CommonTokenFeeProvidersManager {
                     .compactMap { $0.value.value?.amount.value }
 
                 let balance = selectedProvider.balanceTypePublisher
-                    .compactMap { bt -> Decimal? in
-                        guard case .loaded(let value) = bt else { return nil }
-                        return value
-                    }
+                    .compactMap { $0.loaded }
 
                 return Publishers.CombineLatest(fee, balance)
                     .map { fee, balance in fee > balance }
-                    .removeDuplicates()
                     .eraseToAnyPublisher()
             }
+            .removeDuplicates()
             .filter { $0 }
             .sink { [weak self] _ in
                 self?.updateToAnotherProviderWithBalance()
             }
     }
-    
+
     private func updateToAnotherProviderWithBalance() {
+        FeeLogger.info(self, "Detect that selected provider doesn't have enough balance to cover fee")
+
         let supported = tokenFeeProviders
             .filter(\.state.isSupported)
             .map(\.feeTokenItem)
@@ -63,6 +62,8 @@ final class CommonTokenFeeProvidersManager {
         let notUsedFeeTokenItem = supported.first(where: { !alreadyUsedProviders.contains($0) })
 
         guard let notUsedFeeTokenItem else {
+            FeeLogger.info(self, "There are no other providers to choose from. Select the first one")
+
             alreadyUsedProviders.removeAll()
             alreadyUsedProviders.insert(initialSelectedProvider.feeTokenItem)
 
@@ -119,14 +120,17 @@ extension CommonTokenFeeProvidersManager: TokenFeeProvidersManager {
 
     func updateSelectedFeeProvider(feeTokenItem: TokenItem) {
         guard let tokenFeeProvider = feeProviders.first(where: { $0.feeTokenItem == feeTokenItem }) else {
+            FeeLogger.error(self, error: "Provider for token item \(feeTokenItem.name) not found")
             return
         }
 
         guard tokenFeeProvider.state.isSupported else {
+            FeeLogger.info(self, "Provider for token item \(feeTokenItem.name) is not supported. Will not select")
             return
         }
 
         guard tokenFeeProvider.feeTokenItem != selectedFeeProvider.feeTokenItem else {
+            FeeLogger.warning(self, "Try to select already selected provider with token item \(feeTokenItem.name). Will not select")
             return
         }
 
