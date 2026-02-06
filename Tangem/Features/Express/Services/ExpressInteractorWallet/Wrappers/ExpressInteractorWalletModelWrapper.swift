@@ -7,10 +7,12 @@
 //
 
 import TangemExpress
+import TangemFoundation
 import BlockchainSdk
 
 struct ExpressInteractorWalletModelWrapper {
     let id: WalletModelId
+    let userWalletId: UserWalletId
     let isCustom: Bool
     let isMainToken: Bool
     let isExemptFee: Bool = false
@@ -45,6 +47,7 @@ struct ExpressInteractorWalletModelWrapper {
         self.expressOperationType = expressOperationType
 
         id = walletModel.id
+        userWalletId = userWalletInfo.id
         isCustom = walletModel.isCustom
         isMainToken = walletModel.isMainToken
 
