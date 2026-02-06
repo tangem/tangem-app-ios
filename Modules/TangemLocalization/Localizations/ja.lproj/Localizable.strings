@@ -1364,12 +1364,12 @@
 "tangem_pay_status_completed" = "完了";
 "tangem_pay_status_declined" = "拒否";
 "tangem_pay_status_pending" = "保留中";
-"tangem_pay_status_reversed" = "保留中";
+"tangem_pay_status_reversed" = "取消済み";
 "tangem_pay_terms_fees_limits" = "利用規約・手数料・利用制限";
 "tangem_pay_terms_limits" = "利用規約と上限条件";
 "tangem_pay_transaction_declined_notification_text" = "銀行がこの取引リクエストを拒否しました。";
 "tangem_pay_transaction_fee_notification_text" = "この手数料は、送金処理にかかるコストをカバーするためのものです。";
-"tangem_pay_transaction_reversed_notification_text" = "銀行がこの取引リクエストを拒否しました。";
+"tangem_pay_transaction_reversed_notification_text" = "この取引は加盟店により一部または全額取り消されました";
 "tangem_pay_unfreeze_card_alert_body" = "資金は引き続き使用できます。いつでも一時停止できます。";
 "tangem_pay_unfreeze_card_alert_title" = "カードの一時停止を解除しますか?";
 "tangem_pay_unfreeze_card_failed" = "カードの凍結解除に失敗しました。しばらくしてからもう一度お試しください。";
@@ -1740,6 +1740,7 @@
 "warning_hedera_missing_token_association_message" = "このトークンを受け取るには、Hederaアカウントに関連付ける必要があります。関連付け手数料 ~ %1$@ %2$@";
 "warning_hedera_missing_token_association_title" = "トークンを関連付ける";
 "warning_hedera_token_association_not_enough_hbar_message" = "%@が不足しています。このトークンを関連付けるには、Hederaアカウントに資金を追加してください。";
+"warning_ios_deprecation_message" = "iOS %1$@ のサポートは %2$@ に終了します。アプリのアップデートを引き続き受け取り、すべての機能を利用するために、iOS を最新バージョンにアップデートしてください。";
 "warning_kaspa_unfinished_token_transaction_discard_message" = "取引をキャンセルしてもよろしいですか? 取引を再試行することはできません";
 "warning_kaspa_unfinished_token_transaction_message" = "%1$@ %2$@の取引が完了しませんでした。もう一度試して完了してください。";
 "warning_kaspa_unfinished_token_transaction_title" = "未完了の取引があります";
