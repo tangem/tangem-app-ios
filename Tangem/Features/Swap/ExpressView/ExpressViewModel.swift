@@ -536,15 +536,8 @@ private extension ExpressViewModel {
             // Do nothing
             break
 
-        case .restriction(.notEnoughAmountForFee(_, let supportFeeSelection), _, _):
-            if supportFeeSelection {
-                mainButtonState = .swap
-                mainButtonIsEnabled = true
-            } else {
-                mainButtonState = .insufficientFunds
-            }
-
         case .restriction(.notEnoughBalanceForSwapping, _, _),
+             .restriction(.notEnoughAmountForFee, _, _),
              .restriction(.notEnoughAmountForTxValue, _, _):
             mainButtonState = .insufficientFunds
 
