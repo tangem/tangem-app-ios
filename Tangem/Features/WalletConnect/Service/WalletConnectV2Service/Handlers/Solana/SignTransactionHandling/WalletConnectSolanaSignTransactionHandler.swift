@@ -162,10 +162,6 @@ private extension WalletConnectSolanaSignTransactionHandler {
         let withoutSignaturePlaceholders = try SolanaTransactionHelper().removeSignaturesPlaceholders(from: transactionData)
         let unsignedHash = withoutSignaturePlaceholders.transaction
 
-        guard FeatureProvider.isAvailable(.wcSolanaALT) else {
-            return (true, unsignedHash, withoutSignaturePlaceholders.signatureCount)
-        }
-
         let canHandleTransaction = (try? hardwareLimitationsUtil.canHandleTransaction(
             walletModel.tokenItem,
             transaction: transactionData
