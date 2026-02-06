@@ -302,16 +302,28 @@ private extension ExpressViewModel {
         interactor.swappingPair
             .receive(on: DispatchQueue.main)
             .pairwise()
-            .sink { [weak self] prev, pair in
-                if pair.sender.value?.id != prev.sender.value?.id {
-                    self?.updateSendView(wallet: pair.sender)
+            .sink { [weak self] previous, current in
+                let previousSender = previous.sender.value
+                let previousDestination = previous.destination?.value
+
+                let currentSender = current.sender.value
+                let currentDestination = current.destination?.value
+
+                let sameSender = (currentSender?.id == previousSender?.id)
+                    && (currentSender?.userWalletId == previousSender?.userWalletId)
+
+                let sameDestination = (currentDestination?.id == previousDestination?.id)
+                    && (currentDestination?.userWalletId == previousDestination?.userWalletId)
+
+                if !sameSender {
+                    self?.updateSendView(wallet: current.sender)
                 }
 
-                if pair.destination?.value?.id != prev.destination?.value?.id {
-                    self?.updateReceiveView(wallet: pair.destination)
+                if !sameDestination {
+                    self?.updateReceiveView(wallet: current.destination)
                 }
 
-                self?.updateMaxButtonVisibility(pair: pair)
+                self?.updateMaxButtonVisibility(pair: current)
             }
             .store(in: &bag)
 
