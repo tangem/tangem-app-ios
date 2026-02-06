@@ -152,6 +152,11 @@ private extension DEXExpressProviderManager {
             let ready = try await ready(request: request, quote: quote, data: data)
             return .ready(ready)
         } catch {
+            // [REDACTED_TODO_COMMENT]
+            if error.universalErrorCode == 108000006 {
+                return .error(error, quote: quote)
+            }
+
             let estimateFee = try await estimateFee(request: request, data: data)
             return .restriction(estimateFee, quote: quote)
         }
