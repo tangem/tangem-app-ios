@@ -437,9 +437,7 @@ private extension TangemPayTransactionHistoryResponse.Record {
         switch self {
         case .spend(let spend):
             return spend.status.rawValue
-        case .payment(let payment):
-            return payment.status.rawValue
-        case .collateral, .fee:
+        case .collateral, .payment, .fee:
             return "unknown"
         }
     }
