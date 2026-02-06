@@ -102,7 +102,7 @@ struct MultiWalletMainContentView: View {
     }
 
     private var accountsList: some View {
-        LazyVStack(spacing: 8.0) {
+        VStack(spacing: 8.0) {
             ForEach(viewModel.accountSections) { accountSection in
                 ExpandableAccountItemView(viewModel: accountSection.model) {
                     makeTokensList(sections: accountSection.items)
