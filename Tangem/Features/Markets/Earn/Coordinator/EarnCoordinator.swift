@@ -12,7 +12,7 @@ import struct TangemUIUtils.AlertBinder
 final class EarnCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
-    let openEarnTokenDetailsAction: (_ token: EarnTokenModel, _ userWalletModels: [UserWalletModel]) -> Void
+    let routeOnEarnTokenResolvedAction: (EarnTokenResolution) -> Void
 
     // MARK: - Root ViewModels
 
@@ -33,11 +33,11 @@ final class EarnCoordinator: CoordinatorObject {
     required init(
         dismissAction: @escaping Action<Void>,
         popToRootAction: @escaping Action<PopToRootOptions> = { _ in },
-        openEarnTokenDetailsAction: @escaping (_ token: EarnTokenModel, _ userWalletModels: [UserWalletModel]) -> Void
+        routeOnEarnTokenResolvedAction: @escaping (EarnTokenResolution) -> Void
     ) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
-        self.openEarnTokenDetailsAction = openEarnTokenDetailsAction
+        self.routeOnEarnTokenResolvedAction = routeOnEarnTokenResolvedAction
     }
 
     func start(with options: Options) {
@@ -69,8 +69,8 @@ extension EarnCoordinator: EarnDetailRoutable {
         dismissAction(())
     }
 
-    func openAddEarnToken(for token: EarnTokenModel, userWalletModels: [any UserWalletModel]) {
-        openEarnTokenDetailsAction(token, userWalletModels)
+    func routeOnTokenResolved(_ resolution: EarnTokenResolution) {
+        routeOnEarnTokenResolvedAction(resolution)
     }
 
     func openNetworksFilter() {
