@@ -51,7 +51,21 @@ class CommonWalletModel {
     private let tokenBalancesRepository: TokenBalancesRepository
     private let walletManager: WalletManager
     private let _stakingManager: StakingManager?
-    private lazy var _yieldModuleManager = makeYieldModuleManager()
+
+    private var _yieldModuleManagerLock = NSLock()
+    private var _yieldModuleManagerBacking: (YieldModuleManager & YieldModuleManagerUpdater)?
+    private var _yieldModuleManagerInitialized = false
+    private var _yieldModuleManager: (YieldModuleManager & YieldModuleManagerUpdater)? {
+        _yieldModuleManagerLock.lock()
+        defer { _yieldModuleManagerLock.unlock() }
+
+        if !_yieldModuleManagerInitialized {
+            _yieldModuleManagerBacking = makeYieldModuleManager()
+            _yieldModuleManagerInitialized = true
+        }
+        return _yieldModuleManagerBacking
+    }
+
     private let _transactionHistoryService: TransactionHistoryService?
     private let _receiveAddressService: ReceiveAddressService
     private let featureManager: WalletModelFeaturesManager
@@ -108,6 +122,7 @@ class CommonWalletModel {
     }
 
     deinit {
+//        AppLogger.debug("[YieldModule] walletModel \(ObjectIdentifier(self)) deinited token: \(tokenItem.name), chain: \(tokenItem.blockchain), address: \(defaultAddressString)")
         AppLogger.debug(self)
     }
 
@@ -344,7 +359,10 @@ extension CommonWalletModel: WalletModel {
     }
 
     var yieldModuleManager: (any YieldModuleManager)? {
-        _yieldModuleManager
+//        if let manager = _yieldModuleManager {
+//            AppLogger.debug("[YieldModule] walletModel \(ObjectIdentifier(self)) returns manager: \(ObjectIdentifier(manager as AnyObject)), token: \(tokenItem.name), chain: \(tokenItem.blockchain), address: \(defaultAddressString)")
+//        }
+        return _yieldModuleManager
     }
 
     var stakeKitTransactionSender: StakeKitTransactionSender? {
@@ -525,6 +543,7 @@ extension CommonWalletModel: WalletModelHelpers {
     }
 
     func makeYieldModuleManager() -> (YieldModuleManager & YieldModuleManagerUpdater)? {
+//        AppLogger.debug("[YieldModule] makeYieldModuleManager CALLED on \(ObjectIdentifier(self)) for \(tokenItem.name), chain: \(tokenItem.blockchain), address: \(defaultAddressString)")
         guard case .token(let token, _) = tokenItem,
               let yieldSupplyService = walletManager.yieldSupplyService,
               let ethereumNetworkProvider

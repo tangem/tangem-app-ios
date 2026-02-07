@@ -228,7 +228,7 @@ extension TokenItemViewModel {
 }
 
 extension TokenItemViewModel {
-    struct RewardsInfo {
+    struct RewardsInfo: Equatable {
         let type: RewardType
         let rewardValue: String
         let isActive: Bool
