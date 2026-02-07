@@ -130,7 +130,7 @@ final class CommonCryptoAccountsRepository {
         // (only if they exist, otherwise we use default tokens from the factory)
         //
         // - Creation of a new wallet after an already completed POST `v1/user-wallets/wallets` call:
-        // in this case, we want to create a main account with default tokens.
+        // in this case, we want to create a main account with default tokens, not with the empty tokens list from the server.
         let defaultAccount = defaultAccountFactory.makeDefaultAccountPreferringExisting(
             defaultTokensOverride: legacyInfo?.legacyTokens.nilIfEmpty,
             defaultGroupingOverride: legacyInfo?.legacyGrouping,
