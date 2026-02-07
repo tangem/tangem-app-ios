@@ -51,7 +51,8 @@ struct CommonDefaultAccountFactory: DefaultAccountFactory {
         let hasValidRemoteState = defaultTokensOverride?.nilIfEmpty != nil
 
         // If the wallet was created offline due to network issues and then the user added some tokens to it
-        // - we use this existing default account. Otherwise - we create a new default account with default tokens.
+        // - we use this existing default account (unless we have a valid remote state).
+        // Otherwise - we create a new default account with default tokens.
         if !hasValidRemoteState, let existingLocalDefaultAccount = persistentStorage
             .getList()
             .first(where: { $0.derivationIndex == AccountModelUtils.mainAccountDerivationIndex && $0.tokens.isNotEmpty }) {
