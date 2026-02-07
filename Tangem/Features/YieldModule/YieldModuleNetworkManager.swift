@@ -34,7 +34,7 @@ final class CommonYieldModuleNetworkManager {
 
     private var bag = Set<AnyCancellable>()
 
-    private let marketsSubject: CurrentValueSubject<[YieldModuleMarketInfo], Never>
+    private let marketsSubject = CurrentValueSubject<[YieldModuleMarketInfo], Never>([])
 
     init(
         yieldModuleAPIService: YieldModuleAPIService,
@@ -44,11 +44,6 @@ final class CommonYieldModuleNetworkManager {
         self.yieldModuleAPIService = yieldModuleAPIService
         self.yieldMarketsRepository = yieldMarketsRepository
         self.yieldModuleChartManager = yieldModuleChartManager
-
-        // Initialize with cached markets to avoid race condition where CombineLatest4
-        // fires before network response arrives, causing badge to disappear
-        let cachedMarkets = yieldMarketsRepository.markets()?.markets.map { YieldModuleMarketInfo(from: $0) } ?? []
-        marketsSubject = CurrentValueSubject(cachedMarkets)
 
         bind()
     }
@@ -60,15 +55,10 @@ extension CommonYieldModuleNetworkManager: YieldModuleNetworkManager {
     }
 
     var marketsPublisher: AnyPublisher<[YieldModuleMarketInfo], Never> {
-        marketsSubject
-//            .handleEvents(receiveSubscription: { _ in
-//                AppLogger.debug("[YieldModule] marketsPublisher new subscription, current value has \(self.marketsSubject.value.count) items")
-//            })
-            .eraseToAnyPublisher()
+        marketsSubject.eraseToAnyPublisher()
     }
 
     func updateMarkets() {
-//        AppLogger.debug("[YieldModule] updateMarkets() called")
         let walletModels = AccountsFeatureAwareWalletModelsResolver.walletModels(for: userWalletRepository.models)
         let chainIDs = Set(
             walletModels.compactMap { walletModel -> String? in
@@ -76,11 +66,9 @@ extension CommonYieldModuleNetworkManager: YieldModuleNetworkManager {
                 return walletModel.tokenItem.blockchain.chainId.map { String($0) }
             }
         )
-//        AppLogger.debug("[YieldModule] updateMarkets() chainIDs: \(chainIDs)")
 
         Task { @MainActor in
             let markets = await fetchMarkets(chainIDs: Array(chainIDs))
-//            AppLogger.debug("[YieldModule] updateMarkets() sending \(markets.count) markets to subject")
             marketsSubject.send(markets)
         }
     }
@@ -178,12 +166,14 @@ private extension CommonYieldModuleNetworkManager {
             .sink { [weak self] value in
                 guard let self else { return }
 
-                let oldChainIds = Set(value.0.compactMap { $0.tokenItem.blockchain.isEvm ? $0.tokenItem.blockchain.chainId : nil })
-                let newChainIds = Set(value.1.compactMap { $0.tokenItem.blockchain.isEvm ? $0.tokenItem.blockchain.chainId : nil })
+                let oldTokenItems = Set(value.0.map(\.tokenItem))
+                let newTokenItems = Set(value.1.map(\.tokenItem))
 
-                let didAddNewEVMChain = !newChainIds.subtracting(oldChainIds).isEmpty
+                let diff = newTokenItems.subtracting(oldTokenItems)
 
-                if didAddNewEVMChain {
+                let didAddEVMBlockchain = diff.contains(where: { $0.isBlockchain && $0.blockchain.isEvm })
+
+                if didAddEVMBlockchain {
                     updateMarkets()
                 }
             }
