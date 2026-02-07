@@ -72,6 +72,7 @@ final class CommonTokenFeeProvidersManager {
             return
         }
 
+        alreadyUsedProviders.insert(notUsedFeeTokenItem)
         updateSelectedFeeProvider(feeTokenItem: notUsedFeeTokenItem)
         selectedFeeProvider.updateFees()
     }
