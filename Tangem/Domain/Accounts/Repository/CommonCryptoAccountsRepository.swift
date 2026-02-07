@@ -404,8 +404,8 @@ final class CommonCryptoAccountsRepository {
         }
 
         await stateHolder.performIsolated { $0.areCustomTokensMigrated = true }
-
         let migrator = StoredCryptoAccountsCustomTokensMigrator()
+
         return await migrator.migrateTokensIfNeeded(in: &storedCryptoAccounts)
     }
 }
@@ -538,7 +538,9 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
 
 extension CommonCryptoAccountsRepository: UserTokensPushNotificationsRemoteStatusSyncing {
     func syncRemoteStatus() {
-        updateAccountsOnServer(updateOptions: .tokens)
+        if auxiliaryDataStorage.hasSyncedWithRemote {
+            updateAccountsOnServer(updateOptions: .tokens)
+        }
     }
 }
 
