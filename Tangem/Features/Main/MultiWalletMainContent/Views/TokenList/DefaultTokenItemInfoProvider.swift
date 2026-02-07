@@ -23,14 +23,7 @@ class DefaultTokenItemInfoProvider {
         balanceProvider = walletModel.totalTokenBalanceProvider
         fiatBalanceProvider = walletModel.fiatTotalTokenBalanceProvider
         yieldModuleManager = walletModel.yieldModuleManager
-//        if let manager = yieldModuleManager {
-//            AppLogger.debug("[YieldModule] provider holds manager: \(ObjectIdentifier(manager as AnyObject)), token: \(walletModel.tokenItem.name), chain: \(walletModel.tokenItem.blockchain), address: \(walletModel.defaultAddressString)")
-//        }
     }
-
-//    deinit {
-//        AppLogger.debug("[YieldModule] DefaultTokenItemInfoProvider deinit, token: \(walletModel.tokenItem.name), chain: \(walletModel.tokenItem.blockchain), address: \(walletModel.defaultAddressString)")
-//    }
 }
 
 extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
@@ -85,17 +78,14 @@ extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
             yieldModuleStatePublisher,
             walletModel.stakingManagerStatePublisher.prepend(.notEnabled)
         )
-        .map { [walletModel] hasPendingTransactions, yieldModuleState, stakingManagerState -> TokenItemViewModel.LeadingBadge? in
+        .map { hasPendingTransactions, yieldModuleState, stakingManagerState -> TokenItemViewModel.LeadingBadge? in
             guard !hasPendingTransactions else {
                 return .pendingTransaction
             }
 
-            /*AppLogger.debug("[YieldModule] state \(String(describing: yieldModuleState)), token: \(String(describing: walletModel.tokenItem.name)), chain: \(String(describing: walletModel.tokenItem.blockchain)), address: \(String*/(describing: walletModel.defaultAddressString))")
-
             if let yieldModuleState,
                let marketInfo = yieldModuleState.marketInfo {
                 let badge = LeadingBadgeMapper.mapRewards(marketInfo: marketInfo, state: yieldModuleState.state)
-//                AppLogger.debug("[YieldModule] badge from market info \(String(describing: badge)), token: \(String(describing: walletModel.tokenItem.name)), chain: \(String(describing: walletModel.tokenItem.blockchain)), address: \(String(describing: walletModel.defaultAddressString))")
                 return badge
             }
 
@@ -128,16 +118,10 @@ extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
 private extension DefaultTokenItemInfoProvider {
     var yieldModuleStatePublisher: AnyPublisher<YieldModuleManagerStateInfo?, Never> {
         guard let manager = yieldModuleManager else {
-            if walletModel.tokenItem.isToken, walletModel.tokenItem.token?.name == "USDC" {
-                print("A-HA!")
-            }
             return Just(.none).eraseToAnyPublisher()
         }
 
-        return manager.statePublisher.map { yieldModuleState in
-//            AppLogger.debug("[YieldModule] inside map \(String(describing: yieldModuleState)), token: \(String(describing: walletModel.tokenItem.name)), chain: \(String(describing: walletModel.tokenItem.blockchain)), address: \(String(describing: walletModel.defaultAddressString))")
-            return yieldModuleState
-        }.eraseToAnyPublisher()
+        return manager.statePublisher
     }
 }
 

@@ -63,7 +63,7 @@ final class CommonYieldModuleManager {
     private let yieldModuleStateRepository: YieldModuleStateRepository
     private let yieldModuleMarketsRepository: YieldModuleMarketsRepository
 
-    private var _state: CurrentValueSubject<YieldModuleManagerStateInfo?, Never>
+    private var _state = CurrentValueSubject<YieldModuleManagerStateInfo?, Never>(nil)
     private var _walletModelData = CurrentValueSubject<WalletModelData?, Never>(nil)
 
     private var pendingTransactionsPublisher: AnyPublisher<[PendingTransactionRecord], Never>
@@ -108,20 +108,6 @@ final class CommonYieldModuleManager {
         self.pendingTransactionsPublisher = pendingTransactionsPublisher
         self.updateWallet = updateWallet
 
-        // Initialize _state with cached value to avoid race condition where subscribers
-        // receive nil before the async publisher chain populates the state
-        if let cachedMarket = yieldModuleMarketsRepository.marketInfo(for: token.contractAddress),
-           let cachedState = yieldModuleStateRepository.state() {
-            _state = CurrentValueSubject(
-                YieldModuleManagerStateInfo(
-                    marketInfo: .init(from: cachedMarket),
-                    state: .loading(cachedState: cachedState)
-                )
-            )
-        } else {
-            _state = CurrentValueSubject(nil)
-        }
-
         transactionProvider = YieldTransactionProvider(
             token: token,
             blockchain: blockchain,
@@ -138,13 +124,8 @@ final class CommonYieldModuleManager {
             tokenBalanceProvider: tokenBalanceProvider
         )
 
-//        AppLogger.debug("[YieldModule] \(tokenId) CommonYieldModuleManager init completed, calling bind()")
         bind()
     }
-
-//    deinit {
-//        AppLogger.debug("[YieldModule] YieldModuleManager deinit, token: \(token.name), chain: \(blockchain), address: \(walletAddress)")
-//    }
 }
 
 extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdater {
@@ -368,19 +349,12 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
 
 private extension CommonYieldModuleManager {
     func bind() {
-//        AppLogger.debug("[YieldModule] \(tokenId) bind() called, creating initialStatePublisher")
         let initialStatePublisher = makeInitialStatePublisher()
 
         initialStatePublisher
-//            .handleEvents(
-//                receiveSubscription: { [weak self] _ in
-//                    AppLogger.debug("[YieldModule] \(self?.tokenId ?? "?") initialStatePublisher subscribed")
-//                },
-//                receiveOutput: { [weak self] state in
-//                    AppLogger.debug("[YieldModule] \(self?.tokenId ?? "?") initialStatePublisher emitted state: \(state.state)")
-//                    self?.updateStateCacheIfNeeded(state: state)
-//                }
-//            )
+            .handleEvents(receiveOutput: { [weak self] in
+                self?.updateStateCacheIfNeeded(state: $0)
+            })
             .sink { [_state] result in
                 _state.send(result)
             }
