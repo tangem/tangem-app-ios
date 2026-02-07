@@ -122,7 +122,6 @@ class CommonWalletModel {
     }
 
     deinit {
-//        AppLogger.debug("[YieldModule] walletModel \(ObjectIdentifier(self)) deinited token: \(tokenItem.name), chain: \(tokenItem.blockchain), address: \(defaultAddressString)")
         AppLogger.debug(self)
     }
 
@@ -199,12 +198,7 @@ class CommonWalletModel {
     @MainActor
     private func updateState(_ state: WalletModelState) {
         AppLogger.info(self, "Updating state. New state is \(state)")
-        if let manager = _yieldModuleManager {
-//            AppLogger.debug("[YieldModule] \(tokenItem.name) updateState called, manager exists")
-            manager.updateState(walletModelState: state, balance: wallet.amounts[amountType])
-        } else {
-//            AppLogger.debug("[YieldModule] \(tokenItem.name) updateState called, manager is nil (isToken=\(tokenItem.isToken))")
-        }
+        _yieldModuleManager?.updateState(walletModelState: state, balance: wallet.amounts[amountType])
         _state.value = state
     }
 
@@ -359,9 +353,6 @@ extension CommonWalletModel: WalletModel {
     }
 
     var yieldModuleManager: (any YieldModuleManager)? {
-//        if let manager = _yieldModuleManager {
-//            AppLogger.debug("[YieldModule] walletModel \(ObjectIdentifier(self)) returns manager: \(ObjectIdentifier(manager as AnyObject)), token: \(tokenItem.name), chain: \(tokenItem.blockchain), address: \(defaultAddressString)")
-//        }
         return _yieldModuleManager
     }
 
@@ -543,16 +534,12 @@ extension CommonWalletModel: WalletModelHelpers {
     }
 
     func makeYieldModuleManager() -> (YieldModuleManager & YieldModuleManagerUpdater)? {
-//        AppLogger.debug("[YieldModule] makeYieldModuleManager CALLED on \(ObjectIdentifier(self)) for \(tokenItem.name), chain: \(tokenItem.blockchain), address: \(defaultAddressString)")
         guard case .token(let token, _) = tokenItem,
               let yieldSupplyService = walletManager.yieldSupplyService,
               let ethereumNetworkProvider
         else {
-//            AppLogger.debug("[YieldModule] makeYieldModuleManager returning nil for \(tokenItem.name): isToken=\(tokenItem.isToken), hasYieldSupplyService=\(walletManager.yieldSupplyService != nil), hasEthereumNetworkProvider=\(ethereumNetworkProvider != nil)")
             return nil
         }
-
-//        AppLogger.debug("[YieldModule] makeYieldModuleManager creating manager for \(token.name)")
 
         let nonFilteredPendingTransactionsPublisher: AnyPublisher<[PendingTransactionRecord], Never> =
             walletManager
