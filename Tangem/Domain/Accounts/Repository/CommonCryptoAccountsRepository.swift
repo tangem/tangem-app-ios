@@ -124,8 +124,15 @@ final class CommonCryptoAccountsRepository {
             try await createWallet()
         }
 
+        // `nilIfEmpty` is crucial for `legacyInfo?.legacyTokens` because here we handle two possible cases:
+        // - Migration from the old version w/o accounts support but with existing tokens from the plain tokens list:
+        // in this case, we want to preserve the existing tokens and assign them to the default account
+        // (only if they exist, otherwise we use default tokens from the factory)
+        //
+        // - Creation of a new wallet after an already completed POST `v1/user-wallets/wallets` call:
+        // in this case, we want to create a main account with default tokens.
         let defaultAccount = defaultAccountFactory.makeDefaultAccountPreferringExisting(
-            defaultTokensOverride: legacyInfo?.legacyTokens,
+            defaultTokensOverride: legacyInfo?.legacyTokens.nilIfEmpty,
             defaultGroupingOverride: legacyInfo?.legacyGrouping,
             defaultSortingOverride: legacyInfo?.legacySorting
         )
