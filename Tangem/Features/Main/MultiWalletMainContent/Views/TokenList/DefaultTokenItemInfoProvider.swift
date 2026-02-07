@@ -23,8 +23,14 @@ class DefaultTokenItemInfoProvider {
         balanceProvider = walletModel.totalTokenBalanceProvider
         fiatBalanceProvider = walletModel.fiatTotalTokenBalanceProvider
         yieldModuleManager = walletModel.yieldModuleManager
-//        AppLogger.debug("[YieldModule] DefaultTokenItemInfoProvider init for \(walletModel.tokenItem.name), yieldModuleManager=\(yieldModuleManager != nil ? "exists" : "nil")")
+//        if let manager = yieldModuleManager {
+//            AppLogger.debug("[YieldModule] provider holds manager: \(ObjectIdentifier(manager as AnyObject)), token: \(walletModel.tokenItem.name), chain: \(walletModel.tokenItem.blockchain), address: \(walletModel.defaultAddressString)")
+//        }
     }
+
+//    deinit {
+//        AppLogger.debug("[YieldModule] DefaultTokenItemInfoProvider deinit, token: \(walletModel.tokenItem.name), chain: \(walletModel.tokenItem.blockchain), address: \(walletModel.defaultAddressString)")
+//    }
 }
 
 extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
@@ -75,20 +81,35 @@ extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
 
     var leadingBadgePublisher: AnyPublisher<TokenItemViewModel.LeadingBadge?, Never> {
         Publishers.CombineLatest3(
-            hasPendingTransactions,
+            hasPendingTransactions.prepend(false),
             yieldModuleStatePublisher,
-            walletModel.stakingManagerStatePublisher
+            walletModel.stakingManagerStatePublisher.prepend(.notEnabled)
         )
-        .map { hasPendingTransactions, yieldModuleState, stakingManagerState -> TokenItemViewModel.LeadingBadge? in
+        .map { [walletModel] hasPendingTransactions, yieldModuleState, stakingManagerState -> TokenItemViewModel.LeadingBadge? in
             guard !hasPendingTransactions else {
                 return .pendingTransaction
             }
 
-            if let yieldModuleState, let marketInfo = yieldModuleState.marketInfo {
-                return LeadingBadgeMapper.mapRewards(marketInfo: marketInfo, state: yieldModuleState.state)
-            } else {
-                return LeadingBadgeMapper.mapRewards(stakingManagerState: stakingManagerState)
+            /*AppLogger.debug("[YieldModule] state \(String(describing: yieldModuleState)), token: \(String(describing: walletModel.tokenItem.name)), chain: \(String(describing: walletModel.tokenItem.blockchain)), address: \(String*/(describing: walletModel.defaultAddressString))")
+
+            if let yieldModuleState,
+               let marketInfo = yieldModuleState.marketInfo {
+                let badge = LeadingBadgeMapper.mapRewards(marketInfo: marketInfo, state: yieldModuleState.state)
+//                AppLogger.debug("[YieldModule] badge from market info \(String(describing: badge)), token: \(String(describing: walletModel.tokenItem.name)), chain: \(String(describing: walletModel.tokenItem.blockchain)), address: \(String(describing: walletModel.defaultAddressString))")
+                return badge
             }
+
+            if let apy = stakingManagerState.apy,
+               let rewardType = stakingManagerState.rewardType {
+                return LeadingBadgeMapper.mapRewards(
+                    rewardType: rewardType,
+                    apy: apy,
+                    isActive: stakingManagerState.isActive,
+                    isLoading: stakingManagerState.isLoading
+                )
+            }
+
+            return nil
         }
         .eraseToAnyPublisher()
     }
@@ -106,29 +127,17 @@ extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
 
 private extension DefaultTokenItemInfoProvider {
     var yieldModuleStatePublisher: AnyPublisher<YieldModuleManagerStateInfo?, Never> {
-        if let manager = yieldModuleManager {
-//            AppLogger.debug("[YieldModule] \(walletModel.tokenItem.name) yieldModuleStatePublisher accessed, manager exists")
-            return manager.statePublisher
-//                .handleEvents(receiveOutput: { stateInfo in
-//                    AppLogger.debug("[YieldModule] \(self.walletModel.tokenItem.name) statePublisher emitted: state=\(String(describing: stateInfo?.state)), marketInfo=\(stateInfo?.marketInfo != nil ? "exists (apy=\(stateInfo?.marketInfo?.apy ?? 0), isActive=\(stateInfo?.marketInfo?.isActive ?? false))" : "nil")")
-//                })
-                .filter { stateInfo in
-                    switch stateInfo?.state {
-                    case .none:
-                        return false
-                    case .processing, .loading(.none):
-                        return false
-                    case .loading(.some):
-                        return true
-                    case .active, .notActive, .failedToLoad, .disabled:
-                        return true
-                    }
-                }
-                .eraseToAnyPublisher()
-        } else {
-//            AppLogger.debug("[YieldModule] \(walletModel.tokenItem.name) yieldModuleStatePublisher accessed, manager is nil")
+        guard let manager = yieldModuleManager else {
+            if walletModel.tokenItem.isToken, walletModel.tokenItem.token?.name == "USDC" {
+                print("A-HA!")
+            }
             return Just(.none).eraseToAnyPublisher()
         }
+
+        return manager.statePublisher.map { yieldModuleState in
+//            AppLogger.debug("[YieldModule] inside map \(String(describing: yieldModuleState)), token: \(String(describing: walletModel.tokenItem.name)), chain: \(String(describing: walletModel.tokenItem.blockchain)), address: \(String(describing: walletModel.defaultAddressString))")
+            return yieldModuleState
+        }.eraseToAnyPublisher()
     }
 }
 
@@ -142,20 +151,15 @@ private enum LeadingBadgeMapper {
     typealias RewardsInfo = TokenItemViewModel.RewardsInfo
     typealias LeadingBadge = TokenItemViewModel.LeadingBadge
 
-    static func mapRewards(stakingManagerState: StakingManagerState) -> LeadingBadge? {
-        guard let apy = stakingManagerState.apy,
-              let rewardType = stakingManagerState.rewardType else {
-            return nil
-        }
-
+    static func mapRewards(rewardType: RewardType, apy: Decimal, isActive: Bool, isLoading: Bool) -> LeadingBadge? {
         let formattedRewardValue = PercentFormatter().format(apy, option: .staking)
 
         return .rewards(
             RewardsInfo(
                 type: rewardType,
                 rewardValue: formattedRewardValue,
-                isActive: stakingManagerState.isActive,
-                isUpdating: stakingManagerState.isLoading
+                isActive: isActive,
+                isUpdating: isLoading
             )
         )
     }

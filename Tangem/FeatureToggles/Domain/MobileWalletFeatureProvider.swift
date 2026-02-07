@@ -12,7 +12,7 @@ import TangemLocalization
 import struct TangemUIUtils.AlertBinder
 
 struct MobileWalletFeatureProvider {
-    private let targetMajor = 18
+    private let targetMajor = 17
     private let targetMinor = 0
 
     var isAvailable: Bool {
