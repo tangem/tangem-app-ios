@@ -1,5 +1,5 @@
 //
-//  HoldToConfirmButtonModel.swift
+//  WrappedHoldToConfirmButtonModel.swift
 //  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,12 +12,20 @@ import Combine
 import UIKit
 
 @MainActor
-final class HoldToConfirmButtonModel: ObservableObject {
+final class WrappedHoldToConfirmButtonModel: ObservableObject {
     typealias Configuration = HoldToConfirmButton.Configuration
 
-    @Published private(set) var state: State = .idle
-    @Published private(set) var confirmTrigger: UInt = 0
+    @Published private(set) var state: State
+    @Published private(set) var isDisabled: Bool
+
     @Published private(set) var shakeTrigger: CGFloat = 0
+
+    var labelTitle: String {
+        switch state {
+        case .idle, .holding, .confirmed, .loading: title
+        case .canceled: configuration.cancelTitle
+        }
+    }
 
     var holdDuration: TimeInterval {
         configuration.holdDuration
@@ -33,20 +41,32 @@ final class HoldToConfirmButtonModel: ObservableObject {
     private let shakingGenerator = UIImpactFeedbackGenerator(style: .medium)
     private let loadingGenerator = UIImpactFeedbackGenerator(style: .heavy)
 
-    private let configuration: Configuration
+    @Published private var title: String
+    @Published private var configuration: Configuration
+    private var action: () -> Void
 
     private var countUpSubscription: AnyCancellable?
     private var touchesSubscription: AnyCancellable?
 
-    init(configuration: Configuration) {
+    init(
+        title: String,
+        isLoading: Bool,
+        isDisabled: Bool,
+        configuration: Configuration,
+        action: @escaping () -> Void
+    ) {
+        state = isLoading ? .loading : .idle
+        self.title = title
+        self.isDisabled = isDisabled
         self.configuration = configuration
+        self.action = action
         setup()
     }
 }
 
 // MARK: - Internal methods
 
-extension HoldToConfirmButtonModel {
+extension WrappedHoldToConfirmButtonModel {
     func onTouches(view: UIView?, touches: Set<UITouch>, event: UIEvent?) {
         guard shouldObserveTouches() else { return }
         bindTouchesIfNeeded()
@@ -55,14 +75,11 @@ extension HoldToConfirmButtonModel {
         touchesSubject.send(item)
     }
 
-    func labelText(title: String) -> String {
-        switch state {
-        case .idle, .holding, .confirmed, .loading, .disabled: title
-        case .canceled: configuration.cancelTitle
-        }
+    func onTitleChanged(title: String) {
+        self.title = title
     }
 
-    func onLoading(_ isLoading: Bool) {
+    func onLoadingChanged(isLoading: Bool) {
         if isLoading {
             startLoading()
         } else {
@@ -70,30 +87,42 @@ extension HoldToConfirmButtonModel {
         }
     }
 
-    func onEnabled(_ isEnabled: Bool) {
-        if isEnabled {
-            enable()
-        } else {
+    func onDisabledChanged(isDisabled: Bool) {
+        if isDisabled {
             disable()
+        } else {
+            enable()
         }
+    }
+
+    func onConfigurationChanged(configuration: Configuration) {
+        self.configuration = configuration
+    }
+
+    func onActionChanged(action: HoldToConfirmButton.Action) {
+        self.action = action.closure
     }
 }
 
 // MARK: - Private methods
 
-private extension HoldToConfirmButtonModel {
+private extension WrappedHoldToConfirmButtonModel {
     func setup() {
         holdingGenerator.prepare()
         shakingGenerator.prepare()
         loadingGenerator.prepare()
+
+        if state == .loading {
+            startLoading()
+        }
     }
 }
 
 // MARK: - Touches
 
-private extension HoldToConfirmButtonModel {
+private extension WrappedHoldToConfirmButtonModel {
     func shouldObserveTouches() -> Bool {
-        [.idle, .holding, .canceled].contains(state)
+        !isDisabled && [.idle, .holding, .canceled].contains(state)
     }
 
     func bindTouchesIfNeeded() {
@@ -131,7 +160,7 @@ private extension HoldToConfirmButtonModel {
 
 // MARK: - States
 
-private extension HoldToConfirmButtonModel {
+private extension WrappedHoldToConfirmButtonModel {
     func startHolding() {
         setup(state: .holding)
         vibrate(
@@ -156,9 +185,9 @@ private extension HoldToConfirmButtonModel {
     }
 
     func confirm() {
-        state = .confirmed
+        setup(state: .confirmed)
         unbindTouches()
-        confirmTrigger += 1
+        action()
     }
 
     func startLoading() {
@@ -171,11 +200,12 @@ private extension HoldToConfirmButtonModel {
     }
 
     func enable() {
+        isDisabled = false
         setup(state: .idle)
     }
 
     func disable() {
-        setup(state: .disabled)
+        isDisabled = true
         unbindTouches()
     }
 
@@ -186,7 +216,7 @@ private extension HoldToConfirmButtonModel {
 
 // MARK: - Impacts
 
-private extension HoldToConfirmButtonModel {
+private extension WrappedHoldToConfirmButtonModel {
     func vibrate(
         duration: TimeInterval,
         generator: UIImpactFeedbackGenerator,
@@ -227,14 +257,13 @@ private extension HoldToConfirmButtonModel {
 
 // MARK: - Types
 
-extension HoldToConfirmButtonModel {
+extension WrappedHoldToConfirmButtonModel {
     enum State {
         case idle
         case holding
         case canceled
         case confirmed
         case loading
-        case disabled
     }
 
     struct TouchesItem {

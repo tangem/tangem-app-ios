@@ -174,10 +174,10 @@ struct WCTransactionView: View {
     private var signHoldButton: some View {
         HoldToConfirmButton(
             title: viewModel.primariActionButtonTitle,
+            isLoading: viewModel.presentationState == .signing,
+            isDisabled: viewModel.isActionButtonBlocked,
             action: { viewModel.handleViewAction(.sign) }
         )
-        .isLoading(viewModel.presentationState == .signing)
-        .disabled(viewModel.isActionButtonBlocked)
     }
 
     private func requestDetailsFooter(_ input: WCRequestDetailsInput) -> some View {
@@ -264,9 +264,10 @@ struct WCTransactionView: View {
     ) -> some View {
         HoldToConfirmButton(
             title: state.title,
+            isLoading: state.isLoading,
+            isDisabled: false,
             action: action
         )
-        .isLoading(state.isLoading)
     }
 }
 

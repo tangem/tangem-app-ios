@@ -183,10 +183,10 @@ struct ExpressView: View {
     private var bottomHoldAction: some View {
         HoldToConfirmButton(
             title: viewModel.mainButtonState.title,
+            isLoading: viewModel.mainButtonIsLoading,
+            isDisabled: !viewModel.mainButtonIsEnabled,
             action: viewModel.didTapMainButton
         )
-        .isLoading(viewModel.mainButtonIsLoading)
-        .disabled(!viewModel.mainButtonIsEnabled)
     }
 
     @ViewBuilder

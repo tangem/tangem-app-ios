@@ -183,12 +183,12 @@ struct SendView: View {
     private func bottomHoldAction(_ mainButtonType: SendMainButtonType) -> some View {
         HoldToConfirmButton(
             title: mainButtonType.title(action: viewModel.flowActionType),
+            isLoading: viewModel.mainButtonLoading,
+            isDisabled: !viewModel.actionIsAvailable,
             action: {
                 viewModel.userDidTapActionButton(mainButtonType: mainButtonType)
             }
         )
-        .isLoading(viewModel.mainButtonLoading)
-        .disabled(!viewModel.actionIsAvailable)
     }
 
     private var bottomOverlay: some View {

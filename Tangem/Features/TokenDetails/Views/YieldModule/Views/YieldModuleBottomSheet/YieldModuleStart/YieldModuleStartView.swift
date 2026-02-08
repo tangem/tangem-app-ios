@@ -117,10 +117,10 @@ struct YieldModuleStartView: View {
     private var startEarningHoldButton: some View {
         HoldToConfirmButton(
             title: Localization.yieldModuleStartEarning,
+            isLoading: viewModel.isProcessingStartRequest,
+            isDisabled: !viewModel.isButtonEnabled,
             action: ctaButtonAction
         )
-        .isLoading(viewModel.isProcessingStartRequest)
-        .disabled(!viewModel.isButtonEnabled)
     }
 
     @ViewBuilder

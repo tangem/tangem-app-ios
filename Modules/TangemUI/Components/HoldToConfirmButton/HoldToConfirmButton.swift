@@ -7,164 +7,64 @@
 //
 
 import SwiftUI
-import TangemUIUtils
-import TangemAssets
 import TangemLocalization
 
 public struct HoldToConfirmButton: View {
-    typealias ViewModel = HoldToConfirmButtonModel
-
-    @StateObject private var viewModel: ViewModel
-
-    @Environment(\.isEnabled) private var isEnabled: Bool
-    @Environment(\.holdToConfirmButtonIsLoading) private var isLoading: Bool
-
-    private var isIOS18OrNewer: Bool {
-        if #available(iOS 18.0, *) {
-            true
-        } else {
-            false
-        }
-    }
+    @State private var viewModel: WrappedHoldToConfirmButtonModel
 
     private let title: String
-    private let action: () -> Void
+    private let isLoading: Bool
+    private let isDisabled: Bool
+    private let configuration: Configuration
+    private let action: Action
 
     public init(
         title: String,
+        isLoading: Bool,
+        isDisabled: Bool,
         configuration: Configuration = .default,
         action: @escaping () -> Void
     ) {
-        _viewModel = StateObject(wrappedValue: ViewModel(configuration: configuration))
+        viewModel = WrappedHoldToConfirmButtonModel(
+            title: title,
+            isLoading: isLoading,
+            isDisabled: isDisabled,
+            configuration: configuration,
+            action: action
+        )
         self.title = title
-        self.action = action
+        self.isLoading = isLoading
+        self.isDisabled = isDisabled
+        self.configuration = configuration
+        self.action = HoldToConfirmButton.Action(closure: action)
     }
 
     public var body: some View {
-        content
-            .onAppear {
-                viewModel.onLoading(isLoading)
-                viewModel.onEnabled(isEnabled)
-            }
-            .onChange(of: viewModel.confirmTrigger, perform: confirmAction)
-            .onChange(of: isLoading, perform: viewModel.onLoading)
-            .onChange(of: isEnabled, perform: viewModel.onEnabled)
-    }
-
-    private func confirmAction(_ trigger: UInt) {
-        action()
+        WrappedHoldToConfirmButton(viewModel: viewModel)
+            .environment(\.title, title)
+            .environment(\.isLoading, isLoading)
+            .environment(\.isDisabled, isDisabled)
+            .environment(\.configuration, configuration)
+            .environment(\.action, action)
     }
 }
 
-// MARK: - Views calculations
+struct WrappedHoldToConfirmButton {
+    typealias ViewModel = WrappedHoldToConfirmButtonModel
 
-private extension HoldToConfirmButton {
-    var isHoldingState: Bool {
-        viewModel.state == .holding
-    }
+    @Environment(\.title) var title: String
+    @Environment(\.isLoading) var isLoading: Bool
+    @Environment(\.isDisabled) var isDisabled: Bool
+    @Environment(\.configuration) var configuration: HoldToConfirmButton.Configuration
+    @Environment(\.action) var action: HoldToConfirmButton.Action
 
-    var isDisabledState: Bool {
-        viewModel.state == .disabled
-    }
-
-    var labelTextColor: Color {
-        isDisabledState ? Colors.Text.disabled : Colors.Text.primary2
-    }
-
-    var backgroundColor: Color {
-        isDisabledState ? Colors.Button.disabled : Colors.Button.primary
-    }
-
-    var progressAnimation: Animation {
-        let duration = isHoldingState ? viewModel.holdDuration : 0
-        return .linear(duration: duration)
-    }
-
-    func progressWidth(in proxy: GeometryProxy) -> CGFloat {
-        [.holding, .confirmed].contains(viewModel.state) ? proxy.size.width : 0
-    }
-
-    var scaleAnimation: Animation {
-        let duration = isHoldingState ? viewModel.holdDuration : 0.2
-        return .easeOut(duration: duration)
-    }
-
-    var scaleFactor: CGFloat {
-        isHoldingState ? 0.95 : 1
-    }
+    @ObservedObject var viewModel: ViewModel
 }
 
-// MARK: - Subviews
+// MARK: - Types
 
-private extension HoldToConfirmButton {
-    var content: some View {
-        label
-            .background(background)
-            .overlay(overlay)
-            // For iOS versions earlier than 18 there is issue using `scaleEffect` together
-            // with UIKit gestures: touch `ended` and `cancelled` events stop being delivered.
-            .if(isIOS18OrNewer) {
-                $0.scaleEffect(scaleFactor)
-            }
-            .animation(scaleAnimation, value: viewModel.state)
-    }
-
-    var label: some View {
-        Text(viewModel.labelText(title: title))
-            .transaction { $0.animation = nil }
-            .style(Fonts.Bold.callout, color: labelTextColor)
-            .shake(
-                trigger: viewModel.shakeTrigger,
-                duration: viewModel.shakeDuration,
-                shakesPerUnit: 1,
-                travelDistance: 10
-            )
-            .frame(height: 46)
-            .frame(maxWidth: .infinity)
-    }
-
-    @ViewBuilder
-    var overlay: some View {
-        switch viewModel.state {
-        case .idle, .holding, .canceled:
-            Color.clear.onTouches(perform: viewModel.onTouches)
-        case .confirmed, .disabled:
-            EmptyView()
-        case .loading:
-            loading
-        }
-    }
-
-    var background: some View {
-        ZStack(alignment: .leading) {
-            backgroundColor
-            progressBar
-        }
-        .clipShape(RoundedRectangle(cornerRadius: 14))
-    }
-
-    var loading: some View {
-        ZStack {
-            backgroundColor
-            ProgressView().tint(Colors.Text.primary2)
-        }
-        .clipShape(RoundedRectangle(cornerRadius: 14))
-    }
-
-    var progressBar: some View {
-        GeometryReader { proxy in
-            Color.Tangem.Fill.Neutral.quaternary
-                .opacity(0.15)
-                .frame(width: progressWidth(in: proxy))
-                .animation(progressAnimation, value: viewModel.state)
-        }
-    }
-}
-
-// MARK: - Configuration
-
-public extension HoldToConfirmButton {
-    struct Configuration {
+extension HoldToConfirmButton {
+    public struct Configuration: Hashable {
         let cancelTitle: String
         let holdDuration: TimeInterval
         let shakeDuration: TimeInterval
@@ -189,25 +89,71 @@ public extension HoldToConfirmButton {
             self.vibratesPerSecond = vibratesPerSecond
         }
     }
-}
 
-// MARK: - isLoading
+    struct Action: Equatable {
+        private let id = UUID()
 
-public extension HoldToConfirmButton {
-    func isLoading(_ value: Bool) -> some View {
-        environment(\.holdToConfirmButtonIsLoading, value)
+        let closure: () -> Void
+
+        static let `default`: Self = .init(closure: {})
+
+        static func == (lhs: Self, rhs: Self) -> Bool {
+            lhs.id == rhs.id
+        }
+
+        init(closure: @escaping () -> Void) {
+            self.closure = closure
+        }
     }
 }
 
-// MARK: - Environment key/value
+// MARK: - Environment keys
 
-private struct HoldToConfirmButtonIsLoadingKey: EnvironmentKey {
+private struct TitleKey: EnvironmentKey {
+    static let defaultValue: String = ""
+}
+
+private struct IsLoadingKey: EnvironmentKey {
     static let defaultValue: Bool = false
 }
 
+private struct IsDisabledKey: EnvironmentKey {
+    static let defaultValue: Bool = false
+}
+
+private struct ConfigurationKey: EnvironmentKey {
+    static let defaultValue: HoldToConfirmButton.Configuration = .default
+}
+
+private struct ActionKey: EnvironmentKey {
+    static let defaultValue: HoldToConfirmButton.Action = .default
+}
+
+// MARK: - Environment value
+
 private extension EnvironmentValues {
-    var holdToConfirmButtonIsLoading: Bool {
-        get { self[HoldToConfirmButtonIsLoadingKey.self] }
-        set { self[HoldToConfirmButtonIsLoadingKey.self] = newValue }
+    var title: String {
+        get { self[TitleKey.self] }
+        set { self[TitleKey.self] = newValue }
+    }
+
+    var isLoading: Bool {
+        get { self[IsLoadingKey.self] }
+        set { self[IsLoadingKey.self] = newValue }
+    }
+
+    var isDisabled: Bool {
+        get { self[IsDisabledKey.self] }
+        set { self[IsDisabledKey.self] = newValue }
+    }
+
+    var configuration: HoldToConfirmButton.Configuration {
+        get { self[ConfigurationKey.self] }
+        set { self[ConfigurationKey.self] = newValue }
+    }
+
+    var action: HoldToConfirmButton.Action {
+        get { self[ActionKey.self] }
+        set { self[ActionKey.self] = newValue }
     }
 }
