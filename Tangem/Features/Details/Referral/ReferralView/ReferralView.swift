@@ -85,6 +85,9 @@ struct ReferralView: View {
 
         case .loaded(let loadedState):
             makeReferralContent(loadedState: loadedState)
+
+        case .failed:
+            loaderContent
         }
     }
 
