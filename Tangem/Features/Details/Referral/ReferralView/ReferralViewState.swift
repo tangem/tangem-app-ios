@@ -11,13 +11,14 @@ import TangemUI
 
 extension ReferralViewModel {
     enum WorkMode {
-        case plainUserTokensManager(any UserTokensManager)
+        case plainUserTokensManager(UserTokensManager)
         case accounts(AccountModelsManager)
     }
 
     enum ViewState {
         case loading
         case loaded(LoadedState)
+        case failed(reason: String)
 
         func updateAccountData(with newData: SelectedAccountViewData) -> Self {
             switch self {
@@ -26,6 +27,9 @@ extension ReferralViewModel {
 
             case .loaded(let loadedState):
                 return .loaded(loadedState.updateAccountData(with: newData))
+
+            case .failed(let reason):
+                return .failed(reason: reason)
             }
         }
     }
@@ -48,8 +52,8 @@ extension ReferralViewModel {
             switch self {
             case .alreadyParticipant(let displayMode):
                 switch displayMode {
-                case .simple:
-                    return .alreadyParticipant(.simple)
+                case .simple(let userTokensManager):
+                    return .alreadyParticipant(.simple(userTokensManager))
 
                 case .accounts:
                     return .alreadyParticipant(.accounts(newData))
@@ -57,8 +61,8 @@ extension ReferralViewModel {
 
             case .readyToBecomeParticipant(let displayMode):
                 switch displayMode {
-                case .simple:
-                    return .readyToBecomeParticipant(.simple)
+                case .simple(let userTokensManager):
+                    return .readyToBecomeParticipant(.simple(userTokensManager))
 
                 case .accounts(let tokenItem, _):
                     return .readyToBecomeParticipant(.accounts(tokenItem, newData))
@@ -68,7 +72,7 @@ extension ReferralViewModel {
     }
 
     enum AlreadyParticipantDisplayMode {
-        case simple
+        case simple(UserTokensManager)
         case accounts(SelectedAccountViewData)
 
         var accountData: SelectedAccountViewData? {
@@ -82,7 +86,7 @@ extension ReferralViewModel {
     }
 
     enum ReadyToBecomeParticipantDisplayMode {
-        case simple
+        case simple(UserTokensManager)
         case accounts(TokenType, SelectedAccountViewData)
 
         enum TokenType {
