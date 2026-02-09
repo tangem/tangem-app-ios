@@ -1,22 +1,24 @@
 //
-//  TransactionDispatcherFactory.swift
-//  Tangem
+//  WalletModelTransactionDispatcherProvider.swift
+//  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2024 Tangem AG. All rights reserved.
+//  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import Foundation
-import BlockchainSdk
 import TangemStaking
 
-struct TransactionDispatcherFactory {
+struct WalletModelTransactionDispatcherProvider {
     let walletModel: any WalletModel
     let signer: TangemSigner
+}
 
-    func makeSendDispatcher() -> TransactionDispatcher {
+// MARK: - TransactionDispatcherProvider
+
+extension WalletModelTransactionDispatcherProvider: TransactionDispatcherProvider {
+    func makeTransferTransactionDispatcher() -> TransactionDispatcher {
         if walletModel.isDemo {
-            return DemoSendTransactionDispatcher(walletModel: walletModel, transactionSigner: signer)
+            return DemoTransferTransactionDispatcher(walletModel: walletModel, transactionSigner: signer)
         }
 
         let gaslessTransactionBuilder = GaslessTransactionBuilder(walletModel: walletModel, signer: signer)
@@ -25,31 +27,52 @@ struct TransactionDispatcherFactory {
             transactionSigner: signer,
             gaslessTransactionBuilder: gaslessTransactionBuilder
         )
-        return SendTransactionDispatcher(
+        return TransferTransactionDispatcher(
             walletModel: walletModel,
             transactionSigner: signer,
             gaslessTransactionSender: gaslessTransactionSender
         )
     }
 
-    func makeExpressDispatcher() -> TransactionDispatcher {
+    func makeApproveTransactionDispatcher() -> TransactionDispatcher {
         if walletModel.isDemo {
-            return DemoSendTransactionDispatcher(walletModel: walletModel, transactionSigner: signer)
+            return DemoTransferTransactionDispatcher(walletModel: walletModel, transactionSigner: signer)
         }
 
-        return ExpressTransactionDispatcher(
+        return ApproveTransactionDispatcher(
             walletModel: walletModel,
             transactionSigner: signer,
-            sendTransactionDispatcher: makeSendDispatcher()
+            transferTransactionDispatcher: makeTransferTransactionDispatcher()
         )
     }
 
-    func makeStakingTransactionDispatcher(
-        stakingManger: some StakingManager,
-        analyticsLogger: any StakingAnalyticsLogger
-    ) -> TransactionDispatcher {
+    func makeDEXTransactionDispatcher() -> TransactionDispatcher {
         if walletModel.isDemo {
-            return DemoSendTransactionDispatcher(walletModel: walletModel, transactionSigner: signer)
+            return DemoTransferTransactionDispatcher(walletModel: walletModel, transactionSigner: signer)
+        }
+
+        return ExpressDEXTransactionDispatcher(
+            walletModel: walletModel,
+            transactionSigner: signer,
+            transferTransactionDispatcher: makeTransferTransactionDispatcher()
+        )
+    }
+
+    func makeCEXTransactionDispatcher() -> TransactionDispatcher {
+        if walletModel.isDemo {
+            return DemoTransferTransactionDispatcher(walletModel: walletModel, transactionSigner: signer)
+        }
+
+        return ExpressCEXTransactionDispatcher(
+            walletModel: walletModel,
+            transactionSigner: signer,
+            transferTransactionDispatcher: makeTransferTransactionDispatcher()
+        )
+    }
+
+    func makeStakingTransactionDispatcher(analyticsLogger: any StakingAnalyticsLogger) -> TransactionDispatcher {
+        if walletModel.isDemo {
+            return DemoTransferTransactionDispatcher(walletModel: walletModel, transactionSigner: signer)
         }
 
         let mapper = StakingTransactionMapper(
@@ -79,17 +102,15 @@ struct TransactionDispatcherFactory {
         }
     }
 
-    func makeYieldModuleDispatcher() -> TransactionDispatcher? {
+    func makeYieldModuleTransactionDispatcher() -> TransactionDispatcher {
         if walletModel.isDemo {
-            return DemoSendTransactionDispatcher(walletModel: walletModel, transactionSigner: signer)
+            return DemoTransferTransactionDispatcher(walletModel: walletModel, transactionSigner: signer)
         }
-
-        guard let transactionsSender = walletModel.multipleTransactionsSender else { return nil }
 
         return YieldModuleTransactionDispatcher(
             tokenItem: walletModel.tokenItem,
             walletModelUpdater: walletModel,
-            transactionsSender: transactionsSender,
+            transactionsSender: walletModel.multipleTransactionsSender,
             transactionSigner: signer,
             logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId)
         )
