@@ -298,7 +298,8 @@ private extension SendModel {
             throw TransactionDispatcherResult.Error.transactionNotFound
         }
 
-        let result = try await sourceToken.transactionDispatcher.send(transaction: .transfer(transaction))
+        let dispatcher = sourceToken.transactionDispatcherProvider.makeTransferTransactionDispatcher()
+        let result = try await dispatcher.send(transaction: .transfer(transaction))
         addTokenFromTransactionIfNeeded(transaction)
         return result
     }
