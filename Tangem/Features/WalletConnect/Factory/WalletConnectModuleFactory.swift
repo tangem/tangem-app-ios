@@ -136,7 +136,10 @@ enum WalletConnectModuleFactory {
         let hapticFeedbackGenerator = WalletConnectUIFeedbackGenerator()
 
         let connectionRequestViewModel = WalletConnectDAppConnectionRequestViewModel(
-            state: .loading(selectedUserWalletName: selectedUserWallet.name, targetSelectionIsAvailable: filteredUserWallets.count > 1 || hasMultipleAccountsWallet),
+            state: .loading(
+                selectedUserWalletName: selectedUserWallet.name,
+                targetSelectionIsAvailable: filteredUserWallets.count > 1 || hasMultipleAccountsWallet
+            ),
             interactor: interactor,
             analyticsLogger: CommonWalletConnectDAppConnectionRequestAnalyticsLogger(source: source),
             logger: WCLogger,
@@ -206,7 +209,7 @@ enum WalletConnectModuleFactory {
         let errorMessage: String
 
         switch proposalLoadingError {
-        case .pairingFailed:
+        case .pairingFailed, .selectedAccountRetrievalFailed:
             errorMessage = Localization.wcAlertUnknownErrorDescription(formattedErrorCode(from: proposalLoadingError))
 
         case .uriAlreadyUsed,
@@ -306,7 +309,7 @@ enum WalletConnectModuleFactory {
                 buttonStyle: .primary
             )
 
-        case .pairingFailed, .cancelledByUser:
+        case .pairingFailed, .cancelledByUser, .selectedAccountRetrievalFailed:
             return nil
         }
 
