@@ -89,11 +89,13 @@ final class CommonCryptoAccountsRepository {
     // MARK: - Legacy storage migration and initialization, no accounts created, no wallets created, etc.
 
     private func initializeStorage(with initialAccount: StoredCryptoAccount) {
+        cryptoAccountsSyncLogger.debug("Called with \(initialAccount)")
         persistentStorage.replace(with: [initialAccount])
         auxiliaryDataStorage.update(withArchivedAccountsCount: 0, totalAccountsCount: 1)
     }
 
     private func migrateStorage(forUserWalletWithId userWalletId: UserWalletId) {
+        cryptoAccountsSyncLogger.debug("Called with \(userWalletId.stringValue)")
         let mainAccountPersistentConfig = AccountModelUtils.mainAccountPersistentConfig(forUserWalletWithId: userWalletId)
         let legacyStoredTokenList = tokenItemsRepository.getList()
         let tokens = LegacyStoredEntryConverter.convert(legacyStoredTokens: legacyStoredTokenList.entries)
@@ -107,6 +109,7 @@ final class CommonCryptoAccountsRepository {
     }
 
     private func createWallet() async throws {
+        cryptoAccountsSyncLogger.debug("Called with None")
         guard let userWalletInfo = userWalletInfoProvider?.userWalletInfo else {
             throw InternalError.noUserWalletInfoProviderSet
         }
@@ -120,6 +123,7 @@ final class CommonCryptoAccountsRepository {
     }
 
     private func addDefaultAccount(isWalletAlreadyCreated: Bool, legacyInfo: RemoteCryptoAccountsInfo?) async throws {
+        cryptoAccountsSyncLogger.debug("Called with \(isWalletAlreadyCreated), \(String(describing: legacyInfo))")
         if !isWalletAlreadyCreated {
             try await createWallet()
         }
@@ -131,17 +135,20 @@ final class CommonCryptoAccountsRepository {
         //
         // - Creation of a new wallet after an already completed POST `v1/user-wallets/wallets` call:
         // in this case, we want to create a main account with default tokens, not with the empty tokens list from the server.
+        // pass `isWalletAlreadyCreated` here?
         let defaultAccount = defaultAccountFactory.makeDefaultAccountPreferringExisting(
             defaultTokensOverride: legacyInfo?.legacyTokens.nilIfEmpty,
             defaultGroupingOverride: legacyInfo?.legacyGrouping,
             defaultSortingOverride: legacyInfo?.legacySorting
         )
+        cryptoAccountsSyncLogger.debug("Called with \(isWalletAlreadyCreated), \(String(describing: legacyInfo)), \(defaultAccount)")
         _ = try await addAccountsInternal([defaultAccount], tokenListUpdateOptions: .forceUpdate)
     }
 
     // MARK: - Loading accounts and tokens from server
 
     private func loadAccountsFromServer(_ completion: UserTokensRepository.Completion? = nil) {
+        cryptoAccountsSyncLogger.debug("Called with None")
         guard hasTokenSynchronization else {
             completion?(.success(()))
             return
@@ -157,6 +164,7 @@ final class CommonCryptoAccountsRepository {
                 }
 
                 holder.cryptoAccountsToUpdate = nil
+                cryptoAccountsSyncLogger.debug("Uploading pending updates \(pending)")
                 repository.updateAccountsOnServer(cryptoAccounts: pending, updateOptions: .all, completion: completion)
 
                 return true
@@ -173,18 +181,21 @@ final class CommonCryptoAccountsRepository {
                 try await repository.loadAccountsFromServerAsync()
                 await runOnMainIfNotCancelled { completion?(.success(())) }
             } catch {
+                cryptoAccountsSyncLogger.debug("Got error \(error) when loading accounts from server")
                 await repository.handleFailedLoadingAccountsFromServer(error: error, completion: completion)
             }
         }.eraseToAnyCancellable()
     }
 
     private func loadAccountsFromServerAsync() async throws {
+        cryptoAccountsSyncLogger.debug("Called with None")
         do {
             let remoteCryptoAccountsInfo = try await networkService.getCryptoAccounts(retryCount: 0)
             try Task.checkCancellation()
 
             var updatedAccounts = remoteCryptoAccountsInfo.accounts
             if updatedAccounts.isEmpty {
+                cryptoAccountsSyncLogger.debug("Migration needed with \(remoteCryptoAccountsInfo)")
                 throw InternalError.migrationNeeded(legacyInfo: remoteCryptoAccountsInfo)
             }
 
@@ -201,6 +212,9 @@ final class CommonCryptoAccountsRepository {
             auxiliaryDataStorage.update(withRemoteInfo: remoteCryptoAccountsInfo)
 
             if shouldUpdateTokenListDueToTokensDistribution || shouldUpdateTokenListDueToCustomTokensMigration {
+                cryptoAccountsSyncLogger.debug(
+                    "Updating accounts on server due to tokens redistribution \(shouldUpdateTokenListDueToTokensDistribution), \(shouldUpdateTokenListDueToCustomTokensMigration)"
+                )
                 // Tokens distribution between different accounts and/or custom tokens migration were performed,
                 // therefore tokens need to be updated on the server
                 try await updateAccountsOnServerAsync(cryptoAccounts: updatedAccounts, updateOptions: .tokens)
@@ -209,10 +223,13 @@ final class CommonCryptoAccountsRepository {
             // Impossible case, since we don't update remote accounts here
             preconditionFailure("Unexpected state: missing revision or inconsistent state when loading accounts from server")
         } catch CryptoAccountsNetworkServiceError.underlyingError(let error) {
+            cryptoAccountsSyncLogger.debug("Got error \(error) when loading accounts from server")
             throw error
         } catch CryptoAccountsNetworkServiceError.noAccountsCreated {
+            cryptoAccountsSyncLogger.debug("No accounts exist on the server, creating a default account")
             try await addDefaultAccount(isWalletAlreadyCreated: false, legacyInfo: nil)
         } catch InternalError.migrationNeeded(let legacyInfo) {
+            cryptoAccountsSyncLogger.debug("Migration needed, creating a default account with legacy info: \(String(describing: legacyInfo))")
             try await addDefaultAccount(isWalletAlreadyCreated: true, legacyInfo: legacyInfo)
         }
     }
@@ -244,6 +261,7 @@ final class CommonCryptoAccountsRepository {
                 try await repository.updateAccountsOnServerAsync(cryptoAccounts: cryptoAccounts, updateOptions: updateOptions)
                 await runOnMainIfNotCancelled { completion?(.success(())) }
             } catch {
+                cryptoAccountsSyncLogger.debug("Got error \(error) when updating accounts on server")
                 await repository.handleFailedUpdateAccountsOnServer(cryptoAccounts: cryptoAccounts, error: error, completion: completion)
             }
         }.eraseToAnyCancellable()
@@ -252,19 +270,25 @@ final class CommonCryptoAccountsRepository {
     private func updateAccountsOnServerAsync(cryptoAccounts: [StoredCryptoAccount], updateOptions: RemoteUpdateOptions) async throws {
         do {
             if updateOptions.contains(.accounts) {
+                cryptoAccountsSyncLogger.debug("Updating accounts on server with \(cryptoAccounts)")
                 try await networkService.saveAccounts(from: cryptoAccounts, retryCount: 0)
             }
             if updateOptions.contains(.tokens) {
+                cryptoAccountsSyncLogger.debug("Updating tokens on server with \(cryptoAccounts)")
                 try await networkService.saveTokens(from: cryptoAccounts, tokenListUpdateOptions: .none)
             }
         } catch CryptoAccountsNetworkServiceError.missingRevision, CryptoAccountsNetworkServiceError.inconsistentState {
+            cryptoAccountsSyncLogger.debug("Got missing revision or inconsistent state error, refreshing inconsistent state and retrying update")
             try await refreshInconsistentState()
             try Task.checkCancellation()
             // Schedules a retry after fixing the state
+            cryptoAccountsSyncLogger.debug("Retrying updating accounts on server after refreshing inconsistent state")
             try await updateAccountsOnServerAsync(cryptoAccounts: cryptoAccounts, updateOptions: updateOptions)
         } catch CryptoAccountsNetworkServiceError.noAccountsCreated {
+            cryptoAccountsSyncLogger.debug("No accounts exist on the server when trying to update, creating a default account")
             try await loadAccountsFromServerAsync() // Implicitly creates a new account if none exist on the server yet
         } catch CryptoAccountsNetworkServiceError.underlyingError(let error) {
+            cryptoAccountsSyncLogger.debug("Got error \(error) when updating accounts on server")
             throw error
         }
     }
@@ -288,6 +312,7 @@ final class CommonCryptoAccountsRepository {
                 return
             }
 
+            cryptoAccountsSyncLogger.debug("Scheduling pending updates \(cryptoAccounts) due to error: \(error)")
             holder.cryptoAccountsToUpdate = cryptoAccounts
         }
 
@@ -328,6 +353,7 @@ final class CommonCryptoAccountsRepository {
         _ accounts: [StoredCryptoAccount],
         tokenListUpdateOptions: TokenListUpdateOptions
     ) async throws -> StoredCryptoAccountsTokensDistributor.DistributionResult {
+        cryptoAccountsSyncLogger.debug("Called with \(accounts), \(tokenListUpdateOptions)")
         let remoteCryptoAccountsInfo = try await networkService.saveAccounts(from: accounts, retryCount: 0)
         try Task.checkCancellation()
 
@@ -335,6 +361,7 @@ final class CommonCryptoAccountsRepository {
         let distributionResult: StoredCryptoAccountsTokensDistributor.DistributionResult
 
         if tokenListUpdateOptions.contains(.forceUpdate) {
+            cryptoAccountsSyncLogger.debug("Force updating tokens on server with \(accounts)")
             try await networkService.saveTokens(from: accounts, tokenListUpdateOptions: tokenListUpdateOptions)
             try Task.checkCancellation()
             // Overriding the remote state when the token list is forcefully updated
@@ -342,7 +369,9 @@ final class CommonCryptoAccountsRepository {
             updatedAccounts = accounts
             // Force update doesn't need tokens redistribution by definition
             distributionResult = .none
+            cryptoAccountsSyncLogger.debug("Finished force updating tokens on server with \(accounts)")
         } else {
+            cryptoAccountsSyncLogger.debug("Updating accounts on server with \(accounts) and then checking if tokens redistribution is needed")
             updatedAccounts = remoteCryptoAccountsInfo.accounts
 
             distributionResult = StoredCryptoAccountsTokensDistributor.distributeTokens(
@@ -351,8 +380,14 @@ final class CommonCryptoAccountsRepository {
             )
 
             if distributionResult.isRedistributionHappened {
+                cryptoAccountsSyncLogger.debug(
+                    "Updating accounts on server with redistributed tokens: \(updatedAccounts), redistribution result: \(distributionResult)"
+                )
                 try await networkService.saveTokens(from: updatedAccounts, tokenListUpdateOptions: tokenListUpdateOptions)
                 try Task.checkCancellation()
+                cryptoAccountsSyncLogger.debug(
+                    "Finished updating accounts on server with redistributed tokens: \(updatedAccounts), redistribution result: \(distributionResult)"
+                )
             }
         }
 
@@ -472,6 +507,9 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
                     defaultTokensOverride: [],
                     defaultGroupingOverride: nil,
                     defaultSortingOverride: nil
+                )
+                cryptoAccountsSyncLogger.debug(
+                    "Failed to load accounts from server during initialization, falling back to default account: \(defaultAccount)"
                 )
                 initializeStorage(with: defaultAccount)
             }
@@ -713,3 +751,8 @@ private extension CryptoAccountsNetworkService {
         }
     }
 }
+
+// MARK: - Troubleshooting
+
+@available(iOS, deprecated: 100000.0, message: "Temporary logger for troubleshooting, will be deleted ([REDACTED_INFO])")
+let cryptoAccountsSyncLogger = AccountsLogger.tag(#file)

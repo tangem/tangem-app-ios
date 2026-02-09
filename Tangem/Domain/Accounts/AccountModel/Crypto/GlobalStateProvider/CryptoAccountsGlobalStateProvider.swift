@@ -17,7 +17,7 @@ protocol CryptoAccountsGlobalStateProvider {
     func globalCryptoAccountsState() -> CryptoAccounts.State
 }
 
-// MARK: - Auxiliary types
+// MARK: - Troubleshooting
 
 @available(iOS, deprecated: 100000.0, message: "Temporary logger for troubleshooting, will be deleted ([REDACTED_INFO])")
 let cryptoAccountsGlobalStateProviderLogger = AccountsLogger.tag(#file)
