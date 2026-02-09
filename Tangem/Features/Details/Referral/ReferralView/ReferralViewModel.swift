@@ -71,14 +71,14 @@ final class ReferralViewModel: ObservableObject {
     @MainActor
     func fetchAndMapInitialState() async {
         switch workMode {
-        case .plainUserTokensManager:
+        case .plainUserTokensManager(let userTokensManager):
             let referralInfo = await loadReferralInfo()
             referralProgramInfo = referralInfo
 
             if referralInfo?.referral != nil {
-                updateViewState(to: .loaded(.alreadyParticipant(.simple)))
+                updateViewState(to: .loaded(.alreadyParticipant(.simple(userTokensManager))))
             } else {
-                updateViewState(to: .loaded(.readyToBecomeParticipant(.simple)))
+                updateViewState(to: .loaded(.readyToBecomeParticipant(.simple(userTokensManager))))
             }
 
         case .accounts(let accountModelsManager):
@@ -143,6 +143,7 @@ final class ReferralViewModel: ObservableObject {
                 let userTokensManager = await userTokensManager
 
                 guard let userTokensManager else {
+                    await MainActor.run { AppLogger.error(error: "Can't fetch UserTokensManager for state '\(self.viewState)'") }
                     throw ReferralError.accountFetchError
                 }
 
@@ -158,7 +159,7 @@ final class ReferralViewModel: ObservableObject {
 
                 switch workMode {
                 case .plainUserTokensManager:
-                    await updateViewState(to: .loaded(.alreadyParticipant(.simple)))
+                    await updateViewState(to: .loaded(.alreadyParticipant(.simple(userTokensManager))))
                 case .accounts:
                     await updateViewState(accountModel: accountModel)
                 }
@@ -230,6 +231,7 @@ final class ReferralViewModel: ObservableObject {
         do {
             return try await accountModelsManager.accountModelsPublisher.async().firstStandard()
         } catch {
+            AppLogger.error(error: "Can't load account models with error: \(error)")
             await processReferralError(.accountFetchError)
             return nil
         }
@@ -277,6 +279,7 @@ final class ReferralViewModel: ObservableObject {
     @MainActor
     private func updateViewState(accountModel: AccountModel?) {
         guard let accountModel else {
+            AppLogger.error(error: "Can't update view state because account model is nil")
             processReferralError(.accountFetchError)
             return
         }
@@ -292,6 +295,14 @@ final class ReferralViewModel: ObservableObject {
 
     @MainActor
     private func updateViewState(to newViewState: ViewState) {
+        switch newViewState {
+        case .failed(let reason):
+            AppLogger.error(error: "Failed to render referral content with reason: '\(reason)'")
+        case .loading,
+             .loaded:
+            break
+        }
+
         viewState = newViewState
     }
 
@@ -322,12 +333,12 @@ final class ReferralViewModel: ObservableObject {
     @MainActor
     private func mapAlreadyParticipantState(address: String, cryptoAccounts: CryptoAccounts) {
         switch cryptoAccounts {
-        case .single:
-            updateViewState(to: .loaded(.alreadyParticipant(.simple)))
+        case .single(let cryptoAccountModel):
+            updateViewState(to: .loaded(.alreadyParticipant(.simple(cryptoAccountModel.userTokensManager))))
 
         case .multiple(let accounts):
             guard let account = ReferralAccountFinder.find(forAddress: address, accounts: accounts) else {
-                updateViewState(to: .loaded(.alreadyParticipant(.simple)))
+                updateViewState(to: .failed(reason: "Can't find target account for address '\(address)'"))
                 return
             }
 
@@ -339,8 +350,8 @@ final class ReferralViewModel: ObservableObject {
     @MainActor
     private func mapReadyToBecomeState(cryptoAccounts: CryptoAccounts) {
         switch cryptoAccounts {
-        case .single:
-            updateViewState(to: .loaded(.readyToBecomeParticipant(.simple)))
+        case .single(let cryptoAccountModel):
+            updateViewState(to: .loaded(.readyToBecomeParticipant(.simple(cryptoAccountModel.userTokensManager))))
 
         case .multiple(let accounts):
             let selectedOrMainAccount =
@@ -348,6 +359,7 @@ final class ReferralViewModel: ObservableObject {
                 accounts.first(where: { $0.isMainAccount })
 
             guard let selectedOrMainAccount else {
+                AppLogger.error(error: "Can't find selected or main account among accounts: \(accounts.map { $0.id })")
                 processReferralError(.accountFetchError)
                 return
             }
@@ -431,10 +443,16 @@ final class ReferralViewModel: ObservableObject {
 
     @MainActor
     private var userTokensManager: UserTokensManager? {
-        switch workMode {
-        case .plainUserTokensManager(let userTokensManager):
+        switch (workMode, viewState) {
+        case (.plainUserTokensManager(let userTokensManager), _):
+            // Plain UI w/o accounts
             return userTokensManager
-        case .accounts:
+        case (.accounts, .loaded(.alreadyParticipant(.simple(let userTokensManager)))),
+             (.accounts, .loaded(.readyToBecomeParticipant(.simple(let userTokensManager)))):
+            // Plain UI with a single main account
+            return userTokensManager
+        case (.accounts, _):
+            // Accounts-aware UI with multiple accounts
             return selectedCryptoAccount?.userTokensManager
         }
     }
@@ -442,7 +460,8 @@ final class ReferralViewModel: ObservableObject {
     @MainActor
     private var selectedForReferralAccount: SelectedAccountViewData? {
         switch viewState {
-        case .loading:
+        case .loading,
+             .failed:
             return nil
         case .loaded(let loadedState):
             return loadedState.accountData
@@ -496,12 +515,14 @@ extension ReferralViewModel {
         case moyaError(MoyaError)
         case unknown(Error)
 
-        init(_ error: Error) {
+        fileprivate init(_ error: Error) {
             switch error {
             case let moyaError as MoyaError:
                 self = .moyaError(moyaError)
             case let decodingError as DecodingError:
                 self = .decodingError(decodingError)
+            case let referralError as ReferralError:
+                self = referralError
             default:
                 self = .unknown(error)
             }
