@@ -24,6 +24,7 @@ extension SendFlowBaseDependenciesFactory {
         predefinedValues: SendModel.PredefinedValues
     ) -> SendModel {
         SendModel(
+            userWalletId: userWalletInfo.id,
             userToken: makeSourceToken(),
             transactionSigner: userWalletInfo.signer,
             feeIncludedCalculator: CommonFeeIncludedCalculator(validator: walletModelDependenciesProvider.transactionValidator),
