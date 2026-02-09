@@ -37,7 +37,6 @@ class UnstakingModel {
 
     private let stakingManager: StakingManager
     private let sendSourceToken: SendSourceToken
-    private let transactionDispatcher: TransactionDispatcher
     private let analyticsLogger: StakingSendAnalyticsLogger
     private let initialAction: Action
 
@@ -49,13 +48,11 @@ class UnstakingModel {
     init(
         stakingManager: StakingManager,
         sendSourceToken: SendSourceToken,
-        transactionDispatcher: TransactionDispatcher,
         analyticsLogger: StakingSendAnalyticsLogger,
         action: Action
     ) {
         self.stakingManager = stakingManager
         self.sendSourceToken = sendSourceToken
-        self.transactionDispatcher = transactionDispatcher
         self.analyticsLogger = analyticsLogger
         initialAction = action
 
@@ -169,7 +166,8 @@ private extension UnstakingModel {
 
         do {
             let transaction = try await stakingManager.transaction(action: stakingAction)
-            let result = try await transactionDispatcher.send(transaction: .staking(transaction))
+            let dispatcher = sendSourceToken.transactionDispatcherProvider.makeStakingTransactionDispatcher(analyticsLogger: analyticsLogger)
+            let result = try await dispatcher.send(transaction: .staking(transaction))
             proceed(result: result)
             stakingManager.transactionDidSent(action: stakingAction)
 

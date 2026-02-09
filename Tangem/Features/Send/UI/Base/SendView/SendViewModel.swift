@@ -267,14 +267,14 @@ private extension SendViewModel {
                 let (emailDataCollector, recipient) = builder.makeMailData(action: stakingTransactionAction, error: error)
                 coordinator?.openMail(with: emailDataCollector, recipient: recipient)
 
-            case .express(.default(let transaction)):
+            case .approve(let approveData):
                 let builder = try dataBuilder.sendBuilder()
-                let (emailDataCollector, recipient) = builder.makeMailData(transaction: transaction, error: error)
+                let (emailDataCollector, recipient) = try builder.makeMailData(approveTransaction: approveData, error: error)
                 coordinator?.openMail(with: emailDataCollector, recipient: recipient)
 
-            case .express(.compiled(let transactionData)):
+            case .cex(let expressTransaction, _), .dex(let expressTransaction, _):
                 let builder = try dataBuilder.sendBuilder()
-                let (emailDataCollector, recipient) = builder.makeMailData(transactionData: transactionData, error: error)
+                let (emailDataCollector, recipient) = try builder.makeMailData(expressTransaction: expressTransaction, error: error)
                 coordinator?.openMail(with: emailDataCollector, recipient: recipient)
             }
         } catch {

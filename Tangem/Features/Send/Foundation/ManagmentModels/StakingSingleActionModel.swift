@@ -35,7 +35,6 @@ class StakingSingleActionModel {
 
     private let stakingManager: StakingManager
     private let sendSourceToken: SendSourceToken
-    private let transactionDispatcher: TransactionDispatcher
     private let analyticsLogger: StakingSendAnalyticsLogger
     private let action: Action
 
@@ -47,13 +46,11 @@ class StakingSingleActionModel {
     init(
         stakingManager: StakingManager,
         sendSourceToken: SendSourceToken,
-        transactionDispatcher: TransactionDispatcher,
         analyticsLogger: StakingSendAnalyticsLogger,
         action: Action,
     ) {
         self.stakingManager = stakingManager
         self.sendSourceToken = sendSourceToken
-        self.transactionDispatcher = transactionDispatcher
         self.analyticsLogger = analyticsLogger
         self.action = action
 
@@ -150,7 +147,8 @@ private extension StakingSingleActionModel {
     private func send() async throws -> TransactionDispatcherResult {
         do {
             let transaction = try await stakingManager.transaction(action: action)
-            let result = try await transactionDispatcher.send(transaction: .staking(transaction))
+            let dispatcher = sendSourceToken.transactionDispatcherProvider.makeStakingTransactionDispatcher(analyticsLogger: analyticsLogger)
+            let result = try await dispatcher.send(transaction: .staking(transaction))
             proceed(result: result)
             stakingManager.transactionDidSent(action: action)
 
