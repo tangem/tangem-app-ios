@@ -55,7 +55,7 @@ final class TangemPayBuilder {
         signer: signer
     )
 
-    private lazy var expressCEXTransactionProcessor = TangemPayExpressCEXTransactionProcessor(
+    private lazy var expressCEXTransactionDispatcher = TangemPayExpressCEXTransactionDispatcher(
         withdrawTransactionService: withdrawTransactionService,
         walletPublicKey: TangemPayUtilities.getKey(from: keysRepository)
     )
@@ -106,7 +106,7 @@ extension TangemPayBuilder: TangemPayAccountBuilder {
             customerService: customerService,
             balancesService: balancesService,
             withdrawTransactionService: withdrawTransactionService,
-            expressCEXTransactionProcessor: expressCEXTransactionProcessor,
+            expressCEXTransactionDispatcher: expressCEXTransactionDispatcher,
             withdrawAvailabilityProvider: withdrawAvailabilityProvider,
             orderStatusPollingService: orderStatusPollingService,
             mainHeaderBalanceProvider: mainHeaderBalanceProvider
