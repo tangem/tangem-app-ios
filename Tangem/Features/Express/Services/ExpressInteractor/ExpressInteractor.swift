@@ -289,7 +289,7 @@ extension ExpressInteractor {
             throw ExpressInteractorError.transactionDataNotFound
         }
 
-        await logApproveTransactionAnalyticsEvent(policy: state.policy)
+        logApproveTransactionAnalyticsEvent(policy: state.policy)
 
         guard let allowanceService = try getSourceWallet().allowanceService else {
             throw ExpressInteractorError.allowanceServiceNotFound
@@ -561,7 +561,8 @@ private extension ExpressInteractor {
     func sendDEXTransaction(state: ReadyToSwapState, context: Context) async throws -> TransactionSendResultState {
         let sender = try getSourceWallet()
         let fee = try context.tokenFeeProvidersManager.selectedFeeProvider.selectedTokenFee.value.get()
-        let result = try await sender.dexTransactionProcessor().process(data: state.data, fee: fee)
+        let dispatcher = sender.transactionDispatcherProvider.makeDEXTransactionDispatcher()
+        let result = try await dispatcher.send(transaction: .dex(data: state.data, fee: fee))
 
         return TransactionSendResultState(dispatcherResult: result, data: state.data, fee: fee, provider: context.provider)
     }
@@ -570,7 +571,8 @@ private extension ExpressInteractor {
         let data = try await expressManager.requestData()
         let sender = try getSourceWallet()
         let fee = try context.tokenFeeProvidersManager.selectedFeeProvider.selectedTokenFee.value.get()
-        let result = try await sender.cexTransactionProcessor().process(data: data, fee: fee)
+        let dispatcher = sender.transactionDispatcherProvider.makeCEXTransactionDispatcher()
+        let result = try await dispatcher.send(transaction: .cex(data: data, fee: fee))
 
         return TransactionSendResultState(dispatcherResult: result, data: data, fee: fee, provider: context.provider)
     }
@@ -765,7 +767,7 @@ private extension ExpressInteractor {
             .logSwapTransactionAnalyticsEvent(destination: destination.tokenItem)
     }
 
-    func logApproveTransactionAnalyticsEvent(policy: BSDKApprovePolicy) async {
+    func logApproveTransactionAnalyticsEvent(policy: BSDKApprovePolicy) {
         guard let source = getSource().value,
               let destination = getDestination(),
               let provider = getState().context?.provider else {
