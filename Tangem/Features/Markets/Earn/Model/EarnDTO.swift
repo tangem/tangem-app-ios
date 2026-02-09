@@ -59,6 +59,7 @@ extension EarnDTO.List {
     struct Meta: Decodable {
         let page: Int
         let limit: Int
+        let total: Int
     }
 
     struct Item: Decodable {
