@@ -22,6 +22,7 @@
       "Bash(git rev-parse:*)",
       "Bash(gh pr:*)",
       "Bash(gh api:*)",
+      "mcp__github__get_me",
       "mcp__github__create_pull_request",
       "mcp__github__request_copilot_review",
       "mcp__github__update_pull_request"
