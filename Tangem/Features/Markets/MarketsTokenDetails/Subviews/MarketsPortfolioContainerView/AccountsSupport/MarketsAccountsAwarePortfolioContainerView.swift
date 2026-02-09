@@ -184,6 +184,7 @@ struct MarketsAccountsAwarePortfolioContainerView: View {
             }
             .accessibilityIdentifier(MainAccessibilityIdentifiers.addToPortfolioButton)
         }
+        .defaultRoundedBackground(with: Colors.Background.action)
     }
 
     private var unavailableView: some View {
