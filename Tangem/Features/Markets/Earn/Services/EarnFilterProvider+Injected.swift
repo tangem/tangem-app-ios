@@ -20,5 +20,5 @@ extension InjectedValues {
 // MARK: - EarnDataFilterProviderKey
 
 private struct EarnDataFilterProviderKey: InjectionKey {
-    static var currentValue: EarnDataFilterProvider = EarnDataFilterProvider()
+    static var currentValue: EarnDataFilterProvider = .init()
 }
