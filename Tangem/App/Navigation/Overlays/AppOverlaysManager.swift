@@ -49,6 +49,7 @@ final class AppOverlaysManager {
 
         bindStories()
         bindActiveSheet()
+        bindAppTheme()
     }
 
     func setMainWindow(_ mainWindow: MainWindow) {
@@ -95,6 +96,18 @@ final class AppOverlaysManager {
             .sink { manager, activeSheet in
                 guard activeSheet == nil else { return }
                 manager.restoreMainWindowKeyboardIfNeeded()
+            }
+            .store(in: &cancellables)
+    }
+
+    private func bindAppTheme() {
+        AppSettings.shared
+            .$appTheme
+            .dropFirst()
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { manager, newAppTheme in
+                manager.overlayWindow?.overrideUserInterfaceStyle = newAppTheme.interfaceStyle
             }
             .store(in: &cancellables)
     }
