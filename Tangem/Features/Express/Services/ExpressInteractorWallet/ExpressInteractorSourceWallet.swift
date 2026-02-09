@@ -22,14 +22,13 @@ protocol ExpressInteractorSourceWallet: ExpressInteractorDestinationWallet, Expr
     var amountToCreateAccount: Decimal { get }
 
     var expressTokenFeeProvidersManager: ExpressTokenFeeProvidersManager { get }
+    var transactionDispatcherProvider: TransactionDispatcherProvider { get }
+
     var allowanceService: (any AllowanceService)? { get }
     var availableBalanceProvider: TokenBalanceProvider { get }
     var transactionValidator: any ExpressTransactionValidator { get }
     var withdrawalNotificationProvider: (any WithdrawalNotificationProvider)? { get }
     var interactorAnalyticsLogger: any ExpressInteractorAnalyticsLogger { get }
-
-    func dexTransactionProcessor() throws -> ExpressDEXTransactionProcessor
-    func cexTransactionProcessor() throws -> ExpressCEXTransactionProcessor
 }
 
 // MARK: ExpressSourceWallet + ExpressInteractorSourceWallet
