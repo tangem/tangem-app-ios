@@ -161,7 +161,7 @@ extension WalletConnectViewState.ContentState {
         let fallbackIconAsset = Assets.Glyphs.explore
 
         var id: String {
-            domainModel.session.topic
+            "\(domainModel.session.topic)|\(domainModel.accountId ?? "wallet")"
         }
 
         var iconURL: URL? {
