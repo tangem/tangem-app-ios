@@ -294,7 +294,7 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
         }
     }
 
-    func addTokenItemPrecondition(_ tokenItem: TokenItem) throws {
+    func addTokenItemHardwarePrecondition(_ tokenItem: TokenItem) throws {
         guard hardwareLimitationsUtil.canAdd(tokenItem) else {
             throw Error.failedSupportedLongHashesTokens(blockchainDisplayName: tokenItem.blockchain.displayName)
         }
@@ -302,7 +302,10 @@ extension AccountsAwareUserTokensManager: UserTokensManager {
         if !existingCurves.contains(tokenItem.blockchain.curve) {
             throw Error.failedSupportedCurve(blockchainDisplayName: tokenItem.blockchain.displayName)
         }
+    }
 
+    func addTokenItemPrecondition(_ tokenItem: TokenItem) throws {
+        try addTokenItemHardwarePrecondition(tokenItem)
         try validateDerivation(for: tokenItem)
     }
 
