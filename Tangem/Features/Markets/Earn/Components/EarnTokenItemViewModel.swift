@@ -30,7 +30,7 @@ struct EarnTokenItemViewModel: Identifiable, Hashable {
     private let percentFormatter = PercentFormatter()
 
     init(token: EarnTokenModel, onTapAction: @escaping () -> Void) {
-        id = token.id
+        id = "\(token.id)_\(token.networkId)"
         name = token.name
         symbol = token.symbol
         imageUrl = token.imageUrl

@@ -39,7 +39,7 @@ final class EarnDataProvider {
     private var hasLoadedItems: Bool = false
     private var lastFilter: Filter?
 
-    private let limitPerPage: Int
+    private let limitPerPage: Int = 20
     private let repeatRequestDelayInSeconds: TimeInterval = 10
     private let mapper = EarnModelMapper()
 
@@ -49,9 +49,7 @@ final class EarnDataProvider {
 
     // MARK: - Init
 
-    init(limitPerPage: Int = 20) {
-        self.limitPerPage = limitPerPage
-    }
+    init() {}
 
     // MARK: - Public Methods
 
@@ -125,9 +123,9 @@ final class EarnDataProvider {
             let response = try result.get()
 
             let nextPage = response.meta.page + 1
+            let totalLoaded = response.meta.page * response.meta.limit
 
-            let metaHasNext = false
-            hasNext = metaHasNext
+            hasNext = totalLoaded < response.meta.total
             currentPage = nextPage
 
             isLoading = false

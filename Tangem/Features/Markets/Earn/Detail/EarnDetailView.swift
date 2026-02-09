@@ -10,25 +10,35 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 import TangemLocalization
+import TangemFoundation
 
 struct EarnDetailView: View {
     @ObservedObject var viewModel: EarnDetailViewModel
+
+    @Injected(\.overlayContentStateObserver) private var overlayContentStateObserver: OverlayContentStateObserver
 
     var body: some View {
         VStack(spacing: .zero) {
             header
 
-            contentView
+            Group {
+                contentView
+            }
+            .opacity(viewModel.overlayContentHidingProgress)
         }
         .background(Color.Tangem.Surface.level3.ignoresSafeArea())
         .onAppear {
             viewModel.onAppear()
+        }
+        .onOverlayContentProgressChange(overlayContentStateObserver: overlayContentStateObserver) { [weak viewModel] progress in
+            viewModel?.onOverlayContentProgressChange(progress)
         }
     }
 
     private var header: some View {
         NavigationBar(
             title: Localization.earnTitle,
+            settings: .init(backgroundColor: Color.Tangem.Surface.level3),
             leftButtons: {
                 BackButton(
                     height: 44.0,
@@ -80,6 +90,7 @@ struct EarnDetailView: View {
                 loadingState: viewModel.listLoadingState,
                 tokenViewModels: viewModel.tokenViewModels,
                 retryAction: viewModel.onRetry,
+                fetchMoreAction: viewModel.fetchMore,
                 hasActiveFilters: viewModel.hasActiveFilters,
                 clearFilterAction: viewModel.clearFilters
             )
