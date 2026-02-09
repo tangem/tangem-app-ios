@@ -26,18 +26,19 @@ protocol WalletConnectAccountsWalletModelProvider {
 final class CommonWalletConnectAccountsWalletModelProvider: WalletConnectAccountsWalletModelProvider {
     private let accountModelsManager: AccountModelsManager
 
-    private var accountModels: [AccountModel] = []
+    private var allMainWalletModels: [any WalletModel] = []
 
     private var bag: Set<AnyCancellable> = []
 
     init(accountModelsManager: AccountModelsManager) {
         self.accountModelsManager = accountModelsManager
+        allMainWalletModels = makeMainWalletModels(from: accountModelsManager.accountModels)
 
         accountModelsManager
             .accountModelsPublisher
             .withWeakCaptureOf(self)
             .sink { viewModel, accounts in
-                viewModel.accountModels = accounts
+                viewModel.allMainWalletModels = viewModel.makeMainWalletModels(from: accounts)
             }
             .store(in: &bag)
     }
@@ -47,24 +48,50 @@ final class CommonWalletConnectAccountsWalletModelProvider: WalletConnectAccount
         blockchainId: String,
         accountId: String
     ) throws -> any WalletModel {
-        guard
-            let model = getMainWalletModels(for: accountId).first(where: {
-                $0.tokenItem.blockchain.networkId == blockchainId
-                    && $0.walletConnectAddress.caseInsensitiveCompare(address) == .orderedSame
-            })
-        else {
-            throw WalletConnectTransactionRequestProcessingError.walletModelNotFound(blockchainNetworkID: blockchainId)
+        let modelsInAccount = getMainWalletModels(for: accountId)
+
+        if let model = modelsInAccount.first(where: {
+            $0.tokenItem.blockchain.networkId == blockchainId
+                && $0.walletConnectAddress.caseInsensitiveCompare(address) == .orderedSame
+        }) {
+            return model
         }
 
-        return model
+        if shouldUseFallback(accountId: accountId),
+           let fallbackModel = getMainWalletModelsFromAllAccounts().first(where: {
+               $0.tokenItem.blockchain.networkId == blockchainId
+                   && $0.walletConnectAddress.caseInsensitiveCompare(address) == .orderedSame
+           }) {
+            return fallbackModel
+        }
+
+        throw WalletConnectTransactionRequestProcessingError.walletModelNotFound(blockchainNetworkID: blockchainId)
     }
 
     func getModels(with blockchainId: String, accountId: String) -> [any WalletModel] {
-        getMainWalletModels(for: accountId).filter { $0.tokenItem.blockchain.networkId == blockchainId }
+        let modelsInAccount = getMainWalletModels(for: accountId).filter { $0.tokenItem.blockchain.networkId == blockchainId }
+
+        if modelsInAccount.isNotEmpty {
+            return modelsInAccount
+        }
+
+        guard shouldUseFallback(accountId: accountId) else {
+            return []
+        }
+
+        return getMainWalletModelsFromAllAccounts().filter { $0.tokenItem.blockchain.networkId == blockchainId }
     }
 
     func getModel(with blockchainId: String, accountId: String) -> (any WalletModel)? {
-        getMainWalletModels(for: accountId).first { $0.tokenItem.blockchain.networkId == blockchainId }
+        if let model = getMainWalletModels(for: accountId).first(where: { $0.tokenItem.blockchain.networkId == blockchainId }) {
+            return model
+        }
+
+        guard shouldUseFallback(accountId: accountId) else {
+            return nil
+        }
+
+        return getMainWalletModelsFromAllAccounts().first { $0.tokenItem.blockchain.networkId == blockchainId }
     }
 
     private func getMainWalletModels(for accountId: String) -> [any WalletModel] {
@@ -76,6 +103,31 @@ final class CommonWalletConnectAccountsWalletModelProvider: WalletConnectAccount
         else { return [] }
 
         return cryptoAccountModel.walletModelsManager.walletModels.filter { $0.isMainToken }
+    }
+
+    private func getMainWalletModelsFromAllAccounts() -> [any WalletModel] {
+        allMainWalletModels
+    }
+
+    private func makeMainWalletModels(from accountModels: [AccountModel]) -> [any WalletModel] {
+        accountModels.flatMap { accountModel in
+            allCryptoAccounts(from: accountModel).flatMap { cryptoAccount in
+                cryptoAccount.walletModelsManager.walletModels.filter(\.isMainToken)
+            }
+        }
+    }
+
+    private func allCryptoAccounts(from accountModel: AccountModel) -> [any CryptoAccountModel] {
+        switch accountModel {
+        case .standard(.single(let cryptoAccount)):
+            return [cryptoAccount]
+        case .standard(.multiple(let cryptoAccounts)):
+            return cryptoAccounts
+        }
+    }
+
+    private func shouldUseFallback(accountId: String) -> Bool {
+        accountId.isEmpty
     }
 }
 
