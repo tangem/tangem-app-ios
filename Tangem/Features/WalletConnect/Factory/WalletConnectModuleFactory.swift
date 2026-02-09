@@ -136,7 +136,10 @@ enum WalletConnectModuleFactory {
         let hapticFeedbackGenerator = WalletConnectUIFeedbackGenerator()
 
         let connectionRequestViewModel = WalletConnectDAppConnectionRequestViewModel(
-            state: .loading(selectedUserWalletName: selectedUserWallet.name, targetSelectionIsAvailable: filteredUserWallets.count > 1 || hasMultipleAccountsWallet),
+            state: .loading(
+                selectedUserWalletName: selectedUserWallet.name,
+                targetSelectionIsAvailable: filteredUserWallets.count > 1 || hasMultipleAccountsWallet
+            ),
             interactor: interactor,
             analyticsLogger: CommonWalletConnectDAppConnectionRequestAnalyticsLogger(source: source),
             logger: WCLogger,
