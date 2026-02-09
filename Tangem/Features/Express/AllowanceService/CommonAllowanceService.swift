@@ -12,16 +12,16 @@ import BlockchainSdk
 
 actor CommonAllowanceService {
     private let allowanceChecker: AllowanceChecker
-    private let approveTransactionProcessor: ExpressApproveTransactionProcessor
+    private let approveTransactionDispatcher: any TransactionDispatcher
 
     private var spendersAwaitingApprove: Set<String> = []
 
     init(
         allowanceChecker: AllowanceChecker,
-        approveTransactionProcessor: ExpressApproveTransactionProcessor
+        approveTransactionDispatcher: any TransactionDispatcher,
     ) {
         self.allowanceChecker = allowanceChecker
-        self.approveTransactionProcessor = approveTransactionProcessor
+        self.approveTransactionDispatcher = approveTransactionDispatcher
     }
 }
 
@@ -46,7 +46,7 @@ extension CommonAllowanceService: AllowanceService {
     }
 
     func sendApproveTransaction(data: ApproveTransactionData) async throws -> TransactionDispatcherResult {
-        let result = try await approveTransactionProcessor.process(data: data)
+        let result = try await approveTransactionDispatcher.send(transaction: .approve(data: data))
         spendersAwaitingApprove.insert(data.spender)
 
         return result

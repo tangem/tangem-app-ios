@@ -29,13 +29,14 @@ struct ExpressInteractorTangemPayWalletWrapper: ExpressInteractorTangemPayWallet
     let transactionValidator: any ExpressTransactionValidator
 
     let expressTokenFeeProvidersManager: any ExpressTokenFeeProvidersManager
+    let transactionDispatcherProvider: any TransactionDispatcherProvider
+
     let sendingRestrictions: SendingRestrictions? = .none
     let amountToCreateAccount: Decimal = .zero
     let allowanceService: (any AllowanceService)? = nil
     let withdrawalNotificationProvider: (any WithdrawalNotificationProvider)? = nil
     let interactorAnalyticsLogger: any ExpressInteractorAnalyticsLogger
 
-    private let _cexTransactionProcessor: any ExpressCEXTransactionProcessor
     private var _balanceProvider: any ExpressBalanceProvider
     private var _feeProvider: any ExpressFeeProvider
 
@@ -45,7 +46,7 @@ struct ExpressInteractorTangemPayWalletWrapper: ExpressInteractorTangemPayWallet
         feeTokenItem: TokenItem,
         defaultAddressString: String,
         availableBalanceProvider: any TokenBalanceProvider,
-        cexTransactionProcessor: any ExpressCEXTransactionProcessor,
+        cexTransactionDispatcher: any TransactionDispatcher,
         transactionValidator: any ExpressTransactionValidator
     ) {
         id = .init(tokenItem: tokenItem)
@@ -62,7 +63,7 @@ struct ExpressInteractorTangemPayWalletWrapper: ExpressInteractorTangemPayWallet
         )
 
         expressTokenFeeProvidersManager = TangemPayExpressTokenFeeProvidersManager(tokenItem: tokenItem)
-        _cexTransactionProcessor = cexTransactionProcessor
+        transactionDispatcherProvider = TangemPayTransactionDispatcherProvider(cexTransactionDispatcher: cexTransactionDispatcher)
 
         _balanceProvider = TangemPayExpressBalanceProvider(
             availableBalanceProvider: availableBalanceProvider,
@@ -71,16 +72,6 @@ struct ExpressInteractorTangemPayWalletWrapper: ExpressInteractorTangemPayWallet
         _feeProvider = TangemPayWithdrawExpressFeeProvider(
             feeTokenItem: feeTokenItem
         )
-    }
-}
-
-extension ExpressInteractorTangemPayWalletWrapper {
-    func cexTransactionProcessor() throws -> any ExpressCEXTransactionProcessor {
-        _cexTransactionProcessor
-    }
-
-    func dexTransactionProcessor() throws -> any ExpressDEXTransactionProcessor {
-        throw ExpressTransactionProcessorFactory.Error.dexNotSupported(blockchain: "Visa")
     }
 }
 
