@@ -42,7 +42,7 @@ final class TangemPayAccount {
 
     // MARK: - Withdraw
 
-    let expressCEXTransactionProcessor: ExpressCEXTransactionProcessor
+    let expressCEXTransactionDispatcher: TransactionDispatcher
     let withdrawAvailabilityProvider: TangemPayWithdrawAvailabilityProvider
 
     // MARK: - Balances
@@ -75,7 +75,7 @@ final class TangemPayAccount {
         customerService: any CustomerInfoManagementService,
         balancesService: any TangemPayBalancesService,
         withdrawTransactionService: any TangemPayWithdrawTransactionService,
-        expressCEXTransactionProcessor: ExpressCEXTransactionProcessor,
+        expressCEXTransactionDispatcher: any TransactionDispatcher,
         withdrawAvailabilityProvider: TangemPayWithdrawAvailabilityProvider,
         orderStatusPollingService: TangemPayOrderStatusPollingService,
         mainHeaderBalanceProvider: MainHeaderBalanceProvider
@@ -84,7 +84,7 @@ final class TangemPayAccount {
         self.customerService = customerService
         self.balancesService = balancesService
         self.withdrawTransactionService = withdrawTransactionService
-        self.expressCEXTransactionProcessor = expressCEXTransactionProcessor
+        self.expressCEXTransactionDispatcher = expressCEXTransactionDispatcher
         self.withdrawAvailabilityProvider = withdrawAvailabilityProvider
         self.orderStatusPollingService = orderStatusPollingService
         self.mainHeaderBalanceProvider = mainHeaderBalanceProvider
