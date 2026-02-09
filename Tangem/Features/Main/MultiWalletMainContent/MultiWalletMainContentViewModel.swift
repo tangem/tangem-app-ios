@@ -562,11 +562,13 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     private func makeYieldModuleFlowFactory(walletModel: any WalletModel, manager: YieldModuleManager) -> YieldModuleFlowFactory? {
-        guard let dispatcher = TransactionDispatcherFactory(
-            walletModel: walletModel, signer: userWalletModel.signer
-        ).makeYieldModuleDispatcher() else {
+        // [REDACTED_USERNAME]. Maintain the previous logic. Do not create factory if `multipleTransactionsSender` not found
+        guard walletModel.multipleTransactionsSender != nil else {
             return nil
         }
+
+        let factory = WalletModelTransactionDispatcherProvider(walletModel: walletModel, signer: userWalletModel.signer)
+        let dispatcher = factory.makeYieldModuleTransactionDispatcher()
 
         return CommonYieldModuleFlowFactory(
             walletModel: walletModel,
