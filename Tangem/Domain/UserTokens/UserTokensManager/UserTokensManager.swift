@@ -39,6 +39,9 @@ protocol UserTokensManager: UserTokensReordering, UserTokensSyncService {
     /// Update storage without derivation
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) throws
 
+    /// Check only hardware condition for adding token
+    func addTokenItemHardwarePrecondition(_ tokenItem: TokenItem) throws
+
     /// Check condition for adding token
     func addTokenItemPrecondition(_ tokenItem: TokenItem) throws
 
