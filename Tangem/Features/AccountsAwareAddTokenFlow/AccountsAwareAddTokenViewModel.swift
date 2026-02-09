@@ -160,7 +160,7 @@ final class AccountsAwareAddTokenViewModel: ObservableObject, FloatingSheetConte
         let userTokensManager = account.userTokensManager
 
         do {
-            try userTokensManager.addTokenItemPrecondition(tokenItem)
+            try userTokensManager.addTokenItemHardwarePrecondition(tokenItem)
 
             let addedToken = try await performTokenUpdate(
                 tokenItem: tokenItem,
