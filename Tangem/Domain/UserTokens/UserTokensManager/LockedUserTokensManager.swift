@@ -34,6 +34,7 @@ struct LockedUserTokensManager: UserTokensManager {
 
     func update(itemsToRemove: [TokenItem], itemsToAdd: [TokenItem]) throws {}
 
+    func addTokenItemHardwarePrecondition(_ tokenItem: TokenItem) throws {}
     func addTokenItemPrecondition(_ tokenItem: TokenItem) throws {}
 
     func add(_ tokenItem: TokenItem) async throws -> String {
