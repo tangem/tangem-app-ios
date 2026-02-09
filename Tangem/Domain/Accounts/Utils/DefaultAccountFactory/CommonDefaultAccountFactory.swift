@@ -39,6 +39,7 @@ struct CommonDefaultAccountFactory: DefaultAccountFactory {
             grouping: defaultGroupingOverride ?? CryptoAccountPersistentConfig.TokenListAppearance.default.grouping,
             sorting: defaultSortingOverride ?? CryptoAccountPersistentConfig.TokenListAppearance.default.sorting
         )
+        cryptoAccountsSyncLogger.debug("Creating default account with config: \(config), appearance: \(appearance), tokens: \(tokens)")
 
         return StoredCryptoAccount(config: config, tokenListAppearance: appearance, tokens: tokens)
     }
@@ -48,6 +49,9 @@ struct CommonDefaultAccountFactory: DefaultAccountFactory {
         defaultGroupingOverride: StoredCryptoAccount.Grouping?,
         defaultSortingOverride: StoredCryptoAccount.Sorting?
     ) -> StoredCryptoAccount {
+        cryptoAccountsSyncLogger.debug(
+            "Called with \(String(describing: defaultTokensOverride)), \(String(describing: defaultGroupingOverride)), \(String(describing: defaultSortingOverride))"
+        )
         let hasValidRemoteState = defaultTokensOverride?.nilIfEmpty != nil
 
         // If the wallet was created offline due to network issues and then the user added some tokens to it
@@ -56,6 +60,7 @@ struct CommonDefaultAccountFactory: DefaultAccountFactory {
         if !hasValidRemoteState, let existingLocalDefaultAccount = persistentStorage
             .getList()
             .first(where: { $0.derivationIndex == AccountModelUtils.mainAccountDerivationIndex && $0.tokens.isNotEmpty }) {
+            cryptoAccountsSyncLogger.debug("Using existing local default account \(existingLocalDefaultAccount)")
             return existingLocalDefaultAccount
         }
 
