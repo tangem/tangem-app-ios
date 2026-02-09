@@ -24,7 +24,7 @@ class StakingFlowFactory: StakingFlowDependenciesFactory {
     let walletModelDependenciesProvider: WalletModelDependenciesProvider
     let availableBalanceProvider: any TokenBalanceProvider
     let fiatAvailableBalanceProvider: any TokenBalanceProvider
-    let transactionDispatcherFactory: TransactionDispatcherFactory
+    let transactionDispatcherProvider: any TransactionDispatcherProvider
     let allowanceServiceFactory: AllowanceServiceFactory
     /// Staking doesn't support account-based analytics
     let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? = nil
@@ -63,13 +63,13 @@ class StakingFlowFactory: StakingFlowDependenciesFactory {
         walletModelDependenciesProvider = walletModel
         availableBalanceProvider = walletModel.availableBalanceProvider
         fiatAvailableBalanceProvider = walletModel.fiatAvailableBalanceProvider
-        transactionDispatcherFactory = TransactionDispatcherFactory(
+        transactionDispatcherProvider = WalletModelTransactionDispatcherProvider(
             walletModel: walletModel,
             signer: userWalletInfo.signer
         )
         allowanceServiceFactory = AllowanceServiceFactory(
             walletModel: walletModel,
-            transactionDispatcher: transactionDispatcherFactory.makeExpressDispatcher(),
+            transactionDispatcherProvider: transactionDispatcherProvider
         )
     }
 }
@@ -85,11 +85,6 @@ extension StakingFlowFactory {
             stakingManager: stakingManager,
             sendSourceToken: makeSourceToken(),
             feeIncludedCalculator: makeStakingFeeIncludedCalculator(),
-            stakingTransactionDispatcher: makeStakingTransactionDispatcher(
-                stakingManger: stakingManager,
-                analyticsLogger: analyticsLogger
-            ),
-            transactionDispatcher: transactionDispatcherFactory.makeSendDispatcher(),
             allowanceService: allowanceServiceFactory.makeAllowanceService(),
             analyticsLogger: analyticsLogger,
             accountInitializationService: walletModelDependenciesProvider.accountInitializationService,
