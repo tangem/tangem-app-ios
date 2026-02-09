@@ -343,7 +343,7 @@ private extension Blockchain {
         case .ethereum: return "ethereum"
         case .ethereumClassic: return "ethereum_classic"
         case .ethereumPoW: return nil
-        case .fantom: return nil
+        case .fantom: return "fantom"
         case .gnosis: return nil
         case .hedera: return "hedera"
         case .kaspa: return nil
@@ -394,17 +394,17 @@ private extension Blockchain {
         case .sui: return "sui"
         case .energyWebEVM: return nil
         case .energyWebX: return nil
-        case .core: return nil
+        case .core: return "core"
         case .canxium: return nil
         case .casper: return nil
-        case .chiliz: return nil
+        case .chiliz: return "chiliz"
         case .xodex: return nil
         case .clore: return nil
         case .fact0rn: return nil
         case .odysseyChain: return nil
         case .bitrock: return nil
         case .apeChain: return nil
-        case .sonic: return nil
+        case .sonic: return "sonic"
         case .alephium: return nil
         case .vanar: return nil
         case .zkLinkNova: return nil
@@ -413,9 +413,9 @@ private extension Blockchain {
         case .quai: return nil
         case .scroll: return nil
         case .linea: return "linea"
-        case .monad: return nil
+        case .monad: return "monad"
         case .arbitrumNova: return nil
-        case .plasma: return nil
+        case .plasma: return "plasma"
             // Did you get a compilation error here? If so, check whether the network is supported at https://api.moonpay.com/v3/currencies
         }
     }
@@ -444,7 +444,7 @@ private extension Blockchain {
         case .ethereum: return "eth"
         case .ethereumClassic: return "etc"
         case .ethereumPoW: return nil
-        case .fantom: return nil
+        case .fantom: return "ftm"
         case .gnosis: return nil
         case .hedera: return "hbar"
         case .kaspa: return nil
@@ -495,17 +495,17 @@ private extension Blockchain {
         case .sui: return "sui"
         case .energyWebEVM: return nil
         case .energyWebX: return nil
-        case .core: return nil
+        case .core: return "core"
         case .canxium: return nil
         case .casper: return nil
-        case .chiliz: return nil
+        case .chiliz: return "chz_chiliz"
         case .xodex: return nil
         case .clore: return nil
         case .fact0rn: return nil
         case .odysseyChain: return nil
         case .bitrock: return nil
         case .apeChain: return nil
-        case .sonic: return nil
+        case .sonic: return "s_sonic"
         case .alephium: return nil
         case .vanar: return nil
         case .zkLinkNova: return nil
@@ -514,9 +514,9 @@ private extension Blockchain {
         case .quai: return nil
         case .scroll: return nil
         case .linea: return "linea"
-        case .monad: return nil
+        case .monad: return "mon_mon"
         case .arbitrumNova: return nil
-        case .plasma: return nil
+        case .plasma: return "xpl_plasma"
             // Did you get a compilation error here? If so, check whether the network is supported at https://api.moonpay.com/v3/currencies
         }
     }
