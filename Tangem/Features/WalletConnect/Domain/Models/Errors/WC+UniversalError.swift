@@ -39,6 +39,8 @@ extension WalletConnectDAppProposalLoadingError: UniversalError {
             107001007
         case .cancelledByUser:
             107001008
+        case .selectedAccountRetrievalFailed:
+            107001009
         }
     }
 }
