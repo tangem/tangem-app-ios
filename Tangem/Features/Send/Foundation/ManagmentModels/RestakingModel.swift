@@ -37,13 +37,12 @@ final class RestakingModel {
     private let stakingManager: StakingManager
     private let action: Action
     private let sendSourceToken: SendSourceToken
-    private let transactionDispatcher: TransactionDispatcher
     private let sendAmountValidator: SendAmountValidator
     private let analyticsLogger: StakingSendAnalyticsLogger
 
     private var transactionValidator: TransactionValidator { sendSourceToken.transactionValidator }
     private var tokenItem: TokenItem { sendSourceToken.tokenItem }
-    var feeTokenItem: TokenItem { sendSourceToken.feeTokenItem }
+    private var feeTokenItem: TokenItem { sendSourceToken.feeTokenItem }
 
     private var estimatedFeeTask: Task<Void, Never>?
     private var bag: Set<AnyCancellable> = []
@@ -52,14 +51,12 @@ final class RestakingModel {
         stakingManager: StakingManager,
         action: Action,
         sendSourceToken: SendSourceToken,
-        transactionDispatcher: TransactionDispatcher,
         sendAmountValidator: SendAmountValidator,
         analyticsLogger: StakingSendAnalyticsLogger,
     ) {
         self.stakingManager = stakingManager
         self.action = action
         self.sendSourceToken = sendSourceToken
-        self.transactionDispatcher = transactionDispatcher
         self.sendAmountValidator = sendAmountValidator
         self.analyticsLogger = analyticsLogger
 
@@ -207,7 +204,8 @@ private extension RestakingModel {
 
         do {
             let transaction = try await stakingManager.transaction(action: action)
-            let result = try await transactionDispatcher.send(transaction: .staking(transaction))
+            let dispatcher = sendSourceToken.transactionDispatcherProvider.makeStakingTransactionDispatcher(analyticsLogger: analyticsLogger)
+            let result = try await dispatcher.send(transaction: .staking(transaction))
             proceed(result: result)
             stakingManager.transactionDidSent(action: action)
 
