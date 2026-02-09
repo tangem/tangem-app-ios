@@ -25,7 +25,7 @@ class RestakingFlowFactory: StakingFlowDependenciesFactory {
     let walletModelDependenciesProvider: WalletModelDependenciesProvider
     let availableBalanceProvider: any TokenBalanceProvider
     let fiatAvailableBalanceProvider: any TokenBalanceProvider
-    let transactionDispatcherFactory: TransactionDispatcherFactory
+    let transactionDispatcherProvider: any TransactionDispatcherProvider
     /// Staking doesn't support account-based analytics
     let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? = nil
 
@@ -59,7 +59,7 @@ class RestakingFlowFactory: StakingFlowDependenciesFactory {
         walletModelDependenciesProvider = walletModel
         availableBalanceProvider = walletModel.availableBalanceProvider
         fiatAvailableBalanceProvider = walletModel.fiatAvailableBalanceProvider
-        transactionDispatcherFactory = TransactionDispatcherFactory(
+        transactionDispatcherProvider = WalletModelTransactionDispatcherProvider(
             walletModel: walletModel,
             signer: userWalletInfo.signer
         )
@@ -81,10 +81,6 @@ extension RestakingFlowFactory {
             stakingManager: stakingManager,
             action: action,
             sendSourceToken: makeSourceToken(),
-            transactionDispatcher: makeStakingTransactionDispatcher(
-                stakingManger: stakingManager,
-                analyticsLogger: analyticsLogger
-            ),
             sendAmountValidator: RestakingAmountValidator(
                 tokenItem: tokenItem,
                 action: actionType,
