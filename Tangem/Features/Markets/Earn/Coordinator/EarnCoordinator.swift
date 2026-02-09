@@ -8,6 +8,7 @@
 
 import Foundation
 import struct TangemUIUtils.AlertBinder
+import TangemFoundation
 
 final class EarnCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
@@ -24,9 +25,9 @@ final class EarnCoordinator: CoordinatorObject {
     @Published var networkFilterBottomSheetViewModel: EarnNetworkFilterBottomSheetViewModel?
     @Published var typeFilterBottomSheetViewModel: EarnTypeFilterBottomSheetViewModel?
 
-    // MARK: - Private Properties
+    // MARK: - Injected
 
-    private let filterProvider = EarnDataFilterProvider()
+    @Injected(\.earnDataFilterProvider) private var filterProvider: EarnDataFilterProvider
 
     // MARK: - Init
 
