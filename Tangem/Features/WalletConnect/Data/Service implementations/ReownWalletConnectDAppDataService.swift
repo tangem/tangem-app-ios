@@ -77,6 +77,13 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
                 }
 
                 let reownSessionNamespaces: [String: SessionNamespace]
+                let walletFlowAccounts = selectedBlockchains.flatMap {
+                    WalletConnectAccountsMapper.map(
+                        from: $0,
+                        userWalletModel: selectedUserWallet,
+                        preferredCAIPReference: caipReference(for: $0)
+                    )
+                }
 
                 do {
                     reownSessionNamespaces = try AutoNamespaces.build(
@@ -86,21 +93,16 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
                         },
                         methods: WalletConnectDAppSessionProposalMapper.mapAllMethods(from: reownSessionProposal),
                         events: WalletConnectDAppSessionProposalMapper.mapAllEvents(from: reownSessionProposal),
-                        accounts: selectedBlockchains.flatMap {
-                            WalletConnectAccountsMapper.map(
-                                from: $0,
-                                userWalletModel: selectedUserWallet,
-                                preferredCAIPReference: caipReference(for: $0)
-                            )
-                        }
+                        accounts: walletFlowAccounts
                     )
                 } catch {
                     throw WalletConnectDAppProposalApprovalError.invalidConnectionRequest(error)
                 }
 
+                let domainNamespaces = WalletConnectSessionNamespaceMapper.mapToDomain(reownSessionNamespaces)
                 return WalletConnectDAppConnectionRequest(
                     proposalID: reownSessionProposal.id,
-                    namespaces: WalletConnectSessionNamespaceMapper.mapToDomain(reownSessionNamespaces)
+                    namespaces: domainNamespaces
                 )
             },
             dAppAccountConnectionRequestFactory: { [reownSessionProposal] selectedBlockchains, selectedAccount, wcAccountsWalletModelProvider
@@ -113,6 +115,14 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
                 }
 
                 let reownSessionNamespaces: [String: SessionNamespace]
+                let accountFlowAccounts = selectedBlockchains.flatMap {
+                    WalletConnectAccountsMapper.map(
+                        from: $0,
+                        wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
+                        preferredCAIPReference: caipReference(for: $0),
+                        accountId: selectedAccount.id.walletConnectIdentifierString
+                    )
+                }
 
                 do {
                     reownSessionNamespaces = try AutoNamespaces.build(
@@ -122,22 +132,16 @@ final class ReownWalletConnectDAppDataService: WalletConnectDAppDataService {
                         },
                         methods: WalletConnectDAppSessionProposalMapper.mapAllMethods(from: reownSessionProposal),
                         events: WalletConnectDAppSessionProposalMapper.mapAllEvents(from: reownSessionProposal),
-                        accounts: selectedBlockchains.flatMap {
-                            WalletConnectAccountsMapper.map(
-                                from: $0,
-                                wcAccountsWalletModelProvider: wcAccountsWalletModelProvider,
-                                preferredCAIPReference: caipReference(for: $0),
-                                accountId: selectedAccount.id.walletConnectIdentifierString
-                            )
-                        }
+                        accounts: accountFlowAccounts
                     )
                 } catch {
                     throw WalletConnectDAppProposalApprovalError.invalidConnectionRequest(error)
                 }
 
+                let domainNamespaces = WalletConnectSessionNamespaceMapper.mapToDomain(reownSessionNamespaces)
                 return WalletConnectDAppConnectionRequest(
                     proposalID: reownSessionProposal.id,
-                    namespaces: WalletConnectSessionNamespaceMapper.mapToDomain(reownSessionNamespaces)
+                    namespaces: domainNamespaces
                 )
             }
         )
