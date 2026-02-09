@@ -686,8 +686,9 @@ private extension UserWalletSettingsViewModel {
                     .accountModelsManager
                     .accountModelsPublisher
                     .receiveOnMain()
-                    .sink { [weak self] accountModels in
-                        self?.updateManagersForAccountMode(accountModels: accountModels)
+                    .withWeakCaptureOf(self)
+                    .sink { viewModel, accountModels in
+                        viewModel.updateManagersForAccountMode(accountModels: accountModels)
                     }
                     .store(in: &bag)
             } else {
@@ -700,20 +701,29 @@ private extension UserWalletSettingsViewModel {
         }
 
         private func updateManagersForAccountMode(accountModels: [AccountModel]) {
-            guard let accountModel = accountModels.firstStandard() else {
-                updateManagers(walletModelsManager: nil, userTokensManager: nil)
-                return
-            }
+            let canAddCryptoAccounts = userWalletModel.accountModelsManager.canAddCryptoAccounts
 
-            switch accountModel {
+            switch accountModels.firstStandard() {
             case .standard(.single(let cryptoAccountModel)):
+                // In single account mode we support managing tokens from this screen, so we inject required dependencies
                 updateManagers(
                     walletModelsManager: cryptoAccountModel.walletModelsManager,
                     userTokensManager: cryptoAccountModel.userTokensManager
                 )
-
+            case .standard(.multiple(let cryptoAccountModels)) where !canAddCryptoAccounts && cryptoAccountModels.count == 1:
+                // In multiple accounts mode but on wallets w/o derivation support we support managing tokens from this screen,
+                // so we inject required dependencies from the first account model (main account)
+                updateManagers(
+                    walletModelsManager: cryptoAccountModels.first?.walletModelsManager,
+                    userTokensManager: cryptoAccountModels.first?.userTokensManager
+                )
             case .standard(.multiple):
-                // In multiple accounts case we don't support managing tokens from this screen
+                // In multiple accounts case we don't support managing tokens from this screen,
+                // instead users should manage tokens from respective account details screens
+                updateManagers(walletModelsManager: nil, userTokensManager: nil)
+            case .none:
+                // Unreachable state, because account models manager should always contain at least one account model (main account)
+                assertionFailure("Unexpected state: no account models found, unable to update dependencies for user wallet")
                 updateManagers(walletModelsManager: nil, userTokensManager: nil)
             }
         }
