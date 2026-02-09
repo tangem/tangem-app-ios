@@ -63,13 +63,20 @@ enum WalletConnectAccountsMapper {
 
         let wallets = walletConnectWalletModelProvider.getModels(with: blockchain.networkId)
 
-        guard wallets.isNotEmpty else {
+        // In legacy wallet flow we should expose only one address per network.
+        // Returning all models may connect multiple addresses for the same wallet.
+        guard let wallet = walletConnectWalletModelProvider.getModel(with: blockchain.networkId) ?? wallets.first else {
             return []
         }
 
-        return wallets.compactMap { wallet in
-            ReownWalletKit.Account(chainIdentifier: reownBlockchain.absoluteString, address: wallet.walletConnectAddress)
+        guard let account = ReownWalletKit.Account(
+            chainIdentifier: reownBlockchain.absoluteString,
+            address: wallet.walletConnectAddress
+        ) else {
+            return []
         }
+
+        return [account]
     }
 
     static func map(
