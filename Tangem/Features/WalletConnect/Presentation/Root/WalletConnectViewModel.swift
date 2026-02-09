@@ -335,7 +335,7 @@ extension WalletConnectViewModel {
 
             switch cryptoAccountsState {
             case .single:
-                let combined = (accountSections.first?.dApps ?? []) + walletLevel
+                let combined = accountSections.flatMap(\.dApps) + walletLevel
                 guard !combined.isEmpty else { continue }
 
                 result.append(

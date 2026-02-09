@@ -117,10 +117,14 @@ enum WalletConnectModuleFactory {
             uri: uri
         )
 
-        let migrateToAccountsUseCase = WalletConnectToAccountsMigrationUseCase(
-            connectedDAppRepository: connectedDAppRepository,
+        let migrationService = WalletConnectAccountMigrationService(
             userWalletRepository: userWalletRepository,
-            appSettings: AppSettings.shared,
+            connectedDAppRepository: connectedDAppRepository,
+            appSettings: AppSettings.shared
+        )
+
+        let migrateToAccountsUseCase = WalletConnectToAccountsMigrationUseCase(
+            migrationService: migrationService,
             logger: WCLogger
         )
 
