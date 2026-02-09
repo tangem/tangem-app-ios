@@ -35,4 +35,16 @@ extension CryptoAccountsNetworkServiceError {
             return false
         }
     }
+
+    var underlyingError: Error? {
+        switch self {
+        case .underlyingError(let error):
+            return error
+        case .missingRevision,
+             .inconsistentState,
+             .noAccountsCreated,
+             .noRetriesLeft:
+            return nil
+        }
+    }
 }

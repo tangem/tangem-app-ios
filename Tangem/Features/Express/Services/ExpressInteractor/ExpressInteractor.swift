@@ -521,6 +521,7 @@ private extension ExpressInteractor {
 
             let restriction = RestrictionType.notEnoughAmountForFee(isFeeCurrency: isFeeCurrency, supportFeeSelection: supportFeeSelection)
             return .restriction(restriction, context: context, quote: correctState.quote)
+
         } catch let error as ValidationError {
             let validationErrorContext = ValidationErrorContext(isFeeCurrency: isFeeCurrency, feeValue: fee.amount.value)
             return .restriction(.validationError(error: error, context: validationErrorContext), context: context, quote: correctState.quote)
@@ -560,18 +561,16 @@ private extension ExpressInteractor {
     func sendDEXTransaction(state: ReadyToSwapState, context: Context) async throws -> TransactionSendResultState {
         let sender = try getSourceWallet()
         let fee = try context.tokenFeeProvidersManager.selectedFeeProvider.selectedTokenFee.value.get()
-        let processor = try sender.dexTransactionProcessor()
-        let result = try await processor.process(data: state.data, fee: fee)
+        let result = try await sender.dexTransactionProcessor().process(data: state.data, fee: fee)
 
         return TransactionSendResultState(dispatcherResult: result, data: state.data, fee: fee, provider: context.provider)
     }
 
     func sendCEXTransaction(state: PreviewCEXState, context: Context) async throws -> TransactionSendResultState {
+        let data = try await expressManager.requestData()
         let sender = try getSourceWallet()
         let fee = try context.tokenFeeProvidersManager.selectedFeeProvider.selectedTokenFee.value.get()
-        let data = try await expressManager.requestData()
-        let processor = try sender.cexTransactionProcessor()
-        let result = try await processor.process(data: data, fee: fee)
+        let result = try await sender.cexTransactionProcessor().process(data: data, fee: fee)
 
         return TransactionSendResultState(dispatcherResult: result, data: data, fee: fee, provider: context.provider)
     }
