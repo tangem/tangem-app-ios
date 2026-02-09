@@ -1,5 +1,5 @@
 //
-//  SendTransactionDispatcher.swift
+//  TransferTransactionDispatcher.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,7 +11,7 @@ import Combine
 import BlockchainSdk
 import TangemFoundation
 
-class SendTransactionDispatcher {
+class TransferTransactionDispatcher {
     private let walletModel: any WalletModel
     private let transactionSigner: TangemSigner
     private let gaslessTransactionSender: GaslessTransactionSender
@@ -29,7 +29,7 @@ class SendTransactionDispatcher {
 
 // MARK: - TransactionDispatcher
 
-extension SendTransactionDispatcher: TransactionDispatcher {
+extension TransferTransactionDispatcher: TransactionDispatcher {
     var hasNFCInteraction: Bool {
         transactionSigner.hasNFCInteraction
     }

@@ -21,7 +21,7 @@ protocol SendGenericFlowBaseDependenciesFactory {
     var fiatAvailableBalanceProvider: TokenBalanceProvider { get }
 
     var walletModelDependenciesProvider: WalletModelDependenciesProvider { get }
-    var transactionDispatcherFactory: TransactionDispatcherFactory { get }
+    var transactionDispatcherProvider: any TransactionDispatcherProvider { get }
     var baseDataBuilderFactory: SendBaseDataBuilderFactory { get }
 
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { get }
@@ -43,7 +43,7 @@ extension SendGenericFlowBaseDependenciesFactory {
             fiatAvailableBalanceProvider: fiatAvailableBalanceProvider,
             transactionValidator: walletModelDependenciesProvider.transactionValidator,
             transactionCreator: walletModelDependenciesProvider.transactionCreator,
-            transactionDispatcher: transactionDispatcherFactory.makeSendDispatcher(),
+            transactionDispatcherProvider: transactionDispatcherProvider,
             accountModelAnalyticsProvider: accountModelAnalyticsProvider
         )
     }
