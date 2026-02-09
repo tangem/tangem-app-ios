@@ -11,7 +11,7 @@ import Combine
 import TangemFoundation
 
 @MainActor
-final class EarnDetailViewModel: ObservableObject {
+final class EarnDetailViewModel: MarketsBaseViewModel {
     // MARK: - Injected & Published Properties
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
@@ -67,6 +67,8 @@ final class EarnDetailViewModel: ObservableObject {
         self.dataProvider = dataProvider
         self.filterProvider = filterProvider
         self.coordinator = coordinator
+
+        super.init(overlayContentProgressInitialValue: 1.0)
 
         setupMostlyUsedViewModels(from: mostlyUsedTokens)
         bind()

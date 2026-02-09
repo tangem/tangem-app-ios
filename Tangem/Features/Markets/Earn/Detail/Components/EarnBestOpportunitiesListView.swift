@@ -17,6 +17,7 @@ struct EarnBestOpportunitiesListView: View {
     let loadingState: LoadingState
     let tokenViewModels: [EarnTokenItemViewModel]
     let retryAction: () -> Void
+    let fetchMoreAction: () -> Void
     let hasActiveFilters: Bool
     let clearFilterAction: (() -> Void)?
 
@@ -55,6 +56,22 @@ struct EarnBestOpportunitiesListView: View {
             ForEach(tokenViewModels) { viewModel in
                 EarnTokenItemView(viewModel: viewModel)
             }
+
+            paginationFooter
+        }
+    }
+
+    @ViewBuilder
+    private var paginationFooter: some View {
+        switch loadingState {
+        case .idle:
+            Color.clear
+                .frame(height: 1)
+                .onAppear {
+                    fetchMoreAction()
+                }
+        case .allDataLoaded, .loading, .noResults, .error:
+            EmptyView()
         }
     }
 
@@ -77,7 +94,7 @@ struct EarnBestOpportunitiesListView: View {
             }
         }
         .infinityFrame(axis: .horizontal, alignment: .center)
-        .frame(maxHeight: Layout.defaultMaxHeight)
+        .frame(height: Layout.defaultMaxHeight)
         .padding()
     }
 
