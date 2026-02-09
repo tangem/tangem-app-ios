@@ -9,17 +9,14 @@
 import Foundation
 import BlockchainSdk
 import TangemStaking
+import TangemExpress
+import TangemMacro
 
+@RawCaseName
 enum TransactionDispatcherTransactionType {
     case transfer(BSDKTransaction)
     case staking(StakingTransactionAction)
-    case express(ExpressTransactionResult)
-}
-
-enum ExpressTransactionResult {
-    /// Uncompiled BSDK Transaction for sign
-    case `default`(BSDKTransaction)
-
-    /// Compiled BSDK Transaction for sign
-    case compiled(Data)
+    case approve(data: ApproveTransactionData)
+    case cex(data: ExpressTransactionData, fee: BSDKFee)
+    case dex(data: ExpressTransactionData, fee: BSDKFee)
 }
