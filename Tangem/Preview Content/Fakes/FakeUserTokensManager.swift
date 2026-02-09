@@ -33,6 +33,7 @@ class FakeUserTokensManager: UserTokensManager {
         self.userTokenListManager = userTokenListManager
     }
 
+    func addTokenItemHardwarePrecondition(_ tokenItem: TokenItem) throws {}
     func addTokenItemPrecondition(_ tokenItem: TokenItem) throws {}
 
     func add(_ tokenItems: [TokenItem], completion: @escaping (Result<[TokenItem], Error>) -> Void) {
