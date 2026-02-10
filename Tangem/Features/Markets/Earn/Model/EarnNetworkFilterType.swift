@@ -19,7 +19,7 @@ enum EarnNetworkFilterType: Hashable {
         case .all:
             return Localization.earnFilterAllNetworks
         case .userNetworks:
-            return "My networks"
+            return Localization.earnFilterMyNetworks
         case .specific(let networkItem):
             return networkItem.networkName
         }
