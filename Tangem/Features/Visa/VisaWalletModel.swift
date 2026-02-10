@@ -154,11 +154,11 @@ extension VisaWalletModel: WalletModelHelpers {
 }
 
 extension VisaWalletModel: WalletModelFeesProvider {
-    var tokenFeeLoader: any TokenFeeLoader {
+    var customFeeProvider: (any CustomFeeProvider)? { .none }
+
+    func makeTokenFeeLoader(for tokenItem: TokenItem) -> any TokenFeeLoader {
         DemoTokenFeeLoader(tokenItem: tokenItem)
     }
-
-    var customFeeProvider: (any CustomFeeProvider)? { .none }
 }
 
 extension VisaWalletModel: WalletModelFeeProvider {
@@ -188,7 +188,7 @@ extension VisaWalletModel: WalletModelDependenciesProvider {
     var accountInitializationService: (any BlockchainAccountInitializationService)? { nil }
     var minimalBalanceProvider: (any MinimalBalanceProvider)? { nil }
     var ethereumGaslessTransactionFeeProvider: (any GaslessTransactionFeeProvider)? { nil }
-    var ethereumGaslessTransactionBroadcaster: (any EthereumGaslessTransactionBroadcaster)? { nil }
+    var pendingTransactionRecordAdder: (any PendingTransactionRecordAdding)? { nil }
 }
 
 extension VisaWalletModel: WalletModelTransactionHistoryProvider {

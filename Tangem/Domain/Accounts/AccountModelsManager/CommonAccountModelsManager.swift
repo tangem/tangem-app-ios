@@ -24,13 +24,15 @@ actor CommonAccountModelsManager {
     private let dependenciesFactory: CryptoAccountDependenciesFactory
 
     private let executor: any SerialExecutor
-    private let userWalletId: UserWalletId
+    private nonisolated let userWalletId: UserWalletId
     private let areHDWalletsSupported: Bool
     private var cache: Cache = [:]
 
     // Manual synchronization is used for reads/writes, hence it is safe to mark this group of properties as `nonisolated(unsafe)`.
     private nonisolated(unsafe) var unsafeAccountModelsPublisher: AnyPublisher<[AccountModel], Never>?
     private nonisolated(unsafe) var unsafeAccountModels: [AccountModel] = []
+
+    private nonisolated let onDisposeSubject = PassthroughSubject<[AccountModel], Never>()
 
     private nonisolated let criticalSection = OSAllocatedUnfairLock()
 
@@ -56,18 +58,11 @@ actor CommonAccountModelsManager {
         self.cryptoAccountsGlobalStateProvider = cryptoAccountsGlobalStateProvider
         cryptoAccountsGlobalStateProvider.register(self, forIdentifier: userWalletId)
 
-        initialize()
+        initialize(forUserWalletWithId: userWalletId)
     }
 
-    deinit {
-        // [REDACTED_TODO_COMMENT]
-        cryptoAccountsGlobalStateProvider.unregister(self, forIdentifier: userWalletId)
-    }
-
-    private nonisolated func initialize() {
-        runTask(in: self, isDetached: true) { manager in
-            await manager.cryptoAccountsRepository.initialize(forUserWalletWithId: manager.userWalletId)
-        }
+    private nonisolated func initialize(forUserWalletWithId userWalletId: UserWalletId) {
+        cryptoAccountsRepository.initialize(forUserWalletWithId: userWalletId)
     }
 
     private func makeCryptoAccountModels(from storedCryptoAccounts: [StoredCryptoAccount]) -> [any CryptoAccountModel] {
@@ -86,8 +81,11 @@ actor CommonAccountModelsManager {
             }
 
         let removedAccountIds = currentAccountIds.subtracting(newAccountIds)
+        let removedAccounts = cache.filter { removedAccountIds.contains($0.key) }.map { $0.value }
         cache.removeAll { removedAccountIds.contains($0.key) }
         let cachedAccountsIds = cache.keys.toSet() // Snapshot of currently cached account IDs before adding new ones
+
+        removedAccounts.forEach { $0.dispose() }
 
         let newCryptoAccounts = newAccountIds
             .compactMap { accountId -> CommonCryptoAccountModel? in
@@ -163,9 +161,19 @@ actor CommonAccountModelsManager {
                 return publisher
             }
 
+            let debugDescription = objectDescription(self)
+
+            let globalCryptoAccountsStatePublisher = cryptoAccountsGlobalStateProvider
+                .globalCryptoAccountsStatePublisher()
+                .handleEvents(receiveOutput: { state in
+                    cryptoAccountsGlobalStateProviderLogger.debug(
+                        "Called with \(state) (\(debugDescription))"
+                    )
+                })
+
             let publisher = cryptoAccountsRepository
                 .cryptoAccountsPublisher
-                .combineLatest(cryptoAccountsGlobalStateProvider.globalCryptoAccountsStatePublisher())
+                .combineLatest(globalCryptoAccountsStatePublisher)
                 .withWeakCaptureOf(self)
                 .asyncMap { manager, input -> [AccountModel] in
                     let (storedCryptoAccounts, globalState) = input
@@ -182,6 +190,7 @@ actor CommonAccountModelsManager {
                         self?.unsafeAccountModels = accountModels
                     }
                 })
+                .merge(with: onDisposeSubject) // `onDisposeSubject` emit effectively clears this reactive stream
                 .share(replay: 1)
                 .eraseToAnyPublisher()
 
@@ -292,6 +301,10 @@ extension CommonAccountModelsManager: AccountModelsManager {
         areHDWalletsSupported
     }
 
+    nonisolated var hasSyncedWithRemotePublisher: AnyPublisher<Bool, Never> {
+        cryptoAccountsRepository.hasSyncedWithRemotePublisher
+    }
+
     nonisolated var hasArchivedCryptoAccountsPublisher: AnyPublisher<Bool, Never> {
         cryptoAccountsRepository
             .auxiliaryDataPublisher
@@ -299,7 +312,7 @@ extension CommonAccountModelsManager: AccountModelsManager {
             .eraseToAnyPublisher()
     }
 
-    nonisolated var totalAccountsCountPublisher: AnyPublisher<Int, Never> {
+    nonisolated var totalCryptoAccountsCountPublisher: AnyPublisher<Int, Never> {
         cryptoAccountsRepository
             .auxiliaryDataPublisher
             .map(\.totalAccountsCount)
@@ -432,6 +445,25 @@ extension CommonAccountModelsManager: AccountModelsReordering {
         try await cryptoAccountsRepository.reorderCryptoAccounts(
             orderedIdentifiers: orderedIdentifiers.map { $0.toPersistentIdentifier().toAnyHashable() }
         )
+    }
+}
+
+// MARK: - DisposableEntity protocol conformance
+
+extension CommonAccountModelsManager: DisposableEntity {
+    nonisolated func dispose() {
+        cryptoAccountsGlobalStateProvider.unregister(self, forIdentifier: userWalletId)
+
+        for accountModel in accountModels {
+            switch accountModel {
+            case .standard(.single(let cryptoAccountModel)):
+                cryptoAccountModel.dispose()
+            case .standard(.multiple(let cryptoAccountModels)):
+                cryptoAccountModels.forEach { $0.dispose() }
+            }
+        }
+
+        onDisposeSubject.send([])
     }
 }
 

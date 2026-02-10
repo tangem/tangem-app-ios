@@ -8,6 +8,7 @@
 
 import BlockchainSdk
 import TangemVisa
+import TangemPay
 
 extension VisaCardScanHandlerBuilder {
     init() {
@@ -71,7 +72,8 @@ extension TangemPayAvailabilityServiceBuilder {
     init() {
         self = TangemPayAvailabilityServiceBuilder(
             apiType: FeatureStorage.instance.visaAPIType,
-            bffStaticToken: TangemPayUtilities.getBFFStaticToken()
+            bffStaticToken: TangemPayUtilities.getBFFStaticToken(),
+            paeraCustomerFlagRepository: AppSettings.shared
         )
     }
 }

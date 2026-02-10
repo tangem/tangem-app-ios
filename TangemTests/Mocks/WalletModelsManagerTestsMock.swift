@@ -27,4 +27,6 @@ final class WalletModelsManagerTestsMock: WalletModelsManager {
     func initialize() {}
 
     func updateAll(silent: Bool) async {}
+
+    func dispose() {}
 }

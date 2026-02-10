@@ -70,10 +70,6 @@ extension CommonSwapManager: SwapManager {
         get async { await interactor.getAllProviders() }
     }
 
-    var selectedProvider: ExpressAvailableProvider? {
-        get async { await interactor.getSelectedProvider() }
-    }
-
     var providersPublisher: AnyPublisher<[ExpressAvailableProvider], Never> {
         interactor.providersPublisher()
     }
@@ -86,11 +82,19 @@ extension CommonSwapManager: SwapManager {
         interactor.update(amount: amount, by: .amountChange)
     }
 
-    func update(destination: TokenItem?, address: String?, accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?) {
+    func update(
+        userWalletId: UserWalletId,
+        destination: TokenItem?,
+        address: String?,
+        tokenHeader: ExpressInteractorTokenHeader?,
+        accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
+    ) {
         let destinationWallet = destination.map {
             SwapDestinationWalletWrapper(
+                userWalletId: userWalletId,
                 tokenItem: $0,
                 address: address,
+                tokenHeader: tokenHeader,
                 accountModelAnalyticsProvider: accountModelAnalyticsProvider
             )
         }
@@ -130,7 +134,7 @@ extension CommonSwapManager: SwapManager {
 
 extension CommonSwapManager: SendApproveDataBuilderInput {
     var selectedExpressProvider: ExpressProvider? {
-        get async { await selectedProvider?.provider }
+        state.context?.provider
     }
 
     var approveViewModelInput: (any ApproveViewModelInput)? {
@@ -138,7 +142,7 @@ extension CommonSwapManager: SendApproveDataBuilderInput {
     }
 
     var selectedPolicy: ApprovePolicy? {
-        guard case .permissionRequired(let permissionRequired, _) = interactor.getState() else {
+        guard case .permissionRequired(let permissionRequired, _, _) = interactor.getState() else {
             return nil
         }
 
@@ -179,12 +183,12 @@ private extension CommonSwapManager {
 
     func updateTimer(state: SwapManagerState) {
         switch state {
-        case .restriction(.hasPendingApproveTransaction, _),
+        case .restriction(.hasPendingApproveTransaction, _, _),
              .permissionRequired,
              .previewCEX,
              .readyToSwap:
             restartTimer()
-        case .idle, .loading, .restriction:
+        case .idle, .loading, .preloadRestriction, .requiredRefresh, .restriction:
             stopTimer()
         }
     }

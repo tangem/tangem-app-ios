@@ -39,6 +39,7 @@ struct WalletCreationHelper {
         let context = contextBuilder
             .enrich(withName: name)
             .enrich(withIdentifier: identifier)
+            .enrichReferral()
             .build()
 
         _ = try await networkService.createWallet(with: context)

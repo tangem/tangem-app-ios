@@ -19,7 +19,7 @@ import struct TangemUIUtils.ConfirmationDialogViewModel
 import TangemAccessibilityIdentifiers
 
 final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
-    @Published var confirmationDialog: ConfirmationDialogViewModel?
+    @Published var exploreConfirmationDialog: ConfirmationDialogViewModel?
     @Published var bannerNotificationInputs: [NotificationViewInput] = []
     @Published var yieldModuleAvailability: YieldModuleAvailability = .checking
 
@@ -140,6 +140,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             )
         case .swap:
             openExchange()
+        case .openCloreMigration:
+            openCloreMigration()
         case .generateAddresses,
              .backupCard,
              .refresh,
@@ -172,8 +174,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         }
     }
 
-    override func present(confirmationDialog: ConfirmationDialogViewModel) {
-        self.confirmationDialog = confirmationDialog
+    override func present(exploreConfirmationDialog: ConfirmationDialogViewModel) {
+        self.exploreConfirmationDialog = exploreConfirmationDialog
     }
 
     override func copyDefaultAddress() {
@@ -510,10 +512,13 @@ extension TokenDetailsViewModel: BalanceTypeSelectorProvider {
 
 extension TokenDetailsViewModel {
     func makeYieldModuleFlowFactory(manager: YieldModuleManager) -> YieldModuleFlowFactory? {
-        let factory = TransactionDispatcherFactory(walletModel: walletModel, signer: userWalletInfo.signer)
-        guard let dispatcher = factory.makeYieldModuleDispatcher() else {
+        // [REDACTED_USERNAME]. Maintain the previous logic. Do not create factory if `multipleTransactionsSender` not found
+        guard walletModel.multipleTransactionsSender != nil else {
             return nil
         }
+
+        let factory = WalletModelTransactionDispatcherProvider(walletModel: walletModel, signer: userWalletInfo.signer)
+        let dispatcher = factory.makeYieldModuleTransactionDispatcher()
 
         return CommonYieldModuleFlowFactory(
             walletModel: walletModel,
@@ -533,6 +538,21 @@ extension TokenDetailsViewModel {
         )
 
         coordinator?.openYieldBalanceInfo(factory: factory)
+    }
+}
+
+extension TokenDetailsViewModel {
+    func makeCloreMigrationModuleFlowFactory() -> CloreMigrationModuleFlowFactory? {
+        guard let coordinator else { return nil }
+        return CommonCloreMigrationModuleFlowFactory(walletModel: walletModel, coordinator: coordinator)
+    }
+
+    func openCloreMigration() {
+        guard let factory = makeCloreMigrationModuleFlowFactory() else {
+            return
+        }
+
+        coordinator?.openCloreMigration(factory: factory)
     }
 }
 

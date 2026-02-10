@@ -8,9 +8,12 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 
 @MainActor
-final class NewsListViewModel: ObservableObject {
+final class NewsListViewModel: MarketsBaseViewModel {
+    @Injected(\.newsReadStatusProvider) private var readStatusProvider: NewsReadStatusProvider
+
     // MARK: - Published Properties
 
     @Published private(set) var newsItems: [NewsItemViewModel] = []
@@ -21,7 +24,7 @@ final class NewsListViewModel: ObservableObject {
     // MARK: - Private Properties
 
     private let dataProvider: NewsDataProvider
-    private let mapper = NewsModelMapper()
+    private lazy var mapper = NewsModelMapper(readStatusProvider: readStatusProvider)
     private weak var coordinator: NewsListRoutable?
 
     private var bag = Set<AnyCancellable>()
@@ -35,32 +38,61 @@ final class NewsListViewModel: ObservableObject {
         self.dataProvider = dataProvider
         self.coordinator = coordinator
 
+        // `OverlayContentStateObserver` doesn't provide an initial progress/state snapshot.
+        // When this screen is pushed into a `NavigationStack`, the overlay is typically already expanded,
+        // and without a proper initial value the content would stay hidden (opacity == 0).
+        super.init(overlayContentProgressInitialValue: 1.0)
+
         bind()
     }
 
     // MARK: - Private Methods
 
     private func bind() {
-        dataProvider.categoriesPublisher
-            .sink { [weak self] categories in
-                self?.categories = categories
+        dataProvider
+            .categoriesPublisher
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, categories in
+                viewModel.categories = categories
             }
             .store(in: &bag)
 
-        dataProvider.eventPublisher
-            .sink { [weak self] event in
-                self?.handleEvent(event)
+        dataProvider
+            .eventPublisher
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, event in
+                viewModel.handleEvent(event)
             }
             .store(in: &bag)
 
         $selectedCategoryId
             .dropFirst()
             .removeDuplicates()
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] categoryId in
-                self?.onCategorySelected(categoryId)
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, categoryId in
+                viewModel.onCategorySelected(categoryId)
             }
             .store(in: &bag)
+
+        readStatusProvider.readStatusChangedPublisher
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, newsId in
+                viewModel.updateNewsReadStatus(newsId: newsId)
+            }
+            .store(in: &bag)
+    }
+
+    private func updateNewsReadStatus(newsId: NewsId) {
+        guard let newsIdInt = Int(newsId),
+              let index = newsItems.firstIndex(where: { $0.id == newsIdInt }) else {
+            return
+        }
+
+        newsItems[index] = newsItems[index].withIsRead(true)
     }
 
     private func handleEvent(_ event: NewsDataProvider.Event) {
@@ -72,9 +104,21 @@ final class NewsListViewModel: ObservableObject {
             loadingState = newsItems.isEmpty ? .loading : .paginationLoading
         case .idle:
             loadingState = .idle
-        case .failedToFetchData:
+        case .failedToFetchData(let error):
             // If we already have items, it's pagination error
             loadingState = newsItems.isEmpty ? .error : .paginationError
+
+            // Log analytics only for initial load error (not pagination)
+            if newsItems.isEmpty {
+                let analyticsParams = error.marketsAnalyticsParams
+                Analytics.log(
+                    event: .marketsNewsListLoadError,
+                    params: [
+                        .errorCode: analyticsParams[.errorCode] ?? "",
+                        .errorMessage: analyticsParams[.errorMessage] ?? "",
+                    ]
+                )
+            }
         case .appendedItems(let items, let lastPage):
             AppLogger.debug("📰 [NewsListViewModel] appending \(items.count) items, current count: \(newsItems.count)")
             let newViewModels = items.map { mapper.toNewsItemViewModel(from: $0) }
@@ -102,28 +146,44 @@ final class NewsListViewModel: ObservableObject {
 extension NewsListViewModel {
     func handleViewAction(_ viewAction: ViewAction) {
         switch viewAction {
-        case .onAppear:
+        case .onFirstAppear:
             dataProvider.fetchCategories()
             dataProvider.fetch(categoryIds: nil)
+        case .onAppear:
+            // No action required on subsequent appears
+            break
         case .retry:
             dataProvider.fetch(categoryIds: selectedCategoryId.map { [$0] })
         case .onCategorySelected(let categoryId):
             onCategorySelected(categoryId)
         case .loadMore:
             dataProvider.fetchMore()
-        case .onNewsSelected:
-            break // [REDACTED_TODO_COMMENT]
+        case .onNewsSelected(let newsId):
+            let allNewsIds = newsItems.map(\.id)
+            guard let selectedIndex = allNewsIds.firstIndex(of: newsId) else { return }
+            coordinator?.openNewsDetails(newsIds: allNewsIds, selectedIndex: selectedIndex)
         case .back:
             coordinator?.dismiss()
         }
     }
 
     private func onCategorySelected(_ categoryId: Int?) {
+        // Don't send analytics for "All news" (nil categoryId)
+        if let categoryId {
+            Analytics.log(
+                event: .marketsNewsCategoriesSelected,
+                params: [
+                    .selectedCategories: String(categoryId),
+                ]
+            )
+        }
+
         dataProvider.fetch(categoryIds: categoryId.map { [$0] })
     }
 
     enum ViewAction {
         case back
+        case onFirstAppear
         case onAppear
         case retry
         case onCategorySelected(Int?)
@@ -151,7 +211,14 @@ extension NewsListViewModel {
 
 // MARK: - NewsListRoutable
 
+@MainActor
 protocol NewsListRoutable: AnyObject {
     func dismiss()
-    func openNewsDetails(newsId: Int)
+    func openNewsDetails(newsIds: [Int], selectedIndex: Int, hasMoreNews: Bool?)
+}
+
+extension NewsListRoutable {
+    func openNewsDetails(newsIds: [Int], selectedIndex: Int) {
+        openNewsDetails(newsIds: newsIds, selectedIndex: selectedIndex, hasMoreNews: nil)
+    }
 }

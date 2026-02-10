@@ -26,6 +26,8 @@ protocol UserWalletSettingsRoutable: AnyObject, TransactionNotificationsRowToggl
     func openMobileRemoveWalletNotification(userWalletModel: UserWalletModel)
 
     @MainActor
+    func openHardwareBackupTypes(userWalletModel: UserWalletModel)
+    @MainActor
     func openMobileUpgradeToHardwareWallet(userWalletModel: UserWalletModel, context: MobileWalletContext)
     @MainActor
     func openMobileBackupToUpgradeNeeded(onBackupRequested: @escaping () -> Void)

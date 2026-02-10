@@ -10,6 +10,7 @@ import SwiftUI
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct CurrenciesStoryPage: View {
     var progress: Double
@@ -18,6 +19,7 @@ struct CurrenciesStoryPage: View {
     let scanCard: () -> Void
     let orderCard: () -> Void
     let searchTokens: () -> Void
+    let scanTroubleshootingDialog: Binding<ConfirmationDialogViewModel?>
 
     private let isMobileWalletEnabled = FeatureProvider.isAvailable(.mobileWallet)
 
@@ -92,7 +94,8 @@ struct CurrenciesStoryPage: View {
                 isScanning: isScanning,
                 createWallet: createWallet,
                 scanCard: scanCard,
-                orderCard: orderCard
+                orderCard: orderCard,
+                scanTroubleShootingDialog: scanTroubleshootingDialog
             )
             .padding(.horizontal, 16)
             .padding(.bottom, 6)
@@ -120,7 +123,8 @@ struct CurrenciesStoryPage_Previews: PreviewProvider {
             createWallet: {},
             scanCard: {},
             orderCard: {},
-            searchTokens: {}
+            searchTokens: {},
+            scanTroubleshootingDialog: .constant(nil)
         )
         .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
     }

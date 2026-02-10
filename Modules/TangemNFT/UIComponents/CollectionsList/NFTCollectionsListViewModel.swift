@@ -218,8 +218,8 @@ public final class NFTCollectionsListViewModel: ObservableObject {
             let state = accountForNFTCollectionsProvider.provideAccountsWithCollectionsState(for: collectionsResult.value)
 
             let viewState: NFTCollectionsListViewModel.ViewState = switch state {
-            case .singleAccount:
-                .success(.flattenedList(buildCollections(from: collectionsResult.value)))
+            case .singleAccount(let navigationContext):
+                .success(.flattenedList(buildCollections(from: collectionsResult.value, navigationContext: navigationContext)))
 
             case .multipleAccounts(let accountsWithCollections):
                 .success(.groupedList(buildAccountsWithCollectionViewModels(from: accountsWithCollections)))
@@ -234,7 +234,7 @@ public final class NFTCollectionsListViewModel: ObservableObject {
 
     private func buildCollections(
         from collections: [NFTCollection],
-        navigationContext: NFTNavigationContext? = nil
+        navigationContext: NFTNavigationContext
     ) -> [NFTCollectionDisclosureGroupViewModel] {
         collections
             .sorted { lhs, rhs in

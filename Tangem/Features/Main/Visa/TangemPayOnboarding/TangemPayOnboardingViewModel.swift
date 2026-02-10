@@ -7,6 +7,7 @@
 //
 
 import TangemVisa
+import TangemPay
 
 enum TangemPayOnboardingSource {
     case deeplink(String)
@@ -48,20 +49,23 @@ final class TangemPayOnboardingViewModel: ObservableObject {
         }
 
         do {
+            guard
+                let availableSelection = tangemPayAvailabilityRepository.tangemPayOfferAvailability.availableWalletSelection
+            else {
+                throw TangemPayOnboardingError.offerIsNotAvailable
+            }
+
             switch source {
             case .deeplink(let deeplink):
-                guard tangemPayAvailabilityRepository.isUserWalletModelsAvailable else {
-                    throw TangemPayOnboardingError.noAvailableWallets
-                }
-
                 try await validateDeeplink(deeplinkString: deeplink)
             case .other:
-                break
+                try await requestEligibility()
             }
             try? await minimumLoaderShowingTimeTask.value
 
             await MainActor.run {
                 tangemPayOfferViewModel = TangemPayOfferViewModel(
+                    walletSelectionType: availableSelection,
                     closeOfferScreen: closeOfferScreen,
                     coordinator: coordinator
                 )
@@ -81,12 +85,24 @@ final class TangemPayOnboardingViewModel: ObservableObject {
             throw TangemPayOnboardingError.invalidDeeplink
         }
     }
+
+    private func requestEligibility() async throws {
+        let isTangemPayAvailable = await tangemPayAvailabilityRepository.requestEligibility()
+        await MainActor.run {
+            AppSettings.shared.tangemPayIsEligibilityAvailable = isTangemPayAvailable
+        }
+
+        if !isTangemPayAvailable {
+            throw TangemPayOnboardingError.tangemPayIsNotAvailable
+        }
+    }
 }
 
 private extension TangemPayOnboardingViewModel {
     enum TangemPayOnboardingError: Error {
         case invalidDeeplink
-        case noAvailableWallets
+        case offerIsNotAvailable
+        case tangemPayIsNotAvailable
     }
 }
 

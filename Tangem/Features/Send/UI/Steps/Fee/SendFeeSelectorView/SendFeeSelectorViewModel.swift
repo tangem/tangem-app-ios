@@ -12,6 +12,7 @@ import Foundation
 import TangemLocalization
 import TangemAssets
 import TangemMacro
+import TangemAccessibilityIdentifiers
 
 protocol SendFeeSelectorRoutable: FeeSelectorRoutable {
     func openFeeSelectorLearnMoreURL(_ url: URL)
@@ -25,6 +26,9 @@ final class SendFeeSelectorViewModel: ObservableObject, FloatingSheetContentView
 
     @Published
     private(set) var feeSelectorViewModel: FeeSelectorViewModel
+
+    @Published
+    private(set) var isMainButtonEnabled = false
 
     // MARK: - Dependencies
 
@@ -68,8 +72,15 @@ final class SendFeeSelectorViewModel: ObservableObject, FloatingSheetContentView
         feeSelectorViewModel.$viewState
             .receiveOnMain()
             .map(ViewState.init)
-            .assign(to: \.state, on: self, ownership: .weak)
-            .store(in: &cancellables)
+            .assign(to: &$state)
+
+        feeSelectorViewModel
+            .selectedFeeStateWithCoveragePublisher
+            .receiveOnMain()
+            .map { feeState, coverage in
+                feeState.isAvailable && coverage.isCovered
+            }
+            .assign(to: &$isMainButtonEnabled)
     }
 }
 
@@ -135,6 +146,15 @@ extension SendFeeSelectorViewModel {
                 return content.description
             }
         }
+
+        var titleAccessibilityIdentifier: String? {
+            switch self {
+            case .fees:
+                return FeeAccessibilityIdentifiers.feeSelectorChooseSpeedTitle
+            case .summary, .tokens:
+                return nil
+            }
+        }
     }
 }
 
@@ -152,8 +172,10 @@ extension SendFeeSelectorViewModel {
             attr.foregroundColor = Colors.Text.tertiary
 
             if let range = attr.range(of: Localization.commonLearnMore) {
-                attr[range].foregroundColor = Colors.Text.accent
-                attr[range].link = URL(string: " ")
+                // Temporarily replace with an empty string because the final URL isn't ready yet
+                attr.replaceSubrange(range, with: AttributedString(""))
+//                attr[range].foregroundColor = Colors.Text.accent
+//                attr[range].link = URL(string: " ")
             }
 
             return attr

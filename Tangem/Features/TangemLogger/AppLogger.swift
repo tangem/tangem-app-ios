@@ -13,6 +13,7 @@ import TangemLogger
 let AppLogger = Logger(category: .app)
 let WCLogger = Logger(category: .app).tag("Wallet Connect")
 let AnalyticsLogger = Logger(category: .analytics)
+let AppsflyerLogger = Logger(category: .app).tag("AppsFlyer")
 
 extension Logger.Category {
     static let app = OSLogCategory(name: "App")

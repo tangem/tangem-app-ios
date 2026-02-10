@@ -6,8 +6,8 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import Combine
-import SwiftUI
 import TangemFoundation
 import TangemAssets
 import TangemLocalization
@@ -17,7 +17,7 @@ import struct TangemUIUtils.ConfirmationDialogViewModel
 final class CreateWalletSelectorViewModel: ObservableObject {
     @Published var isScanning: Bool = false
 
-    @Published var confirmationDialog: ConfirmationDialogViewModel?
+    @Published var scanTroubleshootingDialog: ConfirmationDialogViewModel?
     @Published var alert: AlertBinder?
 
     let backButtonHeight: CGFloat = OnboardingLayoutConstants.navbarSize.height
@@ -26,7 +26,7 @@ final class CreateWalletSelectorViewModel: ObservableObject {
     let description = Localization.welcomeCreateWalletHardwareDescription
     let scanTitle = Localization.welcomeUnlockCard
     let buyTitle = Localization.detailsBuyWallet
-    let otherMethodTitle = Localization.welcomeCreateWalletOtherMethod
+    let otherMethodTitle = Localization.commonOr
 
     lazy var chipItems: [ChipItem] = makeChipItems()
     lazy var mobileWalletItem: MobileWalletItem = makeMobileWalletItem()
@@ -86,7 +86,6 @@ private extension CreateWalletSelectorViewModel {
     func makeMobileWalletItem() -> MobileWalletItem {
         MobileWalletItem(
             title: Localization.welcomeCreateWalletMobileTitle,
-            description: Localization.welcomeCreateWalletMobileDescription,
             action: weakify(self, forFunction: CreateWalletSelectorViewModel.onMobileWalletTap)
         )
     }
@@ -213,7 +212,7 @@ private extension CreateWalletSelectorViewModel {
             self?.requestSupport()
         }
 
-        confirmationDialog = ConfirmationDialogViewModel(
+        scanTroubleshootingDialog = ConfirmationDialogViewModel(
             title: Localization.alertTroubleshootingScanCardTitle,
             subtitle: Localization.alertTroubleshootingScanCardMessage,
             buttons: [
@@ -263,7 +262,7 @@ private extension CreateWalletSelectorViewModel {
 
 private extension CreateWalletSelectorViewModel {
     func logScreenOpenedAnalytics() {
-        Analytics.log(.introductionProcessCreateWalletIntroScreenOpened)
+        Analytics.log(event: .introductionProcessCreateWalletIntroScreenOpened, params: ReferralAnalyticsHelper().getReferralParams())
     }
 
     func logScanCardTapAnalytics() {
@@ -325,7 +324,6 @@ extension CreateWalletSelectorViewModel {
 
     struct MobileWalletItem {
         let title: String
-        let description: String
         let action: () -> Void
     }
 }

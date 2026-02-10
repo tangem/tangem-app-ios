@@ -58,9 +58,8 @@ struct ExpressView: View {
         }
         .navigationBarTitle(Text(Localization.commonSwap), displayMode: .inline)
         .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                CloseTextButton(action: viewModel.didTapCloseButton)
-            }
+            NavigationToolbarButton
+                .close(placement: .topBarTrailing, action: viewModel.didTapCloseButton)
         }
         .keyboardToolbar(keyboardToolbarContent)
         .onAppear { isFocused = true }
@@ -71,7 +70,6 @@ struct ExpressView: View {
         // For animate button below informationSection
         .animation(.easeInOut, value: viewModel.providerState?.id)
         .animation(.default, value: viewModel.notificationInputs)
-        .animation(.easeInOut, value: viewModel.expressFeeRowViewModel)
     }
 
     private var swappingViews: some View {
@@ -131,13 +129,14 @@ struct ExpressView: View {
         }
     }
 
+    @ViewBuilder
     private var feeSection: some View {
-        GroupedSection(viewModel.expressFeeRowViewModel) {
-            ExpressFeeRowView(viewModel: $0)
-                .accessibilityIdentifier(SwapAccessibilityIdentifiers.feeBlock)
+        if let expressFeeRowViewModel = viewModel.expressFeeRowViewModel {
+            FeeCompactView(viewModel: expressFeeRowViewModel) {
+                viewModel.userDidTapFeeRow()
+            }
+            .accessibilityIdentifier(SwapAccessibilityIdentifiers.feeBlock)
         }
-        .innerContentPadding(12)
-        .backgroundColor(Colors.Background.action)
     }
 
     private var providerSection: some View {
@@ -170,7 +169,7 @@ struct ExpressView: View {
             }
             .readGeometry(\.frame.size, bindTo: $bottomViewSize)
         }
-        .disableAnimations() // To force `.animation(nil)` behaviour
+        .disableAnimations() // To force `.animation(nil)` behavior
     }
 
     @ViewBuilder
@@ -183,18 +182,13 @@ struct ExpressView: View {
 
     @ViewBuilder
     private var keyboardToolbarContent: some View {
-        #if compiler(>=6.2)
         if #available(iOS 26.0, *) {
             glassToolbarContent
         } else {
             regularToolbarContent
         }
-        #else
-        regularToolbarContent
-        #endif
     }
 
-    #if compiler(>=6.2)
     @available(iOS 26.0, *)
     private var glassToolbarContent: some View {
         HStack(spacing: .zero) {
@@ -222,7 +216,6 @@ struct ExpressView: View {
         }
         .padding(.horizontal, 20)
     }
-    #endif
 
     private var regularToolbarContent: some View {
         HStack(spacing: .zero) {

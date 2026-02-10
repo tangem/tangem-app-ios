@@ -44,7 +44,7 @@ private extension MobileAccessCodeCleaner {
         case .unlockedWallet(let userWalletId):
             cleanWrongAccessCode(userWalletId: userWalletId)
 
-        case .deleted(let userWalletIds):
+        case .deleted(let userWalletIds, _):
             userWalletIds.forEach {
                 cleanWrongAccessCode(userWalletId: $0)
             }

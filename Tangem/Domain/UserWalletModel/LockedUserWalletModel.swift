@@ -15,6 +15,7 @@ import BlockchainSdk
 import TangemVisa
 import TangemFoundation
 import TangemMobileWalletSdk
+import TangemPay
 
 class LockedUserWalletModel: UserWalletModel {
     @Injected(\.visaRefreshTokenRepository) private var visaRefreshTokenRepository: VisaRefreshTokenRepository
@@ -52,8 +53,10 @@ class LockedUserWalletModel: UserWalletModel {
     var emailData: [EmailCollectedData] {
         var data = config.emailData
 
-        let userWalletIdItem = EmailCollectedData(type: .card(.userWalletId), data: userWalletId.stringValue)
-        data.append(userWalletIdItem)
+        if let tangemPayCustomerId = tangemPayManager.customerId {
+            data.append(EmailCollectedData(type: .tangemPayCustomerId, data: tangemPayCustomerId))
+        }
+        data.append(EmailCollectedData(type: .card(.userWalletId), data: userWalletId.stringValue))
 
         return data
     }
@@ -94,6 +97,15 @@ class LockedUserWalletModel: UserWalletModel {
 
     var accountModelsManager: AccountModelsManager {
         DummyCommonAccountModelsManager()
+    }
+
+    var tangemPayManager: TangemPayManager {
+        TangemPayBuilder(
+            userWalletId: userWalletId,
+            keysRepository: keysRepository,
+            signer: signer
+        )
+        .buildTangemPayManager()
     }
 
     var refcodeProvider: RefcodeProvider? {
@@ -166,10 +178,6 @@ class LockedUserWalletModel: UserWalletModel {
         case .iCloudBackupCompleted:
             break
         case .mnemonicBackupCompleted:
-            break
-        case .tangemPayOfferAccepted:
-            break
-        case .tangemPayKYCDeclined:
             break
         }
     }
@@ -279,6 +287,15 @@ extension LockedUserWalletModel: AssociatedCardIdsProvider {
         case .mobileWallet:
             return []
         }
+    }
+}
+
+// MARK: - DisposableEntity protocol conformance
+
+extension LockedUserWalletModel: DisposableEntity {
+    func dispose() {
+        walletModelsManager.dispose()
+        accountModelsManager.dispose()
     }
 }
 

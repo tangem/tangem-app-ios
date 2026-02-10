@@ -47,6 +47,7 @@ protocol YieldAnalyticsLogger {
 final class CommonYieldAnalyticsLogger: YieldAnalyticsLogger {
     private let tokenItem: TokenItem
     private let userWalletId: UserWalletId
+    private let referralAnalyticsHelper = ReferralAnalyticsHelper()
 
     init(tokenItem: TokenItem, userWalletId: UserWalletId) {
         self.tokenItem = tokenItem
@@ -62,16 +63,27 @@ final class CommonYieldAnalyticsLogger: YieldAnalyticsLogger {
                 .source: Analytics.ParameterValue.yieldModuleSourceInfo.rawValue,
                 .selectedHost: result.currentHost,
             ],
+            analyticsSystems: .all,
             contextParams: .userWallet(userWalletId)
         )
     }
 
     func logStartEarningScreenOpened() {
-        Analytics.log(event: .earningStartScreen, params: tokenBlockchainParams(), contextParams: .userWallet(userWalletId))
+        Analytics.log(
+            event: .earningStartScreen,
+            params: tokenBlockchainParams(),
+            analyticsSystems: .all,
+            contextParams: .userWallet(userWalletId)
+        )
     }
 
     func logEarningScreenInfoOpened() {
-        Analytics.log(event: .earningScreenInfoOpened, params: tokenBlockchainParams(), contextParams: .userWallet(userWalletId))
+        Analytics.log(
+            event: .earningScreenInfoOpened,
+            params: tokenBlockchainParams(),
+            analyticsSystems: .all,
+            contextParams: .userWallet(userWalletId)
+        )
     }
 
     func logEarningButtonStart() {
@@ -79,7 +91,12 @@ final class CommonYieldAnalyticsLogger: YieldAnalyticsLogger {
     }
 
     func logEarningStopScreenOpened() {
-        Analytics.log(event: .earningStopScreen, params: tokenBlockchainParams(), contextParams: .userWallet(userWalletId))
+        Analytics.log(
+            event: .earningStopScreen,
+            params: tokenBlockchainParams(),
+            analyticsSystems: .all,
+            contextParams: .userWallet(userWalletId)
+        )
     }
 
     func logEarningButtonStop() {
@@ -91,15 +108,36 @@ final class CommonYieldAnalyticsLogger: YieldAnalyticsLogger {
     }
 
     func logEarningInProgressScreenOpened() {
-        Analytics.log(event: .earningInProgressScreen, params: tokenBlockchainParams(), contextParams: .userWallet(userWalletId))
+        Analytics.log(
+            event: .earningInProgressScreen,
+            params: tokenBlockchainParams(),
+            analyticsSystems: .all,
+            contextParams: .userWallet(userWalletId)
+        )
     }
 
     func logEarningFundsEarned() {
-        Analytics.log(event: .earningFundsEarned, params: tokenBlockchainParams(), contextParams: .userWallet(userWalletId))
+        var params = tokenBlockchainParams()
+        params.enrich(with: referralAnalyticsHelper.getReferralParams())
+
+        Analytics.log(
+            event: .earningFundsEarned,
+            params: params,
+            analyticsSystems: .all,
+            contextParams: .userWallet(userWalletId)
+        )
     }
 
     func logEarningFundsWithdrawed() {
-        Analytics.log(event: .earningFundsWithdrawed, params: tokenBlockchainParams(), contextParams: .userWallet(userWalletId))
+        var params = tokenBlockchainParams()
+        params.enrich(with: referralAnalyticsHelper.getReferralParams())
+
+        Analytics.log(
+            event: .earningFundsWithdrawn,
+            params: params,
+            analyticsSystems: .all,
+            contextParams: .userWallet(userWalletId)
+        )
     }
 
     func logEarningEarnedFundsInfoOpened() {
