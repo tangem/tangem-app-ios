@@ -362,6 +362,7 @@
 "common_unstake" = "Завершить стейкинг";
 "common_utxo_validate_withdrawal_message_warning" = "Из-за ограничений %1$@ в одну транзакцию может поместиться только %2$li UTXO. Это означает, что вы можете отправить только %3$@ или меньше. Вам нужно уменьшить сумму.";
 "common_value_copied" = "Значение скопировано";
+"common_wallets" = "Wallets";
 "common_warning" = "Предупреждение";
 "common_week" = "неделю";
 "common_with" = "с";
@@ -1310,6 +1311,9 @@
 "swap_approve_description" = "Подтверждая, вы разрешаете смарт-контракту использовать ваши токены в будущих транзакциях.";
 "swap_fixed_rate" = "Фиксированный курс";
 "swap_give_permission_fee_footer" = "Комиссия сети за одобрение токена будет взиматься за подтверждение того, что именно вы разрешаете использовать ваш токен для обмена.";
+"swap_search_suggestion_hint" = "Looking for something else?\nTry searching or explore another crypto!";
+"swap_search_tooltip_description" = "Search for any token, even if it’s not in your list yet.";
+"swap_search_tooltip_title" = "Use search to find what you need";
 "swap_story_fifth_subtitle" = "Чувствуйте уверенность с круглосуточной поддержкой, готовой помочь в любой ситуации!";
 "swap_story_fifth_title" = "Круглосуточная поддержка";
 "swap_story_first_subtitle" = "Надежные провайдеры в одном месте — обменивайте любые активы легко и быстро прямо в своем кошельке!";
