@@ -663,15 +663,12 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
 
             switch result {
             case .success(let cardInfo):
-                initializeUserWallet(from: cardInfo)
+                initializeUserWallet(from: cardInfo, walletCreationType: walletCreationType)
 
                 if let primaryCard = cardInfo.primaryCard {
                     backupService.setPrimaryCard(primaryCard)
                 }
 
-                var params = walletCreationType.params
-                params.enrich(with: ReferralAnalyticsHelper().getReferralParams())
-                logAnalytics(event: .walletCreatedSuccessfully, params: params)
                 processPrimaryCardScan()
             case .failure(let error):
                 if !error.toTangemSdkError().isUserCancelled {

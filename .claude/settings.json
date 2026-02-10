@@ -10,6 +10,23 @@
     "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"
   },
   "permissions": {
+    "allow": [
+      "Bash(grep:*)",
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "Bash(xcodebuild:*)",
+      "Bash(git add:*)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "Bash(git commit:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(gh pr:*)",
+      "Bash(gh api:*)",
+      "mcp__github__get_me",
+      "mcp__github__create_pull_request",
+      "mcp__github__request_copilot_review",
+      "mcp__github__update_pull_request"
+    ],
     "deny": [
       "WebSearch",
       "Read(./tangem-app-config/**)",

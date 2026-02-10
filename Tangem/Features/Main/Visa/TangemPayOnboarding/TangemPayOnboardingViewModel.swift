@@ -49,12 +49,14 @@ final class TangemPayOnboardingViewModel: ObservableObject {
         }
 
         do {
+            guard
+                let availableSelection = tangemPayAvailabilityRepository.tangemPayOfferAvailability.availableWalletSelection
+            else {
+                throw TangemPayOnboardingError.offerIsNotAvailable
+            }
+
             switch source {
             case .deeplink(let deeplink):
-                guard tangemPayAvailabilityRepository.isUserWalletModelsAvailable else {
-                    throw TangemPayOnboardingError.noAvailableWallets
-                }
-
                 try await validateDeeplink(deeplinkString: deeplink)
             case .other:
                 try await requestEligibility()
@@ -63,6 +65,7 @@ final class TangemPayOnboardingViewModel: ObservableObject {
 
             await MainActor.run {
                 tangemPayOfferViewModel = TangemPayOfferViewModel(
+                    walletSelectionType: availableSelection,
                     closeOfferScreen: closeOfferScreen,
                     coordinator: coordinator
                 )
@@ -98,7 +101,7 @@ final class TangemPayOnboardingViewModel: ObservableObject {
 private extension TangemPayOnboardingViewModel {
     enum TangemPayOnboardingError: Error {
         case invalidDeeplink
-        case noAvailableWallets
+        case offerIsNotAvailable
         case tangemPayIsNotAvailable
     }
 }
