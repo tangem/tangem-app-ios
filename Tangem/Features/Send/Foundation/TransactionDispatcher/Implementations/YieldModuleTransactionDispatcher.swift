@@ -13,13 +13,13 @@ class YieldModuleTransactionDispatcher {
     private let tokenItem: TokenItem
     private let walletModelUpdater: WalletModelUpdater
     private let transactionSigner: TangemSigner
-    private let transactionsSender: MultipleTransactionsSender
+    private let transactionsSender: MultipleTransactionsSender?
     private let logger: YieldAnalyticsLogger
 
     init(
         tokenItem: TokenItem,
         walletModelUpdater: WalletModelUpdater,
-        transactionsSender: MultipleTransactionsSender,
+        transactionsSender: MultipleTransactionsSender?,
         transactionSigner: TangemSigner,
         logger: YieldAnalyticsLogger
     ) {
@@ -50,7 +50,7 @@ extension YieldModuleTransactionDispatcher: TransactionDispatcher {
     func send(transactions: [TransactionDispatcherTransactionType]) async throws -> [TransactionDispatcherResult] {
         let transferTransactions = transactions.compactMap { transactionType -> BSDKTransaction? in
             switch transactionType {
-            case .staking, .express: return nil
+            case .staking, .dex, .cex, .approve: return nil
             case .transfer(let transaction): return transaction
             }
         }
@@ -62,6 +62,10 @@ extension YieldModuleTransactionDispatcher: TransactionDispatcher {
         let mapper = TransactionDispatcherResultMapper()
 
         do {
+            guard let transactionsSender else {
+                throw TransactionDispatcherProviderError.transactionNotSupported(reason: "MultipleTransactionsSender is not found")
+            }
+
             let hashes = try await transactionsSender.send(
                 transferTransactions,
                 signer: transactionSigner

@@ -7,10 +7,12 @@
 //
 
 import TangemExpress
+import TangemFoundation
 import BlockchainSdk
 
 struct ExpressInteractorWalletModelWrapper {
     let id: WalletModelId
+    let userWalletId: UserWalletId
     let isCustom: Bool
     let isMainToken: Bool
     let isExemptFee: Bool = false
@@ -20,7 +22,9 @@ struct ExpressInteractorWalletModelWrapper {
     let feeTokenItem: TokenItem
     let defaultAddressString: String
 
+    let transactionDispatcherProvider: TransactionDispatcherProvider
     var expressTokenFeeProvidersManager: ExpressTokenFeeProvidersManager { _tokenFeeManager }
+
     let availableBalanceProvider: any TokenBalanceProvider
     let transactionValidator: any ExpressTransactionValidator
     let withdrawalNotificationProvider: (any WithdrawalNotificationProvider)?
@@ -28,9 +32,6 @@ struct ExpressInteractorWalletModelWrapper {
 
     private let walletModel: any WalletModel
     private let expressOperationType: ExpressOperationType
-
-    private let transactionProcessorFactory: ExpressTransactionProcessorFactory
-    private let allowanceServiceFactory: AllowanceServiceFactory
 
     private let _allowanceService: (any AllowanceService)?
     private let _balanceProvider: any ExpressBalanceProvider
@@ -45,6 +46,7 @@ struct ExpressInteractorWalletModelWrapper {
         self.expressOperationType = expressOperationType
 
         id = walletModel.id
+        userWalletId = userWalletInfo.id
         isCustom = walletModel.isCustom
         isMainToken = walletModel.isMainToken
 
@@ -65,19 +67,14 @@ struct ExpressInteractorWalletModelWrapper {
             feeAnalyticsParameterBuilder: .init(isFixedFee: !walletModel.shouldShowFeeSelector)
         )
 
-        let transactionDispatcher = TransactionDispatcherFactory(
+        transactionDispatcherProvider = WalletModelTransactionDispatcherProvider(
             walletModel: walletModel,
             signer: userWalletInfo.signer
-        ).makeExpressDispatcher()
-
-        allowanceServiceFactory = AllowanceServiceFactory(
-            walletModel: walletModel,
-            transactionDispatcher: transactionDispatcher,
         )
 
-        transactionProcessorFactory = ExpressTransactionProcessorFactory(
+        let allowanceServiceFactory = AllowanceServiceFactory(
             walletModel: walletModel,
-            transactionDispatcher: transactionDispatcher,
+            transactionDispatcherProvider: transactionDispatcherProvider
         )
 
         _allowanceService = allowanceServiceFactory.makeAllowanceService()
@@ -132,14 +129,6 @@ extension ExpressInteractorWalletModelWrapper: ExpressInteractorSourceWallet {
     }
 
     var allowanceService: (any AllowanceService)? { _allowanceService }
-
-    func cexTransactionProcessor() throws -> any ExpressCEXTransactionProcessor {
-        return try transactionProcessorFactory.makeCEXTransactionProcessor()
-    }
-
-    func dexTransactionProcessor() throws -> any ExpressDEXTransactionProcessor {
-        return try transactionProcessorFactory.makeDEXTransactionProcessor()
-    }
 }
 
 // MARK: - ExpressSourceWallet

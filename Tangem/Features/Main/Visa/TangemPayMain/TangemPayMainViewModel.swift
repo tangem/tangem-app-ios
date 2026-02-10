@@ -22,7 +22,7 @@ final class TangemPayMainViewModel: ObservableObject {
         guard let self else { return }
 
         async let balanceUpdate: Void = tangemPayAccount.loadBalance()
-        async let transactionsUpdate: Void = transactionHistoryService.reloadHistory().value
+        async let transactionsUpdate: Void = transactionHistoryService.reloadHistory()
 
         _ = await (balanceUpdate, transactionsUpdate)
     }
@@ -97,9 +97,12 @@ final class TangemPayMainViewModel: ObservableObject {
     }
 
     func reloadHistory() {
-        transactionHistoryService.reloadHistory()
+        runTask { [self] in
+            await transactionHistoryService.reloadHistory()
+        }
     }
 
+    @MainActor
     func fetchNextTransactionHistoryPage() -> FetchMore? {
         transactionHistoryService.fetchNextTransactionHistoryPage()
     }
@@ -275,6 +278,7 @@ final class TangemPayMainViewModel: ObservableObject {
             )
     }
 
+    @MainActor
     func openTransactionDetails(id: String) {
         guard let transaction = transactionHistoryService.getTransaction(id: id) else {
             assertionFailure("Transaction not found")
@@ -357,11 +361,12 @@ private extension TangemPayMainViewModel {
         }
 
         let tangemPayWalletWrapper = ExpressInteractorTangemPayWalletWrapper(
+            userWalletId: userWalletInfo.id,
             tokenItem: TangemPayUtilities.usdcTokenItem,
             feeTokenItem: TangemPayUtilities.usdcTokenItem,
             defaultAddressString: depositAddress,
             availableBalanceProvider: tangemPayAccount.balancesProvider.availableBalanceProvider,
-            cexTransactionProcessor: tangemPayAccount.expressCEXTransactionProcessor,
+            cexTransactionDispatcher: tangemPayAccount.expressCEXTransactionDispatcher,
             transactionValidator: TangemPayExpressTransactionValidator(
                 availableBalanceProvider: tangemPayAccount.balancesProvider.availableBalanceProvider,
             )
@@ -433,9 +438,7 @@ private extension TangemPayTransactionHistoryResponse.Record {
         switch self {
         case .spend(let spend):
             return spend.status.rawValue
-        case .payment(let payment):
-            return payment.status.rawValue
-        case .collateral, .fee:
+        case .collateral, .payment, .fee:
             return "unknown"
         }
     }
