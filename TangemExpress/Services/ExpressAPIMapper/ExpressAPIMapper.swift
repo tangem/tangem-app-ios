@@ -90,6 +90,11 @@ struct ExpressAPIMapper {
             throw ExpressAPIMapperError.payoutAddressNotEqual
         }
 
+        // Validate payout extra id matches what we sent (case-sensitive for memos)
+        if request.toExtraId != txDetails.payoutExtraId {
+            throw ExpressAPIMapperError.payoutExtraIdNotEqual
+        }
+
         guard var fromAmount = Decimal(string: response.fromAmount) else {
             throw ExpressAPIMapperError.mapToDecimalError(response.fromAmount)
         }
@@ -266,6 +271,7 @@ enum ExpressAPIMapperError: LocalizedError {
     case mapToDecimalError(_ string: String)
     case requestIdNotEqual
     case payoutAddressNotEqual
+    case payoutExtraIdNotEqual
     case wrongProviderType
 
     var errorDescription: String? {
@@ -273,6 +279,7 @@ enum ExpressAPIMapperError: LocalizedError {
         case .mapToDecimalError(let value): "Wrong decimal value \(value)"
         case .requestIdNotEqual: "Request id is not matched with value in the request"
         case .payoutAddressNotEqual: "Payout address is not matched with value in the request"
+        case .payoutExtraIdNotEqual: "Payout extra id is not matched with value in the request"
         case .wrongProviderType: "Provider type is not support"
         }
     }
