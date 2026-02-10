@@ -99,9 +99,9 @@ extension EarnDTO.Networks {
 
     struct Response: Decodable {
         let items: [Item]
-    }
 
-    struct Item: Decodable {
-        let networkId: String
+        struct Item: Decodable {
+            let networkId: String
+        }
     }
 }

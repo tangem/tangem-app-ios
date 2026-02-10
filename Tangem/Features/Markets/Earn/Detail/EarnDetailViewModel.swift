@@ -22,26 +22,6 @@ final class EarnDetailViewModel: MarketsBaseViewModel {
     @Published private(set) var listLoadingState: EarnBestOpportunitiesListView.LoadingState = .loading
     @Published private(set) var tokenViewModels: [EarnTokenItemViewModel] = []
 
-    var isFilterInteractionEnabled: Bool {
-        filterProvider.state == .loaded
-    }
-
-    var isFilterLoading: Bool {
-        filterProvider.state == .loading
-    }
-
-    var selectedNetworkFilterTitle: String {
-        filterProvider.selectedNetworkFilter.displayTitle
-    }
-
-    var selectedFilterTypeTitle: String {
-        filterProvider.selectedFilterType.description
-    }
-
-    var hasActiveFilters: Bool {
-        filterProvider.hasActiveFilters
-    }
-
     // MARK: - Private Properties
 
     private let filterProvider: EarnDataFilterProvider
@@ -78,8 +58,6 @@ final class EarnDetailViewModel: MarketsBaseViewModel {
     }
 
     // MARK: - Public Methods
-
-    func onAppear() {}
 
     func onRetry() {
         fetch(with: filterProvider.currentFilter)
@@ -142,6 +120,21 @@ final class EarnDetailViewModel: MarketsBaseViewModel {
         dataProvider.fetch(with: filter)
     }
 
+    private func appendTokenViewModels(from models: [EarnTokenModel], lastPage: Bool) {
+        let newViewModels = models.map { token in
+            EarnTokenItemViewModel(token: token) { [weak self] in
+                self?.handleTokenTap(token)
+            }
+        }
+        tokenViewModels.append(contentsOf: newViewModels)
+
+        if tokenViewModels.isEmpty {
+            listLoadingState = .noResults
+        } else {
+            listLoadingState = lastPage ? .allDataLoaded : .idle
+        }
+    }
+
     private func handleDataProviderEvent(_ event: EarnDataProvider.Event) {
         switch event {
         case .loading:
@@ -155,22 +148,35 @@ final class EarnDetailViewModel: MarketsBaseViewModel {
                 listLoadingState = .error
             }
         case .appendedItems(let models, let lastPage):
-            let newViewModels = models.map { token in
-                EarnTokenItemViewModel(token: token) { [weak self] in
-                    self?.handleTokenTap(token)
-                }
-            }
-            tokenViewModels.append(contentsOf: newViewModels)
-
-            if tokenViewModels.isEmpty {
-                listLoadingState = .noResults
-            } else {
-                listLoadingState = lastPage ? .allDataLoaded : .idle
-            }
+            appendTokenViewModels(from: models, lastPage: lastPage)
         case .startInitialFetch, .cleared:
             tokenViewModels = []
             listLoadingState = .loading
         }
+    }
+}
+
+// MARK: - Filter State
+
+extension EarnDetailViewModel {
+    var isFilterInteractionEnabled: Bool {
+        filterProvider.state == .loaded
+    }
+
+    var isFilterLoading: Bool {
+        filterProvider.state == .loading
+    }
+
+    var selectedNetworkFilterTitle: String {
+        filterProvider.selectedNetworkFilter.displayTitle
+    }
+
+    var selectedFilterTypeTitle: String {
+        filterProvider.selectedFilterType.description
+    }
+
+    var hasActiveFilters: Bool {
+        filterProvider.hasActiveFilters
     }
 }
 
