@@ -56,7 +56,12 @@ final class EarnDetailViewModel: MarketsBaseViewModel {
         bind()
 
         fetch(with: filterProvider.currentFilter)
-        filterProvider.fetchAvailableNetworks()
+    }
+
+    func onFirstAppear() {
+        Task { @MainActor in
+            await filterProvider.fetchAvailableNetworks()
+        }
     }
 
     // MARK: - Public Methods
