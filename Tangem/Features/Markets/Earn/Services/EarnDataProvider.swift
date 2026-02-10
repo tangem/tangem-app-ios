@@ -68,10 +68,10 @@ final class EarnDataProvider {
             clearItems()
         }
 
-        guard !isScheduledFetchPending else {
-            _eventSubject.send(.idle)
-            isLoading = false
-            return
+        if isScheduledFetchPending {
+            scheduledFetchTask?.cancel()
+            scheduledFetchTask = nil
+            isScheduledFetchPending = false
         }
 
         lastFilter = filter
