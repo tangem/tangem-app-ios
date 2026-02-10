@@ -22,24 +22,28 @@ struct EarnBestOpportunitiesListView: View {
     let clearFilterAction: (() -> Void)?
 
     var body: some View {
-        Group {
-            switch loadingState {
-            case .loading:
-                loadingSkeletons
-            case .idle, .allDataLoaded:
-                opportunitiesList
-            case .noResults:
-                emptyView
-            case .error:
-                errorView
-            }
+        rootView
+            .transition(.opacity.animation(.easeInOut))
+            .defaultRoundedBackground(
+                with: Color.Tangem.Surface.level4,
+                verticalPadding: Layout.innerContentPadding,
+                horizontalPadding: Layout.innerContentPadding
+            )
+            .padding(.horizontal, Layout.horizontalPadding)
+    }
+
+    @ViewBuilder
+    private var rootView: some View {
+        switch loadingState {
+        case .loading:
+            loadingSkeletons
+        case .idle, .allDataLoaded:
+            opportunitiesList
+        case .noResults:
+            emptyView
+        case .error:
+            errorView
         }
-        .defaultRoundedBackground(
-            with: Color.Tangem.Surface.level4,
-            verticalPadding: Layout.innerContentPadding,
-            horizontalPadding: Layout.innerContentPadding
-        )
-        .padding(.horizontal, Layout.horizontalPadding)
     }
 
     private var loadingSkeletons: some View {
@@ -105,12 +109,6 @@ struct EarnBestOpportunitiesListView: View {
         )
         .infinityFrame(axis: .horizontal, alignment: .center)
         .frame(maxHeight: Layout.defaultMaxHeight)
-        .defaultRoundedBackground(
-            with: Colors.Background.action,
-            verticalPadding: Layout.verticalPadding,
-            horizontalPadding: Layout.horizontalPadding
-        )
-        .padding(.horizontal, Layout.horizontalPadding)
     }
 }
 
@@ -121,7 +119,6 @@ private extension EarnBestOpportunitiesListView {
         static let itemSpacing: CGFloat = .zero
         static let horizontalPadding: CGFloat = 16.0
         static let innerContentPadding: CGFloat = 0.0
-        static let verticalPadding: CGFloat = 34
         static let defaultMaxHeight: CGFloat = 180
         static let emptyViewSpacing: CGFloat = 12
 
