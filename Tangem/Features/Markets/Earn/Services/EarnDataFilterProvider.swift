@@ -26,7 +26,6 @@ final class EarnDataFilterProvider {
     // MARK: - Dependencies
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
-
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     // MARK: - Private State
@@ -43,6 +42,7 @@ final class EarnDataFilterProvider {
 
     var filterPublisher: AnyPublisher<EarnDataFilter, Never> {
         Publishers.CombineLatest(_filterTypeValue, _networkFilterValue)
+            .receiveOnMain()
             .withWeakCaptureOf(self)
             .map { provider, args in
                 let (type, networkFilter) = args
@@ -94,7 +94,7 @@ final class EarnDataFilterProvider {
         }
     }
 
-    var supportedBlockchainsByNetworkId: [String: Blockchain] = Dictionary(
+    let supportedBlockchainsByNetworkId: [String: Blockchain] = Dictionary(
         uniqueKeysWithValues: SupportedBlockchains.all.map { ($0.networkId, $0) }
     )
 
@@ -120,13 +120,12 @@ final class EarnDataFilterProvider {
         _networkFilterValue.send(.all)
     }
 
-    func fetchAvailableNetworks() {
+    func fetchAvailableNetworks() async {
         fetchNetworksTask?.cancel()
         _stateSubject.send(.loading)
 
-        fetchNetworksTask = Task { [weak self] in
+        fetchNetworksTask = Task { @MainActor [weak self] in
             guard let self else { return }
-
             updateMyNetworkIds()
             await loadAvailableNetworks()
         }
