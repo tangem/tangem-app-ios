@@ -362,6 +362,7 @@
 "common_unstake" = "Unstakez";
 "common_utxo_validate_withdrawal_message_warning" = "En raison d'une limitations sur les %1$@, seuls les %2$li UTXO peuvent s'intégrer dans une seule transaction. Ce qui signifie vous ne pouvez envoyer que %3$@ ou moins. Réduisez le montant.";
 "common_value_copied" = "Valeur copiée";
+"common_wallets" = "Wallets";
 "common_warning" = "Alerte";
 "common_week" = "semaine";
 "common_with" = "avec";
@@ -1310,6 +1311,9 @@
 "swap_approve_description" = "En approuvant, vous autorisez le contrat intelligent à utiliser vos jetons dans de futures transactions.";
 "swap_fixed_rate" = "Taux fixe";
 "swap_give_permission_fee_footer" = "Le réseau facturera des frais d'approbation de jeton pour vérifier que vous autorisez l'utilisation de votre jeton pour l'échange.";
+"swap_search_suggestion_hint" = "Looking for something else?\nTry searching or explore another crypto!";
+"swap_search_tooltip_description" = "Search for any token, even if it’s not in your list yet.";
+"swap_search_tooltip_title" = "Use search to find what you need";
 "swap_story_fifth_subtitle" = "Ayez confiance en notre assistance 24 heures sur 24 pour vous aider à résoudre tous vos problèmes";
 "swap_story_fifth_title" = "Assistance 24 heures sur 24";
 "swap_story_first_subtitle" = "Plusieurs fournisseurs de confiance en un seul endroit : échangez n'importe quel actif facilement";
