@@ -722,8 +722,6 @@ private extension UserWalletSettingsViewModel {
                 // instead users should manage tokens from respective account details screens
                 updateManagers(walletModelsManager: nil, userTokensManager: nil)
             case .none:
-                // Unreachable state, because account models manager should always contain at least one account model (main account)
-                assertionFailure("Unexpected state: no account models found, unable to update dependencies for user wallet")
                 updateManagers(walletModelsManager: nil, userTokensManager: nil)
             }
         }
