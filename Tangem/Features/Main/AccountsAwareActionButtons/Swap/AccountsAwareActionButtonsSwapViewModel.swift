@@ -28,6 +28,7 @@ final class AccountsAwareActionButtonsSwapViewModel: ObservableObject {
     @Published private(set) var tokenSelectorState: TokenSelectorState = .selector
 
     let tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel
+    let marketsTokensViewModel: SwapMarketsTokensViewModel?
 
     var sourceHeaderType: ExpressCurrencyHeaderType {
         makeHeaderType(for: source, viewType: .send)
@@ -38,6 +39,8 @@ final class AccountsAwareActionButtonsSwapViewModel: ObservableObject {
     }
 
     // MARK: - Private
+
+    private let tangemApiService: TangemApiService
 
     private let filterTokenItem: CurrentValueSubject<TokenItem?, Never> = .init(nil)
 
@@ -51,14 +54,39 @@ final class AccountsAwareActionButtonsSwapViewModel: ObservableObject {
 
     init(
         tokenSelectorViewModel: AccountsAwareTokenSelectorViewModel,
-        coordinator: ActionButtonsSwapRoutable
+        marketsTokensViewModel: SwapMarketsTokensViewModel?,
+        coordinator: ActionButtonsSwapRoutable,
+        tangemApiService: TangemApiService
     ) {
         self.tokenSelectorViewModel = tokenSelectorViewModel
+        self.marketsTokensViewModel = marketsTokensViewModel
         self.coordinator = coordinator
+        self.tangemApiService = tangemApiService
 
         // Here only possible direction is `from`
         tokenSelectorViewModel.setup(directionPublisher: filterTokenItem.map { $0.map { .fromSource($0) } })
         tokenSelectorViewModel.setup(with: self)
+
+        // Setup isActive publisher: markets are only active when source is selected (destination mode)
+        let isActivePublisher = $source
+            .map { source -> Bool in
+                switch source {
+                case .placeholder: return false
+                case .token: return true
+                }
+            }
+            .eraseToAnyPublisher()
+
+        marketsTokensViewModel?.setup(isActivePublisher: isActivePublisher)
+        marketsTokensViewModel?.setup(searchTextPublisher: tokenSelectorViewModel.$searchText)
+        marketsTokensViewModel?.setup(selectionHandler: self)
+    }
+
+    var shouldShowMarketsSearch: Bool {
+        switch source {
+        case .placeholder: return false
+        case .token: return true
+        }
     }
 
     func onAppear() {
@@ -118,6 +146,41 @@ extension AccountsAwareActionButtonsSwapViewModel: AccountsAwareTokenSelectorVie
                 }
             }
         }
+    }
+}
+
+extension AccountsAwareActionButtonsSwapViewModel: SwapMarketsTokenSelectionHandler {
+    func didSelectExternalToken(_ token: MarketsTokenModel) {
+        Task { @MainActor in
+            do {
+                let networks = try await loadNetworks(for: token.id)
+
+                guard !networks.isEmpty else {
+                    return
+                }
+
+                let inputData = ExpressAddTokenInputData(
+                    coinId: token.id,
+                    coinName: token.name,
+                    coinSymbol: token.symbol,
+                    networks: networks
+                )
+
+                coordinator?.openAddTokenFlowForExpress(inputData: inputData)
+            } catch {
+                AppLogger.error("Failed to load networks for coinId: \(token.id)", error: error)
+            }
+        }
+    }
+
+    private func loadNetworks(for coinId: String) async throws -> [NetworkModel] {
+        let request = CoinsList.Request(
+            supportedBlockchains: [],
+            ids: [coinId]
+        )
+
+        let response = try await tangemApiService.loadCoins(requestModel: request)
+        return response.coins.first?.networks ?? []
     }
 }
 
