@@ -22,9 +22,9 @@ enum EarnFilterType: String, CaseIterable, Encodable, CustomStringConvertible, I
 
     var description: String {
         switch self {
-        case .all: return "All"
-        case .staking: return "Staking"
-        case .yield: return "Yeld Mode"
+        case .all: return Localization.commonAll
+        case .staking: return Localization.commonStaking
+        case .yield: return Localization.commonYieldMode
         }
     }
 
