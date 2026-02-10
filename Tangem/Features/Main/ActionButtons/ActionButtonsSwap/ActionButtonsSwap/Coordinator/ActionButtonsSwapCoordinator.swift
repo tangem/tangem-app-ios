@@ -164,7 +164,7 @@ extension ActionButtonsSwapCoordinator: SwapTokenSelectorRoutable {
             if case .new(let swapViewModel) = viewType {
                 swapViewModel.usedDidSelect(item: item)
             } else {
-                AppLogger.error("onTokenAdded called with unexpected viewType: \(String(describing: viewType))")
+                AppLogger.error("onTokenAdded called with unexpected viewType: \(String(describing: viewType))", error: ExpressInteractorError.destinationNotFound)
             }
         }
     }
