@@ -41,13 +41,13 @@ final class EarnDataFilterProvider {
 
     // MARK: - Public Properties
 
-    var filterPublisher: AnyPublisher<EarnDataProvider.Filter, Never> {
+    var filterPublisher: AnyPublisher<EarnDataFilter, Never> {
         Publishers.CombineLatest(_filterTypeValue, _networkFilterValue)
             .withWeakCaptureOf(self)
             .map { provider, args in
                 let (type, networkFilter) = args
                 let networkIds = provider.resolveNetworkIds(for: networkFilter)
-                return EarnDataProvider.Filter(type: type, networkIds: networkIds)
+                return EarnDataFilter(type: type, networkIds: networkIds)
             }
             .eraseToAnyPublisher()
     }
@@ -60,9 +60,9 @@ final class EarnDataFilterProvider {
         _stateSubject.value
     }
 
-    var currentFilter: EarnDataProvider.Filter {
+    var currentFilter: EarnDataFilter {
         let networkIds = resolveNetworkIds(for: _networkFilterValue.value)
-        return EarnDataProvider.Filter(type: _filterTypeValue.value, networkIds: networkIds)
+        return EarnDataFilter(type: _filterTypeValue.value, networkIds: networkIds)
     }
 
     var supportedFilterTypes: [EarnFilterType] {
@@ -120,7 +120,7 @@ final class EarnDataFilterProvider {
         _networkFilterValue.send(.all)
     }
 
-    func fetchAvailableNetworks() async {
+    func fetchAvailableNetworks() {
         fetchNetworksTask?.cancel()
         _stateSubject.send(.loading)
 
@@ -130,8 +130,6 @@ final class EarnDataFilterProvider {
             updateMyNetworkIds()
             await loadAvailableNetworks()
         }
-
-        await fetchNetworksTask?.value
     }
 
     // MARK: - Private Methods
