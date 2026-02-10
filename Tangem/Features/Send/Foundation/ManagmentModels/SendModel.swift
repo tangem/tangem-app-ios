@@ -142,18 +142,21 @@ private extension SendModel {
             .store(in: &bag)
 
         Publishers
-            .CombineLatest(
+            .CombineLatest3(
                 _receivedToken.removeDuplicates(),
-                _destination.removeDuplicates()
+                _destination.removeDuplicates(),
+                _destinationAdditionalField
             )
             .dropFirst()
             .withWeakCaptureOf(self)
-            .sink { sendModel, pair in
-                let (receivedToken, destination) = pair
+            .sink { sendModel, args in
+                let (receivedToken, destination, additionalField) = args
+
                 sendModel.swapManager.update(
                     userWalletId: sendModel.userWalletId,
                     destination: receivedToken.receiveToken?.tokenItem,
                     address: destination?.value.transactionAddress,
+                    additionalField: additionalField,
                     tokenHeader: sendModel.destinationTokenHeader,
                     accountModelAnalyticsProvider: sendModel.destinationAccountAnalyticsProvider
                 )
