@@ -230,7 +230,7 @@ extension MarketsCoordinator: EarnAddTokenRoutable {
             )
     }
 
-    private func openMainTokenDetails(walletModel: any WalletModel, with userWalletModel: UserWalletModel) {
+    private func openMainTokenDetails(walletModel: any WalletModel, with userWalletModel: any UserWalletModel) {
         let dismissAction: Action<Void> = { [weak self] _ in
             self?.mainTokenDetailsCoordinator = nil
         }
