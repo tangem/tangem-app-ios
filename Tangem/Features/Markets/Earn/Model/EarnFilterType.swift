@@ -35,4 +35,13 @@ enum EarnFilterType: String, CaseIterable, Encodable, CustomStringConvertible, I
         case .yield: return .yield
         }
     }
+
+    /// String value for analytics (e.g. "[Earn] Best Opportunities Filter Type Applied").
+    var analyticsTypeValue: String {
+        switch self {
+        case .all: return "All types"
+        case .staking: return "Staking"
+        case .yield: return "Yield"
+        }
+    }
 }

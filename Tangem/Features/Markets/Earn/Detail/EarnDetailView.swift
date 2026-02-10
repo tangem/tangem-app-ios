@@ -62,7 +62,10 @@ struct EarnDetailView: View {
         VStack(alignment: .leading, spacing: Layout.blockContentBeetweenHeaderSpacing) {
             EarnDetailHeaderView(headerTitle: Localization.earnMostlyUsed)
 
-            EarnMostlyUsedView(viewModels: viewModel.mostlyUsedViewModels)
+            EarnMostlyUsedView(
+                viewModels: viewModel.mostlyUsedViewModels,
+                onFourthItemAppeared: viewModel.onMostlyUsedScrolledToFourthItem
+            )
         }
     }
 
