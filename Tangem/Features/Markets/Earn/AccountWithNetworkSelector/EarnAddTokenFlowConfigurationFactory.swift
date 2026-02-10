@@ -2,6 +2,7 @@
 //  EarnAddTokenFlowConfigurationFactory.swift
 //  Tangem
 //
+//  Created by [REDACTED_AUTHOR]
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
@@ -13,7 +14,8 @@ import TangemFoundation
 enum EarnAddTokenFlowConfigurationFactory {
     static func make(
         earnToken: EarnTokenModel,
-        coordinator: EarnAddTokenRoutable
+        coordinator: EarnAddTokenRoutable,
+        analyticsProvider: EarnAnalyticsProvider
     ) -> AccountsAwareAddTokenFlowConfiguration {
         AccountsAwareAddTokenFlowConfiguration(
             getAvailableTokenItems: { accountSelectorCell in
@@ -46,7 +48,7 @@ enum EarnAddTokenFlowConfigurationFactory {
             },
             accountFilter: makeAccountFilter(earnToken: earnToken),
             accountAvailabilityProvider: makeAccountAvailabilityProvider(earnToken: earnToken),
-            analyticsLogger: NoOpAddTokenFlowAnalyticsLogger()
+            analyticsLogger: analyticsProvider
         )
     }
 }
