@@ -8,29 +8,10 @@
 
 import SwiftUI
 
-class MobileOnboardingFlowStep:
-    MobileOnboardingFlowStepTransformable,
-    MobileOnboardingFlowStepNavBarConfigurable,
-    MobileOnboardingFlowStepProgressBarConfigurable {
-    var transformations: [TransformationModifier<AnyView>] = []
+class MobileOnboardingFlowStep: StepsFlowStep {
+    let id: AnyHashable = UUID()
 
-    func build() -> any View {
+    func makeView() -> any View {
         EmptyView()
-    }
-
-    func buildWithTransformations() -> any View {
-        transformations.reduce(AnyView(build())) { view, transformation in
-            AnyView(view.modifier(transformation))
-        }
-    }
-}
-
-// MARK: - TransformationModifier
-
-struct TransformationModifier<T: View>: ViewModifier {
-    @ViewBuilder let transformation: (Content) -> T
-
-    func body(content: Content) -> T {
-        transformation(content)
     }
 }

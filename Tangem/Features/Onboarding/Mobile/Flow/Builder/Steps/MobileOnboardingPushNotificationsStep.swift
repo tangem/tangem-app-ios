@@ -21,7 +21,7 @@ final class MobileOnboardingPushNotificationsStep: MobileOnboardingFlowStep {
         )
     }
 
-    override func build() -> any View {
+    override func makeView() -> any View {
         PushNotificationsPermissionRequestView(
             viewModel: viewModel,
             topInset: 0,

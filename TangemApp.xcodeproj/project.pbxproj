@@ -200,9 +200,21 @@
 		0F261B512F34988300D70149 /* MobileUpgradeBannerStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F261B502F34988300D70149 /* MobileUpgradeBannerStorageManager.swift */; };
 		0F261B532F34B01E00D70149 /* CommonMobileUpgradeBannerStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F261B522F34B01E00D70149 /* CommonMobileUpgradeBannerStorageManager.swift */; };
 		0F261B552F35E6C900D70149 /* MobileUpgradeBannerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F261B542F35E6C900D70149 /* MobileUpgradeBannerManager.swift */; };
+		0F26212A2F3BA14800D70149 /* StepsFlowViewConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2621282F3BA14800D70149 /* StepsFlowViewConfiguration.swift */; };
+		0F26212B2F3BA37E00D70149 /* StepsFlowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2620F42F3B9F0C00D70149 /* StepsFlowViewModel.swift */; };
+		0F26212C2F3BA37E00D70149 /* StepsFlowNavBarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2620F02F3B9F0C00D70149 /* StepsFlowNavBarItem.swift */; };
+		0F26212D2F3BA37E00D70149 /* StepsFlowStepLinkedList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2620F12F3B9F0C00D70149 /* StepsFlowStepLinkedList.swift */; };
+		0F26212E2F3BA37E00D70149 /* LinkedListNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2620F52F3B9F0C00D70149 /* LinkedListNode.swift */; };
+		0F26212F2F3BA37E00D70149 /* StepsFlowAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2620EC2F3B9F0C00D70149 /* StepsFlowAction.swift */; };
+		0F2621302F3BA37E00D70149 /* StepsFlowNavBarEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2620EF2F3B9F0C00D70149 /* StepsFlowNavBarEnvironment.swift */; };
+		0F2621312F3BA37E00D70149 /* StepsFlowNavBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2620EE2F3B9F0C00D70149 /* StepsFlowNavBar.swift */; };
+		0F2621322F3BA37E00D70149 /* StepsFlowStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2620F22F3B9F0C00D70149 /* StepsFlowStep.swift */; };
+		0F2621332F3BA37E00D70149 /* StepsFlowContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2620ED2F3B9F0C00D70149 /* StepsFlowContent.swift */; };
+		0F2621342F3BA37E00D70149 /* LinkedList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2620F62F3B9F0C00D70149 /* LinkedList.swift */; };
+		0F2621352F3BA37E00D70149 /* StepsFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2620F32F3B9F0C00D70149 /* StepsFlowView.swift */; };
+		0F2621362F3BA37E00D70149 /* StepsFlowBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2620EB2F3B9F0C00D70149 /* StepsFlowBuilder.swift */; };
 		0F2784FD2E2809A300742D0F /* MobileOnboardingFlowRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2784FC2E2809A300742D0F /* MobileOnboardingFlowRoutable.swift */; };
 		0F2785182E290E2A00742D0F /* MobileSettingsUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2785172E290E2A00742D0F /* MobileSettingsUtil.swift */; };
-		0F2786182E2AD9CE00742D0F /* LinkedList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2786172E2AD9CE00742D0F /* LinkedList.swift */; };
 		0F27861A2E2AD9ED00742D0F /* MobileOnboardingFlowBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2786192E2AD9ED00742D0F /* MobileOnboardingFlowBuilder.swift */; };
 		0F27861C2E2ADAAB00742D0F /* MobileOnboardingFlowStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F27861B2E2ADAAB00742D0F /* MobileOnboardingFlowStep.swift */; };
 		0F27861E2E2ADB5600742D0F /* MobileOnboardingFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F27861D2E2ADB5600742D0F /* MobileOnboardingFlowView.swift */; };
@@ -221,7 +233,6 @@
 		0F2786472E2BAB7E00742D0F /* MobileOnboardingRevealSeedPhraseFlowBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2786462E2BAB7E00742D0F /* MobileOnboardingRevealSeedPhraseFlowBuilder.swift */; };
 		0F2786492E2BAC1300742D0F /* MobileOnboardingSeedPhraseRevealStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2786482E2BAC1300742D0F /* MobileOnboardingSeedPhraseRevealStep.swift */; };
 		0F2786552E2CECA900742D0F /* MobileOnboardingFlowNavBarAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2786542E2CECA900742D0F /* MobileOnboardingFlowNavBarAction.swift */; };
-		0F2786572E2D6C8400742D0F /* MobileOnboardingFlowStepTransformable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2786562E2D6C8400742D0F /* MobileOnboardingFlowStepTransformable.swift */; };
 		0F2786592E2D6F9200742D0F /* MobileOnboardingFlowProgressBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2786582E2D6F9200742D0F /* MobileOnboardingFlowProgressBar.swift */; };
 		0F291C322E9CF6B2002A4869 /* MobileRemoveWalletView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F291C312E9CF6B2002A4869 /* MobileRemoveWalletView.swift */; };
 		0F291C342E9CF6BA002A4869 /* MobileRemoveWalletViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F291C332E9CF6BA002A4869 /* MobileRemoveWalletViewModel.swift */; };
@@ -5080,9 +5091,21 @@
 		0F261B502F34988300D70149 /* MobileUpgradeBannerStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileUpgradeBannerStorageManager.swift; sourceTree = "<group>"; };
 		0F261B522F34B01E00D70149 /* CommonMobileUpgradeBannerStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonMobileUpgradeBannerStorageManager.swift; sourceTree = "<group>"; };
 		0F261B542F35E6C900D70149 /* MobileUpgradeBannerManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileUpgradeBannerManager.swift; sourceTree = "<group>"; };
+		0F2620EB2F3B9F0C00D70149 /* StepsFlowBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepsFlowBuilder.swift; sourceTree = "<group>"; };
+		0F2620EC2F3B9F0C00D70149 /* StepsFlowAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepsFlowAction.swift; sourceTree = "<group>"; };
+		0F2620ED2F3B9F0C00D70149 /* StepsFlowContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepsFlowContent.swift; sourceTree = "<group>"; };
+		0F2620EE2F3B9F0C00D70149 /* StepsFlowNavBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepsFlowNavBar.swift; sourceTree = "<group>"; };
+		0F2620EF2F3B9F0C00D70149 /* StepsFlowNavBarEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepsFlowNavBarEnvironment.swift; sourceTree = "<group>"; };
+		0F2620F02F3B9F0C00D70149 /* StepsFlowNavBarItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepsFlowNavBarItem.swift; sourceTree = "<group>"; };
+		0F2620F12F3B9F0C00D70149 /* StepsFlowStepLinkedList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepsFlowStepLinkedList.swift; sourceTree = "<group>"; };
+		0F2620F22F3B9F0C00D70149 /* StepsFlowStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepsFlowStep.swift; sourceTree = "<group>"; };
+		0F2620F32F3B9F0C00D70149 /* StepsFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepsFlowView.swift; sourceTree = "<group>"; };
+		0F2620F42F3B9F0C00D70149 /* StepsFlowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepsFlowViewModel.swift; sourceTree = "<group>"; };
+		0F2620F52F3B9F0C00D70149 /* LinkedListNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkedListNode.swift; sourceTree = "<group>"; };
+		0F2620F62F3B9F0C00D70149 /* LinkedList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkedList.swift; sourceTree = "<group>"; };
+		0F2621282F3BA14800D70149 /* StepsFlowViewConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepsFlowViewConfiguration.swift; sourceTree = "<group>"; };
 		0F2784FC2E2809A300742D0F /* MobileOnboardingFlowRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingFlowRoutable.swift; sourceTree = "<group>"; };
 		0F2785172E290E2A00742D0F /* MobileSettingsUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileSettingsUtil.swift; sourceTree = "<group>"; };
-		0F2786172E2AD9CE00742D0F /* LinkedList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkedList.swift; sourceTree = "<group>"; };
 		0F2786192E2AD9ED00742D0F /* MobileOnboardingFlowBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingFlowBuilder.swift; sourceTree = "<group>"; };
 		0F27861B2E2ADAAB00742D0F /* MobileOnboardingFlowStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingFlowStep.swift; sourceTree = "<group>"; };
 		0F27861D2E2ADB5600742D0F /* MobileOnboardingFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingFlowView.swift; sourceTree = "<group>"; };
@@ -5101,7 +5124,6 @@
 		0F2786462E2BAB7E00742D0F /* MobileOnboardingRevealSeedPhraseFlowBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingRevealSeedPhraseFlowBuilder.swift; sourceTree = "<group>"; };
 		0F2786482E2BAC1300742D0F /* MobileOnboardingSeedPhraseRevealStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingSeedPhraseRevealStep.swift; sourceTree = "<group>"; };
 		0F2786542E2CECA900742D0F /* MobileOnboardingFlowNavBarAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingFlowNavBarAction.swift; sourceTree = "<group>"; };
-		0F2786562E2D6C8400742D0F /* MobileOnboardingFlowStepTransformable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingFlowStepTransformable.swift; sourceTree = "<group>"; };
 		0F2786582E2D6F9200742D0F /* MobileOnboardingFlowProgressBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileOnboardingFlowProgressBar.swift; sourceTree = "<group>"; };
 		0F291C312E9CF6B2002A4869 /* MobileRemoveWalletView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileRemoveWalletView.swift; sourceTree = "<group>"; };
 		0F291C332E9CF6BA002A4869 /* MobileRemoveWalletViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileRemoveWalletViewModel.swift; sourceTree = "<group>"; };
@@ -10081,6 +10103,34 @@
 			path = UpgradeBanner;
 			sourceTree = "<group>";
 		};
+		0F2620F72F3B9F0C00D70149 /* LinkedList */ = {
+			isa = PBXGroup;
+			children = (
+				0F2620F52F3B9F0C00D70149 /* LinkedListNode.swift */,
+				0F2620F62F3B9F0C00D70149 /* LinkedList.swift */,
+			);
+			path = LinkedList;
+			sourceTree = "<group>";
+		};
+		0F2620F82F3B9F0C00D70149 /* StepsFlow */ = {
+			isa = PBXGroup;
+			children = (
+				0F2620F72F3B9F0C00D70149 /* LinkedList */,
+				0F2620EB2F3B9F0C00D70149 /* StepsFlowBuilder.swift */,
+				0F2620EC2F3B9F0C00D70149 /* StepsFlowAction.swift */,
+				0F2620ED2F3B9F0C00D70149 /* StepsFlowContent.swift */,
+				0F2620EE2F3B9F0C00D70149 /* StepsFlowNavBar.swift */,
+				0F2620EF2F3B9F0C00D70149 /* StepsFlowNavBarEnvironment.swift */,
+				0F2620F02F3B9F0C00D70149 /* StepsFlowNavBarItem.swift */,
+				0F2620F12F3B9F0C00D70149 /* StepsFlowStepLinkedList.swift */,
+				0F2620F22F3B9F0C00D70149 /* StepsFlowStep.swift */,
+				0F2620F32F3B9F0C00D70149 /* StepsFlowView.swift */,
+				0F2621282F3BA14800D70149 /* StepsFlowViewConfiguration.swift */,
+				0F2620F42F3B9F0C00D70149 /* StepsFlowViewModel.swift */,
+			);
+			path = StepsFlow;
+			sourceTree = "<group>";
+		};
 		0F2786162E2AD93400742D0F /* Flow */ = {
 			isa = PBXGroup;
 			children = (
@@ -10128,18 +10178,9 @@
 			children = (
 				0FE942832ED4B7650080CA53 /* MobileOnboardingFlowSource.swift */,
 				0F27861B2E2ADAAB00742D0F /* MobileOnboardingFlowStep.swift */,
-				0F2786562E2D6C8400742D0F /* MobileOnboardingFlowStepTransformable.swift */,
 				0F2786542E2CECA900742D0F /* MobileOnboardingFlowNavBarAction.swift */,
 			);
 			path = Models;
-			sourceTree = "<group>";
-		};
-		0F2786532E2CEC6200742D0F /* Helpers */ = {
-			isa = PBXGroup;
-			children = (
-				0F2786172E2AD9CE00742D0F /* LinkedList.swift */,
-			);
-			path = Helpers;
 			sourceTree = "<group>";
 		};
 		0F291C302E9CF686002A4869 /* MobileRemoveWallet */ = {
@@ -10211,6 +10252,7 @@
 		0F5B40672DE9ED170065A177 /* Mobile */ = {
 			isa = PBXGroup;
 			children = (
+				0F2620F82F3B9F0C00D70149 /* StepsFlow */,
 				0F2786162E2AD93400742D0F /* Flow */,
 				0F8414A62E9647AE00D03FB6 /* CreateWallet */,
 			);
@@ -10231,7 +10273,6 @@
 			children = (
 				0F2786292E2AEA6500742D0F /* Steps */,
 				0F27861F2E2ADB8000742D0F /* FlowBuilders */,
-				0F2786532E2CEC6200742D0F /* Helpers */,
 				0F2786522E2CEC4B00742D0F /* Models */,
 				0F48DC292E44C66F0095D3C8 /* Views */,
 				0F2786192E2AD9ED00742D0F /* MobileOnboardingFlowBuilder.swift */,
@@ -27916,6 +27957,7 @@
 				DC0DE27A2B6175B100E7247F /* IncomingActionConstants.swift in Sources */,
 				DCE814FF2DC92C3900688DB1 /* CardImageProviderMock.swift in Sources */,
 				EF279CFB2EA8284E003C4660 /* SwapTokenSelectorView.swift in Sources */,
+				0F26212A2F3BA14800D70149 /* StepsFlowViewConfiguration.swift in Sources */,
 				C25E10492DFF70D60050BC26 /* WalletConnectConnectedDAppPersistentDTO.swift in Sources */,
 				B0DD162C2A331C2100CB23AA /* TokenDetailsRoutable.swift in Sources */,
 				0F84C1222E15910500DC7FB1 /* MobileOnboardingFlow.swift in Sources */,
@@ -28297,6 +28339,18 @@
 				DC295B4A2861C4CB006CB7B6 /* DetailsCoordinatorView.swift in Sources */,
 				B012A1172AA5CDBD0079BAB4 /* NotificationEvent.swift in Sources */,
 				EA3999352E76D884008E4932 /* YieldModuleStartViewModel.swift in Sources */,
+				0F26212B2F3BA37E00D70149 /* StepsFlowViewModel.swift in Sources */,
+				0F26212C2F3BA37E00D70149 /* StepsFlowNavBarItem.swift in Sources */,
+				0F26212D2F3BA37E00D70149 /* StepsFlowStepLinkedList.swift in Sources */,
+				0F26212E2F3BA37E00D70149 /* LinkedListNode.swift in Sources */,
+				0F26212F2F3BA37E00D70149 /* StepsFlowAction.swift in Sources */,
+				0F2621302F3BA37E00D70149 /* StepsFlowNavBarEnvironment.swift in Sources */,
+				0F2621312F3BA37E00D70149 /* StepsFlowNavBar.swift in Sources */,
+				0F2621322F3BA37E00D70149 /* StepsFlowStep.swift in Sources */,
+				0F2621332F3BA37E00D70149 /* StepsFlowContent.swift in Sources */,
+				0F2621342F3BA37E00D70149 /* LinkedList.swift in Sources */,
+				0F2621352F3BA37E00D70149 /* StepsFlowView.swift in Sources */,
+				0F2621362F3BA37E00D70149 /* StepsFlowBuilder.swift in Sources */,
 				B6CAC21B2E46C66D002DFA82 /* CryptoAccountsRepository.swift in Sources */,
 				EFC597BD2AA0B1B7001F6945 /* CommonTokenQuotesRepository.swift in Sources */,
 				2D9119C82EB00BAD0028F1B0 /* ExperimentService.swift in Sources */,
@@ -28430,7 +28484,6 @@
 				B6634C682EAA2E900014C593 /* UnarchivedCryptoAccountNameIndexer.swift in Sources */,
 				EF9E2A532B56A5DF00418559 /* WalletModel+Mock.swift in Sources */,
 				5DD4CB5424FAEE8B008F23CC /* AppCardIdFormatter.swift in Sources */,
-				0F2786572E2D6C8400742D0F /* MobileOnboardingFlowStepTransformable.swift in Sources */,
 				B6BFDB6A2E43C13500021D8D /* DummyCommonAccountModelsManager.swift in Sources */,
 				DCE0C5AC2E2FF2EC00F5C84D /* TangemApiAuthorizationPlugin.swift in Sources */,
 				2DB6488C2C35885D00DA100D /* WalletSelectorViewModel.swift in Sources */,
@@ -28798,7 +28851,6 @@
 				5D73C9862513C85D00487CA5 /* CurrencySelectView.swift in Sources */,
 				EF48E6C32B02273800FE0072 /* ExpressTokenItemView.swift in Sources */,
 				EF2C5A5B2F0C266D009F1B96 /* SendFeeSelectorView.swift in Sources */,
-				0F2786182E2AD9CE00742D0F /* LinkedList.swift in Sources */,
 				DC90904B2D393ABC00BF7A43 /* HotCryptoPriceUtility.swift in Sources */,
 				EF9302852EA7E7AD00F6389D /* AccountsAwareTokenSelectorItemBuyAvailabilityProvider.swift in Sources */,
 				C2DB41992DCA2B300028E6B0 /* WalletConnectErrorViewEvent.swift in Sources */,
