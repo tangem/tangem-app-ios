@@ -26,6 +26,7 @@ final class EarnDetailViewModel: MarketsBaseViewModel {
 
     private let filterProvider: EarnDataFilterProvider
     private let dataProvider: EarnDataProvider
+    private let analyticsProvider: EarnAnalyticsProvider
 
     private weak var coordinator: EarnDetailRoutable?
 
@@ -41,12 +42,13 @@ final class EarnDetailViewModel: MarketsBaseViewModel {
         dataProvider: EarnDataProvider,
         filterProvider: EarnDataFilterProvider,
         mostlyUsedTokens: [EarnTokenModel],
-
-        coordinator: EarnDetailRoutable? = nil
+        coordinator: EarnDetailRoutable? = nil,
+        analyticsProvider: EarnAnalyticsProvider
     ) {
         self.dataProvider = dataProvider
         self.filterProvider = filterProvider
         self.coordinator = coordinator
+        self.analyticsProvider = analyticsProvider
 
         super.init(overlayContentProgressInitialValue: 1.0)
 
@@ -75,19 +77,28 @@ final class EarnDetailViewModel: MarketsBaseViewModel {
         dataProvider.fetchMore()
     }
 
+    func onMostlyUsedScrolledToFourthItem() {
+        analyticsProvider.logMostlyUsedCarouselScrolled()
+    }
+
     // MARK: - Private Implementation
 
     private func setupMostlyUsedViewModels(from tokens: [EarnTokenModel]) {
         mostlyUsedViewModels = tokens.map { token in
             EarnTokenItemViewModel(token: token) { [weak self] in
-                self?.handleTokenTap(token)
+                self?.handleTokenTap(token, source: .mostlyUsed)
             }
         }
     }
 
-    private func handleTokenTap(_ token: EarnTokenModel) {
+    private func handleTokenTap(_ token: EarnTokenModel, source: EarnOpportunitySource) {
+        analyticsProvider.logOpportunitySelected(
+            token: token.symbol,
+            blockchain: token.networkName,
+            source: source.rawValue
+        )
         let resolution = EarnTokenInWalletResolver().resolve(earnToken: token, userWalletModels: userWalletModels)
-        coordinator?.routeOnTokenResolved(resolution)
+        coordinator?.routeOnTokenResolved(resolution, source: source)
     }
 
     private func bind() {
@@ -123,7 +134,7 @@ final class EarnDetailViewModel: MarketsBaseViewModel {
     private func appendTokenViewModels(from models: [EarnTokenModel], lastPage: Bool) {
         let newViewModels = models.map { token in
             EarnTokenItemViewModel(token: token) { [weak self] in
-                self?.handleTokenTap(token)
+                self?.handleTokenTap(token, source: .bestOpportunity)
             }
         }
         tokenViewModels.append(contentsOf: newViewModels)
@@ -143,9 +154,17 @@ final class EarnDetailViewModel: MarketsBaseViewModel {
             }
         case .idle:
             break
-        case .failedToFetchData:
+        case .failedToFetchData(let error):
             if tokenViewModels.isEmpty {
                 listLoadingState = .error
+            }
+            let params = error.marketsAnalyticsParams
+            let errorCode = params[.errorCode] ?? ""
+            let errorMessage = params[.errorMessage] ?? ""
+            if mostlyUsedViewModels.isEmpty {
+                analyticsProvider.logPageLoadError(errorCode: errorCode, errorMessage: errorMessage)
+            } else {
+                analyticsProvider.logBestOpportunitiesLoadError(errorCode: errorCode, errorMessage: errorMessage)
             }
         case .appendedItems(let models, let lastPage):
             appendTokenViewModels(from: models, lastPage: lastPage)

@@ -11,12 +11,18 @@ import TangemAssets
 
 struct EarnMostlyUsedView: View {
     let viewModels: [EarnTokenItemViewModel]
+    var onFourthItemAppeared: (() -> Void)?
 
     var body: some View {
         ScrollView(.horizontal) {
             LazyHStack(spacing: Layout.cardSpacing) {
-                ForEach(viewModels) { viewModel in
+                ForEach(Array(viewModels.enumerated()), id: \.element.id) { index, viewModel in
                     EarnMostlyUsedTileView(viewModel: viewModel)
+                        .onAppear {
+                            if index == 3 {
+                                onFourthItemAppeared?()
+                            }
+                        }
                 }
             }
             .padding(.horizontal, Layout.horizontalPadding)

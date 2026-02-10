@@ -133,4 +133,15 @@ final class CommonMarketsWidgetAnalyticsService: TopMarketWidgetAnalyticsProvide
             ]
         )
     }
+
+    func logEarnOpportunitySelected(token: String, blockchain: String) {
+        Analytics.log(
+            event: .earnOpportunitySelected,
+            params: [
+                .token: token,
+                .blockchain: blockchain,
+                .source: EarnOpportunitySource.markets.rawValue,
+            ]
+        )
+    }
 }
