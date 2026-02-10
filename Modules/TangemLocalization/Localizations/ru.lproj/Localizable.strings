@@ -270,7 +270,7 @@
 "common_go_to_token" = "Перейти в токен";
 "common_got_it" = "Понятно";
 "common_hide" = "Скрыть";
-"common_hold_to" = "Hold to %@";
+"common_hold_to" = "Удерживайте, чтобы %@";
 "common_hour" = "час";
 "common_import" = "Импортировать";
 "common_in_progress" = "В процессе";
@@ -344,7 +344,7 @@
 "common_swap" = "Обменять";
 "common_tangem_wallet" = "Tangem Wallet";
 "common_tangem" = "Tangem";
-"common_tap_and_hold_hint" = "Tap and hold";
+"common_tap_and_hold_hint" = "Нажмите и удерживайте";
 "common_terms_and_conditions" = "условия участия";
 "common_terms_of_use" = "Условиями использования";
 "common_to_wallet_name" = "На %@";
@@ -428,14 +428,16 @@
 "domain_receive_assets_onboarding_description" = "Отправка средств в другой сети может повлечь потерю средств.";
 "domain_receive_assets_onboarding_network_name" = "%@ сеть";
 "domain_receive_assets_onboarding_title" = "Отправляйте средства, используя только";
-"earn_best_opportunities" = "Best opportunities";
-"earn_clear_filter" = "Clear filter";
+"earn_best_opportunities" = "Лучшие возможности";
+"earn_clear_filter" = "Очистить фильтр";
+"earn_empty" = "The list is temporarily empty as it’s being refreshed. Check back in a moment.";
 "earn_filter_all_networks" = "Все сети";
 "earn_filter_all_types" = "Все типы";
-"earn_filter_by" = "Filter by";
-"earn_filter_networks" = "Networks";
+"earn_filter_by" = "Фильтровать по";
+"earn_filter_my_networks" = "Мои сети";
+"earn_filter_networks" = "Сети";
 "earn_mostly_used" = "Часто используемые";
-"earn_no_results" = "No results";
+"earn_no_results" = "Нет результата";
 "earn_title" = "Earn";
 "email_preface_wc_error" = "Привет, команда поддержки, у меня возникла ошибка с кодом: %@";
 "email_subject_wc_error" = "Ошибка WalletConnect";
@@ -771,6 +773,7 @@
 "markets_token_details_volume" = "Объем";
 "markets_tooltip_message" = "Потяните вверх или коснитесь поисковой строки, чтобы добавить токены напрямую из рынка";
 "markets_tooltip_title" = "Добавить токены";
+"markets_tooltip_v2_title" = "Добавить токены";
 "markets_yield_supply_banner_description" = "Увеличивайте доход с активов, сохраняя мгновенный доступ к ним. %@";
 "markets_yield_supply_banner_title" = "Активировать режим доходности";
 "mobile_wallet_requires_min_os_warning_body" = "Обновитесь до версии %1$@, чтобы создать мобильный кошелёк";
@@ -1361,10 +1364,12 @@
 "tangem_pay_status_completed" = "Успешно завершено";
 "tangem_pay_status_declined" = "Отклонено";
 "tangem_pay_status_pending" = "В процессе";
+"tangem_pay_status_reversed" = "Возврат";
 "tangem_pay_terms_fees_limits" = "Тарифы и полные условия";
 "tangem_pay_terms_limits" = "Тарифы и лимиты";
 "tangem_pay_transaction_declined_notification_text" = "Банк отклонил транзакцию";
 "tangem_pay_transaction_fee_notification_text" = "Эта комиссия покрывает стоимость обработки вашего перевода.";
+"tangem_pay_transaction_reversed_notification_text" = "Транзакция частично или полностью возвращена продавцом";
 "tangem_pay_unfreeze_card_alert_body" = "Продолжайте пользоваться картой, заморозить всегда успеете";
 "tangem_pay_unfreeze_card_alert_title" = "Разморозить карту?";
 "tangem_pay_unfreeze_card_failed" = "Не удалось разморозить карту, попробуйте еще раз";
@@ -1693,7 +1698,7 @@
 "warning_button_refresh" = "Обновить";
 "warning_clore_migration_button" = "Начать миграцию";
 "warning_clore_migration_copy_button" = "Копировать";
-"warning_clore_migration_description" = "To keep access to your funds, start the migration according to the official Clore guidelines.";
+"warning_clore_migration_description" = "Чтобы сохранить доступ к своим средствам, начните миграцию в соответствии с официальными рекомендациями Clore.";
 "warning_clore_migration_error_signing_not_supported" = "Подписание сообщений не поддерживается в этой сети";
 "warning_clore_migration_error_wallet_manager_not_found" = "Невозможно подписать сообщение. Пожалуйста, попробуй позже.";
 "warning_clore_migration_message_label" = "Сообщение";
@@ -1735,6 +1740,7 @@
 "warning_hedera_missing_token_association_message" = "Этот токен должен быть ассоциирован с вашей учетной записью Hedera, прежде чем вы сможете его принять. Стоимость ассоциации ~%1$@ %2$@";
 "warning_hedera_missing_token_association_title" = "Ассоциируете свой токен";
 "warning_hedera_token_association_not_enough_hbar_message" = "Недостаточно %@. Пополните ваш аккаунт Hedera для ассоциации этого токена";
+"warning_ios_deprecation_message" = "Поддержка iOS %1$@ завершится %2$@. Чтобы продолжать получать обновления приложения и обеспечить полную работоспособность, обновите iOS до последней версии.";
 "warning_kaspa_unfinished_token_transaction_discard_message" = "Вы уверены что хотите отменить эту транзакцию? Вы не сможете отправить ее еще раз";
 "warning_kaspa_unfinished_token_transaction_message" = "Ваша транзакция %1$@ %2$@ не была завершена. Вы можете попробовать отправить ее еще раз.";
 "warning_kaspa_unfinished_token_transaction_title" = "У вас есть незавершенная транзакция";
@@ -1806,7 +1812,7 @@
 "wc_alert_unknown_error_title" = "Мы обнаружили неизвестную ошибку";
 "wc_alert_unsupported_dapps_description" = "Кошелек Tangem в настоящий момент не поддерживает %@";
 "wc_alert_unsupported_dapps_title" = "Неподдерживаемый dApp";
-"wc_alert_unsupported_method_description" = "Error code: 8 005. If the problem persists — feel free to contact our support.";
+"wc_alert_unsupported_method_description" = "Код ошибки: 8 005.\nЕсли проблема сохраняется — пожалуйста, свяжитесь с нашей службой поддержки.";
 "wc_alert_unsupported_method_title" = "Мы обнаружили неизвестную ошибку";
 "wc_alert_unsupported_network_description" = "Эта сеть %@ не поддерживается Tangem Wallet и не может быть подключена.";
 "wc_alert_unsupported_network_title" = "Неподдерживаемая сеть";

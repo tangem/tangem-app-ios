@@ -28,8 +28,7 @@ final class CommonReceiveAddressService {
 
     // MARK: - State
 
-    private let _addressTypes = ThreadSafeContainer<[ReceiveAddressType]>([])
-    private var resolveDomainTask: Task<Void, Never>?
+    private var _addressTypes: [ReceiveAddressType] = []
 
     // MARK: - Init
 
@@ -40,13 +39,7 @@ final class CommonReceiveAddressService {
     ) {
         self.domainAddressResolver = domainAddressResolver
         self.receiveAddressInfoUtils = receiveAddressInfoUtils
-
-        let types = makeAddressTypes(from: addresses)
-        _addressTypes.mutate { $0 = types }
-    }
-
-    deinit {
-        resolveDomainTask?.cancel()
+        _addressTypes = makeAddressTypes(from: addresses)
     }
 }
 
@@ -54,19 +47,32 @@ final class CommonReceiveAddressService {
 
 extension CommonReceiveAddressService: ReceiveAddressService {
     var addressTypes: [ReceiveAddressType] {
-        _addressTypes.read()
+        ensureOnMainQueue()
+
+        return _addressTypes
     }
 
     var addressInfos: [ReceiveAddressInfo] {
-        addressTypes.map(\.info)
+        ensureOnMainQueue()
+
+        return _addressTypes.map(\.info)
     }
 
     func update(with addresses: [Address]) async {
-        resolveDomainTask?.cancel()
-        let types = makeAddressTypes(from: addresses)
-        _addressTypes.mutate { $0 = types }
+        let addressInfos = receiveAddressInfoUtils.makeAddressInfos(from: addresses)
+        var resultTypes: [ReceiveAddressType] = addressInfos.map { .address($0) }
 
-        await resolveDomainNamesIfNeeded()
+        if let domainAddressResolver {
+            let domainTypes = await resolveDomainNames(for: addressInfos, using: domainAddressResolver)
+            resultTypes.append(contentsOf: domainTypes)
+        }
+
+        await setAddressTypes(resultTypes)
+    }
+
+    @MainActor
+    private func setAddressTypes(_ types: [ReceiveAddressType]) {
+        _addressTypes = types
     }
 }
 
@@ -79,37 +85,23 @@ private extension CommonReceiveAddressService {
             .map { .address($0) }
     }
 
-    func resolveDomainNamesIfNeeded() async {
-        guard domainAddressResolver != nil else {
-            return
-        }
-
-        resolveDomainTask = Task { [weak self] in
-            await self?.resolveDomainNames()
-        }
-
-        await resolveDomainTask?.value
-    }
-
-    func resolveDomainNames() async {
-        guard let domainAddressResolver else {
-            return
-        }
-
-        for addressInfo in addressInfos {
-            guard !Task.isCancelled else {
-                return
+    func resolveDomainNames(
+        for addressInfos: [ReceiveAddressInfo],
+        using resolver: DomainNameAddressResolver
+    ) async -> [ReceiveAddressType] {
+        var domainTypes: [ReceiveAddressType] = []
+        do {
+            for addressInfo in addressInfos {
+                try Task.checkCancellation()
+                let domainName = try await resolver.resolveDomainName(addressInfo.address)
+                domainTypes.append(.domain(domainName, addressInfo))
             }
-
-            do {
-                let domainName = try await domainAddressResolver.resolveDomainName(addressInfo.address)
-                _addressTypes.mutate { $0.append(.domain(domainName, addressInfo)) }
-            } catch is CancellationError {
-                return
-            } catch {
-                // Domain name not found for this address — expected for most addresses
-            }
+        } catch is CancellationError {
+            return []
+        } catch {
+            // Fall-through
         }
+        return domainTypes
     }
 }
 
