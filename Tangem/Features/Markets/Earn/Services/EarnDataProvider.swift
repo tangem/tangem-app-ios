@@ -37,7 +37,7 @@ final class EarnDataProvider {
     private var currentPage: Int = 1
     private var hasNext: Bool = true
     private var hasLoadedItems: Bool = false
-    private var lastFilter: Filter?
+    private var lastFilter: EarnDataFilter?
 
     private let limitPerPage: Int = 20
     private let repeatRequestDelayInSeconds: TimeInterval = 10
@@ -60,7 +60,7 @@ final class EarnDataProvider {
         isLoading = false
     }
 
-    func fetch(with filter: Filter) {
+    func fetch(with filter: EarnDataFilter) {
         _eventSubject.send(.loading)
         isLoading = true
 
@@ -68,7 +68,11 @@ final class EarnDataProvider {
             clearItems()
         }
 
-        guard !isScheduledFetchPending else { return }
+        guard !isScheduledFetchPending else {
+            _eventSubject.send(.idle)
+            isLoading = false
+            return
+        }
 
         lastFilter = filter
 
@@ -106,9 +110,9 @@ final class EarnDataProvider {
         _eventSubject.send(.startInitialFetch)
     }
 
-    private func loadItems(with filter: Filter) async throws -> EarnDTO.List.Response {
+    private func loadItems(with filter: EarnDataFilter) async throws -> EarnDTO.List.Response {
         let requestModel = EarnDTO.List.Request(
-            isForEarn: true,
+            isForEarn: false,
             page: currentPage,
             limit: limitPerPage,
             type: filter.type.apiValue,
@@ -122,11 +126,8 @@ final class EarnDataProvider {
         do {
             let response = try result.get()
 
-            let nextPage = response.meta.page + 1
-            let totalLoaded = response.meta.page * response.meta.limit
-
-            hasNext = totalLoaded < response.meta.total
-            currentPage = nextPage
+            hasNext = response.meta.hasNext
+            currentPage = response.meta.page + 1
 
             isLoading = false
             hasLoadedItems = true
