@@ -34,6 +34,9 @@ struct MainBottomSheetFooterView: View {
             .background(Colors.Background.primary) // Fills a small gap at the bottom on notchless devices
             .overlay(alignment: .top) {
                 snapshotOverlay
+                    // Force update the snapshot when changing the color scheme. Required because on iOS 18+
+                    // the snapshot is not updated until the pop transition of the screen above is completed
+                    .id(colorScheme)
             }
             .cornerRadius(cornerRadius, corners: .topEdge)
             .overlay(alignment: .top) {
