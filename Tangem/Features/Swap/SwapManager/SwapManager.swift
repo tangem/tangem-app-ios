@@ -33,6 +33,7 @@ protocol SwapManager: SendApproveDataBuilderInput, SendFeeUpdater, TokenFeeProvi
         userWalletId: UserWalletId,
         destination: TokenItem?,
         address: String?,
+        additionalField: SendDestinationAdditionalField,
         tokenHeader: ExpressInteractorTokenHeader?,
         accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
     )

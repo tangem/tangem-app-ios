@@ -86,14 +86,21 @@ extension CommonSwapManager: SwapManager {
         userWalletId: UserWalletId,
         destination: TokenItem?,
         address: String?,
+        additionalField: SendDestinationAdditionalField,
         tokenHeader: ExpressInteractorTokenHeader?,
         accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
     ) {
+        let extraId: String? = switch additionalField {
+        case .filled(_, let extraId, _): extraId
+        default: nil
+        }
+
         let destinationWallet = destination.map {
             SwapDestinationWalletWrapper(
                 userWalletId: userWalletId,
                 tokenItem: $0,
                 address: address,
+                extraId: extraId,
                 tokenHeader: tokenHeader,
                 accountModelAnalyticsProvider: accountModelAnalyticsProvider
             )
