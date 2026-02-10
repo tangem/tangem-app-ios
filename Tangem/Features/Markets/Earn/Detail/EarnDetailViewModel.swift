@@ -74,15 +74,12 @@ final class EarnDetailViewModel: MarketsBaseViewModel {
         bind()
 
         fetch(with: filterProvider.currentFilter)
+        filterProvider.fetchAvailableNetworks()
     }
 
     // MARK: - Public Methods
 
-    func onAppear() {
-        Task {
-            await filterProvider.fetchAvailableNetworks()
-        }
-    }
+    func onAppear() {}
 
     func onRetry() {
         fetch(with: filterProvider.currentFilter)
@@ -141,7 +138,7 @@ final class EarnDetailViewModel: MarketsBaseViewModel {
             .store(in: &bag)
     }
 
-    private func fetch(with filter: EarnDataProvider.Filter) {
+    private func fetch(with filter: EarnDataFilter) {
         dataProvider.fetch(with: filter)
     }
 
