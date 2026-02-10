@@ -16,7 +16,11 @@ struct EarnDataFilter: Hashable {
         self.type = type
         self.networkIds = networkIds
     }
+}
 
+// MARK: - Hashable
+
+extension EarnDataFilter {
     func hash(into hasher: inout Hasher) {
         hasher.combine(type)
         hasher.combine((networkIds ?? []).sorted().joined(separator: ","))

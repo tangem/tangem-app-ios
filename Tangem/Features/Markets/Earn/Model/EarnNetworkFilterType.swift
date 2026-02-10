@@ -17,11 +17,11 @@ enum EarnNetworkFilterType: Hashable {
     var displayTitle: String {
         switch self {
         case .all:
-            return Localization.earnFilterAllNetworks
+            Localization.earnFilterAllNetworks
         case .userNetworks:
-            return Localization.earnFilterMyNetworks
+            Localization.earnFilterMyNetworks
         case .specific(let networkItem):
-            return networkItem.networkName
+            networkItem.networkName
         }
     }
 }

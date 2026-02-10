@@ -21,15 +21,10 @@ struct EarnDetailView: View {
         VStack(spacing: .zero) {
             header
 
-            Group {
-                contentView
-            }
-            .opacity(viewModel.overlayContentHidingProgress)
+            contentView
+                .opacity(viewModel.overlayContentHidingProgress)
         }
         .background(Color.Tangem.Surface.level3.ignoresSafeArea())
-        .onAppear {
-            viewModel.onAppear()
-        }
         .onOverlayContentProgressChange(overlayContentStateObserver: overlayContentStateObserver) { [weak viewModel] progress in
             viewModel?.onOverlayContentProgressChange(progress)
         }
