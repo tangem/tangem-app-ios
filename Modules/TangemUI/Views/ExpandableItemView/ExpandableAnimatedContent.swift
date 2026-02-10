@@ -49,10 +49,6 @@ struct ExpandableAnimatedContent<CollapsedView: View, ExpandedHeader: View, Expa
 
     private var expandedContentWithTransition: some View {
         expandedContent
-            // Prevents the expand/collapse transition animation from being inherited by the
-            // expanded content's subviews (headers and token rows), which would otherwise cause
-            // them to "fly in" from their matched geometry positions instead of appearing in place
-            .disableAnimations()
             .ifLet(
                 expandedContentTransition,
                 transform: { view, transition in

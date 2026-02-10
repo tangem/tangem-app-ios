@@ -289,7 +289,7 @@ extension ExpressInteractor {
             throw ExpressInteractorError.transactionDataNotFound
         }
 
-        await logApproveTransactionAnalyticsEvent(policy: state.policy)
+        logApproveTransactionAnalyticsEvent(policy: state.policy)
 
         guard let allowanceService = try getSourceWallet().allowanceService else {
             throw ExpressInteractorError.allowanceServiceNotFound
@@ -521,6 +521,7 @@ private extension ExpressInteractor {
 
             let restriction = RestrictionType.notEnoughAmountForFee(isFeeCurrency: isFeeCurrency, supportFeeSelection: supportFeeSelection)
             return .restriction(restriction, context: context, quote: correctState.quote)
+
         } catch let error as ValidationError {
             let validationErrorContext = ValidationErrorContext(isFeeCurrency: isFeeCurrency, feeValue: fee.amount.value)
             return .restriction(.validationError(error: error, context: validationErrorContext), context: context, quote: correctState.quote)
@@ -560,18 +561,18 @@ private extension ExpressInteractor {
     func sendDEXTransaction(state: ReadyToSwapState, context: Context) async throws -> TransactionSendResultState {
         let sender = try getSourceWallet()
         let fee = try context.tokenFeeProvidersManager.selectedFeeProvider.selectedTokenFee.value.get()
-        let processor = try sender.dexTransactionProcessor()
-        let result = try await processor.process(data: state.data, fee: fee)
+        let dispatcher = sender.transactionDispatcherProvider.makeDEXTransactionDispatcher()
+        let result = try await dispatcher.send(transaction: .dex(data: state.data, fee: fee))
 
         return TransactionSendResultState(dispatcherResult: result, data: state.data, fee: fee, provider: context.provider)
     }
 
     func sendCEXTransaction(state: PreviewCEXState, context: Context) async throws -> TransactionSendResultState {
+        let data = try await expressManager.requestData()
         let sender = try getSourceWallet()
         let fee = try context.tokenFeeProvidersManager.selectedFeeProvider.selectedTokenFee.value.get()
-        let data = try await expressManager.requestData()
-        let processor = try sender.cexTransactionProcessor()
-        let result = try await processor.process(data: data, fee: fee)
+        let dispatcher = sender.transactionDispatcherProvider.makeCEXTransactionDispatcher()
+        let result = try await dispatcher.send(transaction: .cex(data: data, fee: fee))
 
         return TransactionSendResultState(dispatcherResult: result, data: data, fee: fee, provider: context.provider)
     }
@@ -766,7 +767,7 @@ private extension ExpressInteractor {
             .logSwapTransactionAnalyticsEvent(destination: destination.tokenItem)
     }
 
-    func logApproveTransactionAnalyticsEvent(policy: BSDKApprovePolicy) async {
+    func logApproveTransactionAnalyticsEvent(policy: BSDKApprovePolicy) {
         guard let source = getSource().value,
               let destination = getDestination(),
               let provider = getState().context?.provider else {
