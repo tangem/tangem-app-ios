@@ -45,6 +45,9 @@ struct WalletConnectV2PersonalSignHandler {
             let targetAddress = castedParams[1]
             walletModel = try walletModelProvider.getModel(with: targetAddress, blockchainId: blockchainId)
             self.request = request
+        } catch let error as WalletConnectTransactionRequestProcessingError {
+            WCLogger.error("Failed to create sign handler", error: error)
+            throw error
         } catch {
             let stringRepresentation = request.stringRepresentation
             WCLogger.error("Failed to create sign handler", error: error)
@@ -79,6 +82,9 @@ struct WalletConnectV2PersonalSignHandler {
             )
 
             self.request = request
+        } catch let error as WalletConnectTransactionRequestProcessingError {
+            WCLogger.error("Failed to create sign handler", error: error)
+            throw error
         } catch {
             let stringRepresentation = request.stringRepresentation
             WCLogger.error("Failed to create sign handler", error: error)
