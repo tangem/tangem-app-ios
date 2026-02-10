@@ -94,6 +94,11 @@ struct ExpressInteractorWalletModelWrapper {
 // MARK: - ExpressInteractorSourceWallet
 
 extension ExpressInteractorWalletModelWrapper: ExpressInteractorSourceWallet {
+    var extraId: String? {
+        // Source wallets don't use memo fields on Tangem addresses
+        .none
+    }
+
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? {
         walletModel.account
     }
