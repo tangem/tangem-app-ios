@@ -47,7 +47,8 @@ struct ExpressManagerMapper {
 
         let destination = ExpressSwappableDataItem.DestinationWalletInfo(
             address: destinationAddress,
-            currency: request.pair.destination.currency
+            currency: request.pair.destination.currency,
+            extraId: request.pair.destination.extraId
         )
 
         return ExpressSwappableDataItem(
