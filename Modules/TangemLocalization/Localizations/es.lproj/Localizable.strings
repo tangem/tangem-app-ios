@@ -362,6 +362,7 @@
 "common_unstake" = "Termine el staking";
 "common_utxo_validate_withdrawal_message_warning" = "Debido a limitaciones sobre %1$@, solo %2$li UTXO pueden caber en una sola transacción. Esto significa que solo puedes enviar %3$@ o menos. Debe reducir la cantidad.";
 "common_value_copied" = "Valor copiado";
+"common_wallets" = "Wallets";
 "common_warning" = "Alerta";
 "common_week" = "semana";
 "common_with" = "con";
@@ -1310,6 +1311,9 @@
 "swap_approve_description" = "Al aprobar, permites que el contrato inteligente use tus tokens en futuras transacciones.";
 "swap_fixed_rate" = "Tasa Fija";
 "swap_give_permission_fee_footer" = "La red cobrará una tasa de aprobación del token para verificar que usted autoriza el uso de su token para el intercambio.";
+"swap_search_suggestion_hint" = "Looking for something else?\nTry searching or explore another crypto!";
+"swap_search_tooltip_description" = "Search for any token, even if it’s not in your list yet.";
+"swap_search_tooltip_title" = "Use search to find what you need";
 "swap_story_fifth_subtitle" = "Siéntase seguro con una asistencia permanente que le ayudará con cualquier problema";
 "swap_story_fifth_title" = "Siempre aquí";
 "swap_story_first_subtitle" = "Múltiples proveedores de confianza en un solo lugar: intercambie cualquier activo sin esfuerzo en su billetera";
