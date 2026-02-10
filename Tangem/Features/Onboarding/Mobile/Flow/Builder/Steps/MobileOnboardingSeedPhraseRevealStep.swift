@@ -16,7 +16,7 @@ final class MobileOnboardingSeedPhraseRevealStep: MobileOnboardingFlowStep {
         viewModel = MobileOnboardingSeedPhraseRevealViewModel(context: context)
     }
 
-    override func build() -> any View {
+    override func makeView() -> any View {
         MobileOnboardingSeedPhraseRevealView(viewModel: viewModel)
     }
 }

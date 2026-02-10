@@ -23,7 +23,7 @@ final class MobileOnboardingSuccessStep: MobileOnboardingFlowStep {
         )
     }
 
-    override func build() -> any View {
+    override func makeView() -> any View {
         MobileOnboardingSuccessView(viewModel: viewModel)
     }
 }
